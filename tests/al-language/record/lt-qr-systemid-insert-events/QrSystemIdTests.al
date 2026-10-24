@@ -320,4 +320,159 @@ codeunit 87289 "LT QR SystemId Events"
         Observer.Observe('duplicate|code', GetLastErrorCode());
         Observer.Verify();
     end;
+
+
+    // ---- AL Runner issue 5803 (writer RU): Init() or Clear(SystemId) during Insert clears the SystemId the platform gave the row. Objects in
+    // RuSystemIdInitObjects.al. Mode 1: the table's OnInsert calls Init(); 2: OnInsert calls Clear(SystemId); 3: an OnBeforeInsertEvent
+    // subscriber calls Rec.Init(); 4: an OnAfterInsertEvent subscriber calls Rec.Init(). The caller sets Note := 'caller' before Insert.
+
+    local procedure RuRun(var Observer: Codeunit "Probe Observer"; Name: Text; Mode: Integer; RunTrigger: Boolean; WithSystemId: Boolean)
+    var
+        Row: Record "LT RU Init Row";
+        Stored: Record "LT RU Init Row";
+        RuState: Codeunit "LT RU Init State";
+        Subscriber: Codeunit "LT RU Init Subscriber";
+        Preset: Guid;
+        Ok: Boolean;
+    begin
+        Row.DeleteAll();
+        RuState.Arm(Mode);
+        BindSubscription(Subscriber);
+        Row.Init();
+        Row.Id := 1;
+        Row.Note := 'caller';
+        if WithSystemId then begin
+            Preset := CreateGuid();
+            Row.SystemId := Preset;
+            Ok := Row.Insert(RunTrigger, true);
+        end else
+            Ok := Row.Insert(RunTrigger);
+        UnbindSubscription(Subscriber);
+        RuState.Arm(0);
+        Observer.Observe(Name + '|insert', Format(Ok));
+        RuObserveTrigger(Observer, Name, Preset, WithSystemId);
+        Observer.Observe(Name + '|caller null', Format(IsNullGuid(Row.SystemId)));
+        Observer.Observe(Name + '|caller note', Row.Note);
+        if WithSystemId then
+            Observer.Observe(Name + '|caller = preset', Format(Row.SystemId = Preset));
+        Observer.Observe(Name + '|stored', Format(Stored.Get(1)));
+        Observer.Observe(Name + '|stored null', Format(IsNullGuid(Stored.SystemId)));
+        Observer.Observe(Name + '|stored = caller', Format(Stored.SystemId = Row.SystemId));
+        Observer.Observe(Name + '|stored note', Stored.Note);
+        if WithSystemId then
+            Observer.Observe(Name + '|stored = preset', Format(Stored.SystemId = Preset));
+        Observer.Observe(Name + '|stored = id before', Format(Stored.SystemId = RuStateIdBefore()));
+        Observer.Observe(Name + '|caller = id before', Format(Row.SystemId = RuStateIdBefore()));
+    end;
+
+    local procedure RuObserveTrigger(var Observer: Codeunit "Probe Observer"; Name: Text; Preset: Guid; WithSystemId: Boolean)
+    var
+        RuState: Codeunit "LT RU Init State";
+    begin
+        Observer.Observe(Name + '|id before null', Format(IsNullGuid(RuState.GetIdBefore())));
+        Observer.Observe(Name + '|id after null', Format(IsNullGuid(RuState.GetIdAfter())));
+        Observer.Observe(Name + '|note before', RuState.GetNoteBefore());
+        Observer.Observe(Name + '|note after', RuState.GetNoteAfter());
+        if WithSystemId then
+            Observer.Observe(Name + '|id before = preset', Format(RuState.GetIdBefore() = Preset));
+    end;
+
+    local procedure RuStateIdBefore(): Guid
+    var
+        RuState: Codeunit "LT RU Init State";
+    begin
+        exit(RuState.GetIdBefore());
+    end;
+
+    [Test]
+    procedure RU_OnInsert_Init_InsertTrue()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RuRun(Observer, 'init', 1, true, false);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RU_OnInsert_Init_InsertTrueWithSystemId()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RuRun(Observer, 'init with id', 1, true, true);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RU_OnInsert_ClearSystemId_InsertTrue()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RuRun(Observer, 'clear', 2, true, false);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RU_OnInsert_ClearSystemId_InsertTrueWithSystemId()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RuRun(Observer, 'clear with id', 2, true, true);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RU_OnBeforeInsertEvent_Init_InsertTrue()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RuRun(Observer, 'ev before', 3, true, false);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RU_OnBeforeInsertEvent_Init_InsertFalse()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RuRun(Observer, 'ev before false', 3, false, false);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RU_OnAfterInsertEvent_Init_InsertTrue()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RuRun(Observer, 'ev after', 4, true, false);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RU_OnInsert_Init_Temporary_InsertTrue()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT RU Init Row" temporary;
+        Stored: Record "LT RU Init Row" temporary;
+        RuState: Codeunit "LT RU Init State";
+        Ok: Boolean;
+    begin
+        RuState.Arm(1);
+        Row.Init();
+        Row.Id := 1;
+        Row.Note := 'caller';
+        Ok := Row.Insert(true);
+        RuState.Arm(0);
+        Observer.Observe('temp|insert', Format(Ok));
+        Observer.Observe('temp|id before null', Format(IsNullGuid(RuState.GetIdBefore())));
+        Observer.Observe('temp|id after null', Format(IsNullGuid(RuState.GetIdAfter())));
+        Observer.Observe('temp|caller null', Format(IsNullGuid(Row.SystemId)));
+        Observer.Observe('temp|caller = id before', Format(Row.SystemId = RuState.GetIdBefore()));
+        Observer.Observe('temp|caller note', Row.Note);
+        Stored.Copy(Row, true);
+        Observer.Observe('temp|stored', Format(Stored.Get(1)));
+        Observer.Observe('temp|stored null', Format(IsNullGuid(Stored.SystemId)));
+        Observer.Observe('temp|stored = caller', Format(Stored.SystemId = Row.SystemId));
+        Observer.Observe('temp|stored note', Stored.Note);
+        Observer.Finish();
+    end;
 }

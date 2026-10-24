@@ -412,4 +412,102 @@ codeunit 68137 "Probe Record Texts"
         Assert.AreEqual(2, Temp.Count(), 'both temporary rows are still there');
         Assert.AreEqual(0, Real.Count(), 'the real row was rolled back');
     end;
+
+
+    // ---- AL Runner issue 5788 (writer RU): where a duplicate-key error that is still deferred when a codeunit's OnRun or a TryFunction ends
+    // surfaces. A test that ends with the error deferred cannot be a corpus test (it fails), so these are its neighbours: the end of a
+    // guarded and of a statement-form Codeunit.Run (the test runner runs a test codeunit through Codeunit.Run), and the end of a TryFunction.
+    // Codeunit 88665 (lt-ru-deferred-dup/RuDeferredDupTargets.al) inserts Id 2, then a duplicate of Id 1 as its last statement.
+
+    local procedure RuPrepare()
+    var
+        NoBlob: Record "Probe Dup No Blob";
+    begin
+        Initialize();
+        NoBlob.DeleteAll();
+        NoBlob.Id := 1;
+        NoBlob.Txt := 'first';
+        NoBlob.Insert();
+        Commit();
+    end;
+
+    local procedure RuObserveRows(var Observer: Codeunit "Probe Observer")
+    var
+        NoBlob: Record "Probe Dup No Blob";
+        Rows: Integer;
+    begin
+        if RuTryCount(Rows) then
+            Observer.Observe('read', Format(Rows))
+        else
+            Observer.ObserveError('read');
+        if RuTryCount(Rows) then
+            Observer.Observe('second read', Format(Rows))
+        else
+            Observer.ObserveError('second read');
+        Observer.Observe('row 2 exists', Format(NoBlob.Get(2)));
+        NoBlob.Get(1);
+        Observer.Observe('row 1 text', NoBlob.Txt);
+        NoBlob.DeleteAll();
+        Commit();
+    end;
+
+    [TryFunction]
+    local procedure RuTryCount(var Rows: Integer)
+    var
+        NoBlob: Record "Probe Dup No Blob";
+    begin
+        Rows := NoBlob.Count();
+    end;
+
+    [TryFunction]
+    local procedure RuTryDupAtEnd()
+    var
+        NoBlob: Record "Probe Dup No Blob";
+    begin
+        NoBlob.Id := 1;
+        NoBlob.Txt := 'dup';
+        NoBlob.Insert();
+    end;
+
+    [Test]
+    procedure RU_DeferredDuplicate_EndOfGuardedCodeunitRun()
+    var
+        Observer: Codeunit "Probe Observer";
+        Ok: Boolean;
+    begin
+        RuPrepare();
+        Ok := Codeunit.Run(Codeunit::"LT RU Dup At End");
+        Observer.Observe('run', Format(Ok));
+        if not Ok then
+            Observer.ObserveError('run');
+        RuObserveRows(Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RU_DeferredDuplicate_EndOfStatementCodeunitRun()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RuPrepare();
+        Codeunit.Run(Codeunit::"LT RU Dup At End");
+        Observer.Observe('run', 'returned');
+        RuObserveRows(Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RU_DeferredDuplicate_EndOfTryFunction()
+    var
+        Observer: Codeunit "Probe Observer";
+        Ok: Boolean;
+    begin
+        RuPrepare();
+        Ok := RuTryDupAtEnd();
+        Observer.Observe('try', Format(Ok));
+        if not Ok then
+            Observer.ObserveError('try');
+        RuObserveRows(Observer);
+        Observer.Finish();
+    end;
 }

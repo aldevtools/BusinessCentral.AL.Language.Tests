@@ -391,4 +391,258 @@ codeunit 69920 "Test Record Stale Buffer Write"
     begin
         Cleanup.Initialize();
     end;
+
+
+    // ---- AL Runner issue 5805 (writer RU): a buffer made stale before a Commit, written after the Commit, depending on what the new
+    // transaction did to the row first. "Text Field" plays the issue's Note, "Integer Field" its Qty. Row 5 holds the row; every test
+    // removes it and commits at its end. Each test observes the stale write (ok or the error), then the stored Text and Integer fields.
+
+    local procedure RuInsertRow(var Row: Record "ALT Universal")
+    begin
+        Row.Init();
+        Row."Entry No." := 5;
+        Row."Text Field" := 'start';
+        Row.Insert(false);
+    end;
+
+    local procedure RuChangeAndCommit()
+    var
+        Other: Record "ALT Universal";
+    begin
+        Other.Get(5);
+        Other."Text Field" := 'other';
+        Other.Modify(false);
+        Commit();
+    end;
+
+    local procedure RuModifyStale(var Row: Record "ALT Universal"; var Observer: Codeunit "Probe Observer")
+    begin
+        Row."Integer Field" := 5;
+        Row.Modify(false);
+        Observer.Observe('write', 'ok');
+        RuObserveStored(Observer);
+    end;
+
+    local procedure RuDeleteStale(var Row: Record "ALT Universal"; var Observer: Codeunit "Probe Observer")
+    var
+        Stored: Record "ALT Universal";
+    begin
+        Row.Delete(false);
+        Observer.Observe('delete', 'ok');
+        Observer.Observe('stored exists', Format(Stored.Get(5)));
+        RuCleanup();
+    end;
+
+    local procedure RuObserveStored(var Observer: Codeunit "Probe Observer")
+    var
+        Stored: Record "ALT Universal";
+    begin
+        Stored.Get(5);
+        Observer.Observe('stored', Stored."Text Field" + '|' + Format(Stored."Integer Field"));
+        RuCleanup();
+    end;
+
+    local procedure RuCleanup()
+    var
+        Rows: Record "ALT Universal";
+    begin
+        Rows.DeleteAll();
+        Commit();
+    end;
+
+    [Test]
+    procedure RU_Stale_InsertBuffer_NothingAfterCommit()
+    var
+        Row: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Initialize();
+        RuInsertRow(Row);
+        RuChangeAndCommit();
+        RuModifyStale(Row, Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RU_Stale_InsertBuffer_OtherGetModifyUnchanged()
+    var
+        Row: Record "ALT Universal";
+        Later: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Initialize();
+        RuInsertRow(Row);
+        RuChangeAndCommit();
+        Later.Get(5);
+        Later.Modify(false);
+        RuModifyStale(Row, Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RU_Stale_InsertBuffer_WriterModifiesAgainUnchanged()
+    var
+        Row: Record "ALT Universal";
+        Other: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Initialize();
+        RuInsertRow(Row);
+        Other.Get(5);
+        Other."Text Field" := 'other';
+        Other.Modify(false);
+        Commit();
+        Other.Modify(false);
+        RuModifyStale(Row, Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RU_Stale_InsertBuffer_OtherLockTableGet()
+    var
+        Row: Record "ALT Universal";
+        Later: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Initialize();
+        RuInsertRow(Row);
+        RuChangeAndCommit();
+        Later.LockTable();
+        Later.Get(5);
+        RuModifyStale(Row, Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RU_Stale_InsertBuffer_OtherGetOnly()
+    var
+        Row: Record "ALT Universal";
+        Later: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Initialize();
+        RuInsertRow(Row);
+        RuChangeAndCommit();
+        Later.Get(5);
+        RuModifyStale(Row, Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RU_Stale_InsertBuffer_OtherGetChangeModify()
+    var
+        Row: Record "ALT Universal";
+        Later: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Initialize();
+        RuInsertRow(Row);
+        RuChangeAndCommit();
+        Later.Get(5);
+        Later."Text Field" := 'later';
+        Later.Modify(false);
+        RuModifyStale(Row, Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RU_Stale_InsertBuffer_OtherGetModifyUnchanged_ThenCommit()
+    var
+        Row: Record "ALT Universal";
+        Later: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Initialize();
+        RuInsertRow(Row);
+        RuChangeAndCommit();
+        Later.Get(5);
+        Later.Modify(false);
+        Commit();
+        RuModifyStale(Row, Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RU_Stale_GetBuffer_OtherGetModifyUnchanged()
+    var
+        Row: Record "ALT Universal";
+        Later: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Initialize();
+        RuInsertRow(Row);
+        Commit();
+        Row.Get(5);
+        RuChangeAndCommit();
+        Later.Get(5);
+        Later.Modify(false);
+        RuModifyStale(Row, Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RU_Stale_GetBuffer_OtherLockTableGet()
+    var
+        Row: Record "ALT Universal";
+        Later: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Initialize();
+        RuInsertRow(Row);
+        Commit();
+        Row.Get(5);
+        RuChangeAndCommit();
+        Later.LockTable();
+        Later.Get(5);
+        RuModifyStale(Row, Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RU_Stale_GetBuffer_OtherGetChangeModify()
+    var
+        Row: Record "ALT Universal";
+        Later: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Initialize();
+        RuInsertRow(Row);
+        Commit();
+        Row.Get(5);
+        RuChangeAndCommit();
+        Later.Get(5);
+        Later."Text Field" := 'later';
+        Later.Modify(false);
+        RuModifyStale(Row, Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RU_Stale_InsertBuffer_Delete_NothingAfterCommit()
+    var
+        Row: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Initialize();
+        RuInsertRow(Row);
+        RuChangeAndCommit();
+        RuDeleteStale(Row, Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure RU_Stale_InsertBuffer_Delete_OtherGetModifyUnchanged()
+    var
+        Row: Record "ALT Universal";
+        Later: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Initialize();
+        RuInsertRow(Row);
+        RuChangeAndCommit();
+        Later.Get(5);
+        Later.Modify(false);
+        RuDeleteStale(Row, Observer);
+        Observer.Finish();
+    end;
 }
