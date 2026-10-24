@@ -114,7 +114,21 @@ codeunit 88720 "LT RV Active Session Writes"
         Observer.Observe('server computer name', ReadBack."Server Computer Name");
         Observer.Observe('server instance name', ReadBack."Server Instance Name");
         Observer.Observe('database name', ReadBack."Database Name");
-        Observer.Finish();
+        Observer.Expect('exists before', 'No');
+        Observer.Expect('insert', 'Yes');
+        Observer.Expect('insert error', '');
+        Observer.Expect('get', 'Yes');
+        Observer.Expect('session id', 'Yes');
+        Observer.Expect('user id', 'LT RV INIT');
+        Observer.Expect('user sid null', 'Yes');
+        Observer.Expect('unique id null', 'Yes');
+        Observer.Expect('login datetime', 'Yes');
+        Observer.Expect('client type', 'Windows Client');
+        Observer.Expect('client computer name', '');
+        Observer.Expect('server computer name', '');
+        Observer.Expect('server instance name', '');
+        Observer.Expect('database name', '');
+        Observer.Verify();
     end;
 
     // Insert of a row whose key is the own session's key, and a second Insert of an inserted row.
@@ -130,7 +144,8 @@ codeunit 88720 "LT RV Active Session Writes"
         ActiveSession."User ID" := 'LT RV DUPLICATE';
         ClearLastError();
         Observer.Observe('own key insert', Format(ActiveSession.Insert(false)));
-        Observer.Observe('own key insert error', Scrubbed(GetLastErrorText(), 0));
+        // The text itself ("Error code: 85132273" on the Linux CI container) waits for a Windows check: only its presence is asserted.
+        Observer.Observe('own key insert error empty', Format(GetLastErrorText() = ''));
         Observer.Observe('own key rows', Format(Holder.CountOfSession(SessionId())));
         Observer.Observe('own key user unchanged', Format(Holder.HolderOfSession(ServiceInstanceId(), SessionId()) = UserId()));
         OtherId := OtherSessionId(7);
@@ -139,10 +154,18 @@ codeunit 88720 "LT RV Active Session Writes"
         ActiveSession."User ID" := 'LT RV SECOND';
         ClearLastError();
         Observer.Observe('second insert', Format(ActiveSession.Insert(false)));
-        Observer.Observe('second insert error', Scrubbed(GetLastErrorText(), OtherId));
+        Observer.Observe('second insert error empty', Format(GetLastErrorText() = ''));
         Observer.Observe('holder after second', Holder.HolderOfSession(ServiceInstanceId(), OtherId));
         Observer.Observe('rows of other id', Format(Holder.CountOfSession(OtherId)));
-        Observer.Finish();
+        Observer.Expect('own key insert', 'No');
+        Observer.Expect('own key insert error empty', 'No');
+        Observer.Expect('own key rows', '1');
+        Observer.Expect('own key user unchanged', 'Yes');
+        Observer.Expect('second insert', 'No');
+        Observer.Expect('second insert error empty', 'No');
+        Observer.Expect('holder after second', 'LT RV FIRST');
+        Observer.Expect('rows of other id', '1');
+        Observer.Verify();
     end;
 
     // Modify and Delete of an inserted row, read back from another codeunit.
@@ -167,7 +190,15 @@ codeunit 88720 "LT RV Active Session Writes"
         Observer.Observe('delete', Format(ActiveSession.Delete(false)));
         Observer.Observe('found after delete', Format(Holder.Exists(ServiceInstanceId(), OtherId)));
         Observer.Observe('own row after delete', Format(Holder.Exists(ServiceInstanceId(), SessionId())));
-        Observer.Finish();
+        Observer.Expect('exists before', 'No');
+        Observer.Expect('holder after insert', 'LT RV BEFORE');
+        Observer.Expect('modify', 'Yes');
+        Observer.Expect('modify error', '');
+        Observer.Expect('holder after modify', 'LT RV AFTER');
+        Observer.Expect('delete', 'Yes');
+        Observer.Expect('found after delete', 'No');
+        Observer.Expect('own row after delete', 'Yes');
+        Observer.Verify();
     end;
 
     // An Insert inside asserterror is rolled back with the error.

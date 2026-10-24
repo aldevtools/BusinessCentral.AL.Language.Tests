@@ -6,8 +6,8 @@
 //   User row, it asks the platform's NavUserAccountHelper.IsPermissionSetAssigned, first with company '' and then with the given company.
 //   Pinned here, for the session user and the app's own module id: a set the user does not hold (the reporter's shape), a set assigned
 //   directly for all companies, for the current company and for another company, asked with the current company and with company '';
-//   an assignment with another app id; an unknown user; SUPER. Access Control rows are written in the test's own transaction (test
-//   isolation rolls them back). Not pinned: an assignment through a security group (the CI container has no Entra or Windows groups).
+//   an assignment with another app id; an unknown user; SUPER. Each Access Control row is rolled back by an error inside asserterror
+//   before the test ends (values from a first run where each test was isolated; a later run showed rows leaking between tests otherwise). Not pinned: an assignment through a security group (the CI container has no Entra or Windows groups).
 // BC versions: 27, 28, 29. Object id 88722.
 
 codeunit 88722 "LT RV Permission Set Assigned"
@@ -48,6 +48,18 @@ codeunit 88722 "LT RV Permission Set Assigned"
         exit(Format(UserPermissions.HasUserPermissionSetAssigned(UserSecurityId(), Company, SetTok, AccessControl.Scope::System, AppId)));
     end;
 
+    // Assigns the set, records the four answers, then fails so the Access Control row is rolled back: no test sees another test's row
+    // (the test runner may roll back only at the end of the test codeunit).
+    local procedure AnswersWhileAssigned(Company: Text; AppId: Guid; var CurrentOwn: Text; var NoCompanyOwn: Text; var OtherOwn: Text; var CurrentNull: Text)
+    begin
+        Assign(Company, AppId);
+        CurrentOwn := Has(CompanyName(), OwnAppId());
+        NoCompanyOwn := Has('', OwnAppId());
+        OtherOwn := Has(OtherCompanyTok, OwnAppId());
+        CurrentNull := Has(CompanyName(), NullGuidValue());
+        Error('LT RV rolled back');
+    end;
+
     local procedure HeldBefore(): Text
     var
         AccessControl: Record "Access Control";
@@ -79,14 +91,23 @@ codeunit 88722 "LT RV Permission Set Assigned"
     procedure RV_HasSet_AssignedAllCompanies()
     var
         Observer: Codeunit "Probe Observer";
+        CurrentOwn: Text;
+        NoCompanyOwn: Text;
+        OtherOwn: Text;
+        CurrentNull: Text;
     begin
-        Assign('', OwnAppId());
-        Observer.Observe('current company', Has(CompanyName(), OwnAppId()));
-        Observer.Observe('no company', Has('', OwnAppId()));
-        Observer.Observe('other company', Has(OtherCompanyTok, OwnAppId()));
+        asserterror AnswersWhileAssigned('', OwnAppId(), CurrentOwn, NoCompanyOwn, OtherOwn, CurrentNull);
+        Observer.ObserveError('rollback');
+        Observer.Observe('current company', CurrentOwn);
+        Observer.Observe('no company', NoCompanyOwn);
+        Observer.Observe('other company', OtherOwn);
+        Observer.Observe('rows after rollback', HeldBefore());
+        Observer.Expect('rollback|text', 'LT RV rolled back');
+        Observer.Expect('rollback|code', 'Dialog');
         Observer.Expect('current company', 'Yes');
         Observer.Expect('no company', 'Yes');
         Observer.Expect('other company', 'Yes');
+        Observer.Expect('rows after rollback', 'No');
         Observer.Verify();
     end;
 
@@ -95,14 +116,23 @@ codeunit 88722 "LT RV Permission Set Assigned"
     procedure RV_HasSet_AssignedCurrentCompany()
     var
         Observer: Codeunit "Probe Observer";
+        CurrentOwn: Text;
+        NoCompanyOwn: Text;
+        OtherOwn: Text;
+        CurrentNull: Text;
     begin
-        Assign(CompanyName(), OwnAppId());
-        Observer.Observe('current company', Has(CompanyName(), OwnAppId()));
-        Observer.Observe('no company', Has('', OwnAppId()));
-        Observer.Observe('other company', Has(OtherCompanyTok, OwnAppId()));
+        asserterror AnswersWhileAssigned(CompanyName(), OwnAppId(), CurrentOwn, NoCompanyOwn, OtherOwn, CurrentNull);
+        Observer.ObserveError('rollback');
+        Observer.Observe('current company', CurrentOwn);
+        Observer.Observe('no company', NoCompanyOwn);
+        Observer.Observe('other company', OtherOwn);
+        Observer.Observe('rows after rollback', HeldBefore());
+        Observer.Expect('rollback|text', 'LT RV rolled back');
+        Observer.Expect('rollback|code', 'Dialog');
         Observer.Expect('current company', 'Yes');
         Observer.Expect('no company', 'No');
         Observer.Expect('other company', 'No');
+        Observer.Expect('rows after rollback', 'No');
         Observer.Verify();
     end;
 
@@ -111,14 +141,23 @@ codeunit 88722 "LT RV Permission Set Assigned"
     procedure RV_HasSet_AssignedOtherCompany()
     var
         Observer: Codeunit "Probe Observer";
+        CurrentOwn: Text;
+        NoCompanyOwn: Text;
+        OtherOwn: Text;
+        CurrentNull: Text;
     begin
-        Assign(OtherCompanyTok, OwnAppId());
-        Observer.Observe('current company', Has(CompanyName(), OwnAppId()));
-        Observer.Observe('no company', Has('', OwnAppId()));
-        Observer.Observe('other company', Has(OtherCompanyTok, OwnAppId()));
+        asserterror AnswersWhileAssigned(OtherCompanyTok, OwnAppId(), CurrentOwn, NoCompanyOwn, OtherOwn, CurrentNull);
+        Observer.ObserveError('rollback');
+        Observer.Observe('current company', CurrentOwn);
+        Observer.Observe('no company', NoCompanyOwn);
+        Observer.Observe('other company', OtherOwn);
+        Observer.Observe('rows after rollback', HeldBefore());
+        Observer.Expect('rollback|text', 'LT RV rolled back');
+        Observer.Expect('rollback|code', 'Dialog');
         Observer.Expect('current company', 'No');
         Observer.Expect('no company', 'No');
         Observer.Expect('other company', 'Yes');
+        Observer.Expect('rows after rollback', 'No');
         Observer.Verify();
     end;
 
@@ -127,12 +166,21 @@ codeunit 88722 "LT RV Permission Set Assigned"
     procedure RV_HasSet_AssignedOtherAppId()
     var
         Observer: Codeunit "Probe Observer";
+        CurrentOwn: Text;
+        NoCompanyOwn: Text;
+        OtherOwn: Text;
+        CurrentNull: Text;
     begin
-        Assign('', NullGuidValue());
-        Observer.Observe('asked own app id', Has(CompanyName(), OwnAppId()));
-        Observer.Observe('asked null app id', Has(CompanyName(), NullGuidValue()));
+        asserterror AnswersWhileAssigned('', NullGuidValue(), CurrentOwn, NoCompanyOwn, OtherOwn, CurrentNull);
+        Observer.ObserveError('rollback');
+        Observer.Observe('asked own app id', CurrentOwn);
+        Observer.Observe('asked null app id', CurrentNull);
+        Observer.Observe('rows after rollback', HeldBefore());
+        Observer.Expect('rollback|text', 'LT RV rolled back');
+        Observer.Expect('rollback|code', 'Dialog');
         Observer.Expect('asked own app id', 'No');
         Observer.Expect('asked null app id', 'Yes');
+        Observer.Expect('rows after rollback', 'No');
         Observer.Verify();
     end;
 
