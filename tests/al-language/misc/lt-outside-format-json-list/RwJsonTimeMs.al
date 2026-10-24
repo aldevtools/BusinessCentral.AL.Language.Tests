@@ -4,7 +4,7 @@
 // Probe (al-runner issue 5794): the JSON text of a Time whose milliseconds end in zero (10, 100, 120, 500, 990) and of other milliseconds
 // (1, 5, 12, 123), written through JsonValue.SetValue + WriteTo, JsonObject.Add + Format, JsonArray.Add + Format and WriteTo; the reporter's
 // stored Time field written into a JsonObject in a JsonArray; and whether the written text reads back as the same Time. Object ids 88781, 88791-88792.
-// BC versions: 27, 28, 29 (CI matrix)
+// BC versions: 27, 28, 29 (CI matrix; values observed on 27.5, 28.5, 29.0)
 
 table 88781 "LT RW Time Entry"
 {
@@ -74,7 +74,12 @@ codeunit 88792 "LT RW Json Time Ms"
         Observer.Observe('stored-500', Payload.EntriesJson());
         InsertEntry(100000.010T);
         Observer.Observe('stored-010', Payload.EntriesJson());
-        Observer.Finish();
+        Observer.Expect('stored-123', '[{"Entry No":1,"Starting Time":"10:00:00.123"}]');
+        Observer.Expect('stored-120', '[{"Entry No":1,"Starting Time":"10:00:00.12"}]');
+        Observer.Expect('stored-100', '[{"Entry No":1,"Starting Time":"10:00:00.1"}]');
+        Observer.Expect('stored-500', '[{"Entry No":1,"Starting Time":"10:00:00.5"}]');
+        Observer.Expect('stored-010', '[{"Entry No":1,"Starting Time":"10:00:00.01"}]');
+        Observer.Verify();
     end;
 
     local procedure ObserveMs(var Observer: Codeunit "Probe Observer"; Ms: Integer)
@@ -121,22 +126,69 @@ codeunit 88792 "LT RW Json Time Ms"
         ObserveMs(Observer, 123);
         ObserveMs(Observer, 500);
         ObserveMs(Observer, 990);
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure RW_JsonTime_InMemory_Milliseconds_More1()
-    var
-        Observer: Codeunit "Probe Observer";
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure RW_JsonTime_InMemory_Milliseconds_More2()
-    var
-        Observer: Codeunit "Probe Observer";
-    begin
-        Observer.More();
+        Observer.Expect('1-format9', '10:00:00.001');
+        Observer.Expect('1-value', '"10:00:00.001"');
+        Observer.Expect('1-object', '{"t":"10:00:00.001"}');
+        Observer.Expect('1-array', '["10:00:00.001"]');
+        Observer.Expect('1-array-format', '["10:00:00.001"]');
+        Observer.Expect('1-astime-same', 'Yes');
+        Observer.Expect('1-reread-astime-same', 'Yes');
+        Observer.Expect('5-format9', '10:00:00.005');
+        Observer.Expect('5-value', '"10:00:00.005"');
+        Observer.Expect('5-object', '{"t":"10:00:00.005"}');
+        Observer.Expect('5-array', '["10:00:00.005"]');
+        Observer.Expect('5-array-format', '["10:00:00.005"]');
+        Observer.Expect('5-astime-same', 'Yes');
+        Observer.Expect('5-reread-astime-same', 'Yes');
+        Observer.Expect('10-format9', '10:00:00.01');
+        Observer.Expect('10-value', '"10:00:00.01"');
+        Observer.Expect('10-object', '{"t":"10:00:00.01"}');
+        Observer.Expect('10-array', '["10:00:00.01"]');
+        Observer.Expect('10-array-format', '["10:00:00.01"]');
+        Observer.Expect('10-astime-same', 'Yes');
+        Observer.Expect('10-reread-astime-same', 'Yes');
+        Observer.Expect('12-format9', '10:00:00.012');
+        Observer.Expect('12-value', '"10:00:00.012"');
+        Observer.Expect('12-object', '{"t":"10:00:00.012"}');
+        Observer.Expect('12-array', '["10:00:00.012"]');
+        Observer.Expect('12-array-format', '["10:00:00.012"]');
+        Observer.Expect('12-astime-same', 'Yes');
+        Observer.Expect('12-reread-astime-same', 'Yes');
+        Observer.Expect('100-format9', '10:00:00.1');
+        Observer.Expect('100-value', '"10:00:00.1"');
+        Observer.Expect('100-object', '{"t":"10:00:00.1"}');
+        Observer.Expect('100-array', '["10:00:00.1"]');
+        Observer.Expect('100-array-format', '["10:00:00.1"]');
+        Observer.Expect('100-astime-same', 'Yes');
+        Observer.Expect('100-reread-astime-same', 'Yes');
+        Observer.Expect('120-format9', '10:00:00.12');
+        Observer.Expect('120-value', '"10:00:00.12"');
+        Observer.Expect('120-object', '{"t":"10:00:00.12"}');
+        Observer.Expect('120-array', '["10:00:00.12"]');
+        Observer.Expect('120-array-format', '["10:00:00.12"]');
+        Observer.Expect('120-astime-same', 'Yes');
+        Observer.Expect('120-reread-astime-same', 'Yes');
+        Observer.Expect('123-format9', '10:00:00.123');
+        Observer.Expect('123-value', '"10:00:00.123"');
+        Observer.Expect('123-object', '{"t":"10:00:00.123"}');
+        Observer.Expect('123-array', '["10:00:00.123"]');
+        Observer.Expect('123-array-format', '["10:00:00.123"]');
+        Observer.Expect('123-astime-same', 'Yes');
+        Observer.Expect('123-reread-astime-same', 'Yes');
+        Observer.Expect('500-format9', '10:00:00.5');
+        Observer.Expect('500-value', '"10:00:00.5"');
+        Observer.Expect('500-object', '{"t":"10:00:00.5"}');
+        Observer.Expect('500-array', '["10:00:00.5"]');
+        Observer.Expect('500-array-format', '["10:00:00.5"]');
+        Observer.Expect('500-astime-same', 'Yes');
+        Observer.Expect('500-reread-astime-same', 'Yes');
+        Observer.Expect('990-format9', '10:00:00.99');
+        Observer.Expect('990-value', '"10:00:00.99"');
+        Observer.Expect('990-object', '{"t":"10:00:00.99"}');
+        Observer.Expect('990-array', '["10:00:00.99"]');
+        Observer.Expect('990-array-format', '["10:00:00.99"]');
+        Observer.Expect('990-astime-same', 'Yes');
+        Observer.Expect('990-reread-astime-same', 'Yes');
+        Observer.Verify();
     end;
 }

@@ -4,7 +4,8 @@
 // Probe (al-runner issue 5791): StrSubstNo('%1', Rec.Field), Message('%1', Rec.Field) and Error('%1', Rec.Field) of a Decimal field with
 // AutoFormatType (0, 1, 2, 10) or DecimalPlaces, next to Format(Rec.Field) of the same field; and whether the field's places survive a Decimal
 // variable, a Decimal parameter, a Variant, an expression, a FieldRef and FieldRef.Value. Object ids 88780, 88790.
-// BC versions: 27, 28, 29 (CI matrix)
+// BC versions: 27, 28, 29 (CI matrix; values observed on 27.5, 28.5, 29.0)
+// BC27 differs: AutoFormatType = 1 WITHOUT an AutoFormatExpression formats as a plain Decimal on 27.5 (70, 3.14159) and with two decimals from 28 (BC28PLUS).
 
 table 88780 "LT RW Amount Row"
 {
@@ -93,23 +94,119 @@ codeunit 88790 "LT RW Decimal Field Places"
         ObserveAll(Observer, '1234.5', TempRow);
         Fill(TempRow, 3.14159);
         ObserveAll(Observer, '3.14159', TempRow);
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure RW_StrSubstNo_DecimalField_TempRecord_More1()
-    var
-        Observer: Codeunit "Probe Observer";
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure RW_StrSubstNo_DecimalField_TempRecord_More2()
-    var
-        Observer: Codeunit "Probe Observer";
-    begin
-        Observer.More();
+        Observer.Expect('70-fmt-Amt1', '70.00');
+        Observer.Expect('70-sub-Amt1', '70.00');
+#if BC28PLUS
+        Observer.Expect('70-fmt-Amt1NoExpr', '70.00');
+#else
+        Observer.Expect('70-fmt-Amt1NoExpr', '70');
+#endif
+#if BC28PLUS
+        Observer.Expect('70-sub-Amt1NoExpr', '70.00');
+#else
+        Observer.Expect('70-sub-Amt1NoExpr', '70');
+#endif
+        Observer.Expect('70-fmt-Amt0', '70');
+        Observer.Expect('70-sub-Amt0', '70');
+        Observer.Expect('70-fmt-Amt2', '70.00');
+        Observer.Expect('70-sub-Amt2', '70.00');
+        Observer.Expect('70-fmt-Amt10', '70.000');
+        Observer.Expect('70-sub-Amt10', '70.000');
+        Observer.Expect('70-fmt-Plain', '70');
+        Observer.Expect('70-sub-Plain', '70');
+        Observer.Expect('70-fmt-Dp22', '70.00');
+        Observer.Expect('70-sub-Dp22', '70.00');
+        Observer.Expect('70-fmt-Dp05', '70');
+        Observer.Expect('70-sub-Dp05', '70');
+        Observer.Expect('70-fmt-Dp33Amt1', '70.00');
+        Observer.Expect('70-sub-Dp33Amt1', '70.00');
+        Observer.Expect('70-fmt-Dp00', '70');
+        Observer.Expect('70-sub-Dp00', '70');
+        Observer.Expect('0-fmt-Amt1', '0.00');
+        Observer.Expect('0-sub-Amt1', '0.00');
+#if BC28PLUS
+        Observer.Expect('0-fmt-Amt1NoExpr', '0.00');
+#else
+        Observer.Expect('0-fmt-Amt1NoExpr', '0');
+#endif
+#if BC28PLUS
+        Observer.Expect('0-sub-Amt1NoExpr', '0.00');
+#else
+        Observer.Expect('0-sub-Amt1NoExpr', '0');
+#endif
+        Observer.Expect('0-fmt-Amt0', '0');
+        Observer.Expect('0-sub-Amt0', '0');
+        Observer.Expect('0-fmt-Amt2', '0.00');
+        Observer.Expect('0-sub-Amt2', '0.00');
+        Observer.Expect('0-fmt-Amt10', '0.000');
+        Observer.Expect('0-sub-Amt10', '0.000');
+        Observer.Expect('0-fmt-Plain', '0');
+        Observer.Expect('0-sub-Plain', '0');
+        Observer.Expect('0-fmt-Dp22', '0.00');
+        Observer.Expect('0-sub-Dp22', '0.00');
+        Observer.Expect('0-fmt-Dp05', '0');
+        Observer.Expect('0-sub-Dp05', '0');
+        Observer.Expect('0-fmt-Dp33Amt1', '0.00');
+        Observer.Expect('0-sub-Dp33Amt1', '0.00');
+        Observer.Expect('0-fmt-Dp00', '0');
+        Observer.Expect('0-sub-Dp00', '0');
+        Observer.Expect('1234.5-fmt-Amt1', '1,234.50');
+        Observer.Expect('1234.5-sub-Amt1', '1,234.50');
+#if BC28PLUS
+        Observer.Expect('1234.5-fmt-Amt1NoExpr', '1,234.50');
+#else
+        Observer.Expect('1234.5-fmt-Amt1NoExpr', '1,234.5');
+#endif
+#if BC28PLUS
+        Observer.Expect('1234.5-sub-Amt1NoExpr', '1,234.50');
+#else
+        Observer.Expect('1234.5-sub-Amt1NoExpr', '1,234.5');
+#endif
+        Observer.Expect('1234.5-fmt-Amt0', '1,234.5');
+        Observer.Expect('1234.5-sub-Amt0', '1,234.5');
+        Observer.Expect('1234.5-fmt-Amt2', '1,234.50');
+        Observer.Expect('1234.5-sub-Amt2', '1,234.50');
+        Observer.Expect('1234.5-fmt-Amt10', '1,234.500');
+        Observer.Expect('1234.5-sub-Amt10', '1,234.500');
+        Observer.Expect('1234.5-fmt-Plain', '1,234.5');
+        Observer.Expect('1234.5-sub-Plain', '1,234.5');
+        Observer.Expect('1234.5-fmt-Dp22', '1,234.50');
+        Observer.Expect('1234.5-sub-Dp22', '1,234.50');
+        Observer.Expect('1234.5-fmt-Dp05', '1,234.5');
+        Observer.Expect('1234.5-sub-Dp05', '1,234.5');
+        Observer.Expect('1234.5-fmt-Dp33Amt1', '1,234.50');
+        Observer.Expect('1234.5-sub-Dp33Amt1', '1,234.50');
+        Observer.Expect('1234.5-fmt-Dp00', '1,235');
+        Observer.Expect('1234.5-sub-Dp00', '1,235');
+        Observer.Expect('3.14159-fmt-Amt1', '3.14');
+        Observer.Expect('3.14159-sub-Amt1', '3.14');
+#if BC28PLUS
+        Observer.Expect('3.14159-fmt-Amt1NoExpr', '3.14');
+#else
+        Observer.Expect('3.14159-fmt-Amt1NoExpr', '3.14159');
+#endif
+#if BC28PLUS
+        Observer.Expect('3.14159-sub-Amt1NoExpr', '3.14');
+#else
+        Observer.Expect('3.14159-sub-Amt1NoExpr', '3.14159');
+#endif
+        Observer.Expect('3.14159-fmt-Amt0', '3.14159');
+        Observer.Expect('3.14159-sub-Amt0', '3.14159');
+        Observer.Expect('3.14159-fmt-Amt2', '3.14159');
+        Observer.Expect('3.14159-sub-Amt2', '3.14159');
+        Observer.Expect('3.14159-fmt-Amt10', '3.142');
+        Observer.Expect('3.14159-sub-Amt10', '3.142');
+        Observer.Expect('3.14159-fmt-Plain', '3.14159');
+        Observer.Expect('3.14159-sub-Plain', '3.14159');
+        Observer.Expect('3.14159-fmt-Dp22', '3.14');
+        Observer.Expect('3.14159-sub-Dp22', '3.14');
+        Observer.Expect('3.14159-fmt-Dp05', '3.14159');
+        Observer.Expect('3.14159-sub-Dp05', '3.14159');
+        Observer.Expect('3.14159-fmt-Dp33Amt1', '3.14');
+        Observer.Expect('3.14159-sub-Dp33Amt1', '3.14');
+        Observer.Expect('3.14159-fmt-Dp00', '3');
+        Observer.Expect('3.14159-sub-Dp00', '3');
+        Observer.Verify();
     end;
 
     // A database record read back with Get, two placeholders in one string, and a placeholder between other text.
@@ -131,7 +228,13 @@ codeunit 88790 "LT RW Decimal Field Places"
         Observer.Observe('db-sub-two', StrSubstNo('%1|%2', Row.Amt1, Row.Plain));
         Observer.Observe('db-sub-text', StrSubstNo('CostActual=%1;', Row.Amt1));
         Observer.Observe('db-sub-twice', StrSubstNo('%1 %1', Row.Amt1));
-        Observer.Finish();
+        Observer.Expect('db-sub-Amt1', '-12.50');
+        Observer.Expect('db-sub-Dp22', '-12.50');
+        Observer.Expect('db-sub-Plain', '-12.5');
+        Observer.Expect('db-sub-two', '-12.50|-12.5');
+        Observer.Expect('db-sub-text', 'CostActual=-12.50;');
+        Observer.Expect('db-sub-twice', '-12.50 -12.50');
+        Observer.Verify();
     end;
 
     // Does the field's format reach StrSubstNo through other carriers of the same value?
@@ -167,7 +270,21 @@ codeunit 88790 "LT RW Decimal Field Places"
         Fr := RecRef.Field(TempRow.FieldNo(Dp22));
         Observer.Observe('fieldref-dp22-sub', StrSubstNo('%1', Fr));
         Observer.Observe('fieldref-dp22-value-sub', StrSubstNo('%1', Fr.Value));
-        Observer.Finish();
+        Observer.Expect('decimal-var', '70');
+        Observer.Expect('decimal-param', '70');
+        Observer.Expect('variant-sub', '70');
+        Observer.Expect('variant-fmt', '70');
+        Observer.Expect('variant-param', '70');
+        Observer.Expect('expr-plus0', '70');
+        Observer.Expect('expr-paren', '70');
+        Observer.Expect('fmt-in-sub', '70.00');
+        Observer.Expect('fieldref-sub', '70');
+        Observer.Expect('fieldref-fmt', '70');
+        Observer.Expect('fieldref-value-sub', '70');
+        Observer.Expect('fieldref-value-fmt', '70');
+        Observer.Expect('fieldref-dp22-sub', '70');
+        Observer.Expect('fieldref-dp22-value-sub', '70');
+        Observer.Verify();
     end;
 
     // Error and Message take the same placeholders as StrSubstNo.
@@ -197,7 +314,15 @@ codeunit 88790 "LT RW Decimal Field Places"
         Observer.Observe('message-Plain', LastMessage);
         Message('x=%1', TempRow.Amt2);
         Observer.Observe('message-Amt2', LastMessage);
-        Observer.Finish();
+        Observer.Expect('error-Amt1', '70.00');
+        Observer.Expect('error-Dp22', '70.00');
+        Observer.Expect('error-Plain', '70');
+        Observer.Expect('error-Amt2', 'x=70.00');
+        Observer.Expect('message-Amt1', '70.00');
+        Observer.Expect('message-Dp22', '70.00');
+        Observer.Expect('message-Plain', '70');
+        Observer.Expect('message-Amt2', 'x=70.00');
+        Observer.Verify();
     end;
 
     local procedure SubstDecimal(D: Decimal): Text

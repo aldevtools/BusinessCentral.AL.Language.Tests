@@ -610,6 +610,13 @@ codeunit 74616 "LT ClT Ref Semantics"
         Observer.Observe('add code', GetLastErrorCode());
         Observer.Observe('count after add', Format(Starts.Count()));
         ClearLastError();
-        Observer.Finish();
+        Observer.Expect('points above capacity', '2');
+        Observer.Expect('count after read', '3');
+        Observer.Expect('add ok', 'No');
+        Observer.Expect('add visited', '10,');
+        Observer.Expect('add error', 'Collection was modified; enumeration operation may not execute.');
+        Observer.Expect('add code', 'AL:InvalidOperation');
+        Observer.Expect('count after add', '4');
+        Observer.Verify();
     end;
 }
