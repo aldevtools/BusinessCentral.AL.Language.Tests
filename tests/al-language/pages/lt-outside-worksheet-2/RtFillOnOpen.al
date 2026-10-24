@@ -9,6 +9,10 @@
 //   left on a middle row). Which row the page shows, the triggers on the way (log), Next and Previous from there, the RunModal result and
 //   the record a lookup hands back.
 //   Log: O:<code> = Rec at the end of OnOpenPage, R:<code> = OnAfterGetRecord, C:<code> = OnAfterGetCurrRecord.
+// Result (BC 27.5, 28.5, 29.0 alike): every route (lookup RunModal, RunModal, Page.Run, OpenEdit, OpenView; Worksheet and List) opens on
+//   the row OnOpenPage left Rec on: C after A, B, C; B after A, C, B. The stale row Z is gone. Open log O:C;R:C;R:B;R:A;R:C;R:C;C:C; (the
+//   window is read from that row). From C (last row) Next answers No and stays on C; from B Next goes to C. OK in lookup mode returns
+//   LookupOK and GetRecord hands back the shown row; a modal handler that returns without OK gives OK (RunModal) or LookupCancel (lookup).
 // Source: al-runner issue 5785 (Base App codeunit 1018 "Purchase Doc. From Job" runs page 1328 with LookupMode and RunModal).
 // BC versions: 27, 28, 29
 
@@ -259,7 +263,14 @@ codeunit 88604 "LT RT Fill Tests"
     procedure RT_FillWs_Lookup_ABC_OK()
     begin
         LookupWs('ABC');
-        Observer.Finish();
+        Observer.Expect('open', 'C|Line C');
+        Observer.Expect('open log', 'O:C;R:C;R:B;R:A;R:C;R:C;C:C;');
+        Observer.Expect('ok log', '');
+        Observer.Expect('result', 'LookupOK');
+        Observer.Expect('after close log', '');
+        Observer.Expect('selected', 'C');
+        Observer.Expect('rows after close', 'ABC');
+        Observer.Verify();
     end;
 
     [Test]
@@ -267,7 +278,14 @@ codeunit 88604 "LT RT Fill Tests"
     procedure RT_FillWs_Lookup_ACB_OK()
     begin
         LookupWs('ACB');
-        Observer.Finish();
+        Observer.Expect('open', 'B|Line B');
+        Observer.Expect('open log', 'O:B;R:B;R:C;R:B;R:A;R:B;R:B;C:B;');
+        Observer.Expect('ok log', '');
+        Observer.Expect('result', 'LookupOK');
+        Observer.Expect('after close log', '');
+        Observer.Expect('selected', 'B');
+        Observer.Expect('rows after close', 'ABC');
+        Observer.Verify();
     end;
 
     [Test]
@@ -279,7 +297,16 @@ codeunit 88604 "LT RT Fill Tests"
         Prepare('ABC');
         Observer.Observe('result', Format(Ws.RunModal()));
         Observer.Observe('after close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open', 'C|Line C');
+        Observer.Expect('open log', 'O:C;R:C;R:B;R:A;R:C;R:C;C:C;');
+        Observer.Expect('rows', 'ABC');
+        Observer.Expect('next', 'No|C');
+        Observer.Expect('next log', '');
+        Observer.Expect('previous', 'Yes|B');
+        Observer.Expect('previous log', 'R:B;R:B;C:B;');
+        Observer.Expect('result', 'OK');
+        Observer.Expect('after close log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -292,7 +319,16 @@ codeunit 88604 "LT RT Fill Tests"
         Ws.LookupMode(true);
         Observer.Observe('result', Format(Ws.RunModal()));
         Observer.Observe('after close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open', 'B|Line B');
+        Observer.Expect('open log', 'O:B;R:B;R:C;R:B;R:A;R:B;R:B;C:B;');
+        Observer.Expect('rows', 'ABC');
+        Observer.Expect('next', 'Yes|C');
+        Observer.Expect('next log', 'R:C;R:C;C:C;');
+        Observer.Expect('previous', 'Yes|B');
+        Observer.Expect('previous log', 'R:B;R:B;C:B;');
+        Observer.Expect('result', 'LookupCancel');
+        Observer.Expect('after close log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -302,7 +338,15 @@ codeunit 88604 "LT RT Fill Tests"
         Prepare('ABC');
         Page.Run(Page::"LT RT Fill Ws");
         Observer.Observe('after run log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open', 'C|Line C');
+        Observer.Expect('open log', 'O:C;R:C;R:B;R:A;R:C;R:C;C:C;');
+        Observer.Expect('rows', 'ABC');
+        Observer.Expect('next', 'No|C');
+        Observer.Expect('next log', '');
+        Observer.Expect('previous', 'Yes|B');
+        Observer.Expect('previous log', 'R:B;R:B;C:B;');
+        Observer.Expect('after run log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -315,7 +359,15 @@ codeunit 88604 "LT RT Fill Tests"
         ReadWsMoves(P);
         P.Close();
         Observer.Observe('close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open', 'C|Line C');
+        Observer.Expect('open log', 'O:C;R:C;R:B;R:A;R:C;R:C;C:C;');
+        Observer.Expect('rows', 'ABC');
+        Observer.Expect('next', 'No|C');
+        Observer.Expect('next log', '');
+        Observer.Expect('previous', 'Yes|B');
+        Observer.Expect('previous log', 'R:B;R:B;C:B;');
+        Observer.Expect('close log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -328,7 +380,15 @@ codeunit 88604 "LT RT Fill Tests"
         ReadWsMoves(P);
         P.Close();
         Observer.Observe('close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open', 'B|Line B');
+        Observer.Expect('open log', 'O:B;R:B;R:C;R:B;R:A;R:B;R:B;C:B;');
+        Observer.Expect('rows', 'ABC');
+        Observer.Expect('next', 'Yes|C');
+        Observer.Expect('next log', 'R:C;R:C;C:C;');
+        Observer.Expect('previous', 'Yes|B');
+        Observer.Expect('previous log', 'R:B;R:B;C:B;');
+        Observer.Expect('close log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -341,7 +401,15 @@ codeunit 88604 "LT RT Fill Tests"
         ReadWsMoves(P);
         P.Close();
         Observer.Observe('close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open', 'B|Line B');
+        Observer.Expect('open log', 'O:B;R:B;R:C;R:B;R:A;R:B;R:B;C:B;');
+        Observer.Expect('rows', 'ABC');
+        Observer.Expect('next', 'Yes|C');
+        Observer.Expect('next log', 'R:C;R:C;C:C;');
+        Observer.Expect('previous', 'Yes|B');
+        Observer.Expect('previous log', 'R:B;R:B;C:B;');
+        Observer.Expect('close log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -357,7 +425,13 @@ codeunit 88604 "LT RT Fill Tests"
         Observer.Observe('after close log', Log.Take());
         L.GetRecord(Line);
         Observer.Observe('selected', Line."Code");
-        Observer.Finish();
+        Observer.Expect('open', 'C|Line C');
+        Observer.Expect('open log', 'O:C;R:C;R:B;R:A;R:C;R:C;C:C;');
+        Observer.Expect('ok log', '');
+        Observer.Expect('result', 'LookupOK');
+        Observer.Expect('after close log', '');
+        Observer.Expect('selected', 'C');
+        Observer.Verify();
     end;
 
     [Test]
@@ -370,6 +444,14 @@ codeunit 88604 "LT RT Fill Tests"
         ReadListMoves(P);
         P.Close();
         Observer.Observe('close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open', 'B|Line B');
+        Observer.Expect('open log', 'O:B;R:B;R:C;R:B;R:A;R:B;R:B;C:B;');
+        Observer.Expect('rows', 'ABC');
+        Observer.Expect('next', 'Yes|C');
+        Observer.Expect('next log', 'R:C;R:C;C:C;');
+        Observer.Expect('previous', 'Yes|B');
+        Observer.Expect('previous log', 'R:B;R:B;C:B;');
+        Observer.Expect('close log', '');
+        Observer.Verify();
     end;
 }

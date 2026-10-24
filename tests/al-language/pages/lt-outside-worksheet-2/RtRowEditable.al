@@ -9,6 +9,9 @@
 //   pinned in handlers/TestPageEditable_Tests.al (EditableBoundToPageVariable_FollowsTheRow).
 //   Rows: A (Sequence No. 1, New Start set), B (Sequence No. 2, no New Start); the swapped data set: A without, B with New Start.
 //   Each read is <row>:<Editable of Sequence No.>/<Enabled of Description>.
+// Result (BC 27.5, 28.5, 29.0 alike): Editable() and Enabled() follow the row the TestPage is on after every move (GoToRecord in both orders,
+//   GoToKey, Next, Previous, First, Last), on the Worksheet (OpenEdit and OpenView) and the List: A:No/No and B:Yes/Yes; swapped data
+//   A:Yes/Yes and B:No/No.
 // Source: al-runner issue 5808.
 // BC versions: 27, 28, 29
 
@@ -168,7 +171,10 @@ codeunit 88623 "LT RT Ed Tests"
         P.GoToRecord(GetRow('B'));
         Observer.Observe('B', ReadWs(P));
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'A:No/No');
+        Observer.Expect('A', 'A:No/No');
+        Observer.Expect('B', 'B:Yes/Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -183,7 +189,9 @@ codeunit 88623 "LT RT Ed Tests"
         P.GoToRecord(GetRow('A'));
         Observer.Observe('A', ReadWs(P));
         P.Close();
-        Observer.Finish();
+        Observer.Expect('B', 'B:Yes/Yes');
+        Observer.Expect('A', 'A:No/No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -199,7 +207,10 @@ codeunit 88623 "LT RT Ed Tests"
         P.GoToRecord(GetRow('B'));
         Observer.Observe('B', ReadWs(P));
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'A:Yes/Yes');
+        Observer.Expect('A', 'A:Yes/Yes');
+        Observer.Expect('B', 'B:No/No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -212,7 +223,9 @@ codeunit 88623 "LT RT Ed Tests"
         Observer.Observe('goto B', Format(P.GoToKey('B')) + '|' + ReadWs(P));
         Observer.Observe('goto A', Format(P.GoToKey('A')) + '|' + ReadWs(P));
         P.Close();
-        Observer.Finish();
+        Observer.Expect('goto B', 'Yes|B:Yes/Yes');
+        Observer.Expect('goto A', 'Yes|A:No/No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -228,7 +241,12 @@ codeunit 88623 "LT RT Ed Tests"
         Observer.Observe('last', Format(P.Last()) + '|' + ReadWs(P));
         Observer.Observe('first', Format(P.First()) + '|' + ReadWs(P));
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'A:No/No');
+        Observer.Expect('next', 'Yes|B:Yes/Yes');
+        Observer.Expect('previous', 'Yes|A:No/No');
+        Observer.Expect('last', 'Yes|B:Yes/Yes');
+        Observer.Expect('first', 'Yes|A:No/No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -244,7 +262,10 @@ codeunit 88623 "LT RT Ed Tests"
         P.GoToRecord(GetRow('B'));
         Observer.Observe('B', ReadWs(P));
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'A:No/No');
+        Observer.Expect('A', 'A:No/No');
+        Observer.Expect('B', 'B:Yes/Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -261,6 +282,10 @@ codeunit 88623 "LT RT Ed Tests"
         Observer.Observe('B', ReadList(P));
         Observer.Observe('previous', Format(P.Previous()) + '|' + ReadList(P));
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'A:No/No');
+        Observer.Expect('A', 'A:No/No');
+        Observer.Expect('B', 'B:Yes/Yes');
+        Observer.Expect('previous', 'Yes|A:No/No');
+        Observer.Verify();
     end;
 }

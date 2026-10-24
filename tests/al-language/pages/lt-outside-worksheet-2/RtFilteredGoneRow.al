@@ -10,6 +10,11 @@
 //   with a range on the second key field; the same page with the new-row line, and a List without the new-row line.
 //   Log: N:<user>:<entry>:<group> = OnNewRecord, C:<user>:<entry>:<group> = OnAfterGetCurrRecord, R:<entry> = OnAfterGetRecord;
 //   <user> is Yes when Rec."User Security ID" = UserSecurityId(), No otherwise.
+// Result (BC 27.5, 28.5, 29.0 alike): after the action the deleted row is read once more (R:5), then OnNewRecord and OnAfterGetCurrRecord
+//   run once on a blank Rec (twice more with the new-row line, which then shows Entry No. 0). The blank Rec takes the value of a SetRange on a
+//   key field, in FilterGroup 2 or 0 (User Security ID = Yes; with both key fields also Entry No. 5); it does not take a SetRange on a field
+//   outside the key (Group stays blank, User Security ID No) nor a range filter on a key field (Entry No. 0). First answers No; the List
+//   behaves as the Worksheet.
 // Source: al-runner issue 5809.
 // BC versions: 27, 28, 29
 
@@ -350,35 +355,85 @@ codeunit 88615 "LT RT Uf Tests"
     procedure RT_UfWs_KeyFieldGroup2()
     begin
         RunNoNew(1);
-        Observer.Finish();
+        Observer.Expect('open shown', '5|G1');
+        Observer.Expect('open log', 'R:5;R:5;C:Yes:5:G1;');
+        Observer.Expect('action log', 'R:5;N:Yes:0:;C:Yes:0:;');
+        Observer.Expect('shown after action', '||');
+        Observer.Expect('count', '0');
+        Observer.Expect('first', 'No');
+        Observer.Expect('first log', '');
+        Observer.Expect('second action log', 'N:Yes:0:;C:Yes:0:;');
+        Observer.Expect('close log', '');
+        Observer.Expect('count after close', '0');
+        Observer.Verify();
     end;
 
     [Test]
     procedure RT_UfWs_KeyFieldGroup0()
     begin
         RunNoNew(2);
-        Observer.Finish();
+        Observer.Expect('open shown', '5|G1');
+        Observer.Expect('open log', 'R:5;R:5;C:Yes:5:G1;');
+        Observer.Expect('action log', 'R:5;N:Yes:0:;C:Yes:0:;');
+        Observer.Expect('shown after action', '||');
+        Observer.Expect('count', '0');
+        Observer.Expect('first', 'No');
+        Observer.Expect('first log', '');
+        Observer.Expect('second action log', 'N:Yes:0:;C:Yes:0:;');
+        Observer.Expect('close log', '');
+        Observer.Expect('count after close', '0');
+        Observer.Verify();
     end;
 
     [Test]
     procedure RT_UfWs_NonKeyFieldGroup2()
     begin
         RunNoNew(3);
-        Observer.Finish();
+        Observer.Expect('open shown', '5|G1');
+        Observer.Expect('open log', 'R:5;R:5;C:Yes:5:G1;');
+        Observer.Expect('action log', 'R:5;N:No:0:;C:No:0:;');
+        Observer.Expect('shown after action', '||');
+        Observer.Expect('count', '0');
+        Observer.Expect('first', 'No');
+        Observer.Expect('first log', '');
+        Observer.Expect('second action log', 'N:No:0:;C:No:0:;');
+        Observer.Expect('close log', '');
+        Observer.Expect('count after close', '0');
+        Observer.Verify();
     end;
 
     [Test]
     procedure RT_UfWs_BothKeyFieldsGroup2()
     begin
         RunNoNew(4);
-        Observer.Finish();
+        Observer.Expect('open shown', '5|G1');
+        Observer.Expect('open log', 'R:5;R:5;C:Yes:5:G1;');
+        Observer.Expect('action log', 'R:5;N:Yes:5:;C:Yes:5:;');
+        Observer.Expect('shown after action', '||');
+        Observer.Expect('count', '0');
+        Observer.Expect('first', 'No');
+        Observer.Expect('first log', '');
+        Observer.Expect('second action log', 'N:Yes:5:;C:Yes:5:;');
+        Observer.Expect('close log', '');
+        Observer.Expect('count after close', '0');
+        Observer.Verify();
     end;
 
     [Test]
     procedure RT_UfWs_RangeOnSecondKeyFieldGroup2()
     begin
         RunNoNew(5);
-        Observer.Finish();
+        Observer.Expect('open shown', '5|G1');
+        Observer.Expect('open log', 'R:5;R:5;C:Yes:5:G1;');
+        Observer.Expect('action log', 'R:5;N:No:0:;C:No:0:;');
+        Observer.Expect('shown after action', '||');
+        Observer.Expect('count', '0');
+        Observer.Expect('first', 'No');
+        Observer.Expect('first log', '');
+        Observer.Expect('second action log', 'N:No:0:;C:No:0:;');
+        Observer.Expect('close log', '');
+        Observer.Expect('count after close', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -397,7 +452,14 @@ codeunit 88615 "LT RT Uf Tests"
         Ws.Close();
         Observer.Observe('close log', Log.Take());
         Observer.Observe('count after close', RowCount());
-        Observer.Finish();
+        Observer.Expect('open shown', '5|G1');
+        Observer.Expect('open log', 'R:5;R:5;C:Yes:5:G1;');
+        Observer.Expect('action log', 'R:5;N:Yes:0:;C:Yes:0:;N:Yes:0:;C:Yes:0:;N:Yes:0:;C:Yes:0:;');
+        Observer.Expect('shown after action', '0||');
+        Observer.Expect('count', '0');
+        Observer.Expect('close log', '');
+        Observer.Expect('count after close', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -415,6 +477,12 @@ codeunit 88615 "LT RT Uf Tests"
         Observer.Observe('count', RowCount());
         L.Close();
         Observer.Observe('close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open shown', '5|G1');
+        Observer.Expect('open log', 'R:5;R:5;C:Yes:5:G1;');
+        Observer.Expect('action log', 'R:5;N:Yes:0:;C:Yes:0:;');
+        Observer.Expect('shown after action', '||');
+        Observer.Expect('count', '0');
+        Observer.Expect('close log', '');
+        Observer.Verify();
     end;
 }

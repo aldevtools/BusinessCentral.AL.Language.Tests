@@ -10,6 +10,10 @@
 //   FilterGroup 0 are pinned in handlers/TestActionRunPageLinkFilterGroup.al (QZ_* and RunPageLink_FilterLandsInGroup0_NotTheLinkGroup).
 //   Log (written in OnOpenPage): F:<GetFilter Order No.>|<GetFilter Status>, A:<GetFilters>, Min:/Max: of Order No., SMin:/SMax: of Status
 //   (only when the field has a filter; ERR:<text> when the call fails), Visible:<Order No. column visible>.
+// Result (BC 27.5, 28.5, 29.0 alike): in OnOpenPage Rec holds the link as filters: GetFilter("Order No.") = H1, GetFilter(Status) =
+//   Released, GetFilters = 'Order No.: H1, Status: Released'; GetRangeMin and GetRangeMax answer the linked value (H1, Released), so the
+//   column is hidden. Same on a Card target, through a PageHandler, and for a header with no step rows (H2, Planned). A Code-only link and
+//   const('H1') give F:H1| and 'Order No.: H1'. filter('H1..H2') gives GetFilter H1..H2, Min H1, Max H2, and the column stays visible.
 // Source: al-runner issue 5811.
 // BC versions: 27, 28, 29
 
@@ -280,7 +284,10 @@ codeunit 88636 "LT RT Lr Tests"
         ReadSteps(Steps);
         Steps.Close();
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('log', 'F:H1|Released;A:Order No.: H1, Status: Released;Min:H1;Max:H1;SMin:Released;SMax:Released;Visible:No;');
+        Observer.Expect('shown', '10');
+        Observer.Expect('order no visible', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -296,7 +303,10 @@ codeunit 88636 "LT RT Lr Tests"
         ReadSteps(Steps);
         Steps.Close();
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('log', 'F:H2|Planned;A:Order No.: H2, Status: Planned;Min:H2;Max:H2;SMin:Planned;SMax:Planned;Visible:No;');
+        Observer.Expect('shown', '');
+        Observer.Expect('order no visible', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -309,7 +319,10 @@ codeunit 88636 "LT RT Lr Tests"
         OpenHead(Card, 'H1');
         Card.Steps.Invoke();
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('log', 'F:H1|Released;A:Order No.: H1, Status: Released;Min:H1;Max:H1;SMin:Released;SMax:Released;Visible:No;');
+        Observer.Expect('shown', '10');
+        Observer.Expect('order no visible', 'No');
+        Observer.Verify();
     end;
 
     [PageHandler]
@@ -331,7 +344,10 @@ codeunit 88636 "LT RT Lr Tests"
         ReadSteps(Steps);
         Steps.Close();
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('log', 'F:H1|;A:Order No.: H1;Min:H1;Max:H1;Visible:No;');
+        Observer.Expect('shown', '10');
+        Observer.Expect('order no visible', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -347,7 +363,10 @@ codeunit 88636 "LT RT Lr Tests"
         ReadSteps(Steps);
         Steps.Close();
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('log', 'F:H1|;A:Order No.: H1;Min:H1;Max:H1;Visible:No;');
+        Observer.Expect('shown', '10');
+        Observer.Expect('order no visible', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -363,7 +382,10 @@ codeunit 88636 "LT RT Lr Tests"
         ReadSteps(Steps);
         Steps.Close();
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('log', 'F:H1..H2|;A:Order No.: H1..H2;Min:H1;Max:H2;Visible:Yes;');
+        Observer.Expect('shown', '10');
+        Observer.Expect('order no visible', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -381,6 +403,9 @@ codeunit 88636 "LT RT Lr Tests"
         Observer.Observe('order no visible', Format(StepCard.OrderNoCtl.Visible()));
         StepCard.Close();
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('log', 'F:H1|Released;A:Order No.: H1, Status: Released;Min:H1;Max:H1;SMin:Released;SMax:Released;Visible:No;');
+        Observer.Expect('shown', '10');
+        Observer.Expect('order no visible', 'No');
+        Observer.Verify();
     end;
 }
