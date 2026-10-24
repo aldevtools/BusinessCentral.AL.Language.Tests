@@ -3,6 +3,8 @@
 // Fixtures used: Probe Observer (69160); own table 73702 and page 73703
 // Probe: written against a local BC 29.0.54011.55816 service tier; every literal asserted below is what that tier produced. Other BC versions are checked by the corpus CI matrix.
 // BC versions: 29 (27 and 28 by CI)
+// Writer RV (al-runner issue 5786): controls whose Visible, Enabled or Editable is an expression over a source table field (Rec."Allow Edit",
+//   Rec.Flag, not, a comparison, a field with a page variable) on a List page, own table 88723 and page 88724; test P132_RV_RecFieldExpressions.
 
 table 73702 "LT P132 Ctl Row"
 {
@@ -55,6 +57,58 @@ page 73703 "LT P132 Ctl Page"
         ShowIt: Boolean;
         ShowOther: Boolean;
         Cnt: Integer;
+}
+
+table 88723 "LT RV Cost Line"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; "Entry No."; Integer) { }
+        field(2; Quantity; Decimal) { }
+        field(3; "Allow Edit"; Boolean) { }
+        field(4; Flag; Boolean) { }
+    }
+
+    keys
+    {
+        key(PK; "Entry No.") { Clustered = true; }
+    }
+}
+
+page 88724 "LT RV Cost Line List"
+{
+    PageType = List;
+    ApplicationArea = All;
+    UsageCategory = None;
+    SourceTable = "LT RV Cost Line";
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Lines)
+            {
+                field("Entry No."; Rec."Entry No.") { ApplicationArea = All; }
+                field(HiddenQuantity; Rec.Quantity)
+                {
+                    ApplicationArea = All;
+                    Editable = Rec."Allow Edit";
+                    Visible = false;
+                }
+                field(EdRecPlain; Rec.Quantity) { ApplicationArea = All; Editable = Rec.Flag; }
+                field(EdRecNot; Rec.Quantity) { ApplicationArea = All; Editable = not Rec."Allow Edit"; }
+                field(EdRecCmp; Rec.Quantity) { ApplicationArea = All; Editable = Rec.Quantity > 0; }
+                field(EdRecAndVar; Rec.Quantity) { ApplicationArea = All; Editable = Rec.Flag and EditAllowed; }
+                field(VisRec; Rec.Quantity) { ApplicationArea = All; Visible = Rec.Flag; }
+                field(EnRec; Rec.Quantity) { ApplicationArea = All; Enabled = Rec."Allow Edit"; }
+            }
+        }
+    }
+
+    var
+        EditAllowed: Boolean;
 }
 
 codeunit 73704 "LT P132 Ctl Tests"
@@ -156,5 +210,37 @@ codeunit 73704 "LT P132 Ctl Tests"
         Observer.Expect('InGrp.Editable', 'True');
         Observer.Expect('group_row_found', 'No');
         Observer.Verify();
+    end;
+
+    local procedure ReadRvControl(var Observer: Codeunit "Probe Observer"; CtlName: Text)
+    var
+        PageControlField: Record "Page Control Field";
+    begin
+        PageControlField.SetRange(PageNo, Page::"LT RV Cost Line List");
+        PageControlField.SetRange(ControlName, CtlName);
+        if not PageControlField.FindFirst() then begin
+            Observer.Observe(CtlName, 'no row');
+            exit;
+        end;
+        Observer.Observe(CtlName + '.Visible', PageControlField.Visible);
+        Observer.Observe(CtlName + '.Enabled', PageControlField.Enabled);
+        Observer.Observe(CtlName + '.Editable', PageControlField.Editable);
+    end;
+
+    // al-runner issue 5786: Visible, Enabled and Editable expressions over source table fields on a List page.
+    [Test]
+    procedure P132_RV_RecFieldExpressions()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ReadRvControl(Observer, 'HiddenQuantity');
+        ReadRvControl(Observer, 'EdRecPlain');
+        ReadRvControl(Observer, 'EdRecNot');
+        ReadRvControl(Observer, 'EdRecCmp');
+        ReadRvControl(Observer, 'EdRecAndVar');
+        ReadRvControl(Observer, 'VisRec');
+        ReadRvControl(Observer, 'EnRec');
+        ReadRvControl(Observer, 'Entry No.');
+        Observer.Finish();
     end;
 }
