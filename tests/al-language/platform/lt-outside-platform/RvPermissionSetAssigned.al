@@ -67,7 +67,11 @@ codeunit 88722 "LT RV Permission Set Assigned"
         Observer.Observe('current company', Has(CompanyName(), OwnAppId()));
         Observer.Observe('no company', Has('', OwnAppId()));
         Observer.Observe('null app id', Has(CompanyName(), NullGuidValue()));
-        Observer.Finish();
+        Observer.Expect('rows before', 'No');
+        Observer.Expect('current company', 'No');
+        Observer.Expect('no company', 'No');
+        Observer.Expect('null app id', 'No');
+        Observer.Verify();
     end;
 
     // Assigned for all companies (Company Name '').
@@ -80,7 +84,10 @@ codeunit 88722 "LT RV Permission Set Assigned"
         Observer.Observe('current company', Has(CompanyName(), OwnAppId()));
         Observer.Observe('no company', Has('', OwnAppId()));
         Observer.Observe('other company', Has(OtherCompanyTok, OwnAppId()));
-        Observer.Finish();
+        Observer.Expect('current company', 'Yes');
+        Observer.Expect('no company', 'Yes');
+        Observer.Expect('other company', 'Yes');
+        Observer.Verify();
     end;
 
     // Assigned for the current company only.
@@ -93,7 +100,10 @@ codeunit 88722 "LT RV Permission Set Assigned"
         Observer.Observe('current company', Has(CompanyName(), OwnAppId()));
         Observer.Observe('no company', Has('', OwnAppId()));
         Observer.Observe('other company', Has(OtherCompanyTok, OwnAppId()));
-        Observer.Finish();
+        Observer.Expect('current company', 'Yes');
+        Observer.Expect('no company', 'No');
+        Observer.Expect('other company', 'No');
+        Observer.Verify();
     end;
 
     // Assigned for another company only.
@@ -106,7 +116,10 @@ codeunit 88722 "LT RV Permission Set Assigned"
         Observer.Observe('current company', Has(CompanyName(), OwnAppId()));
         Observer.Observe('no company', Has('', OwnAppId()));
         Observer.Observe('other company', Has(OtherCompanyTok, OwnAppId()));
-        Observer.Finish();
+        Observer.Expect('current company', 'No');
+        Observer.Expect('no company', 'No');
+        Observer.Expect('other company', 'Yes');
+        Observer.Verify();
     end;
 
     // Assigned with the null app id, asked with the own app id, and the other way round.
@@ -118,7 +131,9 @@ codeunit 88722 "LT RV Permission Set Assigned"
         Assign('', NullGuidValue());
         Observer.Observe('asked own app id', Has(CompanyName(), OwnAppId()));
         Observer.Observe('asked null app id', Has(CompanyName(), NullGuidValue()));
-        Observer.Finish();
+        Observer.Expect('asked own app id', 'No');
+        Observer.Expect('asked null app id', 'Yes');
+        Observer.Verify();
     end;
 
     // A security id that belongs to no user, and SUPER for the session user.
@@ -131,7 +146,9 @@ codeunit 88722 "LT RV Permission Set Assigned"
     begin
         Observer.Observe('unknown user', Format(UserPermissions.HasUserPermissionSetAssigned(CreateGuid(), CompanyName(), SetTok, AccessControl.Scope::System, OwnAppId())));
         Observer.Observe('super', Format(UserPermissions.HasUserPermissionSetAssigned(UserSecurityId(), CompanyName(), 'SUPER', AccessControl.Scope::System, NullGuidValue())));
-        Observer.Finish();
+        Observer.Expect('unknown user', 'No');
+        Observer.Expect('super', 'Yes');
+        Observer.Verify();
     end;
 
     local procedure NullGuidValue(): Guid

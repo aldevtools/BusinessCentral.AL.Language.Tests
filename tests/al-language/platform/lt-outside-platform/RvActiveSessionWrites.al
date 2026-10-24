@@ -3,7 +3,7 @@
 // Fixtures used: Probe Observer (69160); own codeunit 88721 reads the table from another object.
 // Probe: al-runner issue 5807 (aldevtools/BusinessCentral.AL.Runner). Writes to the platform table Active Session (2000000110): a test copies
 //   the row of its own session, gives it another Session ID and inserts it to stand in for a second live session. Pinned here: Insert(false)
-//   and Insert(true) of such a copy, Get and Count from another codeunit, Insert of an Init'ed row, Insert of a duplicate key, Modify and
+//   and Insert(true) of such a copy, Get and Count from another codeunit, Insert of an Init'ed row, Insert of a duplicate key (own key and a second Insert), Modify and
 //   Delete of an inserted row, and the rollback of an Insert inside asserterror. Session ids, instance ids and user names belong to the
 //   environment, so every observation is a found/not-found answer, a count difference, a value the test wrote itself, or an error text
 //   with those numbers replaced by <instance> and <session>. The rows are written in the test's own transaction (test isolation rolls
@@ -17,8 +17,8 @@ codeunit 88720 "LT RV Active Session Writes"
 
     local procedure OtherSessionId(Offset: Integer): Integer
     begin
-        // Session ids of live sessions are positive: a negative id belongs to no session.
-        exit(-SessionId() - Offset);
+        // Session ids of live sessions are positive: a negative id far from zero belongs to no session.
+        exit(-1000000 - Offset);
     end;
 
     local procedure CopyOwnRow(var ActiveSession: Record "Active Session"; NewSessionId: Integer; NewUserId: Text)
@@ -57,7 +57,14 @@ codeunit 88720 "LT RV Active Session Writes"
         Observer.Observe('count of other id', Format(Holder.CountOfSession(OtherId)));
         Observer.Observe('own row still there', Format(Holder.Exists(ServiceInstanceId(), SessionId())));
         Observer.Observe('own row user unchanged', Format(Holder.HolderOfSession(ServiceInstanceId(), SessionId()) = UserId()));
-        Observer.Finish();
+        Observer.Expect('insert', 'Yes');
+        Observer.Expect('holder', 'LT RV OTHER PLANNER');
+        Observer.Expect('found by get', 'Yes');
+        Observer.Expect('count difference', '1');
+        Observer.Expect('count of other id', '1');
+        Observer.Expect('own row still there', 'Yes');
+        Observer.Expect('own row user unchanged', 'Yes');
+        Observer.Verify();
     end;
 
     // Insert(true) of the same kind of copy (a platform table has no AL triggers).
@@ -73,7 +80,9 @@ codeunit 88720 "LT RV Active Session Writes"
         CopyOwnRow(ActiveSession, OtherId, 'LT RV TRUE');
         Observer.Observe('insert', Format(ActiveSession.Insert(true)));
         Observer.Observe('holder', Holder.HolderOfSession(ServiceInstanceId(), OtherId));
-        Observer.Finish();
+        Observer.Expect('insert', 'Yes');
+        Observer.Expect('holder', 'LT RV TRUE');
+        Observer.Verify();
     end;
 
     // An Init'ed row with only the key and the user set: what the other columns read back.
@@ -90,8 +99,12 @@ codeunit 88720 "LT RV Active Session Writes"
         ActiveSession."Server Instance ID" := ServiceInstanceId();
         ActiveSession."Session ID" := OtherId;
         ActiveSession."User ID" := 'LT RV INIT';
+        Observer.Observe('exists before', Format(ReadBack.Get(ServiceInstanceId(), OtherId)));
+        ClearLastError();
         Observer.Observe('insert', Format(ActiveSession.Insert()));
+        Observer.Observe('insert error', Scrubbed(GetLastErrorText(), OtherId));
         Observer.Observe('get', Format(ReadBack.Get(ServiceInstanceId(), OtherId)));
+        Observer.Observe('session id', Format(ReadBack."Session ID" = OtherId));
         Observer.Observe('user id', ReadBack."User ID");
         Observer.Observe('user sid null', Format(IsNullGuid(ReadBack."User SID")));
         Observer.Observe('unique id null', Format(IsNullGuid(ReadBack."Session Unique ID")));
@@ -104,24 +117,31 @@ codeunit 88720 "LT RV Active Session Writes"
         Observer.Finish();
     end;
 
-    // Insert of a row whose key is the own session's key.
+    // Insert of a row whose key is the own session's key, and a second Insert of an inserted row.
     [Test]
     procedure RV_ActiveSession_InsertDuplicateKey_Error()
     var
         Observer: Codeunit "Probe Observer";
         ActiveSession: Record "Active Session";
-        Ok: Boolean;
+        Holder: Codeunit "LT RV Session Holder";
+        OtherId: Integer;
     begin
         ActiveSession.Get(ServiceInstanceId(), SessionId());
         ActiveSession."User ID" := 'LT RV DUPLICATE';
         ClearLastError();
-        Ok := ActiveSession.Insert(false);
-        Observer.Observe('insert used', Format(Ok));
-        Observer.Observe('insert used error', Scrubbed(GetLastErrorText(), 0));
+        Observer.Observe('own key insert', Format(ActiveSession.Insert(false)));
+        Observer.Observe('own key insert error', Scrubbed(GetLastErrorText(), 0));
+        Observer.Observe('own key rows', Format(Holder.CountOfSession(SessionId())));
+        Observer.Observe('own key user unchanged', Format(Holder.HolderOfSession(ServiceInstanceId(), SessionId()) = UserId()));
+        OtherId := OtherSessionId(7);
+        CopyOwnRow(ActiveSession, OtherId, 'LT RV FIRST');
+        ActiveSession.Insert(false);
+        ActiveSession."User ID" := 'LT RV SECOND';
         ClearLastError();
-        asserterror ActiveSession.Insert(false);
-        Observer.Observe('insert unused error|text', Scrubbed(GetLastErrorText(), 0));
-        Observer.Observe('insert unused error|code', GetLastErrorCode());
+        Observer.Observe('second insert', Format(ActiveSession.Insert(false)));
+        Observer.Observe('second insert error', Scrubbed(GetLastErrorText(), OtherId));
+        Observer.Observe('holder after second', Holder.HolderOfSession(ServiceInstanceId(), OtherId));
+        Observer.Observe('rows of other id', Format(Holder.CountOfSession(OtherId)));
         Observer.Finish();
     end;
 
@@ -135,10 +155,14 @@ codeunit 88720 "LT RV Active Session Writes"
         OtherId: Integer;
     begin
         OtherId := OtherSessionId(4);
+        Observer.Observe('exists before', Format(Holder.Exists(ServiceInstanceId(), OtherId)));
         CopyOwnRow(ActiveSession, OtherId, 'LT RV BEFORE');
         ActiveSession.Insert(false);
+        Observer.Observe('holder after insert', Holder.HolderOfSession(ServiceInstanceId(), OtherId));
         ActiveSession."User ID" := 'LT RV AFTER';
+        ClearLastError();
         Observer.Observe('modify', Format(ActiveSession.Modify(false)));
+        Observer.Observe('modify error', Scrubbed(GetLastErrorText(), OtherId));
         Observer.Observe('holder after modify', Holder.HolderOfSession(ServiceInstanceId(), OtherId));
         Observer.Observe('delete', Format(ActiveSession.Delete(false)));
         Observer.Observe('found after delete', Format(Holder.Exists(ServiceInstanceId(), OtherId)));
@@ -158,7 +182,10 @@ codeunit 88720 "LT RV Active Session Writes"
         asserterror Holder.InsertCopyThenFail(OtherId, 'LT RV ROLLED BACK');
         Observer.ObserveError('error');
         Observer.Observe('found after rollback', Format(Holder.Exists(ServiceInstanceId(), OtherId)));
-        Observer.Finish();
+        Observer.Expect('error|text', 'LT RV inserted LT RV ROLLED BACK');
+        Observer.Expect('error|code', 'Dialog');
+        Observer.Expect('found after rollback', 'No');
+        Observer.Verify();
     end;
 
     // The Session virtual table (2000000009) for the id of an inserted Active Session row.
@@ -175,7 +202,8 @@ codeunit 88720 "LT RV Active Session Writes"
         ActiveSession.Insert(false);
         Session.SetRange("Connection ID", OtherId);
         Observer.Observe('session rows', Format(Session.Count()));
-        Observer.Finish();
+        Observer.Expect('session rows', '0');
+        Observer.Verify();
     end;
 }
 

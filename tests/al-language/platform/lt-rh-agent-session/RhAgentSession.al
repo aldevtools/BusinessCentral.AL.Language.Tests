@@ -110,7 +110,11 @@ codeunit 88003 "LT RH Agent Session"
         Observer.ObserveError('new id');
         asserterror Agent.GetDisplayName(NullId);
         Observer.ObserveError('null id');
-        Observer.Finish();
+        Observer.Expect('new id|text', 'Agents are temporarily unavailable. Please try again later. You can check the Business Central Admin Center and Microsoft 365 Service Health dashboard for updates.');
+        Observer.Expect('new id|code', 'DB:Ok');
+        Observer.Expect('null id|text', 'Agents are temporarily unavailable. Please try again later. You can check the Business Central Admin Center and Microsoft 365 Service Health dashboard for updates.');
+        Observer.Expect('null id|code', 'DB:Ok');
+        Observer.Verify();
     end;
 
     // al-runner issue 5787: the same call inside a TryFunction, and the other GetAgent callers GetUserName and IsActive.
@@ -130,6 +134,14 @@ codeunit 88003 "LT RH Agent Session"
         Observer.ObserveError('user name');
         asserterror Agent.IsActive(CreateGuid());
         Observer.ObserveError('is active');
-        Observer.Finish();
+        Observer.Expect('try', 'No');
+        Observer.Expect('try name', 'LT RV unchanged');
+        Observer.Expect('try error|text', 'Agents are temporarily unavailable. Please try again later. You can check the Business Central Admin Center and Microsoft 365 Service Health dashboard for updates.');
+        Observer.Expect('try error|code', 'DB:Ok');
+        Observer.Expect('user name|text', 'Agents are temporarily unavailable. Please try again later. You can check the Business Central Admin Center and Microsoft 365 Service Health dashboard for updates.');
+        Observer.Expect('user name|code', 'DB:Ok');
+        Observer.Expect('is active|text', 'Agents are temporarily unavailable. Please try again later. You can check the Business Central Admin Center and Microsoft 365 Service Health dashboard for updates.');
+        Observer.Expect('is active|code', 'DB:Ok');
+        Observer.Verify();
     end;
 }
