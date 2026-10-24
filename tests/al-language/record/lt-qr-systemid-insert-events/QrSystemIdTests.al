@@ -348,7 +348,7 @@ codeunit 87289 "LT QR SystemId Events"
         end else
             Ok := Row.Insert(RunTrigger);
         UnbindSubscription(Subscriber);
-        RuState.Arm(0);
+        RuState.Disarm();
         Observer.Observe(Name + '|insert', Format(Ok));
         RuObserveTrigger(Observer, Name, Preset, WithSystemId);
         Observer.Observe(Name + '|caller null', Format(IsNullGuid(Row.SystemId)));
@@ -448,6 +448,22 @@ codeunit 87289 "LT QR SystemId Events"
     end;
 
     [Test]
+    procedure RU_NoChange_Temporary_InsertTrue()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT RU Init Row" temporary;
+        RuState: Codeunit "LT RU Init State";
+    begin
+        RuState.Arm(0);
+        Row.Init();
+        Row.Id := 1;
+        Row.Note := 'caller';
+        Observer.Observe('temp control|insert', Format(Row.Insert(true)));
+        Observer.Observe('temp control|caller null', Format(IsNullGuid(Row.SystemId)));
+        Observer.Finish();
+    end;
+
+    [Test]
     procedure RU_OnInsert_Init_Temporary_InsertTrue()
     var
         Observer: Codeunit "Probe Observer";
@@ -461,7 +477,7 @@ codeunit 87289 "LT QR SystemId Events"
         Row.Id := 1;
         Row.Note := 'caller';
         Ok := Row.Insert(true);
-        RuState.Arm(0);
+        RuState.Disarm();
         Observer.Observe('temp|insert', Format(Ok));
         Observer.Observe('temp|id before null', Format(IsNullGuid(RuState.GetIdBefore())));
         Observer.Observe('temp|id after null', Format(IsNullGuid(RuState.GetIdAfter())));

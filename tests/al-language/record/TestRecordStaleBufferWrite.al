@@ -423,12 +423,34 @@ codeunit 69920 "Test Record Stale Buffer Write"
         RuObserveStored(Observer);
     end;
 
+    local procedure RuModifyRefused(var Row: Record "ALT Universal"; var Observer: Codeunit "Probe Observer")
+    begin
+        Row."Integer Field" := 5;
+        asserterror Row.Modify(false);
+        Assert.ExpectedErrorCode('DB:RecordChanged');
+        Assert.ExpectedError(StaleAfterCommitErr);
+        Assert.ExpectedError('Entry No.=''5''');
+        RuObserveStored(Observer);
+    end;
+
     local procedure RuDeleteStale(var Row: Record "ALT Universal"; var Observer: Codeunit "Probe Observer")
     var
         Stored: Record "ALT Universal";
     begin
         Row.Delete(false);
         Observer.Observe('delete', 'ok');
+        Observer.Observe('stored exists', Format(Stored.Get(5)));
+        RuCleanup();
+    end;
+
+    local procedure RuDeleteRefused(var Row: Record "ALT Universal"; var Observer: Codeunit "Probe Observer")
+    var
+        Stored: Record "ALT Universal";
+    begin
+        asserterror Row.Delete(false);
+        Assert.ExpectedErrorCode('DB:RecordChanged');
+        Assert.ExpectedError(StaleAfterCommitErr);
+        Assert.ExpectedError('Entry No.=''5''');
         Observer.Observe('stored exists', Format(Stored.Get(5)));
         RuCleanup();
     end;
@@ -459,7 +481,7 @@ codeunit 69920 "Test Record Stale Buffer Write"
         Initialize();
         RuInsertRow(Row);
         RuChangeAndCommit();
-        RuModifyStale(Row, Observer);
+        RuModifyRefused(Row, Observer);
         Observer.Finish();
     end;
 
@@ -476,7 +498,9 @@ codeunit 69920 "Test Record Stale Buffer Write"
         Later.Get(5);
         Later.Modify(false);
         RuModifyStale(Row, Observer);
-        Observer.Finish();
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'start|5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -494,7 +518,9 @@ codeunit 69920 "Test Record Stale Buffer Write"
         Commit();
         Other.Modify(false);
         RuModifyStale(Row, Observer);
-        Observer.Finish();
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'start|5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -510,7 +536,9 @@ codeunit 69920 "Test Record Stale Buffer Write"
         Later.LockTable();
         Later.Get(5);
         RuModifyStale(Row, Observer);
-        Observer.Finish();
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'start|5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -524,7 +552,7 @@ codeunit 69920 "Test Record Stale Buffer Write"
         RuInsertRow(Row);
         RuChangeAndCommit();
         Later.Get(5);
-        RuModifyStale(Row, Observer);
+        RuModifyRefused(Row, Observer);
         Observer.Finish();
     end;
 
@@ -542,7 +570,9 @@ codeunit 69920 "Test Record Stale Buffer Write"
         Later."Text Field" := 'later';
         Later.Modify(false);
         RuModifyStale(Row, Observer);
-        Observer.Finish();
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'start|5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -558,7 +588,7 @@ codeunit 69920 "Test Record Stale Buffer Write"
         Later.Get(5);
         Later.Modify(false);
         Commit();
-        RuModifyStale(Row, Observer);
+        RuModifyRefused(Row, Observer);
         Observer.Finish();
     end;
 
@@ -576,7 +606,7 @@ codeunit 69920 "Test Record Stale Buffer Write"
         RuChangeAndCommit();
         Later.Get(5);
         Later.Modify(false);
-        RuModifyStale(Row, Observer);
+        RuModifyRefused(Row, Observer);
         Observer.Finish();
     end;
 
@@ -594,7 +624,7 @@ codeunit 69920 "Test Record Stale Buffer Write"
         RuChangeAndCommit();
         Later.LockTable();
         Later.Get(5);
-        RuModifyStale(Row, Observer);
+        RuModifyRefused(Row, Observer);
         Observer.Finish();
     end;
 
@@ -613,7 +643,7 @@ codeunit 69920 "Test Record Stale Buffer Write"
         Later.Get(5);
         Later."Text Field" := 'later';
         Later.Modify(false);
-        RuModifyStale(Row, Observer);
+        RuModifyRefused(Row, Observer);
         Observer.Finish();
     end;
 
@@ -626,7 +656,7 @@ codeunit 69920 "Test Record Stale Buffer Write"
         Initialize();
         RuInsertRow(Row);
         RuChangeAndCommit();
-        RuDeleteStale(Row, Observer);
+        RuDeleteRefused(Row, Observer);
         Observer.Finish();
     end;
 
@@ -643,6 +673,8 @@ codeunit 69920 "Test Record Stale Buffer Write"
         Later.Get(5);
         Later.Modify(false);
         RuDeleteStale(Row, Observer);
-        Observer.Finish();
+        Observer.Expect('delete', 'ok');
+        Observer.Expect('stored exists', 'No');
+        Observer.Verify();
     end;
 }

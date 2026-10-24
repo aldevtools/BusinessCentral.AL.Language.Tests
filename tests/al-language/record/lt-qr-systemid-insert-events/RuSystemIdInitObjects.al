@@ -93,6 +93,11 @@ codeunit 88662 "LT RU Init State"
         NoteAfterText := '<not run>';
     end;
 
+    procedure Disarm()
+    begin
+        CurrentMode := 0;
+    end;
+
     procedure Mode(): Integer
     begin
         exit(CurrentMode);

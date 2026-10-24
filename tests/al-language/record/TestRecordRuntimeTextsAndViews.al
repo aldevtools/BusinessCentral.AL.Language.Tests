@@ -416,7 +416,8 @@ codeunit 68137 "Probe Record Texts"
 
     // ---- AL Runner issue 5788 (writer RU): where a duplicate-key error that is still deferred when a codeunit's OnRun or a TryFunction ends
     // surfaces. A test that ends with the error deferred cannot be a corpus test (it fails), so these are its neighbours: the end of a
-    // guarded and of a statement-form Codeunit.Run (the test runner runs a test codeunit through Codeunit.Run), and the end of a TryFunction.
+    // guarded and of a statement-form Codeunit.Run (the test runner runs a test codeunit through Codeunit.Run).
+    // A TryFunction cannot be asked: an Insert inside one is refused at once (pinned in misc/lt-cu-odd-leads/CuTryTests.al).
     // Codeunit 88665 (lt-ru-deferred-dup/RuDeferredDupTargets.al) inserts Id 2, then a duplicate of Id 1 as its last statement.
 
     local procedure RuPrepare()
@@ -459,16 +460,6 @@ codeunit 68137 "Probe Record Texts"
         Rows := NoBlob.Count();
     end;
 
-    [TryFunction]
-    local procedure RuTryDupAtEnd()
-    var
-        NoBlob: Record "Probe Dup No Blob";
-    begin
-        NoBlob.Id := 1;
-        NoBlob.Txt := 'dup';
-        NoBlob.Insert();
-    end;
-
     [Test]
     procedure RU_DeferredDuplicate_EndOfGuardedCodeunitRun()
     var
@@ -481,7 +472,15 @@ codeunit 68137 "Probe Record Texts"
         if not Ok then
             Observer.ObserveError('run');
         RuObserveRows(Observer);
-        Observer.Finish();
+        // Guarded: the deferred error ends the run (false, the duplicate's text and code) and rolls back the run's other insert.
+        Observer.Expect('run', 'No');
+        Observer.Expect('run|text', 'The record in table Probe Dup No Blob already exists. Identification fields and values: Id=''1''');
+        Observer.Expect('run|code', 'DB:RecordExists');
+        Observer.Expect('read', '1');
+        Observer.Expect('second read', '1');
+        Observer.Expect('row 2 exists', 'No');
+        Observer.Expect('row 1 text', 'first');
+        Observer.Verify();
     end;
 
     [Test]
@@ -493,21 +492,13 @@ codeunit 68137 "Probe Record Texts"
         Codeunit.Run(Codeunit::"LT RU Dup At End");
         Observer.Observe('run', 'returned');
         RuObserveRows(Observer);
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure RU_DeferredDuplicate_EndOfTryFunction()
-    var
-        Observer: Codeunit "Probe Observer";
-        Ok: Boolean;
-    begin
-        RuPrepare();
-        Ok := RuTryDupAtEnd();
-        Observer.Observe('try', Format(Ok));
-        if not Ok then
-            Observer.ObserveError('try');
-        RuObserveRows(Observer);
-        Observer.Finish();
+        // Statement form: the run returns with the error still deferred, the caller's next read raises it, and the run's other insert stays.
+        Observer.Expect('run', 'returned');
+        Observer.Expect('read|text', 'The record in table Probe Dup No Blob already exists. Identification fields and values: Id=''1''');
+        Observer.Expect('read|code', 'DB:RecordExists');
+        Observer.Expect('second read', '2');
+        Observer.Expect('row 2 exists', 'Yes');
+        Observer.Expect('row 1 text', 'first');
+        Observer.Verify();
     end;
 }
