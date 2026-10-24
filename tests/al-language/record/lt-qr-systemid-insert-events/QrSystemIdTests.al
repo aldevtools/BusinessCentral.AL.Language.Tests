@@ -320,4 +320,289 @@ codeunit 87289 "LT QR SystemId Events"
         Observer.Observe('duplicate|code', GetLastErrorCode());
         Observer.Verify();
     end;
+
+
+    // ---- AL Runner issue 5803 (writer RU): Init() or Clear(SystemId) during Insert clears the SystemId the platform gave the row. Objects in
+    // RuSystemIdInitObjects.al. Mode 1: the table's OnInsert calls Init(); 2: OnInsert calls Clear(SystemId); 3: an OnBeforeInsertEvent
+    // subscriber calls Rec.Init(); 4: an OnAfterInsertEvent subscriber calls Rec.Init(). The caller sets Note := 'caller' before Insert.
+    // Measured (BC 29.0, then the CI matrix): the trigger sees the platform's id (or the preset id with InsertWithSystemId); Init() and
+    // Clear(SystemId) make it null, and Init() also clears Note. Cleared before the row is written (OnInsert, OnBeforeInsertEvent, also
+    // Insert(false)): the row is stored with a NEW id, not the one before the clear and not the preset one, and the caller holds that id.
+    // Cleared in OnAfterInsertEvent: the stored row keeps its id and Note, the caller's variable is null with Note ''. A temporary
+    // record gets no SystemId at all (null with or without Init).
+
+    local procedure RuRun(var Observer: Codeunit "Probe Observer"; Name: Text; Mode: Integer; RunTrigger: Boolean; WithSystemId: Boolean)
+    var
+        Row: Record "LT RU Init Row";
+        Stored: Record "LT RU Init Row";
+        RuState: Codeunit "LT RU Init State";
+        Subscriber: Codeunit "LT RU Init Subscriber";
+        Preset: Guid;
+        Ok: Boolean;
+    begin
+        Row.DeleteAll();
+        RuState.Arm(Mode);
+        BindSubscription(Subscriber);
+        Row.Init();
+        Row.Id := 1;
+        Row.Note := 'caller';
+        if WithSystemId then begin
+            Preset := CreateGuid();
+            Row.SystemId := Preset;
+            Ok := Row.Insert(RunTrigger, true);
+        end else
+            Ok := Row.Insert(RunTrigger);
+        UnbindSubscription(Subscriber);
+        RuState.Disarm();
+        Observer.Observe(Name + '|insert', Format(Ok));
+        RuObserveTrigger(Observer, Name, Preset, WithSystemId);
+        Observer.Observe(Name + '|caller null', Format(IsNullGuid(Row.SystemId)));
+        Observer.Observe(Name + '|caller note', Row.Note);
+        if WithSystemId then
+            Observer.Observe(Name + '|caller = preset', Format(Row.SystemId = Preset));
+        Observer.Observe(Name + '|stored', Format(Stored.Get(1)));
+        Observer.Observe(Name + '|stored null', Format(IsNullGuid(Stored.SystemId)));
+        Observer.Observe(Name + '|stored = caller', Format(Stored.SystemId = Row.SystemId));
+        Observer.Observe(Name + '|stored note', Stored.Note);
+        if WithSystemId then
+            Observer.Observe(Name + '|stored = preset', Format(Stored.SystemId = Preset));
+        Observer.Observe(Name + '|stored = id before', Format(Stored.SystemId = RuStateIdBefore()));
+        Observer.Observe(Name + '|caller = id before', Format(Row.SystemId = RuStateIdBefore()));
+    end;
+
+    local procedure RuObserveTrigger(var Observer: Codeunit "Probe Observer"; Name: Text; Preset: Guid; WithSystemId: Boolean)
+    var
+        RuState: Codeunit "LT RU Init State";
+    begin
+        Observer.Observe(Name + '|id before null', Format(IsNullGuid(RuState.GetIdBefore())));
+        Observer.Observe(Name + '|id after null', Format(IsNullGuid(RuState.GetIdAfter())));
+        Observer.Observe(Name + '|note before', RuState.GetNoteBefore());
+        Observer.Observe(Name + '|note after', RuState.GetNoteAfter());
+        if WithSystemId then
+            Observer.Observe(Name + '|id before = preset', Format(RuState.GetIdBefore() = Preset));
+    end;
+
+    local procedure RuStateIdBefore(): Guid
+    var
+        RuState: Codeunit "LT RU Init State";
+    begin
+        exit(RuState.GetIdBefore());
+    end;
+
+    [Test]
+    procedure RU_OnInsert_Init_InsertTrue()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RuRun(Observer, 'init', 1, true, false);
+        Observer.Expect('init|insert', 'Yes');
+        Observer.Expect('init|id before null', 'No');
+        Observer.Expect('init|id after null', 'Yes');
+        Observer.Expect('init|note before', 'caller');
+        Observer.Expect('init|note after', '');
+        Observer.Expect('init|caller null', 'No');
+        Observer.Expect('init|caller note', '');
+        Observer.Expect('init|stored', 'Yes');
+        Observer.Expect('init|stored null', 'No');
+        Observer.Expect('init|stored = caller', 'Yes');
+        Observer.Expect('init|stored note', '');
+        Observer.Expect('init|stored = id before', 'No');
+        Observer.Expect('init|caller = id before', 'No');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure RU_OnInsert_Init_InsertTrueWithSystemId()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RuRun(Observer, 'init with id', 1, true, true);
+        Observer.Expect('init with id|insert', 'Yes');
+        Observer.Expect('init with id|id before null', 'No');
+        Observer.Expect('init with id|id after null', 'Yes');
+        Observer.Expect('init with id|note before', 'caller');
+        Observer.Expect('init with id|note after', '');
+        Observer.Expect('init with id|id before = preset', 'Yes');
+        Observer.Expect('init with id|caller null', 'No');
+        Observer.Expect('init with id|caller note', '');
+        Observer.Expect('init with id|caller = preset', 'No');
+        Observer.Expect('init with id|stored', 'Yes');
+        Observer.Expect('init with id|stored null', 'No');
+        Observer.Expect('init with id|stored = caller', 'Yes');
+        Observer.Expect('init with id|stored note', '');
+        Observer.Expect('init with id|stored = preset', 'No');
+        Observer.Expect('init with id|stored = id before', 'No');
+        Observer.Expect('init with id|caller = id before', 'No');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure RU_OnInsert_ClearSystemId_InsertTrue()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RuRun(Observer, 'clear', 2, true, false);
+        Observer.Expect('clear|insert', 'Yes');
+        Observer.Expect('clear|id before null', 'No');
+        Observer.Expect('clear|id after null', 'Yes');
+        Observer.Expect('clear|note before', 'caller');
+        Observer.Expect('clear|note after', 'caller');
+        Observer.Expect('clear|caller null', 'No');
+        Observer.Expect('clear|caller note', 'caller');
+        Observer.Expect('clear|stored', 'Yes');
+        Observer.Expect('clear|stored null', 'No');
+        Observer.Expect('clear|stored = caller', 'Yes');
+        Observer.Expect('clear|stored note', 'caller');
+        Observer.Expect('clear|stored = id before', 'No');
+        Observer.Expect('clear|caller = id before', 'No');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure RU_OnInsert_ClearSystemId_InsertTrueWithSystemId()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RuRun(Observer, 'clear with id', 2, true, true);
+        Observer.Expect('clear with id|insert', 'Yes');
+        Observer.Expect('clear with id|id before null', 'No');
+        Observer.Expect('clear with id|id after null', 'Yes');
+        Observer.Expect('clear with id|note before', 'caller');
+        Observer.Expect('clear with id|note after', 'caller');
+        Observer.Expect('clear with id|id before = preset', 'Yes');
+        Observer.Expect('clear with id|caller null', 'No');
+        Observer.Expect('clear with id|caller note', 'caller');
+        Observer.Expect('clear with id|caller = preset', 'No');
+        Observer.Expect('clear with id|stored', 'Yes');
+        Observer.Expect('clear with id|stored null', 'No');
+        Observer.Expect('clear with id|stored = caller', 'Yes');
+        Observer.Expect('clear with id|stored note', 'caller');
+        Observer.Expect('clear with id|stored = preset', 'No');
+        Observer.Expect('clear with id|stored = id before', 'No');
+        Observer.Expect('clear with id|caller = id before', 'No');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure RU_OnBeforeInsertEvent_Init_InsertTrue()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RuRun(Observer, 'ev before', 3, true, false);
+        Observer.Expect('ev before|insert', 'Yes');
+        Observer.Expect('ev before|id before null', 'No');
+        Observer.Expect('ev before|id after null', 'Yes');
+        Observer.Expect('ev before|note before', 'caller');
+        Observer.Expect('ev before|note after', '');
+        Observer.Expect('ev before|caller null', 'No');
+        Observer.Expect('ev before|caller note', '');
+        Observer.Expect('ev before|stored', 'Yes');
+        Observer.Expect('ev before|stored null', 'No');
+        Observer.Expect('ev before|stored = caller', 'Yes');
+        Observer.Expect('ev before|stored note', '');
+        Observer.Expect('ev before|stored = id before', 'No');
+        Observer.Expect('ev before|caller = id before', 'No');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure RU_OnBeforeInsertEvent_Init_InsertFalse()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RuRun(Observer, 'ev before false', 3, false, false);
+        Observer.Expect('ev before false|insert', 'Yes');
+        Observer.Expect('ev before false|id before null', 'No');
+        Observer.Expect('ev before false|id after null', 'Yes');
+        Observer.Expect('ev before false|note before', 'caller');
+        Observer.Expect('ev before false|note after', '');
+        Observer.Expect('ev before false|caller null', 'No');
+        Observer.Expect('ev before false|caller note', '');
+        Observer.Expect('ev before false|stored', 'Yes');
+        Observer.Expect('ev before false|stored null', 'No');
+        Observer.Expect('ev before false|stored = caller', 'Yes');
+        Observer.Expect('ev before false|stored note', '');
+        Observer.Expect('ev before false|stored = id before', 'No');
+        Observer.Expect('ev before false|caller = id before', 'No');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure RU_OnAfterInsertEvent_Init_InsertTrue()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RuRun(Observer, 'ev after', 4, true, false);
+        Observer.Expect('ev after|insert', 'Yes');
+        Observer.Expect('ev after|id before null', 'No');
+        Observer.Expect('ev after|id after null', 'Yes');
+        Observer.Expect('ev after|note before', 'caller');
+        Observer.Expect('ev after|note after', '');
+        Observer.Expect('ev after|caller null', 'Yes');
+        Observer.Expect('ev after|caller note', '');
+        Observer.Expect('ev after|stored', 'Yes');
+        Observer.Expect('ev after|stored null', 'No');
+        Observer.Expect('ev after|stored = caller', 'No');
+        Observer.Expect('ev after|stored note', 'caller');
+        Observer.Expect('ev after|stored = id before', 'Yes');
+        Observer.Expect('ev after|caller = id before', 'No');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure RU_NoChange_Temporary_InsertTrue()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT RU Init Row" temporary;
+        RuState: Codeunit "LT RU Init State";
+    begin
+        RuState.Arm(0);
+        Row.Init();
+        Row.Id := 1;
+        Row.Note := 'caller';
+        Observer.Observe('temp control|insert', Format(Row.Insert(true)));
+        Observer.Observe('temp control|caller null', Format(IsNullGuid(Row.SystemId)));
+        Observer.Expect('temp control|insert', 'Yes');
+        Observer.Expect('temp control|caller null', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure RU_OnInsert_Init_Temporary_InsertTrue()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT RU Init Row" temporary;
+        Stored: Record "LT RU Init Row" temporary;
+        RuState: Codeunit "LT RU Init State";
+        Ok: Boolean;
+    begin
+        RuState.Arm(1);
+        Row.Init();
+        Row.Id := 1;
+        Row.Note := 'caller';
+        Ok := Row.Insert(true);
+        RuState.Disarm();
+        Observer.Observe('temp|insert', Format(Ok));
+        Observer.Observe('temp|id before null', Format(IsNullGuid(RuState.GetIdBefore())));
+        Observer.Observe('temp|id after null', Format(IsNullGuid(RuState.GetIdAfter())));
+        Observer.Observe('temp|caller null', Format(IsNullGuid(Row.SystemId)));
+        Observer.Observe('temp|caller = id before', Format(Row.SystemId = RuState.GetIdBefore()));
+        Observer.Observe('temp|caller note', Row.Note);
+        Stored.Copy(Row, true);
+        Observer.Observe('temp|stored', Format(Stored.Get(1)));
+        Observer.Observe('temp|stored null', Format(IsNullGuid(Stored.SystemId)));
+        Observer.Observe('temp|stored = caller', Format(Stored.SystemId = Row.SystemId));
+        Observer.Observe('temp|stored note', Stored.Note);
+        Observer.Expect('temp|insert', 'Yes');
+        Observer.Expect('temp|id before null', 'Yes');
+        Observer.Expect('temp|id after null', 'Yes');
+        Observer.Expect('temp|caller null', 'Yes');
+        Observer.Expect('temp|caller = id before', 'Yes');
+        Observer.Expect('temp|caller note', '');
+        Observer.Expect('temp|stored', 'Yes');
+        Observer.Expect('temp|stored null', 'Yes');
+        Observer.Expect('temp|stored = caller', 'Yes');
+        Observer.Expect('temp|stored note', '');
+        Observer.Verify();
+    end;
 }

@@ -391,4 +391,302 @@ codeunit 69920 "Test Record Stale Buffer Write"
     begin
         Cleanup.Initialize();
     end;
+
+
+    // ---- AL Runner issue 5805 (writer RU): a buffer made stale before a Commit, written after the Commit, depending on what the new
+    // transaction did to the row first. "Text Field" plays the issue's Note, "Integer Field" its Qty. Row 5 holds the row; every test
+    // removes it and commits at its end. Each test observes the stale write (ok or the error), then the stored Text and Integer fields.
+    // Measured (BC 29.0, then the CI matrix): a buffer from the Insert of the transaction the Commit closed may be written once the new
+    // transaction Modified the row (changed or not, through any variable) or read it under LockTable; the stale buffer then wins
+    // (stored start|5). Refused with DB:RecordChanged, the row keeping the committed other|0: nothing in between, a plain Get, the
+    // unchanged Modify followed by a Commit, and every case where the buffer was read by Get after an earlier Commit. A stale Delete
+    // follows the same rule (refused with nothing in between, accepted after the unchanged Modify).
+
+    local procedure RuInsertRow(var Row: Record "ALT Universal")
+    begin
+        Row.Init();
+        Row."Entry No." := 5;
+        Row."Text Field" := 'start';
+        Row.Insert(false);
+    end;
+
+    local procedure RuChangeAndCommit()
+    var
+        Other: Record "ALT Universal";
+    begin
+        Other.Get(5);
+        Other."Text Field" := 'other';
+        Other.Modify(false);
+        Commit();
+    end;
+
+    local procedure RuModifyStale(var Row: Record "ALT Universal"; var Observer: Codeunit "Probe Observer")
+    begin
+        Row."Integer Field" := 5;
+        Row.Modify(false);
+        Observer.Observe('write', 'ok');
+        RuObserveStored(Observer);
+    end;
+
+    local procedure RuModifyRefused(var Row: Record "ALT Universal"; var Observer: Codeunit "Probe Observer")
+    begin
+        Row."Integer Field" := 5;
+        asserterror Row.Modify(false);
+        Assert.ExpectedErrorCode('DB:RecordChanged');
+        Assert.ExpectedError(StaleAfterCommitErr);
+        Assert.ExpectedError('Entry No.=''5''');
+        RuObserveStored(Observer);
+    end;
+
+    local procedure RuDeleteStale(var Row: Record "ALT Universal"; var Observer: Codeunit "Probe Observer")
+    var
+        Stored: Record "ALT Universal";
+    begin
+        Row.Delete(false);
+        Observer.Observe('delete', 'ok');
+        Observer.Observe('stored exists', Format(Stored.Get(5)));
+        RuCleanup();
+    end;
+
+    local procedure RuDeleteRefused(var Row: Record "ALT Universal"; var Observer: Codeunit "Probe Observer")
+    var
+        Stored: Record "ALT Universal";
+    begin
+        asserterror Row.Delete(false);
+        Assert.ExpectedErrorCode('DB:RecordChanged');
+        Assert.ExpectedError(StaleAfterCommitErr);
+        Assert.ExpectedError('Entry No.=''5''');
+        Observer.Observe('stored exists', Format(Stored.Get(5)));
+        RuCleanup();
+    end;
+
+    local procedure RuObserveStored(var Observer: Codeunit "Probe Observer")
+    var
+        Stored: Record "ALT Universal";
+    begin
+        Stored.Get(5);
+        Observer.Observe('stored', Stored."Text Field" + '|' + Format(Stored."Integer Field"));
+        RuCleanup();
+    end;
+
+    local procedure RuCleanup()
+    var
+        Rows: Record "ALT Universal";
+    begin
+        Rows.DeleteAll();
+        Commit();
+    end;
+
+    [Test]
+    procedure RU_Stale_InsertBuffer_NothingAfterCommit()
+    var
+        Row: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Initialize();
+        RuInsertRow(Row);
+        RuChangeAndCommit();
+        RuModifyRefused(Row, Observer);
+        Observer.Expect('stored', 'other|0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure RU_Stale_InsertBuffer_OtherGetModifyUnchanged()
+    var
+        Row: Record "ALT Universal";
+        Later: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Initialize();
+        RuInsertRow(Row);
+        RuChangeAndCommit();
+        Later.Get(5);
+        Later.Modify(false);
+        RuModifyStale(Row, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'start|5');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure RU_Stale_InsertBuffer_WriterModifiesAgainUnchanged()
+    var
+        Row: Record "ALT Universal";
+        Other: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Initialize();
+        RuInsertRow(Row);
+        Other.Get(5);
+        Other."Text Field" := 'other';
+        Other.Modify(false);
+        Commit();
+        Other.Modify(false);
+        RuModifyStale(Row, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'start|5');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure RU_Stale_InsertBuffer_OtherLockTableGet()
+    var
+        Row: Record "ALT Universal";
+        Later: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Initialize();
+        RuInsertRow(Row);
+        RuChangeAndCommit();
+        Later.LockTable();
+        Later.Get(5);
+        RuModifyStale(Row, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'start|5');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure RU_Stale_InsertBuffer_OtherGetOnly()
+    var
+        Row: Record "ALT Universal";
+        Later: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Initialize();
+        RuInsertRow(Row);
+        RuChangeAndCommit();
+        Later.Get(5);
+        RuModifyRefused(Row, Observer);
+        Observer.Expect('stored', 'other|0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure RU_Stale_InsertBuffer_OtherGetChangeModify()
+    var
+        Row: Record "ALT Universal";
+        Later: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Initialize();
+        RuInsertRow(Row);
+        RuChangeAndCommit();
+        Later.Get(5);
+        Later."Text Field" := 'later';
+        Later.Modify(false);
+        RuModifyStale(Row, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'start|5');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure RU_Stale_InsertBuffer_OtherGetModifyUnchanged_ThenCommit()
+    var
+        Row: Record "ALT Universal";
+        Later: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Initialize();
+        RuInsertRow(Row);
+        RuChangeAndCommit();
+        Later.Get(5);
+        Later.Modify(false);
+        Commit();
+        RuModifyRefused(Row, Observer);
+        Observer.Expect('stored', 'other|0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure RU_Stale_GetBuffer_OtherGetModifyUnchanged()
+    var
+        Row: Record "ALT Universal";
+        Later: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Initialize();
+        RuInsertRow(Row);
+        Commit();
+        Row.Get(5);
+        RuChangeAndCommit();
+        Later.Get(5);
+        Later.Modify(false);
+        RuModifyRefused(Row, Observer);
+        Observer.Expect('stored', 'other|0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure RU_Stale_GetBuffer_OtherLockTableGet()
+    var
+        Row: Record "ALT Universal";
+        Later: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Initialize();
+        RuInsertRow(Row);
+        Commit();
+        Row.Get(5);
+        RuChangeAndCommit();
+        Later.LockTable();
+        Later.Get(5);
+        RuModifyRefused(Row, Observer);
+        Observer.Expect('stored', 'other|0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure RU_Stale_GetBuffer_OtherGetChangeModify()
+    var
+        Row: Record "ALT Universal";
+        Later: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Initialize();
+        RuInsertRow(Row);
+        Commit();
+        Row.Get(5);
+        RuChangeAndCommit();
+        Later.Get(5);
+        Later."Text Field" := 'later';
+        Later.Modify(false);
+        RuModifyRefused(Row, Observer);
+        Observer.Expect('stored', 'other|0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure RU_Stale_InsertBuffer_Delete_NothingAfterCommit()
+    var
+        Row: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Initialize();
+        RuInsertRow(Row);
+        RuChangeAndCommit();
+        RuDeleteRefused(Row, Observer);
+        Observer.Expect('stored exists', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure RU_Stale_InsertBuffer_Delete_OtherGetModifyUnchanged()
+    var
+        Row: Record "ALT Universal";
+        Later: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Initialize();
+        RuInsertRow(Row);
+        RuChangeAndCommit();
+        Later.Get(5);
+        Later.Modify(false);
+        RuDeleteStale(Row, Observer);
+        Observer.Expect('delete', 'ok');
+        Observer.Expect('stored exists', 'No');
+        Observer.Verify();
+    end;
 }
