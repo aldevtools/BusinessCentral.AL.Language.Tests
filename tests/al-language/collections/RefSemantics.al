@@ -587,4 +587,36 @@ codeunit 74616 "LT ClT Ref Semantics"
         Observer.Expect('SetOther', 'error:Collection was modified; enumeration operation may not execute.|AL:InvalidOperation visited=1, last=99');
         Observer.Verify();
     end;
+
+    // Writer RW (al-runner issue 5810): the reporter's shape. The foreach runs in another codeunit over a by-value List parameter and
+    // passes the list by value to a procedure that reads it with Count and Get(i); and the same loop adding through the by-value parameter.
+    [Test]
+    procedure RW_Foreach_ReadAndAddThroughByValueParam()
+    var
+        Observer: Codeunit "Probe Observer";
+        LoadCheck: Codeunit "LT RW List Load Check";
+        Starts: List of [Integer];
+        Visited: Text;
+    begin
+        Starts.Add(10);
+        Starts.Add(20);
+        Starts.Add(30);
+        Observer.Observe('points above capacity', Format(LoadCheck.PointsAboveCapacity(Starts, 1)));
+        Observer.Observe('count after read', Format(Starts.Count()));
+        ClearLastError();
+        Observer.Observe('add ok', Format(LoadCheck.TryAddThroughByValueParam(Starts, Visited)));
+        Observer.Observe('add visited', Visited);
+        Observer.Observe('add error', GetLastErrorText());
+        Observer.Observe('add code', GetLastErrorCode());
+        Observer.Observe('count after add', Format(Starts.Count()));
+        ClearLastError();
+        Observer.Expect('points above capacity', '2');
+        Observer.Expect('count after read', '3');
+        Observer.Expect('add ok', 'No');
+        Observer.Expect('add visited', '10,');
+        Observer.Expect('add error', 'Collection was modified; enumeration operation may not execute.');
+        Observer.Expect('add code', 'AL:InvalidOperation');
+        Observer.Expect('count after add', '4');
+        Observer.Verify();
+    end;
 }
