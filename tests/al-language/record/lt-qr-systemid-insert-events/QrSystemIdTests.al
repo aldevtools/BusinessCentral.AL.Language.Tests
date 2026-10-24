@@ -325,6 +325,11 @@ codeunit 87289 "LT QR SystemId Events"
     // ---- AL Runner issue 5803 (writer RU): Init() or Clear(SystemId) during Insert clears the SystemId the platform gave the row. Objects in
     // RuSystemIdInitObjects.al. Mode 1: the table's OnInsert calls Init(); 2: OnInsert calls Clear(SystemId); 3: an OnBeforeInsertEvent
     // subscriber calls Rec.Init(); 4: an OnAfterInsertEvent subscriber calls Rec.Init(). The caller sets Note := 'caller' before Insert.
+    // Measured (BC 29.0, then the CI matrix): the trigger sees the platform's id (or the preset id with InsertWithSystemId); Init() and
+    // Clear(SystemId) make it null, and Init() also clears Note. Cleared before the row is written (OnInsert, OnBeforeInsertEvent, also
+    // Insert(false)): the row is stored with a NEW id, not the one before the clear and not the preset one, and the caller holds that id.
+    // Cleared in OnAfterInsertEvent: the stored row keeps its id and Note, the caller's variable is null with Note ''. A temporary
+    // record gets no SystemId at all (null with or without Init).
 
     local procedure RuRun(var Observer: Codeunit "Probe Observer"; Name: Text; Mode: Integer; RunTrigger: Boolean; WithSystemId: Boolean)
     var
@@ -390,7 +395,20 @@ codeunit 87289 "LT QR SystemId Events"
         Observer: Codeunit "Probe Observer";
     begin
         RuRun(Observer, 'init', 1, true, false);
-        Observer.Finish();
+        Observer.Expect('init|insert', 'Yes');
+        Observer.Expect('init|id before null', 'No');
+        Observer.Expect('init|id after null', 'Yes');
+        Observer.Expect('init|note before', 'caller');
+        Observer.Expect('init|note after', '');
+        Observer.Expect('init|caller null', 'No');
+        Observer.Expect('init|caller note', '');
+        Observer.Expect('init|stored', 'Yes');
+        Observer.Expect('init|stored null', 'No');
+        Observer.Expect('init|stored = caller', 'Yes');
+        Observer.Expect('init|stored note', '');
+        Observer.Expect('init|stored = id before', 'No');
+        Observer.Expect('init|caller = id before', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -399,7 +417,23 @@ codeunit 87289 "LT QR SystemId Events"
         Observer: Codeunit "Probe Observer";
     begin
         RuRun(Observer, 'init with id', 1, true, true);
-        Observer.Finish();
+        Observer.Expect('init with id|insert', 'Yes');
+        Observer.Expect('init with id|id before null', 'No');
+        Observer.Expect('init with id|id after null', 'Yes');
+        Observer.Expect('init with id|note before', 'caller');
+        Observer.Expect('init with id|note after', '');
+        Observer.Expect('init with id|id before = preset', 'Yes');
+        Observer.Expect('init with id|caller null', 'No');
+        Observer.Expect('init with id|caller note', '');
+        Observer.Expect('init with id|caller = preset', 'No');
+        Observer.Expect('init with id|stored', 'Yes');
+        Observer.Expect('init with id|stored null', 'No');
+        Observer.Expect('init with id|stored = caller', 'Yes');
+        Observer.Expect('init with id|stored note', '');
+        Observer.Expect('init with id|stored = preset', 'No');
+        Observer.Expect('init with id|stored = id before', 'No');
+        Observer.Expect('init with id|caller = id before', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -408,7 +442,20 @@ codeunit 87289 "LT QR SystemId Events"
         Observer: Codeunit "Probe Observer";
     begin
         RuRun(Observer, 'clear', 2, true, false);
-        Observer.Finish();
+        Observer.Expect('clear|insert', 'Yes');
+        Observer.Expect('clear|id before null', 'No');
+        Observer.Expect('clear|id after null', 'Yes');
+        Observer.Expect('clear|note before', 'caller');
+        Observer.Expect('clear|note after', 'caller');
+        Observer.Expect('clear|caller null', 'No');
+        Observer.Expect('clear|caller note', 'caller');
+        Observer.Expect('clear|stored', 'Yes');
+        Observer.Expect('clear|stored null', 'No');
+        Observer.Expect('clear|stored = caller', 'Yes');
+        Observer.Expect('clear|stored note', 'caller');
+        Observer.Expect('clear|stored = id before', 'No');
+        Observer.Expect('clear|caller = id before', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -417,7 +464,23 @@ codeunit 87289 "LT QR SystemId Events"
         Observer: Codeunit "Probe Observer";
     begin
         RuRun(Observer, 'clear with id', 2, true, true);
-        Observer.Finish();
+        Observer.Expect('clear with id|insert', 'Yes');
+        Observer.Expect('clear with id|id before null', 'No');
+        Observer.Expect('clear with id|id after null', 'Yes');
+        Observer.Expect('clear with id|note before', 'caller');
+        Observer.Expect('clear with id|note after', 'caller');
+        Observer.Expect('clear with id|id before = preset', 'Yes');
+        Observer.Expect('clear with id|caller null', 'No');
+        Observer.Expect('clear with id|caller note', 'caller');
+        Observer.Expect('clear with id|caller = preset', 'No');
+        Observer.Expect('clear with id|stored', 'Yes');
+        Observer.Expect('clear with id|stored null', 'No');
+        Observer.Expect('clear with id|stored = caller', 'Yes');
+        Observer.Expect('clear with id|stored note', 'caller');
+        Observer.Expect('clear with id|stored = preset', 'No');
+        Observer.Expect('clear with id|stored = id before', 'No');
+        Observer.Expect('clear with id|caller = id before', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -426,7 +489,20 @@ codeunit 87289 "LT QR SystemId Events"
         Observer: Codeunit "Probe Observer";
     begin
         RuRun(Observer, 'ev before', 3, true, false);
-        Observer.Finish();
+        Observer.Expect('ev before|insert', 'Yes');
+        Observer.Expect('ev before|id before null', 'No');
+        Observer.Expect('ev before|id after null', 'Yes');
+        Observer.Expect('ev before|note before', 'caller');
+        Observer.Expect('ev before|note after', '');
+        Observer.Expect('ev before|caller null', 'No');
+        Observer.Expect('ev before|caller note', '');
+        Observer.Expect('ev before|stored', 'Yes');
+        Observer.Expect('ev before|stored null', 'No');
+        Observer.Expect('ev before|stored = caller', 'Yes');
+        Observer.Expect('ev before|stored note', '');
+        Observer.Expect('ev before|stored = id before', 'No');
+        Observer.Expect('ev before|caller = id before', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -435,7 +511,20 @@ codeunit 87289 "LT QR SystemId Events"
         Observer: Codeunit "Probe Observer";
     begin
         RuRun(Observer, 'ev before false', 3, false, false);
-        Observer.Finish();
+        Observer.Expect('ev before false|insert', 'Yes');
+        Observer.Expect('ev before false|id before null', 'No');
+        Observer.Expect('ev before false|id after null', 'Yes');
+        Observer.Expect('ev before false|note before', 'caller');
+        Observer.Expect('ev before false|note after', '');
+        Observer.Expect('ev before false|caller null', 'No');
+        Observer.Expect('ev before false|caller note', '');
+        Observer.Expect('ev before false|stored', 'Yes');
+        Observer.Expect('ev before false|stored null', 'No');
+        Observer.Expect('ev before false|stored = caller', 'Yes');
+        Observer.Expect('ev before false|stored note', '');
+        Observer.Expect('ev before false|stored = id before', 'No');
+        Observer.Expect('ev before false|caller = id before', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -444,7 +533,20 @@ codeunit 87289 "LT QR SystemId Events"
         Observer: Codeunit "Probe Observer";
     begin
         RuRun(Observer, 'ev after', 4, true, false);
-        Observer.Finish();
+        Observer.Expect('ev after|insert', 'Yes');
+        Observer.Expect('ev after|id before null', 'No');
+        Observer.Expect('ev after|id after null', 'Yes');
+        Observer.Expect('ev after|note before', 'caller');
+        Observer.Expect('ev after|note after', '');
+        Observer.Expect('ev after|caller null', 'Yes');
+        Observer.Expect('ev after|caller note', '');
+        Observer.Expect('ev after|stored', 'Yes');
+        Observer.Expect('ev after|stored null', 'No');
+        Observer.Expect('ev after|stored = caller', 'No');
+        Observer.Expect('ev after|stored note', 'caller');
+        Observer.Expect('ev after|stored = id before', 'Yes');
+        Observer.Expect('ev after|caller = id before', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -460,7 +562,9 @@ codeunit 87289 "LT QR SystemId Events"
         Row.Note := 'caller';
         Observer.Observe('temp control|insert', Format(Row.Insert(true)));
         Observer.Observe('temp control|caller null', Format(IsNullGuid(Row.SystemId)));
-        Observer.Finish();
+        Observer.Expect('temp control|insert', 'Yes');
+        Observer.Expect('temp control|caller null', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -489,6 +593,16 @@ codeunit 87289 "LT QR SystemId Events"
         Observer.Observe('temp|stored null', Format(IsNullGuid(Stored.SystemId)));
         Observer.Observe('temp|stored = caller', Format(Stored.SystemId = Row.SystemId));
         Observer.Observe('temp|stored note', Stored.Note);
-        Observer.Finish();
+        Observer.Expect('temp|insert', 'Yes');
+        Observer.Expect('temp|id before null', 'Yes');
+        Observer.Expect('temp|id after null', 'Yes');
+        Observer.Expect('temp|caller null', 'Yes');
+        Observer.Expect('temp|caller = id before', 'Yes');
+        Observer.Expect('temp|caller note', '');
+        Observer.Expect('temp|stored', 'Yes');
+        Observer.Expect('temp|stored null', 'Yes');
+        Observer.Expect('temp|stored = caller', 'Yes');
+        Observer.Expect('temp|stored note', '');
+        Observer.Verify();
     end;
 }
