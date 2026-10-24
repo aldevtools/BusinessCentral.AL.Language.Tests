@@ -7,6 +7,8 @@
 //   2000000020 "Feature Access Management" (AgentTaskManagementPreviewEnabled(true) on BC 27, AgentManagementAllowed(true) from BC 28); "Agent Task"
 //   (4303) TaskExists, which passes the same check and then reads the virtual table Agent Task. The natives themselves are probed from the OnPrem app
 //   (al-language-onprem/platform/lt-rh-agent-natives/RhAgentNatives.al).
+//   al-runner issue 5787 (writer RV): "Agent" (4321) GetDisplayName, GetUserName and IsActive for an agent that does not exist, which read the
+//   platform table Agent (2000000260) with Get in "Agent Impl.".GetAgent, called directly under asserterror and inside a TryFunction.
 // BC versions: 27, 28, 29. Object id 88003.
 
 codeunit 88003 "LT RH Agent Session"
@@ -85,6 +87,61 @@ codeunit 88003 "LT RH Agent Session"
         Observer.Expect('exists', 'No');
         Observer.Expect('error|text', 'Agents are temporarily unavailable. Please try again later. You can check the Business Central Admin Center and Microsoft 365 Service Health dashboard for updates.');
         Observer.Expect('error|code', 'DB:Ok');
+        Observer.Verify();
+    end;
+
+    [TryFunction]
+    local procedure TryDisplayName(AgentUserSecurityId: Guid; var Name: Text)
+    var
+        Agent: Codeunit Agent;
+    begin
+        Name := Agent.GetDisplayName(AgentUserSecurityId);
+    end;
+
+    // al-runner issue 5787: GetDisplayName of an unknown agent, the reporter's shape (asserterror), and a null id.
+    [Test]
+    procedure RV_Agent_GetDisplayNameUnknownAgent()
+    var
+        Observer: Codeunit "Probe Observer";
+        Agent: Codeunit Agent;
+        NullId: Guid;
+    begin
+        asserterror Agent.GetDisplayName(CreateGuid());
+        Observer.ObserveError('new id');
+        asserterror Agent.GetDisplayName(NullId);
+        Observer.ObserveError('null id');
+        Observer.Expect('new id|text', 'Agents are temporarily unavailable. Please try again later. You can check the Business Central Admin Center and Microsoft 365 Service Health dashboard for updates.');
+        Observer.Expect('new id|code', 'DB:Ok');
+        Observer.Expect('null id|text', 'Agents are temporarily unavailable. Please try again later. You can check the Business Central Admin Center and Microsoft 365 Service Health dashboard for updates.');
+        Observer.Expect('null id|code', 'DB:Ok');
+        Observer.Verify();
+    end;
+
+    // al-runner issue 5787: the same call inside a TryFunction, and the other GetAgent callers GetUserName and IsActive.
+    [Test]
+    procedure RV_Agent_UnknownAgentTryAndOtherReads()
+    var
+        Observer: Codeunit "Probe Observer";
+        Agent: Codeunit Agent;
+        Name: Text;
+    begin
+        Name := 'LT RV unchanged';
+        ClearLastError();
+        Observer.Observe('try', Format(TryDisplayName(CreateGuid(), Name)));
+        Observer.Observe('try name', Name);
+        Observer.ObserveError('try error');
+        asserterror Agent.GetUserName(CreateGuid());
+        Observer.ObserveError('user name');
+        asserterror Agent.IsActive(CreateGuid());
+        Observer.ObserveError('is active');
+        Observer.Expect('try', 'No');
+        Observer.Expect('try name', 'LT RV unchanged');
+        Observer.Expect('try error|text', 'Agents are temporarily unavailable. Please try again later. You can check the Business Central Admin Center and Microsoft 365 Service Health dashboard for updates.');
+        Observer.Expect('try error|code', 'DB:Ok');
+        Observer.Expect('user name|text', 'Agents are temporarily unavailable. Please try again later. You can check the Business Central Admin Center and Microsoft 365 Service Health dashboard for updates.');
+        Observer.Expect('user name|code', 'DB:Ok');
+        Observer.Expect('is active|text', 'Agents are temporarily unavailable. Please try again later. You can check the Business Central Admin Center and Microsoft 365 Service Health dashboard for updates.');
+        Observer.Expect('is active|code', 'DB:Ok');
         Observer.Verify();
     end;
 }
