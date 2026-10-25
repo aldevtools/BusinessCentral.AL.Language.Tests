@@ -1,5 +1,6 @@
 // Probe: pages with OnFindRecord / OnNextRecord. CurrPage.Update on such a page (what the client asks next, what a control reads before the next move), and a row deleted by an action when the page serves only one row at a time while the table holds more.
 // Settles: md:276 (CurrPage.Update on a page with OnFindRecord / OnNextRecord; trace and control values afterwards), md:277 (one-row window over a view with more rows).
+// Writer SF (al-runtime-rs assumption update-refresh-list-onfindrecord): SF_ tests, pages 89060-89062 (a list with OnFindRecord only, a list part and its host card).
 
 codeunit 68733 "W2 Update Log"
 {
@@ -441,9 +442,376 @@ codeunit 68735 "W2 Update Tests"
         Observer.Verify();
     end;
 
+    // ---- writer SF (al-runtime-rs assumption update-refresh-list-onfindrecord): CurrPage.Update(false) on lists with 1, 2, 5 and 25 rows,
+    //      the cursor on the first, a middle and the last row; a list with OnFindRecord only; a list part of a card. ----
+
+    local procedure SfSeed(Count: Integer)
+    var
+        Row: Record "W2 Below Row";
+        Log: Codeunit "W2 Update Log";
+        Index: Integer;
+    begin
+        Row.DeleteAll();
+        for Index := 1 to Count do begin
+            Row.Init();
+            Row.Id := Index * 10;
+            Row.Name := 'r' + Format(Index * 10);
+            Row.Insert();
+        end;
+        Log.Take();
+    end;
+
+    // Opens the list on Count rows, moves the cursor to the row with Id CursorId, runs the action that calls CurrPage.Update(false).
+    local procedure SfListUpdate(var Observer: Codeunit "Probe Observer"; Count: Integer; CursorId: Integer)
+    var
+        Log: Codeunit "W2 Update Log";
+        Pg: TestPage "W2 Find Update List";
+        Trace: Text;
+    begin
+        SfSeed(Count);
+        Pg.OpenEdit();
+        Observer.Observe('goto', Format(Pg.GoToKey(CursorId)));
+        Log.Take();
+        Pg.UpdateFalse.Invoke();
+        Trace := Log.Take();
+        Observer.Observe('after_action', AfterActionEnd(Trace));
+        Observer.Observe('id_after', Pg.Id.Value());
+        Observer.Observe('next', Format(Pg.Next()));
+        Observer.Observe('id_next', Pg.Id.Value());
+        Observer.Observe('next_trace', Log.Take());
+        Pg.Close();
+    end;
+
+    [Test]
+    procedure SF_Update_OneRow()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        SfListUpdate(Observer, 1, 10);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SF_Update_TwoRows_First()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        SfListUpdate(Observer, 2, 10);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SF_Update_TwoRows_Last()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        SfListUpdate(Observer, 2, 20);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SF_Update_FiveRows_First()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        SfListUpdate(Observer, 5, 10);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SF_Update_FiveRows_Middle()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        SfListUpdate(Observer, 5, 30);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SF_Update_FiveRows_Last()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        SfListUpdate(Observer, 5, 50);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SF_Update_TwentyFiveRows_First()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        SfListUpdate(Observer, 25, 10);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SF_Update_TwentyFiveRows_Middle()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        SfListUpdate(Observer, 25, 130);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SF_Update_TwentyFiveRows_Last()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        SfListUpdate(Observer, 25, 250);
+        Observer.Finish();
+    end;
+
+    // The list with OnFindRecord and no OnNextRecord.
+    local procedure SfFindOnlyUpdate(var Observer: Codeunit "Probe Observer"; Count: Integer; CursorId: Integer)
+    var
+        Log: Codeunit "W2 Update Log";
+        Pg: TestPage "LT SF Find Only List";
+        Trace: Text;
+    begin
+        SfSeed(Count);
+        Pg.OpenEdit();
+        Observer.Observe('open', Log.Take());
+        Observer.Observe('goto', Format(Pg.GoToKey(CursorId)));
+        Log.Take();
+        Pg.UpdateFalse.Invoke();
+        Trace := Log.Take();
+        Observer.Observe('after_action', AfterActionEnd(Trace));
+        Observer.Observe('id_after', Pg.Id.Value());
+        Observer.Observe('next', Format(Pg.Next()));
+        Observer.Observe('id_next', Pg.Id.Value());
+        Observer.Observe('next_trace', Log.Take());
+        Pg.Close();
+    end;
+
+    [Test]
+    procedure SF_FindOnly_ThreeRows_Middle()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        SfFindOnlyUpdate(Observer, 3, 20);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SF_FindOnly_FiveRows_First()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        SfFindOnlyUpdate(Observer, 5, 10);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SF_FindOnly_TwentyFiveRows_Last()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        SfFindOnlyUpdate(Observer, 25, 250);
+        Observer.Finish();
+    end;
+
+    // A list part (OnFindRecord and OnNextRecord) on a card: the part's own action calls CurrPage.Update(false).
+    local procedure SfPartUpdate(var Observer: Codeunit "Probe Observer"; Count: Integer; CursorId: Integer)
+    var
+        Log: Codeunit "W2 Update Log";
+        Host: TestPage "LT SF Find Host";
+        Trace: Text;
+    begin
+        SfSeed(Count);
+        Host.OpenEdit();
+        Observer.Observe('open', Log.Take());
+        Observer.Observe('goto', Format(Host.Rows.GoToKey(CursorId)));
+        Log.Take();
+        Host.Rows.UpdateFalse.Invoke();
+        Trace := Log.Take();
+        Observer.Observe('after_action', AfterActionEnd(Trace));
+        Observer.Observe('id_after', Host.Rows.Id.Value());
+        Observer.Observe('next', Format(Host.Rows.Next()));
+        Observer.Observe('id_next', Host.Rows.Id.Value());
+        Observer.Observe('next_trace', Log.Take());
+        Host.Close();
+    end;
+
+    [Test]
+    procedure SF_Part_ThreeRows_Middle()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        SfPartUpdate(Observer, 3, 20);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SF_Part_FiveRows_Last()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        SfPartUpdate(Observer, 5, 50);
+        Observer.Finish();
+    end;
+
     [TryFunction]
     local procedure TryGoTo(var Pg: TestPage "W2 One Row List"; var Found: Boolean)
     begin
         Found := Pg.GoToKey(20);
     end;
+}
+
+// Writer SF: a list with OnFindRecord only (no OnNextRecord).
+page 89060 "LT SF Find Only List"
+{
+    PageType = List;
+    ApplicationArea = All;
+    SourceTable = "W2 Below Row";
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Rows)
+            {
+                field(Id; Rec.Id) { ApplicationArea = All; }
+                field(Name; Rec.Name) { ApplicationArea = All; }
+            }
+        }
+    }
+
+    actions
+    {
+        area(Processing)
+        {
+            action(UpdateFalse)
+            {
+                ApplicationArea = All;
+
+                trigger OnAction()
+                var
+                    Log: Codeunit "W2 Update Log";
+                begin
+                    Log.Add('ActionBegin');
+                    CurrPage.Update(false);
+                    Log.Add('ActionEnd');
+                end;
+            }
+        }
+    }
+
+    trigger OnFindRecord(Which: Text): Boolean
+    var
+        Log: Codeunit "W2 Update Log";
+    begin
+        Log.Add('Find(' + Which + ')');
+        exit(Rec.Find(Which));
+    end;
+
+    trigger OnAfterGetRecord()
+    var
+        Log: Codeunit "W2 Update Log";
+    begin
+        Log.Add('AGR(' + Format(Rec.Id) + ')');
+    end;
+
+    trigger OnAfterGetCurrRecord()
+    var
+        Log: Codeunit "W2 Update Log";
+    begin
+        Log.Add('AGCR(' + Format(Rec.Id) + ')');
+    end;
+}
+
+// Writer SF: a list part with OnFindRecord and OnNextRecord, hosted by the card below.
+page 89061 "LT SF Find Part"
+{
+    PageType = ListPart;
+    ApplicationArea = All;
+    SourceTable = "W2 Below Row";
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Rows)
+            {
+                field(Id; Rec.Id) { ApplicationArea = All; }
+                field(Name; Rec.Name) { ApplicationArea = All; }
+            }
+        }
+    }
+
+    actions
+    {
+        area(Processing)
+        {
+            action(UpdateFalse)
+            {
+                ApplicationArea = All;
+
+                trigger OnAction()
+                var
+                    Log: Codeunit "W2 Update Log";
+                begin
+                    Log.Add('ActionBegin');
+                    CurrPage.Update(false);
+                    Log.Add('ActionEnd');
+                end;
+            }
+        }
+    }
+
+    trigger OnFindRecord(Which: Text): Boolean
+    var
+        Log: Codeunit "W2 Update Log";
+    begin
+        Log.Add('Find(' + Which + ')');
+        exit(Rec.Find(Which));
+    end;
+
+    trigger OnNextRecord(Steps: Integer): Integer
+    var
+        Log: Codeunit "W2 Update Log";
+        Moved: Integer;
+    begin
+        Moved := Rec.Next(Steps);
+        Log.Add('Next(' + Format(Steps) + ')=' + Format(Moved));
+        exit(Moved);
+    end;
+
+    trigger OnAfterGetRecord()
+    var
+        Log: Codeunit "W2 Update Log";
+    begin
+        Log.Add('AGR(' + Format(Rec.Id) + ')');
+    end;
+
+    trigger OnAfterGetCurrRecord()
+    var
+        Log: Codeunit "W2 Update Log";
+    begin
+        Log.Add('AGCR(' + Format(Rec.Id) + ')');
+    end;
+}
+
+// Writer SF: a card (no triggers of its own) whose part is the list part above, without a link.
+page 89062 "LT SF Find Host"
+{
+    PageType = Card;
+    ApplicationArea = All;
+    SourceTable = "W2 Below Row";
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            field(HostId; Rec.Id) { ApplicationArea = All; }
+            part(Rows; "LT SF Find Part")
+            {
+                ApplicationArea = All;
+            }
+        }
+    }
 }

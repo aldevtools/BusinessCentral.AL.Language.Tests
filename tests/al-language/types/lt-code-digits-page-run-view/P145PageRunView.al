@@ -3,6 +3,7 @@
 // Fixtures used: Probe Observer (codeunit 69160); LT P145 Row (74920), LT P145 Log Mgt (74922), LT P145 List A (74923), LT P145 List B (74924)
 // Probe: written against a local BC 29.0.54011.55816 service tier; every literal asserted below is what that tier produced. Other BC versions are checked by the corpus CI matrix.
 // Facts: Page.Run(Page, Rec) on pages with SourceTableView: the filters of the page's Rec per filter group (0 to 3) seen from OnOpenPage, current key, direction and view, and the rows (order) a TestPage handler reads, with no record, an empty record and records that carry filters in several groups, keys and a view
+// Writer SF (al-runtime-rs assumption page-run-record-view-order-applies): SF_ tests on List B and List C (page 89065, P145PageFixtures.al).
 // BC versions: 29 (final facts are added after the measurement)
 
 codeunit 74925 "LT P145 Page Run View"
@@ -220,5 +221,159 @@ codeunit 74925 "LT P145 Page Run View"
             More := P.Next();
         end;
         Log.Add('B rows=' + Rows);
+    end;
+
+    // ---- writer SF (al-runtime-rs assumption page-run-record-view-order-applies): Page.Run(Page, Rec) on List B (view sorting(Grp, Qty)
+    //      order(descending)) and on List C (view sorting(Qty) order(ascending)) with records ascending and descending. ----
+
+    local procedure SfRunB(var Row: Record "LT P145 Row"; WithRecord: Boolean): Text
+    var
+        Log: Codeunit "LT P145 Log Mgt";
+    begin
+        Seed();
+        Log.Clear();
+        if WithRecord then
+            Page.Run(Page::"LT P145 List B", Row)
+        else
+            Page.Run(Page::"LT P145 List B");
+        exit(Log.Dump());
+    end;
+
+    local procedure SfRunC(var Row: Record "LT P145 Row"; WithRecord: Boolean): Text
+    var
+        Log: Codeunit "LT P145 Log Mgt";
+    begin
+        Seed();
+        Log.Clear();
+        if WithRecord then
+            Page.Run(Page::"LT SF P145 List C", Row)
+        else
+            Page.Run(Page::"LT SF P145 List C");
+        exit(Log.Dump());
+    end;
+
+    [Test]
+    [HandlerFunctions('ListBHandler')]
+    procedure SF_B_NoRecordArgument()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT P145 Row";
+    begin
+        Observer.Observe('log', SfRunB(Row, false));
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('ListBHandler')]
+    procedure SF_B_EmptyRecord()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT P145 Row";
+    begin
+        Observer.Observe('log', SfRunB(Row, true));
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('ListBHandler')]
+    procedure SF_B_RecViewKeyAscending()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT P145 Row";
+    begin
+        Row.SetCurrentKey(Grp, Qty);
+        Row.Ascending(true);
+        Observer.Observe('log', SfRunB(Row, true));
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('ListBHandler')]
+    procedure SF_B_RecViewKeyDescending()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT P145 Row";
+    begin
+        Row.SetCurrentKey(Grp, Qty);
+        Row.Ascending(false);
+        Observer.Observe('log', SfRunB(Row, true));
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('ListBHandler')]
+    procedure SF_B_RecOtherKeyAscending()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT P145 Row";
+    begin
+        Row.SetCurrentKey(Qty);
+        Row.Ascending(true);
+        Observer.Observe('log', SfRunB(Row, true));
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('ListBHandler')]
+    procedure SF_B_RecFilterAscending()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT P145 Row";
+    begin
+        Row.SetRange(Grp, 'A');
+        Observer.Observe('log', SfRunB(Row, true));
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('SfListCHandler')]
+    procedure SF_C_NoRecordArgument()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT P145 Row";
+    begin
+        Observer.Observe('log', SfRunC(Row, false));
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('SfListCHandler')]
+    procedure SF_C_RecViewKeyDescending()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT P145 Row";
+    begin
+        Row.SetCurrentKey(Qty);
+        Row.Ascending(false);
+        Observer.Observe('log', SfRunC(Row, true));
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('SfListCHandler')]
+    procedure SF_C_RecPrimaryKeyDescending()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT P145 Row";
+    begin
+        Row.Ascending(false);
+        Observer.Observe('log', SfRunC(Row, true));
+        Observer.Finish();
+    end;
+
+    [PageHandler]
+    procedure SfListCHandler(var P: TestPage "LT SF P145 List C")
+    var
+        Log: Codeunit "LT P145 Log Mgt";
+        Rows: Text;
+        More: Boolean;
+    begin
+        Log.Add('C current=' + P.NoCtl.Value());
+        More := P.First();
+        while More do begin
+            Rows += P.NoCtl.Value() + ',';
+            More := P.Next();
+        end;
+        Log.Add('C rows=' + Rows);
     end;
 }

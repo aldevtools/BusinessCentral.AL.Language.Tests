@@ -24,6 +24,8 @@
 //   three parts: SubPageLink "Document Type" = field("Document Type"), "Document No." = field("No.") (87151, table 87149), the same link
 //   written in the other order (87152), and the first link over the table with the relation (87153). QP_ tests in codeunit 74141: the
 //   blank line after New(), the stored line after a field is typed, and Seen (which value the record held when each key field validated).
+// Writer SF (al-runtime-rs assumption new-line-stamps-all-before-validating, the probe-wanted shape): line key (Type, Document No.,
+//   Line No.), part view where(Type = const(B)), SubPageLink "Document No." = field("No."); tables 89068-89070, pages 89071-89074, SF_ tests.
 // BC versions: 27, 28, 29 by CI
 
 enum 74135 "LT NL Type"
@@ -754,6 +756,167 @@ codeunit 74141 "LT New Line Stamps Filters"
         Obs.Expect('db.first', 'Order|H1|20000|type:no=[H1];no:type=[Order];|x');
         Obs.Verify();
     end;
+
+    // ---- writer SF (al-runtime-rs assumption new-line-stamps-all-before-validating): the line key is (Type, Document No., Line No.),
+    //      the part's view is where(Type = const(B)) and its SubPageLink "Document No." = field("No."), so the blank line takes two key
+    //      values. Each key field's OnValidate notes the other one in Seen (T:<Document No.> for Type, D:<Type> for Document No.). ----
+
+    local procedure SfSeed(HeaderNo: Code[10]; HeaderType: Enum "LT NL Type")
+    var
+        H: Record "LT SF NL Header";
+        L: Record "LT SF NL Line";
+        R: Record "LT SF NL Rel Line";
+    begin
+        L.DeleteAll();
+        R.DeleteAll();
+        H.DeleteAll();
+        H."No." := HeaderNo;
+        H.Type := HeaderType;
+        H.Insert();
+    end;
+
+    local procedure SfObserveLines(Prefix: Text)
+    var
+        L: Record "LT SF NL Line";
+    begin
+        Obs.Observe(Prefix + '.count', Format(L.Count()));
+        if L.FindFirst() then
+            Obs.Observe(Prefix + '.first', Format(L.Type) + '|' + L."Document No." + '|' + Format(L."Line No.") + '|' + L.Seen + '|' + L.Descr);
+    end;
+
+    local procedure SfObserveRelLines(Prefix: Text)
+    var
+        R: Record "LT SF NL Rel Line";
+    begin
+        Obs.Observe(Prefix + '.count', Format(R.Count()));
+        if R.FindFirst() then
+            Obs.Observe(Prefix + '.first', Format(R.Type) + '|' + R."Document No." + '|' + Format(R."Line No.") + '|' + R.Seen + '|' + R.Descr);
+    end;
+
+    [TryFunction]
+    local procedure SfTryNew(var Host: TestPage "LT SF NL Host")
+    begin
+        Host.Lines.New();
+    end;
+
+    [TryFunction]
+    local procedure SfTryRead(var Host: TestPage "LT SF NL Host"; var Result: Text)
+    begin
+        Result := Host.Lines.Type.Value() + '|' + Host.Lines."Document No.".Value() + '|' + Host.Lines.Seen.Value();
+    end;
+
+    [TryFunction]
+    local procedure SfTryType(var Host: TestPage "LT SF NL Host")
+    begin
+        Host.Lines.Descr.SetValue('x');
+    end;
+
+    [TryFunction]
+    local procedure SfTryClose(var Host: TestPage "LT SF NL Host")
+    begin
+        Host.Close();
+    end;
+
+    local procedure SfRun(HeaderType: Enum "LT NL Type"; WithNew: Boolean)
+    var
+        Host: TestPage "LT SF NL Host";
+        Result: Text;
+    begin
+        SfSeed('H1', HeaderType);
+        Host.OpenEdit();
+        if WithNew then
+            Step('new', SfTryNew(Host));
+        if SfTryRead(Host, Result) then
+            Obs.Observe('draft', Result)
+        else
+            Step('draft', false);
+        Step('type', SfTryType(Host));
+        if SfTryRead(Host, Result) then
+            Obs.Observe('typed', Result)
+        else
+            Step('typed', false);
+        Step('close', SfTryClose(Host));
+        SfObserveLines('db');
+    end;
+
+    [Test]
+    procedure SF_TwoKeyValues_HeaderTypeB_NewLine()
+    begin
+        SfRun("LT NL Type"::B, true);
+        Obs.Finish();
+    end;
+
+    [Test]
+    procedure SF_TwoKeyValues_HeaderTypeA_NewLine()
+    begin
+        SfRun("LT NL Type"::A, true);
+        Obs.Finish();
+    end;
+
+    [Test]
+    procedure SF_TwoKeyValues_HeaderTypeB_BlankLine()
+    begin
+        SfRun("LT NL Type"::B, false);
+        Obs.Finish();
+    end;
+
+    // The same with the relation of Service Line: "Document No." relates to the header where(Type = field(Type)). A header of Type B
+    // can be validated only when Type is already B on the line. Its own host page, so an abort here does not touch the tests above.
+    [TryFunction]
+    local procedure SfTryNewRel(var Host: TestPage "LT SF NL Rel Host")
+    begin
+        Host.Lines.New();
+    end;
+
+    [TryFunction]
+    local procedure SfTryReadRel(var Host: TestPage "LT SF NL Rel Host"; var Result: Text)
+    begin
+        Result := Host.Lines.Type.Value() + '|' + Host.Lines."Document No.".Value() + '|' + Host.Lines.Seen.Value();
+    end;
+
+    [TryFunction]
+    local procedure SfTryTypeRel(var Host: TestPage "LT SF NL Rel Host")
+    begin
+        Host.Lines.Descr.SetValue('x');
+    end;
+
+    [TryFunction]
+    local procedure SfTryCloseRel(var Host: TestPage "LT SF NL Rel Host")
+    begin
+        Host.Close();
+    end;
+
+    local procedure SfRunRel(HeaderType: Enum "LT NL Type")
+    var
+        Host: TestPage "LT SF NL Rel Host";
+        Result: Text;
+    begin
+        SfSeed('H1', HeaderType);
+        Host.OpenEdit();
+        Step('new', SfTryNewRel(Host));
+        if SfTryReadRel(Host, Result) then
+            Obs.Observe('draft', Result)
+        else
+            Step('draft', false);
+        Step('type', SfTryTypeRel(Host));
+        Step('close', SfTryCloseRel(Host));
+        SfObserveRelLines('db');
+    end;
+
+    [Test]
+    procedure SF_TwoKeyValues_Relation_HeaderTypeB_NewLine()
+    begin
+        SfRunRel("LT NL Type"::B);
+        Obs.Finish();
+    end;
+
+    [Test]
+    procedure SF_TwoKeyValues_Relation_HeaderTypeA_NewLine()
+    begin
+        SfRunRel("LT NL Type"::A);
+        Obs.Finish();
+    end;
+
 }
 
 page 87100 "LT QO NL Lines BD"
@@ -977,6 +1140,168 @@ page 87154 "LT QP TK Host"
             {
                 ApplicationArea = All;
                 SubPageLink = "Document Type" = field("Document Type"), "Document No." = field("No.");
+            }
+        }
+    }
+}
+
+// Writer SF: Service Line's key shape (Type, Document No., Line No.) with the part view where(Type = const(B)).
+table 89068 "LT SF NL Header"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; "No."; Code[10]) { }
+        field(2; Type; Enum "LT NL Type") { }
+    }
+
+    keys { key(PK; "No.") { Clustered = true; } }
+}
+
+table 89069 "LT SF NL Line"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; Type; Enum "LT NL Type")
+        {
+            trigger OnValidate()
+            begin
+                Seen += 'T:' + "Document No." + ';';
+            end;
+        }
+        field(2; "Document No."; Code[10])
+        {
+            trigger OnValidate()
+            begin
+                Seen += 'D:' + Format(Type) + ';';
+            end;
+        }
+        field(3; "Line No."; Integer) { }
+        field(4; Seen; Text[50]) { }
+        field(5; Descr; Text[30]) { }
+    }
+
+    keys { key(PK; Type, "Document No.", "Line No.") { Clustered = true; } }
+}
+
+table 89070 "LT SF NL Rel Line"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; Type; Enum "LT NL Type")
+        {
+            trigger OnValidate()
+            begin
+                Seen += 'T:' + "Document No." + ';';
+            end;
+        }
+        field(2; "Document No."; Code[10])
+        {
+            TableRelation = "LT SF NL Header"."No." where(Type = field(Type));
+
+            trigger OnValidate()
+            begin
+                Seen += 'D:' + Format(Type) + ';';
+            end;
+        }
+        field(3; "Line No."; Integer) { }
+        field(4; Seen; Text[50]) { }
+        field(5; Descr; Text[30]) { }
+    }
+
+    keys { key(PK; Type, "Document No.", "Line No.") { Clustered = true; } }
+}
+
+page 89071 "LT SF NL Lines"
+{
+    PageType = ListPart;
+    ApplicationArea = All;
+    UsageCategory = None;
+    SourceTable = "LT SF NL Line";
+    SourceTableView = where(Type = const(B));
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Rows)
+            {
+                field(Type; Rec.Type) { ApplicationArea = All; }
+                field("Document No."; Rec."Document No.") { ApplicationArea = All; }
+                field(Seen; Rec.Seen) { ApplicationArea = All; }
+                field(Descr; Rec.Descr) { ApplicationArea = All; }
+            }
+        }
+    }
+}
+
+page 89072 "LT SF NL Rel Lines"
+{
+    PageType = ListPart;
+    ApplicationArea = All;
+    UsageCategory = None;
+    SourceTable = "LT SF NL Rel Line";
+    SourceTableView = where(Type = const(B));
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Rows)
+            {
+                field(Type; Rec.Type) { ApplicationArea = All; }
+                field("Document No."; Rec."Document No.") { ApplicationArea = All; }
+                field(Seen; Rec.Seen) { ApplicationArea = All; }
+                field(Descr; Rec.Descr) { ApplicationArea = All; }
+            }
+        }
+    }
+}
+
+page 89073 "LT SF NL Host"
+{
+    PageType = Card;
+    ApplicationArea = All;
+    UsageCategory = None;
+    SourceTable = "LT SF NL Header";
+
+    layout
+    {
+        area(Content)
+        {
+            field("No."; Rec."No.") { ApplicationArea = All; }
+            field(Type; Rec.Type) { ApplicationArea = All; }
+            part(Lines; "LT SF NL Lines")
+            {
+                ApplicationArea = All;
+                SubPageLink = "Document No." = field("No.");
+            }
+        }
+    }
+}
+
+page 89074 "LT SF NL Rel Host"
+{
+    PageType = Card;
+    ApplicationArea = All;
+    UsageCategory = None;
+    SourceTable = "LT SF NL Header";
+
+    layout
+    {
+        area(Content)
+        {
+            field("No."; Rec."No.") { ApplicationArea = All; }
+            field(Type; Rec.Type) { ApplicationArea = All; }
+            part(Lines; "LT SF NL Rel Lines")
+            {
+                ApplicationArea = All;
+                SubPageLink = "Document No." = field("No.");
             }
         }
     }

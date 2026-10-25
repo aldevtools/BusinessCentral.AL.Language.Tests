@@ -586,3 +586,50 @@ report 79518 "LT AO Rpt"
         }
     }
 }
+
+// Writer SF: a list part over LT AO Row and a card over LT AO Hdr with two copies of it, linked by F = const('') and by F = filter('').
+page 89066 "LT SF AO Row Part"
+{
+    PageType = ListPart;
+    ApplicationArea = All;
+    UsageCategory = None;
+    SourceTable = "LT AO Row";
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Rows)
+            {
+                field(Id; Rec.Id) { ApplicationArea = All; }
+                field(F; Rec.F) { ApplicationArea = All; }
+            }
+        }
+    }
+}
+
+page 89067 "LT SF AO Link Host"
+{
+    PageType = Card;
+    ApplicationArea = All;
+    UsageCategory = None;
+    SourceTable = "LT AO Hdr";
+
+    layout
+    {
+        area(Content)
+        {
+            field("No."; Rec."No.") { ApplicationArea = All; }
+            part(PartConst; "LT SF AO Row Part")
+            {
+                ApplicationArea = All;
+                SubPageLink = F = const('');
+            }
+            part(PartFilter; "LT SF AO Row Part")
+            {
+                ApplicationArea = All;
+                SubPageLink = F = filter('');
+            }
+        }
+    }
+}

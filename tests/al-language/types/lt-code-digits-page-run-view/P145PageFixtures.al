@@ -170,3 +170,41 @@ page 74924 "LT P145 List B"
         Log.Snapshot('B', Rec);
     end;
 }
+
+// Writer SF: a list whose view names order(ascending) explicitly.
+page 89065 "LT SF P145 List C"
+{
+    PageType = List;
+    ApplicationArea = All;
+    SourceTable = "LT P145 Row";
+    SourceTableView = sorting(Qty) order(ascending) where(Grp = filter('A|B'));
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Rows)
+            {
+                field(NoCtl; Rec."No.")
+                {
+                    ApplicationArea = All;
+                }
+                field(GrpCtl; Rec.Grp)
+                {
+                    ApplicationArea = All;
+                }
+                field(QtyCtl; Rec.Qty)
+                {
+                    ApplicationArea = All;
+                }
+            }
+        }
+    }
+
+    trigger OnOpenPage()
+    var
+        Log: Codeunit "LT P145 Log Mgt";
+    begin
+        Log.Snapshot('C', Rec);
+    end;
+}
