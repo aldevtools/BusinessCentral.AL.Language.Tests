@@ -107,6 +107,58 @@ codeunit 61302 "Isol Probe Fixture"
         ExpectInteger(1, OnRunCount, 'OnRun executions counted on the instance T7 runs on (0 means OnRun ran on a different instance)');
     end;
 
+    // T8-T11 (AL Runner issue 5788, writer RX): a test whose LAST statement is an Insert of a key that already
+    // exists. The duplicate's error is deferred (record/TestRecordRuntimeTextsAndViews.al:180), so the test method
+    // itself never sees it. Whether the test fails, with which text, can only be seen as the runner's result for
+    // the test: a test runner cannot be started from a test (events/lt-trigger-pins/PTestRunnerTriggers.al), and
+    // the main corpus may hold no test that fails on purpose. T8 and T10 are expected to FAIL; their failure
+    // message is the measurement. T9 and T11 read, in the next test, what the failed test left behind.
+    // Keys start with RX, so T1-T7 are not affected; they run before these tests.
+    [Test]
+    procedure T8_EndsWithDeferredDuplicateInsert()
+    var
+        ProbeRow: Record "Isol Probe Row";
+    begin
+        if ProbeRow.Get('RXDUP') then
+            ProbeRow.Delete();
+        ProbeRow."Key" := 'RXDUP';
+        ProbeRow.Insert();
+        ProbeRow."Key" := 'RXDUP';
+        ProbeRow.Insert();
+    end;
+
+    [Test]
+    procedure T9_RowOfT8IsGoneAfterItsDeferredDuplicate()
+    var
+        ProbeRow: Record "Isol Probe Row";
+    begin
+        if ProbeRow.Get('RXDUP') then
+            Error('The row T8 inserted before its duplicate (RXDUP) is still there in T9: the failed test was not rolled back');
+    end;
+
+    [Test]
+    procedure T10_EndsWithDeferredDuplicateInsertAfterCommit()
+    var
+        ProbeRow: Record "Isol Probe Row";
+    begin
+        if ProbeRow.Get('RXCOMMIT') then
+            ProbeRow.Delete();
+        ProbeRow."Key" := 'RXCOMMIT';
+        ProbeRow.Insert();
+        Commit();
+        ProbeRow."Key" := 'RXCOMMIT';
+        ProbeRow.Insert();
+    end;
+
+    [Test]
+    procedure T11_CommittedRowOfT10IsGone()
+    var
+        ProbeRow: Record "Isol Probe Row";
+    begin
+        if ProbeRow.Get('RXCOMMIT') then
+            Error('The row T10 inserted and committed before its duplicate (RXCOMMIT) is still there in T11: the Commit outlived the failed test');
+    end;
+
     local procedure ExpectInteger(Expected: Integer; Actual: Integer; What: Text)
     begin
         if Actual <> Expected then
