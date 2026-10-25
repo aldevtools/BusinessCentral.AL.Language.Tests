@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/properties/devenv-captionclass-property
 // Scope: in-scope
-// Fixtures used: Probe Observer (69160); own table 86500, pages 86501 and 86502, log codeunit 86503 (used only by test codeunit 86504),
+// Fixtures used: Probe Observer (69160); own table 86500, pages 86501, 86502 and 89150 (writer SI), log codeunit 86503 (used only by test codeunit 86504),
 //   test codeunit 86504; Base Application's Sales Header / Sales Line and its OnResolveCaptionClass subscribers (areas 1, 2, 5, 101).
 //   LT QK Setup Rows (86940) writes the General Ledger Setup / Dimension rows of Literals_FieldCaption and Expressions_FieldCaption.
 // Probe: writer QD, for the al-runtime-rs refusal "a CaptionClass expression result with another area" (the top Tests-ERM refusal) and the
@@ -1492,7 +1492,23 @@ codeunit 86504 "LT QD CaptionClass Areas"
         SiCaps(Observer, 'goto_', P);
         P.Close();
         QoStep(Observer, 'close');
-        Observer.Finish();
+        Observer.Expect('open', 'empty>0=Yes fields0=20,21,22,23,24,25,26,27,28,29,30,31, same=Yes rest=20@1;21@1;22@1;23@1;24@1;25@1;26@1;27@1;28@1;');
+        Observer.Expect('row', '1');
+        Observer.Expect('row_calls', '');
+        Observer.Expect('exprId', 'Id 1');
+        Observer.Expect('exprId_calls', '');
+        Observer.Expect('exprVAT', 'Inv. Discount Amount Incl. VAT');
+        Observer.Expect('exprVAT_calls', '');
+        Observer.Expect('goto', 'Yes');
+        Observer.Expect('goto_calls', 'empty>0=No fields0= same=Yes rest=20@1;21@1;22@1;23@1;24@1;25@1;26@1;27@1;28@1;');
+        Observer.Expect('goto_row', '3');
+        Observer.Expect('goto_row_calls', '');
+        Observer.Expect('goto_exprId', 'Id 1');
+        Observer.Expect('goto_exprId_calls', '');
+        Observer.Expect('goto_exprVAT', 'Inv. Discount Amount Incl. VAT');
+        Observer.Expect('goto_exprVAT_calls', '');
+        Observer.Expect('close', 'empty>0=No fields0= same=Yes rest=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1512,7 +1528,23 @@ codeunit 86504 "LT QD CaptionClass Areas"
         SiCaps(Observer, 'goto_', P);
         P.Close();
         QoStep(Observer, 'close');
-        Observer.Finish();
+        Observer.Expect('open', 'empty>0=Yes fields0=20,21,22,23,24,25,26,27,28,29,30,31, same=Yes rest=20@1;21@1;22@1;23@1;24@1;25@1;26@1;27@1;28@1;');
+        Observer.Expect('row', '1');
+        Observer.Expect('row_calls', '');
+        Observer.Expect('exprId', 'Id 1');
+        Observer.Expect('exprId_calls', '');
+        Observer.Expect('exprVAT', 'Inv. Discount Amount Incl. VAT');
+        Observer.Expect('exprVAT_calls', '');
+        Observer.Expect('goto', 'Yes');
+        Observer.Expect('goto_calls', 'empty>0=No fields0= same=Yes rest=20@1;21@1;22@1;23@1;24@1;25@1;26@1;27@1;28@1;');
+        Observer.Expect('goto_row', '3');
+        Observer.Expect('goto_row_calls', '');
+        Observer.Expect('goto_exprId', 'Id 1');
+        Observer.Expect('goto_exprId_calls', '');
+        Observer.Expect('goto_exprVAT', 'Inv. Discount Amount Incl. VAT');
+        Observer.Expect('goto_exprVAT_calls', '');
+        Observer.Expect('close', 'empty>0=No fields0= same=Yes rest=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1529,7 +1561,17 @@ codeunit 86504 "LT QD CaptionClass Areas"
         SiCaps(Observer, 'goto_', P);
         P.Close();
         QoStep(Observer, 'close');
-        Observer.Finish();
+        Observer.Expect('open', 'empty>0=Yes fields0=20,21,22,23,24,25,26,27,28,29,30,31, same=Yes rest=20@1;21@1;22@1;23@1;24@1;25@1;26@1;27@1;28@1;');
+        Observer.Expect('goto', 'Yes');
+        Observer.Expect('goto_calls', 'empty>0=No fields0= same=Yes rest=20@1;21@1;22@1;23@1;24@1;25@1;26@1;27@1;28@1;');
+        Observer.Expect('goto_row', '3');
+        Observer.Expect('goto_row_calls', '');
+        Observer.Expect('goto_exprId', 'Id 1');
+        Observer.Expect('goto_exprId_calls', '');
+        Observer.Expect('goto_exprVAT', 'Inv. Discount Amount Incl. VAT');
+        Observer.Expect('goto_exprVAT_calls', '');
+        Observer.Expect('close', 'empty>0=No fields0= same=Yes rest=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1548,7 +1590,17 @@ codeunit 86504 "LT QD CaptionClass Areas"
         SiCaps(Observer, 'goto_', P);
         P.Close();
         QoStep(Observer, 'close');
-        Observer.Finish();
+        Observer.Expect('open', 'empty>0=Yes fields0=20,21,22,23,24,25,26,27,28,29,30,31, same=Yes rest=20@1;21@1;22@1;23@1;24@1;25@1;26@1;27@1;28@1;');
+        Observer.Expect('goto', 'Yes');
+        Observer.Expect('goto_calls', 'empty>0=No fields0= same=Yes rest=20@1;21@1;22@1;23@1;24@1;25@1;26@1;27@1;28@1;');
+        Observer.Expect('goto_row', '1');
+        Observer.Expect('goto_row_calls', '');
+        Observer.Expect('goto_exprId', 'Id 1');
+        Observer.Expect('goto_exprId_calls', '');
+        Observer.Expect('goto_exprVAT', 'Inv. Discount Amount Incl. VAT');
+        Observer.Expect('goto_exprVAT_calls', '');
+        Observer.Expect('close', 'empty>0=No fields0= same=Yes rest=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1570,7 +1622,19 @@ codeunit 86504 "LT QD CaptionClass Areas"
         SiCaps(Observer, 'goto2_', P);
         P.Close();
         QoStep(Observer, 'close');
-        Observer.Finish();
+        Observer.Expect('open', 'empty>0=Yes fields0=20,21,22,23,24,25,26,27,28,29,30,31, same=Yes rest=20@1;21@1;22@1;23@1;24@1;25@1;26@1;27@1;28@1;');
+        Observer.Expect('goto3', 'Yes');
+        Observer.Expect('goto3_calls', 'empty>0=No fields0= same=Yes rest=20@1;21@1;22@1;23@1;24@1;25@1;26@1;27@1;28@1;');
+        Observer.Expect('goto2', 'Yes');
+        Observer.Expect('goto2_calls', 'empty>0=No fields0= same=Yes rest=20@1;21@1;22@1;23@1;24@1;25@1;26@1;27@1;28@1;');
+        Observer.Expect('goto2_row', '2');
+        Observer.Expect('goto2_row_calls', '');
+        Observer.Expect('goto2_exprId', 'Id 1');
+        Observer.Expect('goto2_exprId_calls', '');
+        Observer.Expect('goto2_exprVAT', 'Inv. Discount Amount Incl. VAT');
+        Observer.Expect('goto2_exprVAT_calls', '');
+        Observer.Expect('close', 'empty>0=No fields0= same=Yes rest=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1591,7 +1655,19 @@ codeunit 86504 "LT QD CaptionClass Areas"
         SiCaps(Observer, 'next_', P);
         P.Close();
         QoStep(Observer, 'close');
-        Observer.Finish();
+        Observer.Expect('open', 'empty>0=Yes fields0=20,21,22,23,24,25,26,27,28,29,30,31, same=Yes rest=20@1;21@1;22@1;23@1;24@1;25@1;26@1;27@1;28@1;');
+        Observer.Expect('goto', 'Yes');
+        Observer.Expect('goto_calls', 'empty>0=No fields0= same=Yes rest=20@1;21@1;22@1;23@1;24@1;25@1;26@1;27@1;28@1;');
+        Observer.Expect('next', 'Yes');
+        Observer.Expect('next_calls', 'empty>0=No fields0= same=Yes rest=');
+        Observer.Expect('next_row', '3');
+        Observer.Expect('next_row_calls', '');
+        Observer.Expect('next_exprId', 'Id 1');
+        Observer.Expect('next_exprId_calls', '');
+        Observer.Expect('next_exprVAT', 'Inv. Discount Amount Incl. VAT');
+        Observer.Expect('next_exprVAT_calls', '');
+        Observer.Expect('close', 'empty>0=No fields0= same=Yes rest=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1614,7 +1690,33 @@ codeunit 86504 "LT QD CaptionClass Areas"
         SiCaps(Observer, 'first_', P);
         P.Close();
         QoStep(Observer, 'close');
-        Observer.Finish();
+        Observer.Expect('open', 'empty>0=Yes fields0=20,21,22,23,24,25,26,27,28,29,30,31, same=Yes rest=20@1;21@1;22@1;23@1;24@1;25@1;26@1;27@1;28@1;');
+        Observer.Expect('last', 'Yes');
+        Observer.Expect('last_calls', 'empty>0=No fields0= same=Yes rest=20@3;21@3;22@3;23@3;24@3;25@3;26@3;27@3;28@3;');
+        Observer.Expect('last_row', '3');
+        Observer.Expect('last_row_calls', '');
+        Observer.Expect('last_exprId', 'Id 3');
+        Observer.Expect('last_exprId_calls', '');
+        Observer.Expect('last_exprVAT', 'Inv. Discount Amount Excl. VAT');
+        Observer.Expect('last_exprVAT_calls', '');
+        Observer.Expect('previous', 'Yes');
+        Observer.Expect('previous_calls', 'empty>0=No fields0= same=Yes rest=');
+        Observer.Expect('previous_row', '2');
+        Observer.Expect('previous_row_calls', '');
+        Observer.Expect('previous_exprId', 'Id 3');
+        Observer.Expect('previous_exprId_calls', '');
+        Observer.Expect('previous_exprVAT', 'Inv. Discount Amount Excl. VAT');
+        Observer.Expect('previous_exprVAT_calls', '');
+        Observer.Expect('first', 'Yes');
+        Observer.Expect('first_calls', 'empty>0=No fields0= same=Yes rest=20@1;21@1;22@1;23@1;24@1;25@1;26@1;27@1;28@1;');
+        Observer.Expect('first_row', '1');
+        Observer.Expect('first_row_calls', '');
+        Observer.Expect('first_exprId', 'Id 1');
+        Observer.Expect('first_exprId_calls', '');
+        Observer.Expect('first_exprVAT', 'Inv. Discount Amount Incl. VAT');
+        Observer.Expect('first_exprVAT_calls', '');
+        Observer.Expect('close', 'empty>0=No fields0= same=Yes rest=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1637,7 +1739,19 @@ codeunit 86504 "LT QD CaptionClass Areas"
         QoStep(Observer, 'close');
         R.Get(1);
         Observer.Observe('row1_lit20', Format(R."Lit 2-0"));
-        Observer.Finish();
+        Observer.Expect('open', 'empty>0=Yes fields0=20,21,22,23,24,25,26,27,28,29,30,31, same=Yes rest=20@1;21@1;22@1;23@1;24@1;25@1;26@1;27@1;28@1;');
+        Observer.Expect('setvalue_calls', 'empty>0=No fields0= same=Yes rest=');
+        Observer.Expect('goto', 'Yes');
+        Observer.Expect('goto_calls', 'empty>0=No fields0= same=Yes rest=20@1;21@1;22@1;23@1;24@1;25@1;26@1;27@1;28@1;20@1;21@1;22@1;23@1;24@1;25@1;26@1;27@1;28@1;');
+        Observer.Expect('goto_row', '3');
+        Observer.Expect('goto_row_calls', '');
+        Observer.Expect('goto_exprId', 'Id 1');
+        Observer.Expect('goto_exprId_calls', '');
+        Observer.Expect('goto_exprVAT', 'Inv. Discount Amount Incl. VAT');
+        Observer.Expect('goto_exprVAT_calls', '');
+        Observer.Expect('close', 'empty>0=No fields0= same=Yes rest=');
+        Observer.Expect('row1_lit20', '5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1659,7 +1773,19 @@ codeunit 86504 "LT QD CaptionClass Areas"
         Cap(Observer, 'goto_exprVAT', P.ExprVAT.Caption());
         P.Close();
         QoStep(Observer, 'close');
-        Observer.Finish();
+        Observer.Expect('open', 'empty>0=Yes fields0=20,21,22,23,24,25,26,27,28,29,30,31, same=Yes rest=20@1;23@1;24@1;');
+        Observer.Expect('exprId', 'Id 1');
+        Observer.Expect('exprId_calls', '');
+        Observer.Expect('goto', 'Yes');
+        Observer.Expect('goto_calls', 'empty>0=No fields0= same=Yes rest=');
+        Observer.Expect('goto_row', '3');
+        Observer.Expect('goto_row_calls', '');
+        Observer.Expect('goto_exprId', 'Id 1');
+        Observer.Expect('goto_exprId_calls', '');
+        Observer.Expect('goto_exprVAT', 'Inv. Discount Amount Incl. VAT');
+        Observer.Expect('goto_exprVAT_calls', '');
+        Observer.Expect('close', 'empty>0=No fields0= same=Yes rest=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1678,7 +1804,17 @@ codeunit 86504 "LT QD CaptionClass Areas"
         Cap(Observer, 'goto_exprVAT', P.ExprVAT.Caption());
         P.Close();
         QoStep(Observer, 'close');
-        Observer.Finish();
+        Observer.Expect('open', 'empty>0=Yes fields0=20,21,22,23,24,25,26,27,28,29,30,31, same=Yes rest=20@1;23@1;24@1;');
+        Observer.Expect('goto', 'Yes');
+        Observer.Expect('goto_calls', 'empty>0=No fields0= same=Yes rest=');
+        Observer.Expect('goto_row', '3');
+        Observer.Expect('goto_row_calls', '');
+        Observer.Expect('goto_exprId', 'Id 1');
+        Observer.Expect('goto_exprId_calls', '');
+        Observer.Expect('goto_exprVAT', 'Inv. Discount Amount Incl. VAT');
+        Observer.Expect('goto_exprVAT_calls', '');
+        Observer.Expect('close', 'empty>0=No fields0= same=Yes rest=');
+        Observer.Verify();
     end;
 
     // The reporter's Document page: a Document page without a part over the QD row.
@@ -1701,7 +1837,19 @@ codeunit 86504 "LT QD CaptionClass Areas"
         Cap(Observer, 'goto_exprVAT', P.ExprVAT.Caption());
         P.Close();
         QoStep(Observer, 'close');
-        Observer.Finish();
+        Observer.Expect('open', 'empty>0=Yes fields0=20,21,22,23,24,25,26,27,28,29,30,31, same=Yes rest=20@1;23@1;24@1;');
+        Observer.Expect('exprId', 'Id 1');
+        Observer.Expect('exprId_calls', '');
+        Observer.Expect('goto', 'Yes');
+        Observer.Expect('goto_calls', 'empty>0=No fields0= same=Yes rest=20@1;23@1;24@1;');
+        Observer.Expect('goto_row', '3');
+        Observer.Expect('goto_row_calls', '');
+        Observer.Expect('goto_exprId', 'Id 1');
+        Observer.Expect('goto_exprId_calls', '');
+        Observer.Expect('goto_exprVAT', 'Inv. Discount Amount Incl. VAT');
+        Observer.Expect('goto_exprVAT_calls', '');
+        Observer.Expect('close', 'empty>0=No fields0= same=Yes rest=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1720,7 +1868,17 @@ codeunit 86504 "LT QD CaptionClass Areas"
         Cap(Observer, 'goto_exprVAT', P.ExprVAT.Caption());
         P.Close();
         QoStep(Observer, 'close');
-        Observer.Finish();
+        Observer.Expect('open', 'empty>0=Yes fields0=20,21,22,23,24,25,26,27,28,29,30,31, same=Yes rest=20@1;23@1;24@1;');
+        Observer.Expect('goto', 'Yes');
+        Observer.Expect('goto_calls', 'empty>0=No fields0= same=Yes rest=20@1;23@1;24@1;');
+        Observer.Expect('goto_row', '3');
+        Observer.Expect('goto_row_calls', '');
+        Observer.Expect('goto_exprId', 'Id 1');
+        Observer.Expect('goto_exprId_calls', '');
+        Observer.Expect('goto_exprVAT', 'Inv. Discount Amount Incl. VAT');
+        Observer.Expect('goto_exprVAT_calls', '');
+        Observer.Expect('close', 'empty>0=No fields0= same=Yes rest=');
+        Observer.Verify();
     end;
 
     // The QO Document page with its ListPart: the host moves to D2, so the part is refilled with D2's lines (3 and 4).
@@ -1743,7 +1901,19 @@ codeunit 86504 "LT QD CaptionClass Areas"
         Cap(Observer, 'goto_exprA', H.Lines.ExprA.Caption());
         H.Close();
         QoStep(Observer, 'close');
-        Observer.Finish();
+        Observer.Expect('open', 'empty>0=Yes fields0=60,70,71, same=Yes rest=60@1;70@1;71@1;');
+        Observer.Expect('goto', 'Yes');
+        Observer.Expect('goto_calls', 'empty>0=No fields0= same=Yes rest=60@1;70@3;71@3;');
+        Observer.Expect('goto_no', 'D2');
+        Observer.Expect('goto_no_calls', '');
+        Observer.Expect('goto_head', 'Head 1');
+        Observer.Expect('goto_head_calls', '');
+        Observer.Expect('goto_line', '3');
+        Observer.Expect('goto_line_calls', '');
+        Observer.Expect('goto_exprA', 'Line 3');
+        Observer.Expect('goto_exprA_calls', '');
+        Observer.Expect('close', 'empty>0=No fields0= same=Yes rest=');
+        Observer.Verify();
     end;
 
     // A move inside the part: GoToKey to the second line of D1.
@@ -1763,7 +1933,17 @@ codeunit 86504 "LT QD CaptionClass Areas"
         Cap(Observer, 'goto_head', H.HeadExpr.Caption());
         H.Close();
         QoStep(Observer, 'close');
-        Observer.Finish();
+        Observer.Expect('open', 'empty>0=Yes fields0=60,70,71, same=Yes rest=60@1;70@1;71@1;');
+        Observer.Expect('goto', 'Yes');
+        Observer.Expect('goto_calls', 'empty>0=No fields0= same=Yes rest=');
+        Observer.Expect('goto_line', '2');
+        Observer.Expect('goto_line_calls', '');
+        Observer.Expect('goto_exprA', 'Line 1');
+        Observer.Expect('goto_exprA_calls', '');
+        Observer.Expect('goto_head', 'Head 1');
+        Observer.Expect('goto_head_calls', '');
+        Observer.Expect('close', 'empty>0=No fields0= same=Yes rest=');
+        Observer.Verify();
     end;
 }
 
