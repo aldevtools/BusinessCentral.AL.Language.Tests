@@ -99,7 +99,22 @@ codeunit 89270 "LT SN LET More Forms"
             Forms('locallabel', Observer);
         if not TryLocalLabelArg('secret') then
             Forms('locallabel_arg', Observer);
-        Observer.Finish();
+        Observer.Expect('global_true', 'Use ERROR with a text constant to improve telemetry details');
+        Observer.Expect('global_false', 'Global text message');
+        Observer.Expect('global_code', 'Dialog');
+        Observer.Expect('field_true', 'Use ERROR with a text constant to improve telemetry details');
+        Observer.Expect('field_false', 'Field message');
+        Observer.Expect('field_code', 'Dialog');
+        Observer.Expect('call_true', 'Use ERROR with a text constant to improve telemetry details');
+        Observer.Expect('call_false', 'Message from a call');
+        Observer.Expect('call_code', 'Dialog');
+        Observer.Expect('locallabel_true', 'Local label message');
+        Observer.Expect('locallabel_false', 'Local label message');
+        Observer.Expect('locallabel_code', 'Dialog');
+        Observer.Expect('locallabel_arg_true', 'Local label %1');
+        Observer.Expect('locallabel_arg_false', 'Local label secret');
+        Observer.Expect('locallabel_arg_code', 'Dialog');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -143,7 +158,19 @@ codeunit 89270 "LT SN LET More Forms"
             Forms('blank_datetime', Observer);
         if not TryFieldErrorBlankDateTime(true) then
             Forms('blank_datetime_text', Observer);
-        Observer.Finish();
+        Observer.Expect('info_message_true', 'FieldError on field LT SN LET Row.Name');
+        Observer.Expect('info_message_false', 'Name ErrorInfo message in LT SN LET Row Code=''R1''.');
+        Observer.Expect('info_message_code', 'NCLCSRTS:TableErrorStr');
+        Observer.Expect('info_empty_true', 'FieldError for incorrect value of LT SN LET Row.Name');
+        Observer.Expect('info_empty_false', 'Name must not be filled in LT SN LET Row Code=''R1''.');
+        Observer.Expect('info_empty_code', 'NCLCSRTS:TableErrorStr');
+        Observer.Expect('blank_datetime_true', 'FieldError for unspecified value of LT SN LET Row.Moment');
+        Observer.Expect('blank_datetime_false', 'You must specify Moment in LT SN LET Row Code=''R1''.');
+        Observer.Expect('blank_datetime_code', 'NCLCSRTS:TableErrorStr');
+        Observer.Expect('blank_datetime_text_true', 'FieldError on field LT SN LET Row.Moment, message: Use FIELDERROR with a text constant to improve Telemetry details.');
+        Observer.Expect('blank_datetime_text_false', 'Moment must be set in LT SN LET Row Code=''R1''.');
+        Observer.Expect('blank_datetime_text_code', 'NCLCSRTS:TableErrorStr');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -166,7 +193,10 @@ codeunit 89270 "LT SN LET More Forms"
         ClearLastError();
         if not TryInsertTemp(TempRow) then
             Forms('temp_dup', Observer);
-        Observer.Finish();
+        Observer.Expect('temp_dup_true', 'The record in table LT SN LET Row already exists. Identification fields and values: <redacted>');
+        Observer.Expect('temp_dup_false', 'The record in table LT SN LET Row already exists. Identification fields and values: Code=''DUP''');
+        Observer.Expect('temp_dup_code', 'DB:RecordExists');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -200,7 +230,19 @@ codeunit 89270 "LT SN LET More Forms"
         Row.Code := 'K';
         if not TryFind(Row, '=<>') then
             Forms('find_eqltgt', Observer);
-        Observer.Finish();
+        Observer.Expect('find_lt_true', 'The LT SN LET Row does not exist. <\\Identification fields and values:\\<redacted>');
+        Observer.Expect('find_lt_false', 'The LT SN LET Row does not exist. <\\Identification fields and values:\\Code=''''');
+        Observer.Expect('find_lt_code', 'DB:RecordNotFound');
+        Observer.Expect('find_gt_true', 'The LT SN LET Row does not exist. >\\Identification fields and values:\\<redacted>');
+        Observer.Expect('find_gt_false', 'The LT SN LET Row does not exist. >\\Identification fields and values:\\Code=''''');
+        Observer.Expect('find_gt_code', 'DB:RecordNotFound');
+        Observer.Expect('filter_empty_true', 'There is no LT SN LET Row within the filter.\\Filters: <redacted>');
+        Observer.Expect('filter_empty_false', 'There is no LT SN LET Row within the filter.\\Filters: Code: X');
+        Observer.Expect('filter_empty_code', 'DB:NothingInsideFilter');
+        Observer.Expect('find_eqltgt_true', 'The LT SN LET Row does not exist. =<>\\Identification fields and values:\\<redacted>');
+        Observer.Expect('find_eqltgt_false', 'The LT SN LET Row does not exist. =<>\\Identification fields and values:\\Code=''K''');
+        Observer.Expect('find_eqltgt_code', 'DB:RecordNotFound');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -251,7 +293,22 @@ codeunit 89270 "LT SN LET More Forms"
             Forms('guid', Observer);
         if not TryEvaluate(5, 'abc') then
             Forms('time', Observer);
-        Observer.Finish();
+        Observer.Expect('decimal_true', 'The value "<redacted>" can''t be evaluated into type Decimal.');
+        Observer.Expect('decimal_false', 'The value "abc" can''t be evaluated into type Decimal.');
+        Observer.Expect('decimal_code', 'Evaluate');
+        Observer.Expect('date_true', 'The format of the Date ''<redacted>'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.');
+        Observer.Expect('date_false', 'The format of the Date ''abc'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.');
+        Observer.Expect('date_code', 'Evaluate');
+        Observer.Expect('boolean_true', 'The value "<redacted>" can''t be evaluated into type Boolean.');
+        Observer.Expect('boolean_false', 'The value "abc" can''t be evaluated into type Boolean.');
+        Observer.Expect('boolean_code', 'Evaluate');
+        Observer.Expect('guid_true', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('guid_false', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('guid_code', 'InvalidGuidFormat');
+        Observer.Expect('time_true', 'The value "<redacted>" can''t be evaluated into type Time.');
+        Observer.Expect('time_false', 'The value "abc" can''t be evaluated into type Time.');
+        Observer.Expect('time_code', 'Evaluate');
+        Observer.Verify();
     end;
 
     [Test]
@@ -270,6 +327,21 @@ codeunit 89270 "LT SN LET More Forms"
             Forms('biginteger_overflow', Observer);
         if not TryEvaluate(1, '1e400') then
             Forms('decimal_overflow', Observer);
-        Observer.Finish();
+        Observer.Expect('datetime_true', 'The value "<redacted>" can''t be evaluated into type DateTime.');
+        Observer.Expect('datetime_false', 'The value "abc" can''t be evaluated into type DateTime.');
+        Observer.Expect('datetime_code', 'Evaluate');
+        Observer.Expect('duration_true', 'The value "<redacted>" can''t be evaluated into type Duration.');
+        Observer.Expect('duration_false', 'The value "abc" can''t be evaluated into type Duration.');
+        Observer.Expect('duration_code', 'Evaluate');
+        Observer.Expect('biginteger_true', 'The value "<redacted>" can''t be evaluated into type BigInteger.');
+        Observer.Expect('biginteger_false', 'The value "abc" can''t be evaluated into type BigInteger.');
+        Observer.Expect('biginteger_code', 'Evaluate');
+        Observer.Expect('biginteger_overflow_true', 'The value "<redacted>" can''t be evaluated into type BigInteger.');
+        Observer.Expect('biginteger_overflow_false', 'The value "99999999999999999999" can''t be evaluated into type BigInteger.');
+        Observer.Expect('biginteger_overflow_code', 'Evaluate');
+        Observer.Expect('decimal_overflow_true', 'The value "<redacted>" can''t be evaluated into type Decimal.');
+        Observer.Expect('decimal_overflow_false', 'The value "1e400" can''t be evaluated into type Decimal.');
+        Observer.Expect('decimal_overflow_code', 'Evaluate');
+        Observer.Verify();
     end;
 }

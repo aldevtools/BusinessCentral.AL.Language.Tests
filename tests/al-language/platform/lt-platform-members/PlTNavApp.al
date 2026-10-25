@@ -329,6 +329,17 @@ codeunit 74206 "LT PlT NavApp"
         V := Version.Create(-5, -6, 3, 4);
         Observer.Observe('neg_two_format', Format(V));
         Observer.Observe('neg_two_parts', StrSubstNo('%1|%2|%3|%4', V.Major(), V.Minor(), V.Build(), V.Revision()));
-        Observer.Finish();
+        Observer.Expect('neg_major_format', '0.0.0.0');
+        Observer.Expect('neg_major_parts', '0|0|0|0');
+        Observer.Expect('neg_major_eq_zero', 'Yes');
+        Observer.Expect('neg_major_lt_zero', 'No');
+        Observer.Expect('neg_build_format', '1.2.0.0');
+        Observer.Expect('neg_build_parts', '1|2|0|0');
+        Observer.Expect('neg_rev_format', '1.2.3.0');
+        Observer.Expect('neg_rev_parts', '1|2|3|0');
+        Observer.Expect('neg_rev_eq_three_part', 'Yes');
+        Observer.Expect('neg_two_format', '0.0.3.4');
+        Observer.Expect('neg_two_parts', '0|0|3|4');
+        Observer.Verify();
     end;
 }

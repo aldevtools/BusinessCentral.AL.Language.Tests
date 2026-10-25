@@ -501,7 +501,13 @@ codeunit 74205 "LT StT BigText"
         Big.GetSubText(T, 1);
         Observer.Observe('empty-pos3-text', T);
         Observer.Observe('empty-pos3-len', Format(Big.Length()));
-        Observer.Finish();
+        Observer.Expect('plus-two-text', 'abcx');
+        Observer.Expect('plus-two-len', '4');
+        Observer.Expect('far-text', 'abcxy');
+        Observer.Expect('far-len', '5');
+        Observer.Expect('empty-pos3-text', 'z');
+        Observer.Expect('empty-pos3-len', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -529,7 +535,15 @@ codeunit 74205 "LT StT BigText"
         N := Big.GetSubText(T, 10, 5);
         Observer.Observe('n-10-5', Format(N));
         Observer.Observe('t-10-5', T);
-        Observer.Finish();
+        Observer.Expect('n-11-1', '0');
+        Observer.Expect('t-11-1', '');
+        Observer.Expect('n-20', '0');
+        Observer.Expect('t-20', '');
+        Observer.Expect('n-11', '0');
+        Observer.Expect('t-11', '');
+        Observer.Expect('n-10-5', '1');
+        Observer.Expect('t-10-5', '9');
+        Observer.Verify();
     end;
 
     [Test]
@@ -555,6 +569,14 @@ codeunit 74205 "LT StT BigText"
         T := 'keep';
         asserterror N := Big.GetSubText(T, 0, 1);
         Observer.ObserveError('pos0');
-        Observer.Finish();
+        Observer.Expect('n-1-1', '0');
+        Observer.Expect('t-1-1', '');
+        Observer.Expect('n-1', '0');
+        Observer.Expect('t-1', '');
+        Observer.Expect('n-5-2', '0');
+        Observer.Expect('t-5-2', '');
+        Observer.Expect('pos0|text', 'The value of COPYSTR parameter 2 is outside of the permitted range. The current value is: 0. The permitted range is: from 1 to 2,147,483,647.');
+        Observer.Expect('pos0|code', 'OutsidePermittedRange');
+        Observer.Verify();
     end;
 }

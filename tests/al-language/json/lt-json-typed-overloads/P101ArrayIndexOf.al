@@ -607,7 +607,16 @@ codeunit 70853 "LT P101 Array IndexOf"
         Got.SetValue(70);
         Observer.Observe('got_setvalue_arr', Txt(A));
         Observer.Observe('got_setvalue_idx', Format(A.IndexOf(Got)));
-        Observer.Finish();
+        Observer.Expect('right_after_add', '0');
+        Observer.Expect('after_setvalue_arr', '[7]');
+        Observer.Expect('after_setvalue_idx', '-1');
+        Observer.Expect('after_readfrom_arr', '[7,8]');
+        Observer.Expect('after_readfrom_idx', '-1');
+        Observer.Expect('got_token_idx', '0');
+        Observer.Expect('got_value_idx', '0');
+        Observer.Expect('got_setvalue_arr', '[7,8]');
+        Observer.Expect('got_setvalue_idx', '-1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -635,6 +644,14 @@ codeunit 70853 "LT P101 Array IndexOf"
         A.Get(0, Tk2);
         Observer.Observe('get0_idx', Format(A.IndexOf(Tk2)));
         Observer.Observe('get0_value_idx', Format(A.IndexOf(Tk2.AsValue())));
-        Observer.Finish();
+        Observer.Expect('scalar_right_after_add', '0');
+        Observer.Expect('scalar_copy_idx', '0');
+        Observer.Expect('scalar_asvalue_idx', '0');
+        Observer.Expect('object_right_after_add', '1');
+        Observer.Expect('object_asobject_idx', '1');
+        Observer.Expect('object_after_change_arr', '[5,{"x":1,"y":2}]');
+        Observer.Expect('get0_idx', '0');
+        Observer.Expect('get0_value_idx', '0');
+        Observer.Verify();
     end;
 }

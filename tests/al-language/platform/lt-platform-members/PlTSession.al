@@ -343,6 +343,20 @@ codeunit 74210 "LT PlT Session"
         Observer.Observe('32767', LanguageOutcome(32767, Old));
         Observer.Observe('65535', LanguageOutcome(65535, Old));
         Observer.Observe('restored', Format(GlobalLanguage() = Old));
-        Observer.Finish();
+        Observer.Expect('1', 'ok 1');
+        Observer.Expect('9', 'ok 9');
+        Observer.Expect('127', 'ok 127');
+        Observer.Expect('1000', 'NotSupportedLanguage ''1000'' is not a valid language code. You must specify a locale identifier (LCID) or code in the format of language-country/region, such as en-US, de-DE, or da-DK.');
+        Observer.Expect('1030', 'ok 1030');
+        Observer.Expect('1036', 'ok 1036');
+        Observer.Expect('2057', 'ok 2057');
+        Observer.Expect('3082', 'ok 3082');
+        Observer.Expect('4096', 'NotSupportedLanguage ''4096'' is not a valid language code. You must specify a locale identifier (LCID) or code in the format of language-country/region, such as en-US, de-DE, or da-DK.');
+        Observer.Expect('8192', 'NotSupportedLanguage ''8192'' is not a valid language code. You must specify a locale identifier (LCID) or code in the format of language-country/region, such as en-US, de-DE, or da-DK.');
+        Observer.Expect('9999', 'NotSupportedLanguage ''9999'' is not a valid language code. You must specify a locale identifier (LCID) or code in the format of language-country/region, such as en-US, de-DE, or da-DK.');
+        Observer.Expect('32767', 'NotSupportedLanguage ''32767'' is not a valid language code. You must specify a locale identifier (LCID) or code in the format of language-country/region, such as en-US, de-DE, or da-DK.');
+        Observer.Expect('65535', 'NotSupportedLanguage ''65535'' is not a valid language code. You must specify a locale identifier (LCID) or code in the format of language-country/region, such as en-US, de-DE, or da-DK.');
+        Observer.Expect('restored', 'Yes');
+        Observer.Verify();
     end;
 }

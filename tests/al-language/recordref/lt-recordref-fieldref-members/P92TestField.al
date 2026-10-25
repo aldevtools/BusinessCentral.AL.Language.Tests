@@ -398,7 +398,15 @@ codeunit 72222 "LT P92 TestField"
         T := 'ABC';
         Observer.Observe('code_field_text_same', RefValue(RecRef, 10, T));
         Observer.Observe('code_field_int', RefValue(RecRef, 10, I));
-        Observer.Finish();
+        Observer.Expect('text_field_int', 'Name Cap must be equal to ''10''  in P92 Item Caption: Code Cap=A1. Current value is ''10''.|TestField');
+        Observer.Expect('text_field_bigint', 'Name Cap must be equal to ''10''  in P92 Item Caption: Code Cap=A1. Current value is ''10''.|TestField');
+        Observer.Expect('text_field_decimal', 'Name Cap must be equal to ''10''  in P92 Item Caption: Code Cap=A1. Current value is ''10''.|TestField');
+        Observer.Expect('text_field_code', 'ok');
+        Observer.Expect('text_yes_field_bool', 'Note must be equal to ''Yes''  in P92 Item Caption: Code Cap=A1. Current value is ''Yes''.|TestField');
+        Observer.Expect('code_field_text_lower', 'ok');
+        Observer.Expect('code_field_text_same', 'ok');
+        Observer.Expect('code_field_int', 'Cd must be equal to ''10''  in P92 Item Caption: Code Cap=A1. Current value is ''ABC''.|TestField');
+        Observer.Verify();
     end;
 
     [Test]
@@ -434,7 +442,17 @@ codeunit 72222 "LT P92 TestField"
         Observer.Observe('decimal_field_text_same', RefValue(RecRef, 4, T));
         BI := 2;
         Observer.Observe('decimal_field_bigint_same', RefValue(RecRef, 4, BI));
-        Observer.Finish();
+        Observer.Expect('int_field_bigint', 'ok');
+        Observer.Expect('int_field_decimal_fraction', 'Qty must be equal to ''10.5''  in P92 Item Caption: Code Cap=A1. Current value is ''10''.|TestField');
+        Observer.Expect('int_field_text_leading_zero', 'ok');
+        Observer.Expect('int_field_text_decimal', 'The input string ''10.0'' was not in a correct format.|AL:Format');
+        Observer.Expect('int_field_text_not_number', 'The input string ''abc'' was not in a correct format.|AL:Format');
+        Observer.Expect('int_field_text_other', 'Qty must be equal to ''11''  in P92 Item Caption: Code Cap=A1. Current value is ''10''.|TestField');
+        Observer.Expect('int_field_code', 'ok');
+        Observer.Expect('decimal_field_int_same', 'ok');
+        Observer.Expect('decimal_field_text_same', 'ok');
+        Observer.Expect('decimal_field_bigint_same', 'ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -463,6 +481,14 @@ codeunit 72222 "LT P92 TestField"
         T := '1';
         Observer.Observe('option_field_text_ordinal', RefValue(RecRef, 7, T));
         Observer.Observe('option_field_enum_option', RefValue(RecRef, 7, Item.Kind::Beta));
-        Observer.Finish();
+        Observer.Expect('bool_field_int_one', 'ok');
+        Observer.Expect('bool_field_text_yes', 'The input string ''Yes'' was not in a correct format.|AL:Format');
+        Observer.Expect('bool_field_text_true', 'The input string ''true'' was not in a correct format.|AL:Format');
+        Observer.Expect('date_field_text_iso', 'Dt must be equal to ''2026-01-15''  in P92 Item Caption: Code Cap=A1. Current value is ''01/15/26''.|TestField');
+        Observer.Expect('date_field_text_format', 'Dt must be equal to ''01/15/26''  in P92 Item Caption: Code Cap=A1. Current value is ''01/15/26''.|TestField');
+        Observer.Expect('date_field_datetime', 'ok');
+        Observer.Expect('option_field_text_ordinal', 'Kind must be equal to ''Beta''  in P92 Item Caption: Code Cap=A1. Current value is ''Beta''.|TestField');
+        Observer.Expect('option_field_enum_option', 'ok');
+        Observer.Verify();
     end;
 }
