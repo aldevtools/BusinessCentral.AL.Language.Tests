@@ -4,7 +4,7 @@
 // Probe: written against a local BC 29.0.54011.55816 service tier; every literal asserted below is what that tier produced. Other BC versions are checked by the corpus CI matrix.
 // Facts: Page.Run(Page, Rec) on pages with SourceTableView: the filters of the page's Rec per filter group (0 to 3) seen from OnOpenPage, current key, direction and view, and the rows (order) a TestPage handler reads, with no record, an empty record and records that carry filters in several groups, keys and a view
 // Writer SF (al-runtime-rs assumption page-run-record-view-order-applies): SF_ tests on List B and List C (page 89065, P145PageFixtures.al).
-//   Facts (corpus CI 29.0): Page.Run(Page, Rec) on a page whose view names order(descending) runs descending whatever the record's key and
+//   Facts (corpus CI 27.5, 28.5, 29.0 agree): Page.Run(Page, Rec) on a page whose view names order(descending) runs descending whatever the record's key and
 //   direction (empty record, the view's key ascending or descending, another key); a view with order(ascending) runs ascending for a
 //   record that is descending. The view's ORDER wins over the record's direction.
 // BC versions: 29 (final facts are added after the measurement)
