@@ -14,6 +14,15 @@
 /// Already pinned for a buffer that only did its Insert (5805): nothing after the Commit is refused
 /// (TestRecordStaleBufferWrite.al RU_Stale_InsertBuffer_NothingAfterCommit), a changed write in the new transaction lets the stale
 /// buffer win (RU_Stale_InsertBuffer_OtherGetChangeModify). The SB tests add the buffer's own writes after its Insert.
+/// Measured (CI legs 27.5, 28.5, 29.0, same on all three): the buffer's own Modify(false), Modify(true), a second Modify, an unchanged
+/// Modify and a Rename after its Insert all follow the rule of the Insert-only buffer. After the Commit the stale write is ACCEPTED
+/// once the new transaction Modified the row (changed or unchanged) or read it under LockTable: the stale buffer wins and writes
+/// all its fields (stored start|5|<own stamp>). It is REFUSED with DB:RecordChanged, the row keeping other|0|<own stamp>, with
+/// nothing in between, after a plain Get, and after the unchanged Modify followed by a second Commit. A stale Delete follows the
+/// same rule. An own Modify that comes after another variable's change in the same transaction changes nothing.
+/// NEW versus the 5805 Get buffer (RU_Stale_GetBuffer_*, always refused): a buffer that read the committed row by Get and then did
+/// its own Modify is accepted after the unchanged Modify of the new transaction, as an Insert buffer is, and refused with nothing
+/// in between.
 /// </summary>
 codeunit 88980 "LT SB Stale Own Modify"
 {
