@@ -3,7 +3,7 @@
 // Fixtures used: Probe Observer (codeunit 69160); own fixtures declared in this file (LT SA UA *); System tables Currency and General Ledger Setup
 // Probe (al-runner issue 5827): Format(Rec.Field), StrSubstNo('%1', Rec.Field), Message('%1', Rec.Field) and Error('%1', Rec.Field) of
 //   Decimal fields with AutoFormatType 1, 2, 4 and 5, each with AutoFormatExpression = Rec."Currency Code", without an expression and with a
-//   constant currency code, under General Ledger Setup places that differ from the defaults (amount 1:3, unit amount 2:5) and a currency
+//   constant currency code, under the default General Ledger Setup places (amount 2:2, unit amount 2:5; other places make the text depend on which test read the setup first in the session) and a currency
 //   with amount places 3:3 and unit-amount places 4:4; the currency code blank, set, and naming no currency; a database record read with
 //   Get (the reporter's shape) and a temporary record; a Decimal variable copy of such a field.
 //   Covers the shapes of al-sema lower/call.rs "StrSubstNo, Message or Error %n of a Decimal field with this DecimalPlaces or AutoFormat".
@@ -64,7 +64,7 @@ codeunit 88951 "LT SA UA Tests"
         SavedAmountPlaces := GLSetup."Amount Decimal Places";
         SavedUnitPlaces := GLSetup."Unit-Amount Decimal Places";
         SavedShowCurrency := GLSetup."Show Currency";
-        GLSetup."Amount Decimal Places" := '1:3';
+        GLSetup."Amount Decimal Places" := '2:2';
         GLSetup."Unit-Amount Decimal Places" := '2:5';
         GLSetup."Show Currency" := ShowCurrency;
         GLSetup.Modify();

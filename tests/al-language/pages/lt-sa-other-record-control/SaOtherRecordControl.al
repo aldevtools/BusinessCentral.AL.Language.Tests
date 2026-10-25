@@ -195,7 +195,7 @@ codeunit 88945 "LT SA OR Tests"
         SavedAmountPlaces := GLSetup."Amount Decimal Places";
         SavedUnitPlaces := GLSetup."Unit-Amount Decimal Places";
         SavedShowCurrency := GLSetup."Show Currency";
-        GLSetup."Amount Decimal Places" := '1:3';
+        GLSetup."Amount Decimal Places" := '2:2';
         GLSetup."Unit-Amount Decimal Places" := '2:5';
         GLSetup."Show Currency" := "Show Currency"::Never;
         GLSetup.Modify();
@@ -442,7 +442,7 @@ codeunit 88945 "LT SA OR Tests"
         Card.Close();
     end;
 
-    // G/L Setup places 1:3 (amount) and 2:5 (unit amount); currency SAC 3:3 and 4:4; SANONE is no currency.
+    // G/L Setup places 2:2 (amount) and 2:5 (unit amount), the defaults: Base Application keeps the setup it read first in a session, so other places would make the text depend on test order; currency SAC 3:3 and 4:4; SANONE is no currency.
     [Test]
     procedure SA_Decimal_BlankCurrency()
     var
