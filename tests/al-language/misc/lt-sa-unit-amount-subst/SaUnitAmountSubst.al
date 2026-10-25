@@ -3,15 +3,17 @@
 // Fixtures used: Probe Observer (codeunit 69160); own fixtures declared in this file (LT SA UA *); System tables Currency and General Ledger Setup
 // Probe (al-runner issue 5827): Format(Rec.Field), StrSubstNo('%1', Rec.Field), Message('%1', Rec.Field) and Error('%1', Rec.Field) of
 //   Decimal fields with AutoFormatType 1, 2, 4 and 5, each with AutoFormatExpression = Rec."Currency Code", without an expression and with a
-//   constant currency code, under the default General Ledger Setup places (amount 2:2, unit amount 2:5; other places make the text depend on which test read the setup first in the session) and a currency
-//   with amount places 3:3 and unit-amount places 4:4; the currency code blank, set, and naming no currency; a database record read with
-//   Get (the reporter's shape) and a temporary record; a Decimal variable copy of such a field.
+//   constant currency code, under the default General Ledger Setup places (amount 2:2, unit amount 2:5) and a currency with amount
+//   places 3:3 and unit-amount places 4:4; the currency code blank, set, and naming no currency; a database record read with Get (the
+//   reporter's shape) and a temporary record; a Decimal variable copy of such a field.
 //   Covers the shapes of al-sema lower/call.rs "StrSubstNo, Message or Error %n of a Decimal field with this DecimalPlaces or AutoFormat".
-// Seen on BC 29.0 (Windows container): every text form equals Format(Rec.Field); a blank currency code gives the fixed places 2:2 (amount)
-//   and 2:5 (unit amount), not the setup's 1:3, as autoformat/PWAutoFormatTypes.al pins for page controls; a code that is no currency
-//   gives the General Ledger Setup places (1:3, 2:5); AutoFormatType 4 and 5 follow 1 and 2 with a currency, and with a blank code (or
-//   none) use the setup's amount places 1:3 (type 4) and unit places 2:5 (type 5); a Decimal variable copy loses the places; Show
-//   Currency adds no symbol to the text.
+// Why the default setup places: with amount places 1:3 a blank currency code gave 2 decimals on the Windows BC 29.0 container and 1:3 in
+//   the CI run of the same commit: Base Application keeps the setup it read first in the session, so the text depended on test order.
+//   A code that is no currency reads the setup each time (autoformat/PWAutoFormatTypes.al CurrencyCode_UnknownCurrency).
+// Facts (27.5, 28.5, 29.0): StrSubstNo, Message and Error give the text of Format(Rec.Field); AutoFormatType 1 and 4 take the amount places,
+//   2 and 5 the unit-amount places, of the currency the expression names (a constant code too), else of the setup; the field's DecimalPlaces
+//   loses to AutoFormatType 2; a Decimal variable copy, and a currency code changed after the value was set, lose the currency places;
+//   Show Currency adds no symbol. 27.5 only (BC28PLUS): AutoFormatType 1, 4 and 5 WITHOUT an expression format as a plain Decimal.
 // Object ids 88950-88951. BC versions: 27, 28, 29 (CI matrix)
 
 table 88950 "LT SA UA Line"
@@ -186,12 +188,24 @@ codeunit 88951 "LT SA UA Tests"
         RestoreSetup();
         Observer.Expect('s1A1', '1,234.50');
         Observer.Expect('s1A2', '1,234.50');
-        Observer.Expect('s1A4', '1,234.5');
+        Observer.Expect('s1A4', '1,234.50');
         Observer.Expect('s1A5', '1,234.50');
+#if BC28PLUS
         Observer.Expect('s1A1No', '1,234.50');
+#else
+        Observer.Expect('s1A1No', '1,234.5');
+#endif
         Observer.Expect('s1A2No', '1,234.50');
+#if BC28PLUS
+        Observer.Expect('s1A4No', '1,234.50');
+#else
         Observer.Expect('s1A4No', '1,234.5');
+#endif
+#if BC28PLUS
         Observer.Expect('s1A5No', '1,234.50');
+#else
+        Observer.Expect('s1A5No', '1,234.5');
+#endif
         Observer.Expect('s1A1Lit', '1,234.500');
         Observer.Expect('s1A2Lit', '1,234.5000');
         Observer.Expect('s1A2Dp', '1,234.50');
@@ -199,21 +213,45 @@ codeunit 88951 "LT SA UA Tests"
         Observer.Expect('s2A2', '1,234.5000');
         Observer.Expect('s2A4', '1,234.500');
         Observer.Expect('s2A5', '1,234.5000');
+#if BC28PLUS
         Observer.Expect('s2A1No', '1,234.50');
+#else
+        Observer.Expect('s2A1No', '1,234.5');
+#endif
         Observer.Expect('s2A2No', '1,234.50');
+#if BC28PLUS
+        Observer.Expect('s2A4No', '1,234.50');
+#else
         Observer.Expect('s2A4No', '1,234.5');
+#endif
+#if BC28PLUS
         Observer.Expect('s2A5No', '1,234.50');
+#else
+        Observer.Expect('s2A5No', '1,234.5');
+#endif
         Observer.Expect('s2A1Lit', '1,234.500');
         Observer.Expect('s2A2Lit', '1,234.5000');
         Observer.Expect('s2A2Dp', '1,234.5000');
-        Observer.Expect('s3A1', '1,234.5');
+        Observer.Expect('s3A1', '1,234.50');
         Observer.Expect('s3A2', '1,234.50');
-        Observer.Expect('s3A4', '1,234.5');
+        Observer.Expect('s3A4', '1,234.50');
         Observer.Expect('s3A5', '1,234.50');
+#if BC28PLUS
         Observer.Expect('s3A1No', '1,234.50');
+#else
+        Observer.Expect('s3A1No', '1,234.5');
+#endif
         Observer.Expect('s3A2No', '1,234.50');
+#if BC28PLUS
+        Observer.Expect('s3A4No', '1,234.50');
+#else
         Observer.Expect('s3A4No', '1,234.5');
+#endif
+#if BC28PLUS
         Observer.Expect('s3A5No', '1,234.50');
+#else
+        Observer.Expect('s3A5No', '1,234.5');
+#endif
         Observer.Expect('s3A1Lit', '1,234.500');
         Observer.Expect('s3A2Lit', '1,234.5000');
         Observer.Expect('s3A2Dp', '1,234.50');
@@ -230,12 +268,24 @@ codeunit 88951 "LT SA UA Tests"
         RestoreSetup();
         Observer.Expect('s1A1', '7.20');
         Observer.Expect('s1A2', '7.20');
-        Observer.Expect('s1A4', '7.2');
+        Observer.Expect('s1A4', '7.20');
         Observer.Expect('s1A5', '7.20');
+#if BC28PLUS
         Observer.Expect('s1A1No', '7.20');
+#else
+        Observer.Expect('s1A1No', '7.2');
+#endif
         Observer.Expect('s1A2No', '7.20');
+#if BC28PLUS
+        Observer.Expect('s1A4No', '7.20');
+#else
         Observer.Expect('s1A4No', '7.2');
+#endif
+#if BC28PLUS
         Observer.Expect('s1A5No', '7.20');
+#else
+        Observer.Expect('s1A5No', '7.2');
+#endif
         Observer.Expect('s1A1Lit', '7.200');
         Observer.Expect('s1A2Lit', '7.2000');
         Observer.Expect('s1A2Dp', '7.20');
@@ -243,21 +293,45 @@ codeunit 88951 "LT SA UA Tests"
         Observer.Expect('s2A2', '7.2000');
         Observer.Expect('s2A4', '7.200');
         Observer.Expect('s2A5', '7.2000');
+#if BC28PLUS
         Observer.Expect('s2A1No', '7.20');
+#else
+        Observer.Expect('s2A1No', '7.2');
+#endif
         Observer.Expect('s2A2No', '7.20');
+#if BC28PLUS
+        Observer.Expect('s2A4No', '7.20');
+#else
         Observer.Expect('s2A4No', '7.2');
+#endif
+#if BC28PLUS
         Observer.Expect('s2A5No', '7.20');
+#else
+        Observer.Expect('s2A5No', '7.2');
+#endif
         Observer.Expect('s2A1Lit', '7.200');
         Observer.Expect('s2A2Lit', '7.2000');
         Observer.Expect('s2A2Dp', '7.2000');
-        Observer.Expect('s3A1', '7.2');
+        Observer.Expect('s3A1', '7.20');
         Observer.Expect('s3A2', '7.20');
-        Observer.Expect('s3A4', '7.2');
+        Observer.Expect('s3A4', '7.20');
         Observer.Expect('s3A5', '7.20');
+#if BC28PLUS
         Observer.Expect('s3A1No', '7.20');
+#else
+        Observer.Expect('s3A1No', '7.2');
+#endif
         Observer.Expect('s3A2No', '7.20');
+#if BC28PLUS
+        Observer.Expect('s3A4No', '7.20');
+#else
         Observer.Expect('s3A4No', '7.2');
+#endif
+#if BC28PLUS
         Observer.Expect('s3A5No', '7.20');
+#else
+        Observer.Expect('s3A5No', '7.2');
+#endif
         Observer.Expect('s3A1Lit', '7.200');
         Observer.Expect('s3A2Lit', '7.2000');
         Observer.Expect('s3A2Dp', '7.20');
@@ -274,12 +348,24 @@ codeunit 88951 "LT SA UA Tests"
         RestoreSetup();
         Observer.Expect('s1A1', '3.14');
         Observer.Expect('s1A2', '3.14159');
-        Observer.Expect('s1A4', '3.142');
+        Observer.Expect('s1A4', '3.14');
         Observer.Expect('s1A5', '3.14159');
+#if BC28PLUS
         Observer.Expect('s1A1No', '3.14');
+#else
+        Observer.Expect('s1A1No', '3.14159265');
+#endif
         Observer.Expect('s1A2No', '3.14159');
-        Observer.Expect('s1A4No', '3.142');
+#if BC28PLUS
+        Observer.Expect('s1A4No', '3.14');
+#else
+        Observer.Expect('s1A4No', '3.14159265');
+#endif
+#if BC28PLUS
         Observer.Expect('s1A5No', '3.14159');
+#else
+        Observer.Expect('s1A5No', '3.14159265');
+#endif
         Observer.Expect('s1A1Lit', '3.142');
         Observer.Expect('s1A2Lit', '3.1416');
         Observer.Expect('s1A2Dp', '3.14159');
@@ -287,21 +373,45 @@ codeunit 88951 "LT SA UA Tests"
         Observer.Expect('s2A2', '3.1416');
         Observer.Expect('s2A4', '3.142');
         Observer.Expect('s2A5', '3.1416');
+#if BC28PLUS
         Observer.Expect('s2A1No', '3.14');
+#else
+        Observer.Expect('s2A1No', '3.14159265');
+#endif
         Observer.Expect('s2A2No', '3.14159');
-        Observer.Expect('s2A4No', '3.142');
+#if BC28PLUS
+        Observer.Expect('s2A4No', '3.14');
+#else
+        Observer.Expect('s2A4No', '3.14159265');
+#endif
+#if BC28PLUS
         Observer.Expect('s2A5No', '3.14159');
+#else
+        Observer.Expect('s2A5No', '3.14159265');
+#endif
         Observer.Expect('s2A1Lit', '3.142');
         Observer.Expect('s2A2Lit', '3.1416');
         Observer.Expect('s2A2Dp', '3.1416');
-        Observer.Expect('s3A1', '3.142');
+        Observer.Expect('s3A1', '3.14');
         Observer.Expect('s3A2', '3.14159');
-        Observer.Expect('s3A4', '3.142');
+        Observer.Expect('s3A4', '3.14');
         Observer.Expect('s3A5', '3.14159');
+#if BC28PLUS
         Observer.Expect('s3A1No', '3.14');
+#else
+        Observer.Expect('s3A1No', '3.14159265');
+#endif
         Observer.Expect('s3A2No', '3.14159');
-        Observer.Expect('s3A4No', '3.142');
+#if BC28PLUS
+        Observer.Expect('s3A4No', '3.14');
+#else
+        Observer.Expect('s3A4No', '3.14159265');
+#endif
+#if BC28PLUS
         Observer.Expect('s3A5No', '3.14159');
+#else
+        Observer.Expect('s3A5No', '3.14159265');
+#endif
         Observer.Expect('s3A1Lit', '3.142');
         Observer.Expect('s3A2Lit', '3.1416');
         Observer.Expect('s3A2Dp', '3.14159');
@@ -318,12 +428,24 @@ codeunit 88951 "LT SA UA Tests"
         RestoreSetup();
         Observer.Expect('f1A1', '1,234.50');
         Observer.Expect('f1A2', '1,234.50');
-        Observer.Expect('f1A4', '1,234.5');
+        Observer.Expect('f1A4', '1,234.50');
         Observer.Expect('f1A5', '1,234.50');
+#if BC28PLUS
         Observer.Expect('f1A1No', '1,234.50');
+#else
+        Observer.Expect('f1A1No', '1,234.5');
+#endif
         Observer.Expect('f1A2No', '1,234.50');
+#if BC28PLUS
+        Observer.Expect('f1A4No', '1,234.50');
+#else
         Observer.Expect('f1A4No', '1,234.5');
+#endif
+#if BC28PLUS
         Observer.Expect('f1A5No', '1,234.50');
+#else
+        Observer.Expect('f1A5No', '1,234.5');
+#endif
         Observer.Expect('f1A1Lit', '1,234.500');
         Observer.Expect('f1A2Lit', '1,234.5000');
         Observer.Expect('f1A2Dp', '1,234.50');
@@ -331,21 +453,45 @@ codeunit 88951 "LT SA UA Tests"
         Observer.Expect('f2A2', '1,234.5000');
         Observer.Expect('f2A4', '1,234.500');
         Observer.Expect('f2A5', '1,234.5000');
+#if BC28PLUS
         Observer.Expect('f2A1No', '1,234.50');
+#else
+        Observer.Expect('f2A1No', '1,234.5');
+#endif
         Observer.Expect('f2A2No', '1,234.50');
+#if BC28PLUS
+        Observer.Expect('f2A4No', '1,234.50');
+#else
         Observer.Expect('f2A4No', '1,234.5');
+#endif
+#if BC28PLUS
         Observer.Expect('f2A5No', '1,234.50');
+#else
+        Observer.Expect('f2A5No', '1,234.5');
+#endif
         Observer.Expect('f2A1Lit', '1,234.500');
         Observer.Expect('f2A2Lit', '1,234.5000');
         Observer.Expect('f2A2Dp', '1,234.5000');
-        Observer.Expect('f3A1', '1,234.5');
+        Observer.Expect('f3A1', '1,234.50');
         Observer.Expect('f3A2', '1,234.50');
-        Observer.Expect('f3A4', '1,234.5');
+        Observer.Expect('f3A4', '1,234.50');
         Observer.Expect('f3A5', '1,234.50');
+#if BC28PLUS
         Observer.Expect('f3A1No', '1,234.50');
+#else
+        Observer.Expect('f3A1No', '1,234.5');
+#endif
         Observer.Expect('f3A2No', '1,234.50');
+#if BC28PLUS
+        Observer.Expect('f3A4No', '1,234.50');
+#else
         Observer.Expect('f3A4No', '1,234.5');
+#endif
+#if BC28PLUS
         Observer.Expect('f3A5No', '1,234.50');
+#else
+        Observer.Expect('f3A5No', '1,234.5');
+#endif
         Observer.Expect('f3A1Lit', '1,234.500');
         Observer.Expect('f3A2Lit', '1,234.5000');
         Observer.Expect('f3A2Dp', '1,234.50');
@@ -362,12 +508,24 @@ codeunit 88951 "LT SA UA Tests"
         RestoreSetup();
         Observer.Expect('f1A1', '3.14');
         Observer.Expect('f1A2', '3.14159');
-        Observer.Expect('f1A4', '3.142');
+        Observer.Expect('f1A4', '3.14');
         Observer.Expect('f1A5', '3.14159');
+#if BC28PLUS
         Observer.Expect('f1A1No', '3.14');
+#else
+        Observer.Expect('f1A1No', '3.14159265');
+#endif
         Observer.Expect('f1A2No', '3.14159');
-        Observer.Expect('f1A4No', '3.142');
+#if BC28PLUS
+        Observer.Expect('f1A4No', '3.14');
+#else
+        Observer.Expect('f1A4No', '3.14159265');
+#endif
+#if BC28PLUS
         Observer.Expect('f1A5No', '3.14159');
+#else
+        Observer.Expect('f1A5No', '3.14159265');
+#endif
         Observer.Expect('f1A1Lit', '3.142');
         Observer.Expect('f1A2Lit', '3.1416');
         Observer.Expect('f1A2Dp', '3.14159');
@@ -375,21 +533,45 @@ codeunit 88951 "LT SA UA Tests"
         Observer.Expect('f2A2', '3.1416');
         Observer.Expect('f2A4', '3.142');
         Observer.Expect('f2A5', '3.1416');
+#if BC28PLUS
         Observer.Expect('f2A1No', '3.14');
+#else
+        Observer.Expect('f2A1No', '3.14159265');
+#endif
         Observer.Expect('f2A2No', '3.14159');
-        Observer.Expect('f2A4No', '3.142');
+#if BC28PLUS
+        Observer.Expect('f2A4No', '3.14');
+#else
+        Observer.Expect('f2A4No', '3.14159265');
+#endif
+#if BC28PLUS
         Observer.Expect('f2A5No', '3.14159');
+#else
+        Observer.Expect('f2A5No', '3.14159265');
+#endif
         Observer.Expect('f2A1Lit', '3.142');
         Observer.Expect('f2A2Lit', '3.1416');
         Observer.Expect('f2A2Dp', '3.1416');
-        Observer.Expect('f3A1', '3.142');
+        Observer.Expect('f3A1', '3.14');
         Observer.Expect('f3A2', '3.14159');
-        Observer.Expect('f3A4', '3.142');
+        Observer.Expect('f3A4', '3.14');
         Observer.Expect('f3A5', '3.14159');
+#if BC28PLUS
         Observer.Expect('f3A1No', '3.14');
+#else
+        Observer.Expect('f3A1No', '3.14159265');
+#endif
         Observer.Expect('f3A2No', '3.14159');
-        Observer.Expect('f3A4No', '3.142');
+#if BC28PLUS
+        Observer.Expect('f3A4No', '3.14');
+#else
+        Observer.Expect('f3A4No', '3.14159265');
+#endif
+#if BC28PLUS
         Observer.Expect('f3A5No', '3.14159');
+#else
+        Observer.Expect('f3A5No', '3.14159265');
+#endif
         Observer.Expect('f3A1Lit', '3.142');
         Observer.Expect('f3A2Lit', '3.1416');
         Observer.Expect('f3A2Dp', '3.14159');
@@ -414,10 +596,22 @@ codeunit 88951 "LT SA UA Tests"
         Observer.Expect('zA2', '0.0000');
         Observer.Expect('zA4', '0.000');
         Observer.Expect('zA5', '0.0000');
+#if BC28PLUS
         Observer.Expect('zA1No', '0.00');
+#else
+        Observer.Expect('zA1No', '0');
+#endif
         Observer.Expect('zA2No', '0.00');
-        Observer.Expect('zA4No', '0.0');
+#if BC28PLUS
+        Observer.Expect('zA4No', '0.00');
+#else
+        Observer.Expect('zA4No', '0');
+#endif
+#if BC28PLUS
         Observer.Expect('zA5No', '0.00');
+#else
+        Observer.Expect('zA5No', '0');
+#endif
         Observer.Expect('zA1Lit', '0.000');
         Observer.Expect('zA2Lit', '0.0000');
         Observer.Expect('zA2Dp', '0.0000');
@@ -425,10 +619,22 @@ codeunit 88951 "LT SA UA Tests"
         Observer.Expect('nA2', '-1,234.5000');
         Observer.Expect('nA4', '-1,234.500');
         Observer.Expect('nA5', '-1,234.5000');
+#if BC28PLUS
         Observer.Expect('nA1No', '-1,234.50');
+#else
+        Observer.Expect('nA1No', '-1,234.5');
+#endif
         Observer.Expect('nA2No', '-1,234.50');
+#if BC28PLUS
+        Observer.Expect('nA4No', '-1,234.50');
+#else
         Observer.Expect('nA4No', '-1,234.5');
+#endif
+#if BC28PLUS
         Observer.Expect('nA5No', '-1,234.50');
+#else
+        Observer.Expect('nA5No', '-1,234.5');
+#endif
         Observer.Expect('nA1Lit', '-1,234.500');
         Observer.Expect('nA2Lit', '-1,234.5000');
         Observer.Expect('nA2Dp', '-1,234.5000');
@@ -452,12 +658,24 @@ codeunit 88951 "LT SA UA Tests"
         RestoreSetup();
         Observer.Expect('s1A1', '1,234.50');
         Observer.Expect('s1A2', '1,234.50');
-        Observer.Expect('s1A4', '1,234.5');
+        Observer.Expect('s1A4', '1,234.50');
         Observer.Expect('s1A5', '1,234.50');
+#if BC28PLUS
         Observer.Expect('s1A1No', '1,234.50');
+#else
+        Observer.Expect('s1A1No', '1,234.5');
+#endif
         Observer.Expect('s1A2No', '1,234.50');
+#if BC28PLUS
+        Observer.Expect('s1A4No', '1,234.50');
+#else
         Observer.Expect('s1A4No', '1,234.5');
+#endif
+#if BC28PLUS
         Observer.Expect('s1A5No', '1,234.50');
+#else
+        Observer.Expect('s1A5No', '1,234.5');
+#endif
         Observer.Expect('s1A1Lit', '1,234.500');
         Observer.Expect('s1A2Lit', '1,234.5000');
         Observer.Expect('s1A2Dp', '1,234.50');
@@ -465,10 +683,22 @@ codeunit 88951 "LT SA UA Tests"
         Observer.Expect('s2A2', '1,234.5000');
         Observer.Expect('s2A4', '1,234.500');
         Observer.Expect('s2A5', '1,234.5000');
+#if BC28PLUS
         Observer.Expect('s2A1No', '1,234.50');
+#else
+        Observer.Expect('s2A1No', '1,234.5');
+#endif
         Observer.Expect('s2A2No', '1,234.50');
+#if BC28PLUS
+        Observer.Expect('s2A4No', '1,234.50');
+#else
         Observer.Expect('s2A4No', '1,234.5');
+#endif
+#if BC28PLUS
         Observer.Expect('s2A5No', '1,234.50');
+#else
+        Observer.Expect('s2A5No', '1,234.5');
+#endif
         Observer.Expect('s2A1Lit', '1,234.500');
         Observer.Expect('s2A2Lit', '1,234.5000');
         Observer.Expect('s2A2Dp', '1,234.5000');
@@ -500,10 +730,22 @@ codeunit 88951 "LT SA UA Tests"
         Observer.Expect('tA2', '1,234.5000');
         Observer.Expect('tA4', '1,234.500');
         Observer.Expect('tA5', '1,234.5000');
+#if BC28PLUS
         Observer.Expect('tA1No', '1,234.50');
+#else
+        Observer.Expect('tA1No', '1,234.5');
+#endif
         Observer.Expect('tA2No', '1,234.50');
+#if BC28PLUS
+        Observer.Expect('tA4No', '1,234.50');
+#else
         Observer.Expect('tA4No', '1,234.5');
+#endif
+#if BC28PLUS
         Observer.Expect('tA5No', '1,234.50');
+#else
+        Observer.Expect('tA5No', '1,234.5');
+#endif
         Observer.Expect('tA1Lit', '1,234.500');
         Observer.Expect('tA2Lit', '1,234.5000');
         Observer.Expect('tA2Dp', '1,234.5000');
@@ -558,7 +800,7 @@ codeunit 88951 "LT SA UA Tests"
         Observer.Expect('1-msgA1', '1,234.50');
         Observer.Expect('1-msgA2', 'x=1,234.50');
         Observer.Expect('1-msgA2No', '1,234.50');
-        Observer.Expect('1-msgA4', '1,234.5');
+        Observer.Expect('1-msgA4', '1,234.50');
         Observer.Expect('2-errA1', '1,234.500');
         Observer.Expect('2-errA2', 'x=1,234.5000');
         Observer.Expect('2-errA2No', '1,234.50');
@@ -567,14 +809,14 @@ codeunit 88951 "LT SA UA Tests"
         Observer.Expect('2-msgA2', 'x=1,234.5000');
         Observer.Expect('2-msgA2No', '1,234.50');
         Observer.Expect('2-msgA4', '1,234.500');
-        Observer.Expect('3-errA1', '1,234.5');
+        Observer.Expect('3-errA1', '1,234.50');
         Observer.Expect('3-errA2', 'x=1,234.50');
         Observer.Expect('3-errA2No', '1,234.50');
         Observer.Expect('3-errA5', '1,234.50');
-        Observer.Expect('3-msgA1', '1,234.5');
+        Observer.Expect('3-msgA1', '1,234.50');
         Observer.Expect('3-msgA2', 'x=1,234.50');
         Observer.Expect('3-msgA2No', '1,234.50');
-        Observer.Expect('3-msgA4', '1,234.5');
+        Observer.Expect('3-msgA4', '1,234.50');
         Observer.Verify();
     end;
 

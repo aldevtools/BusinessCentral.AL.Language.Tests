@@ -6,10 +6,12 @@
 //   OptionCaption (blank first member, every member, no row), an Enum, a Boolean, a Date with ClosingDates, Decimal fields with DecimalPlaces,
 //   AutoFormatType 1/2 with AutoFormatExpression = Rec."Currency Code", AutoFormatType 10, BlankZero, BlankNumbers; Caption() of such a
 //   control with and without a Caption of its own; Editable() and Visible(); SetValue on the Option control.
-// Seen on BC 29.0 (Windows container): such a control takes OptionCaption, enum captions, DecimalPlaces, AutoFormatType/Expression and
+// Facts (BC 29.0 on Windows and on the CI legs): such a control takes OptionCaption, enum captions, DecimalPlaces, AutoFormatType/Expression and
 //   the places of the record's currency from the field, as a Rec-bound control does; it does NOT take BlankZero, BlankNumbers or ClosingDates
 //   (0 shows 0.00, a closing date shows without the C) nor the field's Caption (Caption() is the control name); Editable() follows the
 //   control, not the field's Editable = false. After a SetValue that fails validation the Option control reads the member index ('4', '0').
+// 27.5 and 28.5 differ (BC29PLUS, seen on the Linux CI legs only; the Windows 27.5/28.5 check is queued): the Option control of a global
+//   record shows the member NAMES (' ', 'All', 'None') and SetValue takes member names, not captions.
 // Object ids 88940-88946. BC versions: 27, 28, 29 (CI matrix)
 
 table 88940 "LT SA OR Settings"
@@ -279,16 +281,48 @@ codeunit 88945 "LT SA OR Tests"
             Settings.Insert();
             ObserveOption(Observer, Format(Member));
         end;
+#if BC29PLUS
         Observer.Expect('norow-G', 'All');
+#else
+        Observer.Expect('norow-G', ' ');
+#endif
         Observer.Expect('norow-GText', 'All');
+#if BC29PLUS
         Observer.Expect('norow-T', 'All');
+#else
+        Observer.Expect('norow-T', ' ');
+#endif
+#if BC29PLUS
         Observer.Expect('norow-R1', 'All');
+#else
+        Observer.Expect('norow-R1', ' ');
+#endif
+#if BC29PLUS
         Observer.Expect('norow-R2', 'All');
+#else
+        Observer.Expect('norow-R2', ' ');
+#endif
+#if BC29PLUS
         Observer.Expect('0-G', 'All');
+#else
+        Observer.Expect('0-G', ' ');
+#endif
         Observer.Expect('0-GText', 'All');
+#if BC29PLUS
         Observer.Expect('0-T', 'All');
+#else
+        Observer.Expect('0-T', ' ');
+#endif
+#if BC29PLUS
         Observer.Expect('0-R1', 'All');
+#else
+        Observer.Expect('0-R1', ' ');
+#endif
+#if BC29PLUS
         Observer.Expect('0-R2', 'All');
+#else
+        Observer.Expect('0-R2', ' ');
+#endif
         Observer.Expect('0-C', 'All');
         Observer.Expect('1-G', 'Blank');
         Observer.Expect('1-GText', 'Blank');
@@ -296,23 +330,71 @@ codeunit 88945 "LT SA OR Tests"
         Observer.Expect('1-R1', 'Blank');
         Observer.Expect('1-R2', 'Blank');
         Observer.Expect('1-C', 'Blank');
+#if BC29PLUS
         Observer.Expect('2-G', 'All available');
+#else
+        Observer.Expect('2-G', 'All');
+#endif
         Observer.Expect('2-GText', 'All available');
+#if BC29PLUS
         Observer.Expect('2-T', 'All available');
+#else
+        Observer.Expect('2-T', 'All');
+#endif
+#if BC29PLUS
         Observer.Expect('2-R1', 'All available');
+#else
+        Observer.Expect('2-R1', 'All');
+#endif
+#if BC29PLUS
         Observer.Expect('2-R2', 'All available');
+#else
+        Observer.Expect('2-R2', 'All');
+#endif
         Observer.Expect('2-C', 'All available');
+#if BC29PLUS
         Observer.Expect('3-G', 'Some available');
+#else
+        Observer.Expect('3-G', 'Some');
+#endif
         Observer.Expect('3-GText', 'Some available');
+#if BC29PLUS
         Observer.Expect('3-T', 'Some available');
+#else
+        Observer.Expect('3-T', 'Some');
+#endif
+#if BC29PLUS
         Observer.Expect('3-R1', 'Some available');
+#else
+        Observer.Expect('3-R1', 'Some');
+#endif
+#if BC29PLUS
         Observer.Expect('3-R2', 'Some available');
+#else
+        Observer.Expect('3-R2', 'Some');
+#endif
         Observer.Expect('3-C', 'Some available');
+#if BC29PLUS
         Observer.Expect('4-G', 'None available');
+#else
+        Observer.Expect('4-G', 'None');
+#endif
         Observer.Expect('4-GText', 'None available');
+#if BC29PLUS
         Observer.Expect('4-T', 'None available');
+#else
+        Observer.Expect('4-T', 'None');
+#endif
+#if BC29PLUS
         Observer.Expect('4-R1', 'None available');
+#else
+        Observer.Expect('4-R1', 'None');
+#endif
+#if BC29PLUS
         Observer.Expect('4-R2', 'None available');
+#else
+        Observer.Expect('4-R2', 'None');
+#endif
         Observer.Expect('4-C', 'None available');
         Observer.Verify();
     end;
@@ -581,7 +663,7 @@ codeunit 88945 "LT SA OR Tests"
         RestoreSetup();
         Observer.Expect('aG22', '1,234.50');
         Observer.Expect('aG05', '1,234.5');
-        Observer.Expect('aGA1', '1,234.5');
+        Observer.Expect('aGA1', '1,234.50');
         Observer.Expect('aGA2', '1,234.50');
         Observer.Expect('aGA10', '1,234.500');
         Observer.Expect('aGBZ', '1,234.50');
@@ -589,7 +671,7 @@ codeunit 88945 "LT SA OR Tests"
         Observer.Expect('aGBN', '1,234.50');
         Observer.Expect('aT22', '1,234.50');
         Observer.Expect('aT05', '1,234.5');
-        Observer.Expect('aTA1', '1,234.5');
+        Observer.Expect('aTA1', '1,234.50');
         Observer.Expect('aTA2', '1,234.50');
         Observer.Expect('aTA10', '1,234.500');
         Observer.Expect('aTBZ', '1,234.50');
@@ -599,7 +681,7 @@ codeunit 88945 "LT SA OR Tests"
         Observer.Expect('aRA2', '1,234.50');
         Observer.Expect('aC22', '1,234.50');
         Observer.Expect('aC05', '1,234.5');
-        Observer.Expect('aCA1', '1,234.5');
+        Observer.Expect('aCA1', '1,234.50');
         Observer.Expect('aCA2', '1,234.50');
         Observer.Expect('aCA10', '1,234.500');
         Observer.Expect('aCBZ', '1,234.50');
@@ -798,26 +880,78 @@ codeunit 88945 "LT SA OR Tests"
         Worksheet.Close();
         Settings.Get('');
         Observer.Observe('row-after', Format(Settings."Avail. Filter", 0, 2));
+#if BC29PLUS
         Observer.Expect('caption-err|text', 'LT-NOERROR');
+#else
+        Observer.Expect('caption-err|text', 'Validation error for Field: GOpt,  Message = ''Your entry of ''None available'' is not an acceptable value for ''Material Availability''.''');
+#endif
+#if BC29PLUS
         Observer.Expect('caption-err|code', 'Dialog');
+#else
+        Observer.Expect('caption-err|code', 'TestValidation');
+#endif
+#if BC29PLUS
         Observer.Expect('caption-G', 'None available');
+#else
+        Observer.Expect('caption-G', '0');
+#endif
+#if BC29PLUS
         Observer.Expect('caption-GText', 'None available');
+#else
+        Observer.Expect('caption-GText', 'All');
+#endif
+#if BC29PLUS
         Observer.Expect('member-err|text', 'Validation error for Field: GOpt,  Message = ''Your entry of ''Some'' is not an acceptable value for ''Material Availability''.''');
+#else
+        Observer.Expect('member-err|text', 'LT-NOERROR');
+#endif
+#if BC29PLUS
         Observer.Expect('member-err|code', 'TestValidation');
+#else
+        Observer.Expect('member-err|code', 'Dialog');
+#endif
+#if BC29PLUS
         Observer.Expect('member-G', '4');
+#else
+        Observer.Expect('member-G', 'Some');
+#endif
+#if BC29PLUS
         Observer.Expect('member-GText', 'None available');
+#else
+        Observer.Expect('member-GText', 'Some available');
+#endif
         Observer.Expect('both-err|text', 'LT-NOERROR');
         Observer.Expect('both-err|code', 'Dialog');
         Observer.Expect('both-G', 'All');
+#if BC29PLUS
         Observer.Expect('both-GText', 'All');
+#else
+        Observer.Expect('both-GText', 'All available');
+#endif
         Observer.Expect('empty-err|text', 'Validation error for Field: GOpt,  Message = ''Your entry of '''' is not an acceptable value for ''Material Availability''.''');
         Observer.Expect('empty-err|code', 'TestValidation');
+#if BC29PLUS
         Observer.Expect('empty-G', '0');
+#else
+        Observer.Expect('empty-G', '2');
+#endif
+#if BC29PLUS
         Observer.Expect('empty-GText', 'All');
+#else
+        Observer.Expect('empty-GText', 'All available');
+#endif
         Observer.Expect('other-err|text', 'Validation error for Field: GOpt,  Message = ''Your entry of ''Nonsense'' is not an acceptable value for ''Material Availability''.''');
         Observer.Expect('other-err|code', 'TestValidation');
+#if BC29PLUS
         Observer.Expect('other-G', '0');
+#else
+        Observer.Expect('other-G', '2');
+#endif
+#if BC29PLUS
         Observer.Expect('other-GText', 'All');
+#else
+        Observer.Expect('other-GText', 'All available');
+#endif
         Observer.Expect('row-after', '0');
         Observer.Verify();
     end;
