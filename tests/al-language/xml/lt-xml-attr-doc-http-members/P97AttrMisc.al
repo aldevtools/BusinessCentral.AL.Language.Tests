@@ -407,16 +407,14 @@ codeunit 74803 "LT P97 Attr Misc"
         end;
     end;
 
-    [Test]
-    procedure Uninitialised_AsXmlNode_Kinds()
+    local procedure RunAsNodeKinds(var Observer: Codeunit "Probe Observer"; FromKind: Integer; ToKind: Integer)
     var
-        Observer: Codeunit "Probe Observer";
         N: XmlNode;
         Kind: Integer;
         Use: Integer;
         R: Text;
     begin
-        for Kind := 1 to 8 do begin
+        for Kind := FromKind to ToKind do begin
             Clear(N);
             if TryAsNode(Kind, N) then begin
                 Observer.Observe('k' + Format(Kind), Flags(N));
@@ -430,6 +428,41 @@ codeunit 74803 "LT P97 Attr Misc"
             end else
                 Observer.ObserveError('k' + Format(Kind));
         end;
+    end;
+
+    [Test]
+    procedure Uninitialised_AsXmlNode_Attribute_Text()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RunAsNodeKinds(Observer, 1, 2);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Uninitialised_AsXmlNode_CData_Comment()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RunAsNodeKinds(Observer, 3, 4);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Uninitialised_AsXmlNode_Element_ProcessingInstruction()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RunAsNodeKinds(Observer, 5, 6);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Uninitialised_AsXmlNode_DocumentType_Document()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RunAsNodeKinds(Observer, 7, 8);
         Observer.Finish();
     end;
 }

@@ -398,7 +398,9 @@ codeunit 72828 "LT XpFS FlowField"
         Xmlport.Export(Xmlport::"LT XpFS Export Xml", OutS);
         Observer.Observe('len', Format(TempBlob.Length()));
         Observer.Observe('xml', ReadAllUtf16(TempBlob));
-        Observer.Finish();
+        Observer.Expect('len', '832');
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <Parent>|    <Id>1</Id>|    <Total>13.75</Total>|    <Cnt>3</Cnt>|    <SeqFilter>0</SeqFilter>|  </Parent>|  <Parent>|    <Id>2</Id>|    <Total>0.00</Total>|    <Cnt>0</Cnt>|    <SeqFilter>0</SeqFilter>|  </Parent>|  <Parent>|    <Id>3</Id>|    <Total>7.00</Total>|    <Cnt>1</Cnt>|    <SeqFilter>0</SeqFilter>|  </Parent>|</Root>|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -417,7 +419,8 @@ codeunit 72828 "LT XpFS FlowField"
         Xp.SetDestination(OutS);
         Xp.Export();
         Observer.Observe('xml', ReadAllUtf16(TempBlob));
-        Observer.Finish();
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <Parent>|    <Id>1</Id>|    <Total>3.25</Total>|    <Cnt>2</Cnt>|    <SeqFilter>0</SeqFilter>|  </Parent>|  <Parent>|    <Id>2</Id>|    <Total>0.00</Total>|    <Cnt>0</Cnt>|    <SeqFilter>0</SeqFilter>|  </Parent>|  <Parent>|    <Id>3</Id>|    <Total>0.00</Total>|    <Cnt>0</Cnt>|    <SeqFilter>0</SeqFilter>|  </Parent>|</Root>|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -436,6 +439,7 @@ codeunit 72828 "LT XpFS FlowField"
         Xp.SetDestination(OutS);
         Xp.Export();
         Observer.Observe('xml', ReadAllUtf16(TempBlob));
-        Observer.Finish();
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <Parent>|    <Id>1</Id>|    <Total>13.75</Total>|    <Cnt>3</Cnt>|    <SeqFilter>0</SeqFilter>|  </Parent>|  <Parent>|    <Id>2</Id>|    <Total>0.00</Total>|    <Cnt>0</Cnt>|    <SeqFilter>0</SeqFilter>|  </Parent>|  <Parent>|    <Id>3</Id>|    <Total>7.00</Total>|    <Cnt>1</Cnt>|    <SeqFilter>0</SeqFilter>|  </Parent>|</Root>|');
+        Observer.Verify();
     end;
 }

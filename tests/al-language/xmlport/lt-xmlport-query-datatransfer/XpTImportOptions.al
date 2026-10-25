@@ -443,6 +443,8 @@ codeunit 73502 "LT XpT Import Options"
         Helper.AddItem(2, 'x', 1, 1, true, 'C', 0D);
         Observer.Observe('xml', Helper.ExportTextEnc(73435, TextEncoding::UTF16));
         Observer.Observe('len', Format(Helper.LastLength()));
-        Observer.Finish();
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-16" standalone="no"?><NL><Root><NL>  <Item><NL>    <Id>1</Id><NL>    <Name>  a  b  </Name><NL>  </Item><NL>  <Item><NL>    <Id>2</Id><NL>    <Name>x</Name><NL>  </Item><NL></Root>');
+        Observer.Expect('len', '388');
+        Observer.Verify();
     end;
 }

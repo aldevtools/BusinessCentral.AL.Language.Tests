@@ -302,7 +302,8 @@ codeunit 80523 "LT AY Width Tests"
         WriteBytes(TempBlob, 1);
         TempBlob.CreateInStream(InS);
         Observer.Observe('reads', ReadChars(InS));
-        Observer.Finish();
+        Observer.Expect('reads', '1:160;1:254;1:65;1:0;1:210;1:0;1:13;1:0;1:10;1:0;1:66;eos=Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -315,7 +316,8 @@ codeunit 80523 "LT AY Width Tests"
         WriteBytes(TempBlob, 2);
         TempBlob.CreateInStream(InS);
         Observer.Observe('reads', ReadChars(InS));
-        Observer.Finish();
+        Observer.Expect('reads', '1:65;1:8220;1:20;1:66;1:10;1:67;eos=Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -328,7 +330,8 @@ codeunit 80523 "LT AY Width Tests"
         WriteBytes(TempBlob, 1);
         TempBlob.CreateInStream(InS, TextEncoding::UTF8);
         Observer.Observe('reads', ReadChars(InS));
-        Observer.Finish();
+        Observer.Expect('reads', '2:65279;2:65;2:233;2:13;2:10;1:0;eos=Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -341,7 +344,8 @@ codeunit 80523 "LT AY Width Tests"
         WriteBytes(TempBlob, 2);
         TempBlob.CreateInStream(InS, TextEncoding::UTF8);
         Observer.Observe('reads', ReadChars(InS));
-        Observer.Finish();
+        Observer.Expect('reads', '2:49985;2:17065;2:17162;eos=Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -354,7 +358,8 @@ codeunit 80523 "LT AY Width Tests"
         WriteBytes(TempBlob, 1);
         TempBlob.CreateInStream(InS, TextEncoding::UTF16);
         Observer.Observe('reads', ReadChars(InS));
-        Observer.Finish();
+        Observer.Expect('reads', '2:65279;2:65;2:233;2:13;2:10;1:0;eos=Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -367,7 +372,8 @@ codeunit 80523 "LT AY Width Tests"
         WriteBytes(TempBlob, 2);
         TempBlob.CreateInStream(InS, TextEncoding::UTF16);
         Observer.Observe('reads', ReadChars(InS));
-        Observer.Finish();
+        Observer.Expect('reads', '2:49985;2:17065;2:17162;eos=Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -380,7 +386,8 @@ codeunit 80523 "LT AY Width Tests"
         WriteBytes(TempBlob, 1);
         TempBlob.CreateInStream(InS, TextEncoding::Windows);
         Observer.Observe('reads', ReadChars(InS));
-        Observer.Finish();
+        Observer.Expect('reads', '1:255;1:254;1:65;1:0;1:233;1:0;1:13;1:0;1:10;1:0;1:66;eos=Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -393,7 +400,8 @@ codeunit 80523 "LT AY Width Tests"
         WriteBytes(TempBlob, 2);
         TempBlob.CreateInStream(InS, TextEncoding::Windows);
         Observer.Observe('reads', ReadChars(InS));
-        Observer.Finish();
+        Observer.Expect('reads', '1:65;1:195;1:169;1:66;1:10;1:67;eos=Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -406,7 +414,8 @@ codeunit 80523 "LT AY Width Tests"
         WriteBytes(TempBlob, 1);
         TempBlob.CreateInStream(InS, TextEncoding::MSDos);
         Observer.Observe('reads', ReadChars(InS));
-        Observer.Finish();
+        Observer.Expect('reads', '1:160;1:254;1:65;1:0;1:210;1:0;1:13;1:0;1:10;1:0;1:66;eos=Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -419,6 +428,7 @@ codeunit 80523 "LT AY Width Tests"
         WriteBytes(TempBlob, 2);
         TempBlob.CreateInStream(InS, TextEncoding::MSDos);
         Observer.Observe('reads', ReadChars(InS));
-        Observer.Finish();
+        Observer.Expect('reads', '1:65;1:8220;1:20;1:66;1:10;1:67;eos=Yes');
+        Observer.Verify();
     end;
 }

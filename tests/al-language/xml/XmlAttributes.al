@@ -643,6 +643,17 @@ codeunit 73402 "LT XmT Attributes"
         E.GetChildElements().Get(1, Child);
         Child.AsXmlElement().Add(XmlAttribute.Create('k', 'urn:x', 'v'));
         Observer.Observe('child_of_declared', Str(E));
-        Observer.Finish();
+        Observer.Expect('detached', 'p0:k|p0|p0:m|p0');
+        Observer.Expect('detached_write', 'p0:k="v"');
+        Observer.Expect('two_ns', '<e p1:k="v" p2:m="w" xmlns:p2="urn:y" xmlns:p1="urn:x" />');
+        Observer.Expect('two_ns_names', ':k||:m|');
+        Observer.Expect('same_ns', '<e p1:k="1" p1:m="2" xmlns:p1="urn:x" />');
+        Observer.Expect('declared', '<e xmlns:n="urn:x" n:k="v" />');
+        Observer.Expect('declared_name', 'n:k|n');
+        Observer.Expect('declared_get', 'n:k|n');
+        Observer.Expect('element_in_ns', '<e p1:k="v" xmlns:p1="urn:x" xmlns="urn:x" />');
+        Observer.Expect('element_prefixed', '<q:e xmlns:q="urn:x" q:k="v" />');
+        Observer.Expect('child_of_declared', '<r xmlns:n="urn:x">\r\n  <c n:k="v" />\r\n</r>');
+        Observer.Verify();
     end;
 }
