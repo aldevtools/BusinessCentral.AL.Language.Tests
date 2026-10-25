@@ -289,13 +289,18 @@ codeunit 88951 "LT SA UA Tests"
     procedure SA_UA_MessageError()
     var
         Observer: Codeunit "Probe Observer";
+        Lines: array[3] of Record "LT SA UA Line";
         Line: Record "LT SA UA Line";
         LineNo: Integer;
     begin
         SetSetup("Show Currency"::Never);
         Seed(1234.5);
+        // An asserterror rolls back to the last commit: commit the setup and the rows, and commit the restored setup before Finish.
+        Commit();
+        for LineNo := 1 to 3 do
+            Lines[LineNo].Get(LineNo);
         for LineNo := 1 to 3 do begin
-            Line.Get(LineNo);
+            Line := Lines[LineNo];
             asserterror Error('%1', Line.A1);
             Observer.Observe(Format(LineNo) + '-errA1', GetLastErrorText());
             asserterror Error('x=%1', Line.A2);
@@ -315,6 +320,7 @@ codeunit 88951 "LT SA UA Tests"
             Observer.Observe(Format(LineNo) + '-msgA4', LastMessage);
         end;
         RestoreSetup();
+        Commit();
         Observer.Finish();
     end;
 

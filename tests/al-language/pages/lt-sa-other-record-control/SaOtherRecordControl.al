@@ -462,6 +462,7 @@ codeunit 88945 "LT SA OR Tests"
         Observer.Observe(Tag + '-RLocked', Format(Worksheet.RLocked.Editable()));
     end;
 
+    // Commit after seeding: an asserterror rolls back to the last commit, and the row must survive it.
     [Test]
     procedure SA_Editable_Visible()
     var
@@ -472,9 +473,9 @@ codeunit 88945 "LT SA OR Tests"
     begin
         Seed(Settings);
         Settings.Insert();
+        Commit();
         Worksheet.OpenEdit();
         ObserveEditable(Observer, 'edit', Worksheet);
-        Observer.Observe('flagoff-GHidden', Format(Worksheet.GHidden.Visible()));
         Observer.Observe('flagoff-GVisExpr', Format(Worksheet.GVisExpr.Visible()));
         Observer.Observe('flagoff-GFlag', Format(Worksheet.GFlag.Visible()));
         Worksheet.Close();
@@ -483,8 +484,8 @@ codeunit 88945 "LT SA OR Tests"
         Worksheet.Close();
         Settings.Flag := true;
         Settings.Modify();
+        Commit();
         Worksheet.OpenEdit();
-        Observer.Observe('flagon-GHidden', Format(Worksheet.GHidden.Visible()));
         Observer.Observe('flagon-GVisExpr', Format(Worksheet.GVisExpr.Visible()));
         Worksheet.Close();
         Card.OpenEdit();
@@ -492,6 +493,14 @@ codeunit 88945 "LT SA OR Tests"
         Observer.Observe('edit-CLocked', Format(Card.CLocked.Editable()));
         Observer.Observe('edit-COpt', Format(Card.COpt.Editable()));
         Card.Close();
+        // A control with Visible = false (pages/W1Controls.al pins the Rec-bound case).
+        Worksheet.OpenEdit();
+        asserterror begin
+            Observer.Observe('GHidden-visible', Format(Worksheet.GHidden.Visible()));
+            Error('LT-NOERROR');
+        end;
+        Observer.ObserveError('GHidden');
+        Worksheet.Close();
         Observer.Finish();
     end;
 
@@ -518,6 +527,7 @@ codeunit 88945 "LT SA OR Tests"
     begin
         Seed(Settings);
         Settings.Insert();
+        Commit();
         Worksheet.OpenEdit();
         TrySetOption(Observer, Worksheet, 'caption', 'None available');
         TrySetOption(Observer, Worksheet, 'member', 'Some');
