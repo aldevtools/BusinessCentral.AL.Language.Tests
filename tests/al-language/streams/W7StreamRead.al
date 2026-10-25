@@ -304,4 +304,66 @@ codeunit 68554 "W7 Stream Read"
         Observer.Expect('UTF8 2 bytes codes', '97 98');
         Observer.Verify();
     end;
+
+    // Writer SN (2026-10-25, runtime hand-off refuse-json-streams "InStream.Read(Text, Length) results on UTF-8"): ReadTextWithLength_Utf8Sequences
+    // pins the returned count and the text; here also what is left in the stream after the read (read with a second Read(Text) and with
+    // Read(Byte)), so the bytes one Read(Text, Length) consumes are visible.
+    local procedure ObserveLengthAndRest(var Observer: Codeunit "Probe Observer"; Name: Text; var TempBlob: Codeunit "Temp Blob"; Encoding: TextEncoding; Length: Integer)
+    var
+        Util: Codeunit "W7 Stream Util";
+        InS: InStream;
+        Result: Text;
+        Rest: Text;
+        B: Byte;
+        Count: Integer;
+    begin
+        TempBlob.CreateInStream(InS, Encoding);
+        Count := InS.Read(Result, Length);
+        Observer.Observe(Name + ' returned', Format(Count) + ' ' + Util.Codes(Result) + ' eos ' + Format(InS.EOS()));
+        Count := InS.Read(Rest);
+        Observer.Observe(Name + ' rest', Format(Count) + ' ' + Util.Codes(Rest));
+        TempBlob.CreateInStream(InS, Encoding);
+        InS.Read(Result, Length);
+        if InS.EOS() then
+            Observer.Observe(Name + ' next byte', 'eos')
+        else begin
+            InS.Read(B);
+            Observer.Observe(Name + ' next byte', Format(B));
+        end;
+    end;
+
+    [Test]
+    procedure ReadTextWithLength_Utf8_WhatIsConsumed()
+    var
+        Observer: Codeunit "Probe Observer";
+        TempBlob: Codeunit "Temp Blob";
+        Bytes: List of [Integer];
+    begin
+        // a, e-acute (C3 A9), euro (E2 82 AC), b
+        Bytes.Add(97); Bytes.Add(195); Bytes.Add(169); Bytes.Add(226); Bytes.Add(130); Bytes.Add(172); Bytes.Add(98);
+        WriteBytes(TempBlob, Bytes);
+        ObserveLengthAndRest(Observer, 'n1', TempBlob, TextEncoding::UTF8, 1);
+        ObserveLengthAndRest(Observer, 'n2', TempBlob, TextEncoding::UTF8, 2);
+        ObserveLengthAndRest(Observer, 'n3', TempBlob, TextEncoding::UTF8, 3);
+        ObserveLengthAndRest(Observer, 'n4', TempBlob, TextEncoding::UTF8, 4);
+        ObserveLengthAndRest(Observer, 'n5', TempBlob, TextEncoding::UTF8, 5);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure ReadTextWithLength_Utf16_WhatIsConsumed()
+    var
+        Observer: Codeunit "Probe Observer";
+        TempBlob: Codeunit "Temp Blob";
+        Bytes: List of [Integer];
+    begin
+        // UTF-16 LE: a (61 00), e-acute (E9 00), euro (AC 20), b (62 00), no terminator
+        Bytes.Add(97); Bytes.Add(0); Bytes.Add(233); Bytes.Add(0); Bytes.Add(172); Bytes.Add(32); Bytes.Add(98); Bytes.Add(0);
+        WriteBytes(TempBlob, Bytes);
+        ObserveLengthAndRest(Observer, 'u1', TempBlob, TextEncoding::UTF16, 1);
+        ObserveLengthAndRest(Observer, 'u2', TempBlob, TextEncoding::UTF16, 2);
+        ObserveLengthAndRest(Observer, 'u4', TempBlob, TextEncoding::UTF16, 4);
+        ObserveLengthAndRest(Observer, 'u6', TempBlob, TextEncoding::UTF16, 6);
+        Observer.Finish();
+    end;
 }
