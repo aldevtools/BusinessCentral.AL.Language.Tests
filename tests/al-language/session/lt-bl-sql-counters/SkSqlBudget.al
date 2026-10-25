@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/sessioninformation/sessioninformation-data-type
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160), Library Assert; own table 89190, codeunit 89191; writer SK (al-runner issue 5861)
+// Fixtures used: Probe Observer (codeunit 69160), Assert (codeunit 130000); own table 89190, codeunit 89191; writer SK (al-runner issue 5861)
 // Probe: the statement budget test of al-runner issue 5861 (no Commit before the first read, a two-field key, a procedure in another
 // codeunit that copies a temporary record into the table with FindSet, Next and Insert, then SetRange and Count), and the size of the
 // change of SessionInformation.SqlStatementsExecuted() and SqlRowsRead() around that shape for several row counts, with and without a
@@ -71,7 +71,7 @@ codeunit 89192 "LT SK Sql Budget"
     TestPermissions = Disabled;
 
     var
-        Assert: Codeunit "Library Assert";
+        Assert: Codeunit Assert;
         Seq: Integer;
 
     local procedure FillBuffer(var TempRuleLine: Record "LT SK Rule Line" temporary; N: Integer)
