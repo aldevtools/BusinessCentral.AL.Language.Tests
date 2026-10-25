@@ -3,6 +3,9 @@
 // Fixtures used: Probe Observer (69160); tables and helper of P105Fix.al; own report 89243, test codeunit 89244 and its log 89260 (SingleInstance, text only: it survives asserterror and is used by codeunit 89244 alone)
 // Facts: whether the layout members (RdlcLayout, WordLayout, ExcelLayout, DefaultLayout, instance and static) run OnInitReport / OnPreReport of a report without a layout,
 // and the error text and code of the layout members and DefaultLayout for a missing report id called from the test method itself (not from a try function).
+// BC answers: the first instance layout member (RdlcLayout here) runs OnInitReport once, then fails with ReportNoLayout; later layout members,
+//   DefaultLayout and a later Execute do not run it again (Execute runs only OnPreReport). DefaultLayout on a fresh instance runs OnInitReport.
+//   The static forms run no trigger. A missing id from the test method names the test codeunit from BC 28 on, 'Test Runner - Mgt' on BC 27.
 // BC versions: 27, 28, 29
 
 report 89243 "LT SM LytInit Rep"
@@ -101,7 +104,16 @@ codeunit 89244 "LT SM LytInit Tests"
         Rpt.UseRequestPage(false);
         Rpt.Execute('');
         Observer.Observe('execute-log', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('rdlc', 'ReportNoLayout');
+        Observer.Expect('rdlc-log', 'OnInitReport');
+        Observer.Expect('word', 'ReportNoLayout');
+        Observer.Expect('word-log', '');
+        Observer.Expect('excel', 'ReportNoLayout');
+        Observer.Expect('excel-log', '');
+        Observer.Expect('default', 'None');
+        Observer.Expect('default-log', '');
+        Observer.Expect('execute-log', 'OnPreReport');
+        Observer.Verify();
     end;
 
     [Test]
@@ -118,7 +130,10 @@ codeunit 89244 "LT SM LytInit Tests"
         Rpt.UseRequestPage(false);
         Rpt.Execute('');
         Observer.Observe('execute-log', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('default', 'None');
+        Observer.Expect('default-log', 'OnInitReport');
+        Observer.Expect('execute-log', 'OnPreReport');
+        Observer.Verify();
     end;
 
     [Test]
