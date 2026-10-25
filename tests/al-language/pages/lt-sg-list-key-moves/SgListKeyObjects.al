@@ -8,6 +8,9 @@
 //   CurrPage.Update(false), Next and Previous, over 4 rows, 1 row and 30 rows (more than a window of rows). Rows: No. 'A'..'D' with
 //   Name 'delta', 'charlie', 'bravo', 'alpha' (Name order D, C, B, A); 30 rows R01..R30 whose Name order is the reverse of No.
 //   Log: R:<no> = OnAfterGetRecord, C:<no> = OnAfterGetCurrRecord, U = the action starts.
+// Results (BC 27.5, 28.5, 29.0 on CI): in the Name key every row the client reads is read once more than in the primary key, also at
+//   First, Last, GoToKey, GoToRecord, after CurrPage.Update, with one row and with 30 rows; GoToKey and GoToRecord step through the rows
+//   from the current row in the page's order.
 // BC versions: 27, 28, 29
 
 table 89094 "LT SG Key Row"

@@ -448,6 +448,8 @@ codeunit 80670 "LT AZ Query Tests"
     end;
 
     // ---- writer SG (al-runtime-rs assumption grouped-query-ties-in-grouping-order): groups that tie on every OrderBy column ----
+    // Results (BC 27.5, 28.5, 29.0 on CI): tied groups come in the order of the grouping columns as declared, each ascending, for an
+    // ascending and a descending OrderBy on a column and on a Sum; the insert order does not matter.
 
     local procedure SgSeedTies(Reverse: Boolean)
     var
@@ -528,7 +530,10 @@ codeunit 80670 "LT AZ Query Tests"
         Observer.Observe('subcat_again', SgReadSubCat());
         SgSeedTies(true);
         Observer.Observe('subcat_reverse', SgReadSubCat());
-        Observer.Finish();
+        Observer.Expect('subcat', 'J:X/B;K:X/A;K:X/C;K:Y/A;K:Y/B;K:Z/A;K:Z/C;');
+        Observer.Expect('subcat_again', 'J:X/B;K:X/A;K:X/C;K:Y/A;K:Y/B;K:Z/A;K:Z/C;');
+        Observer.Expect('subcat_reverse', 'J:X/B;K:X/A;K:X/C;K:Y/A;K:Y/B;K:Z/A;K:Z/C;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -538,7 +543,9 @@ codeunit 80670 "LT AZ Query Tests"
         Observer.Observe('catsub', SgReadCatSub());
         SgSeedTies(true);
         Observer.Observe('catsub_reverse', SgReadCatSub());
-        Observer.Finish();
+        Observer.Expect('catsub', 'J:B/X;K:A/X;K:A/Y;K:A/Z;K:B/Y;K:C/X;K:C/Z;');
+        Observer.Expect('catsub_reverse', 'J:B/X;K:A/X;K:A/Y;K:A/Z;K:B/Y;K:C/X;K:C/Z;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -548,7 +555,9 @@ codeunit 80670 "LT AZ Query Tests"
         Observer.Observe('kinddesc', SgReadKindDesc());
         SgSeedTies(true);
         Observer.Observe('kinddesc_reverse', SgReadKindDesc());
-        Observer.Finish();
+        Observer.Expect('kinddesc', 'K:X/A;K:X/C;K:Y/A;K:Y/B;K:Z/A;K:Z/C;J:X/B;');
+        Observer.Expect('kinddesc_reverse', 'K:X/A;K:X/C;K:Y/A;K:Y/B;K:Z/A;K:Z/C;J:X/B;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -557,6 +566,7 @@ codeunit 80670 "LT AZ Query Tests"
         SgSeedTies(false);
         AddRow(20, 'C', 'Z', 5, 'K');
         Observer.Observe('sumdesc', SgReadSumDesc());
-        Observer.Finish();
+        Observer.Expect('sumdesc', '6:Z/C;1:X/A;1:X/B;1:X/C;1:Y/A;1:Y/B;1:Z/A;');
+        Observer.Verify();
     end;
 }

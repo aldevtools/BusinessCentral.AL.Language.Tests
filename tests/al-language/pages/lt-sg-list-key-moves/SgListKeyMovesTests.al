@@ -81,7 +81,16 @@ codeunit 89098 "LT SG List Key Moves"
         Observer.Observe('previous', P.NoCtl.Value() + '|' + Log.Take());
         P.Close();
         Observer.Observe('close', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open', 'D|R:D;R:C;R:B;R:A;R:D;R:D;R:D;C:D;');
+        Observer.Expect('last', 'A|R:A;R:A;R:A;C:A;');
+        Observer.Expect('first', 'D|R:D;R:D;R:D;C:D;');
+        Observer.Expect('gotokey_b', 'B|R:C;R:C;R:C;C:C;R:B;R:B;R:B;C:B;');
+        Observer.Expect('gotorecord_c', 'C|R:D;R:D;R:D;C:D;R:C;R:C;R:C;C:C;');
+        Observer.Expect('update', 'C|R:C;U;R:C;R:C;R:C;R:B;R:A;R:C;R:D;R:C;R:C;R:C;C:C;');
+        Observer.Expect('next', 'B|R:B;R:B;R:B;C:B;');
+        Observer.Expect('previous', 'C|R:C;R:C;R:C;C:C;');
+        Observer.Expect('close', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -97,7 +106,10 @@ codeunit 89098 "LT SG List Key Moves"
         P.UpdateAct.Invoke();
         Observer.Observe('update', P.NoCtl.Value() + '|' + Log.Take());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'A|R:A;R:A;R:A;C:A;');
+        Observer.Expect('first', 'A|');
+        Observer.Expect('update', 'A|R:A;U;R:A;R:A;R:A;R:A;R:A;C:A;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -123,7 +135,14 @@ codeunit 89098 "LT SG List Key Moves"
         P.UpdateAct.Invoke();
         Observer.Observe('update', P.NoCtl.Value() + '|' + Log.Take());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'R30|R:R30;R:R29;R:R28;R:R27;R:R26;R:R25;R:R24;R:R23;R:R22;R:R21;R:R20;R:R19;R:R18;R:R17;R:R16;R:R15;R:R14;R:R13;R:R12;R:R11;R:R30;R:R30;R:R30;C:R30;');
+        Observer.Expect('next', 'R29|R:R29;R:R29;R:R29;C:R29;');
+        Observer.Expect('last', 'R01|R:R11;R:R10;R:R09;R:R08;R:R07;R:R06;R:R05;R:R04;R:R03;R:R02;R:R01;R:R01;R:R01;C:R01;');
+        Observer.Expect('gotokey_r15', 'R15|R:R30;R:R30;R:R30;C:R30;R:R29;R:R29;R:R29;C:R29;R:R28;R:R28;R:R28;C:R28;R:R27;R:R27;R:R27;C:R27;R:R26;R:R26;R:R26;C:R26;R:R25;R:R25;R:R25;C:R25;R:R24;R:R24;R:R24;C:R24;R:R23;R:R23;R:R23;C:R23;R:R22;R:R22;R:R22;C:R22;R:R21;R:R21;R:R21;C:R21;R:R20;R:R20;R:R20;C:R20;R:R19;R:R19;R:R19;C:R19;R:R18;R:R18;R:R18;C:R18;R:R17;R:R17;R:R17;C:R17;R:R16;R:R16;R:R16;C:R16;R:R15;R:R15;R:R15;C:R15;');
+        Observer.Expect('gotorecord_r02', 'R02|R:R30;R:R30;R:R30;C:R30;R:R29;R:R29;R:R29;C:R29;R:R28;R:R28;R:R28;C:R28;R:R27;R:R27;R:R27;C:R27;R:R26;R:R26;R:R26;C:R26;R:R25;R:R25;R:R25;C:R25;R:R24;R:R24;R:R24;C:R24;R:R23;R:R23;R:R23;C:R23;R:R22;R:R22;R:R22;C:R22;R:R21;R:R21;R:R21;C:R21;R:R20;R:R20;R:R20;C:R20;R:R19;R:R19;R:R19;C:R19;R:R18;R:R18;R:R18;C:R18;R:R17;R:R17;R:R17;C:R17;R:R16;R:R16;R:R16;C:R16;R:R15;R:R15;R:R15;C:R15;R:R14;R:R14;R:R14;C:R14;R:R13;R:R13;R:R13;C:R13;R:R12;R:R12;R:R12;C:R12;R:R11;R:R11;R:R11;C:R11;R:R10;R:R10;R:R10;C:R10;R:R09;R:R09;R:R09;C:R09;R:R08;R:R08;R:R08;C:R08;R:R07;R:R07;R:R07;C:R07;R:R06;R:R06;R:R06;C:R06;R:R05;R:R05;R:R05;C:R05;R:R04;R:R04;R:R04;C:R04;R:R03;R:R03;R:R03;C:R03;R:R02;R:R02;R:R02;C:R02;');
+        Observer.Expect('first', 'R30|R:R30;R:R30;R:R30;C:R30;');
+        Observer.Expect('update', 'R30|R:R30;U;R:R30;R:R30;R:R30;R:R29;R:R28;R:R27;R:R26;R:R25;R:R24;R:R23;R:R22;R:R21;R:R20;R:R19;R:R18;R:R17;R:R16;R:R15;R:R14;R:R13;R:R12;R:R11;R:R30;R:R30;R:R30;C:R30;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -152,7 +171,16 @@ codeunit 89098 "LT SG List Key Moves"
         Observer.Observe('previous', P.NoCtl.Value() + '|' + Log.Take());
         P.Close();
         Observer.Observe('close', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open', 'A|R:A;R:B;R:C;R:D;R:A;R:A;C:A;');
+        Observer.Expect('last', 'D|R:D;R:D;C:D;');
+        Observer.Expect('first', 'A|R:A;R:A;C:A;');
+        Observer.Expect('gotokey_b', 'B|R:B;R:B;C:B;');
+        Observer.Expect('gotorecord_c', 'C|R:A;R:A;C:A;R:B;R:B;C:B;R:C;R:C;C:C;');
+        Observer.Expect('update', 'C|R:C;U;R:C;R:C;R:D;R:C;R:B;R:A;R:C;R:C;C:C;');
+        Observer.Expect('next', 'D|R:D;R:D;C:D;');
+        Observer.Expect('previous', 'C|R:C;R:C;C:C;');
+        Observer.Expect('close', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -168,7 +196,10 @@ codeunit 89098 "LT SG List Key Moves"
         P.UpdateAct.Invoke();
         Observer.Observe('update', P.NoCtl.Value() + '|' + Log.Take());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'A|R:A;R:A;C:A;');
+        Observer.Expect('first', 'A|');
+        Observer.Expect('update', 'A|R:A;U;R:A;R:A;R:A;C:A;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -194,6 +225,13 @@ codeunit 89098 "LT SG List Key Moves"
         P.UpdateAct.Invoke();
         Observer.Observe('update', P.NoCtl.Value() + '|' + Log.Take());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'R01|R:R01;R:R02;R:R03;R:R04;R:R05;R:R06;R:R07;R:R08;R:R09;R:R10;R:R11;R:R12;R:R13;R:R14;R:R15;R:R16;R:R17;R:R18;R:R19;R:R20;R:R01;R:R01;C:R01;');
+        Observer.Expect('next', 'R02|R:R02;R:R02;C:R02;');
+        Observer.Expect('last', 'R30|R:R20;R:R21;R:R22;R:R23;R:R24;R:R25;R:R26;R:R27;R:R28;R:R29;R:R30;R:R30;C:R30;');
+        Observer.Expect('gotokey_r15', 'R15|R:R01;R:R01;C:R01;R:R02;R:R02;C:R02;R:R03;R:R03;C:R03;R:R04;R:R04;C:R04;R:R05;R:R05;C:R05;R:R06;R:R06;C:R06;R:R07;R:R07;C:R07;R:R08;R:R08;C:R08;R:R09;R:R09;C:R09;R:R10;R:R10;C:R10;R:R11;R:R11;C:R11;R:R12;R:R12;C:R12;R:R13;R:R13;C:R13;R:R14;R:R14;C:R14;R:R15;R:R15;C:R15;');
+        Observer.Expect('gotorecord_r02', 'R02|R:R01;R:R01;C:R01;R:R02;R:R02;C:R02;');
+        Observer.Expect('first', 'R01|R:R01;R:R01;C:R01;');
+        Observer.Expect('update', 'R01|R:R01;U;R:R01;R:R01;R:R02;R:R03;R:R04;R:R05;R:R06;R:R07;R:R08;R:R09;R:R10;R:R11;R:R12;R:R13;R:R14;R:R15;R:R16;R:R17;R:R18;R:R19;R:R20;R:R01;R:R01;C:R01;');
+        Observer.Verify();
     end;
 }

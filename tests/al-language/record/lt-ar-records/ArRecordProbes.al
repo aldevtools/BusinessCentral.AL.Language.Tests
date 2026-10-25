@@ -380,7 +380,10 @@ codeunit 79850 "LT AR Record Probes"
     end;
 
     // Writer SG (al-runtime-rs assumption recordref-into-record): the same with a RecordRef of another table, a RecordRef that is not open,
-    // a temporary RecordRef, and the key and view the Record gets.
+    // a temporary RecordRef, and the key and view the Record gets. Results (BC 27.5, 28.5, 29.0 on CI): another table fails on assignment
+    // (NotSupportedOperation) and as a Record parameter (ObjectDefinitionChanged, field 1 Code against Integer); a RecordRef that is not
+    // open fails with Conversion; the Record gets the field values of the ref's buffer (an unsaved value too) but not its key, order or
+    // filters, and a temporary RecordRef gives a Record that is not temporary.
     [TryFunction]
     local procedure TryAssignVariant(V: Variant; var Row: Record "LT AR Row")
     begin
@@ -424,7 +427,15 @@ codeunit 79850 "LT AR Record Probes"
         Observer.Observe('param_ok', Format(TryDescribeVariant(V, R)));
         Observer.ObserveError('param');
         Observer.Observe('param_r', R);
-        Observer.Finish();
+        Observer.Expect('assign_ok', 'No');
+        Observer.Expect('assign|text', 'The requested operation is not supported.');
+        Observer.Expect('assign|code', 'NotSupportedOperation');
+        Observer.Expect('row_after', '2|r2');
+        Observer.Expect('param_ok', 'No');
+        Observer.Expect('param|text', 'The definition of the Code field has changed; old type: Integer, new type: Code. Start your activity again.');
+        Observer.Expect('param|code', 'ObjectDefinitionChanged');
+        Observer.Expect('param_r', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -441,7 +452,11 @@ codeunit 79850 "LT AR Record Probes"
         Observer.Observe('assign_ok', Format(TryAssignVariant(V, Row)));
         Observer.ObserveError('assign');
         Observer.Observe('row_after', Format(Row.Id) + '|' + Row.Name);
-        Observer.Finish();
+        Observer.Expect('assign_ok', 'No');
+        Observer.Expect('assign|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavRecordRef to Microsoft.Dynamics.Nav.Runtime.INavRecordHandle.');
+        Observer.Expect('assign|code', 'Conversion');
+        Observer.Expect('row_after', '2|r2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -464,7 +479,12 @@ codeunit 79850 "LT AR Record Probes"
         Observer.Observe('ascending', Format(Row.Ascending()));
         Observer.Observe('next', Format(Row.Next()) + '|' + Format(Row.Id));
         Observer.Observe('rr_name', Format(RR.Field(2).Value));
-        Observer.Finish();
+        Observer.Expect('row', '3|unsaved');
+        Observer.Expect('view', 'VERSION(1) SORTING(Field1)');
+        Observer.Expect('ascending', 'Yes');
+        Observer.Expect('next', '1|4');
+        Observer.Expect('rr_name', 'unsaved');
+        Observer.Verify();
     end;
 
     [Test]
@@ -487,6 +507,10 @@ codeunit 79850 "LT AR Record Probes"
         Observer.Observe('istemp', Format(Row.IsTemporary()));
         Observer.Observe('count', Format(Row.Count()));
         Observer.Observe('db_has_77', Format(Check.Get(77)));
-        Observer.Finish();
+        Observer.Expect('row', '77|temp');
+        Observer.Expect('istemp', 'No');
+        Observer.Expect('count', '4');
+        Observer.Expect('db_has_77', 'No');
+        Observer.Verify();
     end;
 }
