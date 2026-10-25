@@ -129,7 +129,7 @@ codeunit 85366 "LT CV Enum Long Name Tests"
         Row: Record "LT SH Long Identifier Row";
         Impl: Codeunit "LT SH Long Iface Impl";
         Iface: Interface "LT SH Long Interface Name Over Thirty Chars";
-        One: Enum "LT CV Long Enum Name Shared Prefix One";
+        One: Enum "LT SH Long Name Base Enum";
         Observer: Codeunit "Probe Observer";
     begin
         LtShVariableNameOfOneHundredTwentyCharactersAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdef := LtShProcedureNameOfOneHundredTwentyCharactersAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcde(4);
@@ -160,7 +160,14 @@ codeunit 85366 "LT CV Enum Long Name Tests"
     end;
 }
 
-enumextension 89120 "LT SH Long Enum Ext Name Over Thirty Chars" extends "LT CV Long Enum Name Shared Prefix One"
+enum 89121 "LT SH Long Name Base Enum"
+{
+    Extensible = true;
+
+    value(0; None) { }
+}
+
+enumextension 89120 "LT SH Long Enum Ext Name Over Thirty Chars" extends "LT SH Long Name Base Enum"
 {
     value(89120; "LT SH Enum Value Name Over Thirty Chars") { Caption = 'SH Extra'; }
 }
