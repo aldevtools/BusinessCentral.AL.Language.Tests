@@ -15,6 +15,17 @@ namespace ALLanguage.IsolationProbe;
 // E3 and E5 expect the reading of TestIsolation = Disabled (the committed row stays, the failed
 // test's uncommitted row does not; a passing test keeps both). A red row is the measurement: its
 // message lists which keys exist.
+// Measured on BC 27.5, 28.5 and 29.0 (writer SD, 2026-10-25), the same on all three and in two runs: the owner's
+// Windows containers, each runner over the whole app through Test Suite Mgt.RunNextTest, one runner invocation per
+// test codeunit (tools/windows-remote run.sh with WR_TEST_RUNNER; on 28.5 "Isol Probe Fixture" gave the same rows as
+// the nightly's Run-TestsInBcContainer -testRunnerCodeunitId). Runner 61305 (no property) gave exactly the rows of
+// 61304 (Disabled).
+//   - E2 fails with its own text, "E2 fails on purpose after Commit", under every runner: nothing is added to it.
+//   - Function (61300): E3 sees E2-BEFORE=No E2-AFTER=No, E5 sees E4-COMMITTED=No E4-OPEN=No: every test is rolled
+//     back, the part before its Commit() too.
+//   - Codeunit (61301): E3 sees E2-BEFORE=Yes E2-AFTER=No (the failed test is undone back to its Commit()), E5 sees
+//     both rows of E4 (passes).
+//   - Disabled (61304) and no property (61305): as Codeunit inside this codeunit (E3 and E5 pass).
 codeunit 61310 "LT SD Isol Commit Error"
 {
     Subtype = Test;

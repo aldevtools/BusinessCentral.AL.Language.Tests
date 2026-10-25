@@ -8,6 +8,13 @@ namespace ALLanguage.IsolationProbe;
 //   Q2 states whether RF-1 is still there in the next test.
 // Q2 expects the reading of TestIsolation = Disabled and Codeunit (no rollback between the tests of a
 // codeunit). A red row is the measurement: its message gives what Q2 saw.
+// Measured on BC 27.5, 28.5 and 29.0 (writer SD, 2026-10-25), the same on all three and in two runs: the owner's
+// Windows containers, each runner over the whole app through Test Suite Mgt.RunNextTest, one runner invocation per
+// test codeunit (tools/windows-remote run.sh with WR_TEST_RUNNER; on 28.5 "Isol Probe Fixture" gave the same rows as
+// the nightly's Run-TestsInBcContainer -testRunnerCodeunitId). Runner 61305 (no property) gave exactly the rows of
+// 61304 (Disabled).
+//   - RequiredTestIsolation = Function changes nothing under any runner: the runner's TestIsolation decides. Q2 fails
+//     under Function (61300) only ("observed RF-1=No"), and passes under Codeunit, Disabled and no property.
 codeunit 61312 "LT SD Isol Req Function"
 {
     Subtype = Test;

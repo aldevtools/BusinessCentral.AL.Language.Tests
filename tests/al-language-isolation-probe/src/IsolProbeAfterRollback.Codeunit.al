@@ -27,7 +27,7 @@ codeunit 61309 "LT DJ Isol After Rollback"
         S3Next: BigInteger;
         S3Inserted: Boolean;
         StorageKeyTok: Label 'LTDJIsolProbe', Locked = true;
-        SequenceTok: Label 'LTDJIsolProbe', Locked = true;
+        SequenceName: Text;
 
     [Test]
     procedure S1_InsertsCounterRow()
@@ -58,11 +58,14 @@ codeunit 61309 "LT DJ Isol After Rollback"
     [Test]
     procedure S3_NextOnNumberSequence()
     begin
-        if not NumberSequence.Exists(SequenceTok) then begin
-            NumberSequence.Insert(SequenceTok, 1, 1);
+        // A new name per run (writer SD, 2026-10-25): a number sequence outlives the uninstall of the app with its data,
+        // so a fixed name found the sequence an earlier run left and S8 read that one (29.0 and 28.5, two runs differed).
+        SequenceName := 'LTDJIsol' + CopyStr(DelChr(Format(CreateGuid()), '=', '{}-'), 1, 12);
+        if not NumberSequence.Exists(SequenceName) then begin
+            NumberSequence.Insert(SequenceName, 1, 1);
             S3Inserted := true;
         end;
-        S3Next := NumberSequence.Next(SequenceTok);
+        S3Next := NumberSequence.Next(SequenceName);
     end;
 
     [Test]
@@ -115,7 +118,7 @@ codeunit 61309 "LT DJ Isol After Rollback"
     procedure S8_NumberSequenceStillExists()
     begin
         RequireSet(S3Next <> 0, 'S3');
-        if not NumberSequence.Exists(SequenceTok) then
+        if not NumberSequence.Exists(SequenceName) then
             Error('NumberSequence is gone in S8 (S3 inserted it: %1): the rollback undid NumberSequence.Insert', S3Inserted);
     end;
 
@@ -125,7 +128,9 @@ codeunit 61309 "LT DJ Isol After Rollback"
         Observed: BigInteger;
     begin
         RequireSet(S3Next <> 0, 'S3');
-        Observed := NumberSequence.Next(SequenceTok);
+        if not NumberSequence.Exists(SequenceName) then
+            Error('NumberSequence is gone in S9: the rollback undid NumberSequence.Insert');
+        Observed := NumberSequence.Next(SequenceName);
         if Observed <> S3Next + 1 then
             Error('NumberSequence.Next after the rollback of S3: expected %1 (S3 got %2), observed %3', S3Next + 1, S3Next, Observed);
     end;

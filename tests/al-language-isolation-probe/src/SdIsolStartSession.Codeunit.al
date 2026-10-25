@@ -12,6 +12,14 @@ namespace ALLanguage.IsolationProbe;
 //      there.
 //   S3 states whether the session's row is still there in the next test.
 // S2 and S3 expect the reading of TestIsolation = Disabled. A red row is the measurement.
+// Measured on BC 27.5, 28.5 and 29.0 (writer SD, 2026-10-25), the same on all three and in two runs: the owner's
+// Windows containers, each runner over the whole app through Test Suite Mgt.RunNextTest, one runner invocation per
+// test codeunit (tools/windows-remote run.sh with WR_TEST_RUNNER; on 28.5 "Isol Probe Fixture" gave the same rows as
+// the nightly's Run-TestsInBcContainer -testRunnerCodeunitId). Runner 61305 (no property) gave exactly the rows of
+// 61304 (Disabled).
+//   - Function and Codeunit: S2 sees started=No error=Sessions can only be started in tests that are run by a
+//     TestRunner that has TestIsolation set to Disabled. S3 sees SESSION=No.
+//   - Disabled and no property: S2 and S3 pass (the session starts, ends within the wait and its row is seen).
 codeunit 61318 "LT SD Isol StartSession"
 {
     Subtype = Test;
