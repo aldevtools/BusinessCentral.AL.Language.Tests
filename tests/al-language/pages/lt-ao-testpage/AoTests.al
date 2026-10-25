@@ -2,6 +2,10 @@
 // Scope: in-scope
 // Fixtures used: Probe Observer (69160); AoFixtures.al (79500-79518); LT AO Dep Card (61051) in the internals fixture app
 // Probe: corpus issue 641 (TestPage behavior the runtime decides without a pin, part 2), writer AO. Every literal is what the corpus CI tier produced.
+// Writer SF (al-runtime-rs assumptions subpagelink-empty-term-selects-blank, testfilter-setfilter-empty-clears): SF_ tests, pages 89066-89067 in AoFixtures.al.
+//   Facts (corpus CI 27.5, 28.5, 29.0 agree): SubPageLink F = const('') and F = filter('') show only the rows with a blank F. On a request
+//   page, SetFilter(F, 'A') reaches the report (filter A, 1 row); SetFilter(F, '  ') after it leaves GetFilter at A on the request page but
+//   the report runs without a filter (3 rows), like ' ' in item 15. On a TestPage list '  ' clears the filter like ' ' and ''.
 // BC versions: 27, 28, 29
 
 codeunit 79590 "LT AO TestPage Probes"
@@ -796,6 +800,142 @@ codeunit 79590 "LT AO TestPage Probes"
         Observer.Ignore('call|code');
 #endif
         Observer.Expect('log', 'before;');
+        Observer.Verify();
+    end;
+
+    // ---- writer SF (al-runtime-rs assumption subpagelink-empty-term-selects-blank): parts with SubPageLink F = const('') and
+    //      F = filter('') over rows with blank and non-blank F. (The same terms of a RunPageLink: item 11 above.) ----
+
+    local procedure SfPartIds(var Host: TestPage "LT SF AO Link Host"; UseConst: Boolean): Text
+    var
+        S: Text;
+        More: Boolean;
+    begin
+        if UseConst then
+            More := Host.PartConst.First()
+        else
+            More := Host.PartFilter.First();
+        if not More then
+            exit('<none>');
+        while More do
+            if UseConst then begin
+                S += Host.PartConst.Id.Value() + ',';
+                More := Host.PartConst.Next();
+            end else begin
+                S += Host.PartFilter.Id.Value() + ',';
+                More := Host.PartFilter.Next();
+            end;
+        exit(S);
+    end;
+
+    local procedure SfSeedLink()
+    var
+        Hdr: Record "LT AO Hdr";
+    begin
+        Clean();
+        AddRow(1, '', '');
+        AddRow(2, 'A', '');
+        AddRow(3, 'B', '');
+        AddRow(4, '', '');
+        Hdr."No." := 'H1';
+        Hdr.Insert();
+    end;
+
+    [Test]
+    procedure SF_SubPageLink_ConstBlank()
+    var
+        Observer: Codeunit "Probe Observer";
+        Host: TestPage "LT SF AO Link Host";
+    begin
+        SfSeedLink();
+        Host.OpenView();
+        Observer.Observe('rows', SfPartIds(Host, true));
+        Host.Close();
+        Observer.Expect('rows', '1,4,');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure SF_SubPageLink_FilterBlank()
+    var
+        Observer: Codeunit "Probe Observer";
+        Host: TestPage "LT SF AO Link Host";
+    begin
+        SfSeedLink();
+        Host.OpenView();
+        Observer.Observe('rows', SfPartIds(Host, false));
+        Host.Close();
+        Observer.Expect('rows', '1,4,');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure SF_SubPageLink_ConstBlank_OpenEdit()
+    var
+        Observer: Codeunit "Probe Observer";
+        Host: TestPage "LT SF AO Link Host";
+    begin
+        SfSeedLink();
+        Host.OpenEdit();
+        Observer.Observe('rows', SfPartIds(Host, true));
+        Observer.Observe('rows_filter', SfPartIds(Host, false));
+        Host.Close();
+        Observer.Expect('rows', '1,4,0,');
+        Observer.Expect('rows_filter', '1,4,0,');
+        Observer.Verify();
+    end;
+
+    // ---- writer SF (assumption testfilter-setfilter-empty-clears, request page): the filter 'A' alone, to compare with item 15 ----
+
+    [RequestPageHandler]
+    procedure SfRptHandlerOnlyA(var RP: TestRequestPage "LT AO Rpt")
+    var
+        Log: Codeunit "LT AO Log";
+    begin
+        RP.RowDI.SetFilter(F, 'A');
+        Log.Add('rp=[' + RP.RowDI.GetFilter(F) + ']');
+        RP.OK().Invoke();
+    end;
+
+    [Test]
+    [HandlerFunctions('SfRptHandlerOnlyA')]
+    procedure SF_RequestPage_SetFilterOnly()
+    var
+        Observer: Codeunit "Probe Observer";
+        Log: Codeunit "LT AO Log";
+    begin
+        Clean();
+        AddRow(1, '', '');
+        AddRow(2, 'A', '');
+        AddRow(3, 'B', '');
+        Commit();
+        Report.Run(Report::"LT AO Rpt");
+        Observer.Observe('log', Log.Take());
+        Observer.Expect('log', 'rp=[A];pre filter=A count=1;');
+        Observer.Verify();
+    end;
+
+    // The space form of item 15 with a second space: '  '.
+    [Test]
+    [HandlerFunctions('RptHandler')]
+    procedure SF_RequestPage_SetFilterTwoSpaces()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ReqFilterReset(Observer, '  ');
+        Observer.Expect('log', 'rp=[A];pre filter= count=3;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure SF_TestFilter_SetFilterTwoSpaces()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ListFilterReset(Observer, '  ');
+        Observer.Expect('a', '2,');
+        Observer.Expect('flt', '[]');
+        Observer.Expect('rows', '1,2,3,');
         Observer.Verify();
     end;
 }

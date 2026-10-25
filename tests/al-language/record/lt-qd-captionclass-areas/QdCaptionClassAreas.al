@@ -31,6 +31,14 @@
 //   row, on OpenEdit and OpenNew of the Document page, on OpenEdit of the QD card, and after a part SetValue, a part Next, a host SetValue,
 //   an action with CurrPage.Update() and a host Next that refills the part. The empty-record counts of repeated opens are observed to find
 //   a stable form.
+// Writer SF (al-runtime-rs assumptions page-open-caption-class-empty-record-count and page-open-caption-class-expressions): SF_ tests
+//   in 86504 (repeated opens counted, CurrPage.Update on the Document page without a SetValue, an action without CurrPage.Update,
+//   OpenNew of the Card and the List) and the action NoUpdate of page 87092.
+//   Facts (corpus CI 27.5, 28.5, 29.0, two runs): on the Document page an action with CurrPage.Update() and no SetValue before it runs the
+//   host's expression twice, then the part's once; an action WITHOUT CurrPage.Update runs the same (host twice, part once), and after a
+//   host SetValue it runs the host's three times and the part's once, as with CurrPage.Update. After a part SetValue, the host's action
+//   runs the part's first, then the host's twice, then the part's again. OpenNew of the Card and the List runs empty-record calls whose
+//   count differs between fields, and no call with a row. Five opens of the same page in one test count the same.
 // BC versions: 27, 28, 29
 
 table 86500 "LT QD Cap Row"
@@ -1151,6 +1159,296 @@ codeunit 86504 "LT QD CaptionClass Areas"
         Observer.Expect('open2', 'empty>0=Yes fields0=60,70,71, same=Yes rest=60@1;70@1;71@1;');
         Observer.Verify();
     end;
+
+    // ---- writer SF (al-runtime-rs assumptions page-open-caption-class-empty-record-count and page-open-caption-class-expressions) ----
+
+    // The empty-record calls of one step, counted: the total and the count of each field, in the order the fields first ran.
+    local procedure SfCounts(Calls: Text): Text
+    var
+        Part: Text;
+        FieldText: Text;
+        Fields0: List of [Text];
+        Counts0: Dictionary of [Text, Integer];
+        Total: Integer;
+        Result: Text;
+    begin
+        foreach Part in Calls.Split(';') do
+            if Part.EndsWith('@0') then begin
+                Total += 1;
+                FieldText := Part.Substring(1, Part.IndexOf('@') - 1);
+                if not Fields0.Contains(FieldText) then begin
+                    Fields0.Add(FieldText);
+                    Counts0.Add(FieldText, 0);
+                end;
+                Counts0.Set(FieldText, Counts0.Get(FieldText) + 1);
+            end;
+        foreach FieldText in Fields0 do
+            Result += FieldText + ':' + Format(Counts0.Get(FieldText)) + ',';
+        exit('total0=' + Format(Total) + ' per=' + Result);
+    end;
+
+    // Folds SfCounts of one open against the first open of the test: whether it made empty-record calls, whether every field ran the same
+    // number of times, and whether the counts equal those of the first open.
+    local procedure SfStable(Counts: Text; FirstCounts: Text): Text
+    var
+        Part: Text;
+        PerText: Text;
+        Count: Text;
+        First: Text;
+        Same: Boolean;
+    begin
+        PerText := CopyStr(Counts, Counts.IndexOf(' per=') + 5);
+        Same := true;
+        foreach Part in PerText.Split(',') do
+            if Part <> '' then begin
+                Count := CopyStr(Part, Part.IndexOf(':') + 1);
+                if First = '' then
+                    First := Count;
+                if Count <> First then
+                    Same := false;
+            end;
+        exit('empty>0=' + Format(PerText <> '') + ' same=' + Format(Same) + ' as_open1=' + Format(Counts = FirstCounts));
+    end;
+
+    // The same open five times in one test. The counts seen on the corpus CI (27.5, 28.5, 29.0, writer SF): every field 20 times for
+    // the Card (240 calls), 9 times for the List (108), 10 times for the Document page (30); the same in all five opens. They are not
+    // asserted: other runs counted 480 and 492 for the same Card open (QO_Count_CardOpenThreeTimes header), so only the stable form is.
+    [Test]
+    procedure SF_Count_CardOpenViewFiveTimes()
+    var
+        Observer: Codeunit "Probe Observer";
+        P: TestPage "LT QD Cap Card";
+        Round: Integer;
+        Counts: Text;
+        FirstCounts: Text;
+    begin
+        QfSeedTwo();
+        for Round := 1 to 5 do begin
+            P.OpenView();
+            Counts := SfCounts(Log.Take());
+            if Round = 1 then
+                FirstCounts := Counts;
+            Observer.Observe('open' + Format(Round), SfStable(Counts, FirstCounts));
+            P.Close();
+            Log.Take();
+        end;
+        Observer.Expect('open1', 'empty>0=Yes same=Yes as_open1=Yes');
+        Observer.Expect('open2', 'empty>0=Yes same=Yes as_open1=Yes');
+        Observer.Expect('open3', 'empty>0=Yes same=Yes as_open1=Yes');
+        Observer.Expect('open4', 'empty>0=Yes same=Yes as_open1=Yes');
+        Observer.Expect('open5', 'empty>0=Yes same=Yes as_open1=Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure SF_Count_ListOpenViewFiveTimes()
+    var
+        Observer: Codeunit "Probe Observer";
+        P: TestPage "LT QF Cap List";
+        Round: Integer;
+        Counts: Text;
+        FirstCounts: Text;
+    begin
+        QfSeedTwo();
+        for Round := 1 to 5 do begin
+            P.OpenView();
+            Counts := SfCounts(Log.Take());
+            if Round = 1 then
+                FirstCounts := Counts;
+            Observer.Observe('open' + Format(Round), SfStable(Counts, FirstCounts));
+            P.Close();
+            Log.Take();
+        end;
+        Observer.Expect('open1', 'empty>0=Yes same=Yes as_open1=Yes');
+        Observer.Expect('open2', 'empty>0=Yes same=Yes as_open1=Yes');
+        Observer.Expect('open3', 'empty>0=Yes same=Yes as_open1=Yes');
+        Observer.Expect('open4', 'empty>0=Yes same=Yes as_open1=Yes');
+        Observer.Expect('open5', 'empty>0=Yes same=Yes as_open1=Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure SF_Count_DocOpenEditFiveTimes()
+    var
+        Observer: Codeunit "Probe Observer";
+        H: TestPage "LT QO Cap Doc";
+        Round: Integer;
+        Counts: Text;
+        FirstCounts: Text;
+    begin
+        QoSeedDocs();
+        for Round := 1 to 5 do begin
+            H.OpenEdit();
+            Counts := SfCounts(Log.Take());
+            if Round = 1 then
+                FirstCounts := Counts;
+            Observer.Observe('open' + Format(Round), SfStable(Counts, FirstCounts));
+            H.Close();
+            Log.Take();
+        end;
+        Observer.Expect('open1', 'empty>0=Yes same=Yes as_open1=Yes');
+        Observer.Expect('open2', 'empty>0=Yes same=Yes as_open1=Yes');
+        Observer.Expect('open3', 'empty>0=Yes same=Yes as_open1=Yes');
+        Observer.Expect('open4', 'empty>0=Yes same=Yes as_open1=Yes');
+        Observer.Expect('open5', 'empty>0=Yes same=Yes as_open1=Yes');
+        Observer.Verify();
+    end;
+
+    // An action with CurrPage.Update() on the Document page without a SetValue before it, twice.
+    [Test]
+    procedure SF_Doc_OpenEdit_RefreshWithoutSetValue()
+    var
+        Observer: Codeunit "Probe Observer";
+        H: TestPage "LT QO Cap Doc";
+    begin
+        QoSeedDocs();
+        H.OpenEdit();
+        Log.Take();
+        H.Refresh.Invoke();
+        QoStep(Observer, 'update1');
+        Cap(Observer, 'update1_head', H.HeadExpr.Caption());
+        Cap(Observer, 'update1_exprA', H.Lines.ExprA.Caption());
+        H.Refresh.Invoke();
+        QoStep(Observer, 'update2');
+        H.Close();
+        QoStep(Observer, 'close');
+        Observer.Expect('update1', 'empty>0=No fields0= same=Yes rest=60@1;60@1;70@1;71@1;');
+        Observer.Expect('update1_head', 'Head 1');
+        Observer.Expect('update1_head_calls', '');
+        Observer.Expect('update1_exprA', 'Line 1');
+        Observer.Expect('update1_exprA_calls', '');
+        Observer.Expect('update2', 'empty>0=No fields0= same=Yes rest=60@1;60@1;70@1;71@1;');
+        Observer.Expect('close', 'empty>0=No fields0= same=Yes rest=');
+        Observer.Verify();
+    end;
+
+    // A host SetValue, then an action whose trigger has no CurrPage.Update, then an action with CurrPage.Update.
+    [Test]
+    procedure SF_Doc_OpenEdit_SetValueThenActionWithoutUpdate()
+    var
+        Observer: Codeunit "Probe Observer";
+        H: TestPage "LT QO Cap Doc";
+    begin
+        QoSeedDocs();
+        H.OpenEdit();
+        Log.Take();
+        H.Descr.SetValue('x');
+        QoStep(Observer, 'host_setvalue');
+        H.NoUpdate.Invoke();
+        QoStep(Observer, 'action_no_update');
+        Cap(Observer, 'action_exprA', H.Lines.ExprA.Caption());
+        H.Refresh.Invoke();
+        QoStep(Observer, 'update_after');
+        H.Close();
+        QoStep(Observer, 'close');
+        Observer.Expect('host_setvalue', 'empty>0=No fields0= same=Yes rest=');
+        Observer.Expect('action_no_update', 'empty>0=No fields0= same=Yes rest=60@1;60@1;60@1;70@1;71@1;');
+        Observer.Expect('action_exprA', 'Line 1');
+        Observer.Expect('action_exprA_calls', '');
+        Observer.Expect('update_after', 'empty>0=No fields0= same=Yes rest=60@1;60@1;70@1;71@1;');
+        Observer.Expect('close', 'empty>0=No fields0= same=Yes rest=');
+        Observer.Verify();
+    end;
+
+    // An action without CurrPage.Update and no SetValue before it.
+    [Test]
+    procedure SF_Doc_OpenEdit_ActionWithoutUpdate()
+    var
+        Observer: Codeunit "Probe Observer";
+        H: TestPage "LT QO Cap Doc";
+    begin
+        QoSeedDocs();
+        H.OpenEdit();
+        Log.Take();
+        H.NoUpdate.Invoke();
+        QoStep(Observer, 'action_no_update');
+        H.Close();
+        QoStep(Observer, 'close');
+        Observer.Expect('action_no_update', 'empty>0=No fields0= same=Yes rest=60@1;60@1;70@1;71@1;');
+        Observer.Expect('close', 'empty>0=No fields0= same=Yes rest=');
+        Observer.Verify();
+    end;
+
+    // A SetValue on the part, then the host's action with CurrPage.Update().
+    [Test]
+    procedure SF_Doc_OpenEdit_PartSetValueThenRefresh()
+    var
+        Observer: Codeunit "Probe Observer";
+        H: TestPage "LT QO Cap Doc";
+    begin
+        QoSeedDocs();
+        H.OpenEdit();
+        Log.Take();
+        H.Lines.Amount.SetValue(5);
+        QoStep(Observer, 'part_setvalue');
+        H.Refresh.Invoke();
+        QoStep(Observer, 'update');
+        H.Close();
+        QoStep(Observer, 'close');
+        Observer.Expect('part_setvalue', 'empty>0=No fields0= same=Yes rest=');
+        Observer.Expect('update', 'empty>0=No fields0= same=Yes rest=70@1;71@1;60@1;60@1;70@1;71@1;');
+        Observer.Expect('close', 'empty>0=No fields0= same=Yes rest=');
+        Observer.Verify();
+    end;
+
+    // The same action on a Document page opened with OpenView.
+    [Test]
+    procedure SF_Doc_OpenView_Refresh()
+    var
+        Observer: Codeunit "Probe Observer";
+        H: TestPage "LT QO Cap Doc";
+    begin
+        QoSeedDocs();
+        H.OpenView();
+        QoStep(Observer, 'open');
+        H.Refresh.Invoke();
+        QoStep(Observer, 'update');
+        H.Close();
+        QoStep(Observer, 'close');
+        Observer.Expect('open', 'empty>0=Yes fields0=60,70,71, same=Yes rest=60@1;70@1;71@1;');
+        Observer.Expect('update', 'empty>0=No fields0= same=Yes rest=60@1;60@1;70@1;71@1;');
+        Observer.Expect('close', 'empty>0=No fields0= same=Yes rest=');
+        Observer.Verify();
+    end;
+
+    // Other open modes: OpenNew of the Card and of the List.
+    [Test]
+    procedure SF_Card_OpenNew()
+    var
+        Observer: Codeunit "Probe Observer";
+        P: TestPage "LT QD Cap Card";
+    begin
+        QfSeedTwo();
+        P.OpenNew();
+        QoStep(Observer, 'open');
+        Cap(Observer, 'exprId', QfNoCall(P.ExprId.Caption()));
+        P.Close();
+        QoStep(Observer, 'close');
+        Observer.Expect('open', 'empty>0=Yes fields0=20,21,22,23,24,25,26,27,28,29,30,31, same=No rest=');
+        Observer.Expect('exprId', 'Id 0');
+        Observer.Expect('exprId_calls', '');
+        Observer.Expect('close', 'empty>0=No fields0= same=Yes rest=');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure SF_List_OpenNew()
+    var
+        Observer: Codeunit "Probe Observer";
+        P: TestPage "LT QF Cap List";
+    begin
+        QfSeedTwo();
+        P.OpenNew();
+        QoStep(Observer, 'open');
+        Cap(Observer, 'exprId', QfNoCall(P.ExprId.Caption()));
+        P.Close();
+        QoStep(Observer, 'close');
+        Observer.Expect('open', 'empty>0=Yes fields0=20,21,22,23,24,25,26,27,28,29,30,31, same=No rest=');
+        Observer.Expect('exprId', 'Id 0');
+        Observer.Expect('exprId_calls', '');
+        Observer.Expect('close', 'empty>0=No fields0= same=Yes rest=');
+        Observer.Verify();
+    end;
 }
 
 page 87092 "LT QO Cap Doc"
@@ -1193,8 +1491,22 @@ page 87092 "LT QO Cap Doc"
                     CurrPage.Update();
                 end;
             }
+            // Writer SF: an action whose trigger has no CurrPage.Update.
+            action(NoUpdate)
+            {
+                ApplicationArea = All;
+                Caption = 'No Update';
+
+                trigger OnAction()
+                begin
+                    NoUpdateClicks += 1;
+                end;
+            }
         }
     }
+
+    var
+        NoUpdateClicks: Integer;
 }
 
 page 87093 "LT QO Cap Lines"

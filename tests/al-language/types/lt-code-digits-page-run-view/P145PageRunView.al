@@ -3,6 +3,10 @@
 // Fixtures used: Probe Observer (codeunit 69160); LT P145 Row (74920), LT P145 Log Mgt (74922), LT P145 List A (74923), LT P145 List B (74924)
 // Probe: written against a local BC 29.0.54011.55816 service tier; every literal asserted below is what that tier produced. Other BC versions are checked by the corpus CI matrix.
 // Facts: Page.Run(Page, Rec) on pages with SourceTableView: the filters of the page's Rec per filter group (0 to 3) seen from OnOpenPage, current key, direction and view, and the rows (order) a TestPage handler reads, with no record, an empty record and records that carry filters in several groups, keys and a view
+// Writer SF (al-runtime-rs assumption page-run-record-view-order-applies): SF_ tests on List B and List C (page 89065, P145PageFixtures.al).
+//   Facts (corpus CI 27.5, 28.5, 29.0 agree): Page.Run(Page, Rec) on a page whose view names order(descending) runs descending whatever the record's key and
+//   direction (empty record, the view's key ascending or descending, another key); a view with order(ascending) runs ascending for a
+//   record that is descending. The view's ORDER wins over the record's direction.
 // BC versions: 29 (final facts are added after the measurement)
 
 codeunit 74925 "LT P145 Page Run View"
@@ -220,5 +224,244 @@ codeunit 74925 "LT P145 Page Run View"
             More := P.Next();
         end;
         Log.Add('B rows=' + Rows);
+    end;
+
+    // ---- writer SF (al-runtime-rs assumption page-run-record-view-order-applies): Page.Run(Page, Rec) on List B (view sorting(Grp, Qty)
+    //      order(descending)) and on List C (view sorting(Qty) order(ascending)) with records ascending and descending. ----
+
+    // Seed() of this codeunit fails in the SF tests (corpus CI 27.5, 28.5, 29.0: "The record in table LT P145 Row already exists.
+    // Identification fields and values: No.='R2'"): P145_A_RecFilterInGroup1 sets Qty >= 3 in filter group 1 (the global filter group)
+    // and that filter stays on every record of the table for the rest of the codeunit's session, so DeleteAll leaves R2 and R3 (Qty 1, 2)
+    // and Count reads 4 of the 6 rows. This seed notes what it finds and inserts or modifies; the pages read the same global filter (g1).
+    local procedure SfSeed(var Observer: Codeunit "Probe Observer")
+    var
+        Row: Record "LT P145 Row";
+        Data: List of [Text];
+        Item: Text;
+        Parts: List of [Text];
+        Qty: Integer;
+        Inserted: Text;
+    begin
+        Row.Reset();
+        Observer.Observe('seed_before', Format(Row.Count()));
+        Row.DeleteAll();
+        Observer.Observe('seed_after_deleteall', Format(Row.Count()));
+        Data.Add('R1;A;3');
+        Data.Add('R2;A;1');
+        Data.Add('R3;B;2');
+        Data.Add('R4;B;5');
+        Data.Add('R5;C;4');
+        Data.Add('R6;A;6');
+        foreach Item in Data do begin
+            Parts := Item.Split(';');
+            Evaluate(Qty, Parts.Get(3));
+            Clear(Row);
+            Row."No." := CopyStr(Parts.Get(1), 1, 20);
+            Row.Grp := CopyStr(Parts.Get(2), 1, 10);
+            Row.Qty := Qty;
+            if Row.Insert() then
+                Inserted += Row."No." + ','
+            else
+                if Row.Modify() then
+                    Inserted += Row."No." + '(m),';
+        end;
+        Observer.Observe('seed', Inserted + ' count=' + Format(Row.Count()));
+    end;
+
+    [Test]
+    [HandlerFunctions('ListBHandler')]
+    procedure SF_B_NoRecordArgument()
+    var
+        Observer: Codeunit "Probe Observer";
+        Log: Codeunit "LT P145 Log Mgt";
+        Row: Record "LT P145 Row";
+    begin
+        SfSeed(Observer);
+        Log.Clear();
+        Page.Run(Page::"LT P145 List B");
+        Observer.Observe('log', Log.Dump());
+        Observer.Expect('seed_before', '4');
+        Observer.Expect('seed_after_deleteall', '0');
+        Observer.Expect('seed', 'R1,R2(m),R3(m),R4,R5,R6, count=4');
+        Observer.Expect('log', 'B open: group-at-open=0 g0=[] g1=[Qty: >=3] g2=[Qty: >=2] g3=[] | B key=Grp,Qty asc=No view=[VERSION(1) SORTING(Grp,Qty) ORDER(Descending)] | B rows=R5,R4,R6,R1,, | ');
+        Observer.Verify();
+    end;
+
+    [Test]
+    [HandlerFunctions('ListBHandler')]
+    procedure SF_B_EmptyRecord()
+    var
+        Observer: Codeunit "Probe Observer";
+        Log: Codeunit "LT P145 Log Mgt";
+        Row: Record "LT P145 Row";
+    begin
+        SfSeed(Observer);
+        Log.Clear();
+        Page.Run(Page::"LT P145 List B", Row);
+        Observer.Observe('log', Log.Dump());
+        Observer.Expect('seed_before', '4');
+        Observer.Expect('seed_after_deleteall', '0');
+        Observer.Expect('seed', 'R1,R2(m),R3(m),R4,R5,R6, count=4');
+        Observer.Expect('log', 'B open: group-at-open=0 g0=[] g1=[Qty: >=3] g2=[Qty: >=2] g3=[] | B key=Grp,Qty asc=No view=[VERSION(1) SORTING(Grp,Qty) ORDER(Descending)] | B rows=R5,R4,R6,R1,, | ');
+        Observer.Verify();
+    end;
+
+    [Test]
+    [HandlerFunctions('ListBHandler')]
+    procedure SF_B_RecViewKeyAscending()
+    var
+        Observer: Codeunit "Probe Observer";
+        Log: Codeunit "LT P145 Log Mgt";
+        Row: Record "LT P145 Row";
+    begin
+        Row.SetCurrentKey(Grp, Qty);
+        Row.Ascending(true);
+        SfSeed(Observer);
+        Log.Clear();
+        Page.Run(Page::"LT P145 List B", Row);
+        Observer.Observe('log', Log.Dump());
+        Observer.Expect('seed_before', '4');
+        Observer.Expect('seed_after_deleteall', '0');
+        Observer.Expect('seed', 'R1,R2(m),R3(m),R4,R5,R6, count=4');
+        Observer.Expect('log', 'B open: group-at-open=0 g0=[] g1=[Qty: >=3] g2=[Qty: >=2] g3=[] | B key=Grp,Qty asc=No view=[VERSION(1) SORTING(Grp,Qty) ORDER(Descending)] | B rows=R5,R4,R6,R1,, | ');
+        Observer.Verify();
+    end;
+
+    [Test]
+    [HandlerFunctions('ListBHandler')]
+    procedure SF_B_RecViewKeyDescending()
+    var
+        Observer: Codeunit "Probe Observer";
+        Log: Codeunit "LT P145 Log Mgt";
+        Row: Record "LT P145 Row";
+    begin
+        Row.SetCurrentKey(Grp, Qty);
+        Row.Ascending(false);
+        SfSeed(Observer);
+        Log.Clear();
+        Page.Run(Page::"LT P145 List B", Row);
+        Observer.Observe('log', Log.Dump());
+        Observer.Expect('seed_before', '4');
+        Observer.Expect('seed_after_deleteall', '0');
+        Observer.Expect('seed', 'R1,R2(m),R3(m),R4,R5,R6, count=4');
+        Observer.Expect('log', 'B open: group-at-open=0 g0=[] g1=[Qty: >=3] g2=[Qty: >=2] g3=[] | B key=Grp,Qty asc=No view=[VERSION(1) SORTING(Grp,Qty) ORDER(Descending)] | B rows=R5,R4,R6,R1,, | ');
+        Observer.Verify();
+    end;
+
+    [Test]
+    [HandlerFunctions('ListBHandler')]
+    procedure SF_B_RecOtherKeyAscending()
+    var
+        Observer: Codeunit "Probe Observer";
+        Log: Codeunit "LT P145 Log Mgt";
+        Row: Record "LT P145 Row";
+    begin
+        Row.SetCurrentKey(Qty);
+        Row.Ascending(true);
+        SfSeed(Observer);
+        Log.Clear();
+        Page.Run(Page::"LT P145 List B", Row);
+        Observer.Observe('log', Log.Dump());
+        Observer.Expect('seed_before', '4');
+        Observer.Expect('seed_after_deleteall', '0');
+        Observer.Expect('seed', 'R1,R2(m),R3(m),R4,R5,R6, count=4');
+        Observer.Expect('log', 'B open: group-at-open=0 g0=[] g1=[Qty: >=3] g2=[Qty: >=2] g3=[] | B key=Grp,Qty asc=No view=[VERSION(1) SORTING(Grp,Qty) ORDER(Descending)] | B rows=R5,R4,R6,R1,, | ');
+        Observer.Verify();
+    end;
+
+    [Test]
+    [HandlerFunctions('ListBHandler')]
+    procedure SF_B_RecFilterAscending()
+    var
+        Observer: Codeunit "Probe Observer";
+        Log: Codeunit "LT P145 Log Mgt";
+        Row: Record "LT P145 Row";
+    begin
+        Row.SetRange(Grp, 'A');
+        SfSeed(Observer);
+        Log.Clear();
+        Page.Run(Page::"LT P145 List B", Row);
+        Observer.Observe('log', Log.Dump());
+        Observer.Expect('seed_before', '4');
+        Observer.Expect('seed_after_deleteall', '0');
+        Observer.Expect('seed', 'R1,R2(m),R3(m),R4,R5,R6, count=4');
+        Observer.Expect('log', 'B open: group-at-open=0 g0=[Grp: A] g1=[Qty: >=3] g2=[Qty: >=2] g3=[] | B key=Grp,Qty asc=No view=[VERSION(1) SORTING(Grp,Qty) ORDER(Descending) WHERE(Grp=FILTER(A))] | B rows=R6,R1,, | ');
+        Observer.Verify();
+    end;
+
+    [Test]
+    [HandlerFunctions('SfListCHandler')]
+    procedure SF_C_NoRecordArgument()
+    var
+        Observer: Codeunit "Probe Observer";
+        Log: Codeunit "LT P145 Log Mgt";
+        Row: Record "LT P145 Row";
+    begin
+        SfSeed(Observer);
+        Log.Clear();
+        Page.Run(Page::"LT SF P145 List C");
+        Observer.Observe('log', Log.Dump());
+        Observer.Expect('seed_before', '4');
+        Observer.Expect('seed_after_deleteall', '0');
+        Observer.Expect('seed', 'R1,R2(m),R3(m),R4,R5,R6, count=4');
+        Observer.Expect('log', 'C open: group-at-open=0 g0=[] g1=[Qty: >=3] g2=[Grp: A|B] g3=[] | C key=Qty asc=Yes view=[VERSION(1) SORTING(Qty)] | C current=R1 | C rows=R1,R4,R6,, | ');
+        Observer.Verify();
+    end;
+
+    [Test]
+    [HandlerFunctions('SfListCHandler')]
+    procedure SF_C_RecViewKeyDescending()
+    var
+        Observer: Codeunit "Probe Observer";
+        Log: Codeunit "LT P145 Log Mgt";
+        Row: Record "LT P145 Row";
+    begin
+        Row.SetCurrentKey(Qty);
+        Row.Ascending(false);
+        SfSeed(Observer);
+        Log.Clear();
+        Page.Run(Page::"LT SF P145 List C", Row);
+        Observer.Observe('log', Log.Dump());
+        Observer.Expect('seed_before', '4');
+        Observer.Expect('seed_after_deleteall', '0');
+        Observer.Expect('seed', 'R1,R2(m),R3(m),R4,R5,R6, count=4');
+        Observer.Expect('log', 'C open: group-at-open=0 g0=[] g1=[Qty: >=3] g2=[Grp: A|B] g3=[] | C key=Qty asc=Yes view=[VERSION(1) SORTING(Qty)] | C current=R1 | C rows=R1,R4,R6,, | ');
+        Observer.Verify();
+    end;
+
+    [Test]
+    [HandlerFunctions('SfListCHandler')]
+    procedure SF_C_RecPrimaryKeyDescending()
+    var
+        Observer: Codeunit "Probe Observer";
+        Log: Codeunit "LT P145 Log Mgt";
+        Row: Record "LT P145 Row";
+    begin
+        Row.Ascending(false);
+        SfSeed(Observer);
+        Log.Clear();
+        Page.Run(Page::"LT SF P145 List C", Row);
+        Observer.Observe('log', Log.Dump());
+        Observer.Expect('seed_before', '4');
+        Observer.Expect('seed_after_deleteall', '0');
+        Observer.Expect('seed', 'R1,R2(m),R3(m),R4,R5,R6, count=4');
+        Observer.Expect('log', 'C open: group-at-open=0 g0=[] g1=[Qty: >=3] g2=[Grp: A|B] g3=[] | C key=Qty asc=Yes view=[VERSION(1) SORTING(Qty)] | C current=R1 | C rows=R1,R4,R6,, | ');
+        Observer.Verify();
+    end;
+
+    [PageHandler]
+    procedure SfListCHandler(var P: TestPage "LT SF P145 List C")
+    var
+        Log: Codeunit "LT P145 Log Mgt";
+        Rows: Text;
+        More: Boolean;
+    begin
+        Log.Add('C current=' + P.NoCtl.Value());
+        More := P.First();
+        while More do begin
+            Rows += P.NoCtl.Value() + ',';
+            More := P.Next();
+        end;
+        Log.Add('C rows=' + Rows);
     end;
 }
