@@ -78,4 +78,96 @@ codeunit 73579 "LT Guid As Text Argument"
         Obs.Expect('get_equals_format', 'Yes');
         Obs.Verify();
     end;
+
+    // Writer SG (al-runtime-rs assumption guid-as-text-argument): a Guid passed to more Text parameters: as the format of StrSubstNo,
+    // DelStr, PadStr, ConvertStr, IncStr, SelectStr, InsStr, DelChr, Text.Contains / StartsWith / IndexOf / Replace, and a procedure's Text
+    // and Code parameter. Results (BC 27.5, 28.5, 29.0 on CI): every one sees the text form {XXXXXXXX-...} in upper case (IncStr
+    // increments its last digit, Contains is case-sensitive); a Text[10] parameter raises StringLengthExceeded.
+    local procedure TakeText(T: Text): Text
+    begin
+        exit('[' + T + ']' + Format(StrLen(T)));
+    end;
+
+    local procedure TakeCode(C: Code[50]): Text
+    begin
+        exit('[' + C + ']' + Format(StrLen(C)));
+    end;
+
+    local procedure TakeText10(T: Text[10]): Text
+    begin
+        exit('[' + T + ']');
+    end;
+
+    [TryFunction]
+    local procedure TryTakeText10(G: Guid; var R: Text)
+    begin
+        R := TakeText10(G);
+    end;
+
+    [Test]
+    procedure Guid_AsTextArgument_MoreStringFunctions()
+    var
+        G: Guid;
+        T: Text;
+    begin
+        G := FixedGuid();
+        Obs.Observe('strsubstno_format', StrSubstNo(G, 'x'));
+        Obs.Observe('delstr_1_1', DelStr(G, 1, 1));
+        Obs.Observe('delstr_10', DelStr(G, 10));
+        Obs.Observe('padstr_40', PadStr(G, 40, '*'));
+        Obs.Observe('padstr_5', PadStr(G, 5));
+        Obs.Observe('convertstr', ConvertStr(G, 'ABC-', 'xyz_'));
+        Obs.Observe('incstr', '[' + IncStr(G) + ']');
+        Obs.Observe('selectstr_1', SelectStr(1, G));
+        Obs.Observe('insstr', InsStr(G, 'x', 2));
+        Obs.Observe('delchr', DelChr(G, '=', '{}-'));
+        T := 'k{1A2B3C4D-5E6F-7A8B-9C0D-1E2F3A4B5C6D}k';
+        Obs.Observe('contains', Format(T.Contains(G)));
+        Obs.Observe('contains_lower', Format(LowerCase(T).Contains(G)));
+        Obs.Observe('indexof', Format(T.IndexOf(G)));
+        Obs.Observe('startswith', Format(T.StartsWith(G)));
+        Obs.Observe('replace', T.Replace(G, '#'));
+        Obs.Expect('strsubstno_format', '{1A2B3C4D-5E6F-7A8B-9C0D-1E2F3A4B5C6D}');
+        Obs.Expect('delstr_1_1', '1A2B3C4D-5E6F-7A8B-9C0D-1E2F3A4B5C6D}');
+        Obs.Expect('delstr_10', '{1A2B3C4D');
+        Obs.Expect('padstr_40', '{1A2B3C4D-5E6F-7A8B-9C0D-1E2F3A4B5C6D}**');
+        Obs.Expect('padstr_5', '{1A2B');
+        Obs.Expect('convertstr', '{1x2y3z4D_5E6F_7x8y_9z0D_1E2F3x4y5z6D}');
+        Obs.Expect('incstr', '[{1A2B3C4D-5E6F-7A8B-9C0D-1E2F3A4B5C7D}]');
+        Obs.Expect('selectstr_1', '{1A2B3C4D-5E6F-7A8B-9C0D-1E2F3A4B5C6D}');
+        Obs.Expect('insstr', '{x1A2B3C4D-5E6F-7A8B-9C0D-1E2F3A4B5C6D}');
+        Obs.Expect('delchr', '1A2B3C4D5E6F7A8B9C0D1E2F3A4B5C6D');
+        Obs.Expect('contains', 'Yes');
+        Obs.Expect('contains_lower', 'No');
+        Obs.Expect('indexof', '2');
+        Obs.Expect('startswith', 'No');
+        Obs.Expect('replace', 'k#k');
+        Obs.Verify();
+    end;
+
+    [Test]
+    procedure Guid_AsTextArgument_ProcedureParameters()
+    var
+        G: Guid;
+        Null: Guid;
+        R: Text;
+    begin
+        G := FixedGuid();
+        Obs.Observe('text_param', TakeText(G));
+        Obs.Observe('code_param', TakeCode(G));
+        Obs.Observe('null_text_param', TakeText(Null));
+        ClearLastError();
+        Obs.Observe('text10_ok', Format(TryTakeText10(G, R)));
+        Obs.Observe('text10_r', R);
+        Obs.Observe('text10_err', GetLastErrorText());
+        Obs.Observe('text10_code', GetLastErrorCode());
+        Obs.Expect('text_param', '[{1A2B3C4D-5E6F-7A8B-9C0D-1E2F3A4B5C6D}]38');
+        Obs.Expect('code_param', '[{1A2B3C4D-5E6F-7A8B-9C0D-1E2F3A4B5C6D}]38');
+        Obs.Expect('null_text_param', '[{00000000-0000-0000-0000-000000000000}]38');
+        Obs.Expect('text10_ok', 'No');
+        Obs.Expect('text10_r', '');
+        Obs.Expect('text10_err', 'The length of the string is 38, but it must be less than or equal to 10 characters. Value: {1A2B3C4D-5E6F-7A8B-9C0D-1E2F3A4B5C6D}');
+        Obs.Expect('text10_code', 'StringLengthExceeded');
+        Obs.Verify();
+    end;
 }

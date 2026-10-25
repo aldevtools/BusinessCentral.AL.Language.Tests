@@ -446,4 +446,127 @@ codeunit 80670 "LT AZ Query Tests"
         Observer.Expect('value', 'Ignored');
         Observer.Verify();
     end;
+
+    // ---- writer SG (al-runtime-rs assumption grouped-query-ties-in-grouping-order): groups that tie on every OrderBy column ----
+    // Results (BC 27.5, 28.5, 29.0 on CI): tied groups come in the order of the grouping columns as declared, each ascending, for an
+    // ascending and a descending OrderBy on a column and on a Sum; the insert order does not matter.
+
+    local procedure SgSeedTies(Reverse: Boolean)
+    var
+        Row: Record "LT AZ Q Row";
+        Ids: List of [Integer];
+        Cats: List of [Code[10]];
+        Subs: List of [Code[10]];
+        Kinds: List of [Code[10]];
+        i: Integer;
+        n: Integer;
+    begin
+        Row.DeleteAll();
+        // Ids, Cat, Sub, Kind: neither the Id order nor the insert order follows the grouping columns.
+        Ids.Add(4); Cats.Add('B'); Subs.Add('Y'); Kinds.Add('K');
+        Ids.Add(2); Cats.Add('A'); Subs.Add('Z'); Kinds.Add('K');
+        Ids.Add(7); Cats.Add('C'); Subs.Add('X'); Kinds.Add('K');
+        Ids.Add(1); Cats.Add('A'); Subs.Add('X'); Kinds.Add('K');
+        Ids.Add(6); Cats.Add('B'); Subs.Add('X'); Kinds.Add('J');
+        Ids.Add(3); Cats.Add('C'); Subs.Add('Z'); Kinds.Add('K');
+        Ids.Add(5); Cats.Add('A'); Subs.Add('Y'); Kinds.Add('K');
+        n := Ids.Count();
+        for i := 1 to n do
+            if Reverse then
+                AddRow(Ids.Get(n + 1 - i) + 10, Cats.Get(n + 1 - i), Subs.Get(n + 1 - i), 1, Kinds.Get(n + 1 - i))
+            else
+                AddRow(Ids.Get(i), Cats.Get(i), Subs.Get(i), 1, Kinds.Get(i));
+    end;
+
+    local procedure SgReadSubCat(): Text
+    var
+        Q: Query "LT SG Q Ties SubCat";
+        R: Text;
+    begin
+        Q.Open();
+        while Q.Read() do
+            R += Q.Kind + ':' + Q.Sub + '/' + Q.Cat + ';';
+        exit(R);
+    end;
+
+    local procedure SgReadCatSub(): Text
+    var
+        Q: Query "LT SG Q Ties CatSub";
+        R: Text;
+    begin
+        Q.Open();
+        while Q.Read() do
+            R += Q.Kind + ':' + Q.Cat + '/' + Q.Sub + ';';
+        exit(R);
+    end;
+
+    local procedure SgReadSumDesc(): Text
+    var
+        Q: Query "LT SG Q Ties SumDesc";
+        R: Text;
+    begin
+        Q.Open();
+        while Q.Read() do
+            R += Format(Q.Total) + ':' + Q.Sub + '/' + Q.Cat + ';';
+        exit(R);
+    end;
+
+    local procedure SgReadKindDesc(): Text
+    var
+        Q: Query "LT SG Q Ties KindDesc";
+        R: Text;
+    begin
+        Q.Open();
+        while Q.Read() do
+            R += Q.Kind + ':' + Q.Sub + '/' + Q.Cat + ';';
+        exit(R);
+    end;
+
+    [Test]
+    procedure SG_OrderByTies_GroupingSubThenCat()
+    begin
+        SgSeedTies(false);
+        Observer.Observe('subcat', SgReadSubCat());
+        Observer.Observe('subcat_again', SgReadSubCat());
+        SgSeedTies(true);
+        Observer.Observe('subcat_reverse', SgReadSubCat());
+        Observer.Expect('subcat', 'J:X/B;K:X/A;K:X/C;K:Y/A;K:Y/B;K:Z/A;K:Z/C;');
+        Observer.Expect('subcat_again', 'J:X/B;K:X/A;K:X/C;K:Y/A;K:Y/B;K:Z/A;K:Z/C;');
+        Observer.Expect('subcat_reverse', 'J:X/B;K:X/A;K:X/C;K:Y/A;K:Y/B;K:Z/A;K:Z/C;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure SG_OrderByTies_GroupingCatThenSub()
+    begin
+        SgSeedTies(false);
+        Observer.Observe('catsub', SgReadCatSub());
+        SgSeedTies(true);
+        Observer.Observe('catsub_reverse', SgReadCatSub());
+        Observer.Expect('catsub', 'J:B/X;K:A/X;K:A/Y;K:A/Z;K:B/Y;K:C/X;K:C/Z;');
+        Observer.Expect('catsub_reverse', 'J:B/X;K:A/X;K:A/Y;K:A/Z;K:B/Y;K:C/X;K:C/Z;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure SG_OrderByTies_DescendingKind()
+    begin
+        SgSeedTies(false);
+        Observer.Observe('kinddesc', SgReadKindDesc());
+        SgSeedTies(true);
+        Observer.Observe('kinddesc_reverse', SgReadKindDesc());
+        Observer.Expect('kinddesc', 'K:X/A;K:X/C;K:Y/A;K:Y/B;K:Z/A;K:Z/C;J:X/B;');
+        Observer.Expect('kinddesc_reverse', 'K:X/A;K:X/C;K:Y/A;K:Y/B;K:Z/A;K:Z/C;J:X/B;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure SG_OrderByTies_DescendingSum()
+    begin
+        SgSeedTies(false);
+        AddRow(20, 'C', 'Z', 5, 'K');
+        Observer.Observe('sumdesc', SgReadSumDesc());
+        Observer.Expect('sumdesc', '6:Z/C;1:X/A;1:X/B;1:X/C;1:Y/A;1:Y/B;1:Z/A;');
+        Observer.Verify();
+    end;
 }

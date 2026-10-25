@@ -160,3 +160,71 @@ query 80669 "LT AZ Q Rows"
         }
     }
 }
+
+// Writer SG (al-runtime-rs assumption grouped-query-ties-in-grouping-order): aggregated queries whose OrderBy column most groups share.
+// Grouping columns Sub, Cat (declared in that order, unlike the table's field order), OrderBy Kind.
+query 89090 "LT SG Q Ties SubCat"
+{
+    OrderBy = ascending(Kind);
+
+    elements
+    {
+        dataitem(Row; "LT AZ Q Row")
+        {
+            column(Sub; Sub) { }
+            column(Cat; Cat) { }
+            column(Kind; Kind) { }
+            column(Total; Amount) { Method = Sum; }
+        }
+    }
+}
+
+// Grouping columns Cat, Sub, OrderBy Kind.
+query 89091 "LT SG Q Ties CatSub"
+{
+    OrderBy = ascending(Kind);
+
+    elements
+    {
+        dataitem(Row; "LT AZ Q Row")
+        {
+            column(Cat; Cat) { }
+            column(Sub; Sub) { }
+            column(Kind; Kind) { }
+            column(Total; Amount) { Method = Sum; }
+        }
+    }
+}
+
+// Grouping columns Sub, Cat, OrderBy the descending Sum (ties on the aggregate).
+query 89092 "LT SG Q Ties SumDesc"
+{
+    OrderBy = descending(Total);
+
+    elements
+    {
+        dataitem(Row; "LT AZ Q Row")
+        {
+            column(Sub; Sub) { }
+            column(Cat; Cat) { }
+            column(Total; Amount) { Method = Sum; }
+        }
+    }
+}
+
+// Grouping columns Sub, Cat, OrderBy Kind descending.
+query 89093 "LT SG Q Ties KindDesc"
+{
+    OrderBy = descending(Kind);
+
+    elements
+    {
+        dataitem(Row; "LT AZ Q Row")
+        {
+            column(Sub; Sub) { }
+            column(Cat; Cat) { }
+            column(Kind; Kind) { }
+            column(Total; Amount) { Method = Sum; }
+        }
+    }
+}
