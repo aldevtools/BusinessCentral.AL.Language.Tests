@@ -1,4 +1,5 @@
 // Does Reset (and Init, Clear) drop a SetLoadFields request, so that the next fetch loads every field?
+// Real BC: Reset and Clear drop it; Init keeps it.
 // The existing case record/lt-record-read/RcAMisc.al (SetLoadFields_Blank_Resets_To_All) fetches the full
 // row first, so it passes either way. Here the record variable has never fetched before the Reset, unless the
 // test name says otherwise. Loaded state is read with AreFieldsLoaded, which does not load anything itself.
@@ -177,7 +178,7 @@ codeunit 88871 "LT RY Reset Load Fields"
     end;
 
     [Test]
-    procedure InitThenFindFirst_NoEarlierFetch()
+    procedure InitThenFindFirst_NoEarlierFetch_KeepsLoadFields()
     var
         Wide: Record "LT RY Wide";
     begin
@@ -186,7 +187,8 @@ codeunit 88871 "LT RY Reset Load Fields"
         Wide.Init();
         Wide.FindFirst();
         Observer.Observe('after Init', Loaded(Wide));
-        Observer.Expect('after Init', 'W1 desc=Yes notes=Yes amount=Yes qty=Yes');
+        // Init keeps the request (BC 27.5, 28.5, 29.0); only Reset and Clear drop it.
+        Observer.Expect('after Init', 'W1 desc=Yes notes=No amount=No qty=No');
         Observer.Verify();
     end;
 
