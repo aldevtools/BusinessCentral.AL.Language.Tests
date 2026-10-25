@@ -78,4 +78,73 @@ codeunit 73579 "LT Guid As Text Argument"
         Obs.Expect('get_equals_format', 'Yes');
         Obs.Verify();
     end;
+
+    // Writer SG (al-runtime-rs assumption guid-as-text-argument): a Guid passed to more Text parameters: as the format of StrSubstNo,
+    // DelStr, PadStr, ConvertStr, IncStr, SelectStr, InsStr, DelChr, Text.Contains / StartsWith / IndexOf / Replace, and a procedure's Text
+    // and Code parameter.
+    local procedure TakeText(T: Text): Text
+    begin
+        exit('[' + T + ']' + Format(StrLen(T)));
+    end;
+
+    local procedure TakeCode(C: Code[50]): Text
+    begin
+        exit('[' + C + ']' + Format(StrLen(C)));
+    end;
+
+    local procedure TakeText10(T: Text[10]): Text
+    begin
+        exit('[' + T + ']');
+    end;
+
+    [TryFunction]
+    local procedure TryTakeText10(G: Guid; var R: Text)
+    begin
+        R := TakeText10(G);
+    end;
+
+    [Test]
+    procedure Guid_AsTextArgument_MoreStringFunctions()
+    var
+        G: Guid;
+        T: Text;
+    begin
+        G := FixedGuid();
+        Obs.Observe('strsubstno_format', StrSubstNo(G, 'x'));
+        Obs.Observe('delstr_1_1', DelStr(G, 1, 1));
+        Obs.Observe('delstr_10', DelStr(G, 10));
+        Obs.Observe('padstr_40', PadStr(G, 40, '*'));
+        Obs.Observe('padstr_5', PadStr(G, 5));
+        Obs.Observe('convertstr', ConvertStr(G, 'ABC-', 'xyz_'));
+        Obs.Observe('incstr', '[' + IncStr(G) + ']');
+        Obs.Observe('selectstr_1', SelectStr(1, G));
+        Obs.Observe('insstr', InsStr(G, 'x', 2));
+        Obs.Observe('delchr', DelChr(G, '=', '{}-'));
+        T := 'k{1A2B3C4D-5E6F-7A8B-9C0D-1E2F3A4B5C6D}k';
+        Obs.Observe('contains', Format(T.Contains(G)));
+        Obs.Observe('contains_lower', Format(LowerCase(T).Contains(G)));
+        Obs.Observe('indexof', Format(T.IndexOf(G)));
+        Obs.Observe('startswith', Format(T.StartsWith(G)));
+        Obs.Observe('replace', T.Replace(G, '#'));
+        Obs.Finish();
+    end;
+
+    [Test]
+    procedure Guid_AsTextArgument_ProcedureParameters()
+    var
+        G: Guid;
+        Null: Guid;
+        R: Text;
+    begin
+        G := FixedGuid();
+        Obs.Observe('text_param', TakeText(G));
+        Obs.Observe('code_param', TakeCode(G));
+        Obs.Observe('null_text_param', TakeText(Null));
+        ClearLastError();
+        Obs.Observe('text10_ok', Format(TryTakeText10(G, R)));
+        Obs.Observe('text10_r', R);
+        Obs.Observe('text10_err', GetLastErrorText());
+        Obs.Observe('text10_code', GetLastErrorCode());
+        Obs.Finish();
+    end;
 }
