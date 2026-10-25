@@ -7,6 +7,10 @@
 //   filters too. What the opened page shows: the link filter as TestPage.Filter reads it, the view field's filter, the row it opens on, the
 //   rows from First/Next. Entries: 1 I1 +5, 2 I2 +3, 3 I1 -2, 4 I1 +1, 5 I2 -1.
 //   A Card target with a where view is pinned in pages/W1RunObject.al (TargetWithSourceTableView_OrNoSourceTable).
+// Result (BC 29.0, Windows container): the link filter and the target's SourceTableView both apply. sorting order(descending) opens on the
+//   first row in descending order (I1: 4, rows 4,3,1); a where view opens on its first row (I1: 1, rows 1,4). The action's RunPageView
+//   where filter is added; its sorting(...) order(ascending) does NOT replace the target's descending order (rows stay 4,3,1). A link on the
+//   view's field (Positive = const(false) against where(Positive = const(true))) leaves no row.
 // Object ids 88922 (writer RZ).
 // BC versions: 27, 28, 29
 
@@ -27,7 +31,13 @@ codeunit 88922 "LT RZ RunPageLink View"
     begin
         OpenOn(Items, 'I1');
         Items.NewestFirst.Invoke();
-        Observer.Finish();
+        Observer.Expect('goto', 'Yes');
+        Observer.Expect('item filter', 'I1');
+        Observer.Expect('positive filter', '');
+        Observer.Expect('current', '4');
+        Observer.Expect('next', 'Yes|3');
+        Observer.Expect('rows', '4,3,1,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -38,7 +48,13 @@ codeunit 88922 "LT RZ RunPageLink View"
     begin
         OpenOn(Items, 'I2');
         Items.NewestFirst.Invoke();
-        Observer.Finish();
+        Observer.Expect('goto', 'Yes');
+        Observer.Expect('item filter', 'I2');
+        Observer.Expect('positive filter', '');
+        Observer.Expect('current', '5');
+        Observer.Expect('next', 'Yes|2');
+        Observer.Expect('rows', '5,2,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -49,7 +65,13 @@ codeunit 88922 "LT RZ RunPageLink View"
     begin
         OpenOn(Items, 'I1');
         Items.PositiveOnly.Invoke();
-        Observer.Finish();
+        Observer.Expect('goto', 'Yes');
+        Observer.Expect('item filter', 'I1');
+        Observer.Expect('positive filter', '1');
+        Observer.Expect('current', '1');
+        Observer.Expect('next', 'Yes|4');
+        Observer.Expect('rows', '1,4,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -60,7 +82,13 @@ codeunit 88922 "LT RZ RunPageLink View"
     begin
         OpenOn(Items, 'I1');
         Items.PositiveNewestFirst.Invoke();
-        Observer.Finish();
+        Observer.Expect('goto', 'Yes');
+        Observer.Expect('item filter', 'I1');
+        Observer.Expect('positive filter', '1');
+        Observer.Expect('current', '4');
+        Observer.Expect('next', 'Yes|1');
+        Observer.Expect('rows', '4,1,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -71,7 +99,13 @@ codeunit 88922 "LT RZ RunPageLink View"
     begin
         OpenOn(Items, 'I1');
         Items.NewestFirstViewAscending.Invoke();
-        Observer.Finish();
+        Observer.Expect('goto', 'Yes');
+        Observer.Expect('item filter', 'I1');
+        Observer.Expect('positive filter', '');
+        Observer.Expect('current', '4');
+        Observer.Expect('next', 'Yes|3');
+        Observer.Expect('rows', '4,3,1,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -82,7 +116,13 @@ codeunit 88922 "LT RZ RunPageLink View"
     begin
         OpenOn(Items, 'I1');
         Items.NewestFirstViewPositive.Invoke();
-        Observer.Finish();
+        Observer.Expect('goto', 'Yes');
+        Observer.Expect('item filter', 'I1');
+        Observer.Expect('positive filter', '1');
+        Observer.Expect('current', '4');
+        Observer.Expect('next', 'Yes|1');
+        Observer.Expect('rows', '4,1,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -93,7 +133,13 @@ codeunit 88922 "LT RZ RunPageLink View"
     begin
         OpenOn(Items, 'I1');
         Items.PositiveLinkPositive.Invoke();
-        Observer.Finish();
+        Observer.Expect('goto', 'Yes');
+        Observer.Expect('item filter', 'I1');
+        Observer.Expect('positive filter', 'No');
+        Observer.Expect('current', '');
+        Observer.Expect('next', 'No|');
+        Observer.Expect('rows', '');
+        Observer.Verify();
     end;
 
     local procedure OpenOn(var Items: TestPage "LT RZ Stock Items"; ItemCode: Code[20])

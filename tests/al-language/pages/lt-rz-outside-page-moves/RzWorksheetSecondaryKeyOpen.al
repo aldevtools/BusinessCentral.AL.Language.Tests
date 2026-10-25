@@ -6,6 +6,9 @@
 //   and not), between two rows of the view, after it, and on a row that is before the view by the secondary key but after it by the primary key.
 //   Routes: lookup RunModal (handler reads the shown row and invokes OK, GetRecord), RunModal, TestPage OpenEdit and OpenView.
 //   The same in the primary key is pinned in pages/lt-outside-worksheet-2/RtFillOnOpen.al.
+// Result (BC 29.0, Windows container): the page opens on the row Find('=><') from Rec reaches in the SECONDARY key (Item Code), on every
+//   route: HDR (before the view) -> X; Y (inside) -> Y; ZZZ (after) -> Y; XM (between X and Y) -> Y; TRL (before by Item Code, after by
+//   Line No.) -> X. A lookup returns that row with LookupOK.
 // Object ids 88921 (writer RZ).
 // BC versions: 27, 28, 29
 
@@ -25,7 +28,12 @@ codeunit 88921 "LT RZ Ws Secondary Key Open"
     procedure RZ_Lookup_RecBeforeView()
     begin
         Lookup(1);
-        Observer.Finish();
+        Observer.Expect('open', 'X');
+        Observer.Expect('open log', 'O:HDR;R:HDR;R:X;R:Y;R:X;R:X;R:X;C:X');
+        Observer.Expect('result', 'LookupOK');
+        Observer.Expect('picked', 'X');
+        Observer.Expect('after close log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -33,7 +41,12 @@ codeunit 88921 "LT RZ Ws Secondary Key Open"
     procedure RZ_Lookup_RecInsideView()
     begin
         Lookup(2);
-        Observer.Finish();
+        Observer.Expect('open', 'Y');
+        Observer.Expect('open log', 'O:Y;R:Y;R:Y;R:X;R:Y;R:Y;R:Y;C:Y');
+        Observer.Expect('result', 'LookupOK');
+        Observer.Expect('picked', 'Y');
+        Observer.Expect('after close log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -41,7 +54,12 @@ codeunit 88921 "LT RZ Ws Secondary Key Open"
     procedure RZ_Lookup_RecAfterView()
     begin
         Lookup(3);
-        Observer.Finish();
+        Observer.Expect('open', 'Y');
+        Observer.Expect('open log', 'O:ZZZ;R:ZZZ;R:Y;R:X;R:Y;R:Y;R:Y;C:Y');
+        Observer.Expect('result', 'LookupOK');
+        Observer.Expect('picked', 'Y');
+        Observer.Expect('after close log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -49,7 +67,12 @@ codeunit 88921 "LT RZ Ws Secondary Key Open"
     procedure RZ_Lookup_RecBetweenViewRows()
     begin
         Lookup(4);
-        Observer.Finish();
+        Observer.Expect('open', 'Y');
+        Observer.Expect('open log', 'O:XM;R:XM;R:Y;R:X;R:Y;R:Y;R:Y;C:Y');
+        Observer.Expect('result', 'LookupOK');
+        Observer.Expect('picked', 'Y');
+        Observer.Expect('after close log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -57,7 +80,12 @@ codeunit 88921 "LT RZ Ws Secondary Key Open"
     procedure RZ_Lookup_RecBeforeBySecondaryAfterByPrimary()
     begin
         Lookup(5);
-        Observer.Finish();
+        Observer.Expect('open', 'X');
+        Observer.Expect('open log', 'O:TRL;R:TRL;R:X;R:Y;R:X;R:X;R:X;C:X');
+        Observer.Expect('result', 'LookupOK');
+        Observer.Expect('picked', 'X');
+        Observer.Expect('after close log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -65,7 +93,12 @@ codeunit 88921 "LT RZ Ws Secondary Key Open"
     procedure RZ_Lookup_RecFirstOfView()
     begin
         Lookup(6);
-        Observer.Finish();
+        Observer.Expect('open', 'X');
+        Observer.Expect('open log', 'O:X;R:X;R:X;R:Y;R:X;R:X;R:X;C:X');
+        Observer.Expect('result', 'LookupOK');
+        Observer.Expect('picked', 'X');
+        Observer.Expect('after close log', '');
+        Observer.Verify();
     end;
 
     // Run modally, not in lookup mode.
@@ -74,7 +107,15 @@ codeunit 88921 "LT RZ Ws Secondary Key Open"
     procedure RZ_RunModal_RecBeforeView()
     begin
         RunModalPlain(1);
-        Observer.Finish();
+        Observer.Expect('open', 'X');
+        Observer.Expect('open log', 'O:HDR;R:HDR;R:X;R:Y;R:X;R:X;R:X;C:X');
+        Observer.Expect('next', 'Yes|Y');
+        Observer.Expect('previous', 'Yes|X');
+        Observer.Expect('previous again', 'No|X');
+        Observer.Expect('rows', 'X,Y,');
+        Observer.Expect('result', 'OK');
+        Observer.Expect('after close log', 'R:Y;R:Y;R:Y;C:Y;R:X;R:X;R:X;C:X;R:Y;R:Y;R:Y;C:Y');
+        Observer.Verify();
     end;
 
     [Test]
@@ -82,7 +123,15 @@ codeunit 88921 "LT RZ Ws Secondary Key Open"
     procedure RZ_RunModal_RecBetweenViewRows()
     begin
         RunModalPlain(4);
-        Observer.Finish();
+        Observer.Expect('open', 'Y');
+        Observer.Expect('open log', 'O:XM;R:XM;R:Y;R:X;R:Y;R:Y;R:Y;C:Y');
+        Observer.Expect('next', 'No|Y');
+        Observer.Expect('previous', 'Yes|X');
+        Observer.Expect('previous again', 'No|X');
+        Observer.Expect('rows', 'X,Y,');
+        Observer.Expect('result', 'OK');
+        Observer.Expect('after close log', 'R:X;R:X;R:X;C:X;R:Y;R:Y;R:Y;C:Y');
+        Observer.Verify();
     end;
 
     // TestPage OpenEdit and OpenView.
@@ -90,49 +139,91 @@ codeunit 88921 "LT RZ Ws Secondary Key Open"
     procedure RZ_OpenEdit_RecBeforeView()
     begin
         OpenEdit(1);
-        Observer.Finish();
+        Observer.Expect('open', 'X');
+        Observer.Expect('open log', 'O:HDR;R:HDR;R:X;R:Y;R:X;R:X;R:X;C:X');
+        Observer.Expect('next', 'Yes|Y');
+        Observer.Expect('previous', 'Yes|X');
+        Observer.Expect('previous again', 'No|X');
+        Observer.Expect('rows', 'X,Y,');
+        Observer.Verify();
     end;
 
     [Test]
     procedure RZ_OpenEdit_RecInsideView()
     begin
         OpenEdit(2);
-        Observer.Finish();
+        Observer.Expect('open', 'Y');
+        Observer.Expect('open log', 'O:Y;R:Y;R:Y;R:X;R:Y;R:Y;R:Y;C:Y');
+        Observer.Expect('next', 'No|Y');
+        Observer.Expect('previous', 'Yes|X');
+        Observer.Expect('previous again', 'No|X');
+        Observer.Expect('rows', 'X,Y,');
+        Observer.Verify();
     end;
 
     [Test]
     procedure RZ_OpenEdit_RecAfterView()
     begin
         OpenEdit(3);
-        Observer.Finish();
+        Observer.Expect('open', 'Y');
+        Observer.Expect('open log', 'O:ZZZ;R:ZZZ;R:Y;R:X;R:Y;R:Y;R:Y;C:Y');
+        Observer.Expect('next', 'No|Y');
+        Observer.Expect('previous', 'Yes|X');
+        Observer.Expect('previous again', 'No|X');
+        Observer.Expect('rows', 'X,Y,');
+        Observer.Verify();
     end;
 
     [Test]
     procedure RZ_OpenEdit_RecBetweenViewRows()
     begin
         OpenEdit(4);
-        Observer.Finish();
+        Observer.Expect('open', 'Y');
+        Observer.Expect('open log', 'O:XM;R:XM;R:Y;R:X;R:Y;R:Y;R:Y;C:Y');
+        Observer.Expect('next', 'No|Y');
+        Observer.Expect('previous', 'Yes|X');
+        Observer.Expect('previous again', 'No|X');
+        Observer.Expect('rows', 'X,Y,');
+        Observer.Verify();
     end;
 
     [Test]
     procedure RZ_OpenEdit_RecBeforeBySecondaryAfterByPrimary()
     begin
         OpenEdit(5);
-        Observer.Finish();
+        Observer.Expect('open', 'X');
+        Observer.Expect('open log', 'O:TRL;R:TRL;R:X;R:Y;R:X;R:X;R:X;C:X');
+        Observer.Expect('next', 'Yes|Y');
+        Observer.Expect('previous', 'Yes|X');
+        Observer.Expect('previous again', 'No|X');
+        Observer.Expect('rows', 'X,Y,');
+        Observer.Verify();
     end;
 
     [Test]
     procedure RZ_OpenView_RecBeforeView()
     begin
         OpenView(1);
-        Observer.Finish();
+        Observer.Expect('open', 'X');
+        Observer.Expect('open log', 'O:HDR;R:HDR;R:X;R:Y;R:X;R:X;R:X;C:X');
+        Observer.Expect('next', 'Yes|Y');
+        Observer.Expect('previous', 'Yes|X');
+        Observer.Expect('previous again', 'No|X');
+        Observer.Expect('rows', 'X,Y,');
+        Observer.Verify();
     end;
 
     [Test]
     procedure RZ_OpenView_RecAfterView()
     begin
         OpenView(3);
-        Observer.Finish();
+        Observer.Expect('open', 'Y');
+        Observer.Expect('open log', 'O:ZZZ;R:ZZZ;R:Y;R:X;R:Y;R:Y;R:Y;C:Y');
+        Observer.Expect('next', 'No|Y');
+        Observer.Expect('previous', 'Yes|X');
+        Observer.Expect('previous again', 'No|X');
+        Observer.Expect('rows', 'X,Y,');
+        Observer.Verify();
     end;
 
     local procedure Lookup(Mode: Integer)
