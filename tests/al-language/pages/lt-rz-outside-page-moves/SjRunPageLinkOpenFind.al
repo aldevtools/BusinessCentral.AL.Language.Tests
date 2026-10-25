@@ -1,7 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/properties/devenv-runpagelink-property
 //   https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/record/record-find-method
 // Scope: in-scope
-// Fixtures used: Probe Observer (69160); own objects 89170 - 89178 (writer SJ)
+// Fixtures used: Probe Observer (69160); own objects 89170 - 89179 (writer SJ)
 // Probe: what Rec itself answers to Find(), FindFirst(), FindLast(), Count(), CurrentKey() and Ascending() in the OnOpenPage of a page an
 //   action opens through RunPageLink, and which rows the opened page then shows (al-runner issue 5860). The reporter's shape is Base App
 //   page 38 "Item Ledger Entries": SourceTableView = sorting("Entry No.") order(descending), and OnOpenPage runs
@@ -11,6 +11,14 @@
 //   Rec.GetFilter/GetFilters in OnOpenPage are pinned already (pages/lt-outside-worksheet-2/RtLinkRange.al); the by-value copy of Rec in
 //   handlers/TestActionRunPageLinkFilterGroup.al (QZ_*). The log repeats them only as context of the Find answers.
 //   Entries: 1 I1 +5, 2 I2 +3, 3 I1 -2, 4 I1 +1, 5 I2 -1. Items I1, I2, I3 (no entries).
+// Result (BC 27.5, 28.5, 29.0 alike; corpus CI runs 40234630661, 40234651819, 40234671184): in OnOpenPage Rec holds the link as a
+//   filter, its primary key fields are blank and the linked field is filled (row=0|I1); CurrentKey and Ascending are the view's
+//   ('Entry No.', No) and Count() counts the linked rows only (3). Rec.Find() answers No (no row has the blank key); FindFirst() then
+//   answers Yes and moves Rec to the first linked row in the view's order (4 descending, 1 ascending, 4 on the where view). The page
+//   opens on that row and lists only the linked rows in the view's order (4,3,1). No linked row: Count 0, Find and FindFirst No, the
+//   page is empty. FindLast() in OnOpenPage opens the page on the last row of the view (1); First/Next still list 4,3,1. A Card
+//   linked on the primary key: Rec holds only the key (I2, no description), Find() answers Yes and reads the row (I2|two), and the
+//   card shows it. Through a PageHandler, OnAfterGetCurrRecord runs again for each row the handler moves to.
 // Log codeunit 89172 is SingleInstance and used only by codeunit 89178.
 // BC versions: 27, 28, 29
 
@@ -317,7 +325,12 @@ codeunit 89178 "LT SJ RunPageLink Open Find"
         Observer.Observe('rows', DescRows(Entries));
         Entries.Close();
         Items.Close();
-        Observer.Finish();
+        Observer.Expect('goto', 'Yes');
+        Observer.Expect('log', 'open filters=Item Code: I1 row=0|I1;open key=Entry No. ascending=No count=3;open find=No row=0|I1;open findfirst=Yes row=4|I1;agcr row=4;');
+        Observer.Expect('item filter', 'I1');
+        Observer.Expect('current', '4');
+        Observer.Expect('rows', '4,3,1,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -330,7 +343,9 @@ codeunit 89178 "LT SJ RunPageLink Open Find"
         Items.DescFind.Invoke();
         Items.Close();
         Observer.Observe('log', Log.Get());
-        Observer.Finish();
+        Observer.Expect('goto', 'Yes');
+        Observer.Expect('log', 'open filters=Item Code: I1 row=0|I1;open key=Entry No. ascending=No count=3;open find=No row=0|I1;open findfirst=Yes row=4|I1;agcr row=4;agcr row=3;agcr row=1;handler filter=I1 current=4 rows=4,3,1,;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -343,7 +358,9 @@ codeunit 89178 "LT SJ RunPageLink Open Find"
         Items.DescFind.Invoke();
         Items.Close();
         Observer.Observe('log', Log.Get());
-        Observer.Finish();
+        Observer.Expect('goto', 'Yes');
+        Observer.Expect('log', 'open filters=Item Code: I3 row=0|I3;open key=Entry No. ascending=No count=0;open find=No row=0|I3;open findfirst=No row=0|I3;handler filter=I3 current= rows=;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -356,7 +373,9 @@ codeunit 89178 "LT SJ RunPageLink Open Find"
         Items.DescFindConst.Invoke();
         Items.Close();
         Observer.Observe('log', Log.Get());
-        Observer.Finish();
+        Observer.Expect('goto', 'Yes');
+        Observer.Expect('log', 'open filters=Item Code: I2 row=0|I2;open key=Entry No. ascending=No count=2;open find=No row=0|I2;open findfirst=Yes row=5|I2;agcr row=5;agcr row=2;handler filter=I2 current=5 rows=5,2,;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -369,7 +388,9 @@ codeunit 89178 "LT SJ RunPageLink Open Find"
         Items.PlainFind.Invoke();
         Items.Close();
         Observer.Observe('log', Log.Get());
-        Observer.Finish();
+        Observer.Expect('goto', 'Yes');
+        Observer.Expect('log', 'open filters=Item Code: I1 row=0|I1;open key=Entry No. ascending=Yes count=3;open find=No row=0|I1;open findfirst=Yes row=1|I1;agcr row=1;agcr row=3;agcr row=4;handler filter=I1 current=1 rows=1,3,4,;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -382,7 +403,9 @@ codeunit 89178 "LT SJ RunPageLink Open Find"
         Items.PositiveDescFind.Invoke();
         Items.Close();
         Observer.Observe('log', Log.Get());
-        Observer.Finish();
+        Observer.Expect('goto', 'Yes');
+        Observer.Expect('log', 'open filters=Item Code: I1 row=0|I1|No;open key=Item Code,Positive ascending=No count=2;open find=No row=0|I1;open findfirst=Yes row=4|I1;agcr row=4;agcr row=1;handler filter=I1 current=4 rows=4,1,;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -395,7 +418,9 @@ codeunit 89178 "LT SJ RunPageLink Open Find"
         Items.DescFindLast.Invoke();
         Items.Close();
         Observer.Observe('log', Log.Get());
-        Observer.Finish();
+        Observer.Expect('goto', 'Yes');
+        Observer.Expect('log', 'open findlast=Yes row=1|I1;agcr row=1;agcr row=4;agcr row=3;agcr row=1;handler filter=I1 current=1 rows=4,3,1,;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -411,7 +436,10 @@ codeunit 89178 "LT SJ RunPageLink Open Find"
         Observer.Observe('card', Card."Code".Value() + '|' + Card.Description.Value());
         Card.Close();
         Items.Close();
-        Observer.Finish();
+        Observer.Expect('goto', 'Yes');
+        Observer.Expect('log', 'open filters=Code: I2 row=I2|;open find=Yes row=I2|two;agcr row=I2|two;');
+        Observer.Expect('card', 'I2|two');
+        Observer.Verify();
     end;
 
     local procedure OpenOn(var Items: TestPage "LT SJ Link Items"; ItemCode: Code[20])
