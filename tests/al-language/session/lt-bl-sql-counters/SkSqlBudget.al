@@ -5,7 +5,10 @@
 // codeunit that copies a temporary record into the table with FindSet, Next and Insert, then SetRange and Count), and the size of the
 // change of SessionInformation.SqlStatementsExecuted() and SqlRowsRead() around that shape for several row counts, with and without a
 // Commit before the first read. Each size is measured three times in the same run.
-// Facts: the reporter's two tests pass; the differences are counts, compared with a number and formatted with StrSubstNo.
+// Facts: the reporter's two tests pass; the differences are counts, compared with a number and formatted with StrSubstNo. The sizes
+// equal those of SqlCounters.al (one-field key, no other codeunit) for inserts and inserts plus Count: the Inserts are buffered, Count
+// sends them. Without a Commit, Inserts still buffered from an earlier measurement are counted in the next one (copy N=2, first value).
+// Measured the same on BC 27.5, 28.5 and 29.0.
 // BC versions: 27+
 
 table 89190 "LT SK Rule Line"
@@ -222,7 +225,14 @@ codeunit 89192 "LT SK Sql Budget"
         Observer.Observe('rows <= 10000', Format(RowsDelta <= 10000));
         Observer.Observe('statements > 0', Format(StmtsDelta > 0));
         Observer.Observe('message', StrSubstNo('SQL statements: %1, expected <= 1000', StmtsDelta));
-        Observer.Finish();
+        Observer.Expect('copied', '10');
+        Observer.Expect('statements', '3');
+        Observer.Expect('rows', '1');
+        Observer.Expect('statements <= 1000', 'Yes');
+        Observer.Expect('rows <= 10000', 'Yes');
+        Observer.Expect('statements > 0', 'Yes');
+        Observer.Expect('message', 'SQL statements: 3, expected <= 1000');
+        Observer.Verify();
     end;
 
     // Each value: three measurements "statements/rows" of the same operations, each on a new group code, no Commit.
@@ -232,7 +242,12 @@ codeunit 89192 "LT SK Sql Budget"
         Observer: Codeunit "Probe Observer";
     begin
         Series(Observer, 'copy+count', 1, false);
-        Observer.Finish();
+        Observer.Expect('copy+count N=1', '2/1 2/1 2/1');
+        Observer.Expect('copy+count N=2', '3/1 3/1 3/1');
+        Observer.Expect('copy+count N=5', '2/1 2/1 2/1');
+        Observer.Expect('copy+count N=10', '3/1 3/1 3/1');
+        Observer.Expect('copy+count N=20', '5/1 5/1 5/1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -241,7 +256,12 @@ codeunit 89192 "LT SK Sql Budget"
         Observer: Codeunit "Probe Observer";
     begin
         Series(Observer, 'commit copy+count', 1, true);
-        Observer.Finish();
+        Observer.Expect('commit copy+count N=1', '2/1 2/1 2/1');
+        Observer.Expect('commit copy+count N=2', '3/1 3/1 3/1');
+        Observer.Expect('commit copy+count N=5', '2/1 2/1 2/1');
+        Observer.Expect('commit copy+count N=10', '3/1 3/1 3/1');
+        Observer.Expect('commit copy+count N=20', '5/1 5/1 5/1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -251,7 +271,17 @@ codeunit 89192 "LT SK Sql Budget"
     begin
         Series(Observer, 'copy', 2, false);
         Series(Observer, 'commit copy', 2, true);
-        Observer.Finish();
+        Observer.Expect('copy N=1', '0/0 0/0 0/0');
+        Observer.Expect('copy N=2', '1/0 0/0 0/0');
+        Observer.Expect('copy N=5', '1/0 1/0 1/0');
+        Observer.Expect('copy N=10', '2/0 2/0 2/0');
+        Observer.Expect('copy N=20', '4/0 4/0 4/0');
+        Observer.Expect('commit copy N=1', '0/0 0/0 0/0');
+        Observer.Expect('commit copy N=2', '0/0 0/0 0/0');
+        Observer.Expect('commit copy N=5', '1/0 1/0 1/0');
+        Observer.Expect('commit copy N=10', '2/0 2/0 2/0');
+        Observer.Expect('commit copy N=20', '4/0 4/0 4/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -260,6 +290,11 @@ codeunit 89192 "LT SK Sql Budget"
         Observer: Codeunit "Probe Observer";
     begin
         Series(Observer, 'copy, count in a second call', 3, false);
-        Observer.Finish();
+        Observer.Expect('copy, count in a second call N=1', '2/1 2/1 2/1');
+        Observer.Expect('copy, count in a second call N=2', '3/1 3/1 3/1');
+        Observer.Expect('copy, count in a second call N=5', '2/1 2/1 2/1');
+        Observer.Expect('copy, count in a second call N=10', '3/1 3/1 3/1');
+        Observer.Expect('copy, count in a second call N=20', '5/1 5/1 5/1');
+        Observer.Verify();
     end;
 }
