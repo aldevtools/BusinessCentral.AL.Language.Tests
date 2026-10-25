@@ -71,6 +71,7 @@ is only a reference.
 | 0051 | AL0130 | a literal passed for a `var` parameter |
 | 0053 | AL0111 | a statement without its semicolon |
 | 0054, 0055 | AL0297, AL0305 | object id outside the `idRanges` of app.json / object name longer than 30 characters |
+| 2115 | AL0305 | a test codeunit name of 31 characters, one over the limit (30 compiles: tests/al-language/codeunit/TestScopeIsolationContracts.al) |
 | 0056 | AL0152 | an Option variable that repeats a member |
 | 0057 | AL0247 | a page extension of a page that does not exist |
 | 0058 | AL0345, AL0353 | a query column over a field the table lacks |
