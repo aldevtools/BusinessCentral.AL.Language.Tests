@@ -174,8 +174,9 @@ codeunit 89244 "LT SM LytInit Tests"
     procedure MissingId_DefaultLayout_FromTestMethod()
     var
         Observer: Codeunit "Probe Observer";
+        Lay: DefaultLayout;
     begin
-        asserterror Report.DefaultLayout(89269);
+        asserterror Lay := Report.DefaultLayout(89269);
         Observer.ObserveError('default');
         Observer.Finish();
     end;
