@@ -579,4 +579,62 @@ codeunit 70853 "LT P101 Array IndexOf"
         Observer.Verify();
     end;
 
+    // Writer SN (2026-10-25, runtime hand-off refuse-json-streams "IndexOf of a scalar JsonToken/JsonValue (identity)"):
+    // whether Add keeps the variable's own value object (IndexOf right after Add) and what SetValue/ReadFrom on the variable do to it.
+    [Test]
+    procedure P101_IndexOf_JsonValue_Identity()
+    var
+        Observer: Codeunit "Probe Observer";
+        A: JsonArray;
+        Jv: JsonValue;
+        Tk: JsonToken;
+        Got: JsonValue;
+    begin
+        Jv.SetValue(7);
+        A.Add(Jv);
+        Observer.Observe('right_after_add', Format(A.IndexOf(Jv)));
+        Jv.SetValue(8);
+        Observer.Observe('after_setvalue_arr', Txt(A));
+        Observer.Observe('after_setvalue_idx', Format(A.IndexOf(Jv)));
+        A.Add(Jv);
+        Jv.ReadFrom('9');
+        Observer.Observe('after_readfrom_arr', Txt(A));
+        Observer.Observe('after_readfrom_idx', Format(A.IndexOf(Jv)));
+        A.Get(0, Tk);
+        Observer.Observe('got_token_idx', Format(A.IndexOf(Tk)));
+        Got := Tk.AsValue();
+        Observer.Observe('got_value_idx', Format(A.IndexOf(Got)));
+        Got.SetValue(70);
+        Observer.Observe('got_setvalue_arr', Txt(A));
+        Observer.Observe('got_setvalue_idx', Format(A.IndexOf(Got)));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure P101_IndexOf_JsonToken_Identity()
+    var
+        Observer: Codeunit "Probe Observer";
+        A: JsonArray;
+        Tk: JsonToken;
+        Tk2: JsonToken;
+        Jo: JsonObject;
+    begin
+        Tk.ReadFrom('5');
+        A.Add(Tk);
+        Observer.Observe('scalar_right_after_add', Format(A.IndexOf(Tk)));
+        Tk2 := Tk;
+        Observer.Observe('scalar_copy_idx', Format(A.IndexOf(Tk2)));
+        Observer.Observe('scalar_asvalue_idx', Format(A.IndexOf(Tk.AsValue())));
+        Tk.ReadFrom('{"x":1}');
+        A.Add(Tk);
+        Observer.Observe('object_right_after_add', Format(A.IndexOf(Tk)));
+        Jo := Tk.AsObject();
+        Observer.Observe('object_asobject_idx', Format(A.IndexOf(Jo)));
+        Jo.Add('y', 2);
+        Observer.Observe('object_after_change_arr', Txt(A));
+        A.Get(0, Tk2);
+        Observer.Observe('get0_idx', Format(A.IndexOf(Tk2)));
+        Observer.Observe('get0_value_idx', Format(A.IndexOf(Tk2.AsValue())));
+        Observer.Finish();
+    end;
 }

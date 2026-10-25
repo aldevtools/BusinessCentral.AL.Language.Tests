@@ -194,4 +194,105 @@ codeunit 74315 "LT P166 Json Token Stream"
         Observer.Expect('empty_isNull', 'Yes');
         Observer.Verify();
     end;
+
+    // Writer SN (2026-10-25, runtime hand-off refuse-json-streams "JsonValue.ReadFrom(InStream) of 5 / null into a fresh vs a filled JsonValue"):
+    // P101Streams.al:117/:126 read '42' and 'null' into a JsonValue that already holds a value; JsonValue_ReadFromStream_Scalars reads into a fresh one.
+    local procedure ReadValueInto(var Observer: Codeunit "Probe Observer"; Name: Text; Prefill: Integer; Value: Text; WithEncoding: Boolean)
+    var
+        TempBlob: Codeunit "Temp Blob";
+        InS: InStream;
+        Val: JsonValue;
+        Result: Boolean;
+        Text: Text;
+        Passed: Boolean;
+    begin
+        case Prefill of
+            1:
+                Val.SetValue('hello');
+            2:
+                Val.SetValue(7);
+            3:
+                Val.SetValueToNull();
+            4:
+                Val.ReadFrom('8');
+        end;
+        Fill(TempBlob, Value, 0);
+        if WithEncoding then
+            TempBlob.CreateInStream(InS, TextEncoding::UTF8)
+        else
+            TempBlob.CreateInStream(InS);
+        Passed := TryReadValue(InS, Val, Result);
+        Observer.Observe(Name + '_noError', Format(Passed));
+        if Passed then begin
+            Observer.Observe(Name + '_result', Format(Result));
+            Val.WriteTo(Text);
+            Observer.Observe(Name + '_json', Text);
+            Observer.Observe(Name + '_isNull', Format(Val.IsNull()));
+        end else
+            Observer.ObserveError(Name);
+    end;
+
+    [Test]
+    procedure JsonValue_ReadFromStream_IntoValueHoldingText()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ReadValueInto(Observer, 'number', 1, '5', true);
+        ReadValueInto(Observer, 'null', 1, 'null', true);
+        ReadValueInto(Observer, 'string', 1, '"s"', true);
+        ReadValueInto(Observer, 'true', 1, 'true', true);
+        ReadValueInto(Observer, 'number_noenc', 1, '42', false);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure JsonValue_ReadFromStream_IntoValueHoldingNumberOrNull()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ReadValueInto(Observer, 'num_number', 2, '5', true);
+        ReadValueInto(Observer, 'num_string', 2, '"s"', true);
+        ReadValueInto(Observer, 'null_number', 3, '5', true);
+        ReadValueInto(Observer, 'null_null', 3, 'null', true);
+        ReadValueInto(Observer, 'read_number', 4, '5', true);
+        ReadValueInto(Observer, 'read_null', 4, 'null', true);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure JsonValue_ReadFromStream_FreshWithoutEncoding()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ReadValueInto(Observer, 'number', 0, '42', false);
+        ReadValueInto(Observer, 'null', 0, 'null', false);
+        ReadValueInto(Observer, 'string', 0, '"s"', false);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure JsonValue_ReadFromStream_TwiceIntoSameValue()
+    var
+        Observer: Codeunit "Probe Observer";
+        TempBlob: Codeunit "Temp Blob";
+        InS: InStream;
+        Val: JsonValue;
+        Text: Text;
+    begin
+        Fill(TempBlob, '5', 0);
+        TempBlob.CreateInStream(InS, TextEncoding::UTF8);
+        Observer.Observe('first', Format(Val.ReadFrom(InS)));
+        Fill(TempBlob, '6', 0);
+        TempBlob.CreateInStream(InS, TextEncoding::UTF8);
+        Observer.Observe('second', Format(Val.ReadFrom(InS)));
+        Val.WriteTo(Text);
+        Observer.Observe('json', Text);
+        Clear(Val);
+        Fill(TempBlob, '7', 0);
+        TempBlob.CreateInStream(InS, TextEncoding::UTF8);
+        Observer.Observe('after_clear', Format(Val.ReadFrom(InS)));
+        Val.WriteTo(Text);
+        Observer.Observe('json_after_clear', Text);
+        Observer.Finish();
+    end;
 }
