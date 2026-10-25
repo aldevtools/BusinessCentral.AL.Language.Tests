@@ -201,7 +201,13 @@ codeunit 89276 "LT SN AE Tests"
         Observer.Observe('set_value', Pg.NameCtl.Value());
         Pg.Close();
         Observer.Observe('close', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open', 'OnAfterGetRecord(A);OnAfterGetCurrRecord(A);OnAfterGetRecord(A);OnAfterGetCurrRecord(A);OnAfterGetRecord(B);OnAfterGetCurrRecord(B)');
+        Observer.Expect('field', 'OnAssistEdit(Name);OnAfterGetRecord(B);OnAfterGetCurrRecord(B)');
+        Observer.Expect('var', 'OnAssistEdit(Var);OnAfterGetRecord(B);OnAfterGetCurrRecord(B)');
+        Observer.Expect('set', 'OnAssistEdit(Set)');
+        Observer.Expect('set_value', 'assisted');
+        Observer.Expect('close', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -223,7 +229,13 @@ codeunit 89276 "LT SN AE Tests"
         Observer.Observe('set_value', Pg.NameCtl.Value());
         Pg.Close();
         Observer.Observe('close', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open', 'OnAfterGetRecord(A);OnAfterGetRecord(B);OnAfterGetRecord(A);OnAfterGetRecord(A);OnAfterGetCurrRecord(A);OnAfterGetRecord(B);OnAfterGetRecord(B);OnAfterGetCurrRecord(B)');
+        Observer.Expect('field', 'OnAssistEdit(Name);OnAfterGetRecord(B);OnAfterGetCurrRecord(B)');
+        Observer.Expect('var', 'OnAssistEdit(Var);OnAfterGetRecord(B);OnAfterGetCurrRecord(B)');
+        Observer.Expect('set', 'OnAssistEdit(Set)');
+        Observer.Expect('set_value', 'assisted');
+        Observer.Expect('close', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -241,6 +253,9 @@ codeunit 89276 "LT SN AE Tests"
         Pg.VarCtl.AssistEdit();
         Observer.Observe('var', Log.Take());
         Pg.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'OnAfterGetRecord(A);OnAfterGetRecord(B);OnAfterGetRecord(A);OnAfterGetRecord(A);OnAfterGetCurrRecord(A)');
+        Observer.Expect('field', 'OnAssistEdit(Name);OnAfterGetRecord(A);OnAfterGetCurrRecord(A)');
+        Observer.Expect('var', 'OnAssistEdit(Var);OnAfterGetRecord(A);OnAfterGetCurrRecord(A)');
+        Observer.Verify();
     end;
 }

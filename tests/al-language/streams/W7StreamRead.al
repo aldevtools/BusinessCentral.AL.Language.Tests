@@ -347,7 +347,22 @@ codeunit 68554 "W7 Stream Read"
         ObserveLengthAndRest(Observer, 'n3', TempBlob, TextEncoding::UTF8, 3);
         ObserveLengthAndRest(Observer, 'n4', TempBlob, TextEncoding::UTF8, 4);
         ObserveLengthAndRest(Observer, 'n5', TempBlob, TextEncoding::UTF8, 5);
-        Observer.Finish();
+        Observer.Expect('n1 returned', '2 97 eos No');
+        Observer.Expect('n1 rest', '7 233 8364 98');
+        Observer.Expect('n1 next byte', '“');
+        Observer.Expect('n2 returned', '4 97 233 eos No');
+        Observer.Expect('n2 rest', '5 8364 98');
+        Observer.Expect('n2 next byte', 'Ë');
+        Observer.Expect('n3 returned', '7 97 233 8364 eos No');
+        Observer.Expect('n3 rest', '2 98');
+        Observer.Expect('n3 next byte', 'b');
+        Observer.Expect('n4 returned', '8 97 233 8364 98 eos Yes');
+        Observer.Expect('n4 rest', '1 ');
+        Observer.Expect('n4 next byte', 'eos');
+        Observer.Expect('n5 returned', '8 97 233 8364 98 eos Yes');
+        Observer.Expect('n5 rest', '1 ');
+        Observer.Expect('n5 next byte', 'eos');
+        Observer.Verify();
     end;
 
     [Test]
@@ -364,6 +379,18 @@ codeunit 68554 "W7 Stream Read"
         ObserveLengthAndRest(Observer, 'u2', TempBlob, TextEncoding::UTF16, 2);
         ObserveLengthAndRest(Observer, 'u4', TempBlob, TextEncoding::UTF16, 4);
         ObserveLengthAndRest(Observer, 'u6', TempBlob, TextEncoding::UTF16, 6);
-        Observer.Finish();
+        Observer.Expect('u1 returned', '4 97 eos No');
+        Observer.Expect('u1 rest', '8 233 8364 98');
+        Observer.Expect('u1 next byte', 'Ò');
+        Observer.Expect('u2 returned', '6 97 233 eos No');
+        Observer.Expect('u2 rest', '6 8364 98');
+        Observer.Expect('u2 next byte', '¼');
+        Observer.Expect('u4 returned', '10 97 233 8364 98 eos Yes');
+        Observer.Expect('u4 rest', '2 ');
+        Observer.Expect('u4 next byte', 'eos');
+        Observer.Expect('u6 returned', '10 97 233 8364 98 eos Yes');
+        Observer.Expect('u6 rest', '2 ');
+        Observer.Expect('u6 next byte', 'eos');
+        Observer.Verify();
     end;
 }

@@ -359,6 +359,8 @@ codeunit 74315 "LT P166 Json Token Stream"
 
     // Writer SN: the P101Streams.al P101_ValueStreams flow (record Blob written, read, written again, then Modify) with a FRESH JsonValue
     // and the stream text read back first, to tell whether its 'number_ok' No comes from the value or from what the Blob holds.
+    // Result: CreateOutStream on a Blob field that holds data writes over its first bytes ('42ello"'), so ReadFrom fails for a fresh value too;
+    // a JsonValue that holds a value reads 5 / null like a fresh one (JsonValue_ReadFromStream_IntoValueHolding*).
     [Test]
     procedure JsonValue_ReadFromStream_RecordBlobRewritten()
     var
@@ -402,6 +404,12 @@ codeunit 74315 "LT P166 Json Token Stream"
         Blob.Data.CreateInStream(InS);
         InS.ReadText(Txt);
         Observer.Observe('stored_text', Txt);
-        Observer.Finish();
+        Observer.Expect('blob_text', '42ello"');
+        Observer.Expect('fresh_ok', 'No');
+        Observer.Expect('fresh_json', 'null');
+        Observer.Expect('held_ok', 'No');
+        Observer.Expect('held_json', '"hello"');
+        Observer.Expect('stored_text', '42ello"');
+        Observer.Verify();
     end;
 }
