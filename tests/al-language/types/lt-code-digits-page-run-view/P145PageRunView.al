@@ -226,40 +226,18 @@ codeunit 74925 "LT P145 Page Run View"
     // ---- writer SF (al-runtime-rs assumption page-run-record-view-order-applies): Page.Run(Page, Rec) on List B (view sorting(Grp, Qty)
     //      order(descending)) and on List C (view sorting(Qty) order(ascending)) with records ascending and descending. ----
 
-    local procedure SfRunB(var Row: Record "LT P145 Row"; WithRecord: Boolean): Text
-    var
-        Log: Codeunit "LT P145 Log Mgt";
-    begin
-        Seed();
-        Log.Clear();
-        if WithRecord then
-            Page.Run(Page::"LT P145 List B", Row)
-        else
-            Page.Run(Page::"LT P145 List B");
-        exit(Log.Dump());
-    end;
-
-    local procedure SfRunC(var Row: Record "LT P145 Row"; WithRecord: Boolean): Text
-    var
-        Log: Codeunit "LT P145 Log Mgt";
-    begin
-        Seed();
-        Log.Clear();
-        if WithRecord then
-            Page.Run(Page::"LT SF P145 List C", Row)
-        else
-            Page.Run(Page::"LT SF P145 List C");
-        exit(Log.Dump());
-    end;
-
     [Test]
     [HandlerFunctions('ListBHandler')]
     procedure SF_B_NoRecordArgument()
     var
         Observer: Codeunit "Probe Observer";
+        Log: Codeunit "LT P145 Log Mgt";
         Row: Record "LT P145 Row";
     begin
-        Observer.Observe('log', SfRunB(Row, false));
+        Seed();
+        Log.Clear();
+        Page.Run(Page::"LT P145 List B");
+        Observer.Observe('log', Log.Dump());
         Observer.Finish();
     end;
 
@@ -268,9 +246,13 @@ codeunit 74925 "LT P145 Page Run View"
     procedure SF_B_EmptyRecord()
     var
         Observer: Codeunit "Probe Observer";
+        Log: Codeunit "LT P145 Log Mgt";
         Row: Record "LT P145 Row";
     begin
-        Observer.Observe('log', SfRunB(Row, true));
+        Seed();
+        Log.Clear();
+        Page.Run(Page::"LT P145 List B", Row);
+        Observer.Observe('log', Log.Dump());
         Observer.Finish();
     end;
 
@@ -279,11 +261,15 @@ codeunit 74925 "LT P145 Page Run View"
     procedure SF_B_RecViewKeyAscending()
     var
         Observer: Codeunit "Probe Observer";
+        Log: Codeunit "LT P145 Log Mgt";
         Row: Record "LT P145 Row";
     begin
         Row.SetCurrentKey(Grp, Qty);
         Row.Ascending(true);
-        Observer.Observe('log', SfRunB(Row, true));
+        Seed();
+        Log.Clear();
+        Page.Run(Page::"LT P145 List B", Row);
+        Observer.Observe('log', Log.Dump());
         Observer.Finish();
     end;
 
@@ -292,11 +278,15 @@ codeunit 74925 "LT P145 Page Run View"
     procedure SF_B_RecViewKeyDescending()
     var
         Observer: Codeunit "Probe Observer";
+        Log: Codeunit "LT P145 Log Mgt";
         Row: Record "LT P145 Row";
     begin
         Row.SetCurrentKey(Grp, Qty);
         Row.Ascending(false);
-        Observer.Observe('log', SfRunB(Row, true));
+        Seed();
+        Log.Clear();
+        Page.Run(Page::"LT P145 List B", Row);
+        Observer.Observe('log', Log.Dump());
         Observer.Finish();
     end;
 
@@ -305,11 +295,15 @@ codeunit 74925 "LT P145 Page Run View"
     procedure SF_B_RecOtherKeyAscending()
     var
         Observer: Codeunit "Probe Observer";
+        Log: Codeunit "LT P145 Log Mgt";
         Row: Record "LT P145 Row";
     begin
         Row.SetCurrentKey(Qty);
         Row.Ascending(true);
-        Observer.Observe('log', SfRunB(Row, true));
+        Seed();
+        Log.Clear();
+        Page.Run(Page::"LT P145 List B", Row);
+        Observer.Observe('log', Log.Dump());
         Observer.Finish();
     end;
 
@@ -318,10 +312,14 @@ codeunit 74925 "LT P145 Page Run View"
     procedure SF_B_RecFilterAscending()
     var
         Observer: Codeunit "Probe Observer";
+        Log: Codeunit "LT P145 Log Mgt";
         Row: Record "LT P145 Row";
     begin
         Row.SetRange(Grp, 'A');
-        Observer.Observe('log', SfRunB(Row, true));
+        Seed();
+        Log.Clear();
+        Page.Run(Page::"LT P145 List B", Row);
+        Observer.Observe('log', Log.Dump());
         Observer.Finish();
     end;
 
@@ -330,9 +328,13 @@ codeunit 74925 "LT P145 Page Run View"
     procedure SF_C_NoRecordArgument()
     var
         Observer: Codeunit "Probe Observer";
+        Log: Codeunit "LT P145 Log Mgt";
         Row: Record "LT P145 Row";
     begin
-        Observer.Observe('log', SfRunC(Row, false));
+        Seed();
+        Log.Clear();
+        Page.Run(Page::"LT SF P145 List C");
+        Observer.Observe('log', Log.Dump());
         Observer.Finish();
     end;
 
@@ -341,11 +343,15 @@ codeunit 74925 "LT P145 Page Run View"
     procedure SF_C_RecViewKeyDescending()
     var
         Observer: Codeunit "Probe Observer";
+        Log: Codeunit "LT P145 Log Mgt";
         Row: Record "LT P145 Row";
     begin
         Row.SetCurrentKey(Qty);
         Row.Ascending(false);
-        Observer.Observe('log', SfRunC(Row, true));
+        Seed();
+        Log.Clear();
+        Page.Run(Page::"LT SF P145 List C", Row);
+        Observer.Observe('log', Log.Dump());
         Observer.Finish();
     end;
 
@@ -354,10 +360,14 @@ codeunit 74925 "LT P145 Page Run View"
     procedure SF_C_RecPrimaryKeyDescending()
     var
         Observer: Codeunit "Probe Observer";
+        Log: Codeunit "LT P145 Log Mgt";
         Row: Record "LT P145 Row";
     begin
         Row.Ascending(false);
-        Observer.Observe('log', SfRunC(Row, true));
+        Seed();
+        Log.Clear();
+        Page.Run(Page::"LT SF P145 List C", Row);
+        Observer.Observe('log', Log.Dump());
         Observer.Finish();
     end;
 

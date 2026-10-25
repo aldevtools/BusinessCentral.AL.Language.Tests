@@ -848,7 +848,8 @@ codeunit 79590 "LT AO TestPage Probes"
         Host.OpenView();
         Observer.Observe('rows', SfPartIds(Host, true));
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('rows', '1,4,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -861,7 +862,8 @@ codeunit 79590 "LT AO TestPage Probes"
         Host.OpenView();
         Observer.Observe('rows', SfPartIds(Host, false));
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('rows', '1,4,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -875,7 +877,9 @@ codeunit 79590 "LT AO TestPage Probes"
         Observer.Observe('rows', SfPartIds(Host, true));
         Observer.Observe('rows_filter', SfPartIds(Host, false));
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('rows', '1,4,0,');
+        Observer.Expect('rows_filter', '1,4,0,');
+        Observer.Verify();
     end;
 
     // ---- writer SF (assumption testfilter-setfilter-empty-clears, request page): the filter 'A' alone, to compare with item 15 ----
@@ -904,7 +908,8 @@ codeunit 79590 "LT AO TestPage Probes"
         Commit();
         Report.Run(Report::"LT AO Rpt");
         Observer.Observe('log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('log', 'rp=[A];pre filter=A count=1;');
+        Observer.Verify();
     end;
 
     // The space form of item 15 with a second space: '  '.
@@ -915,7 +920,8 @@ codeunit 79590 "LT AO TestPage Probes"
         Observer: Codeunit "Probe Observer";
     begin
         ReqFilterReset(Observer, '  ');
-        Observer.Finish();
+        Observer.Expect('log', 'rp=[A];pre filter= count=3;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -924,6 +930,9 @@ codeunit 79590 "LT AO TestPage Probes"
         Observer: Codeunit "Probe Observer";
     begin
         ListFilterReset(Observer, '  ');
-        Observer.Finish();
+        Observer.Expect('a', '2,');
+        Observer.Expect('flt', '[]');
+        Observer.Expect('rows', '1,2,3,');
+        Observer.Verify();
     end;
 }

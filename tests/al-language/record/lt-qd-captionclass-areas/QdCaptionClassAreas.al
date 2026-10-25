@@ -1182,22 +1182,57 @@ codeunit 86504 "LT QD CaptionClass Areas"
         exit('total0=' + Format(Total) + ' per=' + Result);
     end;
 
-    // The same open five times in one test: the number of empty-record calls each open makes.
+    // Folds SfCounts of one open against the first open of the test: whether it made empty-record calls, whether every field ran the same
+    // number of times, and whether the counts equal those of the first open.
+    local procedure SfStable(Counts: Text; FirstCounts: Text): Text
+    var
+        Part: Text;
+        PerText: Text;
+        Count: Text;
+        First: Text;
+        Same: Boolean;
+    begin
+        PerText := CopyStr(Counts, Counts.IndexOf(' per=') + 5);
+        Same := true;
+        foreach Part in PerText.Split(',') do
+            if Part <> '' then begin
+                Count := CopyStr(Part, Part.IndexOf(':') + 1);
+                if First = '' then
+                    First := Count;
+                if Count <> First then
+                    Same := false;
+            end;
+        exit('empty>0=' + Format(PerText <> '') + ' same=' + Format(Same) + ' as_open1=' + Format(Counts = FirstCounts));
+    end;
+
+    // The same open five times in one test. The counts seen on the corpus CI (27.5, 28.5, 29.0, writer SF): every field 20 times for
+    // the Card (240 calls), 9 times for the List (108), 10 times for the Document page (30); the same in all five opens. They are not
+    // asserted: other runs counted 480 and 492 for the same Card open (QO_Count_CardOpenThreeTimes header), so only the stable form is.
     [Test]
     procedure SF_Count_CardOpenViewFiveTimes()
     var
         Observer: Codeunit "Probe Observer";
         P: TestPage "LT QD Cap Card";
         Round: Integer;
+        Counts: Text;
+        FirstCounts: Text;
     begin
         QfSeedTwo();
         for Round := 1 to 5 do begin
             P.OpenView();
-            Observer.Observe('open' + Format(Round), SfCounts(Log.Take()));
+            Counts := SfCounts(Log.Take());
+            if Round = 1 then
+                FirstCounts := Counts;
+            Observer.Observe('open' + Format(Round), SfStable(Counts, FirstCounts));
             P.Close();
             Log.Take();
         end;
-        Observer.Finish();
+        Observer.Expect('open1', 'empty>0=Yes same=Yes as_open1=Yes');
+        Observer.Expect('open2', 'empty>0=Yes same=Yes as_open1=Yes');
+        Observer.Expect('open3', 'empty>0=Yes same=Yes as_open1=Yes');
+        Observer.Expect('open4', 'empty>0=Yes same=Yes as_open1=Yes');
+        Observer.Expect('open5', 'empty>0=Yes same=Yes as_open1=Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1206,15 +1241,25 @@ codeunit 86504 "LT QD CaptionClass Areas"
         Observer: Codeunit "Probe Observer";
         P: TestPage "LT QF Cap List";
         Round: Integer;
+        Counts: Text;
+        FirstCounts: Text;
     begin
         QfSeedTwo();
         for Round := 1 to 5 do begin
             P.OpenView();
-            Observer.Observe('open' + Format(Round), SfCounts(Log.Take()));
+            Counts := SfCounts(Log.Take());
+            if Round = 1 then
+                FirstCounts := Counts;
+            Observer.Observe('open' + Format(Round), SfStable(Counts, FirstCounts));
             P.Close();
             Log.Take();
         end;
-        Observer.Finish();
+        Observer.Expect('open1', 'empty>0=Yes same=Yes as_open1=Yes');
+        Observer.Expect('open2', 'empty>0=Yes same=Yes as_open1=Yes');
+        Observer.Expect('open3', 'empty>0=Yes same=Yes as_open1=Yes');
+        Observer.Expect('open4', 'empty>0=Yes same=Yes as_open1=Yes');
+        Observer.Expect('open5', 'empty>0=Yes same=Yes as_open1=Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1223,15 +1268,25 @@ codeunit 86504 "LT QD CaptionClass Areas"
         Observer: Codeunit "Probe Observer";
         H: TestPage "LT QO Cap Doc";
         Round: Integer;
+        Counts: Text;
+        FirstCounts: Text;
     begin
         QoSeedDocs();
         for Round := 1 to 5 do begin
             H.OpenEdit();
-            Observer.Observe('open' + Format(Round), SfCounts(Log.Take()));
+            Counts := SfCounts(Log.Take());
+            if Round = 1 then
+                FirstCounts := Counts;
+            Observer.Observe('open' + Format(Round), SfStable(Counts, FirstCounts));
             H.Close();
             Log.Take();
         end;
-        Observer.Finish();
+        Observer.Expect('open1', 'empty>0=Yes same=Yes as_open1=Yes');
+        Observer.Expect('open2', 'empty>0=Yes same=Yes as_open1=Yes');
+        Observer.Expect('open3', 'empty>0=Yes same=Yes as_open1=Yes');
+        Observer.Expect('open4', 'empty>0=Yes same=Yes as_open1=Yes');
+        Observer.Expect('open5', 'empty>0=Yes same=Yes as_open1=Yes');
+        Observer.Verify();
     end;
 
     // An action with CurrPage.Update() on the Document page without a SetValue before it, twice.
@@ -1252,7 +1307,14 @@ codeunit 86504 "LT QD CaptionClass Areas"
         QoStep(Observer, 'update2');
         H.Close();
         QoStep(Observer, 'close');
-        Observer.Finish();
+        Observer.Expect('update1', 'empty>0=No fields0= same=Yes rest=60@1;60@1;70@1;71@1;');
+        Observer.Expect('update1_head', 'Head 1');
+        Observer.Expect('update1_head_calls', '');
+        Observer.Expect('update1_exprA', 'Line 1');
+        Observer.Expect('update1_exprA_calls', '');
+        Observer.Expect('update2', 'empty>0=No fields0= same=Yes rest=60@1;60@1;70@1;71@1;');
+        Observer.Expect('close', 'empty>0=No fields0= same=Yes rest=');
+        Observer.Verify();
     end;
 
     // A host SetValue, then an action whose trigger has no CurrPage.Update, then an action with CurrPage.Update.
@@ -1274,7 +1336,13 @@ codeunit 86504 "LT QD CaptionClass Areas"
         QoStep(Observer, 'update_after');
         H.Close();
         QoStep(Observer, 'close');
-        Observer.Finish();
+        Observer.Expect('host_setvalue', 'empty>0=No fields0= same=Yes rest=');
+        Observer.Expect('action_no_update', 'empty>0=No fields0= same=Yes rest=60@1;60@1;60@1;70@1;71@1;');
+        Observer.Expect('action_exprA', 'Line 1');
+        Observer.Expect('action_exprA_calls', '');
+        Observer.Expect('update_after', 'empty>0=No fields0= same=Yes rest=60@1;60@1;70@1;71@1;');
+        Observer.Expect('close', 'empty>0=No fields0= same=Yes rest=');
+        Observer.Verify();
     end;
 
     // An action without CurrPage.Update and no SetValue before it.
@@ -1291,7 +1359,9 @@ codeunit 86504 "LT QD CaptionClass Areas"
         QoStep(Observer, 'action_no_update');
         H.Close();
         QoStep(Observer, 'close');
-        Observer.Finish();
+        Observer.Expect('action_no_update', 'empty>0=No fields0= same=Yes rest=60@1;60@1;70@1;71@1;');
+        Observer.Expect('close', 'empty>0=No fields0= same=Yes rest=');
+        Observer.Verify();
     end;
 
     // A SetValue on the part, then the host's action with CurrPage.Update().
@@ -1310,7 +1380,10 @@ codeunit 86504 "LT QD CaptionClass Areas"
         QoStep(Observer, 'update');
         H.Close();
         QoStep(Observer, 'close');
-        Observer.Finish();
+        Observer.Expect('part_setvalue', 'empty>0=No fields0= same=Yes rest=');
+        Observer.Expect('update', 'empty>0=No fields0= same=Yes rest=70@1;71@1;60@1;60@1;70@1;71@1;');
+        Observer.Expect('close', 'empty>0=No fields0= same=Yes rest=');
+        Observer.Verify();
     end;
 
     // The same action on a Document page opened with OpenView.
@@ -1327,7 +1400,10 @@ codeunit 86504 "LT QD CaptionClass Areas"
         QoStep(Observer, 'update');
         H.Close();
         QoStep(Observer, 'close');
-        Observer.Finish();
+        Observer.Expect('open', 'empty>0=Yes fields0=60,70,71, same=Yes rest=60@1;70@1;71@1;');
+        Observer.Expect('update', 'empty>0=No fields0= same=Yes rest=60@1;60@1;70@1;71@1;');
+        Observer.Expect('close', 'empty>0=No fields0= same=Yes rest=');
+        Observer.Verify();
     end;
 
     // Other open modes: OpenNew of the Card and of the List.
@@ -1343,7 +1419,11 @@ codeunit 86504 "LT QD CaptionClass Areas"
         Cap(Observer, 'exprId', QfNoCall(P.ExprId.Caption()));
         P.Close();
         QoStep(Observer, 'close');
-        Observer.Finish();
+        Observer.Expect('open', 'empty>0=Yes fields0=20,21,22,23,24,25,26,27,28,29,30,31, same=No rest=');
+        Observer.Expect('exprId', 'Id 0');
+        Observer.Expect('exprId_calls', '');
+        Observer.Expect('close', 'empty>0=No fields0= same=Yes rest=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1358,7 +1438,11 @@ codeunit 86504 "LT QD CaptionClass Areas"
         Cap(Observer, 'exprId', QfNoCall(P.ExprId.Caption()));
         P.Close();
         QoStep(Observer, 'close');
-        Observer.Finish();
+        Observer.Expect('open', 'empty>0=Yes fields0=20,21,22,23,24,25,26,27,28,29,30,31, same=No rest=');
+        Observer.Expect('exprId', 'Id 0');
+        Observer.Expect('exprId_calls', '');
+        Observer.Expect('close', 'empty>0=No fields0= same=Yes rest=');
+        Observer.Verify();
     end;
 }
 

@@ -474,7 +474,12 @@ codeunit 70377 "LT STV Tests"
         Observer: Codeunit "Probe Observer";
     begin
         SfRun(Observer, 'C', 1, true, false);
-        Observer.Finish();
+        Observer.Expect('viewPosition', 'E');
+        Observer.Expect('onOpenPage', 'no=C grp=1 filters=Grp: 1');
+        Observer.Expect('currentRow', 'C');
+        Observer.Expect('rows', '4');
+        Observer.Expect('seen', '[A][C][E][]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -484,7 +489,12 @@ codeunit 70377 "LT STV Tests"
         Observer: Codeunit "Probe Observer";
     begin
         SfRun(Observer, 'C', 1, false, false);
-        Observer.Finish();
+        Observer.Expect('viewPosition', 'E');
+        Observer.Expect('onOpenPage', 'no=C grp=1 filters=Grp: 1');
+        Observer.Expect('currentRow', 'C');
+        Observer.Expect('rows', '4');
+        Observer.Expect('seen', '[A][C][E][]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -494,7 +504,12 @@ codeunit 70377 "LT STV Tests"
         Observer: Codeunit "Probe Observer";
     begin
         SfRun(Observer, 'B', 1, true, false);
-        Observer.Finish();
+        Observer.Expect('viewPosition', 'E');
+        Observer.Expect('onOpenPage', 'no=B grp=2 filters=Grp: 1');
+        Observer.Expect('currentRow', 'C');
+        Observer.Expect('rows', '4');
+        Observer.Expect('seen', '[A][C][E][]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -504,7 +519,12 @@ codeunit 70377 "LT STV Tests"
         Observer: Codeunit "Probe Observer";
     begin
         SfRun(Observer, 'B', 1, false, false);
-        Observer.Finish();
+        Observer.Expect('viewPosition', 'E');
+        Observer.Expect('onOpenPage', 'no=B grp=2 filters=Grp: 1');
+        Observer.Expect('currentRow', 'C');
+        Observer.Expect('rows', '4');
+        Observer.Expect('seen', '[A][C][E][]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -514,7 +534,12 @@ codeunit 70377 "LT STV Tests"
         Observer: Codeunit "Probe Observer";
     begin
         SfRun(Observer, 'C', 1, true, true);
-        Observer.Finish();
+        Observer.Expect('viewPosition', 'E');
+        Observer.Expect('onOpenPage', 'no=C grp=1 filters=Grp: 1');
+        Observer.Expect('currentRow', 'C');
+        Observer.Expect('rows', '0');
+        Observer.Expect('seen', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -524,7 +549,12 @@ codeunit 70377 "LT STV Tests"
         Observer: Codeunit "Probe Observer";
     begin
         SfRun(Observer, 'C', 1, false, true);
-        Observer.Finish();
+        Observer.Expect('viewPosition', 'E');
+        Observer.Expect('onOpenPage', 'no=C grp=1 filters=Grp: 1');
+        Observer.Expect('currentRow', 'C');
+        Observer.Expect('rows', '0');
+        Observer.Expect('seen', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -534,7 +564,12 @@ codeunit 70377 "LT STV Tests"
         Observer: Codeunit "Probe Observer";
     begin
         SfRun(Observer, 'B', 1, true, true);
-        Observer.Finish();
+        Observer.Expect('viewPosition', 'E');
+        Observer.Expect('onOpenPage', 'no=B grp=2 filters=Grp: 1');
+        Observer.Expect('currentRow', 'C');
+        Observer.Expect('rows', '0');
+        Observer.Expect('seen', '');
+        Observer.Verify();
     end;
 
     // Page.Run (not modal) of the page variable, trapped.
@@ -558,7 +593,9 @@ codeunit 70377 "LT STV Tests"
         Observer.Observe('onOpenPage', TP.OpenRec.Value());
         Observer.Observe('currentRow', TP.RowNo.Value());
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('onOpenPage', 'no=C grp=1 filters=Grp: 1');
+        Observer.Expect('currentRow', 'C');
+        Observer.Verify();
     end;
 
     [ModalPageHandler]

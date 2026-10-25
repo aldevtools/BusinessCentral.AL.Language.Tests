@@ -488,7 +488,13 @@ codeunit 68735 "W2 Update Tests"
         Observer: Codeunit "Probe Observer";
     begin
         SfListUpdate(Observer, 1, 10);
-        Observer.Finish();
+        Observer.Expect('goto', 'Yes');
+        Observer.Expect('after_action', 'AGR(10);Find(=>);AGR(10);Next(1)=0;Next(-1)=0;Find(=);AGR(10);AGCR(10);');
+        Observer.Expect('id_after', '10');
+        Observer.Expect('next', 'Yes');
+        Observer.Expect('id_next', '0');
+        Observer.Expect('next_trace', 'AGCR(0);');
+        Observer.Verify();
     end;
 
     [Test]
@@ -497,7 +503,13 @@ codeunit 68735 "W2 Update Tests"
         Observer: Codeunit "Probe Observer";
     begin
         SfListUpdate(Observer, 2, 10);
-        Observer.Finish();
+        Observer.Expect('goto', 'Yes');
+        Observer.Expect('after_action', 'AGR(10);Find(=>);AGR(10);Next(1)=1;AGR(20);Next(1)=0;AGR(10);Next(-1)=0;Find(=);AGR(10);AGCR(10);');
+        Observer.Expect('id_after', '10');
+        Observer.Expect('next', 'Yes');
+        Observer.Expect('id_next', '20');
+        Observer.Expect('next_trace', 'AGR(20);Find(=);AGR(20);AGCR(20);');
+        Observer.Verify();
     end;
 
     [Test]
@@ -506,7 +518,13 @@ codeunit 68735 "W2 Update Tests"
         Observer: Codeunit "Probe Observer";
     begin
         SfListUpdate(Observer, 2, 20);
-        Observer.Finish();
+        Observer.Expect('goto', 'Yes');
+        Observer.Expect('after_action', 'AGR(20);Find(=>);AGR(20);Next(1)=0;Next(-1)=-1;AGR(10);Next(-1)=0;AGR(20);Find(=);AGR(20);AGCR(20);');
+        Observer.Expect('id_after', '20');
+        Observer.Expect('next', 'Yes');
+        Observer.Expect('id_next', '0');
+        Observer.Expect('next_trace', 'AGCR(0);');
+        Observer.Verify();
     end;
 
     [Test]
@@ -515,7 +533,13 @@ codeunit 68735 "W2 Update Tests"
         Observer: Codeunit "Probe Observer";
     begin
         SfListUpdate(Observer, 5, 10);
-        Observer.Finish();
+        Observer.Expect('goto', 'Yes');
+        Observer.Expect('after_action', 'AGR(10);Find(=>);AGR(10);Next(1)=1;AGR(20);Next(1)=1;AGR(30);Next(1)=1;AGR(40);Next(1)=1;AGR(50);Next(1)=0;AGR(10);Next(-1)=0;Find(=);AGR(10);AGCR(10);');
+        Observer.Expect('id_after', '10');
+        Observer.Expect('next', 'Yes');
+        Observer.Expect('id_next', '20');
+        Observer.Expect('next_trace', 'AGR(20);Find(=);AGR(20);AGCR(20);');
+        Observer.Verify();
     end;
 
     [Test]
@@ -524,7 +548,13 @@ codeunit 68735 "W2 Update Tests"
         Observer: Codeunit "Probe Observer";
     begin
         SfListUpdate(Observer, 5, 30);
-        Observer.Finish();
+        Observer.Expect('goto', 'Yes');
+        Observer.Expect('after_action', 'AGR(30);Find(=>);AGR(30);Next(1)=1;AGR(40);Next(1)=1;AGR(50);Next(1)=0;AGR(30);Next(-1)=-1;AGR(20);Next(-1)=-1;AGR(10);Next(-1)=0;AGR(30);Find(=);AGR(30);AGCR(30);');
+        Observer.Expect('id_after', '30');
+        Observer.Expect('next', 'Yes');
+        Observer.Expect('id_next', '40');
+        Observer.Expect('next_trace', 'AGR(40);Find(=);AGR(40);AGCR(40);');
+        Observer.Verify();
     end;
 
     [Test]
@@ -533,7 +563,13 @@ codeunit 68735 "W2 Update Tests"
         Observer: Codeunit "Probe Observer";
     begin
         SfListUpdate(Observer, 5, 50);
-        Observer.Finish();
+        Observer.Expect('goto', 'Yes');
+        Observer.Expect('after_action', 'AGR(50);Find(=>);AGR(50);Next(1)=0;Next(-1)=-1;AGR(40);Next(-1)=-1;AGR(30);Next(-1)=-1;AGR(20);Next(-1)=-1;AGR(10);Next(-1)=0;AGR(50);Find(=);AGR(50);AGCR(50);');
+        Observer.Expect('id_after', '50');
+        Observer.Expect('next', 'Yes');
+        Observer.Expect('id_next', '0');
+        Observer.Expect('next_trace', 'AGCR(0);');
+        Observer.Verify();
     end;
 
     [Test]
@@ -542,7 +578,13 @@ codeunit 68735 "W2 Update Tests"
         Observer: Codeunit "Probe Observer";
     begin
         SfListUpdate(Observer, 25, 10);
-        Observer.Finish();
+        Observer.Expect('goto', 'Yes');
+        Observer.Expect('after_action', 'AGR(10);Find(=>);AGR(10);Next(1)=1;AGR(20);Next(1)=1;AGR(30);Next(1)=1;AGR(40);Next(1)=1;AGR(50);Next(1)=1;AGR(60);Next(1)=1;AGR(70);Next(1)=1;AGR(80);Next(1)=1;AGR(90);Next(1)=1;AGR(100);Next(1)=1;AGR(110);Next(1)=1;AGR(120);Next(1)=1;AGR(130);Next(1)=1;AGR(140);Next(1)=1;AGR(150);Next(1)=1;AGR(160);Next(1)=1;AGR(170);Next(1)=1;AGR(180);Next(1)=1;AGR(190);Next(1)=1;AGR(200);AGR(10);Next(-1)=0;Find(=);AGR(10);AGCR(10);');
+        Observer.Expect('id_after', '10');
+        Observer.Expect('next', 'Yes');
+        Observer.Expect('id_next', '20');
+        Observer.Expect('next_trace', 'AGR(20);Find(=);AGR(20);AGCR(20);');
+        Observer.Verify();
     end;
 
     [Test]
@@ -551,7 +593,13 @@ codeunit 68735 "W2 Update Tests"
         Observer: Codeunit "Probe Observer";
     begin
         SfListUpdate(Observer, 25, 130);
-        Observer.Finish();
+        Observer.Expect('goto', 'Yes');
+        Observer.Expect('after_action', 'AGR(130);Find(=>);AGR(130);Next(1)=1;AGR(140);Next(1)=1;AGR(150);Next(1)=1;AGR(160);Next(1)=1;AGR(170);Next(1)=1;AGR(180);Next(1)=1;AGR(190);Next(1)=1;AGR(200);Next(1)=1;AGR(210);Next(1)=1;AGR(220);Next(1)=1;AGR(230);Next(1)=1;AGR(240);Next(1)=1;AGR(250);Next(1)=0;AGR(130);Next(-1)=-1;AGR(120);Next(-1)=-1;AGR(110);Next(-1)=-1;AGR(100);Next(-1)=-1;AGR(90);Next(-1)=-1;AGR(80);Next(-1)=-1;AGR(70);Next(-1)=-1;AGR(60);Next(-1)=-1;AGR(50);Next(-1)=-1;AGR(40);Next(-1)=-1;AGR(30);Next(-1)=-1;AGR(20);Next(-1)=-1;AGR(10);Next(-1)=0;AGR(130);Find(=);AGR(130);AGCR(130);');
+        Observer.Expect('id_after', '130');
+        Observer.Expect('next', 'Yes');
+        Observer.Expect('id_next', '140');
+        Observer.Expect('next_trace', 'AGR(140);Find(=);AGR(140);AGCR(140);');
+        Observer.Verify();
     end;
 
     [Test]
@@ -560,7 +608,13 @@ codeunit 68735 "W2 Update Tests"
         Observer: Codeunit "Probe Observer";
     begin
         SfListUpdate(Observer, 25, 250);
-        Observer.Finish();
+        Observer.Expect('goto', 'Yes');
+        Observer.Expect('after_action', 'AGR(250);Find(=>);AGR(250);Next(1)=0;Next(-1)=-1;AGR(240);Next(-1)=-1;AGR(230);Next(-1)=-1;AGR(220);Next(-1)=-1;AGR(210);Next(-1)=-1;AGR(200);Next(-1)=-1;AGR(190);Next(-1)=-1;AGR(180);Next(-1)=-1;AGR(170);Next(-1)=-1;AGR(160);Next(-1)=-1;AGR(150);Next(-1)=-1;AGR(140);Next(-1)=-1;AGR(130);Next(-1)=-1;AGR(120);Next(-1)=-1;AGR(110);Next(-1)=-1;AGR(100);Next(-1)=-1;AGR(90);Next(-1)=-1;AGR(80);Next(-1)=-1;AGR(70);Next(-1)=-1;AGR(60);Next(-1)=-1;AGR(50);AGR(250);AGR(50);Next(-1)=-1;AGR(40);Next(-1)=-1;AGR(30);Next(-1)=-1;AGR(20);Next(-1)=-1;AGR(10);Next(-1)=0;AGR(250);Find(=);AGR(250);AGCR(250);');
+        Observer.Expect('id_after', '250');
+        Observer.Expect('next', 'Yes');
+        Observer.Expect('id_next', '0');
+        Observer.Expect('next_trace', 'AGCR(0);');
+        Observer.Verify();
     end;
 
     // The list with OnFindRecord and no OnNextRecord.
@@ -591,7 +645,14 @@ codeunit 68735 "W2 Update Tests"
         Observer: Codeunit "Probe Observer";
     begin
         SfFindOnlyUpdate(Observer, 3, 20);
-        Observer.Finish();
+        Observer.Expect('open', 'Find(=><);AGR(10);AGR(20);AGR(30);AGR(10);Find(=);AGR(10);AGCR(10);');
+        Observer.Expect('goto', 'Yes');
+        Observer.Expect('after_action', 'AGR(20);Find(=>);AGR(20);AGR(30);AGR(20);AGR(10);AGR(20);Find(=);AGR(20);AGCR(20);');
+        Observer.Expect('id_after', '20');
+        Observer.Expect('next', 'Yes');
+        Observer.Expect('id_next', '30');
+        Observer.Expect('next_trace', 'AGR(30);Find(=);AGR(30);AGCR(30);');
+        Observer.Verify();
     end;
 
     [Test]
@@ -600,7 +661,14 @@ codeunit 68735 "W2 Update Tests"
         Observer: Codeunit "Probe Observer";
     begin
         SfFindOnlyUpdate(Observer, 5, 10);
-        Observer.Finish();
+        Observer.Expect('open', 'Find(=><);AGR(10);AGR(20);AGR(30);AGR(40);AGR(50);AGR(10);Find(=);AGR(10);AGCR(10);');
+        Observer.Expect('goto', 'Yes');
+        Observer.Expect('after_action', 'AGR(10);Find(=>);AGR(10);AGR(20);AGR(30);AGR(40);AGR(50);AGR(10);Find(=);AGR(10);AGCR(10);');
+        Observer.Expect('id_after', '10');
+        Observer.Expect('next', 'Yes');
+        Observer.Expect('id_next', '20');
+        Observer.Expect('next_trace', 'AGR(20);Find(=);AGR(20);AGCR(20);');
+        Observer.Verify();
     end;
 
     [Test]
@@ -609,7 +677,14 @@ codeunit 68735 "W2 Update Tests"
         Observer: Codeunit "Probe Observer";
     begin
         SfFindOnlyUpdate(Observer, 25, 250);
-        Observer.Finish();
+        Observer.Expect('open', 'Find(=><);AGR(10);AGR(20);AGR(30);AGR(40);AGR(50);AGR(60);AGR(70);AGR(80);AGR(90);AGR(100);AGR(110);AGR(120);AGR(130);AGR(140);AGR(150);AGR(160);AGR(170);AGR(180);AGR(190);AGR(200);AGR(10);Find(=);AGR(10);AGCR(10);');
+        Observer.Expect('goto', 'Yes');
+        Observer.Expect('after_action', 'AGR(250);Find(=>);AGR(250);AGR(240);AGR(230);AGR(220);AGR(210);AGR(200);AGR(190);AGR(180);AGR(170);AGR(160);AGR(150);AGR(140);AGR(130);AGR(120);AGR(110);AGR(100);AGR(90);AGR(80);AGR(70);AGR(60);AGR(50);AGR(250);AGR(50);AGR(40);AGR(30);AGR(20);AGR(10);AGR(250);Find(=);AGR(250);AGCR(250);');
+        Observer.Expect('id_after', '250');
+        Observer.Expect('next', 'Yes');
+        Observer.Expect('id_next', '0');
+        Observer.Expect('next_trace', 'AGCR(0);');
+        Observer.Verify();
     end;
 
     // A list part (OnFindRecord and OnNextRecord) on a card: the part's own action calls CurrPage.Update(false).
@@ -640,7 +715,14 @@ codeunit 68735 "W2 Update Tests"
         Observer: Codeunit "Probe Observer";
     begin
         SfPartUpdate(Observer, 3, 20);
-        Observer.Finish();
+        Observer.Expect('open', 'Find(=><);AGR(10);Next(1)=1;AGR(20);Next(1)=1;AGR(30);Next(1)=0;AGR(10);Next(-1)=0;Find(=);AGR(10);AGCR(10);');
+        Observer.Expect('goto', 'Yes');
+        Observer.Expect('after_action', 'AGR(20);Find(=>);AGR(20);Next(1)=1;AGR(30);Next(1)=0;AGR(20);Next(-1)=-1;AGR(10);Next(-1)=0;AGR(20);Find(=);AGR(20);AGCR(20);');
+        Observer.Expect('id_after', '20');
+        Observer.Expect('next', 'Yes');
+        Observer.Expect('id_next', '30');
+        Observer.Expect('next_trace', 'AGR(30);Find(=);AGR(30);AGCR(30);');
+        Observer.Verify();
     end;
 
     [Test]
@@ -649,7 +731,14 @@ codeunit 68735 "W2 Update Tests"
         Observer: Codeunit "Probe Observer";
     begin
         SfPartUpdate(Observer, 5, 50);
-        Observer.Finish();
+        Observer.Expect('open', 'Find(=><);AGR(10);Next(1)=1;AGR(20);Next(1)=1;AGR(30);Next(1)=1;AGR(40);Next(1)=1;AGR(50);Next(1)=0;AGR(10);Next(-1)=0;Find(=);AGR(10);AGCR(10);');
+        Observer.Expect('goto', 'Yes');
+        Observer.Expect('after_action', 'AGR(50);Find(=>);AGR(50);Next(1)=0;Next(-1)=-1;AGR(40);Next(-1)=-1;AGR(30);Next(-1)=-1;AGR(20);Next(-1)=-1;AGR(10);Next(-1)=0;AGR(50);Find(=);AGR(50);AGCR(50);');
+        Observer.Expect('id_after', '50');
+        Observer.Expect('next', 'Yes');
+        Observer.Expect('id_next', '0');
+        Observer.Expect('next_trace', 'AGCR(0);');
+        Observer.Verify();
     end;
 
     [TryFunction]
