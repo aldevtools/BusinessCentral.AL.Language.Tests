@@ -340,4 +340,96 @@ codeunit 74803 "LT P97 Attr Misc"
         Observer.Expect('prop12|code', 'NotInitialized');
         Observer.Verify();
     end;
+
+    // Writer SL (2026-10-25): AsXmlNode() of an unassigned variable of each node kind (prop7 above pins IsXmlAttribute for XmlAttribute):
+    // which Is* flags the node gives, and what reading it does.
+    local procedure Flags(N: XmlNode): Text
+    begin
+        exit(Format(N.IsXmlAttribute()) + ',' + Format(N.IsXmlCData()) + ',' + Format(N.IsXmlComment()) + ',' + Format(N.IsXmlDeclaration()) + ',' +
+            Format(N.IsXmlDocument()) + ',' + Format(N.IsXmlDocumentType()) + ',' + Format(N.IsXmlElement()) + ',' +
+            Format(N.IsXmlProcessingInstruction()) + ',' + Format(N.IsXmlText()));
+    end;
+
+    [TryFunction]
+    local procedure TryAsNode(Kind: Integer; var N: XmlNode)
+    var
+        A: XmlAttribute;
+        T: XmlText;
+        C: XmlCData;
+        Cm: XmlComment;
+        E: XmlElement;
+        Pi: XmlProcessingInstruction;
+        Dt: XmlDocumentType;
+        D: XmlDocument;
+    begin
+        case Kind of
+            1:
+                N := A.AsXmlNode();
+            2:
+                N := T.AsXmlNode();
+            3:
+                N := C.AsXmlNode();
+            4:
+                N := Cm.AsXmlNode();
+            5:
+                N := E.AsXmlNode();
+            6:
+                N := Pi.AsXmlNode();
+            7:
+                N := Dt.AsXmlNode();
+            8:
+                N := D.AsXmlNode();
+        end;
+    end;
+
+    [TryFunction]
+    local procedure TryUse(var N: XmlNode; Use: Integer; var R: Text)
+    var
+        S: Text;
+        P: XmlElement;
+    begin
+        case Use of
+            1:
+                begin
+                    N.WriteTo(S);
+                    R := S;
+                end;
+            2:
+                R := Format(N.GetParent(P));
+            3:
+                R := N.AsXmlAttribute().Name();
+            4:
+                R := N.AsXmlText().Value();
+            5:
+                R := N.AsXmlElement().Name();
+            6:
+                R := Format(Flags(N.AsXmlAttribute().AsXmlNode()));
+        end;
+    end;
+
+    [Test]
+    procedure Uninitialised_AsXmlNode_Kinds()
+    var
+        Observer: Codeunit "Probe Observer";
+        N: XmlNode;
+        Kind: Integer;
+        Use: Integer;
+        R: Text;
+    begin
+        for Kind := 1 to 8 do begin
+            Clear(N);
+            if TryAsNode(Kind, N) then begin
+                Observer.Observe('k' + Format(Kind), Flags(N));
+                for Use := 1 to 6 do begin
+                    R := '';
+                    if TryUse(N, Use, R) then
+                        Observer.Observe('k' + Format(Kind) + 'u' + Format(Use), R)
+                    else
+                        Observer.ObserveError('k' + Format(Kind) + 'u' + Format(Use));
+                end;
+            end else
+                Observer.ObserveError('k' + Format(Kind));
+        end;
+        Observer.Finish();
+    end;
 }

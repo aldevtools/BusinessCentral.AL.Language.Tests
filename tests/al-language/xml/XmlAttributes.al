@@ -588,4 +588,59 @@ codeunit 73402 "LT XmT Attributes"
         Observer.Expect('namespaced', 'y|y');
         Observer.Verify();
     end;
+
+    // Writer SL (2026-10-25): XmlAttribute.Create(Name, NamespaceUri, Value) beyond Attribute_Create_Namespace: the prefix of the detached attribute,
+    // and the prefix it gets on an element that already declares the namespace, is in it, or gets several such attributes.
+    [Test]
+    procedure Attribute_Create_Namespace_Prefixes()
+    var
+        A: XmlAttribute;
+        A2: XmlAttribute;
+        A3: XmlAttribute;
+        E: XmlElement;
+        Got: XmlAttribute;
+        S: Text;
+    begin
+        A := XmlAttribute.Create('k', 'urn:x', 'v');
+        A2 := XmlAttribute.Create('m', 'urn:y', 'w');
+        Observer.Observe('detached', A.Name() + '|' + A.NamespacePrefix() + '|' + A2.Name() + '|' + A2.NamespacePrefix());
+        A.WriteTo(S);
+        Observer.Observe('detached_write', S);
+        // two attributes in two namespaces on one element
+        E := XmlElement.Create('e');
+        E.Add(A);
+        E.Add(A2);
+        Observer.Observe('two_ns', Str(E));
+        Observer.Observe('two_ns_names', A.Name() + '|' + A.NamespacePrefix() + '|' + A2.Name() + '|' + A2.NamespacePrefix());
+        // two attributes in one namespace
+        E := XmlElement.Create('e');
+        E.Add(XmlAttribute.Create('k', 'urn:x', '1'));
+        E.Add(XmlAttribute.Create('m', 'urn:x', '2'));
+        Observer.Observe('same_ns', Str(E));
+        // the element declares the namespace with prefix n first
+        E := XmlElement.Create('e');
+        E.Add(XmlAttribute.CreateNamespaceDeclaration('n', 'urn:x'));
+        A3 := XmlAttribute.Create('k', 'urn:x', 'v');
+        E.Add(A3);
+        Observer.Observe('declared', Str(E));
+        Observer.Observe('declared_name', A3.Name() + '|' + A3.NamespacePrefix());
+        if E.Attributes().Get('k', 'urn:x', Got) then
+            Observer.Observe('declared_get', Got.Name() + '|' + Got.NamespacePrefix());
+        // the element itself is in the namespace (default namespace)
+        E := XmlElement.Create('e', 'urn:x');
+        E.Add(XmlAttribute.Create('k', 'urn:x', 'v'));
+        Observer.Observe('element_in_ns', Str(E));
+        // the element is in the namespace through a prefix
+        E := XmlElement.Create('e', 'urn:x');
+        E.Add(XmlAttribute.CreateNamespaceDeclaration('q', 'urn:x'));
+        E.Add(XmlAttribute.Create('k', 'urn:x', 'v'));
+        Observer.Observe('element_prefixed', Str(E));
+        // a child of an element that declares the namespace
+        E := XmlElement.Create('r');
+        E.Add(XmlAttribute.CreateNamespaceDeclaration('n', 'urn:x'));
+        E.Add(XmlElement.Create('c'));
+        E.GetChildElements().Get(1).AsXmlElement().Add(XmlAttribute.Create('k', 'urn:x', 'v'));
+        Observer.Observe('child_of_declared', Str(E));
+        Observer.Finish();
+    end;
 }

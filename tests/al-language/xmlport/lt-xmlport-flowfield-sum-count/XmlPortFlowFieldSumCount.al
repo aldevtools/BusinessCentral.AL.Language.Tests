@@ -369,4 +369,73 @@ codeunit 72828 "LT XpFS FlowField"
         Observer.Expect('cnt', '0');
         Observer.Verify();
     end;
+
+    // Writer SL (2026-10-25): port 72823 exports UTF-16 (the default Encoding), so the UTF-8 reads of the Export_Xml_* tests fail;
+    // the same exports read through a UTF-16 InStream (lines joined with |).
+    local procedure ReadAllUtf16(var TempBlob: Codeunit "Temp Blob"): Text
+    var
+        InS: InStream;
+        Line: Text;
+        Result: Text;
+    begin
+        TempBlob.CreateInStream(InS, TextEncoding::UTF16);
+        while not InS.EOS() do begin
+            InS.ReadText(Line);
+            Result += Line + '|';
+        end;
+        exit(Result);
+    end;
+
+    [Test]
+    procedure Export_Xml_SumAndCountFlowFields_Utf16()
+    var
+        Observer: Codeunit "Probe Observer";
+        TempBlob: Codeunit "Temp Blob";
+        OutS: OutStream;
+    begin
+        Seed();
+        TempBlob.CreateOutStream(OutS, TextEncoding::UTF8);
+        Xmlport.Export(Xmlport::"LT XpFS Export Xml", OutS);
+        Observer.Observe('len', Format(TempBlob.Length()));
+        Observer.Observe('xml', ReadAllUtf16(TempBlob));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Export_Xml_FlowFilterOnView_Utf16()
+    var
+        Observer: Codeunit "Probe Observer";
+        Xp: XmlPort "LT XpFS Export Xml";
+        Parent: Record "LT XpFS Parent";
+        TempBlob: Codeunit "Temp Blob";
+        OutS: OutStream;
+    begin
+        Seed();
+        Parent.SetRange("Seq Filter", 2);
+        Xp.SetTableView(Parent);
+        TempBlob.CreateOutStream(OutS, TextEncoding::UTF8);
+        Xp.SetDestination(OutS);
+        Xp.Export();
+        Observer.Observe('xml', ReadAllUtf16(TempBlob));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Export_Xml_FlowFilterRangeOnView_Utf16()
+    var
+        Observer: Codeunit "Probe Observer";
+        Xp: XmlPort "LT XpFS Export Xml";
+        Parent: Record "LT XpFS Parent";
+        TempBlob: Codeunit "Temp Blob";
+        OutS: OutStream;
+    begin
+        Seed();
+        Parent.SetFilter("Seq Filter", '1..2');
+        Xp.SetTableView(Parent);
+        TempBlob.CreateOutStream(OutS, TextEncoding::UTF8);
+        Xp.SetDestination(OutS);
+        Xp.Export();
+        Observer.Observe('xml', ReadAllUtf16(TempBlob));
+        Observer.Finish();
+    end;
 }

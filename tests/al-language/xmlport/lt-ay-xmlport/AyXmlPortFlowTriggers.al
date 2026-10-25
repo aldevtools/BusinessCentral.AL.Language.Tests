@@ -749,4 +749,90 @@ codeunit 80518 "LT AY Flow Trigger Tests"
         Observer.Expect('end', 'FINISHED');
         Observer.Verify();
     end;
+
+    // Writer SL (2026-10-25): the Export_* tests above trim each line; these read the exported bytes: the blob length and every byte in hex,
+    // so the line ends (or their absence) after the declaration are visible.
+    local procedure DoExportBytes(var Observer: Codeunit "Probe Observer"; Trig: Text; Action: Integer)
+    var
+        R: Record "LT AY Flow Row";
+        TempBlob: Codeunit "Temp Blob";
+        Xp: XmlPort "LT AY Flow Export";
+        OutS: OutStream;
+        InS: InStream;
+        B: Byte;
+        Hex: Text;
+        Digits: Text;
+        i: Integer;
+    begin
+        R.DeleteAll();
+        for i := 1 to 3 do begin
+            R.Id := i;
+            R.Name := 'n' + Format(i);
+            R.Insert();
+        end;
+        TempBlob.CreateOutStream(OutS, TextEncoding::UTF8);
+        Xp.SetMode(Trig, Action);
+        Xp.SetDestination(OutS);
+        Observer.Observe('ok', Format(Xp.Export()));
+        Observer.Observe('log', Xp.GetLog());
+        Observer.Observe('length', Format(TempBlob.Length()));
+        Digits := '0123456789ABCDEF';
+        TempBlob.CreateInStream(InS);
+        while not InS.EOS() do begin
+            InS.Read(B);
+            Hex += CopyStr(Digits, (B div 16) + 1, 1) + CopyStr(Digits, (B mod 16) + 1, 1);
+        end;
+        Observer.Observe('hex', Hex);
+        Error('FINISHED');
+    end;
+
+    [Test]
+    procedure Export_pre_Break_Bytes()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        asserterror DoExportBytes(Observer, 'pre', 1);
+        Observer.Observe('end', GetLastErrorText());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Export_pre_BreakUnbound_Bytes()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        asserterror DoExportBytes(Observer, 'pre', 2);
+        Observer.Observe('end', GetLastErrorText());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Export_pre_Quit_Bytes()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        asserterror DoExportBytes(Observer, 'pre', 3);
+        Observer.Observe('end', GetLastErrorText());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Export_head_Break_Bytes()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        asserterror DoExportBytes(Observer, 'head', 1);
+        Observer.Observe('end', GetLastErrorText());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Export_NoAction_Bytes()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        asserterror DoExportBytes(Observer, '', 0);
+        Observer.Observe('end', GetLastErrorText());
+        Observer.Finish();
+    end;
 }

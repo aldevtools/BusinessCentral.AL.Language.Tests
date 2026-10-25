@@ -179,4 +179,58 @@ codeunit 73503 "LT XpT Namespaces"
         Observer.Expect('items', '1|A|5|1.5|true|C|2024-01-15;');
         Observer.Verify();
     end;
+
+    // Writer SL (2026-10-25): the namespaced ports export UTF-16 (the default Encoding), so a UTF-8 read fails (Export_PrefixedNamespace);
+    // read the same export through a UTF-16 InStream, and import the exported text again.
+    [Test]
+    procedure Export_PrefixedNamespace_Utf16()
+    var
+        Observer: Codeunit "Probe Observer";
+        Helper: Codeunit "LT XpT Helper";
+        Xml: Text;
+    begin
+        Helper.Wipe();
+        Helper.Seed();
+        Xml := Helper.ExportTextEnc(73417, TextEncoding::UTF16);
+        Observer.Observe('xml', Xml);
+        Observer.Observe('len', Format(Helper.LastLength()));
+        Helper.Wipe();
+        Observer.Observe('reimport', Helper.TryImportEnc(73417, Xml.Replace('<NL>', Helper.Chr(13) + Helper.Chr(10)), TextEncoding::UTF16));
+        Observer.Observe('items', Helper.DumpItems());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Export_DefaultNamespace_Utf16()
+    var
+        Observer: Codeunit "Probe Observer";
+        Helper: Codeunit "LT XpT Helper";
+        Xml: Text;
+    begin
+        Helper.Wipe();
+        Helper.Seed();
+        Xml := Helper.ExportTextEnc(73418, TextEncoding::UTF16);
+        Observer.Observe('xml', Xml);
+        Observer.Observe('len', Format(Helper.LastLength()));
+        Helper.Wipe();
+        Observer.Observe('reimport', Helper.TryImportEnc(73418, Xml.Replace('<NL>', Helper.Chr(13) + Helper.Chr(10)), TextEncoding::UTF16));
+        Observer.Observe('items', Helper.DumpItems());
+        Observer.Finish();
+    end;
+
+    // Import into the prefixed port with the element names it exports under (prefix ns1 on Root and Item, none on the field elements).
+    [Test]
+    procedure Import_PrefixedAsExported()
+    var
+        Observer: Codeunit "Probe Observer";
+        Helper: Codeunit "LT XpT Helper";
+    begin
+        Helper.Wipe();
+        Observer.Observe('rootItemOnly', Helper.TryImport(73417, '<ns1:Root xmlns:ns1="urn:lt:xpt"><ns1:Item><Id>1</Id><Name>A</Name></ns1:Item></ns1:Root>'));
+        Observer.Observe('items1', Helper.DumpItems());
+        Helper.Wipe();
+        Observer.Observe('utf16', Helper.TryImportEnc(73417, '<ns1:Root xmlns:ns1="urn:lt:xpt"><ns1:Item><ns1:Id>1</ns1:Id><ns1:Name>A</ns1:Name></ns1:Item></ns1:Root>', TextEncoding::UTF16));
+        Observer.Observe('items2', Helper.DumpItems());
+        Observer.Finish();
+    end;
 }
