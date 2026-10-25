@@ -80,7 +80,10 @@ codeunit 89242 "LT SM P82 Shown Var"
     begin
         Seed();
         Step('update', TryUpdateNoArg(Pg));
-        Observer.Finish();
+        Observer.Expect('update', 'Yes');
+        Observer.Expect('update-error', '');
+        Observer.Expect('update-log', '');
+        Observer.Verify();
     end;
 
     [ModalPageHandler]
@@ -104,7 +107,17 @@ codeunit 89242 "LT SM P82 Shown Var"
         Step('update', TryUpdateNoArg(Pg));
         Step('update-true', TryUpdate(Pg, true));
         Step('activate-true', TryActivate(Pg, true));
-        Observer.Finish();
+        Observer.Expect('action', 'OK');
+        Observer.Expect('update', 'Yes');
+        Observer.Expect('update-error', '');
+        Observer.Expect('update-log', '');
+        Observer.Expect('update-true', 'Yes');
+        Observer.Expect('update-true-error', '');
+        Observer.Expect('update-true-log', '');
+        Observer.Expect('activate-true', 'Yes');
+        Observer.Expect('activate-true-error', '');
+        Observer.Expect('activate-true-log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -126,7 +139,13 @@ codeunit 89242 "LT SM P82 Shown Var"
         Observer.Observe('name', TP.NameCtl.Value());
         TP.Close();
         Observer.Observe('close-log', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('open-log', 'OnOpenPage;OnAfterGetRecord(V1)');
+        Observer.Expect('activate', 'Yes');
+        Observer.Expect('activate-error', '');
+        Observer.Expect('activate-log', '');
+        Observer.Expect('name', 'Var one');
+        Observer.Expect('close-log', 'OnQueryClosePage(OK);OnClosePage');
+        Observer.Verify();
     end;
 
     [Test]
@@ -146,7 +165,11 @@ codeunit 89242 "LT SM P82 Shown Var"
         Step('activate-true', TryActivate(Pg, true));
         Observer.Observe('name', TP.NameCtl.Value());
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('activate-true', 'Yes');
+        Observer.Expect('activate-true-error', '');
+        Observer.Expect('activate-true-log', '');
+        Observer.Expect('name', 'Var one');
+        Observer.Verify();
     end;
 
     [Test]
@@ -166,7 +189,11 @@ codeunit 89242 "LT SM P82 Shown Var"
         Step('activate-false', TryActivate(Pg, false));
         Observer.Observe('name', TP.NameCtl.Value());
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('activate-false', 'Yes');
+        Observer.Expect('activate-false-error', '');
+        Observer.Expect('activate-false-log', '');
+        Observer.Expect('name', 'Var one');
+        Observer.Verify();
     end;
 
     [Test]
@@ -186,7 +213,11 @@ codeunit 89242 "LT SM P82 Shown Var"
         Step('update', TryUpdateNoArg(Pg));
         Observer.Observe('name', TP.NameCtl.Value());
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('update', 'Yes');
+        Observer.Expect('update-error', '');
+        Observer.Expect('update-log', '');
+        Observer.Expect('name', 'Var one');
+        Observer.Verify();
     end;
 
     [Test]
@@ -206,7 +237,11 @@ codeunit 89242 "LT SM P82 Shown Var"
         Step('update-false', TryUpdate(Pg, false));
         Observer.Observe('name', TP.NameCtl.Value());
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('update-false', 'Yes');
+        Observer.Expect('update-false-error', '');
+        Observer.Expect('update-false-log', '');
+        Observer.Expect('name', 'Var one');
+        Observer.Verify();
     end;
 
     [Test]
@@ -226,6 +261,15 @@ codeunit 89242 "LT SM P82 Shown Var"
         Step('update-true', TryUpdate(Pg, true));
         Step('update', TryUpdateNoArg(Pg));
         Step('activate-true', TryActivate(Pg, true));
-        Observer.Finish();
+        Observer.Expect('update-true', 'Yes');
+        Observer.Expect('update-true-error', '');
+        Observer.Expect('update-true-log', '');
+        Observer.Expect('update', 'Yes');
+        Observer.Expect('update-error', '');
+        Observer.Expect('update-log', '');
+        Observer.Expect('activate-true', 'Yes');
+        Observer.Expect('activate-true-error', '');
+        Observer.Expect('activate-true-log', '');
+        Observer.Verify();
     end;
 }

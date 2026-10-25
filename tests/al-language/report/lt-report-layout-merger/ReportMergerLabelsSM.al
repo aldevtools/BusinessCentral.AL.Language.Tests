@@ -15,7 +15,6 @@ codeunit 89240 "LT SM RptMrg Labels"
     var
         Dataset: Codeunit "W3 Dataset";
     begin
-        Observer.Observe('labels block', Dataset.Between(Xml, '<Labels>', '</Labels>').Replace(Dataset.Lf(), '|').Replace(' ', ''));
         Observer.Observe('label and column lines', Dataset.ColumnLines(Xml));
     end;
 
@@ -30,7 +29,9 @@ codeunit 89240 "LT SM RptMrg Labels"
         Helper.SeedRows(2);
         Observer.Observe('saved', Format(Dataset.Save(Report::"LT RptMrg Report", '', Xml)));
         ObserveDataset(Observer, Xml);
-        Observer.Finish();
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('label and column lines', '<Label name="RowIdCaption">Row Id</Label>|<Label name="RowAmountCaption">Row Amount</Label>|<Label name="RowWhenCaption">Row When</Label>|<Label name="RowFlagCaption">Row Flag</Label>|<Label name="TitleLbl">Merger title</Label>|<Label name="NoteLbl">Merger note</Label>|<Column name="RowId">1</Column>|<Column name="RowName">Alpha</Column>|<Column name="RowAmount" decimalformatter="#,##0.00">12.5</Column>|<Column name="RowBig" decimalformatter="#,##0.00">1234567.891</Column>|<Column name="RowWhen">1/31/2024</Column>|<Column name="RowFlag">True</Column>|<Column name="RowKind">Beta cap</Column>|<Column name="RowStamp">1/31/2024 1:45:00 PM</Column>|<Column name="RowClock">1:45:00 PM</Column>|<Column name="RowNote"></Column>|<Column name="ModeColumn">0</Column>|<Column name="RowId">2</Column>|<Column name="RowName">A&amp;B &lt;x&gt; "q" ''s'' é</Column>|<Column name="RowAmount" decimalformatter="#,##0.00">-3.14159</Column>|<Column name="RowBig" decimalformatter="#,##0.00">0</Column>|<Column name="RowWhen"></Column>|<Column name="RowFlag">False</Column>|<Column name="RowKind">Alpha cap</Column>|<Column name="RowStamp"></Column>|<Column name="RowClock"></Column>|<Column name="RowNote">n</Column>|<Column name="ModeColumn">0</Column>|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -44,7 +45,9 @@ codeunit 89240 "LT SM RptMrg Labels"
         Helper.SeedRows(0);
         Observer.Observe('saved', Format(Dataset.Save(Report::"LT RptMrg Report", '', Xml)));
         ObserveDataset(Observer, Xml);
-        Observer.Finish();
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('label and column lines', '<Label name="RowIdCaption">Row Id</Label>|<Label name="RowAmountCaption">Row Amount</Label>|<Label name="RowWhenCaption">Row When</Label>|<Label name="RowFlagCaption">Row Flag</Label>|<Label name="TitleLbl">Merger title</Label>|<Label name="NoteLbl">Merger note</Label>|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -62,9 +65,11 @@ codeunit 89240 "LT SM RptMrg Labels"
         Observer.Observe('completed', Format(Helper.TrySaveAs(ReportFormat::Pdf, '', Output, Saved)));
         UnbindSubscription(Cap);
         Observer.Observe('calls', Format(Cap.CallCount()));
-        Observer.Observe('xml info', Cap.Item('xml info', 1));
         ObserveDataset(Observer, Cap.Item('xml', 1).Replace('<NL>', Dataset.Lf()));
-        Observer.Finish();
+        Observer.Expect('completed', 'Yes');
+        Observer.Expect('calls', '1');
+        Observer.Expect('label and column lines', '<Label name="RowIdCaption">Row Id</Label>|<Label name="RowAmountCaption">Row Amount</Label>|<Label name="RowWhenCaption">Row When</Label>|<Label name="RowFlagCaption">Row Flag</Label>|<Label name="TitleLbl">Merger title</Label>|<Label name="NoteLbl">Merger note</Label>|<Column name="RowId">1</Column>|<Column name="RowName">Alpha</Column>|<Column name="RowAmount" decimalformatter="#,##0.00">12.5</Column>|<Column name="RowBig" decimalformatter="#,##0.00">1234567.891</Column>|<Column name="RowWhen">1/31/2024</Column>|<Column name="RowFlag">True</Column>|<Column name="RowKind">Beta cap</Column>|<Column name="RowStamp">1/31/2024 1:45:00 PM</Column>|<Column name="RowClock">1:45:00 PM</Column>|<Column name="RowNote"></Column>|<Column name="ModeColumn">0</Column>|<Column name="RowId">2</Column>|<Column name="RowName">A&amp;B &lt;x&gt; "q" ''s'' é</Column>|<Column name="RowAmount" decimalformatter="#,##0.00">-3.14159</Column>|<Column name="RowBig" decimalformatter="#,##0.00">0</Column>|<Column name="RowWhen"></Column>|<Column name="RowFlag">False</Column>|<Column name="RowKind">Alpha cap</Column>|<Column name="RowStamp"></Column>|<Column name="RowClock"></Column>|<Column name="RowNote">n</Column>|<Column name="ModeColumn">0</Column>|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -83,6 +88,9 @@ codeunit 89240 "LT SM RptMrg Labels"
         UnbindSubscription(Cap);
         Observer.Observe('calls', Format(Cap.CallCount()));
         ObserveDataset(Observer, Cap.Item('xml', 1).Replace('<NL>', Dataset.Lf()));
-        Observer.Finish();
+        Observer.Expect('completed', 'Yes');
+        Observer.Expect('calls', '1');
+        Observer.Expect('label and column lines', '<Label name="RowIdCaption">Row Id</Label>|<Label name="RowAmountCaption">Row Amount</Label>|<Label name="RowWhenCaption">Row When</Label>|<Label name="RowFlagCaption">Row Flag</Label>|<Label name="TitleLbl">Merger title</Label>|<Label name="NoteLbl">Merger note</Label>|');
+        Observer.Verify();
     end;
 }
