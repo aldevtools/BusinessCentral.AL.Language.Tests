@@ -4,6 +4,9 @@
 // Probe: written against a local BC 29.0.54011.55816 service tier; every literal asserted below is what that tier produced. Other BC versions are checked by the corpus CI matrix.
 // Facts: Page.Run(Page, Rec) on pages with SourceTableView: the filters of the page's Rec per filter group (0 to 3) seen from OnOpenPage, current key, direction and view, and the rows (order) a TestPage handler reads, with no record, an empty record and records that carry filters in several groups, keys and a view
 // Writer SF (al-runtime-rs assumption page-run-record-view-order-applies): SF_ tests on List B and List C (page 89065, P145PageFixtures.al).
+//   Facts (corpus CI 29.0): Page.Run(Page, Rec) on a page whose view names order(descending) runs descending whatever the record's key and
+//   direction (empty record, the view's key ascending or descending, another key); a view with order(ascending) runs ascending for a
+//   record that is descending. The view's ORDER wins over the record's direction.
 // BC versions: 29 (final facts are added after the measurement)
 
 codeunit 74925 "LT P145 Page Run View"
@@ -226,8 +229,10 @@ codeunit 74925 "LT P145 Page Run View"
     // ---- writer SF (al-runtime-rs assumption page-run-record-view-order-applies): Page.Run(Page, Rec) on List B (view sorting(Grp, Qty)
     //      order(descending)) and on List C (view sorting(Qty) order(ascending)) with records ascending and descending. ----
 
-    // Seed() of this codeunit failed in the SF tests on the corpus CI (27.5, 28.5, 29.0) with "The record in table LT P145 Row already
-    // exists. Identification fields and values: No.='R2'" after the P145_A tests; this seed notes the rows it finds and inserts or modifies.
+    // Seed() of this codeunit fails in the SF tests (corpus CI 27.5, 28.5, 29.0: "The record in table LT P145 Row already exists.
+    // Identification fields and values: No.='R2'"): P145_A_RecFilterInGroup1 sets Qty >= 3 in filter group 1 (the global filter group)
+    // and that filter stays on every record of the table for the rest of the codeunit's session, so DeleteAll leaves R2 and R3 (Qty 1, 2)
+    // and Count reads 4 of the 6 rows. This seed notes what it finds and inserts or modifies; the pages read the same global filter (g1).
     local procedure SfSeed(var Observer: Codeunit "Probe Observer")
     var
         Row: Record "LT P145 Row";
@@ -275,7 +280,11 @@ codeunit 74925 "LT P145 Page Run View"
         Log.Clear();
         Page.Run(Page::"LT P145 List B");
         Observer.Observe('log', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('seed_before', '4');
+        Observer.Expect('seed_after_deleteall', '0');
+        Observer.Expect('seed', 'R1,R2(m),R3(m),R4,R5,R6, count=4');
+        Observer.Expect('log', 'B open: group-at-open=0 g0=[] g1=[Qty: >=3] g2=[Qty: >=2] g3=[] | B key=Grp,Qty asc=No view=[VERSION(1) SORTING(Grp,Qty) ORDER(Descending)] | B rows=R5,R4,R6,R1,, | ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -290,7 +299,11 @@ codeunit 74925 "LT P145 Page Run View"
         Log.Clear();
         Page.Run(Page::"LT P145 List B", Row);
         Observer.Observe('log', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('seed_before', '4');
+        Observer.Expect('seed_after_deleteall', '0');
+        Observer.Expect('seed', 'R1,R2(m),R3(m),R4,R5,R6, count=4');
+        Observer.Expect('log', 'B open: group-at-open=0 g0=[] g1=[Qty: >=3] g2=[Qty: >=2] g3=[] | B key=Grp,Qty asc=No view=[VERSION(1) SORTING(Grp,Qty) ORDER(Descending)] | B rows=R5,R4,R6,R1,, | ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -307,7 +320,11 @@ codeunit 74925 "LT P145 Page Run View"
         Log.Clear();
         Page.Run(Page::"LT P145 List B", Row);
         Observer.Observe('log', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('seed_before', '4');
+        Observer.Expect('seed_after_deleteall', '0');
+        Observer.Expect('seed', 'R1,R2(m),R3(m),R4,R5,R6, count=4');
+        Observer.Expect('log', 'B open: group-at-open=0 g0=[] g1=[Qty: >=3] g2=[Qty: >=2] g3=[] | B key=Grp,Qty asc=No view=[VERSION(1) SORTING(Grp,Qty) ORDER(Descending)] | B rows=R5,R4,R6,R1,, | ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -324,7 +341,11 @@ codeunit 74925 "LT P145 Page Run View"
         Log.Clear();
         Page.Run(Page::"LT P145 List B", Row);
         Observer.Observe('log', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('seed_before', '4');
+        Observer.Expect('seed_after_deleteall', '0');
+        Observer.Expect('seed', 'R1,R2(m),R3(m),R4,R5,R6, count=4');
+        Observer.Expect('log', 'B open: group-at-open=0 g0=[] g1=[Qty: >=3] g2=[Qty: >=2] g3=[] | B key=Grp,Qty asc=No view=[VERSION(1) SORTING(Grp,Qty) ORDER(Descending)] | B rows=R5,R4,R6,R1,, | ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -341,7 +362,11 @@ codeunit 74925 "LT P145 Page Run View"
         Log.Clear();
         Page.Run(Page::"LT P145 List B", Row);
         Observer.Observe('log', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('seed_before', '4');
+        Observer.Expect('seed_after_deleteall', '0');
+        Observer.Expect('seed', 'R1,R2(m),R3(m),R4,R5,R6, count=4');
+        Observer.Expect('log', 'B open: group-at-open=0 g0=[] g1=[Qty: >=3] g2=[Qty: >=2] g3=[] | B key=Grp,Qty asc=No view=[VERSION(1) SORTING(Grp,Qty) ORDER(Descending)] | B rows=R5,R4,R6,R1,, | ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -357,7 +382,11 @@ codeunit 74925 "LT P145 Page Run View"
         Log.Clear();
         Page.Run(Page::"LT P145 List B", Row);
         Observer.Observe('log', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('seed_before', '4');
+        Observer.Expect('seed_after_deleteall', '0');
+        Observer.Expect('seed', 'R1,R2(m),R3(m),R4,R5,R6, count=4');
+        Observer.Expect('log', 'B open: group-at-open=0 g0=[Grp: A] g1=[Qty: >=3] g2=[Qty: >=2] g3=[] | B key=Grp,Qty asc=No view=[VERSION(1) SORTING(Grp,Qty) ORDER(Descending) WHERE(Grp=FILTER(A))] | B rows=R6,R1,, | ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -372,7 +401,11 @@ codeunit 74925 "LT P145 Page Run View"
         Log.Clear();
         Page.Run(Page::"LT SF P145 List C");
         Observer.Observe('log', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('seed_before', '4');
+        Observer.Expect('seed_after_deleteall', '0');
+        Observer.Expect('seed', 'R1,R2(m),R3(m),R4,R5,R6, count=4');
+        Observer.Expect('log', 'C open: group-at-open=0 g0=[] g1=[Qty: >=3] g2=[Grp: A|B] g3=[] | C key=Qty asc=Yes view=[VERSION(1) SORTING(Qty)] | C current=R1 | C rows=R1,R4,R6,, | ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -389,7 +422,11 @@ codeunit 74925 "LT P145 Page Run View"
         Log.Clear();
         Page.Run(Page::"LT SF P145 List C", Row);
         Observer.Observe('log', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('seed_before', '4');
+        Observer.Expect('seed_after_deleteall', '0');
+        Observer.Expect('seed', 'R1,R2(m),R3(m),R4,R5,R6, count=4');
+        Observer.Expect('log', 'C open: group-at-open=0 g0=[] g1=[Qty: >=3] g2=[Grp: A|B] g3=[] | C key=Qty asc=Yes view=[VERSION(1) SORTING(Qty)] | C current=R1 | C rows=R1,R4,R6,, | ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -405,7 +442,11 @@ codeunit 74925 "LT P145 Page Run View"
         Log.Clear();
         Page.Run(Page::"LT SF P145 List C", Row);
         Observer.Observe('log', Log.Dump());
-        Observer.Finish();
+        Observer.Expect('seed_before', '4');
+        Observer.Expect('seed_after_deleteall', '0');
+        Observer.Expect('seed', 'R1,R2(m),R3(m),R4,R5,R6, count=4');
+        Observer.Expect('log', 'C open: group-at-open=0 g0=[] g1=[Qty: >=3] g2=[Grp: A|B] g3=[] | C key=Qty asc=Yes view=[VERSION(1) SORTING(Qty)] | C current=R1 | C rows=R1,R4,R6,, | ');
+        Observer.Verify();
     end;
 
     [PageHandler]
