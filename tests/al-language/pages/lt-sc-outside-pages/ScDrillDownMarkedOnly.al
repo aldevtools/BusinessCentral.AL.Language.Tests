@@ -8,6 +8,8 @@
 //   TestField.Drilldown(): the rows First/Next list and GoToRecord on row 20. Pages differ only in their (empty)
 //   triggers: OnAfterGetRecord and OnAfterGetCurrRecord, neither, only OnAfterGetRecord, only OnAfterGetCurrRecord;
 //   and one page with no triggers whose OnDrillDown does not call CurrPage.Update.
+//   BC answers: with CurrPage.Update(false) every page lists only row 10 (the triggers make no difference);
+//   without the Update the page still lists 10 and 20.
 // BC versions: all (CI)
 
 table 89010 "LT SC Operation"
@@ -418,6 +420,7 @@ codeunit 89016 "LT SC Marked DrillDown Tests"
 
     [Test]
     procedure DrilldownWithoutUpdateListAndGoTo()
+    // BC: without CurrPage.Update the page keeps listing both rows after MarkedOnly(true) in OnDrillDown.
     var
         Operation20: Record "LT SC Operation";
         Operations: TestPage "LT SC Operations No Update";
@@ -432,7 +435,7 @@ codeunit 89016 "LT SC Marked DrillDown Tests"
             repeat
                 Listed += ' ' + Operations."Operation No.".Value();
             until not Operations.Next();
-        Assert.AreEqual('listed=[ 10] goto20=No', 'listed=[' + Listed + '] goto20=' + Format(Operations.GoToRecord(Operation20)), 'rows after the drilldown');
+        Assert.AreEqual('listed=[ 10 20] goto20=Yes', 'listed=[' + Listed + '] goto20=' + Format(Operations.GoToRecord(Operation20)), 'rows after the drilldown');
         Operations.Close();
     end;
 

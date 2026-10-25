@@ -7,6 +7,9 @@
 //   source table: an element of a page global array (Costs[1] with Editable = false, Costs[2] with no properties),
 //   a field of a page global record of another table (OtherLine.Amount), and an expression (Costs[1] + Costs[2]).
 //   Columns read: TableNo, FieldNo, Enabled, Editable, Visible, SourceExpression, OptionString, Sequence.
+//   BC answers: every such row has the page's source table as TableNo and FieldNo 0; SourceExpression is the AL text
+//   as written; Editable is the declared text ("false") when the property is set, else the computed default with a
+//   capital letter ("True" for an array element or another record's field, "False" for an expression).
 //   A row of another control of the same page (HiddenQuantity, Visible = false) is read as well.
 // BC versions: all (CI)
 // Neighbours: record/TestPageControlFieldControlTree.al pins variable-bound and field-bound rows.
@@ -140,7 +143,8 @@ codeunit 89002 "LT SC Control Field Arr Tests"
     procedure ArrayElementControlWithoutPropertiesRow()
     begin
         // [GIVEN] CostTwo bound to Costs[2], no Editable property
-        Assert.AreEqual('TableNo=89000 FieldNo=0 Enabled=[true] Editable=[true] Visible=[true] SourceExpression=[Costs[2]] OptionString=[] Sequence=3',
+        // [THEN] Editable is the computed default, written True (capital T)
+        Assert.AreEqual('TableNo=89000 FieldNo=0 Enabled=[true] Editable=[True] Visible=[true] SourceExpression=[Costs[2]] OptionString=[] Sequence=3',
             Row('CostTwo'), 'Page Control Field row of CostTwo');
     end;
 
@@ -148,7 +152,7 @@ codeunit 89002 "LT SC Control Field Arr Tests"
     procedure GlobalRecordFieldControlRow()
     begin
         // [GIVEN] OtherAmount bound to OtherLine.Amount, a field of a global record of another table
-        Assert.AreEqual('TableNo=89000 FieldNo=0 Enabled=[true] Editable=[true] Visible=[true] SourceExpression=[OtherLine.Amount] OptionString=[] Sequence=4',
+        Assert.AreEqual('TableNo=89000 FieldNo=0 Enabled=[true] Editable=[True] Visible=[true] SourceExpression=[OtherLine.Amount] OptionString=[] Sequence=4',
             Row('OtherAmount'), 'Page Control Field row of OtherAmount');
     end;
 
@@ -156,7 +160,8 @@ codeunit 89002 "LT SC Control Field Arr Tests"
     procedure ExpressionControlRow()
     begin
         // [GIVEN] CostSum bound to the expression Costs[1] + Costs[2]
-        Assert.AreEqual('TableNo=89000 FieldNo=0 Enabled=[true] Editable=[true] Visible=[true] SourceExpression=[Costs[1] + Costs[2]] OptionString=[] Sequence=5',
+        // [THEN] an expression is not editable: Editable is False (computed, capital F)
+        Assert.AreEqual('TableNo=89000 FieldNo=0 Enabled=[true] Editable=[False] Visible=[true] SourceExpression=[Costs[1] + Costs[2]] OptionString=[] Sequence=5',
             Row('CostSum'), 'Page Control Field row of CostSum');
     end;
 }
