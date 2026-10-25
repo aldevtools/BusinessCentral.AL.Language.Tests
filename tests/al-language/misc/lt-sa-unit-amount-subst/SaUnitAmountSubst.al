@@ -7,6 +7,11 @@
 //   with amount places 3:3 and unit-amount places 4:4; the currency code blank, set, and naming no currency; a database record read with
 //   Get (the reporter's shape) and a temporary record; a Decimal variable copy of such a field.
 //   Covers the shapes of al-sema lower/call.rs "StrSubstNo, Message or Error %n of a Decimal field with this DecimalPlaces or AutoFormat".
+// Seen on BC 29.0 (Windows container): every text form equals Format(Rec.Field); a blank currency code gives the fixed places 2:2 (amount)
+//   and 2:5 (unit amount), not the setup's 1:3, as autoformat/PWAutoFormatTypes.al pins for page controls; a code that is no currency
+//   gives the General Ledger Setup places (1:3, 2:5); AutoFormatType 4 and 5 follow 1 and 2 with a currency, and with a blank code (or
+//   none) use the setup's amount places 1:3 (type 4) and unit places 2:5 (type 5); a Decimal variable copy loses the places; Show
+//   Currency adds no symbol to the text.
 // Object ids 88950-88951. BC versions: 27, 28, 29 (CI matrix)
 
 table 88950 "LT SA UA Line"
@@ -546,7 +551,31 @@ codeunit 88951 "LT SA UA Tests"
         end;
         RestoreSetup();
         Commit();
-        Observer.Finish();
+        Observer.Expect('1-errA1', '1,234.50');
+        Observer.Expect('1-errA2', 'x=1,234.50');
+        Observer.Expect('1-errA2No', '1,234.50');
+        Observer.Expect('1-errA5', '1,234.50');
+        Observer.Expect('1-msgA1', '1,234.50');
+        Observer.Expect('1-msgA2', 'x=1,234.50');
+        Observer.Expect('1-msgA2No', '1,234.50');
+        Observer.Expect('1-msgA4', '1,234.5');
+        Observer.Expect('2-errA1', '1,234.500');
+        Observer.Expect('2-errA2', 'x=1,234.5000');
+        Observer.Expect('2-errA2No', '1,234.50');
+        Observer.Expect('2-errA5', '1,234.5000');
+        Observer.Expect('2-msgA1', '1,234.500');
+        Observer.Expect('2-msgA2', 'x=1,234.5000');
+        Observer.Expect('2-msgA2No', '1,234.50');
+        Observer.Expect('2-msgA4', '1,234.500');
+        Observer.Expect('3-errA1', '1,234.5');
+        Observer.Expect('3-errA2', 'x=1,234.50');
+        Observer.Expect('3-errA2No', '1,234.50');
+        Observer.Expect('3-errA5', '1,234.50');
+        Observer.Expect('3-msgA1', '1,234.5');
+        Observer.Expect('3-msgA2', 'x=1,234.50');
+        Observer.Expect('3-msgA2No', '1,234.50');
+        Observer.Expect('3-msgA4', '1,234.5');
+        Observer.Verify();
     end;
 
     [MessageHandler]

@@ -6,6 +6,10 @@
 //   OptionCaption (blank first member, every member, no row), an Enum, a Boolean, a Date with ClosingDates, Decimal fields with DecimalPlaces,
 //   AutoFormatType 1/2 with AutoFormatExpression = Rec."Currency Code", AutoFormatType 10, BlankZero, BlankNumbers; Caption() of such a
 //   control with and without a Caption of its own; Editable() and Visible(); SetValue on the Option control.
+// Seen on BC 29.0 (Windows container): such a control takes OptionCaption, enum captions, DecimalPlaces, AutoFormatType/Expression and
+//   the places of the record's currency from the field, as a Rec-bound control does; it does NOT take BlankZero, BlankNumbers or ClosingDates
+//   (0 shows 0.00, a closing date shows without the C) nor the field's Caption (Caption() is the control name); Editable() follows the
+//   control, not the field's Editable = false. After a SetValue that fails validation the Option control reads the member index ('4', '0').
 // Object ids 88940-88946. BC versions: 27, 28, 29 (CI matrix)
 
 table 88940 "LT SA OR Settings"
@@ -733,7 +737,32 @@ codeunit 88945 "LT SA OR Tests"
         end;
         Observer.ObserveError('GHidden');
         Worksheet.Close();
-        Observer.Finish();
+        Observer.Expect('edit-GOpt', 'Yes');
+        Observer.Expect('edit-GOptText', 'No');
+        Observer.Expect('edit-GDec22', 'Yes');
+        Observer.Expect('edit-GLocked', 'Yes');
+        Observer.Expect('edit-GNotEditable', 'No');
+        Observer.Expect('edit-TOpt', 'Yes');
+        Observer.Expect('edit-TLocked', 'Yes');
+        Observer.Expect('edit-ROpt', 'Yes');
+        Observer.Expect('edit-RLocked', 'Yes');
+        Observer.Expect('flagoff-GVisExpr', 'No');
+        Observer.Expect('flagoff-GFlag', 'Yes');
+        Observer.Expect('view-GOpt', 'Yes');
+        Observer.Expect('view-GOptText', 'No');
+        Observer.Expect('view-GDec22', 'Yes');
+        Observer.Expect('view-GLocked', 'Yes');
+        Observer.Expect('view-GNotEditable', 'No');
+        Observer.Expect('view-TOpt', 'Yes');
+        Observer.Expect('view-TLocked', 'Yes');
+        Observer.Expect('view-ROpt', 'Yes');
+        Observer.Expect('view-RLocked', 'Yes');
+        Observer.Expect('flagon-GVisExpr', 'Yes');
+        Observer.Expect('edit-CLocked', 'No');
+        Observer.Expect('edit-COpt', 'Yes');
+        Observer.Expect('GHidden|text', 'The field with ID = n is not found on the page.');
+        Observer.Expect('GHidden|code', 'TestFieldNotFound');
+        Observer.Verify();
     end;
 
     local procedure TrySetOption(var Observer: Codeunit "Probe Observer"; var Worksheet: TestPage "LT SA OR Worksheet"; Tag: Text; NewValue: Text)
@@ -769,6 +798,27 @@ codeunit 88945 "LT SA OR Tests"
         Worksheet.Close();
         Settings.Get('');
         Observer.Observe('row-after', Format(Settings."Avail. Filter", 0, 2));
-        Observer.Finish();
+        Observer.Expect('caption-err|text', 'LT-NOERROR');
+        Observer.Expect('caption-err|code', 'Dialog');
+        Observer.Expect('caption-G', 'None available');
+        Observer.Expect('caption-GText', 'None available');
+        Observer.Expect('member-err|text', 'Validation error for Field: GOpt,  Message = ''Your entry of ''Some'' is not an acceptable value for ''Material Availability''.''');
+        Observer.Expect('member-err|code', 'TestValidation');
+        Observer.Expect('member-G', '4');
+        Observer.Expect('member-GText', 'None available');
+        Observer.Expect('both-err|text', 'LT-NOERROR');
+        Observer.Expect('both-err|code', 'Dialog');
+        Observer.Expect('both-G', 'All');
+        Observer.Expect('both-GText', 'All');
+        Observer.Expect('empty-err|text', 'Validation error for Field: GOpt,  Message = ''Your entry of '''' is not an acceptable value for ''Material Availability''.''');
+        Observer.Expect('empty-err|code', 'TestValidation');
+        Observer.Expect('empty-G', '0');
+        Observer.Expect('empty-GText', 'All');
+        Observer.Expect('other-err|text', 'Validation error for Field: GOpt,  Message = ''Your entry of ''Nonsense'' is not an acceptable value for ''Material Availability''.''');
+        Observer.Expect('other-err|code', 'TestValidation');
+        Observer.Expect('other-G', '0');
+        Observer.Expect('other-GText', 'All');
+        Observer.Expect('row-after', '0');
+        Observer.Verify();
     end;
 }
