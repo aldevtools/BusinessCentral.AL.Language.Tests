@@ -118,4 +118,85 @@ codeunit 85366 "LT CV Enum Long Name Tests"
         Observer.Expect('two|captions', 'Alpha Two,Beta Two,Gamma Two');
         Observer.Verify();
     end;
+
+    // writer SH (al-runner issue 5845, PR 5855): names BC accepts. An enum extension, an enum value and an interface may have names longer
+    // than 30 characters (other object names stop at 30: must-not-compile 2120-2131), and a field, procedure or variable name may have
+    // 120 characters (121 do not compile: must-not-compile 2133-2135). Compiled with AL 30 against BC 27, 28 and 29.
+    [Test]
+    procedure LongNamesThatCompile()
+    var
+        LtShVariableNameOfOneHundredTwentyCharactersAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdef: Integer;
+        Row: Record "LT SH Long Identifier Row";
+        Impl: Codeunit "LT SH Long Iface Impl";
+        Iface: Interface "LT SH Long Interface Name Over Thirty Chars";
+        One: Enum "LT SH Long Name Base Enum";
+        Observer: Codeunit "Probe Observer";
+    begin
+        LtShVariableNameOfOneHundredTwentyCharactersAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdef := LtShProcedureNameOfOneHundredTwentyCharactersAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcde(4);
+        Row.DeleteAll();
+        Row.Init();
+        Row.Id := 1;
+        Row.LtShFieldNameOfOneHundredTwentyCharactersAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghi := 'long field';
+        Row.Insert();
+        Row.Get(1);
+        Iface := Impl;
+        One := One::"LT SH Enum Value Name Over Thirty Chars";
+        Observer.Observe('sh|var', Format(LtShVariableNameOfOneHundredTwentyCharactersAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdef));
+        Observer.Observe('sh|field', Row.LtShFieldNameOfOneHundredTwentyCharactersAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghi);
+        Observer.Observe('sh|fieldname', Row.FieldName(LtShFieldNameOfOneHundredTwentyCharactersAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghi));
+        Observer.Observe('sh|iface', Format(Iface.Answer()));
+        Observer.Observe('sh|enumext', Format(One) + '|' + Format(One.AsInteger()));
+        Observer.Expect('sh|var', '8');
+        Observer.Expect('sh|field', 'long field');
+        Observer.Expect('sh|fieldname', 'LtShFieldNameOfOneHundredTwentyCharactersAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghi');
+        Observer.Expect('sh|iface', '42');
+        Observer.Expect('sh|enumext', 'SH Extra|89120');
+        Observer.Verify();
+    end;
+
+    local procedure LtShProcedureNameOfOneHundredTwentyCharactersAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcde(X: Integer): Integer
+    begin
+        exit(X * 2);
+    end;
+}
+
+enum 89121 "LT SH Long Name Base Enum"
+{
+    Extensible = true;
+
+    value(0; None) { }
+}
+
+enumextension 89120 "LT SH Long Enum Ext Name Over Thirty Chars" extends "LT SH Long Name Base Enum"
+{
+    value(89120; "LT SH Enum Value Name Over Thirty Chars") { Caption = 'SH Extra'; }
+}
+
+interface "LT SH Long Interface Name Over Thirty Chars"
+{
+    procedure Answer(): Integer;
+}
+
+codeunit 89120 "LT SH Long Iface Impl" implements "LT SH Long Interface Name Over Thirty Chars"
+{
+    procedure Answer(): Integer
+    begin
+        exit(42);
+    end;
+}
+
+table 89120 "LT SH Long Identifier Row"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; Id; Integer) { }
+        field(2; LtShFieldNameOfOneHundredTwentyCharactersAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghijAbcdefghi; Text[30]) { }
+    }
+
+    keys
+    {
+        key(PK; Id) { Clustered = true; }
+    }
 }

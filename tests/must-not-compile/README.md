@@ -604,8 +604,21 @@ is only a reference.
 | 2112 | AL0118 | `Rec` in the OnPreXmlPort trigger of an xmlport without a request page (with a request page SourceTable it compiles: xmlport 88570) (writer RS). |
 | 2113 | AL0118 | `Rec` in the OnPreReport trigger of a report whose request page declares no SourceTable (with SourceTable it compiles: report 88562) (writer RS). |
 | 2114 | AL0118 | `CurrPage` in the OnOpenPage trigger of an xmlport request page with SourceTable (`Rec` compiles there) (writer RS). |
+| 2120, 2121 | AL0305 | A plain codeunit (no `Subtype = Test`) whose name has 31 / 36 characters (30 compiles: codeunit/TestScopeIsolationContracts.al) (writer SH). |
+| 2122 to 2129 | AL0305 | A table, page, report, query, xmlport, table extension, page extension and report extension whose name has 31 characters (30 compiles for each; enum and enum extension names are not limited to 30: misc/lt-cv-odd-leads/CvEnumLongNames.al) (writer SH). |
+| 2130 | AL0305 | A profile whose name has 31 characters (writer SH). |
+| 2131 | AL0305 | A permission set whose name has 21 characters: "cannot exceed 20 characters" (20 compiles) (writer SH). |
+| 2132 | AL0304 | An enum name of 119 characters in quotes: identifiers stop at 120 characters and the two quotes count (118 in quotes compile) (writer SH). |
+| 2133 to 2135 | AL0304 | A field, procedure and local variable name of 121 characters (120 compiles; field names have no 30 character limit) (writer SH). |
+| 2136 to 2146 | AL0264 | Two pages, reports, queries, xmlports, enums, table extensions, page extensions, enum extensions, report extensions, permission sets and permission set extensions with one id: both declarations are reported (writer SH). |
+| 2147 | AL0264 | Three codeunits with one id: three diagnostics (writer SH). |
+| 2148, 2149 | AL0264 | Cross-app: a codeunit / table with the id of an object of the app it depends on (XApp A): one diagnostic that names the other app; without the dependency it compiles (writer SH). |
+| 2150 to 2166 | AL0139 | `exit(value)` in a table trigger, field trigger and procedure; page trigger, procedure and action; report trigger, data item trigger and procedure; xmlport trigger and procedure; query trigger and procedure; an event subscriber; a table extension trigger; a page extension procedure; an interface implementation without a return type (writer SH). |
+| 2167 to 2170 | AL0135 | Too few arguments through a codeunit variable, a record variable, `Rec.`/bare inside the table, and `this.` (writer SH). |
+| 2171 to 2173 | AL0126 | An overloaded procedure called with too few, no, or too many arguments: "No overload for method ... takes N arguments" with every candidate, not AL0135 (writer SH). |
+| 2174 to 2188 | AL0135 | The signature text of AL0135 for Record, var Record, var temporary Record, Code[20], Option, Enum, Decimal, Date, var Integer, other scalar and complex parameter types, many parameters, return values and no arguments (writer SH). |
 
-Accepted by the compiler, so not cases: an overload in a page extension (the name of a base procedure with other parameter types: tests/al-language/pageext/POPageExtOverload.al), and a bare `exit;` in a procedure with a return value.
+Accepted by the compiler, so not cases: an overload in a page extension (the name of a base procedure with other parameter types: tests/al-language/pageext/POPageExtOverload.al), and a bare `exit;` in a procedure with a return value. Also accepted (writer SH, AL 30 on BC 27, 28 and 29): enum, enum extension, enum value, interface and control add-in names longer than 30 characters, a permission set name of 20 characters, field, procedure and variable names of 31 to 120 characters (misc/lt-cv-odd-leads/CvEnumLongNames.al, `LongNamesThatCompile`), objects of different types with one id, an id that an app it does not depend on also uses, and `exit(value)` in the page triggers that return a value (OnQueryClosePage, OnFindRecord, OnNextRecord, OnInsertRecord, OnModifyRecord, OnDeleteRecord, a field OnLookup).
 
 ## CI
 
