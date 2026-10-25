@@ -4,6 +4,9 @@
 // Facts: the neighbour F3PartTests.al pins the reads of a part whose SubPageView names its linked field (filter('H1|H2'), <> 'H3', const('ZZZ')).
 //   This file pins the filters the part's Rec holds in each filter group (0 to 7) for the linked field and GetFilters, read in OnFindRecord and
 //   OnOpenPage, and the rows the TestPage part shows, on host H1 and after the host moves to H3 (outside the view of the filter and <> hosts).
+// BC answers: in OnOpenPage the part holds the SubPageView in filter group 4 (current group 0, GetFilters empty); from the first OnFindRecord
+//   on, group 4 holds only the link value of the host row (the view on the same field is replaced), so the part lists the host's rows also for
+//   a host outside the view.
 // BC versions: 27, 28, 29
 
 page 89250 "LT SM F3 Filter Part"
@@ -165,7 +168,12 @@ codeunit 89254 "LT SM F3 Part Filters"
             until not Doc.Lines.Next();
         Observer.Observe('rows H3', Rows);
         Doc.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'Open(group 0 g4=[H1|H2] all=[]);Find(group 0 g4=[H1] all=[])');
+        Observer.Expect('rows H1', ' H1/10000 H1/20000 H1/30000');
+        Observer.Expect('after rows H1', '');
+        Observer.Expect('move to H3', 'Find(group 0 g4=[H3] all=[])');
+        Observer.Expect('rows H3', ' H3/10000 H3/20000 H3/30000');
+        Observer.Verify();
     end;
 
     [Test]
@@ -195,7 +203,12 @@ codeunit 89254 "LT SM F3 Part Filters"
             until not Doc.Lines.Next();
         Observer.Observe('rows H3', Rows);
         Doc.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'Open(group 0 g4=[<>H3] all=[]);Find(group 0 g4=[H1] all=[])');
+        Observer.Expect('rows H1', ' H1/10000 H1/20000 H1/30000');
+        Observer.Expect('after rows H1', '');
+        Observer.Expect('move to H3', 'Find(group 0 g4=[H3] all=[])');
+        Observer.Expect('rows H3', ' H3/10000 H3/20000 H3/30000');
+        Observer.Verify();
     end;
 
     [Test]
@@ -217,6 +230,9 @@ codeunit 89254 "LT SM F3 Part Filters"
         Observer.Observe('rows H1', Rows);
         Step(Observer, 'after rows H1');
         Doc.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'Open(group 0 g4=[ZZZ] all=[]);Find(group 0 g4=[H1] all=[])');
+        Observer.Expect('rows H1', ' H1/10000 H1/20000 H1/30000');
+        Observer.Expect('after rows H1', '');
+        Observer.Verify();
     end;
 }

@@ -5,6 +5,9 @@
 //   bound to the same field ('Ctl Plain'). This file pins which caption such a control shows: when it is the only control on its field; when controls on
 //   the same field come before and after it; when the other control on the same field has no Caption property; and for a '3,' control on a field whose
 //   table field has CaptionClass. Read through TestPage control Caption, also for the other controls.
+// BC answers: the '3,' control shows the caption of the LAST control on the page bound to the same field (its Caption, or the table field's
+//   caption when that control has no Caption property), even when that control comes after it; when no other control is bound to its field
+//   it shows its own Caption, and with no Caption property the table field's caption. '3,x' shows 'x'.
 // BC versions: 27, 28, 29
 
 table 89258 "LT SM Cap3 Rec"
@@ -103,7 +106,10 @@ codeunit 89259 "LT SM CaptionClass3"
         Observer.Observe('cap3', P.Cap3.Caption());
         Observer.Observe('cap3 no caption', P.Cap3NoCaption.Caption());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('other', 'Ctl Other');
+        Observer.Expect('cap3', 'Own Alone');
+        Observer.Expect('cap3 no caption', 'Third Field');
+        Observer.Verify();
     end;
 
     [Test]
@@ -119,7 +125,12 @@ codeunit 89259 "LT SM CaptionClass3"
         Observer.Observe('cap3 other', P.Cap3B.Caption());
         Observer.Observe('other after', P.OtherAfter.Caption());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('first', 'Ctl First');
+        Observer.Expect('cap3', 'Ctl Last');
+        Observer.Expect('last', 'Ctl Last');
+        Observer.Expect('cap3 other', 'Ctl Other After');
+        Observer.Expect('other after', 'Ctl Other After');
+        Observer.Verify();
     end;
 
     [Test]
@@ -134,6 +145,10 @@ codeunit 89259 "LT SM CaptionClass3"
         Observer.Observe('cap3 text', P.Cap3Text.Caption());
         Observer.Observe('other no caption', P.OtherNoCaption.Caption());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('cap3', 'Plain Field');
+        Observer.Expect('plain no caption', 'Plain Field');
+        Observer.Expect('cap3 text', 'x');
+        Observer.Expect('other no caption', 'Other Field');
+        Observer.Verify();
     end;
 }

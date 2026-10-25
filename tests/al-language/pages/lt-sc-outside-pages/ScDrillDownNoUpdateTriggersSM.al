@@ -4,6 +4,8 @@
 // Facts: the neighbour ScDrillDownMarkedOnly.al does not cover: a field's OnDrillDown does Rec.ClearMarks(), marks row 10 and Rec.MarkedOnly(true) WITHOUT
 //   CurrPage.Update on a Worksheet page that has row triggers (OnAfterGetRecord and OnAfterGetCurrRecord; only OnAfterGetRecord). After TestField.Drilldown():
 //   the rows First/Next lists, GoToRecord on row 20, and the same after a later Next/Previous move.
+// BC answers: with OnAfterGetRecord and OnAfterGetCurrRecord the page lists ' 10 10' right after the drilldown (Next after First returns the
+//   marked row again), then GoToRecord(20) fails and a second walk lists ' 10'; with only OnAfterGetRecord the page still lists 10 and 20.
 // BC versions: 27, 28, 29
 
 page 89245 "LT SM SC Ops NoUpd Both"
@@ -143,7 +145,12 @@ codeunit 89247 "LT SM SC DrillDown NoUpdate"
             until not Operations.Next();
         Observer.Observe('listed again', Listed);
         Operations.Close();
-        Observer.Finish();
+        Observer.Expect('goto20 before', 'Yes');
+        Observer.Expect('current after drilldown', '10');
+        Observer.Expect('listed', ' 10 10');
+        Observer.Expect('goto20 after', 'No');
+        Observer.Expect('listed again', ' 10');
+        Observer.Verify();
     end;
 
     [Test]
@@ -167,6 +174,10 @@ codeunit 89247 "LT SM SC DrillDown NoUpdate"
         Observer.Observe('listed', Listed);
         Observer.Observe('goto20 after', Format(Operations.GoToRecord(Operation20)));
         Operations.Close();
-        Observer.Finish();
+        Observer.Expect('goto20 before', 'Yes');
+        Observer.Expect('current after drilldown', '10');
+        Observer.Expect('listed', ' 10 20');
+        Observer.Expect('goto20 after', 'Yes');
+        Observer.Verify();
     end;
 }

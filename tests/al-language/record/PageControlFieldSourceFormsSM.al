@@ -5,6 +5,8 @@
 //   variable index (Costs[I]), an element of a two-dimensional array (Grid[1, 2]), a quoted variable name ("Unit Cost"), a field of a quoted record variable
 //   ("Other Line".Amount), a procedure call (CostText()), a method call (Format(Rec.Quantity)) and a quoted field of Rec (Rec."Entry No." spelled with quotes).
 //   Columns read: TableNo, FieldNo, Enabled, Editable, Visible, SourceExpression, OptionString, Sequence.
+// BC answers: TableNo is the source table and FieldNo 0 for every non-field source; SourceExpression is the AL text as written (quotes kept, a
+//   field of Rec without 'Rec.'); Editable is 'True' for variables and array elements, 'False' for calls.
 // BC versions: 27, 28, 29
 
 page 89248 "LT SM PCF Source Forms"
@@ -76,6 +78,14 @@ codeunit 89249 "LT SM PCF Source Forms"
         Observer.Observe('ProcCall', Row('ProcCall'));
         Observer.Observe('FormatCall', Row('FormatCall'));
         Observer.Observe('PlainQty', Row('PlainQty'));
-        Observer.Finish();
+        Observer.Expect('Entry No.', 'TableNo=89000 FieldNo=1 Enabled=[true] Editable=[True] Visible=[true] SourceExpression=[Entry No.] OptionString=[] Sequence=0');
+        Observer.Expect('CostIndexed', 'TableNo=89000 FieldNo=0 Enabled=[true] Editable=[True] Visible=[true] SourceExpression=[Costs[I]] OptionString=[] Sequence=1');
+        Observer.Expect('GridCell', 'TableNo=89000 FieldNo=0 Enabled=[true] Editable=[True] Visible=[true] SourceExpression=[Grid[1, 2]] OptionString=[] Sequence=2');
+        Observer.Expect('QuotedVar', 'TableNo=89000 FieldNo=0 Enabled=[true] Editable=[True] Visible=[true] SourceExpression=["Unit Cost"] OptionString=[] Sequence=3');
+        Observer.Expect('QuotedRecField', 'TableNo=89000 FieldNo=0 Enabled=[true] Editable=[True] Visible=[true] SourceExpression=["Other Line".Amount] OptionString=[] Sequence=4');
+        Observer.Expect('ProcCall', 'TableNo=89000 FieldNo=0 Enabled=[true] Editable=[False] Visible=[true] SourceExpression=[CostText()] OptionString=[] Sequence=5');
+        Observer.Expect('FormatCall', 'TableNo=89000 FieldNo=0 Enabled=[true] Editable=[False] Visible=[true] SourceExpression=[Format(Rec.Quantity)] OptionString=[] Sequence=6');
+        Observer.Expect('PlainQty', 'TableNo=89000 FieldNo=2 Enabled=[true] Editable=[True] Visible=[true] SourceExpression=[Quantity] OptionString=[] Sequence=7');
+        Observer.Verify();
     end;
 }
