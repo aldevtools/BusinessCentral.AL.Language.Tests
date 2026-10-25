@@ -599,6 +599,7 @@ codeunit 73402 "LT XmT Attributes"
         A3: XmlAttribute;
         E: XmlElement;
         Got: XmlAttribute;
+        Child: XmlNode;
         S: Text;
     begin
         A := XmlAttribute.Create('k', 'urn:x', 'v');
@@ -639,7 +640,8 @@ codeunit 73402 "LT XmT Attributes"
         E := XmlElement.Create('r');
         E.Add(XmlAttribute.CreateNamespaceDeclaration('n', 'urn:x'));
         E.Add(XmlElement.Create('c'));
-        E.GetChildElements().Get(1).AsXmlElement().Add(XmlAttribute.Create('k', 'urn:x', 'v'));
+        E.GetChildElements().Get(1, Child);
+        Child.AsXmlElement().Add(XmlAttribute.Create('k', 'urn:x', 'v'));
         Observer.Observe('child_of_declared', Str(E));
         Observer.Finish();
     end;
