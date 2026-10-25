@@ -545,4 +545,78 @@ codeunit 80507 "LT AY Header Add Result"
         Observer.Expect('response_line_break_after_clear', 'No [Invalid HTTP header. Please, make sure the format of the header is correct.|InvalidHeader:Format]');
         Observer.Verify();
     end;
+
+    // Writer SE (2026-10-25, tests SE_*): al-runtime-rs assumption http-headers-add-used-result: the last error after an Add that answered false,
+    // for an empty name, on client headers, and in the "if not H.Add(..) then" form.
+    [Test]
+    procedure SE_AddFalse_LastError_EmptyName()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: HttpRequestMessage;
+        C: HttpContent;
+        H: HttpHeaders;
+        H2: HttpHeaders;
+    begin
+        R.GetHeaders(H);
+        AddLastError(Observer, H, 'request_empty', '', 'x');
+        C.GetHeaders(H2);
+        AddLastError(Observer, H2, 'content_empty', '', 'x');
+        Observer.Expect('request_empty_after_prior', 'No [Invalid HTTP header. Please, make sure the format of the header is correct.|InvalidHeader:Argument]');
+        Observer.Expect('request_empty_after_clear', 'No [Invalid HTTP header. Please, make sure the format of the header is correct.|InvalidHeader:Argument]');
+        Observer.Expect('content_empty_after_prior', 'No [Invalid HTTP header. Please, make sure the format of the header is correct.|InvalidHeader:Argument]');
+        Observer.Expect('content_empty_after_clear', 'No [Invalid HTTP header. Please, make sure the format of the header is correct.|InvalidHeader:Argument]');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure SE_AddFalse_LastError_ClientHeaders()
+    var
+        Observer: Codeunit "Probe Observer";
+        Client: HttpClient;
+        H: HttpHeaders;
+    begin
+        H := Client.DefaultRequestHeaders();
+        AddLastError(Observer, H, 'client_bad_value', 'Accept', 'json');
+        AddLastError(Observer, H, 'client_content_name', 'Content-Type', 'text/plain');
+        AddLastError(Observer, H, 'client_empty', '', 'x');
+        Observer.Expect('client_bad_value_after_prior', 'No [Invalid HTTP header. Please, make sure the format of the header is correct.|InvalidHeader:Format]');
+        Observer.Expect('client_bad_value_after_clear', 'No [Invalid HTTP header. Please, make sure the format of the header is correct.|InvalidHeader:Format]');
+        Observer.Expect('client_content_name_after_prior', 'No [The requested operation cannot be performed in this context.|InvalidOperation]');
+        Observer.Expect('client_content_name_after_clear', 'No [The requested operation cannot be performed in this context.|InvalidOperation]');
+        Observer.Expect('client_empty_after_prior', 'No [Invalid HTTP header. Please, make sure the format of the header is correct.|InvalidHeader:Argument]');
+        Observer.Expect('client_empty_after_clear', 'No [Invalid HTTP header. Please, make sure the format of the header is correct.|InvalidHeader:Argument]');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure SE_AddFalse_LastError_IfNotForm()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: HttpRequestMessage;
+        H: HttpHeaders;
+        Branch: Text;
+    begin
+        R.GetHeaders(H);
+        ClearLastError();
+        Branch := 'then-not-taken';
+        if not H.Add('Accept', 'json') then
+            Branch := 'then-taken [' + GetLastErrorText() + '|' + GetLastErrorCode() + ']';
+        Observer.Observe('bad_value', Branch);
+        ClearLastError();
+        Branch := 'then-not-taken';
+        if not H.Add('Content-Type', 'text/plain') then
+            Branch := 'then-taken [' + GetLastErrorText() + '|' + GetLastErrorCode() + ']';
+        Observer.Observe('content_name', Branch);
+        ClearLastError();
+        Branch := 'then-not-taken';
+        if not H.Add('', 'x') then
+            Branch := 'then-taken [' + GetLastErrorText() + '|' + GetLastErrorCode() + ']';
+        Observer.Observe('empty_name', Branch);
+        Observer.Observe('keys', Format(H.Keys().Count()));
+        Observer.Expect('bad_value', 'then-taken [Invalid HTTP header. Please, make sure the format of the header is correct.|InvalidHeader:Format]');
+        Observer.Expect('content_name', 'then-taken [The requested operation cannot be performed in this context.|InvalidOperation]');
+        Observer.Expect('empty_name', 'then-taken [Invalid HTTP header. Please, make sure the format of the header is correct.|InvalidHeader:Argument]');
+        Observer.Expect('keys', '0');
+        Observer.Verify();
+    end;
 }
