@@ -39,6 +39,16 @@
 //   host SetValue it runs the host's three times and the part's once, as with CurrPage.Update. After a part SetValue, the host's action
 //   runs the part's first, then the host's twice, then the part's again. OpenNew of the Card and the List runs empty-record calls whose
 //   count differs between fields, and no call with a row. Five opens of the same page in one test count the same.
+// Writer SI (al-runner issue 5858, assumption page-open-caption-class-expressions "other fills after the open"): SI_ tests in 86504 and
+//   the Document page 89150 (no part, over the QD row). Three rows: Id 1 and 2 with Incl VAT, Id 3 without.
+//   Facts (corpus CI 27.5, 28.5, 29.0 agree): GoToRecord and GoToKey on a Card or a Document page (OpenEdit or OpenView) run each
+//   expression control once more with the row the page stood on BEFORE the move (never the new row or the rows between), and Caption()
+//   keeps the value of the open. GoToRecord to the row the page already stands on runs them once the same way; a second GoToRecord again
+//   runs them with the first row of the open. After a SetValue, GoToRecord runs them twice with the old row (the change is saved). Next
+//   after a GoToRecord runs nothing. Last and First run them once with the NEW row, and Caption() then reads the new row's caption;
+//   Previous runs nothing and Caption() keeps the value Last gave. On a List page GoToRecord and GoToKey run nothing. On the Document page
+//   with a part, a host GoToRecord runs the host's expression with the old row and the part's with its new first row (Caption() of the
+//   part reads the new row, the host's keeps the old); a GoToKey inside the part runs nothing.
 // BC versions: 27, 28, 29
 
 table 86500 "LT QD Cap Row"
