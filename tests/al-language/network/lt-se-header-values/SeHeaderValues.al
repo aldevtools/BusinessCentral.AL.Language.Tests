@@ -1,7 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/httpheaders/httpheaders-add-method
 // Scope: in-scope
 // Fixtures used: Probe Observer (69160); own codeunit 89030
-// Probe: observe probe; every literal asserted below is what the BC service tiers produced (Windows BC 28.5 container, then corpus CI 27.5, 28.5, 29.0).
+// Probe: observe probe; every literal asserted below is what the corpus CI service tiers produced (27.5, 28.5 and 29.0 gave the same values).
 // Facts: HttpHeaders.Add(Name, Value) used as an expression (the Boolean or the error: first 60 characters and code) and GetValues afterwards, for
 // the typed headers that network/lt-ay-http/AyHeaderAddResult.al and lt-http-header-rules/P87*.al did not measure (Accept-Charset, Accept-Language,
 // From, Pragma, TE, Trailer, Upgrade, Via, Warning, Server, Proxy-Authenticate, Transfer-Encoding), request headers added to response headers and
@@ -102,7 +102,15 @@ codeunit 89030 "LT SE Header Values"
         Req(Observer, 'acceptlanguage_5', 'Accept-Language', 'e n');
         Req(Observer, 'from_6', 'From', 'a@b.example');
         Req(Observer, 'from_7', 'From', 'not an email');
-        Observer.Finish();
+        Observer.Expect('acceptcharset_0', 'ret=Yes n=1[utf-8]');
+        Observer.Expect('acceptcharset_1', 'ret=Yes n=1[utf-8; q=0.5]');
+        Observer.Expect('acceptcharset_2', 'ret=No get=E');
+        Observer.Expect('acceptcharset_3', 'ret=No get=E');
+        Observer.Expect('acceptlanguage_4', 'ret=Yes n=2[en-US][de; q=0.8]');
+        Observer.Expect('acceptlanguage_5', 'ret=No get=E');
+        Observer.Expect('from_6', 'ret=Yes n=1[a@b.example]');
+        Observer.Expect('from_7', 'ret=Yes n=1[not an email]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -118,7 +126,15 @@ codeunit 89030 "LT SE Header Values"
         Req(Observer, 'te_5', 'TE', 'a b');
         Req(Observer, 'trailer_6', 'Trailer', 'X-A');
         Req(Observer, 'trailer_7', 'Trailer', 'a b');
-        Observer.Finish();
+        Observer.Expect('pragma_0', 'ret=Yes n=1[no-cache]');
+        Observer.Expect('pragma_1', 'ret=Yes n=1[a=b]');
+        Observer.Expect('pragma_2', 'ret=No get=E');
+        Observer.Expect('te_3', 'ret=Yes n=1[trailers]');
+        Observer.Expect('te_4', 'ret=Yes n=1[deflate; q=0.5]');
+        Observer.Expect('te_5', 'ret=No get=E');
+        Observer.Expect('trailer_6', 'ret=Yes n=1[X-A]');
+        Observer.Expect('trailer_7', 'ret=No get=E');
+        Observer.Verify();
     end;
 
     [Test]
@@ -134,7 +150,15 @@ codeunit 89030 "LT SE Header Values"
         Req(Observer, 'via_5', 'Via', 'bad');
         Req(Observer, 'warning_6', 'Warning', '199 - "msg"');
         Req(Observer, 'warning_7', 'Warning', 'bad');
-        Observer.Finish();
+        Observer.Expect('upgrade_0', 'ret=Yes n=1[websocket]');
+        Observer.Expect('upgrade_1', 'ret=Yes n=1[HTTP/2.0]');
+        Observer.Expect('upgrade_2', 'ret=No get=E');
+        Observer.Expect('via_3', 'ret=Yes n=1[1.1 proxy]');
+        Observer.Expect('via_4', 'ret=Yes n=2[1.0 fred][1.1 p.example]');
+        Observer.Expect('via_5', 'ret=No get=E');
+        Observer.Expect('warning_6', 'ret=Yes n=1[199 - "msg"]');
+        Observer.Expect('warning_7', 'ret=No get=E');
+        Observer.Verify();
     end;
 
     [Test]
@@ -151,7 +175,16 @@ codeunit 89030 "LT SE Header Values"
         Resp(Observer, 'transferencoding_6', 'Transfer-Encoding', 'a b');
         Resp(Observer, 'via_7', 'Via', 'bad');
         Resp(Observer, 'pragma_8', 'Pragma', 'a b');
-        Observer.Finish();
+        Observer.Expect('server_0', 'ret=Yes n=2[a/1.0][(x)]');
+        Observer.Expect('server_1', 'ret=Yes n=2[a][b]');
+        Observer.Expect('server_2', 'ret=No get=E');
+        Observer.Expect('proxyauthenticate_3', 'ret=Yes n=1[Basic realm="x"]');
+        Observer.Expect('proxyauthenticate_4', 'ret=Yes get=E');
+        Observer.Expect('transferencoding_5', 'ret=Yes n=1[chunked]');
+        Observer.Expect('transferencoding_6', 'ret=No get=E');
+        Observer.Expect('via_7', 'ret=No get=E');
+        Observer.Expect('pragma_8', 'ret=No get=E');
+        Observer.Verify();
     end;
 
     [Test]
@@ -168,7 +201,16 @@ codeunit 89030 "LT SE Header Values"
         Resp(Observer, 'referer_6', 'Referer', 'a b');
         Resp(Observer, 'maxforwards_7', 'Max-Forwards', 'five');
         Resp(Observer, 'expect_8', 'Expect', '=');
-        Observer.Finish();
+        Observer.Expect('range_0', 'ret=Yes n=1[abc]');
+        Observer.Expect('ifmatch_1', 'ret=Yes n=1[abc]');
+        Observer.Expect('accept_2', 'ret=Yes n=1[json]');
+        Observer.Expect('authorization_3', 'ret=Yes n=1[a b c]');
+        Observer.Expect('useragent_4', 'ret=Yes n=1[(]');
+        Observer.Expect('host_5', 'ret=Yes n=1[a b]');
+        Observer.Expect('referer_6', 'ret=Yes n=1[a b]');
+        Observer.Expect('maxforwards_7', 'ret=Yes n=1[five]');
+        Observer.Expect('expect_8', 'ret=Yes n=1[=]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -185,7 +227,16 @@ codeunit 89030 "LT SE Header Values"
         Req(Observer, 'wwwauthenticate_6', 'WWW-Authenticate', ',');
         Req(Observer, 'server_7', 'Server', '(');
         Req(Observer, 'proxyauthenticate_8', 'Proxy-Authenticate', ',');
-        Observer.Finish();
+        Observer.Expect('etag_0', 'ret=Yes n=1[abc]');
+        Observer.Expect('age_1', 'ret=Yes n=1[old]');
+        Observer.Expect('location_2', 'ret=Yes n=1[a b]');
+        Observer.Expect('retryafter_3', 'ret=Yes n=1[later]');
+        Observer.Expect('vary_4', 'ret=Yes n=1[a b]');
+        Observer.Expect('acceptranges_5', 'ret=Yes n=1[a b]');
+        Observer.Expect('wwwauthenticate_6', 'ret=Yes n=1[,]');
+        Observer.Expect('server_7', 'ret=Yes n=1[(]');
+        Observer.Expect('proxyauthenticate_8', 'ret=Yes n=1[,]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -202,7 +253,16 @@ codeunit 89030 "LT SE Header Values"
         Cli(Observer, 'referer_6', 'Referer', 'a b');
         Cli(Observer, 'via_7', 'Via', 'bad');
         Cli(Observer, 'date_8', 'Date', 'yesterday');
-        Observer.Finish();
+        Observer.Expect('range_0', 'ret=No get=E');
+        Observer.Expect('accept_1', 'ret=No get=E');
+        Observer.Expect('ifmatch_2', 'ret=No get=E');
+        Observer.Expect('etag_3', 'ret=Yes n=1[abc]');
+        Observer.Expect('age_4', 'ret=Yes n=1[old]');
+        Observer.Expect('maxforwards_5', 'ret=No get=E');
+        Observer.Expect('referer_6', 'ret=Yes n=1[a%20b]');
+        Observer.Expect('via_7', 'ret=No get=E');
+        Observer.Expect('date_8', 'ret=No get=E');
+        Observer.Verify();
     end;
 
     [Test]
@@ -219,7 +279,16 @@ codeunit 89030 "LT SE Header Values"
         Req(Observer, 'acceptencoding_6', 'Accept-Encoding', 'gzip;q=1.0');
         Req(Observer, 'connection_7', 'Connection', ' close ');
         Req(Observer, 'connection_8', 'Connection', 'keep-alive, Upgrade');
-        Observer.Finish();
+        Observer.Expect('accept_0', 'ret=Yes n=2[text/html][application/json; q=0.9]');
+        Observer.Expect('accept_1', 'ret=Yes n=1[text/html; q=0.9; level=1]');
+        Observer.Expect('accept_2', 'ret=Yes n=1[*/*]');
+        Observer.Expect('accept_3', 'ret=Yes n=1[text/*]');
+        Observer.Expect('accept_4', 'ret=No get=E');
+        Observer.Expect('acceptencoding_5', 'ret=Yes n=2[gzip][deflate; q=0.5]');
+        Observer.Expect('acceptencoding_6', 'ret=Yes n=1[gzip; q=1.0]');
+        Observer.Expect('connection_7', 'ret=Yes n=1[close]');
+        Observer.Expect('connection_8', 'ret=Yes n=2[keep-alive][Upgrade]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -234,7 +303,14 @@ codeunit 89030 "LT SE Header Values"
         Req(Observer, 'useragent_4', 'User-Agent', 'a b');
         Req(Observer, 'useragent_5', 'User-Agent', 'a/1 b/2');
         Req(Observer, 'proxyauthorization_6', 'Proxy-Authorization', 'Basic  x');
-        Observer.Finish();
+        Observer.Expect('authorization_0', 'ret=Yes n=1[Bearer abc]');
+        Observer.Expect('authorization_1', 'ret=Yes n=1[Basic]');
+        Observer.Expect('authorization_2', 'ret=Yes n=1[Bearer a b]');
+        Observer.Expect('useragent_3', 'ret=Yes n=3[Mozilla/5.0][(X11; Linux)][Foo/1]');
+        Observer.Expect('useragent_4', 'ret=Yes n=2[a][b]');
+        Observer.Expect('useragent_5', 'ret=Yes n=2[a/1][b/2]');
+        Observer.Expect('proxyauthorization_6', 'ret=Yes n=1[Basic x]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -250,7 +326,15 @@ codeunit 89030 "LT SE Header Values"
         Req(Observer, 'host_5', 'Host', 'a.example:');
         Req(Observer, 'host_6', 'Host', '[::1]:8080');
         Req(Observer, 'host_7', 'Host', 'A.Example');
-        Observer.Finish();
+        Observer.Expect('range_0', 'ret=Yes n=1[bytes=0-9, 20-29]');
+        Observer.Expect('range_1', 'ret=Yes n=1[bytes=-5]');
+        Observer.Expect('range_2', 'ret=No get=E');
+        Observer.Expect('range_3', 'ret=Yes n=1[items=1-2]');
+        Observer.Expect('host_4', 'ret=Yes n=1[a.example:80]');
+        Observer.Expect('host_5', 'ret=Yes n=1[a.example:]');
+        Observer.Expect('host_6', 'ret=Yes n=1[[::1]:8080]');
+        Observer.Expect('host_7', 'ret=Yes n=1[A.Example]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -265,7 +349,14 @@ codeunit 89030 "LT SE Header Values"
         Req(Observer, 'ifunmodifiedsince_4', 'If-Unmodified-Since', 'tue, 15 nov 1994 08:12:31 gmt');
         Cnt(Observer, 'lastmodified_5', 'Last-Modified', 'Tue, 15 Nov 1994 08:12:31 GMT');
         Cnt(Observer, 'expires_6', 'Expires', 'Tue, 15 Nov 1994 08:12:31 UTC');
-        Observer.Finish();
+        Observer.Expect('date_0', 'ret=Yes n=1[Tue, 15 Nov 1994 08:12:31 GMT]');
+        Observer.Expect('date_1', 'ret=Yes n=1[Tue, 15 Nov 1994 08:12:31 GMT]');
+        Observer.Expect('date_2', 'ret=Yes n=1[Tue, 15 Nov 1994 08:12:31 GMT]');
+        Observer.Expect('date_3', 'ret=Yes n=1[Tue, 15 Nov 1994 07:12:31 GMT]');
+        Observer.Expect('ifunmodifiedsince_4', 'ret=No get=E');
+        Observer.Expect('lastmodified_5', 'ret=Yes n=1[Tue, 15 Nov 1994 08:12:31 GMT]');
+        Observer.Expect('expires_6', 'ret=Yes n=1[Tue, 15 Nov 1994 08:12:31 GMT]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -281,7 +372,15 @@ codeunit 89030 "LT SE Header Values"
         Req(Observer, 'ifrange_5', 'If-Range', 'Tue, 15 Nov 1994 08:12:31 GMT');
         Resp(Observer, 'etag_6', 'ETag', 'W/"a"');
         Resp(Observer, 'etag_7', 'ETag', '*');
-        Observer.Finish();
+        Observer.Expect('ifmatch_0', 'ret=Yes n=2["a"]["b"]');
+        Observer.Expect('ifmatch_1', 'ret=Yes n=1[W/"a"]');
+        Observer.Expect('ifnonematch_2', 'ret=Yes n=1[*]');
+        Observer.Expect('ifnonematch_3', 'ret=Yes n=2["a"][W/"b"]');
+        Observer.Expect('ifrange_4', 'ret=Yes n=1["a"]');
+        Observer.Expect('ifrange_5', 'ret=Yes n=1[Tue, 15 Nov 1994 08:12:31 GMT]');
+        Observer.Expect('etag_6', 'ret=Yes n=1[W/"a"]');
+        Observer.Expect('etag_7', 'ret=No get=E');
+        Observer.Verify();
     end;
 
     [Test]
@@ -299,7 +398,17 @@ codeunit 89030 "LT SE Header Values"
         Cnt(Observer, 'contentlength_7', 'Content-Length', '05');
         Cnt(Observer, 'contentlength_8', 'Content-Length', '-1');
         Cnt(Observer, 'contentlanguage_9', 'Content-Language', 'en, de');
-        Observer.Finish();
+        Observer.Expect('contentdisposition_0', 'ret=Yes n=1[inline]');
+        Observer.Expect('contentdisposition_1', 'ret=Yes n=1[attachment; filename=a.txt]');
+        Observer.Expect('contentdisposition_2', 'ret=Yes n=1[form-data; name="f"; filename="a b.txt"]');
+        Observer.Expect('contenttype_3', 'ret=No n=1[text/plain; charset=utf-8]');
+        Observer.Expect('contenttype_4', 'ret=No n=1[text/plain; charset=utf-8]');
+        Observer.Expect('contenttype_5', 'ret=No n=1[text/plain; charset=utf-8]');
+        Observer.Expect('contentlength_6', 'ret=Yes n=1[5]');
+        Observer.Expect('contentlength_7', 'ret=Yes n=1[5]');
+        Observer.Expect('contentlength_8', 'ret=No get=E');
+        Observer.Expect('contentlanguage_9', 'ret=Yes n=2[en][de]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -315,6 +424,14 @@ codeunit 89030 "LT SE Header Values"
         Req(Observer, 'referer_5', 'Referer', 'https://a.example');
         Cnt(Observer, 'contentrange_6', 'Content-Range', 'bytes */10');
         Req(Observer, 'expect_7', 'Expect', '100-continue; a=b');
-        Observer.Finish();
+        Observer.Expect('maxforwards_0', 'ret=Yes n=1[7]');
+        Observer.Expect('age_1', 'ret=Yes n=1[0]');
+        Observer.Expect('retryafter_2', 'ret=Yes n=1[Tue, 15 Nov 1994 08:12:31 GMT]');
+        Observer.Expect('location_3', 'ret=Yes n=1[/a%20b?x=1]');
+        Observer.Expect('location_4', 'ret=Yes n=1[https://a.example/x]');
+        Observer.Expect('referer_5', 'ret=Yes n=1[https://a.example/]');
+        Observer.Expect('contentrange_6', 'ret=Yes n=1[bytes */10]');
+        Observer.Expect('expect_7', 'ret=Yes n=1[100-continue; a=b]');
+        Observer.Verify();
     end;
 }

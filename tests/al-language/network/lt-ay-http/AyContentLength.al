@@ -259,7 +259,10 @@ codeunit 80508 "LT AY Content Length"
         C.ReadAs(T);
         Observer.Observe('old_handle_after_read', Show(H));
         Observer.Observe('new_handle_after_read', Len(C));
-        Observer.Finish();
+        Observer.Expect('old_handle_before_read', 'No');
+        Observer.Expect('old_handle_after_read', 'Yes[5]');
+        Observer.Expect('new_handle_after_read', 'Yes[5]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -275,7 +278,9 @@ codeunit 80508 "LT AY Content Length"
         Observer.Observe('after_instream', Len(C));
         C.ReadAs(T);
         Observer.Observe('after_text', Len(C) + ' read=' + T);
-        Observer.Finish();
+        Observer.Expect('after_instream', 'No');
+        Observer.Expect('after_text', 'Yes[5] read=hello');
+        Observer.Verify();
     end;
 
     [Test]
@@ -291,7 +296,8 @@ codeunit 80508 "LT AY Content Length"
         C.ReadAs(InS);
         InS.ReadText(T);
         Observer.Observe('after_instream', Len(C) + ' read=' + T);
-        Observer.Finish();
+        Observer.Expect('after_instream', 'Yes[5] read=hello');
+        Observer.Verify();
     end;
 
     [Test]
@@ -308,7 +314,10 @@ codeunit 80508 "LT AY Content Length"
         C.WriteFrom('hello');
         C.ReadAs(T);
         Observer.Observe('then_hello_read', Len(C) + ' read=' + T);
-        Observer.Finish();
+        Observer.Expect('empty_write', 'No');
+        Observer.Expect('empty_read', 'Yes[0] read=');
+        Observer.Expect('then_hello_read', 'Yes[0] read=hello');
+        Observer.Verify();
     end;
 
     [Test]
@@ -326,7 +335,11 @@ codeunit 80508 "LT AY Content Length"
         C.ReadAs(T);
         Observer.Observe('after_read', Show(H) + ' read=' + T);
         Observer.Observe('new_handle', Len(C));
-        Observer.Finish();
+        Observer.Expect('add', 'Yes');
+        Observer.Expect('before_read', 'Yes[3]');
+        Observer.Expect('after_read', 'Yes[3] read=hello');
+        Observer.Expect('new_handle', 'Yes[3]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -344,6 +357,10 @@ codeunit 80508 "LT AY Content Length"
         C.ReadAs(T);
         Observer.Observe('old_contains_after_read', Format(H.Contains('Content-Length')));
         Observer.Observe('new_handle_after_read', Len(C));
-        Observer.Finish();
+        Observer.Expect('old_contains', 'No');
+        Observer.Expect('new_handle', 'No');
+        Observer.Expect('old_contains_after_read', 'Yes');
+        Observer.Expect('new_handle_after_read', 'Yes[5]');
+        Observer.Verify();
     end;
 }
