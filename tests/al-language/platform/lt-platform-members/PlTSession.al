@@ -301,4 +301,48 @@ codeunit 74210 "LT PlT Session"
         Observer.Expect('active_huge', 'No');
         Observer.Verify();
     end;
+
+    // Writer SN (2026-10-25, runtime hand-off refuse-platform "GlobalLanguage(0/-1/99999): which positive ids raise NotSupportedLanguage"):
+    [TryFunction]
+    local procedure TrySetLanguage(Id: Integer)
+    begin
+        GlobalLanguage(Id);
+    end;
+
+    local procedure LanguageOutcome(Id: Integer; Old: Integer): Text
+    var
+        Now: Integer;
+    begin
+        ClearLastError();
+        if TrySetLanguage(Id) then begin
+            Now := GlobalLanguage();
+            GlobalLanguage(Old);
+            exit('ok ' + Format(Now));
+        end;
+        exit(GetLastErrorCode() + ' ' + GetLastErrorText());
+    end;
+
+    [Test]
+    procedure GlobalLanguage_PositiveIds()
+    var
+        Observer: Codeunit "Probe Observer";
+        Old: Integer;
+    begin
+        Old := GlobalLanguage();
+        Observer.Observe('1', LanguageOutcome(1, Old));
+        Observer.Observe('9', LanguageOutcome(9, Old));
+        Observer.Observe('127', LanguageOutcome(127, Old));
+        Observer.Observe('1000', LanguageOutcome(1000, Old));
+        Observer.Observe('1030', LanguageOutcome(1030, Old));
+        Observer.Observe('1036', LanguageOutcome(1036, Old));
+        Observer.Observe('2057', LanguageOutcome(2057, Old));
+        Observer.Observe('3082', LanguageOutcome(3082, Old));
+        Observer.Observe('4096', LanguageOutcome(4096, Old));
+        Observer.Observe('8192', LanguageOutcome(8192, Old));
+        Observer.Observe('9999', LanguageOutcome(9999, Old));
+        Observer.Observe('32767', LanguageOutcome(32767, Old));
+        Observer.Observe('65535', LanguageOutcome(65535, Old));
+        Observer.Observe('restored', Format(GlobalLanguage() = Old));
+        Observer.Finish();
+    end;
 }
