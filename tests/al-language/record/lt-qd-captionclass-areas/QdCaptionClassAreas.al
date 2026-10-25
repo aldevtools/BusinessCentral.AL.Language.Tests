@@ -1449,6 +1449,322 @@ codeunit 86504 "LT QD CaptionClass Areas"
         Observer.Expect('close', 'empty>0=No fields0= same=Yes rest=');
         Observer.Verify();
     end;
+
+    // Writer SI (al-runner issue 5858, assumption page-open-caption-class-expressions "other fills after the open"): GoToRecord, GoToKey,
+    // First, Last and Previous on the QD card, the QF list, a Document page without a part (89150) and the QO Document page with its part.
+    // Three rows: Id 1 and 2 with Incl VAT, Id 3 without, so the "Expr Id" and "Expr VAT" captions tell which row an expression ran with.
+    local procedure SiSeedThree()
+    var
+        R: Record "LT QD Cap Row";
+        i: Integer;
+    begin
+        R.DeleteAll();
+        for i := 1 to 3 do begin
+            R.Init();
+            R.Id := i;
+            R."Incl VAT" := i < 3;
+            R.Insert();
+        end;
+        Log.Reset();
+    end;
+
+    local procedure SiCaps(var Observer: Codeunit "Probe Observer"; Prefix: Text; var P: TestPage "LT QD Cap Card")
+    begin
+        Cap(Observer, Prefix + 'row', P.Id.Value());
+        Cap(Observer, Prefix + 'exprId', QfNoCall(P.ExprId.Caption()));
+        Cap(Observer, Prefix + 'exprVAT', P.ExprVAT.Caption());
+    end;
+
+    [Test]
+    procedure SI_Card_OpenEdit_GoToRecord()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT QD Cap Row";
+        P: TestPage "LT QD Cap Card";
+    begin
+        SiSeedThree();
+        P.OpenEdit();
+        QoStep(Observer, 'open');
+        SiCaps(Observer, '', P);
+        R.Get(3);
+        Observer.Observe('goto', Format(P.GoToRecord(R)));
+        QoStep(Observer, 'goto_calls');
+        SiCaps(Observer, 'goto_', P);
+        P.Close();
+        QoStep(Observer, 'close');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SI_Card_OpenView_GoToRecord()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT QD Cap Row";
+        P: TestPage "LT QD Cap Card";
+    begin
+        SiSeedThree();
+        P.OpenView();
+        QoStep(Observer, 'open');
+        SiCaps(Observer, '', P);
+        R.Get(3);
+        Observer.Observe('goto', Format(P.GoToRecord(R)));
+        QoStep(Observer, 'goto_calls');
+        SiCaps(Observer, 'goto_', P);
+        P.Close();
+        QoStep(Observer, 'close');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SI_Card_OpenEdit_GoToKey()
+    var
+        Observer: Codeunit "Probe Observer";
+        P: TestPage "LT QD Cap Card";
+    begin
+        SiSeedThree();
+        P.OpenEdit();
+        QoStep(Observer, 'open');
+        Observer.Observe('goto', Format(P.GoToKey(3)));
+        QoStep(Observer, 'goto_calls');
+        SiCaps(Observer, 'goto_', P);
+        P.Close();
+        QoStep(Observer, 'close');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SI_Card_GoToRecord_SameRow()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT QD Cap Row";
+        P: TestPage "LT QD Cap Card";
+    begin
+        SiSeedThree();
+        P.OpenEdit();
+        QoStep(Observer, 'open');
+        R.Get(1);
+        Observer.Observe('goto', Format(P.GoToRecord(R)));
+        QoStep(Observer, 'goto_calls');
+        SiCaps(Observer, 'goto_', P);
+        P.Close();
+        QoStep(Observer, 'close');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SI_Card_GoToRecord_Twice()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT QD Cap Row";
+        P: TestPage "LT QD Cap Card";
+    begin
+        SiSeedThree();
+        P.OpenEdit();
+        QoStep(Observer, 'open');
+        R.Get(3);
+        Observer.Observe('goto3', Format(P.GoToRecord(R)));
+        QoStep(Observer, 'goto3_calls');
+        R.Get(2);
+        Observer.Observe('goto2', Format(P.GoToRecord(R)));
+        QoStep(Observer, 'goto2_calls');
+        SiCaps(Observer, 'goto2_', P);
+        P.Close();
+        QoStep(Observer, 'close');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SI_Card_GoToRecord_ThenNext()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT QD Cap Row";
+        P: TestPage "LT QD Cap Card";
+    begin
+        SiSeedThree();
+        P.OpenEdit();
+        QoStep(Observer, 'open');
+        R.Get(2);
+        Observer.Observe('goto', Format(P.GoToRecord(R)));
+        QoStep(Observer, 'goto_calls');
+        Observer.Observe('next', Format(P.Next()));
+        QoStep(Observer, 'next_calls');
+        SiCaps(Observer, 'next_', P);
+        P.Close();
+        QoStep(Observer, 'close');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SI_Card_Last_Previous_First()
+    var
+        Observer: Codeunit "Probe Observer";
+        P: TestPage "LT QD Cap Card";
+    begin
+        SiSeedThree();
+        P.OpenEdit();
+        QoStep(Observer, 'open');
+        Observer.Observe('last', Format(P.Last()));
+        QoStep(Observer, 'last_calls');
+        SiCaps(Observer, 'last_', P);
+        Observer.Observe('previous', Format(P.Previous()));
+        QoStep(Observer, 'previous_calls');
+        SiCaps(Observer, 'previous_', P);
+        Observer.Observe('first', Format(P.First()));
+        QoStep(Observer, 'first_calls');
+        SiCaps(Observer, 'first_', P);
+        P.Close();
+        QoStep(Observer, 'close');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SI_Card_SetValueThenGoToRecord()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT QD Cap Row";
+        P: TestPage "LT QD Cap Card";
+    begin
+        SiSeedThree();
+        P.OpenEdit();
+        QoStep(Observer, 'open');
+        P.Lit20.SetValue(5);
+        QoStep(Observer, 'setvalue_calls');
+        R.Get(3);
+        Observer.Observe('goto', Format(P.GoToRecord(R)));
+        QoStep(Observer, 'goto_calls');
+        SiCaps(Observer, 'goto_', P);
+        P.Close();
+        QoStep(Observer, 'close');
+        R.Get(1);
+        Observer.Observe('row1_lit20', Format(R."Lit 2-0"));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SI_List_OpenView_GoToRecord()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT QD Cap Row";
+        P: TestPage "LT QF Cap List";
+    begin
+        SiSeedThree();
+        P.OpenView();
+        QoStep(Observer, 'open');
+        Cap(Observer, 'exprId', QfNoCall(P.ExprId.Caption()));
+        R.Get(3);
+        Observer.Observe('goto', Format(P.GoToRecord(R)));
+        QoStep(Observer, 'goto_calls');
+        Cap(Observer, 'goto_row', P.Id.Value());
+        Cap(Observer, 'goto_exprId', QfNoCall(P.ExprId.Caption()));
+        Cap(Observer, 'goto_exprVAT', P.ExprVAT.Caption());
+        P.Close();
+        QoStep(Observer, 'close');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SI_List_OpenEdit_GoToKey()
+    var
+        Observer: Codeunit "Probe Observer";
+        P: TestPage "LT QF Cap List";
+    begin
+        SiSeedThree();
+        P.OpenEdit();
+        QoStep(Observer, 'open');
+        Observer.Observe('goto', Format(P.GoToKey(3)));
+        QoStep(Observer, 'goto_calls');
+        Cap(Observer, 'goto_row', P.Id.Value());
+        Cap(Observer, 'goto_exprId', QfNoCall(P.ExprId.Caption()));
+        Cap(Observer, 'goto_exprVAT', P.ExprVAT.Caption());
+        P.Close();
+        QoStep(Observer, 'close');
+        Observer.Finish();
+    end;
+
+    // The reporter's Document page: a Document page without a part over the QD row.
+    [Test]
+    procedure SI_Doc_OpenEdit_GoToRecord()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT QD Cap Row";
+        P: TestPage "LT SI Cap Doc";
+    begin
+        SiSeedThree();
+        P.OpenEdit();
+        QoStep(Observer, 'open');
+        Cap(Observer, 'exprId', QfNoCall(P.ExprId.Caption()));
+        R.Get(3);
+        Observer.Observe('goto', Format(P.GoToRecord(R)));
+        QoStep(Observer, 'goto_calls');
+        Cap(Observer, 'goto_row', P.Id.Value());
+        Cap(Observer, 'goto_exprId', QfNoCall(P.ExprId.Caption()));
+        Cap(Observer, 'goto_exprVAT', P.ExprVAT.Caption());
+        P.Close();
+        QoStep(Observer, 'close');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SI_Doc_OpenView_GoToKey()
+    var
+        Observer: Codeunit "Probe Observer";
+        P: TestPage "LT SI Cap Doc";
+    begin
+        SiSeedThree();
+        P.OpenView();
+        QoStep(Observer, 'open');
+        Observer.Observe('goto', Format(P.GoToKey(3)));
+        QoStep(Observer, 'goto_calls');
+        Cap(Observer, 'goto_row', P.Id.Value());
+        Cap(Observer, 'goto_exprId', QfNoCall(P.ExprId.Caption()));
+        Cap(Observer, 'goto_exprVAT', P.ExprVAT.Caption());
+        P.Close();
+        QoStep(Observer, 'close');
+        Observer.Finish();
+    end;
+
+    // The QO Document page with its ListPart: the host moves to D2, so the part is refilled with D2's lines (3 and 4).
+    [Test]
+    procedure SI_DocPart_OpenEdit_GoToRecord()
+    var
+        Observer: Codeunit "Probe Observer";
+        D: Record "LT QO Cap Doc";
+        H: TestPage "LT QO Cap Doc";
+    begin
+        QoSeedDocs();
+        H.OpenEdit();
+        QoStep(Observer, 'open');
+        D.Get('D2');
+        Observer.Observe('goto', Format(H.GoToRecord(D)));
+        QoStep(Observer, 'goto_calls');
+        Cap(Observer, 'goto_no', H."No.".Value());
+        Cap(Observer, 'goto_head', H.HeadExpr.Caption());
+        Cap(Observer, 'goto_line', H.Lines."Line No.".Value());
+        Cap(Observer, 'goto_exprA', H.Lines.ExprA.Caption());
+        H.Close();
+        QoStep(Observer, 'close');
+        Observer.Finish();
+    end;
+
+    // A move inside the part: GoToKey to the second line of D1.
+    [Test]
+    procedure SI_DocPart_Part_GoToKey()
+    var
+        Observer: Codeunit "Probe Observer";
+        H: TestPage "LT QO Cap Doc";
+    begin
+        QoSeedDocs();
+        H.OpenEdit();
+        QoStep(Observer, 'open');
+        Observer.Observe('goto', Format(H.Lines.GoToKey('D1', 2)));
+        QoStep(Observer, 'goto_calls');
+        Cap(Observer, 'goto_line', H.Lines."Line No.".Value());
+        Cap(Observer, 'goto_exprA', H.Lines.ExprA.Caption());
+        Cap(Observer, 'goto_head', H.HeadExpr.Caption());
+        H.Close();
+        QoStep(Observer, 'close');
+        Observer.Finish();
+    end;
 }
 
 page 87092 "LT QO Cap Doc"
@@ -1602,6 +1918,29 @@ page 86642 "LT QF Cap Host"
                 field(Id; Rec.Id) { ApplicationArea = All; }
             }
             part(Lines; "LT QF Cap Part") { ApplicationArea = All; }
+        }
+    }
+}
+
+// Writer SI: the Document page of al-runner issue 5858 (no part) over the QD row.
+page 89150 "LT SI Cap Doc"
+{
+    PageType = Document;
+    ApplicationArea = All;
+    UsageCategory = None;
+    SourceTable = "LT QD Cap Row";
+
+    layout
+    {
+        area(Content)
+        {
+            group(G)
+            {
+                field(Id; Rec.Id) { ApplicationArea = All; }
+                field(Expr20; Rec."Expr 2-0") { ApplicationArea = All; }
+                field(ExprVAT; Rec."Expr VAT") { ApplicationArea = All; }
+                field(ExprId; Rec."Expr Id") { ApplicationArea = All; }
+            }
         }
     }
 }
