@@ -228,4 +228,122 @@ codeunit 80508 "LT AY Content Length"
         Observer.Expect('stream_read', 'Yes[5] read=hello world');
         Observer.Verify();
     end;
+
+    // Writer SE (2026-10-25, tests SE_*): al-runtime-rs assumption http-content-length-after-read: a headers handle taken after WriteFrom and
+    // before the read, the order of ReadAs(InStream) and ReadAs(Text), an empty body, a Content-Length added by hand before the read,
+    // and a handle taken before the first WriteFrom (the Linux CI ended ContentLength_HeadersTakenBeforeWrite with a bare .NET exception).
+    local procedure Show(var H: HttpHeaders): Text
+    var
+        Vals: List of [Text];
+        V: Text;
+        Out: Text;
+    begin
+        Out := Format(H.Contains('Content-Length'));
+        if H.GetValues('Content-Length', Vals) then
+            foreach V in Vals do
+                Out += '[' + V + ']';
+        exit(Out);
+    end;
+
+    [Test]
+    procedure SE_ContentLength_HandleTakenBeforeRead()
+    var
+        Observer: Codeunit "Probe Observer";
+        C: HttpContent;
+        H: HttpHeaders;
+        T: Text;
+    begin
+        C.WriteFrom('hello');
+        C.GetHeaders(H);
+        Observer.Observe('old_handle_before_read', Show(H));
+        C.ReadAs(T);
+        Observer.Observe('old_handle_after_read', Show(H));
+        Observer.Observe('new_handle_after_read', Len(C));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SE_ContentLength_InStreamThenText()
+    var
+        Observer: Codeunit "Probe Observer";
+        C: HttpContent;
+        InS: InStream;
+        T: Text;
+    begin
+        C.WriteFrom('hello');
+        C.ReadAs(InS);
+        Observer.Observe('after_instream', Len(C));
+        C.ReadAs(T);
+        Observer.Observe('after_text', Len(C) + ' read=' + T);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SE_ContentLength_TextThenInStream()
+    var
+        Observer: Codeunit "Probe Observer";
+        C: HttpContent;
+        InS: InStream;
+        T: Text;
+    begin
+        C.WriteFrom('hello');
+        C.ReadAs(T);
+        C.ReadAs(InS);
+        InS.ReadText(T);
+        Observer.Observe('after_instream', Len(C) + ' read=' + T);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SE_ContentLength_EmptyBody()
+    var
+        Observer: Codeunit "Probe Observer";
+        C: HttpContent;
+        T: Text;
+    begin
+        C.WriteFrom('');
+        Observer.Observe('empty_write', Len(C));
+        C.ReadAs(T);
+        Observer.Observe('empty_read', Len(C) + ' read=' + T);
+        C.WriteFrom('hello');
+        C.ReadAs(T);
+        Observer.Observe('then_hello_read', Len(C) + ' read=' + T);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SE_ContentLength_AddedByHandBeforeRead()
+    var
+        Observer: Codeunit "Probe Observer";
+        C: HttpContent;
+        H: HttpHeaders;
+        T: Text;
+    begin
+        C.WriteFrom('hello');
+        C.GetHeaders(H);
+        Observer.Observe('add', Format(H.Add('Content-Length', '3')));
+        Observer.Observe('before_read', Show(H));
+        C.ReadAs(T);
+        Observer.Observe('after_read', Show(H) + ' read=' + T);
+        Observer.Observe('new_handle', Len(C));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SE_ContentLength_HandleTakenBeforeWrite()
+    var
+        Observer: Codeunit "Probe Observer";
+        C: HttpContent;
+        H: HttpHeaders;
+        T: Text;
+    begin
+        C.GetHeaders(H);
+        C.WriteFrom('hello');
+        Observer.Observe('old_contains', Format(H.Contains('Content-Length')));
+        Observer.Observe('new_handle', Len(C));
+        C.ReadAs(T);
+        Observer.Observe('old_contains_after_read', Format(H.Contains('Content-Length')));
+        Observer.Observe('new_handle_after_read', Len(C));
+        Observer.Finish();
+    end;
 }
