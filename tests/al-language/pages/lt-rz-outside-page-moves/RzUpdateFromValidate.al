@@ -5,7 +5,7 @@
 //   Which row the page stands on afterwards, which rows it lists, and the triggers on the way. Pages: a Worksheet with the filter field in a
 //   header group, without OnFindRecord/OnNextRecord (the shape of al-runner issue 5824) and with them; a List whose filter field is a
 //   repeater field. Data: A G1, B G2, C G1, D G2, E G1, F G2. The same move after an ACTION is pinned in pages/lt-ai-list-order/AiListOrderTests.al.
-// Result (BC 29.0, Windows container): when the filter leaves the current row, the page stands on the next row of the filtered set after
+// Result (BC 27.5, 28.5, 29.0 alike; corpus CI runs 40176621199, 40176636772, 40176653266): when the filter leaves the current row, the page stands on the next row of the filtered set after
 //   the old key, or on the previous one when none follows (B/G1 -> C, D/G1 -> E, A/G2 -> B, F/G1 -> E), the same with Update(true), on the
 //   Worksheet with and without OnFindRecord/OnNextRecord and on the List. With OnFindRecord the page asks Find('=>') first and Find('=><')
 //   when that finds nothing. A filter with no rows leaves a blank row; removing the filter again opens on the first row.

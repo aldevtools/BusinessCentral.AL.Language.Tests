@@ -6,7 +6,7 @@
 //   and not), between two rows of the view, after it, and on a row that is before the view by the secondary key but after it by the primary key.
 //   Routes: lookup RunModal (handler reads the shown row and invokes OK, GetRecord), RunModal, TestPage OpenEdit and OpenView.
 //   The same in the primary key is pinned in pages/lt-outside-worksheet-2/RtFillOnOpen.al.
-// Result (BC 29.0, Windows container): the page opens on the row Find('=><') from Rec reaches in the SECONDARY key (Item Code), on every
+// Result (BC 27.5, 28.5, 29.0 alike; corpus CI runs 40176621199, 40176636772, 40176653266): the page opens on the row Find('=><') from Rec reaches in the SECONDARY key (Item Code), on every
 //   route: HDR (before the view) -> X; Y (inside) -> Y; ZZZ (after) -> Y; XM (between X and Y) -> Y; TRL (before by Item Code, after by
 //   Line No.) -> X. A lookup returns that row with LookupOK.
 // Object ids 88921 (writer RZ).
