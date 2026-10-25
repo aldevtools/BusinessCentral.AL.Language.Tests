@@ -226,6 +226,43 @@ codeunit 74925 "LT P145 Page Run View"
     // ---- writer SF (al-runtime-rs assumption page-run-record-view-order-applies): Page.Run(Page, Rec) on List B (view sorting(Grp, Qty)
     //      order(descending)) and on List C (view sorting(Qty) order(ascending)) with records ascending and descending. ----
 
+    // Seed() of this codeunit failed in the SF tests on the corpus CI (27.5, 28.5, 29.0) with "The record in table LT P145 Row already
+    // exists. Identification fields and values: No.='R2'" after the P145_A tests; this seed notes the rows it finds and inserts or modifies.
+    local procedure SfSeed(var Observer: Codeunit "Probe Observer")
+    var
+        Row: Record "LT P145 Row";
+        Data: List of [Text];
+        Item: Text;
+        Parts: List of [Text];
+        Qty: Integer;
+        Inserted: Text;
+    begin
+        Row.Reset();
+        Observer.Observe('seed_before', Format(Row.Count()));
+        Row.DeleteAll();
+        Observer.Observe('seed_after_deleteall', Format(Row.Count()));
+        Data.Add('R1;A;3');
+        Data.Add('R2;A;1');
+        Data.Add('R3;B;2');
+        Data.Add('R4;B;5');
+        Data.Add('R5;C;4');
+        Data.Add('R6;A;6');
+        foreach Item in Data do begin
+            Parts := Item.Split(';');
+            Evaluate(Qty, Parts.Get(3));
+            Clear(Row);
+            Row."No." := CopyStr(Parts.Get(1), 1, 20);
+            Row.Grp := CopyStr(Parts.Get(2), 1, 10);
+            Row.Qty := Qty;
+            if Row.Insert() then
+                Inserted += Row."No." + ','
+            else
+                if Row.Modify() then
+                    Inserted += Row."No." + '(m),';
+        end;
+        Observer.Observe('seed', Inserted + ' count=' + Format(Row.Count()));
+    end;
+
     [Test]
     [HandlerFunctions('ListBHandler')]
     procedure SF_B_NoRecordArgument()
@@ -234,7 +271,7 @@ codeunit 74925 "LT P145 Page Run View"
         Log: Codeunit "LT P145 Log Mgt";
         Row: Record "LT P145 Row";
     begin
-        Seed();
+        SfSeed(Observer);
         Log.Clear();
         Page.Run(Page::"LT P145 List B");
         Observer.Observe('log', Log.Dump());
@@ -249,7 +286,7 @@ codeunit 74925 "LT P145 Page Run View"
         Log: Codeunit "LT P145 Log Mgt";
         Row: Record "LT P145 Row";
     begin
-        Seed();
+        SfSeed(Observer);
         Log.Clear();
         Page.Run(Page::"LT P145 List B", Row);
         Observer.Observe('log', Log.Dump());
@@ -266,7 +303,7 @@ codeunit 74925 "LT P145 Page Run View"
     begin
         Row.SetCurrentKey(Grp, Qty);
         Row.Ascending(true);
-        Seed();
+        SfSeed(Observer);
         Log.Clear();
         Page.Run(Page::"LT P145 List B", Row);
         Observer.Observe('log', Log.Dump());
@@ -283,7 +320,7 @@ codeunit 74925 "LT P145 Page Run View"
     begin
         Row.SetCurrentKey(Grp, Qty);
         Row.Ascending(false);
-        Seed();
+        SfSeed(Observer);
         Log.Clear();
         Page.Run(Page::"LT P145 List B", Row);
         Observer.Observe('log', Log.Dump());
@@ -300,7 +337,7 @@ codeunit 74925 "LT P145 Page Run View"
     begin
         Row.SetCurrentKey(Qty);
         Row.Ascending(true);
-        Seed();
+        SfSeed(Observer);
         Log.Clear();
         Page.Run(Page::"LT P145 List B", Row);
         Observer.Observe('log', Log.Dump());
@@ -316,7 +353,7 @@ codeunit 74925 "LT P145 Page Run View"
         Row: Record "LT P145 Row";
     begin
         Row.SetRange(Grp, 'A');
-        Seed();
+        SfSeed(Observer);
         Log.Clear();
         Page.Run(Page::"LT P145 List B", Row);
         Observer.Observe('log', Log.Dump());
@@ -331,7 +368,7 @@ codeunit 74925 "LT P145 Page Run View"
         Log: Codeunit "LT P145 Log Mgt";
         Row: Record "LT P145 Row";
     begin
-        Seed();
+        SfSeed(Observer);
         Log.Clear();
         Page.Run(Page::"LT SF P145 List C");
         Observer.Observe('log', Log.Dump());
@@ -348,7 +385,7 @@ codeunit 74925 "LT P145 Page Run View"
     begin
         Row.SetCurrentKey(Qty);
         Row.Ascending(false);
-        Seed();
+        SfSeed(Observer);
         Log.Clear();
         Page.Run(Page::"LT SF P145 List C", Row);
         Observer.Observe('log', Log.Dump());
@@ -364,7 +401,7 @@ codeunit 74925 "LT P145 Page Run View"
         Row: Record "LT P145 Row";
     begin
         Row.Ascending(false);
-        Seed();
+        SfSeed(Observer);
         Log.Clear();
         Page.Run(Page::"LT SF P145 List C", Row);
         Observer.Observe('log', Log.Dump());

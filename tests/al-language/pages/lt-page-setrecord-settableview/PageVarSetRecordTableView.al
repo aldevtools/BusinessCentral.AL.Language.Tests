@@ -8,6 +8,9 @@
 //
 // Probe: written against a local BC 29.0.54011.55816 service tier; every literal asserted below is what that tier produced. Other BC versions are checked by the corpus CI matrix.
 // Writer SF (al-runtime-rs assumption set-table-view-keeps-set-record-position): SF_ tests, pages 89063 and 89064 note the Rec OnOpenPage reads.
+//   Facts (corpus CI 27.5, 28.5, 29.0 agree): in either order, OnOpenPage reads Rec as the record SetRecord handed over (also when it is
+//   outside the view) with the view's filters; the position of the SetTableView record is not used. The page then shows the first row of
+//   the view at or after that record.
 // BC versions: 29 (27 and 28 by CI)
 
 table 70374 "LT STV Row"

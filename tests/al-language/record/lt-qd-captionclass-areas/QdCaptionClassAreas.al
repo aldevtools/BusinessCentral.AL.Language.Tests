@@ -34,6 +34,11 @@
 // Writer SF (al-runtime-rs assumptions page-open-caption-class-empty-record-count and page-open-caption-class-expressions): SF_ tests
 //   in 86504 (repeated opens counted, CurrPage.Update on the Document page without a SetValue, an action without CurrPage.Update,
 //   OpenNew of the Card and the List) and the action NoUpdate of page 87092.
+//   Facts (corpus CI 27.5, 28.5, 29.0, two runs): on the Document page an action with CurrPage.Update() and no SetValue before it runs the
+//   host's expression twice, then the part's once; an action WITHOUT CurrPage.Update runs the same (host twice, part once), and after a
+//   host SetValue it runs the host's three times and the part's once, as with CurrPage.Update. After a part SetValue, the host's action
+//   runs the part's first, then the host's twice, then the part's again. OpenNew of the Card and the List runs empty-record calls whose
+//   count differs between fields, and no call with a row. Five opens of the same page in one test count the same.
 // BC versions: 27, 28, 29
 
 table 86500 "LT QD Cap Row"

@@ -1,6 +1,10 @@
 // Probe: pages with OnFindRecord / OnNextRecord. CurrPage.Update on such a page (what the client asks next, what a control reads before the next move), and a row deleted by an action when the page serves only one row at a time while the table holds more.
 // Settles: md:276 (CurrPage.Update on a page with OnFindRecord / OnNextRecord; trace and control values afterwards), md:277 (one-row window over a view with more rows).
 // Writer SF (al-runtime-rs assumption update-refresh-list-onfindrecord): SF_ tests, pages 89060-89062 (a list with OnFindRecord only, a list part and its host card).
+//   Facts (corpus CI 27.5, 28.5, 29.0 agree): after CurrPage.Update(false) the page re-gets the current row, calls Find('=>') from it,
+//   reads forward with Next(1) until 0, re-gets the current row, reads back with Next(-1) until 0, re-gets it and ends with Find('=').
+//   The read stops at a window of 20 rows: from the first of 25 rows it reads 20 forward; from the last it reads 20 back, re-gets the
+//   current row and the 20th, then reads on to the first. Without OnNextRecord the same rows are read with no Next calls.
 
 codeunit 68733 "W2 Update Log"
 {

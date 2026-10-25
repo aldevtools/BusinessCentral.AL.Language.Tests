@@ -26,6 +26,9 @@
 //   blank line after New(), the stored line after a field is typed, and Seen (which value the record held when each key field validated).
 // Writer SF (al-runtime-rs assumption new-line-stamps-all-before-validating, the probe-wanted shape): line key (Type, Document No.,
 //   Line No.), part view where(Type = const(B)), SubPageLink "Document No." = field("No."); tables 89068-89070, pages 89071-89074, SF_ tests.
+//   Facts (corpus CI 27.5, 28.5, 29.0 agree): the blank line holds Type B and Document No. H1 before any validation: Type (field 1)
+//   validates first and already sees H1, then Document No. validates and sees Type B (Seen = 'T:H1;D:B;'), for a header of Type A or B,
+//   with or without New(). With the relation, a header of Type B validates; a header of Type A aborts the page (see the note there).
 // BC versions: 27, 28, 29 by CI
 
 enum 74135 "LT NL Type"

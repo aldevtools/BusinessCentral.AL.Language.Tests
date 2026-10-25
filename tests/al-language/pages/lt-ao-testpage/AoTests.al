@@ -3,6 +3,9 @@
 // Fixtures used: Probe Observer (69160); AoFixtures.al (79500-79518); LT AO Dep Card (61051) in the internals fixture app
 // Probe: corpus issue 641 (TestPage behavior the runtime decides without a pin, part 2), writer AO. Every literal is what the corpus CI tier produced.
 // Writer SF (al-runtime-rs assumptions subpagelink-empty-term-selects-blank, testfilter-setfilter-empty-clears): SF_ tests, pages 89066-89067 in AoFixtures.al.
+//   Facts (corpus CI 27.5, 28.5, 29.0 agree): SubPageLink F = const('') and F = filter('') show only the rows with a blank F. On a request
+//   page, SetFilter(F, 'A') reaches the report (filter A, 1 row); SetFilter(F, '  ') after it leaves GetFilter at A on the request page but
+//   the report runs without a filter (3 rows), like ' ' in item 15. On a TestPage list '  ' clears the filter like ' ' and ''.
 // BC versions: 27, 28, 29
 
 codeunit 79590 "LT AO TestPage Probes"
