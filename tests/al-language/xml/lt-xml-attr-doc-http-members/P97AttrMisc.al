@@ -436,7 +436,32 @@ codeunit 74803 "LT P97 Attr Misc"
         Observer: Codeunit "Probe Observer";
     begin
         RunAsNodeKinds(Observer, 1, 2);
-        Observer.Finish();
+        Observer.Expect('k1', 'Yes,No,No,No,No,No,No,No,No');
+        Observer.Expect('k1u1|text', 'Microsoft.Dynamics.Nav.Runtime.NavXmlNode variable not initialized.');
+        Observer.Expect('k1u1|code', 'NotInitialized');
+        Observer.Expect('k1u2|text', 'Microsoft.Dynamics.Nav.Runtime.NavXmlNode variable not initialized.');
+        Observer.Expect('k1u2|code', 'NotInitialized');
+        Observer.Expect('k1u3|text', 'Microsoft.Dynamics.Nav.Runtime.NavXmlAttribute variable not initialized.');
+        Observer.Expect('k1u3|code', 'NotInitialized');
+        Observer.Expect('k1u4|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavXmlAttribute to Microsoft.Dynamics.Nav.Runtime.NavXmlText.');
+        Observer.Expect('k1u4|code', 'Conversion');
+        Observer.Expect('k1u5|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavXmlAttribute to Microsoft.Dynamics.Nav.Runtime.NavXmlElement.');
+        Observer.Expect('k1u5|code', 'Conversion');
+        Observer.Expect('k1u6', 'Yes,No,No,No,No,No,No,No,No');
+        Observer.Expect('k2', 'No,No,No,No,No,No,No,No,Yes');
+        Observer.Expect('k2u1|text', 'Microsoft.Dynamics.Nav.Runtime.NavXmlNode variable not initialized.');
+        Observer.Expect('k2u1|code', 'NotInitialized');
+        Observer.Expect('k2u2|text', 'Microsoft.Dynamics.Nav.Runtime.NavXmlNode variable not initialized.');
+        Observer.Expect('k2u2|code', 'NotInitialized');
+        Observer.Expect('k2u3|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavXmlText to Microsoft.Dynamics.Nav.Runtime.NavXmlAttribute.');
+        Observer.Expect('k2u3|code', 'Conversion');
+        Observer.Expect('k2u4|text', 'Microsoft.Dynamics.Nav.Runtime.NavXmlText variable not initialized.');
+        Observer.Expect('k2u4|code', 'NotInitialized');
+        Observer.Expect('k2u5|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavXmlText to Microsoft.Dynamics.Nav.Runtime.NavXmlElement.');
+        Observer.Expect('k2u5|code', 'Conversion');
+        Observer.Expect('k2u6|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavXmlText to Microsoft.Dynamics.Nav.Runtime.NavXmlAttribute.');
+        Observer.Expect('k2u6|code', 'Conversion');
+        Observer.Verify();
     end;
 
     [Test]
@@ -445,7 +470,33 @@ codeunit 74803 "LT P97 Attr Misc"
         Observer: Codeunit "Probe Observer";
     begin
         RunAsNodeKinds(Observer, 3, 4);
-        Observer.Finish();
+        Observer.Expect('k3', 'No,Yes,No,No,No,No,No,No,No');
+        Observer.Expect('k3u1|text', 'Microsoft.Dynamics.Nav.Runtime.NavXmlNode variable not initialized.');
+        Observer.Expect('k3u1|code', 'NotInitialized');
+        Observer.Expect('k3u2|text', 'Microsoft.Dynamics.Nav.Runtime.NavXmlNode variable not initialized.');
+        Observer.Expect('k3u2|code', 'NotInitialized');
+        Observer.Expect('k3u3|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavXmlCData to Microsoft.Dynamics.Nav.Runtime.NavXmlAttribute.');
+        Observer.Expect('k3u3|code', 'Conversion');
+        Observer.Expect('k3u4|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavXmlCData to Microsoft.Dynamics.Nav.Runtime.NavXmlText.');
+        Observer.Expect('k3u4|code', 'Conversion');
+        Observer.Expect('k3u5|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavXmlCData to Microsoft.Dynamics.Nav.Runtime.NavXmlElement.');
+        Observer.Expect('k3u5|code', 'Conversion');
+        Observer.Expect('k3u6|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavXmlCData to Microsoft.Dynamics.Nav.Runtime.NavXmlAttribute.');
+        Observer.Expect('k3u6|code', 'Conversion');
+        Observer.Expect('k4', 'No,No,Yes,No,No,No,No,No,No');
+        Observer.Expect('k4u1|text', 'Microsoft.Dynamics.Nav.Runtime.NavXmlNode variable not initialized.');
+        Observer.Expect('k4u1|code', 'NotInitialized');
+        Observer.Expect('k4u2|text', 'Microsoft.Dynamics.Nav.Runtime.NavXmlNode variable not initialized.');
+        Observer.Expect('k4u2|code', 'NotInitialized');
+        Observer.Expect('k4u3|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavXmlComment to Microsoft.Dynamics.Nav.Runtime.NavXmlAttribute.');
+        Observer.Expect('k4u3|code', 'Conversion');
+        Observer.Expect('k4u4|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavXmlComment to Microsoft.Dynamics.Nav.Runtime.NavXmlText.');
+        Observer.Expect('k4u4|code', 'Conversion');
+        Observer.Expect('k4u5|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavXmlComment to Microsoft.Dynamics.Nav.Runtime.NavXmlElement.');
+        Observer.Expect('k4u5|code', 'Conversion');
+        Observer.Expect('k4u6|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavXmlComment to Microsoft.Dynamics.Nav.Runtime.NavXmlAttribute.');
+        Observer.Expect('k4u6|code', 'Conversion');
+        Observer.Verify();
     end;
 
     [Test]
@@ -454,7 +505,33 @@ codeunit 74803 "LT P97 Attr Misc"
         Observer: Codeunit "Probe Observer";
     begin
         RunAsNodeKinds(Observer, 5, 6);
-        Observer.Finish();
+        Observer.Expect('k5', 'No,No,No,No,No,No,Yes,No,No');
+        Observer.Expect('k5u1|text', 'Microsoft.Dynamics.Nav.Runtime.NavXmlNode variable not initialized.');
+        Observer.Expect('k5u1|code', 'NotInitialized');
+        Observer.Expect('k5u2|text', 'Microsoft.Dynamics.Nav.Runtime.NavXmlNode variable not initialized.');
+        Observer.Expect('k5u2|code', 'NotInitialized');
+        Observer.Expect('k5u3|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavXmlElement to Microsoft.Dynamics.Nav.Runtime.NavXmlAttribute.');
+        Observer.Expect('k5u3|code', 'Conversion');
+        Observer.Expect('k5u4|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavXmlElement to Microsoft.Dynamics.Nav.Runtime.NavXmlText.');
+        Observer.Expect('k5u4|code', 'Conversion');
+        Observer.Expect('k5u5|text', 'Microsoft.Dynamics.Nav.Runtime.NavXmlElement variable not initialized.');
+        Observer.Expect('k5u5|code', 'NotInitialized');
+        Observer.Expect('k5u6|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavXmlElement to Microsoft.Dynamics.Nav.Runtime.NavXmlAttribute.');
+        Observer.Expect('k5u6|code', 'Conversion');
+        Observer.Expect('k6', 'No,No,No,No,No,No,No,Yes,No');
+        Observer.Expect('k6u1|text', 'Microsoft.Dynamics.Nav.Runtime.NavXmlNode variable not initialized.');
+        Observer.Expect('k6u1|code', 'NotInitialized');
+        Observer.Expect('k6u2|text', 'Microsoft.Dynamics.Nav.Runtime.NavXmlNode variable not initialized.');
+        Observer.Expect('k6u2|code', 'NotInitialized');
+        Observer.Expect('k6u3|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavXmlProcessingInstruction to Microsoft.Dynamics.Nav.Runtime.NavXmlAttribute.');
+        Observer.Expect('k6u3|code', 'Conversion');
+        Observer.Expect('k6u4|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavXmlProcessingInstruction to Microsoft.Dynamics.Nav.Runtime.NavXmlText.');
+        Observer.Expect('k6u4|code', 'Conversion');
+        Observer.Expect('k6u5|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavXmlProcessingInstruction to Microsoft.Dynamics.Nav.Runtime.NavXmlElement.');
+        Observer.Expect('k6u5|code', 'Conversion');
+        Observer.Expect('k6u6|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavXmlProcessingInstruction to Microsoft.Dynamics.Nav.Runtime.NavXmlAttribute.');
+        Observer.Expect('k6u6|code', 'Conversion');
+        Observer.Verify();
     end;
 
     [Test]
@@ -463,6 +540,31 @@ codeunit 74803 "LT P97 Attr Misc"
         Observer: Codeunit "Probe Observer";
     begin
         RunAsNodeKinds(Observer, 7, 8);
-        Observer.Finish();
+        Observer.Expect('k7', 'No,No,No,No,No,Yes,No,No,No');
+        Observer.Expect('k7u1|text', 'Microsoft.Dynamics.Nav.Runtime.NavXmlNode variable not initialized.');
+        Observer.Expect('k7u1|code', 'NotInitialized');
+        Observer.Expect('k7u2|text', 'Microsoft.Dynamics.Nav.Runtime.NavXmlNode variable not initialized.');
+        Observer.Expect('k7u2|code', 'NotInitialized');
+        Observer.Expect('k7u3|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavXmlDocumentType to Microsoft.Dynamics.Nav.Runtime.NavXmlAttribute.');
+        Observer.Expect('k7u3|code', 'Conversion');
+        Observer.Expect('k7u4|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavXmlDocumentType to Microsoft.Dynamics.Nav.Runtime.NavXmlText.');
+        Observer.Expect('k7u4|code', 'Conversion');
+        Observer.Expect('k7u5|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavXmlDocumentType to Microsoft.Dynamics.Nav.Runtime.NavXmlElement.');
+        Observer.Expect('k7u5|code', 'Conversion');
+        Observer.Expect('k7u6|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavXmlDocumentType to Microsoft.Dynamics.Nav.Runtime.NavXmlAttribute.');
+        Observer.Expect('k7u6|code', 'Conversion');
+        Observer.Expect('k8', 'No,No,No,No,Yes,No,No,No,No');
+        Observer.Expect('k8u1|text', 'The requested operation cannot be performed in this context.');
+        Observer.Expect('k8u1|code', 'InvalidOperation');
+        Observer.Expect('k8u2', 'No');
+        Observer.Expect('k8u3|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavXmlDocument to Microsoft.Dynamics.Nav.Runtime.NavXmlAttribute.');
+        Observer.Expect('k8u3|code', 'Conversion');
+        Observer.Expect('k8u4|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavXmlDocument to Microsoft.Dynamics.Nav.Runtime.NavXmlText.');
+        Observer.Expect('k8u4|code', 'Conversion');
+        Observer.Expect('k8u5|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavXmlDocument to Microsoft.Dynamics.Nav.Runtime.NavXmlElement.');
+        Observer.Expect('k8u5|code', 'Conversion');
+        Observer.Expect('k8u6|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavXmlDocument to Microsoft.Dynamics.Nav.Runtime.NavXmlAttribute.');
+        Observer.Expect('k8u6|code', 'Conversion');
+        Observer.Verify();
     end;
 }
