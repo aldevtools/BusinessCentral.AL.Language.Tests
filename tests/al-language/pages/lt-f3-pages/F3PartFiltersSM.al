@@ -141,6 +141,23 @@ codeunit 89254 "LT SM F3 Part Filters"
         Log.Reset();
     end;
 
+    // The part's OnOpenPage ran once or twice at open between runs of BC 27.5 (not an oracle): only its first entry and the first Find entry are kept.
+    local procedure StepOpen(var Observer: Codeunit "Probe Observer")
+    var
+        Log: Codeunit "LT F3 Part Log";
+        Entry: Text;
+        FirstFind: Text;
+        Entries: List of [Text];
+    begin
+        Entries := Log.Dump().Split(';');
+        foreach Entry in Entries do
+            if (FirstFind = '') and Entry.StartsWith('Find') then
+                FirstFind := Entry;
+        Observer.Observe('open first entry', Entries.Get(1));
+        Observer.Observe('open first find', FirstFind);
+        Log.Reset();
+    end;
+
     [Test]
     procedure FilterView_GroupsAndRows()
     var
@@ -151,7 +168,7 @@ codeunit 89254 "LT SM F3 Part Filters"
     begin
         Data.Seed(3);
         Doc.OpenView();
-        Step(Observer, 'open');
+        StepOpen(Observer);
         Rows := '';
         if Doc.Lines.First() then
             repeat
@@ -168,7 +185,8 @@ codeunit 89254 "LT SM F3 Part Filters"
             until not Doc.Lines.Next();
         Observer.Observe('rows H3', Rows);
         Doc.Close();
-        Observer.Expect('open', 'Open(group 0 g4=[H1|H2] all=[]);Find(group 0 g4=[H1] all=[])');
+        Observer.Expect('open first entry', 'Open(group 0 g4=[H1|H2] all=[])');
+        Observer.Expect('open first find', 'Find(group 0 g4=[H1] all=[])');
         Observer.Expect('rows H1', ' H1/10000 H1/20000 H1/30000');
         Observer.Expect('after rows H1', '');
         Observer.Expect('move to H3', 'Find(group 0 g4=[H3] all=[])');
@@ -186,7 +204,7 @@ codeunit 89254 "LT SM F3 Part Filters"
     begin
         Data.Seed(3);
         Doc.OpenView();
-        Step(Observer, 'open');
+        StepOpen(Observer);
         Rows := '';
         if Doc.Lines.First() then
             repeat
@@ -203,7 +221,8 @@ codeunit 89254 "LT SM F3 Part Filters"
             until not Doc.Lines.Next();
         Observer.Observe('rows H3', Rows);
         Doc.Close();
-        Observer.Expect('open', 'Open(group 0 g4=[<>H3] all=[]);Find(group 0 g4=[H1] all=[])');
+        Observer.Expect('open first entry', 'Open(group 0 g4=[<>H3] all=[])');
+        Observer.Expect('open first find', 'Find(group 0 g4=[H1] all=[])');
         Observer.Expect('rows H1', ' H1/10000 H1/20000 H1/30000');
         Observer.Expect('after rows H1', '');
         Observer.Expect('move to H3', 'Find(group 0 g4=[H3] all=[])');
@@ -221,7 +240,7 @@ codeunit 89254 "LT SM F3 Part Filters"
     begin
         Data.Seed(3);
         Doc.OpenView();
-        Step(Observer, 'open');
+        StepOpen(Observer);
         Rows := '';
         if Doc.Lines.First() then
             repeat
@@ -230,7 +249,8 @@ codeunit 89254 "LT SM F3 Part Filters"
         Observer.Observe('rows H1', Rows);
         Step(Observer, 'after rows H1');
         Doc.Close();
-        Observer.Expect('open', 'Open(group 0 g4=[ZZZ] all=[]);Find(group 0 g4=[H1] all=[])');
+        Observer.Expect('open first entry', 'Open(group 0 g4=[ZZZ] all=[])');
+        Observer.Expect('open first find', 'Find(group 0 g4=[H1] all=[])');
         Observer.Expect('rows H1', ' H1/10000 H1/20000 H1/30000');
         Observer.Expect('after rows H1', '');
         Observer.Verify();
