@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/properties/devenv-captionclass-property
 // Scope: in-scope
-// Fixtures used: Probe Observer (69160); own table 86500, pages 86501 and 86502, log codeunit 86503 (used only by test codeunit 86504),
+// Fixtures used: Probe Observer (69160); own table 86500, pages 86501, 86502 and 89150 (writer SI), log codeunit 86503 (used only by test codeunit 86504),
 //   test codeunit 86504; Base Application's Sales Header / Sales Line and its OnResolveCaptionClass subscribers (areas 1, 2, 5, 101).
 //   LT QK Setup Rows (86940) writes the General Ledger Setup / Dimension rows of Literals_FieldCaption and Expressions_FieldCaption.
 // Probe: writer QD, for the al-runtime-rs refusal "a CaptionClass expression result with another area" (the top Tests-ERM refusal) and the
@@ -39,6 +39,16 @@
 //   host SetValue it runs the host's three times and the part's once, as with CurrPage.Update. After a part SetValue, the host's action
 //   runs the part's first, then the host's twice, then the part's again. OpenNew of the Card and the List runs empty-record calls whose
 //   count differs between fields, and no call with a row. Five opens of the same page in one test count the same.
+// Writer SI (al-runner issue 5858, assumption page-open-caption-class-expressions "other fills after the open"): SI_ tests in 86504 and
+//   the Document page 89150 (no part, over the QD row). Three rows: Id 1 and 2 with Incl VAT, Id 3 without.
+//   Facts (corpus CI 27.5, 28.5, 29.0 agree): GoToRecord and GoToKey on a Card or a Document page (OpenEdit or OpenView) run each
+//   expression control once more with the row the page stood on BEFORE the move (never the new row or the rows between), and Caption()
+//   keeps the value of the open. GoToRecord to the row the page already stands on runs them once the same way; a second GoToRecord again
+//   runs them with the first row of the open. After a SetValue, GoToRecord runs them twice with the old row (the change is saved). Next
+//   after a GoToRecord runs nothing. Last and First run them once with the NEW row, and Caption() then reads the new row's caption;
+//   Previous runs nothing and Caption() keeps the value Last gave. On a List page GoToRecord and GoToKey run nothing. On the Document page
+//   with a part, a host GoToRecord runs the host's expression with the old row and the part's with its new first row (Caption() of the
+//   part reads the new row, the host's keeps the old); a GoToKey inside the part runs nothing.
 // BC versions: 27, 28, 29
 
 table 86500 "LT QD Cap Row"
@@ -1449,6 +1459,502 @@ codeunit 86504 "LT QD CaptionClass Areas"
         Observer.Expect('close', 'empty>0=No fields0= same=Yes rest=');
         Observer.Verify();
     end;
+
+    // Writer SI (al-runner issue 5858, assumption page-open-caption-class-expressions "other fills after the open"): GoToRecord, GoToKey,
+    // First, Last and Previous on the QD card, the QF list, a Document page without a part (89150) and the QO Document page with its part.
+    // Three rows: Id 1 and 2 with Incl VAT, Id 3 without, so the "Expr Id" and "Expr VAT" captions tell which row an expression ran with.
+    local procedure SiSeedThree()
+    var
+        R: Record "LT QD Cap Row";
+        i: Integer;
+    begin
+        R.DeleteAll();
+        for i := 1 to 3 do begin
+            R.Init();
+            R.Id := i;
+            R."Incl VAT" := i < 3;
+            R.Insert();
+        end;
+        Log.Reset();
+    end;
+
+    local procedure SiCaps(var Observer: Codeunit "Probe Observer"; Prefix: Text; var P: TestPage "LT QD Cap Card")
+    begin
+        Cap(Observer, Prefix + 'row', P.Id.Value());
+        Cap(Observer, Prefix + 'exprId', QfNoCall(P.ExprId.Caption()));
+        Cap(Observer, Prefix + 'exprVAT', P.ExprVAT.Caption());
+    end;
+
+    [Test]
+    procedure SI_Card_OpenEdit_GoToRecord()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT QD Cap Row";
+        P: TestPage "LT QD Cap Card";
+    begin
+        SiSeedThree();
+        P.OpenEdit();
+        QoStep(Observer, 'open');
+        SiCaps(Observer, '', P);
+        R.Get(3);
+        Observer.Observe('goto', Format(P.GoToRecord(R)));
+        QoStep(Observer, 'goto_calls');
+        SiCaps(Observer, 'goto_', P);
+        P.Close();
+        QoStep(Observer, 'close');
+        Observer.Expect('open', 'empty>0=Yes fields0=20,21,22,23,24,25,26,27,28,29,30,31, same=Yes rest=20@1;21@1;22@1;23@1;24@1;25@1;26@1;27@1;28@1;');
+        Observer.Expect('row', '1');
+        Observer.Expect('row_calls', '');
+        Observer.Expect('exprId', 'Id 1');
+        Observer.Expect('exprId_calls', '');
+        Observer.Expect('exprVAT', 'Inv. Discount Amount Incl. VAT');
+        Observer.Expect('exprVAT_calls', '');
+        Observer.Expect('goto', 'Yes');
+        Observer.Expect('goto_calls', 'empty>0=No fields0= same=Yes rest=20@1;21@1;22@1;23@1;24@1;25@1;26@1;27@1;28@1;');
+        Observer.Expect('goto_row', '3');
+        Observer.Expect('goto_row_calls', '');
+        Observer.Expect('goto_exprId', 'Id 1');
+        Observer.Expect('goto_exprId_calls', '');
+        Observer.Expect('goto_exprVAT', 'Inv. Discount Amount Incl. VAT');
+        Observer.Expect('goto_exprVAT_calls', '');
+        Observer.Expect('close', 'empty>0=No fields0= same=Yes rest=');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure SI_Card_OpenView_GoToRecord()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT QD Cap Row";
+        P: TestPage "LT QD Cap Card";
+    begin
+        SiSeedThree();
+        P.OpenView();
+        QoStep(Observer, 'open');
+        SiCaps(Observer, '', P);
+        R.Get(3);
+        Observer.Observe('goto', Format(P.GoToRecord(R)));
+        QoStep(Observer, 'goto_calls');
+        SiCaps(Observer, 'goto_', P);
+        P.Close();
+        QoStep(Observer, 'close');
+        Observer.Expect('open', 'empty>0=Yes fields0=20,21,22,23,24,25,26,27,28,29,30,31, same=Yes rest=20@1;21@1;22@1;23@1;24@1;25@1;26@1;27@1;28@1;');
+        Observer.Expect('row', '1');
+        Observer.Expect('row_calls', '');
+        Observer.Expect('exprId', 'Id 1');
+        Observer.Expect('exprId_calls', '');
+        Observer.Expect('exprVAT', 'Inv. Discount Amount Incl. VAT');
+        Observer.Expect('exprVAT_calls', '');
+        Observer.Expect('goto', 'Yes');
+        Observer.Expect('goto_calls', 'empty>0=No fields0= same=Yes rest=20@1;21@1;22@1;23@1;24@1;25@1;26@1;27@1;28@1;');
+        Observer.Expect('goto_row', '3');
+        Observer.Expect('goto_row_calls', '');
+        Observer.Expect('goto_exprId', 'Id 1');
+        Observer.Expect('goto_exprId_calls', '');
+        Observer.Expect('goto_exprVAT', 'Inv. Discount Amount Incl. VAT');
+        Observer.Expect('goto_exprVAT_calls', '');
+        Observer.Expect('close', 'empty>0=No fields0= same=Yes rest=');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure SI_Card_OpenEdit_GoToKey()
+    var
+        Observer: Codeunit "Probe Observer";
+        P: TestPage "LT QD Cap Card";
+    begin
+        SiSeedThree();
+        P.OpenEdit();
+        QoStep(Observer, 'open');
+        Observer.Observe('goto', Format(P.GoToKey(3)));
+        QoStep(Observer, 'goto_calls');
+        SiCaps(Observer, 'goto_', P);
+        P.Close();
+        QoStep(Observer, 'close');
+        Observer.Expect('open', 'empty>0=Yes fields0=20,21,22,23,24,25,26,27,28,29,30,31, same=Yes rest=20@1;21@1;22@1;23@1;24@1;25@1;26@1;27@1;28@1;');
+        Observer.Expect('goto', 'Yes');
+        Observer.Expect('goto_calls', 'empty>0=No fields0= same=Yes rest=20@1;21@1;22@1;23@1;24@1;25@1;26@1;27@1;28@1;');
+        Observer.Expect('goto_row', '3');
+        Observer.Expect('goto_row_calls', '');
+        Observer.Expect('goto_exprId', 'Id 1');
+        Observer.Expect('goto_exprId_calls', '');
+        Observer.Expect('goto_exprVAT', 'Inv. Discount Amount Incl. VAT');
+        Observer.Expect('goto_exprVAT_calls', '');
+        Observer.Expect('close', 'empty>0=No fields0= same=Yes rest=');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure SI_Card_GoToRecord_SameRow()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT QD Cap Row";
+        P: TestPage "LT QD Cap Card";
+    begin
+        SiSeedThree();
+        P.OpenEdit();
+        QoStep(Observer, 'open');
+        R.Get(1);
+        Observer.Observe('goto', Format(P.GoToRecord(R)));
+        QoStep(Observer, 'goto_calls');
+        SiCaps(Observer, 'goto_', P);
+        P.Close();
+        QoStep(Observer, 'close');
+        Observer.Expect('open', 'empty>0=Yes fields0=20,21,22,23,24,25,26,27,28,29,30,31, same=Yes rest=20@1;21@1;22@1;23@1;24@1;25@1;26@1;27@1;28@1;');
+        Observer.Expect('goto', 'Yes');
+        Observer.Expect('goto_calls', 'empty>0=No fields0= same=Yes rest=20@1;21@1;22@1;23@1;24@1;25@1;26@1;27@1;28@1;');
+        Observer.Expect('goto_row', '1');
+        Observer.Expect('goto_row_calls', '');
+        Observer.Expect('goto_exprId', 'Id 1');
+        Observer.Expect('goto_exprId_calls', '');
+        Observer.Expect('goto_exprVAT', 'Inv. Discount Amount Incl. VAT');
+        Observer.Expect('goto_exprVAT_calls', '');
+        Observer.Expect('close', 'empty>0=No fields0= same=Yes rest=');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure SI_Card_GoToRecord_Twice()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT QD Cap Row";
+        P: TestPage "LT QD Cap Card";
+    begin
+        SiSeedThree();
+        P.OpenEdit();
+        QoStep(Observer, 'open');
+        R.Get(3);
+        Observer.Observe('goto3', Format(P.GoToRecord(R)));
+        QoStep(Observer, 'goto3_calls');
+        R.Get(2);
+        Observer.Observe('goto2', Format(P.GoToRecord(R)));
+        QoStep(Observer, 'goto2_calls');
+        SiCaps(Observer, 'goto2_', P);
+        P.Close();
+        QoStep(Observer, 'close');
+        Observer.Expect('open', 'empty>0=Yes fields0=20,21,22,23,24,25,26,27,28,29,30,31, same=Yes rest=20@1;21@1;22@1;23@1;24@1;25@1;26@1;27@1;28@1;');
+        Observer.Expect('goto3', 'Yes');
+        Observer.Expect('goto3_calls', 'empty>0=No fields0= same=Yes rest=20@1;21@1;22@1;23@1;24@1;25@1;26@1;27@1;28@1;');
+        Observer.Expect('goto2', 'Yes');
+        Observer.Expect('goto2_calls', 'empty>0=No fields0= same=Yes rest=20@1;21@1;22@1;23@1;24@1;25@1;26@1;27@1;28@1;');
+        Observer.Expect('goto2_row', '2');
+        Observer.Expect('goto2_row_calls', '');
+        Observer.Expect('goto2_exprId', 'Id 1');
+        Observer.Expect('goto2_exprId_calls', '');
+        Observer.Expect('goto2_exprVAT', 'Inv. Discount Amount Incl. VAT');
+        Observer.Expect('goto2_exprVAT_calls', '');
+        Observer.Expect('close', 'empty>0=No fields0= same=Yes rest=');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure SI_Card_GoToRecord_ThenNext()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT QD Cap Row";
+        P: TestPage "LT QD Cap Card";
+    begin
+        SiSeedThree();
+        P.OpenEdit();
+        QoStep(Observer, 'open');
+        R.Get(2);
+        Observer.Observe('goto', Format(P.GoToRecord(R)));
+        QoStep(Observer, 'goto_calls');
+        Observer.Observe('next', Format(P.Next()));
+        QoStep(Observer, 'next_calls');
+        SiCaps(Observer, 'next_', P);
+        P.Close();
+        QoStep(Observer, 'close');
+        Observer.Expect('open', 'empty>0=Yes fields0=20,21,22,23,24,25,26,27,28,29,30,31, same=Yes rest=20@1;21@1;22@1;23@1;24@1;25@1;26@1;27@1;28@1;');
+        Observer.Expect('goto', 'Yes');
+        Observer.Expect('goto_calls', 'empty>0=No fields0= same=Yes rest=20@1;21@1;22@1;23@1;24@1;25@1;26@1;27@1;28@1;');
+        Observer.Expect('next', 'Yes');
+        Observer.Expect('next_calls', 'empty>0=No fields0= same=Yes rest=');
+        Observer.Expect('next_row', '3');
+        Observer.Expect('next_row_calls', '');
+        Observer.Expect('next_exprId', 'Id 1');
+        Observer.Expect('next_exprId_calls', '');
+        Observer.Expect('next_exprVAT', 'Inv. Discount Amount Incl. VAT');
+        Observer.Expect('next_exprVAT_calls', '');
+        Observer.Expect('close', 'empty>0=No fields0= same=Yes rest=');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure SI_Card_Last_Previous_First()
+    var
+        Observer: Codeunit "Probe Observer";
+        P: TestPage "LT QD Cap Card";
+    begin
+        SiSeedThree();
+        P.OpenEdit();
+        QoStep(Observer, 'open');
+        Observer.Observe('last', Format(P.Last()));
+        QoStep(Observer, 'last_calls');
+        SiCaps(Observer, 'last_', P);
+        Observer.Observe('previous', Format(P.Previous()));
+        QoStep(Observer, 'previous_calls');
+        SiCaps(Observer, 'previous_', P);
+        Observer.Observe('first', Format(P.First()));
+        QoStep(Observer, 'first_calls');
+        SiCaps(Observer, 'first_', P);
+        P.Close();
+        QoStep(Observer, 'close');
+        Observer.Expect('open', 'empty>0=Yes fields0=20,21,22,23,24,25,26,27,28,29,30,31, same=Yes rest=20@1;21@1;22@1;23@1;24@1;25@1;26@1;27@1;28@1;');
+        Observer.Expect('last', 'Yes');
+        Observer.Expect('last_calls', 'empty>0=No fields0= same=Yes rest=20@3;21@3;22@3;23@3;24@3;25@3;26@3;27@3;28@3;');
+        Observer.Expect('last_row', '3');
+        Observer.Expect('last_row_calls', '');
+        Observer.Expect('last_exprId', 'Id 3');
+        Observer.Expect('last_exprId_calls', '');
+        Observer.Expect('last_exprVAT', 'Inv. Discount Amount Excl. VAT');
+        Observer.Expect('last_exprVAT_calls', '');
+        Observer.Expect('previous', 'Yes');
+        Observer.Expect('previous_calls', 'empty>0=No fields0= same=Yes rest=');
+        Observer.Expect('previous_row', '2');
+        Observer.Expect('previous_row_calls', '');
+        Observer.Expect('previous_exprId', 'Id 3');
+        Observer.Expect('previous_exprId_calls', '');
+        Observer.Expect('previous_exprVAT', 'Inv. Discount Amount Excl. VAT');
+        Observer.Expect('previous_exprVAT_calls', '');
+        Observer.Expect('first', 'Yes');
+        Observer.Expect('first_calls', 'empty>0=No fields0= same=Yes rest=20@1;21@1;22@1;23@1;24@1;25@1;26@1;27@1;28@1;');
+        Observer.Expect('first_row', '1');
+        Observer.Expect('first_row_calls', '');
+        Observer.Expect('first_exprId', 'Id 1');
+        Observer.Expect('first_exprId_calls', '');
+        Observer.Expect('first_exprVAT', 'Inv. Discount Amount Incl. VAT');
+        Observer.Expect('first_exprVAT_calls', '');
+        Observer.Expect('close', 'empty>0=No fields0= same=Yes rest=');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure SI_Card_SetValueThenGoToRecord()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT QD Cap Row";
+        P: TestPage "LT QD Cap Card";
+    begin
+        SiSeedThree();
+        P.OpenEdit();
+        QoStep(Observer, 'open');
+        P.Lit20.SetValue(5);
+        QoStep(Observer, 'setvalue_calls');
+        R.Get(3);
+        Observer.Observe('goto', Format(P.GoToRecord(R)));
+        QoStep(Observer, 'goto_calls');
+        SiCaps(Observer, 'goto_', P);
+        P.Close();
+        QoStep(Observer, 'close');
+        R.Get(1);
+        Observer.Observe('row1_lit20', Format(R."Lit 2-0"));
+        Observer.Expect('open', 'empty>0=Yes fields0=20,21,22,23,24,25,26,27,28,29,30,31, same=Yes rest=20@1;21@1;22@1;23@1;24@1;25@1;26@1;27@1;28@1;');
+        Observer.Expect('setvalue_calls', 'empty>0=No fields0= same=Yes rest=');
+        Observer.Expect('goto', 'Yes');
+        Observer.Expect('goto_calls', 'empty>0=No fields0= same=Yes rest=20@1;21@1;22@1;23@1;24@1;25@1;26@1;27@1;28@1;20@1;21@1;22@1;23@1;24@1;25@1;26@1;27@1;28@1;');
+        Observer.Expect('goto_row', '3');
+        Observer.Expect('goto_row_calls', '');
+        Observer.Expect('goto_exprId', 'Id 1');
+        Observer.Expect('goto_exprId_calls', '');
+        Observer.Expect('goto_exprVAT', 'Inv. Discount Amount Incl. VAT');
+        Observer.Expect('goto_exprVAT_calls', '');
+        Observer.Expect('close', 'empty>0=No fields0= same=Yes rest=');
+        Observer.Expect('row1_lit20', '5');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure SI_List_OpenView_GoToRecord()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT QD Cap Row";
+        P: TestPage "LT QF Cap List";
+    begin
+        SiSeedThree();
+        P.OpenView();
+        QoStep(Observer, 'open');
+        Cap(Observer, 'exprId', QfNoCall(P.ExprId.Caption()));
+        R.Get(3);
+        Observer.Observe('goto', Format(P.GoToRecord(R)));
+        QoStep(Observer, 'goto_calls');
+        Cap(Observer, 'goto_row', P.Id.Value());
+        Cap(Observer, 'goto_exprId', QfNoCall(P.ExprId.Caption()));
+        Cap(Observer, 'goto_exprVAT', P.ExprVAT.Caption());
+        P.Close();
+        QoStep(Observer, 'close');
+        Observer.Expect('open', 'empty>0=Yes fields0=20,21,22,23,24,25,26,27,28,29,30,31, same=Yes rest=20@1;23@1;24@1;');
+        Observer.Expect('exprId', 'Id 1');
+        Observer.Expect('exprId_calls', '');
+        Observer.Expect('goto', 'Yes');
+        Observer.Expect('goto_calls', 'empty>0=No fields0= same=Yes rest=');
+        Observer.Expect('goto_row', '3');
+        Observer.Expect('goto_row_calls', '');
+        Observer.Expect('goto_exprId', 'Id 1');
+        Observer.Expect('goto_exprId_calls', '');
+        Observer.Expect('goto_exprVAT', 'Inv. Discount Amount Incl. VAT');
+        Observer.Expect('goto_exprVAT_calls', '');
+        Observer.Expect('close', 'empty>0=No fields0= same=Yes rest=');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure SI_List_OpenEdit_GoToKey()
+    var
+        Observer: Codeunit "Probe Observer";
+        P: TestPage "LT QF Cap List";
+    begin
+        SiSeedThree();
+        P.OpenEdit();
+        QoStep(Observer, 'open');
+        Observer.Observe('goto', Format(P.GoToKey(3)));
+        QoStep(Observer, 'goto_calls');
+        Cap(Observer, 'goto_row', P.Id.Value());
+        Cap(Observer, 'goto_exprId', QfNoCall(P.ExprId.Caption()));
+        Cap(Observer, 'goto_exprVAT', P.ExprVAT.Caption());
+        P.Close();
+        QoStep(Observer, 'close');
+        Observer.Expect('open', 'empty>0=Yes fields0=20,21,22,23,24,25,26,27,28,29,30,31, same=Yes rest=20@1;23@1;24@1;');
+        Observer.Expect('goto', 'Yes');
+        Observer.Expect('goto_calls', 'empty>0=No fields0= same=Yes rest=');
+        Observer.Expect('goto_row', '3');
+        Observer.Expect('goto_row_calls', '');
+        Observer.Expect('goto_exprId', 'Id 1');
+        Observer.Expect('goto_exprId_calls', '');
+        Observer.Expect('goto_exprVAT', 'Inv. Discount Amount Incl. VAT');
+        Observer.Expect('goto_exprVAT_calls', '');
+        Observer.Expect('close', 'empty>0=No fields0= same=Yes rest=');
+        Observer.Verify();
+    end;
+
+    // The reporter's Document page: a Document page without a part over the QD row.
+    [Test]
+    procedure SI_Doc_OpenEdit_GoToRecord()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT QD Cap Row";
+        P: TestPage "LT SI Cap Doc";
+    begin
+        SiSeedThree();
+        P.OpenEdit();
+        QoStep(Observer, 'open');
+        Cap(Observer, 'exprId', QfNoCall(P.ExprId.Caption()));
+        R.Get(3);
+        Observer.Observe('goto', Format(P.GoToRecord(R)));
+        QoStep(Observer, 'goto_calls');
+        Cap(Observer, 'goto_row', P.Id.Value());
+        Cap(Observer, 'goto_exprId', QfNoCall(P.ExprId.Caption()));
+        Cap(Observer, 'goto_exprVAT', P.ExprVAT.Caption());
+        P.Close();
+        QoStep(Observer, 'close');
+        Observer.Expect('open', 'empty>0=Yes fields0=20,21,22,23,24,25,26,27,28,29,30,31, same=Yes rest=20@1;23@1;24@1;');
+        Observer.Expect('exprId', 'Id 1');
+        Observer.Expect('exprId_calls', '');
+        Observer.Expect('goto', 'Yes');
+        Observer.Expect('goto_calls', 'empty>0=No fields0= same=Yes rest=20@1;23@1;24@1;');
+        Observer.Expect('goto_row', '3');
+        Observer.Expect('goto_row_calls', '');
+        Observer.Expect('goto_exprId', 'Id 1');
+        Observer.Expect('goto_exprId_calls', '');
+        Observer.Expect('goto_exprVAT', 'Inv. Discount Amount Incl. VAT');
+        Observer.Expect('goto_exprVAT_calls', '');
+        Observer.Expect('close', 'empty>0=No fields0= same=Yes rest=');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure SI_Doc_OpenView_GoToKey()
+    var
+        Observer: Codeunit "Probe Observer";
+        P: TestPage "LT SI Cap Doc";
+    begin
+        SiSeedThree();
+        P.OpenView();
+        QoStep(Observer, 'open');
+        Observer.Observe('goto', Format(P.GoToKey(3)));
+        QoStep(Observer, 'goto_calls');
+        Cap(Observer, 'goto_row', P.Id.Value());
+        Cap(Observer, 'goto_exprId', QfNoCall(P.ExprId.Caption()));
+        Cap(Observer, 'goto_exprVAT', P.ExprVAT.Caption());
+        P.Close();
+        QoStep(Observer, 'close');
+        Observer.Expect('open', 'empty>0=Yes fields0=20,21,22,23,24,25,26,27,28,29,30,31, same=Yes rest=20@1;23@1;24@1;');
+        Observer.Expect('goto', 'Yes');
+        Observer.Expect('goto_calls', 'empty>0=No fields0= same=Yes rest=20@1;23@1;24@1;');
+        Observer.Expect('goto_row', '3');
+        Observer.Expect('goto_row_calls', '');
+        Observer.Expect('goto_exprId', 'Id 1');
+        Observer.Expect('goto_exprId_calls', '');
+        Observer.Expect('goto_exprVAT', 'Inv. Discount Amount Incl. VAT');
+        Observer.Expect('goto_exprVAT_calls', '');
+        Observer.Expect('close', 'empty>0=No fields0= same=Yes rest=');
+        Observer.Verify();
+    end;
+
+    // The QO Document page with its ListPart: the host moves to D2, so the part is refilled with D2's lines (3 and 4).
+    [Test]
+    procedure SI_DocPart_OpenEdit_GoToRecord()
+    var
+        Observer: Codeunit "Probe Observer";
+        D: Record "LT QO Cap Doc";
+        H: TestPage "LT QO Cap Doc";
+    begin
+        QoSeedDocs();
+        H.OpenEdit();
+        QoStep(Observer, 'open');
+        D.Get('D2');
+        Observer.Observe('goto', Format(H.GoToRecord(D)));
+        QoStep(Observer, 'goto_calls');
+        Cap(Observer, 'goto_no', H."No.".Value());
+        Cap(Observer, 'goto_head', H.HeadExpr.Caption());
+        Cap(Observer, 'goto_line', H.Lines."Line No.".Value());
+        Cap(Observer, 'goto_exprA', H.Lines.ExprA.Caption());
+        H.Close();
+        QoStep(Observer, 'close');
+        Observer.Expect('open', 'empty>0=Yes fields0=60,70,71, same=Yes rest=60@1;70@1;71@1;');
+        Observer.Expect('goto', 'Yes');
+        Observer.Expect('goto_calls', 'empty>0=No fields0= same=Yes rest=60@1;70@3;71@3;');
+        Observer.Expect('goto_no', 'D2');
+        Observer.Expect('goto_no_calls', '');
+        Observer.Expect('goto_head', 'Head 1');
+        Observer.Expect('goto_head_calls', '');
+        Observer.Expect('goto_line', '3');
+        Observer.Expect('goto_line_calls', '');
+        Observer.Expect('goto_exprA', 'Line 3');
+        Observer.Expect('goto_exprA_calls', '');
+        Observer.Expect('close', 'empty>0=No fields0= same=Yes rest=');
+        Observer.Verify();
+    end;
+
+    // A move inside the part: GoToKey to the second line of D1.
+    [Test]
+    procedure SI_DocPart_Part_GoToKey()
+    var
+        Observer: Codeunit "Probe Observer";
+        H: TestPage "LT QO Cap Doc";
+    begin
+        QoSeedDocs();
+        H.OpenEdit();
+        QoStep(Observer, 'open');
+        Observer.Observe('goto', Format(H.Lines.GoToKey('D1', 2)));
+        QoStep(Observer, 'goto_calls');
+        Cap(Observer, 'goto_line', H.Lines."Line No.".Value());
+        Cap(Observer, 'goto_exprA', H.Lines.ExprA.Caption());
+        Cap(Observer, 'goto_head', H.HeadExpr.Caption());
+        H.Close();
+        QoStep(Observer, 'close');
+        Observer.Expect('open', 'empty>0=Yes fields0=60,70,71, same=Yes rest=60@1;70@1;71@1;');
+        Observer.Expect('goto', 'Yes');
+        Observer.Expect('goto_calls', 'empty>0=No fields0= same=Yes rest=');
+        Observer.Expect('goto_line', '2');
+        Observer.Expect('goto_line_calls', '');
+        Observer.Expect('goto_exprA', 'Line 1');
+        Observer.Expect('goto_exprA_calls', '');
+        Observer.Expect('goto_head', 'Head 1');
+        Observer.Expect('goto_head_calls', '');
+        Observer.Expect('close', 'empty>0=No fields0= same=Yes rest=');
+        Observer.Verify();
+    end;
 }
 
 page 87092 "LT QO Cap Doc"
@@ -1602,6 +2108,29 @@ page 86642 "LT QF Cap Host"
                 field(Id; Rec.Id) { ApplicationArea = All; }
             }
             part(Lines; "LT QF Cap Part") { ApplicationArea = All; }
+        }
+    }
+}
+
+// Writer SI: the Document page of al-runner issue 5858 (no part) over the QD row.
+page 89150 "LT SI Cap Doc"
+{
+    PageType = Document;
+    ApplicationArea = All;
+    UsageCategory = None;
+    SourceTable = "LT QD Cap Row";
+
+    layout
+    {
+        area(Content)
+        {
+            group(G)
+            {
+                field(Id; Rec.Id) { ApplicationArea = All; }
+                field(Expr20; Rec."Expr 2-0") { ApplicationArea = All; }
+                field(ExprVAT; Rec."Expr VAT") { ApplicationArea = All; }
+                field(ExprId; Rec."Expr Id") { ApplicationArea = All; }
+            }
         }
     }
 }
