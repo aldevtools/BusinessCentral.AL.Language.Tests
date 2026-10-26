@@ -1,0 +1,20 @@
+{
+  "id": "5b7c0e0a-3d41-4a52-9f43-5700a1b2c3d4",
+  "name": "AL Language Http Policy Probe",
+  "publisher": "AL Language",
+  "version": "1.0.0.0",
+  "brief": "Measures the error of an unhandled HttpClient.Get per TestHttpRequestPolicy and per session path.",
+  "description": "Each test fails on purpose with a message that carries GetLastErrorText and GetLastErrorCode, so the JUnit has the values.",
+  "privacyStatement": "",
+  "EULA": "",
+  "help": "",
+  "url": "",
+  "logo": "",
+  "platform": "27.0.0.0",
+  "application": "27.0.0.0",
+  "screenshots": [],
+  "idRanges": [{ "from": 97800, "to": 97809 }],
+  "features": [],
+  "runtime": "16.0",
+  "target": "Cloud"
+}
