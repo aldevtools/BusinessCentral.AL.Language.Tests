@@ -194,4 +194,222 @@ codeunit 74315 "LT P166 Json Token Stream"
         Observer.Expect('empty_isNull', 'Yes');
         Observer.Verify();
     end;
+
+    // Writer SN (2026-10-25, runtime hand-off refuse-json-streams "JsonValue.ReadFrom(InStream) of 5 / null into a fresh vs a filled JsonValue"):
+    // P101Streams.al:117/:126 read '42' and 'null' into a JsonValue that already holds a value; JsonValue_ReadFromStream_Scalars reads into a fresh one.
+    local procedure ReadValueInto(var Observer: Codeunit "Probe Observer"; Name: Text; Prefill: Integer; Value: Text; WithEncoding: Boolean)
+    var
+        TempBlob: Codeunit "Temp Blob";
+        InS: InStream;
+        Val: JsonValue;
+        Result: Boolean;
+        Text: Text;
+        Passed: Boolean;
+    begin
+        case Prefill of
+            1:
+                Val.SetValue('hello');
+            2:
+                Val.SetValue(7);
+            3:
+                Val.SetValueToNull();
+            4:
+                Val.ReadFrom('8');
+        end;
+        Fill(TempBlob, Value, 0);
+        if WithEncoding then
+            TempBlob.CreateInStream(InS, TextEncoding::UTF8)
+        else
+            TempBlob.CreateInStream(InS);
+        Passed := TryReadValue(InS, Val, Result);
+        Observer.Observe(Name + '_noError', Format(Passed));
+        if Passed then begin
+            Observer.Observe(Name + '_result', Format(Result));
+            Val.WriteTo(Text);
+            Observer.Observe(Name + '_json', Text);
+            Observer.Observe(Name + '_isNull', Format(Val.IsNull()));
+        end else
+            Observer.ObserveError(Name);
+    end;
+
+    [Test]
+    procedure JsonValue_ReadFromStream_IntoValueHoldingText()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ReadValueInto(Observer, 'number', 1, '5', true);
+        ReadValueInto(Observer, 'null', 1, 'null', true);
+        ReadValueInto(Observer, 'string', 1, '"s"', true);
+        ReadValueInto(Observer, 'true', 1, 'true', true);
+        ReadValueInto(Observer, 'number_noenc', 1, '42', false);
+        Observer.Expect('number_noError', 'Yes');
+        Observer.Expect('number_result', 'Yes');
+        Observer.Expect('number_json', '5');
+        Observer.Expect('number_isNull', 'No');
+        Observer.Expect('null_noError', 'Yes');
+        Observer.Expect('null_result', 'Yes');
+        Observer.Expect('null_json', 'null');
+        Observer.Expect('null_isNull', 'Yes');
+        Observer.Expect('string_noError', 'Yes');
+        Observer.Expect('string_result', 'Yes');
+        Observer.Expect('string_json', '"s"');
+        Observer.Expect('string_isNull', 'No');
+        Observer.Expect('true_noError', 'Yes');
+        Observer.Expect('true_result', 'Yes');
+        Observer.Expect('true_json', 'true');
+        Observer.Expect('true_isNull', 'No');
+        Observer.Expect('number_noenc_noError', 'Yes');
+        Observer.Expect('number_noenc_result', 'Yes');
+        Observer.Expect('number_noenc_json', '42');
+        Observer.Expect('number_noenc_isNull', 'No');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure JsonValue_ReadFromStream_IntoValueHoldingNumberOrNull()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ReadValueInto(Observer, 'num_number', 2, '5', true);
+        ReadValueInto(Observer, 'num_string', 2, '"s"', true);
+        ReadValueInto(Observer, 'null_number', 3, '5', true);
+        ReadValueInto(Observer, 'null_null', 3, 'null', true);
+        ReadValueInto(Observer, 'read_number', 4, '5', true);
+        ReadValueInto(Observer, 'read_null', 4, 'null', true);
+        Observer.Expect('num_number_noError', 'Yes');
+        Observer.Expect('num_number_result', 'Yes');
+        Observer.Expect('num_number_json', '5');
+        Observer.Expect('num_number_isNull', 'No');
+        Observer.Expect('num_string_noError', 'Yes');
+        Observer.Expect('num_string_result', 'Yes');
+        Observer.Expect('num_string_json', '"s"');
+        Observer.Expect('num_string_isNull', 'No');
+        Observer.Expect('null_number_noError', 'Yes');
+        Observer.Expect('null_number_result', 'Yes');
+        Observer.Expect('null_number_json', '5');
+        Observer.Expect('null_number_isNull', 'No');
+        Observer.Expect('null_null_noError', 'Yes');
+        Observer.Expect('null_null_result', 'Yes');
+        Observer.Expect('null_null_json', 'null');
+        Observer.Expect('null_null_isNull', 'Yes');
+        Observer.Expect('read_number_noError', 'Yes');
+        Observer.Expect('read_number_result', 'Yes');
+        Observer.Expect('read_number_json', '5');
+        Observer.Expect('read_number_isNull', 'No');
+        Observer.Expect('read_null_noError', 'Yes');
+        Observer.Expect('read_null_result', 'Yes');
+        Observer.Expect('read_null_json', 'null');
+        Observer.Expect('read_null_isNull', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure JsonValue_ReadFromStream_FreshWithoutEncoding()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ReadValueInto(Observer, 'number', 0, '42', false);
+        ReadValueInto(Observer, 'null', 0, 'null', false);
+        ReadValueInto(Observer, 'string', 0, '"s"', false);
+        Observer.Expect('number_noError', 'Yes');
+        Observer.Expect('number_result', 'Yes');
+        Observer.Expect('number_json', '42');
+        Observer.Expect('number_isNull', 'No');
+        Observer.Expect('null_noError', 'Yes');
+        Observer.Expect('null_result', 'Yes');
+        Observer.Expect('null_json', 'null');
+        Observer.Expect('null_isNull', 'Yes');
+        Observer.Expect('string_noError', 'Yes');
+        Observer.Expect('string_result', 'Yes');
+        Observer.Expect('string_json', '"s"');
+        Observer.Expect('string_isNull', 'No');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure JsonValue_ReadFromStream_TwiceIntoSameValue()
+    var
+        Observer: Codeunit "Probe Observer";
+        TempBlob: Codeunit "Temp Blob";
+        InS: InStream;
+        Val: JsonValue;
+        Text: Text;
+    begin
+        Fill(TempBlob, '5', 0);
+        TempBlob.CreateInStream(InS, TextEncoding::UTF8);
+        Observer.Observe('first', Format(Val.ReadFrom(InS)));
+        Fill(TempBlob, '6', 0);
+        TempBlob.CreateInStream(InS, TextEncoding::UTF8);
+        Observer.Observe('second', Format(Val.ReadFrom(InS)));
+        Val.WriteTo(Text);
+        Observer.Observe('json', Text);
+        Clear(Val);
+        Fill(TempBlob, '7', 0);
+        TempBlob.CreateInStream(InS, TextEncoding::UTF8);
+        Observer.Observe('after_clear', Format(Val.ReadFrom(InS)));
+        Val.WriteTo(Text);
+        Observer.Observe('json_after_clear', Text);
+        Observer.Expect('first', 'Yes');
+        Observer.Expect('second', 'Yes');
+        Observer.Expect('json', '6');
+        Observer.Expect('after_clear', 'Yes');
+        Observer.Expect('json_after_clear', '7');
+        Observer.Verify();
+    end;
+
+    // Writer SN: the P101Streams.al P101_ValueStreams flow (record Blob written, read, written again, then Modify) with a FRESH JsonValue
+    // and the stream text read back first, to tell whether its 'number_ok' No comes from the value or from what the Blob holds.
+    // Result: CreateOutStream on a Blob field that holds data writes over its first bytes ('42ello"'), so ReadFrom fails for a fresh value too;
+    // a JsonValue that holds a value reads 5 / null like a fresh one (JsonValue_ReadFromStream_IntoValueHolding*).
+    [Test]
+    procedure JsonValue_ReadFromStream_RecordBlobRewritten()
+    var
+        Observer: Codeunit "Probe Observer";
+        Blob: Record "LT P101 Blob";
+        V: JsonValue;
+        Fresh: JsonValue;
+        Held: JsonValue;
+        OutS: OutStream;
+        InS: InStream;
+        Txt: Text;
+    begin
+        Blob.DeleteAll();
+        V.SetValue('hello');
+        Blob.Id := 1;
+        Blob.Data.CreateOutStream(OutS);
+        V.WriteTo(OutS);
+        Blob.Insert();
+        Blob.Data.CreateInStream(InS);
+        InS.ReadText(Txt);
+        Blob.Data.CreateInStream(InS);
+        Held.ReadFrom(InS);
+        Blob.Data.CreateOutStream(OutS);
+        OutS.WriteText('42');
+        Blob.Id := 1;
+        if not Blob.Insert() then
+            Blob.Modify();
+        Blob.Data.CreateInStream(InS);
+        InS.ReadText(Txt);
+        Observer.Observe('blob_text', Txt);
+        Blob.Data.CreateInStream(InS);
+        Observer.Observe('fresh_ok', Format(Fresh.ReadFrom(InS)));
+        Fresh.WriteTo(Txt);
+        Observer.Observe('fresh_json', Txt);
+        Blob.Data.CreateInStream(InS);
+        Observer.Observe('held_ok', Format(Held.ReadFrom(InS)));
+        Held.WriteTo(Txt);
+        Observer.Observe('held_json', Txt);
+        Blob.Get(1);
+        Blob.CalcFields(Data);
+        Blob.Data.CreateInStream(InS);
+        InS.ReadText(Txt);
+        Observer.Observe('stored_text', Txt);
+        Observer.Expect('blob_text', '42ello"');
+        Observer.Expect('fresh_ok', 'No');
+        Observer.Expect('fresh_json', 'null');
+        Observer.Expect('held_ok', 'No');
+        Observer.Expect('held_json', '"hello"');
+        Observer.Expect('stored_text', '42ello"');
+        Observer.Verify();
+    end;
 }

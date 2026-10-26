@@ -301,4 +301,62 @@ codeunit 74210 "LT PlT Session"
         Observer.Expect('active_huge', 'No');
         Observer.Verify();
     end;
+
+    // Writer SN (2026-10-25, runtime hand-off refuse-platform "GlobalLanguage(0/-1/99999): which positive ids raise NotSupportedLanguage"):
+    [TryFunction]
+    local procedure TrySetLanguage(Id: Integer)
+    begin
+        GlobalLanguage(Id);
+    end;
+
+    local procedure LanguageOutcome(Id: Integer; Old: Integer): Text
+    var
+        Now: Integer;
+    begin
+        ClearLastError();
+        if TrySetLanguage(Id) then begin
+            Now := GlobalLanguage();
+            GlobalLanguage(Old);
+            exit('ok ' + Format(Now));
+        end;
+        exit(GetLastErrorCode() + ' ' + GetLastErrorText());
+    end;
+
+    [Test]
+    procedure GlobalLanguage_PositiveIds()
+    var
+        Observer: Codeunit "Probe Observer";
+        Old: Integer;
+    begin
+        Old := GlobalLanguage();
+        Observer.Observe('1', LanguageOutcome(1, Old));
+        Observer.Observe('9', LanguageOutcome(9, Old));
+        Observer.Observe('127', LanguageOutcome(127, Old));
+        Observer.Observe('1000', LanguageOutcome(1000, Old));
+        Observer.Observe('1030', LanguageOutcome(1030, Old));
+        Observer.Observe('1036', LanguageOutcome(1036, Old));
+        Observer.Observe('2057', LanguageOutcome(2057, Old));
+        Observer.Observe('3082', LanguageOutcome(3082, Old));
+        Observer.Observe('4096', LanguageOutcome(4096, Old));
+        Observer.Observe('8192', LanguageOutcome(8192, Old));
+        Observer.Observe('9999', LanguageOutcome(9999, Old));
+        Observer.Observe('32767', LanguageOutcome(32767, Old));
+        Observer.Observe('65535', LanguageOutcome(65535, Old));
+        Observer.Observe('restored', Format(GlobalLanguage() = Old));
+        Observer.Expect('1', 'ok 1');
+        Observer.Expect('9', 'ok 9');
+        Observer.Expect('127', 'ok 127');
+        Observer.Expect('1000', 'NotSupportedLanguage ''1000'' is not a valid language code. You must specify a locale identifier (LCID) or code in the format of language-country/region, such as en-US, de-DE, or da-DK.');
+        Observer.Expect('1030', 'ok 1030');
+        Observer.Expect('1036', 'ok 1036');
+        Observer.Expect('2057', 'ok 2057');
+        Observer.Expect('3082', 'ok 3082');
+        Observer.Expect('4096', 'NotSupportedLanguage ''4096'' is not a valid language code. You must specify a locale identifier (LCID) or code in the format of language-country/region, such as en-US, de-DE, or da-DK.');
+        Observer.Expect('8192', 'NotSupportedLanguage ''8192'' is not a valid language code. You must specify a locale identifier (LCID) or code in the format of language-country/region, such as en-US, de-DE, or da-DK.');
+        Observer.Expect('9999', 'NotSupportedLanguage ''9999'' is not a valid language code. You must specify a locale identifier (LCID) or code in the format of language-country/region, such as en-US, de-DE, or da-DK.');
+        Observer.Expect('32767', 'NotSupportedLanguage ''32767'' is not a valid language code. You must specify a locale identifier (LCID) or code in the format of language-country/region, such as en-US, de-DE, or da-DK.');
+        Observer.Expect('65535', 'NotSupportedLanguage ''65535'' is not a valid language code. You must specify a locale identifier (LCID) or code in the format of language-country/region, such as en-US, de-DE, or da-DK.');
+        Observer.Expect('restored', 'Yes');
+        Observer.Verify();
+    end;
 }

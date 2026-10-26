@@ -306,4 +306,40 @@ codeunit 74206 "LT PlT NavApp"
         Observer.Expect('negative', 'no error');
         Observer.Verify();
     end;
+
+    // Writer SN (2026-10-25, runtime hand-off refuse-platform "Version.Create(-1,0,0,0) formats 0.0.0.0; Major() etc. of it not pinned"):
+    [Test]
+    procedure Version_NegativeParts()
+    var
+        Observer: Codeunit "Probe Observer";
+        V: Version;
+    begin
+        V := Version.Create(-1, 0, 0, 0);
+        Observer.Observe('neg_major_format', Format(V));
+        Observer.Observe('neg_major_parts', StrSubstNo('%1|%2|%3|%4', V.Major(), V.Minor(), V.Build(), V.Revision()));
+        Observer.Observe('neg_major_eq_zero', Format(V = Version.Create(0, 0, 0, 0)));
+        Observer.Observe('neg_major_lt_zero', Format(V < Version.Create(0, 0, 0, 0)));
+        V := Version.Create(1, 2, -1, -1);
+        Observer.Observe('neg_build_format', Format(V));
+        Observer.Observe('neg_build_parts', StrSubstNo('%1|%2|%3|%4', V.Major(), V.Minor(), V.Build(), V.Revision()));
+        V := Version.Create(1, 2, 3, -1);
+        Observer.Observe('neg_rev_format', Format(V));
+        Observer.Observe('neg_rev_parts', StrSubstNo('%1|%2|%3|%4', V.Major(), V.Minor(), V.Build(), V.Revision()));
+        Observer.Observe('neg_rev_eq_three_part', Format(V = Version.Create('1.2.3')));
+        V := Version.Create(-5, -6, 3, 4);
+        Observer.Observe('neg_two_format', Format(V));
+        Observer.Observe('neg_two_parts', StrSubstNo('%1|%2|%3|%4', V.Major(), V.Minor(), V.Build(), V.Revision()));
+        Observer.Expect('neg_major_format', '0.0.0.0');
+        Observer.Expect('neg_major_parts', '0|0|0|0');
+        Observer.Expect('neg_major_eq_zero', 'Yes');
+        Observer.Expect('neg_major_lt_zero', 'No');
+        Observer.Expect('neg_build_format', '1.2.0.0');
+        Observer.Expect('neg_build_parts', '1|2|0|0');
+        Observer.Expect('neg_rev_format', '1.2.3.0');
+        Observer.Expect('neg_rev_parts', '1|2|3|0');
+        Observer.Expect('neg_rev_eq_three_part', 'Yes');
+        Observer.Expect('neg_two_format', '0.0.3.4');
+        Observer.Expect('neg_two_parts', '0|0|3|4');
+        Observer.Verify();
+    end;
 }

@@ -304,4 +304,93 @@ codeunit 68554 "W7 Stream Read"
         Observer.Expect('UTF8 2 bytes codes', '97 98');
         Observer.Verify();
     end;
+
+    // Writer SN (2026-10-25, runtime hand-off refuse-json-streams "InStream.Read(Text, Length) results on UTF-8"): ReadTextWithLength_Utf8Sequences
+    // pins the returned count and the text; here also what is left in the stream after the read (read with a second Read(Text) and with
+    // Read(Byte)), so the bytes one Read(Text, Length) consumes are visible.
+    local procedure ObserveLengthAndRest(var Observer: Codeunit "Probe Observer"; Name: Text; var TempBlob: Codeunit "Temp Blob"; Encoding: TextEncoding; Length: Integer)
+    var
+        Util: Codeunit "W7 Stream Util";
+        InS: InStream;
+        Result: Text;
+        Rest: Text;
+        B: Byte;
+        Count: Integer;
+    begin
+        TempBlob.CreateInStream(InS, Encoding);
+        Count := InS.Read(Result, Length);
+        Observer.Observe(Name + ' returned', Format(Count) + ' ' + Util.Codes(Result) + ' eos ' + Format(InS.EOS()));
+        Count := InS.Read(Rest);
+        Observer.Observe(Name + ' rest', Format(Count) + ' ' + Util.Codes(Rest));
+        TempBlob.CreateInStream(InS, Encoding);
+        InS.Read(Result, Length);
+        if InS.EOS() then
+            Observer.Observe(Name + ' next byte', 'eos')
+        else begin
+            InS.Read(B);
+            Observer.Observe(Name + ' next byte', Format(B));
+        end;
+    end;
+
+    [Test]
+    procedure ReadTextWithLength_Utf8_WhatIsConsumed()
+    var
+        Observer: Codeunit "Probe Observer";
+        TempBlob: Codeunit "Temp Blob";
+        Bytes: List of [Integer];
+    begin
+        // a, e-acute (C3 A9), euro (E2 82 AC), b
+        Bytes.Add(97); Bytes.Add(195); Bytes.Add(169); Bytes.Add(226); Bytes.Add(130); Bytes.Add(172); Bytes.Add(98);
+        WriteBytes(TempBlob, Bytes);
+        ObserveLengthAndRest(Observer, 'n1', TempBlob, TextEncoding::UTF8, 1);
+        ObserveLengthAndRest(Observer, 'n2', TempBlob, TextEncoding::UTF8, 2);
+        ObserveLengthAndRest(Observer, 'n3', TempBlob, TextEncoding::UTF8, 3);
+        ObserveLengthAndRest(Observer, 'n4', TempBlob, TextEncoding::UTF8, 4);
+        ObserveLengthAndRest(Observer, 'n5', TempBlob, TextEncoding::UTF8, 5);
+        Observer.Expect('n1 returned', '2 97 eos No');
+        Observer.Expect('n1 rest', '7 233 8364 98');
+        Observer.Expect('n1 next byte', '“');
+        Observer.Expect('n2 returned', '4 97 233 eos No');
+        Observer.Expect('n2 rest', '5 8364 98');
+        Observer.Expect('n2 next byte', 'Ë');
+        Observer.Expect('n3 returned', '7 97 233 8364 eos No');
+        Observer.Expect('n3 rest', '2 98');
+        Observer.Expect('n3 next byte', 'b');
+        Observer.Expect('n4 returned', '8 97 233 8364 98 eos Yes');
+        Observer.Expect('n4 rest', '1 ');
+        Observer.Expect('n4 next byte', 'eos');
+        Observer.Expect('n5 returned', '8 97 233 8364 98 eos Yes');
+        Observer.Expect('n5 rest', '1 ');
+        Observer.Expect('n5 next byte', 'eos');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure ReadTextWithLength_Utf16_WhatIsConsumed()
+    var
+        Observer: Codeunit "Probe Observer";
+        TempBlob: Codeunit "Temp Blob";
+        Bytes: List of [Integer];
+    begin
+        // UTF-16 LE: a (61 00), e-acute (E9 00), euro (AC 20), b (62 00), no terminator
+        Bytes.Add(97); Bytes.Add(0); Bytes.Add(233); Bytes.Add(0); Bytes.Add(172); Bytes.Add(32); Bytes.Add(98); Bytes.Add(0);
+        WriteBytes(TempBlob, Bytes);
+        ObserveLengthAndRest(Observer, 'u1', TempBlob, TextEncoding::UTF16, 1);
+        ObserveLengthAndRest(Observer, 'u2', TempBlob, TextEncoding::UTF16, 2);
+        ObserveLengthAndRest(Observer, 'u4', TempBlob, TextEncoding::UTF16, 4);
+        ObserveLengthAndRest(Observer, 'u6', TempBlob, TextEncoding::UTF16, 6);
+        Observer.Expect('u1 returned', '4 97 eos No');
+        Observer.Expect('u1 rest', '8 233 8364 98');
+        Observer.Expect('u1 next byte', 'Ò');
+        Observer.Expect('u2 returned', '6 97 233 eos No');
+        Observer.Expect('u2 rest', '6 8364 98');
+        Observer.Expect('u2 next byte', '¼');
+        Observer.Expect('u4 returned', '10 97 233 8364 98 eos Yes');
+        Observer.Expect('u4 rest', '2 ');
+        Observer.Expect('u4 next byte', 'eos');
+        Observer.Expect('u6 returned', '10 97 233 8364 98 eos Yes');
+        Observer.Expect('u6 rest', '2 ');
+        Observer.Expect('u6 next byte', 'eos');
+        Observer.Verify();
+    end;
 }

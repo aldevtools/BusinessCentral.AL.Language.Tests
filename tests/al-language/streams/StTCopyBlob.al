@@ -593,4 +593,93 @@ codeunit 74202 "LT StT CopyStream"
         Observer.Expect('len', '0');
         Observer.Verify();
     end;
+
+    // Writer SN (2026-10-25, runtime hand-off refuse-json-streams "CopyStream count beyond what is left / negative count"):
+    // return value, source position/EOS and what reaches the target for counts equal to, one beyond and far beyond what is left, and negative counts.
+    local procedure CopyCount(var Observer: Codeunit "Probe Observer"; Name: Text; Source: Text; Skip: Integer; Count: Integer)
+    var
+        Rec: Record "LT StT Rec";
+        Rec2: Record "LT StT Rec";
+        Out: OutStream;
+        Out2: OutStream;
+        Ins: InStream;
+        Ins2: InStream;
+        T: Text;
+        Skipped: Text;
+    begin
+        Fresh(Rec);
+        Rec2.Init();
+        Rec2.Id := 2;
+        Rec2.Insert();
+        Rec.Data.CreateOutStream(Out);
+        Out.WriteText(Source);
+        Rec.Modify();
+        Rec.Data.CreateInStream(Ins);
+        if Skip > 0 then
+            Ins.ReadText(Skipped, Skip);
+        Rec2.Data.CreateOutStream(Out2);
+        Observer.Observe(Name + '-copied', Format(CopyStream(Out2, Ins, Count)));
+        Observer.Observe(Name + '-pos', Format(Ins.Position()));
+        Observer.Observe(Name + '-eos', Format(Ins.EOS()));
+        Rec2.Modify();
+        Rec2.Data.CreateInStream(Ins2);
+        Ins2.ReadText(T);
+        Observer.Observe(Name + '-text', T);
+    end;
+
+    [Test]
+    procedure CopyCountAgainstWhatIsLeft()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        CopyCount(Observer, 'exact', 'abcdef', 0, 6);
+        CopyCount(Observer, 'one-more', 'abcdef', 0, 7);
+        CopyCount(Observer, 'far-more', 'abcdef', 0, 100);
+        CopyCount(Observer, 'rest-exact', 'abcdef', 2, 4);
+        CopyCount(Observer, 'rest-more', 'abcdef', 2, 5);
+        Observer.Expect('exact-copied', 'Yes');
+        Observer.Expect('exact-pos', '7');
+        Observer.Expect('exact-eos', 'Yes');
+        Observer.Expect('exact-text', 'abcdef');
+        Observer.Expect('one-more-copied', 'No');
+        Observer.Expect('one-more-pos', '1');
+        Observer.Expect('one-more-eos', 'No');
+        Observer.Expect('one-more-text', 'abcdef');
+        Observer.Expect('far-more-copied', 'No');
+        Observer.Expect('far-more-pos', '1');
+        Observer.Expect('far-more-eos', 'No');
+        Observer.Expect('far-more-text', 'abcdef');
+        Observer.Expect('rest-exact-copied', 'Yes');
+        Observer.Expect('rest-exact-pos', '7');
+        Observer.Expect('rest-exact-eos', 'Yes');
+        Observer.Expect('rest-exact-text', 'cdef');
+        Observer.Expect('rest-more-copied', 'No');
+        Observer.Expect('rest-more-pos', '3');
+        Observer.Expect('rest-more-eos', 'No');
+        Observer.Expect('rest-more-text', 'cdef');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure CopyNegativeCount()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        CopyCount(Observer, 'minus-one', 'abcdef', 0, -1);
+        CopyCount(Observer, 'minus-five', 'abcdef', 0, -5);
+        CopyCount(Observer, 'minus-one-after-skip', 'abcdef', 2, -1);
+        Observer.Expect('minus-one-copied', 'No');
+        Observer.Expect('minus-one-pos', '1');
+        Observer.Expect('minus-one-eos', 'No');
+        Observer.Expect('minus-one-text', '');
+        Observer.Expect('minus-five-copied', 'No');
+        Observer.Expect('minus-five-pos', '1');
+        Observer.Expect('minus-five-eos', 'No');
+        Observer.Expect('minus-five-text', '');
+        Observer.Expect('minus-one-after-skip-copied', 'No');
+        Observer.Expect('minus-one-after-skip-pos', '3');
+        Observer.Expect('minus-one-after-skip-eos', 'No');
+        Observer.Expect('minus-one-after-skip-text', '');
+        Observer.Verify();
+    end;
 }

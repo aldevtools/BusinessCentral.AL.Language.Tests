@@ -579,4 +579,79 @@ codeunit 70853 "LT P101 Array IndexOf"
         Observer.Verify();
     end;
 
+    // Writer SN (2026-10-25, runtime hand-off refuse-json-streams "IndexOf of a scalar JsonToken/JsonValue (identity)"):
+    // whether Add keeps the variable's own value object (IndexOf right after Add) and what SetValue/ReadFrom on the variable do to it.
+    [Test]
+    procedure P101_IndexOf_JsonValue_Identity()
+    var
+        Observer: Codeunit "Probe Observer";
+        A: JsonArray;
+        Jv: JsonValue;
+        Tk: JsonToken;
+        Got: JsonValue;
+    begin
+        Jv.SetValue(7);
+        A.Add(Jv);
+        Observer.Observe('right_after_add', Format(A.IndexOf(Jv)));
+        Jv.SetValue(8);
+        Observer.Observe('after_setvalue_arr', Txt(A));
+        Observer.Observe('after_setvalue_idx', Format(A.IndexOf(Jv)));
+        A.Add(Jv);
+        Jv.ReadFrom('9');
+        Observer.Observe('after_readfrom_arr', Txt(A));
+        Observer.Observe('after_readfrom_idx', Format(A.IndexOf(Jv)));
+        A.Get(0, Tk);
+        Observer.Observe('got_token_idx', Format(A.IndexOf(Tk)));
+        Got := Tk.AsValue();
+        Observer.Observe('got_value_idx', Format(A.IndexOf(Got)));
+        Got.SetValue(70);
+        Observer.Observe('got_setvalue_arr', Txt(A));
+        Observer.Observe('got_setvalue_idx', Format(A.IndexOf(Got)));
+        Observer.Expect('right_after_add', '0');
+        Observer.Expect('after_setvalue_arr', '[7]');
+        Observer.Expect('after_setvalue_idx', '-1');
+        Observer.Expect('after_readfrom_arr', '[7,8]');
+        Observer.Expect('after_readfrom_idx', '-1');
+        Observer.Expect('got_token_idx', '0');
+        Observer.Expect('got_value_idx', '0');
+        Observer.Expect('got_setvalue_arr', '[7,8]');
+        Observer.Expect('got_setvalue_idx', '-1');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure P101_IndexOf_JsonToken_Identity()
+    var
+        Observer: Codeunit "Probe Observer";
+        A: JsonArray;
+        Tk: JsonToken;
+        Tk2: JsonToken;
+        Jo: JsonObject;
+    begin
+        Tk.ReadFrom('5');
+        A.Add(Tk);
+        Observer.Observe('scalar_right_after_add', Format(A.IndexOf(Tk)));
+        Tk2 := Tk;
+        Observer.Observe('scalar_copy_idx', Format(A.IndexOf(Tk2)));
+        Observer.Observe('scalar_asvalue_idx', Format(A.IndexOf(Tk.AsValue())));
+        Tk.ReadFrom('{"x":1}');
+        A.Add(Tk);
+        Observer.Observe('object_right_after_add', Format(A.IndexOf(Tk)));
+        Jo := Tk.AsObject();
+        Observer.Observe('object_asobject_idx', Format(A.IndexOf(Jo)));
+        Jo.Add('y', 2);
+        Observer.Observe('object_after_change_arr', Txt(A));
+        A.Get(0, Tk2);
+        Observer.Observe('get0_idx', Format(A.IndexOf(Tk2)));
+        Observer.Observe('get0_value_idx', Format(A.IndexOf(Tk2.AsValue())));
+        Observer.Expect('scalar_right_after_add', '0');
+        Observer.Expect('scalar_copy_idx', '0');
+        Observer.Expect('scalar_asvalue_idx', '0');
+        Observer.Expect('object_right_after_add', '1');
+        Observer.Expect('object_asobject_idx', '1');
+        Observer.Expect('object_after_change_arr', '[5,{"x":1,"y":2}]');
+        Observer.Expect('get0_idx', '0');
+        Observer.Expect('get0_value_idx', '0');
+        Observer.Verify();
+    end;
 }

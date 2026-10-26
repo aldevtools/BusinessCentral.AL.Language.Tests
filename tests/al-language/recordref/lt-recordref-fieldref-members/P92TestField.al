@@ -348,4 +348,147 @@ codeunit 72222 "LT P92 TestField"
         Observer.Expect('fresh_code', 'Code Cap must have a value in P92 Item Caption: Code Cap=. It cannot be zero or empty.|TestField');
         Observer.Verify();
     end;
+
+    // Writer SN (2026-10-25, runtime hand-off refuse-record "FieldRef.TestField(Variant) of another type: many type pairs"):
+    // Value_TypeMismatchBetweenVariantAndField compares values that also differ; here every pair holds the SAME value in two types,
+    // so the outcome says whether the Variant is converted to the field type or the types alone decide.
+    local procedure SetupTypePairs(var Item: Record "LT P92 Item"; var RecRef: RecordRef)
+    var
+        Helper: Codeunit "LT P92 Helper";
+    begin
+        Helper.SeedItems();
+        Item.Get('A1');
+        Item.Name := '10';
+        Item.Qty := 10;
+        Item.Amt := 2;
+        Item.Flag := true;
+        Item.Dt := 20260115D;
+        Item.Kind := Item.Kind::Beta;
+        Item.Note := 'Yes';
+        Item.Cd := 'ABC';
+        RecRef.GetTable(Item);
+    end;
+
+    [Test]
+    procedure Value_SameValueOtherType_TextAndCodeFields()
+    var
+        Observer: Codeunit "Probe Observer";
+        RecRef: RecordRef;
+        Item: Record "LT P92 Item";
+        I: Integer;
+        BI: BigInteger;
+        D: Decimal;
+        B: Boolean;
+        C: Code[10];
+        T: Text;
+    begin
+        SetupTypePairs(Item, RecRef);
+        I := 10;
+        BI := 10;
+        D := 10;
+        B := true;
+        C := '10';
+        T := 'abc';
+        Observer.Observe('text_field_int', RefValue(RecRef, 2, I));
+        Observer.Observe('text_field_bigint', RefValue(RecRef, 2, BI));
+        Observer.Observe('text_field_decimal', RefValue(RecRef, 2, D));
+        Observer.Observe('text_field_code', RefValue(RecRef, 2, C));
+        Observer.Observe('text_yes_field_bool', RefValue(RecRef, 8, B));
+        Observer.Observe('code_field_text_lower', RefValue(RecRef, 10, T));
+        T := 'ABC';
+        Observer.Observe('code_field_text_same', RefValue(RecRef, 10, T));
+        Observer.Observe('code_field_int', RefValue(RecRef, 10, I));
+        Observer.Expect('text_field_int', 'Name Cap must be equal to ''10''  in P92 Item Caption: Code Cap=A1. Current value is ''10''.|TestField');
+        Observer.Expect('text_field_bigint', 'Name Cap must be equal to ''10''  in P92 Item Caption: Code Cap=A1. Current value is ''10''.|TestField');
+        Observer.Expect('text_field_decimal', 'Name Cap must be equal to ''10''  in P92 Item Caption: Code Cap=A1. Current value is ''10''.|TestField');
+        Observer.Expect('text_field_code', 'ok');
+        Observer.Expect('text_yes_field_bool', 'Note must be equal to ''Yes''  in P92 Item Caption: Code Cap=A1. Current value is ''Yes''.|TestField');
+        Observer.Expect('code_field_text_lower', 'ok');
+        Observer.Expect('code_field_text_same', 'ok');
+        Observer.Expect('code_field_int', 'Cd must be equal to ''10''  in P92 Item Caption: Code Cap=A1. Current value is ''ABC''.|TestField');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Value_SameValueOtherType_NumberFields()
+    var
+        Observer: Codeunit "Probe Observer";
+        RecRef: RecordRef;
+        Item: Record "LT P92 Item";
+        BI: BigInteger;
+        D: Decimal;
+        T: Text;
+        C: Code[10];
+        I: Integer;
+    begin
+        SetupTypePairs(Item, RecRef);
+        BI := 10;
+        D := 10.5;
+        Observer.Observe('int_field_bigint', RefValue(RecRef, 3, BI));
+        Observer.Observe('int_field_decimal_fraction', RefValue(RecRef, 3, D));
+        T := '010';
+        Observer.Observe('int_field_text_leading_zero', RefValue(RecRef, 3, T));
+        T := '10.0';
+        Observer.Observe('int_field_text_decimal', RefValue(RecRef, 3, T));
+        T := 'abc';
+        Observer.Observe('int_field_text_not_number', RefValue(RecRef, 3, T));
+        T := '11';
+        Observer.Observe('int_field_text_other', RefValue(RecRef, 3, T));
+        C := '10';
+        Observer.Observe('int_field_code', RefValue(RecRef, 3, C));
+        I := 2;
+        Observer.Observe('decimal_field_int_same', RefValue(RecRef, 4, I));
+        T := '2';
+        Observer.Observe('decimal_field_text_same', RefValue(RecRef, 4, T));
+        BI := 2;
+        Observer.Observe('decimal_field_bigint_same', RefValue(RecRef, 4, BI));
+        Observer.Expect('int_field_bigint', 'ok');
+        Observer.Expect('int_field_decimal_fraction', 'Qty must be equal to ''10.5''  in P92 Item Caption: Code Cap=A1. Current value is ''10''.|TestField');
+        Observer.Expect('int_field_text_leading_zero', 'ok');
+        Observer.Expect('int_field_text_decimal', 'The input string ''10.0'' was not in a correct format.|AL:Format');
+        Observer.Expect('int_field_text_not_number', 'The input string ''abc'' was not in a correct format.|AL:Format');
+        Observer.Expect('int_field_text_other', 'Qty must be equal to ''11''  in P92 Item Caption: Code Cap=A1. Current value is ''10''.|TestField');
+        Observer.Expect('int_field_code', 'ok');
+        Observer.Expect('decimal_field_int_same', 'ok');
+        Observer.Expect('decimal_field_text_same', 'ok');
+        Observer.Expect('decimal_field_bigint_same', 'ok');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Value_SameValueOtherType_BoolDateOptionFields()
+    var
+        Observer: Codeunit "Probe Observer";
+        RecRef: RecordRef;
+        Item: Record "LT P92 Item";
+        I: Integer;
+        T: Text;
+        DT: DateTime;
+    begin
+        SetupTypePairs(Item, RecRef);
+        I := 1;
+        Observer.Observe('bool_field_int_one', RefValue(RecRef, 5, I));
+        T := 'Yes';
+        Observer.Observe('bool_field_text_yes', RefValue(RecRef, 5, T));
+        T := 'true';
+        Observer.Observe('bool_field_text_true', RefValue(RecRef, 5, T));
+        T := Format(20260115D, 0, 9);
+        Observer.Observe('date_field_text_iso', RefValue(RecRef, 6, T));
+        T := Format(20260115D);
+        Observer.Observe('date_field_text_format', RefValue(RecRef, 6, T));
+        DT := CreateDateTime(20260115D, 0T);
+        Observer.Observe('date_field_datetime', RefValue(RecRef, 6, DT));
+        T := '1';
+        Observer.Observe('option_field_text_ordinal', RefValue(RecRef, 7, T));
+        Observer.Observe('option_field_enum_option', RefValue(RecRef, 7, Item.Kind::Beta));
+        Observer.Expect('bool_field_int_one', 'ok');
+        Observer.Expect('bool_field_text_yes', 'The input string ''Yes'' was not in a correct format.|AL:Format');
+        Observer.Expect('bool_field_text_true', 'The input string ''true'' was not in a correct format.|AL:Format');
+        Observer.Expect('date_field_text_iso', 'Dt must be equal to ''2026-01-15''  in P92 Item Caption: Code Cap=A1. Current value is ''01/15/26''.|TestField');
+        Observer.Expect('date_field_text_format', 'Dt must be equal to ''01/15/26''  in P92 Item Caption: Code Cap=A1. Current value is ''01/15/26''.|TestField');
+        Observer.Expect('date_field_datetime', 'ok');
+        Observer.Expect('option_field_text_ordinal', 'Kind must be equal to ''Beta''  in P92 Item Caption: Code Cap=A1. Current value is ''Beta''.|TestField');
+        Observer.Expect('option_field_enum_option', 'ok');
+        Observer.Verify();
+    end;
 }

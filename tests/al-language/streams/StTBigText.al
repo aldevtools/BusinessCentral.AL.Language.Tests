@@ -469,4 +469,114 @@ codeunit 74205 "LT StT BigText"
         Observer.Expect('textpos in empty', '0');
         Observer.Verify();
     end;
+
+    // Writer SN (2026-10-25, runtime hand-off refuse-json-streams "BigText.AddText position > len+1; GetSubText position > len; empty BigText GetSubText"):
+    // the text and length after AddText beyond the end, and what GetSubText returns and leaves in its Text argument past the end.
+    [TryFunction]
+    local procedure TryAddText(var Big: BigText; Piece: Text; Pos: Integer)
+    begin
+        Big.AddText(Piece, Pos);
+    end;
+
+    [Test]
+    procedure AddTextBeyondEnd()
+    var
+        Big: BigText;
+        Observer: Codeunit "Probe Observer";
+        T: Text;
+    begin
+        Big.AddText('abc');
+        Big.AddText('x', 5);
+        Big.GetSubText(T, 1);
+        Observer.Observe('plus-two-text', T);
+        Observer.Observe('plus-two-len', Format(Big.Length()));
+        if not TryAddText(Big, 'y', 100) then
+            Observer.ObserveError('far');
+        Big.GetSubText(T, 1);
+        Observer.Observe('far-text', T);
+        Observer.Observe('far-len', Format(Big.Length()));
+        Clear(Big);
+        if not TryAddText(Big, 'z', 3) then
+            Observer.ObserveError('empty-pos3');
+        Big.GetSubText(T, 1);
+        Observer.Observe('empty-pos3-text', T);
+        Observer.Observe('empty-pos3-len', Format(Big.Length()));
+        Observer.Expect('plus-two-text', 'abcx');
+        Observer.Expect('plus-two-len', '4');
+        Observer.Expect('far-text', 'abcxy');
+        Observer.Expect('far-len', '5');
+        Observer.Expect('empty-pos3-text', 'z');
+        Observer.Expect('empty-pos3-len', '1');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure GetSubTextPastEnd()
+    var
+        Big: BigText;
+        Observer: Codeunit "Probe Observer";
+        T: Text;
+        N: Integer;
+    begin
+        Big.AddText('0123456789');
+        T := 'keep';
+        N := Big.GetSubText(T, 11, 1);
+        Observer.Observe('n-11-1', Format(N));
+        Observer.Observe('t-11-1', T);
+        T := 'keep';
+        N := Big.GetSubText(T, 20);
+        Observer.Observe('n-20', Format(N));
+        Observer.Observe('t-20', T);
+        T := 'keep';
+        N := Big.GetSubText(T, 11);
+        Observer.Observe('n-11', Format(N));
+        Observer.Observe('t-11', T);
+        T := 'keep';
+        N := Big.GetSubText(T, 10, 5);
+        Observer.Observe('n-10-5', Format(N));
+        Observer.Observe('t-10-5', T);
+        Observer.Expect('n-11-1', '0');
+        Observer.Expect('t-11-1', '');
+        Observer.Expect('n-20', '0');
+        Observer.Expect('t-20', '');
+        Observer.Expect('n-11', '0');
+        Observer.Expect('t-11', '');
+        Observer.Expect('n-10-5', '1');
+        Observer.Expect('t-10-5', '9');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure GetSubTextOfEmptyBigText()
+    var
+        Big: BigText;
+        Observer: Codeunit "Probe Observer";
+        T: Text;
+        N: Integer;
+    begin
+        T := 'keep';
+        N := Big.GetSubText(T, 1, 1);
+        Observer.Observe('n-1-1', Format(N));
+        Observer.Observe('t-1-1', T);
+        T := 'keep';
+        N := Big.GetSubText(T, 1);
+        Observer.Observe('n-1', Format(N));
+        Observer.Observe('t-1', T);
+        T := 'keep';
+        N := Big.GetSubText(T, 5, 2);
+        Observer.Observe('n-5-2', Format(N));
+        Observer.Observe('t-5-2', T);
+        T := 'keep';
+        asserterror N := Big.GetSubText(T, 0, 1);
+        Observer.ObserveError('pos0');
+        Observer.Expect('n-1-1', '0');
+        Observer.Expect('t-1-1', '');
+        Observer.Expect('n-1', '0');
+        Observer.Expect('t-1', '');
+        Observer.Expect('n-5-2', '0');
+        Observer.Expect('t-5-2', '');
+        Observer.Expect('pos0|text', 'The value of COPYSTR parameter 2 is outside of the permitted range. The current value is: 0. The permitted range is: from 1 to 2,147,483,647.');
+        Observer.Expect('pos0|code', 'OutsidePermittedRange');
+        Observer.Verify();
+    end;
 }
