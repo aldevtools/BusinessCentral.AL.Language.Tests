@@ -252,4 +252,183 @@ codeunit 80523 "LT AY Width Tests"
         Observer.Expect('end|code', 'Dialog');
         Observer.Verify();
     end;
+
+    // Writer SL (2026-10-25): ReadAll above reads the UTF-16 export with InStream.Read(Char). These pin Read(Char) itself on known bytes:
+    // set 1 = UTF-16 LE with a BOM and an odd last byte (FF FE 41 00 E9 00 0D 00 0A 00 42), set 2 = UTF-8 bytes (41 C3 A9 42 0A 43),
+    // for an InStream without and with each TextEncoding. Each read shows its return value and the character code it gave.
+    local procedure WriteBytes(var TempBlob: Codeunit "Temp Blob"; SetNo: Integer)
+    var
+        OutS: OutStream;
+        Bytes: List of [Integer];
+        V: Integer;
+        B: Byte;
+    begin
+        if SetNo = 1 then
+            Bytes.AddRange(255, 254, 65, 0, 233, 0, 13, 0, 10, 0, 66)
+        else
+            Bytes.AddRange(65, 195, 169, 66, 10, 67);
+        TempBlob.CreateOutStream(OutS);
+        foreach V in Bytes do begin
+            B := V;
+            OutS.Write(B);
+        end;
+    end;
+
+    local procedure ReadChars(var InS: InStream): Text
+    var
+        C: Char;
+        N: Integer;
+        I: Integer;
+        Result: Text;
+        Code: Integer;
+    begin
+        while (not InS.EOS()) and (I < 12) do begin
+            I += 1;
+            C := 0;
+            N := InS.Read(C);
+            Code := C;
+            Result += Format(N) + ':' + Format(Code) + ';';
+        end;
+        exit(Result + 'eos=' + Format(InS.EOS()));
+    end;
+
+    [Test]
+    procedure ReadChar_Utf16Le_Default()
+    var
+        Observer: Codeunit "Probe Observer";
+        TempBlob: Codeunit "Temp Blob";
+        InS: InStream;
+    begin
+        WriteBytes(TempBlob, 1);
+        TempBlob.CreateInStream(InS);
+        Observer.Observe('reads', ReadChars(InS));
+        Observer.Expect('reads', '1:160;1:254;1:65;1:0;1:210;1:0;1:13;1:0;1:10;1:0;1:66;eos=Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure ReadChar_Utf8Bytes_Default()
+    var
+        Observer: Codeunit "Probe Observer";
+        TempBlob: Codeunit "Temp Blob";
+        InS: InStream;
+    begin
+        WriteBytes(TempBlob, 2);
+        TempBlob.CreateInStream(InS);
+        Observer.Observe('reads', ReadChars(InS));
+        Observer.Expect('reads', '1:65;1:8220;1:20;1:66;1:10;1:67;eos=Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure ReadChar_Utf16Le_Utf8()
+    var
+        Observer: Codeunit "Probe Observer";
+        TempBlob: Codeunit "Temp Blob";
+        InS: InStream;
+    begin
+        WriteBytes(TempBlob, 1);
+        TempBlob.CreateInStream(InS, TextEncoding::UTF8);
+        Observer.Observe('reads', ReadChars(InS));
+        Observer.Expect('reads', '2:65279;2:65;2:233;2:13;2:10;1:0;eos=Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure ReadChar_Utf8Bytes_Utf8()
+    var
+        Observer: Codeunit "Probe Observer";
+        TempBlob: Codeunit "Temp Blob";
+        InS: InStream;
+    begin
+        WriteBytes(TempBlob, 2);
+        TempBlob.CreateInStream(InS, TextEncoding::UTF8);
+        Observer.Observe('reads', ReadChars(InS));
+        Observer.Expect('reads', '2:49985;2:17065;2:17162;eos=Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure ReadChar_Utf16Le_Utf16()
+    var
+        Observer: Codeunit "Probe Observer";
+        TempBlob: Codeunit "Temp Blob";
+        InS: InStream;
+    begin
+        WriteBytes(TempBlob, 1);
+        TempBlob.CreateInStream(InS, TextEncoding::UTF16);
+        Observer.Observe('reads', ReadChars(InS));
+        Observer.Expect('reads', '2:65279;2:65;2:233;2:13;2:10;1:0;eos=Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure ReadChar_Utf8Bytes_Utf16()
+    var
+        Observer: Codeunit "Probe Observer";
+        TempBlob: Codeunit "Temp Blob";
+        InS: InStream;
+    begin
+        WriteBytes(TempBlob, 2);
+        TempBlob.CreateInStream(InS, TextEncoding::UTF16);
+        Observer.Observe('reads', ReadChars(InS));
+        Observer.Expect('reads', '2:49985;2:17065;2:17162;eos=Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure ReadChar_Utf16Le_Windows()
+    var
+        Observer: Codeunit "Probe Observer";
+        TempBlob: Codeunit "Temp Blob";
+        InS: InStream;
+    begin
+        WriteBytes(TempBlob, 1);
+        TempBlob.CreateInStream(InS, TextEncoding::Windows);
+        Observer.Observe('reads', ReadChars(InS));
+        Observer.Expect('reads', '1:255;1:254;1:65;1:0;1:233;1:0;1:13;1:0;1:10;1:0;1:66;eos=Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure ReadChar_Utf8Bytes_Windows()
+    var
+        Observer: Codeunit "Probe Observer";
+        TempBlob: Codeunit "Temp Blob";
+        InS: InStream;
+    begin
+        WriteBytes(TempBlob, 2);
+        TempBlob.CreateInStream(InS, TextEncoding::Windows);
+        Observer.Observe('reads', ReadChars(InS));
+        Observer.Expect('reads', '1:65;1:195;1:169;1:66;1:10;1:67;eos=Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure ReadChar_Utf16Le_MsDos()
+    var
+        Observer: Codeunit "Probe Observer";
+        TempBlob: Codeunit "Temp Blob";
+        InS: InStream;
+    begin
+        WriteBytes(TempBlob, 1);
+        TempBlob.CreateInStream(InS, TextEncoding::MSDos);
+        Observer.Observe('reads', ReadChars(InS));
+        Observer.Expect('reads', '1:160;1:254;1:65;1:0;1:210;1:0;1:13;1:0;1:10;1:0;1:66;eos=Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure ReadChar_Utf8Bytes_MsDos()
+    var
+        Observer: Codeunit "Probe Observer";
+        TempBlob: Codeunit "Temp Blob";
+        InS: InStream;
+    begin
+        WriteBytes(TempBlob, 2);
+        TempBlob.CreateInStream(InS, TextEncoding::MSDos);
+        Observer.Observe('reads', ReadChars(InS));
+        Observer.Expect('reads', '1:65;1:8220;1:20;1:66;1:10;1:67;eos=Yes');
+        Observer.Verify();
+    end;
 }

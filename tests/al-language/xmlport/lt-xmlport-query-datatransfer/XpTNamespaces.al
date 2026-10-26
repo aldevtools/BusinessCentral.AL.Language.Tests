@@ -179,4 +179,70 @@ codeunit 73503 "LT XpT Namespaces"
         Observer.Expect('items', '1|A|5|1.5|true|C|2024-01-15;');
         Observer.Verify();
     end;
+
+    // Writer SL (2026-10-25): the namespaced ports export UTF-16 (the default Encoding), so a UTF-8 read fails (Export_PrefixedNamespace);
+    // read the same export through a UTF-16 InStream, and import the exported text again.
+    [Test]
+    procedure Export_PrefixedNamespace_Utf16()
+    var
+        Observer: Codeunit "Probe Observer";
+        Helper: Codeunit "LT XpT Helper";
+        Xml: Text;
+    begin
+        Helper.Wipe();
+        Helper.Seed();
+        Xml := Helper.ExportTextEnc(73417, TextEncoding::UTF16);
+        Observer.Observe('xml', Xml);
+        Observer.Observe('len', Format(Helper.LastLength()));
+        Helper.Wipe();
+        Observer.Observe('reimport', Helper.TryImportEnc(73417, Xml.Replace('<NL>', Helper.Chr(13) + Helper.Chr(10)), TextEncoding::UTF16));
+        Observer.Observe('items', Helper.DumpItems());
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-16" standalone="no"?><NL><ns1:Root xmlns:ns1="urn:lt:xpt"><NL>  <ns1:Item><NL>    <Id>1</Id><NL>    <Name>Alpha</Name><NL>  </ns1:Item><NL>  <ns1:Item><NL>    <Id>2</Id><NL>    <Name>Beta</Name><NL>  </ns1:Item><NL>  <ns1:Item><NL>    <Id>3</Id><NL>    <Name>Gamma</Name><NL>  </ns1:Item><NL></ns1:Root>');
+        Observer.Expect('len', '620');
+        Observer.Expect('reimport', 'error:The prefix  is not defined in the Namespaces property of the XMLPort.|XmlPortNodeProcess');
+        Observer.Expect('items', '');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Export_DefaultNamespace_Utf16()
+    var
+        Observer: Codeunit "Probe Observer";
+        Helper: Codeunit "LT XpT Helper";
+        Xml: Text;
+    begin
+        Helper.Wipe();
+        Helper.Seed();
+        Xml := Helper.ExportTextEnc(73418, TextEncoding::UTF16);
+        Observer.Observe('xml', Xml);
+        Observer.Observe('len', Format(Helper.LastLength()));
+        Helper.Wipe();
+        Observer.Observe('reimport', Helper.TryImportEnc(73418, Xml.Replace('<NL>', Helper.Chr(13) + Helper.Chr(10)), TextEncoding::UTF16));
+        Observer.Observe('items', Helper.DumpItems());
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-16" standalone="no"?><NL><Root><NL>  <Item><NL>    <Id>1</Id><NL>    <Name>Alpha</Name><NL>  </Item><NL>  <Item><NL>    <Id>2</Id><NL>    <Name>Beta</Name><NL>  </Item><NL>  <Item><NL>    <Id>3</Id><NL>    <Name>Gamma</Name><NL>  </Item><NL></Root>');
+        Observer.Expect('len', '510');
+        Observer.Expect('reimport', 'ok');
+        Observer.Expect('items', '1|Alpha|0|0|false||;2|Beta|0|0|false||;3|Gamma|0|0|false||;');
+        Observer.Verify();
+    end;
+
+    // Import into the prefixed port with the element names it exports under (prefix ns1 on Root and Item, none on the field elements).
+    [Test]
+    procedure Import_PrefixedAsExported()
+    var
+        Observer: Codeunit "Probe Observer";
+        Helper: Codeunit "LT XpT Helper";
+    begin
+        Helper.Wipe();
+        Observer.Observe('rootItemOnly', Helper.TryImport(73417, '<ns1:Root xmlns:ns1="urn:lt:xpt"><ns1:Item><Id>1</Id><Name>A</Name></ns1:Item></ns1:Root>'));
+        Observer.Observe('items1', Helper.DumpItems());
+        Helper.Wipe();
+        Observer.Observe('utf16', Helper.TryImportEnc(73417, '<ns1:Root xmlns:ns1="urn:lt:xpt"><ns1:Item><ns1:Id>1</ns1:Id><ns1:Name>A</ns1:Name></ns1:Item></ns1:Root>', TextEncoding::UTF16));
+        Observer.Observe('items2', Helper.DumpItems());
+        Observer.Expect('rootItemOnly', 'error:The prefix  is not defined in the Namespaces property of the XMLPort.|XmlPortNodeProcess');
+        Observer.Expect('items1', '');
+        Observer.Expect('utf16', 'error:The prefix  is not defined in the Namespaces property of the XMLPort.|XmlPortNodeProcess');
+        Observer.Expect('items2', '');
+        Observer.Verify();
+    end;
 }

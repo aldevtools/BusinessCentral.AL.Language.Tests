@@ -749,4 +749,115 @@ codeunit 80518 "LT AY Flow Trigger Tests"
         Observer.Expect('end', 'FINISHED');
         Observer.Verify();
     end;
+
+    // Writer SL (2026-10-25): the Export_* tests above trim each line; these read the exported bytes: the blob length and every byte in hex,
+    // so the line ends (or their absence) after the declaration are visible.
+    local procedure DoExportBytes(var Observer: Codeunit "Probe Observer"; Trig: Text; Action: Integer)
+    var
+        R: Record "LT AY Flow Row";
+        TempBlob: Codeunit "Temp Blob";
+        Xp: XmlPort "LT AY Flow Export";
+        OutS: OutStream;
+        InS: InStream;
+        B: Byte;
+        Hex: Text;
+        Digits: Text;
+        i: Integer;
+    begin
+        R.DeleteAll();
+        for i := 1 to 3 do begin
+            R.Id := i;
+            R.Name := 'n' + Format(i);
+            R.Insert();
+        end;
+        TempBlob.CreateOutStream(OutS, TextEncoding::UTF8);
+        Xp.SetMode(Trig, Action);
+        Xp.SetDestination(OutS);
+        Observer.Observe('ok', Format(Xp.Export()));
+        Observer.Observe('log', Xp.GetLog());
+        Observer.Observe('length', Format(TempBlob.Length()));
+        Digits := '0123456789ABCDEF';
+        TempBlob.CreateInStream(InS);
+        while not InS.EOS() do begin
+            InS.Read(B);
+            Hex += CopyStr(Digits, (B div 16) + 1, 1) + CopyStr(Digits, (B mod 16) + 1, 1);
+        end;
+        Observer.Observe('hex', Hex);
+        Error('FINISHED');
+    end;
+
+    [Test]
+    procedure Export_pre_Break_Bytes()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        asserterror DoExportBytes(Observer, 'pre', 1);
+        Observer.Observe('end', GetLastErrorText());
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('log', 'pre1;');
+        Observer.Expect('length', '54');
+        Observer.Expect('hex', '3C3F786D6C2076657273696F6E3D22312E302220656E636F64696E673D225554462D3822207374616E64616C6F6E653D226E6F223F3E');
+        Observer.Expect('end', 'FINISHED');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Export_pre_BreakUnbound_Bytes()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        asserterror DoExportBytes(Observer, 'pre', 2);
+        Observer.Observe('end', GetLastErrorText());
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('log', 'pre1;');
+        Observer.Expect('length', '54');
+        Observer.Expect('hex', '3C3F786D6C2076657273696F6E3D22312E302220656E636F64696E673D225554462D3822207374616E64616C6F6E653D226E6F223F3E');
+        Observer.Expect('end', 'FINISHED');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Export_pre_Quit_Bytes()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        asserterror DoExportBytes(Observer, 'pre', 3);
+        Observer.Observe('end', GetLastErrorText());
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('log', 'pre1;');
+        Observer.Expect('length', '54');
+        Observer.Expect('hex', '3C3F786D6C2076657273696F6E3D22312E302220656E636F64696E673D225554462D3822207374616E64616C6F6E653D226E6F223F3E');
+        Observer.Expect('end', 'FINISHED');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Export_head_Break_Bytes()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        asserterror DoExportBytes(Observer, 'head', 1);
+        Observer.Observe('end', GetLastErrorText());
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('log', 'pre1;head1;post;');
+        Observer.Expect('length', '64');
+        Observer.Expect('hex', '3C3F786D6C2076657273696F6E3D22312E302220656E636F64696E673D225554462D3822207374616E64616C6F6E653D226E6F223F3E0D0A3C526F6F74202F3E');
+        Observer.Expect('end', 'FINISHED');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Export_NoAction_Bytes()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        asserterror DoExportBytes(Observer, '', 0);
+        Observer.Observe('end', GetLastErrorText());
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('log', 'pre1;head1;preitem1;passfield1;passfield2;passfield3;post;');
+        Observer.Expect('length', '257');
+        Observer.Expect('hex', '3C3F786D6C2076657273696F6E3D22312E302220656E636F64696E673D225554462D3822207374616E64616C6F6E653D226E6F223F3E0D0A3C526F6F743E0D0A20203C486561643E683C2F486561643E0D0A20203C526F773E0D0A202020203C49643E313C2F49643E0D0A202020203C4E616D653E6E313C2F4E616D653E0D0A20203C2F526F773E0D0A20203C526F773E0D0A202020203C49643E323C2F49643E0D0A202020203C4E616D653E6E323C2F4E616D653E0D0A20203C2F526F773E0D0A20203C526F773E0D0A202020203C49643E333C2F49643E0D0A202020203C4E616D653E6E333C2F4E616D653E0D0A20203C2F526F773E0D0A3C2F526F6F743E');
+        Observer.Expect('end', 'FINISHED');
+        Observer.Verify();
+    end;
 }

@@ -369,4 +369,77 @@ codeunit 72828 "LT XpFS FlowField"
         Observer.Expect('cnt', '0');
         Observer.Verify();
     end;
+
+    // Writer SL (2026-10-25): port 72823 exports UTF-16 (the default Encoding), so the UTF-8 reads of the Export_Xml_* tests fail;
+    // the same exports read through a UTF-16 InStream (lines joined with |).
+    local procedure ReadAllUtf16(var TempBlob: Codeunit "Temp Blob"): Text
+    var
+        InS: InStream;
+        Line: Text;
+        Result: Text;
+    begin
+        TempBlob.CreateInStream(InS, TextEncoding::UTF16);
+        while not InS.EOS() do begin
+            InS.ReadText(Line);
+            Result += Line + '|';
+        end;
+        exit(Result);
+    end;
+
+    [Test]
+    procedure Export_Xml_SumAndCountFlowFields_Utf16()
+    var
+        Observer: Codeunit "Probe Observer";
+        TempBlob: Codeunit "Temp Blob";
+        OutS: OutStream;
+    begin
+        Seed();
+        TempBlob.CreateOutStream(OutS, TextEncoding::UTF8);
+        Xmlport.Export(Xmlport::"LT XpFS Export Xml", OutS);
+        Observer.Observe('len', Format(TempBlob.Length()));
+        Observer.Observe('xml', ReadAllUtf16(TempBlob));
+        Observer.Expect('len', '832');
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <Parent>|    <Id>1</Id>|    <Total>13.75</Total>|    <Cnt>3</Cnt>|    <SeqFilter>0</SeqFilter>|  </Parent>|  <Parent>|    <Id>2</Id>|    <Total>0.00</Total>|    <Cnt>0</Cnt>|    <SeqFilter>0</SeqFilter>|  </Parent>|  <Parent>|    <Id>3</Id>|    <Total>7.00</Total>|    <Cnt>1</Cnt>|    <SeqFilter>0</SeqFilter>|  </Parent>|</Root>|');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Export_Xml_FlowFilterOnView_Utf16()
+    var
+        Observer: Codeunit "Probe Observer";
+        Xp: XmlPort "LT XpFS Export Xml";
+        Parent: Record "LT XpFS Parent";
+        TempBlob: Codeunit "Temp Blob";
+        OutS: OutStream;
+    begin
+        Seed();
+        Parent.SetRange("Seq Filter", 2);
+        Xp.SetTableView(Parent);
+        TempBlob.CreateOutStream(OutS, TextEncoding::UTF8);
+        Xp.SetDestination(OutS);
+        Xp.Export();
+        Observer.Observe('xml', ReadAllUtf16(TempBlob));
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <Parent>|    <Id>1</Id>|    <Total>3.25</Total>|    <Cnt>2</Cnt>|    <SeqFilter>0</SeqFilter>|  </Parent>|  <Parent>|    <Id>2</Id>|    <Total>0.00</Total>|    <Cnt>0</Cnt>|    <SeqFilter>0</SeqFilter>|  </Parent>|  <Parent>|    <Id>3</Id>|    <Total>0.00</Total>|    <Cnt>0</Cnt>|    <SeqFilter>0</SeqFilter>|  </Parent>|</Root>|');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Export_Xml_FlowFilterRangeOnView_Utf16()
+    var
+        Observer: Codeunit "Probe Observer";
+        Xp: XmlPort "LT XpFS Export Xml";
+        Parent: Record "LT XpFS Parent";
+        TempBlob: Codeunit "Temp Blob";
+        OutS: OutStream;
+    begin
+        Seed();
+        Parent.SetFilter("Seq Filter", '1..2');
+        Xp.SetTableView(Parent);
+        TempBlob.CreateOutStream(OutS, TextEncoding::UTF8);
+        Xp.SetDestination(OutS);
+        Xp.Export();
+        Observer.Observe('xml', ReadAllUtf16(TempBlob));
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <Parent>|    <Id>1</Id>|    <Total>13.75</Total>|    <Cnt>3</Cnt>|    <SeqFilter>0</SeqFilter>|  </Parent>|  <Parent>|    <Id>2</Id>|    <Total>0.00</Total>|    <Cnt>0</Cnt>|    <SeqFilter>0</SeqFilter>|  </Parent>|  <Parent>|    <Id>3</Id>|    <Total>7.00</Total>|    <Cnt>1</Cnt>|    <SeqFilter>0</SeqFilter>|  </Parent>|</Root>|');
+        Observer.Verify();
+    end;
 }

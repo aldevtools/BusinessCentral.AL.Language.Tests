@@ -430,4 +430,21 @@ codeunit 73502 "LT XpT Import Options"
         Observer.Expect('af371|code', 'InvalidStreamData');
         Observer.Verify();
     end;
+
+    // Writer SL (2026-10-25): port 73435 exports UTF-16 (the default Encoding); read the export of Export_PreserveWhitespace through a UTF-16 InStream.
+    [Test]
+    procedure Export_PreserveWhitespace_Utf16()
+    var
+        Observer: Codeunit "Probe Observer";
+        Helper: Codeunit "LT XpT Helper";
+    begin
+        Helper.Wipe();
+        Helper.AddItem(1, '  a  b  ', 1, 1, true, 'C', 0D);
+        Helper.AddItem(2, 'x', 1, 1, true, 'C', 0D);
+        Observer.Observe('xml', Helper.ExportTextEnc(73435, TextEncoding::UTF16));
+        Observer.Observe('len', Format(Helper.LastLength()));
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-16" standalone="no"?><NL><Root><NL>  <Item><NL>    <Id>1</Id><NL>    <Name>  a  b  </Name><NL>  </Item><NL>  <Item><NL>    <Id>2</Id><NL>    <Name>x</Name><NL>  </Item><NL></Root>');
+        Observer.Expect('len', '388');
+        Observer.Verify();
+    end;
 }
