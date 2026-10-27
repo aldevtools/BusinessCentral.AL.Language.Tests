@@ -231,11 +231,11 @@ xmlport 89364 "LT SG XP Default Ns"
                 MinOccurs = Zero;
                 UseTemporary = true;
 
-                fieldelement(Id; Row.Id) { }
                 fieldattribute(Note; Row.Note)
                 {
                     Occurrence = Optional;
                 }
+                fieldelement(Id; Row.Id) { }
             }
         }
     }
