@@ -422,4 +422,256 @@ codeunit 88269 "LT RM Refill Tests"
         Observer.Expect('rows', 'B1 B2');
         Observer.Verify();
     end;
+
+    // ---- Writer SH, al-runner issue 5952: an action refills the temporary Rec with FEWER rows (one row, R1) and no CurrPage.Update, on a
+    // Worksheet with and without OnAfterGetCurrRecord, opened with 3 or 25 rows (more than the client reads at once). Pages at the end of
+    // this file.
+
+    local procedure ShRunCur(RowsAtOpen: Integer; StandOn: Integer)
+    var
+        Ws: TestPage "LT SH Refill Fewer Cur";
+        WsPage: Page "LT SH Refill Fewer Cur";
+        Rows: Text;
+        I: Integer;
+    begin
+        Log.Reset();
+        Ws.Trap();
+        WsPage.SetRowsAtOpen(RowsAtOpen);
+        WsPage.Run();
+        Ws.First();
+        for I := 2 to StandOn do
+            Ws.Next();
+        Observer.Observe('before', Ws.Name.Value());
+        Log.Take();
+        Ws.RefillToOne.Invoke();
+        Observer.Observe('action log', Log.Take());
+        Observer.Observe('shown after action', Ws.Name.Value());
+        if Ws.First() then
+            repeat
+                if Rows <> '' then
+                    Rows += ' ';
+                Rows += Ws.Name.Value();
+            until not Ws.Next();
+        Observer.Observe('rows', Rows);
+        Ws.Close();
+    end;
+
+    local procedure ShRunNoCur(RowsAtOpen: Integer; StandOn: Integer)
+    var
+        Ws: TestPage "LT SH Refill Fewer NoCur";
+        WsPage: Page "LT SH Refill Fewer NoCur";
+        Rows: Text;
+        I: Integer;
+    begin
+        Log.Reset();
+        Ws.Trap();
+        WsPage.SetRowsAtOpen(RowsAtOpen);
+        WsPage.Run();
+        Ws.First();
+        for I := 2 to StandOn do
+            Ws.Next();
+        Observer.Observe('before', Ws.Name.Value());
+        Log.Take();
+        Ws.RefillToOne.Invoke();
+        Observer.Observe('action log', Log.Take());
+        Observer.Observe('shown after action', Ws.Name.Value());
+        if Ws.First() then
+            repeat
+                if Rows <> '' then
+                    Rows += ' ';
+                Rows += Ws.Name.Value();
+            until not Ws.Next();
+        Observer.Observe('rows', Rows);
+        Ws.Close();
+    end;
+
+    [Test]
+    procedure SH_RefillFewer_WithCurrRecord_3To1()
+    begin
+        ShRunCur(3, 1);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SH_RefillFewer_WithCurrRecord_25To1()
+    begin
+        ShRunCur(25, 1);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SH_RefillFewer_WithCurrRecord_25To1_FromRow23()
+    begin
+        ShRunCur(25, 23);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SH_RefillFewer_NoCurrRecord_3To1()
+    begin
+        ShRunNoCur(3, 1);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SH_RefillFewer_NoCurrRecord_25To1()
+    begin
+        ShRunNoCur(25, 1);
+        Observer.Finish();
+    end;
+}
+
+page 89437 "LT SH Refill Fewer Cur"
+{
+    PageType = Worksheet;
+    SourceTable = "LT RM Refill Row";
+    SourceTableTemporary = true;
+    InsertAllowed = false;
+    ModifyAllowed = false;
+    DeleteAllowed = false;
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Lines)
+            {
+                Editable = false;
+                field(Name; Rec.Name) { Caption = 'Name'; }
+            }
+        }
+    }
+
+    actions
+    {
+        area(Processing)
+        {
+            action(RefillToOne)
+            {
+                Caption = 'Refill To One Row';
+
+                trigger OnAction()
+                begin
+                    Fill(1);
+                end;
+            }
+        }
+    }
+
+    trigger OnOpenPage()
+    begin
+        Fill(RowsAtOpen);
+    end;
+
+    trigger OnAfterGetRecord()
+    begin
+        Log.Add('R:' + Rec.Name);
+    end;
+
+    trigger OnAfterGetCurrRecord()
+    begin
+        Log.Add('C:' + Rec.Name);
+    end;
+
+    var
+        Log: Codeunit "LT RM Refill Log";
+        RowsAtOpen: Integer;
+
+    procedure SetRowsAtOpen(NewRows: Integer)
+    begin
+        RowsAtOpen := NewRows;
+    end;
+
+    local procedure Fill(RowCount: Integer)
+    var
+        RowNo: Integer;
+    begin
+        Rec.Reset();
+        Rec.DeleteAll();
+        for RowNo := 1 to RowCount do begin
+            Rec.Init();
+            Rec."Entry No." := RowNo;
+            Rec."Group Code" := 'R';
+            Rec.Name := StrSubstNo('R%1', RowNo);
+            Rec.Insert();
+        end;
+        if Rec.FindFirst() then;
+    end;
+}
+
+page 89438 "LT SH Refill Fewer NoCur"
+{
+    PageType = Worksheet;
+    SourceTable = "LT RM Refill Row";
+    SourceTableTemporary = true;
+    InsertAllowed = false;
+    ModifyAllowed = false;
+    DeleteAllowed = false;
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Lines)
+            {
+                Editable = false;
+                field(Name; Rec.Name) { Caption = 'Name'; }
+            }
+        }
+    }
+
+    actions
+    {
+        area(Processing)
+        {
+            action(RefillToOne)
+            {
+                Caption = 'Refill To One Row';
+
+                trigger OnAction()
+                begin
+                    Fill(1);
+                end;
+            }
+        }
+    }
+
+    trigger OnOpenPage()
+    begin
+        Fill(RowsAtOpen);
+    end;
+
+    trigger OnAfterGetRecord()
+    begin
+        Log.Add('R:' + Rec.Name);
+    end;
+
+    var
+        Log: Codeunit "LT RM Refill Log";
+        RowsAtOpen: Integer;
+
+    procedure SetRowsAtOpen(NewRows: Integer)
+    begin
+        RowsAtOpen := NewRows;
+    end;
+
+    local procedure Fill(RowCount: Integer)
+    var
+        RowNo: Integer;
+    begin
+        Rec.Reset();
+        Rec.DeleteAll();
+        for RowNo := 1 to RowCount do begin
+            Rec.Init();
+            Rec."Entry No." := RowNo;
+            Rec."Group Code" := 'R';
+            Rec.Name := StrSubstNo('R%1', RowNo);
+            Rec.Insert();
+        end;
+        if Rec.FindFirst() then;
+    end;
 }

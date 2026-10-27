@@ -896,4 +896,39 @@ codeunit 84282 "LT CD TestPage Leads"
         Observer.Observe('const 0D', Meta.SourceTableView);
         Observer.Finish();
     end;
+
+    // ---- Writer SH, al-runner issue 5961 (the BC part of it): TestPage Filter.GetFilter of an enum field whose filter, set on the record
+    // passed to Page.Run, is a range of two values, a list of two values, one value, or a range written as text.
+
+    local procedure ShRunLineListFilter(var Line: Record "LT CD Line"; Tag: Text)
+    var
+        List: TestPage "LT CD Line List";
+    begin
+        List.Trap();
+        Page.Run(Page::"LT CD Line List", Line);
+        Observer.Observe(Tag, List.Filter.GetFilter(Kind));
+        List.Close();
+    end;
+
+    [Test]
+    procedure SH_TestPageFilter_GetFilter_EnumRangeAndList()
+    var
+        Line: Record "LT CD Line";
+    begin
+        Line.SetRange(Kind, Line.Kind::First, Line.Kind::Second);
+        ShRunLineListFilter(Line, 'SetRange First..Second');
+        Line.SetRange(Kind, Line.Kind::Second, Line.Kind::Third);
+        ShRunLineListFilter(Line, 'SetRange Second..Third');
+        Line.SetFilter(Kind, '%1|%2', Line.Kind::First, Line.Kind::Third);
+        ShRunLineListFilter(Line, 'SetFilter %1|%2 First, Third');
+        Line.SetRange(Kind, Line.Kind::Second);
+        ShRunLineListFilter(Line, 'SetRange Second');
+        Line.SetFilter(Kind, 'First..Second');
+        ShRunLineListFilter(Line, 'SetFilter text First..Second');
+        Line.SetFilter(Kind, '<>%1', Line.Kind::Second);
+        ShRunLineListFilter(Line, 'SetFilter <>%1 Second');
+        Line.SetRange(Kind, Line.Kind::First, Line.Kind::Second);
+        Observer.Observe('record GetFilter First..Second', Line.GetFilter(Kind));
+        Observer.Finish();
+    end;
 }

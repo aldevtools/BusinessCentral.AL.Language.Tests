@@ -472,4 +472,357 @@ codeunit 88265 "LT RM Ws Gone Row Tests"
         Observer.Expect('count after close', '0');
         Observer.Verify();
     end;
+
+    // ---- Writer SH, al-runner issue 5953: a List with Editable = false (and Insert/Delete/ModifyAllowed = false) opened with OpenView whose
+    // action deletes the row it stands on through another record variable and calls CurrPage.Update(false); a temporary Worksheet whose
+    // repeater shows its rows as a tree (ShowAsTree, IndentationColumn) and whose action empties Rec without CurrPage.Update.
+
+    [Test]
+    procedure SH_ListViewNotEditable_OpenView_DeleteCurrentUpdate()
+    var
+        List: TestPage "LT SH List View NoNew";
+    begin
+        InsertOneLine();
+        List.OpenView();
+        Observer.Observe('open shown', List.LineNoCtl.Value());
+        Observer.Observe('open log', Log.Take());
+        List.DeleteCurrent.Invoke();
+        Observer.Observe('action log', Log.Take());
+        Observer.Observe('shown after action', List.LineNoCtl.Value() + '|' + List.DescriptionCtl.Value());
+        Observer.Observe('count', LineCount());
+        Observer.Observe('first', Format(List.First()));
+        Observer.Observe('first log', Log.Take());
+        List.Close();
+        Observer.Observe('close log', Log.Take());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SH_TreeWorksheetTemp_OpenEdit_EmptyRecNoUpdate()
+    var
+        Ws: TestPage "LT SH Tree Ws";
+    begin
+        Log.Reset();
+        Ws.OpenEdit();
+        Observer.Observe('open shown', Ws.LineNoCtl.Value());
+        Observer.Observe('open log', Log.Take());
+        Ws.EmptyRec.Invoke();
+        Observer.Observe('action log', Log.Take());
+        Observer.Observe('shown after action', Ws.LineNoCtl.Value() + '|' + Ws.DescriptionCtl.Value());
+        Observer.Observe('first', Format(Ws.First()));
+        Observer.Observe('first log', Log.Take());
+        Ws.Close();
+        Observer.Observe('close log', Log.Take());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SH_TreeWorksheetTemp_OpenEdit_EmptyRecTwice()
+    var
+        Ws: TestPage "LT SH Tree Ws";
+    begin
+        Log.Reset();
+        Ws.OpenEdit();
+        Log.Take();
+        Ws.EmptyRec.Invoke();
+        Log.Take();
+        Ws.EmptyRec.Invoke();
+        Observer.Observe('second action log', Log.Take());
+        Observer.Observe('first', Format(Ws.First()));
+        Ws.Close();
+        Observer.Finish();
+    end;
+
+    // ---- Writer SH, al-runner issue 5960: a Worksheet with the new-row line (AutoSplitKey, DelayedInsert) opened on an empty table; an
+    // action inserts two lines through another record variable without CurrPage.Update, a second action deletes all lines and calls
+    // CurrPage.Update(false) (the flow of page 7372 "Bin Creation Worksheet").
+
+    local procedure ShOpenEmptyFilled(var Ws: TestPage "LT SH Ws Filled By Action")
+    var
+        Line: Record "LT RM Ws Line";
+    begin
+        Line.DeleteAll();
+        Log.Reset();
+        Ws.OpenEdit();
+        Observer.Observe('open shown', Ws.LineNoCtl.Value() + '|' + Ws.DescriptionCtl.Value());
+        Observer.Observe('open log', Log.Take());
+        Ws.Calculate.Invoke();
+        Observer.Observe('calculate log', Log.Take());
+        Observer.Observe('shown after calculate', Ws.LineNoCtl.Value() + '|' + Ws.DescriptionCtl.Value());
+        Observer.Observe('count after calculate', LineCount());
+    end;
+
+    [Test]
+    procedure SH_WsWithNew_EmptyOpen_FillThenDeleteAllUpdate()
+    var
+        Ws: TestPage "LT SH Ws Filled By Action";
+    begin
+        ShOpenEmptyFilled(Ws);
+        Ws.Create.Invoke();
+        Observer.Observe('create log', Log.Take());
+        Observer.Observe('shown after create', Ws.LineNoCtl.Value() + '|' + Ws.DescriptionCtl.Value());
+        Observer.Observe('count after create', LineCount());
+        Observer.Observe('first', Format(Ws.First()));
+        Ws.Close();
+        Observer.Observe('close log', Log.Take());
+        Observer.Observe('count after close', LineCount());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SH_WsWithNew_EmptyOpen_FillThenWalk()
+    var
+        Ws: TestPage "LT SH Ws Filled By Action";
+        Rows: Text;
+    begin
+        ShOpenEmptyFilled(Ws);
+        if Ws.First() then
+            repeat
+                Rows += Ws.LineNoCtl.Value() + ',';
+            until not Ws.Next();
+        Observer.Observe('rows', Rows);
+        Observer.Observe('walk log', Log.Take());
+        Ws.Close();
+        Observer.Observe('count after close', LineCount());
+        Observer.Finish();
+    end;
+}
+
+page 89439 "LT SH Ws Filled By Action"
+{
+    PageType = Worksheet;
+    SourceTable = "LT RM Ws Line";
+    AutoSplitKey = true;
+    DelayedInsert = true;
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Lines)
+            {
+                field(LineNoCtl; Rec."Line No.") { }
+                field(DescriptionCtl; Rec.Description) { }
+            }
+        }
+    }
+
+    actions
+    {
+        area(Processing)
+        {
+            action(Calculate)
+            {
+                Caption = 'Calculate';
+
+                trigger OnAction()
+                var
+                    Line: Record "LT RM Ws Line";
+                begin
+                    Line."Line No." := 10000;
+                    Line.Description := 'First';
+                    Line.Insert();
+                    Line."Line No." := 20000;
+                    Line.Description := 'Second';
+                    Line.Insert();
+                end;
+            }
+            action(Create)
+            {
+                Caption = 'Create';
+
+                trigger OnAction()
+                var
+                    Line: Record "LT RM Ws Line";
+                begin
+                    Line.DeleteAll();
+                    CurrPage.Update(false);
+                end;
+            }
+        }
+    }
+
+    trigger OnAfterGetRecord()
+    begin
+        Log.Add('R:' + Format(Rec."Line No."));
+    end;
+
+    trigger OnAfterGetCurrRecord()
+    begin
+        Log.Add('C:' + Format(Rec."Line No."));
+    end;
+
+    trigger OnNewRecord(BelowxRec: Boolean)
+    begin
+        Log.Add('N:' + Format(Rec."Line No."));
+    end;
+
+    trigger OnClosePage()
+    begin
+        Log.Add('X');
+    end;
+
+    var
+        Log: Codeunit "LT RM Ws Log";
+}
+
+page 89431 "LT SH List View NoNew"
+{
+    PageType = List;
+    SourceTable = "LT RM Ws Line";
+    ApplicationArea = All;
+    UsageCategory = None;
+    Editable = false;
+    InsertAllowed = false;
+    DeleteAllowed = false;
+    ModifyAllowed = false;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Lines)
+            {
+                field(LineNoCtl; Rec."Line No.") { }
+                field(DescriptionCtl; Rec.Description) { }
+            }
+        }
+    }
+
+    actions
+    {
+        area(Processing)
+        {
+            action(DeleteCurrent)
+            {
+                Caption = 'Delete Current Line and Update';
+
+                trigger OnAction()
+                var
+                    Line: Record "LT RM Ws Line";
+                begin
+                    Line.Get(Rec."Line No.");
+                    Line.Delete();
+                    CurrPage.Update(false);
+                end;
+            }
+        }
+    }
+
+    trigger OnAfterGetRecord()
+    begin
+        Log.Add('R:' + Format(Rec."Line No."));
+    end;
+
+    trigger OnAfterGetCurrRecord()
+    begin
+        Log.Add('C:' + Format(Rec."Line No."));
+    end;
+
+    trigger OnNewRecord(BelowxRec: Boolean)
+    begin
+        Log.Add('N:' + Format(Rec."Line No."));
+    end;
+
+    trigger OnClosePage()
+    begin
+        Log.Add('X');
+    end;
+
+    var
+        Log: Codeunit "LT RM Ws Log";
+}
+
+table 89432 "LT SH Tree Line"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; "Line No."; Integer) { }
+        field(2; Description; Text[50]) { }
+        field(3; Indentation; Integer) { }
+    }
+
+    keys
+    {
+        key(PK; "Line No.") { Clustered = true; }
+    }
+}
+
+page 89433 "LT SH Tree Ws"
+{
+    PageType = Worksheet;
+    SourceTable = "LT SH Tree Line";
+    SourceTableTemporary = true;
+    ApplicationArea = All;
+    UsageCategory = None;
+    InsertAllowed = false;
+    DeleteAllowed = false;
+    ModifyAllowed = false;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Lines)
+            {
+                Editable = false;
+                IndentationColumn = Rec.Indentation;
+                IndentationControls = DescriptionCtl;
+                ShowAsTree = true;
+                field(LineNoCtl; Rec."Line No.") { }
+                field(DescriptionCtl; Rec.Description) { }
+            }
+        }
+    }
+
+    actions
+    {
+        area(Processing)
+        {
+            action(EmptyRec)
+            {
+                Caption = 'Empty Rec';
+
+                trigger OnAction()
+                begin
+                    Rec.Reset();
+                    Rec.DeleteAll();
+                end;
+            }
+        }
+    }
+
+    trigger OnOpenPage()
+    begin
+        Rec."Line No." := 10000;
+        Rec.Description := 'Only line';
+        Rec.Insert();
+    end;
+
+    trigger OnAfterGetRecord()
+    begin
+        Log.Add('R:' + Format(Rec."Line No."));
+    end;
+
+    trigger OnAfterGetCurrRecord()
+    begin
+        Log.Add('C:' + Format(Rec."Line No."));
+    end;
+
+    trigger OnNewRecord(BelowxRec: Boolean)
+    begin
+        Log.Add('N:' + Format(Rec."Line No."));
+    end;
+
+    trigger OnClosePage()
+    begin
+        Log.Add('X');
+    end;
+
+    var
+        Log: Codeunit "LT RM Ws Log";
 }

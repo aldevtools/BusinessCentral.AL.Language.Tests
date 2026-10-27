@@ -485,4 +485,162 @@ codeunit 88615 "LT RT Uf Tests"
         Observer.Expect('close log', '');
         Observer.Verify();
     end;
+
+    // ---- Writer SH, al-runner issue 5951: the filtered key field has a TableRelation ("Batch Name" of LT SH Rel Line, FilterGroup 2,
+    // SetRange to B1). With the related batch row present (the reporter's shape, page 5510 "Production Journal") and without it.
+
+    local procedure ShInsertOnlyRelLine(WithBatch: Boolean)
+    var
+        Batch: Record "LT SH Rel Batch";
+        Line: Record "LT SH Rel Line";
+    begin
+        Batch.DeleteAll();
+        Line.DeleteAll();
+        if WithBatch then begin
+            Batch.Name := 'B1';
+            Batch.Insert();
+        end;
+        Line."Batch Name" := 'B1';
+        Line."Line No." := 10000;
+        Line.Description := 'Only line';
+        Line.Insert();
+        Log.SetMode(0);
+    end;
+
+    local procedure ShRunRelNoNew(WithBatch: Boolean)
+    var
+        Ws: TestPage "LT SH Rel Ws NoNew";
+        Line: Record "LT SH Rel Line";
+    begin
+        ShInsertOnlyRelLine(WithBatch);
+        Ws.OpenEdit();
+        Observer.Observe('open shown', Ws.BatchCtl.Value() + '|' + Ws.LineNoCtl.Value());
+        Observer.Observe('open log', Log.Take());
+        Ws.Post.Invoke();
+        Observer.Observe('action log', Log.Take());
+        Observer.Observe('shown after action', Ws.BatchCtl.Value() + '|' + Ws.LineNoCtl.Value() + '|' + Ws.DescriptionCtl.Value());
+        Observer.Observe('count', Format(Line.Count()));
+        Observer.Observe('first', Format(Ws.First()));
+        Observer.Observe('first log', Log.Take());
+        Ws.Post.Invoke();
+        Observer.Observe('second action log', Log.Take());
+        Ws.Close();
+        Observer.Observe('close log', Log.Take());
+        Observer.Observe('count after close', Format(Line.Count()));
+    end;
+
+    [Test]
+    procedure SH_RelWs_KeyFieldWithTableRelationGroup2_BatchExists()
+    begin
+        ShRunRelNoNew(true);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SH_RelWs_KeyFieldWithTableRelationGroup2_BatchMissing()
+    begin
+        ShRunRelNoNew(false);
+        Observer.Finish();
+    end;
+}
+
+table 89434 "LT SH Rel Batch"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; Name; Code[10]) { }
+    }
+
+    keys
+    {
+        key(PK; Name) { Clustered = true; }
+    }
+}
+
+table 89435 "LT SH Rel Line"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; "Batch Name"; Code[10]) { TableRelation = "LT SH Rel Batch"; }
+        field(2; "Line No."; Integer) { }
+        field(3; Description; Text[50]) { }
+    }
+
+    keys
+    {
+        key(PK; "Batch Name", "Line No.") { Clustered = true; }
+    }
+}
+
+page 89436 "LT SH Rel Ws NoNew"
+{
+    PageType = Worksheet;
+    SourceTable = "LT SH Rel Line";
+    InsertAllowed = false;
+    DelayedInsert = true;
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Rows)
+            {
+                field(BatchCtl; Rec."Batch Name") { ApplicationArea = All; }
+                field(LineNoCtl; Rec."Line No.") { ApplicationArea = All; }
+                field(DescriptionCtl; Rec.Description) { ApplicationArea = All; }
+            }
+        }
+    }
+
+    actions
+    {
+        area(Processing)
+        {
+            action(Post)
+            {
+                ApplicationArea = All;
+                Caption = 'Post';
+
+                trigger OnAction()
+                var
+                    Line: Record "LT SH Rel Line";
+                begin
+                    Line.SetRange("Batch Name", Rec."Batch Name");
+                    Line.DeleteAll();
+                    CurrPage.Update(false);
+                end;
+            }
+        }
+    }
+
+    trigger OnOpenPage()
+    begin
+        Rec.FilterGroup(2);
+        Rec.SetRange("Batch Name", 'B1');
+        Rec.FilterGroup(0);
+    end;
+
+    trigger OnAfterGetRecord()
+    begin
+        Log.Add('R:' + Format(Rec."Line No."));
+    end;
+
+    trigger OnNewRecord(BelowxRec: Boolean)
+    begin
+        Log.Add('N:' + Rec."Batch Name" + ':' + Format(Rec."Line No."));
+    end;
+
+    trigger OnAfterGetCurrRecord()
+    begin
+        Log.Add('C:' + Rec."Batch Name" + ':' + Format(Rec."Line No."));
+    end;
+
+    var
+        Log: Codeunit "LT RT Uf Log";
 }
