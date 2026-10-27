@@ -56,6 +56,21 @@ table 68055 "W4 Partial Row"
     }
 }
 
+table 89500 "SI TF Target"
+{
+    // Writer SI (al-runner issue 5998): the table a TableFilter text names in the Evaluate probes below. Caption, field captions and
+    // option captions differ from the names, so the probes show which of them Evaluate accepts and which Format writes.
+    Caption = 'SI Target Cap';
+    DataClassification = SystemMetadata;
+    fields
+    {
+        field(1; Code; Code[20]) { Caption = 'Code Cap'; }
+        field(2; Kind; Option) { Caption = 'Kind Cap'; OptionMembers = DIAM,LGDIAM; OptionCaption = 'Diam Cap,LgDiam Cap'; }
+        field(3; Qty; Integer) { Caption = 'Qty Cap'; }
+    }
+    keys { key(PK; Code) { Clustered = true; } }
+}
+
 codeunit 68056 "W4 Platform Tests"
 {
     Subtype = Test;
@@ -517,5 +532,150 @@ codeunit 68056 "W4 Platform Tests"
         Observer.Expect('addloadfields_9999', 'error:The supplied field number ''9999'' cannot be found in the ''W4 Partial Row'' table.|FieldNotFound');
         Observer.Expect('setloadfields_9999', 'error:The supplied field number ''9999'' cannot be found in the ''W4 Partial Row'' table.|FieldNotFound');
         Observer.Verify();
+    end;
+
+    // ---- writer SI, al-runner issue 5998: Evaluate of a text into a TableFilter field ----
+    [TryFunction]
+    local procedure TryEvalTfReturn(var Row: Record "W4 TF Row"; Value: Text; var Ok: Boolean)
+    begin
+        Ok := Evaluate(Row.Flt, Value);
+    end;
+
+    [TryFunction]
+    local procedure TryEvalTfBare(var Row: Record "W4 TF Row"; Value: Text)
+    begin
+        Evaluate(Row.Flt, Value);
+    end;
+
+    // Evaluate as a function on a fresh row: 'throws:<text>|<code>' when it raises anyway, else '<return>|[<Format of the field>]|<last error>'.
+    local procedure EvalTfForm(Value: Text): Text
+    var
+        Row: Record "W4 TF Row";
+        Ok: Boolean;
+        Result: Text;
+    begin
+        ClearLastError();
+        if not TryEvalTfReturn(Row, Value, Ok) then
+            Result := 'throws:' + GetLastErrorText() + '|' + GetLastErrorCode()
+        else
+            Result := Format(Ok) + '|[' + Format(Row.Flt) + ']|' + GetLastErrorText();
+        ClearLastError();
+        exit(Result);
+    end;
+
+    // Evaluate as a statement on a fresh row: 'ok:[<Format of the field>]' or 'error:<text>|<code>'.
+    local procedure EvalTfBare(Value: Text): Text
+    var
+        Row: Record "W4 TF Row";
+        Result: Text;
+    begin
+        ClearLastError();
+        if TryEvalTfBare(Row, Value) then
+            Result := 'ok:[' + Format(Row.Flt) + ']'
+        else
+            Result := 'error:' + GetLastErrorText() + '|' + GetLastErrorCode();
+        ClearLastError();
+        exit(Result);
+    end;
+
+    [Test]
+    procedure TableFilterEvaluate_AcceptedForms()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('name_form', EvalTfForm('SI TF Target: Kind=LGDIAM'));
+        Observer.Observe('caption_form', EvalTfForm('SI Target Cap: Kind Cap=LGDIAM'));
+        Observer.Observe('name_table_caption_field', EvalTfForm('SI TF Target: Kind Cap=LGDIAM'));
+        Observer.Observe('option_caption_value', EvalTfForm('SI TF Target: Kind=LgDiam Cap'));
+        Observer.Observe('option_number_value', EvalTfForm('SI TF Target: Kind=1'));
+        Observer.Observe('filter_wrapper', EvalTfForm('SI TF Target: Kind=FILTER(LGDIAM)'));
+        Observer.Observe('const_wrapper', EvalTfForm('SI TF Target: Kind=CONST(LGDIAM)'));
+        Observer.Observe('two_fields', EvalTfForm('SI TF Target: Code=A..B,Kind=DIAM'));
+        Observer.Observe('two_fields_space', EvalTfForm('SI TF Target: Code=A..B, Kind=DIAM'));
+        Observer.Observe('table_number', EvalTfForm('89500: Kind=LGDIAM'));
+        Observer.Observe('quoted_table', EvalTfForm('"SI TF Target": Kind=LGDIAM'));
+        Observer.Observe('lower_case', EvalTfForm('si tf target: kind=lgdiam'));
+        Observer.Observe('no_space_after_colon', EvalTfForm('SI TF Target:Kind=LGDIAM'));
+        Observer.Observe('integer_expression', EvalTfForm('SI TF Target: Qty=1..5|7'));
+        Observer.Observe('integer_not_zero', EvalTfForm('SI TF Target: Qty=<>0'));
+        Observer.Observe('code_wildcard', EvalTfForm('SI TF Target: Code=@a*'));
+        Observer.Observe('base_app_table', EvalTfForm('Customer: No.=10000'));
+        Observer.Observe('format_number_9', Format(EvalTf9('SI TF Target: Kind=LGDIAM')));
+        Observer.Finish();
+    end;
+
+    local procedure EvalTf9(Value: Text): Text
+    var
+        Row: Record "W4 TF Row";
+        Ok: Boolean;
+    begin
+        Ok := Evaluate(Row.Flt, Value, 9);
+        exit(Format(Ok) + '|[' + Format(Row.Flt) + ']');
+    end;
+
+    [Test]
+    procedure TableFilterEvaluate_RejectedForms()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('ret_bad_option', EvalTfForm('SI TF Target: Kind=FOO'));
+        Observer.Observe('ret_unknown_field', EvalTfForm('SI TF Target: Nope=1'));
+        Observer.Observe('ret_unknown_table', EvalTfForm('No Such Table: Kind=1'));
+        Observer.Observe('ret_table_only', EvalTfForm('SI TF Target'));
+        Observer.Observe('ret_table_colon_only', EvalTfForm('SI TF Target: '));
+        Observer.Observe('ret_empty', EvalTfForm(''));
+        Observer.Observe('ret_garbage', EvalTfForm('xyz'));
+        Observer.Observe('ret_no_table', EvalTfForm('Kind=LGDIAM'));
+        Observer.Observe('ret_where_form', EvalTfForm('WHERE(Kind=FILTER(LGDIAM))'));
+        Observer.Observe('ret_bad_integer', EvalTfForm('SI TF Target: Qty=abc'));
+        Observer.Observe('bare_bad_option', EvalTfBare('SI TF Target: Kind=FOO'));
+        Observer.Observe('bare_unknown_field', EvalTfBare('SI TF Target: Nope=1'));
+        Observer.Observe('bare_unknown_table', EvalTfBare('No Such Table: Kind=1'));
+        Observer.Observe('bare_empty', EvalTfBare(''));
+        Observer.Observe('bare_garbage', EvalTfBare('xyz'));
+        Observer.Observe('bare_no_table', EvalTfBare('Kind=LGDIAM'));
+        Observer.Observe('bare_valid', EvalTfBare('SI TF Target: Kind=LGDIAM'));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TableFilterEvaluate_StoredValue()
+    var
+        Row: Record "W4 TF Row";
+        Got: Record "W4 TF Row";
+        Copy: Record "W4 TF Row";
+        Target: Record "SI TF Target";
+        RR: RecordRef;
+        Ok: Boolean;
+        Observer: Codeunit "Probe Observer";
+    begin
+        Row.DeleteAll();
+        Row.Id := 1;
+        Ok := Evaluate(Row.Flt, 'SI TF Target: Code=A..B,Kind=LGDIAM');
+        Observer.Observe('ok', Format(Ok));
+        Observer.Observe('format_in_memory', '[' + Format(Row.Flt) + ']');
+        Observer.Observe('format_len', Format(StrLen(Format(Row.Flt))));
+        Row.Insert();
+        Got.Get(1);
+        Observer.Observe('format_after_get', '[' + Format(Got.Flt) + ']');
+        RR.GetTable(Got);
+        Observer.Observe('fieldref_value', '[' + Format(RR.Field(2).Value()) + ']');
+        // Evaluate the text Format wrote back into another row.
+        Observer.Observe('roundtrip_evaluate', Format(Evaluate(Copy.Flt, Format(Got.Flt))) + '|[' + Format(Copy.Flt) + ']');
+        // Assign the text Format wrote through a FieldRef (the W4 probes above show other forms are refused there).
+        Observer.Observe('roundtrip_fieldref', Outcome(TrySetTableFilter(RR, Format(Got.Flt)), Format(RR.Field(2).Value())));
+        ClearLastError();
+        // The text GetFilters gives for the same filters on the referenced table, for comparison.
+        Target.SetFilter(Code, 'A..B');
+        Target.SetRange(Kind, Target.Kind::LGDIAM);
+        Observer.Observe('target_getfilters', Target.GetFilters());
+        // A failed Evaluate as a function on a field that holds a value.
+        Ok := Evaluate(Got.Flt, 'xyz');
+        Observer.Observe('failed_eval_keeps', Format(Ok) + '|[' + Format(Got.Flt) + ']');
+        // A second successful Evaluate replaces the value.
+        Ok := Evaluate(Got.Flt, 'SI TF Target: Qty=5');
+        Observer.Observe('second_eval', Format(Ok) + '|[' + Format(Got.Flt) + ']');
+        Row.DeleteAll();
+        Observer.Finish();
     end;
 }
