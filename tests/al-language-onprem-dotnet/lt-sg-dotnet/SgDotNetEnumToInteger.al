@@ -122,6 +122,14 @@ codeunit 99421 "LT SG DotNet Enum Integer"
         ClearLastError();
         Observer.Observe('static Parse through a JObject instance ok', Format(TryParse(Token, '[1]')));
         Observer.ObserveError('static Parse through a JObject instance');
-        Observer.Finish();
+        Observer.Expect('object', '1');
+        Observer.Expect('array', '2');
+        Observer.Expect('string', '8');
+        Observer.Expect('format of the enum', 'Object');
+        Observer.Expect('through a variable', '1');
+        Observer.Expect('static Parse through a JObject instance ok', 'No');
+        Observer.Expect('static Parse through a JObject instance|text', 'A call to Newtonsoft.Json.Linq.JObject.Parse failed with this message: Error reading JObject from JsonReader. Current JsonReader item is not an object: StartArray. Path '''', line 1, position 1.');
+        Observer.Expect('static Parse through a JObject instance|code', 'DotNetInvoke:JsonReader');
+        Observer.Verify();
     end;
 }

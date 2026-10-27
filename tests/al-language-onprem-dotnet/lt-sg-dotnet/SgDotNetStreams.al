@@ -6,6 +6,10 @@
 // Questions: what .NET sees (type name, CanRead/CanWrite/CanSeek, Length/Position), whether bytes written on the .NET side reach the
 // AL stream and in which order with AL writes, what Flush, Close and Dispose do to the AL stream, and the base application wrapper
 // codeunit DotNet_Stream (FromOutStream, WriteByte).
+// Facts: both streams reach .NET as Microsoft.Dynamics.Nav.Runtime.NavBLOB+InternalStream (readable, writable, seekable); .NET writes reach the
+// blob at once; AL and .NET writes on one OutStream keep separate positions (a later AL write overwrites a .NET byte); assigning an OutStream
+// to System.Object fails at run time (NotSupportedType, "The type NavOutStream is unknown."); after Close or Dispose of the .NET stream
+// an AL write still succeeds and the blob holds only what it wrote.
 // Observed on the corpus CI matrix (27.5, 28.5, 29.0).
 // BC versions: 27, 28, 29
 
@@ -162,7 +166,9 @@ codeunit 99420 "LT SG DotNet Streams"
         S.WriteByte(68);
         Observer.Observe('order', BlobText(TempBlob));
         Observer.Observe('bytes', BlobBytes(TempBlob));
-        Observer.Finish();
+        Observer.Expect('order', 'acD|');
+        Observer.Expect('bytes', '97 99 68 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -250,7 +256,11 @@ codeunit 99420 "LT SG DotNet Streams"
         Observer.Observe('assign ok', Format(TryOutStreamToObject(OutS, O)));
         Observer.ObserveError('assign');
         Observer.Observe('IsNull after', Format(IsNull(O)));
-        Observer.Finish();
+        Observer.Expect('assign ok', 'No');
+        Observer.Expect('assign|text', 'The type NavOutStream is unknown.');
+        Observer.Expect('assign|code', 'NotSupportedType');
+        Observer.Expect('IsNull after', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -273,7 +283,13 @@ codeunit 99420 "LT SG DotNet Streams"
         ClearLastError();
         Observer.Observe('AL write after writer close ok', Format(TryWriteText(OutS, 'z')));
         Observer.ObserveError('AL write after writer close');
-        Observer.Finish();
+        Observer.Expect('before flush', '');
+        Observer.Expect('after flush', '97 98 99 ');
+        Observer.Expect('after close', '97 98 99 100 10 ');
+        Observer.Expect('AL write after writer close ok', 'Yes');
+        Observer.Expect('AL write after writer close|text', '');
+        Observer.Expect('AL write after writer close|code', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -290,7 +306,8 @@ codeunit 99420 "LT SG DotNet Streams"
         Writer.Write('é');
         Writer.Flush();
         Observer.Observe('utf8 with preamble', BlobBytes(TempBlob));
-        Observer.Finish();
+        Observer.Expect('utf8 with preamble', '239 187 191 195 169 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -342,7 +359,10 @@ codeunit 99420 "LT SG DotNet Streams"
         Unzip := Unzip.GZipStream(InS, Mode.Decompress);
         Reader := Reader.StreamReader(Unzip);
         Observer.Observe('unpacked', Reader.ReadToEnd());
-        Observer.Finish();
+        Observer.Expect('packed has bytes', 'Yes');
+        Observer.Expect('gzip magic', '31 139 8');
+        Observer.Expect('unpacked', 'hello hello hello');
+        Observer.Verify();
     end;
 
     [Test]
@@ -421,6 +441,7 @@ codeunit 99420 "LT SG DotNet Streams"
         DotNetStream.WriteByte(64);
         DotNetStream.WriteByte(65);
         Observer.Observe('bytes', BlobBytes(TempBlob));
-        Observer.Finish();
+        Observer.Expect('bytes', '27 64 65 ');
+        Observer.Verify();
     end;
 }
