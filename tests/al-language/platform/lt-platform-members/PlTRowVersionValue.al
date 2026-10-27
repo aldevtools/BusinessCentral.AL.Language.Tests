@@ -129,31 +129,4 @@ codeunit 67515 "LT RV Tests"
         Observer.Expect('last_prefixed_equals_bare', 'Yes');
         Observer.Verify();
     end;
-
-    // Writer SG (2026-10-27): the exact distance of MinimumActiveRowVersion to LastUsedRowVersion after a Modify in an open write
-    // transaction and after a Commit that made an insert durable (the tests above only bound them).
-    [Test]
-    procedure SG_MinimumActiveRowVersion_ExactAfterModifyAndCommit()
-    var
-        Observer: Codeunit "Probe Observer";
-        Row: Record "LT RV Row";
-    begin
-        Row.DeleteAll();
-        Commit();
-        Row.Id := 1;
-        Row.Insert();
-        Row.Name := 'x';
-        Row.Modify();
-        Snapshot(Observer, 'after_modify');
-        Commit();
-        Snapshot(Observer, 'after_commit');
-        Snapshot(Observer, 'after_commit_again');
-        Row.Name := 'y';
-        Row.Modify();
-        Commit();
-        Snapshot(Observer, 'after_second_commit');
-        Row.DeleteAll();
-        Commit();
-        Observer.Finish();
-    end;
 }

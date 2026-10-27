@@ -680,7 +680,9 @@ codeunit 79013 "LT AJ Misc"
             Observer.Observe('own table', SgAllColumns(Fld))
         else
             Observer.Observe('own table', 'none');
-        Observer.Finish();
+        Observer.Expect('customer', 'TableNo=18|No=0|TableName=Customer|FieldName=timestamp|Type=BigInteger|Len=8|Class=Normal|Enabled=Yes|TypeName=BigInteger|Caption=timestamp|RelationTableNo=0|RelationFieldNo=0|SQLDataType=Varchar|OptionString=|ObsoleteState=No|ObsoleteReason=|DataClassification=ToBeClassified|IsPartOfPrimaryKey=No');
+        Observer.Expect('own table', 'TableNo=79018|No=0|TableName=LT AJ Ts|FieldName=timestamp|Type=BigInteger|Len=8|Class=Normal|Enabled=Yes|TypeName=BigInteger|Caption=timestamp|RelationTableNo=0|RelationFieldNo=0|SQLDataType=Varchar|OptionString=|ObsoleteState=No|ObsoleteReason=|DataClassification=ToBeClassified|IsPartOfPrimaryKey=No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -715,7 +717,16 @@ codeunit 79013 "LT AJ Misc"
         Fld.SetRange(TableNo, Database::Customer);
         Fld.SetRange(Type, Fld.Type::BigInteger);
         Observer.Observe('TableNo + Type BigInteger, no name', SgFound(Fld));
-        Observer.Finish();
+        Observer.Expect('name + ObsoleteState No', '1:0:timestamp');
+        Observer.Expect('name + ObsoleteState <> Removed', '1:0:timestamp');
+        Observer.Expect('name + Type BigInteger', '1:0:timestamp');
+        Observer.Expect('name + Class Normal', '1:0:timestamp');
+        Observer.Expect('name + Enabled', '1:0:timestamp');
+        Observer.Expect('case-insensitive name filter', 'none');
+        Observer.Expect('wildcard name filter', 'none');
+        Observer.Expect('name or another name', '1:1:No.');
+        Observer.Expect('TableNo + Type BigInteger, no name', 'none');
+        Observer.Verify();
     end;
 
     [Test]
@@ -729,7 +740,10 @@ codeunit 79013 "LT AJ Misc"
         Observer.Observe('name + TableNo range of one', SgFound(Fld));
         Fld.SetFilter(TableNo, '%1|%2', Database::Customer, Database::"LT AJ Ts");
         Observer.Observe('name + two tables', SgFound(Fld));
-        Observer.Finish();
+        Observer.Expect('name alone is empty', 'No');
+        Observer.Expect('name + TableNo range of one', '1:0:timestamp');
+        Observer.Expect('name + two tables', '2:0:timestamp');
+        Observer.Verify();
     end;
 
     [Test]
@@ -749,6 +763,12 @@ codeunit 79013 "LT AJ Misc"
         Observer.Observe('upper case found', Format(DataTypeMgt.FindFieldByName(RecRef, FRef, 'TIMESTAMP')));
         Observer.Observe('SystemRowVersion found', Format(DataTypeMgt.FindFieldByName(RecRef, FRef, 'SystemRowVersion')));
         RecRef.Close();
-        Observer.Finish();
+        Observer.Expect('customer found', 'Yes');
+        Observer.Expect('customer field', '0:timestamp:BigInteger:Normal');
+        Observer.Expect('own found', 'Yes');
+        Observer.Expect('own field', '0:timestamp:BigInteger:Normal');
+        Observer.Expect('upper case found', 'No');
+        Observer.Expect('SystemRowVersion found', 'No');
+        Observer.Verify();
     end;
 }

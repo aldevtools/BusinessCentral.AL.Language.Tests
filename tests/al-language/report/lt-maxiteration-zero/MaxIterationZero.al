@@ -157,7 +157,8 @@ codeunit 71408 "LT MaxIter Zero"
         SgFiveRows();
         Report.Run(Report::"LT SG MaxIter Table Two");
         Observer.Observe('max 2 of 5', L.Take());
-        Observer.Finish();
+        Observer.Expect('max 2 of 5', 'pre count 5;row 1;row 2;post at 3;report post;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -168,7 +169,8 @@ codeunit 71408 "LT MaxIter Zero"
         SgFiveRows();
         Report.Run(Report::"LT SG MaxIter Table Skip");
         Observer.Observe('max 2, skip row 1', L.Take());
-        Observer.Finish();
+        Observer.Expect('max 2, skip row 1', 'row 1;row 2;kept 2;post;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -179,7 +181,8 @@ codeunit 71408 "LT MaxIter Zero"
         SgFiveRows();
         Report.Run(Report::"LT SG MaxIter Table Few Desc");
         Observer.Observe('max 10 of 2, then max 2 descending', L.Take());
-        Observer.Finish();
+        Observer.Expect('max 10 of 2, then max 2 descending', 'few 2;few 3;desc 5;desc 4;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -190,6 +193,7 @@ codeunit 71408 "LT MaxIter Zero"
         SgFiveRows();
         Report.Run(Report::"LT SG MaxIter Table Child");
         Observer.Observe('parent max 2, child max 1', L.Take());
-        Observer.Finish();
+        Observer.Expect('parent max 2, child max 1', 'parent 1;child 1;parent 2;child 1;');
+        Observer.Verify();
     end;
 }

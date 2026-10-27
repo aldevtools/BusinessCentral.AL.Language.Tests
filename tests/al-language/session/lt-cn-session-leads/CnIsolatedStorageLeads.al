@@ -293,7 +293,21 @@ codeunit 84892 "LT CN Iso WriteTx"
         Observer.Observe('setencrypted new key ret', Format(IsolatedStorage.SetEncrypted('LTCNtx', 'e1', DataScope::Module)));
         Observer.Observe('after setencrypted new key', Format(Database.IsInWriteTransaction()));
         Clean();
-        Observer.Finish();
+        Observer.Expect('before overwrite', 'No');
+        Observer.Expect('set same key ret', 'Yes');
+        Observer.Expect('after set overwrite', 'Yes');
+        Observer.Expect('set same value ret', 'Yes');
+        Observer.Expect('after set same value', 'Yes');
+        Observer.Expect('setencrypted overwrite ret', 'Yes');
+        Observer.Expect('after setencrypted overwrite', 'Yes');
+        Observer.Expect('setencrypted again ret', 'Yes');
+        Observer.Expect('after setencrypted again', 'Yes');
+        Observer.Expect('get ret', 'Yes');
+        Observer.Expect('get value', 'v4');
+        Observer.Expect('after get', 'No');
+        Observer.Expect('setencrypted new key ret', 'Yes');
+        Observer.Expect('after setencrypted new key', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]

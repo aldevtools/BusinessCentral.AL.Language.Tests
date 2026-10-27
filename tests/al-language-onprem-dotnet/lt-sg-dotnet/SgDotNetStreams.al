@@ -54,12 +54,14 @@ codeunit 99420 "LT SG DotNet Streams"
     var
         InS: InStream;
         B: Byte;
+        Code: Integer;
         Result: Text;
     begin
         TempBlob.CreateInStream(InS);
         while not InS.EOS() do begin
             InS.Read(B);
-            Result += Format(B) + ' ';
+            Code := B;
+            Result += Format(Code) + ' ';
         end;
         exit(Result);
     end;
@@ -109,7 +111,14 @@ codeunit 99420 "LT SG DotNet Streams"
         S := OutS;
         Describe(Observer, 'out', S);
         Observer.Observe('IsNull', Format(IsNull(S)));
-        Observer.Finish();
+        Observer.Expect('out type', 'Microsoft.Dynamics.Nav.Runtime.NavBLOB+InternalStream');
+        Observer.Expect('out CanRead', 'Yes');
+        Observer.Expect('out CanWrite', 'Yes');
+        Observer.Expect('out CanSeek', 'Yes');
+        Observer.Expect('out Length', '2');
+        Observer.Expect('out Position', '2');
+        Observer.Expect('IsNull', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -132,7 +141,9 @@ codeunit 99420 "LT SG DotNet Streams"
         Observer.Observe('before flush', BlobText(TempBlob));
         S.Flush();
         Observer.Observe('after flush', BlobText(TempBlob));
-        Observer.Finish();
+        Observer.Expect('before flush', 'ABcded|');
+        Observer.Expect('after flush', 'ABcded|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -174,7 +185,15 @@ codeunit 99420 "LT SG DotNet Streams"
         ClearLastError();
         Observer.Observe('stream write after close ok', Format(TryWriteByte(S, 66)));
         Observer.ObserveError('stream write after close');
-        Observer.Finish();
+        Observer.Expect('after close', 'A|');
+        Observer.Expect('AL write after close ok', 'Yes');
+        Observer.Expect('AL write after close|text', '');
+        Observer.Expect('AL write after close|code', '');
+        Observer.Expect('content', 'z|');
+        Observer.Expect('stream write after close ok', 'Yes');
+        Observer.Expect('stream write after close|text', '');
+        Observer.Expect('stream write after close|code', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -193,7 +212,11 @@ codeunit 99420 "LT SG DotNet Streams"
         Observer.Observe('AL write after dispose ok', Format(TryWriteText(OutS, 'z')));
         Observer.ObserveError('AL write after dispose');
         Observer.Observe('content', BlobText(TempBlob));
-        Observer.Finish();
+        Observer.Expect('AL write after dispose ok', 'Yes');
+        Observer.Expect('AL write after dispose|text', '');
+        Observer.Expect('AL write after dispose|code', '');
+        Observer.Expect('content', 'z|');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -208,6 +231,12 @@ codeunit 99420 "LT SG DotNet Streams"
         S.WriteByte(Value);
     end;
 
+    [TryFunction]
+    local procedure TryOutStreamToObject(var OutS: OutStream; var O: DotNet LtSgObject)
+    begin
+        O := OutS;
+    end;
+
     [Test]
     procedure SG_OutStreamToObject()
     var
@@ -215,14 +244,12 @@ codeunit 99420 "LT SG DotNet Streams"
         TempBlob: Codeunit "Temp Blob";
         OutS: OutStream;
         O: DotNet LtSgObject;
-        S: DotNet LtSgStream;
     begin
         TempBlob.CreateOutStream(OutS);
-        O := OutS;
-        Observer.Observe('object type', O.GetType().FullName);
-        S := O;
-        S.WriteByte(65);
-        Observer.Observe('content', BlobText(TempBlob));
+        ClearLastError();
+        Observer.Observe('assign ok', Format(TryOutStreamToObject(OutS, O)));
+        Observer.ObserveError('assign');
+        Observer.Observe('IsNull after', Format(IsNull(O)));
         Observer.Finish();
     end;
 
@@ -285,7 +312,9 @@ codeunit 99420 "LT SG DotNet Streams"
         Again := Again.XmlDocument();
         Again.Load(InS);
         Observer.Observe('loaded back', Again.OuterXml);
-        Observer.Finish();
+        Observer.Expect('saved', '<a>|  <b>1</b>|</a>|');
+        Observer.Expect('loaded back', '<a><b>1</b></a>');
+        Observer.Verify();
     end;
 
     [Test]
@@ -335,7 +364,16 @@ codeunit 99420 "LT SG DotNet Streams"
         InS.ReadText(Rest);
         Observer.Observe('AL reads the rest', Rest);
         Observer.Observe('read at end', Format(S.ReadByte()));
-        Observer.Finish();
+        Observer.Expect('in type', 'Microsoft.Dynamics.Nav.Runtime.NavBLOB+InternalStream');
+        Observer.Expect('in CanRead', 'Yes');
+        Observer.Expect('in CanWrite', 'Yes');
+        Observer.Expect('in CanSeek', 'Yes');
+        Observer.Expect('in Length', '5');
+        Observer.Expect('in Position', '0');
+        Observer.Expect('first byte', '104');
+        Observer.Expect('AL reads the rest', 'hello');
+        Observer.Expect('read at end', '-1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -362,7 +400,11 @@ codeunit 99420 "LT SG DotNet Streams"
         TempBlob.CreateInStream(InS);
         Reader := Reader.StreamReader(InS, Encoding.UTF8);
         Observer.Observe('with encoding', Reader.ReadToEnd());
-        Observer.Finish();
+        Observer.Expect('first line', 'line1');
+        Observer.Expect('rest', 'line2');
+        Observer.Expect('end', 'Yes');
+        Observer.Expect('with encoding', 'line1\r\nline2');
+        Observer.Verify();
     end;
 
     [Test]

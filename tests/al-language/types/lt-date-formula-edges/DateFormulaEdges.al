@@ -278,7 +278,21 @@ codeunit 67857 "LT Date Formula Edges"
     begin
         SgDates(Observer, '<D1>');
         SgDates(Observer, '<D15>');
-        Observer.Finish();
+        Observer.Expect('<D1> 01-10', 'ok:2024-02-01');
+        Observer.Expect('<D1> 01-15', 'ok:2024-02-01');
+        Observer.Expect('<D1> 01-31', 'ok:2024-02-01');
+        Observer.Expect('<D1> 02-29', 'ok:2024-03-01');
+        Observer.Expect('<D1> 2023-02-28', 'ok:2023-03-01');
+        Observer.Expect('<D1> 04-30', 'ok:2024-05-01');
+        Observer.Expect('<D1> 12-31', 'ok:2025-01-01');
+        Observer.Expect('<D15> 01-10', 'ok:2024-01-15');
+        Observer.Expect('<D15> 01-15', 'ok:2024-02-15');
+        Observer.Expect('<D15> 01-31', 'ok:2024-02-15');
+        Observer.Expect('<D15> 02-29', 'ok:2024-03-15');
+        Observer.Expect('<D15> 2023-02-28', 'ok:2023-03-15');
+        Observer.Expect('<D15> 04-30', 'ok:2024-05-15');
+        Observer.Expect('<D15> 12-31', 'ok:2025-01-15');
+        Observer.Verify();
     end;
 
     [Test]
@@ -289,7 +303,28 @@ codeunit 67857 "LT Date Formula Edges"
         SgDates(Observer, '<D29>');
         SgDates(Observer, '<D30>');
         SgDates(Observer, '<D31>');
-        Observer.Finish();
+        Observer.Expect('<D29> 01-10', 'ok:2024-01-29');
+        Observer.Expect('<D29> 01-15', 'ok:2024-01-29');
+        Observer.Expect('<D29> 01-31', 'ok:2024-02-29');
+        Observer.Expect('<D29> 02-29', 'ok:2024-03-29');
+        Observer.Expect('<D29> 2023-02-28', 'ok:2023-02-28');
+        Observer.Expect('<D29> 04-30', 'ok:2024-05-29');
+        Observer.Expect('<D29> 12-31', 'ok:2025-01-29');
+        Observer.Expect('<D30> 01-10', 'ok:2024-01-30');
+        Observer.Expect('<D30> 01-15', 'ok:2024-01-30');
+        Observer.Expect('<D30> 01-31', 'ok:2024-02-29');
+        Observer.Expect('<D30> 02-29', 'ok:2024-02-29');
+        Observer.Expect('<D30> 2023-02-28', 'ok:2023-02-28');
+        Observer.Expect('<D30> 04-30', 'ok:2024-05-30');
+        Observer.Expect('<D30> 12-31', 'ok:2025-01-30');
+        Observer.Expect('<D31> 01-10', 'ok:2024-01-31');
+        Observer.Expect('<D31> 01-15', 'ok:2024-01-31');
+        Observer.Expect('<D31> 01-31', 'ok:2024-02-29');
+        Observer.Expect('<D31> 02-29', 'ok:2024-02-29');
+        Observer.Expect('<D31> 2023-02-28', 'ok:2023-02-28');
+        Observer.Expect('<D31> 04-30', 'ok:2024-04-30');
+        Observer.Expect('<D31> 12-31', 'ok:2025-01-31');
+        Observer.Verify();
     end;
 
     [Test]
@@ -300,7 +335,28 @@ codeunit 67857 "LT Date Formula Edges"
         SgDates(Observer, '<-D1>');
         SgDates(Observer, '<-D15>');
         SgDates(Observer, '<-D31>');
-        Observer.Finish();
+        Observer.Expect('<-D1> 01-10', 'ok:2024-01-01');
+        Observer.Expect('<-D1> 01-15', 'ok:2024-01-01');
+        Observer.Expect('<-D1> 01-31', 'ok:2024-01-01');
+        Observer.Expect('<-D1> 02-29', 'ok:2024-02-01');
+        Observer.Expect('<-D1> 2023-02-28', 'ok:2023-02-01');
+        Observer.Expect('<-D1> 04-30', 'ok:2024-04-01');
+        Observer.Expect('<-D1> 12-31', 'ok:2024-12-01');
+        Observer.Expect('<-D15> 01-10', 'ok:2023-12-15');
+        Observer.Expect('<-D15> 01-15', 'ok:2023-12-15');
+        Observer.Expect('<-D15> 01-31', 'ok:2024-01-15');
+        Observer.Expect('<-D15> 02-29', 'ok:2024-02-15');
+        Observer.Expect('<-D15> 2023-02-28', 'ok:2023-02-15');
+        Observer.Expect('<-D15> 04-30', 'ok:2024-04-15');
+        Observer.Expect('<-D15> 12-31', 'ok:2024-12-15');
+        Observer.Expect('<-D31> 01-10', 'ok:2023-12-31');
+        Observer.Expect('<-D31> 01-15', 'ok:2023-12-31');
+        Observer.Expect('<-D31> 01-31', 'ok:2023-12-31');
+        Observer.Expect('<-D31> 02-29', 'ok:2024-01-31');
+        Observer.Expect('<-D31> 2023-02-28', 'ok:2023-01-31');
+        Observer.Expect('<-D31> 04-30', 'ok:2024-03-31');
+        Observer.Expect('<-D31> 12-31', 'ok:2024-11-30');
+        Observer.Verify();
     end;
 
     [Test]
@@ -312,7 +368,35 @@ codeunit 67857 "LT Date Formula Edges"
         SgDates(Observer, '<-CM+D5>');
         SgDates(Observer, '<1M+D15>');
         SgDates(Observer, '<D15+1M>');
-        Observer.Finish();
+        Observer.Expect('<CM+D5> 01-10', 'ok:2024-02-05');
+        Observer.Expect('<CM+D5> 01-15', 'ok:2024-02-05');
+        Observer.Expect('<CM+D5> 01-31', 'ok:2024-02-05');
+        Observer.Expect('<CM+D5> 02-29', 'ok:2024-03-05');
+        Observer.Expect('<CM+D5> 2023-02-28', 'ok:2023-03-05');
+        Observer.Expect('<CM+D5> 04-30', 'ok:2024-05-05');
+        Observer.Expect('<CM+D5> 12-31', 'ok:2025-01-05');
+        Observer.Expect('<-CM+D5> 01-10', 'ok:2024-01-05');
+        Observer.Expect('<-CM+D5> 01-15', 'ok:2024-01-05');
+        Observer.Expect('<-CM+D5> 01-31', 'ok:2024-01-05');
+        Observer.Expect('<-CM+D5> 02-29', 'ok:2024-02-05');
+        Observer.Expect('<-CM+D5> 2023-02-28', 'ok:2023-02-05');
+        Observer.Expect('<-CM+D5> 04-30', 'ok:2024-04-05');
+        Observer.Expect('<-CM+D5> 12-31', 'ok:2024-12-05');
+        Observer.Expect('<1M+D15> 01-10', 'ok:2024-02-15');
+        Observer.Expect('<1M+D15> 01-15', 'ok:2024-03-15');
+        Observer.Expect('<1M+D15> 01-31', 'ok:2024-03-15');
+        Observer.Expect('<1M+D15> 02-29', 'ok:2024-04-15');
+        Observer.Expect('<1M+D15> 2023-02-28', 'ok:2023-04-15');
+        Observer.Expect('<1M+D15> 04-30', 'ok:2024-06-15');
+        Observer.Expect('<1M+D15> 12-31', 'ok:2025-02-15');
+        Observer.Expect('<D15+1M> 01-10', 'ok:2024-02-15');
+        Observer.Expect('<D15+1M> 01-15', 'ok:2024-03-15');
+        Observer.Expect('<D15+1M> 01-31', 'ok:2024-03-15');
+        Observer.Expect('<D15+1M> 02-29', 'ok:2024-04-15');
+        Observer.Expect('<D15+1M> 2023-02-28', 'ok:2023-04-15');
+        Observer.Expect('<D15+1M> 04-30', 'ok:2024-06-15');
+        Observer.Expect('<D15+1M> 12-31', 'ok:2025-02-15');
+        Observer.Verify();
     end;
 
     [Test]
@@ -329,6 +413,15 @@ codeunit 67857 "LT Date Formula Edges"
         Observer.Observe('eval <D31>', Eval('<D31>'));
         Observer.Observe('eval <CM+D5>', Eval('<CM+D5>'));
         Observer.Observe('eval <-D1>', Eval('<-D1>'));
-        Observer.Finish();
+        Observer.Expect('<D0>', 'error:The date formula ''D0'' contains a number that is too large.\\The number must be in the range 1 - 31.|Evaluate');
+        Observer.Expect('<D32>', 'error:The date formula ''D32'' contains a number that is too large.\\The number must be in the range 1 - 31.|Evaluate');
+        Observer.Expect('<2D15>', 'error:The date formula ''2D15'' must include plus (+) or minus (-).|Evaluate');
+        Observer.Expect('<D>', 'error:The date formula ''D'' should include a number.|Evaluate');
+        Observer.Expect('D15 no brackets', 'ok:2024-02-15');
+        Observer.Expect('eval <D15>', 'ok:stored=D15|calc=2024-02-15');
+        Observer.Expect('eval <D31>', 'ok:stored=D31|calc=2024-01-31');
+        Observer.Expect('eval <CM+D5>', 'ok:stored=CM+D5|calc=2024-02-05');
+        Observer.Expect('eval <-D1>', 'ok:stored=-D1|calc=2024-01-01');
+        Observer.Verify();
     end;
 }

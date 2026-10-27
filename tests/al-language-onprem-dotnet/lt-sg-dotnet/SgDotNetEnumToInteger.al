@@ -74,7 +74,25 @@ codeunit 99421 "LT SG DotNet Enum Integer"
         ClearLastError();
         Observer.Observe('try ok', Format(TryToInteger(Day, Number)));
         Observer.Observe('try value', Format(Number));
-        Observer.Finish();
+        Observer.Expect('variable Wednesday', '3');
+        Observer.Expect('property DayOfWeek of a Sunday', '0');
+        Observer.Expect('flags AllowCurrencySymbol', '256');
+        Observer.Expect('flags Number', '111');
+        Observer.Expect('BigInteger', '3');
+        Observer.Expect('Format', 'Wednesday');
+        Observer.Expect('Variant IsInteger', 'No');
+        Observer.Expect('Variant IsDotNet', 'Yes');
+        Observer.Expect('argument', '3');
+        Observer.Expect('Integer = enum', 'Yes');
+        Observer.Expect('try ok', 'Yes');
+        Observer.Expect('try value', '3');
+        Observer.Verify();
+    end;
+
+    [TryFunction]
+    local procedure TryParse(var Token: DotNet LtSgEJToken; Json: Text)
+    begin
+        Token := Token.Parse(Json);
     end;
 
     [Test]
@@ -82,22 +100,28 @@ codeunit 99421 "LT SG DotNet Enum Integer"
     var
         Observer: Codeunit "Probe Observer";
         Token: DotNet LtSgEJToken;
+        ArrayToken: DotNet LtSgEJToken;
+        StringToken: DotNet LtSgEJToken;
         Kind: DotNet LtSgEJTokenType;
         Number: Integer;
     begin
         Token := Token.Parse('{"a":1}');
         Number := Token.Type;
         Observer.Observe('object', Format(Number));
-        Token := Token.Parse('[1]');
-        Number := Token.Type;
+        ArrayToken := ArrayToken.Parse('[1]');
+        Number := ArrayToken.Type;
         Observer.Observe('array', Format(Number));
-        Token := Token.Parse('"x"');
-        Number := Token.Type;
+        StringToken := StringToken.Parse('"x"');
+        Number := StringToken.Type;
         Observer.Observe('string', Format(Number));
         Kind := Token.Type;
         Observer.Observe('format of the enum', Format(Kind));
         Number := Kind;
         Observer.Observe('through a variable', Format(Number));
+        // A static member called through a variable that holds a subclass instance: Token holds a JObject here.
+        ClearLastError();
+        Observer.Observe('static Parse through a JObject instance ok', Format(TryParse(Token, '[1]')));
+        Observer.ObserveError('static Parse through a JObject instance');
         Observer.Finish();
     end;
 }
