@@ -578,7 +578,6 @@ codeunit 60827 "Test TableExt Field Relation"
 
 table 89426 "LT SH Rel Target"
 {
-    Caption = 'LT SH Rel Target Table Caption';
     DataClassification = SystemMetadata;
 
     fields
