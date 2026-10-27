@@ -120,11 +120,6 @@ report 89369 "LT SG MaxIter Table Child"
             DataItemTableView = sorting(Id);
             MaxIteration = 2;
 
-            trigger OnAfterGetRecord()
-            begin
-                L.Add('parent ' + Format(Parent.Id));
-            end;
-
             dataitem(Child; "LT MaxIterZero Row")
             {
                 DataItemTableView = sorting(Id);
@@ -135,6 +130,11 @@ report 89369 "LT SG MaxIter Table Child"
                     L.Add('child ' + Format(Child.Id));
                 end;
             }
+
+            trigger OnAfterGetRecord()
+            begin
+                L.Add('parent ' + Format(Parent.Id));
+            end;
         }
     }
 
