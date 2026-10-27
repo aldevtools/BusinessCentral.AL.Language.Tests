@@ -240,4 +240,95 @@ codeunit 67857 "LT Date Formula Edges"
         Observer.Expect('eval <1Y+1M>', 'ok:stored=1Y+1M|calc=2025-02-15');
         Observer.Verify();
     end;
+
+    // ---- Writer SG (2026-10-27): the day-of-month unit D with a number (<D31>, <D1>, <D15>, <-D15>, <CM+D5>) from several dates,
+    // month ends and February included. CalcDate with the formula text, and Evaluate into a DateFormula (stored text, CalcDate). ----
+
+    [TryFunction]
+    local procedure SgTryCalcAt(Formula: Text; At: Date; var Result: Text)
+    begin
+        Result := Format(CalcDate(Formula, At), 0, 9);
+    end;
+
+    local procedure SgCalcAt(Formula: Text; At: Date): Text
+    var
+        Result: Text;
+    begin
+        ClearLastError();
+        if SgTryCalcAt(Formula, At, Result) then
+            exit('ok:' + Result);
+        exit('error:' + GetLastErrorText() + '|' + GetLastErrorCode());
+    end;
+
+    local procedure SgDates(var Observer: Codeunit "Probe Observer"; Formula: Text)
+    begin
+        Observer.Observe(Formula + ' 01-10', SgCalcAt(Formula, 20240110D));
+        Observer.Observe(Formula + ' 01-15', SgCalcAt(Formula, 20240115D));
+        Observer.Observe(Formula + ' 01-31', SgCalcAt(Formula, 20240131D));
+        Observer.Observe(Formula + ' 02-29', SgCalcAt(Formula, 20240229D));
+        Observer.Observe(Formula + ' 2023-02-28', SgCalcAt(Formula, 20230228D));
+        Observer.Observe(Formula + ' 04-30', SgCalcAt(Formula, 20240430D));
+        Observer.Observe(Formula + ' 12-31', SgCalcAt(Formula, 20241231D));
+    end;
+
+    [Test]
+    procedure SG_DayOfMonth_D1_D15()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        SgDates(Observer, '<D1>');
+        SgDates(Observer, '<D15>');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SG_DayOfMonth_D29_D30_D31()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        SgDates(Observer, '<D29>');
+        SgDates(Observer, '<D30>');
+        SgDates(Observer, '<D31>');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SG_DayOfMonth_Backward()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        SgDates(Observer, '<-D1>');
+        SgDates(Observer, '<-D15>');
+        SgDates(Observer, '<-D31>');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SG_DayOfMonth_Combined()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        SgDates(Observer, '<CM+D5>');
+        SgDates(Observer, '<-CM+D5>');
+        SgDates(Observer, '<1M+D15>');
+        SgDates(Observer, '<D15+1M>');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SG_DayOfMonth_EdgeNumbersAndEvaluate()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('<D0>', SgCalcAt('<D0>', 20240115D));
+        Observer.Observe('<D32>', SgCalcAt('<D32>', 20240115D));
+        Observer.Observe('<2D15>', SgCalcAt('<2D15>', 20240115D));
+        Observer.Observe('<D>', SgCalcAt('<D>', 20240115D));
+        Observer.Observe('D15 no brackets', SgCalcAt('D15', 20240115D));
+        Observer.Observe('eval <D15>', Eval('<D15>'));
+        Observer.Observe('eval <D31>', Eval('<D31>'));
+        Observer.Observe('eval <CM+D5>', Eval('<CM+D5>'));
+        Observer.Observe('eval <-D1>', Eval('<-D1>'));
+        Observer.Finish();
+    end;
 }
