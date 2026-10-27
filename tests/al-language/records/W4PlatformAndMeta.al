@@ -558,7 +558,7 @@ codeunit 68056 "W4 Platform Tests"
         if not TryEvalTfReturn(Row, Value, Ok) then
             Result := 'throws:' + GetLastErrorText() + '|' + GetLastErrorCode()
         else
-            Result := Format(Ok) + '|[' + Format(Row.Flt) + ']|' + GetLastErrorText();
+            Result := Format(Ok) + '|[' + Format(Row.Flt) + ']|' + ErrorHead(GetLastErrorText());
         ClearLastError();
         exit(Result);
     end;
@@ -573,9 +573,19 @@ codeunit 68056 "W4 Platform Tests"
         if TryEvalTfBare(Row, Value) then
             Result := 'ok:[' + Format(Row.Flt) + ']'
         else
-            Result := 'error:' + GetLastErrorText() + '|' + GetLastErrorCode();
+            Result := 'error:' + ErrorHead(GetLastErrorText()) + '|' + GetLastErrorCode();
         ClearLastError();
         exit(Result);
+    end;
+
+    // The error text up to its first backslash. The texts of an unknown table name go on with "The metadata object Table -1 was not
+    // found. The application might be incompatible ..." on the Linux BC container (27.5, 28.5, 29.0); that tail is not pinned here
+    // (a Linux suspect until the Windows check), only the sentence before it.
+    local procedure ErrorHead(Value: Text): Text
+    begin
+        if StrPos(Value, '\') > 0 then
+            Value := CopyStr(Value, 1, StrPos(Value, '\') - 1);
+        exit(DelChr(Value, '>', ' '));
     end;
 
     [Test]
@@ -601,7 +611,25 @@ codeunit 68056 "W4 Platform Tests"
         Observer.Observe('code_wildcard', EvalTfForm('SI TF Target: Code=@a*'));
         Observer.Observe('base_app_table', EvalTfForm('Customer: No.=10000'));
         Observer.Observe('format_number_9', Format(EvalTf9('SI TF Target: Kind=LGDIAM')));
-        Observer.Finish();
+        Observer.Expect('name_form', 'Yes|[SI TF Target: Kind Cap=LgDiam Cap]|');
+        Observer.Expect('caption_form', 'No|[]|The value "SI Target Cap: Kind Cap=LGDIAM" can''t be evaluated into type TableFilter.');
+        Observer.Expect('name_table_caption_field', 'Yes|[SI TF Target: Kind Cap=LgDiam Cap]|');
+        Observer.Expect('option_caption_value', 'Yes|[SI TF Target: Kind Cap=LgDiam Cap]|');
+        Observer.Expect('option_number_value', 'Yes|[SI TF Target: Kind Cap=LgDiam Cap]|');
+        Observer.Expect('filter_wrapper', 'No|[]|The value "SI TF Target: Kind=FILTER(LGDIAM)" can''t be evaluated into type TableFilter. An error occurred while interpreting the filter: Did not expect ''(''.');
+        Observer.Expect('const_wrapper', 'No|[]|The value "SI TF Target: Kind=CONST(LGDIAM)" can''t be evaluated into type TableFilter. An error occurred while interpreting the filter: Did not expect ''(''.');
+        Observer.Expect('two_fields', 'Yes|[SI TF Target: Code Cap=A..B,Kind Cap=Diam Cap]|');
+        Observer.Expect('two_fields_space', 'Yes|[SI TF Target: Code Cap=A..B,Kind Cap=Diam Cap]|');
+        Observer.Expect('table_number', 'Yes|[SI TF Target: Kind Cap=LgDiam Cap]|');
+        Observer.Expect('quoted_table', 'Yes|[SI TF Target: Kind Cap=LgDiam Cap]|');
+        Observer.Expect('lower_case', 'Yes|[SI TF Target: Kind Cap=LgDiam Cap]|');
+        Observer.Expect('no_space_after_colon', 'Yes|[SI TF Target: Kind Cap=LgDiam Cap]|');
+        Observer.Expect('integer_expression', 'Yes|[SI TF Target: Qty Cap=1..5|7]|');
+        Observer.Expect('integer_not_zero', 'Yes|[SI TF Target: Qty Cap=<>0]|');
+        Observer.Expect('code_wildcard', 'Yes|[SI TF Target: Code Cap=@A*]|');
+        Observer.Expect('base_app_table', 'Yes|[Customer: No.=10000]|');
+        Observer.Expect('format_number_9', 'Yes|[SI TF Target: Kind Cap=LgDiam Cap]');
+        Observer.Verify();
     end;
 
     local procedure EvalTf9(Value: Text): Text
@@ -628,14 +656,45 @@ codeunit 68056 "W4 Platform Tests"
         Observer.Observe('ret_no_table', EvalTfForm('Kind=LGDIAM'));
         Observer.Observe('ret_where_form', EvalTfForm('WHERE(Kind=FILTER(LGDIAM))'));
         Observer.Observe('ret_bad_integer', EvalTfForm('SI TF Target: Qty=abc'));
+        Observer.Expect('ret_bad_option', 'No|[]|The value "SI TF Target: Kind=FOO" can''t be evaluated into type TableFilter. ''FOO'' is not an option. The existing options are: Diam Cap,LgDiam Cap');
+        Observer.Expect('ret_unknown_field', 'No|[]|The value "SI TF Target: Nope=1" can''t be evaluated into type TableFilter. The supplied field number ''Nope'' cannot be found in the ''SI Target Cap'' table.');
+        Observer.Expect('ret_unknown_table', 'No|[]|The value "No Such Table: Kind=1" can''t be evaluated into type TableFilter.');
+        Observer.Expect('ret_table_only', 'No|[]|The value "SI TF Target" can''t be evaluated into type TableFilter.');
+        Observer.Expect('ret_table_colon_only', 'Yes|[SI TF Target: ]|');
+        Observer.Expect('ret_empty', 'Yes|[]|');
+        Observer.Expect('ret_garbage', 'No|[]|The value "xyz" can''t be evaluated into type TableFilter.');
+        Observer.Expect('ret_no_table', 'No|[]|The value "Kind=LGDIAM" can''t be evaluated into type TableFilter.');
+        Observer.Expect('ret_where_form', 'No|[]|The value "WHERE(Kind=FILTER(LGDIAM))" can''t be evaluated into type TableFilter.');
+        Observer.Expect('ret_bad_integer', 'No|[]|The value "SI TF Target: Qty=abc" can''t be evaluated into type TableFilter. The value "abc" can''t be evaluated into type Integer.');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TableFilterEvaluate_ErrorsAsStatement()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Observer.Observe('bare_bad_option', EvalTfBare('SI TF Target: Kind=FOO'));
         Observer.Observe('bare_unknown_field', EvalTfBare('SI TF Target: Nope=1'));
         Observer.Observe('bare_unknown_table', EvalTfBare('No Such Table: Kind=1'));
+        Observer.Observe('bare_table_only', EvalTfBare('SI TF Target'));
+        Observer.Observe('bare_filter_wrapper', EvalTfBare('SI TF Target: Kind=FILTER(LGDIAM)'));
+        Observer.Observe('bare_bad_integer', EvalTfBare('SI TF Target: Qty=abc'));
         Observer.Observe('bare_empty', EvalTfBare(''));
         Observer.Observe('bare_garbage', EvalTfBare('xyz'));
         Observer.Observe('bare_no_table', EvalTfBare('Kind=LGDIAM'));
         Observer.Observe('bare_valid', EvalTfBare('SI TF Target: Kind=LGDIAM'));
-        Observer.Finish();
+        Observer.Expect('bare_bad_option', 'error:The value "SI TF Target: Kind=FOO" can''t be evaluated into type TableFilter. ''FOO'' is not an option. The existing options are: Diam Cap,LgDiam Cap|Evaluate:InvalidFilterExpression');
+        Observer.Expect('bare_unknown_field', 'error:The value "SI TF Target: Nope=1" can''t be evaluated into type TableFilter. The supplied field number ''Nope'' cannot be found in the ''SI Target Cap'' table.|Evaluate:FieldNotFound');
+        Observer.Expect('bare_unknown_table', 'error:The value "No Such Table: Kind=1" can''t be evaluated into type TableFilter.|Evaluate:?');
+        Observer.Expect('bare_table_only', 'error:The value "SI TF Target" can''t be evaluated into type TableFilter.|Evaluate:?');
+        Observer.Expect('bare_filter_wrapper', 'error:The value "SI TF Target: Kind=FILTER(LGDIAM)" can''t be evaluated into type TableFilter. An error occurred while interpreting the filter: Did not expect ''(''.|Evaluate:?');
+        Observer.Expect('bare_bad_integer', 'error:The value "SI TF Target: Qty=abc" can''t be evaluated into type TableFilter. The value "abc" can''t be evaluated into type Integer.|Evaluate:?');
+        Observer.Expect('bare_empty', 'ok:[]');
+        Observer.Expect('bare_garbage', 'error:The value "xyz" can''t be evaluated into type TableFilter.|Evaluate:?');
+        Observer.Expect('bare_no_table', 'error:The value "Kind=LGDIAM" can''t be evaluated into type TableFilter.|Evaluate:?');
+        Observer.Expect('bare_valid', 'ok:[SI TF Target: Kind Cap=LgDiam Cap]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -676,6 +735,20 @@ codeunit 68056 "W4 Platform Tests"
         Ok := Evaluate(Got.Flt, 'SI TF Target: Qty=5');
         Observer.Observe('second_eval', Format(Ok) + '|[' + Format(Got.Flt) + ']');
         Row.DeleteAll();
-        Observer.Finish();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('format_in_memory', '[SI TF Target: Code Cap=A..B,Kind Cap=LgDiam Cap]');
+        Observer.Expect('format_len', '47');
+        Observer.Expect('format_after_get', '[SI TF Target: Code Cap=A..B,Kind Cap=LgDiam Cap]');
+        Observer.Expect('fieldref_value', '[SI TF Target: Code Cap=A..B,Kind Cap=LgDiam Cap]');
+        Observer.Expect('roundtrip_evaluate', 'Yes|[SI TF Target: Code Cap=A..B,Kind Cap=LgDiam Cap]');
+#if BC28PLUS
+        Observer.Expect('roundtrip_fieldref', 'error:The value "SI TF Target: Code Cap=A..B,Kind Cap=LgDiam Cap" can''t be evaluated into type TableFilter.|Evaluate:Argument');
+#else
+        Observer.Expect('roundtrip_fieldref', 'error:The supplied value is not valid.|Argument');
+#endif
+        Observer.Expect('target_getfilters', 'Code Cap: A..B, Kind Cap: LgDiam Cap');
+        Observer.Expect('failed_eval_keeps', 'No|[SI TF Target: Code Cap=A..B,Kind Cap=LgDiam Cap]');
+        Observer.Expect('second_eval', 'Yes|[SI TF Target: Qty Cap=5]');
+        Observer.Verify();
     end;
 }
