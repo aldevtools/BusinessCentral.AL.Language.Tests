@@ -834,4 +834,66 @@ codeunit 84282 "LT CD TestPage Leads"
         Observer.Expect('ids', '1,3,2,4,');
         Observer.Verify();
     end;
+
+    // ---- Writer SH, al-runner issues 5957 and 5958: SourceTableView filter('') and filter(<> '') on a Date field (pages in CdConst0D.al):
+    // the rows the page shows, and the SourceTableView text in Page Metadata.
+
+    [Test]
+    procedure SH_SourceTableView_DateFilterBlank_Rows()
+    var
+        Row: Record "LT CD Row";
+        List: TestPage "LT SH Blank Date List";
+        Result: Text;
+    begin
+        Seed();
+        List.OpenView();
+        if List.First() then
+            repeat
+                Result += List.IdCtl.Value() + ',';
+            until not List.Next();
+        Observer.Observe('OpenView ids', Result);
+        List.Close();
+        // The reporter's form: Page.Run on a record positioned on a blank-date row.
+        Row.Get(2);
+        List.Trap();
+        Page.Run(Page::"LT SH Blank Date List", Row);
+        Observer.Observe('Page.Run current id', List.IdCtl.Value());
+        Observer.Observe('Page.Run Next', Format(List.Next()));
+        Observer.Observe('Page.Run id after Next', List.IdCtl.Value());
+        List.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SH_SourceTableView_DateFilterNotBlank_Rows()
+    var
+        List: TestPage "LT SH NotBlank Date List";
+        Result: Text;
+    begin
+        Seed();
+        List.OpenView();
+        if List.First() then
+            repeat
+                Result += List.IdCtl.Value() + ',';
+            until not List.Next();
+        Observer.Observe('OpenView ids', Result);
+        List.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SH_SourceTableView_DateFilterBlank_PageMetadata()
+    var
+        Meta: Record "Page Metadata";
+    begin
+        Meta.Get(Page::"LT SH Blank Date List");
+        Observer.Observe('filter blank', Meta.SourceTableView);
+        Meta.Get(Page::"LT SH NotBlank Date List");
+        Observer.Observe('filter not blank', Meta.SourceTableView);
+        Meta.Get(Page::"LT CD Filter0D List");
+        Observer.Observe('filter 0D', Meta.SourceTableView);
+        Meta.Get(Page::"LT CD Const0D List");
+        Observer.Observe('const 0D', Meta.SourceTableView);
+        Observer.Finish();
+    end;
 }

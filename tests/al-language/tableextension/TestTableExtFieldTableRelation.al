@@ -550,4 +550,65 @@ codeunit 60827 "Test TableExt Field Relation"
         Observer.Expect('ue_z_none|code', 'DB:PrimRecordNotFound');
         Observer.Verify();
     end;
+
+    // ---- Writer SH, al-runner issue 5955: the RELATED table of a TableRelation has a tableextension with its own Caption.
+    // Which caption does the Validate error text use for the related table (objects at the end of this file)?
+
+    [Test]
+    procedure TableExt_CaptionOfRelatedTable_InValidateErrorText()
+    var
+        Observer: Codeunit "Probe Observer";
+        Source: Record "LT SH Rel Source";
+        Target: Record "LT SH Rel Target";
+        RecRef: RecordRef;
+    begin
+        Target.DeleteAll();
+        Source.Init();
+        Source."Entry No." := 1;
+        asserterror Source.Validate("Target Code", 'NOWC');
+        Observer.ObserveError('Record.Validate');
+        RecRef.GetTable(Source);
+        asserterror RecRef.Field(2).Validate('NOWC');
+        Observer.ObserveError('FieldRef.Validate');
+        Observer.Observe('target TableCaption', Target.TableCaption());
+        Observer.Observe('source TableCaption', Source.TableCaption());
+        Observer.Finish();
+    end;
+}
+
+table 89426 "LT SH Rel Target"
+{
+    Caption = 'LT SH Rel Target Table Caption';
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; "Code"; Code[20]) { }
+    }
+
+    keys
+    {
+        key(PK; "Code") { Clustered = true; }
+    }
+}
+
+tableextension 89427 "LT SH Rel Target Ext" extends "LT SH Rel Target"
+{
+    Caption = 'LT SH Rel Target Extension Caption';
+}
+
+table 89428 "LT SH Rel Source"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; "Entry No."; Integer) { }
+        field(2; "Target Code"; Code[20]) { TableRelation = "LT SH Rel Target"; }
+    }
+
+    keys
+    {
+        key(PK; "Entry No.") { Clustered = true; }
+    }
 }

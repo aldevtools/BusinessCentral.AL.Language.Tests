@@ -175,4 +175,65 @@ codeunit 60073 "Test FieldRef Value"
     begin
         Cleanup.Initialize();
     end;
+
+    // ---- Writer SH, al-runner issue 5942: FieldRef.Value := <Text> on a field of another type.
+
+    [TryFunction]
+    local procedure ShTrySetValue(var FldRef: FieldRef; NewValue: Text)
+    begin
+        FldRef.Value := NewValue;
+    end;
+
+    local procedure ShSetText(var Observer: Codeunit "Probe Observer"; var RecRef: RecordRef; FieldNo: Integer; NewValue: Text)
+    var
+        FldRef: FieldRef;
+        Name: Text;
+    begin
+        FldRef := RecRef.Field(FieldNo);
+        Name := FldRef.Name + ' := ' + NewValue;
+        if ShTrySetValue(FldRef, NewValue) then
+            Observer.Observe(Name, 'ok')
+        else
+            Observer.ObserveError(Name);
+        Observer.Observe(Name + ' -> value', Format(FldRef.Value, 0, 9));
+    end;
+
+    [Test]
+    procedure FieldRef_Value_TextIntoInteger_ErrorText()
+    var
+        Observer: Codeunit "Probe Observer";
+        RecRef: RecordRef;
+        FldRef: FieldRef;
+    begin
+        // The reporter's form (al-runner issue 5942): a text literal straight into an Integer field.
+        Initialize();
+        RecRef.Open(Database::"ALT Universal");
+        FldRef := RecRef.Field(3);
+        asserterror FldRef.Value := 'abc';
+        Observer.ObserveError('literal abc into Integer');
+        Observer.Observe('value after', Format(FldRef.Value, 0, 9));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure FieldRef_Value_TextIntoOtherTypes()
+    var
+        Observer: Codeunit "Probe Observer";
+        RecRef: RecordRef;
+    begin
+        Initialize();
+        RecRef.Open(Database::"ALT Universal");
+        ShSetText(Observer, RecRef, 3, 'abc');
+        ShSetText(Observer, RecRef, 3, '12');
+        ShSetText(Observer, RecRef, 3, '');
+        ShSetText(Observer, RecRef, 4, 'abc');
+        ShSetText(Observer, RecRef, 5, 'abc');
+        ShSetText(Observer, RecRef, 5, '1.5');
+        ShSetText(Observer, RecRef, 2, 'abc');
+        ShSetText(Observer, RecRef, 2, 'true');
+        ShSetText(Observer, RecRef, 8, 'abc');
+        ShSetText(Observer, RecRef, 12, 'abc');
+        ShSetText(Observer, RecRef, 14, 'abc');
+        Observer.Finish();
+    end;
 }

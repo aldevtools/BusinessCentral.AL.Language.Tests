@@ -82,4 +82,78 @@ codeunit 60089 "Test BigText"
         BT.GetSubText(Sub, 1, 2);
         Assert.AreEqual('ab', Sub, 'BigText.GetSubText of full range must return full text');
     end;
+
+
+    // ---- Writer SH, al-runner issue 5940: is BigText copied on assignment and on a by-value parameter?
+
+    local procedure ShAddByValue(Value: BigText)
+    begin
+        Value.AddText('c');
+    end;
+
+    local procedure ShAddByVar(var Value: BigText)
+    begin
+        Value.AddText('v');
+    end;
+
+    local procedure ShText(var Value: BigText): Text
+    var
+        Sub: Text;
+    begin
+        Value.GetSubText(Sub, 1);
+        exit(Sub);
+    end;
+
+    [Test]
+    procedure BigText_Assign_CopiesTheValue()
+    var
+        Observer: Codeunit "Probe Observer";
+        BigA: BigText;
+        BigB: BigText;
+    begin
+        BigA.AddText('a');
+        BigB := BigA;
+        BigA.AddText('b');
+        Observer.Observe('after A grows: A', ShText(BigA));
+        Observer.Observe('after A grows: B', ShText(BigB));
+        BigB.AddText('xyz');
+        Observer.Observe('after B grows: A', ShText(BigA));
+        Observer.Observe('after B grows: B', ShText(BigB));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure BigText_Parameters_ByValueCopies_VarShares()
+    var
+        Observer: Codeunit "Probe Observer";
+        BigA: BigText;
+    begin
+        BigA.AddText('a');
+        ShAddByValue(BigA);
+        Observer.Observe('after by-value call', ShText(BigA));
+        ShAddByVar(BigA);
+        Observer.Observe('after var call', ShText(BigA));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure BigText_ClearOfACopy_KeepsTheOriginal()
+    var
+        Observer: Codeunit "Probe Observer";
+        BigA: BigText;
+        BigB: BigText;
+        BigC: BigText;
+    begin
+        // The reporter's sequence (al-runner issue 5940).
+        BigA.AddText('a');
+        BigB := BigA;
+        BigA.AddText('b');
+        ShAddByValue(BigA);
+        BigC := BigA;
+        Clear(BigC);
+        Observer.Observe('lengths', StrSubstNo('A=%1;B=%2;C=%3', BigA.Length(), BigB.Length(), BigC.Length()));
+        Clear(BigA);
+        Observer.Observe('B after Clear of A', ShText(BigB));
+        Observer.Finish();
+    end;
 }

@@ -1070,4 +1070,82 @@ codeunit 79650 "LT AP TestPage Tests"
         Observer.Expect('[]', 'ok:');
         Observer.Verify();
     end;
+
+    // ---- Writer SH, al-runner issue 5945: a field whose own Enabled (or Editable) is true inside a group whose Enabled (Editable) is false.
+
+    local procedure ShObserveControl(var P: TestPage "LT SH Grp Enabled Card"; Name: Text; IsEnabled: Boolean; IsEditable: Boolean)
+    begin
+        Observer.Observe(Name, 'Enabled=' + Format(IsEnabled) + ' Editable=' + Format(IsEditable));
+    end;
+
+    [Test]
+    procedure Ap16_GroupEnabledFalse_FieldEnabledTrue()
+    var
+        P: TestPage "LT SH Grp Enabled Card";
+    begin
+        Start();
+        Seed();
+        P.OpenEdit();
+        P.GoToKey('A');
+        ShObserveControl(P, 'NameOn (group off, field Enabled = true)', P.NameOn.Enabled(), P.NameOn.Editable());
+        ShObserveControl(P, 'QtyPlain (group off, field plain)', P.QtyPlain.Enabled(), P.QtyPlain.Editable());
+        ShObserveControl(P, 'TxtExprOn (group off, field Enabled = expression true)', P.TxtExprOn.Enabled(), P.TxtExprOn.Editable());
+        ShObserveControl(P, 'CdInner (outer group off, inner group on)', P.CdInner.Enabled(), P.CdInner.Editable());
+        ShObserveControl(P, 'GrpEditOn (group Editable = false, field Editable = true)', P.GrpEditOn.Enabled(), P.GrpEditOn.Editable());
+        ShObserveControl(P, 'ValOff (group on, field Enabled = false)', P.ValOff.Enabled(), P.ValOff.Editable());
+        P.Close();
+        Observer.Finish();
+    end;
+}
+
+page 89425 "LT SH Grp Enabled Card"
+{
+    PageType = Card;
+    SourceTable = "LT AP Row";
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            group(GrpOff)
+            {
+                Enabled = false;
+                field(NameOn; Rec.Name) { ApplicationArea = All; Enabled = true; }
+                field(QtyPlain; Rec.Qty) { ApplicationArea = All; }
+            }
+            group(GrpOffExpr)
+            {
+                Enabled = false;
+                field(TxtExprOn; Rec.Txt) { ApplicationArea = All; Enabled = OnFlag; }
+            }
+            group(GrpOuterOff)
+            {
+                Enabled = false;
+                group(GrpInnerOn)
+                {
+                    Enabled = true;
+                    field(CdInner; Rec.Cd) { ApplicationArea = All; }
+                }
+            }
+            group(GrpEditOff)
+            {
+                Editable = false;
+                field(GrpEditOn; Rec.Grp) { ApplicationArea = All; Editable = true; }
+            }
+            group(GrpOn)
+            {
+                Enabled = true;
+                field(ValOff; Rec.Val) { ApplicationArea = All; Enabled = false; }
+            }
+        }
+    }
+
+    var
+        OnFlag: Boolean;
+
+    trigger OnInit()
+    begin
+        OnFlag := true;
+    end;
 }

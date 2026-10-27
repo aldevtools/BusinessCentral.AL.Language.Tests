@@ -637,4 +637,103 @@ codeunit 88980 "LT SB Stale Own Modify"
         Observer.Expect('stored exists', 'No');
         Observer.Verify();
     end;
+
+    // ---- Writer SH, al-runner issue 5954: the buffer is made stale before TWO Commits (a write to another table between them); the
+    // next transaction inserts another row of the same table (or of another table, or nothing) before the stale Modify.
+
+    local procedure ShInsertMiddleRow()
+    var
+        Middle: Record "ALT Keyed";
+    begin
+        Middle.Init();
+        Middle."Entry No." := 1;
+        Middle.Name := 'MIDDLE';
+        Middle.Insert(true);
+    end;
+
+    local procedure ShInsertAnotherRow(EntryNo: Integer)
+    var
+        Another: Record "ALT Universal";
+    begin
+        Another.Init();
+        Another."Entry No." := EntryNo;
+        Another."Text Field" := 'another';
+        Another.Insert(true);
+    end;
+
+    local procedure ShCleanupKeyed()
+    var
+        Middle: Record "ALT Keyed";
+    begin
+        Middle.DeleteAll();
+        Commit();
+    end;
+
+    [Test]
+    procedure SH_OwnModify_TwoCommitsOtherTableBetween_AnotherRowInsert()
+    var
+        Row: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        SbInsertAndOwnModify(Row);
+        SbOtherWrite(6, 'other');
+        Commit();
+        ShInsertMiddleRow();
+        Commit();
+        ShInsertAnotherRow(8);
+        SbModifyStale(Row, Observer);
+        ShCleanupKeyed();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SH_OwnModify_OneCommit_AnotherRowInsert()
+    var
+        Row: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        SbInsertAndOwnModify(Row);
+        SbOtherWrite(6, 'other');
+        Commit();
+        ShInsertAnotherRow(8);
+        SbModifyStale(Row, Observer);
+        ShCleanupKeyed();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SH_OwnModify_TwoCommitsOtherTableBetween_NothingAfter()
+    var
+        Row: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        SbInsertAndOwnModify(Row);
+        SbOtherWrite(6, 'other');
+        Commit();
+        ShInsertMiddleRow();
+        Commit();
+        SbModifyRefused(Row, Observer);
+        ShCleanupKeyed();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SH_OwnModify_TwoCommitsOtherTableBetween_OtherTableInsertAfter()
+    var
+        Row: Record "ALT Universal";
+        Later: Record "ALT Keyed";
+        Observer: Codeunit "Probe Observer";
+    begin
+        SbInsertAndOwnModify(Row);
+        SbOtherWrite(6, 'other');
+        Commit();
+        ShInsertMiddleRow();
+        Commit();
+        Later.Init();
+        Later."Entry No." := 2;
+        Later.Insert(true);
+        SbModifyRefused(Row, Observer);
+        ShCleanupKeyed();
+        Observer.Finish();
+    end;
 }
