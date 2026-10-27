@@ -925,4 +925,69 @@ codeunit 86264 "LT DI FW Write Tests"
         Observer.Expect('assigned amount src', 'n=5;1|1|A|10|2026-01-10;2|1|B|20|2026-02-10;3|1|C|30|2026-03-10;4|3|D|5|2026-01-15;5|1||40|');
         Observer.Verify();
     end;
+
+    // ---- Writer SF, al-runner issue 5857: a value assigned to a FlowFilter field of a TEMPORARY record, then Insert and a read back
+    // (FindFirst, Get, Next), on a TableType = Temporary table (89330, the shape of Base Application table 265 "Document Entry") and on a
+    // temporary variable of a normal table (LT DI FW Parent "Date Filter").
+
+    [Test]
+    procedure SF_FlowFilter_TemporaryTableType_InsertThenRead()
+    var
+        Observer: Codeunit "Probe Observer";
+        TempBuffer: Record "LT SF FF Temp Buffer";
+    begin
+        TempBuffer.Init();
+        TempBuffer."Entry No." := 1;
+        TempBuffer."Document No." := 'DOC-001';
+        TempBuffer.Description := 'First';
+        TempBuffer.Insert();
+        TempBuffer.Init();
+        TempBuffer."Entry No." := 2;
+        TempBuffer."Document No." := 'DOC-002';
+        TempBuffer.Description := 'Second';
+        TempBuffer.Insert();
+        Observer.Observe('after Init and Insert', TempBuffer."Document No.");
+        TempBuffer.FindFirst();
+        Observer.Observe('FindFirst', TempBuffer.Description + '|' + TempBuffer."Document No." + '|getfilter=' + TempBuffer.GetFilter("Document No."));
+        TempBuffer.Next();
+        Observer.Observe('Next', TempBuffer.Description + '|' + TempBuffer."Document No.");
+        TempBuffer.Get(1);
+        Observer.Observe('Get(1)', TempBuffer.Description + '|' + TempBuffer."Document No.");
+        TempBuffer."Document No." := 'DOC-009';
+        TempBuffer.Modify();
+        TempBuffer.Get(2);
+        TempBuffer.Get(1);
+        Observer.Observe('Get(1) after Modify', TempBuffer.Description + '|' + TempBuffer."Document No.");
+        Observer.Observe('count', Format(TempBuffer.Count()));
+        Observer.Expect('after Init and Insert', 'DOC-002');
+        Observer.Expect('FindFirst', 'First|DOC-001|getfilter=');
+        Observer.Expect('Next', 'Second|DOC-002');
+        Observer.Expect('Get(1)', 'First|DOC-001');
+        Observer.Expect('Get(1) after Modify', 'First|DOC-009');
+        Observer.Expect('count', '2');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure SF_FlowFilter_TemporaryVariable_InsertThenRead()
+    var
+        Observer: Codeunit "Probe Observer";
+        TempParent: Record "LT DI FW Parent" temporary;
+    begin
+        TempParent.Init();
+        TempParent."No." := 1;
+        TempParent."Date Filter" := 20260110D;
+        TempParent.Insert();
+        TempParent.Init();
+        TempParent."No." := 2;
+        TempParent."Date Filter" := 20260210D;
+        TempParent.Insert();
+        TempParent.FindFirst();
+        Observer.Observe('FindFirst', Format(TempParent."No.") + '|' + Format(TempParent."Date Filter", 0, 9));
+        TempParent.Get(2);
+        Observer.Observe('Get(2)', Format(TempParent."No.") + '|' + Format(TempParent."Date Filter", 0, 9));
+        Observer.Expect('FindFirst', '1|2026-01-10');
+        Observer.Expect('Get(2)', '2|2026-02-10');
+        Observer.Verify();
+    end;
 }
