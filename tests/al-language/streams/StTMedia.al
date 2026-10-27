@@ -619,25 +619,47 @@ codeunit 74204 "LT StT Media"
     // empty row, and the reporter's shape (Document Attachment."Document Reference ID" of an Init'ed record).
 
     [TryFunction]
-    local procedure SoTryExport(var Pic: Media; var Out: OutStream; var Answer: Boolean)
+    local procedure SoTryExport(var Rec: Record "LT StT Rec"; var Out: OutStream; var Answer: Boolean)
     begin
-        Answer := Pic.ExportStream(Out);
+        Answer := Rec.Pic.ExportStream(Out);
     end;
 
-    local procedure SoExportOutcome(var Pic: Media) Result: Text
+    local procedure SoExportOutcome(var Rec: Record "LT StT Rec") Result: Text
     var
         TempBlob: Codeunit "Temp Blob";
         Out: OutStream;
         Answer: Boolean;
     begin
-        Result := 'hasvalue=' + Format(Pic.HasValue()) + ' nullid=' + Format(IsNullGuid(Pic.MediaId()));
+        Result := 'hasvalue=' + Format(Rec.Pic.HasValue()) + ' nullid=' + Format(IsNullGuid(Rec.Pic.MediaId()));
         TempBlob.CreateOutStream(Out);
         ClearLastError();
-        if SoTryExport(Pic, Out, Answer) then
+        if SoTryExport(Rec, Out, Answer) then
             Result += ' returned=' + Format(Answer)
         else
             Result += ' error=[' + GetLastErrorText() + '] code=' + GetLastErrorCode();
-        Result += ' len=' + Format(TempBlob.Length()) + ' hasvalue after=' + Format(Pic.HasValue());
+        Result += ' len=' + Format(TempBlob.Length()) + ' hasvalue after=' + Format(Rec.Pic.HasValue());
+    end;
+
+    [TryFunction]
+    local procedure SoTryExportAttachment(var DocumentAttachment: Record "Document Attachment"; var Out: OutStream; var Answer: Boolean)
+    begin
+        Answer := DocumentAttachment."Document Reference ID".ExportStream(Out);
+    end;
+
+    local procedure SoExportAttachmentOutcome(var DocumentAttachment: Record "Document Attachment") Result: Text
+    var
+        TempBlob: Codeunit "Temp Blob";
+        Out: OutStream;
+        Answer: Boolean;
+    begin
+        Result := 'hasvalue=' + Format(DocumentAttachment."Document Reference ID".HasValue()) + ' nullid=' + Format(IsNullGuid(DocumentAttachment."Document Reference ID".MediaId()));
+        TempBlob.CreateOutStream(Out);
+        ClearLastError();
+        if SoTryExportAttachment(DocumentAttachment, Out, Answer) then
+            Result += ' returned=' + Format(Answer)
+        else
+            Result += ' error=[' + GetLastErrorText() + '] code=' + GetLastErrorCode();
+        Result += ' len=' + Format(TempBlob.Length()) + ' hasvalue after=' + Format(DocumentAttachment."Document Reference ID".HasValue());
     end;
 
     [Test]
@@ -649,7 +671,7 @@ codeunit 74204 "LT StT Media"
         Rec.DeleteAll();
         Rec.Init();
         Rec.Id := 9;
-        Observer.Observe('init only', SoExportOutcome(Rec.Pic));
+        Observer.Observe('init only', SoExportOutcome(Rec));
         Observer.Finish();
     end;
 
@@ -660,9 +682,9 @@ codeunit 74204 "LT StT Media"
         Observer: Codeunit "Probe Observer";
     begin
         Fresh(Rec);
-        Observer.Observe('inserted', SoExportOutcome(Rec.Pic));
+        Observer.Observe('inserted', SoExportOutcome(Rec));
         Rec.Get(1);
-        Observer.Observe('read back', SoExportOutcome(Rec.Pic));
+        Observer.Observe('read back', SoExportOutcome(Rec));
         Observer.Finish();
     end;
 
@@ -675,7 +697,7 @@ codeunit 74204 "LT StT Media"
         OutStream: OutStream;
     begin
         DocumentAttachment.Init();
-        Observer.Observe('outcome', SoExportOutcome(DocumentAttachment."Document Reference ID"));
+        Observer.Observe('outcome', SoExportAttachmentOutcome(DocumentAttachment));
         // the reporter's exact statement form, the answer not read
         TempBlob.CreateOutStream(OutStream);
         DocumentAttachment."Document Reference ID".ExportStream(OutStream);
