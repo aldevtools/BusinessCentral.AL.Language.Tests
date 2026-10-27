@@ -8,6 +8,8 @@
 // Writer SO (2026-10-28), for aldevtools/BusinessCentral.AL.Runner#5991: SetFilter on a Media (and MediaSet) field with the text
 // '00000000-0000-0000-0000-000000000000' and its forms ('=', '<>', braces, the empty text, '' quoted, a MediaId, an invalid
 // text), on rows with an empty Media and a row with an imported Media; what Count, IsEmpty and FindSet answer and which rows match.
+// SetFilter(Media, '%1', <Guid>), SetRange(Media, <Guid>) and SetRange(Media, <Text>) do not compile (must-not-compile 2218-2220);
+// with a Media value as the argument (empty or filled) both compile, and SO_MediaFilter_MediaValueArgument pins what they select.
 // Also the reporter's shape: RecordRef.Field(...).SetFilter('<>0000...') then FindSet on an empty-media row.
 // Table 89520 also carries two Option fields for the Option tests in fieldref/TestFieldRefEnumOrdinalByIndex.al (#5987).
 // BC versions: 27.5, 28.5, 29.0
@@ -164,18 +166,28 @@ codeunit 89521 "LT SO Media Filter"
     end;
 
     [Test]
-    procedure SO_MediaFilter_GuidArgument()
+    procedure SO_MediaFilter_MediaValueArgument()
     var
         Rec: Record "LT SO Media Row";
+        Empty: Record "LT SO Media Row";
+        Filled: Record "LT SO Media Row";
         Observer: Codeunit "Probe Observer";
-        NullId: Guid;
     begin
         Setup();
-        Rec.SetFilter(Pic, '<>%1', NullId);
-        Observer.Observe('<>%1 null guid', 'getfilter=[' + Rec.GetFilter(Pic) + '] ' + Rows(Rec));
+        Empty.Get(1);
+        Filled.Get(2);
+        Rec.SetRange(Pic, Empty.Pic);
+        Observer.Observe('setrange empty media', 'getfilter=[' + Rec.GetFilter(Pic) + '] ' + Rows(Rec));
         Rec.Reset();
-        Rec.SetFilter(Pic, '%1', NullId);
-        Observer.Observe('%1 null guid', 'getfilter=[' + Rec.GetFilter(Pic) + '] ' + Rows(Rec));
+        Rec.SetRange(Pic, Filled.Pic);
+        Observer.Observe('setrange filled media id', Format(Rec.GetFilter(Pic) = Format(Filled.Pic.MediaId())));
+        Observer.Observe('setrange filled media', Rows(Rec));
+        Rec.Reset();
+        Rec.SetFilter(Pic, '<>%1', Empty.Pic);
+        Observer.Observe('<>%1 empty media', 'getfilter=[' + Rec.GetFilter(Pic) + '] ' + Rows(Rec));
+        Rec.Reset();
+        Rec.SetFilter(Pic, '<>%1', Filled.Pic);
+        Observer.Observe('<>%1 filled media', Rows(Rec));
         Observer.Finish();
     end;
 
