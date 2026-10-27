@@ -425,11 +425,9 @@ codeunit 74039 "LT P133 Msg In Handlers"
     var
         Observer: Codeunit "Probe Observer";
     begin
-        ClearLastError();
-        Message('body message without a handler');
-        Observer.Observe('reached after Message', 'yes');
-        Observer.Observe('last error text', GetLastErrorText());
-        Observer.Observe('last error code', GetLastErrorCode());
+        asserterror Message('body message without a handler');
+        Observer.ObserveError('Message');
+        Observer.Observe('reached after asserterror', 'yes');
         Observer.Finish();
     end;
 
@@ -439,10 +437,8 @@ codeunit 74039 "LT P133 Msg In Handlers"
         Observer: Codeunit "Probe Observer";
         Messenger: Codeunit "LT SH P133 Messenger";
     begin
-        ClearLastError();
-        Messenger.ShowRestored('101022');
-        Observer.Observe('reached after Message', 'yes');
-        Observer.Observe('last error text', GetLastErrorText());
+        asserterror Messenger.ShowRestored('101022');
+        Observer.ObserveError('ShowRestored');
         Observer.Finish();
     end;
 }

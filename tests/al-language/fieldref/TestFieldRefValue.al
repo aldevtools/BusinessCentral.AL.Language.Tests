@@ -216,7 +216,7 @@ codeunit 60073 "Test FieldRef Value"
     end;
 
     [Test]
-    procedure FieldRef_Value_TextIntoOtherTypes()
+    procedure FieldRef_Value_TextIntoNumberTypes()
     var
         Observer: Codeunit "Probe Observer";
         RecRef: RecordRef;
@@ -229,6 +229,17 @@ codeunit 60073 "Test FieldRef Value"
         ShSetText(Observer, RecRef, 4, 'abc');
         ShSetText(Observer, RecRef, 5, 'abc');
         ShSetText(Observer, RecRef, 5, '1.5');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure FieldRef_Value_TextIntoBooleanDateGuidOption()
+    var
+        Observer: Codeunit "Probe Observer";
+        RecRef: RecordRef;
+    begin
+        Initialize();
+        RecRef.Open(Database::"ALT Universal");
         ShSetText(Observer, RecRef, 2, 'abc');
         ShSetText(Observer, RecRef, 2, 'true');
         ShSetText(Observer, RecRef, 8, 'abc');

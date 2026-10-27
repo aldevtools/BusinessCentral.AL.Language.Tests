@@ -259,8 +259,7 @@ codeunit 69467 "Probe Event Order Tests"
         BindSubscription(Unbinder);
         Observer.Observe('raiseThatUnbinds', Publisher.Raise());
         Observer.Observe('nextRaise', Publisher.Raise());
-        asserterror UnbindSubscription(Unbinder);
-        Observer.ObserveError('unbindAgain');
+        Observer.Observe('unbindAgain returns', Format(UnbindSubscription(Unbinder)));
         Observer.Finish();
     end;
 }

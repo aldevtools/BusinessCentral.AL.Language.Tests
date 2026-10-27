@@ -360,7 +360,8 @@ codeunit 72506 "LT JsT WriteTo Streams"
         OneItem.Add('a');
         OneItem.Add(2);
         Observer.Observe('two items', Format(OneItem));
-        Observer.Observe('untouched format 9', Format(Untouched, 0, 9));
+        asserterror Observer.Observe('untouched format 9', Format(Untouched, 0, 9));
+        Observer.ObserveError('untouched format 9');
         Observer.Finish();
     end;
 }
