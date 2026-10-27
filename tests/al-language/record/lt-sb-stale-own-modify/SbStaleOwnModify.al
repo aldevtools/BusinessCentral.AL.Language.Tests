@@ -446,4 +446,190 @@ codeunit 88980 "LT SB Stale Own Modify"
         Observer.Expect('stored', 'other|0|1');
         Observer.Verify();
     end;
+
+    // ---- AL Runner issue 5913 (writer SF): the buffer READ the row (Get, GetBySystemId, FindFirst) in the transaction that inserted
+    // it, before the Commit, with no own write after that read. Another variable inserted the row (SfInsertByOther), or the buffer did
+    // its own Insert and Modify and then read the row again.
+
+    local procedure SfInsertByOther()
+    var
+        Other: Record "ALT Universal";
+    begin
+        SbInsertRow(Other);
+    end;
+
+    [Test]
+    procedure SF_GetInInsertTx_OtherWriteCommit_OtherChangedWrite()
+    var
+        Row: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        SfInsertByOther();
+        Row.Get(6);
+        SbOtherWrite(6, 'other');
+        Commit();
+        SbOtherWrite(6, 'later');
+        SbModifyStale(Row, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'start|5|0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure SF_OwnModifyThenGet_OtherWriteCommit_OtherChangedWrite()
+    var
+        Row: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        SbInsertAndOwnModify(Row);
+        Row.Get(6);
+        SbOtherWrite(6, 'other');
+        Commit();
+        SbOtherWrite(6, 'later');
+        SbModifyStale(Row, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'start|5|1');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure SF_GetInInsertTx_OtherWriteCommit_LockTableGet()
+    var
+        Row: Record "ALT Universal";
+        Later: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        SfInsertByOther();
+        Row.Get(6);
+        SbOtherWrite(6, 'other');
+        Commit();
+        Later.LockTable();
+        Later.Get(6);
+        SbModifyStale(Row, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'start|5|0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure SF_OwnModifyThenGetBySystemId_OtherWriteCommit_LockTableGet()
+    var
+        Row: Record "ALT Universal";
+        Later: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        SbInsertAndOwnModify(Row);
+        Row.GetBySystemId(Row.SystemId);
+        SbOtherWrite(6, 'other');
+        Commit();
+        Later.LockTable();
+        Later.Get(6);
+        SbModifyStale(Row, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'start|5|1');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure SF_OwnModifyThenGetBySystemId_OtherWriteCommit_OtherChangedWrite()
+    var
+        Row: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        SbInsertAndOwnModify(Row);
+        Row.GetBySystemId(Row.SystemId);
+        SbOtherWrite(6, 'other');
+        Commit();
+        SbOtherWrite(6, 'later');
+        SbModifyStale(Row, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'start|5|1');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure SF_FindFirstInInsertTx_OtherWriteCommit_OtherChangedWrite()
+    var
+        Row: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        SfInsertByOther();
+        Row.SetRange("Entry No.", 6);
+        Row.FindFirst();
+        SbOtherWrite(6, 'other');
+        Commit();
+        SbOtherWrite(6, 'later');
+        SbModifyStale(Row, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'start|5|0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure SF_GetInInsertTx_OtherWriteCommit_UnchangedWrite()
+    var
+        Row: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        SfInsertByOther();
+        Row.Get(6);
+        SbOtherWrite(6, 'other');
+        Commit();
+        SbUnchangedWrite(6);
+        SbModifyStale(Row, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'start|5|0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure SF_GetInInsertTx_OtherWriteCommit_NothingAfter()
+    var
+        Row: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        SfInsertByOther();
+        Row.Get(6);
+        SbOtherWrite(6, 'other');
+        Commit();
+        SbModifyRefused(Row, Observer);
+        Observer.Expect('write', 'refused');
+        Observer.Expect('stored', 'other|0|0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure SF_GetInInsertTx_OtherWriteCommit_PlainGet()
+    var
+        Row: Record "ALT Universal";
+        Later: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        SfInsertByOther();
+        Row.Get(6);
+        SbOtherWrite(6, 'other');
+        Commit();
+        Later.Get(6);
+        SbModifyRefused(Row, Observer);
+        Observer.Expect('write', 'refused');
+        Observer.Expect('stored', 'other|0|0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure SF_GetInInsertTx_Delete_OtherWriteCommit_OtherChangedWrite()
+    var
+        Row: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        SfInsertByOther();
+        Row.Get(6);
+        SbOtherWrite(6, 'other');
+        Commit();
+        SbOtherWrite(6, 'later');
+        SbDeleteStale(Row, Observer);
+        Observer.Expect('delete', 'ok');
+        Observer.Expect('stored exists', 'No');
+        Observer.Verify();
+    end;
 }
