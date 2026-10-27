@@ -175,4 +175,156 @@ codeunit 60073 "Test FieldRef Value"
     begin
         Cleanup.Initialize();
     end;
+
+    // ---- Writer SH, al-runner issue 5942: FieldRef.Value := <Text> on a field of another type.
+
+    [TryFunction]
+    local procedure ShTrySetValue(var FldRef: FieldRef; NewValue: Text)
+    begin
+        FldRef.Value := NewValue;
+    end;
+
+    local procedure ShSetText(var Observer: Codeunit "Probe Observer"; var RecRef: RecordRef; FieldNo: Integer; NewValue: Text)
+    var
+        FldRef: FieldRef;
+        Name: Text;
+    begin
+        FldRef := RecRef.Field(FieldNo);
+        Name := FldRef.Name + ' := ' + NewValue;
+        if ShTrySetValue(FldRef, NewValue) then
+            Observer.Observe(Name, 'ok')
+        else
+            Observer.ObserveError(Name);
+        Observer.Observe(Name + ' -> value', Format(FldRef.Value, 0, 9));
+    end;
+
+    [Test]
+    procedure FieldRef_Value_TextIntoInteger_ErrorText()
+    var
+        Observer: Codeunit "Probe Observer";
+        RecRef: RecordRef;
+        FldRef: FieldRef;
+    begin
+        // The reporter's form (al-runner issue 5942): a text literal straight into an Integer field.
+        Initialize();
+        RecRef.Open(Database::"ALT Universal");
+        FldRef := RecRef.Field(3);
+        asserterror FldRef.Value := 'abc';
+        Observer.ObserveError('literal abc into Integer');
+        Observer.Observe('value after', Format(FldRef.Value, 0, 9));
+#if BC28PLUS
+        Observer.Expect('literal abc into Integer|text', 'The value "abc" can''t be evaluated into type Integer.');
+        Observer.Expect('literal abc into Integer|code', 'Evaluate:Format');
+        Observer.Expect('value after', '0');
+#else
+        // BC 27.5 raises a type error instead of the Evaluate error for the number and Boolean types and a conversion error for Date.
+        Observer.Expect('literal abc into Integer|text', 'The type NavInteger is unknown.');
+        Observer.Expect('literal abc into Integer|code', 'NotSupportedType');
+        Observer.Expect('value after', '0');
+#endif
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure FieldRef_Value_TextIntoNumberTypes()
+    var
+        Observer: Codeunit "Probe Observer";
+        RecRef: RecordRef;
+    begin
+        Initialize();
+        RecRef.Open(Database::"ALT Universal");
+        ShSetText(Observer, RecRef, 3, 'abc');
+        ShSetText(Observer, RecRef, 3, '12');
+        ShSetText(Observer, RecRef, 3, '');
+        ShSetText(Observer, RecRef, 4, 'abc');
+        ShSetText(Observer, RecRef, 5, 'abc');
+        ShSetText(Observer, RecRef, 5, '1.5');
+#if BC28PLUS
+        Observer.Expect('Integer Field := abc|text', 'The value "abc" can''t be evaluated into type Integer.');
+        Observer.Expect('Integer Field := abc|code', 'Evaluate:Format');
+        Observer.Expect('Integer Field := abc -> value', '0');
+        Observer.Expect('Integer Field := 12', 'ok');
+        Observer.Expect('Integer Field := 12 -> value', '12');
+        Observer.Expect('Integer Field := |text', 'The value "" can''t be evaluated into type Integer.');
+        Observer.Expect('Integer Field := |code', 'Evaluate:Format');
+        Observer.Expect('Integer Field :=  -> value', '12');
+        Observer.Expect('BigInteger Field := abc|text', 'The value "abc" can''t be evaluated into type BigInteger.');
+        Observer.Expect('BigInteger Field := abc|code', 'Evaluate:Format');
+        Observer.Expect('BigInteger Field := abc -> value', '0');
+        Observer.Expect('Decimal Field := abc|text', 'The value "abc" can''t be evaluated into type Decimal.');
+        Observer.Expect('Decimal Field := abc|code', 'Evaluate:Format');
+        Observer.Expect('Decimal Field := abc -> value', '0');
+        Observer.Expect('Decimal Field := 1.5', 'ok');
+        Observer.Expect('Decimal Field := 1.5 -> value', '1.5');
+#else
+        // BC 27.5 raises a type error instead of the Evaluate error for the number and Boolean types and a conversion error for Date.
+        Observer.Expect('Integer Field := abc|text', 'The type NavInteger is unknown.');
+        Observer.Expect('Integer Field := abc|code', 'NotSupportedType');
+        Observer.Expect('Integer Field := abc -> value', '0');
+        Observer.Expect('Integer Field := 12', 'ok');
+        Observer.Expect('Integer Field := 12 -> value', '12');
+        Observer.Expect('Integer Field := |text', 'The type NavInteger is unknown.');
+        Observer.Expect('Integer Field := |code', 'NotSupportedType');
+        Observer.Expect('Integer Field :=  -> value', '12');
+        Observer.Expect('BigInteger Field := abc|text', 'The type NavBigInteger is unknown.');
+        Observer.Expect('BigInteger Field := abc|code', 'NotSupportedType');
+        Observer.Expect('BigInteger Field := abc -> value', '0');
+        Observer.Expect('Decimal Field := abc|text', 'The type NavDecimal is unknown.');
+        Observer.Expect('Decimal Field := abc|code', 'NotSupportedType');
+        Observer.Expect('Decimal Field := abc -> value', '0');
+        Observer.Expect('Decimal Field := 1.5', 'ok');
+        Observer.Expect('Decimal Field := 1.5 -> value', '1.5');
+#endif
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure FieldRef_Value_TextIntoBooleanDateGuidOption()
+    var
+        Observer: Codeunit "Probe Observer";
+        RecRef: RecordRef;
+    begin
+        Initialize();
+        RecRef.Open(Database::"ALT Universal");
+        ShSetText(Observer, RecRef, 2, 'abc');
+        ShSetText(Observer, RecRef, 2, 'true');
+        ShSetText(Observer, RecRef, 8, 'abc');
+        ShSetText(Observer, RecRef, 12, 'abc');
+        ShSetText(Observer, RecRef, 14, 'abc');
+#if BC28PLUS
+        Observer.Expect('Boolean Field := abc|text', 'The value "abc" can''t be evaluated into type Boolean.');
+        Observer.Expect('Boolean Field := abc|code', 'Evaluate:Format');
+        Observer.Expect('Boolean Field := abc -> value', 'false');
+        Observer.Expect('Boolean Field := true|text', 'The value "true" can''t be evaluated into type Boolean.');
+        Observer.Expect('Boolean Field := true|code', 'Evaluate:Format');
+        Observer.Expect('Boolean Field := true -> value', 'false');
+        Observer.Expect('Date Field := abc|text', 'The format of the Date ''abc'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.');
+        Observer.Expect('Date Field := abc|code', 'Evaluate:Conversion');
+        Observer.Expect('Date Field := abc -> value', '');
+        Observer.Expect('Guid Field := abc|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('Guid Field := abc|code', 'InvalidGuidFormat');
+        Observer.Expect('Guid Field := abc -> value', '{00000000-0000-0000-0000-000000000000}');
+        Observer.Expect('Option Field := abc|text', 'The value "abc" can''t be evaluated into type Option.');
+        Observer.Expect('Option Field := abc|code', 'Evaluate:Format');
+        Observer.Expect('Option Field := abc -> value', '0');
+#else
+        // BC 27.5 raises a type error instead of the Evaluate error for the number and Boolean types and a conversion error for Date.
+        Observer.Expect('Boolean Field := abc|text', 'The type NavBoolean is unknown.');
+        Observer.Expect('Boolean Field := abc|code', 'NotSupportedType');
+        Observer.Expect('Boolean Field := abc -> value', 'false');
+        Observer.Expect('Boolean Field := true|text', 'The type NavBoolean is unknown.');
+        Observer.Expect('Boolean Field := true|code', 'NotSupportedType');
+        Observer.Expect('Boolean Field := true -> value', 'false');
+        Observer.Expect('Date Field := abc|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavText to System.DateTime.');
+        Observer.Expect('Date Field := abc|code', 'Conversion');
+        Observer.Expect('Date Field := abc -> value', '');
+        Observer.Expect('Guid Field := abc|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('Guid Field := abc|code', 'InvalidGuidFormat');
+        Observer.Expect('Guid Field := abc -> value', '{00000000-0000-0000-0000-000000000000}');
+        Observer.Expect('Option Field := abc|text', 'The type NavOption is unknown.');
+        Observer.Expect('Option Field := abc|code', 'NotSupportedType');
+        Observer.Expect('Option Field := abc -> value', '0');
+#endif
+        Observer.Verify();
+    end;
 }

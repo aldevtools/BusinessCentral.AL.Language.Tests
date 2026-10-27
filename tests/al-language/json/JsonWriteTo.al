@@ -339,4 +339,36 @@ codeunit 72506 "LT JsT WriteTo Streams"
         Observer.Expect('after_value_setvalue', '{"a":{"b":[1,2,{"c":"three"},4]}}');
         Observer.Verify();
     end;
+
+    // ---- Writer SH, al-runner issue 5956: Format of a JsonArray that was never touched, read from '[]', or cleared after an Add.
+
+    [Test]
+    procedure FormatOfEmptyJsonArrays()
+    var
+        Untouched: JsonArray;
+        ReadEmpty: JsonArray;
+        Cleared: JsonArray;
+        OneItem: JsonArray;
+    begin
+        Observer.Observe('untouched', Format(Untouched));
+        ReadEmpty.ReadFrom('[]');
+        Observer.Observe('read from []', Format(ReadEmpty));
+        Cleared.Add(1);
+        Observer.Observe('one item', Format(Cleared));
+        Clear(Cleared);
+        Observer.Observe('cleared after Add', Format(Cleared));
+        OneItem.Add('a');
+        OneItem.Add(2);
+        Observer.Observe('two items', Format(OneItem));
+        asserterror Observer.Observe('untouched format 9', Format(Untouched, 0, 9));
+        Observer.ObserveError('untouched format 9');
+        Observer.Expect('untouched', '[]');
+        Observer.Expect('read from []', '[]');
+        Observer.Expect('one item', '[1]');
+        Observer.Expect('cleared after Add', '[]');
+        Observer.Expect('two items', '["a",2]');
+        Observer.Expect('untouched format 9|text', 'Standard format number 9 does not exist for the type ''JsonArray''.');
+        Observer.Expect('untouched format 9|code', 'InvalidStandardFormat');
+        Observer.Verify();
+    end;
 }
