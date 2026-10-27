@@ -613,4 +613,74 @@ codeunit 74204 "LT StT Media"
         Observer.Expect('text/plain', 'ok|hasvalue=Yes|returned=mediaid:Yes|mime=text/plain');
         Observer.Verify();
     end;
+
+    // ---- Writer SO (2026-10-28), aldevtools/BusinessCentral.AL.Runner#5993: ExportStream of a Media field that holds no media ----
+    // what ExportStream answers, what the stream holds and HasValue before and after, for a record that is only Init'ed, an inserted
+    // empty row, and the reporter's shape (Document Attachment."Document Reference ID" of an Init'ed record).
+
+    [TryFunction]
+    local procedure SoTryExport(var Pic: Media; var Out: OutStream; var Answer: Boolean)
+    begin
+        Answer := Pic.ExportStream(Out);
+    end;
+
+    local procedure SoExportOutcome(var Pic: Media) Result: Text
+    var
+        TempBlob: Codeunit "Temp Blob";
+        Out: OutStream;
+        Answer: Boolean;
+    begin
+        Result := 'hasvalue=' + Format(Pic.HasValue()) + ' nullid=' + Format(IsNullGuid(Pic.MediaId()));
+        TempBlob.CreateOutStream(Out);
+        ClearLastError();
+        if SoTryExport(Pic, Out, Answer) then
+            Result += ' returned=' + Format(Answer)
+        else
+            Result += ' error=[' + GetLastErrorText() + '] code=' + GetLastErrorCode();
+        Result += ' len=' + Format(TempBlob.Length()) + ' hasvalue after=' + Format(Pic.HasValue());
+    end;
+
+    [Test]
+    procedure SO_MediaExportStream_InitNotInserted()
+    var
+        Rec: Record "LT StT Rec";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Rec.DeleteAll();
+        Rec.Init();
+        Rec.Id := 9;
+        Observer.Observe('init only', SoExportOutcome(Rec.Pic));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SO_MediaExportStream_InsertedEmpty()
+    var
+        Rec: Record "LT StT Rec";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Fresh(Rec);
+        Observer.Observe('inserted', SoExportOutcome(Rec.Pic));
+        Rec.Get(1);
+        Observer.Observe('read back', SoExportOutcome(Rec.Pic));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SO_MediaExportStream_DocumentAttachmentShape()
+    var
+        DocumentAttachment: Record "Document Attachment";
+        TempBlob: Codeunit "Temp Blob";
+        Observer: Codeunit "Probe Observer";
+        OutStream: OutStream;
+    begin
+        DocumentAttachment.Init();
+        Observer.Observe('outcome', SoExportOutcome(DocumentAttachment."Document Reference ID"));
+        // the reporter's exact statement form, the answer not read
+        TempBlob.CreateOutStream(OutStream);
+        DocumentAttachment."Document Reference ID".ExportStream(OutStream);
+        Observer.Observe('statement form len', Format(TempBlob.Length()));
+        Observer.Observe('statement form hasvalue', Format(DocumentAttachment."Document Reference ID".HasValue()));
+        Observer.Finish();
+    end;
 }
