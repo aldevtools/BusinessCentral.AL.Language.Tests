@@ -16,6 +16,9 @@
 // Every test also reads the CalcFormula source table (LT DI FW Child) and the trigger log before and after the write ('src' and 'log').
 // A call that may raise runs as `asserterror begin <call>; Error(NoErrorTok); end;` so both outcomes are observed; when it did not raise,
 // the call runs again outside asserterror (asserterror rolls the database back to the Commit() just before it).
+// Writer SF (al-runner issue 5857; CI legs 27.5, 28.5, 29.0 alike): a FlowFilter value assigned before Insert into a temporary record (a
+// TableType = Temporary table or a temporary variable) is kept in the row: FindFirst, Next and Get read it back. A value assigned before
+// Modify is not stored: Get after the Modify reads the inserted value.
 // BC versions: 27, 28, 29
 
 codeunit 86264 "LT DI FW Write Tests"
@@ -963,7 +966,7 @@ codeunit 86264 "LT DI FW Write Tests"
         Observer.Expect('FindFirst', 'First|DOC-001|getfilter=');
         Observer.Expect('Next', 'Second|DOC-002');
         Observer.Expect('Get(1)', 'First|DOC-001');
-        Observer.Expect('Get(1) after Modify', 'First|DOC-009');
+        Observer.Expect('Get(1) after Modify', 'First|DOC-001');
         Observer.Expect('count', '2');
         Observer.Verify();
     end;

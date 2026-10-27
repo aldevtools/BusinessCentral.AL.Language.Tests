@@ -10,6 +10,8 @@
 //   and one page with no triggers whose OnDrillDown does not call CurrPage.Update.
 //   BC answers: with CurrPage.Update(false) every page lists only row 10 (the triggers make no difference);
 //   without the Update the page still lists 10 and 20.
+// Writer SF (al-runner issue 5886; CI legs 27.5, 28.5, 29.0 alike): with a ListPart (SubPageLink) in the content area or in the FactBoxes
+//   area the page also lists only row 10 after the drilldown, and GoToRecord on row 20 returns false.
 // BC versions: all (CI)
 
 table 89010 "LT SC Operation"

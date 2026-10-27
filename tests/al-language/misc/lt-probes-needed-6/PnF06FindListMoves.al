@@ -5,6 +5,9 @@
 // Settles probes-needed row: "Find list" (Page reads after an action, and a list that ends inside its window, corpus bump 7)
 // Facts: log of OnFindRecord (F), OnNextRecord (N), OnAfterGetRecord (R) and OnAfterGetCurrRecord (C) when a TestPage opens a list and moves First, Next, Last and Previous,
 //   on an ascending view, on a descending view (Rec.Ascending(false) in OnOpenPage) and for a list without OnFindRecord, over 3 and over 25 rows
+// Writer SF (al-runner issue 5887; CI legs 27.5, 28.5, 29.0 alike): a list or part without OnAfterGetCurrRecord whose first window is full and
+//   whose OnNextRecord(-1) from the first row answers a step: after the window and the read of the first row the client steps back
+//   with OnNextRecord(-1) and reads each row above the first until OnNextRecord(-1) answers 0; no OnFindRecord('=') and no second read.
 // BC versions: 29 (27 and 28 by CI)
 
 codeunit 73869 "LT PnF FL Log"

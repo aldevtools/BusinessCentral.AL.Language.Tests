@@ -9,6 +9,10 @@
 //   the old key, or on the previous one when none follows (B/G1 -> C, D/G1 -> E, A/G2 -> B, F/G1 -> E), the same with Update(true), on the
 //   Worksheet with and without OnFindRecord/OnNextRecord and on the List. With OnFindRecord the page asks Find('=>') first and Find('=><')
 //   when that finds nothing. A filter with no rows leaves a blank row; removing the filter again opens on the first row.
+// Writer SF (al-runner issues 5914 and 5888; CI legs 27.5, 28.5, 29.0 alike): after that refresh every move reads the row it lands on as
+//   it does without a refresh: twice before OnAfterGetCurrRecord in the primary key (Next `R:C;R:C;C:C`), three times in the key
+//   ByGroupName that OnOpenPage set with SetCurrentKey (SfRefreshKeyFixtures.al); GoToRecord steps through the rows of the view from the
+//   current row. In the other key the refresh itself reads the row it starts from once more (`R:3;R:3;R:1;R:3;R:3;R:3;C:3`).
 // Object ids 88920 (writer RZ).
 // BC versions: 27, 28, 29
 
@@ -393,7 +397,7 @@ codeunit 88920 "LT RZ Update From Validate"
         Ws.Close();
         Observer.Expect('validate', 'B|A:filter A;A:done A;R:B;R:D;R:F;R:B;R:B;C:B');
         Observer.Expect('next', 'D|R:D;R:D;C:D');
-        Observer.Expect('cleared', 'D|A:filter D;A:done D;R:D;R:E;R:F;R:C;R:B;R:A;R:D;R:D;C:D');
+        Observer.Expect('cleared', 'D|A:filter D;A:done D;R:D;R:E;R:F;R:D;R:C;R:B;R:A;R:D;R:D;C:D');
         Observer.Expect('gotorecord', 'C|R:A;R:A;C:A;R:B;R:B;C:B;R:C;R:C;C:C');
         Observer.Verify();
     end;
@@ -414,7 +418,7 @@ codeunit 88920 "LT RZ Update From Validate"
         Ws.GoToRecord(Line);
         Observer.Observe('gotorecord', Ws."No.".Value() + '|' + Log.Take());
         Ws.Close();
-        Observer.Expect('gotorecord', 'E|R:E;R:E;C:E');
+        Observer.Expect('gotorecord', 'E|R:C;R:C;C:C;R:E;R:E;C:E');
         Observer.Verify();
     end;
 

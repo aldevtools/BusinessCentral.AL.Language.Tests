@@ -23,6 +23,11 @@
 /// NEW versus the 5805 Get buffer (RU_Stale_GetBuffer_*, always refused): a buffer that read the committed row by Get and then did
 /// its own Modify is accepted after the unchanged Modify of the new transaction, as an Insert buffer is, and refused with nothing
 /// in between.
+/// Writer SF, al-runner issue 5913 (SF_* tests, CI legs 27.5, 28.5, 29.0 alike): a buffer that READ the row by Get, GetBySystemId or
+/// FindFirst in the transaction that inserted it (inserted by another variable, or by the buffer itself followed by its own Modify)
+/// follows the Insert-buffer rule too: accepted once the new transaction Modified the row (changed or unchanged) or read it under
+/// LockTable (stale buffer wins, stored start|5|<stamp>; a stale Delete removes the row), refused with nothing in between or after a
+/// plain Get. What decides is that the buffer's row version was written in the transaction the Commit closed.
 /// </summary>
 codeunit 88980 "LT SB Stale Own Modify"
 {
