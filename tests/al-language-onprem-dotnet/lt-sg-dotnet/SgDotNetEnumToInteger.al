@@ -2,7 +2,8 @@
 // Scope: in-scope (OnPrem DotNet app)
 // Fixtures used: Probe Observer (69160); own dotnet aliases LtSgE*; test codeunit 99421 (writer SG)
 // Probe: a DotNet enum value stored into AL types: Integer (from a DotNet enum variable, from a property that returns an enum, a flags
-// value, Newtonsoft JToken.Type), BigInteger, Decimal, Text, Variant; passed as an Integer argument; compared with an Integer.
+// value, Newtonsoft JToken.Type), BigInteger, Text, Variant; passed as an Integer argument; compared with an Integer.
+// Decimal := enum does not compile (AL0122 Cannot implicitly convert type 'DotNet "System.DayOfWeek"' to 'Decimal', all three legs).
 // Observed on the corpus CI matrix (27.5, 28.5, 29.0).
 // BC versions: 27, 28, 29
 
@@ -46,7 +47,6 @@ codeunit 99421 "LT SG DotNet Enum Integer"
         Styles: DotNet LtSgENumberStyles;
         Number: Integer;
         Big: BigInteger;
-        Dec: Decimal;
         Txt: Text;
         V: Variant;
     begin
@@ -64,8 +64,6 @@ codeunit 99421 "LT SG DotNet Enum Integer"
         Observer.Observe('flags Number', Format(Number));
         Big := Day;
         Observer.Observe('BigInteger', Format(Big));
-        Dec := Day;
-        Observer.Observe('Decimal', Format(Dec));
         Txt := Format(Day);
         Observer.Observe('Format', Txt);
         V := Day;
