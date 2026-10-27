@@ -9,6 +9,7 @@
 //    below the root.
 //  - 89363: a table element on a real table with MaxOccurs = Once and the default MinOccurs, below the root.
 //  - 89364: UseDefaultNamespace = true without DefaultNamespace and without Namespaces.
+// All four ports declare Encoding = UTF8 (the partner shape), so the export is read back as UTF-8 text.
 // BC versions: 27, 28, 29
 
 table 89360 "LT SG XP Row"
@@ -31,6 +32,7 @@ table 89360 "LT SG XP Row"
 xmlport 89361 "LT SG XP Attr Below Text"
 {
     Format = Xml;
+    Encoding = UTF8;
     Direction = Both;
     UseRequestPage = false;
 
@@ -111,6 +113,7 @@ xmlport 89361 "LT SG XP Attr Below Text"
 xmlport 89362 "LT SG XP Once Temp"
 {
     Format = Xml;
+    Encoding = UTF8;
     Direction = Both;
     UseRequestPage = false;
 
@@ -197,6 +200,7 @@ xmlport 89362 "LT SG XP Once Temp"
 xmlport 89363 "LT SG XP Once Real"
 {
     Format = Xml;
+    Encoding = UTF8;
     Direction = Both;
     UseRequestPage = false;
 
@@ -218,6 +222,7 @@ xmlport 89363 "LT SG XP Once Real"
 xmlport 89364 "LT SG XP Default Ns"
 {
     Format = Xml;
+    Encoding = UTF8;
     Direction = Both;
     UseDefaultNamespace = true;
     UseRequestPage = false;
