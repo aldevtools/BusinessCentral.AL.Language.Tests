@@ -133,4 +133,63 @@ codeunit 71408 "LT MaxIter Zero"
         Observer.Expect('integer item max 0', 'num 1;num 2;num 3;post;');
         Observer.Verify();
     end;
+
+    // ---- Writer SG (2026-10-27): MaxIteration > 0 on a table data item (reports 89366-89369 in SgMaxIterationTable.al), five rows. ----
+
+    local procedure SgFiveRows()
+    var
+        Row: Record "LT MaxIterZero Row";
+        i: Integer;
+    begin
+        Row.DeleteAll();
+        for i := 1 to 5 do begin
+            Row.Id := i;
+            Row.Insert();
+        end;
+        L.Take();
+    end;
+
+    [Test]
+    procedure SG_MaxIterationTwo_TableItem_FiveRows()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        SgFiveRows();
+        Report.Run(Report::"LT SG MaxIter Table Two");
+        Observer.Observe('max 2 of 5', L.Take());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SG_MaxIterationTwo_TableItem_SkipFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        SgFiveRows();
+        Report.Run(Report::"LT SG MaxIter Table Skip");
+        Observer.Observe('max 2, skip row 1', L.Take());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SG_MaxIteration_TableItem_FewerRowsAndDescending()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        SgFiveRows();
+        Report.Run(Report::"LT SG MaxIter Table Few Desc");
+        Observer.Observe('max 10 of 2, then max 2 descending', L.Take());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SG_MaxIteration_TableItem_WithChild()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        SgFiveRows();
+        Report.Run(Report::"LT SG MaxIter Table Child");
+        Observer.Observe('parent max 2, child max 1', L.Take());
+        Observer.Finish();
+    end;
 }
