@@ -1932,6 +1932,61 @@ codeunit 73874 "LT PnF Find List Moves"
         Observer.Expect('close', '');
         Observer.Verify();
     end;
+
+    // ---- Writer SF, al-runner issue 5887: a temporary list (and the same list as a ListPart on a ListPlus host that Page.Run opens
+    // with a filter) whose OnFindRecord and OnNextRecord walk a position global (rows on every day 1 to 40, inserted on demand) and
+    // whose OnAfterGetRecord sets that global from Rec; no OnAfterGetCurrRecord. It opens on day 10, so the first window (days 10 to
+    // 29) is full and OnNextRecord(-1) from the first row answers a step. Objects 89310 to 89315 at the end of this file.
+    // Log: F(<Which>)=<found Y/N>:<day after the call>, N(<Steps>)=<answer>:<day after the call>, R<day> = OnAfterGetRecord,
+    // U(<host>):<day> = the host refills the part.
+
+    [Test]
+    procedure SF_DayList_OpensOnDayTen_Next_Previous()
+    var
+        Log: Codeunit "LT PnF FL Log";
+        List: TestPage "LT SF Day List";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Log.Take();
+        List.OpenView();
+        Observer.Observe('open', List."Day No.".Value() + '|' + Log.Take());
+        List.Next();
+        Observer.Observe('next', List."Day No.".Value() + '|' + Log.Take());
+        List.Previous();
+        Observer.Observe('previous', List."Day No.".Value() + '|' + Log.Take());
+        List.Close();
+        Observer.Expect('open', '10|F(=><)=Y:10;R10;N(1)=1:11;R11;N(1)=1:12;R12;N(1)=1:13;R13;N(1)=1:14;R14;N(1)=1:15;R15;N(1)=1:16;R16;N(1)=1:17;R17;N(1)=1:18;R18;N(1)=1:19;R19;N(1)=1:20;R20;N(1)=1:21;R21;N(1)=1:22;R22;N(1)=1:23;R23;N(1)=1:24;R24;N(1)=1:25;R25;N(1)=1:26;R26;N(1)=1:27;R27;N(1)=1:28;R28;N(1)=1:29;R29;R10;N(-1)=-1:9;R9;N(-1)=-1:8;R8;N(-1)=-1:7;R7;N(-1)=-1:6;R6;N(-1)=-1:5;R5;N(-1)=-1:4;R4;N(-1)=-1:3;R3;N(-1)=-1:2;R2;N(-1)=-1:1;R1;N(-1)=0:1;');
+        Observer.Expect('next', '11|');
+        Observer.Expect('previous', '10|');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure SF_DayHost_RunWithFilter_OpensPart()
+    var
+        Log: Codeunit "LT PnF FL Log";
+        HostRow: Record "LT SF Day Host";
+        Host: TestPage "LT SF Day Host";
+        Observer: Codeunit "Probe Observer";
+    begin
+        HostRow.DeleteAll();
+        HostRow.Code := 'A';
+        HostRow.Insert();
+        HostRow.Code := 'B';
+        HostRow.Insert();
+        Log.Take();
+        HostRow.SetRange(Code, 'A');
+        Host.Trap();
+        Page.Run(Page::"LT SF Day Host", HostRow);
+        Observer.Observe('open', Host.Lines."Day No.".Value() + '|' + Log.Take());
+        Observer.Observe('filter', Host.Filter.GetFilter(Code));
+        Host.Close();
+        Observer.Expect('open', '10|U(A):0;F(=><)=Y:10;R10;N(1)=1:11;R11;N(1)=1:12;R12;N(1)=1:13;R13;N(1)=1:14;R14;N(1)=1:15;R15;N(1)=1:16;R16;N(1)=1:17;R17;N(1)=1:18;R18;N(1)=1:19;R19;N(1)=1:20;R20;N(1)=1:21;R21;N(1)=1:22;R22;N(1)=1:23;R23;N(1)=1:24;R24;N(1)=1:25;R25;N(1)=1:26;R26;N(1)=1:27;R27;N(1)=1:28;R28;N(1)=1:29;R29;R10;N(-1)=-1:9;R9;N(-1)=-1:8;R8;N(-1)=-1:7;R7;N(-1)=-1:6;R6;N(-1)=-1:5;R5;N(-1)=-1:4;R4;N(-1)=-1:3;R3;N(-1)=-1:2;R2;N(-1)=-1:1;R1;N(-1)=0:1;');
+        Observer.Expect('filter', 'A');
+        HostRow.Reset();
+        HostRow.DeleteAll();
+        Observer.Verify();
+    end;
 }
 
 // Writer PW: an OnFindRecord / OnNextRecord / OnAfterGetRecord list that positions itself on the last row in OnOpenPage (with OnAfterGetCurrRecord).
@@ -2620,5 +2675,271 @@ page 88073 "LT RK FL Asc FindNext"
         Moved := Rec.Next(Steps);
         Log.Add('N(' + Format(Steps) + ')=' + Format(Moved) + ':' + Format(Rec.Id));
         exit(Moved);
+    end;
+}
+
+// Writer SF (al-runner issue 5887): the day-walking list, part and host of the SF_Day* tests in codeunit 73874. Days are fixed dates
+// (2030-01-01 = day 1 to 2030-02-09 = day 40), so nothing depends on the run date. The walker logs through LT PnF FL Log (73869).
+table 89310 "LT SF Day Row"
+{
+    TableType = Temporary;
+
+    fields
+    {
+        field(1; Day; Date) { }
+        field(2; "Day No."; Integer) { }
+    }
+
+    keys
+    {
+        key(PK; Day) { Clustered = true; }
+    }
+}
+
+table 89311 "LT SF Day Host"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; Code; Code[10]) { }
+    }
+
+    keys
+    {
+        key(PK; Code) { Clustered = true; }
+    }
+}
+
+codeunit 89312 "LT SF Day Walker"
+{
+    var
+        Log: Codeunit "LT PnF FL Log";
+
+    procedure DayNo(Day: Date): Integer
+    begin
+        if Day = 0D then
+            exit(0);
+        exit(Day - 20291231D);
+    end;
+
+    local procedure FirstDay(): Date
+    begin
+        exit(20300101D);
+    end;
+
+    local procedure LastDay(): Date
+    begin
+        exit(20300209D);
+    end;
+
+    local procedure StartDay(): Date
+    begin
+        exit(20300110D);
+    end;
+
+    procedure Find(var Row: Record "LT SF Day Row" temporary; var Pos: Date; Which: Text): Boolean
+    var
+        i: Integer;
+        Found: Boolean;
+    begin
+        if Pos = 0D then
+            Pos := StartDay();
+        for i := 1 to StrLen(Which) do
+            if not Found then
+                case Which[i] of
+                    '=':
+                        Found := (Pos >= FirstDay()) and (Pos <= LastDay());
+                    '>':
+                        if Pos < LastDay() then begin
+                            Pos := Pos + 1;
+                            Found := true;
+                        end;
+                    '<':
+                        if Pos > FirstDay() then begin
+                            Pos := Pos - 1;
+                            Found := true;
+                        end;
+                    '-':
+                        begin
+                            Pos := FirstDay();
+                            Found := true;
+                        end;
+                    '+':
+                        begin
+                            Pos := LastDay();
+                            Found := true;
+                        end;
+                end;
+        if Found then
+            Fill(Row, Pos);
+        Log.Add('F(' + Which + ')=' + YesNo(Found) + ':' + Format(DayNo(Pos)));
+        exit(Found);
+    end;
+
+    procedure Next(var Row: Record "LT SF Day Row" temporary; var Pos: Date; Steps: Integer): Integer
+    var
+        Target: Date;
+        Result: Integer;
+    begin
+        if Row.Day <> Pos then
+            Pos := Row.Day;
+        Target := Pos + Steps;
+        if Target < FirstDay() then
+            Target := FirstDay();
+        if Target > LastDay() then
+            Target := LastDay();
+        Result := Target - Pos;
+        if Result <> 0 then begin
+            Pos := Target;
+            Fill(Row, Pos);
+        end;
+        Log.Add('N(' + Format(Steps) + ')=' + Format(Result) + ':' + Format(DayNo(Pos)));
+        exit(Result);
+    end;
+
+    procedure Read(var Row: Record "LT SF Day Row" temporary; var Pos: Date)
+    begin
+        Pos := Row.Day;
+        Log.Add('R' + Format(DayNo(Row.Day)));
+    end;
+
+    procedure LogRefill(HostCode: Code[10]; Pos: Date)
+    begin
+        Log.Add('U(' + HostCode + '):' + Format(DayNo(Pos)));
+    end;
+
+    local procedure Fill(var Row: Record "LT SF Day Row" temporary; Day: Date)
+    begin
+        if not Row.Get(Day) then begin
+            Row.Init();
+            Row.Day := Day;
+            Row."Day No." := DayNo(Day);
+            Row.Insert();
+        end;
+    end;
+
+    local procedure YesNo(Value: Boolean): Text
+    begin
+        if Value then
+            exit('Y');
+        exit('N');
+    end;
+}
+
+page 89313 "LT SF Day Part"
+{
+    PageType = ListPart;
+    SourceTable = "LT SF Day Row";
+    SourceTableTemporary = true;
+    Editable = false;
+    InsertAllowed = false;
+    DeleteAllowed = false;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Rows)
+            {
+                field("Day No."; Rec."Day No.") { ApplicationArea = All; }
+            }
+        }
+    }
+
+    trigger OnFindRecord(Which: Text): Boolean
+    begin
+        exit(Walker.Find(Rec, Pos, Which));
+    end;
+
+    trigger OnNextRecord(Steps: Integer): Integer
+    begin
+        exit(Walker.Next(Rec, Pos, Steps));
+    end;
+
+    trigger OnAfterGetRecord()
+    begin
+        Walker.Read(Rec, Pos);
+    end;
+
+    var
+        Walker: Codeunit "LT SF Day Walker";
+        Pos: Date;
+
+    procedure Refill(HostCode: Code[10])
+    begin
+        Walker.LogRefill(HostCode, Pos);
+        Rec.DeleteAll();
+        CurrPage.Update(false);
+    end;
+}
+
+page 89314 "LT SF Day List"
+{
+    PageType = List;
+    SourceTable = "LT SF Day Row";
+    SourceTableTemporary = true;
+    Editable = false;
+    InsertAllowed = false;
+    DeleteAllowed = false;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Rows)
+            {
+                field("Day No."; Rec."Day No.") { ApplicationArea = All; }
+            }
+        }
+    }
+
+    trigger OnFindRecord(Which: Text): Boolean
+    begin
+        exit(Walker.Find(Rec, Pos, Which));
+    end;
+
+    trigger OnNextRecord(Steps: Integer): Integer
+    begin
+        exit(Walker.Next(Rec, Pos, Steps));
+    end;
+
+    trigger OnAfterGetRecord()
+    begin
+        Walker.Read(Rec, Pos);
+    end;
+
+    var
+        Walker: Codeunit "LT SF Day Walker";
+        Pos: Date;
+}
+
+page 89315 "LT SF Day Host"
+{
+    PageType = ListPlus;
+    SourceTable = "LT SF Day Host";
+    InsertAllowed = false;
+    DeleteAllowed = false;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            group(General)
+            {
+                field(Code; Rec.Code) { ApplicationArea = All; }
+            }
+            part(Lines; "LT SF Day Part")
+            {
+                ApplicationArea = All;
+            }
+        }
+    }
+
+    trigger OnAfterGetRecord()
+    begin
+        CurrPage.Lines.Page.Refill(Rec.Code);
     end;
 }
