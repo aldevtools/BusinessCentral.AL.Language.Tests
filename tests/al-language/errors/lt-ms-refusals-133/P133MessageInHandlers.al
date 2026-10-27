@@ -428,7 +428,10 @@ codeunit 74039 "LT P133 Msg In Handlers"
         asserterror Message('body message without a handler');
         Observer.ObserveError('Message');
         Observer.Observe('reached after asserterror', 'yes');
-        Observer.Finish();
+        Observer.Expect('Message|text', 'Unhandled UI: Message body message without a handler');
+        Observer.Expect('Message|code', 'MissingUIHandler');
+        Observer.Expect('reached after asserterror', 'yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -439,7 +442,9 @@ codeunit 74039 "LT P133 Msg In Handlers"
     begin
         asserterror Messenger.ShowRestored('101022');
         Observer.ObserveError('ShowRestored');
-        Observer.Finish();
+        Observer.Expect('ShowRestored|text', 'Unhandled UI: Message Order 101022 has been restored.');
+        Observer.Expect('ShowRestored|code', 'MissingUIHandler');
+        Observer.Verify();
     end;
 }
 

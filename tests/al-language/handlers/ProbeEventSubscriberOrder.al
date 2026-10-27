@@ -260,7 +260,10 @@ codeunit 69467 "Probe Event Order Tests"
         Observer.Observe('raiseThatUnbinds', Publisher.Raise());
         Observer.Observe('nextRaise', Publisher.Raise());
         Observer.Observe('unbindAgain returns', Format(UnbindSubscription(Unbinder)));
-        Observer.Finish();
+        Observer.Expect('raiseThatUnbinds', 'Alpha(c=1);Mid(c=1);Zeta(c=1);A;A after unbind;');
+        Observer.Expect('nextRaise', 'Alpha(c=1);Mid(c=1);Zeta(c=1);');
+        Observer.Expect('unbindAgain returns', 'Yes');
+        Observer.Verify();
     end;
 }
 

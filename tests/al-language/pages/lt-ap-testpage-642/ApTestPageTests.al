@@ -1094,7 +1094,13 @@ codeunit 79650 "LT AP TestPage Tests"
         ShObserveControl(P, 'GrpEditOn (group Editable = false, field Editable = true)', P.GrpEditOn.Enabled(), P.GrpEditOn.Editable());
         ShObserveControl(P, 'ValOff (group on, field Enabled = false)', P.ValOff.Enabled(), P.ValOff.Editable());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('NameOn (group off, field Enabled = true)', 'Enabled=No Editable=Yes');
+        Observer.Expect('QtyPlain (group off, field plain)', 'Enabled=No Editable=Yes');
+        Observer.Expect('TxtExprOn (group off, field Enabled = expression true)', 'Enabled=No Editable=Yes');
+        Observer.Expect('CdInner (outer group off, inner group on)', 'Enabled=No Editable=Yes');
+        Observer.Expect('GrpEditOn (group Editable = false, field Editable = true)', 'Enabled=Yes Editable=No');
+        Observer.Expect('ValOff (group on, field Enabled = false)', 'Enabled=No Editable=Yes');
+        Observer.Verify();
     end;
 }
 

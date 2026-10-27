@@ -572,7 +572,13 @@ codeunit 60827 "Test TableExt Field Relation"
         Observer.ObserveError('FieldRef.Validate');
         Observer.Observe('target TableCaption', Target.TableCaption());
         Observer.Observe('source TableCaption', Source.TableCaption());
-        Observer.Finish();
+        Observer.Expect('Record.Validate|text', 'The field Target Code of table LT SH Rel Source contains a value (NOWC) that cannot be found in the related table (LT SH Rel Target Extension Caption).');
+        Observer.Expect('Record.Validate|code', 'DB:PrimRecordNotFound');
+        Observer.Expect('FieldRef.Validate|text', 'The field Target Code of table LT SH Rel Source contains a value (NOWC) that cannot be found in the related table (LT SH Rel Target Extension Caption).');
+        Observer.Expect('FieldRef.Validate|code', 'DB:PrimRecordNotFound');
+        Observer.Expect('target TableCaption', 'LT SH Rel Target Extension Caption');
+        Observer.Expect('source TableCaption', 'LT SH Rel Source');
+        Observer.Verify();
     end;
 }
 

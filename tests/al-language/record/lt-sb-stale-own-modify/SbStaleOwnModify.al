@@ -683,7 +683,9 @@ codeunit 88980 "LT SB Stale Own Modify"
         ShInsertAnotherRow(8);
         SbModifyStale(Row, Observer);
         ShCleanupKeyed();
-        Observer.Finish();
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'start|5|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -698,7 +700,9 @@ codeunit 88980 "LT SB Stale Own Modify"
         ShInsertAnotherRow(8);
         SbModifyStale(Row, Observer);
         ShCleanupKeyed();
-        Observer.Finish();
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'start|5|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -714,7 +718,9 @@ codeunit 88980 "LT SB Stale Own Modify"
         Commit();
         SbModifyRefused(Row, Observer);
         ShCleanupKeyed();
-        Observer.Finish();
+        Observer.Expect('write', 'refused');
+        Observer.Expect('stored', 'other|0|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -734,6 +740,8 @@ codeunit 88980 "LT SB Stale Own Modify"
         Later.Insert(true);
         SbModifyRefused(Row, Observer);
         ShCleanupKeyed();
-        Observer.Finish();
+        Observer.Expect('write', 'refused');
+        Observer.Expect('stored', 'other|0|1');
+        Observer.Verify();
     end;
 }

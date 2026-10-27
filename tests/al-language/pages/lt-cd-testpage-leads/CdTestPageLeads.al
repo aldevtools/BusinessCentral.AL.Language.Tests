@@ -861,7 +861,11 @@ codeunit 84282 "LT CD TestPage Leads"
         Observer.Observe('Page.Run Next', Format(List.Next()));
         Observer.Observe('Page.Run id after Next', List.IdCtl.Value());
         List.Close();
-        Observer.Finish();
+        Observer.Expect('OpenView ids', '1,2,');
+        Observer.Expect('Page.Run current id', '2');
+        Observer.Expect('Page.Run Next', 'No');
+        Observer.Expect('Page.Run id after Next', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -878,7 +882,8 @@ codeunit 84282 "LT CD TestPage Leads"
             until not List.Next();
         Observer.Observe('OpenView ids', Result);
         List.Close();
-        Observer.Finish();
+        Observer.Expect('OpenView ids', '3,4,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -894,7 +899,11 @@ codeunit 84282 "LT CD TestPage Leads"
         Observer.Observe('filter 0D', Meta.SourceTableView);
         Meta.Get(Page::"LT CD Const0D List");
         Observer.Observe('const 0D', Meta.SourceTableView);
-        Observer.Finish();
+        Observer.Expect('filter blank', 'WHERE(Field7=FILTER(''''))');
+        Observer.Expect('filter not blank', 'WHERE(Field7=FILTER(<>''''))');
+        Observer.Expect('filter 0D', 'WHERE(Field7=FILTER(''''))');
+        Observer.Expect('const 0D', 'WHERE(Field7=CONST(0001-01-01T00:00:00.0000000))');
+        Observer.Verify();
     end;
 
     // ---- Writer SH, al-runner issue 5961 (the BC part of it): TestPage Filter.GetFilter of an enum field whose filter, set on the record
@@ -929,6 +938,13 @@ codeunit 84282 "LT CD TestPage Leads"
         ShRunLineListFilter(Line, 'SetFilter <>%1 Second');
         Line.SetRange(Kind, Line.Kind::First, Line.Kind::Second);
         Observer.Observe('record GetFilter First..Second', Line.GetFilter(Kind));
-        Observer.Finish();
+        Observer.Expect('SetRange First..Second', '0..1');
+        Observer.Expect('SetRange Second..Third', '1..2');
+        Observer.Expect('SetFilter %1|%2 First, Third', 'First|Third');
+        Observer.Expect('SetRange Second', '1');
+        Observer.Expect('SetFilter text First..Second', '0..1');
+        Observer.Expect('SetFilter <>%1 Second', '<>1');
+        Observer.Expect('record GetFilter First..Second', 'First..Second');
+        Observer.Verify();
     end;
 }

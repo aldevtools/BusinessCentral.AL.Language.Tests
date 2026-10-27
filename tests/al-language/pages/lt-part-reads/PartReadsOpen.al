@@ -433,7 +433,16 @@ codeunit 71290 "LT PartReads Open"
         Ws.First();
         ShFrStep(Observer, Ws, 'first');
         Ws.Close();
-        Observer.Finish();
+        Observer.Expect('open host', 'H1/10000');
+        Observer.Expect('open part', 'Filled for H1');
+        Observer.Expect('open part log', 'Find(=><|);AGR(H1);Next(1);Next(-1)');
+        Observer.Expect('gotokey H2/10000 host', 'H2/10000');
+        Observer.Expect('gotokey H2/10000 part', 'Filled for H2');
+        Observer.Expect('gotokey H2/10000 part log', 'Find(=><|);AGR(H2);Next(1);Next(-1)');
+        Observer.Expect('first host', 'H1/10000');
+        Observer.Expect('first part', 'Filled for H1');
+        Observer.Expect('first part log', 'Find(=><|);AGR(H1);Next(1);Next(-1)');
+        Observer.Verify();
     end;
 
     [Test]
@@ -454,7 +463,19 @@ codeunit 71290 "LT PartReads Open"
         Ws.Previous();
         ShFrStep(Observer, Ws, 'previous');
         Ws.Close();
-        Observer.Finish();
+        Observer.Expect('open host', 'H1/10000');
+        Observer.Expect('open part', 'Filled for H1');
+        Observer.Expect('open part log', 'Find(=><|);AGR(H1);Next(1);Next(-1)');
+        Observer.Expect('next x3 host', 'H2/10000');
+        Observer.Expect('next x3 part', 'Filled for H2');
+        Observer.Expect('next x3 part log', 'Find(=><|);AGR(H2);Next(1);Next(-1)');
+        Observer.Expect('last host', 'H3/10000');
+        Observer.Expect('last part', 'Filled for H3');
+        Observer.Expect('last part log', 'Find(=><|);AGR(H3);Next(1);Next(-1)');
+        Observer.Expect('previous host', 'H2/20000');
+        Observer.Expect('previous part', 'Filled for H2');
+        Observer.Expect('previous part log', 'Find(=><|);AGR(H2);Next(1);Next(-1)');
+        Observer.Verify();
     end;
 }
 

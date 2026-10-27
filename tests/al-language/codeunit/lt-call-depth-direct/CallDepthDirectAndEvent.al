@@ -92,7 +92,9 @@ codeunit 89424 "LT SH Event Recursion Tests"
         Worker.Reset();
         asserterror Worker.Direct();
         Observer.ObserveError('direct');
-        Observer.Finish();
+        Observer.Expect('direct|text', 'There is insufficient memory to execute this function. This can be caused by recursive function calls. Contact your system administrator.');
+        Observer.Expect('direct|code', 'StackOverflow');
+        Observer.Verify();
     end;
 
     [Test]
@@ -104,7 +106,9 @@ codeunit 89424 "LT SH Event Recursion Tests"
         Worker.Reset();
         asserterror Worker.ViaEvent();
         Observer.ObserveError('viaEvent');
-        Observer.Finish();
+        Observer.Expect('viaEvent|text', 'Excessive recursion has been detected in event subscriber function HandleDeeper for event None that is raised in CodeUnit 72884.');
+        Observer.Expect('viaEvent|code', 'RecursiveEventCall:StackOverflow');
+        Observer.Verify();
     end;
 
     [Test]
@@ -128,6 +132,9 @@ codeunit 89424 "LT SH Event Recursion Tests"
         Observer.Observe('stored qty', Format(Stored.Qty));
         Stored.DeleteAll();
         Commit();
-        Observer.Finish();
+        Observer.Expect('modify|text', 'Excessive recursion has been detected in event subscriber function OnAfterModifyRecursionRow for event OnAfterModifyEvent that is raised in Table 89422.');
+        Observer.Expect('modify|code', 'RecursiveEventCall:StackOverflow');
+        Observer.Expect('stored qty', '0');
+        Observer.Verify();
     end;
 }

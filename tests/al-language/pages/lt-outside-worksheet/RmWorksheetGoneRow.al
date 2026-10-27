@@ -494,7 +494,15 @@ codeunit 88265 "LT RM Ws Gone Row Tests"
         Observer.Observe('first log', Log.Take());
         List.Close();
         Observer.Observe('close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open shown', '10000');
+        Observer.Expect('open log', 'R:10000;R:10000;C:10000;');
+        Observer.Expect('action log', 'R:10000;');
+        Observer.Expect('shown after action', '|');
+        Observer.Expect('count', '0');
+        Observer.Expect('first', 'No');
+        Observer.Expect('first log', '');
+        Observer.Expect('close log', 'X;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -513,7 +521,14 @@ codeunit 88265 "LT RM Ws Gone Row Tests"
         Observer.Observe('first log', Log.Take());
         Ws.Close();
         Observer.Observe('close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open shown', '10000');
+        Observer.Expect('open log', 'R:10000;R:10000;C:10000;');
+        Observer.Expect('action log', 'R:10000;N:0;C:0;');
+        Observer.Expect('shown after action', '|');
+        Observer.Expect('first', 'No');
+        Observer.Expect('first log', '');
+        Observer.Expect('close log', 'X;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -530,7 +545,9 @@ codeunit 88265 "LT RM Ws Gone Row Tests"
         Observer.Observe('second action log', Log.Take());
         Observer.Observe('first', Format(Ws.First()));
         Ws.Close();
-        Observer.Finish();
+        Observer.Expect('second action log', 'N:0;C:0;');
+        Observer.Expect('first', 'No');
+        Observer.Verify();
     end;
 
     // ---- Writer SH, al-runner issue 5960: a Worksheet with the new-row line (AutoSplitKey, DelayedInsert) opened on an empty table; an
@@ -566,7 +583,18 @@ codeunit 88265 "LT RM Ws Gone Row Tests"
         Ws.Close();
         Observer.Observe('close log', Log.Take());
         Observer.Observe('count after close', LineCount());
-        Observer.Finish();
+        Observer.Expect('open shown', '0|');
+        Observer.Expect('open log', 'N:0;C:0;N:0;C:0;');
+        Observer.Expect('calculate log', 'R:10000;R:20000;R:10000;R:10000;C:10000;N:0;C:0;');
+        Observer.Expect('shown after calculate', '0|');
+        Observer.Expect('count after calculate', '2');
+        Observer.Expect('create log', 'R:0;N:0;C:0;N:0;C:0;');
+        Observer.Expect('shown after create', '0|');
+        Observer.Expect('count after create', '0');
+        Observer.Expect('first', 'No');
+        Observer.Expect('close log', 'X;');
+        Observer.Expect('count after close', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -584,7 +612,15 @@ codeunit 88265 "LT RM Ws Gone Row Tests"
         Observer.Observe('walk log', Log.Take());
         Ws.Close();
         Observer.Observe('count after close', LineCount());
-        Observer.Finish();
+        Observer.Expect('open shown', '0|');
+        Observer.Expect('open log', 'N:0;C:0;N:0;C:0;');
+        Observer.Expect('calculate log', 'R:10000;R:20000;R:10000;R:10000;C:10000;N:0;C:0;');
+        Observer.Expect('shown after calculate', '0|');
+        Observer.Expect('count after calculate', '2');
+        Observer.Expect('rows', '10000,20000,0,');
+        Observer.Expect('walk log', 'R:10000;R:10000;C:10000;R:20000;R:20000;C:20000;N:0;C:0;');
+        Observer.Expect('count after close', '2');
+        Observer.Verify();
     end;
 }
 

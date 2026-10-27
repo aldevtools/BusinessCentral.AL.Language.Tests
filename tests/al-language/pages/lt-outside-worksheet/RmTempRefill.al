@@ -489,35 +489,55 @@ codeunit 88269 "LT RM Refill Tests"
     procedure SH_RefillFewer_WithCurrRecord_3To1()
     begin
         ShRunCur(3, 1);
-        Observer.Finish();
+        Observer.Expect('before', 'R1');
+        Observer.Expect('action log', 'R:R1;R:R1;R:R1;R:R1;C:R1;');
+        Observer.Expect('shown after action', 'R1');
+        Observer.Expect('rows', 'R1');
+        Observer.Verify();
     end;
 
     [Test]
     procedure SH_RefillFewer_WithCurrRecord_25To1()
     begin
         ShRunCur(25, 1);
-        Observer.Finish();
+        Observer.Expect('before', 'R1');
+        Observer.Expect('action log', 'R:R1;R:R1;R:R1;R:R1;C:R1;');
+        Observer.Expect('shown after action', 'R1');
+        Observer.Expect('rows', 'R1');
+        Observer.Verify();
     end;
 
     [Test]
     procedure SH_RefillFewer_WithCurrRecord_25To1_FromRow23()
     begin
         ShRunCur(25, 23);
-        Observer.Finish();
+        Observer.Expect('before', 'R23');
+        Observer.Expect('action log', 'R:R23;R:R1;R:R1;R:R1;C:R1;');
+        Observer.Expect('shown after action', 'R1');
+        Observer.Expect('rows', 'R1');
+        Observer.Verify();
     end;
 
     [Test]
     procedure SH_RefillFewer_NoCurrRecord_3To1()
     begin
         ShRunNoCur(3, 1);
-        Observer.Finish();
+        Observer.Expect('before', 'R1');
+        Observer.Expect('action log', 'R:R1;R:R1;R:R1;');
+        Observer.Expect('shown after action', 'R1');
+        Observer.Expect('rows', 'R1');
+        Observer.Verify();
     end;
 
     [Test]
     procedure SH_RefillFewer_NoCurrRecord_25To1()
     begin
         ShRunNoCur(25, 1);
-        Observer.Finish();
+        Observer.Expect('before', 'R1');
+        Observer.Expect('action log', 'R:R1;R:R1;R:R1;');
+        Observer.Expect('shown after action', 'R1');
+        Observer.Expect('rows', 'R1');
+        Observer.Verify();
     end;
 }
 

@@ -362,6 +362,13 @@ codeunit 72506 "LT JsT WriteTo Streams"
         Observer.Observe('two items', Format(OneItem));
         asserterror Observer.Observe('untouched format 9', Format(Untouched, 0, 9));
         Observer.ObserveError('untouched format 9');
-        Observer.Finish();
+        Observer.Expect('untouched', '[]');
+        Observer.Expect('read from []', '[]');
+        Observer.Expect('one item', '[1]');
+        Observer.Expect('cleared after Add', '[]');
+        Observer.Expect('two items', '["a",2]');
+        Observer.Expect('untouched format 9|text', 'Standard format number 9 does not exist for the type ''JsonArray''.');
+        Observer.Expect('untouched format 9|code', 'InvalidStandardFormat');
+        Observer.Verify();
     end;
 }

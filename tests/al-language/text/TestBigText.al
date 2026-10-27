@@ -119,7 +119,11 @@ codeunit 60089 "Test BigText"
         BigB.AddText('xyz');
         Observer.Observe('after B grows: A', ShText(BigA));
         Observer.Observe('after B grows: B', ShText(BigB));
-        Observer.Finish();
+        Observer.Expect('after A grows: A', 'ab');
+        Observer.Expect('after A grows: B', 'a');
+        Observer.Expect('after B grows: A', 'ab');
+        Observer.Expect('after B grows: B', 'axyz');
+        Observer.Verify();
     end;
 
     [Test]
@@ -133,7 +137,9 @@ codeunit 60089 "Test BigText"
         Observer.Observe('after by-value call', ShText(BigA));
         ShAddByVar(BigA);
         Observer.Observe('after var call', ShText(BigA));
-        Observer.Finish();
+        Observer.Expect('after by-value call', 'a');
+        Observer.Expect('after var call', 'av');
+        Observer.Verify();
     end;
 
     [Test]
@@ -154,6 +160,8 @@ codeunit 60089 "Test BigText"
         Observer.Observe('lengths', StrSubstNo('A=%1;B=%2;C=%3', BigA.Length(), BigB.Length(), BigC.Length()));
         Clear(BigA);
         Observer.Observe('B after Clear of A', ShText(BigB));
-        Observer.Finish();
+        Observer.Expect('lengths', 'A=2;B=1;C=0');
+        Observer.Expect('B after Clear of A', 'a');
+        Observer.Verify();
     end;
 }

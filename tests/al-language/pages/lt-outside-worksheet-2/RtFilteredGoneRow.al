@@ -533,14 +533,34 @@ codeunit 88615 "LT RT Uf Tests"
     procedure SH_RelWs_KeyFieldWithTableRelationGroup2_BatchExists()
     begin
         ShRunRelNoNew(true);
-        Observer.Finish();
+        Observer.Expect('open shown', 'B1|10000');
+        Observer.Expect('open log', 'R:10000;R:10000;C:B1:10000;');
+        Observer.Expect('action log', 'R:10000;N:B1:0;C:B1:0;');
+        Observer.Expect('shown after action', '||');
+        Observer.Expect('count', '0');
+        Observer.Expect('first', 'No');
+        Observer.Expect('first log', '');
+        Observer.Expect('second action log', 'N:B1:0;C:B1:0;');
+        Observer.Expect('close log', '');
+        Observer.Expect('count after close', '0');
+        Observer.Verify();
     end;
 
     [Test]
     procedure SH_RelWs_KeyFieldWithTableRelationGroup2_BatchMissing()
     begin
         ShRunRelNoNew(false);
-        Observer.Finish();
+        Observer.Expect('open shown', 'B1|10000');
+        Observer.Expect('open log', 'R:10000;R:10000;C:B1:10000;');
+        Observer.Expect('action log', 'R:10000;');
+        Observer.Expect('shown after action', '||');
+        Observer.Expect('count', '0');
+        Observer.Expect('first', 'No');
+        Observer.Expect('first log', '');
+        Observer.Expect('second action log', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('count after close', '0');
+        Observer.Verify();
     end;
 }
 
