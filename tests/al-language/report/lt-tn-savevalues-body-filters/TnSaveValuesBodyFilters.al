@@ -257,15 +257,17 @@ codeunit 89981 "LT TN SV Body Filter Tests"
         Mode := 0;
         Rep.RunModal();
         Observer.Observe('first run', Log.Take());
+        Observer.Observe('after first run', Rep.State());
         asserterror Rep.RunModal();
         Observer.ObserveError('second RunModal');
         Observer.Observe('second run', Log.Take());
         Observer.Observe('after the refused run', Rep.State());
         Observer.Expect('first run', 'page parent.code=[] child.code=[] child.parentcode=[] child.id=[];pre parent=[] child=[];child before body=[];');
+        Observer.Expect('after first run', 'ran=Yes parent=[] child=[Id: 1..5, ParentCode: P]');
         Observer.Expect('second RunModal|text', 'The object has been run. Use the function CLEAR(Report).');
         Observer.Expect('second RunModal|code', 'ObjectHasAlreadyBeenRun');
         Observer.Expect('second run', '');
-        Observer.Expect('after the refused run', 'ran=Yes parent=[] child=[Id: 1..5, ParentCode: P]');
+        Observer.Expect('after the refused run', 'ran=No parent=[] child=[]');
         Observer.Verify();
     end;
 
