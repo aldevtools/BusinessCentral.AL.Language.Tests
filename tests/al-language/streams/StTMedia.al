@@ -672,7 +672,8 @@ codeunit 74204 "LT StT Media"
         Rec.Init();
         Rec.Id := 9;
         Observer.Observe('init only', SoExportOutcome(Rec));
-        Observer.Finish();
+        Observer.Expect('init only', 'hasvalue=No nullid=Yes returned=No len=0 hasvalue after=No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -685,7 +686,9 @@ codeunit 74204 "LT StT Media"
         Observer.Observe('inserted', SoExportOutcome(Rec));
         Rec.Get(1);
         Observer.Observe('read back', SoExportOutcome(Rec));
-        Observer.Finish();
+        Observer.Expect('inserted', 'hasvalue=No nullid=Yes returned=No len=0 hasvalue after=No');
+        Observer.Expect('read back', 'hasvalue=No nullid=Yes returned=No len=0 hasvalue after=No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -703,6 +706,9 @@ codeunit 74204 "LT StT Media"
         DocumentAttachment."Document Reference ID".ExportStream(OutStream);
         Observer.Observe('statement form len', Format(TempBlob.Length()));
         Observer.Observe('statement form hasvalue', Format(DocumentAttachment."Document Reference ID".HasValue()));
-        Observer.Finish();
+        Observer.Expect('outcome', 'hasvalue=No nullid=Yes returned=No len=0 hasvalue after=No');
+        Observer.Expect('statement form len', '0');
+        Observer.Expect('statement form hasvalue', 'No');
+        Observer.Verify();
     end;
 }

@@ -125,7 +125,12 @@ codeunit 89521 "LT SO Media Filter"
         Observer.Observe('=null', MediaOutcome('=00000000-0000-0000-0000-000000000000'));
         Observer.Observe('<>{null}', MediaOutcome('<>{00000000-0000-0000-0000-000000000000}'));
         Observer.Observe('{null}', MediaOutcome('{00000000-0000-0000-0000-000000000000}'));
-        Observer.Finish();
+        Observer.Expect('<>null', 'getfilter=[<>{00000000-0000-0000-0000-000000000000}] count=1 isempty=No rows=2;');
+        Observer.Expect('null', 'getfilter=[{00000000-0000-0000-0000-000000000000}] count=2 isempty=No rows=1;3;');
+        Observer.Expect('=null', 'getfilter=[{00000000-0000-0000-0000-000000000000}] count=2 isempty=No rows=1;3;');
+        Observer.Expect('<>{null}', 'getfilter=[<>{00000000-0000-0000-0000-000000000000}] count=1 isempty=No rows=2;');
+        Observer.Expect('{null}', 'getfilter=[{00000000-0000-0000-0000-000000000000}] count=2 isempty=No rows=1;3;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -137,7 +142,10 @@ codeunit 89521 "LT SO Media Filter"
         Observer.Observe('empty text', MediaOutcome(''));
         Observer.Observe('quoted empty', MediaOutcome(''''''));
         Observer.Observe('<> quoted empty', MediaOutcome('<>'''''));
-        Observer.Finish();
+        Observer.Expect('empty text', 'getfilter=[] count=3 isempty=No rows=1;2;3;');
+        Observer.Expect('quoted empty', 'error=[The filter "''''" is not valid for the Pic field on the LT SO Media Row table. Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.] code=Filter:CSide');
+        Observer.Expect('<> quoted empty', 'error=[The filter "<>''''" is not valid for the Pic field on the LT SO Media Row table. Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.] code=Filter:CSide');
+        Observer.Verify();
     end;
 
     [Test]
@@ -147,10 +155,14 @@ codeunit 89521 "LT SO Media Filter"
         Id: Guid;
     begin
         Id := Setup();
-        Observer.Observe('id', MediaOutcome(Format(Id)));
-        Observer.Observe('<>id', MediaOutcome('<>' + Format(Id)));
-        Observer.Observe('id plain', MediaOutcome(DelChr(Format(Id), '=', '{}')));
-        Observer.Finish();
+        // the MediaId differs per run: it is written as <id>
+        Observer.Observe('id', MediaOutcome(Format(Id)).Replace(Format(Id), '<id>'));
+        Observer.Observe('<>id', MediaOutcome('<>' + Format(Id)).Replace(Format(Id), '<id>'));
+        Observer.Observe('id plain', MediaOutcome(DelChr(Format(Id), '=', '{}')).Replace(Format(Id), '<id>'));
+        Observer.Expect('id', 'getfilter=[<id>] count=1 isempty=No rows=2;');
+        Observer.Expect('<>id', 'getfilter=[<><id>] count=2 isempty=No rows=1;3;');
+        Observer.Expect('id plain', 'getfilter=[<id>] count=1 isempty=No rows=2;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -162,7 +174,10 @@ codeunit 89521 "LT SO Media Filter"
         Observer.Observe('abc', MediaOutcome('abc'));
         Observer.Observe('star', MediaOutcome('*'));
         Observer.Observe('zero', MediaOutcome('0'));
-        Observer.Finish();
+        Observer.Expect('abc', 'error=[The filter "abc" is not valid for the Pic field on the LT SO Media Row table. Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.] code=Filter:CSide');
+        Observer.Expect('star', 'error=[The filter "*" is not valid for the Pic field on the LT SO Media Row table. Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.] code=Filter:CSide');
+        Observer.Expect('zero', 'error=[The filter "0" is not valid for the Pic field on the LT SO Media Row table. Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.] code=Filter:CSide');
+        Observer.Verify();
     end;
 
     [Test]
@@ -188,7 +203,12 @@ codeunit 89521 "LT SO Media Filter"
         Rec.Reset();
         Rec.SetFilter(Pic, '<>%1', Filled.Pic);
         Observer.Observe('<>%1 filled media', Rows(Rec));
-        Observer.Finish();
+        Observer.Expect('setrange empty media', 'getfilter=[{00000000-0000-0000-0000-000000000000}] count=2 isempty=No rows=1;3;');
+        Observer.Expect('setrange filled media id', 'Yes');
+        Observer.Expect('setrange filled media', 'count=1 isempty=No rows=2;');
+        Observer.Expect('<>%1 empty media', 'getfilter=[<>{00000000-0000-0000-0000-000000000000}] count=1 isempty=No rows=2;');
+        Observer.Expect('<>%1 filled media', 'count=2 isempty=No rows=1;3;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -210,7 +230,11 @@ codeunit 89521 "LT SO Media Filter"
         Observer.Observe('count', Format(RecRef.Count()));
         FldRef.SetFilter('00000000-0000-0000-0000-000000000000');
         Observer.Observe('= findset', Format(RecRef.FindSet()));
-        Observer.Finish();
+        Observer.Expect('getfilter', '<>{00000000-0000-0000-0000-000000000000}');
+        Observer.Expect('findset', 'No');
+        Observer.Expect('count', '0');
+        Observer.Expect('= findset', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -222,6 +246,9 @@ codeunit 89521 "LT SO Media Filter"
         Observer.Observe('<>null', MediaSetOutcome('<>00000000-0000-0000-0000-000000000000'));
         Observer.Observe('null', MediaSetOutcome('00000000-0000-0000-0000-000000000000'));
         Observer.Observe('empty text', MediaSetOutcome(''));
-        Observer.Finish();
+        Observer.Expect('<>null', 'getfilter=[<>{00000000-0000-0000-0000-000000000000}] count=0 isempty=Yes rows=');
+        Observer.Expect('null', 'getfilter=[{00000000-0000-0000-0000-000000000000}] count=3 isempty=No rows=1;2;3;');
+        Observer.Expect('empty text', 'getfilter=[] count=3 isempty=No rows=1;2;3;');
+        Observer.Verify();
     end;
 }

@@ -65,7 +65,8 @@ codeunit 69352 "PZ Report Layout Media"
     begin
         TempBlob.CreateOutStream(OutS);
         Answer := Layout.Layout.ExportStream(OutS);
-        exit('returned=' + Format(Answer) + ' len=' + Format(TempBlob.Length()) + ' hasvalue after=' + Format(Layout.Layout.HasValue()));
+        // the length differs between BC versions (the Word layout: 35925 on 27.5, 34129 on 28.5, 39311 on 29.0)
+        exit('returned=' + Format(Answer) + ' len>0=' + Format(TempBlob.Length() > 0) + ' hasvalue after=' + Format(Layout.Layout.HasValue()));
     end;
 
     [Test]
@@ -80,6 +81,8 @@ codeunit 69352 "PZ Report Layout Media"
         Layout.SetRange("Layout Format", Layout."Layout Format"::Word);
         Layout.FindFirst();
         Observer.Observe('first word layout', SoExport(Layout));
-        Observer.Finish();
+        Observer.Expect('first rdlc layout', 'returned=Yes len>0=Yes hasvalue after=No');
+        Observer.Expect('first word layout', 'returned=Yes len>0=Yes hasvalue after=No');
+        Observer.Verify();
     end;
 }

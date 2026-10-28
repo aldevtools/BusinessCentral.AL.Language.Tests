@@ -198,7 +198,14 @@ codeunit 67486 "FieldRef Enum Ordinal By Index"
         Observer.Observe('caption, value 1', FldRef.GetEnumValueCaptionFromOrdinalValue(FldRef.Value()));
         Observer.Observe('format value 1', Format(FldRef.Value()));
         Observer.Observe('value 1 as integer argument', SoTakesInteger(FldRef.Value()));
-        Observer.Finish();
+        Observer.Expect('no caption, value 0', 'Option1');
+        Observer.Expect('no caption, name of value 0', 'Option1');
+        Observer.Expect('caption, value 0', 'First caption');
+        Observer.Expect('caption, name of value 0', 'Option1');
+        Observer.Expect('caption, value 1', 'Second caption');
+        Observer.Expect('format value 1', 'Second caption');
+        Observer.Expect('value 1 as integer argument', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -219,7 +226,14 @@ codeunit 67486 "FieldRef Enum Ordinal By Index"
         FldRef := RecRef.Field(Row.FieldNo(OptNoCap));
         Observer.Observe('no caption 0', SoFromOrdinal(FldRef, 0));
         Observer.Observe('no caption 2', SoFromOrdinal(FldRef, 2));
-        Observer.Finish();
+        Observer.Expect('-1', 'caption=[-1] name=[]');
+        Observer.Expect('0', 'caption=[First caption] name=[Option1]');
+        Observer.Expect('1', 'caption=[Second caption] name=[Option2]');
+        Observer.Expect('2', 'caption=[2] name=[]');
+        Observer.Expect('5', 'caption=[5] name=[]');
+        Observer.Expect('no caption 0', 'caption=[Option1] name=[Option1]');
+        Observer.Expect('no caption 2', 'caption=[2] name=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -242,7 +256,12 @@ codeunit 67486 "FieldRef Enum Ordinal By Index"
         FldRef.Value := 5;
         Observer.Observe('fieldref value := 5', Format(FldRef.Value()) + '|' + Format(FldRef.Value(), 0, 2));
         Observer.Observe('fieldref value 5 caption', SoFromOrdinal(FldRef, FldRef.Value()));
-        Observer.Finish();
+        Observer.Expect('field := 1', 'Second caption|1|1');
+        Observer.Expect('field := 5', '5|5|5');
+        Observer.Expect('field := -1', '-1|-1');
+        Observer.Expect('fieldref value := 5', '5|5');
+        Observer.Expect('fieldref value 5 caption', 'caption=[5] name=[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -255,6 +274,11 @@ codeunit 67486 "FieldRef Enum Ordinal By Index"
         Observer.Observe('2', SoTakesOption(2));
         Observer.Observe('3', SoTakesOption(3));
         Observer.Observe('-1', SoTakesOption(-1));
-        Observer.Finish();
+        Observer.Expect('0', 'Alpha|0');
+        Observer.Expect('1', 'Beta|1');
+        Observer.Expect('2', 'Gamma|2');
+        Observer.Expect('3', '3|3');
+        Observer.Expect('-1', '-1|-1');
+        Observer.Verify();
     end;
 }
