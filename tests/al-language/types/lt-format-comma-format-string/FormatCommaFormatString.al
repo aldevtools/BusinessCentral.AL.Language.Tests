@@ -199,4 +199,89 @@ codeunit 74320 "LT FCF Format Comma String"
         Observer.Expect('s6', 'err:An invalid field or attribute has been specified for the ''Format'' property.\\<Decimals><Comma,.>|InvalidFormatString');
         Observer.Verify();
     end;
+
+    // Writer TP (NP lane, 2026-10-28): <Precision,2:26> with Standard Format 2 and 4, and <Precision,2:2> before <Sign>/<Integer>/<Decimals>/<Comma,x>.
+    local procedure TpObserve(var Observer: Codeunit "Probe Observer"; Prefix: Text; Value: Decimal)
+    var
+        Res: Text;
+    begin
+        Observer.Observe(Prefix + ' p26sf4', Show(TryFormat(Value, '<Precision,2:26><Standard Format,4>', Res), Res));
+        Observer.Observe(Prefix + ' p26sf2', Show(TryFormat(Value, '<Precision,2:26><Standard Format,2>', Res), Res));
+        Observer.Observe(Prefix + ' p2comma.', Show(TryFormat(Value, '<Precision,2:2><Sign><Integer><Decimals><Comma,.>', Res), Res));
+        Observer.Observe(Prefix + ' p2comma,', Show(TryFormat(Value, '<Precision,2:2><Sign><Integer><Decimals><Comma,,>', Res), Res));
+        Observer.Observe(Prefix + ' p2thousand', Show(TryFormat(Value, '<Precision,2:2><Integer Thousand><Decimals><Comma,,>', Res), Res));
+        Observer.Observe(Prefix + ' signfirst', Show(TryFormat(Value, '<Sign><Precision,2:2><Integer><Decimals>', Res), Res));
+    end;
+
+    [Test]
+    procedure TP_Format_PrecisionStrings()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        TpObserve(Observer, '0', 0);
+        TpObserve(Observer, '1234.5', 1234.5);
+        TpObserve(Observer, '-1234.567', -1234.567);
+        TpObserve(Observer, '0.125', 0.125);
+        TpObserve(Observer, '1234567.891', 1234567.891);
+        Observer.Expect('0 p26sf4', 'ok:0.00 ');
+        Observer.Expect('0 p26sf2', 'ok:0.00');
+        Observer.Expect('0 p2comma.', 'ok:0.00');
+        Observer.Expect('0 p2comma,', 'ok:0,00');
+        Observer.Expect('0 p2thousand', 'ok:0,00');
+        Observer.Expect('0 signfirst', 'ok:0');
+        Observer.Expect('1234.5 p26sf4', 'ok:1234.50 ');
+        Observer.Expect('1234.5 p26sf2', 'ok:1234.50');
+        Observer.Expect('1234.5 p2comma.', 'ok:1234.50');
+        Observer.Expect('1234.5 p2comma,', 'ok:1234,50');
+        Observer.Expect('1234.5 p2thousand', 'ok:1,234,50');
+        Observer.Expect('1234.5 signfirst', 'ok:1234.5');
+        Observer.Expect('-1234.567 p26sf4', 'ok:1234.567-');
+        Observer.Expect('-1234.567 p26sf2', 'ok:-1234.567');
+        Observer.Expect('-1234.567 p2comma.', 'ok:-1234.57');
+        Observer.Expect('-1234.567 p2comma,', 'ok:-1234,57');
+        Observer.Expect('-1234.567 p2thousand', 'ok:1,234,57');
+        Observer.Expect('-1234.567 signfirst', 'ok:-1234.567');
+        Observer.Expect('0.125 p26sf4', 'ok:0.125 ');
+        Observer.Expect('0.125 p26sf2', 'ok:0.125');
+        Observer.Expect('0.125 p2comma.', 'ok:0.13');
+        Observer.Expect('0.125 p2comma,', 'ok:0,13');
+        Observer.Expect('0.125 p2thousand', 'ok:0,13');
+        Observer.Expect('0.125 signfirst', 'ok:0.125');
+        Observer.Expect('1234567.891 p26sf4', 'ok:1234567.891 ');
+        Observer.Expect('1234567.891 p26sf2', 'ok:1234567.891');
+        Observer.Expect('1234567.891 p2comma.', 'ok:1234567.89');
+        Observer.Expect('1234567.891 p2comma,', 'ok:1234567,89');
+        Observer.Expect('1234567.891 p2thousand', 'ok:1,234,567,89');
+        Observer.Expect('1234567.891 signfirst', 'ok:1234567.891');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TP_Format_PrecisionStrings_Small()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        TpObserve(Observer, '0.1234567891234', 0.1234567891234);
+        TpObserve(Observer, '-0.005', -0.005);
+        TpObserve(Observer, '12', 12);
+        Observer.Expect('0.1234567891234 p26sf4', 'ok:0.1234567891234 ');
+        Observer.Expect('0.1234567891234 p26sf2', 'ok:0.1234567891234');
+        Observer.Expect('0.1234567891234 p2comma.', 'ok:0.12');
+        Observer.Expect('0.1234567891234 p2comma,', 'ok:0,12');
+        Observer.Expect('0.1234567891234 p2thousand', 'ok:0,12');
+        Observer.Expect('0.1234567891234 signfirst', 'ok:0.1234567891234');
+        Observer.Expect('-0.005 p26sf4', 'ok:0.005-');
+        Observer.Expect('-0.005 p26sf2', 'ok:-0.005');
+        Observer.Expect('-0.005 p2comma.', 'ok:-0.01');
+        Observer.Expect('-0.005 p2comma,', 'ok:-0,01');
+        Observer.Expect('-0.005 p2thousand', 'ok:0,01');
+        Observer.Expect('-0.005 signfirst', 'ok:-0.005');
+        Observer.Expect('12 p26sf4', 'ok:12.00 ');
+        Observer.Expect('12 p26sf2', 'ok:12.00');
+        Observer.Expect('12 p2comma.', 'ok:12.00');
+        Observer.Expect('12 p2comma,', 'ok:12,00');
+        Observer.Expect('12 p2thousand', 'ok:12,00');
+        Observer.Expect('12 signfirst', 'ok:12');
+        Observer.Verify();
+    end;
 }

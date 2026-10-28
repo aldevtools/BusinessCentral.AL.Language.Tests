@@ -1,6 +1,9 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/properties/devenv-maxoccurs-property
 // Scope: in-scope
 // Fixtures used: Probe Observer (69160); own tables 87275, 87276, 87279, xmlport 87277, runner codeunit 87278, test codeunit 87280 (writer QR); writer QS: tests QS_TextAttr_* on table 87360, xmlport 87361, runner 87362 (QsXpTextAttrObjects.al)
+// Writer TO: tests TO_* on table 90000, xmlports 90001-90003, runner 90004 (ToXpTextInTableObjects.al): a text element below a table element, with only text attributes or with content.
+// Writer TP: tests TP_* on tables 90020-90021, xmlports 90022-90023, runner 90024 (TpXpNestedObjects.al): a text element with one text attribute
+//   below a text element below a table element; an optional text element holding an unlinked temporary table element.
 // Probe: observed on the corpus CI matrix; every literal asserted below is what the BC service tier produced.
 // Facts: MaxOccurs and MinOccurs on CONTAINER text elements (the root text element with MaxOccurs = Once, a required container with
 //   MinOccurs = Once and MaxOccurs = Once that holds a temporary table element, an optional container with MinOccurs = Zero and
@@ -530,6 +533,385 @@ codeunit 87280 "LT QR XP Container Tests"
         Observer.Expect('required missing on second row|text', 'Imported XML cannot validate with the schema: The required attribute ''must'' is missing.');
         Observer.Expect('required missing on second row|code', 'XmlPortInvalidXml');
         Observer.Expect('required empty', 'ok log=version=2;row R1 ref= must=; values: instance= version=2 token= ref= must= rows=R1:/;');
+        Observer.Verify();
+    end;
+
+    local procedure ToRead(var Buffer: Record "LT QR XP Blob" temporary): Text
+    var
+        InS: InStream;
+        Line: Text;
+        Xml: Text;
+    begin
+        Buffer.Modify();
+        Buffer.CalcFields(Data);
+        Buffer.Data.CreateInStream(InS, TextEncoding::UTF8);
+        while not InS.EOS() do begin
+            InS.ReadText(Line);
+            Xml += Line + '|';
+        end;
+        exit(Xml);
+    end;
+
+    local procedure ToExportTrigger(var Port: XmlPort "LT TO XP Attr Item Trigger"): Text
+    var
+        Buffer: Record "LT QR XP Blob" temporary;
+        OutS: OutStream;
+    begin
+        Buffer.Id := 1;
+        Buffer.Insert();
+        Buffer.Data.CreateOutStream(OutS, TextEncoding::UTF8);
+        Port.SetDestination(OutS);
+        Port.Export();
+        exit(ToRead(Buffer));
+    end;
+
+    local procedure ToExportPlain(var Port: XmlPort "LT TO XP Attr Item Plain"): Text
+    var
+        Buffer: Record "LT QR XP Blob" temporary;
+        OutS: OutStream;
+    begin
+        Buffer.Id := 1;
+        Buffer.Insert();
+        Buffer.Data.CreateOutStream(OutS, TextEncoding::UTF8);
+        Port.SetDestination(OutS);
+        Port.Export();
+        exit(ToRead(Buffer));
+    end;
+
+    local procedure ToExportContent(var Port: XmlPort "LT TO XP Text Content"): Text
+    var
+        Buffer: Record "LT QR XP Blob" temporary;
+        OutS: OutStream;
+    begin
+        Buffer.Id := 1;
+        Buffer.Insert();
+        Buffer.Data.CreateOutStream(OutS, TextEncoding::UTF8);
+        Port.SetDestination(OutS);
+        Port.Export();
+        exit(ToRead(Buffer));
+    end;
+
+    local procedure ToImport(var Observer: Codeunit "Probe Observer"; Name: Text; Mode: Integer; Body: Text)
+    var
+        Runner: Codeunit "LT TO XP Runner";
+    begin
+        Runner.SetInput(Mode, '<?xml version="1.0" encoding="UTF-8"?>' + Body);
+        ClearLastError();
+        if Runner.Run() then
+            Observer.Observe(Name, 'ok ' + Runner.Result())
+        else
+            Observer.ObserveError(Name);
+    end;
+
+    [Test]
+    procedure TO_AttrItem_Trigger_Export()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TO XP Attr Item Trigger";
+    begin
+        // The text element's OnBeforePassVariable sets its text, its text attribute's OnBeforePassVariable sets the attribute.
+        Port.AddRow('R1', 'REQUIRED', '1');
+        Port.AddRow('R2', '', '2');
+        Port.AddRow('R3', 'TXT', '');
+        Observer.Observe('xml', ToExportTrigger(Port));
+        Observer.Observe('log', Port.GetLog());
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <row no="R1">|    <item option_value="1">REQUIRED</item>|  </row>|  <row no="R2">|    <item option_value="2" />|  </row>|  <row no="R3">|    <item option_value="">TXT</item>|  </row>|</root>|');
+        Observer.Expect('log', 'get R1;pass item;pass attr;get R2;pass item;pass attr;get R3;pass item;pass attr;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TO_AttrItem_Trigger_Export_NoRows()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TO XP Attr Item Trigger";
+    begin
+        Observer.Observe('xml', ToExportTrigger(Port));
+        Observer.Observe('log', Port.GetLog());
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root />|');
+        Observer.Expect('log', '');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TO_AttrItem_Plain_Export()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TO XP Attr Item Plain";
+        Empty: XmlPort "LT TO XP Attr Item Plain";
+    begin
+        // No trigger: the element and the attribute write their variables as they are.
+        Port.SetVariables('TEXT', '1');
+        Port.AddRow('R1');
+        Port.AddRow('R2');
+        Observer.Observe('set', ToExportPlain(Port));
+        Empty.AddRow('R1');
+        Observer.Observe('empty', ToExportPlain(Empty));
+        Observer.Expect('set', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <row no="R1">|    <item option_value="1">TEXT</item>|  </row>|  <row no="R2">|    <item option_value="1">TEXT</item>|  </row>|</root>|');
+        Observer.Expect('empty', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <row no="R1">|    <item option_value="" />|  </row>|</root>|');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TO_AttrItem_Trigger_Import()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ToImport(Observer, 'two rows', 90001, '<root><row no="R1"><item option_value="1">REQ</item></row><row no="R2"><item option_value="2">X</item></row></root>');
+        ToImport(Observer, 'attribute missing', 90001, '<root><row no="R1"><item>REQ</item></row></root>');
+        ToImport(Observer, 'empty element', 90001, '<root><row no="R1"><item option_value="1"/></row></root>');
+        Observer.Expect('two rows', 'ok log=init;no=R1;attr=1;item=REQ;before insert R1 item=REQ attr=1;after insert;init;no=R2;attr=2;item=X;before insert R2 item=X attr=2;after insert; values: item=X attr=2 rows=R1:REQ/1;R2:X/2;');
+        Observer.Expect('attribute missing|text', 'Imported XML cannot validate with the schema: The required attribute ''option_value'' is missing.');
+        Observer.Expect('attribute missing|code', 'XmlPortInvalidXml');
+        Observer.Expect('empty element', 'ok log=init;no=R1;attr=1;item=;before insert R1 item= attr=1;after insert; values: item= attr=1 rows=R1:/1;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TO_AttrItem_Trigger_Import_Missing()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ToImport(Observer, 'element missing', 90001, '<root><row no="R1"/></root>');
+        ToImport(Observer, 'second row attribute missing', 90001, '<root><row no="R1"><item option_value="1">A</item></row><row no="R2"><item>B</item></row></root>');
+        ToImport(Observer, 'child element', 90001, '<root><row no="R1"><item option_value="1">A<x/></item></row></root>');
+        Observer.Expect('element missing|text', 'Imported XML cannot validate with the schema: The element ''row'' has incomplete content. List of possible elements expected: ''item''.');
+        Observer.Expect('element missing|code', 'XmlPortInvalidXml');
+        Observer.Expect('second row attribute missing|text', 'Imported XML cannot validate with the schema: The required attribute ''option_value'' is missing.');
+        Observer.Expect('second row attribute missing|code', 'XmlPortInvalidXml');
+        Observer.Expect('child element|text', 'Imported XML cannot validate with the schema: The element ''item'' cannot contain child element ''x'' because the parent element''s content model is text only.');
+        Observer.Expect('child element|code', 'XmlPortInvalidXml');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TO_AttrItem_Plain_Import()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ToImport(Observer, 'two rows', 90002, '<root><row no="R1"><item option_value="1">REQ</item></row><row no="R2"><item option_value="2">X</item></row></root>');
+        ToImport(Observer, 'second row bare', 90002, '<root><row no="R1"><item option_value="1">REQ</item></row><row no="R2"><item/></row></root>');
+        Observer.Expect('two rows', 'ok log=before insert R1 item=REQ attr=1;before insert R2 item=X attr=2; values: item=X attr=2 rows=R1:REQ/1;R2:X/2;');
+        Observer.Expect('second row bare|text', 'Imported XML cannot validate with the schema: The required attribute ''option_value'' is missing.');
+        Observer.Expect('second row bare|code', 'XmlPortInvalidXml');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TO_TextContent_Export()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TO XP Text Content";
+    begin
+        Port.AddRow('R1', 'N1', 'k1', 's1');
+        Port.AddRow('R2', '', '', '');
+        Observer.Observe('xml', ToExportContent(Port));
+        Observer.Observe('log', Port.GetLog());
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <row no="R1">|    <info kind="k1">|      <name>N1</name>|      <sub>s1</sub>|    </info>|  </row>|  <row no="R2">|    <info kind="">|      <name />|      <sub />|    </info>|  </row>|</root>|');
+        Observer.Expect('log', 'get R1;pass info;pass kind;pass name;pass sub;get R2;pass info;pass kind;pass name;pass sub;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TO_TextContent_Import()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ToImport(Observer, 'two rows', 90003, '<root><row no="R1"><info kind="k1"><name>N1</name><sub>s1</sub></info></row><row no="R2"><info kind="k2"><name>N2</name><sub>s2</sub></info></row></root>');
+        ToImport(Observer, 'no kind', 90003, '<root><row no="R1"><info><name>N1</name><sub>s1</sub></info></row></root>');
+        Observer.Expect('two rows', 'ok log=init;no=R1;kind=k1;name=N1;sub=s1;info=;before insert R1 name=N1 kind=k1 sub=s1;after insert;init;no=R2;kind=k2;name=N2;sub=s2;info=;before insert R2 name=N2 kind=k2 sub=s2;after insert; values: info= kind=k2 sub=s2 rows=R1:N1/k1/s1;R2:N2/k2/s2;');
+        Observer.Expect('no kind|text', 'Imported XML cannot validate with the schema: The required attribute ''kind'' is missing.');
+        Observer.Expect('no kind|code', 'XmlPortInvalidXml');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TO_TextContent_Import_Shapes()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ToImport(Observer, 'info missing', 90003, '<root><row no="R1"/></root>');
+        ToImport(Observer, 'sub missing', 90003, '<root><row no="R1"><info kind="k1"><name>N1</name></info></row></root>');
+        ToImport(Observer, 'empty info', 90003, '<root><row no="R1"><info/></row></root>');
+        ToImport(Observer, 'text in info', 90003, '<root><row no="R1"><info kind="k1">T<name>N1</name><sub>s1</sub></info></row></root>');
+        Observer.Expect('info missing|text', 'Imported XML cannot validate with the schema: The element ''row'' has incomplete content. List of possible elements expected: ''info''.');
+        Observer.Expect('info missing|code', 'XmlPortInvalidXml');
+        Observer.Expect('sub missing|text', 'Imported XML cannot validate with the schema: The element ''info'' has incomplete content. List of possible elements expected: ''sub''.');
+        Observer.Expect('sub missing|code', 'XmlPortInvalidXml');
+        Observer.Expect('empty info|text', 'Imported XML cannot validate with the schema: The required attribute ''kind'' is missing.');
+        Observer.Expect('empty info|code', 'XmlPortInvalidXml');
+        Observer.Expect('text in info', 'ok log=init;no=R1;kind=k1;name=N1;sub=s1;info=T;before insert R1 name=N1 kind=k1 sub=s1;after insert; values: info=T kind=k1 sub=s1 rows=R1:N1/k1/s1;');
+        Observer.Verify();
+    end;
+
+    local procedure TpExportNested(var Port: XmlPort "LT TP XP Nested Text"): Text
+    var
+        Buffer: Record "LT QR XP Blob" temporary;
+        OutS: OutStream;
+    begin
+        Buffer.Id := 1;
+        Buffer.Insert();
+        Buffer.Data.CreateOutStream(OutS, TextEncoding::UTF8);
+        Port.SetDestination(OutS);
+        Port.Export();
+        exit(ToRead(Buffer));
+    end;
+
+    local procedure TpExportUnlinked(var Port: XmlPort "LT TP XP Unlinked Temp"): Text
+    var
+        Buffer: Record "LT QR XP Blob" temporary;
+        OutS: OutStream;
+    begin
+        Buffer.Id := 1;
+        Buffer.Insert();
+        Buffer.Data.CreateOutStream(OutS, TextEncoding::UTF8);
+        Port.SetDestination(OutS);
+        Port.Export();
+        exit(ToRead(Buffer));
+    end;
+
+    local procedure TpImport(var Observer: Codeunit "Probe Observer"; Name: Text; Mode: Integer; Body: Text)
+    var
+        Runner: Codeunit "LT TP XP Runner";
+    begin
+        Runner.SetInput(Mode, '<?xml version="1.0" encoding="UTF-8"?>' + Body);
+        ClearLastError();
+        if Runner.Run() then
+            Observer.Observe(Name, 'ok ' + Runner.Result())
+        else
+            Observer.ObserveError(Name);
+    end;
+
+    [Test]
+    procedure TP_Nested_Export()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TP XP Nested Text";
+    begin
+        // table element > text element (field attribute, text attributes) > text element with one text attribute.
+        Port.AddRow('R1', 'open', 'k1', 'A1', '1');
+        Port.AddRow('R2', '', '', '', '2');
+        Port.AddRow('R3', 'closed', 'k3', 'X', '');
+        Observer.Observe('xml', TpExportNested(Port));
+        Observer.Observe('log', Port.GetLog());
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <row>|    <entry no="R1" status="open" kind="k1">|      <admission option_value="1">A1</admission>|    </entry>|  </row>|  <row>|    <entry no="R2" status="">|      <admission option_value="2" />|    </entry>|  </row>|  <row>|    <entry no="R3" status="closed" kind="k3">|      <admission option_value="">X</admission>|    </entry>|  </row>|</root>|');
+        Observer.Expect('log', 'get R1;pass entry;pass status;pass admission;pass admcode;get R2;pass entry;pass status;pass admission;pass admcode;get R3;pass entry;pass status;pass admission;pass admcode;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TP_Nested_Export_NoRows()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TP XP Nested Text";
+    begin
+        Observer.Observe('xml', TpExportNested(Port));
+        Observer.Observe('log', Port.GetLog());
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root />|');
+        Observer.Expect('log', '');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TP_Nested_Import()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        TpImport(Observer, 'two rows', 90022, '<root><row><entry no="R1" status="open" kind="k1"><admission option_value="1">A1</admission></entry></row><row><entry no="R2" status="closed" kind="k2"><admission option_value="2">A2</admission></entry></row></root>');
+        TpImport(Observer, 'empty admission', 90022, '<root><row><entry no="R1" status="open" kind="k1"><admission option_value="1"/></entry></row></root>');
+        TpImport(Observer, 'no kind', 90022, '<root><row><entry no="R1" status="open"><admission option_value="1">A1</admission></entry></row></root>');
+        Observer.Expect('two rows', 'ok log=init;no=R1;status=open;admission=A1 admcode=1;entry= kind=k1;before insert R1;after insert;init;no=R2;status=closed;admission=A2 admcode=2;entry= kind=k2;before insert R2;after insert; values: entry= status=closed kind=k2 admission=A2 admcode=2 rows=R1:open/k1/A1/1;R2:closed/k2/A2/2;');
+        Observer.Expect('empty admission', 'ok log=init;no=R1;status=open;admission= admcode=1;entry= kind=k1;before insert R1;after insert; values: entry= status=open kind=k1 admission= admcode=1 rows=R1:open/k1//1;');
+        Observer.Expect('no kind', 'ok log=init;no=R1;status=open;admission=A1 admcode=1;entry= kind=;before insert R1;after insert; values: entry= status=open kind= admission=A1 admcode=1 rows=R1:open//A1/1;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TP_Nested_Import_Shapes()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        TpImport(Observer, 'admission missing', 90022, '<root><row><entry no="R1" status="open" kind="k1"/></row></root>');
+        TpImport(Observer, 'option_value missing', 90022, '<root><row><entry no="R1" status="open" kind="k1"><admission>A1</admission></entry></row></root>');
+        TpImport(Observer, 'status missing', 90022, '<root><row><entry no="R1" kind="k1"><admission option_value="1">A1</admission></entry></row></root>');
+        TpImport(Observer, 'entry missing', 90022, '<root><row/></root>');
+        TpImport(Observer, 'text in entry', 90022, '<root><row><entry no="R1" status="open" kind="k1">T<admission option_value="1">A1</admission></entry></row></root>');
+        Observer.Expect('admission missing|text', 'Imported XML cannot validate with the schema: The element ''entry'' has incomplete content. List of possible elements expected: ''admission''.');
+        Observer.Expect('admission missing|code', 'XmlPortInvalidXml');
+        Observer.Expect('option_value missing|text', 'Imported XML cannot validate with the schema: The required attribute ''option_value'' is missing.');
+        Observer.Expect('option_value missing|code', 'XmlPortInvalidXml');
+        Observer.Expect('status missing|text', 'Imported XML cannot validate with the schema: The required attribute ''status'' is missing.');
+        Observer.Expect('status missing|code', 'XmlPortInvalidXml');
+        Observer.Expect('entry missing|text', 'Imported XML cannot validate with the schema: The element ''row'' has incomplete content. List of possible elements expected: ''entry''.');
+        Observer.Expect('entry missing|code', 'XmlPortInvalidXml');
+        Observer.Expect('text in entry', 'ok log=init;no=R1;status=open;admission=A1 admcode=1;entry=T kind=k1;before insert R1;after insert; values: entry=T status=open kind=k1 admission=A1 admcode=1 rows=R1:open/k1/A1/1;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TP_Unlinked_Export()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TP XP Unlinked Temp";
+    begin
+        // The inner temporary table element has no LinkTable.
+        Port.AddRow('R1', 's1');
+        Port.AddRow('R2', 's2');
+        Port.AddAttr('R1', 'A', '1');
+        Port.AddAttr('R2', 'B', '2');
+        Port.AddAttr('X', 'C', '3');
+        Observer.Observe('xml', TpExportUnlinked(Port));
+        Observer.Observe('log', Port.GetLog());
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <row no="R1">|    <attributes>|      <attribute code="A" value="1" />|      <attribute code="B" value="2" />|      <attribute code="C" value="3" />|    </attributes>|    <status>s1</status>|  </row>|  <row no="R2">|    <attributes>|      <attribute code="A" value="1" />|      <attribute code="B" value="2" />|      <attribute code="C" value="3" />|    </attributes>|    <status>s2</status>|  </row>|</root>|');
+        Observer.Expect('log', 'get R1;get attr R1/A;get attr R2/B;get attr X/C;get R2;get attr R1/A;get attr R2/B;get attr X/C;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TP_Unlinked_Export_NoAttrs()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TP XP Unlinked Temp";
+    begin
+        Port.AddRow('R1', 's1');
+        Observer.Observe('xml', TpExportUnlinked(Port));
+        Observer.Observe('log', Port.GetLog());
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <row no="R1">|    <attributes />|    <status>s1</status>|  </row>|</root>|');
+        Observer.Expect('log', 'get R1;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TP_Unlinked_Import()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        TpImport(Observer, 'two rows', 90023, '<root><row no="R1"><attributes><attribute code="A" value="1"/><attribute code="B" value="2"/></attributes><status>s1</status></row><row no="R2"><attributes><attribute code="A" value="3"/></attributes><status>s2</status></row></root>');
+        TpImport(Observer, 'attributes absent', 90023, '<root><row no="R1"><status>s1</status></row><row no="R2"><attributes><attribute code="A" value="1"/></attributes></row></root>');
+        TpImport(Observer, 'attributes empty', 90023, '<root><row no="R1"><attributes/><status>s1</status></row></root>');
+        Observer.Expect('two rows', 'ok log=init;no=R1;init attr;before insert attr A=1 row=R1;after insert attr;init attr;before insert attr B=2 row=R1;after insert attr;before insert R1 status=s1;after insert;init;no=R2;init attr;before insert attr A=3 row=R2;after insert attr;before insert R2 status=s2;after insert; rows=R1:s1;R2:s2; attrs=R1/A=1;R1/B=2;R2/A=3;');
+        Observer.Expect('attributes absent', 'ok log=init;no=R1;before insert R1 status=s1;after insert;init;no=R2;init attr;before insert attr A=1 row=R2;after insert attr;before insert R2 status=;after insert; rows=R1:s1;R2:; attrs=R2/A=1;');
+        Observer.Expect('attributes empty', 'ok log=init;no=R1;before insert R1 status=s1;after insert; rows=R1:s1; attrs=');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TP_Unlinked_Import_Shapes()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        TpImport(Observer, 'attributes twice', 90023, '<root><row no="R1"><attributes><attribute code="A" value="1"/></attributes><attributes><attribute code="B" value="2"/></attributes></row></root>');
+        TpImport(Observer, 'same code twice', 90023, '<root><row no="R1"><attributes><attribute code="A" value="1"/><attribute code="A" value="2"/></attributes></row></root>');
+        TpImport(Observer, 'code missing', 90023, '<root><row no="R1"><attributes><attribute value="1"/></attributes></row></root>');
+        TpImport(Observer, 'status first', 90023, '<root><row no="R1"><status>s1</status><attributes><attribute code="A" value="1"/></attributes></row></root>');
+        Observer.Expect('attributes twice|text', 'Imported XML cannot validate with the schema: The element ''row'' has invalid child element ''attributes''. List of possible elements expected: ''status''.');
+        Observer.Expect('attributes twice|code', 'XmlPortInvalidXml');
+        Observer.Expect('same code twice|text', 'The record in table LT TP XP Attr already exists. Identification fields and values: Parent=''R1'',Code=''A''');
+        Observer.Expect('same code twice|code', 'DB:RecordExists');
+        Observer.Expect('code missing|text', 'Imported XML cannot validate with the schema: The required attribute ''code'' is missing.');
+        Observer.Expect('code missing|code', 'XmlPortInvalidXml');
+        Observer.Expect('status first|text', 'Imported XML cannot validate with the schema: The element ''row'' has invalid child element ''attributes''.');
+        Observer.Expect('status first|code', 'XmlPortInvalidXml');
         Observer.Verify();
     end;
 }

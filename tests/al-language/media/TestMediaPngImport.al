@@ -669,6 +669,53 @@ codeunit 60130 "Test Media Png Import"
         Observer.Expect('after committed delete export_nonempty', 'No');
         Observer.Verify();
     end;
+
+    // Writer TP (NP lane, 2026-10-28): Delete on a "Tenant Media" record (the row of a Media field), then the holder row. Values from the corpus CI
+    // containers (27.5, 28.5): Delete returns true, the row is gone, the holder keeps the MediaId with HasValue false; Delete of a missing id
+    // returns false with no error. On the BC 29 SaaS sandbox the same Delete fails: 'Your license does not grant you the following permissions
+    // on TableData 2000000184 Tenant Media: Delete.' (a license difference, not asserted).
+    [Test]
+    procedure TP_TenantMedia_Delete()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "ALT Media";
+        TenantMedia: Record "Tenant Media";
+        TempBlob: Codeunit "Temp Blob";
+        OutStr: OutStream;
+        Id: Guid;
+        Ok: Boolean;
+    begin
+        QeInitialize();
+        ImportBase64(Row, 'TP1', ValidPngBase64);
+        Row.Get('TP1');
+        Id := Row.Picture.MediaId();
+        Observer.Observe('get', Format(TenantMedia.Get(Id)));
+        ClearLastError();
+        Ok := TenantMedia.Delete();
+        Observer.Observe('delete', Format(Ok) + ' ' + GetLastErrorText());
+        ClearLastError();
+        Observer.Observe('get after delete', Format(TenantMedia.Get(Id)));
+        Row.Get('TP1');
+        Observer.Observe('has_value', Format(Row.Picture.HasValue()));
+        Observer.Observe('same_id', Format(Row.Picture.MediaId() = Id));
+        TempBlob.CreateOutStream(OutStr);
+        Observer.Observe('export_result', Format(Row.Picture.ExportStream(OutStr)));
+        Observer.Observe('export_nonempty', Format(TempBlob.Length() > 0));
+        TenantMedia.Init();
+        TenantMedia.ID := CreateGuid();
+        ClearLastError();
+        Ok := TenantMedia.Delete();
+        Observer.Observe('delete missing', Format(Ok) + ' ' + GetLastErrorText());
+        Observer.Expect('get', 'Yes');
+        Observer.Expect('delete', 'Yes ');
+        Observer.Expect('get after delete', 'No');
+        Observer.Expect('has_value', 'No');
+        Observer.Expect('same_id', 'Yes');
+        Observer.Expect('export_result', 'No');
+        Observer.Expect('export_nonempty', 'No');
+        Observer.Expect('delete missing', 'No ');
+        Observer.Verify();
+    end;
 }
 
 table 86580 "LT QE Media Other"
