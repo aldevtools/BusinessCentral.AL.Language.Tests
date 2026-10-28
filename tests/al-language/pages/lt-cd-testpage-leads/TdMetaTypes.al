@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/properties/devenv-sourcetableview-property
 // Scope: in-scope
-// Fixtures used: own objects 89790 - 89809 (writer TD)
+// Fixtures used: own objects 89790 - 89809 (89798 unused: a Duration const does not compile, tests/must-not-compile/cases/2234 and 2235) (writer TD)
 // Facts: al-runner issue 6030 (follow-up to 5957): the SourceTableView text of Page Metadata for where(<field> = const(...)) and
 //   where(<field> = filter(...)) on Decimal, BigInteger, Boolean, Code, Guid, Duration, DateTime and Time fields. Tests: SourceTableView_*
 //   in CdTestPageLeads.al (codeunit LT CD TestPage Leads).
@@ -138,23 +138,6 @@ page 89797 "LT TD Meta Guid"
     ApplicationArea = All;
     UsageCategory = None;
     SourceTableView = where(Gd = const('00000000-0000-0000-0000-000000000001'));
-
-    layout
-    {
-        area(Content)
-        {
-            repeater(Rows) { field(IdCtl; Rec.Id) { ApplicationArea = All; } }
-        }
-    }
-}
-
-page 89798 "LT TD Meta Dur"
-{
-    PageType = List;
-    SourceTable = "LT TD Meta Row";
-    ApplicationArea = All;
-    UsageCategory = None;
-    SourceTableView = where(Dur = const('1000'));
 
     layout
     {

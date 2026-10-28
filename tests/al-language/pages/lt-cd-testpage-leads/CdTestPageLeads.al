@@ -975,7 +975,6 @@ codeunit 84282 "LT CD TestPage Leads"
         TdObserveView(Page::"LT TD Meta Bool", 'Boolean const(true)');
         TdObserveView(Page::"LT TD Meta Code", 'Code const(A1)');
         TdObserveView(Page::"LT TD Meta Guid", 'Guid const');
-        TdObserveView(Page::"LT TD Meta Dur", 'Duration const(1000)');
         TdObserveView(Page::"LT TD Meta DateTime", 'DateTime const(0DT)');
         TdObserveView(Page::"LT TD Meta Time", 'Time const(120000T)');
         Observer.Finish();
