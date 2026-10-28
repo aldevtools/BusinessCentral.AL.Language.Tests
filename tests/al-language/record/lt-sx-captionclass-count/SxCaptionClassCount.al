@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/properties/devenv-captionclass-property
 // Scope: in-scope
-// Fixtures used: Probe Observer (69160); own tables 89670 and 89671, log codeunit 89672 (used only by test codeunit 89677), pages 89673 to 89676, test codeunit 89677
+// Fixtures used: Probe Observer (69160); own tables 89710 and 89711, log codeunit 89712 (used only by test codeunit 89717), pages 89713 to 89716, test codeunit 89717
 // Probe: from al-runner issue 5870 (reporter's real-BC run on 29.0.54011.55407, a Card with ONE CaptionClass field: 8 empty-record runs per
 //   OpenEdit, none on GoToRecord or Close). Every literal asserted below is what BC produced.
 // Facts: a Card or List page over a table with CaptionClass expression fields, three cycles of open, GoToRecord (to row 2 of 3) and Close in
@@ -16,7 +16,7 @@
 //   counts that differ between runs. This file counts per step (open, GoToRecord, Close) for tables with one and two expression fields.
 // BC versions: 27, 28, 29
 
-table 89670 "LT SX One"
+table 89710 "LT SX One"
 {
     DataClassification = SystemMetadata;
 
@@ -37,7 +37,7 @@ table 89670 "LT SX One"
     end;
 }
 
-table 89671 "LT SX Two"
+table 89711 "LT SX Two"
 {
     DataClassification = SystemMetadata;
 
@@ -59,7 +59,7 @@ table 89671 "LT SX Two"
     end;
 }
 
-codeunit 89672 "LT SX Log"
+codeunit 89712 "LT SX Log"
 {
     SingleInstance = true;
 
@@ -96,7 +96,7 @@ codeunit 89672 "LT SX Log"
     end;
 }
 
-page 89673 "LT SX Card One"
+page 89713 "LT SX Card One"
 {
     PageType = Card;
     ApplicationArea = All;
@@ -116,7 +116,7 @@ page 89673 "LT SX Card One"
     }
 }
 
-page 89674 "LT SX Card Two"
+page 89714 "LT SX Card Two"
 {
     PageType = Card;
     ApplicationArea = All;
@@ -137,7 +137,7 @@ page 89674 "LT SX Card Two"
     }
 }
 
-page 89675 "LT SX List One"
+page 89715 "LT SX List One"
 {
     PageType = List;
     ApplicationArea = All;
@@ -157,7 +157,7 @@ page 89675 "LT SX List One"
     }
 }
 
-page 89676 "LT SX List Two"
+page 89716 "LT SX List Two"
 {
     PageType = List;
     ApplicationArea = All;
@@ -178,7 +178,7 @@ page 89676 "LT SX List Two"
     }
 }
 
-codeunit 89677 "LT SX CaptionClass Count"
+codeunit 89717 "LT SX CaptionClass Count"
 {
     Subtype = Test;
     TestPermissions = Disabled;
