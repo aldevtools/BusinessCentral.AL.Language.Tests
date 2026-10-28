@@ -199,4 +199,41 @@ codeunit 74320 "LT FCF Format Comma String"
         Observer.Expect('s6', 'err:An invalid field or attribute has been specified for the ''Format'' property.\\<Decimals><Comma,.>|InvalidFormatString');
         Observer.Verify();
     end;
+
+    // Writer TP (NP lane, 2026-10-28): <Precision,2:26> with Standard Format 2 and 4, and <Precision,2:2> before <Sign>/<Integer>/<Decimals>/<Comma,x>.
+    local procedure TpObserve(var Observer: Codeunit "Probe Observer"; Prefix: Text; Value: Decimal)
+    var
+        Res: Text;
+    begin
+        Observer.Observe(Prefix + ' p26sf4', Show(TryFormat(Value, '<Precision,2:26><Standard Format,4>', Res), Res));
+        Observer.Observe(Prefix + ' p26sf2', Show(TryFormat(Value, '<Precision,2:26><Standard Format,2>', Res), Res));
+        Observer.Observe(Prefix + ' p2comma.', Show(TryFormat(Value, '<Precision,2:2><Sign><Integer><Decimals><Comma,.>', Res), Res));
+        Observer.Observe(Prefix + ' p2comma,', Show(TryFormat(Value, '<Precision,2:2><Sign><Integer><Decimals><Comma,,>', Res), Res));
+        Observer.Observe(Prefix + ' p2thousand', Show(TryFormat(Value, '<Precision,2:2><Integer Thousand><Decimals><Comma,,>', Res), Res));
+        Observer.Observe(Prefix + ' signfirst', Show(TryFormat(Value, '<Sign><Precision,2:2><Integer><Decimals>', Res), Res));
+    end;
+
+    [Test]
+    procedure TP_Format_PrecisionStrings()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        TpObserve(Observer, '0', 0);
+        TpObserve(Observer, '1234.5', 1234.5);
+        TpObserve(Observer, '-1234.567', -1234.567);
+        TpObserve(Observer, '0.125', 0.125);
+        TpObserve(Observer, '1234567.891', 1234567.891);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TP_Format_PrecisionStrings_Small()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        TpObserve(Observer, '0.1234567891234', 0.1234567891234);
+        TpObserve(Observer, '-0.005', -0.005);
+        TpObserve(Observer, '12', 12);
+        Observer.Finish();
+    end;
 }

@@ -644,4 +644,61 @@ codeunit 73403 "LT XmT Nodes"
         Observer.Expect('copy', '<a>\r\n  <x>1</x>\r\n<y /></a>');
         Observer.Verify();
     end;
+
+    // Writer TP (NP lane, 2026-10-28): Clear of an XmlNodeList variable, then Count, Get, foreach and reuse.
+    [TryFunction]
+    local procedure TpTryCount(L: XmlNodeList; var C: Integer)
+    begin
+        C := L.Count();
+    end;
+
+    local procedure TpCount(L: XmlNodeList): Text
+    var
+        C: Integer;
+    begin
+        if TpTryCount(L, C) then
+            exit(Format(C));
+        exit('err:' + GetLastErrorText() + '|' + GetLastErrorCode());
+    end;
+
+    [TryFunction]
+    local procedure TpTryForeach(L: XmlNodeList; var Acc: Text)
+    var
+        N: XmlNode;
+    begin
+        foreach N in L do
+            Acc += N.AsXmlElement().InnerText() + ',';
+    end;
+
+    [Test]
+    procedure TP_NodeList_Clear()
+    var
+        Doc: XmlDocument;
+        L: XmlNodeList;
+        Copy: XmlNodeList;
+        Fresh: XmlNodeList;
+        N: XmlNode;
+        Acc: Text;
+    begin
+        XmlDocument.ReadFrom('<a><b>1</b><b>2</b><c>3</c></a>', Doc);
+        Observer.Observe('fresh count', TpCount(Fresh));
+        Clear(Fresh);
+        Observer.Observe('fresh cleared count', TpCount(Fresh));
+        Doc.SelectNodes('//b', L);
+        Copy := L;
+        Observer.Observe('count', TpCount(L));
+        Clear(L);
+        Observer.Observe('cleared count', TpCount(L));
+        Observer.Observe('copy count', TpCount(Copy));
+        ClearLastError();
+        Observer.Observe('cleared get1', Format(L.Get(1, N)));
+        Observer.Observe('cleared foreach', Format(TpTryForeach(L, Acc)) + ' ' + Acc + ' ' + GetLastErrorText());
+        ClearLastError();
+        Observer.Observe('select again', Format(Doc.SelectNodes('//c', L)));
+        Observer.Observe('reused count', TpCount(L));
+        Observer.Observe('reused get1', Format(L.Get(1, N)) + ' ' + N.AsXmlElement().InnerText());
+        Observer.Observe('select none', Format(Doc.SelectNodes('//d', L)));
+        Observer.Observe('none count', TpCount(L));
+        Observer.Finish();
+    end;
 }

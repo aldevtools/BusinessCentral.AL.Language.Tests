@@ -741,4 +741,144 @@ codeunit 87280 "LT QR XP Container Tests"
         Observer.Expect('text in info', 'ok log=init;no=R1;kind=k1;name=N1;sub=s1;info=T;before insert R1 name=N1 kind=k1 sub=s1;after insert; values: info=T kind=k1 sub=s1 rows=R1:N1/k1/s1;');
         Observer.Verify();
     end;
+
+    local procedure TpExportNested(var Port: XmlPort "LT TP XP Nested Text"): Text
+    var
+        Buffer: Record "LT QR XP Blob" temporary;
+        OutS: OutStream;
+    begin
+        Buffer.Id := 1;
+        Buffer.Insert();
+        Buffer.Data.CreateOutStream(OutS, TextEncoding::UTF8);
+        Port.SetDestination(OutS);
+        Port.Export();
+        exit(ToRead(Buffer));
+    end;
+
+    local procedure TpExportUnlinked(var Port: XmlPort "LT TP XP Unlinked Temp"): Text
+    var
+        Buffer: Record "LT QR XP Blob" temporary;
+        OutS: OutStream;
+    begin
+        Buffer.Id := 1;
+        Buffer.Insert();
+        Buffer.Data.CreateOutStream(OutS, TextEncoding::UTF8);
+        Port.SetDestination(OutS);
+        Port.Export();
+        exit(ToRead(Buffer));
+    end;
+
+    local procedure TpImport(var Observer: Codeunit "Probe Observer"; Name: Text; Mode: Integer; Body: Text)
+    var
+        Runner: Codeunit "LT TP XP Runner";
+    begin
+        Runner.SetInput(Mode, '<?xml version="1.0" encoding="UTF-8"?>' + Body);
+        ClearLastError();
+        if Runner.Run() then
+            Observer.Observe(Name, 'ok ' + Runner.Result())
+        else
+            Observer.ObserveError(Name);
+    end;
+
+    [Test]
+    procedure TP_Nested_Export()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TP XP Nested Text";
+    begin
+        // table element > text element (field attribute, text attributes) > text element with one text attribute.
+        Port.AddRow('R1', 'open', 'k1', 'A1', '1');
+        Port.AddRow('R2', '', '', '', '2');
+        Port.AddRow('R3', 'closed', 'k3', 'X', '');
+        Observer.Observe('xml', TpExportNested(Port));
+        Observer.Observe('log', Port.GetLog());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TP_Nested_Export_NoRows()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TP XP Nested Text";
+    begin
+        Observer.Observe('xml', TpExportNested(Port));
+        Observer.Observe('log', Port.GetLog());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TP_Nested_Import()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        TpImport(Observer, 'two rows', 90022, '<root><row><entry no="R1" status="open" kind="k1"><admission option_value="1">A1</admission></entry></row><row><entry no="R2" status="closed" kind="k2"><admission option_value="2">A2</admission></entry></row></root>');
+        TpImport(Observer, 'empty admission', 90022, '<root><row><entry no="R1" status="open" kind="k1"><admission option_value="1"/></entry></row></root>');
+        TpImport(Observer, 'no kind', 90022, '<root><row><entry no="R1" status="open"><admission option_value="1">A1</admission></entry></row></root>');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TP_Nested_Import_Shapes()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        TpImport(Observer, 'admission missing', 90022, '<root><row><entry no="R1" status="open" kind="k1"/></row></root>');
+        TpImport(Observer, 'option_value missing', 90022, '<root><row><entry no="R1" status="open" kind="k1"><admission>A1</admission></entry></row></root>');
+        TpImport(Observer, 'status missing', 90022, '<root><row><entry no="R1" kind="k1"><admission option_value="1">A1</admission></entry></row></root>');
+        TpImport(Observer, 'entry missing', 90022, '<root><row/></root>');
+        TpImport(Observer, 'text in entry', 90022, '<root><row><entry no="R1" status="open" kind="k1">T<admission option_value="1">A1</admission></entry></row></root>');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TP_Unlinked_Export()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TP XP Unlinked Temp";
+    begin
+        // The inner temporary table element has no LinkTable.
+        Port.AddRow('R1', 's1');
+        Port.AddRow('R2', 's2');
+        Port.AddAttr('R1', 'A', '1');
+        Port.AddAttr('R2', 'B', '2');
+        Port.AddAttr('X', 'C', '3');
+        Observer.Observe('xml', TpExportUnlinked(Port));
+        Observer.Observe('log', Port.GetLog());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TP_Unlinked_Export_NoAttrs()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TP XP Unlinked Temp";
+    begin
+        Port.AddRow('R1', 's1');
+        Observer.Observe('xml', TpExportUnlinked(Port));
+        Observer.Observe('log', Port.GetLog());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TP_Unlinked_Import()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        TpImport(Observer, 'two rows', 90023, '<root><row no="R1"><attributes><attribute code="A" value="1"/><attribute code="B" value="2"/></attributes><status>s1</status></row><row no="R2"><attributes><attribute code="A" value="3"/></attributes><status>s2</status></row></root>');
+        TpImport(Observer, 'attributes absent', 90023, '<root><row no="R1"><status>s1</status></row><row no="R2"><attributes><attribute code="A" value="1"/></attributes></row></root>');
+        TpImport(Observer, 'attributes empty', 90023, '<root><row no="R1"><attributes/><status>s1</status></row></root>');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TP_Unlinked_Import_Shapes()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        TpImport(Observer, 'attributes twice', 90023, '<root><row no="R1"><attributes><attribute code="A" value="1"/></attributes><attributes><attribute code="B" value="2"/></attributes></row></root>');
+        TpImport(Observer, 'same code twice', 90023, '<root><row no="R1"><attributes><attribute code="A" value="1"/><attribute code="A" value="2"/></attributes></row></root>');
+        TpImport(Observer, 'code missing', 90023, '<root><row no="R1"><attributes><attribute value="1"/></attributes></row></root>');
+        TpImport(Observer, 'status first', 90023, '<root><row no="R1"><status>s1</status><attributes><attribute code="A" value="1"/></attributes></row></root>');
+        Observer.Finish();
+    end;
 }

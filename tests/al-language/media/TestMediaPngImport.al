@@ -687,4 +687,40 @@ table 86580 "LT QE Media Other"
     {
         key(PK; "Code") { Clustered = true; }
     }
+
+    // Writer TP (NP lane, 2026-10-28): Delete on a "Tenant Media" record (the row of a Media field), then the holder row.
+    [Test]
+    procedure TP_TenantMedia_Delete()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "ALT Media";
+        TenantMedia: Record "Tenant Media";
+        TempBlob: Codeunit "Temp Blob";
+        OutStr: OutStream;
+        Id: Guid;
+        Ok: Boolean;
+    begin
+        QeInitialize();
+        ImportBase64(Row, 'TP1', ValidPngBase64);
+        Row.Get('TP1');
+        Id := Row.Picture.MediaId();
+        Observer.Observe('get', Format(TenantMedia.Get(Id)));
+        ClearLastError();
+        Ok := TenantMedia.Delete();
+        Observer.Observe('delete', Format(Ok) + ' ' + GetLastErrorText());
+        ClearLastError();
+        Observer.Observe('get after delete', Format(TenantMedia.Get(Id)));
+        Row.Get('TP1');
+        Observer.Observe('has_value', Format(Row.Picture.HasValue()));
+        Observer.Observe('same_id', Format(Row.Picture.MediaId() = Id));
+        TempBlob.CreateOutStream(OutStr);
+        Observer.Observe('export_result', Format(Row.Picture.ExportStream(OutStr)));
+        Observer.Observe('export_nonempty', Format(TempBlob.Length() > 0));
+        TenantMedia.Init();
+        TenantMedia.ID := CreateGuid();
+        ClearLastError();
+        Ok := TenantMedia.Delete();
+        Observer.Observe('delete missing', Format(Ok) + ' ' + GetLastErrorText());
+        Observer.Finish();
+    end;
 }
