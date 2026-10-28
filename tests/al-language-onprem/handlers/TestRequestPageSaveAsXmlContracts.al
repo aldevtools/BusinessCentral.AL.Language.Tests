@@ -2,6 +2,7 @@
 // Scope: in-scope, but ONLY for a Target = OnPrem app (File, TemporaryPath)
 // Fixtures used: Assert (60021), from the AL Language Coverage Tests app; self-contained table 61240,
 //                codeunit 61241 (log), report 61242, codeunit 61243 (tests)
+//                Writer TO: tests TO_SaveAsXml_* on tables 98060-98061 and reports 98062-98063 (ToRpSaveAsXmlDataItems.al): nested and sibling data items.
 // Probe: written against a real BC 27.5 service tier started by bc-linux; every literal below is what
 // that tier produced. Other BC versions and other hosts were not measured.
 // BC versions: 27.5
@@ -339,5 +340,136 @@ codeunit 61243 "Probe RP SaveAsXml"
     procedure TemporaryPath_EndsWithTheTempFolderAndABackslash()
     begin
         Assert.IsTrue(TemporaryPath().EndsWith('TEMP\'), 'TemporaryPath');
+    end;
+
+    local procedure ToSeed()
+    var
+        P: Record "LT TO RP Parent";
+        C: Record "LT TO RP Child";
+    begin
+        P.DeleteAll();
+        C.DeleteAll();
+        P.Id := 1;
+        P.Name := 'a';
+        P.Insert();
+        P.Id := 2;
+        P.Name := '';
+        P.Insert();
+        P.Id := 3;
+        P.Name := 'c';
+        P.Insert();
+        C.ParentId := 1;
+        C.LineNo := 10;
+        C.Qty := 1.5;
+        C.Insert();
+        C.ParentId := 1;
+        C.LineNo := 20;
+        C.Qty := 2;
+        C.Insert();
+        C.ParentId := 3;
+        C.LineNo := 10;
+        C.Qty := 0;
+        C.Insert();
+        Commit();
+        ParametersFile := TemporaryPath() + 'probe-to-params.xml';
+        DataFile := TemporaryPath() + 'probe-to-data.xml';
+        if Exists(ParametersFile) then
+            Erase(ParametersFile);
+        if Exists(DataFile) then
+            Erase(DataFile);
+    end;
+
+    local procedure ToSplit(Content: Text; var Schema: Text; var Rows: Text)
+    var
+        At: Integer;
+    begin
+        At := StrPos(Content, '</xs:schema>|');
+        if At = 0 then begin
+            Schema := Content;
+            Rows := '';
+            exit;
+        end;
+        Schema := CopyStr(Content, 1, At + StrLen('</xs:schema>|') - 1);
+        Rows := CopyStr(Content, At + StrLen('</xs:schema>|'));
+    end;
+
+    [RequestPageHandler]
+    procedure ToNestedHandler(var RP: TestRequestPage "LT TO RP Nested")
+    begin
+        RP.SaveAsXml(ParametersFile, DataFile);
+    end;
+
+    [RequestPageHandler]
+    procedure ToSiblingsHandler(var RP: TestRequestPage "LT TO RP Siblings")
+    begin
+        RP.SaveAsXml(ParametersFile, DataFile);
+    end;
+
+    [Test]
+    [HandlerFunctions('ToNestedHandler')]
+    procedure TO_SaveAsXml_Nested_Schema()
+    var
+        Observer: Codeunit "Probe Observer";
+        Schema: Text;
+        Rows: Text;
+        HadBom: Boolean;
+    begin
+        // Writer TO: a parent data item with a linked child data item below it.
+        ToSeed();
+        Report.Run(Report::"LT TO RP Nested");
+        ToSplit(FileText(DataFile, HadBom), Schema, Rows);
+        Observer.Observe('bom', Format(HadBom));
+        Observer.Observe('schema', Schema);
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('ToNestedHandler')]
+    procedure TO_SaveAsXml_Nested_Rows()
+    var
+        Observer: Codeunit "Probe Observer";
+        Schema: Text;
+        Rows: Text;
+        HadBom: Boolean;
+    begin
+        ToSeed();
+        Report.Run(Report::"LT TO RP Nested");
+        ToSplit(FileText(DataFile, HadBom), Schema, Rows);
+        Observer.Observe('rows', Rows);
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('ToSiblingsHandler')]
+    procedure TO_SaveAsXml_Siblings_Schema()
+    var
+        Observer: Codeunit "Probe Observer";
+        Schema: Text;
+        Rows: Text;
+        HadBom: Boolean;
+    begin
+        // Writer TO: two data items side by side at the top level.
+        ToSeed();
+        Report.Run(Report::"LT TO RP Siblings");
+        ToSplit(FileText(DataFile, HadBom), Schema, Rows);
+        Observer.Observe('bom', Format(HadBom));
+        Observer.Observe('schema', Schema);
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('ToSiblingsHandler')]
+    procedure TO_SaveAsXml_Siblings_Rows()
+    var
+        Observer: Codeunit "Probe Observer";
+        Schema: Text;
+        Rows: Text;
+        HadBom: Boolean;
+    begin
+        ToSeed();
+        Report.Run(Report::"LT TO RP Siblings");
+        ToSplit(FileText(DataFile, HadBom), Schema, Rows);
+        Observer.Observe('rows', Rows);
+        Observer.Finish();
     end;
 }
