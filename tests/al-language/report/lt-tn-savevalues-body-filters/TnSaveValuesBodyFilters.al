@@ -1,12 +1,13 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/properties/devenv-savevalues-property
 // Scope: in-scope
 // Fixtures used: Probe Observer (69160); own tables 89980-89981, report 89980, log codeunit 89980, test codeunit 89981
-// Probe: observed on the BC 29 tier; every literal asserted below is what the BC tiers of the corpus matrix produced (al-runner issue 6065).
+// Probe: observed on a BC 29.0 SaaS sandbox (hub test runner); other BC versions are checked by the corpus CI matrix (al-runner issue 6065).
 // Facts: a report whose request page has SaveValues = true and two nested data items. The child data item's OnPreDataItem sets
 // filters of its own (SetRange/SetFilter on fields that are not request filter fields). What the request page and OnPreReport of
 // the next report instance see: (1) after a run whose body set filters, on a fresh variable; (2) after the user confirmed a filter
 // with OK; (3) after an edit closed with Cancel; (4) after Clear(ReportVar), and on fresh variables in two test procedures;
-// (5) on a second RunModal of the same variable. Also what the report variable still holds after its run.
+// (5) on a second RunModal of the same variable (refused: the object has been run). Also what the report variable still holds after
+// its run, and after a run whose request page was edited and then cancelled.
 // BC versions: 27-29
 
 table 89980 "LT TN SV Parent"
@@ -262,7 +263,7 @@ codeunit 89981 "LT TN SV Body Filter Tests"
         Observer.Observe('after the refused run', Rep.State());
         Observer.Expect('first run', 'page parent.code=[] child.code=[] child.parentcode=[] child.id=[];pre parent=[] child=[];child before body=[];');
         Observer.Expect('second RunModal|text', 'The object has been run. Use the function CLEAR(Report).');
-        Observer.Expect('second RunModal|code', 'Dialog');
+        Observer.Expect('second RunModal|code', 'ObjectHasAlreadyBeenRun');
         Observer.Expect('second run', '');
         Observer.Expect('after the refused run', 'ran=Yes parent=[] child=[Id: 1..5, ParentCode: P]');
         Observer.Verify();
