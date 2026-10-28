@@ -87,25 +87,25 @@ codeunit 89753 "LT SZ Sql Budget"
         Observer: Codeunit "Probe Observer";
         Subs: Codeunit "LT SZ Gt Subs";
         Row: Record "LT SZ Gt Row";
+        Acc: Text;
     begin
         BindSubscription(Subs);
         Commit();
         Mark();
         Row.Id := 1;
         Row.Insert();
-        Observer.Observe('gt first insert', Delta());
+        Acc += 'first ' + Delta() + '; ';
         Mark();
         Row.Id := 2;
         Row.Insert();
-        Observer.Observe('gt second insert', Delta());
+        Acc += 'second ' + Delta() + '; ';
         Mark();
         Row.Id := 3;
         Row.Insert();
-        Observer.Observe('gt third insert', Delta());
+        Acc += 'third ' + Delta() + '; ';
         Mark();
-        Observer.Observe('gt count', Format(Row.Count()));
-        Observer.Observe('gt count delta', Delta());
-        Observer.Observe('gt subscriber ran', Format(Subs.Seen()));
+        Acc += 'count ' + Format(Row.Count()) + ' ' + Delta() + '; seen ' + Format(Subs.Seen());
+        Observer.Observe('gt', Acc);
         UnbindSubscription(Subs);
         Observer.Verify();
     end;
@@ -116,23 +116,24 @@ codeunit 89753 "LT SZ Sql Budget"
     var
         Observer: Codeunit "Probe Observer";
         Row: Record "LT SZ Plain Row";
+        Acc: Text;
     begin
         Commit();
         Mark();
         Row.Id := 1;
         Row.Insert();
-        Observer.Observe('plain first insert', Delta());
+        Acc += 'first ' + Delta() + '; ';
         Mark();
         Row.Id := 2;
         Row.Insert();
-        Observer.Observe('plain second insert', Delta());
+        Acc += 'second ' + Delta() + '; ';
         Mark();
         Row.Id := 3;
         Row.Insert();
-        Observer.Observe('plain third insert', Delta());
+        Acc += 'third ' + Delta() + '; ';
         Mark();
-        Observer.Observe('plain count', Format(Row.Count()));
-        Observer.Observe('plain count delta', Delta());
+        Acc += 'count ' + Format(Row.Count()) + ' ' + Delta();
+        Observer.Observe('plain', Acc);
         Observer.Verify();
     end;
 
@@ -177,11 +178,12 @@ codeunit 89753 "LT SZ Sql Budget"
     var
         Observer: Codeunit "Probe Observer";
     begin
-        Observer.Observe('K=0 N=10', Buffered(0, 10) + ' | ' + Buffered(0, 10) + ' | ' + Buffered(0, 10));
-        Observer.Observe('K=1 N=10', Buffered(1, 10) + ' | ' + Buffered(1, 10) + ' | ' + Buffered(1, 10));
-        Observer.Observe('K=5 N=10', Buffered(5, 10) + ' | ' + Buffered(5, 10) + ' | ' + Buffered(5, 10));
-        Observer.Observe('K=5 N=1', Buffered(5, 1) + ' | ' + Buffered(5, 1) + ' | ' + Buffered(5, 1));
-        Observer.Observe('K=20 N=20', Buffered(20, 20) + ' | ' + Buffered(20, 20) + ' | ' + Buffered(20, 20));
+        Observer.Observe('all',
+            'K0N10 ' + Buffered(0, 10) + ' | ' + Buffered(0, 10) + ' | ' + Buffered(0, 10) +
+            ' ## K1N10 ' + Buffered(1, 10) + ' | ' + Buffered(1, 10) + ' | ' + Buffered(1, 10) +
+            ' ## K5N10 ' + Buffered(5, 10) + ' | ' + Buffered(5, 10) + ' | ' + Buffered(5, 10) +
+            ' ## K5N1 ' + Buffered(5, 1) + ' | ' + Buffered(5, 1) + ' | ' + Buffered(5, 1) +
+            ' ## K20N20 ' + Buffered(20, 20) + ' | ' + Buffered(20, 20) + ' | ' + Buffered(20, 20));
         Observer.Verify();
     end;
 }
