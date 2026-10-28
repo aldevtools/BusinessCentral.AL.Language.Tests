@@ -788,7 +788,7 @@ codeunit 68056 "W4 Platform Tests"
     end;
 
     [Test]
-    procedure TableFilterEvaluate_SrBinForms()
+    procedure TableFilterEvaluate_SeveralCodeFields()
     var
         Observer: Codeunit "Probe Observer";
     begin
@@ -799,7 +799,13 @@ codeunit 68056 "W4 Platform Tests"
         Observer.Observe('bin_bare_two_fields', EvalTfBare('Bin: Location Code=MAIN,Code=BIN01'));
         Observer.Observe('bin_bare_space_value', EvalTfBare('Bin: Code=BIN WITH SPACE'));
         Observer.Observe('bin_bare_two_fields_space', EvalTfBare('Bin: Location Code=MAIN,Code=BIN WITH SPACE'));
-        Observer.Finish();
+        Observer.Expect('bin_two_fields', 'Yes|[Bin: Location Code=MAIN,Code=BIN01]|[Bin: Location Code=MAIN,Code=BIN01]||');
+        Observer.Expect('bin_space_value', 'Yes|[Bin: Code=BIN WITH SPACE]|[Bin: Code=BIN WITH SPACE]||');
+        Observer.Expect('bin_two_fields_space', 'Yes|[Bin: Location Code=MAIN,Code=BIN WITH SPACE]|[Bin: Location Code=MAIN,Code=BIN WITH SPACE]||');
+        Observer.Expect('bin_bare_two_fields', 'ok:[Bin: Location Code=MAIN,Code=BIN01]');
+        Observer.Expect('bin_bare_space_value', 'ok:[Bin: Code=BIN WITH SPACE]');
+        Observer.Expect('bin_bare_two_fields_space', 'ok:[Bin: Location Code=MAIN,Code=BIN WITH SPACE]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -822,6 +828,29 @@ codeunit 68056 "W4 Platform Tests"
         Observer.Observe('empty_value', SrEvalTf('SR TF Pair: Code='));
         Observer.Observe('value_too_long', SrEvalTf('SR TF Pair: Location Code=ABCDEFGHIJKL'));
         Observer.Observe('int_second', SrEvalTf('SR TF Pair: Code=BIN01,Qty=5'));
+        Observer.Expect('two_codes', 'Yes|[SR TF Pair: SR Loc Cap=MAIN,SR Code Cap=BIN01]|[SR TF Pair: SR Loc Cap=MAIN,SR Code Cap=BIN01]||');
+        Observer.Expect('space_value', 'Yes|[SR TF Pair: SR Code Cap=BIN WITH SPACE]|[SR TF Pair: SR Code Cap=BIN WITH SPACE]||');
+        Observer.Expect('two_codes_space', 'Yes|[SR TF Pair: SR Loc Cap=MAIN,SR Code Cap=BIN WITH SPACE]|[SR TF Pair: SR Loc Cap=MAIN,SR Code Cap=BIN WITH SPACE]||');
+        Observer.Expect('space_value_first', 'Yes|[SR TF Pair: SR Loc Cap=MAIN,SR Code Cap=BIN WITH SPACE]|[SR TF Pair: SR Loc Cap=MAIN,SR Code Cap=BIN WITH SPACE]||');
+        Observer.Expect('space_after_comma', 'Yes|[SR TF Pair: SR Loc Cap=MAIN,SR Code Cap=BIN WITH SPACE]|[SR TF Pair: SR Loc Cap=MAIN,SR Code Cap=BIN WITH SPACE]||');
+        Observer.Expect('space_before_comma', 'Yes|[SR TF Pair: SR Loc Cap=MAIN,SR Code Cap=BIN01]|[SR TF Pair: SR Loc Cap=MAIN,SR Code Cap=BIN01]||');
+        Observer.Expect('trailing_space_value', 'Yes|[SR TF Pair: SR Code Cap=BIN01]|[SR TF Pair: SR Code Cap=BIN01]||');
+        Observer.Expect('leading_space_value', 'Yes|[SR TF Pair: SR Code Cap=BIN01]|[SR TF Pair: SR Code Cap=BIN01]||');
+        Observer.Expect('lower_case_space_value', 'Yes|[SR TF Pair: SR Code Cap=BIN WITH SPACE]|[SR TF Pair: SR Code Cap=BIN WITH SPACE]||');
+        Observer.Expect('text_space_value', 'Yes|[SR TF Pair: SR Descr Cap=Some text here]|[SR TF Pair: SR Descr Cap=Some text here]||');
+        Observer.Expect('caption_with_space', 'Yes|[SR TF Pair: SR Loc Cap=MAIN]|[SR TF Pair: SR Loc Cap=MAIN]||');
+        Observer.Expect('quoted_field_name', 'Yes|[SR TF Pair: SR Loc Cap=MAIN]|[SR TF Pair: SR Loc Cap=MAIN]||');
+        Observer.Expect('empty_value', 'Yes|[SR TF Pair: SR Code Cap=]|[SR TF Pair: SR Code Cap=]||');
+        Observer.Expect('value_too_long', 'No|[]|[]|The value "SR TF Pair: Location Code=ABCDEFGHIJKL" can''t be evaluated into type TableFilter. The length of the string is 12, but it must be less than or equal to 10 characters. Value: ABCDEFGHIJKL|Evaluate:InvalidFilterExpression');
+        Observer.Expect('int_second', 'Yes|[SR TF Pair: SR Code Cap=BIN01,SR Qty Cap=5]|[SR TF Pair: SR Code Cap=BIN01,SR Qty Cap=5]||');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TableFilterEvaluate_SrSecondFieldTypes()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Observer.Observe('int_second_range', SrEvalTf('SR TF Pair: Code=BIN01,Qty=1..5'));
         Observer.Observe('option_second', SrEvalTf('SR TF Pair: Code=BIN01,Kind=SIDE'));
         Observer.Observe('option_second_number', SrEvalTf('SR TF Pair: Code=BIN01,Kind=1'));
@@ -845,7 +874,18 @@ codeunit 68056 "W4 Platform Tests"
         Observer.Observe('single_quoted_pipe', SrEvalTf('SR TF Pair: Code=''A|B'''));
         Observer.Observe('double_quoted_value', SrEvalTf('SR TF Pair: Code="BIN01"'));
         Observer.Observe('quoted_then_second', SrEvalTf('SR TF Pair: Code=''A,B'',Location Code=MAIN'));
-        Observer.Finish();
+        Observer.Expect('range_second', 'Yes|[SR TF Pair: SR Loc Cap=MAIN,SR Code Cap=A..B]|[SR TF Pair: SR Loc Cap=MAIN,SR Code Cap=A..B]||');
+        Observer.Expect('or_value', 'Yes|[SR TF Pair: SR Code Cap=A|B]|[SR TF Pair: SR Code Cap=A|B]||');
+        Observer.Expect('or_second', 'Yes|[SR TF Pair: SR Loc Cap=MAIN,SR Code Cap=A|B]|[SR TF Pair: SR Loc Cap=MAIN,SR Code Cap=A|B]||');
+        Observer.Expect('or_space_values', 'Yes|[SR TF Pair: SR Code Cap=BIN ONE|BIN TWO]|[SR TF Pair: SR Code Cap=BIN ONE|BIN TWO]||');
+        Observer.Expect('range_space_values', 'Yes|[SR TF Pair: SR Code Cap=BIN A..BIN B]|[SR TF Pair: SR Code Cap=BIN A..BIN B]||');
+        Observer.Expect('not_equal_value', 'Yes|[SR TF Pair: SR Code Cap=<>BIN01]|[SR TF Pair: SR Code Cap=<>BIN01]||');
+        Observer.Expect('single_quoted_space', 'Yes|[SR TF Pair: SR Code Cap=BIN WITH SPACE]|[SR TF Pair: SR Code Cap=BIN WITH SPACE]||');
+        Observer.Expect('single_quoted_comma', 'No|[]|[]|The value "SR TF Pair: Code=''A,B''" can''t be evaluated into type TableFilter. An single quote ('') is missing.|Evaluate:InvalidFilterExpression');
+        Observer.Expect('single_quoted_pipe', 'Yes|[SR TF Pair: SR Code Cap=''A|B'']|[SR TF Pair: SR Code Cap=''A|B'']||');
+        Observer.Expect('double_quoted_value', 'Yes|[SR TF Pair: SR Code Cap=BIN01]|[SR TF Pair: SR Code Cap=BIN01]||');
+        Observer.Expect('quoted_then_second', 'No|[]|[]|The value "SR TF Pair: Code=''A,B'',Location Code=MAIN" can''t be evaluated into type TableFilter. An single quote ('') is missing.|Evaluate:InvalidFilterExpression');
+        Observer.Verify();
     end;
 
     [Test]
@@ -865,7 +905,19 @@ codeunit 68056 "W4 Platform Tests"
         Observer.Observe('bare_bad_int_second', EvalTfBare('SR TF Pair: Code=BIN01,Qty=abc'));
         Observer.Observe('bare_bad_option_second', EvalTfBare('SR TF Pair: Code=BIN01,Kind=NOPE'));
         Observer.Observe('bare_trailing_comma', EvalTfBare('SR TF Pair: Code=BIN01,'));
-        Observer.Finish();
+        Observer.Expect('unknown_second', 'No|[]|[]|The value "SR TF Pair: Code=BIN01,Nope=1" can''t be evaluated into type TableFilter. The supplied field number ''Nope'' cannot be found in the ''SR Pair Cap'' table.|Evaluate:FieldNotFound');
+        Observer.Expect('field_twice', 'Yes|[SR TF Pair: SR Code Cap=A,SR Code Cap=B]|[SR TF Pair: SR Code Cap=A,SR Code Cap=B]||');
+        Observer.Expect('field_twice_caption', 'Yes|[SR TF Pair: SR Code Cap=A,SR Code Cap=B]|[SR TF Pair: SR Code Cap=A,SR Code Cap=B]||');
+        Observer.Expect('bad_int_second', 'No|[]|[]|The value "SR TF Pair: Code=BIN01,Qty=abc" can''t be evaluated into type TableFilter. The value "abc" can''t be evaluated into type Integer.|Evaluate:InvalidFilterExpression');
+        Observer.Expect('bad_option_second', 'No|[]|[]|The value "SR TF Pair: Code=BIN01,Kind=NOPE" can''t be evaluated into type TableFilter. ''NOPE'' is not an option. The existing options are: Main Cap,Side Cap|Evaluate:InvalidFilterExpression');
+        Observer.Expect('missing_equals_second', 'No|[]|[]||');
+        Observer.Expect('trailing_comma', 'Yes|[SR TF Pair: SR Code Cap=BIN01]|[SR TF Pair: SR Code Cap=BIN01]||');
+        Observer.Expect('bare_unknown_second', 'error:The value "SR TF Pair: Code=BIN01,Nope=1" can''t be evaluated into type TableFilter. The supplied field number ''Nope'' cannot be found in the ''SR Pair Cap'' table.|Evaluate:FieldNotFound');
+        Observer.Expect('bare_field_twice', 'ok:[SR TF Pair: SR Code Cap=A,SR Code Cap=B]');
+        Observer.Expect('bare_bad_int_second', 'error:The value "SR TF Pair: Code=BIN01,Qty=abc" can''t be evaluated into type TableFilter. The value "abc" can''t be evaluated into type Integer.|Evaluate:InvalidFilterExpression');
+        Observer.Expect('bare_bad_option_second', 'error:The value "SR TF Pair: Code=BIN01,Kind=NOPE" can''t be evaluated into type TableFilter. ''NOPE'' is not an option. The existing options are: Main Cap,Side Cap|Evaluate:InvalidFilterExpression');
+        Observer.Expect('bare_trailing_comma', 'ok:[SR TF Pair: SR Code Cap=BIN01]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -889,6 +941,11 @@ codeunit 68056 "W4 Platform Tests"
         Clear(Copy);
         Observer.Observe('roundtrip_evaluate_9', Format(Evaluate(Copy.Flt, Format(Got.Flt, 0, 9), 9)) + '|[' + Format(Copy.Flt) + ']');
         Row.DeleteAll();
-        Observer.Finish();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('format_after_get', '[SR TF Pair: SR Loc Cap=MAIN,SR Code Cap=BIN WITH SPACE]');
+        Observer.Expect('format_9_after_get', '[SR TF Pair: SR Loc Cap=MAIN,SR Code Cap=BIN WITH SPACE]');
+        Observer.Expect('roundtrip_evaluate', 'Yes|[SR TF Pair: SR Loc Cap=MAIN,SR Code Cap=BIN WITH SPACE]');
+        Observer.Expect('roundtrip_evaluate_9', 'Yes|[SR TF Pair: SR Loc Cap=MAIN,SR Code Cap=BIN WITH SPACE]');
+        Observer.Verify();
     end;
 }
