@@ -3,6 +3,7 @@
 // Scope: in-scope
 // Fixtures used: QDTF Row (60497), QDTF Open Rows (60500), QDTF Two Field Filter (60501),
 //   QDTF Status Filtered (60507), QDTF Self Join Status (60508); shared Assert (60021)
+//   Writer SQ: Probe Observer (69160) and SqQdtfEmptyFilter.al (table 89589, queries 89590-89594)
 //
 // A query dataitem's DataItemTableFilter property is a STATIC filter on the dataitem's own
 // TABLE rows, applied before anything is projected. It differs from a column's ColumnFilter
@@ -291,5 +292,95 @@ codeunit 60503 "QDTF Table Filter Tests"
         Q.Close();
 
         Assert.AreEqual(0, Seen, 'joined rows when the two dataitems filter Status contradictorily');
+    end;
+
+    // Writer SQ (NP lane 2026-10-28): DataItemTableFilter and ColumnFilter with an empty filter term filter('') (SqQdtfEmptyFilter.al).
+    local procedure SqSeed()
+    var
+        Row: Record "LT SQ Qf Row";
+    begin
+        Row.DeleteAll();
+        SqInsert(1, '', '');
+        SqInsert(2, 'A', 'a');
+        SqInsert(3, 'B', '');
+        SqInsert(4, '', 'b');
+    end;
+
+    local procedure SqInsert(Id: Integer; RowCode: Code[10]; Txt: Text[30])
+    var
+        Row: Record "LT SQ Qf Row";
+    begin
+        Row.Init();
+        Row.Id := Id;
+        Row.Code := RowCode;
+        Row.Txt := Txt;
+        Row.Insert();
+    end;
+
+    [TryFunction]
+    local procedure SqTryRead(QueryId: Integer; var Ids: Text)
+    var
+        QCodeFilter: Query "LT SQ Qf Code Filter Empty";
+        QTxtFilter: Query "LT SQ Qf Txt Filter Empty";
+        QCodeConst: Query "LT SQ Qf Code Const Empty";
+        QCodeOr: Query "LT SQ Qf Code Filter Or";
+        QColumn: Query "LT SQ Qf Column Filter Empty";
+    begin
+        case QueryId of
+            Query::"LT SQ Qf Code Filter Empty":
+                begin
+                    QCodeFilter.Open();
+                    while QCodeFilter.Read() do
+                        Ids += Format(QCodeFilter.RowId) + ',';
+                end;
+            Query::"LT SQ Qf Txt Filter Empty":
+                begin
+                    QTxtFilter.Open();
+                    while QTxtFilter.Read() do
+                        Ids += Format(QTxtFilter.RowId) + ',';
+                end;
+            Query::"LT SQ Qf Code Const Empty":
+                begin
+                    QCodeConst.Open();
+                    while QCodeConst.Read() do
+                        Ids += Format(QCodeConst.RowId) + ',';
+                end;
+            Query::"LT SQ Qf Code Filter Or":
+                begin
+                    QCodeOr.Open();
+                    while QCodeOr.Read() do
+                        Ids += Format(QCodeOr.RowId) + ',';
+                end;
+            Query::"LT SQ Qf Column Filter Empty":
+                begin
+                    QColumn.Open();
+                    while QColumn.Read() do
+                        Ids += Format(QColumn.RowId) + ',';
+                end;
+        end;
+    end;
+
+    local procedure SqRead(QueryId: Integer): Text
+    var
+        Ids: Text;
+    begin
+        ClearLastError();
+        if SqTryRead(QueryId, Ids) then
+            exit('ok:' + Ids);
+        exit('error:' + GetLastErrorText() + '|' + GetLastErrorCode());
+    end;
+
+    [Test]
+    procedure Sq_EmptyFilterTerm_Rows()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        SqSeed();
+        Observer.Observe('code filter empty', SqRead(Query::"LT SQ Qf Code Filter Empty"));
+        Observer.Observe('txt filter empty', SqRead(Query::"LT SQ Qf Txt Filter Empty"));
+        Observer.Observe('code const empty', SqRead(Query::"LT SQ Qf Code Const Empty"));
+        Observer.Observe('code filter empty or A', SqRead(Query::"LT SQ Qf Code Filter Or"));
+        Observer.Observe('column filter empty', SqRead(Query::"LT SQ Qf Column Filter Empty"));
+        Observer.Finish();
     end;
 }

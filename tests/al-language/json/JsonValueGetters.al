@@ -368,4 +368,54 @@ codeunit 72502 "LT JsT Value Getters"
         Observer.Expect('char_asinteger', 'ok:66');
         Observer.Verify();
     end;
+
+    // Writer SQ (NP lane 2026-10-28): AsBigInteger, AsByte and AsOption of a JSON string that holds digits (AsInteger of "42" is NumericTextGetters).
+    [TryFunction]
+    local procedure SqDoGet(V: JsonValue; Kind: Text; var R: Text)
+    begin
+        case Kind of
+            'AsBigInteger':
+                R := Format(V.AsBigInteger());
+            'AsByte':
+                R := Format(V.AsByte());
+            'AsOption':
+                R := Format(V.AsOption());
+            'AsInteger':
+                R := Format(V.AsInteger());
+        end;
+    end;
+
+    local procedure SqTry(V: JsonValue; Kind: Text): Text
+    var
+        R: Text;
+    begin
+        if SqDoGet(V, Kind, R) then
+            exit('ok:' + R);
+        exit('error:' + GetLastErrorText() + '|' + GetLastErrorCode());
+    end;
+
+    local procedure SqRow(Json: Text): Text
+    var
+        V: JsonValue;
+    begin
+        V := ValFrom(Json);
+        exit('big=' + SqTry(V, 'AsBigInteger') + ' ; byte=' + SqTry(V, 'AsByte') + ' ; option=' + SqTry(V, 'AsOption') + ' ; int=' + SqTry(V, 'AsInteger'));
+    end;
+
+    [Test]
+    procedure Sq_DigitText_BigIntegerByteOption()
+    begin
+        Observer.Observe('text 42', SqRow('"42"'));
+        Observer.Observe('text 7', SqRow('"7"'));
+        Observer.Observe('text 0', SqRow('"0"'));
+        Observer.Observe('text -5', SqRow('"-5"'));
+        Observer.Observe('text 300', SqRow('"300"'));
+        Observer.Observe('text 3000000000', SqRow('"3000000000"'));
+        Observer.Observe('text 4.5', SqRow('"4.5"'));
+        Observer.Observe('text space 42', SqRow('" 42"'));
+        Observer.Observe('text 1,000', SqRow('"1,000"'));
+        Observer.Observe('number 42', SqRow('42'));
+        Observer.Observe('number 300', SqRow('300'));
+        Observer.Finish();
+    end;
 }
