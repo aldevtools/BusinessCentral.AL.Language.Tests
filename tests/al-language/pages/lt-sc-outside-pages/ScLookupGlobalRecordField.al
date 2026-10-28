@@ -8,6 +8,9 @@
 //   the picked "No." in Text; its OnValidate does Setting.Modify() and CurrPage.Update(false). Read after the Lookup:
 //   the control's Value() and, after Close, the saved setting row. Also: the same OnLookup cancelled (answers false
 //   without touching Text), an OnValidate without CurrPage.Update, and an OnLookup that sets Text and answers false.
+//   Added for al-runner issue 6009 (real BC 29.0 run): the same page with a ListPart (no link: rows R1 R2 R3; with SubPageLink
+//   "No." = field("No."): the host's current row only, R1), with CurrPage.Update(false), Update(true) and no Update. In every
+//   form the control shows R2 after the lookup and the part rows are unchanged.
 // BC versions: all (CI)
 // Neighbours: pages/lt-test-field-lookup/TestFieldLookupTriggers.al pins Lookup on controls bound to Rec fields.
 
@@ -152,6 +155,220 @@ page 89007 "LT SC Schedule"
         Setting: Record "LT SC Planner Setting";
 }
 
+page 89630 "LT ST Resource Part"
+{
+    PageType = ListPart;
+    SourceTable = "LT SC Resource";
+    ApplicationArea = All;
+    Editable = false;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Lines)
+            {
+                field("No."; Rec."No.") { ApplicationArea = All; }
+            }
+        }
+    }
+}
+
+page 89631 "LT ST Schedule With Part"
+{
+    PageType = List;
+    SourceTable = "LT SC Resource";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            group(Filters)
+            {
+                field(ResourceNo; Setting."Resource No.")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Resource No.';
+
+                    trigger OnLookup(var Text: Text): Boolean
+                    var
+                        Resource: Record "LT SC Resource";
+                    begin
+                        if Page.RunModal(Page::"LT SC Resource List", Resource) <> Action::LookupOK then
+                            exit(false);
+                        Text := Resource."No.";
+                        exit(true);
+                    end;
+
+                    trigger OnValidate()
+                    begin
+                        Setting.Modify();
+                        CurrPage.Update(false);
+                    end;
+                }
+                field(ResourceNoTrue; Setting."Resource No. 2")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Resource No. 2';
+
+                    trigger OnLookup(var Text: Text): Boolean
+                    var
+                        Resource: Record "LT SC Resource";
+                    begin
+                        if Page.RunModal(Page::"LT SC Resource List", Resource) <> Action::LookupOK then
+                            exit(false);
+                        Text := Resource."No.";
+                        exit(true);
+                    end;
+
+                    trigger OnValidate()
+                    begin
+                        Setting.Modify();
+                        CurrPage.Update(true);
+                    end;
+                }
+                field(ResourceNoNoUpdate; Setting."Resource No. 3")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Resource No. 3';
+
+                    trigger OnLookup(var Text: Text): Boolean
+                    var
+                        Resource: Record "LT SC Resource";
+                    begin
+                        if Page.RunModal(Page::"LT SC Resource List", Resource) <> Action::LookupOK then
+                            exit(false);
+                        Text := Resource."No.";
+                        exit(true);
+                    end;
+
+                    trigger OnValidate()
+                    begin
+                        Setting.Modify();
+                    end;
+                }
+            }
+            repeater(Lines)
+            {
+                field("No."; Rec."No.") { ApplicationArea = All; }
+            }
+            part(Resources; "LT ST Resource Part")
+            {
+                ApplicationArea = All;
+            }
+        }
+    }
+
+    trigger OnOpenPage()
+    begin
+        if not Setting.Get() then
+            Setting.Insert();
+    end;
+
+    var
+        Setting: Record "LT SC Planner Setting";
+}
+
+page 89632 "LT ST Schedule Linked Part"
+{
+    PageType = List;
+    SourceTable = "LT SC Resource";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            group(Filters)
+            {
+                field(ResourceNo; Setting."Resource No.")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Resource No.';
+
+                    trigger OnLookup(var Text: Text): Boolean
+                    var
+                        Resource: Record "LT SC Resource";
+                    begin
+                        if Page.RunModal(Page::"LT SC Resource List", Resource) <> Action::LookupOK then
+                            exit(false);
+                        Text := Resource."No.";
+                        exit(true);
+                    end;
+
+                    trigger OnValidate()
+                    begin
+                        Setting.Modify();
+                        CurrPage.Update(false);
+                    end;
+                }
+                field(ResourceNoTrue; Setting."Resource No. 2")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Resource No. 2';
+
+                    trigger OnLookup(var Text: Text): Boolean
+                    var
+                        Resource: Record "LT SC Resource";
+                    begin
+                        if Page.RunModal(Page::"LT SC Resource List", Resource) <> Action::LookupOK then
+                            exit(false);
+                        Text := Resource."No.";
+                        exit(true);
+                    end;
+
+                    trigger OnValidate()
+                    begin
+                        Setting.Modify();
+                        CurrPage.Update(true);
+                    end;
+                }
+                field(ResourceNoNoUpdate; Setting."Resource No. 3")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Resource No. 3';
+
+                    trigger OnLookup(var Text: Text): Boolean
+                    var
+                        Resource: Record "LT SC Resource";
+                    begin
+                        if Page.RunModal(Page::"LT SC Resource List", Resource) <> Action::LookupOK then
+                            exit(false);
+                        Text := Resource."No.";
+                        exit(true);
+                    end;
+
+                    trigger OnValidate()
+                    begin
+                        Setting.Modify();
+                    end;
+                }
+            }
+            repeater(Lines)
+            {
+                field("No."; Rec."No.") { ApplicationArea = All; }
+            }
+            part(Resources; "LT ST Resource Part")
+            {
+                ApplicationArea = All;
+                SubPageLink = "No." = field("No.");
+            }
+        }
+    }
+
+    trigger OnOpenPage()
+    begin
+        if not Setting.Get() then
+            Setting.Insert();
+    end;
+
+    var
+        Setting: Record "LT SC Planner Setting";
+}
+
 codeunit 89008 "LT SC Lookup Global Rec Tests"
 {
     Subtype = Test;
@@ -245,6 +462,150 @@ codeunit 89008 "LT SC Lookup Global Rec Tests"
         Schedule.Close();
         Setting.Get();
         Assert.AreEqual('shows=[] saved=[]', 'shows=[' + Shown + '] saved=[' + Setting."Resource No. 3" + ']', 'lookup answering false');
+    end;
+
+    [Test]
+    [HandlerFunctions('PickSecondResource')]
+    procedure LookupUpdateFalseOnPart()
+    var
+        Setting: Record "LT SC Planner Setting";
+        Schedule: TestPage "LT ST Schedule With Part";
+        Shown: Text;
+        PartRows: Text;
+        SavedValue: Text;
+    begin
+        Setup();
+        Schedule.OpenEdit();
+        Schedule.ResourceNo.Lookup();
+        Shown := Schedule.ResourceNo.Value();
+        if Schedule.Resources.First() then
+            repeat
+                PartRows += '<' + Schedule.Resources."No.".Value() + '>';
+            until not Schedule.Resources.Next();
+        Schedule.Close();
+        Setting.Get();
+        SavedValue := Setting."Resource No." + '/' + Setting."Resource No. 2" + '/' + Setting."Resource No. 3";
+        Assert.AreEqual('shows=[R2] part=<R1><R2><R3> saved=[R2//]', 'shows=[' + Shown + '] part=' + PartRows + ' saved=[' + SavedValue + ']', 'LookupUpdateFalseOnPart');
+    end;
+
+    [Test]
+    [HandlerFunctions('PickSecondResource')]
+    procedure LookupUpdateTrueOnPart()
+    var
+        Setting: Record "LT SC Planner Setting";
+        Schedule: TestPage "LT ST Schedule With Part";
+        Shown: Text;
+        PartRows: Text;
+        SavedValue: Text;
+    begin
+        Setup();
+        Schedule.OpenEdit();
+        Schedule.ResourceNoTrue.Lookup();
+        Shown := Schedule.ResourceNoTrue.Value();
+        if Schedule.Resources.First() then
+            repeat
+                PartRows += '<' + Schedule.Resources."No.".Value() + '>';
+            until not Schedule.Resources.Next();
+        Schedule.Close();
+        Setting.Get();
+        SavedValue := Setting."Resource No." + '/' + Setting."Resource No. 2" + '/' + Setting."Resource No. 3";
+        Assert.AreEqual('shows=[R2] part=<R1><R2><R3> saved=[/R2/]', 'shows=[' + Shown + '] part=' + PartRows + ' saved=[' + SavedValue + ']', 'LookupUpdateTrueOnPart');
+    end;
+
+    [Test]
+    [HandlerFunctions('PickSecondResource')]
+    procedure LookupNoUpdateOnPart()
+    var
+        Setting: Record "LT SC Planner Setting";
+        Schedule: TestPage "LT ST Schedule With Part";
+        Shown: Text;
+        PartRows: Text;
+        SavedValue: Text;
+    begin
+        Setup();
+        Schedule.OpenEdit();
+        Schedule.ResourceNoNoUpdate.Lookup();
+        Shown := Schedule.ResourceNoNoUpdate.Value();
+        if Schedule.Resources.First() then
+            repeat
+                PartRows += '<' + Schedule.Resources."No.".Value() + '>';
+            until not Schedule.Resources.Next();
+        Schedule.Close();
+        Setting.Get();
+        SavedValue := Setting."Resource No." + '/' + Setting."Resource No. 2" + '/' + Setting."Resource No. 3";
+        Assert.AreEqual('shows=[R2] part=<R1><R2><R3> saved=[//R2]', 'shows=[' + Shown + '] part=' + PartRows + ' saved=[' + SavedValue + ']', 'LookupNoUpdateOnPart');
+    end;
+
+    [Test]
+    [HandlerFunctions('PickSecondResource')]
+    procedure LookupUpdateFalseOnLinkedPart()
+    var
+        Setting: Record "LT SC Planner Setting";
+        Schedule: TestPage "LT ST Schedule Linked Part";
+        Shown: Text;
+        PartRows: Text;
+        SavedValue: Text;
+    begin
+        Setup();
+        Schedule.OpenEdit();
+        Schedule.ResourceNo.Lookup();
+        Shown := Schedule.ResourceNo.Value();
+        if Schedule.Resources.First() then
+            repeat
+                PartRows += '<' + Schedule.Resources."No.".Value() + '>';
+            until not Schedule.Resources.Next();
+        Schedule.Close();
+        Setting.Get();
+        SavedValue := Setting."Resource No." + '/' + Setting."Resource No. 2" + '/' + Setting."Resource No. 3";
+        Assert.AreEqual('shows=[R2] part=<R1> saved=[R2//]', 'shows=[' + Shown + '] part=' + PartRows + ' saved=[' + SavedValue + ']', 'LookupUpdateFalseOnLinkedPart');
+    end;
+
+    [Test]
+    [HandlerFunctions('PickSecondResource')]
+    procedure LookupUpdateTrueOnLinkedPart()
+    var
+        Setting: Record "LT SC Planner Setting";
+        Schedule: TestPage "LT ST Schedule Linked Part";
+        Shown: Text;
+        PartRows: Text;
+        SavedValue: Text;
+    begin
+        Setup();
+        Schedule.OpenEdit();
+        Schedule.ResourceNoTrue.Lookup();
+        Shown := Schedule.ResourceNoTrue.Value();
+        if Schedule.Resources.First() then
+            repeat
+                PartRows += '<' + Schedule.Resources."No.".Value() + '>';
+            until not Schedule.Resources.Next();
+        Schedule.Close();
+        Setting.Get();
+        SavedValue := Setting."Resource No." + '/' + Setting."Resource No. 2" + '/' + Setting."Resource No. 3";
+        Assert.AreEqual('shows=[R2] part=<R1> saved=[/R2/]', 'shows=[' + Shown + '] part=' + PartRows + ' saved=[' + SavedValue + ']', 'LookupUpdateTrueOnLinkedPart');
+    end;
+
+    [Test]
+    [HandlerFunctions('PickSecondResource')]
+    procedure LookupNoUpdateOnLinkedPart()
+    var
+        Setting: Record "LT SC Planner Setting";
+        Schedule: TestPage "LT ST Schedule Linked Part";
+        Shown: Text;
+        PartRows: Text;
+        SavedValue: Text;
+    begin
+        Setup();
+        Schedule.OpenEdit();
+        Schedule.ResourceNoNoUpdate.Lookup();
+        Shown := Schedule.ResourceNoNoUpdate.Value();
+        if Schedule.Resources.First() then
+            repeat
+                PartRows += '<' + Schedule.Resources."No.".Value() + '>';
+            until not Schedule.Resources.Next();
+        Schedule.Close();
+        Setting.Get();
+        SavedValue := Setting."Resource No." + '/' + Setting."Resource No. 2" + '/' + Setting."Resource No. 3";
+        Assert.AreEqual('shows=[R2] part=<R1> saved=[//R2]', 'shows=[' + Shown + '] part=' + PartRows + ' saved=[' + SavedValue + ']', 'LookupNoUpdateOnLinkedPart');
     end;
 
     [ModalPageHandler]
