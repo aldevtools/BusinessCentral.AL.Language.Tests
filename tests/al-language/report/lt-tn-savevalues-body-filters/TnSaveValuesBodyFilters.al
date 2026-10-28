@@ -165,10 +165,10 @@ codeunit 89981 "LT TN SV Body Filter Tests"
         Observer.Observe('second after run', Second.State());
         Observer.Observe('first after second run', First.State());
         Observer.Expect('first run', 'page parent.code=[] child.code=[] child.parentcode=[] child.id=[];pre parent=[] child=[];child before body=[];');
-        Observer.Expect('first after run', 'ran=Yes parent=[] child=[ParentCode: P, Id: 1..5]');
+        Observer.Expect('first after run', 'ran=Yes parent=[] child=[Id: 1..5, ParentCode: P]');
         Observer.Expect('second run', 'page parent.code=[] child.code=[] child.parentcode=[] child.id=[];pre parent=[] child=[];child before body=[];');
-        Observer.Expect('second after run', 'ran=Yes parent=[] child=[ParentCode: P, Id: 1..5]');
-        Observer.Expect('first after second run', 'ran=Yes parent=[] child=[ParentCode: P, Id: 1..5]');
+        Observer.Expect('second after run', 'ran=Yes parent=[] child=[Id: 1..5, ParentCode: P]');
+        Observer.Expect('first after second run', 'ran=Yes parent=[] child=[Id: 1..5, ParentCode: P]');
         Observer.Verify();
     end;
 
@@ -217,7 +217,7 @@ codeunit 89981 "LT TN SV Body Filter Tests"
         Observer.Observe('last run', Log.Take());
         ResetSaved();
         Observer.Expect('cancelled run', 'page parent.code=[P] child.code=[] child.parentcode=[] child.id=[];');
-        Observer.Expect('cancelled after run', 'ran=No parent=[] child=[]');
+        Observer.Expect('cancelled after run', 'ran=No parent=[Code: OTHER] child=[]');
         Observer.Expect('last run', 'page parent.code=[P] child.code=[] child.parentcode=[] child.id=[];pre parent=[Code: P] child=[];child before body=[];');
         Observer.Verify();
     end;
@@ -241,13 +241,13 @@ codeunit 89981 "LT TN SV Body Filter Tests"
         Observer.Expect('first run', 'page parent.code=[] child.code=[] child.parentcode=[] child.id=[];pre parent=[] child=[];child before body=[];');
         Observer.Expect('after Clear', 'ran=No parent=[] child=[]');
         Observer.Expect('second run', 'page parent.code=[] child.code=[] child.parentcode=[] child.id=[];pre parent=[] child=[];child before body=[];');
-        Observer.Expect('second after run', 'ran=Yes parent=[] child=[ParentCode: P, Id: 1..5]');
+        Observer.Expect('second after run', 'ran=Yes parent=[] child=[Id: 1..5, ParentCode: P]');
         Observer.Verify();
     end;
 
     [Test]
     [HandlerFunctions('BodyFilterHandler')]
-    procedure RunModalTwice_SameVariable()
+    procedure RunModalTwice_SameVariable_SecondIsRefused()
     var
         Observer: Codeunit "Probe Observer";
         Rep: Report "LT TN SV Body Filters";
@@ -256,12 +256,15 @@ codeunit 89981 "LT TN SV Body Filter Tests"
         Mode := 0;
         Rep.RunModal();
         Observer.Observe('first run', Log.Take());
-        Rep.RunModal();
+        asserterror Rep.RunModal();
+        Observer.ObserveError('second RunModal');
         Observer.Observe('second run', Log.Take());
-        Observer.Observe('second after run', Rep.State());
+        Observer.Observe('after the refused run', Rep.State());
         Observer.Expect('first run', 'page parent.code=[] child.code=[] child.parentcode=[] child.id=[];pre parent=[] child=[];child before body=[];');
-        Observer.Expect('second run', 'page parent.code=[] child.code=[] child.parentcode=[] child.id=[];pre parent=[] child=[];child before body=[];');
-        Observer.Expect('second after run', 'ran=Yes parent=[] child=[ParentCode: P, Id: 1..5]');
+        Observer.Expect('second RunModal|text', 'The object has been run. Use the function CLEAR(Report).');
+        Observer.Expect('second RunModal|code', 'Dialog');
+        Observer.Expect('second run', '');
+        Observer.Expect('after the refused run', 'ran=Yes parent=[] child=[Id: 1..5, ParentCode: P]');
         Observer.Verify();
     end;
 
