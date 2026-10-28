@@ -855,7 +855,11 @@ codeunit 68056 "W4 Platform Tests"
         Observer.Observe('option_second', SrEvalTf('SR TF Pair: Code=BIN01,Kind=SIDE'));
         Observer.Observe('option_second_number', SrEvalTf('SR TF Pair: Code=BIN01,Kind=1'));
         Observer.Observe('three_fields', SrEvalTf('SR TF Pair: Location Code=MAIN,Code=BIN WITH SPACE,Qty=5'));
-        Observer.Finish();
+        Observer.Expect('int_second_range', 'Yes|[SR TF Pair: SR Code Cap=BIN01,SR Qty Cap=1..5]|[SR TF Pair: SR Code Cap=BIN01,SR Qty Cap=1..5]||');
+        Observer.Expect('option_second', 'Yes|[SR TF Pair: SR Code Cap=BIN01,SR Kind Cap=Side Cap]|[SR TF Pair: SR Code Cap=BIN01,SR Kind Cap=Side Cap]||');
+        Observer.Expect('option_second_number', 'Yes|[SR TF Pair: SR Code Cap=BIN01,SR Kind Cap=Side Cap]|[SR TF Pair: SR Code Cap=BIN01,SR Kind Cap=Side Cap]||');
+        Observer.Expect('three_fields', 'Yes|[SR TF Pair: SR Loc Cap=MAIN,SR Code Cap=BIN WITH SPACE,SR Qty Cap=5]|[SR TF Pair: SR Loc Cap=MAIN,SR Code Cap=BIN WITH SPACE,SR Qty Cap=5]||');
+        Observer.Verify();
     end;
 
     [Test]
