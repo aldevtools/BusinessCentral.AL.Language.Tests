@@ -154,7 +154,7 @@ page 89798 "LT TD Meta Dur"
     SourceTable = "LT TD Meta Row";
     ApplicationArea = All;
     UsageCategory = None;
-    SourceTableView = where(Dur = const(1000));
+    SourceTableView = where(Dur = const('1000'));
 
     layout
     {
@@ -273,7 +273,7 @@ page 89805 "LT TD Meta CodeRange"
     SourceTable = "LT TD Meta Row";
     ApplicationArea = All;
     UsageCategory = None;
-    SourceTableView = where(Cd = filter(A1..C9));
+    SourceTableView = where(Cd = filter('A1..C9'));
 
     layout
     {
