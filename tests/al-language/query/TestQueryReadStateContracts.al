@@ -7,7 +7,7 @@
 // Pins a query with ReadState = ReadUncommitted (the only value the app's runtime version 16.0 offers besides the
 // default: ReadCommitted needs runtime 18.0, RepeatableRead and UpdLock are no values of the property): it returns
 // a row the same session wrote and has not committed, and the same row after a Commit.
-// Fixtures used (added): Probe Observer (69160); queries 89920-89922
+// Fixtures used (added): Probe Observer (69160); queries 89920-89921
 // BC versions: 27.5
 
 table 68952 "Probe ReadState Table"
@@ -67,19 +67,6 @@ query 89921 "LT TJ ReadState Committed"
     }
 }
 
-query 89922 "LT TJ ReadState NoLocks"
-{
-    QueryType = Normal;
-    ReadState = NoLocks;
-
-    elements
-    {
-        dataitem(T; "Probe ReadState Table")
-        {
-            column(Id; Id) { }
-        }
-    }
-}
 
 codeunit 68954 "Probe Query ReadState"
 {
@@ -140,18 +127,6 @@ codeunit 68954 "Probe Query ReadState"
         exit(Count);
     end;
 
-    local procedure RowsNoLocks(): Integer
-    var
-        Q: Query "LT TJ ReadState NoLocks";
-        Count: Integer;
-    begin
-        Q.Open();
-        while Q.Read() do
-            Count += 1;
-        Q.Close();
-        exit(Count);
-    end;
-
     [Test]
     procedure ReadStateValues_SeeTheSessionsOwnUncommittedRow_AndTheCommittedOne()
     var
@@ -165,11 +140,9 @@ codeunit 68954 "Probe Query ReadState"
 
         Observer.Observe('shared_uncommitted', Format(RowsShared()));
         Observer.Observe('committed_uncommitted', Format(RowsCommitted()));
-        Observer.Observe('nolocks_uncommitted', Format(RowsNoLocks()));
         Commit();
         Observer.Observe('shared_after', Format(RowsShared()));
         Observer.Observe('committed_after', Format(RowsCommitted()));
-        Observer.Observe('nolocks_after', Format(RowsNoLocks()));
         Observer.Finish();
     end;
 }

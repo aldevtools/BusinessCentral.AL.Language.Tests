@@ -32,19 +32,6 @@ query 89921 "LT TJ ReadState Committed"
     }
 }
 
-query 89922 "LT TJ ReadState NoLocks"
-{
-    QueryType = Normal;
-    ReadState = NoLocks;
-
-    elements
-    {
-        dataitem(T; "LT TJ RS Table")
-        {
-            column(Id; Id) { }
-        }
-    }
-}
 
 codeunit 89923 "LT TJ Scratch"
 {
@@ -75,18 +62,6 @@ codeunit 89923 "LT TJ Scratch"
         exit(Count);
     end;
 
-    local procedure RowsNoLocks(): Integer
-    var
-        Q: Query "LT TJ ReadState NoLocks";
-        Count: Integer;
-    begin
-        Q.Open();
-        while Q.Read() do
-            Count += 1;
-        Q.Close();
-        exit(Count);
-    end;
-
     [Test]
     procedure ReadStateValues_SeeTheSessionsOwnUncommittedRow_AndTheCommittedOne()
     var
@@ -100,11 +75,9 @@ codeunit 89923 "LT TJ Scratch"
 
         Observer.Observe('shared_uncommitted', Format(RowsShared()));
         Observer.Observe('committed_uncommitted', Format(RowsCommitted()));
-        Observer.Observe('nolocks_uncommitted', Format(RowsNoLocks()));
         Commit();
         Observer.Observe('shared_after', Format(RowsShared()));
         Observer.Observe('committed_after', Format(RowsCommitted()));
-        Observer.Observe('nolocks_after', Format(RowsNoLocks()));
         Observer.Finish();
     end;
 }
