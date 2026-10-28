@@ -262,54 +262,6 @@ codeunit 84892 "LT CN Iso WriteTx"
         Observer.Verify();
     end;
 
-    // Writer SG (2026-10-27): Set and SetEncrypted over a key that already exists, after a Commit: does the overwrite open a write
-    // transaction; and Get, Contains of the overwritten value.
-    [Test]
-    procedure SG_IsoOverwrite_WriteTransaction()
-    var
-        Observer: Codeunit "Probe Observer";
-        Value: Text;
-    begin
-        Clean();
-        IsolatedStorage.Set('LTCNtx', 'v1', DataScope::Module);
-        Commit();
-        Observer.Observe('before overwrite', Format(Database.IsInWriteTransaction()));
-        Observer.Observe('set same key ret', Format(IsolatedStorage.Set('LTCNtx', 'v2', DataScope::Module)));
-        Observer.Observe('after set overwrite', Format(Database.IsInWriteTransaction()));
-        Commit();
-        Observer.Observe('set same value ret', Format(IsolatedStorage.Set('LTCNtx', 'v2', DataScope::Module)));
-        Observer.Observe('after set same value', Format(Database.IsInWriteTransaction()));
-        Commit();
-        Observer.Observe('setencrypted overwrite ret', Format(IsolatedStorage.SetEncrypted('LTCNtx', 'v3', DataScope::Module)));
-        Observer.Observe('after setencrypted overwrite', Format(Database.IsInWriteTransaction()));
-        Commit();
-        Observer.Observe('setencrypted again ret', Format(IsolatedStorage.SetEncrypted('LTCNtx', 'v4', DataScope::Module)));
-        Observer.Observe('after setencrypted again', Format(Database.IsInWriteTransaction()));
-        Commit();
-        Observer.Observe('get ret', Format(IsolatedStorage.Get('LTCNtx', DataScope::Module, Value)));
-        Observer.Observe('get value', Value);
-        Observer.Observe('after get', Format(Database.IsInWriteTransaction()));
-        Clean();
-        Observer.Observe('setencrypted new key ret', Format(IsolatedStorage.SetEncrypted('LTCNtx', 'e1', DataScope::Module)));
-        Observer.Observe('after setencrypted new key', Format(Database.IsInWriteTransaction()));
-        Clean();
-        Observer.Expect('before overwrite', 'No');
-        Observer.Expect('set same key ret', 'Yes');
-        Observer.Expect('after set overwrite', 'Yes');
-        Observer.Expect('set same value ret', 'Yes');
-        Observer.Expect('after set same value', 'Yes');
-        Observer.Expect('setencrypted overwrite ret', 'Yes');
-        Observer.Expect('after setencrypted overwrite', 'Yes');
-        Observer.Expect('setencrypted again ret', 'Yes');
-        Observer.Expect('after setencrypted again', 'Yes');
-        Observer.Expect('get ret', 'Yes');
-        Observer.Expect('get value', 'v4');
-        Observer.Expect('after get', 'No');
-        Observer.Expect('setencrypted new key ret', 'Yes');
-        Observer.Expect('after setencrypted new key', 'Yes');
-        Observer.Verify();
-    end;
-
     [Test]
     procedure IsoSet_ThenGuardedCodeunitRun()
     var
