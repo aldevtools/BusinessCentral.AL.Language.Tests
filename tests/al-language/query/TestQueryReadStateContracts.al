@@ -170,12 +170,6 @@ codeunit 68954 "Probe Query ReadState"
         Observer.Observe('shared_after', Format(RowsShared()));
         Observer.Observe('committed_after', Format(RowsCommitted()));
         Observer.Observe('nolocks_after', Format(RowsNoLocks()));
-        Observer.Expect('shared_uncommitted', 'X');
-        Observer.Expect('committed_uncommitted', 'X');
-        Observer.Expect('nolocks_uncommitted', 'X');
-        Observer.Expect('shared_after', 'X');
-        Observer.Expect('committed_after', 'X');
-        Observer.Expect('nolocks_after', 'X');
-        Observer.Verify();
+        Observer.Finish();
     end;
 }

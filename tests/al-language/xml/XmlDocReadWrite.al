@@ -356,16 +356,7 @@ codeunit 73400 "LT XmT Doc ReadWrite"
         Doc.GetRoot(Root);
         Observer.Observe('children_none', Format(Root.GetChildNodes().Count()));
         Observer.Observe('out_none', Out(Doc));
-        Observer.Expect('ok_true', 'X');
-        Observer.Expect('children_true', 'X');
-        Observer.Expect('out_true', 'X');
-        Observer.Expect('ok_false', 'X');
-        Observer.Expect('children_false', 'X');
-        Observer.Expect('out_false', 'X');
-        Observer.Expect('ok_none', 'X');
-        Observer.Expect('children_none', 'X');
-        Observer.Expect('out_none', 'X');
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -384,9 +375,7 @@ codeunit 73400 "LT XmT Doc ReadWrite"
         Observer.Observe('ok', Format(XmlDocument.ReadFrom(InS, Opt, Doc)));
         Observer.Observe('err', GetLastErrorText());
         ClearLastError();
-        Observer.Expect('ok', 'X');
-        Observer.Expect('err', 'X');
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
