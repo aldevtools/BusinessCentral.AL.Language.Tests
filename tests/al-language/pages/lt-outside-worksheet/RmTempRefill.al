@@ -786,6 +786,48 @@ codeunit 88269 "LT RM Refill Tests"
         Observer.Expect('shown after walk', 'R2');
         Observer.Verify();
     end;
+
+    [Test]
+    procedure TD_RefillMany_WithCurrRecord_3To25()
+    begin
+        TdRunCur(3, 1, 25);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TD_RefillMany_WithCurrRecord_25To22()
+    begin
+        TdRunCur(25, 1, 22);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TD_RefillMany_WithCurrRecord_30To21_FromRow25()
+    begin
+        TdRunCur(30, 25, 21);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TD_RefillMany_NoCurrRecord_3To25()
+    begin
+        TdRunNoCur(3, 1, 25);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TD_RefillMany_NoCurrRecord_25To22()
+    begin
+        TdRunNoCur(25, 1, 22);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TD_RefillMany_NoCurrRecord_30To21_FromRow25()
+    begin
+        TdRunNoCur(30, 25, 21);
+        Observer.Finish();
+    end;
 }
 
 page 89437 "LT SH Refill Fewer Cur"

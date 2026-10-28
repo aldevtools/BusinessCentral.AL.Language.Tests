@@ -720,6 +720,71 @@ codeunit 88615 "LT RT Uf Tests"
         Observer.Expect('close log', '');
         Observer.Verify();
     end;
+
+    // ---- Writer TD (coordinator addition to 6027): the action deletes ONE of two lines (the current one, 10000) and moves Rec to the other
+    // line (20000) or to a key no line has (5), with and without CurrPage.Update(false). Mode 5..8 = DelFirstToOther, ...NoUpdate, DelFirstToNoKey, ...NoUpdate.
+
+    local procedure TdRunDeleteOne(Mode: Integer)
+    var
+        Ws: TestPage "LT TD Ws Leaves Key";
+        Line: Record "LT TD Line";
+        Rows: Text;
+    begin
+        TdInsertLines(2, false);
+        Ws.OpenEdit();
+        Observer.Observe('open shown', Ws.BatchCtl.Value() + '|' + Ws.LineNoCtl.Value());
+        Observer.Observe('open log', Log.Take());
+        case Mode of
+            5:
+                Ws.DelFirstToOther.Invoke();
+            6:
+                Ws.DelFirstToOtherNoUpdate.Invoke();
+            7:
+                Ws.DelFirstToNoKey.Invoke();
+            8:
+                Ws.DelFirstToNoKeyNoUpdate.Invoke();
+        end;
+        Observer.Observe('action log', Log.Take());
+        Observer.Observe('shown after action', Ws.BatchCtl.Value() + '|' + Ws.LineNoCtl.Value() + '|' + Ws.DescriptionCtl.Value());
+        Observer.Observe('count', Format(Line.Count()));
+        if Ws.First() then
+            repeat
+                Rows += Ws.LineNoCtl.Value() + ' ';
+            until not Ws.Next();
+        Observer.Observe('rows', Rows);
+        Observer.Observe('walk log', Log.Take());
+        Observer.Observe('shown after walk', Ws.LineNoCtl.Value());
+        Ws.Close();
+        Observer.Observe('close log', Log.Take());
+    end;
+
+    [Test]
+    procedure TD_DeleteOneOfTwo_MoveToOther_WithUpdate()
+    begin
+        TdRunDeleteOne(5);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TD_DeleteOneOfTwo_MoveToOther_NoUpdate()
+    begin
+        TdRunDeleteOne(6);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TD_DeleteOneOfTwo_MoveToUnknownKey_WithUpdate()
+    begin
+        TdRunDeleteOne(7);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TD_DeleteOneOfTwo_MoveToUnknownKey_NoUpdate()
+    begin
+        TdRunDeleteOne(8);
+        Observer.Finish();
+    end;
 }
 
 table 89434 "LT SH Rel Batch"
@@ -895,6 +960,48 @@ page 89813 "LT TD Ws Leaves Key"
                 begin
                     Rec.DeleteAll();
                     Rec."Line No." := 1;
+                end;
+            }
+            action(DelFirstToOther)
+            {
+                ApplicationArea = All;
+
+                trigger OnAction()
+                begin
+                    Rec.Delete();
+                    Rec.Get('B1', 20000);
+                    CurrPage.Update(false);
+                end;
+            }
+            action(DelFirstToOtherNoUpdate)
+            {
+                ApplicationArea = All;
+
+                trigger OnAction()
+                begin
+                    Rec.Delete();
+                    Rec.Get('B1', 20000);
+                end;
+            }
+            action(DelFirstToNoKey)
+            {
+                ApplicationArea = All;
+
+                trigger OnAction()
+                begin
+                    Rec.Delete();
+                    Rec."Line No." := 5;
+                    CurrPage.Update(false);
+                end;
+            }
+            action(DelFirstToNoKeyNoUpdate)
+            {
+                ApplicationArea = All;
+
+                trigger OnAction()
+                begin
+                    Rec.Delete();
+                    Rec."Line No." := 5;
                 end;
             }
             action(PostOtherBatch)
