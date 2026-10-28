@@ -965,7 +965,10 @@ codeunit 84282 "LT CD TestPage Leads"
         TdObserveView(Page::"LT TD Meta Dec0", 'Decimal const(0)');
         TdObserveView(Page::"LT TD Meta Dec15", 'Decimal const(1.5)');
         TdObserveView(Page::"LT TD Meta DecNeg2", 'Decimal const(-2)');
-        Observer.Finish();
+        Observer.Expect('Decimal const(0)', 'WHERE(Field2=CONST(0))');
+        Observer.Expect('Decimal const(1.5)', 'WHERE(Field2=CONST(1.5))');
+        Observer.Expect('Decimal const(-2)', 'WHERE(Field2=CONST(-2))');
+        Observer.Verify();
     end;
 
     [Test]
@@ -977,7 +980,13 @@ codeunit 84282 "LT CD TestPage Leads"
         TdObserveView(Page::"LT TD Meta Guid", 'Guid const');
         TdObserveView(Page::"LT TD Meta DateTime", 'DateTime const(0DT)');
         TdObserveView(Page::"LT TD Meta Time", 'Time const(120000T)');
-        Observer.Finish();
+        Observer.Expect('BigInteger const(5)', 'WHERE(Field3=CONST(5))');
+        Observer.Expect('Boolean const(true)', 'WHERE(Field4=CONST(1))');
+        Observer.Expect('Code const(A1)', 'WHERE(Field5=CONST(A1))');
+        Observer.Expect('Guid const', 'WHERE(Field6=CONST(00000000-0000-0000-0000-000000000001))');
+        Observer.Expect('DateTime const(0DT)', 'WHERE(Field8=CONST(0001-01-01T00:00:00.0000000))');
+        Observer.Expect('Time const(120000T)', 'WHERE(Field9=CONST(0001-01-01T12:00:00.0000000))');
+        Observer.Verify();
     end;
 
     [Test]
@@ -992,6 +1001,15 @@ codeunit 84282 "LT CD TestPage Leads"
         TdObserveView(Page::"LT TD Meta DurFilter", 'Duration filter(>0)');
         TdObserveView(Page::"LT TD Meta DtFilter", 'DateTime filter(<>0DT)');
         TdObserveView(Page::"LT TD Meta TmFilter", 'Time filter(<>0T)');
-        Observer.Finish();
+        Observer.Expect('Decimal filter(>0)', 'WHERE(Field2=FILTER(>0))');
+        Observer.Expect('Decimal filter(1.5..3)', 'WHERE(Field2=FILTER(1.5..3))');
+        Observer.Expect('BigInteger filter(1..5)', 'WHERE(Field3=FILTER(1..5))');
+        Observer.Expect('Boolean filter(true)', 'WHERE(Field4=FILTER(true))');
+        Observer.Expect('Code filter(A1..C9)', 'WHERE(Field5=FILTER(A1..C9))');
+        Observer.Expect('Guid filter(<>blank)', 'WHERE(Field6=FILTER(<>''''))');
+        Observer.Expect('Duration filter(>0)', 'WHERE(Field7=FILTER(>0))');
+        Observer.Expect('DateTime filter(<>0DT)', 'WHERE(Field8=FILTER(<>1/1/0001 12:00:00 AM))');
+        Observer.Expect('Time filter(<>0T)', 'WHERE(Field9=FILTER(<>0T))');
+        Observer.Verify();
     end;
 }

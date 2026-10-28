@@ -609,98 +609,182 @@ codeunit 88269 "LT RM Refill Tests"
     procedure TD_RefillFewer_WithCurrRecord_3To2()
     begin
         TdRunCur(3, 1, 2);
-        Observer.Finish();
+        Observer.Expect('before', 'R1');
+        Observer.Expect('action log', 'R:R1;R:R1;R:R1;R:R2;R:R1;R:R1;C:R1;');
+        Observer.Expect('shown after action', 'R1');
+        Observer.Expect('rows', 'R1 R2');
+        Observer.Expect('walk log', 'R:R2;R:R2;C:R2;');
+        Observer.Expect('shown after walk', 'R2');
+        Observer.Verify();
     end;
 
     [Test]
     procedure TD_RefillFewer_WithCurrRecord_25To2()
     begin
         TdRunCur(25, 1, 2);
-        Observer.Finish();
+        Observer.Expect('before', 'R1');
+        Observer.Expect('action log', 'R:R1;R:R1;R:R1;R:R2;R:R1;R:R1;C:R1;');
+        Observer.Expect('shown after action', 'R1');
+        Observer.Expect('rows', 'R1 R2');
+        Observer.Expect('walk log', 'R:R2;R:R2;C:R2;');
+        Observer.Expect('shown after walk', 'R2');
+        Observer.Verify();
     end;
 
     [Test]
     procedure TD_RefillFewer_WithCurrRecord_25To3()
     begin
         TdRunCur(25, 1, 3);
-        Observer.Finish();
+        Observer.Expect('before', 'R1');
+        Observer.Expect('action log', 'R:R1;R:R1;R:R1;R:R2;R:R3;R:R1;R:R1;C:R1;');
+        Observer.Expect('shown after action', 'R1');
+        Observer.Expect('rows', 'R1 R2 R3');
+        Observer.Expect('walk log', 'R:R2;R:R2;C:R2;R:R3;R:R3;C:R3;');
+        Observer.Expect('shown after walk', 'R3');
+        Observer.Verify();
     end;
 
     [Test]
     procedure TD_RefillFewer_WithCurrRecord_3To0()
     begin
         TdRunCur(3, 1, 0);
-        Observer.Finish();
+        Observer.Expect('before', 'R1');
+        Observer.Expect('action log', 'R:R1;C:;');
+        Observer.Expect('shown after action', '');
+        Observer.Expect('rows', '');
+        Observer.Expect('walk log', '');
+        Observer.Expect('shown after walk', '');
+        Observer.Verify();
     end;
 
     [Test]
     procedure TD_RefillFewer_WithCurrRecord_25To0()
     begin
         TdRunCur(25, 1, 0);
-        Observer.Finish();
+        Observer.Expect('before', 'R1');
+        Observer.Expect('action log', 'R:R1;C:;');
+        Observer.Expect('shown after action', '');
+        Observer.Expect('rows', '');
+        Observer.Expect('walk log', '');
+        Observer.Expect('shown after walk', '');
+        Observer.Verify();
     end;
 
     [Test]
     procedure TD_RefillFewer_WithCurrRecord_25To2_FromRow23()
     begin
         TdRunCur(25, 23, 2);
-        Observer.Finish();
+        Observer.Expect('before', 'R23');
+        Observer.Expect('action log', 'R:R23;R:R1;R:R1;R:R2;R:R1;R:R1;C:R1;');
+        Observer.Expect('shown after action', 'R1');
+        Observer.Expect('rows', 'R1 R2');
+        Observer.Expect('walk log', 'R:R2;R:R2;C:R2;');
+        Observer.Expect('shown after walk', 'R2');
+        Observer.Verify();
     end;
 
     [Test]
     procedure TD_RefillFewer_WithCurrRecord_3To2_FromRow3()
     begin
         TdRunCur(3, 3, 2);
-        Observer.Finish();
+        Observer.Expect('before', 'R3');
+        Observer.Expect('action log', 'R:R3;R:R1;R:R1;R:R2;R:R1;R:R1;C:R1;');
+        Observer.Expect('shown after action', 'R1');
+        Observer.Expect('rows', 'R1 R2');
+        Observer.Expect('walk log', 'R:R2;R:R2;C:R2;');
+        Observer.Expect('shown after walk', 'R2');
+        Observer.Verify();
     end;
 
     [Test]
     procedure TD_RefillFewer_NoCurrRecord_3To2()
     begin
         TdRunNoCur(3, 1, 2);
-        Observer.Finish();
+        Observer.Expect('before', 'R1');
+        Observer.Expect('action log', 'R:R1;R:R1;R:R1;R:R2;R:R1;');
+        Observer.Expect('shown after action', 'R1');
+        Observer.Expect('rows', 'R1 R2');
+        Observer.Expect('walk log', '');
+        Observer.Expect('shown after walk', 'R2');
+        Observer.Verify();
     end;
 
     [Test]
     procedure TD_RefillFewer_NoCurrRecord_25To2()
     begin
         TdRunNoCur(25, 1, 2);
-        Observer.Finish();
+        Observer.Expect('before', 'R1');
+        Observer.Expect('action log', 'R:R1;R:R1;R:R1;R:R2;R:R1;');
+        Observer.Expect('shown after action', 'R1');
+        Observer.Expect('rows', 'R1 R2');
+        Observer.Expect('walk log', '');
+        Observer.Expect('shown after walk', 'R2');
+        Observer.Verify();
     end;
 
     [Test]
     procedure TD_RefillFewer_NoCurrRecord_25To3()
     begin
         TdRunNoCur(25, 1, 3);
-        Observer.Finish();
+        Observer.Expect('before', 'R1');
+        Observer.Expect('action log', 'R:R1;R:R1;R:R1;R:R2;R:R3;R:R1;');
+        Observer.Expect('shown after action', 'R1');
+        Observer.Expect('rows', 'R1 R2 R3');
+        Observer.Expect('walk log', '');
+        Observer.Expect('shown after walk', 'R3');
+        Observer.Verify();
     end;
 
     [Test]
     procedure TD_RefillFewer_NoCurrRecord_3To0()
     begin
         TdRunNoCur(3, 1, 0);
-        Observer.Finish();
+        Observer.Expect('before', 'R1');
+        Observer.Expect('action log', 'R:R1;');
+        Observer.Expect('shown after action', '');
+        Observer.Expect('rows', '');
+        Observer.Expect('walk log', '');
+        Observer.Expect('shown after walk', '');
+        Observer.Verify();
     end;
 
     [Test]
     procedure TD_RefillFewer_NoCurrRecord_25To0()
     begin
         TdRunNoCur(25, 1, 0);
-        Observer.Finish();
+        Observer.Expect('before', 'R1');
+        Observer.Expect('action log', 'R:R1;');
+        Observer.Expect('shown after action', '');
+        Observer.Expect('rows', '');
+        Observer.Expect('walk log', '');
+        Observer.Expect('shown after walk', '');
+        Observer.Verify();
     end;
 
     [Test]
     procedure TD_RefillFewer_NoCurrRecord_25To2_FromRow23()
     begin
         TdRunNoCur(25, 23, 2);
-        Observer.Finish();
+        Observer.Expect('before', 'R23');
+        Observer.Expect('action log', 'R:R23;R:R23;R:R1;R:R1;R:R2;R:R1;');
+        Observer.Expect('shown after action', 'R1');
+        Observer.Expect('rows', 'R1 R2');
+        Observer.Expect('walk log', '');
+        Observer.Expect('shown after walk', 'R2');
+        Observer.Verify();
     end;
 
     [Test]
     procedure TD_RefillFewer_NoCurrRecord_3To2_FromRow3()
     begin
         TdRunNoCur(3, 3, 2);
-        Observer.Finish();
+        Observer.Expect('before', 'R3');
+        Observer.Expect('action log', 'R:R3;R:R3;R:R1;R:R1;R:R2;R:R1;');
+        Observer.Expect('shown after action', 'R1');
+        Observer.Expect('rows', 'R1 R2');
+        Observer.Expect('walk log', '');
+        Observer.Expect('shown after walk', 'R2');
+        Observer.Verify();
     end;
 }
 
