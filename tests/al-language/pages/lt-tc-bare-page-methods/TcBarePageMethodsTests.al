@@ -253,42 +253,6 @@ codeunit 89775 "LT TC Bare Page Methods"
         Assert.AreEqual('OBS', Bare, 'log and R1 name');
     end;
 
-    local procedure RunActivateActionBare(): Text
-    var
-        P: TestPage "LT TC Bare List";
-    begin
-        Initialize();
-        P.OpenEdit();
-        P.GoToKey('R1');
-        P.ActivateIt.Invoke();
-        P.Close();
-        exit(LogOf('B:') + '|' + NameOf('R1'));
-    end;
-
-    local procedure RunActivateActionCurr(): Text
-    var
-        P: TestPage "LT TC Curr List";
-    begin
-        Initialize();
-        P.OpenEdit();
-        P.GoToKey('R1');
-        P.ActivateIt.Invoke();
-        P.Close();
-        exit(LogOf('C:') + '|' + NameOf('R1'));
-    end;
-
-    [Test]
-    procedure ActivateAction_BareMatchesCurrPage()
-    var
-        Bare: Text;
-        Curr: Text;
-    begin
-        Bare := RunActivateActionBare();
-        Curr := RunActivateActionCurr();
-        Assert.AreEqual(Curr, Bare, 'bare form must behave like the CurrPage. form');
-        Assert.AreEqual('OBS', Bare, 'log and R1 name');
-    end;
-
     local procedure RunCloseActionBare(): Text
     var
         P: TestPage "LT TC Bare List";
@@ -393,5 +357,43 @@ codeunit 89775 "LT TC Bare Page Methods"
         Curr := RunSetEditableFalseCurr();
         Assert.AreEqual(Curr, Bare, 'bare form must behave like the CurrPage. form');
         Assert.AreEqual('OBS', Bare, 'log and R1 name');
+    end;
+
+    [Test]
+    [HandlerFunctions('BareListHandler')]
+    procedure ActivateAction_Bare()
+    var
+        P: TestPage "LT TC Bare List";
+    begin
+        Initialize();
+        P.OpenEdit();
+        P.GoToKey('R1');
+        P.ActivateIt.Invoke();
+        P.Close();
+        Assert.AreEqual('OBSB', LogOf('B:'), 'bare Activate log');
+    end;
+
+    [Test]
+    [HandlerFunctions('CurrListHandler')]
+    procedure ActivateAction_Curr()
+    var
+        P: TestPage "LT TC Curr List";
+    begin
+        Initialize();
+        P.OpenEdit();
+        P.GoToKey('R1');
+        P.ActivateIt.Invoke();
+        P.Close();
+        Assert.AreEqual('OBSC', LogOf('C:'), 'CurrPage.Activate log');
+    end;
+
+    [PageHandler]
+    procedure BareListHandler(var P: TestPage "LT TC Bare List")
+    begin
+    end;
+
+    [PageHandler]
+    procedure CurrListHandler(var P: TestPage "LT TC Curr List")
+    begin
     end;
 }
