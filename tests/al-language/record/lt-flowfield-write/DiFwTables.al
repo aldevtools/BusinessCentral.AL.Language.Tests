@@ -188,3 +188,26 @@ table 86380 "LT QB FW Parent"
         LogRow.Insert();
     end;
 }
+
+// Writer SF (al-runner issue 5857): a TableType = Temporary table with a FlowFilter field, the shape of Base Application table 265
+// "Document Entry" whose "Document No." codeunit 1018 "Purchase Doc. From Job" reads back from inserted rows.
+table 89330 "LT SF FF Temp Buffer"
+{
+    TableType = Temporary;
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; "Entry No."; Integer) { }
+        field(2; "Document No."; Code[20])
+        {
+            FieldClass = FlowFilter;
+        }
+        field(3; Description; Text[50]) { }
+    }
+
+    keys
+    {
+        key(PK; "Entry No.") { Clustered = true; }
+    }
+}

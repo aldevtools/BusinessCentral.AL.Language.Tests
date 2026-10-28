@@ -834,4 +834,117 @@ codeunit 84282 "LT CD TestPage Leads"
         Observer.Expect('ids', '1,3,2,4,');
         Observer.Verify();
     end;
+
+    // ---- Writer SH, al-runner issues 5957 and 5958: SourceTableView filter('') and filter(<> '') on a Date field (pages in CdConst0D.al):
+    // the rows the page shows, and the SourceTableView text in Page Metadata.
+
+    [Test]
+    procedure SH_SourceTableView_DateFilterBlank_Rows()
+    var
+        Row: Record "LT CD Row";
+        List: TestPage "LT SH Blank Date List";
+        Result: Text;
+    begin
+        Seed();
+        List.OpenView();
+        if List.First() then
+            repeat
+                Result += List.IdCtl.Value() + ',';
+            until not List.Next();
+        Observer.Observe('OpenView ids', Result);
+        List.Close();
+        // The reporter's form: Page.Run on a record positioned on a blank-date row.
+        Row.Get(2);
+        List.Trap();
+        Page.Run(Page::"LT SH Blank Date List", Row);
+        Observer.Observe('Page.Run current id', List.IdCtl.Value());
+        Observer.Observe('Page.Run Next', Format(List.Next()));
+        Observer.Observe('Page.Run id after Next', List.IdCtl.Value());
+        List.Close();
+        Observer.Expect('OpenView ids', '1,2,');
+        Observer.Expect('Page.Run current id', '2');
+        Observer.Expect('Page.Run Next', 'No');
+        Observer.Expect('Page.Run id after Next', '2');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure SH_SourceTableView_DateFilterNotBlank_Rows()
+    var
+        List: TestPage "LT SH NotBlank Date List";
+        Result: Text;
+    begin
+        Seed();
+        List.OpenView();
+        if List.First() then
+            repeat
+                Result += List.IdCtl.Value() + ',';
+            until not List.Next();
+        Observer.Observe('OpenView ids', Result);
+        List.Close();
+        Observer.Expect('OpenView ids', '3,4,');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure SH_SourceTableView_DateFilterBlank_PageMetadata()
+    var
+        Meta: Record "Page Metadata";
+    begin
+        Meta.Get(Page::"LT SH Blank Date List");
+        Observer.Observe('filter blank', Meta.SourceTableView);
+        Meta.Get(Page::"LT SH NotBlank Date List");
+        Observer.Observe('filter not blank', Meta.SourceTableView);
+        Meta.Get(Page::"LT CD Filter0D List");
+        Observer.Observe('filter 0D', Meta.SourceTableView);
+        Meta.Get(Page::"LT CD Const0D List");
+        Observer.Observe('const 0D', Meta.SourceTableView);
+        Observer.Expect('filter blank', 'WHERE(Field7=FILTER(''''))');
+        Observer.Expect('filter not blank', 'WHERE(Field7=FILTER(<>''''))');
+        Observer.Expect('filter 0D', 'WHERE(Field7=FILTER(''''))');
+        Observer.Expect('const 0D', 'WHERE(Field7=CONST(0001-01-01T00:00:00.0000000))');
+        Observer.Verify();
+    end;
+
+    // ---- Writer SH, al-runner issue 5961 (the BC part of it): TestPage Filter.GetFilter of an enum field whose filter, set on the record
+    // passed to Page.Run, is a range of two values, a list of two values, one value, or a range written as text.
+
+    local procedure ShRunLineListFilter(var Line: Record "LT CD Line"; Tag: Text)
+    var
+        List: TestPage "LT CD Line List";
+    begin
+        List.Trap();
+        Page.Run(Page::"LT CD Line List", Line);
+        Observer.Observe(Tag, List.Filter.GetFilter(Kind));
+        List.Close();
+    end;
+
+    [Test]
+    procedure SH_TestPageFilter_GetFilter_EnumRangeAndList()
+    var
+        Line: Record "LT CD Line";
+    begin
+        Line.SetRange(Kind, Line.Kind::First, Line.Kind::Second);
+        ShRunLineListFilter(Line, 'SetRange First..Second');
+        Line.SetRange(Kind, Line.Kind::Second, Line.Kind::Third);
+        ShRunLineListFilter(Line, 'SetRange Second..Third');
+        Line.SetFilter(Kind, '%1|%2', Line.Kind::First, Line.Kind::Third);
+        ShRunLineListFilter(Line, 'SetFilter %1|%2 First, Third');
+        Line.SetRange(Kind, Line.Kind::Second);
+        ShRunLineListFilter(Line, 'SetRange Second');
+        Line.SetFilter(Kind, 'First..Second');
+        ShRunLineListFilter(Line, 'SetFilter text First..Second');
+        Line.SetFilter(Kind, '<>%1', Line.Kind::Second);
+        ShRunLineListFilter(Line, 'SetFilter <>%1 Second');
+        Line.SetRange(Kind, Line.Kind::First, Line.Kind::Second);
+        Observer.Observe('record GetFilter First..Second', Line.GetFilter(Kind));
+        Observer.Expect('SetRange First..Second', '0..1');
+        Observer.Expect('SetRange Second..Third', '1..2');
+        Observer.Expect('SetFilter %1|%2 First, Third', 'First|Third');
+        Observer.Expect('SetRange Second', '1');
+        Observer.Expect('SetFilter text First..Second', '0..1');
+        Observer.Expect('SetFilter <>%1 Second', '<>1');
+        Observer.Expect('record GetFilter First..Second', 'First..Second');
+        Observer.Verify();
+    end;
 }

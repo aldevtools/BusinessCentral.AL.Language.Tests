@@ -416,4 +416,42 @@ codeunit 74039 "LT P133 Msg In Handlers"
         Observer.Expect('seen', 'menu:a,b,c;msg:body message;');
         Observer.Verify();
     end;
+
+    // ---- Writer SH, al-runner issue 5943: a Message raised in the test body (directly, or from a procedure of another codeunit) by a
+    // test that declares no [MessageHandler]. Does the test go on, and is any error recorded?
+
+    [Test]
+    procedure P133_TestBody_Message_NoMessageHandlerDeclared()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        asserterror Message('body message without a handler');
+        Observer.ObserveError('Message');
+        Observer.Observe('reached after asserterror', 'yes');
+        Observer.Expect('Message|text', 'Unhandled UI: Message body message without a handler');
+        Observer.Expect('Message|code', 'MissingUIHandler');
+        Observer.Expect('reached after asserterror', 'yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure P133_CalledCodeunit_Message_NoMessageHandlerDeclared()
+    var
+        Observer: Codeunit "Probe Observer";
+        Messenger: Codeunit "LT SH P133 Messenger";
+    begin
+        asserterror Messenger.ShowRestored('101022');
+        Observer.ObserveError('ShowRestored');
+        Observer.Expect('ShowRestored|text', 'Unhandled UI: Message Order 101022 has been restored.');
+        Observer.Expect('ShowRestored|code', 'MissingUIHandler');
+        Observer.Verify();
+    end;
+}
+
+codeunit 89421 "LT SH P133 Messenger"
+{
+    procedure ShowRestored(No: Code[20])
+    begin
+        Message('Order %1 has been restored.', No);
+    end;
 }

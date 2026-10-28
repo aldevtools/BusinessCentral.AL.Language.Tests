@@ -9,6 +9,10 @@
 //   the old key, or on the previous one when none follows (B/G1 -> C, D/G1 -> E, A/G2 -> B, F/G1 -> E), the same with Update(true), on the
 //   Worksheet with and without OnFindRecord/OnNextRecord and on the List. With OnFindRecord the page asks Find('=>') first and Find('=><')
 //   when that finds nothing. A filter with no rows leaves a blank row; removing the filter again opens on the first row.
+// Writer SF (al-runner issues 5914 and 5888; CI legs 27.5, 28.5, 29.0 alike): after that refresh every move reads the row it lands on as
+//   it does without a refresh: twice before OnAfterGetCurrRecord in the primary key (Next `R:C;R:C;C:C`), three times in the key
+//   ByGroupName that OnOpenPage set with SetCurrentKey (SfRefreshKeyFixtures.al); GoToRecord steps through the rows of the view from the
+//   current row. In the other key the refresh itself reads the row it starts from once more (`R:3;R:3;R:1;R:3;R:3;R:3;C:3`).
 // Object ids 88920 (writer RZ).
 // BC versions: 27, 28, 29
 
@@ -327,5 +331,240 @@ codeunit 88920 "LT RZ Update From Validate"
             repeat
                 Result += Ws."No.".Value() + ',';
             until not Ws.Next();
+    end;
+
+    // ---- AL Runner issue 5914 (writer SF): the moves AFTER the refresh of a field's OnValidate that changed the filters and called
+    // CurrPage.Update(false), on the plain Worksheet in its primary key. Each step observes the row the page stands on and the trigger log.
+
+    [Test]
+    procedure SF_PlainWs_Next_WithoutRefresh()
+    var
+        Ws: TestPage "LT RZ Update Ws Plain";
+    begin
+        Observer.Discard();
+        Log.SeedLines();
+        Log.Clear();
+        Ws.OpenEdit();
+        Observer.Observe('open', Ws."No.".Value() + '|' + Log.Take());
+        Ws.Next();
+        Observer.Observe('next', Ws."No.".Value() + '|' + Log.Take());
+        Ws.Close();
+        Observer.Expect('open', 'A|R:A;R:B;R:C;R:D;R:E;R:F;R:A;R:A;C:A');
+        Observer.Expect('next', 'B|R:B;R:B;C:B');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure SF_PlainWs_FilterKeepsRow_Next()
+    var
+        Ws: TestPage "LT RZ Update Ws Plain";
+    begin
+        Observer.Discard();
+        Log.SeedLines();
+        Log.Clear();
+        Ws.OpenEdit();
+        Log.Clear();
+        Ws.GroupFilter.SetValue('G1');
+        Observer.Observe('validate', Ws."No.".Value() + '|' + Log.Take());
+        Ws.Next();
+        Observer.Observe('next', Ws."No.".Value() + '|' + Log.Take());
+        Ws.Close();
+        Observer.Expect('validate', 'A|A:filter A;A:done A;R:A;R:C;R:E;R:A;R:A;C:A');
+        Observer.Expect('next', 'C|R:C;R:C;C:C');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure SF_PlainWs_FilterDropsRow_Next_Clear_GoToRecord()
+    var
+        Ws: TestPage "LT RZ Update Ws Plain";
+        Line: Record "LT RZ Line";
+    begin
+        Observer.Discard();
+        Log.SeedLines();
+        Log.Clear();
+        Ws.OpenEdit();
+        Log.Clear();
+        Ws.GroupFilter.SetValue('G2');
+        Observer.Observe('validate', Ws."No.".Value() + '|' + Log.Take());
+        Ws.Next();
+        Observer.Observe('next', Ws."No.".Value() + '|' + Log.Take());
+        Ws.GroupFilter.SetValue('');
+        Observer.Observe('cleared', Ws."No.".Value() + '|' + Log.Take());
+        Line.Get('C');
+        Ws.GoToRecord(Line);
+        Observer.Observe('gotorecord', Ws."No.".Value() + '|' + Log.Take());
+        Ws.Close();
+        Observer.Expect('validate', 'B|A:filter A;A:done A;R:B;R:D;R:F;R:B;R:B;C:B');
+        Observer.Expect('next', 'D|R:D;R:D;C:D');
+        Observer.Expect('cleared', 'D|A:filter D;A:done D;R:D;R:E;R:F;R:D;R:C;R:B;R:A;R:D;R:D;C:D');
+        Observer.Expect('gotorecord', 'C|R:A;R:A;C:A;R:B;R:B;C:B;R:C;R:C;C:C');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure SF_PlainWs_FilterKeepsRow_GoToRecord()
+    var
+        Ws: TestPage "LT RZ Update Ws Plain";
+        Line: Record "LT RZ Line";
+    begin
+        Observer.Discard();
+        Log.SeedLines();
+        Log.Clear();
+        Ws.OpenEdit();
+        Ws.GroupFilter.SetValue('G1');
+        Log.Clear();
+        Line.Get('E');
+        Ws.GoToRecord(Line);
+        Observer.Observe('gotorecord', Ws."No.".Value() + '|' + Log.Take());
+        Ws.Close();
+        Observer.Expect('gotorecord', 'E|R:C;R:C;C:C;R:E;R:E;C:E');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure SF_PlainWs_GoToRecord_WithoutRefresh()
+    var
+        Ws: TestPage "LT RZ Update Ws Plain";
+        Line: Record "LT RZ Line";
+    begin
+        Observer.Discard();
+        Log.SeedLines();
+        Log.Clear();
+        Ws.OpenEdit();
+        Log.Clear();
+        Line.Get('C');
+        Ws.GoToRecord(Line);
+        Observer.Observe('gotorecord', Ws."No.".Value() + '|' + Log.Take());
+        Ws.Close();
+        Observer.Expect('gotorecord', 'C|R:B;R:B;C:B;R:C;R:C;C:C');
+        Observer.Verify();
+    end;
+
+    // ---- AL Runner issue 5888 (writer SF): the same refresh on a Worksheet that calls SetCurrentKey(Grp, Name) in OnOpenPage (a key
+    // other than the primary key, page 89301), next to the same page in the primary key (page 89302). Objects in SfRefreshKeyFixtures.al.
+
+    local procedure SfSeedRefreshRows()
+    begin
+        SfDeleteRefreshRows();
+        SfAddRefreshRow(1, 'A', 'N4');
+        SfAddRefreshRow(2, 'B', 'N3');
+        SfAddRefreshRow(3, 'A', 'N2');
+        SfAddRefreshRow(4, 'B', 'N1');
+        Log.Clear();
+    end;
+
+    local procedure SfDeleteRefreshRows()
+    var
+        Row: Record "LT SF Refresh Row";
+    begin
+        Row.DeleteAll();
+    end;
+
+    local procedure SfAddRefreshRow(Id: Integer; Grp: Code[10]; Name: Code[20])
+    var
+        Row: Record "LT SF Refresh Row";
+    begin
+        Row.Init();
+        Row.Id := Id;
+        Row.Grp := Grp;
+        Row.Name := Name;
+        Row.Insert();
+    end;
+
+    [Test]
+    procedure SF_Key_FilterKeepsRow_Next()
+    var
+        Ws: TestPage "LT SF Refresh Key Ws";
+    begin
+        Observer.Discard();
+        SfSeedRefreshRows();
+        Ws.OpenEdit();
+        Observer.Observe('open', Ws.Id.Value() + '|' + Log.Take());
+        Ws.GroupFilter.SetValue('A');
+        Observer.Observe('validate', Ws.Id.Value() + '|' + Log.Take());
+        Ws.Next();
+        Observer.Observe('next', Ws.Id.Value() + '|' + Log.Take());
+        Ws.Close();
+        Observer.Expect('open', '3|R:3;R:1;R:4;R:2;R:3;R:3;R:3;C:3');
+        Observer.Expect('validate', '3|R:3;R:3;R:1;R:3;R:3;R:3;C:3');
+        Observer.Expect('next', '1|R:1;R:1;R:1;C:1');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure SF_Key_FilterDropsRow_Next_Clear_GoToRecord()
+    var
+        Ws: TestPage "LT SF Refresh Key Ws";
+        Row: Record "LT SF Refresh Row";
+    begin
+        Observer.Discard();
+        SfSeedRefreshRows();
+        Ws.OpenEdit();
+        Observer.Observe('open', Ws.Id.Value() + '|' + Log.Take());
+        Ws.GroupFilter.SetValue('B');
+        Observer.Observe('validate', Ws.Id.Value() + '|' + Log.Take());
+        Ws.Next();
+        Observer.Observe('next', Ws.Id.Value() + '|' + Log.Take());
+        Ws.GroupFilter.SetValue('');
+        Observer.Observe('cleared', Ws.Id.Value() + '|' + Log.Take());
+        Row.Get(1);
+        Ws.GoToRecord(Row);
+        Observer.Observe('gotorecord', Ws.Id.Value() + '|' + Log.Take());
+        Ws.Close();
+        Observer.Expect('open', '3|R:3;R:1;R:4;R:2;R:3;R:3;R:3;C:3');
+        Observer.Expect('validate', '4|R:3;R:4;R:2;R:4;R:4;R:4;C:4');
+        Observer.Expect('next', '2|R:2;R:2;R:2;C:2');
+        Observer.Expect('cleared', '2|R:2;R:2;R:4;R:1;R:3;R:2;R:2;R:2;C:2');
+        Observer.Expect('gotorecord', '1|R:3;R:3;R:3;C:3;R:1;R:1;R:1;C:1');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure SF_Pk_FilterKeepsRow_Next()
+    var
+        Ws: TestPage "LT SF Refresh Pk Ws";
+    begin
+        Observer.Discard();
+        SfSeedRefreshRows();
+        Ws.OpenEdit();
+        Observer.Observe('open', Ws.Id.Value() + '|' + Log.Take());
+        Ws.GroupFilter.SetValue('A');
+        Observer.Observe('validate', Ws.Id.Value() + '|' + Log.Take());
+        Ws.Next();
+        Observer.Observe('next', Ws.Id.Value() + '|' + Log.Take());
+        Ws.Close();
+        Observer.Expect('open', '1|R:1;R:2;R:3;R:4;R:1;R:1;C:1');
+        Observer.Expect('validate', '1|R:1;R:3;R:1;R:1;C:1');
+        Observer.Expect('next', '3|R:3;R:3;C:3');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure SF_Pk_FilterDropsRow_Next_Clear_GoToRecord()
+    var
+        Ws: TestPage "LT SF Refresh Pk Ws";
+        Row: Record "LT SF Refresh Row";
+    begin
+        Observer.Discard();
+        SfSeedRefreshRows();
+        Ws.OpenEdit();
+        Observer.Observe('open', Ws.Id.Value() + '|' + Log.Take());
+        Ws.GroupFilter.SetValue('B');
+        Observer.Observe('validate', Ws.Id.Value() + '|' + Log.Take());
+        Ws.Next();
+        Observer.Observe('next', Ws.Id.Value() + '|' + Log.Take());
+        Ws.GroupFilter.SetValue('');
+        Observer.Observe('cleared', Ws.Id.Value() + '|' + Log.Take());
+        Row.Get(3);
+        Ws.GoToRecord(Row);
+        Observer.Observe('gotorecord', Ws.Id.Value() + '|' + Log.Take());
+        Ws.Close();
+        Observer.Expect('open', '1|R:1;R:2;R:3;R:4;R:1;R:1;C:1');
+        Observer.Expect('validate', '2|R:2;R:4;R:2;R:2;C:2');
+        Observer.Expect('next', '4|R:4;R:4;C:4');
+        Observer.Expect('cleared', '4|R:4;R:3;R:2;R:1;R:4;R:4;C:4');
+        Observer.Expect('gotorecord', '3|R:1;R:1;C:1;R:2;R:2;C:2;R:3;R:3;C:3');
+        Observer.Verify();
     end;
 }

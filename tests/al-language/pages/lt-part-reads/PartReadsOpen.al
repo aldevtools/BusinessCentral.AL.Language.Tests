@@ -404,4 +404,161 @@ codeunit 71290 "LT PartReads Open"
         Observer.Verify();
     end;
 
+    // ---- Writer SH, al-runner issue 5959: a FactBox part that serves its rows from OnFindRecord/OnNextRecord over a temporary buffer (the
+    // shape of page 9126 "Lot Numbers by Bin FactBox" on page 7351 "Movement Worksheet"), linked to the current line of a Worksheet host.
+    // What the part shows and which Which/Steps it gets when the host moves back (First, Previous) and forward (Next, Last). The log
+    // entries are FR.Find(<Which>|<link filter>), FR.Next(<Steps>), FR.AGR(<code>), Host.AGR(<head>/<line>).
+
+    local procedure ShFrStep(var Observer: Codeunit "Probe Observer"; var Ws: TestPage "LT SH FR Host"; Tag: Text)
+    var
+        Log: Codeunit "LT PartReads Log";
+    begin
+        Observer.Observe(Tag + ' host', Ws.HeadCtl.Value() + '/' + Ws.LineNoCtl.Value());
+        Observer.Observe(Tag + ' part', Ws.GroupPart.DescrCtl.Value());
+        Observer.Observe(Tag + ' part log', Log.DumpOf('FR'));
+        Log.Reset();
+    end;
+
+    [Test]
+    procedure SH_FindRecordPart_HostFirstAfterGoToKey()
+    var
+        Observer: Codeunit "Probe Observer";
+        Ws: TestPage "LT SH FR Host";
+    begin
+        Seed();
+        Ws.OpenEdit();
+        ShFrStep(Observer, Ws, 'open');
+        Ws.GoToKey('H2', 10000);
+        ShFrStep(Observer, Ws, 'gotokey H2/10000');
+        Ws.First();
+        ShFrStep(Observer, Ws, 'first');
+        Ws.Close();
+        Observer.Expect('open host', 'H1/10000');
+        Observer.Expect('open part', 'Filled for H1');
+        Observer.Expect('open part log', 'Find(=><|);AGR(H1);Next(1);Next(-1)');
+        Observer.Expect('gotokey H2/10000 host', 'H2/10000');
+        Observer.Expect('gotokey H2/10000 part', 'Filled for H2');
+        Observer.Expect('gotokey H2/10000 part log', 'Find(=><|);AGR(H2);Next(1);Next(-1)');
+        Observer.Expect('first host', 'H1/10000');
+        Observer.Expect('first part', 'Filled for H1');
+        Observer.Expect('first part log', 'Find(=><|);AGR(H1);Next(1);Next(-1)');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure SH_FindRecordPart_HostNextLastPrevious()
+    var
+        Observer: Codeunit "Probe Observer";
+        Ws: TestPage "LT SH FR Host";
+    begin
+        Seed();
+        Ws.OpenEdit();
+        ShFrStep(Observer, Ws, 'open');
+        Ws.Next();
+        Ws.Next();
+        Ws.Next();
+        ShFrStep(Observer, Ws, 'next x3');
+        Ws.Last();
+        ShFrStep(Observer, Ws, 'last');
+        Ws.Previous();
+        ShFrStep(Observer, Ws, 'previous');
+        Ws.Close();
+        Observer.Expect('open host', 'H1/10000');
+        Observer.Expect('open part', 'Filled for H1');
+        Observer.Expect('open part log', 'Find(=><|);AGR(H1);Next(1);Next(-1)');
+        Observer.Expect('next x3 host', 'H2/10000');
+        Observer.Expect('next x3 part', 'Filled for H2');
+        Observer.Expect('next x3 part log', 'Find(=><|);AGR(H2);Next(1);Next(-1)');
+        Observer.Expect('last host', 'H3/10000');
+        Observer.Expect('last part', 'Filled for H3');
+        Observer.Expect('last part log', 'Find(=><|);AGR(H3);Next(1);Next(-1)');
+        Observer.Expect('previous host', 'H2/20000');
+        Observer.Expect('previous part', 'Filled for H2');
+        Observer.Expect('previous part log', 'Find(=><|);AGR(H2);Next(1);Next(-1)');
+        Observer.Verify();
+    end;
+}
+
+page 89440 "LT SH FR Host"
+{
+    PageType = Worksheet;
+    SourceTable = "LT PartReads Line";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Lines)
+            {
+                field(HeadCtl; Rec."Head Code") { ApplicationArea = All; }
+                field(LineNoCtl; Rec."Line No.") { ApplicationArea = All; }
+            }
+        }
+        area(FactBoxes)
+        {
+            part(GroupPart; "LT SH FR Part")
+            {
+                ApplicationArea = All;
+                SubPageLink = "Code" = field("Head Code");
+            }
+        }
+    }
+
+    trigger OnAfterGetRecord()
+    var
+        Log: Codeunit "LT PartReads Log";
+    begin
+        Log.Add('Host.AGR(' + Rec."Head Code" + '/' + Format(Rec."Line No.") + ')');
+    end;
+}
+
+page 89441 "LT SH FR Part"
+{
+    PageType = ListPart;
+    SourceTable = "LT PartReads Head";
+    SourceTableTemporary = true;
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Rows)
+            {
+                field(CodeCtl; Rec."Code") { ApplicationArea = All; }
+                field(DescrCtl; Rec.Descr) { ApplicationArea = All; }
+            }
+        }
+    }
+
+    trigger OnFindRecord(Which: Text): Boolean
+    var
+        Log: Codeunit "LT PartReads Log";
+    begin
+        Log.Add('FR.Find(' + Which + '|' + Rec.GetFilter("Code") + ')');
+        Rec.DeleteAll();
+        Rec.Init();
+        Rec."Code" := CopyStr(Rec.GetRangeMin("Code"), 1, MaxStrLen(Rec."Code"));
+        Rec.Descr := 'Filled for ' + Rec."Code";
+        Rec.Insert();
+        exit(Rec.Find(Which));
+    end;
+
+    trigger OnNextRecord(Steps: Integer): Integer
+    var
+        Log: Codeunit "LT PartReads Log";
+    begin
+        Log.Add('FR.Next(' + Format(Steps) + ')');
+        exit(Rec.Next(Steps));
+    end;
+
+    trigger OnAfterGetRecord()
+    var
+        Log: Codeunit "LT PartReads Log";
+    begin
+        Log.Add('FR.AGR(' + Rec."Code" + ')');
+    end;
 }

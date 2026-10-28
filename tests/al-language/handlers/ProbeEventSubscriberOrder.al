@@ -246,4 +246,44 @@ codeunit 69467 "Probe Event Order Tests"
         Observer.Expect('hitsAfterDuplicate', '1');
         Observer.Verify();
     end;
+
+    // Writer SH, al-runner issue 5941: a manual subscriber instance unbinds itself in its first subscriber method. Is its second method
+    // (same event, same instance) still called in that raise, and is anything of it called in the next raise?
+    [Test]
+    procedure ManualSubscriber_UnbindsItselfInFirstMethod_SecondMethodInSameRaise()
+    var
+        Unbinder: Codeunit "LT SH Ev Self Unbinder";
+        Publisher: Codeunit "Probe Ev Publisher";
+        Observer: Codeunit "Probe Observer";
+    begin
+        BindSubscription(Unbinder);
+        Observer.Observe('raiseThatUnbinds', Publisher.Raise());
+        Observer.Observe('nextRaise', Publisher.Raise());
+        Observer.Observe('unbindAgain returns', Format(UnbindSubscription(Unbinder)));
+        Observer.Expect('raiseThatUnbinds', 'Alpha(c=1);Mid(c=1);Zeta(c=1);A;A after unbind;');
+        Observer.Expect('nextRaise', 'Alpha(c=1);Mid(c=1);Zeta(c=1);');
+        Observer.Expect('unbindAgain returns', 'Yes');
+        Observer.Verify();
+    end;
+}
+
+codeunit 89420 "LT SH Ev Self Unbinder"
+{
+    // Two subscriber methods on one event; the first one (in the alphabetical order the publisher calls them, see
+    // StaticSubscribers_OneCodeunit_OrderAndSharedInstance) unbinds this instance.
+    EventSubscriberInstance = Manual;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Probe Ev Publisher", 'OnProbe', '', false, false)]
+    local procedure A_OnProbe(var Log: Text)
+    begin
+        Log += 'A;';
+        UnbindSubscription(this);
+        Log += 'A after unbind;';
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Probe Ev Publisher", 'OnProbe', '', false, false)]
+    local procedure B_OnProbe(var Log: Text)
+    begin
+        Log += 'B;';
+    end;
 }
