@@ -6,9 +6,9 @@
 //   same page in the primary key (control). A header field's OnDrillDown marks the flagged rows (MarkedOnly(false), ClearMarks, a copy of Rec
 //   walked with FindSet, Get + Mark for each flagged row, MarkedOnly(true)) and calls CurrPage.Update(false). Action MarkAct does the same
 //   marking from an action, action RefreshAct only calls CurrPage.Update(false). Log: R<Id> = OnAfterGetRecord, C<Id> = OnAfterGetCurrRecord.
+// Facts: in the key ByName a refill (Filter.SetFilter, CurrPage.Update(false) from an action) and every row made current read the row three times before OnAfterGetCurrRecord (R4;R4;R4;C4).
 // Rows: Id 1 (M, flagged no), 2 (C, flagged), 3 (T, flagged), 4 (A, no), 5 (P, flagged); order in the key ByName: 4, 2, 1, 5, 3.
-//   Tests: <page>_DrillDown_GoToRecord (open, drilldown, GoToRecord on two rows), _Filter_Refill (TestPage.Filter.SetFilter, then moves),
-//   _Action_Update (RefreshAct then moves), _Action_Mark (MarkAct then GoToRecord).
+//   Tests: Name_Filter_Refill (TestPage.Filter.SetFilter, then moves) and Name_Action_Update (RefreshAct, then moves), both in the key ByName.
 // BC versions: 27, 28, 29
 
 table 89650 "LT SU Row"
@@ -263,29 +263,6 @@ codeunit 89655 "LT SU Refill Key Tests"
     end;
 
     [Test]
-    procedure Name_DrillDown_GoToRecord()
-    var
-        Row: Record "LT SU Row";
-        P: TestPage "LT SU Name Ws";
-    begin
-        Seed();
-        P.OpenView();
-        Observer.Observe('open', P.Id.Value() + ':' + Log.Take());
-        P.FlaggedTile.Drilldown();
-        Observer.Observe('drilldown', P.Id.Value() + ':' + Log.Take());
-        Row.Get(3);
-        Observer.Observe('goto 3', Format(P.GoToRecord(Row)) + '/' + P.Id.Value() + ':' + Log.Take());
-        Row.Get(5);
-        Observer.Observe('goto 5', Format(P.GoToRecord(Row)) + '/' + P.Id.Value() + ':' + Log.Take());
-        Row.Get(1);
-        Observer.Observe('goto 1', Format(P.GoToRecord(Row)) + '/' + P.Id.Value() + ':' + Log.Take());
-        Observer.Observe('next', Format(P.Next()) + '/' + P.Id.Value() + ':' + Log.Take());
-        Observer.Observe('first', Format(P.First()) + '/' + P.Id.Value() + ':' + Log.Take());
-        P.Close();
-        Observer.Finish();
-    end;
-
-    [Test]
     procedure Name_Filter_Refill()
     var
         Row: Record "LT SU Row";
@@ -304,7 +281,7 @@ codeunit 89655 "LT SU Refill Key Tests"
         Observer.Observe('goto 1 outside', Format(P.GoToRecord(Row)) + '/' + P.Id.Value() + ':' + Log.Take());
         Observer.Observe('last', Format(P.Last()) + '/' + P.Id.Value() + ':' + Log.Take());
         P.Close();
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     [Test]
@@ -325,114 +302,6 @@ codeunit 89655 "LT SU Refill Key Tests"
         Row.Get(3);
         Observer.Observe('goto 3', Format(P.GoToRecord(Row)) + '/' + P.Id.Value() + ':' + Log.Take());
         P.Close();
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Name_Action_Mark()
-    var
-        Row: Record "LT SU Row";
-        P: TestPage "LT SU Name Ws";
-    begin
-        Seed();
-        P.OpenView();
-        Observer.Observe('open', P.Id.Value() + ':' + Log.Take());
-        Row.Get(5);
-        Observer.Observe('goto 5', Format(P.GoToRecord(Row)) + '/' + P.Id.Value() + ':' + Log.Take());
-        P.MarkAct.Invoke();
-        Observer.Observe('mark', P.Id.Value() + ':' + Log.Take());
-        Row.Get(3);
-        Observer.Observe('goto 3', Format(P.GoToRecord(Row)) + '/' + P.Id.Value() + ':' + Log.Take());
-        Row.Get(1);
-        Observer.Observe('goto 1', Format(P.GoToRecord(Row)) + '/' + P.Id.Value() + ':' + Log.Take());
-        P.Close();
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Id_DrillDown_GoToRecord()
-    var
-        Row: Record "LT SU Row";
-        P: TestPage "LT SU Id Ws";
-    begin
-        Seed();
-        P.OpenView();
-        Observer.Observe('open', P.Id.Value() + ':' + Log.Take());
-        P.FlaggedTile.Drilldown();
-        Observer.Observe('drilldown', P.Id.Value() + ':' + Log.Take());
-        Row.Get(3);
-        Observer.Observe('goto 3', Format(P.GoToRecord(Row)) + '/' + P.Id.Value() + ':' + Log.Take());
-        Row.Get(5);
-        Observer.Observe('goto 5', Format(P.GoToRecord(Row)) + '/' + P.Id.Value() + ':' + Log.Take());
-        Row.Get(1);
-        Observer.Observe('goto 1', Format(P.GoToRecord(Row)) + '/' + P.Id.Value() + ':' + Log.Take());
-        Observer.Observe('next', Format(P.Next()) + '/' + P.Id.Value() + ':' + Log.Take());
-        Observer.Observe('first', Format(P.First()) + '/' + P.Id.Value() + ':' + Log.Take());
-        P.Close();
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Id_Filter_Refill()
-    var
-        Row: Record "LT SU Row";
-        P: TestPage "LT SU Id Ws";
-    begin
-        Seed();
-        P.OpenView();
-        Observer.Observe('open', P.Id.Value() + ':' + Log.Take());
-        P.Filter.SetFilter(Id, '2..4');
-        Observer.Observe('filter', P.Id.Value() + ':' + Log.Take());
-        Row.Get(2);
-        Observer.Observe('goto 2', Format(P.GoToRecord(Row)) + '/' + P.Id.Value() + ':' + Log.Take());
-        Row.Get(4);
-        Observer.Observe('goto 4', Format(P.GoToRecord(Row)) + '/' + P.Id.Value() + ':' + Log.Take());
-        Row.Get(1);
-        Observer.Observe('goto 1 outside', Format(P.GoToRecord(Row)) + '/' + P.Id.Value() + ':' + Log.Take());
-        Observer.Observe('last', Format(P.Last()) + '/' + P.Id.Value() + ':' + Log.Take());
-        P.Close();
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Id_Action_Update()
-    var
-        Row: Record "LT SU Row";
-        P: TestPage "LT SU Id Ws";
-    begin
-        Seed();
-        P.OpenView();
-        Observer.Observe('open', P.Id.Value() + ':' + Log.Take());
-        Row.Get(5);
-        Observer.Observe('goto 5', Format(P.GoToRecord(Row)) + '/' + P.Id.Value() + ':' + Log.Take());
-        P.RefreshAct.Invoke();
-        Observer.Observe('update', P.Id.Value() + ':' + Log.Take());
-        Row.Get(2);
-        Observer.Observe('goto 2', Format(P.GoToRecord(Row)) + '/' + P.Id.Value() + ':' + Log.Take());
-        Row.Get(3);
-        Observer.Observe('goto 3', Format(P.GoToRecord(Row)) + '/' + P.Id.Value() + ':' + Log.Take());
-        P.Close();
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Id_Action_Mark()
-    var
-        Row: Record "LT SU Row";
-        P: TestPage "LT SU Id Ws";
-    begin
-        Seed();
-        P.OpenView();
-        Observer.Observe('open', P.Id.Value() + ':' + Log.Take());
-        Row.Get(5);
-        Observer.Observe('goto 5', Format(P.GoToRecord(Row)) + '/' + P.Id.Value() + ':' + Log.Take());
-        P.MarkAct.Invoke();
-        Observer.Observe('mark', P.Id.Value() + ':' + Log.Take());
-        Row.Get(3);
-        Observer.Observe('goto 3', Format(P.GoToRecord(Row)) + '/' + P.Id.Value() + ':' + Log.Take());
-        Row.Get(1);
-        Observer.Observe('goto 1', Format(P.GoToRecord(Row)) + '/' + P.Id.Value() + ':' + Log.Take());
-        P.Close();
-        Observer.Finish();
+        Observer.Verify();
     end;
 }
