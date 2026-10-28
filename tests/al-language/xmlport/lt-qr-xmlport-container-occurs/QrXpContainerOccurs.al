@@ -964,7 +964,10 @@ codeunit 87280 "LT QR XP Container Tests"
         Observer.Observe('xml', TqExport(Port));
         Observer.Observe('log', Port.GetLog());
         Observer.Observe('values', Port.Values());
-        Observer.Finish();
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<response />|');
+        Observer.Expect('log', '');
+        Observer.Expect('values', 'responsecode= responsemessage= tier= validuntil= membership= status=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -978,7 +981,10 @@ codeunit 87280 "LT QR XP Container Tests"
         Observer.Observe('xml', TqExport(Port));
         Observer.Observe('log', Port.GetLog());
         Observer.Observe('values', Port.Values());
-        Observer.Finish();
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<response>|  <member no="M1">|    <status>|      <responsecode>OK-M1</responsecode>|      <responsemessage />|    </status>|    <membership>|      <code>GOLDCLUB</code>|      <name>Ann Smith</name>|      <tier>GOLD</tier>|      <issued>2026-01-15</issued>|      <points>150.50</points>|      <validuntil />|      <blocked>false</blocked>|    </membership>|  </member>|  <member no="M2">|    <status>|      <responsecode>OK-M2</responsecode>|      <responsemessage />|    </status>|    <membership>|      <code>BASIC</code>|      <name>Bob</name>|      <tier />|      <issued>2025-02-01</issued>|      <points>7.00</points>|      <validuntil />|      <blocked>true</blocked>|    </membership>|  </member>|</response>|');
+        Observer.Expect('log', 'get M1;pass status;pass responsemessage;pass membership;pass tier;get M2;pass status;pass responsemessage;pass membership;pass tier;');
+        Observer.Expect('values', 'responsecode=OK-M2 responsemessage= tier= validuntil= membership= status=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -990,7 +996,9 @@ codeunit 87280 "LT QR XP Container Tests"
         Port.AddMember('M3', '', '', 0D, 0, false);
         Observer.Observe('xml', TqExport(Port));
         Observer.Observe('log', Port.GetLog());
-        Observer.Finish();
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<response>|  <member no="M3">|    <status>|      <responsecode>OK-M3</responsecode>|      <responsemessage>no membership</responsemessage>|    </status>|    <membership>|      <code />|      <name />|      <tier />|      <issued />|      <points>0.00</points>|      <validuntil />|      <blocked>false</blocked>|    </membership>|  </member>|</response>|');
+        Observer.Expect('log', 'get M3;pass status;pass responsemessage;pass membership;pass tier;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1004,7 +1012,9 @@ codeunit 87280 "LT QR XP Container Tests"
         Port.SetValidUntil('2027-12-31');
         Observer.Observe('xml', TqExport(Port));
         Observer.Observe('values', Port.Values());
-        Observer.Finish();
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<response>|  <member no="M1">|    <status>|      <responsecode>OK-M1</responsecode>|      <responsemessage />|    </status>|    <membership>|      <code>C1</code>|      <name>N1</name>|      <tier />|      <issued>2026-01-15</issued>|      <points>1.25</points>|      <validuntil>2027-12-31</validuntil>|      <blocked>false</blocked>|    </membership>|  </member>|  <member no="M2">|    <status>|      <responsecode>OK-M2</responsecode>|      <responsemessage>no membership</responsemessage>|    </status>|    <membership>|      <code />|      <name />|      <tier />|      <issued />|      <points>0.00</points>|      <validuntil>2027-12-31</validuntil>|      <blocked>false</blocked>|    </membership>|  </member>|</response>|');
+        Observer.Expect('values', 'responsecode=OK-M2 responsemessage=no membership tier= validuntil=2027-12-31 membership= status=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1022,7 +1032,10 @@ codeunit 87280 "LT QR XP Container Tests"
         Port3.AddMember('M1', 'C1', 12.5);
         Port3.SetLeaves('OK', 'fine', 'GOLD', '2027-12-31');
         Observer.Observe('rows, leaves set', TqExportNs(Port3));
-        Observer.Finish();
+        Observer.Expect('no rows', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<response xmlns="urn:microsoft-dynamics-nav/xmlports/x90042" />|');
+        Observer.Expect('rows, leaves empty', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<response xmlns="urn:microsoft-dynamics-nav/xmlports/x90042">|  <member>|    <status>|      <responsecode />|      <responsemessage />|    </status>|    <membership>|      <code>C1</code>|      <tier />|      <points>12.50</points>|      <validuntil />|    </membership>|  </member>|  <member>|    <status>|      <responsecode />|      <responsemessage />|    </status>|    <membership>|      <code />|      <tier />|      <points>0.00</points>|      <validuntil />|    </membership>|  </member>|</response>|');
+        Observer.Expect('rows, leaves set', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<response xmlns="urn:microsoft-dynamics-nav/xmlports/x90042">|  <member>|    <status>|      <responsecode>OK</responsecode>|      <responsemessage>fine</responsemessage>|    </status>|    <membership>|      <code>C1</code>|      <tier>GOLD</tier>|      <points>12.50</points>|      <validuntil>2027-12-31</validuntil>|    </membership>|  </member>|</response>|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1032,7 +1045,9 @@ codeunit 87280 "LT QR XP Container Tests"
     begin
         TqImport(Observer, 'full', '<response><member no="M1"><status><responsecode>OK</responsecode><responsemessage>m</responsemessage></status><membership><code>C1</code><name>N1</name><tier>GOLD</tier><issued>2026-01-15</issued><points>12.5</points><validuntil>2027-12-31</validuntil><blocked>true</blocked></membership></member></response>');
         TqImport(Observer, 'membership absent', '<response><member no="M1"><status><responsecode>OK</responsecode><responsemessage>m</responsemessage></status></member></response>');
-        Observer.Finish();
+        Observer.Expect('full', 'ok log=init;responsecode=OK;tier=GOLD;membership=;before insert M1 code=C1 name=N1 issued=2026-01-15 points=12.5 blocked=true validuntil=2027-12-31; values: responsecode=OK responsemessage=m tier=GOLD validuntil=2027-12-31 membership= status= rows=M1:C1/N1/2026-01-15/12.5/true;');
+        Observer.Expect('membership absent', 'ok log=init;responsecode=OK;before insert M1 code= name= issued= points=0 blocked=false validuntil=; values: responsecode=OK responsemessage=m tier= validuntil= membership= status= rows=M1:///0/false;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1043,6 +1058,10 @@ codeunit 87280 "LT QR XP Container Tests"
         TqImport(Observer, 'optional leaves absent', '<response><member no="M1"><status><responsecode>OK</responsecode><responsemessage /></status><membership><code>C1</code><tier /><issued>2026-01-15</issued><blocked>false</blocked></membership></member></response>');
         TqImport(Observer, 'membership twice', '<response><member no="M1"><status><responsecode>OK</responsecode><responsemessage /></status><membership><code>C1</code><tier /><issued /><blocked>false</blocked></membership><membership><code>C2</code><tier /><issued /><blocked>false</blocked></membership></member></response>');
         TqImport(Observer, 'no rows', '<response />');
-        Observer.Finish();
+        Observer.Expect('optional leaves absent', 'ok log=init;responsecode=OK;tier=;tier=;membership=;before insert M1 code=C1 name= issued=2026-01-15 points=0 blocked=false validuntil=; values: responsecode=OK responsemessage= tier= validuntil= membership= status= rows=M1:C1//2026-01-15/0/false;');
+        Observer.Expect('membership twice|text', 'Imported XML cannot validate with the schema: The element ''member'' has invalid child element ''membership''.');
+        Observer.Expect('membership twice|code', 'XmlPortInvalidXml');
+        Observer.Expect('no rows', 'ok log= values: responsecode= responsemessage= tier= validuntil= membership= status= rows=');
+        Observer.Verify();
     end;
 }

@@ -316,7 +316,25 @@ codeunit 74320 "LT FCF Format Comma String"
         Observer: Codeunit "Probe Observer";
     begin
         TqObserveStd(Observer, '1.5', 1.5);
-        Observer.Finish();
+        Observer.Expect('1.5 0:0 sf0', 'ok:2');
+        Observer.Expect('1.5 0:0 sf2', 'ok:2');
+        Observer.Expect('1.5 0:0 sf9', 'ok:2');
+        Observer.Expect('1.5 0:2 sf0', 'ok:1.5');
+        Observer.Expect('1.5 0:2 sf2', 'ok:1.5');
+        Observer.Expect('1.5 0:2 sf9', 'ok:1.5');
+        Observer.Expect('1.5 1:3 sf0', 'ok:1.5');
+        Observer.Expect('1.5 1:3 sf2', 'ok:1.5');
+        Observer.Expect('1.5 1:3 sf9', 'ok:1.5');
+        Observer.Expect('1.5 2:5 sf0', 'ok:1.50');
+        Observer.Expect('1.5 2:5 sf2', 'ok:1.50');
+        Observer.Expect('1.5 2:5 sf9', 'ok:1.50');
+        Observer.Expect('1.5 3:3 sf0', 'ok:1.500');
+        Observer.Expect('1.5 3:3 sf2', 'ok:1.500');
+        Observer.Expect('1.5 3:3 sf9', 'ok:1.500');
+        Observer.Expect('1.5 2:26 sf0', 'ok:1.50');
+        Observer.Expect('1.5 2:26 sf2', 'ok:1.50');
+        Observer.Expect('1.5 2:26 sf9', 'ok:1.50');
+        Observer.Verify();
     end;
 
     [Test]
@@ -325,7 +343,25 @@ codeunit 74320 "LT FCF Format Comma String"
         Observer: Codeunit "Probe Observer";
     begin
         TqObserveStd(Observer, '2.5', 2.5);
-        Observer.Finish();
+        Observer.Expect('2.5 0:0 sf0', 'ok:3');
+        Observer.Expect('2.5 0:0 sf2', 'ok:3');
+        Observer.Expect('2.5 0:0 sf9', 'ok:3');
+        Observer.Expect('2.5 0:2 sf0', 'ok:2.5');
+        Observer.Expect('2.5 0:2 sf2', 'ok:2.5');
+        Observer.Expect('2.5 0:2 sf9', 'ok:2.5');
+        Observer.Expect('2.5 1:3 sf0', 'ok:2.5');
+        Observer.Expect('2.5 1:3 sf2', 'ok:2.5');
+        Observer.Expect('2.5 1:3 sf9', 'ok:2.5');
+        Observer.Expect('2.5 2:5 sf0', 'ok:2.50');
+        Observer.Expect('2.5 2:5 sf2', 'ok:2.50');
+        Observer.Expect('2.5 2:5 sf9', 'ok:2.50');
+        Observer.Expect('2.5 3:3 sf0', 'ok:2.500');
+        Observer.Expect('2.5 3:3 sf2', 'ok:2.500');
+        Observer.Expect('2.5 3:3 sf9', 'ok:2.500');
+        Observer.Expect('2.5 2:26 sf0', 'ok:2.50');
+        Observer.Expect('2.5 2:26 sf2', 'ok:2.50');
+        Observer.Expect('2.5 2:26 sf9', 'ok:2.50');
+        Observer.Verify();
     end;
 
     [Test]
@@ -334,7 +370,25 @@ codeunit 74320 "LT FCF Format Comma String"
         Observer: Codeunit "Probe Observer";
     begin
         TqObserveStd(Observer, '-2.5', -2.5);
-        Observer.Finish();
+        Observer.Expect('-2.5 0:0 sf0', 'ok:-3');
+        Observer.Expect('-2.5 0:0 sf2', 'ok:-3');
+        Observer.Expect('-2.5 0:0 sf9', 'ok:-3');
+        Observer.Expect('-2.5 0:2 sf0', 'ok:-2.5');
+        Observer.Expect('-2.5 0:2 sf2', 'ok:-2.5');
+        Observer.Expect('-2.5 0:2 sf9', 'ok:-2.5');
+        Observer.Expect('-2.5 1:3 sf0', 'ok:-2.5');
+        Observer.Expect('-2.5 1:3 sf2', 'ok:-2.5');
+        Observer.Expect('-2.5 1:3 sf9', 'ok:-2.5');
+        Observer.Expect('-2.5 2:5 sf0', 'ok:-2.50');
+        Observer.Expect('-2.5 2:5 sf2', 'ok:-2.50');
+        Observer.Expect('-2.5 2:5 sf9', 'ok:-2.50');
+        Observer.Expect('-2.5 3:3 sf0', 'ok:-2.500');
+        Observer.Expect('-2.5 3:3 sf2', 'ok:-2.500');
+        Observer.Expect('-2.5 3:3 sf9', 'ok:-2.500');
+        Observer.Expect('-2.5 2:26 sf0', 'ok:-2.50');
+        Observer.Expect('-2.5 2:26 sf2', 'ok:-2.50');
+        Observer.Expect('-2.5 2:26 sf9', 'ok:-2.50');
+        Observer.Verify();
     end;
 
     [Test]
@@ -343,7 +397,25 @@ codeunit 74320 "LT FCF Format Comma String"
         Observer: Codeunit "Probe Observer";
     begin
         TqObserveStd(Observer, '1.2345', 1.2345);
-        Observer.Finish();
+        Observer.Expect('1.2345 0:0 sf0', 'ok:1');
+        Observer.Expect('1.2345 0:0 sf2', 'ok:1');
+        Observer.Expect('1.2345 0:0 sf9', 'ok:1');
+        Observer.Expect('1.2345 0:2 sf0', 'ok:1.23');
+        Observer.Expect('1.2345 0:2 sf2', 'ok:1.23');
+        Observer.Expect('1.2345 0:2 sf9', 'ok:1.23');
+        Observer.Expect('1.2345 1:3 sf0', 'ok:1.235');
+        Observer.Expect('1.2345 1:3 sf2', 'ok:1.235');
+        Observer.Expect('1.2345 1:3 sf9', 'ok:1.235');
+        Observer.Expect('1.2345 2:5 sf0', 'ok:1.2345');
+        Observer.Expect('1.2345 2:5 sf2', 'ok:1.2345');
+        Observer.Expect('1.2345 2:5 sf9', 'ok:1.2345');
+        Observer.Expect('1.2345 3:3 sf0', 'ok:1.235');
+        Observer.Expect('1.2345 3:3 sf2', 'ok:1.235');
+        Observer.Expect('1.2345 3:3 sf9', 'ok:1.235');
+        Observer.Expect('1.2345 2:26 sf0', 'ok:1.2345');
+        Observer.Expect('1.2345 2:26 sf2', 'ok:1.2345');
+        Observer.Expect('1.2345 2:26 sf9', 'ok:1.2345');
+        Observer.Verify();
     end;
 
     [Test]
@@ -352,7 +424,25 @@ codeunit 74320 "LT FCF Format Comma String"
         Observer: Codeunit "Probe Observer";
     begin
         TqObserveStd(Observer, '1.23456789', 1.23456789);
-        Observer.Finish();
+        Observer.Expect('1.23456789 0:0 sf0', 'ok:1');
+        Observer.Expect('1.23456789 0:0 sf2', 'ok:1');
+        Observer.Expect('1.23456789 0:0 sf9', 'ok:1');
+        Observer.Expect('1.23456789 0:2 sf0', 'ok:1.23');
+        Observer.Expect('1.23456789 0:2 sf2', 'ok:1.23');
+        Observer.Expect('1.23456789 0:2 sf9', 'ok:1.23');
+        Observer.Expect('1.23456789 1:3 sf0', 'ok:1.235');
+        Observer.Expect('1.23456789 1:3 sf2', 'ok:1.235');
+        Observer.Expect('1.23456789 1:3 sf9', 'ok:1.235');
+        Observer.Expect('1.23456789 2:5 sf0', 'ok:1.23457');
+        Observer.Expect('1.23456789 2:5 sf2', 'ok:1.23457');
+        Observer.Expect('1.23456789 2:5 sf9', 'ok:1.23457');
+        Observer.Expect('1.23456789 3:3 sf0', 'ok:1.235');
+        Observer.Expect('1.23456789 3:3 sf2', 'ok:1.235');
+        Observer.Expect('1.23456789 3:3 sf9', 'ok:1.235');
+        Observer.Expect('1.23456789 2:26 sf0', 'ok:1.23456789');
+        Observer.Expect('1.23456789 2:26 sf2', 'ok:1.23456789');
+        Observer.Expect('1.23456789 2:26 sf9', 'ok:1.23456789');
+        Observer.Verify();
     end;
 
     [Test]
@@ -361,7 +451,25 @@ codeunit 74320 "LT FCF Format Comma String"
         Observer: Codeunit "Probe Observer";
     begin
         TqObserveStd(Observer, '0', 0);
-        Observer.Finish();
+        Observer.Expect('0 0:0 sf0', 'ok:0');
+        Observer.Expect('0 0:0 sf2', 'ok:0');
+        Observer.Expect('0 0:0 sf9', 'ok:0');
+        Observer.Expect('0 0:2 sf0', 'ok:0');
+        Observer.Expect('0 0:2 sf2', 'ok:0');
+        Observer.Expect('0 0:2 sf9', 'ok:0');
+        Observer.Expect('0 1:3 sf0', 'ok:0.0');
+        Observer.Expect('0 1:3 sf2', 'ok:0.0');
+        Observer.Expect('0 1:3 sf9', 'ok:0.0');
+        Observer.Expect('0 2:5 sf0', 'ok:0.00');
+        Observer.Expect('0 2:5 sf2', 'ok:0.00');
+        Observer.Expect('0 2:5 sf9', 'ok:0.00');
+        Observer.Expect('0 3:3 sf0', 'ok:0.000');
+        Observer.Expect('0 3:3 sf2', 'ok:0.000');
+        Observer.Expect('0 3:3 sf9', 'ok:0.000');
+        Observer.Expect('0 2:26 sf0', 'ok:0.00');
+        Observer.Expect('0 2:26 sf2', 'ok:0.00');
+        Observer.Expect('0 2:26 sf9', 'ok:0.00');
+        Observer.Verify();
     end;
 
     [Test]
@@ -370,7 +478,25 @@ codeunit 74320 "LT FCF Format Comma String"
         Observer: Codeunit "Probe Observer";
     begin
         TqObserveStd(Observer, '0.0004', 0.0004);
-        Observer.Finish();
+        Observer.Expect('0.0004 0:0 sf0', 'ok:0');
+        Observer.Expect('0.0004 0:0 sf2', 'ok:0');
+        Observer.Expect('0.0004 0:0 sf9', 'ok:0');
+        Observer.Expect('0.0004 0:2 sf0', 'ok:0');
+        Observer.Expect('0.0004 0:2 sf2', 'ok:0');
+        Observer.Expect('0.0004 0:2 sf9', 'ok:0');
+        Observer.Expect('0.0004 1:3 sf0', 'ok:0.0');
+        Observer.Expect('0.0004 1:3 sf2', 'ok:0.0');
+        Observer.Expect('0.0004 1:3 sf9', 'ok:0.0');
+        Observer.Expect('0.0004 2:5 sf0', 'ok:0.0004');
+        Observer.Expect('0.0004 2:5 sf2', 'ok:0.0004');
+        Observer.Expect('0.0004 2:5 sf9', 'ok:0.0004');
+        Observer.Expect('0.0004 3:3 sf0', 'ok:0.000');
+        Observer.Expect('0.0004 3:3 sf2', 'ok:0.000');
+        Observer.Expect('0.0004 3:3 sf9', 'ok:0.000');
+        Observer.Expect('0.0004 2:26 sf0', 'ok:0.0004');
+        Observer.Expect('0.0004 2:26 sf2', 'ok:0.0004');
+        Observer.Expect('0.0004 2:26 sf9', 'ok:0.0004');
+        Observer.Verify();
     end;
 
     [Test]
@@ -379,7 +505,25 @@ codeunit 74320 "LT FCF Format Comma String"
         Observer: Codeunit "Probe Observer";
     begin
         TqObserveStd(Observer, '99.9996', 99.9996);
-        Observer.Finish();
+        Observer.Expect('99.9996 0:0 sf0', 'ok:100');
+        Observer.Expect('99.9996 0:0 sf2', 'ok:100');
+        Observer.Expect('99.9996 0:0 sf9', 'ok:100');
+        Observer.Expect('99.9996 0:2 sf0', 'ok:100');
+        Observer.Expect('99.9996 0:2 sf2', 'ok:100');
+        Observer.Expect('99.9996 0:2 sf9', 'ok:100');
+        Observer.Expect('99.9996 1:3 sf0', 'ok:100.0');
+        Observer.Expect('99.9996 1:3 sf2', 'ok:100.0');
+        Observer.Expect('99.9996 1:3 sf9', 'ok:100.0');
+        Observer.Expect('99.9996 2:5 sf0', 'ok:99.9996');
+        Observer.Expect('99.9996 2:5 sf2', 'ok:99.9996');
+        Observer.Expect('99.9996 2:5 sf9', 'ok:99.9996');
+        Observer.Expect('99.9996 3:3 sf0', 'ok:100.000');
+        Observer.Expect('99.9996 3:3 sf2', 'ok:100.000');
+        Observer.Expect('99.9996 3:3 sf9', 'ok:100.000');
+        Observer.Expect('99.9996 2:26 sf0', 'ok:99.9996');
+        Observer.Expect('99.9996 2:26 sf2', 'ok:99.9996');
+        Observer.Expect('99.9996 2:26 sf9', 'ok:99.9996');
+        Observer.Verify();
     end;
 
     [Test]
@@ -388,7 +532,25 @@ codeunit 74320 "LT FCF Format Comma String"
         Observer: Codeunit "Probe Observer";
     begin
         TqObserveStd(Observer, '-1234567.891', -1234567.891);
-        Observer.Finish();
+        Observer.Expect('-1234567.891 0:0 sf0', 'ok:-1,234,568');
+        Observer.Expect('-1234567.891 0:0 sf2', 'ok:-1234568');
+        Observer.Expect('-1234567.891 0:0 sf9', 'ok:-1234568');
+        Observer.Expect('-1234567.891 0:2 sf0', 'ok:-1,234,567.89');
+        Observer.Expect('-1234567.891 0:2 sf2', 'ok:-1234567.89');
+        Observer.Expect('-1234567.891 0:2 sf9', 'ok:-1234567.89');
+        Observer.Expect('-1234567.891 1:3 sf0', 'ok:-1,234,567.891');
+        Observer.Expect('-1234567.891 1:3 sf2', 'ok:-1234567.891');
+        Observer.Expect('-1234567.891 1:3 sf9', 'ok:-1234567.891');
+        Observer.Expect('-1234567.891 2:5 sf0', 'ok:-1,234,567.891');
+        Observer.Expect('-1234567.891 2:5 sf2', 'ok:-1234567.891');
+        Observer.Expect('-1234567.891 2:5 sf9', 'ok:-1234567.891');
+        Observer.Expect('-1234567.891 3:3 sf0', 'ok:-1,234,567.891');
+        Observer.Expect('-1234567.891 3:3 sf2', 'ok:-1234567.891');
+        Observer.Expect('-1234567.891 3:3 sf9', 'ok:-1234567.891');
+        Observer.Expect('-1234567.891 2:26 sf0', 'ok:-1,234,567.891');
+        Observer.Expect('-1234567.891 2:26 sf2', 'ok:-1234567.891');
+        Observer.Expect('-1234567.891 2:26 sf9', 'ok:-1234567.891');
+        Observer.Verify();
     end;
 
     [Test]
@@ -397,7 +559,25 @@ codeunit 74320 "LT FCF Format Comma String"
         Observer: Codeunit "Probe Observer";
     begin
         TqObserveStd(Observer, '7', 7);
-        Observer.Finish();
+        Observer.Expect('7 0:0 sf0', 'ok:7');
+        Observer.Expect('7 0:0 sf2', 'ok:7');
+        Observer.Expect('7 0:0 sf9', 'ok:7');
+        Observer.Expect('7 0:2 sf0', 'ok:7');
+        Observer.Expect('7 0:2 sf2', 'ok:7');
+        Observer.Expect('7 0:2 sf9', 'ok:7');
+        Observer.Expect('7 1:3 sf0', 'ok:7.0');
+        Observer.Expect('7 1:3 sf2', 'ok:7.0');
+        Observer.Expect('7 1:3 sf9', 'ok:7.0');
+        Observer.Expect('7 2:5 sf0', 'ok:7.00');
+        Observer.Expect('7 2:5 sf2', 'ok:7.00');
+        Observer.Expect('7 2:5 sf9', 'ok:7.00');
+        Observer.Expect('7 3:3 sf0', 'ok:7.000');
+        Observer.Expect('7 3:3 sf2', 'ok:7.000');
+        Observer.Expect('7 3:3 sf9', 'ok:7.000');
+        Observer.Expect('7 2:26 sf0', 'ok:7.00');
+        Observer.Expect('7 2:26 sf2', 'ok:7.00');
+        Observer.Expect('7 2:26 sf9', 'ok:7.00');
+        Observer.Verify();
     end;
 
     [Test]
@@ -410,6 +590,21 @@ codeunit 74320 "LT FCF Format Comma String"
         TqObserveComma(Observer, '1234.56789', 1234.56789);
         TqObserveComma(Observer, '0.0004', 0.0004);
         TqObserveComma(Observer, '-0.4', -0.4);
-        Observer.Finish();
+        Observer.Expect('1.5 p00comma,', 'ok:2');
+        Observer.Expect('1.5 p13thousand.', 'ok:1.5');
+        Observer.Expect('1.5 p33signcomma,', 'ok:1,500');
+        Observer.Expect('-2.5 p00comma,', 'ok:3');
+        Observer.Expect('-2.5 p13thousand.', 'ok:2.5');
+        Observer.Expect('-2.5 p33signcomma,', 'ok:-2,500');
+        Observer.Expect('1234.56789 p00comma,', 'ok:1235');
+        Observer.Expect('1234.56789 p13thousand.', 'ok:1,234.568');
+        Observer.Expect('1234.56789 p33signcomma,', 'ok:1234,568');
+        Observer.Expect('0.0004 p00comma,', 'ok:0');
+        Observer.Expect('0.0004 p13thousand.', 'ok:0.0');
+        Observer.Expect('0.0004 p33signcomma,', 'ok:0,000');
+        Observer.Expect('-0.4 p00comma,', 'ok:0');
+        Observer.Expect('-0.4 p13thousand.', 'ok:0.4');
+        Observer.Expect('-0.4 p33signcomma,', 'ok:-0,400');
+        Observer.Verify();
     end;
 }
