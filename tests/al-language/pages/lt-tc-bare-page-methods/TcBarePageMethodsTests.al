@@ -70,7 +70,7 @@ codeunit 89775 "LT TC Bare Page Methods"
         Bare := RunUpdateInAfterGetRecordBare();
         Curr := RunUpdateInAfterGetRecordCurr();
         Assert.AreEqual(Curr, Bare, 'bare form must behave like the CurrPage. form');
-        Assert.AreEqual('OBS', Bare, 'log and R1 name');
+        Assert.AreEqual('OpenPage;AGR:R1:1;AGR:R2:2;AGR:UPD:3;AGR:Update;AGR:R1:4;AGR:R1:5;AGCR:R1;AGR:R2:6;AGR:R2:7;AGCR:R2;AGR:UPD:8;AGR:UPD:9;AGCR:UPD;QueryClose;ClosePage;|one', Bare, 'log and R1 name');
     end;
 
     local procedure RunUpdateFalseActionBare(): Text
@@ -106,7 +106,7 @@ codeunit 89775 "LT TC Bare Page Methods"
         Bare := RunUpdateFalseActionBare();
         Curr := RunUpdateFalseActionCurr();
         Assert.AreEqual(Curr, Bare, 'bare form must behave like the CurrPage. form');
-        Assert.AreEqual('OBS', Bare, 'log and R1 name');
+        Assert.AreEqual('OpenPage;AGR:R1:1;AGR:R2:2;AGR:UPD:3;AGR:Update;AGR:R1:4;AGR:R1:5;AGCR:R1;AGR:R1:6;Act:UpdateFalse:before;Act:UpdateFalse:after;AGR:R1:7;AGR:R1:8;AGR:R2:9;AGR:UPD:10;AGR:R1:11;AGR:R1:12;AGCR:R1;QueryClose;ClosePage;|one', Bare, 'log and R1 name');
     end;
 
     local procedure RunUpdateTrueActionBare(): Text
@@ -142,7 +142,7 @@ codeunit 89775 "LT TC Bare Page Methods"
         Bare := RunUpdateTrueActionBare();
         Curr := RunUpdateTrueActionCurr();
         Assert.AreEqual(Curr, Bare, 'bare form must behave like the CurrPage. form');
-        Assert.AreEqual('OBS', Bare, 'log and R1 name');
+        Assert.AreEqual('OpenPage;AGR:R1:1;AGR:R2:2;AGR:UPD:3;AGR:Update;AGR:R1:4;AGR:R1:5;AGCR:R1;AGR:R1:6;Act:UpdateTrue:before;Act:UpdateTrue:after;AGR:R1:7;AGR:R1:8;AGR:R2:9;AGR:UPD:10;AGR:R1:11;AGR:R1:12;AGCR:R1;QueryClose;ClosePage;|saved-by-update', Bare, 'log and R1 name');
     end;
 
     local procedure RunUpdateDefaultActionBare(): Text
@@ -178,7 +178,7 @@ codeunit 89775 "LT TC Bare Page Methods"
         Bare := RunUpdateDefaultActionBare();
         Curr := RunUpdateDefaultActionCurr();
         Assert.AreEqual(Curr, Bare, 'bare form must behave like the CurrPage. form');
-        Assert.AreEqual('OBS', Bare, 'log and R1 name');
+        Assert.AreEqual('OpenPage;AGR:R1:1;AGR:R2:2;AGR:UPD:3;AGR:Update;AGR:R1:4;AGR:R1:5;AGCR:R1;AGR:R1:6;Act:UpdateDefault:before;Act:UpdateDefault:after;AGR:R1:7;AGR:R1:8;AGR:R2:9;AGR:UPD:10;AGR:R1:11;AGR:R1:12;AGCR:R1;QueryClose;ClosePage;|one', Bare, 'log and R1 name');
     end;
 
     local procedure RunSaveRecordActionBare(): Text
@@ -214,7 +214,7 @@ codeunit 89775 "LT TC Bare Page Methods"
         Bare := RunSaveRecordActionBare();
         Curr := RunSaveRecordActionCurr();
         Assert.AreEqual(Curr, Bare, 'bare form must behave like the CurrPage. form');
-        Assert.AreEqual('OBS', Bare, 'log and R1 name');
+        Assert.AreEqual('OpenPage;AGR:R1:1;AGR:R2:2;AGR:UPD:3;AGR:Update;AGR:R1:4;AGR:R1:5;AGCR:R1;AGR:R1:6;Act:Save:before;Act:Save:after;AGR:R1:7;QueryClose;ClosePage;|saved-by-saverecord', Bare, 'log and R1 name');
     end;
 
     local procedure RunSetSelectionFilterActionBare(): Text
@@ -250,7 +250,7 @@ codeunit 89775 "LT TC Bare Page Methods"
         Bare := RunSetSelectionFilterActionBare();
         Curr := RunSetSelectionFilterActionCurr();
         Assert.AreEqual(Curr, Bare, 'bare form must behave like the CurrPage. form');
-        Assert.AreEqual('OBS', Bare, 'log and R1 name');
+        Assert.AreEqual('OpenPage;AGR:R1:1;AGR:R2:2;AGR:UPD:3;AGR:Update;AGR:R1:4;AGR:R1:5;AGCR:R1;AGR:R1:6;Act:Sel:1:R1;AGR:R1:7;AGR:R1:8;AGR:R2:9;AGR:UPD:10;AGR:R1:11;AGR:R1:12;AGCR:R1;QueryClose;ClosePage;|one', Bare, 'log and R1 name');
     end;
 
     local procedure RunCloseActionBare(): Text
@@ -284,7 +284,7 @@ codeunit 89775 "LT TC Bare Page Methods"
         Bare := RunCloseActionBare();
         Curr := RunCloseActionCurr();
         Assert.AreEqual(Curr, Bare, 'bare form must behave like the CurrPage. form');
-        Assert.AreEqual('OBS', Bare, 'log and R1 name');
+        Assert.AreEqual('OpenPage;AGR:R1:1;AGR:R2:2;AGR:UPD:3;AGR:Update;AGR:R1:4;AGR:R1:5;AGCR:R1;AGR:R1:6;Act:Close:before;QueryClose;ClosePage;Act:Close:after;AGR:R1:7;|one', Bare, 'log and R1 name');
     end;
 
     local procedure RunReadEditableAndCaptionBare(): Text
@@ -320,7 +320,7 @@ codeunit 89775 "LT TC Bare Page Methods"
         Bare := RunReadEditableAndCaptionBare();
         Curr := RunReadEditableAndCaptionCurr();
         Assert.AreEqual(Curr, Bare, 'bare form must behave like the CurrPage. form');
-        Assert.AreEqual('OBS', Bare, 'log and R1 name');
+        Assert.AreEqual('OpenPage;AGR:R1:1;AGR:R2:2;AGR:UPD:3;AGR:Update;AGR:R1:4;AGR:R1:5;AGCR:R1;AGR:R1:6;Act:Props:Editable=Yes:Caption=LT TC List;AGR:R1:7;AGR:R1:8;AGR:R2:9;AGR:UPD:10;AGR:R1:11;AGR:R1:12;AGCR:R1;QueryClose;ClosePage;|one', Bare, 'log and R1 name');
     end;
 
     local procedure RunSetEditableFalseBare(): Text
@@ -356,7 +356,7 @@ codeunit 89775 "LT TC Bare Page Methods"
         Bare := RunSetEditableFalseBare();
         Curr := RunSetEditableFalseCurr();
         Assert.AreEqual(Curr, Bare, 'bare form must behave like the CurrPage. form');
-        Assert.AreEqual('OBS', Bare, 'log and R1 name');
+        Assert.AreEqual('OpenPage;AGR:R1:1;AGR:R2:2;AGR:UPD:3;AGR:Update;AGR:R1:4;AGR:R1:5;AGCR:R1;AGR:R1:6;Act:SetEditable:Editable=No;AGR:R1:7;AGR:R1:8;AGR:R2:9;AGR:UPD:10;AGR:R1:11;AGR:R1:12;AGCR:R1;QueryClose;ClosePage;|one', Bare, 'log and R1 name');
     end;
 
     [Test]
@@ -369,7 +369,7 @@ codeunit 89775 "LT TC Bare Page Methods"
         P.OpenEdit();
         P.GoToKey('R1');
         P.ActivateIt.Invoke();
-        Assert.AreEqual('OBSB', LogOf('B:'), 'bare Activate log');
+        Assert.AreEqual('OpenPage;AGR:R1:1;AGR:R2:2;AGR:UPD:3;AGR:Update;AGR:R1:4;AGR:R1:5;AGCR:R1;AGR:R1:6;Act:Activate:before;QueryClose;ClosePage;Act:Activate:after;AGR:R1:7;', LogOf('B:'), 'bare Activate log');
     end;
 
     [Test]
@@ -382,7 +382,7 @@ codeunit 89775 "LT TC Bare Page Methods"
         P.OpenEdit();
         P.GoToKey('R1');
         P.ActivateIt.Invoke();
-        Assert.AreEqual('OBSC', LogOf('C:'), 'CurrPage.Activate log');
+        Assert.AreEqual('OpenPage;AGR:R1:1;AGR:R2:2;AGR:UPD:3;AGR:Update;AGR:R1:4;AGR:R1:5;AGCR:R1;AGR:R1:6;Act:Activate:before;QueryClose;ClosePage;Act:Activate:after;AGR:R1:7;', LogOf('C:'), 'CurrPage.Activate log');
     end;
 
     [PageHandler]

@@ -5,6 +5,10 @@
 //   SaveRecord, SetSelectionFilter, Activate) and a bare read of Editable and Caption compile, and behave like the CurrPage. form.
 //   Page "LT TC Bare List" uses the bare form; page "LT TC Curr List" is the same page text with CurrPage. in front. Both write
 //   the same log lines, tagged B: and C:, so the tests compare trigger order of the two forms.
+// BC answers (run on BC 29 SaaS sandbox): every bare form compiles and the two pages write the same log in every scenario. Bare Update()
+//   in OnAfterGetRecord (guarded to four calls) re-reads the rows; Update(true) and SaveRecord() persist the edited Name, Update(false) and
+//   Update() do not; SetSelectionFilter(Sel) selects the current row; Close() runs OnQueryClosePage then OnClosePage inside the action, before
+//   the next line; Activate() behaves like Close() here (QueryClose, ClosePage); Editable reads Yes and Caption reads the page caption.
 // BC versions: all (CI)
 
 table 89770 "LT TC Row"
