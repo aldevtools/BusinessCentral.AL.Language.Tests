@@ -9,6 +9,9 @@
 // Rows: Id 1 (M, flagged no), 2 (C, flagged), 3 (T, flagged), 4 (A, no), 5 (P, flagged); order in the key ByName: 4, 2, 1, 5, 3.
 //   Tests: <page>_DrillDown_GoToRecord (open, drilldown, GoToRecord on two rows), _Filter_Refill (TestPage.Filter.SetFilter, then moves),
 //   _Action_Update (RefreshAct then moves), _Action_Mark (MarkAct then GoToRecord).
+// Facts: in the key ByName a refill and every row made current read the row three times before OnAfterGetCurrRecord (R4;R4;R4;C4); in the primary
+//   key twice. Drilldown, mark and control values: confirmed on a BC 29 SaaS sandbox, 2026-10-28, and equal on the Linux legs (the reporter's
+//   Windows OnPrem log in al-runner issue 6008 differs; noted in that issue).
 // BC versions: 27, 28, 29
 
 table 89650 "LT SU Row"
