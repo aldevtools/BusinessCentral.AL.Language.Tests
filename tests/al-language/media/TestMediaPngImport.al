@@ -669,24 +669,6 @@ codeunit 60130 "Test Media Png Import"
         Observer.Expect('after committed delete export_nonempty', 'No');
         Observer.Verify();
     end;
-}
-
-table 86580 "LT QE Media Other"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; "Code"; Code[20]) { }
-        field(2; "Description"; Text[100]) { }
-        field(3; "Picture"; Media) { }
-        field(5; "Picture2"; Media) { }
-    }
-
-    keys
-    {
-        key(PK; "Code") { Clustered = true; }
-    }
 
     // Writer TP (NP lane, 2026-10-28): Delete on a "Tenant Media" record (the row of a Media field), then the holder row.
     [Test]
@@ -723,4 +705,22 @@ table 86580 "LT QE Media Other"
         Observer.Observe('delete missing', Format(Ok) + ' ' + GetLastErrorText());
         Observer.Finish();
     end;
+}
+
+table 86580 "LT QE Media Other"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; "Code"; Code[20]) { }
+        field(2; "Description"; Text[100]) { }
+        field(3; "Picture"; Media) { }
+        field(5; "Picture2"; Media) { }
+    }
+
+    keys
+    {
+        key(PK; "Code") { Clustered = true; }
+    }
 }

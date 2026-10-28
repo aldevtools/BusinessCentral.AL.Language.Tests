@@ -4,9 +4,9 @@
 //   (QrXpContainerOccurs.al); tests TP_* in codeunit 87280 (QrXpContainerOccurs.al)
 // Probe: observed on a BC 29.0 service tier; every literal asserted in the TP_* tests is what that tier produced. Other versions: corpus CI matrix.
 // Objects:
-//   90022: table element > text element `entry` (a field attribute, a text attribute with triggers, a text attribute without triggers
-//     declared after the child element) > text element `admission` whose only child is one required text attribute. The inner element and
-//     its attribute have OnBeforePassVariable (set from the row) and OnAfterAssignVariable; every trigger logs, so the log shows the order.
+//   90022: table element > text element `entry` (a field attribute, a text attribute with triggers, a text attribute without triggers)
+//     > text element `admission` whose only child is one required text attribute. The inner element and
+//     its attribute have OnBeforePassVariable (set from the row), the element also OnAfterAssignVariable; every trigger logs (log = order).
 //   90023: table element > text element `attributes` (MinOccurs = Zero, MaxOccurs = Once) > temporary table element `attribute` with no
 //     LinkTable (field attributes, OnBeforeInsertRecord sets the parent key from the outer row). Every trigger logs.
 // BC versions: 27, 28, 29
@@ -85,6 +85,10 @@ xmlport 90022 "LT TP XP Nested Text"
                             Log += 'status=' + status + ';';
                         end;
                     }
+                    textattribute(kind)
+                    {
+                        Occurrence = Optional;
+                    }
                     textelement(admission)
                     {
                         textattribute(admcode)
@@ -109,10 +113,6 @@ xmlport 90022 "LT TP XP Nested Text"
                         begin
                             Log += 'admission=' + admission + ' admcode=' + admcode + ';';
                         end;
-                    }
-                    textattribute(kind)
-                    {
-                        Occurrence = Optional;
                     }
 
                     trigger OnBeforePassVariable()
