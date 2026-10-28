@@ -699,6 +699,18 @@ codeunit 73403 "LT XmT Nodes"
         Observer.Observe('reused get1', Format(L.Get(1, N)) + ' ' + N.AsXmlElement().InnerText());
         Observer.Observe('select none', Format(Doc.SelectNodes('//d', L)));
         Observer.Observe('none count', TpCount(L));
-        Observer.Finish();
+        Observer.Expect('fresh count', '0');
+        Observer.Expect('fresh cleared count', '0');
+        Observer.Expect('count', '2');
+        Observer.Expect('cleared count', '0');
+        Observer.Expect('copy count', '2');
+        Observer.Expect('cleared get1', 'No');
+        Observer.Expect('cleared foreach', 'Yes  ');
+        Observer.Expect('select again', 'Yes');
+        Observer.Expect('reused count', '1');
+        Observer.Expect('reused get1', 'Yes 3');
+        Observer.Expect('select none', 'Yes');
+        Observer.Expect('none count', '0');
+        Observer.Verify();
     end;
 }

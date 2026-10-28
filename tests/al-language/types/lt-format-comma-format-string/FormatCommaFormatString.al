@@ -223,7 +223,26 @@ codeunit 74320 "LT FCF Format Comma String"
         TpObserve(Observer, '-1234.567', -1234.567);
         TpObserve(Observer, '0.125', 0.125);
         TpObserve(Observer, '1234567.891', 1234567.891);
-        Observer.Finish();
+        Observer.Expect('0 p26sf4', 'ok:0.00 ');
+        Observer.Expect('0 p26sf2', 'ok:0.00');
+        Observer.Expect('0 p2comma.', 'ok:0.00');
+        Observer.Expect('0 p2comma,', 'ok:0,00');
+        Observer.Expect('0 p2thousand', 'ok:0,00');
+        Observer.Expect('0 signfirst', 'ok:0');
+        Observer.Expect('1234.5 p26sf4', 'ok:1234.50 ');
+        Observer.Expect('1234.5 p26sf2', 'ok:1234.50');
+        Observer.Expect('1234.5 p2comma.', 'ok:1234.50');
+        Observer.Expect('1234.5 p2comma,', 'ok:1234,50');
+        Observer.Expect('1234.5 p2thousand', 'ok:1,234,50');
+        Observer.Expect('1234.5 signfirst', 'ok:1234.5');
+        Observer.Expect('-1234.567 p26sf4', 'ok:1234.567-');
+        Observer.Expect('-1234.567 p26sf2', 'ok:-1234.567');
+        Observer.Expect('-1234.567 p2comma.', 'ok:-1234.57');
+        Observer.Expect('-1234.567 p2comma,', 'ok:-1234,57');
+        Observer.Expect('-1234.567 p2thousand', 'ok:1,234,57');
+        Observer.Expect('-1234.567 signfirst', 'ok:-1234.567');
+        Observer.Expect('0.125 p26sf4', 'ok:0.125 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -234,6 +253,23 @@ codeunit 74320 "LT FCF Format Comma String"
         TpObserve(Observer, '0.1234567891234', 0.1234567891234);
         TpObserve(Observer, '-0.005', -0.005);
         TpObserve(Observer, '12', 12);
-        Observer.Finish();
+        Observer.Expect('0.1234567891234 p26sf4', 'ok:0.1234567891234 ');
+        Observer.Expect('0.1234567891234 p26sf2', 'ok:0.1234567891234');
+        Observer.Expect('0.1234567891234 p2comma.', 'ok:0.12');
+        Observer.Expect('0.1234567891234 p2comma,', 'ok:0,12');
+        Observer.Expect('0.1234567891234 p2thousand', 'ok:0,12');
+        Observer.Expect('0.1234567891234 signfirst', 'ok:0.1234567891234');
+        Observer.Expect('-0.005 p26sf4', 'ok:0.005-');
+        Observer.Expect('-0.005 p26sf2', 'ok:-0.005');
+        Observer.Expect('-0.005 p2comma.', 'ok:-0.01');
+        Observer.Expect('-0.005 p2comma,', 'ok:-0,01');
+        Observer.Expect('-0.005 p2thousand', 'ok:0,01');
+        Observer.Expect('-0.005 signfirst', 'ok:-0.005');
+        Observer.Expect('12 p26sf4', 'ok:12.00 ');
+        Observer.Expect('12 p26sf2', 'ok:12.00');
+        Observer.Expect('12 p2comma.', 'ok:12.00');
+        Observer.Expect('12 p2comma,', 'ok:12,00');
+        Observer.Expect('12 p2thousand', 'ok:12,00');
+        Observer.Verify();
     end;
 }
