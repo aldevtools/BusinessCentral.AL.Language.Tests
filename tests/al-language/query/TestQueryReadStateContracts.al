@@ -7,7 +7,7 @@
 // Pins a query with ReadState = ReadUncommitted (the only value the app's runtime version 16.0 offers besides the
 // default: ReadCommitted needs runtime 18.0, RepeatableRead and UpdLock are no values of the property): it returns
 // a row the same session wrote and has not committed, and the same row after a Commit.
-// Fixtures used (added): Probe Observer (69160); queries 89920-89921
+// Fixtures used (added): Probe Observer (69160); queries 89920-89921 (ReadCommitted needs runtime 18.0: BC29PLUS only; ReadShared compiles on 27.5, 28.5 and 29.0)
 // BC versions: 27.5
 
 table 68952 "Probe ReadState Table"
@@ -53,6 +53,7 @@ query 89920 "LT TJ ReadState Shared"
     }
 }
 
+#if BC29PLUS
 query 89921 "LT TJ ReadState Committed"
 {
     QueryType = Normal;
@@ -66,6 +67,7 @@ query 89921 "LT TJ ReadState Committed"
         }
     }
 }
+#endif
 
 
 codeunit 68954 "Probe Query ReadState"
@@ -115,6 +117,7 @@ codeunit 68954 "Probe Query ReadState"
         exit(Count);
     end;
 
+#if BC29PLUS
     local procedure RowsCommitted(): Integer
     var
         Q: Query "LT TJ ReadState Committed";
@@ -126,6 +129,7 @@ codeunit 68954 "Probe Query ReadState"
         Q.Close();
         exit(Count);
     end;
+#endif
 
     [Test]
     procedure ReadStateValues_SeeTheSessionsOwnUncommittedRow_AndTheCommittedOne()
@@ -139,14 +143,22 @@ codeunit 68954 "Probe Query ReadState"
         RsRec.Insert();
 
         Observer.Observe('shared_uncommitted', Format(RowsShared()));
+#if BC29PLUS
         Observer.Observe('committed_uncommitted', Format(RowsCommitted()));
+#endif
         Commit();
         Observer.Observe('shared_after', Format(RowsShared()));
+#if BC29PLUS
         Observer.Observe('committed_after', Format(RowsCommitted()));
+#endif
         Observer.Expect('shared_uncommitted', '1');
+#if BC29PLUS
         Observer.Expect('committed_uncommitted', '1');
+#endif
         Observer.Expect('shared_after', '1');
+#if BC29PLUS
         Observer.Expect('committed_after', '1');
+#endif
         Observer.Verify();
     end;
 }
