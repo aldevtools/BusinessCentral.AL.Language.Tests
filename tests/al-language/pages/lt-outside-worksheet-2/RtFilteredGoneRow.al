@@ -658,7 +658,12 @@ codeunit 88615 "LT RT Uf Tests"
         TdRunLeaves(3, false, 2);
         Observer.Expect('open shown', 'B1|10000');
         Observer.Expect('open log', 'R:10000;R:20000;R:30000;R:10000;R:10000;C:B1:10000;');
+        // Three lines: BC 27 and 29 run OnNewRecord and OnAfterGetCurrRecord twice, BC 28.5 once (corpus CI, 2026-10-28).
+#if BC28PLUS and not BC29PLUS
+        Observer.Expect('action log', 'R:10000;N:B1:0;C:B1:0;');
+#else
         Observer.Expect('action log', 'R:10000;N:B1:0;C:B1:0;N:B1:0;C:B1:0;');
+#endif
         Observer.Expect('shown after action', '||');
         Observer.Expect('B1 count', '0');
         Observer.Expect('total count', '0');
