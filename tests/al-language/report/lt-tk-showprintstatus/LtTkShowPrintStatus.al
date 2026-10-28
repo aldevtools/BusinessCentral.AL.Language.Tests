@@ -590,114 +590,151 @@ codeunit 89950 "LT TK ShowPrintStatus Test"
         Observer.Observe('log', TkLog.Take());
     end;
 
-    local procedure Done()
-    begin
-        Observer.Finish();
-    end;
-
     [Test]
     procedure Proc_T_Run()
     begin
         Probe(1, 89941);
-        Done();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('log', 'PT OnPreReport;PT OnPreDataItem;PT row 1;PT row 2;PT OnPostDataItem;PT OnPostReport;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Proc_T_RunModal()
     begin
         Probe(2, 89941);
-        Done();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('log', 'PT OnPreReport;PT OnPreDataItem;PT row 1;PT row 2;PT OnPostDataItem;PT OnPostReport;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Proc_T_Execute()
     begin
         Probe(3, 89941);
-        Done();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('log', 'PT OnPreReport;PT OnPreDataItem;PT row 1;PT row 2;PT OnPostDataItem;PT OnPostReport;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Proc_T_SaveAsPdf()
     begin
         Probe(4, 89941);
-        Done();
+        Observer.Expect('saved', 'No');
+        Observer.Expect('bytes_nonzero', 'No');
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('log', ' |');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Proc_T_SaveAsXml()
     begin
         Probe(5, 89941);
-        Done();
+        Observer.Expect('saved', 'No');
+        Observer.Expect('bytes_nonzero', 'No');
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('log', ' |');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Proc_F_Run()
     begin
         Probe(1, 89942);
-        Done();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('log', 'PF OnPreReport;PF OnPreDataItem;PF row 1;PF row 2;PF OnPostDataItem;PF OnPostReport;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Proc_F_RunModal()
     begin
         Probe(2, 89942);
-        Done();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('log', 'PF OnPreReport;PF OnPreDataItem;PF row 1;PF row 2;PF OnPostDataItem;PF OnPostReport;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Proc_F_Execute()
     begin
         Probe(3, 89942);
-        Done();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('log', 'PF OnPreReport;PF OnPreDataItem;PF row 1;PF row 2;PF OnPostDataItem;PF OnPostReport;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Proc_F_SaveAsPdf()
     begin
         Probe(4, 89942);
-        Done();
+        Observer.Expect('saved', 'No');
+        Observer.Expect('bytes_nonzero', 'No');
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('log', ' |');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Proc_F_SaveAsXml()
     begin
         Probe(5, 89942);
-        Done();
+        Observer.Expect('saved', 'No');
+        Observer.Expect('bytes_nonzero', 'No');
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('log', ' |');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Proc_U_Run()
     begin
         Probe(1, 89943);
-        Done();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('log', 'PU OnPreReport;PU OnPreDataItem;PU row 1;PU row 2;PU OnPostDataItem;PU OnPostReport;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Proc_U_RunModal()
     begin
         Probe(2, 89943);
-        Done();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('log', 'PU OnPreReport;PU OnPreDataItem;PU row 1;PU row 2;PU OnPostDataItem;PU OnPostReport;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Proc_U_Execute()
     begin
         Probe(3, 89943);
-        Done();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('log', 'PU OnPreReport;PU OnPreDataItem;PU row 1;PU row 2;PU OnPostDataItem;PU OnPostReport;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Proc_U_SaveAsPdf()
     begin
         Probe(4, 89943);
-        Done();
+        Observer.Expect('saved', 'No');
+        Observer.Expect('bytes_nonzero', 'No');
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('log', ' |');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Proc_U_SaveAsXml()
     begin
         Probe(5, 89943);
-        Done();
+        Observer.Expect('saved', 'No');
+        Observer.Expect('bytes_nonzero', 'No');
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('log', ' |');
+        Observer.Verify();
     end;
 
     [Test]
@@ -705,7 +742,9 @@ codeunit 89950 "LT TK ShowPrintStatus Test"
     procedure Req_T_Run()
     begin
         Probe(1, 89944);
-        Done();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('log', 'RT req OnOpenPage;handler OkT;RT req OnQueryClosePage;RT OnPreReport;RT OnPreDataItem;RT row 1;RT row 2;RT OnPostDataItem;RT OnPostReport;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -713,7 +752,9 @@ codeunit 89950 "LT TK ShowPrintStatus Test"
     procedure Req_T_Run_Cancel()
     begin
         Probe(1, 89944);
-        Done();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('log', 'RT req OnOpenPage;handler CancelT;RT req OnQueryClosePage;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -721,7 +762,9 @@ codeunit 89950 "LT TK ShowPrintStatus Test"
     procedure Req_T_RunModal()
     begin
         Probe(2, 89944);
-        Done();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('log', 'RT req OnOpenPage;handler OkT;RT req OnQueryClosePage;RT OnPreReport;RT OnPreDataItem;RT row 1;RT row 2;RT OnPostDataItem;RT OnPostReport;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -729,28 +772,40 @@ codeunit 89950 "LT TK ShowPrintStatus Test"
     procedure Req_T_RunModal_Cancel()
     begin
         Probe(2, 89944);
-        Done();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('log', 'RT req OnOpenPage;handler CancelT;RT req OnQueryClosePage;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Req_T_Execute()
     begin
         Probe(3, 89944);
-        Done();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('log', 'RT OnPreReport;RT OnPreDataItem;RT row 1;RT row 2;RT OnPostDataItem;RT OnPostReport;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Req_T_SaveAsPdf()
     begin
         Probe(4, 89944);
-        Done();
+        Observer.Expect('saved', 'No');
+        Observer.Expect('bytes_nonzero', 'No');
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('log', ' |');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Req_T_SaveAsXml()
     begin
         Probe(5, 89944);
-        Done();
+        Observer.Expect('saved', 'No');
+        Observer.Expect('bytes_nonzero', 'No');
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('log', ' |');
+        Observer.Verify();
     end;
 
     [Test]
@@ -758,7 +813,9 @@ codeunit 89950 "LT TK ShowPrintStatus Test"
     procedure Req_F_Run()
     begin
         Probe(1, 89945);
-        Done();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('log', 'RF req OnOpenPage;handler OkF;RF req OnQueryClosePage;RF OnPreReport;RF OnPreDataItem;RF row 1;RF row 2;RF OnPostDataItem;RF OnPostReport;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -766,7 +823,9 @@ codeunit 89950 "LT TK ShowPrintStatus Test"
     procedure Req_F_Run_Cancel()
     begin
         Probe(1, 89945);
-        Done();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('log', 'RF req OnOpenPage;handler CancelF;RF req OnQueryClosePage;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -774,7 +833,9 @@ codeunit 89950 "LT TK ShowPrintStatus Test"
     procedure Req_F_RunModal()
     begin
         Probe(2, 89945);
-        Done();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('log', 'RF req OnOpenPage;handler OkF;RF req OnQueryClosePage;RF OnPreReport;RF OnPreDataItem;RF row 1;RF row 2;RF OnPostDataItem;RF OnPostReport;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -782,28 +843,40 @@ codeunit 89950 "LT TK ShowPrintStatus Test"
     procedure Req_F_RunModal_Cancel()
     begin
         Probe(2, 89945);
-        Done();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('log', 'RF req OnOpenPage;handler CancelF;RF req OnQueryClosePage;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Req_F_Execute()
     begin
         Probe(3, 89945);
-        Done();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('log', 'RF OnPreReport;RF OnPreDataItem;RF row 1;RF row 2;RF OnPostDataItem;RF OnPostReport;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Req_F_SaveAsPdf()
     begin
         Probe(4, 89945);
-        Done();
+        Observer.Expect('saved', 'No');
+        Observer.Expect('bytes_nonzero', 'No');
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('log', ' |');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Req_F_SaveAsXml()
     begin
         Probe(5, 89945);
-        Done();
+        Observer.Expect('saved', 'No');
+        Observer.Expect('bytes_nonzero', 'No');
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('log', ' |');
+        Observer.Verify();
     end;
 
     [Test]
@@ -811,7 +884,9 @@ codeunit 89950 "LT TK ShowPrintStatus Test"
     procedure Req_U_Run()
     begin
         Probe(1, 89946);
-        Done();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('log', 'RU req OnOpenPage;handler OkU;RU req OnQueryClosePage;RU OnPreReport;RU OnPreDataItem;RU row 1;RU row 2;RU OnPostDataItem;RU OnPostReport;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -819,7 +894,9 @@ codeunit 89950 "LT TK ShowPrintStatus Test"
     procedure Req_U_Run_Cancel()
     begin
         Probe(1, 89946);
-        Done();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('log', 'RU req OnOpenPage;handler CancelU;RU req OnQueryClosePage;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -827,7 +904,9 @@ codeunit 89950 "LT TK ShowPrintStatus Test"
     procedure Req_U_RunModal()
     begin
         Probe(2, 89946);
-        Done();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('log', 'RU req OnOpenPage;handler OkU;RU req OnQueryClosePage;RU OnPreReport;RU OnPreDataItem;RU row 1;RU row 2;RU OnPostDataItem;RU OnPostReport;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -835,175 +914,193 @@ codeunit 89950 "LT TK ShowPrintStatus Test"
     procedure Req_U_RunModal_Cancel()
     begin
         Probe(2, 89946);
-        Done();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('log', 'RU req OnOpenPage;handler CancelU;RU req OnQueryClosePage;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Req_U_Execute()
     begin
         Probe(3, 89946);
-        Done();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('log', 'RU OnPreReport;RU OnPreDataItem;RU row 1;RU row 2;RU OnPostDataItem;RU OnPostReport;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Req_U_SaveAsPdf()
     begin
         Probe(4, 89946);
-        Done();
+        Observer.Expect('saved', 'No');
+        Observer.Expect('bytes_nonzero', 'No');
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('log', ' |');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Req_U_SaveAsXml()
     begin
         Probe(5, 89946);
-        Done();
+        Observer.Expect('saved', 'No');
+        Observer.Expect('bytes_nonzero', 'No');
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('log', ' |');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Req_T_Run_NoHandler()
-    begin
-        Probe(1, 89944);
-        Done();
-    end;
 
-    [Test]
-    procedure Req_T_RunModal_NoHandler()
-    begin
-        Probe(2, 89944);
-        Done();
-    end;
 
-    [Test]
-    procedure Req_F_Run_NoHandler()
-    begin
-        Probe(1, 89945);
-        Done();
-    end;
 
-    [Test]
-    procedure Req_F_RunModal_NoHandler()
-    begin
-        Probe(2, 89945);
-        Done();
-    end;
 
-    [Test]
-    procedure Req_U_Run_NoHandler()
-    begin
-        Probe(1, 89946);
-        Done();
-    end;
 
-    [Test]
-    procedure Req_U_RunModal_NoHandler()
-    begin
-        Probe(2, 89946);
-        Done();
-    end;
 
     [Test]
     procedure Layout_T_Run()
     begin
         Probe(1, 89947);
-        Done();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('log', 'LT OnPreReport;LT OnPreDataItem;LT row 1;LT row 2;LT OnPostDataItem;LT OnPostReport;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Layout_T_RunModal()
     begin
         Probe(2, 89947);
-        Done();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('log', 'LT OnPreReport;LT OnPreDataItem;LT row 1;LT row 2;LT OnPostDataItem;LT OnPostReport;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Layout_T_Execute()
     begin
         Probe(3, 89947);
-        Done();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('log', 'LT OnPreReport;LT OnPreDataItem;LT row 1;LT row 2;LT OnPostDataItem;LT OnPostReport;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Layout_T_SaveAsPdf()
     begin
         Probe(4, 89947);
-        Done();
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('bytes_nonzero', 'Yes');
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('log', 'LT OnPreReport;LT OnPreDataItem;LT row 1;LT row 2;LT OnPostDataItem;LT OnPostReport;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Layout_T_SaveAsXml()
     begin
         Probe(5, 89947);
-        Done();
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('bytes_nonzero', 'Yes');
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('log', 'LT OnPreReport;LT OnPreDataItem;LT row 1;LT row 2;LT OnPostDataItem;LT OnPostReport;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Layout_F_Run()
     begin
         Probe(1, 89948);
-        Done();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('log', 'LF OnPreReport;LF OnPreDataItem;LF row 1;LF row 2;LF OnPostDataItem;LF OnPostReport;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Layout_F_RunModal()
     begin
         Probe(2, 89948);
-        Done();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('log', 'LF OnPreReport;LF OnPreDataItem;LF row 1;LF row 2;LF OnPostDataItem;LF OnPostReport;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Layout_F_Execute()
     begin
         Probe(3, 89948);
-        Done();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('log', 'LF OnPreReport;LF OnPreDataItem;LF row 1;LF row 2;LF OnPostDataItem;LF OnPostReport;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Layout_F_SaveAsPdf()
     begin
         Probe(4, 89948);
-        Done();
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('bytes_nonzero', 'Yes');
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('log', 'LF OnPreReport;LF OnPreDataItem;LF row 1;LF row 2;LF OnPostDataItem;LF OnPostReport;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Layout_F_SaveAsXml()
     begin
         Probe(5, 89948);
-        Done();
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('bytes_nonzero', 'Yes');
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('log', 'LF OnPreReport;LF OnPreDataItem;LF row 1;LF row 2;LF OnPostDataItem;LF OnPostReport;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Layout_U_Run()
     begin
         Probe(1, 89949);
-        Done();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('log', 'LU OnPreReport;LU OnPreDataItem;LU row 1;LU row 2;LU OnPostDataItem;LU OnPostReport;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Layout_U_RunModal()
     begin
         Probe(2, 89949);
-        Done();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('log', 'LU OnPreReport;LU OnPreDataItem;LU row 1;LU row 2;LU OnPostDataItem;LU OnPostReport;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Layout_U_Execute()
     begin
         Probe(3, 89949);
-        Done();
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('log', 'LU OnPreReport;LU OnPreDataItem;LU row 1;LU row 2;LU OnPostDataItem;LU OnPostReport;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Layout_U_SaveAsPdf()
     begin
         Probe(4, 89949);
-        Done();
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('bytes_nonzero', 'Yes');
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('log', 'LU OnPreReport;LU OnPreDataItem;LU row 1;LU row 2;LU OnPostDataItem;LU OnPostReport;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Layout_U_SaveAsXml()
     begin
         Probe(5, 89949);
-        Done();
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('bytes_nonzero', 'Yes');
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('log', 'LU OnPreReport;LU OnPreDataItem;LU row 1;LU row 2;LU OnPostDataItem;LU OnPostReport;');
+        Observer.Verify();
     end;
 
     [RequestPageHandler]
