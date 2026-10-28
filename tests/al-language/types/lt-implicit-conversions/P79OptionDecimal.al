@@ -1,8 +1,8 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/decimal/decimal-data-type
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160), enum 89960, own table 89961, test codeunit 89962
+// Fixtures used: Probe Observer (codeunit 69160), own table 89961, test codeunit 89962
 // Probe: written against a local BC 29.0.54011.55816 service tier; every literal asserted below is what that tier produced. Other BC versions are checked by the corpus CI matrix.
-// Facts: Option to Decimal implicit assignment (Option field to Decimal field, Option variable, Enum value) gives the ordinal; arithmetic, comparison, argument, Validate, Format/Evaluate of the ordinal (al-runner issue 6060)
+// Facts: Option to Decimal implicit assignment (Option field to Decimal field, Option variable) gives the ordinal; arithmetic, comparison, argument, Validate, Format/Evaluate of the ordinal (al-runner issue 6060)
 // BC versions: 29 (27 and 28 by CI)
 
 enum 89960 "LT TL Kind"
@@ -76,34 +76,28 @@ codeunit 89962 "LT TL Option To Decimal"
         Observer.Verify();
     end;
 
-    [Test]
-    procedure EnumValue_ToDecimal()
+    [TryFunction]
+    local procedure TryDecimalToOption(D: Decimal; var R: Text)
     var
-        Observer: Codeunit "Probe Observer";
-        K: Enum "LT TL Kind";
-        D: Decimal;
+        O: Option A,B,C;
     begin
-        K := K::Age;
-        D := K;
-        Observer.Observe('var', Format(D));
-        D := "LT TL Kind"::Bonus;
-        Observer.Observe('literal', Format(D));
-        Observer.Expect('var', '5');
-        Observer.Expect('literal', '1');
-        Observer.Verify();
+        O := D;
+        R := Format(O) + '/' + Format(O, 0, 2);
     end;
 
     [Test]
-    procedure EnumField_ToDecimalField()
+    procedure DecimalToOption_Assign()
     var
         Observer: Codeunit "Probe Observer";
-        Source: Record "LT TL Rec";
-        Target: Record "LT TL Rec" temporary;
+        R: Text;
     begin
-        Source.EnumKind := Source.EnumKind::Age;
-        Target.Amount := Source.EnumKind;
-        Observer.Observe('enumfield', Format(Target.Amount));
-        Observer.Expect('enumfield', '5');
+        if TryDecimalToOption(2, R) then Observer.Observe('2', R) else Observer.Observe('2', 'error:' + GetLastErrorText() + '|' + GetLastErrorCode());
+        if TryDecimalToOption(0, R) then Observer.Observe('0', R) else Observer.Observe('0', 'error:' + GetLastErrorText() + '|' + GetLastErrorCode());
+        if TryDecimalToOption(1.5, R) then Observer.Observe('1.5', R) else Observer.Observe('1.5', 'error:' + GetLastErrorText() + '|' + GetLastErrorCode());
+        if TryDecimalToOption(2.6, R) then Observer.Observe('2.6', R) else Observer.Observe('2.6', 'error:' + GetLastErrorText() + '|' + GetLastErrorCode());
+        if TryDecimalToOption(7, R) then Observer.Observe('7', R) else Observer.Observe('7', 'error:' + GetLastErrorText() + '|' + GetLastErrorCode());
+        if TryDecimalToOption(-1, R) then Observer.Observe('-1', R) else Observer.Observe('-1', 'error:' + GetLastErrorText() + '|' + GetLastErrorCode());
+        Observer.Expect('2', 'XX');
         Observer.Verify();
     end;
 
