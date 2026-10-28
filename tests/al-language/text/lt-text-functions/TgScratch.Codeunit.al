@@ -5,55 +5,34 @@ codeunit 89870 "LT TG Scratch"
 
     var
         Obs: Codeunit "Probe Observer";
-        Flag: Boolean;
 
     [Test]
-    procedure DeadBranch()
+    procedure AssertErrAssign()
     var
         T: Text;
     begin
-        if Flag then
-            T := PadStr('ab', 3.4);
-        Obs.Observe('dead', 'ran');
+        asserterror T := PadStr('ab', 3.4);
+        Obs.ObserveError('b');
         Obs.Finish();
     end;
 
     [Test]
-    procedure InTry()
-    var
-        T: Text;
-        Ok: Boolean;
+    procedure AssertErrOnly()
     begin
-        Ok := TryLit(T);
-        Obs.Observe('try', Format(Ok) + '|' + T);
-        Obs.ObserveError('try');
+        asserterror PadStr('ab', 3.4);
+        Obs.ObserveError('b');
         Obs.Finish();
     end;
 
     [Test]
-    procedure WholeLiteral()
+    procedure AssertErrCopy()
     var
         T: Text;
     begin
-        T := PadStr('ab', 3.0);
-        Obs.Observe('whole', T + '|' + CopyStr('abcdef', 2.0, 3.0));
+        asserterror T := CopyStr('abcdef', 2, 3.5);
+        Obs.ObserveError('f');
+        asserterror Error('%1', CopyStr('abcdef', 2.4, 3));
+        Obs.ObserveError('g');
         Obs.Finish();
-    end;
-
-    [Test]
-    procedure TwoInOne()
-    var
-        T: Text;
-    begin
-        Obs.Observe('before', 'ran');
-        T := CopyStr('abcdef', 2, 3.5);
-        Obs.Observe('after', T);
-        Obs.Finish();
-    end;
-
-    [TryFunction]
-    local procedure TryLit(var T: Text)
-    begin
-        T := PadStr('ab', 3.4);
     end;
 }
