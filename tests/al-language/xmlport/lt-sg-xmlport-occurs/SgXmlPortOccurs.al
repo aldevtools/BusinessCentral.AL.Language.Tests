@@ -793,10 +793,10 @@ codeunit 89365 "LT SG XP Occurs Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
-        ImportNsAttr(Observer, 'plain attributes', '<Root xmlns="urn:microsoft-dynamics-nav/xmlports/x89818" Ver="v9"><Row Id="3" Note="x"><Item Kind="a" EntryNo="9"/></Row></Root>');
-        ImportNsAttr(Observer, 'optional missing', '<Root xmlns="urn:microsoft-dynamics-nav/xmlports/x89818"><Row Id="3"><Item Kind="a"/></Row></Root>');
-        ImportNsAttr(Observer, 'required field attribute missing', '<Root xmlns="urn:microsoft-dynamics-nav/xmlports/x89818"><Row><Item Kind="a"/></Row></Root>');
-        ImportNsAttr(Observer, 'required text attribute missing', '<Root xmlns="urn:microsoft-dynamics-nav/xmlports/x89818"><Row Id="3"><Item/></Row></Root>');
+        ImportNsAttr(Observer, 'plain attributes', '<Root xmlns="urn:microsoft-dynamics-nav/xmlports/x89838" Ver="v9"><Row Id="3" Note="x"><Item Kind="a" EntryNo="9"/></Row></Root>');
+        ImportNsAttr(Observer, 'optional missing', '<Root xmlns="urn:microsoft-dynamics-nav/xmlports/x89838"><Row Id="3"><Item Kind="a"/></Row></Root>');
+        ImportNsAttr(Observer, 'required field attribute missing', '<Root xmlns="urn:microsoft-dynamics-nav/xmlports/x89838"><Row><Item Kind="a"/></Row></Root>');
+        ImportNsAttr(Observer, 'required text attribute missing', '<Root xmlns="urn:microsoft-dynamics-nav/xmlports/x89838"><Row Id="3"><Item/></Row></Root>');
         Observer.Finish();
     end;
 
@@ -805,8 +805,8 @@ codeunit 89365 "LT SG XP Occurs Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
-        ImportNsAttr(Observer, 'prefixed attributes', '<n:Root xmlns:n="urn:microsoft-dynamics-nav/xmlports/x89818" n:Ver="v9"><n:Row n:Id="3" n:Note="x"><n:Item n:Kind="a" n:EntryNo="9"/></n:Row></n:Root>');
-        ImportNsAttr(Observer, 'prefixed elements, plain attributes', '<n:Root xmlns:n="urn:microsoft-dynamics-nav/xmlports/x89818" Ver="v9"><n:Row Id="3" Note="x"><n:Item Kind="a" EntryNo="9"/></n:Row></n:Root>');
+        ImportNsAttr(Observer, 'prefixed attributes', '<n:Root xmlns:n="urn:microsoft-dynamics-nav/xmlports/x89838" n:Ver="v9"><n:Row n:Id="3" n:Note="x"><n:Item n:Kind="a" n:EntryNo="9"/></n:Row></n:Root>');
+        ImportNsAttr(Observer, 'prefixed elements, plain attributes', '<n:Root xmlns:n="urn:microsoft-dynamics-nav/xmlports/x89838" Ver="v9"><n:Row Id="3" Note="x"><n:Item Kind="a" EntryNo="9"/></n:Row></n:Root>');
         ImportNsAttr(Observer, 'no namespace', '<Root Ver="v9"><Row Id="3" Note="x"><Item Kind="a" EntryNo="9"/></Row></Root>');
         ImportNsAttr(Observer, 'other namespace', '<Root xmlns="urn:other" Ver="v9"><Row Id="3" Note="x"><Item Kind="a" EntryNo="9"/></Row></Root>');
         Observer.Finish();

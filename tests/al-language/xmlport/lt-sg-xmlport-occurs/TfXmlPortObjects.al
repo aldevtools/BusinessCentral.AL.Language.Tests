@@ -1,15 +1,15 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/properties/devenv-minoccurs-property
 // Scope: in-scope
-// Fixtures used: table 89360 "LT SG XP Row" (SgXmlPortObjects.al); own xmlports 89815-89818 (writer TF); tests in SgXmlPortOccurs.al (codeunit 89365)
+// Fixtures used: table 89360 "LT SG XP Row" (SgXmlPortObjects.al); own xmlports 89835-89838 (writer TF); tests in SgXmlPortOccurs.al (codeunit 89365)
 // Probe: the objects of the TF_ tests of codeunit 89365.
-//  - 89815: a temporary table element with an explicit MinOccurs = Once and no MaxOccurs, below the root.
-//  - 89816: the same with MinOccurs = Once and MaxOccurs = Once.
-//  - 89817: a table element on a real table with MinOccurs = Once and MaxOccurs = Once.
-//  - 89818: UseDefaultNamespace = true without DefaultNamespace, with a text attribute on the root, a field attribute on a table element and a
+//  - 89835: a temporary table element with an explicit MinOccurs = Once and no MaxOccurs, below the root.
+//  - 89836: the same with MinOccurs = Once and MaxOccurs = Once.
+//  - 89837: a table element on a real table with MinOccurs = Once and MaxOccurs = Once.
+//  - 89838: UseDefaultNamespace = true without DefaultNamespace, with a text attribute on the root, a field attribute on a table element and a
 //    text attribute and a field attribute on a text element below it.
 // BC versions: 27, 28, 29
 
-xmlport 89815 "LT TF XP Min Once"
+xmlport 89835 "LT TF XP Min Once"
 {
     Format = Xml;
     Encoding = UTF8;
@@ -65,7 +65,7 @@ xmlport 89815 "LT TF XP Min Once"
     end;
 }
 
-xmlport 89816 "LT TF XP Min Max Once"
+xmlport 89836 "LT TF XP Min Max Once"
 {
     Format = Xml;
     Encoding = UTF8;
@@ -122,7 +122,7 @@ xmlport 89816 "LT TF XP Min Max Once"
     end;
 }
 
-xmlport 89817 "LT TF XP Min Max Once Real"
+xmlport 89837 "LT TF XP Min Max Once Real"
 {
     Format = Xml;
     Encoding = UTF8;
@@ -145,7 +145,7 @@ xmlport 89817 "LT TF XP Min Max Once Real"
     }
 }
 
-xmlport 89818 "LT TF XP Ns Attr"
+xmlport 89838 "LT TF XP Ns Attr"
 {
     Format = Xml;
     Encoding = UTF8;
