@@ -2,7 +2,7 @@
 // Scope: in-scope
 // Fixtures used: none; objects for the writer SQ tests in TestQueryDataItemTableFilter.al (codeunit 60503)
 // Facts: a query DataItemTableFilter (and a ColumnFilter) with an empty filter term filter('') on a Code and a Text field, next to const('')
-// and filter(A|''): which rows the query returns.
+// and filter('A'|''): which rows the query returns.
 // BC versions: 27-29
 
 table 89589 "LT SQ Qf Row"
@@ -73,7 +73,7 @@ query 89593 "LT SQ Qf Code Filter Or"
     {
         dataitem(Row; "LT SQ Qf Row")
         {
-            DataItemTableFilter = "Code" = filter(A|'');
+            DataItemTableFilter = "Code" = filter('A'|'');
             column(RowId; Id) { }
         }
     }
