@@ -2,7 +2,7 @@
 // Scope: in-scope
 // Fixtures used: Probe Observer (codeunit 69160), own table 89961, test codeunit 89962
 // Probe: written against a local BC 29.0.54011.55816 service tier; every literal asserted below is what that tier produced. Other BC versions are checked by the corpus CI matrix.
-// Facts: Option to Decimal implicit assignment (Option field to Decimal field, Option variable) gives the ordinal; arithmetic, comparison, argument, Validate, Format/Evaluate of the ordinal (al-runner issue 6060)
+// Facts: Option to Decimal implicit assignment (Option field to Decimal field, Option variable) gives the ordinal (Enum to Decimal does not compile: must-not-compile 2249-2251); Decimal to Option assigns whole numbers and fails on fractions; arithmetic, comparison, argument, Validate, Format/Evaluate of the ordinal (al-runner issue 6060)
 // BC versions: 29 (27 and 28 by CI)
 
 enum 89960 "LT TL Kind"
@@ -97,7 +97,12 @@ codeunit 89962 "LT TL Option To Decimal"
         if TryDecimalToOption(2.6, R) then Observer.Observe('2.6', R) else Observer.Observe('2.6', 'error:' + GetLastErrorText() + '|' + GetLastErrorCode());
         if TryDecimalToOption(7, R) then Observer.Observe('7', R) else Observer.Observe('7', 'error:' + GetLastErrorText() + '|' + GetLastErrorCode());
         if TryDecimalToOption(-1, R) then Observer.Observe('-1', R) else Observer.Observe('-1', 'error:' + GetLastErrorText() + '|' + GetLastErrorCode());
-        Observer.Expect('2', 'XX');
+        Observer.Expect('2', 'C/2');
+        Observer.Expect('0', 'A/0');
+        Observer.Expect('1.5', 'error:Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int32.|ConversionCast');
+        Observer.Expect('2.6', 'error:Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2.6 to System.Int32.|ConversionCast');
+        Observer.Expect('7', '7/7');
+        Observer.Expect('-1', '-1/-1');
         Observer.Verify();
     end;
 
