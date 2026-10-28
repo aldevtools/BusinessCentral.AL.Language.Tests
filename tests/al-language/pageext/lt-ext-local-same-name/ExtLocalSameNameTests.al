@@ -53,7 +53,8 @@ codeunit 89916 "LT TI Same Name Tests"
         Page.OpenView();
         Observer.Observe('open', Log.Take());
         Page.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'base-open;base.Prot;base.Pub;base.Loc;base.Int;ext-open;ext.Prot;ext.Pub;ext.Loc;ext.Int;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -66,6 +67,8 @@ codeunit 89916 "LT TI Same Name Tests"
         Observer.Observe('public call from outside', Log.Take());
         BasePage.CallAll();
         Observer.Observe('CallAll', Log.Take());
-        Observer.Finish();
+        Observer.Expect('public call from outside', 'base.Pub;');
+        Observer.Expect('CallAll', 'base.Prot;base.Pub;base.Loc;base.Int;');
+        Observer.Verify();
     end;
 }
