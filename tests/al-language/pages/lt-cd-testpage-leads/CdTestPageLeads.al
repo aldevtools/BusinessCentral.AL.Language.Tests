@@ -947,4 +947,52 @@ codeunit 84282 "LT CD TestPage Leads"
         Observer.Expect('record GetFilter First..Second', 'First..Second');
         Observer.Verify();
     end;
+
+    // ---- Writer TD, al-runner issue 6030 (follow-up to 5957): the SourceTableView text of Page Metadata for where(<field> = const(...)) and
+    // where(<field> = filter(...)) on Decimal, BigInteger, Boolean, Code, Guid, Duration, DateTime and Time fields (pages in TdMetaTypes.al).
+
+    local procedure TdObserveView(PageId: Integer; Tag: Text)
+    var
+        Meta: Record "Page Metadata";
+    begin
+        Meta.Get(PageId);
+        Observer.Observe(Tag, Meta.SourceTableView);
+    end;
+
+    [Test]
+    procedure TD_SourceTableView_Const_Decimal()
+    begin
+        TdObserveView(Page::"LT TD Meta Dec0", 'Decimal const(0)');
+        TdObserveView(Page::"LT TD Meta Dec15", 'Decimal const(1.5)');
+        TdObserveView(Page::"LT TD Meta DecNeg2", 'Decimal const(-2)');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TD_SourceTableView_Const_OtherTypes()
+    begin
+        TdObserveView(Page::"LT TD Meta Big", 'BigInteger const(5)');
+        TdObserveView(Page::"LT TD Meta Bool", 'Boolean const(true)');
+        TdObserveView(Page::"LT TD Meta Code", 'Code const(A1)');
+        TdObserveView(Page::"LT TD Meta Guid", 'Guid const');
+        TdObserveView(Page::"LT TD Meta Dur", 'Duration const(1000)');
+        TdObserveView(Page::"LT TD Meta DateTime", 'DateTime const(0DT)');
+        TdObserveView(Page::"LT TD Meta Time", 'Time const(120000T)');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TD_SourceTableView_Filter_Forms()
+    begin
+        TdObserveView(Page::"LT TD Meta DecFilter", 'Decimal filter(>0)');
+        TdObserveView(Page::"LT TD Meta DecRange", 'Decimal filter(1.5..3)');
+        TdObserveView(Page::"LT TD Meta BigRange", 'BigInteger filter(1..5)');
+        TdObserveView(Page::"LT TD Meta BoolFilter", 'Boolean filter(true)');
+        TdObserveView(Page::"LT TD Meta CodeRange", 'Code filter(A1..C9)');
+        TdObserveView(Page::"LT TD Meta GuidFilter", 'Guid filter(<>blank)');
+        TdObserveView(Page::"LT TD Meta DurFilter", 'Duration filter(>0)');
+        TdObserveView(Page::"LT TD Meta DtFilter", 'DateTime filter(<>0DT)');
+        TdObserveView(Page::"LT TD Meta TmFilter", 'Time filter(<>0T)');
+        Observer.Finish();
+    end;
 }

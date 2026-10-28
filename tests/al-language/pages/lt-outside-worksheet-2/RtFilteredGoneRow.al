@@ -562,6 +562,105 @@ codeunit 88615 "LT RT Uf Tests"
         Observer.Expect('count after close', '0');
         Observer.Verify();
     end;
+
+    // ---- Writer TD, al-runner issue 6027 (follow-up to 5951): a Worksheet without the new-row line, filtered in FilterGroup 2 on a key field,
+    // whose action deletes every line of the batch and then leaves Rec on a primary key no row has (the shape of page 5510 "Production Journal":
+    // Rec."Line No." := 1), with and without CurrPage.Update(false); and Rec left on a batch the filter does not select. Mode: 1 key kept,
+    // 2 Line No. 1 with Update, 3 Line No. 1 without Update, 4 batch B2 line 1 with Update.
+
+    local procedure TdInsertLines(Count: Integer; OtherBatchRow: Boolean)
+    var
+        Line: Record "LT TD Line";
+        I: Integer;
+    begin
+        Line.DeleteAll();
+        for I := 1 to Count do begin
+            Line."Batch Name" := 'B1';
+            Line."Line No." := I * 10000;
+            Line.Description := 'Line ' + Format(I);
+            Line.Insert();
+        end;
+        if OtherBatchRow then begin
+            Line."Batch Name" := 'B2';
+            Line."Line No." := 10000;
+            Line.Description := 'Other batch';
+            Line.Insert();
+        end;
+        Log.SetMode(0);
+    end;
+
+    local procedure TdRunLeaves(Count: Integer; OtherBatchRow: Boolean; Mode: Integer)
+    var
+        Ws: TestPage "LT TD Ws Leaves Key";
+        Line: Record "LT TD Line";
+    begin
+        TdInsertLines(Count, OtherBatchRow);
+        Ws.OpenEdit();
+        Observer.Observe('open shown', Ws.BatchCtl.Value() + '|' + Ws.LineNoCtl.Value());
+        Observer.Observe('open log', Log.Take());
+        case Mode of
+            1:
+                Ws.PostKeepKey.Invoke();
+            2:
+                Ws.PostAnotherKey.Invoke();
+            3:
+                Ws.PostAnotherKeyNoUpdate.Invoke();
+            4:
+                Ws.PostOtherBatch.Invoke();
+        end;
+        Observer.Observe('action log', Log.Take());
+        Observer.Observe('shown after action', Ws.BatchCtl.Value() + '|' + Ws.LineNoCtl.Value() + '|' + Ws.DescriptionCtl.Value());
+        Line.SetRange("Batch Name", 'B1');
+        Observer.Observe('B1 count', Format(Line.Count()));
+        Line.SetRange("Batch Name");
+        Observer.Observe('total count', Format(Line.Count()));
+        Observer.Observe('first', Format(Ws.First()));
+        Observer.Observe('first log', Log.Take());
+        Ws.Close();
+        Observer.Observe('close log', Log.Take());
+    end;
+
+    [Test]
+    procedure TD_LeavesKey_KeepKey_OneLine()
+    begin
+        TdRunLeaves(1, false, 1);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TD_LeavesKey_Line1WithUpdate_OneLine()
+    begin
+        TdRunLeaves(1, false, 2);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TD_LeavesKey_Line1WithUpdate_ThreeLines()
+    begin
+        TdRunLeaves(3, false, 2);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TD_LeavesKey_Line1WithUpdate_OtherBatchRowRemains()
+    begin
+        TdRunLeaves(1, true, 2);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TD_LeavesKey_Line1WithoutUpdate_OneLine()
+    begin
+        TdRunLeaves(1, false, 3);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TD_LeavesKey_OtherBatchLine1WithUpdate_OneLine()
+    begin
+        TdRunLeaves(1, false, 4);
+        Observer.Finish();
+    end;
 }
 
 table 89434 "LT SH Rel Batch"
@@ -633,6 +732,121 @@ page 89436 "LT SH Rel Ws NoNew"
                 begin
                     Line.SetRange("Batch Name", Rec."Batch Name");
                     Line.DeleteAll();
+                    CurrPage.Update(false);
+                end;
+            }
+        }
+    }
+
+    trigger OnOpenPage()
+    begin
+        Rec.FilterGroup(2);
+        Rec.SetRange("Batch Name", 'B1');
+        Rec.FilterGroup(0);
+    end;
+
+    trigger OnAfterGetRecord()
+    begin
+        Log.Add('R:' + Format(Rec."Line No."));
+    end;
+
+    trigger OnNewRecord(BelowxRec: Boolean)
+    begin
+        Log.Add('N:' + Rec."Batch Name" + ':' + Format(Rec."Line No."));
+    end;
+
+    trigger OnAfterGetCurrRecord()
+    begin
+        Log.Add('C:' + Rec."Batch Name" + ':' + Format(Rec."Line No."));
+    end;
+
+    var
+        Log: Codeunit "LT RT Uf Log";
+}
+
+table 89812 "LT TD Line"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; "Batch Name"; Code[10]) { }
+        field(2; "Line No."; Integer) { }
+        field(3; Description; Text[50]) { }
+    }
+
+    keys
+    {
+        key(PK; "Batch Name", "Line No.") { Clustered = true; }
+    }
+}
+
+page 89813 "LT TD Ws Leaves Key"
+{
+    PageType = Worksheet;
+    SourceTable = "LT TD Line";
+    InsertAllowed = false;
+    DelayedInsert = true;
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Rows)
+            {
+                field(BatchCtl; Rec."Batch Name") { ApplicationArea = All; }
+                field(LineNoCtl; Rec."Line No.") { ApplicationArea = All; }
+                field(DescriptionCtl; Rec.Description) { ApplicationArea = All; }
+            }
+        }
+    }
+
+    actions
+    {
+        area(Processing)
+        {
+            action(PostKeepKey)
+            {
+                ApplicationArea = All;
+
+                trigger OnAction()
+                begin
+                    Rec.DeleteAll();
+                    CurrPage.Update(false);
+                end;
+            }
+            action(PostAnotherKey)
+            {
+                ApplicationArea = All;
+
+                trigger OnAction()
+                begin
+                    Rec.DeleteAll();
+                    Rec."Line No." := 1;
+                    CurrPage.Update(false);
+                end;
+            }
+            action(PostAnotherKeyNoUpdate)
+            {
+                ApplicationArea = All;
+
+                trigger OnAction()
+                begin
+                    Rec.DeleteAll();
+                    Rec."Line No." := 1;
+                end;
+            }
+            action(PostOtherBatch)
+            {
+                ApplicationArea = All;
+
+                trigger OnAction()
+                begin
+                    Rec.DeleteAll();
+                    Rec."Batch Name" := 'B2';
+                    Rec."Line No." := 1;
                     CurrPage.Update(false);
                 end;
             }
