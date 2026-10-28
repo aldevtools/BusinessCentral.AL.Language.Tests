@@ -334,4 +334,27 @@ codeunit 70501 "LT TxB CopyStr"
         exit('ERR ' + GetLastErrorCode() + ': ' + GetLastErrorText());
     end;
 
+    [Test]
+    procedure CopyStrDecimalLiteral()
+    var
+        T: Text;
+    begin
+        T := CopyStr('abcdef', 2.0, 3.0);
+        Obs.Observe('whole', '[' + T + ']');
+        asserterror T := CopyStr('abcdef', 2.4, 3);
+        Obs.ObserveError('e0');
+        asserterror T := CopyStr('abcdef', 2, 3.5);
+        Obs.ObserveError('e1');
+        asserterror T := CopyStr('abcdef', 0.5);
+        Obs.ObserveError('e2');
+        Obs.Expect('whole', '[bcd]');
+        Obs.Expect('e0|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2.4 to System.Int32.');
+        Obs.Expect('e0|code', 'ConversionCast');
+        Obs.Expect('e1|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 3.5 to System.Int32.');
+        Obs.Expect('e1|code', 'ConversionCast');
+        Obs.Expect('e2|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 0.5 to System.Int32.');
+        Obs.Expect('e2|code', 'ConversionCast');
+        Obs.Verify();
+    end;
+
 }

@@ -209,4 +209,31 @@ codeunit 70504 "LT TxB PadStr"
         exit('ERR ' + GetLastErrorCode() + ': ' + GetLastErrorText());
     end;
 
+    [Test]
+    procedure PadStrDecimalLiteral()
+    var
+        T: Text;
+    begin
+        T := PadStr('ab', 3.0);
+        Obs.Observe('whole', '[' + T + ']');
+        asserterror T := PadStr('ab', 3.4);
+        Obs.ObserveError('e0');
+        asserterror T := PadStr('ab', 3.6, 'x');
+        Obs.ObserveError('e1');
+        asserterror T := PadStr('ab', -1.5);
+        Obs.ObserveError('e2');
+        asserterror T := PadStr('ab', 0.5);
+        Obs.ObserveError('e3');
+        Obs.Expect('whole', '[ab ]');
+        Obs.Expect('e0|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 3.4 to System.Int32.');
+        Obs.Expect('e0|code', 'ConversionCast');
+        Obs.Expect('e1|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 3.6 to System.Int32.');
+        Obs.Expect('e1|code', 'ConversionCast');
+        Obs.Expect('e2|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value -1.5 to System.Int32.');
+        Obs.Expect('e2|code', 'ConversionCast');
+        Obs.Expect('e3|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 0.5 to System.Int32.');
+        Obs.Expect('e3|code', 'ConversionCast');
+        Obs.Verify();
+    end;
+
 }
