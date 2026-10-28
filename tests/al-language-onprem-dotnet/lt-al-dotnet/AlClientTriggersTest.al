@@ -5,7 +5,7 @@
 codeunit 99131 "LT AL Client Triggers Test"
 {
     // Subtype = Test; (disabled with its only test until issue 775 is fixed: a test codeunit without tests fails the run)
-    TestPermissions = Disabled;
+    // TestPermissions = Disabled; (valid only on a test codeunit)
 
     [TryFunction]
     local procedure TryOpen(PageId: Integer)
