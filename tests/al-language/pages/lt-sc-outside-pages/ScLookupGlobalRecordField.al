@@ -8,6 +8,9 @@
 //   the picked "No." in Text; its OnValidate does Setting.Modify() and CurrPage.Update(false). Read after the Lookup:
 //   the control's Value() and, after Close, the saved setting row. Also: the same OnLookup cancelled (answers false
 //   without touching Text), an OnValidate without CurrPage.Update, and an OnLookup that sets Text and answers false.
+//   Added for al-runner issue 6009 (real BC 29.0 run): the same page with a ListPart (no link: rows R1 R2 R3; with SubPageLink
+//   "No." = field("No."): the host's current row only, R1), with CurrPage.Update(false), Update(true) and no Update. In every
+//   form the control shows R2 after the lookup and the part rows are unchanged.
 // BC versions: all (CI)
 // Neighbours: pages/lt-test-field-lookup/TestFieldLookupTriggers.al pins Lookup on controls bound to Rec fields.
 
@@ -482,7 +485,7 @@ codeunit 89008 "LT SC Lookup Global Rec Tests"
         Schedule.Close();
         Setting.Get();
         SavedValue := Setting."Resource No." + '/' + Setting."Resource No. 2" + '/' + Setting."Resource No. 3";
-        Assert.AreEqual('x', 'shows=[' + Shown + '] part=' + PartRows + ' saved=[' + SavedValue + ']', 'LookupUpdateFalseOnPart');
+        Assert.AreEqual('shows=[R2] part=<R1><R2><R3> saved=[R2//]', 'shows=[' + Shown + '] part=' + PartRows + ' saved=[' + SavedValue + ']', 'LookupUpdateFalseOnPart');
     end;
 
     [Test]
@@ -506,7 +509,7 @@ codeunit 89008 "LT SC Lookup Global Rec Tests"
         Schedule.Close();
         Setting.Get();
         SavedValue := Setting."Resource No." + '/' + Setting."Resource No. 2" + '/' + Setting."Resource No. 3";
-        Assert.AreEqual('x', 'shows=[' + Shown + '] part=' + PartRows + ' saved=[' + SavedValue + ']', 'LookupUpdateTrueOnPart');
+        Assert.AreEqual('shows=[R2] part=<R1><R2><R3> saved=[/R2/]', 'shows=[' + Shown + '] part=' + PartRows + ' saved=[' + SavedValue + ']', 'LookupUpdateTrueOnPart');
     end;
 
     [Test]
@@ -530,7 +533,7 @@ codeunit 89008 "LT SC Lookup Global Rec Tests"
         Schedule.Close();
         Setting.Get();
         SavedValue := Setting."Resource No." + '/' + Setting."Resource No. 2" + '/' + Setting."Resource No. 3";
-        Assert.AreEqual('x', 'shows=[' + Shown + '] part=' + PartRows + ' saved=[' + SavedValue + ']', 'LookupNoUpdateOnPart');
+        Assert.AreEqual('shows=[R2] part=<R1><R2><R3> saved=[//R2]', 'shows=[' + Shown + '] part=' + PartRows + ' saved=[' + SavedValue + ']', 'LookupNoUpdateOnPart');
     end;
 
     [Test]
@@ -554,7 +557,7 @@ codeunit 89008 "LT SC Lookup Global Rec Tests"
         Schedule.Close();
         Setting.Get();
         SavedValue := Setting."Resource No." + '/' + Setting."Resource No. 2" + '/' + Setting."Resource No. 3";
-        Assert.AreEqual('x', 'shows=[' + Shown + '] part=' + PartRows + ' saved=[' + SavedValue + ']', 'LookupUpdateFalseOnLinkedPart');
+        Assert.AreEqual('shows=[R2] part=<R1> saved=[R2//]', 'shows=[' + Shown + '] part=' + PartRows + ' saved=[' + SavedValue + ']', 'LookupUpdateFalseOnLinkedPart');
     end;
 
     [Test]
@@ -578,7 +581,7 @@ codeunit 89008 "LT SC Lookup Global Rec Tests"
         Schedule.Close();
         Setting.Get();
         SavedValue := Setting."Resource No." + '/' + Setting."Resource No. 2" + '/' + Setting."Resource No. 3";
-        Assert.AreEqual('x', 'shows=[' + Shown + '] part=' + PartRows + ' saved=[' + SavedValue + ']', 'LookupUpdateTrueOnLinkedPart');
+        Assert.AreEqual('shows=[R2] part=<R1> saved=[/R2/]', 'shows=[' + Shown + '] part=' + PartRows + ' saved=[' + SavedValue + ']', 'LookupUpdateTrueOnLinkedPart');
     end;
 
     [Test]
@@ -602,7 +605,7 @@ codeunit 89008 "LT SC Lookup Global Rec Tests"
         Schedule.Close();
         Setting.Get();
         SavedValue := Setting."Resource No." + '/' + Setting."Resource No. 2" + '/' + Setting."Resource No. 3";
-        Assert.AreEqual('x', 'shows=[' + Shown + '] part=' + PartRows + ' saved=[' + SavedValue + ']', 'LookupNoUpdateOnLinkedPart');
+        Assert.AreEqual('shows=[R2] part=<R1> saved=[//R2]', 'shows=[' + Shown + '] part=' + PartRows + ' saved=[' + SavedValue + ']', 'LookupNoUpdateOnLinkedPart');
     end;
 
     [ModalPageHandler]
