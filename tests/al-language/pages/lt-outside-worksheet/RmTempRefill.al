@@ -174,6 +174,7 @@ codeunit 88269 "LT RM Refill Tests"
     var
         Observer: Codeunit "Probe Observer";
         Log: Codeunit "LT RM Refill Log";
+        TdShortLog: Boolean;
 
     local procedure OpenByRun(var Ws: TestPage "LT RM Refill Worksheet")
     var
@@ -569,7 +570,10 @@ codeunit 88269 "LT RM Refill Tests"
                 Rows += Ws.Name.Value();
             until not Ws.Next();
         Observer.Observe('rows', Rows);
-        Observer.Observe('walk log', Log.Take());
+        if TdShortLog then
+            Observer.Observe('walk log length', Format(StrLen(Log.Take())))
+        else
+            Observer.Observe('walk log', Log.Take());
         Observer.Observe('shown after walk', Ws.Name.Value());
         Ws.Close();
     end;
@@ -600,7 +604,10 @@ codeunit 88269 "LT RM Refill Tests"
                 Rows += Ws.Name.Value();
             until not Ws.Next();
         Observer.Observe('rows', Rows);
-        Observer.Observe('walk log', Log.Take());
+        if TdShortLog then
+            Observer.Observe('walk log length', Format(StrLen(Log.Take())))
+        else
+            Observer.Observe('walk log', Log.Take());
         Observer.Observe('shown after walk', Ws.Name.Value());
         Ws.Close();
     end;
@@ -790,6 +797,7 @@ codeunit 88269 "LT RM Refill Tests"
     [Test]
     procedure TD_RefillMany_WithCurrRecord_3To25()
     begin
+        TdShortLog := true;
         TdRunCur(3, 1, 25);
         Observer.Finish();
     end;
@@ -797,6 +805,7 @@ codeunit 88269 "LT RM Refill Tests"
     [Test]
     procedure TD_RefillMany_WithCurrRecord_25To22()
     begin
+        TdShortLog := true;
         TdRunCur(25, 1, 22);
         Observer.Finish();
     end;
@@ -804,6 +813,7 @@ codeunit 88269 "LT RM Refill Tests"
     [Test]
     procedure TD_RefillMany_WithCurrRecord_30To21_FromRow25()
     begin
+        TdShortLog := true;
         TdRunCur(30, 25, 21);
         Observer.Finish();
     end;
@@ -811,6 +821,7 @@ codeunit 88269 "LT RM Refill Tests"
     [Test]
     procedure TD_RefillMany_NoCurrRecord_3To25()
     begin
+        TdShortLog := true;
         TdRunNoCur(3, 1, 25);
         Observer.Finish();
     end;
@@ -818,6 +829,7 @@ codeunit 88269 "LT RM Refill Tests"
     [Test]
     procedure TD_RefillMany_NoCurrRecord_25To22()
     begin
+        TdShortLog := true;
         TdRunNoCur(25, 1, 22);
         Observer.Finish();
     end;
@@ -825,6 +837,7 @@ codeunit 88269 "LT RM Refill Tests"
     [Test]
     procedure TD_RefillMany_NoCurrRecord_30To21_FromRow25()
     begin
+        TdShortLog := true;
         TdRunNoCur(30, 25, 21);
         Observer.Finish();
     end;

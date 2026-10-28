@@ -762,28 +762,64 @@ codeunit 88615 "LT RT Uf Tests"
     procedure TD_DeleteOneOfTwo_MoveToOther_WithUpdate()
     begin
         TdRunDeleteOne(5);
-        Observer.Finish();
+        Observer.Expect('open shown', 'B1|10000');
+        Observer.Expect('open log', 'R:10000;R:20000;R:10000;R:10000;C:B1:10000;');
+        Observer.Expect('action log', 'R:10000;R:20000;R:20000;C:B1:20000;R:20000;R:20000;C:B1:20000;');
+        Observer.Expect('shown after action', 'B1|20000|Line 2');
+        Observer.Expect('count', '1');
+        Observer.Expect('rows', '20000 ');
+        Observer.Expect('walk log', '');
+        Observer.Expect('shown after walk', '20000');
+        Observer.Expect('close log', '');
+        Observer.Verify();
     end;
 
     [Test]
     procedure TD_DeleteOneOfTwo_MoveToOther_NoUpdate()
     begin
         TdRunDeleteOne(6);
-        Observer.Finish();
+        Observer.Expect('open shown', 'B1|10000');
+        Observer.Expect('open log', 'R:10000;R:20000;R:10000;R:10000;C:B1:10000;');
+        Observer.Expect('action log', 'R:10000;R:20000;R:20000;C:B1:20000;R:20000;R:20000;C:B1:20000;');
+        Observer.Expect('shown after action', 'B1|20000|Line 2');
+        Observer.Expect('count', '1');
+        Observer.Expect('rows', '20000 ');
+        Observer.Expect('walk log', '');
+        Observer.Expect('shown after walk', '20000');
+        Observer.Expect('close log', '');
+        Observer.Verify();
     end;
 
     [Test]
     procedure TD_DeleteOneOfTwo_MoveToUnknownKey_WithUpdate()
     begin
         TdRunDeleteOne(7);
-        Observer.Finish();
+        Observer.Expect('open shown', 'B1|10000');
+        Observer.Expect('open log', 'R:10000;R:20000;R:10000;R:10000;C:B1:10000;');
+        Observer.Expect('action log', 'R:10000;R:20000;R:20000;C:B1:20000;R:20000;R:20000;C:B1:20000;');
+        Observer.Expect('shown after action', 'B1|20000|Line 2');
+        Observer.Expect('count', '1');
+        Observer.Expect('rows', '20000 ');
+        Observer.Expect('walk log', '');
+        Observer.Expect('shown after walk', '20000');
+        Observer.Expect('close log', '');
+        Observer.Verify();
     end;
 
     [Test]
     procedure TD_DeleteOneOfTwo_MoveToUnknownKey_NoUpdate()
     begin
         TdRunDeleteOne(8);
-        Observer.Finish();
+        Observer.Expect('open shown', 'B1|10000');
+        Observer.Expect('open log', 'R:10000;R:20000;R:10000;R:10000;C:B1:10000;');
+        Observer.Expect('action log', 'R:10000;R:20000;R:20000;C:B1:20000;R:20000;R:20000;C:B1:20000;');
+        Observer.Expect('shown after action', 'B1|20000|Line 2');
+        Observer.Expect('count', '1');
+        Observer.Expect('rows', '20000 ');
+        Observer.Expect('walk log', '');
+        Observer.Expect('shown after walk', '20000');
+        Observer.Expect('close log', '');
+        Observer.Verify();
     end;
 }
 
