@@ -670,7 +670,10 @@ codeunit 60130 "Test Media Png Import"
         Observer.Verify();
     end;
 
-    // Writer TP (NP lane, 2026-10-28): Delete on a "Tenant Media" record (the row of a Media field), then the holder row.
+    // Writer TP (NP lane, 2026-10-28): Delete on a "Tenant Media" record (the row of a Media field), then the holder row. Values from the corpus CI
+    // containers (27.5, 28.5): Delete returns true, the row is gone, the holder keeps the MediaId with HasValue false; Delete of a missing id
+    // returns false with no error. On the BC 29 SaaS sandbox the same Delete fails: 'Your license does not grant you the following permissions
+    // on TableData 2000000184 Tenant Media: Delete.' (a license difference, not asserted).
     [Test]
     procedure TP_TenantMedia_Delete()
     var
@@ -703,7 +706,15 @@ codeunit 60130 "Test Media Png Import"
         ClearLastError();
         Ok := TenantMedia.Delete();
         Observer.Observe('delete missing', Format(Ok) + ' ' + GetLastErrorText());
-        Observer.Finish();
+        Observer.Expect('get', 'Yes');
+        Observer.Expect('delete', 'Yes ');
+        Observer.Expect('get after delete', 'No');
+        Observer.Expect('has_value', 'No');
+        Observer.Expect('same_id', 'Yes');
+        Observer.Expect('export_result', 'No');
+        Observer.Expect('export_nonempty', 'No');
+        Observer.Expect('delete missing', 'No ');
+        Observer.Verify();
     end;
 }
 

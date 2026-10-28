@@ -242,6 +242,17 @@ codeunit 74320 "LT FCF Format Comma String"
         Observer.Expect('-1234.567 p2thousand', 'ok:1,234,57');
         Observer.Expect('-1234.567 signfirst', 'ok:-1234.567');
         Observer.Expect('0.125 p26sf4', 'ok:0.125 ');
+        Observer.Expect('0.125 p26sf2', 'ok:0.125');
+        Observer.Expect('0.125 p2comma.', 'ok:0.13');
+        Observer.Expect('0.125 p2comma,', 'ok:0,13');
+        Observer.Expect('0.125 p2thousand', 'ok:0,13');
+        Observer.Expect('0.125 signfirst', 'ok:0.125');
+        Observer.Expect('1234567.891 p26sf4', 'ok:1234567.891 ');
+        Observer.Expect('1234567.891 p26sf2', 'ok:1234567.891');
+        Observer.Expect('1234567.891 p2comma.', 'ok:1234567.89');
+        Observer.Expect('1234567.891 p2comma,', 'ok:1234567,89');
+        Observer.Expect('1234567.891 p2thousand', 'ok:1,234,567,89');
+        Observer.Expect('1234567.891 signfirst', 'ok:1234567.891');
         Observer.Verify();
     end;
 
@@ -270,6 +281,7 @@ codeunit 74320 "LT FCF Format Comma String"
         Observer.Expect('12 p2comma.', 'ok:12.00');
         Observer.Expect('12 p2comma,', 'ok:12,00');
         Observer.Expect('12 p2thousand', 'ok:12,00');
+        Observer.Expect('12 signfirst', 'ok:12');
         Observer.Verify();
     end;
 }

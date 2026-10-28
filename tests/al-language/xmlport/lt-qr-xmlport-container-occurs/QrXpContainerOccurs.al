@@ -795,7 +795,7 @@ codeunit 87280 "LT QR XP Container Tests"
         Observer.Observe('xml', TpExportNested(Port));
         Observer.Observe('log', Port.GetLog());
         Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <row>|    <entry no="R1" status="open" kind="k1">|      <admission option_value="1">A1</admission>|    </entry>|  </row>|  <row>|    <entry no="R2" status="">|      <admission option_value="2" />|    </entry>|  </row>|  <row>|    <entry no="R3" status="closed" kind="k3">|      <admission option_value="">X</admission>|    </entry>|  </row>|</root>|');
-        Observer.Expect('log', 'get R1;pass entry;pass status;pass admission;pass admcode;get R2;pass ');
+        Observer.Expect('log', 'get R1;pass entry;pass status;pass admission;pass admcode;get R2;pass entry;pass status;pass admission;pass admcode;get R3;pass entry;pass status;pass admission;pass admcode;');
         Observer.Verify();
     end;
 
@@ -822,6 +822,7 @@ codeunit 87280 "LT QR XP Container Tests"
         TpImport(Observer, 'no kind', 90022, '<root><row><entry no="R1" status="open"><admission option_value="1">A1</admission></entry></row></root>');
         Observer.Expect('two rows', 'ok log=init;no=R1;status=open;admission=A1 admcode=1;entry= kind=k1;before insert R1;after insert;init;no=R2;status=closed;admission=A2 admcode=2;entry= kind=k2;before insert R2;after insert; values: entry= status=closed kind=k2 admission=A2 admcode=2 rows=R1:open/k1/A1/1;R2:closed/k2/A2/2;');
         Observer.Expect('empty admission', 'ok log=init;no=R1;status=open;admission= admcode=1;entry= kind=k1;before insert R1;after insert; values: entry= status=open kind=k1 admission= admcode=1 rows=R1:open/k1//1;');
+        Observer.Expect('no kind', 'ok log=init;no=R1;status=open;admission=A1 admcode=1;entry= kind=;before insert R1;after insert; values: entry= status=open kind= admission=A1 admcode=1 rows=R1:open//A1/1;');
         Observer.Verify();
     end;
 
@@ -840,6 +841,10 @@ codeunit 87280 "LT QR XP Container Tests"
         Observer.Expect('option_value missing|text', 'Imported XML cannot validate with the schema: The required attribute ''option_value'' is missing.');
         Observer.Expect('option_value missing|code', 'XmlPortInvalidXml');
         Observer.Expect('status missing|text', 'Imported XML cannot validate with the schema: The required attribute ''status'' is missing.');
+        Observer.Expect('status missing|code', 'XmlPortInvalidXml');
+        Observer.Expect('entry missing|text', 'Imported XML cannot validate with the schema: The element ''row'' has incomplete content. List of possible elements expected: ''entry''.');
+        Observer.Expect('entry missing|code', 'XmlPortInvalidXml');
+        Observer.Expect('text in entry', 'ok log=init;no=R1;status=open;admission=A1 admcode=1;entry=T kind=k1;before insert R1;after insert; values: entry=T status=open kind=k1 admission=A1 admcode=1 rows=R1:open/k1/A1/1;');
         Observer.Verify();
     end;
 
@@ -858,7 +863,7 @@ codeunit 87280 "LT QR XP Container Tests"
         Observer.Observe('xml', TpExportUnlinked(Port));
         Observer.Observe('log', Port.GetLog());
         Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <row no="R1">|    <attributes>|      <attribute code="A" value="1" />|      <attribute code="B" value="2" />|      <attribute code="C" value="3" />|    </attributes>|    <status>s1</status>|  </row>|  <row no="R2">|    <attributes>|      <attribute code="A" value="1" />|      <attribute code="B" value="2" />|      <attribute code="C" value="3" />|    </attributes>|    <status>s2</status>|  </row>|</root>|');
-        Observer.Expect('log', 'get R1;get ');
+        Observer.Expect('log', 'get R1;get attr R1/A;get attr R2/B;get attr X/C;get R2;get attr R1/A;get attr R2/B;get attr X/C;');
         Observer.Verify();
     end;
 
@@ -885,7 +890,8 @@ codeunit 87280 "LT QR XP Container Tests"
         TpImport(Observer, 'attributes absent', 90023, '<root><row no="R1"><status>s1</status></row><row no="R2"><attributes><attribute code="A" value="1"/></attributes></row></root>');
         TpImport(Observer, 'attributes empty', 90023, '<root><row no="R1"><attributes/><status>s1</status></row></root>');
         Observer.Expect('two rows', 'ok log=init;no=R1;init attr;before insert attr A=1 row=R1;after insert attr;init attr;before insert attr B=2 row=R1;after insert attr;before insert R1 status=s1;after insert;init;no=R2;init attr;before insert attr A=3 row=R2;after insert attr;before insert R2 status=s2;after insert; rows=R1:s1;R2:s2; attrs=R1/A=1;R1/B=2;R2/A=3;');
-        Observer.Expect('attributes absent', 'ok log=init;no=R1;before insert R1 status=s1;after insert;init;no=R2;init attr;before insert attr A=1 row=R2;after insert attr;before i');
+        Observer.Expect('attributes absent', 'ok log=init;no=R1;before insert R1 status=s1;after insert;init;no=R2;init attr;before insert attr A=1 row=R2;after insert attr;before insert R2 status=;after insert; rows=R1:s1;R2:; attrs=R2/A=1;');
+        Observer.Expect('attributes empty', 'ok log=init;no=R1;before insert R1 status=s1;after insert; rows=R1:s1; attrs=');
         Observer.Verify();
     end;
 
@@ -903,6 +909,9 @@ codeunit 87280 "LT QR XP Container Tests"
         Observer.Expect('same code twice|text', 'The record in table LT TP XP Attr already exists. Identification fields and values: Parent=''R1'',Code=''A''');
         Observer.Expect('same code twice|code', 'DB:RecordExists');
         Observer.Expect('code missing|text', 'Imported XML cannot validate with the schema: The required attribute ''code'' is missing.');
+        Observer.Expect('code missing|code', 'XmlPortInvalidXml');
+        Observer.Expect('status first|text', 'Imported XML cannot validate with the schema: The element ''row'' has invalid child element ''attributes''.');
+        Observer.Expect('status first|code', 'XmlPortInvalidXml');
         Observer.Verify();
     end;
 }
