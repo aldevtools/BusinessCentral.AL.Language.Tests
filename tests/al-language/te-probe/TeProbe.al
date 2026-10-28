@@ -26,6 +26,7 @@ codeunit 89817 "TE Probe"
     TestPermissions = Disabled;
     var
         Cleanup: Codeunit "TE Cleanup";
+        StaleAfterCommitErr: Label 'The changes to the TE Universal record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.', Locked = true;
     local procedure SbInsertRow(var Row: Record "TE Universal")
     begin
         Cleanup.Initialize();
@@ -186,7 +187,7 @@ codeunit 89817 "TE Probe"
         else begin
             Observer.Observe('write', 'refused');
             Observer.Observe('code', GetLastErrorCode());
-            Observer.Observe('text', GetLastErrorText());
+            Observer.Observe('text', Format((StrPos(GetLastErrorText(), StaleAfterCommitErr) = 1) and (StrPos(GetLastErrorText(), 'Entry No.=''6''') > 0)));
         end;
         if Stored.Get(6) then
             Observer.Observe('stored', Stored."Text Field" + '|' + Format(Stored."Integer Field") + '|' + Format(Stored."Decimal Field"))
@@ -204,8 +205,13 @@ codeunit 89817 "TE Probe"
     begin
         TePrepare(Row, 1);
         TeLockOtherInsertRead();
-        TeObserveWrite(Row, False, Observer);
-        Observer.Finish();
+        TeObserveWrite(Row, false, Observer);
+        Observer.Expect('write', 'refused');
+        Observer.Expect('code', 'DB:RecordChanged');
+        Observer.Expect('text', 'Yes');
+        Observer.Expect('stored', 'other|0|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -216,8 +222,13 @@ codeunit 89817 "TE Probe"
     begin
         TePrepare(Row, 1);
         TeLockOtherInsertRead();
-        TeObserveWrite(Row, True, Observer);
-        Observer.Finish();
+        TeObserveWrite(Row, true, Observer);
+        Observer.Expect('write', 'refused');
+        Observer.Expect('code', 'DB:RecordChanged');
+        Observer.Expect('text', 'Yes');
+        Observer.Expect('stored', 'other|0|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -228,8 +239,13 @@ codeunit 89817 "TE Probe"
     begin
         TePrepare(Row, 1);
         TeLockOtherOnly();
-        TeObserveWrite(Row, False, Observer);
-        Observer.Finish();
+        TeObserveWrite(Row, false, Observer);
+        Observer.Expect('write', 'refused');
+        Observer.Expect('code', 'DB:RecordChanged');
+        Observer.Expect('text', 'Yes');
+        Observer.Expect('stored', 'other|0|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -240,8 +256,13 @@ codeunit 89817 "TE Probe"
     begin
         TePrepare(Row, 1);
         TeOtherTableInsertRead();
-        TeObserveWrite(Row, False, Observer);
-        Observer.Finish();
+        TeObserveWrite(Row, false, Observer);
+        Observer.Expect('write', 'refused');
+        Observer.Expect('code', 'DB:RecordChanged');
+        Observer.Expect('text', 'Yes');
+        Observer.Expect('stored', 'other|0|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -252,8 +273,11 @@ codeunit 89817 "TE Probe"
     begin
         TePrepare(Row, 1);
         TeLockSame();
-        TeObserveWrite(Row, False, Observer);
-        Observer.Finish();
+        TeObserveWrite(Row, false, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'start|5|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -264,8 +288,11 @@ codeunit 89817 "TE Probe"
     begin
         TePrepare(Row, 1);
         TeModifyOther();
-        TeObserveWrite(Row, False, Observer);
-        Observer.Finish();
+        TeObserveWrite(Row, false, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'start|5|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -276,8 +303,11 @@ codeunit 89817 "TE Probe"
     begin
         TePrepare(Row, 1);
         TeDeleteOther();
-        TeObserveWrite(Row, False, Observer);
-        Observer.Finish();
+        TeObserveWrite(Row, false, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'start|5|1');
+        Observer.Expect('row 8 exists', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -288,8 +318,11 @@ codeunit 89817 "TE Probe"
     begin
         TePrepare(Row, 1);
         TeInsertOther();
-        TeObserveWrite(Row, False, Observer);
-        Observer.Finish();
+        TeObserveWrite(Row, false, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'start|5|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -300,8 +333,11 @@ codeunit 89817 "TE Probe"
     begin
         TePrepare(Row, 1);
         TeRenameOther();
-        TeObserveWrite(Row, False, Observer);
-        Observer.Finish();
+        TeObserveWrite(Row, false, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'start|5|1');
+        Observer.Expect('row 8 exists', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -311,8 +347,13 @@ codeunit 89817 "TE Probe"
         Observer: Codeunit "Probe Observer";
     begin
         TePrepare(Row, 1);
-        TeObserveWrite(Row, False, Observer);
-        Observer.Finish();
+        TeObserveWrite(Row, false, Observer);
+        Observer.Expect('write', 'refused');
+        Observer.Expect('code', 'DB:RecordChanged');
+        Observer.Expect('text', 'Yes');
+        Observer.Expect('stored', 'other|0|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -322,8 +363,13 @@ codeunit 89817 "TE Probe"
         Observer: Codeunit "Probe Observer";
     begin
         TePrepare(Row, 1);
-        TeObserveWrite(Row, True, Observer);
-        Observer.Finish();
+        TeObserveWrite(Row, true, Observer);
+        Observer.Expect('write', 'refused');
+        Observer.Expect('code', 'DB:RecordChanged');
+        Observer.Expect('text', 'Yes');
+        Observer.Expect('stored', 'other|0|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -334,8 +380,13 @@ codeunit 89817 "TE Probe"
     begin
         TePrepare(Row, 2);
         TeLockOtherInsertRead();
-        TeObserveWrite(Row, False, Observer);
-        Observer.Finish();
+        TeObserveWrite(Row, false, Observer);
+        Observer.Expect('write', 'refused');
+        Observer.Expect('code', 'DB:RecordChanged');
+        Observer.Expect('text', 'Yes');
+        Observer.Expect('stored', 'other|0|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -346,8 +397,13 @@ codeunit 89817 "TE Probe"
     begin
         TePrepare(Row, 2);
         TeLockOtherInsertRead();
-        TeObserveWrite(Row, True, Observer);
-        Observer.Finish();
+        TeObserveWrite(Row, true, Observer);
+        Observer.Expect('write', 'refused');
+        Observer.Expect('code', 'DB:RecordChanged');
+        Observer.Expect('text', 'Yes');
+        Observer.Expect('stored', 'other|0|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -358,8 +414,13 @@ codeunit 89817 "TE Probe"
     begin
         TePrepare(Row, 2);
         TeLockOtherOnly();
-        TeObserveWrite(Row, False, Observer);
-        Observer.Finish();
+        TeObserveWrite(Row, false, Observer);
+        Observer.Expect('write', 'refused');
+        Observer.Expect('code', 'DB:RecordChanged');
+        Observer.Expect('text', 'Yes');
+        Observer.Expect('stored', 'other|0|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -370,8 +431,13 @@ codeunit 89817 "TE Probe"
     begin
         TePrepare(Row, 2);
         TeOtherTableInsertRead();
-        TeObserveWrite(Row, False, Observer);
-        Observer.Finish();
+        TeObserveWrite(Row, false, Observer);
+        Observer.Expect('write', 'refused');
+        Observer.Expect('code', 'DB:RecordChanged');
+        Observer.Expect('text', 'Yes');
+        Observer.Expect('stored', 'other|0|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -382,8 +448,11 @@ codeunit 89817 "TE Probe"
     begin
         TePrepare(Row, 2);
         TeLockSame();
-        TeObserveWrite(Row, False, Observer);
-        Observer.Finish();
+        TeObserveWrite(Row, false, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'start|5|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -394,8 +463,11 @@ codeunit 89817 "TE Probe"
     begin
         TePrepare(Row, 2);
         TeModifyOther();
-        TeObserveWrite(Row, False, Observer);
-        Observer.Finish();
+        TeObserveWrite(Row, false, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'start|5|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -406,8 +478,11 @@ codeunit 89817 "TE Probe"
     begin
         TePrepare(Row, 2);
         TeDeleteOther();
-        TeObserveWrite(Row, False, Observer);
-        Observer.Finish();
+        TeObserveWrite(Row, false, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'start|5|1');
+        Observer.Expect('row 8 exists', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -418,8 +493,11 @@ codeunit 89817 "TE Probe"
     begin
         TePrepare(Row, 2);
         TeInsertOther();
-        TeObserveWrite(Row, False, Observer);
-        Observer.Finish();
+        TeObserveWrite(Row, false, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'start|5|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -430,8 +508,11 @@ codeunit 89817 "TE Probe"
     begin
         TePrepare(Row, 2);
         TeRenameOther();
-        TeObserveWrite(Row, False, Observer);
-        Observer.Finish();
+        TeObserveWrite(Row, false, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'start|5|1');
+        Observer.Expect('row 8 exists', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -441,8 +522,13 @@ codeunit 89817 "TE Probe"
         Observer: Codeunit "Probe Observer";
     begin
         TePrepare(Row, 2);
-        TeObserveWrite(Row, False, Observer);
-        Observer.Finish();
+        TeObserveWrite(Row, false, Observer);
+        Observer.Expect('write', 'refused');
+        Observer.Expect('code', 'DB:RecordChanged');
+        Observer.Expect('text', 'Yes');
+        Observer.Expect('stored', 'other|0|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -452,8 +538,13 @@ codeunit 89817 "TE Probe"
         Observer: Codeunit "Probe Observer";
     begin
         TePrepare(Row, 2);
-        TeObserveWrite(Row, True, Observer);
-        Observer.Finish();
+        TeObserveWrite(Row, true, Observer);
+        Observer.Expect('write', 'refused');
+        Observer.Expect('code', 'DB:RecordChanged');
+        Observer.Expect('text', 'Yes');
+        Observer.Expect('stored', 'other|0|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -464,8 +555,13 @@ codeunit 89817 "TE Probe"
     begin
         TePrepare(Row, 3);
         TeLockOtherInsertRead();
-        TeObserveWrite(Row, False, Observer);
-        Observer.Finish();
+        TeObserveWrite(Row, false, Observer);
+        Observer.Expect('write', 'refused');
+        Observer.Expect('code', 'DB:RecordChanged');
+        Observer.Expect('text', 'Yes');
+        Observer.Expect('stored', 'other|0|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -476,8 +572,13 @@ codeunit 89817 "TE Probe"
     begin
         TePrepare(Row, 3);
         TeLockOtherInsertRead();
-        TeObserveWrite(Row, True, Observer);
-        Observer.Finish();
+        TeObserveWrite(Row, true, Observer);
+        Observer.Expect('write', 'refused');
+        Observer.Expect('code', 'DB:RecordChanged');
+        Observer.Expect('text', 'Yes');
+        Observer.Expect('stored', 'other|0|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -488,8 +589,13 @@ codeunit 89817 "TE Probe"
     begin
         TePrepare(Row, 3);
         TeLockOtherOnly();
-        TeObserveWrite(Row, False, Observer);
-        Observer.Finish();
+        TeObserveWrite(Row, false, Observer);
+        Observer.Expect('write', 'refused');
+        Observer.Expect('code', 'DB:RecordChanged');
+        Observer.Expect('text', 'Yes');
+        Observer.Expect('stored', 'other|0|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -500,8 +606,13 @@ codeunit 89817 "TE Probe"
     begin
         TePrepare(Row, 3);
         TeLockOtherOnly();
-        TeObserveWrite(Row, True, Observer);
-        Observer.Finish();
+        TeObserveWrite(Row, true, Observer);
+        Observer.Expect('write', 'refused');
+        Observer.Expect('code', 'DB:RecordChanged');
+        Observer.Expect('text', 'Yes');
+        Observer.Expect('stored', 'other|0|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -512,8 +623,13 @@ codeunit 89817 "TE Probe"
     begin
         TePrepare(Row, 3);
         TeOtherTableInsertRead();
-        TeObserveWrite(Row, False, Observer);
-        Observer.Finish();
+        TeObserveWrite(Row, false, Observer);
+        Observer.Expect('write', 'refused');
+        Observer.Expect('code', 'DB:RecordChanged');
+        Observer.Expect('text', 'Yes');
+        Observer.Expect('stored', 'other|0|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -524,8 +640,13 @@ codeunit 89817 "TE Probe"
     begin
         TePrepare(Row, 3);
         TeOtherTableInsertRead();
-        TeObserveWrite(Row, True, Observer);
-        Observer.Finish();
+        TeObserveWrite(Row, true, Observer);
+        Observer.Expect('write', 'refused');
+        Observer.Expect('code', 'DB:RecordChanged');
+        Observer.Expect('text', 'Yes');
+        Observer.Expect('stored', 'other|0|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -536,8 +657,11 @@ codeunit 89817 "TE Probe"
     begin
         TePrepare(Row, 3);
         TeLockSame();
-        TeObserveWrite(Row, False, Observer);
-        Observer.Finish();
+        TeObserveWrite(Row, false, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'start|5|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -548,8 +672,11 @@ codeunit 89817 "TE Probe"
     begin
         TePrepare(Row, 3);
         TeLockSame();
-        TeObserveWrite(Row, True, Observer);
-        Observer.Finish();
+        TeObserveWrite(Row, true, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'none');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -560,8 +687,11 @@ codeunit 89817 "TE Probe"
     begin
         TePrepare(Row, 3);
         TeModifyOther();
-        TeObserveWrite(Row, False, Observer);
-        Observer.Finish();
+        TeObserveWrite(Row, false, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'start|5|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -572,8 +702,11 @@ codeunit 89817 "TE Probe"
     begin
         TePrepare(Row, 3);
         TeModifyOther();
-        TeObserveWrite(Row, True, Observer);
-        Observer.Finish();
+        TeObserveWrite(Row, true, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'none');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -584,8 +717,11 @@ codeunit 89817 "TE Probe"
     begin
         TePrepare(Row, 3);
         TeDeleteOther();
-        TeObserveWrite(Row, False, Observer);
-        Observer.Finish();
+        TeObserveWrite(Row, false, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'start|5|1');
+        Observer.Expect('row 8 exists', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -596,8 +732,11 @@ codeunit 89817 "TE Probe"
     begin
         TePrepare(Row, 3);
         TeDeleteOther();
-        TeObserveWrite(Row, True, Observer);
-        Observer.Finish();
+        TeObserveWrite(Row, true, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'none');
+        Observer.Expect('row 8 exists', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -608,8 +747,11 @@ codeunit 89817 "TE Probe"
     begin
         TePrepare(Row, 3);
         TeInsertOther();
-        TeObserveWrite(Row, False, Observer);
-        Observer.Finish();
+        TeObserveWrite(Row, false, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'start|5|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -620,8 +762,11 @@ codeunit 89817 "TE Probe"
     begin
         TePrepare(Row, 3);
         TeInsertOther();
-        TeObserveWrite(Row, True, Observer);
-        Observer.Finish();
+        TeObserveWrite(Row, true, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'none');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -632,8 +777,11 @@ codeunit 89817 "TE Probe"
     begin
         TePrepare(Row, 3);
         TeRenameOther();
-        TeObserveWrite(Row, False, Observer);
-        Observer.Finish();
+        TeObserveWrite(Row, false, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'start|5|1');
+        Observer.Expect('row 8 exists', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -644,8 +792,11 @@ codeunit 89817 "TE Probe"
     begin
         TePrepare(Row, 3);
         TeRenameOther();
-        TeObserveWrite(Row, True, Observer);
-        Observer.Finish();
+        TeObserveWrite(Row, true, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'none');
+        Observer.Expect('row 8 exists', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -655,8 +806,13 @@ codeunit 89817 "TE Probe"
         Observer: Codeunit "Probe Observer";
     begin
         TePrepare(Row, 3);
-        TeObserveWrite(Row, False, Observer);
-        Observer.Finish();
+        TeObserveWrite(Row, false, Observer);
+        Observer.Expect('write', 'refused');
+        Observer.Expect('code', 'DB:RecordChanged');
+        Observer.Expect('text', 'Yes');
+        Observer.Expect('stored', 'other|0|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -666,8 +822,13 @@ codeunit 89817 "TE Probe"
         Observer: Codeunit "Probe Observer";
     begin
         TePrepare(Row, 3);
-        TeObserveWrite(Row, True, Observer);
-        Observer.Finish();
+        TeObserveWrite(Row, true, Observer);
+        Observer.Expect('write', 'refused');
+        Observer.Expect('code', 'DB:RecordChanged');
+        Observer.Expect('text', 'Yes');
+        Observer.Expect('stored', 'other|0|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
     end;
 }
 
