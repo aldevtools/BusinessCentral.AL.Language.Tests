@@ -281,6 +281,12 @@ codeunit 89655 "LT SU Refill Key Tests"
         Observer.Observe('goto 1 outside', Format(P.GoToRecord(Row)) + '/' + P.Id.Value() + ':' + Log.Take());
         Observer.Observe('last', Format(P.Last()) + '/' + P.Id.Value() + ':' + Log.Take());
         P.Close();
+        Observer.Expect('open', '4:R4;R2;R1;R5;R3;R4;R4;R4;C4;');
+        Observer.Expect('filter', '4:R4;R2;R3;R4;R4;R4;C4;');
+        Observer.Expect('goto 2', 'Yes/2:R2;R2;R2;C2;');
+        Observer.Expect('goto 4', 'Yes/4:R4;R4;R4;C4;');
+        Observer.Expect('goto 1 outside', 'No/4:R2;R2;R2;C2;R3;R3;R3;C3;R4;R4;R4;C4;');
+        Observer.Expect('last', 'Yes/3:R3;R3;R3;C3;');
         Observer.Verify();
     end;
 
@@ -302,6 +308,11 @@ codeunit 89655 "LT SU Refill Key Tests"
         Row.Get(3);
         Observer.Observe('goto 3', Format(P.GoToRecord(Row)) + '/' + P.Id.Value() + ':' + Log.Take());
         P.Close();
+        Observer.Expect('open', '4:R4;R2;R1;R5;R3;R4;R4;R4;C4;');
+        Observer.Expect('goto 5', 'Yes/5:R2;R2;R2;C2;R1;R1;R1;C1;R5;R5;R5;C5;');
+        Observer.Expect('update', '5:R5;R5;R5;R5;R3;R5;R1;R2;R4;R5;R5;R5;C5;');
+        Observer.Expect('goto 2', 'Yes/2:R4;R4;R4;C4;R2;R2;R2;C2;');
+        Observer.Expect('goto 3', 'Yes/3:R4;R4;R4;C4;R2;R2;R2;C2;R1;R1;R1;C1;R5;R5;R5;C5;R3;R3;R3;C3;');
         Observer.Verify();
     end;
 }
