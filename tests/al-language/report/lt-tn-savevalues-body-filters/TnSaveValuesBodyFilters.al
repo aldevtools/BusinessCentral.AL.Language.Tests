@@ -132,6 +132,8 @@ codeunit 89981 "LT TN SV Body Filter Tests"
         Parent.DeleteAll();
         Parent.Code := 'P';
         Parent.Insert();
+        // A report run with a write transaction open stops with "An error occurred and the transaction is stopped" (P147SaveValuesFilter.al).
+        Commit();
         Log.Take();
     end;
 
