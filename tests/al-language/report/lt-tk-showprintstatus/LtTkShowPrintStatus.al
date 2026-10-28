@@ -624,7 +624,7 @@ codeunit 89950 "LT TK ShowPrintStatus Test"
         Observer.Expect('saved', 'No');
         Observer.Expect('bytes_nonzero', 'No');
         Observer.Expect('ok', 'Yes');
-        Observer.Expect('log', ' |');
+        Observer.Expect('log', '');
         Observer.Verify();
     end;
 
@@ -635,7 +635,7 @@ codeunit 89950 "LT TK ShowPrintStatus Test"
         Observer.Expect('saved', 'No');
         Observer.Expect('bytes_nonzero', 'No');
         Observer.Expect('ok', 'Yes');
-        Observer.Expect('log', ' |');
+        Observer.Expect('log', '');
         Observer.Verify();
     end;
 
@@ -673,7 +673,7 @@ codeunit 89950 "LT TK ShowPrintStatus Test"
         Observer.Expect('saved', 'No');
         Observer.Expect('bytes_nonzero', 'No');
         Observer.Expect('ok', 'Yes');
-        Observer.Expect('log', ' |');
+        Observer.Expect('log', '');
         Observer.Verify();
     end;
 
@@ -684,7 +684,7 @@ codeunit 89950 "LT TK ShowPrintStatus Test"
         Observer.Expect('saved', 'No');
         Observer.Expect('bytes_nonzero', 'No');
         Observer.Expect('ok', 'Yes');
-        Observer.Expect('log', ' |');
+        Observer.Expect('log', '');
         Observer.Verify();
     end;
 
@@ -722,7 +722,7 @@ codeunit 89950 "LT TK ShowPrintStatus Test"
         Observer.Expect('saved', 'No');
         Observer.Expect('bytes_nonzero', 'No');
         Observer.Expect('ok', 'Yes');
-        Observer.Expect('log', ' |');
+        Observer.Expect('log', '');
         Observer.Verify();
     end;
 
@@ -733,7 +733,7 @@ codeunit 89950 "LT TK ShowPrintStatus Test"
         Observer.Expect('saved', 'No');
         Observer.Expect('bytes_nonzero', 'No');
         Observer.Expect('ok', 'Yes');
-        Observer.Expect('log', ' |');
+        Observer.Expect('log', '');
         Observer.Verify();
     end;
 
@@ -793,7 +793,7 @@ codeunit 89950 "LT TK ShowPrintStatus Test"
         Observer.Expect('saved', 'No');
         Observer.Expect('bytes_nonzero', 'No');
         Observer.Expect('ok', 'Yes');
-        Observer.Expect('log', ' |');
+        Observer.Expect('log', '');
         Observer.Verify();
     end;
 
@@ -804,7 +804,7 @@ codeunit 89950 "LT TK ShowPrintStatus Test"
         Observer.Expect('saved', 'No');
         Observer.Expect('bytes_nonzero', 'No');
         Observer.Expect('ok', 'Yes');
-        Observer.Expect('log', ' |');
+        Observer.Expect('log', '');
         Observer.Verify();
     end;
 
@@ -864,7 +864,7 @@ codeunit 89950 "LT TK ShowPrintStatus Test"
         Observer.Expect('saved', 'No');
         Observer.Expect('bytes_nonzero', 'No');
         Observer.Expect('ok', 'Yes');
-        Observer.Expect('log', ' |');
+        Observer.Expect('log', '');
         Observer.Verify();
     end;
 
@@ -875,7 +875,7 @@ codeunit 89950 "LT TK ShowPrintStatus Test"
         Observer.Expect('saved', 'No');
         Observer.Expect('bytes_nonzero', 'No');
         Observer.Expect('ok', 'Yes');
-        Observer.Expect('log', ' |');
+        Observer.Expect('log', '');
         Observer.Verify();
     end;
 
@@ -935,7 +935,7 @@ codeunit 89950 "LT TK ShowPrintStatus Test"
         Observer.Expect('saved', 'No');
         Observer.Expect('bytes_nonzero', 'No');
         Observer.Expect('ok', 'Yes');
-        Observer.Expect('log', ' |');
+        Observer.Expect('log', '');
         Observer.Verify();
     end;
 
@@ -946,7 +946,7 @@ codeunit 89950 "LT TK ShowPrintStatus Test"
         Observer.Expect('saved', 'No');
         Observer.Expect('bytes_nonzero', 'No');
         Observer.Expect('ok', 'Yes');
-        Observer.Expect('log', ' |');
+        Observer.Expect('log', '');
         Observer.Verify();
     end;
 
