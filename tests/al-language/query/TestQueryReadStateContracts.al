@@ -7,6 +7,7 @@
 // Pins a query with ReadState = ReadUncommitted (the only value the app's runtime version 16.0 offers besides the
 // default: ReadCommitted needs runtime 18.0, RepeatableRead and UpdLock are no values of the property): it returns
 // a row the same session wrote and has not committed, and the same row after a Commit.
+// Fixtures used (added): Probe Observer (69160); queries 89920-89922
 // BC versions: 27.5
 
 table 68952 "Probe ReadState Table"
@@ -28,6 +29,48 @@ query 68953 "Probe ReadState Query"
 {
     QueryType = Normal;
     ReadState = ReadUncommitted;
+
+    elements
+    {
+        dataitem(T; "Probe ReadState Table")
+        {
+            column(Id; Id) { }
+        }
+    }
+}
+
+query 89920 "LT TJ ReadState Shared"
+{
+    QueryType = Normal;
+    ReadState = ReadShared;
+
+    elements
+    {
+        dataitem(T; "Probe ReadState Table")
+        {
+            column(Id; Id) { }
+        }
+    }
+}
+
+query 89921 "LT TJ ReadState Committed"
+{
+    QueryType = Normal;
+    ReadState = ReadCommitted;
+
+    elements
+    {
+        dataitem(T; "Probe ReadState Table")
+        {
+            column(Id; Id) { }
+        }
+    }
+}
+
+query 89922 "LT TJ ReadState NoLocks"
+{
+    QueryType = Normal;
+    ReadState = NoLocks;
 
     elements
     {
@@ -71,5 +114,68 @@ codeunit 68954 "Probe Query ReadState"
         Assert.AreEqual(1, Rows(RsQuery), 'before Commit');
         Commit();
         Assert.AreEqual(1, Rows(RsQuery), 'after Commit');
+    end;
+
+    local procedure RowsShared(): Integer
+    var
+        Q: Query "LT TJ ReadState Shared";
+        Count: Integer;
+    begin
+        Q.Open();
+        while Q.Read() do
+            Count += 1;
+        Q.Close();
+        exit(Count);
+    end;
+
+    local procedure RowsCommitted(): Integer
+    var
+        Q: Query "LT TJ ReadState Committed";
+        Count: Integer;
+    begin
+        Q.Open();
+        while Q.Read() do
+            Count += 1;
+        Q.Close();
+        exit(Count);
+    end;
+
+    local procedure RowsNoLocks(): Integer
+    var
+        Q: Query "LT TJ ReadState NoLocks";
+        Count: Integer;
+    begin
+        Q.Open();
+        while Q.Read() do
+            Count += 1;
+        Q.Close();
+        exit(Count);
+    end;
+
+    [Test]
+    procedure ReadStateValues_SeeTheSessionsOwnUncommittedRow_AndTheCommittedOne()
+    var
+        Observer: Codeunit "Probe Observer";
+        RsRec: Record "Probe ReadState Table";
+    begin
+        RsRec.DeleteAll();
+        Commit();
+        RsRec.Id := 1;
+        RsRec.Insert();
+
+        Observer.Observe('shared_uncommitted', Format(RowsShared()));
+        Observer.Observe('committed_uncommitted', Format(RowsCommitted()));
+        Observer.Observe('nolocks_uncommitted', Format(RowsNoLocks()));
+        Commit();
+        Observer.Observe('shared_after', Format(RowsShared()));
+        Observer.Observe('committed_after', Format(RowsCommitted()));
+        Observer.Observe('nolocks_after', Format(RowsNoLocks()));
+        Observer.Expect('shared_uncommitted', 'X');
+        Observer.Expect('committed_uncommitted', 'X');
+        Observer.Expect('nolocks_uncommitted', 'X');
+        Observer.Expect('shared_after', 'X');
+        Observer.Expect('committed_after', 'X');
+        Observer.Expect('nolocks_after', 'X');
+        Observer.Verify();
     end;
 }

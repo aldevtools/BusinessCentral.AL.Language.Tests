@@ -326,6 +326,69 @@ codeunit 73400 "LT XmT Doc ReadWrite"
         Observer.Verify();
     end;
 
+    // Issue 6049: the stream overload with options, PreserveWhitespace true and false, on a document with whitespace-only text nodes.
+    [Test]
+    procedure ReadFrom_InStream_Options_WhitespaceNodes()
+    var
+        Doc: XmlDocument;
+        Opt: XmlReadOptions;
+        TempBlob: Codeunit "Temp Blob";
+        InS: InStream;
+        OutS: OutStream;
+        Root: XmlElement;
+    begin
+        TempBlob.CreateOutStream(OutS);
+        OutS.WriteText('<a>' + NL() + '  <b/>' + NL() + '</a>');
+        Opt.PreserveWhitespace(true);
+        TempBlob.CreateInStream(InS);
+        Observer.Observe('ok_true', Format(XmlDocument.ReadFrom(InS, Opt, Doc)));
+        Doc.GetRoot(Root);
+        Observer.Observe('children_true', Format(Root.GetChildNodes().Count()));
+        Observer.Observe('out_true', Out(Doc));
+        Opt.PreserveWhitespace(false);
+        TempBlob.CreateInStream(InS);
+        Observer.Observe('ok_false', Format(XmlDocument.ReadFrom(InS, Opt, Doc)));
+        Doc.GetRoot(Root);
+        Observer.Observe('children_false', Format(Root.GetChildNodes().Count()));
+        Observer.Observe('out_false', Out(Doc));
+        TempBlob.CreateInStream(InS);
+        Observer.Observe('ok_none', Format(XmlDocument.ReadFrom(InS, Doc)));
+        Doc.GetRoot(Root);
+        Observer.Observe('children_none', Format(Root.GetChildNodes().Count()));
+        Observer.Observe('out_none', Out(Doc));
+        Observer.Expect('ok_true', 'X');
+        Observer.Expect('children_true', 'X');
+        Observer.Expect('out_true', 'X');
+        Observer.Expect('ok_false', 'X');
+        Observer.Expect('children_false', 'X');
+        Observer.Expect('out_false', 'X');
+        Observer.Expect('ok_none', 'X');
+        Observer.Expect('children_none', 'X');
+        Observer.Expect('out_none', 'X');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure ReadFrom_InStream_Options_Invalid()
+    var
+        Doc: XmlDocument;
+        Opt: XmlReadOptions;
+        TempBlob: Codeunit "Temp Blob";
+        InS: InStream;
+        OutS: OutStream;
+    begin
+        TempBlob.CreateOutStream(OutS);
+        OutS.WriteText('<a><b></a>');
+        Opt.PreserveWhitespace(true);
+        TempBlob.CreateInStream(InS);
+        Observer.Observe('ok', Format(XmlDocument.ReadFrom(InS, Opt, Doc)));
+        Observer.Observe('err', GetLastErrorText());
+        ClearLastError();
+        Observer.Expect('ok', 'X');
+        Observer.Expect('err', 'X');
+        Observer.Verify();
+    end;
+
     [Test]
     procedure ReadFrom_InStream_Empty()
     var
