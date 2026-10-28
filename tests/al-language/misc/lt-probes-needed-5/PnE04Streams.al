@@ -134,6 +134,50 @@ codeunit 72525 "LT PnE Stream Read"
     end;
 
     [Test]
+    procedure TO_ReadText_NonAscii_NoTerminator()
+    var
+        Observer: Codeunit "Probe Observer";
+        Rec: Record "LT PnE Stream Rec";
+        Ins: InStream;
+        T: Text;
+        N: Integer;
+    begin
+        // Writer TO: Read(Text) of non-ASCII characters with no zero byte after them, on UTF-8 and UTF-16 streams,
+        // then once more at the end; and two texts with non-ASCII characters one after the other.
+        PutBytes(Rec, '77C3B6726C64', TextEncoding::UTF8);
+        Rec.CalcFields(Data);
+        Rec.Data.CreateInStream(Ins, TextEncoding::UTF8);
+        N := Ins.Read(T);
+        Observer.Observe('utf8', Format(N) + '|' + Dump(T));
+        N := Ins.Read(T);
+        Observer.Observe('utf8atEnd', Format(N) + '|' + Dump(T));
+        PutBytes(Rec, 'C3A4C3B600E282AC4100', TextEncoding::UTF8);
+        Rec.CalcFields(Data);
+        Rec.Data.CreateInStream(Ins, TextEncoding::UTF8);
+        N := Ins.Read(T);
+        Observer.Observe('utf8first', Format(N) + '|' + Dump(T));
+        N := Ins.Read(T);
+        Observer.Observe('utf8second', Format(N) + '|' + Dump(T));
+        PutBytes(Rec, '7700F6007200', TextEncoding::UTF16);
+        Rec.CalcFields(Data);
+        Rec.Data.CreateInStream(Ins, TextEncoding::UTF16);
+        N := Ins.Read(T);
+        Observer.Observe('utf16', Format(N) + '|' + Dump(T));
+        PutBytes(Rec, '7700F60072000000', TextEncoding::UTF16);
+        Rec.CalcFields(Data);
+        Rec.Data.CreateInStream(Ins, TextEncoding::UTF16);
+        N := Ins.Read(T);
+        Observer.Observe('utf16terminated', Format(N) + '|' + Dump(T));
+        PutBytes(Rec, '77F6726C6400', TextEncoding::MSDos);
+        Rec.CalcFields(Data);
+        Rec.Data.CreateInStream(Ins, TextEncoding::MSDos);
+        N := Ins.Read(T);
+        Observer.Observe('msdos', Format(N) + '|' + Dump(T));
+        Rec.DeleteAll();
+        Observer.Finish();
+    end;
+
+    [Test]
     procedure ReadText_Utf16()
     var
         Observer: Codeunit "Probe Observer";
