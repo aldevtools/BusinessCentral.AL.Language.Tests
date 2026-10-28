@@ -132,7 +132,19 @@ codeunit 89733 "LT TA Xliff Tests"
         Status := Status::Rel;
         Observer.Observe('nlbe_format_rel', Format(Status));
         GlobalLanguage(1033);
-        Observer.Finish();
+        Observer.Expect('en_format_rel', 'Released');
+        Observer.Expect('nl_format_rel', 'Vrijgegeven');
+        Observer.Expect('nl_format_open', 'Geopend');
+        Observer.Expect('nl_format_done_untranslated_unit', 'Finished');
+        Observer.Expect('nl_eval_dutch', 'true|1');
+        Observer.Expect('nl_eval_base', 'false|0');
+        Observer.Expect('nl_eval_name', 'true|1');
+        Observer.Expect('nl_eval_done_base', 'true|2');
+        Observer.Expect('en_eval_dutch', 'false|0');
+        Observer.Expect('de_format_rel', 'Released');
+        Observer.Expect('de_eval_dutch', 'false|0');
+        Observer.Expect('nlbe_format_rel', 'Vrijgegeven');
+        Observer.Verify();
     end;
 
     [Test]
@@ -154,7 +166,15 @@ codeunit 89733 "LT TA Xliff Tests"
         GlobalLanguage(2067);
         Observer.Observe('nlbe_hello', Labels.Hello());
         GlobalLanguage(1033);
-        Observer.Finish();
+        Observer.Expect('en_hello', 'Hello world');
+        Observer.Expect('nl_hello', 'Hallo wereld');
+        Observer.Expect('nl_count', '3 items gevonden');
+        Observer.Expect('nl_locked', 'Hello world');
+        Observer.Expect('nl_untranslated', 'No translation here');
+        Observer.Expect('de_hello', 'Hello world');
+        Observer.Expect('de_count', '3 items found');
+        Observer.Expect('nlbe_hello', 'Hallo wereld');
+        Observer.Verify();
     end;
 
     [Test]
@@ -188,12 +208,39 @@ codeunit 89733 "LT TA Xliff Tests"
         RecRef.GetTable(Item);
         Observer.Observe('nl_fieldref_enum_format', Format(RecRef.Field(3).Value()));
         Observer.Observe('nl_enum_field_format', Format(Item.Status));
+        GlobalLanguage(1033);
+        Observer.Expect('en_field_caption', 'Item number');
+        Observer.Expect('en_table_caption', 'LT TA Item');
+        Observer.Expect('nl_field_caption', 'Artikelnummer');
+        Observer.Expect('nl_field_caption_kind', 'Soort');
+        Observer.Expect('nl_table_caption', 'LT TA Artikel');
+        Observer.Expect('nl_format_option', 'Tweede');
+        Observer.Expect('nl_format_option_gamma', 'Derde');
+        Observer.Expect('nl_eval_option_dutch', 'true|1');
+        Observer.Expect('nl_eval_option_base', 'true|0');
+        Observer.Expect('nl_fieldref_caption', 'Artikelnummer');
+        Observer.Expect('nl_fieldref_optioncaption', 'Eerste,Tweede,Derde');
+        Observer.Expect('nl_recref_caption', 'LT TA Artikel');
+        Observer.Expect('nl_fieldref_enum_format', 'Vrijgegeven');
+        Observer.Expect('nl_enum_field_format', 'Vrijgegeven');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TA_Captions_Language_Without_File()
+    var
+        Observer: Codeunit "Probe Observer";
+        Item: Record "LT TA Item" temporary;
+    begin
         GlobalLanguage(1031);
         Observer.Observe('de_field_caption', Item.FieldCaption("No."));
         Observer.Observe('de_table_caption', Item.TableCaption());
         Item.Kind := Item.Kind::Beta;
         Observer.Observe('de_format_option', Format(Item.Kind));
         GlobalLanguage(1033);
-        Observer.Finish();
+        Observer.Expect('de_field_caption', 'Item number');
+        Observer.Expect('de_table_caption', 'LT TA Item');
+        Observer.Expect('de_format_option', 'Beta');
+        Observer.Verify();
     end;
 }
