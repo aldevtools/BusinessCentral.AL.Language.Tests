@@ -268,7 +268,7 @@ page 89631 "LT ST Schedule With Part"
         Setting: Record "LT SC Planner Setting";
 }
 
-page 89632 "LT ST Schedule With Linked Part"
+page 89632 "LT ST Schedule Linked Part"
 {
     PageType = List;
     SourceTable = "LT SC Resource";
@@ -538,7 +538,7 @@ codeunit 89008 "LT SC Lookup Global Rec Tests"
     procedure LookupUpdateFalseOnLinkedPart()
     var
         Setting: Record "LT SC Planner Setting";
-        Schedule: TestPage "LT ST Schedule With Linked Part";
+        Schedule: TestPage "LT ST Schedule Linked Part";
         Shown: Text;
         PartRows: Text;
         SavedValue: Text;
@@ -562,7 +562,7 @@ codeunit 89008 "LT SC Lookup Global Rec Tests"
     procedure LookupUpdateTrueOnLinkedPart()
     var
         Setting: Record "LT SC Planner Setting";
-        Schedule: TestPage "LT ST Schedule With Linked Part";
+        Schedule: TestPage "LT ST Schedule Linked Part";
         Shown: Text;
         PartRows: Text;
         SavedValue: Text;
@@ -586,7 +586,7 @@ codeunit 89008 "LT SC Lookup Global Rec Tests"
     procedure LookupNoUpdateOnLinkedPart()
     var
         Setting: Record "LT SC Planner Setting";
-        Schedule: TestPage "LT ST Schedule With Linked Part";
+        Schedule: TestPage "LT ST Schedule Linked Part";
         Shown: Text;
         PartRows: Text;
         SavedValue: Text;
