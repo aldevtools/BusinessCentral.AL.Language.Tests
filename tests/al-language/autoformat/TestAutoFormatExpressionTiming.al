@@ -589,7 +589,8 @@ codeunit 69600 "AFT Expression Timing Tests"
     end;
 
     [Test]
-    [HandlerFunctions('NeverRunHandler')]
+    // No [HandlerFunctions]: the page never opens, so a bound handler is never consumed and
+    // BC 28.5/29.0 then offers it to a later test's modal page (TargetException, DialogCreate_ModalHandler_*).
     procedure FailingFormat_RunModal_RaisesBeforeAnyHandler()
     var
         Row: Record "AFT Row";
@@ -603,7 +604,8 @@ codeunit 69600 "AFT Expression Timing Tests"
     end;
 
     [Test]
-    [HandlerFunctions('NeverRunHandler')]
+    // No [HandlerFunctions]: the page never opens, so a bound handler is never consumed and
+    // BC 28.5/29.0 then offers it to a later test's modal page (TargetException, DialogCreate_ModalHandler_*).
     procedure FailingFormat_RunModalOnAnEmptyTable_RaisesBeforeAnyHandler()
     var
         Row: Record "AFT Row";
