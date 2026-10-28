@@ -359,7 +359,14 @@ codeunit 89885 "LT TH Part Update Cursor"
         Observer: Codeunit "Probe Observer";
     begin
         OneLine(Observer, 1, 20000);
-        Observer.Finish();
+        Observer.Expect('line after', '20000');
+        Observer.Expect('Qty. to Handle shown', '7.00');
+        Observer.Expect('Note shown', '');
+        Observer.Expect('Bin Code shown', 'SECOND');
+        Observer.Expect('host', 'D1');
+        Observer.Expect('log', 'QH.V QH.V.end R2 R3 R2 R1 R2 R2 C2 ');
+        Observer.Expect('stored 20000', '7|0||SECOND');
+        Observer.Verify();
     end;
 
     [Test]
@@ -368,7 +375,14 @@ codeunit 89885 "LT TH Part Update Cursor"
         Observer: Codeunit "Probe Observer";
     begin
         OneLine(Observer, 2, 20000);
-        Observer.Finish();
+        Observer.Expect('line after', '20000');
+        Observer.Expect('Qty. to Handle shown', '0.00');
+        Observer.Expect('Note shown', '');
+        Observer.Expect('Bin Code shown', 'SECOND');
+        Observer.Expect('host', 'D1');
+        Observer.Expect('log', 'QS.V QS.V.end R2 R3 R2 R1 R2 R2 C2 ');
+        Observer.Expect('stored 20000', '0|0||SECOND');
+        Observer.Verify();
     end;
 
     [Test]
@@ -377,7 +391,14 @@ codeunit 89885 "LT TH Part Update Cursor"
         Observer: Codeunit "Probe Observer";
     begin
         OneLine(Observer, 3, 20000);
-        Observer.Finish();
+        Observer.Expect('line after', '20000');
+        Observer.Expect('Qty. to Handle shown', '0.00');
+        Observer.Expect('Note shown', '7');
+        Observer.Expect('Bin Code shown', 'SECOND');
+        Observer.Expect('host', 'D1');
+        Observer.Expect('log', '');
+        Observer.Expect('stored 20000', '0|0|7|SECOND');
+        Observer.Verify();
     end;
 
     [Test]
@@ -386,7 +407,14 @@ codeunit 89885 "LT TH Part Update Cursor"
         Observer: Codeunit "Probe Observer";
     begin
         OneLine(Observer, 4, 20000);
-        Observer.Finish();
+        Observer.Expect('line after', '20000');
+        Observer.Expect('Qty. to Handle shown', '0.00');
+        Observer.Expect('Note shown', '');
+        Observer.Expect('Bin Code shown', 'NEW');
+        Observer.Expect('host', 'D1');
+        Observer.Expect('log', 'BC.V BC.V.end ');
+        Observer.Expect('stored 20000', '0|0||NEW');
+        Observer.Verify();
     end;
 
     [Test]
@@ -395,7 +423,14 @@ codeunit 89885 "LT TH Part Update Cursor"
         Observer: Codeunit "Probe Observer";
     begin
         OneLine(Observer, 1, 10000);
-        Observer.Finish();
+        Observer.Expect('line after', '10000');
+        Observer.Expect('Qty. to Handle shown', '7.00');
+        Observer.Expect('Note shown', '');
+        Observer.Expect('Bin Code shown', 'FIRST');
+        Observer.Expect('host', 'D1');
+        Observer.Expect('log', 'QH.V QH.V.end R1 R2 R3 R1 R1 C1 ');
+        Observer.Expect('stored 10000', '7|0||FIRST');
+        Observer.Verify();
     end;
 
     [Test]
@@ -404,7 +439,14 @@ codeunit 89885 "LT TH Part Update Cursor"
         Observer: Codeunit "Probe Observer";
     begin
         OneLine(Observer, 2, 30000);
-        Observer.Finish();
+        Observer.Expect('line after', '30000');
+        Observer.Expect('Qty. to Handle shown', '0.00');
+        Observer.Expect('Note shown', '');
+        Observer.Expect('Bin Code shown', 'THIRD');
+        Observer.Expect('host', 'D1');
+        Observer.Expect('log', 'QS.V QS.V.end R3 R2 R1 R3 R3 C3 ');
+        Observer.Expect('stored 30000', '0|0||THIRD');
+        Observer.Verify();
     end;
 
     [Test]
@@ -413,7 +455,14 @@ codeunit 89885 "LT TH Part Update Cursor"
         Observer: Codeunit "Probe Observer";
     begin
         Walk(Observer, 1);
-        Observer.Finish();
+        Observer.Expect('rows', '3');
+        Observer.Expect('trail', '10000->10000;20000->20000;30000->30000;');
+        Observer.Expect('line at end', '30000');
+        Observer.Expect('log', 'QH.V QH.V.end R1 R2 R3 R1 R1 C1 R2 R2 C2 QH.V QH.V.end R2 R3 R2 R1 R2 R2 C2 R3 R3 C3 QH.V QH.V.end R3 R2 R1 R3 R3 C3 ');
+        Observer.Expect('stored 10000', '1|0||FIRST');
+        Observer.Expect('stored 20000', '2|0||SECOND');
+        Observer.Expect('stored 30000', '3|0||THIRD');
+        Observer.Verify();
     end;
 
     [Test]
@@ -422,7 +471,14 @@ codeunit 89885 "LT TH Part Update Cursor"
         Observer: Codeunit "Probe Observer";
     begin
         Walk(Observer, 2);
-        Observer.Finish();
+        Observer.Expect('rows', '3');
+        Observer.Expect('trail', '10000->10000;20000->20000;30000->30000;');
+        Observer.Expect('line at end', '30000');
+        Observer.Expect('log', 'QS.V QS.V.end R1 R2 R3 R1 R1 C1 R2 R2 C2 QS.V QS.V.end R2 R3 R2 R1 R2 R2 C2 R3 R3 C3 QS.V QS.V.end R3 R2 R1 R3 R3 C3 ');
+        Observer.Expect('stored 10000', '0|0||FIRST');
+        Observer.Expect('stored 20000', '0|0||SECOND');
+        Observer.Expect('stored 30000', '0|0||THIRD');
+        Observer.Verify();
     end;
 
     [Test]
@@ -431,7 +487,14 @@ codeunit 89885 "LT TH Part Update Cursor"
         Observer: Codeunit "Probe Observer";
     begin
         Walk(Observer, 3);
-        Observer.Finish();
+        Observer.Expect('rows', '3');
+        Observer.Expect('trail', '10000->10000;20000->20000;30000->30000;');
+        Observer.Expect('line at end', '30000');
+        Observer.Expect('log', 'R2 R2 C2 R3 R3 C3 ');
+        Observer.Expect('stored 10000', '0|0|1|FIRST');
+        Observer.Expect('stored 20000', '0|0|2|SECOND');
+        Observer.Expect('stored 30000', '0|0|3|THIRD');
+        Observer.Verify();
     end;
 
     [Test]
@@ -440,7 +503,14 @@ codeunit 89885 "LT TH Part Update Cursor"
         Observer: Codeunit "Probe Observer";
     begin
         Walk(Observer, 4);
-        Observer.Finish();
+        Observer.Expect('rows', '3');
+        Observer.Expect('trail', '10000->10000;20000->20000;30000->30000;');
+        Observer.Expect('line at end', '30000');
+        Observer.Expect('log', 'BC.V BC.V.end R2 R2 C2 BC.V BC.V.end R3 R3 C3 BC.V BC.V.end ');
+        Observer.Expect('stored 10000', '0|0||W1');
+        Observer.Expect('stored 20000', '0|0||W2');
+        Observer.Expect('stored 30000', '0|0||W3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -449,7 +519,9 @@ codeunit 89885 "LT TH Part Update Cursor"
         Observer: Codeunit "Probe Observer";
     begin
         WalkSorted(Observer, 1);
-        Observer.Finish();
+        Observer.Expect('rows', '3');
+        Observer.Expect('trail', '30000->30000;10000->10000;20000->20000;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -458,7 +530,9 @@ codeunit 89885 "LT TH Part Update Cursor"
         Observer: Codeunit "Probe Observer";
     begin
         WalkSorted(Observer, 2);
-        Observer.Finish();
+        Observer.Expect('rows', '3');
+        Observer.Expect('trail', '30000->30000;10000->10000;20000->20000;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -467,6 +541,8 @@ codeunit 89885 "LT TH Part Update Cursor"
         Observer: Codeunit "Probe Observer";
     begin
         WalkSorted(Observer, 3);
-        Observer.Finish();
+        Observer.Expect('rows', '3');
+        Observer.Expect('trail', '30000->30000;10000->10000;20000->20000;');
+        Observer.Verify();
     end;
 }
