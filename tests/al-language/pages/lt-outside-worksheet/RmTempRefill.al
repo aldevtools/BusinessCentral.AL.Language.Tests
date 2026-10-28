@@ -799,7 +799,13 @@ codeunit 88269 "LT RM Refill Tests"
     begin
         TdShortLog := true;
         TdRunCur(3, 1, 25);
-        Observer.Finish();
+        Observer.Expect('before', 'R1');
+        Observer.Expect('action log', 'R:R1;R:R1;R:R1;R:R2;R:R3;R:R4;R:R5;R:R6;R:R7;R:R8;R:R9;R:R10;R:R11;R:R12;R:R13;R:R14;R:R15;R:R16;R:R17;R:R18;R:R19;R:R20;R:R1;R:R1;C:R1;');
+        Observer.Expect('shown after action', 'R1');
+        Observer.Expect('rows', 'R1 R2 R3 R4 R5 R6 R7 R8 R9 R10 R11 R12 R13 R14 R15 R16 R17 R18 R19 R20 R21 R22 R23 R24 R25');
+        Observer.Expect('walk log length', '444');
+        Observer.Expect('shown after walk', 'R25');
+        Observer.Verify();
     end;
 
     [Test]
@@ -807,7 +813,13 @@ codeunit 88269 "LT RM Refill Tests"
     begin
         TdShortLog := true;
         TdRunCur(25, 1, 22);
-        Observer.Finish();
+        Observer.Expect('before', 'R1');
+        Observer.Expect('action log', 'R:R1;R:R1;R:R1;R:R2;R:R3;R:R4;R:R5;R:R6;R:R7;R:R8;R:R9;R:R10;R:R11;R:R12;R:R13;R:R14;R:R15;R:R16;R:R17;R:R18;R:R19;R:R20;R:R1;R:R1;C:R1;');
+        Observer.Expect('shown after action', 'R1');
+        Observer.Expect('rows', 'R1 R2 R3 R4 R5 R6 R7 R8 R9 R10 R11 R12 R13 R14 R15 R16 R17 R18 R19 R20 R21 R22');
+        Observer.Expect('walk log length', '372');
+        Observer.Expect('shown after walk', 'R22');
+        Observer.Verify();
     end;
 
     [Test]
@@ -815,7 +827,13 @@ codeunit 88269 "LT RM Refill Tests"
     begin
         TdShortLog := true;
         TdRunCur(30, 25, 21);
-        Observer.Finish();
+        Observer.Expect('before', 'R25');
+        Observer.Expect('action log', 'R:R25;R:R1;R:R1;R:R2;R:R3;R:R4;R:R5;R:R6;R:R7;R:R8;R:R9;R:R10;R:R11;R:R12;R:R13;R:R14;R:R15;R:R16;R:R17;R:R18;R:R19;R:R20;R:R1;R:R1;C:R1;');
+        Observer.Expect('shown after action', 'R1');
+        Observer.Expect('rows', 'R1 R2 R3 R4 R5 R6 R7 R8 R9 R10 R11 R12 R13 R14 R15 R16 R17 R18 R19 R20 R21');
+        Observer.Expect('walk log length', '348');
+        Observer.Expect('shown after walk', 'R21');
+        Observer.Verify();
     end;
 
     [Test]
@@ -823,7 +841,13 @@ codeunit 88269 "LT RM Refill Tests"
     begin
         TdShortLog := true;
         TdRunNoCur(3, 1, 25);
-        Observer.Finish();
+        Observer.Expect('before', 'R1');
+        Observer.Expect('action log', 'R:R1;R:R1;R:R1;R:R2;R:R3;R:R4;R:R5;R:R6;R:R7;R:R8;R:R9;R:R10;R:R11;R:R12;R:R13;R:R14;R:R15;R:R16;R:R17;R:R18;R:R19;R:R20;R:R1;');
+        Observer.Expect('shown after action', 'R1');
+        Observer.Expect('rows', 'R1 R2 R3 R4 R5 R6 R7 R8 R9 R10 R11 R12 R13 R14 R15 R16 R17 R18 R19 R20 R21 R22 R23 R24 R25');
+        Observer.Expect('walk log length', '42');
+        Observer.Expect('shown after walk', 'R25');
+        Observer.Verify();
     end;
 
     [Test]
@@ -831,7 +855,13 @@ codeunit 88269 "LT RM Refill Tests"
     begin
         TdShortLog := true;
         TdRunNoCur(25, 1, 22);
-        Observer.Finish();
+        Observer.Expect('before', 'R1');
+        Observer.Expect('action log', 'R:R1;R:R1;R:R1;R:R2;R:R3;R:R4;R:R5;R:R6;R:R7;R:R8;R:R9;R:R10;R:R11;R:R12;R:R13;R:R14;R:R15;R:R16;R:R17;R:R18;R:R19;R:R20;R:R1;');
+        Observer.Expect('shown after action', 'R1');
+        Observer.Expect('rows', 'R1 R2 R3 R4 R5 R6 R7 R8 R9 R10 R11 R12 R13 R14 R15 R16 R17 R18 R19 R20 R21 R22');
+        Observer.Expect('walk log length', '24');
+        Observer.Expect('shown after walk', 'R22');
+        Observer.Verify();
     end;
 
     [Test]
@@ -839,7 +869,13 @@ codeunit 88269 "LT RM Refill Tests"
     begin
         TdShortLog := true;
         TdRunNoCur(30, 25, 21);
-        Observer.Finish();
+        Observer.Expect('before', 'R25');
+        Observer.Expect('action log', 'R:R25;R:R25;R:R1;R:R1;R:R2;R:R3;R:R4;R:R5;R:R6;R:R7;R:R8;R:R9;R:R10;R:R11;R:R12;R:R13;R:R14;R:R15;R:R16;R:R17;R:R18;R:R19;R:R20;R:R1;');
+        Observer.Expect('shown after action', 'R1');
+        Observer.Expect('rows', 'R1 R2 R3 R4 R5 R6 R7 R8 R9 R10 R11 R12 R13 R14 R15 R16 R17 R18 R19 R20 R21');
+        Observer.Expect('walk log length', '18');
+        Observer.Expect('shown after walk', 'R21');
+        Observer.Verify();
     end;
 }
 
