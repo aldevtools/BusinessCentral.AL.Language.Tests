@@ -2,6 +2,8 @@
 // Scope: in-scope
 // Fixtures used: Probe Observer (69160); own tables 87275, 87276, 87279, xmlport 87277, runner codeunit 87278, test codeunit 87280 (writer QR); writer QS: tests QS_TextAttr_* on table 87360, xmlport 87361, runner 87362 (QsXpTextAttrObjects.al)
 // Writer TO: tests TO_* on table 90000, xmlports 90001-90003, runner 90004 (ToXpTextInTableObjects.al): a text element below a table element, with only text attributes or with content.
+// Writer TP: tests TP_* on tables 90020-90021, xmlports 90022-90023, runner 90024 (TpXpNestedObjects.al): a text element with one text attribute
+//   below a text element below a table element; an optional text element holding an unlinked temporary table element.
 // Probe: observed on the corpus CI matrix; every literal asserted below is what the BC service tier produced.
 // Facts: MaxOccurs and MinOccurs on CONTAINER text elements (the root text element with MaxOccurs = Once, a required container with
 //   MinOccurs = Once and MaxOccurs = Once that holds a temporary table element, an optional container with MinOccurs = Zero and

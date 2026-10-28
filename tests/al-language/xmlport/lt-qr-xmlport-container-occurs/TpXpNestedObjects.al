@@ -3,6 +3,16 @@
 // Fixtures used: own tables 90020, 90021, xmlports 90022, 90023, runner codeunit 90024 (writer TP); the temporary blob table 87279
 //   (QrXpContainerOccurs.al); tests TP_* in codeunit 87280 (QrXpContainerOccurs.al)
 // Probe: observed on a BC 29.0 service tier; every literal asserted in the TP_* tests is what that tier produced. Other versions: corpus CI matrix.
+// Facts (BC 29): 90022 export writes `<entry no=".." status=".." kind="..">` with `<admission option_value="1">A1</admission>` inside; the
+//   log per row is `get R1;pass entry;pass status;pass admission;pass admcode;` (the element's OnBeforePassVariable before its attribute's).
+//   An empty optional attribute (kind) is left out, an empty required one is written as `status=""`; an empty element text gives
+//   `<admission option_value="2" />`. Import per row: init, the field attribute, status, then `admission=A1 admcode=1` (the attribute is
+//   assigned before the element's OnAfterAssignVariable), then entry's OnAfterAssignVariable (its text is the element's own text), then
+//   OnBeforeInsertRecord. A missing element or required attribute fails the schema check (XmlPortInvalidXml).
+//   90023 export: the unlinked inner table element writes ALL its records under EVERY outer row; with no records it writes `<attributes />`.
+//   Import: the inner records are inserted (OnBeforeInsertRecord sees the outer row's field attribute) before the outer row's
+//   OnBeforeInsertRecord; they stay in the temporary table across rows. An absent or empty `attributes` element inserts nothing; a
+//   second one, or one after `status`, fails the schema check; a duplicate inner key fails with DB:RecordExists.
 // Objects:
 //   90022: table element > text element `entry` (a field attribute, a text attribute with triggers, a text attribute without triggers)
 //     > text element `admission` whose only child is one required text attribute. The inner element and
