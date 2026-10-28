@@ -284,4 +284,132 @@ codeunit 74320 "LT FCF Format Comma String"
         Observer.Expect('12 signfirst', 'ok:12');
         Observer.Verify();
     end;
+
+    // Writer TQ (NP lane, 2026-10-29): a leading <Precision,A:B> followed by <Standard Format,N>, for A:B 0:0, 0:2, 1:3, 2:5, 3:3 and 2:26,
+    // on values that round up, round down or need no rounding; then <Precision,A:B> with <Integer>/<Integer Thousand>, <Decimals> and <Comma,x>.
+    local procedure TqObserveStd(var Observer: Codeunit "Probe Observer"; Prefix: Text; Value: Decimal)
+    var
+        Precisions: List of [Text];
+        Precision: Text;
+        Res: Text;
+    begin
+        Precisions.AddRange('0:0', '0:2', '1:3', '2:5', '3:3', '2:26');
+        foreach Precision in Precisions do begin
+            Observer.Observe(Prefix + ' ' + Precision + ' sf0', Show(TryFormat(Value, '<Precision,' + Precision + '><Standard Format,0>', Res), Res));
+            Observer.Observe(Prefix + ' ' + Precision + ' sf2', Show(TryFormat(Value, '<Precision,' + Precision + '><Standard Format,2>', Res), Res));
+            Observer.Observe(Prefix + ' ' + Precision + ' sf9', Show(TryFormat(Value, '<Precision,' + Precision + '><Standard Format,9>', Res), Res));
+        end;
+    end;
+
+    local procedure TqObserveComma(var Observer: Codeunit "Probe Observer"; Prefix: Text; Value: Decimal)
+    var
+        Res: Text;
+    begin
+        Observer.Observe(Prefix + ' p00comma,', Show(TryFormat(Value, '<Precision,0:0><Integer><Decimals><Comma,,>', Res), Res));
+        Observer.Observe(Prefix + ' p13thousand.', Show(TryFormat(Value, '<Precision,1:3><Integer Thousand><Decimals><Comma,.>', Res), Res));
+        Observer.Observe(Prefix + ' p33signcomma,', Show(TryFormat(Value, '<Precision,3:3><Sign><Integer><Decimals><Comma,,>', Res), Res));
+    end;
+
+    [Test]
+    procedure TQ_Format_PrecisionStd_Up15()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        TqObserveStd(Observer, '1.5', 1.5);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TQ_Format_PrecisionStd_Up25()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        TqObserveStd(Observer, '2.5', 2.5);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TQ_Format_PrecisionStd_Neg25()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        TqObserveStd(Observer, '-2.5', -2.5);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TQ_Format_PrecisionStd_Down12345()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        TqObserveStd(Observer, '1.2345', 1.2345);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TQ_Format_PrecisionStd_Long()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        TqObserveStd(Observer, '1.23456789', 1.23456789);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TQ_Format_PrecisionStd_Zero()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        TqObserveStd(Observer, '0', 0);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TQ_Format_PrecisionStd_Tiny()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        TqObserveStd(Observer, '0.0004', 0.0004);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TQ_Format_PrecisionStd_Carry()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        TqObserveStd(Observer, '99.9996', 99.9996);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TQ_Format_PrecisionStd_Big()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        TqObserveStd(Observer, '-1234567.891', -1234567.891);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TQ_Format_PrecisionStd_Whole()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        TqObserveStd(Observer, '7', 7);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TQ_Format_PrecisionComma()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        TqObserveComma(Observer, '1.5', 1.5);
+        TqObserveComma(Observer, '-2.5', -2.5);
+        TqObserveComma(Observer, '1234.56789', 1234.56789);
+        TqObserveComma(Observer, '0.0004', 0.0004);
+        TqObserveComma(Observer, '-0.4', -0.4);
+        Observer.Finish();
+    end;
 }

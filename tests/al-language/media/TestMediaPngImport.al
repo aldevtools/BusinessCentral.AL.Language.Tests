@@ -716,6 +716,151 @@ codeunit 60130 "Test Media Png Import"
         Observer.Expect('delete missing', 'No ');
         Observer.Verify();
     end;
+
+    // ── Added by writer TQ (NP lane, 2026-10-29): Tenant Media Delete(true) after a successful Get, result ignored (statement form) or
+    // used, on a media one row holds and on one two rows hold; Delete(true) in statement form on a missing row. Then Media.ExportStream of
+    // a PNG BC re-encoded on import: what lands in a Blob field and in the Tenant Media row.
+
+    local procedure TqObserveRow(var Observer: Codeunit "Probe Observer"; Prefix: Text; Code: Code[20]; Id: Guid)
+    var
+        Row: Record "ALT Media";
+        TempBlob: Codeunit "Temp Blob";
+        OutStr: OutStream;
+    begin
+        Row.Get(Code);
+        Observer.Observe(Prefix + ' has_value', Format(Row.Picture.HasValue()));
+        Observer.Observe(Prefix + ' same_id', Format(Row.Picture.MediaId() = Id));
+        TempBlob.CreateOutStream(OutStr);
+        Observer.Observe(Prefix + ' export_result', Format(Row.Picture.ExportStream(OutStr)));
+        Observer.Observe(Prefix + ' export_length', Format(TempBlob.Length()));
+    end;
+
+    [Test]
+    procedure TQ_TenantMedia_DeleteTrue_Statement()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "ALT Media";
+        TenantMedia: Record "Tenant Media";
+        Id: Guid;
+    begin
+        QeInitialize();
+        ImportBase64(Row, 'TQ1', ValidPngBase64);
+        Row.Get('TQ1');
+        Id := Row.Picture.MediaId();
+        ClearLastError();
+        if TenantMedia.Get(Id) then
+            TenantMedia.Delete(true);
+        Observer.Observe('last error', GetLastErrorText());
+        Observer.Observe('get after delete', Format(TenantMedia.Get(Id)));
+        TqObserveRow(Observer, 'row', 'TQ1', Id);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TQ_TenantMedia_DeleteTrue_Used()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "ALT Media";
+        TenantMedia: Record "Tenant Media";
+        Id: Guid;
+    begin
+        QeInitialize();
+        ImportBase64(Row, 'TQ2', ValidPngBase64);
+        Row.Get('TQ2');
+        Id := Row.Picture.MediaId();
+        Observer.Observe('get', Format(TenantMedia.Get(Id)));
+        Observer.Observe('delete(true)', Format(TenantMedia.Delete(true)));
+        Observer.Observe('get after delete', Format(TenantMedia.Get(Id)));
+        Observer.Observe('delete(true) again', Format(TenantMedia.Delete(true)));
+        TqObserveRow(Observer, 'row', 'TQ2', Id);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TQ_TenantMedia_DeleteTrue_SharedMedia()
+    var
+        Observer: Codeunit "Probe Observer";
+        TenantMedia: Record "Tenant Media";
+        Id: Guid;
+    begin
+        QeInitialize();
+        Id := QeSharedByAssignment('TQ3');
+        if TenantMedia.Get(Id) then
+            TenantMedia.Delete(true);
+        Observer.Observe('get after delete', Format(TenantMedia.Get(Id)));
+        QeObserveAlt(Observer, 'alt', 'TQ3', Id);
+        QeObserveOther(Observer, 'other', 'TQ3', Id);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TQ_TenantMedia_DeleteTrue_Missing_Statement()
+    var
+        Observer: Codeunit "Probe Observer";
+        TenantMedia: Record "Tenant Media";
+    begin
+        QeInitialize();
+        TenantMedia.Init();
+        Evaluate(TenantMedia.ID, '{6B1D3E1A-0C2B-4F7E-9A51-3D2C1B0A9F87}');
+        asserterror TenantMedia.Delete(true);
+        Observer.ObserveError('statement');
+        Observer.Finish();
+    end;
+
+    local procedure TqObserveExport(var Observer: Codeunit "Probe Observer"; Prefix: Text; Code: Code[20]; Base64Png: Text)
+    var
+        Row: Record "ALT Media";
+        TempTenantMedia: Record "Tenant Media" temporary;
+        TenantMedia: Record "Tenant Media";
+        Base64Convert: Codeunit "Base64 Convert";
+        OutStr: OutStream;
+        InStr: InStream;
+        Encoded: Text;
+    begin
+        ImportBase64(Row, Code, Base64Png);
+        Row.Get(Code);
+        TempTenantMedia.ID := CreateGuid();
+        TempTenantMedia.Content.CreateOutStream(OutStr);
+        Observer.Observe(Prefix + ' export_result', Format(Row.Picture.ExportStream(OutStr)));
+        TempTenantMedia.Insert();
+        TempTenantMedia.CalcFields(Content);
+        Observer.Observe(Prefix + ' blob has_value', Format(TempTenantMedia.Content.HasValue()));
+        Observer.Observe(Prefix + ' blob format', Format(TempTenantMedia.Content));
+        Observer.Observe(Prefix + ' blob length', Format(TempTenantMedia.Content.Length()));
+        TempTenantMedia.Content.CreateInStream(InStr);
+        Encoded := Base64Convert.ToBase64(InStr);
+        Observer.Observe(Prefix + ' blob head', CopyStr(Encoded, 1, 32));
+        Observer.Observe(Prefix + ' blob base64', Encoded);
+        TenantMedia.Get(Row.Picture.MediaId());
+        TenantMedia.CalcFields(Content);
+        Observer.Observe(Prefix + ' tm mime', TenantMedia."Mime Type");
+        Observer.Observe(Prefix + ' tm width', Format(TenantMedia.Width));
+        Observer.Observe(Prefix + ' tm height', Format(TenantMedia.Height));
+        Observer.Observe(Prefix + ' tm length', Format(TenantMedia.Content.Length()));
+        Observer.Observe(Prefix + ' tm format', Format(TenantMedia.Content));
+    end;
+
+    [Test]
+    procedure TQ_Media_ExportStream_ReEncodedPng_Gray1x1()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        QeInitialize();
+        TqObserveExport(Observer, 'gray1x1', 'TQ5', ValidPngBase64);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TQ_Media_ExportStream_ReEncodedPng_Rgb3x2()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        QeInitialize();
+        // A 73-byte 3x2 RGB PNG (8-bit, colour type 2; red, green, blue on both rows), every chunk CRC computed with Python zlib.crc32.
+        TqObserveExport(Observer, 'rgb3x2', 'TQ6', 'iVBORw0KGgoAAAANSUhEUgAAAAMAAAACCAIAAAASFvFNAAAAEElEQVR4nGP4z8DAAMFwFgA72AX73hA3ZQAAAABJRU5ErkJggg==');
+        Observer.Finish();
+    end;
+
 }
 
 table 86580 "LT QE Media Other"

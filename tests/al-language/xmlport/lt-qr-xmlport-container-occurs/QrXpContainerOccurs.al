@@ -914,4 +914,135 @@ codeunit 87280 "LT QR XP Container Tests"
         Observer.Expect('status first|code', 'XmlPortInvalidXml');
         Observer.Verify();
     end;
+
+    // Writer TQ (NP lane, 2026-10-29): export (and import) of the response-style port 90041/90042 (TqXpResponseObjects.al):
+    // a text element with content, MinOccurs = Zero and MaxOccurs = Once, of field elements and leaf text elements below a temporary table element.
+    local procedure TqExport(var Port: XmlPort "LT TQ XP Response"): Text
+    var
+        Buffer: Record "LT QR XP Blob" temporary;
+        OutS: OutStream;
+    begin
+        Buffer.Id := 1;
+        Buffer.Insert();
+        Buffer.Data.CreateOutStream(OutS, TextEncoding::UTF8);
+        Port.SetDestination(OutS);
+        Port.Export();
+        exit(ToRead(Buffer));
+    end;
+
+    local procedure TqExportNs(var Port: XmlPort "LT TQ XP Response Ns"): Text
+    var
+        Buffer: Record "LT QR XP Blob" temporary;
+        OutS: OutStream;
+    begin
+        Buffer.Id := 1;
+        Buffer.Insert();
+        Buffer.Data.CreateOutStream(OutS, TextEncoding::UTF8);
+        Port.SetDestination(OutS);
+        Port.Export();
+        exit(ToRead(Buffer));
+    end;
+
+    local procedure TqImport(var Observer: Codeunit "Probe Observer"; Name: Text; Body: Text)
+    var
+        Runner: Codeunit "LT TQ XP Runner";
+    begin
+        Runner.SetInput('<?xml version="1.0" encoding="UTF-8"?>' + Body);
+        ClearLastError();
+        if Runner.Run() then
+            Observer.Observe(Name, 'ok ' + Runner.Result())
+        else
+            Observer.ObserveError(Name);
+    end;
+
+    [Test]
+    procedure TQ_Response_Export_NoRows()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TQ XP Response";
+    begin
+        Observer.Observe('xml', TqExport(Port));
+        Observer.Observe('log', Port.GetLog());
+        Observer.Observe('values', Port.Values());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TQ_Response_Export_Rows()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TQ XP Response";
+    begin
+        Port.AddMember('M1', 'GOLDCLUB', 'Ann Smith', DMY2Date(15, 1, 2026), 150.5, false);
+        Port.AddMember('M2', 'BASIC', 'Bob', DMY2Date(1, 2, 2025), 7, true);
+        Observer.Observe('xml', TqExport(Port));
+        Observer.Observe('log', Port.GetLog());
+        Observer.Observe('values', Port.Values());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TQ_Response_Export_EmptyValues()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TQ XP Response";
+    begin
+        Port.AddMember('M3', '', '', 0D, 0, false);
+        Observer.Observe('xml', TqExport(Port));
+        Observer.Observe('log', Port.GetLog());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TQ_Response_Export_GlobalLeafSet()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TQ XP Response";
+    begin
+        Port.AddMember('M1', 'C1', 'N1', DMY2Date(15, 1, 2026), 1.25, false);
+        Port.AddMember('M2', '', '', 0D, 0, false);
+        Port.SetValidUntil('2027-12-31');
+        Observer.Observe('xml', TqExport(Port));
+        Observer.Observe('values', Port.Values());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TQ_ResponseNs_Export()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TQ XP Response Ns";
+        Port2: XmlPort "LT TQ XP Response Ns";
+        Port3: XmlPort "LT TQ XP Response Ns";
+    begin
+        Observer.Observe('no rows', TqExportNs(Port));
+        Port2.AddMember('M1', 'C1', 12.5);
+        Port2.AddMember('M2', '', 0);
+        Observer.Observe('rows, leaves empty', TqExportNs(Port2));
+        Port3.AddMember('M1', 'C1', 12.5);
+        Port3.SetLeaves('OK', 'fine', 'GOLD', '2027-12-31');
+        Observer.Observe('rows, leaves set', TqExportNs(Port3));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TQ_Response_Import()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        TqImport(Observer, 'full', '<response><member no="M1"><status><responsecode>OK</responsecode><responsemessage>m</responsemessage></status><membership><code>C1</code><name>N1</name><tier>GOLD</tier><issued>2026-01-15</issued><points>12.5</points><validuntil>2027-12-31</validuntil><blocked>true</blocked></membership></member></response>');
+        TqImport(Observer, 'membership absent', '<response><member no="M1"><status><responsecode>OK</responsecode><responsemessage>m</responsemessage></status></member></response>');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TQ_Response_Import_Shapes()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        TqImport(Observer, 'optional leaves absent', '<response><member no="M1"><status><responsecode>OK</responsecode><responsemessage /></status><membership><code>C1</code><tier /><issued>2026-01-15</issued><blocked>false</blocked></membership></member></response>');
+        TqImport(Observer, 'membership twice', '<response><member no="M1"><status><responsecode>OK</responsecode><responsemessage /></status><membership><code>C1</code><tier /><issued /><blocked>false</blocked></membership><membership><code>C2</code><tier /><issued /><blocked>false</blocked></membership></member></response>');
+        TqImport(Observer, 'no rows', '<response />');
+        Observer.Finish();
+    end;
 }
