@@ -5,6 +5,7 @@
 // Settles probes-needed rows (Probe round 6, types and JSON): "InStream.Read(Text, Length) - Pinned only for a Windows-encoded stream";
 // (Probe fixes) "InStream.Read(Text) - Reads up to the zero byte ..." and "JSON on streams - ReadFrom(InStream) of 5, true, null, invalid UTF-8, UTF-16 with BOM"
 // Facts: Read(Text) and Read(Text, Length) on UTF-8 / UTF-16 / Windows streams, at the end of the stream; JsonObject/JsonArray/JsonToken ReadFrom(InStream) of odd first tokens
+// Writer TO: TO_ReadText_NonAscii_NoTerminator was measured on a BC 29.0 online sandbox (Read(Text) of non-ASCII on UTF-8, UTF-16 and MS-DOS streams).
 // BC versions: 29 (27 and 28 by CI)
 
 table 72526 "LT PnE Stream Rec"
@@ -174,7 +175,14 @@ codeunit 72525 "LT PnE Stream Read"
         N := Ins.Read(T);
         Observer.Observe('msdos', Format(N) + '|' + Dump(T));
         Rec.DeleteAll();
-        Observer.Finish();
+        Observer.Expect('utf8', '7|5:119 246 114 108 100 ');
+        Observer.Expect('utf8atEnd', '1|0:');
+        Observer.Expect('utf8first', '5|2:228 246 ');
+        Observer.Expect('utf8second', '5|2:8364 65 ');
+        Observer.Expect('utf16', '4|1:119 ');
+        Observer.Expect('utf16terminated', '4|1:119 ');
+        Observer.Expect('msdos', '6|5:119 247 114 108 100 ');
+        Observer.Verify();
     end;
 
     [Test]
