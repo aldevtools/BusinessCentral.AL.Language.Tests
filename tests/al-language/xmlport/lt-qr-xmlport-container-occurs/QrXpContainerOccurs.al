@@ -613,7 +613,9 @@ codeunit 87280 "LT QR XP Container Tests"
         Port.AddRow('R3', 'TXT', '');
         Observer.Observe('xml', ToExportTrigger(Port));
         Observer.Observe('log', Port.GetLog());
-        Observer.Finish();
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <row no="R1">|    <item option_value="1">REQUIRED</item>|  </row>|  <row no="R2">|    <item option_value="2" />|  </row>|  <row no="R3">|    <item option_value="">TXT</item>|  </row>|</root>|');
+        Observer.Expect('log', 'get R1;pass item;pass attr;get R2;pass item;pass attr;get R3;pass item;pass attr;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -624,7 +626,9 @@ codeunit 87280 "LT QR XP Container Tests"
     begin
         Observer.Observe('xml', ToExportTrigger(Port));
         Observer.Observe('log', Port.GetLog());
-        Observer.Finish();
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root />|');
+        Observer.Expect('log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -641,7 +645,9 @@ codeunit 87280 "LT QR XP Container Tests"
         Observer.Observe('set', ToExportPlain(Port));
         Empty.AddRow('R1');
         Observer.Observe('empty', ToExportPlain(Empty));
-        Observer.Finish();
+        Observer.Expect('set', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <row no="R1">|    <item option_value="1">TEXT</item>|  </row>|  <row no="R2">|    <item option_value="1">TEXT</item>|  </row>|</root>|');
+        Observer.Expect('empty', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <row no="R1">|    <item option_value="" />|  </row>|</root>|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -652,7 +658,11 @@ codeunit 87280 "LT QR XP Container Tests"
         ToImport(Observer, 'two rows', 90001, '<root><row no="R1"><item option_value="1">REQ</item></row><row no="R2"><item option_value="2">X</item></row></root>');
         ToImport(Observer, 'attribute missing', 90001, '<root><row no="R1"><item>REQ</item></row></root>');
         ToImport(Observer, 'empty element', 90001, '<root><row no="R1"><item option_value="1"/></row></root>');
-        Observer.Finish();
+        Observer.Expect('two rows', 'ok log=init;no=R1;attr=1;item=REQ;before insert R1 item=REQ attr=1;after insert;init;no=R2;attr=2;item=X;before insert R2 item=X attr=2;after insert; values: item=X attr=2 rows=R1:REQ/1;R2:X/2;');
+        Observer.Expect('attribute missing|text', 'Imported XML cannot validate with the schema: The required attribute ''option_value'' is missing.');
+        Observer.Expect('attribute missing|code', 'XmlPortInvalidXml');
+        Observer.Expect('empty element', 'ok log=init;no=R1;attr=1;item=;before insert R1 item= attr=1;after insert; values: item= attr=1 rows=R1:/1;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -663,7 +673,13 @@ codeunit 87280 "LT QR XP Container Tests"
         ToImport(Observer, 'element missing', 90001, '<root><row no="R1"/></root>');
         ToImport(Observer, 'second row attribute missing', 90001, '<root><row no="R1"><item option_value="1">A</item></row><row no="R2"><item>B</item></row></root>');
         ToImport(Observer, 'child element', 90001, '<root><row no="R1"><item option_value="1">A<x/></item></row></root>');
-        Observer.Finish();
+        Observer.Expect('element missing|text', 'Imported XML cannot validate with the schema: The element ''row'' has incomplete content. List of possible elements expected: ''item''.');
+        Observer.Expect('element missing|code', 'XmlPortInvalidXml');
+        Observer.Expect('second row attribute missing|text', 'Imported XML cannot validate with the schema: The required attribute ''option_value'' is missing.');
+        Observer.Expect('second row attribute missing|code', 'XmlPortInvalidXml');
+        Observer.Expect('child element|text', 'Imported XML cannot validate with the schema: The element ''item'' cannot contain child element ''x'' because the parent element''s content model is text only.');
+        Observer.Expect('child element|code', 'XmlPortInvalidXml');
+        Observer.Verify();
     end;
 
     [Test]
@@ -673,7 +689,10 @@ codeunit 87280 "LT QR XP Container Tests"
     begin
         ToImport(Observer, 'two rows', 90002, '<root><row no="R1"><item option_value="1">REQ</item></row><row no="R2"><item option_value="2">X</item></row></root>');
         ToImport(Observer, 'second row bare', 90002, '<root><row no="R1"><item option_value="1">REQ</item></row><row no="R2"><item/></row></root>');
-        Observer.Finish();
+        Observer.Expect('two rows', 'ok log=before insert R1 item=REQ attr=1;before insert R2 item=X attr=2; values: item=X attr=2 rows=R1:REQ/1;R2:X/2;');
+        Observer.Expect('second row bare|text', 'Imported XML cannot validate with the schema: The required attribute ''option_value'' is missing.');
+        Observer.Expect('second row bare|code', 'XmlPortInvalidXml');
+        Observer.Verify();
     end;
 
     [Test]
@@ -686,7 +705,9 @@ codeunit 87280 "LT QR XP Container Tests"
         Port.AddRow('R2', '', '', '');
         Observer.Observe('xml', ToExportContent(Port));
         Observer.Observe('log', Port.GetLog());
-        Observer.Finish();
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <row no="R1">|    <info kind="k1">|      <name>N1</name>|      <sub>s1</sub>|    </info>|  </row>|  <row no="R2">|    <info kind="">|      <name />|      <sub />|    </info>|  </row>|</root>|');
+        Observer.Expect('log', 'get R1;pass info;pass kind;pass name;pass sub;get R2;pass info;pass kind;pass name;pass sub;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -696,7 +717,10 @@ codeunit 87280 "LT QR XP Container Tests"
     begin
         ToImport(Observer, 'two rows', 90003, '<root><row no="R1"><info kind="k1"><name>N1</name><sub>s1</sub></info></row><row no="R2"><info kind="k2"><name>N2</name><sub>s2</sub></info></row></root>');
         ToImport(Observer, 'no kind', 90003, '<root><row no="R1"><info><name>N1</name><sub>s1</sub></info></row></root>');
-        Observer.Finish();
+        Observer.Expect('two rows', 'ok log=init;no=R1;kind=k1;name=N1;sub=s1;info=;before insert R1 name=N1 kind=k1 sub=s1;after insert;init;no=R2;kind=k2;name=N2;sub=s2;info=;before insert R2 name=N2 kind=k2 sub=s2;after insert; values: info= kind=k2 sub=s2 rows=R1:N1/k1/s1;R2:N2/k2/s2;');
+        Observer.Expect('no kind|text', 'Imported XML cannot validate with the schema: The required attribute ''kind'' is missing.');
+        Observer.Expect('no kind|code', 'XmlPortInvalidXml');
+        Observer.Verify();
     end;
 
     [Test]
@@ -708,6 +732,13 @@ codeunit 87280 "LT QR XP Container Tests"
         ToImport(Observer, 'sub missing', 90003, '<root><row no="R1"><info kind="k1"><name>N1</name></info></row></root>');
         ToImport(Observer, 'empty info', 90003, '<root><row no="R1"><info/></row></root>');
         ToImport(Observer, 'text in info', 90003, '<root><row no="R1"><info kind="k1">T<name>N1</name><sub>s1</sub></info></row></root>');
-        Observer.Finish();
+        Observer.Expect('info missing|text', 'Imported XML cannot validate with the schema: The element ''row'' has incomplete content. List of possible elements expected: ''info''.');
+        Observer.Expect('info missing|code', 'XmlPortInvalidXml');
+        Observer.Expect('sub missing|text', 'Imported XML cannot validate with the schema: The element ''info'' has incomplete content. List of possible elements expected: ''sub''.');
+        Observer.Expect('sub missing|code', 'XmlPortInvalidXml');
+        Observer.Expect('empty info|text', 'Imported XML cannot validate with the schema: The required attribute ''kind'' is missing.');
+        Observer.Expect('empty info|code', 'XmlPortInvalidXml');
+        Observer.Expect('text in info', 'ok log=init;no=R1;kind=k1;name=N1;sub=s1;info=T;before insert R1 name=N1 kind=k1 sub=s1;after insert; values: info=T kind=k1 sub=s1 rows=R1:N1/k1/s1;');
+        Observer.Verify();
     end;
 }

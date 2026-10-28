@@ -2,7 +2,13 @@
 // Scope: in-scope
 // Fixtures used: own table 90000, xmlports 90001-90003, runner codeunit 90004 (writer TO); the temporary blob table 87279 (QrXpContainerOccurs.al);
 //   tests TO_* in codeunit 87280 (QrXpContainerOccurs.al)
-// Probe: observed on BC; every literal asserted in the TO_* tests is what the BC service tier produced.
+// Probe: observed on a BC 29.0 service tier (online sandbox); every literal asserted in the TO_* tests is what that tier produced. Other versions: corpus CI matrix.
+// Facts (BC 29): export writes `<item option_value="1">REQUIRED</item>` per row, the element's OnBeforePassVariable runs before its attribute's
+//   (log `get R1;pass item;pass attr;`); an empty element text gives `<item option_value="2" />`, an empty required attribute stays as `option_value=""`.
+//   Without triggers the variables are written as they are, the same for every row. Import runs per row: OnAfterInitRecord, the field attribute,
+//   the text attribute's OnAfterAssignVariable, then the element's, then OnBeforeInsertRecord; a missing element, a missing (required) attribute or a
+//   child element in a text-only element fails the schema check (XmlPortInvalidXml). With content: the attribute, the field element and the text
+//   element below come first, the container's OnAfterAssignVariable last (its text is the element's own text, empty or `T` in `<info>T<name>..`).
 // Objects: a text element below a table element.
 //   90001: the text element's only children are text attributes; its OnBeforePassVariable sets its text from the row, the attribute's
 //     OnBeforePassVariable sets the attribute from the row. Every trigger logs, so the logs show the order.
