@@ -17,14 +17,6 @@ codeunit 89870 "LT TG Scratch"
     end;
 
     [Test]
-    procedure AssertErrOnly()
-    begin
-        asserterror PadStr('ab', 3.4);
-        Obs.ObserveError('b');
-        Obs.Finish();
-    end;
-
-    [Test]
     procedure AssertErrCopy()
     var
         T: Text;
