@@ -2088,7 +2088,7 @@ codeunit 88980 "LT SB Stale Own Modify"
         Observer.Expect('write', 'refused');
         Observer.Expect('code', 'DB:RecordChanged');
         Observer.Expect('text', 'Yes');
-        Observer.Expect('stored', 'other|0|1');
+        Observer.Expect('stored', 'other|0|0');
         Observer.Expect('row 8 exists', 'Yes');
         Observer.Verify();
     end;
