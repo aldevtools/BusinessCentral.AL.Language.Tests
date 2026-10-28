@@ -686,7 +686,7 @@ codeunit 68056 "W4 Platform Tests"
         Observer.Observe('bare_valid', EvalTfBare('SI TF Target: Kind=LGDIAM'));
         Observer.Expect('bare_bad_option', 'error:The value "SI TF Target: Kind=FOO" can''t be evaluated into type TableFilter. ''FOO'' is not an option. The existing options are: Diam Cap,LgDiam Cap|Evaluate:InvalidFilterExpression');
         Observer.Expect('bare_unknown_field', 'error:The value "SI TF Target: Nope=1" can''t be evaluated into type TableFilter. The supplied field number ''Nope'' cannot be found in the ''SI Target Cap'' table.|Evaluate:FieldNotFound');
-        Observer.Expect('bare_unknown_table', 'error:The value "No Such Table: Kind=1" can''t be evaluated into type TableFilter.|Evaluate:?');
+        Observer.Expect('bare_unknown_table', 'error:The value "No Such Table: Kind=1" can''t be evaluated into type TableFilter.|Evaluate:MetadataNotFound');
         Observer.Expect('bare_table_only', 'error:The value "SI TF Target" can''t be evaluated into type TableFilter.|Evaluate:?');
         Observer.Expect('bare_filter_wrapper', 'error:The value "SI TF Target: Kind=FILTER(LGDIAM)" can''t be evaluated into type TableFilter. An error occurred while interpreting the filter: Did not expect ''(''.|Evaluate:?');
         Observer.Expect('bare_bad_integer', 'error:The value "SI TF Target: Qty=abc" can''t be evaluated into type TableFilter. The value "abc" can''t be evaluated into type Integer.|Evaluate:?');
@@ -694,7 +694,7 @@ codeunit 68056 "W4 Platform Tests"
         Observer.Expect('bare_garbage', 'error:The value "xyz" can''t be evaluated into type TableFilter.|Evaluate:?');
         Observer.Expect('bare_no_table', 'error:The value "Kind=LGDIAM" can''t be evaluated into type TableFilter.|Evaluate:?');
         Observer.Expect('bare_valid', 'ok:[SI TF Target: Kind Cap=LgDiam Cap]');
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
