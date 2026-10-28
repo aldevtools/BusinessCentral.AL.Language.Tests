@@ -18,7 +18,7 @@ codeunit 89910 "LT TI Ternary Observe"
                 if TICodeTrueLabelFalse0(T, Kind, R) then
                     S += '[' + R + ']'
                 else
-                    S += '[ERR ' + GetLastErrorCode() + ' ' + GetLastErrorText() + ']';
+                    S += '[E ' + GetLastErrorCode() + ' ' + GetLastErrorText().Replace('The length of the string is ', 'L').Replace(', but it must be less than or equal to ', '/').Replace(' characters. Value: ', ' V:') + ']';
                 ClearLastError();
             end;
             Observer.Observe('Code20 : Label 7 ' + Format(T), S);
@@ -42,7 +42,7 @@ codeunit 89910 "LT TI Ternary Observe"
                 if TICodeTrueLabelFalse1(T, Kind, R) then
                     S += '[' + R + ']'
                 else
-                    S += '[ERR ' + GetLastErrorCode() + ' ' + GetLastErrorText() + ']';
+                    S += '[E ' + GetLastErrorCode() + ' ' + GetLastErrorText().Replace('The length of the string is ', 'L').Replace(', but it must be less than or equal to ', '/').Replace(' characters. Value: ', ' V:') + ']';
                 ClearLastError();
             end;
             Observer.Observe('Code20 : Label 20 ' + Format(T), S);
@@ -66,7 +66,7 @@ codeunit 89910 "LT TI Ternary Observe"
                 if TICodeTrueLabelFalse2(T, Kind, R) then
                     S += '[' + R + ']'
                 else
-                    S += '[ERR ' + GetLastErrorCode() + ' ' + GetLastErrorText() + ']';
+                    S += '[E ' + GetLastErrorCode() + ' ' + GetLastErrorText().Replace('The length of the string is ', 'L').Replace(', but it must be less than or equal to ', '/').Replace(' characters. Value: ', ' V:') + ']';
                 ClearLastError();
             end;
             Observer.Observe('Code20 : Label 30 ' + Format(T), S);
@@ -90,7 +90,7 @@ codeunit 89910 "LT TI Ternary Observe"
                 if TILabelTrueCodeFalse0(T, Kind, R) then
                     S += '[' + R + ']'
                 else
-                    S += '[ERR ' + GetLastErrorCode() + ' ' + GetLastErrorText() + ']';
+                    S += '[E ' + GetLastErrorCode() + ' ' + GetLastErrorText().Replace('The length of the string is ', 'L').Replace(', but it must be less than or equal to ', '/').Replace(' characters. Value: ', ' V:') + ']';
                 ClearLastError();
             end;
             Observer.Observe('Label 7 : Code20 ' + Format(T), S);
@@ -114,7 +114,7 @@ codeunit 89910 "LT TI Ternary Observe"
                 if TILabelTrueCodeFalse1(T, Kind, R) then
                     S += '[' + R + ']'
                 else
-                    S += '[ERR ' + GetLastErrorCode() + ' ' + GetLastErrorText() + ']';
+                    S += '[E ' + GetLastErrorCode() + ' ' + GetLastErrorText().Replace('The length of the string is ', 'L').Replace(', but it must be less than or equal to ', '/').Replace(' characters. Value: ', ' V:') + ']';
                 ClearLastError();
             end;
             Observer.Observe('Label 20 : Code20 ' + Format(T), S);
@@ -138,7 +138,7 @@ codeunit 89910 "LT TI Ternary Observe"
                 if TILabelTrueCodeFalse2(T, Kind, R) then
                     S += '[' + R + ']'
                 else
-                    S += '[ERR ' + GetLastErrorCode() + ' ' + GetLastErrorText() + ']';
+                    S += '[E ' + GetLastErrorCode() + ' ' + GetLastErrorText().Replace('The length of the string is ', 'L').Replace(', but it must be less than or equal to ', '/').Replace(' characters. Value: ', ' V:') + ']';
                 ClearLastError();
             end;
             Observer.Observe('Label 30 : Code20 ' + Format(T), S);
@@ -162,7 +162,7 @@ codeunit 89910 "LT TI Ternary Observe"
                 if TITextNLabel0(T, Kind, R) then
                     S += '[' + R + ']'
                 else
-                    S += '[ERR ' + GetLastErrorCode() + ' ' + GetLastErrorText() + ']';
+                    S += '[E ' + GetLastErrorCode() + ' ' + GetLastErrorText().Replace('The length of the string is ', 'L').Replace(', but it must be less than or equal to ', '/').Replace(' characters. Value: ', ' V:') + ']';
                 ClearLastError();
             end;
             Observer.Observe('Text10 : Label 7 ' + Format(T), S);
@@ -186,7 +186,7 @@ codeunit 89910 "LT TI Ternary Observe"
                 if TITextNLabel1(T, Kind, R) then
                     S += '[' + R + ']'
                 else
-                    S += '[ERR ' + GetLastErrorCode() + ' ' + GetLastErrorText() + ']';
+                    S += '[E ' + GetLastErrorCode() + ' ' + GetLastErrorText().Replace('The length of the string is ', 'L').Replace(', but it must be less than or equal to ', '/').Replace(' characters. Value: ', ' V:') + ']';
                 ClearLastError();
             end;
             Observer.Observe('Text10 : Label 10 ' + Format(T), S);
@@ -210,7 +210,7 @@ codeunit 89910 "LT TI Ternary Observe"
                 if TITextNLabel2(T, Kind, R) then
                     S += '[' + R + ']'
                 else
-                    S += '[ERR ' + GetLastErrorCode() + ' ' + GetLastErrorText() + ']';
+                    S += '[E ' + GetLastErrorCode() + ' ' + GetLastErrorText().Replace('The length of the string is ', 'L').Replace(', but it must be less than or equal to ', '/').Replace(' characters. Value: ', ' V:') + ']';
                 ClearLastError();
             end;
             Observer.Observe('Text10 : Label 15 ' + Format(T), S);
@@ -234,7 +234,7 @@ codeunit 89910 "LT TI Ternary Observe"
                 if TITextNLabel3(T, Kind, R) then
                     S += '[' + R + ']'
                 else
-                    S += '[ERR ' + GetLastErrorCode() + ' ' + GetLastErrorText() + ']';
+                    S += '[E ' + GetLastErrorCode() + ' ' + GetLastErrorText().Replace('The length of the string is ', 'L').Replace(', but it must be less than or equal to ', '/').Replace(' characters. Value: ', ' V:') + ']';
                 ClearLastError();
             end;
             Observer.Observe('Label 15 : Text10 ' + Format(T), S);
@@ -258,7 +258,7 @@ codeunit 89910 "LT TI Ternary Observe"
                 if TILabelLabelAndConst0(T, Kind, R) then
                     S += '[' + R + ']'
                 else
-                    S += '[ERR ' + GetLastErrorCode() + ' ' + GetLastErrorText() + ']';
+                    S += '[E ' + GetLastErrorCode() + ' ' + GetLastErrorText().Replace('The length of the string is ', 'L').Replace(', but it must be less than or equal to ', '/').Replace(' characters. Value: ', ' V:') + ']';
                 ClearLastError();
             end;
             Observer.Observe('Label 7 : Label 30 ' + Format(T), S);
@@ -282,7 +282,7 @@ codeunit 89910 "LT TI Ternary Observe"
                 if TILabelLabelAndConst1(T, Kind, R) then
                     S += '[' + R + ']'
                 else
-                    S += '[ERR ' + GetLastErrorCode() + ' ' + GetLastErrorText() + ']';
+                    S += '[E ' + GetLastErrorCode() + ' ' + GetLastErrorText().Replace('The length of the string is ', 'L').Replace(', but it must be less than or equal to ', '/').Replace(' characters. Value: ', ' V:') + ']';
                 ClearLastError();
             end;
             Observer.Observe('Label 30 : Label 7 ' + Format(T), S);
@@ -306,7 +306,7 @@ codeunit 89910 "LT TI Ternary Observe"
                 if TILabelLabelAndConst2(T, Kind, R) then
                     S += '[' + R + ']'
                 else
-                    S += '[ERR ' + GetLastErrorCode() + ' ' + GetLastErrorText() + ']';
+                    S += '[E ' + GetLastErrorCode() + ' ' + GetLastErrorText().Replace('The length of the string is ', 'L').Replace(', but it must be less than or equal to ', '/').Replace(' characters. Value: ', ' V:') + ']';
                 ClearLastError();
             end;
             Observer.Observe('Label 7 : literal 15 ' + Format(T), S);
@@ -330,7 +330,7 @@ codeunit 89910 "LT TI Ternary Observe"
                 if TILabelLabelAndConst3(T, Kind, R) then
                     S += '[' + R + ']'
                 else
-                    S += '[ERR ' + GetLastErrorCode() + ' ' + GetLastErrorText() + ']';
+                    S += '[E ' + GetLastErrorCode() + ' ' + GetLastErrorText().Replace('The length of the string is ', 'L').Replace(', but it must be less than or equal to ', '/').Replace(' characters. Value: ', ' V:') + ']';
                 ClearLastError();
             end;
             Observer.Observe('literal 15 : Label 7 ' + Format(T), S);
