@@ -6,6 +6,10 @@
 // on a Decimal, Integer, Text and Date value: the text returned, or the error text and code (raised when Format runs, not when the code compiles).
 // The Format PROPERTY on a table field does not compile in AL (AL0124): tests/must-not-compile/cases/0481-table-field-format-property.al.
 // Invalid format strings with other elements are pinned in types/lt-evaluate-format-lasterror-setview/P86FormatDecimal.al.
+// Writer TQ (2026-10-29, TQ_* tests): <Precision,A:B> before <Standard Format,0|2|9> for A:B 0:0, 0:2, 1:3, 2:5, 3:3, 2:26, and before
+//   <Integer>/<Integer Thousand>/<Sign>, <Decimals> and <Comma,x>. The value is rounded half away from zero to B decimals and padded to A
+//   (1.5 and 2.5 at 0:0 give 2 and 3, -2.5 gives -3, 1.2345 at 3:3 gives 1.235, 99.9996 at 1:3 gives 100.0); Standard Format 0 adds thousands
+//   separators (-1,234,568), 2 and 9 do not.
 // BC versions: 27, 28, 29
 
 codeunit 74320 "LT FCF Format Comma String"

@@ -9,6 +9,14 @@
 //   90041: the leaf values are set in triggers (the table element's OnAfterGetRecord, the leaf's own OnBeforePassVariable) or left as
 //     a global set from outside; every trigger logs, so the log shows the order.
 //   90042: the same shape with UseDefaultNamespace = true and no trigger at all: the leaves are globals set from outside.
+// Facts (BC 29): export writes `membership` for every row, also when all its children are empty; an empty field element or leaf
+//   text element with MinOccurs = Zero is still written, as `<name />` / `<validuntil />` (not left out); with FormatEvaluate = Xml a
+//   Decimal field writes two decimals (`150.50`, `7.00`, `0.00`), 0D writes `<issued />`, a Boolean `true`/`false`. No rows: `<response />`
+//   and no trigger runs. Trigger order per row: `get M1;pass status;pass responsemessage;pass membership;pass tier;` (the table element's
+//   OnAfterGetRecord, then each text element's OnBeforePassVariable in schema order, the container's before its children's). A leaf no
+//   trigger sets is written with its current value in every row. 90042 writes the namespace only on the root element.
+//   Import: a missing `membership` is accepted (no trigger of it runs, the fields keep their init values); an empty `<tier />` runs tier's
+//   OnAfterAssignVariable twice (log `tier=;tier=;`); a second `membership` fails the schema check (XmlPortInvalidXml).
 // BC versions: 27, 28, 29
 
 table 90040 "LT TQ XP Member"

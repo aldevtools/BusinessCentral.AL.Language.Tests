@@ -720,6 +720,13 @@ codeunit 60130 "Test Media Png Import"
     // ── Added by writer TQ (NP lane, 2026-10-29): Tenant Media Delete(true) after a successful Get, result ignored (statement form) or
     // used, on a media one row holds and on one two rows hold; Delete(true) in statement form on a missing row. Then Media.ExportStream of
     // a PNG BC re-encoded on import: what lands in a Blob field and in the Tenant Media row.
+    // Facts: Delete(true) on a Tenant Media row found by Get deletes it and returns true (statement form: no error); a second Delete(true)
+    // returns false; every row that held the media (also a row of another table) keeps the MediaId, HasValue false, ExportStream false and
+    // writes nothing. Delete(true) in statement form on a missing row: DB:RecordNotFound. On the BC SaaS sandbox every Tenant Media Delete
+    // fails with a license error (DB:ClientDeleteDenied); the values asserted are those of the containers (CI, BC 27.5, 28.5, 29.0).
+    // ExportStream of an imported PNG: true, the Blob has a value, Format gives `*`, the bytes are a PNG with the imported width and height
+    // and the length of the stored Tenant Media content; Tenant Media has Mime Type image/png and the image's Width and Height. The bytes
+    // themselves are the encoder's (3x2 RGB: 103 bytes on the SaaS sandbox, 111 on the CI containers; 1x1 gray: 99 on both): not asserted.
 
     local procedure TqObserveRow(var Observer: Codeunit "Probe Observer"; Prefix: Text; Code: Code[20]; Id: Guid)
     var
@@ -753,7 +760,13 @@ codeunit 60130 "Test Media Png Import"
         Observer.Observe('last error', GetLastErrorText());
         Observer.Observe('get after delete', Format(TenantMedia.Get(Id)));
         TqObserveRow(Observer, 'row', 'TQ1', Id);
-        Observer.Finish();
+        Observer.Expect('last error', '');
+        Observer.Expect('get after delete', 'No');
+        Observer.Expect('row has_value', 'No');
+        Observer.Expect('row same_id', 'Yes');
+        Observer.Expect('row export_result', 'No');
+        Observer.Expect('row export_length', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -773,7 +786,15 @@ codeunit 60130 "Test Media Png Import"
         Observer.Observe('get after delete', Format(TenantMedia.Get(Id)));
         Observer.Observe('delete(true) again', Format(TenantMedia.Delete(true)));
         TqObserveRow(Observer, 'row', 'TQ2', Id);
-        Observer.Finish();
+        Observer.Expect('get', 'Yes');
+        Observer.Expect('delete(true)', 'Yes');
+        Observer.Expect('get after delete', 'No');
+        Observer.Expect('delete(true) again', 'No');
+        Observer.Expect('row has_value', 'No');
+        Observer.Expect('row same_id', 'Yes');
+        Observer.Expect('row export_result', 'No');
+        Observer.Expect('row export_length', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -790,7 +811,19 @@ codeunit 60130 "Test Media Png Import"
         Observer.Observe('get after delete', Format(TenantMedia.Get(Id)));
         QeObserveAlt(Observer, 'alt', 'TQ3', Id);
         QeObserveOther(Observer, 'other', 'TQ3', Id);
-        Observer.Finish();
+        Observer.Expect('get after delete', 'No');
+        Observer.Expect('alt has_value', 'No');
+        Observer.Expect('alt same_id', 'Yes');
+        Observer.Expect('alt in_tenant_media', 'No');
+        Observer.Expect('alt export_result', 'No');
+        Observer.Expect('alt export_nonempty', 'No');
+        Observer.Expect('other has_value', 'No');
+        Observer.Expect('other same_id', 'Yes');
+        Observer.Expect('other null_id', 'No');
+        Observer.Expect('other in_tenant_media', 'No');
+        Observer.Expect('other export_result', 'No');
+        Observer.Expect('other export_nonempty', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -804,7 +837,9 @@ codeunit 60130 "Test Media Png Import"
         Evaluate(TenantMedia.ID, '{6B1D3E1A-0C2B-4F7E-9A51-3D2C1B0A9F87}');
         asserterror TenantMedia.Delete(true);
         Observer.ObserveError('statement');
-        Observer.Finish();
+        Observer.Expect('statement|text', 'The Tenant Media does not exist. Identification fields and values: ID=''{6B1D3E1A-0C2B-4F7E-9A51-3D2C1B0A9F87}''');
+        Observer.Expect('statement|code', 'DB:RecordNotFound');
+        Observer.Verify();
     end;
 
     local procedure TqObserveExport(var Observer: Codeunit "Probe Observer"; Prefix: Text; Code: Code[20]; Base64Png: Text)
@@ -826,18 +861,16 @@ codeunit 60130 "Test Media Png Import"
         TempTenantMedia.CalcFields(Content);
         Observer.Observe(Prefix + ' blob has_value', Format(TempTenantMedia.Content.HasValue()));
         Observer.Observe(Prefix + ' blob format', Format(TempTenantMedia.Content));
-        Observer.Observe(Prefix + ' blob length', Format(TempTenantMedia.Content.Length()));
         TempTenantMedia.Content.CreateInStream(InStr);
         Encoded := Base64Convert.ToBase64(InStr);
         Observer.Observe(Prefix + ' blob head', CopyStr(Encoded, 1, 32));
-        Observer.Observe(Prefix + ' blob base64', Encoded);
         TenantMedia.Get(Row.Picture.MediaId());
         TenantMedia.CalcFields(Content);
         Observer.Observe(Prefix + ' tm mime', TenantMedia."Mime Type");
         Observer.Observe(Prefix + ' tm width', Format(TenantMedia.Width));
         Observer.Observe(Prefix + ' tm height', Format(TenantMedia.Height));
-        Observer.Observe(Prefix + ' tm length', Format(TenantMedia.Content.Length()));
         Observer.Observe(Prefix + ' tm format', Format(TenantMedia.Content));
+        Observer.Observe(Prefix + ' tm length = blob length', Format(TenantMedia.Content.Length() = TempTenantMedia.Content.Length()));
     end;
 
     [Test]
@@ -847,7 +880,16 @@ codeunit 60130 "Test Media Png Import"
     begin
         QeInitialize();
         TqObserveExport(Observer, 'gray1x1', 'TQ5', ValidPngBase64);
-        Observer.Finish();
+        Observer.Expect('gray1x1 export_result', 'Yes');
+        Observer.Expect('gray1x1 blob has_value', 'Yes');
+        Observer.Expect('gray1x1 blob format', '*');
+        Observer.Expect('gray1x1 blob head', 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAAB');
+        Observer.Expect('gray1x1 tm mime', 'image/png');
+        Observer.Expect('gray1x1 tm width', '1');
+        Observer.Expect('gray1x1 tm height', '1');
+        Observer.Expect('gray1x1 tm format', '*');
+        Observer.Expect('gray1x1 tm length = blob length', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -858,7 +900,16 @@ codeunit 60130 "Test Media Png Import"
         QeInitialize();
         // A 73-byte 3x2 RGB PNG (8-bit, colour type 2; red, green, blue on both rows), every chunk CRC computed with Python zlib.crc32.
         TqObserveExport(Observer, 'rgb3x2', 'TQ6', 'iVBORw0KGgoAAAANSUhEUgAAAAMAAAACCAIAAAASFvFNAAAAEElEQVR4nGP4z8DAAMFwFgA72AX73hA3ZQAAAABJRU5ErkJggg==');
-        Observer.Finish();
+        Observer.Expect('rgb3x2 export_result', 'Yes');
+        Observer.Expect('rgb3x2 blob has_value', 'Yes');
+        Observer.Expect('rgb3x2 blob format', '*');
+        Observer.Expect('rgb3x2 blob head', 'iVBORw0KGgoAAAANSUhEUgAAAAMAAAAC');
+        Observer.Expect('rgb3x2 tm mime', 'image/png');
+        Observer.Expect('rgb3x2 tm width', '3');
+        Observer.Expect('rgb3x2 tm height', '2');
+        Observer.Expect('rgb3x2 tm format', '*');
+        Observer.Expect('rgb3x2 tm length = blob length', 'Yes');
+        Observer.Verify();
     end;
 
 }
