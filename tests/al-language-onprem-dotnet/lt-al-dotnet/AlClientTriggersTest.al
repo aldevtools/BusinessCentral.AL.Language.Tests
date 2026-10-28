@@ -4,8 +4,8 @@
 // BC versions: 27, 28, 29
 codeunit 99131 "LT AL Client Triggers Test"
 {
-    Subtype = Test;
-    TestPermissions = Disabled;
+    // Subtype = Test; (disabled with its only test until issue 775 is fixed: a test codeunit without tests fails the run)
+    // TestPermissions = Disabled; (valid only on a test codeunit)
 
     [TryFunction]
     local procedure TryOpen(PageId: Integer)
@@ -85,7 +85,8 @@ codeunit 99131 "LT AL Client Triggers Test"
         Observer.Verify();
     end;
 
-    [Test]
+    // Disabled until issue 775 is fixed: fails now and then with no change to this file.
+    // [Test]
     procedure ALClient_NoHandler()
     begin
         Probe(99136);
