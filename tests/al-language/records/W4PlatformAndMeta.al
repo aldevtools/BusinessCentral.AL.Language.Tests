@@ -71,6 +71,23 @@ table 89500 "SI TF Target"
     keys { key(PK; Code) { Clustered = true; } }
 }
 
+table 89610 "SR TF Pair"
+{
+    // Writer SR (al-runner issue 6006): a table with two Code fields (like Bin's "Location Code" and Code), an Integer, an Option
+    // and a Text field, for the multi-field and space-in-value TableFilter probes below. Captions differ from the names.
+    Caption = 'SR Pair Cap';
+    DataClassification = SystemMetadata;
+    fields
+    {
+        field(1; "Location Code"; Code[10]) { Caption = 'SR Loc Cap'; }
+        field(2; Code; Code[20]) { Caption = 'SR Code Cap'; }
+        field(3; Qty; Integer) { Caption = 'SR Qty Cap'; }
+        field(4; Kind; Option) { Caption = 'SR Kind Cap'; OptionMembers = MAIN,SIDE; OptionCaption = 'Main Cap,Side Cap'; }
+        field(5; Descr; Text[30]) { Caption = 'SR Descr Cap'; }
+    }
+    keys { key(PK; "Location Code", Code) { Clustered = true; } }
+}
+
 codeunit 68056 "W4 Platform Tests"
 {
     Subtype = Test;
@@ -750,5 +767,128 @@ codeunit 68056 "W4 Platform Tests"
         Observer.Expect('failed_eval_keeps', 'No|[SI TF Target: Code Cap=A..B,Kind Cap=LgDiam Cap]');
         Observer.Expect('second_eval', 'Yes|[SI TF Target: Qty Cap=5]');
         Observer.Verify();
+    end;
+
+    // ---- writer SR, al-runner issue 6006: TableFilter texts with several fields and values that hold spaces ----
+    // Evaluate as a function on a fresh row: '<return>|[<Format>]|[<Format(..., 0, 9)>]|<last error text>|<last error code>',
+    // or 'throws:<text>|<code>' when it raises anyway.
+    local procedure SrEvalTf(Value: Text): Text
+    var
+        Row: Record "W4 TF Row";
+        Ok: Boolean;
+        Result: Text;
+    begin
+        ClearLastError();
+        if not TryEvalTfReturn(Row, Value, Ok) then
+            Result := 'throws:' + GetLastErrorText() + '|' + GetLastErrorCode()
+        else
+            Result := Format(Ok) + '|[' + Format(Row.Flt) + ']|[' + Format(Row.Flt, 0, 9) + ']|' + GetLastErrorText() + '|' + GetLastErrorCode();
+        ClearLastError();
+        exit(Result);
+    end;
+
+    [Test]
+    procedure TableFilterEvaluate_SrBinForms()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        // The forms of al-runner issue 6006 on the base app's Bin table (read only: only its metadata is used).
+        Observer.Observe('bin_two_fields', SrEvalTf('Bin: Location Code=MAIN,Code=BIN01'));
+        Observer.Observe('bin_space_value', SrEvalTf('Bin: Code=BIN WITH SPACE'));
+        Observer.Observe('bin_two_fields_space', SrEvalTf('Bin: Location Code=MAIN,Code=BIN WITH SPACE'));
+        Observer.Observe('bin_bare_two_fields', EvalTfBare('Bin: Location Code=MAIN,Code=BIN01'));
+        Observer.Observe('bin_bare_space_value', EvalTfBare('Bin: Code=BIN WITH SPACE'));
+        Observer.Observe('bin_bare_two_fields_space', EvalTfBare('Bin: Location Code=MAIN,Code=BIN WITH SPACE'));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TableFilterEvaluate_SrMultiFieldForms()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('two_codes', SrEvalTf('SR TF Pair: Location Code=MAIN,Code=BIN01'));
+        Observer.Observe('space_value', SrEvalTf('SR TF Pair: Code=BIN WITH SPACE'));
+        Observer.Observe('two_codes_space', SrEvalTf('SR TF Pair: Location Code=MAIN,Code=BIN WITH SPACE'));
+        Observer.Observe('space_value_first', SrEvalTf('SR TF Pair: Code=BIN WITH SPACE,Location Code=MAIN'));
+        Observer.Observe('space_after_comma', SrEvalTf('SR TF Pair: Location Code=MAIN, Code=BIN WITH SPACE'));
+        Observer.Observe('space_before_comma', SrEvalTf('SR TF Pair: Code=BIN01 ,Location Code=MAIN'));
+        Observer.Observe('trailing_space_value', SrEvalTf('SR TF Pair: Code=BIN01 '));
+        Observer.Observe('leading_space_value', SrEvalTf('SR TF Pair: Code= BIN01'));
+        Observer.Observe('lower_case_space_value', SrEvalTf('SR TF Pair: Code=bin with space'));
+        Observer.Observe('text_space_value', SrEvalTf('SR TF Pair: Descr=Some text here'));
+        Observer.Observe('caption_with_space', SrEvalTf('SR TF Pair: SR Loc Cap=MAIN'));
+        Observer.Observe('quoted_field_name', SrEvalTf('SR TF Pair: "Location Code"=MAIN'));
+        Observer.Observe('empty_value', SrEvalTf('SR TF Pair: Code='));
+        Observer.Observe('value_too_long', SrEvalTf('SR TF Pair: Location Code=ABCDEFGHIJKL'));
+        Observer.Observe('int_second', SrEvalTf('SR TF Pair: Code=BIN01,Qty=5'));
+        Observer.Observe('int_second_range', SrEvalTf('SR TF Pair: Code=BIN01,Qty=1..5'));
+        Observer.Observe('option_second', SrEvalTf('SR TF Pair: Code=BIN01,Kind=SIDE'));
+        Observer.Observe('option_second_number', SrEvalTf('SR TF Pair: Code=BIN01,Kind=1'));
+        Observer.Observe('three_fields', SrEvalTf('SR TF Pair: Location Code=MAIN,Code=BIN WITH SPACE,Qty=5'));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TableFilterEvaluate_SrExpressionForms()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('range_second', SrEvalTf('SR TF Pair: Location Code=MAIN,Code=A..B'));
+        Observer.Observe('or_value', SrEvalTf('SR TF Pair: Code=A|B'));
+        Observer.Observe('or_second', SrEvalTf('SR TF Pair: Location Code=MAIN,Code=A|B'));
+        Observer.Observe('or_space_values', SrEvalTf('SR TF Pair: Code=BIN ONE|BIN TWO'));
+        Observer.Observe('range_space_values', SrEvalTf('SR TF Pair: Code=BIN A..BIN B'));
+        Observer.Observe('not_equal_value', SrEvalTf('SR TF Pair: Code=<>BIN01'));
+        Observer.Observe('single_quoted_space', SrEvalTf('SR TF Pair: Code=''BIN WITH SPACE'''));
+        Observer.Observe('single_quoted_comma', SrEvalTf('SR TF Pair: Code=''A,B'''));
+        Observer.Observe('single_quoted_pipe', SrEvalTf('SR TF Pair: Code=''A|B'''));
+        Observer.Observe('double_quoted_value', SrEvalTf('SR TF Pair: Code="BIN01"'));
+        Observer.Observe('quoted_then_second', SrEvalTf('SR TF Pair: Code=''A,B'',Location Code=MAIN'));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TableFilterEvaluate_SrRejectedForms()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('unknown_second', SrEvalTf('SR TF Pair: Code=BIN01,Nope=1'));
+        Observer.Observe('field_twice', SrEvalTf('SR TF Pair: Code=A,Code=B'));
+        Observer.Observe('field_twice_caption', SrEvalTf('SR TF Pair: Code=A,SR Code Cap=B'));
+        Observer.Observe('bad_int_second', SrEvalTf('SR TF Pair: Code=BIN01,Qty=abc'));
+        Observer.Observe('bad_option_second', SrEvalTf('SR TF Pair: Code=BIN01,Kind=NOPE'));
+        Observer.Observe('missing_equals_second', SrEvalTf('SR TF Pair: Code=BIN01,Qty'));
+        Observer.Observe('trailing_comma', SrEvalTf('SR TF Pair: Code=BIN01,'));
+        Observer.Observe('bare_unknown_second', EvalTfBare('SR TF Pair: Code=BIN01,Nope=1'));
+        Observer.Observe('bare_field_twice', EvalTfBare('SR TF Pair: Code=A,Code=B'));
+        Observer.Observe('bare_bad_int_second', EvalTfBare('SR TF Pair: Code=BIN01,Qty=abc'));
+        Observer.Observe('bare_bad_option_second', EvalTfBare('SR TF Pair: Code=BIN01,Kind=NOPE'));
+        Observer.Observe('bare_trailing_comma', EvalTfBare('SR TF Pair: Code=BIN01,'));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TableFilterEvaluate_SrStoredSpaceValue()
+    var
+        Row: Record "W4 TF Row";
+        Got: Record "W4 TF Row";
+        Copy: Record "W4 TF Row";
+        Ok: Boolean;
+        Observer: Codeunit "Probe Observer";
+    begin
+        Row.DeleteAll();
+        Row.Id := 1;
+        Ok := Evaluate(Row.Flt, 'SR TF Pair: Location Code=MAIN,Code=BIN WITH SPACE');
+        Observer.Observe('ok', Format(Ok));
+        Row.Insert();
+        Got.Get(1);
+        Observer.Observe('format_after_get', '[' + Format(Got.Flt) + ']');
+        Observer.Observe('format_9_after_get', '[' + Format(Got.Flt, 0, 9) + ']');
+        Observer.Observe('roundtrip_evaluate', Format(Evaluate(Copy.Flt, Format(Got.Flt))) + '|[' + Format(Copy.Flt) + ']');
+        Clear(Copy);
+        Observer.Observe('roundtrip_evaluate_9', Format(Evaluate(Copy.Flt, Format(Got.Flt, 0, 9), 9)) + '|[' + Format(Copy.Flt) + ']');
+        Row.DeleteAll();
+        Observer.Finish();
     end;
 }
