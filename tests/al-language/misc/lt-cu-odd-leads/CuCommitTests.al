@@ -431,6 +431,135 @@ codeunit 85311 "LT CU Commit Tests"
         Observer.Verify();
     end;
 
+    // ---------------------------------------------------------------- writer SP (2026-10-28): rollback probes
+    // Fixtures: "LT SP Event Publisher" (89550), "LT SP Event Commit Sub" (89551), "LT SP Outer Run" (89552).
+    // The publisher inserts row 30, raises the event, the subscriber inserts row 31 and commits, then the publisher fails.
+    local procedure RaiseWithCommitSub(Kind: Text; var Observer: Codeunit "Probe Observer")
+    var
+        Publisher: Codeunit "LT SP Event Publisher";
+        Sub: Codeunit "LT SP Event Commit Sub";
+    begin
+        Initialize();
+        BindSubscription(Sub);
+        asserterror Publisher.InsertRaiseThenFail(Kind, 30, 31);
+        UnbindSubscription(Sub);
+        Observer.ObserveError('err');
+        Observer.Observe('rows', Rows());
+    end;
+
+    [Test]
+    procedure SP_Commit_InIntegrationEventSubscriber_KeepsPublisherWrite()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RaiseWithCommitSub('integration', Observer);
+        Observer.Expect('err|text', 'unrelated');
+        Observer.Expect('err|code', 'Dialog');
+        Observer.Expect('rows', '[30;31;]');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure SP_Commit_InBusinessEventSubscriber_KeepsPublisherWrite()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RaiseWithCommitSub('business', Observer);
+        Observer.Expect('err|text', 'unrelated');
+        Observer.Expect('err|code', 'Dialog');
+        Observer.Expect('rows', '[30;31;]');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure SP_CommitBehaviorIgnore_OnIntegrationEvent_SubscriberCommitIgnored()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RaiseWithCommitSub('integration ignore', Observer);
+        Observer.Expect('err|text', 'unrelated');
+        Observer.Expect('err|code', 'Dialog');
+        Observer.Expect('rows', '[]');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure SP_CommitBehaviorError_OnIntegrationEvent_SubscriberCommitFails()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RaiseWithCommitSub('integration error', Observer);
+        Observer.Expect('err|text', 'Commit is prohibited in the current scope. The operation cannot continue. Contact your system administrator.');
+        Observer.Expect('err|code', 'DB:Ok');
+        Observer.Expect('rows', '[]');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure SP_CommitBehaviorIgnore_OnBusinessEvent_SubscriberCommitIgnored()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RaiseWithCommitSub('business ignore', Observer);
+        Observer.Expect('err|text', 'unrelated');
+        Observer.Expect('err|code', 'Dialog');
+        Observer.Expect('rows', '[]');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure SP_CommitBehaviorError_OnBusinessEvent_SubscriberCommitFails()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RaiseWithCommitSub('business error', Observer);
+        Observer.Expect('err|text', 'Commit is prohibited in the current scope. The operation cannot continue. Contact your system administrator.');
+        Observer.Expect('err|code', 'DB:Ok');
+        Observer.Expect('rows', '[]');
+        Observer.Verify();
+    end;
+
+    // A guarded run of "LT SP Outer Run": inside it a guarded run of "LT CU Inserter" (row 100), then the outer run
+    // inserts row 102 and fails. Durability is read after an unrelated error.
+    local procedure OuterGuardedRun(Mode: Text; var Observer: Codeunit "Probe Observer")
+    var
+        Outer: Codeunit "LT SP Outer Run";
+    begin
+        Initialize();
+        Outer.SetMode(Mode);
+        Observer.Observe('outer run', Format(Outer.Run()));
+        Observer.Observe('outer lasterror', GetLastErrorText());
+        Observer.Observe('log', Outer.GetLog());
+        asserterror Error('unrelated');
+        Observer.Observe('rows', Rows());
+    end;
+
+    [Test]
+    procedure SP_GuardedRun_InsideGuardedRun_UnderCommitBehaviorError()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        OuterGuardedRun('error scope', Observer);
+        Observer.Expect('outer run', 'No');
+        Observer.Expect('outer lasterror', 'outer failed');
+        Observer.Expect('log', 'inner run=Yes;inner lasterror=;');
+        Observer.Expect('rows', '[100;]');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure SP_GuardedRun_InsideGuardedRun_Plain()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        OuterGuardedRun('plain', Observer);
+        Observer.Expect('outer run', 'No');
+        Observer.Expect('outer lasterror', 'outer failed');
+        Observer.Expect('log', 'inner run=Yes;inner lasterror=;');
+        Observer.Expect('rows', '[100;]');
+        Observer.Verify();
+    end;
+
     // The error names the outermost method of the test runner, not anything in this app: 'RunTests' ("Test Runner - Mgt.",
     // the classic runner; BC 27.5 full run 39322214364) or 'RootMethodScope' (the TestRunnerHub runner; BC 28.5/29.0).
     // The scope name is masked so the pin holds under either runner (publisher, bump 29).

@@ -240,4 +240,188 @@ codeunit 67857 "LT Date Formula Edges"
         Observer.Expect('eval <1Y+1M>', 'ok:stored=1Y+1M|calc=2025-02-15');
         Observer.Verify();
     end;
+
+    // ---- Writer SG (2026-10-27): the day-of-month unit D with a number (<D31>, <D1>, <D15>, <-D15>, <CM+D5>) from several dates,
+    // month ends and February included. CalcDate with the formula text, and Evaluate into a DateFormula (stored text, CalcDate). ----
+
+    [TryFunction]
+    local procedure SgTryCalcAt(Formula: Text; At: Date; var Result: Text)
+    begin
+        Result := Format(CalcDate(Formula, At), 0, 9);
+    end;
+
+    local procedure SgCalcAt(Formula: Text; At: Date): Text
+    var
+        Result: Text;
+    begin
+        ClearLastError();
+        if SgTryCalcAt(Formula, At, Result) then
+            exit('ok:' + Result);
+        exit('error:' + GetLastErrorText() + '|' + GetLastErrorCode());
+    end;
+
+    local procedure SgDates(var Observer: Codeunit "Probe Observer"; Formula: Text)
+    begin
+        Observer.Observe(Formula + ' 01-10', SgCalcAt(Formula, 20240110D));
+        Observer.Observe(Formula + ' 01-15', SgCalcAt(Formula, 20240115D));
+        Observer.Observe(Formula + ' 01-31', SgCalcAt(Formula, 20240131D));
+        Observer.Observe(Formula + ' 02-29', SgCalcAt(Formula, 20240229D));
+        Observer.Observe(Formula + ' 2023-02-28', SgCalcAt(Formula, 20230228D));
+        Observer.Observe(Formula + ' 04-30', SgCalcAt(Formula, 20240430D));
+        Observer.Observe(Formula + ' 12-31', SgCalcAt(Formula, 20241231D));
+    end;
+
+    [Test]
+    procedure SG_DayOfMonth_D1_D15()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        SgDates(Observer, '<D1>');
+        SgDates(Observer, '<D15>');
+        Observer.Expect('<D1> 01-10', 'ok:2024-02-01');
+        Observer.Expect('<D1> 01-15', 'ok:2024-02-01');
+        Observer.Expect('<D1> 01-31', 'ok:2024-02-01');
+        Observer.Expect('<D1> 02-29', 'ok:2024-03-01');
+        Observer.Expect('<D1> 2023-02-28', 'ok:2023-03-01');
+        Observer.Expect('<D1> 04-30', 'ok:2024-05-01');
+        Observer.Expect('<D1> 12-31', 'ok:2025-01-01');
+        Observer.Expect('<D15> 01-10', 'ok:2024-01-15');
+        Observer.Expect('<D15> 01-15', 'ok:2024-02-15');
+        Observer.Expect('<D15> 01-31', 'ok:2024-02-15');
+        Observer.Expect('<D15> 02-29', 'ok:2024-03-15');
+        Observer.Expect('<D15> 2023-02-28', 'ok:2023-03-15');
+        Observer.Expect('<D15> 04-30', 'ok:2024-05-15');
+        Observer.Expect('<D15> 12-31', 'ok:2025-01-15');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure SG_DayOfMonth_D29_D30_D31()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        SgDates(Observer, '<D29>');
+        SgDates(Observer, '<D30>');
+        SgDates(Observer, '<D31>');
+        Observer.Expect('<D29> 01-10', 'ok:2024-01-29');
+        Observer.Expect('<D29> 01-15', 'ok:2024-01-29');
+        Observer.Expect('<D29> 01-31', 'ok:2024-02-29');
+        Observer.Expect('<D29> 02-29', 'ok:2024-03-29');
+        Observer.Expect('<D29> 2023-02-28', 'ok:2023-02-28');
+        Observer.Expect('<D29> 04-30', 'ok:2024-05-29');
+        Observer.Expect('<D29> 12-31', 'ok:2025-01-29');
+        Observer.Expect('<D30> 01-10', 'ok:2024-01-30');
+        Observer.Expect('<D30> 01-15', 'ok:2024-01-30');
+        Observer.Expect('<D30> 01-31', 'ok:2024-02-29');
+        Observer.Expect('<D30> 02-29', 'ok:2024-02-29');
+        Observer.Expect('<D30> 2023-02-28', 'ok:2023-02-28');
+        Observer.Expect('<D30> 04-30', 'ok:2024-05-30');
+        Observer.Expect('<D30> 12-31', 'ok:2025-01-30');
+        Observer.Expect('<D31> 01-10', 'ok:2024-01-31');
+        Observer.Expect('<D31> 01-15', 'ok:2024-01-31');
+        Observer.Expect('<D31> 01-31', 'ok:2024-02-29');
+        Observer.Expect('<D31> 02-29', 'ok:2024-02-29');
+        Observer.Expect('<D31> 2023-02-28', 'ok:2023-02-28');
+        Observer.Expect('<D31> 04-30', 'ok:2024-04-30');
+        Observer.Expect('<D31> 12-31', 'ok:2025-01-31');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure SG_DayOfMonth_Backward()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        SgDates(Observer, '<-D1>');
+        SgDates(Observer, '<-D15>');
+        SgDates(Observer, '<-D31>');
+        Observer.Expect('<-D1> 01-10', 'ok:2024-01-01');
+        Observer.Expect('<-D1> 01-15', 'ok:2024-01-01');
+        Observer.Expect('<-D1> 01-31', 'ok:2024-01-01');
+        Observer.Expect('<-D1> 02-29', 'ok:2024-02-01');
+        Observer.Expect('<-D1> 2023-02-28', 'ok:2023-02-01');
+        Observer.Expect('<-D1> 04-30', 'ok:2024-04-01');
+        Observer.Expect('<-D1> 12-31', 'ok:2024-12-01');
+        Observer.Expect('<-D15> 01-10', 'ok:2023-12-15');
+        Observer.Expect('<-D15> 01-15', 'ok:2023-12-15');
+        Observer.Expect('<-D15> 01-31', 'ok:2024-01-15');
+        Observer.Expect('<-D15> 02-29', 'ok:2024-02-15');
+        Observer.Expect('<-D15> 2023-02-28', 'ok:2023-02-15');
+        Observer.Expect('<-D15> 04-30', 'ok:2024-04-15');
+        Observer.Expect('<-D15> 12-31', 'ok:2024-12-15');
+        Observer.Expect('<-D31> 01-10', 'ok:2023-12-31');
+        Observer.Expect('<-D31> 01-15', 'ok:2023-12-31');
+        Observer.Expect('<-D31> 01-31', 'ok:2023-12-31');
+        Observer.Expect('<-D31> 02-29', 'ok:2024-01-31');
+        Observer.Expect('<-D31> 2023-02-28', 'ok:2023-01-31');
+        Observer.Expect('<-D31> 04-30', 'ok:2024-03-31');
+        Observer.Expect('<-D31> 12-31', 'ok:2024-11-30');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure SG_DayOfMonth_Combined()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        SgDates(Observer, '<CM+D5>');
+        SgDates(Observer, '<-CM+D5>');
+        SgDates(Observer, '<1M+D15>');
+        SgDates(Observer, '<D15+1M>');
+        Observer.Expect('<CM+D5> 01-10', 'ok:2024-02-05');
+        Observer.Expect('<CM+D5> 01-15', 'ok:2024-02-05');
+        Observer.Expect('<CM+D5> 01-31', 'ok:2024-02-05');
+        Observer.Expect('<CM+D5> 02-29', 'ok:2024-03-05');
+        Observer.Expect('<CM+D5> 2023-02-28', 'ok:2023-03-05');
+        Observer.Expect('<CM+D5> 04-30', 'ok:2024-05-05');
+        Observer.Expect('<CM+D5> 12-31', 'ok:2025-01-05');
+        Observer.Expect('<-CM+D5> 01-10', 'ok:2024-01-05');
+        Observer.Expect('<-CM+D5> 01-15', 'ok:2024-01-05');
+        Observer.Expect('<-CM+D5> 01-31', 'ok:2024-01-05');
+        Observer.Expect('<-CM+D5> 02-29', 'ok:2024-02-05');
+        Observer.Expect('<-CM+D5> 2023-02-28', 'ok:2023-02-05');
+        Observer.Expect('<-CM+D5> 04-30', 'ok:2024-04-05');
+        Observer.Expect('<-CM+D5> 12-31', 'ok:2024-12-05');
+        Observer.Expect('<1M+D15> 01-10', 'ok:2024-02-15');
+        Observer.Expect('<1M+D15> 01-15', 'ok:2024-03-15');
+        Observer.Expect('<1M+D15> 01-31', 'ok:2024-03-15');
+        Observer.Expect('<1M+D15> 02-29', 'ok:2024-04-15');
+        Observer.Expect('<1M+D15> 2023-02-28', 'ok:2023-04-15');
+        Observer.Expect('<1M+D15> 04-30', 'ok:2024-06-15');
+        Observer.Expect('<1M+D15> 12-31', 'ok:2025-02-15');
+        Observer.Expect('<D15+1M> 01-10', 'ok:2024-02-15');
+        Observer.Expect('<D15+1M> 01-15', 'ok:2024-03-15');
+        Observer.Expect('<D15+1M> 01-31', 'ok:2024-03-15');
+        Observer.Expect('<D15+1M> 02-29', 'ok:2024-04-15');
+        Observer.Expect('<D15+1M> 2023-02-28', 'ok:2023-04-15');
+        Observer.Expect('<D15+1M> 04-30', 'ok:2024-06-15');
+        Observer.Expect('<D15+1M> 12-31', 'ok:2025-02-15');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure SG_DayOfMonth_EdgeNumbersAndEvaluate()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('<D0>', SgCalcAt('<D0>', 20240115D));
+        Observer.Observe('<D32>', SgCalcAt('<D32>', 20240115D));
+        Observer.Observe('<2D15>', SgCalcAt('<2D15>', 20240115D));
+        Observer.Observe('<D>', SgCalcAt('<D>', 20240115D));
+        Observer.Observe('D15 no brackets', SgCalcAt('D15', 20240115D));
+        Observer.Observe('eval <D15>', Eval('<D15>'));
+        Observer.Observe('eval <D31>', Eval('<D31>'));
+        Observer.Observe('eval <CM+D5>', Eval('<CM+D5>'));
+        Observer.Observe('eval <-D1>', Eval('<-D1>'));
+        Observer.Expect('<D0>', 'error:The date formula ''D0'' contains a number that is too large.\\The number must be in the range 1 - 31.|Evaluate');
+        Observer.Expect('<D32>', 'error:The date formula ''D32'' contains a number that is too large.\\The number must be in the range 1 - 31.|Evaluate');
+        Observer.Expect('<2D15>', 'error:The date formula ''2D15'' must include plus (+) or minus (-).|Evaluate');
+        Observer.Expect('<D>', 'error:The date formula ''D'' should include a number.|Evaluate');
+        Observer.Expect('D15 no brackets', 'ok:2024-02-15');
+        Observer.Expect('eval <D15>', 'ok:stored=D15|calc=2024-02-15');
+        Observer.Expect('eval <D31>', 'ok:stored=D31|calc=2024-01-31');
+        Observer.Expect('eval <CM+D5>', 'ok:stored=CM+D5|calc=2024-02-05');
+        Observer.Expect('eval <-D1>', 'ok:stored=-D1|calc=2024-01-01');
+        Observer.Verify();
+    end;
 }
