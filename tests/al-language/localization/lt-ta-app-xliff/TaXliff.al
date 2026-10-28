@@ -83,6 +83,13 @@ codeunit 89733 "LT TA Xliff Tests"
     Subtype = Test;
     TestPermissions = Disabled;
 
+    local procedure BoolText(Value: Boolean): Text
+    begin
+        if Value then
+            exit('true');
+        exit('false');
+    end;
+
     [Test]
     procedure TA_Enum_Format_And_Evaluate()
     var
@@ -101,26 +108,26 @@ codeunit 89733 "LT TA Xliff Tests"
         Observer.Observe('nl_format_done_untranslated_unit', Format(Status));
         Clear(Status);
         Ok := Evaluate(Status, 'Vrijgegeven');
-        Observer.Observe('nl_eval_dutch', Format(Ok) + '|' + Format(Status.AsInteger()));
+        Observer.Observe('nl_eval_dutch', BoolText(Ok) + '|' + Format(Status.AsInteger()));
         Clear(Status);
         Ok := Evaluate(Status, 'Released');
-        Observer.Observe('nl_eval_base', Format(Ok) + '|' + Format(Status.AsInteger()));
+        Observer.Observe('nl_eval_base', BoolText(Ok) + '|' + Format(Status.AsInteger()));
         Clear(Status);
         Ok := Evaluate(Status, 'Rel');
-        Observer.Observe('nl_eval_name', Format(Ok) + '|' + Format(Status.AsInteger()));
+        Observer.Observe('nl_eval_name', BoolText(Ok) + '|' + Format(Status.AsInteger()));
         Clear(Status);
         Ok := Evaluate(Status, 'Finished');
-        Observer.Observe('nl_eval_done_base', Format(Ok) + '|' + Format(Status.AsInteger()));
+        Observer.Observe('nl_eval_done_base', BoolText(Ok) + '|' + Format(Status.AsInteger()));
         GlobalLanguage(1033);
         Clear(Status);
         Ok := Evaluate(Status, 'Vrijgegeven');
-        Observer.Observe('en_eval_dutch', Format(Ok) + '|' + Format(Status.AsInteger()));
+        Observer.Observe('en_eval_dutch', BoolText(Ok) + '|' + Format(Status.AsInteger()));
         GlobalLanguage(1031);
         Status := Status::Rel;
         Observer.Observe('de_format_rel', Format(Status));
         Clear(Status);
         Ok := Evaluate(Status, 'Vrijgegeven');
-        Observer.Observe('de_eval_dutch', Format(Ok) + '|' + Format(Status.AsInteger()));
+        Observer.Observe('de_eval_dutch', BoolText(Ok) + '|' + Format(Status.AsInteger()));
         GlobalLanguage(2067);
         Status := Status::Rel;
         Observer.Observe('nlbe_format_rel', Format(Status));
@@ -170,9 +177,9 @@ codeunit 89733 "LT TA Xliff Tests"
         Item.Kind := Item.Kind::Gamma;
         Observer.Observe('nl_format_option_gamma', Format(Item.Kind));
         Ok := Evaluate(Item.Kind, 'Tweede');
-        Observer.Observe('nl_eval_option_dutch', Format(Ok) + '|' + Format(Item.Kind + 0));
+        Observer.Observe('nl_eval_option_dutch', BoolText(Ok) + '|' + Format(Item.Kind + 0));
         Ok := Evaluate(Item.Kind, 'Alpha');
-        Observer.Observe('nl_eval_option_base', Format(Ok) + '|' + Format(Item.Kind + 0));
+        Observer.Observe('nl_eval_option_base', BoolText(Ok) + '|' + Format(Item.Kind + 0));
         RecRef.GetTable(Item);
         Observer.Observe('nl_fieldref_caption', RecRef.Field(1).Caption());
         Observer.Observe('nl_fieldref_optioncaption', RecRef.Field(2).OptionCaption());
