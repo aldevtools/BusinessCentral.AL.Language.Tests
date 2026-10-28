@@ -1,4 +1,52 @@
-table 89924, codeunit 89923 "LT TJ Scratch"
+table 89924 "LT TJ RS Table"
+{
+    fields { field(1; Id; Integer) { } }
+    keys { key(PK; Id) { Clustered = true; } }
+}
+
+query 89920 "LT TJ ReadState Shared"
+{
+    QueryType = Normal;
+    ReadState = ReadShared;
+
+    elements
+    {
+        dataitem(T; "LT TJ RS Table")
+        {
+            column(Id; Id) { }
+        }
+    }
+}
+
+query 89921 "LT TJ ReadState Committed"
+{
+    QueryType = Normal;
+    ReadState = ReadCommitted;
+
+    elements
+    {
+        dataitem(T; "LT TJ RS Table")
+        {
+            column(Id; Id) { }
+        }
+    }
+}
+
+query 89922 "LT TJ ReadState NoLocks"
+{
+    QueryType = Normal;
+    ReadState = NoLocks;
+
+    elements
+    {
+        dataitem(T; "LT TJ RS Table")
+        {
+            column(Id; Id) { }
+        }
+    }
+}
+
+codeunit 89923 "LT TJ Scratch"
 {
     Subtype = Test;
     TestPermissions = Disabled;
