@@ -28,6 +28,12 @@
 /// follows the Insert-buffer rule too: accepted once the new transaction Modified the row (changed or unchanged) or read it under
 /// LockTable (stale buffer wins, stored start|5|<stamp>; a stale Delete removes the row), refused with nothing in between or after a
 /// plain Get. What decides is that the buffer's row version was written in the transaction the Commit closed.
+/// Writer TE, al-runner issue 6028 (TE_* tests, measured on BC 29.0 SaaS; the majors check pins 27.5 and 28.5): the rule does not depend on
+/// the number of Commits (1, 2 or 3, a write to another table between them). The stale Modify or Delete is ACCEPTED (Modify writes the
+/// whole buffer, stored start|5|1; Delete removes the row) when the new transaction Modified, Deleted, Inserted or Renamed ANOTHER row
+/// of the table, or ran LockTable on the same table. It is REFUSED with DB:RecordChanged (row stays other|0|1) when the new transaction
+/// did nothing, locked ANOTHER table (with or without an Insert into it and a FindSet of the table), or only wrote another table.
+/// Only the Delete cases at three Commits, plus Nothing and the lock-and-read shape at the other counts, are run for a stale Delete.
 /// </summary>
 codeunit 88980 "LT SB Stale Own Modify"
 {
@@ -742,6 +748,776 @@ codeunit 88980 "LT SB Stale Own Modify"
         ShCleanupKeyed();
         Observer.Expect('write', 'refused');
         Observer.Expect('stored', 'other|0|1');
+        Observer.Verify();
+    end;
+
+    // ---- Writer TE, al-runner issue 6028 (follow-up to 5954): the buffer is made stale before N Commits (N = 1, 2, 3; a write to another
+    // table between consecutive Commits); the next transaction does one thing (LockTable on another table with an Insert and a read of the
+    // table, LockTable only, the same Insert and read without LockTable, LockTable on the same table, Modify, Delete, Insert or Rename of
+    // ANOTHER row of the table, or nothing) and then the stale buffer Modifies or Deletes. Row 6 is the buffer's row, row 8 the other row
+    // (inserted in the first transaction, before the first Commit).
+
+    local procedure TePrepare(var Row: Record "ALT Universal"; Commits: Integer)
+    var
+        Middle: Record "ALT Keyed";
+        i: Integer;
+    begin
+        SbInsertAndOwnModify(Row);
+        ShInsertAnotherRow(8);
+        SbOtherWrite(6, 'other');
+        Commit();
+        for i := 2 to Commits do begin
+            Middle.Init();
+            Middle."Entry No." := i;
+            Middle.Insert(true);
+            Commit();
+        end;
+    end;
+
+    local procedure TeLockOtherInsertRead()
+    var
+        Locked: Record "ALT Keyed";
+        Reader: Record "ALT Universal";
+    begin
+        Locked.LockTable();
+        Locked.Init();
+        Locked."Entry No." := 100;
+        Locked.Insert(false);
+        Reader.FindSet();
+    end;
+
+    local procedure TeLockOtherOnly()
+    var
+        Locked: Record "ALT Keyed";
+    begin
+        Locked.LockTable();
+    end;
+
+    local procedure TeOtherTableInsertRead()
+    var
+        Other: Record "ALT Keyed";
+        Reader: Record "ALT Universal";
+    begin
+        Other.Init();
+        Other."Entry No." := 100;
+        Other.Insert(false);
+        Reader.FindSet();
+    end;
+
+    local procedure TeLockSame()
+    var
+        Locked: Record "ALT Universal";
+    begin
+        Locked.LockTable();
+    end;
+
+    local procedure TeModifyOther()
+    var
+        Another: Record "ALT Universal";
+    begin
+        Another.Get(8);
+        Another."Integer Field" := 7;
+        Another.Modify(false);
+    end;
+
+    local procedure TeDeleteOther()
+    var
+        Another: Record "ALT Universal";
+    begin
+        Another.Get(8);
+        Another.Delete(false);
+    end;
+
+    local procedure TeInsertOther()
+    begin
+        ShInsertAnotherRow(9);
+    end;
+
+    local procedure TeRenameOther()
+    var
+        Another: Record "ALT Universal";
+    begin
+        Another.Get(8);
+        Another.Rename(9);
+    end;
+
+    local procedure TeCleanup()
+    var
+        Rows: Record "ALT Universal";
+        Middle: Record "ALT Keyed";
+    begin
+        Rows.DeleteAll();
+        Middle.DeleteAll();
+        Commit();
+    end;
+
+    local procedure TeObserveStored(var Observer: Codeunit "Probe Observer")
+    var
+        Stored: Record "ALT Universal";
+    begin
+        if Stored.Get(6) then
+            Observer.Observe('stored', Stored."Text Field" + '|' + Format(Stored."Integer Field") + '|' + Format(Stored."Decimal Field"))
+        else
+            Observer.Observe('stored', 'none');
+        Observer.Observe('row 8 exists', Format(Stored.Get(8)));
+        TeCleanup();
+    end;
+
+    local procedure TeWriteOk(var Row: Record "ALT Universal"; Deleting: Boolean; var Observer: Codeunit "Probe Observer")
+    begin
+        Row."Integer Field" := 5;
+        if Deleting then
+            Row.Delete(false)
+        else
+            Row.Modify(false);
+        Observer.Observe('write', 'ok');
+        TeObserveStored(Observer);
+    end;
+
+    local procedure TeWriteRefused(var Row: Record "ALT Universal"; Deleting: Boolean; var Observer: Codeunit "Probe Observer")
+    begin
+        Row."Integer Field" := 5;
+        if Deleting then
+            asserterror Row.Delete(false)
+        else
+            asserterror Row.Modify(false);
+        Observer.Observe('write', 'refused');
+        Observer.Observe('code', GetLastErrorCode());
+        Observer.Observe('text', Format((StrPos(GetLastErrorText(), StaleAfterCommitErr) = 1) and (StrPos(GetLastErrorText(), 'Entry No.=''6''') > 0)));
+        TeObserveStored(Observer);
+    end;
+
+    [Test]
+    procedure TE_1C_LockOtherInsertRead_StaleModify()
+    var
+        Row: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        TePrepare(Row, 1);
+        TeLockOtherInsertRead();
+        TeWriteRefused(Row, false, Observer);
+        Observer.Expect('write', 'refused');
+        Observer.Expect('code', 'DB:RecordChanged');
+        Observer.Expect('text', 'Yes');
+        Observer.Expect('stored', 'other|0|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TE_1C_LockOtherInsertRead_StaleDelete()
+    var
+        Row: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        TePrepare(Row, 1);
+        TeLockOtherInsertRead();
+        TeWriteRefused(Row, true, Observer);
+        Observer.Expect('write', 'refused');
+        Observer.Expect('code', 'DB:RecordChanged');
+        Observer.Expect('text', 'Yes');
+        Observer.Expect('stored', 'other|0|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TE_1C_LockOtherOnly_StaleModify()
+    var
+        Row: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        TePrepare(Row, 1);
+        TeLockOtherOnly();
+        TeWriteRefused(Row, false, Observer);
+        Observer.Expect('write', 'refused');
+        Observer.Expect('code', 'DB:RecordChanged');
+        Observer.Expect('text', 'Yes');
+        Observer.Expect('stored', 'other|0|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TE_1C_OtherTableInsertRead_StaleModify()
+    var
+        Row: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        TePrepare(Row, 1);
+        TeOtherTableInsertRead();
+        TeWriteRefused(Row, false, Observer);
+        Observer.Expect('write', 'refused');
+        Observer.Expect('code', 'DB:RecordChanged');
+        Observer.Expect('text', 'Yes');
+        Observer.Expect('stored', 'other|0|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TE_1C_LockSameTable_StaleModify()
+    var
+        Row: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        TePrepare(Row, 1);
+        TeLockSame();
+        TeWriteOk(Row, false, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'start|5|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TE_1C_ModifyOtherRow_StaleModify()
+    var
+        Row: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        TePrepare(Row, 1);
+        TeModifyOther();
+        TeWriteOk(Row, false, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'start|5|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TE_1C_DeleteOtherRow_StaleModify()
+    var
+        Row: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        TePrepare(Row, 1);
+        TeDeleteOther();
+        TeWriteOk(Row, false, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'start|5|1');
+        Observer.Expect('row 8 exists', 'No');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TE_1C_InsertOtherRow_StaleModify()
+    var
+        Row: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        TePrepare(Row, 1);
+        TeInsertOther();
+        TeWriteOk(Row, false, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'start|5|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TE_1C_RenameOtherRow_StaleModify()
+    var
+        Row: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        TePrepare(Row, 1);
+        TeRenameOther();
+        TeWriteOk(Row, false, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'start|5|1');
+        Observer.Expect('row 8 exists', 'No');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TE_1C_Nothing_StaleModify()
+    var
+        Row: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        TePrepare(Row, 1);
+        TeWriteRefused(Row, false, Observer);
+        Observer.Expect('write', 'refused');
+        Observer.Expect('code', 'DB:RecordChanged');
+        Observer.Expect('text', 'Yes');
+        Observer.Expect('stored', 'other|0|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TE_1C_Nothing_StaleDelete()
+    var
+        Row: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        TePrepare(Row, 1);
+        TeWriteRefused(Row, true, Observer);
+        Observer.Expect('write', 'refused');
+        Observer.Expect('code', 'DB:RecordChanged');
+        Observer.Expect('text', 'Yes');
+        Observer.Expect('stored', 'other|0|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TE_2C_LockOtherInsertRead_StaleModify()
+    var
+        Row: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        TePrepare(Row, 2);
+        TeLockOtherInsertRead();
+        TeWriteRefused(Row, false, Observer);
+        Observer.Expect('write', 'refused');
+        Observer.Expect('code', 'DB:RecordChanged');
+        Observer.Expect('text', 'Yes');
+        Observer.Expect('stored', 'other|0|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TE_2C_LockOtherInsertRead_StaleDelete()
+    var
+        Row: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        TePrepare(Row, 2);
+        TeLockOtherInsertRead();
+        TeWriteRefused(Row, true, Observer);
+        Observer.Expect('write', 'refused');
+        Observer.Expect('code', 'DB:RecordChanged');
+        Observer.Expect('text', 'Yes');
+        Observer.Expect('stored', 'other|0|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TE_2C_LockOtherOnly_StaleModify()
+    var
+        Row: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        TePrepare(Row, 2);
+        TeLockOtherOnly();
+        TeWriteRefused(Row, false, Observer);
+        Observer.Expect('write', 'refused');
+        Observer.Expect('code', 'DB:RecordChanged');
+        Observer.Expect('text', 'Yes');
+        Observer.Expect('stored', 'other|0|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TE_2C_OtherTableInsertRead_StaleModify()
+    var
+        Row: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        TePrepare(Row, 2);
+        TeOtherTableInsertRead();
+        TeWriteRefused(Row, false, Observer);
+        Observer.Expect('write', 'refused');
+        Observer.Expect('code', 'DB:RecordChanged');
+        Observer.Expect('text', 'Yes');
+        Observer.Expect('stored', 'other|0|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TE_2C_LockSameTable_StaleModify()
+    var
+        Row: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        TePrepare(Row, 2);
+        TeLockSame();
+        TeWriteOk(Row, false, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'start|5|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TE_2C_ModifyOtherRow_StaleModify()
+    var
+        Row: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        TePrepare(Row, 2);
+        TeModifyOther();
+        TeWriteOk(Row, false, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'start|5|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TE_2C_DeleteOtherRow_StaleModify()
+    var
+        Row: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        TePrepare(Row, 2);
+        TeDeleteOther();
+        TeWriteOk(Row, false, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'start|5|1');
+        Observer.Expect('row 8 exists', 'No');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TE_2C_InsertOtherRow_StaleModify()
+    var
+        Row: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        TePrepare(Row, 2);
+        TeInsertOther();
+        TeWriteOk(Row, false, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'start|5|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TE_2C_RenameOtherRow_StaleModify()
+    var
+        Row: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        TePrepare(Row, 2);
+        TeRenameOther();
+        TeWriteOk(Row, false, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'start|5|1');
+        Observer.Expect('row 8 exists', 'No');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TE_2C_Nothing_StaleModify()
+    var
+        Row: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        TePrepare(Row, 2);
+        TeWriteRefused(Row, false, Observer);
+        Observer.Expect('write', 'refused');
+        Observer.Expect('code', 'DB:RecordChanged');
+        Observer.Expect('text', 'Yes');
+        Observer.Expect('stored', 'other|0|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TE_2C_Nothing_StaleDelete()
+    var
+        Row: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        TePrepare(Row, 2);
+        TeWriteRefused(Row, true, Observer);
+        Observer.Expect('write', 'refused');
+        Observer.Expect('code', 'DB:RecordChanged');
+        Observer.Expect('text', 'Yes');
+        Observer.Expect('stored', 'other|0|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TE_3C_LockOtherInsertRead_StaleModify()
+    var
+        Row: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        TePrepare(Row, 3);
+        TeLockOtherInsertRead();
+        TeWriteRefused(Row, false, Observer);
+        Observer.Expect('write', 'refused');
+        Observer.Expect('code', 'DB:RecordChanged');
+        Observer.Expect('text', 'Yes');
+        Observer.Expect('stored', 'other|0|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TE_3C_LockOtherInsertRead_StaleDelete()
+    var
+        Row: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        TePrepare(Row, 3);
+        TeLockOtherInsertRead();
+        TeWriteRefused(Row, true, Observer);
+        Observer.Expect('write', 'refused');
+        Observer.Expect('code', 'DB:RecordChanged');
+        Observer.Expect('text', 'Yes');
+        Observer.Expect('stored', 'other|0|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TE_3C_LockOtherOnly_StaleModify()
+    var
+        Row: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        TePrepare(Row, 3);
+        TeLockOtherOnly();
+        TeWriteRefused(Row, false, Observer);
+        Observer.Expect('write', 'refused');
+        Observer.Expect('code', 'DB:RecordChanged');
+        Observer.Expect('text', 'Yes');
+        Observer.Expect('stored', 'other|0|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TE_3C_LockOtherOnly_StaleDelete()
+    var
+        Row: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        TePrepare(Row, 3);
+        TeLockOtherOnly();
+        TeWriteRefused(Row, true, Observer);
+        Observer.Expect('write', 'refused');
+        Observer.Expect('code', 'DB:RecordChanged');
+        Observer.Expect('text', 'Yes');
+        Observer.Expect('stored', 'other|0|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TE_3C_OtherTableInsertRead_StaleModify()
+    var
+        Row: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        TePrepare(Row, 3);
+        TeOtherTableInsertRead();
+        TeWriteRefused(Row, false, Observer);
+        Observer.Expect('write', 'refused');
+        Observer.Expect('code', 'DB:RecordChanged');
+        Observer.Expect('text', 'Yes');
+        Observer.Expect('stored', 'other|0|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TE_3C_OtherTableInsertRead_StaleDelete()
+    var
+        Row: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        TePrepare(Row, 3);
+        TeOtherTableInsertRead();
+        TeWriteRefused(Row, true, Observer);
+        Observer.Expect('write', 'refused');
+        Observer.Expect('code', 'DB:RecordChanged');
+        Observer.Expect('text', 'Yes');
+        Observer.Expect('stored', 'other|0|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TE_3C_LockSameTable_StaleModify()
+    var
+        Row: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        TePrepare(Row, 3);
+        TeLockSame();
+        TeWriteOk(Row, false, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'start|5|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TE_3C_LockSameTable_StaleDelete()
+    var
+        Row: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        TePrepare(Row, 3);
+        TeLockSame();
+        TeWriteOk(Row, true, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'none');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TE_3C_ModifyOtherRow_StaleModify()
+    var
+        Row: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        TePrepare(Row, 3);
+        TeModifyOther();
+        TeWriteOk(Row, false, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'start|5|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TE_3C_ModifyOtherRow_StaleDelete()
+    var
+        Row: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        TePrepare(Row, 3);
+        TeModifyOther();
+        TeWriteOk(Row, true, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'none');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TE_3C_DeleteOtherRow_StaleModify()
+    var
+        Row: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        TePrepare(Row, 3);
+        TeDeleteOther();
+        TeWriteOk(Row, false, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'start|5|1');
+        Observer.Expect('row 8 exists', 'No');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TE_3C_DeleteOtherRow_StaleDelete()
+    var
+        Row: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        TePrepare(Row, 3);
+        TeDeleteOther();
+        TeWriteOk(Row, true, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'none');
+        Observer.Expect('row 8 exists', 'No');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TE_3C_InsertOtherRow_StaleModify()
+    var
+        Row: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        TePrepare(Row, 3);
+        TeInsertOther();
+        TeWriteOk(Row, false, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'start|5|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TE_3C_InsertOtherRow_StaleDelete()
+    var
+        Row: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        TePrepare(Row, 3);
+        TeInsertOther();
+        TeWriteOk(Row, true, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'none');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TE_3C_RenameOtherRow_StaleModify()
+    var
+        Row: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        TePrepare(Row, 3);
+        TeRenameOther();
+        TeWriteOk(Row, false, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'start|5|1');
+        Observer.Expect('row 8 exists', 'No');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TE_3C_RenameOtherRow_StaleDelete()
+    var
+        Row: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        TePrepare(Row, 3);
+        TeRenameOther();
+        TeWriteOk(Row, true, Observer);
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'none');
+        Observer.Expect('row 8 exists', 'No');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TE_3C_Nothing_StaleModify()
+    var
+        Row: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        TePrepare(Row, 3);
+        TeWriteRefused(Row, false, Observer);
+        Observer.Expect('write', 'refused');
+        Observer.Expect('code', 'DB:RecordChanged');
+        Observer.Expect('text', 'Yes');
+        Observer.Expect('stored', 'other|0|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TE_3C_Nothing_StaleDelete()
+    var
+        Row: Record "ALT Universal";
+        Observer: Codeunit "Probe Observer";
+    begin
+        TePrepare(Row, 3);
+        TeWriteRefused(Row, true, Observer);
+        Observer.Expect('write', 'refused');
+        Observer.Expect('code', 'DB:RecordChanged');
+        Observer.Expect('text', 'Yes');
+        Observer.Expect('stored', 'other|0|1');
+        Observer.Expect('row 8 exists', 'Yes');
         Observer.Verify();
     end;
 }
