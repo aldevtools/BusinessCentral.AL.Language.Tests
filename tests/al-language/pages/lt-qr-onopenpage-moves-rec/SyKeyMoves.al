@@ -297,7 +297,7 @@ codeunit 89694 "LT SY Key Moves Tests"
         Observer.Observe('gotorecord', P.Id.Value() + ':' + Log.Take());
         P.Close();
         Observer.Expect('open', '30:R30;R29;R28;R27;R26;R25;R24;R23;R22;R21;R20;R19;R18;R17;R16;R15;R14;R13;R12;R11;R30;R30;R30;C30;');
-        Observer.Expect('last', '1:R11;R10;R9;R8;R7;R6;R5;R4;R3;R2;R1;R1;R1;R1;C1;');
+        Observer.Expect('last', '1:R11;R10;R9;R8;R7;R6;R5;R4;R3;R2;R1;R1;R1;C1;');
         Observer.Expect('first', '30:R30;R30;R30;C30;');
         Observer.Expect('gotokey', '25:R29;R29;R29;C29;R28;R28;R28;C28;R27;R27;R27;C27;R26;R26;R26;C26;R25;R25;R25;C25;');
         Observer.Expect('gotorecord', '10:R30;R30;R30;C30;R29;R29;R29;C29;R28;R28;R28;C28;R27;R27;R27;C27;R26;R26;R26;C26;R25;R25;R25;C25;R24;R24;R24;C24;R23;R23;R23;C23;R22;R22;R22;C22;R21;R21;R21;C21;R20;R20;R20;C20;R19;R19;R19;C19;R18;R18;R18;C18;R17;R17;R17;C17;R16;R16;R16;C16;R15;R15;R15;C15;R14;R14;R14;C14;R13;R13;R13;C13;R12;R12;R12;C12;R11;R11;R11;C11;R10;R10;R10;C10;');
@@ -324,7 +324,7 @@ codeunit 89694 "LT SY Key Moves Tests"
         Observer.Observe('gotorecord', P.Id.Value() + ':' + Log.Take());
         P.Close();
         Observer.Expect('open', '1:R1;R2;R3;R4;R5;R6;R7;R8;R9;R10;R11;R12;R13;R14;R15;R16;R17;R18;R19;R20;R1;R1;C1;');
-        Observer.Expect('last', '30:R20;R21;R22;R23;R24;R25;R26;R27;R28;R29;R30;R30;R30;C30;');
+        Observer.Expect('last', '30:R20;R21;R22;R23;R24;R25;R26;R27;R28;R29;R30;R30;C30;');
         Observer.Expect('first', '1:R1;R1;C1;');
         Observer.Expect('gotokey', '25:R2;R2;C2;R3;R3;C3;R4;R4;C4;R5;R5;C5;R6;R6;C6;R7;R7;C7;R8;R8;C8;R9;R9;C9;R10;R10;C10;R11;R11;C11;R12;R12;C12;R13;R13;C13;R14;R14;C14;R15;R15;C15;R16;R16;C16;R17;R17;C17;R18;R18;C18;R19;R19;C19;R20;R20;C20;R21;R21;C21;R22;R22;C22;R23;R23;C23;R24;R24;C24;R25;R25;C25;');
         Observer.Expect('gotorecord', '10:R1;R1;C1;R2;R2;C2;R3;R3;C3;R4;R4;C4;R5;R5;C5;R6;R6;C6;R7;R7;C7;R8;R8;C8;R9;R9;C9;R10;R10;C10;');
