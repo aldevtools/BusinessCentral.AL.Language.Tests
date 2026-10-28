@@ -117,7 +117,10 @@ codeunit 71613 "LT P91 Unsure Tests"
         Obs.Observe('result', SqSubstitute('', true, Subs));
         Obs.Observe('platform log', Subs.Platform());
         Obs.Observe('after log', Subs.After());
-        Obs.Finish();
+        Obs.Expect('result', '89587');
+        Obs.Expect('platform log', 'Sub(89587,Normal,xml=,rec=0,in=-1);');
+        Obs.Expect('after log', 'After(89587,0,xml=,rec=0,in=-1);');
+        Obs.Verify();
     end;
 
     [Test]
@@ -129,7 +132,10 @@ codeunit 71613 "LT P91 Unsure Tests"
         Obs.Observe('result', SqSubstitute('platform', true, Subs));
         Obs.Observe('platform log', Subs.Platform());
         Obs.Observe('after log', Subs.After());
-        Obs.Finish();
+        Obs.Expect('result', '89588');
+        Obs.Expect('platform log', 'Sub(89587);');
+        Obs.Expect('after log', 'After(89587);');
+        Obs.Verify();
     end;
 
     [Test]
@@ -141,7 +147,10 @@ codeunit 71613 "LT P91 Unsure Tests"
         Obs.Observe('result', SqSubstitute('after', true, Subs));
         Obs.Observe('platform log', Subs.Platform());
         Obs.Observe('after log', Subs.After());
-        Obs.Finish();
+        Obs.Expect('result', '89588');
+        Obs.Expect('platform log', 'Sub(89587);');
+        Obs.Expect('after log', 'After(89587);');
+        Obs.Verify();
     end;
 
     [Test]
@@ -152,6 +161,8 @@ codeunit 71613 "LT P91 Unsure Tests"
     begin
         Obs.Observe('result', SqSubstitute('platform', false, Subs));
         Obs.Observe('platform log', Subs.Platform());
-        Obs.Finish();
+        Obs.Expect('result', '89587');
+        Obs.Expect('platform log', '');
+        Obs.Verify();
     end;
 }

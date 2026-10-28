@@ -162,7 +162,11 @@ codeunit 70236 "LT P144 Report Labels Caption"
         Observer.Observe('root_children', RootChildren(Xml));
         Observer.Observe('column_and_label_lines', Dataset.ColumnLines(Xml));
         Observer.Observe('tokens', Dataset.Tokens(Xml));
-        Observer.Finish();
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('root_children', 'BCReportInformation,Labels,DataItems,');
+        Observer.Expect('column_and_label_lines', '<Label name="HeadIdCCaption">Head Id</Label>|<Label name="HeadNameCCaption">Head Name</Label>|<Label name="LineNoCCaption">Line No</Label>|<Label name="LineDescrCCaption">Line Descr</Label>|<Label name="TailDescrCCaption">Line Descr</Label>|<Label name="BaseFirstLbl">Base first</Label>|<Label name="BaseSecondLbl">Base second</Label>|<Column name="HeadIdC">1</Column>|<Column name="HeadNameC">H1</Column>|<Column name="LineNoC">10</Column>|<Column name="LineDescrC">L10</Column>|<Column name="LinePlain" decimalformatter="#,##0.00">2</Column>|<Column name="TailDescrC">L10</Column>|');
+        Observer.Expect('tokens', 'DIs DI c:HeadIdC c:HeadNameC DIs DI c:LineNoC c:LineDescrC c:LinePlain /DI /DIs /DI DI c:TailDescrC /DI /DIs');
+        Observer.Verify();
     end;
 
     [Test]
@@ -177,6 +181,10 @@ codeunit 70236 "LT P144 Report Labels Caption"
         Observer.Observe('root_children', RootChildren(Xml));
         Observer.Observe('column_and_label_lines', Dataset.ColumnLines(Xml));
         Observer.Observe('tokens', Dataset.Tokens(Xml));
-        Observer.Finish();
+        Observer.Expect('saved', 'Yes');
+        Observer.Expect('root_children', 'BCReportInformation,Labels,DataItems,');
+        Observer.Expect('column_and_label_lines', '<Label name="HeadIdCCaption">Head Id</Label>|<Label name="HeadNameCCaption">Head Name</Label>|<Label name="LineNoCCaption">Line No</Label>|<Label name="LineDescrCCaption">Line Descr</Label>|<Label name="TailDescrCCaption">Line Descr</Label>|<Label name="BaseFirstLbl">Base first</Label>|<Label name="BaseSecondLbl">Base second</Label>|<Label name="ExtQtyCCaption">Line Qty</Label>|<Label name="ExtHeadNameCCaption">Head Name</Label>|<Label name="ExtFirstLbl">Ext first</Label>|<Label name="ExtSecondLbl">Ext second</Label>|<Column name="HeadIdC">1</Column>|<Column name="HeadNameC">H1</Column>|<Column name="ExtHeadNameC">H1</Column>|<Column name="LineNoC">10</Column>|<Column name="LineDescrC">L10</Column>|<Column name="LinePlain" decimalformatter="#,##0.00">2</Column>|<Column name="ExtQtyC" decimalformatter="#,##0.00">2</Column>|<Column name="TailDescrC">L10</Column>|');
+        Observer.Expect('tokens', 'DIs DI c:HeadIdC c:HeadNameC c:ExtHeadNameC DIs DI c:LineNoC c:LineDescrC c:LinePlain c:ExtQtyC /DI /DIs /DI DI c:TailDescrC /DI /DIs');
+        Observer.Verify();
     end;
 }

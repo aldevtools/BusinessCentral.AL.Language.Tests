@@ -508,7 +508,20 @@ codeunit 81086 "BD XmlPort Tests"
         Import(Observer, 'bc namespace prefixed', 89580, '<p:Root xmlns:p="urn:microsoft-dynamics-nav/xmlports/x89580"><p:Item><p:Id>17</p:Id><p:Name>seventeen</p:Name></p:Item></p:Root>');
         Import(Observer, 'bc namespace children none', 89580, '<Root xmlns="urn:microsoft-dynamics-nav/xmlports/x89580"><Item xmlns=""><Id>18</Id><Name>eighteen</Name></Item></Root>');
         Import(Observer, 'other port namespace', 89580, '<Root xmlns="urn:microsoft-dynamics-nav/xmlports/x81085"><Item><Id>19</Id><Name>nineteen</Name></Item></Root>');
-        Observer.Finish();
+        Observer.Expect('export', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root xmlns="urn:microsoft-dynamics-nav/xmlports/x89580">|  <Item>|    <Id>1</Id>|    <Name>one</Name>|  </Item>|  <Item>|    <Id>2</Id>|    <Name>two</Name>|  </Item>|</Root>|');
+        Observer.Expect('bc namespace', 'ok');
+        Observer.Expect('bc namespace rows', '1/one/5;2/two/6;14/fourteen/0;');
+        Observer.Expect('other namespace', 'error:The element <Root> cannot be found in the object description.|XmlPortElementNotFound');
+        Observer.Expect('other namespace rows', '1/one/5;2/two/6;');
+        Observer.Expect('no namespace', 'error:The element <Root> cannot be found in the object description.|XmlPortElementNotFound');
+        Observer.Expect('no namespace rows', '1/one/5;2/two/6;');
+        Observer.Expect('bc namespace prefixed', 'ok');
+        Observer.Expect('bc namespace prefixed rows', '1/one/5;2/two/6;17/seventeen/0;');
+        Observer.Expect('bc namespace children none', 'error:Imported XML cannot validate with the schema: The element ''Root'' in namespace ''urn:microsoft-dynamics-nav/xmlports/x89580'' has invalid child element ''Item''. List of possible elements expected: ''Item'' in namespace ''urn:microsoft-dynamics-nav/xmlports/x89580''.|XmlPortInvalidXml');
+        Observer.Expect('bc namespace children none rows', '1/one/5;2/two/6;');
+        Observer.Expect('other port namespace', 'error:The element <Root> cannot be found in the object description.|XmlPortElementNotFound');
+        Observer.Expect('other port namespace rows', '1/one/5;2/two/6;');
+        Observer.Verify();
     end;
 }
 

@@ -381,6 +381,11 @@ codeunit 60503 "QDTF Table Filter Tests"
         Observer.Observe('code const empty', SqRead(Query::"LT SQ Qf Code Const Empty"));
         Observer.Observe('code filter empty or A', SqRead(Query::"LT SQ Qf Code Filter Or"));
         Observer.Observe('column filter empty', SqRead(Query::"LT SQ Qf Column Filter Empty"));
-        Observer.Finish();
+        Observer.Expect('code filter empty', 'ok:1,4,');
+        Observer.Expect('txt filter empty', 'ok:1,3,');
+        Observer.Expect('code const empty', 'ok:1,4,');
+        Observer.Expect('code filter empty or A', 'ok:1,2,4,');
+        Observer.Expect('column filter empty', 'ok:1,4,');
+        Observer.Verify();
     end;
 }

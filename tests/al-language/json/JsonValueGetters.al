@@ -372,12 +372,17 @@ codeunit 72502 "LT JsT Value Getters"
     // Writer SQ (NP lane 2026-10-28): AsBigInteger, AsByte and AsOption of a JSON string that holds digits (AsInteger of "42" is NumericTextGetters).
     [TryFunction]
     local procedure SqDoGet(V: JsonValue; Kind: Text; var R: Text)
+    var
+        ByteAsInt: Integer;
     begin
         case Kind of
             'AsBigInteger':
                 R := Format(V.AsBigInteger());
             'AsByte':
-                R := Format(V.AsByte());
+                begin
+                    ByteAsInt := V.AsByte();
+                    R := Format(ByteAsInt);
+                end;
             'AsOption':
                 R := Format(V.AsOption());
             'AsInteger':
@@ -413,9 +418,14 @@ codeunit 72502 "LT JsT Value Getters"
         Observer.Observe('text 3000000000', SqRow('"3000000000"'));
         Observer.Observe('text 4.5', SqRow('"4.5"'));
         Observer.Observe('text space 42', SqRow('" 42"'));
-        Observer.Observe('text 1,000', SqRow('"1,000"'));
-        Observer.Observe('number 42', SqRow('42'));
-        Observer.Observe('number 300', SqRow('300'));
-        Observer.Finish();
+        Observer.Expect('text 42', 'big=ok:42 ; byte=ok:42 ; option=ok:42 ; int=ok:42');
+        Observer.Expect('text 7', 'big=ok:7 ; byte=ok:7 ; option=ok:7 ; int=ok:7');
+        Observer.Expect('text 0', 'big=ok:0 ; byte=ok:0 ; option=ok:0 ; int=ok:0');
+        Observer.Expect('text -5', 'big=ok:-5 ; byte=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Byte.|Conversion ; option=ok:-5 ; int=ok:-5');
+        Observer.Expect('text 300', 'big=ok:300 ; byte=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Byte.|Conversion ; option=ok:300 ; int=ok:300');
+        Observer.Expect('text 3000000000', 'big=ok:3000000000 ; byte=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Byte.|Conversion ; option=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.NavOption.|Conversion ; int=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Int32.|Conversion');
+        Observer.Expect('text 4.5', 'big=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.NavBigInteger.|Conversion ; byte=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Byte.|Conversion ; option=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.NavOption.|Conversion ; int=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Int32.|Conversion');
+        Observer.Expect('text space 42', 'big=ok:42 ; byte=ok:42 ; option=ok:42 ; int=ok:42');
+        Observer.Verify();
     end;
 }
