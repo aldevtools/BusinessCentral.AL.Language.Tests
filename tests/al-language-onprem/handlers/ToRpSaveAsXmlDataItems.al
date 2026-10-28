@@ -5,6 +5,9 @@
 // Probe: observed on the corpus CI matrix; every literal asserted in the TO_* tests is what the BC service tier produced.
 // Objects: the report data file that TestRequestPage.SaveAsXml writes for a report that is not one flat data item: columns of type
 //   Integer, Text and Decimal, an empty Text value, a parent row without child rows.
+// Facts (BC 29 corpus CI): the data file stays one flat DataSet table Result. Nested: one Result per child row with the parent's columns
+//   repeated, a parent without child rows gives one Result with only its own columns. Siblings: the parent rows, then the child rows, each
+//   Result with only its own item's columns. A Decimal column adds a <Name>Format</Name> column (#,##0.00); an empty Text is <PName />.
 // BC versions: 27, 28, 29
 
 table 98060 "LT TO RP Parent"

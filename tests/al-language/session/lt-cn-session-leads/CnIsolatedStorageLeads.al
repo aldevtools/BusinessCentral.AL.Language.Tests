@@ -296,6 +296,7 @@ codeunit 84892 "LT CN Iso WriteTx"
         Value: Text;
     begin
         // Writer TO (NP lane): Set and SetEncrypted over a key that already exists, each right after a Commit.
+        // Measured on the BC 29 corpus CI: every overwrite (also with the same value, plain over encrypted and back) opens the write transaction.
         Clean();
         IsolatedStorage.Set('LTCNtx', 'v1', DataScope::Module);
         Commit();
@@ -319,7 +320,20 @@ codeunit 84892 "LT CN Iso WriteTx"
         Commit();
         IsolatedStorage.Get('LTCNtx', DataScope::Module, Value);
         Observer.Observe('value 2', Value);
-        Observer.Finish();
+        Observer.Expect('before', 'No');
+        Observer.Expect('set again', 'Yes');
+        Observer.Expect('after set again', 'Yes');
+        Observer.Expect('set same value', 'Yes');
+        Observer.Expect('after set same value', 'Yes');
+        Observer.Expect('encrypted over plain', 'Yes');
+        Observer.Expect('after encrypted over plain', 'Yes');
+        Observer.Expect('encrypted again', 'Yes');
+        Observer.Expect('after encrypted again', 'Yes');
+        Observer.Expect('value', 'e2');
+        Observer.Expect('plain over encrypted', 'Yes');
+        Observer.Expect('after plain over encrypted', 'Yes');
+        Observer.Expect('value 2', 'p3');
+        Observer.Verify();
     end;
 
     [Test]

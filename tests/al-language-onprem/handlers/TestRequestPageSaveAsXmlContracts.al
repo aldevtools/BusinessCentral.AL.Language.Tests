@@ -420,7 +420,9 @@ codeunit 61243 "Probe RP SaveAsXml"
         ToSplit(FileText(DataFile, HadBom), Schema, Rows);
         Observer.Observe('bom', Format(HadBom));
         Observer.Observe('schema', Schema);
-        Observer.Finish();
+        Observer.Expect('bom', 'Yes');
+        Observer.Expect('schema', '<?xml version="1.0" standalone="yes"?>|<DataSet>|  <xs:schema id="NewDataSet" xmlns="" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">|    <xs:element name="NewDataSet" msdata:IsDataSet="true" msdata:MainDataTable="Result" msdata:Locale="en-US">|      <xs:complexType>|        <xs:choice minOccurs="0" maxOccurs="unbounded">|          <xs:element name="Result" msdata:Locale="en-US">|            <xs:complexType>|              <xs:sequence>|                <xs:element name="PId" type="xs:int" minOccurs="0" />|                <xs:element name="PName" type="xs:string" minOccurs="0" />|                <xs:element name="CLine" type="xs:int" minOccurs="0" />|                <xs:element name="CQty" type="xs:decimal" minOccurs="0" />|                <xs:element name="CQtyFormat" type="xs:string" minOccurs="0" />|              </xs:sequence>|            </xs:complexType>|          </xs:element>|        </xs:choice>|      </xs:complexType>|    </xs:element>|  </xs:schema>|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -436,7 +438,8 @@ codeunit 61243 "Probe RP SaveAsXml"
         Report.Run(Report::"LT TO RP Nested");
         ToSplit(FileText(DataFile, HadBom), Schema, Rows);
         Observer.Observe('rows', Rows);
-        Observer.Finish();
+        Observer.Expect('rows', '  <Result>|    <PId>1</PId>|    <PName>a</PName>|    <CLine>10</CLine>|    <CQty>1.5</CQty>|    <CQtyFormat>#,##0.00</CQtyFormat>|  </Result>|  <Result>|    <PId>1</PId>|    <PName>a</PName>|    <CLine>20</CLine>|    <CQty>2</CQty>|    <CQtyFormat>#,##0.00</CQtyFormat>|  </Result>|  <Result>|    <PId>2</PId>|    <PName />|  </Result>|  <Result>|    <PId>3</PId>|    <PName>c</PName>|    <CLine>10</CLine>|    <CQty>0</CQty>|    <CQtyFormat>#,##0.00</CQtyFormat>|  </Result>|</DataSet>|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -454,7 +457,9 @@ codeunit 61243 "Probe RP SaveAsXml"
         ToSplit(FileText(DataFile, HadBom), Schema, Rows);
         Observer.Observe('bom', Format(HadBom));
         Observer.Observe('schema', Schema);
-        Observer.Finish();
+        Observer.Expect('bom', 'Yes');
+        Observer.Expect('schema', '<?xml version="1.0" standalone="yes"?>|<DataSet>|  <xs:schema id="NewDataSet" xmlns="" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">|    <xs:element name="NewDataSet" msdata:IsDataSet="true" msdata:MainDataTable="Result" msdata:Locale="en-US">|      <xs:complexType>|        <xs:choice minOccurs="0" maxOccurs="unbounded">|          <xs:element name="Result" msdata:Locale="en-US">|            <xs:complexType>|              <xs:sequence>|                <xs:element name="PId" type="xs:int" minOccurs="0" />|                <xs:element name="PName" type="xs:string" minOccurs="0" />|                <xs:element name="CParent" type="xs:int" minOccurs="0" />|                <xs:element name="CLine" type="xs:int" minOccurs="0" />|                <xs:element name="CQty" type="xs:decimal" minOccurs="0" />|                <xs:element name="CQtyFormat" type="xs:string" minOccurs="0" />|              </xs:sequence>|            </xs:complexType>|          </xs:element>|        </xs:choice>|      </xs:complexType>|    </xs:element>|  </xs:schema>|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -470,6 +475,7 @@ codeunit 61243 "Probe RP SaveAsXml"
         Report.Run(Report::"LT TO RP Siblings");
         ToSplit(FileText(DataFile, HadBom), Schema, Rows);
         Observer.Observe('rows', Rows);
-        Observer.Finish();
+        Observer.Expect('rows', '  <Result>|    <PId>1</PId>|    <PName>a</PName>|  </Result>|  <Result>|    <PId>2</PId>|    <PName />|  </Result>|  <Result>|    <PId>3</PId>|    <PName>c</PName>|  </Result>|  <Result>|    <CParent>1</CParent>|    <CLine>10</CLine>|    <CQty>1.5</CQty>|    <CQtyFormat>#,##0.00</CQtyFormat>|  </Result>|  <Result>|    <CParent>1</CParent>|    <CLine>20</CLine>|    <CQty>2</CQty>|    <CQtyFormat>#,##0.00</CQtyFormat>|  </Result>|  <Result>|    <CParent>3</CParent>|    <CLine>10</CLine>|    <CQty>0</CQty>|    <CQtyFormat>#,##0.00</CQtyFormat>|  </Result>|</DataSet>|');
+        Observer.Verify();
     end;
 }
