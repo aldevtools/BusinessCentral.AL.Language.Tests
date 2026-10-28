@@ -369,7 +369,6 @@ codeunit 89775 "LT TC Bare Page Methods"
         P.OpenEdit();
         P.GoToKey('R1');
         P.ActivateIt.Invoke();
-        P.Close();
         Assert.AreEqual('OBSB', LogOf('B:'), 'bare Activate log');
     end;
 
@@ -383,7 +382,6 @@ codeunit 89775 "LT TC Bare Page Methods"
         P.OpenEdit();
         P.GoToKey('R1');
         P.ActivateIt.Invoke();
-        P.Close();
         Assert.AreEqual('OBSC', LogOf('C:'), 'CurrPage.Activate log');
     end;
 
