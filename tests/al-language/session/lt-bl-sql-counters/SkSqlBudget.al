@@ -298,3 +298,203 @@ codeunit 89192 "LT SK Sql Budget"
         Observer.Verify();
     end;
 }
+
+// Writer SZ (al-runner issue 5861): a table whose global trigger setup runs AL code (OnAfterGetDatabaseTableTriggerSetup registers it for
+// OnDatabaseInsert; OnAfterOnDatabaseInsert runs AL code), and a plain table. Each is first used in the session by one test.
+table 89750 "LT SZ Gt Row"
+{
+    DataClassification = CustomerContent;
+
+    fields
+    {
+        field(1; Id; Integer) { }
+        field(2; Name; Text[30]) { }
+    }
+
+    keys
+    {
+        key(PK; Id) { Clustered = true; }
+    }
+}
+
+table 89751 "LT SZ Plain Row"
+{
+    DataClassification = CustomerContent;
+
+    fields
+    {
+        field(1; Id; Integer) { }
+        field(2; Name; Text[30]) { }
+    }
+
+    keys
+    {
+        key(PK; Id) { Clustered = true; }
+    }
+}
+
+codeunit 89752 "LT SZ Gt Subs"
+{
+    EventSubscriberInstance = Manual;
+
+    var
+        InsertsSeen: Integer;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::GlobalTriggerManagement, 'OnAfterGetDatabaseTableTriggerSetup', '', false, false)]
+    local procedure Setup(TableId: Integer; var OnDatabaseInsert: Boolean; var OnDatabaseModify: Boolean; var OnDatabaseDelete: Boolean; var OnDatabaseRename: Boolean)
+    begin
+        if TableId = Database::"LT SZ Gt Row" then
+            OnDatabaseInsert := true;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::GlobalTriggerManagement, 'OnAfterOnDatabaseInsert', '', false, false)]
+    local procedure DbInsert(RecRef: RecordRef)
+    begin
+        if RecRef.Number() = Database::"LT SZ Gt Row" then
+            InsertsSeen += 1;
+    end;
+
+    procedure Seen(): Integer
+    begin
+        exit(InsertsSeen);
+    end;
+}
+
+codeunit 89753 "LT SZ Sql Budget"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    var
+        Stmts: BigInteger;
+        Rows: BigInteger;
+
+    local procedure Mark()
+    begin
+        Stmts := SessionInformation.SqlStatementsExecuted();
+        Rows := SessionInformation.SqlRowsRead();
+    end;
+
+    local procedure Delta(): Text
+    begin
+        exit(Format(SessionInformation.SqlStatementsExecuted() - Stmts) + '/' + Format(SessionInformation.SqlRowsRead() - Rows));
+    end;
+
+    local procedure Stmt(): BigInteger
+    begin
+        exit(SessionInformation.SqlStatementsExecuted());
+    end;
+
+    // (a) The first Insert into a table whose trigger setup runs AL code, against the first Insert into a plain table. The size of the
+    // first Insert into the table with trigger setup was 2 and 7 on different runs (BC 29 SaaS), so only "more than the plain table's one
+    // statement" is pinned for it; the plain table's first Insert, the later Inserts and the flush by Count were the same on every run.
+    [Test]
+    procedure SZ_FirstInsert_TriggerSetupRunsAl()
+    var
+        Observer: Codeunit "Probe Observer";
+        Subs: Codeunit "LT SZ Gt Subs";
+        Gt: Record "LT SZ Gt Row";
+        Plain: Record "LT SZ Plain Row";
+        GtFirst: BigInteger;
+        PlainFirst: BigInteger;
+        Acc: Text;
+    begin
+        BindSubscription(Subs);
+        Commit();
+        Mark();
+        Gt.Id := 1;
+        Gt.Insert();
+        GtFirst := Stmt() - Stmts;
+        Mark();
+        Gt.Id := 2;
+        Gt.Insert();
+        Acc := 'gt second ' + Delta() + '; ';
+        Mark();
+        Gt.Id := 3;
+        Gt.Insert();
+        Acc += 'gt third ' + Delta() + '; ';
+        Mark();
+        Acc += 'gt count ' + Format(Gt.Count()) + ' ' + Delta() + '; ';
+        Mark();
+        Plain.Id := 1;
+        Plain.Insert();
+        PlainFirst := Stmt() - Stmts;
+        Mark();
+        Plain.Id := 2;
+        Plain.Insert();
+        Acc += 'plain second ' + Delta() + '; ';
+        Mark();
+        Plain.Id := 3;
+        Plain.Insert();
+        Acc += 'plain third ' + Delta() + '; ';
+        Mark();
+        Acc += 'plain count ' + Format(Plain.Count()) + ' ' + Delta();
+        Observer.Observe('plain first', Format(PlainFirst));
+        Observer.Observe('gt first more than plain first', Format(GtFirst > PlainFirst));
+        Observer.Observe('gt first at least 2', Format(GtFirst >= 2));
+        Observer.Observe('rest', Acc);
+        Observer.Observe('subscriber ran', Format(Subs.Seen()));
+        UnbindSubscription(Subs);
+        Observer.Expect('plain first', '1');
+        Observer.Expect('gt first more than plain first', 'Yes');
+        Observer.Expect('gt first at least 2', 'Yes');
+        Observer.Expect('rest', 'gt second 0/0; gt third 0/0; gt count 3 4/1; plain second 0/0; plain third 0/0; plain count 3 4/1');
+        Observer.Expect('subscriber ran', '3');
+        Observer.Verify();
+    end;
+
+    // (b) A copy loop while earlier Inserts are still buffered: K rows inserted first with no read in between, then N copied.
+    local procedure Buffered(K: Integer; N: Integer): Text
+    var
+        Row: Record "LT SZ Plain Row";
+        Temp: Record "LT SZ Plain Row" temporary;
+        i: Integer;
+        Base: Integer;
+        Copy: Text;
+    begin
+        Row.Reset();
+        Row.DeleteAll();
+        Commit();
+        for i := 1 to N do begin
+            Temp.Id := i;
+            Temp.Insert();
+        end;
+        Base := 1000;
+        Mark();
+        for i := 1 to K do begin
+            Row.Id := Base + i;
+            Row.Insert();
+        end;
+        Copy := Delta();
+        Mark();
+        if Temp.FindSet() then
+            repeat
+                Row.Id := Temp.Id;
+                Row.Insert();
+            until Temp.Next() = 0;
+        Copy += ' ' + Delta();
+        Mark();
+        Row.SetRange(Id, 0, 2000);
+        Copy += ' ' + Format(Row.Count()) + ' ' + Delta();
+        exit(Copy);
+    end;
+
+    // Each value: insert-window, copy-window, Count result, flush window ("statements/rows"), on three repeats. Same on 3 runs.
+    [Test]
+    procedure SZ_CopyLoop_WhileInsertsBuffered()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('K0 N10', Buffered(0, 10) + ' | ' + Buffered(0, 10) + ' | ' + Buffered(0, 10));
+        Observer.Observe('K1 N10', Buffered(1, 10) + ' | ' + Buffered(1, 10) + ' | ' + Buffered(1, 10));
+        Observer.Observe('K5 N10', Buffered(5, 10) + ' | ' + Buffered(5, 10) + ' | ' + Buffered(5, 10));
+        Observer.Observe('K5 N1', Buffered(5, 1) + ' | ' + Buffered(5, 1) + ' | ' + Buffered(5, 1));
+        Observer.Observe('K20 N20', Buffered(20, 20) + ' | ' + Buffered(20, 20) + ' | ' + Buffered(20, 20));
+        Observer.Expect('K0 N10', '0/0 2/0 10 1/1 | 0/0 2/0 10 1/1 | 0/0 2/0 10 1/1');
+        Observer.Expect('K1 N10', '0/0 2/0 11 2/1 | 0/0 2/0 11 2/1 | 0/0 2/0 11 2/1');
+        Observer.Expect('K5 N10', '1/0 2/0 15 1/1 | 1/0 2/0 15 1/1 | 1/0 2/0 15 1/1');
+        Observer.Expect('K5 N1', '1/0 0/0 6 2/1 | 1/0 0/0 6 2/1 | 1/0 0/0 6 2/1');
+        Observer.Expect('K20 N20', '4/0 4/0 40 1/1 | 4/0 4/0 40 1/1 | 4/0 4/0 40 1/1');
+        Observer.Verify();
+    end;
+}
