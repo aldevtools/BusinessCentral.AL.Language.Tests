@@ -356,7 +356,16 @@ codeunit 73400 "LT XmT Doc ReadWrite"
         Doc.GetRoot(Root);
         Observer.Observe('children_none', Format(Root.GetChildNodes().Count()));
         Observer.Observe('out_none', Out(Doc));
-        Observer.Finish();
+        Observer.Expect('ok_true', 'Yes');
+        Observer.Expect('children_true', '3');
+        Observer.Expect('out_true', '<?xml version="1.0" encoding="utf-16"?>\r\n<a>\r\n  <b />\r\n</a>');
+        Observer.Expect('ok_false', 'Yes');
+        Observer.Expect('children_false', '3');
+        Observer.Expect('out_false', '<?xml version="1.0" encoding="utf-16"?>\r\n<a>\r\n  <b />\r\n</a>');
+        Observer.Expect('ok_none', 'Yes');
+        Observer.Expect('children_none', '3');
+        Observer.Expect('out_none', '<?xml version="1.0" encoding="utf-16"?>\r\n<a>\r\n  <b />\r\n</a>');
+        Observer.Verify();
     end;
 
     [Test]
@@ -375,7 +384,9 @@ codeunit 73400 "LT XmT Doc ReadWrite"
         Observer.Observe('ok', Format(XmlDocument.ReadFrom(InS, Opt, Doc)));
         Observer.Observe('err', GetLastErrorText());
         ClearLastError();
-        Observer.Finish();
+        Observer.Expect('ok', 'No');
+        Observer.Expect('err', 'The following exception was encountered when processing XML data: ''The ''b'' start tag on line 1 position 5 does not match the end tag of ''a''. Line 1, position 9.'' at line 1 and position 9.');
+        Observer.Verify();
     end;
 
     [Test]
