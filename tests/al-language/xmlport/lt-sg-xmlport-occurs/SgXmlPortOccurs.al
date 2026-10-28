@@ -529,4 +529,286 @@ codeunit 89365 "LT SG XP Occurs Tests"
         Observer.Expect('prefixed everywhere rows', '3:x,');
         Observer.Verify();
     end;
+
+    // ---- Writer TF: explicit MinOccurs = Once on a table element ----
+
+    [TryFunction]
+    local procedure TryExportMinOnce(var Port: XmlPort "LT TF XP Min Once"; var Xml: Text)
+    var
+        TempBlob: Codeunit "Temp Blob";
+        OutS: OutStream;
+    begin
+        TempBlob.CreateOutStream(OutS, TextEncoding::UTF8);
+        Port.SetDestination(OutS);
+        Port.Export();
+        Xml := ReadAll(TempBlob);
+    end;
+
+    [TryFunction]
+    local procedure TryExportMinMaxOnce(var Port: XmlPort "LT TF XP Min Max Once"; var Xml: Text)
+    var
+        TempBlob: Codeunit "Temp Blob";
+        OutS: OutStream;
+    begin
+        TempBlob.CreateOutStream(OutS, TextEncoding::UTF8);
+        Port.SetDestination(OutS);
+        Port.Export();
+        Xml := ReadAll(TempBlob);
+    end;
+
+    [TryFunction]
+    local procedure TryImportMinOnce(var Port: XmlPort "LT TF XP Min Once"; Content: Text)
+    var
+        TempBlob: Codeunit "Temp Blob";
+        InS: InStream;
+    begin
+        Source(Content, TempBlob, InS);
+        Port.SetSource(InS);
+        Port.Import();
+    end;
+
+    [TryFunction]
+    local procedure TryImportMinMaxOnce(var Port: XmlPort "LT TF XP Min Max Once"; Content: Text)
+    var
+        TempBlob: Codeunit "Temp Blob";
+        InS: InStream;
+    begin
+        Source(Content, TempBlob, InS);
+        Port.SetSource(InS);
+        Port.Import();
+    end;
+
+    local procedure ObserveMinOnceExport(var Observer: Codeunit "Probe Observer"; Name: Text; Rows: Integer)
+    var
+        Port: XmlPort "LT TF XP Min Once";
+        Xml: Text;
+        I: Integer;
+    begin
+        for I := 1 to Rows do
+            Port.AddRow(I, 'n' + Format(I));
+        ClearLastError();
+        Observer.Observe(Name + ' ok', Format(TryExportMinOnce(Port, Xml)));
+        Observer.ObserveError(Name);
+        Observer.Observe(Name + ' xml', Xml);
+    end;
+
+    local procedure ObserveMinMaxOnceExport(var Observer: Codeunit "Probe Observer"; Name: Text; Rows: Integer)
+    var
+        Port: XmlPort "LT TF XP Min Max Once";
+        Xml: Text;
+        I: Integer;
+    begin
+        for I := 1 to Rows do
+            Port.AddRow(I, 'n' + Format(I));
+        ClearLastError();
+        Observer.Observe(Name + ' ok', Format(TryExportMinMaxOnce(Port, Xml)));
+        Observer.ObserveError(Name);
+        Observer.Observe(Name + ' xml', Xml);
+    end;
+
+    local procedure ObserveMinOnceImport(var Observer: Codeunit "Probe Observer"; Name: Text; Content: Text)
+    var
+        Port: XmlPort "LT TF XP Min Once";
+    begin
+        ClearLastError();
+        Observer.Observe(Name + ' ok', Format(TryImportMinOnce(Port, Content)));
+        Observer.ObserveError(Name);
+        Observer.Observe(Name + ' rows', Port.Rows());
+        Observer.Observe(Name + ' log', Port.GetLog());
+    end;
+
+    local procedure ObserveMinMaxOnceImport(var Observer: Codeunit "Probe Observer"; Name: Text; Content: Text)
+    var
+        Port: XmlPort "LT TF XP Min Max Once";
+    begin
+        ClearLastError();
+        Observer.Observe(Name + ' ok', Format(TryImportMinMaxOnce(Port, Content)));
+        Observer.ObserveError(Name);
+        Observer.Observe(Name + ' rows', Port.Rows());
+        Observer.Observe(Name + ' log', Port.GetLog());
+    end;
+
+    [Test]
+    procedure TF_MinOnce_Export()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ObserveMinOnceExport(Observer, 'none', 0);
+        ObserveMinOnceExport(Observer, 'one', 1);
+        ObserveMinOnceExport(Observer, 'two', 2);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TF_MinOnce_Import()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ObserveMinOnceImport(Observer, 'zero', '<Root/>');
+        ObserveMinOnceImport(Observer, 'one', '<Root><Row><Id>1</Id><Note>a</Note></Row></Root>');
+        ObserveMinOnceImport(Observer, 'two', '<Root><Row><Id>1</Id><Note>a</Note></Row><Row><Id>2</Id><Note>b</Note></Row></Root>');
+        ObserveMinOnceImport(Observer, 'three', '<Root><Row><Id>1</Id></Row><Row><Id>2</Id></Row><Row><Id>3</Id></Row></Root>');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TF_MinMaxOnce_Export()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ObserveMinMaxOnceExport(Observer, 'none', 0);
+        ObserveMinMaxOnceExport(Observer, 'one', 1);
+        ObserveMinMaxOnceExport(Observer, 'two', 2);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TF_MinMaxOnce_Import()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ObserveMinMaxOnceImport(Observer, 'zero', '<Root/>');
+        ObserveMinMaxOnceImport(Observer, 'one', '<Root><Row><Id>1</Id><Note>a</Note></Row></Root>');
+        ObserveMinMaxOnceImport(Observer, 'two', '<Root><Row><Id>1</Id><Note>a</Note></Row><Row><Id>2</Id><Note>b</Note></Row></Root>');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TF_MinMaxOnceReal_Export()
+    var
+        Observer: Codeunit "Probe Observer";
+        Ids: List of [Integer];
+    begin
+        ResetRealRows(Ids);
+        ObserveExportRealTf(Observer, 'none');
+        Ids.Add(1);
+        ResetRealRows(Ids);
+        ObserveExportRealTf(Observer, 'one');
+        Ids.Add(2);
+        ResetRealRows(Ids);
+        ObserveExportRealTf(Observer, 'two');
+        Clear(Ids);
+        ResetRealRows(Ids);
+        Observer.Finish();
+    end;
+
+    [TryFunction]
+    local procedure TryExportRealTf(var Xml: Text)
+    var
+        TempBlob: Codeunit "Temp Blob";
+        OutS: OutStream;
+    begin
+        TempBlob.CreateOutStream(OutS, TextEncoding::UTF8);
+        Xmlport.Export(Xmlport::"LT TF XP Min Max Once Real", OutS);
+        Xml := ReadAll(TempBlob);
+    end;
+
+    local procedure ObserveExportRealTf(var Observer: Codeunit "Probe Observer"; Name: Text)
+    var
+        Xml: Text;
+    begin
+        ClearLastError();
+        Observer.Observe(Name + ' ok', Format(TryExportRealTf(Xml)));
+        Observer.ObserveError(Name);
+        Observer.Observe(Name + ' xml', Xml);
+    end;
+
+    [Test]
+    procedure TF_MinMaxOnceReal_Import()
+    var
+        Observer: Codeunit "Probe Observer";
+        Ids: List of [Integer];
+    begin
+        ImportRealTf(Observer, 'none', '<Root/>');
+        ImportRealTf(Observer, 'one', '<Root><T><Id>1</Id><Note>a</Note></T></Root>');
+        ImportRealTf(Observer, 'two', '<Root><T><Id>1</Id><Note>a</Note></T><T><Id>2</Id><Note>b</Note></T></Root>');
+        ResetRealRows(Ids);
+        Observer.Finish();
+    end;
+
+    local procedure ImportRealTf(var Observer: Codeunit "Probe Observer"; Name: Text; Content: Text)
+    var
+        TempBlob: Codeunit "Temp Blob";
+        InS: InStream;
+        Empty: List of [Integer];
+    begin
+        ResetRealRows(Empty);
+        Source(Content, TempBlob, InS);
+        ClearLastError();
+        Observer.Observe(Name + ' ok', Format(Xmlport.Import(Xmlport::"LT TF XP Min Max Once Real", InS)));
+        Observer.ObserveError(Name);
+        Commit();
+        Observer.Observe(Name + ' rows', RealRows());
+    end;
+
+    // ---- Writer TF: UseDefaultNamespace = true with text attributes ----
+
+    [Test]
+    procedure TF_NsAttr_Export()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TF XP Ns Attr";
+        Empty: XmlPort "LT TF XP Ns Attr";
+        TempBlob: Codeunit "Temp Blob";
+        EmptyBlob: Codeunit "Temp Blob";
+        OutS: OutStream;
+    begin
+        Port.AddRow(3, 9, 'x');
+        Port.AddRow(4, 0, '');
+        TempBlob.CreateOutStream(OutS, TextEncoding::UTF8);
+        Port.SetDestination(OutS);
+        Port.Export();
+        Observer.Observe('two rows', ReadAll(TempBlob));
+        EmptyBlob.CreateOutStream(OutS, TextEncoding::UTF8);
+        Empty.SetDestination(OutS);
+        Empty.Export();
+        Observer.Observe('no row', ReadAll(EmptyBlob));
+        Observer.Finish();
+    end;
+
+    [TryFunction]
+    local procedure TryImportNsAttr(var Port: XmlPort "LT TF XP Ns Attr"; Content: Text)
+    var
+        TempBlob: Codeunit "Temp Blob";
+        InS: InStream;
+    begin
+        Source(Content, TempBlob, InS);
+        Port.SetSource(InS);
+        Port.Import();
+    end;
+
+    local procedure ImportNsAttr(var Observer: Codeunit "Probe Observer"; Name: Text; Content: Text)
+    var
+        Port: XmlPort "LT TF XP Ns Attr";
+    begin
+        ClearLastError();
+        Observer.Observe(Name + ' ok', Format(TryImportNsAttr(Port, Content)));
+        Observer.ObserveError(Name);
+        Observer.Observe(Name + ' rows', Port.Rows());
+        Observer.Observe(Name + ' log', Port.GetLog());
+    end;
+
+    [Test]
+    procedure TF_NsAttr_Import()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ImportNsAttr(Observer, 'plain attributes', '<Root xmlns="urn:microsoft-dynamics-nav/xmlports/x89818" Ver="v9"><Row Id="3" Note="x"><Item Kind="a" EntryNo="9"/></Row></Root>');
+        ImportNsAttr(Observer, 'optional missing', '<Root xmlns="urn:microsoft-dynamics-nav/xmlports/x89818"><Row Id="3"><Item Kind="a"/></Row></Root>');
+        ImportNsAttr(Observer, 'required field attribute missing', '<Root xmlns="urn:microsoft-dynamics-nav/xmlports/x89818"><Row><Item Kind="a"/></Row></Root>');
+        ImportNsAttr(Observer, 'required text attribute missing', '<Root xmlns="urn:microsoft-dynamics-nav/xmlports/x89818"><Row Id="3"><Item/></Row></Root>');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TF_NsAttr_Import_Qualified()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ImportNsAttr(Observer, 'prefixed attributes', '<n:Root xmlns:n="urn:microsoft-dynamics-nav/xmlports/x89818" n:Ver="v9"><n:Row n:Id="3" n:Note="x"><n:Item n:Kind="a" n:EntryNo="9"/></n:Row></n:Root>');
+        ImportNsAttr(Observer, 'prefixed elements, plain attributes', '<n:Root xmlns:n="urn:microsoft-dynamics-nav/xmlports/x89818" Ver="v9"><n:Row Id="3" Note="x"><n:Item Kind="a" EntryNo="9"/></n:Row></n:Root>');
+        ImportNsAttr(Observer, 'no namespace', '<Root Ver="v9"><Row Id="3" Note="x"><Item Kind="a" EntryNo="9"/></Row></Root>');
+        ImportNsAttr(Observer, 'other namespace', '<Root xmlns="urn:other" Ver="v9"><Row Id="3" Note="x"><Item Kind="a" EntryNo="9"/></Row></Root>');
+        Observer.Finish();
+    end;
 }
