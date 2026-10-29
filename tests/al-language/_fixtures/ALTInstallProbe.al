@@ -23,7 +23,8 @@ codeunit 60838 "ALT Install Probe"
     end;
 }
 
-// Writer UR (tests/al-language/install/lt-ur-block-order/UrBlockOrderTests.al): an install codeunit in id block 0 (50302); it only logs, with `if Insert() then;`.
+// Writer UR (tests/al-language/install/lt-ur-block-order/UrBlockOrderTests.al): an install codeunit in id block 0 (50302); it logs with `if Insert() then;` and, per company, writes one row of
+// "LT UR Buffered Row" with a plain Insert after a DeleteAll (cannot fail).
 codeunit 50302 "LT UR Install Low"
 {
     Subtype = Install;
@@ -31,8 +32,13 @@ codeunit 50302 "LT UR Install Low"
     trigger OnInstallAppPerCompany()
     var
         Log: Record "LT UR Install Log";
+        Buffered: Record "LT UR Buffered Row";
     begin
         Log.Add('I50302', 'company');
+        // A plain Insert (return value not used, no AutoIncrement) into a per-company table; DeleteAll first, so it cannot hit a duplicate key.
+        Buffered.DeleteAll();
+        Buffered.Code := 'I50302';
+        Buffered.Insert();
     end;
 
     trigger OnInstallAppPerDatabase()

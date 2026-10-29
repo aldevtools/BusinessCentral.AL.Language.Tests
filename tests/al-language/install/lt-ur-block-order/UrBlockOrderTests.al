@@ -74,4 +74,64 @@ codeunit 90510 "LT UR Block Order Tests"
         Observer.Observe('second raise', Publisher.Raise());
         Observer.Finish();
     end;
+
+    // The row install codeunit 50302 wrote with a plain Insert() in the session company, against the log rows (written with
+    // `if Insert() then;` into an AutoIncrement table) of the same company: which log rows have a lower SystemRowVersion.
+    [Test]
+    procedure MainApp_InstallPlainInsert_RowVersionAgainstLog()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT UR Install Log";
+        Buffered: Record "LT UR Buffered Row";
+        Before: Text;
+        After: Text;
+    begin
+        Observer.Observe('buffered row', Format(Buffered.Get('I50302')));
+        Row.SetRange(Part, 'company');
+        Row.SetRange(Company, CompanyName());
+        if Row.FindSet() then
+            repeat
+                if Row.SystemRowVersion < Buffered.SystemRowVersion then
+                    Before += Row.Routine + ' '
+                else
+                    After += Row.Routine + ' ';
+            until Row.Next() = 0;
+        Observer.Observe('log rows before it', Before);
+        Observer.Observe('log rows after it', After);
+        Observer.Finish();
+    end;
+
+    // The same question outside install code: a plain Insert(), then an insert into an AutoIncrement table, then an Insert whose
+    // return value is used; SystemRowVersion order of the three rows.
+    [Test]
+    procedure TestSession_PlainInsert_RowVersionAgainstLaterInserts()
+    var
+        Observer: Codeunit "Probe Observer";
+        Buffered: Record "LT UR Buffered Row";
+        Checked: Record "LT UR Buffered Row";
+        Plain: Record "LT UR Plain Row";
+        PlainVersion: BigInteger;
+    begin
+        Buffered.SetFilter(Code, 'T*');
+        Buffered.DeleteAll();
+        Plain.DeleteAll();
+        Buffered.Init();
+        Buffered.Code := 'T1';
+        Buffered.Insert();
+        Plain.Init();
+        Plain.Note := 'P';
+        if Plain.Insert() then;
+        Checked.Init();
+        Checked.Code := 'T2';
+        if Checked.Insert() then;
+        Observer.Observe('T1 after insert', Format(Buffered.SystemRowVersion = 0));
+        Plain.FindFirst();
+        PlainVersion := Plain.SystemRowVersion;
+        Buffered.Get('T1');
+        Checked.Get('T2');
+        Observer.Observe('T1 > P', Format(Buffered.SystemRowVersion > PlainVersion));
+        Observer.Observe('T2 > P', Format(Checked.SystemRowVersion > PlainVersion));
+        Observer.Observe('T1 > T2', Format(Buffered.SystemRowVersion > Checked.SystemRowVersion));
+        Observer.Finish();
+    end;
 }

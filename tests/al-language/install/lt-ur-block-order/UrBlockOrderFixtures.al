@@ -154,3 +154,31 @@ codeunit 50300 "LT UR M Sub Zeta"
         Log += '50300;';
     end;
 }
+
+// Per-company rows written with a plain Insert(): by install codeunit 50302 ("I50302") and by the tests ('T...').
+table 90516 "LT UR Buffered Row"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; Code; Code[20]) { }
+        field(2; Note; Text[30]) { }
+    }
+
+    keys { key(PK; Code) { Clustered = true; } }
+}
+
+// A table with an AutoIncrement key, written by the tests only.
+table 90517 "LT UR Plain Row"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; Id; Integer) { AutoIncrement = true; }
+        field(2; Note; Text[30]) { }
+    }
+
+    keys { key(PK; Id) { Clustered = true; } }
+}
