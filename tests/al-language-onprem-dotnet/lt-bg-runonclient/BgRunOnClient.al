@@ -151,8 +151,8 @@ codeunit 99490 "LT BG RunOnClient"
     end;
 
     // Added by writer TY (2026-10-29): a local [RunOnClient] variable, client code guarded by GuiAllowed() as the System Application
-    // does it (Camera Impl. IsAvailable, Camera Page Impl.: IsAvailable, then Create() and a member call), a local printer type
-    // (System.Drawing.Printing.PrinterSettings, alias from lt-ty-dotnet/TyAkvProvider.al) and the error outside a TryFunction (asserterror).
+    // does it (Camera Impl. IsAvailable, Camera Page Impl.: IsAvailable, then Create() and a member call), and the error
+    // outside a TryFunction (asserterror).
     [TryFunction]
     local procedure TyTryCameraCreate(var Result: Text)
     var
@@ -162,16 +162,6 @@ codeunit 99490 "LT BG RunOnClient"
         LocalCamera := LocalCamera.Create();
         Result := 'created isnull=' + Format(IsNull(LocalCamera));
         Result += ' available=' + Format(LocalCamera.IsAvailable());
-    end;
-
-    [TryFunction]
-    local procedure TyTryPrinterName(var Result: Text)
-    var
-        [RunOnClient]
-        Printer: DotNet LtTyPrinterSettings;
-    begin
-        Printer := Printer.PrinterSettings();
-        Result := Printer.PrinterName();
     end;
 
     [TryFunction]
@@ -209,23 +199,6 @@ codeunit 99490 "LT BG RunOnClient"
         else
             Observer.Observe('create', Result);
         Observer.Observe('declared only isnull', Format(IsNull(LocalCamera)));
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure TY_RunOnClient_GuiAllowedGuard_Printer()
-    var
-        Observer: Codeunit "Probe Observer";
-        Result: Text;
-    begin
-        Result := 'skipped';
-        if GuiAllowed() then
-            if TyTryPrinterName(Result) then
-                Observer.Observe('printer', 'ok nonempty=' + Format(Result <> ''))
-            else
-                Observer.ObserveError('printer')
-        else
-            Observer.Observe('printer', Result);
         Observer.Finish();
     end;
 

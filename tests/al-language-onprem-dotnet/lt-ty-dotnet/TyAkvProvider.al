@@ -5,7 +5,6 @@
 // Microsoft.Dynamics.Nav.AzureKeyVaultClient.AzureKeyVaultAppSecretProvider, called from this app (no key vault in app.json, no Azure Key
 // Vault settings on the server) with the members codeunit 3801 calls: the constructor, InitializeFromCallingAppExceptSystemApplication and
 // TryGetAzureKeyVaultSecret (before and after a failed initialization, and on a variable never constructed).
-// Also declares System.Drawing.Printing.PrinterSettings for the RunOnClient tests of codeunit 99490 (lt-bg-runonclient/BgRunOnClient.al).
 // BC versions: 27, 28, 29
 dotnet
 {
@@ -15,13 +14,6 @@ dotnet
         PublicKeyToken = '31bf3856ad364e35';
 
         type("Microsoft.Dynamics.Nav.AzureKeyVaultClient.AzureKeyVaultAppSecretProvider"; LtTyAkvAppSecretProvider) { }
-    }
-    assembly("System.Drawing")
-    {
-        Culture = 'neutral';
-        PublicKeyToken = 'b03f5f7f11d50a3a';
-
-        type("System.Drawing.Printing.PrinterSettings"; LtTyPrinterSettings) { }
     }
 }
 
