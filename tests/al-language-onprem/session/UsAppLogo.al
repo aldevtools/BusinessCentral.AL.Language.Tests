@@ -130,33 +130,39 @@ codeunit 98010 "LT US App Logo"
         Observer.Finish();
     end;
 
+    // The Guided Experience Item table is internal to System Application, so the test reads the Tenant Media rows the registration adds:
+    // Icon.ImportStream(IconInStream, ExtensionId) stores the logo as a Tenant Media row (Description = the extension id as text).
     [Test]
     procedure UsLogo_GuidedExperienceIcon_CallerD()
     var
         Observer: Codeunit "Probe Observer";
-        Item: Record "Guided Experience Item";
+        GuidedExperience: Codeunit "Guided Experience";
         TenantMedia: Record "Tenant Media";
-        Id: Guid;
+        Before: List of [Guid];
+        Added: Integer;
     begin
-        Evaluate(Id, AppDId);
-        Item.SetRange("Extension ID", Id);
-        Item.DeleteAll();
-        Codeunit.Run(61161);
-        Item.SetRange("Extension ID", Id);
-        Observer.Observe('items', Format(Item.Count()));
-        if Item.FindSet() then
+        if TenantMedia.FindSet() then
             repeat
-                Observer.Observe(Item.Title + ' type', Format(Item."Guided Experience Type"));
-                Observer.Observe(Item.Title + ' icon has value', Format(Item.Icon.HasValue()));
-                Observer.Observe(Item.Title + ' icon media id null', Format(IsNullGuid(Item.Icon.MediaId())));
-                TenantMedia.SetRange(ID, Item.Icon.MediaId());
-                Observer.Observe(Item.Title + ' tenant media found', Format(TenantMedia.FindFirst()));
-                TenantMedia.CalcFields(Content);
-                Observer.Observe(Item.Title + ' tenant media base64', ReadTenantBase64(TenantMedia));
-                Observer.Observe(Item.Title + ' mime', TenantMedia."Mime Type");
-                Observer.Observe(Item.Title + ' width x height', Format(TenantMedia.Width) + 'x' + Format(TenantMedia.Height));
-            until Item.Next() = 0;
-        Item.DeleteAll();
+                Before.Add(TenantMedia.ID);
+            until TenantMedia.Next() = 0;
+        Codeunit.Run(61161);
+        Observer.Observe('assisted exists', Format(GuidedExperience.Exists(Enum::"Guided Experience Type"::"Assisted Setup", ObjectType::Codeunit, 61161)));
+        Observer.Observe('manual exists', Format(GuidedExperience.Exists(Enum::"Guided Experience Type"::"Manual Setup", ObjectType::Codeunit, 61161)));
+        if TenantMedia.FindSet() then
+            repeat
+                if not Before.Contains(TenantMedia.ID) then begin
+                    Added += 1;
+                    TenantMedia.CalcFields(Content);
+                    Observer.Observe('added ' + Format(Added) + ' description', TenantMedia.Description);
+                    Observer.Observe('added ' + Format(Added) + ' mime', TenantMedia."Mime Type");
+                    Observer.Observe('added ' + Format(Added) + ' width x height', Format(TenantMedia.Width) + 'x' + Format(TenantMedia.Height));
+                    Observer.Observe('added ' + Format(Added) + ' file name', TenantMedia."File Name");
+                    Observer.Observe('added ' + Format(Added) + ' base64', ReadTenantBase64(TenantMedia));
+                end;
+            until TenantMedia.Next() = 0;
+        Observer.Observe('tenant media rows added', Format(Added));
+        GuidedExperience.Remove(Enum::"Guided Experience Type"::"Assisted Setup", ObjectType::Codeunit, 61161);
+        GuidedExperience.Remove(Enum::"Guided Experience Type"::"Manual Setup", ObjectType::Codeunit, 61161);
         Observer.Finish();
     end;
 
