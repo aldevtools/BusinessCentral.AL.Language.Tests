@@ -120,7 +120,8 @@ codeunit 61262 "PZ Published App Columns"
         exit(App.Count());
     end;
 
-    // Outside issue 6148 (writer UG, 2026-10-29): Microsoft's Guided Experience Impl. (System Application) reads the Logo (a Media field, column 20) of the
+    // Outside issue 6148 (writer UG, 2026-10-29; same on BC 27.5, 28.5 and 29.0, CI): the corpus apps carry no logo (app.json "logo" is blank): their Logo is empty and the Media
+    // lookup by the null MediaId finds nothing; Microsoft's apps carry a logo with content. Microsoft's Guided Experience Impl. (System Application) reads the Logo (a Media field, column 20) of the
     // Published Application row of an app: SetRange(ID, AppId) + SetRange("Tenant Visible", true) + FindFirst, then Media.SetRange(ID, Logo.MediaId()) + FindFirst
     // + CalcFields(Content). The helper repeats that sequence step by step.
     local procedure LogoSteps(AppId: Text): Text
@@ -158,6 +159,12 @@ codeunit 61262 "PZ Published App Columns"
         Observer.Observe('system application', LogoSteps('63ca2fa4-4f03-4f2b-a480-172fef340d3f'));
         Observer.Observe('application', LogoSteps('c1335042-3002-4257-bf8a-75c898ccb1b8'));
         Observer.Observe('no such app', LogoSteps('00000000-0000-0000-0000-000000000001'));
-        Observer.Finish();
+        Observer.Expect('this onprem app', 'row found|logo has value=No|media id null=Yes|media row=none');
+        Observer.Expect('cloud coverage app', 'row found|logo has value=No|media id null=Yes|media row=none');
+        Observer.Expect('base application', 'row found|logo has value=Yes|media id null=No|media row=found|content has value=Yes');
+        Observer.Expect('system application', 'row found|logo has value=Yes|media id null=No|media row=found|content has value=Yes');
+        Observer.Expect('application', 'row found|logo has value=Yes|media id null=No|media row=found|content has value=Yes');
+        Observer.Expect('no such app', 'no visible row');
+        Observer.Verify();
     end;
 }
