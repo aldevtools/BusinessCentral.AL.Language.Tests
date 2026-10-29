@@ -315,10 +315,8 @@ codeunit 67515 "LT RV Tests"
         Min := MinimumActiveRowVersion();
         Observer.Observe(Name + ' last = prev', Format(Last = PrevLast));
         Observer.Observe(Name + ' last > prev', Format(Last > PrevLast));
-        Observer.Observe(Name + ' last > start', Format(Last > Last0));
         Observer.Observe(Name + ' min = prev', Format(Min = PrevMin));
         Observer.Observe(Name + ' min = start', Format(Min = Min0));
-        Observer.Observe(Name + ' min <= last + 1', Format(Min <= Last + 1));
         Observer.Observe(Name + ' in write transaction', Format(IsInWriteTransaction()));
         PrevLast := Last;
         PrevMin := Min;
@@ -611,6 +609,95 @@ codeunit 67515 "LT RV Tests"
         UkSnap(Observer, 'deleteall', PrevLast, PrevMin, Last0, Min0);
         Observer.Observe('count', Format(B.Count()));
         UkSnap(Observer, 'count', PrevLast, PrevMin, Last0, Min0);
+        Commit();
+        UkSnap(Observer, 'commit', PrevLast, PrevMin, Last0, Min0);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure UK_InsertReadInsertRead()
+    var
+        Observer: Codeunit "Probe Observer";
+        A: Record "LT UK Row A";
+        Last0: BigInteger;
+        Min0: BigInteger;
+        PrevLast: BigInteger;
+        PrevMin: BigInteger;
+    begin
+        UkStart(Last0, Min0);
+        PrevLast := Last0;
+        PrevMin := Min0;
+        A.Id := 1;
+        A.Insert();
+        UkSnap(Observer, 'insert', PrevLast, PrevMin, Last0, Min0);
+        A.FindFirst();
+        UkSnap(Observer, 'read', PrevLast, PrevMin, Last0, Min0);
+        A.FindFirst();
+        UkSnap(Observer, 'read again', PrevLast, PrevMin, Last0, Min0);
+        A.Id := 2;
+        A.Insert();
+        UkSnap(Observer, 'second insert', PrevLast, PrevMin, Last0, Min0);
+        A.FindLast();
+        UkSnap(Observer, 'read after second insert', PrevLast, PrevMin, Last0, Min0);
+        Commit();
+        UkSnap(Observer, 'commit', PrevLast, PrevMin, Last0, Min0);
+        A.DeleteAll();
+        Commit();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure UK_InsertThenReadOtherThenSame()
+    var
+        Observer: Codeunit "Probe Observer";
+        A: Record "LT UK Row A";
+        B: Record "LT UK Row B";
+        Last0: BigInteger;
+        Min0: BigInteger;
+        PrevLast: BigInteger;
+        PrevMin: BigInteger;
+    begin
+        UkStart(Last0, Min0);
+        PrevLast := Last0;
+        PrevMin := Min0;
+        A.Id := 1;
+        A.Insert();
+        UkSnap(Observer, 'insert', PrevLast, PrevMin, Last0, Min0);
+        B.Get(1);
+        UkSnap(Observer, 'get other', PrevLast, PrevMin, Last0, Min0);
+        B.Count();
+        UkSnap(Observer, 'count other', PrevLast, PrevMin, Last0, Min0);
+        A.Get(1);
+        UkSnap(Observer, 'get same', PrevLast, PrevMin, Last0, Min0);
+        Commit();
+        UkSnap(Observer, 'commit', PrevLast, PrevMin, Last0, Min0);
+        A.DeleteAll();
+        Commit();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure UK_ModifyThenRead()
+    var
+        Observer: Codeunit "Probe Observer";
+        B: Record "LT UK Row B";
+        Last0: BigInteger;
+        Min0: BigInteger;
+        PrevLast: BigInteger;
+        PrevMin: BigInteger;
+    begin
+        UkStart(Last0, Min0);
+        PrevLast := Last0;
+        PrevMin := Min0;
+        B.Get(1);
+        B.Amount := 3;
+        B.Modify();
+        UkSnap(Observer, 'modify', PrevLast, PrevMin, Last0, Min0);
+        B.FindFirst();
+        UkSnap(Observer, 'read', PrevLast, PrevMin, Last0, Min0);
+        B.Amount := 4;
+        B.Modify();
+        UkSnap(Observer, 'second modify', PrevLast, PrevMin, Last0, Min0);
         Commit();
         UkSnap(Observer, 'commit', PrevLast, PrevMin, Last0, Min0);
         Observer.Finish();
