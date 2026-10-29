@@ -188,7 +188,7 @@ codeunit 90509 "LT UP Promoted Tests"
         Log.Take();
         Pg.OpenView();
         Observer.Observe('open log', Log.Take());
-        Pg.Post_Promoted.Invoke();
+        Pg.Post.Invoke();
         Pg.AfterSeven_Promoted.Invoke();
         Pg.LastSeven_Promoted.Invoke();
         Pg.AfterTwelve_Promoted.Invoke();

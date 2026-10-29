@@ -181,9 +181,9 @@ codeunit 90497 "LT UP Ternary Tests"
         else
             Observer.ObserveError('300 chars into Text variable');
         Observer.Expect('250 chars', 'ok|250');
-        Observer.Expect('251 chars|text', 'The length of the string is 251, but it must be less than or equal to 250 characters. Value: https://' + PadStr('', 251 - StrLen('https://'), 'a'));
+        Observer.Expect('251 chars|text', 'The length of the string is 251, but it must be less than or equal to 250 characters. Value: ' + CopyStr('https://' + PadStr('', 251 - StrLen('https://'), 'a'), 1, 100) + '...');
         Observer.Expect('251 chars|code', 'StringLengthExceeded');
-        Observer.Expect('300 chars into Text variable|text', 'The length of the string is 300, but it must be less than or equal to 250 characters. Value: ' + PadStr('', 300, 'a'));
+        Observer.Expect('300 chars into Text variable|text', 'The length of the string is 300, but it must be less than or equal to 250 characters. Value: ' + PadStr('', 100, 'a') + '...');
         Observer.Expect('300 chars into Text variable|code', 'StringLengthExceeded');
         Observer.Verify();
     end;

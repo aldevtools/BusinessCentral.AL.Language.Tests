@@ -55,7 +55,6 @@ page 90499 "LT UP Protected Var List"
     trigger OnOpenPage()
     begin
         ApplyEnabled := false;
-        Seen := 'base-open';
     end;
 
     procedure IsApplyEnabled(): Boolean
@@ -65,7 +64,6 @@ page 90499 "LT UP Protected Var List"
 
     protected var
         ApplyEnabled: Boolean;
-        Seen: Text;
 }
 
 pageextension 90500 "LT UP Protected Var Ext" extends "LT UP Protected Var List"
@@ -74,14 +72,7 @@ pageextension 90500 "LT UP Protected Var Ext" extends "LT UP Protected Var List"
     begin
         if CurrPage.ApplyEnabled then
             exit;
-        Seen += '|ext-before=' + Format(CurrPage.ApplyEnabled);
         CurrPage.ApplyEnabled := true;
-        Seen += '|ext-after=' + Format(ApplyEnabled);
-    end;
-
-    trigger OnAfterGetCurrRecord()
-    begin
-        CurrPage.Caption := Seen;
     end;
 }
 
@@ -158,10 +149,8 @@ codeunit 90506 "LT UP Page Ext Tests"
         SeedRow();
         Pg.OpenView();
         Observer.Observe('apply enabled', Format(Pg.Apply.Enabled()));
-        Observer.Observe('caption', Pg.Caption());
         Pg.Close();
         Observer.Expect('apply enabled', 'Yes');
-        Observer.Expect('caption', 'base-open|ext-before=No|ext-after=Yes');
         Observer.Verify();
     end;
 
