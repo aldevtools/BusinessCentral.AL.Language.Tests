@@ -216,4 +216,57 @@ codeunit 73193 "LT P163 AllObj Namespace"
         Observer.Expect('no_such_table', 'allobj=<no row> caption=<no row>');
         Observer.Verify();
     end;
+
+    // Outside issue 6148 (writer UG, 2026-10-29): code that asks AllObj whether a standard table exists before it seeds setup rows. All columns of the TableData row of
+    // Contact (5050) and of the Table row, and the ways to ask for a table that does not exist.
+    local procedure UgRow(var AllObjRec: Record AllObj): Text
+    var
+        TableRow: Record AllObj;
+        Result: Text;
+    begin
+        Result := Format(AllObjRec."Object Type") + '|' + Format(AllObjRec."Object ID") + '|' + AllObjRec."Object Name" + '|ns=[' + AllObjRec."AL Namespace" + ']';
+        Result += '|package null=' + Format(IsNullGuid(AllObjRec."App Package ID")) + '|runtime package null=' + Format(IsNullGuid(AllObjRec."App Runtime Package ID"));
+        Result += '|runtime=package ' + Format(AllObjRec."App Runtime Package ID" = AllObjRec."App Package ID");
+        if TableRow.Get(TableRow."Object Type"::Table, AllObjRec."Object ID") then
+            Result += '|same package as Table row=' + Format(TableRow."App Package ID" = AllObjRec."App Package ID") + '|same runtime package as Table row=' + Format(TableRow."App Runtime Package ID" = AllObjRec."App Runtime Package ID");
+        exit(Result);
+    end;
+
+    [Test]
+    procedure UG_AllObj_TableDataRow_OfContact_AllColumns()
+    var
+        AllObjRec: Record AllObj;
+        Customer: Record AllObj;
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('get TableData 5050', Format(AllObjRec.Get(AllObjRec."Object Type"::TableData, 5050)));
+        Observer.Observe('row', UgRow(AllObjRec));
+        Customer.Get(Customer."Object Type"::TableData, 18);
+        Observer.Observe('same package as the Customer TableData row', Format(Customer."App Package ID" = AllObjRec."App Package ID") + ' / ' + Format(Customer."App Runtime Package ID" = AllObjRec."App Runtime Package ID"));
+        AllObjRec.Reset();
+        AllObjRec.SetRange("Object Type", AllObjRec."Object Type"::TableData);
+        AllObjRec.SetRange("Object ID", 5050);
+        Observer.Observe('filtered count', Format(AllObjRec.Count()));
+        Observer.Observe('filtered IsEmpty', Format(AllObjRec.IsEmpty()));
+        AllObjRec.SetRange("Object Name", 'Contact');
+        Observer.Observe('filtered by name count', Format(AllObjRec.Count()));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure UG_AllObj_TableDataRow_OfMissingTable_EveryAccessForm()
+    var
+        AllObjRec: Record AllObj;
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('get TableData 73199', Format(AllObjRec.Get(AllObjRec."Object Type"::TableData, 73199)));
+        Observer.Observe('get Table 73199', Format(AllObjRec.Get(AllObjRec."Object Type"::Table, 73199)));
+        AllObjRec.SetRange("Object Type", AllObjRec."Object Type"::TableData);
+        AllObjRec.SetRange("Object ID", 73199);
+        Observer.Observe('count', Format(AllObjRec.Count()));
+        Observer.Observe('IsEmpty', Format(AllObjRec.IsEmpty()));
+        Observer.Observe('FindFirst', Format(AllObjRec.FindFirst()));
+        Observer.Observe('get TableData 0', Format(AllObjRec.Get(AllObjRec."Object Type"::TableData, 0)));
+        Observer.Finish();
+    end;
 }

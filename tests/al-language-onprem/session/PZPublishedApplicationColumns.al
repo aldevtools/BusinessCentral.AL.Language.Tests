@@ -119,4 +119,45 @@ codeunit 61262 "PZ Published App Columns"
     begin
         exit(App.Count());
     end;
+
+    // Outside issue 6148 (writer UG, 2026-10-29): Microsoft's Guided Experience Impl. (System Application) reads the Logo (a Media field, column 20) of the
+    // Published Application row of an app: SetRange(ID, AppId) + SetRange("Tenant Visible", true) + FindFirst, then Media.SetRange(ID, Logo.MediaId()) + FindFirst
+    // + CalcFields(Content). The helper repeats that sequence step by step.
+    local procedure LogoSteps(AppId: Text): Text
+    var
+        App: Record "Published Application";
+        Media: Record Media;
+        Id: Guid;
+        Result: Text;
+    begin
+        Evaluate(Id, AppId);
+        App.SetRange(ID, Id);
+        App.SetRange("Tenant Visible", true);
+        if not App.FindFirst() then
+            exit('no visible row');
+        Result := 'row found';
+        Result += '|logo has value=' + Format(App.Logo.HasValue());
+        Result += '|media id null=' + Format(IsNullGuid(App.Logo.MediaId()));
+        Media.SetRange(ID, App.Logo.MediaId());
+        if not Media.FindFirst() then
+            exit(Result + '|media row=none');
+        Media.CalcFields(Content);
+        exit(Result + '|media row=found|content has value=' + Format(Media.Content.HasValue()));
+    end;
+
+    [Test]
+    procedure Logo_GuidedExperienceSequence_OfThisAppAndMicrosoftApps()
+    var
+        Observer: Codeunit "Probe Observer";
+        ThisModule: ModuleInfo;
+    begin
+        NavApp.GetCurrentModuleInfo(ThisModule);
+        Observer.Observe('this onprem app', LogoSteps(ThisModule.Id()));
+        Observer.Observe('cloud coverage app', LogoSteps('a1b2c3d4-e5f6-7890-abcd-ef1234567890'));
+        Observer.Observe('base application', LogoSteps('437dbf0e-84ff-417a-965d-ed2bb9650972'));
+        Observer.Observe('system application', LogoSteps('63ca2fa4-4f03-4f2b-a480-172fef340d3f'));
+        Observer.Observe('application', LogoSteps('c1335042-3002-4257-bf8a-75c898ccb1b8'));
+        Observer.Observe('no such app', LogoSteps('00000000-0000-0000-0000-000000000001'));
+        Observer.Finish();
+    end;
 }
