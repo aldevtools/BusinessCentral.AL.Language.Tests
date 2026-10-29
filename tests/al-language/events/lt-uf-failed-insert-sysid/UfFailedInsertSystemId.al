@@ -125,6 +125,7 @@ codeunit 90325 "LT UF Failed Insert SystemId"
         First: Record "LT UF SysId Row";
         Entry: Record "LT UF SysId Row";
         Counter: Record "LT UF SysId Row";
+        Runner: Codeunit "LT UF Insert Runner";
         NullId: Guid;
     begin
         ClearLastError();
@@ -135,15 +136,43 @@ codeunit 90325 "LT UF Failed Insert SystemId"
         Observer.Observe('count before', Format(Counter.Count()));
         Entry.Init();
         Entry."No." := 'F';
-        asserterror Entry.Insert(false);
+        Runner.Set(Entry, 0);
+        Observer.Observe('run insert(false)', Format(Runner.Run()));
         Observer.ObserveError('statement insert(false)');
-        Observer.Observe('count after', Format(Counter.Count()));
-        Observer.Observe('entry sysid null', Format(Entry.SystemId = NullId));
-        asserterror Entry.Insert();
+        Runner.Set(Entry, 1);
+        Observer.Observe('run insert()', Format(Runner.Run()));
         Observer.ObserveError('statement insert()');
-        asserterror Entry.Insert(true);
+        Runner.Set(Entry, 2);
+        Observer.Observe('run insert(true)', Format(Runner.Run()));
         Observer.ObserveError('statement insert(true)');
         Observer.Observe('count end', Format(Counter.Count()));
+        Observer.Observe('entry sysid null', Format(Entry.SystemId = NullId));
         Observer.Finish();
+    end;
+}
+
+// Runs a record's Insert as a statement (the return value is not used) inside Codeunit.Run, so that an error is caught by the caller.
+codeunit 90338 "LT UF Insert Runner"
+{
+    var
+        Row: Record "LT UF SysId Row";
+        Mode: Integer;
+
+    procedure Set(var NewRow: Record "LT UF SysId Row"; NewMode: Integer)
+    begin
+        Row := NewRow;
+        Mode := NewMode;
+    end;
+
+    trigger OnRun()
+    begin
+        case Mode of
+            0:
+                Row.Insert(false);
+            1:
+                Row.Insert();
+            2:
+                Row.Insert(true);
+        end;
     end;
 }
