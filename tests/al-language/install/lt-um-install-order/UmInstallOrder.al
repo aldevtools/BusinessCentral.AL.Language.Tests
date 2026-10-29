@@ -119,6 +119,12 @@ codeunit 90438 "LT UM Install Order Tests"
         Observer.Observe('rows', Format(Row.Count()));
         Observer.Observe('sessions', Format(Sessions.Count()));
         Observer.Observe('state as each row saw it', Carry);
-        Observer.Finish();
+        Observer.Expect('sequence session company/OnInstallAppPerCompany', 'Mu;b;Cu;Ay;Zz;');
+        Observer.Expect('sequence other company/OnInstallAppPerCompany', 'Mu;b;Cu;Ay;Zz;');
+        Observer.Expect('sequence blank/OnInstallAppPerDatabase', 'Mu;b;Cu;Ay;Zz;');
+        Observer.Expect('rows', '15');
+        Observer.Expect('sessions', '1');
+        Observer.Expect('state as each row saw it', 'Mu;|1 Mu;b;|2 Mu;b;Cu;|3 Mu;b;Cu;Ay;|4 Mu;b;Cu;Ay;Zz;|5 Mu;|1 Mu;b;|2 Mu;b;Cu;|3 Mu;b;Cu;Ay;|4 Mu;b;Cu;Ay;Zz;|5 Mu;|1 Mu;b;|2 Mu;b;Cu;|3 Mu;b;Cu;Ay;|4 Mu;b;Cu;Ay;Zz;|5 ');
+        Observer.Verify();
     end;
 }
