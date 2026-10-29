@@ -206,7 +206,7 @@ codeunit 83950 "LT BW Subscriber Order Tests"
         Observer.Verify();
     end;
 
-    // Writer UA: the same event raised once from this app's install routine (OnInstallAppPerCompany of "LT UA Install", 90243), in the
+    // Writer UA: the same event raised once from this app's install routine (subscriber "LT UA Install" 90243 of Extension Triggers OnInstallAppPerCompany), in the
     // install session, with the order kept in "LT UA Install Order" for the current company.
     [Test]
     procedure SubscriberOrder_PlatformTableEvent_DuringInstallOfTheTestApp()

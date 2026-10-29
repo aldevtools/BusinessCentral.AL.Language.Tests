@@ -61,18 +61,28 @@ codeunit 90242 "LT UA Order Raiser"
     end;
 }
 
+// Runs in this app's install session: a subscriber of "Extension Triggers".OnInstallAppPerCompany (no Install codeunit, see
+// .github/scripts/check-install-triggers.py). It cannot raise: the raise runs in a TryFunction and the row is written with `if Insert() then;`.
 codeunit 90243 "LT UA Install"
 {
-    Subtype = Install;
-
-    trigger OnInstallAppPerCompany()
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Extension Triggers", 'OnInstallAppPerCompany', '', false, false)]
+    local procedure InstallPerCompany()
     var
         Row: Record "LT UA Install Order";
+        Order: Text;
+    begin
+        if not TryRaise(Order) then
+            Order := 'error';
+        Row."Entry No." := 1;
+        Row."Order" := CopyStr(Order, 1, MaxStrLen(Row."Order"));
+        if Row.Insert() then;
+    end;
+
+    [TryFunction]
+    local procedure TryRaise(var Order: Text)
+    var
         Raiser: Codeunit "LT UA Order Raiser";
     begin
-        Row."Entry No." := 1;
-        Row."Order" := CopyStr(Raiser.Raise(), 1, MaxStrLen(Row."Order"));
-        if not Row.Insert() then
-            Row.Modify();
+        Order := Raiser.Raise();
     end;
 }
