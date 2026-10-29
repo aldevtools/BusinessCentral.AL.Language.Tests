@@ -3,7 +3,7 @@
 // Fixtures used: Probe Observer (codeunit 69160); the logo of cross-app fixtures C (300 x 300 gray PNG, 90393 bytes) and D (1 x 1 gray PNG, 67 bytes)
 // Probe (writer US, outside issue 6148): an app whose app.json declares a logo. What does the Logo (Media) of its Published Application row hold:
 //   the file bytes unchanged, which Media columns, and does the Guided Experience Item.Icon an app registers (System Application,
-//   GuidedExperienceImpl GetExtensionLogo + Icon.ImportStream) hold the same bytes. Cross-app fixture D registers the items (Codeunit.Run 61161).
+//   GuidedExperienceImpl GetExtensionLogo + Icon.ImportStream) hold the same bytes. Cross-app fixture D registers the items (Codeunit.Run 61169).
 // Not pinned: the Tenant Media bytes of the Icon differ from the logo file (BC re-encodes the PNG on import; the bytes came from the Linux container).
 // BC versions: 27, 28, 29
 codeunit 98010 "LT US App Logo"
@@ -162,9 +162,9 @@ codeunit 98010 "LT US App Logo"
             repeat
                 Before.Add(TenantMedia.ID);
             until TenantMedia.Next() = 0;
-        Codeunit.Run(61161);
-        Observer.Observe('assisted exists', Format(GuidedExperience.Exists(Enum::"Guided Experience Type"::"Assisted Setup", ObjectType::Codeunit, 61161)));
-        Observer.Observe('manual exists', Format(GuidedExperience.Exists(Enum::"Guided Experience Type"::"Manual Setup", ObjectType::Codeunit, 61161)));
+        Codeunit.Run(61169);
+        Observer.Observe('assisted exists', Format(GuidedExperience.Exists(Enum::"Guided Experience Type"::"Assisted Setup", ObjectType::Codeunit, 61169)));
+        Observer.Observe('manual exists', Format(GuidedExperience.Exists(Enum::"Guided Experience Type"::"Manual Setup", ObjectType::Codeunit, 61169)));
         if TenantMedia.FindSet() then
             repeat
                 if not Before.Contains(TenantMedia.ID) then begin
@@ -188,8 +188,8 @@ codeunit 98010 "LT US App Logo"
         Observer.Expect('added 2 width x height', '1x1');
         Observer.Expect('added 2 file name', '');
         Observer.Expect('tenant media rows added', '2');
-        GuidedExperience.Remove(Enum::"Guided Experience Type"::"Assisted Setup", ObjectType::Codeunit, 61161);
-        GuidedExperience.Remove(Enum::"Guided Experience Type"::"Manual Setup", ObjectType::Codeunit, 61161);
+        GuidedExperience.Remove(Enum::"Guided Experience Type"::"Assisted Setup", ObjectType::Codeunit, 61169);
+        GuidedExperience.Remove(Enum::"Guided Experience Type"::"Manual Setup", ObjectType::Codeunit, 61169);
         Observer.Verify();
     end;
 }
