@@ -24,7 +24,7 @@ dotnet
         type("System.Enum"; LtBbEnum) { }
         type("System.DayOfWeek"; LtBbDayOfWeek) { }
     }
-    assembly("netstandard")
+    assembly("System")
     {
         type("System.Security.Cryptography.X509Certificates.X509ContentType"; LtBbX509ContentType) { }
     }
@@ -380,8 +380,8 @@ codeunit 99220 "LT BB GetDotNetType"
         Run('UnassignedPlainException', TryUnassignedPlainException(Shown), Shown, 'System.Exception|System.Exception');
     end;
 
-    // ---- Writer TV (NP lane, 2026-10-29): GetDotNetType of an unassigned DotNet enum variable (X509ContentType from netstandard, as System
-    // Application's X509 certificate code declares it, and System.DayOfWeek), and System.Enum.Parse with that type into the same variable. ----
+    // ---- Writer TV (NP lane, 2026-10-29): GetDotNetType of an unassigned DotNet enum variable (X509ContentType, which System Application's
+    // X509 certificate code parses with System.Enum.Parse(GetDotNetType(X), name), and System.DayOfWeek), and that Enum.Parse into the variable. ----
 
     [TryFunction]
     local procedure TvTryUnassignedX509(var Shown: Text)
