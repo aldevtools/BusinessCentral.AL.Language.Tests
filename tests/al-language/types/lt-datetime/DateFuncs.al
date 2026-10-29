@@ -443,7 +443,7 @@ codeunit 73801 "LT DtT DateFuncs"
         D: Date;
     begin
         D := DMY2Date(Day, Month, Year);
-        Outcome := 'undefined=' + Format(D = 0D) + '|day=' + Format(Date2DMY(D, 1)) + '|month=' + Format(Date2DMY(D, 2)) + '|year is current=' + Format(Date2DMY(D, 3) = Date2DMY(Today(), 3)) + '|equals omitted year=' + Format(D = DMY2Date(Day, Month));
+        Outcome := 'undefined=' + Format(D = 0D) + '|day=' + Format(Date2DMY(D, 1)) + '|month=' + Format(Date2DMY(D, 2)) + '|year is current=' + Format(Date2DMY(D, 3) = Date2DMY(Today(), 3)) + '|year=' + Format(Date2DMY(D, 3)) + '|iso=' + Format(D, 0, 9) + '|equals 1.1.1=' + Format(D = DMY2Date(1, 1, 1)) + '|equals omitted year=' + Format(D = DMY2Date(Day, Month));
     end;
 
     local procedure UnDmy(var Observer: Codeunit "Probe Observer"; Day: Integer; Month: Integer; Year: Integer)
@@ -465,6 +465,8 @@ codeunit 73801 "LT DtT DateFuncs"
         Observer: Codeunit "Probe Observer";
     begin
         UnDmy(Observer, 1, 1, 0);
+        UnDmy(Observer, 2, 1, 0);
+        UnDmy(Observer, 1, 2, 0);
         UnDmy(Observer, 28, 2, 0);
         UnDmy(Observer, 15, 6, 0);
         UnDmy(Observer, 31, 12, 0);
