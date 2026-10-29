@@ -48,11 +48,18 @@ codeunit 90399 "LT UJ Bg Log"
     var
         Entries: Text;
         CurrentMode: Integer;
+        Handler: Text;
 
-    procedure Start(NewMode: Integer)
+    procedure Start(NewMode: Integer; NewHandler: Text)
     begin
         Entries := '';
         CurrentMode := NewMode;
+        Handler := NewHandler;
+    end;
+
+    procedure HandledBy(): Text
+    begin
+        exit(Handler);
     end;
 
     procedure Mode(): Integer
@@ -117,6 +124,8 @@ page 90400 "LT UJ Bg Base"
         Log: Codeunit "LT UJ Bg Log";
     begin
         Log.Add('base error [' + ErrorText + '] handled=' + Format(IsHandled));
+        if Log.HandledBy() = 'base' then
+            IsHandled := true;
     end;
 }
 
@@ -152,6 +161,8 @@ pageextension 90401 "LT UJ Bg Ext" extends "LT UJ Bg Base"
         Log: Codeunit "LT UJ Bg Log";
     begin
         Log.Add('ext error [' + ErrorText + '] handled=' + Format(IsHandled));
+        if Log.HandledBy() = 'ext' then
+            IsHandled := true;
     end;
 }
 
@@ -163,7 +174,7 @@ codeunit 90404 "LT UJ Page Ext Bg Tests"
     var
         Observer: Codeunit "Probe Observer";
 
-    local procedure RunMode(Mode: Integer; Name: Text)
+    local procedure RunMode(Mode: Integer; HandledBy: Text; Name: Text)
     var
         Row: Record "LT UJ Bg Row";
         Log: Codeunit "LT UJ Bg Log";
@@ -172,7 +183,7 @@ codeunit 90404 "LT UJ Page Ext Bg Tests"
         Row.DeleteAll();
         Row.Id := 1;
         Row.Insert();
-        Log.Start(Mode);
+        Log.Start(Mode, HandledBy);
         Card.OpenView();
         Log.Add('opened');
         Observer.Observe(Name, Log.Take());
@@ -180,20 +191,51 @@ codeunit 90404 "LT UJ Page Ext Bg Tests"
         Log.Take();
     end;
 
+    local procedure RunUnhandled(Mode: Integer; Name: Text)
+    var
+        Row: Record "LT UJ Bg Row";
+        Log: Codeunit "LT UJ Bg Log";
+        Card: TestPage "LT UJ Bg Base";
+    begin
+        Row.DeleteAll();
+        Row.Id := 1;
+        Row.Insert();
+        Log.Start(Mode, 'none');
+        asserterror Card.OpenView();
+        Observer.Observe(Name + ' log', Log.Take());
+        Observer.ObserveError(Name);
+    end;
+
     [Test]
     procedure UJ_PageExt_BgTask_Completed()
     begin
-        RunMode(0, 'mode 0 base enqueues');
-        RunMode(1, 'mode 1 both enqueue');
-        RunMode(2, 'mode 2 extension enqueues');
+        RunMode(0, '', 'mode 0 base enqueues');
+        RunMode(1, '', 'mode 1 both enqueue');
+        RunMode(2, '', 'mode 2 extension enqueues');
         Observer.Finish();
     end;
 
     [Test]
-    procedure UJ_PageExt_BgTask_Error()
+    procedure UJ_PageExt_BgTask_Error_Handled()
     begin
-        RunMode(3, 'mode 3 base enqueues failing task');
-        RunMode(4, 'mode 4 extension enqueues failing task');
+        RunMode(3, 'base', 'base enqueues failing task, base handles');
+        RunMode(3, 'ext', 'base enqueues failing task, extension handles');
+        RunMode(4, 'base', 'extension enqueues failing task, base handles');
+        RunMode(4, 'ext', 'extension enqueues failing task, extension handles');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure UJ_PageExt_BgTask_Error_Unhandled_Base()
+    begin
+        RunUnhandled(3, 'base task unhandled');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure UJ_PageExt_BgTask_Error_Unhandled_Ext()
+    begin
+        RunUnhandled(4, 'extension task unhandled');
         Observer.Finish();
     end;
 }

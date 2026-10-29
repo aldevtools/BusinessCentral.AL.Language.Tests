@@ -217,7 +217,7 @@ codeunit 90403 "LT UJ SubPageLink Tests"
         Card.HeaderLines.LineNoCtl.SetValue(9);
         Card.AltItemLines.New();
         Observer.Observe('alt part new row shows', Card.AltItemLines.SrcCtl.Value() + '/' + Card.AltItemLines.AltSrcCtl.Value());
-        Card.AltItemLines.LineNoCtl.SetValue(9);
+        Card.AltItemLines.LineNoCtl.SetValue(29);
         Card.Close();
         Observer.Observe('stored', Stored());
         Observer.Finish();
