@@ -25,12 +25,13 @@ pageextension 90347 "LT UE PV Mid Ext" extends "LT UE PV Card"
         {
             field(MidAmount; Rec.Amount)
             {
+                ApplicationArea = All;
                 Visible = ShowAmount;
             }
         }
         addlast(Content)
         {
-            field(TraceField; Trace) { }
+            field(TraceField; Trace) { ApplicationArea = All; }
         }
     }
 
@@ -53,6 +54,7 @@ pageextension 90348 "LT UE PV Top Ext" extends "LT UE PV Card"
         {
             field(TopAmount; Rec.Amount)
             {
+                ApplicationArea = All;
                 Visible = ShowAmount;
             }
         }
