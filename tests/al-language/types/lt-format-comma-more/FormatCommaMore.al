@@ -5,6 +5,8 @@
 // Facts: <Comma,,> before <Decimals>; <Comma,.> with <Integer Thousand> and <Decimals,3>; <Comma,.> on a Decimal, a BigInteger, a Duration and a DateTime. A format string BC rejects is recorded as error text and code.
 //   No locale-dependent value: the session language is set to 1033 for the run and restored.
 //   Corpus issue 576 item 3.
+//   Format(Decimal, 0, '<Sign><Integer><Decimals,3><Comma,.>') (width 3 includes the point): two places zero padded, no grouping, a minus only for a nonzero
+//   value, '***' when the fraction does not fit in width 3 (no rounding), identical under GlobalLanguage 1033, 2055 and 1031 (runtime PR 6138).
 // BC versions: 27, 28, 29
 
 codeunit 67357 "LT FCM Tests"
@@ -175,7 +177,25 @@ codeunit 67357 "LT FCM Tests"
         Observer: Codeunit "Probe Observer";
     begin
         WidthThree(1033, Observer);
-        Observer.Finish();
+        Observer.Expect('d_0', 'ok:0.00');
+        Observer.Expect('d_-0', 'ok:0.00');
+        Observer.Expect('d_1234', 'ok:1234.00');
+        Observer.Expect('d_-1234', 'ok:-1234.00');
+        Observer.Expect('d_0.5', 'ok:0.50');
+        Observer.Expect('d_-0.5', 'ok:-0.50');
+        Observer.Expect('d_1234.5', 'ok:1234.50');
+        Observer.Expect('d_-1234.5', 'ok:-1234.50');
+        Observer.Expect('d_0.005', 'ok:0***');
+        Observer.Expect('d_-0.005', 'ok:-0***');
+        Observer.Expect('d_1.234', 'ok:1***');
+        Observer.Expect('d_-1.234', 'ok:-1***');
+        Observer.Expect('d_1.235', 'ok:1***');
+        Observer.Expect('d_1.995', 'ok:1***');
+        Observer.Expect('d_99999', 'ok:99999.00');
+        Observer.Expect('d_-99999', 'ok:-99999.00');
+        Observer.Expect('d_1.2300', 'ok:1.23');
+        Observer.Expect('d_999999999999999.99', 'ok:999999999999999.99');
+        Observer.Verify();
     end;
 
     [Test]
@@ -184,7 +204,25 @@ codeunit 67357 "LT FCM Tests"
         Observer: Codeunit "Probe Observer";
     begin
         WidthThree(2055, Observer);
-        Observer.Finish();
+        Observer.Expect('d_0', 'ok:0.00');
+        Observer.Expect('d_-0', 'ok:0.00');
+        Observer.Expect('d_1234', 'ok:1234.00');
+        Observer.Expect('d_-1234', 'ok:-1234.00');
+        Observer.Expect('d_0.5', 'ok:0.50');
+        Observer.Expect('d_-0.5', 'ok:-0.50');
+        Observer.Expect('d_1234.5', 'ok:1234.50');
+        Observer.Expect('d_-1234.5', 'ok:-1234.50');
+        Observer.Expect('d_0.005', 'ok:0***');
+        Observer.Expect('d_-0.005', 'ok:-0***');
+        Observer.Expect('d_1.234', 'ok:1***');
+        Observer.Expect('d_-1.234', 'ok:-1***');
+        Observer.Expect('d_1.235', 'ok:1***');
+        Observer.Expect('d_1.995', 'ok:1***');
+        Observer.Expect('d_99999', 'ok:99999.00');
+        Observer.Expect('d_-99999', 'ok:-99999.00');
+        Observer.Expect('d_1.2300', 'ok:1.23');
+        Observer.Expect('d_999999999999999.99', 'ok:999999999999999.99');
+        Observer.Verify();
     end;
 
     [Test]
@@ -193,6 +231,24 @@ codeunit 67357 "LT FCM Tests"
         Observer: Codeunit "Probe Observer";
     begin
         WidthThree(1031, Observer);
-        Observer.Finish();
+        Observer.Expect('d_0', 'ok:0.00');
+        Observer.Expect('d_-0', 'ok:0.00');
+        Observer.Expect('d_1234', 'ok:1234.00');
+        Observer.Expect('d_-1234', 'ok:-1234.00');
+        Observer.Expect('d_0.5', 'ok:0.50');
+        Observer.Expect('d_-0.5', 'ok:-0.50');
+        Observer.Expect('d_1234.5', 'ok:1234.50');
+        Observer.Expect('d_-1234.5', 'ok:-1234.50');
+        Observer.Expect('d_0.005', 'ok:0***');
+        Observer.Expect('d_-0.005', 'ok:-0***');
+        Observer.Expect('d_1.234', 'ok:1***');
+        Observer.Expect('d_-1.234', 'ok:-1***');
+        Observer.Expect('d_1.235', 'ok:1***');
+        Observer.Expect('d_1.995', 'ok:1***');
+        Observer.Expect('d_99999', 'ok:99999.00');
+        Observer.Expect('d_-99999', 'ok:-99999.00');
+        Observer.Expect('d_1.2300', 'ok:1.23');
+        Observer.Expect('d_999999999999999.99', 'ok:999999999999999.99');
+        Observer.Verify();
     end;
 }
