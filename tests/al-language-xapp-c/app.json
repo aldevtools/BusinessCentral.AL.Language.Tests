@@ -4,7 +4,7 @@
   "publisher": "Bravo Probe Publisher",
   "version": "1.0.0.0",
   "brief": "Cross-app fixture C: extends a page of cross-app fixture B without depending on the app that declares a type the page uses.",
-  "description": "A page extension of cross-app fixture B's page and subscribers of the cross-app order probe. Depends on cross-app fixtures A and B, and on purpose not on the AL Internals Test Fixture. The app id, name and publisher are fixed on purpose: they decide the candidate orders of the cross-app subscriber order probe (CONTRIBUTING.md, \"Multi-app fixtures\"). Do not change them.",
+  "description": "A page extension of cross-app fixture B's page and subscribers of the cross-app order probe. Depends on cross-app fixtures B, A and D (in this order on purpose: the declared order is not the app id order of A and B; writer UI), and on purpose not on the AL Internals Test Fixture. The app id, name and publisher are fixed on purpose: they decide the candidate orders of the cross-app subscriber order probe (CONTRIBUTING.md, \"Multi-app fixtures\"). Do not change them.",
   "privacyStatement": "",
   "EULA": "",
   "help": "",
