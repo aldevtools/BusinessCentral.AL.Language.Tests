@@ -3,9 +3,9 @@
 // Fixtures used: Library Assert; own enums 90250 and 90251, table 90252, codeunits 90253 and 90255, page 90254
 // Probe: written against BC; every literal asserted below is what BC produced (BC 27, 28 and 29 by the corpus CI matrix).
 // Settles GitHub issue 6129 (NP Retail): `X::Value` where the table has a field called X (enum "Field Enum") and an enum TYPE
-// called X exists too. Inside a TableNo codeunit X is the enum type. Inside the table itself, inside a page on the table, and
+// called X exists too. Inside a procedure of a TableNo codeunit X is the enum type, but inside its OnRun trigger (where Rec is the implicit scope) X is the field. Inside the table itself, inside a page on the table, and
 // where a local or global variable called X exists, X is the field or variable (enum "Field Enum"), never the type.
-// Must-not-compile companions: tests/must-not-compile/cases/2262 to 2266 (a member that only the other enum has).
+// Must-not-compile companions: tests/must-not-compile/cases/2262 to 2267 (a member that only the other enum has).
 // BC versions: 27, 28, 29
 
 enum 90250 "LT UB Field Enum"
@@ -149,12 +149,12 @@ codeunit 90255 "LT UB Enum Type Test"
     end;
 
     [Test]
-    procedure TableNoCodeunit_OnRunUsesEnumType()
+    procedure TableNoCodeunit_OnRunUsesField()
     var
         Rec: Record "LT UB Rec";
     begin
         Codeunit.Run(Codeunit::"LT UB Table No", Rec);
-        Assert.AreEqual(2, Rec.Id, 'OnRun of the TableNo codeunit');
+        Assert.AreEqual(1, Rec.Id, 'OnRun of the TableNo codeunit: X is the field of Rec, ordinal of the field enum');
     end;
 
     [Test]
