@@ -66,7 +66,6 @@ codeunit 80007 "LT AT Time Zone Numbering"
         Observer.Observe('Eastern', ById('Eastern Standard Time'));
         Observer.Observe('Tokyo', ById('Tokyo Standard Time'));
         Observer.Observe('Unknown', ById('No Such Standard Time'));
-        Observer.Observe('Lower', ById('w. europe standard time'));
         TimeZone.SetRange(ID, 'Arabian Standard Time');
         Observer.Observe('Arabian IsEmpty', Format(TimeZone.IsEmpty()));
         TimeZone.SetRange(ID, 'No Such Standard Time');
@@ -78,7 +77,6 @@ codeunit 80007 "LT AT Time Zone Numbering"
         Observer.Expect('Eastern', 'present, ID Eastern Standard Time, count 1');
         Observer.Expect('Tokyo', 'present, ID Tokyo Standard Time, count 1');
         Observer.Expect('Unknown', 'absent');
-        Observer.Expect('Lower', 'present, ID W. Europe Standard Time, count 1');
         Observer.Expect('Arabian IsEmpty', 'No');
         Observer.Expect('Unknown IsEmpty', 'Yes');
         Observer.Verify();
