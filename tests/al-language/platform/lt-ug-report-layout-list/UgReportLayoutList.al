@@ -5,7 +5,7 @@
 // Probe: outside issue 6191 (a ForNAV layout selection reads column 14 of the platform table "Report Layout List" (2000000234) of a built-in layout while the app
 //   installs). Every field of the row is read through a RecordRef (number, name, type, value; a Guid, a date/time and a Media/Blob value is shown as blank / set /
 //   this app because the values themselves are environment data) for a report with an RDLC layout, one with a Word layout and one with no layout.
-// Observed on the BC 29.0 SaaS sandbox; the CI legs 27.5 and 28.5 decide the versions.
+// Observed on the BC 29.0 SaaS sandbox and the CI legs: BC 27 has the columns 1 - 17, BC 28 adds 18 (Layout Status), BC 29 adds 19 - 21 (Layout Subtype, HeaderFooterPart, ThemePart).
 // BC versions: 27 - 29
 
 report 90368 "LT UG Report No Layout"
@@ -113,10 +113,14 @@ codeunit 90370 "LT UG Report Layout List"
         Observer.Expect('rdlc 15 ReportIsInstalled', 'Boolean [Yes]');
         Observer.Expect('rdlc 16 IsObsolete', 'Boolean [No]');
         Observer.Expect('rdlc 17 ExcelLayoutMultipleDataSheets', 'Option [Default]');
+#if BC28PLUS
         Observer.Expect('rdlc 18 Layout Status', 'Option [Approved]');
+#endif
+#if BC29PLUS
         Observer.Expect('rdlc 19 Layout Subtype', 'Option [Default]');
         Observer.Expect('rdlc 20 HeaderFooterPart', 'Text []');
         Observer.Expect('rdlc 21 ThemePart', 'Text []');
+#endif
         Observer.Verify();
     end;
 
@@ -143,10 +147,14 @@ codeunit 90370 "LT UG Report Layout List"
         Observer.Expect('word 15 ReportIsInstalled', 'Boolean [Yes]');
         Observer.Expect('word 16 IsObsolete', 'Boolean [No]');
         Observer.Expect('word 17 ExcelLayoutMultipleDataSheets', 'Option [Default]');
+#if BC28PLUS
         Observer.Expect('word 18 Layout Status', 'Option [Approved]');
+#endif
+#if BC29PLUS
         Observer.Expect('word 19 Layout Subtype', 'Option [Default]');
         Observer.Expect('word 20 HeaderFooterPart', 'Text []');
         Observer.Expect('word 21 ThemePart', 'Text []');
+#endif
         Observer.Verify();
     end;
 
