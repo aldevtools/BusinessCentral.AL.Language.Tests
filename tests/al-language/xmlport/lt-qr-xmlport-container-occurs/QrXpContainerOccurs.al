@@ -4,6 +4,8 @@
 // Writer TO: tests TO_* on table 90000, xmlports 90001-90003, runner 90004 (ToXpTextInTableObjects.al): a text element below a table element, with only text attributes or with content.
 // Writer TP: tests TP_* on tables 90020-90021, xmlports 90022-90023, runner 90024 (TpXpNestedObjects.al): a text element with one text attribute
 //   below a text element below a table element; an optional text element holding an unlinked temporary table element.
+// Writer TR: tests TR_* on tables 90060-90063, xmlports 90064-90066, runner 90067 (TrXpReplyObjects.al): request/reply ports with unlinked
+//   temporary table elements nested in optional text elements, export after import into the same instance; empty leaf elements on import.
 // Probe: observed on the corpus CI matrix; every literal asserted below is what the BC service tier produced.
 // Facts: MaxOccurs and MinOccurs on CONTAINER text elements (the root text element with MaxOccurs = Once, a required container with
 //   MinOccurs = Once and MaxOccurs = Once that holds a temporary table element, an optional container with MinOccurs = Zero and
@@ -1062,6 +1064,354 @@ codeunit 87280 "LT QR XP Container Tests"
         Observer.Expect('membership twice|text', 'Imported XML cannot validate with the schema: The element ''member'' has invalid child element ''membership''.');
         Observer.Expect('membership twice|code', 'XmlPortInvalidXml');
         Observer.Expect('no rows', 'ok log= values: responsecode= responsemessage= tier= validuntil= membership= status= rows=');
+        Observer.Verify();
+    end;
+
+    // Writer TR (NP lane, 2026-10-29): request/reply ports 90064-90066 (TrXpReplyObjects.al): unlinked temporary table elements nested
+    // in optional text elements below a temporary table element (MaxOccurs = Once), export with 0, 1 and 2 rows at each level after an
+    // import into the same instance; import of empty leaf elements written as <x /> and as <x></x>.
+    local procedure TrExportBooking(var Port: XmlPort "LT TR XP Booking"): Text
+    var
+        Buffer: Record "LT QR XP Blob" temporary;
+        OutS: OutStream;
+    begin
+        Buffer.Id := 1;
+        Buffer.Insert();
+        Buffer.Data.CreateOutStream(OutS, TextEncoding::UTF8);
+        Port.SetDestination(OutS);
+        Port.Export();
+        exit(ToRead(Buffer));
+    end;
+
+    [TryFunction]
+    local procedure TrTryExportBooking(var Port: XmlPort "LT TR XP Booking"; var Xml: Text)
+    begin
+        Xml := TrExportBooking(Port);
+    end;
+
+    local procedure TrImportBooking(var Port: XmlPort "LT TR XP Booking"; Body: Text)
+    var
+        Buffer: Record "LT QR XP Blob" temporary;
+        OutS: OutStream;
+        InS: InStream;
+    begin
+        Buffer.Id := 1;
+        Buffer.Data.CreateOutStream(OutS, TextEncoding::UTF8);
+        OutS.WriteText('<?xml version="1.0" encoding="UTF-8"?>' + Body);
+        Buffer.Insert();
+        Buffer.CalcFields(Data);
+        Buffer.Data.CreateInStream(InS, TextEncoding::UTF8);
+        Port.SetSource(InS);
+        Port.Import();
+    end;
+
+    local procedure TrExportMember(var Port: XmlPort "LT TR XP Member Reply"): Text
+    var
+        Buffer: Record "LT QR XP Blob" temporary;
+        OutS: OutStream;
+    begin
+        Buffer.Id := 1;
+        Buffer.Insert();
+        Buffer.Data.CreateOutStream(OutS, TextEncoding::UTF8);
+        Port.SetDestination(OutS);
+        Port.Export();
+        exit(ToRead(Buffer));
+    end;
+
+    local procedure TrImportMember(var Port: XmlPort "LT TR XP Member Reply"; Body: Text)
+    var
+        Buffer: Record "LT QR XP Blob" temporary;
+        OutS: OutStream;
+        InS: InStream;
+    begin
+        Buffer.Id := 1;
+        Buffer.Data.CreateOutStream(OutS, TextEncoding::UTF8);
+        OutS.WriteText('<?xml version="1.0" encoding="UTF-8"?>' + Body);
+        Buffer.Insert();
+        Buffer.CalcFields(Data);
+        Buffer.Data.CreateInStream(InS, TextEncoding::UTF8);
+        Port.SetSource(InS);
+        Port.Import();
+    end;
+
+    local procedure TrLeaf(var Observer: Codeunit "Probe Observer"; Name: Text; Body: Text)
+    var
+        Runner: Codeunit "LT TR XP Leaf Runner";
+    begin
+        Runner.SetInput('<?xml version="1.0" encoding="UTF-8"?>' + Body);
+        ClearLastError();
+        if Runner.Run() then
+            Observer.Observe(Name, 'ok ' + Runner.Result())
+        else
+            Observer.ObserveError(Name);
+    end;
+
+    [TryFunction]
+    local procedure TrTryExportMember(var Port: XmlPort "LT TR XP Member Reply"; var Xml: Text)
+    begin
+        Xml := TrExportMember(Port);
+    end;
+
+    [Test]
+    procedure TR_Booking_Export_Fresh()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TR XP Booking";
+        Xml: Text;
+    begin
+        // nothing imported, no reply: the request table element (MinOccurs default Once) writes one row from the empty record
+        ClearLastError();
+        if TrTryExportBooking(Port, Xml) then
+            Observer.Observe('xml', Xml)
+        else
+            Observer.ObserveError('xml');
+        Observer.Observe('log', Port.GetLog());
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<bookings xmlns="urn:microsoft-dynamics-nav/xmlports/x90064">|  <request token="">|    <ticket code="" line_no="0" qty="0" amount="0.00" />|  </request>|</bookings>|');
+        Observer.Expect('log', '');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TR_Booking_ImportThenExport()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TR XP Booking";
+    begin
+        // import the request, export (no reply yet), set an error reply on the same instance, export again
+        TrImportBooking(Port, '<bookings xmlns="urn:microsoft-dynamics-nav/xmlports/x90064"><request token="T1"><ticket code="ADULT" line_no="1" qty="2" amount="10.5"/><ticket code="CHILD" line_no="2" qty="1"/></request></bookings>');
+        Observer.Observe('import log', Port.GetLog());
+        Observer.Observe('token', Port.GetToken());
+        Observer.Observe('tickets', Port.Tickets());
+        Port.ClearLog();
+        Observer.Observe('export 1', TrExportBooking(Port));
+        Observer.Observe('export 1 log', Port.GetLog());
+        Port.ClearLog();
+        Port.SetErrorResult('T1', 'Ticket sold out');
+        Observer.Observe('export 2', TrExportBooking(Port));
+        Observer.Observe('export 2 log', Port.GetLog());
+        Observer.Observe('after', Port.ResultMessage());
+        Observer.Expect('import log', 'insert ticket ADULT;insert ticket CHILD;');
+        Observer.Expect('token', 'T1');
+        Observer.Expect('tickets', '1:ADULT/1/2/10.5;2:CHILD/2/1/0;');
+        Observer.Expect('export 1', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<bookings xmlns="urn:microsoft-dynamics-nav/xmlports/x90064">|  <request token="T1">|    <ticket code="ADULT" line_no="1" qty="2" amount="10.50" />|    <ticket code="CHILD" line_no="2" qty="1" amount="0.00" />|  </request>|</bookings>|');
+        Observer.Expect('export 1 log', '');
+        Observer.Expect('export 2', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<bookings xmlns="urn:microsoft-dynamics-nav/xmlports/x90064">|  <request token="T1">|    <ticket code="ADULT" line_no="1" qty="2" amount="10.50" />|    <ticket code="CHILD" line_no="2" qty="1" amount="0.00" />|  </request>|  <results>|    <state>false</state>|    <token>T1</token>|    <message>Ticket sold out</message>|    <details />|  </results>|</bookings>|');
+        Observer.Expect('export 2 log', 'get result;pass state;');
+        Observer.Expect('after', 'token=T1 message=Ticket sold out state=false');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TR_Booking_Reply_NoLines()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TR XP Booking";
+    begin
+        Port.SetResult(1, 'T9', true, 'OK');
+        Observer.Observe('xml', TrExportBooking(Port));
+        Observer.Observe('log', Port.GetLog());
+        Observer.Observe('after', Port.ResultMessage());
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<bookings xmlns="urn:microsoft-dynamics-nav/xmlports/x90064">|  <request token="">|    <ticket code="" line_no="0" qty="0" amount="0.00" />|  </request>|  <results>|    <state>true</state>|    <token>T9</token>|    <message>OK</message>|    <details />|  </results>|</bookings>|');
+        Observer.Expect('log', 'get result;pass state;');
+        Observer.Expect('after', 'token=T9 message=OK state=true');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TR_Booking_Reply_OneLineOnePart()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TR XP Booking";
+    begin
+        Port.SetResult(1, 'T9', true, 'OK');
+        Port.AddLine(10, 1, true, '');
+        Port.AddPart(1, 1, 'ZOO', 501, 2, 12.5, 'Zoo entrance');
+        Observer.Observe('xml', TrExportBooking(Port));
+        Observer.Observe('log', Port.GetLog());
+        Observer.Observe('parts after', Port.PartRows());
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<bookings xmlns="urn:microsoft-dynamics-nav/xmlports/x90064">|  <request token="">|    <ticket code="" line_no="0" qty="0" amount="0.00" />|  </request>|  <results>|    <state>true</state>|    <token>T9</token>|    <message>OK</message>|    <details>|      <line line_no="1" status="true" message="OK" price="12.5" quantity="1">|        <parts>|          <Part Code="ZOO">|            <Slot ExtNo="501" Type="Open" CanMove="No" UnitPrice="12.5">|              <kind_is option_value="2">Open</kind_is>|            </Slot>|            <Description>Zoo entrance</Description>|          </Part>|        </parts>|      </line>|    </details>|  </results>|</bookings>|');
+        Observer.Expect('log', 'get result;pass state;get line 1;pass price;pass quantity;get part ZOO;pass unitprice;pass kind_is;pass kind_id;');
+        Observer.Expect('parts after', 'ZOO;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TR_Booking_Reply_TwoLinesTwoParts()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TR XP Booking";
+    begin
+        // each line's OnAfterGetRecord empties the unlinked part table and fills it for that line; parts follow SourceTableView (Kind)
+        Port.SetResult(1, 'T9', true, 'OK');
+        Port.AddLine(10, 1, true, '');
+        Port.AddLine(20, 2, false, 'Sold out');
+        Port.AddPart(1, 1, 'ZOO', 501, 2, 12.5, 'Zoo entrance');
+        Port.AddPart(2, 1, 'SHOW', 712, 1, 7, 'Evening show');
+        Port.AddPart(3, 2, 'PARK', 0, 3, 0, '');
+        Port.AddPart(4, 2, 'MUSEUM', 803, 1, 4.25, 'Museum');
+        Observer.Observe('xml', TrExportBooking(Port));
+        Observer.Observe('log', Port.GetLog());
+        Observer.Observe('parts after', Port.PartRows());
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<bookings xmlns="urn:microsoft-dynamics-nav/xmlports/x90064">|  <request token="">|    <ticket code="" line_no="0" qty="0" amount="0.00" />|  </request>|  <results>|    <state>true</state>|    <token>T9</token>|    <message>OK</message>|    <details>|      <line line_no="1" status="true" message="OK" price="19.5" quantity="2">|        <parts>|          <Part Code="SHOW">|            <Slot ExtNo="712" Type="Timed" Date="2026-03-02" StartTime="10:00:00" EndTime="11:30:00" CanMove="Yes" UnitPrice="7">|              <kind_is option_value="1">Timed</kind_is>|            </Slot>|            <Description>Evening show</Description>|          </Part>|          <Part Code="ZOO">|            <Slot ExtNo="501" Type="Open" CanMove="No" UnitPrice="12.5">|              <kind_is option_value="2">Open</kind_is>|            </Slot>|            <Description>Zoo entrance</Description>|          </Part>|        </parts>|      </line>|      <line line_no="2" status="false" message="Sold out" price="4.25" quantity="2">|        <parts>|          <Part Code="MUSEUM">|            <Slot ExtNo="803" Type="Timed" Date="2026-03-03" StartTime="10:00:00" EndTime="11:30:00" CanMove="Yes" UnitPrice="4.25">|              <kind_is option_value="1">Timed</kind_is>|            </Slot>|            <Description>Museum</Description>|          </Part>|          <Part Code="PARK">|            <Slot ExtNo="0" Type="Open" CanMove="No" UnitPrice="0">|              <kind_is option_value="3">Skipped</kind_is>|            </Slot>|            <Description />|          </Part>|        </parts>|      </line>|    </details>|  </results>|</bookings>|');
+        Observer.Expect('log', 'get result;pass state;get line 1;pass price;pass quantity;get part SHOW;pass unitprice;pass kind_is;pass kind_id;get part ZOO;pass unitprice;pass kind_is;pass kind_id;get line 2;pass price;pass quantity;get part MUSEUM;pass unitprice;pass kind_is;pass kind_id;get part PARK;pass unitprice;pass kind_is;pass kind_id;');
+        Observer.Expect('parts after', 'PARK;MUSEUM;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TR_Booking_Reply_LinesWithoutParts()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TR XP Booking";
+        Xml: Text;
+    begin
+        // lines 1 and 3 get no part rows: the part table element (MinOccurs = Once) still writes one Part, from the record variable as it
+        // is (empty before any row was read, the last row read after line 2), its OnAfterGetRecord does not run, its children's triggers do
+        Port.SetResult(1, 'T9', true, 'OK');
+        Port.AddLine(10, 1, true, '');
+        Port.AddLine(20, 2, true, '');
+        Port.AddLine(30, 3, true, '');
+        Port.AddPart(1, 2, 'ZOO', 501, 2, 12.5, 'Zoo entrance');
+        ClearLastError();
+        if TrTryExportBooking(Port, Xml) then
+            Observer.Observe('xml', Xml)
+        else
+            Observer.ObserveError('xml');
+        Observer.Observe('log', Port.GetLog());
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<bookings xmlns="urn:microsoft-dynamics-nav/xmlports/x90064">|  <request token="">|    <ticket code="" line_no="0" qty="0" amount="0.00" />|  </request>|  <results>|    <state>true</state>|    <token>T9</token>|    <message>OK</message>|    <details>|      <line line_no="1" status="true" message="OK" price="0" quantity="0">|        <parts>|          <Part Code="">|            <Slot ExtNo="0" Type="" CanMove="" UnitPrice="0">|              <kind_is option_value="0"> </kind_is>|            </Slot>|            <Description />|          </Part>|        </parts>|      </line>|      <line line_no="2" status="true" message="OK" price="12.5" quantity="1">|        <parts>|          <Part Code="ZOO">|            <Slot ExtNo="501" Type="Open" CanMove="No" UnitPrice="12.5">|              <kind_is option_value="2">Open</kind_is>|            </Slot>|            <Description>Zoo entrance</Description>|          </Part>|        </parts>|      </line>|      <line line_no="3" status="true" message="OK" price="0" quantity="0">|        <parts>|          <Part Code="ZOO">|            <Slot ExtNo="501" Type="Open" CanMove="No" UnitPrice="12.5">|              <kind_is option_value="2">Open</kind_is>|            </Slot>|            <Description>Zoo entrance</Description>|          </Part>|        </parts>|      </line>|    </details>|  </results>|</bookings>|');
+        Observer.Expect('log', 'get result;pass state;get line 1;pass price;pass quantity;pass unitprice;pass kind_is;pass kind_id;get line 2;pass price;pass quantity;get part ZOO;pass unitprice;pass kind_is;pass kind_id;get line 3;pass price;pass quantity;pass unitprice;pass kind_is;pass kind_id;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TR_Booking_TwoReplyRows()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TR XP Booking";
+        Xml: Text;
+    begin
+        // two rows in the reply table element (MaxOccurs = Once): only the first is written
+        Port.SetResult(1, 'T1', true, 'first');
+        Port.SetResult(2, 'T2', false, 'second');
+        ClearLastError();
+        if TrTryExportBooking(Port, Xml) then
+            Observer.Observe('xml', Xml)
+        else
+            Observer.ObserveError('xml');
+        Observer.Observe('log', Port.GetLog());
+        Observer.Observe('after', Port.ResultMessage());
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<bookings xmlns="urn:microsoft-dynamics-nav/xmlports/x90064">|  <request token="">|    <ticket code="" line_no="0" qty="0" amount="0.00" />|  </request>|  <results>|    <state>true</state>|    <token>T1</token>|    <message>first</message>|    <details />|  </results>|</bookings>|');
+        Observer.Expect('log', 'get result;pass state;');
+        Observer.Expect('after', 'token=T2 message=second state=true');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TR_Member_Export_Fresh()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TR XP Member Reply";
+    begin
+        Observer.Observe('xml', TrExportMember(Port));
+        Observer.Observe('log', Port.GetLog());
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<members xmlns="urn:microsoft-dynamics-nav/xmlports/x90065">|  <addmember />|</members>|');
+        Observer.Expect('log', '');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TR_Member_ImportThenExport()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TR XP Member Reply";
+    begin
+        TrImportMember(Port, '<members xmlns="urn:microsoft-dynamics-nav/xmlports/x90065"><addmember><request instance="i-1"><firstname>Ann</firstname><email>ann@example.com</email><guardian><membernumber>G1</membernumber><email>g@example.com</email></guardian></request></addmember></members>');
+        Observer.Observe('import log', Port.GetLog());
+        Observer.Observe('state', Port.Response());
+        Port.ClearLog();
+        Observer.Observe('export 1', TrExportMember(Port));
+        Observer.Observe('export 1 log', Port.GetLog());
+        Port.ClearLog();
+        Port.AddResponse(5, 'M-100', 'ann@example.com');
+        Port.AddCard(1, 'CARD-1', DMY2Date(31, 12, 2027));
+        Observer.Observe('export 2', TrExportMember(Port));
+        Observer.Observe('export 2 log', Port.GetLog());
+        Observer.Observe('after', Port.Response());
+        Observer.Expect('import log', 'insert request Ann instance=i-1 guardianemail=g@example.com;');
+        Observer.Expect('state', 'status= error= reply=none request=Ann/ann@example.com//G1');
+        Observer.Expect('export 1', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<members xmlns="urn:microsoft-dynamics-nav/xmlports/x90065">|  <addmember>|    <request instance="i-1">|      <firstname>Ann</firstname>|      <email>ann@example.com</email>|      <store />|      <guardian>|        <membernumber>G1</membernumber>|        <email>g@example.com</email>|      </guardian>|    </request>|  </addmember>|</members>|');
+        Observer.Expect('export 1 log', '');
+        Observer.Expect('export 2', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<members xmlns="urn:microsoft-dynamics-nav/xmlports/x90065">|  <addmember>|    <request instance="i-1">|      <firstname>Ann</firstname>|      <email>ann@example.com</email>|      <store />|      <guardian>|        <membernumber>G1</membernumber>|        <email>g@example.com</email>|      </guardian>|    </request>|    <response instance="svc-1">|      <status>1</status>|      <errordescription />|      <member>|        <membernumber>M-100</membernumber>|        <email>ann@example.com</email>|        <card>|          <cardnumber>CARD-1</cardnumber>|          <expirydate>2027-12-31</expirydate>|        </card>|      </member>|    </response>|  </addmember>|</members>|');
+        Observer.Expect('export 2 log', 'get reply M-100;pass instance;get card CARD-1;');
+        Observer.Expect('after', 'status=1 error= reply=5:M-100 request=Ann/ann@example.com//G1');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TR_Member_Reply_Cards()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port0: XmlPort "LT TR XP Member Reply";
+        Port2: XmlPort "LT TR XP Member Reply";
+        Xml: Text;
+    begin
+        // the card table element (MaxOccurs = Once, MinOccurs = Zero, no link): no row writes no card, two rows write only the first
+        Port0.AddResponse(5, 'M-100', 'ann@example.com');
+        Observer.Observe('no card', TrExportMember(Port0));
+        Observer.Observe('no card log', Port0.GetLog());
+        Port2.AddResponse(5, 'M-100', 'ann@example.com');
+        Port2.AddCard(1, 'CARD-1', DMY2Date(31, 12, 2027));
+        Port2.AddCard(2, 'CARD-2', 0D);
+        ClearLastError();
+        if TrTryExportMember(Port2, Xml) then
+            Observer.Observe('two cards', Xml)
+        else
+            Observer.ObserveError('two cards');
+        Observer.Observe('two cards log', Port2.GetLog());
+        Observer.Expect('no card', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<members xmlns="urn:microsoft-dynamics-nav/xmlports/x90065">|  <addmember>|    <response instance="svc-1">|      <status>1</status>|      <errordescription />|      <member>|        <membernumber>M-100</membernumber>|        <email>ann@example.com</email>|      </member>|    </response>|  </addmember>|</members>|');
+        Observer.Expect('no card log', 'get reply M-100;pass instance;');
+        Observer.Expect('two cards', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<members xmlns="urn:microsoft-dynamics-nav/xmlports/x90065">|  <addmember>|    <response instance="svc-1">|      <status>1</status>|      <errordescription />|      <member>|        <membernumber>M-100</membernumber>|        <email>ann@example.com</email>|        <card>|          <cardnumber>CARD-1</cardnumber>|          <expirydate>2027-12-31</expirydate>|        </card>|      </member>|    </response>|  </addmember>|</members>|');
+        Observer.Expect('two cards log', 'get reply M-100;pass instance;get card CARD-1;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TR_Member_ErrorReply()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TR XP Member Reply";
+    begin
+        Port.AddErrorResponse('Member not found');
+        Observer.Observe('xml', TrExportMember(Port));
+        Observer.Observe('log', Port.GetLog());
+        Observer.Observe('after', Port.Response());
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<members xmlns="urn:microsoft-dynamics-nav/xmlports/x90065">|  <addmember>|    <response instance="svc-1">|      <status>0</status>|      <errordescription>Member not found</errordescription>|      <member>|        <membernumber />|        <email />|      </member>|    </response>|  </addmember>|</members>|');
+        Observer.Expect('log', 'get reply ;pass instance;');
+        Observer.Expect('after', 'status=0 error=Member not found reply=0: request=none');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TR_EmptyLeaf_Import()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        // <x /> runs a leaf text element's OnAfterAssignVariable twice (below the root, below a table element, inside a text element),
+        // <x></x> once; a field element's OnAfterAssignField and a container text element's OnAfterAssignVariable run once either way
+        TrLeaf(Observer, 'self-closing', '<root><top /><row no="1"><msg /><direct /><box><inner /></box></row></root>');
+        TrLeaf(Observer, 'open-close', '<root><top></top><row no="1"><msg></msg><direct></direct><box><inner></inner></box></row></root>');
+        TrLeaf(Observer, 'values', '<root><top>t</top><row no="1"><msg>m</msg><direct>d</direct><box><inner>i</inner></box></row></root>');
+        TrLeaf(Observer, 'space', '<root><top> </top><row no="1"><msg> </msg><direct> </direct><box><inner> </inner></box></row></root>');
+        TrLeaf(Observer, 'box self-closing', '<root><row no="1"><box /></row></root>');
+        TrLeaf(Observer, 'box open-close', '<root><row no="1"><box></box></row></root>');
+        TrLeaf(Observer, 'two rows', '<root><top /><row no="1"><direct /></row><row no="2"><direct></direct><box><inner /></box></row></root>');
+        Observer.Expect('self-closing', 'ok top=[];top=[];msg=[];direct=[];direct=[];inner=[];inner=[];box=[];insert 1 msg=[];');
+        Observer.Expect('open-close', 'ok top=[];msg=[];direct=[];inner=[];box=[];insert 1 msg=[];');
+        Observer.Expect('values', 'ok top=[t];msg=[m];direct=[d];inner=[i];box=[];insert 1 msg=[m];');
+        Observer.Expect('space', 'ok top=[];msg=[];direct=[];inner=[];box=[];insert 1 msg=[];');
+        Observer.Expect('box self-closing', 'ok box=[];insert 1 msg=[];');
+        Observer.Expect('box open-close', 'ok box=[];insert 1 msg=[];');
+        Observer.Expect('two rows', 'ok top=[];top=[];direct=[];direct=[];insert 1 msg=[];direct=[];inner=[];inner=[];box=[];insert 2 msg=[];');
         Observer.Verify();
     end;
 }
