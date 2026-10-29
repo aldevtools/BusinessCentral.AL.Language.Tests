@@ -24,7 +24,7 @@ dotnet
         type("System.Enum"; LtBbEnum) { }
         type("System.DayOfWeek"; LtBbDayOfWeek) { }
     }
-    assembly("System")
+    assembly("netstandard")
     {
         type("System.Security.Cryptography.X509Certificates.X509ContentType"; LtBbX509ContentType) { }
     }

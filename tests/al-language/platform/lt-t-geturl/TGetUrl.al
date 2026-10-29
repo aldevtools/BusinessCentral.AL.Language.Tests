@@ -464,20 +464,46 @@ codeunit 69381 "LT T GetUrl Tests"
     // ---- Writer TV (NP lane, 2026-10-29): the full text (host and instance masked) of GetUrl for the service client types SOAP, OData, ODataV4
     // and Api, alone, with a company, with an object and with a record; SOAP and ODataV4 with a codeunit. ----
 
+    local procedure TvCurrentCompanyId(): Text
+    var
+        Cmp: Record Company;
+    begin
+        Cmp.Get(CompanyName());
+        exit(LowerCase(DelChr(Format(Cmp.SystemId), '=', '{}')));
+    end;
+
     [Test]
     procedure TV_GetUrl_ClientSOAP()
     begin
         ClientTest(ClientType::SOAP, 'soap');
         Observer.Observe('soap company codeunit', Obj(ClientType::SOAP, 'My Company', ObjectType::Codeunit, 69366));
         Observer.Observe('soap codeunit', Obj(ClientType::SOAP, '', ObjectType::Codeunit, 69366));
-        Observer.Finish();
+        Observer.Expect('soap alone', 'http://<host>/<instance>/WS/Services');
+        Observer.Expect('soap company', 'ok|http://<host>/<instance>/WS/My%20Company/Services');
+        Observer.Expect('soap empty company', 'ok|http://<host>/<instance>/WS/Services');
+        Observer.Expect('soap page', 'ok|');
+        Observer.Expect('soap company page', 'ok|');
+        Observer.Expect('soap company report', 'ok|');
+        Observer.Expect('soap company page record', 'ok|');
+        Observer.Expect('soap page record no company', 'ok|');
+        Observer.Expect('soap company codeunit', 'ok|');
+        Observer.Expect('soap codeunit', 'ok|');
+        Observer.Verify();
     end;
 
     [Test]
     procedure TV_GetUrl_ClientOData()
     begin
         ClientTest(ClientType::OData, 'odata');
-        Observer.Finish();
+        Observer.Expect('odata alone', 'http://<host>/<instance>/ODataV4');
+        Observer.Expect('odata company', 'ok|http://<host>/<instance>/ODataV4/Company(''My%20Company'')');
+        Observer.Expect('odata empty company', 'ok|http://<host>/<instance>/ODataV4');
+        Observer.Expect('odata page', 'ok|');
+        Observer.Expect('odata company page', 'ok|');
+        Observer.Expect('odata company report', 'ok|');
+        Observer.Expect('odata company page record', 'ok|');
+        Observer.Expect('odata page record no company', 'ok|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -486,13 +512,34 @@ codeunit 69381 "LT T GetUrl Tests"
         ClientTest(ClientType::ODataV4, 'odatav4');
         Observer.Observe('odatav4 company codeunit', Obj(ClientType::ODataV4, 'My Company', ObjectType::Codeunit, 69366));
         Observer.Observe('odatav4 company query', Obj(ClientType::ODataV4, 'My Company', ObjectType::Query, 69376));
-        Observer.Finish();
+        Observer.Expect('odatav4 alone', 'http://<host>/<instance>/ODataV4');
+        Observer.Expect('odatav4 company', 'ok|http://<host>/<instance>/ODataV4/Company(''My%20Company'')');
+        Observer.Expect('odatav4 empty company', 'ok|http://<host>/<instance>/ODataV4');
+        Observer.Expect('odatav4 page', 'ok|');
+        Observer.Expect('odatav4 company page', 'ok|');
+        Observer.Expect('odatav4 company report', 'ok|');
+        Observer.Expect('odatav4 company page record', 'ok|');
+        Observer.Expect('odatav4 page record no company', 'ok|');
+        Observer.Expect('odatav4 company codeunit', 'ok|');
+        Observer.Expect('odatav4 company query', 'ok|');
+        Observer.Verify();
     end;
 
     [Test]
     procedure TV_GetUrl_ClientApi()
     begin
         ClientTest(ClientType::Api, 'api');
-        Observer.Finish();
+        // The id in companies(...) differs per database: it is compared with the current company's SystemId instead.
+        Observer.Ignore('api company');
+        Observer.Observe('api company id is current company', Format(Company(ClientType::Api, 'My Company').EndsWith('/companies(' + TvCurrentCompanyId() + ')')));
+        Observer.Expect('api alone', 'http://<host>/<instance>/api/');
+        Observer.Expect('api empty company', 'ok|http://<host>/<instance>/api/');
+        Observer.Expect('api page', 'ok|');
+        Observer.Expect('api company page', 'ok|');
+        Observer.Expect('api company report', 'ok|');
+        Observer.Expect('api company page record', 'ok|');
+        Observer.Expect('api page record no company', 'ok|');
+        Observer.Expect('api company id is current company', 'Yes');
+        Observer.Verify();
     end;
 }
