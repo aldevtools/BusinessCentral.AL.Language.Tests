@@ -192,6 +192,11 @@ codeunit 83950 "LT BW Subscriber Order Tests"
     //   CI publishes F, A, D, B, C, M. F and A are the pair of interest: two apps that do not depend on each other, a third app (B, M)
     //   depends on both. Predictions: dependency order, ties by app name or lowest subscriber id: F A B C M D (F before A) |
     //   ties by app id: A before F | publish order: F A D B C M.
+    // Observed (BC 28.5 and 29.0, the same on a second raise and when raised from this app's install routine):
+    //   A1;A2;F1;F2;B1;B2;C1;C2;M1;M2;D1;D2; = A before F although F has the earlier app name, the lower subscriber ids and was published
+    //   first: between F and A the app with the lower app id (as text, cd6a < f1e2) runs first. D (outside every other app's dependencies)
+    //   still runs last. Consistent with: apps visited in ascending app id, each app's dependencies placed before it. Not told apart here:
+    //   which dependency of an app is visited first, and app id against publisher name (F and A share the publisher).
     // Fixtures: tests/al-language-internals-fixture/UaXfOrder.al, tests/al-language-xapp-a|b|c|d/Ua*Order.al, UaOrderFixtures.al.
     [Test]
     procedure SubscriberOrder_PlatformTableEvent_AppsThatDoNotDependOnEachOther_SixApps()
@@ -201,8 +206,8 @@ codeunit 83950 "LT BW Subscriber Order Tests"
         Initialize();
         Observer.Observe('order', Raiser.Raise());
         Observer.Observe('order again', Raiser.Raise());
-        Observer.Expect('order', 'F1;F2;A1;A2;B1;B2;C1;C2;M1;M2;D1;D2;');
-        Observer.Expect('order again', 'F1;F2;A1;A2;B1;B2;C1;C2;M1;M2;D1;D2;');
+        Observer.Expect('order', 'A1;A2;F1;F2;B1;B2;C1;C2;M1;M2;D1;D2;');
+        Observer.Expect('order again', 'A1;A2;F1;F2;B1;B2;C1;C2;M1;M2;D1;D2;');
         Observer.Verify();
     end;
 
@@ -217,7 +222,7 @@ codeunit 83950 "LT BW Subscriber Order Tests"
         Observer.Observe('install row', Format(Row.Get(1)));
         Observer.Observe('order', Row."Order");
         Observer.Expect('install row', 'Yes');
-        Observer.Expect('order', 'F1;F2;A1;A2;B1;B2;C1;C2;M1;M2;D1;D2;');
+        Observer.Expect('order', 'A1;A2;F1;F2;B1;B2;C1;C2;M1;M2;D1;D2;');
         Observer.Verify();
     end;
 
