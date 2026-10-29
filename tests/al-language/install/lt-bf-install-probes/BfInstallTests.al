@@ -309,7 +309,7 @@ codeunit 81257 "LT BF Install Tests"
         Observer: Codeunit "Probe Observer";
     begin
         // Read only: ChangeCompany on the table, nothing is written to either company. Probe: corpus issue 811.
-        // Measured on RESULT
+        // Measured on 27.5, 28.5 and 29.0 (the same on all three): neither company has a CRM Connection Setup row (no Is Enabled to read).
         Observer.Observe('session company crm', CrmText(CompanyName()));
         Observer.Observe('My Company crm', CrmText('My Company'));
         Observer.Expect('session company crm', 'isempty=Yes;count=0');
