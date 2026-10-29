@@ -7,6 +7,9 @@
 //   SetFilter(Field, GetFilter) and SetView(GetView) on a second record; filter('>B') in SourceTableView and DataItemTableFilter, and
 //   SetView with FILTER('>B') on a Code and a Text field.
 //   Rows 1-11 hold the eleven values in both fields (the Code field upper-cases them), rows 12-16 hold B, A, C, zzz and >b.
+// Result (BC 29): BC quotes the whole value in GetFilter / GetFilters / GetView for every value above and doubles an apostrophe inside it (the Code field shows the
+//   upper-cased value); the quoted value is a literal: SetFilter(Field, GetFilter) and SetView(GetView) on a second record select exactly the rows that hold the value.
+//   filter('>B') in SourceTableView and DataItemTableFilter, and FILTER(>B) in SetView, are comparisons (rows greater than B); FILTER('>B') in SetView is a literal.
 // BC versions: 27, 28, 29
 
 table 90270 "LT UC Row"
@@ -212,7 +215,31 @@ codeunit 90271 "LT UC Quoted Values"
         Observer: Codeunit "Probe Observer";
     begin
         ProbeValue('a>b', Observer);
-        Observer.Finish();
+        Observer.Expect('cd_range_filter', '''A>B''');
+        Observer.Expect('cd_range_filters', 'Cd: ''A>B''');
+        Observer.Expect('cd_range_view', 'VERSION(1) SORTING(Id) WHERE(Cd=FILTER(''A>B''))');
+        Observer.Expect('cd_range_ids', '1,');
+        Observer.Expect('cd_range_setfilter_ids', '1,');
+        Observer.Expect('cd_range_setview_ids', '1,');
+        Observer.Expect('txt_range_filter', '''a>b''');
+        Observer.Expect('txt_range_filters', 'Txt: ''a>b''');
+        Observer.Expect('txt_range_view', 'VERSION(1) SORTING(Id) WHERE(Txt=FILTER(''a>b''))');
+        Observer.Expect('txt_range_ids', '1,');
+        Observer.Expect('txt_range_setfilter_ids', '1,');
+        Observer.Expect('txt_range_setview_ids', '1,');
+        Observer.Expect('cd_filter_filter', '''A>B''');
+        Observer.Expect('cd_filter_filters', 'Cd: ''A>B''');
+        Observer.Expect('cd_filter_view', 'VERSION(1) SORTING(Id) WHERE(Cd=FILTER(''A>B''))');
+        Observer.Expect('cd_filter_ids', '1,');
+        Observer.Expect('cd_filter_setfilter_ids', '1,');
+        Observer.Expect('cd_filter_setview_ids', '1,');
+        Observer.Expect('txt_filter_filter', '''a>b''');
+        Observer.Expect('txt_filter_filters', 'Txt: ''a>b''');
+        Observer.Expect('txt_filter_view', 'VERSION(1) SORTING(Id) WHERE(Txt=FILTER(''a>b''))');
+        Observer.Expect('txt_filter_ids', '1,');
+        Observer.Expect('txt_filter_setfilter_ids', '1,');
+        Observer.Expect('txt_filter_setview_ids', '1,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -221,7 +248,31 @@ codeunit 90271 "LT UC Quoted Values"
         Observer: Codeunit "Probe Observer";
     begin
         ProbeValue('>b', Observer);
-        Observer.Finish();
+        Observer.Expect('cd_range_filter', '''>B''');
+        Observer.Expect('cd_range_filters', 'Cd: ''>B''');
+        Observer.Expect('cd_range_view', 'VERSION(1) SORTING(Id) WHERE(Cd=FILTER(''>B''))');
+        Observer.Expect('cd_range_ids', '2,16,');
+        Observer.Expect('cd_range_setfilter_ids', '2,16,');
+        Observer.Expect('cd_range_setview_ids', '2,16,');
+        Observer.Expect('txt_range_filter', '''>b''');
+        Observer.Expect('txt_range_filters', 'Txt: ''>b''');
+        Observer.Expect('txt_range_view', 'VERSION(1) SORTING(Id) WHERE(Txt=FILTER(''>b''))');
+        Observer.Expect('txt_range_ids', '2,16,');
+        Observer.Expect('txt_range_setfilter_ids', '2,16,');
+        Observer.Expect('txt_range_setview_ids', '2,16,');
+        Observer.Expect('cd_filter_filter', '''>B''');
+        Observer.Expect('cd_filter_filters', 'Cd: ''>B''');
+        Observer.Expect('cd_filter_view', 'VERSION(1) SORTING(Id) WHERE(Cd=FILTER(''>B''))');
+        Observer.Expect('cd_filter_ids', '2,16,');
+        Observer.Expect('cd_filter_setfilter_ids', '2,16,');
+        Observer.Expect('cd_filter_setview_ids', '2,16,');
+        Observer.Expect('txt_filter_filter', '''>b''');
+        Observer.Expect('txt_filter_filters', 'Txt: ''>b''');
+        Observer.Expect('txt_filter_view', 'VERSION(1) SORTING(Id) WHERE(Txt=FILTER(''>b''))');
+        Observer.Expect('txt_filter_ids', '2,16,');
+        Observer.Expect('txt_filter_setfilter_ids', '2,16,');
+        Observer.Expect('txt_filter_setview_ids', '2,16,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -230,7 +281,31 @@ codeunit 90271 "LT UC Quoted Values"
         Observer: Codeunit "Probe Observer";
     begin
         ProbeValue('a>', Observer);
-        Observer.Finish();
+        Observer.Expect('cd_range_filter', '''A>''');
+        Observer.Expect('cd_range_filters', 'Cd: ''A>''');
+        Observer.Expect('cd_range_view', 'VERSION(1) SORTING(Id) WHERE(Cd=FILTER(''A>''))');
+        Observer.Expect('cd_range_ids', '3,');
+        Observer.Expect('cd_range_setfilter_ids', '3,');
+        Observer.Expect('cd_range_setview_ids', '3,');
+        Observer.Expect('txt_range_filter', '''a>''');
+        Observer.Expect('txt_range_filters', 'Txt: ''a>''');
+        Observer.Expect('txt_range_view', 'VERSION(1) SORTING(Id) WHERE(Txt=FILTER(''a>''))');
+        Observer.Expect('txt_range_ids', '3,');
+        Observer.Expect('txt_range_setfilter_ids', '3,');
+        Observer.Expect('txt_range_setview_ids', '3,');
+        Observer.Expect('cd_filter_filter', '''A>''');
+        Observer.Expect('cd_filter_filters', 'Cd: ''A>''');
+        Observer.Expect('cd_filter_view', 'VERSION(1) SORTING(Id) WHERE(Cd=FILTER(''A>''))');
+        Observer.Expect('cd_filter_ids', '3,');
+        Observer.Expect('cd_filter_setfilter_ids', '3,');
+        Observer.Expect('cd_filter_setview_ids', '3,');
+        Observer.Expect('txt_filter_filter', '''a>''');
+        Observer.Expect('txt_filter_filters', 'Txt: ''a>''');
+        Observer.Expect('txt_filter_view', 'VERSION(1) SORTING(Id) WHERE(Txt=FILTER(''a>''))');
+        Observer.Expect('txt_filter_ids', '3,');
+        Observer.Expect('txt_filter_setfilter_ids', '3,');
+        Observer.Expect('txt_filter_setview_ids', '3,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -239,7 +314,31 @@ codeunit 90271 "LT UC Quoted Values"
         Observer: Codeunit "Probe Observer";
     begin
         ProbeValue('<64Y>', Observer);
-        Observer.Finish();
+        Observer.Expect('cd_range_filter', '''<64Y>''');
+        Observer.Expect('cd_range_filters', 'Cd: ''<64Y>''');
+        Observer.Expect('cd_range_view', 'VERSION(1) SORTING(Id) WHERE(Cd=FILTER(''<64Y>''))');
+        Observer.Expect('cd_range_ids', '4,');
+        Observer.Expect('cd_range_setfilter_ids', '4,');
+        Observer.Expect('cd_range_setview_ids', '4,');
+        Observer.Expect('txt_range_filter', '''<64Y>''');
+        Observer.Expect('txt_range_filters', 'Txt: ''<64Y>''');
+        Observer.Expect('txt_range_view', 'VERSION(1) SORTING(Id) WHERE(Txt=FILTER(''<64Y>''))');
+        Observer.Expect('txt_range_ids', '4,');
+        Observer.Expect('txt_range_setfilter_ids', '4,');
+        Observer.Expect('txt_range_setview_ids', '4,');
+        Observer.Expect('cd_filter_filter', '''<64Y>''');
+        Observer.Expect('cd_filter_filters', 'Cd: ''<64Y>''');
+        Observer.Expect('cd_filter_view', 'VERSION(1) SORTING(Id) WHERE(Cd=FILTER(''<64Y>''))');
+        Observer.Expect('cd_filter_ids', '4,');
+        Observer.Expect('cd_filter_setfilter_ids', '4,');
+        Observer.Expect('cd_filter_setview_ids', '4,');
+        Observer.Expect('txt_filter_filter', '''<64Y>''');
+        Observer.Expect('txt_filter_filters', 'Txt: ''<64Y>''');
+        Observer.Expect('txt_filter_view', 'VERSION(1) SORTING(Id) WHERE(Txt=FILTER(''<64Y>''))');
+        Observer.Expect('txt_filter_ids', '4,');
+        Observer.Expect('txt_filter_setfilter_ids', '4,');
+        Observer.Expect('txt_filter_setview_ids', '4,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -248,7 +347,31 @@ codeunit 90271 "LT UC Quoted Values"
         Observer: Codeunit "Probe Observer";
     begin
         ProbeValue('Diana''s (Meals)', Observer);
-        Observer.Finish();
+        Observer.Expect('cd_range_filter', '''DIANA''''S (MEALS)''');
+        Observer.Expect('cd_range_filters', 'Cd: ''DIANA''''S (MEALS)''');
+        Observer.Expect('cd_range_view', 'VERSION(1) SORTING(Id) WHERE(Cd=FILTER(''DIANA''''S (MEALS)''))');
+        Observer.Expect('cd_range_ids', '5,');
+        Observer.Expect('cd_range_setfilter_ids', '5,');
+        Observer.Expect('cd_range_setview_ids', '5,');
+        Observer.Expect('txt_range_filter', '''Diana''''s (Meals)''');
+        Observer.Expect('txt_range_filters', 'Txt: ''Diana''''s (Meals)''');
+        Observer.Expect('txt_range_view', 'VERSION(1) SORTING(Id) WHERE(Txt=FILTER(''Diana''''s (Meals)''))');
+        Observer.Expect('txt_range_ids', '5,');
+        Observer.Expect('txt_range_setfilter_ids', '5,');
+        Observer.Expect('txt_range_setview_ids', '5,');
+        Observer.Expect('cd_filter_filter', '''DIANA''''S (MEALS)''');
+        Observer.Expect('cd_filter_filters', 'Cd: ''DIANA''''S (MEALS)''');
+        Observer.Expect('cd_filter_view', 'VERSION(1) SORTING(Id) WHERE(Cd=FILTER(''DIANA''''S (MEALS)''))');
+        Observer.Expect('cd_filter_ids', '5,');
+        Observer.Expect('cd_filter_setfilter_ids', '5,');
+        Observer.Expect('cd_filter_setview_ids', '5,');
+        Observer.Expect('txt_filter_filter', '''Diana''''s (Meals)''');
+        Observer.Expect('txt_filter_filters', 'Txt: ''Diana''''s (Meals)''');
+        Observer.Expect('txt_filter_view', 'VERSION(1) SORTING(Id) WHERE(Txt=FILTER(''Diana''''s (Meals)''))');
+        Observer.Expect('txt_filter_ids', '5,');
+        Observer.Expect('txt_filter_setfilter_ids', '5,');
+        Observer.Expect('txt_filter_setview_ids', '5,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -257,7 +380,31 @@ codeunit 90271 "LT UC Quoted Values"
         Observer: Codeunit "Probe Observer";
     begin
         ProbeValue('A|B', Observer);
-        Observer.Finish();
+        Observer.Expect('cd_range_filter', '''A|B''');
+        Observer.Expect('cd_range_filters', 'Cd: ''A|B''');
+        Observer.Expect('cd_range_view', 'VERSION(1) SORTING(Id) WHERE(Cd=FILTER(''A|B''))');
+        Observer.Expect('cd_range_ids', '6,');
+        Observer.Expect('cd_range_setfilter_ids', '6,');
+        Observer.Expect('cd_range_setview_ids', '6,');
+        Observer.Expect('txt_range_filter', '''A|B''');
+        Observer.Expect('txt_range_filters', 'Txt: ''A|B''');
+        Observer.Expect('txt_range_view', 'VERSION(1) SORTING(Id) WHERE(Txt=FILTER(''A|B''))');
+        Observer.Expect('txt_range_ids', '6,');
+        Observer.Expect('txt_range_setfilter_ids', '6,');
+        Observer.Expect('txt_range_setview_ids', '6,');
+        Observer.Expect('cd_filter_filter', '''A|B''');
+        Observer.Expect('cd_filter_filters', 'Cd: ''A|B''');
+        Observer.Expect('cd_filter_view', 'VERSION(1) SORTING(Id) WHERE(Cd=FILTER(''A|B''))');
+        Observer.Expect('cd_filter_ids', '6,');
+        Observer.Expect('cd_filter_setfilter_ids', '6,');
+        Observer.Expect('cd_filter_setview_ids', '6,');
+        Observer.Expect('txt_filter_filter', '''A|B''');
+        Observer.Expect('txt_filter_filters', 'Txt: ''A|B''');
+        Observer.Expect('txt_filter_view', 'VERSION(1) SORTING(Id) WHERE(Txt=FILTER(''A|B''))');
+        Observer.Expect('txt_filter_ids', '6,');
+        Observer.Expect('txt_filter_setfilter_ids', '6,');
+        Observer.Expect('txt_filter_setview_ids', '6,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -266,7 +413,31 @@ codeunit 90271 "LT UC Quoted Values"
         Observer: Codeunit "Probe Observer";
     begin
         ProbeValue('''A|B''', Observer);
-        Observer.Finish();
+        Observer.Expect('cd_range_filter', '''''''A|B''''''');
+        Observer.Expect('cd_range_filters', 'Cd: ''''''A|B''''''');
+        Observer.Expect('cd_range_view', 'VERSION(1) SORTING(Id) WHERE(Cd=FILTER(''''''A|B''''''))');
+        Observer.Expect('cd_range_ids', '7,');
+        Observer.Expect('cd_range_setfilter_ids', '7,');
+        Observer.Expect('cd_range_setview_ids', '7,');
+        Observer.Expect('txt_range_filter', '''''''A|B''''''');
+        Observer.Expect('txt_range_filters', 'Txt: ''''''A|B''''''');
+        Observer.Expect('txt_range_view', 'VERSION(1) SORTING(Id) WHERE(Txt=FILTER(''''''A|B''''''))');
+        Observer.Expect('txt_range_ids', '7,');
+        Observer.Expect('txt_range_setfilter_ids', '7,');
+        Observer.Expect('txt_range_setview_ids', '7,');
+        Observer.Expect('cd_filter_filter', '''''''A|B''''''');
+        Observer.Expect('cd_filter_filters', 'Cd: ''''''A|B''''''');
+        Observer.Expect('cd_filter_view', 'VERSION(1) SORTING(Id) WHERE(Cd=FILTER(''''''A|B''''''))');
+        Observer.Expect('cd_filter_ids', '7,');
+        Observer.Expect('cd_filter_setfilter_ids', '7,');
+        Observer.Expect('cd_filter_setview_ids', '7,');
+        Observer.Expect('txt_filter_filter', '''''''A|B''''''');
+        Observer.Expect('txt_filter_filters', 'Txt: ''''''A|B''''''');
+        Observer.Expect('txt_filter_view', 'VERSION(1) SORTING(Id) WHERE(Txt=FILTER(''''''A|B''''''))');
+        Observer.Expect('txt_filter_ids', '7,');
+        Observer.Expect('txt_filter_setfilter_ids', '7,');
+        Observer.Expect('txt_filter_setview_ids', '7,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -275,7 +446,31 @@ codeunit 90271 "LT UC Quoted Values"
         Observer: Codeunit "Probe Observer";
     begin
         ProbeValue('A''&B', Observer);
-        Observer.Finish();
+        Observer.Expect('cd_range_filter', '''A''''&B''');
+        Observer.Expect('cd_range_filters', 'Cd: ''A''''&B''');
+        Observer.Expect('cd_range_view', 'VERSION(1) SORTING(Id) WHERE(Cd=FILTER(''A''''&B''))');
+        Observer.Expect('cd_range_ids', '8,');
+        Observer.Expect('cd_range_setfilter_ids', '8,');
+        Observer.Expect('cd_range_setview_ids', '8,');
+        Observer.Expect('txt_range_filter', '''A''''&B''');
+        Observer.Expect('txt_range_filters', 'Txt: ''A''''&B''');
+        Observer.Expect('txt_range_view', 'VERSION(1) SORTING(Id) WHERE(Txt=FILTER(''A''''&B''))');
+        Observer.Expect('txt_range_ids', '8,');
+        Observer.Expect('txt_range_setfilter_ids', '8,');
+        Observer.Expect('txt_range_setview_ids', '8,');
+        Observer.Expect('cd_filter_filter', '''A''''&B''');
+        Observer.Expect('cd_filter_filters', 'Cd: ''A''''&B''');
+        Observer.Expect('cd_filter_view', 'VERSION(1) SORTING(Id) WHERE(Cd=FILTER(''A''''&B''))');
+        Observer.Expect('cd_filter_ids', '8,');
+        Observer.Expect('cd_filter_setfilter_ids', '8,');
+        Observer.Expect('cd_filter_setview_ids', '8,');
+        Observer.Expect('txt_filter_filter', '''A''''&B''');
+        Observer.Expect('txt_filter_filters', 'Txt: ''A''''&B''');
+        Observer.Expect('txt_filter_view', 'VERSION(1) SORTING(Id) WHERE(Txt=FILTER(''A''''&B''))');
+        Observer.Expect('txt_filter_ids', '8,');
+        Observer.Expect('txt_filter_setfilter_ids', '8,');
+        Observer.Expect('txt_filter_setview_ids', '8,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -284,7 +479,31 @@ codeunit 90271 "LT UC Quoted Values"
         Observer: Codeunit "Probe Observer";
     begin
         ProbeValue('A''=B', Observer);
-        Observer.Finish();
+        Observer.Expect('cd_range_filter', '''A''''=B''');
+        Observer.Expect('cd_range_filters', 'Cd: ''A''''=B''');
+        Observer.Expect('cd_range_view', 'VERSION(1) SORTING(Id) WHERE(Cd=FILTER(''A''''=B''))');
+        Observer.Expect('cd_range_ids', '9,');
+        Observer.Expect('cd_range_setfilter_ids', '9,');
+        Observer.Expect('cd_range_setview_ids', '9,');
+        Observer.Expect('txt_range_filter', '''A''''=B''');
+        Observer.Expect('txt_range_filters', 'Txt: ''A''''=B''');
+        Observer.Expect('txt_range_view', 'VERSION(1) SORTING(Id) WHERE(Txt=FILTER(''A''''=B''))');
+        Observer.Expect('txt_range_ids', '9,');
+        Observer.Expect('txt_range_setfilter_ids', '9,');
+        Observer.Expect('txt_range_setview_ids', '9,');
+        Observer.Expect('cd_filter_filter', '''A''''=B''');
+        Observer.Expect('cd_filter_filters', 'Cd: ''A''''=B''');
+        Observer.Expect('cd_filter_view', 'VERSION(1) SORTING(Id) WHERE(Cd=FILTER(''A''''=B''))');
+        Observer.Expect('cd_filter_ids', '9,');
+        Observer.Expect('cd_filter_setfilter_ids', '9,');
+        Observer.Expect('cd_filter_setview_ids', '9,');
+        Observer.Expect('txt_filter_filter', '''A''''=B''');
+        Observer.Expect('txt_filter_filters', 'Txt: ''A''''=B''');
+        Observer.Expect('txt_filter_view', 'VERSION(1) SORTING(Id) WHERE(Txt=FILTER(''A''''=B''))');
+        Observer.Expect('txt_filter_ids', '9,');
+        Observer.Expect('txt_filter_setfilter_ids', '9,');
+        Observer.Expect('txt_filter_setview_ids', '9,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -293,7 +512,31 @@ codeunit 90271 "LT UC Quoted Values"
         Observer: Codeunit "Probe Observer";
     begin
         ProbeValue('A''..B', Observer);
-        Observer.Finish();
+        Observer.Expect('cd_range_filter', '''A''''..B''');
+        Observer.Expect('cd_range_filters', 'Cd: ''A''''..B''');
+        Observer.Expect('cd_range_view', 'VERSION(1) SORTING(Id) WHERE(Cd=FILTER(''A''''..B''))');
+        Observer.Expect('cd_range_ids', '10,');
+        Observer.Expect('cd_range_setfilter_ids', '10,');
+        Observer.Expect('cd_range_setview_ids', '10,');
+        Observer.Expect('txt_range_filter', '''A''''..B''');
+        Observer.Expect('txt_range_filters', 'Txt: ''A''''..B''');
+        Observer.Expect('txt_range_view', 'VERSION(1) SORTING(Id) WHERE(Txt=FILTER(''A''''..B''))');
+        Observer.Expect('txt_range_ids', '10,');
+        Observer.Expect('txt_range_setfilter_ids', '10,');
+        Observer.Expect('txt_range_setview_ids', '10,');
+        Observer.Expect('cd_filter_filter', '''A''''..B''');
+        Observer.Expect('cd_filter_filters', 'Cd: ''A''''..B''');
+        Observer.Expect('cd_filter_view', 'VERSION(1) SORTING(Id) WHERE(Cd=FILTER(''A''''..B''))');
+        Observer.Expect('cd_filter_ids', '10,');
+        Observer.Expect('cd_filter_setfilter_ids', '10,');
+        Observer.Expect('cd_filter_setview_ids', '10,');
+        Observer.Expect('txt_filter_filter', '''A''''..B''');
+        Observer.Expect('txt_filter_filters', 'Txt: ''A''''..B''');
+        Observer.Expect('txt_filter_view', 'VERSION(1) SORTING(Id) WHERE(Txt=FILTER(''A''''..B''))');
+        Observer.Expect('txt_filter_ids', '10,');
+        Observer.Expect('txt_filter_setfilter_ids', '10,');
+        Observer.Expect('txt_filter_setview_ids', '10,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -302,7 +545,31 @@ codeunit 90271 "LT UC Quoted Values"
         Observer: Codeunit "Probe Observer";
     begin
         ProbeValue('A''<B', Observer);
-        Observer.Finish();
+        Observer.Expect('cd_range_filter', '''A''''<B''');
+        Observer.Expect('cd_range_filters', 'Cd: ''A''''<B''');
+        Observer.Expect('cd_range_view', 'VERSION(1) SORTING(Id) WHERE(Cd=FILTER(''A''''<B''))');
+        Observer.Expect('cd_range_ids', '11,');
+        Observer.Expect('cd_range_setfilter_ids', '11,');
+        Observer.Expect('cd_range_setview_ids', '11,');
+        Observer.Expect('txt_range_filter', '''A''''<B''');
+        Observer.Expect('txt_range_filters', 'Txt: ''A''''<B''');
+        Observer.Expect('txt_range_view', 'VERSION(1) SORTING(Id) WHERE(Txt=FILTER(''A''''<B''))');
+        Observer.Expect('txt_range_ids', '11,');
+        Observer.Expect('txt_range_setfilter_ids', '11,');
+        Observer.Expect('txt_range_setview_ids', '11,');
+        Observer.Expect('cd_filter_filter', '''A''''<B''');
+        Observer.Expect('cd_filter_filters', 'Cd: ''A''''<B''');
+        Observer.Expect('cd_filter_view', 'VERSION(1) SORTING(Id) WHERE(Cd=FILTER(''A''''<B''))');
+        Observer.Expect('cd_filter_ids', '11,');
+        Observer.Expect('cd_filter_setfilter_ids', '11,');
+        Observer.Expect('cd_filter_setview_ids', '11,');
+        Observer.Expect('txt_filter_filter', '''A''''<B''');
+        Observer.Expect('txt_filter_filters', 'Txt: ''A''''<B''');
+        Observer.Expect('txt_filter_view', 'VERSION(1) SORTING(Id) WHERE(Txt=FILTER(''A''''<B''))');
+        Observer.Expect('txt_filter_ids', '11,');
+        Observer.Expect('txt_filter_setfilter_ids', '11,');
+        Observer.Expect('txt_filter_setview_ids', '11,');
+        Observer.Verify();
     end;
 
     local procedure PageIds(var Page: TestPage "LT UC Cd Page"): Text
@@ -367,7 +634,11 @@ codeunit 90271 "LT UC Quoted Values"
         TxtPage.Close();
         Observer.Observe('query_cd_ids', QueryIds(CdQuery));
         Observer.Observe('query_txt_ids', QueryIdsTxt(TxtQuery));
-        Observer.Finish();
+        Observer.Expect('page_cd_ids', '5,14,15,');
+        Observer.Expect('page_txt_ids', '5,14,15,');
+        Observer.Expect('query_cd_ids', '5,14,15,');
+        Observer.Expect('query_txt_ids', '5,14,15,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -392,6 +663,14 @@ codeunit 90271 "LT UC Quoted Values"
         Row.Reset();
         Row.SetView('SORTING(Id) WHERE(Txt=FILTER(>B))');
         Observer.Observe('view_txt_plain_ids', Ids(Row));
-        Observer.Finish();
+        Observer.Expect('view_cd_ids', '2,16,');
+        Observer.Expect('view_cd_filter', '''>B''');
+        Observer.Expect('view_cd_view', 'VERSION(1) SORTING(Id) WHERE(Cd=FILTER(''>B''))');
+        Observer.Expect('view_txt_ids', '2,16,');
+        Observer.Expect('view_txt_filter', '''>b''');
+        Observer.Expect('view_txt_view', 'VERSION(1) SORTING(Id) WHERE(Txt=FILTER(''>b''))');
+        Observer.Expect('view_cd_plain_ids', '5,14,15,');
+        Observer.Expect('view_txt_plain_ids', '5,14,15,');
+        Observer.Verify();
     end;
 }
