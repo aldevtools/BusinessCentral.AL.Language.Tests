@@ -54,7 +54,16 @@ codeunit 90325 "LT UF Failed Insert SystemId"
         Observer.Observe('entry sysid = first', Format(Entry.SystemId = First.SystemId));
         Observer.Observe('stored sysid = first', Format(Stored.SystemId = First.SystemId));
         Observer.Observe('stored name', Stored.Name);
-        Observer.Finish();
+        Observer.Expect('entry sysid null after Init', 'Yes');
+        Observer.Expect('insert result', 'No');
+        Observer.Expect('entry sysid null after failed insert', 'Yes');
+        Observer.Expect('entry sysid = first after failed insert', 'No');
+        Observer.Expect('entry sysid null after modify', 'No');
+        Observer.Expect('entry sysid = stored', 'Yes');
+        Observer.Expect('entry sysid = first', 'Yes');
+        Observer.Expect('stored sysid = first', 'Yes');
+        Observer.Expect('stored name', 'changed');
+        Observer.Verify();
     end;
 
     [Test]
@@ -81,7 +90,15 @@ codeunit 90325 "LT UF Failed Insert SystemId"
         Ref.Get(Entry.RecordId());
         Observer.Observe('recordref sysid = entry', Format(Format(Ref.Field(Entry.FieldNo(SystemId)).Value) = Format(Entry.SystemId)));
         Observer.Observe('count', Format(Stored.Count()));
-        Observer.Finish();
+        Observer.Expect('round 1 entry sysid = stored', 'Yes');
+        Observer.Expect('round 1 entry sysid null', 'No');
+        Observer.Expect('round 1 stored name', 'round 1');
+        Observer.Expect('round 2 entry sysid = stored', 'Yes');
+        Observer.Expect('round 2 entry sysid null', 'No');
+        Observer.Expect('round 2 stored name', 'round 2');
+        Observer.Expect('recordref sysid = entry', 'Yes');
+        Observer.Expect('count', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -118,6 +135,16 @@ codeunit 90325 "LT UF Failed Insert SystemId"
         Stored.Get('E');
         Observer.Observe('stored sysid = first', Format(Stored.SystemId = First.SystemId));
         Observer.Observe('stored sysid = explicit', Format(Stored.SystemId = Wanted));
-        Observer.Finish();
+        Observer.Expect('insert(true) result', 'No');
+        Observer.Expect('insert(true) sysid = first', 'No');
+        Observer.Expect('insert(true) error', 'Yes');
+        Observer.Expect('explicit insert result', 'No');
+        Observer.Expect('explicit sysid kept', 'No');
+        Observer.Expect('explicit sysid null', 'Yes');
+        Observer.Expect('explicit sysid after modify kept', 'No');
+        Observer.Expect('explicit sysid after modify = first', 'Yes');
+        Observer.Expect('stored sysid = first', 'Yes');
+        Observer.Expect('stored sysid = explicit', 'No');
+        Observer.Verify();
     end;
 }

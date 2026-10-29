@@ -64,7 +64,15 @@ codeunit 90334 "LT UF RecordId Chain"
         Observer.Observe('other field value (not loaded)', '[' + Format(Value) + ']');
         Value := Row.RecordId().GetRecord().Field(Row.FieldNo(Kind)).Value();
         Observer.Observe('enum field value', '[' + Format(Value) + ']');
-        Observer.Finish();
+        Observer.Expect('option value', 'A');
+        Observer.Expect('option is option', 'Yes');
+        Observer.Expect('option is integer', 'No');
+        Observer.Expect('option text', 'A');
+        Observer.Expect('key field value', '7');
+        Observer.Expect('key field is integer', 'Yes');
+        Observer.Expect('other field value (not loaded)', '[]');
+        Observer.Expect('enum field value', '[None]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -89,7 +97,16 @@ codeunit 90334 "LT UF RecordId Chain"
         Observer.Observe('field count', Format(Row.RecordId().GetRecord().FieldCount()));
         Observer.Observe('without parentheses', Format(Row.RecordId.GetRecord().Field(Row.FieldNo(Id)).Value));
         Observer.Observe('format of recordid', Format(Row.RecordId().GetRecord().RecordId()));
-        Observer.Finish();
+        Observer.Expect('name', 'Opt');
+        Observer.Expect('caption', 'Opt');
+        Observer.Expect('number', '3');
+        Observer.Expect('type', 'Option');
+        Observer.Expect('record name', 'LT UF Chain Row');
+        Observer.Expect('record number', '90333');
+        Observer.Expect('field count', '4');
+        Observer.Expect('without parentheses', '7');
+        Observer.Expect('format of recordid', 'LT UF Chain Row: 7');
+        Observer.Verify();
     end;
 
     [Test]
@@ -113,6 +130,10 @@ codeunit 90334 "LT UF RecordId Chain"
         Observer.Observe('stored unchanged', '[' + Format(Row.RecordId().GetRecord().Field(Row.FieldNo(Txt)).Value()) + ']');
         Ref.Get(Row.RecordId());
         Observer.Observe('after Get', Format(Ref.Field(Row.FieldNo(Txt)).Value));
-        Observer.Finish();
+        Observer.Expect('through fieldref', 'changed');
+        Observer.Expect('record unchanged', '[]');
+        Observer.Expect('stored unchanged', '[]');
+        Observer.Expect('after Get', '');
+        Observer.Verify();
     end;
 }

@@ -27,7 +27,10 @@ codeunit 90320 "LT UF Tern Guid Label"
         MyKey := false ? KeyId : KeyLbl;
         Observer.Observe('false', MyKey);
         Observer.Observe('false len', Format(StrLen(MyKey)));
-        Observer.Finish();
+        Observer.Expect('true', '{AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE}');
+        Observer.Expect('false', '{00000000-0000-0000-0000-000000000001}');
+        Observer.Expect('false len', '38');
+        Observer.Verify();
     end;
 
     [Test]
@@ -42,7 +45,9 @@ codeunit 90320 "LT UF Tern Guid Label"
         Observer.Observe('true', MyKey);
         MyKey := false ? KeyLbl : KeyId;
         Observer.Observe('false', MyKey);
-        Observer.Finish();
+        Observer.Expect('true', '00000000-0000-0000-0000-000000000001');
+        Observer.Expect('false', '{AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -57,7 +62,11 @@ codeunit 90320 "LT UF Tern Guid Label"
         Observer.Observe('format true', Format(true ? NullId : KeyLbl));
         Observer.Observe('format false', Format(false ? NullId : KeyLbl));
         Observer.Observe('len false', Format(StrLen(false ? NullId : KeyLbl)));
-        Observer.Finish();
+        Observer.Expect('null guid true', '{00000000-0000-0000-0000-000000000000}');
+        Observer.Expect('format true', '{00000000-0000-0000-0000-000000000000}');
+        Observer.Expect('format false', '{00000000-0000-0000-0000-000000000001}');
+        Observer.Expect('len false', '38');
+        Observer.Verify();
     end;
 
     [Test]
@@ -79,7 +88,13 @@ codeunit 90320 "LT UF Tern Guid Label"
         V := false ? KeyId : KeyLbl;
         Observer.Observe('variant false is guid', Format(V.IsGuid()));
         Observer.Observe('variant false is text', Format(V.IsText()));
-        Observer.Finish();
+        Observer.Expect('code true', '{AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE}');
+        Observer.Expect('code false', '{00000000-0000-0000-0000-000000000001}');
+        Observer.Expect('variant true is guid', 'Yes');
+        Observer.Expect('variant true is text', 'No');
+        Observer.Expect('variant false is guid', 'Yes');
+        Observer.Expect('variant false is text', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -114,7 +129,17 @@ codeunit 90320 "LT UF Tern Guid Label"
         Observer.Observe('code:guid false', MyKey);
         MyKey := true ? OtherCode : KeyId;
         Observer.Observe('code:guid true', MyKey);
-        Observer.Finish();
+        Observer.Expect('guid:text true', '{AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE}');
+        Observer.Expect('guid:text false', '{11111111-2222-3333-4444-555555555555}');
+        Observer.Expect('guid:code false', '{66666666-7777-8888-9999-000000000000}');
+        Observer.Expect('guid:code true', '{AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE}');
+        Observer.Expect('guid:literal false', '{11111111-2222-3333-4444-555555555555}');
+        Observer.Expect('guid:literal true', '{AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE}');
+        Observer.Expect('text:guid false', '{AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE}');
+        Observer.Expect('text:guid true', '11111111-2222-3333-4444-555555555555');
+        Observer.Expect('code:guid false', '{AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE}');
+        Observer.Expect('code:guid true', '66666666-7777-8888-9999-000000000000');
+        Observer.Verify();
     end;
 
     // The branch that is not a Guid is converted to a Guid, so a text that is no GUID raises on the conversion when that branch is taken; the other branch is not affected.
@@ -136,6 +161,13 @@ codeunit 90320 "LT UF Tern Guid Label"
         Observer.Observe('plain label:guid false', MyKey);
         MyKey := true ? PlainLbl : KeyId;
         Observer.Observe('plain label:guid true', MyKey);
-        Observer.Finish();
+        Observer.Expect('guid:plain label true', '{AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE}');
+        Observer.Expect('guid:plain label false|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('guid:plain label false|code', 'InvalidGuidFormat');
+        Observer.Expect('guid:plain literal false|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('guid:plain literal false|code', 'InvalidGuidFormat');
+        Observer.Expect('plain label:guid false', '{AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE}');
+        Observer.Expect('plain label:guid true', 'plain label');
+        Observer.Verify();
     end;
 }

@@ -48,7 +48,12 @@ codeunit 90336 "LT UF Nbsp"
             Observer.Observe('if', 'taken')
         else
             Observer.Observe('if', 'not taken');
-        Observer.Finish();
+        Observer.Expect('total', '42');
+        Observer.Expect('string length', '3');
+        Observer.Expect('string char code', 'other');
+        Observer.Expect('string equals space form', 'No');
+        Observer.Expect('if', 'taken');
+        Observer.Verify();
     end;
 
     [Test]
@@ -64,7 +69,9 @@ codeunit 90336 "LT UF Nbsp"
         Row.Get(5);
         Observer.Observe('name', Row.Name);
         Observer.Observe('count', Format(Row.Count()));
-        Observer.Finish();
+        Observer.Expect('name', 'five');
+        Observer.Expect('count', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -80,7 +87,14 @@ codeunit 90336 "LT UF Nbsp"
         Observer.Observe('EnSpace', Format(Helper.EnSpace(20)));
         Observer.Observe('FigureSpace', Format(Helper.FigureSpace(20)));
         Observer.Observe('OghamSpaceMark', Format(Helper.OghamSpaceMark(20)));
-        Observer.Finish();
+        Observer.Expect('EmSpace', '22');
+        Observer.Expect('IdeographicSpace', '22');
+        Observer.Expect('NarrowNbsp', '22');
+        Observer.Expect('ThinSpace', '22');
+        Observer.Expect('EnSpace', '22');
+        Observer.Expect('FigureSpace', '22');
+        Observer.Expect('OghamSpaceMark', '22');
+        Observer.Verify();
     end;
 }
 

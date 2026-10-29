@@ -170,7 +170,8 @@ codeunit 90331 "LT UF Unqualified RunModal"
         Caller.GoToRecord(Row);
         Caller.Name.DrillDown();
         Observer.Observe('log', State.Take());
-        Observer.Finish();
+        Observer.Expect('log', 'target open rows=1 lookup=Yes|handler first id=2|drilldown action=LookupOK|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -188,7 +189,8 @@ codeunit 90331 "LT UF Unqualified RunModal"
         Caller.GoToRecord(Row);
         Caller.Name.DrillDown();
         Observer.Observe('log', State.Take());
-        Observer.Finish();
+        Observer.Expect('log', 'target open rows=1 lookup=Yes|handler first id=2|drilldown action=LookupCancel|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -206,7 +208,8 @@ codeunit 90331 "LT UF Unqualified RunModal"
         Caller.GoToRecord(Row);
         Caller.Plain.Invoke();
         Observer.Observe('log', State.Take());
-        Observer.Finish();
+        Observer.Expect('log', 'target open rows=3 lookup=No|handler first id=1|statement form done|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -224,7 +227,8 @@ codeunit 90331 "LT UF Unqualified RunModal"
         Caller.GoToRecord(Row);
         Caller.NoRecord.Invoke();
         Observer.Observe('log', State.Take());
-        Observer.Finish();
+        Observer.Expect('log', 'target open rows=3 lookup=Yes|handler first id=1|one argument action=LookupOK|');
+        Observer.Verify();
     end;
 
     [ModalPageHandler]

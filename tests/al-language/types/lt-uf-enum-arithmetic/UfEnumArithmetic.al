@@ -63,7 +63,16 @@ codeunit 90323 "LT UF Enum Arithmetic"
         Observer.Observe('minus enum', Format(Result));
         Result := Usage + Usage;
         Observer.Observe('plus self', Format(Result));
-        Observer.Finish();
+        Observer.Expect('minus 1', '2');
+        Observer.Expect('plus 1', '4');
+        Observer.Expect('times 2', '6');
+        Observer.Expect('div 2', '1');
+        Observer.Expect('mod 2', '1');
+        Observer.Expect('10 minus', '7');
+        Observer.Expect('1 plus', '4');
+        Observer.Expect('minus enum', '2');
+        Observer.Expect('plus self', '6');
+        Observer.Verify();
     end;
 
     [Test]
@@ -83,7 +92,11 @@ codeunit 90323 "LT UF Enum Arithmetic"
         Row.Other := Row.Other::Order;
         Result := Row.Usage - Row.Other;
         Observer.Observe('field minus field', Format(Result));
-        Observer.Finish();
+        Observer.Expect('minus 1', '2');
+        Observer.Expect('plus 1', '4');
+        Observer.Expect('times 3', '9');
+        Observer.Expect('field minus field', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -106,7 +119,15 @@ codeunit 90323 "LT UF Enum Arithmetic"
             Observer.Observe('if branch', 'taken')
         else
             Observer.Observe('if branch', 'not taken');
-        Observer.Finish();
+        Observer.Expect('var - 1 = 2', 'Yes');
+        Observer.Expect('var + 1 > 3', 'Yes');
+        Observer.Expect('var - 1 = Order', 'Yes');
+        Observer.Expect('field + 1 = Invoice', 'Yes');
+        Observer.Expect('var - 1 = field', 'Yes');
+        Observer.Expect('field + 1 = var', 'Yes');
+        Observer.Expect('field + 1 > 2', 'Yes');
+        Observer.Expect('if branch', 'taken');
+        Observer.Verify();
     end;
 
     [Test]
@@ -134,7 +155,15 @@ codeunit 90323 "LT UF Enum Arithmetic"
         Txt := Format(Usage - 1) + '/' + Format(Usage + 1);
         Observer.Observe('format', Txt);
         Observer.Observe('asinteger same', Format((Usage.AsInteger() - 1) = (Usage - 1)));
-        Observer.Finish();
+        Observer.Expect('decimal', '2');
+        Observer.Expect('decimal division', '1.5');
+        Observer.Expect('enum var', 'Order');
+        Observer.Expect('enum var ordinal', '2');
+        Observer.Expect('enum field', 'Quote');
+        Observer.Expect('enum field plus 1', 'Order');
+        Observer.Expect('format', '2/4');
+        Observer.Expect('asinteger same', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -147,6 +176,7 @@ codeunit 90323 "LT UF Enum Arithmetic"
         Usage := Usage::Quote;
         Result := Usage - 5;
         Observer.Observe('negative', Format(Result));
-        Observer.Finish();
+        Observer.Expect('negative', '-4');
+        Observer.Verify();
     end;
 }
