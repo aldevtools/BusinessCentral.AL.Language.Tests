@@ -184,14 +184,14 @@ codeunit 70082 "LT PnA Xml NodeAdds"
     // Writer TT: empty and blank texts added to an XmlDocument (XmlDocument.Create with text arguments, XmlDocument.Add of an XmlText or a
     // Text): does the add fail, what does WriteTo give, how many child nodes does the document hold, and can a root still be added?
     [TryFunction]
-    local procedure TtTryDocText(Case: Integer; var Result: Text)
+    local procedure TtTryDocText(Kind: Integer; var Result: Text)
     var
         D: XmlDocument;
         Lf: Text[1];
         Out: Text;
     begin
         Lf[1] := 10;
-        case Case of
+        case Kind of
             1:
                 D := XmlDocument.Create('', '');
             2:
@@ -237,12 +237,12 @@ codeunit 70082 "LT PnA Xml NodeAdds"
         Result += ' with root nodes=' + Format(D.GetChildNodes().Count()) + ' xml=' + Out;
     end;
 
-    local procedure TtDocText(var Observer: Codeunit "Probe Observer"; Name: Text; Case: Integer)
+    local procedure TtDocText(var Observer: Codeunit "Probe Observer"; Name: Text; Kind: Integer)
     var
         Result: Text;
     begin
         ClearLastError();
-        if TtTryDocText(Case, Result) then
+        if TtTryDocText(Kind, Result) then
             Observer.Observe(Name, 'ok ' + Result)
         else begin
             Observer.Observe(Name, 'failed after: ' + Result);
