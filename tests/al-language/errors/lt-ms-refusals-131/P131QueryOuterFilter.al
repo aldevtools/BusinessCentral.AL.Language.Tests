@@ -289,13 +289,20 @@ codeunit 73657 "LT P131 Query Outer"
         Q: Query "LT P131 Q Lines";
         Txt: Text;
     begin
-        Txt := Format(Q.FilterOwner);
-        Observer.Observe('unset owner', '[' + Txt + ']');
+        Seed();
+        ClearLastError();
+        asserterror Txt := Format(Q.FilterOwner);
+        Observer.Observe('before open', GetLastErrorText());
         Q.SetRange(FilterOwner, 'U1');
-        Observer.Observe('set owner', '[' + Format(Q.FilterOwner) + ']');
-        Q.SetRange(FilterStatus, 1, 2);
-        Observer.Observe('set status', '[' + Format(Q.FilterStatus) + ']');
-        Observer.Observe('getfilter owner', '[' + Q.GetFilter(FilterOwner) + ']');
+        Q.Open();
+        ClearLastError();
+        asserterror Txt := Format(Q.FilterOwner);
+        Observer.Observe('open no read', GetLastErrorText());
+        Q.Read();
+        ClearLastError();
+        Observer.Observe('after read', '[' + Format(Q.FilterOwner) + '][' + Format(Q.LineStatus) + ']');
+        Q.Close();
+        Observer.Observe('getfilter', '[' + Q.GetFilter(FilterOwner) + ']');
         Observer.Verify();
     end;
 }
