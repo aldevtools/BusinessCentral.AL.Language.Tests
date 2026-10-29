@@ -704,7 +704,7 @@ codeunit 89753 "LT SZ Sql Budget"
     begin
         TxObserve(Obs, 1, 3);
         Obs.Expect('result', '2 2 2');
-        Obs.Expect('statements/rows', 'TODO');
+        Obs.Expect('statements/rows', '1/1 1/1 1/1');
         Obs.Verify();
     end;
 
@@ -715,7 +715,7 @@ codeunit 89753 "LT SZ Sql Budget"
     begin
         TxObserve(Obs, 2, 3);
         Obs.Expect('result', '2 2 2');
-        Obs.Expect('statements/rows', 'TODO');
+        Obs.Expect('statements/rows', '1/1 1/1 1/1');
         Obs.Verify();
     end;
 
@@ -726,7 +726,7 @@ codeunit 89753 "LT SZ Sql Budget"
     begin
         TxObserve(Obs, 3, 0);
         Obs.Expect('result', '0 0 0');
-        Obs.Expect('statements/rows', 'TODO');
+        Obs.Expect('statements/rows', '1/0 1/0 1/0');
         Obs.Verify();
     end;
 
@@ -737,7 +737,7 @@ codeunit 89753 "LT SZ Sql Budget"
     begin
         TxObserve(Obs, 3, 1);
         Obs.Expect('result', '1 1 1');
-        Obs.Expect('statements/rows', 'TODO');
+        Obs.Expect('statements/rows', '1/2 1/2 1/2');
         Obs.Verify();
     end;
 
@@ -748,7 +748,7 @@ codeunit 89753 "LT SZ Sql Budget"
     begin
         TxObserve(Obs, 3, 3);
         Obs.Expect('result', '6 6 6');
-        Obs.Expect('statements/rows', 'TODO');
+        Obs.Expect('statements/rows', '1/4 1/4 1/4');
         Obs.Verify();
     end;
 
@@ -759,7 +759,7 @@ codeunit 89753 "LT SZ Sql Budget"
     begin
         TxObserve(Obs, 4, 1);
         Obs.Expect('result', '101 101 101');
-        Obs.Expect('statements/rows', 'TODO');
+        Obs.Expect('statements/rows', '2/2 2/2 2/2');
         Obs.Verify();
     end;
 
@@ -770,7 +770,7 @@ codeunit 89753 "LT SZ Sql Budget"
     begin
         TxObserve(Obs, 4, 3);
         Obs.Expect('result', '306 306 306');
-        Obs.Expect('statements/rows', 'TODO');
+        Obs.Expect('statements/rows', '6/6 6/6 6/6');
         Obs.Verify();
     end;
 
@@ -781,7 +781,7 @@ codeunit 89753 "LT SZ Sql Budget"
     begin
         TxObserve(Obs, 5, 3);
         Obs.Expect('result', 'No No No');
-        Obs.Expect('statements/rows', 'TODO');
+        Obs.Expect('statements/rows', '1/0 1/0 1/0');
         Obs.Verify();
     end;
 
@@ -792,7 +792,7 @@ codeunit 89753 "LT SZ Sql Budget"
     begin
         TxObserve(Obs, 6, 0);
         Obs.Expect('result', 'Yes Yes Yes');
-        Obs.Expect('statements/rows', 'TODO');
+        Obs.Expect('statements/rows', '1/0 1/0 1/0');
         Obs.Verify();
     end;
 
@@ -803,7 +803,7 @@ codeunit 89753 "LT SZ Sql Budget"
     begin
         TxObserve(Obs, 6, 3);
         Obs.Expect('result', 'No No No');
-        Obs.Expect('statements/rows', 'TODO');
+        Obs.Expect('statements/rows', '1/1 1/1 1/1');
         Obs.Verify();
     end;
 
@@ -814,7 +814,7 @@ codeunit 89753 "LT SZ Sql Budget"
     begin
         TxObserve(Obs, 7, 0);
         Obs.Expect('result', '0 0 0');
-        Obs.Expect('statements/rows', 'TODO');
+        Obs.Expect('statements/rows', '1/1 1/1 1/1');
         Obs.Verify();
     end;
 
@@ -825,7 +825,7 @@ codeunit 89753 "LT SZ Sql Budget"
     begin
         TxObserve(Obs, 7, 3);
         Obs.Expect('result', '3 3 3');
-        Obs.Expect('statements/rows', 'TODO');
+        Obs.Expect('statements/rows', '1/1 1/1 1/1');
         Obs.Verify();
     end;
 
@@ -836,7 +836,7 @@ codeunit 89753 "LT SZ Sql Budget"
     begin
         TxObserve(Obs, 8, 1);
         Obs.Expect('result', '1 1 1');
-        Obs.Expect('statements/rows', 'TODO');
+        Obs.Expect('statements/rows', '1/1 1/1 1/1');
         Obs.Verify();
     end;
 
@@ -847,7 +847,7 @@ codeunit 89753 "LT SZ Sql Budget"
     begin
         TxObserve(Obs, 8, 3);
         Obs.Expect('result', '3 3 3');
-        Obs.Expect('statements/rows', 'TODO');
+        Obs.Expect('statements/rows', '1/1 1/1 1/1');
         Obs.Verify();
     end;
 }
