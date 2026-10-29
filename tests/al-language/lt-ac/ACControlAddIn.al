@@ -114,4 +114,172 @@ codeunit 77540 "LT AC ControlAddIn"
 #endif
     end;
 
+    // ---- TZ (scope 2026-10-29, ADR-027 row 18): control add-ins on a TestPage. Fixtures in TzAddinFixtures.al (90210-90213). ----
+    // Already pinned elsewhere: OnOpenPage and SetValue run with no add-in event (pages/lt-ab-tests/ABTests.al, P118RiskyUserControls.al);
+    // a call from a field OnValidate (above), from an action (pages/lt-ao-testpage/AoTests.al AddinProcedureFromAction), from OnOpenPage under
+    // Page.Run with a page handler and on a Page variable never opened (pages/lt-f3-pages/F3ValidationAddinFilter.al). A usercontrol is no
+    // TestPage member (must-not-compile 1864). These tests add: TestPage.OpenEdit with a call in OnOpenPage, OnAfterGetRecord,
+    // OnAfterGetCurrRecord and OnClosePage, a second procedure, a TryFunction around the call, a usercontrol with Visible = false, and a
+    // usercontrol added by a page extension.
+
+    local procedure TzSeed(Mode: Text)
+    var
+        Row: Record "LT TZ Addin Row";
+        Log: Codeunit "LT TZ Addin Log";
+    begin
+        Row.DeleteAll();
+        Row.Id := 1;
+        Row.Name := 'one';
+        Row.Insert();
+        Row.Id := 2;
+        Row.Name := 'two';
+        Row.Insert();
+        Log.Reset(Mode);
+    end;
+
+    [Test]
+    procedure TZ_OpenNavigateClose_NoAddinEventRuns()
+    var
+        Observer: Codeunit "Probe Observer";
+        Log: Codeunit "LT TZ Addin Log";
+        TP: TestPage "LT TZ Addin Card";
+    begin
+        TzSeed('');
+        TP.OpenEdit();
+        Observer.Observe('after-open', Log.Dump());
+        Observer.Observe('name', TP.NameF.Value());
+        Observer.Observe('next', Format(TP.Next()));
+        Observer.Observe('after-next', Log.Dump());
+        TP.Close();
+        Observer.Observe('after-close', Log.Dump());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TZ_CallInOnOpenPage_TestPageOpen()
+    var
+        Observer: Codeunit "Probe Observer";
+        Log: Codeunit "LT TZ Addin Log";
+        TP: TestPage "LT TZ Addin Card";
+    begin
+        TzSeed('OnOpenPage');
+        asserterror TP.OpenEdit();
+        Observer.ObserveError('open');
+        Observer.Observe('log', Log.Dump());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TZ_CallInOnAfterGetRecord_TestPageOpen()
+    var
+        Observer: Codeunit "Probe Observer";
+        Log: Codeunit "LT TZ Addin Log";
+        TP: TestPage "LT TZ Addin Card";
+    begin
+        TzSeed('OnAfterGetRecord');
+        asserterror TP.OpenEdit();
+        Observer.ObserveError('open');
+        Observer.Observe('log', Log.Dump());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TZ_CallInOnAfterGetCurrRecord_TestPageOpen()
+    var
+        Observer: Codeunit "Probe Observer";
+        Log: Codeunit "LT TZ Addin Log";
+        TP: TestPage "LT TZ Addin Card";
+    begin
+        TzSeed('OnAfterGetCurrRecord');
+        asserterror TP.OpenEdit();
+        Observer.ObserveError('open');
+        Observer.Observe('log', Log.Dump());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TZ_CallInOnClosePage_TestPageClose()
+    var
+        Observer: Codeunit "Probe Observer";
+        Log: Codeunit "LT TZ Addin Log";
+        TP: TestPage "LT TZ Addin Card";
+    begin
+        TzSeed('OnClosePage');
+        TP.OpenEdit();
+        asserterror TP.Close();
+        Observer.ObserveError('close');
+        Observer.Observe('log', Log.Dump());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TZ_TwoProceduresFromActions_PageStaysUsable()
+    var
+        Observer: Codeunit "Probe Observer";
+        Log: Codeunit "LT TZ Addin Log";
+        TP: TestPage "LT TZ Addin Card";
+    begin
+        TzSeed('');
+        TP.OpenEdit();
+        asserterror TP.CallAct.Invoke();
+        Observer.ObserveError('say');
+        asserterror TP.CountAct.Invoke();
+        Observer.ObserveError('count');
+        Observer.Observe('name-after', TP.NameF.Value());
+        TP.NameF.SetValue('changed');
+        Observer.Observe('next-after', Format(TP.Next()));
+        TP.Close();
+        Observer.Observe('log', Log.Dump());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TZ_TryFunctionAroundCall_InsideAction()
+    var
+        Observer: Codeunit "Probe Observer";
+        Log: Codeunit "LT TZ Addin Log";
+        TP: TestPage "LT TZ Addin Card";
+    begin
+        TzSeed('');
+        TP.OpenEdit();
+        asserterror begin
+            TP.TryCallAct.Invoke();
+            Error('LT-NOERROR');
+        end;
+        Observer.ObserveError('invoke');
+        Observer.Observe('log', Log.Dump());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TZ_HiddenUserControl_CallFromAction()
+    var
+        Observer: Codeunit "Probe Observer";
+        Log: Codeunit "LT TZ Addin Log";
+        TP: TestPage "LT TZ Addin Card";
+    begin
+        TzSeed('');
+        TP.OpenEdit();
+        asserterror TP.HiddenCallAct.Invoke();
+        Observer.ObserveError('hidden');
+        Observer.Observe('log', Log.Dump());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TZ_PageExtensionUserControl_CallFromExtAction()
+    var
+        Observer: Codeunit "Probe Observer";
+        Log: Codeunit "LT TZ Addin Log";
+        TP: TestPage "LT TZ Addin Card";
+    begin
+        TzSeed('');
+        TP.OpenEdit();
+        asserterror TP.ExtCallAct.Invoke();
+        Observer.ObserveError('ext');
+        asserterror TP.ExtCallBaseAct.Invoke();
+        Observer.ObserveError('ext-base');
+        Observer.Observe('log', Log.Dump());
+        Observer.Finish();
+    end;
 }
