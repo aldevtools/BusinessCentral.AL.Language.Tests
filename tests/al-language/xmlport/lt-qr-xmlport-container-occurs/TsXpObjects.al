@@ -7,8 +7,8 @@
 //   90081 "LT TS XP Booking Again": the reply part of a reply port: a temporary table element (MaxOccurs = Once, MinOccurs = Zero) > field
 //     element + text element `details` (MinOccurs = Zero, MaxOccurs = Once) > temporary table element `line` with no link (MinOccurs = Zero)
 //     > text element `parts` (MinOccurs = Zero, MaxOccurs = Once) > temporary table element `Part` with no link (MinOccurs = Once,
-//     MaxOccurs = Unbounded, SourceTableView sorted by a secondary key) of field attributes and a text attribute that tells whether the
-//     record's SystemId is null, equal to the SystemId of the source row with the same Entry No., or another one. The OnAfterGetRecord of
+//     MaxOccurs = Unbounded, SourceTableView sorted by a secondary key) of field attributes and a text attribute with the end of the
+//     record's SystemId (each source row has a fixed SystemId that ends in its Entry No.). The OnAfterGetRecord of
 //     `line` empties `Part` and fills it from a source table (record assignment + Insert). Procedures between two Export calls on the same
 //     instance assign the Part record, fill it with TransferFields(From, true), Init it, change its key, or filter the line table.
 //   90082 "LT TS XP Linked Unbounded": a temporary table element > linked temporary table element (LinkTable, MinOccurs = Zero and an
@@ -136,7 +136,6 @@ xmlport 90081 "LT TS XP Booking Again"
 
     var
         PartSource: Record "LT TR XP Part" temporary;
-        Sids: Dictionary of [Integer, Guid];
         Log: Text;
 
     local procedure FillParts(LineRef: Integer)
@@ -151,15 +150,11 @@ xmlport 90081 "LT TS XP Booking Again"
     end;
 
     local procedure SidState(var Row: Record "LT TR XP Part" temporary): Text
-    var
-        Known: Guid;
     begin
+        // 'null', or the last 12 digits of the SystemId (AddPart gives row N the SystemId ending in N)
         if IsNullGuid(Row.SystemId) then
             exit('null');
-        if Sids.Get(Row."Entry No.", Known) then
-            if Known = Row.SystemId then
-                exit('src');
-        exit('other');
+        exit(CopyStr(Format(Row.SystemId), 26, 12));
     end;
 
     procedure AddPart(EntryNo: Integer; LineRef: Integer; NewCode: Code[20]; NewKind: Option; NewDescription: Text[50])
@@ -170,10 +165,9 @@ xmlport 90081 "LT TS XP Booking Again"
         PartSource.Code := NewCode;
         PartSource.Kind := NewKind;
         PartSource.Description := NewDescription;
-        // a fixed SystemId per row ({00000000-0000-0000-0000-0000000000<EntryNo>}), so the Sid attribute can tell where a record's SystemId came from
+        // a fixed SystemId per row ({00000000-0000-0000-0000-0000000000<EntryNo>}), so the Sid attribute shows which row a record's SystemId came from
         Evaluate(PartSource.SystemId, '{00000000-0000-0000-0000-' + Format(EntryNo, 0, '<Integer,12><Filler Character,0>') + '}');
         PartSource.Insert(false, true);
-        Sids.Set(EntryNo, PartSource.SystemId);
     end;
 
     procedure AddLine(EntryNo: Integer; LineRef: Integer)
@@ -795,7 +789,7 @@ xmlport 90088 "LT TS XP View Again"
 
     procedure View(): Text
     begin
-        exit(row.GetView(false));
+        exit(row.GetView(false) + ' count=' + Format(row.Count()));
     end;
 }
 
