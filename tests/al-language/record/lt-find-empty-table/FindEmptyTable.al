@@ -97,21 +97,21 @@ codeunit 67073 "LT FE Find"
     // (key not present, past the last row, before the first row) and on an empty table with a key value other than the default. ----
 
     [TryFunction]
-    local procedure TvTryFindUnused(Key: Integer; Mode: Text)
+    local procedure TvTryFindUnused(KeyValue: Integer; Mode: Text)
     var
         Row: Record "LT FE Row";
     begin
-        Row.Id := Key;
+        Row.Id := KeyValue;
         if Mode = '' then
             Row.Find()
         else
             Row.Find(Mode);
     end;
 
-    local procedure TvUnused(Key: Integer; Mode: Text): Text
+    local procedure TvUnused(KeyValue: Integer; Mode: Text): Text
     begin
         ClearLastError();
-        if TvTryFindUnused(Key, Mode) then
+        if TvTryFindUnused(KeyValue, Mode) then
             exit('ok');
         exit('error:' + GetLastErrorText() + '|' + GetLastErrorCode());
     end;
