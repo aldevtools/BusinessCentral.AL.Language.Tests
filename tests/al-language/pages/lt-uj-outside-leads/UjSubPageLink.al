@@ -137,15 +137,41 @@ codeunit 90403 "LT UJ SubPageLink Tests"
         Line.Insert();
     end;
 
-    local procedure Rows(var P: TestPart "LT UJ Filter Part"): Text
+    local procedure ResourceRows(var Card: TestPage "LT UJ Setup Card"): Text
     var
         Result: Text;
         More: Boolean;
     begin
-        More := P.First();
+        More := Card.ResourceLines.First();
         while More do begin
-            Result += Format(P.SrcCtl.Value()) + '/' + P.LineNoCtl.Value() + '/' + P.DescriptionCtl.Value() + ',';
-            More := P.Next();
+            Result += Card.ResourceLines.SrcCtl.Value() + '/' + Card.ResourceLines.LineNoCtl.Value() + '/' + Card.ResourceLines.DescriptionCtl.Value() + ',';
+            More := Card.ResourceLines.Next();
+        end;
+        exit(Result);
+    end;
+
+    local procedure HeaderRows(var Card: TestPage "LT UJ Setup Card"): Text
+    var
+        Result: Text;
+        More: Boolean;
+    begin
+        More := Card.HeaderLines.First();
+        while More do begin
+            Result += Card.HeaderLines.SrcCtl.Value() + '/' + Card.HeaderLines.LineNoCtl.Value() + '/' + Card.HeaderLines.DescriptionCtl.Value() + ',';
+            More := Card.HeaderLines.Next();
+        end;
+        exit(Result);
+    end;
+
+    local procedure AltRows(var Card: TestPage "LT UJ Setup Card"): Text
+    var
+        Result: Text;
+        More: Boolean;
+    begin
+        More := Card.AltItemLines.First();
+        while More do begin
+            Result += Card.AltItemLines.SrcCtl.Value() + '/' + Card.AltItemLines.LineNoCtl.Value() + '/' + Card.AltItemLines.DescriptionCtl.Value() + ',';
+            More := Card.AltItemLines.Next();
         end;
         exit(Result);
     end;
@@ -169,9 +195,9 @@ codeunit 90403 "LT UJ SubPageLink Tests"
     begin
         Seed();
         Card.OpenView();
-        Observer.Observe('qualified, field named like the enum', Rows(Card.ResourceLines));
-        Observer.Observe('unqualified, field named like the enum', Rows(Card.HeaderLines));
-        Observer.Observe('qualified, other field name', Rows(Card.AltItemLines));
+        Observer.Observe('qualified, field named like the enum', ResourceRows(Card));
+        Observer.Observe('unqualified, field named like the enum', HeaderRows(Card));
+        Observer.Observe('qualified, other field name', AltRows(Card));
         Card.Close();
         Observer.Finish();
     end;
