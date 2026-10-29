@@ -124,34 +124,26 @@ codeunit 90325 "LT UF Failed Insert SystemId"
         Observer: Codeunit "Probe Observer";
         First: Record "LT UF SysId Row";
         Entry: Record "LT UF SysId Row";
+        Counter: Record "LT UF SysId Row";
         NullId: Guid;
     begin
+        ClearLastError();
         First.Init();
         First."No." := 'F';
         First.Insert(false);
+        Counter.SetRange("No.", 'F');
+        Observer.Observe('count before', Format(Counter.Count()));
         Entry.Init();
         Entry."No." := 'F';
-        Observer.Observe('try insert(true)', Format(TryInsert(Entry, true)));
-        Observer.ObserveError('insert(true) error');
-        Observer.Observe('entry sysid null after insert(true)', Format(Entry.SystemId = NullId));
-        Observer.Observe('try insert(false)', Format(TryInsert(Entry, false)));
-        Observer.ObserveError('insert(false) error');
-        Observer.Observe('entry sysid null after insert(false)', Format(Entry.SystemId = NullId));
-        Observer.Observe('try insert()', Format(TryInsertDefault(Entry)));
-        Observer.ObserveError('insert() error');
-        Observer.Observe('entry sysid null after insert()', Format(Entry.SystemId = NullId));
+        asserterror Entry.Insert(false);
+        Observer.ObserveError('statement insert(false)');
+        Observer.Observe('count after', Format(Counter.Count()));
+        Observer.Observe('entry sysid null', Format(Entry.SystemId = NullId));
+        asserterror Entry.Insert();
+        Observer.ObserveError('statement insert()');
+        asserterror Entry.Insert(true);
+        Observer.ObserveError('statement insert(true)');
+        Observer.Observe('count end', Format(Counter.Count()));
         Observer.Finish();
-    end;
-
-    [TryFunction]
-    local procedure TryInsert(var Row: Record "LT UF SysId Row"; RunTrigger: Boolean)
-    begin
-        Row.Insert(RunTrigger);
-    end;
-
-    [TryFunction]
-    local procedure TryInsertDefault(var Row: Record "LT UF SysId Row")
-    begin
-        Row.Insert();
     end;
 }
