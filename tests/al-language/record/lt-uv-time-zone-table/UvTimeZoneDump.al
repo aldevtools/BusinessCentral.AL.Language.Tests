@@ -29,90 +29,151 @@ codeunit 90530 "LT UV Time Zone Dump"
     [Test]
     procedure Rows001()
     begin
-        Dump(1, 10);
+        Dump(1, 6);
     end;
 
     [Test]
-    procedure Rows011()
+    procedure Rows007()
     begin
-        Dump(11, 20);
+        Dump(7, 12);
     end;
 
     [Test]
-    procedure Rows021()
+    procedure Rows013()
     begin
-        Dump(21, 30);
+        Dump(13, 18);
+    end;
+
+    [Test]
+    procedure Rows019()
+    begin
+        Dump(19, 24);
+    end;
+
+    [Test]
+    procedure Rows025()
+    begin
+        Dump(25, 30);
     end;
 
     [Test]
     procedure Rows031()
     begin
-        Dump(31, 40);
+        Dump(31, 36);
     end;
 
     [Test]
-    procedure Rows041()
+    procedure Rows037()
     begin
-        Dump(41, 50);
+        Dump(37, 42);
     end;
 
     [Test]
-    procedure Rows051()
+    procedure Rows043()
     begin
-        Dump(51, 60);
+        Dump(43, 48);
+    end;
+
+    [Test]
+    procedure Rows049()
+    begin
+        Dump(49, 54);
+    end;
+
+    [Test]
+    procedure Rows055()
+    begin
+        Dump(55, 60);
     end;
 
     [Test]
     procedure Rows061()
     begin
-        Dump(61, 70);
+        Dump(61, 66);
     end;
 
     [Test]
-    procedure Rows071()
+    procedure Rows067()
     begin
-        Dump(71, 80);
+        Dump(67, 72);
     end;
 
     [Test]
-    procedure Rows081()
+    procedure Rows073()
     begin
-        Dump(81, 90);
+        Dump(73, 78);
+    end;
+
+    [Test]
+    procedure Rows079()
+    begin
+        Dump(79, 84);
+    end;
+
+    [Test]
+    procedure Rows085()
+    begin
+        Dump(85, 90);
     end;
 
     [Test]
     procedure Rows091()
     begin
-        Dump(91, 100);
+        Dump(91, 96);
     end;
 
     [Test]
-    procedure Rows101()
+    procedure Rows097()
     begin
-        Dump(101, 110);
+        Dump(97, 102);
     end;
 
     [Test]
-    procedure Rows111()
+    procedure Rows103()
     begin
-        Dump(111, 120);
+        Dump(103, 108);
+    end;
+
+    [Test]
+    procedure Rows109()
+    begin
+        Dump(109, 114);
+    end;
+
+    [Test]
+    procedure Rows115()
+    begin
+        Dump(115, 120);
     end;
 
     [Test]
     procedure Rows121()
     begin
-        Dump(121, 130);
+        Dump(121, 126);
     end;
 
     [Test]
-    procedure Rows131()
+    procedure Rows127()
     begin
-        Dump(131, 140);
+        Dump(127, 132);
     end;
 
     [Test]
-    procedure Rows141()
+    procedure Rows133()
     begin
-        Dump(141, 146);
+        Dump(133, 138);
     end;
+
+    [Test]
+    procedure Rows139()
+    begin
+        Dump(139, 144);
+    end;
+
+    [Test]
+    procedure Rows145()
+    begin
+        Dump(145, 150);
+    end;
+
 }
