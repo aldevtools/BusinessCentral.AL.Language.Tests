@@ -48,7 +48,20 @@ codeunit 90341 "LT UF Http Clear"
         Req.SetRequestUri('http://localhost/uf/next');
         Observer.Observe('refill method', Req.Method);
         Observer.Observe('refill uri', Req.GetRequestUri());
-        Observer.Finish();
+        Observer.Expect('before content', 'first body');
+        Observer.Expect('before header count', '1');
+        Observer.Expect('method', 'GET');
+        Observer.Expect('uri', '[]');
+        Observer.Expect('content of cleared request|text', 'Microsoft.Dynamics.Nav.Runtime.NavHttpContent variable not initialized.');
+        Observer.Expect('content of cleared request|code', 'NotInitialized');
+        Observer.Expect('content of fresh request|text', 'Microsoft.Dynamics.Nav.Runtime.NavHttpContent variable not initialized.');
+        Observer.Expect('content of fresh request|code', 'NotInitialized');
+        Observer.Expect('header count', '0');
+        Observer.Expect('has header', 'No');
+        Observer.Expect('original content kept', '[first body]');
+        Observer.Expect('refill method', 'POST');
+        Observer.Expect('refill uri', 'http://localhost/uf/next');
+        Observer.Verify();
     end;
 
     [Test]
@@ -87,7 +100,17 @@ codeunit 90341 "LT UF Http Clear"
         Observer.Observe('refilled content type', Values.Get(1));
         Observer.Observe('refilled has X-Part', Format(Headers.Contains('X-Part')));
         Observer.Observe('is secret', Format(Cnt.IsSecretContent()));
-        Observer.Finish();
+        Observer.Expect('before header count', '2');
+        Observer.Expect('read after clear', '[]');
+        Observer.Expect('header count after clear', '2');
+        Observer.Expect('has Content-Type', 'Yes');
+        Observer.Expect('has X-Part', 'No');
+        Observer.Expect('request content unchanged', '[first body]');
+        Observer.Expect('refilled', 'second body');
+        Observer.Expect('refilled content type', 'text/plain; charset=utf-8');
+        Observer.Expect('refilled has X-Part', 'No');
+        Observer.Expect('is secret', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -112,7 +135,15 @@ codeunit 90341 "LT UF Http Clear"
         Resp.Content.ReadAs(Txt);
         Observer.Observe('response content after clear', '[' + Txt + ']');
         Observer.Observe('response reason after clear', '[' + Resp.ReasonPhrase() + ']');
-        Observer.Finish();
+        Observer.Expect('client default header', 'Yes');
+        Observer.Expect('client header after clear', 'No');
+        Observer.Expect('client timeout after clear', '1 minute 40 seconds');
+        Observer.Expect('response status', '200');
+        Observer.Expect('response success', 'Yes');
+        Observer.Expect('response status after clear', '200');
+        Observer.Expect('response content after clear', '[]');
+        Observer.Expect('response reason after clear', '[OK]');
+        Observer.Verify();
     end;
 
     local procedure ReadContent(Cnt: HttpContent): Text
