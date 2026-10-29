@@ -226,6 +226,19 @@ codeunit 83950 "LT BW Subscriber Order Tests"
         Observer.Verify();
     end;
 
+    [Test]
+    procedure UiObserve_DependencyListOrder()
+    var
+        Raiser: Codeunit "LT UA Order Raiser";
+        Row: Record "LT UA Install Order";
+    begin
+        Observer.Observe('order', Raiser.Raise());
+        Observer.Observe('order again', Raiser.Raise());
+        Observer.Observe('install row', Format(Row.Get(1)));
+        Observer.Observe('install order', Row."Order");
+        Observer.Finish();
+    end;
+
     local procedure Initialize()
     begin
         // The install logs hold rows written at install time; nothing to delete.
