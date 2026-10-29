@@ -25,7 +25,6 @@ codeunit 74078 "LT UT Install Tests"
         Companies: Record Company;
         UpgradeTag: Codeunit "Upgrade Tag";
         Helper: Codeunit "LT UT Helper";
-        InitRow: Record "LT UT Init Log";
     begin
         Row.SetCurrentKey(Id);
         if Row.FindSet() then
@@ -38,7 +37,13 @@ codeunit 74078 "LT UT Install Tests"
             repeat
                 Observer.Observe('tag set after install, ' + Tag(Companies.Name), Format(UpgradeTag.HasUpgradeTag(Helper.TagName(), Companies.Name)));
             until Companies.Next() = 0;
-        Observer.Observe('init rows now', Format(InitRow.Count()));
-        Observer.Finish();
+        // Measured on the BC 29 SaaS sandbox (2026-10-29): in both companies the tag was not set and the OnCompanyInitialize subscriber had not run when the
+        // install code started, and the tag was set after SetUpgradeTag. The subscriber's rows (0) are not asserted afterwards: other tests may initialize companies.
+        Observer.Expect('install row session company', 'has tag before=No|init row exists=No|has tag after set=Yes|init rows all companies=0|tag is this app''s=Yes');
+        Observer.Expect('install row other company', 'has tag before=No|init row exists=No|has tag after set=Yes|init rows all companies=0|tag is this app''s=Yes');
+        Observer.Expect('install rows', '2');
+        Observer.Expect('tag set after install, session company', 'Yes');
+        Observer.Expect('tag set after install, other company', 'Yes');
+        Observer.Verify();
     end;
 }
