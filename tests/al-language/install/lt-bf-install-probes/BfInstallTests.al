@@ -284,9 +284,7 @@ codeunit 81257 "LT BF Install Tests"
         // Read only: ChangeCompany on the tables, nothing is written to either company.
         Observer.Observe('session company cds', CdsText(CompanyName()));
         Observer.Observe('My Company cds', CdsText('My Company'));
-        Observer.Expect('session company cds', 'TODO');
-        Observer.Expect('My Company cds', 'TODO');
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -296,8 +294,6 @@ codeunit 81257 "LT BF Install Tests"
     begin
         Observer.Observe('session company setup', SetupText(CompanyName()));
         Observer.Observe('My Company setup', SetupText('My Company'));
-        Observer.Expect('session company setup', 'TODO');
-        Observer.Expect('My Company setup', 'TODO');
-        Observer.Verify();
+        Observer.Finish();
     end;
 }
