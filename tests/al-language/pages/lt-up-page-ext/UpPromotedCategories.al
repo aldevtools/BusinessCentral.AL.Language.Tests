@@ -30,7 +30,7 @@ codeunit 90507 "LT UP Promoted Log"
     end;
 }
 
-page 90503 "LT UP Promoted Seven After"
+page 90503 "LT UP Prom Seven After"
 {
     PageType = List;
     ApplicationArea = All;
@@ -78,7 +78,7 @@ page 90503 "LT UP Promoted Seven After"
     }
 }
 
-pageextension 90504 "LT UP Promoted Seven After Ext" extends "LT UP Promoted Seven After"
+pageextension 90504 "LT UP Prom Seven After Ext" extends "LT UP Prom Seven After"
 {
     actions
     {
@@ -106,7 +106,7 @@ pageextension 90504 "LT UP Promoted Seven After Ext" extends "LT UP Promoted Sev
     }
 }
 
-page 90505 "LT UP Promoted Seven Last"
+page 90505 "LT UP Prom Seven Last"
 {
     PageType = List;
     ApplicationArea = All;
@@ -154,7 +154,7 @@ page 90505 "LT UP Promoted Seven Last"
     }
 }
 
-pageextension 90505 "LT UP Promoted Seven Last Ext" extends "LT UP Promoted Seven Last"
+pageextension 90505 "LT UP Prom Seven Last Ext" extends "LT UP Prom Seven Last"
 {
     actions
     {
@@ -178,7 +178,7 @@ pageextension 90505 "LT UP Promoted Seven Last Ext" extends "LT UP Promoted Seve
     }
 }
 
-page 90506 "LT UP Promoted Twelve After"
+page 90506 "LT UP Prom Twelve After"
 {
     PageType = List;
     ApplicationArea = All;
@@ -226,7 +226,7 @@ page 90506 "LT UP Promoted Twelve After"
     }
 }
 
-pageextension 90506 "LT UP Promoted Twelve After Ext" extends "LT UP Promoted Twelve After"
+pageextension 90506 "LT UP Prom Twelve After Ext" extends "LT UP Prom Twelve After"
 {
     actions
     {
@@ -254,7 +254,7 @@ pageextension 90506 "LT UP Promoted Twelve After Ext" extends "LT UP Promoted Tw
     }
 }
 
-page 90507 "LT UP Promoted New Last"
+page 90507 "LT UP Prom New Last"
 {
     PageType = List;
     ApplicationArea = All;
@@ -302,7 +302,7 @@ page 90507 "LT UP Promoted New Last"
     }
 }
 
-pageextension 90507 "LT UP Promoted New Last Ext" extends "LT UP Promoted New Last"
+pageextension 90507 "LT UP Prom New Last Ext" extends "LT UP Prom New Last"
 {
     actions
     {
@@ -326,7 +326,7 @@ pageextension 90507 "LT UP Promoted New Last Ext" extends "LT UP Promoted New La
     }
 }
 
-page 90508 "LT UP Promoted New After"
+page 90508 "LT UP Prom New After"
 {
     PageType = List;
     ApplicationArea = All;
@@ -374,7 +374,7 @@ page 90508 "LT UP Promoted New After"
     }
 }
 
-pageextension 90508 "LT UP Promoted New After Ext" extends "LT UP Promoted New After"
+pageextension 90508 "LT UP Prom New After Ext" extends "LT UP Prom New After"
 {
     actions
     {
@@ -402,7 +402,7 @@ pageextension 90508 "LT UP Promoted New After Ext" extends "LT UP Promoted New A
     }
 }
 
-page 90509 "LT UP Promoted Declared After"
+page 90509 "LT UP Prom Declared After"
 {
     PageType = List;
     ApplicationArea = All;
@@ -450,7 +450,7 @@ page 90509 "LT UP Promoted Declared After"
     }
 }
 
-pageextension 90509 "LT UP Promoted Declared After Ext" extends "LT UP Promoted Declared After"
+pageextension 90509 "LT UP Prom Declared After Ext" extends "LT UP Prom Declared After"
 {
     actions
     {
@@ -501,13 +501,13 @@ codeunit 90509 "LT UP Promoted Tests"
     end;
 
     [TryFunction]
-    local procedure TrySevenAfterAction(var Pg: TestPage "LT UP Promoted Seven After")
+    local procedure TrySevenAfterAction(var Pg: TestPage "LT UP Prom Seven After")
     begin
         Pg.Extra.Invoke();
     end;
 
     [TryFunction]
-    local procedure TrySevenAfterRef(var Pg: TestPage "LT UP Promoted Seven After")
+    local procedure TrySevenAfterRef(var Pg: TestPage "LT UP Prom Seven After")
     begin
         Pg.Extra_Promoted.Invoke();
     end;
@@ -517,7 +517,7 @@ codeunit 90509 "LT UP Promoted Tests"
     var
         Observer: Codeunit "Probe Observer";
         Log: Codeunit "LT UP Promoted Log";
-        Pg: TestPage "LT UP Promoted Seven After";
+        Pg: TestPage "LT UP Prom Seven After";
     begin
         SeedRow();
         Log.Take();
@@ -531,19 +531,19 @@ codeunit 90509 "LT UP Promoted Tests"
     end;
 
     [TryFunction]
-    local procedure TryPostSevenAfter(var Pg: TestPage "LT UP Promoted Seven After")
+    local procedure TryPostSevenAfter(var Pg: TestPage "LT UP Prom Seven After")
     begin
         Pg.Post.Invoke();
     end;
 
     [TryFunction]
-    local procedure TrySevenLastAction(var Pg: TestPage "LT UP Promoted Seven Last")
+    local procedure TrySevenLastAction(var Pg: TestPage "LT UP Prom Seven Last")
     begin
         Pg.Extra.Invoke();
     end;
 
     [TryFunction]
-    local procedure TrySevenLastRef(var Pg: TestPage "LT UP Promoted Seven Last")
+    local procedure TrySevenLastRef(var Pg: TestPage "LT UP Prom Seven Last")
     begin
         Pg.Extra_Promoted.Invoke();
     end;
@@ -553,7 +553,7 @@ codeunit 90509 "LT UP Promoted Tests"
     var
         Observer: Codeunit "Probe Observer";
         Log: Codeunit "LT UP Promoted Log";
-        Pg: TestPage "LT UP Promoted Seven Last";
+        Pg: TestPage "LT UP Prom Seven Last";
     begin
         SeedRow();
         Log.Take();
@@ -567,19 +567,19 @@ codeunit 90509 "LT UP Promoted Tests"
     end;
 
     [TryFunction]
-    local procedure TryPostSevenLast(var Pg: TestPage "LT UP Promoted Seven Last")
+    local procedure TryPostSevenLast(var Pg: TestPage "LT UP Prom Seven Last")
     begin
         Pg.Post.Invoke();
     end;
 
     [TryFunction]
-    local procedure TryTwelveAfterAction(var Pg: TestPage "LT UP Promoted Twelve After")
+    local procedure TryTwelveAfterAction(var Pg: TestPage "LT UP Prom Twelve After")
     begin
         Pg.Extra.Invoke();
     end;
 
     [TryFunction]
-    local procedure TryTwelveAfterRef(var Pg: TestPage "LT UP Promoted Twelve After")
+    local procedure TryTwelveAfterRef(var Pg: TestPage "LT UP Prom Twelve After")
     begin
         Pg.Extra_Promoted.Invoke();
     end;
@@ -589,7 +589,7 @@ codeunit 90509 "LT UP Promoted Tests"
     var
         Observer: Codeunit "Probe Observer";
         Log: Codeunit "LT UP Promoted Log";
-        Pg: TestPage "LT UP Promoted Twelve After";
+        Pg: TestPage "LT UP Prom Twelve After";
     begin
         SeedRow();
         Log.Take();
@@ -603,19 +603,19 @@ codeunit 90509 "LT UP Promoted Tests"
     end;
 
     [TryFunction]
-    local procedure TryPostTwelveAfter(var Pg: TestPage "LT UP Promoted Twelve After")
+    local procedure TryPostTwelveAfter(var Pg: TestPage "LT UP Prom Twelve After")
     begin
         Pg.Post.Invoke();
     end;
 
     [TryFunction]
-    local procedure TryNewLastAction(var Pg: TestPage "LT UP Promoted New Last")
+    local procedure TryNewLastAction(var Pg: TestPage "LT UP Prom New Last")
     begin
         Pg.Extra.Invoke();
     end;
 
     [TryFunction]
-    local procedure TryNewLastRef(var Pg: TestPage "LT UP Promoted New Last")
+    local procedure TryNewLastRef(var Pg: TestPage "LT UP Prom New Last")
     begin
         Pg.Extra_Promoted.Invoke();
     end;
@@ -625,7 +625,7 @@ codeunit 90509 "LT UP Promoted Tests"
     var
         Observer: Codeunit "Probe Observer";
         Log: Codeunit "LT UP Promoted Log";
-        Pg: TestPage "LT UP Promoted New Last";
+        Pg: TestPage "LT UP Prom New Last";
     begin
         SeedRow();
         Log.Take();
@@ -639,19 +639,19 @@ codeunit 90509 "LT UP Promoted Tests"
     end;
 
     [TryFunction]
-    local procedure TryPostNewLast(var Pg: TestPage "LT UP Promoted New Last")
+    local procedure TryPostNewLast(var Pg: TestPage "LT UP Prom New Last")
     begin
         Pg.Post.Invoke();
     end;
 
     [TryFunction]
-    local procedure TryNewAfterAction(var Pg: TestPage "LT UP Promoted New After")
+    local procedure TryNewAfterAction(var Pg: TestPage "LT UP Prom New After")
     begin
         Pg.Extra.Invoke();
     end;
 
     [TryFunction]
-    local procedure TryNewAfterRef(var Pg: TestPage "LT UP Promoted New After")
+    local procedure TryNewAfterRef(var Pg: TestPage "LT UP Prom New After")
     begin
         Pg.Extra_Promoted.Invoke();
     end;
@@ -661,7 +661,7 @@ codeunit 90509 "LT UP Promoted Tests"
     var
         Observer: Codeunit "Probe Observer";
         Log: Codeunit "LT UP Promoted Log";
-        Pg: TestPage "LT UP Promoted New After";
+        Pg: TestPage "LT UP Prom New After";
     begin
         SeedRow();
         Log.Take();
@@ -675,19 +675,19 @@ codeunit 90509 "LT UP Promoted Tests"
     end;
 
     [TryFunction]
-    local procedure TryPostNewAfter(var Pg: TestPage "LT UP Promoted New After")
+    local procedure TryPostNewAfter(var Pg: TestPage "LT UP Prom New After")
     begin
         Pg.Post.Invoke();
     end;
 
     [TryFunction]
-    local procedure TryDeclaredAfterAction(var Pg: TestPage "LT UP Promoted Declared After")
+    local procedure TryDeclaredAfterAction(var Pg: TestPage "LT UP Prom Declared After")
     begin
         Pg.Extra.Invoke();
     end;
 
     [TryFunction]
-    local procedure TryDeclaredAfterRef(var Pg: TestPage "LT UP Promoted Declared After")
+    local procedure TryDeclaredAfterRef(var Pg: TestPage "LT UP Prom Declared After")
     begin
         Pg.Extra_Promoted.Invoke();
     end;
@@ -697,7 +697,7 @@ codeunit 90509 "LT UP Promoted Tests"
     var
         Observer: Codeunit "Probe Observer";
         Log: Codeunit "LT UP Promoted Log";
-        Pg: TestPage "LT UP Promoted Declared After";
+        Pg: TestPage "LT UP Prom Declared After";
     begin
         SeedRow();
         Log.Take();
@@ -711,7 +711,7 @@ codeunit 90509 "LT UP Promoted Tests"
     end;
 
     [TryFunction]
-    local procedure TryPostDeclaredAfter(var Pg: TestPage "LT UP Promoted Declared After")
+    local procedure TryPostDeclaredAfter(var Pg: TestPage "LT UP Prom Declared After")
     begin
         Pg.Post.Invoke();
     end;
