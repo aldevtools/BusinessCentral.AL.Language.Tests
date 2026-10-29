@@ -306,6 +306,15 @@ codeunit 67515 "LT RV Tests"
         Min0 := MinimumActiveRowVersion();
     end;
 
+    local procedure Relation(Value: BigInteger; Other: BigInteger): Text
+    begin
+        if Value = Other then
+            exit('same');
+        if Value > Other then
+            exit('greater');
+        exit('less');
+    end;
+
     local procedure UkSnap(var Observer: Codeunit "Probe Observer"; Name: Text; var PrevLast: BigInteger; var PrevMin: BigInteger; Last0: BigInteger; Min0: BigInteger)
     var
         Last: BigInteger;
@@ -313,10 +322,10 @@ codeunit 67515 "LT RV Tests"
     begin
         Last := LastUsedRowVersion();
         Min := MinimumActiveRowVersion();
-        Observer.Observe(Name + ' last = prev', Format(Last = PrevLast));
-        Observer.Observe(Name + ' last > prev', Format(Last > PrevLast));
-        Observer.Observe(Name + ' min = prev', Format(Min = PrevMin));
-        Observer.Observe(Name + ' min = start', Format(Min = Min0));
+        Observer.Observe(Name + ' last vs previous', Relation(Last, PrevLast));
+        Observer.Observe(Name + ' min vs start', Relation(Min, Min0));
+        Observer.Observe(Name + ' min vs previous', Relation(Min, PrevMin));
+        Observer.Observe(Name + ' last vs start', Relation(Last, Last0));
         Observer.Observe(Name + ' in write transaction', Format(IsInWriteTransaction()));
         PrevLast := Last;
         PrevMin := Min;
