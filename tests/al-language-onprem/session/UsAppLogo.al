@@ -4,6 +4,7 @@
 // Probe (writer US, outside issue 6148): an app whose app.json declares a logo. What does the Logo (Media) of its Published Application row hold:
 //   the file bytes unchanged, which Media columns, and does the Guided Experience Item.Icon an app registers (System Application,
 //   GuidedExperienceImpl GetExtensionLogo + Icon.ImportStream) hold the same bytes. Cross-app fixture D registers the items (Codeunit.Run 61161).
+// Not pinned: the Tenant Media bytes of the Icon differ from the logo file (BC re-encodes the PNG on import; the bytes came from the Linux container).
 // BC versions: 27, 28, 29
 codeunit 98010 "LT US App Logo"
 {
@@ -103,9 +104,18 @@ codeunit 98010 "LT US App Logo"
         Media.CalcFields(Content);
         Observer.Observe('content has value after CalcFields', Format(Media.Content.HasValue()));
         Observer.Observe('length', Format(LenOf(Media)));
-        Observer.Observe('base64', ReadBase64(Media));
         Observer.Observe('equals file', Format(ReadBase64(Media) = TinyPngBase64));
-        Observer.Finish();
+        Observer.Expect('row found', 'Yes');
+        Observer.Expect('logo has value', 'Yes');
+        Observer.Expect('media id null', 'No');
+        Observer.Expect('same media id on second FindFirst', 'Yes');
+        Observer.Expect('media row found', 'Yes');
+        Observer.Expect('columns', 'ID=<guid null=No>;Description=;Content=<blob>;Mime Type=image/png;Height=1;Width=1;Company Name=;Expiration Date=<datetime empty=Yes>;Prohibit Cache=No;File Name=;Security Token=;Creating User=;');
+        Observer.Expect('content has value', 'Yes');
+        Observer.Expect('content has value after CalcFields', 'Yes');
+        Observer.Expect('length', '67');
+        Observer.Expect('equals file', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -127,7 +137,14 @@ codeunit 98010 "LT US App Logo"
         Observer.Observe('length', Format(LenOf(Media)));
         Observer.Observe('sha256', ReadSha256(Media));
         Observer.Observe('equals file', Format(ReadSha256(Media) = BigPngSha256));
-        Observer.Finish();
+        Observer.Expect('row found', 'Yes');
+        Observer.Expect('logo has value', 'Yes');
+        Observer.Expect('media row found', 'Yes');
+        Observer.Expect('columns', 'ID=<guid null=No>;Description=;Content=<blob>;Mime Type=image/png;Height=300;Width=300;Company Name=;Expiration Date=<datetime empty=Yes>;Prohibit Cache=No;File Name=;Security Token=;Creating User=;');
+        Observer.Expect('length', '90393');
+        Observer.Expect('sha256', '81b16005cb41c2481566f9d80dcd71a2af23da858b0d3fa3e4291ebcb9125d05');
+        Observer.Expect('equals file', 'Yes');
+        Observer.Verify();
     end;
 
     // The Guided Experience Item table is internal to System Application, so the test reads the Tenant Media rows the registration adds:
@@ -157,21 +174,22 @@ codeunit 98010 "LT US App Logo"
                     Observer.Observe('added ' + Format(Added) + ' mime', TenantMedia."Mime Type");
                     Observer.Observe('added ' + Format(Added) + ' width x height', Format(TenantMedia.Width) + 'x' + Format(TenantMedia.Height));
                     Observer.Observe('added ' + Format(Added) + ' file name', TenantMedia."File Name");
-                    Observer.Observe('added ' + Format(Added) + ' base64', ReadTenantBase64(TenantMedia));
                 end;
             until TenantMedia.Next() = 0;
         Observer.Observe('tenant media rows added', Format(Added));
+        Observer.Expect('assisted exists', 'Yes');
+        Observer.Expect('manual exists', 'Yes');
+        Observer.Expect('added 1 description', '{E92BE076-DE11-44ED-895E-17031341DF29}');
+        Observer.Expect('added 1 mime', 'image/png');
+        Observer.Expect('added 1 width x height', '1x1');
+        Observer.Expect('added 1 file name', '');
+        Observer.Expect('added 2 description', '{E92BE076-DE11-44ED-895E-17031341DF29}');
+        Observer.Expect('added 2 mime', 'image/png');
+        Observer.Expect('added 2 width x height', '1x1');
+        Observer.Expect('added 2 file name', '');
+        Observer.Expect('tenant media rows added', '2');
         GuidedExperience.Remove(Enum::"Guided Experience Type"::"Assisted Setup", ObjectType::Codeunit, 61161);
         GuidedExperience.Remove(Enum::"Guided Experience Type"::"Manual Setup", ObjectType::Codeunit, 61161);
-        Observer.Finish();
-    end;
-
-    local procedure ReadTenantBase64(var TenantMedia: Record "Tenant Media"): Text
-    var
-        Base64: Codeunit "Base64 Convert";
-        InS: InStream;
-    begin
-        TenantMedia.Content.CreateInStream(InS);
-        exit(Base64.ToBase64(InS));
+        Observer.Verify();
     end;
 }
