@@ -656,7 +656,10 @@ codeunit 89753 "LT SZ Sql Budget"
 
     // Kind: 1 Get of line 2 (N >= 2); 2 the same with SetLoadFields(Weight); 3 SetRange on the group, FindSet, Next until the end;
     // 4 Get and Modify of lines 1..N; 5 FindFirst on group 'NONE'; 6 IsEmpty on the group; 7 Count on the group; 8 FindLast on the group;
-    // 9 the same as 3 in a procedure of its own (SumGroupOneRow), used only by the one-row test.
+    // 9 and 10: the same as 3 with one more filter on "Line No." that every row passes (SumGroupOneRow, SumGroupThreeRows), so that each
+    // row count sends a SQL statement of its own. BC 29 SaaS: when the same statement had found no rows just before (the 0-row test),
+    // the next FindSet that finds rows cost one statement more the first time (2/1 instead of 1/2 for one row, 2/4 instead of 1/4 for
+    // three rows); that history effect is not asserted here.
     local procedure TxMeasure(Kind: Integer; N: Integer; var Result: Text): Text
     var
         SqlReader: Codeunit "LT TX Sql Reader";
@@ -682,6 +685,8 @@ codeunit 89753 "LT SZ Sql Budget"
                 Result := Format(SqlReader.LastLineNo('TX'));
             9:
                 Result := Format(SqlReader.SumGroupOneRow('TX'));
+            10:
+                Result := Format(SqlReader.SumGroupThreeRows('TX'));
         end;
         exit(Delta());
     end;
@@ -749,7 +754,7 @@ codeunit 89753 "LT SZ Sql Budget"
     var
         Obs: Codeunit "Probe Observer";
     begin
-        TxObserve(Obs, 3, 3);
+        TxObserve(Obs, 10, 3);
         Obs.Expect('result', '6 6 6');
         Obs.Expect('statements/rows', '1/4 1/4 1/4');
         Obs.Verify();
@@ -1018,6 +1023,20 @@ codeunit 90171 "LT TX Sql Reader"
     begin
         SqlLine.SetRange("Group Code", GroupCode);
         SqlLine.SetFilter("Line No.", '>0');
+        if SqlLine.FindSet() then
+            repeat
+                Total += SqlLine.Weight;
+            until SqlLine.Next() = 0;
+        exit(Total);
+    end;
+
+    procedure SumGroupThreeRows(GroupCode: Code[20]): Integer
+    var
+        SqlLine: Record "LT TX Sql Line";
+        Total: Integer;
+    begin
+        SqlLine.SetRange("Group Code", GroupCode);
+        SqlLine.SetFilter("Line No.", '<>0');
         if SqlLine.FindSet() then
             repeat
                 Total += SqlLine.Weight;
