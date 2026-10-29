@@ -350,14 +350,16 @@ codeunit 73657 "LT P131 Query Outer"
         Observer: Codeunit "Probe Observer";
         Q: Query "LT P131 Q Lines";
         n: Integer;
+        Res: Text;
     begin
         Seed();
         Q.SetFilter(FilterStatus, '1|2');
         Q.Open();
         while Q.Read() do begin
             n += 1;
-            Observer.Observe('row' + Format(n), Format(Q.HeadId) + '|' + Format(Q.LineStatus) + '|' + Format(Q.FilterStatus));
+            Res += '[' + Format(Q.HeadId) + '|' + Format(Q.LineStatus) + '|' + Format(Q.FilterStatus) + ']';
         end;
+        Observer.Observe('rows', Res);
         Observer.Verify();
     end;
 
