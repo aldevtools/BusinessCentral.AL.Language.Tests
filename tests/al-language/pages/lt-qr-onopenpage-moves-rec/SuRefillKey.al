@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/currpage/currpage-update-method
 // Scope: in-scope
-// Fixtures used: own objects 89650 - 89655 (writer SU); Probe Observer (69160); tests in this file (codeunit 89655)
+// Fixtures used: own objects 89650 - 89655 (writer SU); Probe Observer (69160); tests in this file (codeunit 89655); writer TW adds 90144 - 90147 and the TW_ tests (al-runner issue 6115: the same pages with a ListPart)
 // Probe: al-runner issues 6008 and 5871 (reporter's real-BC measurements on 29.0); own objects, own rows. A Worksheet over a table with the
 //   key ByName (Name) next to its primary key (Id). Page "LT SU Name Ws" calls Rec.SetCurrentKey(Name) in OnOpenPage; page "LT SU Id Ws" is the
 //   same page in the primary key (control). A header field's OnDrillDown marks the flagged rows (MarkedOnly(false), ClearMarks, a copy of Rec
@@ -484,4 +484,282 @@ codeunit 89655 "LT SU Refill Key Tests"
         Observer.Expect('goto 1', 'No/3:R2;R2;C2;R3;R3;C3;R5;R5;C5;R3;R3;C3;');
         Observer.Verify();
     end;
+
+    // ---- writer TW (al-runner issue 6115, reporter's real-BC 29.0 run): the same marking drilldown with a ListPart linked by SubPageLink
+    //      (page "LT TW Name Ws Part" in the key ByName, "LT TW Id Ws Part" in the primary key). Rows: 1 N4 flagged, 2 N3, 3 N2 flagged, 4 N1;
+    //      one detail row per row. In the key ByName the drilldown marks 3 then 1 and leaves Rec on row 1. ----
+    local procedure TwSeed()
+    var
+        Row: Record "LT SU Row";
+        Detail: Record "LT TW Su Detail";
+    begin
+        Row.DeleteAll();
+        Detail.DeleteAll();
+        TwAddRow(1, 'N4', true);
+        TwAddRow(2, 'N3', false);
+        TwAddRow(3, 'N2', true);
+        TwAddRow(4, 'N1', false);
+        Log.Take();
+    end;
+
+    local procedure TwAddRow(Id: Integer; Name: Code[20]; Flag: Boolean)
+    var
+        Detail: Record "LT TW Su Detail";
+    begin
+        AddRow(Id, Name, Flag);
+        Detail.Init();
+        Detail.Id := Id;
+        Detail."Line No." := 10000;
+        Detail.Description := 'D' + Format(Id);
+        Detail.Insert();
+    end;
+
+    [Test]
+    procedure TW_NameKeyWithPart_GoToRecordOfRecsRow()
+    var
+        Row: Record "LT SU Row";
+        P: TestPage "LT TW Name Ws Part";
+        Obs: Codeunit "Probe Observer";
+    begin
+        TwSeed();
+        P.OpenView();
+        Obs.Observe('open', P.Id.Value() + ':' + Log.Take());
+        P.FlaggedTile.Drilldown();
+        Obs.Observe('drilldown', P.Id.Value() + ':' + Log.Take());
+        Row.Get(1);
+        Obs.Observe('goto 1', Format(P.GoToRecord(Row)) + '/' + P.Id.Value() + ':' + Log.Take());
+        Obs.Observe('part', P.Details.Description.Value());
+        P.Close();
+        Obs.Expect('open', '4:R4;R3;R2;R1;R4;R4;R4;C4;');
+        Obs.Expect('drilldown', '4:');
+        Obs.Expect('goto 1', 'Yes/1:R1;R1;R3;R1;R1;R1;C1;');
+        Obs.Expect('part', 'D1');
+        Obs.Verify();
+    end;
+
+    [Test]
+    procedure TW_NameKeyWithPart_GoToRecordOfUnmarkedRow()
+    var
+        Row: Record "LT SU Row";
+        P: TestPage "LT TW Name Ws Part";
+        Obs: Codeunit "Probe Observer";
+    begin
+        TwSeed();
+        P.OpenView();
+        Obs.Observe('open', P.Id.Value() + ':' + Log.Take());
+        P.FlaggedTile.Drilldown();
+        Obs.Observe('drilldown', P.Id.Value() + ':' + Log.Take());
+        Row.Get(2);
+        Obs.Observe('goto 2', Format(P.GoToRecord(Row)) + '/' + P.Id.Value() + ':' + Log.Take());
+        P.Close();
+        Obs.Expect('open', '4:R4;R3;R2;R1;R4;R4;R4;C4;');
+        Obs.Expect('drilldown', '4:');
+        Obs.Expect('goto 2', 'No/1:R1;R1;R3;R1;R1;R1;C1;R3;R3;R3;C3;R1;R1;R1;C1;');
+        Obs.Verify();
+    end;
+
+    [Test]
+    procedure TW_IdKeyWithPart_GoToRecordOfRecsRow()
+    var
+        Row: Record "LT SU Row";
+        P: TestPage "LT TW Id Ws Part";
+        Obs: Codeunit "Probe Observer";
+    begin
+        TwSeed();
+        P.OpenView();
+        Obs.Observe('open', P.Id.Value() + ':' + Log.Take());
+        P.FlaggedTile.Drilldown();
+        Obs.Observe('drilldown', P.Id.Value() + ':' + Log.Take());
+        Row.Get(3);
+        Obs.Observe('goto 3', Format(P.GoToRecord(Row)) + '/' + P.Id.Value() + ':' + Log.Take());
+        Obs.Observe('part', P.Details.Description.Value());
+        P.Close();
+        Obs.Expect('open', '1:R1;R2;R3;R4;R1;R1;C1;');
+        Obs.Expect('drilldown', '1:');
+        Obs.Expect('goto 3', 'Yes/3:R3;R1;R3;R3;C3;');
+        Obs.Expect('part', 'D3');
+        Obs.Verify();
+    end;
+
+    [Test]
+    procedure TW_IdKeyWithPart_GoToRecordOfUnmarkedRow()
+    var
+        Row: Record "LT SU Row";
+        P: TestPage "LT TW Id Ws Part";
+        Obs: Codeunit "Probe Observer";
+    begin
+        TwSeed();
+        P.OpenView();
+        Obs.Observe('open', P.Id.Value() + ':' + Log.Take());
+        P.FlaggedTile.Drilldown();
+        Obs.Observe('drilldown', P.Id.Value() + ':' + Log.Take());
+        Row.Get(2);
+        Obs.Observe('goto 2', Format(P.GoToRecord(Row)) + '/' + P.Id.Value() + ':' + Log.Take());
+        P.Close();
+        Obs.Expect('open', '1:R1;R2;R3;R4;R1;R1;C1;');
+        Obs.Expect('drilldown', '1:');
+        Obs.Expect('goto 2', 'No/1:R3;R1;R3;R3;C3;R1;R1;C1;');
+        Obs.Verify();
+    end;
+}
+
+// ---- writer TW (al-runner issue 6115): a detail table, a ListPart over it and the two worksheets again with that part (SubPageLink Id). ----
+table 90144 "LT TW Su Detail"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; Id; Integer) { }
+        field(2; "Line No."; Integer) { }
+        field(3; Description; Text[50]) { }
+    }
+
+    keys
+    {
+        key(PK; Id, "Line No.") { Clustered = true; }
+    }
+}
+
+page 90145 "LT TW Su Detail Part"
+{
+    PageType = ListPart;
+    ApplicationArea = All;
+    SourceTable = "LT TW Su Detail";
+    InsertAllowed = false;
+    DeleteAllowed = false;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Lines)
+            {
+                Editable = false;
+                field(Id; Rec.Id) { ApplicationArea = All; }
+                field("Line No."; Rec."Line No.") { ApplicationArea = All; }
+                field(Description; Rec.Description) { ApplicationArea = All; }
+            }
+        }
+    }
+}
+
+page 90146 "LT TW Name Ws Part"
+{
+    PageType = Worksheet;
+    ApplicationArea = All;
+    SourceTable = "LT SU Row";
+    InsertAllowed = false;
+    DeleteAllowed = false;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            group(Tiles)
+            {
+                field(FlaggedTile; Tile)
+                {
+                    ApplicationArea = All;
+                    Editable = false;
+
+                    trigger OnDrillDown()
+                    begin
+                        Marks.MarkFlagged(Rec);
+                        CurrPage.Update(false);
+                    end;
+                }
+            }
+            repeater(Rows)
+            {
+                Editable = false;
+                field(Id; Rec.Id) { ApplicationArea = All; }
+                field(Name; Rec.Name) { ApplicationArea = All; }
+            }
+            part(Details; "LT TW Su Detail Part")
+            {
+                ApplicationArea = All;
+                SubPageLink = Id = field(Id);
+            }
+        }
+    }
+
+    trigger OnOpenPage()
+    begin
+        Rec.SetCurrentKey(Name);
+    end;
+
+    trigger OnAfterGetRecord()
+    begin
+        Log.Add('R' + Format(Rec.Id));
+    end;
+
+    trigger OnAfterGetCurrRecord()
+    begin
+        Log.Add('C' + Format(Rec.Id));
+    end;
+
+    var
+        Log: Codeunit "LT SU Log";
+        Marks: Codeunit "LT SU Marks";
+        Tile: Integer;
+}
+
+page 90147 "LT TW Id Ws Part"
+{
+    PageType = Worksheet;
+    ApplicationArea = All;
+    SourceTable = "LT SU Row";
+    InsertAllowed = false;
+    DeleteAllowed = false;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            group(Tiles)
+            {
+                field(FlaggedTile; Tile)
+                {
+                    ApplicationArea = All;
+                    Editable = false;
+
+                    trigger OnDrillDown()
+                    begin
+                        Marks.MarkFlagged(Rec);
+                        CurrPage.Update(false);
+                    end;
+                }
+            }
+            repeater(Rows)
+            {
+                Editable = false;
+                field(Id; Rec.Id) { ApplicationArea = All; }
+                field(Name; Rec.Name) { ApplicationArea = All; }
+            }
+            part(Details; "LT TW Su Detail Part")
+            {
+                ApplicationArea = All;
+                SubPageLink = Id = field(Id);
+            }
+        }
+    }
+
+    trigger OnAfterGetRecord()
+    begin
+        Log.Add('R' + Format(Rec.Id));
+    end;
+
+    trigger OnAfterGetCurrRecord()
+    begin
+        Log.Add('C' + Format(Rec.Id));
+    end;
+
+    var
+        Log: Codeunit "LT SU Log";
+        Marks: Codeunit "LT SU Marks";
+        Tile: Integer;
 }

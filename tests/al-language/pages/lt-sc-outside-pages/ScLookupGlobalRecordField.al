@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/testfield/testfield-lookup-method
 // Scope: in-scope
-// Fixtures used: own tables 89004 and 89005, pages 89006 and 89007, test codeunit 89008
+// Fixtures used: own tables 89004 and 89005, pages 89006 and 89007, test codeunit 89008; writer TW adds pages 90157-90158 and TW_LookupOnValidateUpdatesThePart (al-runner issue 6118)
 // Probe: from al-runner issue 5843 (reporter's real-BC run on 29.0.54011.55407); every literal asserted below is what
 //   BC produced. Other BC versions are checked by the corpus CI matrix.
 // Facts: TestField.Lookup() on a header control bound to a field of a page global record (Setting."Resource No."),
@@ -636,4 +636,121 @@ codeunit 89008 "LT SC Lookup Global Rec Tests"
         Resource."No." := 'R3';
         Resource.Insert();
     end;
+
+    // ---- writer TW (al-runner issue 6118, reporter's real-BC 29.0 run): the OnValidate also calls a procedure of the unlinked ListPart
+    //      that sets a global of the part and runs CurrPage.Update(false) on the part, before the host's own CurrPage.Update(false). ----
+    [Test]
+    [HandlerFunctions('PickSecondResource')]
+    procedure TW_LookupOnValidateUpdatesThePart()
+    var
+        Setting: Record "LT SC Planner Setting";
+        Schedule: TestPage "LT TW Schedule Part Update";
+        Shown: Text;
+        Scope: Text;
+        PartRows: Text;
+    begin
+        Setup();
+        Schedule.OpenEdit();
+        Schedule.ResourceNo.Lookup();
+        Shown := Schedule.ResourceNo.Value();
+        Scope := Schedule.Resources.Scope.Value();
+        if Schedule.Resources.First() then
+            repeat
+                PartRows += '<' + Schedule.Resources."No.".Value() + '>';
+            until not Schedule.Resources.Next();
+        Schedule.Close();
+        Setting.Get();
+        Assert.AreEqual('shows=[R2] scope=[R2] part=<R1><R2><R3> saved=[R2]', 'shows=[' + Shown + '] scope=[' + Scope + '] part=' + PartRows + ' saved=[' + Setting."Resource No." + ']', 'TW_LookupOnValidateUpdatesThePart');
+    end;
+}
+
+// ---- writer TW (al-runner issue 6118): a ListPart with a procedure that updates the part, and a host page whose OnValidate calls it. ----
+page 90157 "LT TW Scope Part"
+{
+    PageType = ListPart;
+    SourceTable = "LT SC Resource";
+    ApplicationArea = All;
+    Editable = false;
+
+    layout
+    {
+        area(Content)
+        {
+            field(Scope; Scope)
+            {
+                ApplicationArea = All;
+                Caption = 'Scope';
+            }
+            repeater(Lines)
+            {
+                field("No."; Rec."No.") { ApplicationArea = All; }
+            }
+        }
+    }
+
+    procedure ShowScope(NewScope: Code[20])
+    begin
+        Scope := NewScope;
+        CurrPage.Update(false);
+    end;
+
+    var
+        Scope: Code[20];
+}
+
+page 90158 "LT TW Schedule Part Update"
+{
+    PageType = List;
+    SourceTable = "LT SC Resource";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            group(Filters)
+            {
+                field(ResourceNo; Setting."Resource No.")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Resource No.';
+
+                    trigger OnLookup(var Text: Text): Boolean
+                    var
+                        Resource: Record "LT SC Resource";
+                    begin
+                        if Page.RunModal(Page::"LT SC Resource List", Resource) <> Action::LookupOK then
+                            exit(false);
+                        Text := Resource."No.";
+                        exit(true);
+                    end;
+
+                    trigger OnValidate()
+                    begin
+                        Setting.Modify();
+                        CurrPage.Resources.Page.ShowScope(Setting."Resource No.");
+                        CurrPage.Update(false);
+                    end;
+                }
+            }
+            repeater(Lines)
+            {
+                field("No."; Rec."No.") { ApplicationArea = All; }
+            }
+            part(Resources; "LT TW Scope Part")
+            {
+                ApplicationArea = All;
+            }
+        }
+    }
+
+    trigger OnOpenPage()
+    begin
+        if not Setting.Get() then
+            Setting.Insert();
+    end;
+
+    var
+        Setting: Record "LT SC Planner Setting";
 }
