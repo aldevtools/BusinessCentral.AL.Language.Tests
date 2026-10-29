@@ -765,11 +765,24 @@ codeunit 67515 "LT RV Tests"
         UkSnap(Observer, 'insert 2', PrevLast, PrevMin, Last0, Min0);
         A.FindLast();
         UkSnap(Observer, 'read 2', PrevLast, PrevMin, Last0, Min0);
-        Commit();
-        UkSnap(Observer, 'commit', PrevLast, PrevMin, Last0, Min0);
         A.DeleteAll();
         Commit();
-        Observer.Finish();
+        Observer.Expect('insert: last vs previous', 'same');
+        Observer.Expect('insert: min vs start', 'same');
+        Observer.Expect('insert: write transaction', 'Yes');
+        Observer.Expect('read: last vs previous', 'greater');
+        Observer.Expect('read: min vs start', 'same');
+        Observer.Expect('read: write transaction', 'Yes');
+        Observer.Expect('read again: last vs previous', 'same');
+        Observer.Expect('read again: min vs start', 'same');
+        Observer.Expect('read again: write transaction', 'Yes');
+        Observer.Expect('insert 2: last vs previous', 'same');
+        Observer.Expect('insert 2: min vs start', 'same');
+        Observer.Expect('insert 2: write transaction', 'Yes');
+        Observer.Expect('read 2: last vs previous', 'greater');
+        Observer.Expect('read 2: min vs start', 'same');
+        Observer.Expect('read 2: write transaction', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
