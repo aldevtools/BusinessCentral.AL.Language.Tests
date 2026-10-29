@@ -27,8 +27,6 @@ codeunit 90320 "LT UF Tern Guid Label"
         MyKey := false ? KeyId : KeyLbl;
         Observer.Observe('false', MyKey);
         Observer.Observe('false len', Format(StrLen(MyKey)));
-        MyKey := false ? KeyId : PlainLbl;
-        Observer.Observe('false plain label', MyKey);
         Observer.Finish();
     end;
 
@@ -94,8 +92,8 @@ codeunit 90320 "LT UF Tern Guid Label"
         MyKey: Text;
     begin
         Evaluate(KeyId, '{AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE}');
-        Other := 'other text';
-        OtherCode := 'OTHERCODE';
+        Other := '11111111-2222-3333-4444-555555555555';
+        OtherCode := '66666666-7777-8888-9999-000000000000';
         MyKey := true ? KeyId : Other;
         Observer.Observe('guid:text true', MyKey);
         MyKey := false ? KeyId : Other;
@@ -104,12 +102,40 @@ codeunit 90320 "LT UF Tern Guid Label"
         Observer.Observe('guid:code false', MyKey);
         MyKey := true ? KeyId : OtherCode;
         Observer.Observe('guid:code true', MyKey);
-        MyKey := false ? KeyId : 'literal';
+        MyKey := false ? KeyId : '11111111-2222-3333-4444-555555555555';
         Observer.Observe('guid:literal false', MyKey);
-        MyKey := true ? KeyId : 'literal';
+        MyKey := true ? KeyId : '11111111-2222-3333-4444-555555555555';
         Observer.Observe('guid:literal true', MyKey);
         MyKey := false ? Other : KeyId;
         Observer.Observe('text:guid false', MyKey);
+        MyKey := true ? Other : KeyId;
+        Observer.Observe('text:guid true', MyKey);
+        MyKey := false ? OtherCode : KeyId;
+        Observer.Observe('code:guid false', MyKey);
+        MyKey := true ? OtherCode : KeyId;
+        Observer.Observe('code:guid true', MyKey);
+        Observer.Finish();
+    end;
+
+    // The branch that is not a Guid is converted to a Guid, so a text that is no GUID raises on the conversion when that branch is taken; the other branch is not affected.
+    [Test]
+    procedure GuidTrue_NonGuidTextBranch()
+    var
+        Observer: Codeunit "Probe Observer";
+        KeyId: Guid;
+        MyKey: Text;
+    begin
+        Evaluate(KeyId, '{AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE}');
+        MyKey := true ? KeyId : PlainLbl;
+        Observer.Observe('guid:plain label true', MyKey);
+        asserterror MyKey := false ? KeyId : PlainLbl;
+        Observer.ObserveError('guid:plain label false');
+        asserterror MyKey := false ? KeyId : 'literal';
+        Observer.ObserveError('guid:plain literal false');
+        MyKey := false ? PlainLbl : KeyId;
+        Observer.Observe('plain label:guid false', MyKey);
+        MyKey := true ? PlainLbl : KeyId;
+        Observer.Observe('plain label:guid true', MyKey);
         Observer.Finish();
     end;
 }

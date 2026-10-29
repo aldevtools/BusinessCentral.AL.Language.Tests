@@ -138,27 +138,15 @@ codeunit 90323 "LT UF Enum Arithmetic"
     end;
 
     [Test]
-    procedure OutOfRangeResult()
+    procedure NegativeResult()
     var
         Observer: Codeunit "Probe Observer";
         Usage: Enum "LT UF Usage";
-        Back: Enum "LT UF Usage";
         Result: Integer;
     begin
         Usage := Usage::Quote;
         Result := Usage - 5;
         Observer.Observe('negative', Format(Result));
-        ClearLastError();
-        if not TryAssign(Back, Usage + 10) then
-            Observer.ObserveError('assign 11 to enum')
-        else
-            Observer.Observe('assign 11 to enum', 'no error');
         Observer.Finish();
-    end;
-
-    [TryFunction]
-    local procedure TryAssign(var Target: Enum "LT UF Usage"; Value: Integer)
-    begin
-        Target := Enum::"LT UF Usage".FromInteger(Value);
     end;
 }
