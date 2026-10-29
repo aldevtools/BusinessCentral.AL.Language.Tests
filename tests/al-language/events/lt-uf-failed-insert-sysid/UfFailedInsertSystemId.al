@@ -89,7 +89,7 @@ codeunit 90325 "LT UF Failed Insert SystemId"
         end;
         Ref.Get(Entry.RecordId());
         Observer.Observe('recordref sysid = entry', Format(Format(Ref.Field(Entry.FieldNo(SystemId)).Value) = Format(Entry.SystemId)));
-        Observer.Observe('count', Format(Stored.Count()));
+        Observer.Observe('count', Format(CountRows('D')));
         Observer.Expect('round 1 entry sysid = stored', 'Yes');
         Observer.Expect('round 1 entry sysid null', 'No');
         Observer.Expect('round 1 stored name', 'round 1');
@@ -146,5 +146,13 @@ codeunit 90325 "LT UF Failed Insert SystemId"
         Observer.Expect('stored sysid = first', 'Yes');
         Observer.Expect('stored sysid = explicit', 'No');
         Observer.Verify();
+    end;
+
+    local procedure CountRows(No: Code[20]): Integer
+    var
+        Rows: Record "LT UF SysId Row";
+    begin
+        Rows.SetRange("No.", No);
+        exit(Rows.Count());
     end;
 }
