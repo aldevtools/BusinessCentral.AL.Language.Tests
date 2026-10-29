@@ -621,6 +621,7 @@ is only a reference.
 | 2214 | AL0157 | A variable of type TableFilter (writer SI, al-runner issue 5998). |
 | 2238 to 2240, 2244 | AL0196 | In one app, a page extension procedure (local, or internal) with the name of a protected, public or internal base page procedure compiles, but a bare call of it is ambiguous (writer TI, al-runner issue 6043). A cross-app extension is accepted: pageext/lt-ext-local-same-name. |
 | 2241 to 2243 | AL0440 | In one app, a protected or public page extension procedure with the name and parameters of a protected or public base page procedure (writer TI). A local base procedure never clashes. |
+| 2262 to 2267 | AL0132 | `X::Value` where the table has a field X (enum A) and an enum type X exists: a member only A has in a procedure of a TableNo codeunit, a member only type X has in its OnRun trigger, a member only type X has in the table, in a page on it, and with a global or local variable X (writer UB, issue 6129). |
 
 Accepted by the compiler, so not cases: an overload in a page extension (the name of a base procedure with other parameter types: tests/al-language/pageext/POPageExtOverload.al), and a bare `exit;` in a procedure with a return value. Also accepted (writer SH, AL 30 on BC 27, 28 and 29): enum, enum extension, enum value, interface and control add-in names longer than 30 characters, a permission set name of 20 characters, field, procedure and variable names of 31 to 120 characters (misc/lt-cv-odd-leads/CvEnumLongNames.al, `LongNamesThatCompile`), objects of different types with one id, an id that an app it does not depend on also uses, and `exit(value)` in the page triggers that return a value (OnQueryClosePage, OnFindRecord, OnNextRecord, OnInsertRecord, OnModifyRecord, OnDeleteRecord, a field OnLookup).
 
@@ -630,3 +631,4 @@ The reusable workflow compiles apps that must build, so it cannot run these. A j
 that major (`bc-linux/scripts/install-al-compiler.sh <bc_version>`), stage the symbols of that major (the step that fills `symbols/` in
 `bc-test-from-source.yml`), then run `check-must-not-compile.py --al AL --symbols symbols --bc-major <major> --al-major <AL major>`. The job needs no
 BC container. Run locally with the tools in `~/.al-tool-cache` it passes today with AL 16.2, 17.0.34, 18.0.43 and 30.0.42 on the 27.0 symbols.
+
