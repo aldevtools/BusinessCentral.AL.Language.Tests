@@ -239,4 +239,65 @@ codeunit 81257 "LT BF Install Tests"
         Observer.Expect('order', 'fixture subs OnInstallAppPerCompany (session company);fixture subs OnInstallAppPerCompany (other company);fixture subs OnInstallAppPerDatabase (blank);PeV subs OnInstallAppPerCompany (session company);Z Subs OnInstallAppPerCompany (session company);Install Late OnInstallAppPerCompany (session company);A Subs OnInstallAppPerCompany (session company);Install StartSession Probe OnInstallAppPerCompany (session company);Install Seeder OnInstallAppPerCompany (session company);BEI Installer OnInstallAppPerCompany (session company);PeV subs OnInstallAppPerCompany (other company);Z Subs OnInstallAppPerCompany (other company);Install Late OnInstallAppPerCompany (other company);A Subs OnInstallAppPerCompany (other company);Install StartSession Probe OnInstallAppPerCompany (other company);Install Seeder OnInstallAppPerCompany (other company);BEI Installer OnInstallAppPerCompany (other company);PeV subs OnInstallAppPerDatabase (blank);Z Subs OnInstallAppPerDatabase (blank);Install Late OnInstallAppPerDatabase (blank);A Subs OnInstallAppPerDatabase (blank);Install Seeder OnInstallAppPerDatabase;');
         Observer.Verify();
     end;
+
+    local procedure CdsText(Company: Text): Text
+    var
+        Cds: Record "CDS Connection Setup";
+        Result: Text;
+    begin
+        Cds.ChangeCompany(Company);
+        Result := 'isempty=' + Format(Cds.IsEmpty()) + ';count=' + Format(Cds.Count());
+        if Cds.FindFirst() then
+            Result += ';enabled=' + Format(Cds."Is Enabled") + ';server=' + Cds."Server Address";
+        exit(Result);
+    end;
+
+    local procedure SetupText(Company: Text): Text
+    var
+        AppAreaSetup: Record "Application Area Setup";
+        GLSetup: Record "General Ledger Setup";
+        SalesSetup: Record "Sales & Receivables Setup";
+        JobQueueEntry: Record "Job Queue Entry";
+        CompanyInfo: Record "Company Information";
+        Result: Text;
+    begin
+        AppAreaSetup.ChangeCompany(Company);
+        GLSetup.ChangeCompany(Company);
+        SalesSetup.ChangeCompany(Company);
+        JobQueueEntry.ChangeCompany(Company);
+        CompanyInfo.ChangeCompany(Company);
+        Result := 'app area setup=' + Format(AppAreaSetup.Count());
+        Result += ';gl setup get=' + Format(GLSetup.Get()) + ';gl setup=' + Format(GLSetup.Count());
+        Result += ';sales setup get=' + Format(SalesSetup.Get()) + ';sales setup=' + Format(SalesSetup.Count());
+        Result += ';job queue entries=' + Format(JobQueueEntry.Count());
+        Result += ';company information get=' + Format(CompanyInfo.Get()) + ';company information=' + Format(CompanyInfo.Count());
+        if CompanyInfo.Get() then
+            Result += ';company information name=' + Plain(CompanyInfo.Name);
+        exit(Result);
+    end;
+
+    [Test]
+    procedure SecondCompany_CdsConnectionSetup_ComparedWithSessionCompany()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        // Read only: ChangeCompany on the tables, nothing is written to either company.
+        Observer.Observe('session company cds', CdsText(CompanyName()));
+        Observer.Observe('My Company cds', CdsText('My Company'));
+        Observer.Expect('session company cds', 'TODO');
+        Observer.Expect('My Company cds', 'TODO');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure SecondCompany_SetupTablesReadByCompanyInitialize_ComparedWithSessionCompany()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('session company setup', SetupText(CompanyName()));
+        Observer.Observe('My Company setup', SetupText('My Company'));
+        Observer.Expect('session company setup', 'TODO');
+        Observer.Expect('My Company setup', 'TODO');
+        Observer.Verify();
+    end;
 }
