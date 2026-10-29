@@ -488,7 +488,12 @@ codeunit 74046 "LT P133 Date Eval Format"
         Flow.CalcFields(Total);
         Observer.Observe('flow_calculated_0', Format(Flow, 0, 0));
         Observer.Observe('flow_calculated_9', Format(Flow, 0, 9));
-        Observer.Finish();
+        Observer.Expect('temporary_9', '7\ttext value\tCODE1\t2.5\tYes\tTwo\tFirst Caption\t03/05/24\t 2:30:15 PM\t03/05/24 02:30 PM\t123456789\t{12345678-1234-1234-1234-123456789012}\t1 minute 30 seconds\t \t\t-4');
+        Observer.Expect('flow_0', '3\tABC\t03/05/24\t12.5\t0');
+        Observer.Expect('flow_9', '3\tABC\t03/05/24\t12.5\t0');
+        Observer.Expect('flow_calculated_0', '3\tABC\t03/05/24\t12.5\t2');
+        Observer.Expect('flow_calculated_9', '3\tABC\t03/05/24\t12.5\t2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -530,7 +535,17 @@ codeunit 74046 "LT P133 Date Eval Format"
         Observer.Observe('flow_9', Format(RecRef, 0, 9));
         RecRef.Field(4).CalcField();
         Observer.Observe('flow_calculated_9', Format(RecRef, 0, 9));
-        Observer.Finish();
+        Observer.Expect('blank_default', '0\t\t\t0\tNo\tZero\tNone\t\t\t\t0\t{00000000-0000-0000-0000-000000000000}\t\t \t\t0');
+        Observer.Expect('blank_0', '0\t\t\t0\tNo\tZero\tNone\t\t\t\t0\t{00000000-0000-0000-0000-000000000000}\t\t \t\t0');
+        Observer.Expect('blank_9', '0\t\t\t0\tNo\tZero\tNone\t\t\t\t0\t{00000000-0000-0000-0000-000000000000}\t\t \t\t0');
+        Observer.Expect('filled_default', '7\ttext value\tCODE1\t2.5\tYes\tTwo\tFirst Caption\t03/05/24\t 2:30:15 PM\t03/05/24 02:30 PM\t123456789\t{12345678-1234-1234-1234-123456789012}\t1 minute 30 seconds\t \t\t-4');
+        Observer.Expect('filled_0', '7\ttext value\tCODE1\t2.5\tYes\tTwo\tFirst Caption\t03/05/24\t 2:30:15 PM\t03/05/24 02:30 PM\t123456789\t{12345678-1234-1234-1234-123456789012}\t1 minute 30 seconds\t \t\t-4');
+        Observer.Expect('filled_9', '7\ttext value\tCODE1\t2.5\tYes\tTwo\tFirst Caption\t03/05/24\t 2:30:15 PM\t03/05/24 02:30 PM\t123456789\t{12345678-1234-1234-1234-123456789012}\t1 minute 30 seconds\t \t\t-4');
+        Observer.Expect('temporary_9', '7\ttext value\tCODE1\t2.5\tYes\tTwo\tFirst Caption\t03/05/24\t 2:30:15 PM\t03/05/24 02:30 PM\t123456789\t{12345678-1234-1234-1234-123456789012}\t1 minute 30 seconds\t \t\t-4');
+        Observer.Expect('flow_0', '3\tABC\t03/05/24\t12.5\t0');
+        Observer.Expect('flow_9', '3\tABC\t03/05/24\t12.5\t0');
+        Observer.Expect('flow_calculated_9', '3\tABC\t03/05/24\t12.5\t2');
+        Observer.Verify();
     end;
 
     [Test]
