@@ -533,7 +533,11 @@ codeunit 90509 "LT UP Promoted Tests"
         Report(Observer, Log, 'Extra action', TrySevenAfterAction(Pg));
         Report(Observer, Log, 'Extra actionref', TrySevenAfterRef(Pg));
         Pg.Close();
-        Observer.Finish();
+        Observer.Expect('open log', '');
+        Observer.Expect('Post', 'ok|Post;');
+        Observer.Expect('Extra action', 'ok|Extra;');
+        Observer.Expect('Extra actionref', 'ok|Extra;');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -569,7 +573,11 @@ codeunit 90509 "LT UP Promoted Tests"
         Report(Observer, Log, 'Extra action', TrySevenLastAction(Pg));
         Report(Observer, Log, 'Extra actionref', TrySevenLastRef(Pg));
         Pg.Close();
-        Observer.Finish();
+        Observer.Expect('open log', '');
+        Observer.Expect('Post', 'ok|Post;');
+        Observer.Expect('Extra action', 'ok|Extra;');
+        Observer.Expect('Extra actionref', 'ok|Extra;');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -605,7 +613,11 @@ codeunit 90509 "LT UP Promoted Tests"
         Report(Observer, Log, 'Extra action', TryTwelveAfterAction(Pg));
         Report(Observer, Log, 'Extra actionref', TryTwelveAfterRef(Pg));
         Pg.Close();
-        Observer.Finish();
+        Observer.Expect('open log', '');
+        Observer.Expect('Post', 'ok|Post;');
+        Observer.Expect('Extra action', 'ok|Extra;');
+        Observer.Expect('Extra actionref', 'ok|Extra;');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -641,7 +653,11 @@ codeunit 90509 "LT UP Promoted Tests"
         Report(Observer, Log, 'Extra action', TryNewLastAction(Pg));
         Report(Observer, Log, 'Extra actionref', TryNewLastRef(Pg));
         Pg.Close();
-        Observer.Finish();
+        Observer.Expect('open log', '');
+        Observer.Expect('Post', 'ok|Post;');
+        Observer.Expect('Extra action', 'ok|Extra;');
+        Observer.Expect('Extra actionref', 'ok|Extra;');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -677,7 +693,11 @@ codeunit 90509 "LT UP Promoted Tests"
         Report(Observer, Log, 'Extra action', TryNewAfterAction(Pg));
         Report(Observer, Log, 'Extra actionref', TryNewAfterRef(Pg));
         Pg.Close();
-        Observer.Finish();
+        Observer.Expect('open log', '');
+        Observer.Expect('Post', 'ok|Post;');
+        Observer.Expect('Extra action', 'ok|Extra;');
+        Observer.Expect('Extra actionref', 'ok|Extra;');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -713,7 +733,11 @@ codeunit 90509 "LT UP Promoted Tests"
         Report(Observer, Log, 'Extra action', TryDeclaredAfterAction(Pg));
         Report(Observer, Log, 'Extra actionref', TryDeclaredAfterRef(Pg));
         Pg.Close();
-        Observer.Finish();
+        Observer.Expect('open log', '');
+        Observer.Expect('Post', 'ok|Post;');
+        Observer.Expect('Extra action', 'ok|Extra;');
+        Observer.Expect('Extra actionref', 'ok|Extra;');
+        Observer.Verify();
     end;
 
     [TryFunction]

@@ -180,18 +180,19 @@ codeunit 90497 "LT UP Ternary Tests"
             Observer.Observe('300 chars into Text variable', 'ok|' + Format(StrLen(R)))
         else
             ObserveLastError(Observer, '300 chars into Text variable');
-        Observer.Finish();
+        Observer.Expect('250 chars', 'ok|250');
+        // BC cuts the value in the message to its first 200 characters and adds '...'
+        Observer.Expect('251 chars code', 'StringLengthExceeded');
+        Observer.Expect('251 chars text', 'The length of the string is 251, but it must be less than or equal to 250 characters. Value: ' + CopyStr('https://' + PadStr('', 243, 'a'), 1, 200) + '...');
+        Observer.Expect('300 chars into Text variable code', 'StringLengthExceeded');
+        Observer.Expect('300 chars into Text variable text', 'The length of the string is 300, but it must be less than or equal to 250 characters. Value: ' + PadStr('', 200, 'a') + '...');
+        Observer.Verify();
     end;
 
     local procedure ObserveLastError(var Observer: Codeunit "Probe Observer"; Name: Text)
-    var
-        Msg: Text;
     begin
-        Msg := GetLastErrorText();
         Observer.Observe(Name + ' code', GetLastErrorCode());
-        Observer.Observe(Name + ' length', Format(StrLen(Msg)));
-        Observer.Observe(Name + ' head', CopyStr(Msg, 1, 110));
-        Observer.Observe(Name + ' tail', CopyStr(Msg, StrLen(Msg) - 20));
+        Observer.Observe(Name + ' text', GetLastErrorText());
     end;
 
     [TryFunction]
