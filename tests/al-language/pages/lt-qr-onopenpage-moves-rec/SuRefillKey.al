@@ -635,18 +635,26 @@ codeunit 89655 "LT SU Refill Key Tests"
     begin
         UdSeed();
         P.OpenView();
-        Obs.Observe('open', P.Id.Value() + ':' + Log.Take());
+        Obs.Observe('open', P.Id.Value());
+        Log.Take();
         P.FlaggedTile.Drilldown();
-        Obs.Observe('drilldown', P.Id.Value() + ':' + Log.Take());
+        Obs.Observe('drilldown', P.Id.Value());
+        Log.Take();
         Row.Get(2);
-        Obs.Observe('goto 2', Format(P.GoToRecord(Row)) + '/' + P.Id.Value() + ':' + Log.Take());
+        Obs.Observe('goto 2', Format(P.GoToRecord(Row)) + '/' + P.Id.Value());
         UdUnflag(2);
         P.FlaggedTile.Drilldown();
-        Obs.Observe('second marking', P.Id.Value() + ':' + Log.Take());
-        Obs.Observe('goto 2 again', Format(P.GoToRecord(Row)) + '/' + P.Id.Value() + ':' + Log.Take());
+        Obs.Observe('second marking', P.Id.Value());
+        Obs.Observe('goto 2 again', Format(P.GoToRecord(Row)) + '/' + P.Id.Value());
         Obs.Observe('part', P.Details.Description.Value());
         P.Close();
-        Obs.Finish();
+        Obs.Expect('open', '4');
+        Obs.Expect('drilldown', '4');
+        Obs.Expect('goto 2', 'No/1');
+        Obs.Expect('second marking', '1');
+        Obs.Expect('goto 2 again', 'No/1');
+        Obs.Expect('part', 'D1');
+        Obs.Verify();
     end;
 
     [Test]
@@ -658,18 +666,26 @@ codeunit 89655 "LT SU Refill Key Tests"
     begin
         UdSeed();
         P.OpenView();
-        Obs.Observe('open', P.Id.Value() + ':' + Log.Take());
+        Obs.Observe('open', P.Id.Value());
+        Log.Take();
         P.FlaggedTile.Drilldown();
-        Obs.Observe('drilldown', P.Id.Value() + ':' + Log.Take());
+        Obs.Observe('drilldown', P.Id.Value());
+        Log.Take();
         Row.Get(2);
-        Obs.Observe('goto 2', Format(P.GoToRecord(Row)) + '/' + P.Id.Value() + ':' + Log.Take());
+        Obs.Observe('goto 2', Format(P.GoToRecord(Row)) + '/' + P.Id.Value());
         UdUnflag(2);
         P.MarkAct.Invoke();
-        Obs.Observe('second marking', P.Id.Value() + ':' + Log.Take());
-        Obs.Observe('goto 2 again', Format(P.GoToRecord(Row)) + '/' + P.Id.Value() + ':' + Log.Take());
+        Obs.Observe('second marking', P.Id.Value());
+        Obs.Observe('goto 2 again', Format(P.GoToRecord(Row)) + '/' + P.Id.Value());
         Obs.Observe('part', P.Details.Description.Value());
         P.Close();
-        Obs.Finish();
+        Obs.Expect('open', '4');
+        Obs.Expect('drilldown', '4');
+        Obs.Expect('goto 2', 'No/1');
+        Obs.Expect('second marking', '1');
+        Obs.Expect('goto 2 again', 'No/1');
+        Obs.Expect('part', 'D1');
+        Obs.Verify();
     end;
 
     [Test]
@@ -681,17 +697,25 @@ codeunit 89655 "LT SU Refill Key Tests"
     begin
         UdSeed();
         P.OpenView();
-        Obs.Observe('open', P.Id.Value() + ':' + Log.Take());
+        Obs.Observe('open', P.Id.Value());
+        Log.Take();
         P.FlaggedTile.Drilldown();
-        Obs.Observe('drilldown', P.Id.Value() + ':' + Log.Take());
+        Obs.Observe('drilldown', P.Id.Value());
+        Log.Take();
         Row.Get(2);
-        Obs.Observe('goto 2', Format(P.GoToRecord(Row)) + '/' + P.Id.Value() + ':' + Log.Take());
+        Obs.Observe('goto 2', Format(P.GoToRecord(Row)) + '/' + P.Id.Value());
         P.FlaggedTile.Drilldown();
-        Obs.Observe('second marking', P.Id.Value() + ':' + Log.Take());
-        Obs.Observe('goto 2 again', Format(P.GoToRecord(Row)) + '/' + P.Id.Value() + ':' + Log.Take());
+        Obs.Observe('second marking', P.Id.Value());
+        Obs.Observe('goto 2 again', Format(P.GoToRecord(Row)) + '/' + P.Id.Value());
         Obs.Observe('part', P.Details.Description.Value());
         P.Close();
-        Obs.Finish();
+        Obs.Expect('open', '4');
+        Obs.Expect('drilldown', '4');
+        Obs.Expect('goto 2', 'No/1');
+        Obs.Expect('second marking', '1');
+        Obs.Expect('goto 2 again', 'No/1');
+        Obs.Expect('part', 'D1');
+        Obs.Verify();
     end;
 
     [Test]
@@ -703,18 +727,26 @@ codeunit 89655 "LT SU Refill Key Tests"
     begin
         UdSeed();
         P.OpenView();
-        Obs.Observe('open', P.Id.Value() + ':' + Log.Take());
+        Obs.Observe('open', P.Id.Value());
+        Log.Take();
         P.FlaggedTile.Drilldown();
-        Obs.Observe('drilldown', P.Id.Value() + ':' + Log.Take());
+        Obs.Observe('drilldown', P.Id.Value());
+        Log.Take();
         Row.Get(2);
-        Obs.Observe('goto 2', Format(P.GoToRecord(Row)) + '/' + P.Id.Value() + ':' + Log.Take());
+        Obs.Observe('goto 2', Format(P.GoToRecord(Row)) + '/' + P.Id.Value());
         UdUnflag(2);
         P.FlaggedTile.Drilldown();
-        Obs.Observe('second marking', P.Id.Value() + ':' + Log.Take());
-        Obs.Observe('goto 2 again', Format(P.GoToRecord(Row)) + '/' + P.Id.Value() + ':' + Log.Take());
+        Obs.Observe('second marking', P.Id.Value());
+        Obs.Observe('goto 2 again', Format(P.GoToRecord(Row)) + '/' + P.Id.Value());
         Obs.Observe('part', P.Details.Description.Value());
         P.Close();
-        Obs.Finish();
+        Obs.Expect('open', '1');
+        Obs.Expect('drilldown', '1');
+        Obs.Expect('goto 2', 'Yes/2');
+        Obs.Expect('second marking', '2');
+        Obs.Expect('goto 2 again', 'No/1');
+        Obs.Expect('part', 'D1');
+        Obs.Verify();
     end;
 
     [Test]
@@ -726,18 +758,26 @@ codeunit 89655 "LT SU Refill Key Tests"
     begin
         UdSeed();
         P.OpenView();
-        Obs.Observe('open', P.Id.Value() + ':' + Log.Take());
+        Obs.Observe('open', P.Id.Value());
+        Log.Take();
         P.FlaggedTile.Drilldown();
-        Obs.Observe('drilldown', P.Id.Value() + ':' + Log.Take());
+        Obs.Observe('drilldown', P.Id.Value());
+        Log.Take();
         Row.Get(2);
-        Obs.Observe('goto 2', Format(P.GoToRecord(Row)) + '/' + P.Id.Value() + ':' + Log.Take());
+        Obs.Observe('goto 2', Format(P.GoToRecord(Row)) + '/' + P.Id.Value());
         UdUnflag(2);
         P.MarkAct.Invoke();
-        Obs.Observe('second marking', P.Id.Value() + ':' + Log.Take());
-        Obs.Observe('goto 2 again', Format(P.GoToRecord(Row)) + '/' + P.Id.Value() + ':' + Log.Take());
+        Obs.Observe('second marking', P.Id.Value());
+        Obs.Observe('goto 2 again', Format(P.GoToRecord(Row)) + '/' + P.Id.Value());
         Obs.Observe('part', P.Details.Description.Value());
         P.Close();
-        Obs.Finish();
+        Obs.Expect('open', '1');
+        Obs.Expect('drilldown', '1');
+        Obs.Expect('goto 2', 'Yes/2');
+        Obs.Expect('second marking', '1');
+        Obs.Expect('goto 2 again', 'No/1');
+        Obs.Expect('part', 'D1');
+        Obs.Verify();
     end;
 
     [Test]
@@ -749,17 +789,25 @@ codeunit 89655 "LT SU Refill Key Tests"
     begin
         UdSeed();
         P.OpenView();
-        Obs.Observe('open', P.Id.Value() + ':' + Log.Take());
+        Obs.Observe('open', P.Id.Value());
+        Log.Take();
         P.FlaggedTile.Drilldown();
-        Obs.Observe('drilldown', P.Id.Value() + ':' + Log.Take());
+        Obs.Observe('drilldown', P.Id.Value());
+        Log.Take();
         Row.Get(2);
-        Obs.Observe('goto 2', Format(P.GoToRecord(Row)) + '/' + P.Id.Value() + ':' + Log.Take());
+        Obs.Observe('goto 2', Format(P.GoToRecord(Row)) + '/' + P.Id.Value());
         P.FlaggedTile.Drilldown();
-        Obs.Observe('second marking', P.Id.Value() + ':' + Log.Take());
-        Obs.Observe('goto 2 again', Format(P.GoToRecord(Row)) + '/' + P.Id.Value() + ':' + Log.Take());
+        Obs.Observe('second marking', P.Id.Value());
+        Obs.Observe('goto 2 again', Format(P.GoToRecord(Row)) + '/' + P.Id.Value());
         Obs.Observe('part', P.Details.Description.Value());
         P.Close();
-        Obs.Finish();
+        Obs.Expect('open', '1');
+        Obs.Expect('drilldown', '1');
+        Obs.Expect('goto 2', 'Yes/2');
+        Obs.Expect('second marking', '2');
+        Obs.Expect('goto 2 again', 'Yes/2');
+        Obs.Expect('part', 'D2');
+        Obs.Verify();
     end;
 
 }
