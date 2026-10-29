@@ -61,23 +61,24 @@ codeunit 90370 "LT UG Report Layout List"
         exit('[' + Format(FRef.Value) + ']');
     end;
 
-    local procedure Dump(ReportId: Integer; LayoutName: Text): Text
+    // Observes the row column by column, in field index order, under the name "<Label> <field number> <field name>".
+    local procedure Dump(var Observer: Codeunit "Probe Observer"; Label: Text; ReportId: Integer; LayoutName: Text)
     var
         RecRef: RecordRef;
         FRef: FieldRef;
         I: Integer;
-        Result: Text;
     begin
         RecRef.Open(2000000234);
         RecRef.Field(1).SetRange(ReportId);
         RecRef.Field(2).SetRange(LayoutName);
-        if not RecRef.FindFirst() then
-            exit('no row, count in report=' + CountOfReport(ReportId));
+        if not RecRef.FindFirst() then begin
+            Observer.Observe(Label, 'no row, rows in report=' + CountOfReport(ReportId));
+            exit;
+        end;
         for I := 1 to RecRef.FieldCount() do begin
             FRef := RecRef.FieldIndex(I);
-            Result += Format(FRef.Number) + ' ' + FRef.Name + ' ' + Format(FRef.Type) + ' ' + Show(FRef) + '; ';
+            Observer.Observe(Label + ' ' + Format(FRef.Number) + ' ' + FRef.Name, Format(FRef.Type) + ' ' + Show(FRef));
         end;
-        exit(Result);
     end;
 
     local procedure CountOfReport(ReportId: Integer): Text
@@ -93,12 +94,12 @@ codeunit 90370 "LT UG Report Layout List"
     var
         Observer: Codeunit "Probe Observer";
     begin
-        Observer.Observe('rdlc layout', Dump(Report::"Probe RL Report", 'Rdlc'));
-        Observer.Observe('word layout', Dump(Report::"Probe RL Report", 'Word'));
-        Observer.Observe('report without layout, any name', Dump(Report::"LT UG Report No Layout", 'Rdlc'));
+        Dump(Observer, 'rdlc', Report::"Probe RL Report", 'Rdlc');
+        Dump(Observer, 'word', Report::"Probe RL Report", 'Word');
+        Dump(Observer, 'no layout report', Report::"LT UG Report No Layout", 'Rdlc');
         Observer.Observe('rows of the report without layout', CountOfReport(Report::"LT UG Report No Layout"));
-        Observer.Observe('processing only report', CountOfReport(Report::"LT UG Report Processing Only"));
-        Observer.Observe('missing layout name of a report with layouts', Dump(Report::"Probe RL Report", 'NoSuchLayout'));
+        Observer.Observe('rows of the processing only report', CountOfReport(Report::"LT UG Report Processing Only"));
+        Dump(Observer, 'missing name', Report::"Probe RL Report", 'NoSuchLayout');
         Observer.Finish();
     end;
 }
