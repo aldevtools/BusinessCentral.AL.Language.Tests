@@ -655,7 +655,8 @@ codeunit 89753 "LT SZ Sql Budget"
     end;
 
     // Kind: 1 Get of line 2 (N >= 2); 2 the same with SetLoadFields(Weight); 3 SetRange on the group, FindSet, Next until the end;
-    // 4 Get and Modify of lines 1..N; 5 FindFirst on group 'NONE'; 6 IsEmpty on the group; 7 Count on the group; 8 FindLast on the group.
+    // 4 Get and Modify of lines 1..N; 5 FindFirst on group 'NONE'; 6 IsEmpty on the group; 7 Count on the group; 8 FindLast on the group;
+    // 9 the same as 3 in a procedure of its own (SumGroupOneRow), used only by the one-row test.
     local procedure TxMeasure(Kind: Integer; N: Integer; var Result: Text): Text
     var
         SqlReader: Codeunit "LT TX Sql Reader";
@@ -679,6 +680,8 @@ codeunit 89753 "LT SZ Sql Budget"
                 Result := Format(SqlReader.CountGroup('TX'));
             8:
                 Result := Format(SqlReader.LastLineNo('TX'));
+            9:
+                Result := Format(SqlReader.SumGroupOneRow('TX'));
         end;
         exit(Delta());
     end;
@@ -735,7 +738,7 @@ codeunit 89753 "LT SZ Sql Budget"
     var
         Obs: Codeunit "Probe Observer";
     begin
-        TxObserve(Obs, 3, 1);
+        TxObserve(Obs, 9, 1);
         Obs.Expect('result', '1 1 1');
         Obs.Expect('statements/rows', '1/2 1/2 1/2');
         Obs.Verify();
@@ -996,6 +999,19 @@ codeunit 90171 "LT TX Sql Reader"
     end;
 
     procedure SumGroup(GroupCode: Code[20]): Integer
+    var
+        SqlLine: Record "LT TX Sql Line";
+        Total: Integer;
+    begin
+        SqlLine.SetRange("Group Code", GroupCode);
+        if SqlLine.FindSet() then
+            repeat
+                Total += SqlLine.Weight;
+            until SqlLine.Next() = 0;
+        exit(Total);
+    end;
+
+    procedure SumGroupOneRow(GroupCode: Code[20]): Integer
     var
         SqlLine: Record "LT TX Sql Line";
         Total: Integer;
