@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-al-language-reference
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); table 90335, test codeunit 90336, helper codeunit 90337
+// Fixtures used: Probe Observer (codeunit 69160); table 90335, test codeunit 90352, helper codeunit 90337
 // Probe (outside issue 6152): NO-BREAK SPACE (U+00A0) as whitespace outside comments and strings. alc accepts it like U+0020. This file uses U+00A0 as indentation of
 //   statements, of object-level lines (field, keys, procedure header, var section) and of a blank line, between tokens (around `:=`, after `begin`, before `;`), after `//`
 //   and as trailing whitespace; and inside a string literal (kept as one character, not folded to a space). The bytes are C2 A0 (UTF-8). Keep them: an editor that
@@ -23,7 +23,7 @@ table 90335 "LT UF Nbsp Row"
     }
 }
 
-codeunit 90336 "LT UF Nbsp"
+codeunit 90352 "LT UF Nbsp"
 {
     Subtype = Test;
     TestPermissions = Disabled;

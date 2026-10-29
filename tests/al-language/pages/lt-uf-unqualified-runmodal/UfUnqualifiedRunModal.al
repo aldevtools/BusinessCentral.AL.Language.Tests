@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/page/page-runmodal-integer-table-fieldref-method
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); tables 90326, pages 90327-90329, codeunit 90330 (state), test codeunit 90331
+// Fixtures used: Probe Observer (codeunit 69160); tables 90326, pages 90327-90329, codeunit 90330 (state), test codeunit 90351
 // Probe (outside issue 6162): an UNQUALIFIED call `RunModal(Page::"X", MyRec)` inside a page trigger (field OnDrillDown, action OnAction, page OnOpenPage), without the `Page.` prefix.
 //   alc resolves it to Page.RunModal. Which page opens, whether the row passed in reaches the modal page, the return value (OK after the handler's OK, Cancel otherwise), also
 //   the one-argument form `RunModal(Page::"X")` and the call as a statement. The qualified forms are in pages/lt-be-runmodal-onlookup.
@@ -131,7 +131,7 @@ page 90328 "LT UF Rm Caller"
     }
 }
 
-codeunit 90331 "LT UF Unqualified RunModal"
+codeunit 90351 "LT UF Unqualified RunModal"
 {
     Subtype = Test;
     TestPermissions = Disabled;
