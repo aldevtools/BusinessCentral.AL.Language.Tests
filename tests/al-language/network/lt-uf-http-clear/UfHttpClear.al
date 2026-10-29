@@ -16,10 +16,10 @@ codeunit 90341 "LT UF Http Clear"
     var
         Observer: Codeunit "Probe Observer";
         Req: HttpRequestMessage;
+        Req2: HttpRequestMessage;
         Cnt: HttpContent;
         Headers: HttpHeaders;
         Txt: Text;
-        Values: List of [Text];
     begin
         Cnt.WriteFrom('first body');
         Req.Method := 'PUT';
@@ -33,9 +33,12 @@ codeunit 90341 "LT UF Http Clear"
         Clear(Req);
         Observer.Observe('method', Req.Method);
         Observer.Observe('uri', '[' + Req.GetRequestUri() + ']');
-        Clear(Txt);
-        Req.Content.ReadAs(Txt);
-        Observer.Observe('content', '[' + Txt + ']');
+        ClearLastError();
+        asserterror Req.Content.ReadAs(Txt);
+        Observer.ObserveError('content of cleared request');
+        Clear(Req2);
+        asserterror Req2.Content.ReadAs(Txt);
+        Observer.ObserveError('content of fresh request');
         Clear(Headers);
         Req.GetHeaders(Headers);
         Observer.Observe('header count', Format(Headers.Keys().Count()));
@@ -43,7 +46,6 @@ codeunit 90341 "LT UF Http Clear"
         Observer.Observe('original content kept', Format(ReadContent(Cnt)));
         Req.Method := 'POST';
         Req.SetRequestUri('http://localhost/uf/next');
-        Cnt.Clear();
         Observer.Observe('refill method', Req.Method);
         Observer.Observe('refill uri', Req.GetRequestUri());
         Observer.Finish();

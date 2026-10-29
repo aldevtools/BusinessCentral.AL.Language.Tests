@@ -18,31 +18,37 @@ codeunit 90340 "LT UF Evaluate Json Rfc"
         Stamp: DateTime;
         Ok: Boolean;
     begin
+        ClearLastError();
         Ok := Evaluate(Stamp, 'Fri, 05 Sep 2025 14:23:45 GMT', 0);
         Observer.Observe('format 0 result', Format(Ok));
         Observer.Observe('format 0 value', Format(Stamp, 0, 9));
         Observer.ObserveError('format 0');
         Clear(Stamp);
+        ClearLastError();
         Ok := Evaluate(Stamp, 'Fri, 05 Sep 2025 14:23:45 GMT', 9);
         Observer.Observe('format 9 result', Format(Ok));
         Observer.Observe('format 9 value', Format(Stamp, 0, 9));
         Observer.ObserveError('format 9');
         Clear(Stamp);
+        ClearLastError();
         Ok := Evaluate(Stamp, 'Fri, 05 Sep 2025 14:23:45 GMT');
         Observer.Observe('no format result', Format(Ok));
         Observer.Observe('no format value', Format(Stamp, 0, 9));
         Observer.ObserveError('no format');
         Clear(Stamp);
+        ClearLastError();
         Ok := Evaluate(Stamp, 'Fri, 05 Sep 2025 14:23:45 +0000', 0);
         Observer.Observe('offset result', Format(Ok));
         Observer.Observe('offset value', Format(Stamp, 0, 9));
         Observer.ObserveError('offset');
         Clear(Stamp);
+        ClearLastError();
         Ok := Evaluate(Stamp, '05 Sep 2025 14:23:45', 0);
         Observer.Observe('no weekday result', Format(Ok));
         Observer.Observe('no weekday value', Format(Stamp, 0, 9));
         Observer.ObserveError('no weekday');
         Clear(Stamp);
+        ClearLastError();
         Ok := Evaluate(Stamp, 'Mon, 05 Sep 2025 14:23:45 GMT', 0);
         Observer.Observe('wrong weekday result', Format(Ok));
         Observer.Observe('wrong weekday value', Format(Stamp, 0, 9));
@@ -75,6 +81,7 @@ codeunit 90340 "LT UF Evaluate Json Rfc"
         Texts.Add('not json');
         foreach Item in Texts do begin
             Index += 1;
+            ClearLastError();
             Clear(Arr);
             Arr.Add('previous');
             Ok := Evaluate(Arr, Item);
