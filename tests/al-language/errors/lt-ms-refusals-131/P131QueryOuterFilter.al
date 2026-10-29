@@ -281,4 +281,21 @@ codeunit 73657 "LT P131 Query Outer"
         Observer.Expect('owner U2 status 2', '[4/2/1]');
         Observer.Verify();
     end;
+
+    [Test]
+    procedure UH_Query_ReadFilterElement()
+    var
+        Observer: Codeunit "Probe Observer";
+        Q: Query "LT P131 Q Lines";
+        Txt: Text;
+    begin
+        Txt := Format(Q.FilterOwner);
+        Observer.Observe('unset owner', '[' + Txt + ']');
+        Q.SetRange(FilterOwner, 'U1');
+        Observer.Observe('set owner', '[' + Format(Q.FilterOwner) + ']');
+        Q.SetRange(FilterStatus, 1, 2);
+        Observer.Observe('set status', '[' + Format(Q.FilterStatus) + ']');
+        Observer.Observe('getfilter owner', '[' + Q.GetFilter(FilterOwner) + ']');
+        Observer.Verify();
+    end;
 }
