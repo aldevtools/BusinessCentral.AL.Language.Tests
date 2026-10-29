@@ -1,7 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/system/system-clear-method
 // Scope: in-scope
 // Fixtures used: Probe Observer (codeunit 69160), self-contained codeunit 90420
-// Probe: observation form (Finish), values to be converted to Expect after a real-BC run
+// Probe: values observed on BC 29 (SaaS sandbox, 2026-10-29)
 // Facts: Clear(x) on XmlElement / XmlNode / XmlDocument variables: what the cleared variable reads as, and whether a second variable that holds the same node still sees it
 // BC versions: 27, 28, 29
 codeunit 90420 "LT UL Clear Xml Ref"
@@ -76,7 +76,14 @@ codeunit 90420 "LT UL Clear Xml Ref"
         Observer.Observe('child still in doc', Format(Root.GetChildElements().Count()));
         E := XmlElement.Create('again');
         Probe(Observer, 'cleared element reassigned', E);
-        Observer.Finish();
+                Observer.Expect('cleared element|name|text', 'Microsoft.Dynamics.Nav.Runtime.NavXmlElement variable not initialized.');
+        Observer.Expect('cleared element|name|code', 'NotInitialized');
+        Observer.Expect('alias element|name', 'child');
+        Observer.Expect('original variable|name', 'child');
+        Observer.Expect('root text after clear', '<child />');
+        Observer.Expect('child still in doc', '1');
+        Observer.Expect('cleared element reassigned|name', 'again');
+        Observer.Verify();
     end;
 
     [Test]
@@ -88,7 +95,11 @@ codeunit 90420 "LT UL Clear Xml Ref"
         Probe(Observer, 'never assigned', E);
         Clear(E);
         Probe(Observer, 'cleared never assigned', E);
-        Observer.Finish();
+                Observer.Expect('never assigned|name|text', 'Microsoft.Dynamics.Nav.Runtime.NavXmlElement variable not initialized.');
+        Observer.Expect('never assigned|name|code', 'NotInitialized');
+        Observer.Expect('cleared never assigned|name|text', 'Microsoft.Dynamics.Nav.Runtime.NavXmlElement variable not initialized.');
+        Observer.Expect('cleared never assigned|name|code', 'NotInitialized');
+        Observer.Verify();
     end;
 
     [Test]
@@ -122,7 +133,13 @@ codeunit 90420 "LT UL Clear Xml Ref"
         else
             Observer.ObserveError('alias node|as element name');
         Observer.Observe('source element name', E.Name());
-        Observer.Finish();
+                Observer.Expect('cleared node|is element', 'No');
+        Observer.Expect('cleared node|as element name|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavXmlNode to Microsoft.Dynamics.Nav.Runtime.NavXmlElement.');
+        Observer.Expect('cleared node|as element name|code', 'Conversion');
+        Observer.Expect('alias node|is element', 'Yes');
+        Observer.Expect('alias node|as element name', 'elem');
+        Observer.Expect('source element name', 'elem');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -142,7 +159,7 @@ codeunit 90420 "LT UL Clear Xml Ref"
         Out: Text;
     begin
         if TryWrite(D, Out) then
-            Observer.Observe(Label + '|writeto', Out)
+            Observer.Observe(Label + '|writeto last tag', Out.Substring(Out.LastIndexOf('<')))
         else
             Observer.ObserveError(Label + '|writeto');
     end;
@@ -175,6 +192,15 @@ codeunit 90420 "LT UL Clear Xml Ref"
             Observer.ObserveError('cleared doc|add');
         Write(Observer, 'cleared doc after add', D);
         Write(Observer, 'alias doc after add', Alias);
-        Observer.Finish();
+                Observer.Expect('cleared doc|root|text', 'The XML node is not set.');
+        Observer.Expect('cleared doc|root|code', 'XmlNodeNotFound');
+        Observer.Expect('alias doc|root', 'root');
+        Observer.Expect('cleared doc|writeto|text', 'The requested operation cannot be performed in this context.');
+        Observer.Expect('cleared doc|writeto|code', 'InvalidOperation');
+        Observer.Expect('alias doc|writeto last tag', '<root />');
+        Observer.Expect('cleared doc|add', 'ok');
+        Observer.Expect('cleared doc after add|writeto last tag', '<fresh />');
+        Observer.Expect('alias doc after add|writeto last tag', '<root />');
+        Observer.Verify();
     end;
 }
