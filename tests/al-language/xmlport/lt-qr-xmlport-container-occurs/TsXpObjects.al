@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/properties/devenv-maxoccurs-property
 // Scope: in-scope
-// Fixtures used: own table 90080, xmlports 90081-90086, runner codeunit 90087 (writer TS); tables 90060-90063 and xmlports 90064-90065
+// Fixtures used: own table 90080, xmlports 90081-90086 and 90088, runner codeunit 90087 (writer TS); tables 90060-90063 and xmlports 90064-90065
 //   (TrXpReplyObjects.al); the temporary blob table 87279 (QrXpContainerOccurs.al); tests TS_* in codeunit 87280 (QrXpContainerOccurs.al)
 // Probe: FACTS_PLACEHOLDER
 // Objects:
@@ -19,6 +19,8 @@
 //     of field elements.
 //   90085 "LT TS XP Root Once": the root text element has an explicit MinOccurs = Once.
 //   90086 "LT TS XP Guid": FormatEvaluate = Xml, a Guid field as field element and as field attribute.
+//   90088 "LT TS XP View Again": a temporary table element with SourceTableView = sorting(Kind) where(Qty = filter(> 0)); procedures set
+//     a key, filters or Reset on its record before or between Export calls.
 //   90087 "LT TS XP Runner": runs an import of 90082, 90083, 90085 or 90086 inside Codeunit.Run, so a failed import does not end the test.
 // BC versions: 27, 28, 29
 
@@ -168,7 +170,9 @@ xmlport 90081 "LT TS XP Booking Again"
         PartSource.Code := NewCode;
         PartSource.Kind := NewKind;
         PartSource.Description := NewDescription;
-        PartSource.Insert();
+        // a fixed SystemId per row ({00000000-0000-0000-0000-0000000000<EntryNo>}), so the Sid attribute can tell where a record's SystemId came from
+        Evaluate(PartSource.SystemId, '{00000000-0000-0000-0000-' + Format(EntryNo, 0, '<Integer,12><Filler Character,0>') + '}');
+        PartSource.Insert(false, true);
         Sids.Set(EntryNo, PartSource.SystemId);
     end;
 
@@ -215,10 +219,10 @@ xmlport 90081 "LT TS XP Booking Again"
         detail.SetRange(Ref, LineRef);
     end;
 
-    procedure SourceSidNull(): Text
+    procedure SourceSid(): Text
     begin
         PartSource.FindFirst();
-        exit(Format(IsNullGuid(PartSource.SystemId)));
+        exit(Format(PartSource.SystemId));
     end;
 
     procedure State(): Text
@@ -729,6 +733,69 @@ xmlport 90086 "LT TS XP Guid"
             repeat
                 Result += Format(row."Entry No.") + ':g=' + Format(row.G) + ' ga=' + Format(row.G2) + ';';
             until row.Next() = 0;
+    end;
+}
+
+xmlport 90088 "LT TS XP View Again"
+{
+    Format = Xml;
+    FormatEvaluate = Xml;
+    Encoding = UTF8;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(rows)
+        {
+            MaxOccurs = Once;
+            tableelement(row; "LT TR XP Part")
+            {
+                MinOccurs = Zero;
+                UseTemporary = true;
+                SourceTableView = sorting(Kind) where(Qty = filter(> 0));
+                fieldattribute(no; row."Entry No.")
+                {
+                }
+                fieldattribute(code; row.Code)
+                {
+                }
+            }
+        }
+    }
+
+    procedure AddRow(EntryNo: Integer; NewCode: Code[20]; NewKind: Option; NewQty: Integer)
+    begin
+        row.Init();
+        row."Entry No." := EntryNo;
+        row.Code := NewCode;
+        row.Kind := NewKind;
+        row.Qty := NewQty;
+        row.Insert();
+    end;
+
+    procedure SetKeyEntryNo()
+    begin
+        row.SetCurrentKey("Entry No.");
+    end;
+
+    procedure SetCodeFilter(NewFilter: Text)
+    begin
+        row.SetFilter(Code, NewFilter);
+    end;
+
+    procedure SetQtyRange(FromQty: Integer; ToQty: Integer)
+    begin
+        row.SetRange(Qty, FromQty, ToQty);
+    end;
+
+    procedure ResetRow()
+    begin
+        row.Reset();
+    end;
+
+    procedure View(): Text
+    begin
+        exit(row.GetView(false));
     end;
 }
 

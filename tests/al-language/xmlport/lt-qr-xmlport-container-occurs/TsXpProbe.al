@@ -143,6 +143,28 @@ codeunit 90099 "LT TS XP Probe"
         exit(ToRead(Buffer));
     end;
 
+    local procedure TsExportView(var Port: XmlPort "LT TS XP View Again"): Text
+    var
+        Buffer: Record "LT QR XP Blob" temporary;
+        OutS: OutStream;
+    begin
+        Buffer.Id := 1;
+        Buffer.Insert();
+        Buffer.Data.CreateOutStream(OutS, TextEncoding::UTF8);
+        Port.SetDestination(OutS);
+        Port.Export();
+        exit(ToRead(Buffer));
+    end;
+
+    local procedure TsSetupView(var Port: XmlPort "LT TS XP View Again")
+    begin
+        // Kind order: B (Timed), A (Open), C (Skipped); Entry No. order: A, B, C, Z; Z has Qty 0 (outside the SourceTableView filter)
+        Port.AddRow(1, 'A', 2, 1);
+        Port.AddRow(2, 'B', 1, 2);
+        Port.AddRow(3, 'C', 3, 3);
+        Port.AddRow(4, 'Z', 1, 0);
+    end;
+
     local procedure TsImport(var Observer: Codeunit "Probe Observer"; Name: Text; Mode: Integer; Body: Text)
     var
         Runner: Codeunit "LT TS XP Runner";
@@ -163,7 +185,7 @@ codeunit 90099 "LT TS XP Probe"
         Observer.Discard();
         // two exports on one instance with no change in between
         TsSetupAgain(Port);
-        Observer.Observe('source sid null', Port.SourceSidNull());
+        Observer.Observe('source sid', Port.SourceSid());
         Observer.Observe('before', Port.State());
         Observer.Observe('export 1', TsExportAgain(Port));
         Observer.Observe('export 1 log', Port.GetLog());
@@ -378,6 +400,108 @@ codeunit 90099 "LT TS XP Probe"
 
     [Test]
     procedure TS_Again_LineFilter_More3()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure TS_View_FirstExport()
+    var
+        Plain: XmlPort "LT TS XP View Again";
+        KeySet: XmlPort "LT TS XP View Again";
+        Filtered: XmlPort "LT TS XP View Again";
+        QtyRange: XmlPort "LT TS XP View Again";
+    begin
+        Observer.Discard();
+        // SourceTableView = sorting(Kind) where(Qty = filter(> 0)); a key or filters set on the record before the first export
+        TsSetupView(Plain);
+        Observer.Observe('plain', TsExportView(Plain));
+        Observer.Observe('plain view after', Plain.View());
+        TsSetupView(KeySet);
+        KeySet.SetKeyEntryNo();
+        Observer.Observe('key set', TsExportView(KeySet));
+        Observer.Observe('key set view after', KeySet.View());
+        TsSetupView(Filtered);
+        Filtered.SetCodeFilter('A|C|Z');
+        Observer.Observe('code filter', TsExportView(Filtered));
+        Observer.Observe('code filter view after', Filtered.View());
+        TsSetupView(QtyRange);
+        QtyRange.SetQtyRange(0, 2);
+        Observer.Observe('qty range', TsExportView(QtyRange));
+        Observer.Observe('qty range view after', QtyRange.View());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TS_View_FirstExport_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure TS_View_FirstExport_More2()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure TS_View_FirstExport_More3()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure TS_View_SecondExport()
+    var
+        Again: XmlPort "LT TS XP View Again";
+        KeySet: XmlPort "LT TS XP View Again";
+        Filtered: XmlPort "LT TS XP View Again";
+        QtyRange: XmlPort "LT TS XP View Again";
+        ResetRow: XmlPort "LT TS XP View Again";
+    begin
+        Observer.Discard();
+        // the same instance exported twice; between the exports: nothing, a key, a Code filter, a Qty range, Reset
+        TsSetupView(Again);
+        Observer.Observe('again 1', TsExportView(Again));
+        Observer.Observe('again 2', TsExportView(Again));
+        TsSetupView(KeySet);
+        Observer.Observe('key set 1', TsExportView(KeySet));
+        KeySet.SetKeyEntryNo();
+        Observer.Observe('key set 2', TsExportView(KeySet));
+        Observer.Observe('key set view after', KeySet.View());
+        TsSetupView(Filtered);
+        Observer.Observe('code filter 1', TsExportView(Filtered));
+        Filtered.SetCodeFilter('A|C|Z');
+        Observer.Observe('code filter 2', TsExportView(Filtered));
+        Observer.Observe('code filter view after', Filtered.View());
+        TsSetupView(QtyRange);
+        Observer.Observe('qty range 1', TsExportView(QtyRange));
+        QtyRange.SetQtyRange(0, 2);
+        Observer.Observe('qty range 2', TsExportView(QtyRange));
+        Observer.Observe('qty range view after', QtyRange.View());
+        TsSetupView(ResetRow);
+        Observer.Observe('reset 1', TsExportView(ResetRow));
+        ResetRow.ResetRow();
+        Observer.Observe('reset view', ResetRow.View());
+        Observer.Observe('reset 2', TsExportView(ResetRow));
+        Observer.Observe('reset view after', ResetRow.View());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TS_View_SecondExport_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure TS_View_SecondExport_More2()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure TS_View_SecondExport_More3()
     begin
         Observer.More();
     end;
