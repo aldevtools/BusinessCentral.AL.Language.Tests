@@ -150,7 +150,7 @@ codeunit 67515 "LT RV Tests"
         Observer.Verify();
     end;
 
-    local procedure Relations(var Observer: Codeunit "Probe Observer"; Name: Text; LastBefore: BigInteger; MinBefore: BigInteger)
+    local procedure Relations(var Observer: Codeunit "Probe Observer"; Name: Text; LastBefore: BigInteger; MinBefore: BigInteger; WithMinUnchanged: Boolean)
     var
         Min: BigInteger;
         Last: BigInteger;
@@ -158,7 +158,8 @@ codeunit 67515 "LT RV Tests"
         Min := MinimumActiveRowVersion();
         Last := LastUsedRowVersion();
         Observer.Observe(Name + '_last_grew', Format(Last > LastBefore));
-        Observer.Observe(Name + '_min_unchanged', Format(Min = MinBefore));
+        if WithMinUnchanged then
+            Observer.Observe(Name + '_min_unchanged', Format(Min = MinBefore));
         Observer.Observe(Name + '_min_not_above_last_plus_one', Format(Min <= Last + 1));
         Observer.Observe(Name + '_in_write_transaction', Format(IsInWriteTransaction()));
     end;
@@ -186,9 +187,9 @@ codeunit 67515 "LT RV Tests"
         LastBefore := LastUsedRowVersion();
         MinBefore := MinimumActiveRowVersion();
         Id := InsertRow(1);
-        Relations(Observer, 'after_insert', LastBefore, MinBefore);
+        Relations(Observer, 'after_insert', LastBefore, MinBefore, true);
         Row.GetBySystemId(Id);
-        Relations(Observer, 'after_get_by_system_id', LastBefore, MinBefore);
+        Relations(Observer, 'after_get_by_system_id', LastBefore, MinBefore, true);
         Observer.Expect('after_insert_last_grew', 'No');
         Observer.Expect('after_insert_min_unchanged', 'Yes');
         Observer.Expect('after_insert_min_not_above_last_plus_one', 'Yes');
@@ -215,13 +216,13 @@ codeunit 67515 "LT RV Tests"
         InsertRow(1);
         Row.Id := 1;
         Row.Find('=');
-        Relations(Observer, 'after_find_equal', LastBefore, MinBefore);
+        Relations(Observer, 'after_find_equal', LastBefore, MinBefore, true);
         Clear(Row);
         Row.Find('-');
-        Relations(Observer, 'after_find_first', LastBefore, MinBefore);
+        Relations(Observer, 'after_find_first', LastBefore, MinBefore, true);
         Clear(Row);
         Row.Find('+');
-        Relations(Observer, 'after_find_last', LastBefore, MinBefore);
+        Relations(Observer, 'after_find_last', LastBefore, MinBefore, true);
         Observer.Expect('after_find_equal_last_grew', 'Yes');
         Observer.Expect('after_find_equal_min_unchanged', 'Yes');
         Observer.Expect('after_find_equal_min_not_above_last_plus_one', 'Yes');
@@ -254,7 +255,7 @@ codeunit 67515 "LT RV Tests"
         Row.Id := 1;
         Row.Find('=');
         Row.Next();
-        Relations(Observer, 'after_next', LastBefore, MinBefore);
+        Relations(Observer, 'after_next', LastBefore, MinBefore, true);
         Observer.Observe('next_id', Format(Row.Id));
         Observer.Expect('after_next_last_grew', 'Yes');
         Observer.Expect('after_next_min_unchanged', 'Yes');
@@ -269,9 +270,11 @@ codeunit 67515 "LT RV Tests"
     var
         Observer: Codeunit "Probe Observer";
         Flow: Record "LT NP3 RV Flow";
+        Row: Record "LT RV Row";
         LastBefore: BigInteger;
         MinBefore: BigInteger;
     begin
+        Row.DeleteAll();
         Flow.DeleteAll();
         Commit();
         LastBefore := LastUsedRowVersion();
@@ -279,9 +282,9 @@ codeunit 67515 "LT RV Tests"
         InsertRow(1);
         Flow.Id := 1;
         Flow.Insert();
-        Relations(Observer, 'after_insert_flow_table', LastBefore, MinBefore);
+        Relations(Observer, 'after_insert_flow_table', LastBefore, MinBefore, true);
         Flow.CalcFields(Total);
-        Relations(Observer, 'after_calcfields', LastBefore, MinBefore);
+        Relations(Observer, 'after_calcfields', LastBefore, MinBefore, true);
         Observer.Observe('total', Format(Flow.Total));
         Observer.Expect('after_insert_flow_table_last_grew', 'No');
         Observer.Expect('after_insert_flow_table_min_unchanged', 'Yes');
@@ -314,16 +317,16 @@ codeunit 67515 "LT RV Tests"
         Flow.Id := 1;
         Flow.Insert();
         Commit();
-        Relations(Observer, 'after_commit', LastBefore, MinBefore);
+        Relations(Observer, 'after_commit', LastBefore, MinBefore, false);
         Row.GetBySystemId(Id);
-        Relations(Observer, 'after_get_by_system_id', LastBefore, MinBefore);
+        Relations(Observer, 'after_get_by_system_id', LastBefore, MinBefore, false);
         Row.Id := 1;
         Row.Find('=');
-        Relations(Observer, 'after_find', LastBefore, MinBefore);
+        Relations(Observer, 'after_find', LastBefore, MinBefore, false);
         Row.Find('-');
-        Relations(Observer, 'after_find_first', LastBefore, MinBefore);
+        Relations(Observer, 'after_find_first', LastBefore, MinBefore, false);
         Flow.CalcFields(Total);
-        Relations(Observer, 'after_calcfields', LastBefore, MinBefore);
+        Relations(Observer, 'after_calcfields', LastBefore, MinBefore, false);
         Observer.Expect('after_commit_last_grew', 'Yes');
         Observer.Expect('after_commit_min_not_above_last_plus_one', 'Yes');
         Observer.Expect('after_commit_in_write_transaction', 'No');
