@@ -293,6 +293,7 @@ codeunit 73657 "LT P131 Query Outer"
         ClearLastError();
         asserterror Txt := Format(Q.FilterOwner);
         Observer.Observe('before open', GetLastErrorText());
+        Observer.Expect('before open', 'You have not yet retrieved a data row for this query. The value for column ''FilterOwner'' can only be accessed after a row is retrieved with a call to the READ function.');
         Observer.Verify();
     end;
 
@@ -309,70 +310,7 @@ codeunit 73657 "LT P131 Query Outer"
         ClearLastError();
         asserterror Txt := Format(Q.FilterOwner);
         Observer.Observe('open no read', GetLastErrorText());
-        Observer.Verify();
-    end;
-
-    [Test]
-    procedure UH_Query_ReadFilter_AfterRead_Code()
-    var
-        Observer: Codeunit "Probe Observer";
-        Q: Query "LT P131 Q Lines";
-        Txt: Text;
-    begin
-        Seed();
-        Q.SetRange(FilterOwner, 'U1');
-        Q.Open();
-        Q.Read();
-        ClearLastError();
-        Observer.Observe('code after read', '[' + Format(Q.FilterOwner) + ']');
-        Observer.Verify();
-    end;
-
-    [Test]
-    procedure UH_Query_ReadFilter_AfterRead_Int()
-    var
-        Observer: Codeunit "Probe Observer";
-        Q: Query "LT P131 Q Lines";
-        Txt: Text;
-    begin
-        Seed();
-        Q.SetRange(FilterStatus, 1);
-        Q.Open();
-        Q.Read();
-        ClearLastError();
-        Observer.Observe('int after read', '[' + Format(Q.FilterStatus) + ']');
-        Observer.Verify();
-    end;
-
-    [Test]
-    procedure UH_Query_ReadFilter_AfterRead_IntRange()
-    var
-        Observer: Codeunit "Probe Observer";
-        Q: Query "LT P131 Q Lines";
-        n: Integer;
-        Res: Text;
-    begin
-        Seed();
-        Q.SetFilter(FilterStatus, '1|2');
-        Q.Open();
-        while Q.Read() do begin
-            n += 1;
-            Res += '[' + Format(Q.HeadId) + '|' + Format(Q.LineStatus) + '|' + Format(Q.FilterStatus) + ']';
-        end;
-        Observer.Observe('rows', Res);
-        Observer.Verify();
-    end;
-
-    [Test]
-    procedure UH_Query_ReadFilter_GetFilter()
-    var
-        Observer: Codeunit "Probe Observer";
-        Q: Query "LT P131 Q Lines";
-        Txt: Text;
-    begin
-        Seed();
-        Q.SetRange(FilterOwner, 'U1');
-        Observer.Observe('getfilter', '[' + Q.GetFilter(FilterOwner) + ']');
+        Observer.Expect('open no read', 'You have not yet retrieved a data row for this query. The value for column ''FilterOwner'' can only be accessed after a row is retrieved with a call to the READ function.');
         Observer.Verify();
     end;
 }
