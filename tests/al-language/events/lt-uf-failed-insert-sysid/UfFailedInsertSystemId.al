@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-table-system-fields
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); self-contained table 90324, test codeunit 90325
+// Fixtures used: Probe Observer (codeunit 69160); self-contained table 90324, test codeunit 90325 (the statement form of a failing Insert is left out: asserterror and Codeunit.Run give different answers on the SaaS tier)
 // Probe (outside issue 6153): `if not Rec.Insert(false) then Rec.Modify(false);` on a key that already exists. Which SystemId the record variable holds after the failed Insert and after
 //   the Modify (the stored row's, the first inserted variable's, a new one, null), what is stored, and the same with an explicit SystemId, with Insert(true) and through RecordRef.
 //   Only equalities and null checks are observed (the GUID values differ between runs). DbtSystemFields.al covers SystemId after a successful Insert, Modify and Get.
@@ -116,63 +116,5 @@ codeunit 90325 "LT UF Failed Insert SystemId"
         Observer.Observe('stored sysid = first', Format(Stored.SystemId = First.SystemId));
         Observer.Observe('stored sysid = explicit', Format(Stored.SystemId = Wanted));
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure FailedInsert_StatementForm()
-    var
-        Observer: Codeunit "Probe Observer";
-        First: Record "LT UF SysId Row";
-        Entry: Record "LT UF SysId Row";
-        Counter: Record "LT UF SysId Row";
-        Runner: Codeunit "LT UF Insert Runner";
-        NullId: Guid;
-    begin
-        ClearLastError();
-        First.Init();
-        First."No." := 'F';
-        First.Insert(false);
-        Counter.SetRange("No.", 'F');
-        Observer.Observe('count before', Format(Counter.Count()));
-        Entry.Init();
-        Entry."No." := 'F';
-        Runner.Set(Entry, 0);
-        Observer.Observe('run insert(false)', Format(Runner.Run()));
-        Observer.ObserveError('statement insert(false)');
-        Runner.Set(Entry, 1);
-        Observer.Observe('run insert()', Format(Runner.Run()));
-        Observer.ObserveError('statement insert()');
-        Runner.Set(Entry, 2);
-        Observer.Observe('run insert(true)', Format(Runner.Run()));
-        Observer.ObserveError('statement insert(true)');
-        Observer.Observe('count end', Format(Counter.Count()));
-        Observer.Observe('entry sysid null', Format(Entry.SystemId = NullId));
-        Observer.Finish();
-    end;
-}
-
-// Runs a record's Insert as a statement (the return value is not used) inside Codeunit.Run, so that an error is caught by the caller.
-codeunit 90338 "LT UF Insert Runner"
-{
-    var
-        Row: Record "LT UF SysId Row";
-        Mode: Integer;
-
-    procedure Set(var NewRow: Record "LT UF SysId Row"; NewMode: Integer)
-    begin
-        Row := NewRow;
-        Mode := NewMode;
-    end;
-
-    trigger OnRun()
-    begin
-        case Mode of
-            0:
-                Row.Insert(false);
-            1:
-                Row.Insert();
-            2:
-                Row.Insert(true);
-        end;
     end;
 }
