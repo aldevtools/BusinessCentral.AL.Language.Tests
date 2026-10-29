@@ -149,4 +149,107 @@ codeunit 99490 "LT BG RunOnClient"
         Observer.Expect('machinename|code', 'DotNetFromAlNotSupported:DotNetFromAlNotSupported');
         Observer.Verify();
     end;
+
+    // Added by writer TY (2026-10-29): a local [RunOnClient] variable, client code guarded by GuiAllowed() as the System Application
+    // does it (Camera Impl. IsAvailable, Camera Page Impl.: IsAvailable, then Create() and a member call), a local printer type
+    // (System.Drawing.Printing.PrinterSettings, alias from lt-ty-dotnet/TyAkvProvider.al) and the error outside a TryFunction (asserterror).
+    [TryFunction]
+    local procedure TyTryCameraCreate(var Result: Text)
+    var
+        [RunOnClient]
+        LocalCamera: DotNet LtBgCameraProvider;
+    begin
+        LocalCamera := LocalCamera.Create();
+        Result := 'created isnull=' + Format(IsNull(LocalCamera));
+        Result += ' available=' + Format(LocalCamera.IsAvailable());
+    end;
+
+    [TryFunction]
+    local procedure TyTryPrinterName(var Result: Text)
+    var
+        [RunOnClient]
+        Printer: DotNet LtTyPrinterSettings;
+    begin
+        Printer := Printer.PrinterSettings();
+        Result := Printer.PrinterName();
+    end;
+
+    [TryFunction]
+    local procedure TyTryIsNullUnassigned(var Result: Text)
+    var
+        [RunOnClient]
+        LocalBuilder: DotNet LtBgStringBuilder;
+    begin
+        Result := Format(IsNull(LocalBuilder));
+    end;
+
+    local procedure TyBuildUnguarded()
+    var
+        [RunOnClient]
+        LocalBuilder: DotNet LtBgStringBuilder;
+    begin
+        LocalBuilder := LocalBuilder.StringBuilder();
+    end;
+
+    [Test]
+    procedure TY_RunOnClient_GuiAllowedGuard_CameraCreate()
+    var
+        Observer: Codeunit "Probe Observer";
+        [RunOnClient]
+        LocalCamera: DotNet LtBgCameraProvider;
+        Result: Text;
+    begin
+        Observer.Observe('guiallowed', Format(GuiAllowed()));
+        Result := 'skipped';
+        if GuiAllowed() then
+            if TyTryCameraCreate(Result) then
+                Observer.Observe('create', 'ok [' + Result + ']')
+            else
+                Observer.ObserveError('create')
+        else
+            Observer.Observe('create', Result);
+        Observer.Observe('declared only isnull', Format(IsNull(LocalCamera)));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TY_RunOnClient_GuiAllowedGuard_Printer()
+    var
+        Observer: Codeunit "Probe Observer";
+        Result: Text;
+    begin
+        Result := 'skipped';
+        if GuiAllowed() then
+            if TyTryPrinterName(Result) then
+                Observer.Observe('printer', 'ok nonempty=' + Format(Result <> ''))
+            else
+                Observer.ObserveError('printer')
+        else
+            Observer.Observe('printer', Result);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TY_RunOnClient_Local_IsNullUnassigned()
+    var
+        Observer: Codeunit "Probe Observer";
+        Result: Text;
+    begin
+        Result := 'untouched';
+        if TyTryIsNullUnassigned(Result) then
+            Observer.Observe('isnull', 'ok ' + Result)
+        else
+            Observer.ObserveError('isnull');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TY_RunOnClient_Local_Constructor_AssertError()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        asserterror TyBuildUnguarded();
+        Observer.ObserveError('asserterror');
+        Observer.Finish();
+    end;
 }
