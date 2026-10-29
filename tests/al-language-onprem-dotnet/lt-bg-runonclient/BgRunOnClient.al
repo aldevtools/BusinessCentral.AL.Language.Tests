@@ -152,7 +152,8 @@ codeunit 99490 "LT BG RunOnClient"
 
     // Added by writer TY (2026-10-29): a local [RunOnClient] variable, client code guarded by GuiAllowed() as the System Application
     // does it (Camera Impl. IsAvailable, Camera Page Impl.: IsAvailable, then Create() and a member call), and the error
-    // outside a TryFunction (asserterror).
+    // outside a TryFunction (asserterror). Expected values: corpus CI BC 27.5, 28.5 and 29.0 (batch runs 40840955706, 40840985427,
+    // 40841014789), the same on all three; Windows check queued in windows-queue.md.
     [TryFunction]
     local procedure TyTryCameraCreate(var Result: Text)
     var
@@ -199,7 +200,11 @@ codeunit 99490 "LT BG RunOnClient"
         else
             Observer.Observe('create', Result);
         Observer.Observe('declared only isnull', Format(IsNull(LocalCamera)));
-        Observer.Finish();
+        Observer.Expect('guiallowed', 'Yes');
+        Observer.Expect('create|text', 'The operation cannot complete because it uses a feature that is not supported (.NET Framework Interoperability.)');
+        Observer.Expect('create|code', 'DotNetFromAlNotSupported:DotNetFromAlNotSupported');
+        Observer.Expect('declared only isnull', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -213,7 +218,8 @@ codeunit 99490 "LT BG RunOnClient"
             Observer.Observe('isnull', 'ok ' + Result)
         else
             Observer.ObserveError('isnull');
-        Observer.Finish();
+        Observer.Expect('isnull', 'ok Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -223,6 +229,8 @@ codeunit 99490 "LT BG RunOnClient"
     begin
         asserterror TyBuildUnguarded();
         Observer.ObserveError('asserterror');
-        Observer.Finish();
+        Observer.Expect('asserterror|text', 'The operation cannot complete because it uses a feature that is not supported (.NET Framework Interoperability.)');
+        Observer.Expect('asserterror|code', 'DotNetFromAlNotSupported:DotNetFromAlNotSupported');
+        Observer.Verify();
     end;
 }
