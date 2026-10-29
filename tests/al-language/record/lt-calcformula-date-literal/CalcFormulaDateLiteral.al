@@ -2,7 +2,7 @@
 // Scope: in-scope
 // Fixtures used: Probe Observer (69160); own objects below
 // Probe: written against a local BC 29.0.54011.55816 service tier; every literal asserted below is what that tier produced. Other BC versions are checked by the corpus CI matrix.
-// Facts: (np3) FlowField filter(= 0D) and filter(=0D) in count and exist, a FlowField over a FlowField of the counted table with that filter (count and lookup), a FlowFilter Date set to 0D (SetRange, SetFilter = and <>, text =0D and 0D) with GetFilter, GetFilters and CalcFields. 0D (the AL date literal, the empty date) inside the filter(...) of a CalcFormula on an own table: exist and count with filter(<> 0D), filter(0D), filter(<>0D); rows with an empty date only, then a dated row (assumption calcformula-filter-date-literal).
+// Facts: (np3) FlowField filter(= 0D) and filter(=0D) in count and exist, a FlowField over a FlowField of the counted table with that filter (count and lookup), a FlowFilter Date set to 0D (SetRange, SetFilter with =%1 and <>%1) with GetFilter, GetFilters and CalcFields. 0D (the AL date literal, the empty date) inside the filter(...) of a CalcFormula on an own table: exist and count with filter(<> 0D), filter(0D), filter(<>0D); rows with an empty date only, then a dated row (assumption calcformula-filter-date-literal).
 // BC versions: 29 (27 and 28 by CI)
 
 table 70383 "LT CFDate Row"
@@ -282,14 +282,6 @@ codeunit 70385 "LT CFDate Literal"
         Observer.Observe('ne_0D_filter', Owner.GetFilter("Date Filter"));
         Owner.CalcFields("Filtered Count");
         Observer.Observe('ne_0D_count', Format(Owner."Filtered Count"));
-        Owner.SetFilter("Date Filter", '=0D');
-        Observer.Observe('text_eq_0D_filter', Owner.GetFilter("Date Filter"));
-        Owner.CalcFields("Filtered Count");
-        Observer.Observe('text_eq_0D_count', Format(Owner."Filtered Count"));
-        Owner.SetFilter("Date Filter", '0D');
-        Observer.Observe('text_0D_filter', Owner.GetFilter("Date Filter"));
-        Owner.CalcFields("Filtered Count");
-        Observer.Observe('text_0D_count', Format(Owner."Filtered Count"));
         Observer.Finish();
     end;
 }

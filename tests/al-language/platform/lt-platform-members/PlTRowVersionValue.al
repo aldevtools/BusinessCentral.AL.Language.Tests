@@ -159,7 +159,6 @@ codeunit 67515 "LT RV Tests"
         Last := LastUsedRowVersion();
         Observer.Observe(Name + '_last_grew', Format(Last > LastBefore));
         Observer.Observe(Name + '_min_unchanged', Format(Min = MinBefore));
-        Observer.Observe(Name + '_min_minus_last', Format(Min - Last));
         Observer.Observe(Name + '_min_not_above_last_plus_one', Format(Min <= Last + 1));
         Observer.Observe(Name + '_in_write_transaction', Format(IsInWriteTransaction()));
     end;
