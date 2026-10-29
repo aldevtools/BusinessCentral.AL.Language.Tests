@@ -6,6 +6,7 @@
 // Facts (AL Runner issues 6150 and 6158): a page extension adds an actionref to Category_New / Category_Report / Category_Process of a base page whose
 //   area(Promoted) holds only Category_Process, to area(Promoted) of a page that declares no area(Promoted), and to area(Promoted) and Category_New of a page
 //   that declares no actions section. Whether it compiles, and whether the actions and their actionrefs are there and run from a TestPage.
+// Observed: all four forms compile and publish; the actions and actionrefs are visible, and invoking an actionref runs its action's OnAction.
 // Already pinned elsewhere: addlast(Promoted) on a page that declares area(Promoted) (handlers/TestPagePromotedActionref_Page.al), addafter(Category_New) on a page
 //   without actions (pages/W1ActionAreasPromoted.al), addlast(Category_Category4) (pages/lt-page-ext-promoted/PageExtPromotedCategoryRisky.al).
 codeunit 90345 "LT UE Promoted Tests"
@@ -47,7 +48,14 @@ codeunit 90345 "LT UE Promoted Tests"
         Card.BaseAct_Promoted.Invoke();
         Observer.Observe('log', Log.Take());
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('base visible', 'Yes');
+        Observer.Expect('base ref visible', 'Yes');
+        Observer.Expect('new visible', 'Yes');
+        Observer.Expect('new ref visible', 'Yes');
+        Observer.Expect('report ref visible', 'Yes');
+        Observer.Expect('process ref visible', 'Yes');
+        Observer.Expect('log', 'ExtNew;ExtNew;ExtReport;ExtProcess;BaseAct;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -64,7 +72,10 @@ codeunit 90345 "LT UE Promoted Tests"
         Card.BaseAct.Invoke();
         Observer.Observe('log', Log.Take());
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('last ref visible', 'Yes');
+        Observer.Expect('first ref visible', 'Yes');
+        Observer.Expect('log', 'ExtLast;ExtFirst;BaseAct;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -82,7 +93,11 @@ codeunit 90345 "LT UE Promoted Tests"
         Card.NavAct2_Promoted.Invoke();
         Observer.Observe('log', Log.Take());
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('action visible', 'Yes');
+        Observer.Expect('first ref visible', 'Yes');
+        Observer.Expect('last ref visible', 'Yes');
+        Observer.Expect('log', 'NavAct;NavAct;NavAct2;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -97,6 +112,9 @@ codeunit 90345 "LT UE Promoted Tests"
         Card.CatAct_Promoted.Invoke();
         Observer.Observe('log', Log.Take());
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('action visible', 'Yes');
+        Observer.Expect('ref visible', 'Yes');
+        Observer.Expect('log', 'CatAct;');
+        Observer.Verify();
     end;
 }
