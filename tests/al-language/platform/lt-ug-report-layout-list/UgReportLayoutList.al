@@ -90,12 +90,28 @@ codeunit 90370 "LT UG Report Layout List"
     end;
 
     [Test]
-    procedure ReportLayoutList_AllColumns_RdlcWordAndNoLayout()
+    procedure ReportLayoutList_AllColumns_RdlcLayout()
     var
         Observer: Codeunit "Probe Observer";
     begin
         Dump(Observer, 'rdlc', Report::"Probe RL Report", 'Rdlc');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure ReportLayoutList_AllColumns_WordLayout()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Dump(Observer, 'word', Report::"Probe RL Report", 'Word');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure ReportLayoutList_ReportsWithoutLayout_AndMissingName()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Dump(Observer, 'no layout report', Report::"LT UG Report No Layout", 'Rdlc');
         Observer.Observe('rows of the report without layout', CountOfReport(Report::"LT UG Report No Layout"));
         Observer.Observe('rows of the processing only report', CountOfReport(Report::"LT UG Report Processing Only"));
