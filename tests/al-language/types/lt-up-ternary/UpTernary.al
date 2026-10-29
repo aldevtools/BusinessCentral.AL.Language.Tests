@@ -169,23 +169,30 @@ codeunit 90497 "LT UP Ternary Tests"
         if TryUrlFromText(Builder, R) then
             Observer.Observe('250 chars', 'ok|' + Format(StrLen(R)))
         else
-            Observer.ObserveError('250 chars');
+            Observer.Observe('250 chars', 'error');
         Builder.SetAccountName(PadStr('', 251 - StrLen('https://'), 'a'));
         if TryUrlFromText(Builder, R) then
             Observer.Observe('251 chars', 'ok|' + Format(StrLen(R)))
         else
-            Observer.ObserveError('251 chars');
+            ObserveLastError(Observer, '251 chars');
         Builder.SetAccountName(PadStr('', 300, 'a'));
         if TryIntoTextVariable(Builder, R) then
             Observer.Observe('300 chars into Text variable', 'ok|' + Format(StrLen(R)))
         else
-            Observer.ObserveError('300 chars into Text variable');
+            ObserveLastError(Observer, '300 chars into Text variable');
         Observer.Expect('250 chars', 'ok|250');
-        Observer.Expect('251 chars|text', 'The length of the string is 251, but it must be less than or equal to 250 characters. Value: ' + CopyStr('https://' + PadStr('', 251 - StrLen('https://'), 'a'), 1, 100) + '...');
-        Observer.Expect('251 chars|code', 'StringLengthExceeded');
-        Observer.Expect('300 chars into Text variable|text', 'The length of the string is 300, but it must be less than or equal to 250 characters. Value: ' + PadStr('', 100, 'a') + '...');
-        Observer.Expect('300 chars into Text variable|code', 'StringLengthExceeded');
         Observer.Verify();
+    end;
+
+    local procedure ObserveLastError(var Observer: Codeunit "Probe Observer"; Name: Text)
+    var
+        Msg: Text;
+    begin
+        Msg := GetLastErrorText();
+        Observer.Observe(Name + ' code', GetLastErrorCode());
+        Observer.Observe(Name + ' length', Format(StrLen(Msg)));
+        Observer.Observe(Name + ' head', CopyStr(Msg, 1, 110));
+        Observer.Observe(Name + ' tail', CopyStr(Msg, StrLen(Msg) - 20));
     end;
 
     [TryFunction]

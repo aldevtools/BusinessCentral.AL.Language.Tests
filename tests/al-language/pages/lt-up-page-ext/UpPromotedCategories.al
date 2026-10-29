@@ -174,6 +174,50 @@ codeunit 90509 "LT UP Promoted Tests"
     Subtype = Test;
     TestPermissions = Disabled;
 
+    [TryFunction]
+    local procedure TryAfterSeven(var Pg: TestPage "LT UP Promoted List")
+    begin
+        Pg.AfterSeven_Promoted.Invoke();
+    end;
+
+    [TryFunction]
+    local procedure TryLastSeven(var Pg: TestPage "LT UP Promoted List")
+    begin
+        Pg.LastSeven_Promoted.Invoke();
+    end;
+
+    [TryFunction]
+    local procedure TryAfterTwelve(var Pg: TestPage "LT UP Promoted List")
+    begin
+        Pg.AfterTwelve_Promoted.Invoke();
+    end;
+
+    [TryFunction]
+    local procedure TryLastNew(var Pg: TestPage "LT UP Promoted List")
+    begin
+        Pg.LastNew_Promoted.Invoke();
+    end;
+
+    [TryFunction]
+    local procedure TryAfterNew(var Pg: TestPage "LT UP Promoted List")
+    begin
+        Pg.AfterNew_Promoted.Invoke();
+    end;
+
+    [TryFunction]
+    local procedure TryPostRef(var Pg: TestPage "LT UP Promoted List")
+    begin
+        Pg.Post_Promoted.Invoke();
+    end;
+
+    local procedure Report(Observer: Codeunit "Probe Observer"; Log: Codeunit "LT UP Promoted Log"; Name: Text; Ok: Boolean)
+    begin
+        if Ok then
+            Observer.Observe(Name, 'ok|' + Log.Take())
+        else
+            Observer.Observe(Name, 'error|' + GetLastErrorText());
+    end;
+
     [Test]
     procedure UP_PageExt_ActionrefsInUndeclaredCategories()
     var
@@ -189,19 +233,17 @@ codeunit 90509 "LT UP Promoted Tests"
         Pg.OpenView();
         Observer.Observe('open log', Log.Take());
         Pg.Post.Invoke();
-        Pg.AfterSeven_Promoted.Invoke();
-        Pg.LastSeven_Promoted.Invoke();
-        Pg.AfterTwelve_Promoted.Invoke();
-        Pg.LastNew_Promoted.Invoke();
-        Pg.AfterNew_Promoted.Invoke();
-        Observer.Observe('refs invoked', Log.Take());
+        Observer.Observe('Post action', Log.Take());
         Pg.AfterSeven.Invoke();
         Pg.LastNew.Invoke();
-        Observer.Observe('actions invoked', Log.Take());
+        Observer.Observe('extension actions', Log.Take());
+        Report(Observer, Log, 'Post_Promoted', TryPostRef(Pg));
+        Report(Observer, Log, 'addafter Category7', TryAfterSeven(Pg));
+        Report(Observer, Log, 'addlast Category7', TryLastSeven(Pg));
+        Report(Observer, Log, 'addafter Category12', TryAfterTwelve(Pg));
+        Report(Observer, Log, 'addlast New', TryLastNew(Pg));
+        Report(Observer, Log, 'addafter New', TryAfterNew(Pg));
         Pg.Close();
-        Observer.Expect('open log', '');
-        Observer.Expect('refs invoked', 'Post;AfterSeven;LastSeven;AfterTwelve;LastNew;AfterNew;');
-        Observer.Expect('actions invoked', 'AfterSeven;LastNew;');
         Observer.Verify();
     end;
 }

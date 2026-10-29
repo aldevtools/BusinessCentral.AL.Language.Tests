@@ -2,8 +2,8 @@
 // Scope: in-scope
 // Fixtures used: Probe Observer (codeunit 69160); own table 90498, pages 90499 and 90501, page extensions 90500 and 90502, codeunit 90506
 // Probe (writer UP):
-//   1. al-runner issue 6219: a page extension reads and assigns the base page's protected var through CurrPage.<var>, and through the unqualified
-//      name; the value the base page sees (a TestPage action's Enabled, a base procedure).
+//   1. al-runner issue 6219: a page extension reads the base page's protected var through CurrPage.<var> and assigns it by its plain name; the value the
+//      base page sees (a TestPage action's Enabled). ASSIGNING through CurrPage.<var> compiles with alc but BC 29 fails to build the extension's C# (CS0131, see the hand-off), so it is not asserted.
 //   The promoted category half (al-runner issue 6217) is in UpPromotedCategories.al next to this file.
 // BC versions: 27-29
 
@@ -70,9 +70,8 @@ pageextension 90500 "LT UP Protected Var Ext" extends "LT UP Protected Var List"
 {
     trigger OnOpenPage()
     begin
-        if CurrPage.ApplyEnabled then
-            exit;
-        CurrPage.ApplyEnabled := true;
+        // read through CurrPage, assign unqualified
+        ApplyEnabled := not CurrPage.ApplyEnabled;
     end;
 }
 
@@ -141,7 +140,7 @@ codeunit 90506 "LT UP Page Ext Tests"
     end;
 
     [Test]
-    procedure UP_PageExt_AssignsProtectedVarThroughCurrPage()
+    procedure UP_PageExt_ReadsProtectedVarThroughCurrPage()
     var
         Observer: Codeunit "Probe Observer";
         Pg: TestPage "LT UP Protected Var List";

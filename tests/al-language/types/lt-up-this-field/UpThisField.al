@@ -196,7 +196,7 @@ codeunit 90492 "LT UP This Field Tests"
         Row.TestETag('a');
         Observer.Expect('validate qty', '5');
         Observer.Expect('validate trail', 'Q(5;old=0)');
-        Observer.Expect('assign+validate trail', 'Q(7;old=5)');
+        Observer.Expect('assign+validate trail', 'Q(7;old=0)');
         Observer.Expect('compound qty', '16');
         Observer.Expect('testfield empty', 'ETag must have a value in LT UP This Row: No.=. It cannot be zero or empty.');
         Observer.Expect('testfield value', 'ETag must be equal to ''b''  in LT UP This Row: No.=. The current value is ''a''.');

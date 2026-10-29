@@ -34,10 +34,7 @@ pageextension 50002 "MNC UP List Ext 2290" extends "MNC UP List 2290"
     {
         addafter(NoSuchGroup)
         {
-            group(MyGroup)
-            {
-                actionref(Post_Promoted; Post) { }
-            }
+            action(MyAction) { }
         }
     }
 }
