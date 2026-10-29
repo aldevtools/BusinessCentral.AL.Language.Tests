@@ -151,4 +151,48 @@ codeunit 67357 "LT FCM Tests"
         Observer.Expect('datetime_only', 'ok:');
         Observer.Verify();
     end;
+
+    local procedure WidthThree(Lang: Integer; var Observer: Codeunit "Probe Observer")
+    var
+        Inputs: List of [Text];
+        Input: Text;
+        Value: Decimal;
+        Saved: Integer;
+    begin
+        Inputs.AddRange('0', '-0', '1234', '-1234', '0.5', '-0.5', '1234.5', '-1234.5', '0.005', '-0.005', '1.234', '-1.234', '1.235', '1.995', '99999', '-99999', '1.2300', '999999999999999.99');
+        Saved := GlobalLanguage();
+        GlobalLanguage(Lang);
+        foreach Input in Inputs do begin
+            Evaluate(Value, Input, 9);
+            Run('d_' + Input, Value, '<Sign><Integer><Decimals,3><Comma,.>', Observer);
+        end;
+        GlobalLanguage(Saved);
+    end;
+
+    [Test]
+    procedure Format_SignIntegerDecimalsWidth3Comma_Lang1033()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        WidthThree(1033, Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Format_SignIntegerDecimalsWidth3Comma_Lang2055()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        WidthThree(2055, Observer);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Format_SignIntegerDecimalsWidth3Comma_Lang1031()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        WidthThree(1031, Observer);
+        Observer.Finish();
+    end;
 }
