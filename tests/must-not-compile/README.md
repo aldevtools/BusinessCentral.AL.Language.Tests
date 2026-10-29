@@ -627,3 +627,4 @@ The reusable workflow compiles apps that must build, so it cannot run these. A j
 that major (`bc-linux/scripts/install-al-compiler.sh <bc_version>`), stage the symbols of that major (the step that fills `symbols/` in
 `bc-test-from-source.yml`), then run `check-must-not-compile.py --al AL --symbols symbols --bc-major <major> --al-major <AL major>`. The job needs no
 BC container. Run locally with the tools in `~/.al-tool-cache` it passes today with AL 16.2, 17.0.34, 18.0.43 and 30.0.42 on the 27.0 symbols.
+| 2262 to 2266 | AL0132 | `X::Value` where the table has a field X (enum A) and an enum type X exists: a member only A has in a TableNo codeunit, a member only type X has in the table, in a page on it, and with a global or local variable X (writer UB, issue 6129). |
