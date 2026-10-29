@@ -433,7 +433,9 @@ codeunit 99220 "LT BB GetDotNetType"
         Shown := '';
         ClearLastError();
         TvObserve('DayOfWeek', TvTryUnassignedDay(Shown), Shown);
-        Observer.Finish();
+        Observer.Expect('X509ContentType', 'System.Security.Cryptography.X509Certificates.X509ContentType|System.Security.Cryptography.X509Certificates.X509ContentType|IsEnum=Yes');
+        Observer.Expect('DayOfWeek', 'System.DayOfWeek|System.DayOfWeek|IsEnum=Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -455,6 +457,13 @@ codeunit 99220 "LT BB GetDotNetType"
         Shown := '';
         ClearLastError();
         TvObserve('unknown', TvTryParseX509('Nope', Shown), Shown);
-        Observer.Finish();
+        Observer.Expect('Cert', 'Cert|1');
+        Observer.Expect('Pkcs12', 'Pfx|3');
+        Observer.Expect('Pfx', 'Pfx|3');
+        Observer.Expect('lower cert|text', 'A call to System.Enum.Parse failed with this message: Requested value ''cert'' was not found.');
+        Observer.Expect('lower cert|code', 'DotNetInvoke:Argument');
+        Observer.Expect('unknown|text', 'A call to System.Enum.Parse failed with this message: Requested value ''Nope'' was not found.');
+        Observer.Expect('unknown|code', 'DotNetInvoke:Argument');
+        Observer.Verify();
     end;
 }

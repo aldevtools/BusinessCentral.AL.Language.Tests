@@ -464,12 +464,18 @@ codeunit 69381 "LT T GetUrl Tests"
     // ---- Writer TV (NP lane, 2026-10-29): the full text (host and instance masked) of GetUrl for the service client types SOAP, OData, ODataV4
     // and Api, alone, with a company, with an object and with a record; SOAP and ODataV4 with a codeunit. ----
 
-    local procedure TvCurrentCompanyId(): Text
+    local procedure TvMaskCompanyId(Url: Text): Text
     var
-        Cmp: Record Company;
+        At: Integer;
+        Close: Integer;
     begin
-        Cmp.Get(CompanyName());
-        exit(LowerCase(DelChr(Format(Cmp.SystemId), '=', '{}')));
+        At := StrPos(Url, '/companies(');
+        if At = 0 then
+            exit(Url);
+        Close := StrPos(CopyStr(Url, At), ')');
+        if Close = 0 then
+            exit(Url);
+        exit(CopyStr(Url, 1, At + 10) + '<id>' + CopyStr(Url, At + Close - 1));
     end;
 
     [Test]
@@ -529,9 +535,9 @@ codeunit 69381 "LT T GetUrl Tests"
     procedure TV_GetUrl_ClientApi()
     begin
         ClientTest(ClientType::Api, 'api');
-        // The id in companies(...) differs per database: it is compared with the current company's SystemId instead.
+        // The id in companies(...) differs per database (it is not the current company's SystemId): it is masked as <id>.
         Observer.Ignore('api company');
-        Observer.Observe('api company id is current company', Format(Company(ClientType::Api, 'My Company').EndsWith('/companies(' + TvCurrentCompanyId() + ')')));
+        Observer.Observe('api company masked', TvMaskCompanyId(Company(ClientType::Api, 'My Company')));
         Observer.Expect('api alone', 'http://<host>/<instance>/api/');
         Observer.Expect('api empty company', 'ok|http://<host>/<instance>/api/');
         Observer.Expect('api page', 'ok|');
@@ -539,7 +545,7 @@ codeunit 69381 "LT T GetUrl Tests"
         Observer.Expect('api company report', 'ok|');
         Observer.Expect('api company page record', 'ok|');
         Observer.Expect('api page record no company', 'ok|');
-        Observer.Expect('api company id is current company', 'Yes');
+        Observer.Expect('api company masked', 'ok|http://<host>/<instance>/api//companies(<id>)');
         Observer.Verify();
     end;
 }
