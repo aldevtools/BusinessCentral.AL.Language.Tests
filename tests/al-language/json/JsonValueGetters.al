@@ -428,4 +428,101 @@ codeunit 72502 "LT JsT Value Getters"
         Observer.Expect('text space 42', 'big=ok:42 ; byte=ok:42 ; option=ok:42 ; int=ok:42');
         Observer.Verify();
     end;
+
+    // Writer UN (2026-10-29): AsBoolean of JSON texts other than "true" (only "true" and letters are pinned above).
+    [Test]
+    procedure UN_BooleanTextGetters()
+    var
+        V: JsonValue;
+    begin
+        V := ValFrom('"false"');
+        Observer.Observe('text false', Try(V, 'AsBoolean'));
+        V := ValFrom('"False"');
+        Observer.Observe('text False', Try(V, 'AsBoolean'));
+        V := ValFrom('"FALSE"');
+        Observer.Observe('text FALSE', Try(V, 'AsBoolean'));
+        Observer.Expect('text false', 'ok:No');
+        Observer.Expect('text False', 'ok:No');
+        Observer.Expect('text FALSE', 'ok:No');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure UN_BooleanTextGetters_2()
+    var
+        V: JsonValue;
+    begin
+        V := ValFrom('"True"');
+        Observer.Observe('text True', Try(V, 'AsBoolean'));
+        V := ValFrom('"TRUE"');
+        Observer.Observe('text TRUE', Try(V, 'AsBoolean'));
+        V := ValFrom('"0"');
+        Observer.Observe('text 0', Try(V, 'AsBoolean'));
+        Observer.Expect('text True', 'ok:Yes');
+        Observer.Expect('text TRUE', 'ok:Yes');
+        Observer.Expect('text 0', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Boolean.|Conversion');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure UN_BooleanTextGetters_3()
+    var
+        V: JsonValue;
+    begin
+        V := ValFrom('"1"');
+        Observer.Observe('text 1', Try(V, 'AsBoolean'));
+        V := ValFrom('"yes"');
+        Observer.Observe('text yes', Try(V, 'AsBoolean'));
+        V := ValFrom('"Yes"');
+        Observer.Observe('text Yes', Try(V, 'AsBoolean'));
+        Observer.Expect('text 1', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Boolean.|Conversion');
+        Observer.Expect('text yes', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Boolean.|Conversion');
+        Observer.Expect('text Yes', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Boolean.|Conversion');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure UN_BooleanTextGetters_4()
+    var
+        V: JsonValue;
+    begin
+        V := ValFrom('"No"');
+        Observer.Observe('text No', Try(V, 'AsBoolean'));
+        V := ValFrom('""');
+        Observer.Observe('text empty', Try(V, 'AsBoolean'));
+        V := ValFrom('" true"');
+        Observer.Observe('text space true', Try(V, 'AsBoolean'));
+        Observer.Expect('text No', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Boolean.|Conversion');
+        Observer.Expect('text empty', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Boolean.|Conversion');
+        Observer.Expect('text space true', 'ok:Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure UN_BooleanTextGetters_5()
+    var
+        V: JsonValue;
+    begin
+        V := ValFrom('"true "');
+        Observer.Observe('text true space', Try(V, 'AsBoolean'));
+        V := ValFrom('0');
+        Observer.Observe('number 0', Try(V, 'AsBoolean'));
+        V := ValFrom('1');
+        Observer.Observe('number 1', Try(V, 'AsBoolean'));
+        Observer.Expect('text true space', 'ok:Yes');
+        Observer.Expect('number 0', 'ok:No');
+        Observer.Expect('number 1', 'ok:Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure UN_BooleanTextGetters_6()
+    var
+        V: JsonValue;
+    begin
+        V := ValFrom('false');
+        Observer.Observe('bool false', Try(V, 'AsBoolean'));
+        Observer.Expect('bool false', 'ok:No');
+        Observer.Verify();
+    end;
 }
