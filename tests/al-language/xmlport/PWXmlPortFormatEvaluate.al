@@ -2,6 +2,11 @@
 // Each import test feeds ONE field in the form under test (all other elements are MinOccurs = Zero) and records
 // Imported, GetLastErrorText / code and the stored value. Observe-only.
 // Fixtures: enum 69767, table 69768, xmlports 69769 / 69770, codeunit 69771.
+// Writer TU (2026-10-29), TU_Export_TimeMilliseconds, xmlport 90130 (a temporary copy of the table): export of a Time and a DateTime with
+//   milliseconds. Observed on the BC 29.0 SaaS sandbox (two runs, same values); other versions by the corpus CI matrix.
+//   BC: FormatEvaluate = Xml writes the milliseconds with trailing zeros dropped (12:34:56.789, 12:34:56.78, 12:34:56.5, 12:34:56.007,
+//   00:00:00 without a fraction); Legacy drops them. A row in the database table holds the value SQL Server stored: .789 comes back as .79,
+//   00:00:00.001 as 00:00:00 and 23:59:59.999 as 00:00:00 (the DateTime moves to the next day). A temporary record keeps the exact value.
 
 enum 69767 "PW FE Enum"
 {
@@ -300,6 +305,91 @@ codeunit 69771 "PW XmlPort FmtEval Probe"
         Observer.Expect('enum_unknown_ordinal', 'imported=Yes error=[] code=[] stored=[Tm= Dur= Opt=Alpha cap En=7 Dec=0 Bl=No Dtm=]');
         Observer.Expect('enum_name_lower_case', 'imported=Yes error=[] code=[] stored=[Tm= Dur= Opt=Alpha cap En=One cap Dec=0 Bl=No Dtm=]');
         Observer.Expect('enum_empty', 'imported=Yes error=[] code=[] stored=[Tm= Dur= Opt=Alpha cap En=Zero cap Dec=0 Bl=No Dtm=]');
+        Observer.Verify();
+    end;
+
+    local procedure TuExportTimes(XmlPortId: Integer): Text
+    var
+        Row: Record "PW FE Table";
+        TempBlob: Codeunit "Temp Blob";
+        OutStr: OutStream;
+        InStr: InStream;
+        Line: Text;
+        Result: Text;
+    begin
+        Row.DeleteAll();
+        TuTimeRow(1, 123456.789T);
+        TuTimeRow(2, 123456.78T);
+        TuTimeRow(3, 123456.007T);
+        TuTimeRow(4, 000000.001T);
+        TuTimeRow(5, 235959.999T);
+        TuTimeRow(6, 0T);
+        TuTimeRow(7, 123456.5T);
+        TuTimeRow(8, 000000T);
+        Commit();
+        TempBlob.CreateOutStream(OutStr);
+        Xmlport.Export(XmlPortId, OutStr);
+        TempBlob.CreateInStream(InStr, TextEncoding::UTF16);
+        while not InStr.EOS() do begin
+            InStr.ReadText(Line);
+            Result += Line + '|';
+        end;
+        exit(Result);
+    end;
+
+    local procedure TuTimeRow(NewId: Integer; NewTime: Time)
+    var
+        Row: Record "PW FE Table";
+    begin
+        Row.Id := NewId;
+        Row.Tm := NewTime;
+        if NewTime <> 0T then
+            Row.Dtm := CreateDateTime(DMY2Date(5, 3, 2024), NewTime);
+        Row.Insert();
+    end;
+
+    local procedure TuExportTimesTemp(): Text
+    var
+        Port: XmlPort "LT TU XP Time Temp";
+        TempBlob: Codeunit "Temp Blob";
+        OutStr: OutStream;
+        InStr: InStream;
+        Line: Text;
+        Result: Text;
+    begin
+        Port.AddRow(1, 123456.789T);
+        Port.AddRow(2, 123456.78T);
+        Port.AddRow(3, 123456.007T);
+        Port.AddRow(4, 000000.001T);
+        Port.AddRow(5, 235959.999T);
+        Port.AddRow(6, 0T);
+        Port.AddRow(7, 123456.5T);
+        Port.AddRow(8, 000000T);
+        Port.AddRow(9, 123456.1T);
+        Port.AddRow(10, 123456.01T);
+        TempBlob.CreateOutStream(OutStr);
+        Port.SetDestination(OutStr);
+        Port.Export();
+        TempBlob.CreateInStream(InStr, TextEncoding::UTF16);
+        while not InStr.EOS() do begin
+            InStr.ReadText(Line);
+            Result += Line + '|';
+        end;
+        exit(Result);
+    end;
+
+    [Test]
+    procedure TU_Export_TimeMilliseconds()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        // Rows with Time 12:34:56.789, .78, .007, 00:00:00.001, 23:59:59.999, 0T, .5 and 00:00:00, exported with FormatEvaluate = Xml and Legacy
+        Observer.Observe('export_xml', TuExportTimes(Xmlport::"PW FE Xml"));
+        Observer.Observe('export_legacy', TuExportTimes(Xmlport::"PW FE Legacy"));
+        Observer.Observe('export_xml_temporary', TuExportTimesTemp());
+        Observer.Expect('export_xml', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <T>|    <Id>1</Id>|    <Tm>12:34:56.79</Tm>|    <Dur>P0DT0H0M0.0S</Dur>|    <Opt>0</Opt>|    <En>0</En>|    <Dec>0.00</Dec>|    <Bl>false</Bl>|    <Dtm>2024-03-05T12:34:56.79Z</Dtm>|  </T>|  <T>|    <Id>2</Id>|    <Tm>12:34:56.78</Tm>|    <Dur>P0DT0H0M0.0S</Dur>|    <Opt>0</Opt>|    <En>0</En>|    <Dec>0.00</Dec>|    <Bl>false</Bl>|    <Dtm>2024-03-05T12:34:56.78Z</Dtm>|  </T>|  <T>|    <Id>3</Id>|    <Tm>12:34:56.007</Tm>|    <Dur>P0DT0H0M0.0S</Dur>|    <Opt>0</Opt>|    <En>0</En>|    <Dec>0.00</Dec>|    <Bl>false</Bl>|    <Dtm>2024-03-05T12:34:56.007Z</Dtm>|  </T>|  <T>|    <Id>4</Id>|    <Tm>00:00:00</Tm>|    <Dur>P0DT0H0M0.0S</Dur>|    <Opt>0</Opt>|    <En>0</En>|    <Dec>0.00</Dec>|    <Bl>false</Bl>|    <Dtm>2024-03-05T00:00:00Z</Dtm>|  </T>|  <T>|    <Id>5</Id>|    <Tm>00:00:00</Tm>|    <Dur>P0DT0H0M0.0S</Dur>|    <Opt>0</Opt>|    <En>0</En>|    <Dec>0.00</Dec>|    <Bl>false</Bl>|    <Dtm>2024-03-06T00:00:00Z</Dtm>|  </T>|  <T>|    <Id>6</Id>|    <Tm />|    <Dur>P0DT0H0M0.0S</Dur>|    <Opt>0</Opt>|    <En>0</En>|    <Dec>0.00</Dec>|    <Bl>false</Bl>|    <Dtm />|  </T>|  <T>|    <Id>7</Id>|    <Tm>12:34:56.5</Tm>|    <Dur>P0DT0H0M0.0S</Dur>|    <Opt>0</Opt>|    <En>0</En>|    <Dec>0.00</Dec>|    <Bl>false</Bl>|    <Dtm>2024-03-05T12:34:56.5Z</Dtm>|  </T>|  <T>|    <Id>8</Id>|    <Tm>00:00:00</Tm>|    <Dur>P0DT0H0M0.0S</Dur>|    <Opt>0</Opt>|    <En>0</En>|    <Dec>0.00</Dec>|    <Bl>false</Bl>|    <Dtm>2024-03-05T00:00:00Z</Dtm>|  </T>|</Root>|');
+        Observer.Expect('export_legacy', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <T>|    <Id>1</Id>|    <Tm>12:34:56 PM</Tm>|    <Dur />|    <Opt>Alpha cap</Opt>|    <En>Zero cap</En>|    <Dec>0.00</Dec>|    <Bl>No</Bl>|    <Dtm>03/05/24 12:34 PM</Dtm>|  </T>|  <T>|    <Id>2</Id>|    <Tm>12:34:56 PM</Tm>|    <Dur />|    <Opt>Alpha cap</Opt>|    <En>Zero cap</En>|    <Dec>0.00</Dec>|    <Bl>No</Bl>|    <Dtm>03/05/24 12:34 PM</Dtm>|  </T>|  <T>|    <Id>3</Id>|    <Tm>12:34:56 PM</Tm>|    <Dur />|    <Opt>Alpha cap</Opt>|    <En>Zero cap</En>|    <Dec>0.00</Dec>|    <Bl>No</Bl>|    <Dtm>03/05/24 12:34 PM</Dtm>|  </T>|  <T>|    <Id>4</Id>|    <Tm>12:00:00 AM</Tm>|    <Dur />|    <Opt>Alpha cap</Opt>|    <En>Zero cap</En>|    <Dec>0.00</Dec>|    <Bl>No</Bl>|    <Dtm>03/05/24 12:00 AM</Dtm>|  </T>|  <T>|    <Id>5</Id>|    <Tm>12:00:00 AM</Tm>|    <Dur />|    <Opt>Alpha cap</Opt>|    <En>Zero cap</En>|    <Dec>0.00</Dec>|    <Bl>No</Bl>|    <Dtm>03/06/24 12:00 AM</Dtm>|  </T>|  <T>|    <Id>6</Id>|    <Tm />|    <Dur />|    <Opt>Alpha cap</Opt>|    <En>Zero cap</En>|    <Dec>0.00</Dec>|    <Bl>No</Bl>|    <Dtm />|  </T>|  <T>|    <Id>7</Id>|    <Tm>12:34:56 PM</Tm>|    <Dur />|    <Opt>Alpha cap</Opt>|    <En>Zero cap</En>|    <Dec>0.00</Dec>|    <Bl>No</Bl>|    <Dtm>03/05/24 12:34 PM</Dtm>|  </T>|  <T>|    <Id>8</Id>|    <Tm>12:00:00 AM</Tm>|    <Dur />|    <Opt>Alpha cap</Opt>|    <En>Zero cap</En>|    <Dec>0.00</Dec>|    <Bl>No</Bl>|    <Dtm>03/05/24 12:00 AM</Dtm>|  </T>|</Root>|');
+        Observer.Expect('export_xml_temporary', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <T>|    <Id>1</Id>|    <Tm>12:34:56.789</Tm>|    <Dtm>2024-03-05T12:34:56.789Z</Dtm>|  </T>|  <T>|    <Id>2</Id>|    <Tm>12:34:56.78</Tm>|    <Dtm>2024-03-05T12:34:56.78Z</Dtm>|  </T>|  <T>|    <Id>3</Id>|    <Tm>12:34:56.007</Tm>|    <Dtm>2024-03-05T12:34:56.007Z</Dtm>|  </T>|  <T>|    <Id>4</Id>|    <Tm>00:00:00.001</Tm>|    <Dtm>2024-03-05T00:00:00.001Z</Dtm>|  </T>|  <T>|    <Id>5</Id>|    <Tm>23:59:59.999</Tm>|    <Dtm>2024-03-05T23:59:59.999Z</Dtm>|  </T>|  <T>|    <Id>6</Id>|    <Tm />|    <Dtm />|  </T>|  <T>|    <Id>7</Id>|    <Tm>12:34:56.5</Tm>|    <Dtm>2024-03-05T12:34:56.5Z</Dtm>|  </T>|  <T>|    <Id>8</Id>|    <Tm>00:00:00</Tm>|    <Dtm>2024-03-05T00:00:00Z</Dtm>|  </T>|  <T>|    <Id>9</Id>|    <Tm>12:34:56.1</Tm>|    <Dtm>2024-03-05T12:34:56.1Z</Dtm>|  </T>|  <T>|    <Id>10</Id>|    <Tm>12:34:56.01</Tm>|    <Dtm>2024-03-05T12:34:56.01Z</Dtm>|  </T>|</Root>|');
         Observer.Verify();
     end;
 }

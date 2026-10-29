@@ -13,6 +13,12 @@
 //   a SourceTableView WHERE, OnPreXmlItem and OnAfterGetRecord three levels below a temporary reply table element (LinkTable without
 //   LinkFields); a text element with text attributes and a nested optional text element over an unlinked temporary table element; a
 //   second Import on one instance; an optional unlinked table element without rows.
+// Writer TU: tests TU_* on tables 90120-90125 and xmlports 90126-90129 (TuXpObjects.al), observed on the BC 29.0 SaaS sandbox (two runs, same
+//   values). LinkTable without LinkFields (90126 MaxOccurs = Once, 90127 Unbounded): every pass of the child element starts from the
+//   SourceTableView key (or the primary key without a view), ascending; a SetCurrentKey, Ascending(false) or Reset done in OnPreXmlItem at one
+//   pass does not carry to the next pass. Nested table elements without LinkTable over real (90128) or temporary (90129) tables: each pass
+//   starts with no filters (GetFilters is empty; a filter set at an earlier pass is gone) but the record keeps the row it was on. A
+//   MinOccurs = Once element without rows is written once from that row (no OnAfterGetRecord), and the elements below it still run.
 // Probe: observed on the corpus CI matrix; every literal asserted below is what the BC service tier produced.
 // Facts: MaxOccurs and MinOccurs on CONTAINER text elements (the root text element with MaxOccurs = Once, a required container with
 //   MinOccurs = Once and MaxOccurs = Once that holds a temporary table element, an optional container with MinOccurs = Zero and
@@ -2480,6 +2486,595 @@ codeunit 87280 "LT QR XP Container Tests"
         Observer.Observe('log', Port.GetLog());
         Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<confirm>|  <required no="0">|    <token />|    <note>n0</note>|  </required>|</confirm>|');
         Observer.Expect('log', 'pre opt;pre req;pass req no;pass req token;pass req note;');
+        Observer.Verify();
+    end;
+
+    local procedure TuExportKeyOnce(var Port: XmlPort "LT TU XP Key Once"): Text
+    var
+        Buffer: Record "LT QR XP Blob" temporary;
+        OutS: OutStream;
+    begin
+        Buffer.Id := 1;
+        Buffer.Insert();
+        Buffer.Data.CreateOutStream(OutS, TextEncoding::UTF8);
+        Port.SetDestination(OutS);
+        Port.Export();
+        exit(ToRead(Buffer));
+    end;
+
+    local procedure TuExportKeyUnbounded(var Port: XmlPort "LT TU XP Key Unbounded"): Text
+    var
+        Buffer: Record "LT QR XP Blob" temporary;
+        OutS: OutStream;
+    begin
+        Buffer.Id := 1;
+        Buffer.Insert();
+        Buffer.Data.CreateOutStream(OutS, TextEncoding::UTF8);
+        Port.SetDestination(OutS);
+        Port.Export();
+        exit(ToRead(Buffer));
+    end;
+
+    local procedure TuExportReal(var Port: XmlPort "LT TU XP Nested Real"): Text
+    var
+        Buffer: Record "LT QR XP Blob" temporary;
+        OutS: OutStream;
+    begin
+        Buffer.Id := 1;
+        Buffer.Insert();
+        Buffer.Data.CreateOutStream(OutS, TextEncoding::UTF8);
+        Port.SetDestination(OutS);
+        Port.Export();
+        exit(ToRead(Buffer));
+    end;
+
+    local procedure TuExportTemp(var Port: XmlPort "LT TU XP Nested Temp"): Text
+    var
+        Buffer: Record "LT QR XP Blob" temporary;
+        OutS: OutStream;
+    begin
+        Buffer.Id := 1;
+        Buffer.Insert();
+        Buffer.Data.CreateOutStream(OutS, TextEncoding::UTF8);
+        Port.SetDestination(OutS);
+        Port.Export();
+        exit(ToRead(Buffer));
+    end;
+
+    local procedure TuSeedKeys()
+    var
+        Child: Record "LT TU XP KChild";
+    begin
+        // Id order 1,2,3; A order 2,3,1; B order 3,1,2
+        Child.DeleteAll();
+        Child.Id := 1;
+        Child.A := 30;
+        Child.B := 20;
+        Child.Insert();
+        Child.Id := 2;
+        Child.A := 10;
+        Child.B := 30;
+        Child.Insert();
+        Child.Id := 3;
+        Child.A := 20;
+        Child.B := 10;
+        Child.Insert();
+    end;
+
+    local procedure TuKeyRun(Mode: Integer; var XmlOnce: Text; var LogOnce: Text; var XmlUnbounded: Text; var LogUnbounded: Text)
+    var
+        PortOnce: XmlPort "LT TU XP Key Once";
+        PortUnbounded: XmlPort "LT TU XP Key Unbounded";
+    begin
+        TuSeedKeys();
+        PortOnce.AddParent(1);
+        PortOnce.AddParent(2);
+        PortOnce.AddParent(3);
+        PortOnce.SetMode(Mode);
+        XmlOnce := TuExportKeyOnce(PortOnce);
+        LogOnce := PortOnce.GetLog();
+        PortUnbounded.AddParent(1);
+        PortUnbounded.AddParent(2);
+        PortUnbounded.AddParent(3);
+        PortUnbounded.SetMode(Mode);
+        XmlUnbounded := TuExportKeyUnbounded(PortUnbounded);
+        LogUnbounded := PortUnbounded.GetLog();
+    end;
+
+    local procedure TuSeedReal()
+    var
+        Line: Record "LT TU XP Line";
+        Item: Record "LT TU XP Item";
+        Slot: Record "LT TU XP Slot";
+    begin
+        // order Ref 10: lines 1 (items 11, 12) and 2 (no item); order Ref 20: line 3 (item 13); order Ref 40: line 4 (item 14, slot 104)
+        // item 11: slots 101 (Reservation), 102 (Reservation), 103 (Admitted); item 12: slot 105 (Admitted only); item 13: slot 106
+        Line.DeleteAll();
+        Item.DeleteAll();
+        Slot.DeleteAll();
+        TuLine(1, 10, 'L1');
+        TuLine(2, 10, 'L2');
+        TuLine(3, 20, 'L3');
+        TuLine(4, 40, 'L4');
+        TuItem(11, 1, 'A', 2);
+        TuItem(12, 1, 'B', 1);
+        TuItem(13, 3, 'C', 5);
+        TuItem(14, 4, 'D', 1);
+        TuSlot(101, 11, Slot.Kind::Reservation, 7001);
+        TuSlot(102, 11, Slot.Kind::Reservation, 7002);
+        TuSlot(103, 11, Slot.Kind::Admitted, 7003);
+        TuSlot(104, 14, Slot.Kind::Reservation, 7004);
+        TuSlot(105, 12, Slot.Kind::Admitted, 7005);
+        TuSlot(106, 13, Slot.Kind::Reservation, 7006);
+    end;
+
+    local procedure TuLine(EntryNo: Integer; HeadNo: Integer; ExtCode: Code[20])
+    var
+        Line: Record "LT TU XP Line";
+    begin
+        Line."Entry No." := EntryNo;
+        Line.HeadNo := HeadNo;
+        Line.ExtCode := ExtCode;
+        Line.Insert();
+    end;
+
+    local procedure TuItem(EntryNo: Integer; LineNo: Integer; ItemCode: Code[20]; Qty: Integer)
+    var
+        Item: Record "LT TU XP Item";
+    begin
+        Item."Entry No." := EntryNo;
+        Item.LineNo := LineNo;
+        Item.ItemCode := ItemCode;
+        Item.Qty := Qty;
+        Item.Insert();
+    end;
+
+    local procedure TuSlot(EntryNo: Integer; ItemNo: Integer; Kind: Option; ExtNo: Integer)
+    var
+        Slot: Record "LT TU XP Slot";
+    begin
+        Slot."Entry No." := EntryNo;
+        Slot.ItemNo := ItemNo;
+        Slot.Kind := Kind;
+        Slot.ExtNo := ExtNo;
+        Slot.Insert();
+    end;
+
+    local procedure TuTemp(Mode: Integer; Outers: Text; Mids: Text; Inners: Text; var Log: Text): Text
+    var
+        Port: XmlPort "LT TU XP Nested Temp";
+        Parts: List of [Text];
+        Part: Text;
+        Id: Integer;
+        Parent: Integer;
+    begin
+        // Outers: 'id,id'; Mids and Inners: 'id:parent,id:parent'
+        Port.SetMode(Mode);
+        if Outers <> '' then
+            foreach Part in Outers.Split(',') do begin
+                Evaluate(Id, Part);
+                Port.AddOuter(Id);
+            end;
+        if Mids <> '' then
+            foreach Part in Mids.Split(',') do begin
+                Parts := Part.Split(':');
+                Evaluate(Id, Parts.Get(1));
+                Evaluate(Parent, Parts.Get(2));
+                Port.AddMid(Id, Parent);
+            end;
+        if Inners <> '' then
+            foreach Part in Inners.Split(',') do begin
+                Parts := Part.Split(':');
+                Evaluate(Id, Parts.Get(1));
+                Evaluate(Parent, Parts.Get(2));
+                Port.AddInner(Id, Parent);
+            end;
+        Part := TuExportTemp(Port);
+        Log := Port.GetLog();
+        exit(Part);
+    end;
+
+    [Test]
+    procedure TU_LinkedKey_NoChange()
+    var
+        Observer: Codeunit "Probe Observer";
+        XmlOnce: Text;
+        LogOnce: Text;
+        XmlUnbounded: Text;
+        LogUnbounded: Text;
+    begin
+        // Three parent rows; OnPreXmlItem of `c` (SourceTableView sorting(A)) and `d` (no view) does: nothing. Child rows: Id 1,2,3; by A 2,3,1; by B 3,1,2
+        TuKeyRun(0, XmlOnce, LogOnce, XmlUnbounded, LogUnbounded);
+        Observer.Observe('xml once', XmlOnce);
+        Observer.Observe('log once', LogOnce);
+        Observer.Observe('xml unbounded', XmlUnbounded);
+        Observer.Observe('log unbounded', LogUnbounded);
+        Observer.Expect('xml once', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <p id="1">|    <c id="2" />|    <d id="1" />|  </p>|  <p id="2">|    <c id="2" />|    <d id="1" />|  </p>|  <p id="3">|    <c id="2" />|    <d id="1" />|  </p>|</root>|');
+        Observer.Expect('log once', 'pre c1 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field2)];c2;pre d1 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field1)];d1;pre c2 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field2)];c2;pre d2 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field1)];d1;pre c3 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field2)];c2;pre d3 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field1)];d1;');
+        Observer.Expect('xml unbounded', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <p id="1">|    <c id="2" />|    <c id="3" />|    <c id="1" />|    <d id="1" />|    <d id="2" />|    <d id="3" />|  </p>|  <p id="2">|    <c id="2" />|    <c id="3" />|    <c id="1" />|    <d id="1" />|    <d id="2" />|    <d id="3" />|  </p>|  <p id="3">|    <c id="2" />|    <c id="3" />|    <c id="1" />|    <d id="1" />|    <d id="2" />|    <d id="3" />|  </p>|</root>|');
+        Observer.Expect('log unbounded', 'pre c1 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field2)];c2;c3;c1;pre d1 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field1)];d1;d2;d3;pre c2 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field2)];c2;c3;c1;pre d2 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field1)];d1;d2;d3;pre c3 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field2)];c2;c3;c1;pre d3 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field1)];d1;d2;d3;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TU_LinkedKey_KeyAtFirstPass()
+    var
+        Observer: Codeunit "Probe Observer";
+        XmlOnce: Text;
+        LogOnce: Text;
+        XmlUnbounded: Text;
+        LogUnbounded: Text;
+    begin
+        // Three parent rows; OnPreXmlItem of `c` (SourceTableView sorting(A)) and `d` (no view) does: SetCurrentKey(B) at pass 1 only. Child rows: Id 1,2,3; by A 2,3,1; by B 3,1,2
+        TuKeyRun(1, XmlOnce, LogOnce, XmlUnbounded, LogUnbounded);
+        Observer.Observe('xml once', XmlOnce);
+        Observer.Observe('log once', LogOnce);
+        Observer.Observe('xml unbounded', XmlUnbounded);
+        Observer.Observe('log unbounded', LogUnbounded);
+        Observer.Expect('xml once', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <p id="1">|    <c id="3" />|    <d id="3" />|  </p>|  <p id="2">|    <c id="2" />|    <d id="1" />|  </p>|  <p id="3">|    <c id="2" />|    <d id="1" />|  </p>|</root>|');
+        Observer.Expect('log once', 'pre c1 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field3)];c3;pre d1 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field3)];d3;pre c2 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field2)];c2;pre d2 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field1)];d1;pre c3 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field2)];c2;pre d3 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field1)];d1;');
+        Observer.Expect('xml unbounded', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <p id="1">|    <c id="3" />|    <c id="1" />|    <c id="2" />|    <d id="3" />|    <d id="1" />|    <d id="2" />|  </p>|  <p id="2">|    <c id="2" />|    <c id="3" />|    <c id="1" />|    <d id="1" />|    <d id="2" />|    <d id="3" />|  </p>|  <p id="3">|    <c id="2" />|    <c id="3" />|    <c id="1" />|    <d id="1" />|    <d id="2" />|    <d id="3" />|  </p>|</root>|');
+        Observer.Expect('log unbounded', 'pre c1 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field3)];c3;c1;c2;pre d1 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field3)];d3;d1;d2;pre c2 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field2)];c2;c3;c1;pre d2 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field1)];d1;d2;d3;pre c3 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field2)];c2;c3;c1;pre d3 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field1)];d1;d2;d3;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TU_LinkedKey_KeyDescendingAtFirstPass()
+    var
+        Observer: Codeunit "Probe Observer";
+        XmlOnce: Text;
+        LogOnce: Text;
+        XmlUnbounded: Text;
+        LogUnbounded: Text;
+    begin
+        // Three parent rows; OnPreXmlItem of `c` (SourceTableView sorting(A)) and `d` (no view) does: SetCurrentKey(B) and Ascending(false) at pass 1 only. Child rows: Id 1,2,3; by A 2,3,1; by B 3,1,2
+        TuKeyRun(2, XmlOnce, LogOnce, XmlUnbounded, LogUnbounded);
+        Observer.Observe('xml once', XmlOnce);
+        Observer.Observe('log once', LogOnce);
+        Observer.Observe('xml unbounded', XmlUnbounded);
+        Observer.Observe('log unbounded', LogUnbounded);
+        Observer.Expect('xml once', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <p id="1">|    <c id="2" />|    <d id="2" />|  </p>|  <p id="2">|    <c id="2" />|    <d id="1" />|  </p>|  <p id="3">|    <c id="2" />|    <d id="1" />|  </p>|</root>|');
+        Observer.Expect('log once', 'pre c1 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field3) ORDER(1)];c2;pre d1 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field3) ORDER(1)];d2;pre c2 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field2)];c2;pre d2 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field1)];d1;pre c3 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field2)];c2;pre d3 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field1)];d1;');
+        Observer.Expect('xml unbounded', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <p id="1">|    <c id="2" />|    <c id="1" />|    <c id="3" />|    <d id="2" />|    <d id="1" />|    <d id="3" />|  </p>|  <p id="2">|    <c id="2" />|    <c id="3" />|    <c id="1" />|    <d id="1" />|    <d id="2" />|    <d id="3" />|  </p>|  <p id="3">|    <c id="2" />|    <c id="3" />|    <c id="1" />|    <d id="1" />|    <d id="2" />|    <d id="3" />|  </p>|</root>|');
+        Observer.Expect('log unbounded', 'pre c1 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field3) ORDER(1)];c2;c1;c3;pre d1 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field3) ORDER(1)];d2;d1;d3;pre c2 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field2)];c2;c3;c1;pre d2 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field1)];d1;d2;d3;pre c3 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field2)];c2;c3;c1;pre d3 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field1)];d1;d2;d3;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TU_LinkedKey_KeyAtSecondPass()
+    var
+        Observer: Codeunit "Probe Observer";
+        XmlOnce: Text;
+        LogOnce: Text;
+        XmlUnbounded: Text;
+        LogUnbounded: Text;
+    begin
+        // Three parent rows; OnPreXmlItem of `c` (SourceTableView sorting(A)) and `d` (no view) does: SetCurrentKey(B) at pass 2 only. Child rows: Id 1,2,3; by A 2,3,1; by B 3,1,2
+        TuKeyRun(3, XmlOnce, LogOnce, XmlUnbounded, LogUnbounded);
+        Observer.Observe('xml once', XmlOnce);
+        Observer.Observe('log once', LogOnce);
+        Observer.Observe('xml unbounded', XmlUnbounded);
+        Observer.Observe('log unbounded', LogUnbounded);
+        Observer.Expect('xml once', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <p id="1">|    <c id="2" />|    <d id="1" />|  </p>|  <p id="2">|    <c id="3" />|    <d id="3" />|  </p>|  <p id="3">|    <c id="2" />|    <d id="1" />|  </p>|</root>|');
+        Observer.Expect('log once', 'pre c1 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field2)];c2;pre d1 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field1)];d1;pre c2 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field3)];c3;pre d2 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field3)];d3;pre c3 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field2)];c2;pre d3 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field1)];d1;');
+        Observer.Expect('xml unbounded', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <p id="1">|    <c id="2" />|    <c id="3" />|    <c id="1" />|    <d id="1" />|    <d id="2" />|    <d id="3" />|  </p>|  <p id="2">|    <c id="3" />|    <c id="1" />|    <c id="2" />|    <d id="3" />|    <d id="1" />|    <d id="2" />|  </p>|  <p id="3">|    <c id="2" />|    <c id="3" />|    <c id="1" />|    <d id="1" />|    <d id="2" />|    <d id="3" />|  </p>|</root>|');
+        Observer.Expect('log unbounded', 'pre c1 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field2)];c2;c3;c1;pre d1 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field1)];d1;d2;d3;pre c2 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field3)];c3;c1;c2;pre d2 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field3)];d3;d1;d2;pre c3 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field2)];c2;c3;c1;pre d3 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field1)];d1;d2;d3;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TU_LinkedKey_ResetAtFirstPass()
+    var
+        Observer: Codeunit "Probe Observer";
+        XmlOnce: Text;
+        LogOnce: Text;
+        XmlUnbounded: Text;
+        LogUnbounded: Text;
+    begin
+        // Three parent rows; OnPreXmlItem of `c` (SourceTableView sorting(A)) and `d` (no view) does: Reset at pass 1 only. Child rows: Id 1,2,3; by A 2,3,1; by B 3,1,2
+        TuKeyRun(4, XmlOnce, LogOnce, XmlUnbounded, LogUnbounded);
+        Observer.Observe('xml once', XmlOnce);
+        Observer.Observe('log once', LogOnce);
+        Observer.Observe('xml unbounded', XmlUnbounded);
+        Observer.Observe('log unbounded', LogUnbounded);
+        Observer.Expect('xml once', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <p id="1">|    <c id="1" />|    <d id="1" />|  </p>|  <p id="2">|    <c id="2" />|    <d id="1" />|  </p>|  <p id="3">|    <c id="2" />|    <d id="1" />|  </p>|</root>|');
+        Observer.Expect('log once', 'pre c1 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field1)];c1;pre d1 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field1)];d1;pre c2 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field2)];c2;pre d2 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field1)];d1;pre c3 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field2)];c2;pre d3 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field1)];d1;');
+        Observer.Expect('xml unbounded', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <p id="1">|    <c id="1" />|    <c id="2" />|    <c id="3" />|    <d id="1" />|    <d id="2" />|    <d id="3" />|  </p>|  <p id="2">|    <c id="2" />|    <c id="3" />|    <c id="1" />|    <d id="1" />|    <d id="2" />|    <d id="3" />|  </p>|  <p id="3">|    <c id="2" />|    <c id="3" />|    <c id="1" />|    <d id="1" />|    <d id="2" />|    <d id="3" />|  </p>|</root>|');
+        Observer.Expect('log unbounded', 'pre c1 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field1)];c1;c2;c3;pre d1 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field1)];d1;d2;d3;pre c2 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field2)];c2;c3;c1;pre d2 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field1)];d1;d2;d3;pre c3 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field2)];c2;c3;c1;pre d3 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field1)];d1;d2;d3;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TU_LinkedKey_KeyAtEveryPass()
+    var
+        Observer: Codeunit "Probe Observer";
+        XmlOnce: Text;
+        LogOnce: Text;
+        XmlUnbounded: Text;
+        LogUnbounded: Text;
+    begin
+        // Three parent rows; OnPreXmlItem of `c` (SourceTableView sorting(A)) and `d` (no view) does: SetCurrentKey(B) at every pass. Child rows: Id 1,2,3; by A 2,3,1; by B 3,1,2
+        TuKeyRun(5, XmlOnce, LogOnce, XmlUnbounded, LogUnbounded);
+        Observer.Observe('xml once', XmlOnce);
+        Observer.Observe('log once', LogOnce);
+        Observer.Observe('xml unbounded', XmlUnbounded);
+        Observer.Observe('log unbounded', LogUnbounded);
+        Observer.Expect('xml once', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <p id="1">|    <c id="3" />|    <d id="3" />|  </p>|  <p id="2">|    <c id="3" />|    <d id="3" />|  </p>|  <p id="3">|    <c id="3" />|    <d id="3" />|  </p>|</root>|');
+        Observer.Expect('log once', 'pre c1 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field3)];c3;pre d1 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field3)];d3;pre c2 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field3)];c3;pre d2 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field3)];d3;pre c3 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field3)];c3;pre d3 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field3)];d3;');
+        Observer.Expect('xml unbounded', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <p id="1">|    <c id="3" />|    <c id="1" />|    <c id="2" />|    <d id="3" />|    <d id="1" />|    <d id="2" />|  </p>|  <p id="2">|    <c id="3" />|    <c id="1" />|    <c id="2" />|    <d id="3" />|    <d id="1" />|    <d id="2" />|  </p>|  <p id="3">|    <c id="3" />|    <c id="1" />|    <c id="2" />|    <d id="3" />|    <d id="1" />|    <d id="2" />|  </p>|</root>|');
+        Observer.Expect('log unbounded', 'pre c1 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field3)];c3;c1;c2;pre d1 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field3)];d3;d1;d2;pre c2 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field3)];c3;c1;c2;pre d2 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field3)];d3;d1;d2;pre c3 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field3)];c3;c1;c2;pre d3 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field3)];d3;d1;d2;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TU_LinkedKey_DescendingAtFirstPass()
+    var
+        Observer: Codeunit "Probe Observer";
+        XmlOnce: Text;
+        LogOnce: Text;
+        XmlUnbounded: Text;
+        LogUnbounded: Text;
+    begin
+        // Three parent rows; OnPreXmlItem of `c` (SourceTableView sorting(A)) and `d` (no view) does: Ascending(false) at pass 1 only. Child rows: Id 1,2,3; by A 2,3,1; by B 3,1,2
+        TuKeyRun(6, XmlOnce, LogOnce, XmlUnbounded, LogUnbounded);
+        Observer.Observe('xml once', XmlOnce);
+        Observer.Observe('log once', LogOnce);
+        Observer.Observe('xml unbounded', XmlUnbounded);
+        Observer.Observe('log unbounded', LogUnbounded);
+        Observer.Expect('xml once', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <p id="1">|    <c id="1" />|    <d id="3" />|  </p>|  <p id="2">|    <c id="2" />|    <d id="1" />|  </p>|  <p id="3">|    <c id="2" />|    <d id="1" />|  </p>|</root>|');
+        Observer.Expect('log once', 'pre c1 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field2) ORDER(1)];c1;pre d1 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field1) ORDER(1)];d3;pre c2 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field2)];c2;pre d2 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field1)];d1;pre c3 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field2)];c2;pre d3 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field1)];d1;');
+        Observer.Expect('xml unbounded', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <p id="1">|    <c id="1" />|    <c id="3" />|    <c id="2" />|    <d id="3" />|    <d id="2" />|    <d id="1" />|  </p>|  <p id="2">|    <c id="2" />|    <c id="3" />|    <c id="1" />|    <d id="1" />|    <d id="2" />|    <d id="3" />|  </p>|  <p id="3">|    <c id="2" />|    <c id="3" />|    <c id="1" />|    <d id="1" />|    <d id="2" />|    <d id="3" />|  </p>|</root>|');
+        Observer.Expect('log unbounded', 'pre c1 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field2) ORDER(1)];c1;c3;c2;pre d1 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field1) ORDER(1)];d3;d2;d1;pre c2 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field2)];c2;c3;c1;pre d2 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field1)];d1;d2;d3;pre c3 [VERSION(1) SORTING(Field2)] n=3 then [VERSION(1) SORTING(Field2)];c2;c3;c1;pre d3 [VERSION(1) SORTING(Field1)] n=3 then [VERSION(1) SORTING(Field1)];d1;d2;d3;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TU_NestedReal_Np()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TU XP Nested Real";
+    begin
+        // every OnPreXmlItem sets its filters; order Ref 10: line 1 with items 11 (2 reservations, 1 admitted) and 12 (admitted only), line 2 without items
+        TuSeedReal();
+        Port.SetHead(1, 10, 'ORD-10');
+        Port.SetResponse('OK', '');
+        Port.SetMode(0);
+        Observer.Observe('xml', TuExportReal(Port));
+        Observer.Observe('log', Port.GetLog());
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Root>|  <Result>|    <ResponseCode>OK</ResponseCode>|    <ResponseMessage />|    <Order OrderId="ORD-10">|      <Line ext="X10">|        <line_no>10</line_no>|        <uid>L1</uid>|        <pin>P10</pin>|        <item code="A">|          <qty>2</qty>|          <slot ext="7001" start="S101" />|        </item>|        <item code="B">|          <qty>1</qty>|        </item>|      </Line>|      <Line ext="X10">|        <line_no>10</line_no>|        <uid>L2</uid>|        <pin>P10</pin>|        <item code="B">|          <qty>1</qty>|        </item>|      </Line>|    </Order>|  </Result>|</Root>|');
+        Observer.Expect('log', 'get head 1;pre line f=;get line 1;pre item f= at=0;get item 11;pre slot f= at=0;get slot 101;get item 12;pre slot f= at=102;get line 2;pre item f= at=12;pre slot f= at=102;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TU_NestedReal_ItemNoFilter()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TU XP Nested Real";
+    begin
+        // `item` sets no filter in OnPreXmlItem: unlinked, it sees every item row at each line
+        TuSeedReal();
+        Port.SetHead(1, 10, 'ORD-10');
+        Port.SetResponse('OK', '');
+        Port.SetMode(1);
+        Observer.Observe('xml', TuExportReal(Port));
+        Observer.Observe('log', Port.GetLog());
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Root>|  <Result>|    <ResponseCode>OK</ResponseCode>|    <ResponseMessage />|    <Order OrderId="ORD-10">|      <Line ext="X10">|        <line_no>10</line_no>|        <uid>L1</uid>|        <pin>P10</pin>|        <item code="A">|          <qty>2</qty>|          <slot ext="7001" start="S101" />|        </item>|        <item code="B">|          <qty>1</qty>|        </item>|        <item code="C">|          <qty>5</qty>|          <slot ext="7006" start="S106" />|        </item>|        <item code="D">|          <qty>1</qty>|          <slot ext="7004" start="S104" />|        </item>|      </Line>|      <Line ext="X10">|        <line_no>10</line_no>|        <uid>L2</uid>|        <pin>P10</pin>|        <item code="A">|          <qty>2</qty>|          <slot ext="7001" start="S101" />|        </item>|        <item code="B">|          <qty>1</qty>|        </item>|        <item code="C">|          <qty>5</qty>|          <slot ext="7006" start="S106" />|        </item>|        <item code="D">|          <qty>1</qty>|          <slot ext="7004" start="S104" />|        </item>|      </Line>|    </Order>|  </Result>|</Root>|');
+        Observer.Expect('log', 'get head 1;pre line f=;get line 1;pre item f= at=0;get item 11;pre slot f= at=0;get slot 101;get item 12;pre slot f= at=102;get item 13;pre slot f= at=102;get slot 106;get item 14;pre slot f= at=106;get slot 104;get line 2;pre item f= at=14;get item 11;pre slot f= at=104;get slot 101;get item 12;pre slot f= at=102;get item 13;pre slot f= at=102;get slot 106;get item 14;pre slot f= at=106;get slot 104;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TU_NestedReal_ItemFilterFirstPass()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TU XP Nested Real";
+    begin
+        // `item` sets its filter at its first pass only: does the filter stay at the second line?
+        TuSeedReal();
+        Port.SetHead(1, 10, 'ORD-10');
+        Port.SetResponse('OK', '');
+        Port.SetMode(2);
+        Observer.Observe('xml', TuExportReal(Port));
+        Observer.Observe('log', Port.GetLog());
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Root>|  <Result>|    <ResponseCode>OK</ResponseCode>|    <ResponseMessage />|    <Order OrderId="ORD-10">|      <Line ext="X10">|        <line_no>10</line_no>|        <uid>L1</uid>|        <pin>P10</pin>|        <item code="A">|          <qty>2</qty>|          <slot ext="7001" start="S101" />|        </item>|        <item code="B">|          <qty>1</qty>|        </item>|      </Line>|      <Line ext="X10">|        <line_no>10</line_no>|        <uid>L2</uid>|        <pin>P10</pin>|        <item code="A">|          <qty>2</qty>|          <slot ext="7001" start="S101" />|        </item>|        <item code="B">|          <qty>1</qty>|        </item>|        <item code="C">|          <qty>5</qty>|          <slot ext="7006" start="S106" />|        </item>|        <item code="D">|          <qty>1</qty>|          <slot ext="7004" start="S104" />|        </item>|      </Line>|    </Order>|  </Result>|</Root>|');
+        Observer.Expect('log', 'get head 1;pre line f=;get line 1;pre item f= at=0;get item 11;pre slot f= at=0;get slot 101;get item 12;pre slot f= at=102;get line 2;pre item f= at=12;get item 11;pre slot f= at=102;get slot 101;get item 12;pre slot f= at=102;get item 13;pre slot f= at=102;get slot 106;get item 14;pre slot f= at=106;get slot 104;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TU_NestedReal_SlotNoFilter()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TU XP Nested Real";
+    begin
+        // `slot` sets no filter (MaxOccurs = Once: the first slot row of the table at each item)
+        TuSeedReal();
+        Port.SetHead(1, 10, 'ORD-10');
+        Port.SetResponse('OK', '');
+        Port.SetMode(3);
+        Observer.Observe('xml', TuExportReal(Port));
+        Observer.Observe('log', Port.GetLog());
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Root>|  <Result>|    <ResponseCode>OK</ResponseCode>|    <ResponseMessage />|    <Order OrderId="ORD-10">|      <Line ext="X10">|        <line_no>10</line_no>|        <uid>L1</uid>|        <pin>P10</pin>|        <item code="A">|          <qty>2</qty>|          <slot ext="7001" start="S101" />|        </item>|        <item code="B">|          <qty>1</qty>|          <slot ext="7001" start="S101" />|        </item>|      </Line>|      <Line ext="X10">|        <line_no>10</line_no>|        <uid>L2</uid>|        <pin>P10</pin>|        <item code="B">|          <qty>1</qty>|          <slot ext="7001" start="S101" />|        </item>|      </Line>|    </Order>|  </Result>|</Root>|');
+        Observer.Expect('log', 'get head 1;pre line f=;get line 1;pre item f= at=0;get item 11;pre slot f= at=0;get slot 101;get item 12;pre slot f= at=102;get slot 101;get line 2;pre item f= at=12;pre slot f= at=102;get slot 101;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TU_NestedReal_OneEach()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TU XP Nested Real";
+    begin
+        // order Ref 40: one line, one item, one slot
+        TuSeedReal();
+        Port.SetHead(1, 40, 'ORD-40');
+        Port.SetResponse('OK', '');
+        Port.SetMode(0);
+        Observer.Observe('xml', TuExportReal(Port));
+        Observer.Observe('log', Port.GetLog());
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Root>|  <Result>|    <ResponseCode>OK</ResponseCode>|    <ResponseMessage />|    <Order OrderId="ORD-40">|      <Line ext="X40">|        <line_no>40</line_no>|        <uid>L4</uid>|        <pin>P40</pin>|        <item code="D">|          <qty>1</qty>|          <slot ext="7004" start="S104" />|        </item>|      </Line>|    </Order>|  </Result>|</Root>|');
+        Observer.Expect('log', 'get head 1;pre line f=;get line 4;pre item f= at=0;get item 14;pre slot f= at=0;get slot 104;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TU_NestedReal_NoLines()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TU XP Nested Real";
+    begin
+        // order Ref 30 has no line: the default-occurs `Line` without rows, `item` (MinOccurs = Once) below it
+        TuSeedReal();
+        Port.SetHead(1, 30, 'BAD');
+        Port.SetResponse('ERROR', 'Invalid token');
+        Port.SetMode(0);
+        Observer.Observe('xml', TuExportReal(Port));
+        Observer.Observe('log', Port.GetLog());
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Root>|  <Result>|    <ResponseCode>ERROR</ResponseCode>|    <ResponseMessage>Invalid token</ResponseMessage>|    <Order OrderId="BAD">|      <Line ext="X30">|        <line_no>30</line_no>|        <uid />|        <pin>P30</pin>|        <item code="">|          <qty>0</qty>|        </item>|      </Line>|    </Order>|  </Result>|</Root>|');
+        Observer.Expect('log', 'get head 1;pre line f=;pre item f= at=0;pre slot f= at=0;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TU_NestedReal_NoOrder()
+    var
+        Observer: Codeunit "Probe Observer";
+        Port: XmlPort "LT TU XP Nested Real";
+    begin
+        // no row in the temporary `Order` (MinOccurs = Zero): only the response texts
+        TuSeedReal();
+        Port.SetResponse('ERROR', 'Nothing');
+        Observer.Observe('xml', TuExportReal(Port));
+        Observer.Observe('log', Port.GetLog());
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Root>|  <Result>|    <ResponseCode>ERROR</ResponseCode>|    <ResponseMessage>Nothing</ResponseMessage>|  </Result>|</Root>|');
+        Observer.Expect('log', '');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TU_NestedTemp_None()
+    var
+        Observer: Codeunit "Probe Observer";
+        Log: Text;
+    begin
+        // no row at any level
+        Observer.Observe('xml', TuTemp(0, '', '', '', Log));
+        Observer.Observe('log', Log);
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <outer id="0">|    <mid id="0" parent="0" />|  </outer>|</root>|');
+        Observer.Expect('log', 'pre outer;pre mid f= at=0;pre inner f= at=0;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TU_NestedTemp_OneOuter()
+    var
+        Observer: Codeunit "Probe Observer";
+        Log: Text;
+    begin
+        // one outer row, no mid row (MinOccurs = Once), no inner row
+        Observer.Observe('xml', TuTemp(0, '1', '', '', Log));
+        Observer.Observe('log', Log);
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <outer id="1">|    <mid id="0" parent="0" />|  </outer>|</root>|');
+        Observer.Expect('log', 'pre outer;get outer 1;pre mid f= at=0;pre inner f= at=0;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TU_NestedTemp_OneOneNone()
+    var
+        Observer: Codeunit "Probe Observer";
+        Log: Text;
+    begin
+        // one outer, one mid, no inner
+        Observer.Observe('xml', TuTemp(0, '1', '11:1', '', Log));
+        Observer.Observe('log', Log);
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <outer id="1">|    <mid id="11" parent="1" />|  </outer>|</root>|');
+        Observer.Expect('log', 'pre outer;get outer 1;pre mid f= at=11;get mid 11;pre inner f= at=0;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TU_NestedTemp_OneEach()
+    var
+        Observer: Codeunit "Probe Observer";
+        Log: Text;
+    begin
+        // one row at each level
+        Observer.Observe('xml', TuTemp(0, '1', '11:1', '21:11', Log));
+        Observer.Observe('log', Log);
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <outer id="1">|    <mid id="11" parent="1">|      <inner id="21" parent="11" />|    </mid>|  </outer>|</root>|');
+        Observer.Expect('log', 'pre outer;get outer 1;pre mid f= at=11;get mid 11;pre inner f= at=21;get inner 21;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TU_NestedTemp_OneTwoTwo()
+    var
+        Observer: Codeunit "Probe Observer";
+        Log: Text;
+    begin
+        // one outer, two mids, two inners (MaxOccurs = Once)
+        Observer.Observe('xml', TuTemp(0, '1', '11:1,12:1', '21:11,22:12', Log));
+        Observer.Observe('log', Log);
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <outer id="1">|    <mid id="11" parent="1">|      <inner id="21" parent="11" />|    </mid>|    <mid id="12" parent="1">|      <inner id="21" parent="11" />|    </mid>|  </outer>|</root>|');
+        Observer.Expect('log', 'pre outer;get outer 1;pre mid f= at=12;get mid 11;pre inner f= at=22;get inner 21;get mid 12;pre inner f= at=22;get inner 21;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TU_NestedTemp_TwoTwoTwo()
+    var
+        Observer: Codeunit "Probe Observer";
+        Log: Text;
+    begin
+        // two rows at each level, no filters: every outer row writes every mid row
+        Observer.Observe('xml', TuTemp(0, '1,2', '11:1,12:2', '21:11,22:12', Log));
+        Observer.Observe('log', Log);
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <outer id="1">|    <mid id="11" parent="1">|      <inner id="21" parent="11" />|    </mid>|    <mid id="12" parent="2">|      <inner id="21" parent="11" />|    </mid>|  </outer>|  <outer id="2">|    <mid id="11" parent="1">|      <inner id="21" parent="11" />|    </mid>|    <mid id="12" parent="2">|      <inner id="21" parent="11" />|    </mid>|  </outer>|</root>|');
+        Observer.Expect('log', 'pre outer;get outer 1;pre mid f= at=12;get mid 11;pre inner f= at=22;get inner 21;get mid 12;pre inner f= at=22;get inner 21;get outer 2;pre mid f= at=12;get mid 11;pre inner f= at=22;get inner 21;get mid 12;pre inner f= at=22;get inner 21;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TU_NestedTemp_TwoTwoTwoFiltered()
+    var
+        Observer: Codeunit "Probe Observer";
+        Log: Text;
+    begin
+        // two rows at each level, OnPreXmlItem filters on the parent; both inner rows under mid 11
+        Observer.Observe('xml', TuTemp(1, '1,2', '11:1,12:2', '21:11,22:11', Log));
+        Observer.Observe('log', Log);
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <outer id="1">|    <mid id="11" parent="1">|      <inner id="21" parent="11" />|    </mid>|  </outer>|  <outer id="2">|    <mid id="12" parent="2" />|  </outer>|</root>|');
+        Observer.Expect('log', 'pre outer;get outer 1;pre mid f= at=12;get mid 11;pre inner f= at=22;get inner 21;get outer 2;pre mid f= at=11;get mid 12;pre inner f= at=22;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TU_NestedTemp_TwoNoneTwo()
+    var
+        Observer: Codeunit "Probe Observer";
+        Log: Text;
+    begin
+        // two outer rows, no mid row, two inner rows
+        Observer.Observe('xml', TuTemp(0, '1,2', '', '21:11,22:12', Log));
+        Observer.Observe('log', Log);
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <outer id="1">|    <mid id="0" parent="0">|      <inner id="21" parent="11" />|    </mid>|  </outer>|  <outer id="2">|    <mid id="0" parent="0">|      <inner id="21" parent="11" />|    </mid>|  </outer>|</root>|');
+        Observer.Expect('log', 'pre outer;get outer 1;pre mid f= at=0;pre inner f= at=22;get inner 21;get outer 2;pre mid f= at=0;pre inner f= at=22;get inner 21;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TU_NestedTemp_TwoTwoNoneFiltered()
+    var
+        Observer: Codeunit "Probe Observer";
+        Log: Text;
+    begin
+        // filtered: outer 2 has no mid row (MinOccurs = Once)
+        Observer.Observe('xml', TuTemp(1, '1,2', '11:1,12:1', '', Log));
+        Observer.Observe('log', Log);
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<root>|  <outer id="1">|    <mid id="11" parent="1" />|    <mid id="12" parent="1" />|  </outer>|  <outer id="2">|    <mid id="12" parent="1" />|  </outer>|</root>|');
+        Observer.Expect('log', 'pre outer;get outer 1;pre mid f= at=12;get mid 11;pre inner f= at=0;get mid 12;pre inner f= at=0;get outer 2;pre mid f= at=12;pre inner f= at=0;');
         Observer.Verify();
     end;
 }
