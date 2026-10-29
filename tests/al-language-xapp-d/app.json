@@ -4,7 +4,7 @@
   "publisher": "Mike Probe Publisher",
   "version": "1.0.0.0",
   "brief": "Cross-app fixture D: a subscriber app that depends on cross-app fixture A only.",
-  "description": "Holds one subscriber of an event of cross-app fixture A. Depends on cross-app fixture A only, so no other corpus app depends on it and it depends on none of cross-app fixtures B and C or the main test app (subscriber order of apps that do not depend on each other). The app id, name and publisher are fixed on purpose: they decide the candidate orders of the probe (tests/al-language-xapp-a/QyXaObjects.al). Do not change them.",
+  "description": "Holds one subscriber of an event of cross-app fixture A. Depends on cross-app fixture A only; only cross-app fixture C depends on it (writer UI, dependency visit order). It depends on none of cross-app fixtures B and C or the main test app (subscriber order of apps that do not depend on each other). The app id, name and publisher are fixed on purpose: they decide the candidate orders of the probe (tests/al-language-xapp-a/QyXaObjects.al). Do not change them.",
   "privacyStatement": "",
   "EULA": "",
   "help": "",

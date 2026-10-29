@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/sessioninformation/sessioninformation-data-type
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160), Assert (codeunit 130000); own table 89190, codeunit 89191; writer SK (al-runner issue 5861); writer SZ adds tables 89750-89751, codeunits 89752-89753; writer TW adds tables 90148-90149, codeunit 90150 and the TW_ tests (al-runner issue 6116: reads between the counter reads)
+// Fixtures used: Probe Observer (codeunit 69160), Assert (codeunit 130000); own table 89190, codeunit 89191; writer SK (al-runner issue 5861); writer SZ adds tables 89750-89751, codeunits 89752-89753; writer TW adds tables 90148-90149, codeunit 90150 and the TW_ tests (al-runner issue 6116: reads between the counter reads); writer TX adds table 90170, codeunit 90171 and the TX_ tests (issue 6116 follow-up: one record method per measurement)
 // Probe: the statement budget test of al-runner issue 5861 (no Commit before the first read, a two-field key, a procedure in another
 // codeunit that copies a temporary record into the table with FindSet, Next and Insert, then SetRange and Count), and the size of the
 // change of SessionInformation.SqlStatementsExecuted() and SqlRowsRead() around that shape for several row counts, with and without a
@@ -624,6 +624,240 @@ codeunit 89753 "LT SZ Sql Budget"
         Obs.Expect('within 25/15', 'Yes');
         Obs.Verify();
     end;
+
+    // ---- writer TX (al-runner issue 6116 follow-up): the change of both counters contributed by ONE record method on its own, called in
+    //      a procedure of another codeunit (90171). Before each measurement the table 90170 holds N rows of group 'TX' and one row each of
+    //      groups 'A' and 'Z', and is committed. Each measurement runs three times in the same test. Value: "statements/rows" three times
+    //      and the result the procedure returned. ----
+    local procedure TxReset(N: Integer)
+    var
+        SqlLine: Record "LT TX Sql Line";
+        i: Integer;
+    begin
+        SqlLine.DeleteAll();
+        TxInsert('A', 1);
+        for i := 1 to N do
+            TxInsert('TX', i);
+        TxInsert('Z', 1);
+        Commit();
+    end;
+
+    local procedure TxInsert(GroupCode: Code[20]; LineNo: Integer)
+    var
+        SqlLine: Record "LT TX Sql Line";
+    begin
+        SqlLine.Init();
+        SqlLine."Group Code" := GroupCode;
+        SqlLine."Line No." := LineNo;
+        SqlLine.Value := 'Value';
+        SqlLine.Weight := LineNo;
+        SqlLine.Insert();
+    end;
+
+    // Kind: 1 Get of line 2 (N >= 2); 2 the same with SetLoadFields(Weight); 3 SetRange on the group, FindSet, Next until the end;
+    // 4 Get and Modify of lines 1..N; 5 FindFirst on group 'NONE'; 6 IsEmpty on the group; 7 Count on the group; 8 FindLast on the group;
+    // 9 and 10: the same as 3 with one more filter on "Line No." that every row passes (SumGroupOneRow, SumGroupThreeRows), so that each
+    // row count sends a SQL statement of its own. BC 29 SaaS: when the same statement had found no rows just before (the 0-row test),
+    // the next FindSet that finds rows cost one statement more the first time (2/1 instead of 1/2 for one row, 2/4 instead of 1/4 for
+    // three rows); that history effect is not asserted here.
+    local procedure TxMeasure(Kind: Integer; N: Integer; var Result: Text): Text
+    var
+        SqlReader: Codeunit "LT TX Sql Reader";
+    begin
+        TxReset(N);
+        Mark();
+        case Kind of
+            1:
+                Result := Format(SqlReader.GetWeight(2));
+            2:
+                Result := Format(SqlReader.GetWeightLoadFields(2));
+            3:
+                Result := Format(SqlReader.SumGroup('TX'));
+            4:
+                Result := Format(SqlReader.RaiseWeights(N));
+            5:
+                Result := Format(SqlReader.FindFirstInGroup('NONE'));
+            6:
+                Result := Format(SqlReader.GroupIsEmpty('TX'));
+            7:
+                Result := Format(SqlReader.CountGroup('TX'));
+            8:
+                Result := Format(SqlReader.LastLineNo('TX'));
+            9:
+                Result := Format(SqlReader.SumGroupOneRow('TX'));
+            10:
+                Result := Format(SqlReader.SumGroupThreeRows('TX'));
+        end;
+        exit(Delta());
+    end;
+
+    local procedure TxObserve(var Obs: Codeunit "Probe Observer"; Kind: Integer; N: Integer)
+    var
+        Result1: Text;
+        Result2: Text;
+        Result3: Text;
+        Counts: Text;
+    begin
+        Counts := TxMeasure(Kind, N, Result1);
+        Counts += ' ' + TxMeasure(Kind, N, Result2);
+        Counts += ' ' + TxMeasure(Kind, N, Result3);
+        Obs.Observe('result', Result1 + ' ' + Result2 + ' ' + Result3);
+        Obs.Observe('statements/rows', Counts);
+    end;
+
+    [Test]
+    procedure TX_Get_OneRow()
+    var
+        Obs: Codeunit "Probe Observer";
+    begin
+        TxObserve(Obs, 1, 3);
+        Obs.Expect('result', '2 2 2');
+        Obs.Expect('statements/rows', '1/1 1/1 1/1');
+        Obs.Verify();
+    end;
+
+    [Test]
+    procedure TX_GetWithLoadFields_OneRow()
+    var
+        Obs: Codeunit "Probe Observer";
+    begin
+        TxObserve(Obs, 2, 3);
+        Obs.Expect('result', '2 2 2');
+        Obs.Expect('statements/rows', '1/1 1/1 1/1');
+        Obs.Verify();
+    end;
+
+    [Test]
+    procedure TX_FilteredFindSetNext_0Rows()
+    var
+        Obs: Codeunit "Probe Observer";
+    begin
+        TxObserve(Obs, 3, 0);
+        Obs.Expect('result', '0 0 0');
+        Obs.Expect('statements/rows', '1/0 1/0 1/0');
+        Obs.Verify();
+    end;
+
+    [Test]
+    procedure TX_FilteredFindSetNext_1Row()
+    var
+        Obs: Codeunit "Probe Observer";
+    begin
+        TxObserve(Obs, 9, 1);
+        Obs.Expect('result', '1 1 1');
+        Obs.Expect('statements/rows', '1/2 1/2 1/2');
+        Obs.Verify();
+    end;
+
+    [Test]
+    procedure TX_FilteredFindSetNext_3Rows()
+    var
+        Obs: Codeunit "Probe Observer";
+    begin
+        TxObserve(Obs, 10, 3);
+        Obs.Expect('result', '6 6 6');
+        Obs.Expect('statements/rows', '1/4 1/4 1/4');
+        Obs.Verify();
+    end;
+
+    [Test]
+    procedure TX_GetModifyLoop_1Row()
+    var
+        Obs: Codeunit "Probe Observer";
+    begin
+        TxObserve(Obs, 4, 1);
+        Obs.Expect('result', '101 101 101');
+        Obs.Expect('statements/rows', '2/2 2/2 2/2');
+        Obs.Verify();
+    end;
+
+    [Test]
+    procedure TX_GetModifyLoop_3Rows()
+    var
+        Obs: Codeunit "Probe Observer";
+    begin
+        TxObserve(Obs, 4, 3);
+        Obs.Expect('result', '306 306 306');
+        Obs.Expect('statements/rows', '6/6 6/6 6/6');
+        Obs.Verify();
+    end;
+
+    [Test]
+    procedure TX_FindFirstNothing()
+    var
+        Obs: Codeunit "Probe Observer";
+    begin
+        TxObserve(Obs, 5, 3);
+        Obs.Expect('result', 'No No No');
+        Obs.Expect('statements/rows', '1/0 1/0 1/0');
+        Obs.Verify();
+    end;
+
+    [Test]
+    procedure TX_IsEmpty_NoRows()
+    var
+        Obs: Codeunit "Probe Observer";
+    begin
+        TxObserve(Obs, 6, 0);
+        Obs.Expect('result', 'Yes Yes Yes');
+        Obs.Expect('statements/rows', '1/0 1/0 1/0');
+        Obs.Verify();
+    end;
+
+    [Test]
+    procedure TX_IsEmpty_3Rows()
+    var
+        Obs: Codeunit "Probe Observer";
+    begin
+        TxObserve(Obs, 6, 3);
+        Obs.Expect('result', 'No No No');
+        Obs.Expect('statements/rows', '1/1 1/1 1/1');
+        Obs.Verify();
+    end;
+
+    [Test]
+    procedure TX_FilteredCount_0Rows()
+    var
+        Obs: Codeunit "Probe Observer";
+    begin
+        TxObserve(Obs, 7, 0);
+        Obs.Expect('result', '0 0 0');
+        Obs.Expect('statements/rows', '1/1 1/1 1/1');
+        Obs.Verify();
+    end;
+
+    [Test]
+    procedure TX_FilteredCount_3Rows()
+    var
+        Obs: Codeunit "Probe Observer";
+    begin
+        TxObserve(Obs, 7, 3);
+        Obs.Expect('result', '3 3 3');
+        Obs.Expect('statements/rows', '1/1 1/1 1/1');
+        Obs.Verify();
+    end;
+
+    [Test]
+    procedure TX_FilteredFindLast_1Row()
+    var
+        Obs: Codeunit "Probe Observer";
+    begin
+        TxObserve(Obs, 8, 1);
+        Obs.Expect('result', '1 1 1');
+        Obs.Expect('statements/rows', '1/1 1/1 1/1');
+        Obs.Verify();
+    end;
+
+    [Test]
+    procedure TX_FilteredFindLast_3Rows()
+    var
+        Obs: Codeunit "Probe Observer";
+    begin
+        TxObserve(Obs, 8, 3);
+        Obs.Expect('result', '3 3 3');
+        Obs.Expect('statements/rows', '1/1 1/1 1/1');
+        Obs.Verify();
+    end;
 }
 
 // ---- writer TW (al-runner issue 6116): the reporter's tables and the codeunit whose procedures read them. ----
@@ -728,5 +962,134 @@ codeunit 90150 "LT TW Sk Rule Store"
         TreeNode.Hash := Hash;
         TreeNode.Insert(true);
         exit(TreeNode."Node ID");
+    end;
+}
+
+// ---- writer TX (al-runner issue 6116 follow-up): the table and the codeunit whose procedures each run one record method. ----
+table 90170 "LT TX Sql Line"
+{
+    DataClassification = CustomerContent;
+
+    fields
+    {
+        field(1; "Group Code"; Code[20]) { }
+        field(2; "Line No."; Integer) { }
+        field(3; Value; Text[50]) { }
+        field(4; Weight; Integer) { }
+    }
+
+    keys
+    {
+        key(PK; "Group Code", "Line No.") { Clustered = true; }
+    }
+}
+
+codeunit 90171 "LT TX Sql Reader"
+{
+    procedure GetWeight(LineNo: Integer): Integer
+    var
+        SqlLine: Record "LT TX Sql Line";
+    begin
+        SqlLine.Get('TX', LineNo);
+        exit(SqlLine.Weight);
+    end;
+
+    procedure GetWeightLoadFields(LineNo: Integer): Integer
+    var
+        SqlLine: Record "LT TX Sql Line";
+    begin
+        SqlLine.SetLoadFields(Weight);
+        SqlLine.Get('TX', LineNo);
+        exit(SqlLine.Weight);
+    end;
+
+    procedure SumGroup(GroupCode: Code[20]): Integer
+    var
+        SqlLine: Record "LT TX Sql Line";
+        Total: Integer;
+    begin
+        SqlLine.SetRange("Group Code", GroupCode);
+        if SqlLine.FindSet() then
+            repeat
+                Total += SqlLine.Weight;
+            until SqlLine.Next() = 0;
+        exit(Total);
+    end;
+
+    procedure SumGroupOneRow(GroupCode: Code[20]): Integer
+    var
+        SqlLine: Record "LT TX Sql Line";
+        Total: Integer;
+    begin
+        SqlLine.SetRange("Group Code", GroupCode);
+        SqlLine.SetFilter("Line No.", '>0');
+        if SqlLine.FindSet() then
+            repeat
+                Total += SqlLine.Weight;
+            until SqlLine.Next() = 0;
+        exit(Total);
+    end;
+
+    procedure SumGroupThreeRows(GroupCode: Code[20]): Integer
+    var
+        SqlLine: Record "LT TX Sql Line";
+        Total: Integer;
+    begin
+        SqlLine.SetRange("Group Code", GroupCode);
+        SqlLine.SetFilter("Line No.", '<>0');
+        if SqlLine.FindSet() then
+            repeat
+                Total += SqlLine.Weight;
+            until SqlLine.Next() = 0;
+        exit(Total);
+    end;
+
+    procedure RaiseWeights(LastLineNo: Integer): Integer
+    var
+        SqlLine: Record "LT TX Sql Line";
+        LineNo: Integer;
+        Total: Integer;
+    begin
+        for LineNo := 1 to LastLineNo do begin
+            SqlLine.Get('TX', LineNo);
+            SqlLine.Weight += 100;
+            SqlLine.Modify();
+            Total += SqlLine.Weight;
+        end;
+        exit(Total);
+    end;
+
+    procedure FindFirstInGroup(GroupCode: Code[20]): Boolean
+    var
+        SqlLine: Record "LT TX Sql Line";
+    begin
+        SqlLine.SetRange("Group Code", GroupCode);
+        exit(SqlLine.FindFirst());
+    end;
+
+    procedure GroupIsEmpty(GroupCode: Code[20]): Boolean
+    var
+        SqlLine: Record "LT TX Sql Line";
+    begin
+        SqlLine.SetRange("Group Code", GroupCode);
+        exit(SqlLine.IsEmpty());
+    end;
+
+    procedure CountGroup(GroupCode: Code[20]): Integer
+    var
+        SqlLine: Record "LT TX Sql Line";
+    begin
+        SqlLine.SetRange("Group Code", GroupCode);
+        exit(SqlLine.Count());
+    end;
+
+    procedure LastLineNo(GroupCode: Code[20]): Integer
+    var
+        SqlLine: Record "LT TX Sql Line";
+    begin
+        SqlLine.SetRange("Group Code", GroupCode);
+        if not SqlLine.FindLast() then
+            exit(0);
+        exit(SqlLine."Line No.");
     end;
 }

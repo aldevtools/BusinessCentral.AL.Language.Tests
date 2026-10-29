@@ -5,6 +5,8 @@
 // Facts: <Comma,,> before <Decimals>; <Comma,.> with <Integer Thousand> and <Decimals,3>; <Comma,.> on a Decimal, a BigInteger, a Duration and a DateTime. A format string BC rejects is recorded as error text and code.
 //   No locale-dependent value: the session language is set to 1033 for the run and restored.
 //   Corpus issue 576 item 3.
+//   Format(Decimal, 0, '<Sign><Integer><Decimals,3><Comma,.>') (width 3 includes the point): two places zero padded, no grouping, a minus only for a nonzero
+//   value, '***' when the fraction does not fit in width 3 (no rounding), identical under GlobalLanguage 1033, 2055 and 1031 (runtime PR 6138).
 // BC versions: 27, 28, 29
 
 codeunit 67357 "LT FCM Tests"
@@ -149,6 +151,104 @@ codeunit 67357 "LT FCM Tests"
         Observer.Expect('duration_only', 'ok:');
         Observer.Expect('datetime_integer', 'error:An invalid field or attribute has been specified for the ''Format'' property.\\<Integer Thousand><Comma,.>|InvalidFormatString');
         Observer.Expect('datetime_only', 'ok:');
+        Observer.Verify();
+    end;
+
+    local procedure WidthThree(Lang: Integer; var Observer: Codeunit "Probe Observer")
+    var
+        Inputs: List of [Text];
+        Input: Text;
+        Value: Decimal;
+        Saved: Integer;
+    begin
+        Inputs.AddRange('0', '-0', '1234', '-1234', '0.5', '-0.5', '1234.5', '-1234.5', '0.005', '-0.005', '1.234', '-1.234', '1.235', '1.995', '99999', '-99999', '1.2300', '999999999999999.99');
+        Saved := GlobalLanguage();
+        GlobalLanguage(Lang);
+        foreach Input in Inputs do begin
+            Evaluate(Value, Input, 9);
+            Run('d_' + Input, Value, '<Sign><Integer><Decimals,3><Comma,.>', Observer);
+        end;
+        GlobalLanguage(Saved);
+    end;
+
+    [Test]
+    procedure Format_SignIntegerDecimalsWidth3Comma_Lang1033()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        WidthThree(1033, Observer);
+        Observer.Expect('d_0', 'ok:0.00');
+        Observer.Expect('d_-0', 'ok:0.00');
+        Observer.Expect('d_1234', 'ok:1234.00');
+        Observer.Expect('d_-1234', 'ok:-1234.00');
+        Observer.Expect('d_0.5', 'ok:0.50');
+        Observer.Expect('d_-0.5', 'ok:-0.50');
+        Observer.Expect('d_1234.5', 'ok:1234.50');
+        Observer.Expect('d_-1234.5', 'ok:-1234.50');
+        Observer.Expect('d_0.005', 'ok:0***');
+        Observer.Expect('d_-0.005', 'ok:-0***');
+        Observer.Expect('d_1.234', 'ok:1***');
+        Observer.Expect('d_-1.234', 'ok:-1***');
+        Observer.Expect('d_1.235', 'ok:1***');
+        Observer.Expect('d_1.995', 'ok:1***');
+        Observer.Expect('d_99999', 'ok:99999.00');
+        Observer.Expect('d_-99999', 'ok:-99999.00');
+        Observer.Expect('d_1.2300', 'ok:1.23');
+        Observer.Expect('d_999999999999999.99', 'ok:999999999999999.99');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Format_SignIntegerDecimalsWidth3Comma_Lang2055()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        WidthThree(2055, Observer);
+        Observer.Expect('d_0', 'ok:0.00');
+        Observer.Expect('d_-0', 'ok:0.00');
+        Observer.Expect('d_1234', 'ok:1234.00');
+        Observer.Expect('d_-1234', 'ok:-1234.00');
+        Observer.Expect('d_0.5', 'ok:0.50');
+        Observer.Expect('d_-0.5', 'ok:-0.50');
+        Observer.Expect('d_1234.5', 'ok:1234.50');
+        Observer.Expect('d_-1234.5', 'ok:-1234.50');
+        Observer.Expect('d_0.005', 'ok:0***');
+        Observer.Expect('d_-0.005', 'ok:-0***');
+        Observer.Expect('d_1.234', 'ok:1***');
+        Observer.Expect('d_-1.234', 'ok:-1***');
+        Observer.Expect('d_1.235', 'ok:1***');
+        Observer.Expect('d_1.995', 'ok:1***');
+        Observer.Expect('d_99999', 'ok:99999.00');
+        Observer.Expect('d_-99999', 'ok:-99999.00');
+        Observer.Expect('d_1.2300', 'ok:1.23');
+        Observer.Expect('d_999999999999999.99', 'ok:999999999999999.99');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Format_SignIntegerDecimalsWidth3Comma_Lang1031()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        WidthThree(1031, Observer);
+        Observer.Expect('d_0', 'ok:0.00');
+        Observer.Expect('d_-0', 'ok:0.00');
+        Observer.Expect('d_1234', 'ok:1234.00');
+        Observer.Expect('d_-1234', 'ok:-1234.00');
+        Observer.Expect('d_0.5', 'ok:0.50');
+        Observer.Expect('d_-0.5', 'ok:-0.50');
+        Observer.Expect('d_1234.5', 'ok:1234.50');
+        Observer.Expect('d_-1234.5', 'ok:-1234.50');
+        Observer.Expect('d_0.005', 'ok:0***');
+        Observer.Expect('d_-0.005', 'ok:-0***');
+        Observer.Expect('d_1.234', 'ok:1***');
+        Observer.Expect('d_-1.234', 'ok:-1***');
+        Observer.Expect('d_1.235', 'ok:1***');
+        Observer.Expect('d_1.995', 'ok:1***');
+        Observer.Expect('d_99999', 'ok:99999.00');
+        Observer.Expect('d_-99999', 'ok:-99999.00');
+        Observer.Expect('d_1.2300', 'ok:1.23');
+        Observer.Expect('d_999999999999999.99', 'ok:999999999999999.99');
         Observer.Verify();
     end;
 }
