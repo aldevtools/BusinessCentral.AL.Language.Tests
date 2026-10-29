@@ -524,10 +524,10 @@ codeunit 74046 "LT P133 Date Eval Format"
         RecRef: RecordRef;
         Txt: Text;
     begin
-        asserterror Txt := Format(RecRef, 0, 9);
-        Observer.ObserveError('not_open_9');
-        asserterror Txt := Format(RecRef);
-        Observer.ObserveError('not_open_default');
+        Txt := Format(RecRef, 0, 9);
+        Observer.Observe('not_open_9', Txt);
+        Txt := Format(RecRef);
+        Observer.Observe('not_open_default', Txt);
         Observer.Finish();
     end;
 }
