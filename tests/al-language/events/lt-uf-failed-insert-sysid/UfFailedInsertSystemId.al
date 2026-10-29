@@ -93,6 +93,7 @@ codeunit 90325 "LT UF Failed Insert SystemId"
         Explicit: Record "LT UF SysId Row";
         Stored: Record "LT UF SysId Row";
         Wanted: Guid;
+        NullId: Guid;
     begin
         First.Init();
         First."No." := 'E';
@@ -110,8 +111,10 @@ codeunit 90325 "LT UF Failed Insert SystemId"
         Explicit.SystemId := Wanted;
         Observer.Observe('explicit insert result', Format(Explicit.Insert(false)));
         Observer.Observe('explicit sysid kept', Format(Explicit.SystemId = Wanted));
+        Observer.Observe('explicit sysid null', Format(Explicit.SystemId = NullId));
         Explicit.Modify(false);
         Observer.Observe('explicit sysid after modify kept', Format(Explicit.SystemId = Wanted));
+        Observer.Observe('explicit sysid after modify = first', Format(Explicit.SystemId = First.SystemId));
         Stored.Get('E');
         Observer.Observe('stored sysid = first', Format(Stored.SystemId = First.SystemId));
         Observer.Observe('stored sysid = explicit', Format(Stored.SystemId = Wanted));
