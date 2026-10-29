@@ -6,7 +6,7 @@
 //   GetFilter / GetFilters / GetView after SetRange and after SetFilter(Field, '%1', Value); the rows each selects; the rows selected by
 //   SetFilter(Field, GetFilter) and SetView(GetView) on a second record; filter('>B') in SourceTableView and DataItemTableFilter, and
 //   SetView with FILTER('>B') on a Code and a Text field.
-//   Rows 1-11 hold the eleven values in both fields (the Code field upper-cases them), rows 12-15 hold B, A, C and zzz.
+//   Rows 1-11 hold the eleven values in both fields (the Code field upper-cases them), rows 12-16 hold B, A, C, zzz and >B.
 // BC versions: 27, 28, 29
 
 table 90270 "LT UC Row"
@@ -118,6 +118,7 @@ codeunit 90271 "LT UC Quoted Values"
         Add(13, 'A');
         Add(14, 'C');
         Add(15, 'zzz');
+        Add(16, '>B');
     end;
 
     local procedure ValueList() Values: List of [Text]
