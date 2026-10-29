@@ -21,7 +21,7 @@ codeunit 61161 "LT US XD Guided Setup"
     var
         GuidedExperience: Codeunit "Guided Experience";
     begin
-        GuidedExperience.InsertAssistedSetup('LT US XD assisted', 'LT US XD a', 'Assisted setup of the logo probe', 1, ObjectType::Codeunit, 61161, Enum::"Assisted Setup Group"::GettingStarted, '', Enum::"Video Category"::Uncategorized, '');
-        GuidedExperience.InsertManualSetup('LT US XD manual', 'LT US XD m', 'Manual setup of the logo probe', 1, ObjectType::Codeunit, 61161, Enum::"Manual Setup Category"::General, 'lt us xd');
+        GuidedExperience.InsertAssistedSetup('LT US XD assisted', 'LT US XD a', 'Assisted setup of the logo probe', 1, ObjectType::Codeunit, 61161, Enum::"Assisted Setup Group"::Uncategorized, '', Enum::"Video Category"::Uncategorized, '');
+        GuidedExperience.InsertManualSetup('LT US XD manual', 'LT US XD m', 'Manual setup of the logo probe', 1, ObjectType::Codeunit, 61161, Enum::"Manual Setup Category"::Uncategorized, 'lt us xd');
     end;
 }
