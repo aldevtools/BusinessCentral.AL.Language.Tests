@@ -3,6 +3,7 @@
 // Fixtures used: Probe Observer (codeunit 69160); table 74333
 // Probe: written against a local BC 29.0.54011.55816 service tier; every literal asserted below is what that tier produced. Other BC versions are checked by the corpus CI matrix.
 // Facts: Record.SetFilter with a literal text (no %1 argument) on Date, DateFormula, Time and DateTime fields: empty text, the blank filter '', <>'', a formula such as 1M, a date in other spellings; observed by Count and GetFilter, or by the error
+// Writer TV (2026-10-29, TV_* tests): SetView with DateTime filter values as text (GetView round trip with milliseconds, literal texts).
 // BC versions: 29 (27 and 28 by CI)
 
 table 74333 "LT P136 Row"
@@ -258,6 +259,121 @@ codeunit 74334 "LT P136 Filter"
         Observer.Expect('wildcard', '1|''''');
         Observer.Expect('wildcardM|text', 'The filter "*M" is not valid for the DF field on the LT P136 Row table. The date formula ''*M'' should include a number.');
         Observer.Expect('wildcardM|code', 'Filter:CSide');
+        Observer.Verify();
+    end;
+
+    // ---- Writer TV (NP lane, 2026-10-29): SetView with a DateTime filter value written as text: the GetView text of a SetRange/SetFilter on a
+    // DateTime with milliseconds read back by SetView, and literal texts in the month-first form with milliseconds (1, 2 and 3 digits), a range,
+    // a date alone and an empty value. Observed by Count, GetFilter and the error. ----
+
+    local procedure TvSeedMs()
+    var
+        R: Record "LT P136 Row";
+    begin
+        Seed();
+        R.Init();
+        R.Id := 5;
+        R.DT := CreateDateTime(20261107D, 120000.033T);
+        R.Insert();
+        R.Init();
+        R.Id := 6;
+        R.DT := CreateDateTime(20261107D, 120000.034T);
+        R.Insert();
+        R.Init();
+        R.Id := 7;
+        R.DT := CreateDateTime(20261103D, 120000.08T);
+        R.Insert();
+        R.Init();
+        R.Id := 8;
+        R.DT := CreateDateTime(20261103D, 120011.767T);
+        R.Insert();
+    end;
+
+    [TryFunction]
+    local procedure TvTrySetView(View: Text; var Outcome: Text)
+    var
+        R: Record "LT P136 Row";
+    begin
+        R.SetView(View);
+        Outcome := Format(R.Count()) + '|' + Format(R.FindFirst()) + ':' + Format(R.Id);
+    end;
+
+    local procedure TvView(var Observer: Codeunit "Probe Observer"; Name: Text; View: Text)
+    var
+        O: Text;
+    begin
+        ClearLastError();
+        if TvTrySetView(View, O) then
+            Observer.Observe(Name, O)
+        else
+            Observer.ObserveError(Name);
+    end;
+
+    local procedure TvRoundTrip(var R: Record "LT P136 Row"): Text
+    var
+        R2: Record "LT P136 Row";
+        V: Text;
+    begin
+        V := R.GetView();
+        ClearLastError();
+        if not TvTrySetView(V, V) then
+            exit('error:' + GetLastErrorText() + '|' + GetLastErrorCode());
+        R2.SetView(R.GetView());
+        exit(R.GetFilter(DT) + '|' + V + '|same filter=' + Format(R2.GetFilter(DT) = R.GetFilter(DT)) + '|same view=' + Format(R2.GetView() = R.GetView()));
+    end;
+
+    [Test]
+    procedure TV_SetView_DateTime_GetViewRoundTrip()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT P136 Row";
+    begin
+        TvSeedMs();
+        R.SetRange(DT, CreateDateTime(20261107D, 120000.033T));
+        Observer.Observe('setrange .033', TvRoundTrip(R));
+        R.SetRange(DT, CreateDateTime(20261103D, 120000.08T));
+        Observer.Observe('setrange .08', TvRoundTrip(R));
+        R.SetRange(DT, CreateDateTime(20261103D, 120011.767T));
+        Observer.Observe('setrange 11.767', TvRoundTrip(R));
+        R.SetRange(DT, CreateDateTime(20261103D, 0T), CreateDateTime(20261107D, 120000.033T));
+        Observer.Observe('setrange range', TvRoundTrip(R));
+        R.SetFilter(DT, '>%1', CreateDateTime(20261107D, 120000.033T));
+        Observer.Observe('setfilter greater', TvRoundTrip(R));
+        R.SetRange(DT, CreateDateTime(20240115D, 120000T));
+        Observer.Observe('setrange whole second', TvRoundTrip(R));
+        Observer.Expect('setrange .033', '11/07/26 12:00:00.033 PM|2|Yes:5|same filter=Yes|same view=Yes');
+        Observer.Expect('setrange .08', '11/03/26 12:00:00.08 PM|1|Yes:7|same filter=Yes|same view=Yes');
+        Observer.Expect('setrange 11.767', '11/03/26 12:00:11.767 PM|1|Yes:8|same filter=Yes|same view=Yes');
+        Observer.Expect('setrange range', '11/03/26 12:00 AM..11/07/26 12:00:00.033 PM|4|Yes:5|same filter=Yes|same view=Yes');
+        Observer.Expect('setfilter greater', '>11/07/26 12:00:00.033 PM|0|No:0|same filter=Yes|same view=Yes');
+        Observer.Expect('setrange whole second', '01/15/24 12:00 PM|1|Yes:2|same filter=Yes|same view=Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TV_SetView_DateTime_LiteralTexts()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        TvSeedMs();
+        TvView(Observer, 'ms 3 digits', 'WHERE(DT=FILTER(11/07/26 12:00:00.033 PM))');
+        TvView(Observer, 'ms 2 digits', 'WHERE(DT=FILTER(11/03/26 12:00:00.08 PM))');
+        TvView(Observer, 'ms 1 digit', 'WHERE(DT=FILTER(11/03/26 12:00:00.8 PM))');
+        TvView(Observer, 'seconds', 'WHERE(DT=FILTER(01/15/24 12:00:00 PM))');
+        TvView(Observer, 'no seconds', 'WHERE(DT=FILTER(01/15/24 12:00 PM))');
+        TvView(Observer, 'range', 'WHERE(DT=FILTER(11/03/26 12:00:00.08 PM..11/07/26 12:00:00.033 PM))');
+        TvView(Observer, 'date only', 'WHERE(DT=FILTER(01/15/24))');
+        TvView(Observer, 'empty', 'WHERE(DT=FILTER(''''))');
+        TvView(Observer, '24 hour', 'WHERE(DT=FILTER(11/07/26 12:00:00.033))');
+        Observer.Expect('ms 3 digits', '2|Yes:5');
+        Observer.Expect('ms 2 digits', '1|Yes:7');
+        Observer.Expect('ms 1 digit', '0|No:0');
+        Observer.Expect('seconds', '1|Yes:2');
+        Observer.Expect('no seconds', '1|Yes:2');
+        Observer.Expect('range', '4|Yes:5');
+        Observer.Expect('date only', '1|Yes:2');
+        Observer.Expect('empty', '1|Yes:3');
+        Observer.Expect('24 hour', '2|Yes:5');
         Observer.Verify();
     end;
 }
