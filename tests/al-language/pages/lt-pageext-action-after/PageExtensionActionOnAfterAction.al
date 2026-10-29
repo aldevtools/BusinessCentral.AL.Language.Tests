@@ -4,6 +4,7 @@
 // Probe: written against a local BC 29.0.54011.55816 service tier; every literal asserted below is what that tier produced. Other BC versions are checked by the corpus CI matrix.
 // BC versions: 29 (27 and 28 by CI)
 // RISKY: trigger OnAfterAction in modify(action) of a pageextension may not compile for runtime 16; this file is separate so only it drops.
+// UQ (al-runner 6216): OnBeforeAction and OnAfterAction in one modify block, no invoke, error in OnBeforeAction, no base OnAction, page 90470, pageextension 90471.
 // Facts: invoking an action through a TestPage runs the base OnAction and then the OnAfterAction of every extension that modifies the action; order between two extensions; an action without OnAction in the base; the base OnAction raising an error.
 codeunit 72776 "LT PgExtAct Log"
 {
@@ -251,6 +252,97 @@ codeunit 72780 "LT PgExtAct"
         Observer.Verify();
     end;
 
+    [Test]
+    procedure UQ_OpenWithoutInvoke_NoBeforeOrAfter()
+    var
+        Observer: Codeunit "Probe Observer";
+        Host: TestPage "LT UQ Host";
+    begin
+        Trace.Reset();
+        Host.OpenView();
+        Host.Close();
+        DumpTrace(Observer);
+        Observer.Expect('count', '0');
+        Observer.Expect('e1', '<none>');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure UQ_BeforeAndAfterInOneModify_Order()
+    var
+        Observer: Codeunit "Probe Observer";
+        Host: TestPage "LT UQ Host";
+    begin
+        Trace.Reset();
+        Host.OpenView();
+        Host.Doit.Invoke();
+        Host.Close();
+        DumpTrace(Observer);
+        Observer.Expect('count', '3');
+        Observer.Expect('e1', 'ext Doit OnBeforeAction');
+        Observer.Expect('e2', 'base Doit OnAction');
+        Observer.Expect('e3', 'ext Doit OnAfterAction');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure UQ_BeforeActionWithoutBaseOnAction()
+    var
+        Observer: Codeunit "Probe Observer";
+        Host: TestPage "LT UQ Host";
+    begin
+        Trace.Reset();
+        Host.OpenView();
+        Host.Bare.Invoke();
+        Host.Close();
+        DumpTrace(Observer);
+        Observer.Expect('count', '2');
+        Observer.Expect('e1', 'ext Bare OnBeforeAction');
+        Observer.Expect('e2', 'ext Bare OnAfterAction');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure UQ_BeforeActionRaises_OnActionAndAfterSkipped()
+    var
+        Observer: Codeunit "Probe Observer";
+        Host: TestPage "LT UQ Host";
+    begin
+        Trace.Reset();
+        Host.OpenView();
+        asserterror Host.Fails.Invoke();
+        Observer.ObserveError('invoke');
+        Host.Close();
+        DumpTrace(Observer);
+        Observer.Expect('invoke|text', 'LT UQ before failure');
+        Observer.Expect('invoke|code', 'TestWrapped:Dialog');
+        Observer.Expect('count', '1');
+        Observer.Expect('e1', 'ext Fails OnBeforeAction');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure UQ_BeforeAction_InvokedTwice_EachTime()
+    var
+        Observer: Codeunit "Probe Observer";
+        Host: TestPage "LT UQ Host";
+    begin
+        Trace.Reset();
+        Host.OpenView();
+        Host.Doit.Invoke();
+        Host.Doit.Invoke();
+        Host.Close();
+        DumpTrace(Observer);
+        Observer.Expect('count', '6');
+        Observer.Expect('e1', 'ext Doit OnBeforeAction');
+        Observer.Expect('e2', 'base Doit OnAction');
+        Observer.Expect('e3', 'ext Doit OnAfterAction');
+        Observer.Expect('e4', 'ext Doit OnBeforeAction');
+        Observer.Expect('e5', 'base Doit OnAction');
+        Observer.Expect('e6', 'ext Doit OnAfterAction');
+        Observer.Verify();
+    end;
+
     local procedure DumpTrace(var Observer: Codeunit "Probe Observer")
     var
         I: Integer;
@@ -259,4 +351,101 @@ codeunit 72780 "LT PgExtAct"
         for I := 1 to 10 do
             Observer.Observe('e' + Format(I), Trace.Get(I));
     end;
+}
+
+page 90470 "LT UQ Host"
+{
+    PageType = Card;
+    ApplicationArea = All;
+
+    layout
+    {
+        area(Content)
+        {
+            field(Dummy; Dummy)
+            {
+                ApplicationArea = All;
+            }
+        }
+    }
+
+    actions
+    {
+        area(Processing)
+        {
+            action(Doit)
+            {
+                ApplicationArea = All;
+
+                trigger OnAction()
+                begin
+                    Trace.Add('base Doit OnAction');
+                end;
+            }
+            action(Bare)
+            {
+                ApplicationArea = All;
+            }
+            action(Fails)
+            {
+                ApplicationArea = All;
+
+                trigger OnAction()
+                begin
+                    Trace.Add('base Fails OnAction');
+                end;
+            }
+        }
+    }
+
+    var
+        Dummy: Integer;
+        Trace: Codeunit "LT PgExtAct Log";
+}
+
+pageextension 90471 "LT UQ Host Ext" extends "LT UQ Host"
+{
+    actions
+    {
+        modify(Doit)
+        {
+            trigger OnBeforeAction()
+            begin
+                Trace.Add('ext Doit OnBeforeAction');
+            end;
+
+            trigger OnAfterAction()
+            begin
+                Trace.Add('ext Doit OnAfterAction');
+            end;
+        }
+        modify(Bare)
+        {
+            trigger OnBeforeAction()
+            begin
+                Trace.Add('ext Bare OnBeforeAction');
+            end;
+
+            trigger OnAfterAction()
+            begin
+                Trace.Add('ext Bare OnAfterAction');
+            end;
+        }
+        modify(Fails)
+        {
+            trigger OnBeforeAction()
+            begin
+                Trace.Add('ext Fails OnBeforeAction');
+                Error('LT UQ before failure');
+            end;
+
+            trigger OnAfterAction()
+            begin
+                Trace.Add('ext Fails OnAfterAction');
+            end;
+        }
+    }
+
+    var
+        Trace: Codeunit "LT PgExtAct Log";
 }

@@ -51,4 +51,50 @@ codeunit 80007 "LT AT Time Zone Numbering"
         Observer.Expect('3', 'Aleutian Standard Time');
         Observer.Verify();
     end;
+
+    // UQ (al-runner 6218): lookups by ID of several Windows zones, an unknown id, and the row count under an ID filter.
+    [Test]
+    procedure UQ_TimeZone_LookupById()
+    var
+        Observer: Codeunit "Probe Observer";
+        TimeZone: Record "Time Zone";
+    begin
+        Observer.Observe('Pacific', ById('Pacific Standard Time'));
+        Observer.Observe('UTC', ById('UTC'));
+        Observer.Observe('Arabian', ById('Arabian Standard Time'));
+        Observer.Observe('GMT', ById('GMT Standard Time'));
+        Observer.Observe('Eastern', ById('Eastern Standard Time'));
+        Observer.Observe('Tokyo', ById('Tokyo Standard Time'));
+        Observer.Observe('Unknown', ById('No Such Standard Time'));
+        Observer.Observe('Lower', ById('w. europe standard time'));
+        TimeZone.SetRange(ID, 'Arabian Standard Time');
+        Observer.Observe('Arabian IsEmpty', Format(TimeZone.IsEmpty()));
+        TimeZone.SetRange(ID, 'No Such Standard Time');
+        Observer.Observe('Unknown IsEmpty', Format(TimeZone.IsEmpty()));
+        TimeZone.SetRange(ID);
+        TimeZone.SetFilter(ID, '*Standard Time');
+        Observer.Observe('Standard Time count', Format(TimeZone.Count()));
+        Observer.Expect('Pacific', 'x');
+        Observer.Expect('UTC', 'x');
+        Observer.Expect('Arabian', 'x');
+        Observer.Expect('GMT', 'x');
+        Observer.Expect('Eastern', 'x');
+        Observer.Expect('Tokyo', 'x');
+        Observer.Expect('Unknown', 'x');
+        Observer.Expect('Lower', 'x');
+        Observer.Expect('Arabian IsEmpty', 'x');
+        Observer.Expect('Unknown IsEmpty', 'x');
+        Observer.Expect('Standard Time count', 'x');
+        Observer.Verify();
+    end;
+
+    local procedure ById(ZoneId: Text): Text
+    var
+        TimeZone: Record "Time Zone";
+    begin
+        TimeZone.SetRange(ID, ZoneId);
+        if TimeZone.FindFirst() then
+            exit(Format(TimeZone."No.") + '=' + TimeZone.ID + ' | ' + TimeZone."Display Name" + ' | count ' + Format(TimeZone.Count()));
+        exit('absent');
+    end;
 }
