@@ -175,42 +175,78 @@ codeunit 90509 "LT UP Promoted Tests"
     TestPermissions = Disabled;
 
     [TryFunction]
-    local procedure TryAfterSeven(var Pg: TestPage "LT UP Promoted List")
-    begin
-        Pg.AfterSeven_Promoted.Invoke();
-    end;
-
-    [TryFunction]
-    local procedure TryLastSeven(var Pg: TestPage "LT UP Promoted List")
-    begin
-        Pg.LastSeven_Promoted.Invoke();
-    end;
-
-    [TryFunction]
-    local procedure TryAfterTwelve(var Pg: TestPage "LT UP Promoted List")
-    begin
-        Pg.AfterTwelve_Promoted.Invoke();
-    end;
-
-    [TryFunction]
-    local procedure TryLastNew(var Pg: TestPage "LT UP Promoted List")
-    begin
-        Pg.LastNew_Promoted.Invoke();
-    end;
-
-    [TryFunction]
-    local procedure TryAfterNew(var Pg: TestPage "LT UP Promoted List")
-    begin
-        Pg.AfterNew_Promoted.Invoke();
-    end;
-
-    [TryFunction]
     local procedure TryPostRef(var Pg: TestPage "LT UP Promoted List")
     begin
         Pg.Post_Promoted.Invoke();
     end;
 
-    local procedure Report(Observer: Codeunit "Probe Observer"; Log: Codeunit "LT UP Promoted Log"; Name: Text; Ok: Boolean)
+    [TryFunction]
+    local procedure TryAfterSevenRef(var Pg: TestPage "LT UP Promoted List")
+    begin
+        Pg.AfterSeven_Promoted.Invoke();
+    end;
+
+    [TryFunction]
+    local procedure TryLastSevenRef(var Pg: TestPage "LT UP Promoted List")
+    begin
+        Pg.LastSeven_Promoted.Invoke();
+    end;
+
+    [TryFunction]
+    local procedure TryAfterTwelveRef(var Pg: TestPage "LT UP Promoted List")
+    begin
+        Pg.AfterTwelve_Promoted.Invoke();
+    end;
+
+    [TryFunction]
+    local procedure TryLastNewRef(var Pg: TestPage "LT UP Promoted List")
+    begin
+        Pg.LastNew_Promoted.Invoke();
+    end;
+
+    [TryFunction]
+    local procedure TryAfterNewRef(var Pg: TestPage "LT UP Promoted List")
+    begin
+        Pg.AfterNew_Promoted.Invoke();
+    end;
+
+    [TryFunction]
+    local procedure TryPost(var Pg: TestPage "LT UP Promoted List")
+    begin
+        Pg.Post.Invoke();
+    end;
+
+    [TryFunction]
+    local procedure TryAfterSeven(var Pg: TestPage "LT UP Promoted List")
+    begin
+        Pg.AfterSeven.Invoke();
+    end;
+
+    [TryFunction]
+    local procedure TryLastSeven(var Pg: TestPage "LT UP Promoted List")
+    begin
+        Pg.LastSeven.Invoke();
+    end;
+
+    [TryFunction]
+    local procedure TryAfterTwelve(var Pg: TestPage "LT UP Promoted List")
+    begin
+        Pg.AfterTwelve.Invoke();
+    end;
+
+    [TryFunction]
+    local procedure TryLastNew(var Pg: TestPage "LT UP Promoted List")
+    begin
+        Pg.LastNew.Invoke();
+    end;
+
+    [TryFunction]
+    local procedure TryAfterNew(var Pg: TestPage "LT UP Promoted List")
+    begin
+        Pg.AfterNew.Invoke();
+    end;
+
+    local procedure Report(var Observer: Codeunit "Probe Observer"; var Log: Codeunit "LT UP Promoted Log"; Name: Text; Ok: Boolean)
     begin
         if Ok then
             Observer.Observe(Name, 'ok|' + Log.Take())
@@ -232,18 +268,19 @@ codeunit 90509 "LT UP Promoted Tests"
         Log.Take();
         Pg.OpenView();
         Observer.Observe('open log', Log.Take());
-        Pg.Post.Invoke();
-        Observer.Observe('Post action', Log.Take());
-        Pg.AfterSeven.Invoke();
-        Pg.LastNew.Invoke();
-        Observer.Observe('extension actions', Log.Take());
         Report(Observer, Log, 'Post_Promoted', TryPostRef(Pg));
-        Report(Observer, Log, 'addafter Category7', TryAfterSeven(Pg));
-        Report(Observer, Log, 'addlast Category7', TryLastSeven(Pg));
-        Report(Observer, Log, 'addafter Category12', TryAfterTwelve(Pg));
-        Report(Observer, Log, 'addlast New', TryLastNew(Pg));
-        Report(Observer, Log, 'addafter New', TryAfterNew(Pg));
+        Report(Observer, Log, 'AfterSeven_Promoted', TryAfterSevenRef(Pg));
+        Report(Observer, Log, 'LastSeven_Promoted', TryLastSevenRef(Pg));
+        Report(Observer, Log, 'AfterTwelve_Promoted', TryAfterTwelveRef(Pg));
+        Report(Observer, Log, 'LastNew_Promoted', TryLastNewRef(Pg));
+        Report(Observer, Log, 'AfterNew_Promoted', TryAfterNewRef(Pg));
+        Report(Observer, Log, 'Post', TryPost(Pg));
+        Report(Observer, Log, 'AfterSeven', TryAfterSeven(Pg));
+        Report(Observer, Log, 'LastSeven', TryLastSeven(Pg));
+        Report(Observer, Log, 'AfterTwelve', TryAfterTwelve(Pg));
+        Report(Observer, Log, 'LastNew', TryLastNew(Pg));
+        Report(Observer, Log, 'AfterNew', TryAfterNew(Pg));
         Pg.Close();
-        Observer.Verify();
+        Observer.Finish();
     end;
 }

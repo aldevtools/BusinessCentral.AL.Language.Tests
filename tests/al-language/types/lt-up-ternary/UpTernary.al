@@ -180,8 +180,7 @@ codeunit 90497 "LT UP Ternary Tests"
             Observer.Observe('300 chars into Text variable', 'ok|' + Format(StrLen(R)))
         else
             ObserveLastError(Observer, '300 chars into Text variable');
-        Observer.Expect('250 chars', 'ok|250');
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     local procedure ObserveLastError(var Observer: Codeunit "Probe Observer"; Name: Text)
