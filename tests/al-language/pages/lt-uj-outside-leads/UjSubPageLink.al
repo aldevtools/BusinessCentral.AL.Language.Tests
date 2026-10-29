@@ -199,7 +199,10 @@ codeunit 90403 "LT UJ SubPageLink Tests"
         Observer.Observe('unqualified, field named like the enum', HeaderRows(Card));
         Observer.Observe('qualified, other field name', AltRows(Card));
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('qualified, field named like the enum', 'Resource/1/res one,Resource/2/res two,');
+        Observer.Expect('unqualified, field named like the enum', 'Header/1/head one,');
+        Observer.Expect('qualified, other field name', 'Resource/2/res two,Header/1/head one,Item/1/item one,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -220,6 +223,10 @@ codeunit 90403 "LT UJ SubPageLink Tests"
         Card.AltItemLines.LineNoCtl.SetValue(29);
         Card.Close();
         Observer.Observe('stored', Stored());
-        Observer.Finish();
+        Observer.Expect('resource part new row shows', 'Resource/Resource');
+        Observer.Expect('header part new row shows', 'Header/Resource');
+        Observer.Expect('alt part new row shows', 'Resource/Resource');
+        Observer.Expect('stored', 'S1:Resource:1:Resource,S1:Resource:2:Item,S1:Resource:9:Resource,S1:Resource:29:Resource,S1:Header:1:Item,S1:Header:9:Resource,S1:Item:1:Item,S2:Resource:1:Item,');
+        Observer.Verify();
     end;
 }

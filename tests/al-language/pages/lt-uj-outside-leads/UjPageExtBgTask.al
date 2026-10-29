@@ -212,7 +212,10 @@ codeunit 90404 "LT UJ Page Ext Bg Tests"
         RunMode(0, '', 'mode 0 base enqueues');
         RunMode(1, '', 'mode 1 both enqueue');
         RunMode(2, '', 'mode 2 extension enqueues');
-        Observer.Finish();
+        Observer.Expect('mode 0 base enqueues', 'base completed base id set=Yes;ext completed base id set=Yes;base enqueue;opened;');
+        Observer.Expect('mode 1 both enqueue', 'base completed base id set=Yes;ext completed base id set=Yes;base enqueue;base completed ext id set=Yes;ext completed ext id set=Yes;ext enqueue;opened;');
+        Observer.Expect('mode 2 extension enqueues', 'base completed ext id set=Yes;ext completed ext id set=Yes;ext enqueue;opened;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -222,20 +225,30 @@ codeunit 90404 "LT UJ Page Ext Bg Tests"
         RunMode(3, 'ext', 'base enqueues failing task, extension handles');
         RunMode(4, 'base', 'extension enqueues failing task, base handles');
         RunMode(4, 'ext', 'extension enqueues failing task, extension handles');
-        Observer.Finish();
+        Observer.Expect('base enqueues failing task, base handles', 'base error [worker failed for base-fail] handled=No;ext error [worker failed for base-fail] handled=Yes;base enqueue;opened;');
+        Observer.Expect('base enqueues failing task, extension handles', 'base error [worker failed for base-fail] handled=No;ext error [worker failed for base-fail] handled=No;base enqueue;opened;');
+        Observer.Expect('extension enqueues failing task, base handles', 'base error [worker failed for ext-fail] handled=No;ext error [worker failed for ext-fail] handled=Yes;ext enqueue;opened;');
+        Observer.Expect('extension enqueues failing task, extension handles', 'base error [worker failed for ext-fail] handled=No;ext error [worker failed for ext-fail] handled=No;ext enqueue;opened;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure UJ_PageExt_BgTask_Error_Unhandled_Base()
     begin
         RunUnhandled(3, 'base task unhandled');
-        Observer.Finish();
+        Observer.Expect('base task unhandled log', 'base error [worker failed for base-fail] handled=No;ext error [worker failed for base-fail] handled=No;');
+        Observer.Expect('base task unhandled|text', 'worker failed for base-fail');
+        Observer.Expect('base task unhandled|code', 'Dialog:TargetInvocation');
+        Observer.Verify();
     end;
 
     [Test]
     procedure UJ_PageExt_BgTask_Error_Unhandled_Ext()
     begin
         RunUnhandled(4, 'extension task unhandled');
-        Observer.Finish();
+        Observer.Expect('extension task unhandled log', 'base error [worker failed for ext-fail] handled=No;ext error [worker failed for ext-fail] handled=No;');
+        Observer.Expect('extension task unhandled|text', 'worker failed for ext-fail');
+        Observer.Expect('extension task unhandled|code', 'Dialog:TargetInvocation');
+        Observer.Verify();
     end;
 }

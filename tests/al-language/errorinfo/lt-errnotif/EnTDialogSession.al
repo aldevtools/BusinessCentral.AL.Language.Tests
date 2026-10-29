@@ -135,7 +135,14 @@ codeunit 73034 "LT EnT Dialog Session"
         Observer.ObserveError('hidden close twice');
         D.HideSubsequentDialogs(Prev);
         Observer.Observe('after restore', Format(D.HideSubsequentDialogs(Prev)));
-        Observer.Finish();
+        Observer.Expect('hidden open update close', 'ok');
+        Observer.Expect('shown open update close', 'ok');
+        Observer.Expect('hidden update bad index|text', 'No parameter with index ''5'' was found in the format string ''Value %s''.');
+        Observer.Expect('hidden update bad index|code', 'FormatStringParameterNotFound');
+        Observer.Expect('hidden close twice|text', 'The operation failed because the dialog box is not open.');
+        Observer.Expect('hidden close twice|code', 'Dialog');
+        Observer.Expect('after restore', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -155,7 +162,9 @@ codeunit 73034 "LT EnT Dialog Session"
         D.Close();
         Other.HideSubsequentDialogs(false);
         Observer.Observe('closed both', 'ok');
-        Observer.Finish();
+        Observer.Expect('update of a dialog opened before', 'ok');
+        Observer.Expect('closed both', 'ok');
+        Observer.Verify();
     end;
 
     [Test]

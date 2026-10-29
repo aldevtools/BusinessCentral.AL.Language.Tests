@@ -259,7 +259,11 @@ codeunit 90402 "LT UJ Temp List Tests"
         Observer.Observe('edit update', RunCase('EmptyAll', true, true));
         Observer.Observe('view no update', RunCase('EmptyAll', false, false));
         Observer.Observe('view update', RunCase('EmptyAll', true, false));
-        Observer.Finish();
+        Observer.Expect('edit no update', 'open=1/one|cur=/|first=No:/|rows=/,|last=No:/|next=No|log=R:1;R:1;C:1;invoke;R:1;C:0;');
+        Observer.Expect('edit update', 'open=1/one|cur=/|first=No:/|rows=/,|last=No:/|next=No|log=R:1;R:1;C:1;invoke;R:1;C:0;');
+        Observer.Expect('view no update', 'open=1/one|cur=/|first=No:/|rows=/,|last=No:/|next=No|log=R:1;R:1;C:1;invoke;R:1;');
+        Observer.Expect('view update', 'open=1/one|cur=/|first=No:/|rows=/,|last=No:/|next=No|log=R:1;R:1;C:1;invoke;R:1;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -269,7 +273,11 @@ codeunit 90402 "LT UJ Temp List Tests"
         Observer.Observe('edit update', RunCase('ThreeNewRows', true, true));
         Observer.Observe('no find', RunCase('ThreeNewRowsNoFind', false, true));
         Observer.Observe('no find update', RunCase('ThreeNewRowsNoFind', true, true));
-        Observer.Finish();
+        Observer.Expect('edit no update', 'open=1/one|cur=21/twenty-one|first=Yes:21/twenty-one|rows=21/twenty-one,22/twenty-two,23/twenty-three,|last=Yes:23/twenty-three|next=No|log=R:1;R:1;C:1;invoke;R:1;R:21;R:21;R:22;R:23;R:21;R:21;C:21;R:22;R:22;C:22;R:23;R:23;C:23;');
+        Observer.Expect('edit update', 'open=1/one|cur=21/twenty-one|first=Yes:21/twenty-one|rows=21/twenty-one,22/twenty-two,23/twenty-three,|last=Yes:23/twenty-three|next=No|log=R:1;R:1;C:1;invoke;R:1;R:21;R:21;R:22;R:23;R:21;R:21;C:21;R:22;R:22;C:22;R:23;R:23;C:23;');
+        Observer.Expect('no find', 'open=1/one|cur=23/twenty-three|first=Yes:21/twenty-one|rows=21/twenty-one,22/twenty-two,23/twenty-three,|last=Yes:23/twenty-three|next=No|log=R:1;R:1;C:1;invoke;R:1;R:23;R:23;R:22;R:21;R:23;R:23;C:23;R:21;R:21;C:21;R:22;R:22;C:22;R:23;R:23;C:23;');
+        Observer.Expect('no find update', 'open=1/one|cur=23/twenty-three|first=Yes:21/twenty-one|rows=21/twenty-one,22/twenty-two,23/twenty-three,|last=Yes:23/twenty-three|next=No|log=R:1;R:1;C:1;invoke;R:1;R:23;R:23;R:22;R:21;R:23;R:23;C:23;R:21;R:21;C:21;R:22;R:22;C:22;R:23;R:23;C:23;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -279,7 +287,11 @@ codeunit 90402 "LT UJ Temp List Tests"
         Observer.Observe('other key update', RunCase('OneOtherKey', true, true));
         Observer.Observe('same key', RunCase('OneSameKey', false, true));
         Observer.Observe('same key update', RunCase('OneSameKey', true, true));
-        Observer.Finish();
+        Observer.Expect('other key', 'open=1/one|cur=9/nine|first=Yes:9/nine|rows=9/nine,|last=Yes:9/nine|next=No|log=R:1;R:1;C:1;invoke;R:1;R:9;R:9;R:9;C:9;');
+        Observer.Expect('other key update', 'open=1/one|cur=9/nine|first=Yes:9/nine|rows=9/nine,|last=Yes:9/nine|next=No|log=R:1;R:1;C:1;invoke;R:1;R:9;R:9;R:9;C:9;');
+        Observer.Expect('same key', 'open=1/one|cur=1/one again|first=Yes:1/one again|rows=1/one again,|last=Yes:1/one again|next=No|log=R:1;R:1;C:1;invoke;R:1;R:1;R:1;R:1;C:1;');
+        Observer.Expect('same key update', 'open=1/one|cur=1/one again|first=Yes:1/one again|rows=1/one again,|last=Yes:1/one again|next=No|log=R:1;R:1;C:1;invoke;R:1;R:1;R:1;R:1;C:1;');
+        Observer.Verify();
     end;
 
     // The history list shape: modal, an action loads other rows, then the handler filters, goes to the first row and reads it.
@@ -321,6 +333,12 @@ codeunit 90402 "LT UJ Temp List Tests"
         RunModalCase('OneOtherKey', '7');
         RunModalCase('OneOtherKey', '8');
         RunModalCase('EmptyAll', '7');
-        Observer.Finish();
+        Observer.Expect('handler ThreeNewRows|7', 'after action=21/twenty-one|first=Yes:21/twenty-one|next=Yes:23/twenty-three');
+        Observer.Expect('handler ThreeNewRows|8', 'after action=21/twenty-one|first=Yes:22/twenty-two|next=No:22/twenty-two');
+        Observer.Expect('handler ThreeNewRows|5', 'after action=21/twenty-one|first=No:/|next=No:/');
+        Observer.Expect('handler OneOtherKey|7', 'after action=9/nine|first=Yes:9/nine|next=No:9/nine');
+        Observer.Expect('handler OneOtherKey|8', 'after action=9/nine|first=No:/|next=No:/');
+        Observer.Expect('handler EmptyAll|7', 'after action=/|first=No:/|next=No:/');
+        Observer.Verify();
     end;
 }
