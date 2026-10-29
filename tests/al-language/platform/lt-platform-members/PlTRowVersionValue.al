@@ -351,7 +351,16 @@ codeunit 67515 "LT RV Tests"
         UkSnap(Observer, 'commit', PrevLast, PrevMin, Last0, Min0);
         A.DeleteAll();
         Commit();
-        Observer.Finish();
+        Observer.Expect('insert: last vs previous', 'same');
+        Observer.Expect('insert: min vs start', 'same');
+        Observer.Expect('insert: write transaction', 'Yes');
+        Observer.Expect('findset: last vs previous', 'greater');
+        Observer.Expect('findset: min vs start', 'same');
+        Observer.Expect('findset: write transaction', 'Yes');
+        Observer.Expect('commit: last vs previous', 'same');
+        Observer.Expect('commit: min vs start', 'same');
+        Observer.Expect('commit: write transaction', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -376,7 +385,16 @@ codeunit 67515 "LT RV Tests"
         UkSnap(Observer, 'commit', PrevLast, PrevMin, Last0, Min0);
         A.DeleteAll();
         Commit();
-        Observer.Finish();
+        Observer.Expect('insert: last vs previous', 'same');
+        Observer.Expect('insert: min vs start', 'same');
+        Observer.Expect('insert: write transaction', 'Yes');
+        Observer.Expect('findfirst: last vs previous', 'greater');
+        Observer.Expect('findfirst: min vs start', 'same');
+        Observer.Expect('findfirst: write transaction', 'Yes');
+        Observer.Expect('commit: last vs previous', 'same');
+        Observer.Expect('commit: min vs start', 'same');
+        Observer.Expect('commit: write transaction', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -401,7 +419,17 @@ codeunit 67515 "LT RV Tests"
         UkSnap(Observer, 'commit', PrevLast, PrevMin, Last0, Min0);
         A.DeleteAll();
         Commit();
-        Observer.Finish();
+        Observer.Expect('insert: last vs previous', 'same');
+        Observer.Expect('insert: min vs start', 'same');
+        Observer.Expect('insert: write transaction', 'Yes');
+        Observer.Expect('is empty', 'No');
+        Observer.Expect('isempty: last vs previous', 'greater');
+        Observer.Expect('isempty: min vs start', 'same');
+        Observer.Expect('isempty: write transaction', 'Yes');
+        Observer.Expect('commit: last vs previous', 'same');
+        Observer.Expect('commit: min vs start', 'same');
+        Observer.Expect('commit: write transaction', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -426,7 +454,17 @@ codeunit 67515 "LT RV Tests"
         UkSnap(Observer, 'commit', PrevLast, PrevMin, Last0, Min0);
         A.DeleteAll();
         Commit();
-        Observer.Finish();
+        Observer.Expect('insert: last vs previous', 'same');
+        Observer.Expect('insert: min vs start', 'same');
+        Observer.Expect('insert: write transaction', 'Yes');
+        Observer.Expect('count', '1');
+        Observer.Expect('count: last vs previous', 'greater');
+        Observer.Expect('count: min vs start', 'same');
+        Observer.Expect('count: write transaction', 'Yes');
+        Observer.Expect('commit: last vs previous', 'same');
+        Observer.Expect('commit: min vs start', 'same');
+        Observer.Expect('commit: write transaction', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -453,7 +491,17 @@ codeunit 67515 "LT RV Tests"
         UkSnap(Observer, 'commit', PrevLast, PrevMin, Last0, Min0);
         A.DeleteAll();
         Commit();
-        Observer.Finish();
+        Observer.Expect('insert: last vs previous', 'same');
+        Observer.Expect('insert: min vs start', 'same');
+        Observer.Expect('insert: write transaction', 'Yes');
+        Observer.Expect('sum', '5');
+        Observer.Expect('calcsums: last vs previous', 'greater');
+        Observer.Expect('calcsums: min vs start', 'same');
+        Observer.Expect('calcsums: write transaction', 'Yes');
+        Observer.Expect('commit: last vs previous', 'same');
+        Observer.Expect('commit: min vs start', 'same');
+        Observer.Expect('commit: write transaction', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -483,7 +531,22 @@ codeunit 67515 "LT RV Tests"
         UkSnap(Observer, 'commit', PrevLast, PrevMin, Last0, Min0);
         A.DeleteAll();
         Commit();
-        Observer.Finish();
+        Observer.Expect('insert: last vs previous', 'same');
+        Observer.Expect('insert: min vs start', 'same');
+        Observer.Expect('insert: write transaction', 'Yes');
+        Observer.Expect('get: last vs previous', 'greater');
+        Observer.Expect('get: min vs start', 'same');
+        Observer.Expect('get: write transaction', 'Yes');
+        Observer.Expect('modify: last vs previous', 'greater');
+        Observer.Expect('modify: min vs start', 'same');
+        Observer.Expect('modify: write transaction', 'Yes');
+        Observer.Expect('get after modify: last vs previous', 'same');
+        Observer.Expect('get after modify: min vs start', 'same');
+        Observer.Expect('get after modify: write transaction', 'Yes');
+        Observer.Expect('commit: last vs previous', 'same');
+        Observer.Expect('commit: min vs start', 'same');
+        Observer.Expect('commit: write transaction', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -511,7 +574,19 @@ codeunit 67515 "LT RV Tests"
         UkSnap(Observer, 'commit', PrevLast, PrevMin, Last0, Min0);
         A.DeleteAll();
         Commit();
-        Observer.Finish();
+        Observer.Expect('insert: last vs previous', 'same');
+        Observer.Expect('insert: min vs start', 'same');
+        Observer.Expect('insert: write transaction', 'Yes');
+        Observer.Expect('findfirst other: last vs previous', 'same');
+        Observer.Expect('findfirst other: min vs start', 'same');
+        Observer.Expect('findfirst other: write transaction', 'Yes');
+        Observer.Expect('get other: last vs previous', 'same');
+        Observer.Expect('get other: min vs start', 'same');
+        Observer.Expect('get other: write transaction', 'Yes');
+        Observer.Expect('commit: last vs previous', 'greater');
+        Observer.Expect('commit: min vs start', 'same');
+        Observer.Expect('commit: write transaction', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -541,7 +616,19 @@ codeunit 67515 "LT RV Tests"
         UkSnap(Observer, 'commit', PrevLast, PrevMin, Last0, Min0);
         A.DeleteAll();
         Commit();
-        Observer.Finish();
+        Observer.Expect('insert: last vs previous', 'same');
+        Observer.Expect('insert: min vs start', 'same');
+        Observer.Expect('insert: write transaction', 'Yes');
+        Observer.Expect('modify other: last vs previous', 'greater');
+        Observer.Expect('modify other: min vs start', 'same');
+        Observer.Expect('modify other: write transaction', 'Yes');
+        Observer.Expect('findfirst: last vs previous', 'greater');
+        Observer.Expect('findfirst: min vs start', 'same');
+        Observer.Expect('findfirst: write transaction', 'Yes');
+        Observer.Expect('commit: last vs previous', 'same');
+        Observer.Expect('commit: min vs start', 'same');
+        Observer.Expect('commit: write transaction', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -573,7 +660,19 @@ codeunit 67515 "LT RV Tests"
         B.Get(2);
         B.Delete();
         Commit();
-        Observer.Finish();
+        Observer.Expect('insert both: last vs previous', 'same');
+        Observer.Expect('insert both: min vs start', 'same');
+        Observer.Expect('insert both: write transaction', 'Yes');
+        Observer.Expect('get a: last vs previous', 'greater');
+        Observer.Expect('get a: min vs start', 'same');
+        Observer.Expect('get a: write transaction', 'Yes');
+        Observer.Expect('get b: last vs previous', 'greater');
+        Observer.Expect('get b: min vs start', 'same');
+        Observer.Expect('get b: write transaction', 'Yes');
+        Observer.Expect('commit: last vs previous', 'same');
+        Observer.Expect('commit: min vs start', 'same');
+        Observer.Expect('commit: write transaction', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -596,7 +695,17 @@ codeunit 67515 "LT RV Tests"
         UkSnap(Observer, 'isempty', PrevLast, PrevMin, Last0, Min0);
         Commit();
         UkSnap(Observer, 'commit', PrevLast, PrevMin, Last0, Min0);
-        Observer.Finish();
+        Observer.Expect('delete: last vs previous', 'same');
+        Observer.Expect('delete: min vs start', 'same');
+        Observer.Expect('delete: write transaction', 'Yes');
+        Observer.Expect('is empty', 'Yes');
+        Observer.Expect('isempty: last vs previous', 'same');
+        Observer.Expect('isempty: min vs start', 'same');
+        Observer.Expect('isempty: write transaction', 'Yes');
+        Observer.Expect('commit: last vs previous', 'same');
+        Observer.Expect('commit: min vs start', 'same');
+        Observer.Expect('commit: write transaction', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -618,7 +727,17 @@ codeunit 67515 "LT RV Tests"
         UkSnap(Observer, 'count', PrevLast, PrevMin, Last0, Min0);
         Commit();
         UkSnap(Observer, 'commit', PrevLast, PrevMin, Last0, Min0);
-        Observer.Finish();
+        Observer.Expect('deleteall: last vs previous', 'same');
+        Observer.Expect('deleteall: min vs start', 'same');
+        Observer.Expect('deleteall: write transaction', 'Yes');
+        Observer.Expect('count', '0');
+        Observer.Expect('count: last vs previous', 'same');
+        Observer.Expect('count: min vs start', 'same');
+        Observer.Expect('count: write transaction', 'Yes');
+        Observer.Expect('commit: last vs previous', 'same');
+        Observer.Expect('commit: min vs start', 'same');
+        Observer.Expect('commit: write transaction', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -650,7 +769,21 @@ codeunit 67515 "LT RV Tests"
         UkSnap(Observer, 'commit', PrevLast, PrevMin, Last0, Min0);
         A.DeleteAll();
         Commit();
-        Observer.Finish();
+        Observer.Expect('insert: last vs previous', 'same');
+        Observer.Expect('insert: min vs start', 'same');
+        Observer.Expect('insert: write transaction', 'Yes');
+        Observer.Expect('read: last vs previous', 'greater');
+        Observer.Expect('read: min vs start', 'same');
+        Observer.Expect('read: write transaction', 'Yes');
+        Observer.Expect('read again: last vs previous', 'same');
+        Observer.Expect('read again: min vs start', 'same');
+        Observer.Expect('read again: write transaction', 'Yes');
+        Observer.Expect('second insert: last vs previous', 'same');
+        Observer.Expect('second insert: min vs start', 'same');
+        Observer.Expect('second insert: write transaction', 'Yes');
+        Observer.Expect('read after second insert: last vs previous', 'greater');
+        Observer.Expect('read after second insert: min vs start', 'same');
+        Observer.Verify();
     end;
 
     [Test]
@@ -680,7 +813,23 @@ codeunit 67515 "LT RV Tests"
         UkSnap(Observer, 'commit', PrevLast, PrevMin, Last0, Min0);
         A.DeleteAll();
         Commit();
-        Observer.Finish();
+        Observer.Expect('insert: last vs previous', 'same');
+        Observer.Expect('insert: min vs start', 'same');
+        Observer.Expect('insert: write transaction', 'Yes');
+        Observer.Expect('get other: last vs previous', 'same');
+        Observer.Expect('get other: min vs start', 'same');
+        Observer.Expect('get other: write transaction', 'Yes');
+        Observer.Expect('count', '1');
+        Observer.Expect('count other: last vs previous', 'same');
+        Observer.Expect('count other: min vs start', 'same');
+        Observer.Expect('count other: write transaction', 'Yes');
+        Observer.Expect('get same: last vs previous', 'greater');
+        Observer.Expect('get same: min vs start', 'same');
+        Observer.Expect('get same: write transaction', 'Yes');
+        Observer.Expect('commit: last vs previous', 'same');
+        Observer.Expect('commit: min vs start', 'same');
+        Observer.Expect('commit: write transaction', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -707,6 +856,18 @@ codeunit 67515 "LT RV Tests"
         UkSnap(Observer, 'second modify', PrevLast, PrevMin, Last0, Min0);
         Commit();
         UkSnap(Observer, 'commit', PrevLast, PrevMin, Last0, Min0);
-        Observer.Finish();
+        Observer.Expect('modify: last vs previous', 'greater');
+        Observer.Expect('modify: min vs start', 'same');
+        Observer.Expect('modify: write transaction', 'Yes');
+        Observer.Expect('read: last vs previous', 'same');
+        Observer.Expect('read: min vs start', 'same');
+        Observer.Expect('read: write transaction', 'Yes');
+        Observer.Expect('second modify: last vs previous', 'greater');
+        Observer.Expect('second modify: min vs start', 'same');
+        Observer.Expect('second modify: write transaction', 'Yes');
+        Observer.Expect('commit: last vs previous', 'same');
+        Observer.Expect('commit: min vs start', 'same');
+        Observer.Expect('commit: write transaction', 'No');
+        Observer.Verify();
     end;
 }
