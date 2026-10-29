@@ -322,11 +322,9 @@ codeunit 67515 "LT RV Tests"
     begin
         Last := LastUsedRowVersion();
         Min := MinimumActiveRowVersion();
-        Observer.Observe(Name + ' last vs previous', Relation(Last, PrevLast));
-        Observer.Observe(Name + ' min vs start', Relation(Min, Min0));
-        Observer.Observe(Name + ' min vs previous', Relation(Min, PrevMin));
-        Observer.Observe(Name + ' last vs start', Relation(Last, Last0));
-        Observer.Observe(Name + ' in write transaction', Format(IsInWriteTransaction()));
+        Observer.Observe(Name + ': last vs previous', Relation(Last, PrevLast));
+        Observer.Observe(Name + ': min vs start', Relation(Min, Min0));
+        Observer.Observe(Name + ': write transaction', Format(IsInWriteTransaction()));
         PrevLast := Last;
         PrevMin := Min;
     end;
