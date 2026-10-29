@@ -1,6 +1,36 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-page-ext-object
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); table 90498 of UpPageExt.al; own codeunits 90507 (log) and 90509 (tests), page 90503 "LT UP Promoted Seven After"
+// Fixtures used: Probe Observer (codeunit 69160); table 90498 of UpPageExt.al; own codeunits 90507 (log) and 90509 (tests), pages 90503 and 90505-90509, page extensions 90504 and 90505-90509
+// Probe (writer UP, al-runner issue 6217): addafter() / addlast() of a promoted category group the page does not declare (Category_Category7,
+//   Category_Category12, Category_New) on a page that declares only Category_Process and Category_Category4; one page and extension per anchor, the
+//   extension's action and actionref invoked from a TestPage. Already pinned: addafter(Category_New / Report / Process) on a page without actions
+//   (pages/W1ActionAreasPromoted.al:82), addlast/addfirst(Category_Category4) (pages/lt-page-ext-promoted/PageExtPromotedCategoryRisky.al). An unknown
+//   anchor is AL0271 (must-not-compile case 2290).
+// BC versions: 27-29
+
+codeunit 90507 "LT UP Promoted Log"
+{
+    SingleInstance = true;
+
+    var
+        Entries: Text;
+
+    procedure Add(Entry: Text)
+    begin
+        Entries += Entry + ';';
+    end;
+
+    procedure Take(): Text
+    var
+        R: Text;
+    begin
+        R := Entries;
+        Entries := '';
+        exit(R);
+    end;
+}
+
+page 90503 "LT UP Promoted Seven After"
 {
     PageType = List;
     ApplicationArea = All;
