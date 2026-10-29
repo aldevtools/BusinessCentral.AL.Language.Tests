@@ -21,6 +21,39 @@ table 67516 "LT RV Row"
     }
 }
 
+// Writer UK (2026-10-29): two own tables for the LastUsedRowVersion / MinimumActiveRowVersion shape probes in codeunit 67515 (UK_* tests).
+table 90410 "LT UK Row A"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; Id; Integer) { }
+        field(2; Amount; Decimal) { }
+    }
+
+    keys
+    {
+        key(PK; Id) { Clustered = true; }
+    }
+}
+
+table 90411 "LT UK Row B"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; Id; Integer) { }
+        field(2; Amount; Decimal) { }
+    }
+
+    keys
+    {
+        key(PK; Id) { Clustered = true; }
+    }
+}
+
 codeunit 67515 "LT RV Tests"
 {
     Subtype = Test;
@@ -253,5 +286,333 @@ codeunit 67515 "LT RV Tests"
         Observer.Expect('rows below min', 'No');
         Observer.Expect('last row below min', 'No');
         Observer.Verify();
+    end;
+
+    // ---- Writer UK (NP lane, 2026-10-29): LastUsedRowVersion and MinimumActiveRowVersion after an Insert followed by each kind of read or write,
+    // inside the open write transaction and after Commit. Only relations to the previous value are asserted, never absolute values. ----
+
+    local procedure UkStart(var Last0: BigInteger; var Min0: BigInteger)
+    var
+        A: Record "LT UK Row A";
+        B: Record "LT UK Row B";
+    begin
+        A.DeleteAll();
+        B.DeleteAll();
+        Commit();
+        B.Id := 1;
+        B.Insert();
+        Commit();
+        Last0 := LastUsedRowVersion();
+        Min0 := MinimumActiveRowVersion();
+    end;
+
+    local procedure UkSnap(var Observer: Codeunit "Probe Observer"; Name: Text; var PrevLast: BigInteger; var PrevMin: BigInteger; Last0: BigInteger; Min0: BigInteger)
+    var
+        Last: BigInteger;
+        Min: BigInteger;
+    begin
+        Last := LastUsedRowVersion();
+        Min := MinimumActiveRowVersion();
+        Observer.Observe(Name + ' last = prev', Format(Last = PrevLast));
+        Observer.Observe(Name + ' last > prev', Format(Last > PrevLast));
+        Observer.Observe(Name + ' last > start', Format(Last > Last0));
+        Observer.Observe(Name + ' min = prev', Format(Min = PrevMin));
+        Observer.Observe(Name + ' min = start', Format(Min = Min0));
+        Observer.Observe(Name + ' min <= last + 1', Format(Min <= Last + 1));
+        Observer.Observe(Name + ' in write transaction', Format(IsInWriteTransaction()));
+        PrevLast := Last;
+        PrevMin := Min;
+    end;
+
+    [Test]
+    procedure UK_InsertThenFindSet()
+    var
+        Observer: Codeunit "Probe Observer";
+        A: Record "LT UK Row A";
+        Last0: BigInteger;
+        Min0: BigInteger;
+        PrevLast: BigInteger;
+        PrevMin: BigInteger;
+    begin
+        UkStart(Last0, Min0);
+        PrevLast := Last0;
+        PrevMin := Min0;
+        A.Id := 1;
+        A.Insert();
+        UkSnap(Observer, 'insert', PrevLast, PrevMin, Last0, Min0);
+        A.FindSet();
+        UkSnap(Observer, 'findset', PrevLast, PrevMin, Last0, Min0);
+        Commit();
+        UkSnap(Observer, 'commit', PrevLast, PrevMin, Last0, Min0);
+        A.DeleteAll();
+        Commit();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure UK_InsertThenFindFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+        A: Record "LT UK Row A";
+        Last0: BigInteger;
+        Min0: BigInteger;
+        PrevLast: BigInteger;
+        PrevMin: BigInteger;
+    begin
+        UkStart(Last0, Min0);
+        PrevLast := Last0;
+        PrevMin := Min0;
+        A.Id := 1;
+        A.Insert();
+        UkSnap(Observer, 'insert', PrevLast, PrevMin, Last0, Min0);
+        A.FindFirst();
+        UkSnap(Observer, 'findfirst', PrevLast, PrevMin, Last0, Min0);
+        Commit();
+        UkSnap(Observer, 'commit', PrevLast, PrevMin, Last0, Min0);
+        A.DeleteAll();
+        Commit();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure UK_InsertThenIsEmpty()
+    var
+        Observer: Codeunit "Probe Observer";
+        A: Record "LT UK Row A";
+        Last0: BigInteger;
+        Min0: BigInteger;
+        PrevLast: BigInteger;
+        PrevMin: BigInteger;
+    begin
+        UkStart(Last0, Min0);
+        PrevLast := Last0;
+        PrevMin := Min0;
+        A.Id := 1;
+        A.Insert();
+        UkSnap(Observer, 'insert', PrevLast, PrevMin, Last0, Min0);
+        Observer.Observe('is empty', Format(A.IsEmpty()));
+        UkSnap(Observer, 'isempty', PrevLast, PrevMin, Last0, Min0);
+        Commit();
+        UkSnap(Observer, 'commit', PrevLast, PrevMin, Last0, Min0);
+        A.DeleteAll();
+        Commit();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure UK_InsertThenCount()
+    var
+        Observer: Codeunit "Probe Observer";
+        A: Record "LT UK Row A";
+        Last0: BigInteger;
+        Min0: BigInteger;
+        PrevLast: BigInteger;
+        PrevMin: BigInteger;
+    begin
+        UkStart(Last0, Min0);
+        PrevLast := Last0;
+        PrevMin := Min0;
+        A.Id := 1;
+        A.Insert();
+        UkSnap(Observer, 'insert', PrevLast, PrevMin, Last0, Min0);
+        Observer.Observe('count', Format(A.Count()));
+        UkSnap(Observer, 'count', PrevLast, PrevMin, Last0, Min0);
+        Commit();
+        UkSnap(Observer, 'commit', PrevLast, PrevMin, Last0, Min0);
+        A.DeleteAll();
+        Commit();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure UK_InsertThenCalcSums()
+    var
+        Observer: Codeunit "Probe Observer";
+        A: Record "LT UK Row A";
+        Last0: BigInteger;
+        Min0: BigInteger;
+        PrevLast: BigInteger;
+        PrevMin: BigInteger;
+    begin
+        UkStart(Last0, Min0);
+        PrevLast := Last0;
+        PrevMin := Min0;
+        A.Id := 1;
+        A.Amount := 5;
+        A.Insert();
+        UkSnap(Observer, 'insert', PrevLast, PrevMin, Last0, Min0);
+        A.CalcSums(Amount);
+        Observer.Observe('sum', Format(A.Amount));
+        UkSnap(Observer, 'calcsums', PrevLast, PrevMin, Last0, Min0);
+        Commit();
+        UkSnap(Observer, 'commit', PrevLast, PrevMin, Last0, Min0);
+        A.DeleteAll();
+        Commit();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure UK_InsertThenGetAndModify()
+    var
+        Observer: Codeunit "Probe Observer";
+        A: Record "LT UK Row A";
+        Last0: BigInteger;
+        Min0: BigInteger;
+        PrevLast: BigInteger;
+        PrevMin: BigInteger;
+    begin
+        UkStart(Last0, Min0);
+        PrevLast := Last0;
+        PrevMin := Min0;
+        A.Id := 1;
+        A.Insert();
+        UkSnap(Observer, 'insert', PrevLast, PrevMin, Last0, Min0);
+        A.Get(1);
+        UkSnap(Observer, 'get', PrevLast, PrevMin, Last0, Min0);
+        A.Amount := 1;
+        A.Modify();
+        UkSnap(Observer, 'modify', PrevLast, PrevMin, Last0, Min0);
+        A.Get(1);
+        UkSnap(Observer, 'get after modify', PrevLast, PrevMin, Last0, Min0);
+        Commit();
+        UkSnap(Observer, 'commit', PrevLast, PrevMin, Last0, Min0);
+        A.DeleteAll();
+        Commit();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure UK_InsertThenReadOtherTable()
+    var
+        Observer: Codeunit "Probe Observer";
+        A: Record "LT UK Row A";
+        B: Record "LT UK Row B";
+        Last0: BigInteger;
+        Min0: BigInteger;
+        PrevLast: BigInteger;
+        PrevMin: BigInteger;
+    begin
+        UkStart(Last0, Min0);
+        PrevLast := Last0;
+        PrevMin := Min0;
+        A.Id := 1;
+        A.Insert();
+        UkSnap(Observer, 'insert', PrevLast, PrevMin, Last0, Min0);
+        B.FindFirst();
+        UkSnap(Observer, 'findfirst other', PrevLast, PrevMin, Last0, Min0);
+        B.Get(1);
+        UkSnap(Observer, 'get other', PrevLast, PrevMin, Last0, Min0);
+        Commit();
+        UkSnap(Observer, 'commit', PrevLast, PrevMin, Last0, Min0);
+        A.DeleteAll();
+        Commit();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure UK_InsertThenModifyOtherTable()
+    var
+        Observer: Codeunit "Probe Observer";
+        A: Record "LT UK Row A";
+        B: Record "LT UK Row B";
+        Last0: BigInteger;
+        Min0: BigInteger;
+        PrevLast: BigInteger;
+        PrevMin: BigInteger;
+    begin
+        UkStart(Last0, Min0);
+        PrevLast := Last0;
+        PrevMin := Min0;
+        A.Id := 1;
+        A.Insert();
+        UkSnap(Observer, 'insert', PrevLast, PrevMin, Last0, Min0);
+        B.Get(1);
+        B.Amount := 7;
+        B.Modify();
+        UkSnap(Observer, 'modify other', PrevLast, PrevMin, Last0, Min0);
+        A.FindFirst();
+        UkSnap(Observer, 'findfirst', PrevLast, PrevMin, Last0, Min0);
+        Commit();
+        UkSnap(Observer, 'commit', PrevLast, PrevMin, Last0, Min0);
+        A.DeleteAll();
+        Commit();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure UK_InsertTwoTablesThenGetOne()
+    var
+        Observer: Codeunit "Probe Observer";
+        A: Record "LT UK Row A";
+        B: Record "LT UK Row B";
+        Last0: BigInteger;
+        Min0: BigInteger;
+        PrevLast: BigInteger;
+        PrevMin: BigInteger;
+    begin
+        UkStart(Last0, Min0);
+        PrevLast := Last0;
+        PrevMin := Min0;
+        A.Id := 1;
+        A.Insert();
+        B.Id := 2;
+        B.Insert();
+        UkSnap(Observer, 'insert both', PrevLast, PrevMin, Last0, Min0);
+        A.Get(1);
+        UkSnap(Observer, 'get a', PrevLast, PrevMin, Last0, Min0);
+        B.Get(2);
+        UkSnap(Observer, 'get b', PrevLast, PrevMin, Last0, Min0);
+        Commit();
+        UkSnap(Observer, 'commit', PrevLast, PrevMin, Last0, Min0);
+        A.DeleteAll();
+        B.Get(2);
+        B.Delete();
+        Commit();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure UK_DeleteWithoutInsert()
+    var
+        Observer: Codeunit "Probe Observer";
+        B: Record "LT UK Row B";
+        Last0: BigInteger;
+        Min0: BigInteger;
+        PrevLast: BigInteger;
+        PrevMin: BigInteger;
+    begin
+        UkStart(Last0, Min0);
+        PrevLast := Last0;
+        PrevMin := Min0;
+        B.Get(1);
+        B.Delete();
+        UkSnap(Observer, 'delete', PrevLast, PrevMin, Last0, Min0);
+        Observer.Observe('is empty', Format(B.IsEmpty()));
+        UkSnap(Observer, 'isempty', PrevLast, PrevMin, Last0, Min0);
+        Commit();
+        UkSnap(Observer, 'commit', PrevLast, PrevMin, Last0, Min0);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure UK_DeleteAllWithoutInsert()
+    var
+        Observer: Codeunit "Probe Observer";
+        B: Record "LT UK Row B";
+        Last0: BigInteger;
+        Min0: BigInteger;
+        PrevLast: BigInteger;
+        PrevMin: BigInteger;
+    begin
+        UkStart(Last0, Min0);
+        PrevLast := Last0;
+        PrevMin := Min0;
+        B.DeleteAll();
+        UkSnap(Observer, 'deleteall', PrevLast, PrevMin, Last0, Min0);
+        Observer.Observe('count', Format(B.Count()));
+        UkSnap(Observer, 'count', PrevLast, PrevMin, Last0, Min0);
+        Commit();
+        UkSnap(Observer, 'commit', PrevLast, PrevMin, Last0, Min0);
+        Observer.Finish();
     end;
 }
