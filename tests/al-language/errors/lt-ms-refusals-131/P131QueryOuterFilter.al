@@ -283,7 +283,7 @@ codeunit 73657 "LT P131 Query Outer"
     end;
 
     [Test]
-    procedure UH_Query_ReadFilterElement()
+    procedure UH_Query_ReadFilter_BeforeOpen()
     var
         Observer: Codeunit "Probe Observer";
         Q: Query "LT P131 Q Lines";
@@ -293,15 +293,66 @@ codeunit 73657 "LT P131 Query Outer"
         ClearLastError();
         asserterror Txt := Format(Q.FilterOwner);
         Observer.Observe('before open', GetLastErrorText());
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure UH_Query_ReadFilter_OpenNoRead()
+    var
+        Observer: Codeunit "Probe Observer";
+        Q: Query "LT P131 Q Lines";
+        Txt: Text;
+    begin
+        Seed();
         Q.SetRange(FilterOwner, 'U1');
         Q.Open();
         ClearLastError();
         asserterror Txt := Format(Q.FilterOwner);
         Observer.Observe('open no read', GetLastErrorText());
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure UH_Query_ReadFilter_AfterRead_Code()
+    var
+        Observer: Codeunit "Probe Observer";
+        Q: Query "LT P131 Q Lines";
+        Txt: Text;
+    begin
+        Seed();
+        Q.SetRange(FilterOwner, 'U1');
+        Q.Open();
         Q.Read();
         ClearLastError();
-        Observer.Observe('after read', '[' + Format(Q.FilterOwner) + '][' + Format(Q.LineStatus) + ']');
-        Q.Close();
+        Observer.Observe('code after read', '[' + Format(Q.FilterOwner) + ']');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure UH_Query_ReadFilter_AfterRead_Int()
+    var
+        Observer: Codeunit "Probe Observer";
+        Q: Query "LT P131 Q Lines";
+        Txt: Text;
+    begin
+        Seed();
+        Q.SetRange(FilterStatus, 1);
+        Q.Open();
+        Q.Read();
+        ClearLastError();
+        Observer.Observe('int after read', '[' + Format(Q.FilterStatus) + ']');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure UH_Query_ReadFilter_GetFilter()
+    var
+        Observer: Codeunit "Probe Observer";
+        Q: Query "LT P131 Q Lines";
+        Txt: Text;
+    begin
+        Seed();
+        Q.SetRange(FilterOwner, 'U1');
         Observer.Observe('getfilter', '[' + Q.GetFilter(FilterOwner) + ']');
         Observer.Verify();
     end;
