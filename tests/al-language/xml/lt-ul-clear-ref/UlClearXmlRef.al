@@ -125,6 +125,28 @@ codeunit 90420 "LT UL Clear Xml Ref"
         Observer.Finish();
     end;
 
+    [TryFunction]
+    local procedure TryWrite(D: XmlDocument; var Result: Text)
+    begin
+        D.WriteTo(Result);
+    end;
+
+    [TryFunction]
+    local procedure TryAddFresh(D: XmlDocument)
+    begin
+        D.Add(XmlElement.Create('fresh'));
+    end;
+
+    local procedure Write(Observer: Codeunit "Probe Observer"; Label: Text; D: XmlDocument)
+    var
+        Out: Text;
+    begin
+        if TryWrite(D, Out) then
+            Observer.Observe(Label + '|writeto', Out)
+        else
+            Observer.ObserveError(Label + '|writeto');
+    end;
+
     [Test]
     procedure ClearXmlDocument_SecondVariable()
     var
@@ -132,7 +154,6 @@ codeunit 90420 "LT UL Clear Xml Ref"
         D: XmlDocument;
         Alias: XmlDocument;
         Txt: Text;
-        Out: Text;
     begin
         D := XmlDocument.Create();
         D.Add(XmlElement.Create('root'));
@@ -146,15 +167,14 @@ codeunit 90420 "LT UL Clear Xml Ref"
             Observer.Observe('alias doc|root', Txt)
         else
             Observer.ObserveError('alias doc|root');
-        D.WriteTo(Out);
-        Observer.Observe('cleared doc|writeto', Out);
-        Alias.WriteTo(Out);
-        Observer.Observe('alias doc|writeto', Out);
-        D.Add(XmlElement.Create('fresh'));
-        D.WriteTo(Out);
-        Observer.Observe('cleared doc after add|writeto', Out);
-        Alias.WriteTo(Out);
-        Observer.Observe('alias doc after add|writeto', Out);
+        Write(Observer, 'cleared doc', D);
+        Write(Observer, 'alias doc', Alias);
+        if TryAddFresh(D) then
+            Observer.Observe('cleared doc|add', 'ok')
+        else
+            Observer.ObserveError('cleared doc|add');
+        Write(Observer, 'cleared doc after add', D);
+        Write(Observer, 'alias doc after add', Alias);
         Observer.Finish();
     end;
 }
