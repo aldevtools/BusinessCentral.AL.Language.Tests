@@ -13,6 +13,8 @@ from pathlib import Path
 ALLOWED = {
     # corpus issue 661 (writer BF): writes only `if Insert() then;` into a DataPerCompany = false log; reads that can fail run in a TryFunction.
     'tests/al-language/install/lt-bf-install-probes/BfInstallFixtures.al',
+    # corpus issue 812: install code writes only `if Insert() then;` into DataPerCompany = false logs; the tag calls write nothing else.
+    'tests/al-language/install/lt-bf-install-probes/BfUpgradeTagInstall.al',
     'tests/al-language/_fixtures/ALTInstallProbe.al',
     'tests/al-language/_fixtures/ALTQuotedInstallProbe.al',
     'tests/al-language/install/TestInstallSeeder.al',
