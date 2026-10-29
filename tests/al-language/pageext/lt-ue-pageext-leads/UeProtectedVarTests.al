@@ -17,7 +17,7 @@ codeunit 90349 "LT UE Protected Var Tests"
     procedure ProtectedVar_OfAnotherExtension_IsSharedAndAssignable()
     var
         Row: Record "LT UE Row";
-        List: TestPage "LT UE PV List";
+        List: TestPage "LT UE PV Card";
     begin
         Row.DeleteAll();
         Row.Id := 1;

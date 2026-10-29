@@ -1,9 +1,9 @@
 // Objects for UeProtectedVarTests.al (AL Runner issue 6159): page extension "LT UE PV Mid Ext" declares protected variables; a second page extension of the
 // same page, "LT UE PV Top Ext", reads and assigns them. Fixtures: page 90346, page extensions 90347 and 90348. Table "LT UE Row" is in UeTriggerObjects.al.
 
-page 90346 "LT UE PV List"
+page 90346 "LT UE PV Card"
 {
-    PageType = List;
+    PageType = Card;
     SourceTable = "LT UE Row";
     ApplicationArea = All;
     UsageCategory = None;
@@ -12,19 +12,16 @@ page 90346 "LT UE PV List"
     {
         area(Content)
         {
-            repeater(Rows)
-            {
-                field(Id; Rec.Id) { }
-            }
+            field(Id; Rec.Id) { }
         }
     }
 }
 
-pageextension 90347 "LT UE PV Mid Ext" extends "LT UE PV List"
+pageextension 90347 "LT UE PV Mid Ext" extends "LT UE PV Card"
 {
     layout
     {
-        addlast(Rows)
+        addlast(Content)
         {
             field(MidAmount; Rec.Amount)
             {
@@ -48,11 +45,11 @@ pageextension 90347 "LT UE PV Mid Ext" extends "LT UE PV List"
         Trace: Text;
 }
 
-pageextension 90348 "LT UE PV Top Ext" extends "LT UE PV List"
+pageextension 90348 "LT UE PV Top Ext" extends "LT UE PV Card"
 {
     layout
     {
-        addlast(Rows)
+        addlast(Content)
         {
             field(TopAmount; Rec.Amount)
             {

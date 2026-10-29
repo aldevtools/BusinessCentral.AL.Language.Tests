@@ -80,20 +80,26 @@ codeunit 90335 "LT UE Trigger Tests"
     procedure NewRow_FirstExtensionAnswersFalse()
     var
         Row: Record "LT UE Row";
-        List: TestPage "LT UE List";
     begin
         Initialize();
         Log.SetExt1InsertAnswer(false);
+        Observer.Observe('try', Format(TryNewRow()));
+        Observer.ObserveError('try');
+        Observer.Observe('log', Log.Take());
+        Observer.Observe('stored', Format(Row.Get(5)));
+        Observer.Finish();
+    end;
+
+    [TryFunction]
+    local procedure TryNewRow()
+    var
+        List: TestPage "LT UE List";
+    begin
         List.OpenEdit();
-        Log.Take();
         List.New();
         List.Id.SetValue(5);
         List.Amount.SetValue(7);
-        Log.Take();
         List.Close();
-        Observer.Observe('close log', Log.Take());
-        Observer.Observe('stored', Format(Row.Get(5)));
-        Observer.Finish();
     end;
 
     [Test]
