@@ -44,6 +44,29 @@ table 74045 "LT P133 All Types"
     }
 }
 
+table 90541 "LT NP3 Fmt Flow"
+{
+    DataClassification = CustomerContent;
+
+    fields
+    {
+        field(1; Id; Integer) { }
+        field(2; Cd; Code[10]) { }
+        field(3; Dt; Date) { }
+        field(4; Total; Integer)
+        {
+            FieldClass = FlowField;
+            CalcFormula = count("LT P133 All Types");
+        }
+        field(5; Amount; Decimal) { }
+    }
+
+    keys
+    {
+        key(PK; Id) { Clustered = true; }
+    }
+}
+
 codeunit 74046 "LT P133 Date Eval Format"
 {
     Subtype = Test;
@@ -412,5 +435,99 @@ codeunit 74046 "LT P133 Date Eval Format"
         Observer.Expect('format 0 length 12 ok', 'Yes');
         Observer.Expect('format 0 length 12', '7\ttext value');
         Observer.Verify();
+    end;
+
+    [Test]
+    procedure NP3_FormatRecord_StandardFormats_0And9()
+    var
+        Observer: Codeunit "Probe Observer";
+        Rec: Record "LT P133 All Types";
+    begin
+        Rec.DeleteAll();
+        Observer.Observe('blank_0', Format(Rec, 0, 0));
+        Observer.Observe('blank_9', Format(Rec, 0, 9));
+        FillAll(Rec);
+        Observer.Observe('filled_0', Format(Rec, 0, 0));
+        Observer.Observe('filled_9', Format(Rec, 0, 9));
+        Rec.Insert();
+        Rec.Get(7);
+        Rec.Rid := Rec.RecordId;
+        Observer.Observe('with_recordid_9', Format(Rec, 0, 9));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure NP3_FormatRecord_Temporary_AndFlowField_0And9()
+    var
+        Observer: Codeunit "Probe Observer";
+        Temp: Record "LT P133 All Types" temporary;
+        Flow: Record "LT NP3 Fmt Flow";
+    begin
+        FillAll(Temp);
+        Temp.Insert();
+        Observer.Observe('temporary_9', Format(Temp, 0, 9));
+        Flow.DeleteAll();
+        Flow.Id := 3;
+        Flow.Cd := 'ABC';
+        Flow.Dt := DMY2Date(5, 3, 2024);
+        Flow.Amount := 12.5;
+        Flow.Insert();
+        Observer.Observe('flow_0', Format(Flow, 0, 0));
+        Observer.Observe('flow_9', Format(Flow, 0, 9));
+        Flow.CalcFields(Total);
+        Observer.Observe('flow_calculated_0', Format(Flow, 0, 0));
+        Observer.Observe('flow_calculated_9', Format(Flow, 0, 9));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure NP3_FormatRecordRef_StandardFormats_0And9()
+    var
+        Observer: Codeunit "Probe Observer";
+        Rec: Record "LT P133 All Types";
+        Temp: Record "LT P133 All Types" temporary;
+        Flow: Record "LT NP3 Fmt Flow";
+        RecRef: RecordRef;
+    begin
+        Rec.DeleteAll();
+        RecRef.GetTable(Rec);
+        Observer.Observe('blank_default', Format(RecRef));
+        Observer.Observe('blank_0', Format(RecRef, 0, 0));
+        Observer.Observe('blank_9', Format(RecRef, 0, 9));
+        FillAll(Rec);
+        RecRef.GetTable(Rec);
+        Observer.Observe('filled_default', Format(RecRef));
+        Observer.Observe('filled_0', Format(RecRef, 0, 0));
+        Observer.Observe('filled_9', Format(RecRef, 0, 9));
+        FillAll(Temp);
+        Temp.Insert();
+        RecRef.GetTable(Temp);
+        Observer.Observe('temporary_9', Format(RecRef, 0, 9));
+        Flow.DeleteAll();
+        Flow.Id := 3;
+        Flow.Cd := 'ABC';
+        Flow.Dt := DMY2Date(5, 3, 2024);
+        Flow.Amount := 12.5;
+        Flow.Insert();
+        RecRef.GetTable(Flow);
+        Observer.Observe('flow_0', Format(RecRef, 0, 0));
+        Observer.Observe('flow_9', Format(RecRef, 0, 9));
+        RecRef.Field(4).CalcField();
+        Observer.Observe('flow_calculated_9', Format(RecRef, 0, 9));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure NP3_FormatRecordRef_NotOpen()
+    var
+        Observer: Codeunit "Probe Observer";
+        RecRef: RecordRef;
+        Txt: Text;
+    begin
+        asserterror Txt := Format(RecRef, 0, 9);
+        Observer.ObserveError('not_open_9');
+        asserterror Txt := Format(RecRef);
+        Observer.ObserveError('not_open_default');
+        Observer.Finish();
     end;
 }
