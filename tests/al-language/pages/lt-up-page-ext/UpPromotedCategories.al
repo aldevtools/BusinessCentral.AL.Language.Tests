@@ -86,6 +86,7 @@ pageextension 90504 "LT UP Prom Seven After Ext" extends "LT UP Prom Seven After
         {
             action(Extra)
             {
+                ApplicationArea = All;
                 Caption = 'Extra';
                 trigger OnAction()
                 var
@@ -162,6 +163,7 @@ pageextension 90505 "LT UP Prom Seven Last Ext" extends "LT UP Prom Seven Last"
         {
             action(Extra)
             {
+                ApplicationArea = All;
                 Caption = 'Extra';
                 trigger OnAction()
                 var
@@ -234,6 +236,7 @@ pageextension 90506 "LT UP Prom Twelve After Ext" extends "LT UP Prom Twelve Aft
         {
             action(Extra)
             {
+                ApplicationArea = All;
                 Caption = 'Extra';
                 trigger OnAction()
                 var
@@ -310,6 +313,7 @@ pageextension 90507 "LT UP Prom New Last Ext" extends "LT UP Prom New Last"
         {
             action(Extra)
             {
+                ApplicationArea = All;
                 Caption = 'Extra';
                 trigger OnAction()
                 var
@@ -382,6 +386,7 @@ pageextension 90508 "LT UP Prom New After Ext" extends "LT UP Prom New After"
         {
             action(Extra)
             {
+                ApplicationArea = All;
                 Caption = 'Extra';
                 trigger OnAction()
                 var
@@ -458,6 +463,7 @@ pageextension 90509 "LT UP Prom Declared After Ext" extends "LT UP Prom Declared
         {
             action(Extra)
             {
+                ApplicationArea = All;
                 Caption = 'Extra';
                 trigger OnAction()
                 var
