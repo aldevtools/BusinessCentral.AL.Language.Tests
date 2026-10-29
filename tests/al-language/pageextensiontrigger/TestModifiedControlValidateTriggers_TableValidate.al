@@ -7,6 +7,10 @@
 // OnValidate only. Codeunit 90111 (EventSubscriberInstance = Manual, bound by the tests that need it) adds the table's
 // OnBeforeValidateEvent / OnAfterValidateEvent and the page's OnBeforeValidateEvent / OnAfterValidateEvent for both fields. Every trigger
 // appends a tag to Rec.Trace.
+// Probe: observed on the BC 29.0 SaaS sandbox; other versions by the corpus CI matrix.
+// Facts (BC 29): table OnValidate runs FIRST, then the modify() OnBeforeValidate, the page control's OnValidate and OnAfterValidate. With
+//   the events bound: table OnBeforeValidateEvent, table OnValidate, table OnAfterValidateEvent, page OnBeforeValidateEvent, modify()
+//   OnBeforeValidate, page OnValidate, modify() OnAfterValidate, page OnAfterValidateEvent. Validate from code runs only the table part.
 // BC versions: 27, 28, 29
 
 table 90108 "LT TT MCV Row"

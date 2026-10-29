@@ -4,6 +4,11 @@
 // Probe: written against a local BC 29.0.54011.55816 service tier; every literal asserted below is what that tier produced. Other BC versions are checked by the corpus CI matrix.
 // Settles probes-needed.md row: XML: adding a node that already has a parent copies it, a free node is shared
 // Facts: XmlElement.Add / XmlDocument.Add: copy vs share, second root, duplicate attribute, node into a wrong container
+// Writer TT (BC 29.0 SaaS sandbox, other versions by the CI matrix), test TT_EmptyOrBlankTextIntoXmlDocument: XmlDocument.Create('', '') and
+//   XmlDocument.Add('') add no node; an empty or blank XmlText (also XmlDocument.Create(' ')) is added as a node before or after the root
+//   without error, and a root can still be added. WriteTo keeps blank text nodes as they are (an empty one removes the line break after the
+//   declaration); WriteTo of a document without a root fails with 'The requested operation cannot be performed in this context.'
+//   (InvalidOperation).
 // BC versions: 29 (27 and 28 by CI)
 
 codeunit 70082 "LT PnA Xml NodeAdds"
@@ -260,7 +265,6 @@ codeunit 70082 "LT PnA Xml NodeAdds"
         D: XmlDocument;
         Out: Text;
     begin
-        Observer.Discard();
         TtDocText(Observer, 'create two empty texts', 1);
         TtDocText(Observer, 'create one blank text', 2);
         TtDocText(Observer, 'add empty XmlText', 3);
@@ -277,7 +281,20 @@ codeunit 70082 "LT PnA Xml NodeAdds"
         D.WriteTo(Out);
         Observer.Observe('request', Out);
         Observer.Observe('request nodes', Format(D.GetChildNodes().Count()));
-        Observer.Finish();
+        Observer.Expect('create two empty texts', 'ok created nodes=0 root added nodes=1 xml=<?xml version="1.0" encoding="utf-16"?>\r\n<root />');
+        Observer.Expect('create one blank text', 'ok created nodes=1 root added nodes=2 xml=<?xml version="1.0" encoding="utf-16"?> <root />');
+        Observer.Expect('add empty XmlText', 'ok created nodes=1 root added nodes=2 xml=<?xml version="1.0" encoding="utf-16"?><root />');
+        Observer.Expect('add blank XmlText', 'ok created nodes=1 root added nodes=2 xml=<?xml version="1.0" encoding="utf-16"?>  <root />');
+        Observer.Expect('add empty XmlText after root', 'ok created nodes=2 xml=<?xml version="1.0" encoding="utf-16"?>\r\n<r />');
+        Observer.Expect('add empty Text', 'ok created nodes=0 root added nodes=1 xml=<?xml version="1.0" encoding="utf-16"?>\r\n<root />');
+        Observer.Expect('add line feed and blanks', 'ok created nodes=1 root added nodes=2 xml=<?xml version="1.0" encoding="utf-16"?>\r\n  <root />');
+        Observer.Expect('add blank XmlText after root', 'ok created nodes=2 xml=<?xml version="1.0" encoding="utf-16"?>\r\n<r /> ');
+        Observer.Expect('empty document WriteTo', 'failed after: created nodes=0');
+        Observer.Expect('empty document WriteTo|text', 'The requested operation cannot be performed in this context.');
+        Observer.Expect('empty document WriteTo|code', 'InvalidOperation');
+        Observer.Expect('request', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\r\n<request>\r\n  <id>42</id>\r\n</request>');
+        Observer.Expect('request nodes', '1');
+        Observer.Verify();
         Observer.Verify();
     end;
 }

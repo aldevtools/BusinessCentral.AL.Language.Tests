@@ -1,6 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-page-extension-object
 // Scope: in-scope
 // Fixtures used: MCV Row (60510), MCV Card (60511), MCV Card Ext (60512), MCV Other Ext (60513), Assert (60021)
+//   writer TT: Probe Observer (69160), LT TT MCV Row/Card/Card Ext/Subs (90108-90111, TestModifiedControlValidateTriggers_TableValidate.al)
 //
 // What a pageextension's `modify(Control)` validation triggers do when the extended page is
 // driven as a TestPage.
@@ -430,7 +431,6 @@ codeunit 60514 "MCV Validate Trigger Tests"
         Row: Record "LT TT MCV Row";
         Card: TestPage "LT TT MCV Card";
     begin
-        Observer.Discard();
         Row.DeleteAll();
         Card.OpenNew();
         Card.Id.SetValue(1);
@@ -439,7 +439,9 @@ codeunit 60514 "MCV Validate Trigger Tests"
         Card.Other.SetValue('x');
         Observer.Observe('name then other', Card.Trace.Value());
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('name', 'table;before;page;after;');
+        Observer.Expect('name then other', 'table;before;page;after;othertable;otherbefore;otherafter;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -450,7 +452,6 @@ codeunit 60514 "MCV Validate Trigger Tests"
         Subs: Codeunit "LT TT MCV Subs";
         Card: TestPage "LT TT MCV Card";
     begin
-        Observer.Discard();
         Row.DeleteAll();
         BindSubscription(Subs);
         Card.OpenNew();
@@ -466,6 +467,9 @@ codeunit 60514 "MCV Validate Trigger Tests"
         Row.Validate(Other, 'code');
         Observer.Observe('validate from code', Row.Trace);
         UnbindSubscription(Subs);
-        Observer.Finish();
+        Observer.Expect('name', 'tbefore;table;tafter;pbefore;before;page;after;pafter;');
+        Observer.Expect('name then other', 'tbefore;table;tafter;pbefore;before;page;after;pafter;othertbefore;othertable;othertafter;otherpbefore;otherbefore;otherafter;otherpafter;');
+        Observer.Expect('validate from code', 'tbefore;table;tafter;othertbefore;othertable;othertafter;');
+        Observer.Verify();
     end;
 }
