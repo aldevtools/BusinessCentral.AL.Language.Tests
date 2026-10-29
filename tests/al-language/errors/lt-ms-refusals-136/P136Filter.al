@@ -376,4 +376,211 @@ codeunit 74334 "LT P136 Filter"
         Observer.Expect('24 hour', '2|Yes:5');
         Observer.Verify();
     end;
+
+    // Writer UN (2026-10-29, UN_* tests): DateTime filter texts that are a date alone or have an hour other than 12, as SetFilter text and inside SetView.
+    local procedure UnRow(Id: Integer; Stamp: DateTime)
+    var
+        R: Record "LT P136 Row";
+    begin
+        R.Init();
+        R.Id := Id;
+        R.DT := Stamp;
+        R.Insert();
+    end;
+
+    local procedure UnSeed()
+    var
+        R: Record "LT P136 Row";
+    begin
+        R.DeleteAll();
+        UnRow(11, CreateDateTime(20250115D, 0T));
+        UnRow(12, CreateDateTime(20250115D, 083000T));
+        UnRow(13, CreateDateTime(20250115D, 083030T));
+        UnRow(14, CreateDateTime(20250115D, 120000T));
+        UnRow(15, CreateDateTime(20250115D, 174510.5T));
+        UnRow(16, CreateDateTime(20250115D, 174500T));
+        UnRow(17, CreateDateTime(20250115D, 235959.999T));
+        UnRow(18, CreateDateTime(20250116D, 0T));
+        UnRow(19, CreateDateTime(20250114D, 200000T));
+    end;
+
+    local procedure UnIds(var R: Record "LT P136 Row"): Text
+    var
+        Result: Text;
+    begin
+        if R.FindSet() then
+            repeat
+                Result += Format(R.Id) + ',';
+            until R.Next() = 0;
+        exit(Result);
+    end;
+
+    [TryFunction]
+    local procedure UnTry(Txt: Text; AsView: Boolean; var Outcome: Text)
+    var
+        R: Record "LT P136 Row";
+    begin
+        if AsView then
+            R.SetView('WHERE(DT=FILTER(' + Txt + '))')
+        else
+            R.SetFilter(DT, Txt);
+        Outcome := 'ids=' + UnIds(R) + '|filter=' + R.GetFilter(DT) + '|view=' + R.GetView().Replace('VERSION(1) SORTING(Id) ', '');
+    end;
+
+    local procedure UnProbe(var Observer: Codeunit "Probe Observer"; Txt: Text)
+    var
+        O: Text;
+    begin
+        ClearLastError();
+        if UnTry(Txt, false, O) then
+            Observer.Observe('filter ' + Txt, O)
+        else
+            Observer.ObserveError('filter ' + Txt);
+        ClearLastError();
+        if UnTry(Txt, true, O) then
+            Observer.Observe('view ' + Txt, O)
+        else
+            Observer.ObserveError('view ' + Txt);
+    end;
+
+    [Test]
+    procedure UN_DateTimeFilter_DateAlone()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        UnSeed();
+        UnProbe(Observer, '01/15/25');
+        UnProbe(Observer, '1/15/25');
+        UnProbe(Observer, '15.01.25');
+        Observer.Expect('filter 01/15/25', 'ids=11,12,13,14,15,16,|filter=01/15/25 12:00 AM..01/15/25 11:59:59 PM|view=WHERE(DT=FILTER(2025-01-15T00:00:00Z..2025-01-15T23:59:59Z))');
+        Observer.Expect('view 01/15/25', 'ids=11,12,13,14,15,16,|filter=01/15/25 12:00 AM..01/15/25 11:59:59 PM|view=WHERE(DT=FILTER(2025-01-15T00:00:00Z..2025-01-15T23:59:59Z))');
+        Observer.Expect('filter 1/15/25', 'ids=11,12,13,14,15,16,|filter=01/15/25 12:00 AM..01/15/25 11:59:59 PM|view=WHERE(DT=FILTER(2025-01-15T00:00:00Z..2025-01-15T23:59:59Z))');
+        Observer.Expect('view 1/15/25', 'ids=11,12,13,14,15,16,|filter=01/15/25 12:00 AM..01/15/25 11:59:59 PM|view=WHERE(DT=FILTER(2025-01-15T00:00:00Z..2025-01-15T23:59:59Z))');
+        Observer.Expect('filter 15.01.25|text', 'The filter "15.01.25" is not valid for the DT field on the LT P136 Row table. The value "15.01.25" can''t be evaluated into type DateTime.');
+        Observer.Expect('filter 15.01.25|code', 'Filter:CSide');
+        Observer.Expect('view 15.01.25|text', 'The value "15.01.25" can''t be evaluated into type DateTime.');
+        Observer.Expect('view 15.01.25|code', 'InvalidFilterExpression:Evaluate');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure UN_DateTimeFilter_DateAlone_2()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        UnSeed();
+        UnProbe(Observer, '2025-01-15');
+        UnProbe(Observer, '..01/15/25');
+        UnProbe(Observer, '01/15/25..');
+        Observer.Expect('filter 2025-01-15', 'ids=11,12,13,14,15,16,|filter=01/15/25 12:00 AM..01/15/25 11:59:59 PM|view=WHERE(DT=FILTER(2025-01-15T00:00:00Z..2025-01-15T23:59:59Z))');
+        Observer.Expect('view 2025-01-15', 'ids=11,12,13,14,15,16,|filter=01/15/25 12:00 AM..01/15/25 11:59:59 PM|view=WHERE(DT=FILTER(2025-01-15T00:00:00Z..2025-01-15T23:59:59Z))');
+        Observer.Expect('filter ..01/15/25', 'ids=11,12,13,14,15,16,19,|filter=..01/15/25 11:59:59 PM|view=WHERE(DT=FILTER(..2025-01-15T23:59:59Z))');
+        Observer.Expect('view ..01/15/25', 'ids=11,12,13,14,15,16,19,|filter=..01/15/25 11:59:59 PM|view=WHERE(DT=FILTER(..2025-01-15T23:59:59Z))');
+        Observer.Expect('filter 01/15/25..', 'ids=11,12,13,14,15,16,17,18,|filter=01/15/25 12:00 AM..|view=WHERE(DT=FILTER(2025-01-15T00:00:00Z..))');
+        Observer.Expect('view 01/15/25..', 'ids=11,12,13,14,15,16,17,18,|filter=01/15/25 12:00 AM..|view=WHERE(DT=FILTER(2025-01-15T00:00:00Z..))');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure UN_DateTimeFilter_DateAlone_3()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        UnSeed();
+        UnProbe(Observer, '01/15/25..01/16/25');
+        Observer.Expect('filter 01/15/25..01/16/25', 'ids=11,12,13,14,15,16,17,18,|filter=01/15/25 12:00 AM..01/16/25 11:59:59 PM|view=WHERE(DT=FILTER(2025-01-15T00:00:00Z..2025-01-16T23:59:59Z))');
+        Observer.Expect('view 01/15/25..01/16/25', 'ids=11,12,13,14,15,16,17,18,|filter=01/15/25 12:00 AM..01/16/25 11:59:59 PM|view=WHERE(DT=FILTER(2025-01-15T00:00:00Z..2025-01-16T23:59:59Z))');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure UN_DateTimeFilter_HourNotTwelve()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        UnSeed();
+        UnProbe(Observer, '01/15/25 08:30');
+        UnProbe(Observer, '01/15/25 08:30 AM');
+        UnProbe(Observer, '01/15/25 08:30 PM');
+        Observer.Expect('filter 01/15/25 08:30', 'ids=12,|filter=01/15/25 08:30 AM|view=WHERE(DT=FILTER(2025-01-15T08:30:00Z))');
+        Observer.Expect('view 01/15/25 08:30', 'ids=12,|filter=01/15/25 08:30 AM|view=WHERE(DT=FILTER(2025-01-15T08:30:00Z))');
+        Observer.Expect('filter 01/15/25 08:30 AM', 'ids=12,|filter=01/15/25 08:30 AM|view=WHERE(DT=FILTER(2025-01-15T08:30:00Z))');
+        Observer.Expect('view 01/15/25 08:30 AM', 'ids=12,|filter=01/15/25 08:30 AM|view=WHERE(DT=FILTER(2025-01-15T08:30:00Z))');
+        Observer.Expect('filter 01/15/25 08:30 PM', 'ids=|filter=01/15/25 08:30 PM|view=WHERE(DT=FILTER(2025-01-15T20:30:00Z))');
+        Observer.Expect('view 01/15/25 08:30 PM', 'ids=|filter=01/15/25 08:30 PM|view=WHERE(DT=FILTER(2025-01-15T20:30:00Z))');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure UN_DateTimeFilter_HourNotTwelve_2()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        UnSeed();
+        UnProbe(Observer, '01/15/25 17:45:10.5');
+        UnProbe(Observer, '01/15/25 05:45:10.5 PM');
+        UnProbe(Observer, '01/15/25 17:45:10.500 PM');
+        Observer.Expect('filter 01/15/25 17:45:10.5', 'ids=15,|filter=01/15/25 05:45:10.5 PM|view=WHERE(DT=FILTER(2025-01-15T17:45:10.5Z))');
+        Observer.Expect('view 01/15/25 17:45:10.5', 'ids=15,|filter=01/15/25 05:45:10.5 PM|view=WHERE(DT=FILTER(2025-01-15T17:45:10.5Z))');
+        Observer.Expect('filter 01/15/25 05:45:10.5 PM', 'ids=15,|filter=01/15/25 05:45:10.5 PM|view=WHERE(DT=FILTER(2025-01-15T17:45:10.5Z))');
+        Observer.Expect('view 01/15/25 05:45:10.5 PM', 'ids=15,|filter=01/15/25 05:45:10.5 PM|view=WHERE(DT=FILTER(2025-01-15T17:45:10.5Z))');
+        Observer.Expect('filter 01/15/25 17:45:10.500 PM|text', 'The filter "01/15/25 17:45:10.500 PM" is not valid for the DT field on the LT P136 Row table. The date is not valid.');
+        Observer.Expect('filter 01/15/25 17:45:10.500 PM|code', 'Filter:CSide');
+        Observer.Expect('view 01/15/25 17:45:10.500 PM|text', 'The date is not valid.');
+        Observer.Expect('view 01/15/25 17:45:10.500 PM|code', 'InvalidFilterExpression:DateInvalid');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure UN_DateTimeFilter_MoreHourForms()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        UnSeed();
+        UnProbe(Observer, '01/15/25 08:30:00');
+        UnProbe(Observer, '01/15/25 12:00 AM');
+        UnProbe(Observer, '01/15/25 00:00');
+        Observer.Expect('filter 01/15/25 08:30:00', 'ids=12,|filter=01/15/25 08:30 AM|view=WHERE(DT=FILTER(2025-01-15T08:30:00Z))');
+        Observer.Expect('view 01/15/25 08:30:00', 'ids=12,|filter=01/15/25 08:30 AM|view=WHERE(DT=FILTER(2025-01-15T08:30:00Z))');
+        Observer.Expect('filter 01/15/25 12:00 AM', 'ids=11,|filter=01/15/25 12:00 AM|view=WHERE(DT=FILTER(2025-01-15T00:00:00Z))');
+        Observer.Expect('view 01/15/25 12:00 AM', 'ids=11,|filter=01/15/25 12:00 AM|view=WHERE(DT=FILTER(2025-01-15T00:00:00Z))');
+        Observer.Expect('filter 01/15/25 00:00', 'ids=11,|filter=01/15/25 12:00 AM|view=WHERE(DT=FILTER(2025-01-15T00:00:00Z))');
+        Observer.Expect('view 01/15/25 00:00', 'ids=11,|filter=01/15/25 12:00 AM|view=WHERE(DT=FILTER(2025-01-15T00:00:00Z))');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure UN_DateTimeFilter_MoreHourForms_2()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        UnSeed();
+        UnProbe(Observer, '01/15/25 17:45');
+        UnProbe(Observer, '>01/15/25 08:30');
+        UnProbe(Observer, '01/15/25 08:30..01/15/25 17:45:10.5');
+        Observer.Expect('filter 01/15/25 17:45', 'ids=16,|filter=01/15/25 05:45 PM|view=WHERE(DT=FILTER(2025-01-15T17:45:00Z))');
+        Observer.Expect('view 01/15/25 17:45', 'ids=16,|filter=01/15/25 05:45 PM|view=WHERE(DT=FILTER(2025-01-15T17:45:00Z))');
+        Observer.Expect('filter >01/15/25 08:30', 'ids=13,14,15,16,17,18,|filter=>01/15/25 08:30 AM|view=WHERE(DT=FILTER(>2025-01-15T08:30:00Z))');
+        Observer.Expect('view >01/15/25 08:30', 'ids=13,14,15,16,17,18,|filter=>01/15/25 08:30 AM|view=WHERE(DT=FILTER(>2025-01-15T08:30:00Z))');
+        Observer.Expect('filter 01/15/25 08:30..01/15/25 17:45:10.5', 'ids=12,13,14,15,16,|filter=01/15/25 08:30 AM..01/15/25 05:45:10.5 PM|view=WHERE(DT=FILTER(2025-01-15T08:30:00Z..2025-01-15T17:45:10.5Z))');
+        Observer.Expect('view 01/15/25 08:30..01/15/25 17:45:10.5', 'ids=12,13,14,15,16,|filter=01/15/25 08:30 AM..01/15/25 05:45:10.5 PM|view=WHERE(DT=FILTER(2025-01-15T08:30:00Z..2025-01-15T17:45:10.5Z))');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure UN_DateTimeFilter_MoreHourForms_3()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        UnSeed();
+        UnProbe(Observer, '<01/15/25');
+        UnProbe(Observer, '15.01.25 08:30');
+        Observer.Expect('filter <01/15/25', 'ids=19,|filter=<01/15/25 12:00 AM|view=WHERE(DT=FILTER(<2025-01-15T00:00:00Z))');
+        Observer.Expect('view <01/15/25', 'ids=19,|filter=<01/15/25 12:00 AM|view=WHERE(DT=FILTER(<2025-01-15T00:00:00Z))');
+        Observer.Expect('filter 15.01.25 08:30|text', 'The filter "15.01.25 08:30" is not valid for the DT field on the LT P136 Row table. The value "15.01.25 08:30" can''t be evaluated into type DateTime.');
+        Observer.Expect('filter 15.01.25 08:30|code', 'Filter:CSide');
+        Observer.Expect('view 15.01.25 08:30|text', 'The value "15.01.25 08:30" can''t be evaluated into type DateTime.');
+        Observer.Expect('view 15.01.25 08:30|code', 'InvalidFilterExpression:Evaluate');
+        Observer.Verify();
+    end;
 }

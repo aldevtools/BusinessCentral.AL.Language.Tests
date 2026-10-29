@@ -96,3 +96,23 @@ codeunit 60618 "Install Seeder"
         Observation.Insert();
     end;
 }
+
+// Probe UM (ADR-046 Q1): see install/lt-um-install-order/UmInstallOrder.al. Writes only `if Insert() then;` into a DataPerCompany = false log.
+codeunit 90431 "LT UM Mu Install"
+{
+    Subtype = Install;
+
+    trigger OnInstallAppPerCompany()
+    var
+        Writer: Codeunit "LT UM Install Writer";
+    begin
+        Writer.WriteRow('Mu', 'OnInstallAppPerCompany');
+    end;
+
+    trigger OnInstallAppPerDatabase()
+    var
+        Writer: Codeunit "LT UM Install Writer";
+    begin
+        Writer.WriteRow('Mu', 'OnInstallAppPerDatabase');
+    end;
+}
