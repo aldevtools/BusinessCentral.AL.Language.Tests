@@ -1017,6 +1017,7 @@ codeunit 90171 "LT TX Sql Reader"
         Total: Integer;
     begin
         SqlLine.SetRange("Group Code", GroupCode);
+        SqlLine.SetFilter("Line No.", '>0');
         if SqlLine.FindSet() then
             repeat
                 Total += SqlLine.Weight;
