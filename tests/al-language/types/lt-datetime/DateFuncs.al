@@ -436,36 +436,42 @@ codeunit 73801 "LT DtT DateFuncs"
         Observer.Verify();
     end;
 
-    // Writer UN (2026-10-29): DMY2Date with year 0 (no error is pinned above; here the value).
+    // Writer UN (2026-10-29): DMY2Date with year 0 and negative years (the "no error" for 1.1.0 is pinned above; here the value and the other days).
+    [TryFunction]
+    local procedure UnTryDmy(Day: Integer; Month: Integer; Year: Integer; var Outcome: Text)
+    var
+        D: Date;
+    begin
+        D := DMY2Date(Day, Month, Year);
+        Outcome := 'undefined=' + Format(D = 0D) + '|day=' + Format(Date2DMY(D, 1)) + '|month=' + Format(Date2DMY(D, 2)) + '|year is current=' + Format(Date2DMY(D, 3) = Date2DMY(Today(), 3)) + '|equals omitted year=' + Format(D = DMY2Date(Day, Month));
+    end;
+
+    local procedure UnDmy(var Observer: Codeunit "Probe Observer"; Day: Integer; Month: Integer; Year: Integer)
+    var
+        O: Text;
+        Name: Text;
+    begin
+        Name := Format(Day) + '.' + Format(Month) + '.' + Format(Year);
+        ClearLastError();
+        if UnTryDmy(Day, Month, Year, O) then
+            Observer.Observe(Name, O)
+        else
+            Observer.ObserveError(Name);
+    end;
+
     [Test]
     procedure UN_DMY2Date_YearZero_Value()
     var
         Observer: Codeunit "Probe Observer";
-        D: Date;
-        Cur: Integer;
     begin
-        Cur := Date2DMY(Today(), 3);
-        D := DMY2Date(1, 1, 0);
-        Observer.Observe('1.1.0 undefined', Format(D = 0D));
-        Observer.Observe('1.1.0 format', Format(D, 0, 9));
-        Observer.Observe('1.1.0 day', Format(Date2DMY(D, 1)));
-        Observer.Observe('1.1.0 month', Format(Date2DMY(D, 2)));
-        Observer.Observe('1.1.0 year is current', Format(Date2DMY(D, 3) = Cur));
-        Observer.Observe('1.1.0 equals omitted year', Format(D = DMY2Date(1, 1)));
-        D := DMY2Date(28, 2, 0);
-        Observer.Observe('28.2.0 undefined', Format(D = 0D));
-        Observer.Observe('28.2.0 year is current', Format(Date2DMY(D, 3) = Cur));
-        D := DMY2Date(31, 12, 0);
-        Observer.Observe('31.12.0 undefined', Format(D = 0D));
-        Observer.Observe('31.12.0 year is current', Format(Date2DMY(D, 3) = Cur));
-        asserterror D := DMY2Date(32, 1, 0);
-        Observer.ObserveError('32.1.0');
-        asserterror D := DMY2Date(1, 13, 0);
-        Observer.ObserveError('1.13.0');
-        asserterror D := DMY2Date(1, 1, -5);
-        Observer.ObserveError('1.1.-5');
-        asserterror D := DMY2Date(1, 1, -2024);
-        Observer.ObserveError('1.1.-2024');
+        UnDmy(Observer, 1, 1, 0);
+        UnDmy(Observer, 28, 2, 0);
+        UnDmy(Observer, 15, 6, 0);
+        UnDmy(Observer, 31, 12, 0);
+        UnDmy(Observer, 32, 1, 0);
+        UnDmy(Observer, 1, 13, 0);
+        UnDmy(Observer, 1, 1, -5);
+        UnDmy(Observer, 1, 1, -2024);
         Observer.Finish();
     end;
 }

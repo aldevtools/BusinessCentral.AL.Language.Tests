@@ -424,7 +424,7 @@ codeunit 74334 "LT P136 Filter"
             R.SetView('WHERE(DT=FILTER(' + Txt + '))')
         else
             R.SetFilter(DT, Txt);
-        Outcome := 'ids=' + UnIds(R) + '|filter=' + R.GetFilter(DT) + '|view=' + R.GetView();
+        Outcome := 'ids=' + UnIds(R) + '|filter=' + R.GetFilter(DT) + '|view=' + R.GetView().Replace('VERSION(1) SORTING(Id) ', '');
     end;
 
     local procedure UnProbe(var Observer: Codeunit "Probe Observer"; Txt: Text)
@@ -452,9 +452,27 @@ codeunit 74334 "LT P136 Filter"
         UnProbe(Observer, '01/15/25');
         UnProbe(Observer, '1/15/25');
         UnProbe(Observer, '15.01.25');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure UN_DateTimeFilter_DateAlone_2()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        UnSeed();
         UnProbe(Observer, '2025-01-15');
         UnProbe(Observer, '..01/15/25');
         UnProbe(Observer, '01/15/25..');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure UN_DateTimeFilter_DateAlone_3()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        UnSeed();
         UnProbe(Observer, '01/15/25..01/16/25');
         Observer.Finish();
     end;
@@ -468,6 +486,15 @@ codeunit 74334 "LT P136 Filter"
         UnProbe(Observer, '01/15/25 08:30');
         UnProbe(Observer, '01/15/25 08:30 AM');
         UnProbe(Observer, '01/15/25 08:30 PM');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure UN_DateTimeFilter_HourNotTwelve_2()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        UnSeed();
         UnProbe(Observer, '01/15/25 17:45:10.5');
         UnProbe(Observer, '01/15/25 05:45:10.5 PM');
         UnProbe(Observer, '01/15/25 17:45:10.500 PM');
@@ -483,9 +510,27 @@ codeunit 74334 "LT P136 Filter"
         UnProbe(Observer, '01/15/25 08:30:00');
         UnProbe(Observer, '01/15/25 12:00 AM');
         UnProbe(Observer, '01/15/25 00:00');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure UN_DateTimeFilter_MoreHourForms_2()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        UnSeed();
         UnProbe(Observer, '01/15/25 17:45');
         UnProbe(Observer, '>01/15/25 08:30');
         UnProbe(Observer, '01/15/25 08:30..01/15/25 17:45:10.5');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure UN_DateTimeFilter_MoreHourForms_3()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        UnSeed();
         UnProbe(Observer, '<01/15/25');
         UnProbe(Observer, '15.01.25 08:30');
         Observer.Finish();

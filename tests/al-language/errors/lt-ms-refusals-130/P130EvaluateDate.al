@@ -249,18 +249,60 @@ codeunit 73552 "LT P130 Evaluate Date"
         Observer.ObserveError('date 0');
         asserterror Evaluate(D, 'not-a-date');
         Observer.ObserveError('date default');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure UN_Evaluate_Statement_NotADate_ByTarget_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        D: Date;
+        DT: DateTime;
+        T: Time;
+        I: Integer;
+        Dec: Decimal;
+        B: Boolean;
+    begin
         asserterror Evaluate(DT, 'not-a-date', 9);
         Observer.ObserveError('datetime 9');
         asserterror Evaluate(DT, 'not-a-date', 0);
         Observer.ObserveError('datetime 0');
         asserterror Evaluate(T, 'not-a-date', 9);
         Observer.ObserveError('time 9');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure UN_Evaluate_Statement_NotADate_ByTarget_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        D: Date;
+        DT: DateTime;
+        T: Time;
+        I: Integer;
+        Dec: Decimal;
+        B: Boolean;
+    begin
         asserterror Evaluate(T, 'not-a-date', 0);
         Observer.ObserveError('time 0');
         asserterror Evaluate(I, 'not-a-date', 9);
         Observer.ObserveError('integer 9');
         asserterror Evaluate(Dec, 'not-a-date', 9);
         Observer.ObserveError('decimal 9');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure UN_Evaluate_Statement_NotADate_ByTarget_4()
+    var
+        Observer: Codeunit "Probe Observer";
+        D: Date;
+        DT: DateTime;
+        T: Time;
+        I: Integer;
+        Dec: Decimal;
+        B: Boolean;
+    begin
         asserterror Evaluate(B, 'not-a-date', 9);
         Observer.ObserveError('boolean 9');
         Observer.Finish();

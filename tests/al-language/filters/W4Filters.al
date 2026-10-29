@@ -746,6 +746,15 @@ codeunit 68058 "W4 Filter Tests"
         UnViewProbe(Observer, 'WHERE(Txt=FILTER(@abc*))');
         UnViewProbe(Observer, 'WHERE(Txt=FILTER(@ABC))');
         UnViewProbe(Observer, 'WHERE(Txt=FILTER(a@b.dk))');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure UN_SetView_AtSignInValue_Text_2()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        UnSeedAt();
         UnViewProbe(Observer, 'WHERE(Txt=FILTER(@a@b.dk))');
         UnViewProbe(Observer, 'WHERE(Txt=FILTER(*@b*))');
         UnViewProbe(Observer, 'WHERE(Txt=FILTER(ab@))');
@@ -761,9 +770,27 @@ codeunit 68058 "W4 Filter Tests"
         UnViewProbe(Observer, 'WHERE(Txt=FILTER(@@abc))');
         UnViewProbe(Observer, 'WHERE(Txt=CONST(@abc))');
         UnViewProbe(Observer, 'WHERE(Txt=FILTER(''@abc''))');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure UN_SetView_AtSignInValue_TextMore_2()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        UnSeedAt();
         UnViewProbe(Observer, 'WHERE(Txt=FILTER(@abc|@xabc))');
         UnViewProbe(Observer, 'WHERE(Cd=FILTER(@abc*))');
         UnViewProbe(Observer, 'WHERE(Cd=FILTER(@at*))');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure UN_SetView_AtSignInValue_TextMore_3()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        UnSeedAt();
         UnViewProbe(Observer, 'WHERE(Cd=FILTER(AT1@))');
         Observer.Finish();
     end;
