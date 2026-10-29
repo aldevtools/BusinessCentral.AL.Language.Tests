@@ -420,4 +420,52 @@ codeunit 60514 "MCV Validate Trigger Tests"
 
         Card.Close();
     end;
+
+    // Writer TT: the same order question when the TABLE field has its own OnValidate (fixtures in
+    // TestModifiedControlValidateTriggers_TableValidate.al): Name has a table and a page OnValidate, Other a table OnValidate only.
+    [Test]
+    procedure TT_TableOnValidate_Order()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT TT MCV Row";
+        Card: TestPage "LT TT MCV Card";
+    begin
+        Observer.Discard();
+        Row.DeleteAll();
+        Card.OpenNew();
+        Card.Id.SetValue(1);
+        Card.Name.SetValue('value');
+        Observer.Observe('name', Card.Trace.Value());
+        Card.Other.SetValue('x');
+        Observer.Observe('name then other', Card.Trace.Value());
+        Card.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TT_TableOnValidate_Order_WithEvents()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT TT MCV Row";
+        Subs: Codeunit "LT TT MCV Subs";
+        Card: TestPage "LT TT MCV Card";
+    begin
+        Observer.Discard();
+        Row.DeleteAll();
+        BindSubscription(Subs);
+        Card.OpenNew();
+        Card.Id.SetValue(2);
+        Card.Name.SetValue('value');
+        Observer.Observe('name', Card.Trace.Value());
+        Card.Other.SetValue('x');
+        Observer.Observe('name then other', Card.Trace.Value());
+        Card.Close();
+        Row.Init();
+        Row.Id := 3;
+        Row.Validate(Name, 'code');
+        Row.Validate(Other, 'code');
+        Observer.Observe('validate from code', Row.Trace);
+        UnbindSubscription(Subs);
+        Observer.Finish();
+    end;
 }

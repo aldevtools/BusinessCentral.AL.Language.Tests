@@ -181,7 +181,99 @@ codeunit 70082 "LT PnA Xml NodeAdds"
         Observer.Verify();
     end;
 
+    // Writer TT: empty and blank texts added to an XmlDocument (XmlDocument.Create with text arguments, XmlDocument.Add of an XmlText or a
+    // Text): does the add fail, what does WriteTo give, how many child nodes does the document hold, and can a root still be added?
+    [TryFunction]
+    local procedure TtTryDocText(Case: Integer; var Result: Text)
+    var
+        D: XmlDocument;
+        Lf: Text[1];
+        Out: Text;
+    begin
+        Lf[1] := 10;
+        case Case of
+            1:
+                D := XmlDocument.Create('', '');
+            2:
+                D := XmlDocument.Create(' ');
+            3:
+                begin
+                    D := XmlDocument.Create();
+                    D.Add(XmlText.Create(''));
+                end;
+            4:
+                begin
+                    D := XmlDocument.Create();
+                    D.Add(XmlText.Create('  '));
+                end;
+            5:
+                begin
+                    D := XmlDocument.Create();
+                    D.Add(XmlElement.Create('r'));
+                    D.Add(XmlText.Create(''));
+                end;
+            6:
+                begin
+                    D := XmlDocument.Create();
+                    D.Add('');
+                end;
+            7:
+                begin
+                    D := XmlDocument.Create();
+                    D.Add(XmlText.Create(Lf + '  '));
+                end;
+            8:
+                begin
+                    D := XmlDocument.Create();
+                    D.Add(XmlElement.Create('r'));
+                    D.Add(XmlText.Create(' '));
+                end;
+        end;
+        Result := 'created nodes=' + Format(D.GetChildNodes().Count());
+        D.WriteTo(Out);
+        Result += ' xml=' + Out;
+        D.Add(XmlElement.Create('root'));
+        D.WriteTo(Out);
+        Result += ' with root nodes=' + Format(D.GetChildNodes().Count()) + ' xml=' + Out;
+    end;
 
+    local procedure TtDocText(var Observer: Codeunit "Probe Observer"; Name: Text; Case: Integer)
+    var
+        Result: Text;
+    begin
+        ClearLastError();
+        if TtTryDocText(Case, Result) then
+            Observer.Observe(Name, 'ok ' + Result)
+        else begin
+            Observer.Observe(Name, 'failed after: ' + Result);
+            Observer.ObserveError(Name);
+        end;
+    end;
 
-
+    [Test]
+    procedure TT_EmptyOrBlankTextIntoXmlDocument()
+    var
+        Observer: Codeunit "Probe Observer";
+        D: XmlDocument;
+        Out: Text;
+    begin
+        Observer.Discard();
+        TtDocText(Observer, 'create two empty texts', 1);
+        TtDocText(Observer, 'create one blank text', 2);
+        TtDocText(Observer, 'add empty XmlText', 3);
+        TtDocText(Observer, 'add blank XmlText', 4);
+        TtDocText(Observer, 'add empty XmlText after root', 5);
+        TtDocText(Observer, 'add empty Text', 6);
+        TtDocText(Observer, 'add line feed and blanks', 7);
+        TtDocText(Observer, 'add blank XmlText after root', 8);
+        // the shape of a document built for a web service request: two empty texts, a declaration, then the root
+        D := XmlDocument.Create('', '');
+        D.SetDeclaration(XmlDeclaration.Create('1.0', 'UTF-8', 'yes'));
+        D.Add(XmlElement.Create('request', '', XmlElement.Create('id', '', '42')));
+        D.WriteTo(Out);
+        Observer.Observe('request', Out);
+        Observer.Observe('request nodes', Format(D.GetChildNodes().Count()));
+        Observer.Finish();
+        Observer.Verify();
+    end;
 }
