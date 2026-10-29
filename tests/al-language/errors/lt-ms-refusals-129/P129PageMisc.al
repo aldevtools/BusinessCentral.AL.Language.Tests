@@ -737,7 +737,11 @@ codeunit 73276 "LT P129 Page Misc"
         Observer.Observe('handler log', L.Take());
         Observer.Observe('prefilled record', AfterEmptyRun(Pg, true));
         Observer.Observe('cleared record', AfterEmptyRun(Pg, false));
-        Observer.Finish();
+        Observer.Expect('result', 'LookupCancel');
+        Observer.Expect('handler log', 'tv first=No;ok error=The built-in action = OK is not found on the page.|TestActionNotFound;');
+        Observer.Expect('prefilled record', 'ok|id=0|grp=|qty=0');
+        Observer.Expect('cleared record', 'ok|id=0|grp=|qty=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -782,7 +786,11 @@ codeunit 73276 "LT P129 Page Misc"
         Observer.Observe('handler log', L.Take());
         Observer.Observe('prefilled record', AfterEmptyRun(Pg, true));
         Observer.Observe('cleared record', AfterEmptyRun(Pg, false));
-        Observer.Finish();
+        Observer.Expect('result', 'LookupCancel');
+        Observer.Expect('handler log', 'tv first=No;ok error=The built-in action = OK is not found on the page.|TestActionNotFound;');
+        Observer.Expect('prefilled record', 'ok|id=0|grp=|qty=0');
+        Observer.Expect('cleared record', 'ok|id=0|grp=|qty=0');
+        Observer.Verify();
     end;
 
     [Test]

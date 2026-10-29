@@ -670,7 +670,27 @@ codeunit 74320 "LT FCF Format Comma String"
         TvObserve(Observer, '12345.6789', 12345.6789);
         TvObserve(Observer, '1/3', 1 / 3);
         TvObserve(Observer, 'round 2.346', Round(2.346, 0.01));
-        Observer.Finish();
+        Observer.Expect('0.01 0:26 sf2', 'ok:0.01');
+        Observer.Expect('0.01 0:26 sf0', 'ok:0.01');
+        Observer.Expect('0.01 0:26 sf9', 'ok:0.01');
+        Observer.Expect('0.01 0:26 alone', 'ok:');
+        Observer.Expect('0.01 0:19 sf2', 'ok:0.01');
+        Observer.Expect('12345.6789 0:26 sf2', 'ok:12345.6789');
+        Observer.Expect('12345.6789 0:26 sf0', 'ok:12,345.6789');
+        Observer.Expect('12345.6789 0:26 sf9', 'ok:12345.6789');
+        Observer.Expect('12345.6789 0:26 alone', 'ok:');
+        Observer.Expect('12345.6789 0:19 sf2', 'ok:12345.6789');
+        Observer.Expect('1/3 0:26 sf2', 'ok:0.333333333333333333');
+        Observer.Expect('1/3 0:26 sf0', 'ok:0.333333333333333333');
+        Observer.Expect('1/3 0:26 sf9', 'ok:0.333333333333333333');
+        Observer.Expect('1/3 0:26 alone', 'ok:');
+        Observer.Expect('1/3 0:19 sf2', 'ok:0.333333333333333333');
+        Observer.Expect('round 2.346 0:26 sf2', 'ok:2.35');
+        Observer.Expect('round 2.346 0:26 sf0', 'ok:2.35');
+        Observer.Expect('round 2.346 0:26 sf9', 'ok:2.35');
+        Observer.Expect('round 2.346 0:26 alone', 'ok:');
+        Observer.Expect('round 2.346 0:19 sf2', 'ok:2.35');
+        Observer.Verify();
     end;
 
     [Test]
@@ -683,6 +703,10 @@ codeunit 74320 "LT FCF Format Comma String"
         Observer.Observe('1.5 26:26 sf2', Show(TryFormat(1.5, '<Precision,26:26><Standard Format,2>', Res), Res));
         Observer.Observe('1/3 0:28 sf2', Show(TryFormat(1 / 3, '<Precision,0:28><Standard Format,2>', Res), Res));
         Observer.Observe('15 integer 0:26 sf2', Show(TryFormat(15, '<Precision,0:26><Standard Format,2>', Res), Res));
-        Observer.Finish();
+        Observer.Expect('1.5 0:28 sf2', 'ok:1.5');
+        Observer.Expect('1.5 26:26 sf2', 'ok:1.50000000000000000000000000');
+        Observer.Expect('1/3 0:28 sf2', 'ok:0.333333333333333333');
+        Observer.Expect('15 integer 0:26 sf2', 'ok:15');
+        Observer.Verify();
     end;
 }

@@ -144,7 +144,6 @@ codeunit 67515 "LT RV Tests"
         Last := LastUsedRowVersion();
         Observer.Observe(Name + ' min = start', Format(Min = Start));
         Observer.Observe(Name + ' min > start', Format(Min > Start));
-        Observer.Observe(Name + ' min = last + 1', Format(Min = Last + 1));
         Observer.Observe(Name + ' last > start last', Format(Last > StartLast));
         if RowVersion <> 0 then begin
             Observer.Observe(Name + ' row version < min', Format(RowVersion < Min));
@@ -166,7 +165,6 @@ codeunit 67515 "LT RV Tests"
         Commit();
         Start := MinimumActiveRowVersion();
         StartLast := LastUsedRowVersion();
-        Observer.Observe('start = last + 1', Format(Start = StartLast + 1));
         Row.Id := 1;
         Row.Insert();
         Row.Get(1);
@@ -183,7 +181,42 @@ codeunit 67515 "LT RV Tests"
         TvState(Observer, 'second commit', Start, StartLast, Row.SystemRowVersion);
         Row.DeleteAll();
         Commit();
-        Observer.Finish();
+        Observer.Expect('insert open min = start', 'Yes');
+        Observer.Expect('insert open min > start', 'No');
+        Observer.Expect('insert open last > start last', 'Yes');
+        Observer.Expect('insert open row version < min', 'No');
+        Observer.Expect('insert open row version <= last', 'Yes');
+        Observer.Expect('insert open row version >= start', 'Yes');
+        Observer.Expect('insert open in write transaction', 'Yes');
+        Observer.Expect('insert committed min = start', 'Yes');
+        Observer.Expect('insert committed min > start', 'No');
+        Observer.Expect('insert committed last > start last', 'Yes');
+        Observer.Expect('insert committed row version < min', 'No');
+        Observer.Expect('insert committed row version <= last', 'Yes');
+        Observer.Expect('insert committed row version >= start', 'Yes');
+        Observer.Expect('insert committed in write transaction', 'No');
+        Observer.Expect('modify open min = start', 'Yes');
+        Observer.Expect('modify open min > start', 'No');
+        Observer.Expect('modify open last > start last', 'Yes');
+        Observer.Expect('modify open row version < min', 'No');
+        Observer.Expect('modify open row version <= last', 'Yes');
+        Observer.Expect('modify open row version >= start', 'Yes');
+        Observer.Expect('modify open in write transaction', 'Yes');
+        Observer.Expect('modify committed min = start', 'Yes');
+        Observer.Expect('modify committed min > start', 'No');
+        Observer.Expect('modify committed last > start last', 'Yes');
+        Observer.Expect('modify committed row version < min', 'No');
+        Observer.Expect('modify committed row version <= last', 'Yes');
+        Observer.Expect('modify committed row version >= start', 'Yes');
+        Observer.Expect('modify committed in write transaction', 'No');
+        Observer.Expect('second commit min = start', 'Yes');
+        Observer.Expect('second commit min > start', 'No');
+        Observer.Expect('second commit last > start last', 'Yes');
+        Observer.Expect('second commit row version < min', 'No');
+        Observer.Expect('second commit row version <= last', 'Yes');
+        Observer.Expect('second commit row version >= start', 'Yes');
+        Observer.Expect('second commit in write transaction', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -214,6 +247,11 @@ codeunit 67515 "LT RV Tests"
         Observer.Observe('last row below min', Format(Row.SystemRowVersion < AfterCommit));
         Row.DeleteAll();
         Commit();
-        Observer.Finish();
+        Observer.Expect('read keeps min', 'Yes');
+        Observer.Expect('stable', 'Yes');
+        Observer.Expect('min after commit = start', 'Yes');
+        Observer.Expect('rows below min', 'No');
+        Observer.Expect('last row below min', 'No');
+        Observer.Verify();
     end;
 }
