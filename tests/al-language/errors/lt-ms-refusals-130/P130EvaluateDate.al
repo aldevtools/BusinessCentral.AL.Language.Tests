@@ -249,7 +249,13 @@ codeunit 73552 "LT P130 Evaluate Date"
         Observer.ObserveError('date 0');
         asserterror Evaluate(D, 'not-a-date');
         Observer.ObserveError('date default');
-        Observer.Finish();
+        Observer.Expect('date 9|text', 'The format of the Date ''not-a-date'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.');
+        Observer.Expect('date 9|code', 'Evaluate');
+        Observer.Expect('date 0|text', 'The format of the Date ''not-a-date'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.');
+        Observer.Expect('date 0|code', 'Evaluate');
+        Observer.Expect('date default|text', 'The format of the Date ''not-a-date'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.');
+        Observer.Expect('date default|code', 'Evaluate');
+        Observer.Verify();
     end;
 
     [Test]
@@ -269,7 +275,13 @@ codeunit 73552 "LT P130 Evaluate Date"
         Observer.ObserveError('datetime 0');
         asserterror Evaluate(T, 'not-a-date', 9);
         Observer.ObserveError('time 9');
-        Observer.Finish();
+        Observer.Expect('datetime 9|text', 'The value "not-a-date" can''t be evaluated into type DateTime.');
+        Observer.Expect('datetime 9|code', 'Evaluate');
+        Observer.Expect('datetime 0|text', 'The value "not-a-date" can''t be evaluated into type DateTime.');
+        Observer.Expect('datetime 0|code', 'Evaluate');
+        Observer.Expect('time 9|text', 'The value "not-a-date" can''t be evaluated into type Time.');
+        Observer.Expect('time 9|code', 'Evaluate');
+        Observer.Verify();
     end;
 
     [Test]
@@ -289,7 +301,13 @@ codeunit 73552 "LT P130 Evaluate Date"
         Observer.ObserveError('integer 9');
         asserterror Evaluate(Dec, 'not-a-date', 9);
         Observer.ObserveError('decimal 9');
-        Observer.Finish();
+        Observer.Expect('time 0|text', 'The value "not-a-date" can''t be evaluated into type Time.');
+        Observer.Expect('time 0|code', 'Evaluate');
+        Observer.Expect('integer 9|text', 'The value "not-a-date" can''t be evaluated into type Integer.');
+        Observer.Expect('integer 9|code', 'Evaluate');
+        Observer.Expect('decimal 9|text', 'The value "not-a-date" can''t be evaluated into type Decimal.');
+        Observer.Expect('decimal 9|code', 'Evaluate');
+        Observer.Verify();
     end;
 
     [Test]
@@ -305,6 +323,8 @@ codeunit 73552 "LT P130 Evaluate Date"
     begin
         asserterror Evaluate(B, 'not-a-date', 9);
         Observer.ObserveError('boolean 9');
-        Observer.Finish();
+        Observer.Expect('boolean 9|text', 'The value "not-a-date" can''t be evaluated into type Boolean.');
+        Observer.Expect('boolean 9|code', 'Evaluate');
+        Observer.Verify();
     end;
 }

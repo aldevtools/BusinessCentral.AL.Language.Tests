@@ -474,6 +474,25 @@ codeunit 73801 "LT DtT DateFuncs"
         UnDmy(Observer, 1, 13, 0);
         UnDmy(Observer, 1, 1, -5);
         UnDmy(Observer, 1, 1, -2024);
-        Observer.Finish();
+        Observer.Expect('1.1.0', 'undefined=No|day=1|month=1|year is current=No|year=0|iso=0001-01-02|equals 1.1.1=No|equals omitted year=No');
+        Observer.Expect('2.1.0|text', 'The value of DMY2Date parameter 3 is outside of the permitted range. The current value is: 0. The permitted range is: from 1 to 9999.');
+        Observer.Expect('2.1.0|code', 'OutsidePermittedRange');
+        Observer.Expect('1.2.0|text', 'The value of DMY2Date parameter 3 is outside of the permitted range. The current value is: 0. The permitted range is: from 1 to 9999.');
+        Observer.Expect('1.2.0|code', 'OutsidePermittedRange');
+        Observer.Expect('28.2.0|text', 'The value of DMY2Date parameter 3 is outside of the permitted range. The current value is: 0. The permitted range is: from 1 to 9999.');
+        Observer.Expect('28.2.0|code', 'OutsidePermittedRange');
+        Observer.Expect('15.6.0|text', 'The value of DMY2Date parameter 3 is outside of the permitted range. The current value is: 0. The permitted range is: from 1 to 9999.');
+        Observer.Expect('15.6.0|code', 'OutsidePermittedRange');
+        Observer.Expect('31.12.0|text', 'The value of DMY2Date parameter 3 is outside of the permitted range. The current value is: 0. The permitted range is: from 1 to 9999.');
+        Observer.Expect('31.12.0|code', 'OutsidePermittedRange');
+        Observer.Expect('32.1.0|text', 'The value of DMY2Date parameter 3 is outside of the permitted range. The current value is: 0. The permitted range is: from 1 to 9999.');
+        Observer.Expect('32.1.0|code', 'OutsidePermittedRange');
+        Observer.Expect('1.13.0|text', 'The value of DMY2Date parameter 2 is outside of the permitted range. The current value is: 13. The permitted range is: from 1 to 12.');
+        Observer.Expect('1.13.0|code', 'OutsidePermittedRange');
+        Observer.Expect('1.1.-5|text', 'The value of DMY2Date parameter 3 is outside of the permitted range. The current value is: -5. The permitted range is: from 1 to 9999.');
+        Observer.Expect('1.1.-5|code', 'OutsidePermittedRange');
+        Observer.Expect('1.1.-2024|text', 'The value of DMY2Date parameter 3 is outside of the permitted range. The current value is: -2024. The permitted range is: from 1 to 9999.');
+        Observer.Expect('1.1.-2024|code', 'OutsidePermittedRange');
+        Observer.Verify();
     end;
 }

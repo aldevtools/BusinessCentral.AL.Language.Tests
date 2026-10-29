@@ -441,7 +441,10 @@ codeunit 72502 "LT JsT Value Getters"
         Observer.Observe('text False', Try(V, 'AsBoolean'));
         V := ValFrom('"FALSE"');
         Observer.Observe('text FALSE', Try(V, 'AsBoolean'));
-        Observer.Finish();
+        Observer.Expect('text false', 'ok:No');
+        Observer.Expect('text False', 'ok:No');
+        Observer.Expect('text FALSE', 'ok:No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -455,7 +458,10 @@ codeunit 72502 "LT JsT Value Getters"
         Observer.Observe('text TRUE', Try(V, 'AsBoolean'));
         V := ValFrom('"0"');
         Observer.Observe('text 0', Try(V, 'AsBoolean'));
-        Observer.Finish();
+        Observer.Expect('text True', 'ok:Yes');
+        Observer.Expect('text TRUE', 'ok:Yes');
+        Observer.Expect('text 0', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Boolean.|Conversion');
+        Observer.Verify();
     end;
 
     [Test]
@@ -469,7 +475,10 @@ codeunit 72502 "LT JsT Value Getters"
         Observer.Observe('text yes', Try(V, 'AsBoolean'));
         V := ValFrom('"Yes"');
         Observer.Observe('text Yes', Try(V, 'AsBoolean'));
-        Observer.Finish();
+        Observer.Expect('text 1', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Boolean.|Conversion');
+        Observer.Expect('text yes', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Boolean.|Conversion');
+        Observer.Expect('text Yes', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Boolean.|Conversion');
+        Observer.Verify();
     end;
 
     [Test]
@@ -483,7 +492,10 @@ codeunit 72502 "LT JsT Value Getters"
         Observer.Observe('text empty', Try(V, 'AsBoolean'));
         V := ValFrom('" true"');
         Observer.Observe('text space true', Try(V, 'AsBoolean'));
-        Observer.Finish();
+        Observer.Expect('text No', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Boolean.|Conversion');
+        Observer.Expect('text empty', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Boolean.|Conversion');
+        Observer.Expect('text space true', 'ok:Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -497,7 +509,10 @@ codeunit 72502 "LT JsT Value Getters"
         Observer.Observe('number 0', Try(V, 'AsBoolean'));
         V := ValFrom('1');
         Observer.Observe('number 1', Try(V, 'AsBoolean'));
-        Observer.Finish();
+        Observer.Expect('text true space', 'ok:Yes');
+        Observer.Expect('number 0', 'ok:No');
+        Observer.Expect('number 1', 'ok:Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -507,6 +522,7 @@ codeunit 72502 "LT JsT Value Getters"
     begin
         V := ValFrom('false');
         Observer.Observe('bool false', Try(V, 'AsBoolean'));
-        Observer.Finish();
+        Observer.Expect('bool false', 'ok:No');
+        Observer.Verify();
     end;
 }

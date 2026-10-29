@@ -452,7 +452,15 @@ codeunit 74334 "LT P136 Filter"
         UnProbe(Observer, '01/15/25');
         UnProbe(Observer, '1/15/25');
         UnProbe(Observer, '15.01.25');
-        Observer.Finish();
+        Observer.Expect('filter 01/15/25', 'ids=11,12,13,14,15,16,|filter=01/15/25 12:00 AM..01/15/25 11:59:59 PM|view=WHERE(DT=FILTER(2025-01-15T00:00:00Z..2025-01-15T23:59:59Z))');
+        Observer.Expect('view 01/15/25', 'ids=11,12,13,14,15,16,|filter=01/15/25 12:00 AM..01/15/25 11:59:59 PM|view=WHERE(DT=FILTER(2025-01-15T00:00:00Z..2025-01-15T23:59:59Z))');
+        Observer.Expect('filter 1/15/25', 'ids=11,12,13,14,15,16,|filter=01/15/25 12:00 AM..01/15/25 11:59:59 PM|view=WHERE(DT=FILTER(2025-01-15T00:00:00Z..2025-01-15T23:59:59Z))');
+        Observer.Expect('view 1/15/25', 'ids=11,12,13,14,15,16,|filter=01/15/25 12:00 AM..01/15/25 11:59:59 PM|view=WHERE(DT=FILTER(2025-01-15T00:00:00Z..2025-01-15T23:59:59Z))');
+        Observer.Expect('filter 15.01.25|text', 'The filter "15.01.25" is not valid for the DT field on the LT P136 Row table. The value "15.01.25" can''t be evaluated into type DateTime.');
+        Observer.Expect('filter 15.01.25|code', 'Filter:CSide');
+        Observer.Expect('view 15.01.25|text', 'The value "15.01.25" can''t be evaluated into type DateTime.');
+        Observer.Expect('view 15.01.25|code', 'InvalidFilterExpression:Evaluate');
+        Observer.Verify();
     end;
 
     [Test]
@@ -464,7 +472,13 @@ codeunit 74334 "LT P136 Filter"
         UnProbe(Observer, '2025-01-15');
         UnProbe(Observer, '..01/15/25');
         UnProbe(Observer, '01/15/25..');
-        Observer.Finish();
+        Observer.Expect('filter 2025-01-15', 'ids=11,12,13,14,15,16,|filter=01/15/25 12:00 AM..01/15/25 11:59:59 PM|view=WHERE(DT=FILTER(2025-01-15T00:00:00Z..2025-01-15T23:59:59Z))');
+        Observer.Expect('view 2025-01-15', 'ids=11,12,13,14,15,16,|filter=01/15/25 12:00 AM..01/15/25 11:59:59 PM|view=WHERE(DT=FILTER(2025-01-15T00:00:00Z..2025-01-15T23:59:59Z))');
+        Observer.Expect('filter ..01/15/25', 'ids=11,12,13,14,15,16,19,|filter=..01/15/25 11:59:59 PM|view=WHERE(DT=FILTER(..2025-01-15T23:59:59Z))');
+        Observer.Expect('view ..01/15/25', 'ids=11,12,13,14,15,16,19,|filter=..01/15/25 11:59:59 PM|view=WHERE(DT=FILTER(..2025-01-15T23:59:59Z))');
+        Observer.Expect('filter 01/15/25..', 'ids=11,12,13,14,15,16,17,18,|filter=01/15/25 12:00 AM..|view=WHERE(DT=FILTER(2025-01-15T00:00:00Z..))');
+        Observer.Expect('view 01/15/25..', 'ids=11,12,13,14,15,16,17,18,|filter=01/15/25 12:00 AM..|view=WHERE(DT=FILTER(2025-01-15T00:00:00Z..))');
+        Observer.Verify();
     end;
 
     [Test]
@@ -474,7 +488,9 @@ codeunit 74334 "LT P136 Filter"
     begin
         UnSeed();
         UnProbe(Observer, '01/15/25..01/16/25');
-        Observer.Finish();
+        Observer.Expect('filter 01/15/25..01/16/25', 'ids=11,12,13,14,15,16,17,18,|filter=01/15/25 12:00 AM..01/16/25 11:59:59 PM|view=WHERE(DT=FILTER(2025-01-15T00:00:00Z..2025-01-16T23:59:59Z))');
+        Observer.Expect('view 01/15/25..01/16/25', 'ids=11,12,13,14,15,16,17,18,|filter=01/15/25 12:00 AM..01/16/25 11:59:59 PM|view=WHERE(DT=FILTER(2025-01-15T00:00:00Z..2025-01-16T23:59:59Z))');
+        Observer.Verify();
     end;
 
     [Test]
@@ -486,7 +502,13 @@ codeunit 74334 "LT P136 Filter"
         UnProbe(Observer, '01/15/25 08:30');
         UnProbe(Observer, '01/15/25 08:30 AM');
         UnProbe(Observer, '01/15/25 08:30 PM');
-        Observer.Finish();
+        Observer.Expect('filter 01/15/25 08:30', 'ids=12,|filter=01/15/25 08:30 AM|view=WHERE(DT=FILTER(2025-01-15T08:30:00Z))');
+        Observer.Expect('view 01/15/25 08:30', 'ids=12,|filter=01/15/25 08:30 AM|view=WHERE(DT=FILTER(2025-01-15T08:30:00Z))');
+        Observer.Expect('filter 01/15/25 08:30 AM', 'ids=12,|filter=01/15/25 08:30 AM|view=WHERE(DT=FILTER(2025-01-15T08:30:00Z))');
+        Observer.Expect('view 01/15/25 08:30 AM', 'ids=12,|filter=01/15/25 08:30 AM|view=WHERE(DT=FILTER(2025-01-15T08:30:00Z))');
+        Observer.Expect('filter 01/15/25 08:30 PM', 'ids=|filter=01/15/25 08:30 PM|view=WHERE(DT=FILTER(2025-01-15T20:30:00Z))');
+        Observer.Expect('view 01/15/25 08:30 PM', 'ids=|filter=01/15/25 08:30 PM|view=WHERE(DT=FILTER(2025-01-15T20:30:00Z))');
+        Observer.Verify();
     end;
 
     [Test]
@@ -498,7 +520,15 @@ codeunit 74334 "LT P136 Filter"
         UnProbe(Observer, '01/15/25 17:45:10.5');
         UnProbe(Observer, '01/15/25 05:45:10.5 PM');
         UnProbe(Observer, '01/15/25 17:45:10.500 PM');
-        Observer.Finish();
+        Observer.Expect('filter 01/15/25 17:45:10.5', 'ids=15,|filter=01/15/25 05:45:10.5 PM|view=WHERE(DT=FILTER(2025-01-15T17:45:10.5Z))');
+        Observer.Expect('view 01/15/25 17:45:10.5', 'ids=15,|filter=01/15/25 05:45:10.5 PM|view=WHERE(DT=FILTER(2025-01-15T17:45:10.5Z))');
+        Observer.Expect('filter 01/15/25 05:45:10.5 PM', 'ids=15,|filter=01/15/25 05:45:10.5 PM|view=WHERE(DT=FILTER(2025-01-15T17:45:10.5Z))');
+        Observer.Expect('view 01/15/25 05:45:10.5 PM', 'ids=15,|filter=01/15/25 05:45:10.5 PM|view=WHERE(DT=FILTER(2025-01-15T17:45:10.5Z))');
+        Observer.Expect('filter 01/15/25 17:45:10.500 PM|text', 'The filter "01/15/25 17:45:10.500 PM" is not valid for the DT field on the LT P136 Row table. The date is not valid.');
+        Observer.Expect('filter 01/15/25 17:45:10.500 PM|code', 'Filter:CSide');
+        Observer.Expect('view 01/15/25 17:45:10.500 PM|text', 'The date is not valid.');
+        Observer.Expect('view 01/15/25 17:45:10.500 PM|code', 'InvalidFilterExpression:DateInvalid');
+        Observer.Verify();
     end;
 
     [Test]
@@ -510,7 +540,13 @@ codeunit 74334 "LT P136 Filter"
         UnProbe(Observer, '01/15/25 08:30:00');
         UnProbe(Observer, '01/15/25 12:00 AM');
         UnProbe(Observer, '01/15/25 00:00');
-        Observer.Finish();
+        Observer.Expect('filter 01/15/25 08:30:00', 'ids=12,|filter=01/15/25 08:30 AM|view=WHERE(DT=FILTER(2025-01-15T08:30:00Z))');
+        Observer.Expect('view 01/15/25 08:30:00', 'ids=12,|filter=01/15/25 08:30 AM|view=WHERE(DT=FILTER(2025-01-15T08:30:00Z))');
+        Observer.Expect('filter 01/15/25 12:00 AM', 'ids=11,|filter=01/15/25 12:00 AM|view=WHERE(DT=FILTER(2025-01-15T00:00:00Z))');
+        Observer.Expect('view 01/15/25 12:00 AM', 'ids=11,|filter=01/15/25 12:00 AM|view=WHERE(DT=FILTER(2025-01-15T00:00:00Z))');
+        Observer.Expect('filter 01/15/25 00:00', 'ids=11,|filter=01/15/25 12:00 AM|view=WHERE(DT=FILTER(2025-01-15T00:00:00Z))');
+        Observer.Expect('view 01/15/25 00:00', 'ids=11,|filter=01/15/25 12:00 AM|view=WHERE(DT=FILTER(2025-01-15T00:00:00Z))');
+        Observer.Verify();
     end;
 
     [Test]
@@ -522,7 +558,13 @@ codeunit 74334 "LT P136 Filter"
         UnProbe(Observer, '01/15/25 17:45');
         UnProbe(Observer, '>01/15/25 08:30');
         UnProbe(Observer, '01/15/25 08:30..01/15/25 17:45:10.5');
-        Observer.Finish();
+        Observer.Expect('filter 01/15/25 17:45', 'ids=16,|filter=01/15/25 05:45 PM|view=WHERE(DT=FILTER(2025-01-15T17:45:00Z))');
+        Observer.Expect('view 01/15/25 17:45', 'ids=16,|filter=01/15/25 05:45 PM|view=WHERE(DT=FILTER(2025-01-15T17:45:00Z))');
+        Observer.Expect('filter >01/15/25 08:30', 'ids=13,14,15,16,17,18,|filter=>01/15/25 08:30 AM|view=WHERE(DT=FILTER(>2025-01-15T08:30:00Z))');
+        Observer.Expect('view >01/15/25 08:30', 'ids=13,14,15,16,17,18,|filter=>01/15/25 08:30 AM|view=WHERE(DT=FILTER(>2025-01-15T08:30:00Z))');
+        Observer.Expect('filter 01/15/25 08:30..01/15/25 17:45:10.5', 'ids=12,13,14,15,16,|filter=01/15/25 08:30 AM..01/15/25 05:45:10.5 PM|view=WHERE(DT=FILTER(2025-01-15T08:30:00Z..2025-01-15T17:45:10.5Z))');
+        Observer.Expect('view 01/15/25 08:30..01/15/25 17:45:10.5', 'ids=12,13,14,15,16,|filter=01/15/25 08:30 AM..01/15/25 05:45:10.5 PM|view=WHERE(DT=FILTER(2025-01-15T08:30:00Z..2025-01-15T17:45:10.5Z))');
+        Observer.Verify();
     end;
 
     [Test]
@@ -533,6 +575,12 @@ codeunit 74334 "LT P136 Filter"
         UnSeed();
         UnProbe(Observer, '<01/15/25');
         UnProbe(Observer, '15.01.25 08:30');
-        Observer.Finish();
+        Observer.Expect('filter <01/15/25', 'ids=19,|filter=<01/15/25 12:00 AM|view=WHERE(DT=FILTER(<2025-01-15T00:00:00Z))');
+        Observer.Expect('view <01/15/25', 'ids=19,|filter=<01/15/25 12:00 AM|view=WHERE(DT=FILTER(<2025-01-15T00:00:00Z))');
+        Observer.Expect('filter 15.01.25 08:30|text', 'The filter "15.01.25 08:30" is not valid for the DT field on the LT P136 Row table. The value "15.01.25 08:30" can''t be evaluated into type DateTime.');
+        Observer.Expect('filter 15.01.25 08:30|code', 'Filter:CSide');
+        Observer.Expect('view 15.01.25 08:30|text', 'The value "15.01.25 08:30" can''t be evaluated into type DateTime.');
+        Observer.Expect('view 15.01.25 08:30|code', 'InvalidFilterExpression:Evaluate');
+        Observer.Verify();
     end;
 }

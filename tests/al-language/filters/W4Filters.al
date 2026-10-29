@@ -746,7 +746,10 @@ codeunit 68058 "W4 Filter Tests"
         UnViewProbe(Observer, 'WHERE(Txt=FILTER(@abc*))');
         UnViewProbe(Observer, 'WHERE(Txt=FILTER(@ABC))');
         UnViewProbe(Observer, 'WHERE(Txt=FILTER(a@b.dk))');
-        Observer.Finish();
+        Observer.Expect('WHERE(Txt=FILTER(@abc*))', 'ids=1,2,|txt=@abc*|cd=|view=VERSION(1) SORTING(Id) WHERE(Txt=FILTER(@abc*))');
+        Observer.Expect('WHERE(Txt=FILTER(@ABC))', 'ids=1,|txt=@ABC|cd=|view=VERSION(1) SORTING(Id) WHERE(Txt=FILTER(@ABC))');
+        Observer.Expect('WHERE(Txt=FILTER(a@b.dk))', 'ids=4,|txt=a@b.dk|cd=|view=VERSION(1) SORTING(Id) WHERE(Txt=FILTER(a@b.dk))');
+        Observer.Verify();
     end;
 
     [Test]
@@ -758,7 +761,10 @@ codeunit 68058 "W4 Filter Tests"
         UnViewProbe(Observer, 'WHERE(Txt=FILTER(@a@b.dk))');
         UnViewProbe(Observer, 'WHERE(Txt=FILTER(*@b*))');
         UnViewProbe(Observer, 'WHERE(Txt=FILTER(ab@))');
-        Observer.Finish();
+        Observer.Expect('WHERE(Txt=FILTER(@a@b.dk))', 'ids=4,5,|txt=@a@b.dk|cd=|view=VERSION(1) SORTING(Id) WHERE(Txt=FILTER(@a@b.dk))');
+        Observer.Expect('WHERE(Txt=FILTER(*@b*))', 'ids=4,|txt=*@b*|cd=|view=VERSION(1) SORTING(Id) WHERE(Txt=FILTER(*@b*))');
+        Observer.Expect('WHERE(Txt=FILTER(ab@))', 'ids=7,|txt=ab@|cd=|view=VERSION(1) SORTING(Id) WHERE(Txt=FILTER(ab@))');
+        Observer.Verify();
     end;
 
     [Test]
@@ -770,7 +776,10 @@ codeunit 68058 "W4 Filter Tests"
         UnViewProbe(Observer, 'WHERE(Txt=FILTER(@@abc))');
         UnViewProbe(Observer, 'WHERE(Txt=CONST(@abc))');
         UnViewProbe(Observer, 'WHERE(Txt=FILTER(''@abc''))');
-        Observer.Finish();
+        Observer.Expect('WHERE(Txt=FILTER(@@abc))', 'ids=1,|txt=@@abc|cd=|view=VERSION(1) SORTING(Id) WHERE(Txt=FILTER(@@abc))');
+        Observer.Expect('WHERE(Txt=CONST(@abc))', 'ids=6,|txt=''@abc''|cd=|view=VERSION(1) SORTING(Id) WHERE(Txt=FILTER(''@abc''))');
+        Observer.Expect('WHERE(Txt=FILTER(''@abc''))', 'ids=1,|txt=@abc|cd=|view=VERSION(1) SORTING(Id) WHERE(Txt=FILTER(@abc))');
+        Observer.Verify();
     end;
 
     [Test]
@@ -782,7 +791,10 @@ codeunit 68058 "W4 Filter Tests"
         UnViewProbe(Observer, 'WHERE(Txt=FILTER(@abc|@xabc))');
         UnViewProbe(Observer, 'WHERE(Cd=FILTER(@abc*))');
         UnViewProbe(Observer, 'WHERE(Cd=FILTER(@at*))');
-        Observer.Finish();
+        Observer.Expect('WHERE(Txt=FILTER(@abc|@xabc))', 'ids=1,3,|txt=@abc|@xabc|cd=|view=VERSION(1) SORTING(Id) WHERE(Txt=FILTER(@abc|@xabc))');
+        Observer.Expect('WHERE(Cd=FILTER(@abc*))', 'ids=1,2,|txt=|cd=@ABC*|view=VERSION(1) SORTING(Id) WHERE(Cd=FILTER(@ABC*))');
+        Observer.Expect('WHERE(Cd=FILTER(@at*))', 'ids=4,5,6,7,8,|txt=|cd=@AT*|view=VERSION(1) SORTING(Id) WHERE(Cd=FILTER(@AT*))');
+        Observer.Verify();
     end;
 
     [Test]
@@ -792,6 +804,7 @@ codeunit 68058 "W4 Filter Tests"
     begin
         UnSeedAt();
         UnViewProbe(Observer, 'WHERE(Cd=FILTER(AT1@))');
-        Observer.Finish();
+        Observer.Expect('WHERE(Cd=FILTER(AT1@))', 'ids=|txt=|cd=AT1@|view=VERSION(1) SORTING(Id) WHERE(Cd=FILTER(AT1@))');
+        Observer.Verify();
     end;
 }
