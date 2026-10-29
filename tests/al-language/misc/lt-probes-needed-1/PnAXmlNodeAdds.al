@@ -182,7 +182,7 @@ codeunit 70082 "LT PnA Xml NodeAdds"
     end;
 
     // Writer TT: empty and blank texts added to an XmlDocument (XmlDocument.Create with text arguments, XmlDocument.Add of an XmlText or a
-    // Text): does the add fail, what does WriteTo give, how many child nodes does the document hold, and can a root still be added?
+    // Text): does the add fail, how many child nodes does the document hold, can a root still be added, what does WriteTo give?
     [TryFunction]
     local procedure TtTryDocText(Kind: Integer; var Result: Text)
     var
@@ -228,13 +228,16 @@ codeunit 70082 "LT PnA Xml NodeAdds"
                     D.Add(XmlElement.Create('r'));
                     D.Add(XmlText.Create(' '));
                 end;
+            9:
+                D := XmlDocument.Create();
         end;
         Result := 'created nodes=' + Format(D.GetChildNodes().Count());
+        if not (Kind in [5, 8, 9]) then begin
+            D.Add(XmlElement.Create('root'));
+            Result += ' root added nodes=' + Format(D.GetChildNodes().Count());
+        end;
         D.WriteTo(Out);
         Result += ' xml=' + Out;
-        D.Add(XmlElement.Create('root'));
-        D.WriteTo(Out);
-        Result += ' with root nodes=' + Format(D.GetChildNodes().Count()) + ' xml=' + Out;
     end;
 
     local procedure TtDocText(var Observer: Codeunit "Probe Observer"; Name: Text; Kind: Integer)
@@ -266,6 +269,7 @@ codeunit 70082 "LT PnA Xml NodeAdds"
         TtDocText(Observer, 'add empty Text', 6);
         TtDocText(Observer, 'add line feed and blanks', 7);
         TtDocText(Observer, 'add blank XmlText after root', 8);
+        TtDocText(Observer, 'empty document WriteTo', 9);
         // the shape of a document built for a web service request: two empty texts, a declaration, then the root
         D := XmlDocument.Create('', '');
         D.SetDeclaration(XmlDeclaration.Create('1.0', 'UTF-8', 'yes'));
