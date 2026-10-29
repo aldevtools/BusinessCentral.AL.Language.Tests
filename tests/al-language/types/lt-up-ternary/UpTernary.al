@@ -5,7 +5,7 @@
 //   1. a conditional expression with a Text[250] true branch and an unbounded Text false branch (StrSubstNo result, Text variable), the value
 //      read into an unbounded Text return value: the false value that fits is returned unchanged, at 250 characters it still fits, at 251
 //      the conversion raises. Pinned before for Text[10] true / 12-char Text false: types/TestTernaryContracts.al (PYC_Ternary_MoreBranchPairs).
-//   2. an interface true branch with a codeunit false branch (and the reverse): which implementation is called. Pinned before: interface/interface
+//   2. an interface true branch with a codeunit false branch (the reverse, a codeunit true branch with an interface false branch, does not compile: must-not-compile case 2291): which implementation is called. Pinned before: interface/interface
 //      and codeunit/codeunit pairs (types/TestTernaryContracts.al, ObjectForms).
 // BC versions: 27-29
 
@@ -68,16 +68,6 @@ codeunit 90495 "LT UP Factory"
     begin
         Preview := Special;
         exit(UseSpecial ? Preview : Default);
-    end;
-
-    procedure CodeunitTrueInterfaceFalse(UseDefault: Boolean): Interface "LT UP Preview"
-    var
-        Default: Codeunit "LT UP Default";
-        Special: Codeunit "LT UP Special";
-        Preview: Interface "LT UP Preview";
-    begin
-        Preview := Special;
-        exit(UseDefault ? Default : Preview);
     end;
 
     procedure AssignToInterfaceVariable(UseSpecial: Boolean): Text
@@ -220,16 +210,12 @@ codeunit 90497 "LT UP Ternary Tests"
         Observer.Observe('cast, true', Factory.ViaCast(true).GetPreview());
         Observer.Observe('variable, false', Factory.ViaVariable(false).GetPreview());
         Observer.Observe('variable, true', Factory.ViaVariable(true).GetPreview());
-        Observer.Observe('codeunit true, interface false, true', Factory.CodeunitTrueInterfaceFalse(true).GetPreview());
-        Observer.Observe('codeunit true, interface false, false', Factory.CodeunitTrueInterfaceFalse(false).GetPreview());
         Observer.Observe('assigned, false', Factory.AssignToInterfaceVariable(false));
         Observer.Observe('assigned, true', Factory.AssignToInterfaceVariable(true));
         Observer.Expect('cast, false', 'default');
         Observer.Expect('cast, true', 'special1');
         Observer.Expect('variable, false', 'default');
         Observer.Expect('variable, true', 'special1');
-        Observer.Expect('codeunit true, interface false, true', 'default');
-        Observer.Expect('codeunit true, interface false, false', 'special1');
         Observer.Expect('assigned, false', 'default');
         Observer.Expect('assigned, true', 'special1');
         Observer.Verify();
