@@ -279,6 +279,36 @@ codeunit 90139 "LT TU XP Probe"
         Row.Insert();
     end;
 
+    local procedure TuExportTimesTemp(): Text
+    var
+        Port: XmlPort "LT TU XP Time Temp";
+        TempBlob: Codeunit "Temp Blob";
+        OutStr: OutStream;
+        InStr: InStream;
+        Line: Text;
+        Result: Text;
+    begin
+        Port.AddRow(1, 123456.789T);
+        Port.AddRow(2, 123456.78T);
+        Port.AddRow(3, 123456.007T);
+        Port.AddRow(4, 000000.001T);
+        Port.AddRow(5, 235959.999T);
+        Port.AddRow(6, 0T);
+        Port.AddRow(7, 123456.5T);
+        Port.AddRow(8, 000000T);
+        Port.AddRow(9, 123456.1T);
+        Port.AddRow(10, 123456.01T);
+        TempBlob.CreateOutStream(OutStr);
+        Port.SetDestination(OutStr);
+        Port.Export();
+        TempBlob.CreateInStream(InStr, TextEncoding::UTF16);
+        while not InStr.EOS() do begin
+            InStr.ReadText(Line);
+            Result += Line + '|';
+        end;
+        exit(Result);
+    end;
+
     [Test]
     procedure TU_LinkedKey_NoChange()
     var
@@ -1096,6 +1126,18 @@ codeunit 90139 "LT TU XP Probe"
         Observer.Observe('len5 <Hours24,2>:<Minutes,2>:<Seconds,2>', TuFormatTime(090503T, 5, '<Hours24,2>:<Minutes,2>:<Seconds,2>'));
         Observer.Observe('dt <Hours,2>', TuFormatDateTime(CreateDateTime(DMY2Date(5, 3, 2024), 090503T), 0, '<Hours,2>'));
         Observer.Observe('dt <Hours,2>:<Minutes,2>:<Seconds,2>', TuFormatDateTime(CreateDateTime(DMY2Date(5, 3, 2024), 090503T), 0, '<Hours,2>:<Minutes,2>:<Seconds,2>'));
+        Observer.Observe('0905 <Ho>', TuFormatTime(090503.007T, 0, '<Ho>'));
+        Observer.Observe('0905 <H>', TuFormatTime(090503.007T, 0, '<H>'));
+        Observer.Observe('0905 <Min>', TuFormatTime(090503.007T, 0, '<Min>'));
+        Observer.Observe('0905 <Sec>', TuFormatTime(090503.007T, 0, '<Sec>'));
+        Observer.Observe('0905 <Thou>', TuFormatTime(090503.007T, 0, '<Thou>'));
+        Observer.Observe('0905 <Hourz>', TuFormatTime(090503.007T, 0, '<Hourz>'));
+        Observer.Observe('0905 <Hours24x,2>', TuFormatTime(090503.007T, 0, '<Hours24x,2>'));
+        Observer.Observe('0905 <Hours 24>', TuFormatTime(090503.007T, 0, '<Hours 24>'));
+        Observer.Observe('0905 <Hours,0>', TuFormatTime(090503.007T, 0, '<Hours,0>'));
+        Observer.Observe('0905 <hours,2>', TuFormatTime(090503.007T, 0, '<hours,2>'));
+        Observer.Observe('0905 len8 time()-like ms', TuFormatTime(090503.457T, 8, '<Hours,2>:<Minutes,2>:<Seconds,2>'));
+        Observer.Observe('2359 len8', TuFormatTime(235959.999T, 8, '<Hours,2>:<Minutes,2>:<Seconds,2>'));
         Observer.Finish();
     end;
 
@@ -1127,6 +1169,7 @@ codeunit 90139 "LT TU XP Probe"
         Unused := '';
         Observer.Observe('export_xml', TuExportTimes(Xmlport::"PW FE Xml"));
         Observer.Observe('export_legacy', TuExportTimes(Xmlport::"PW FE Legacy"));
+        Observer.Observe('export_xml_temporary', TuExportTimesTemp());
         Observer.Finish();
     end;
 

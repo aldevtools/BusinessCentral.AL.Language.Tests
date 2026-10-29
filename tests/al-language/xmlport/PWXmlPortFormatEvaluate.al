@@ -83,6 +83,38 @@ xmlport 69770 "PW FE Legacy"
     }
 }
 
+xmlport 90130 "LT TU XP Time Temp"
+{
+    Format = Xml;
+    Direction = Export;
+    FormatEvaluate = Xml;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Root)
+        {
+            tableelement(T; "PW FE Table")
+            {
+                UseTemporary = true;
+                fieldelement(Id; T.Id) { }
+                fieldelement(Tm; T.Tm) { }
+                fieldelement(Dtm; T.Dtm) { }
+            }
+        }
+    }
+
+    procedure AddRow(NewId: Integer; NewTime: Time)
+    begin
+        T.Init();
+        T.Id := NewId;
+        T.Tm := NewTime;
+        if NewTime <> 0T then
+            T.Dtm := CreateDateTime(DMY2Date(5, 3, 2024), NewTime);
+        T.Insert();
+    end;
+}
+
 codeunit 69771 "PW XmlPort FmtEval Probe"
 {
     Subtype = Test;
