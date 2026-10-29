@@ -700,4 +700,71 @@ codeunit 68058 "W4 Filter Tests"
         Observer.Expect('num_range', 'filter=[Num: 28..] ids=3,4,');
         Observer.Verify();
     end;
+
+    // Writer UN (2026-10-29): '@' inside a SetView filter value, at the start and in the middle.
+    local procedure UnSeedAt()
+    var
+        R: Record "W4 Flt Row";
+    begin
+        R.DeleteAll();
+        BqAdd(1, 'ABC', 'abc', 0);
+        BqAdd(2, 'ABCD', 'ABCD', 0);
+        BqAdd(3, 'XABC', 'xabc', 0);
+        BqAdd(4, 'AT1', 'a@b.dk', 0);
+        BqAdd(5, 'AT2', 'A@B.DK', 0);
+        BqAdd(6, 'AT3', '@abc', 0);
+        BqAdd(7, 'AT4', 'ab@', 0);
+        BqAdd(8, 'AT5', 'b@a.dk', 0);
+    end;
+
+    [TryFunction]
+    local procedure UnTryView(View: Text; var Outcome: Text)
+    var
+        R: Record "W4 Flt Row";
+    begin
+        R.SetView(View);
+        Outcome := 'ids=' + Ids(R) + '|txt=' + R.GetFilter(Txt) + '|cd=' + R.GetFilter(Cd) + '|view=' + R.GetView();
+    end;
+
+    local procedure UnViewProbe(var Observer: Codeunit "Probe Observer"; View: Text)
+    var
+        O: Text;
+    begin
+        ClearLastError();
+        if UnTryView(View, O) then
+            Observer.Observe(View, O)
+        else
+            Observer.ObserveError(View);
+    end;
+
+    [Test]
+    procedure UN_SetView_AtSignInValue_Text()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        UnSeedAt();
+        UnViewProbe(Observer, 'WHERE(Txt=FILTER(@abc*))');
+        UnViewProbe(Observer, 'WHERE(Txt=FILTER(@ABC))');
+        UnViewProbe(Observer, 'WHERE(Txt=FILTER(a@b.dk))');
+        UnViewProbe(Observer, 'WHERE(Txt=FILTER(@a@b.dk))');
+        UnViewProbe(Observer, 'WHERE(Txt=FILTER(*@b*))');
+        UnViewProbe(Observer, 'WHERE(Txt=FILTER(ab@))');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure UN_SetView_AtSignInValue_TextMore()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        UnSeedAt();
+        UnViewProbe(Observer, 'WHERE(Txt=FILTER(@@abc))');
+        UnViewProbe(Observer, 'WHERE(Txt=CONST(@abc))');
+        UnViewProbe(Observer, 'WHERE(Txt=FILTER(''@abc''))');
+        UnViewProbe(Observer, 'WHERE(Txt=FILTER(@abc|@xabc))');
+        UnViewProbe(Observer, 'WHERE(Cd=FILTER(@abc*))');
+        UnViewProbe(Observer, 'WHERE(Cd=FILTER(@at*))');
+        UnViewProbe(Observer, 'WHERE(Cd=FILTER(AT1@))');
+        Observer.Finish();
+    end;
 }

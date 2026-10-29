@@ -230,4 +230,39 @@ codeunit 73552 "LT P130 Evaluate Date"
         Observer.Expect('slash_two_digit_year_format9|code', 'Evaluate');
         Observer.Verify();
     end;
+
+    // Writer UN (2026-10-29): Evaluate used as a statement (result unused) with a text that is no value of the target type, formats 0 and 9.
+    [Test]
+    procedure UN_Evaluate_Statement_NotADate_ByTarget()
+    var
+        Observer: Codeunit "Probe Observer";
+        D: Date;
+        DT: DateTime;
+        T: Time;
+        I: Integer;
+        Dec: Decimal;
+        B: Boolean;
+    begin
+        asserterror Evaluate(D, 'not-a-date', 9);
+        Observer.ObserveError('date 9');
+        asserterror Evaluate(D, 'not-a-date', 0);
+        Observer.ObserveError('date 0');
+        asserterror Evaluate(D, 'not-a-date');
+        Observer.ObserveError('date default');
+        asserterror Evaluate(DT, 'not-a-date', 9);
+        Observer.ObserveError('datetime 9');
+        asserterror Evaluate(DT, 'not-a-date', 0);
+        Observer.ObserveError('datetime 0');
+        asserterror Evaluate(T, 'not-a-date', 9);
+        Observer.ObserveError('time 9');
+        asserterror Evaluate(T, 'not-a-date', 0);
+        Observer.ObserveError('time 0');
+        asserterror Evaluate(I, 'not-a-date', 9);
+        Observer.ObserveError('integer 9');
+        asserterror Evaluate(Dec, 'not-a-date', 9);
+        Observer.ObserveError('decimal 9');
+        asserterror Evaluate(B, 'not-a-date', 9);
+        Observer.ObserveError('boolean 9');
+        Observer.Finish();
+    end;
 }

@@ -435,4 +435,37 @@ codeunit 73801 "LT DtT DateFuncs"
         Observer.Expect('year2', '24');
         Observer.Verify();
     end;
+
+    // Writer UN (2026-10-29): DMY2Date with year 0 (no error is pinned above; here the value).
+    [Test]
+    procedure UN_DMY2Date_YearZero_Value()
+    var
+        Observer: Codeunit "Probe Observer";
+        D: Date;
+        Cur: Integer;
+    begin
+        Cur := Date2DMY(Today(), 3);
+        D := DMY2Date(1, 1, 0);
+        Observer.Observe('1.1.0 undefined', Format(D = 0D));
+        Observer.Observe('1.1.0 format', Format(D, 0, 9));
+        Observer.Observe('1.1.0 day', Format(Date2DMY(D, 1)));
+        Observer.Observe('1.1.0 month', Format(Date2DMY(D, 2)));
+        Observer.Observe('1.1.0 year is current', Format(Date2DMY(D, 3) = Cur));
+        Observer.Observe('1.1.0 equals omitted year', Format(D = DMY2Date(1, 1)));
+        D := DMY2Date(28, 2, 0);
+        Observer.Observe('28.2.0 undefined', Format(D = 0D));
+        Observer.Observe('28.2.0 year is current', Format(Date2DMY(D, 3) = Cur));
+        D := DMY2Date(31, 12, 0);
+        Observer.Observe('31.12.0 undefined', Format(D = 0D));
+        Observer.Observe('31.12.0 year is current', Format(Date2DMY(D, 3) = Cur));
+        asserterror D := DMY2Date(32, 1, 0);
+        Observer.ObserveError('32.1.0');
+        asserterror D := DMY2Date(1, 13, 0);
+        Observer.ObserveError('1.13.0');
+        asserterror D := DMY2Date(1, 1, -5);
+        Observer.ObserveError('1.1.-5');
+        asserterror D := DMY2Date(1, 1, -2024);
+        Observer.ObserveError('1.1.-2024');
+        Observer.Finish();
+    end;
 }
