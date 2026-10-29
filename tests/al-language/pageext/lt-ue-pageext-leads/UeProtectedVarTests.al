@@ -24,10 +24,32 @@ codeunit 90349 "LT UE Protected Var Tests"
         Row.Amount := 5;
         Row.Insert();
         List.OpenView();
-        Observer.Observe('trace', List.TraceField.Value());
-        Observer.Observe('mid visible', Format(List.MidAmount.Visible()));
-        Observer.Observe('top visible', Format(List.TopAmount.Visible()));
+        Observer.Observe('id', List.Id.Value());
+        Observer.Observe('trace try', Format(TryTrace(List)));
+        Observer.ObserveError('trace try');
+        Observer.Observe('mid try', Format(TryMid(List)));
+        Observer.ObserveError('mid try');
+        Observer.Observe('top try', Format(TryTop(List)));
+        Observer.ObserveError('top try');
         List.Close();
         Observer.Finish();
+    end;
+
+    [TryFunction]
+    local procedure TryTrace(var List: TestPage "LT UE PV Card")
+    begin
+        Observer.Observe('trace', List.TraceField.Value());
+    end;
+
+    [TryFunction]
+    local procedure TryMid(var List: TestPage "LT UE PV Card")
+    begin
+        Observer.Observe('mid visible', Format(List.MidAmount.Visible()));
+    end;
+
+    [TryFunction]
+    local procedure TryTop(var List: TestPage "LT UE PV Card")
+    begin
+        Observer.Observe('top visible', Format(List.TopAmount.Visible()));
     end;
 }
