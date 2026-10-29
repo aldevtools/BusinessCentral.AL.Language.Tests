@@ -87,4 +87,35 @@ codeunit 78401 "LT AG License Permission"
         Observer.Expect('codeunit_own_ids', '78400,78401,78402,');
         Observer.Verify();
     end;
+
+    // UQ (al-runner 6214): keyed reads of object numbers in the customer range, the ISV range and the 50000-99999 range.
+    [Test]
+    procedure LicensePermission_ByKey_CustomerAndIsvRanges()
+    var
+        LicensePermission: Record "License Permission";
+    begin
+        Observer.Observe('codeunit_50000', Describe(LicensePermission."Object Type"::Codeunit, 50000));
+        Observer.Observe('codeunit_50123', Describe(LicensePermission."Object Type"::Codeunit, 50123));
+        Observer.Observe('codeunit_99999', Describe(LicensePermission."Object Type"::Codeunit, 99999));
+        Observer.Observe('codeunit_70000123', Describe(LicensePermission."Object Type"::Codeunit, 70000123));
+        Observer.Observe('table_70000123', Describe(LicensePermission."Object Type"::Table, 70000123));
+        Observer.Observe('tabledata_70000123', Describe(LicensePermission."Object Type"::TableData, 70000123));
+        Observer.Observe('page_50100', Describe(LicensePermission."Object Type"::Page, 50100));
+        Observer.Observe('report_70000001', Describe(LicensePermission."Object Type"::Report, 70000001));
+        Observer.Observe('codeunit_2000000000', Describe(LicensePermission."Object Type"::Codeunit, 2000000000));
+        Observer.Observe('codeunit_0', Describe(LicensePermission."Object Type"::Codeunit, 0));
+        Observer.Observe('table_50000', Describe(LicensePermission."Object Type"::Table, 50000));
+        Observer.Expect('codeunit_50000', 'Read=Yes Insert=Yes Modify=Yes Delete=Yes Execute=Yes Limited= ');
+        Observer.Expect('codeunit_50123', 'Read=Yes Insert=Yes Modify=Yes Delete=Yes Execute=Yes Limited= ');
+        Observer.Expect('codeunit_99999', 'Read=Yes Insert=Yes Modify=Yes Delete=Yes Execute=Yes Limited= ');
+        Observer.Expect('codeunit_70000123', 'Read=Yes Insert=Yes Modify=Yes Delete=Yes Execute=Yes Limited= ');
+        Observer.Expect('table_70000123', 'Read=Yes Insert=Yes Modify=Yes Delete=Yes Execute=Yes Limited= ');
+        Observer.Expect('tabledata_70000123', 'Read=Yes Insert=Yes Modify=Yes Delete=Yes Execute=Yes Limited= ');
+        Observer.Expect('page_50100', 'Read=Yes Insert=Yes Modify=Yes Delete=Yes Execute=Yes Limited= ');
+        Observer.Expect('report_70000001', 'Read=Yes Insert=Yes Modify=Yes Delete=Yes Execute=Yes Limited= ');
+        Observer.Expect('codeunit_2000000000', 'Read=Yes Insert=Yes Modify=Yes Delete=Yes Execute=Yes Limited= ');
+        Observer.Expect('codeunit_0', 'Read=  Insert=  Modify=  Delete=  Execute=  Limited= ');
+        Observer.Expect('table_50000', 'Read=Yes Insert=Yes Modify=Yes Delete=Yes Execute=Yes Limited= ');
+        Observer.Verify();
+    end;
 }
