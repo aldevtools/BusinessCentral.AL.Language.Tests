@@ -52,6 +52,7 @@ codeunit 90160 "LT TW Tree Log"
 page 90161 "LT TW Tree List"
 {
     PageType = List;
+    ApplicationArea = All;
     SourceTable = "LT TW Tree Row";
     SourceTableView = sorting(Id);
     Editable = false;
@@ -68,9 +69,9 @@ page 90161 "LT TW Tree List"
                 ShowAsTree = true;
                 TreeInitialState = ExpandAll;
 
-                field(Id; Rec.Id) { }
-                field(Kind; Rec.Kind) { }
-                field(RowLabel; RowLabel) { }
+                field(Id; Rec.Id) { ApplicationArea = All; }
+                field(Kind; Rec.Kind) { ApplicationArea = All; }
+                field(RowLabel; RowLabel) { ApplicationArea = All; }
             }
         }
     }

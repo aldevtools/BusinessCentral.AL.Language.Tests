@@ -50,6 +50,7 @@ codeunit 90152 "LT TW Block Edge Log"
 page 90153 "LT TW Block Edge Logged List"
 {
     PageType = List;
+    ApplicationArea = All;
     SourceTable = "LT TW Block Edge Row";
     Editable = false;
     UsageCategory = None;
@@ -60,8 +61,8 @@ page 90153 "LT TW Block Edge Logged List"
         {
             repeater(Rows)
             {
-                field(Id; Rec.Id) { }
-                field(Name; Rec.Name) { }
+                field(Id; Rec.Id) { ApplicationArea = All; }
+                field(Name; Rec.Name) { ApplicationArea = All; }
             }
         }
     }
@@ -78,6 +79,7 @@ page 90153 "LT TW Block Edge Logged List"
 page 90154 "LT TW Block Edge Plain List"
 {
     PageType = List;
+    ApplicationArea = All;
     SourceTable = "LT TW Block Edge Row";
     UsageCategory = None;
 
@@ -87,9 +89,9 @@ page 90154 "LT TW Block Edge Plain List"
         {
             repeater(Rows)
             {
-                field(Id; Rec.Id) { }
-                field(Name; Rec.Name) { }
-                field(Blocked; Rec.Blocked) { }
+                field(Id; Rec.Id) { ApplicationArea = All; }
+                field(Name; Rec.Name) { ApplicationArea = All; }
+                field(Blocked; Rec.Blocked) { ApplicationArea = All; }
             }
         }
     }

@@ -624,6 +624,7 @@ table 90144 "LT TW Su Detail"
 page 90145 "LT TW Su Detail Part"
 {
     PageType = ListPart;
+    ApplicationArea = All;
     SourceTable = "LT TW Su Detail";
     InsertAllowed = false;
     DeleteAllowed = false;
@@ -636,9 +637,9 @@ page 90145 "LT TW Su Detail Part"
             repeater(Lines)
             {
                 Editable = false;
-                field(Id; Rec.Id) { }
-                field("Line No."; Rec."Line No.") { }
-                field(Description; Rec.Description) { }
+                field(Id; Rec.Id) { ApplicationArea = All; }
+                field("Line No."; Rec."Line No.") { ApplicationArea = All; }
+                field(Description; Rec.Description) { ApplicationArea = All; }
             }
         }
     }
@@ -647,6 +648,7 @@ page 90145 "LT TW Su Detail Part"
 page 90146 "LT TW Name Ws Part"
 {
     PageType = Worksheet;
+    ApplicationArea = All;
     SourceTable = "LT SU Row";
     InsertAllowed = false;
     DeleteAllowed = false;
@@ -660,6 +662,7 @@ page 90146 "LT TW Name Ws Part"
             {
                 field(FlaggedTile; Tile)
                 {
+                    ApplicationArea = All;
                     Editable = false;
 
                     trigger OnDrillDown()
@@ -672,11 +675,12 @@ page 90146 "LT TW Name Ws Part"
             repeater(Rows)
             {
                 Editable = false;
-                field(Id; Rec.Id) { }
-                field(Name; Rec.Name) { }
+                field(Id; Rec.Id) { ApplicationArea = All; }
+                field(Name; Rec.Name) { ApplicationArea = All; }
             }
             part(Details; "LT TW Su Detail Part")
             {
+                ApplicationArea = All;
                 SubPageLink = Id = field(Id);
             }
         }
@@ -706,6 +710,7 @@ page 90146 "LT TW Name Ws Part"
 page 90147 "LT TW Id Ws Part"
 {
     PageType = Worksheet;
+    ApplicationArea = All;
     SourceTable = "LT SU Row";
     InsertAllowed = false;
     DeleteAllowed = false;
@@ -719,6 +724,7 @@ page 90147 "LT TW Id Ws Part"
             {
                 field(FlaggedTile; Tile)
                 {
+                    ApplicationArea = All;
                     Editable = false;
 
                     trigger OnDrillDown()
@@ -731,11 +737,12 @@ page 90147 "LT TW Id Ws Part"
             repeater(Rows)
             {
                 Editable = false;
-                field(Id; Rec.Id) { }
-                field(Name; Rec.Name) { }
+                field(Id; Rec.Id) { ApplicationArea = All; }
+                field(Name; Rec.Name) { ApplicationArea = All; }
             }
             part(Details; "LT TW Su Detail Part")
             {
+                ApplicationArea = All;
                 SubPageLink = Id = field(Id);
             }
         }
