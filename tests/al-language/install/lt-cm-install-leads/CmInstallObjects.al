@@ -162,3 +162,23 @@ page 84842 "LT CM Install Page"
         }
     }
 }
+
+// Probe UM (ADR-046 Q1): see install/lt-um-install-order/UmInstallOrder.al. Writes only `if Insert() then;` into a DataPerCompany = false log.
+codeunit 90434 "LT UM Ay Install"
+{
+    Subtype = Install;
+
+    trigger OnInstallAppPerCompany()
+    var
+        Writer: Codeunit "LT UM Install Writer";
+    begin
+        Writer.WriteRow('Ay', 'OnInstallAppPerCompany');
+    end;
+
+    trigger OnInstallAppPerDatabase()
+    var
+        Writer: Codeunit "LT UM Install Writer";
+    begin
+        Writer.WriteRow('Ay', 'OnInstallAppPerDatabase');
+    end;
+}
