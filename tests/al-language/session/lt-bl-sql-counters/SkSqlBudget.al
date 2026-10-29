@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/sessioninformation/sessioninformation-data-type
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160), Assert (codeunit 130000); own table 89190, codeunit 89191; writer SK (al-runner issue 5861); writer SZ adds tables 89750-89751, codeunits 89752-89753
+// Fixtures used: Probe Observer (codeunit 69160), Assert (codeunit 130000); own table 89190, codeunit 89191; writer SK (al-runner issue 5861); writer SZ adds tables 89750-89751, codeunits 89752-89753; writer TW adds tables 90148-90149, codeunit 90150 and the TW_ tests (al-runner issue 6116: reads between the counter reads)
 // Probe: the statement budget test of al-runner issue 5861 (no Commit before the first read, a two-field key, a procedure in another
 // codeunit that copies a temporary record into the table with FindSet, Next and Insert, then SetRange and Count), and the size of the
 // change of SessionInformation.SqlStatementsExecuted() and SqlRowsRead() around that shape for several row counts, with and without a
@@ -496,5 +496,237 @@ codeunit 89753 "LT SZ Sql Budget"
         Observer.Expect('K5 N1', '1/0 0/0 6 2/1 | 1/0 0/0 6 2/1 | 1/0 0/0 6 2/1');
         Observer.Expect('K20 N20', '4/0 4/0 40 1/1 | 4/0 4/0 40 1/1 | 4/0 4/0 40 1/1');
         Observer.Verify();
+    end;
+
+    // ---- writer TW (al-runner issue 6116, reporter's real-BC 29.0 run): the change of both counters around a procedure of another codeunit
+    //      that READS a table, with no Commit before the first read and ten rows inserted just before it: Get with SetLoadFields, a filtered
+    //      FindSet + Next with SetLoadFields, a Get + Modify loop over five rows, and five FindFirst that find nothing, each followed by
+    //      Insert(true) into a table with an AutoIncrement field. Value: "statements/rows" and the result the procedure returned. ----
+    local procedure TwInsertLines(GroupCode: Code[20]; LineCount: Integer)
+    var
+        RuleLine: Record "LT TW Sk Rule Line";
+        i: Integer;
+    begin
+        for i := 1 to LineCount do begin
+            RuleLine.Init();
+            RuleLine."Group Code" := GroupCode;
+            RuleLine."Line No." := i;
+            RuleLine.Value := 'Value';
+            RuleLine.Weight := i;
+            RuleLine.Insert();
+        end;
+    end;
+
+    [Test]
+    procedure TW_GetWithLoadFields_Counts()
+    var
+        RuleStore: Codeunit "LT TW Sk Rule Store";
+        Obs: Codeunit "Probe Observer";
+        StmtsBefore: BigInteger;
+        RowsBefore: BigInteger;
+        StmtsDelta: BigInteger;
+        RowsDelta: BigInteger;
+        Weight: Integer;
+    begin
+        TwInsertLines('TWREAD1', 10);
+        StmtsBefore := SessionInformation.SqlStatementsExecuted();
+        RowsBefore := SessionInformation.SqlRowsRead();
+        Weight := RuleStore.ReadWeight('TWREAD1', 5);
+        StmtsDelta := SessionInformation.SqlStatementsExecuted() - StmtsBefore;
+        RowsDelta := SessionInformation.SqlRowsRead() - RowsBefore;
+        Obs.Observe('result', Format(Weight));
+        Obs.Observe('statements/rows', Format(StmtsDelta) + '/' + Format(RowsDelta));
+        Obs.Observe('within 5/5', Format((StmtsDelta <= 5) and (RowsDelta <= 5)));
+        Obs.Expect('result', '5');
+        Obs.Expect('statements/rows', '1/1');
+        Obs.Expect('within 5/5', 'Yes');
+        Obs.Verify();
+    end;
+
+    [Test]
+    procedure TW_FilteredFindSet_Counts()
+    var
+        RuleStore: Codeunit "LT TW Sk Rule Store";
+        Obs: Codeunit "Probe Observer";
+        StmtsBefore: BigInteger;
+        RowsBefore: BigInteger;
+        StmtsDelta: BigInteger;
+        RowsDelta: BigInteger;
+        Total: Integer;
+    begin
+        TwInsertLines('TWREAD2', 10);
+        StmtsBefore := SessionInformation.SqlStatementsExecuted();
+        RowsBefore := SessionInformation.SqlRowsRead();
+        Total := RuleStore.SumWeights('TWREAD2');
+        StmtsDelta := SessionInformation.SqlStatementsExecuted() - StmtsBefore;
+        RowsDelta := SessionInformation.SqlRowsRead() - RowsBefore;
+        Obs.Observe('result', Format(Total));
+        Obs.Observe('statements/rows', Format(StmtsDelta) + '/' + Format(RowsDelta));
+        Obs.Observe('within 5/25', Format((StmtsDelta <= 5) and (RowsDelta <= 25)));
+        Obs.Expect('result', '55');
+        Obs.Expect('statements/rows', '1/11');
+        Obs.Expect('within 5/25', 'Yes');
+        Obs.Verify();
+    end;
+
+    [Test]
+    procedure TW_GetAndModifyLoop_Counts()
+    var
+        RuleLine: Record "LT TW Sk Rule Line";
+        RuleStore: Codeunit "LT TW Sk Rule Store";
+        Obs: Codeunit "Probe Observer";
+        StmtsBefore: BigInteger;
+        RowsBefore: BigInteger;
+        StmtsDelta: BigInteger;
+        RowsDelta: BigInteger;
+    begin
+        TwInsertLines('TWWRITE1', 10);
+        StmtsBefore := SessionInformation.SqlStatementsExecuted();
+        RowsBefore := SessionInformation.SqlRowsRead();
+        RuleStore.RaiseWeights('TWWRITE1', 5);
+        StmtsDelta := SessionInformation.SqlStatementsExecuted() - StmtsBefore;
+        RowsDelta := SessionInformation.SqlRowsRead() - RowsBefore;
+        RuleLine.Get('TWWRITE1', 5);
+        Obs.Observe('result', Format(RuleLine.Weight));
+        Obs.Observe('statements/rows', Format(StmtsDelta) + '/' + Format(RowsDelta));
+        Obs.Observe('within 25/25', Format((StmtsDelta <= 25) and (RowsDelta <= 25)));
+        Obs.Expect('result', '105');
+        Obs.Expect('statements/rows', '10/10');
+        Obs.Expect('within 25/25', 'Yes');
+        Obs.Verify();
+    end;
+
+    [Test]
+    procedure TW_FindFirstOrInsert_Counts()
+    var
+        TreeNode: Record "LT TW Sk Tree Node";
+        RuleStore: Codeunit "LT TW Sk Rule Store";
+        Obs: Codeunit "Probe Observer";
+        StmtsBefore: BigInteger;
+        RowsBefore: BigInteger;
+        StmtsDelta: BigInteger;
+        RowsDelta: BigInteger;
+        LastNode: Integer;
+    begin
+        StmtsBefore := SessionInformation.SqlStatementsExecuted();
+        RowsBefore := SessionInformation.SqlRowsRead();
+        LastNode := RuleStore.BuildPath('TWTREE1', 5);
+        StmtsDelta := SessionInformation.SqlStatementsExecuted() - StmtsBefore;
+        RowsDelta := SessionInformation.SqlRowsRead() - RowsBefore;
+        TreeNode.SetRange("Group Code", 'TWTREE1');
+        Obs.Observe('nodes', Format(TreeNode.Count()));
+        Obs.Observe('last node set', Format(LastNode <> 0));
+        Obs.Observe('statements/rows', Format(StmtsDelta) + '/' + Format(RowsDelta));
+        Obs.Observe('within 25/15', Format((StmtsDelta <= 25) and (RowsDelta <= 15)));
+        Obs.Expect('nodes', '5');
+        Obs.Expect('last node set', 'Yes');
+        Obs.Expect('statements/rows', '11/5');
+        Obs.Expect('within 25/15', 'Yes');
+        Obs.Verify();
+    end;
+}
+
+// ---- writer TW (al-runner issue 6116): the reporter's tables and the codeunit whose procedures read them. ----
+table 90148 "LT TW Sk Rule Line"
+{
+    DataClassification = CustomerContent;
+
+    fields
+    {
+        field(1; "Group Code"; Code[20]) { }
+        field(2; "Line No."; Integer) { }
+        field(3; Value; Text[50]) { }
+        field(4; Weight; Integer) { }
+    }
+
+    keys
+    {
+        key(PK; "Group Code", "Line No.") { Clustered = true; }
+    }
+}
+
+table 90149 "LT TW Sk Tree Node"
+{
+    DataClassification = CustomerContent;
+
+    fields
+    {
+        field(1; "Group Code"; Code[20]) { }
+        field(2; "Parent Node"; Integer) { }
+        field(3; Hash; Integer) { }
+        field(4; "Node ID"; Integer) { AutoIncrement = true; }
+    }
+
+    keys
+    {
+        key(PK; "Group Code", "Parent Node", Hash) { Clustered = true; }
+        key(NodeID; "Group Code", "Node ID") { Unique = true; }
+    }
+}
+
+codeunit 90150 "LT TW Sk Rule Store"
+{
+    procedure ReadWeight(GroupCode: Code[20]; LineNo: Integer): Integer
+    var
+        RuleLine: Record "LT TW Sk Rule Line";
+    begin
+        RuleLine.SetLoadFields(Weight);
+        if not RuleLine.Get(GroupCode, LineNo) then
+            exit(0);
+        exit(RuleLine.Weight);
+    end;
+
+    procedure SumWeights(GroupCode: Code[20]): Integer
+    var
+        RuleLine: Record "LT TW Sk Rule Line";
+        Total: Integer;
+    begin
+        RuleLine.SetRange("Group Code", GroupCode);
+        RuleLine.SetLoadFields(Weight);
+        if RuleLine.FindSet() then
+            repeat
+                Total += RuleLine.Weight;
+            until RuleLine.Next() = 0;
+        exit(Total);
+    end;
+
+    procedure RaiseWeights(GroupCode: Code[20]; LastLineNo: Integer)
+    var
+        RuleLine: Record "LT TW Sk Rule Line";
+        LineNo: Integer;
+    begin
+        for LineNo := 1 to LastLineNo do begin
+            RuleLine.Get(GroupCode, LineNo);
+            RuleLine.Weight += 100;
+            RuleLine.Modify();
+        end;
+    end;
+
+    procedure BuildPath(GroupCode: Code[20]; Depth: Integer): Integer
+    var
+        ParentNode: Integer;
+        i: Integer;
+    begin
+        for i := 1 to Depth do
+            ParentNode := GetOrCreateNode(GroupCode, ParentNode, i * 31);
+        exit(ParentNode);
+    end;
+
+    local procedure GetOrCreateNode(GroupCode: Code[20]; ParentNode: Integer; Hash: Integer): Integer
+    var
+        TreeNode: Record "LT TW Sk Tree Node";
+    begin
+        TreeNode.SetRange("Group Code", GroupCode);
+        TreeNode.SetRange("Parent Node", ParentNode);
+        TreeNode.SetRange(Hash, Hash);
+        if TreeNode.FindFirst() then
+            exit(TreeNode."Node ID");
+
+        TreeNode.Init();
+        TreeNode."Group Code" := GroupCode;
+        TreeNode."Parent Node" := ParentNode;
+        TreeNode.Hash := Hash;
+        TreeNode.Insert(true);
+        exit(TreeNode."Node ID");
     end;
 }
