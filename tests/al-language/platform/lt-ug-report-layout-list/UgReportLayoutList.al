@@ -5,6 +5,7 @@
 // Probe: outside issue 6191 (a ForNAV layout selection reads column 14 of the platform table "Report Layout List" (2000000234) of a built-in layout while the app
 //   installs). Every field of the row is read through a RecordRef (number, name, type, value; a Guid, a date/time and a Media/Blob value is shown as blank / set /
 //   this app because the values themselves are environment data) for a report with an RDLC layout, one with a Word layout and one with no layout.
+// Observed on the BC 29.0 SaaS sandbox; the CI legs 27.5 and 28.5 decide the versions.
 // BC versions: 27 - 29
 
 report 90368 "LT UG Report No Layout"
@@ -95,7 +96,28 @@ codeunit 90370 "LT UG Report Layout List"
         Observer: Codeunit "Probe Observer";
     begin
         Dump(Observer, 'rdlc', Report::"Probe RL Report", 'Rdlc');
-        Observer.Finish();
+        Observer.Expect('rdlc 1 Report ID', 'Integer [69083]');
+        Observer.Expect('rdlc 2 Name', 'Text [Rdlc]');
+        Observer.Expect('rdlc 5 Runtime Package ID', 'GUID other guid');
+        Observer.Expect('rdlc 3 Caption', 'Text [RL rdlc]');
+        Observer.Expect('rdlc 4 CaptionML', 'Text []');
+        Observer.Expect('rdlc 6 Layout', 'Media not shown');
+        Observer.Expect('rdlc 7 Layout Format', 'Option [RDLC]');
+        Observer.Expect('rdlc 8 Custom Type', 'GUID null guid');
+        Observer.Expect('rdlc 9 MIME Type', 'Text []');
+        Observer.Expect('rdlc 10 Description', 'Text [rdlc summary]');
+        Observer.Expect('rdlc 11 Application ID', 'GUID this app');
+        Observer.Expect('rdlc 12 Report Name', 'Text [Probe RL Report]');
+        Observer.Expect('rdlc 13 Layout Publisher', 'Text [AL Language Coverage Tests by AL Language]');
+        Observer.Expect('rdlc 14 User Defined', 'Boolean [No]');
+        Observer.Expect('rdlc 15 ReportIsInstalled', 'Boolean [Yes]');
+        Observer.Expect('rdlc 16 IsObsolete', 'Boolean [No]');
+        Observer.Expect('rdlc 17 ExcelLayoutMultipleDataSheets', 'Option [Default]');
+        Observer.Expect('rdlc 18 Layout Status', 'Option [Approved]');
+        Observer.Expect('rdlc 19 Layout Subtype', 'Option [Default]');
+        Observer.Expect('rdlc 20 HeaderFooterPart', 'Text []');
+        Observer.Expect('rdlc 21 ThemePart', 'Text []');
+        Observer.Verify();
     end;
 
     [Test]
@@ -104,7 +126,28 @@ codeunit 90370 "LT UG Report Layout List"
         Observer: Codeunit "Probe Observer";
     begin
         Dump(Observer, 'word', Report::"Probe RL Report", 'Word');
-        Observer.Finish();
+        Observer.Expect('word 1 Report ID', 'Integer [69083]');
+        Observer.Expect('word 2 Name', 'Text [Word]');
+        Observer.Expect('word 5 Runtime Package ID', 'GUID other guid');
+        Observer.Expect('word 3 Caption', 'Text [RL word]');
+        Observer.Expect('word 4 CaptionML', 'Text []');
+        Observer.Expect('word 6 Layout', 'Media not shown');
+        Observer.Expect('word 7 Layout Format', 'Option [Word]');
+        Observer.Expect('word 8 Custom Type', 'GUID null guid');
+        Observer.Expect('word 9 MIME Type', 'Text []');
+        Observer.Expect('word 10 Description', 'Text [Word]');
+        Observer.Expect('word 11 Application ID', 'GUID this app');
+        Observer.Expect('word 12 Report Name', 'Text [Probe RL Report]');
+        Observer.Expect('word 13 Layout Publisher', 'Text [AL Language Coverage Tests by AL Language]');
+        Observer.Expect('word 14 User Defined', 'Boolean [No]');
+        Observer.Expect('word 15 ReportIsInstalled', 'Boolean [Yes]');
+        Observer.Expect('word 16 IsObsolete', 'Boolean [No]');
+        Observer.Expect('word 17 ExcelLayoutMultipleDataSheets', 'Option [Default]');
+        Observer.Expect('word 18 Layout Status', 'Option [Approved]');
+        Observer.Expect('word 19 Layout Subtype', 'Option [Default]');
+        Observer.Expect('word 20 HeaderFooterPart', 'Text []');
+        Observer.Expect('word 21 ThemePart', 'Text []');
+        Observer.Verify();
     end;
 
     [Test]
@@ -116,6 +159,10 @@ codeunit 90370 "LT UG Report Layout List"
         Observer.Observe('rows of the report without layout', CountOfReport(Report::"LT UG Report No Layout"));
         Observer.Observe('rows of the processing only report', CountOfReport(Report::"LT UG Report Processing Only"));
         Dump(Observer, 'missing name', Report::"Probe RL Report", 'NoSuchLayout');
-        Observer.Finish();
+        Observer.Expect('no layout report', 'no row, rows in report=0');
+        Observer.Expect('rows of the report without layout', '0');
+        Observer.Expect('rows of the processing only report', '0');
+        Observer.Expect('missing name', 'no row, rows in report=3');
+        Observer.Verify();
     end;
 }
