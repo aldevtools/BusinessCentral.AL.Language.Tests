@@ -3,6 +3,7 @@
 // Fixtures used: Probe Observer (codeunit 69160); own tables 69377-69380, query 69376, test codeunit 69381; report 69367 and codeunit 69366 of lt-t-validate-layout
 // Facts: GetUrl text for every client type (Default, Web, Windows, Phone, Tablet, Desktop) with and without company, object and record; special characters in the company and in a filter; Report, Query and Codeunit
 // with a record; the bookmark of Code[10], Code[50] and two-Code-field keys. The server address (the GetUrl(ClientType::Web) text up to the first ?) is replaced by <base>.
+// Writer TV (2026-10-29, TV_* tests): the same texts for the client types SOAP, OData, ODataV4 and Api.
 // BC versions: 27.0 and later
 
 table 69377 "LT T Url Code10"
@@ -458,5 +459,40 @@ codeunit 69381 "LT T GetUrl Tests"
         Observer.Expect('two second empty', '<base>/?company=My%20Company&page=21&bookmark=18%3bAw8BAAJ7%2f0EAAAACew%3d%3d');
         Observer.Expect('two first empty', '<base>/?company=My%20Company&page=21&bookmark=18%3bAw8BAAJ7AAAAAnv%2fQg%3d%3d');
         Observer.Verify();
+    end;
+
+    // ---- Writer TV (NP lane, 2026-10-29): the full text (host and instance masked) of GetUrl for the service client types SOAP, OData, ODataV4
+    // and Api, alone, with a company, with an object and with a record; SOAP and ODataV4 with a codeunit. ----
+
+    [Test]
+    procedure TV_GetUrl_ClientSOAP()
+    begin
+        ClientTest(ClientType::SOAP, 'soap');
+        Observer.Observe('soap company codeunit', Obj(ClientType::SOAP, 'My Company', ObjectType::Codeunit, 69366));
+        Observer.Observe('soap codeunit', Obj(ClientType::SOAP, '', ObjectType::Codeunit, 69366));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TV_GetUrl_ClientOData()
+    begin
+        ClientTest(ClientType::OData, 'odata');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TV_GetUrl_ClientODataV4()
+    begin
+        ClientTest(ClientType::ODataV4, 'odatav4');
+        Observer.Observe('odatav4 company codeunit', Obj(ClientType::ODataV4, 'My Company', ObjectType::Codeunit, 69366));
+        Observer.Observe('odatav4 company query', Obj(ClientType::ODataV4, 'My Company', ObjectType::Query, 69376));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TV_GetUrl_ClientApi()
+    begin
+        ClientTest(ClientType::Api, 'api');
+        Observer.Finish();
     end;
 }

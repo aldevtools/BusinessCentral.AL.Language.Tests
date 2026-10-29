@@ -10,6 +10,7 @@
 //   <Integer>/<Integer Thousand>/<Sign>, <Decimals> and <Comma,x>. The value is rounded half away from zero to B decimals and padded to A
 //   (1.5 and 2.5 at 0:0 give 2 and 3, -2.5 gives -3, 1.2345 at 3:3 gives 1.235, 99.9996 at 1:3 gives 100.0); Standard Format 0 adds thousands
 //   separators (-1,234,568), 2 and 9 do not.
+// Writer TV (2026-10-29, TV_* tests): <Precision,0:B> with B above 18 (0:19, 0:26, 0:28, 0:29, 0:99) and 26:26, alone and before <Standard Format,N>.
 // BC versions: 27, 28, 29
 
 codeunit 74320 "LT FCF Format Comma String"
@@ -610,5 +611,58 @@ codeunit 74320 "LT FCF Format Comma String"
         Observer.Expect('-0.4 p13thousand.', 'ok:0.4');
         Observer.Expect('-0.4 p33signcomma,', 'ok:-0,400');
         Observer.Verify();
+    end;
+
+    // ---- Writer TV (NP lane, 2026-10-29): <Precision,0:B> with B above 18 (0:19, 0:26, 0:28, 0:29, 0:99) and <Precision,26:26>, alone and before
+    // <Standard Format,2>, <Standard Format,0> and <Standard Format,9>. ----
+
+    local procedure TvObserve(var Observer: Codeunit "Probe Observer"; Prefix: Text; Value: Decimal)
+    var
+        Res: Text;
+    begin
+        Observer.Observe(Prefix + ' 0:26 sf2', Show(TryFormat(Value, '<Precision,0:26><Standard Format,2>', Res), Res));
+        Observer.Observe(Prefix + ' 0:26 sf0', Show(TryFormat(Value, '<Precision,0:26><Standard Format,0>', Res), Res));
+        Observer.Observe(Prefix + ' 0:26 sf9', Show(TryFormat(Value, '<Precision,0:26><Standard Format,9>', Res), Res));
+        Observer.Observe(Prefix + ' 0:26 alone', Show(TryFormat(Value, '<Precision,0:26>', Res), Res));
+        Observer.Observe(Prefix + ' 0:19 sf2', Show(TryFormat(Value, '<Precision,0:19><Standard Format,2>', Res), Res));
+    end;
+
+    [Test]
+    procedure TV_Format_Precision0To26_Values()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        TvObserve(Observer, '1', 1);
+        TvObserve(Observer, '1.5', 1.5);
+        TvObserve(Observer, '-2.25', -2.25);
+        TvObserve(Observer, '0', 0);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TV_Format_Precision0To26_MoreValues()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        TvObserve(Observer, '0.01', 0.01);
+        TvObserve(Observer, '12345.6789', 12345.6789);
+        TvObserve(Observer, '1/3', 1 / 3);
+        TvObserve(Observer, 'round 2.346', Round(2.346, 0.01));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TV_Format_PrecisionAbove18_Forms()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Text;
+    begin
+        Observer.Observe('1.5 0:28 sf2', Show(TryFormat(1.5, '<Precision,0:28><Standard Format,2>', Res), Res));
+        Observer.Observe('1.5 0:29 sf2', Show(TryFormat(1.5, '<Precision,0:29><Standard Format,2>', Res), Res));
+        Observer.Observe('1.5 0:99 sf2', Show(TryFormat(1.5, '<Precision,0:99><Standard Format,2>', Res), Res));
+        Observer.Observe('1.5 26:26 sf2', Show(TryFormat(1.5, '<Precision,26:26><Standard Format,2>', Res), Res));
+        Observer.Observe('1/3 0:28 sf2', Show(TryFormat(1 / 3, '<Precision,0:28><Standard Format,2>', Res), Res));
+        Observer.Observe('15 integer 0:26 sf2', Show(TryFormat(15, '<Precision,0:26><Standard Format,2>', Res), Res));
+        Observer.Finish();
     end;
 }

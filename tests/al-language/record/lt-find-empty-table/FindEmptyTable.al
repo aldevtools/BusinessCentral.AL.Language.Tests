@@ -3,6 +3,8 @@
 // Fixtures used: Probe Observer (69160); table 67072
 // Probe: Record.Find on an empty table with no filter, the result not used, and with the result used, for the search strings '=', '-', '+', '>', '<' and
 // '=><', and Find() with no argument. Does a call with an unused result raise an error, and what does it return. Object ids 67072 - 67073.
+// Writer TV (2026-10-29, TV_* tests): the same unused Find on a table that has rows when no row meets the search, and on an empty table with a key
+// value other than the default.
 
 table 67072 "LT FE Row"
 {
@@ -89,5 +91,76 @@ codeunit 67073 "LT FE Find"
         Observer.Expect('used_previous', 'No');
         Observer.Expect('used_all_directions', 'No');
         Observer.Verify();
+    end;
+
+    // ---- Writer TV (NP lane, 2026-10-29): Find with the result not used and no filter when no row meets the search: on a table that has rows
+    // (key not present, past the last row, before the first row) and on an empty table with a key value other than the default. ----
+
+    [TryFunction]
+    local procedure TvTryFindUnused(Key: Integer; Mode: Text)
+    var
+        Row: Record "LT FE Row";
+    begin
+        Row.Id := Key;
+        if Mode = '' then
+            Row.Find()
+        else
+            Row.Find(Mode);
+    end;
+
+    local procedure TvUnused(Key: Integer; Mode: Text): Text
+    begin
+        ClearLastError();
+        if TvTryFindUnused(Key, Mode) then
+            exit('ok');
+        exit('error:' + GetLastErrorText() + '|' + GetLastErrorCode());
+    end;
+
+    local procedure TvSeed()
+    var
+        Row: Record "LT FE Row";
+    begin
+        Row.DeleteAll();
+        Row.Id := 10;
+        Row.Name := 'ten';
+        Row.Insert();
+        Row.Id := 20;
+        Row.Name := 'twenty';
+        Row.Insert();
+    end;
+
+    [Test]
+    procedure TV_Find_TableWithRows_NoMatch()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        TvSeed();
+        Observer.Observe('default 15', TvUnused(15, ''));
+        Observer.Observe('equals 15', TvUnused(15, '='));
+        Observer.Observe('next from 20', TvUnused(20, '>'));
+        Observer.Observe('next from 25', TvUnused(25, '>'));
+        Observer.Observe('previous from 10', TvUnused(10, '<'));
+        Observer.Observe('previous from 5', TvUnused(5, '<'));
+        Observer.Observe('equals or next from 25', TvUnused(25, '=>'));
+        Observer.Observe('equals or previous from 5', TvUnused(5, '=<'));
+        Observer.Observe('default 0', TvUnused(0, ''));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TV_Find_EmptyTable_KeyNotDefault()
+    var
+        Row: Record "LT FE Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Row.DeleteAll();
+        Observer.Observe('default 7', TvUnused(7, ''));
+        Observer.Observe('equals 7', TvUnused(7, '='));
+        Observer.Observe('next 7', TvUnused(7, '>'));
+        Observer.Observe('previous 7', TvUnused(7, '<'));
+        Observer.Observe('all directions 7', TvUnused(7, '=><'));
+        Observer.Observe('equals or next 7', TvUnused(7, '=>'));
+        Observer.Observe('first 7', TvUnused(7, '-'));
+        Observer.Finish();
     end;
 }

@@ -7,6 +7,7 @@
 //   String gives System.Object (Char, Byte, Int32, StringBuilder, Type, Exception give their own type); a Variant holding a Char gives
 //   System.Byte; Option, Enum and an AL Enum give System.Int32; a DateFormula is refused (NotSupportedType).
 //   Variant holding Integer ... Duration: DotNetTypeVariant.al; scalars: DotNetTypeScalars.al (lt-dotnet-interop).
+// Writer TV (2026-10-29, TV_* tests): GetDotNetType of an unassigned DotNet enum variable (X509ContentType, DayOfWeek) and System.Enum.Parse with it.
 // BC versions: 27, 28, 29
 dotnet
 {
@@ -20,6 +21,12 @@ dotnet
         type("System.Text.StringBuilder"; LtBbSb) { }
         type("System.Object"; LtBbObj) { }
         type("System.Exception"; LtBbExc) { }
+        type("System.Enum"; LtBbEnum) { }
+        type("System.DayOfWeek"; LtBbDayOfWeek) { }
+    }
+    assembly("netstandard")
+    {
+        type("System.Security.Cryptography.X509Certificates.X509ContentType"; LtBbX509ContentType) { }
     }
 }
 
@@ -371,5 +378,83 @@ codeunit 99220 "LT BB GetDotNetType"
     begin
         ClearLastError();
         Run('UnassignedPlainException', TryUnassignedPlainException(Shown), Shown, 'System.Exception|System.Exception');
+    end;
+
+    // ---- Writer TV (NP lane, 2026-10-29): GetDotNetType of an unassigned DotNet enum variable (X509ContentType from netstandard, as System
+    // Application's X509 certificate code declares it, and System.DayOfWeek), and System.Enum.Parse with that type into the same variable. ----
+
+    [TryFunction]
+    local procedure TvTryUnassignedX509(var Shown: Text)
+    var
+        T: DotNet LtBbType;
+        X: DotNet LtBbX509ContentType;
+    begin
+        T := GetDotNetType(X);
+        Shown := Show(T) + '|IsEnum=' + Format(T.IsEnum());
+    end;
+
+    [TryFunction]
+    local procedure TvTryUnassignedDay(var Shown: Text)
+    var
+        T: DotNet LtBbType;
+        X: DotNet LtBbDayOfWeek;
+    begin
+        T := GetDotNetType(X);
+        Shown := Show(T) + '|IsEnum=' + Format(T.IsEnum());
+    end;
+
+    [TryFunction]
+    local procedure TvTryParseX509(Name: Text; var Shown: Text)
+    var
+        DnEnum: DotNet LtBbEnum;
+        X: DotNet LtBbX509ContentType;
+        Number: Integer;
+    begin
+        X := DnEnum.Parse(GetDotNetType(X), Name);
+        Number := X;
+        Shown := Format(X) + '|' + Format(Number);
+    end;
+
+    local procedure TvObserve(Name: Text; Ok: Boolean; Shown: Text)
+    begin
+        if Ok then
+            Observer.Observe(Name, Shown)
+        else
+            Observer.ObserveError(Name);
+    end;
+
+    [Test]
+    procedure TV_GetDotNetType_UnassignedEnumVariables()
+    var
+        Shown: Text;
+    begin
+        ClearLastError();
+        TvObserve('X509ContentType', TvTryUnassignedX509(Shown), Shown);
+        Shown := '';
+        ClearLastError();
+        TvObserve('DayOfWeek', TvTryUnassignedDay(Shown), Shown);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TV_EnumParse_GetDotNetTypeOfUnassignedX509ContentType()
+    var
+        Shown: Text;
+    begin
+        ClearLastError();
+        TvObserve('Cert', TvTryParseX509('Cert', Shown), Shown);
+        Shown := '';
+        ClearLastError();
+        TvObserve('Pkcs12', TvTryParseX509('Pkcs12', Shown), Shown);
+        Shown := '';
+        ClearLastError();
+        TvObserve('Pfx', TvTryParseX509('Pfx', Shown), Shown);
+        Shown := '';
+        ClearLastError();
+        TvObserve('lower cert', TvTryParseX509('cert', Shown), Shown);
+        Shown := '';
+        ClearLastError();
+        TvObserve('unknown', TvTryParseX509('Nope', Shown), Shown);
+        Observer.Finish();
     end;
 }
