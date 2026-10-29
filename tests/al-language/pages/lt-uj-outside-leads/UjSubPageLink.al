@@ -137,7 +137,7 @@ codeunit 90403 "LT UJ SubPageLink Tests"
         Line.Insert();
     end;
 
-    local procedure Rows(var P: TestPage "LT UJ Filter Part"): Text
+    local procedure Rows(var P: TestPart "LT UJ Filter Part"): Text
     var
         Result: Text;
         More: Boolean;
