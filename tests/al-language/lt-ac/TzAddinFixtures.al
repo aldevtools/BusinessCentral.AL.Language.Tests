@@ -236,16 +236,6 @@ pageextension 90213 "LT TZ Addin Card Ext" extends "LT TZ Addin Card"
                     ExtLog.Add('ExtCallAct after');
                 end;
             }
-            action(ExtCallBaseAct)
-            {
-                ApplicationArea = All;
-                trigger OnAction()
-                begin
-                    ExtLog.Add('ExtCallBaseAct before');
-                    CurrPage.Ctl.Say('from ext');
-                    ExtLog.Add('ExtCallBaseAct after');
-                end;
-            }
         }
     }
 

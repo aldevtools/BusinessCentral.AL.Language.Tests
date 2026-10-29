@@ -120,7 +120,7 @@ codeunit 77540 "LT AC ControlAddIn"
     // Page.Run with a page handler and on a Page variable never opened (pages/lt-f3-pages/F3ValidationAddinFilter.al). A usercontrol is no
     // TestPage member (must-not-compile 1864). These tests add: TestPage.OpenEdit with a call in OnOpenPage, OnAfterGetRecord,
     // OnAfterGetCurrRecord and OnClosePage, a second procedure, a TryFunction around the call, a usercontrol with Visible = false, and a
-    // usercontrol added by a page extension.
+    // usercontrol added by a page extension. A page extension cannot call the base page's usercontrol (must-not-compile 2261, AL0783).
 
     local procedure TzSeed(Mode: Text)
     var
@@ -277,8 +277,6 @@ codeunit 77540 "LT AC ControlAddIn"
         TP.OpenEdit();
         asserterror TP.ExtCallAct.Invoke();
         Observer.ObserveError('ext');
-        asserterror TP.ExtCallBaseAct.Invoke();
-        Observer.ObserveError('ext-base');
         Observer.Observe('log', Log.Dump());
         Observer.Finish();
     end;
