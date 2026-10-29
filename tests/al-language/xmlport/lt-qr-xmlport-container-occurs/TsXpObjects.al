@@ -2,7 +2,29 @@
 // Scope: in-scope
 // Fixtures used: own table 90080, xmlports 90081-90086 and 90088, runner codeunit 90087 (writer TS); tables 90060-90063 and xmlports 90064-90065
 //   (TrXpReplyObjects.al); the temporary blob table 87279 (QrXpContainerOccurs.al); tests TS_* in codeunit 87280 (QrXpContainerOccurs.al)
-// Probe: FACTS_PLACEHOLDER
+// Probe: observed on the BC 29.0 SaaS sandbox (the Windows 29.0 container was down); every literal asserted in the TS_* tests is what it
+//   produced. Other versions: corpus CI matrix (Linux 27.5, 28.5, 29.0).
+// Facts (BC 29):
+//   Second Export on one instance: every table element reads its table again from the start and writes the rows it holds then (the rows of
+//   the first export again; a row added in between that sorts first is written first). A table element's record keeps what it held when the
+//   first export ended (the last row read, with its SystemId). A MinOccurs = Once element with no rows writes that record as it is: the row
+//   the first export left, the row assigned to it (Rec := Other copies SystemId too), the fields TransferFields(Other, true) copied (SystemId
+//   is NOT copied: the record keeps its old SystemId), or after Init the primary key only (SystemId null). A temporary record assigned from a
+//   row with a SystemId keeps that SystemId through Insert().
+//   SourceTableView: the first export sets its key (also over a key set before) and its filters in a filter group that GetView(false) does
+//   not show; filters set on the record (also between exports, also on an element without SourceTableView) are kept and combine with it.
+//   A later export does NOT set the key again (a key set in between, or the primary key after Reset, decides the order), but applies the
+//   SourceTableView filters again (after Reset they come back).
+//   A linked table element with an explicit MaxOccurs = Unbounded exports and imports exactly as without it (same XML, same trigger order,
+//   same import rows and schema errors). Import of a linked temporary table element sets the link field only on the FIRST child row of a
+//   parent (the second child of ticket 3 gets Ref 0).
+//   A text element with default MinOccurs/MaxOccurs over an unlinked temporary table element (MaxOccurs = Once, MinOccurs = Zero) is written
+//   empty (`<cards />`) with no rows and holds only the first row with two rows.
+//   MinOccurs = Once on the root text element: export as without it; import accepts `<changerequest />`; another root fails with
+//   'Imported XML cannot validate with the schema: The 'other' element is not declared.' (XmlPortInvalidXml), an empty document with
+//   'Root element is missing.' (XmlPortImport:Xml).
+//   Guid with FormatEvaluate = Xml: import takes braces or none, any case, 32 digits only, parentheses, surrounding spaces; empty or missing
+//   gives the null Guid; anything else fails with 'Invalid format of GUID string. ...' (InvalidGuidFormat). Export writes `{UPPER-CASE}`.
 // Objects:
 //   90081 "LT TS XP Booking Again": the reply part of a reply port: a temporary table element (MaxOccurs = Once, MinOccurs = Zero) > field
 //     element + text element `details` (MinOccurs = Zero, MaxOccurs = Once) > temporary table element `line` with no link (MinOccurs = Zero)
