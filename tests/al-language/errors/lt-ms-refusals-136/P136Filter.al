@@ -341,7 +341,13 @@ codeunit 74334 "LT P136 Filter"
         Observer.Observe('setfilter greater', TvRoundTrip(R));
         R.SetRange(DT, CreateDateTime(20240115D, 120000T));
         Observer.Observe('setrange whole second', TvRoundTrip(R));
-        Observer.Finish();
+        Observer.Expect('setrange .033', '11/07/26 12:00:00.033 PM|2|Yes:5|same filter=Yes|same view=Yes');
+        Observer.Expect('setrange .08', '11/03/26 12:00:00.08 PM|1|Yes:7|same filter=Yes|same view=Yes');
+        Observer.Expect('setrange 11.767', '11/03/26 12:00:11.767 PM|1|Yes:8|same filter=Yes|same view=Yes');
+        Observer.Expect('setrange range', '11/03/26 12:00 AM..11/07/26 12:00:00.033 PM|4|Yes:5|same filter=Yes|same view=Yes');
+        Observer.Expect('setfilter greater', '>11/07/26 12:00:00.033 PM|0|No:0|same filter=Yes|same view=Yes');
+        Observer.Expect('setrange whole second', '01/15/24 12:00 PM|1|Yes:2|same filter=Yes|same view=Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -359,6 +365,15 @@ codeunit 74334 "LT P136 Filter"
         TvView(Observer, 'date only', 'WHERE(DT=FILTER(01/15/24))');
         TvView(Observer, 'empty', 'WHERE(DT=FILTER(''''))');
         TvView(Observer, '24 hour', 'WHERE(DT=FILTER(11/07/26 12:00:00.033))');
-        Observer.Finish();
+        Observer.Expect('ms 3 digits', '2|Yes:5');
+        Observer.Expect('ms 2 digits', '1|Yes:7');
+        Observer.Expect('ms 1 digit', '0|No:0');
+        Observer.Expect('seconds', '1|Yes:2');
+        Observer.Expect('no seconds', '1|Yes:2');
+        Observer.Expect('range', '4|Yes:5');
+        Observer.Expect('date only', '1|Yes:2');
+        Observer.Expect('empty', '1|Yes:3');
+        Observer.Expect('24 hour', '2|Yes:5');
+        Observer.Verify();
     end;
 }

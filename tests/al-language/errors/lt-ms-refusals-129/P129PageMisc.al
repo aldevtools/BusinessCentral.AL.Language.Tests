@@ -676,11 +676,14 @@ codeunit 73276 "LT P129 Page Misc"
     // (SetTableView with a filter no row meets), for OK, LookupOK and Cancel in lookup mode, after SetRecord of a row, and with a Page-typed
     // handler. ----
 
+    // In lookup mode on no row, TestPage OK() is not found (BC 29 SaaS sandbox): the handler records the error and cancels.
     [ModalPageHandler]
     procedure TvLookupOkHandler(var P: TestPage "LT P129 Plain List")
     begin
         L.Add('tv first=' + Format(P.First()));
-        P.OK().Invoke();
+        asserterror P.OK().Invoke();
+        L.Add('ok error=' + GetLastErrorText() + '|' + GetLastErrorCode());
+        P.Cancel().Invoke();
     end;
 
     [ModalPageHandler]
@@ -712,7 +715,10 @@ codeunit 73276 "LT P129 Page Misc"
         Observer.Observe('result', Format(Result));
         Observer.Observe('prefilled record', AfterEmptyRun(Pg, true));
         Observer.Observe('cleared record', AfterEmptyRun(Pg, false));
-        Observer.Finish();
+        Observer.Expect('result', 'OK');
+        Observer.Expect('prefilled record', 'ok|id=0|grp=|qty=0');
+        Observer.Expect('cleared record', 'ok|id=0|grp=|qty=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -750,7 +756,11 @@ codeunit 73276 "LT P129 Page Misc"
         Observer.Observe('handler log', L.Take());
         Observer.Observe('prefilled record', AfterEmptyRun(Pg, true));
         Observer.Observe('cleared record', AfterEmptyRun(Pg, false));
-        Observer.Finish();
+        Observer.Expect('result', 'LookupCancel');
+        Observer.Expect('handler log', 'tv first=No;');
+        Observer.Expect('prefilled record', 'ok|id=0|grp=|qty=0');
+        Observer.Expect('cleared record', 'ok|id=0|grp=|qty=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -790,6 +800,10 @@ codeunit 73276 "LT P129 Page Misc"
         Observer.Observe('handler log', L.Take());
         Observer.Observe('prefilled record', AfterEmptyRun(Pg, true));
         Observer.Observe('cleared record', AfterEmptyRun(Pg, false));
-        Observer.Finish();
+        Observer.Expect('result', 'LookupOK');
+        Observer.Expect('handler log', 'handler getrecord id=0;');
+        Observer.Expect('prefilled record', 'ok|id=0|grp=|qty=0');
+        Observer.Expect('cleared record', 'ok|id=0|grp=|qty=0');
+        Observer.Verify();
     end;
 }

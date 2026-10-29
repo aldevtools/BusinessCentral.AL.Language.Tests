@@ -257,7 +257,12 @@ codeunit 85907 "LT DE Xml Declaration Encoding"
         Observer.Observe('create(,) utf8', TvBytes(Doc, 'utf8', false));
         Observer.Observe('create(,) utf16 stream', TvBytes(Doc, 'utf16', false));
         Observer.Observe('create(,) default stream', TvBytes(Doc, 'default', false));
-        Observer.Finish();
+        Observer.Expect('create() utf8', 'EF BB BF 3C 3F 78 6D 6C 20 76 65 72 73 69 6F 6E 3D 22 31 2E 30 22 20 65 6E 63 6F 64 69 6E 67 3D 22 75 74 66 2D 38 22 3F 3E 0D 0A 3C 72 3E 0D 0A 20 20 3C 63 3E 78 3C 2F 63 3E 0D 0A 3C 2F 72 3E');
+        Observer.Expect('create() readback', '<?xml version="1.0" encoding="utf-8"?>|<r>|  <c>x</c>|</r>|');
+        Observer.Expect('create(,) utf8', 'EF BB BF 3C 3F 78 6D 6C 20 76 65 72 73 69 6F 6E 3D 22 31 2E 30 22 20 65 6E 63 6F 64 69 6E 67 3D 22 75 74 66 2D 38 22 3F 3E 0D 0A 3C 72 3E 0D 0A 20 20 3C 63 3E 78 3C 2F 63 3E 0D 0A 3C 2F 72 3E');
+        Observer.Expect('create(,) utf16 stream', 'EF BB BF 3C 3F 78 6D 6C 20 76 65 72 73 69 6F 6E 3D 22 31 2E 30 22 20 65 6E 63 6F 64 69 6E 67 3D 22 75 74 66 2D 38 22 3F 3E 0D 0A 3C 72 3E 0D 0A 20 20 3C 63 3E 78 3C 2F 63 3E 0D 0A 3C 2F 72 3E');
+        Observer.Expect('create(,) default stream', 'EF BB BF 3C 3F 78 6D 6C 20 76 65 72 73 69 6F 6E 3D 22 31 2E 30 22 20 65 6E 63 6F 64 69 6E 67 3D 22 75 74 66 2D 38 22 3F 3E 0D 0A 3C 72 3E 0D 0A 20 20 3C 63 3E 78 3C 2F 63 3E 0D 0A 3C 2F 72 3E');
+        Observer.Verify();
     end;
 
     [Test]
@@ -270,7 +275,9 @@ codeunit 85907 "LT DE Xml Declaration Encoding"
         Observer.Observe('create(,) options utf8', TvBytes(Doc, 'utf8', true));
         TvBuild('1.0', 'UTF-8', 'yes', true, true, Doc);
         Observer.Observe('UTF-8 yes options utf8', TvBytes(Doc, 'utf8', true));
-        Observer.Finish();
+        Observer.Expect('create(,) options utf8', 'EF BB BF 3C 3F 78 6D 6C 20 76 65 72 73 69 6F 6E 3D 22 31 2E 30 22 20 65 6E 63 6F 64 69 6E 67 3D 22 75 74 66 2D 38 22 3F 3E 3C 72 3E 3C 63 3E 78 3C 2F 63 3E 3C 2F 72 3E');
+        Observer.Expect('UTF-8 yes options utf8', 'EF BB BF 3C 3F 78 6D 6C 20 76 65 72 73 69 6F 6E 3D 22 31 2E 30 22 20 65 6E 63 6F 64 69 6E 67 3D 22 55 54 46 2D 38 22 20 73 74 61 6E 64 61 6C 6F 6E 65 3D 22 79 65 73 22 3F 3E 3C 72 3E 3C 63 3E 78 3C 2F 63 3E 3C 2F 72 3E');
+        Observer.Verify();
     end;
 
     [Test]
@@ -286,7 +293,11 @@ codeunit 85907 "LT DE Xml Declaration Encoding"
         Observer.Observe('utf-8 yes utf8', TvBytes(Doc, 'utf8', false));
         TvBuild('1.0', 'utf-8', '', true, false, Doc);
         Observer.Observe('utf-8 none utf8', TvBytes(Doc, 'utf8', false));
-        Observer.Finish();
+        Observer.Expect('UTF-8 yes utf8', 'EF BB BF 3C 3F 78 6D 6C 20 76 65 72 73 69 6F 6E 3D 22 31 2E 30 22 20 65 6E 63 6F 64 69 6E 67 3D 22 55 54 46 2D 38 22 20 73 74 61 6E 64 61 6C 6F 6E 65 3D 22 79 65 73 22 3F 3E 0D 0A 3C 72 3E 0D 0A 20 20 3C 63 3E 78 3C 2F 63 3E 0D 0A 3C 2F 72 3E');
+        Observer.Expect('UTF-8 yes readback', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>|<r>|  <c>x</c>|</r>|');
+        Observer.Expect('utf-8 yes utf8', 'EF BB BF 3C 3F 78 6D 6C 20 76 65 72 73 69 6F 6E 3D 22 31 2E 30 22 20 65 6E 63 6F 64 69 6E 67 3D 22 75 74 66 2D 38 22 20 73 74 61 6E 64 61 6C 6F 6E 65 3D 22 79 65 73 22 3F 3E 0D 0A 3C 72 3E 0D 0A 20 20 3C 63 3E 78 3C 2F 63 3E 0D 0A 3C 2F 72 3E');
+        Observer.Expect('utf-8 none utf8', 'EF BB BF 3C 3F 78 6D 6C 20 76 65 72 73 69 6F 6E 3D 22 31 2E 30 22 20 65 6E 63 6F 64 69 6E 67 3D 22 75 74 66 2D 38 22 20 73 74 61 6E 64 61 6C 6F 6E 65 3D 22 22 3F 3E 0D 0A 3C 72 3E 0D 0A 20 20 3C 63 3E 78 3C 2F 63 3E 0D 0A 3C 2F 72 3E');
+        Observer.Verify();
     end;
 
     [Test]
@@ -300,7 +311,10 @@ codeunit 85907 "LT DE Xml Declaration Encoding"
         Observer.Observe('UTF-8 yes default stream', TvBytes(Doc, 'default', false));
         TvBuild('1.0', 'UTF-8', 'no', true, true, Doc);
         Observer.Observe('UTF-8 no utf8', TvBytes(Doc, 'utf8', false));
-        Observer.Finish();
+        Observer.Expect('UTF-8 yes utf16 stream', 'EF BB BF 3C 3F 78 6D 6C 20 76 65 72 73 69 6F 6E 3D 22 31 2E 30 22 20 65 6E 63 6F 64 69 6E 67 3D 22 55 54 46 2D 38 22 20 73 74 61 6E 64 61 6C 6F 6E 65 3D 22 79 65 73 22 3F 3E 0D 0A 3C 72 3E 0D 0A 20 20 3C 63 3E 78 3C 2F 63 3E 0D 0A 3C 2F 72 3E');
+        Observer.Expect('UTF-8 yes default stream', 'EF BB BF 3C 3F 78 6D 6C 20 76 65 72 73 69 6F 6E 3D 22 31 2E 30 22 20 65 6E 63 6F 64 69 6E 67 3D 22 55 54 46 2D 38 22 20 73 74 61 6E 64 61 6C 6F 6E 65 3D 22 79 65 73 22 3F 3E 0D 0A 3C 72 3E 0D 0A 20 20 3C 63 3E 78 3C 2F 63 3E 0D 0A 3C 2F 72 3E');
+        Observer.Expect('UTF-8 no utf8', 'EF BB BF 3C 3F 78 6D 6C 20 76 65 72 73 69 6F 6E 3D 22 31 2E 30 22 20 65 6E 63 6F 64 69 6E 67 3D 22 55 54 46 2D 38 22 20 73 74 61 6E 64 61 6C 6F 6E 65 3D 22 6E 6F 22 3F 3E 0D 0A 3C 72 3E 0D 0A 20 20 3C 63 3E 78 3C 2F 63 3E 0D 0A 3C 2F 72 3E');
+        Observer.Verify();
     end;
 
     [Test]
@@ -315,7 +329,10 @@ codeunit 85907 "LT DE Xml Declaration Encoding"
         Observer.Observe('utf-16 yes utf8', TvBytes(Doc, 'utf8', false));
         TvBuild('1.0', '', '', true, false, Doc);
         Observer.Observe('no encoding utf8', TvBytes(Doc, 'utf8', false));
-        Observer.Finish();
+        Observer.Expect('utf-16 none utf8', 'FF FE 3C 00 3F 00 78 00 6D 00 6C 00 20 00 76 00 65 00 72 00 73 00 69 00 6F 00 6E 00 3D 00 22 00 31 00 2E 00 30 00 22 00 20 00 65 00 6E 00 63 00 6F 00 64 00 69 00 6E 00 67 00 3D 00 22 00 75 00 74 00 66 00 2D 00 31 00 36 00 22 00 20 00 73 00 74 00 61 00 6E 00 64 00 61 00 6C 00 6F 00 6E 00 65 00 3D 00 22 00 22 00 3F 00 3E 00 0D 00 0A 00 3C 00 72 00 3E 00 0D 00 0A 00 20 00 20 00 3C 00 63 00 3E 00 78 00 3C 00 2F 00 63 00 3E 00 0D 00 0A 00 3C 00 2F 00 72 00 3E 00');
+        Observer.Expect('utf-16 yes utf8', 'FF FE 3C 00 3F 00 78 00 6D 00 6C 00 20 00 76 00 65 00 72 00 73 00 69 00 6F 00 6E 00 3D 00 22 00 31 00 2E 00 30 00 22 00 20 00 65 00 6E 00 63 00 6F 00 64 00 69 00 6E 00 67 00 3D 00 22 00 75 00 74 00 66 00 2D 00 31 00 36 00 22 00 20 00 73 00 74 00 61 00 6E 00 64 00 61 00 6C 00 6F 00 6E 00 65 00 3D 00 22 00 79 00 65 00 73 00 22 00 3F 00 3E 00 0D 00 0A 00 3C 00 72 00 3E 00 0D 00 0A 00 20 00 20 00 3C 00 63 00 3E 00 78 00 3C 00 2F 00 63 00 3E 00 0D 00 0A 00 3C 00 2F 00 72 00 3E 00');
+        Observer.Expect('no encoding utf8', 'FF FE 3C 00 3F 00 78 00 6D 00 6C 00 20 00 76 00 65 00 72 00 73 00 69 00 6F 00 6E 00 3D 00 22 00 31 00 2E 00 30 00 22 00 20 00 65 00 6E 00 63 00 6F 00 64 00 69 00 6E 00 67 00 3D 00 22 00 22 00 20 00 73 00 74 00 61 00 6E 00 64 00 61 00 6C 00 6F 00 6E 00 65 00 3D 00 22 00 22 00 3F 00 3E 00 0D 00 0A 00 3C 00 72 00 3E 00 0D 00 0A 00 20 00 20 00 3C 00 63 00 3E 00 78 00 3C 00 2F 00 63 00 3E 00 0D 00 0A 00 3C 00 2F 00 72 00 3E 00');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -369,7 +386,12 @@ codeunit 85907 "LT DE Xml Declaration Encoding"
         Observer.Observe('doc add fresh options', TvAddOutcome(TvTryDocAdd(Doc, Body, Fresh)));
         Observer.Observe('doc after fresh options', TvDocShape(Doc));
         Observer.Observe('doc after fresh options readback', TvReadBack(Doc));
-        Observer.Finish();
+        Observer.Expect('doc add preserve true', 'ok');
+        Observer.Expect('doc after preserve true', '1|<?xml version="1.0" encoding="utf-16"?>\r\n<Body>\r\n  <c>x</c>\r\n</Body>');
+        Observer.Expect('doc add fresh options', 'ok');
+        Observer.Expect('doc after fresh options', '1|<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\r\n<Body>\r\n  <c>x</c>\r\n</Body>');
+        Observer.Expect('doc after fresh options readback', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>|<Body>|  <c>x</c>|</Body>|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -386,7 +408,9 @@ codeunit 85907 "LT DE Xml Declaration Encoding"
         Observer.Observe('element add', TvAddOutcome(TvTryElementAdd(Parent, XmlElement.Create('c', '', 'x'), Options)));
         Parent.WriteTo(T);
         Observer.Observe('element after', Format(Parent.GetChildNodes().Count()) + '|' + T);
-        Observer.Finish();
+        Observer.Expect('element add', 'ok');
+        Observer.Expect('element after', '1|<p>\r\n  <c>x</c>\r\n</p>');
+        Observer.Verify();
     end;
 }
 

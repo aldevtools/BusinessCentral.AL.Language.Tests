@@ -144,7 +144,16 @@ codeunit 67073 "LT FE Find"
         Observer.Observe('equals or next from 25', TvUnused(25, '=>'));
         Observer.Observe('equals or previous from 5', TvUnused(5, '=<'));
         Observer.Observe('default 0', TvUnused(0, ''));
-        Observer.Finish();
+        Observer.Expect('default 15', 'error:The LT FE Row does not exist. Identification fields and values: Id=''15''|DB:RecordNotFound');
+        Observer.Expect('equals 15', 'error:The LT FE Row does not exist. Identification fields and values: Id=''15''|DB:RecordNotFound');
+        Observer.Expect('next from 20', 'error:The LT FE Row does not exist. >\\Identification fields and values:\\Id=''20''|DB:RecordNotFound');
+        Observer.Expect('next from 25', 'error:The LT FE Row does not exist. >\\Identification fields and values:\\Id=''25''|DB:RecordNotFound');
+        Observer.Expect('previous from 10', 'error:The LT FE Row does not exist. <\\Identification fields and values:\\Id=''10''|DB:RecordNotFound');
+        Observer.Expect('previous from 5', 'error:The LT FE Row does not exist. <\\Identification fields and values:\\Id=''5''|DB:RecordNotFound');
+        Observer.Expect('equals or next from 25', 'error:The LT FE Row does not exist. =>\\Identification fields and values:\\Id=''25''|DB:RecordNotFound');
+        Observer.Expect('equals or previous from 5', 'error:The LT FE Row does not exist. =<\\Identification fields and values:\\Id=''5''|DB:RecordNotFound');
+        Observer.Expect('default 0', 'error:The LT FE Row does not exist. Identification fields and values: Id=''0''|DB:RecordNotFound');
+        Observer.Verify();
     end;
 
     [Test]
@@ -161,6 +170,13 @@ codeunit 67073 "LT FE Find"
         Observer.Observe('all directions 7', TvUnused(7, '=><'));
         Observer.Observe('equals or next 7', TvUnused(7, '=>'));
         Observer.Observe('first 7', TvUnused(7, '-'));
-        Observer.Finish();
+        Observer.Expect('default 7', 'error:The LT FE Row does not exist. Identification fields and values: Id=''7''|DB:RecordNotFound');
+        Observer.Expect('equals 7', 'error:The LT FE Row does not exist. Identification fields and values: Id=''7''|DB:RecordNotFound');
+        Observer.Expect('next 7', 'error:The LT FE Row does not exist. >\\Identification fields and values:\\Id=''7''|DB:RecordNotFound');
+        Observer.Expect('previous 7', 'error:The LT FE Row does not exist. <\\Identification fields and values:\\Id=''7''|DB:RecordNotFound');
+        Observer.Expect('all directions 7', 'error:The LT FE Row does not exist. =><\\Identification fields and values:\\Id=''7''|DB:RecordNotFound');
+        Observer.Expect('equals or next 7', 'error:The LT FE Row does not exist. =>\\Identification fields and values:\\Id=''7''|DB:RecordNotFound');
+        Observer.Expect('first 7', 'error:The LT FE Row table is empty.|DB:TableIsEmpty');
+        Observer.Verify();
     end;
 }
