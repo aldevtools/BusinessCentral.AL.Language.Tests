@@ -279,7 +279,23 @@ codeunit 77540 "LT AC ControlAddIn"
         Observer.Observe('next-after', Format(TP.Next()));
         TP.Close();
         Observer.Observe('log', Log.Dump());
-        Observer.Finish();
+#if BC28PLUS
+        // CI 2026-10-29 (Linux, 28.5 and 29.0). The page stays usable after a failed add-in call.
+        Observer.Expect('say-ok', 'No');
+        Observer.Expect('say|text', 'The control add-in on control Ctl on page LT TZ Addin Card has not been instantiated.');
+        Observer.Expect('say|code', 'TestWrapped:DotNetControlAddInNotCreated');
+        Observer.Expect('count-ok', 'No');
+        Observer.Expect('count|text', 'The control add-in on control Ctl on page LT TZ Addin Card has not been instantiated.');
+        Observer.Expect('count|code', 'TestWrapped:DotNetControlAddInNotCreated');
+        Observer.Expect('name-after', 'one');
+        Observer.Expect('next-after', 'Yes');
+        Observer.Expect('log', 'OnOpenPage | ext OnOpenPage | OnAfterGetRecord 1 | OnAfterGetCurrRecord 1 | OnAfterGetRecord 1 | CallAct before | OnAfterGetRecord 1 | OnAfterGetCurrRecord 1 | OnAfterGetRecord 1 | CountAct before | OnAfterGetRecord 1 | OnAfterGetCurrRecord 1 | OnAfterGetRecord 2 | OnAfterGetCurrRecord 2 | OnClosePage');
+        Observer.Verify();
+#else
+        // Linux CI 27.5 gives the same values; the Windows BC 27.5 TestRunnerHub gave a client callback error for add-in calls
+        // (pages/lt-ao-testpage/AoTests.al AddinProcedureFromAction), so 27 is not asserted until the Windows check (windows-queue).
+        Observer.Discard();
+#endif
     end;
 
     [TryFunction]
