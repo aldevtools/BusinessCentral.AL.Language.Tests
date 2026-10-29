@@ -665,7 +665,7 @@ codeunit 67515 "LT RV Tests"
         UkSnap(Observer, 'insert', PrevLast, PrevMin, Last0, Min0);
         B.Get(1);
         UkSnap(Observer, 'get other', PrevLast, PrevMin, Last0, Min0);
-        B.Count();
+        Observer.Observe('count', Format(B.Count()));
         UkSnap(Observer, 'count other', PrevLast, PrevMin, Last0, Min0);
         A.Get(1);
         UkSnap(Observer, 'get same', PrevLast, PrevMin, Last0, Min0);
