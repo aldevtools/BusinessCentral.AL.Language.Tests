@@ -189,7 +189,15 @@ codeunit 67515 "LT RV Tests"
         Relations(Observer, 'after_insert', LastBefore, MinBefore);
         Row.GetBySystemId(Id);
         Relations(Observer, 'after_get_by_system_id', LastBefore, MinBefore);
-        Observer.Finish();
+        Observer.Expect('after_insert_last_grew', 'No');
+        Observer.Expect('after_insert_min_unchanged', 'Yes');
+        Observer.Expect('after_insert_min_not_above_last_plus_one', 'Yes');
+        Observer.Expect('after_insert_in_write_transaction', 'Yes');
+        Observer.Expect('after_get_by_system_id_last_grew', 'Yes');
+        Observer.Expect('after_get_by_system_id_min_unchanged', 'Yes');
+        Observer.Expect('after_get_by_system_id_min_not_above_last_plus_one', 'Yes');
+        Observer.Expect('after_get_by_system_id_in_write_transaction', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -214,7 +222,19 @@ codeunit 67515 "LT RV Tests"
         Clear(Row);
         Row.Find('+');
         Relations(Observer, 'after_find_last', LastBefore, MinBefore);
-        Observer.Finish();
+        Observer.Expect('after_find_equal_last_grew', 'Yes');
+        Observer.Expect('after_find_equal_min_unchanged', 'Yes');
+        Observer.Expect('after_find_equal_min_not_above_last_plus_one', 'Yes');
+        Observer.Expect('after_find_equal_in_write_transaction', 'Yes');
+        Observer.Expect('after_find_first_last_grew', 'Yes');
+        Observer.Expect('after_find_first_min_unchanged', 'Yes');
+        Observer.Expect('after_find_first_min_not_above_last_plus_one', 'Yes');
+        Observer.Expect('after_find_first_in_write_transaction', 'Yes');
+        Observer.Expect('after_find_last_last_grew', 'Yes');
+        Observer.Expect('after_find_last_min_unchanged', 'Yes');
+        Observer.Expect('after_find_last_min_not_above_last_plus_one', 'Yes');
+        Observer.Expect('after_find_last_in_write_transaction', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -236,7 +256,12 @@ codeunit 67515 "LT RV Tests"
         Row.Next();
         Relations(Observer, 'after_next', LastBefore, MinBefore);
         Observer.Observe('next_id', Format(Row.Id));
-        Observer.Finish();
+        Observer.Expect('after_next_last_grew', 'Yes');
+        Observer.Expect('after_next_min_unchanged', 'Yes');
+        Observer.Expect('after_next_min_not_above_last_plus_one', 'Yes');
+        Observer.Expect('after_next_in_write_transaction', 'Yes');
+        Observer.Expect('next_id', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -258,7 +283,16 @@ codeunit 67515 "LT RV Tests"
         Flow.CalcFields(Total);
         Relations(Observer, 'after_calcfields', LastBefore, MinBefore);
         Observer.Observe('total', Format(Flow.Total));
-        Observer.Finish();
+        Observer.Expect('after_insert_flow_table_last_grew', 'No');
+        Observer.Expect('after_insert_flow_table_min_unchanged', 'Yes');
+        Observer.Expect('after_insert_flow_table_min_not_above_last_plus_one', 'Yes');
+        Observer.Expect('after_insert_flow_table_in_write_transaction', 'Yes');
+        Observer.Expect('after_calcfields_last_grew', 'Yes');
+        Observer.Expect('after_calcfields_min_unchanged', 'Yes');
+        Observer.Expect('after_calcfields_min_not_above_last_plus_one', 'Yes');
+        Observer.Expect('after_calcfields_in_write_transaction', 'Yes');
+        Observer.Expect('total', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -290,6 +324,21 @@ codeunit 67515 "LT RV Tests"
         Relations(Observer, 'after_find_first', LastBefore, MinBefore);
         Flow.CalcFields(Total);
         Relations(Observer, 'after_calcfields', LastBefore, MinBefore);
-        Observer.Finish();
+        Observer.Expect('after_commit_last_grew', 'Yes');
+        Observer.Expect('after_commit_min_not_above_last_plus_one', 'Yes');
+        Observer.Expect('after_commit_in_write_transaction', 'No');
+        Observer.Expect('after_get_by_system_id_last_grew', 'Yes');
+        Observer.Expect('after_get_by_system_id_min_not_above_last_plus_one', 'Yes');
+        Observer.Expect('after_get_by_system_id_in_write_transaction', 'No');
+        Observer.Expect('after_find_last_grew', 'Yes');
+        Observer.Expect('after_find_min_not_above_last_plus_one', 'Yes');
+        Observer.Expect('after_find_in_write_transaction', 'No');
+        Observer.Expect('after_find_first_last_grew', 'Yes');
+        Observer.Expect('after_find_first_min_not_above_last_plus_one', 'Yes');
+        Observer.Expect('after_find_first_in_write_transaction', 'No');
+        Observer.Expect('after_calcfields_last_grew', 'Yes');
+        Observer.Expect('after_calcfields_min_not_above_last_plus_one', 'Yes');
+        Observer.Expect('after_calcfields_in_write_transaction', 'No');
+        Observer.Verify();
     end;
 }

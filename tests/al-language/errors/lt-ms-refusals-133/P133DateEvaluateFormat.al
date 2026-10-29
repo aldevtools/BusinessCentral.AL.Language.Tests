@@ -453,7 +453,12 @@ codeunit 74046 "LT P133 Date Eval Format"
         Rec.Get(7);
         Rec.Rid := Rec.RecordId;
         Observer.Observe('with_recordid_9', Format(Rec, 0, 9));
-        Observer.Finish();
+        Observer.Expect('blank_0', '0\t\t\t0\tNo\tZero\tNone\t\t\t\t0\t{00000000-0000-0000-0000-000000000000}\t\t \t\t0');
+        Observer.Expect('blank_9', '0\t\t\t0\tNo\tZero\tNone\t\t\t\t0\t{00000000-0000-0000-0000-000000000000}\t\t \t\t0');
+        Observer.Expect('filled_0', '7\ttext value\tCODE1\t2.5\tYes\tTwo\tFirst Caption\t03/05/24\t 2:30:15 PM\t03/05/24 02:30 PM\t123456789\t{12345678-1234-1234-1234-123456789012}\t1 minute 30 seconds\t \t\t-4');
+        Observer.Expect('filled_9', '7\ttext value\tCODE1\t2.5\tYes\tTwo\tFirst Caption\t03/05/24\t 2:30:15 PM\t03/05/24 02:30 PM\t123456789\t{12345678-1234-1234-1234-123456789012}\t1 minute 30 seconds\t \t\t-4');
+        Observer.Expect('with_recordid_9', '7\ttext value\tCODE1\t2.5\tYes\tTwo\tFirst Caption\t03/05/24\t 2:30:15 PM\t03/05/24 02:30 PM\t123456789\t{12345678-1234-1234-1234-123456789012}\t1 minute 30 seconds\t \tLT P133 All Types: 7\t-4');
+        Observer.Verify();
     end;
 
     [Test]
@@ -462,6 +467,7 @@ codeunit 74046 "LT P133 Date Eval Format"
         Observer: Codeunit "Probe Observer";
         Temp: Record "LT P133 All Types" temporary;
         Flow: Record "LT NP3 Fmt Flow";
+        Stored: Record "LT P133 All Types";
     begin
         FillAll(Temp);
         Temp.Insert();
@@ -472,6 +478,11 @@ codeunit 74046 "LT P133 Date Eval Format"
         Flow.Dt := DMY2Date(5, 3, 2024);
         Flow.Amount := 12.5;
         Flow.Insert();
+        Stored.DeleteAll();
+        Stored.Id := 1;
+        Stored.Insert();
+        Stored.Id := 2;
+        Stored.Insert();
         Observer.Observe('flow_0', Format(Flow, 0, 0));
         Observer.Observe('flow_9', Format(Flow, 0, 9));
         Flow.CalcFields(Total);
@@ -487,6 +498,7 @@ codeunit 74046 "LT P133 Date Eval Format"
         Rec: Record "LT P133 All Types";
         Temp: Record "LT P133 All Types" temporary;
         Flow: Record "LT NP3 Fmt Flow";
+        Stored: Record "LT P133 All Types";
         RecRef: RecordRef;
     begin
         Rec.DeleteAll();
@@ -509,6 +521,10 @@ codeunit 74046 "LT P133 Date Eval Format"
         Flow.Dt := DMY2Date(5, 3, 2024);
         Flow.Amount := 12.5;
         Flow.Insert();
+        Stored.Id := 1;
+        Stored.Insert();
+        Stored.Id := 2;
+        Stored.Insert();
         RecRef.GetTable(Flow);
         Observer.Observe('flow_0', Format(RecRef, 0, 0));
         Observer.Observe('flow_9', Format(RecRef, 0, 9));
@@ -528,6 +544,8 @@ codeunit 74046 "LT P133 Date Eval Format"
         Observer.Observe('not_open_9', Txt);
         Txt := Format(RecRef);
         Observer.Observe('not_open_default', Txt);
-        Observer.Finish();
+        Observer.Expect('not_open_9', '');
+        Observer.Expect('not_open_default', '');
+        Observer.Verify();
     end;
 }

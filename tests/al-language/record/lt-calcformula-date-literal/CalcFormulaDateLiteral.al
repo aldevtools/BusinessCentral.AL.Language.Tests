@@ -213,7 +213,16 @@ codeunit 70385 "LT CFDate Literal"
         ObserveEq(Observer, 'two_empty');
         AddRow(3, DMY2Date(5, 3, 2024));
         ObserveEq(Observer, 'with_dated');
-        Observer.Finish();
+        Observer.Expect('no_rows_eq_empty_count', '0');
+        Observer.Expect('no_rows_eq_empty_nospace', '0');
+        Observer.Expect('no_rows_eq_empty_exist', 'No');
+        Observer.Expect('two_empty_eq_empty_count', '2');
+        Observer.Expect('two_empty_eq_empty_nospace', '2');
+        Observer.Expect('two_empty_eq_empty_exist', 'Yes');
+        Observer.Expect('with_dated_eq_empty_count', '2');
+        Observer.Expect('with_dated_eq_empty_nospace', '2');
+        Observer.Expect('with_dated_eq_empty_exist', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -224,7 +233,10 @@ codeunit 70385 "LT CFDate Literal"
         Seed();
         AddRow(1, DMY2Date(5, 3, 2024));
         ObserveEq(Observer, 'only_dated');
-        Observer.Finish();
+        Observer.Expect('only_dated_eq_empty_count', '0');
+        Observer.Expect('only_dated_eq_empty_nospace', '0');
+        Observer.Expect('only_dated_eq_empty_exist', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -255,7 +267,16 @@ codeunit 70385 "LT CFDate Literal"
         Observer.Observe('both_rows_with_empty', Format(Group."Owners With Empty"));
         Observer.Observe('both_rows_without_empty', Format(Group."Owners Without Empty"));
         Observer.Observe('both_rows_names', Group."Owner Names With Empty");
-        Observer.Finish();
+        Observer.Expect('no_rows_with_empty', '0');
+        Observer.Expect('no_rows_without_empty', '1');
+        Observer.Expect('no_rows_names', '');
+        Observer.Expect('empty_row_with_empty', '1');
+        Observer.Expect('empty_row_without_empty', '0');
+        Observer.Expect('empty_row_names', 'O1');
+        Observer.Expect('both_rows_with_empty', '1');
+        Observer.Expect('both_rows_without_empty', '0');
+        Observer.Expect('both_rows_names', 'O1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -282,6 +303,13 @@ codeunit 70385 "LT CFDate Literal"
         Observer.Observe('ne_0D_filter', Owner.GetFilter("Date Filter"));
         Owner.CalcFields("Filtered Count");
         Observer.Observe('ne_0D_count', Format(Owner."Filtered Count"));
-        Observer.Finish();
+        Observer.Expect('range_0D_filter', '''''');
+        Observer.Expect('range_0D_filters', 'Date Filter: ''''');
+        Observer.Expect('range_0D_count', '2');
+        Observer.Expect('eq_0D_filter', '''''');
+        Observer.Expect('eq_0D_count', '2');
+        Observer.Expect('ne_0D_filter', '<>''''');
+        Observer.Expect('ne_0D_count', '1');
+        Observer.Verify();
     end;
 }
