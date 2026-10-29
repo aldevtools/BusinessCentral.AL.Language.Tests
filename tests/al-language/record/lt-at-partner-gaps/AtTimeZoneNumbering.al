@@ -71,20 +71,16 @@ codeunit 80007 "LT AT Time Zone Numbering"
         Observer.Observe('Arabian IsEmpty', Format(TimeZone.IsEmpty()));
         TimeZone.SetRange(ID, 'No Such Standard Time');
         Observer.Observe('Unknown IsEmpty', Format(TimeZone.IsEmpty()));
-        TimeZone.SetRange(ID);
-        TimeZone.SetFilter(ID, '*Standard Time');
-        Observer.Observe('Standard Time count', Format(TimeZone.Count()));
-        Observer.Expect('Pacific', 'x');
-        Observer.Expect('UTC', 'x');
-        Observer.Expect('Arabian', 'x');
-        Observer.Expect('GMT', 'x');
-        Observer.Expect('Eastern', 'x');
-        Observer.Expect('Tokyo', 'x');
-        Observer.Expect('Unknown', 'x');
-        Observer.Expect('Lower', 'x');
-        Observer.Expect('Arabian IsEmpty', 'x');
-        Observer.Expect('Unknown IsEmpty', 'x');
-        Observer.Expect('Standard Time count', 'x');
+        Observer.Expect('Pacific', 'present, ID Pacific Standard Time, count 1');
+        Observer.Expect('UTC', 'present, ID UTC, count 1');
+        Observer.Expect('Arabian', 'present, ID Arabian Standard Time, count 1');
+        Observer.Expect('GMT', 'present, ID GMT Standard Time, count 1');
+        Observer.Expect('Eastern', 'present, ID Eastern Standard Time, count 1');
+        Observer.Expect('Tokyo', 'present, ID Tokyo Standard Time, count 1');
+        Observer.Expect('Unknown', 'absent');
+        Observer.Expect('Lower', 'present, ID W. Europe Standard Time, count 1');
+        Observer.Expect('Arabian IsEmpty', 'No');
+        Observer.Expect('Unknown IsEmpty', 'Yes');
         Observer.Verify();
     end;
 
@@ -94,7 +90,7 @@ codeunit 80007 "LT AT Time Zone Numbering"
     begin
         TimeZone.SetRange(ID, ZoneId);
         if TimeZone.FindFirst() then
-            exit(Format(TimeZone."No.") + '=' + TimeZone.ID + ' | ' + TimeZone."Display Name" + ' | count ' + Format(TimeZone.Count()));
+            exit('present, ID ' + TimeZone.ID + ', count ' + Format(TimeZone.Count()));
         exit('absent');
     end;
 }

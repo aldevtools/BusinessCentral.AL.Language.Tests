@@ -264,6 +264,15 @@ codeunit 72780 "LT PgExtAct"
         DumpTrace(Observer);
         Observer.Expect('count', '0');
         Observer.Expect('e1', '<none>');
+        Observer.Expect('e2', '<none>');
+        Observer.Expect('e3', '<none>');
+        Observer.Expect('e4', '<none>');
+        Observer.Expect('e5', '<none>');
+        Observer.Expect('e6', '<none>');
+        Observer.Expect('e7', '<none>');
+        Observer.Expect('e8', '<none>');
+        Observer.Expect('e9', '<none>');
+        Observer.Expect('e10', '<none>');
         Observer.Verify();
     end;
 
@@ -282,6 +291,13 @@ codeunit 72780 "LT PgExtAct"
         Observer.Expect('e1', 'ext Doit OnBeforeAction');
         Observer.Expect('e2', 'base Doit OnAction');
         Observer.Expect('e3', 'ext Doit OnAfterAction');
+        Observer.Expect('e4', '<none>');
+        Observer.Expect('e5', '<none>');
+        Observer.Expect('e6', '<none>');
+        Observer.Expect('e7', '<none>');
+        Observer.Expect('e8', '<none>');
+        Observer.Expect('e9', '<none>');
+        Observer.Expect('e10', '<none>');
         Observer.Verify();
     end;
 
@@ -299,6 +315,14 @@ codeunit 72780 "LT PgExtAct"
         Observer.Expect('count', '2');
         Observer.Expect('e1', 'ext Bare OnBeforeAction');
         Observer.Expect('e2', 'ext Bare OnAfterAction');
+        Observer.Expect('e3', '<none>');
+        Observer.Expect('e4', '<none>');
+        Observer.Expect('e5', '<none>');
+        Observer.Expect('e6', '<none>');
+        Observer.Expect('e7', '<none>');
+        Observer.Expect('e8', '<none>');
+        Observer.Expect('e9', '<none>');
+        Observer.Expect('e10', '<none>');
         Observer.Verify();
     end;
 
@@ -318,6 +342,15 @@ codeunit 72780 "LT PgExtAct"
         Observer.Expect('invoke|code', 'TestWrapped:Dialog');
         Observer.Expect('count', '1');
         Observer.Expect('e1', 'ext Fails OnBeforeAction');
+        Observer.Expect('e2', '<none>');
+        Observer.Expect('e3', '<none>');
+        Observer.Expect('e4', '<none>');
+        Observer.Expect('e5', '<none>');
+        Observer.Expect('e6', '<none>');
+        Observer.Expect('e7', '<none>');
+        Observer.Expect('e8', '<none>');
+        Observer.Expect('e9', '<none>');
+        Observer.Expect('e10', '<none>');
         Observer.Verify();
     end;
 
@@ -340,6 +373,10 @@ codeunit 72780 "LT PgExtAct"
         Observer.Expect('e4', 'ext Doit OnBeforeAction');
         Observer.Expect('e5', 'base Doit OnAction');
         Observer.Expect('e6', 'ext Doit OnAfterAction');
+        Observer.Expect('e7', '<none>');
+        Observer.Expect('e8', '<none>');
+        Observer.Expect('e9', '<none>');
+        Observer.Expect('e10', '<none>');
         Observer.Verify();
     end;
 
