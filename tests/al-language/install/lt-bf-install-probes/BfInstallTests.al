@@ -252,7 +252,7 @@ codeunit 81257 "LT BF Install Tests"
         exit(Result);
     end;
 
-    local procedure SetupText(Company: Text): Text
+    local procedure SetupText(Company: Text; WithJobQueue: Boolean): Text
     var
         AppAreaSetup: Record "Application Area Setup";
         GLSetup: Record "General Ledger Setup";
@@ -269,7 +269,8 @@ codeunit 81257 "LT BF Install Tests"
         Result := 'app area setup=' + Format(AppAreaSetup.Count());
         Result += ';gl setup get=' + Format(GLSetup.Get()) + ';gl setup=' + Format(GLSetup.Count());
         Result += ';sales setup get=' + Format(SalesSetup.Get()) + ';sales setup=' + Format(SalesSetup.Count());
-        Result += ';job queue entries=' + Format(JobQueueEntry.Count());
+        if WithJobQueue then
+            Result += ';job queue entries=' + Format(JobQueueEntry.Count());
         Result += ';company information get=' + Format(CompanyInfo.Get()) + ';company information=' + Format(CompanyInfo.Count());
         if CompanyInfo.Get() then
             Result += ';company information name=' + Plain(CompanyInfo.Name);
@@ -282,9 +283,12 @@ codeunit 81257 "LT BF Install Tests"
         Observer: Codeunit "Probe Observer";
     begin
         // Read only: ChangeCompany on the tables, nothing is written to either company.
+        // Measured on 27.5, 28.5 and 29.0 (the same on all three): neither company has a CDS Connection Setup row (no Is Enabled / Server Address to read).
         Observer.Observe('session company cds', CdsText(CompanyName()));
         Observer.Observe('My Company cds', CdsText('My Company'));
-        Observer.Finish();
+        Observer.Expect('session company cds', 'isempty=Yes;count=0');
+        Observer.Expect('My Company cds', 'isempty=Yes;count=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -292,8 +296,14 @@ codeunit 81257 "LT BF Install Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
-        Observer.Observe('session company setup', SetupText(CompanyName()));
-        Observer.Observe('My Company setup', SetupText('My Company'));
-        Observer.Finish();
+        // Measured on 27.5, 28.5 and 29.0 (the same on all three): the session company has one row in each setup table and Company Information Name
+        // CRONUS International Ltd.; "My Company" has one Application Area Setup row, no General Ledger Setup, Sales & Receivables Setup or Company
+        // Information row (Get fails) and one Job Queue Entry. The job queue count of the session company (6 in the measured runs) is not asserted: other
+        // test codeunits can change it.
+        Observer.Observe('session company setup', SetupText(CompanyName(), false));
+        Observer.Observe('My Company setup', SetupText('My Company', true));
+        Observer.Expect('session company setup', 'app area setup=1;gl setup get=Yes;gl setup=1;sales setup get=Yes;sales setup=1;company information get=Yes;company information=1;company information name=CRONUS_International_Ltd.');
+        Observer.Expect('My Company setup', 'app area setup=1;gl setup get=No;gl setup=0;sales setup get=No;sales setup=0;job queue entries=1;company information get=No;company information=0');
+        Observer.Verify();
     end;
 }
