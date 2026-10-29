@@ -22,3 +22,23 @@ codeunit 60838 "ALT Install Probe"
     begin
     end;
 }
+
+// Writer UR (tests/al-language/install/lt-ur-block-order/UrBlockOrderTests.al): an install codeunit in id block 0 (50302); it only logs, with `if Insert() then;`.
+codeunit 50302 "LT UR Install Low"
+{
+    Subtype = Install;
+
+    trigger OnInstallAppPerCompany()
+    var
+        Log: Record "LT UR Install Log";
+    begin
+        Log.Add('I50302', 'company');
+    end;
+
+    trigger OnInstallAppPerDatabase()
+    var
+        Log: Record "LT UR Install Log";
+    begin
+        Log.Add('I50302', 'database');
+    end;
+}
