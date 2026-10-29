@@ -122,8 +122,7 @@ codeunit 90365 "LT UG Install Subs"
     begin
         State.SetPart('per company');
         // The trigger setup is asked for a table when the first write with RunTrigger true reaches it in the install session.
-        if CompanyRow.Insert(true) then;
-        CompanyRow.Id := 1;
+        // The insert of the second company fails on the duplicate key; the platform asks for the setup anyway (observed), the `if` swallows the error.
         if CompanyRow.Insert(true) then;
         if Setup.Insert(true) then;
         State.SetPart('');

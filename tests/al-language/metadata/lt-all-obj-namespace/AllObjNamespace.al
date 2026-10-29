@@ -250,7 +250,13 @@ codeunit 73193 "LT P163 AllObj Namespace"
         Observer.Observe('filtered IsEmpty', Format(AllObjRec.IsEmpty()));
         AllObjRec.SetRange("Object Name", 'Contact');
         Observer.Observe('filtered by name count', Format(AllObjRec.Count()));
-        Observer.Finish();
+        Observer.Expect('get TableData 5050', 'Yes');
+        Observer.Expect('row', 'TableData|5050|Contact|ns=[Microsoft.CRM.Contact]|package null=No|runtime package null=No|runtime=package No|same package as Table row=Yes|same runtime package as Table row=Yes');
+        Observer.Expect('same package as the Customer TableData row', 'Yes / Yes');
+        Observer.Expect('filtered count', '1');
+        Observer.Expect('filtered IsEmpty', 'No');
+        Observer.Expect('filtered by name count', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -267,6 +273,12 @@ codeunit 73193 "LT P163 AllObj Namespace"
         Observer.Observe('IsEmpty', Format(AllObjRec.IsEmpty()));
         Observer.Observe('FindFirst', Format(AllObjRec.FindFirst()));
         Observer.Observe('get TableData 0', Format(AllObjRec.Get(AllObjRec."Object Type"::TableData, 0)));
-        Observer.Finish();
+        Observer.Expect('get TableData 73199', 'No');
+        Observer.Expect('get Table 73199', 'No');
+        Observer.Expect('count', '0');
+        Observer.Expect('IsEmpty', 'Yes');
+        Observer.Expect('FindFirst', 'No');
+        Observer.Expect('get TableData 0', 'No');
+        Observer.Verify();
     end;
 }
