@@ -4,7 +4,9 @@
 // Probe: written for al-runtime-rs assumption bigtext-value-copy (writer Y2). text/TestBigText.al pins assignment, by-value and var procedure
 //        parameters and Clear of a copy. This file reads a BigText given to an event subscriber (by value and by var) that calls AddText, and a
 //        BigText returned by a procedure that the caller then grows.
-// Facts: see the asserted values below.
+// Facts (BC 29 SaaS sandbox; the corpus CI legs check the other majors): a subscriber of an event with a BigText parameter by value grows its own
+//        copy (the publisher keeps 'pub'); by var it grows the publisher's BigText. A BigText returned by a procedure is a copy: growing it leaves
+//        the callee's global unchanged, and two results of the same procedure are independent.
 // BC versions: 27, 28, 29
 
 codeunit 90868 "LT Y2 BigText Holder"
@@ -104,7 +106,10 @@ codeunit 90870 "LT Y2 BigText Copies"
         Observer.Observe('subscriber length', Format(Sub.SeenLength()));
         Observer.Observe('publisher length', Format(Value.Length()));
         Observer.Observe('publisher text', AsText(Value));
-        Observer.Finish();
+        Observer.Expect('subscriber length', '7');
+        Observer.Expect('publisher length', '3');
+        Observer.Expect('publisher text', 'pub');
+        Observer.Verify();
     end;
 
     [Test]
@@ -122,7 +127,10 @@ codeunit 90870 "LT Y2 BigText Copies"
         Observer.Observe('subscriber length', Format(Sub.SeenLength()));
         Observer.Observe('publisher length', Format(Value.Length()));
         Observer.Observe('publisher text', AsText(Value));
-        Observer.Finish();
+        Observer.Expect('subscriber length', '7');
+        Observer.Expect('publisher length', '7');
+        Observer.Expect('publisher text', 'pub-sub');
+        Observer.Verify();
     end;
 
     [Test]
@@ -138,7 +146,10 @@ codeunit 90870 "LT Y2 BigText Copies"
         Observer.Observe('caller length', Format(Got.Length()));
         Observer.Observe('caller text', AsText(Got));
         Observer.Observe('held length', Format(Holder.HeldLength()));
-        Observer.Finish();
+        Observer.Expect('caller length', '11');
+        Observer.Expect('caller text', 'held-caller');
+        Observer.Expect('held length', '4');
+        Observer.Verify();
     end;
 
     [Test]
@@ -156,6 +167,9 @@ codeunit 90870 "LT Y2 BigText Copies"
         Observer.Observe('first', AsText(First));
         Observer.Observe('second', AsText(Second));
         Observer.Observe('held length', Format(Holder.HeldLength()));
-        Observer.Finish();
+        Observer.Expect('first', 'held-one');
+        Observer.Expect('second', 'held');
+        Observer.Expect('held length', '4');
+        Observer.Verify();
     end;
 }

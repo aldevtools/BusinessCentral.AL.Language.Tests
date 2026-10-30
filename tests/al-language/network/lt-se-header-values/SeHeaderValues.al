@@ -436,7 +436,8 @@ codeunit 89030 "LT SE Header Values"
     end;
 
     // Writer Y2 (al-runtime-rs assumption http-typed-header-value-shapes): the request-only names on response, response content and
-    // client default headers, and more value shapes (two-digit years, offsets, case, spacing, empty list members).
+    // client default headers, and more value shapes (two-digit years, offsets, case, spacing, empty list members). Measured: response headers
+    // store request-only names as written; response content headers refuse them (Add answers false); client headers parse them as on a request.
 
     local procedure RespCnt(var Observer: Codeunit "Probe Observer"; ObsKey: Text; N: Text; V: Text)
     var
@@ -464,7 +465,17 @@ codeunit 89030 "LT SE Header Values"
         Resp(Observer, 'ifunmodifiedsince_7', 'If-Unmodified-Since', 'yesterday');
         Resp(Observer, 'proxyauthorization_8', 'Proxy-Authorization', 'a b c');
         Resp(Observer, 'te_9', 'TE', 'trailers, deflate;q=0.5');
-        Observer.Finish();
+        Observer.Expect('acceptcharset_0', 'ret=Yes n=1[utf-8, iso-8859-1;q=0.5]');
+        Observer.Expect('acceptencoding_1', 'ret=Yes n=1[gzip, ;]');
+        Observer.Expect('acceptlanguage_2', 'ret=Yes n=1[de-DE, en;q=0.8]');
+        Observer.Expect('from_3', 'ret=Yes n=1[not an address]');
+        Observer.Expect('ifmodifiedsince_4', 'ret=Yes n=1[yesterday]');
+        Observer.Expect('ifnonematch_5', 'ret=Yes n=1[abc]');
+        Observer.Expect('ifrange_6', 'ret=Yes n=1[abc]');
+        Observer.Expect('ifunmodifiedsince_7', 'ret=Yes n=1[yesterday]');
+        Observer.Expect('proxyauthorization_8', 'ret=Yes n=1[a b c]');
+        Observer.Expect('te_9', 'ret=Yes n=1[trailers, deflate;q=0.5]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -477,7 +488,12 @@ codeunit 89030 "LT SE Header Values"
         RespCnt(Observer, 'from_2', 'From', 'x');
         RespCnt(Observer, 'ifmodifiedsince_3', 'If-Modified-Since', 'yesterday');
         RespCnt(Observer, 'te_4', 'TE', 'trailers');
-        Observer.Finish();
+        Observer.Expect('acceptcharset_0', 'ret=No get=E');
+        Observer.Expect('acceptlanguage_1', 'ret=No get=E');
+        Observer.Expect('from_2', 'ret=No get=E');
+        Observer.Expect('ifmodifiedsince_3', 'ret=No get=E');
+        Observer.Expect('te_4', 'ret=No get=E');
+        Observer.Verify();
     end;
 
     [Test]
@@ -495,7 +511,17 @@ codeunit 89030 "LT SE Header Values"
         Cli(Observer, 'ifunmodifiedsince_7', 'If-Unmodified-Since', 'yesterday');
         Cli(Observer, 'proxyauthorization_8', 'Proxy-Authorization', 'Basic x');
         Cli(Observer, 'te_9', 'TE', 'trailers');
-        Observer.Finish();
+        Observer.Expect('acceptcharset_0', 'ret=Yes n=1[utf-8]');
+        Observer.Expect('acceptencoding_1', 'ret=Yes n=1[gzip]');
+        Observer.Expect('acceptlanguage_2', 'ret=Yes n=1[de-DE]');
+        Observer.Expect('from_3', 'ret=Yes n=1[a@b.c]');
+        Observer.Expect('ifmodifiedsince_4', 'ret=Yes n=1[Tue, 15 Nov 1994 08:12:31 GMT]');
+        Observer.Expect('ifnonematch_5', 'ret=Yes n=1["a"]');
+        Observer.Expect('ifrange_6', 'ret=Yes n=1["a"]');
+        Observer.Expect('ifunmodifiedsince_7', 'ret=No get=E');
+        Observer.Expect('proxyauthorization_8', 'ret=Yes n=1[Basic x]');
+        Observer.Expect('te_9', 'ret=Yes n=1[trailers]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -513,7 +539,17 @@ codeunit 89030 "LT SE Header Values"
         Req(Observer, 'te_7', 'TE', 'trailers, deflate;q=0.5');
         Req(Observer, 'te_8', 'TE', 'a b');
         Req(Observer, 'ifmodifiedsince_9', 'If-Modified-Since', 'yesterday');
-        Observer.Finish();
+        Observer.Expect('acceptcharset_0', 'ret=Yes n=2[utf-8][iso-8859-1; q=0.5]');
+        Observer.Expect('acceptcharset_1', 'ret=Yes n=1[*]');
+        Observer.Expect('acceptcharset_2', 'ret=No get=E');
+        Observer.Expect('acceptlanguage_3', 'ret=Yes n=2[de-DE][en; q=0.8]');
+        Observer.Expect('acceptlanguage_4', 'ret=No get=E');
+        Observer.Expect('from_5', 'ret=Yes n=1[a@b.c]');
+        Observer.Expect('from_6', 'ret=Yes n=1[not an address]');
+        Observer.Expect('te_7', 'ret=Yes n=2[trailers][deflate; q=0.5]');
+        Observer.Expect('te_8', 'ret=No get=E');
+        Observer.Expect('ifmodifiedsince_9', 'ret=No get=E');
+        Observer.Verify();
     end;
 
     [Test]
@@ -532,7 +568,18 @@ codeunit 89030 "LT SE Header Values"
         Req(Observer, 'ifmodifiedsince_8', 'If-Modified-Since', 'Sun, 6 Nov 1994 8:49:37 GMT');
         Cnt(Observer, 'expires_9', 'Expires', '0');
         Cnt(Observer, 'expires_10', 'Expires', '-1');
-        Observer.Finish();
+        Observer.Expect('ifmodifiedsince_0', 'ret=Yes n=1[Sun, 06 Nov 1994 08:49:37 GMT]');
+        Observer.Expect('ifmodifiedsince_1', 'ret=No get=E');
+        Observer.Expect('ifmodifiedsince_2', 'ret=No get=E');
+        Observer.Expect('ifmodifiedsince_3', 'ret=Yes n=1[Sun, 06 Nov 1994 13:49:37 GMT]');
+        Observer.Expect('ifmodifiedsince_4', 'ret=Yes n=1[Sun, 06 Nov 1994 08:49:37 GMT]');
+        Observer.Expect('ifmodifiedsince_5', 'ret=Yes n=1[Sun, 06 Nov 1994 08:49:37 GMT]');
+        Observer.Expect('ifmodifiedsince_6', 'ret=Yes n=1[Sun, 06 Nov 1994 08:49:37 GMT]');
+        Observer.Expect('ifmodifiedsince_7', 'ret=No get=E');
+        Observer.Expect('ifmodifiedsince_8', 'ret=Yes n=1[Sun, 06 Nov 1994 08:49:37 GMT]');
+        Observer.Expect('expires_9', 'ret=No get=E');
+        Observer.Expect('expires_10', 'ret=No get=E');
+        Observer.Verify();
     end;
 
     [Test]
@@ -551,6 +598,17 @@ codeunit 89030 "LT SE Header Values"
         Cnt(Observer, 'contentencoding_8', 'Content-Encoding', 'gzip ,  br');
         Req(Observer, 'range_9', 'Range', 'BYTES=0-9');
         Req(Observer, 'transferencoding_10', 'Transfer-Encoding', 'Chunked');
-        Observer.Finish();
+        Observer.Expect('authorization_0', 'ret=Yes n=1[bearer abc]');
+        Observer.Expect('authorization_1', 'ret=Yes n=1[BEARER]');
+        Observer.Expect('accept_2', 'ret=Yes n=1[TEXT/HTML]');
+        Observer.Expect('accept_3', 'ret=Yes n=2[text/html][application/json]');
+        Observer.Expect('accept_4', 'ret=Yes n=2[text/html][application/json]');
+        Observer.Expect('acceptencoding_5', 'ret=Yes n=1[GZIP]');
+        Observer.Expect('connection_6', 'ret=Yes n=1[CLOSE]');
+        Observer.Expect('contenttype_7', 'ret=No n=1[text/plain; charset=utf-8]');
+        Observer.Expect('contentencoding_8', 'ret=Yes n=2[gzip][br]');
+        Observer.Expect('range_9', 'ret=Yes n=1[BYTES=0-9]');
+        Observer.Expect('transferencoding_10', 'ret=Yes n=1[Chunked]');
+        Observer.Verify();
     end;
 }

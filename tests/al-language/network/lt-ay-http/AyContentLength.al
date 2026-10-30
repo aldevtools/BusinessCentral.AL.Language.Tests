@@ -365,7 +365,8 @@ codeunit 80508 "LT AY Content Length"
     end;
 
     // Writer Y2 (al-runtime-rs assumption http-content-length-after-read): a Content-Length added by hand and then a WriteFrom of a body of
-    // another length (before any read, after a read, and through a handle taken before the second WriteFrom).
+    // another length (before any read, after a read, and through a handle taken before the second WriteFrom). Measured: the hand-set value
+    // stays through the WriteFrom and the read that follows, longer or shorter body alike.
     [Test]
     procedure Y2_ContentLength_AddedByHandThenLongerWrite()
     var
@@ -382,7 +383,11 @@ codeunit 80508 "LT AY Content Length"
         Observer.Observe('new_handle_after_write', Len(C));
         C.ReadAs(T);
         Observer.Observe('after_read', Len(C) + ' read=' + T);
-        Observer.Finish();
+        Observer.Expect('add', 'Yes');
+        Observer.Expect('old_handle_after_write', 'Yes[3]');
+        Observer.Expect('new_handle_after_write', 'Yes[3]');
+        Observer.Expect('after_read', 'Yes[3] read=a longer text');
+        Observer.Verify();
     end;
 
     [Test]
@@ -400,7 +405,10 @@ codeunit 80508 "LT AY Content Length"
         Observer.Observe('new_handle_after_write', Len(C));
         C.ReadAs(T);
         Observer.Observe('after_read', Len(C) + ' read=' + T);
-        Observer.Finish();
+        Observer.Expect('add', 'Yes');
+        Observer.Expect('new_handle_after_write', 'Yes[13]');
+        Observer.Expect('after_read', 'Yes[13] read=ab');
+        Observer.Verify();
     end;
 
     [Test]
@@ -420,7 +428,10 @@ codeunit 80508 "LT AY Content Length"
         Observer.Observe('after_write', Len(C));
         C.ReadAs(T);
         Observer.Observe('after_read', Len(C) + ' read=' + T);
-        Observer.Finish();
+        Observer.Expect('add', 'Yes');
+        Observer.Expect('after_write', 'Yes[3]');
+        Observer.Expect('after_read', 'Yes[3] read=a longer text');
+        Observer.Verify();
     end;
 
     [Test]
@@ -437,6 +448,9 @@ codeunit 80508 "LT AY Content Length"
         Observer.Observe('after_write', Len(C));
         C.ReadAs(T);
         Observer.Observe('after_read', Len(C) + ' read=' + T);
-        Observer.Finish();
+        Observer.Expect('add', 'Yes');
+        Observer.Expect('after_write', 'Yes[3]');
+        Observer.Expect('after_read', 'Yes[3] read=a longer text');
+        Observer.Verify();
     end;
 }

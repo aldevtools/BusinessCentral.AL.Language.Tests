@@ -2095,7 +2095,9 @@ codeunit 88980 "LT SB Stale Own Modify"
 
     // ---- Writer Y2 (al-runtime-rs assumption stale-own-write-neighbour-any-commits): the forms TE and TH did not run at every count
     // (LockTable on another table only, an Insert into another table with a read of the table, an Insert or a Rename of another row)
-    // at 4, 5 and 10 Commits, and every form at 12 Commits.
+    // at 4, 5 and 10 Commits, and every form at 12 Commits. Measured on BC 29 SaaS (CI legs check 27.5 and 28.5): the same rule at every count;
+    // refused with DB:RecordChanged after LockTable on another table only, an Insert into another table and a read, and nothing; accepted (the
+    // stale buffer writes whole, a stale Delete removes the row) after LockTable on the same table and a Modify, Delete, Insert or Rename of another row.
 
     [Test]
     procedure Y2_4C_LockOtherOnly_StaleModify()
@@ -2106,7 +2108,12 @@ codeunit 88980 "LT SB Stale Own Modify"
         TePrepare(Row, 4);
         TeLockOtherOnly();
         TeWriteRefused(Row, false, Observer);
-        Observer.Finish();
+        Observer.Expect('write', 'refused');
+        Observer.Expect('code', 'DB:RecordChanged');
+        Observer.Expect('text', 'Yes');
+        Observer.Expect('stored', 'other|0|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2118,7 +2125,12 @@ codeunit 88980 "LT SB Stale Own Modify"
         TePrepare(Row, 4);
         TeOtherTableInsertRead();
         TeWriteRefused(Row, false, Observer);
-        Observer.Finish();
+        Observer.Expect('write', 'refused');
+        Observer.Expect('code', 'DB:RecordChanged');
+        Observer.Expect('text', 'Yes');
+        Observer.Expect('stored', 'other|0|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2130,7 +2142,10 @@ codeunit 88980 "LT SB Stale Own Modify"
         TePrepare(Row, 4);
         TeInsertOther();
         TeWriteOk(Row, false, Observer);
-        Observer.Finish();
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'start|5|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2142,7 +2157,10 @@ codeunit 88980 "LT SB Stale Own Modify"
         TePrepare(Row, 4);
         TeRenameOther();
         TeWriteOk(Row, false, Observer);
-        Observer.Finish();
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'start|5|1');
+        Observer.Expect('row 8 exists', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2154,7 +2172,12 @@ codeunit 88980 "LT SB Stale Own Modify"
         TePrepare(Row, 5);
         TeLockOtherOnly();
         TeWriteRefused(Row, false, Observer);
-        Observer.Finish();
+        Observer.Expect('write', 'refused');
+        Observer.Expect('code', 'DB:RecordChanged');
+        Observer.Expect('text', 'Yes');
+        Observer.Expect('stored', 'other|0|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2166,7 +2189,12 @@ codeunit 88980 "LT SB Stale Own Modify"
         TePrepare(Row, 5);
         TeOtherTableInsertRead();
         TeWriteRefused(Row, false, Observer);
-        Observer.Finish();
+        Observer.Expect('write', 'refused');
+        Observer.Expect('code', 'DB:RecordChanged');
+        Observer.Expect('text', 'Yes');
+        Observer.Expect('stored', 'other|0|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2178,7 +2206,10 @@ codeunit 88980 "LT SB Stale Own Modify"
         TePrepare(Row, 5);
         TeInsertOther();
         TeWriteOk(Row, false, Observer);
-        Observer.Finish();
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'start|5|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2190,7 +2221,10 @@ codeunit 88980 "LT SB Stale Own Modify"
         TePrepare(Row, 5);
         TeRenameOther();
         TeWriteOk(Row, false, Observer);
-        Observer.Finish();
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'start|5|1');
+        Observer.Expect('row 8 exists', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2202,7 +2236,12 @@ codeunit 88980 "LT SB Stale Own Modify"
         TePrepare(Row, 10);
         TeLockOtherOnly();
         TeWriteRefused(Row, false, Observer);
-        Observer.Finish();
+        Observer.Expect('write', 'refused');
+        Observer.Expect('code', 'DB:RecordChanged');
+        Observer.Expect('text', 'Yes');
+        Observer.Expect('stored', 'other|0|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2214,7 +2253,12 @@ codeunit 88980 "LT SB Stale Own Modify"
         TePrepare(Row, 10);
         TeOtherTableInsertRead();
         TeWriteRefused(Row, false, Observer);
-        Observer.Finish();
+        Observer.Expect('write', 'refused');
+        Observer.Expect('code', 'DB:RecordChanged');
+        Observer.Expect('text', 'Yes');
+        Observer.Expect('stored', 'other|0|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2226,7 +2270,10 @@ codeunit 88980 "LT SB Stale Own Modify"
         TePrepare(Row, 10);
         TeInsertOther();
         TeWriteOk(Row, false, Observer);
-        Observer.Finish();
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'start|5|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2238,7 +2285,10 @@ codeunit 88980 "LT SB Stale Own Modify"
         TePrepare(Row, 10);
         TeRenameOther();
         TeWriteOk(Row, false, Observer);
-        Observer.Finish();
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'start|5|1');
+        Observer.Expect('row 8 exists', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2250,7 +2300,12 @@ codeunit 88980 "LT SB Stale Own Modify"
         TePrepare(Row, 12);
         TeLockOtherInsertRead();
         TeWriteRefused(Row, false, Observer);
-        Observer.Finish();
+        Observer.Expect('write', 'refused');
+        Observer.Expect('code', 'DB:RecordChanged');
+        Observer.Expect('text', 'Yes');
+        Observer.Expect('stored', 'other|0|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2262,7 +2317,12 @@ codeunit 88980 "LT SB Stale Own Modify"
         TePrepare(Row, 12);
         TeLockOtherOnly();
         TeWriteRefused(Row, false, Observer);
-        Observer.Finish();
+        Observer.Expect('write', 'refused');
+        Observer.Expect('code', 'DB:RecordChanged');
+        Observer.Expect('text', 'Yes');
+        Observer.Expect('stored', 'other|0|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2274,7 +2334,12 @@ codeunit 88980 "LT SB Stale Own Modify"
         TePrepare(Row, 12);
         TeOtherTableInsertRead();
         TeWriteRefused(Row, false, Observer);
-        Observer.Finish();
+        Observer.Expect('write', 'refused');
+        Observer.Expect('code', 'DB:RecordChanged');
+        Observer.Expect('text', 'Yes');
+        Observer.Expect('stored', 'other|0|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2286,7 +2351,10 @@ codeunit 88980 "LT SB Stale Own Modify"
         TePrepare(Row, 12);
         TeLockSame();
         TeWriteOk(Row, false, Observer);
-        Observer.Finish();
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'start|5|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2298,7 +2366,10 @@ codeunit 88980 "LT SB Stale Own Modify"
         TePrepare(Row, 12);
         TeModifyOther();
         TeWriteOk(Row, false, Observer);
-        Observer.Finish();
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'start|5|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2310,7 +2381,10 @@ codeunit 88980 "LT SB Stale Own Modify"
         TePrepare(Row, 12);
         TeDeleteOther();
         TeWriteOk(Row, false, Observer);
-        Observer.Finish();
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'start|5|1');
+        Observer.Expect('row 8 exists', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2322,7 +2396,10 @@ codeunit 88980 "LT SB Stale Own Modify"
         TePrepare(Row, 12);
         TeInsertOther();
         TeWriteOk(Row, false, Observer);
-        Observer.Finish();
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'start|5|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2334,7 +2411,10 @@ codeunit 88980 "LT SB Stale Own Modify"
         TePrepare(Row, 12);
         TeRenameOther();
         TeWriteOk(Row, false, Observer);
-        Observer.Finish();
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'start|5|1');
+        Observer.Expect('row 8 exists', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2345,7 +2425,12 @@ codeunit 88980 "LT SB Stale Own Modify"
     begin
         TePrepare(Row, 12);
         TeWriteRefused(Row, false, Observer);
-        Observer.Finish();
+        Observer.Expect('write', 'refused');
+        Observer.Expect('code', 'DB:RecordChanged');
+        Observer.Expect('text', 'Yes');
+        Observer.Expect('stored', 'other|0|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2357,7 +2442,12 @@ codeunit 88980 "LT SB Stale Own Modify"
         TePrepare(Row, 12);
         TeLockOtherOnly();
         TeWriteRefused(Row, true, Observer);
-        Observer.Finish();
+        Observer.Expect('write', 'refused');
+        Observer.Expect('code', 'DB:RecordChanged');
+        Observer.Expect('text', 'Yes');
+        Observer.Expect('stored', 'other|0|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2369,7 +2459,10 @@ codeunit 88980 "LT SB Stale Own Modify"
         TePrepare(Row, 12);
         TeInsertOther();
         TeWriteOk(Row, true, Observer);
-        Observer.Finish();
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'none');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2381,11 +2474,15 @@ codeunit 88980 "LT SB Stale Own Modify"
         TePrepare(Row, 12);
         TeRenameOther();
         TeWriteOk(Row, true, Observer);
-        Observer.Finish();
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'none');
+        Observer.Expect('row 8 exists', 'No');
+        Observer.Verify();
     end;
 
     // ---- Writer Y2 (al-runtime-rs assumption stale-own-insert-two-commits-other-insert): the SH_OwnModify_ shapes with an own Insert only
-    // (no own Modify), with a Modify of another row beside the Insert of another row, and with three Commits.
+    // (no own Modify), with a Modify of another row beside the Insert of another row, and with three Commits. Measured: all four are accepted and
+    // the stale buffer writes whole (an own Insert only keeps its Decimal Field 0).
 
     [Test]
     procedure Y2_SH_OwnInsertOnly_OneCommit_AnotherRowInsert()
@@ -2402,7 +2499,10 @@ codeunit 88980 "LT SB Stale Own Modify"
         Row.Modify(false);
         Observer.Observe('write', 'ok');
         TeObserveStored(Observer);
-        Observer.Finish();
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'start|5|0');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2421,7 +2521,10 @@ codeunit 88980 "LT SB Stale Own Modify"
         Row.Modify(false);
         Observer.Observe('write', 'ok');
         TeObserveStored(Observer);
-        Observer.Finish();
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'start|5|0');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2445,7 +2548,10 @@ codeunit 88980 "LT SB Stale Own Modify"
         Row.Modify(false);
         Observer.Observe('write', 'ok');
         TeObserveStored(Observer);
-        Observer.Finish();
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'start|5|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2469,6 +2575,9 @@ codeunit 88980 "LT SB Stale Own Modify"
         Row.Modify(false);
         Observer.Observe('write', 'ok');
         TeObserveStored(Observer);
-        Observer.Finish();
+        Observer.Expect('write', 'ok');
+        Observer.Expect('stored', 'start|5|1');
+        Observer.Expect('row 8 exists', 'Yes');
+        Observer.Verify();
     end;
 }

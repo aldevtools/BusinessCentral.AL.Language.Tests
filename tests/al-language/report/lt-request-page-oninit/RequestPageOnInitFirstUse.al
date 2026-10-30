@@ -5,7 +5,9 @@
 //        OnInitReport runs at the first use of a report variable. This file reads WHEN the request page's OnInit runs: a procedure of the report
 //        called before the run, then a run without and with the request page; the order of OnInitReport, the request page's OnInit and OnOpenPage,
 //        the procedure body and OnPreReport, and the global both write.
-// Facts: see the asserted values below.
+// Facts (BC 29 SaaS sandbox; the corpus CI legs check the other majors): the first use of the report variable (a procedure call or the run) runs
+//        OnInitReport, then the request page's OnInit, before the procedure body. The run does not run OnInit again, with or without the request
+//        page; the value the procedure wrote survives into OnOpenPage, the handler and OnPreReport.
 // BC versions: 27, 28, 29
 
 report 90871 "LT Y2 RP OnInit"
@@ -110,7 +112,9 @@ codeunit 90873 "LT Y2 RP OnInit First Use"
         Rep.UseRequestPage(false);
         Rep.Run();
         Observer.Observe('after run', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('after procedure', 'OnInitReport mode=0;RP.OnInit mode=0;SetMode mode=10;');
+        Observer.Expect('after run', 'OnInitReport mode=0;RP.OnInit mode=0;SetMode mode=10;OnPreReport mode=5;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -126,7 +130,9 @@ codeunit 90873 "LT Y2 RP OnInit First Use"
         Rep.UseRequestPage(true);
         Rep.RunModal();
         Observer.Observe('after run', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('after procedure', 'OnInitReport mode=0;RP.OnInit mode=0;SetMode mode=10;');
+        Observer.Expect('after run', 'OnInitReport mode=0;RP.OnInit mode=0;SetMode mode=10;RP.OnOpenPage mode=5;handler mode=5;OnPreReport mode=5;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -139,7 +145,8 @@ codeunit 90873 "LT Y2 RP OnInit First Use"
         Rep.UseRequestPage(false);
         Rep.Run();
         Observer.Observe('after run', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('after run', 'OnInitReport mode=0;RP.OnInit mode=0;OnPreReport mode=10;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -153,7 +160,8 @@ codeunit 90873 "LT Y2 RP OnInit First Use"
         Rep.UseRequestPage(true);
         Rep.RunModal();
         Observer.Observe('after run', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('after run', 'OnInitReport mode=0;RP.OnInit mode=0;RP.OnOpenPage mode=10;handler mode=10;OnPreReport mode=10;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -168,7 +176,8 @@ codeunit 90873 "LT Y2 RP OnInit First Use"
         Rep.UseRequestPage(false);
         Rep.Run();
         Observer.Observe('log', Log.Joined());
-        Observer.Finish();
+        Observer.Expect('log', 'OnInitReport mode=0;RP.OnInit mode=0;SetMode mode=10;SetMode mode=5;OnPreReport mode=6;');
+        Observer.Verify();
     end;
 
     [RequestPageHandler]

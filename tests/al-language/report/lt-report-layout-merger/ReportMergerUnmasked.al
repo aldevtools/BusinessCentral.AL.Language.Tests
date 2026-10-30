@@ -7,7 +7,13 @@
 //        of printing them: the text form of invokedby, reportrunid, layoutapplicationid, invokeddatetime and companyname. It also reads filterviews after
 //        SetTableView, with a RecordRef, with a data item view in the request parameters and for a report with DataItemTableView, and objectname of a
 //        report without a Caption.
-// Facts: see the asserted values below.
+// Facts (BC 29 SaaS sandbox; the corpus CI legs check the other majors): invokedby is UserSecurityId() and layoutapplicationid the app id of the
+//        module that holds the layout, both as lower-case GUID text without braces (a JSON string); reportrunid has the same form, is not the null
+//        Guid and differs per SaveAs; companyname is CompanyName(). invokeddatetime is a JSON string of the form yyyy-mm-ddThh:mm:ss.fff+hh:mm
+//        (an offset, not Z) that Evaluate(DateTime, Text, 9) reads as the time of the call. filterviews holds one object per data item,
+//        {"name":"Rows","tableid":70826,"view":"VERSION(1) SORTING(Field1) WHERE(...)"}, after SetTableView, with a RecordRef and with a data item view
+//        in the request parameters; it is [] for request parameters with options only and for a report whose only filter is its DataItemTableView.
+//        A report without a Caption gives its object name as objectname.
 // BC versions: 27, 28, 29
 
 report 90864 "LT Y2 RptMrg NoCaption"
@@ -184,7 +190,17 @@ codeunit 90867 "LT Y2 RptMrg Unmasked"
         Observer.Observe('reportrunid null guid', Format(Value(Payload, 'reportrunid') = BareGuid(EmptyGuid())));
         Observer.Observe('companyname = CompanyName', Format(Value(Payload, 'companyname') = CompanyName()));
         Observer.Observe('companyname raw quoted', Format(Raw(Payload, 'companyname') = '"' + CompanyName() + '"'));
-        Observer.Finish();
+        Observer.Expect('calls', '1');
+        Observer.Expect('invokedby shape', 'len=36 lower=Yes braces=No dashes=4');
+        Observer.Expect('invokedby = UserSecurityId', 'Yes');
+        Observer.Expect('invokedby raw quoted', 'Yes');
+        Observer.Expect('layoutapplicationid shape', 'len=36 lower=Yes braces=No dashes=4');
+        Observer.Expect('layoutapplicationid = app id', 'Yes');
+        Observer.Expect('reportrunid shape', 'len=36 lower=Yes braces=No dashes=4');
+        Observer.Expect('reportrunid null guid', 'No');
+        Observer.Expect('companyname = CompanyName', 'Yes');
+        Observer.Expect('companyname raw quoted', 'Yes');
+        Observer.Verify();
     end;
 
     local procedure EmptyGuid(): Guid
@@ -215,7 +231,11 @@ codeunit 90867 "LT Y2 RptMrg Unmasked"
         Observer.Observe('shape', Digits(Txt));
         Observer.Observe('evaluates', Format(Evaluate(Stamp, Txt, 9)));
         Observer.Observe('within the call (1 s slack)', Format((Stamp >= Before - 1000) and (Stamp <= After + 1000)));
-        Observer.Finish();
+        Observer.Expect('raw is a string', 'Yes');
+        Observer.Expect('shape', 'dddd-dd-ddTdd:dd:dd.ddd+dd:dd');
+        Observer.Expect('evaluates', 'Yes');
+        Observer.Expect('within the call (1 s slack)', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -233,7 +253,10 @@ codeunit 90867 "LT Y2 RptMrg Unmasked"
         Observer.Observe('calls', Format(Cap.CallCount()));
         Observer.Observe('reportrunid differs', Format(Value(First, 'reportrunid') <> Value(Second, 'reportrunid')));
         Observer.Observe('invokedby same', Format(Value(First, 'invokedby') = Value(Second, 'invokedby')));
-        Observer.Finish();
+        Observer.Expect('calls', '2');
+        Observer.Expect('reportrunid differs', 'Yes');
+        Observer.Expect('invokedby same', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -259,7 +282,9 @@ codeunit 90867 "LT Y2 RptMrg Unmasked"
         Cap.Payload(1, Payload);
         Observer.Observe('calls', Format(Cap.CallCount()));
         Observer.Observe('filterviews', Raw(Payload, 'filterviews'));
-        Observer.Finish();
+        Observer.Expect('calls', '1');
+        Observer.Expect('filterviews', '[{"name":"Rows","tableid":70826,"view":"VERSION(1) SORTING(Field1) WHERE(Field1=1(1),Field2=1(Al*))"}]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -283,7 +308,9 @@ codeunit 90867 "LT Y2 RptMrg Unmasked"
         Cap.Payload(1, Payload);
         Observer.Observe('calls', Format(Cap.CallCount()));
         Observer.Observe('filterviews', Raw(Payload, 'filterviews'));
-        Observer.Finish();
+        Observer.Expect('calls', '1');
+        Observer.Expect('filterviews', '[{"name":"Rows","tableid":70826,"view":"VERSION(1) SORTING(Field1) WHERE(Field1=1(2))"}]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -307,7 +334,9 @@ codeunit 90867 "LT Y2 RptMrg Unmasked"
         Cap.Payload(1, Payload);
         Observer.Observe('calls', Format(Cap.CallCount()));
         Observer.Observe('filterviews', Raw(Payload, 'filterviews'));
-        Observer.Finish();
+        Observer.Expect('calls', '1');
+        Observer.Expect('filterviews', '[{"name":"Rows","tableid":70826,"view":"VERSION(1) SORTING(Field1) WHERE(Field1=1(2))"}]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -331,7 +360,9 @@ codeunit 90867 "LT Y2 RptMrg Unmasked"
         Cap.Payload(1, Payload);
         Observer.Observe('calls', Format(Cap.CallCount()));
         Observer.Observe('filterviews', Raw(Payload, 'filterviews'));
-        Observer.Finish();
+        Observer.Expect('calls', '1');
+        Observer.Expect('filterviews', '[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -355,7 +386,11 @@ codeunit 90867 "LT Y2 RptMrg Unmasked"
         Observer.Observe('filterviews', Raw(Payload, 'filterviews'));
         Observer.Observe('objectname', Raw(Payload, 'objectname'));
         Observer.Observe('layoutname', Raw(Payload, 'layoutname'));
-        Observer.Finish();
+        Observer.Expect('calls', '1');
+        Observer.Expect('filterviews', '[]');
+        Observer.Expect('objectname', '"LT Y2 Merger View"');
+        Observer.Expect('layoutname', '"Y2View"');
+        Observer.Verify();
     end;
 
     [Test]
@@ -380,6 +415,11 @@ codeunit 90867 "LT Y2 RptMrg Unmasked"
         Observer.Observe('objectid', Raw(Payload, 'objectid'));
         Observer.Observe('layoutname', Raw(Payload, 'layoutname'));
         Observer.Observe('layoutmimetype', Raw(Payload, 'layoutmimetype'));
-        Observer.Finish();
+        Observer.Expect('calls', '1');
+        Observer.Expect('objectname', '"LT Y2 RptMrg NoCaption"');
+        Observer.Expect('objectid', '90864');
+        Observer.Expect('layoutname', '"Y2NoCap"');
+        Observer.Expect('layoutmimetype', '"application/x-lmc-layout-y2"');
+        Observer.Verify();
     end;
 }
