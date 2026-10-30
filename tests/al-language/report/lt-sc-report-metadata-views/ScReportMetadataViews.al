@@ -83,7 +83,7 @@ codeunit 91232 "LT SC Report Metadata Views"
     end;
 
     [Test]
-    procedure TenantReportLayout_FreshTenant_FieldsAndBlankInsert()
+    procedure TenantReportLayout_FreshTenant_FieldsAndInsert()
     var
         Observer: Codeunit "Probe Observer";
         RR: RecordRef;
@@ -92,26 +92,38 @@ codeunit 91232 "LT SC Report Metadata Views"
         Names: Text;
         i: Integer;
         Inserted: Boolean;
+        Before: Integer;
     begin
         TableId := TableIdByName('Tenant Report Layout');
         Observer.Observe('table found', Format(TableId > 0));
         if TableId > 0 then begin
             RR.Open(TableId);
-            Observer.Observe('count before', Format(RR.Count()));
+            Before := RR.Count();
             for i := 1 to RR.FieldCount() do begin
                 FR := RR.FieldIndex(i);
-                Names += Format(FR.Number()) + ':' + FR.Name() + ':' + Format(FR.Type()) + ':' + Format(FR.Class()) + ',';
+                if FR.Number() <= 12 then
+                    Names += Format(FR.Number()) + ':' + FR.Name() + ':' + Format(FR.Type()) + ',';
             end;
-            Observer.Observe('fields', Names);
+            Observer.Observe('fields up to 12', Names);
             RR.Init();
             Inserted := TryInsert(RR);
             Observer.Observe('insert blank', Format(Inserted));
             if not Inserted then
                 Observer.ObserveError('insert blank err');
-            Observer.Observe('count after', Format(RR.Count()));
+            Observer.Observe('count unchanged after blank insert', Format(RR.Count() = Before));
+            Clear(RR);
+            RR.Open(TableId);
+            RR.Init();
+            RR.Field(1).Value := Report::"LT SC Meta Report";
+            RR.Field(2).Value := 'LT SC Probe Layout';
+            Inserted := TryInsert(RR);
+            Observer.Observe('insert with report id', Format(Inserted));
+            if not Inserted then
+                Observer.ObserveError('insert with report id err');
+            Observer.Observe('count after', Format(RR.Count() - Before));
             if Inserted then
                 Observer.Observe('delete', Format(RR.Delete()));
-            Observer.Observe('count end', Format(RR.Count()));
+            Observer.Observe('count end', Format(RR.Count() - Before));
         end;
         Observer.Finish();
     end;

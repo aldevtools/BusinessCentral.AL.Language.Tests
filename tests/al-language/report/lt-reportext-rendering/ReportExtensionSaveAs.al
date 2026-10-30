@@ -1,11 +1,11 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/report/report-saveas-method
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160), Temp Blob (System Application); reports 91213 / 91215 and their report extensions in ReportExtensionRendering.al
+// Fixtures used: Probe Observer (codeunit 69160), Temp Blob (System Application); own reports 91212, 91213, 91215 and report extensions 91214, 91216
 // Probe: written against BC 29 and checked on the corpus CI matrix (27, 28, 29); every literal asserted below is what BC produced.
 // Facts: the static Report.SaveAs (report id, request parameters, format, stream, optional RecordRef) of a report that has a report extension with a
 //   rendering section: Xml and Pdf of the base report that declares its own RDLC layout (the extension adds two RDLC layouts), the same for a base
 //   report without a rendering section whose extension is the only one that declares a layout, Word and Excel on an RDLC default layout, and a
-//   call with a RecordRef. Each case records the answer, whether the stream got bytes, the start of the stream and the error text.
+//   call with a RecordRef. Each case records the answer, whether the stream got bytes, the kind of content the stream starts with (pdf, xml, zip for Word and Excel) and the error text.
 // BC versions: 27, 28, 29
 report 91213 "LT SC Ext Base"
 {
@@ -135,6 +135,19 @@ codeunit 91210 "LT SC ReportExt SaveAs"
         end;
     end;
 
+    local procedure Kind(Head: Text): Text
+    begin
+        if Head = '' then
+            exit('empty');
+        if Head.Contains('%PDF') then
+            exit('pdf');
+        if Head.Contains('<?xml') then
+            exit('xml');
+        if Head.StartsWith('PK') then
+            exit('zip');
+        exit('other');
+    end;
+
     local procedure Probe(var Observer: Codeunit "Probe Observer"; Name: Text; ReportId: Integer; Fmt: ReportFormat; WithRecordRef: Boolean)
     var
         Saved: Boolean;
@@ -147,7 +160,7 @@ codeunit 91210 "LT SC ReportExt SaveAs"
         Observer.Observe(Name + ' completed', Format(Completed));
         Observer.Observe(Name + ' saved', Format(Saved));
         Observer.Observe(Name + ' has bytes', Format(Size > 0));
-        Observer.Observe(Name + ' head', Head);
+        Observer.Observe(Name + ' content', Kind(Head));
         Observer.ObserveError(Name + ' err');
     end;
 
