@@ -3,7 +3,7 @@
 // Fixtures used: Probe Observer (codeunit 69160); self-contained objects 90730-90733
 // Probe: written against al-runner issue 6306 (Report.Execute with a request page parameters XML); every value asserted below is what the BC service tier produced.
 // Facts: Execute(Parameters) with <Options><Field name=...> values for a Text, Boolean and Integer control reaches the request page field before OnPreReport;
-//        an unknown field name; an empty Execute(''); a parameters text that is not XML.
+//        an unknown field name; an integer control given text; an empty Execute(''). Execute with text that is not XML ends the test with an uncatchable platform exception (not pinned).
 // BC versions: 27, 28, 29
 
 report 90730 "LT WD Execute Params"
@@ -80,9 +80,6 @@ codeunit 90733 "LT WD Report Execute Params"
     begin
         R.Execute(Params('<Field name="NoSuchField">x</Field><Field name="NewName">Kept</Field>'));
         Observer.Observe('unknown field name', R.GetResult());
-        Clear(R);
-        R.Execute('not xml');
-        Observer.Observe('not xml', R.GetResult());
         Clear(R);
         R.Execute(Params('<Field name="Number">oops</Field>'));
         Observer.Observe('integer field with text', R.GetResult());
