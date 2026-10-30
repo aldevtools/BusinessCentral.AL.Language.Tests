@@ -98,7 +98,8 @@ codeunit 90985 "LT Y5 GK Tests"
         HandlerLog := '';
         Page.RunModal(Page::"LT Y5 GK List");
         Observer.Observe('handler log', HandlerLog);
-        Observer.Finish();
+        Observer.Expect('handler log', 'goto 1,50=Yes;after action=2/1;goto 2,50=Yes;row=2/50;');
+        Observer.Verify();
     end;
 
     [ModalPageHandler]
@@ -136,7 +137,22 @@ codeunit 90985 "LT Y5 GK Tests"
         Observer.Observe('last', Format(L.Last()));
         Observer.Observe('row last', L.Grp.Value() + '/' + L.No.Value());
         L.Close();
-        Observer.Finish();
+        Observer.Expect('goto 1,50', 'Yes');
+        Observer.Expect('row after action', '2/1');
+        Observer.Expect('goto 2,50', 'Yes');
+        Observer.Expect('row', '2/50');
+        Observer.Expect('next', 'Yes');
+        Observer.Expect('row after next', '2/51');
+        Observer.Expect('previous', 'Yes');
+        Observer.Expect('previous', 'Yes');
+        Observer.Expect('row after two previous', '2/49');
+        Observer.Expect('goto 2,10', 'Yes');
+        Observer.Expect('row 2,10', '2/10');
+        Observer.Expect('first', 'Yes');
+        Observer.Expect('row first', '2/1');
+        Observer.Expect('last', 'Yes');
+        Observer.Expect('row last', '2/60');
+        Observer.Verify();
     end;
 
     [Test]
@@ -151,7 +167,9 @@ codeunit 90985 "LT Y5 GK Tests"
         Observer.Observe('goto 1,50', Format(L.GoToKey(1, 50)));
         Observer.Observe('row', L.Grp.Value() + '/' + L.No.Value());
         L.Close();
-        Observer.Finish();
+        Observer.Expect('goto 1,50', 'No');
+        Observer.Expect('row', '2/1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -170,7 +188,13 @@ codeunit 90985 "LT Y5 GK Tests"
         Observer.Observe('goto 1,40', Format(L.GoToKey(1, 40)));
         Observer.Observe('row after goto 1,40', L.Grp.Value() + '/' + L.No.Value());
         L.Close();
-        Observer.Finish();
+        Observer.Expect('goto 1,50', 'Yes');
+        Observer.Expect('row after action', '2/1');
+        Observer.Expect('goto 2,50', 'Yes');
+        Observer.Expect('row', '2/50');
+        Observer.Expect('goto 1,40', 'No');
+        Observer.Expect('row after goto 1,40', '2/50');
+        Observer.Verify();
     end;
 
     local procedure InsertRows()

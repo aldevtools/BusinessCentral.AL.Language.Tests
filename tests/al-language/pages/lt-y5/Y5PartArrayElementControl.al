@@ -128,7 +128,17 @@ codeunit 90983 "LT Y5 AE Tests"
         Observer.Observe('B number', Host.Cells.Number.Value());
         Observer.Observe('B unset', Host.Cells.Unset.Value());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('first', 'Yes');
+        Observer.Expect('A element', 'cell of A');
+        Observer.Expect('A plain', 'cell of A');
+        Observer.Expect('A number', '10');
+        Observer.Expect('A unset', '');
+        Observer.Expect('next', 'Yes');
+        Observer.Expect('B element', 'cell of B');
+        Observer.Expect('B plain', 'cell of B');
+        Observer.Expect('B number', '20');
+        Observer.Expect('B unset', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -147,7 +157,8 @@ codeunit 90983 "LT Y5 AE Tests"
         Shown += Host.Cells.Element.Value() + ',';
         Observer.Observe('shown', Shown);
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('shown', 'cell of A,cell of B,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -168,7 +179,16 @@ codeunit 90983 "LT Y5 AE Tests"
         Observer.Observe('A element', Host.Cells.Element.Value());
         Observer.Observe('A number', Host.Cells.Number.Value());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('last', 'Yes');
+        Observer.Expect('C element', 'cell of C');
+        Observer.Expect('C number', '30');
+        Observer.Expect('previous', 'Yes');
+        Observer.Expect('B element', 'cell of B');
+        Observer.Expect('B number', '20');
+        Observer.Expect('gotokey 1', 'Yes');
+        Observer.Expect('A element', 'cell of A');
+        Observer.Expect('A number', '10');
+        Observer.Verify();
     end;
 
     [Test]
@@ -184,7 +204,10 @@ codeunit 90983 "LT Y5 AE Tests"
         Observer.Observe('plain', Host.Cells.Plain.Value());
         Observer.Observe('number', Host.Cells.Number.Value());
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('element', 'cell of A');
+        Observer.Expect('plain', 'cell of A');
+        Observer.Expect('number', '10');
+        Observer.Verify();
     end;
 
     local procedure InsertRows()

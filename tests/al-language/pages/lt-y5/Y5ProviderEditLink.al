@@ -174,7 +174,16 @@ codeunit 90980 "LT Y5 PL Tests"
         Observer.Observe('after next', Format(Document.ToBin.Next()));
         Observer.Observe('other factbox code', Document.FromBin."Code".Value());
         Document.Close();
-        Observer.Finish();
+        Observer.Expect('before first', 'Yes');
+        Observer.Expect('before code', 'B1');
+        Observer.Expect('provider line', '10000');
+        Observer.Expect('provider to bin', 'B2');
+        Observer.Expect('stored to bin', 'B1');
+        Observer.Expect('after first', 'Yes');
+        Observer.Expect('after code', 'B2');
+        Observer.Expect('after next', 'No');
+        Observer.Expect('other factbox code', 'B1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -199,7 +208,14 @@ codeunit 90980 "LT Y5 PL Tests"
         Observer.Observe('after code', Document.FromBin."Code".Value());
         Observer.Observe('other factbox code', Document.ToBin."Code".Value());
         Document.Close();
-        Observer.Finish();
+        Observer.Expect('before first', 'Yes');
+        Observer.Expect('before code', 'B1');
+        Observer.Expect('stored from bin', 'B2');
+        Observer.Expect('provider line', '10000');
+        Observer.Expect('after first', 'Yes');
+        Observer.Expect('after code', 'B2');
+        Observer.Expect('other factbox code', 'B1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -218,7 +234,9 @@ codeunit 90980 "LT Y5 PL Tests"
 
         Observer.Observe('after code', Document.ToBin."Code".Value());
         Document.Close();
-        Observer.Finish();
+        Observer.Expect('before code', 'B1');
+        Observer.Expect('after code', 'B2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -238,7 +256,11 @@ codeunit 90980 "LT Y5 PL Tests"
         Observer.Observe('after first', Format(Document.ToBin.First()));
         Observer.Observe('after code', Document.ToBin."Code".Value());
         Document.Close();
-        Observer.Finish();
+        Observer.Expect('before code', 'B1');
+        Observer.Expect('provider line', '10000');
+        Observer.Expect('after first', 'No');
+        Observer.Expect('after code', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -262,7 +284,15 @@ codeunit 90980 "LT Y5 PL Tests"
         Observer.Observe('provider to bin on 10000', Document.Lines."To Bin Code".Value());
         Observer.Observe('code on 10000', Document.ToBin."Code".Value());
         Document.Close();
-        Observer.Finish();
+        Observer.Expect('next', 'Yes');
+        Observer.Expect('line after next', '20000');
+        Observer.Expect('code on 20000', 'B2');
+        Observer.Expect('code on 20000 after edit', 'B1');
+        Observer.Expect('previous', 'Yes');
+        Observer.Expect('line after previous', '10000');
+        Observer.Expect('provider to bin on 10000', 'B2');
+        Observer.Expect('code on 10000', 'B2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -280,7 +310,12 @@ codeunit 90980 "LT Y5 PL Tests"
         Observer.Observe('after first', Format(Document.ToBin.First()));
         Observer.Observe('after code', Document.ToBin."Code".Value());
         Document.Close();
-        Observer.Finish();
+        Observer.Expect('before code', 'B1');
+        Observer.Expect('next', 'Yes');
+        Observer.Expect('provider line', '20000');
+        Observer.Expect('after first', 'Yes');
+        Observer.Expect('after code', 'B2');
+        Observer.Verify();
     end;
 
     local procedure InsertDocument()
