@@ -44,7 +44,9 @@ codeunit 98860 "LT Y6 Http Handler Settings"
     end;
 
     [Test]
+#if BC29PLUS
     [HandlerFunctions('EchoHandler')]
+#endif
     procedure Get_AfterSettings_ReachesHandler()
     var
         Observer: Codeunit "Probe Observer";
@@ -71,7 +73,8 @@ codeunit 98860 "LT Y6 Http Handler Settings"
         Observer.Verify();
 #else
         // The Linux images of BC 27 and 28 do not give the request to the handler (the Get raises 'Unhandled outbound HTTP requests are not
-        // permitted ... AllowOutboundFromHandler'), so no request is sent there (see AyHttpHandler.al, bc-linux issue 192).
+        // permitted ... AllowOutboundFromHandler'), so no request is sent there and the handler is not bound
+        // (an unused handler fails the test; see AyHttpHandler.al, bc-linux issue 192).
         Observer.Discard();
 #endif
     end;
