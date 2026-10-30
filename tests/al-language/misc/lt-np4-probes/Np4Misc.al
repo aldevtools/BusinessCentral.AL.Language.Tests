@@ -6,7 +6,8 @@
 //   IsInWriteTransaction after each. (3) Windows Language Get(1078).
 // Writer Y9 (NP lane 1030e, 2026-10-30): own table 91461, codeunit 91460 (tests Y9_* in codeunit 93431). Probe: (4) Get, Find('='), IsEmpty, Count, Next and
 //   CalcFields under UpdLock, RepeatableRead (and ReadCommitted) as the FIRST read of a transaction, with the isolation set before the Commit and after it:
-//   IsInWriteTransaction before and after the read, and what a guarded `if Codeunit.Run(...)` does after it.
+//   IsInWriteTransaction before and after the read, and what a guarded `if Codeunit.Run(...)` does after it. (5) The ReadIsolation value across a Commit,
+//   and IsInWriteTransaction after assigning the same level again, a different level, the same level on another record, and ReadCommitted.
 // BC versions: 27, 28, 29
 
 table 93430 "LT NP4 Misc Row"
@@ -515,7 +516,10 @@ codeunit 93431 "LT NP4 Misc Tests"
         Commit();
         Fresh.ReadIsolation := IsolationLevel::ReadCommitted;
         Observer.Observe('read committed', Format(Fresh.ReadIsolation) + '|tx=' + Format(IsInWriteTransaction()));
-        Observer.Finish();
+        Observer.Expect('different level', 'RepeatableRead|tx=Yes');
+        Observer.Expect('same level other record', 'RepeatableRead|tx=Yes');
+        Observer.Expect('read committed', 'ReadCommitted|tx=No');
+        Observer.Verify();
     end;
 }
 
