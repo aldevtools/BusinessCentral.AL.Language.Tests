@@ -75,6 +75,7 @@ codeunit 99851 "LT SS Ternary Builtin"
         Holder: Codeunit "LT SS Ternary Builtin Holder";
         Target: Text[10];
         Ok: Boolean;
+        Err: Text;
     begin
         Holder.SetNamed('Short');
         Holder.CompanyIntoText10(Target);
@@ -82,10 +83,18 @@ codeunit 99851 "LT SS Ternary Builtin"
         Holder.SetNamed('');
         Ok := TryCompanyIntoText10(Holder, Target);
         Observer.Observe('false_branch_long_ok', Format(Ok));
-        Observer.Observe('false_branch_long_error', GetLastErrorText());
+        Err := GetLastErrorText();
+        Observer.Observe('false_branch_long_error', CopyStr(Err, 1, StrPos(Err, 'Value: ') + 6).Replace(Format(StrLen(CompanyName())), '<n>'));
+        Observer.Observe('error_value_is_company', Format(CopyStr(Err, StrPos(Err, 'Value: ') + 7) = CompanyName()));
         Observer.Observe('target_after', Target);
         Observer.Observe('maxstrlen_target', Format(MaxStrLen(Target)));
-        Observer.Finish();
+        Observer.Expect('true_branch_fits', 'Short');
+        Observer.Expect('false_branch_long_ok', 'No');
+        Observer.Expect('false_branch_long_error', 'The length of the string is <n>, but it must be less than or equal to 10 characters. Value: ');
+        Observer.Expect('error_value_is_company', 'Unknown');
+        Observer.Expect('target_after', 'Short');
+        Observer.Expect('maxstrlen_target', '10');
+        Observer.Verify();
     end;
 
     [TryFunction]
