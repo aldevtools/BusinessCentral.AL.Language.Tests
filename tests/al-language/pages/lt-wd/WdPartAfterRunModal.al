@@ -123,7 +123,9 @@ codeunit 90783 "LT WD Part After RunModal"
     begin
         Observer.Observe('count', Format(Dialog.GetChoiceCount()));
         Observer.Observe('value', Dialog.GetChoiceValue());
-        Observer.Finish();
+        Observer.Expect('count', '0');
+        Observer.Expect('value', '<none>');
+        Observer.Verify();
     end;
 
     [ModalPageHandler]

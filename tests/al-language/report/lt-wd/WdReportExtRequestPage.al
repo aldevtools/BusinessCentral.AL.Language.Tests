@@ -119,7 +119,13 @@ codeunit 90794 "LT WD Report Ext Request Page"
         Observer.Observe('B seen by the base trigger', Format(Account.Seen));
         Observer.Observe('B base field', Format(Account."Show All"));
         Observer.Observe('B note', Account.Note);
-        Observer.Finish();
+        Observer.Expect('A seen by the base trigger', '1');
+        Observer.Expect('A base field', 'Yes');
+        Observer.Expect('A note', 'hello');
+        Observer.Expect('B seen by the base trigger', '1');
+        Observer.Expect('B base field', 'Yes');
+        Observer.Expect('B note', 'hello');
+        Observer.Verify();
     end;
 
     [RequestPageHandler]
