@@ -126,7 +126,7 @@ codeunit 90950 "LT Y4 LicPerm Rows"
         Observer.Observe('tabledata_-1', Describe(0, -1));
         Observer.Observe('table_-5', Describe(1, -5));
         Observer.Observe('system_-1', Describe(10, -1));
-        Observer.Observe('page_-2147483648', Describe(8, -2147483648));
+        Observer.Observe('page_-2147483647', Describe(8, -2147483647));
         LicensePermission.SetRange("Object Type", LicensePermission."Object Type"::Codeunit);
         LicensePermission.SetRange("Object Number", -3, 3);
         Observer.Observe('codeunit_-3_3_ids', Ids(LicensePermission, 20));
