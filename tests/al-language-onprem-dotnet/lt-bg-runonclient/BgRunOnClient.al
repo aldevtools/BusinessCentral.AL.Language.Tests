@@ -149,4 +149,88 @@ codeunit 99490 "LT BG RunOnClient"
         Observer.Expect('machinename|code', 'DotNetFromAlNotSupported:DotNetFromAlNotSupported');
         Observer.Verify();
     end;
+
+    // Added by writer TY (2026-10-29): a local [RunOnClient] variable, client code guarded by GuiAllowed() as the System Application
+    // does it (Camera Impl. IsAvailable, Camera Page Impl.: IsAvailable, then Create() and a member call), and the error
+    // outside a TryFunction (asserterror). Expected values: corpus CI BC 27.5, 28.5 and 29.0 (batch runs 40840955706, 40840985427,
+    // 40841014789), the same on all three; Windows check queued in windows-queue.md.
+    [TryFunction]
+    local procedure TyTryCameraCreate(var Result: Text)
+    var
+        [RunOnClient]
+        LocalCamera: DotNet LtBgCameraProvider;
+    begin
+        LocalCamera := LocalCamera.Create();
+        Result := 'created isnull=' + Format(IsNull(LocalCamera));
+        Result += ' available=' + Format(LocalCamera.IsAvailable());
+    end;
+
+    [TryFunction]
+    local procedure TyTryIsNullUnassigned(var Result: Text)
+    var
+        [RunOnClient]
+        LocalBuilder: DotNet LtBgStringBuilder;
+    begin
+        Result := Format(IsNull(LocalBuilder));
+    end;
+
+    local procedure TyBuildUnguarded()
+    var
+        [RunOnClient]
+        LocalBuilder: DotNet LtBgStringBuilder;
+    begin
+        LocalBuilder := LocalBuilder.StringBuilder();
+    end;
+
+    [Test]
+    procedure TY_RunOnClient_GuiAllowedGuard_CameraCreate()
+    var
+        Observer: Codeunit "Probe Observer";
+        [RunOnClient]
+        LocalCamera: DotNet LtBgCameraProvider;
+        Result: Text;
+    begin
+        Observer.Observe('guiallowed', Format(GuiAllowed()));
+        Result := 'skipped';
+        if GuiAllowed() then
+            if TyTryCameraCreate(Result) then
+                Observer.Observe('create', 'ok [' + Result + ']')
+            else
+                Observer.ObserveError('create')
+        else
+            Observer.Observe('create', Result);
+        Observer.Observe('declared only isnull', Format(IsNull(LocalCamera)));
+        Observer.Expect('guiallowed', 'Yes');
+        Observer.Expect('create|text', 'The operation cannot complete because it uses a feature that is not supported (.NET Framework Interoperability.)');
+        Observer.Expect('create|code', 'DotNetFromAlNotSupported:DotNetFromAlNotSupported');
+        Observer.Expect('declared only isnull', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TY_RunOnClient_Local_IsNullUnassigned()
+    var
+        Observer: Codeunit "Probe Observer";
+        Result: Text;
+    begin
+        Result := 'untouched';
+        if TyTryIsNullUnassigned(Result) then
+            Observer.Observe('isnull', 'ok ' + Result)
+        else
+            Observer.ObserveError('isnull');
+        Observer.Expect('isnull', 'ok Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TY_RunOnClient_Local_Constructor_AssertError()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        asserterror TyBuildUnguarded();
+        Observer.ObserveError('asserterror');
+        Observer.Expect('asserterror|text', 'The operation cannot complete because it uses a feature that is not supported (.NET Framework Interoperability.)');
+        Observer.Expect('asserterror|code', 'DotNetFromAlNotSupported:DotNetFromAlNotSupported');
+        Observer.Verify();
+    end;
 }

@@ -196,3 +196,23 @@ codeunit 79938 "LT AS DT Installer"
     end;
 #endif
 }
+
+// Probe UM (ADR-046 Q1): see install/lt-um-install-order/UmInstallOrder.al. Writes only `if Insert() then;` into a DataPerCompany = false log.
+codeunit 90433 "LT UM Cu Install"
+{
+    Subtype = Install;
+
+    trigger OnInstallAppPerCompany()
+    var
+        Writer: Codeunit "LT UM Install Writer";
+    begin
+        Writer.WriteRow('Cu', 'OnInstallAppPerCompany');
+    end;
+
+    trigger OnInstallAppPerDatabase()
+    var
+        Writer: Codeunit "LT UM Install Writer";
+    begin
+        Writer.WriteRow('Cu', 'OnInstallAppPerDatabase');
+    end;
+}
