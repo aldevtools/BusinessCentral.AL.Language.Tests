@@ -86,8 +86,11 @@ codeunit 93431 "LT NP4 Misc Tests"
     begin
         Tab[1] := 9;
         Ev(Observer, 'tab', Tab);
-        Ev(Observer, 'tab_one', Tab + '1');
-        Ev(Observer, 'one_tab', '1' + Tab);
+        // a Date target reads '1' as day 1 of the current month: not asserted
+        if Mode <> Mode::Date then begin
+            Ev(Observer, 'tab_one', Tab + '1');
+            Ev(Observer, 'one_tab', '1' + Tab);
+        end;
         Ev(Observer, 'tab_tab', Tab + Tab);
         Ev(Observer, 'empty', '');
         Ev(Observer, 'space', ' ');
