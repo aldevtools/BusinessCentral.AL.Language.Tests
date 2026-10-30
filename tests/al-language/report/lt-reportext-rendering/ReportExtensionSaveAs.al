@@ -1,12 +1,85 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/report/report-saveas-method
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160), Temp Blob (System Application); reports 72955 / 72957 and their report extensions in ReportExtensionRendering.al
+// Fixtures used: Probe Observer (codeunit 69160), Temp Blob (System Application); reports 91213 / 91215 and their report extensions in ReportExtensionRendering.al
 // Probe: written against BC 29 and checked on the corpus CI matrix (27, 28, 29); every literal asserted below is what BC produced.
 // Facts: the static Report.SaveAs (report id, request parameters, format, stream, optional RecordRef) of a report that has a report extension with a
 //   rendering section: Xml and Pdf of the base report that declares its own RDLC layout (the extension adds two RDLC layouts), the same for a base
 //   report without a rendering section whose extension is the only one that declares a layout, Word and Excel on an RDLC default layout, and a
 //   call with a RecordRef. Each case records the answer, whether the stream got bytes, the start of the stream and the error text.
 // BC versions: 27, 28, 29
+report 91213 "LT SC Ext Base"
+{
+    UsageCategory = None;
+    Caption = 'LT SC ext base';
+    DefaultRenderingLayout = BaseRdlc;
+
+    dataset
+    {
+        dataitem(Item; Integer)
+        {
+            DataItemTableView = sorting(Number) where(Number = const(1));
+            column(Num; Number) { }
+        }
+    }
+
+    rendering
+    {
+        layout(BaseRdlc)
+        {
+            Type = RDLC;
+            LayoutFile = './FixtureLayout_15.rdlc';
+            Caption = 'SaveAs base layout';
+        }
+    }
+}
+
+report 91215 "LT SC Ext Base NoRender"
+{
+    UsageCategory = None;
+    Caption = 'LT SC ext base no rendering';
+
+    dataset
+    {
+        dataitem(Item; Integer)
+        {
+            DataItemTableView = sorting(Number) where(Number = const(1));
+            column(Num; Number) { }
+        }
+    }
+}
+
+reportextension 91214 "LT SC Ext Rendering" extends "LT SC Ext Base"
+{
+    rendering
+    {
+        layout(ExtRdlcA)
+        {
+            Type = RDLC;
+            LayoutFile = './FixtureLayout_16.rdlc';
+            Caption = 'SaveAs ext A';
+        }
+        layout(ExtRdlcB)
+        {
+            Type = RDLC;
+            LayoutFile = './FixtureLayout_17.rdlc';
+            Caption = 'SaveAs ext B';
+        }
+    }
+}
+
+reportextension 91216 "LT SC Ext NoRender Ext" extends "LT SC Ext Base NoRender"
+{
+    rendering
+    {
+        layout(ExtOnly)
+        {
+            Type = RDLC;
+            LayoutFile = './FixtureLayout_18.rdlc';
+            Caption = 'SaveAs ext only';
+        }
+    }
+}
+
 report 91212 "LT SC SaveAs Plain"
 {
     UsageCategory = None;
@@ -57,7 +130,7 @@ codeunit 91210 "LT SC ReportExt SaveAs"
             Saved := Report.SaveAs(ReportId, '', Fmt, OutS);
         Size := TempBlob.Length();
         if Size > 0 then begin
-            TempBlob.CreateInStream(InS, TextEncoding::UTF8);
+            TempBlob.CreateInStream(InS, TextEncoding::MSDos);
             InS.Read(Head, 20);
         end;
     end;
@@ -93,9 +166,9 @@ codeunit 91210 "LT SC ReportExt SaveAs"
     var
         Observer: Codeunit "Probe Observer";
     begin
-        Probe(Observer, 'xml', 72955, ReportFormat::Xml, false);
-        Probe(Observer, 'pdf', 72955, ReportFormat::Pdf, false);
-        Probe(Observer, 'xml recref', 72955, ReportFormat::Xml, true);
+        Probe(Observer, 'xml', 91213, ReportFormat::Xml, false);
+        Probe(Observer, 'pdf', 91213, ReportFormat::Pdf, false);
+        Probe(Observer, 'xml recref', 91213, ReportFormat::Xml, true);
         Observer.Finish();
     end;
 
@@ -104,9 +177,9 @@ codeunit 91210 "LT SC ReportExt SaveAs"
     var
         Observer: Codeunit "Probe Observer";
     begin
-        Probe(Observer, 'word', 72955, ReportFormat::Word, false);
-        Probe(Observer, 'excel', 72955, ReportFormat::Excel, false);
-        Probe(Observer, 'html', 72955, ReportFormat::Html, false);
+        Probe(Observer, 'word', 91213, ReportFormat::Word, false);
+        Probe(Observer, 'excel', 91213, ReportFormat::Excel, false);
+        Probe(Observer, 'html', 91213, ReportFormat::Html, false);
         Observer.Finish();
     end;
 
@@ -115,9 +188,9 @@ codeunit 91210 "LT SC ReportExt SaveAs"
     var
         Observer: Codeunit "Probe Observer";
     begin
-        Probe(Observer, 'xml', 72957, ReportFormat::Xml, false);
-        Probe(Observer, 'pdf', 72957, ReportFormat::Pdf, false);
-        Probe(Observer, 'word', 72957, ReportFormat::Word, false);
+        Probe(Observer, 'xml', 91215, ReportFormat::Xml, false);
+        Probe(Observer, 'pdf', 91215, ReportFormat::Pdf, false);
+        Probe(Observer, 'word', 91215, ReportFormat::Word, false);
         Observer.Finish();
     end;
 }
