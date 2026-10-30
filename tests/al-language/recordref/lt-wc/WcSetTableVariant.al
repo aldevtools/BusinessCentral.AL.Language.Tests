@@ -103,7 +103,7 @@ codeunit 90642 "LT WC Set Table Variant"
     begin
         Seed();
         Source.Open(Database::"LT WC Set Doc");
-        Source.SetFilter("No.", 'B..C');
+        Source.Field(1).SetFilter('B..C');
         Source.FindFirst();
         Target.Open(Database::"LT WC Set Doc");
         Target.FindFirst();
@@ -153,7 +153,7 @@ codeunit 90642 "LT WC Set Table Variant"
     begin
         Seed();
         Source.Open(Database::"LT WC Set Doc");
-        Source.SetFilter("No.", 'B..C');
+        Source.Field(1).SetFilter('B..C');
         Source.FindFirst();
         V := Target;
         Observer.Observe('variant before', VariantInfo(V));
