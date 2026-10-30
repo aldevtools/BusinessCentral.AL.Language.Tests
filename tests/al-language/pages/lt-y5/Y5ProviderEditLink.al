@@ -7,7 +7,8 @@
 //   "From Bin Code" (whose OnValidate calls CurrPage.Update()). The tests stand on line 10000, type a new value into one of
 //   those fields, stay on the line and read the FactBox. Contrast: the provider moves to its next row
 //   (testpart/TestPartProvider.al ProviderLinkedPart_FollowsTheProviderWhenItMoves pins the move).
-// Result: OBSERVED_RESULT
+// Result: the FactBox re-reads its SubPageLink as soon as the linked field is typed on the provider's current row (B2 at once,
+//   before the line is stored for a plain field; also after CurrPage.Update in OnValidate); a blank value shows no row.
 // Source: al-runner issue 6377 (the reporter's repro passed on a real BC 29 container).
 // BC versions: 27, 28, 29
 

@@ -6,7 +6,8 @@
 //   tableextension below sets another Caption over it from this app (in one app the same shape gives AL0839, so a table of
 //   another app is needed). Which caption do the TestField, FieldError, Get and TableRelation error texts, TableCaption and
 //   RecordRef.Caption use? Only in-memory records of Machine Center; nothing is inserted into a Microsoft table.
-// Result: OBSERVED_RESULT
+// Result: every text and caption that names the table uses the tableextension's Caption (LT Y5 Machine Center Extension);
+//   TableName and RecordRef.Name stay 'Machine Center'.
 // Source: al-runner issue 6378 (the reporter's repro passed on a real BC 28.5 container).
 // BC versions: 27, 28, 29
 

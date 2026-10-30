@@ -7,7 +7,8 @@
 //   Action OnlyFilter runs only Rec.SetRange(Grp, 2). After the action the test calls GoToKey on a row of group 2 that the
 //   page has not read yet, and GoToKey on a row of group 1 (now outside the filter). Read through a ModalPageHandler
 //   (the reporter's shape) and through TestPage.OpenView.
-// Result: OBSERVED_RESULT
+// Result: after the action the list stands on the first row of the new filter (2/1) and GoToKey finds any row of group 2
+//   (2/50); GoToKey to a row of group 1 returns false and leaves the row unchanged. The same with only SetRange in the action.
 // Source: al-runner issue 6381.
 // BC versions: 27, 28, 29
 

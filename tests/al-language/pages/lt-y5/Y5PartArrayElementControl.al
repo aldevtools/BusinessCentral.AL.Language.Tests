@@ -6,7 +6,8 @@
 //   a plain Text variable, an element of a Text array (ElementText[2]), an element of an Integer array (ElementNo[3]),
 //   and an array element that OnAfterGetRecord never assigns (ElementText[1]). The host Document page shows the part;
 //   the test walks the part with First, Next, Previous, Last and GoToKey and reads each control on each row.
-// Result: OBSERVED_RESULT
+// Result: a control bound to an array element shows the value OnAfterGetRecord set for the current row of the part, the same
+//   as a plain variable (cell of A, cell of B; 10, 20, 30); an element never assigned shows ''.
 // Source: al-runner issue 6379 (the reporter's repro passed on a real BC 28.5 container).
 // BC versions: 27, 28, 29
 
