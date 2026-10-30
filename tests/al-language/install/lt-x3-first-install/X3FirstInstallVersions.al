@@ -7,6 +7,9 @@
 //   (b) by a helper in a dependency app: GetModuleInfo(installing app id), GetCallerModuleInfo, and the helper app's own DataVersion;
 //   in OnInstallAppPerCompany (PC) and OnInstallAppPerDatabase (PD).
 // A version that is not 0.0.0.0 is reported relative to the test-time AppVersion of fixture B (the corpus apps' versions are not asserted).
+// Measured (BC 29 SaaS sandbox, fresh install after uninstall with data): during fixture B's first install every reader gets DataVersion 0.0.0.0
+//   (Major() 0) for fixture B, its own code AND the dependency's GetModuleInfo(B id) and GetCallerModuleInfo; AppVersion is the normal app version
+//   everywhere; the dependency's own DataVersion is its AppVersion (it was installed before). After the install, B's DataVersion is its AppVersion.
 // BC versions: 27, 28, 29
 codeunit 90800 "LT X3 First Install Versions"
 {
@@ -73,7 +76,17 @@ codeunit 90800 "LT X3 First Install Versions"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveTrigger(Observer, 'PC');
-        Observer.Finish();
+        Observer.Expect('PC own GetCurrentModuleInfo DataVersion', '0.0.0.0');
+        Observer.Expect('PC own GetCurrentModuleInfo AppVersion', 'test-time AppVersion');
+        Observer.Expect('PC own GetModuleInfo(own id) DataVersion', '0.0.0.0');
+        Observer.Expect('PC own GetModuleInfo(own id) AppVersion', 'test-time AppVersion');
+        Observer.Expect('PC dependency GetModuleInfo(B id) DataVersion', '0.0.0.0');
+        Observer.Expect('PC dependency GetModuleInfo(B id) AppVersion', 'test-time AppVersion');
+        Observer.Expect('PC dependency DataVersion().Major()', '0');
+        Observer.Expect('PC dependency GetCallerModuleInfo DataVersion', '0.0.0.0');
+        Observer.Expect('PC dependency GetCallerModuleInfo AppVersion', 'test-time AppVersion');
+        Observer.Expect('PC dependency own DataVersion is its test-time AppVersion', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -82,7 +95,17 @@ codeunit 90800 "LT X3 First Install Versions"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveTrigger(Observer, 'PD');
-        Observer.Finish();
+        Observer.Expect('PD own GetCurrentModuleInfo DataVersion', '0.0.0.0');
+        Observer.Expect('PD own GetCurrentModuleInfo AppVersion', 'test-time AppVersion');
+        Observer.Expect('PD own GetModuleInfo(own id) DataVersion', '0.0.0.0');
+        Observer.Expect('PD own GetModuleInfo(own id) AppVersion', 'test-time AppVersion');
+        Observer.Expect('PD dependency GetModuleInfo(B id) DataVersion', '0.0.0.0');
+        Observer.Expect('PD dependency GetModuleInfo(B id) AppVersion', 'test-time AppVersion');
+        Observer.Expect('PD dependency DataVersion().Major()', '0');
+        Observer.Expect('PD dependency GetCallerModuleInfo DataVersion', '0.0.0.0');
+        Observer.Expect('PD dependency GetCallerModuleInfo AppVersion', 'test-time AppVersion');
+        Observer.Expect('PD dependency own DataVersion is its test-time AppVersion', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -94,6 +117,8 @@ codeunit 90800 "LT X3 First Install Versions"
         NavApp.GetModuleInfo(FixtureBId(), Info);
         Observer.Observe('fixture B DataVersion equals AppVersion at test time', Format(Format(Info.DataVersion()) = Format(Info.AppVersion())));
         Observer.Observe('fixture B DataVersion is 0.0.0.0 at test time', Format(Format(Info.DataVersion()) = '0.0.0.0'));
-        Observer.Finish();
+        Observer.Expect('fixture B DataVersion equals AppVersion at test time', 'Yes');
+        Observer.Expect('fixture B DataVersion is 0.0.0.0 at test time', 'No');
+        Observer.Verify();
     end;
 }

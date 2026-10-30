@@ -6,6 +6,9 @@
 //   codeunit variable with an argument (Names.NameOf(Rec."No.")) and without one (Names.Fixed()), next to a field (Rec."No.") and a built-in call
 //   (Format(Rec.Kind)), on an API page and on a Card page. Columns read: TableNo, FieldNo, Enabled, Editable, Visible, SourceExpression, OptionString,
 //   Sequence (ControlId is a generated id and is not read).
+// Measured (BC 29): every call-bound control has FieldNo 0, TableNo the source table, Editable 'False', Enabled and Visible 'true', OptionString empty,
+//   and SourceExpression the call as written WITH 'Rec.' (Rec.DisplayCode(), Names.NameOf(Rec."No."), Names.Fixed()); the field control's
+//   SourceExpression drops 'Rec.' (No.). Sequence is the layout position. API page and Card page give the same rows.
 // BC versions: 27, 28, 29
 
 table 90801 "LT X3 PX Entry"
@@ -139,7 +142,13 @@ codeunit 90805 "LT X3 PCF Call Controls"
         Observer.Observe('name', Row(Page::"LT X3 PX Entries API", 'name'));
         Observer.Observe('fixedName', Row(Page::"LT X3 PX Entries API", 'fixedName'));
         Observer.Observe('counts', Counts(Page::"LT X3 PX Entries API"));
-        Observer.Finish();
+        Observer.Expect('number', 'TableNo=90801 FieldNo=1 Enabled=[true] Editable=[True] Visible=[true] SourceExpression=[No.] OptionString=[] Sequence=0');
+        Observer.Expect('kindText', 'TableNo=90801 FieldNo=0 Enabled=[true] Editable=[False] Visible=[true] SourceExpression=[Format(Rec.Kind)] OptionString=[] Sequence=1');
+        Observer.Expect('displayCode', 'TableNo=90801 FieldNo=0 Enabled=[true] Editable=[False] Visible=[true] SourceExpression=[Rec.DisplayCode()] OptionString=[] Sequence=2');
+        Observer.Expect('name', 'TableNo=90801 FieldNo=0 Enabled=[true] Editable=[False] Visible=[true] SourceExpression=[Names.NameOf(Rec."No.")] OptionString=[] Sequence=3');
+        Observer.Expect('fixedName', 'TableNo=90801 FieldNo=0 Enabled=[true] Editable=[False] Visible=[true] SourceExpression=[Names.Fixed()] OptionString=[] Sequence=4');
+        Observer.Expect('counts', 'rows=5 bound=1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -153,7 +162,13 @@ codeunit 90805 "LT X3 PCF Call Controls"
         Observer.Observe('Name', Row(Page::"LT X3 PX Entry Card", 'Name'));
         Observer.Observe('FixedName', Row(Page::"LT X3 PX Entry Card", 'FixedName'));
         Observer.Observe('counts', Counts(Page::"LT X3 PX Entry Card"));
-        Observer.Finish();
+        Observer.Expect('No.', 'TableNo=90801 FieldNo=1 Enabled=[true] Editable=[True] Visible=[true] SourceExpression=[No.] OptionString=[] Sequence=0');
+        Observer.Expect('KindText', 'TableNo=90801 FieldNo=0 Enabled=[true] Editable=[False] Visible=[true] SourceExpression=[Format(Rec.Kind)] OptionString=[] Sequence=1');
+        Observer.Expect('DisplayCode', 'TableNo=90801 FieldNo=0 Enabled=[true] Editable=[False] Visible=[true] SourceExpression=[Rec.DisplayCode()] OptionString=[] Sequence=2');
+        Observer.Expect('Name', 'TableNo=90801 FieldNo=0 Enabled=[true] Editable=[False] Visible=[true] SourceExpression=[Names.NameOf(Rec."No.")] OptionString=[] Sequence=3');
+        Observer.Expect('FixedName', 'TableNo=90801 FieldNo=0 Enabled=[true] Editable=[False] Visible=[true] SourceExpression=[Names.Fixed()] OptionString=[] Sequence=4');
+        Observer.Expect('counts', 'rows=5 bound=1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -167,6 +182,8 @@ codeunit 90805 "LT X3 PCF Call Controls"
         Observer.Observe('count FieldNo <> 0', Format(PageControlField.Count()));
         PageControlField.SetRange(FieldNo, 0);
         Observer.Observe('count FieldNo = 0', Format(PageControlField.Count()));
-        Observer.Finish();
+        Observer.Expect('count FieldNo <> 0', '1');
+        Observer.Expect('count FieldNo = 0', '4');
+        Observer.Verify();
     end;
 }
