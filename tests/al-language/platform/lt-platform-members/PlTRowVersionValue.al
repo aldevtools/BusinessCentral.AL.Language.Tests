@@ -1084,4 +1084,132 @@ codeunit 67515 "LT RV Tests"
         Observer.Expect('after_calcfields_in_write_transaction', 'No');
         Observer.Verify();
     end;
+
+    // ---- Writer NP4 (NP lane, 2026-10-30): as the UK tests (relations to the previous value), with reads that move through rows with Next, reads of ANOTHER table
+    // with more rows and the Find forms '>' and '<', all with a buffered Insert in an open write transaction. ----
+
+    local procedure Np4Start(var Last0: BigInteger; var Min0: BigInteger)
+    var
+        A: Record "LT UK Row A";
+        B: Record "LT UK Row B";
+        i: Integer;
+    begin
+        A.DeleteAll();
+        B.DeleteAll();
+        Commit();
+        for i := 1 to 3 do begin
+            B.Id := i;
+            B.Insert();
+        end;
+        Commit();
+        Last0 := LastUsedRowVersion();
+        Min0 := MinimumActiveRowVersion();
+    end;
+
+    [Test]
+    procedure NP4_RowVersions_InsertA_FindSetNextOfB()
+    var
+        Observer: Codeunit "Probe Observer";
+        A: Record "LT UK Row A";
+        B: Record "LT UK Row B";
+        Last0: BigInteger;
+        Min0: BigInteger;
+        PrevLast: BigInteger;
+        PrevMin: BigInteger;
+    begin
+        Np4Start(Last0, Min0);
+        PrevLast := Last0;
+        PrevMin := Min0;
+        A.Id := 1;
+        A.Insert();
+        UkSnap(Observer, 'insert a', PrevLast, PrevMin, Last0, Min0);
+        B.FindSet();
+        UkSnap(Observer, 'findset b', PrevLast, PrevMin, Last0, Min0);
+        B.Next();
+        UkSnap(Observer, 'next b', PrevLast, PrevMin, Last0, Min0);
+        B.Next();
+        UkSnap(Observer, 'next b again', PrevLast, PrevMin, Last0, Min0);
+        Observer.Observe('b id', Format(B.Id));
+        Commit();
+        UkSnap(Observer, 'commit', PrevLast, PrevMin, Last0, Min0);
+        A.DeleteAll();
+        Commit();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure NP4_RowVersions_InsertA_FindFormsOfB()
+    var
+        Observer: Codeunit "Probe Observer";
+        A: Record "LT UK Row A";
+        B: Record "LT UK Row B";
+        Last0: BigInteger;
+        Min0: BigInteger;
+        PrevLast: BigInteger;
+        PrevMin: BigInteger;
+    begin
+        Np4Start(Last0, Min0);
+        PrevLast := Last0;
+        PrevMin := Min0;
+        A.Id := 1;
+        A.Insert();
+        UkSnap(Observer, 'insert a', PrevLast, PrevMin, Last0, Min0);
+        B.Id := 2;
+        B.Find('=');
+        UkSnap(Observer, 'find equal b', PrevLast, PrevMin, Last0, Min0);
+        B.Find('>');
+        UkSnap(Observer, 'find greater b', PrevLast, PrevMin, Last0, Min0);
+        B.Find('<');
+        UkSnap(Observer, 'find less b', PrevLast, PrevMin, Last0, Min0);
+        B.Find('-');
+        UkSnap(Observer, 'find first b', PrevLast, PrevMin, Last0, Min0);
+        B.Find('+');
+        UkSnap(Observer, 'find last b', PrevLast, PrevMin, Last0, Min0);
+        Observer.Observe('b id', Format(B.Id));
+        B.FindLast();
+        UkSnap(Observer, 'findlast b', PrevLast, PrevMin, Last0, Min0);
+        Commit();
+        A.DeleteAll();
+        Commit();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure NP4_RowVersions_InsertA_FindSetNextAndFindGreaterOfA()
+    var
+        Observer: Codeunit "Probe Observer";
+        A: Record "LT UK Row A";
+        Last0: BigInteger;
+        Min0: BigInteger;
+        PrevLast: BigInteger;
+        PrevMin: BigInteger;
+    begin
+        Np4Start(Last0, Min0);
+        PrevLast := Last0;
+        PrevMin := Min0;
+        A.Id := 1;
+        A.Insert();
+        A.Id := 2;
+        A.Insert();
+        A.Id := 3;
+        A.Insert();
+        UkSnap(Observer, 'insert a', PrevLast, PrevMin, Last0, Min0);
+        A.Id := 1;
+        A.Find('>');
+        UkSnap(Observer, 'find greater a', PrevLast, PrevMin, Last0, Min0);
+        A.Find('<');
+        UkSnap(Observer, 'find less a', PrevLast, PrevMin, Last0, Min0);
+        Observer.Observe('a id', Format(A.Id));
+        A.FindSet();
+        UkSnap(Observer, 'findset a', PrevLast, PrevMin, Last0, Min0);
+        A.Next();
+        UkSnap(Observer, 'next a', PrevLast, PrevMin, Last0, Min0);
+        A.Next();
+        UkSnap(Observer, 'next a again', PrevLast, PrevMin, Last0, Min0);
+        Observer.Observe('a id after nexts', Format(A.Id));
+        Commit();
+        A.DeleteAll();
+        Commit();
+        Observer.Finish();
+    end;
 }
