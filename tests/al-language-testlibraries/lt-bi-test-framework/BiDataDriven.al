@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/datasourcecontext/datasourcecontext-data-type
 // Scope: in-scope
-// Fixtures used: Assert (the main app); resource files in res/ (cases.json, cases.csv, bom.csv); own objects 81600 - 81611, 81630 - 81638
+// Fixtures used: Assert (the main app); resource files in res/ (cases.json, cases.csv, bom.csv); own objects 81600 - 81612, 81630 - 81638
 // Corpus issues 629 item 16, 626 items 9 and 10, 627 item 19: data-driven tests. A test procedure with [TestDataSource(<codeunit id>, '<data set>')]
 // and one parameter of type Interface ITestContext; the source codeunit implements ITestDataSource (ListTestCases, GetTestCase).
 // Reference run: BC SaaS sandbox (Windows), BC 29, 2026-10-30, through the TestRunnerHub. Everything asserted below is that run's answer.
@@ -91,6 +91,7 @@ codeunit 81602 "LT BI DD Source" implements ITestDataSource
     procedure ListTestCases(DataSetIdentifier: Text; context: DataSourceContext): List of [Text]
     var
         Log: Codeunit "LT BI DD Log";
+        IdList: Codeunit "LT BI DD Id List";
         Cases: List of [Text];
     begin
         Log.Reset();
@@ -103,7 +104,7 @@ codeunit 81602 "LT BI DD Source" implements ITestDataSource
                     Cases.Add('gamma');
                 end;
             'Ids':
-                IdList(Cases);
+                IdList.IdList(Cases);
         end;
         exit(Cases);
     end;
@@ -117,7 +118,10 @@ codeunit 81602 "LT BI DD Source" implements ITestDataSource
         TestCase.SetText(TestCaseIdentifier);
         exit(TestCase);
     end;
+}
 
+codeunit 81612 "LT BI DD Id List"
+{
     procedure IdList(var Cases: List of [Text])
     var
         Umlaut: Text[1];
@@ -203,12 +207,12 @@ codeunit 81605 "LT BI DD Ids"
     [TestDataSource(81602, 'Ids')]
     procedure Id(Context: Interface ITestContext)
     var
-        Source: Codeunit "LT BI DD Source";
+        IdList: Codeunit "LT BI DD Id List";
         CaseData: Interface "LT BI DD Case Data";
         Expected: List of [Text];
     begin
         CaseData := Context as "LT BI DD Case Data";
-        Source.IdList(Expected);
+        IdList.IdList(Expected);
         Assert.AreEqual(Expected.Get(Seen.Count() + 1), CaseData.CaseText(), 'identifier ' + Format(Seen.Count() + 1));
         Seen.Add(CaseData.CaseText());
     end;
