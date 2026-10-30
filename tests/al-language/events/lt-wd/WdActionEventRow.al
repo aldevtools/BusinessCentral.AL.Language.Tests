@@ -98,7 +98,7 @@ codeunit 90703 "LT WD Action Event Row"
         Sub.SetRange(Active, true);
         Observer.Observe('active: Count', Format(Sub.Count()));
         Sub.SetRange(Active);
-        Sub.SetRange("Event Type", Sub."Event Type"::Trigger);
+        Sub.SetRange("Event Type", Sub."Event Type"::"Trigger");
         Observer.Observe('trigger: Count', Format(Sub.Count()));
         Sub.SetRange("Event Type");
         Sub.SetRange("Subscriber Function", 'OnBeforeSendIt');
