@@ -221,11 +221,6 @@ report 91538 "LT Y11 MI Nested"
             MaxIteration = 2;
             column(No; No) { }
 
-            trigger OnAfterGetRecord()
-            begin
-                Seen += 'R' + Format(R.No) + ',';
-            end;
-
             dataitem(L; "LT Y11 MI Line")
             {
                 DataItemLink = DocNo = field(No);
@@ -237,6 +232,11 @@ report 91538 "LT Y11 MI Nested"
                     Seen += 'L' + Format(L.DocNo) + '.' + Format(L.LineNo) + ',';
                 end;
             }
+
+            trigger OnAfterGetRecord()
+            begin
+                Seen += 'R' + Format(R.No) + ',';
+            end;
         }
     }
 

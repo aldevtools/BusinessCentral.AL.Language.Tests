@@ -209,7 +209,7 @@ codeunit 91515 "LT Y11 PTE Rows"
         RR.GetTable(Sub);
         for i := 1 to RR.FieldCount() do begin
             FR := RR.FieldIndex(i);
-            if not (FR.Name in ['Subscriber Codeunit ID', 'Subscriber Function', 'Originating Package ID', 'Originating App Name']) then
+            if StrPos('|Subscriber Codeunit ID|Subscriber Function|Originating Package ID|Originating App Name|', '|' + FR.Name + '|') = 0 then
                 R += FR.Name + '=' + Format(FR.Value) + ';';
         end;
         exit(R);
