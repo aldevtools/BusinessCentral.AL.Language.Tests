@@ -15,6 +15,9 @@ ALLOWED = {
     'tests/al-language/install/lt-bf-install-probes/BfInstallFixtures.al',
     # corpus issue 812: install code writes only `if Insert() then;` into DataPerCompany = false logs; the tag calls write nothing else.
     'tests/al-language-xapp-a/QzXaUpgradeTagProbe.al',
+    # corpus writer Y3: install order and subscribers; install code writes only `if Insert() then;` into DataPerCompany = false tables.
+    'tests/al-language-xapp-a/Y3XaInstallEvents.al',
+    'tests/al-language-xapp-b/Y3XbInstallEvents.al',
     'tests/al-language/_fixtures/ALTInstallProbe.al',
     'tests/al-language/_fixtures/ALTQuotedInstallProbe.al',
     'tests/al-language/install/TestInstallSeeder.al',
