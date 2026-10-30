@@ -151,7 +151,13 @@ codeunit 90799 "LT WD Modal GoToKey Desc"
         WantedNo := 'D01';
         Observer.Observe('RunModal', Format(Page.RunModal(Page::"LT WD Docs Desc", Doc)));
         Observer.Observe('picked', Doc."No.");
-        Observer.Finish();
+        Observer.Expect('opening log', 'R:D01,R:D02,R:D03,R:D04,R:D05,R:D06,R:D07,R:D08,R:D09,R:D10,R:D11,R:D12,R:D13,R:D14,R:D15,R:D16,R:D17,R:D18,R:D19,R:D20,R:D21,R:D01,R:D01,R:D01,C:D01');
+        Observer.Expect('GoToKey', 'Yes');
+        Observer.Expect('GoToKey log', 'R:D21,R:D22,R:D23,R:D24,R:D25,R:D26,R:D27,R:D28,R:D29,R:D30,R:D30,R:D30,C:D30,R:D29,R:D29,R:D29,C:D29,R:D28,R:D28,R:D28,C:D28,R:D27,R:D27,R:D27,C:D27,R:D26,R:D26,R:D26,C:D26,R:D25,R:D25,R:D25,C:D25,R:D24,R:D24,R:D24,C:D24,R:D23,R:D23,R:D23,C:D23,R:D22,R:D22,R:D22,C:D22,R:D21,R:D21,R:D21,C:D21,R:D20,R:D20,R:D20,C:D20,R:D19,R:D19,R:D19,C:D19,R:D18,R:D18,R:D18,C:D18,R:D17,R:D17,R:D17,C:D17,R:D16,R:D16,R:D16,C:D16,R:D15,R:D15,R:D15,C:D15,R:D14,R:D14,R:D14,C:D14,R:D13,R:D13,R:D13,C:D13,R:D12,R:D12,R:D12,C:D12,R:D11,R:D11,R:D11,C:D11,R:D10,R:D10,R:D10,C:D10,R:D09,R:D09,R:D09,C:D09,R:D08,R:D08,R:D08,C:D08,R:D07,R:D07,R:D07,C:D07,R:D06,R:D06,R:D06,C:D06,R:D05,R:D05,R:D05,C:D05,R:D04,R:D04,R:D04,C:D04,R:D03,R:D03,R:D03,C:D03,R:D02,R:D02,R:D02,C:D02,R:D01,R:D01,R:D01,C:D01');
+        Observer.Expect('current', 'D01');
+        Observer.Expect('RunModal', 'LookupOK');
+        Observer.Expect('picked', 'D01');
+        Observer.Verify();
     end;
 
     [Test]
@@ -164,7 +170,13 @@ codeunit 90799 "LT WD Modal GoToKey Desc"
         WantedNo := 'D30';
         Observer.Observe('RunModal', Format(Page.RunModal(Page::"LT WD Docs Desc", Doc)));
         Observer.Observe('picked', Doc."No.");
-        Observer.Finish();
+        Observer.Expect('opening log', 'R:D01,R:D02,R:D03,R:D04,R:D05,R:D06,R:D07,R:D08,R:D09,R:D10,R:D11,R:D12,R:D13,R:D14,R:D15,R:D16,R:D17,R:D18,R:D19,R:D20,R:D21,R:D01,R:D01,R:D01,C:D01');
+        Observer.Expect('GoToKey', 'Yes');
+        Observer.Expect('GoToKey log', 'R:D21,R:D22,R:D23,R:D24,R:D25,R:D26,R:D27,R:D28,R:D29,R:D30,R:D30,R:D30,C:D30');
+        Observer.Expect('current', 'D30');
+        Observer.Expect('RunModal', 'LookupOK');
+        Observer.Expect('picked', 'D30');
+        Observer.Verify();
     end;
 
     [Test]
@@ -177,7 +189,13 @@ codeunit 90799 "LT WD Modal GoToKey Desc"
         WantedNo := 'D02';
         Observer.Observe('RunModal', Format(Page.RunModal(Page::"LT WD Docs Desc", Doc)));
         Observer.Observe('picked', Doc."No.");
-        Observer.Finish();
+        Observer.Expect('opening log', 'R:D01,R:D02,R:D03,R:D04,R:D05,R:D01,R:D01,R:D01,C:D01');
+        Observer.Expect('GoToKey', 'Yes');
+        Observer.Expect('GoToKey log', 'R:D05,R:D05,R:D05,C:D05,R:D04,R:D04,R:D04,C:D04,R:D03,R:D03,R:D03,C:D03,R:D02,R:D02,R:D02,C:D02');
+        Observer.Expect('current', 'D02');
+        Observer.Expect('RunModal', 'LookupOK');
+        Observer.Expect('picked', 'D02');
+        Observer.Verify();
     end;
 
     [Test]
@@ -190,7 +208,13 @@ codeunit 90799 "LT WD Modal GoToKey Desc"
         WantedNo := 'D01';
         Observer.Observe('RunModal', Format(Page.RunModal(Page::"LT WD Docs Asc", Doc)));
         Observer.Observe('picked', Doc."No.");
-        Observer.Finish();
+        Observer.Expect('opening log', 'R:D01,R:D02,R:D03,R:D04,R:D05,R:D06,R:D07,R:D08,R:D09,R:D10,R:D11,R:D12,R:D13,R:D14,R:D15,R:D16,R:D17,R:D18,R:D19,R:D20,R:D01,R:D01,R:D01,C:D01');
+        Observer.Expect('GoToKey', 'Yes');
+        Observer.Expect('GoToKey log', '');
+        Observer.Expect('current', 'D01');
+        Observer.Expect('RunModal', 'LookupOK');
+        Observer.Expect('picked', 'D01');
+        Observer.Verify();
     end;
 
     [ModalPageHandler]
