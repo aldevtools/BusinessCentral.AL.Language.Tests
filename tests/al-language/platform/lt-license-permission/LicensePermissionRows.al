@@ -313,7 +313,8 @@ codeunit 90951 "LT Y4 LicPerm System"
         Observer.Finish();
     end;
 
-    // The first number without Execute and the last number with Execute in the system range, per type (filter on the column).
+    // The first number without Execute and the last number with Execute in 2000000000..2000001000, per type (filter on the column).
+    // A FindLast over the whole system range (up to 2147483647) did not finish in 5 minutes on the SaaS sandbox.
     [Test]
     procedure SystemRange_Bounds()
     var
@@ -326,7 +327,7 @@ codeunit 90951 "LT Y4 LicPerm System"
         foreach T in Types do begin
             LicensePermission.Reset();
             LicensePermission.SetRange("Object Type", T);
-            LicensePermission.SetRange("Object Number", 2000000000, 2147483647);
+            LicensePermission.SetRange("Object Number", 2000000000, 2000001000);
             LicensePermission.SetRange("Execute Permission", LicensePermission."Execute Permission"::Yes);
             if LicensePermission.FindLast() then
                 Observer.Observe('type' + Format(T) + '_last_exec', Format(LicensePermission."Object Number"))
