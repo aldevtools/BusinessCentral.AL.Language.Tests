@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-upgrading-extensions
 // Scope: in-scope
-// Fixtures used: BfUpgradeTagInstall.al in this folder (74072-74077; the install codeunit 74076 wrote "LT UT Install Log" when this app was installed), Probe Observer (69160), Upgrade Tag (9999).
+// Fixtures used: QzXeObjects.al in tests/al-language-xapp-e (61170-61175; the install codeunit 61174 wrote "LT UT Install Log" when this app was installed), Probe Observer (69160), Upgrade Tag (9999).
 // Probe: corpus issue 812: per company of the database, what the install code of a freshly installed app saw of the upgrade tag and of OnCompanyInitialize.
 // BC versions: 27 - 29
 codeunit 74078 "LT UT Install Tests"

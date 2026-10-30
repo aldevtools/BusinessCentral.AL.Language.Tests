@@ -2,16 +2,16 @@
 // Scope: in-scope
 // Fixtures used: Upgrade Tag (codeunit 9999, System Application), Company-Initialize (codeunit 2, event OnCompanyInitialize).
 // Probe: what an app sees of the upgrade tags and of the company initialization when it is installed fresh into companies that already exist.
-//   74074 subscribes to OnGetPerCompanyUpgradeTags and adds the tag of this app. 74075 subscribes to OnCompanyInitialize and writes one row.
-//   74076 (install codeunit) logs per company: HasUpgradeTag(tag) before anything, whether the OnCompanyInitialize row of that company exists,
+//   61172 subscribes to OnGetPerCompanyUpgradeTags and adds the tag of this app. 61173 subscribes to OnCompanyInitialize and writes one row.
+//   61174 (install codeunit) logs per company: HasUpgradeTag(tag) before anything, whether the OnCompanyInitialize row of that company exists,
 //   then sets the tag and logs HasUpgradeTag again.
 //   The tag is derived from the PackageId of the app, so a second install of the same source (a database that keeps the Upgrade Tags table, which
 //   the System Application keeps internal and no uninstall clears) starts with a tag nobody has set.
 // Install code must never fail (check-install-triggers.py): only `if Insert() then;` into DataPerCompany = false tables; the tag calls do not write
-//   anything else. Tests: BfUpgradeTagInstallTests.al.
+//   anything else. Tests: tests/al-language/install/lt-bf-install-probes/BfUpgradeTagInstallTests.al.
 // BC versions: 27 - 29
 
-table 74072 "LT UT Install Log"
+table 61170 "LT UT Install Log"
 {
     DataClassification = SystemMetadata;
     DataPerCompany = false;
@@ -30,7 +30,7 @@ table 74072 "LT UT Install Log"
     keys { key(PK; Id) { Clustered = true; } }
 }
 
-table 74073 "LT UT Init Log"
+table 61171 "LT UT Init Log"
 {
     DataClassification = SystemMetadata;
     DataPerCompany = false;
@@ -44,7 +44,7 @@ table 74073 "LT UT Init Log"
     keys { key(PK; Id) { Clustered = true; } }
 }
 
-codeunit 74074 "LT UT Tag Subs"
+codeunit 61172 "LT UT Tag Subs"
 {
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerCompanyUpgradeTags', '', false, false)]
     local procedure AddTag(var PerCompanyUpgradeTags: List of [Code[250]])
@@ -55,7 +55,7 @@ codeunit 74074 "LT UT Tag Subs"
     end;
 }
 
-codeunit 74075 "LT UT Init Subs"
+codeunit 61173 "LT UT Init Subs"
 {
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Company-Initialize", 'OnCompanyInitialize', '', false, false)]
     local procedure LogInit()
@@ -68,7 +68,7 @@ codeunit 74075 "LT UT Init Subs"
     end;
 }
 
-codeunit 74077 "LT UT Helper"
+codeunit 61175 "LT UT Helper"
 {
     procedure TagName(): Code[250]
     var
@@ -79,7 +79,7 @@ codeunit 74077 "LT UT Helper"
     end;
 }
 
-codeunit 74076 "LT UT Install"
+codeunit 61174 "LT UT Install"
 {
     Subtype = Install;
 

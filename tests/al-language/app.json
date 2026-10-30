@@ -38,6 +38,12 @@
       "version": "1.0.0.0"
     },
     {
+      "id": "04f582dd-d65c-4c89-bd08-b67e749aa43d",
+      "name": "AL Language XApp E",
+      "publisher": "Echo Probe Publisher",
+      "version": "1.0.0.0"
+    },
+    {
       "id": "63ca2fa4-4f03-4f2b-a480-172fef340d3f",
       "name": "System Application",
       "publisher": "Microsoft",
