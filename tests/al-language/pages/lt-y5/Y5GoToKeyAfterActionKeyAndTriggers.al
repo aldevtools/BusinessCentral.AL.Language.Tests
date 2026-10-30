@@ -8,7 +8,9 @@
 //   (b) The filter-change shape of Y5GoToKeyAfterActionFilter.al (OnOpenPage SetRange(Grp, 1); action SetRange(Grp, 2),
 //       FindFirst, CurrPage.Update(false)) on a list WITH OnAfterGetRecord (fills a page variable shown in a control), and on
 //       a list with OnAfterGetRecord AND OnAfterGetCurrRecord (fills a second control).
-// Result: OBSERVED_RESULT
+// Result: SetCurrentKey in an action changes the order of Next and First at once; SetAscending(No, false) in an action has no
+//   visible effect on the list. After the filter change, OnAfterGetRecord and OnAfterGetCurrRecord show the row GoToKey and Next
+//   reach; a GoToKey that returns false leaves the shown values unchanged.
 // Source: al-runner issue 6381.
 // BC versions: 27, 28, 29
 
@@ -215,7 +217,19 @@ codeunit 90991 "LT Y5 GK2 Tests"
         Observer.Observe('next after first', Format(L.Next()));
         Observer.Observe('row after first next', Row(L));
         L.Close();
-        Observer.Finish();
+        Observer.Expect('goto 1,50', 'Yes');
+        Observer.Expect('next before action', 'Yes');
+        Observer.Expect('row before action', '1/51');
+        Observer.Expect('row after action', '1/51');
+        Observer.Expect('goto 1,50 again', 'Yes');
+        Observer.Expect('row', '1/50');
+        Observer.Expect('next', 'Yes');
+        Observer.Expect('row after next', '2/50');
+        Observer.Expect('first', 'Yes');
+        Observer.Expect('row first', '1/1');
+        Observer.Expect('next after first', 'Yes');
+        Observer.Expect('row after first next', '2/1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -240,7 +254,19 @@ codeunit 90991 "LT Y5 GK2 Tests"
         Observer.Observe('last', Format(L.Last()));
         Observer.Observe('row last', Row(L));
         L.Close();
-        Observer.Finish();
+        Observer.Expect('goto 1,50', 'Yes');
+        Observer.Expect('row after action', '1/50');
+        Observer.Expect('goto 2,10', 'Yes');
+        Observer.Expect('row', '2/10');
+        Observer.Expect('next', 'Yes');
+        Observer.Expect('row after next', '2/11');
+        Observer.Expect('first', 'Yes');
+        Observer.Expect('row first', '1/1');
+        Observer.Expect('next after first', 'Yes');
+        Observer.Expect('row after first next', '1/2');
+        Observer.Expect('last', 'Yes');
+        Observer.Expect('row last', '2/60');
+        Observer.Verify();
     end;
 
     [Test]
@@ -264,7 +290,18 @@ codeunit 90991 "LT Y5 GK2 Tests"
         Observer.Observe('goto 1,50 again', Format(L.GoToKey(1, 50)));
         Observer.Observe('shown after failed goto', L.Shown.Value());
         L.Close();
-        Observer.Finish();
+        Observer.Expect('goto 1,50', 'Yes');
+        Observer.Expect('shown 1,50', 'row 1/50');
+        Observer.Expect('row after action', '2/1');
+        Observer.Expect('shown after action', 'row 2/1');
+        Observer.Expect('goto 2,50', 'Yes');
+        Observer.Expect('row', '2/50');
+        Observer.Expect('shown', 'row 2/50');
+        Observer.Expect('next', 'Yes');
+        Observer.Expect('shown after next', 'row 2/51');
+        Observer.Expect('goto 1,50 again', 'No');
+        Observer.Expect('shown after failed goto', 'row 2/51');
+        Observer.Verify();
     end;
 
     [Test]
@@ -290,7 +327,20 @@ codeunit 90991 "LT Y5 GK2 Tests"
         Observer.Observe('shown after next', L.Shown.Value());
         Observer.Observe('current after next', L.Current.Value());
         L.Close();
-        Observer.Finish();
+        Observer.Expect('goto 1,50', 'Yes');
+        Observer.Expect('shown 1,50', 'row 1/50');
+        Observer.Expect('current 1,50', 'curr 1/50');
+        Observer.Expect('row after action', '2/1');
+        Observer.Expect('shown after action', 'row 2/1');
+        Observer.Expect('current after action', 'curr 2/1');
+        Observer.Expect('goto 2,50', 'Yes');
+        Observer.Expect('row', '2/50');
+        Observer.Expect('shown', 'row 2/50');
+        Observer.Expect('current', 'curr 2/50');
+        Observer.Expect('next', 'Yes');
+        Observer.Expect('shown after next', 'row 2/51');
+        Observer.Expect('current after next', 'curr 2/51');
+        Observer.Verify();
     end;
 
     local procedure Row(var L: TestPage "LT Y5 GK2 Key List"): Text

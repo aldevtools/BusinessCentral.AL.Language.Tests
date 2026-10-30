@@ -6,7 +6,8 @@
 //   SubPageLink is on the line's "Qty. (Base)". That field is never typed: typing Quantity sets it in the TABLE field's
 //   OnValidate (Quantity * 2); typing "Page Qty" sets it in the PAGE control's OnValidate (Page Qty * 3). The test stays on
 //   the line and reads the FactBox. Bucket rows carry a label per quantity, so the FactBox row is read as text.
-// Result: OBSERVED_RESULT
+// Result: the FactBox follows at once when another field's OnValidate (of the table or of the page control) changes the
+//   linked field on the provider's current row, before the row is stored; a value with no matching row shows no row.
 // Source: al-runner issue 6377 (the reporter's real-world shape: Quantity changes the linked Qty. (Base)).
 // BC versions: 27, 28, 29
 
@@ -175,7 +176,15 @@ codeunit 90988 "LT Y5 IL Tests"
         Observer.Observe('after first', Format(Document.Bucket.First()));
         Observer.Observe('after first label', Document.Bucket.Label.Value());
         Document.Close();
-        Observer.Finish();
+        Observer.Expect('before first', 'Yes');
+        Observer.Expect('before label', 'base 2');
+        Observer.Expect('provider line', '10000');
+        Observer.Expect('provider qty base', '4.00');
+        Observer.Expect('stored qty base', '2');
+        Observer.Expect('after label', 'base 4');
+        Observer.Expect('after first', 'Yes');
+        Observer.Expect('after first label', 'base 4');
+        Observer.Verify();
     end;
 
     [Test]
@@ -199,7 +208,13 @@ codeunit 90988 "LT Y5 IL Tests"
         Observer.Observe('after first', Format(Document.Bucket.First()));
         Observer.Observe('after first label', Document.Bucket.Label.Value());
         Document.Close();
-        Observer.Finish();
+        Observer.Expect('before label', 'base 2');
+        Observer.Expect('provider qty base', '9.00');
+        Observer.Expect('stored qty base', '2');
+        Observer.Expect('after label', 'base 9');
+        Observer.Expect('after first', 'Yes');
+        Observer.Expect('after first label', 'base 9');
+        Observer.Verify();
     end;
 
     [Test]
@@ -217,7 +232,10 @@ codeunit 90988 "LT Y5 IL Tests"
         Observer.Observe('after first', Format(Document.Bucket.First()));
         Observer.Observe('after label', Document.Bucket.Label.Value());
         Document.Close();
-        Observer.Finish();
+        Observer.Expect('provider qty base', '10.00');
+        Observer.Expect('after first', 'No');
+        Observer.Expect('after label', '');
+        Observer.Verify();
     end;
 
     local procedure InsertDocument()
