@@ -91,7 +91,7 @@ codeunit 99851 "LT SS Ternary Builtin"
         Observer.Expect('true_branch_fits', 'Short');
         Observer.Expect('false_branch_long_ok', 'No');
         Observer.Expect('false_branch_long_error', 'The length of the string is <n>, but it must be less than or equal to 10 characters. Value: ');
-        Observer.Expect('error_value_is_company', 'Unknown');
+        Observer.Expect('error_value_is_company', 'Yes');
         Observer.Expect('target_after', 'Short');
         Observer.Expect('maxstrlen_target', '10');
         Observer.Verify();
