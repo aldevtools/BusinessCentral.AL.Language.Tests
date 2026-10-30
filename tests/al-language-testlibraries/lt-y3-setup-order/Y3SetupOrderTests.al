@@ -25,4 +25,17 @@ codeunit 81639 "LT Y3 Setup Order"
         Observer.Expect('C below | A above', 'C: seq=2 in=NoNoNoNo | A: seq=1 in=NoNoNoNo');
         Observer.Verify();
     end;
+
+    [Test]
+    procedure SetupOrder_UnrelatedPartnerAppsAroundTestLibraries()
+    var
+        Observer: Codeunit "Probe Observer";
+        Helper: Codeunit "LT Y3 Setup Order Helper";
+    begin
+        // Second form: main app M (a1b2c3d4-..., below 5d86850b-...) and XApp D (e92be076-..., above it), no dependency path between them,
+        // table 90828. 'Final' is logged only when the kept OnDatabaseInsert flag is true, which in this job only 130011 sets.
+        Observer.Observe('M below | D above', Helper.InsertMainRowAndReadLog());
+        Observer.Expect('M below | D above', 'TBD');
+        Observer.Verify();
+    end;
 }

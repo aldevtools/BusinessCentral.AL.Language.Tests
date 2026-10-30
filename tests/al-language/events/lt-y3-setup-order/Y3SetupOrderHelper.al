@@ -23,4 +23,16 @@ codeunit 90827 "LT Y3 Setup Order Helper"
             exit('not called');
         exit(L.Detail);
     end;
+
+    procedure InsertMainRowAndReadLog(): Text
+    var
+        L: Record "LT Y3 Order Log";
+        R: Record "LT Y3 M Order Row";
+    begin
+        L.DeleteAll();
+        R.DeleteAll();
+        R.Id := 1;
+        R.Insert(true);
+        exit('M: ' + Entry('M') + ' | D: ' + Entry('D') + ' | Final: ' + Entry('Final'));
+    end;
 }
