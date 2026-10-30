@@ -7,6 +7,10 @@
 //   literals, <Hours24> without width, <Thousands>, <Second dec>) on a DateTime, a Time and a Date, and on 0DT, 0T and 0D.
 //   BC: on a DateTime <Hours24,2> pads with 0 (09), on a Time with a space ( 9) unless <Filler Character,0> is in the string; 0DT and 0D give ''
 //   for every string, 0T formats as 00:00:00 (12:00 AM).
+// Writer TU (2026-10-29), TU_Time_Format_CodeNames (BC 29.0 SaaS sandbox, two runs, same values): code names on a Time.
+//   BC: <Hours> and <Hour> give the 24-hour value (13 at 13:45); <Ho>, <H>, <Min>, <Sec>, <Thou>, <hours,2> and <HOURS,2> are accepted;
+//   <Hourz>, <Hours24x,2> and <Hours 24> fail with InvalidFormatString. <Hours,2> pads with a space on a Time ( 9) and with 0 on a DateTime
+//   (09); <Hours,1> of 13 gives *. The Length argument right-aligns a shorter result with spaces and cuts a longer one (no error).
 // BC versions: 29 (27 and 28 by CI)
 
 codeunit 73804 "LT DtT Format"
@@ -757,6 +761,172 @@ codeunit 73804 "LT DtT Format"
         Observer.Expect('z7', '[]');
         Observer.Expect('z8', '[]');
         Observer.Expect('z9', '[]');
+        Observer.Verify();
+    end;
+
+    [TryFunction]
+    local procedure TuTryFormatTime(Value: Time; Length: Integer; FormatString: Text; var Result: Text)
+    begin
+        Result := Format(Value, Length, FormatString);
+    end;
+
+    [TryFunction]
+    local procedure TuTryFormatDateTime(Value: DateTime; Length: Integer; FormatString: Text; var Result: Text)
+    begin
+        Result := Format(Value, Length, FormatString);
+    end;
+
+    local procedure TuFormatTime(Value: Time; Length: Integer; FormatString: Text): Text
+    var
+        Result: Text;
+    begin
+        ClearLastError();
+        if TuTryFormatTime(Value, Length, FormatString, Result) then
+            exit('[' + Result + ']');
+        exit('error: ' + GetLastErrorText() + ' | ' + GetLastErrorCode());
+    end;
+
+    local procedure TuFormatDateTime(Value: DateTime; Length: Integer; FormatString: Text): Text
+    var
+        Result: Text;
+    begin
+        ClearLastError();
+        if TuTryFormatDateTime(Value, Length, FormatString, Result) then
+            exit('[' + Result + ']');
+        exit('error: ' + GetLastErrorText() + ' | ' + GetLastErrorCode());
+    end;
+
+    [Test]
+    procedure TU_Time_Format_CodeNames()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        // Format of a Time with code names with a length: <Hours,2> (not Hours24/Hours12), unknown names, and the Length argument 8.
+        // Each value is [text] or 'error: <text> | <code>'.
+        Observer.Observe('0905 <Hours>', TuFormatTime(090503.007T, 0, '<Hours>'));
+        Observer.Observe('1345 <Hours>', TuFormatTime(134506.078T, 0, '<Hours>'));
+        Observer.Observe('0905 len8 <Hours>', TuFormatTime(090503.007T, 8, '<Hours>'));
+        Observer.Observe('0905 <Hours,2>', TuFormatTime(090503.007T, 0, '<Hours,2>'));
+        Observer.Observe('1345 <Hours,2>', TuFormatTime(134506.078T, 0, '<Hours,2>'));
+        Observer.Observe('0905 len8 <Hours,2>', TuFormatTime(090503.007T, 8, '<Hours,2>'));
+        Observer.Observe('0905 <Hours,1>', TuFormatTime(090503.007T, 0, '<Hours,1>'));
+        Observer.Observe('1345 <Hours,1>', TuFormatTime(134506.078T, 0, '<Hours,1>'));
+        Observer.Observe('0905 len8 <Hours,1>', TuFormatTime(090503.007T, 8, '<Hours,1>'));
+        Observer.Observe('0905 <Hours,3>', TuFormatTime(090503.007T, 0, '<Hours,3>'));
+        Observer.Observe('1345 <Hours,3>', TuFormatTime(134506.078T, 0, '<Hours,3>'));
+        Observer.Observe('0905 len8 <Hours,3>', TuFormatTime(090503.007T, 8, '<Hours,3>'));
+        Observer.Observe('0905 <Hours,2>:<Minutes,2>:<Seconds,2>', TuFormatTime(090503.007T, 0, '<Hours,2>:<Minutes,2>:<Seconds,2>'));
+        Observer.Observe('1345 <Hours,2>:<Minutes,2>:<Seconds,2>', TuFormatTime(134506.078T, 0, '<Hours,2>:<Minutes,2>:<Seconds,2>'));
+        Observer.Observe('0905 len8 <Hours,2>:<Minutes,2>:<Seconds,2>', TuFormatTime(090503.007T, 8, '<Hours,2>:<Minutes,2>:<Seconds,2>'));
+        Observer.Observe('0905 <Hour>', TuFormatTime(090503.007T, 0, '<Hour>'));
+        Observer.Observe('1345 <Hour>', TuFormatTime(134506.078T, 0, '<Hour>'));
+        Observer.Observe('0905 len8 <Hour>', TuFormatTime(090503.007T, 8, '<Hour>'));
+        Observer.Observe('0905 <Minute>', TuFormatTime(090503.007T, 0, '<Minute>'));
+        Observer.Observe('1345 <Minute>', TuFormatTime(134506.078T, 0, '<Minute>'));
+        Observer.Observe('0905 len8 <Minute>', TuFormatTime(090503.007T, 8, '<Minute>'));
+        Observer.Observe('0905 <Second>', TuFormatTime(090503.007T, 0, '<Second>'));
+        Observer.Observe('1345 <Second>', TuFormatTime(134506.078T, 0, '<Second>'));
+        Observer.Observe('0905 len8 <Second>', TuFormatTime(090503.007T, 8, '<Second>'));
+        Observer.Observe('0905 <Hours24,2>', TuFormatTime(090503.007T, 0, '<Hours24,2>'));
+        Observer.Observe('1345 <Hours24,2>', TuFormatTime(134506.078T, 0, '<Hours24,2>'));
+        Observer.Observe('0905 len8 <Hours24,2>', TuFormatTime(090503.007T, 8, '<Hours24,2>'));
+        Observer.Observe('0905 <Hours12>', TuFormatTime(090503.007T, 0, '<Hours12>'));
+        Observer.Observe('1345 <Hours12>', TuFormatTime(134506.078T, 0, '<Hours12>'));
+        Observer.Observe('0905 len8 <Hours12>', TuFormatTime(090503.007T, 8, '<Hours12>'));
+        Observer.Observe('0905 <Thousands>', TuFormatTime(090503.007T, 0, '<Thousands>'));
+        Observer.Observe('1345 <Thousands>', TuFormatTime(134506.078T, 0, '<Thousands>'));
+        Observer.Observe('0905 len8 <Thousands>', TuFormatTime(090503.007T, 8, '<Thousands>'));
+        Observer.Observe('0905 <AM/PM>', TuFormatTime(090503.007T, 0, '<AM/PM>'));
+        Observer.Observe('1345 <AM/PM>', TuFormatTime(134506.078T, 0, '<AM/PM>'));
+        Observer.Observe('0905 len8 <AM/PM>', TuFormatTime(090503.007T, 8, '<AM/PM>'));
+        Observer.Observe('0905 <Hours24,2>:<Minutes,2>:<Seconds,2>', TuFormatTime(090503.007T, 0, '<Hours24,2>:<Minutes,2>:<Seconds,2>'));
+        Observer.Observe('1345 <Hours24,2>:<Minutes,2>:<Seconds,2>', TuFormatTime(134506.078T, 0, '<Hours24,2>:<Minutes,2>:<Seconds,2>'));
+        Observer.Observe('0905 len8 <Hours24,2>:<Minutes,2>:<Seconds,2>', TuFormatTime(090503.007T, 8, '<Hours24,2>:<Minutes,2>:<Seconds,2>'));
+        Observer.Observe('0905 <Hours24,2>:<Minutes,2>:<Seconds,2>.<Thousands,3>', TuFormatTime(090503.007T, 0, '<Hours24,2>:<Minutes,2>:<Seconds,2>.<Thousands,3>'));
+        Observer.Observe('1345 <Hours24,2>:<Minutes,2>:<Seconds,2>.<Thousands,3>', TuFormatTime(134506.078T, 0, '<Hours24,2>:<Minutes,2>:<Seconds,2>.<Thousands,3>'));
+        Observer.Observe('0905 len8 <Hours24,2>:<Minutes,2>:<Seconds,2>.<Thousands,3>', TuFormatTime(090503.007T, 8, '<Hours24,2>:<Minutes,2>:<Seconds,2>.<Thousands,3>'));
+        Observer.Observe('0905 <HOURS,2>', TuFormatTime(090503.007T, 0, '<HOURS,2>'));
+        Observer.Observe('1345 <HOURS,2>', TuFormatTime(134506.078T, 0, '<HOURS,2>'));
+        Observer.Observe('0905 len8 <HOURS,2>', TuFormatTime(090503.007T, 8, '<HOURS,2>'));
+        Observer.Observe('midnight <Hours,2>:<Minutes,2>:<Seconds,2>', TuFormatTime(000000T, 8, '<Hours,2>:<Minutes,2>:<Seconds,2>'));
+        Observer.Observe('0T <Hours,2>:<Minutes,2>:<Seconds,2>', TuFormatTime(0T, 8, '<Hours,2>:<Minutes,2>:<Seconds,2>'));
+        Observer.Observe('len5 <Hours24,2>:<Minutes,2>:<Seconds,2>', TuFormatTime(090503T, 5, '<Hours24,2>:<Minutes,2>:<Seconds,2>'));
+        Observer.Observe('dt <Hours,2>', TuFormatDateTime(CreateDateTime(DMY2Date(5, 3, 2024), 090503T), 0, '<Hours,2>'));
+        Observer.Observe('dt <Hours,2>:<Minutes,2>:<Seconds,2>', TuFormatDateTime(CreateDateTime(DMY2Date(5, 3, 2024), 090503T), 0, '<Hours,2>:<Minutes,2>:<Seconds,2>'));
+        Observer.Observe('0905 <Ho>', TuFormatTime(090503.007T, 0, '<Ho>'));
+        Observer.Observe('0905 <H>', TuFormatTime(090503.007T, 0, '<H>'));
+        Observer.Observe('0905 <Min>', TuFormatTime(090503.007T, 0, '<Min>'));
+        Observer.Observe('0905 <Sec>', TuFormatTime(090503.007T, 0, '<Sec>'));
+        Observer.Observe('0905 <Thou>', TuFormatTime(090503.007T, 0, '<Thou>'));
+        Observer.Observe('0905 <Hourz>', TuFormatTime(090503.007T, 0, '<Hourz>'));
+        Observer.Observe('0905 <Hours24x,2>', TuFormatTime(090503.007T, 0, '<Hours24x,2>'));
+        Observer.Observe('0905 <Hours 24>', TuFormatTime(090503.007T, 0, '<Hours 24>'));
+        Observer.Observe('0905 <Hours,0>', TuFormatTime(090503.007T, 0, '<Hours,0>'));
+        Observer.Observe('0905 <hours,2>', TuFormatTime(090503.007T, 0, '<hours,2>'));
+        Observer.Observe('0905 len8 time()-like ms', TuFormatTime(090503.457T, 8, '<Hours,2>:<Minutes,2>:<Seconds,2>'));
+        Observer.Observe('2359 len8', TuFormatTime(235959.999T, 8, '<Hours,2>:<Minutes,2>:<Seconds,2>'));
+        Observer.Expect('0905 <Hours>', '[9]');
+        Observer.Expect('1345 <Hours>', '[13]');
+        Observer.Expect('0905 len8 <Hours>', '[       9]');
+        Observer.Expect('0905 <Hours,2>', '[ 9]');
+        Observer.Expect('1345 <Hours,2>', '[13]');
+        Observer.Expect('0905 len8 <Hours,2>', '[       9]');
+        Observer.Expect('0905 <Hours,1>', '[9]');
+        Observer.Expect('1345 <Hours,1>', '[*]');
+        Observer.Expect('0905 len8 <Hours,1>', '[       9]');
+        Observer.Expect('0905 <Hours,3>', '[  9]');
+        Observer.Expect('1345 <Hours,3>', '[ 13]');
+        Observer.Expect('0905 len8 <Hours,3>', '[       9]');
+        Observer.Expect('0905 <Hours,2>:<Minutes,2>:<Seconds,2>', '[ 9:05:03]');
+        Observer.Expect('1345 <Hours,2>:<Minutes,2>:<Seconds,2>', '[13:45:06]');
+        Observer.Expect('0905 len8 <Hours,2>:<Minutes,2>:<Seconds,2>', '[ 9:05:03]');
+        Observer.Expect('0905 <Hour>', '[9]');
+        Observer.Expect('1345 <Hour>', '[13]');
+        Observer.Expect('0905 len8 <Hour>', '[       9]');
+        Observer.Expect('0905 <Minute>', '[5]');
+        Observer.Expect('1345 <Minute>', '[45]');
+        Observer.Expect('0905 len8 <Minute>', '[       5]');
+        Observer.Expect('0905 <Second>', '[3]');
+        Observer.Expect('1345 <Second>', '[6]');
+        Observer.Expect('0905 len8 <Second>', '[       3]');
+        Observer.Expect('0905 <Hours24,2>', '[ 9]');
+        Observer.Expect('1345 <Hours24,2>', '[13]');
+        Observer.Expect('0905 len8 <Hours24,2>', '[       9]');
+        Observer.Expect('0905 <Hours12>', '[9]');
+        Observer.Expect('1345 <Hours12>', '[1]');
+        Observer.Expect('0905 len8 <Hours12>', '[       9]');
+        Observer.Expect('0905 <Thousands>', '[7]');
+        Observer.Expect('1345 <Thousands>', '[78]');
+        Observer.Expect('0905 len8 <Thousands>', '[       7]');
+        Observer.Expect('0905 <AM/PM>', '[AM]');
+        Observer.Expect('1345 <AM/PM>', '[PM]');
+        Observer.Expect('0905 len8 <AM/PM>', '[      AM]');
+        Observer.Expect('0905 <Hours24,2>:<Minutes,2>:<Seconds,2>', '[ 9:05:03]');
+        Observer.Expect('1345 <Hours24,2>:<Minutes,2>:<Seconds,2>', '[13:45:06]');
+        Observer.Expect('0905 len8 <Hours24,2>:<Minutes,2>:<Seconds,2>', '[ 9:05:03]');
+        Observer.Expect('0905 <Hours24,2>:<Minutes,2>:<Seconds,2>.<Thousands,3>', '[ 9:05:03.  7]');
+        Observer.Expect('1345 <Hours24,2>:<Minutes,2>:<Seconds,2>.<Thousands,3>', '[13:45:06. 78]');
+        Observer.Expect('0905 len8 <Hours24,2>:<Minutes,2>:<Seconds,2>.<Thousands,3>', '[ 9:05:03]');
+        Observer.Expect('0905 <HOURS,2>', '[ 9]');
+        Observer.Expect('1345 <HOURS,2>', '[13]');
+        Observer.Expect('0905 len8 <HOURS,2>', '[       9]');
+        Observer.Expect('midnight <Hours,2>:<Minutes,2>:<Seconds,2>', '[ 0:00:00]');
+        Observer.Expect('0T <Hours,2>:<Minutes,2>:<Seconds,2>', '[ 0:00:00]');
+        Observer.Expect('len5 <Hours24,2>:<Minutes,2>:<Seconds,2>', '[ 9:05]');
+        Observer.Expect('dt <Hours,2>', '[09]');
+        Observer.Expect('dt <Hours,2>:<Minutes,2>:<Seconds,2>', '[09:05:03]');
+        Observer.Expect('0905 <Ho>', '[9]');
+        Observer.Expect('0905 <H>', '[9]');
+        Observer.Expect('0905 <Min>', '[5]');
+        Observer.Expect('0905 <Sec>', '[3]');
+        Observer.Expect('0905 <Thou>', '[7]');
+        Observer.Expect('0905 <Hourz>', 'error: An invalid field or attribute has been specified for the ''Format'' property.\\<Hourz> | InvalidFormatString');
+        Observer.Expect('0905 <Hours24x,2>', 'error: An invalid field or attribute has been specified for the ''Format'' property.\\<Hours24x,2> | InvalidFormatString');
+        Observer.Expect('0905 <Hours 24>', 'error: An invalid field or attribute has been specified for the ''Format'' property.\\<Hours 24> | InvalidFormatString');
+        Observer.Expect('0905 <Hours,0>', '[9]');
+        Observer.Expect('0905 <hours,2>', '[ 9]');
+        Observer.Expect('0905 len8 time()-like ms', '[ 9:05:03]');
+        Observer.Expect('2359 len8', '[23:59:59]');
         Observer.Verify();
     end;
 }
