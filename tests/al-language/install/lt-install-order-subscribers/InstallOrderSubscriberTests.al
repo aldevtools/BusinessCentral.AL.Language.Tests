@@ -6,7 +6,7 @@
 // Probe: install order and subscribers. XApp A is installed before XApp B (B depends on A) and both before this app. The install code of each app raises
 //   A's integration event OnY3Phase and inserts a row of A's table 61177 (platform event OnAfterInsertEvent), per company and per database. Every
 //   subscriber logs '<app>-sub|<phase>' (integration event) or '<app>-tsub|<phase>' (table event). The tests read which entries exist: which apps'
-//   subscribers ran during A's install, during B's install and at test time, and what A's install code sees of B (NavApp.GetModuleInfo,
+//   subscribers ran during A's install, during B's install and at test time, and what A's install code sees of B (NavApp.GetModuleInfo).
 //   NavApp.IsInstalled).
 // BC versions: 27 - 29
 

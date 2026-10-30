@@ -2,7 +2,7 @@
 // Scope: in-scope
 // Probe: which subscribers run while an app's install code runs, when the subscribers live in an app that depends on it (XApp B) and is
 //   installed later. 61179 (install codeunit of XApp A) logs, per company and per database: that it ran, whether it sees XApp B
-//   (NavApp.GetModuleInfo, NavApp.IsInstalled), then raises its own integration event (61178 OnY3Phase) and inserts a row into
+//   (NavApp.GetModuleInfo), then raises its own integration event (61178 OnY3Phase) and inserts a row into
 //   61177 (platform event OnAfterInsertEvent). Subscribers in A (61108), B (tests/al-language-xapp-b/Y3XbInstallEvents.al) and the
 //   main app (tests/al-language/install/lt-install-order-subscribers/) log each call with the phase they were raised in.
 // Install code must never fail (check-install-triggers.py): it writes only `if Insert() then;` into DataPerCompany = false tables.
@@ -72,7 +72,6 @@ codeunit 61178 "LT Y3 XA Events"
         Detail := 'getModuleInfo=' + Format(Found);
         if Found then
             Detail += ';dataMajor=' + Format(Info.DataVersion().Major()) + ';appMajor=' + Format(Info.AppVersion().Major());
-        Detail += ';isInstalled=' + Format(NavApp.IsInstalled(BId));
         Log('A-seesB|' + Phase, Detail);
     end;
 
