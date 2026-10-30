@@ -33,6 +33,30 @@ page 99810 "LT SS Cap Entries"
             }
         }
     }
+    trigger OnOpenPage()
+    begin
+        Caption := 'Entries (base)';
+    end;
+}
+
+page 99811 "LT SS Cap Plain"
+{
+    PageType = List;
+    SourceTable = "LT SS Cap Entry";
+    Caption = 'Plain';
+    ApplicationArea = All;
+    UsageCategory = Lists;
+    layout { area(Content) { repeater(Lines) { field("No."; Rec."No.") { ApplicationArea = All; } } } }
+}
+
+page 99812 "LT SS Cap Base"
+{
+    PageType = List;
+    SourceTable = "LT SS Cap Entry";
+    Caption = 'Base';
+    ApplicationArea = All;
+    UsageCategory = Lists;
+    layout { area(Content) { repeater(Lines) { field("No."; Rec."No.") { ApplicationArea = All; } } } }
     actions
     {
         area(Processing)
@@ -49,18 +73,8 @@ page 99810 "LT SS Cap Entries"
     }
     trigger OnOpenPage()
     begin
-        Caption := 'Entries (base)';
+        Caption := 'Base (opened)';
     end;
-}
-
-page 99811 "LT SS Cap Plain"
-{
-    PageType = List;
-    SourceTable = "LT SS Cap Entry";
-    Caption = 'Plain';
-    ApplicationArea = All;
-    UsageCategory = Lists;
-    layout { area(Content) { repeater(Lines) { field("No."; Rec."No.") { ApplicationArea = All; } } } }
 }
 
 pageextension 99810 "LT SS Cap Ent Ext" extends "LT SS Cap Entries"
@@ -121,13 +135,14 @@ codeunit 99810 "LT SS Page Caption Assign"
     end;
 
     [Test]
-    procedure Caption_AssignedInAction()
+    procedure Caption_AssignedInPageTriggerAndAction()
     var
         Observer: Codeunit "Probe Observer";
-        TP: TestPage "LT SS Cap Entries";
+        TP: TestPage "LT SS Cap Base";
     begin
         Seed();
         TP.OpenView();
+        Observer.Observe('on_open', TP.Caption());
         TP.Rename.Invoke();
         Observer.Observe('after_action', TP.Caption());
         TP.Next();
