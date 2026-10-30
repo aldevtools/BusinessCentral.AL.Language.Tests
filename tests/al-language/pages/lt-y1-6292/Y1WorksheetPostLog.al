@@ -7,7 +7,10 @@
 //   Rec."Line No." := 1 (a key no row has, as page 5510 "Production Journal" Post does) and calls CurrPage.Update(false). With 1, 2 and 3
 //   lines: which triggers run after the action, what the page shows and whether a line is left.
 //   Log: N:<Batch Name> = OnNewRecord, C:<Line No.>:<Batch Name> = OnAfterGetCurrRecord, R:<Line No.> = OnAfterGetRecord.
-// Result: OBSERVED_RESULT
+// Result (SaaS BC 29 and corpus CI): every line is gone and the page shows the blank row (Batch Name and Line No. empty). After the action
+//   the first line is read once more (R:10000), then OnNewRecord and OnAfterGetCurrRecord run on a blank Rec that takes the FilterGroup 2
+//   value (C:0:B1). With one line they run once; with two and with three lines BC 27 and 29 run them twice, BC 28.5 once.
+//   Nothing runs on Close.
 // Source: al-runner issue 6292.
 // BC versions: 27, 28, 29
 
@@ -146,20 +149,43 @@ codeunit 90943 "LT Y1 Post Worksheet Tests"
     procedure Y1_Post_OneLine()
     begin
         RunPost(1);
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10000;R:10000;C:10000:B1;');
+        Observer.Expect('post log', 'R:10000;N:B1;C:0:B1;');
+        Observer.Expect('shown after post', '|');
+        Observer.Expect('lines left', '0');
+        Observer.Expect('close log', '');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Y1_Post_TwoLines()
     begin
         RunPost(2);
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10000;R:20000;R:10000;R:10000;C:10000:B1;');
+#if BC28PLUS and not BC29PLUS
+        Observer.Expect('post log', 'R:10000;N:B1;C:0:B1;');
+#else
+        Observer.Expect('post log', 'R:10000;N:B1;C:0:B1;N:B1;C:0:B1;');
+#endif
+        Observer.Expect('shown after post', '|');
+        Observer.Expect('lines left', '0');
+        Observer.Expect('close log', '');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Y1_Post_ThreeLines()
     begin
         RunPost(3);
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10000;R:20000;R:30000;R:10000;R:10000;C:10000:B1;');
+#if BC28PLUS and not BC29PLUS
+        Observer.Expect('post log', 'R:10000;N:B1;C:0:B1;');
+#else
+        Observer.Expect('post log', 'R:10000;N:B1;C:0:B1;N:B1;C:0:B1;');
+#endif
+        Observer.Expect('shown after post', '|');
+        Observer.Expect('lines left', '0');
+        Observer.Expect('close log', '');
+        Observer.Verify();
     end;
 }

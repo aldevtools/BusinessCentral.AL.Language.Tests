@@ -7,7 +7,11 @@
 //   Then code outside the page clears Flag of row 2 and sets a SingleInstance "refresh done" flag; the next OnAfterGetCurrRecord
 //   consumes it, marks the flagged rows again (only row 1) and calls CurrPage.Update(false). The test then calls First and GoToRecord.
 //   Contrast tests: the same steps without the external refresh, and GoToRecord without First after the refresh.
-// Result: OBSERVED_RESULT
+// Result (SaaS BC 29 and corpus CI, Windows and Linux alike): the TestPage still shows row 1 after the DrillDown; GoToRecord of row 2 returns
+//   true (row 2 is marked). After the external refresh, First returns true on row 1 and its OnAfterGetCurrRecord reapplies the marks: then
+//   GoToRecord of row 2 returns false and row 1 stays current, Next returns false, GoToRecord of row 1 returns true, and the refresh flag is
+//   consumed. Without the refresh, GoToRecord of row 2 after First returns true (row 3, never marked: false). GoToRecord of row 2 right after
+//   the refresh (no First) already returns false with row 1 current, and the refresh flag is consumed.
 // Source: al-runner issue 6288 (the reporter's repro passed on a real BC 29 container).
 // BC versions: 27, 28, 29
 
@@ -235,7 +239,14 @@ codeunit 90926 "LT Y1 Reapply Tests"
         Observer.Observe('goto 1 after', Format(ReapplyPage.GoToRecord(Row), 0, 9) + '/' + ReapplyPage.Id.Value());
         Observer.Observe('refresh still pending', Format(ExternalRefresh.ConsumeRefreshCompleted(), 0, 9));
         ReapplyPage.Close();
-        Observer.Finish();
+        Observer.Expect('after drilldown', '1');
+        Observer.Expect('goto 2 before', 'true/2');
+        Observer.Expect('first', 'true/1');
+        Observer.Expect('goto 2 after', 'false/1');
+        Observer.Expect('next after', 'false/1');
+        Observer.Expect('goto 1 after', 'true/1');
+        Observer.Expect('refresh still pending', 'false');
+        Observer.Verify();
     end;
 
     // Contrast: no external refresh; First and GoToRecord of row 2 within the marked view.
@@ -255,7 +266,11 @@ codeunit 90926 "LT Y1 Reapply Tests"
         Row.Get(3);
         Observer.Observe('goto 3 after', Format(ReapplyPage.GoToRecord(Row), 0, 9) + '/' + ReapplyPage.Id.Value());
         ReapplyPage.Close();
-        Observer.Finish();
+        Observer.Expect('goto 2 before', 'true/2');
+        Observer.Expect('first', 'true/1');
+        Observer.Expect('goto 2 after', 'true/2');
+        Observer.Expect('goto 3 after', 'false/2');
+        Observer.Verify();
     end;
 
     // Contrast: after the external refresh GoToRecord of row 2 comes first, without First (the marks still hold row 2 at that point).
@@ -275,6 +290,10 @@ codeunit 90926 "LT Y1 Reapply Tests"
         Observer.Observe('refresh still pending', Format(ExternalRefresh.ConsumeRefreshCompleted(), 0, 9));
         Observer.Observe('goto 2 again', Format(ReapplyPage.GoToRecord(Row), 0, 9) + '/' + ReapplyPage.Id.Value());
         ReapplyPage.Close();
-        Observer.Finish();
+        Observer.Expect('after drilldown', '1');
+        Observer.Expect('goto 2', 'false/1');
+        Observer.Expect('refresh still pending', 'false');
+        Observer.Expect('goto 2 again', 'false/1');
+        Observer.Verify();
     end;
 }

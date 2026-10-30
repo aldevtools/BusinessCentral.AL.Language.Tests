@@ -7,7 +7,10 @@
 //   MarkedOnly(false), ClearMarks() and CurrPage.Update(false). GoToRecord of an unmarked row before and after the action, and First.
 //   Three pages: sorted by the secondary key Name (OnOpenPage SetCurrentKey) with OnAfterGetRecord and OnAfterGetCurrRecord (the
 //   reporter's failing shape), the same in primary key order, and Name order without the two row triggers.
-// Result: OBSERVED_RESULT
+// Result (SaaS BC 29 and corpus CI, Windows and Linux alike), for all three pages: after the DrillDown the TestPage still shows the row it
+//   opened on (Name order: 4, the first by Name; Id order: 1); GoToRecord of an unmarked row returns false and the page shows row 1 (in both
+//   key orders). After ClearFilters the page shows row 1; GoToRecord of the formerly unmarked row returns true and moves to it;
+//   First moves to the first row of the page's key (4 in Name order, 1 in Id order). The row triggers and the key make no difference.
 // Source: al-runner issue 6289 (the reporter's repro passed on a real BC 29 container).
 // BC versions: 27, 28, 29
 
@@ -373,7 +376,13 @@ codeunit 90937 "LT Y1 Clear Marked Tests"
         Observer.Observe('goto 2 cleared', Format(ClearPage.GoToRecord(Row), 0, 9) + '/' + ClearPage.Id.Value());
         Observer.Observe('first cleared', Format(ClearPage.First(), 0, 9) + '/' + ClearPage.Id.Value());
         ClearPage.Close();
-        Observer.Finish();
+        Observer.Expect('open', '4');
+        Observer.Expect('after drilldown', '4');
+        Observer.Expect('goto 2 filtered', 'false/1');
+        Observer.Expect('after clear', '1');
+        Observer.Expect('goto 2 cleared', 'true/2');
+        Observer.Expect('first cleared', 'true/4');
+        Observer.Verify();
     end;
 
     // The same page, unmarked row 4 (N1, the first row in Name order).
@@ -395,7 +404,13 @@ codeunit 90937 "LT Y1 Clear Marked Tests"
         Observer.Observe('goto 4 cleared', Format(ClearPage.GoToRecord(Row), 0, 9) + '/' + ClearPage.Id.Value());
         Observer.Observe('first cleared', Format(ClearPage.First(), 0, 9) + '/' + ClearPage.Id.Value());
         ClearPage.Close();
-        Observer.Finish();
+        Observer.Expect('open', '4');
+        Observer.Expect('after drilldown', '4');
+        Observer.Expect('goto 4 filtered', 'false/1');
+        Observer.Expect('after clear', '1');
+        Observer.Expect('goto 4 cleared', 'true/4');
+        Observer.Expect('first cleared', 'true/4');
+        Observer.Verify();
     end;
 
     // Primary key order, same triggers; unmarked row 4.
@@ -417,7 +432,13 @@ codeunit 90937 "LT Y1 Clear Marked Tests"
         Observer.Observe('goto 4 cleared', Format(ClearPage.GoToRecord(Row), 0, 9) + '/' + ClearPage.Id.Value());
         Observer.Observe('first cleared', Format(ClearPage.First(), 0, 9) + '/' + ClearPage.Id.Value());
         ClearPage.Close();
-        Observer.Finish();
+        Observer.Expect('open', '1');
+        Observer.Expect('after drilldown', '1');
+        Observer.Expect('goto 4 filtered', 'false/1');
+        Observer.Expect('after clear', '1');
+        Observer.Expect('goto 4 cleared', 'true/4');
+        Observer.Expect('first cleared', 'true/1');
+        Observer.Verify();
     end;
 
     // Name order without OnAfterGetRecord and OnAfterGetCurrRecord; unmarked row 2.
@@ -439,6 +460,12 @@ codeunit 90937 "LT Y1 Clear Marked Tests"
         Observer.Observe('goto 2 cleared', Format(ClearPage.GoToRecord(Row), 0, 9) + '/' + ClearPage.Id.Value());
         Observer.Observe('first cleared', Format(ClearPage.First(), 0, 9) + '/' + ClearPage.Id.Value());
         ClearPage.Close();
-        Observer.Finish();
+        Observer.Expect('open', '4');
+        Observer.Expect('after drilldown', '4');
+        Observer.Expect('goto 2 filtered', 'false/1');
+        Observer.Expect('after clear', '1');
+        Observer.Expect('goto 2 cleared', 'true/2');
+        Observer.Expect('first cleared', 'true/4');
+        Observer.Verify();
     end;
 }

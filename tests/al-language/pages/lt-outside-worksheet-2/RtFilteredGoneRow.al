@@ -679,7 +679,21 @@ codeunit 88615 "LT RT Uf Tests"
     procedure TD_LeavesKey_Line1WithUpdate_TwoLines()
     begin
         TdRunLeaves(2, false, 2);
-        Observer.Finish();
+        Observer.Expect('open shown', 'B1|10000');
+        Observer.Expect('open log', 'R:10000;R:20000;R:10000;R:10000;C:B1:10000;');
+        // Two lines behave as three: BC 27 and 29 run OnNewRecord and OnAfterGetCurrRecord twice, BC 28.5 once (SaaS BC 29 and corpus CI, 2026-10-30).
+#if BC28PLUS and not BC29PLUS
+        Observer.Expect('action log', 'R:10000;N:B1:0;C:B1:0;');
+#else
+        Observer.Expect('action log', 'R:10000;N:B1:0;C:B1:0;N:B1:0;C:B1:0;');
+#endif
+        Observer.Expect('shown after action', '||');
+        Observer.Expect('B1 count', '0');
+        Observer.Expect('total count', '0');
+        Observer.Expect('first', 'No');
+        Observer.Expect('first log', '');
+        Observer.Expect('close log', '');
+        Observer.Verify();
     end;
 
     [Test]
