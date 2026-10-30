@@ -128,7 +128,10 @@ codeunit 90822 "LT Option Evaluate Captions"
                 end;
         end;
         ClearLastError();
-        exit(Format(Ok) + '|' + Format(Ord) + '|[' + Shown + ']');
+        // Yes/No written out: Format(Boolean) follows the language, and CaptionML_ByLanguage runs under 1031 and 1036.
+        if Ok then
+            exit('Yes|' + Format(Ord) + '|[' + Shown + ']');
+        exit('No|' + Format(Ord) + '|[' + Shown + ']');
     end;
 
     local procedure Tab(): Text
@@ -164,7 +167,12 @@ codeunit 90822 "LT Option Evaluate Captions"
         Observer.Observe('C', E('Swap', 'C'));
         Observer.Observe('b', E('Swap', 'b'));
         Observer.Observe('0', E('Swap', '0'));
-        Observer.Finish();
+        Observer.Expect('A', 'Yes|2|[A]');
+        Observer.Expect('B', 'Yes|0|[B]');
+        Observer.Expect('C', 'Yes|1|[C]');
+        Observer.Expect('b', 'Yes|0|[B]');
+        Observer.Expect('0', 'Yes|0|[B]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -176,7 +184,11 @@ codeunit 90822 "LT Option Evaluate Captions"
         Observer.Observe('Other', E('Dup', 'Other'));
         Observer.Observe('Y', E('Dup', 'Y'));
         Observer.Observe('1', E('Dup', '1'));
-        Observer.Finish();
+        Observer.Expect('Same', 'Yes|0|[Same]');
+        Observer.Expect('Other', 'Yes|2|[Other]');
+        Observer.Expect('Y', 'Yes|1|[Same]');
+        Observer.Expect('1', 'Yes|1|[Same]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -199,7 +211,22 @@ codeunit 90822 "LT Option Evaluate Captions"
         Observer.Observe('trail caption exact', E('Lead', 'Q cap '));
         Observer.Observe('trail caption trimmed', E('Lead', 'Q cap'));
         Observer.Observe('format lead', EN('Lead', 'Q', 0));
-        Observer.Finish();
+        Observer.Expect('name with space', 'Yes|2|[Closed Now cap]');
+        Observer.Expect('name double space', 'No|0|[ ]');
+        Observer.Expect('caption upper', 'Yes|1|[Open cap]');
+        Observer.Expect('caption padded', 'Yes|1|[Open cap]');
+        Observer.Expect('tab before', 'Yes|1|[Open cap]');
+        Observer.Expect('tab after caption', 'Yes|1|[Open cap]');
+        Observer.Expect('crlf after', 'Yes|1|[Open cap]');
+        Observer.Expect('tab only', 'Yes|0|[ ]');
+        Observer.Expect('prefix of name', 'No|0|[ ]');
+        Observer.Expect('prefix of caption', 'No|0|[ ]');
+        Observer.Expect('lead caption exact', 'Yes|0|[ P cap]');
+        Observer.Expect('lead caption trimmed', 'Yes|0|[ P cap]');
+        Observer.Expect('trail caption exact', 'Yes|1|[Q cap ]');
+        Observer.Expect('trail caption trimmed', 'Yes|1|[Q cap ]');
+        Observer.Expect('format lead', 'Yes|1|[Q cap ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -225,7 +252,19 @@ codeunit 90822 "LT Option Evaluate Captions"
         Observer.Observe('1036 Gruen', E('ML', 'Gruen'));
         Observer.Observe('1036 Green', E('ML', 'Green'));
         GlobalLanguage(Saved);
-        Observer.Finish();
+        Observer.Expect('1033 Red one', 'Yes|0|[Red one]');
+        Observer.Expect('1033 Green', 'Yes|1|[Green one]');
+        Observer.Expect('1033 Gruen', 'No|0|[Red one]');
+        Observer.Expect('1033 2', 'Yes|2|[Blue one]');
+        Observer.Expect('1031 Gruen', 'Yes|1|[Gruen]');
+        Observer.Expect('1031 gruen', 'Yes|1|[Gruen]');
+        Observer.Expect('1031 Green one', 'No|0|[Rot]');
+        Observer.Expect('1031 Green', 'Yes|1|[Gruen]');
+        Observer.Expect('1031 2', 'Yes|2|[Blau]');
+        Observer.Expect('1036 Green one', 'Yes|1|[Green one]');
+        Observer.Expect('1036 Gruen', 'No|0|[Red one]');
+        Observer.Expect('1036 Green', 'Yes|1|[Green one]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -247,7 +286,16 @@ codeunit 90822 "LT Option Evaluate Captions"
         Observer.Observe('var 9 ordinal', Format(Ok) + '|' + Format(V));
         Ok := Evaluate(V, 'gamma', 2);
         Observer.Observe('var 2 lower', Format(Ok) + '|' + Format(V));
-        Observer.Finish();
+        Observer.Expect('9 name', 'Yes|1|[Open cap]');
+        Observer.Expect('9 caption', 'Yes|1|[Open cap]');
+        Observer.Expect('9 ordinal', 'Yes|2|[Closed Now cap]');
+        Observer.Expect('9 unknown', 'No|0|[ ]');
+        Observer.Expect('2 caption', 'Yes|1|[Open cap]');
+        Observer.Expect('2 ordinal', 'Yes|2|[Closed Now cap]');
+        Observer.Expect('var 9 name', 'Yes|Beta');
+        Observer.Expect('var 9 ordinal', 'Yes|Gamma');
+        Observer.Expect('var 2 lower', 'Yes|Gamma');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -292,7 +340,15 @@ codeunit 90822 "LT Option Evaluate Captions"
         Observer.Observe('var unknown', U('Var', 'Delta', 0));
         Observer.Observe('var tab', U('Var', Tab(), 0));
         Observer.Observe('var 9 unknown', U('Var', 'Delta', 9));
-        Observer.Finish();
+        Observer.Expect('field 9 unknown', 'error:''Nope'' is not an option. The existing options are:  ,Open cap,Closed Now cap|InvalidOptionString');
+        Observer.Expect('field tab only', 'no error');
+        Observer.Expect('field tab name', 'no error');
+        Observer.Expect('swap unknown', 'error:''D'' is not an option. The existing options are: B,C,A|InvalidOptionString');
+        Observer.Expect('ml unknown', 'error:''Purple'' is not an option. The existing options are: Red one,Green one,Blue one|InvalidOptionString');
+        Observer.Expect('var unknown', 'error:''Delta'' is not an option. The existing options are: Alpha,Beta,Gamma|InvalidOptionString');
+        Observer.Expect('var tab', 'error:''\t'' is not an option. The existing options are: Alpha,Beta,Gamma|InvalidOptionString');
+        Observer.Expect('var 9 unknown', 'error:''Delta'' is not an option. The existing options are: Alpha,Beta,Gamma|InvalidOptionString');
+        Observer.Verify();
     end;
 
     local procedure EvalRecordId(Txt: Text): Text
@@ -331,7 +387,13 @@ codeunit 90822 "LT Option Evaluate Captions"
         Observer.Observe('caption other', EvalRecordId('LT Option Key Cap: Inv cap,D-1'));
         Observer.Observe('ordinal', EvalRecordId('LT Option Key Cap: 2,D-1'));
         Observer.Observe('unknown', EvalRecordId('LT Option Key Cap: Quote,D-1'));
-        Observer.Finish();
+        Observer.Expect('format', 'LT Option Key Cap: Credit Memo cap,D-1');
+        Observer.Expect('name', 'true|text=LT Option Key Cap: Credit Memo cap,D-1|row=found');
+        Observer.Expect('caption', 'true|text=LT Option Key Cap: Credit Memo cap,D-1|row=found');
+        Observer.Expect('caption other', 'true|text=LT Option Key Cap: Inv cap,D-1|row=missing');
+        Observer.Expect('ordinal', 'true|text=LT Option Key Cap: Credit Memo cap,D-1|row=found');
+        Observer.Expect('unknown', 'false|''Quote'' is not an option. The existing options are:  ,Inv cap,Credit Memo cap|InvalidOptionString');
+        Observer.Verify();
     end;
 
     [Test]
@@ -353,6 +415,15 @@ codeunit 90822 "LT Option Evaluate Captions"
         Observer.Observe('max int', EvalRecordId('LT Option Key Plain: 2147483647,D-1'));
         Observer.Observe('past int', EvalRecordId('LT Option Key Plain: 2147483648,D-1'));
         Observer.Observe('minus', EvalRecordId('LT Option Key Plain: -1,D-1'));
-        Observer.Finish();
+        Observer.Expect('other case', 'true|text=LT Option Key Plain: Invoice,D-1|row=found');
+        Observer.Expect('blank before', 'true|text=LT Option Key Plain: Invoice,D-1|row=found');
+        Observer.Expect('blank after', 'true|text=LT Option Key Plain: Invoice,D-1|row=found');
+        Observer.Expect('empty quoted', 'true|text=LT Option Key Plain: " ",D-1|row=missing');
+        Observer.Expect('blank quoted', 'true|text=LT Option Key Plain: " ",D-1|row=missing');
+        Observer.Expect('quoted name', 'true|text=LT Option Key Plain: Credit Memo,D-1|row=missing');
+        Observer.Expect('max int', 'true|text=LT Option Key Plain: 2147483647,D-1|row=missing');
+        Observer.Expect('past int', 'false|''2147483648'' is not an option. The existing options are:  ,Invoice,Credit Memo|InvalidOptionString');
+        Observer.Expect('minus', 'false|''-1'' is not an option. The existing options are:  ,Invoice,Credit Memo|InvalidOptionString');
+        Observer.Verify();
     end;
 }

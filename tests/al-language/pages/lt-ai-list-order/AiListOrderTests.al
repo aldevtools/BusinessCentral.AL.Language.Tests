@@ -862,7 +862,9 @@ codeunit 78861 "LT AI List Navigation Order"
         Observer.Observe('current', P.NoCtl.Value());
         Log.SetStartKey('');
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'F:=>=Yes;R:R1006;N:1=0;N:-1=-1;R:R1005;N:-1=-1;R:R1004;N:-1=-1;R:R1003;N:-1=-1;R:R1002;N:-1=-1;R:R1001;N:-1=0');
+        Observer.Expect('current', 'R1006');
+        Observer.Verify();
     end;
 
     [Test]
@@ -880,7 +882,9 @@ codeunit 78861 "LT AI List Navigation Order"
         Observer.Observe('current', P.NoCtl.Value());
         Log.SetStartKey('');
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'F:=>=Yes;R:R1005;N:1=1;R:R1006;N:1=0;R:R1005;N:-1=-1;R:R1004;N:-1=-1;R:R1003;N:-1=-1;R:R1002;N:-1=-1;R:R1001;N:-1=0');
+        Observer.Expect('current', 'R1005');
+        Observer.Verify();
     end;
 }
 
