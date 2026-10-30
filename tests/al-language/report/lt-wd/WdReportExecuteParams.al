@@ -81,8 +81,8 @@ codeunit 90733 "LT WD Report Execute Params"
         R.Execute(Params('<Field name="NoSuchField">x</Field><Field name="NewName">Kept</Field>'));
         Observer.Observe('unknown field name', R.GetResult());
         Clear(R);
-        asserterror R.Execute('not xml');
-        Observer.ObserveError('not xml');
+        R.Execute('not xml');
+        Observer.Observe('not xml', R.GetResult());
         Clear(R);
         R.Execute(Params('<Field name="Number">oops</Field>'));
         Observer.Observe('integer field with text', R.GetResult());
