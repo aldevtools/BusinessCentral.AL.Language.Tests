@@ -489,6 +489,32 @@ codeunit 93431 "LT NP4 Misc Tests"
         Observer.Observe('after updlock get', Format(Locked.ReadIsolation) + '|tx=' + Format(IsInWriteTransaction()));
         Locked.ReadIsolation := IsolationLevel::UpdLock;
         Observer.Observe('after setting again', Format(Locked.ReadIsolation) + '|tx=' + Format(IsInWriteTransaction()));
+        Observer.Expect('before commit', 'UpdLock|RepeatableRead|tx=Yes');
+        Observer.Expect('after commit', 'UpdLock|RepeatableRead|tx=No');
+        Observer.Expect('after updlock get', 'UpdLock|tx=No');
+        Observer.Expect('after setting again', 'UpdLock|tx=No');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y9_ReadIsolation_SetAgainAfterCommit()
+    var
+        Observer: Codeunit "Probe Observer";
+        Locked: Record "LT Y9 RI Row";
+        Fresh: Record "LT Y9 RI Row";
+    begin
+        // after a Commit: setting a DIFFERENT level on the same record, and the same level on another record
+        Y9Seed();
+        Locked.ReadIsolation := IsolationLevel::UpdLock;
+        Commit();
+        Locked.ReadIsolation := IsolationLevel::RepeatableRead;
+        Observer.Observe('different level', Format(Locked.ReadIsolation) + '|tx=' + Format(IsInWriteTransaction()));
+        Commit();
+        Fresh.ReadIsolation := IsolationLevel::RepeatableRead;
+        Observer.Observe('same level other record', Format(Fresh.ReadIsolation) + '|tx=' + Format(IsInWriteTransaction()));
+        Commit();
+        Fresh.ReadIsolation := IsolationLevel::ReadCommitted;
+        Observer.Observe('read committed', Format(Fresh.ReadIsolation) + '|tx=' + Format(IsInWriteTransaction()));
         Observer.Finish();
     end;
 }
