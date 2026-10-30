@@ -7,6 +7,7 @@
 //   0df0fadc-..., below Tests-TestLibraries 5d86850b-...; publisher "Bravo Probe Publisher") and XApp A (cd6a4292-..., above it; publisher
 //   "AL Language") log the flags they receive and their place in the call (seq). Yes flags = ran after 130011.
 //   Tests-TestLibraries is in the container before the corpus apps are published.
+//   Measured on BC 27.5, 28.5 and 29.0 (CI TestLibraries job): A runs first, then C, and neither sees 130011's flags.
 // BC versions: 27 - 29
 
 codeunit 81639 "LT Y3 Setup Order"
@@ -21,7 +22,7 @@ codeunit 81639 "LT Y3 Setup Order"
         Helper: Codeunit "LT Y3 Setup Order Helper";
     begin
         Observer.Observe('C below | A above', Helper.InsertRowAndReadLog());
-        Observer.Expect('C below | A above', 'TBD');
+        Observer.Expect('C below | A above', 'C: seq=2 in=NoNoNoNo | A: seq=1 in=NoNoNoNo');
         Observer.Verify();
     end;
 }
