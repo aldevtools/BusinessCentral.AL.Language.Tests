@@ -18,6 +18,11 @@ ALLOWED = {
     # al-runner issue 6367 (writer X3): first-install DataVersion seen by the app's own code and by a dependency; writes only `if Insert() then;`
     # into a DataPerCompany = false log, and the dependency helper it calls neither writes nor raises.
     'tests/al-language-xapp-b/X3XbFirstInstall.al',
+    # al-runtime-rs install-order probes (writer Y8): each install code logs what it sees and writes one row, only `if Insert(..) then;` into
+    # DataPerCompany = false tables; the only trigger on those inserts (fixture B's table extension) appends text.
+    'tests/al-language-xapp-a/Y8XaInstallOrder.al',
+    'tests/al-language-xapp-d/Y8XdInstallOrder.al',
+    'tests/al-language-xapp-b/Y8XbInstallOrder.al',
     'tests/al-language/_fixtures/ALTInstallProbe.al',
     'tests/al-language/_fixtures/ALTQuotedInstallProbe.al',
     'tests/al-language/install/TestInstallSeeder.al',
