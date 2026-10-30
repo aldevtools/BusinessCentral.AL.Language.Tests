@@ -146,4 +146,159 @@ codeunit 67160 "LT TB Temporary Blob"
         Observer.Expect('autocalc_find', 'Yes|len=12|has=Yes');
         Observer.Verify();
     end;
+
+    // al-runner issue 6434 (writer Y12): Target.Data := Source.Data where Source is a temporary row that was inserted and read back.
+    // What the copy holds: HasValue, Length and the text read from it.
+    local procedure Copied(var Target: Record "LT TB Row" temporary): Text
+    var
+        InS: InStream;
+        T: Text;
+        Head: Text;
+    begin
+        // HasValue and Length first: creating the stream must not decide what they report.
+        Head := 'has=' + Format(Target.Data.HasValue()) + '|len=' + Format(Target.Data.Length());
+        Target.Data.CreateInStream(InS);
+        InS.ReadText(T);
+        exit(Head + '|text=' + T);
+    end;
+
+    local procedure InsertY12(var Row: Record "LT TB Row" temporary)
+    begin
+        Row.Init();
+        Row.Id := 1;
+        Put(Row, 'mdi test image');
+        Row.Insert(false);
+    end;
+
+    [Test]
+    procedure Y12_BlobCopy_AfterInsertFindFirst()
+    var
+        Row: Record "LT TB Row" temporary;
+        Target: Record "LT TB Row" temporary;
+        Observer: Codeunit "Probe Observer";
+    begin
+        InsertY12(Row);
+        Row.FindFirst();
+        Observer.Observe('source', Shown(Row));
+        Target.Data := Row.Data;
+        Observer.Observe('copy', Copied(Target));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y12_BlobCopy_AfterInsertFindFirstCalcFields()
+    var
+        Row: Record "LT TB Row" temporary;
+        Target: Record "LT TB Row" temporary;
+        Observer: Codeunit "Probe Observer";
+    begin
+        InsertY12(Row);
+        Row.FindFirst();
+        Row.CalcFields(Data);
+        Target.Data := Row.Data;
+        Observer.Observe('copy', Copied(Target));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y12_BlobCopy_InMemoryOnly()
+    var
+        Row: Record "LT TB Row" temporary;
+        Target: Record "LT TB Row" temporary;
+        Observer: Codeunit "Probe Observer";
+    begin
+        Put(Row, 'mdi test image');
+        Target.Data := Row.Data;
+        Observer.Observe('copy', Copied(Target));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y12_BlobCopy_AfterInsertOnly()
+    var
+        Row: Record "LT TB Row" temporary;
+        Target: Record "LT TB Row" temporary;
+        Observer: Codeunit "Probe Observer";
+    begin
+        InsertY12(Row);
+        Target.Data := Row.Data;
+        Observer.Observe('copy', Copied(Target));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y12_BlobCopy_AfterGetAndFindSet()
+    var
+        Row: Record "LT TB Row" temporary;
+        Target: Record "LT TB Row" temporary;
+        Target2: Record "LT TB Row" temporary;
+        Observer: Codeunit "Probe Observer";
+    begin
+        InsertY12(Row);
+        Row.Get(1);
+        Target.Data := Row.Data;
+        Observer.Observe('get_copy', Copied(Target));
+        Row.FindSet();
+        Target2.Data := Row.Data;
+        Observer.Observe('findset_copy', Copied(Target2));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y12_BlobCopy_CopyThenInsertTarget()
+    var
+        Row: Record "LT TB Row" temporary;
+        Target: Record "LT TB Row" temporary;
+        Observer: Codeunit "Probe Observer";
+    begin
+        InsertY12(Row);
+        Row.FindFirst();
+        Target.Id := 2;
+        Target.Data := Row.Data;
+        Target.Insert();
+        Target.Get(2);
+        Target.CalcFields(Data);
+        Observer.Observe('target_read_back', Copied(Target));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y12_BlobCopy_ViaRecordRefTempBlob()
+    var
+        Row: Record "LT TB Row" temporary;
+        TempBlob: Codeunit "Temp Blob";
+        RecRef: RecordRef;
+        InS: InStream;
+        T: Text;
+        Observer: Codeunit "Probe Observer";
+    begin
+        InsertY12(Row);
+        Row.FindSet();
+        RecRef.GetTable(Row);
+        TempBlob.FromRecordRef(RecRef, Row.FieldNo(Data));
+        Observer.Observe('tempblob_has', Format(TempBlob.HasValue()));
+        Observer.Observe('tempblob_len', Format(TempBlob.Length()));
+        TempBlob.CreateInStream(InS);
+        InS.ReadText(T);
+        Observer.Observe('tempblob_text', T);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y12_BlobCopy_ViaFieldRefValue()
+    var
+        Row: Record "LT TB Row" temporary;
+        Target: Record "LT TB Row" temporary;
+        RecRef: RecordRef;
+        FldRef: FieldRef;
+        Observer: Codeunit "Probe Observer";
+    begin
+        InsertY12(Row);
+        Row.FindFirst();
+        RecRef.GetTable(Row);
+        FldRef := RecRef.Field(Row.FieldNo(Data));
+        Target.Data := FldRef.Value();
+        Observer.Observe('fieldref_copy', Copied(Target));
+        Observer.Finish();
+    end;
 }

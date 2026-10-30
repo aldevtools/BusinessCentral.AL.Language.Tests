@@ -17,6 +17,9 @@ codeunit 71020 "LT TxC Label Methods"
         Spaces: Label '  padded  ', Locked = true;
         Uni: Label 'Grüße €', Locked = true;
         Csv: Label 'a,b,,c', Locked = true;
+        // al-runner issue 6436 (writer Y12): a trailing comma right after the label text compiles. After a property it does not
+        // (tests/must-not-compile/cases/2330-label-trailing-comma-after-property.al).
+        TrailingCommaLbl: Label 'Document Setup',;
 
     [Test]
     procedure Label_Instance_Methods()
@@ -168,6 +171,19 @@ codeunit 71020 "LT TxC Label Methods"
         Observer.Expect('removeFar|text', 'startIndex cannot be larger than length of string. (Parameter ''startIndex'')');
         Observer.Expect('removeFar|code', 'ArgumentOutOfRange');
         Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y12_Label_TrailingComma()
+    var
+        LocalLbl: Label 'Local Text' ,;
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('global', TrailingCommaLbl);
+        Observer.Observe('global_len', Format(StrLen(TrailingCommaLbl)));
+        Observer.Observe('local', LocalLbl);
+        Observer.Observe('local_len', Format(StrLen(LocalLbl)));
+        Observer.Finish();
     end;
 }
 
