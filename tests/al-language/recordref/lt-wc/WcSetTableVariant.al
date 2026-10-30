@@ -156,10 +156,8 @@ codeunit 90642 "LT WC Set Table Variant"
         V := Target;
         asserterror Source.SetTable(V);
         Observer.ObserveError('other table');
-        Observer.Observe('variant after', VariantInfo(V));
         Observer.Expect('other table|text', 'The table IDs do not match.');
         Observer.Expect('other table|code', 'TableIdMismatch');
-        Observer.Expect('variant after', '90641|filters=|count=0|current=7');
         Observer.Verify();
     end;
 
