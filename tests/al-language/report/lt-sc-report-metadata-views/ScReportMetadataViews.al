@@ -89,7 +89,12 @@ codeunit 91232 "LT SC Report Metadata Views"
             repeat
                 Observer.Observe('item ' + Items.Name, Format(Items."Data Item ID") + '|' + Format(Items."Related Table ID") + '|' + Format(Items."Indentation Level") + '|' + Items."Data Item Table View");
             until Items.Next() = 0;
-        Observer.Finish();
+        Observer.Expect('count', '3');
+        Observer.Expect('findset', 'Yes');
+        Observer.Expect('item EmptyCode', '57155483|91231|0|WHERE(Field1=0())');
+        Observer.Expect('item Ascending', '1027492269|2000000026|0|SORTING(Field1) ORDER(0)');
+        Observer.Expect('item Filtered', '1968063604|91231|0|SORTING(Field1) ORDER(1) WHERE(Field1=1(A*|B))');
+        Observer.Verify();
     end;
 
     [Test]
@@ -135,6 +140,17 @@ codeunit 91232 "LT SC Report Metadata Views"
                 Observer.Observe('delete', Format(RR.Delete()));
             Observer.Observe('count end', Format(RR.Count() - Before));
         end;
-        Observer.Finish();
+        Observer.Expect('table found', 'Yes');
+        Observer.Expect('fields up to 12', '1:Report ID:Integer,2:Name:Text,5:App ID:GUID,3:Caption:Text,4:CaptionML:Text,6:Company Name:Text,7:Layout:Media,8:Layout Format:Option,9:Custom Type:GUID,10:MIME Type:Text,11:Description:Text,12:IsObsolete:Boolean,');
+        Observer.Expect('insert blank', 'No');
+        Observer.Expect('insert blank err|text', 'You tried to invoke the Report object with the ID 0 from the object LT SC Report Metadata Views. An object with that ID does not exist in the current application compiled with emit version n.');
+        Observer.Expect('insert blank err|code', 'AL:MetadataNotFound');
+        Observer.Expect('count unchanged after blank insert', 'Yes');
+        Observer.Expect('insert with report id', 'No');
+        Observer.Expect('insert with report id err|text', 'The current operation cannot be performed on an empty report layout of type RDLC for report 91230.');
+        Observer.Expect('insert with report id err|code', 'ReportLayoutValidation');
+        Observer.Expect('count after', '0');
+        Observer.Expect('count end', '0');
+        Observer.Verify();
     end;
 }

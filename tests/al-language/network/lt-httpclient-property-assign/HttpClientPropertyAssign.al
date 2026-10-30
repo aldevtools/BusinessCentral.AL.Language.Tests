@@ -33,7 +33,13 @@ codeunit 91220 "LT SC HttpClient Prop Assign"
         Client.UseServerCertificateValidation := false;
         asserterror Ok := Client.Get('https://example.invalid/', Resp);
         Observer.ObserveError('get after assign');
-        Observer.Finish();
+        Observer.Expect('after false literal', 'No');
+        Observer.Expect('after true literal', 'Yes');
+        Observer.Expect('after variable', 'no error');
+        Observer.Expect('after negated variable', 'no error');
+        Observer.Expect('get after assign|text', 'Unhandled outbound HTTP requests are not permitted when the TestHttpRequestPolicy property is set to ''BlockOutboundRequests''. Please ensure that an HTTP client handler is configured.');
+        Observer.Expect('get after assign|code', 'TestCodeunitUnhandledHttpRequest');
+        Observer.Verify();
     end;
 
     [Test]
@@ -48,7 +54,10 @@ codeunit 91220 "LT SC HttpClient Prop Assign"
         Observer.Observe('true', 'no error');
         Client.UseResponseCookies(false);
         Observer.Observe('call form', 'no error');
-        Observer.Finish();
+        Observer.Expect('false', 'no error');
+        Observer.Expect('true', 'no error');
+        Observer.Expect('call form', 'no error');
+        Observer.Verify();
     end;
 
     [Test]
@@ -64,6 +73,8 @@ codeunit 91220 "LT SC HttpClient Prop Assign"
         Client.Timeout := 5000;
         Client.UseServerCertificateValidation := false;
         Observer.Observe('timeout kept', Format(Client.Timeout()));
-        Observer.Finish();
+        Observer.Expect('from field', 'no error');
+        Observer.Expect('timeout kept', '1 minute 40 seconds');
+        Observer.Verify();
     end;
 }

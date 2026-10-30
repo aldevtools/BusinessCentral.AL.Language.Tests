@@ -108,7 +108,13 @@ codeunit 91244 "LT SC Enum Const Relation"
         TryValidate(Observer, 'std A, BB', "LT SC Std"::A, "LT SC Std"::A, 'BB');
         TryValidate(Observer, 'std A kind B, BB (first branch wins)', "LT SC Std"::A, "LT SC Std"::B, 'BB');
         TryValidate(Observer, 'std A kind B, AA', "LT SC Std"::A, "LT SC Std"::B, 'AA');
-        Observer.Finish();
+        Observer.Expect('std A, AA', 'accepted');
+        Observer.Expect('std A, BB|text', 'The field Bic of table LT SC Rel Host contains a value (BB) that cannot be found in the related table (LT SC Rel A).');
+        Observer.Expect('std A, BB|code', 'DB:PrimRecordNotFound');
+        Observer.Expect('std A kind B, BB (first branch wins)|text', 'The field Bic of table LT SC Rel Host contains a value (BB) that cannot be found in the related table (LT SC Rel A).');
+        Observer.Expect('std A kind B, BB (first branch wins)|code', 'DB:PrimRecordNotFound');
+        Observer.Expect('std A kind B, AA', 'accepted');
+        Observer.Verify();
     end;
 
     [Test]
@@ -121,7 +127,13 @@ codeunit 91244 "LT SC Enum Const Relation"
         TryValidate(Observer, 'std B kind B, AA', "LT SC Std"::B, "LT SC Std"::B, 'AA');
         TryValidate(Observer, 'std C kind B, BB', "LT SC Std"::C, "LT SC Std"::B, 'BB');
         TryValidate(Observer, 'std C kind B, ZZ', "LT SC Std"::C, "LT SC Std"::B, 'ZZ');
-        Observer.Finish();
+        Observer.Expect('std B kind B, BB', 'accepted');
+        Observer.Expect('std B kind B, AA|text', 'The field Bic of table LT SC Rel Host contains a value (AA) that cannot be found in the related table (LT SC Rel B).');
+        Observer.Expect('std B kind B, AA|code', 'DB:PrimRecordNotFound');
+        Observer.Expect('std C kind B, BB', 'accepted');
+        Observer.Expect('std C kind B, ZZ|text', 'The field Bic of table LT SC Rel Host contains a value (ZZ) that cannot be found in the related table (LT SC Rel B).');
+        Observer.Expect('std C kind B, ZZ|code', 'DB:PrimRecordNotFound');
+        Observer.Verify();
     end;
 
     [Test]
@@ -134,7 +146,11 @@ codeunit 91244 "LT SC Enum Const Relation"
         TryValidate(Observer, 'std C kind C, ZZ', "LT SC Std"::C, "LT SC Std"::C, 'ZZ');
         TryValidate(Observer, 'std B kind A, empty', "LT SC Std"::B, "LT SC Std"::A, '');
         TryValidate(Observer, 'std A, empty', "LT SC Std"::A, "LT SC Std"::A, '');
-        Observer.Finish();
+        Observer.Expect('std B kind A, ZZ', 'accepted');
+        Observer.Expect('std C kind C, ZZ', 'accepted');
+        Observer.Expect('std B kind A, empty', 'accepted');
+        Observer.Expect('std A, empty', 'accepted');
+        Observer.Verify();
     end;
 
     [Test]
@@ -156,7 +172,12 @@ codeunit 91244 "LT SC Enum Const Relation"
         Host.Bic := 'NOWHERE';
         Observer.Observe('insert invalid', Format(Host.Insert(true)));
         Observer.Observe('stored', Host.Bic);
-        Observer.Finish();
+        Observer.Expect('bic kept after standard change', 'AA');
+        Observer.Expect('now AA under second branch|text', 'The field Bic of table LT SC Rel Host contains a value (AA) that cannot be found in the related table (LT SC Rel B).');
+        Observer.Expect('now AA under second branch|code', 'DB:PrimRecordNotFound');
+        Observer.Expect('insert invalid', 'Yes');
+        Observer.Expect('stored', 'NOWHERE');
+        Observer.Verify();
     end;
 
     [Test]
@@ -174,6 +195,7 @@ codeunit 91244 "LT SC Enum Const Relation"
                 Result += StrSubstNo('[%1.%2 condfield %3 %4 "%5"] ', Rel."Related Table ID", Rel."Related Field No.", Rel."Condition Field No.", Rel."Condition Type", Rel."Condition Value");
             until Rel.Next() = 0;
         Observer.Observe('relations', Result);
-        Observer.Finish();
+        Observer.Expect('relations', 'rows=2 [91241.1 condfield 2 CONST "0"] [91242.1 condfield 3 CONST "1"] ');
+        Observer.Verify();
     end;
 }

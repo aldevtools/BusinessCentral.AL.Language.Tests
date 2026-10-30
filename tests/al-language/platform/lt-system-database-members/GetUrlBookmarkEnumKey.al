@@ -96,7 +96,13 @@ codeunit 91264 "LT SC GetUrl Enum Key"
         Observer.Observe('fifth special code', Tail(GetUrl(ClientType::Web, 'My Company', ObjectType::Page, Page::"LT SC Url Page", Row, false)));
         Row.Code := 'ABCDEFGHIJKLMNOPQRST';
         Observer.Observe('fifth full code', Tail(GetUrl(ClientType::Web, 'My Company', ObjectType::Page, Page::"LT SC Url Page", Row, false)));
-        Observer.Finish();
+        Observer.Expect('first A1', '?company=My%20Company&page=91263&bookmark=21%3bfWQBAACLAAAAAAJ7%2f0EAMQ%3d%3d');
+        Observer.Expect('second A1', '?company=My%20Company&page=91263&bookmark=21%3bfWQBAACLAQAAAAJ7%2f0EAMQ%3d%3d');
+        Observer.Expect('fifth A1', '?company=My%20Company&page=91263&bookmark=21%3bfWQBAACLBQAAAAJ7%2f0EAMQ%3d%3d');
+        Observer.Expect('fifth empty code', '?company=My%20Company&page=91263&bookmark=17%3bfWQBAACLBQAAAAJ7');
+        Observer.Expect('fifth special code', '?company=My%20Company&page=91263&bookmark=27%3bfWQBAACLBQAAAAJ7%2f1gAJgBZACAAMg%3d%3d');
+        Observer.Expect('fifth full code', '?company=My%20Company&page=91263&bookmark=57%3bfWQBAACLBQAAAAJ7%2f0EAQgBDAEQARQBGAEcASABJAEoASwBMAE0ATgBPAFAAUQBSAFMAVA%3d%3d');
+        Observer.Verify();
     end;
 
     [Test]
@@ -114,7 +120,8 @@ codeunit 91264 "LT SC GetUrl Enum Key"
         Row.Insert();
         Row.Get("LT SC Url Kind"::Second, 'A1');
         Observer.Observe('inserted equal', Format(Before = Tail(GetUrl(ClientType::Web, 'My Company', ObjectType::Page, Page::"LT SC Url Page", Row, false))));
-        Observer.Finish();
+        Observer.Expect('inserted equal', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -137,7 +144,13 @@ codeunit 91264 "LT SC GetUrl Enum Key"
         Observer.Observe('invoice empty', Tail(GetUrl(ClientType::Web, 'My Company', ObjectType::Page, Page::"Purchase Invoice", PurchHeader, false)));
         PurchHeader."No." := 'ABCDEFGHIJKLMNOPQRST';
         Observer.Observe('invoice full no', Tail(GetUrl(ClientType::Web, 'My Company', ObjectType::Page, Page::"Purchase Invoice", PurchHeader, false)));
-        Observer.Finish();
+        Observer.Expect('order X', '?company=My%20Company&page=50');
+        Observer.Expect('order X no filters', '?company=My%20Company&page=50&bookmark=19%3bJgAAAACLAQAAAAJ7%2f1g%3d');
+        Observer.Expect('order 106001', '?company=My%20Company&page=50&bookmark=29%3bJgAAAACLAQAAAAJ7BjEAMAA2ADAAMAAx');
+        Observer.Expect('quote 106001', '?company=My%20Company&page=49&bookmark=29%3bJgAAAACLAAAAAAJ7BjEAMAA2ADAAMAAx');
+        Observer.Expect('invoice empty', '?company=My%20Company&page=51&bookmark=17%3bJgAAAACLAgAAAAJ7');
+        Observer.Expect('invoice full no', '?company=My%20Company&page=51&bookmark=57%3bJgAAAACLAgAAAAJ7%2f0EAQgBDAEQARQBGAEcASABJAEoASwBMAE0ATgBPAFAAUQBSAFMAVA%3d%3d');
+        Observer.Verify();
     end;
 
     [Test]
@@ -152,6 +165,8 @@ codeunit 91264 "LT SC GetUrl Enum Key"
         Observer.Observe('first A1', Tail(GetUrl(ClientType::Web, 'My Company', ObjectType::Page, Page::"LT SC Url Page", Row, false)));
         Row.Kind := Row.Kind::Fifth;
         Observer.Observe('fifth A1', Tail(GetUrl(ClientType::Web, 'My Company', ObjectType::Page, Page::"LT SC Url Page", Row, false)));
-        Observer.Finish();
+        Observer.Expect('first A1', '?company=My%20Company&page=91263&bookmark=21%3bfmQBAACLAAAAAAJ7%2f0EAMQ%3d%3d');
+        Observer.Expect('fifth A1', '?company=My%20Company&page=91263&bookmark=21%3bfmQBAACLAgAAAAJ7%2f0EAMQ%3d%3d');
+        Observer.Verify();
     end;
 }

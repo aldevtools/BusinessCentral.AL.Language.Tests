@@ -171,7 +171,19 @@ codeunit 91210 "LT SC ReportExt SaveAs"
     begin
         Probe(Observer, 'xml', 91212, ReportFormat::Xml, false);
         Probe(Observer, 'pdf', 91212, ReportFormat::Pdf, false);
-        Observer.Finish();
+        Observer.Expect('xml completed', 'Yes');
+        Observer.Expect('xml saved', 'Yes');
+        Observer.Expect('xml has bytes', 'Yes');
+        Observer.Expect('xml content', 'xml');
+        Observer.Expect('xml err|text', '');
+        Observer.Expect('xml err|code', '');
+        Observer.Expect('pdf completed', 'Yes');
+        Observer.Expect('pdf saved', 'Yes');
+        Observer.Expect('pdf has bytes', 'Yes');
+        Observer.Expect('pdf content', 'pdf');
+        Observer.Expect('pdf err|text', '');
+        Observer.Expect('pdf err|code', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -182,7 +194,25 @@ codeunit 91210 "LT SC ReportExt SaveAs"
         Probe(Observer, 'xml', 91213, ReportFormat::Xml, false);
         Probe(Observer, 'pdf', 91213, ReportFormat::Pdf, false);
         Probe(Observer, 'xml recref', 91213, ReportFormat::Xml, true);
-        Observer.Finish();
+        Observer.Expect('xml completed', 'Yes');
+        Observer.Expect('xml saved', 'Yes');
+        Observer.Expect('xml has bytes', 'Yes');
+        Observer.Expect('xml content', 'xml');
+        Observer.Expect('xml err|text', '');
+        Observer.Expect('xml err|code', '');
+        Observer.Expect('pdf completed', 'Yes');
+        Observer.Expect('pdf saved', 'Yes');
+        Observer.Expect('pdf has bytes', 'Yes');
+        Observer.Expect('pdf content', 'pdf');
+        Observer.Expect('pdf err|text', '');
+        Observer.Expect('pdf err|code', '');
+        Observer.Expect('xml recref completed', 'Yes');
+        Observer.Expect('xml recref saved', 'Yes');
+        Observer.Expect('xml recref has bytes', 'Yes');
+        Observer.Expect('xml recref content', 'xml');
+        Observer.Expect('xml recref err|text', '');
+        Observer.Expect('xml recref err|code', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -193,7 +223,25 @@ codeunit 91210 "LT SC ReportExt SaveAs"
         Probe(Observer, 'word', 91213, ReportFormat::Word, false);
         Probe(Observer, 'excel', 91213, ReportFormat::Excel, false);
         Probe(Observer, 'html', 91213, ReportFormat::Html, false);
-        Observer.Finish();
+        Observer.Expect('word completed', 'Yes');
+        Observer.Expect('word saved', 'Yes');
+        Observer.Expect('word has bytes', 'Yes');
+        Observer.Expect('word content', 'zip');
+        Observer.Expect('word err|text', '');
+        Observer.Expect('word err|code', '');
+        Observer.Expect('excel completed', 'Yes');
+        Observer.Expect('excel saved', 'Yes');
+        Observer.Expect('excel has bytes', 'Yes');
+        Observer.Expect('excel content', 'zip');
+        Observer.Expect('excel err|text', '');
+        Observer.Expect('excel err|code', '');
+        Observer.Expect('html completed', 'Yes');
+        Observer.Expect('html saved', 'No');
+        Observer.Expect('html has bytes', 'No');
+        Observer.Expect('html content', 'empty');
+        Observer.Expect('html err|text', 'The Html output format is not supported by the current report layout format.');
+        Observer.Expect('html err|code', 'ReportUnsupportedFormat');
+        Observer.Verify();
     end;
 
     [Test]
@@ -204,6 +252,24 @@ codeunit 91210 "LT SC ReportExt SaveAs"
         Probe(Observer, 'xml', 91215, ReportFormat::Xml, false);
         Probe(Observer, 'pdf', 91215, ReportFormat::Pdf, false);
         Probe(Observer, 'word', 91215, ReportFormat::Word, false);
-        Observer.Finish();
+        Observer.Expect('xml completed', 'Yes');
+        Observer.Expect('xml saved', 'Yes');
+        Observer.Expect('xml has bytes', 'Yes');
+        Observer.Expect('xml content', 'xml');
+        Observer.Expect('xml err|text', '');
+        Observer.Expect('xml err|code', '');
+        Observer.Expect('pdf completed', 'Yes');
+        Observer.Expect('pdf saved', 'Yes');
+        Observer.Expect('pdf has bytes', 'Yes');
+        Observer.Expect('pdf content', 'pdf');
+        Observer.Expect('pdf err|text', '');
+        Observer.Expect('pdf err|code', '');
+        Observer.Expect('word completed', 'Yes');
+        Observer.Expect('word saved', 'Yes');
+        Observer.Expect('word has bytes', 'Yes');
+        Observer.Expect('word content', 'zip');
+        Observer.Expect('word err|text', '');
+        Observer.Expect('word err|code', '');
+        Observer.Verify();
     end;
 }

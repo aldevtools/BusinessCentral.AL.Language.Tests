@@ -100,6 +100,11 @@ codeunit 91275 "LT SC Overload Rec Intf"
         Observer.Observe('interface variable', Host.ByInterface(I, J));
         Observer.Observe('codeunit variable', Host.ByCodeunit(Impl, J));
         Observer.Observe('record variable', Host.ByRecord(Row, J));
-        Observer.Finish();
+        Observer.Expect('enum plain', 'interface overload impl');
+        Observer.Expect('enum special', 'interface overload special');
+        Observer.Expect('interface variable', 'interface overload impl');
+        Observer.Expect('codeunit variable', 'interface overload impl');
+        Observer.Expect('record variable', 'record overload');
+        Observer.Verify();
     end;
 }

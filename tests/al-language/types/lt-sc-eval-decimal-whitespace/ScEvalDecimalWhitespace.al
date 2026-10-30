@@ -57,7 +57,18 @@ codeunit 91200 "LT SC Eval Decimal WS"
         TryDecimal(Observer, 'trailing NBSP', '1.5' + Ch(160));
         TryDecimal(Observer, 'trailing VT', '1.5' + Ch(11));
         TryDecimal(Observer, 'trailing FF', '1.5' + Ch(12));
-        Observer.Finish();
+        Observer.Expect('plain', 'Yes 1.5');
+        Observer.Expect('trailing space', 'Yes 1.5');
+        Observer.Expect('trailing LF', 'Yes 1.5');
+        Observer.Expect('trailing CR', 'Yes 1.5');
+        Observer.Expect('trailing CRLF', 'Yes 1.5');
+        Observer.Expect('trailing TAB', 'Yes 1.5');
+        Observer.Expect('trailing NBSP', 'No 99');
+        Observer.Expect('trailing NBSP err|text', '');
+        Observer.Expect('trailing NBSP err|code', '');
+        Observer.Expect('trailing VT', 'Yes 1.5');
+        Observer.Expect('trailing FF', 'Yes 1.5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -75,7 +86,25 @@ codeunit 91200 "LT SC Eval Decimal WS"
         TryDecimal(Observer, 'only LF', Ch(10));
         TryDecimal(Observer, 'only spaces', '   ');
         TryDecimal(Observer, 'empty', '');
-        Observer.Finish();
+        Observer.Expect('leading space', 'Yes 1.5');
+        Observer.Expect('leading LF', 'Yes 1.5');
+        Observer.Expect('leading CR', 'Yes 1.5');
+        Observer.Expect('leading CRLF', 'Yes 1.5');
+        Observer.Expect('leading TAB', 'Yes 1.5');
+        Observer.Expect('leading NBSP', 'No 99');
+        Observer.Expect('leading NBSP err|text', '');
+        Observer.Expect('leading NBSP err|code', '');
+        Observer.Expect('both sides LF', 'Yes 1.5');
+        Observer.Expect('only LF', 'No 99');
+        Observer.Expect('only LF err|text', '');
+        Observer.Expect('only LF err|code', '');
+        Observer.Expect('only spaces', 'No 99');
+        Observer.Expect('only spaces err|text', '');
+        Observer.Expect('only spaces err|code', '');
+        Observer.Expect('empty', 'No 99');
+        Observer.Expect('empty err|text', '');
+        Observer.Expect('empty err|code', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -91,7 +120,27 @@ codeunit 91200 "LT SC Eval Decimal WS"
         TryDecimal(Observer, 'before decimal point LF', '1' + Ch(10) + '.5');
         TryDecimal(Observer, 'negative trailing LF', '-1.5' + Ch(10));
         TryDecimal(Observer, 'thousands separator trailing LF', '1,234.5' + Ch(10));
-        Observer.Finish();
+        Observer.Expect('inner space', 'No 99');
+        Observer.Expect('inner space err|text', '');
+        Observer.Expect('inner space err|code', '');
+        Observer.Expect('inner LF', 'No 99');
+        Observer.Expect('inner LF err|text', '');
+        Observer.Expect('inner LF err|code', '');
+        Observer.Expect('inner TAB', 'No 99');
+        Observer.Expect('inner TAB err|text', '');
+        Observer.Expect('inner TAB err|code', '');
+        Observer.Expect('sign then space', 'No 99');
+        Observer.Expect('sign then space err|text', '');
+        Observer.Expect('sign then space err|code', '');
+        Observer.Expect('sign then LF', 'No 99');
+        Observer.Expect('sign then LF err|text', '');
+        Observer.Expect('sign then LF err|code', '');
+        Observer.Expect('before decimal point LF', 'No 99');
+        Observer.Expect('before decimal point LF err|text', '');
+        Observer.Expect('before decimal point LF err|code', '');
+        Observer.Expect('negative trailing LF', 'Yes -1.5');
+        Observer.Expect('thousands separator trailing LF', 'Yes 1234.5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -107,6 +156,16 @@ codeunit 91200 "LT SC Eval Decimal WS"
         TryInteger(Observer, 'leading LF', Ch(10) + '15');
         TryInteger(Observer, 'leading TAB', Ch(9) + '15');
         TryInteger(Observer, 'inner LF', '1' + Ch(10) + '5');
-        Observer.Finish();
+        Observer.Expect('plain', 'Yes 15');
+        Observer.Expect('trailing space', 'Yes 15');
+        Observer.Expect('trailing LF', 'Yes 15');
+        Observer.Expect('trailing CRLF', 'Yes 15');
+        Observer.Expect('trailing TAB', 'Yes 15');
+        Observer.Expect('leading LF', 'Yes 15');
+        Observer.Expect('leading TAB', 'Yes 15');
+        Observer.Expect('inner LF', 'No 99');
+        Observer.Expect('inner LF err|text', '');
+        Observer.Expect('inner LF err|code', '');
+        Observer.Verify();
     end;
 }
