@@ -54,4 +54,35 @@ codeunit 69352 "PZ Report Layout Media"
         Observer.Expect('layouts of report 1306', 'Yes');
         Observer.Verify();
     end;
+
+    // Writer SO (2026-10-28), aldevtools/BusinessCentral.AL.Runner#5993: ExportStream of the empty Layout of a built-in layout row:
+    // what it answers and how many bytes it writes.
+    local procedure SoExport(var Layout: Record "Report Layout List"): Text
+    var
+        TempBlob: Codeunit "Temp Blob";
+        OutS: OutStream;
+        Answer: Boolean;
+    begin
+        TempBlob.CreateOutStream(OutS);
+        Answer := Layout.Layout.ExportStream(OutS);
+        // the length differs between BC versions (the Word layout: 35925 on 27.5, 34129 on 28.5, 39311 on 29.0)
+        exit('returned=' + Format(Answer) + ' len>0=' + Format(TempBlob.Length() > 0) + ' hasvalue after=' + Format(Layout.Layout.HasValue()));
+    end;
+
+    [Test]
+    procedure SO_Layout_ExportStream_OfBuiltInLayouts()
+    var
+        Layout: Record "Report Layout List";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Layout.SetRange("Layout Format", Layout."Layout Format"::RDLC);
+        Layout.FindFirst();
+        Observer.Observe('first rdlc layout', SoExport(Layout));
+        Layout.SetRange("Layout Format", Layout."Layout Format"::Word);
+        Layout.FindFirst();
+        Observer.Observe('first word layout', SoExport(Layout));
+        Observer.Expect('first rdlc layout', 'returned=Yes len>0=Yes hasvalue after=No');
+        Observer.Expect('first word layout', 'returned=Yes len>0=Yes hasvalue after=No');
+        Observer.Verify();
+    end;
 }
