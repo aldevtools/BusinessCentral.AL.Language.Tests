@@ -191,4 +191,47 @@ codeunit 70506 "LT TxB SelectStr"
     begin
         R := SelectStr(Number, Value);
     end;
+
+    [Test]
+    procedure SelectStrDecimalNum1()
+    var
+        D: Decimal;
+        D2: Decimal;
+        R: Text;
+    begin
+        D := 2;
+        Obs.Observe('s_2', RunNum(D, R));
+        D := 2.4;
+        Obs.Observe('s_2.4', RunNum(D, R));
+        D := 2.5;
+        Obs.Observe('s_2.5', RunNum(D, R));
+        D := 2.6;
+        Obs.Observe('s_2.6', RunNum(D, R));
+        D := 0.5;
+        Obs.Observe('s_0.5', RunNum(D, R));
+        D := -1.5;
+        Obs.Observe('s_-1.5', RunNum(D, R));
+        Obs.Expect('s_2', '[bb]');
+        Obs.Expect('s_2.4', 'ERR ConversionCast: Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2.4 to System.Int32.');
+        Obs.Expect('s_2.5', 'ERR ConversionCast: Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2.5 to System.Int32.');
+        Obs.Expect('s_2.6', 'ERR ConversionCast: Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2.6 to System.Int32.');
+        Obs.Expect('s_0.5', 'ERR ConversionCast: Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 0.5 to System.Int32.');
+        Obs.Expect('s_-1.5', 'ERR ConversionCast: Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value -1.5 to System.Int32.');
+        Obs.Verify();
+    end;
+
+    [TryFunction]
+    local procedure TryNum(Num: Decimal; var Res: Text)
+    begin
+        Res := '[' + SelectStr(Num, 'aa,bb,cc') + ']';
+    end;
+
+    local procedure RunNum(Num: Decimal; var Res: Text): Text
+    begin
+        ClearLastError();
+        if TryNum(Num, Res) then
+            exit(Res);
+        exit('ERR ' + GetLastErrorCode() + ': ' + GetLastErrorText());
+    end;
+
 }
