@@ -292,7 +292,8 @@ codeunit 93418 "LT NP4 XmlPort Tests"
         Port.SetDestination(OutS);
         Port.Export();
         Observer.Observe('export', ToText(Buffer));
-        Observer.Finish();
+        Observer.Expect('export', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Root xmlns="urn:np4">|  <Note>  lead  inner  gap trail  </Note>|  <Row>|    <Txt> a|  b  |</Txt>|  </Row>|</Root>|len=177');
+        Observer.Verify();
     end;
 
     [Test]
@@ -311,7 +312,8 @@ codeunit 93418 "LT NP4 XmlPort Tests"
         Port.SetDestination(OutS);
         Port.Export();
         Observer.Observe('export', ToText(Buffer));
-        Observer.Finish();
+        Observer.Expect('export', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Root xmlns="urn:np4">|  <Note>  lead  inner  gap trail  </Note>|  <Row>|    <Txt> a|  b  |</Txt>|  </Row>|</Root>|len=177');
+        Observer.Verify();
     end;
 
     [Test]
@@ -330,7 +332,8 @@ codeunit 93418 "LT NP4 XmlPort Tests"
         Port.SetDestination(OutS);
         Port.Export();
         Observer.Observe('export', ToText(Buffer));
-        Observer.Finish();
+        Observer.Expect('export', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Root>|  <Note>  lead  inner  gap trail  </Note>|  <Row>|    <Txt> a|  b  |</Txt>|  </Row>|</Root>|len=161');
+        Observer.Verify();
     end;
 
     local procedure SeedHeadsAndChildren(ChildrenOfHead1: Integer; ChildrenOfHead2: Integer)
@@ -370,7 +373,8 @@ codeunit 93418 "LT NP4 XmlPort Tests"
         Port.SetDestination(OutS);
         Port.Export();
         Observer.Observe('export', ToText(Buffer));
-        Observer.Finish();
+        Observer.Expect('export', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Root>|  <Head id="1">|    <Child cid="0">|      <Txt />|    </Child>|  </Head>|  <Head id="2">|    <Child cid="21">|      <Txt>c21</Txt>|    </Child>|  </Head>|</Root>|len=235');
+        Observer.Verify();
     end;
 
     [Test]
@@ -386,7 +390,8 @@ codeunit 93418 "LT NP4 XmlPort Tests"
         Port.SetDestination(OutS);
         Port.Export();
         Observer.Observe('export', ToText(Buffer));
-        Observer.Finish();
+        Observer.Expect('export', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Root>|  <Head id="1">|    <Child cid="11">|      <Txt>c11</Txt>|    </Child>|  </Head>|  <Head id="2">|    <Child cid="12">|      <Txt>c12</Txt>|    </Child>|  </Head>|</Root>|len=243');
+        Observer.Verify();
     end;
 
     [Test]
@@ -402,6 +407,7 @@ codeunit 93418 "LT NP4 XmlPort Tests"
         Port.SetDestination(OutS);
         Port.Export();
         Observer.Observe('export', ToText(Buffer));
-        Observer.Finish();
+        Observer.Expect('export', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Root>|  <Head id="1">|    <Child cid="11">|      <Txt>c11</Txt>|    </Child>|  </Head>|  <Head id="2">|    <Child cid="21">|      <Txt>c21</Txt>|    </Child>|  </Head>|</Root>|len=243');
+        Observer.Verify();
     end;
 }

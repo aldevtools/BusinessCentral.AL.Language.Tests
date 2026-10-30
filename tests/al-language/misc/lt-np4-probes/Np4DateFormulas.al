@@ -52,7 +52,21 @@ codeunit 93400 "LT NP4 Date Formulas"
         Observer: Codeunit "Probe Observer";
     begin
         Bases(Observer, '<D15>');
-        Observer.Finish();
+        Observer.Expect('2023-01-01', 'ok|2023-01-15');
+        Observer.Expect('2023-01-31', 'ok|2023-02-15');
+        Observer.Expect('2023-02-14', 'ok|2023-02-15');
+        Observer.Expect('2023-02-28', 'ok|2023-03-15');
+        Observer.Expect('2023-04-15', 'ok|2023-05-15');
+        Observer.Expect('2023-06-30', 'ok|2023-07-15');
+        Observer.Expect('2023-12-31', 'ok|2024-01-15');
+        Observer.Expect('2024-01-01', 'ok|2024-01-15');
+        Observer.Expect('2024-01-31', 'ok|2024-02-15');
+        Observer.Expect('2024-02-15', 'ok|2024-03-15');
+        Observer.Expect('2024-02-29', 'ok|2024-03-15');
+        Observer.Expect('2024-03-31', 'ok|2024-04-15');
+        Observer.Expect('2024-06-15', 'ok|2024-07-15');
+        Observer.Expect('2024-12-31', 'ok|2025-01-15');
+        Observer.Verify();
     end;
 
     [Test]
@@ -61,7 +75,21 @@ codeunit 93400 "LT NP4 Date Formulas"
         Observer: Codeunit "Probe Observer";
     begin
         Bases(Observer, '<D28>');
-        Observer.Finish();
+        Observer.Expect('2023-01-01', 'ok|2023-01-28');
+        Observer.Expect('2023-01-31', 'ok|2023-02-28');
+        Observer.Expect('2023-02-14', 'ok|2023-02-28');
+        Observer.Expect('2023-02-28', 'ok|2023-03-28');
+        Observer.Expect('2023-04-15', 'ok|2023-04-28');
+        Observer.Expect('2023-06-30', 'ok|2023-07-28');
+        Observer.Expect('2023-12-31', 'ok|2024-01-28');
+        Observer.Expect('2024-01-01', 'ok|2024-01-28');
+        Observer.Expect('2024-01-31', 'ok|2024-02-28');
+        Observer.Expect('2024-02-15', 'ok|2024-02-28');
+        Observer.Expect('2024-02-29', 'ok|2024-03-28');
+        Observer.Expect('2024-03-31', 'ok|2024-04-28');
+        Observer.Expect('2024-06-15', 'ok|2024-06-28');
+        Observer.Expect('2024-12-31', 'ok|2025-01-28');
+        Observer.Verify();
     end;
 
     [Test]
@@ -70,7 +98,21 @@ codeunit 93400 "LT NP4 Date Formulas"
         Observer: Codeunit "Probe Observer";
     begin
         Bases(Observer, '<D29>');
-        Observer.Finish();
+        Observer.Expect('2023-01-01', 'ok|2023-01-29');
+        Observer.Expect('2023-01-31', 'ok|2023-02-28');
+        Observer.Expect('2023-02-14', 'ok|2023-02-28');
+        Observer.Expect('2023-02-28', 'ok|2023-02-28');
+        Observer.Expect('2023-04-15', 'ok|2023-04-29');
+        Observer.Expect('2023-06-30', 'ok|2023-07-29');
+        Observer.Expect('2023-12-31', 'ok|2024-01-29');
+        Observer.Expect('2024-01-01', 'ok|2024-01-29');
+        Observer.Expect('2024-01-31', 'ok|2024-02-29');
+        Observer.Expect('2024-02-15', 'ok|2024-02-29');
+        Observer.Expect('2024-02-29', 'ok|2024-03-29');
+        Observer.Expect('2024-03-31', 'ok|2024-04-29');
+        Observer.Expect('2024-06-15', 'ok|2024-06-29');
+        Observer.Expect('2024-12-31', 'ok|2025-01-29');
+        Observer.Verify();
     end;
 
     [Test]
@@ -79,7 +121,21 @@ codeunit 93400 "LT NP4 Date Formulas"
         Observer: Codeunit "Probe Observer";
     begin
         Bases(Observer, '<D31>');
-        Observer.Finish();
+        Observer.Expect('2023-01-01', 'ok|2023-01-31');
+        Observer.Expect('2023-01-31', 'ok|2023-02-28');
+        Observer.Expect('2023-02-14', 'ok|2023-02-28');
+        Observer.Expect('2023-02-28', 'ok|2023-02-28');
+        Observer.Expect('2023-04-15', 'ok|2023-04-30');
+        Observer.Expect('2023-06-30', 'ok|2023-06-30');
+        Observer.Expect('2023-12-31', 'ok|2024-01-31');
+        Observer.Expect('2024-01-01', 'ok|2024-01-31');
+        Observer.Expect('2024-01-31', 'ok|2024-02-29');
+        Observer.Expect('2024-02-15', 'ok|2024-02-29');
+        Observer.Expect('2024-02-29', 'ok|2024-02-29');
+        Observer.Expect('2024-03-31', 'ok|2024-04-30');
+        Observer.Expect('2024-06-15', 'ok|2024-06-30');
+        Observer.Expect('2024-12-31', 'ok|2025-01-31');
+        Observer.Verify();
     end;
 
     [Test]
@@ -88,7 +144,21 @@ codeunit 93400 "LT NP4 Date Formulas"
         Observer: Codeunit "Probe Observer";
     begin
         Bases(Observer, '<W17>');
-        Observer.Finish();
+        Observer.Expect('2023-01-01', 'ok|2023-04-24');
+        Observer.Expect('2023-01-31', 'ok|2023-04-24');
+        Observer.Expect('2023-02-14', 'ok|2023-04-24');
+        Observer.Expect('2023-02-28', 'ok|2023-04-24');
+        Observer.Expect('2023-04-15', 'ok|2023-04-24');
+        Observer.Expect('2023-06-30', 'ok|2024-04-22');
+        Observer.Expect('2023-12-31', 'ok|2024-04-22');
+        Observer.Expect('2024-01-01', 'ok|2024-04-22');
+        Observer.Expect('2024-01-31', 'ok|2024-04-22');
+        Observer.Expect('2024-02-15', 'ok|2024-04-22');
+        Observer.Expect('2024-02-29', 'ok|2024-04-22');
+        Observer.Expect('2024-03-31', 'ok|2024-04-22');
+        Observer.Expect('2024-06-15', 'ok|2025-04-21');
+        Observer.Expect('2024-12-31', 'ok|2025-04-21');
+        Observer.Verify();
     end;
 
     [Test]
@@ -97,7 +167,21 @@ codeunit 93400 "LT NP4 Date Formulas"
         Observer: Codeunit "Probe Observer";
     begin
         Bases(Observer, '<Q3>');
-        Observer.Finish();
+        Observer.Expect('2023-01-01', 'ok|2023-07-01');
+        Observer.Expect('2023-01-31', 'ok|2023-07-01');
+        Observer.Expect('2023-02-14', 'ok|2023-07-01');
+        Observer.Expect('2023-02-28', 'ok|2023-07-01');
+        Observer.Expect('2023-04-15', 'ok|2023-07-01');
+        Observer.Expect('2023-06-30', 'ok|2023-07-01');
+        Observer.Expect('2023-12-31', 'ok|2024-07-01');
+        Observer.Expect('2024-01-01', 'ok|2024-07-01');
+        Observer.Expect('2024-01-31', 'ok|2024-07-01');
+        Observer.Expect('2024-02-15', 'ok|2024-07-01');
+        Observer.Expect('2024-02-29', 'ok|2024-07-01');
+        Observer.Expect('2024-03-31', 'ok|2024-07-01');
+        Observer.Expect('2024-06-15', 'ok|2024-07-01');
+        Observer.Expect('2024-12-31', 'ok|2025-07-01');
+        Observer.Verify();
     end;
 
     [Test]
@@ -106,7 +190,21 @@ codeunit 93400 "LT NP4 Date Formulas"
         Observer: Codeunit "Probe Observer";
     begin
         Bases(Observer, '<M1>');
-        Observer.Finish();
+        Observer.Expect('2023-01-01', 'ok|2024-01-01');
+        Observer.Expect('2023-01-31', 'ok|2024-01-01');
+        Observer.Expect('2023-02-14', 'ok|2024-01-01');
+        Observer.Expect('2023-02-28', 'ok|2024-01-01');
+        Observer.Expect('2023-04-15', 'ok|2024-01-01');
+        Observer.Expect('2023-06-30', 'ok|2024-01-01');
+        Observer.Expect('2023-12-31', 'ok|2024-01-01');
+        Observer.Expect('2024-01-01', 'ok|2025-01-01');
+        Observer.Expect('2024-01-31', 'ok|2025-01-01');
+        Observer.Expect('2024-02-15', 'ok|2025-01-01');
+        Observer.Expect('2024-02-29', 'ok|2025-01-01');
+        Observer.Expect('2024-03-31', 'ok|2025-01-01');
+        Observer.Expect('2024-06-15', 'ok|2025-01-01');
+        Observer.Expect('2024-12-31', 'ok|2025-01-01');
+        Observer.Verify();
     end;
 
     [Test]
@@ -115,7 +213,21 @@ codeunit 93400 "LT NP4 Date Formulas"
         Observer: Codeunit "Probe Observer";
     begin
         Bases(Observer, '<M3>');
-        Observer.Finish();
+        Observer.Expect('2023-01-01', 'ok|2023-03-01');
+        Observer.Expect('2023-01-31', 'ok|2023-03-01');
+        Observer.Expect('2023-02-14', 'ok|2023-03-01');
+        Observer.Expect('2023-02-28', 'ok|2023-03-01');
+        Observer.Expect('2023-04-15', 'ok|2024-03-01');
+        Observer.Expect('2023-06-30', 'ok|2024-03-01');
+        Observer.Expect('2023-12-31', 'ok|2024-03-01');
+        Observer.Expect('2024-01-01', 'ok|2024-03-01');
+        Observer.Expect('2024-01-31', 'ok|2024-03-01');
+        Observer.Expect('2024-02-15', 'ok|2024-03-01');
+        Observer.Expect('2024-02-29', 'ok|2024-03-01');
+        Observer.Expect('2024-03-31', 'ok|2025-03-01');
+        Observer.Expect('2024-06-15', 'ok|2025-03-01');
+        Observer.Expect('2024-12-31', 'ok|2025-03-01');
+        Observer.Verify();
     end;
 
     [Test]
@@ -124,6 +236,20 @@ codeunit 93400 "LT NP4 Date Formulas"
         Observer: Codeunit "Probe Observer";
     begin
         Bases(Observer, '<M12>');
-        Observer.Finish();
+        Observer.Expect('2023-01-01', 'ok|2023-12-01');
+        Observer.Expect('2023-01-31', 'ok|2023-12-01');
+        Observer.Expect('2023-02-14', 'ok|2023-12-01');
+        Observer.Expect('2023-02-28', 'ok|2023-12-01');
+        Observer.Expect('2023-04-15', 'ok|2023-12-01');
+        Observer.Expect('2023-06-30', 'ok|2023-12-01');
+        Observer.Expect('2023-12-31', 'ok|2024-12-01');
+        Observer.Expect('2024-01-01', 'ok|2024-12-01');
+        Observer.Expect('2024-01-31', 'ok|2024-12-01');
+        Observer.Expect('2024-02-15', 'ok|2024-12-01');
+        Observer.Expect('2024-02-29', 'ok|2024-12-01');
+        Observer.Expect('2024-03-31', 'ok|2024-12-01');
+        Observer.Expect('2024-06-15', 'ok|2024-12-01');
+        Observer.Expect('2024-12-31', 'ok|2025-12-01');
+        Observer.Verify();
     end;
 }

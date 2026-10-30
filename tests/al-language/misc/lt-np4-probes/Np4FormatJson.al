@@ -29,7 +29,15 @@ codeunit 93401 "LT NP4 Format Json"
         F(Observer, 'zero', 0, '<Precision,3:3><Sign><Integer><Decimals><Comma,.>');
         F(Observer, 'big', 1234567.891, '<Precision,3:3><Sign><Integer><Decimals><Comma,.>');
         F(Observer, 'round', 1.0005, '<Precision,3:3><Sign><Integer><Decimals><Comma,.>');
-        Observer.Finish();
+        Observer.Expect('pos', '[1234.568]');
+        Observer.Expect('whole', '[1234.000]');
+        Observer.Expect('half', '[1234.500]');
+        Observer.Expect('neg', '[-1234.568]');
+        Observer.Expect('small', '[0.123]');
+        Observer.Expect('zero', '[0.000]');
+        Observer.Expect('big', '[1234567.891]');
+        Observer.Expect('round', '[1.001]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -45,7 +53,15 @@ codeunit 93401 "LT NP4 Format Json"
         F(Observer, 'dot_0_3', 1234.5678, '<Precision,0:3><Sign><Integer><Decimals><Comma,.>');
         F(Observer, 'dot_3_5', 1234.5678, '<Precision,3:5><Sign><Integer><Decimals><Comma,.>');
         F(Observer, 'dot_integer_sep', 1234567.891, '<Precision,3:3><Sign><Integer Thousand><Decimals><Comma,.>');
-        Observer.Finish();
+        Observer.Expect('comma', '[1234,568]');
+        Observer.Expect('semicolon', '[1234;568]');
+        Observer.Expect('space', '[1234 568]');
+        Observer.Expect('letter', '[1234x568]');
+        Observer.Expect('dot_2_2', '[1234.57]');
+        Observer.Expect('dot_0_3', '[1234.568]');
+        Observer.Expect('dot_3_5', '[1234.5678]');
+        Observer.Expect('dot_integer_sep', '[1,234,567.891]');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -100,7 +116,17 @@ codeunit 93401 "LT NP4 Format Json"
         Int(Observer, 'set -1324.55', V);
         V.SetValue(3.4999);
         Int(Observer, 'set 3.4999', V);
-        Observer.Finish();
+        Observer.Expect('set 1324.55', 'ok|1325');
+        Observer.Expect('set 2.5', 'ok|2');
+        Observer.Expect('set 1.5', 'ok|2');
+        Observer.Expect('set 0.5', 'ok|0');
+        Observer.Expect('set 0.4', 'ok|0');
+        Observer.Expect('set -0.5', 'ok|0');
+        Observer.Expect('set -1.5', 'ok|-2');
+        Observer.Expect('set -2.5', 'ok|-2');
+        Observer.Expect('set -1324.55', 'ok|-1325');
+        Observer.Expect('set 3.4999', 'ok|3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -116,6 +142,14 @@ codeunit 93401 "LT NP4 Format Json"
         Int(Observer, 'text -0.4', FromText('-0.4'));
         Int(Observer, 'text 7', FromText('7'));
         Int(Observer, 'text 1e2', FromText('1e2'));
-        Observer.Finish();
+        Observer.Expect('text 1324.55', 'ok|1325');
+        Observer.Expect('text 2.5', 'ok|2');
+        Observer.Expect('text 1.5', 'ok|2');
+        Observer.Expect('text 0.4', 'ok|0');
+        Observer.Expect('text -1.5', 'ok|-2');
+        Observer.Expect('text -0.4', 'ok|0');
+        Observer.Expect('text 7', 'ok|7');
+        Observer.Expect('text 1e2', 'ok|100');
+        Observer.Verify();
     end;
 }

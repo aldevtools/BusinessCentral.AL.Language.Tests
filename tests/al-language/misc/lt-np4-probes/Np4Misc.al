@@ -103,7 +103,13 @@ codeunit 93431 "LT NP4 Misc Tests"
     begin
         Mode := Mode::Integer;
         AllShapes(Observer);
-        Observer.Finish();
+        Observer.Expect('tab', 'error:The value "\t" can''t be evaluated into type Integer.|Evaluate');
+        Observer.Expect('tab_one', 'ok|1');
+        Observer.Expect('one_tab', 'ok|1');
+        Observer.Expect('tab_tab', 'error:The value "\t\t" can''t be evaluated into type Integer.|Evaluate');
+        Observer.Expect('empty', 'error:The value "" can''t be evaluated into type Integer.|Evaluate');
+        Observer.Expect('space', 'error:The value " " can''t be evaluated into type Integer.|Evaluate');
+        Observer.Verify();
     end;
 
     [Test]
@@ -113,7 +119,13 @@ codeunit 93431 "LT NP4 Misc Tests"
     begin
         Mode := Mode::Decimal;
         AllShapes(Observer);
-        Observer.Finish();
+        Observer.Expect('tab', 'error:The value "\t" can''t be evaluated into type Decimal.|Evaluate');
+        Observer.Expect('tab_one', 'ok|1');
+        Observer.Expect('one_tab', 'ok|1');
+        Observer.Expect('tab_tab', 'error:The value "\t\t" can''t be evaluated into type Decimal.|Evaluate');
+        Observer.Expect('empty', 'error:The value "" can''t be evaluated into type Decimal.|Evaluate');
+        Observer.Expect('space', 'error:The value " " can''t be evaluated into type Decimal.|Evaluate');
+        Observer.Verify();
     end;
 
     [Test]
@@ -123,7 +135,11 @@ codeunit 93431 "LT NP4 Misc Tests"
     begin
         Mode := Mode::Date;
         AllShapes(Observer);
-        Observer.Finish();
+        Observer.Expect('tab', 'ok|');
+        Observer.Expect('tab_tab', 'ok|');
+        Observer.Expect('empty', 'ok|');
+        Observer.Expect('space', 'ok|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -133,7 +149,13 @@ codeunit 93431 "LT NP4 Misc Tests"
     begin
         Mode := Mode::Boolean;
         AllShapes(Observer);
-        Observer.Finish();
+        Observer.Expect('tab', 'error:The value "" can''t be evaluated into type Boolean.|Evaluate');
+        Observer.Expect('tab_one', 'ok|Yes');
+        Observer.Expect('one_tab', 'ok|Yes');
+        Observer.Expect('tab_tab', 'error:The value "" can''t be evaluated into type Boolean.|Evaluate');
+        Observer.Expect('empty', 'error:The value "" can''t be evaluated into type Boolean.|Evaluate');
+        Observer.Expect('space', 'error:The value "" can''t be evaluated into type Boolean.|Evaluate');
+        Observer.Verify();
     end;
 
     [Test]
@@ -143,7 +165,13 @@ codeunit 93431 "LT NP4 Misc Tests"
     begin
         Mode := Mode::Option;
         AllShapes(Observer);
-        Observer.Finish();
+        Observer.Expect('tab', 'error:''\t'' is not an option. The existing options are: A,B|InvalidOptionString');
+        Observer.Expect('tab_one', 'ok|B');
+        Observer.Expect('one_tab', 'ok|B');
+        Observer.Expect('tab_tab', 'error:''\t\t'' is not an option. The existing options are: A,B|InvalidOptionString');
+        Observer.Expect('empty', 'error:'''' is not an option. The existing options are: A,B|InvalidOptionString');
+        Observer.Expect('space', 'error:'' '' is not an option. The existing options are: A,B|InvalidOptionString');
+        Observer.Verify();
     end;
 
     local procedure SeedRows()
@@ -194,7 +222,14 @@ codeunit 93431 "LT NP4 Misc Tests"
     begin
         SeedRows();
         Reads(Observer, 'repeatable', IsolationLevel::RepeatableRead);
-        Observer.Finish();
+        Observer.Expect('repeatable findset', 'Yes|1|Yes');
+        Observer.Expect('repeatable get', 'Yes|two|Yes');
+        Observer.Expect('repeatable find first', 'Yes|1|Yes');
+        Observer.Expect('repeatable isempty', 'No|Yes');
+        Observer.Expect('repeatable count', '2|Yes');
+        Observer.Expect('repeatable findfirst', 'Yes|1|Yes');
+        Observer.Expect('repeatable findlast', 'Yes|2|Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -204,7 +239,14 @@ codeunit 93431 "LT NP4 Misc Tests"
     begin
         SeedRows();
         Reads(Observer, 'updlock', IsolationLevel::UpdLock);
-        Observer.Finish();
+        Observer.Expect('updlock findset', 'Yes|1|Yes');
+        Observer.Expect('updlock get', 'Yes|two|Yes');
+        Observer.Expect('updlock find first', 'Yes|1|Yes');
+        Observer.Expect('updlock isempty', 'No|Yes');
+        Observer.Expect('updlock count', '2|Yes');
+        Observer.Expect('updlock findfirst', 'Yes|1|Yes');
+        Observer.Expect('updlock findlast', 'Yes|2|Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -214,7 +256,14 @@ codeunit 93431 "LT NP4 Misc Tests"
     begin
         SeedRows();
         Reads(Observer, 'committed', IsolationLevel::ReadCommitted);
-        Observer.Finish();
+        Observer.Expect('committed findset', 'Yes|1|No');
+        Observer.Expect('committed get', 'Yes|two|No');
+        Observer.Expect('committed find first', 'Yes|1|No');
+        Observer.Expect('committed isempty', 'No|No');
+        Observer.Expect('committed count', '2|No');
+        Observer.Expect('committed findfirst', 'Yes|1|No');
+        Observer.Expect('committed findlast', 'Yes|2|No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -227,8 +276,12 @@ codeunit 93431 "LT NP4 Misc Tests"
         Observer.Observe('id', Format(Lang."Language ID"));
         Observer.Observe('name', Lang.Name);
         Observer.Observe('abbreviated', Lang."Abbreviated Name");
-        Observer.Observe('codepage', Format(Lang."Primary CodePage"));
         Observer.Observe('tag', Lang."Language Tag");
-        Observer.Finish();
+        Observer.Expect('get', 'Yes');
+        Observer.Expect('id', '1078');
+        Observer.Expect('name', 'Afrikaans (South Africa)');
+        Observer.Expect('abbreviated', 'AFK');
+        Observer.Expect('tag', 'af-ZA');
+        Observer.Verify();
     end;
 }

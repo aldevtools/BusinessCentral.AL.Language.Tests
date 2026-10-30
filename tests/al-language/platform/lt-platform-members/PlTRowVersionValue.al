@@ -1134,7 +1134,23 @@ codeunit 67515 "LT RV Tests"
         UkSnap(Observer, 'commit', PrevLast, PrevMin, Last0, Min0);
         A.DeleteAll();
         Commit();
-        Observer.Finish();
+        Observer.Expect('insert a: last vs previous', 'same');
+        Observer.Expect('insert a: min vs start', 'same');
+        Observer.Expect('insert a: write transaction', 'Yes');
+        Observer.Expect('findset b: last vs previous', 'same');
+        Observer.Expect('findset b: min vs start', 'same');
+        Observer.Expect('findset b: write transaction', 'Yes');
+        Observer.Expect('next b: last vs previous', 'same');
+        Observer.Expect('next b: min vs start', 'same');
+        Observer.Expect('next b: write transaction', 'Yes');
+        Observer.Expect('next b again: last vs previous', 'same');
+        Observer.Expect('next b again: min vs start', 'same');
+        Observer.Expect('next b again: write transaction', 'Yes');
+        Observer.Expect('b id', '3');
+        Observer.Expect('commit: last vs previous', 'greater');
+        Observer.Expect('commit: min vs start', 'same');
+        Observer.Expect('commit: write transaction', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1171,7 +1187,29 @@ codeunit 67515 "LT RV Tests"
         Commit();
         A.DeleteAll();
         Commit();
-        Observer.Finish();
+        Observer.Expect('insert a: last vs previous', 'same');
+        Observer.Expect('insert a: min vs start', 'same');
+        Observer.Expect('insert a: write transaction', 'Yes');
+        Observer.Expect('find equal b: last vs previous', 'same');
+        Observer.Expect('find equal b: min vs start', 'same');
+        Observer.Expect('find equal b: write transaction', 'Yes');
+        Observer.Expect('find greater b: last vs previous', 'same');
+        Observer.Expect('find greater b: min vs start', 'same');
+        Observer.Expect('find greater b: write transaction', 'Yes');
+        Observer.Expect('find less b: last vs previous', 'same');
+        Observer.Expect('find less b: min vs start', 'same');
+        Observer.Expect('find less b: write transaction', 'Yes');
+        Observer.Expect('find first b: last vs previous', 'same');
+        Observer.Expect('find first b: min vs start', 'same');
+        Observer.Expect('find first b: write transaction', 'Yes');
+        Observer.Expect('find last b: last vs previous', 'same');
+        Observer.Expect('find last b: min vs start', 'same');
+        Observer.Expect('find last b: write transaction', 'Yes');
+        Observer.Expect('b id', '3');
+        Observer.Expect('findlast b: last vs previous', 'same');
+        Observer.Expect('findlast b: min vs start', 'same');
+        Observer.Expect('findlast b: write transaction', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1210,6 +1248,26 @@ codeunit 67515 "LT RV Tests"
         Commit();
         A.DeleteAll();
         Commit();
-        Observer.Finish();
+        Observer.Expect('insert a: last vs previous', 'same');
+        Observer.Expect('insert a: min vs start', 'same');
+        Observer.Expect('insert a: write transaction', 'Yes');
+        Observer.Expect('find greater a: last vs previous', 'greater');
+        Observer.Expect('find greater a: min vs start', 'same');
+        Observer.Expect('find greater a: write transaction', 'Yes');
+        Observer.Expect('find less a: last vs previous', 'same');
+        Observer.Expect('find less a: min vs start', 'same');
+        Observer.Expect('find less a: write transaction', 'Yes');
+        Observer.Expect('a id', '1');
+        Observer.Expect('findset a: last vs previous', 'same');
+        Observer.Expect('findset a: min vs start', 'same');
+        Observer.Expect('findset a: write transaction', 'Yes');
+        Observer.Expect('next a: last vs previous', 'same');
+        Observer.Expect('next a: min vs start', 'same');
+        Observer.Expect('next a: write transaction', 'Yes');
+        Observer.Expect('next a again: last vs previous', 'same');
+        Observer.Expect('next a again: min vs start', 'same');
+        Observer.Expect('next a again: write transaction', 'Yes');
+        Observer.Expect('a id after nexts', '3');
+        Observer.Verify();
     end;
 }
