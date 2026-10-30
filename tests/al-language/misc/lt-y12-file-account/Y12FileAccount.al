@@ -16,6 +16,7 @@ codeunit 91552 "LT Y12 File Account"
         FileAccount: Codeunit "File Account";
         Observer: Codeunit "Probe Observer";
     begin
+        ClearLastError();
         Observer.Observe('ok', Format(TryGetAll(FileAccount, TempFileAccount)));
         Observer.ObserveError('error');
         Observer.Observe('count', Format(TempFileAccount.Count()));
@@ -25,8 +26,18 @@ codeunit 91552 "LT Y12 File Account"
         Observer.Observe('prefilled_ok', Format(TryGetAll(FileAccount, TempFileAccount)));
         Observer.ObserveError('prefilled_error');
         Observer.Observe('prefilled_count', Format(TempFileAccount.Count()));
+        // How many connector apps the environment has is not language behavior: recorded, not asserted (SaaS sandbox BC 29: 4).
         Observer.Observe('connector_ordinals', Format(Enum::"Ext. File Storage Connector".Ordinals().Count()));
-        Observer.Finish();
+        Observer.Ignore('connector_ordinals');
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('error|text', '');
+        Observer.Expect('error|code', '');
+        Observer.Expect('count', '0');
+        Observer.Expect('prefilled_ok', 'Yes');
+        Observer.Expect('prefilled_error|text', '');
+        Observer.Expect('prefilled_error|code', '');
+        Observer.Expect('prefilled_count', '0');
+        Observer.Verify();
     end;
 
     [TryFunction]

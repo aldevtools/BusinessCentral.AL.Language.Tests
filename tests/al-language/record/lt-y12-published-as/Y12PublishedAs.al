@@ -39,7 +39,12 @@ codeunit 91553 "LT Y12 Published As"
         Observer.Observe('system_application', PublishedAsOf('{63ca2fa4-4f03-4f2b-a480-172fef340d3f}'));
         Observer.Observe('base_application', PublishedAsOf('{437dbf0e-84ff-417a-965d-ed2bb9650972}'));
         Observer.Observe('system_platform', PublishedAsOf('{8874ed3a-0643-4247-9ced-7a7002f7135d}'));
-        Observer.Finish();
+        Observer.Expect('this_app', ' Dev|2');
+        Observer.Expect('fixture_dependency', ' Dev|2');
+        Observer.Expect('system_application', 'Global|0');
+        Observer.Expect('base_application', 'Global|0');
+        Observer.Expect('system_platform', 'no row');
+        Observer.Verify();
     end;
 
     [Test]
@@ -65,6 +70,12 @@ codeunit 91553 "LT Y12 Published As"
         Row.SetRange(Publisher, 'AL Language');
         Row.SetRange("Published As", Row."Published As"::Global);
         Observer.Observe('corpus_publisher_global_count', Format(Row.Count()));
-        Observer.Finish();
+        Observer.Expect('this_app_global_isempty', 'Yes');
+        Observer.Expect('this_app_dev_isempty', 'No');
+        Observer.Expect('this_app_pte_isempty', 'Yes');
+        Observer.Expect('microsoft_not_global_isempty', 'Yes');
+        Observer.Expect('microsoft_global_isempty', 'No');
+        Observer.Expect('corpus_publisher_global_count', '0');
+        Observer.Verify();
     end;
 }

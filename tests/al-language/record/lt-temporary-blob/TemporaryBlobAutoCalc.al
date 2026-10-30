@@ -182,7 +182,9 @@ codeunit 67160 "LT TB Temporary Blob"
         Observer.Observe('source', Shown(Row));
         Target.Data := Row.Data;
         Observer.Observe('copy', Copied(Target));
-        Observer.Finish();
+        Observer.Expect('source', 'len=14|has=Yes');
+        Observer.Expect('copy', 'has=No|len=0|text=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -197,7 +199,8 @@ codeunit 67160 "LT TB Temporary Blob"
         Row.CalcFields(Data);
         Target.Data := Row.Data;
         Observer.Observe('copy', Copied(Target));
-        Observer.Finish();
+        Observer.Expect('copy', 'has=Yes|len=14|text=mdi test image');
+        Observer.Verify();
     end;
 
     [Test]
@@ -210,7 +213,8 @@ codeunit 67160 "LT TB Temporary Blob"
         Put(Row, 'mdi test image');
         Target.Data := Row.Data;
         Observer.Observe('copy', Copied(Target));
-        Observer.Finish();
+        Observer.Expect('copy', 'has=Yes|len=14|text=mdi test image');
+        Observer.Verify();
     end;
 
     [Test]
@@ -223,7 +227,8 @@ codeunit 67160 "LT TB Temporary Blob"
         InsertY12(Row);
         Target.Data := Row.Data;
         Observer.Observe('copy', Copied(Target));
-        Observer.Finish();
+        Observer.Expect('copy', 'has=Yes|len=14|text=mdi test image');
+        Observer.Verify();
     end;
 
     [Test]
@@ -241,7 +246,9 @@ codeunit 67160 "LT TB Temporary Blob"
         Row.FindSet();
         Target2.Data := Row.Data;
         Observer.Observe('findset_copy', Copied(Target2));
-        Observer.Finish();
+        Observer.Expect('get_copy', 'has=No|len=0|text=');
+        Observer.Expect('findset_copy', 'has=No|len=0|text=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -259,7 +266,8 @@ codeunit 67160 "LT TB Temporary Blob"
         Target.Get(2);
         Target.CalcFields(Data);
         Observer.Observe('target_read_back', Copied(Target));
-        Observer.Finish();
+        Observer.Expect('target_read_back', 'has=No|len=0|text=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -281,7 +289,10 @@ codeunit 67160 "LT TB Temporary Blob"
         TempBlob.CreateInStream(InS);
         InS.ReadText(T);
         Observer.Observe('tempblob_text', T);
-        Observer.Finish();
+        Observer.Expect('tempblob_has', 'Yes');
+        Observer.Expect('tempblob_len', '14');
+        Observer.Expect('tempblob_text', 'mdi test image');
+        Observer.Verify();
     end;
 
     [Test]
@@ -299,6 +310,7 @@ codeunit 67160 "LT TB Temporary Blob"
         FldRef := RecRef.Field(Row.FieldNo(Data));
         Target.Data := FldRef.Value();
         Observer.Observe('fieldref_copy', Copied(Target));
-        Observer.Finish();
+        Observer.Expect('fieldref_copy', 'has=No|len=0|text=');
+        Observer.Verify();
     end;
 }

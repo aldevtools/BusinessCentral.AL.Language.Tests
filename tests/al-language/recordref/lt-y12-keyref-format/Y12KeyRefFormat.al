@@ -39,7 +39,10 @@ codeunit 91551 "LT Y12 KeyRef Format"
         Observer.Observe('pk', Format(RecRef.KeyIndex(1)));
         Observer.Observe('one_field', Format(RecRef.KeyIndex(2)));
         Observer.Observe('three_fields', Format(RecRef.KeyIndex(3)));
-        Observer.Finish();
+        Observer.Expect('pk', 'Field1,Field3');
+        Observer.Expect('one_field', 'Field5');
+        Observer.Expect('three_fields', 'Field7,Field3,Field5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -56,7 +59,12 @@ codeunit 91551 "LT Y12 KeyRef Format"
         Observer.Observe('f2', Format(KeyR, 0, 2));
         Observer.Observe('f9', Format(KeyR, 0, 9));
         Observer.Observe('len5', Format(KeyR, 5));
-        Observer.Finish();
+        Observer.Expect('f0', 'Field1,Field3');
+        Observer.Expect('f1', 'Field1,Field3');
+        Observer.Expect('f2', 'Field1,Field3');
+        Observer.Expect('f9', 'Field1,Field3');
+        Observer.Expect('len5', 'Field');
+        Observer.Verify();
     end;
 
     [Test]
@@ -72,7 +80,9 @@ codeunit 91551 "LT Y12 KeyRef Format"
         Observer.Observe('gettable_pk', Format(RecRef.KeyIndex(1)));
         TempRef.GetTable(TempRow);
         Observer.Observe('temporary_pk', Format(TempRef.KeyIndex(3)));
-        Observer.Finish();
+        Observer.Expect('gettable_pk', 'Field1,Field3');
+        Observer.Expect('temporary_pk', 'Field7,Field3,Field5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -86,6 +96,8 @@ codeunit 91551 "LT Y12 KeyRef Format"
         RecRef.Close();
         RecRef.Open(Database::"NAV App Installed App");
         Observer.Observe('installed_app_pk', Format(RecRef.KeyIndex(1)));
-        Observer.Finish();
+        Observer.Expect('integer_pk', 'Field1');
+        Observer.Expect('installed_app_pk', 'Field1');
+        Observer.Verify();
     end;
 }

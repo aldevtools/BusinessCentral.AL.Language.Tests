@@ -183,7 +183,11 @@ codeunit 71020 "LT TxC Label Methods"
         Observer.Observe('global_len', Format(StrLen(TrailingCommaLbl)));
         Observer.Observe('local', LocalLbl);
         Observer.Observe('local_len', Format(StrLen(LocalLbl)));
-        Observer.Finish();
+        Observer.Expect('global', 'Document Setup');
+        Observer.Expect('global_len', '14');
+        Observer.Expect('local', 'Local Text');
+        Observer.Expect('local_len', '10');
+        Observer.Verify();
     end;
 }
 
