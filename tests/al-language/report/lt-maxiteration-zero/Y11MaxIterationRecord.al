@@ -429,11 +429,12 @@ codeunit 91539 "LT Y11 MI Tests"
         Seed();
         TempBlob.CreateOutStream(OutS);
         Rep.SaveAs('', ReportFormat::Xml, OutS);
+        Observer.Observe('read after first run', Rep.Result());
         Clear(TempBlob);
         TempBlob.CreateOutStream(OutS);
-        Rep.SaveAs('', ReportFormat::Xml, OutS);
-        Observer.Observe('read after two runs', Rep.Result());
-        Observer.Observe('dataset of second run', DatasetRows(TempBlob));
+        asserterror Rep.SaveAs('', ReportFormat::Xml, OutS);
+        Observer.ObserveError('second SaveAs on the same instance');
+        Observer.Observe('read after the failed second run', Rep.Result());
         Observer.Finish();
     end;
 }
