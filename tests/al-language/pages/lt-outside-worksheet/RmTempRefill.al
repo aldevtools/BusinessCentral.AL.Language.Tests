@@ -174,6 +174,7 @@ codeunit 88269 "LT RM Refill Tests"
     var
         Observer: Codeunit "Probe Observer";
         Log: Codeunit "LT RM Refill Log";
+        TdShortLog: Boolean;
 
     local procedure OpenByRun(var Ws: TestPage "LT RM Refill Worksheet")
     var
@@ -539,6 +540,343 @@ codeunit 88269 "LT RM Refill Tests"
         Observer.Expect('rows', 'R1');
         Observer.Verify();
     end;
+
+    // ---- Writer TD, al-runner issue 6029 (follow-up to 5952): an action refills the temporary Rec with TWO rows, three rows or none (no
+    // CurrPage.Update), on a Worksheet with and without OnAfterGetCurrRecord, opened with 3 or 25 rows. Pages at the end of this file.
+
+    local procedure TdRunCur(RowsAtOpen: Integer; StandOn: Integer; RefillTo: Integer)
+    var
+        Ws: TestPage "LT TD Refill Cur";
+        WsPage: Page "LT TD Refill Cur";
+        Rows: Text;
+        I: Integer;
+    begin
+        Log.Reset();
+        Ws.Trap();
+        WsPage.SetRows(RowsAtOpen, RefillTo);
+        WsPage.Run();
+        Ws.First();
+        for I := 2 to StandOn do
+            Ws.Next();
+        Observer.Observe('before', Ws.Name.Value());
+        Log.Take();
+        Ws.RefillTo.Invoke();
+        Observer.Observe('action log', Log.Take());
+        Observer.Observe('shown after action', Ws.Name.Value());
+        if Ws.First() then
+            repeat
+                if Rows <> '' then
+                    Rows += ' ';
+                Rows += Ws.Name.Value();
+            until not Ws.Next();
+        Observer.Observe('rows', Rows);
+        if TdShortLog then
+            Observer.Observe('walk log length', Format(StrLen(Log.Take())))
+        else
+            Observer.Observe('walk log', Log.Take());
+        Observer.Observe('shown after walk', Ws.Name.Value());
+        Ws.Close();
+    end;
+
+    local procedure TdRunNoCur(RowsAtOpen: Integer; StandOn: Integer; RefillTo: Integer)
+    var
+        Ws: TestPage "LT TD Refill NoCur";
+        WsPage: Page "LT TD Refill NoCur";
+        Rows: Text;
+        I: Integer;
+    begin
+        Log.Reset();
+        Ws.Trap();
+        WsPage.SetRows(RowsAtOpen, RefillTo);
+        WsPage.Run();
+        Ws.First();
+        for I := 2 to StandOn do
+            Ws.Next();
+        Observer.Observe('before', Ws.Name.Value());
+        Log.Take();
+        Ws.RefillTo.Invoke();
+        Observer.Observe('action log', Log.Take());
+        Observer.Observe('shown after action', Ws.Name.Value());
+        if Ws.First() then
+            repeat
+                if Rows <> '' then
+                    Rows += ' ';
+                Rows += Ws.Name.Value();
+            until not Ws.Next();
+        Observer.Observe('rows', Rows);
+        if TdShortLog then
+            Observer.Observe('walk log length', Format(StrLen(Log.Take())))
+        else
+            Observer.Observe('walk log', Log.Take());
+        Observer.Observe('shown after walk', Ws.Name.Value());
+        Ws.Close();
+    end;
+
+    [Test]
+    procedure TD_RefillFewer_WithCurrRecord_3To2()
+    begin
+        TdRunCur(3, 1, 2);
+        Observer.Expect('before', 'R1');
+        Observer.Expect('action log', 'R:R1;R:R1;R:R1;R:R2;R:R1;R:R1;C:R1;');
+        Observer.Expect('shown after action', 'R1');
+        Observer.Expect('rows', 'R1 R2');
+        Observer.Expect('walk log', 'R:R2;R:R2;C:R2;');
+        Observer.Expect('shown after walk', 'R2');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TD_RefillFewer_WithCurrRecord_25To2()
+    begin
+        TdRunCur(25, 1, 2);
+        Observer.Expect('before', 'R1');
+        Observer.Expect('action log', 'R:R1;R:R1;R:R1;R:R2;R:R1;R:R1;C:R1;');
+        Observer.Expect('shown after action', 'R1');
+        Observer.Expect('rows', 'R1 R2');
+        Observer.Expect('walk log', 'R:R2;R:R2;C:R2;');
+        Observer.Expect('shown after walk', 'R2');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TD_RefillFewer_WithCurrRecord_25To3()
+    begin
+        TdRunCur(25, 1, 3);
+        Observer.Expect('before', 'R1');
+        Observer.Expect('action log', 'R:R1;R:R1;R:R1;R:R2;R:R3;R:R1;R:R1;C:R1;');
+        Observer.Expect('shown after action', 'R1');
+        Observer.Expect('rows', 'R1 R2 R3');
+        Observer.Expect('walk log', 'R:R2;R:R2;C:R2;R:R3;R:R3;C:R3;');
+        Observer.Expect('shown after walk', 'R3');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TD_RefillFewer_WithCurrRecord_3To0()
+    begin
+        TdRunCur(3, 1, 0);
+        Observer.Expect('before', 'R1');
+        Observer.Expect('action log', 'R:R1;C:;');
+        Observer.Expect('shown after action', '');
+        Observer.Expect('rows', '');
+        Observer.Expect('walk log', '');
+        Observer.Expect('shown after walk', '');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TD_RefillFewer_WithCurrRecord_25To0()
+    begin
+        TdRunCur(25, 1, 0);
+        Observer.Expect('before', 'R1');
+        Observer.Expect('action log', 'R:R1;C:;');
+        Observer.Expect('shown after action', '');
+        Observer.Expect('rows', '');
+        Observer.Expect('walk log', '');
+        Observer.Expect('shown after walk', '');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TD_RefillFewer_WithCurrRecord_25To2_FromRow23()
+    begin
+        TdRunCur(25, 23, 2);
+        Observer.Expect('before', 'R23');
+        Observer.Expect('action log', 'R:R23;R:R1;R:R1;R:R2;R:R1;R:R1;C:R1;');
+        Observer.Expect('shown after action', 'R1');
+        Observer.Expect('rows', 'R1 R2');
+        Observer.Expect('walk log', 'R:R2;R:R2;C:R2;');
+        Observer.Expect('shown after walk', 'R2');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TD_RefillFewer_WithCurrRecord_3To2_FromRow3()
+    begin
+        TdRunCur(3, 3, 2);
+        Observer.Expect('before', 'R3');
+        Observer.Expect('action log', 'R:R3;R:R1;R:R1;R:R2;R:R1;R:R1;C:R1;');
+        Observer.Expect('shown after action', 'R1');
+        Observer.Expect('rows', 'R1 R2');
+        Observer.Expect('walk log', 'R:R2;R:R2;C:R2;');
+        Observer.Expect('shown after walk', 'R2');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TD_RefillFewer_NoCurrRecord_3To2()
+    begin
+        TdRunNoCur(3, 1, 2);
+        Observer.Expect('before', 'R1');
+        Observer.Expect('action log', 'R:R1;R:R1;R:R1;R:R2;R:R1;');
+        Observer.Expect('shown after action', 'R1');
+        Observer.Expect('rows', 'R1 R2');
+        Observer.Expect('walk log', '');
+        Observer.Expect('shown after walk', 'R2');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TD_RefillFewer_NoCurrRecord_25To2()
+    begin
+        TdRunNoCur(25, 1, 2);
+        Observer.Expect('before', 'R1');
+        Observer.Expect('action log', 'R:R1;R:R1;R:R1;R:R2;R:R1;');
+        Observer.Expect('shown after action', 'R1');
+        Observer.Expect('rows', 'R1 R2');
+        Observer.Expect('walk log', '');
+        Observer.Expect('shown after walk', 'R2');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TD_RefillFewer_NoCurrRecord_25To3()
+    begin
+        TdRunNoCur(25, 1, 3);
+        Observer.Expect('before', 'R1');
+        Observer.Expect('action log', 'R:R1;R:R1;R:R1;R:R2;R:R3;R:R1;');
+        Observer.Expect('shown after action', 'R1');
+        Observer.Expect('rows', 'R1 R2 R3');
+        Observer.Expect('walk log', '');
+        Observer.Expect('shown after walk', 'R3');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TD_RefillFewer_NoCurrRecord_3To0()
+    begin
+        TdRunNoCur(3, 1, 0);
+        Observer.Expect('before', 'R1');
+        Observer.Expect('action log', 'R:R1;');
+        Observer.Expect('shown after action', '');
+        Observer.Expect('rows', '');
+        Observer.Expect('walk log', '');
+        Observer.Expect('shown after walk', '');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TD_RefillFewer_NoCurrRecord_25To0()
+    begin
+        TdRunNoCur(25, 1, 0);
+        Observer.Expect('before', 'R1');
+        Observer.Expect('action log', 'R:R1;');
+        Observer.Expect('shown after action', '');
+        Observer.Expect('rows', '');
+        Observer.Expect('walk log', '');
+        Observer.Expect('shown after walk', '');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TD_RefillFewer_NoCurrRecord_25To2_FromRow23()
+    begin
+        TdRunNoCur(25, 23, 2);
+        Observer.Expect('before', 'R23');
+        Observer.Expect('action log', 'R:R23;R:R23;R:R1;R:R1;R:R2;R:R1;');
+        Observer.Expect('shown after action', 'R1');
+        Observer.Expect('rows', 'R1 R2');
+        Observer.Expect('walk log', '');
+        Observer.Expect('shown after walk', 'R2');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TD_RefillFewer_NoCurrRecord_3To2_FromRow3()
+    begin
+        TdRunNoCur(3, 3, 2);
+        Observer.Expect('before', 'R3');
+        Observer.Expect('action log', 'R:R3;R:R3;R:R1;R:R1;R:R2;R:R1;');
+        Observer.Expect('shown after action', 'R1');
+        Observer.Expect('rows', 'R1 R2');
+        Observer.Expect('walk log', '');
+        Observer.Expect('shown after walk', 'R2');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TD_RefillMany_WithCurrRecord_3To25()
+    begin
+        TdShortLog := true;
+        TdRunCur(3, 1, 25);
+        Observer.Expect('before', 'R1');
+        Observer.Expect('action log', 'R:R1;R:R1;R:R1;R:R2;R:R3;R:R4;R:R5;R:R6;R:R7;R:R8;R:R9;R:R10;R:R11;R:R12;R:R13;R:R14;R:R15;R:R16;R:R17;R:R18;R:R19;R:R20;R:R1;R:R1;C:R1;');
+        Observer.Expect('shown after action', 'R1');
+        Observer.Expect('rows', 'R1 R2 R3 R4 R5 R6 R7 R8 R9 R10 R11 R12 R13 R14 R15 R16 R17 R18 R19 R20 R21 R22 R23 R24 R25');
+        Observer.Expect('walk log length', '444');
+        Observer.Expect('shown after walk', 'R25');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TD_RefillMany_WithCurrRecord_25To22()
+    begin
+        TdShortLog := true;
+        TdRunCur(25, 1, 22);
+        Observer.Expect('before', 'R1');
+        Observer.Expect('action log', 'R:R1;R:R1;R:R1;R:R2;R:R3;R:R4;R:R5;R:R6;R:R7;R:R8;R:R9;R:R10;R:R11;R:R12;R:R13;R:R14;R:R15;R:R16;R:R17;R:R18;R:R19;R:R20;R:R1;R:R1;C:R1;');
+        Observer.Expect('shown after action', 'R1');
+        Observer.Expect('rows', 'R1 R2 R3 R4 R5 R6 R7 R8 R9 R10 R11 R12 R13 R14 R15 R16 R17 R18 R19 R20 R21 R22');
+        Observer.Expect('walk log length', '372');
+        Observer.Expect('shown after walk', 'R22');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TD_RefillMany_WithCurrRecord_30To21_FromRow25()
+    begin
+        TdShortLog := true;
+        TdRunCur(30, 25, 21);
+        Observer.Expect('before', 'R25');
+        Observer.Expect('action log', 'R:R25;R:R1;R:R1;R:R2;R:R3;R:R4;R:R5;R:R6;R:R7;R:R8;R:R9;R:R10;R:R11;R:R12;R:R13;R:R14;R:R15;R:R16;R:R17;R:R18;R:R19;R:R20;R:R1;R:R1;C:R1;');
+        Observer.Expect('shown after action', 'R1');
+        Observer.Expect('rows', 'R1 R2 R3 R4 R5 R6 R7 R8 R9 R10 R11 R12 R13 R14 R15 R16 R17 R18 R19 R20 R21');
+        Observer.Expect('walk log length', '348');
+        Observer.Expect('shown after walk', 'R21');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TD_RefillMany_NoCurrRecord_3To25()
+    begin
+        TdShortLog := true;
+        TdRunNoCur(3, 1, 25);
+        Observer.Expect('before', 'R1');
+        Observer.Expect('action log', 'R:R1;R:R1;R:R1;R:R2;R:R3;R:R4;R:R5;R:R6;R:R7;R:R8;R:R9;R:R10;R:R11;R:R12;R:R13;R:R14;R:R15;R:R16;R:R17;R:R18;R:R19;R:R20;R:R1;');
+        Observer.Expect('shown after action', 'R1');
+        Observer.Expect('rows', 'R1 R2 R3 R4 R5 R6 R7 R8 R9 R10 R11 R12 R13 R14 R15 R16 R17 R18 R19 R20 R21 R22 R23 R24 R25');
+        Observer.Expect('walk log length', '42');
+        Observer.Expect('shown after walk', 'R25');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TD_RefillMany_NoCurrRecord_25To22()
+    begin
+        TdShortLog := true;
+        TdRunNoCur(25, 1, 22);
+        Observer.Expect('before', 'R1');
+        Observer.Expect('action log', 'R:R1;R:R1;R:R1;R:R2;R:R3;R:R4;R:R5;R:R6;R:R7;R:R8;R:R9;R:R10;R:R11;R:R12;R:R13;R:R14;R:R15;R:R16;R:R17;R:R18;R:R19;R:R20;R:R1;');
+        Observer.Expect('shown after action', 'R1');
+        Observer.Expect('rows', 'R1 R2 R3 R4 R5 R6 R7 R8 R9 R10 R11 R12 R13 R14 R15 R16 R17 R18 R19 R20 R21 R22');
+        Observer.Expect('walk log length', '24');
+        Observer.Expect('shown after walk', 'R22');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TD_RefillMany_NoCurrRecord_30To21_FromRow25()
+    begin
+        TdShortLog := true;
+        TdRunNoCur(30, 25, 21);
+        Observer.Expect('before', 'R25');
+        Observer.Expect('action log', 'R:R25;R:R25;R:R1;R:R1;R:R2;R:R3;R:R4;R:R5;R:R6;R:R7;R:R8;R:R9;R:R10;R:R11;R:R12;R:R13;R:R14;R:R15;R:R16;R:R17;R:R18;R:R19;R:R20;R:R1;');
+        Observer.Expect('shown after action', 'R1');
+        Observer.Expect('rows', 'R1 R2 R3 R4 R5 R6 R7 R8 R9 R10 R11 R12 R13 R14 R15 R16 R17 R18 R19 R20 R21');
+        Observer.Expect('walk log length', '18');
+        Observer.Expect('shown after walk', 'R21');
+        Observer.Verify();
+    end;
 }
 
 page 89437 "LT SH Refill Fewer Cur"
@@ -677,6 +1015,165 @@ page 89438 "LT SH Refill Fewer NoCur"
     procedure SetRowsAtOpen(NewRows: Integer)
     begin
         RowsAtOpen := NewRows;
+    end;
+
+    local procedure Fill(RowCount: Integer)
+    var
+        RowNo: Integer;
+    begin
+        Rec.Reset();
+        Rec.DeleteAll();
+        for RowNo := 1 to RowCount do begin
+            Rec.Init();
+            Rec."Entry No." := RowNo;
+            Rec."Group Code" := 'R';
+            Rec.Name := StrSubstNo('R%1', RowNo);
+            Rec.Insert();
+        end;
+        if Rec.FindFirst() then;
+    end;
+}
+
+page 89810 "LT TD Refill Cur"
+{
+    PageType = Worksheet;
+    SourceTable = "LT RM Refill Row";
+    SourceTableTemporary = true;
+    InsertAllowed = false;
+    ModifyAllowed = false;
+    DeleteAllowed = false;
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Lines)
+            {
+                Editable = false;
+                field(Name; Rec.Name) { Caption = 'Name'; }
+            }
+        }
+    }
+
+    actions
+    {
+        area(Processing)
+        {
+            action(RefillTo)
+            {
+                Caption = 'Refill';
+
+                trigger OnAction()
+                begin
+                    Fill(RefillCount);
+                end;
+            }
+        }
+    }
+
+    trigger OnOpenPage()
+    begin
+        Fill(RowsAtOpen);
+    end;
+
+    trigger OnAfterGetRecord()
+    begin
+        Log.Add('R:' + Rec.Name);
+    end;
+
+    trigger OnAfterGetCurrRecord()
+    begin
+        Log.Add('C:' + Rec.Name);
+    end;
+
+    var
+        Log: Codeunit "LT RM Refill Log";
+        RowsAtOpen: Integer;
+        RefillCount: Integer;
+
+    procedure SetRows(NewRows: Integer; NewRefillTo: Integer)
+    begin
+        RowsAtOpen := NewRows;
+        RefillCount := NewRefillTo;
+    end;
+
+    local procedure Fill(RowCount: Integer)
+    var
+        RowNo: Integer;
+    begin
+        Rec.Reset();
+        Rec.DeleteAll();
+        for RowNo := 1 to RowCount do begin
+            Rec.Init();
+            Rec."Entry No." := RowNo;
+            Rec."Group Code" := 'R';
+            Rec.Name := StrSubstNo('R%1', RowNo);
+            Rec.Insert();
+        end;
+        if Rec.FindFirst() then;
+    end;
+}
+
+page 89811 "LT TD Refill NoCur"
+{
+    PageType = Worksheet;
+    SourceTable = "LT RM Refill Row";
+    SourceTableTemporary = true;
+    InsertAllowed = false;
+    ModifyAllowed = false;
+    DeleteAllowed = false;
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Lines)
+            {
+                Editable = false;
+                field(Name; Rec.Name) { Caption = 'Name'; }
+            }
+        }
+    }
+
+    actions
+    {
+        area(Processing)
+        {
+            action(RefillTo)
+            {
+                Caption = 'Refill';
+
+                trigger OnAction()
+                begin
+                    Fill(RefillCount);
+                end;
+            }
+        }
+    }
+
+    trigger OnOpenPage()
+    begin
+        Fill(RowsAtOpen);
+    end;
+
+    trigger OnAfterGetRecord()
+    begin
+        Log.Add('R:' + Rec.Name);
+    end;
+
+    var
+        Log: Codeunit "LT RM Refill Log";
+        RowsAtOpen: Integer;
+        RefillCount: Integer;
+
+    procedure SetRows(NewRows: Integer; NewRefillTo: Integer)
+    begin
+        RowsAtOpen := NewRows;
+        RefillCount := NewRefillTo;
     end;
 
     local procedure Fill(RowCount: Integer)
