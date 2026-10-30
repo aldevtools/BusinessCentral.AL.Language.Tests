@@ -252,6 +252,18 @@ codeunit 81257 "LT BF Install Tests"
         exit(Result);
     end;
 
+    local procedure CrmText(Company: Text): Text
+    var
+        Crm: Record "CRM Connection Setup";
+        Result: Text;
+    begin
+        Crm.ChangeCompany(Company);
+        Result := 'isempty=' + Format(Crm.IsEmpty()) + ';count=' + Format(Crm.Count());
+        if Crm.FindFirst() then
+            Result += ';enabled=' + Format(Crm."Is Enabled");
+        exit(Result);
+    end;
+
     local procedure SetupText(Company: Text; WithJobQueue: Boolean): Text
     var
         AppAreaSetup: Record "Application Area Setup";
@@ -288,6 +300,20 @@ codeunit 81257 "LT BF Install Tests"
         Observer.Observe('My Company cds', CdsText('My Company'));
         Observer.Expect('session company cds', 'isempty=Yes;count=0');
         Observer.Expect('My Company cds', 'isempty=Yes;count=0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure SecondCompany_CrmConnectionSetup_ComparedWithSessionCompany()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        // Read only: ChangeCompany on the table, nothing is written to either company. Probe: corpus issue 811.
+        // Measured on 27.5, 28.5 and 29.0 (the same on all three): neither company has a CRM Connection Setup row (no Is Enabled to read).
+        Observer.Observe('session company crm', CrmText(CompanyName()));
+        Observer.Observe('My Company crm', CrmText('My Company'));
+        Observer.Expect('session company crm', 'isempty=Yes;count=0');
+        Observer.Expect('My Company crm', 'isempty=Yes;count=0');
         Observer.Verify();
     end;
 
