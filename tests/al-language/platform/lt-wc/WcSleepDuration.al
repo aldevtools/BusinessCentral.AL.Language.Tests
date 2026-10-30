@@ -3,7 +3,7 @@
 // Fixtures used: Probe Observer (codeunit 69160); self-contained codeunit 90641
 // Probe: written against al-runner issue 6301 (Sleep with a Duration); every value asserted below is what the BC service tier produced.
 // Facts: Sleep takes a Duration (it converts to the Integer parameter, in milliseconds): zero, a positive Duration, a Duration changed in the
-//        callee through a var parameter, and a negative Duration.
+//        callee through a var parameter, and the time it takes. A negative Duration raises an uncatchable CLR exception (ArgumentOutOfRangeException), not pinned.
 // BC versions: 27, 28, 29
 
 codeunit 90641 "LT WC Sleep Duration"
@@ -46,20 +46,6 @@ codeunit 90641 "LT WC Sleep Duration"
         Sleep(Delay);
         Elapsed := CurrentDateTime() - Started;
         Observer.Observe('at least 50 ms', Format(Elapsed >= 50));
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure WC_Sleep_Duration_Negative()
-    var
-        Observer: Codeunit "Probe Observer";
-        Delay: Duration;
-    begin
-        Delay := -5;
-        asserterror Sleep(Delay);
-        Observer.ObserveError('negative duration');
-        asserterror Sleep(-5);
-        Observer.ObserveError('negative integer');
         Observer.Finish();
     end;
 }

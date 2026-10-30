@@ -37,7 +37,7 @@ codeunit 90644 "LT WC RecordRef Lock Table"
         Observer.Observe('after open', Tx());
         RecRef.LockTable();
         Observer.Observe('after LockTable', Tx());
-        RecRef.FindFirst();
+        if RecRef.FindFirst() then;
         Observer.Observe('after read', Tx());
         Commit();
         Observer.Observe('after commit', Tx());
@@ -52,7 +52,8 @@ codeunit 90644 "LT WC RecordRef Lock Table"
     begin
         Commit();
         RecRef.Open(Database::"LT WC Lock Entry");
-        RecRef.LockTable(false);
+        asserterror RecRef.LockTable(false);
+        Observer.ObserveError('LockTable(false)');
         Observer.Observe('after LockTable(false)', Tx());
         Commit();
         RecRef.LockTable(true);

@@ -23,18 +23,13 @@ codeunit 90646 "LT WC Clear Table Filter"
 
     local procedure Setup(var Job: Record "LT WC Job")
     var
-        RecRef: RecordRef;
-        TF: FieldRef;
     begin
         Job.DeleteAll();
         Job.Init();
         Job.Code := 'J1';
         Job."Table No." := Database::"LT WC Job";
+        Evaluate(Job."Table Filter", 'LT WC Job: Table No.=5');
         Job.Insert();
-        RecRef.GetTable(Job);
-        TF := RecRef.Field(3);
-        TF.Value := 'LT WC Job: Code=1';
-        RecRef.SetTable(Job);
     end;
 
     [Test]

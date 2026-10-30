@@ -64,6 +64,7 @@ codeunit 90643 "LT WC Record Id Filter"
         Line."Doc No." := 'X Y,Z';
         Line."Line No." := 20000;
         Line.Insert();
+        Doc.Get('A');
         AddLog(1, Doc.RecordId);
         Doc.Get('B');
         AddLog(2, Doc.RecordId);
