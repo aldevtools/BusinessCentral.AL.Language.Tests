@@ -6,7 +6,9 @@
 // Facts: al-runner issue 6380. The three credential-type members of Identity Management (they call DotNet
 //   NavUserAccountHelper.IsWindowsAuthentication, IsUserNamePasswordAuthentication, IsAccessControlServiceAuthentication)
 //   answer the service tier's ClientServicesCredentialType. The values are those of the CI containers.
-// Result: OBSERVED_RESULT
+// Result: on the CI containers IsWindowsAuthentication = No, IsUserNamePasswordAuthentication = Yes,
+//   IsAccessControlServiceAuthentication = No (credential type NavUserPassword). These members cannot be called from a Cloud
+//   app, so the SaaS sandbox has no answer for the two Scope OnPrem members.
 // Source: al-runner issue 6380.
 // BC versions: 27, 28, 29
 
@@ -19,13 +21,14 @@ codeunit 98850 "LT Y5 Auth OnPrem Tests"
     procedure Y5_AuthOnPrem_CredentialTypeMembers()
     var
         IdentityManagement: Codeunit "Identity Management";
-        EnvironmentInformation: Codeunit "Environment Information";
         Observer: Codeunit "Probe Observer";
     begin
-        Observer.Observe('saas', Format(EnvironmentInformation.IsSaaS()));
         Observer.Observe('windows', Format(IdentityManagement.IsWindowsAuthentication()));
         Observer.Observe('username password', Format(IdentityManagement.IsUserNamePasswordAuthentication()));
         Observer.Observe('access control service', Format(IdentityManagement.IsAccessControlServiceAuthentication()));
-        Observer.Finish();
+        Observer.Expect('windows', 'No');
+        Observer.Expect('username password', 'Yes');
+        Observer.Expect('access control service', 'No');
+        Observer.Verify();
     end;
 }

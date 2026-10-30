@@ -6,8 +6,10 @@
 // Facts: al-runner issue 6380. Identity Management.IsUserNamePasswordAuthentication (the only one of the three credential-type
 //   members that a Cloud app can call; IsWindowsAuthentication and IsAccessControlServiceAuthentication are Scope OnPrem, see
 //   tests/al-language-onprem/lt-y5/Y5AuthenticationTypeOnPrem.al) answers the service tier's ClientServicesCredentialType.
-//   The answer differs per environment, so the test asserts it per environment (IsSaaS).
-// Result: OBSERVED_RESULT
+//   The answer differs per environment. Asserted: the corpus CI containers (Linux, BC 29.0 leg): Yes. Measured on a BC 29 SaaS
+//   sandbox (not asserted; the SaaS sandbox is not a CI leg): No. EnvironmentInformation.IsSaaS() is Yes on both, so it cannot
+//   tell the two apart.
+// Result: the CI containers use user name and password credentials (IsUserNamePasswordAuthentication = Yes, on every call).
 // Source: al-runner issue 6380.
 // BC versions: 27, 28, 29
 
@@ -20,12 +22,12 @@ codeunit 90987 "LT Y5 Auth Tests"
     procedure Y5_Auth_IsUserNamePasswordAuthentication()
     var
         IdentityManagement: Codeunit "Identity Management";
-        EnvironmentInformation: Codeunit "Environment Information";
         Observer: Codeunit "Probe Observer";
     begin
-        Observer.Observe('saas', Format(EnvironmentInformation.IsSaaS()));
         Observer.Observe('username password', Format(IdentityManagement.IsUserNamePasswordAuthentication()));
         Observer.Observe('second call', Format(IdentityManagement.IsUserNamePasswordAuthentication()));
-        Observer.Finish();
+        Observer.Expect('username password', 'Yes');
+        Observer.Expect('second call', 'Yes');
+        Observer.Verify();
     end;
 }
