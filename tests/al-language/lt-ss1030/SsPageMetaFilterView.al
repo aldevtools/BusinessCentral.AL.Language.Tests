@@ -103,7 +103,13 @@ codeunit 99800 "LT SS Page Meta Filter View"
         Observer.Observe('not_order', ViewOf(Page::"LT SS Not Order"));
         Observer.Observe('code_or', ViewOf(Page::"LT SS Code Filter"));
         Observer.Observe('enum', ViewOf(Page::"LT SS Enum Filter"));
-        Observer.Finish();
+        // The view is stored with field numbers, option and enum values as their integers.
+        Observer.Expect('quote', 'WHERE(Field1=FILTER(0))');
+        Observer.Expect('either', 'WHERE(Field1=FILTER(0|2))');
+        Observer.Expect('not_order', 'WHERE(Field1=FILTER(<>1))');
+        Observer.Expect('code_or', 'WHERE(Field2=FILTER(A|B))');
+        Observer.Expect('enum', 'WHERE(Field3=FILTER(1))');
+        Observer.Verify();
     end;
 
     [Test]
@@ -126,6 +132,14 @@ codeunit 99800 "LT SS Page Meta Filter View"
         Observer.Observe('count_list_pages_of_table', Format(Meta.Count()));
         Meta.FindFirst();
         Observer.Observe('first_list_page_view', Meta.SourceTableView);
-        Observer.Finish();
+        Observer.Expect('find_first', 'Yes');
+        Observer.Expect('id', '99805');
+        Observer.Expect('is_api_page', 'Yes');
+        Observer.Expect('count', '1');
+        Observer.Expect('view_of_api', '');
+        Observer.Expect('count_all_pages_of_table', '6');
+        Observer.Expect('count_list_pages_of_table', '5');
+        Observer.Expect('first_list_page_view', 'WHERE(Field1=FILTER(0))');
+        Observer.Verify();
     end;
 }

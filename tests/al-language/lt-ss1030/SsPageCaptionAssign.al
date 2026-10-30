@@ -131,7 +131,12 @@ codeunit 99810 "LT SS Page Caption Assign"
         TP.Previous();
         Observer.Observe('row_a_again', TP.Caption());
         TP.Close();
-        Observer.Finish();
+        // The extension's OnAfterGetCurrRecord runs after the page's OnOpenPage, so its caption wins on open.
+        Observer.Expect('on_open', 'Other Entries');
+        Observer.Expect('row_a', 'Other Entries');
+        Observer.Expect('row_b', 'Cash Entries');
+        Observer.Expect('row_a_again', 'Other Entries');
+        Observer.Verify();
     end;
 
     [Test]
@@ -148,7 +153,10 @@ codeunit 99810 "LT SS Page Caption Assign"
         TP.Next();
         Observer.Observe('after_next', TP.Caption());
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('on_open', 'Base (opened)');
+        Observer.Expect('after_action', 'Renamed by action');
+        Observer.Expect('after_next', 'Renamed by action');
+        Observer.Verify();
     end;
 
     [Test]
@@ -161,6 +169,7 @@ codeunit 99810 "LT SS Page Caption Assign"
         TP.OpenView();
         Observer.Observe('on_open', TP.Caption());
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('on_open', 'Plain (extension)');
+        Observer.Verify();
     end;
 }

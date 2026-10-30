@@ -25,17 +25,14 @@ codeunit 99830 "LT SS Caller Modules"
         Observer: Codeunit "Probe Observer";
         Infos: List of [ModuleInfo];
         Info: ModuleInfo;
-        Own: ModuleInfo;
         Found: Boolean;
     begin
-        NavApp.GetCurrentModuleInfo(Own);
         Infos := NavApp.GetCallerCallstackModuleInfos();
         foreach Info in Infos do
             if Format(Info.Id) = '{23de40a6-dfe8-4f80-80db-d70f83ce8caf}' then
                 Found := true;
         Observer.Observe('count', Format(Infos.Count()));
         Observer.Observe('test_runner_listed', Format(Found));
-        Observer.Observe('first_is_own_app', Format(Infos.Get(1).Id = Own.Id));
         Observer.Observe('apps', Describe(Infos));
         Observer.Finish();
     end;
