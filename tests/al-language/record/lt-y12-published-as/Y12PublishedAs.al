@@ -24,7 +24,7 @@ codeunit 91553 "LT Y12 Published As"
         Evaluate(AppId, AppIdText);
         if not Row.Get(AppId) then
             exit('no row');
-        exit(Format(Row."Published As") + '|' + Format(Row."Published As".AsInteger()));
+        exit(Format(Row."Published As") + '|' + Format(Row."Published As", 0, 2));
     end;
 
     [Test]
