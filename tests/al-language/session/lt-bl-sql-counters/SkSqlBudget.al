@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/sessioninformation/sessioninformation-data-type
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160), Assert (codeunit 130000); own table 89190, codeunit 89191; writer SK (al-runner issue 5861)
+// Fixtures used: Probe Observer (codeunit 69160), Assert (codeunit 130000); own table 89190, codeunit 89191; writer SK (al-runner issue 5861); writer SZ adds tables 89750-89751, codeunits 89752-89753; writer TW adds tables 90148-90149, codeunit 90150 and the TW_ tests (al-runner issue 6116: reads between the counter reads); writer TX adds table 90170, codeunit 90171 and the TX_ tests (issue 6116 follow-up: one record method per measurement)
 // Probe: the statement budget test of al-runner issue 5861 (no Commit before the first read, a two-field key, a procedure in another
 // codeunit that copies a temporary record into the table with FindSet, Next and Insert, then SetRange and Count), and the size of the
 // change of SessionInformation.SqlStatementsExecuted() and SqlRowsRead() around that shape for several row counts, with and without a
@@ -296,5 +296,800 @@ codeunit 89192 "LT SK Sql Budget"
         Observer.Expect('copy, count in a second call N=10', '3/1 3/1 3/1');
         Observer.Expect('copy, count in a second call N=20', '5/1 5/1 5/1');
         Observer.Verify();
+    end;
+}
+
+// Writer SZ (al-runner issue 5861): a table whose global trigger setup runs AL code (OnAfterGetDatabaseTableTriggerSetup registers it for
+// OnDatabaseInsert; OnAfterOnDatabaseInsert runs AL code), and a plain table. Each is first used in the session by one test.
+table 89750 "LT SZ Gt Row"
+{
+    DataClassification = CustomerContent;
+
+    fields
+    {
+        field(1; Id; Integer) { }
+        field(2; Name; Text[30]) { }
+    }
+
+    keys
+    {
+        key(PK; Id) { Clustered = true; }
+    }
+}
+
+table 89751 "LT SZ Plain Row"
+{
+    DataClassification = CustomerContent;
+
+    fields
+    {
+        field(1; Id; Integer) { }
+        field(2; Name; Text[30]) { }
+    }
+
+    keys
+    {
+        key(PK; Id) { Clustered = true; }
+    }
+}
+
+codeunit 89752 "LT SZ Gt Subs"
+{
+    EventSubscriberInstance = Manual;
+
+    var
+        InsertsSeen: Integer;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::GlobalTriggerManagement, 'OnAfterGetDatabaseTableTriggerSetup', '', false, false)]
+    local procedure Setup(TableId: Integer; var OnDatabaseInsert: Boolean; var OnDatabaseModify: Boolean; var OnDatabaseDelete: Boolean; var OnDatabaseRename: Boolean)
+    begin
+        if TableId = Database::"LT SZ Gt Row" then
+            OnDatabaseInsert := true;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::GlobalTriggerManagement, 'OnAfterOnDatabaseInsert', '', false, false)]
+    local procedure DbInsert(RecRef: RecordRef)
+    begin
+        if RecRef.Number() = Database::"LT SZ Gt Row" then
+            InsertsSeen += 1;
+    end;
+
+    procedure Seen(): Integer
+    begin
+        exit(InsertsSeen);
+    end;
+}
+
+codeunit 89753 "LT SZ Sql Budget"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    var
+        Stmts: BigInteger;
+        Rows: BigInteger;
+
+    local procedure Mark()
+    begin
+        Stmts := SessionInformation.SqlStatementsExecuted();
+        Rows := SessionInformation.SqlRowsRead();
+    end;
+
+    local procedure Delta(): Text
+    begin
+        exit(Format(SessionInformation.SqlStatementsExecuted() - Stmts) + '/' + Format(SessionInformation.SqlRowsRead() - Rows));
+    end;
+
+    local procedure Stmt(): BigInteger
+    begin
+        exit(SessionInformation.SqlStatementsExecuted());
+    end;
+
+    // (a) The first Insert into a table whose trigger setup runs AL code, against the first Insert into a plain table. The size of the
+    // first Insert into the table with trigger setup was 2 and 7 on different runs (BC 29 SaaS), so only "more than the plain table's one
+    // statement" is pinned for it; the plain table's first Insert, the later Inserts and the flush by Count were the same on every run.
+    [Test]
+    procedure SZ_FirstInsert_TriggerSetupRunsAl()
+    var
+        Observer: Codeunit "Probe Observer";
+        Subs: Codeunit "LT SZ Gt Subs";
+        Gt: Record "LT SZ Gt Row";
+        Plain: Record "LT SZ Plain Row";
+        GtFirst: BigInteger;
+        PlainFirst: BigInteger;
+        Acc: Text;
+    begin
+        BindSubscription(Subs);
+        Commit();
+        Mark();
+        Gt.Id := 1;
+        Gt.Insert();
+        GtFirst := Stmt() - Stmts;
+        Mark();
+        Gt.Id := 2;
+        Gt.Insert();
+        Acc := 'gt second ' + Delta() + '; ';
+        Mark();
+        Gt.Id := 3;
+        Gt.Insert();
+        Acc += 'gt third ' + Delta() + '; ';
+        Mark();
+        Acc += 'gt count ' + Format(Gt.Count()) + ' ' + Delta() + '; ';
+        Mark();
+        Plain.Id := 1;
+        Plain.Insert();
+        PlainFirst := Stmt() - Stmts;
+        Mark();
+        Plain.Id := 2;
+        Plain.Insert();
+        Acc += 'plain second ' + Delta() + '; ';
+        Mark();
+        Plain.Id := 3;
+        Plain.Insert();
+        Acc += 'plain third ' + Delta() + '; ';
+        Mark();
+        Acc += 'plain count ' + Format(Plain.Count()) + ' ' + Delta();
+        Observer.Observe('plain first', Format(PlainFirst));
+        Observer.Observe('gt first more than plain first', Format(GtFirst > PlainFirst));
+        Observer.Observe('gt first at least 2', Format(GtFirst >= 2));
+        Observer.Observe('rest', Acc);
+        Observer.Observe('subscriber ran', Format(Subs.Seen()));
+        UnbindSubscription(Subs);
+        Observer.Expect('plain first', '1');
+        Observer.Expect('gt first more than plain first', 'Yes');
+        Observer.Expect('gt first at least 2', 'Yes');
+        Observer.Expect('rest', 'gt second 0/0; gt third 0/0; gt count 3 4/1; plain second 0/0; plain third 0/0; plain count 3 4/1');
+        Observer.Expect('subscriber ran', '3');
+        Observer.Verify();
+    end;
+
+    // (b) A copy loop while earlier Inserts are still buffered: K rows inserted first with no read in between, then N copied.
+    local procedure Buffered(K: Integer; N: Integer): Text
+    var
+        Row: Record "LT SZ Plain Row";
+        Temp: Record "LT SZ Plain Row" temporary;
+        i: Integer;
+        Base: Integer;
+        Copy: Text;
+    begin
+        Row.Reset();
+        Row.DeleteAll();
+        Commit();
+        for i := 1 to N do begin
+            Temp.Id := i;
+            Temp.Insert();
+        end;
+        Base := 1000;
+        Mark();
+        for i := 1 to K do begin
+            Row.Id := Base + i;
+            Row.Insert();
+        end;
+        Copy := Delta();
+        Mark();
+        if Temp.FindSet() then
+            repeat
+                Row.Id := Temp.Id;
+                Row.Insert();
+            until Temp.Next() = 0;
+        Copy += ' ' + Delta();
+        Mark();
+        Row.SetRange(Id, 0, 2000);
+        Copy += ' ' + Format(Row.Count()) + ' ' + Delta();
+        exit(Copy);
+    end;
+
+    // Each value: insert-window, copy-window, Count result, flush window ("statements/rows"), on three repeats. Same on 3 runs.
+    [Test]
+    procedure SZ_CopyLoop_WhileInsertsBuffered()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('K0 N10', Buffered(0, 10) + ' | ' + Buffered(0, 10) + ' | ' + Buffered(0, 10));
+        Observer.Observe('K1 N10', Buffered(1, 10) + ' | ' + Buffered(1, 10) + ' | ' + Buffered(1, 10));
+        Observer.Observe('K5 N10', Buffered(5, 10) + ' | ' + Buffered(5, 10) + ' | ' + Buffered(5, 10));
+        Observer.Observe('K5 N1', Buffered(5, 1) + ' | ' + Buffered(5, 1) + ' | ' + Buffered(5, 1));
+        Observer.Observe('K20 N20', Buffered(20, 20) + ' | ' + Buffered(20, 20) + ' | ' + Buffered(20, 20));
+        Observer.Expect('K0 N10', '0/0 2/0 10 1/1 | 0/0 2/0 10 1/1 | 0/0 2/0 10 1/1');
+        Observer.Expect('K1 N10', '0/0 2/0 11 2/1 | 0/0 2/0 11 2/1 | 0/0 2/0 11 2/1');
+        Observer.Expect('K5 N10', '1/0 2/0 15 1/1 | 1/0 2/0 15 1/1 | 1/0 2/0 15 1/1');
+        Observer.Expect('K5 N1', '1/0 0/0 6 2/1 | 1/0 0/0 6 2/1 | 1/0 0/0 6 2/1');
+        Observer.Expect('K20 N20', '4/0 4/0 40 1/1 | 4/0 4/0 40 1/1 | 4/0 4/0 40 1/1');
+        Observer.Verify();
+    end;
+
+    // ---- writer TW (al-runner issue 6116, reporter's real-BC 29.0 run): the change of both counters around a procedure of another codeunit
+    //      that READS a table, with no Commit before the first read and ten rows inserted just before it: Get with SetLoadFields, a filtered
+    //      FindSet + Next with SetLoadFields, a Get + Modify loop over five rows, and five FindFirst that find nothing, each followed by
+    //      Insert(true) into a table with an AutoIncrement field. Value: "statements/rows" and the result the procedure returned. ----
+    local procedure TwInsertLines(GroupCode: Code[20]; LineCount: Integer)
+    var
+        RuleLine: Record "LT TW Sk Rule Line";
+        i: Integer;
+    begin
+        for i := 1 to LineCount do begin
+            RuleLine.Init();
+            RuleLine."Group Code" := GroupCode;
+            RuleLine."Line No." := i;
+            RuleLine.Value := 'Value';
+            RuleLine.Weight := i;
+            RuleLine.Insert();
+        end;
+    end;
+
+    [Test]
+    procedure TW_GetWithLoadFields_Counts()
+    var
+        RuleStore: Codeunit "LT TW Sk Rule Store";
+        Obs: Codeunit "Probe Observer";
+        StmtsBefore: BigInteger;
+        RowsBefore: BigInteger;
+        StmtsDelta: BigInteger;
+        RowsDelta: BigInteger;
+        Weight: Integer;
+    begin
+        TwInsertLines('TWREAD1', 10);
+        StmtsBefore := SessionInformation.SqlStatementsExecuted();
+        RowsBefore := SessionInformation.SqlRowsRead();
+        Weight := RuleStore.ReadWeight('TWREAD1', 5);
+        StmtsDelta := SessionInformation.SqlStatementsExecuted() - StmtsBefore;
+        RowsDelta := SessionInformation.SqlRowsRead() - RowsBefore;
+        Obs.Observe('result', Format(Weight));
+        Obs.Observe('statements/rows', Format(StmtsDelta) + '/' + Format(RowsDelta));
+        Obs.Observe('within 5/5', Format((StmtsDelta <= 5) and (RowsDelta <= 5)));
+        Obs.Expect('result', '5');
+        Obs.Expect('statements/rows', '1/1');
+        Obs.Expect('within 5/5', 'Yes');
+        Obs.Verify();
+    end;
+
+    [Test]
+    procedure TW_FilteredFindSet_Counts()
+    var
+        RuleStore: Codeunit "LT TW Sk Rule Store";
+        Obs: Codeunit "Probe Observer";
+        StmtsBefore: BigInteger;
+        RowsBefore: BigInteger;
+        StmtsDelta: BigInteger;
+        RowsDelta: BigInteger;
+        Total: Integer;
+    begin
+        TwInsertLines('TWREAD2', 10);
+        StmtsBefore := SessionInformation.SqlStatementsExecuted();
+        RowsBefore := SessionInformation.SqlRowsRead();
+        Total := RuleStore.SumWeights('TWREAD2');
+        StmtsDelta := SessionInformation.SqlStatementsExecuted() - StmtsBefore;
+        RowsDelta := SessionInformation.SqlRowsRead() - RowsBefore;
+        Obs.Observe('result', Format(Total));
+        Obs.Observe('statements/rows', Format(StmtsDelta) + '/' + Format(RowsDelta));
+        Obs.Observe('within 5/25', Format((StmtsDelta <= 5) and (RowsDelta <= 25)));
+        Obs.Expect('result', '55');
+        Obs.Expect('statements/rows', '1/11');
+        Obs.Expect('within 5/25', 'Yes');
+        Obs.Verify();
+    end;
+
+    [Test]
+    procedure TW_GetAndModifyLoop_Counts()
+    var
+        RuleLine: Record "LT TW Sk Rule Line";
+        RuleStore: Codeunit "LT TW Sk Rule Store";
+        Obs: Codeunit "Probe Observer";
+        StmtsBefore: BigInteger;
+        RowsBefore: BigInteger;
+        StmtsDelta: BigInteger;
+        RowsDelta: BigInteger;
+    begin
+        TwInsertLines('TWWRITE1', 10);
+        StmtsBefore := SessionInformation.SqlStatementsExecuted();
+        RowsBefore := SessionInformation.SqlRowsRead();
+        RuleStore.RaiseWeights('TWWRITE1', 5);
+        StmtsDelta := SessionInformation.SqlStatementsExecuted() - StmtsBefore;
+        RowsDelta := SessionInformation.SqlRowsRead() - RowsBefore;
+        RuleLine.Get('TWWRITE1', 5);
+        Obs.Observe('result', Format(RuleLine.Weight));
+        Obs.Observe('statements/rows', Format(StmtsDelta) + '/' + Format(RowsDelta));
+        Obs.Observe('within 25/25', Format((StmtsDelta <= 25) and (RowsDelta <= 25)));
+        Obs.Expect('result', '105');
+        Obs.Expect('statements/rows', '10/10');
+        Obs.Expect('within 25/25', 'Yes');
+        Obs.Verify();
+    end;
+
+    [Test]
+    procedure TW_FindFirstOrInsert_Counts()
+    var
+        TreeNode: Record "LT TW Sk Tree Node";
+        RuleStore: Codeunit "LT TW Sk Rule Store";
+        Obs: Codeunit "Probe Observer";
+        StmtsBefore: BigInteger;
+        RowsBefore: BigInteger;
+        StmtsDelta: BigInteger;
+        RowsDelta: BigInteger;
+        LastNode: Integer;
+    begin
+        StmtsBefore := SessionInformation.SqlStatementsExecuted();
+        RowsBefore := SessionInformation.SqlRowsRead();
+        LastNode := RuleStore.BuildPath('TWTREE1', 5);
+        StmtsDelta := SessionInformation.SqlStatementsExecuted() - StmtsBefore;
+        RowsDelta := SessionInformation.SqlRowsRead() - RowsBefore;
+        TreeNode.SetRange("Group Code", 'TWTREE1');
+        Obs.Observe('nodes', Format(TreeNode.Count()));
+        Obs.Observe('last node set', Format(LastNode <> 0));
+        Obs.Observe('statements/rows', Format(StmtsDelta) + '/' + Format(RowsDelta));
+        Obs.Observe('within 25/15', Format((StmtsDelta <= 25) and (RowsDelta <= 15)));
+        Obs.Expect('nodes', '5');
+        Obs.Expect('last node set', 'Yes');
+        Obs.Expect('statements/rows', '11/5');
+        Obs.Expect('within 25/15', 'Yes');
+        Obs.Verify();
+    end;
+
+    // ---- writer TX (al-runner issue 6116 follow-up): the change of both counters contributed by ONE record method on its own, called in
+    //      a procedure of another codeunit (90171). Before each measurement the table 90170 holds N rows of group 'TX' and one row each of
+    //      groups 'A' and 'Z', and is committed. Each measurement runs three times in the same test. Value: "statements/rows" three times
+    //      and the result the procedure returned. ----
+    local procedure TxReset(N: Integer)
+    var
+        SqlLine: Record "LT TX Sql Line";
+        i: Integer;
+    begin
+        SqlLine.DeleteAll();
+        TxInsert('A', 1);
+        for i := 1 to N do
+            TxInsert('TX', i);
+        TxInsert('Z', 1);
+        Commit();
+    end;
+
+    local procedure TxInsert(GroupCode: Code[20]; LineNo: Integer)
+    var
+        SqlLine: Record "LT TX Sql Line";
+    begin
+        SqlLine.Init();
+        SqlLine."Group Code" := GroupCode;
+        SqlLine."Line No." := LineNo;
+        SqlLine.Value := 'Value';
+        SqlLine.Weight := LineNo;
+        SqlLine.Insert();
+    end;
+
+    // Kind: 1 Get of line 2 (N >= 2); 2 the same with SetLoadFields(Weight); 3 SetRange on the group, FindSet, Next until the end;
+    // 4 Get and Modify of lines 1..N; 5 FindFirst on group 'NONE'; 6 IsEmpty on the group; 7 Count on the group; 8 FindLast on the group;
+    // 9 and 10: the same as 3 with one more filter on "Line No." that every row passes (SumGroupOneRow, SumGroupThreeRows), so that each
+    // row count sends a SQL statement of its own. BC 29 SaaS: when the same statement had found no rows just before (the 0-row test),
+    // the next FindSet that finds rows cost one statement more the first time (2/1 instead of 1/2 for one row, 2/4 instead of 1/4 for
+    // three rows); that history effect is not asserted here.
+    local procedure TxMeasure(Kind: Integer; N: Integer; var Result: Text): Text
+    var
+        SqlReader: Codeunit "LT TX Sql Reader";
+    begin
+        TxReset(N);
+        Mark();
+        case Kind of
+            1:
+                Result := Format(SqlReader.GetWeight(2));
+            2:
+                Result := Format(SqlReader.GetWeightLoadFields(2));
+            3:
+                Result := Format(SqlReader.SumGroup('TX'));
+            4:
+                Result := Format(SqlReader.RaiseWeights(N));
+            5:
+                Result := Format(SqlReader.FindFirstInGroup('NONE'));
+            6:
+                Result := Format(SqlReader.GroupIsEmpty('TX'));
+            7:
+                Result := Format(SqlReader.CountGroup('TX'));
+            8:
+                Result := Format(SqlReader.LastLineNo('TX'));
+            9:
+                Result := Format(SqlReader.SumGroupOneRow('TX'));
+            10:
+                Result := Format(SqlReader.SumGroupThreeRows('TX'));
+        end;
+        exit(Delta());
+    end;
+
+    local procedure TxObserve(var Obs: Codeunit "Probe Observer"; Kind: Integer; N: Integer)
+    var
+        Result1: Text;
+        Result2: Text;
+        Result3: Text;
+        Counts: Text;
+    begin
+        Counts := TxMeasure(Kind, N, Result1);
+        Counts += ' ' + TxMeasure(Kind, N, Result2);
+        Counts += ' ' + TxMeasure(Kind, N, Result3);
+        Obs.Observe('result', Result1 + ' ' + Result2 + ' ' + Result3);
+        Obs.Observe('statements/rows', Counts);
+    end;
+
+    [Test]
+    procedure TX_Get_OneRow()
+    var
+        Obs: Codeunit "Probe Observer";
+    begin
+        TxObserve(Obs, 1, 3);
+        Obs.Expect('result', '2 2 2');
+        Obs.Expect('statements/rows', '1/1 1/1 1/1');
+        Obs.Verify();
+    end;
+
+    [Test]
+    procedure TX_GetWithLoadFields_OneRow()
+    var
+        Obs: Codeunit "Probe Observer";
+    begin
+        TxObserve(Obs, 2, 3);
+        Obs.Expect('result', '2 2 2');
+        Obs.Expect('statements/rows', '1/1 1/1 1/1');
+        Obs.Verify();
+    end;
+
+    [Test]
+    procedure TX_FilteredFindSetNext_0Rows()
+    var
+        Obs: Codeunit "Probe Observer";
+    begin
+        TxObserve(Obs, 3, 0);
+        Obs.Expect('result', '0 0 0');
+        Obs.Expect('statements/rows', '1/0 1/0 1/0');
+        Obs.Verify();
+    end;
+
+    [Test]
+    procedure TX_FilteredFindSetNext_1Row()
+    var
+        Obs: Codeunit "Probe Observer";
+    begin
+        TxObserve(Obs, 9, 1);
+        Obs.Expect('result', '1 1 1');
+        Obs.Expect('statements/rows', '1/2 1/2 1/2');
+        Obs.Verify();
+    end;
+
+    [Test]
+    procedure TX_FilteredFindSetNext_3Rows()
+    var
+        Obs: Codeunit "Probe Observer";
+    begin
+        TxObserve(Obs, 10, 3);
+        Obs.Expect('result', '6 6 6');
+        Obs.Expect('statements/rows', '1/4 1/4 1/4');
+        Obs.Verify();
+    end;
+
+    [Test]
+    procedure TX_GetModifyLoop_1Row()
+    var
+        Obs: Codeunit "Probe Observer";
+    begin
+        TxObserve(Obs, 4, 1);
+        Obs.Expect('result', '101 101 101');
+        Obs.Expect('statements/rows', '2/2 2/2 2/2');
+        Obs.Verify();
+    end;
+
+    [Test]
+    procedure TX_GetModifyLoop_3Rows()
+    var
+        Obs: Codeunit "Probe Observer";
+    begin
+        TxObserve(Obs, 4, 3);
+        Obs.Expect('result', '306 306 306');
+        Obs.Expect('statements/rows', '6/6 6/6 6/6');
+        Obs.Verify();
+    end;
+
+    [Test]
+    procedure TX_FindFirstNothing()
+    var
+        Obs: Codeunit "Probe Observer";
+    begin
+        TxObserve(Obs, 5, 3);
+        Obs.Expect('result', 'No No No');
+        Obs.Expect('statements/rows', '1/0 1/0 1/0');
+        Obs.Verify();
+    end;
+
+    [Test]
+    procedure TX_IsEmpty_NoRows()
+    var
+        Obs: Codeunit "Probe Observer";
+    begin
+        TxObserve(Obs, 6, 0);
+        Obs.Expect('result', 'Yes Yes Yes');
+        Obs.Expect('statements/rows', '1/0 1/0 1/0');
+        Obs.Verify();
+    end;
+
+    [Test]
+    procedure TX_IsEmpty_3Rows()
+    var
+        Obs: Codeunit "Probe Observer";
+    begin
+        TxObserve(Obs, 6, 3);
+        Obs.Expect('result', 'No No No');
+        Obs.Expect('statements/rows', '1/1 1/1 1/1');
+        Obs.Verify();
+    end;
+
+    [Test]
+    procedure TX_FilteredCount_0Rows()
+    var
+        Obs: Codeunit "Probe Observer";
+    begin
+        TxObserve(Obs, 7, 0);
+        Obs.Expect('result', '0 0 0');
+        Obs.Expect('statements/rows', '1/1 1/1 1/1');
+        Obs.Verify();
+    end;
+
+    [Test]
+    procedure TX_FilteredCount_3Rows()
+    var
+        Obs: Codeunit "Probe Observer";
+    begin
+        TxObserve(Obs, 7, 3);
+        Obs.Expect('result', '3 3 3');
+        Obs.Expect('statements/rows', '1/1 1/1 1/1');
+        Obs.Verify();
+    end;
+
+    [Test]
+    procedure TX_FilteredFindLast_1Row()
+    var
+        Obs: Codeunit "Probe Observer";
+    begin
+        TxObserve(Obs, 8, 1);
+        Obs.Expect('result', '1 1 1');
+        Obs.Expect('statements/rows', '1/1 1/1 1/1');
+        Obs.Verify();
+    end;
+
+    [Test]
+    procedure TX_FilteredFindLast_3Rows()
+    var
+        Obs: Codeunit "Probe Observer";
+    begin
+        TxObserve(Obs, 8, 3);
+        Obs.Expect('result', '3 3 3');
+        Obs.Expect('statements/rows', '1/1 1/1 1/1');
+        Obs.Verify();
+    end;
+}
+
+// ---- writer TW (al-runner issue 6116): the reporter's tables and the codeunit whose procedures read them. ----
+table 90148 "LT TW Sk Rule Line"
+{
+    DataClassification = CustomerContent;
+
+    fields
+    {
+        field(1; "Group Code"; Code[20]) { }
+        field(2; "Line No."; Integer) { }
+        field(3; Value; Text[50]) { }
+        field(4; Weight; Integer) { }
+    }
+
+    keys
+    {
+        key(PK; "Group Code", "Line No.") { Clustered = true; }
+    }
+}
+
+table 90149 "LT TW Sk Tree Node"
+{
+    DataClassification = CustomerContent;
+
+    fields
+    {
+        field(1; "Group Code"; Code[20]) { }
+        field(2; "Parent Node"; Integer) { }
+        field(3; Hash; Integer) { }
+        field(4; "Node ID"; Integer) { AutoIncrement = true; }
+    }
+
+    keys
+    {
+        key(PK; "Group Code", "Parent Node", Hash) { Clustered = true; }
+        key(NodeID; "Group Code", "Node ID") { Unique = true; }
+    }
+}
+
+codeunit 90150 "LT TW Sk Rule Store"
+{
+    procedure ReadWeight(GroupCode: Code[20]; LineNo: Integer): Integer
+    var
+        RuleLine: Record "LT TW Sk Rule Line";
+    begin
+        RuleLine.SetLoadFields(Weight);
+        if not RuleLine.Get(GroupCode, LineNo) then
+            exit(0);
+        exit(RuleLine.Weight);
+    end;
+
+    procedure SumWeights(GroupCode: Code[20]): Integer
+    var
+        RuleLine: Record "LT TW Sk Rule Line";
+        Total: Integer;
+    begin
+        RuleLine.SetRange("Group Code", GroupCode);
+        RuleLine.SetLoadFields(Weight);
+        if RuleLine.FindSet() then
+            repeat
+                Total += RuleLine.Weight;
+            until RuleLine.Next() = 0;
+        exit(Total);
+    end;
+
+    procedure RaiseWeights(GroupCode: Code[20]; LastLineNo: Integer)
+    var
+        RuleLine: Record "LT TW Sk Rule Line";
+        LineNo: Integer;
+    begin
+        for LineNo := 1 to LastLineNo do begin
+            RuleLine.Get(GroupCode, LineNo);
+            RuleLine.Weight += 100;
+            RuleLine.Modify();
+        end;
+    end;
+
+    procedure BuildPath(GroupCode: Code[20]; Depth: Integer): Integer
+    var
+        ParentNode: Integer;
+        i: Integer;
+    begin
+        for i := 1 to Depth do
+            ParentNode := GetOrCreateNode(GroupCode, ParentNode, i * 31);
+        exit(ParentNode);
+    end;
+
+    local procedure GetOrCreateNode(GroupCode: Code[20]; ParentNode: Integer; Hash: Integer): Integer
+    var
+        TreeNode: Record "LT TW Sk Tree Node";
+    begin
+        TreeNode.SetRange("Group Code", GroupCode);
+        TreeNode.SetRange("Parent Node", ParentNode);
+        TreeNode.SetRange(Hash, Hash);
+        if TreeNode.FindFirst() then
+            exit(TreeNode."Node ID");
+
+        TreeNode.Init();
+        TreeNode."Group Code" := GroupCode;
+        TreeNode."Parent Node" := ParentNode;
+        TreeNode.Hash := Hash;
+        TreeNode.Insert(true);
+        exit(TreeNode."Node ID");
+    end;
+}
+
+// ---- writer TX (al-runner issue 6116 follow-up): the table and the codeunit whose procedures each run one record method. ----
+table 90170 "LT TX Sql Line"
+{
+    DataClassification = CustomerContent;
+
+    fields
+    {
+        field(1; "Group Code"; Code[20]) { }
+        field(2; "Line No."; Integer) { }
+        field(3; Value; Text[50]) { }
+        field(4; Weight; Integer) { }
+    }
+
+    keys
+    {
+        key(PK; "Group Code", "Line No.") { Clustered = true; }
+    }
+}
+
+codeunit 90171 "LT TX Sql Reader"
+{
+    procedure GetWeight(LineNo: Integer): Integer
+    var
+        SqlLine: Record "LT TX Sql Line";
+    begin
+        SqlLine.Get('TX', LineNo);
+        exit(SqlLine.Weight);
+    end;
+
+    procedure GetWeightLoadFields(LineNo: Integer): Integer
+    var
+        SqlLine: Record "LT TX Sql Line";
+    begin
+        SqlLine.SetLoadFields(Weight);
+        SqlLine.Get('TX', LineNo);
+        exit(SqlLine.Weight);
+    end;
+
+    procedure SumGroup(GroupCode: Code[20]): Integer
+    var
+        SqlLine: Record "LT TX Sql Line";
+        Total: Integer;
+    begin
+        SqlLine.SetRange("Group Code", GroupCode);
+        if SqlLine.FindSet() then
+            repeat
+                Total += SqlLine.Weight;
+            until SqlLine.Next() = 0;
+        exit(Total);
+    end;
+
+    procedure SumGroupOneRow(GroupCode: Code[20]): Integer
+    var
+        SqlLine: Record "LT TX Sql Line";
+        Total: Integer;
+    begin
+        SqlLine.SetRange("Group Code", GroupCode);
+        SqlLine.SetFilter("Line No.", '>0');
+        if SqlLine.FindSet() then
+            repeat
+                Total += SqlLine.Weight;
+            until SqlLine.Next() = 0;
+        exit(Total);
+    end;
+
+    procedure SumGroupThreeRows(GroupCode: Code[20]): Integer
+    var
+        SqlLine: Record "LT TX Sql Line";
+        Total: Integer;
+    begin
+        SqlLine.SetRange("Group Code", GroupCode);
+        SqlLine.SetFilter("Line No.", '<>0');
+        if SqlLine.FindSet() then
+            repeat
+                Total += SqlLine.Weight;
+            until SqlLine.Next() = 0;
+        exit(Total);
+    end;
+
+    procedure RaiseWeights(LastLineNo: Integer): Integer
+    var
+        SqlLine: Record "LT TX Sql Line";
+        LineNo: Integer;
+        Total: Integer;
+    begin
+        for LineNo := 1 to LastLineNo do begin
+            SqlLine.Get('TX', LineNo);
+            SqlLine.Weight += 100;
+            SqlLine.Modify();
+            Total += SqlLine.Weight;
+        end;
+        exit(Total);
+    end;
+
+    procedure FindFirstInGroup(GroupCode: Code[20]): Boolean
+    var
+        SqlLine: Record "LT TX Sql Line";
+    begin
+        SqlLine.SetRange("Group Code", GroupCode);
+        exit(SqlLine.FindFirst());
+    end;
+
+    procedure GroupIsEmpty(GroupCode: Code[20]): Boolean
+    var
+        SqlLine: Record "LT TX Sql Line";
+    begin
+        SqlLine.SetRange("Group Code", GroupCode);
+        exit(SqlLine.IsEmpty());
+    end;
+
+    procedure CountGroup(GroupCode: Code[20]): Integer
+    var
+        SqlLine: Record "LT TX Sql Line";
+    begin
+        SqlLine.SetRange("Group Code", GroupCode);
+        exit(SqlLine.Count());
+    end;
+
+    procedure LastLineNo(GroupCode: Code[20]): Integer
+    var
+        SqlLine: Record "LT TX Sql Line";
+    begin
+        SqlLine.SetRange("Group Code", GroupCode);
+        if not SqlLine.FindLast() then
+            exit(0);
+        exit(SqlLine."Line No.");
     end;
 }

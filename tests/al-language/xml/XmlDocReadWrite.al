@@ -326,6 +326,69 @@ codeunit 73400 "LT XmT Doc ReadWrite"
         Observer.Verify();
     end;
 
+    // Issue 6049: the stream overload with options, PreserveWhitespace true and false, on a document with whitespace-only text nodes.
+    [Test]
+    procedure ReadFrom_InStream_Options_WhitespaceNodes()
+    var
+        Doc: XmlDocument;
+        Opt: XmlReadOptions;
+        TempBlob: Codeunit "Temp Blob";
+        InS: InStream;
+        OutS: OutStream;
+        Root: XmlElement;
+    begin
+        TempBlob.CreateOutStream(OutS);
+        OutS.WriteText('<a>' + NL() + '  <b/>' + NL() + '</a>');
+        Opt.PreserveWhitespace(true);
+        TempBlob.CreateInStream(InS);
+        Observer.Observe('ok_true', Format(XmlDocument.ReadFrom(InS, Opt, Doc)));
+        Doc.GetRoot(Root);
+        Observer.Observe('children_true', Format(Root.GetChildNodes().Count()));
+        Observer.Observe('out_true', Out(Doc));
+        Opt.PreserveWhitespace(false);
+        TempBlob.CreateInStream(InS);
+        Observer.Observe('ok_false', Format(XmlDocument.ReadFrom(InS, Opt, Doc)));
+        Doc.GetRoot(Root);
+        Observer.Observe('children_false', Format(Root.GetChildNodes().Count()));
+        Observer.Observe('out_false', Out(Doc));
+        TempBlob.CreateInStream(InS);
+        Observer.Observe('ok_none', Format(XmlDocument.ReadFrom(InS, Doc)));
+        Doc.GetRoot(Root);
+        Observer.Observe('children_none', Format(Root.GetChildNodes().Count()));
+        Observer.Observe('out_none', Out(Doc));
+        Observer.Expect('ok_true', 'Yes');
+        Observer.Expect('children_true', '3');
+        Observer.Expect('out_true', '<?xml version="1.0" encoding="utf-16"?>\r\n<a>\r\n  <b />\r\n</a>');
+        Observer.Expect('ok_false', 'Yes');
+        Observer.Expect('children_false', '3');
+        Observer.Expect('out_false', '<?xml version="1.0" encoding="utf-16"?>\r\n<a>\r\n  <b />\r\n</a>');
+        Observer.Expect('ok_none', 'Yes');
+        Observer.Expect('children_none', '3');
+        Observer.Expect('out_none', '<?xml version="1.0" encoding="utf-16"?>\r\n<a>\r\n  <b />\r\n</a>');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure ReadFrom_InStream_Options_Invalid()
+    var
+        Doc: XmlDocument;
+        Opt: XmlReadOptions;
+        TempBlob: Codeunit "Temp Blob";
+        InS: InStream;
+        OutS: OutStream;
+    begin
+        TempBlob.CreateOutStream(OutS);
+        OutS.WriteText('<a><b></a>');
+        Opt.PreserveWhitespace(true);
+        TempBlob.CreateInStream(InS);
+        Observer.Observe('ok', Format(XmlDocument.ReadFrom(InS, Opt, Doc)));
+        Observer.Observe('err', GetLastErrorText());
+        ClearLastError();
+        Observer.Expect('ok', 'No');
+        Observer.Expect('err', 'The following exception was encountered when processing XML data: ''The ''b'' start tag on line 1 position 5 does not match the end tag of ''a''. Line 1, position 9.'' at line 1 and position 9.');
+        Observer.Verify();
+    end;
+
     [Test]
     procedure ReadFrom_InStream_Empty()
     var

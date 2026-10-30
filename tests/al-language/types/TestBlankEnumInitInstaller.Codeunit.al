@@ -17,3 +17,23 @@ codeunit 60894 "BEI Installer"
         BeiSetup.Insert(false);
     end;
 }
+
+// Writer UR (tests/al-language/install/lt-ur-block-order/UrBlockOrderTests.al): an install codeunit in id block 1 (90515 = 65536 + 24979); it only logs, with `if Insert() then;`.
+codeunit 90515 "LT UR Install High"
+{
+    Subtype = Install;
+
+    trigger OnInstallAppPerCompany()
+    var
+        Log: Record "LT UR Install Log";
+    begin
+        Log.Add('I90515', 'company');
+    end;
+
+    trigger OnInstallAppPerDatabase()
+    var
+        Log: Record "LT UR Install Log";
+    begin
+        Log.Add('I90515', 'database');
+    end;
+}
