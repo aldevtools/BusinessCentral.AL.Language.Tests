@@ -4,6 +4,8 @@
 // Writer NP4 (NP lane, 2026-10-30). Probe: Error('') raised from a page CONTROL's own OnValidate (the table field has no trigger) during TestPage SetValue, on a Card,
 //   a List, a Worksheet and a card with a part page: whether the test goes on, GetLastErrorText / GetLastErrorCode, the value the control shows and the stored
 //   row. The table-trigger shapes are pinned in pages/lt-qi-empty-error/QzTableValidateEmptyError.al.
+// Writer Y9 (NP lane 1030e, 2026-10-30): own tables 91465-91466, pages 91467-91470 (tests Y9_* in codeunit 93446). Probe: the same on a ListPart (repeater) inside
+//   a Card, a ListPlus page, a Document page header field and a ListPart of lines inside the Document page.
 // BC versions: 27, 28, 29
 
 table 93440 "LT NP4 EE Row"
@@ -290,4 +292,271 @@ codeunit 93446 "LT NP4 EE Tests"
         Observer.Expect('value-after', 'seed');
         Observer.Verify();
     end;
+
+    // ---- Writer Y9 (NP lane 1030e, 2026-10-30): Error('') in a control OnValidate on a ListPart inside a card, a ListPlus and a Document page ----
+
+    local procedure Y9Seed(var Head: Record "LT Y9 EE Head"; var Line: Record "LT Y9 EE Line")
+    begin
+        Head.DeleteAll();
+        Line.DeleteAll();
+        Head.Id := 1;
+        Head.Desc := 'seed';
+        Head.Insert();
+        Line.HeadId := 1;
+        Line.LineNo := 10000;
+        Line.Name := 'seed';
+        Line.Insert();
+        Commit();
+    end;
+
+    local procedure Y9Stored(): Text
+    var
+        Head: Record "LT Y9 EE Head";
+        Line: Record "LT Y9 EE Line";
+    begin
+        exit('head=' + Format(Head.Get(1)) + '|' + Head.Desc + ' line=' + Format(Line.Get(1, 10000)) + '|' + Line.Name);
+    end;
+
+    [Test]
+    procedure Y9_EE_ControlValidate_ListPartInCard()
+    var
+        Observer: Codeunit "Probe Observer";
+        Head: Record "LT Y9 EE Head";
+        Line: Record "LT Y9 EE Line";
+        Host: TestPage "LT Y9 EE Card Host";
+    begin
+        Y9Seed(Head, Line);
+        Host.OpenEdit();
+        Host.GoToRecord(Head);
+        Host.Lines.First();
+        Host.Lines.Name.SetValue('empty');
+        Observer.Observe('went-on', 'yes');
+        Observer.ObserveError('after-setvalue');
+        Observer.Observe('value-after', Host.Lines.Name.Value());
+        Host.Close();
+        Observer.Observe('stored-after-close', Y9Stored());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y9_EE_ControlValidate_ListPlus()
+    var
+        Observer: Codeunit "Probe Observer";
+        Head: Record "LT Y9 EE Head";
+        Line: Record "LT Y9 EE Line";
+        Plus: TestPage "LT Y9 EE ListPlus";
+    begin
+        Y9Seed(Head, Line);
+        Plus.OpenEdit();
+        Plus.GoToRecord(Line);
+        Plus.Name.SetValue('empty');
+        Observer.Observe('went-on', 'yes');
+        Observer.ObserveError('after-setvalue');
+        Observer.Observe('value-after', Plus.Name.Value());
+        Plus.Close();
+        Observer.Observe('stored-after-close', Y9Stored());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y9_EE_ControlValidate_DocumentHeader()
+    var
+        Observer: Codeunit "Probe Observer";
+        Head: Record "LT Y9 EE Head";
+        Line: Record "LT Y9 EE Line";
+        Doc: TestPage "LT Y9 EE Document";
+    begin
+        Y9Seed(Head, Line);
+        Doc.OpenEdit();
+        Doc.GoToRecord(Head);
+        Doc.Desc.SetValue('empty');
+        Observer.Observe('went-on', 'yes');
+        Observer.ObserveError('after-setvalue');
+        Observer.Observe('value-after', Doc.Desc.Value());
+        Doc.Close();
+        Observer.Observe('stored-after-close', Y9Stored());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y9_EE_ControlValidate_DocumentLinePart()
+    var
+        Observer: Codeunit "Probe Observer";
+        Head: Record "LT Y9 EE Head";
+        Line: Record "LT Y9 EE Line";
+        Doc: TestPage "LT Y9 EE Document";
+    begin
+        Y9Seed(Head, Line);
+        Doc.OpenEdit();
+        Doc.GoToRecord(Head);
+        Doc.Lines.First();
+        Doc.Lines.Name.SetValue('empty');
+        Observer.Observe('went-on', 'yes');
+        Observer.ObserveError('after-setvalue');
+        Observer.Observe('value-after', Doc.Lines.Name.Value());
+        Doc.Close();
+        Observer.Observe('stored-after-close', Y9Stored());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y9_EE_ControlValidate_DocumentHeader_ThenValidValue()
+    var
+        Observer: Codeunit "Probe Observer";
+        Head: Record "LT Y9 EE Head";
+        Line: Record "LT Y9 EE Line";
+        Doc: TestPage "LT Y9 EE Document";
+    begin
+        // after the quiet error a valid value can still be set and is stored
+        Y9Seed(Head, Line);
+        Doc.OpenEdit();
+        Doc.GoToRecord(Head);
+        Doc.Desc.SetValue('empty');
+        ClearLastError();
+        Doc.Desc.SetValue('fine');
+        Observer.Observe('value-after', Doc.Desc.Value());
+        Doc.Close();
+        Observer.Observe('stored-after-close', Y9Stored());
+        Observer.Finish();
+    end;
+}
+
+table 91465 "LT Y9 EE Head"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; Id; Integer) { }
+        field(2; Desc; Text[30]) { }
+    }
+
+    keys { key(PK; Id) { Clustered = true; } }
+}
+
+table 91466 "LT Y9 EE Line"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; HeadId; Integer) { }
+        field(2; LineNo; Integer) { }
+        field(3; Name; Text[30]) { }
+    }
+
+    keys { key(PK; HeadId, LineNo) { Clustered = true; } }
+}
+
+page 91467 "LT Y9 EE Lines"
+{
+    PageType = ListPart;
+    SourceTable = "LT Y9 EE Line";
+    UsageCategory = None;
+    ApplicationArea = All;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Rows)
+            {
+                field(LineNo; Rec.LineNo) { ApplicationArea = All; }
+                field(Name; Rec.Name)
+                {
+                    ApplicationArea = All;
+
+                    trigger OnValidate()
+                    begin
+                        if Rec.Name = 'empty' then
+                            Error('');
+                    end;
+                }
+            }
+        }
+    }
+}
+
+page 91468 "LT Y9 EE Card Host"
+{
+    PageType = Card;
+    SourceTable = "LT Y9 EE Head";
+    UsageCategory = None;
+    ApplicationArea = All;
+
+    layout
+    {
+        area(Content)
+        {
+            field(Id; Rec.Id) { ApplicationArea = All; }
+            part(Lines; "LT Y9 EE Lines")
+            {
+                ApplicationArea = All;
+                SubPageLink = HeadId = field(Id);
+            }
+        }
+    }
+}
+
+page 91469 "LT Y9 EE ListPlus"
+{
+    PageType = ListPlus;
+    SourceTable = "LT Y9 EE Line";
+    UsageCategory = None;
+    ApplicationArea = All;
+
+    layout
+    {
+        area(Content)
+        {
+            group(General)
+            {
+                field(LineNo; Rec.LineNo) { ApplicationArea = All; }
+                field(Name; Rec.Name)
+                {
+                    ApplicationArea = All;
+
+                    trigger OnValidate()
+                    begin
+                        if Rec.Name = 'empty' then
+                            Error('');
+                    end;
+                }
+            }
+        }
+    }
+}
+
+page 91470 "LT Y9 EE Document"
+{
+    PageType = Document;
+    SourceTable = "LT Y9 EE Head";
+    UsageCategory = None;
+    ApplicationArea = All;
+
+    layout
+    {
+        area(Content)
+        {
+            group(General)
+            {
+                field(Id; Rec.Id) { ApplicationArea = All; }
+                field(Desc; Rec.Desc)
+                {
+                    ApplicationArea = All;
+
+                    trigger OnValidate()
+                    begin
+                        if Rec.Desc = 'empty' then
+                            Error('');
+                    end;
+                }
+            }
+            part(Lines; "LT Y9 EE Lines")
+            {
+                ApplicationArea = All;
+                SubPageLink = HeadId = field(Id);
+            }
+        }
+    }
 }

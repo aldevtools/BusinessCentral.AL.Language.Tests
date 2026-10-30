@@ -8,6 +8,8 @@
 // (2) CurrPage.SetSelectionFilter and Page.SetSelectionFilter into a record that ALREADY has filters (on the key field, on another field, in filter group 2, a view): the filters and the count afterwards.
 // (3) Page.GetRecord of a Page variable whose RunModal closed on a table with no row, for Cancel and LookupOK, with the record passed in holding values or cleared, and with a Page-typed handler.
 // (4) Writer TV: the same on a table that has rows, the page filtered to no row by SetTableView (OK, LookupOK, Cancel in lookup mode, after SetRecord, typed handler).
+// (5) Writer Y9 (NP lane 1030e, 2026-10-30; page 91475): TestPage OK() in the handler of a lookup page that shows no row: Page.RunModal(Id, Rec) on an empty table
+// (Rec cleared or holding values, list editable or Editable = false), on a table with rows and Rec filtered to no row, and a Page variable in LookupMode: the Action and Rec.
 // BC versions: 29 (27 and 28 by CI)
 
 table 73270 "LT P129 Item"
@@ -323,6 +325,29 @@ page 73275 "LT P129 Plain Card"
 
     var
         L: Codeunit "LT P129 Log2";
+}
+
+// Writer Y9: the same list with Editable = false (a read-only lookup list).
+page 91475 "LT Y9 LK List RO"
+{
+    PageType = List;
+    SourceTable = "LT P129 Item";
+    ApplicationArea = All;
+    UsageCategory = None;
+    Editable = false;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Group)
+            {
+                field(Id; Rec.Id) { ApplicationArea = All; }
+                field(Grp; Rec.Grp) { ApplicationArea = All; }
+                field(Qty; Rec.Qty) { ApplicationArea = All; }
+            }
+        }
+    }
 }
 
 codeunit 73276 "LT P129 Page Misc"
@@ -813,5 +838,169 @@ codeunit 73276 "LT P129 Page Misc"
         Observer.Expect('prefilled record', 'ok|id=0|grp=|qty=0');
         Observer.Expect('cleared record', 'ok|id=0|grp=|qty=0');
         Observer.Verify();
+    end;
+
+    // ---- Writer Y9 (NP lane 1030e, 2026-10-30): TestPage OK() in the ModalPageHandler of a lookup page that shows no row. The RunModal call runs inside
+    // asserterror and ends with an error of its own, so both outcomes (OK found or not) are recorded: the error text, the Action and the record afterwards. ----
+
+    [ModalPageHandler]
+    procedure Y9OkHandler(var P: TestPage "LT P129 Plain List")
+    begin
+        L.Add('first=' + Format(P.First()));
+        P.OK().Invoke();
+        L.Add('ok invoked');
+    end;
+
+    [ModalPageHandler]
+    procedure Y9OkRoHandler(var P: TestPage "LT Y9 LK List RO")
+    begin
+        L.Add('first=' + Format(P.First()));
+        P.OK().Invoke();
+        L.Add('ok invoked');
+    end;
+
+    local procedure Y9RecText(Row: Record "LT P129 Item"): Text
+    begin
+        exit('id=' + Format(Row.Id) + '|grp=' + Row.Grp + '|qty=' + Format(Row.Qty) + '|filters=' + Row.GetFilters());
+    end;
+
+    local procedure Y9Empty()
+    var
+        Item: Record "LT P129 Item";
+    begin
+        Item.DeleteAll();
+        Commit();
+        L.Take();
+    end;
+
+    [Test]
+    [HandlerFunctions('Y9OkHandler')]
+    procedure Y9_Lookup_RunModalIdRec_EmptyTable_Ok()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT P129 Item";
+        Result: Action;
+    begin
+        Y9Empty();
+        asserterror begin
+            Result := Page.RunModal(Page::"LT P129 Plain List", Row);
+            Error('returned');
+        end;
+        Observer.ObserveError('runmodal');
+        Observer.Observe('result', Format(Result));
+        Observer.Observe('handler', L.Take());
+        Observer.Observe('record', Y9RecText(Row));
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('Y9OkHandler')]
+    procedure Y9_Lookup_RunModalIdRec_EmptyTable_PrefilledRec_Ok()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT P129 Item";
+        Result: Action;
+    begin
+        Y9Empty();
+        Row.Id := 5;
+        Row.Grp := 'Q';
+        Row.Qty := 9;
+        asserterror begin
+            Result := Page.RunModal(Page::"LT P129 Plain List", Row);
+            Error('returned');
+        end;
+        Observer.ObserveError('runmodal');
+        Observer.Observe('result', Format(Result));
+        Observer.Observe('handler', L.Take());
+        Observer.Observe('record', Y9RecText(Row));
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('Y9OkRoHandler')]
+    procedure Y9_Lookup_RunModalIdRec_EmptyTable_ReadOnlyList_Ok()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT P129 Item";
+        Result: Action;
+    begin
+        Y9Empty();
+        asserterror begin
+            Result := Page.RunModal(Page::"LT Y9 LK List RO", Row);
+            Error('returned');
+        end;
+        Observer.ObserveError('runmodal');
+        Observer.Observe('result', Format(Result));
+        Observer.Observe('handler', L.Take());
+        Observer.Observe('record', Y9RecText(Row));
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('Y9OkHandler')]
+    procedure Y9_Lookup_RunModalIdRec_FilteredToNoRow_Ok()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT P129 Item";
+        Result: Action;
+    begin
+        Seed();
+        Commit();
+        Row.SetRange(Grp, 'NONE');
+        asserterror begin
+            Result := Page.RunModal(Page::"LT P129 Plain List", Row);
+            Error('returned');
+        end;
+        Observer.ObserveError('runmodal');
+        Observer.Observe('result', Format(Result));
+        Observer.Observe('handler', L.Take());
+        Observer.Observe('record', Y9RecText(Row));
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('Y9OkHandler')]
+    procedure Y9_Lookup_PageVarLookupMode_EmptyTable_Ok()
+    var
+        Observer: Codeunit "Probe Observer";
+        Pg: Page "LT P129 Plain List";
+        Row: Record "LT P129 Item";
+        Result: Action;
+    begin
+        Y9Empty();
+        Pg.LookupMode(true);
+        asserterror begin
+            Result := Pg.RunModal();
+            Error('returned');
+        end;
+        Observer.ObserveError('runmodal');
+        Observer.Observe('result', Format(Result));
+        Observer.Observe('handler', L.Take());
+        Row.Id := 5;
+        Pg.GetRecord(Row);
+        Observer.Observe('getrecord', Y9RecText(Row));
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('Y9OkHandler')]
+    procedure Y9_Lookup_RunModalIdRec_WithRows_Ok()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT P129 Item";
+        Result: Action;
+    begin
+        // reference: the same call on a table that has rows (the handler's OK takes the first row)
+        Seed();
+        Commit();
+        asserterror begin
+            Result := Page.RunModal(Page::"LT P129 Plain List", Row);
+            Error('returned');
+        end;
+        Observer.ObserveError('runmodal');
+        Observer.Observe('result', Format(Result));
+        Observer.Observe('handler', L.Take());
+        Observer.Observe('record', Y9RecText(Row));
+        Observer.Finish();
     end;
 }
