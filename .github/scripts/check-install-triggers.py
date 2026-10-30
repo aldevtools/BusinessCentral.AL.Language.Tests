@@ -15,6 +15,9 @@ ALLOWED = {
     'tests/al-language/install/lt-bf-install-probes/BfInstallFixtures.al',
     # corpus issue 812: install code writes only `if Insert() then;` into DataPerCompany = false logs; the tag calls write nothing else.
     'tests/al-language-xapp-a/QzXaUpgradeTagProbe.al',
+    # al-runner issue 6367 (writer X3): first-install DataVersion seen by the app's own code and by a dependency; writes only `if Insert() then;`
+    # into a DataPerCompany = false log, and the dependency helper it calls neither writes nor raises.
+    'tests/al-language-xapp-b/X3XbFirstInstall.al',
     'tests/al-language/_fixtures/ALTInstallProbe.al',
     'tests/al-language/_fixtures/ALTQuotedInstallProbe.al',
     'tests/al-language/install/TestInstallSeeder.al',
