@@ -55,7 +55,9 @@ codeunit 91410 "LT Y8 Get RecordId Caption"
         O.Insert();
         asserterror R.Get(O.RecordId);
         Observer.ObserveError('unused');
-        Observer.Finish();
+        Observer.Expect('unused|text', 'A RecordID from table ''Y8 Other Caption'' cannot be used with a record from table ''Y8 Row Caption''.');
+        Observer.Expect('unused|code', 'DB:Ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -76,7 +78,11 @@ codeunit 91410 "LT Y8 Get RecordId Caption"
         if R.Get(O.RecordId) then;
         Observer.Observe('after_error_text', GetLastErrorText());
         Observer.Observe('after_error_code', GetLastErrorCode());
-        Observer.Finish();
+        Observer.Expect('after_clear_text', '');
+        Observer.Expect('after_clear_code', '');
+        Observer.Expect('after_error_text', 'Y8 earlier error');
+        Observer.Expect('after_error_code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -94,6 +100,8 @@ codeunit 91410 "LT Y8 Get RecordId Caption"
         if R.Get(Probe.RecordId) then;
         Observer.Observe('missing_text', GetLastErrorText());
         Observer.Observe('missing_code', GetLastErrorCode());
-        Observer.Finish();
+        Observer.Expect('missing_text', '');
+        Observer.Expect('missing_code', '');
+        Observer.Verify();
     end;
 }

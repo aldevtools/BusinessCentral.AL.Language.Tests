@@ -96,7 +96,14 @@ codeunit 91420 "LT Y8 Install Order Tests"
         Temp.Insert(true);
         Observer.Observe('control_now_note', Temp.Note);
         Observer.Observe('control_now_mark', Temp."Y8 XB Mark");
-        Observer.Finish();
+        Observer.Expect('a_installed_first', 'Yes');
+        Observer.Expect('row1_note', 'A');
+        Observer.Expect('row1_mark', '');
+        Observer.Expect('row20_note', 'B+BX');
+        Observer.Expect('row20_mark', 'B init');
+        Observer.Expect('control_now_note', 'T+BX');
+        Observer.Expect('control_now_mark', 'B init');
+        Observer.Verify();
     end;
 
     [Test]
@@ -119,6 +126,15 @@ codeunit 91420 "LT Y8 Install Order Tests"
             until Log.Next() = 0;
         Observer.Observe('raw_order_not_asserted', Order);
         Observer.Observe('raw_row10_not_asserted', NoteOf(10) + '/' + MarkOf(10));
-        Observer.Finish();
+        Observer.Expect('log_rows', '3');
+        Observer.Expect('a_sees_expected', 'Yes');
+        Observer.Expect('d_sees_expected', 'Yes');
+        Observer.Expect('b_sees_expected', 'Yes');
+        Observer.Expect('a_seen', '');
+        Observer.Expect('row10_has_bx_iff_b_before_d', 'Yes');
+        Observer.Expect('row10_mark_set_iff_b_before_d', 'Yes');
+        Observer.Ignore('raw_order_not_asserted'); // install order differs per host: observed, not asserted
+        Observer.Ignore('raw_row10_not_asserted'); // depends on the install order: observed, not asserted
+        Observer.Verify();
     end;
 }

@@ -95,6 +95,12 @@ codeunit 91413 "LT Y8 SetCurrentKey Not Stored"
         Observer.Observe('media', Outcome(TryMedia(R), R));
         Clear(R);
         Observer.Observe('name_then_flowfield', Outcome(TryNameThenFlowField(R), R));
-        Observer.Finish();
+        Observer.Expect('name', 'ok key=Name');
+        Observer.Expect('flowfield', 'ok key=Total');
+        Observer.Expect('flowfilter', 'ERR:Sorting cannot be done based on the IdFilter field(s) in the LT Y8 SCK Row table./DB:Ok key=Id');
+        Observer.Expect('blob', 'ERR:Sorting cannot be done based on the Data field(s) in the LT Y8 SCK Row table./DB:Ok key=Id');
+        Observer.Expect('media', 'ok key=Picture');
+        Observer.Expect('name_then_flowfield', 'ok key=Name,Total');
+        Observer.Verify();
     end;
 }

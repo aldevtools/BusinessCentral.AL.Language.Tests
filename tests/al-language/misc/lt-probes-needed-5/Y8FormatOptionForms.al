@@ -63,7 +63,11 @@ codeunit 91404 "LT Y8 Format Option Forms"
         Observer.Observe('third', Forms(R));
         R.Opt := 7;
         Observer.Observe('beyond', Forms(R));
-        Observer.Finish();
+        Observer.Expect('first', 'First|First|0|0|Fir|0  |0  |First               ');
+        Observer.Expect('second', 'Second|Second|1|1|Sec|1  |1  |Second              ');
+        Observer.Expect('third', 'Third Caption|Third Caption|2|2|Thi|2  |2  |Third Caption       ');
+        Observer.Expect('beyond', '7|7|7|7|7  |7  |7  |7                   ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -81,6 +85,11 @@ codeunit 91404 "LT Y8 Format Option Forms"
         Observer.Observe('long_m1', StrSubstNo('%1|%2|%3', Format(R.OptLong), Format(R.OptLong, 0, 2), Format(R.OptLong, 0, 9)));
         R.OptLong := 3;
         Observer.Observe('long_3', StrSubstNo('%1|%2|%3', Format(R.OptLong), Format(R.OptLong, 0, 2), Format(R.OptLong, 0, 9)));
-        Observer.Finish();
+        Observer.Expect('short_m1', 'One|1|1');
+        Observer.Expect('short_m2', 'M2|2|2');
+        Observer.Expect('short_member_m2', 'M2');
+        Observer.Expect('long_m1', 'One|1|1');
+        Observer.Expect('long_3', '3|3|3');
+        Observer.Verify();
     end;
 }

@@ -133,7 +133,15 @@ codeunit 91415 "LT Y8 Record Is Dirty Shapes"
         Observer.Observe('after_findfirst', Format(T.IsDirty()));
         T.Delete();
         Observer.Observe('after_delete', Format(T.IsDirty()));
-        Observer.Finish();
+        Observer.Expect('fresh', 'No');
+        Observer.Expect('assigned', 'Yes');
+        Observer.Expect('after_insert', 'No');
+        Observer.Expect('assigned_again', 'Yes');
+        Observer.Expect('after_modify', 'No');
+        Observer.Expect('after_get', 'No');
+        Observer.Expect('after_findfirst', 'No');
+        Observer.Expect('after_delete', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -161,7 +169,14 @@ codeunit 91415 "LT Y8 Record Is Dirty Shapes"
         Row.Name := 'dirty';
         Observer.Observe('next_at_end', Format(Row.Next()));
         Observer.Observe('next_at_end_dirty', Format(Row.IsDirty()));
-        Observer.Finish();
+        Observer.Expect('find_minus', 'No');
+        Observer.Expect('findset', 'No');
+        Observer.Expect('next', 'No');
+        Observer.Expect('find_eq', 'No');
+        Observer.Expect('find_gt', 'No');
+        Observer.Expect('next_at_end', '0');
+        Observer.Expect('next_at_end_dirty', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -191,7 +206,16 @@ codeunit 91415 "LT Y8 Record Is Dirty Shapes"
         Row.Insert(false);
         Observer.Observe('insert_false_stamp', Row.Stamp);
         Observer.Observe('insert_false', Format(Row.IsDirty()));
-        Observer.Finish();
+        Observer.Expect('insert_true', 'No');
+        Observer.Expect('insert_true_stamp', 'by OnInsert');
+        Observer.Expect('modify_true', 'No');
+        Observer.Expect('modify_true_again', 'No');
+        Observer.Expect('delete_true', 'Yes');
+        Observer.Expect('delete_true_stamp', 'by OnDelete');
+        Observer.Expect('trigger_log', 'ins:Yes;mod:Yes/x:Yes;mod:No/x:No;del:No;');
+        Observer.Expect('insert_false_stamp', '');
+        Observer.Expect('insert_false', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -228,7 +252,15 @@ codeunit 91415 "LT Y8 Record Is Dirty Shapes"
         Row.SetPosition('Id=CONST(3)');
         Observer.Observe('after_setposition', Format(Row.IsDirty()));
         Observer.Observe('after_setposition_name', Row.Name);
-        Observer.Finish();
+        Observer.Expect('copy_of_dirty', 'Yes');
+        Observer.Expect('copy_of_clean', 'No');
+        Observer.Expect('after_clear', 'No');
+        Observer.Expect('after_calcfields', 'No');
+        Observer.Expect('flowfield_assigned', 'No');
+        Observer.Expect('after_getbysystemid', 'No');
+        Observer.Expect('after_setposition', 'Yes');
+        Observer.Expect('after_setposition_name', 'dirty');
+        Observer.Verify();
     end;
 
     [Test]
@@ -257,7 +289,15 @@ codeunit 91415 "LT Y8 Record Is Dirty Shapes"
         Row.Name := 'dirty';
         Observer.Observe('modify_missing', Format(Row.Modify()));
         Observer.Observe('after_false_modify', Format(Row.IsDirty()));
-        Observer.Finish();
+        Observer.Expect('get_missing', 'No');
+        Observer.Expect('after_failed_get', 'Yes');
+        Observer.Expect('find_none', 'No');
+        Observer.Expect('after_false_find', 'Yes');
+        Observer.Expect('insert_dup', 'No');
+        Observer.Expect('after_false_insert', 'Yes');
+        Observer.Expect('modify_missing', 'No');
+        Observer.Expect('after_false_modify', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -287,7 +327,13 @@ codeunit 91415 "LT Y8 Record Is Dirty Shapes"
         Row.Name := 'x';
         Row.Modify(true);
         Observer.Observe('modify_trigger_log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('by_value_dirty', 'Yes');
+        Observer.Expect('by_var_dirty', 'Yes');
+        Observer.Expect('by_value_clean', 'No');
+        Observer.Expect('settable_read_row', 'No');
+        Observer.Expect('settable_changed_row', 'Yes');
+        Observer.Expect('modify_trigger_log', 'mod:Yes/x:Yes;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -311,7 +357,14 @@ codeunit 91415 "LT Y8 Record Is Dirty Shapes"
         Row.Init();
         Observer.Observe('read_row_init', Format(Row.IsDirty()));
         Observer.Observe('read_row_init_systemid_null', Format(IsNullGuid(Row.SystemId)));
-        Observer.Finish();
+        Observer.Expect('fresh_initvalue_var', 'No');
+        Observer.Expect('fresh_initvalue_amount', '7');
+        Observer.Expect('after_init', 'No');
+        Observer.Expect('initvalue_field_zeroed', 'Yes');
+        Observer.Expect('systemid_assigned', 'No');
+        Observer.Expect('read_row_init', 'Yes');
+        Observer.Expect('read_row_init_systemid_null', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -335,7 +388,11 @@ codeunit 91415 "LT Y8 Record Is Dirty Shapes"
         Row.Get(1);
         Row.CalcFields(Data);
         Observer.Observe('blob_calcfields', Format(Row.IsDirty()));
-        Observer.Finish();
+        Observer.Expect('partial_read', 'No');
+        Observer.Expect('partial_unloaded_assigned', 'Yes');
+        Observer.Expect('blob_written', 'Yes');
+        Observer.Expect('blob_calcfields', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -356,7 +413,11 @@ codeunit 91415 "LT Y8 Record Is Dirty Shapes"
         Row.Get(1);
         Row.DeleteAll();
         Observer.Observe('deleteall_after_read', Format(Row.IsDirty()));
-        Observer.Finish();
+        Observer.Expect('modifyall_after_read', 'No');
+        Observer.Expect('modifyall_name_in_var', 'n1');
+        Observer.Expect('modifyall_on_dirty', 'Yes');
+        Observer.Expect('deleteall_after_read', 'No');
+        Observer.Verify();
     end;
 }
 #endif

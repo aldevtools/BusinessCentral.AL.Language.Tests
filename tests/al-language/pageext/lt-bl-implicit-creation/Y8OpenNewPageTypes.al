@@ -311,7 +311,8 @@ codeunit 91432 "LT Y8 OpenNew Page Types"
         Log.Take();
         Ok := TryWorksheet(Pg);
         Observer.Observe('worksheet', Outcome(Ok, ''));
-        Observer.Finish();
+        Observer.Expect('worksheet', 'ERR:The view mode ''Create'' is not supported by the page ID ''<id>''./NotSupportedPageViewMode log=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -328,7 +329,8 @@ codeunit 91432 "LT Y8 OpenNew Page Types"
         if Ok then
             Editable := Format(Pg.Editable());
         Observer.Observe('listpart', Outcome(Ok, Editable));
-        Observer.Finish();
+        Observer.Expect('listpart', 'ok editable=Yes log=Init;Open;New;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -345,7 +347,8 @@ codeunit 91432 "LT Y8 OpenNew Page Types"
         if Ok then
             Editable := Format(Pg.Editable());
         Observer.Observe('cardpart', Outcome(Ok, Editable));
-        Observer.Finish();
+        Observer.Expect('cardpart', 'ok editable=Yes log=Init;Open;New;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -362,7 +365,8 @@ codeunit 91432 "LT Y8 OpenNew Page Types"
         if Ok then
             Editable := Format(Pg.Editable());
         Observer.Observe('document', Outcome(Ok, Editable));
-        Observer.Finish();
+        Observer.Expect('document', 'ok editable=Yes log=Init;Open;New;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -379,6 +383,7 @@ codeunit 91432 "LT Y8 OpenNew Page Types"
         if Ok then
             Editable := Format(Pg.Editable());
         Observer.Observe('listplus', Outcome(Ok, Editable));
-        Observer.Finish();
+        Observer.Expect('listplus', 'ok editable=Yes log=Init;Open;New;');
+        Observer.Verify();
     end;
 }
