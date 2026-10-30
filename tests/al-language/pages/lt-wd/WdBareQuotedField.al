@@ -182,6 +182,7 @@ codeunit 90775 "LT WD Bare Quoted Field"
         Observer.Verify();
     end;
 
+#if BC28PLUS  // on BC 27 the read of an extension control that has a bare quoted source field raises no error (CI leg 27.5)
     [Test]
     procedure WD_BareNameExt_ValueReadError()
     var
@@ -197,4 +198,5 @@ codeunit 90775 "LT WD Bare Quoted Field"
         Observer.Expect('value read|code', 'TestFieldNotFound');
         Observer.Verify();
     end;
+#endif
 }
