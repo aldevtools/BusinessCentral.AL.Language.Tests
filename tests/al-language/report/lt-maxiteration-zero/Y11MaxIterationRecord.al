@@ -8,6 +8,9 @@
 //   2 with a DataItemTableView filter, 2 with a SetFilter in OnPreDataItem, 2 with CurrReport.Skip on every odd row, and a parent with
 //   MaxIteration 2 over a linked child with MaxIteration 1 (three lines per parent). Writer SG's ProcessingOnly cases (2 of 5, skip, fewer
 //   rows, descending, unlinked child) are in SgMaxIterationTable.al and MaxIterationZero.al.
+// Result (SaaS BC 29): MaxIteration caps the rows the data item reads after its filters (DataItemTableView and OnPreDataItem SetFilter);
+//   a row skipped with CurrReport.Skip still counts; a linked child with MaxIteration 1 reads one line per parent; the dataset holds one
+//   row per row read and not skipped. A second SaveAs on the same report instance fails with ObjectHasAlreadyBeenRun.
 // BC versions: 27, 28, 29
 
 table 91530 "LT Y11 MI Row"
@@ -319,7 +322,9 @@ codeunit 91539 "LT Y11 MI Tests"
         Rep.SaveAs('', ReportFormat::Xml, OutS);
         Observer.Observe('read', Rep.Result());
         Observer.Observe('dataset', DatasetRows(TempBlob));
-        Observer.Finish();
+        Observer.Expect('read', '1,');
+        Observer.Expect('dataset', '1 rows: 1/;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -335,7 +340,9 @@ codeunit 91539 "LT Y11 MI Tests"
         Rep.SaveAs('', ReportFormat::Xml, OutS);
         Observer.Observe('read', Rep.Result());
         Observer.Observe('dataset', DatasetRows(TempBlob));
-        Observer.Finish();
+        Observer.Expect('read', '1,2,3,');
+        Observer.Expect('dataset', '3 rows: 1/;2/;3/;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -351,7 +358,9 @@ codeunit 91539 "LT Y11 MI Tests"
         Rep.SaveAs('', ReportFormat::Xml, OutS);
         Observer.Observe('read', Rep.Result());
         Observer.Observe('dataset', DatasetRows(TempBlob));
-        Observer.Finish();
+        Observer.Expect('read', '1,2,3,4,5,');
+        Observer.Expect('dataset', '5 rows: 1/;2/;3/;4/;5/;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -367,7 +376,9 @@ codeunit 91539 "LT Y11 MI Tests"
         Rep.SaveAs('', ReportFormat::Xml, OutS);
         Observer.Observe('read', Rep.Result());
         Observer.Observe('dataset', DatasetRows(TempBlob));
-        Observer.Finish();
+        Observer.Expect('read', '2,4,');
+        Observer.Expect('dataset', '2 rows: 2/;4/;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -383,7 +394,9 @@ codeunit 91539 "LT Y11 MI Tests"
         Rep.SaveAs('', ReportFormat::Xml, OutS);
         Observer.Observe('read', Rep.Result());
         Observer.Observe('dataset', DatasetRows(TempBlob));
-        Observer.Finish();
+        Observer.Expect('read', '3,4,');
+        Observer.Expect('dataset', '2 rows: 3/;4/;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -399,7 +412,9 @@ codeunit 91539 "LT Y11 MI Tests"
         Rep.SaveAs('', ReportFormat::Xml, OutS);
         Observer.Observe('read', Rep.Result());
         Observer.Observe('dataset', DatasetRows(TempBlob));
-        Observer.Finish();
+        Observer.Expect('read', '1,2,');
+        Observer.Expect('dataset', '1 rows: 2/;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -415,7 +430,9 @@ codeunit 91539 "LT Y11 MI Tests"
         Rep.SaveAs('', ReportFormat::Xml, OutS);
         Observer.Observe('read', Rep.Result());
         Observer.Observe('dataset', DatasetRows(TempBlob));
-        Observer.Finish();
+        Observer.Expect('read', 'R1,L1.10,R2,L2.10,');
+        Observer.Expect('dataset', '4 rows: 1/;10/;2/;10/;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -435,6 +452,10 @@ codeunit 91539 "LT Y11 MI Tests"
         asserterror Rep.SaveAs('', ReportFormat::Xml, OutS);
         Observer.ObserveError('second SaveAs on the same instance');
         Observer.Observe('read after the failed second run', Rep.Result());
-        Observer.Finish();
+        Observer.Expect('read after first run', '1,2,3,');
+        Observer.Expect('second SaveAs on the same instance|text', 'The object has been run. Use the function CLEAR(Report).');
+        Observer.Expect('second SaveAs on the same instance|code', 'ObjectHasAlreadyBeenRun');
+        Observer.Expect('read after the failed second run', '1,2,3,');
+        Observer.Verify();
     end;
 }

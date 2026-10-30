@@ -11,6 +11,10 @@
 //   TestPage opens the card, validates a field and closes. The subscribers declare no parameters (a subscriber may omit them).
 //   Already pinned elsewhere: page field OnAfterValidateEvent and OnOpenPageEvent in misc/lt-probes-needed-5/PnE11EventSub.al; page action events
 //   in ActionEventPublishedFunction.al.
+// Result (SaaS BC 29): every row has Event Type Trigger, Publisher Object Type Page, Active Yes. Field events read
+//   'OnBeforeValidateEvent - <number>' / 'OnAfterValidateEvent - <number>' (one number per control, shared by Before and After; a page
+//   extension field is listed under the base page); the other page triggers carry the bare event name. A SetRange on
+//   'OnAfterValidateEvent - Name' finds no row.
 // BC versions: 27, 28, 29
 
 table 91510 "LT Y11 PTE Row"
@@ -234,7 +238,10 @@ codeunit 91515 "LT Y11 PTE Rows"
         Observer.Observe('P01_CardNameBeforeValidate', Row('P01_CardNameBeforeValidate'));
         Observer.Observe('P02_CardNameAfterValidate', Row('P02_CardNameAfterValidate'));
         Observer.Observe('P17_CardCodeBeforeValidate', Row('P17_CardCodeBeforeValidate'));
-        Observer.Finish();
+        Observer.Expect('P01_CardNameBeforeValidate', '1 row(s): Event Type=Trigger;Publisher Object Type=Page;Publisher Object ID=91511;Published Function=OnBeforeValidateEvent - 818325649;Active=Yes;Number of Calls=0;Error Information=;Subscriber Instance=Static-Automatic;Active Manual Instances=0;');
+        Observer.Expect('P02_CardNameAfterValidate', '1 row(s): Event Type=Trigger;Publisher Object Type=Page;Publisher Object ID=91511;Published Function=OnAfterValidateEvent - 818325649;Active=Yes;Number of Calls=0;Error Information=;Subscriber Instance=Static-Automatic;Active Manual Instances=0;');
+        Observer.Expect('P17_CardCodeBeforeValidate', '1 row(s): Event Type=Trigger;Publisher Object Type=Page;Publisher Object ID=91511;Published Function=OnBeforeValidateEvent - 842285259;Active=Yes;Number of Calls=0;Error Information=;Subscriber Instance=Static-Automatic;Active Manual Instances=0;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -246,7 +253,11 @@ codeunit 91515 "LT Y11 PTE Rows"
         Observer.Observe('P04_CardExtAfterValidate', Row('P04_CardExtAfterValidate'));
         Observer.Observe('P05_ListNameAfterValidate', Row('P05_ListNameAfterValidate'));
         Observer.Observe('P06_ListOtherCtlAfterValidate', Row('P06_ListOtherCtlAfterValidate'));
-        Observer.Finish();
+        Observer.Expect('P03_CardUnitPriceAfterValidate', '1 row(s): Event Type=Trigger;Publisher Object Type=Page;Publisher Object ID=91511;Published Function=OnAfterValidateEvent - 503518781;Active=Yes;Number of Calls=0;Error Information=;Subscriber Instance=Static-Automatic;Active Manual Instances=0;');
+        Observer.Expect('P04_CardExtAfterValidate', '1 row(s): Event Type=Trigger;Publisher Object Type=Page;Publisher Object ID=91511;Published Function=OnAfterValidateEvent - 1531586016;Active=Yes;Number of Calls=0;Error Information=;Subscriber Instance=Static-Automatic;Active Manual Instances=0;');
+        Observer.Expect('P05_ListNameAfterValidate', '1 row(s): Event Type=Trigger;Publisher Object Type=Page;Publisher Object ID=91512;Published Function=OnAfterValidateEvent - 1467155644;Active=Yes;Number of Calls=0;Error Information=;Subscriber Instance=Static-Automatic;Active Manual Instances=0;');
+        Observer.Expect('P06_ListOtherCtlAfterValidate', '1 row(s): Event Type=Trigger;Publisher Object Type=Page;Publisher Object ID=91512;Published Function=OnAfterValidateEvent - 1677490222;Active=Yes;Number of Calls=0;Error Information=;Subscriber Instance=Static-Automatic;Active Manual Instances=0;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -257,7 +268,10 @@ codeunit 91515 "LT Y11 PTE Rows"
         Observer.Observe('P07_CardAfterGetCurrRecord', Row('P07_CardAfterGetCurrRecord'));
         Observer.Observe('P10_CardAfterGetRecord', Row('P10_CardAfterGetRecord'));
         Observer.Observe('P16_ListAfterGetCurrRecord', Row('P16_ListAfterGetCurrRecord'));
-        Observer.Finish();
+        Observer.Expect('P07_CardAfterGetCurrRecord', '1 row(s): Event Type=Trigger;Publisher Object Type=Page;Publisher Object ID=91511;Published Function=OnAfterGetCurrRecordEvent;Active=Yes;Number of Calls=0;Error Information=;Subscriber Instance=Static-Automatic;Active Manual Instances=0;');
+        Observer.Expect('P10_CardAfterGetRecord', '1 row(s): Event Type=Trigger;Publisher Object Type=Page;Publisher Object ID=91511;Published Function=OnAfterGetRecordEvent;Active=Yes;Number of Calls=0;Error Information=;Subscriber Instance=Static-Automatic;Active Manual Instances=0;');
+        Observer.Expect('P16_ListAfterGetCurrRecord', '1 row(s): Event Type=Trigger;Publisher Object Type=Page;Publisher Object ID=91512;Published Function=OnAfterGetCurrRecordEvent;Active=Yes;Number of Calls=0;Error Information=;Subscriber Instance=Static-Automatic;Active Manual Instances=0;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -268,7 +282,10 @@ codeunit 91515 "LT Y11 PTE Rows"
         Observer.Observe('P08_CardOpenPage', Row('P08_CardOpenPage'));
         Observer.Observe('P09_CardClosePage', Row('P09_CardClosePage'));
         Observer.Observe('P15_CardQueryClosePage', Row('P15_CardQueryClosePage'));
-        Observer.Finish();
+        Observer.Expect('P08_CardOpenPage', '1 row(s): Event Type=Trigger;Publisher Object Type=Page;Publisher Object ID=91511;Published Function=OnOpenPageEvent;Active=Yes;Number of Calls=0;Error Information=;Subscriber Instance=Static-Automatic;Active Manual Instances=0;');
+        Observer.Expect('P09_CardClosePage', '1 row(s): Event Type=Trigger;Publisher Object Type=Page;Publisher Object ID=91511;Published Function=OnClosePageEvent;Active=Yes;Number of Calls=0;Error Information=;Subscriber Instance=Static-Automatic;Active Manual Instances=0;');
+        Observer.Expect('P15_CardQueryClosePage', '1 row(s): Event Type=Trigger;Publisher Object Type=Page;Publisher Object ID=91511;Published Function=OnQueryClosePageEvent;Active=Yes;Number of Calls=0;Error Information=;Subscriber Instance=Static-Automatic;Active Manual Instances=0;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -280,7 +297,11 @@ codeunit 91515 "LT Y11 PTE Rows"
         Observer.Observe('P12_CardInsertRecord', Row('P12_CardInsertRecord'));
         Observer.Observe('P13_CardModifyRecord', Row('P13_CardModifyRecord'));
         Observer.Observe('P14_CardDeleteRecord', Row('P14_CardDeleteRecord'));
-        Observer.Finish();
+        Observer.Expect('P11_CardNewRecord', '1 row(s): Event Type=Trigger;Publisher Object Type=Page;Publisher Object ID=91511;Published Function=OnNewRecordEvent;Active=Yes;Number of Calls=0;Error Information=;Subscriber Instance=Static-Automatic;Active Manual Instances=0;');
+        Observer.Expect('P12_CardInsertRecord', '1 row(s): Event Type=Trigger;Publisher Object Type=Page;Publisher Object ID=91511;Published Function=OnInsertRecordEvent;Active=Yes;Number of Calls=0;Error Information=;Subscriber Instance=Static-Automatic;Active Manual Instances=0;');
+        Observer.Expect('P13_CardModifyRecord', '1 row(s): Event Type=Trigger;Publisher Object Type=Page;Publisher Object ID=91511;Published Function=OnModifyRecordEvent;Active=Yes;Number of Calls=0;Error Information=;Subscriber Instance=Static-Automatic;Active Manual Instances=0;');
+        Observer.Expect('P14_CardDeleteRecord', '1 row(s): Event Type=Trigger;Publisher Object Type=Page;Publisher Object ID=91511;Published Function=OnDeleteRecordEvent;Active=Yes;Number of Calls=0;Error Information=;Subscriber Instance=Static-Automatic;Active Manual Instances=0;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -307,7 +328,14 @@ codeunit 91515 "LT Y11 PTE Rows"
         Sub.SetRange("Published Function");
         Sub.SetRange(Active, false);
         Observer.Observe('inactive rows', Format(Sub.Count()));
-        Observer.Finish();
+        Observer.Expect('all rows', '17');
+        Observer.Expect('trigger rows', '17');
+        Observer.Expect('list page rows', '3');
+        Observer.Expect('OnAfterGetCurrRecordEvent rows', '2');
+        Observer.Expect('OnAfterValidateEvent* rows', '5');
+        Observer.Expect('OnAfterValidateEvent - Name rows', '0');
+        Observer.Expect('inactive rows', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -345,6 +373,17 @@ codeunit 91515 "LT Y11 PTE Rows"
             Observer.Observe(Names.Get(i) + ' calls delta', Format(Calls(Names.Get(i)) - Before.Get(i)));
         Rec.Get('A');
         Observer.Observe('stored name', Rec.Name);
-        Observer.Finish();
+        Observer.Expect('P01_CardNameBeforeValidate calls delta', '1');
+        Observer.Expect('P02_CardNameAfterValidate calls delta', '1');
+        Observer.Expect('P03_CardUnitPriceAfterValidate calls delta', '0');
+        Observer.Expect('P07_CardAfterGetCurrRecord calls delta', '2');
+        Observer.Expect('P08_CardOpenPage calls delta', '1');
+        Observer.Expect('P09_CardClosePage calls delta', '1');
+        Observer.Expect('P10_CardAfterGetRecord calls delta', '2');
+        Observer.Expect('P13_CardModifyRecord calls delta', '1');
+        Observer.Expect('P15_CardQueryClosePage calls delta', '1');
+        Observer.Expect('P17_CardCodeBeforeValidate calls delta', '0');
+        Observer.Expect('stored name', 'second');
+        Observer.Verify();
     end;
 }

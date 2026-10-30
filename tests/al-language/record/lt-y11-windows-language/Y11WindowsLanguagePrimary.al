@@ -7,6 +7,9 @@
 //   (1030 da-DK, 1031 de-DE, 1033 en-US, ...), regional cultures of the same language (3079 de-AT, 2057 en-GB, 2070 pt-PT, ...),
 //   Chinese, Arabic, Serbian and other scripts, and ids that have no row. Each value is "<Language Tag>|<Primary Language ID>",
 //   or "no row" when Get fails. record/TestWindowsLanguageTable.al pins only that en-US and en-GB share the value.
+// Result (SaaS BC 29): the value is a full LCID, the LCID of the language's primary culture: 3079 de-AT -> 1031, 2057 en-GB -> 1033, 2070 pt-PT -> 1046.
+//   Not always the "-<country of the language>" culture: 2052 zh-CN -> 1028 (zh-TW), 9242 sr-Latn-RS and 10266 sr-Cyrl-RS -> 1050 (hr-HR),
+//   2108 ga-IE -> 1084. 2074 and 3098 (old Serbian ids) and 0, 6, 9, 127, 1024, 2048, 4096, 99999 have no row.
 // BC versions: 27, 28, 29
 
 codeunit 91500 "LT Y11 WinLang Primary"
@@ -44,7 +47,22 @@ codeunit 91500 "LT Y11 WinLang Primary"
         ObserveId(Observer, 1035);
         ObserveId(Observer, 1039);
         ObserveId(Observer, 1078);
-        Observer.Finish();
+        Observer.Expect('1030', 'da-DK|1030');
+        Observer.Expect('1031', 'de-DE|1031');
+        Observer.Expect('3079', 'de-AT|1031');
+        Observer.Expect('2055', 'de-CH|1031');
+        Observer.Expect('4103', 'de-LU|1031');
+        Observer.Expect('5127', 'de-LI|1031');
+        Observer.Expect('1043', 'nl-NL|1043');
+        Observer.Expect('2067', 'nl-BE|1043');
+        Observer.Expect('1044', 'nb-NO|1044');
+        Observer.Expect('2068', 'nn-NO|1044');
+        Observer.Expect('1053', 'sv-SE|1053');
+        Observer.Expect('2077', 'sv-FI|1053');
+        Observer.Expect('1035', 'fi-FI|1035');
+        Observer.Expect('1039', 'is-IS|1039');
+        Observer.Expect('1078', 'af-ZA|1078');
+        Observer.Verify();
     end;
 
     [Test]
@@ -67,7 +85,22 @@ codeunit 91500 "LT Y11 WinLang Primary"
         ObserveId(Observer, 16393);
         ObserveId(Observer, 17417);
         ObserveId(Observer, 18441);
-        Observer.Finish();
+        Observer.Expect('1033', 'en-US|1033');
+        Observer.Expect('2057', 'en-GB|1033');
+        Observer.Expect('3081', 'en-AU|1033');
+        Observer.Expect('4105', 'en-CA|1033');
+        Observer.Expect('5129', 'en-NZ|1033');
+        Observer.Expect('6153', 'en-IE|1033');
+        Observer.Expect('7177', 'en-ZA|1033');
+        Observer.Expect('8201', 'en-JM|1033');
+        Observer.Expect('10249', 'en-BZ|1033');
+        Observer.Expect('11273', 'en-TT|1033');
+        Observer.Expect('12297', 'en-ZW|1033');
+        Observer.Expect('13321', 'en-PH|1033');
+        Observer.Expect('16393', 'en-IN|1033');
+        Observer.Expect('17417', 'en-MY|1033');
+        Observer.Expect('18441', 'en-SG|1033');
+        Observer.Verify();
     end;
 
     [Test]
@@ -91,7 +124,23 @@ codeunit 91500 "LT Y11 WinLang Primary"
         ObserveId(Observer, 2070);
         ObserveId(Observer, 1048);
         ObserveId(Observer, 1027);
-        Observer.Finish();
+        Observer.Expect('1036', 'fr-FR|1036');
+        Observer.Expect('2060', 'fr-BE|1036');
+        Observer.Expect('3084', 'fr-CA|1036');
+        Observer.Expect('4108', 'fr-CH|1036');
+        Observer.Expect('5132', 'fr-LU|1036');
+        Observer.Expect('1040', 'it-IT|1040');
+        Observer.Expect('2064', 'it-CH|1040');
+        Observer.Expect('1034', 'es-ES|1034');
+        Observer.Expect('3082', 'es-ES|1034');
+        Observer.Expect('2058', 'es-MX|1034');
+        Observer.Expect('11274', 'es-AR|1034');
+        Observer.Expect('13322', 'es-CL|1034');
+        Observer.Expect('1046', 'pt-BR|1046');
+        Observer.Expect('2070', 'pt-PT|1046');
+        Observer.Expect('1048', 'ro-RO|1048');
+        Observer.Expect('1027', 'ca-ES|1027');
+        Observer.Verify();
     end;
 
     [Test]
@@ -116,7 +165,24 @@ codeunit 91500 "LT Y11 WinLang Primary"
         ObserveId(Observer, 1086);
         ObserveId(Observer, 2110);
         ObserveId(Observer, 1081);
-        Observer.Finish();
+        Observer.Expect('2052', 'zh-CN|1028');
+        Observer.Expect('1028', 'zh-TW|1028');
+        Observer.Expect('3076', 'zh-HK|1028');
+        Observer.Expect('4100', 'zh-SG|1028');
+        Observer.Expect('5124', 'zh-MO|1028');
+        Observer.Expect('1041', 'ja-JP|1041');
+        Observer.Expect('1042', 'ko-KR|1042');
+        Observer.Expect('1025', 'ar-SA|1025');
+        Observer.Expect('14337', 'ar-AE|1025');
+        Observer.Expect('3073', 'ar-EG|1025');
+        Observer.Expect('1037', 'he-IL|1037');
+        Observer.Expect('1054', 'th-TH|1054');
+        Observer.Expect('1066', 'vi-VN|1066');
+        Observer.Expect('1057', 'id-ID|1057');
+        Observer.Expect('1086', 'ms-MY|1086');
+        Observer.Expect('2110', 'ms-BN|1086');
+        Observer.Expect('1081', 'hi-IN|1081');
+        Observer.Verify();
     end;
 
     [Test]
@@ -142,7 +208,25 @@ codeunit 91500 "LT Y11 WinLang Primary"
         ObserveId(Observer, 1063);
         ObserveId(Observer, 1058);
         ObserveId(Observer, 1026);
-        Observer.Finish();
+        Observer.Expect('1049', 'ru-RU|1049');
+        Observer.Expect('1045', 'pl-PL|1045');
+        Observer.Expect('1029', 'cs-CZ|1029');
+        Observer.Expect('1051', 'sk-SK|1051');
+        Observer.Expect('1060', 'sl-SI|1060');
+        Observer.Expect('1050', 'hr-HR|1050');
+        Observer.Expect('2074', 'no row');
+        Observer.Expect('3098', 'no row');
+        Observer.Expect('9242', 'sr-Latn-RS|1050');
+        Observer.Expect('10266', 'sr-Cyrl-RS|1050');
+        Observer.Expect('1038', 'hu-HU|1038');
+        Observer.Expect('1032', 'el-GR|1032');
+        Observer.Expect('1055', 'tr-TR|1055');
+        Observer.Expect('1061', 'et-EE|1061');
+        Observer.Expect('1062', 'lv-LV|1062');
+        Observer.Expect('1063', 'lt-LT|1063');
+        Observer.Expect('1058', 'uk-UA|1058');
+        Observer.Expect('1026', 'bg-BG|1026');
+        Observer.Verify();
     end;
 
     [Test]
@@ -162,6 +246,18 @@ codeunit 91500 "LT Y11 WinLang Primary"
         ObserveId(Observer, 1106);
         ObserveId(Observer, 1110);
         ObserveId(Observer, 1069);
-        Observer.Finish();
+        Observer.Expect('0', 'no row');
+        Observer.Expect('6', 'no row');
+        Observer.Expect('9', 'no row');
+        Observer.Expect('127', 'no row');
+        Observer.Expect('1024', 'no row');
+        Observer.Expect('2048', 'no row');
+        Observer.Expect('4096', 'no row');
+        Observer.Expect('99999', 'no row');
+        Observer.Expect('2108', 'ga-IE|1084');
+        Observer.Expect('1106', 'cy-GB|1106');
+        Observer.Expect('1110', 'gl-ES|1110');
+        Observer.Expect('1069', 'eu-ES|1069');
+        Observer.Verify();
     end;
 }
