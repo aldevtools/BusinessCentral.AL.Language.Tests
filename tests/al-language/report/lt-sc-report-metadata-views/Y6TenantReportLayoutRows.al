@@ -25,7 +25,10 @@ codeunit 91312 "LT Y6 Tenant Report Layout"
         Layout.Reset();
         Layout.SetRange("Report ID", Report::"LT SC Meta Report");
         Observer.Observe('own report findfirst', Format(Layout.FindFirst()));
-        Observer.Finish();
+        Observer.Expect('own report rows', '0');
+        Observer.Expect('own report rows current company', '0');
+        Observer.Expect('own report findfirst', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -61,6 +64,13 @@ codeunit 91312 "LT Y6 Tenant Report Layout"
         Observer.Observe('second insert answer', Format(Ok));
         Layout.DeleteAll();
         Observer.Observe('rows after delete', Format(Layout.Count()));
-        Observer.Finish();
+        Observer.Expect('layout has value before insert', 'Yes');
+        Observer.Expect('insert answer', 'Yes');
+        Observer.Expect('rows after insert', '1');
+        Observer.Expect('stored', 'LT Y6 Probe Layout||RDLC|Y6 probe||Yes|Yes');
+        Observer.Expect('found by name', 'Yes');
+        Observer.Expect('second insert answer', 'No');
+        Observer.Expect('rows after delete', '0');
+        Observer.Verify();
     end;
 }

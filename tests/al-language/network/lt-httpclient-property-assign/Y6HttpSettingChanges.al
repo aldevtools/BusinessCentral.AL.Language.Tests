@@ -45,7 +45,11 @@ codeunit 91311 "LT Y6 Http Setting Changes"
         Prepare(Client);
         Ok := Client.UseServerCertificateValidation(true);
         Observer.Observe('true after false (changes)', Format(Ok) + ' ' + State(Client));
-        Observer.Finish();
+        Observer.Expect('true on fresh (keeps)', 'Yes 5 seconds|https://example.invalid/base/|Yes');
+        Observer.Expect('false (changes)', 'No 1 minute 40 seconds||No');
+        Observer.Expect('false again (keeps)', 'No 5 seconds|https://example.invalid/base/|Yes');
+        Observer.Expect('true after false (changes)', 'Yes 5 seconds|https://example.invalid/base/|Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -67,7 +71,12 @@ codeunit 91311 "LT Y6 Http Setting Changes"
         Client.UseServerCertificateValidation := true;
         Observer.Observe('true after false (changes)', State(Client));
         Observer.Observe('call result after', Format(Client.UseServerCertificateValidation(true)));
-        Observer.Finish();
+        Observer.Expect('true on fresh (keeps)', '5 seconds|https://example.invalid/base/|Yes');
+        Observer.Expect('false (changes)', '1 minute 40 seconds||No');
+        Observer.Expect('false again (keeps)', '5 seconds|https://example.invalid/base/|Yes');
+        Observer.Expect('true after false (changes)', '5 seconds|https://example.invalid/base/|Yes');
+        Observer.Expect('call result after', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -91,7 +100,12 @@ codeunit 91311 "LT Y6 Http Setting Changes"
         Prepare(Client);
         Client.UseResponseCookies := true;
         Observer.Observe('assign true again', State(Client));
-        Observer.Finish();
+        Observer.Expect('true on fresh', '1 minute 40 seconds||No');
+        Observer.Expect('false', '5 seconds|https://example.invalid/base/|Yes');
+        Observer.Expect('false again', '5 seconds|https://example.invalid/base/|Yes');
+        Observer.Expect('assign true after false', '5 seconds|https://example.invalid/base/|Yes');
+        Observer.Expect('assign true again', '5 seconds|https://example.invalid/base/|Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -109,7 +123,11 @@ codeunit 91311 "LT Y6 Http Setting Changes"
         Observer.Observe('after validation true', Format(Client.Timeout()));
         Client.UseServerCertificateValidation(false);
         Observer.Observe('after validation false', Format(Client.Timeout()));
-        Observer.Finish();
+        Observer.Expect('set after false', '2 seconds');
+        Observer.Expect('after cookies false', '2 seconds');
+        Observer.Expect('after validation true', '2 seconds');
+        Observer.Expect('after validation false', '2 seconds');
+        Observer.Verify();
     end;
 
     [Test]
@@ -134,8 +152,15 @@ codeunit 91311 "LT Y6 Http Setting Changes"
         Third.SetBaseAddress('https://example.invalid/base/');
         asserterror Ok := Third.Get('rel', Resp);
         Observer.ObserveError('relative get after both assigns');
-        Observer.Finish();
+        Observer.Expect('get after cookies false|text', 'Unhandled outbound HTTP requests are not permitted when the TestHttpRequestPolicy property is set to ''BlockOutboundRequests''. Please ensure that an HTTP client handler is configured.');
+        Observer.Expect('get after cookies false|code', 'TestCodeunitUnhandledHttpRequest');
+        Observer.Expect('get after validation true and timeout 1|text', 'Unhandled outbound HTTP requests are not permitted when the TestHttpRequestPolicy property is set to ''BlockOutboundRequests''. Please ensure that an HTTP client handler is configured.');
+        Observer.Expect('get after validation true and timeout 1|code', 'TestCodeunitUnhandledHttpRequest');
+        Observer.Expect('relative get after both assigns|text', 'Unhandled outbound HTTP requests are not permitted when the TestHttpRequestPolicy property is set to ''BlockOutboundRequests''. Please ensure that an HTTP client handler is configured.');
+        Observer.Expect('relative get after both assigns|code', 'TestCodeunitUnhandledHttpRequest');
+        Observer.Verify();
     end;
+
     [Test]
     procedure WhichCallResetsTheClient()
     var
@@ -166,6 +191,13 @@ codeunit 91311 "LT Y6 Http Setting Changes"
         Prepare(D);
         D.UseResponseCookies(true);
         Observer.Observe('then cookies true after reset', State(D));
-        Observer.Finish();
+        Observer.Expect('fresh, cookies false', '5 seconds|https://example.invalid/base/|Yes');
+        Observer.Expect('fresh, cookies true', '1 minute 40 seconds||No');
+        Observer.Expect('then validation false', '5 seconds|https://example.invalid/base/|Yes');
+        Observer.Expect('fresh, validation true', '5 seconds|https://example.invalid/base/|Yes');
+        Observer.Expect('then cookies true', '1 minute 40 seconds||No');
+        Observer.Expect('fresh, validation false', '1 minute 40 seconds||No');
+        Observer.Expect('then cookies true after reset', '5 seconds|https://example.invalid/base/|Yes');
+        Observer.Verify();
     end;
 }

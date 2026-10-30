@@ -169,7 +169,10 @@ codeunit 91309 "LT Y6 Update Draft Row"
         TP.Close();
         Observer.Observe('log', Log.Joined());
         Observer.Observe('rows after', Rows());
-        Observer.Finish();
+        Observer.Expect('page id after', '1');
+        Observer.Expect('log', 'agcr id=1 count=2 ; agcr id=0 count=2 ; before id=0 ; after id=0 ; agcr id=1 count=2');
+        Observer.Expect('rows after', '2 [1:row1][2:row2]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -187,7 +190,10 @@ codeunit 91309 "LT Y6 Update Draft Row"
         TP.Close();
         Observer.Observe('log', Log.Joined());
         Observer.Observe('rows after', Rows());
-        Observer.Finish();
+        Observer.Expect('page id after', '1');
+        Observer.Expect('log', 'agcr id=1 count=2 ; agcr id=0 count=2 ; body id=0 ; agcr id=1 count=2');
+        Observer.Expect('rows after', '2 [1:row1][2:row2]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -206,7 +212,10 @@ codeunit 91309 "LT Y6 Update Draft Row"
         TP.Close();
         Observer.Observe('log', Log.Joined());
         Observer.Observe('rows after', Rows());
-        Observer.Finish();
+        Observer.Expect('page id after', '3');
+        Observer.Expect('log', 'agcr id=1 count=3 ; agcr id=3 count=3 ; agcr id=0 count=3 ; before id=0 ; after id=0 ; agcr id=3 count=3');
+        Observer.Expect('rows after', '3 [1:row1][2:row2][3:row3]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -225,7 +234,10 @@ codeunit 91309 "LT Y6 Update Draft Row"
         TP.Close();
         Observer.Observe('log', Log.Joined());
         Observer.Observe('rows after', Rows());
-        Observer.Finish();
+        Observer.Expect('page id after', '2');
+        Observer.Expect('log', 'agcr id=1 count=3 ; agcr id=2 count=3 ; agcr id=0 count=3 ; before id=0 ; after id=0 ; agcr id=2 count=3');
+        Observer.Expect('rows after', '3 [1:row1][2:row2][3:row3]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -244,7 +256,10 @@ codeunit 91309 "LT Y6 Update Draft Row"
         TP.Close();
         Observer.Observe('log', Log.Joined());
         Observer.Observe('rows after', Rows());
-        Observer.Finish();
+        Observer.Expect('page id after', '1');
+        Observer.Expect('log', 'agcr id=1 count=3 ; agcr id=3 count=3 ; agcr id=0 count=3 ; before id=0 ; after id=0 ; agcr id=1 count=3');
+        Observer.Expect('rows after', '3 [1:row1][2:row2][3:row3]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -261,7 +276,10 @@ codeunit 91309 "LT Y6 Update Draft Row"
         TP.Close();
         Observer.Observe('log', Log.Joined());
         Observer.Observe('rows after', Rows());
-        Observer.Finish();
+        Observer.Expect('page id after', '');
+        Observer.Expect('log', 'before id=0 ; after id=0');
+        Observer.Expect('rows after', '0 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -278,7 +296,10 @@ codeunit 91309 "LT Y6 Update Draft Row"
         TP.Close();
         Observer.Observe('log', Log.Joined());
         Observer.Observe('rows after', Rows());
-        Observer.Finish();
+        Observer.Expect('page id after', '');
+        Observer.Expect('log', 'before id=0 ; after id=0');
+        Observer.Expect('rows after', '0 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -295,7 +316,10 @@ codeunit 91309 "LT Y6 Update Draft Row"
         TP.Close();
         Observer.Observe('log', Log.Joined());
         Observer.Observe('rows after', Rows());
-        Observer.Finish();
+        Observer.Expect('page id after', '');
+        Observer.Expect('log', 'body id=0');
+        Observer.Expect('rows after', '0 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -313,6 +337,9 @@ codeunit 91309 "LT Y6 Update Draft Row"
         TP.Close();
         Observer.Observe('log', Log.Joined());
         Observer.Observe('rows after', Rows());
-        Observer.Finish();
+        Observer.Expect('page id after', '');
+        Observer.Expect('log', 'agcr id=0 count=0 ; before id=0 ; after id=0');
+        Observer.Expect('rows after', '0 ');
+        Observer.Verify();
     end;
 }

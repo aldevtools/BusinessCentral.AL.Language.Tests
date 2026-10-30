@@ -57,7 +57,18 @@ codeunit 91310 "LT Y6 Eval Whitespace More"
         TryDecimal(Observer, 'leading FF negative', Ch(12) + '-1.5');
         TryDecimal(Observer, 'only VT', Ch(11));
         TryDecimal(Observer, 'only FF', Ch(12));
-        Observer.Finish();
+        Observer.Expect('leading VT', 'Yes 1.5');
+        Observer.Expect('leading FF', 'Yes 1.5');
+        Observer.Expect('leading VT FF', 'Yes 1.5');
+        Observer.Expect('both sides VT', 'Yes 1.5');
+        Observer.Expect('leading FF negative', 'Yes -1.5');
+        Observer.Expect('only VT', 'No 99');
+        Observer.Expect('only VT err|text', '');
+        Observer.Expect('only VT err|code', '');
+        Observer.Expect('only FF', 'No 99');
+        Observer.Expect('only FF err|text', '');
+        Observer.Expect('only FF err|code', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -72,7 +83,28 @@ codeunit 91310 "LT Y6 Eval Whitespace More"
         TryDecimal(Observer, 'CR before decimal point', '1' + Ch(13) + '.5');
         TryDecimal(Observer, 'CR after decimal point', '1.' + Ch(13) + '5');
         TryDecimal(Observer, 'sign then CR', '-' + Ch(13) + '1.5');
-        Observer.Finish();
+        Observer.Expect('inner CR', 'No 99');
+        Observer.Expect('inner CR err|text', '');
+        Observer.Expect('inner CR err|code', '');
+        Observer.Expect('inner CRLF', 'No 99');
+        Observer.Expect('inner CRLF err|text', '');
+        Observer.Expect('inner CRLF err|code', '');
+        Observer.Expect('inner VT', 'No 99');
+        Observer.Expect('inner VT err|text', '');
+        Observer.Expect('inner VT err|code', '');
+        Observer.Expect('inner FF', 'No 99');
+        Observer.Expect('inner FF err|text', '');
+        Observer.Expect('inner FF err|code', '');
+        Observer.Expect('CR before decimal point', 'No 99');
+        Observer.Expect('CR before decimal point err|text', '');
+        Observer.Expect('CR before decimal point err|code', '');
+        Observer.Expect('CR after decimal point', 'No 99');
+        Observer.Expect('CR after decimal point err|text', '');
+        Observer.Expect('CR after decimal point err|code', '');
+        Observer.Expect('sign then CR', 'No 99');
+        Observer.Expect('sign then CR err|text', '');
+        Observer.Expect('sign then CR err|code', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -90,6 +122,24 @@ codeunit 91310 "LT Y6 Eval Whitespace More"
         TryInteger(Observer, 'inner VT', '1' + Ch(11) + '5');
         TryInteger(Observer, 'inner FF', '1' + Ch(12) + '5');
         TryInteger(Observer, 'only FF', Ch(12));
-        Observer.Finish();
+        Observer.Expect('leading VT', 'Yes 15');
+        Observer.Expect('leading FF', 'Yes 15');
+        Observer.Expect('leading CR', 'Yes 15');
+        Observer.Expect('trailing VT', 'Yes 15');
+        Observer.Expect('trailing FF', 'Yes 15');
+        Observer.Expect('trailing CR', 'Yes 15');
+        Observer.Expect('inner CR', 'No 99');
+        Observer.Expect('inner CR err|text', '');
+        Observer.Expect('inner CR err|code', '');
+        Observer.Expect('inner VT', 'No 99');
+        Observer.Expect('inner VT err|text', '');
+        Observer.Expect('inner VT err|code', '');
+        Observer.Expect('inner FF', 'No 99');
+        Observer.Expect('inner FF err|text', '');
+        Observer.Expect('inner FF err|code', '');
+        Observer.Expect('only FF', 'No 99');
+        Observer.Expect('only FF err|text', '');
+        Observer.Expect('only FF err|code', '');
+        Observer.Verify();
     end;
 }

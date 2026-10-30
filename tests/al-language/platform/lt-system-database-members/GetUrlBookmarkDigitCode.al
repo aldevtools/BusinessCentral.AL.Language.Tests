@@ -114,7 +114,16 @@ codeunit 91305 "LT Y6 GetUrl Digit Code"
         Observer.Observe('12345678901234567890', CodeUrl('12345678901234567890'));
         Observer.Observe('000001', CodeUrl('000001'));
         Observer.Observe('007', CodeUrl('007'));
-        Observer.Finish();
+        Observer.Expect('1', '?company=My%20Company&page=91303&bookmark=13%3bpGQBAAJ7ATE%3d');
+        Observer.Expect('0', '?company=My%20Company&page=91303&bookmark=13%3bpGQBAAJ7ATA%3d');
+        Observer.Expect('12345', '?company=My%20Company&page=91303&bookmark=21%3bpGQBAAJ7BTEAMgAzADQANQ%3d%3d');
+        Observer.Expect('123456', '?company=My%20Company&page=91303&bookmark=23%3bpGQBAAJ7BjEAMgAzADQANQA2');
+        Observer.Expect('1234567', '?company=My%20Company&page=91303&bookmark=25%3bpGQBAAJ7BzEAMgAzADQANQA2ADc%3d');
+        Observer.Expect('1234567890', '?company=My%20Company&page=91303&bookmark=31%3bpGQBAAJ7CjEAMgAzADQANQA2ADcAOAA5ADA%3d');
+        Observer.Expect('12345678901234567890', '?company=My%20Company&page=91303&bookmark=51%3bpGQBAAJ7FDEAMgAzADQANQA2ADcAOAA5ADAAMQAyADMANAA1ADYANwA4ADkAMA%3d%3d');
+        Observer.Expect('000001', '?company=My%20Company&page=91303&bookmark=23%3bpGQBAAJ7BjAAMAAwADAAMAAx');
+        Observer.Expect('007', '?company=My%20Company&page=91303&bookmark=17%3bpGQBAAJ7AzAAMAA3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -128,7 +137,13 @@ codeunit 91305 "LT Y6 GetUrl Digit Code"
         Observer.Observe('1-2', CodeUrl('1-2'));
         Observer.Observe('1 2', CodeUrl('1 2'));
         Observer.Observe('A1 reference', CodeUrl('A1'));
-        Observer.Finish();
+        Observer.Expect('1A', '?company=My%20Company&page=91303&bookmark=15%3bpGQBAAJ7%2fzEAQQ%3d%3d');
+        Observer.Expect('12345A', '?company=My%20Company&page=91303&bookmark=23%3bpGQBAAJ7%2fzEAMgAzADQANQBB');
+        Observer.Expect('123456A', '?company=My%20Company&page=91303&bookmark=25%3bpGQBAAJ7%2fzEAMgAzADQANQA2AEE%3d');
+        Observer.Expect('1-2', '?company=My%20Company&page=91303&bookmark=17%3bpGQBAAJ7%2fzEALQAy');
+        Observer.Expect('1 2', '?company=My%20Company&page=91303&bookmark=17%3bpGQBAAJ7%2fzEAIAAy');
+        Observer.Expect('A1 reference', '?company=My%20Company&page=91303&bookmark=15%3bpGQBAAJ7%2f0EAMQ%3d%3d');
+        Observer.Verify();
     end;
 
     [Test]
@@ -145,7 +160,8 @@ codeunit 91305 "LT Y6 GetUrl Digit Code"
         Row.Insert();
         Row.Get('1234567');
         Observer.Observe('inserted equal', Format(Before = Tail(GetUrl(ClientType::Web, 'My Company', ObjectType::Page, Page::"LT Y6 Url Code Page", Row, false))));
-        Observer.Finish();
+        Observer.Expect('inserted equal', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -162,6 +178,10 @@ codeunit 91305 "LT Y6 GetUrl Digit Code"
         Row.Kind := "LT Y6 Url Kind"::Fifth;
         Observer.Observe('fifth', Tail(GetUrl(ClientType::Web, 'My Company', ObjectType::Page, Page::"LT Y6 Url Enum Page", Row, false)));
         Observer.Observe('fifth usefilters', Tail(GetUrl(ClientType::Web, 'My Company', ObjectType::Page, Page::"LT Y6 Url Enum Page", Row, true)));
-        Observer.Finish();
+        Observer.Expect('first', '?company=My%20Company&page=91304&bookmark=12%3bpWQBAACL');
+        Observer.Expect('second', '?company=My%20Company&page=91304&bookmark=12%3bpWQBAACLAQ%3d%3d');
+        Observer.Expect('fifth', '?company=My%20Company&page=91304&bookmark=12%3bpWQBAACLBQ%3d%3d');
+        Observer.Expect('fifth usefilters', '?company=My%20Company&page=91304');
+        Observer.Verify();
     end;
 }
