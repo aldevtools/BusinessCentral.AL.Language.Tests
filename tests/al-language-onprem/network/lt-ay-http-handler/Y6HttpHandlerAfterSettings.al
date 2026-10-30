@@ -4,7 +4,7 @@
 // Probe: observe probe; every literal asserted below is what the corpus CI service tiers produced.
 // Facts: under TestHttpRequestPolicy = AllowOutboundFromHandler, a Get on an HttpClient after UseServerCertificateValidation(false), after the
 //   property-assign form UseServerCertificateValidation := false, after UseResponseCookies(false) and after a Timeout change still reaches the
-//   [HttpClientHandler]: the Boolean of Get, the status, the URL and the default request header the handler sees.
+//   [HttpClientHandler]: the Boolean of Get, the status, the body the handler wrote, the number of handler calls and the URL the handler sees.
 //   The Cloud-app twin is network/lt-httpclient-property-assign/Y6HttpSettingChanges.al (BlockOutboundRequests).
 // BC versions: 27, 28, 29 (corpus CI); handler values asserted on 29 only: the Linux images of 27 and 28 do not give a request to the handler
 //   (see AyHttpHandler.al, bc-linux issue 192).
@@ -64,7 +64,11 @@ codeunit 98860 "LT Y6 Http Handler Settings"
         C4.UseResponseCookies := true;
         Run(Observer, C4, 'timeout then both');
 #if BC29PLUS
-        Observer.Finish();
+        Observer.Expect('validation false call', 'ret=Yes status=200 body=ok calls=1 path=https://example.invalid/y6');
+        Observer.Expect('validation false assign', 'ret=Yes status=200 body=ok calls=1 path=https://example.invalid/y6');
+        Observer.Expect('cookies false', 'ret=Yes status=200 body=ok calls=1 path=https://example.invalid/y6');
+        Observer.Expect('timeout then both', 'ret=Yes status=200 body=ok calls=1 path=https://example.invalid/y6');
+        Observer.Verify();
 #else
         Observer.Discard();
 #endif
