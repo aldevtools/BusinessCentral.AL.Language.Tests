@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/testhandlercontext/testhandlercontext-data-type
 // Scope: in-scope
-// Fixtures used: none (own log codeunit 81613); own objects 81613 - 81623
+// Fixtures used: none (one log codeunit per test codeunit: 81613, 81625 - 81629); own objects 81613 - 81629
 // Corpus issue (al-runner test framework probes, 2026-10-30): the behavior of TestHandlers callbacks that BiTestHandler.al does not pin:
 // what the callbacks see (Success after asserterror), an error raised inside a callback, Skip in the callbacks where it has no effect,
 // two handlers in one TestHandlers list (call order, one handler failing or skipping), and CodeunitName for a codeunit in a namespace.
@@ -38,11 +38,146 @@ codeunit 81613 "LT BI TFB Log"
     end;
 }
 
+codeunit 81625 "LT BI TFB Log Errors"
+{
+    SingleInstance = true;
+
+    var
+        Entries: Dictionary of [Integer, Text];
+
+    procedure Add(CodeunitId: Integer; Entry: Text)
+    var
+        Text: Text;
+    begin
+        if Entries.Get(CodeunitId, Text) then;
+        Entries.Set(CodeunitId, Text + Entry + ';');
+    end;
+
+    procedure Check(CodeunitId: Integer; Expected: Text)
+    var
+        Actual: Text;
+    begin
+        if Entries.Get(CodeunitId, Actual) then;
+        Entries.Remove(CodeunitId);
+        if Actual <> Expected then
+            Error('LT BI TFB log of %1 differs. Expected: %2 Actual: %3', CodeunitId, Expected, Actual);
+    end;
+}
+
+codeunit 81626 "LT BI TFB Log Two"
+{
+    SingleInstance = true;
+
+    var
+        Entries: Dictionary of [Integer, Text];
+
+    procedure Add(CodeunitId: Integer; Entry: Text)
+    var
+        Text: Text;
+    begin
+        if Entries.Get(CodeunitId, Text) then;
+        Entries.Set(CodeunitId, Text + Entry + ';');
+    end;
+
+    procedure Check(CodeunitId: Integer; Expected: Text)
+    var
+        Actual: Text;
+    begin
+        if Entries.Get(CodeunitId, Actual) then;
+        Entries.Remove(CodeunitId);
+        if Actual <> Expected then
+            Error('LT BI TFB log of %1 differs. Expected: %2 Actual: %3', CodeunitId, Expected, Actual);
+    end;
+}
+
+codeunit 81627 "LT BI TFB Log Reverse"
+{
+    SingleInstance = true;
+
+    var
+        Entries: Dictionary of [Integer, Text];
+
+    procedure Add(CodeunitId: Integer; Entry: Text)
+    var
+        Text: Text;
+    begin
+        if Entries.Get(CodeunitId, Text) then;
+        Entries.Set(CodeunitId, Text + Entry + ';');
+    end;
+
+    procedure Check(CodeunitId: Integer; Expected: Text)
+    var
+        Actual: Text;
+    begin
+        if Entries.Get(CodeunitId, Actual) then;
+        Entries.Remove(CodeunitId);
+        if Actual <> Expected then
+            Error('LT BI TFB log of %1 differs. Expected: %2 Actual: %3', CodeunitId, Expected, Actual);
+    end;
+}
+
+codeunit 81628 "LT BI TFB Log Late Skip"
+{
+    SingleInstance = true;
+
+    var
+        Entries: Dictionary of [Integer, Text];
+
+    procedure Add(CodeunitId: Integer; Entry: Text)
+    var
+        Text: Text;
+    begin
+        if Entries.Get(CodeunitId, Text) then;
+        Entries.Set(CodeunitId, Text + Entry + ';');
+    end;
+
+    procedure Check(CodeunitId: Integer; Expected: Text)
+    var
+        Actual: Text;
+    begin
+        if Entries.Get(CodeunitId, Actual) then;
+        Entries.Remove(CodeunitId);
+        if Actual <> Expected then
+            Error('LT BI TFB log of %1 differs. Expected: %2 Actual: %3', CodeunitId, Expected, Actual);
+    end;
+}
+
+codeunit 81629 "LT BI TFB Log Namespace"
+{
+    SingleInstance = true;
+
+    var
+        Entries: Dictionary of [Integer, Text];
+
+    procedure Add(CodeunitId: Integer; Entry: Text)
+    var
+        Text: Text;
+    begin
+        if Entries.Get(CodeunitId, Text) then;
+        Entries.Set(CodeunitId, Text + Entry + ';');
+    end;
+
+    procedure Check(CodeunitId: Integer; Expected: Text)
+    var
+        Actual: Text;
+    begin
+        if Entries.Get(CodeunitId, Actual) then;
+        Entries.Remove(CodeunitId);
+        if Actual <> Expected then
+            Error('LT BI TFB log of %1 differs. Expected: %2 Actual: %3', CodeunitId, Expected, Actual);
+    end;
+}
+
 codeunit 81614 "LT BI TFB Common"
 {
     procedure Handle(Prefix: Text; Callback: Text; Context: TestHandlerContext; WithSuccess: Boolean)
     var
-        Log: Codeunit "LT BI TFB Log";
+        LogOutcome: Codeunit "LT BI TFB Log";
+        LogErrors: Codeunit "LT BI TFB Log Errors";
+        LogTwo: Codeunit "LT BI TFB Log Two";
+        LogReverse: Codeunit "LT BI TFB Log Reverse";
+        LogLateSkip: Codeunit "LT BI TFB Log Late Skip";
+        LogNamespace: Codeunit "LT BI TFB Log Namespace";
         Entry: Text;
         Proc: Text;
     begin
@@ -52,7 +187,21 @@ codeunit 81614 "LT BI TFB Common"
             Entry += Context.CodeunitName();
         if WithSuccess then
             Entry += ',' + Format(Context.Success());
-        Log.Add(Context.CodeunitId(), Entry + ')');
+        // Each test codeunit has its own SingleInstance log, so no log is shared between test codeunits.
+        case Context.CodeunitId() of
+            81622:
+                LogOutcome.Add(Context.CodeunitId(), Entry + ')');
+            81617:
+                LogErrors.Add(Context.CodeunitId(), Entry + ')');
+            81618:
+                LogTwo.Add(Context.CodeunitId(), Entry + ')');
+            81619:
+                LogReverse.Add(Context.CodeunitId(), Entry + ')');
+            81620:
+                LogLateSkip.Add(Context.CodeunitId(), Entry + ')');
+            81621:
+                LogNamespace.Add(Context.CodeunitId(), Entry + ')');
+        end;
         case Context.CodeunitId() of
             81617: // errors
                 if (Prefix = 'A') and (((Callback = 'bCU')) or ((Proc = 'BiTfb_T1') and ((Callback = 'bP') or (Callback = 'aP')))) then
@@ -210,7 +359,7 @@ codeunit 81617 "LT BI TFB Errors"
     [Test]
     procedure BiTfb_T1()
     var
-        Log: Codeunit "LT BI TFB Log";
+        Log: Codeunit "LT BI TFB Log Errors";
     begin
         Log.Add(81617, 'bodyT1');
     end;
@@ -223,7 +372,7 @@ codeunit 81617 "LT BI TFB Errors"
     [Test]
     procedure BiTfb_Z_Verify()
     var
-        Log: Codeunit "LT BI TFB Log";
+        Log: Codeunit "LT BI TFB Log Errors";
     begin
         Log.Check(81617, 'A.bCU(LT BI TFB Errors);A.bP(BiTfb_T1);bodyT1;A.aP(BiTfb_T1,Yes);A.bP(BiTfb_T2);A.aP(BiTfb_T2,Yes);A.bP(BiTfb_Z_Verify);');
     end;
@@ -239,7 +388,7 @@ codeunit 81618 "LT BI TFB Two"
     [Test]
     procedure BiTfb_T1()
     var
-        Log: Codeunit "LT BI TFB Log";
+        Log: Codeunit "LT BI TFB Log Two";
     begin
         Log.Add(81618, 'bodyT1');
     end;
@@ -247,7 +396,7 @@ codeunit 81618 "LT BI TFB Two"
     [Test]
     procedure BiTfb_T2()
     var
-        Log: Codeunit "LT BI TFB Log";
+        Log: Codeunit "LT BI TFB Log Two";
     begin
         Log.Add(81618, 'bodyT2');
     end;
@@ -255,7 +404,7 @@ codeunit 81618 "LT BI TFB Two"
     [Test]
     procedure BiTfb_T3()
     var
-        Log: Codeunit "LT BI TFB Log";
+        Log: Codeunit "LT BI TFB Log Two";
     begin
         Log.Add(81618, 'bodyT3');
     end;
@@ -263,7 +412,7 @@ codeunit 81618 "LT BI TFB Two"
     [Test]
     procedure BiTfb_Z_Verify()
     var
-        Log: Codeunit "LT BI TFB Log";
+        Log: Codeunit "LT BI TFB Log Two";
     begin
         Log.Check(81618, 'A.bCU(LT BI TFB Two);B.bCU(LT BI TFB Two);A.bP(BiTfb_T1);B.bP(BiTfb_T1);bodyT1;A.aP(BiTfb_T1,Yes);B.aP(BiTfb_T1,Yes);A.bP(BiTfb_T2);B.bP(BiTfb_T2);A.bP(BiTfb_T3);B.bP(BiTfb_T3);bodyT3;A.aP(BiTfb_T3,Yes);B.aP(BiTfb_T3,Yes);A.bP(BiTfb_Z_Verify);B.bP(BiTfb_Z_Verify);');
     end;
@@ -284,7 +433,7 @@ codeunit 81619 "LT BI TFB Reverse"
     [Test]
     procedure BiTfb_Z_Verify()
     var
-        Log: Codeunit "LT BI TFB Log";
+        Log: Codeunit "LT BI TFB Log Reverse";
     begin
         Log.Check(81619, 'B.bCU(LT BI TFB Reverse);A.bCU(LT BI TFB Reverse);B.bP(BiTfb_T1);A.bP(BiTfb_T1);B.aP(BiTfb_T1,Yes);A.aP(BiTfb_T1,Yes);B.bP(BiTfb_Z_Verify);A.bP(BiTfb_Z_Verify);');
     end;
@@ -300,7 +449,7 @@ codeunit 81620 "LT BI TFB Late Skip"
     [Test]
     procedure BiTfb_T1()
     var
-        Log: Codeunit "LT BI TFB Log";
+        Log: Codeunit "LT BI TFB Log Late Skip";
     begin
         Log.Add(81620, 'bodyT1');
     end;
@@ -308,7 +457,7 @@ codeunit 81620 "LT BI TFB Late Skip"
     [Test]
     procedure BiTfb_Z_Verify()
     var
-        Log: Codeunit "LT BI TFB Log";
+        Log: Codeunit "LT BI TFB Log Late Skip";
     begin
         Log.Check(81620, 'A.bCU(LT BI TFB Late Skip);A.bP(BiTfb_T1);bodyT1;A.aP(BiTfb_T1,Yes);A.bP(BiTfb_Z_Verify);');
     end;
