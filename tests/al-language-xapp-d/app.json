@@ -3,13 +3,13 @@
   "name": "AL Language XApp D",
   "publisher": "Mike Probe Publisher",
   "version": "1.0.0.0",
-  "brief": "Cross-app fixture D: a subscriber app that depends on cross-app fixture A only.",
+  "brief": "Cross-app fixture D: a subscriber app that depends on cross-app fixture A only (and System Application); it declares an app logo.",
   "description": "Holds one subscriber of an event of cross-app fixture A. Depends on cross-app fixture A only; only cross-app fixture C depends on it (writer UI, dependency visit order). It depends on none of cross-app fixtures B and C or the main test app (subscriber order of apps that do not depend on each other). The app id, name and publisher are fixed on purpose: they decide the candidate orders of the probe (tests/al-language-xapp-a/QyXaObjects.al). Do not change them.",
   "privacyStatement": "",
   "EULA": "",
   "help": "",
   "url": "",
-  "logo": "",
+  "logo": "logo.png",
   "platform": "27.0.0.0",
   "dependencies": [
     {
@@ -17,6 +17,12 @@
       "name": "AL Language XApp A",
       "publisher": "AL Language",
       "version": "1.0.0.0"
+    },
+    {
+      "id": "63ca2fa4-4f03-4f2b-a480-172fef340d3f",
+      "name": "System Application",
+      "publisher": "Microsoft",
+      "version": "27.0.0.0"
     }
   ],
   "screenshots": [],
