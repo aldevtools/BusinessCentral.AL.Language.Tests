@@ -73,14 +73,22 @@ codeunit 90733 "LT WD Report Execute Params"
     end;
 
     [Test]
-    procedure WD_ReportExecute_OddParameters()
+    procedure WD_ReportExecute_UnknownField()
     var
         Observer: Codeunit "Probe Observer";
         R: Report "LT WD Execute Params";
     begin
         R.Execute(Params('<Field name="NoSuchField">x</Field><Field name="NewName">Kept</Field>'));
         Observer.Observe('unknown field name', R.GetResult());
-        Clear(R);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure WD_ReportExecute_IntegerFieldWithText()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Report "LT WD Execute Params";
+    begin
         R.Execute(Params('<Field name="Number">oops</Field>'));
         Observer.Observe('integer field with text', R.GetResult());
         Observer.Finish();
