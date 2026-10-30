@@ -61,7 +61,11 @@ codeunit 99342 "LT WD TryFunction DotNet Error"
         Observer.Observe('not a uri', Format(UriCheck.IsValidUri('12345')));
         Observer.Observe('ResolveUrl valid', UriCheck.ResolveUrl('https://example.com/a'));
         Observer.Observe('ResolveUrl fallback', UriCheck.ResolveUrl('12345'));
-        Observer.Finish();
+        Observer.Expect('valid', 'Yes');
+        Observer.Expect('not a uri', 'No');
+        Observer.Expect('ResolveUrl valid', 'https://example.com/a');
+        Observer.Expect('ResolveUrl fallback', 'https://example.com/link?id=12345');
+        Observer.Verify();
     end;
 
     [Test]
@@ -74,7 +78,10 @@ codeunit 99342 "LT WD TryFunction DotNet Error"
         Observer.Observe('not a uri', Format(UriCheck.IsValidUri('12345')));
         Observer.Observe('last error text', GetLastErrorText());
         Observer.Observe('last error code', GetLastErrorCode());
-        Observer.Finish();
+        Observer.Expect('not a uri', 'No');
+        Observer.Expect('last error text', 'A call to System.Uri failed with this message: Invalid URI: The format of the URI could not be determined.');
+        Observer.Expect('last error code', 'DotNetInvoke:UriFormat');
+        Observer.Verify();
     end;
 
     [Test]
@@ -84,7 +91,9 @@ codeunit 99342 "LT WD TryFunction DotNet Error"
     begin
         Observer.Observe('Codeunit.Run', Format(Codeunit.Run(Codeunit::"LT WD Xml Reader")));
         Observer.Observe('negated', Format(not Codeunit.Run(Codeunit::"LT WD Xml Reader")));
-        Observer.Finish();
+        Observer.Expect('Codeunit.Run', 'No');
+        Observer.Expect('negated', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -96,6 +105,9 @@ codeunit 99342 "LT WD TryFunction DotNet Error"
         Observer.Observe('Codeunit.Run', Format(Codeunit.Run(Codeunit::"LT WD Xml Reader")));
         Observer.Observe('last error text', GetLastErrorText());
         Observer.Observe('last error code', GetLastErrorCode());
-        Observer.Finish();
+        Observer.Expect('Codeunit.Run', 'No');
+        Observer.Expect('last error text', 'A call to System.Xml.XmlDocument.LoadXml failed with this message: Root element is missing.');
+        Observer.Expect('last error code', 'DotNetInvoke:Xml');
+        Observer.Verify();
     end;
 }

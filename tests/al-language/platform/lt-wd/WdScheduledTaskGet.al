@@ -31,7 +31,11 @@ codeunit 90751 "LT WD Scheduled Task Get"
         Clear(Task);
         Observer.Observe('Get after CancelTask', Format(Task.Get(TaskId)));
         Observer.Observe('CancelTask again', Format(TaskScheduler.CancelTask(TaskId)));
-        Observer.Finish();
+        Observer.Expect('Get after CreateTask', 'Yes');
+        Observer.Expect('CancelTask', 'Yes');
+        Observer.Expect('Get after CancelTask', 'No');
+        Observer.Expect('CancelTask again', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -43,7 +47,9 @@ codeunit 90751 "LT WD Scheduled Task Get"
     begin
         Observer.Observe('Get of a new guid', Format(Task.Get(CreateGuid())));
         Observer.Observe('Get of the null guid', Format(Task.Get(NullGuid)));
-        Observer.Finish();
+        Observer.Expect('Get of a new guid', 'No');
+        Observer.Expect('Get of the null guid', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -61,6 +67,11 @@ codeunit 90751 "LT WD Scheduled Task Get"
         TaskScheduler.CancelTask(TaskId);
         Observer.Observe('Count after CancelTask', Format(Task.Count()));
         Observer.Observe('IsEmpty after CancelTask', Format(Task.IsEmpty()));
-        Observer.Finish();
+        Observer.Expect('Count', '1');
+        Observer.Expect('IsEmpty', 'No');
+        Observer.Expect('FindFirst', 'Yes');
+        Observer.Expect('Count after CancelTask', '0');
+        Observer.Expect('IsEmpty after CancelTask', 'Yes');
+        Observer.Verify();
     end;
 }

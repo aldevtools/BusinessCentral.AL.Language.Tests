@@ -88,7 +88,9 @@ codeunit 90717 "LT WD Interface No Impl"
     begin
         Observer.Observe('RunStep', Runner.RunStep(Kind::Plain, IsValidation));
         Observer.Observe('is validation', Format(IsValidation));
-        Observer.Finish();
+        Observer.Expect('RunStep', 'plain');
+        Observer.Expect('is validation', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -101,6 +103,9 @@ codeunit 90717 "LT WD Interface No Impl"
         Observer.Observe('CountScenarios', Format(Runner.CountScenarios()));
         Observer.Observe('Ordinals count', Format(Scenario.Ordinals().Count()));
         Observer.Observe('Names count', Format(Scenario.Names().Count()));
-        Observer.Finish();
+        Observer.Expect('CountScenarios', '0');
+        Observer.Expect('Ordinals count', '0');
+        Observer.Expect('Names count', '0');
+        Observer.Verify();
     end;
 }

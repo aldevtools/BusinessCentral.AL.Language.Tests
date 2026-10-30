@@ -133,7 +133,15 @@ codeunit 90775 "LT WD Bare Quoted Field"
         Observer.Observe('D2 one word: value', Docs.AmountCtl.Value());
         Observer.Observe('D2 one word: editable', Format(Docs.AmountCtl.Editable()));
         Docs.Close();
-        Observer.Finish();
+        Observer.Expect('D1 quoted name: value', 'Profile 1');
+        Observer.Expect('D1 quoted name: editable', 'Yes');
+        Observer.Expect('D1 one word: value', '5.00');
+        Observer.Expect('D1 one word: editable', 'Yes');
+        Observer.Expect('D2 quoted name: value', 'Profile 2');
+        Observer.Expect('D2 quoted name: editable', 'No');
+        Observer.Expect('D2 one word: value', '7.00');
+        Observer.Expect('D2 one word: editable', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -153,11 +161,26 @@ codeunit 90775 "LT WD Bare Quoted Field"
         Doc.Get('D1');
         Observer.Observe('stored field', Doc."Profile Name");
         Docs.Close();
+        Observer.Expect('value after SetValue', 'Changed');
+        Observer.Expect('stored field', 'Changed');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure WD_BareNameExt_OpenAndFirst()
+    var
+        Observer: Codeunit "Probe Observer";
+        Card: TestPage "LT WD Document Card";
+    begin
+        Setup();
+        Card.OpenView();
+        Observer.Observe('First', Format(Card.First()));
+        Observer.Observe('No.', Card."No.".Value());
         Observer.Finish();
     end;
 
     [Test]
-    procedure WD_BareName_InAPageExtension()
+    procedure WD_BareNameExt_ValueRead()
     var
         Observer: Codeunit "Probe Observer";
         Card: TestPage "LT WD Document Card";
@@ -166,14 +189,39 @@ codeunit 90775 "LT WD Bare Quoted Field"
         Card.OpenView();
         Card.First();
         Observer.Observe('D1 value', Card."LT WD Profile".Value());
-        Observer.Observe('D1 editable', Format(Card."LT WD Profile".Editable()));
         Card.Next();
         Observer.Observe('D2 value', Card."LT WD Profile".Value());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure WD_BareNameExt_ValueReadError()
+    var
+        Observer: Codeunit "Probe Observer";
+        Card: TestPage "LT WD Document Card";
+    begin
+        Setup();
+        Card.OpenView();
+        Card.First();
+        asserterror Observer.Observe('D1 value', Card."LT WD Profile".Value());
+        Observer.ObserveError('value read');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure WD_BareNameExt_Editable()
+    var
+        Observer: Codeunit "Probe Observer";
+        Card: TestPage "LT WD Document Card";
+    begin
+        Setup();
+        Card.OpenView();
+        Card.First();
+        Observer.Observe('view mode editable', Format(Card."LT WD Profile".Editable()));
         Card.Close();
         Card.OpenEdit();
         Card.First();
         Observer.Observe('edit mode editable', Format(Card."LT WD Profile".Editable()));
-        Card.Close();
         Observer.Finish();
     end;
 }

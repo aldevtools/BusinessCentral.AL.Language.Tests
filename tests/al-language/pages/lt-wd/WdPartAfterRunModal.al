@@ -93,7 +93,10 @@ codeunit 90783 "LT WD Part After RunModal"
         Observer.Observe('RunModal', Format(Dialog.RunModal()));
         Observer.Observe('count', Format(Dialog.GetChoiceCount()));
         Observer.Observe('value', Dialog.GetChoiceValue());
-        Observer.Finish();
+        Observer.Expect('RunModal', 'OK');
+        Observer.Expect('count', '1');
+        Observer.Expect('value', 'A');
+        Observer.Verify();
     end;
 
     [Test]
@@ -106,17 +109,20 @@ codeunit 90783 "LT WD Part After RunModal"
         Observer.Observe('RunModal', Format(Dialog.RunModal()));
         Observer.Observe('count', Format(Dialog.GetChoiceCount()));
         Observer.Observe('value', Dialog.GetChoiceValue());
-        Observer.Finish();
+        Observer.Expect('RunModal', 'Cancel');
+        Observer.Expect('count', '1');
+        Observer.Expect('value', 'B');
+        Observer.Verify();
     end;
 
     [Test]
-    procedure WD_Part_ReadBeforeRunModal()
+    procedure WD_Part_ReadOfAPageNeverRun()
     var
         Observer: Codeunit "Probe Observer";
         Dialog: Page "LT WD Choice Dialog";
     begin
-        asserterror Observer.Observe('count', Format(Dialog.GetChoiceCount()));
-        Observer.ObserveError('part of a page never opened');
+        Observer.Observe('count', Format(Dialog.GetChoiceCount()));
+        Observer.Observe('value', Dialog.GetChoiceValue());
         Observer.Finish();
     end;
 

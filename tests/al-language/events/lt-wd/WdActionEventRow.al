@@ -82,7 +82,17 @@ codeunit 90703 "LT WD Action Event Row"
             Observer.Observe('Error Information', Sub."Error Information");
             Observer.Observe('Subscriber Instance', Format(Sub."Subscriber Instance"));
         end;
-        Observer.Finish();
+        Observer.Expect('count', '1');
+        Observer.Expect('Subscriber Function', 'OnBeforeSendIt');
+        Observer.Expect('Event Type', 'Trigger');
+        Observer.Expect('Publisher Object Type', 'Page');
+        Observer.Expect('Publisher Object ID', '90701');
+        Observer.Expect('Published Function', 'OnBeforeActionEvent - 1220186765');
+        Observer.Expect('Active', 'Yes');
+        Observer.Expect('Number of Calls', '0');
+        Observer.Expect('Error Information', '');
+        Observer.Expect('Subscriber Instance', 'Static-Automatic');
+        Observer.Verify();
     end;
 
     [Test]
@@ -103,6 +113,11 @@ codeunit 90703 "LT WD Action Event Row"
         Sub.SetRange("Event Type");
         Sub.SetRange("Subscriber Function", 'OnBeforeSendIt');
         Observer.Observe('by function: Count', Format(Sub.Count()));
-        Observer.Finish();
+        Observer.Expect('inactive: FindFirst', 'No');
+        Observer.Expect('inactive: Count', '0');
+        Observer.Expect('active: Count', '1');
+        Observer.Expect('trigger: Count', '1');
+        Observer.Expect('by function: Count', '1');
+        Observer.Verify();
     end;
 }

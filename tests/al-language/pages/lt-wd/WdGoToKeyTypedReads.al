@@ -138,7 +138,14 @@ codeunit 90764 "LT WD GoToKey Typed Reads"
         Observer.Observe('after action', Log.Dump());
         Observer.Observe('active now', Format(Modules.Active.AsBoolean()));
         Modules.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'R:A,R:B,R:A');
+        Observer.Expect('goto', 'Yes');
+        Observer.Expect('after goto', 'R:A,R:B,R:A');
+        Observer.Expect('active', 'No');
+        Observer.Expect('after AsBoolean', 'R:A,R:B,R:A');
+        Observer.Expect('after action', 'R:A,R:B,R:A,R:B,R:B,A:B,R:B,R:B,R:A');
+        Observer.Expect('active now', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -159,7 +166,12 @@ codeunit 90764 "LT WD GoToKey Typed Reads"
         Modules.Activate.Invoke();
         Observer.Observe('after action', Log.Dump());
         Modules.Close();
-        Observer.Finish();
+        Observer.Expect('active', 'No');
+        Observer.Expect('after AsBoolean', '');
+        Observer.Expect('enabled', 'Yes');
+        Observer.Expect('after Enabled', '');
+        Observer.Expect('after action', 'R:B,R:B,A:B,R:B,R:B,R:A');
+        Observer.Verify();
     end;
 
     [Test]
@@ -178,7 +190,10 @@ codeunit 90764 "LT WD GoToKey Typed Reads"
         Modules.Activate.Invoke();
         Observer.Observe('after action', Log.Dump());
         Modules.Close();
-        Observer.Finish();
+        Observer.Expect('enabled', 'Yes');
+        Observer.Expect('after Enabled', '');
+        Observer.Expect('after action', 'R:B,R:B,A:B,R:B,R:B,R:A');
+        Observer.Verify();
     end;
 
     [Test]
@@ -197,7 +212,10 @@ codeunit 90764 "LT WD GoToKey Typed Reads"
         Modules.Activate.Invoke();
         Observer.Observe('after action', Log.Dump());
         Modules.Close();
-        Observer.Finish();
+        Observer.Expect('amount', '2');
+        Observer.Expect('after AsInteger', '');
+        Observer.Expect('after action', 'R:B,R:B,A:B,R:B,R:B,R:A');
+        Observer.Verify();
     end;
 
     [Test]
@@ -220,6 +238,13 @@ codeunit 90764 "LT WD GoToKey Typed Reads"
         Modules.Activate.Invoke();
         Observer.Observe('after action', Log.Dump());
         Modules.Close();
-        Observer.Finish();
+        Observer.Expect('visible', 'Yes');
+        Observer.Expect('after Visible', '');
+        Observer.Expect('editable', 'Yes');
+        Observer.Expect('after Editable', '');
+        Observer.Expect('caption', 'Active');
+        Observer.Expect('after Caption', '');
+        Observer.Expect('after action', 'R:B,R:B,A:B,R:B,R:B,R:A');
+        Observer.Verify();
     end;
 }

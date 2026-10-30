@@ -68,7 +68,11 @@ codeunit 90742 "LT WD Call Stack To Blob"
         ReadBack := RoundTrip(CallStack, TextEncoding::Windows, Log);
         Observer.Observe('round trip equal', Format(ReadBack = CallStack));
         Observer.Observe('read back empty', Format(ReadBack = ''));
-        Observer.Finish();
+        Observer.Expect('try function result', 'No');
+        Observer.Expect('call stack empty', 'No');
+        Observer.Expect('round trip equal', 'Yes');
+        Observer.Expect('read back empty', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -95,6 +99,10 @@ codeunit 90742 "LT WD Call Stack To Blob"
             ReadBack := RoundTrip(CallStack, TextEncoding::UTF8, Log);
             Observer.Observe('utf8 round trip equal', Format(ReadBack = CallStack));
         end;
-        Observer.Finish();
+        Observer.Expect('collected count', '1');
+        Observer.Expect('call stack empty', 'No');
+        Observer.Expect('windows round trip equal', 'Yes');
+        Observer.Expect('utf8 round trip equal', 'Yes');
+        Observer.Verify();
     end;
 }

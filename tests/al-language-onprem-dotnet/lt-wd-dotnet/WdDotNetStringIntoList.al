@@ -57,7 +57,9 @@ codeunit 99344 "LT WD DotNet String Into List"
         UriSegments.GetSegments('https://example.com/a/b', Segments);
         Observer.Observe('count', Format(Segments.Count()));
         Observer.Observe('items', Join(Segments));
-        Observer.Finish();
+        Observer.Expect('count', '3');
+        Observer.Expect('items', '[/][a/][b]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -80,6 +82,13 @@ codeunit 99344 "LT WD DotNet String Into List"
         Observer.Observe('after Remove', Join(Items));
         Codes.Add(S);
         Observer.Observe('code list', Format(Codes.Get(1)));
-        Observer.Finish();
+        Observer.Expect('after Insert', '[Abc][x]');
+        Observer.Expect('Contains', 'Yes');
+        Observer.Expect('IndexOf', '1');
+        Observer.Expect('after Set', '[Abc][Abc]');
+        Observer.Expect('Remove', 'Yes');
+        Observer.Expect('after Remove', '[Abc]');
+        Observer.Expect('code list', 'ABC');
+        Observer.Verify();
     end;
 }

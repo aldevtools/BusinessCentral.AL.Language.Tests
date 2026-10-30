@@ -52,7 +52,13 @@ codeunit 99345 "LT WD Foreach Empty Xml Attrs"
         Observer.Observe('one attribute: names', Names);
         Observer.Observe('three attributes: count', Format(CountAttributes('<root a="1" b="2" xmlns:p="urn:p"/>', Names)));
         Observer.Observe('three attributes: names', Names);
-        Observer.Finish();
+        Observer.Expect('no attributes: count', '0');
+        Observer.Expect('no attributes: names', '');
+        Observer.Expect('one attribute: count', '1');
+        Observer.Expect('one attribute: names', 'a;');
+        Observer.Expect('three attributes: count', '3');
+        Observer.Expect('three attributes: names', 'a;b;xmlns:p;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -70,6 +76,7 @@ codeunit 99345 "LT WD Foreach Empty Xml Attrs"
         foreach Node in Nodes do
             Counter += 1;
         Observer.Observe('empty element: child count', Format(Counter));
-        Observer.Finish();
+        Observer.Expect('empty element: child count', '0');
+        Observer.Verify();
     end;
 }

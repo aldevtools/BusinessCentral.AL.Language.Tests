@@ -21,7 +21,8 @@ codeunit 90795 "LT WD PageExt Internal Twin"
         Log.Reset();
         ApplyPage.CalcAmount();
         Observer.Observe('log', Log.Get());
-        Observer.Finish();
+        Observer.Expect('log', 'base public;base protected');
+        Observer.Verify();
     end;
 
     [Test]
@@ -34,7 +35,8 @@ codeunit 90795 "LT WD PageExt Internal Twin"
         Log.Reset();
         ApplyPage.CallFromExt();
         Observer.Observe('log', Log.Get());
-        Observer.Finish();
+        Observer.Expect('log', 'ext internal public-twin;ext internal protected-twin');
+        Observer.Verify();
     end;
 
     [Test]
@@ -47,6 +49,7 @@ codeunit 90795 "LT WD PageExt Internal Twin"
         Log.Reset();
         ApplyPage.CheckRounding();
         Observer.Observe('log', Log.Get());
-        Observer.Finish();
+        Observer.Expect('log', 'base public');
+        Observer.Verify();
     end;
 }

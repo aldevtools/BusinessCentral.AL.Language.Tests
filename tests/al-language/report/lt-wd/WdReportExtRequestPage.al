@@ -2,8 +2,7 @@
 // Scope: in-scope
 // Fixtures used: Probe Observer (codeunit 69160); self-contained objects 90790-90794
 // Probe: written against al-runner issue 6302. A reportextension that both modifies a dataitem trigger (OnAfterAfterGetRecord) and adds a field to the request page,
-//        run through a RequestPageHandler: the extension field set in the handler is read by the extension's trigger, the base report's own trigger also runs,
-//        and the field keeps its value or is reset on a second run of the same report variable. Every value asserted below is what the BC service tier produced.
+//        run through a RequestPageHandler: the extension field set in the handler is read by the extension's trigger, the base report's own trigger also runs and sees the base request page field. Every value asserted below is what the BC service tier produced.
 // BC versions: 27, 28, 29
 
 table 90790 "LT WD Account"
@@ -14,6 +13,8 @@ table 90790 "LT WD Account"
     {
         field(1; "No."; Code[20]) { }
         field(2; Note; Text[50]) { }
+        field(3; Seen; Integer) { }
+        field(4; "Show All"; Boolean) { }
     }
 
     keys
@@ -33,7 +34,9 @@ report 90791 "LT WD Statement"
         {
             trigger OnAfterGetRecord()
             begin
-                Seen += 1;
+                Account.Seen += 1;
+                Account."Show All" := ShowAll;
+                Account.Modify();
             end;
         }
     }
@@ -52,19 +55,8 @@ report 90791 "LT WD Statement"
         }
     }
 
-    procedure GetSeen(): Integer
-    begin
-        exit(Seen);
-    end;
-
-    procedure GetShowAll(): Boolean
-    begin
-        exit(ShowAll);
-    end;
-
     var
         ShowAll: Boolean;
-        Seen: Integer;
 }
 
 reportextension 90792 "LT WD Statement Ext" extends "LT WD Statement"
@@ -103,7 +95,7 @@ codeunit 90794 "LT WD Report Ext Request Page"
 
     [Test]
     [HandlerFunctions('StatementRequestPageHandler')]
-    procedure WD_ReportExt_RequestPageFieldReachesTheRun()
+    procedure WD_ReportExt_RequestPageFieldsReachTheRun()
     var
         Observer: Codeunit "Probe Observer";
         Account: Record "LT WD Account";
@@ -119,11 +111,13 @@ codeunit 90794 "LT WD Report Ext Request Page"
         Statement.UseRequestPage(true);
         Statement.Run();
 
-        Observer.Observe('seen by the base trigger', Format(Statement.GetSeen()));
-        Observer.Observe('base field', Format(Statement.GetShowAll()));
         Account.Get('A');
+        Observer.Observe('A seen by the base trigger', Format(Account.Seen));
+        Observer.Observe('A base field', Format(Account."Show All"));
         Observer.Observe('A note', Account.Note);
         Account.Get('B');
+        Observer.Observe('B seen by the base trigger', Format(Account.Seen));
+        Observer.Observe('B base field', Format(Account."Show All"));
         Observer.Observe('B note', Account.Note);
         Observer.Finish();
     end;

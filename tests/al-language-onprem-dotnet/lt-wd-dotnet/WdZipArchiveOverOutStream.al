@@ -70,7 +70,8 @@ codeunit 99347 "LT WD Zip Over OutStream"
         ZipFile.Content.CreateInStream(ZipIn);
         ZipArchive := ZipArchive.ZipArchive(ZipIn, Mode.Read);
         Observer.Observe('entries', Format(ZipArchive.Entries.Count));
-        Observer.Finish();
+        Observer.Expect('entries', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -90,6 +91,7 @@ codeunit 99347 "LT WD Zip Over OutStream"
         CopyStream(BufferOut, ZipIn);
         ZipArchive := ZipArchive.ZipArchive(BufferOut, Mode.Read);
         Observer.Observe('entries', Format(ZipArchive.Entries.Count));
-        Observer.Finish();
+        Observer.Expect('entries', '1');
+        Observer.Verify();
     end;
 }

@@ -41,7 +41,15 @@ codeunit 90720 "LT WD Xml Empty Ns"
         Observer.Observe('namespace uri', Attr.NamespaceUri());
         Observer.Observe('value', Attr.Value());
         Observer.Observe('Get with empty namespace', Format(Attrs.Get('kind', '', Attr)));
-        Observer.Finish();
+        Observer.Expect('after Set with empty namespace', '<root kind="a" />');
+        Observer.Expect('count', '1');
+        Observer.Expect('after Set again', '<root kind="b" />');
+        Observer.Expect('count again', '1');
+        Observer.Expect('after two-argument Set', '<root kind="c" />');
+        Observer.Expect('namespace uri', '');
+        Observer.Expect('value', 'c');
+        Observer.Expect('Get with empty namespace', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -58,7 +66,9 @@ codeunit 90720 "LT WD Xml Empty Ns"
         Root.SetAttribute('kind', 'b');
         Root.WriteTo(Xml);
         Observer.Observe('then two-argument SetAttribute', Xml);
-        Observer.Finish();
+        Observer.Expect('SetAttribute with empty namespace', '<root kind="a" />');
+        Observer.Expect('then two-argument SetAttribute', '<root kind="b" />');
+        Observer.Verify();
     end;
 
     [Test]
@@ -86,7 +96,16 @@ codeunit 90720 "LT WD Xml Empty Ns"
         Observer.ObserveError('AddFirst');
         Doc.WriteTo(Xml);
         Observer.Observe('document after the failed calls', Xml);
-        Observer.Finish();
+        Observer.Expect('AddAfterSelf|text', 'Microsoft.Dynamics.Nav.Runtime.NavXmlNode variable not initialized.');
+        Observer.Expect('AddAfterSelf|code', 'NotInitialized');
+        Observer.Expect('AddBeforeSelf|text', 'Microsoft.Dynamics.Nav.Runtime.NavXmlNode variable not initialized.');
+        Observer.Expect('AddBeforeSelf|code', 'NotInitialized');
+        Observer.Expect('Add|text', 'Microsoft.Dynamics.Nav.Runtime.NavXmlNode variable not initialized.');
+        Observer.Expect('Add|code', 'NotInitialized');
+        Observer.Expect('AddFirst|text', 'Microsoft.Dynamics.Nav.Runtime.NavXmlNode variable not initialized.');
+        Observer.Expect('AddFirst|code', 'NotInitialized');
+        Observer.Expect('document after the failed calls', '<?xml version="1.0" encoding="utf-16"?>\r\n<root>\r\n  <child />\r\n</root>');
+        Observer.Verify();
     end;
 
     [Test]
@@ -107,6 +126,11 @@ codeunit 90720 "LT WD Xml Empty Ns"
         Observer.ObserveError('Add');
         Root.WriteTo(Xml);
         Observer.Observe('root after the failed calls', Xml);
-        Observer.Finish();
+        Observer.Expect('AddAfterSelf|text', 'Microsoft.Dynamics.Nav.Runtime.NavXmlElement variable not initialized.');
+        Observer.Expect('AddAfterSelf|code', 'NotInitialized');
+        Observer.Expect('Add|text', 'Microsoft.Dynamics.Nav.Runtime.NavXmlElement variable not initialized.');
+        Observer.Expect('Add|code', 'NotInitialized');
+        Observer.Expect('root after the failed calls', '<root>\r\n  <child />\r\n</root>');
+        Observer.Verify();
     end;
 }

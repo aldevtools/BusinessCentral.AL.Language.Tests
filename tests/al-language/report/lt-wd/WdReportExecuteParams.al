@@ -3,7 +3,7 @@
 // Fixtures used: Probe Observer (codeunit 69160); self-contained objects 90730-90733
 // Probe: written against al-runner issue 6306 (Report.Execute with a request page parameters XML); every value asserted below is what the BC service tier produced.
 // Facts: Execute(Parameters) with <Options><Field name=...> values for a Text, Boolean and Integer control reaches the request page field before OnPreReport;
-//        an unknown field name; an integer control given text; an empty Execute(''). Execute with text that is not XML ends the test with an uncatchable platform exception (not pinned).
+//        an unknown field name; an empty Execute(''). Not pinned: Execute with text that is not XML, and an integer control given text, both end the test with an uncatchable platform exception (NavType).
 // BC versions: 27, 28, 29
 
 report 90730 "LT WD Execute Params"
@@ -69,7 +69,10 @@ codeunit 90733 "LT WD Report Execute Params"
         Clear(R);
         R.Execute('');
         Observer.Observe('empty parameters', R.GetResult());
-        Observer.Finish();
+        Observer.Expect('text only', 'name=Second;flag=No;number=0');
+        Observer.Expect('text, boolean, integer', 'name=Third;flag=Yes;number=42');
+        Observer.Expect('empty parameters', 'name=;flag=No;number=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -80,17 +83,7 @@ codeunit 90733 "LT WD Report Execute Params"
     begin
         R.Execute(Params('<Field name="NoSuchField">x</Field><Field name="NewName">Kept</Field>'));
         Observer.Observe('unknown field name', R.GetResult());
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure WD_ReportExecute_IntegerFieldWithText()
-    var
-        Observer: Codeunit "Probe Observer";
-        R: Report "LT WD Execute Params";
-    begin
-        R.Execute(Params('<Field name="Number">oops</Field>'));
-        Observer.Observe('integer field with text', R.GetResult());
-        Observer.Finish();
+        Observer.Expect('unknown field name', 'name=Kept;flag=No;number=0');
+        Observer.Verify();
     end;
 }
