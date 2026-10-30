@@ -90,7 +90,15 @@ codeunit 90642 "LT WC Set Table Variant"
         Observer.Observe('variant after reset', VariantInfo(V));
         RecRef := V;
         Observer.Observe('receiver from variant', Info(RecRef));
-        Observer.Finish();
+        Observer.Expect('receiver before', '90640|filters=No.: C|count=1|current=C');
+        Observer.Expect('variant before', '90640|filters=No.: C|count=1|current=C');
+        Observer.Expect('variant kind', 'Yes|No');
+        Observer.Expect('receiver after', '90640|filters=No.: C|count=1|current=C');
+        Observer.Expect('variant after', '90640|filters=No.: C|count=1|current=C');
+        Observer.Expect('receiver reset', '90640|filters=|count=3|current=C');
+        Observer.Expect('variant after reset', '90640|filters=|count=3|current=C');
+        Observer.Expect('receiver from variant', '90640|filters=|count=3|current=C');
+        Observer.Verify();
     end;
 
     [Test]
@@ -120,7 +128,16 @@ codeunit 90642 "LT WC Set Table Variant"
         Target.Reset();
         Observer.Observe('variant after target reset', VariantInfo(V));
         Observer.Observe('source after target reset', Info(Source));
-        Observer.Finish();
+        Observer.Expect('source', '90640|filters=No.: B..C|count=2|current=B');
+        Observer.Expect('target before', '90640|filters=|count=3|current=A');
+        Observer.Expect('target after', '90640|filters=No.: B..C|count=2|current=B');
+        Observer.Expect('variant after', '90640|filters=No.: B..C|count=2|current=B');
+        Observer.Expect('source moved', '90640|filters=No.: B..C|count=2|current=C');
+        Observer.Expect('target after source moved', '90640|filters=No.: B..C|count=2|current=B');
+        Observer.Expect('variant after source moved', '90640|filters=No.: B..C|count=2|current=B');
+        Observer.Expect('variant after target reset', '90640|filters=|count=3|current=B');
+        Observer.Expect('source after target reset', '90640|filters=No.: B..C|count=2|current=C');
+        Observer.Verify();
     end;
 
     [Test]
@@ -140,7 +157,10 @@ codeunit 90642 "LT WC Set Table Variant"
         asserterror Source.SetTable(V);
         Observer.ObserveError('other table');
         Observer.Observe('variant after', VariantInfo(V));
-        Observer.Finish();
+        Observer.Expect('other table|text', 'The table IDs do not match.');
+        Observer.Expect('other table|code', 'TableIdMismatch');
+        Observer.Expect('variant after', '90641|filters=|count=0|current=7');
+        Observer.Verify();
     end;
 
     [Test]
@@ -160,7 +180,11 @@ codeunit 90642 "LT WC Set Table Variant"
         asserterror Source.SetTable(V);
         Observer.ObserveError('closed target');
         Observer.Observe('variant after', VariantInfo(V));
-        Observer.Finish();
+        Observer.Expect('variant before', 'closed');
+        Observer.Expect('closed target|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavRecordRef to Microsoft.Dynamics.Nav.Runtime.INavRecordHandle.');
+        Observer.Expect('closed target|code', 'Conversion');
+        Observer.Expect('variant after', 'closed');
+        Observer.Verify();
     end;
 
     [Test]
@@ -176,6 +200,9 @@ codeunit 90642 "LT WC Set Table Variant"
         asserterror Source.SetTable(V);
         Observer.ObserveError('empty variant');
         Observer.Observe('kind after', Format(V.IsRecordRef()) + '|' + Format(V.IsRecord()) + '|' + Format(V.IsRecordId()));
-        Observer.Finish();
+        Observer.Expect('empty variant|text', 'Microsoft.Dynamics.Nav.Runtime.NavVariant variable not initialized.');
+        Observer.Expect('empty variant|code', 'NotInitialized');
+        Observer.Expect('kind after', 'No|No|No');
+        Observer.Verify();
     end;
 }

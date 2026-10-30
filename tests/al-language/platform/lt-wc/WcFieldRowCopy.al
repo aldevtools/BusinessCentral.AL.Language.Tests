@@ -45,7 +45,8 @@ codeunit 90645 "LT WC Field Row Copy"
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('description', CopyRow(2));
-        Observer.Finish();
+        Observer.Expect('description', 'src sysid={77359429-6216-0001-0200-000000000000}|name=Description|type=Text|copy sysid={77359429-6216-0001-0200-000000000000}|count=1|back sysid={77359429-6216-0001-0200-000000000000}|name=Description');
+        Observer.Verify();
     end;
 
     [Test]
@@ -56,7 +57,11 @@ codeunit 90645 "LT WC Field Row Copy"
     begin
         for FieldNo := 2000000005 to 2000000008 do
             Observer.Observe(Format(FieldNo), CopyRow(FieldNo));
-        Observer.Finish();
+        Observer.Expect('2000000005', 'src sysid={77359429-6216-0001-0594-357700000000}|name=SystemCreatedByUserName|type=Text|copy sysid={77359429-6216-0001-0594-357700000000}|count=1|back sysid={77359429-6216-0001-0594-357700000000}|name=SystemCreatedByUserName');
+        Observer.Expect('2000000006', 'src sysid={77359429-6216-0001-0694-357700000000}|name=SystemCreatedByFullName|type=Text|copy sysid={77359429-6216-0001-0694-357700000000}|count=1|back sysid={77359429-6216-0001-0694-357700000000}|name=SystemCreatedByFullName');
+        Observer.Expect('2000000007', 'src sysid={77359429-6216-0001-0794-357700000000}|name=SystemModifiedByUserName|type=Text|copy sysid={77359429-6216-0001-0794-357700000000}|count=1|back sysid={77359429-6216-0001-0794-357700000000}|name=SystemModifiedByUserName');
+        Observer.Expect('2000000008', 'src sysid={77359429-6216-0001-0894-357700000000}|name=SystemModifiedByFullName|type=Text|copy sysid={77359429-6216-0001-0894-357700000000}|count=1|back sysid={77359429-6216-0001-0894-357700000000}|name=SystemModifiedByFullName');
+        Observer.Verify();
     end;
 
     [Test]
@@ -74,7 +79,9 @@ codeunit 90645 "LT WC Field Row Copy"
             until FieldRec.Next() = 0;
         Observer.Observe('source count', Format(FieldRec.Count()));
         Observer.Observe('copy count', Format(TempField.Count()));
-        Observer.Finish();
+        Observer.Expect('source count', '11');
+        Observer.Expect('copy count', '11');
+        Observer.Verify();
     end;
 }
 #endif

@@ -68,7 +68,12 @@ codeunit 90648 "LT WC Unpinned Singles"
         ClearLastError();
         Observer.Observe('language kept after unknown', Format(GlobalLanguage() = Saved));
         GlobalLanguage(Saved);
-        Observer.Finish();
+        Observer.Expect('try zero', 'No');
+        Observer.Expect('error', '''0'' is not a valid language code. You must specify a locale identifier (LCID) or code in the format of language-country/region, such as en-US, de-DE, or da-DK.|NotSupportedLanguage');
+        Observer.Expect('language kept', 'Yes');
+        Observer.Expect('try unknown', 'No');
+        Observer.Expect('language kept after unknown', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -93,7 +98,15 @@ codeunit 90648 "LT WC Unpinned Singles"
         Observer.Observe('Yes', Format(TryEvaluateBoolean('Yes', B)) + '|' + Format(B));
         ClearLastError();
         GlobalLanguage(Saved);
-        Observer.Finish();
+        Observer.Expect('vielleicht', 'Nein');
+        Observer.Expect('error code', 'Evaluate');
+        Observer.Expect('error text', 'Der Wert „vielleicht“ kann nicht in Typ Boolean ausgewertet werden.');
+        Observer.Expect('direct|text', 'Der Wert „vielleicht“ kann nicht in Typ Boolean ausgewertet werden.');
+        Observer.Expect('direct|code', 'Evaluate');
+        Observer.Expect('Ja', 'Ja|Ja');
+        Observer.Expect('Nein', 'Ja|Nein');
+        Observer.Expect('Yes', 'Nein|Nein');
+        Observer.Verify();
     end;
 
     [Test]
@@ -120,7 +133,16 @@ codeunit 90648 "LT WC Unpinned Singles"
         Observer.Observe('name 1031', EvalRecordId('LT WC Ledger: Invoice,D-001'));
         Observer.Observe('ordinal 1031', EvalRecordId('LT WC Ledger: 1,D-001'));
         GlobalLanguage(Saved);
-        Observer.Finish();
+        Observer.Expect('format', 'LT WC Ledger: Invoice,D-001');
+        Observer.Expect('name', 'true|table=90649|text=LT WC Ledger: Invoice,D-001|row=found');
+        Observer.Expect('ordinal', 'true|table=90649|text=LT WC Ledger: Invoice,D-001|row=found');
+        Observer.Expect('caption', 'true|table=90649|text=LT WC Ledger: Credit Memo,D-001|row=missing');
+        Observer.Expect('blank member', 'true|table=90649|text=LT WC Ledger: " ",D-001|row=missing');
+        Observer.Expect('unknown member', 'false|''Quote'' is not an option. The existing options are:  ,Invoice,Credit Memo|InvalidOptionString');
+        Observer.Expect('out of range ordinal', 'true|table=90649|text=LT WC Ledger: 9,D-001|row=missing');
+        Observer.Expect('name 1031', 'true|table=90649|text=LT WC Ledger: Invoice,D-001|row=found');
+        Observer.Expect('ordinal 1031', 'true|table=90649|text=LT WC Ledger: Invoice,D-001|row=found');
+        Observer.Verify();
     end;
 
     [Test]
@@ -140,6 +162,13 @@ codeunit 90648 "LT WC Unpinned Singles"
         WindowsLanguage.SetRange("Globally Enabled", true);
         Observer.Observe('count enabled', Format(WindowsLanguage.Count()));
         Observer.Observe('is empty enabled', Format(WindowsLanguage.IsEmpty()));
-        Observer.Finish();
+        Observer.Expect('count', '1');
+        Observer.Expect('name', 'English (Zimbabwe)');
+        Observer.Expect('abbreviated name', 'ENW');
+        Observer.Expect('globally enabled', 'Yes');
+        Observer.Expect('stx file exist', 'No');
+        Observer.Expect('count enabled', '1');
+        Observer.Expect('is empty enabled', 'No');
+        Observer.Verify();
     end;
 }

@@ -43,7 +43,9 @@ codeunit 90646 "LT WC Clear Table Filter"
         Clear(Job."Table Filter");
         Observer.Observe('after Clear', Format(Job."Table Filter"));
         Observer.Observe('table no kept', Format(Job."Table No."));
-        Observer.Finish();
+        Observer.Expect('after Clear', '');
+        Observer.Expect('table no kept', '90647');
+        Observer.Verify();
     end;
 
     [Test]
@@ -59,7 +61,10 @@ codeunit 90646 "LT WC Clear Table Filter"
         Job.Modify();
         Job.Get('J1');
         Observer.Observe('after Modify and Get', Format(Job."Table Filter"));
-        Observer.Finish();
+        Observer.Expect('before Clear', 'LT WC Job: Table No.=5');
+        Observer.Expect('after Clear', '');
+        Observer.Expect('after Modify and Get', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -78,6 +83,10 @@ codeunit 90646 "LT WC Clear Table Filter"
         Observer.Observe('stored row unchanged', Format(Job."Table Filter"));
         Clear(Job);
         Observer.Observe('after Clear of the record', Format(Job."Table Filter") + '|' + Job.Code + '|' + Format(Job."Table No."));
-        Observer.Finish();
+        Observer.Expect('read', 'LT WC Job: Table No.=5');
+        Observer.Expect('after Clear', '');
+        Observer.Expect('stored row unchanged', 'LT WC Job: Table No.=5');
+        Observer.Expect('after Clear of the record', '||0');
+        Observer.Verify();
     end;
 }

@@ -130,7 +130,12 @@ codeunit 90643 "LT WC Record Id Filter"
         Line.Get('X Y,Z', 10000);
         Observer.Observe('line text', Format(Line.RecordId));
         Observer.Observe('line key with space and comma', Probe(Format(Line.RecordId)));
-        Observer.Finish();
+        Observer.Expect('doc text', 'LT WC RF Doc: A');
+        Observer.Expect('doc A', 'filter=[LT WC RF Doc: A] ids=1,');
+        Observer.Expect('doc B', 'filter=[LT WC RF Doc: B] ids=2,');
+        Observer.Expect('line text', 'LT WC RF Line: "X Y,Z",10000');
+        Observer.Expect('line key with space and comma', 'filter=[LT WC RF Line: "X Y,Z",10000] ids=4,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -148,7 +153,15 @@ codeunit 90643 "LT WC Record Id Filter"
         Observer.Observe('table caption not name', Probe('LT WC Document: A'));
         Observer.Observe('table name', Probe('LT WC RF Doc: A'));
         Observer.Observe('missing key part', Probe('LT WC RF Line: X'));
-        Observer.Finish();
+        Observer.Expect('empty format', '');
+        Observer.Expect('empty RecordId text', 'filter=[] ids=1,2,3,4,');
+        Observer.Expect('empty text', 'filter=[] ids=1,2,3,4,');
+        Observer.Expect('not a RecordId', 'error:The filter "garbage" is not valid for the Record ID field on the LT WC RF Log table. The value "garbage" can''t be evaluated into type RecordID.|Filter:CSide');
+        Observer.Expect('unknown table', 'error:The filter "No Such Table: A" is not valid for the Record ID field on the LT WC RF Log table. The value "No Such Table: A" can''t be evaluated into type RecordID.|Filter:CSide');
+        Observer.Expect('table caption not name', 'error:The filter "LT WC Document: A" is not valid for the Record ID field on the LT WC RF Log table. The value "LT WC Document: A" can''t be evaluated into type RecordID.|Filter:CSide');
+        Observer.Expect('table name', 'filter=[LT WC RF Doc: A] ids=1,');
+        Observer.Expect('missing key part', 'filter=[LT WC RF Line: X] ids=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -168,6 +181,9 @@ codeunit 90643 "LT WC Record Id Filter"
         Log.Reset();
         Log.SetFilter("Record ID", '<>' + Format(Doc.RecordId));
         Observer.Observe('not equal', 'filter=[' + Log.GetFilter("Record ID") + '] ids=' + Ids(Log));
-        Observer.Finish();
+        Observer.Expect('placeholder', 'filter=[LT WC RF Doc: A] ids=1,');
+        Observer.Expect('SetRange', 'filter=[LT WC RF Doc: A] ids=1,');
+        Observer.Expect('not equal', 'filter=[<>LT WC RF Doc: A] ids=2,3,4,');
+        Observer.Verify();
     end;
 }

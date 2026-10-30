@@ -79,7 +79,17 @@ codeunit 90647 "LT WC Invalid Filter Expr"
         Observer.Observe('@<>', Probe('@<>'));
         Observer.Observe('@', Probe('@'));
         Observer.Observe('@@C-A', Probe('@@C-A'));
-        Observer.Finish();
+        Observer.Expect('((*', 'error:The filter "((*" is not valid for the Value field on the LT WC Value table. A '')'' is missing.|Filter:CSide');
+        Observer.Expect('(', 'error:The filter "(" is not valid for the Value field on the LT WC Value table. A '')'' is missing.|Filter:CSide');
+        Observer.Expect('((x', 'error:The filter "((x" is not valid for the Value field on the LT WC Value table. A '')'' is missing.|Filter:CSide');
+        Observer.Expect('(c-a', 'error:The filter "(c-a" is not valid for the Value field on the LT WC Value table. A '')'' is missing.|Filter:CSide');
+        Observer.Expect('c-a)', 'error:The filter "c-a)" is not valid for the Value field on the LT WC Value table. An error occurred while interpreting the filter: Did not expect '')''.\\For more information, see https://go.microsoft.com/fwlink/?linkid=2158058.|Filter:CSide');
+        Observer.Expect('(c-a)', 'filter=[c-a] ids=1,');
+        Observer.Expect('@<>C-A', 'error:The filter "@<>C-A" is not valid for the Value field on the LT WC Value table. An error occurred while interpreting the filter: Did not expect ''<>''.\\For more information, see https://go.microsoft.com/fwlink/?linkid=2158058.|Filter:CSide');
+        Observer.Expect('@<>', 'error:The filter "@<>" is not valid for the Value field on the LT WC Value table. An error occurred while interpreting the filter: Did not expect ''<>''.\\For more information, see https://go.microsoft.com/fwlink/?linkid=2158058.|Filter:CSide');
+        Observer.Expect('@', 'filter=[@] ids=1,2,3,4,5,');
+        Observer.Expect('@@C-A', 'filter=[@@C-A] ids=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -92,6 +102,11 @@ codeunit 90647 "LT WC Invalid Filter Expr"
         Observer.Observe('<>@', Probe('<>@'));
         Observer.Observe('<>C-A', Probe('<>C-A'));
         Observer.Observe('<>@c-a*', Probe('<>@c-a*'));
-        Observer.Finish();
+        Observer.Expect('<>@C-A', 'filter=[<>@C-A] ids=2,4,5,');
+        Observer.Expect('<>@c-b', 'filter=[<>@c-b] ids=1,3,4,5,');
+        Observer.Expect('<>@', 'filter=[<>@] ids=');
+        Observer.Expect('<>C-A', 'filter=[<>C-A] ids=1,2,4,5,');
+        Observer.Expect('<>@c-a*', 'filter=[<>@c-a*] ids=2,4,5,');
+        Observer.Verify();
     end;
 }

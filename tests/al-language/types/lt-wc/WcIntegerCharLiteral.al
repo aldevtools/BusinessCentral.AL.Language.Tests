@@ -31,7 +31,15 @@ codeunit 90640 "LT WC Int Char Literal"
         I := Num + '0';
         Observer.Observe('Num + zero char', Format(I));
         Observer.Observe('in a Format call', Format(Num + '-' + Random(1)));
-        Observer.Finish();
+        Observer.Expect('const 1000 + dash + 2', '1047');
+        Observer.Expect('var 1000 + dash + 2', '1047');
+        Observer.Expect('Num + dash', '1045');
+        Observer.Expect('dash + Num', '1045');
+        Observer.Expect('Num - A', '935');
+        Observer.Expect('A - Num', '-935');
+        Observer.Expect('Num + zero char', '1048');
+        Observer.Expect('in a Format call', '1046');
+        Observer.Verify();
     end;
 
     [Test]
@@ -43,6 +51,8 @@ codeunit 90640 "LT WC Int Char Literal"
         Num := 45;
         Observer.Observe('Num = dash', Format(Num = '-'));
         Observer.Observe('Num > dash', Format(Num > '-'));
-        Observer.Finish();
+        Observer.Expect('Num = dash', 'Yes');
+        Observer.Expect('Num > dash', 'No');
+        Observer.Verify();
     end;
 }

@@ -30,7 +30,10 @@ codeunit 90641 "LT WC Sleep Duration"
         Delay := Round(Delay * 2, 1, '>');
         Sleep(Delay);
         Observer.Observe('after backoff', Format(Delay, 0, 9));
-        Observer.Finish();
+        Observer.Expect('after zero', 'P0DT0H0M0.01S');
+        Observer.Expect('after ten', 'P0DT0H0M0.01S');
+        Observer.Expect('after backoff', 'P0DT0H0M0.02S');
+        Observer.Verify();
     end;
 
     [Test]
@@ -46,6 +49,7 @@ codeunit 90641 "LT WC Sleep Duration"
         Sleep(Delay);
         Elapsed := CurrentDateTime() - Started;
         Observer.Observe('at least 50 ms', Format(Elapsed >= 50));
-        Observer.Finish();
+        Observer.Expect('at least 50 ms', 'Yes');
+        Observer.Verify();
     end;
 }
