@@ -5,7 +5,8 @@
 // with Permissions = tabledata "G/L Entry" = i and with = rimd. No permission set is changed: the test user's own permissions and
 // the license decide. Every write runs inside asserterror and ends with Error('LT Y4 rolled back'), so nothing is kept: the observed
 // error is either that text (the write was allowed) or the permission error BC raised first.
-// Facts: see the Expect lines of each test.
+// Facts (CI containers): every write and the read succeed from all three codeunits, also with no Permissions property.
+// The CI containers are the oracle; a SaaS environment answers differently.
 // BC versions: 27-29
 
 codeunit 90952 "LT Y4 Indirect Write"
@@ -42,7 +43,13 @@ codeunit 90952 "LT Y4 Indirect Write"
         ObserveDenial(Observer, 'indirect_insert');
         asserterror Direct.Write(1);
         ObserveDenial(Observer, 'rimd_insert');
-        Observer.Finish();
+        Observer.Expect('plain_insert|text', 'LT Y4 rolled back');
+        Observer.Expect('plain_insert|code', 'Dialog');
+        Observer.Expect('indirect_insert|text', 'LT Y4 rolled back');
+        Observer.Expect('indirect_insert|code', 'Dialog');
+        Observer.Expect('rimd_insert|text', 'LT Y4 rolled back');
+        Observer.Expect('rimd_insert|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -56,7 +63,11 @@ codeunit 90952 "LT Y4 Indirect Write"
         ObserveDenial(Observer, 'indirect_modify');
         asserterror Direct.Write(2);
         ObserveDenial(Observer, 'rimd_modify');
-        Observer.Finish();
+        Observer.Expect('indirect_modify|text', 'LT Y4 rolled back');
+        Observer.Expect('indirect_modify|code', 'Dialog');
+        Observer.Expect('rimd_modify|text', 'LT Y4 rolled back');
+        Observer.Expect('rimd_modify|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -70,7 +81,11 @@ codeunit 90952 "LT Y4 Indirect Write"
         ObserveDenial(Observer, 'indirect_delete');
         asserterror Direct.Write(3);
         ObserveDenial(Observer, 'rimd_delete');
-        Observer.Finish();
+        Observer.Expect('indirect_delete|text', 'LT Y4 rolled back');
+        Observer.Expect('indirect_delete|code', 'Dialog');
+        Observer.Expect('rimd_delete|text', 'LT Y4 rolled back');
+        Observer.Expect('rimd_delete|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -84,7 +99,11 @@ codeunit 90952 "LT Y4 Indirect Write"
         ObserveDenial(Observer, 'plain_read');
         asserterror Indirect.Read();
         ObserveDenial(Observer, 'indirect_read');
-        Observer.Finish();
+        Observer.Expect('plain_read|text', 'LT Y4 read done');
+        Observer.Expect('plain_read|code', 'Dialog');
+        Observer.Expect('indirect_read|text', 'LT Y4 read done');
+        Observer.Expect('indirect_read|code', 'Dialog');
+        Observer.Verify();
     end;
 }
 

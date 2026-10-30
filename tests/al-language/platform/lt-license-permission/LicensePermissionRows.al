@@ -7,7 +7,9 @@
 // A row is written as Read/Insert/Modify/Delete/Execute/Limited Usage, each Format(<column>, 0, 9): 0 = blank, 1 = Yes, 2 = Indirect.
 // Object types are passed as the option ordinal of "Object Type" (0 TableData, 1 Table, 3 Report, 5 Codeunit, 6 XMLport,
 // 7 MenuSuite, 8 Page, 9 Query, 10 System, 11 FieldNumber).
-// Facts: see the Expect lines of each test.
+// Facts (CI containers): no probed row shows Indirect; Table and TableData rows are equal below the system range; negative
+// numbers have no row; no row in 1..99999 has only some columns set; in the system range Table rows have no Delete and some Page
+// rows are Execute only. Exact values: the Expect lines. The CI containers are the oracle; a SaaS environment answers differently.
 // BC versions: 27-29
 
 codeunit 90950 "LT Y4 LicPerm Rows"
@@ -57,7 +59,23 @@ codeunit 90950 "LT Y4 LicPerm Rows"
             Observer.Observe('tabledata_' + Format(N), Describe(0, N));
         Observer.Observe('table_17', Describe(1, 17));
         Observer.Observe('table_32', Describe(1, 32));
-        Observer.Finish();
+        Observer.Expect('tabledata_17', '1/1/1/1/1/0');
+        Observer.Expect('tabledata_21', '1/1/1/1/1/0');
+        Observer.Expect('tabledata_25', '1/1/1/1/1/0');
+        Observer.Expect('tabledata_32', '1/1/1/1/1/0');
+        Observer.Expect('tabledata_45', '1/1/1/1/1/0');
+        Observer.Expect('tabledata_169', '1/1/1/1/1/0');
+        Observer.Expect('tabledata_203', '1/1/1/1/1/0');
+        Observer.Expect('tabledata_254', '1/1/1/1/1/0');
+        Observer.Expect('tabledata_271', '1/1/1/1/1/0');
+        Observer.Expect('tabledata_379', '1/1/1/1/1/0');
+        Observer.Expect('tabledata_380', '1/1/1/1/1/0');
+        Observer.Expect('tabledata_5802', '1/1/1/1/1/0');
+        Observer.Expect('tabledata_5625', '1/1/1/1/1/0');
+        Observer.Expect('tabledata_7312', '1/1/1/1/1/0');
+        Observer.Expect('table_17', '1/1/1/1/1/0');
+        Observer.Expect('table_32', '1/1/1/1/1/0');
+        Observer.Verify();
     end;
 
     // The caption Format gives for each column of one row (Format without a format number).
@@ -75,7 +93,14 @@ codeunit 90950 "LT Y4 LicPerm Rows"
         Observer.Observe('delete', Format(LicensePermission."Delete Permission"));
         Observer.Observe('execute', Format(LicensePermission."Execute Permission"));
         Observer.Observe('limited', Format(LicensePermission."Limited Usage Permission"));
-        Observer.Finish();
+        Observer.Expect('type', 'TableData');
+        Observer.Expect('read', 'Yes');
+        Observer.Expect('insert', 'Yes');
+        Observer.Expect('modify', 'Yes');
+        Observer.Expect('delete', 'Yes');
+        Observer.Expect('execute', 'Yes');
+        Observer.Expect('limited', ' ');
+        Observer.Verify();
     end;
 
     // Which TableData rows in 1..2000 have an Indirect value in a column (filter on the column).
@@ -98,7 +123,11 @@ codeunit 90950 "LT Y4 LicPerm Rows"
         LicensePermission.SetRange("Modify Permission");
         LicensePermission.SetRange("Delete Permission", LicensePermission."Delete Permission"::Indirect);
         Observer.Observe('delete_indirect_ids', Ids(LicensePermission, 30));
-        Observer.Finish();
+        Observer.Expect('insert_indirect_ids', '');
+        Observer.Expect('read_indirect_ids', '');
+        Observer.Expect('modify_indirect_ids', '');
+        Observer.Expect('delete_indirect_ids', '');
+        Observer.Verify();
     end;
 
     // Table and TableData rows for the same number side by side.
@@ -112,7 +141,22 @@ codeunit 90950 "LT Y4 LicPerm Rows"
         Numbers.AddRange(1, 17, 18, 27, 9999, 50000, 99999, 100000, 1000000, 70000000, 99999999, 100000000, 2000000001, 2000000004, 2000000043);
         foreach N in Numbers do
             Observer.Observe(Format(N), 'table=' + Describe(1, N) + ' tabledata=' + Describe(0, N));
-        Observer.Finish();
+        Observer.Expect('1', 'table=1/1/1/1/1/0 tabledata=1/1/1/1/1/0');
+        Observer.Expect('17', 'table=1/1/1/1/1/0 tabledata=1/1/1/1/1/0');
+        Observer.Expect('18', 'table=1/1/1/1/1/0 tabledata=1/1/1/1/1/0');
+        Observer.Expect('27', 'table=1/1/1/1/1/0 tabledata=1/1/1/1/1/0');
+        Observer.Expect('9999', 'table=1/1/1/1/1/0 tabledata=1/1/1/1/1/0');
+        Observer.Expect('50000', 'table=1/1/1/1/1/0 tabledata=1/1/1/1/1/0');
+        Observer.Expect('99999', 'table=1/1/1/1/1/0 tabledata=1/1/1/1/1/0');
+        Observer.Expect('100000', 'table=1/1/1/1/1/0 tabledata=1/1/1/1/1/0');
+        Observer.Expect('1000000', 'table=1/1/1/1/1/0 tabledata=1/1/1/1/1/0');
+        Observer.Expect('70000000', 'table=1/1/1/1/1/0 tabledata=1/1/1/1/1/0');
+        Observer.Expect('99999999', 'table=1/1/1/1/1/0 tabledata=1/1/1/1/1/0');
+        Observer.Expect('100000000', 'table=0/0/0/0/0/0 tabledata=0/0/0/0/0/0');
+        Observer.Expect('2000000001', 'table=1/1/1/0/1/0 tabledata=1/1/1/1/1/0');
+        Observer.Expect('2000000004', 'table=1/1/1/0/1/0 tabledata=1/1/1/1/1/0');
+        Observer.Expect('2000000043', 'table=1/1/1/0/1/0 tabledata=1/1/1/1/1/0');
+        Observer.Verify();
     end;
 
     // Negative object numbers: Get and a range around zero.
@@ -135,7 +179,15 @@ codeunit 90950 "LT Y4 LicPerm Rows"
         LicensePermission.SetRange("Object Type", LicensePermission."Object Type"::TableData);
         LicensePermission.SetRange("Object Number", -2, 2);
         Observer.Observe('tabledata_-2_2_ids', Ids(LicensePermission, 20));
-        Observer.Finish();
+        Observer.Expect('codeunit_-1', 'no row');
+        Observer.Expect('tabledata_-1', 'no row');
+        Observer.Expect('table_-5', 'no row');
+        Observer.Expect('system_-1', 'no row');
+        Observer.Expect('page_-2147483647', 'no row');
+        Observer.Expect('codeunit_-3_3_ids', '0,1,2,3,');
+        Observer.Expect('codeunit_-10_-1_count', '0');
+        Observer.Expect('tabledata_-2_2_ids', '0,1,2,');
+        Observer.Verify();
     end;
 
     // Rows whose columns are only partly set: System objects with Execute but no Read, in 1..99999.
@@ -162,7 +214,10 @@ codeunit 90950 "LT Y4 LicPerm Rows"
         Observer.Observe('blank_count', Format(LicensePermission.Count()));
         if LicensePermission.FindFirst() then
             Observer.Observe('blank_first', Format(LicensePermission."Object Number"));
-        Observer.Finish();
+        Observer.Expect('exec_noread_count', '0');
+        Observer.Expect('read_count', '99999');
+        Observer.Expect('blank_count', '0');
+        Observer.Verify();
     end;
 
     // Rows whose columns are only partly set, any type in 1..99999: Read Yes with Delete blank, Execute Yes with Insert blank.
@@ -187,7 +242,21 @@ codeunit 90950 "LT Y4 LicPerm Rows"
             LicensePermission.SetRange("Execute Permission", LicensePermission."Execute Permission"::" ");
             Observer.Observe('type' + Format(T) + '_noexecute', Format(LicensePermission.Count()));
         end;
-        Observer.Finish();
+        Observer.Expect('type0_read_nodelete', '0');
+        Observer.Expect('type0_noexecute', '0');
+        Observer.Expect('type1_read_nodelete', '0');
+        Observer.Expect('type1_noexecute', '0');
+        Observer.Expect('type3_read_nodelete', '0');
+        Observer.Expect('type3_noexecute', '0');
+        Observer.Expect('type5_read_nodelete', '0');
+        Observer.Expect('type5_noexecute', '0');
+        Observer.Expect('type6_read_nodelete', '0');
+        Observer.Expect('type6_noexecute', '0');
+        Observer.Expect('type8_read_nodelete', '0');
+        Observer.Expect('type8_noexecute', '0');
+        Observer.Expect('type9_read_nodelete', '0');
+        Observer.Expect('type9_noexecute', '0');
+        Observer.Verify();
     end;
 }
 
@@ -225,7 +294,22 @@ codeunit 90951 "LT Y4 LicPerm System"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveSystemNumbers(Observer, 0);
-        Observer.Finish();
+        Observer.Expect('2000000002', '1/1/1/1/1/0');
+        Observer.Expect('2000000004', '1/1/1/1/1/0');
+        Observer.Expect('2000000006', '1/1/1/1/1/0');
+        Observer.Expect('2000000020', '1/1/1/1/1/0');
+        Observer.Expect('2000000038', '1/1/1/1/1/0');
+        Observer.Expect('2000000043', '1/1/1/1/1/0');
+        Observer.Expect('2000000058', '1/1/1/1/1/0');
+        Observer.Expect('2000000100', '1/1/1/1/1/0');
+        Observer.Expect('2000000150', '1/1/1/1/1/0');
+        Observer.Expect('2000000200', '1/1/1/1/1/0');
+        Observer.Expect('2000000500', '0/0/0/0/0/0');
+        Observer.Expect('2000001000', '0/0/0/0/0/0');
+        Observer.Expect('2000100000', '0/0/0/0/0/0');
+        Observer.Expect('2099999999', '0/0/0/0/0/0');
+        Observer.Expect('2100000000', '0/0/0/0/0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -234,7 +318,22 @@ codeunit 90951 "LT Y4 LicPerm System"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveSystemNumbers(Observer, 1);
-        Observer.Finish();
+        Observer.Expect('2000000002', '1/1/1/0/1/0');
+        Observer.Expect('2000000004', '1/1/1/0/1/0');
+        Observer.Expect('2000000006', '1/1/1/0/1/0');
+        Observer.Expect('2000000020', '1/1/1/0/1/0');
+        Observer.Expect('2000000038', '1/1/1/0/1/0');
+        Observer.Expect('2000000043', '1/1/1/0/1/0');
+        Observer.Expect('2000000058', '1/1/1/0/1/0');
+        Observer.Expect('2000000100', '1/1/1/0/1/0');
+        Observer.Expect('2000000150', '1/1/1/0/1/0');
+        Observer.Expect('2000000200', '1/1/1/0/1/0');
+        Observer.Expect('2000000500', '0/0/0/0/0/0');
+        Observer.Expect('2000001000', '0/0/0/0/0/0');
+        Observer.Expect('2000100000', '0/0/0/0/0/0');
+        Observer.Expect('2099999999', '0/0/0/0/0/0');
+        Observer.Expect('2100000000', '0/0/0/0/0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -243,7 +342,22 @@ codeunit 90951 "LT Y4 LicPerm System"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveSystemNumbers(Observer, 3);
-        Observer.Finish();
+        Observer.Expect('2000000002', '1/1/1/1/1/0');
+        Observer.Expect('2000000004', '1/1/1/1/1/0');
+        Observer.Expect('2000000006', '1/1/1/1/1/0');
+        Observer.Expect('2000000020', '1/1/1/1/1/0');
+        Observer.Expect('2000000038', '1/1/1/1/1/0');
+        Observer.Expect('2000000043', '1/1/1/1/1/0');
+        Observer.Expect('2000000058', '1/1/1/1/1/0');
+        Observer.Expect('2000000100', '1/1/1/1/1/0');
+        Observer.Expect('2000000150', '1/1/1/1/1/0');
+        Observer.Expect('2000000200', '1/1/1/1/1/0');
+        Observer.Expect('2000000500', '0/0/0/0/0/0');
+        Observer.Expect('2000001000', '0/0/0/0/0/0');
+        Observer.Expect('2000100000', '0/0/0/0/0/0');
+        Observer.Expect('2099999999', '0/0/0/0/0/0');
+        Observer.Expect('2100000000', '0/0/0/0/0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -252,7 +366,22 @@ codeunit 90951 "LT Y4 LicPerm System"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveSystemNumbers(Observer, 5);
-        Observer.Finish();
+        Observer.Expect('2000000002', '1/1/1/1/1/0');
+        Observer.Expect('2000000004', '1/1/1/1/1/0');
+        Observer.Expect('2000000006', '1/1/1/1/1/0');
+        Observer.Expect('2000000020', '1/1/1/1/1/0');
+        Observer.Expect('2000000038', '1/1/1/1/1/0');
+        Observer.Expect('2000000043', '1/1/1/1/1/0');
+        Observer.Expect('2000000058', '1/1/1/1/1/0');
+        Observer.Expect('2000000100', '1/1/1/1/1/0');
+        Observer.Expect('2000000150', '1/1/1/1/1/0');
+        Observer.Expect('2000000200', '1/1/1/1/1/0');
+        Observer.Expect('2000000500', '0/0/0/0/0/0');
+        Observer.Expect('2000001000', '0/0/0/0/0/0');
+        Observer.Expect('2000100000', '0/0/0/0/0/0');
+        Observer.Expect('2099999999', '0/0/0/0/0/0');
+        Observer.Expect('2100000000', '0/0/0/0/0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -261,7 +390,22 @@ codeunit 90951 "LT Y4 LicPerm System"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveSystemNumbers(Observer, 6);
-        Observer.Finish();
+        Observer.Expect('2000000002', '1/1/1/1/1/0');
+        Observer.Expect('2000000004', '1/1/1/1/1/0');
+        Observer.Expect('2000000006', '1/1/1/1/1/0');
+        Observer.Expect('2000000020', '1/1/1/1/1/0');
+        Observer.Expect('2000000038', '1/1/1/1/1/0');
+        Observer.Expect('2000000043', '1/1/1/1/1/0');
+        Observer.Expect('2000000058', '1/1/1/1/1/0');
+        Observer.Expect('2000000100', '1/1/1/1/1/0');
+        Observer.Expect('2000000150', '1/1/1/1/1/0');
+        Observer.Expect('2000000200', '1/1/1/1/1/0');
+        Observer.Expect('2000000500', '0/0/0/0/0/0');
+        Observer.Expect('2000001000', '0/0/0/0/0/0');
+        Observer.Expect('2000100000', '0/0/0/0/0/0');
+        Observer.Expect('2099999999', '0/0/0/0/0/0');
+        Observer.Expect('2100000000', '0/0/0/0/0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -271,7 +415,23 @@ codeunit 90951 "LT Y4 LicPerm System"
     begin
         ObserveSystemNumbers(Observer, 7);
         Observer.Observe('menusuite_1', Describe(7, 1));
-        Observer.Finish();
+        Observer.Expect('2000000002', '1/1/1/1/1/0');
+        Observer.Expect('2000000004', '1/1/1/1/1/0');
+        Observer.Expect('2000000006', '1/1/1/1/1/0');
+        Observer.Expect('2000000020', '1/1/1/1/1/0');
+        Observer.Expect('2000000038', '1/1/1/1/1/0');
+        Observer.Expect('2000000043', '1/1/1/1/1/0');
+        Observer.Expect('2000000058', '1/1/1/1/1/0');
+        Observer.Expect('2000000100', '1/1/1/1/1/0');
+        Observer.Expect('2000000150', '1/1/1/1/1/0');
+        Observer.Expect('2000000200', '1/1/1/1/1/0');
+        Observer.Expect('2000000500', '0/0/0/0/0/0');
+        Observer.Expect('2000001000', '0/0/0/0/0/0');
+        Observer.Expect('2000100000', '0/0/0/0/0/0');
+        Observer.Expect('2099999999', '0/0/0/0/0/0');
+        Observer.Expect('2100000000', '0/0/0/0/0/0');
+        Observer.Expect('menusuite_1', '1/1/1/1/1/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -280,7 +440,22 @@ codeunit 90951 "LT Y4 LicPerm System"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveSystemNumbers(Observer, 8);
-        Observer.Finish();
+        Observer.Expect('2000000002', '0/0/0/0/1/0');
+        Observer.Expect('2000000004', '0/0/0/0/1/0');
+        Observer.Expect('2000000006', '1/1/1/1/1/0');
+        Observer.Expect('2000000020', '1/1/1/1/1/0');
+        Observer.Expect('2000000038', '1/1/1/1/1/0');
+        Observer.Expect('2000000043', '1/1/1/1/1/0');
+        Observer.Expect('2000000058', '1/1/1/1/1/0');
+        Observer.Expect('2000000100', '0/0/0/0/1/0');
+        Observer.Expect('2000000150', '1/1/1/1/1/0');
+        Observer.Expect('2000000200', '1/1/1/1/1/0');
+        Observer.Expect('2000000500', '0/0/0/0/0/0');
+        Observer.Expect('2000001000', '0/0/0/0/0/0');
+        Observer.Expect('2000100000', '0/0/0/0/0/0');
+        Observer.Expect('2099999999', '0/0/0/0/0/0');
+        Observer.Expect('2100000000', '0/0/0/0/0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -289,7 +464,22 @@ codeunit 90951 "LT Y4 LicPerm System"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveSystemNumbers(Observer, 9);
-        Observer.Finish();
+        Observer.Expect('2000000002', '1/1/1/1/1/0');
+        Observer.Expect('2000000004', '1/1/1/1/1/0');
+        Observer.Expect('2000000006', '1/1/1/1/1/0');
+        Observer.Expect('2000000020', '1/1/1/1/1/0');
+        Observer.Expect('2000000038', '1/1/1/1/1/0');
+        Observer.Expect('2000000043', '1/1/1/1/1/0');
+        Observer.Expect('2000000058', '1/1/1/1/1/0');
+        Observer.Expect('2000000100', '1/1/1/1/1/0');
+        Observer.Expect('2000000150', '1/1/1/1/1/0');
+        Observer.Expect('2000000200', '1/1/1/1/1/0');
+        Observer.Expect('2000000500', '0/0/0/0/0/0');
+        Observer.Expect('2000001000', '0/0/0/0/0/0');
+        Observer.Expect('2000100000', '0/0/0/0/0/0');
+        Observer.Expect('2099999999', '0/0/0/0/0/0');
+        Observer.Expect('2100000000', '0/0/0/0/0/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -300,7 +490,24 @@ codeunit 90951 "LT Y4 LicPerm System"
         ObserveSystemNumbers(Observer, 10);
         Observer.Observe('2000000000', Describe(10, 2000000000));
         Observer.Observe('2000000001', Describe(10, 2000000001));
-        Observer.Finish();
+        Observer.Expect('2000000002', '1/1/1/1/1/0');
+        Observer.Expect('2000000004', '1/1/1/1/1/0');
+        Observer.Expect('2000000006', '1/1/1/1/1/0');
+        Observer.Expect('2000000020', '1/1/1/1/1/0');
+        Observer.Expect('2000000038', '1/1/1/1/1/0');
+        Observer.Expect('2000000043', '1/1/1/1/1/0');
+        Observer.Expect('2000000058', '1/1/1/1/1/0');
+        Observer.Expect('2000000100', '1/1/1/1/1/0');
+        Observer.Expect('2000000150', '1/1/1/1/1/0');
+        Observer.Expect('2000000200', '1/1/1/1/1/0');
+        Observer.Expect('2000000500', '0/0/0/0/0/0');
+        Observer.Expect('2000001000', '0/0/0/0/0/0');
+        Observer.Expect('2000100000', '0/0/0/0/0/0');
+        Observer.Expect('2099999999', '0/0/0/0/0/0');
+        Observer.Expect('2100000000', '0/0/0/0/0/0');
+        Observer.Expect('2000000000', '1/1/1/1/1/0');
+        Observer.Expect('2000000001', '1/1/1/1/1/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -310,7 +517,23 @@ codeunit 90951 "LT Y4 LicPerm System"
     begin
         ObserveSystemNumbers(Observer, 11);
         Observer.Observe('fieldnumber_1', Describe(11, 1));
-        Observer.Finish();
+        Observer.Expect('2000000002', '1/1/1/1/1/0');
+        Observer.Expect('2000000004', '1/1/1/1/1/0');
+        Observer.Expect('2000000006', '1/1/1/1/1/0');
+        Observer.Expect('2000000020', '1/1/1/1/1/0');
+        Observer.Expect('2000000038', '1/1/1/1/1/0');
+        Observer.Expect('2000000043', '1/1/1/1/1/0');
+        Observer.Expect('2000000058', '1/1/1/1/1/0');
+        Observer.Expect('2000000100', '1/1/1/1/1/0');
+        Observer.Expect('2000000150', '1/1/1/1/1/0');
+        Observer.Expect('2000000200', '1/1/1/1/1/0');
+        Observer.Expect('2000000500', '0/0/0/0/0/0');
+        Observer.Expect('2000001000', '0/0/0/0/0/0');
+        Observer.Expect('2000100000', '0/0/0/0/0/0');
+        Observer.Expect('2099999999', '0/0/0/0/0/0');
+        Observer.Expect('2100000000', '0/0/0/0/0/0');
+        Observer.Expect('fieldnumber_1', '1/1/1/1/1/0');
+        Observer.Verify();
     end;
 
     // The first number without Execute and the last number with Execute in 2000000000..2000001000, per type (filter on the column).
@@ -339,6 +562,22 @@ codeunit 90951 "LT Y4 LicPerm System"
             else
                 Observer.Observe('type' + Format(T) + '_first_noexec', 'none');
         end;
-        Observer.Finish();
+        Observer.Expect('type0_last_exec', '2000000300');
+        Observer.Expect('type0_first_noexec', '2000000110');
+        Observer.Expect('type1_last_exec', '2000000300');
+        Observer.Expect('type1_first_noexec', '2000000301');
+        Observer.Expect('type3_last_exec', '2000000300');
+        Observer.Expect('type3_first_noexec', '2000000301');
+        Observer.Expect('type5_last_exec', '2000000300');
+        Observer.Expect('type5_first_noexec', '2000000301');
+        Observer.Expect('type6_last_exec', '2000000300');
+        Observer.Expect('type6_first_noexec', '2000000301');
+        Observer.Expect('type8_last_exec', '2000000300');
+        Observer.Expect('type8_first_noexec', '2000000301');
+        Observer.Expect('type9_last_exec', '2000000300');
+        Observer.Expect('type9_first_noexec', '2000000301');
+        Observer.Expect('type10_last_exec', '2000000300');
+        Observer.Expect('type10_first_noexec', '2000000301');
+        Observer.Verify();
     end;
 }
