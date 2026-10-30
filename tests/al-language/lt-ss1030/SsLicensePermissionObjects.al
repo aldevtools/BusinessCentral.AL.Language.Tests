@@ -93,13 +93,48 @@ codeunit 99841 "LT SS License Permission Top"
         exit(Format(LicensePermission."Read Permission", 0, 9) + '/' + Format(LicensePermission."Insert Permission", 0, 9) + '/' + Format(LicensePermission."Modify Permission", 0, 9) + '/' + Format(LicensePermission."Delete Permission", 0, 9) + '/' + Format(LicensePermission."Execute Permission", 0, 9));
     end;
 
+    local procedure ExpectedFor(Label: Text; ObjectNumber: Integer): Text
+    begin
+        // Numbers below the system range and at the very top have all-blank rows (0), the system range starts at 2000000000.
+        case ObjectNumber of
+            100000:
+                exit('1/1/1/1/1');
+            1999999999, 2147483647:
+                exit('0/0/0/0/0');
+            2000000000:
+                begin
+#if BC28PLUS
+                    if Label = 'page' then
+                        exit('0/0/0/0/1');
+#endif
+                    exit('1/1/1/1/1');
+                end;
+            2000000001:
+                begin
+#if BC28PLUS
+                    if Label = 'page' then
+                        exit('0/0/0/0/1');
+#endif
+                    if Label = 'table' then
+                        exit('1/1/1/0/1');
+                    exit('1/1/1/1/1');
+                end;
+        end;
+    end;
+
+    local procedure ObserveOne(var Observer: Codeunit "Probe Observer"; Label: Text; ObjectType: Option; ObjectNumber: Integer)
+    begin
+        Observer.Observe(Label + '_' + Format(ObjectNumber), Describe(ObjectType, ObjectNumber));
+        Observer.Expect(Label + '_' + Format(ObjectNumber), ExpectedFor(Label, ObjectNumber));
+    end;
+
     local procedure ObserveBoundary(var Observer: Codeunit "Probe Observer"; Label: Text; ObjectType: Option)
     begin
-        Observer.Observe(Label + '_100000', Describe(ObjectType, 100000));
-        Observer.Observe(Label + '_1999999999', Describe(ObjectType, 1999999999));
-        Observer.Observe(Label + '_2000000000', Describe(ObjectType, 2000000000));
-        Observer.Observe(Label + '_2000000001', Describe(ObjectType, 2000000001));
-        Observer.Observe(Label + '_2147483647', Describe(ObjectType, 2147483647));
+        ObserveOne(Observer, Label, ObjectType, 100000);
+        ObserveOne(Observer, Label, ObjectType, 1999999999);
+        ObserveOne(Observer, Label, ObjectType, 2000000000);
+        ObserveOne(Observer, Label, ObjectType, 2000000001);
+        ObserveOne(Observer, Label, ObjectType, 2147483647);
     end;
 
     [Test]
@@ -109,7 +144,7 @@ codeunit 99841 "LT SS License Permission Top"
         LicensePermission: Record "License Permission";
     begin
         ObserveBoundary(Observer, 'table', LicensePermission."Object Type"::Table);
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     [Test]
@@ -119,7 +154,7 @@ codeunit 99841 "LT SS License Permission Top"
         LicensePermission: Record "License Permission";
     begin
         ObserveBoundary(Observer, 'tabledata', LicensePermission."Object Type"::TableData);
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     [Test]
@@ -130,7 +165,7 @@ codeunit 99841 "LT SS License Permission Top"
     begin
         ObserveBoundary(Observer, 'xmlport', LicensePermission."Object Type"::XMLport);
         ObserveBoundary(Observer, 'query', LicensePermission."Object Type"::Query);
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     [Test]
@@ -142,6 +177,6 @@ codeunit 99841 "LT SS License Permission Top"
         ObserveBoundary(Observer, 'page', LicensePermission."Object Type"::Page);
         ObserveBoundary(Observer, 'report', LicensePermission."Object Type"::Report);
         ObserveBoundary(Observer, 'codeunit', LicensePermission."Object Type"::Codeunit);
-        Observer.Finish();
+        Observer.Verify();
     end;
 }
