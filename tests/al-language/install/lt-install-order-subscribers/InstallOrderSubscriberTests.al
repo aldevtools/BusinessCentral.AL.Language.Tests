@@ -63,7 +63,21 @@ codeunit 90823 "LT Install Order Subscribers"
         Observer.Observe('A install database ran', Entry('A-install|a-install-database'));
         ObservePhase(Observer, 'a-install-company');
         ObservePhase(Observer, 'a-install-database');
-        Observer.Finish();
+        Observer.Expect('A install company ran', 'Yes');
+        Observer.Expect('A install database ran', 'Yes');
+        Observer.Expect('A-sub a-install-company', 'Yes');
+        Observer.Expect('A-tsub a-install-company', 'Yes');
+        Observer.Expect('B-sub a-install-company', 'No');
+        Observer.Expect('B-tsub a-install-company', 'No');
+        Observer.Expect('M-sub a-install-company', 'No');
+        Observer.Expect('M-tsub a-install-company', 'No');
+        Observer.Expect('A-sub a-install-database', 'Yes');
+        Observer.Expect('A-tsub a-install-database', 'Yes');
+        Observer.Expect('B-sub a-install-database', 'No');
+        Observer.Expect('B-tsub a-install-database', 'No');
+        Observer.Expect('M-sub a-install-database', 'No');
+        Observer.Expect('M-tsub a-install-database', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -73,7 +87,9 @@ codeunit 90823 "LT Install Order Subscribers"
     begin
         Observer.Observe('A sees B company', Entry('A-seesB|a-install-company'));
         Observer.Observe('A sees B database', Entry('A-seesB|a-install-database'));
-        Observer.Finish();
+        Observer.Expect('A sees B company', 'Yes|getModuleInfo=No');
+        Observer.Expect('A sees B database', 'Yes|getModuleInfo=No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -85,7 +101,21 @@ codeunit 90823 "LT Install Order Subscribers"
         Observer.Observe('B install database ran', Entry('B-install|b-install-database'));
         ObservePhase(Observer, 'b-install-company');
         ObservePhase(Observer, 'b-install-database');
-        Observer.Finish();
+        Observer.Expect('B install company ran', 'Yes');
+        Observer.Expect('B install database ran', 'Yes');
+        Observer.Expect('A-sub b-install-company', 'Yes');
+        Observer.Expect('A-tsub b-install-company', 'Yes');
+        Observer.Expect('B-sub b-install-company', 'Yes');
+        Observer.Expect('B-tsub b-install-company', 'Yes');
+        Observer.Expect('M-sub b-install-company', 'No');
+        Observer.Expect('M-tsub b-install-company', 'No');
+        Observer.Expect('A-sub b-install-database', 'Yes');
+        Observer.Expect('A-tsub b-install-database', 'Yes');
+        Observer.Expect('B-sub b-install-database', 'Yes');
+        Observer.Expect('B-tsub b-install-database', 'Yes');
+        Observer.Expect('M-sub b-install-database', 'No');
+        Observer.Expect('M-tsub b-install-database', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -106,6 +136,12 @@ codeunit 90823 "LT Install Order Subscribers"
         L.DeleteAll();
         if P.Get('test') then
             P.Delete();
-        Observer.Finish();
+        Observer.Expect('A-sub test', 'Yes');
+        Observer.Expect('A-tsub test', 'Yes');
+        Observer.Expect('B-sub test', 'Yes');
+        Observer.Expect('B-tsub test', 'Yes');
+        Observer.Expect('M-sub test', 'Yes');
+        Observer.Expect('M-tsub test', 'Yes');
+        Observer.Verify();
     end;
 }

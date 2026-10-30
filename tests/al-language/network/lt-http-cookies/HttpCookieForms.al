@@ -102,7 +102,19 @@ codeunit 90820 "LT Http Cookie Forms"
         Observer.Observe('garbage', Read('sid=a; Expires=garbage', 'sid', false));
         Observer.Observe('empty', Read('sid=a; Expires=', 'sid', false));
         Observer.Observe('noValue', Read('sid=a; Expires', 'sid', false));
-        Observer.Finish();
+        Observer.Expect('rfc850', 'names=1:sid; name=[sid];value=[a];domain=[];path=[/];secure=No;httpOnly=No;expires=2037-10-21T07:28:00Z');
+        Observer.Expect('dashes4', 'names=1:sid; name=[sid];value=[a];domain=[];path=[/];secure=No;httpOnly=No;expires=2037-10-21T07:28:00Z');
+        Observer.Expect('asctime', 'names error:An error occurred when parsing the Cookie header for Uri ''https://bccookie.microsoft.com/''.|AL:Cookie');
+        Observer.Expect('utc', 'names error:An error occurred when parsing the Cookie header for Uri ''https://bccookie.microsoft.com/''.|AL:Cookie');
+        Observer.Expect('offset', 'names=1:sid; name=[sid];value=[a];domain=[];path=[/];secure=No;httpOnly=No;expires=2037-10-21T05:28:00Z');
+        Observer.Expect('noZone', 'names=1:sid; name=[sid];value=[a];domain=[];path=[/];secure=No;httpOnly=No;expires=2037-10-21T07:28:00Z');
+        Observer.Expect('wrongWeekday', 'names=1:sid; name=[sid];value=[a];domain=[];path=[/];secure=No;httpOnly=No;expires=2037-10-21T07:28:00Z');
+        Observer.Expect('lowerMonth', 'names=1:sid; name=[sid];value=[a];domain=[];path=[/];secure=No;httpOnly=No;expires=2037-10-21T07:28:00Z');
+        Observer.Expect('iso', 'names=1:sid; name=[sid];value=[a];domain=[];path=[/];secure=No;httpOnly=No;expires=2037-10-21T07:28:00Z');
+        Observer.Expect('garbage', 'names error:An error occurred when parsing the Cookie header for Uri ''https://bccookie.microsoft.com/''.|AL:Cookie');
+        Observer.Expect('empty', 'names error:An error occurred when parsing the Cookie header for Uri ''https://bccookie.microsoft.com/''.|AL:Cookie');
+        Observer.Expect('noValue', 'names=1:sid; name=[sid];value=[a];domain=[];path=[/];secure=No;httpOnly=No;expires=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -121,7 +133,18 @@ codeunit 90820 "LT Http Cookie Forms"
         Observer.Observe('futureThenPastExpires', Read('sid=a; Max-Age=3600; Expires=Thu, 01 Jan 1970 00:00:01 GMT', 'sid', true));
         Observer.Observe('pastExpiresThenFuture', Read('sid=a; Expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=3600', 'sid', true));
         Observer.Observe('zeroWithFutureExpires', Read('sid=a; Max-Age=0; Expires=Wed, 21 Oct 2037 07:28:00 GMT', 'sid', true));
-        Observer.Finish();
+        Observer.Expect('zero', 'names=0: found=No');
+        Observer.Expect('minus', 'names=0: found=No');
+        Observer.Expect('text', 'names error:An error occurred when parsing the Cookie header for Uri ''https://bccookie.microsoft.com/''.|AL:Cookie');
+        Observer.Expect('decimal', 'names error:An error occurred when parsing the Cookie header for Uri ''https://bccookie.microsoft.com/''.|AL:Cookie');
+        Observer.Expect('empty', 'names error:An error occurred when parsing the Cookie header for Uri ''https://bccookie.microsoft.com/''.|AL:Cookie');
+        Observer.Expect('plus', 'names=1:sid; found=Yes value=[a] expires=future');
+        Observer.Expect('huge', 'names error:An error occurred when parsing the Cookie header for Uri ''https://bccookie.microsoft.com/''.|AL:Cookie');
+        Observer.Expect('lowerName', 'names=1:sid; found=Yes value=[a] expires=future');
+        Observer.Expect('futureThenPastExpires', 'names=1:sid; found=Yes value=[a] expires=future');
+        Observer.Expect('pastExpiresThenFuture', 'names=0: found=No');
+        Observer.Expect('zeroWithFutureExpires', 'names=0: found=No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -135,7 +158,13 @@ codeunit 90820 "LT Http Cookie Forms"
         Observer.Observe('comma after expires', Read('a=1; Expires=Wed, 21 Oct 2037 07:28:00 GMT, b=2', 'b', false));
         Observer.Observe('comma in value', Read('a=x,y', 'a', false));
         Observer.Observe('semicolon pair', Read('a=1; b=2', 'b', false));
-        Observer.Finish();
+        Observer.Expect('comma a', 'names=2:a;b; name=[a];value=[1];domain=[];path=[/];secure=No;httpOnly=No;expires=');
+        Observer.Expect('comma b', 'names=2:a;b; name=[b];value=[2];domain=[];path=[/];secure=No;httpOnly=No;expires=');
+        Observer.Expect('comma no space', 'names=2:a;b; name=[b];value=[2];domain=[];path=[/];secure=No;httpOnly=No;expires=');
+        Observer.Expect('comma after expires', 'names=2:a;b; name=[b];value=[2];domain=[];path=[/];secure=No;httpOnly=No;expires=');
+        Observer.Expect('comma in value', 'names=2:a;y; name=[a];value=[x];domain=[];path=[/];secure=No;httpOnly=No;expires=');
+        Observer.Expect('semicolon pair', 'names=1:a; found=No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -150,7 +179,14 @@ codeunit 90820 "LT Http Cookie Forms"
         Observer.Observe('value unicode', Read('sid=café', 'sid', false));
         Observer.Observe('value space', Read('sid=a b', 'sid', false));
         Observer.Observe('value quote inside', Read('sid=a"b', 'sid', false));
-        Observer.Finish();
+        Observer.Expect('dollar', 'names error:An error occurred when parsing the Cookie header for Uri ''https://bccookie.microsoft.com/''.|AL:Cookie');
+        Observer.Expect('space inside', 'names=1:a b; name=[a b];value=[1];domain=[];path=[/];secure=No;httpOnly=No;expires=');
+        Observer.Expect('empty name', 'names error:An error occurred when parsing the Cookie header for Uri ''https://bccookie.microsoft.com/''.|AL:Cookie');
+        Observer.Expect('unicode', 'names=1:café; name=[café];value=[1];domain=[];path=[/];secure=No;httpOnly=No;expires=');
+        Observer.Expect('value unicode', 'names=1:sid; name=[sid];value=[café];domain=[];path=[/];secure=No;httpOnly=No;expires=');
+        Observer.Expect('value space', 'names=1:sid; name=[sid];value=[a b];domain=[];path=[/];secure=No;httpOnly=No;expires=');
+        Observer.Expect('value quote inside', 'names=1:sid; name=[sid];value=[a"b];domain=[];path=[/];secure=No;httpOnly=No;expires=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -170,7 +206,19 @@ codeunit 90820 "LT Http Cookie Forms"
         Observer.Observe('secure false', Read('sid=a; Secure=false', 'sid', false));
         Observer.Observe('httponly value', Read('sid=a; HttpOnly=0', 'sid', false));
         Observer.Observe('trailing semicolon', Read('sid=a;', 'sid', false));
-        Observer.Finish();
+        Observer.Expect('version', 'names=1:sid; name=[sid];value=[a];domain=[];path=[];secure=No;httpOnly=No;expires=');
+        Observer.Expect('comment', 'names=1:sid; name=[sid];value=[a];domain=[];path=[/];secure=No;httpOnly=No;expires=');
+        Observer.Expect('port', 'names=1:sid; name=[sid];value=[a];domain=[];path=[];secure=No;httpOnly=No;expires=');
+        Observer.Expect('discard', 'names=1:sid; name=[sid];value=[a];domain=[];path=[/];secure=No;httpOnly=No;expires=');
+        Observer.Expect('priority', 'names=1:sid; name=[sid];value=[a];domain=[];path=[/];secure=No;httpOnly=No;expires=');
+        Observer.Expect('partitioned', 'names=1:sid; name=[sid];value=[a];domain=[];path=[/];secure=No;httpOnly=No;expires=');
+        Observer.Expect('path twice', 'names=0: found=No');
+        Observer.Expect('path slash', 'names=1:sid; name=[sid];value=[a];domain=[];path=[/];secure=No;httpOnly=No;expires=');
+        Observer.Expect('path empty', 'names=1:sid; name=[sid];value=[a];domain=[];path=[];secure=No;httpOnly=No;expires=');
+        Observer.Expect('secure false', 'names=1:sid; name=[sid];value=[a];domain=[];path=[/];secure=No;httpOnly=No;expires=');
+        Observer.Expect('httponly value', 'names=1:sid; name=[sid];value=[a];domain=[];path=[/];secure=No;httpOnly=No;expires=');
+        Observer.Expect('trailing semicolon', 'names=1:sid; name=[sid];value=[a];domain=[];path=[/];secure=No;httpOnly=No;expires=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -197,7 +245,10 @@ codeunit 90820 "LT Http Cookie Forms"
             Observer.Observe('get sid', Format(Found) + '|' + C.Value())
         else
             Observer.Observe('get sid', ErrText());
-        Observer.Finish();
+        Observer.Expect('names', '1:sid;');
+        Observer.Expect('get SID', 'No|');
+        Observer.Expect('get sid', 'Yes|lower');
+        Observer.Verify();
     end;
 
     local procedure SetName(NewName: Text): Text
@@ -250,7 +301,18 @@ codeunit 90820 "LT Http Cookie Forms"
         Observer.Observe('value comma', SetValue('a,b'));
         Observer.Observe('value space', SetValue('a b'));
         Observer.Observe('value padded', SetValue(' a '));
-        Observer.Finish();
+        Observer.Expect('name space', 'ok|[a b]');
+        Observer.Expect('name semicolon', 'error:The ''Name''=''a;b'' part of the cookie is invalid.|AL:Cookie');
+        Observer.Expect('name comma', 'error:The ''Name''=''a,b'' part of the cookie is invalid.|AL:Cookie');
+        Observer.Expect('name equals', 'error:The ''Name''=''a=b'' part of the cookie is invalid.|AL:Cookie');
+        Observer.Expect('name dollar', 'error:The ''Name''=''$a'' part of the cookie is invalid.|AL:Cookie');
+        Observer.Expect('name blank', 'error:The ''Name''='' '' part of the cookie is invalid.|AL:Cookie');
+        Observer.Expect('name padded', 'error:The ''Name''='' a '' part of the cookie is invalid.|AL:Cookie');
+        Observer.Expect('value semicolon', 'ok|[a;b]');
+        Observer.Expect('value comma', 'ok|[a,b]');
+        Observer.Expect('value space', 'ok|[a b]');
+        Observer.Expect('value padded', 'ok|[ a ]');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -285,6 +347,10 @@ codeunit 90820 "LT Http Cookie Forms"
         Observer.Observe('comma', RequestWithValue('a,b'));
         Observer.Observe('space', RequestWithValue('a b'));
         Observer.Observe('quoted', RequestWithValue('"q"'));
-        Observer.Finish();
+        Observer.Expect('semicolon', 'No|get=No');
+        Observer.Expect('comma', 'No|get=No');
+        Observer.Expect('space', 'Yes|get=Yes|[a b]');
+        Observer.Expect('quoted', 'Yes|get=Yes|["q"]');
+        Observer.Verify();
     end;
 }
