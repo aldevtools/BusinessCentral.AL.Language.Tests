@@ -145,7 +145,12 @@ codeunit 91476 "LT Y9 Lookup No Row"
         Observer.Observe('result', Format(Result));
         Observer.Observe('handler', TakeLog());
         Observer.Observe('record', Y9RecText(Row));
-        Observer.Finish();
+        Observer.Expect('runmodal|text', 'The built-in action = OK is not found on the page.');
+        Observer.Expect('runmodal|code', 'TestActionNotFound');
+        Observer.Expect('result', 'None');
+        Observer.Expect('handler', 'first=No;');
+        Observer.Expect('record', 'id=0|grp=|qty=0|filters=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -168,7 +173,12 @@ codeunit 91476 "LT Y9 Lookup No Row"
         Observer.Observe('result', Format(Result));
         Observer.Observe('handler', TakeLog());
         Observer.Observe('record', Y9RecText(Row));
-        Observer.Finish();
+        Observer.Expect('runmodal|text', 'The built-in action = OK is not found on the page.');
+        Observer.Expect('runmodal|code', 'TestActionNotFound');
+        Observer.Expect('result', 'None');
+        Observer.Expect('handler', 'first=No;');
+        Observer.Expect('record', 'id=5|grp=Q|qty=9|filters=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -188,7 +198,12 @@ codeunit 91476 "LT Y9 Lookup No Row"
         Observer.Observe('result', Format(Result));
         Observer.Observe('handler', TakeLog());
         Observer.Observe('record', Y9RecText(Row));
-        Observer.Finish();
+        Observer.Expect('runmodal|text', 'The built-in action = OK is not found on the page.');
+        Observer.Expect('runmodal|code', 'TestActionNotFound');
+        Observer.Expect('result', 'None');
+        Observer.Expect('handler', 'first=No;');
+        Observer.Expect('record', 'id=0|grp=|qty=0|filters=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -209,7 +224,12 @@ codeunit 91476 "LT Y9 Lookup No Row"
         Observer.Observe('result', Format(Result));
         Observer.Observe('handler', TakeLog());
         Observer.Observe('record', Y9RecText(Row));
-        Observer.Finish();
+        Observer.Expect('runmodal|text', 'The built-in action = OK is not found on the page.');
+        Observer.Expect('runmodal|code', 'TestActionNotFound');
+        Observer.Expect('result', 'None');
+        Observer.Expect('handler', 'first=No;');
+        Observer.Expect('record', 'id=0|grp=|qty=0|filters=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -233,7 +253,12 @@ codeunit 91476 "LT Y9 Lookup No Row"
         Row.Id := 5;
         Pg.GetRecord(Row);
         Observer.Observe('getrecord', Y9RecText(Row));
-        Observer.Finish();
+        Observer.Expect('runmodal|text', 'The built-in action = OK is not found on the page.');
+        Observer.Expect('runmodal|code', 'TestActionNotFound');
+        Observer.Expect('result', 'None');
+        Observer.Expect('handler', 'first=No;');
+        Observer.Expect('getrecord', 'id=0|grp=|qty=0|filters=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -254,6 +279,11 @@ codeunit 91476 "LT Y9 Lookup No Row"
         Observer.Observe('result', Format(Result));
         Observer.Observe('handler', TakeLog());
         Observer.Observe('record', Y9RecText(Row));
-        Observer.Finish();
+        Observer.Expect('runmodal|text', 'returned');
+        Observer.Expect('runmodal|code', 'Dialog');
+        Observer.Expect('result', 'LookupOK');
+        Observer.Expect('handler', 'first=Yes;ok invoked;');
+        Observer.Expect('record', 'id=1|grp=A|qty=5|filters=');
+        Observer.Verify();
     end;
 }

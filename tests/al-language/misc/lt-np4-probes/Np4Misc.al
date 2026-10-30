@@ -373,7 +373,19 @@ codeunit 93431 "LT NP4 Misc Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Y9AllReads(Observer, 'updlock', IsolationLevel::UpdLock, true);
-        Observer.Finish();
+        Observer.Expect('updlock get', 'before=No|Yes/two|after=No');
+        Observer.Expect('updlock get run', 'ran=Yes tx=No|Dialog');
+        Observer.Expect('updlock find=', 'before=No|Yes/two|after=No');
+        Observer.Expect('updlock find= run', 'ran=Yes tx=No|Dialog');
+        Observer.Expect('updlock isempty', 'before=No|No|after=No');
+        Observer.Expect('updlock isempty run', 'ran=Yes tx=No|Dialog');
+        Observer.Expect('updlock count', 'before=No|2|after=No');
+        Observer.Expect('updlock count run', 'ran=Yes tx=No|Dialog');
+        Observer.Expect('updlock next', 'before=No|1/2|after=No');
+        Observer.Expect('updlock next run', 'ran=Yes tx=No|Dialog');
+        Observer.Expect('updlock calcfields', 'before=No|1|after=No');
+        Observer.Expect('updlock calcfields run', 'ran=Yes tx=No|Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -382,7 +394,19 @@ codeunit 93431 "LT NP4 Misc Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Y9AllReads(Observer, 'repeatable', IsolationLevel::RepeatableRead, true);
-        Observer.Finish();
+        Observer.Expect('repeatable get', 'before=No|Yes/two|after=No');
+        Observer.Expect('repeatable get run', 'ran=Yes tx=No|Dialog');
+        Observer.Expect('repeatable find=', 'before=No|Yes/two|after=No');
+        Observer.Expect('repeatable find= run', 'ran=Yes tx=No|Dialog');
+        Observer.Expect('repeatable isempty', 'before=No|No|after=No');
+        Observer.Expect('repeatable isempty run', 'ran=Yes tx=No|Dialog');
+        Observer.Expect('repeatable count', 'before=No|2|after=No');
+        Observer.Expect('repeatable count run', 'ran=Yes tx=No|Dialog');
+        Observer.Expect('repeatable next', 'before=No|1/2|after=No');
+        Observer.Expect('repeatable next run', 'ran=Yes tx=No|Dialog');
+        Observer.Expect('repeatable calcfields', 'before=No|1|after=No');
+        Observer.Expect('repeatable calcfields run', 'ran=Yes tx=No|Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -391,7 +415,19 @@ codeunit 93431 "LT NP4 Misc Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Y9AllReads(Observer, 'updlock', IsolationLevel::UpdLock, false);
-        Observer.Finish();
+        Observer.Expect('updlock get', 'before=Yes|Yes/two|after=Yes');
+        Observer.Expect('updlock get run', 'An error occurred and the transaction is stopped. Contact your administrator or partner for further assistance.|DB:Ok');
+        Observer.Expect('updlock find=', 'before=Yes|Yes/two|after=Yes');
+        Observer.Expect('updlock find= run', 'An error occurred and the transaction is stopped. Contact your administrator or partner for further assistance.|DB:Ok');
+        Observer.Expect('updlock isempty', 'before=Yes|No|after=Yes');
+        Observer.Expect('updlock isempty run', 'An error occurred and the transaction is stopped. Contact your administrator or partner for further assistance.|DB:Ok');
+        Observer.Expect('updlock count', 'before=Yes|2|after=Yes');
+        Observer.Expect('updlock count run', 'An error occurred and the transaction is stopped. Contact your administrator or partner for further assistance.|DB:Ok');
+        Observer.Expect('updlock next', 'before=Yes|1/2|after=Yes');
+        Observer.Expect('updlock next run', 'An error occurred and the transaction is stopped. Contact your administrator or partner for further assistance.|DB:Ok');
+        Observer.Expect('updlock calcfields', 'before=Yes|1|after=Yes');
+        Observer.Expect('updlock calcfields run', 'An error occurred and the transaction is stopped. Contact your administrator or partner for further assistance.|DB:Ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -400,7 +436,19 @@ codeunit 93431 "LT NP4 Misc Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Y9AllReads(Observer, 'repeatable', IsolationLevel::RepeatableRead, false);
-        Observer.Finish();
+        Observer.Expect('repeatable get', 'before=Yes|Yes/two|after=Yes');
+        Observer.Expect('repeatable get run', 'An error occurred and the transaction is stopped. Contact your administrator or partner for further assistance.|DB:Ok');
+        Observer.Expect('repeatable find=', 'before=Yes|Yes/two|after=Yes');
+        Observer.Expect('repeatable find= run', 'An error occurred and the transaction is stopped. Contact your administrator or partner for further assistance.|DB:Ok');
+        Observer.Expect('repeatable isempty', 'before=Yes|No|after=Yes');
+        Observer.Expect('repeatable isempty run', 'An error occurred and the transaction is stopped. Contact your administrator or partner for further assistance.|DB:Ok');
+        Observer.Expect('repeatable count', 'before=Yes|2|after=Yes');
+        Observer.Expect('repeatable count run', 'An error occurred and the transaction is stopped. Contact your administrator or partner for further assistance.|DB:Ok');
+        Observer.Expect('repeatable next', 'before=Yes|1/2|after=Yes');
+        Observer.Expect('repeatable next run', 'An error occurred and the transaction is stopped. Contact your administrator or partner for further assistance.|DB:Ok');
+        Observer.Expect('repeatable calcfields', 'before=Yes|1|after=Yes');
+        Observer.Expect('repeatable calcfields run', 'An error occurred and the transaction is stopped. Contact your administrator or partner for further assistance.|DB:Ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -409,6 +457,38 @@ codeunit 93431 "LT NP4 Misc Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Y9AllReads(Observer, 'committed', IsolationLevel::ReadCommitted, true);
+        Observer.Expect('committed get', 'before=No|Yes/two|after=No');
+        Observer.Expect('committed get run', 'ran=Yes tx=No|Dialog');
+        Observer.Expect('committed find=', 'before=No|Yes/two|after=No');
+        Observer.Expect('committed find= run', 'ran=Yes tx=No|Dialog');
+        Observer.Expect('committed isempty', 'before=No|No|after=No');
+        Observer.Expect('committed isempty run', 'ran=Yes tx=No|Dialog');
+        Observer.Expect('committed count', 'before=No|2|after=No');
+        Observer.Expect('committed count run', 'ran=Yes tx=No|Dialog');
+        Observer.Expect('committed next', 'before=No|1/2|after=No');
+        Observer.Expect('committed next run', 'ran=Yes tx=No|Dialog');
+        Observer.Expect('committed calcfields', 'before=No|1|after=No');
+        Observer.Expect('committed calcfields run', 'ran=Yes tx=No|Dialog');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y9_ReadIsolation_ValueAcrossCommit()
+    var
+        Observer: Codeunit "Probe Observer";
+        Locked: Record "LT Y9 RI Row";
+        Repeatable: Record "LT Y9 RI Row";
+    begin
+        Y9Seed();
+        Locked.ReadIsolation := IsolationLevel::UpdLock;
+        Repeatable.ReadIsolation := IsolationLevel::RepeatableRead;
+        Observer.Observe('before commit', Format(Locked.ReadIsolation) + '|' + Format(Repeatable.ReadIsolation) + '|tx=' + Format(IsInWriteTransaction()));
+        Commit();
+        Observer.Observe('after commit', Format(Locked.ReadIsolation) + '|' + Format(Repeatable.ReadIsolation) + '|tx=' + Format(IsInWriteTransaction()));
+        Locked.Get(1);
+        Observer.Observe('after updlock get', Format(Locked.ReadIsolation) + '|tx=' + Format(IsInWriteTransaction()));
+        Locked.ReadIsolation := IsolationLevel::UpdLock;
+        Observer.Observe('after setting again', Format(Locked.ReadIsolation) + '|tx=' + Format(IsInWriteTransaction()));
         Observer.Finish();
     end;
 }

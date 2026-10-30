@@ -526,7 +526,9 @@ codeunit 93418 "LT NP4 XmlPort Tests"
         Port.Export();
         Observer.Observe('export', ToText(Buffer));
         Observer.Observe('held', Port.HeldLine());
-        Observer.Finish();
+        Observer.Expect('export', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Root>|  <Head id="1">|    <Line head="0" no="0">|      <Txt />|    </Line>|  </Head>|  <Head id="2">|    <Line head="2" no="10">|      <Txt>h2l10</Txt>|    </Line>|  </Head>|  <Head id="3">|    <Line head="3" no="20">|      <Txt>h3l20</Txt>|    </Line>|  </Head>|</Root>|len=343');
+        Observer.Expect('held', '3/10/A/h3l10|filters=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -544,7 +546,9 @@ codeunit 93418 "LT NP4 XmlPort Tests"
         Port.Export();
         Observer.Observe('export', ToText(Buffer));
         Observer.Observe('held', Port.HeldLine());
-        Observer.Finish();
+        Observer.Expect('export', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Root>|  <Head id="1">|    <Line head="1" no="20">|      <Txt>h1l20</Txt>|    </Line>|  </Head>|  <Head id="2">|    <Line head="1" no="10">|      <Txt>h1l10</Txt>|    </Line>|  </Head>|  <Head id="3">|    <Line head="1" no="10">|      <Txt>h1l10</Txt>|    </Line>|  </Head>|</Root>|len=353');
+        Observer.Expect('held', '1/10/A/h1l10|filters=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -561,7 +565,9 @@ codeunit 93418 "LT NP4 XmlPort Tests"
         Port.Export();
         Observer.Observe('export', ToText(Buffer));
         Observer.Observe('held', Port.HeldLine());
-        Observer.Finish();
+        Observer.Expect('export', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Root>|  <Head id="1">|    <Line head="1" no="10">|      <Txt>h1l10</Txt>|    </Line>|  </Head>|  <Head id="2">|    <Line head="1" no="10">|      <Txt>h1l10</Txt>|    </Line>|  </Head>|  <Head id="3">|    <Line head="1" no="10">|      <Txt>h1l10</Txt>|    </Line>|  </Head>|</Root>|len=353');
+        Observer.Expect('held', '1/10/A/h1l10|filters=');
+        Observer.Verify();
     end;
 
     local procedure Y9Ints(A: Integer; B: Integer; C: Integer) Result: List of [Integer]
@@ -623,7 +629,8 @@ codeunit 93418 "LT NP4 XmlPort Tests"
         Port.SetSource(InS);
         Port.Import();
         Observer.Observe('import', Port.Result());
-        Observer.Finish();
+        Observer.Expect('import', 'note=[  lead  inner\n gap\t ] rows=3 [ a\n  b  ] [] [x]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -638,7 +645,8 @@ codeunit 93418 "LT NP4 XmlPort Tests"
         Port.SetSource(InS);
         Port.Import();
         Observer.Observe('import', Port.Result());
-        Observer.Finish();
+        Observer.Expect('import', 'note=[lead inner gap] rows=3 [a b] [] [x]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -653,7 +661,8 @@ codeunit 93418 "LT NP4 XmlPort Tests"
         Port.SetSource(InS);
         Port.Import();
         Observer.Observe('import', Port.Result());
-        Observer.Finish();
+        Observer.Expect('import', 'note=[  lead  inner\n gap\t ] rows=3 [ a\n  b  ] [] [x]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -668,7 +677,8 @@ codeunit 93418 "LT NP4 XmlPort Tests"
         Port.SetSource(InS);
         Port.Import();
         Observer.Observe('import', Port.Result());
-        Observer.Finish();
+        Observer.Expect('import', 'note=[lead inner gap] rows=3 [a b] [] [x]');
+        Observer.Verify();
     end;
 
     local procedure Y9LfValues(var Note: Text; var Txt: Text)
@@ -698,7 +708,8 @@ codeunit 93418 "LT NP4 XmlPort Tests"
         Port.SetDestination(OutS);
         Port.Export();
         Observer.Observe('export', Y9Bytes(Buffer));
-        Observer.Finish();
+        Observer.Expect('export', 'bom=none|bytes=149|<?xml version="1.0" encoding="UTF-8" standalone="no"?>\r\n<Root>\r\n  <Note>n1\r\nn2\r\nn3\r\nn4</Note>\r\n  <Row>\r\n    <Txt> a\r\n  b  \r\n</Txt>\r\n  </Row>\r\n</Root>');
+        Observer.Verify();
     end;
 
     [Test]
@@ -717,7 +728,8 @@ codeunit 93418 "LT NP4 XmlPort Tests"
         Port.SetDestination(OutS);
         Port.Export();
         Observer.Observe('export', Y9Bytes(Buffer));
-        Observer.Finish();
+        Observer.Expect('export', 'bom=FFFE|bytes=302|<?xml version="1.0" encoding="UTF-16" standalone="no"?>\r\n<Root>\r\n  <Note>n1\r\nn2\r\nn3\r\nn4</Note>\r\n  <Row>\r\n    <Txt> a\r\n  b  \r\n</Txt>\r\n  </Row>\r\n</Root>');
+        Observer.Verify();
     end;
 
     [Test]
@@ -738,7 +750,8 @@ codeunit 93418 "LT NP4 XmlPort Tests"
         Port.SetDestination(OutS);
         Port.Export();
         Observer.Observe('export', Y9Bytes(Buffer));
-        Observer.Finish();
+        Observer.Expect('export', 'bom=FFFE|bytes=302|<?xml version="1.0" encoding="UTF-16" standalone="no"?>\r\n<Root>\r\n  <Note>n1\r\nn2\r\nn3\r\nn4</Note>\r\n  <Row>\r\n    <Txt> a\r\n  b  \r\n</Txt>\r\n  </Row>\r\n</Root>');
+        Observer.Verify();
     end;
 
     [Test]
@@ -755,7 +768,8 @@ codeunit 93418 "LT NP4 XmlPort Tests"
         Port.SetDestination(OutS);
         Port.Export();
         Observer.Observe('export', ToText(Buffer));
-        Observer.Finish();
+        Observer.Expect('export', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Root>|  <Head id="1">|    <Child cid="11">|      <Txt>c11</Txt>|    </Child>|  </Head>|  <Head id="2">|    <Child cid="12">|      <Txt>c12</Txt>|    </Child>|  </Head>|</Root>|len=243');
+        Observer.Verify();
     end;
 }
 
