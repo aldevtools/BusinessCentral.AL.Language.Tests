@@ -53,7 +53,7 @@ page 99803 "LT SS Code Filter"
 {
     PageType = List;
     SourceTable = "LT SS Doc";
-    SourceTableView = where("No." = filter(A | B));
+    SourceTableView = where("No." = filter('A|B'));
     layout { area(Content) { repeater(R) { field("No."; Rec."No.") { } } } }
 }
 
