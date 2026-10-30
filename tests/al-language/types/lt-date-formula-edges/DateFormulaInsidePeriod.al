@@ -47,7 +47,17 @@ codeunit 91352 "LT Y7 Date Formula In Period"
         One(Observer, '<D1>', 20241230D);
         One(Observer, '<-D1>', 20240115D);
         One(Observer, '<-D1>', 20240101D);
-        Observer.Finish();
+        Observer.Expect('<D1> 2024-01-01', 'ok|2024-02-01');
+        Observer.Expect('<D1> 2024-01-02', 'ok|2024-02-01');
+        Observer.Expect('<D1> 2024-02-28', 'ok|2024-03-01');
+        Observer.Expect('<D1> 2023-02-27', 'ok|2023-03-01');
+        Observer.Expect('<D1> 2024-03-29', 'ok|2024-04-01');
+        Observer.Expect('<D1> 2024-04-29', 'ok|2024-05-01');
+        Observer.Expect('<D1> 2024-12-01', 'ok|2025-01-01');
+        Observer.Expect('<D1> 2024-12-30', 'ok|2025-01-01');
+        Observer.Expect('<-D1> 2024-01-15', 'ok|2024-01-01');
+        Observer.Expect('<-D1> 2024-01-01', 'ok|2023-12-01');
+        Observer.Verify();
     end;
 
     [Test]
@@ -64,7 +74,16 @@ codeunit 91352 "LT Y7 Date Formula In Period"
         One(Observer, '<W21>', 20200520D);
         One(Observer, '<W21>', 20210101D);
         One(Observer, '<W21>', 20261030D);
-        Observer.Finish();
+        Observer.Expect('<W21> 2024-05-19', 'ok|2024-05-20');
+        Observer.Expect('<W21> 2024-05-20', 'ok|2025-05-19');
+        Observer.Expect('<W21> 2024-05-22', 'ok|2025-05-19');
+        Observer.Expect('<W21> 2024-05-26', 'ok|2025-05-19');
+        Observer.Expect('<W21> 2024-05-27', 'ok|2025-05-19');
+        Observer.Expect('<W21> 2020-05-18', 'ok|2021-05-24');
+        Observer.Expect('<W21> 2020-05-20', 'ok|2021-05-24');
+        Observer.Expect('<W21> 2021-01-01', 'ok|2021-05-24');
+        Observer.Expect('<W21> 2026-10-30', 'ok|2027-05-24');
+        Observer.Verify();
     end;
 
     [Test]
@@ -80,7 +99,15 @@ codeunit 91352 "LT Y7 Date Formula In Period"
         One(Observer, '<W25>', 20260615D);
         One(Observer, '<W25>', 20260617D);
         One(Observer, '<W25>', 20261030D);
-        Observer.Finish();
+        Observer.Expect('<W25> 2024-06-16', 'ok|2024-06-17');
+        Observer.Expect('<W25> 2024-06-17', 'ok|2025-06-16');
+        Observer.Expect('<W25> 2024-06-19', 'ok|2025-06-16');
+        Observer.Expect('<W25> 2024-06-23', 'ok|2025-06-16');
+        Observer.Expect('<W25> 2024-06-24', 'ok|2025-06-16');
+        Observer.Expect('<W25> 2026-06-15', 'ok|2027-06-21');
+        Observer.Expect('<W25> 2026-06-17', 'ok|2027-06-21');
+        Observer.Expect('<W25> 2026-10-30', 'ok|2027-06-21');
+        Observer.Verify();
     end;
 
     [Test]
@@ -94,7 +121,13 @@ codeunit 91352 "LT Y7 Date Formula In Period"
         One(Observer, '<W17>', 20230424D);
         One(Observer, '<W17>', 20230426D);
         One(Observer, '<W17>', 20230430D);
-        Observer.Finish();
+        Observer.Expect('<W17> 2024-04-22', 'ok|2025-04-21');
+        Observer.Expect('<W17> 2024-04-24', 'ok|2025-04-21');
+        Observer.Expect('<W17> 2024-04-28', 'ok|2025-04-21');
+        Observer.Expect('<W17> 2023-04-24', 'ok|2024-04-22');
+        Observer.Expect('<W17> 2023-04-26', 'ok|2024-04-22');
+        Observer.Expect('<W17> 2023-04-30', 'ok|2024-04-22');
+        Observer.Verify();
     end;
 
     [Test]
@@ -107,6 +140,11 @@ codeunit 91352 "LT Y7 Date Formula In Period"
         One(Observer, '<Q3>', 20240930D);
         One(Observer, '<Q3>', 20230701D);
         One(Observer, '<Q3>', 20230915D);
-        Observer.Finish();
+        Observer.Expect('<Q3> 2024-07-01', 'ok|2025-07-01');
+        Observer.Expect('<Q3> 2024-08-15', 'ok|2025-07-01');
+        Observer.Expect('<Q3> 2024-09-30', 'ok|2025-07-01');
+        Observer.Expect('<Q3> 2023-07-01', 'ok|2024-07-01');
+        Observer.Expect('<Q3> 2023-09-15', 'ok|2024-07-01');
+        Observer.Verify();
     end;
 }

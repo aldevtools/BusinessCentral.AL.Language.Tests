@@ -51,7 +51,17 @@ codeunit 91353 "LT Y7 Format Prec 0:3 Comma"
         Observer: Codeunit "Probe Observer";
     begin
         Values(Observer, '<Precision,0:3><Sign><Integer><Decimals><Comma,.>');
-        Observer.Finish();
+        Observer.Expect('1234', '[1234]');
+        Observer.Expect('1234.5', '[1234.5]');
+        Observer.Expect('1234.56789', '[1234.568]');
+        Observer.Expect('0.1', '[0.1]');
+        Observer.Expect('0.0005', '[0.001]');
+        Observer.Expect('0.0004', '[0]');
+        Observer.Expect('-1234.5', '[-1234.5]');
+        Observer.Expect('-0.0004', '[-0]');
+        Observer.Expect('0', '[0]');
+        Observer.Expect('1234567.125', '[1234567.125]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -60,7 +70,17 @@ codeunit 91353 "LT Y7 Format Prec 0:3 Comma"
         Observer: Codeunit "Probe Observer";
     begin
         Values(Observer, '<Precision,0:3><Sign><Integer Thousand><Decimals><Comma,.>');
-        Observer.Finish();
+        Observer.Expect('1234', '[1,234]');
+        Observer.Expect('1234.5', '[1,234.5]');
+        Observer.Expect('1234.56789', '[1,234.568]');
+        Observer.Expect('0.1', '[0.1]');
+        Observer.Expect('0.0005', '[0.001]');
+        Observer.Expect('0.0004', '[0]');
+        Observer.Expect('-1234.5', '[-1,234.5]');
+        Observer.Expect('-0.0004', '[-0]');
+        Observer.Expect('0', '[0]');
+        Observer.Expect('1234567.125', '[1,234,567.125]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -69,7 +89,17 @@ codeunit 91353 "LT Y7 Format Prec 0:3 Comma"
         Observer: Codeunit "Probe Observer";
     begin
         Values(Observer, '<Precision,0:3><Integer><Decimals><Comma,.>');
-        Observer.Finish();
+        Observer.Expect('1234', '[1234]');
+        Observer.Expect('1234.5', '[1234.5]');
+        Observer.Expect('1234.56789', '[1234.568]');
+        Observer.Expect('0.1', '[0.1]');
+        Observer.Expect('0.0005', '[0.001]');
+        Observer.Expect('0.0004', '[0]');
+        Observer.Expect('-1234.5', '[1234.5]');
+        Observer.Expect('-0.0004', '[0]');
+        Observer.Expect('0', '[0]');
+        Observer.Expect('1234567.125', '[1234567.125]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -78,6 +108,16 @@ codeunit 91353 "LT Y7 Format Prec 0:3 Comma"
         Observer: Codeunit "Probe Observer";
     begin
         Values(Observer, '<Comma,.><Precision,0:3><Sign><Integer><Decimals>');
-        Observer.Finish();
+        Observer.Expect('1234', '[1234]');
+        Observer.Expect('1234.5', '[1234.5]');
+        Observer.Expect('1234.56789', '[1234.568]');
+        Observer.Expect('0.1', '[0.1]');
+        Observer.Expect('0.0005', '[0.001]');
+        Observer.Expect('0.0004', '[0]');
+        Observer.Expect('-1234.5', '[-1234.5]');
+        Observer.Expect('-0.0004', '[-0]');
+        Observer.Expect('0', '[0]');
+        Observer.Expect('1234567.125', '[1234567.125]');
+        Observer.Verify();
     end;
 }

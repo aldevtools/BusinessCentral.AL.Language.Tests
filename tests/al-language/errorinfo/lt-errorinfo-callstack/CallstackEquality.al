@@ -95,7 +95,19 @@ codeunit 91361 "LT Y7 Callstack Equality"
         Observer.Observe('other statement equal', Format(CS1 = CS4));
         Observer.Observe('not equal operator same site', Format(CS1 <> CS2));
         Observer.Observe('holds U+FDD0', Format(CS1.Contains(Mark())));
-        Observer.Finish();
+        Observer.Expect('collected count', '4');
+        Observer.Expect('empty', 'No');
+        Observer.Expect('read twice equal', 'Yes');
+        Observer.Expect('call twice inline equal', 'Yes');
+        Observer.Expect('copy equal', 'Yes');
+        Observer.Expect('copystr equal', 'Yes');
+        Observer.Expect('same statement same call site equal', 'Yes');
+        Observer.Expect('same statement same call site length equal', 'Yes');
+        Observer.Expect('same statement other call site equal', 'No');
+        Observer.Expect('other statement equal', 'No');
+        Observer.Expect('not equal operator same site', 'No');
+        Observer.Expect('holds U+FDD0', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -114,6 +126,11 @@ codeunit 91361 "LT Y7 Callstack Equality"
         Observer.Observe('empty', Format(CS[1] = ''));
         Observer.Observe('two calls equal', Format(CS[1] = CS[2]));
         Observer.Observe('holds U+FDD0', Format(CS[1].Contains(Mark())));
-        Observer.Finish();
+        Observer.Expect('try 1', 'No');
+        Observer.Expect('try 2', 'No');
+        Observer.Expect('empty', 'No');
+        Observer.Expect('two calls equal', 'Yes');
+        Observer.Expect('holds U+FDD0', 'No');
+        Observer.Verify();
     end;
 }

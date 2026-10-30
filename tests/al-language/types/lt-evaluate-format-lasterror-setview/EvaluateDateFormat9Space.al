@@ -61,7 +61,29 @@ codeunit 91351 "LT Y7 Evaluate Date Fmt9 Space"
         Both(Observer, 'ff', Ch(12));
         Both(Observer, 'nbsp', Ch(160));
         Both(Observer, 'empty', '');
-        Observer.Finish();
+        Observer.Expect('tab fn', 'Yes|');
+        Observer.Expect('tab stmt', 'ok|');
+        Observer.Expect('tab tab fn', 'Yes|');
+        Observer.Expect('tab tab stmt', 'ok|');
+        Observer.Expect('blank fn', 'Yes|');
+        Observer.Expect('blank stmt', 'ok|');
+        Observer.Expect('two blanks fn', 'Yes|');
+        Observer.Expect('two blanks stmt', 'ok|');
+        Observer.Expect('cr fn', 'Yes|');
+        Observer.Expect('cr stmt', 'ok|');
+        Observer.Expect('lf fn', 'Yes|');
+        Observer.Expect('lf stmt', 'ok|');
+        Observer.Expect('cr lf fn', 'Yes|');
+        Observer.Expect('cr lf stmt', 'ok|');
+        Observer.Expect('vt fn', 'Yes|');
+        Observer.Expect('vt stmt', 'ok|');
+        Observer.Expect('ff fn', 'Yes|');
+        Observer.Expect('ff stmt', 'ok|');
+        Observer.Expect('nbsp fn', 'Yes|');
+        Observer.Expect('nbsp stmt', 'ok|');
+        Observer.Expect('empty fn', 'Yes|');
+        Observer.Expect('empty stmt', 'ok|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -77,6 +99,22 @@ codeunit 91351 "LT Y7 Evaluate Date Fmt9 Space"
         Both(Observer, 'lf before', Ch(10) + '2026-10-16');
         Both(Observer, 'nbsp after', '2026-10-16' + Ch(160));
         Both(Observer, 'tab inside', '2026-10' + Ch(9) + '-16');
-        Observer.Finish();
+        Observer.Expect('tab before fn', 'Yes|2026-10-16');
+        Observer.Expect('tab before stmt', 'ok|2026-10-16');
+        Observer.Expect('tab after fn', 'Yes|2026-10-16');
+        Observer.Expect('tab after stmt', 'ok|2026-10-16');
+        Observer.Expect('blank before fn', 'Yes|2026-10-16');
+        Observer.Expect('blank before stmt', 'ok|2026-10-16');
+        Observer.Expect('blank after fn', 'Yes|2026-10-16');
+        Observer.Expect('blank after stmt', 'ok|2026-10-16');
+        Observer.Expect('cr lf after fn', 'Yes|2026-10-16');
+        Observer.Expect('cr lf after stmt', 'ok|2026-10-16');
+        Observer.Expect('lf before fn', 'Yes|2026-10-16');
+        Observer.Expect('lf before stmt', 'ok|2026-10-16');
+        Observer.Expect('nbsp after fn', 'Yes|2026-10-16');
+        Observer.Expect('nbsp after stmt', 'ok|2026-10-16');
+        Observer.Expect('tab inside fn', 'No|2000-01-01');
+        Observer.Expect('tab inside stmt', 'error:The format of the Date ''2026-10\t-16'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.|Evaluate|2000-01-01');
+        Observer.Verify();
     end;
 }

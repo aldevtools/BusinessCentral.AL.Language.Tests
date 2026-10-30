@@ -169,7 +169,11 @@ codeunit 91366 "LT Y7 Lookup Typed Reads"
         LookupPage.GetRecord(Row);
         Observer.Observe('GetRecord', Row."Code");
         Observer.Observe('after RunModal', Log.Take());
-        Observer.Finish();
+        Observer.Expect('handler', 'open=R:A,R:B,R:C,R:A,R:A,C:A;goto=Yes;after goto=R:B,R:B,C:B;AsDate=2024-03-15;AsDecimal=1234.567;AsTime=10:30:45;AsDateTime=2024-03-15T10:30:45Z;ShowMandatory Name=Yes;ShowMandatory Code=No;after reads=;after OK=;');
+        Observer.Expect('action', 'LookupOK');
+        Observer.Expect('GetRecord', 'B');
+        Observer.Expect('after RunModal', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -188,7 +192,11 @@ codeunit 91366 "LT Y7 Lookup Typed Reads"
         LookupPage.GetRecord(Row);
         Observer.Observe('GetRecord', Row."Code");
         Observer.Observe('after RunModal', Log.Take());
-        Observer.Finish();
+        Observer.Expect('handler', 'open=R:A,R:B,R:C,R:A,R:A,C:A;goto=Yes;after goto=R:B,R:B,C:B;AsDate=2024-03-15;AsDecimal=1234.567;AsTime=10:30:45;AsDateTime=2024-03-15T10:30:45Z;ShowMandatory Name=Yes;ShowMandatory Code=No;after reads=;after OK=;');
+        Observer.Expect('action', 'OK');
+        Observer.Expect('GetRecord', 'B');
+        Observer.Expect('after RunModal', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -206,6 +214,10 @@ codeunit 91366 "LT Y7 Lookup Typed Reads"
         Observer.Observe('action', Format(Result));
         Observer.Observe('record after', Row."Code");
         Observer.Observe('after RunModal', Log.Take());
-        Observer.Finish();
+        Observer.Expect('handler', 'open=R:A,R:B,R:C,R:A,R:A,C:A;goto=Yes;after goto=R:B,R:B,C:B;AsDate=2024-03-15;AsDecimal=1234.567;AsTime=10:30:45;AsDateTime=2024-03-15T10:30:45Z;ShowMandatory Name=Yes;ShowMandatory Code=No;after reads=;after OK=;');
+        Observer.Expect('action', 'LookupOK');
+        Observer.Expect('record after', 'B');
+        Observer.Expect('after RunModal', '');
+        Observer.Verify();
     end;
 }

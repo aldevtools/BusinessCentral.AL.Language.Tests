@@ -118,7 +118,14 @@ codeunit 91350 "LT Y7 User Agent Forms"
         Req(Observer, '/', '/');
         Req(Observer, 'a/b/c', 'a/b/c');
         Req(Observer, 'a@b', 'a@b');
-        Observer.Finish();
+        Observer.Expect('A B / C D 365 E', 'ret=Yes n=5[A][B/C][D][365][E] contains=Yes');
+        Observer.Expect('a / b', 'ret=Yes n=1[a/b] contains=Yes');
+        Observer.Expect('a /1', 'ret=Yes n=1[a/1] contains=Yes');
+        Observer.Expect('a/ 1', 'ret=Yes n=1[a/1] contains=Yes');
+        Observer.Expect('/', 'ret=No get=E[Exception of type ''Microsoft.Dynamics.Nav.Types.Exceptions.NavNclInvalidHeaderEx|InvalidHeader] contains=No');
+        Observer.Expect('a/b/c', 'ret=No get=E[Exception of type ''Microsoft.Dynamics.Nav.Types.Exceptions.NavNclInvalidHeaderEx|InvalidHeader] contains=No');
+        Observer.Expect('a@b', 'ret=No get=E[Exception of type ''Microsoft.Dynamics.Nav.Types.Exceptions.NavNclInvalidHeaderEx|InvalidHeader] contains=No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -133,7 +140,14 @@ codeunit 91350 "LT Y7 User Agent Forms"
         Cli(Observer, '/', '/');
         Cli(Observer, 'a/b/c', 'a/b/c');
         Cli(Observer, 'a@b', 'a@b');
-        Observer.Finish();
+        Observer.Expect('A B / C D 365 E', 'ret=Yes n=5[A][B/C][D][365][E] contains=Yes');
+        Observer.Expect('a / b', 'ret=Yes n=1[a/b] contains=Yes');
+        Observer.Expect('a /1', 'ret=Yes n=1[a/1] contains=Yes');
+        Observer.Expect('a/ 1', 'ret=Yes n=1[a/1] contains=Yes');
+        Observer.Expect('/', 'ret=No get=E[Exception of type ''Microsoft.Dynamics.Nav.Types.Exceptions.NavNclInvalidHeaderEx|InvalidHeader] contains=No');
+        Observer.Expect('a/b/c', 'ret=No get=E[Exception of type ''Microsoft.Dynamics.Nav.Types.Exceptions.NavNclInvalidHeaderEx|InvalidHeader] contains=No');
+        Observer.Expect('a@b', 'ret=No get=E[Exception of type ''Microsoft.Dynamics.Nav.Types.Exceptions.NavNclInvalidHeaderEx|InvalidHeader] contains=No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -148,6 +162,13 @@ codeunit 91350 "LT Y7 User Agent Forms"
         CliDirect(Observer, '/', '/');
         CliDirect(Observer, 'a/b/c', 'a/b/c');
         CliDirect(Observer, 'a@b', 'a@b');
-        Observer.Finish();
+        Observer.Expect('A B / C D 365 E', 'ret=Yes n=5[A][B/C][D][365][E] contains=Yes');
+        Observer.Expect('a / b', 'ret=Yes n=1[a/b] contains=Yes');
+        Observer.Expect('a /1', 'ret=Yes n=1[a/1] contains=Yes');
+        Observer.Expect('a/ 1', 'ret=Yes n=1[a/1] contains=Yes');
+        Observer.Expect('/', 'ret=No get=E[Exception of type ''Microsoft.Dynamics.Nav.Types.Exceptions.NavNclInvalidHeaderEx|InvalidHeader] contains=No');
+        Observer.Expect('a/b/c', 'ret=No get=E[Exception of type ''Microsoft.Dynamics.Nav.Types.Exceptions.NavNclInvalidHeaderEx|InvalidHeader] contains=No');
+        Observer.Expect('a@b', 'ret=No get=E[Exception of type ''Microsoft.Dynamics.Nav.Types.Exceptions.NavNclInvalidHeaderEx|InvalidHeader] contains=No');
+        Observer.Verify();
     end;
 }

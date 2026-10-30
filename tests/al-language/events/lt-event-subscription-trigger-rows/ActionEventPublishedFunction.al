@@ -7,6 +7,8 @@
 //   action events, so the runtime can derive the number from the action: the same action name on two pages, OnBefore and OnAfter of one action, short and long
 //   names, a quoted name with a blank, actions inside a group and in area(Navigation), and an action added by a page extension.
 //   EventSubscriptionTriggerRows.al:222 pins 'OnAfterActionEvent - 780149250' for action AfterAct of page 73669.
+//   Result: OnBefore and OnAfter of one action share the number; the same action name gives different numbers on two pages (the number depends on the page,
+//   not only on the name); an action of a page extension is listed under the base page.
 // BC versions: 27, 28, 29
 
 table 91354 "LT Y7 Action Row"
@@ -254,6 +256,20 @@ codeunit 91359 "LT Y7 Action Published Fn"
         Row(Observer, 'A11_BeforeNav');
         Row(Observer, 'A12_BeforeExtAction');
         Row(Observer, 'A13_AfterExtAction');
-        Observer.Finish();
+        Observer.Expect('count', '13');
+        Observer.Expect('A01_BeforeSendItA', '91355|OnBeforeActionEvent - 610383273|Trigger|Yes');
+        Observer.Expect('A02_AfterSendItA', '91355|OnAfterActionEvent - 610383273|Trigger|Yes');
+        Observer.Expect('A03_BeforeSendItB', '91356|OnBeforeActionEvent - 665682988|Trigger|Yes');
+        Observer.Expect('A04_AfterSendItB', '91356|OnAfterActionEvent - 665682988|Trigger|Yes');
+        Observer.Expect('A05_BeforeA', '91355|OnBeforeActionEvent - 1510478039|Trigger|Yes');
+        Observer.Expect('A06_BeforePostA', '91355|OnBeforeActionEvent - 1541093950|Trigger|Yes');
+        Observer.Expect('A07_BeforePostB', '91356|OnBeforeActionEvent - 1418297755|Trigger|Yes');
+        Observer.Expect('A08_BeforeMyAction', '91355|OnBeforeActionEvent - 455536332|Trigger|Yes');
+        Observer.Expect('A09_BeforeLongName', '91355|OnBeforeActionEvent - 1914148178|Trigger|Yes');
+        Observer.Expect('A10_BeforeGrouped', '91355|OnBeforeActionEvent - 553585230|Trigger|Yes');
+        Observer.Expect('A11_BeforeNav', '91355|OnBeforeActionEvent - 441606647|Trigger|Yes');
+        Observer.Expect('A12_BeforeExtAction', '91355|OnBeforeActionEvent - 1998974045|Trigger|Yes');
+        Observer.Expect('A13_AfterExtAction', '91355|OnAfterActionEvent - 1998974045|Trigger|Yes');
+        Observer.Verify();
     end;
 }

@@ -93,7 +93,20 @@ codeunit 91362 "LT Y7 Xml Attr Get Missing"
         Observer.Observe('no ns, asked with a ns', Format(Attrs.Get('a', 'urn:p', Present)));
         Observer.Observe('no ns, asked with a ns attr', Show(Present));
         Observer.Observe('missing, other ns', Format(Attrs.Get('zz', 'urn:x', Present)));
-        Observer.Finish();
+        Observer.Expect('missing, empty ns', 'No');
+        Observer.Expect('missing, fresh attr after', 'E[Microsoft.Dynamics.Nav.Runtime.NavXmlAttribute variable not initialized.|NotInitialized]');
+        Observer.Expect('missing, held attr', 'No');
+        Observer.Expect('missing, held attr after', 'a=1');
+        Observer.Expect('present, empty ns', 'Yes');
+        Observer.Expect('present, empty ns attr', 'a=1');
+        Observer.Expect('only in ns, empty ns', 'No');
+        Observer.Expect('only in ns, attr after', 'E[Microsoft.Dynamics.Nav.Runtime.NavXmlAttribute variable not initialized.|NotInitialized]');
+        Observer.Expect('only in ns, its ns', 'Yes');
+        Observer.Expect('only in ns, its ns attr', 'p:b=2');
+        Observer.Expect('no ns, asked with a ns', 'No');
+        Observer.Expect('no ns, asked with a ns attr', 'E[Microsoft.Dynamics.Nav.Runtime.NavXmlAttribute variable not initialized.|NotInitialized]');
+        Observer.Expect('missing, other ns', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -116,6 +129,11 @@ codeunit 91362 "LT Y7 Xml Attr Get Missing"
         else
             Observer.Observe('missing, two arguments', 'E[' + CopyStr(GetLastErrorText(), 1, 160) + '|' + GetLastErrorCode() + ']');
         ClearLastError();
-        Observer.Finish();
+        Observer.Expect('missing, empty ns', 'E[The XML node with the name ''{}zz'' could not be found.|XmlNodeNotFound]');
+        Observer.Expect('present, empty ns', 'ok|a=1');
+        Observer.Expect('only in ns, empty ns', 'E[The XML node with the name ''{}b'' could not be found.|XmlNodeNotFound]');
+        Observer.Expect('missing, other ns', 'E[The XML node with the name ''{urn:x}zz'' could not be found.|XmlNodeNotFound]');
+        Observer.Expect('missing, two arguments', 'E[The XML node with the name ''zz'' could not be found.|XmlNodeNotFound]');
+        Observer.Verify();
     end;
 }

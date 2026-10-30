@@ -153,7 +153,10 @@ codeunit 91370 "LT Y7 Exec Params Twice Views"
         Exec(Observer, 'second', R, Params(Note('two'), ''));
         Clear(R);
         Exec(Observer, 'after Clear', R, Params(Note('three'), ''));
-        Observer.Finish();
+        Observer.Expect('first', 'ok|pre note=one filters=[] key=[Id] asc=Yes;get 1;get 2;get 3;get 4;');
+        Observer.Expect('second', 'E[The object has been run. Use the function CLEAR(Report).|ObjectHasAlreadyBeenRun]|');
+        Observer.Expect('after Clear', 'ok|pre note=three filters=[] key=[Id] asc=Yes;get 1;get 2;get 3;get 4;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -165,7 +168,9 @@ codeunit 91370 "LT Y7 Exec Params Twice Views"
         Seed();
         Exec(Observer, 'first', R, '');
         Exec(Observer, 'second', R, Params(Note('two'), ''));
-        Observer.Finish();
+        Observer.Expect('first', 'ok|pre note= filters=[] key=[Id] asc=Yes;get 1;get 2;get 3;get 4;');
+        Observer.Expect('second', 'E[The object has been run. Use the function CLEAR(Report).|ObjectHasAlreadyBeenRun]|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -177,7 +182,9 @@ codeunit 91370 "LT Y7 Exec Params Twice Views"
         Seed();
         Exec(Observer, 'first', R, Params(Note('one'), ''));
         Exec(Observer, 'second', R, '');
-        Observer.Finish();
+        Observer.Expect('first', 'ok|pre note=one filters=[] key=[Id] asc=Yes;get 1;get 2;get 3;get 4;');
+        Observer.Expect('second', 'E[The object has been run. Use the function CLEAR(Report).|ObjectHasAlreadyBeenRun]|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -192,7 +199,10 @@ codeunit 91370 "LT Y7 Exec Params Twice Views"
         Report.Execute(Report::"LT Y7 Exec Params", '');
         Observer.Observe('static next, no view', L.Take());
         Exec(Observer, 'new variable, no view', R2, Params(Note('n'), ''));
-        Observer.Finish();
+        Observer.Expect('view grp 2', 'ok|pre note=v filters=[Grp: 2] key=[Id] asc=Yes;get 3;get 4;');
+        Observer.Expect('static next, no view', 'pre note= filters=[] key=[Id] asc=Yes;get 1;get 2;get 3;get 4;');
+        Observer.Expect('new variable, no view', 'ok|pre note=n filters=[] key=[Id] asc=Yes;get 1;get 2;get 3;get 4;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -209,7 +219,11 @@ codeunit 91370 "LT Y7 Exec Params Twice Views"
         Exec(Observer, 'two field filters', R2, Params('', '<DataItem name="Row">VERSION(1) SORTING(Field1) WHERE(Field1=1(&lt;&gt;3),Field2=1(1|2))</DataItem>'));
         Exec(Observer, 'unknown data item name', R3, Params(Note('u'), '<DataItem name="Nope">VERSION(1) SORTING(Field1) WHERE(Field2=1(2))</DataItem>'));
         Exec(Observer, 'empty view text', R4, Params(Note('e'), '<DataItem name="Row"></DataItem>'));
-        Observer.Finish();
+        Observer.Expect('sorting grp descending, id range', 'ok|pre note=d filters=[Id: 2..4] key=[Grp,Id] asc=No;get 4;get 3;get 2;');
+        Observer.Expect('two field filters', 'ok|pre note= filters=[Id: <>3, Grp: 1|2] key=[Id] asc=Yes;get 1;get 2;get 4;');
+        Observer.Expect('unknown data item name', 'ok|pre note=u filters=[] key=[Id] asc=Yes;get 1;get 2;get 3;get 4;');
+        Observer.Expect('empty view text', 'ok|pre note=e filters=[] key=[Id] asc=Yes;get 1;get 2;get 3;get 4;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -223,6 +237,7 @@ codeunit 91370 "LT Y7 Exec Params Twice Views"
         Row.SetRange(Id, 1, 3);
         R.SetTableView(Row);
         Exec(Observer, 'view grp 2 over SetTableView id 1..3', R, Params(Note('s'), '<DataItem name="Row">VERSION(1) SORTING(Field1) WHERE(Field2=1(2))</DataItem>'));
-        Observer.Finish();
+        Observer.Expect('view grp 2 over SetTableView id 1..3', 'ok|pre note=s filters=[Grp: 2] key=[Id] asc=Yes;get 3;get 4;');
+        Observer.Verify();
     end;
 }
