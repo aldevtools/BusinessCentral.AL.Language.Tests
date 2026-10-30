@@ -53,6 +53,39 @@ codeunit 99840 "LT SS License Permission"
         Observer.Verify();
     end;
 
+    local procedure ObserveIsvNumbers(var Observer: Codeunit "Probe Observer"; Label: Text; ObjectType: Option)
+    var
+        Numbers: List of [Integer];
+        N: Integer;
+    begin
+        // al-runner issue 6214 (last comment): numbers in the ISV and customer ranges below 99999999 that no other test names.
+        Numbers.AddRange(50001, 60000, 70000000, 70000500, 74999999, 80000, 99999998, 99999999);
+        foreach N in Numbers do begin
+            Observer.Observe(Label + '_' + Format(N), Describe(ObjectType, N));
+            Observer.Expect(Label + '_' + Format(N), AllYes());
+        end;
+    end;
+
+    [Test]
+    procedure LicensePermission_Table_IsvRangeNumbers()
+    var
+        Observer: Codeunit "Probe Observer";
+        LicensePermission: Record "License Permission";
+    begin
+        ObserveIsvNumbers(Observer, 'table', LicensePermission."Object Type"::Table);
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure LicensePermission_TableData_IsvRangeNumbers()
+    var
+        Observer: Codeunit "Probe Observer";
+        LicensePermission: Record "License Permission";
+    begin
+        ObserveIsvNumbers(Observer, 'tabledata', LicensePermission."Object Type"::TableData);
+        Observer.Verify();
+    end;
+
     [Test]
     procedure LicensePermission_XmlportQuery_UnusedNumbers()
     var
