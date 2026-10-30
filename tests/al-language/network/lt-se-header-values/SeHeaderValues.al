@@ -434,4 +434,123 @@ codeunit 89030 "LT SE Header Values"
         Observer.Expect('expect_7', 'ret=Yes n=1[100-continue; a=b]');
         Observer.Verify();
     end;
+
+    // Writer Y2 (al-runtime-rs assumption http-typed-header-value-shapes): the request-only names on response, response content and
+    // client default headers, and more value shapes (two-digit years, offsets, case, spacing, empty list members).
+
+    local procedure RespCnt(var Observer: Codeunit "Probe Observer"; ObsKey: Text; N: Text; V: Text)
+    var
+        R: HttpResponseMessage;
+        C: HttpContent;
+        H: HttpHeaders;
+    begin
+        C := R.Content();
+        C.GetHeaders(H);
+        AddTo(Observer, H, ObsKey, N, V);
+    end;
+
+    [Test]
+    procedure Y2_RequestOnlyNames_OnResponse()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Resp(Observer, 'acceptcharset_0', 'Accept-Charset', 'utf-8, iso-8859-1;q=0.5');
+        Resp(Observer, 'acceptencoding_1', 'Accept-Encoding', 'gzip, ;');
+        Resp(Observer, 'acceptlanguage_2', 'Accept-Language', 'de-DE, en;q=0.8');
+        Resp(Observer, 'from_3', 'From', 'not an address');
+        Resp(Observer, 'ifmodifiedsince_4', 'If-Modified-Since', 'yesterday');
+        Resp(Observer, 'ifnonematch_5', 'If-None-Match', 'abc');
+        Resp(Observer, 'ifrange_6', 'If-Range', 'abc');
+        Resp(Observer, 'ifunmodifiedsince_7', 'If-Unmodified-Since', 'yesterday');
+        Resp(Observer, 'proxyauthorization_8', 'Proxy-Authorization', 'a b c');
+        Resp(Observer, 'te_9', 'TE', 'trailers, deflate;q=0.5');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y2_RequestOnlyNames_OnResponseContent()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RespCnt(Observer, 'acceptcharset_0', 'Accept-Charset', 'utf-8');
+        RespCnt(Observer, 'acceptlanguage_1', 'Accept-Language', 'de-DE');
+        RespCnt(Observer, 'from_2', 'From', 'x');
+        RespCnt(Observer, 'ifmodifiedsince_3', 'If-Modified-Since', 'yesterday');
+        RespCnt(Observer, 'te_4', 'TE', 'trailers');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y2_RequestOnlyNames_OnClient()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Cli(Observer, 'acceptcharset_0', 'Accept-Charset', 'utf-8');
+        Cli(Observer, 'acceptencoding_1', 'Accept-Encoding', 'gzip');
+        Cli(Observer, 'acceptlanguage_2', 'Accept-Language', 'de-DE');
+        Cli(Observer, 'from_3', 'From', 'a@b.c');
+        Cli(Observer, 'ifmodifiedsince_4', 'If-Modified-Since', 'Tue, 15 Nov 1994 08:12:31 GMT');
+        Cli(Observer, 'ifnonematch_5', 'If-None-Match', '"a"');
+        Cli(Observer, 'ifrange_6', 'If-Range', '"a"');
+        Cli(Observer, 'ifunmodifiedsince_7', 'If-Unmodified-Since', 'yesterday');
+        Cli(Observer, 'proxyauthorization_8', 'Proxy-Authorization', 'Basic x');
+        Cli(Observer, 'te_9', 'TE', 'trailers');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y2_Shapes_RequestOnlyValues()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Req(Observer, 'acceptcharset_0', 'Accept-Charset', 'utf-8, iso-8859-1;q=0.5');
+        Req(Observer, 'acceptcharset_1', 'Accept-Charset', '*');
+        Req(Observer, 'acceptcharset_2', 'Accept-Charset', 'utf-8;q=x');
+        Req(Observer, 'acceptlanguage_3', 'Accept-Language', 'de-DE, en;q=0.8');
+        Req(Observer, 'acceptlanguage_4', 'Accept-Language', 'de DE');
+        Req(Observer, 'from_5', 'From', 'a@b.c');
+        Req(Observer, 'from_6', 'From', 'not an address');
+        Req(Observer, 'te_7', 'TE', 'trailers, deflate;q=0.5');
+        Req(Observer, 'te_8', 'TE', 'a b');
+        Req(Observer, 'ifmodifiedsince_9', 'If-Modified-Since', 'yesterday');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y2_Shapes_DatesTwoDigitYearsOffsets()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Req(Observer, 'ifmodifiedsince_0', 'If-Modified-Since', 'Sunday, 06-Nov-94 08:49:37 GMT');
+        Req(Observer, 'ifmodifiedsince_1', 'If-Modified-Since', 'Sun, 06 Nov 49 08:49:37 GMT');
+        Req(Observer, 'ifmodifiedsince_2', 'If-Modified-Since', 'Sun, 06 Nov 50 08:49:37 GMT');
+        Req(Observer, 'ifmodifiedsince_3', 'If-Modified-Since', 'Sun, 06 Nov 1994 08:49:37 -0500');
+        Req(Observer, 'ifmodifiedsince_4', 'If-Modified-Since', 'Sun, 06 Nov 1994 08:49:37 +0000');
+        Req(Observer, 'ifmodifiedsince_5', 'If-Modified-Since', 'sun, 06 nov 1994 08:49:37 GMT');
+        Req(Observer, 'ifmodifiedsince_6', 'If-Modified-Since', 'Sun,06 Nov 1994 08:49:37 GMT');
+        Req(Observer, 'ifmodifiedsince_7', 'If-Modified-Since', '06 Nov 1994');
+        Req(Observer, 'ifmodifiedsince_8', 'If-Modified-Since', 'Sun, 6 Nov 1994 8:49:37 GMT');
+        Cnt(Observer, 'expires_9', 'Expires', '0');
+        Cnt(Observer, 'expires_10', 'Expires', '-1');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y2_Shapes_CaseAndSpacing()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Req(Observer, 'authorization_0', 'Authorization', 'bearer abc');
+        Req(Observer, 'authorization_1', 'Authorization', 'BEARER');
+        Req(Observer, 'accept_2', 'Accept', 'TEXT/HTML');
+        Req(Observer, 'accept_3', 'Accept', 'text/html ,application/json');
+        Req(Observer, 'accept_4', 'Accept', 'text/html,,application/json');
+        Req(Observer, 'acceptencoding_5', 'Accept-Encoding', 'GZIP');
+        Req(Observer, 'connection_6', 'Connection', 'CLOSE');
+        Cnt(Observer, 'contenttype_7', 'Content-Type', 'TEXT/PLAIN; CHARSET=UTF-8');
+        Cnt(Observer, 'contentencoding_8', 'Content-Encoding', 'gzip ,  br');
+        Req(Observer, 'range_9', 'Range', 'BYTES=0-9');
+        Req(Observer, 'transferencoding_10', 'Transfer-Encoding', 'Chunked');
+        Observer.Finish();
+    end;
 }
