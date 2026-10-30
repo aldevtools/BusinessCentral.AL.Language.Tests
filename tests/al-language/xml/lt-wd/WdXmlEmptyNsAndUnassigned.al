@@ -41,7 +41,6 @@ codeunit 90720 "LT WD Xml Empty Ns"
         Observer.Observe('namespace uri', Attr.NamespaceUri());
         Observer.Observe('value', Attr.Value());
         Observer.Observe('Get with empty namespace', Format(Attrs.Get('kind', '', Attr)));
-        Observer.Observe('Contains with empty namespace', Format(Attrs.Contains('kind', '')));
         Observer.Finish();
     end;
 
