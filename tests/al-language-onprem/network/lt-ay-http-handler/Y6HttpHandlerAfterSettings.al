@@ -53,6 +53,7 @@ codeunit 98860 "LT Y6 Http Handler Settings"
         C3: HttpClient;
         C4: HttpClient;
     begin
+#if BC29PLUS
         C1.UseServerCertificateValidation(false);
         Run(Observer, C1, 'validation false call');
         C2.UseServerCertificateValidation := false;
@@ -63,13 +64,14 @@ codeunit 98860 "LT Y6 Http Handler Settings"
         C4.UseServerCertificateValidation(false);
         C4.UseResponseCookies := true;
         Run(Observer, C4, 'timeout then both');
-#if BC29PLUS
         Observer.Expect('validation false call', 'ret=Yes status=200 body=ok calls=1 path=https://example.invalid/y6');
         Observer.Expect('validation false assign', 'ret=Yes status=200 body=ok calls=1 path=https://example.invalid/y6');
         Observer.Expect('cookies false', 'ret=Yes status=200 body=ok calls=1 path=https://example.invalid/y6');
         Observer.Expect('timeout then both', 'ret=Yes status=200 body=ok calls=1 path=https://example.invalid/y6');
         Observer.Verify();
 #else
+        // The Linux images of BC 27 and 28 do not give the request to the handler (the Get raises 'Unhandled outbound HTTP requests are not
+        // permitted ... AllowOutboundFromHandler'), so no request is sent there (see AyHttpHandler.al, bc-linux issue 192).
         Observer.Discard();
 #endif
     end;
