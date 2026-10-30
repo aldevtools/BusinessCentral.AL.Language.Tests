@@ -136,4 +136,36 @@ codeunit 91311 "LT Y6 Http Setting Changes"
         Observer.ObserveError('relative get after both assigns');
         Observer.Finish();
     end;
+    [Test]
+    procedure WhichCallResetsTheClient()
+    var
+        Observer: Codeunit "Probe Observer";
+        A: HttpClient;
+        B: HttpClient;
+        C: HttpClient;
+        D: HttpClient;
+    begin
+        Prepare(A);
+        A.UseResponseCookies(false);
+        Observer.Observe('fresh, cookies false', State(A));
+        Prepare(B);
+        B.UseResponseCookies(true);
+        Observer.Observe('fresh, cookies true', State(B));
+        Prepare(B);
+        B.UseServerCertificateValidation(false);
+        Observer.Observe('then validation false', State(B));
+        Prepare(C);
+        C.UseServerCertificateValidation(true);
+        Observer.Observe('fresh, validation true', State(C));
+        Prepare(C);
+        C.UseResponseCookies(true);
+        Observer.Observe('then cookies true', State(C));
+        Prepare(D);
+        D.UseServerCertificateValidation(false);
+        Observer.Observe('fresh, validation false', State(D));
+        Prepare(D);
+        D.UseResponseCookies(true);
+        Observer.Observe('then cookies true after reset', State(D));
+        Observer.Finish();
+    end;
 }

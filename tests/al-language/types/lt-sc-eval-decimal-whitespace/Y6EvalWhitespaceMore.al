@@ -25,6 +25,7 @@ codeunit 91310 "LT Y6 Eval Whitespace More"
         Ok: Boolean;
     begin
         D := 99;
+        ClearLastError();
         Ok := Evaluate(D, Source);
         Observer.Observe(Name, Format(Ok) + ' ' + Format(D, 0, 9));
         if not Ok then
@@ -37,6 +38,7 @@ codeunit 91310 "LT Y6 Eval Whitespace More"
         Ok: Boolean;
     begin
         I := 99;
+        ClearLastError();
         Ok := Evaluate(I, Source);
         Observer.Observe(Name, Format(Ok) + ' ' + Format(I));
         if not Ok then

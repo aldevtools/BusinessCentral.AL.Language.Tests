@@ -25,8 +25,6 @@ codeunit 91312 "LT Y6 Tenant Report Layout"
         Layout.Reset();
         Layout.SetRange("Report ID", Report::"LT SC Meta Report");
         Observer.Observe('own report findfirst', Format(Layout.FindFirst()));
-        Layout.Reset();
-        Observer.Observe('all rows (environment)', Format(Layout.Count()));
         Observer.Finish();
     end;
 
