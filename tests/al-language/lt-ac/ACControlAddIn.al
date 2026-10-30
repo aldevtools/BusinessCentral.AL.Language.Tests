@@ -114,4 +114,276 @@ codeunit 77540 "LT AC ControlAddIn"
 #endif
     end;
 
+    // ---- TZ (scope 2026-10-29, ADR-027 row 18): control add-ins on a TestPage. Fixtures in TzAddinFixtures.al (90210-90213). ----
+    // Already pinned elsewhere: OnOpenPage and SetValue run with no add-in event (pages/lt-ab-tests/ABTests.al, P118RiskyUserControls.al);
+    // a call from a field OnValidate (above), from an action (pages/lt-ao-testpage/AoTests.al AddinProcedureFromAction), from OnOpenPage under
+    // Page.Run with a page handler and on a Page variable never opened (pages/lt-f3-pages/F3ValidationAddinFilter.al). A usercontrol is no
+    // TestPage member (must-not-compile 1864). These tests add: TestPage.OpenEdit with a call in OnOpenPage, OnAfterGetRecord,
+    // OnAfterGetCurrRecord and OnClosePage, a second procedure, a TryFunction around the call, a usercontrol with Visible = false, and a
+    // usercontrol added by a page extension. A page extension cannot call the base page's usercontrol (must-not-compile 2261, AL0783).
+
+    local procedure TzSeed(Mode: Text)
+    var
+        Row: Record "LT TZ Addin Row";
+        Log: Codeunit "LT TZ Addin Log";
+    begin
+        Row.DeleteAll();
+        Row.Id := 1;
+        Row.Name := 'one';
+        Row.Insert();
+        Row.Id := 2;
+        Row.Name := 'two';
+        Row.Insert();
+        Log.Reset(Mode);
+    end;
+
+    [Test]
+    procedure TZ_OpenNavigateClose_NoAddinEventRuns()
+    var
+        Observer: Codeunit "Probe Observer";
+        Log: Codeunit "LT TZ Addin Log";
+        TP: TestPage "LT TZ Addin Card";
+    begin
+        TzSeed('');
+        TP.OpenEdit();
+        Observer.Observe('after-open', Log.Dump());
+        Observer.Observe('name', TP.NameF.Value());
+        Observer.Observe('next', Format(TP.Next()));
+        Observer.Observe('after-next', Log.Dump());
+        TP.Close();
+        Observer.Observe('after-close', Log.Dump());
+        // CI 2026-10-29: the same on 27.5, 28.5 and 29.0. No add-in event trigger (ControlAddInReady) runs on open, Next or Close.
+        Observer.Expect('after-open', 'OnOpenPage | ext OnOpenPage | OnAfterGetRecord 1 | OnAfterGetCurrRecord 1');
+        Observer.Expect('name', 'one');
+        Observer.Expect('next', 'Yes');
+        Observer.Expect('after-next', 'OnOpenPage | ext OnOpenPage | OnAfterGetRecord 1 | OnAfterGetCurrRecord 1 | OnAfterGetRecord 2 | OnAfterGetCurrRecord 2');
+        Observer.Expect('after-close', 'OnOpenPage | ext OnOpenPage | OnAfterGetRecord 1 | OnAfterGetCurrRecord 1 | OnAfterGetRecord 2 | OnAfterGetCurrRecord 2 | OnClosePage');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure TZ_CallInOnOpenPage_TestPageOpen()
+    var
+        Observer: Codeunit "Probe Observer";
+        Log: Codeunit "LT TZ Addin Log";
+        TP: TestPage "LT TZ Addin Card";
+    begin
+        TzSeed('OnOpenPage');
+        asserterror TP.OpenEdit();
+        Observer.ObserveError('open');
+        Observer.Observe('log', Log.Dump());
+#if BC28PLUS
+        // CI 2026-10-29 (Linux, 28.5 and 29.0).
+        Observer.Expect('open|text', 'The control add-in on control Ctl on page LT TZ Addin Card has not been instantiated.');
+        Observer.Expect('open|code', 'DotNetControlAddInNotCreated');
+        Observer.Expect('log', 'OnOpenPage');
+        Observer.Verify();
+#else
+        // Linux CI 27.5 gives the same values; the Windows BC 27.5 TestRunnerHub gave a client callback error for add-in calls
+        // (pages/lt-ao-testpage/AoTests.al AddinProcedureFromAction), so 27 is not asserted until the Windows check (windows-queue).
+        Observer.Discard();
+#endif
+    end;
+
+    [Test]
+    procedure TZ_CallInOnAfterGetRecord_TestPageOpen()
+    var
+        Observer: Codeunit "Probe Observer";
+        Log: Codeunit "LT TZ Addin Log";
+        TP: TestPage "LT TZ Addin Card";
+    begin
+        TzSeed('OnAfterGetRecord');
+        asserterror TP.OpenEdit();
+        Observer.ObserveError('open');
+        Observer.Observe('log', Log.Dump());
+#if BC28PLUS
+        // CI 2026-10-29 (Linux, 28.5 and 29.0).
+        Observer.Expect('open|text', 'The control add-in on control Ctl on page LT TZ Addin Card has not been instantiated.');
+        Observer.Expect('open|code', 'DotNetControlAddInNotCreated');
+        Observer.Expect('log', 'OnOpenPage | ext OnOpenPage | OnAfterGetRecord 1');
+        Observer.Verify();
+#else
+        // Linux CI 27.5 gives the same values; the Windows BC 27.5 TestRunnerHub gave a client callback error for add-in calls
+        // (pages/lt-ao-testpage/AoTests.al AddinProcedureFromAction), so 27 is not asserted until the Windows check (windows-queue).
+        Observer.Discard();
+#endif
+    end;
+
+    [Test]
+    procedure TZ_CallInOnAfterGetCurrRecord_TestPageOpen()
+    var
+        Observer: Codeunit "Probe Observer";
+        Log: Codeunit "LT TZ Addin Log";
+        TP: TestPage "LT TZ Addin Card";
+    begin
+        TzSeed('OnAfterGetCurrRecord');
+        asserterror TP.OpenEdit();
+        Observer.ObserveError('open');
+        Observer.Observe('log', Log.Dump());
+#if BC28PLUS
+        // CI 2026-10-29 (Linux, 28.5 and 29.0).
+        Observer.Expect('open|text', 'The control add-in on control Ctl on page LT TZ Addin Card has not been instantiated.');
+        Observer.Expect('open|code', 'DotNetControlAddInNotCreated:TargetInvocation');
+        Observer.Expect('log', 'OnOpenPage | ext OnOpenPage | OnAfterGetRecord 1 | OnAfterGetCurrRecord 1');
+        Observer.Verify();
+#else
+        // Linux CI 27.5 gives the same values; the Windows BC 27.5 TestRunnerHub gave a client callback error for add-in calls
+        // (pages/lt-ao-testpage/AoTests.al AddinProcedureFromAction), so 27 is not asserted until the Windows check (windows-queue).
+        Observer.Discard();
+#endif
+    end;
+
+    [Test]
+    procedure TZ_CallInOnClosePage_TestPageClose()
+    var
+        Observer: Codeunit "Probe Observer";
+        Log: Codeunit "LT TZ Addin Log";
+        TP: TestPage "LT TZ Addin Card";
+    begin
+        TzSeed('OnClosePage');
+        TP.OpenEdit();
+        asserterror TP.Close();
+        Observer.ObserveError('close');
+        Observer.Observe('log', Log.Dump());
+#if BC28PLUS
+        // CI 2026-10-29 (Linux, 28.5 and 29.0).
+        Observer.Expect('close|text', 'One or more errors occurred while closing the page.\n\nThe control add-in on control Ctl on page LT TZ Addin Card has not been instantiated.');
+        Observer.Expect('close|code', 'TestWrapped');
+        Observer.Expect('log', 'OnOpenPage | ext OnOpenPage | OnAfterGetRecord 1 | OnAfterGetCurrRecord 1 | OnClosePage');
+        Observer.Verify();
+#else
+        // Linux CI 27.5 gives the same values; the Windows BC 27.5 TestRunnerHub gave a client callback error for add-in calls
+        // (pages/lt-ao-testpage/AoTests.al AddinProcedureFromAction), so 27 is not asserted until the Windows check (windows-queue).
+        Observer.Discard();
+#endif
+    end;
+
+    [Test]
+    procedure TZ_TwoProceduresFromActions_PageStaysUsable()
+    var
+        Observer: Codeunit "Probe Observer";
+        Log: Codeunit "LT TZ Addin Log";
+        TP: TestPage "LT TZ Addin Card";
+    begin
+        // TryFunction, not asserterror: asserterror rolls back the seeded rows and the page then shows "The record that you tried to open
+        // is not available" (CI 2026-10-29).
+        TzSeed('');
+        TP.OpenEdit();
+        ClearLastError();
+        Observer.Observe('say-ok', Format(TzTryInvoke(TP, 1)));
+        Observer.ObserveError('say');
+        Observer.Observe('count-ok', Format(TzTryInvoke(TP, 2)));
+        Observer.ObserveError('count');
+        Observer.Observe('name-after', TP.NameF.Value());
+        TP.NameF.SetValue('changed');
+        Observer.Observe('next-after', Format(TP.Next()));
+        TP.Close();
+        Observer.Observe('log', Log.Dump());
+#if BC28PLUS
+        // CI 2026-10-29 (Linux, 28.5 and 29.0). The page stays usable after a failed add-in call.
+        Observer.Expect('say-ok', 'No');
+        Observer.Expect('say|text', 'The control add-in on control Ctl on page LT TZ Addin Card has not been instantiated.');
+        Observer.Expect('say|code', 'TestWrapped:DotNetControlAddInNotCreated');
+        Observer.Expect('count-ok', 'No');
+        Observer.Expect('count|text', 'The control add-in on control Ctl on page LT TZ Addin Card has not been instantiated.');
+        Observer.Expect('count|code', 'TestWrapped:DotNetControlAddInNotCreated');
+        Observer.Expect('name-after', 'one');
+        Observer.Expect('next-after', 'Yes');
+        Observer.Expect('log', 'OnOpenPage | ext OnOpenPage | OnAfterGetRecord 1 | OnAfterGetCurrRecord 1 | OnAfterGetRecord 1 | CallAct before | OnAfterGetRecord 1 | OnAfterGetCurrRecord 1 | OnAfterGetRecord 1 | CountAct before | OnAfterGetRecord 1 | OnAfterGetCurrRecord 1 | OnAfterGetRecord 2 | OnAfterGetCurrRecord 2 | OnClosePage');
+        Observer.Verify();
+#else
+        // Linux CI 27.5 gives the same values; the Windows BC 27.5 TestRunnerHub gave a client callback error for add-in calls
+        // (pages/lt-ao-testpage/AoTests.al AddinProcedureFromAction), so 27 is not asserted until the Windows check (windows-queue).
+        Observer.Discard();
+#endif
+    end;
+
+    [TryFunction]
+    local procedure TzTryInvoke(var TP: TestPage "LT TZ Addin Card"; Which: Integer)
+    begin
+        case Which of
+            1:
+                TP.CallAct.Invoke();
+            2:
+                TP.CountAct.Invoke();
+        end;
+    end;
+
+    [Test]
+    procedure TZ_TryFunctionAroundCall_InsideAction()
+    var
+        Observer: Codeunit "Probe Observer";
+        Log: Codeunit "LT TZ Addin Log";
+        TP: TestPage "LT TZ Addin Card";
+    begin
+        TzSeed('');
+        TP.OpenEdit();
+        asserterror begin
+            TP.TryCallAct.Invoke();
+            Error('LT-NOERROR');
+        end;
+        Observer.ObserveError('invoke');
+        Observer.Observe('log', Log.Dump());
+#if BC28PLUS
+        // CI 2026-10-29 (Linux, 28.5 and 29.0).
+        Observer.Expect('invoke|text', 'LT-NOERROR');
+        Observer.Expect('invoke|code', 'Dialog');
+        Observer.Expect('log', 'OnOpenPage | ext OnOpenPage | OnAfterGetRecord 1 | OnAfterGetCurrRecord 1 | OnAfterGetRecord 1 | TryCallAct ok=No text=The control add-in on control Ctl on page LT TZ Addin Card has not been instantiated. code=DotNetControlAddInNotCreated | OnAfterGetRecord 1 | OnAfterGetRecord 1 | OnAfterGetCurrRecord 1');
+        Observer.Verify();
+#else
+        // Linux CI 27.5 gives the same values; the Windows BC 27.5 TestRunnerHub gave a client callback error for add-in calls
+        // (pages/lt-ao-testpage/AoTests.al AddinProcedureFromAction), so 27 is not asserted until the Windows check (windows-queue).
+        Observer.Discard();
+#endif
+    end;
+
+    [Test]
+    procedure TZ_HiddenUserControl_CallFromAction()
+    var
+        Observer: Codeunit "Probe Observer";
+        Log: Codeunit "LT TZ Addin Log";
+        TP: TestPage "LT TZ Addin Card";
+    begin
+        TzSeed('');
+        TP.OpenEdit();
+        asserterror TP.HiddenCallAct.Invoke();
+        Observer.ObserveError('hidden');
+        Observer.Observe('log', Log.Dump());
+#if BC28PLUS
+        // CI 2026-10-29 (Linux, 28.5 and 29.0).
+        Observer.Expect('hidden|text', 'The control add-in on control HiddenCtl on page LT TZ Addin Card has not been instantiated.');
+        Observer.Expect('hidden|code', 'TestWrapped:DotNetControlAddInNotCreated');
+        Observer.Expect('log', 'OnOpenPage | ext OnOpenPage | OnAfterGetRecord 1 | OnAfterGetCurrRecord 1 | OnAfterGetRecord 1 | HiddenCallAct before');
+        Observer.Verify();
+#else
+        // Linux CI 27.5 gives the same values; the Windows BC 27.5 TestRunnerHub gave a client callback error for add-in calls
+        // (pages/lt-ao-testpage/AoTests.al AddinProcedureFromAction), so 27 is not asserted until the Windows check (windows-queue).
+        Observer.Discard();
+#endif
+    end;
+
+    [Test]
+    procedure TZ_PageExtensionUserControl_CallFromExtAction()
+    var
+        Observer: Codeunit "Probe Observer";
+        Log: Codeunit "LT TZ Addin Log";
+        TP: TestPage "LT TZ Addin Card";
+    begin
+        TzSeed('');
+        TP.OpenEdit();
+        asserterror TP.ExtCallAct.Invoke();
+        Observer.ObserveError('ext');
+        Observer.Observe('log', Log.Dump());
+#if BC28PLUS
+        // CI 2026-10-29 (Linux, 28.5 and 29.0).
+        Observer.Expect('ext|text', 'The control add-in on control ExtCtl on page LT TZ Addin Card has not been instantiated.');
+        Observer.Expect('ext|code', 'TestWrapped:DotNetControlAddInNotCreated');
+        Observer.Expect('log', 'OnOpenPage | ext OnOpenPage | OnAfterGetRecord 1 | OnAfterGetCurrRecord 1 | OnAfterGetRecord 1 | ExtCallAct before');
+        Observer.Verify();
+#else
+        // Linux CI 27.5 gives the same values; the Windows BC 27.5 TestRunnerHub gave a client callback error for add-in calls
+        // (pages/lt-ao-testpage/AoTests.al AddinProcedureFromAction), so 27 is not asserted until the Windows check (windows-queue).
+        Observer.Discard();
+#endif
+    end;
 }

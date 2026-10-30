@@ -618,6 +618,10 @@ is only a reference.
 | 2167 to 2170 | AL0135 | Too few arguments through a codeunit variable, a record variable, `Rec.`/bare inside the table, and `this.` (writer SH). |
 | 2171 to 2173 | AL0126 | An overloaded procedure called with too few, no, or too many arguments: "No overload for method ... takes N arguments" with every candidate, not AL0135 (writer SH). |
 | 2174 to 2188 | AL0135 | The signature text of AL0135 for Record, var Record, var temporary Record, Code[20], Option, Enum, Decimal, Date, var Integer, other scalar and complex parameter types, many parameters, return values and no arguments (writer SH). |
+| 2214 | AL0157 | A variable of type TableFilter (writer SI, al-runner issue 5998). |
+| 2238 to 2240, 2244 | AL0196 | In one app, a page extension procedure (local, or internal) with the name of a protected, public or internal base page procedure compiles, but a bare call of it is ambiguous (writer TI, al-runner issue 6043). A cross-app extension is accepted: pageext/lt-ext-local-same-name. |
+| 2241 to 2243 | AL0440 | In one app, a protected or public page extension procedure with the name and parameters of a protected or public base page procedure (writer TI). A local base procedure never clashes. |
+| 2262 to 2267 | AL0132 | `X::Value` where the table has a field X (enum A) and an enum type X exists: a member only A has in a procedure of a TableNo codeunit, a member only type X has in its OnRun trigger, a member only type X has in the table, in a page on it, and with a global or local variable X (writer UB, issue 6129). |
 | 2300 | AL0223 | BC 29 and later: `TestHandlers` on a codeunit without `Subtype = Test` (the handler value itself is valid). |
 | 2301 | AL0383 | BC 29 and later: `TestHandlers` names an enum value that the system enum TestHandler does not have. |
 | 2302 | AL0189 | BC 29 and later: `[Test]` together with `[TestDataSource]` on one procedure. |
@@ -632,3 +636,5 @@ The reusable workflow compiles apps that must build, so it cannot run these. A j
 that major (`bc-linux/scripts/install-al-compiler.sh <bc_version>`), stage the symbols of that major (the step that fills `symbols/` in
 `bc-test-from-source.yml`), then run `check-must-not-compile.py --al AL --symbols symbols --bc-major <major> --al-major <AL major>`. The job needs no
 BC container. Run locally with the tools in `~/.al-tool-cache` it passes today with AL 16.2, 17.0.34, 18.0.43 and 30.0.42 on the 27.0 symbols.
+| 2260 | AL0416 | A control add-in procedure declares a return value (writer TZ). |
+| 2261 | AL0783 | A page extension calls a procedure of the base page's usercontrol (writer TZ). |

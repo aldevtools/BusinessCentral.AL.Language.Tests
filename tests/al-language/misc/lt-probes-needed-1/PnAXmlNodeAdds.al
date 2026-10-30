@@ -4,6 +4,11 @@
 // Probe: written against a local BC 29.0.54011.55816 service tier; every literal asserted below is what that tier produced. Other BC versions are checked by the corpus CI matrix.
 // Settles probes-needed.md row: XML: adding a node that already has a parent copies it, a free node is shared
 // Facts: XmlElement.Add / XmlDocument.Add: copy vs share, second root, duplicate attribute, node into a wrong container
+// Writer TT (BC 29.0 SaaS sandbox, other versions by the CI matrix), test TT_EmptyOrBlankTextIntoXmlDocument: XmlDocument.Create('', '') and
+//   XmlDocument.Add('') add no node; an empty or blank XmlText (also XmlDocument.Create(' ')) is added as a node before or after the root
+//   without error, and a root can still be added. WriteTo keeps blank text nodes as they are (an empty one removes the line break after the
+//   declaration); WriteTo of a document without a root fails with 'The requested operation cannot be performed in this context.'
+//   (InvalidOperation).
 // BC versions: 29 (27 and 28 by CI)
 
 codeunit 70082 "LT PnA Xml NodeAdds"
@@ -181,7 +186,115 @@ codeunit 70082 "LT PnA Xml NodeAdds"
         Observer.Verify();
     end;
 
+    // Writer TT: empty and blank texts added to an XmlDocument (XmlDocument.Create with text arguments, XmlDocument.Add of an XmlText or a
+    // Text): does the add fail, how many child nodes does the document hold, can a root still be added, what does WriteTo give?
+    [TryFunction]
+    local procedure TtTryDocText(Kind: Integer; var Result: Text)
+    var
+        D: XmlDocument;
+        Lf: Text[1];
+        Out: Text;
+    begin
+        Lf[1] := 10;
+        case Kind of
+            1:
+                D := XmlDocument.Create('', '');
+            2:
+                D := XmlDocument.Create(' ');
+            3:
+                begin
+                    D := XmlDocument.Create();
+                    D.Add(XmlText.Create(''));
+                end;
+            4:
+                begin
+                    D := XmlDocument.Create();
+                    D.Add(XmlText.Create('  '));
+                end;
+            5:
+                begin
+                    D := XmlDocument.Create();
+                    D.Add(XmlElement.Create('r'));
+                    D.Add(XmlText.Create(''));
+                end;
+            6:
+                begin
+                    D := XmlDocument.Create();
+                    D.Add('');
+                end;
+            7:
+                begin
+                    D := XmlDocument.Create();
+                    D.Add(XmlText.Create(Lf + '  '));
+                end;
+            8:
+                begin
+                    D := XmlDocument.Create();
+                    D.Add(XmlElement.Create('r'));
+                    D.Add(XmlText.Create(' '));
+                end;
+            9:
+                D := XmlDocument.Create();
+        end;
+        Result := 'created nodes=' + Format(D.GetChildNodes().Count());
+        if not (Kind in [5, 8, 9]) then begin
+            D.Add(XmlElement.Create('root'));
+            Result += ' root added nodes=' + Format(D.GetChildNodes().Count());
+        end;
+        D.WriteTo(Out);
+        Result += ' xml=' + Out;
+    end;
 
+    local procedure TtDocText(var Observer: Codeunit "Probe Observer"; Name: Text; Kind: Integer)
+    var
+        Result: Text;
+    begin
+        ClearLastError();
+        if TtTryDocText(Kind, Result) then
+            Observer.Observe(Name, 'ok ' + Result)
+        else begin
+            Observer.Observe(Name, 'failed after: ' + Result);
+            Observer.ObserveError(Name);
+        end;
+    end;
 
-
+    [Test]
+    procedure TT_EmptyOrBlankTextIntoXmlDocument()
+    var
+        Observer: Codeunit "Probe Observer";
+        D: XmlDocument;
+        Out: Text;
+    begin
+        TtDocText(Observer, 'create two empty texts', 1);
+        TtDocText(Observer, 'create one blank text', 2);
+        TtDocText(Observer, 'add empty XmlText', 3);
+        TtDocText(Observer, 'add blank XmlText', 4);
+        TtDocText(Observer, 'add empty XmlText after root', 5);
+        TtDocText(Observer, 'add empty Text', 6);
+        TtDocText(Observer, 'add line feed and blanks', 7);
+        TtDocText(Observer, 'add blank XmlText after root', 8);
+        TtDocText(Observer, 'empty document WriteTo', 9);
+        // the shape of a document built for a web service request: two empty texts, a declaration, then the root
+        D := XmlDocument.Create('', '');
+        D.SetDeclaration(XmlDeclaration.Create('1.0', 'UTF-8', 'yes'));
+        D.Add(XmlElement.Create('request', '', XmlElement.Create('id', '', '42')));
+        D.WriteTo(Out);
+        Observer.Observe('request', Out);
+        Observer.Observe('request nodes', Format(D.GetChildNodes().Count()));
+        Observer.Expect('create two empty texts', 'ok created nodes=0 root added nodes=1 xml=<?xml version="1.0" encoding="utf-16"?>\r\n<root />');
+        Observer.Expect('create one blank text', 'ok created nodes=1 root added nodes=2 xml=<?xml version="1.0" encoding="utf-16"?> <root />');
+        Observer.Expect('add empty XmlText', 'ok created nodes=1 root added nodes=2 xml=<?xml version="1.0" encoding="utf-16"?><root />');
+        Observer.Expect('add blank XmlText', 'ok created nodes=1 root added nodes=2 xml=<?xml version="1.0" encoding="utf-16"?>  <root />');
+        Observer.Expect('add empty XmlText after root', 'ok created nodes=2 xml=<?xml version="1.0" encoding="utf-16"?>\r\n<r />');
+        Observer.Expect('add empty Text', 'ok created nodes=0 root added nodes=1 xml=<?xml version="1.0" encoding="utf-16"?>\r\n<root />');
+        Observer.Expect('add line feed and blanks', 'ok created nodes=1 root added nodes=2 xml=<?xml version="1.0" encoding="utf-16"?>\r\n  <root />');
+        Observer.Expect('add blank XmlText after root', 'ok created nodes=2 xml=<?xml version="1.0" encoding="utf-16"?>\r\n<r /> ');
+        Observer.Expect('empty document WriteTo', 'failed after: created nodes=0');
+        Observer.Expect('empty document WriteTo|text', 'The requested operation cannot be performed in this context.');
+        Observer.Expect('empty document WriteTo|code', 'InvalidOperation');
+        Observer.Expect('request', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\r\n<request>\r\n  <id>42</id>\r\n</request>');
+        Observer.Expect('request nodes', '1');
+        Observer.Verify();
+        Observer.Verify();
+    end;
 }
