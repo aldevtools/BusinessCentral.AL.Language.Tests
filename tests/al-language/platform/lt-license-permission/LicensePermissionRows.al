@@ -440,14 +440,26 @@ codeunit 90951 "LT Y4 LicPerm System"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveSystemNumbers(Observer, 8);
+#if BC28PLUS // BC 28 and later narrow these system pages to Execute only (BC 27.5: all Yes, CI run 41132398858)
         Observer.Expect('2000000002', '0/0/0/0/1/0');
+#else
+        Observer.Expect('2000000002', '1/1/1/1/1/0');
+#endif
+#if BC28PLUS // BC 28 and later narrow these system pages to Execute only (BC 27.5: all Yes, CI run 41132398858)
         Observer.Expect('2000000004', '0/0/0/0/1/0');
+#else
+        Observer.Expect('2000000004', '1/1/1/1/1/0');
+#endif
         Observer.Expect('2000000006', '1/1/1/1/1/0');
         Observer.Expect('2000000020', '1/1/1/1/1/0');
         Observer.Expect('2000000038', '1/1/1/1/1/0');
         Observer.Expect('2000000043', '1/1/1/1/1/0');
         Observer.Expect('2000000058', '1/1/1/1/1/0');
+#if BC28PLUS // BC 28 and later narrow these system pages to Execute only (BC 27.5: all Yes, CI run 41132398858)
         Observer.Expect('2000000100', '0/0/0/0/1/0');
+#else
+        Observer.Expect('2000000100', '1/1/1/1/1/0');
+#endif
         Observer.Expect('2000000150', '1/1/1/1/1/0');
         Observer.Expect('2000000200', '1/1/1/1/1/0');
         Observer.Expect('2000000500', '0/0/0/0/0/0');
