@@ -78,7 +78,7 @@ codeunit 91274 "LT SC Importer Special" implements "LT SC Importer"
     end;
 }
 
-codeunit 91275 "LT SC Overload Record Interface"
+codeunit 91275 "LT SC Overload Rec Intf"
 {
     Subtype = Test;
     TestPermissions = Disabled;
