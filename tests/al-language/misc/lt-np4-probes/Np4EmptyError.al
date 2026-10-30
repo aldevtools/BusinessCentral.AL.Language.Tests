@@ -188,7 +188,12 @@ codeunit 93446 "LT NP4 EE Tests"
         Observer.Observe('value-after', Card.Name.Value());
         Card.Close();
         Observer.Observe('stored-after-close', Stored());
-        Observer.Finish();
+        Observer.Expect('went-on', 'yes');
+        Observer.Expect('after-setvalue|text', '');
+        Observer.Expect('after-setvalue|code', 'NSValidateField:Dialog');
+        Observer.Expect('value-after', 'seed');
+        Observer.Expect('stored-after-close', 'Yes|seed');
+        Observer.Verify();
     end;
 
     [Test]
@@ -207,7 +212,12 @@ codeunit 93446 "LT NP4 EE Tests"
         Observer.Observe('value-after', List.Name.Value());
         List.Close();
         Observer.Observe('stored-after-close', Stored());
-        Observer.Finish();
+        Observer.Expect('went-on', 'yes');
+        Observer.Expect('after-setvalue|text', '');
+        Observer.Expect('after-setvalue|code', 'NSValidateField:Dialog');
+        Observer.Expect('value-after', 'seed');
+        Observer.Expect('stored-after-close', 'Yes|seed');
+        Observer.Verify();
     end;
 
     [Test]
@@ -226,7 +236,12 @@ codeunit 93446 "LT NP4 EE Tests"
         Observer.Observe('value-after', Sheet.Name.Value());
         Sheet.Close();
         Observer.Observe('stored-after-close', Stored());
-        Observer.Finish();
+        Observer.Expect('went-on', 'yes');
+        Observer.Expect('after-setvalue|text', '');
+        Observer.Expect('after-setvalue|code', 'NSValidateField:Dialog');
+        Observer.Expect('value-after', 'seed');
+        Observer.Expect('stored-after-close', 'Yes|seed');
+        Observer.Verify();
     end;
 
     [Test]
@@ -245,7 +260,12 @@ codeunit 93446 "LT NP4 EE Tests"
         Observer.Observe('value-after', Host.Sub.Name.Value());
         Host.Close();
         Observer.Observe('stored-after-close', Stored());
-        Observer.Finish();
+        Observer.Expect('went-on', 'yes');
+        Observer.Expect('after-setvalue|text', '');
+        Observer.Expect('after-setvalue|code', 'NSValidateField:Dialog');
+        Observer.Expect('value-after', 'seed');
+        Observer.Expect('stored-after-close', 'Yes|seed');
+        Observer.Verify();
     end;
 
     [Test]
@@ -265,6 +285,9 @@ codeunit 93446 "LT NP4 EE Tests"
         Observer.ObserveError('setvalue');
         Observer.Observe('value-after', Card.Name.Value());
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('setvalue|text', 'no error');
+        Observer.Expect('setvalue|code', 'Dialog');
+        Observer.Expect('value-after', 'seed');
+        Observer.Verify();
     end;
 }
