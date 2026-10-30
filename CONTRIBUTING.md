@@ -148,7 +148,7 @@ Some behavior only shows when code is spread over several apps: an extension of 
 
 | Folder | App id | Name | Publisher | Object ids | Depends on | What it is for |
 |---|---|---|---|---|---|---|
-| `tests/al-language-xapp-a` | `cd6a4292-f27b-4af9-89bc-15a5956f5c71` | AL Language XApp A | AL Language | 61100-61109, 61130-61139 | nothing | the base app: an event other apps subscribe to, tables other apps extend, a local event, a Company Triggers counter |
+| `tests/al-language-xapp-a` | `cd6a4292-f27b-4af9-89bc-15a5956f5c71` | AL Language XApp A | AL Language | 61100-61109, 61130-61139, 61170-61179 | System Application, Base Application (for the upgrade tag probe) | the base app: an event other apps subscribe to, tables other apps extend, a local event, a Company Triggers counter, the install codeunit and subscribers of the upgrade tag and company initialization probe (in A, not in the main app, so the main app keeps its install rows and its dependency count) |
 | `tests/al-language-xapp-b` | `c87ced6d-11a6-4ad2-87c7-ac10083d0a2f` | AL Language XApp B | Zulu Probe Publisher | 61110-61119, 61140-61149 | fixture, A | table extensions of A's tables, a page with a protected variable whose type is a fixture table |
 | `tests/al-language-xapp-c` | `0df0fadc-d339-4b0f-a1d5-51dc51f10900` | AL Language XApp C | Bravo Probe Publisher | 61120-61129, 61150-61159 | B, A (in this order on purpose), D (not the fixture) | a page extension of B's page |
 | `tests/al-language-xapp-d` | `e92be076-de11-44ed-895e-17031341df29` | AL Language XApp D | Mike Probe Publisher | 61160-61169 | A | a subscriber of an event of A, in an app that only C depends on and that depends on none of B, C and the main test app (subscriber order of apps that do not depend on each other) |
