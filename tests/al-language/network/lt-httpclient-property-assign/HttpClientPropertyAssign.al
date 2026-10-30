@@ -46,7 +46,8 @@ codeunit 91220 "LT SC HttpClient Prop Assign"
         Observer.Observe('false', 'no error');
         Client.UseResponseCookies := true;
         Observer.Observe('true', 'no error');
-        Observer.Observe('call form', Format(Client.UseResponseCookies(false)));
+        Client.UseResponseCookies(false);
+        Observer.Observe('call form', 'no error');
         Observer.Finish();
     end;
 
