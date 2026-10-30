@@ -202,12 +202,14 @@ codeunit 91255 "LT SC Update Empty Row"
         Seed();
         Observer.Observe('update false completed', Format(TryInvokeOpenView(false)));
         Observer.Observe('update false log', Log.Joined());
-        Observer.ObserveError('update false err');
         Seed();
         Observer.Observe('update true completed', Format(TryInvokeOpenView(true)));
         Observer.Observe('update true log', Log.Joined());
-        Observer.ObserveError('update true err');
-        Observer.Finish();
+        Observer.Expect('update false completed', 'Yes');
+        Observer.Expect('update false log', 'agcr id=1 count=2 ; before id=1 ; after id=1 ; agcr id=1 count=2');
+        Observer.Expect('update true completed', 'Yes');
+        Observer.Expect('update true log', 'agcr id=1 count=2 ; before id=1 ; after id=1 ; agcr id=1 count=2');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -231,9 +233,11 @@ codeunit 91255 "LT SC Update Empty Row"
         Seed();
         Observer.Observe('completed', Format(TryNewThenInvoke()));
         Observer.Observe('log', Log.Joined());
-        Observer.ObserveError('err');
         Observer.Observe('rows after', Format(Row.Count()));
-        Observer.Finish();
+        Observer.Expect('completed', 'Yes');
+        Observer.Expect('log', 'agcr id=1 count=2 ; agcr id=0 count=2 ; before id=0 ; after id=0 ; agcr id=1 count=2');
+        Observer.Expect('rows after', '2');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -256,8 +260,10 @@ codeunit 91255 "LT SC Update Empty Row"
         Seed();
         Observer.Observe('completed', Format(TryEmptyViewInvoke()));
         Observer.Observe('log', Log.Joined());
-        Observer.ObserveError('err');
         Observer.Observe('rows after', Format(Row.Count()));
-        Observer.Finish();
+        Observer.Expect('completed', 'Yes');
+        Observer.Expect('log', 'before id=0 ; after id=0');
+        Observer.Expect('rows after', '2');
+        Observer.Verify();
     end;
 }
