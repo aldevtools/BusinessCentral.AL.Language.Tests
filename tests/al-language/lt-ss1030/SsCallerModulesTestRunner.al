@@ -4,8 +4,8 @@
 // Probe: which apps NavApp.GetCallerCallstackModuleInfos() lists while a [Test] procedure runs (ids, names, order, count), and whether the
 // Test Runner app (23de40a6-dfe8-4f80-80db-d70f83ce8caf) is among them.
 
-// BC 27 only: on BC 28 and 29 the corpus CI (Linux container) lists no Test Runner frames at all (count 0, even through a helper); that
-// differs from the reporter's real-BC run and needs a Windows check before it is pinned.
+// Runs only where the leg executes tests through Microsoft's Test Runner app (the corpus CI does that on 27.5; from 28.0 it runs them
+// through altool, which has no Test Runner frames: count 0 there, also through a helper). That is the test host, not a BC version difference.
 #if not BC28PLUS
 codeunit 99830 "LT SS Caller Modules"
 {
