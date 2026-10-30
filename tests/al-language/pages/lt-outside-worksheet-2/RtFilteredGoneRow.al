@@ -673,6 +673,15 @@ codeunit 88615 "LT RT Uf Tests"
         Observer.Verify();
     end;
 
+    // Writer Y1, al-runner issue 6292: the same action with two lines (page 5510 "Production Journal" after an item whose routing has two
+    // operations).
+    [Test]
+    procedure TD_LeavesKey_Line1WithUpdate_TwoLines()
+    begin
+        TdRunLeaves(2, false, 2);
+        Observer.Finish();
+    end;
+
     [Test]
     procedure TD_LeavesKey_Line1WithUpdate_OtherBatchRowRemains()
     begin
