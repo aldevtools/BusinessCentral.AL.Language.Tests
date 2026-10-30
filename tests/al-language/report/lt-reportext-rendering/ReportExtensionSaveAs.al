@@ -7,6 +7,32 @@
 //   report without a rendering section whose extension is the only one that declares a layout, Word and Excel on an RDLC default layout, and a
 //   call with a RecordRef. Each case records the answer, whether the stream got bytes, the start of the stream and the error text.
 // BC versions: 27, 28, 29
+report 91212 "LT SC SaveAs Plain"
+{
+    UsageCategory = None;
+    Caption = 'LT SC SaveAs plain';
+    DefaultRenderingLayout = PlainRdlc;
+
+    dataset
+    {
+        dataitem(Item; Integer)
+        {
+            DataItemTableView = sorting(Number) where(Number = const(1));
+            column(Num; Number) { }
+        }
+    }
+
+    rendering
+    {
+        layout(PlainRdlc)
+        {
+            Type = RDLC;
+            LayoutFile = './FixtureLayout_14.rdlc';
+            Caption = 'SaveAs plain layout';
+        }
+    }
+}
+
 codeunit 91210 "LT SC ReportExt SaveAs"
 {
     Subtype = Test;
@@ -43,13 +69,23 @@ codeunit 91210 "LT SC ReportExt SaveAs"
         Head: Text;
         Completed: Boolean;
     begin
+        ClearLastError();
         Completed := TrySave(ReportId, Fmt, WithRecordRef, Saved, Size, Head);
         Observer.Observe(Name + ' completed', Format(Completed));
         Observer.Observe(Name + ' saved', Format(Saved));
         Observer.Observe(Name + ' has bytes', Format(Size > 0));
         Observer.Observe(Name + ' head', Head);
-        if not Completed then
-            Observer.ObserveError(Name + ' err');
+        Observer.ObserveError(Name + ' err');
+    end;
+
+    [Test]
+    procedure ControlReportWithoutExtension_Xml_Pdf()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Probe(Observer, 'xml', 91212, ReportFormat::Xml, false);
+        Probe(Observer, 'pdf', 91212, ReportFormat::Pdf, false);
+        Observer.Finish();
     end;
 
     [Test]
