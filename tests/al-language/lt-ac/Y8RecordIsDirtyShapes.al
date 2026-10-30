@@ -7,6 +7,12 @@
 // RecordRef.SetTable; system fields; a declared variable of a table with InitValue fields; a partial record (SetLoadFields); a FlowField and a Blob;
 // DeleteAll and ModifyAll on a record that was read.
 // Probe: written against the BC 29 SaaS sandbox. Record.IsDirty exists on BC 29 and later only (must-not-compile case 0960).
+// Facts (BC 29 SaaS): see the Expect lines. In short: a temporary record behaves like a database record; every successful read (Find('-'), FindSet,
+// Next, Find('='), GetBySystemId) cleans the record; a read or write that fails or answers false leaves it dirty; Next at the end leaves it dirty;
+// Insert(true) and Modify(true) clean it, Delete(true) leaves it dirty (with the trigger's change); inside OnInsert/OnModify/OnDelete Rec (and xRec in OnModify) report the caller's dirty state;
+// Copy copies the dirty state; Clear and Init of a fresh variable clean it; Init of a read row makes it dirty; CalcFields and assigning a FlowField do
+// not count; SystemId assigned does not count; SetPosition keeps it dirty; an unloaded field or a written Blob counts; ModifyAll and DeleteAll do not
+// change the variable.
 // BC versions: 29. Writer Y8 (2026-10-30).
 
 #if BC29PLUS

@@ -5,6 +5,9 @@
 // without a Caption is pinned in GetRecordId.al:123-164): GetLastErrorText and GetLastErrorCode after the used form `if R.Get(O.RecordId) then;`
 // (after ClearLastError and after an earlier error), and the error text of the unused form when both tables have a Caption that differs from the name.
 // Probe: written against the BC 29 SaaS sandbox; other BC versions are checked by the corpus CI matrix. Writer Y8 (2026-10-30).
+// Facts (BC 29 SaaS): the error names the tables by their CAPTIONS: "A RecordID from table 'Y8 Other Caption' cannot be used with a record from table
+// 'Y8 Row Caption'." (DB:Ok). The used form `if R.Get(..) then;` (other table or missing row) sets no last error: after ClearLastError both texts stay
+// empty, and an earlier error stays the last error.
 
 table 91410 "LT Y8 Get Row"
 {

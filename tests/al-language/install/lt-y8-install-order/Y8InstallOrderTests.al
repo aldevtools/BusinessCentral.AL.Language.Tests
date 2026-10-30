@@ -9,6 +9,10 @@
 // The corpus publishes A, D, B, C (ci.yml app_dirs); other hosts may install B before D. So the facts about D and B are asserted as relations to the
 // install sequence the log records (an app's install sees exactly the rows of the apps installed before it; B's trigger ran on a row exactly
 // when B was installed before that row was written), not as one fixed order.
+// Facts: (1) No: row 1 (written by A's install) has Note 'A' and an empty "Y8 XB Mark" (B's InitValue is not applied to rows that exist when B is
+// installed); B's own install row has 'B+BX' and 'B init' (B's extension triggers and InitValue are active during B's own install). (2) Yes: every
+// app's install sees exactly the rows of the apps installed before it, also without a dependency path (on the SaaS sandbox, which installs B before D,
+// D saw '1=A;20=B+BX;' and D's row got '+BX' and 'B init'; the corpus CI order A, D, B is checked by the same relations).
 
 codeunit 91420 "LT Y8 Install Order Tests"
 {

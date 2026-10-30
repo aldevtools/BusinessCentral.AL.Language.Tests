@@ -6,6 +6,10 @@
 // nor a literal"). Shapes already pinned elsewhere: length 5 with formats 0-9 (types/lt-ax-text-format-dates/AxFormatOption.al), the member forms
 // (record/lt-x-table-props/XTablePropsTests.al:795), FieldRef.Value (misc/lt-probes-needed-5/PnE10Formats.al).
 // Probe: written against the BC 29 SaaS sandbox; other BC versions are checked by the corpus CI matrix. Writer Y8 (2026-10-30).
+// Facts (BC 29 SaaS): Format(Field, 3) cuts the caption to 3 characters; Format(Field, 3, 2) and (3, 9) give the ordinal padded with blanks to 3;
+// Format(Field, 20, 0) pads the caption to 20. An ordinal beyond the members (7) shows '7' in every form. A caption list shorter than the members
+// shows the member name for a member without a caption (M2); a longer list shows the caption of the ordinal (only captions for members are read:
+// ordinal 3 of a two-member field shows '3').
 
 table 91404 "LT Y8 Format Option Rec"
 {

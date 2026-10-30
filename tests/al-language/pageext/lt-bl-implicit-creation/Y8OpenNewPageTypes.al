@@ -6,6 +6,8 @@
 // ImplicitCreation.al:308). A Worksheet with OnInit, OnOpenPage and OnNewRecord that log, and a ListPart, CardPart, Document and ListPlus with the
 // same triggers: the error text and code (page ids masked to <id>), else which triggers ran and whether the page is editable.
 // Probe: written against the BC 29 SaaS sandbox; other BC versions are checked by the corpus CI matrix. Writer Y8 (2026-10-30).
+// Facts (BC 29 SaaS): the Worksheet raises NotSupportedPageViewMode before OnInit or OnOpenPage run (empty log). ListPart, CardPart, Document and
+// ListPlus open in Create mode, editable, running OnInit, OnOpenPage, OnNewRecord in that order.
 
 table 91430 "LT Y8 OpenNew Row"
 {

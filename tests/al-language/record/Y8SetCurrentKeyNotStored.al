@@ -5,6 +5,8 @@
 // unknown): a FlowField, a FlowFilter, a Blob and a Media field, alone and after a normal field. For each: does it raise (text and code), and
 // what CurrentKey() answers afterwards. A normal non-key field is the control (TestRecordNavContracts.al:180-195).
 // Probe: written against the BC 29 SaaS sandbox; other BC versions are checked by the corpus CI matrix. Writer Y8 (2026-10-30).
+// Facts (BC 29 SaaS): a FlowField and a Media field are accepted (CurrentKey shows them, also 'Name,Total'); a FlowFilter and a Blob raise
+// "Sorting cannot be done based on the <field> field(s) in the <table> table." (DB:Ok) and the current key stays the primary key.
 
 table 91413 "LT Y8 SCK Row"
 {
