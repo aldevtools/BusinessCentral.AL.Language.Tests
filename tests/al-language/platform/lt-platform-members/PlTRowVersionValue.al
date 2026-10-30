@@ -54,6 +54,26 @@ table 90411 "LT UK Row B"
     }
 }
 
+table 90542 "LT NP3 RV Flow"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; Id; Integer) { }
+        field(2; Total; Integer)
+        {
+            FieldClass = FlowField;
+            CalcFormula = count("LT RV Row");
+        }
+    }
+
+    keys
+    {
+        key(PK; Id) { Clustered = true; }
+    }
+}
+
 codeunit 67515 "LT RV Tests"
 {
     Subtype = Test;
