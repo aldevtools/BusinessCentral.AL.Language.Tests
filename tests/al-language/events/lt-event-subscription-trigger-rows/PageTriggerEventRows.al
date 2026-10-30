@@ -291,7 +291,7 @@ codeunit 91515 "LT Y11 PTE Rows"
     begin
         Sub.SetRange("Subscriber Codeunit ID", Codeunit::"LT Y11 PTE Subs");
         Observer.Observe('all rows', Format(Sub.Count()));
-        Sub.SetRange("Event Type", Sub."Event Type"::Trigger);
+        Sub.SetRange("Event Type", Sub."Event Type"::"Trigger");
         Observer.Observe('trigger rows', Format(Sub.Count()));
         Sub.SetRange("Event Type");
         Sub.SetRange("Publisher Object Type", Sub."Publisher Object Type"::Page);
