@@ -22,8 +22,8 @@ table 91231 "LT SC Meta Row"
 
 report 91230 "LT SC Meta Report"
 {
-    ProcessingOnly = true;
     UsageCategory = None;
+    DefaultRenderingLayout = MetaRdlc;
 
     dataset
     {
@@ -38,6 +38,16 @@ report 91230 "LT SC Meta Report"
         dataitem(Filtered; "LT SC Meta Row")
         {
             DataItemTableView = sorting(Code) order(descending) where(Code = filter('A*|B'));
+        }
+    }
+
+    rendering
+    {
+        layout(MetaRdlc)
+        {
+            Type = RDLC;
+            LayoutFile = './FixtureLayout_19.rdlc';
+            Caption = 'Metadata views layout';
         }
     }
 }
