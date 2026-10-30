@@ -33,9 +33,9 @@ codeunit 81639 "LT Y3 Setup Order"
         Helper: Codeunit "LT Y3 Setup Order Helper";
     begin
         // Second form: main app M (a1b2c3d4-..., below 5d86850b-...) and XApp D (e92be076-..., above it), no dependency path between them,
-        // table 90828. 'Final' is logged only when the kept OnDatabaseInsert flag is true, which in this job only 130011 sets.
+        // table 90828 (measured on BC 27.5, 28.5, 29.0: D runs, then 130011, then M). 'Final' is logged only when the kept OnDatabaseInsert flag is true, which in this job only 130011 sets.
         Observer.Observe('M below | D above', Helper.InsertMainRowAndReadLog());
-        Observer.Expect('M below | D above', 'TBD');
+        Observer.Expect('M below | D above', 'M: seq=2 in=YesYesYesYes | D: seq=1 in=NoNoNoNo | Final: seq=3 in=YesNoNoNo');
         Observer.Verify();
     end;
 }
