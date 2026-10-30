@@ -638,3 +638,16 @@ that major (`bc-linux/scripts/install-al-compiler.sh <bc_version>`), stage the s
 BC container. Run locally with the tools in `~/.al-tool-cache` it passes today with AL 16.2, 17.0.34, 18.0.43 and 30.0.42 on the 27.0 symbols.
 | 2260 | AL0416 | A control add-in procedure declares a return value (writer TZ). |
 | 2261 | AL0783 | A page extension calls a procedure of the base page's usercontrol (writer TZ). |
+| 2310 | AL1039 | app.json `"runtime": "14"` (writer Y10). |
+| 2311 | AL1039 | app.json `"runtime": 14` (writer Y10). |
+| 2312 | AL1039 | app.json `"runtime": 14.0` (writer Y10). |
+| 2313 | AL1039 | app.json `"runtime": "abc"` (writer Y10). |
+| 2314 | AL1039 | app.json `"runtime": "14.0.0"` (writer Y10). |
+| 2315 | AL1039 | app.json `"runtime": "15.0.0.0"` (writer Y10). |
+| 2316 | AL1039 | app.json `"runtime": "14."` (writer Y10). |
+| 2317 | AL1039 | app.json `"runtime": ".0"` (writer Y10). |
+| 2318 | AL1039 | app.json `"runtime": "-1.0"` (writer Y10). |
+| 2319 | AL1043 | app.json `"runtime": "0.0"` (writer Y10). |
+| 2320 | AL1043 | app.json `"runtime": "19.0"` (writer Y10). |
+| 2321 | AL1043 | app.json `"runtime": "99.0"` (writer Y10). |
+| - | - | app.json `"runtime"` values the AL 30.0.43 compiler accepts (no case possible here): `" 14.0"`, `"14.0 "`, `"16.01"`, `""` and `"30.0"` (writer Y10). |
