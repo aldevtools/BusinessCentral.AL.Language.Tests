@@ -186,6 +186,14 @@ codeunit 91836 "LT Y17 Xp Ns Tests"
         Import(Observer, 'as exported', Text);
         Observer.Observe('without xmlns removed', Format(StrPos(Text.Replace(' xmlns="urn:lt-d"', ''), 'xmlns="') = 0));
         Import(Observer, 'without xmlns', Text.Replace(' xmlns="urn:lt-d"', ''));
-        Observer.Finish();
+        Observer.Expect('export ok', 'Yes');
+        Observer.Expect('as exported error|text', 'The ''urn:lt-d:Name'' element is not declared.');
+        Observer.Expect('as exported error|code', 'XmlPortImport:XmlSchema');
+        Observer.Expect('as exported rows', '');
+        Observer.Expect('without xmlns removed', 'Yes');
+        Observer.Expect('without xmlns error|text', 'The ''urn:lt-d:Name'' element is not declared.');
+        Observer.Expect('without xmlns error|code', 'XmlPortImport:XmlSchema');
+        Observer.Expect('without xmlns rows', '');
+        Observer.Verify();
     end;
 }
