@@ -281,4 +281,36 @@ codeunit 73657 "LT P131 Query Outer"
         Observer.Expect('owner U2 status 2', '[4/2/1]');
         Observer.Verify();
     end;
+
+    [Test]
+    procedure UH_Query_ReadFilter_BeforeOpen()
+    var
+        Observer: Codeunit "Probe Observer";
+        Q: Query "LT P131 Q Lines";
+        Txt: Text;
+    begin
+        Seed();
+        ClearLastError();
+        asserterror Txt := Format(Q.FilterOwner);
+        Observer.Observe('before open', GetLastErrorText());
+        Observer.Expect('before open', 'You have not yet retrieved a data row for this query. The value for column ''FilterOwner'' can only be accessed after a row is retrieved with a call to the READ function.');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure UH_Query_ReadFilter_OpenNoRead()
+    var
+        Observer: Codeunit "Probe Observer";
+        Q: Query "LT P131 Q Lines";
+        Txt: Text;
+    begin
+        Seed();
+        Q.SetRange(FilterOwner, 'U1');
+        Q.Open();
+        ClearLastError();
+        asserterror Txt := Format(Q.FilterOwner);
+        Observer.Observe('open no read', GetLastErrorText());
+        Observer.Expect('open no read', 'You have not yet retrieved a data row for this query. The value for column ''FilterOwner'' can only be accessed after a row is retrieved with a call to the READ function.');
+        Observer.Verify();
+    end;
 }
