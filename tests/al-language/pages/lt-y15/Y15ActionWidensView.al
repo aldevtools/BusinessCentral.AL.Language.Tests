@@ -365,27 +365,59 @@ codeunit 91739 "LT Y15 WV Tests"
     procedure Y15_WV_FromLast25()
     begin
         ObserveWidenFromLast(25);
-        Observer.Finish();
+        Observer.Expect('last', 'true/A02');
+        Observer.Expect('after action', 'A02 25:A02-A01');
+        Observer.Expect('first', 'true/A01 0:-');
+        Observer.Expect('count', '25/A25');
+        Observer.Expect('next', 'true/A03');
+        Observer.Expect('previous', 'true/A02');
+        Observer.Expect('previous 2', 'true/A01');
+        Observer.Expect('last after', 'true/A25');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Y15_WV_FromLast20()
     begin
         ObserveWidenFromLast(20);
-        Observer.Finish();
+        Observer.Expect('last', 'true/A02');
+        Observer.Expect('after action', 'A02 24:A02-A01');
+        Observer.Expect('first', 'true/A01 0:-');
+        Observer.Expect('count', '20/A20');
+        Observer.Expect('next', 'true/A03');
+        Observer.Expect('previous', 'true/A02');
+        Observer.Expect('previous 2', 'true/A01');
+        Observer.Expect('last after', 'true/A20');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Y15_WV_FromLast21()
     begin
         ObserveWidenFromLast(21);
-        Observer.Finish();
+        Observer.Expect('last', 'true/A02');
+        Observer.Expect('after action', 'A02 25:A02-A01');
+        Observer.Expect('first', 'true/A01 0:-');
+        Observer.Expect('count', '21/A21');
+        Observer.Expect('next', 'true/A03');
+        Observer.Expect('previous', 'true/A02');
+        Observer.Expect('previous 2', 'true/A01');
+        Observer.Expect('last after', 'true/A21');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Y15_WV_FromLast40()
     begin
         ObserveWidenFromLast(40);
-        Observer.Finish();
+        Observer.Expect('last', 'true/A02');
+        Observer.Expect('after action', 'A02 25:A02-A01');
+        Observer.Expect('first', 'true/A01 0:-');
+        Observer.Expect('count', '40/A40');
+        Observer.Expect('next', 'true/A03');
+        Observer.Expect('previous', 'true/A02');
+        Observer.Expect('previous 2', 'true/A01');
+        Observer.Expect('last after', 'true/A40');
+        Observer.Verify();
     end;
 }
