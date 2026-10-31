@@ -108,7 +108,12 @@ codeunit 92335 "LT Y32 Stale Delete"
     begin
         Y32InsertStale(Row, 0, true);
         Y32StaleDelete(Row, false, true, Observer);
-        Observer.Finish();
+        Observer.Expect('delete', 'ok');
+        Observer.Expect('log', 'OnBeforeDeleteEvent(No);OnAfterDeleteEvent(No);');
+        Observer.Expect('marks', 'before;after;');
+        Observer.Expect('stored', 'missing');
+        Observer.Expect('rows', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -119,7 +124,12 @@ codeunit 92335 "LT Y32 Stale Delete"
     begin
         Y32InsertStale(Row, 0, true);
         Y32StaleDelete(Row, true, true, Observer);
-        Observer.Finish();
+        Observer.Expect('delete', 'ok');
+        Observer.Expect('log', 'OnBeforeDeleteEvent(Yes);OnDelete;OnAfterDeleteEvent(Yes);');
+        Observer.Expect('marks', 'before;trigger;after;');
+        Observer.Expect('stored', 'missing');
+        Observer.Expect('rows', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -130,7 +140,12 @@ codeunit 92335 "LT Y32 Stale Delete"
     begin
         Y32InsertStale(Row, 0, true);
         Y32StaleDelete(Row, false, false, Observer);
-        Observer.Finish();
+        Observer.Expect('delete', 'ok');
+        Observer.Expect('log', '');
+        Observer.Expect('marks', '');
+        Observer.Expect('stored', 'missing');
+        Observer.Expect('rows', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -141,7 +156,12 @@ codeunit 92335 "LT Y32 Stale Delete"
     begin
         Y32InsertStale(Row, 0, true);
         Y32StaleDelete(Row, true, false, Observer);
-        Observer.Finish();
+        Observer.Expect('delete', 'ok');
+        Observer.Expect('log', 'OnDelete;');
+        Observer.Expect('marks', 'trigger;');
+        Observer.Expect('stored', 'missing');
+        Observer.Expect('rows', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -152,7 +172,12 @@ codeunit 92335 "LT Y32 Stale Delete"
     begin
         Y32InsertStale(Row, 0, false);
         Y32StaleDelete(Row, false, true, Observer);
-        Observer.Finish();
+        Observer.Expect('delete', 'ok');
+        Observer.Expect('log', 'OnBeforeDeleteEvent(No);OnAfterDeleteEvent(No);');
+        Observer.Expect('marks', 'before;after;');
+        Observer.Expect('stored', 'missing');
+        Observer.Expect('rows', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -163,7 +188,12 @@ codeunit 92335 "LT Y32 Stale Delete"
     begin
         Y32InsertStale(Row, 0, false);
         Y32StaleDelete(Row, true, true, Observer);
-        Observer.Finish();
+        Observer.Expect('delete', 'ok');
+        Observer.Expect('log', 'OnBeforeDeleteEvent(Yes);OnDelete;OnAfterDeleteEvent(Yes);');
+        Observer.Expect('marks', 'before;trigger;after;');
+        Observer.Expect('stored', 'missing');
+        Observer.Expect('rows', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -174,7 +204,12 @@ codeunit 92335 "LT Y32 Stale Delete"
     begin
         Y32InsertStale(Row, 0, false);
         Y32StaleDelete(Row, false, false, Observer);
-        Observer.Finish();
+        Observer.Expect('delete', 'ok');
+        Observer.Expect('log', '');
+        Observer.Expect('marks', '');
+        Observer.Expect('stored', 'missing');
+        Observer.Expect('rows', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -185,7 +220,12 @@ codeunit 92335 "LT Y32 Stale Delete"
     begin
         Y32InsertStale(Row, 0, false);
         Y32StaleDelete(Row, true, false, Observer);
-        Observer.Finish();
+        Observer.Expect('delete', 'ok');
+        Observer.Expect('log', 'OnDelete;');
+        Observer.Expect('marks', 'trigger;');
+        Observer.Expect('stored', 'missing');
+        Observer.Expect('rows', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -196,7 +236,12 @@ codeunit 92335 "LT Y32 Stale Delete"
     begin
         Y32InsertStale(Row, 1, true);
         Y32StaleDelete(Row, false, true, Observer);
-        Observer.Finish();
+        Observer.Expect('delete', 'ok');
+        Observer.Expect('log', 'OnBeforeDeleteEvent(No);OnAfterDeleteEvent(No);');
+        Observer.Expect('marks', 'before;after;');
+        Observer.Expect('stored', 'missing');
+        Observer.Expect('rows', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -207,7 +252,12 @@ codeunit 92335 "LT Y32 Stale Delete"
     begin
         Y32InsertStale(Row, 1, true);
         Y32StaleDelete(Row, true, true, Observer);
-        Observer.Finish();
+        Observer.Expect('delete', 'ok');
+        Observer.Expect('log', 'OnBeforeDeleteEvent(Yes);OnDelete;OnAfterDeleteEvent(Yes);');
+        Observer.Expect('marks', 'before;trigger;after;');
+        Observer.Expect('stored', 'missing');
+        Observer.Expect('rows', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -218,7 +268,12 @@ codeunit 92335 "LT Y32 Stale Delete"
     begin
         Y32InsertStale(Row, 1, true);
         Y32StaleDelete(Row, false, false, Observer);
-        Observer.Finish();
+        Observer.Expect('delete', 'ok');
+        Observer.Expect('log', '');
+        Observer.Expect('marks', '');
+        Observer.Expect('stored', 'missing');
+        Observer.Expect('rows', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -229,7 +284,12 @@ codeunit 92335 "LT Y32 Stale Delete"
     begin
         Y32InsertStale(Row, 1, true);
         Y32StaleDelete(Row, true, false, Observer);
-        Observer.Finish();
+        Observer.Expect('delete', 'ok');
+        Observer.Expect('log', 'OnDelete;');
+        Observer.Expect('marks', 'trigger;');
+        Observer.Expect('stored', 'missing');
+        Observer.Expect('rows', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -239,7 +299,7 @@ codeunit 92335 "LT Y32 Stale Delete"
         Observer: Codeunit "Probe Observer";
     begin
         Y32InsertStale(Row, 1, false);
-        Y32StaleDeleteError(Row, false, true, Observer);
+        Y32StaleDelete(Row, false, true, Observer);
         Observer.Finish();
     end;
 
@@ -250,7 +310,7 @@ codeunit 92335 "LT Y32 Stale Delete"
         Observer: Codeunit "Probe Observer";
     begin
         Y32InsertStale(Row, 1, false);
-        Y32StaleDeleteError(Row, true, true, Observer);
+        Y32StaleDelete(Row, true, true, Observer);
         Observer.Finish();
     end;
 
@@ -261,7 +321,7 @@ codeunit 92335 "LT Y32 Stale Delete"
         Observer: Codeunit "Probe Observer";
     begin
         Y32InsertStale(Row, 1, false);
-        Y32StaleDeleteError(Row, false, false, Observer);
+        Y32StaleDelete(Row, false, false, Observer);
         Observer.Finish();
     end;
 
@@ -272,7 +332,7 @@ codeunit 92335 "LT Y32 Stale Delete"
         Observer: Codeunit "Probe Observer";
     begin
         Y32InsertStale(Row, 1, false);
-        Y32StaleDeleteError(Row, true, false, Observer);
+        Y32StaleDelete(Row, true, false, Observer);
         Observer.Finish();
     end;
 
@@ -284,7 +344,12 @@ codeunit 92335 "LT Y32 Stale Delete"
     begin
         Y32InsertStale(Row, 2, true);
         Y32StaleDelete(Row, false, true, Observer);
-        Observer.Finish();
+        Observer.Expect('delete', 'ok');
+        Observer.Expect('log', 'OnBeforeDeleteEvent(No);OnAfterDeleteEvent(No);');
+        Observer.Expect('marks', 'before;after;');
+        Observer.Expect('stored', 'missing');
+        Observer.Expect('rows', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -295,7 +360,12 @@ codeunit 92335 "LT Y32 Stale Delete"
     begin
         Y32InsertStale(Row, 2, true);
         Y32StaleDelete(Row, true, true, Observer);
-        Observer.Finish();
+        Observer.Expect('delete', 'ok');
+        Observer.Expect('log', 'OnBeforeDeleteEvent(Yes);OnDelete;OnAfterDeleteEvent(Yes);');
+        Observer.Expect('marks', 'before;trigger;after;');
+        Observer.Expect('stored', 'missing');
+        Observer.Expect('rows', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -306,7 +376,12 @@ codeunit 92335 "LT Y32 Stale Delete"
     begin
         Y32InsertStale(Row, 2, true);
         Y32StaleDelete(Row, false, false, Observer);
-        Observer.Finish();
+        Observer.Expect('delete', 'ok');
+        Observer.Expect('log', '');
+        Observer.Expect('marks', '');
+        Observer.Expect('stored', 'missing');
+        Observer.Expect('rows', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -317,7 +392,12 @@ codeunit 92335 "LT Y32 Stale Delete"
     begin
         Y32InsertStale(Row, 2, true);
         Y32StaleDelete(Row, true, false, Observer);
-        Observer.Finish();
+        Observer.Expect('delete', 'ok');
+        Observer.Expect('log', 'OnDelete;');
+        Observer.Expect('marks', 'trigger;');
+        Observer.Expect('stored', 'missing');
+        Observer.Expect('rows', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -328,7 +408,13 @@ codeunit 92335 "LT Y32 Stale Delete"
     begin
         Y32InsertStale(Row, 2, false);
         Y32StaleDeleteError(Row, false, true, Observer);
-        Observer.Finish();
+        Observer.Expect('delete|text', 'The changes to the LT Y32 Stale Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\No.=''A''');
+        Observer.Expect('delete|code', 'DB:RecordChanged');
+        Observer.Expect('log', 'OnBeforeDeleteEvent(No);');
+        Observer.Expect('marks', '');
+        Observer.Expect('stored', 'Original|90');
+        Observer.Expect('rows', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -339,7 +425,13 @@ codeunit 92335 "LT Y32 Stale Delete"
     begin
         Y32InsertStale(Row, 2, false);
         Y32StaleDeleteError(Row, true, true, Observer);
-        Observer.Finish();
+        Observer.Expect('delete|text', 'The changes to the LT Y32 Stale Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\No.=''A''');
+        Observer.Expect('delete|code', 'DB:RecordChanged');
+        Observer.Expect('log', 'OnBeforeDeleteEvent(Yes);OnDelete;');
+        Observer.Expect('marks', '');
+        Observer.Expect('stored', 'Original|90');
+        Observer.Expect('rows', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -350,7 +442,13 @@ codeunit 92335 "LT Y32 Stale Delete"
     begin
         Y32InsertStale(Row, 2, false);
         Y32StaleDeleteError(Row, false, false, Observer);
-        Observer.Finish();
+        Observer.Expect('delete|text', 'The changes to the LT Y32 Stale Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\No.=''A''');
+        Observer.Expect('delete|code', 'DB:RecordChanged');
+        Observer.Expect('log', '');
+        Observer.Expect('marks', '');
+        Observer.Expect('stored', 'Original|90');
+        Observer.Expect('rows', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -361,7 +459,13 @@ codeunit 92335 "LT Y32 Stale Delete"
     begin
         Y32InsertStale(Row, 2, false);
         Y32StaleDeleteError(Row, true, false, Observer);
-        Observer.Finish();
+        Observer.Expect('delete|text', 'The changes to the LT Y32 Stale Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\No.=''A''');
+        Observer.Expect('delete|code', 'DB:RecordChanged');
+        Observer.Expect('log', 'OnDelete;');
+        Observer.Expect('marks', '');
+        Observer.Expect('stored', 'Original|90');
+        Observer.Expect('rows', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -372,7 +476,12 @@ codeunit 92335 "LT Y32 Stale Delete"
     begin
         Y32InsertStale(Row, 3, true);
         Y32StaleDelete(Row, false, true, Observer);
-        Observer.Finish();
+        Observer.Expect('delete', 'ok');
+        Observer.Expect('log', 'OnBeforeDeleteEvent(No);OnAfterDeleteEvent(No);');
+        Observer.Expect('marks', 'before;after;');
+        Observer.Expect('stored', 'missing');
+        Observer.Expect('rows', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -383,7 +492,12 @@ codeunit 92335 "LT Y32 Stale Delete"
     begin
         Y32InsertStale(Row, 3, true);
         Y32StaleDelete(Row, true, true, Observer);
-        Observer.Finish();
+        Observer.Expect('delete', 'ok');
+        Observer.Expect('log', 'OnBeforeDeleteEvent(Yes);OnDelete;OnAfterDeleteEvent(Yes);');
+        Observer.Expect('marks', 'before;trigger;after;');
+        Observer.Expect('stored', 'missing');
+        Observer.Expect('rows', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -394,7 +508,12 @@ codeunit 92335 "LT Y32 Stale Delete"
     begin
         Y32InsertStale(Row, 3, true);
         Y32StaleDelete(Row, false, false, Observer);
-        Observer.Finish();
+        Observer.Expect('delete', 'ok');
+        Observer.Expect('log', '');
+        Observer.Expect('marks', '');
+        Observer.Expect('stored', 'missing');
+        Observer.Expect('rows', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -405,7 +524,12 @@ codeunit 92335 "LT Y32 Stale Delete"
     begin
         Y32InsertStale(Row, 3, true);
         Y32StaleDelete(Row, true, false, Observer);
-        Observer.Finish();
+        Observer.Expect('delete', 'ok');
+        Observer.Expect('log', 'OnDelete;');
+        Observer.Expect('marks', 'trigger;');
+        Observer.Expect('stored', 'missing');
+        Observer.Expect('rows', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -416,7 +540,13 @@ codeunit 92335 "LT Y32 Stale Delete"
     begin
         Y32InsertStale(Row, 3, false);
         Y32StaleDeleteError(Row, false, true, Observer);
-        Observer.Finish();
+        Observer.Expect('delete|text', 'The changes to the LT Y32 Stale Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\No.=''A''');
+        Observer.Expect('delete|code', 'DB:RecordChanged');
+        Observer.Expect('log', 'OnBeforeDeleteEvent(No);');
+        Observer.Expect('marks', '');
+        Observer.Expect('stored', 'Original|80');
+        Observer.Expect('rows', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -427,7 +557,13 @@ codeunit 92335 "LT Y32 Stale Delete"
     begin
         Y32InsertStale(Row, 3, false);
         Y32StaleDeleteError(Row, true, true, Observer);
-        Observer.Finish();
+        Observer.Expect('delete|text', 'The changes to the LT Y32 Stale Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\No.=''A''');
+        Observer.Expect('delete|code', 'DB:RecordChanged');
+        Observer.Expect('log', 'OnBeforeDeleteEvent(Yes);OnDelete;');
+        Observer.Expect('marks', '');
+        Observer.Expect('stored', 'Original|80');
+        Observer.Expect('rows', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -438,7 +574,13 @@ codeunit 92335 "LT Y32 Stale Delete"
     begin
         Y32InsertStale(Row, 3, false);
         Y32StaleDeleteError(Row, false, false, Observer);
-        Observer.Finish();
+        Observer.Expect('delete|text', 'The changes to the LT Y32 Stale Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\No.=''A''');
+        Observer.Expect('delete|code', 'DB:RecordChanged');
+        Observer.Expect('log', '');
+        Observer.Expect('marks', '');
+        Observer.Expect('stored', 'Original|80');
+        Observer.Expect('rows', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -449,6 +591,12 @@ codeunit 92335 "LT Y32 Stale Delete"
     begin
         Y32InsertStale(Row, 3, false);
         Y32StaleDeleteError(Row, true, false, Observer);
-        Observer.Finish();
+        Observer.Expect('delete|text', 'The changes to the LT Y32 Stale Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\No.=''A''');
+        Observer.Expect('delete|code', 'DB:RecordChanged');
+        Observer.Expect('log', 'OnDelete;');
+        Observer.Expect('marks', '');
+        Observer.Expect('stored', 'Original|80');
+        Observer.Expect('rows', '1');
+        Observer.Verify();
     end;
 }
