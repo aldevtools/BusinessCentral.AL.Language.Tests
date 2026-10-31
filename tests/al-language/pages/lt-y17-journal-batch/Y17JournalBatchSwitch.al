@@ -653,7 +653,13 @@ codeunit 91782 "LT Y17 JB Tests"
     procedure UpdWs_BatchSwitch_BackToEarlierBatch()
     begin
         SwitchBack(false);
-        Observer.Finish();
+        Observer.Expect('goto', 'Yes/20000/D');
+        Observer.Expect('setvalue', 'Yes');
+        Observer.Expect('validate log', 'V:start 20000;V:done 10000;R:B1/10000;R:B1/20000;R:B1/30000;R:B1/10000;R:B1/10000;C:B1/10000');
+        Observer.Expect('current', '10000/A');
+        Observer.Expect('next', 'Yes/20000/C:R:B1/20000;R:B1/20000;C:B1/20000');
+        Observer.Expect('stored', 'B1/10000/A/dA;B1/20000/C/dC;B1/30000/E/dE;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Verify();
     end;
 
     // J8 without Find('-') in code.
@@ -661,6 +667,12 @@ codeunit 91782 "LT Y17 JB Tests"
     procedure UpdWs_BatchSwitch_BackToEarlierBatch_NoFind()
     begin
         SwitchBack(true);
-        Observer.Finish();
+        Observer.Expect('goto', 'Yes/20000/D');
+        Observer.Expect('setvalue', 'Yes');
+        Observer.Expect('validate log', 'V:start 20000;V:done 20000;R:B1/30000;R:B1/20000;R:B1/10000;R:B1/30000;R:B1/30000;C:B1/30000');
+        Observer.Expect('current', '30000/E');
+        Observer.Expect('next', 'Yes/0/:N:B1/0 below=Yes;C:B1/0');
+        Observer.Expect('stored', 'B1/10000/A/dA;B1/20000/C/dC;B1/30000/E/dE;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Verify();
     end;
 }
