@@ -776,4 +776,124 @@ codeunit 73404 "LT XmT XPath Namespaces"
         Observer.Expect('element_inner', '[]|0');
         Observer.Verify();
     end;
+
+    // al-runner 6526 (writer Y29): the assignment form `Mgr.NameTable := Doc.NameTable` compiles (alc 18.1 with runtime 16.0
+    // and alc 30 with runtime 18.0 alike) and is checked as the one-argument call `Mgr.NameTable(Doc.NameTable())`.
+    // Getter-only members are refused: tests/must-not-compile/cases/2365-2372.
+    [Test]
+    procedure Y29_NameTable_AssignForm_SelectsLikeCallForm()
+    var
+        DocA: XmlDocument;
+        DocC: XmlDocument;
+        MgrA: XmlNamespaceManager;
+        MgrC: XmlNamespaceManager;
+        Node: XmlNode;
+        L: XmlNodeList;
+        Txt: Text;
+    begin
+        Load('<r xmlns="urn:repro"><docNo>PSI-1001</docNo><docNo>PSI-1002</docNo></r>', DocA);
+        Load('<r xmlns="urn:repro"><docNo>PSI-1001</docNo><docNo>PSI-1002</docNo></r>', DocC);
+        MgrA.NameTable := DocA.NameTable;
+        MgrA.AddNamespace('urn', 'urn:repro');
+        MgrC.NameTable(DocC.NameTable());
+        MgrC.AddNamespace('urn', 'urn:repro');
+        Txt := '';
+        if DocA.SelectSingleNode('//urn:docNo', MgrA, Node) then
+            Txt := Node.AsXmlElement().InnerText();
+        Observer.Observe('assign_single', Txt);
+        Txt := '';
+        if DocC.SelectSingleNode('//urn:docNo', MgrC, Node) then
+            Txt := Node.AsXmlElement().InnerText();
+        Observer.Observe('call_single', Txt);
+        Observer.Observe('assign_nodes', Format(DocA.SelectNodes('//urn:docNo', MgrA, L)) + '|' + Format(L.Count()));
+        Observer.Observe('call_nodes', Format(DocC.SelectNodes('//urn:docNo', MgrC, L)) + '|' + Format(L.Count()));
+        Txt := '';
+        Observer.Observe('assign_lookup', Format(MgrA.LookupNamespace('urn', Txt)) + '|' + Txt);
+        Txt := '';
+        Observer.Observe('call_lookup', Format(MgrC.LookupNamespace('urn', Txt)) + '|' + Txt);
+        Txt := '';
+        Observer.Observe('assign_prefix', Format(MgrA.LookupPrefix('urn:repro', Txt)) + '|' + Txt);
+        Observer.Observe('assign_unprefixed', Format(DocA.SelectNodes('//docNo', MgrA, L)) + '|' + Format(L.Count()));
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y29_NameTable_AssignForm_SharesTheTable()
+    var
+        Doc: XmlDocument;
+        DocC: XmlDocument;
+        DocN: XmlDocument;
+        Mgr: XmlNamespaceManager;
+        MgrC: XmlNamespaceManager;
+        MgrN: XmlNamespaceManager;
+        NT: XmlNameTable;
+        NT2: XmlNameTable;
+        Txt: Text;
+    begin
+        Load('<a/>', Doc);
+        Load('<a/>', DocC);
+        Load('<a/>', DocN);
+        NT := Doc.NameTable();
+        Mgr.NameTable := NT;
+        Mgr.AddNamespace('qy29', 'urn:q-y29');
+        Observer.Observe('assign_doc_table', Format(Doc.NameTable().Get('urn:q-y29', Txt)) + '|' + Txt);
+        Txt := '';
+        Observer.Observe('assign_var_table', Format(NT.Get('qy29', Txt)) + '|' + Txt);
+        NT2 := Mgr.NameTable;
+        Txt := '';
+        Observer.Observe('assign_mgr_table', Format(NT2.Get('urn:q-y29', Txt)) + '|' + Txt);
+        MgrC.NameTable(DocC.NameTable());
+        MgrC.AddNamespace('qy29', 'urn:q-y29');
+        Txt := '';
+        Observer.Observe('call_doc_table', Format(DocC.NameTable().Get('urn:q-y29', Txt)) + '|' + Txt);
+        MgrN.AddNamespace('qy29', 'urn:q-y29');
+        Txt := '';
+        Observer.Observe('none_doc_table', Format(DocN.NameTable().Get('urn:q-y29', Txt)) + '|' + Txt);
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y29_NameTable_AssignForm_AfterAddNamespace()
+    var
+        Doc: XmlDocument;
+        MgrA: XmlNamespaceManager;
+        MgrC: XmlNamespaceManager;
+        L: XmlNodeList;
+        Txt: Text;
+    begin
+        Load('<a xmlns:p="urn:p"><p:b/></a>', Doc);
+        MgrA.AddNamespace('p', 'urn:p');
+        MgrA.NameTable := Doc.NameTable;
+        MgrC.AddNamespace('p', 'urn:p');
+        MgrC.NameTable(Doc.NameTable());
+        Observer.Observe('assign_lookup', Format(MgrA.LookupNamespace('p', Txt)) + '|' + Txt);
+        Txt := '';
+        Observer.Observe('call_lookup', Format(MgrC.LookupNamespace('p', Txt)) + '|' + Txt);
+        Observer.Observe('assign_select', Format(Doc.SelectNodes('//p:b', MgrA, L)) + '|' + Format(L.Count()));
+        Observer.Observe('call_select', Format(Doc.SelectNodes('//p:b', MgrC, L)) + '|' + Format(L.Count()));
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y29_NameTable_AssignForm_FromAnotherManager()
+    var
+        Doc: XmlDocument;
+        MgrA: XmlNamespaceManager;
+        MgrB: XmlNamespaceManager;
+        L: XmlNodeList;
+        Txt: Text;
+    begin
+        Load('<a xmlns:p="urn:p" xmlns:s="urn:s"><p:b/><s:c/><s:c/></a>', Doc);
+        MgrA.NameTable := Doc.NameTable;
+        MgrA.AddNamespace('p', 'urn:p');
+        MgrB.NameTable := MgrA.NameTable;
+        MgrB.AddNamespace('s', 'urn:s');
+        Observer.Observe('b_lookup_own', Format(MgrB.LookupNamespace('s', Txt)) + '|' + Txt);
+        Txt := '';
+        Observer.Observe('b_lookup_of_a', Format(MgrB.LookupNamespace('p', Txt)) + '|' + Txt);
+        Observer.Observe('b_select', Format(Doc.SelectNodes('//s:c', MgrB, L)) + '|' + Format(L.Count()));
+        Txt := '';
+        Observer.Observe('a_table_has_s', Format(MgrA.NameTable().Get('urn:s', Txt)) + '|' + Txt);
+        Observer.Verify();
+    end;
 }
