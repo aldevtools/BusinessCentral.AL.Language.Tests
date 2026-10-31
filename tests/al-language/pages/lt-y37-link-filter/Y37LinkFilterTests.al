@@ -7,6 +7,13 @@
 //   target (and the FlowField it drives); a Provider part whose RecordId target gets the formatted RecordId of the provider's row; the same
 //   in a RunPageLink; a host field that is a FlowFilter field; a host value changed while the page is open. The part logs (OnOpenPage) the
 //   filters of filter group 0 and 4 and GetFilter of the target fields.
+//   BC (27.5, 28.5 Windows, SaaS 29 alike): the host value is applied as SetFilter on the target in filter group 4 (A1|A3 -> A1,A3; A1..A3 and
+//   A* -> A1,A2,A3; <>A2 -> all but A2); a blank host value sets no filter at all (every row); a value longer than the Code[20] target raises
+//   no error and the part shows no row. The link filter is not set yet in the part's OnOpenPage, it is at OnAfterGetCurrRecord. A FlowFilter
+//   target gets the filter (FlowField sums D1 = 15.00, D1|D2 = 22.00). A Provider part with a RecordId target filters on the formatted
+//   RecordId text ('LT Y37 LF Line: A1') and follows the provider's row; a blank value there shows every row. RunPageLink sets the same
+//   filter in filter group 0 of the opened page. A host FlowFilter field links its filter text (TestPage.Filter or Page.Run with a filtered
+//   record); a SetValue of the host field re-links the part at once.
 // BC versions: 27, 28, 29
 
 codeunit 92612 "LT Y37 LF Tests"
@@ -181,7 +188,19 @@ codeunit 92612 "LT Y37 LF Tests"
         ObserveCard('A*', 'A*');
         ObserveCard('B2', 'B2');
         ObserveCard('<>A2', '<>A2');
-        Observer.Finish();
+        Observer.Expect('A1 open log', 'LP.open f0=[] f4=[];LP.c A1 f0=[] f4=[No.: A1];LP.c A1 f0=[] f4=[No.: A1];');
+        Observer.Expect('A1 rows', 'A1,');
+        Observer.Expect('A1|A3 open log', 'LP.open f0=[] f4=[];LP.c A1 f0=[] f4=[No.: A1|A3];LP.c A1 f0=[] f4=[No.: A1|A3];');
+        Observer.Expect('A1|A3 rows', 'A1,A3,');
+        Observer.Expect('A1..A3 open log', 'LP.open f0=[] f4=[];LP.c A1 f0=[] f4=[No.: A1..A3];LP.c A1 f0=[] f4=[No.: A1..A3];');
+        Observer.Expect('A1..A3 rows', 'A1,A2,A3,');
+        Observer.Expect('A* open log', 'LP.open f0=[] f4=[];LP.c A1 f0=[] f4=[No.: A*];LP.c A1 f0=[] f4=[No.: A*];');
+        Observer.Expect('A* rows', 'A1,A2,A3,');
+        Observer.Expect('B2 open log', 'LP.open f0=[] f4=[];LP.c B2 f0=[] f4=[No.: B2];LP.c B2 f0=[] f4=[No.: B2];');
+        Observer.Expect('B2 rows', 'B2,');
+        Observer.Expect('<>A2 open log', 'LP.open f0=[] f4=[];LP.c A1 f0=[] f4=[No.: <>A2];LP.c A1 f0=[] f4=[No.: <>A2];');
+        Observer.Expect('<>A2 rows', 'A1,A3,B1,B2,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -198,7 +217,11 @@ codeunit 92612 "LT Y37 LF Tests"
             P.Close();
         end else
             Observer.ObserveError('open');
-        Observer.Finish();
+        // How often the part's OnOpenPage runs here differs (once on BC 27.5 and 28.5, three times on the SaaS BC 29 sandbox): not asserted.
+        Observer.Ignore('open log');
+        Observer.Expect('open', 'ok');
+        Observer.Expect('rows', '<none>');
+        Observer.Verify();
     end;
 
     [Test]
@@ -212,7 +235,9 @@ codeunit 92612 "LT Y37 LF Tests"
         Observer.Observe('open log', Log.Take());
         Observer.Observe('rows', CardRows(P));
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open log', 'LP.open f0=[] f4=[];LP.c A1 f0=[] f4=[];LP.c A1 f0=[] f4=[];');
+        Observer.Expect('rows', 'A1,A2,A3,B1,B2,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -235,7 +260,12 @@ codeunit 92612 "LT Y37 LF Tests"
         P.LinesPart.First();
         Observer.Observe('D1|D2 first row dept amount', P.LinesPart.NoCtl.Value() + '|' + P.LinesPart.DeptAmountCtl.Value());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open log', 'LP.open f0=[] f4=[];LP.c A1 f0=[] f4=[Dept Filter: D1];LP.c A1 f0=[] f4=[Dept Filter: D1];');
+        Observer.Expect('first row dept amount', 'A1|15.00');
+        Observer.Expect('rows', 'A1,A2,A3,B1,B2,');
+        Observer.Expect('D1|D2 open log', 'LP.open f0=[] f4=[];LP.c A1 f0=[] f4=[Dept Filter: D1|D2];LP.c A1 f0=[] f4=[Dept Filter: D1|D2];');
+        Observer.Expect('D1|D2 first row dept amount', 'A1|22.00');
+        Observer.Verify();
     end;
 
     [Test]
@@ -268,7 +298,18 @@ codeunit 92612 "LT Y37 LF Tests"
         Err.SetFilter("Record ID", Line."Rec Id Filter");
         Observer.Observe('code SetFilter count', Format(Err.Count()));
         Observer.Observe('code GetFilter', Err.GetFilter("Record ID"));
-        Observer.Finish();
+        Observer.Expect('A1 rec id filter text', 'LT Y37 LF Line: A1');
+        Observer.Expect('open log', 'LP.open f0=[] f4=[];EP.open f4=[];LP.c A1 f0=[] f4=[];EP.c 1 f4=[LT Y37 LF Line: A1];LP.c A1 f0=[] f4=[];');
+        Observer.Expect('line', 'A1');
+        Observer.Expect('err rows', '1,');
+        Observer.Expect('line next', 'Yes|A2');
+        Observer.Expect('next log', 'LP.c A2 f0=[] f4=[];EP.c 2 f4=[LT Y37 LF Line: A2];');
+        Observer.Expect('err rows after next', '2,');
+        Observer.Expect('err note after part filter', 'n-A2');
+        Observer.Expect('err note after other part filter', '|No');
+        Observer.Expect('code SetFilter count', '1');
+        Observer.Expect('code GetFilter', 'LT Y37 LF Line: A1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -288,7 +329,12 @@ codeunit 92612 "LT Y37 LF Tests"
         Observer.Observe('line next', P.LinesPart.NoCtl.Value());
         Observer.Observe('err rows after next', ErrRows(P));
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open log', 'LP.open f0=[] f4=[];EP.open f4=[];LP.c A1 f0=[] f4=[];EP.c 1 f4=[];LP.c A1 f0=[] f4=[];EP.c 1 f4=[];');
+        Observer.Expect('line', 'A1');
+        Observer.Expect('err rows', '1,2,3,4,5,6,');
+        Observer.Expect('line next', 'A2');
+        Observer.Expect('err rows after next', '2,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -303,7 +349,9 @@ codeunit 92612 "LT Y37 LF Tests"
         Observer.Observe('open log', Log.Take());
         Observer.Observe('lines', DocRows(P));
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open log', 'LP.open f0=[] f4=[];EP.open f4=[];LP.c A1 f0=[] f4=[No.: A*];EP.c 1 f4=[LT Y37 LF Line: A1];');
+        Observer.Expect('lines', 'A1,A2,A3,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -329,7 +377,9 @@ codeunit 92612 "LT Y37 LF Tests"
         Observer.Observe('rows', R);
         L.Close();
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open log', 'LL.open f0=[No.: A1|A3] f4=[];LL.c A1 f0=[No.: A1|A3] f4=[];');
+        Observer.Expect('rows', 'A1,A3,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -356,7 +406,13 @@ codeunit 92612 "LT Y37 LF Tests"
         Observer.Observe('page run open log', Log.Take());
         Observer.Observe('page run rows', FlowRows(P));
         P.Close();
-        Observer.Finish();
+        Observer.Expect('no flowfilter open log', 'LP.open f0=[] f4=[];LP.c A1 f0=[] f4=[];LP.c A1 f0=[] f4=[];');
+        Observer.Expect('no flowfilter rows', 'A1,A2,A3,B1,B2,');
+        Observer.Expect('testpage filter log', 'LP.c A2 f0=[] f4=[No.: A1|A2];');
+        Observer.Expect('testpage filter rows', 'A1,A2,');
+        Observer.Expect('page run open log', 'LP.open f0=[] f4=[];LP.c A1 f0=[] f4=[No.: A1|A2];');
+        Observer.Expect('page run rows', 'A1,A2,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -383,6 +439,13 @@ codeunit 92612 "LT Y37 LF Tests"
         Observer.Observe('reopen log', Log.Take());
         Observer.Observe('rows after reopen', CardRows(P));
         P.Close();
-        Observer.Finish();
+        Observer.Expect('rows A1', 'A1,');
+        Observer.Expect('setvalue log', 'LP.c B1 f0=[] f4=[No.: B*];');
+        Observer.Expect('rows after setvalue', 'B1,B2,');
+        Observer.Expect('update log', 'LP.c B2 f0=[] f4=[No.: B*];');
+        Observer.Expect('rows after update', 'B1,B2,');
+        Observer.Expect('reopen log', 'LP.open f0=[] f4=[];LP.c B1 f0=[] f4=[No.: B*];LP.c B1 f0=[] f4=[No.: B*];');
+        Observer.Expect('rows after reopen', 'B1,B2,');
+        Observer.Verify();
     end;
 }
