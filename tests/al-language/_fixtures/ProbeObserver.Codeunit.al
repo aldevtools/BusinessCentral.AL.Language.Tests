@@ -220,24 +220,32 @@ codeunit 69160 "Probe Observer"
     var
         State: Codeunit "Probe Observer State";
     begin
-        Remaining := Pairs;
+        State.Set(Pairs);
         Pairs := '';
-        State.Raise('OBSERVE', Remaining);
+        State.Raise('OBSERVE');
     end;
 
     procedure More()
     var
         State: Codeunit "Probe Observer State";
     begin
-        State.Raise('OBSERVEMORE', Remaining);
+        State.Raise('OBSERVEMORE');
     end;
 }
 
-// Plain helper (not SingleInstance: the rest of a long observation lives in the Observer variable of the test codeunit, so no state is shared
-// between test codeunits).
 codeunit 69163 "Probe Observer State"
 {
-    procedure Raise(Prefix: Text; var Rest: Text)
+    SingleInstance = true;
+
+    var
+        Rest: Text;
+
+    procedure Set(NewRest: Text)
+    begin
+        Rest := NewRest;
+    end;
+
+    procedure Raise(Prefix: Text)
     var
         Piece: Text;
     begin

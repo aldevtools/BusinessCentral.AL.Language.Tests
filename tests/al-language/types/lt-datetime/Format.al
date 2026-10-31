@@ -929,4 +929,90 @@ codeunit 73804 "LT DtT Format"
         Observer.Expect('2359 len8', '[23:59:59]');
         Observer.Verify();
     end;
+
+    // Writer Y36 (gap cycle 3, C3-08): codes without a width on a DateTime (<Minutes>, <Seconds>, <Thousands>, <Hours24>, <Hours12>,
+    // <Year>) and the time stamp string of Microsoft's Quality Management test library.
+    [Test]
+    procedure Y36_DateTime_Format_Minutes_NoWidth()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('min_120000', FmtStr(CreateDateTime(20260305D, 120000T), '<Minutes>'));
+        Observer.Observe('min_120500', FmtStr(CreateDateTime(20260305D, 120500T), '<Minutes>'));
+        Observer.Observe('min_120900', FmtStr(CreateDateTime(20260305D, 120900T), '<Minutes>'));
+        Observer.Observe('min_121000', FmtStr(CreateDateTime(20260305D, 121000T), '<Minutes>'));
+        Observer.Observe('min_090702_123', FmtStr(CreateDateTime(20260305D, 090702.123T), '<Minutes>'));
+        Observer.Observe('min_125900', FmtStr(CreateDateTime(20260305D, 125900T), '<Minutes>'));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y36_DateTime_Format_Seconds_NoWidth()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('sec_120000', FmtStr(CreateDateTime(20260305D, 120000T), '<Seconds>'));
+        Observer.Observe('sec_120005', FmtStr(CreateDateTime(20260305D, 120005T), '<Seconds>'));
+        Observer.Observe('sec_120009', FmtStr(CreateDateTime(20260305D, 120009T), '<Seconds>'));
+        Observer.Observe('sec_120010', FmtStr(CreateDateTime(20260305D, 120010T), '<Seconds>'));
+        Observer.Observe('sec_120059', FmtStr(CreateDateTime(20260305D, 120059T), '<Seconds>'));
+        Observer.Observe('sec_120005_5', FmtStr(CreateDateTime(20260305D, 120005.5T), '<Seconds>'));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y36_DateTime_Format_QltyStamp()
+    var
+        Observer: Codeunit "Probe Observer";
+        Stamp: Text;
+    begin
+        Stamp := '<Year><Month,2><Day,2><Hours24><Minutes><Seconds>';
+        Observer.Observe('q_20260305_090702', FmtStr(CreateDateTime(20260305D, 090702T), Stamp));
+        Observer.Observe('q_20261231_235959', FmtStr(CreateDateTime(20261231D, 235959T), Stamp));
+        Observer.Observe('q_20260101_000000', FmtStr(CreateDateTime(20260101D, 000000T), Stamp));
+        Observer.Observe('q_20261031_140509', FmtStr(CreateDateTime(20261031D, 140509T), Stamp));
+        Observer.Observe('q_20260305_100000', FmtStr(CreateDateTime(20260305D, 100000T), Stamp));
+        Observer.Observe('q_prefix_A', FmtStr(CreateDateTime(20260305D, 090702T), 'A' + Stamp));
+        Observer.Observe('q_prefix_A0SM', FmtStr(CreateDateTime(20260305D, 090702T), 'A0SM-A' + Stamp));
+        Observer.Observe('q_padstr_A', PadStr(Format(CreateDateTime(20260305D, 090702T), 0, 'A' + Stamp), 19, '0'));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y36_DateTime_Format_Thousands_NoWidth()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('ms_000', FmtStr(CreateDateTime(20260305D, 120000T), '<Thousands>'));
+        Observer.Observe('ms_005', FmtStr(CreateDateTime(20260305D, 120000.005T), '<Thousands>'));
+        Observer.Observe('ms_078', FmtStr(CreateDateTime(20260305D, 120000.078T), '<Thousands>'));
+        Observer.Observe('ms_123', FmtStr(CreateDateTime(20260305D, 120000.123T), '<Thousands>'));
+        Observer.Observe('ms_999', FmtStr(CreateDateTime(20260305D, 120000.999T), '<Thousands>'));
+        Observer.Observe('z_stamp_078', FmtStr(CreateDateTime(20260305D, 090702.078T), 'Z<Year><Month,2><Day,2><Hours24><Minutes><Seconds><Thousands>'));
+        Observer.Observe('z_stamp_000', FmtStr(CreateDateTime(20260305D, 090702T), 'Z<Year><Month,2><Day,2><Hours24><Minutes><Seconds><Thousands>'));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y36_DateTime_Format_Hours_Year_NoWidth()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('h24_0030', FmtStr(CreateDateTime(20260305D, 003000T), '<Hours24>'));
+        Observer.Observe('h24_0900', FmtStr(CreateDateTime(20260305D, 090000T), '<Hours24>'));
+        Observer.Observe('h24_1200', FmtStr(CreateDateTime(20260305D, 120000T), '<Hours24>'));
+        Observer.Observe('h24_2300', FmtStr(CreateDateTime(20260305D, 230000T), '<Hours24>'));
+        Observer.Observe('h12_0030', FmtStr(CreateDateTime(20260305D, 003000T), '<Hours12>'));
+        Observer.Observe('h12_0900', FmtStr(CreateDateTime(20260305D, 090000T), '<Hours12>'));
+        Observer.Observe('h12_1200', FmtStr(CreateDateTime(20260305D, 120000T), '<Hours12>'));
+        Observer.Observe('h12_2300', FmtStr(CreateDateTime(20260305D, 230000T), '<Hours12>'));
+        Observer.Observe('ampm_0030', FmtStr(CreateDateTime(20260305D, 003000T), '<AM/PM>'));
+        Observer.Observe('ampm_1200', FmtStr(CreateDateTime(20260305D, 120000T), '<AM/PM>'));
+        Observer.Observe('ampm_2300', FmtStr(CreateDateTime(20260305D, 230000T), '<AM/PM>'));
+        Observer.Observe('year_2031', FmtStr(CreateDateTime(20310305D, 120000T), '<Year>'));
+        Observer.Observe('year_2099', FmtStr(CreateDateTime(20990305D, 120000T), '<Year>'));
+        Observer.Observe('year_1998', FmtStr(CreateDateTime(19980305D, 120000T), '<Year>'));
+        Observer.Observe('year_2005', FmtStr(CreateDateTime(20050305D, 120000T), '<Year>'));
+        Observer.Finish();
+    end;
 }

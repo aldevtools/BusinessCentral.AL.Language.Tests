@@ -663,6 +663,187 @@ codeunit 69451 "Probe Property Assign Forms"
         Observer.Expect('withReturnValue', '30');
         Observer.Verify();
     end;
+
+    // Writer Y36 (gap cycle 3, C3-09): the assignment form on a RecordRef (Mark, MarkedOnly, Ascending, FilterGroup,
+    // SecurityFiltering, ReadIsolation, ChangeCompany) and on a FieldRef (Validate), next to the call form. Compile (alc 18.1
+    // runtime 16.0 and alc 30 runtime 18.0, same result): these compile; RecordRef.LockTable := and ReadConsistency := (AL0129),
+    // FieldRef.SetRange := (AL0129) and FieldRef.SetFilter := (AL0135) do not (must-not-compile cases 2501 to 2504).
+    local procedure Y36SeedRows()
+    var
+        Row: Record "Probe Pf Row";
+        I: Integer;
+    begin
+        Row.DeleteAll();
+        for I := 1 to 4 do begin
+            Row.Init();
+            Row.Id := I;
+            Row.Txt := CopyStr('dcba', I, 1);
+            Row.Insert();
+        end;
+    end;
+
+    local procedure Y36SetMarks(var RR: RecordRef; Value: Boolean)
+    begin
+        if RR.FindSet() then
+            repeat
+                RR.Mark := Value;
+            until RR.Next() = 0;
+    end;
+
+    local procedure Y36Ids(var RR: RecordRef): Text
+    var
+        Result: Text;
+    begin
+        if RR.FindSet() then
+            repeat
+                if Result <> '' then
+                    Result += ',';
+                Result += Format(RR.Field(1).Value());
+            until RR.Next() = 0;
+        exit(Format(RR.Count()) + ':' + Result);
+    end;
+
+    [Test]
+    procedure Y36_RecordRef_Mark_AssignInLoop_ThenMarkedOnly()
+    var
+        RR: RecordRef;
+        FR: FieldRef;
+        Observer: Codeunit "Probe Observer";
+    begin
+        Y36SeedRows();
+        RR.Open(Database::"Probe Pf Row");
+        FR := RR.Field(1);
+        FR.SetRange(2, 3);
+        Y36SetMarks(RR, true);
+        FR.SetRange();
+        Observer.Observe('all_rows_before_markedonly', Y36Ids(RR));
+        RR.MarkedOnly(true);
+        Observer.Observe('markedonly_call_true', Y36Ids(RR));
+        RR.MarkedOnly := false;
+        Observer.Observe('markedonly_assign_false', Y36Ids(RR));
+        Observer.Observe('markedonly_getter_after_assign_false', Format(RR.MarkedOnly()));
+        RR.MarkedOnly := true;
+        Observer.Observe('markedonly_assign_true', Y36Ids(RR));
+        Observer.Observe('markedonly_getter_after_assign_true', Format(RR.MarkedOnly()));
+        RR.MarkedOnly(false);
+        FR.SetRange(3);
+        Y36SetMarks(RR, false);
+        FR.SetRange();
+        RR.MarkedOnly(true);
+        Observer.Observe('markedonly_after_unmark_3', Y36Ids(RR));
+        RR.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y36_RecordRef_Mark_AssignThenReadBothForms()
+    var
+        RR: RecordRef;
+        Observer: Codeunit "Probe Observer";
+    begin
+        Y36SeedRows();
+        RR.Open(Database::"Probe Pf Row");
+        RR.FindFirst();
+        Observer.Observe('mark_initial', Format(RR.Mark()));
+        RR.Mark := true;
+        Observer.Observe('mark_after_assign_true', Format(RR.Mark()));
+        RR.Mark(false);
+        Observer.Observe('mark_after_call_false', Format(RR.Mark()));
+        RR.Mark := true;
+        RR.Mark := false;
+        Observer.Observe('mark_after_assign_true_then_false', Format(RR.Mark()));
+        RR.Next();
+        RR.Mark := false;
+        Observer.Observe('mark_assign_false_on_unmarked', Format(RR.Mark()));
+        RR.MarkedOnly(true);
+        Observer.Observe('markedonly_after_all_cleared', Y36Ids(RR));
+        RR.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y36_RecordRef_Ascending_MarkedOnly_Assign()
+    var
+        RR: RecordRef;
+        Observer: Codeunit "Probe Observer";
+    begin
+        Y36SeedRows();
+        RR.Open(Database::"Probe Pf Row");
+        Observer.Observe('ascending_initial', Format(RR.Ascending()));
+        RR.Ascending := false;
+        Observer.Observe('ascending_after_assign_false', Format(RR.Ascending()));
+        RR.FindFirst();
+        Observer.Observe('findfirst_descending', Format(RR.Field(1).Value()));
+        RR.CurrentKeyIndex := 2;
+        RR.Ascending := true;
+        RR.FindFirst();
+        Observer.Observe('findfirst_key2_ascending', Format(RR.Field(1).Value()) + ' ' + Format(RR.Field(2).Value()));
+        RR.Ascending := false;
+        RR.FindFirst();
+        Observer.Observe('findfirst_key2_descending', Format(RR.Field(1).Value()) + ' ' + Format(RR.Field(2).Value()));
+        RR.Close();
+        RR.Open(Database::"Probe Pf Row");
+        RR.MarkedOnly := true;
+        Observer.Observe('markedonly_assign_no_marks', Y36Ids(RR));
+        Observer.Observe('markedonly_getter_no_marks', Format(RR.MarkedOnly()));
+        RR.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y36_RecordRef_Mark_AfterDuplicate()
+    var
+        RR: RecordRef;
+        RR2: RecordRef;
+        RR3: RecordRef;
+        FR: FieldRef;
+        Observer: Codeunit "Probe Observer";
+    begin
+        Y36SeedRows();
+        RR.Open(Database::"Probe Pf Row");
+        FR := RR.Field(1);
+        FR.SetRange(1, 2);
+        Y36SetMarks(RR, true);
+        FR.SetRange();
+        RR2 := RR.Duplicate();
+        RR2.MarkedOnly(true);
+        Observer.Observe('duplicate_markedonly', Y36Ids(RR2));
+        RR3 := RR;
+        RR3.MarkedOnly := true;
+        Observer.Observe('copy_markedonly', Y36Ids(RR3));
+        Observer.Observe('original_markedonly_after_copy', Format(RR.MarkedOnly()));
+        RR.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y36_RecordRef_Other_AssignForms()
+    var
+        RR: RecordRef;
+        FR: FieldRef;
+        Observer: Codeunit "Probe Observer";
+    begin
+        Y36SeedRows();
+        RR.Open(Database::"Probe Pf Row");
+        RR.FilterGroup := 2;
+        Observer.Observe('filtergroup', Format(RR.FilterGroup()));
+        RR.FilterGroup := 0;
+        RR.SecurityFiltering := SecurityFilter::Filtered;
+        Observer.Observe('securityfiltering', Format(RR.SecurityFiltering()));
+        RR.ReadIsolation := IsolationLevel::ReadCommitted;
+        Observer.Observe('readisolation', Format(RR.ReadIsolation()));
+        Observer.Observe('changecompany_result_before', Format(RR.CurrentCompany() = CompanyName()));
+        RR.ChangeCompany := CompanyName();
+        Observer.Observe('changecompany_same', Format(RR.CurrentCompany() = CompanyName()) + ' ' + Format(RR.Count()));
+        RR.FindFirst();
+        FR := RR.Field(2);
+        FR.Validate := 'v';
+        Observer.Observe('fieldref_validate_assign', Format(FR.Value()));
+        FR.Value := 'w';
+        Observer.Observe('fieldref_value_assign', Format(FR.Value()));
+        RR.Close();
+        Observer.Finish();
+    end;
 }
 
 codeunit 92290 "LT Y29 Assign Target"
