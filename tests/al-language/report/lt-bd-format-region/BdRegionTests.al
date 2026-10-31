@@ -1341,4 +1341,87 @@ codeunit 81070 "BD Region Tests"
         Observer.Verify();
     end;
 
+    // Y17 (gap cycle 1, G3b): CurrReport.FormatRegion := a region after CurrReport.Language := its own language (not en-US), dataset
+    // part and Run part in separate tests; and es-ES_tradnl alone. Measured on Windows (SaaS BC 29) first: NLS culture data.
+
+    [Test]
+    procedure BdSetterLanguage_1034_EsEsTradnl()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        SetterDataset(Observer, 'es-ES_tradnl', true, 1034);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure BdSetterLanguage_1034_EsEsTradnl_Run()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        SetterRun(Observer, 'es-ES_tradnl', true, 1034);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure BdSetterLanguage_2057_EnGB()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        SetterDataset(Observer, 'en-GB', true, 2057);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure BdSetterLanguage_2057_EnGB_Run()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        SetterRun(Observer, 'en-GB', true, 2057);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure BdSetterLanguage_1043_NlNL()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        SetterDataset(Observer, 'nl-NL', true, 1043);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure BdSetterLanguage_1043_NlNL_Run()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        SetterRun(Observer, 'nl-NL', true, 1043);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure BdSetterLanguage_1030_DaDK()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        SetterDataset(Observer, 'da-DK', true, 1030);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure BdSetterLanguage_1030_DaDK_Run()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        SetterRun(Observer, 'da-DK', true, 1030);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure BdSetter_EsEsTradnl()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        SetterDataset(Observer, 'es-ES_tradnl', true, 0);
+        Observer.Finish();
+    end;
 }
