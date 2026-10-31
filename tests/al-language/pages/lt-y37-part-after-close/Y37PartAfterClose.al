@@ -437,6 +437,7 @@ codeunit 92648 "LT Y37 PC Tests"
         Pg.Run();
         Observer.Observe('shown no', P."No.".Value());
         P.PartA.Last();
+        Observer.Observe('shown part row', P.PartA."Line No.".Value());
         ObserveSel('A shown', Pg, 0);
         P.Close();
         ObserveSel('A closed', Pg, 0);

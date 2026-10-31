@@ -332,17 +332,29 @@ codeunit 92638 "LT Y37 Cap Tests"
     end;
 
     [Test]
-    [HandlerFunctions('HLD,HLK')]
-    procedure LT_C313_DCF_DateAndOption()
+    [HandlerFunctions('HLD')]
+    procedure LT_C313_DCF_Date()
     var
         B: Record "LT Y37 Cap B";
     begin
         Seed();
         B.SetRange(Dt, DMY2Date(5, 3, 2024));
         Cap := '<not run>';
-        Page.RunModal(Page::"LT Y37 Cap LD", B);
-        Observer.Observe('date', Cap);
-        B.Reset();
+        asserterror Page.RunModal(Page::"LT Y37 Cap LD", B);
+        Observer.Observe('date caption', Cap);
+        Observer.Observe('date error', CopyStr(GetLastErrorText(), 1, 160));
+        Observer.Observe('date code', GetLastErrorCode());
+        ClearLastError();
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('HLK')]
+    procedure LT_C313_DCF_Option()
+    var
+        B: Record "LT Y37 Cap B";
+    begin
+        Seed();
         B.SetRange(Kind, B.Kind::B);
         Cap := '<not run>';
         Page.RunModal(Page::"LT Y37 Cap LK", B);

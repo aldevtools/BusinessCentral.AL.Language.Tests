@@ -193,7 +193,7 @@ codeunit 92657 "LT Y37 VA Tests"
         asserterror P.OptCtl.SetValue('A');
         Observer.ObserveError('opt a');
         Observer.Observe('opt after a', P.OptCtl.Value());
-        P.OK().Invoke();
+        P.Yes().Invoke();
     end;
 
     [Test]
@@ -263,6 +263,8 @@ codeunit 92657 "LT Y37 VA Tests"
         O."No." := 'O2';
         O.Status := O.Status::Finished;
         O.Insert();
+        // asserterror below rolls back the open write transaction: commit the rows first.
+        Commit();
         P.OpenEdit();
         P.GoToKey('O2');
         Observer.Observe('o2 initial', P.Status.Value());
