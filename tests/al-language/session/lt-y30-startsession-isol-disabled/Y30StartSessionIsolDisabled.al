@@ -4,6 +4,9 @@
 // windows-remote tool, WR_TEST_RUNNER=130451. Writer Y30 probe branch; not merged to master until a CI leg runs a 130451 job.
 // Facts: what a session started with StartSession sees of the record handed to it (temporary record with rows, record with
 // filters, record with marks), and what StartSession with a Timeout does to a session that runs longer than the timeout.
+// Measured on a BC 29 SaaS sandbox under runner 130451 (2026-10-31): the session gets a copy of the caller's record with its
+// in-memory values, filters, marks and MarkedOnly; a temporary record arrives temporary WITH all its rows. A Timeout stops the
+// session when it runs out (IsSessionActive turns false, the rest of OnRun does not run); the caller gets no error.
 table 92310 "LT Y30 Ss Row"
 {
     DataClassification = SystemMetadata;
@@ -173,7 +176,11 @@ codeunit 92314 "LT Y30 Ss Tests"
         Observer.Observe('worker', Line());
         Observer.Observe('caller_count_after', Format(TempRow.Count()));
         Cleanup();
-        Observer.Finish();
+        Observer.Expect('started', 'Yes|');
+        Observer.Expect('done', 'Yes');
+        Observer.Expect('worker', 'count=3 count_after_reset=3 current=2|temp2 filters= ids=1,2,3, marked_count=0 temp=Yes ');
+        Observer.Expect('caller_count_after', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -194,7 +201,10 @@ codeunit 92314 "LT Y30 Ss Tests"
         Observer.Observe('done', Format(WaitFor('done', 60000)));
         Observer.Observe('worker', Line());
         Cleanup();
-        Observer.Finish();
+        Observer.Expect('started', 'Yes|');
+        Observer.Expect('done', 'Yes');
+        Observer.Expect('worker', 'count=2 count_after_reset=3 current=11|real11 filters=Id: 11..12, Info: <>x ids=11,12, marked_count=0 temp=No ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -218,7 +228,10 @@ codeunit 92314 "LT Y30 Ss Tests"
         Observer.Observe('done', Format(WaitFor('done', 60000)));
         Observer.Observe('worker', Line());
         Cleanup();
-        Observer.Finish();
+        Observer.Expect('started', 'Yes|');
+        Observer.Expect('done', 'Yes');
+        Observer.Expect('worker', 'count=2 count_after_reset=3 current=10|real10 filters=Marked: Yes ids=10,12, marked_count=2 temp=No ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -238,7 +251,10 @@ codeunit 92314 "LT Y30 Ss Tests"
         Observer.Observe('done', Format(WaitFor('done', 60000)));
         Observer.Observe('worker', Line());
         Cleanup();
-        Observer.Finish();
+        Observer.Expect('started', 'Yes|');
+        Observer.Expect('done', 'Yes');
+        Observer.Expect('worker', 'count=3 count_after_reset=3 current=11|changed-not-saved filters= ids=10,11,12, marked_count=0 temp=No ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -277,7 +293,13 @@ codeunit 92314 "LT Y30 Ss Tests"
         Observer.Observe('end_row', Format(WaitFor('end', 3000)));
         Observer.Observe('rows', Line());
         Cleanup();
-        Observer.Finish();
+        Observer.Expect('started', 'Yes||sid_nonzero=Yes');
+        Observer.Expect('start_row', 'Yes');
+        Observer.Expect('active_after_start', 'Yes');
+        Observer.Expect('stopped', 'before 8 s');
+        Observer.Expect('end_row', 'No');
+        Observer.Expect('rows', 'start=yes ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -298,6 +320,11 @@ codeunit 92314 "LT Y30 Ss Tests"
         Sleep(1000);
         Observer.Observe('active_after_end', Format(Session.IsSessionActive(Sid)));
         Cleanup();
-        Observer.Finish();
+        Observer.Expect('started', 'Yes');
+        Observer.Expect('start_row', 'Yes');
+        Observer.Expect('active_after_start', 'Yes');
+        Observer.Expect('end_row', 'Yes');
+        Observer.Expect('active_after_end', 'No');
+        Observer.Verify();
     end;
 }
