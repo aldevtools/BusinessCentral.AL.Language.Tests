@@ -70,7 +70,6 @@ codeunit 61284 "LT S Http Client Auth Config"
     end;
 }
 
-#if BC29PLUS
 codeunit 61285 "LT S Http Client After Config"
 {
     Subtype = Test;
@@ -136,4 +135,3 @@ codeunit 61285 "LT S Http Client After Config"
         Observer.Verify();
     end;
 }
-#endif

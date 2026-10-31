@@ -7,7 +7,7 @@
 // 'BlockOutboundRequests'. Please ensure that an HTTP client handler is configured." (code TestCodeunitUnhandledHttpRequest); with a handler the request is answered.
 // A handler that returns false gives its mock (status, body; it runs once); one that returns true raises "Explicit HTTP client handler fallthrough is not allowed when the
 // TestHttpRequestPolicy property is set to 'BlockOutboundRequests'." (code NotAllowedHttpClientHandlerFallThrough).
-// BC versions: 29 asserted. BC 27.5 and 28.5 call the handler on Windows (Windows check 2026-10-22); the Linux images of 27 and 28 do not (Linux suspect), so 27/28 assert nothing.
+// BC versions: 27, 28, 29. bc-linux 484686d (issue 192) gives the request to the handler on the BC 27 and 28 images too, as Windows 27.5 and 28.5 do (Windows check 2026-10-22), so every test asserts on 27, 28 and 29.
 codeunit 61298 "PZ Http Block"
 {
     Subtype = Test;
@@ -54,14 +54,8 @@ codeunit 61298 "PZ Http Block"
     begin
         Ok := TryGet('https://example.invalid/handled');
         Observer.Observe('handled', Format(Ok) + ' ' + GetLastErrorText() + '|' + GetLastErrorCode());
-#if BC29PLUS
         Observer.Expect('handled', 'Yes |');
         Observer.Verify();
-#else
-        // BC 27.5 and 28.5 on Windows call the handler too, 'Yes |' (Windows check 2026-10-22, al-runner issue 5777). The Linux images of 27 and 28
-        // do not ('No Unhandled outbound HTTP requests are not permitted ...|TestCodeunitUnhandledHttpRequest'): a Linux image bug, so nothing is asserted there.
-        Observer.Discard();
-#endif
     end;
 
     // ---- The shape of al-runner issue 5777: a mock handler that counts its calls, answers 200 with a body and returns false (the mock is used),
@@ -115,15 +109,10 @@ codeunit 61298 "PZ Http Block"
         Observer.Observe('try', Format(TryGetStatusAndBody('https://api.example.com/v1/items?id=7', Ok, Status, Body)));
         Observer.Observe('result', StrSubstNo('%1|%2|%3|%4', Ok, Status, Body, MockCalls));
         Observer.Observe('error', GetLastErrorText() + '|' + GetLastErrorCode());
-#if BC29PLUS
         Observer.Expect('try', 'Yes');
         Observer.Expect('result', 'Yes|200|{"ok":true}|1');
         Observer.Expect('error', '|');
         Observer.Verify();
-#else
-        // Windows 27.5/28.5 not measured for this test; the Linux images of 27 and 28 do not call the handler (see Handler_UnderBlockOutboundRequests_StillAnswers).
-        Observer.Discard();
-#endif
     end;
 
     [Test]
@@ -140,14 +129,9 @@ codeunit 61298 "PZ Http Block"
         Observer.Observe('try', Format(TryGetStatusAndBody('https://api.example.com/v1/items?id=7', Ok, Status, Body)));
         Observer.Observe('result', StrSubstNo('%1|%2|%3|%4', Ok, Status, Body, MockCalls));
         Observer.Observe('error', GetLastErrorText() + '|' + GetLastErrorCode());
-#if BC29PLUS
         Observer.Expect('try', 'No');
         Observer.Expect('result', 'No|0||1');
         Observer.Expect('error', 'Explicit HTTP client handler fallthrough is not allowed when the TestHttpRequestPolicy property is set to ''BlockOutboundRequests''.|NotAllowedHttpClientHandlerFallThrough');
         Observer.Verify();
-#else
-        // Windows 27.5/28.5 not measured for this test; the Linux images of 27 and 28 do not call the handler (see Handler_UnderBlockOutboundRequests_StillAnswers).
-        Observer.Discard();
-#endif
     end;
 }

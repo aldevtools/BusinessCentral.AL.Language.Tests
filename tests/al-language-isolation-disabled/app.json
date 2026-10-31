@@ -1,0 +1,50 @@
+{
+  "id": "9222f6c6-0b7f-4369-a21b-fc3a97e2722c",
+  "name": "AL Language Coverage Tests (Isolation Disabled)",
+  "publisher": "AL Language",
+  "version": "1.0.0.0",
+  "brief": "Tests that need a test runner with TestIsolation = Disabled.",
+  "description": "The main coverage app runs under Microsoft's runner 130450 Test Runner - Isol. Codeunit. Some statements are refused there, for example StartSession in a test. This app runs in its own CI job under runner 130451 Test Runner - Isol. Disabled, and it holds only the tests that need that runner.",
+  "privacyStatement": "",
+  "EULA": "",
+  "help": "",
+  "url": "",
+  "logo": "",
+  "platform": "27.0.0.0",
+  "application": "27.0.0.0",
+  "dependencies": [
+    {
+      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "name": "AL Language Coverage Tests",
+      "publisher": "AL Language",
+      "version": "1.0.0.0"
+    },
+    {
+      "id": "63ca2fa4-4f03-4f2b-a480-172fef340d3f",
+      "name": "System Application",
+      "publisher": "Microsoft",
+      "version": "27.0.0.0"
+    },
+    {
+      "id": "437dbf0e-84ff-417a-965d-ed2bb9650972",
+      "name": "Base Application",
+      "publisher": "Microsoft",
+      "version": "27.0.0.0"
+    }
+  ],
+  "screenshots": [],
+  "idRanges": [
+    {
+      "from": 92310,
+      "to": 92329
+    }
+  ],
+  "features": [],
+  "runtime": "18.0",
+  "target": "Cloud",
+  "resourceExposurePolicy": {
+    "allowDebugging": true,
+    "allowDownloadingSource": true,
+    "includeSourceInSymbolFile": true
+  }
+}

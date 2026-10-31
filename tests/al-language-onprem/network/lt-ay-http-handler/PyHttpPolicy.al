@@ -7,8 +7,8 @@
 // refuses the connection), with and without a StrMenuHandler bound (Allow Once = 2, Block Once = 4; Allow Always and Block Always are not used
 // because they would store a setting for later tests), and a failed call whose result is not used. AyHttpHandler.al pins AllowOutboundFromHandler,
 // PZHttpBlock.al BlockOutboundRequests.
-// BC versions: 27, 28, 29 (corpus CI). Tests that reach the handler assert on BC 29 only: Windows 27.5 and 28.5 call the handler with the BC 29
-// values (Windows check 2026-10-22), the Linux images of 27 and 28 do not (Linux suspect, bc-linux issue 192).
+// BC versions: 27, 28, 29 (corpus CI).
+// bc-linux 484686d (issue 192) gives the request to the handler on the BC 27 and 28 images too, as Windows 27.5 and 28.5 do (Windows check 2026-10-22), so every test asserts on 27, 28 and 29.
 // No outbound-request approval prompt (StrMenu Allow Always/Allow Once/Block Always/Block Once) appears (bc-linux bcc60c1c; a Windows container
 // never shows it, bc-linux 05752c9 #165). So no test binds a StrMenuHandler: a prompt would surface as 'Unhandled UI' in last_error, and
 // menu=0 in 'calls' records that none was answered. The *_StrMenuAllowOnce/_StrMenuBlockOnce/_StrMenuCancel tests keep their names and the
@@ -112,17 +112,11 @@ codeunit 98700 "LT PY Http Default Policy"
         Observer: Codeunit "Probe Observer";
     begin
         Outcome(Observer, 'false', 0, 'https://example.invalid/mocked');
-#if BC29PLUS
         Observer.Expect('result', 'ret=Yes status=201 reason=[Mocked] success=Yes blocked=No');
         Observer.Expect('last_error', '');
         Observer.Expect('last_code', '');
         Observer.Expect('calls', '1 menu=0 ');
         Observer.Verify();
-#else
-        // BC 27.5 and 28.5 on Windows call the handler too, with the BC 29 values (Windows check 2026-10-22). The Linux images of 27 and 28
-        // do not call it (Linux suspect, bc-linux issue 192), so nothing is asserted there.
-        Observer.Discard();
-#endif
     end;
 
     [Test]
@@ -135,14 +129,8 @@ codeunit 98700 "LT PY Http Default Policy"
         Observer.Expect('result', 'ret=No status=0 reason=[NavHttpClient Request Failed] success=No blocked=No');
         Observer.Expect('last_error', 'There was an error while executing the HTTP request, the connecting endpoint violates security requirements. Make sure you are connecting to a valid endpoint.');
         Observer.Expect('last_code', 'HttpRequest:Security');
-#if BC29PLUS
         Observer.Expect('calls', '1 menu=0 ');
         Observer.Verify();
-#else
-        // BC 27.5 and 28.5 on Windows call the handler too, with the BC 29 values (Windows check 2026-10-22). The Linux images of 27 and 28
-        // do not call it (Linux suspect, bc-linux issue 192), so nothing is asserted there.
-        Observer.Discard();
-#endif
     end;
 
     [Test]
@@ -155,14 +143,8 @@ codeunit 98700 "LT PY Http Default Policy"
         Observer.Expect('result', 'ret=No status=0 reason=[NavHttpClient Request Failed] success=No blocked=No');
         Observer.Expect('last_error', 'There was an error while executing the HTTP request, the connecting endpoint violates security requirements. Make sure you are connecting to a valid endpoint.');
         Observer.Expect('last_code', 'HttpRequest:Security');
-#if BC29PLUS
         Observer.Expect('calls', '1 menu=0 ');
         Observer.Verify();
-#else
-        // BC 27.5 and 28.5 on Windows call the handler too, with the BC 29 values (Windows check 2026-10-22). The Linux images of 27 and 28
-        // do not call it (Linux suspect, bc-linux issue 192), so nothing is asserted there.
-        Observer.Discard();
-#endif
     end;
 
     [Test]
@@ -175,14 +157,8 @@ codeunit 98700 "LT PY Http Default Policy"
         Observer.Expect('result', 'ret=No status=0 reason=[NavHttpClient Request Failed] success=No blocked=No');
         Observer.Expect('last_error', 'There was an error while executing the HTTP request, the connecting endpoint violates security requirements. Make sure you are connecting to a valid endpoint.');
         Observer.Expect('last_code', 'HttpRequest:Security');
-#if BC29PLUS
         Observer.Expect('calls', '1 menu=0 ');
         Observer.Verify();
-#else
-        // BC 27.5 and 28.5 on Windows call the handler too, with the BC 29 values (Windows check 2026-10-22). The Linux images of 27 and 28
-        // do not call it (Linux suspect, bc-linux issue 192), so nothing is asserted there.
-        Observer.Discard();
-#endif
     end;
 
     [Test]
@@ -198,14 +174,8 @@ codeunit 98700 "LT PY Http Default Policy"
         MenuCalls := 0;
         ClearLastError();
         Observer.Observe('statement', Format(TryGetStatement('http://localhost:1/x', Resp)) + ' [' + GetLastErrorText() + '|' + GetLastErrorCode() + '] ' + Describe(Resp) + ' calls=' + Format(Calls) + ' menu=' + Format(MenuCalls));
-#if BC29PLUS
         Observer.Expect('statement', 'No [There was an error while executing the HTTP request, the connecting endpoint violates security requirements. Make sure you are connecting to a valid endpoint.|HttpRequest:Security] status=0 reason=[NavHttpClient Request Failed] success=No blocked=No calls=1 menu=0');
         Observer.Verify();
-#else
-        // BC 27.5 and 28.5 on Windows call the handler too, with the BC 29 values (Windows check 2026-10-22). The Linux images of 27 and 28
-        // do not call it (Linux suspect, bc-linux issue 192), so nothing is asserted there.
-        Observer.Discard();
-#endif
     end;
 }
 
@@ -307,17 +277,11 @@ codeunit 98701 "LT PY Http Allow All"
         Observer: Codeunit "Probe Observer";
     begin
         Outcome(Observer, 'false', 0, 'https://example.invalid/mocked');
-#if BC29PLUS
         Observer.Expect('result', 'ret=Yes status=201 reason=[Mocked] success=Yes blocked=No');
         Observer.Expect('last_error', '');
         Observer.Expect('last_code', '');
         Observer.Expect('calls', '1 menu=0 ');
         Observer.Verify();
-#else
-        // BC 27.5 and 28.5 on Windows call the handler too, with the BC 29 values (Windows check 2026-10-22). The Linux images of 27 and 28
-        // do not call it (Linux suspect, bc-linux issue 192), so nothing is asserted there.
-        Observer.Discard();
-#endif
     end;
 
     [Test]
@@ -330,14 +294,8 @@ codeunit 98701 "LT PY Http Allow All"
         Observer.Expect('result', 'ret=No status=0 reason=[NavHttpClient Request Failed] success=No blocked=No');
         Observer.Expect('last_error', 'There was an error while executing the HTTP request, the connecting endpoint violates security requirements. Make sure you are connecting to a valid endpoint.');
         Observer.Expect('last_code', 'HttpRequest:Security');
-#if BC29PLUS
         Observer.Expect('calls', '1 menu=0 ');
         Observer.Verify();
-#else
-        // BC 27.5 and 28.5 on Windows call the handler too, with the BC 29 values (Windows check 2026-10-22). The Linux images of 27 and 28
-        // do not call it (Linux suspect, bc-linux issue 192), so nothing is asserted there.
-        Observer.Discard();
-#endif
     end;
 
     [Test]
@@ -350,14 +308,8 @@ codeunit 98701 "LT PY Http Allow All"
         Observer.Expect('result', 'ret=No status=0 reason=[NavHttpClient Request Failed] success=No blocked=No');
         Observer.Expect('last_error', 'There was an error while executing the HTTP request, the connecting endpoint violates security requirements. Make sure you are connecting to a valid endpoint.');
         Observer.Expect('last_code', 'HttpRequest:Security');
-#if BC29PLUS
         Observer.Expect('calls', '1 menu=0 ');
         Observer.Verify();
-#else
-        // BC 27.5 and 28.5 on Windows call the handler too, with the BC 29 values (Windows check 2026-10-22). The Linux images of 27 and 28
-        // do not call it (Linux suspect, bc-linux issue 192), so nothing is asserted there.
-        Observer.Discard();
-#endif
     end;
 
     [Test]
@@ -370,14 +322,8 @@ codeunit 98701 "LT PY Http Allow All"
         Observer.Expect('result', 'ret=No status=0 reason=[NavHttpClient Request Failed] success=No blocked=No');
         Observer.Expect('last_error', 'There was an error while executing the HTTP request, the connecting endpoint violates security requirements. Make sure you are connecting to a valid endpoint.');
         Observer.Expect('last_code', 'HttpRequest:Security');
-#if BC29PLUS
         Observer.Expect('calls', '1 menu=0 ');
         Observer.Verify();
-#else
-        // BC 27.5 and 28.5 on Windows call the handler too, with the BC 29 values (Windows check 2026-10-22). The Linux images of 27 and 28
-        // do not call it (Linux suspect, bc-linux issue 192), so nothing is asserted there.
-        Observer.Discard();
-#endif
     end;
 
     [Test]
@@ -393,13 +339,7 @@ codeunit 98701 "LT PY Http Allow All"
         MenuCalls := 0;
         ClearLastError();
         Observer.Observe('statement', Format(TryGetStatement('http://localhost:1/x', Resp)) + ' [' + GetLastErrorText() + '|' + GetLastErrorCode() + '] ' + Describe(Resp) + ' calls=' + Format(Calls) + ' menu=' + Format(MenuCalls));
-#if BC29PLUS
         Observer.Expect('statement', 'No [There was an error while executing the HTTP request, the connecting endpoint violates security requirements. Make sure you are connecting to a valid endpoint.|HttpRequest:Security] status=0 reason=[NavHttpClient Request Failed] success=No blocked=No calls=1 menu=0');
         Observer.Verify();
-#else
-        // BC 27.5 and 28.5 on Windows call the handler too, with the BC 29 values (Windows check 2026-10-22). The Linux images of 27 and 28
-        // do not call it (Linux suspect, bc-linux issue 192), so nothing is asserted there.
-        Observer.Discard();
-#endif
     end;
 }
