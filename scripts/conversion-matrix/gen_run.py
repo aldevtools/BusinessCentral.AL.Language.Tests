@@ -31,7 +31,7 @@ DECL = {
     'Option': 'Option A,B,C', 'Enum': 'Enum "LT Y31 E"', 'EnumImpl': 'Enum "LT Y31 EI"', 'Text': 'Text', 'Text10': 'Text[10]',
     'Text3': 'Text[3]', 'Code10': 'Code[10]', 'Code3': 'Code[3]', 'Code250': 'Code[250]', 'Date': 'Date', 'Time': 'Time',
     'DateTime': 'DateTime', 'Duration': 'Duration', 'Guid': 'Guid', 'Label': "Label 'abc', Locked = true",
-    'LabelLong': "Label 'abcdefghijk', Locked = true",
+    'LabelLong': "Label 'abcdefghijk', Locked = true", 'Variant': 'Variant',
 }
 FIELD_OF = {'F.Integer': 'Integer', 'F.BigInteger': 'BigInteger', 'F.Decimal': 'Decimal', 'F.Option': 'Option', 'F.Enum': 'Enum',
             'F.Text10': 'Text10', 'F.Code10': 'Code10', 'F.Guid': 'Guid', 'F.Duration': 'Duration'}
@@ -58,6 +58,12 @@ CV_VALUES = {
     'LabelLong': [('eleven', None)],
     'Guid': [('null', None), ('g', "'%s'" % GUID)],
     'Duration': [('0', '0'), ('1', '1'), ('255', '255'), ('m1', '-1'), ('2p31', '2147483648L')],
+    # a Variant holding a value of each type (the Util helpers return the typed value)
+    'Variant': [('int3', '3'), ('int300', '300'), ('big', '3000000000L'), ('dec1p5', '1.5'), ('dec2', '2.0'), ('charA', 'Util.AsChar(65)'),
+                ('byte65', 'Util.AsByte(65)'), ('optB', 'Util.AsOption(1)'), ('enumC', '"LT Y31 E"::C'), ('textabc', "Util.AsText('abc')"),
+                ('text11', "Util.AsText('abcdefghijk')"), ('text12', "Util.AsText('12')"), ('codeABC', "Util.AsCode('abc')"),
+                ('code12', "Util.AsCode('12')"), ('guid', "Util.AsGuid('%s')" % GUID), ('boolF', 'false'), ('boolT', 'true'),
+                ('date', '20260131D'), ('dur65', 'Util.AsDuration(65)')],
 }
 # a few values per type for comparisons, arithmetic and conditional expressions
 FEW = {
@@ -75,7 +81,7 @@ CD_EXTRA = {'Text': [('eleven', "'abcdefghijk'")], 'Label': []}
 TEXTISH = ('Text', 'Text10', 'Code10', 'Label', 'Guid', 'Char')
 
 CV_SOURCES = ['Integer', 'BigInteger', 'Decimal', 'Char', 'Byte', 'Option', 'Enum', 'EnumImpl', 'Text', 'Text10', 'Code10', 'Label',
-              'LabelLong', 'Guid', 'Duration']
+              'LabelLong', 'Guid', 'Duration', 'Variant']
 CV_TARGETS = ['Integer', 'BigInteger', 'Decimal', 'Char', 'Byte', 'Option', 'Enum', 'EnumImpl', 'Text', 'Text10', 'Text3', 'Code10',
               'Code3', 'Code250', 'Guid', 'Duration'] + list(FIELD_OF)
 OP_TYPES = ['Integer', 'BigInteger', 'Decimal', 'Char', 'Byte', 'Option', 'Enum', 'EnumImpl', 'Boolean', 'Text', 'Text10', 'Code10',

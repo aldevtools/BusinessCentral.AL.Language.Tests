@@ -64,6 +64,42 @@ codeunit 92400 "LT Y31 Conv Util"
         exit(O);
     end;
 
+    // Typed values to put into a Variant (the Variant then holds a Char, Byte, Option, Text, Code[10], Guid or Duration).
+    procedure AsChar(I: Integer) C: Char
+    begin
+        C := I;
+    end;
+
+    procedure AsByte(I: Integer) B: Byte
+    begin
+        B := I;
+    end;
+
+    procedure AsOption(I: Integer) O: Option A,B,C
+    begin
+        O := I;
+    end;
+
+    procedure AsText(T: Text): Text
+    begin
+        exit(T);
+    end;
+
+    procedure AsCode(T: Text) C: Code[10]
+    begin
+        C := T;
+    end;
+
+    procedure AsGuid(T: Text) G: Guid
+    begin
+        G := T;
+    end;
+
+    procedure AsDuration(I: Integer) D: Duration
+    begin
+        D := I;
+    end;
+
     // The Is... answers of a Variant (every one that is true, in this order) and its value in XML format.
     procedure VShow(V: Variant): Text
     var

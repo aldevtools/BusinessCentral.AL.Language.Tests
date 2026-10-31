@@ -5,7 +5,7 @@
 // accepts); the expected values are what the corpus CI containers produced. Regenerate, do not edit by hand.
 // Facts: implicit conversion matrix, comparisons with Integer
 
-codeunit 92427 "LT Y31 Cmp Integer"
+codeunit 92428 "LT Y31 Cmp Integer"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -663,7 +663,7 @@ codeunit 92427 "LT Y31 Cmp Integer"
 // accepts); the expected values are what the corpus CI containers produced. Regenerate, do not edit by hand.
 // Facts: implicit conversion matrix, comparisons with BigInteger
 
-codeunit 92428 "LT Y31 Cmp BigInteger"
+codeunit 92429 "LT Y31 Cmp BigInteger"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -1103,7 +1103,7 @@ codeunit 92428 "LT Y31 Cmp BigInteger"
 // accepts); the expected values are what the corpus CI containers produced. Regenerate, do not edit by hand.
 // Facts: implicit conversion matrix, comparisons with Decimal
 
-codeunit 92429 "LT Y31 Cmp Decimal"
+codeunit 92430 "LT Y31 Cmp Decimal"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -1600,7 +1600,7 @@ codeunit 92429 "LT Y31 Cmp Decimal"
 // accepts); the expected values are what the corpus CI containers produced. Regenerate, do not edit by hand.
 // Facts: implicit conversion matrix, comparisons with Char
 
-codeunit 92430 "LT Y31 Cmp Char"
+codeunit 92431 "LT Y31 Cmp Char"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -2412,7 +2412,7 @@ codeunit 92430 "LT Y31 Cmp Char"
 // accepts); the expected values are what the corpus CI containers produced. Regenerate, do not edit by hand.
 // Facts: implicit conversion matrix, comparisons with Byte
 
-codeunit 92431 "LT Y31 Cmp Byte"
+codeunit 92432 "LT Y31 Cmp Byte"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -2844,7 +2844,7 @@ codeunit 92431 "LT Y31 Cmp Byte"
 // accepts); the expected values are what the corpus CI containers produced. Regenerate, do not edit by hand.
 // Facts: implicit conversion matrix, comparisons with Option
 
-codeunit 92432 "LT Y31 Cmp Option"
+codeunit 92433 "LT Y31 Cmp Option"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -3502,7 +3502,7 @@ codeunit 92432 "LT Y31 Cmp Option"
 // accepts); the expected values are what the corpus CI containers produced. Regenerate, do not edit by hand.
 // Facts: implicit conversion matrix, comparisons with Enum
 
-codeunit 92433 "LT Y31 Cmp Enum"
+codeunit 92434 "LT Y31 Cmp Enum"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -3868,7 +3868,7 @@ codeunit 92433 "LT Y31 Cmp Enum"
 // accepts); the expected values are what the corpus CI containers produced. Regenerate, do not edit by hand.
 // Facts: implicit conversion matrix, comparisons with EnumImpl
 
-codeunit 92434 "LT Y31 Cmp EnumImpl"
+codeunit 92435 "LT Y31 Cmp EnumImpl"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -4140,7 +4140,7 @@ codeunit 92434 "LT Y31 Cmp EnumImpl"
 // accepts); the expected values are what the corpus CI containers produced. Regenerate, do not edit by hand.
 // Facts: implicit conversion matrix, comparisons with Text
 
-codeunit 92436 "LT Y31 Cmp Text"
+codeunit 92437 "LT Y31 Cmp Text"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -4774,7 +4774,7 @@ codeunit 92436 "LT Y31 Cmp Text"
 // accepts); the expected values are what the corpus CI containers produced. Regenerate, do not edit by hand.
 // Facts: implicit conversion matrix, comparisons with Text10
 
-codeunit 92437 "LT Y31 Cmp Text10"
+codeunit 92438 "LT Y31 Cmp Text10"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -5108,7 +5108,7 @@ codeunit 92437 "LT Y31 Cmp Text10"
 // accepts); the expected values are what the corpus CI containers produced. Regenerate, do not edit by hand.
 // Facts: implicit conversion matrix, comparisons with Code10
 
-codeunit 92438 "LT Y31 Cmp Code10"
+codeunit 92439 "LT Y31 Cmp Code10"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -5564,7 +5564,7 @@ codeunit 92438 "LT Y31 Cmp Code10"
 // accepts); the expected values are what the corpus CI containers produced. Regenerate, do not edit by hand.
 // Facts: implicit conversion matrix, comparisons with Guid
 
-codeunit 92439 "LT Y31 Cmp Guid"
+codeunit 92440 "LT Y31 Cmp Guid"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -5879,7 +5879,7 @@ codeunit 92439 "LT Y31 Cmp Guid"
 // accepts); the expected values are what the corpus CI containers produced. Regenerate, do not edit by hand.
 // Facts: implicit conversion matrix, comparisons with Duration
 
-codeunit 92443 "LT Y31 Cmp Duration"
+codeunit 92444 "LT Y31 Cmp Duration"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -6247,7 +6247,7 @@ codeunit 92443 "LT Y31 Cmp Duration"
 // accepts); the expected values are what the corpus CI containers produced. Regenerate, do not edit by hand.
 // Facts: implicit conversion matrix, comparisons with Label
 
-codeunit 92444 "LT Y31 Cmp Label"
+codeunit 92445 "LT Y31 Cmp Label"
 {
     Subtype = Test;
     TestPermissions = Disabled;

@@ -5,7 +5,7 @@
 // accepts); the expected values are what the corpus CI containers produced. Regenerate, do not edit by hand.
 // Facts: implicit conversion matrix, arithmetic with Integer
 
-codeunit 92445 "LT Y31 Ar Integer"
+codeunit 92446 "LT Y31 Ar Integer"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -1039,7 +1039,7 @@ codeunit 92445 "LT Y31 Ar Integer"
 // accepts); the expected values are what the corpus CI containers produced. Regenerate, do not edit by hand.
 // Facts: implicit conversion matrix, arithmetic with BigInteger
 
-codeunit 92446 "LT Y31 Ar BigInteger"
+codeunit 92447 "LT Y31 Ar BigInteger"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -1481,7 +1481,7 @@ codeunit 92446 "LT Y31 Ar BigInteger"
 // accepts); the expected values are what the corpus CI containers produced. Regenerate, do not edit by hand.
 // Facts: implicit conversion matrix, arithmetic with Decimal
 
-codeunit 92447 "LT Y31 Ar Decimal"
+codeunit 92448 "LT Y31 Ar Decimal"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -2121,7 +2121,7 @@ codeunit 92447 "LT Y31 Ar Decimal"
 // accepts); the expected values are what the corpus CI containers produced. Regenerate, do not edit by hand.
 // Facts: implicit conversion matrix, arithmetic with Char
 
-codeunit 92448 "LT Y31 Ar Char"
+codeunit 92449 "LT Y31 Ar Char"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -3461,7 +3461,7 @@ codeunit 92448 "LT Y31 Ar Char"
 // accepts); the expected values are what the corpus CI containers produced. Regenerate, do not edit by hand.
 // Facts: implicit conversion matrix, arithmetic with Byte
 
-codeunit 92449 "LT Y31 Ar Byte"
+codeunit 92450 "LT Y31 Ar Byte"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -4231,7 +4231,7 @@ codeunit 92449 "LT Y31 Ar Byte"
 // accepts); the expected values are what the corpus CI containers produced. Regenerate, do not edit by hand.
 // Facts: implicit conversion matrix, arithmetic with Option
 
-codeunit 92450 "LT Y31 Ar Option"
+codeunit 92451 "LT Y31 Ar Option"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -5001,7 +5001,7 @@ codeunit 92450 "LT Y31 Ar Option"
 // accepts); the expected values are what the corpus CI containers produced. Regenerate, do not edit by hand.
 // Facts: implicit conversion matrix, arithmetic with Enum
 
-codeunit 92451 "LT Y31 Ar Enum"
+codeunit 92452 "LT Y31 Ar Enum"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -5591,7 +5591,7 @@ codeunit 92451 "LT Y31 Ar Enum"
 // accepts); the expected values are what the corpus CI containers produced. Regenerate, do not edit by hand.
 // Facts: implicit conversion matrix, arithmetic with EnumImpl
 
-codeunit 92452 "LT Y31 Ar EnumImpl"
+codeunit 92453 "LT Y31 Ar EnumImpl"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -5992,7 +5992,7 @@ codeunit 92452 "LT Y31 Ar EnumImpl"
 // accepts); the expected values are what the corpus CI containers produced. Regenerate, do not edit by hand.
 // Facts: implicit conversion matrix, arithmetic with Text
 
-codeunit 92454 "LT Y31 Ar Text"
+codeunit 92455 "LT Y31 Ar Text"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -6441,7 +6441,7 @@ codeunit 92454 "LT Y31 Ar Text"
 // accepts); the expected values are what the corpus CI containers produced. Regenerate, do not edit by hand.
 // Facts: implicit conversion matrix, arithmetic with Text10
 
-codeunit 92455 "LT Y31 Ar Text10"
+codeunit 92456 "LT Y31 Ar Text10"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -6653,7 +6653,7 @@ codeunit 92455 "LT Y31 Ar Text10"
 // accepts); the expected values are what the corpus CI containers produced. Regenerate, do not edit by hand.
 // Facts: implicit conversion matrix, arithmetic with Code10
 
-codeunit 92456 "LT Y31 Ar Code10"
+codeunit 92457 "LT Y31 Ar Code10"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -6936,7 +6936,7 @@ codeunit 92456 "LT Y31 Ar Code10"
 // accepts); the expected values are what the corpus CI containers produced. Regenerate, do not edit by hand.
 // Facts: implicit conversion matrix, arithmetic with Guid
 
-codeunit 92457 "LT Y31 Ar Guid"
+codeunit 92458 "LT Y31 Ar Guid"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -7148,7 +7148,7 @@ codeunit 92457 "LT Y31 Ar Guid"
 // accepts); the expected values are what the corpus CI containers produced. Regenerate, do not edit by hand.
 // Facts: implicit conversion matrix, arithmetic with Date
 
-codeunit 92458 "LT Y31 Ar Date"
+codeunit 92459 "LT Y31 Ar Date"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -7520,7 +7520,7 @@ codeunit 92458 "LT Y31 Ar Date"
 // accepts); the expected values are what the corpus CI containers produced. Regenerate, do not edit by hand.
 // Facts: implicit conversion matrix, arithmetic with Time
 
-codeunit 92459 "LT Y31 Ar Time"
+codeunit 92460 "LT Y31 Ar Time"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -7892,7 +7892,7 @@ codeunit 92459 "LT Y31 Ar Time"
 // accepts); the expected values are what the corpus CI containers produced. Regenerate, do not edit by hand.
 // Facts: implicit conversion matrix, arithmetic with DateTime
 
-codeunit 92460 "LT Y31 Ar DateTime"
+codeunit 92461 "LT Y31 Ar DateTime"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -8264,7 +8264,7 @@ codeunit 92460 "LT Y31 Ar DateTime"
 // accepts); the expected values are what the corpus CI containers produced. Regenerate, do not edit by hand.
 // Facts: implicit conversion matrix, arithmetic with Duration
 
-codeunit 92461 "LT Y31 Ar Duration"
+codeunit 92462 "LT Y31 Ar Duration"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -8706,7 +8706,7 @@ codeunit 92461 "LT Y31 Ar Duration"
 // accepts); the expected values are what the corpus CI containers produced. Regenerate, do not edit by hand.
 // Facts: implicit conversion matrix, arithmetic with Label
 
-codeunit 92462 "LT Y31 Ar Label"
+codeunit 92463 "LT Y31 Ar Label"
 {
     Subtype = Test;
     TestPermissions = Disabled;

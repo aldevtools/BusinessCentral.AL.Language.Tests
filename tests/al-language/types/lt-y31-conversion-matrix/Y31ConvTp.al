@@ -5,7 +5,7 @@
 // accepts); the expected values are what the corpus CI containers produced. Regenerate, do not edit by hand.
 // Facts: implicit conversion matrix, the value of a TestPage control
 
-codeunit 92426 "LT Y31 Tp Value"
+codeunit 92427 "LT Y31 Tp Value"
 {
     Subtype = Test;
     TestPermissions = Disabled;
