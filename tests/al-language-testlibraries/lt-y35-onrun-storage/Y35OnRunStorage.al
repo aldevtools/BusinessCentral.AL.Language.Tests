@@ -23,6 +23,15 @@
 //   test of a codeunit run by 130450 (and by the hub), ends the session at the end of the codeunit with "An unexpected error occurred
 //   after a database command was cancelled." (SQL: "Cannot roll back 4. No transaction or savepoint of that name was found.");
 //   the codeunit gives no result. Seen on the Linux containers 27.5, 28.5, 29.0; to be checked on Windows.
+// Measured on the CI TestLibraries legs 27.5, 28.5 and 29.0 (the same values on all three):
+//   - 130450: what A1's OnRun left, committed and open, is seen by its own test and by the next codeunit B1: the four isolated storage
+//     keys (every scope), the open key, the key it deleted stays deleted, the sequences it inserted (company-wide too) with the numbers it
+//     took, and the Next of the older sequence. B1's own write works.
+//   - 130450: what A2's TEST wrote does not reach B2: the storage keys and the sequences the test inserted are gone, but the number the
+//     test took from the older sequence (Next) is not given back (Current 1).
+//   - Hub (BC 28.5 and 29.0, RequiredTestIsolation = Codeunit): B6 sees nothing of A6's OnRun, its committed writes and the older keys
+//     it prepared included. On BC 27.5 (130450) B6 sees them as B1 does.
+//   - NumberSequence.Exists(Name) with one argument answers No for a sequence that NumberSequence.Exists(Name, false) finds.
 // BC versions: 27.5, 28.5, 29.0
 
 codeunit 81574 "LT Y35 Probe Store"
@@ -238,7 +247,11 @@ codeunit 81566 "LT Y35 A0 Prepare"
         Observer.Observe('c302_mod_del', Store.GetStore('C302-MOD-DEL', DataScope::Module));
         Observer.Observe('c302_seq_old_r_current', Store.SeqCurrent('C302-SEQ-OLD-R', false));
         Observer.Observe('c302_seq_old_n_current', Store.SeqCurrent('C302-SEQ-OLD-N', false));
-        Observer.Finish();
+        Observer.Expect('onrun_log', 'C302:insert-old-r=ok;insert-old-n=ok;next-old-n=0;');
+        Observer.Expect('c302_mod_del', 'found/old');
+        Observer.Expect('c302_seq_old_r_current', '0');
+        Observer.Expect('c302_seq_old_n_current', '0');
+        Observer.Verify();
     end;
 
     [MessageHandler]
@@ -286,7 +299,20 @@ codeunit 81567 "LT Y35 A1 OnRun Writes"
         Observer.Observe('seq_cw_current', Store.SeqCurrent('C301-SEQ-CW', true));
         Observer.Observe('seq_old_r_current', Store.SeqCurrent('C301-SEQ-OLD-R', false));
         Observer.Observe('seq_old_n_current', Store.SeqCurrent('C301-SEQ-OLD-N', false));
-        Observer.Finish();
+        Observer.Expect('onrun_log', 'insert-old-r=ok;insert-old-n=ok;next-old-n=0;insert-cm=ok;next-cm=100;next-cm=101;insert-cw=ok;next-cw=200;next-old-n=1;insert-open=ok;next-open=10;delete-del=Yes;');
+        Observer.Expect('in_write_transaction', 'No');
+        Observer.Expect('mod_cm', 'found/committed');
+        Observer.Expect('com_cm', 'found/committed');
+        Observer.Expect('usr_cm', 'found/committed');
+        Observer.Expect('cau_cm', 'found/committed');
+        Observer.Expect('mod_open', 'found/open');
+        Observer.Expect('seq_open_current', '10');
+        Observer.Expect('mod_del', 'missing');
+        Observer.Expect('seq_cm_current', '101');
+        Observer.Expect('seq_cw_current', '200');
+        Observer.Expect('seq_old_r_current', '0');
+        Observer.Expect('seq_old_n_current', '1');
+        Observer.Verify();
     end;
 
     [MessageHandler]
@@ -312,7 +338,11 @@ codeunit 81568 "LT Y35 B1 Reads OnRun"
     begin
         Message('x');
         Store.ObserveStorage(Observer, 'C301', '');
-        Observer.Finish();
+        Observer.Expect('mod_cm', 'found/committed');
+        Observer.Expect('com_cm', 'found/committed');
+        Observer.Expect('usr_cm', 'found/committed');
+        Observer.Expect('cau_cm', 'found/committed');
+        Observer.Verify();
     end;
 
     [Test]
@@ -323,7 +353,15 @@ codeunit 81568 "LT Y35 B1 Reads OnRun"
     begin
         Message('x');
         Store.ObserveSequences(Observer, 'C301', '');
-        Observer.Finish();
+        Observer.Expect('seq_cm_current', '101');
+        Observer.Expect('seq_cm_next_exists_one_arg', 'No');
+        Observer.Expect('seq_cm_next', '102');
+        Observer.Expect('seq_cw_current', '200');
+        Observer.Expect('seq_old_r_current', '0');
+        Observer.Expect('seq_old_r_next_exists_one_arg', 'No');
+        Observer.Expect('seq_old_r_next', '0');
+        Observer.Expect('seq_old_n_current', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -335,7 +373,11 @@ codeunit 81568 "LT Y35 B1 Reads OnRun"
         Message('x');
         Store.ObserveOpen(Observer, 'C301', '');
         Observer.Observe('own_write', Store.OwnWrite('C301'));
-        Observer.Finish();
+        Observer.Expect('mod_open', 'found/open');
+        Observer.Expect('seq_open_current', '10');
+        Observer.Expect('mod_del', 'missing');
+        Observer.Expect('own_write', 'found/b');
+        Observer.Verify();
     end;
 
     [MessageHandler]
