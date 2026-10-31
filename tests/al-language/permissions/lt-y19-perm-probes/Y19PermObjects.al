@@ -4,7 +4,7 @@
 // Objects for the al-runtime-rs ADR-062 permission probes P0-P13 (writer Y19): own tables, permission sets, a permission set
 // extension of an own set and of D365 BASIC, codeunits with and without a Permissions property, an interface.
 // Object ids 91900-91949; tests in 91950-91999. Cross-app objects: tests/al-language-xapp-a/Y19XaObjects.al,
-// tests/al-language-xapp-b/Y19XbObjects.al, tests/al-language-xapp-d/Y19XdObjects.al.
+// tests/al-language-xapp-b/Y19XbObjects.al.
 
 table 91900 "LT Y19 Row"
 {

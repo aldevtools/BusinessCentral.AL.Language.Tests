@@ -1,12 +1,14 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-permissions-property
 // Scope: in-scope
-// Fixtures used: Probe Observer (69160); Y19PermObjects.al; xapp-a Y19XaObjects.al (61184), xapp-b Y19XbObjects.al (61187-61189), xapp-d
-//   Y19XdObjects.al (61191); Permissions Mock (131006) from the dependency.
+// Fixtures used: Probe Observer (69160); Y19PermObjects.al; xapp-a Y19XaObjects.al (61184), xapp-b Y19XbObjects.al (61187-61188); Permissions Mock (131006) from the dependency.
 // Probe: al-runtime-rs ADR-062 stage 1 probes, writer Y19:
 //   P5 the app name in the permission error when code of one app touches the table of another: xapp-b code (no Permissions property)
 //      reads and inserts a table of xapp-a, and inserts its own table, called from this app's test under a set that grants nothing there;
 //      this app's own code on the xapp-a table for comparison;
-//   P9 a role id that two apps declare (xapp-b: R on the xapp-a table, xapp-d: RI; the two apps do not depend on each other).
+//   Not here (P9, a role id declared by two apps): BC does not publish the second app. With permissionset "LT Y19 Dup" in xapp-d and in
+//   xapp-b (the two do not depend on each other; both compile), publishing xapp-b fails with HTTP 422 "Publishing failed due to 'The object
+//   name 'LT Y19 DUP' can only appear once for the type 'PermissionSet'. The same object exists in both extension (...)" (BC 29.0, CI run
+//   41188729109). So two apps in one database never declare the same role id.
 // BC versions: 27, 28, 29
 
 codeunit 91953 "LT Y19 Perm Cross App"
@@ -31,20 +33,6 @@ codeunit 91953 "LT Y19 Perm Cross App"
         RunCase(Observer, 'test_reads_xa', 'LT Y19 None', 4);
         RunCase(Observer, 'test_inserts_xa', 'LT Y19 None', 5);
         RunCase(Observer, 'test_inserts_xb', 'LT Y19 None', 6);
-        Helper.RestoreMock(Mock, WasStarted);
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Y19_P9_RoleIdInTwoApps()
-    var
-        Observer: Codeunit "Probe Observer";
-        WasStarted: Boolean;
-    begin
-        Observer.Observe('permission_set_rows', PermissionSetRows('LT Y19 DUP'));
-        WasStarted := Helper.StartMock(Mock);
-        RunCase(Observer, 'dup_reads_xa', 'LT Y19 Dup', 4);
-        RunCase(Observer, 'dup_inserts_xa', 'LT Y19 Dup', 5);
         Helper.RestoreMock(Mock, WasStarted);
         Observer.Finish();
     end;
@@ -113,19 +101,5 @@ codeunit 91953 "LT Y19 Perm Cross App"
                 end;
         end;
         Error('LT Y19 ok %1', Result);
-    end;
-
-    // The Permission Set rows (all apps) of a role id: count, then per row the app id.
-    local procedure PermissionSetRows(RoleId: Code[20]): Text
-    var
-        MetadataPermissionSet: Record "Metadata Permission Set";
-        Result: Text;
-    begin
-        MetadataPermissionSet.SetRange("Role ID", RoleId);
-        if MetadataPermissionSet.FindSet() then
-            repeat
-                Result += Format(MetadataPermissionSet."App ID") + ';';
-            until MetadataPermissionSet.Next() = 0;
-        exit(Format(MetadataPermissionSet.Count()) + ': ' + Result);
     end;
 }

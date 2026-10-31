@@ -106,14 +106,36 @@ codeunit 91952 "LT Y19 Perm Composition"
     end;
 
     [Test]
-    procedure Y19_P12_Wildcards()
+    procedure Y19_P12_WildcardR()
     var
         Observer: Codeunit "Probe Observer";
         WasStarted: Boolean;
     begin
         WasStarted := Helper.StartMock(Mock);
         RunWild(Observer, 'wild_r', 'LT Y19 Wild R');
+        Helper.RestoreMock(Mock, WasStarted);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y19_P12_WildcardIndR()
+    var
+        Observer: Codeunit "Probe Observer";
+        WasStarted: Boolean;
+    begin
+        WasStarted := Helper.StartMock(Mock);
         RunWild(Observer, 'wild_ind_r', 'LT Y19 Wild Ind R');
+        Helper.RestoreMock(Mock, WasStarted);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y19_P12_WildcardRIMD()
+    var
+        Observer: Codeunit "Probe Observer";
+        WasStarted: Boolean;
+    begin
+        WasStarted := Helper.StartMock(Mock);
         RunWild(Observer, 'wild_rimd', 'LT Y19 Wild RIMD');
         Helper.RestoreMock(Mock, WasStarted);
         Observer.Finish();
