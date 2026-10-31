@@ -18,6 +18,8 @@ codeunit 91976 "LT Y24 Perm Object Reads"
     TestPermissions = Disabled;
 
     var
+        // One Observer per codeunit: the _More tests raise the rest of a long observation.
+        Observer: Codeunit "Probe Observer";
         Helper: Codeunit "LT Y24 Perm Helper";
         Y19Helper: Codeunit "LT Y19 Perm Helper";
         Mock: Codeunit "Permissions Mock";
@@ -25,7 +27,6 @@ codeunit 91976 "LT Y24 Perm Object Reads"
     [Test]
     procedure Y24_P16_QueryXmlportNoGrant()
     var
-        Observer: Codeunit "Probe Observer";
         WasStarted: Boolean;
     begin
         WasStarted := Y19Helper.StartMock(Mock);
@@ -35,9 +36,20 @@ codeunit 91976 "LT Y24 Perm Object Reads"
     end;
 
     [Test]
+    procedure Y24_P16_QueryXmlportNoGrant_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure Y24_P16_QueryXmlportNoGrant_More2()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
     procedure Y24_P16_QueryXmlportIndirectRead()
     var
-        Observer: Codeunit "Probe Observer";
         WasStarted: Boolean;
     begin
         WasStarted := Y19Helper.StartMock(Mock);
@@ -47,9 +59,20 @@ codeunit 91976 "LT Y24 Perm Object Reads"
     end;
 
     [Test]
+    procedure Y24_P16_QueryXmlportIndirectRead_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure Y24_P16_QueryXmlportIndirectRead_More2()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
     procedure Y24_P17_ReportNoRequestPage()
     var
-        Observer: Codeunit "Probe Observer";
         WasStarted: Boolean;
     begin
         WasStarted := Y19Helper.StartMock(Mock);
@@ -60,10 +83,21 @@ codeunit 91976 "LT Y24 Perm Object Reads"
     end;
 
     [Test]
+    procedure Y24_P17_ReportNoRequestPage_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure Y24_P17_ReportNoRequestPage_More2()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
     [HandlerFunctions('Y24ProcRepOk')]
     procedure Y24_P17_ReportRequestPage()
     var
-        Observer: Codeunit "Probe Observer";
         WasStarted: Boolean;
     begin
         WasStarted := Y19Helper.StartMock(Mock);
@@ -74,10 +108,21 @@ codeunit 91976 "LT Y24 Perm Object Reads"
     end;
 
     [Test]
+    procedure Y24_P17_ReportRequestPage_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure Y24_P17_ReportRequestPage_More2()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
     [HandlerFunctions('Y24ProcRepPermOk')]
     procedure Y24_P17_ReportPermRequestPage()
     var
-        Observer: Codeunit "Probe Observer";
         WasStarted: Boolean;
     begin
         WasStarted := Y19Helper.StartMock(Mock);
@@ -88,9 +133,20 @@ codeunit 91976 "LT Y24 Perm Object Reads"
     end;
 
     [Test]
+    procedure Y24_P17_ReportPermRequestPage_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure Y24_P17_ReportPermRequestPage_More2()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
     procedure Y24_P18_Pages()
     var
-        Observer: Codeunit "Probe Observer";
         WasStarted: Boolean;
     begin
         WasStarted := Y19Helper.StartMock(Mock);
@@ -101,6 +157,18 @@ codeunit 91976 "LT Y24 Perm Object Reads"
         RunCase(Observer, 'r_setvalue_next', 'LT Y24 R', 55);
         Y19Helper.RestoreMock(Mock, WasStarted);
         Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y24_P18_Pages_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure Y24_P18_Pages_More2()
+    begin
+        Observer.More();
     end;
 
     local procedure RunP16(var Observer: Codeunit "Probe Observer"; Prefix: Text; SetName: Code[20])

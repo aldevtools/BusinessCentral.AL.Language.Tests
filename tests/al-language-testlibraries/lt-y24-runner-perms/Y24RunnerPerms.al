@@ -199,11 +199,14 @@ codeunit 81641 "LT Y24 Runner Sets"
 {
     Subtype = Test;
 
+    var
+        // One Observer per codeunit: the _More tests raise the rest of a long observation.
+        Observer: Codeunit "Probe Observer";
+
     [Test]
     [HandlerFunctions('Y24Msg')]
     procedure Y24_P23_TestTables()
     var
-        Observer: Codeunit "Probe Observer";
         Probe: Codeunit "LT Y24 Lower Probe";
     begin
         Message('LT Y24');
@@ -212,15 +215,38 @@ codeunit 81641 "LT Y24 Runner Sets"
     end;
 
     [Test]
+    procedure Y24_P23_TestTables_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure Y24_P23_TestTables_More2()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
     [HandlerFunctions('Y24Msg')]
     procedure Y24_P24_FullAccess()
     var
-        Observer: Codeunit "Probe Observer";
         Probe: Codeunit "LT Y24 Lower Probe";
     begin
         Message('LT Y24');
         Probe.ObserveFullAccess(Observer);
         Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y24_P24_FullAccess_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure Y24_P24_FullAccess_More2()
+    begin
+        Observer.More();
     end;
 
     [MessageHandler]
@@ -234,11 +260,14 @@ codeunit 81642 "LT Y24 Lower Restrictive"
     Subtype = Test;
     TestPermissions = Restrictive;
 
+    var
+        // One Observer per codeunit: the _More tests raise the rest of a long observation.
+        Observer: Codeunit "Probe Observer";
+
     [Test]
     [HandlerFunctions('Y24Msg')]
     procedure Y24_P25_Restrictive()
     var
-        Observer: Codeunit "Probe Observer";
         Probe: Codeunit "LT Y24 Lower Probe";
     begin
         Message('LT Y24');
@@ -248,6 +277,18 @@ codeunit 81642 "LT Y24 Lower Restrictive"
         Probe.Lower(Observer, true);
         Probe.ObserveLowered(Observer, 'basic_setup_');
         Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y24_P25_Restrictive_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure Y24_P25_Restrictive_More2()
+    begin
+        Observer.More();
     end;
 
     [MessageHandler]
@@ -260,11 +301,14 @@ codeunit 81643 "LT Y24 Lower Default"
 {
     Subtype = Test;
 
+    var
+        // One Observer per codeunit: the _More tests raise the rest of a long observation.
+        Observer: Codeunit "Probe Observer";
+
     [Test]
     [HandlerFunctions('Y24Msg')]
     procedure Y24_P25_Default()
     var
-        Observer: Codeunit "Probe Observer";
         Probe: Codeunit "LT Y24 Lower Probe";
     begin
         Message('LT Y24');
@@ -274,6 +318,18 @@ codeunit 81643 "LT Y24 Lower Default"
         Probe.Lower(Observer, true);
         Probe.ObserveLowered(Observer, 'basic_setup_');
         Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y24_P25_Default_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure Y24_P25_Default_More2()
+    begin
+        Observer.More();
     end;
 
     [MessageHandler]

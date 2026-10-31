@@ -22,6 +22,8 @@ codeunit 91977 "LT Y24 Perm Execute"
     TestPermissions = Disabled;
 
     var
+        // One Observer per codeunit: the _More tests raise the rest of a long observation.
+        Observer: Codeunit "Probe Observer";
         Helper: Codeunit "LT Y24 Perm Helper";
         Mock: Codeunit "Permissions Mock";
         GuardVisible: Text;
@@ -29,7 +31,6 @@ codeunit 91977 "LT Y24 Perm Execute"
     [Test]
     procedure Y24_P20_ExecuteTableDataOnly()
     var
-        Observer: Codeunit "Probe Observer";
         WasStarted: Boolean;
     begin
         WasStarted := StartMock();
@@ -45,9 +46,20 @@ codeunit 91977 "LT Y24 Perm Execute"
     end;
 
     [Test]
+    procedure Y24_P20_ExecuteTableDataOnly_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure Y24_P20_ExecuteTableDataOnly_More2()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
     procedure Y24_P20_ExecuteThroughGranter()
     var
-        Observer: Codeunit "Probe Observer";
         WasStarted: Boolean;
     begin
         WasStarted := StartMock();
@@ -61,12 +73,23 @@ codeunit 91977 "LT Y24 Perm Execute"
         Observer.Finish();
     end;
 
+    [Test]
+    procedure Y24_P20_ExecuteThroughGranter_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure Y24_P20_ExecuteThroughGranter_More2()
+    begin
+        Observer.More();
+    end;
+
     // Page.Run needs a page handler; the last call runs with no set so that the handler is always used once.
     [Test]
     [HandlerFunctions('Y24RowCardHandler')]
     procedure Y24_P20_ExecutePageRun()
     var
-        Observer: Codeunit "Probe Observer";
         WasStarted: Boolean;
     begin
         WasStarted := StartMock();
@@ -80,9 +103,20 @@ codeunit 91977 "LT Y24 Perm Execute"
     end;
 
     [Test]
+    procedure Y24_P20_ExecutePageRun_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure Y24_P20_ExecutePageRun_More2()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
     procedure Y24_P21_AccessByPermissionPage()
     var
-        Observer: Codeunit "Probe Observer";
         WasStarted: Boolean;
     begin
         WasStarted := StartMock();
@@ -100,10 +134,21 @@ codeunit 91977 "LT Y24 Perm Execute"
     end;
 
     [Test]
+    procedure Y24_P21_AccessByPermissionPage_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure Y24_P21_AccessByPermissionPage_More2()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
     [HandlerFunctions('Y24ProcRepGuard')]
     procedure Y24_P21_AccessByPermissionRequestPage()
     var
-        Observer: Codeunit "Probe Observer";
         WasStarted: Boolean;
     begin
         WasStarted := StartMock();
@@ -117,9 +162,20 @@ codeunit 91977 "LT Y24 Perm Execute"
     end;
 
     [Test]
+    procedure Y24_P21_AccessByPermissionRequestPage_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure Y24_P21_AccessByPermissionRequestPage_More2()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
     procedure Y24_P22_EffectivePermission()
     var
-        Observer: Codeunit "Probe Observer";
         WasStarted: Boolean;
     begin
         WasStarted := StartMock();
@@ -131,6 +187,18 @@ codeunit 91977 "LT Y24 Perm Execute"
         ObserveRights(Observer, 'exact ');
         RestoreMock(WasStarted);
         Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y24_P22_EffectivePermission_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure Y24_P22_EffectivePermission_More2()
+    begin
+        Observer.More();
     end;
 
     local procedure StartMock() WasStarted: Boolean

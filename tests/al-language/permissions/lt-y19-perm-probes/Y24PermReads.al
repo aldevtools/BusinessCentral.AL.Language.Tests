@@ -18,6 +18,8 @@ codeunit 91975 "LT Y24 Perm Reads"
     TestPermissions = Disabled;
 
     var
+        // One Observer per codeunit: the _More tests raise the rest of a long observation.
+        Observer: Codeunit "Probe Observer";
         Helper: Codeunit "LT Y24 Perm Helper";
         Y19Helper: Codeunit "LT Y19 Perm Helper";
         Mock: Codeunit "Permissions Mock";
@@ -25,7 +27,6 @@ codeunit 91975 "LT Y24 Perm Reads"
     [Test]
     procedure Y24_P14_ReadShapesWithRows()
     var
-        Observer: Codeunit "Probe Observer";
         WasStarted: Boolean;
     begin
         WasStarted := Y19Helper.StartMock(Mock);
@@ -35,9 +36,20 @@ codeunit 91975 "LT Y24 Perm Reads"
     end;
 
     [Test]
+    procedure Y24_P14_ReadShapesWithRows_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure Y24_P14_ReadShapesWithRows_More2()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
     procedure Y24_P14_ReadShapesEmptyTable()
     var
-        Observer: Codeunit "Probe Observer";
         WasStarted: Boolean;
     begin
         WasStarted := Y19Helper.StartMock(Mock);
@@ -47,9 +59,20 @@ codeunit 91975 "LT Y24 Perm Reads"
     end;
 
     [Test]
+    procedure Y24_P14_ReadShapesEmptyTable_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure Y24_P14_ReadShapesEmptyTable_More2()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
     procedure Y24_P15_FlowFieldsNothingOnSource()
     var
-        Observer: Codeunit "Probe Observer";
         WasStarted: Boolean;
     begin
         WasStarted := Y19Helper.StartMock(Mock);
@@ -59,9 +82,20 @@ codeunit 91975 "LT Y24 Perm Reads"
     end;
 
     [Test]
+    procedure Y24_P15_FlowFieldsNothingOnSource_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure Y24_P15_FlowFieldsNothingOnSource_More2()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
     procedure Y24_P15_FlowFieldsIndirectReadOnSource()
     var
-        Observer: Codeunit "Probe Observer";
         WasStarted: Boolean;
     begin
         WasStarted := Y19Helper.StartMock(Mock);
@@ -71,9 +105,20 @@ codeunit 91975 "LT Y24 Perm Reads"
     end;
 
     [Test]
+    procedure Y24_P15_FlowFieldsIndirectReadOnSource_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure Y24_P15_FlowFieldsIndirectReadOnSource_More2()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
     procedure Y24_P19_ReadWritePermission()
     var
-        Observer: Codeunit "Probe Observer";
         WasStarted: Boolean;
     begin
         WasStarted := Y19Helper.StartMock(Mock);
@@ -86,6 +131,18 @@ codeunit 91975 "LT Y24 Perm Reads"
         RunP19(Observer, 'rimd', 'LT Y24 RIMD');
         Y19Helper.RestoreMock(Mock, WasStarted);
         Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y24_P19_ReadWritePermission_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure Y24_P19_ReadWritePermission_More2()
+    begin
+        Observer.More();
     end;
 
     local procedure RunP14(var Observer: Codeunit "Probe Observer"; Prefix: Text; Empty: Boolean)
