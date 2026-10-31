@@ -161,12 +161,23 @@ codeunit 99495 "LT Y44 Zip Create Mode"
         Holder.Close();
     end;
 
+    // the innermost frame of the error's call stack (the routine that raised)
+    local procedure TopFrame(): Text
+    var
+        Stack: Text;
+    begin
+        Stack := GetLastErrorCallStack();
+        if Stack.IndexOf('\') > 0 then
+            exit(Stack.Substring(1, Stack.IndexOf('\') - 1));
+        exit(Stack);
+    end;
+
     local procedure Outcome(Name: Text; Ok: Boolean)
     begin
         if Ok then
             Observer.Observe(Name, 'ok')
         else begin
-            Observer.Observe('stack_' + Name, GetLastErrorCallStack());
+            Observer.Observe('stack_' + Name, TopFrame());
             Observer.ObserveError(Name);
         end;
     end;
@@ -286,7 +297,7 @@ codeunit 99495 "LT Y44 Zip Create Mode"
         Outcome('list_disposed', TryList(Holder, L));
         ClearLastError();
         asserterror Holder.List(L);
-        Observer.Observe('stack_asserterror', GetLastErrorCallStack());
+        Observer.Observe('stack_asserterror', TopFrame());
         Observer.ObserveError('asserterror_list_disposed');
         Observer.Finish();
     end;

@@ -4,6 +4,7 @@
 // Probe: gap cycle 4, spec G4-17. foreach over an XmlNodeList that was never assigned: a local, the named return value of a procedure
 //        with an empty body (called directly and through an interface), and Count/Get on such a list.
 //        Already pinned nearby: xml/XmlNodes.al TP_NodeList_Clear (fresh Count 0, foreach over a cleared list).
+//        Every value asserted is what BC 27.5, 28.5, 29.0 (CI containers) and a SaaS sandbox BC 29 produced, all the same.
 // BC versions: 27, 28, 29
 
 interface "LT Y44 I Nodes"
@@ -72,7 +73,9 @@ codeunit 92862 "LT Y44 Foreach Fresh NodeList"
         L: XmlNodeList;
     begin
         Run('never', L);
-        Observer.Finish();
+        Observer.Expect('ok_never', 'Yes');
+        Observer.Expect('visits_never', '0 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -89,7 +92,11 @@ codeunit 92862 "LT Y44 Foreach Fresh NodeList"
         I := TwoNodes;
         L := I.GetNodes();
         Run('iface_two', L);
-        Observer.Finish();
+        Observer.Expect('ok_iface_empty', 'Yes');
+        Observer.Expect('visits_iface_empty', '0 ');
+        Observer.Expect('ok_iface_two', 'Yes');
+        Observer.Expect('visits_iface_two', '2 1,2,');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -116,7 +123,11 @@ codeunit 92862 "LT Y44 Foreach Fresh NodeList"
         Observer.Observe('visits_direct', Format(Visits));
         if not Ok then
             Observer.ObserveError('err_direct');
-        Observer.Finish();
+        Observer.Expect('ok_local', 'Yes');
+        Observer.Expect('visits_local', '0 ');
+        Observer.Expect('ok_direct', 'Yes');
+        Observer.Expect('visits_direct', '0');
+        Observer.Verify();
     end;
 
     // Get as a statement: the Boolean answer is not used, so a missing node raises
@@ -140,6 +151,10 @@ codeunit 92862 "LT Y44 Foreach Fresh NodeList"
             Observer.Observe('get_nobool', 'ok ' + Format(N.IsXmlElement()))
         else
             Observer.ObserveError('get_nobool');
-        Observer.Finish();
+        Observer.Expect('count', '0');
+        Observer.Expect('get_bool', 'No');
+        Observer.Expect('get_nobool|text', 'Index out of bounds.');
+        Observer.Expect('get_nobool|code', 'IndexOutOfBounds');
+        Observer.Verify();
     end;
 }

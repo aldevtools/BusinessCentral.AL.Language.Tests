@@ -94,26 +94,17 @@ codeunit 92865 "LT Y44 Media ExportStream"
         DocumentAttachment.Modify(false);
     end;
 
-    [TryFunction]
-    local procedure TryAttachAndExport(No: Code[20]; FileName: Text; var InS: InStream; var Exported: Codeunit "Temp Blob")
+    // not inside a TryFunction: the containers refuse Insert inside a TryFunction (DoNotUseTryFunctionWriteTransaction)
+    local procedure AttachCase(Name: Text; No: Code[20]; FileName: Text; var InS: InStream; WithText: Boolean)
     var
         DocumentAttachment: Record "Document Attachment";
+        Exported: Codeunit "Temp Blob";
         OutS: OutStream;
     begin
         NewAttachment(DocumentAttachment, No, FileName, InS);
         Exported.CreateOutStream(OutS);
         DocumentAttachment.ExportToStream(OutS);
-    end;
-
-    local procedure AttachCase(Name: Text; No: Code[20]; FileName: Text; var InS: InStream; WithText: Boolean)
-    var
-        Exported: Codeunit "Temp Blob";
-    begin
-        ClearLastError();
-        if TryAttachAndExport(No, FileName, InS, Exported) then
-            ObserveBytes(Name, Exported, WithText)
-        else
-            Observer.ObserveError('err_' + Name);
+        ObserveBytes(Name, Exported, WithText);
     end;
 
     local procedure CleanAttachments()
