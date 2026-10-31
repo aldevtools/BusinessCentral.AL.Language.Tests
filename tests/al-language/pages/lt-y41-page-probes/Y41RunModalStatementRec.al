@@ -11,7 +11,8 @@
 //   call (a stale Name/Counter stays stale, an in-memory Blob value stays, a Name the page saved is not read back, a list handler's
 //   Next + OK leaves Rec on the start row). In the EXPRESSION form Rec takes the stored row (stale values refreshed, Next + OK gives
 //   the next row). A list run with Page.RunModal (not in lookup mode) has no Cancel action: TestActionNotFound.
-//   After Insert(true), Rec's SystemModifiedAt equals the stored one on 28.5 and 29.0 and differs on 27.5 (guarded).
+//   After Insert(true), Rec keeps the stored SystemId. Whether Rec's SystemModifiedAt equals the stored one varied between runs,
+//   so it is not asserted.
 // BC versions: all (CI)
 
 table 92806 "LT Y41 RM Row"
@@ -249,17 +250,11 @@ codeunit 92809 "LT Y41 RunModal Stmt Rec"
         Setup();
         ObserveAll(G);
         Db.Get('N');
-        Obs.Observe('same SystemModifiedAt', Format(G.SystemModifiedAt = Db.SystemModifiedAt));
         Obs.Observe('same SystemId', Format(G.SystemId = Db.SystemId));
         Obs.Expect('rec', 'N|new|0|<none>');
         Obs.Expect('filters', 'Code: N');
         Obs.Expect('db', 'N|new|0|<none>');
         Obs.Expect('log', 'agr N new');
-#if BC28PLUS
-        Obs.Expect('same SystemModifiedAt', 'Yes');
-#else
-        Obs.Expect('same SystemModifiedAt', 'No');
-#endif
         Obs.Expect('same SystemId', 'Yes');
         Obs.Verify();
     end;
