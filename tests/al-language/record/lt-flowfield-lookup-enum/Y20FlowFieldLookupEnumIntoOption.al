@@ -185,9 +185,17 @@ codeunit 92103 "LT Y20 FLOpt Lookup"
         Header.CalcFields("Max Status");
         Ordinal := Header."Max Status";
         Observer.Observe('max_none', Format(Header."Max Status") + '/' + Format(Ordinal));
+        // BC 29 formats the max as the Option member (or the number when the Option lacks the ordinal); BC 27 and 28 format it as the
+        // Enum member (BC 27.5 Windows container and the CI legs).
+#if BC29PLUS
         Observer.Expect('max_g1', 'Uno/1');
         Observer.Expect('max_g2', '5/5');
         Observer.Expect('max_none', 'Nil/0');
+#else
+        Observer.Expect('max_g1', 'One/1');
+        Observer.Expect('max_g2', 'Five/5');
+        Observer.Expect('max_none', 'Zero/0');
+#endif
         Observer.Verify();
     end;
 
