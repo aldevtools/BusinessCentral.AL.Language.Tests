@@ -15,6 +15,7 @@ codeunit 67107 "LT PT Cloud Tables"
 
     var
         Ops: Codeunit "LT PT Ops";
+        Y17Inserted: Boolean;
 
     local procedure Standard(var Observer: Codeunit "Probe Observer"; TableNo: Integer; InsertRequest: Text; FilterRequest: Text; ChangeRequest: Text)
     begin
@@ -622,7 +623,21 @@ codeunit 67107 "LT PT Cloud Tables"
         Observer: Codeunit "Probe Observer";
     begin
         Standard(Observer, 2000000249, '1=91874;2=' + Y17Part('Y17Body') + ';3=;4=' + Y17Part('Y17HF') + ';5=' + Y17Part('Y17Theme'), '1=91874;2=' + Y17Part('Y17Body') + ';3=', '4=');
-        Observer.Finish();
+        Observer.Expect('columns', 'ok:1:Report ID:Integer:4:Normal;2:Layout Name:Text:250:Normal;3:Company Name:Text:30:Normal;4:Header Part Name:Text:300:Normal;5:Theme Part Name:Text:300:Normal;');
+        Observer.Expect('has_rows', 'ok:No');
+        Observer.Expect('first_row', 'ok:none');
+        Observer.Expect('insert', 'ok:Yes');
+        Observer.Expect('find_inserted', 'ok:1=91874;2=a1b2c3d4-e5f6-7890-abcd-ef1234567890::Y17Body;3=;4=a1b2c3d4-e5f6-7890-abcd-ef1234567890::Y17HF;5=a1b2c3d4-e5f6-7890-abcd-ef1234567890::Y17Theme;');
+        Observer.Expect('count_inserted', 'ok:1');
+        Observer.Expect('insert_duplicate', 'ok:No');
+        Observer.Expect('modify', 'ok:Yes');
+        Observer.Expect('find_modified', 'ok:1=91874;2=a1b2c3d4-e5f6-7890-abcd-ef1234567890::Y17Body;3=;4=;5=a1b2c3d4-e5f6-7890-abcd-ef1234567890::Y17Theme;');
+        Observer.Expect('delete', 'ok:Yes');
+        Observer.Expect('count_deleted', 'ok:0');
+        Observer.Expect('insert_no_triggers', 'ok:Yes');
+        Observer.Expect('delete_all_no_triggers', 'ok:done');
+        Observer.Expect('count_after_delete_all', 'ok:0');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -636,7 +651,8 @@ codeunit 67107 "LT PT Cloud Tables"
         Cfg."Company Name" := Company;
         Cfg."Header Part Name" := CopyStr(HeaderPart, 1, 300);
         Cfg."Theme Part Name" := CopyStr(ThemePart, 1, 300);
-        Cfg.Insert(true);
+        // Insert with a return value: a duplicate key answers false instead of an error (an error of a duplicate is not caught here).
+        Y17Inserted := Cfg.Insert(true);
     end;
 
     [TryFunction]
@@ -668,7 +684,11 @@ codeunit 67107 "LT PT Cloud Tables"
 
     local procedure Y17Try(var Observer: Codeunit "Probe Observer"; Name: Text; Ok: Boolean)
     begin
-        Observer.Observe(Name, Format(Ok));
+        if Ok then
+            Observer.Observe(Name, 'returned ' + Format(Y17Inserted))
+        else
+            Observer.Observe(Name, Format(Ok));
+        Y17Inserted := false;
         if not Ok then
             Observer.Observe(Name + '|text', Y17Shorten(GetLastErrorText()));
         ClearLastError();
