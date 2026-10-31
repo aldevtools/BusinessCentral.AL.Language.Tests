@@ -81,7 +81,7 @@ codeunit 92828 "LT Y42 Lq Log"
         E.FilterGroup(4);
         Fg4Status := E.GetFilter(Status);
         E.FilterGroup(Group);
-        Add(Tag + ' status=[' + E.GetFilter(Status) + '] kind=[' + E.GetFilter(Kind) + '] fg4status=[' + Fg4Status + '] all=[' + E.GetFilters() + ']');
+        Add(Tag + ' s=[' + E.GetFilter(Status) + '] k=[' + E.GetFilter(Kind) + '] g4=[' + Fg4Status + '] a=[' + E.GetFilters() + ']');
     end;
 }
 
@@ -111,7 +111,7 @@ page 92828 "LT Y42 Lq Part"
 
     trigger OnOpenPage()
     begin
-        L.Filters('part open', Rec);
+        L.Filters('p open', Rec);
     end;
 
     trigger OnAfterGetCurrRecord()
@@ -119,7 +119,7 @@ page 92828 "LT Y42 Lq Part"
         if Seen then
             exit;
         Seen := true;
-        L.Filters('part agcr', Rec);
+        L.Filters('p agcr', Rec);
     end;
 }
 
@@ -150,7 +150,7 @@ page 92829 "LT Y42 Lq Part SetFilter"
     trigger OnOpenPage()
     begin
         Rec.SetFilter(Status, '%1|%2|%3', Rec.Status::Open, Rec.Status::"Bank Acc. Entry Applied", Rec.Status::"Check Entry Applied");
-        L.Filters('part2 open', Rec);
+        L.Filters('p2 open', Rec);
     end;
 
     trigger OnAfterGetCurrRecord()
@@ -158,7 +158,7 @@ page 92829 "LT Y42 Lq Part SetFilter"
         if Seen then
             exit;
         Seen := true;
-        L.Filters('part2 agcr', Rec);
+        L.Filters('p2 agcr', Rec);
     end;
 }
 

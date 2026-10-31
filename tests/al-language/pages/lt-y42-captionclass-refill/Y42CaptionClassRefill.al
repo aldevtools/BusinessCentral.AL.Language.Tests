@@ -4,6 +4,8 @@
 // expression over Rec), when the action sets the same text again, and for an area-3 text. The open and SetValue cases are
 // pinned in misc/W2CaptionClass.al. The subscriber is bound manually and logs every OnResolveCaptionClass call for an
 // area that starts with Y42 or is 3; it resolves area Y42R to 'resolved:<expr>'.
+// BC resolves a CaptionClass text once per session (a text resolved by an earlier test raises nothing), so every test ends its
+// texts with its own tag (LT Y42 Cc Tag) and does not depend on the tests before it.
 
 table 92822 "LT Y42 Cc Row"
 {
@@ -50,6 +52,24 @@ codeunit 92826 "LT Y42 Cc Subscriber"
     end;
 }
 
+codeunit 92833 "LT Y42 Cc Tag"
+{
+    SingleInstance = true;
+
+    var
+        Tag: Text;
+
+    procedure Set(NewTag: Text)
+    begin
+        Tag := NewTag;
+    end;
+
+    procedure Get(): Text
+    begin
+        exit(Tag);
+    end;
+}
+
 page 92826 "LT Y42 Cc List"
 {
     PageType = List;
@@ -81,7 +101,7 @@ page 92826 "LT Y42 Cc List"
                 field(RowCap; Rec.Name)
                 {
                     ApplicationArea = All;
-                    CaptionClass = 'Y42R,row ' + Format(Rec.Id);
+                    CaptionClass = 'Y42R,row ' + Format(Rec.Id) + ' ' + T.Get();
                 }
             }
         }
@@ -96,7 +116,7 @@ page 92826 "LT Y42 Cc List"
                 ApplicationArea = All;
                 trigger OnAction()
                 begin
-                    CapText := 'Y42R,action';
+                    CapText := 'Y42R,action' + ' ' + T.Get();
                     CurrPage.Update(false);
                 end;
             }
@@ -105,7 +125,7 @@ page 92826 "LT Y42 Cc List"
                 ApplicationArea = All;
                 trigger OnAction()
                 begin
-                    CapText := 'Y42R,noupd';
+                    CapText := 'Y42R,noupd' + ' ' + T.Get();
                 end;
             }
             action(Same)
@@ -122,7 +142,7 @@ page 92826 "LT Y42 Cc List"
                 ApplicationArea = All;
                 trigger OnAction()
                 begin
-                    CapText := '3,area three';
+                    CapText := '3,area three' + ' ' + T.Get();
                     CurrPage.Update(false);
                 end;
             }
@@ -130,11 +150,12 @@ page 92826 "LT Y42 Cc List"
     }
 
     var
+        T: Codeunit "LT Y42 Cc Tag";
         CapText: Text;
 
     trigger OnOpenPage()
     begin
-        CapText := 'Y42R,start';
+        CapText := 'Y42R,start' + ' ' + T.Get();
     end;
 }
 
@@ -191,7 +212,7 @@ page 92827 "LT Y42 Cc Worksheet"
                         Rec.Name := 'row ' + Format(Rec.Id);
                         Rec.Insert();
                     end;
-                    CapText := 'Y42R,traced ' + Format(Traced);
+                    CapText := 'Y42R,traced ' + Format(Traced) + ' ' + T.Get();
                     CurrPage.Update(false);
                 end;
             }
@@ -199,12 +220,13 @@ page 92827 "LT Y42 Cc Worksheet"
     }
 
     var
+        T: Codeunit "LT Y42 Cc Tag";
         CapText: Text;
         Traced: Integer;
 
     trigger OnOpenPage()
     begin
-        CapText := 'Y42R,start';
+        CapText := 'Y42R,start' + ' ' + T.Get();
     end;
 }
 
@@ -217,11 +239,13 @@ codeunit 92827 "LT Y42 Cc Refill"
         S: Codeunit "LT Y42 Cc Subscriber";
         Bound: Boolean;
 
-    local procedure Seed()
+    local procedure Seed(Tag: Text)
     var
         Row: Record "LT Y42 Cc Row";
+        T: Codeunit "LT Y42 Cc Tag";
         I: Integer;
     begin
+        T.Set(Tag);
         Row.DeleteAll();
         for I := 1 to 3 do begin
             Row.Id := I;
@@ -240,7 +264,7 @@ codeunit 92827 "LT Y42 Cc Refill"
         Observer: Codeunit "Probe Observer";
         TP: TestPage "LT Y42 Cc List";
     begin
-        Seed();
+        Seed('t1');
         TP.OpenEdit();
         Observer.Observe('events open', S.Take());
         Observer.Observe('caption open', TP.CapFld.Caption());
@@ -261,7 +285,7 @@ codeunit 92827 "LT Y42 Cc Refill"
         Observer: Codeunit "Probe Observer";
         TP: TestPage "LT Y42 Cc List";
     begin
-        Seed();
+        Seed('t2');
         TP.OpenEdit();
         S.Take();
         TP.SetNoUpd.Invoke();
@@ -283,7 +307,7 @@ codeunit 92827 "LT Y42 Cc Refill"
         Observer: Codeunit "Probe Observer";
         TP: TestPage "LT Y42 Cc Worksheet";
     begin
-        Seed();
+        Seed('t3');
         TP.OpenEdit();
         Observer.Observe('events open', S.Take());
         TP.Trace.Invoke();
@@ -306,7 +330,7 @@ codeunit 92827 "LT Y42 Cc Refill"
         Observer: Codeunit "Probe Observer";
         TP: TestPage "LT Y42 Cc List";
     begin
-        Seed();
+        Seed('t4');
         TP.OpenEdit();
         Observer.Observe('events open', S.Take());
         Observer.Observe('rowcap open', TP.RowCap.Caption());
@@ -330,7 +354,7 @@ codeunit 92827 "LT Y42 Cc Refill"
         Observer: Codeunit "Probe Observer";
         TP: TestPage "LT Y42 Cc List";
     begin
-        Seed();
+        Seed('t5');
         TP.OpenEdit();
         S.Take();
         TP.Same.Invoke();
@@ -348,7 +372,7 @@ codeunit 92827 "LT Y42 Cc Refill"
         Observer: Codeunit "Probe Observer";
         TP: TestPage "LT Y42 Cc List";
     begin
-        Seed();
+        Seed('t6');
         TP.OpenEdit();
         S.Take();
         TP.Area3.Invoke();

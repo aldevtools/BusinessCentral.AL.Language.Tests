@@ -343,6 +343,7 @@ codeunit 92825 "LT Y42 Nr Repeater Editable"
         Observer.Observe('log open', L.Take());
         Observer.Observe('first', Format(TP.First()));
         Observer.Observe('name', TP.Name.Value());
+        ClearLastError();
         Observer.Observe('new ok', Format(TryNewListFalse(TP)));
         Observer.ObserveError('new');
         Observer.Observe('log', L.Take());
@@ -392,6 +393,7 @@ codeunit 92825 "LT Y42 Nr Repeater Editable"
         L.SetEditable(true);
         TP.OpenEdit();
         Observer.Observe('log open', L.Take());
+        ClearLastError();
         Observer.Observe('new ok', Format(TryNewListVar(TP)));
         Observer.ObserveError('new');
         Observer.Observe('log new', L.Take());
@@ -416,6 +418,7 @@ codeunit 92825 "LT Y42 Nr Repeater Editable"
         TP.OpenEdit();
         Observer.Observe('log open', L.Take());
         Observer.Observe('first', Format(TP.First()));
+        ClearLastError();
         Observer.Observe('new ok', Format(TryNewListVar(TP)));
         Observer.ObserveError('new');
         Observer.Observe('log new', L.Take());
