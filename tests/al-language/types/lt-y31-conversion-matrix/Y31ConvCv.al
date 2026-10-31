@@ -25,16 +25,6 @@ codeunit 92410 "LT Y31 Cv Integer"
         if Try1(vBigInteger, vInteger) then Observer.Observe('assign.m1', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.m1');
         if Try3(vBigInteger, vInteger) then Observer.Observe('arg_byvalue.m1', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.m1');
         if Try5(vBigInteger, vInteger) then Observer.Observe('exit.m1', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.m1');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Integer_To_BigInteger_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vBigInteger: BigInteger;
-        vInteger: Integer;
-    begin
         vInteger := 3;
         if Try1(vBigInteger, vInteger) then Observer.Observe('assign.3', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.3');
         if Try3(vBigInteger, vInteger) then Observer.Observe('arg_byvalue.3', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.3');
@@ -43,16 +33,6 @@ codeunit 92410 "LT Y31 Cv Integer"
         if Try1(vBigInteger, vInteger) then Observer.Observe('assign.255', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.255');
         if Try3(vBigInteger, vInteger) then Observer.Observe('arg_byvalue.255', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.255');
         if Try5(vBigInteger, vInteger) then Observer.Observe('exit.255', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.255');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Integer_To_BigInteger_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        vBigInteger: BigInteger;
-        vInteger: Integer;
-    begin
         vInteger := 256;
         if Try1(vBigInteger, vInteger) then Observer.Observe('assign.256', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.256');
         if Try3(vBigInteger, vInteger) then Observer.Observe('arg_byvalue.256', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.256');
@@ -61,21 +41,32 @@ codeunit 92410 "LT Y31 Cv Integer"
         if Try1(vBigInteger, vInteger) then Observer.Observe('assign.65536', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.65536');
         if Try3(vBigInteger, vInteger) then Observer.Observe('arg_byvalue.65536', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.65536');
         if Try5(vBigInteger, vInteger) then Observer.Observe('exit.65536', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.65536');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Integer_To_BigInteger_4()
-    var
-        Observer: Codeunit "Probe Observer";
-        vBigInteger: BigInteger;
-        vInteger: Integer;
-    begin
         vInteger := 2147483647;
         if Try1(vBigInteger, vInteger) then Observer.Observe('assign.max', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.max');
         if Try3(vBigInteger, vInteger) then Observer.Observe('arg_byvalue.max', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.max');
         if Try5(vBigInteger, vInteger) then Observer.Observe('exit.max', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.max');
-        Observer.Finish();
+        Observer.Expect('assign.0', '0');
+        Observer.Expect('arg_byvalue.0', '0');
+        Observer.Expect('exit.0', '0');
+        Observer.Expect('assign.m1', '-1');
+        Observer.Expect('arg_byvalue.m1', '-1');
+        Observer.Expect('exit.m1', '-1');
+        Observer.Expect('assign.3', '3');
+        Observer.Expect('arg_byvalue.3', '3');
+        Observer.Expect('exit.3', '3');
+        Observer.Expect('assign.255', '255');
+        Observer.Expect('arg_byvalue.255', '255');
+        Observer.Expect('exit.255', '255');
+        Observer.Expect('assign.256', '256');
+        Observer.Expect('arg_byvalue.256', '256');
+        Observer.Expect('exit.256', '256');
+        Observer.Expect('assign.65536', '65536');
+        Observer.Expect('arg_byvalue.65536', '65536');
+        Observer.Expect('exit.65536', '65536');
+        Observer.Expect('assign.max', '2147483647');
+        Observer.Expect('arg_byvalue.max', '2147483647');
+        Observer.Expect('exit.max', '2147483647');
+        Observer.Verify();
     end;
 
     [Test]
@@ -93,16 +84,6 @@ codeunit 92410 "LT Y31 Cv Integer"
         if Try6(vDecimal, vInteger) then Observer.Observe('assign.m1', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.m1');
         if Try8(vDecimal, vInteger) then Observer.Observe('arg_byvalue.m1', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.m1');
         if Try10(vDecimal, vInteger) then Observer.Observe('exit.m1', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.m1');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Integer_To_Decimal_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vDecimal: Decimal;
-        vInteger: Integer;
-    begin
         vInteger := 3;
         if Try6(vDecimal, vInteger) then Observer.Observe('assign.3', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.3');
         if Try8(vDecimal, vInteger) then Observer.Observe('arg_byvalue.3', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.3');
@@ -111,16 +92,6 @@ codeunit 92410 "LT Y31 Cv Integer"
         if Try6(vDecimal, vInteger) then Observer.Observe('assign.255', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.255');
         if Try8(vDecimal, vInteger) then Observer.Observe('arg_byvalue.255', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.255');
         if Try10(vDecimal, vInteger) then Observer.Observe('exit.255', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.255');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Integer_To_Decimal_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        vDecimal: Decimal;
-        vInteger: Integer;
-    begin
         vInteger := 256;
         if Try6(vDecimal, vInteger) then Observer.Observe('assign.256', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.256');
         if Try8(vDecimal, vInteger) then Observer.Observe('arg_byvalue.256', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.256');
@@ -129,21 +100,32 @@ codeunit 92410 "LT Y31 Cv Integer"
         if Try6(vDecimal, vInteger) then Observer.Observe('assign.65536', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.65536');
         if Try8(vDecimal, vInteger) then Observer.Observe('arg_byvalue.65536', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.65536');
         if Try10(vDecimal, vInteger) then Observer.Observe('exit.65536', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.65536');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Integer_To_Decimal_4()
-    var
-        Observer: Codeunit "Probe Observer";
-        vDecimal: Decimal;
-        vInteger: Integer;
-    begin
         vInteger := 2147483647;
         if Try6(vDecimal, vInteger) then Observer.Observe('assign.max', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.max');
         if Try8(vDecimal, vInteger) then Observer.Observe('arg_byvalue.max', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.max');
         if Try10(vDecimal, vInteger) then Observer.Observe('exit.max', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.max');
-        Observer.Finish();
+        Observer.Expect('assign.0', '0');
+        Observer.Expect('arg_byvalue.0', '0');
+        Observer.Expect('exit.0', '0');
+        Observer.Expect('assign.m1', '-1');
+        Observer.Expect('arg_byvalue.m1', '-1');
+        Observer.Expect('exit.m1', '-1');
+        Observer.Expect('assign.3', '3');
+        Observer.Expect('arg_byvalue.3', '3');
+        Observer.Expect('exit.3', '3');
+        Observer.Expect('assign.255', '255');
+        Observer.Expect('arg_byvalue.255', '255');
+        Observer.Expect('exit.255', '255');
+        Observer.Expect('assign.256', '256');
+        Observer.Expect('arg_byvalue.256', '256');
+        Observer.Expect('exit.256', '256');
+        Observer.Expect('assign.65536', '65536');
+        Observer.Expect('arg_byvalue.65536', '65536');
+        Observer.Expect('exit.65536', '65536');
+        Observer.Expect('assign.max', '2147483647');
+        Observer.Expect('arg_byvalue.max', '2147483647');
+        Observer.Expect('exit.max', '2147483647');
+        Observer.Verify();
     end;
 
     [Test]
@@ -162,17 +144,6 @@ codeunit 92410 "LT Y31 Cv Integer"
         if Try11(vChar, vInteger) then Observer.Observe('assign.m1', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.m1');
         if Try13(vChar, vInteger) then Observer.Observe('arg_byvalue.m1', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.m1');
         if Try15(vChar, vInteger) then Observer.Observe('exit.m1', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.m1');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Integer_To_Char_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vChar: Char;
-        vInteger: Integer;
-    begin
         vInteger := 3;
         if Try11(vChar, vInteger) then Observer.Observe('assign.3', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.3');
         if Try13(vChar, vInteger) then Observer.Observe('arg_byvalue.3', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.3');
@@ -181,17 +152,6 @@ codeunit 92410 "LT Y31 Cv Integer"
         if Try11(vChar, vInteger) then Observer.Observe('assign.255', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.255');
         if Try13(vChar, vInteger) then Observer.Observe('arg_byvalue.255', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.255');
         if Try15(vChar, vInteger) then Observer.Observe('exit.255', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.255');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Integer_To_Char_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vChar: Char;
-        vInteger: Integer;
-    begin
         vInteger := 256;
         if Try11(vChar, vInteger) then Observer.Observe('assign.256', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.256');
         if Try13(vChar, vInteger) then Observer.Observe('arg_byvalue.256', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.256');
@@ -200,22 +160,41 @@ codeunit 92410 "LT Y31 Cv Integer"
         if Try11(vChar, vInteger) then Observer.Observe('assign.65536', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.65536');
         if Try13(vChar, vInteger) then Observer.Observe('arg_byvalue.65536', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.65536');
         if Try15(vChar, vInteger) then Observer.Observe('exit.65536', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.65536');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Integer_To_Char_4()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vChar: Char;
-        vInteger: Integer;
-    begin
         vInteger := 2147483647;
         if Try11(vChar, vInteger) then Observer.Observe('assign.max', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.max');
         if Try13(vChar, vInteger) then Observer.Observe('arg_byvalue.max', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.max');
         if Try15(vChar, vInteger) then Observer.Observe('exit.max', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.max');
-        Observer.Finish();
+        Observer.Expect('assign.0', '\u0000|0');
+        Observer.Expect('arg_byvalue.0', '\u0000|0');
+        Observer.Expect('exit.0', '\u0000|0');
+        Observer.Expect('assign.m1|text', 'Overflow under conversion of System.Int32 value -1 to System.Char.');
+        Observer.Expect('assign.m1|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.m1|text', 'Overflow under conversion of System.Int32 value -1 to System.Char.');
+        Observer.Expect('arg_byvalue.m1|code', 'ConversionCast');
+        Observer.Expect('exit.m1|text', 'Overflow under conversion of System.Int32 value -1 to System.Char.');
+        Observer.Expect('exit.m1|code', 'ConversionCast');
+        Observer.Expect('assign.3', '\u0003|3');
+        Observer.Expect('arg_byvalue.3', '\u0003|3');
+        Observer.Expect('exit.3', '\u0003|3');
+        Observer.Expect('assign.255', 'ÿ|255');
+        Observer.Expect('arg_byvalue.255', 'ÿ|255');
+        Observer.Expect('exit.255', 'ÿ|255');
+        Observer.Expect('assign.256', 'Ā|256');
+        Observer.Expect('arg_byvalue.256', 'Ā|256');
+        Observer.Expect('exit.256', 'Ā|256');
+        Observer.Expect('assign.65536|text', 'Overflow under conversion of System.Int32 value 65536 to System.Char.');
+        Observer.Expect('assign.65536|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.65536|text', 'Overflow under conversion of System.Int32 value 65536 to System.Char.');
+        Observer.Expect('arg_byvalue.65536|code', 'ConversionCast');
+        Observer.Expect('exit.65536|text', 'Overflow under conversion of System.Int32 value 65536 to System.Char.');
+        Observer.Expect('exit.65536|code', 'ConversionCast');
+        Observer.Expect('assign.max|text', 'Overflow under conversion of System.Int32 value 2147483647 to System.Char.');
+        Observer.Expect('assign.max|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.max|text', 'Overflow under conversion of System.Int32 value 2147483647 to System.Char.');
+        Observer.Expect('arg_byvalue.max|code', 'ConversionCast');
+        Observer.Expect('exit.max|text', 'Overflow under conversion of System.Int32 value 2147483647 to System.Char.');
+        Observer.Expect('exit.max|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -233,16 +212,6 @@ codeunit 92410 "LT Y31 Cv Integer"
         if Try16(vByte, vInteger) then Observer.Observe('assign.m1', Format(vByte, 0, 9)) else Observer.ObserveError('assign.m1');
         if Try18(vByte, vInteger) then Observer.Observe('arg_byvalue.m1', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.m1');
         if Try20(vByte, vInteger) then Observer.Observe('exit.m1', Format(vByte, 0, 9)) else Observer.ObserveError('exit.m1');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Integer_To_Byte_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vByte: Byte;
-        vInteger: Integer;
-    begin
         vInteger := 3;
         if Try16(vByte, vInteger) then Observer.Observe('assign.3', Format(vByte, 0, 9)) else Observer.ObserveError('assign.3');
         if Try18(vByte, vInteger) then Observer.Observe('arg_byvalue.3', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.3');
@@ -251,16 +220,6 @@ codeunit 92410 "LT Y31 Cv Integer"
         if Try16(vByte, vInteger) then Observer.Observe('assign.255', Format(vByte, 0, 9)) else Observer.ObserveError('assign.255');
         if Try18(vByte, vInteger) then Observer.Observe('arg_byvalue.255', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.255');
         if Try20(vByte, vInteger) then Observer.Observe('exit.255', Format(vByte, 0, 9)) else Observer.ObserveError('exit.255');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Integer_To_Byte_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        vByte: Byte;
-        vInteger: Integer;
-    begin
         vInteger := 256;
         if Try16(vByte, vInteger) then Observer.Observe('assign.256', Format(vByte, 0, 9)) else Observer.ObserveError('assign.256');
         if Try18(vByte, vInteger) then Observer.Observe('arg_byvalue.256', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.256');
@@ -269,21 +228,44 @@ codeunit 92410 "LT Y31 Cv Integer"
         if Try16(vByte, vInteger) then Observer.Observe('assign.65536', Format(vByte, 0, 9)) else Observer.ObserveError('assign.65536');
         if Try18(vByte, vInteger) then Observer.Observe('arg_byvalue.65536', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.65536');
         if Try20(vByte, vInteger) then Observer.Observe('exit.65536', Format(vByte, 0, 9)) else Observer.ObserveError('exit.65536');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Integer_To_Byte_4()
-    var
-        Observer: Codeunit "Probe Observer";
-        vByte: Byte;
-        vInteger: Integer;
-    begin
         vInteger := 2147483647;
         if Try16(vByte, vInteger) then Observer.Observe('assign.max', Format(vByte, 0, 9)) else Observer.ObserveError('assign.max');
         if Try18(vByte, vInteger) then Observer.Observe('arg_byvalue.max', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.max');
         if Try20(vByte, vInteger) then Observer.Observe('exit.max', Format(vByte, 0, 9)) else Observer.ObserveError('exit.max');
-        Observer.Finish();
+        Observer.Expect('assign.0', '\u0000');
+        Observer.Expect('arg_byvalue.0', '\u0000');
+        Observer.Expect('exit.0', '\u0000');
+        Observer.Expect('assign.m1|text', 'Overflow under conversion of System.Int32 value -1 to System.Byte.');
+        Observer.Expect('assign.m1|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.m1|text', 'Overflow under conversion of System.Int32 value -1 to System.Byte.');
+        Observer.Expect('arg_byvalue.m1|code', 'ConversionCast');
+        Observer.Expect('exit.m1|text', 'Overflow under conversion of System.Int32 value -1 to System.Byte.');
+        Observer.Expect('exit.m1|code', 'ConversionCast');
+        Observer.Expect('assign.3', '\u0003');
+        Observer.Expect('arg_byvalue.3', '\u0003');
+        Observer.Expect('exit.3', '\u0003');
+        Observer.Expect('assign.255', ' ');
+        Observer.Expect('arg_byvalue.255', ' ');
+        Observer.Expect('exit.255', ' ');
+        Observer.Expect('assign.256|text', 'Overflow under conversion of System.Int32 value 256 to System.Byte.');
+        Observer.Expect('assign.256|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.256|text', 'Overflow under conversion of System.Int32 value 256 to System.Byte.');
+        Observer.Expect('arg_byvalue.256|code', 'ConversionCast');
+        Observer.Expect('exit.256|text', 'Overflow under conversion of System.Int32 value 256 to System.Byte.');
+        Observer.Expect('exit.256|code', 'ConversionCast');
+        Observer.Expect('assign.65536|text', 'Overflow under conversion of System.Int32 value 65536 to System.Byte.');
+        Observer.Expect('assign.65536|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.65536|text', 'Overflow under conversion of System.Int32 value 65536 to System.Byte.');
+        Observer.Expect('arg_byvalue.65536|code', 'ConversionCast');
+        Observer.Expect('exit.65536|text', 'Overflow under conversion of System.Int32 value 65536 to System.Byte.');
+        Observer.Expect('exit.65536|code', 'ConversionCast');
+        Observer.Expect('assign.max|text', 'Overflow under conversion of System.Int32 value 2147483647 to System.Byte.');
+        Observer.Expect('assign.max|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.max|text', 'Overflow under conversion of System.Int32 value 2147483647 to System.Byte.');
+        Observer.Expect('arg_byvalue.max|code', 'ConversionCast');
+        Observer.Expect('exit.max|text', 'Overflow under conversion of System.Int32 value 2147483647 to System.Byte.');
+        Observer.Expect('exit.max|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -302,17 +284,6 @@ codeunit 92410 "LT Y31 Cv Integer"
         if Try21(vInteger, vOption) then Observer.Observe('assign.m1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.m1');
         if Try23(vInteger, vOption) then Observer.Observe('arg_byvalue.m1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.m1');
         if Try25(vInteger, vOption) then Observer.Observe('exit.m1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.m1');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Integer_To_Option_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vInteger: Integer;
-        vOption: Option A,B,C;
-    begin
         vInteger := 3;
         if Try21(vInteger, vOption) then Observer.Observe('assign.3', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.3');
         if Try23(vInteger, vOption) then Observer.Observe('arg_byvalue.3', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.3');
@@ -321,17 +292,6 @@ codeunit 92410 "LT Y31 Cv Integer"
         if Try21(vInteger, vOption) then Observer.Observe('assign.255', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.255');
         if Try23(vInteger, vOption) then Observer.Observe('arg_byvalue.255', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.255');
         if Try25(vInteger, vOption) then Observer.Observe('exit.255', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.255');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Integer_To_Option_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vInteger: Integer;
-        vOption: Option A,B,C;
-    begin
         vInteger := 256;
         if Try21(vInteger, vOption) then Observer.Observe('assign.256', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.256');
         if Try23(vInteger, vOption) then Observer.Observe('arg_byvalue.256', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.256');
@@ -340,22 +300,32 @@ codeunit 92410 "LT Y31 Cv Integer"
         if Try21(vInteger, vOption) then Observer.Observe('assign.65536', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.65536');
         if Try23(vInteger, vOption) then Observer.Observe('arg_byvalue.65536', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.65536');
         if Try25(vInteger, vOption) then Observer.Observe('exit.65536', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.65536');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Integer_To_Option_4()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vInteger: Integer;
-        vOption: Option A,B,C;
-    begin
         vInteger := 2147483647;
         if Try21(vInteger, vOption) then Observer.Observe('assign.max', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.max');
         if Try23(vInteger, vOption) then Observer.Observe('arg_byvalue.max', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.max');
         if Try25(vInteger, vOption) then Observer.Observe('exit.max', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.max');
-        Observer.Finish();
+        Observer.Expect('assign.0', 'A|0');
+        Observer.Expect('arg_byvalue.0', 'A|0');
+        Observer.Expect('exit.0', 'A|0');
+        Observer.Expect('assign.m1', '-1|-1');
+        Observer.Expect('arg_byvalue.m1', '-1|-1');
+        Observer.Expect('exit.m1', '-1|-1');
+        Observer.Expect('assign.3', '3|3');
+        Observer.Expect('arg_byvalue.3', '3|3');
+        Observer.Expect('exit.3', '3|3');
+        Observer.Expect('assign.255', '255|255');
+        Observer.Expect('arg_byvalue.255', '255|255');
+        Observer.Expect('exit.255', '255|255');
+        Observer.Expect('assign.256', '256|256');
+        Observer.Expect('arg_byvalue.256', '256|256');
+        Observer.Expect('exit.256', '256|256');
+        Observer.Expect('assign.65536', '65536|65536');
+        Observer.Expect('arg_byvalue.65536', '65536|65536');
+        Observer.Expect('exit.65536', '65536|65536');
+        Observer.Expect('assign.max', '2147483647|2147483647');
+        Observer.Expect('arg_byvalue.max', '2147483647|2147483647');
+        Observer.Expect('exit.max', '2147483647|2147483647');
+        Observer.Verify();
     end;
 
     [Test]
@@ -373,16 +343,6 @@ codeunit 92410 "LT Y31 Cv Integer"
         if Try26(vEnum, vInteger) then Observer.Observe('assign.m1', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('assign.m1');
         if Try28(vEnum, vInteger) then Observer.Observe('arg_byvalue.m1', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('arg_byvalue.m1');
         if Try30(vEnum, vInteger) then Observer.Observe('exit.m1', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('exit.m1');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Integer_To_Enum_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vEnum: Enum "LT Y31 E";
-        vInteger: Integer;
-    begin
         vInteger := 3;
         if Try26(vEnum, vInteger) then Observer.Observe('assign.3', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('assign.3');
         if Try28(vEnum, vInteger) then Observer.Observe('arg_byvalue.3', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('arg_byvalue.3');
@@ -391,16 +351,6 @@ codeunit 92410 "LT Y31 Cv Integer"
         if Try26(vEnum, vInteger) then Observer.Observe('assign.255', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('assign.255');
         if Try28(vEnum, vInteger) then Observer.Observe('arg_byvalue.255', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('arg_byvalue.255');
         if Try30(vEnum, vInteger) then Observer.Observe('exit.255', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('exit.255');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Integer_To_Enum_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        vEnum: Enum "LT Y31 E";
-        vInteger: Integer;
-    begin
         vInteger := 256;
         if Try26(vEnum, vInteger) then Observer.Observe('assign.256', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('assign.256');
         if Try28(vEnum, vInteger) then Observer.Observe('arg_byvalue.256', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('arg_byvalue.256');
@@ -409,21 +359,32 @@ codeunit 92410 "LT Y31 Cv Integer"
         if Try26(vEnum, vInteger) then Observer.Observe('assign.65536', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('assign.65536');
         if Try28(vEnum, vInteger) then Observer.Observe('arg_byvalue.65536', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('arg_byvalue.65536');
         if Try30(vEnum, vInteger) then Observer.Observe('exit.65536', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('exit.65536');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Integer_To_Enum_4()
-    var
-        Observer: Codeunit "Probe Observer";
-        vEnum: Enum "LT Y31 E";
-        vInteger: Integer;
-    begin
         vInteger := 2147483647;
         if Try26(vEnum, vInteger) then Observer.Observe('assign.max', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('assign.max');
         if Try28(vEnum, vInteger) then Observer.Observe('arg_byvalue.max', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('arg_byvalue.max');
         if Try30(vEnum, vInteger) then Observer.Observe('exit.max', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('exit.max');
-        Observer.Finish();
+        Observer.Expect('assign.0', 'A|0');
+        Observer.Expect('arg_byvalue.0', 'A|0');
+        Observer.Expect('exit.0', 'A|0');
+        Observer.Expect('assign.m1', '-1|-1');
+        Observer.Expect('arg_byvalue.m1', '-1|-1');
+        Observer.Expect('exit.m1', '-1|-1');
+        Observer.Expect('assign.3', '3|3');
+        Observer.Expect('arg_byvalue.3', '3|3');
+        Observer.Expect('exit.3', '3|3');
+        Observer.Expect('assign.255', '255|255');
+        Observer.Expect('arg_byvalue.255', '255|255');
+        Observer.Expect('exit.255', '255|255');
+        Observer.Expect('assign.256', '256|256');
+        Observer.Expect('arg_byvalue.256', '256|256');
+        Observer.Expect('exit.256', '256|256');
+        Observer.Expect('assign.65536', '65536|65536');
+        Observer.Expect('arg_byvalue.65536', '65536|65536');
+        Observer.Expect('exit.65536', '65536|65536');
+        Observer.Expect('assign.max', '2147483647|2147483647');
+        Observer.Expect('arg_byvalue.max', '2147483647|2147483647');
+        Observer.Expect('exit.max', '2147483647|2147483647');
+        Observer.Verify();
     end;
 
     [Test]
@@ -441,16 +402,6 @@ codeunit 92410 "LT Y31 Cv Integer"
         if Try31(vEnumImpl, vInteger) then Observer.Observe('assign.m1', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('assign.m1');
         if Try33(vEnumImpl, vInteger) then Observer.Observe('arg_byvalue.m1', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('arg_byvalue.m1');
         if Try35(vEnumImpl, vInteger) then Observer.Observe('exit.m1', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('exit.m1');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Integer_To_EnumImpl_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vEnumImpl: Enum "LT Y31 EI";
-        vInteger: Integer;
-    begin
         vInteger := 3;
         if Try31(vEnumImpl, vInteger) then Observer.Observe('assign.3', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('assign.3');
         if Try33(vEnumImpl, vInteger) then Observer.Observe('arg_byvalue.3', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('arg_byvalue.3');
@@ -459,16 +410,6 @@ codeunit 92410 "LT Y31 Cv Integer"
         if Try31(vEnumImpl, vInteger) then Observer.Observe('assign.255', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('assign.255');
         if Try33(vEnumImpl, vInteger) then Observer.Observe('arg_byvalue.255', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('arg_byvalue.255');
         if Try35(vEnumImpl, vInteger) then Observer.Observe('exit.255', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('exit.255');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Integer_To_EnumImpl_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        vEnumImpl: Enum "LT Y31 EI";
-        vInteger: Integer;
-    begin
         vInteger := 256;
         if Try31(vEnumImpl, vInteger) then Observer.Observe('assign.256', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('assign.256');
         if Try33(vEnumImpl, vInteger) then Observer.Observe('arg_byvalue.256', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('arg_byvalue.256');
@@ -477,21 +418,32 @@ codeunit 92410 "LT Y31 Cv Integer"
         if Try31(vEnumImpl, vInteger) then Observer.Observe('assign.65536', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('assign.65536');
         if Try33(vEnumImpl, vInteger) then Observer.Observe('arg_byvalue.65536', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('arg_byvalue.65536');
         if Try35(vEnumImpl, vInteger) then Observer.Observe('exit.65536', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('exit.65536');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Integer_To_EnumImpl_4()
-    var
-        Observer: Codeunit "Probe Observer";
-        vEnumImpl: Enum "LT Y31 EI";
-        vInteger: Integer;
-    begin
         vInteger := 2147483647;
         if Try31(vEnumImpl, vInteger) then Observer.Observe('assign.max', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('assign.max');
         if Try33(vEnumImpl, vInteger) then Observer.Observe('arg_byvalue.max', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('arg_byvalue.max');
         if Try35(vEnumImpl, vInteger) then Observer.Observe('exit.max', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('exit.max');
-        Observer.Finish();
+        Observer.Expect('assign.0', 'A|0');
+        Observer.Expect('arg_byvalue.0', 'A|0');
+        Observer.Expect('exit.0', 'A|0');
+        Observer.Expect('assign.m1', '-1|-1');
+        Observer.Expect('arg_byvalue.m1', '-1|-1');
+        Observer.Expect('exit.m1', '-1|-1');
+        Observer.Expect('assign.3', '3|3');
+        Observer.Expect('arg_byvalue.3', '3|3');
+        Observer.Expect('exit.3', '3|3');
+        Observer.Expect('assign.255', '255|255');
+        Observer.Expect('arg_byvalue.255', '255|255');
+        Observer.Expect('exit.255', '255|255');
+        Observer.Expect('assign.256', '256|256');
+        Observer.Expect('arg_byvalue.256', '256|256');
+        Observer.Expect('exit.256', '256|256');
+        Observer.Expect('assign.65536', '65536|65536');
+        Observer.Expect('arg_byvalue.65536', '65536|65536');
+        Observer.Expect('exit.65536', '65536|65536');
+        Observer.Expect('assign.max', '2147483647|2147483647');
+        Observer.Expect('arg_byvalue.max', '2147483647|2147483647');
+        Observer.Expect('exit.max', '2147483647|2147483647');
+        Observer.Verify();
     end;
 
     [Test]
@@ -509,16 +461,6 @@ codeunit 92410 "LT Y31 Cv Integer"
         if Try36(vDuration, vInteger) then Observer.Observe('assign.m1', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.m1');
         if Try38(vDuration, vInteger) then Observer.Observe('arg_byvalue.m1', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.m1');
         if Try40(vDuration, vInteger) then Observer.Observe('exit.m1', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.m1');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Integer_To_Duration_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vDuration: Duration;
-        vInteger: Integer;
-    begin
         vInteger := 3;
         if Try36(vDuration, vInteger) then Observer.Observe('assign.3', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.3');
         if Try38(vDuration, vInteger) then Observer.Observe('arg_byvalue.3', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.3');
@@ -527,16 +469,6 @@ codeunit 92410 "LT Y31 Cv Integer"
         if Try36(vDuration, vInteger) then Observer.Observe('assign.255', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.255');
         if Try38(vDuration, vInteger) then Observer.Observe('arg_byvalue.255', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.255');
         if Try40(vDuration, vInteger) then Observer.Observe('exit.255', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.255');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Integer_To_Duration_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        vDuration: Duration;
-        vInteger: Integer;
-    begin
         vInteger := 256;
         if Try36(vDuration, vInteger) then Observer.Observe('assign.256', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.256');
         if Try38(vDuration, vInteger) then Observer.Observe('arg_byvalue.256', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.256');
@@ -545,21 +477,32 @@ codeunit 92410 "LT Y31 Cv Integer"
         if Try36(vDuration, vInteger) then Observer.Observe('assign.65536', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.65536');
         if Try38(vDuration, vInteger) then Observer.Observe('arg_byvalue.65536', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.65536');
         if Try40(vDuration, vInteger) then Observer.Observe('exit.65536', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.65536');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Integer_To_Duration_4()
-    var
-        Observer: Codeunit "Probe Observer";
-        vDuration: Duration;
-        vInteger: Integer;
-    begin
         vInteger := 2147483647;
         if Try36(vDuration, vInteger) then Observer.Observe('assign.max', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.max');
         if Try38(vDuration, vInteger) then Observer.Observe('arg_byvalue.max', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.max');
         if Try40(vDuration, vInteger) then Observer.Observe('exit.max', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.max');
-        Observer.Finish();
+        Observer.Expect('assign.0', 'P0DT0H0M0.0S');
+        Observer.Expect('arg_byvalue.0', 'P0DT0H0M0.0S');
+        Observer.Expect('exit.0', 'P0DT0H0M0.0S');
+        Observer.Expect('assign.m1', '-P0DT0H0M0.001S');
+        Observer.Expect('arg_byvalue.m1', '-P0DT0H0M0.001S');
+        Observer.Expect('exit.m1', '-P0DT0H0M0.001S');
+        Observer.Expect('assign.3', 'P0DT0H0M0.003S');
+        Observer.Expect('arg_byvalue.3', 'P0DT0H0M0.003S');
+        Observer.Expect('exit.3', 'P0DT0H0M0.003S');
+        Observer.Expect('assign.255', 'P0DT0H0M0.255S');
+        Observer.Expect('arg_byvalue.255', 'P0DT0H0M0.255S');
+        Observer.Expect('exit.255', 'P0DT0H0M0.255S');
+        Observer.Expect('assign.256', 'P0DT0H0M0.256S');
+        Observer.Expect('arg_byvalue.256', 'P0DT0H0M0.256S');
+        Observer.Expect('exit.256', 'P0DT0H0M0.256S');
+        Observer.Expect('assign.65536', 'P0DT0H1M5.536S');
+        Observer.Expect('arg_byvalue.65536', 'P0DT0H1M5.536S');
+        Observer.Expect('exit.65536', 'P0DT0H1M5.536S');
+        Observer.Expect('assign.max', 'P24DT20H31M23.647S');
+        Observer.Expect('arg_byvalue.max', 'P24DT20H31M23.647S');
+        Observer.Expect('exit.max', 'P24DT20H31M23.647S');
+        Observer.Verify();
     end;
 
     [Test]
@@ -583,7 +526,14 @@ codeunit 92410 "LT Y31 Cv Integer"
         if Try41(R, vInteger) then Observer.Observe('assign.65536', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.65536');
         vInteger := 2147483647;
         if Try41(R, vInteger) then Observer.Observe('assign.max', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.max');
-        Observer.Finish();
+        Observer.Expect('assign.0', '0');
+        Observer.Expect('assign.m1', '-1');
+        Observer.Expect('assign.3', '3');
+        Observer.Expect('assign.255', '255');
+        Observer.Expect('assign.256', '256');
+        Observer.Expect('assign.65536', '65536');
+        Observer.Expect('assign.max', '2147483647');
+        Observer.Verify();
     end;
 
     [Test]
@@ -607,7 +557,14 @@ codeunit 92410 "LT Y31 Cv Integer"
         if Try42(R, vInteger) then Observer.Observe('assign.65536', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.65536');
         vInteger := 2147483647;
         if Try42(R, vInteger) then Observer.Observe('assign.max', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.max');
-        Observer.Finish();
+        Observer.Expect('assign.0', '0');
+        Observer.Expect('assign.m1', '-1');
+        Observer.Expect('assign.3', '3');
+        Observer.Expect('assign.255', '255');
+        Observer.Expect('assign.256', '256');
+        Observer.Expect('assign.65536', '65536');
+        Observer.Expect('assign.max', '2147483647');
+        Observer.Verify();
     end;
 
     [Test]
@@ -632,7 +589,14 @@ codeunit 92410 "LT Y31 Cv Integer"
         if Try43(R, vInteger) then Observer.Observe('assign.65536', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.65536');
         vInteger := 2147483647;
         if Try43(R, vInteger) then Observer.Observe('assign.max', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.max');
-        Observer.Finish();
+        Observer.Expect('assign.0', 'A|0');
+        Observer.Expect('assign.m1', '-1|-1');
+        Observer.Expect('assign.3', '3|3');
+        Observer.Expect('assign.255', '255|255');
+        Observer.Expect('assign.256', '256|256');
+        Observer.Expect('assign.65536', '65536|65536');
+        Observer.Expect('assign.max', '2147483647|2147483647');
+        Observer.Verify();
     end;
 
     [Test]
@@ -656,7 +620,14 @@ codeunit 92410 "LT Y31 Cv Integer"
         if Try44(R, vInteger) then Observer.Observe('assign.65536', Format(R.Enum) + '|' + Format(R.Enum.AsInteger())) else Observer.ObserveError('assign.65536');
         vInteger := 2147483647;
         if Try44(R, vInteger) then Observer.Observe('assign.max', Format(R.Enum) + '|' + Format(R.Enum.AsInteger())) else Observer.ObserveError('assign.max');
-        Observer.Finish();
+        Observer.Expect('assign.0', 'A|0');
+        Observer.Expect('assign.m1', '-1|-1');
+        Observer.Expect('assign.3', '3|3');
+        Observer.Expect('assign.255', '255|255');
+        Observer.Expect('assign.256', '256|256');
+        Observer.Expect('assign.65536', '65536|65536');
+        Observer.Expect('assign.max', '2147483647|2147483647');
+        Observer.Verify();
     end;
 
     [Test]
@@ -680,7 +651,14 @@ codeunit 92410 "LT Y31 Cv Integer"
         if Try45(R, vInteger) then Observer.Observe('assign.65536', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.65536');
         vInteger := 2147483647;
         if Try45(R, vInteger) then Observer.Observe('assign.max', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.max');
-        Observer.Finish();
+        Observer.Expect('assign.0', 'P0DT0H0M0.0S');
+        Observer.Expect('assign.m1', '-P0DT0H0M0.001S');
+        Observer.Expect('assign.3', 'P0DT0H0M0.003S');
+        Observer.Expect('assign.255', 'P0DT0H0M0.255S');
+        Observer.Expect('assign.256', 'P0DT0H0M0.256S');
+        Observer.Expect('assign.65536', 'P0DT0H1M5.536S');
+        Observer.Expect('assign.max', 'P24DT20H31M23.647S');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -995,16 +973,6 @@ codeunit 92411 "LT Y31 Cv BigInteger"
         if Try1(vBigInteger, vInteger) then Observer.Observe('assign.m1', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.m1');
         if Try3(vBigInteger, vInteger) then Observer.Observe('arg_byvalue.m1', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.m1');
         if Try5(vBigInteger, vInteger) then Observer.Observe('exit.m1', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.m1');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure BigInteger_To_Integer_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vBigInteger: BigInteger;
-        vInteger: Integer;
-    begin
         vBigInteger := 3;
         if Try1(vBigInteger, vInteger) then Observer.Observe('assign.3', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.3');
         if Try3(vBigInteger, vInteger) then Observer.Observe('arg_byvalue.3', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.3');
@@ -1013,21 +981,32 @@ codeunit 92411 "LT Y31 Cv BigInteger"
         if Try1(vBigInteger, vInteger) then Observer.Observe('assign.2p31', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.2p31');
         if Try3(vBigInteger, vInteger) then Observer.Observe('arg_byvalue.2p31', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.2p31');
         if Try5(vBigInteger, vInteger) then Observer.Observe('exit.2p31', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.2p31');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure BigInteger_To_Integer_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        vBigInteger: BigInteger;
-        vInteger: Integer;
-    begin
         vBigInteger := -2147483649L;
         if Try1(vBigInteger, vInteger) then Observer.Observe('assign.m2p31m1', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.m2p31m1');
         if Try3(vBigInteger, vInteger) then Observer.Observe('arg_byvalue.m2p31m1', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.m2p31m1');
         if Try5(vBigInteger, vInteger) then Observer.Observe('exit.m2p31m1', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.m2p31m1');
-        Observer.Finish();
+        Observer.Expect('assign.0', '0');
+        Observer.Expect('arg_byvalue.0', '0');
+        Observer.Expect('exit.0', '0');
+        Observer.Expect('assign.m1', '-1');
+        Observer.Expect('arg_byvalue.m1', '-1');
+        Observer.Expect('exit.m1', '-1');
+        Observer.Expect('assign.3', '3');
+        Observer.Expect('arg_byvalue.3', '3');
+        Observer.Expect('exit.3', '3');
+        Observer.Expect('assign.2p31|text', 'Overflow under conversion of System.Int64 value 2147483648 to System.Int32.');
+        Observer.Expect('assign.2p31|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.2p31|text', 'Overflow under conversion of System.Int64 value 2147483648 to System.Int32.');
+        Observer.Expect('arg_byvalue.2p31|code', 'ConversionCast');
+        Observer.Expect('exit.2p31|text', 'Overflow under conversion of System.Int64 value 2147483648 to System.Int32.');
+        Observer.Expect('exit.2p31|code', 'ConversionCast');
+        Observer.Expect('assign.m2p31m1|text', 'Overflow under conversion of System.Int64 value -2147483649 to System.Int32.');
+        Observer.Expect('assign.m2p31m1|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.m2p31m1|text', 'Overflow under conversion of System.Int64 value -2147483649 to System.Int32.');
+        Observer.Expect('arg_byvalue.m2p31m1|code', 'ConversionCast');
+        Observer.Expect('exit.m2p31m1|text', 'Overflow under conversion of System.Int64 value -2147483649 to System.Int32.');
+        Observer.Expect('exit.m2p31m1|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1045,16 +1024,6 @@ codeunit 92411 "LT Y31 Cv BigInteger"
         if Try6(vBigInteger, vDecimal) then Observer.Observe('assign.m1', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.m1');
         if Try8(vBigInteger, vDecimal) then Observer.Observe('arg_byvalue.m1', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.m1');
         if Try10(vBigInteger, vDecimal) then Observer.Observe('exit.m1', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.m1');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure BigInteger_To_Decimal_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vBigInteger: BigInteger;
-        vDecimal: Decimal;
-    begin
         vBigInteger := 3;
         if Try6(vBigInteger, vDecimal) then Observer.Observe('assign.3', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.3');
         if Try8(vBigInteger, vDecimal) then Observer.Observe('arg_byvalue.3', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.3');
@@ -1063,21 +1032,26 @@ codeunit 92411 "LT Y31 Cv BigInteger"
         if Try6(vBigInteger, vDecimal) then Observer.Observe('assign.2p31', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.2p31');
         if Try8(vBigInteger, vDecimal) then Observer.Observe('arg_byvalue.2p31', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.2p31');
         if Try10(vBigInteger, vDecimal) then Observer.Observe('exit.2p31', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.2p31');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure BigInteger_To_Decimal_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        vBigInteger: BigInteger;
-        vDecimal: Decimal;
-    begin
         vBigInteger := -2147483649L;
         if Try6(vBigInteger, vDecimal) then Observer.Observe('assign.m2p31m1', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.m2p31m1');
         if Try8(vBigInteger, vDecimal) then Observer.Observe('arg_byvalue.m2p31m1', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.m2p31m1');
         if Try10(vBigInteger, vDecimal) then Observer.Observe('exit.m2p31m1', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.m2p31m1');
-        Observer.Finish();
+        Observer.Expect('assign.0', '0');
+        Observer.Expect('arg_byvalue.0', '0');
+        Observer.Expect('exit.0', '0');
+        Observer.Expect('assign.m1', '-1');
+        Observer.Expect('arg_byvalue.m1', '-1');
+        Observer.Expect('exit.m1', '-1');
+        Observer.Expect('assign.3', '3');
+        Observer.Expect('arg_byvalue.3', '3');
+        Observer.Expect('exit.3', '3');
+        Observer.Expect('assign.2p31', '2147483648');
+        Observer.Expect('arg_byvalue.2p31', '2147483648');
+        Observer.Expect('exit.2p31', '2147483648');
+        Observer.Expect('assign.m2p31m1', '-2147483649');
+        Observer.Expect('arg_byvalue.m2p31m1', '-2147483649');
+        Observer.Expect('exit.m2p31m1', '-2147483649');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1096,17 +1070,6 @@ codeunit 92411 "LT Y31 Cv BigInteger"
         if Try11(vBigInteger, vChar) then Observer.Observe('assign.m1', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.m1');
         if Try13(vBigInteger, vChar) then Observer.Observe('arg_byvalue.m1', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.m1');
         if Try15(vBigInteger, vChar) then Observer.Observe('exit.m1', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.m1');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure BigInteger_To_Char_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vBigInteger: BigInteger;
-        vChar: Char;
-    begin
         vBigInteger := 3;
         if Try11(vBigInteger, vChar) then Observer.Observe('assign.3', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.3');
         if Try13(vBigInteger, vChar) then Observer.Observe('arg_byvalue.3', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.3');
@@ -1115,22 +1078,35 @@ codeunit 92411 "LT Y31 Cv BigInteger"
         if Try11(vBigInteger, vChar) then Observer.Observe('assign.2p31', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.2p31');
         if Try13(vBigInteger, vChar) then Observer.Observe('arg_byvalue.2p31', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.2p31');
         if Try15(vBigInteger, vChar) then Observer.Observe('exit.2p31', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.2p31');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure BigInteger_To_Char_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vBigInteger: BigInteger;
-        vChar: Char;
-    begin
         vBigInteger := -2147483649L;
         if Try11(vBigInteger, vChar) then Observer.Observe('assign.m2p31m1', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.m2p31m1');
         if Try13(vBigInteger, vChar) then Observer.Observe('arg_byvalue.m2p31m1', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.m2p31m1');
         if Try15(vBigInteger, vChar) then Observer.Observe('exit.m2p31m1', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.m2p31m1');
-        Observer.Finish();
+        Observer.Expect('assign.0', '\u0000|0');
+        Observer.Expect('arg_byvalue.0', '\u0000|0');
+        Observer.Expect('exit.0', '\u0000|0');
+        Observer.Expect('assign.m1|text', 'Overflow under conversion of System.Int64 value -1 to System.Char.');
+        Observer.Expect('assign.m1|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.m1|text', 'Overflow under conversion of System.Int64 value -1 to System.Char.');
+        Observer.Expect('arg_byvalue.m1|code', 'ConversionCast');
+        Observer.Expect('exit.m1|text', 'Overflow under conversion of System.Int64 value -1 to System.Char.');
+        Observer.Expect('exit.m1|code', 'ConversionCast');
+        Observer.Expect('assign.3', '\u0003|3');
+        Observer.Expect('arg_byvalue.3', '\u0003|3');
+        Observer.Expect('exit.3', '\u0003|3');
+        Observer.Expect('assign.2p31|text', 'Overflow under conversion of System.Int64 value 2147483648 to System.Char.');
+        Observer.Expect('assign.2p31|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.2p31|text', 'Overflow under conversion of System.Int64 value 2147483648 to System.Char.');
+        Observer.Expect('arg_byvalue.2p31|code', 'ConversionCast');
+        Observer.Expect('exit.2p31|text', 'Overflow under conversion of System.Int64 value 2147483648 to System.Char.');
+        Observer.Expect('exit.2p31|code', 'ConversionCast');
+        Observer.Expect('assign.m2p31m1|text', 'Overflow under conversion of System.Int64 value -2147483649 to System.Char.');
+        Observer.Expect('assign.m2p31m1|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.m2p31m1|text', 'Overflow under conversion of System.Int64 value -2147483649 to System.Char.');
+        Observer.Expect('arg_byvalue.m2p31m1|code', 'ConversionCast');
+        Observer.Expect('exit.m2p31m1|text', 'Overflow under conversion of System.Int64 value -2147483649 to System.Char.');
+        Observer.Expect('exit.m2p31m1|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1148,16 +1124,6 @@ codeunit 92411 "LT Y31 Cv BigInteger"
         if Try16(vBigInteger, vByte) then Observer.Observe('assign.m1', Format(vByte, 0, 9)) else Observer.ObserveError('assign.m1');
         if Try18(vBigInteger, vByte) then Observer.Observe('arg_byvalue.m1', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.m1');
         if Try20(vBigInteger, vByte) then Observer.Observe('exit.m1', Format(vByte, 0, 9)) else Observer.ObserveError('exit.m1');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure BigInteger_To_Byte_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vBigInteger: BigInteger;
-        vByte: Byte;
-    begin
         vBigInteger := 3;
         if Try16(vBigInteger, vByte) then Observer.Observe('assign.3', Format(vByte, 0, 9)) else Observer.ObserveError('assign.3');
         if Try18(vBigInteger, vByte) then Observer.Observe('arg_byvalue.3', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.3');
@@ -1166,21 +1132,35 @@ codeunit 92411 "LT Y31 Cv BigInteger"
         if Try16(vBigInteger, vByte) then Observer.Observe('assign.2p31', Format(vByte, 0, 9)) else Observer.ObserveError('assign.2p31');
         if Try18(vBigInteger, vByte) then Observer.Observe('arg_byvalue.2p31', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.2p31');
         if Try20(vBigInteger, vByte) then Observer.Observe('exit.2p31', Format(vByte, 0, 9)) else Observer.ObserveError('exit.2p31');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure BigInteger_To_Byte_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        vBigInteger: BigInteger;
-        vByte: Byte;
-    begin
         vBigInteger := -2147483649L;
         if Try16(vBigInteger, vByte) then Observer.Observe('assign.m2p31m1', Format(vByte, 0, 9)) else Observer.ObserveError('assign.m2p31m1');
         if Try18(vBigInteger, vByte) then Observer.Observe('arg_byvalue.m2p31m1', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.m2p31m1');
         if Try20(vBigInteger, vByte) then Observer.Observe('exit.m2p31m1', Format(vByte, 0, 9)) else Observer.ObserveError('exit.m2p31m1');
-        Observer.Finish();
+        Observer.Expect('assign.0', '\u0000');
+        Observer.Expect('arg_byvalue.0', '\u0000');
+        Observer.Expect('exit.0', '\u0000');
+        Observer.Expect('assign.m1|text', 'Overflow under conversion of System.Int64 value -1 to System.Byte.');
+        Observer.Expect('assign.m1|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.m1|text', 'Overflow under conversion of System.Int64 value -1 to System.Byte.');
+        Observer.Expect('arg_byvalue.m1|code', 'ConversionCast');
+        Observer.Expect('exit.m1|text', 'Overflow under conversion of System.Int64 value -1 to System.Byte.');
+        Observer.Expect('exit.m1|code', 'ConversionCast');
+        Observer.Expect('assign.3', '\u0003');
+        Observer.Expect('arg_byvalue.3', '\u0003');
+        Observer.Expect('exit.3', '\u0003');
+        Observer.Expect('assign.2p31|text', 'Overflow under conversion of System.Int64 value 2147483648 to System.Byte.');
+        Observer.Expect('assign.2p31|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.2p31|text', 'Overflow under conversion of System.Int64 value 2147483648 to System.Byte.');
+        Observer.Expect('arg_byvalue.2p31|code', 'ConversionCast');
+        Observer.Expect('exit.2p31|text', 'Overflow under conversion of System.Int64 value 2147483648 to System.Byte.');
+        Observer.Expect('exit.2p31|code', 'ConversionCast');
+        Observer.Expect('assign.m2p31m1|text', 'Overflow under conversion of System.Int64 value -2147483649 to System.Byte.');
+        Observer.Expect('assign.m2p31m1|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.m2p31m1|text', 'Overflow under conversion of System.Int64 value -2147483649 to System.Byte.');
+        Observer.Expect('arg_byvalue.m2p31m1|code', 'ConversionCast');
+        Observer.Expect('exit.m2p31m1|text', 'Overflow under conversion of System.Int64 value -2147483649 to System.Byte.');
+        Observer.Expect('exit.m2p31m1|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1199,17 +1179,6 @@ codeunit 92411 "LT Y31 Cv BigInteger"
         if Try21(vBigInteger, vOption) then Observer.Observe('assign.m1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.m1');
         if Try23(vBigInteger, vOption) then Observer.Observe('arg_byvalue.m1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.m1');
         if Try25(vBigInteger, vOption) then Observer.Observe('exit.m1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.m1');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure BigInteger_To_Option_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vBigInteger: BigInteger;
-        vOption: Option A,B,C;
-    begin
         vBigInteger := 3;
         if Try21(vBigInteger, vOption) then Observer.Observe('assign.3', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.3');
         if Try23(vBigInteger, vOption) then Observer.Observe('arg_byvalue.3', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.3');
@@ -1218,22 +1187,32 @@ codeunit 92411 "LT Y31 Cv BigInteger"
         if Try21(vBigInteger, vOption) then Observer.Observe('assign.2p31', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.2p31');
         if Try23(vBigInteger, vOption) then Observer.Observe('arg_byvalue.2p31', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.2p31');
         if Try25(vBigInteger, vOption) then Observer.Observe('exit.2p31', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.2p31');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure BigInteger_To_Option_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vBigInteger: BigInteger;
-        vOption: Option A,B,C;
-    begin
         vBigInteger := -2147483649L;
         if Try21(vBigInteger, vOption) then Observer.Observe('assign.m2p31m1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.m2p31m1');
         if Try23(vBigInteger, vOption) then Observer.Observe('arg_byvalue.m2p31m1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.m2p31m1');
         if Try25(vBigInteger, vOption) then Observer.Observe('exit.m2p31m1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.m2p31m1');
-        Observer.Finish();
+        Observer.Expect('assign.0', 'A|0');
+        Observer.Expect('arg_byvalue.0', 'A|0');
+        Observer.Expect('exit.0', 'A|0');
+        Observer.Expect('assign.m1', '-1|-1');
+        Observer.Expect('arg_byvalue.m1', '-1|-1');
+        Observer.Expect('exit.m1', '-1|-1');
+        Observer.Expect('assign.3', '3|3');
+        Observer.Expect('arg_byvalue.3', '3|3');
+        Observer.Expect('exit.3', '3|3');
+        Observer.Expect('assign.2p31|text', 'Overflow under conversion of System.Int64 value 2147483648 to System.Int32.');
+        Observer.Expect('assign.2p31|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.2p31|text', 'Overflow under conversion of System.Int64 value 2147483648 to System.Int32.');
+        Observer.Expect('arg_byvalue.2p31|code', 'ConversionCast');
+        Observer.Expect('exit.2p31|text', 'Overflow under conversion of System.Int64 value 2147483648 to System.Int32.');
+        Observer.Expect('exit.2p31|code', 'ConversionCast');
+        Observer.Expect('assign.m2p31m1|text', 'Overflow under conversion of System.Int64 value -2147483649 to System.Int32.');
+        Observer.Expect('assign.m2p31m1|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.m2p31m1|text', 'Overflow under conversion of System.Int64 value -2147483649 to System.Int32.');
+        Observer.Expect('arg_byvalue.m2p31m1|code', 'ConversionCast');
+        Observer.Expect('exit.m2p31m1|text', 'Overflow under conversion of System.Int64 value -2147483649 to System.Int32.');
+        Observer.Expect('exit.m2p31m1|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1251,16 +1230,6 @@ codeunit 92411 "LT Y31 Cv BigInteger"
         if Try26(vBigInteger, vEnum) then Observer.Observe('assign.m1', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('assign.m1');
         if Try28(vBigInteger, vEnum) then Observer.Observe('arg_byvalue.m1', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('arg_byvalue.m1');
         if Try30(vBigInteger, vEnum) then Observer.Observe('exit.m1', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('exit.m1');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure BigInteger_To_Enum_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vBigInteger: BigInteger;
-        vEnum: Enum "LT Y31 E";
-    begin
         vBigInteger := 3;
         if Try26(vBigInteger, vEnum) then Observer.Observe('assign.3', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('assign.3');
         if Try28(vBigInteger, vEnum) then Observer.Observe('arg_byvalue.3', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('arg_byvalue.3');
@@ -1269,21 +1238,32 @@ codeunit 92411 "LT Y31 Cv BigInteger"
         if Try26(vBigInteger, vEnum) then Observer.Observe('assign.2p31', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('assign.2p31');
         if Try28(vBigInteger, vEnum) then Observer.Observe('arg_byvalue.2p31', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('arg_byvalue.2p31');
         if Try30(vBigInteger, vEnum) then Observer.Observe('exit.2p31', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('exit.2p31');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure BigInteger_To_Enum_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        vBigInteger: BigInteger;
-        vEnum: Enum "LT Y31 E";
-    begin
         vBigInteger := -2147483649L;
         if Try26(vBigInteger, vEnum) then Observer.Observe('assign.m2p31m1', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('assign.m2p31m1');
         if Try28(vBigInteger, vEnum) then Observer.Observe('arg_byvalue.m2p31m1', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('arg_byvalue.m2p31m1');
         if Try30(vBigInteger, vEnum) then Observer.Observe('exit.m2p31m1', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('exit.m2p31m1');
-        Observer.Finish();
+        Observer.Expect('assign.0', 'A|0');
+        Observer.Expect('arg_byvalue.0', 'A|0');
+        Observer.Expect('exit.0', 'A|0');
+        Observer.Expect('assign.m1', '-1|-1');
+        Observer.Expect('arg_byvalue.m1', '-1|-1');
+        Observer.Expect('exit.m1', '-1|-1');
+        Observer.Expect('assign.3', '3|3');
+        Observer.Expect('arg_byvalue.3', '3|3');
+        Observer.Expect('exit.3', '3|3');
+        Observer.Expect('assign.2p31|text', 'Overflow under conversion of System.Int64 value 2147483648 to System.Int32.');
+        Observer.Expect('assign.2p31|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.2p31|text', 'Overflow under conversion of System.Int64 value 2147483648 to System.Int32.');
+        Observer.Expect('arg_byvalue.2p31|code', 'ConversionCast');
+        Observer.Expect('exit.2p31|text', 'Overflow under conversion of System.Int64 value 2147483648 to System.Int32.');
+        Observer.Expect('exit.2p31|code', 'ConversionCast');
+        Observer.Expect('assign.m2p31m1|text', 'Overflow under conversion of System.Int64 value -2147483649 to System.Int32.');
+        Observer.Expect('assign.m2p31m1|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.m2p31m1|text', 'Overflow under conversion of System.Int64 value -2147483649 to System.Int32.');
+        Observer.Expect('arg_byvalue.m2p31m1|code', 'ConversionCast');
+        Observer.Expect('exit.m2p31m1|text', 'Overflow under conversion of System.Int64 value -2147483649 to System.Int32.');
+        Observer.Expect('exit.m2p31m1|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1301,16 +1281,6 @@ codeunit 92411 "LT Y31 Cv BigInteger"
         if Try31(vBigInteger, vEnumImpl) then Observer.Observe('assign.m1', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('assign.m1');
         if Try33(vBigInteger, vEnumImpl) then Observer.Observe('arg_byvalue.m1', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('arg_byvalue.m1');
         if Try35(vBigInteger, vEnumImpl) then Observer.Observe('exit.m1', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('exit.m1');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure BigInteger_To_EnumImpl_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vBigInteger: BigInteger;
-        vEnumImpl: Enum "LT Y31 EI";
-    begin
         vBigInteger := 3;
         if Try31(vBigInteger, vEnumImpl) then Observer.Observe('assign.3', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('assign.3');
         if Try33(vBigInteger, vEnumImpl) then Observer.Observe('arg_byvalue.3', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('arg_byvalue.3');
@@ -1319,21 +1289,32 @@ codeunit 92411 "LT Y31 Cv BigInteger"
         if Try31(vBigInteger, vEnumImpl) then Observer.Observe('assign.2p31', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('assign.2p31');
         if Try33(vBigInteger, vEnumImpl) then Observer.Observe('arg_byvalue.2p31', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('arg_byvalue.2p31');
         if Try35(vBigInteger, vEnumImpl) then Observer.Observe('exit.2p31', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('exit.2p31');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure BigInteger_To_EnumImpl_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        vBigInteger: BigInteger;
-        vEnumImpl: Enum "LT Y31 EI";
-    begin
         vBigInteger := -2147483649L;
         if Try31(vBigInteger, vEnumImpl) then Observer.Observe('assign.m2p31m1', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('assign.m2p31m1');
         if Try33(vBigInteger, vEnumImpl) then Observer.Observe('arg_byvalue.m2p31m1', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('arg_byvalue.m2p31m1');
         if Try35(vBigInteger, vEnumImpl) then Observer.Observe('exit.m2p31m1', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('exit.m2p31m1');
-        Observer.Finish();
+        Observer.Expect('assign.0', 'A|0');
+        Observer.Expect('arg_byvalue.0', 'A|0');
+        Observer.Expect('exit.0', 'A|0');
+        Observer.Expect('assign.m1', '-1|-1');
+        Observer.Expect('arg_byvalue.m1', '-1|-1');
+        Observer.Expect('exit.m1', '-1|-1');
+        Observer.Expect('assign.3', '3|3');
+        Observer.Expect('arg_byvalue.3', '3|3');
+        Observer.Expect('exit.3', '3|3');
+        Observer.Expect('assign.2p31|text', 'Overflow under conversion of System.Int64 value 2147483648 to System.Int32.');
+        Observer.Expect('assign.2p31|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.2p31|text', 'Overflow under conversion of System.Int64 value 2147483648 to System.Int32.');
+        Observer.Expect('arg_byvalue.2p31|code', 'ConversionCast');
+        Observer.Expect('exit.2p31|text', 'Overflow under conversion of System.Int64 value 2147483648 to System.Int32.');
+        Observer.Expect('exit.2p31|code', 'ConversionCast');
+        Observer.Expect('assign.m2p31m1|text', 'Overflow under conversion of System.Int64 value -2147483649 to System.Int32.');
+        Observer.Expect('assign.m2p31m1|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.m2p31m1|text', 'Overflow under conversion of System.Int64 value -2147483649 to System.Int32.');
+        Observer.Expect('arg_byvalue.m2p31m1|code', 'ConversionCast');
+        Observer.Expect('exit.m2p31m1|text', 'Overflow under conversion of System.Int64 value -2147483649 to System.Int32.');
+        Observer.Expect('exit.m2p31m1|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1351,16 +1332,6 @@ codeunit 92411 "LT Y31 Cv BigInteger"
         if Try36(vBigInteger, vDuration) then Observer.Observe('assign.m1', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.m1');
         if Try38(vBigInteger, vDuration) then Observer.Observe('arg_byvalue.m1', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.m1');
         if Try40(vBigInteger, vDuration) then Observer.Observe('exit.m1', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.m1');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure BigInteger_To_Duration_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vBigInteger: BigInteger;
-        vDuration: Duration;
-    begin
         vBigInteger := 3;
         if Try36(vBigInteger, vDuration) then Observer.Observe('assign.3', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.3');
         if Try38(vBigInteger, vDuration) then Observer.Observe('arg_byvalue.3', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.3');
@@ -1369,21 +1340,26 @@ codeunit 92411 "LT Y31 Cv BigInteger"
         if Try36(vBigInteger, vDuration) then Observer.Observe('assign.2p31', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.2p31');
         if Try38(vBigInteger, vDuration) then Observer.Observe('arg_byvalue.2p31', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.2p31');
         if Try40(vBigInteger, vDuration) then Observer.Observe('exit.2p31', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.2p31');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure BigInteger_To_Duration_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        vBigInteger: BigInteger;
-        vDuration: Duration;
-    begin
         vBigInteger := -2147483649L;
         if Try36(vBigInteger, vDuration) then Observer.Observe('assign.m2p31m1', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.m2p31m1');
         if Try38(vBigInteger, vDuration) then Observer.Observe('arg_byvalue.m2p31m1', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.m2p31m1');
         if Try40(vBigInteger, vDuration) then Observer.Observe('exit.m2p31m1', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.m2p31m1');
-        Observer.Finish();
+        Observer.Expect('assign.0', 'P0DT0H0M0.0S');
+        Observer.Expect('arg_byvalue.0', 'P0DT0H0M0.0S');
+        Observer.Expect('exit.0', 'P0DT0H0M0.0S');
+        Observer.Expect('assign.m1', '-P0DT0H0M0.001S');
+        Observer.Expect('arg_byvalue.m1', '-P0DT0H0M0.001S');
+        Observer.Expect('exit.m1', '-P0DT0H0M0.001S');
+        Observer.Expect('assign.3', 'P0DT0H0M0.003S');
+        Observer.Expect('arg_byvalue.3', 'P0DT0H0M0.003S');
+        Observer.Expect('exit.3', 'P0DT0H0M0.003S');
+        Observer.Expect('assign.2p31', 'P24DT20H31M23.648S');
+        Observer.Expect('arg_byvalue.2p31', 'P24DT20H31M23.648S');
+        Observer.Expect('exit.2p31', 'P24DT20H31M23.648S');
+        Observer.Expect('assign.m2p31m1', '-P24DT20H31M23.649S');
+        Observer.Expect('arg_byvalue.m2p31m1', '-P24DT20H31M23.649S');
+        Observer.Expect('exit.m2p31m1', '-P24DT20H31M23.649S');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1403,7 +1379,14 @@ codeunit 92411 "LT Y31 Cv BigInteger"
         if Try41(R, vBigInteger) then Observer.Observe('assign.2p31', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.2p31');
         vBigInteger := -2147483649L;
         if Try41(R, vBigInteger) then Observer.Observe('assign.m2p31m1', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.m2p31m1');
-        Observer.Finish();
+        Observer.Expect('assign.0', '0');
+        Observer.Expect('assign.m1', '-1');
+        Observer.Expect('assign.3', '3');
+        Observer.Expect('assign.2p31|text', 'Overflow under conversion of System.Int64 value 2147483648 to System.Int32.');
+        Observer.Expect('assign.2p31|code', 'ConversionCast');
+        Observer.Expect('assign.m2p31m1|text', 'Overflow under conversion of System.Int64 value -2147483649 to System.Int32.');
+        Observer.Expect('assign.m2p31m1|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1423,7 +1406,12 @@ codeunit 92411 "LT Y31 Cv BigInteger"
         if Try42(R, vBigInteger) then Observer.Observe('assign.2p31', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.2p31');
         vBigInteger := -2147483649L;
         if Try42(R, vBigInteger) then Observer.Observe('assign.m2p31m1', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.m2p31m1');
-        Observer.Finish();
+        Observer.Expect('assign.0', '0');
+        Observer.Expect('assign.m1', '-1');
+        Observer.Expect('assign.3', '3');
+        Observer.Expect('assign.2p31', '2147483648');
+        Observer.Expect('assign.m2p31m1', '-2147483649');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1444,7 +1432,14 @@ codeunit 92411 "LT Y31 Cv BigInteger"
         if Try43(R, vBigInteger) then Observer.Observe('assign.2p31', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.2p31');
         vBigInteger := -2147483649L;
         if Try43(R, vBigInteger) then Observer.Observe('assign.m2p31m1', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.m2p31m1');
-        Observer.Finish();
+        Observer.Expect('assign.0', 'A|0');
+        Observer.Expect('assign.m1', '-1|-1');
+        Observer.Expect('assign.3', '3|3');
+        Observer.Expect('assign.2p31|text', 'Overflow under conversion of System.Int64 value 2147483648 to System.Int32.');
+        Observer.Expect('assign.2p31|code', 'ConversionCast');
+        Observer.Expect('assign.m2p31m1|text', 'Overflow under conversion of System.Int64 value -2147483649 to System.Int32.');
+        Observer.Expect('assign.m2p31m1|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1464,7 +1459,14 @@ codeunit 92411 "LT Y31 Cv BigInteger"
         if Try44(R, vBigInteger) then Observer.Observe('assign.2p31', Format(R.Enum) + '|' + Format(R.Enum.AsInteger())) else Observer.ObserveError('assign.2p31');
         vBigInteger := -2147483649L;
         if Try44(R, vBigInteger) then Observer.Observe('assign.m2p31m1', Format(R.Enum) + '|' + Format(R.Enum.AsInteger())) else Observer.ObserveError('assign.m2p31m1');
-        Observer.Finish();
+        Observer.Expect('assign.0', 'A|0');
+        Observer.Expect('assign.m1', '-1|-1');
+        Observer.Expect('assign.3', '3|3');
+        Observer.Expect('assign.2p31|text', 'Overflow under conversion of System.Int64 value 2147483648 to System.Int32.');
+        Observer.Expect('assign.2p31|code', 'ConversionCast');
+        Observer.Expect('assign.m2p31m1|text', 'Overflow under conversion of System.Int64 value -2147483649 to System.Int32.');
+        Observer.Expect('assign.m2p31m1|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1484,7 +1486,12 @@ codeunit 92411 "LT Y31 Cv BigInteger"
         if Try45(R, vBigInteger) then Observer.Observe('assign.2p31', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.2p31');
         vBigInteger := -2147483649L;
         if Try45(R, vBigInteger) then Observer.Observe('assign.m2p31m1', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.m2p31m1');
-        Observer.Finish();
+        Observer.Expect('assign.0', 'P0DT0H0M0.0S');
+        Observer.Expect('assign.m1', '-P0DT0H0M0.001S');
+        Observer.Expect('assign.3', 'P0DT0H0M0.003S');
+        Observer.Expect('assign.2p31', 'P24DT20H31M23.648S');
+        Observer.Expect('assign.m2p31m1', '-P24DT20H31M23.649S');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -1799,16 +1806,6 @@ codeunit 92412 "LT Y31 Cv Decimal"
         if Try1(vDecimal, vInteger) then Observer.Observe('assign.1p5', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.1p5');
         if Try3(vDecimal, vInteger) then Observer.Observe('arg_byvalue.1p5', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.1p5');
         if Try5(vDecimal, vInteger) then Observer.Observe('exit.1p5', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.1p5');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Decimal_To_Integer_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vDecimal: Decimal;
-        vInteger: Integer;
-    begin
         vDecimal := -1.5;
         if Try1(vDecimal, vInteger) then Observer.Observe('assign.m1p5', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.m1p5');
         if Try3(vDecimal, vInteger) then Observer.Observe('arg_byvalue.m1p5', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.m1p5');
@@ -1817,16 +1814,6 @@ codeunit 92412 "LT Y31 Cv Decimal"
         if Try1(vDecimal, vInteger) then Observer.Observe('assign.2p5', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.2p5');
         if Try3(vDecimal, vInteger) then Observer.Observe('arg_byvalue.2p5', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.2p5');
         if Try5(vDecimal, vInteger) then Observer.Observe('exit.2p5', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.2p5');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Decimal_To_Integer_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        vDecimal: Decimal;
-        vInteger: Integer;
-    begin
         vDecimal := 3;
         if Try1(vDecimal, vInteger) then Observer.Observe('assign.3', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.3');
         if Try3(vDecimal, vInteger) then Observer.Observe('arg_byvalue.3', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.3');
@@ -1835,16 +1822,6 @@ codeunit 92412 "LT Y31 Cv Decimal"
         if Try1(vDecimal, vInteger) then Observer.Observe('assign.255', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.255');
         if Try3(vDecimal, vInteger) then Observer.Observe('arg_byvalue.255', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.255');
         if Try5(vDecimal, vInteger) then Observer.Observe('exit.255', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.255');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Decimal_To_Integer_4()
-    var
-        Observer: Codeunit "Probe Observer";
-        vDecimal: Decimal;
-        vInteger: Integer;
-    begin
         vDecimal := 256;
         if Try1(vDecimal, vInteger) then Observer.Observe('assign.256', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.256');
         if Try3(vDecimal, vInteger) then Observer.Observe('arg_byvalue.256', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.256');
@@ -1853,21 +1830,53 @@ codeunit 92412 "LT Y31 Cv Decimal"
         if Try1(vDecimal, vInteger) then Observer.Observe('assign.2p31', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.2p31');
         if Try3(vDecimal, vInteger) then Observer.Observe('arg_byvalue.2p31', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.2p31');
         if Try5(vDecimal, vInteger) then Observer.Observe('exit.2p31', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.2p31');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Decimal_To_Integer_5()
-    var
-        Observer: Codeunit "Probe Observer";
-        vDecimal: Decimal;
-        vInteger: Integer;
-    begin
         vDecimal := 0.0001;
         if Try1(vDecimal, vInteger) then Observer.Observe('assign.0p0001', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.0p0001');
         if Try3(vDecimal, vInteger) then Observer.Observe('arg_byvalue.0p0001', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.0p0001');
         if Try5(vDecimal, vInteger) then Observer.Observe('exit.0p0001', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.0p0001');
-        Observer.Finish();
+        Observer.Expect('assign.0', '0');
+        Observer.Expect('arg_byvalue.0', '0');
+        Observer.Expect('exit.0', '0');
+        Observer.Expect('assign.1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int32.');
+        Observer.Expect('assign.1p5|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int32.');
+        Observer.Expect('arg_byvalue.1p5|code', 'ConversionCast');
+        Observer.Expect('exit.1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int32.');
+        Observer.Expect('exit.1p5|code', 'ConversionCast');
+        Observer.Expect('assign.m1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value -1.5 to System.Int32.');
+        Observer.Expect('assign.m1p5|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.m1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value -1.5 to System.Int32.');
+        Observer.Expect('arg_byvalue.m1p5|code', 'ConversionCast');
+        Observer.Expect('exit.m1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value -1.5 to System.Int32.');
+        Observer.Expect('exit.m1p5|code', 'ConversionCast');
+        Observer.Expect('assign.2p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2.5 to System.Int32.');
+        Observer.Expect('assign.2p5|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.2p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2.5 to System.Int32.');
+        Observer.Expect('arg_byvalue.2p5|code', 'ConversionCast');
+        Observer.Expect('exit.2p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2.5 to System.Int32.');
+        Observer.Expect('exit.2p5|code', 'ConversionCast');
+        Observer.Expect('assign.3', '3');
+        Observer.Expect('arg_byvalue.3', '3');
+        Observer.Expect('exit.3', '3');
+        Observer.Expect('assign.255', '255');
+        Observer.Expect('arg_byvalue.255', '255');
+        Observer.Expect('exit.255', '255');
+        Observer.Expect('assign.256', '256');
+        Observer.Expect('arg_byvalue.256', '256');
+        Observer.Expect('exit.256', '256');
+        Observer.Expect('assign.2p31|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2147483648.0 to System.Int32.');
+        Observer.Expect('assign.2p31|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.2p31|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2147483648.0 to System.Int32.');
+        Observer.Expect('arg_byvalue.2p31|code', 'ConversionCast');
+        Observer.Expect('exit.2p31|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2147483648.0 to System.Int32.');
+        Observer.Expect('exit.2p31|code', 'ConversionCast');
+        Observer.Expect('assign.0p0001|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 0.0001 to System.Int32.');
+        Observer.Expect('assign.0p0001|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.0p0001|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 0.0001 to System.Int32.');
+        Observer.Expect('arg_byvalue.0p0001|code', 'ConversionCast');
+        Observer.Expect('exit.0p0001|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 0.0001 to System.Int32.');
+        Observer.Expect('exit.0p0001|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1885,16 +1894,6 @@ codeunit 92412 "LT Y31 Cv Decimal"
         if Try6(vBigInteger, vDecimal) then Observer.Observe('assign.1p5', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.1p5');
         if Try8(vBigInteger, vDecimal) then Observer.Observe('arg_byvalue.1p5', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.1p5');
         if Try10(vBigInteger, vDecimal) then Observer.Observe('exit.1p5', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.1p5');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Decimal_To_BigInteger_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vBigInteger: BigInteger;
-        vDecimal: Decimal;
-    begin
         vDecimal := -1.5;
         if Try6(vBigInteger, vDecimal) then Observer.Observe('assign.m1p5', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.m1p5');
         if Try8(vBigInteger, vDecimal) then Observer.Observe('arg_byvalue.m1p5', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.m1p5');
@@ -1903,16 +1902,6 @@ codeunit 92412 "LT Y31 Cv Decimal"
         if Try6(vBigInteger, vDecimal) then Observer.Observe('assign.2p5', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.2p5');
         if Try8(vBigInteger, vDecimal) then Observer.Observe('arg_byvalue.2p5', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.2p5');
         if Try10(vBigInteger, vDecimal) then Observer.Observe('exit.2p5', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.2p5');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Decimal_To_BigInteger_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        vBigInteger: BigInteger;
-        vDecimal: Decimal;
-    begin
         vDecimal := 3;
         if Try6(vBigInteger, vDecimal) then Observer.Observe('assign.3', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.3');
         if Try8(vBigInteger, vDecimal) then Observer.Observe('arg_byvalue.3', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.3');
@@ -1921,16 +1910,6 @@ codeunit 92412 "LT Y31 Cv Decimal"
         if Try6(vBigInteger, vDecimal) then Observer.Observe('assign.255', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.255');
         if Try8(vBigInteger, vDecimal) then Observer.Observe('arg_byvalue.255', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.255');
         if Try10(vBigInteger, vDecimal) then Observer.Observe('exit.255', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.255');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Decimal_To_BigInteger_4()
-    var
-        Observer: Codeunit "Probe Observer";
-        vBigInteger: BigInteger;
-        vDecimal: Decimal;
-    begin
         vDecimal := 256;
         if Try6(vBigInteger, vDecimal) then Observer.Observe('assign.256', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.256');
         if Try8(vBigInteger, vDecimal) then Observer.Observe('arg_byvalue.256', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.256');
@@ -1939,21 +1918,50 @@ codeunit 92412 "LT Y31 Cv Decimal"
         if Try6(vBigInteger, vDecimal) then Observer.Observe('assign.2p31', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.2p31');
         if Try8(vBigInteger, vDecimal) then Observer.Observe('arg_byvalue.2p31', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.2p31');
         if Try10(vBigInteger, vDecimal) then Observer.Observe('exit.2p31', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.2p31');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Decimal_To_BigInteger_5()
-    var
-        Observer: Codeunit "Probe Observer";
-        vBigInteger: BigInteger;
-        vDecimal: Decimal;
-    begin
         vDecimal := 0.0001;
         if Try6(vBigInteger, vDecimal) then Observer.Observe('assign.0p0001', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.0p0001');
         if Try8(vBigInteger, vDecimal) then Observer.Observe('arg_byvalue.0p0001', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.0p0001');
         if Try10(vBigInteger, vDecimal) then Observer.Observe('exit.0p0001', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.0p0001');
-        Observer.Finish();
+        Observer.Expect('assign.0', '0');
+        Observer.Expect('arg_byvalue.0', '0');
+        Observer.Expect('exit.0', '0');
+        Observer.Expect('assign.1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int64.');
+        Observer.Expect('assign.1p5|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int64.');
+        Observer.Expect('arg_byvalue.1p5|code', 'ConversionCast');
+        Observer.Expect('exit.1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int64.');
+        Observer.Expect('exit.1p5|code', 'ConversionCast');
+        Observer.Expect('assign.m1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value -1.5 to System.Int64.');
+        Observer.Expect('assign.m1p5|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.m1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value -1.5 to System.Int64.');
+        Observer.Expect('arg_byvalue.m1p5|code', 'ConversionCast');
+        Observer.Expect('exit.m1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value -1.5 to System.Int64.');
+        Observer.Expect('exit.m1p5|code', 'ConversionCast');
+        Observer.Expect('assign.2p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2.5 to System.Int64.');
+        Observer.Expect('assign.2p5|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.2p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2.5 to System.Int64.');
+        Observer.Expect('arg_byvalue.2p5|code', 'ConversionCast');
+        Observer.Expect('exit.2p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2.5 to System.Int64.');
+        Observer.Expect('exit.2p5|code', 'ConversionCast');
+        Observer.Expect('assign.3', '3');
+        Observer.Expect('arg_byvalue.3', '3');
+        Observer.Expect('exit.3', '3');
+        Observer.Expect('assign.255', '255');
+        Observer.Expect('arg_byvalue.255', '255');
+        Observer.Expect('exit.255', '255');
+        Observer.Expect('assign.256', '256');
+        Observer.Expect('arg_byvalue.256', '256');
+        Observer.Expect('exit.256', '256');
+        Observer.Expect('assign.2p31', '2147483648');
+        Observer.Expect('arg_byvalue.2p31', '2147483648');
+        Observer.Expect('exit.2p31', '2147483648');
+        Observer.Expect('assign.0p0001|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 0.0001 to System.Int64.');
+        Observer.Expect('assign.0p0001|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.0p0001|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 0.0001 to System.Int64.');
+        Observer.Expect('arg_byvalue.0p0001|code', 'ConversionCast');
+        Observer.Expect('exit.0p0001|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 0.0001 to System.Int64.');
+        Observer.Expect('exit.0p0001|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1972,17 +1980,6 @@ codeunit 92412 "LT Y31 Cv Decimal"
         if Try11(vChar, vDecimal) then Observer.Observe('assign.1p5', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.1p5');
         if Try13(vChar, vDecimal) then Observer.Observe('arg_byvalue.1p5', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.1p5');
         if Try15(vChar, vDecimal) then Observer.Observe('exit.1p5', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.1p5');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Decimal_To_Char_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vChar: Char;
-        vDecimal: Decimal;
-    begin
         vDecimal := -1.5;
         if Try11(vChar, vDecimal) then Observer.Observe('assign.m1p5', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.m1p5');
         if Try13(vChar, vDecimal) then Observer.Observe('arg_byvalue.m1p5', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.m1p5');
@@ -1991,17 +1988,6 @@ codeunit 92412 "LT Y31 Cv Decimal"
         if Try11(vChar, vDecimal) then Observer.Observe('assign.2p5', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.2p5');
         if Try13(vChar, vDecimal) then Observer.Observe('arg_byvalue.2p5', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.2p5');
         if Try15(vChar, vDecimal) then Observer.Observe('exit.2p5', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.2p5');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Decimal_To_Char_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vChar: Char;
-        vDecimal: Decimal;
-    begin
         vDecimal := 3;
         if Try11(vChar, vDecimal) then Observer.Observe('assign.3', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.3');
         if Try13(vChar, vDecimal) then Observer.Observe('arg_byvalue.3', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.3');
@@ -2010,17 +1996,6 @@ codeunit 92412 "LT Y31 Cv Decimal"
         if Try11(vChar, vDecimal) then Observer.Observe('assign.255', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.255');
         if Try13(vChar, vDecimal) then Observer.Observe('arg_byvalue.255', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.255');
         if Try15(vChar, vDecimal) then Observer.Observe('exit.255', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.255');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Decimal_To_Char_4()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vChar: Char;
-        vDecimal: Decimal;
-    begin
         vDecimal := 256;
         if Try11(vChar, vDecimal) then Observer.Observe('assign.256', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.256');
         if Try13(vChar, vDecimal) then Observer.Observe('arg_byvalue.256', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.256');
@@ -2029,22 +2004,53 @@ codeunit 92412 "LT Y31 Cv Decimal"
         if Try11(vChar, vDecimal) then Observer.Observe('assign.2p31', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.2p31');
         if Try13(vChar, vDecimal) then Observer.Observe('arg_byvalue.2p31', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.2p31');
         if Try15(vChar, vDecimal) then Observer.Observe('exit.2p31', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.2p31');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Decimal_To_Char_5()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vChar: Char;
-        vDecimal: Decimal;
-    begin
         vDecimal := 0.0001;
         if Try11(vChar, vDecimal) then Observer.Observe('assign.0p0001', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.0p0001');
         if Try13(vChar, vDecimal) then Observer.Observe('arg_byvalue.0p0001', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.0p0001');
         if Try15(vChar, vDecimal) then Observer.Observe('exit.0p0001', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.0p0001');
-        Observer.Finish();
+        Observer.Expect('assign.0', '\u0000|0');
+        Observer.Expect('arg_byvalue.0', '\u0000|0');
+        Observer.Expect('exit.0', '\u0000|0');
+        Observer.Expect('assign.1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Char.');
+        Observer.Expect('assign.1p5|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Char.');
+        Observer.Expect('arg_byvalue.1p5|code', 'ConversionCast');
+        Observer.Expect('exit.1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Char.');
+        Observer.Expect('exit.1p5|code', 'ConversionCast');
+        Observer.Expect('assign.m1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value -1.5 to System.Char.');
+        Observer.Expect('assign.m1p5|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.m1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value -1.5 to System.Char.');
+        Observer.Expect('arg_byvalue.m1p5|code', 'ConversionCast');
+        Observer.Expect('exit.m1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value -1.5 to System.Char.');
+        Observer.Expect('exit.m1p5|code', 'ConversionCast');
+        Observer.Expect('assign.2p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2.5 to System.Char.');
+        Observer.Expect('assign.2p5|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.2p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2.5 to System.Char.');
+        Observer.Expect('arg_byvalue.2p5|code', 'ConversionCast');
+        Observer.Expect('exit.2p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2.5 to System.Char.');
+        Observer.Expect('exit.2p5|code', 'ConversionCast');
+        Observer.Expect('assign.3', '\u0003|3');
+        Observer.Expect('arg_byvalue.3', '\u0003|3');
+        Observer.Expect('exit.3', '\u0003|3');
+        Observer.Expect('assign.255', 'ÿ|255');
+        Observer.Expect('arg_byvalue.255', 'ÿ|255');
+        Observer.Expect('exit.255', 'ÿ|255');
+        Observer.Expect('assign.256', 'Ā|256');
+        Observer.Expect('arg_byvalue.256', 'Ā|256');
+        Observer.Expect('exit.256', 'Ā|256');
+        Observer.Expect('assign.2p31|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2147483648.0 to System.Char.');
+        Observer.Expect('assign.2p31|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.2p31|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2147483648.0 to System.Char.');
+        Observer.Expect('arg_byvalue.2p31|code', 'ConversionCast');
+        Observer.Expect('exit.2p31|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2147483648.0 to System.Char.');
+        Observer.Expect('exit.2p31|code', 'ConversionCast');
+        Observer.Expect('assign.0p0001|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 0.0001 to System.Char.');
+        Observer.Expect('assign.0p0001|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.0p0001|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 0.0001 to System.Char.');
+        Observer.Expect('arg_byvalue.0p0001|code', 'ConversionCast');
+        Observer.Expect('exit.0p0001|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 0.0001 to System.Char.');
+        Observer.Expect('exit.0p0001|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2062,16 +2068,6 @@ codeunit 92412 "LT Y31 Cv Decimal"
         if Try16(vByte, vDecimal) then Observer.Observe('assign.1p5', Format(vByte, 0, 9)) else Observer.ObserveError('assign.1p5');
         if Try18(vByte, vDecimal) then Observer.Observe('arg_byvalue.1p5', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.1p5');
         if Try20(vByte, vDecimal) then Observer.Observe('exit.1p5', Format(vByte, 0, 9)) else Observer.ObserveError('exit.1p5');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Decimal_To_Byte_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vByte: Byte;
-        vDecimal: Decimal;
-    begin
         vDecimal := -1.5;
         if Try16(vByte, vDecimal) then Observer.Observe('assign.m1p5', Format(vByte, 0, 9)) else Observer.ObserveError('assign.m1p5');
         if Try18(vByte, vDecimal) then Observer.Observe('arg_byvalue.m1p5', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.m1p5');
@@ -2080,16 +2076,6 @@ codeunit 92412 "LT Y31 Cv Decimal"
         if Try16(vByte, vDecimal) then Observer.Observe('assign.2p5', Format(vByte, 0, 9)) else Observer.ObserveError('assign.2p5');
         if Try18(vByte, vDecimal) then Observer.Observe('arg_byvalue.2p5', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.2p5');
         if Try20(vByte, vDecimal) then Observer.Observe('exit.2p5', Format(vByte, 0, 9)) else Observer.ObserveError('exit.2p5');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Decimal_To_Byte_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        vByte: Byte;
-        vDecimal: Decimal;
-    begin
         vDecimal := 3;
         if Try16(vByte, vDecimal) then Observer.Observe('assign.3', Format(vByte, 0, 9)) else Observer.ObserveError('assign.3');
         if Try18(vByte, vDecimal) then Observer.Observe('arg_byvalue.3', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.3');
@@ -2098,16 +2084,6 @@ codeunit 92412 "LT Y31 Cv Decimal"
         if Try16(vByte, vDecimal) then Observer.Observe('assign.255', Format(vByte, 0, 9)) else Observer.ObserveError('assign.255');
         if Try18(vByte, vDecimal) then Observer.Observe('arg_byvalue.255', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.255');
         if Try20(vByte, vDecimal) then Observer.Observe('exit.255', Format(vByte, 0, 9)) else Observer.ObserveError('exit.255');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Decimal_To_Byte_4()
-    var
-        Observer: Codeunit "Probe Observer";
-        vByte: Byte;
-        vDecimal: Decimal;
-    begin
         vDecimal := 256;
         if Try16(vByte, vDecimal) then Observer.Observe('assign.256', Format(vByte, 0, 9)) else Observer.ObserveError('assign.256');
         if Try18(vByte, vDecimal) then Observer.Observe('arg_byvalue.256', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.256');
@@ -2116,21 +2092,56 @@ codeunit 92412 "LT Y31 Cv Decimal"
         if Try16(vByte, vDecimal) then Observer.Observe('assign.2p31', Format(vByte, 0, 9)) else Observer.ObserveError('assign.2p31');
         if Try18(vByte, vDecimal) then Observer.Observe('arg_byvalue.2p31', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.2p31');
         if Try20(vByte, vDecimal) then Observer.Observe('exit.2p31', Format(vByte, 0, 9)) else Observer.ObserveError('exit.2p31');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Decimal_To_Byte_5()
-    var
-        Observer: Codeunit "Probe Observer";
-        vByte: Byte;
-        vDecimal: Decimal;
-    begin
         vDecimal := 0.0001;
         if Try16(vByte, vDecimal) then Observer.Observe('assign.0p0001', Format(vByte, 0, 9)) else Observer.ObserveError('assign.0p0001');
         if Try18(vByte, vDecimal) then Observer.Observe('arg_byvalue.0p0001', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.0p0001');
         if Try20(vByte, vDecimal) then Observer.Observe('exit.0p0001', Format(vByte, 0, 9)) else Observer.ObserveError('exit.0p0001');
-        Observer.Finish();
+        Observer.Expect('assign.0', '\u0000');
+        Observer.Expect('arg_byvalue.0', '\u0000');
+        Observer.Expect('exit.0', '\u0000');
+        Observer.Expect('assign.1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Byte.');
+        Observer.Expect('assign.1p5|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Byte.');
+        Observer.Expect('arg_byvalue.1p5|code', 'ConversionCast');
+        Observer.Expect('exit.1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Byte.');
+        Observer.Expect('exit.1p5|code', 'ConversionCast');
+        Observer.Expect('assign.m1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value -1.5 to System.Byte.');
+        Observer.Expect('assign.m1p5|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.m1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value -1.5 to System.Byte.');
+        Observer.Expect('arg_byvalue.m1p5|code', 'ConversionCast');
+        Observer.Expect('exit.m1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value -1.5 to System.Byte.');
+        Observer.Expect('exit.m1p5|code', 'ConversionCast');
+        Observer.Expect('assign.2p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2.5 to System.Byte.');
+        Observer.Expect('assign.2p5|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.2p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2.5 to System.Byte.');
+        Observer.Expect('arg_byvalue.2p5|code', 'ConversionCast');
+        Observer.Expect('exit.2p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2.5 to System.Byte.');
+        Observer.Expect('exit.2p5|code', 'ConversionCast');
+        Observer.Expect('assign.3', '\u0003');
+        Observer.Expect('arg_byvalue.3', '\u0003');
+        Observer.Expect('exit.3', '\u0003');
+        Observer.Expect('assign.255', ' ');
+        Observer.Expect('arg_byvalue.255', ' ');
+        Observer.Expect('exit.255', ' ');
+        Observer.Expect('assign.256|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 256 to System.Byte.');
+        Observer.Expect('assign.256|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.256|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 256 to System.Byte.');
+        Observer.Expect('arg_byvalue.256|code', 'ConversionCast');
+        Observer.Expect('exit.256|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 256 to System.Byte.');
+        Observer.Expect('exit.256|code', 'ConversionCast');
+        Observer.Expect('assign.2p31|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2147483648.0 to System.Byte.');
+        Observer.Expect('assign.2p31|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.2p31|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2147483648.0 to System.Byte.');
+        Observer.Expect('arg_byvalue.2p31|code', 'ConversionCast');
+        Observer.Expect('exit.2p31|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2147483648.0 to System.Byte.');
+        Observer.Expect('exit.2p31|code', 'ConversionCast');
+        Observer.Expect('assign.0p0001|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 0.0001 to System.Byte.');
+        Observer.Expect('assign.0p0001|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.0p0001|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 0.0001 to System.Byte.');
+        Observer.Expect('arg_byvalue.0p0001|code', 'ConversionCast');
+        Observer.Expect('exit.0p0001|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 0.0001 to System.Byte.');
+        Observer.Expect('exit.0p0001|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2149,17 +2160,6 @@ codeunit 92412 "LT Y31 Cv Decimal"
         if Try21(vDecimal, vOption) then Observer.Observe('assign.1p5', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.1p5');
         if Try23(vDecimal, vOption) then Observer.Observe('arg_byvalue.1p5', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.1p5');
         if Try25(vDecimal, vOption) then Observer.Observe('exit.1p5', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.1p5');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Decimal_To_Option_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vDecimal: Decimal;
-        vOption: Option A,B,C;
-    begin
         vDecimal := -1.5;
         if Try21(vDecimal, vOption) then Observer.Observe('assign.m1p5', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.m1p5');
         if Try23(vDecimal, vOption) then Observer.Observe('arg_byvalue.m1p5', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.m1p5');
@@ -2168,17 +2168,6 @@ codeunit 92412 "LT Y31 Cv Decimal"
         if Try21(vDecimal, vOption) then Observer.Observe('assign.2p5', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.2p5');
         if Try23(vDecimal, vOption) then Observer.Observe('arg_byvalue.2p5', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.2p5');
         if Try25(vDecimal, vOption) then Observer.Observe('exit.2p5', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.2p5');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Decimal_To_Option_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vDecimal: Decimal;
-        vOption: Option A,B,C;
-    begin
         vDecimal := 3;
         if Try21(vDecimal, vOption) then Observer.Observe('assign.3', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.3');
         if Try23(vDecimal, vOption) then Observer.Observe('arg_byvalue.3', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.3');
@@ -2187,17 +2176,6 @@ codeunit 92412 "LT Y31 Cv Decimal"
         if Try21(vDecimal, vOption) then Observer.Observe('assign.255', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.255');
         if Try23(vDecimal, vOption) then Observer.Observe('arg_byvalue.255', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.255');
         if Try25(vDecimal, vOption) then Observer.Observe('exit.255', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.255');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Decimal_To_Option_4()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vDecimal: Decimal;
-        vOption: Option A,B,C;
-    begin
         vDecimal := 256;
         if Try21(vDecimal, vOption) then Observer.Observe('assign.256', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.256');
         if Try23(vDecimal, vOption) then Observer.Observe('arg_byvalue.256', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.256');
@@ -2206,22 +2184,53 @@ codeunit 92412 "LT Y31 Cv Decimal"
         if Try21(vDecimal, vOption) then Observer.Observe('assign.2p31', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.2p31');
         if Try23(vDecimal, vOption) then Observer.Observe('arg_byvalue.2p31', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.2p31');
         if Try25(vDecimal, vOption) then Observer.Observe('exit.2p31', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.2p31');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Decimal_To_Option_5()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vDecimal: Decimal;
-        vOption: Option A,B,C;
-    begin
         vDecimal := 0.0001;
         if Try21(vDecimal, vOption) then Observer.Observe('assign.0p0001', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.0p0001');
         if Try23(vDecimal, vOption) then Observer.Observe('arg_byvalue.0p0001', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.0p0001');
         if Try25(vDecimal, vOption) then Observer.Observe('exit.0p0001', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.0p0001');
-        Observer.Finish();
+        Observer.Expect('assign.0', 'A|0');
+        Observer.Expect('arg_byvalue.0', 'A|0');
+        Observer.Expect('exit.0', 'A|0');
+        Observer.Expect('assign.1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int32.');
+        Observer.Expect('assign.1p5|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int32.');
+        Observer.Expect('arg_byvalue.1p5|code', 'ConversionCast');
+        Observer.Expect('exit.1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int32.');
+        Observer.Expect('exit.1p5|code', 'ConversionCast');
+        Observer.Expect('assign.m1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value -1.5 to System.Int32.');
+        Observer.Expect('assign.m1p5|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.m1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value -1.5 to System.Int32.');
+        Observer.Expect('arg_byvalue.m1p5|code', 'ConversionCast');
+        Observer.Expect('exit.m1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value -1.5 to System.Int32.');
+        Observer.Expect('exit.m1p5|code', 'ConversionCast');
+        Observer.Expect('assign.2p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2.5 to System.Int32.');
+        Observer.Expect('assign.2p5|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.2p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2.5 to System.Int32.');
+        Observer.Expect('arg_byvalue.2p5|code', 'ConversionCast');
+        Observer.Expect('exit.2p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2.5 to System.Int32.');
+        Observer.Expect('exit.2p5|code', 'ConversionCast');
+        Observer.Expect('assign.3', '3|3');
+        Observer.Expect('arg_byvalue.3', '3|3');
+        Observer.Expect('exit.3', '3|3');
+        Observer.Expect('assign.255', '255|255');
+        Observer.Expect('arg_byvalue.255', '255|255');
+        Observer.Expect('exit.255', '255|255');
+        Observer.Expect('assign.256', '256|256');
+        Observer.Expect('arg_byvalue.256', '256|256');
+        Observer.Expect('exit.256', '256|256');
+        Observer.Expect('assign.2p31|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2147483648.0 to System.Int32.');
+        Observer.Expect('assign.2p31|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.2p31|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2147483648.0 to System.Int32.');
+        Observer.Expect('arg_byvalue.2p31|code', 'ConversionCast');
+        Observer.Expect('exit.2p31|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2147483648.0 to System.Int32.');
+        Observer.Expect('exit.2p31|code', 'ConversionCast');
+        Observer.Expect('assign.0p0001|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 0.0001 to System.Int32.');
+        Observer.Expect('assign.0p0001|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.0p0001|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 0.0001 to System.Int32.');
+        Observer.Expect('arg_byvalue.0p0001|code', 'ConversionCast');
+        Observer.Expect('exit.0p0001|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 0.0001 to System.Int32.');
+        Observer.Expect('exit.0p0001|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2239,16 +2248,6 @@ codeunit 92412 "LT Y31 Cv Decimal"
         if Try26(vDecimal, vDuration) then Observer.Observe('assign.1p5', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.1p5');
         if Try28(vDecimal, vDuration) then Observer.Observe('arg_byvalue.1p5', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.1p5');
         if Try30(vDecimal, vDuration) then Observer.Observe('exit.1p5', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.1p5');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Decimal_To_Duration_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vDecimal: Decimal;
-        vDuration: Duration;
-    begin
         vDecimal := -1.5;
         if Try26(vDecimal, vDuration) then Observer.Observe('assign.m1p5', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.m1p5');
         if Try28(vDecimal, vDuration) then Observer.Observe('arg_byvalue.m1p5', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.m1p5');
@@ -2257,16 +2256,6 @@ codeunit 92412 "LT Y31 Cv Decimal"
         if Try26(vDecimal, vDuration) then Observer.Observe('assign.2p5', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.2p5');
         if Try28(vDecimal, vDuration) then Observer.Observe('arg_byvalue.2p5', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.2p5');
         if Try30(vDecimal, vDuration) then Observer.Observe('exit.2p5', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.2p5');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Decimal_To_Duration_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        vDecimal: Decimal;
-        vDuration: Duration;
-    begin
         vDecimal := 3;
         if Try26(vDecimal, vDuration) then Observer.Observe('assign.3', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.3');
         if Try28(vDecimal, vDuration) then Observer.Observe('arg_byvalue.3', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.3');
@@ -2275,16 +2264,6 @@ codeunit 92412 "LT Y31 Cv Decimal"
         if Try26(vDecimal, vDuration) then Observer.Observe('assign.255', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.255');
         if Try28(vDecimal, vDuration) then Observer.Observe('arg_byvalue.255', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.255');
         if Try30(vDecimal, vDuration) then Observer.Observe('exit.255', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.255');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Decimal_To_Duration_4()
-    var
-        Observer: Codeunit "Probe Observer";
-        vDecimal: Decimal;
-        vDuration: Duration;
-    begin
         vDecimal := 256;
         if Try26(vDecimal, vDuration) then Observer.Observe('assign.256', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.256');
         if Try28(vDecimal, vDuration) then Observer.Observe('arg_byvalue.256', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.256');
@@ -2293,21 +2272,50 @@ codeunit 92412 "LT Y31 Cv Decimal"
         if Try26(vDecimal, vDuration) then Observer.Observe('assign.2p31', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.2p31');
         if Try28(vDecimal, vDuration) then Observer.Observe('arg_byvalue.2p31', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.2p31');
         if Try30(vDecimal, vDuration) then Observer.Observe('exit.2p31', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.2p31');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Decimal_To_Duration_5()
-    var
-        Observer: Codeunit "Probe Observer";
-        vDecimal: Decimal;
-        vDuration: Duration;
-    begin
         vDecimal := 0.0001;
         if Try26(vDecimal, vDuration) then Observer.Observe('assign.0p0001', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.0p0001');
         if Try28(vDecimal, vDuration) then Observer.Observe('arg_byvalue.0p0001', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.0p0001');
         if Try30(vDecimal, vDuration) then Observer.Observe('exit.0p0001', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.0p0001');
-        Observer.Finish();
+        Observer.Expect('assign.0', 'P0DT0H0M0.0S');
+        Observer.Expect('arg_byvalue.0', 'P0DT0H0M0.0S');
+        Observer.Expect('exit.0', 'P0DT0H0M0.0S');
+        Observer.Expect('assign.1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int64.');
+        Observer.Expect('assign.1p5|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int64.');
+        Observer.Expect('arg_byvalue.1p5|code', 'ConversionCast');
+        Observer.Expect('exit.1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int64.');
+        Observer.Expect('exit.1p5|code', 'ConversionCast');
+        Observer.Expect('assign.m1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value -1.5 to System.Int64.');
+        Observer.Expect('assign.m1p5|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.m1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value -1.5 to System.Int64.');
+        Observer.Expect('arg_byvalue.m1p5|code', 'ConversionCast');
+        Observer.Expect('exit.m1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value -1.5 to System.Int64.');
+        Observer.Expect('exit.m1p5|code', 'ConversionCast');
+        Observer.Expect('assign.2p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2.5 to System.Int64.');
+        Observer.Expect('assign.2p5|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.2p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2.5 to System.Int64.');
+        Observer.Expect('arg_byvalue.2p5|code', 'ConversionCast');
+        Observer.Expect('exit.2p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2.5 to System.Int64.');
+        Observer.Expect('exit.2p5|code', 'ConversionCast');
+        Observer.Expect('assign.3', 'P0DT0H0M0.003S');
+        Observer.Expect('arg_byvalue.3', 'P0DT0H0M0.003S');
+        Observer.Expect('exit.3', 'P0DT0H0M0.003S');
+        Observer.Expect('assign.255', 'P0DT0H0M0.255S');
+        Observer.Expect('arg_byvalue.255', 'P0DT0H0M0.255S');
+        Observer.Expect('exit.255', 'P0DT0H0M0.255S');
+        Observer.Expect('assign.256', 'P0DT0H0M0.256S');
+        Observer.Expect('arg_byvalue.256', 'P0DT0H0M0.256S');
+        Observer.Expect('exit.256', 'P0DT0H0M0.256S');
+        Observer.Expect('assign.2p31', 'P24DT20H31M23.648S');
+        Observer.Expect('arg_byvalue.2p31', 'P24DT20H31M23.648S');
+        Observer.Expect('exit.2p31', 'P24DT20H31M23.648S');
+        Observer.Expect('assign.0p0001|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 0.0001 to System.Int64.');
+        Observer.Expect('assign.0p0001|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.0p0001|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 0.0001 to System.Int64.');
+        Observer.Expect('arg_byvalue.0p0001|code', 'ConversionCast');
+        Observer.Expect('exit.0p0001|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 0.0001 to System.Int64.');
+        Observer.Expect('exit.0p0001|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2333,19 +2341,23 @@ codeunit 92412 "LT Y31 Cv Decimal"
         if Try31(R, vDecimal) then Observer.Observe('assign.256', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.256');
         vDecimal := 2147483648.0;
         if Try31(R, vDecimal) then Observer.Observe('assign.2p31', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.2p31');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Decimal_To_FInteger_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        R: Record "LT Y31 Conv Fields";
-        vDecimal: Decimal;
-    begin
         vDecimal := 0.0001;
         if Try31(R, vDecimal) then Observer.Observe('assign.0p0001', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.0p0001');
-        Observer.Finish();
+        Observer.Expect('assign.0', '0');
+        Observer.Expect('assign.1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int32.');
+        Observer.Expect('assign.1p5|code', 'ConversionCast');
+        Observer.Expect('assign.m1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value -1.5 to System.Int32.');
+        Observer.Expect('assign.m1p5|code', 'ConversionCast');
+        Observer.Expect('assign.2p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2.5 to System.Int32.');
+        Observer.Expect('assign.2p5|code', 'ConversionCast');
+        Observer.Expect('assign.3', '3');
+        Observer.Expect('assign.255', '255');
+        Observer.Expect('assign.256', '256');
+        Observer.Expect('assign.2p31|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2147483648.0 to System.Int32.');
+        Observer.Expect('assign.2p31|code', 'ConversionCast');
+        Observer.Expect('assign.0p0001|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 0.0001 to System.Int32.');
+        Observer.Expect('assign.0p0001|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2371,19 +2383,22 @@ codeunit 92412 "LT Y31 Cv Decimal"
         if Try32(R, vDecimal) then Observer.Observe('assign.256', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.256');
         vDecimal := 2147483648.0;
         if Try32(R, vDecimal) then Observer.Observe('assign.2p31', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.2p31');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Decimal_To_FBigInteger_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        R: Record "LT Y31 Conv Fields";
-        vDecimal: Decimal;
-    begin
         vDecimal := 0.0001;
         if Try32(R, vDecimal) then Observer.Observe('assign.0p0001', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.0p0001');
-        Observer.Finish();
+        Observer.Expect('assign.0', '0');
+        Observer.Expect('assign.1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int64.');
+        Observer.Expect('assign.1p5|code', 'ConversionCast');
+        Observer.Expect('assign.m1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value -1.5 to System.Int64.');
+        Observer.Expect('assign.m1p5|code', 'ConversionCast');
+        Observer.Expect('assign.2p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2.5 to System.Int64.');
+        Observer.Expect('assign.2p5|code', 'ConversionCast');
+        Observer.Expect('assign.3', '3');
+        Observer.Expect('assign.255', '255');
+        Observer.Expect('assign.256', '256');
+        Observer.Expect('assign.2p31', '2147483648');
+        Observer.Expect('assign.0p0001|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 0.0001 to System.Int64.');
+        Observer.Expect('assign.0p0001|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2410,20 +2425,23 @@ codeunit 92412 "LT Y31 Cv Decimal"
         if Try33(R, vDecimal) then Observer.Observe('assign.256', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.256');
         vDecimal := 2147483648.0;
         if Try33(R, vDecimal) then Observer.Observe('assign.2p31', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.2p31');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Decimal_To_FOption_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        R: Record "LT Y31 Conv Fields";
-        Util: Codeunit "LT Y31 Conv Util";
-        vDecimal: Decimal;
-    begin
         vDecimal := 0.0001;
         if Try33(R, vDecimal) then Observer.Observe('assign.0p0001', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.0p0001');
-        Observer.Finish();
+        Observer.Expect('assign.0', 'A|0');
+        Observer.Expect('assign.1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int32.');
+        Observer.Expect('assign.1p5|code', 'ConversionCast');
+        Observer.Expect('assign.m1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value -1.5 to System.Int32.');
+        Observer.Expect('assign.m1p5|code', 'ConversionCast');
+        Observer.Expect('assign.2p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2.5 to System.Int32.');
+        Observer.Expect('assign.2p5|code', 'ConversionCast');
+        Observer.Expect('assign.3', '3|3');
+        Observer.Expect('assign.255', '255|255');
+        Observer.Expect('assign.256', '256|256');
+        Observer.Expect('assign.2p31|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2147483648.0 to System.Int32.');
+        Observer.Expect('assign.2p31|code', 'ConversionCast');
+        Observer.Expect('assign.0p0001|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 0.0001 to System.Int32.');
+        Observer.Expect('assign.0p0001|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2449,19 +2467,22 @@ codeunit 92412 "LT Y31 Cv Decimal"
         if Try34(R, vDecimal) then Observer.Observe('assign.256', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.256');
         vDecimal := 2147483648.0;
         if Try34(R, vDecimal) then Observer.Observe('assign.2p31', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.2p31');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Decimal_To_FDuration_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        R: Record "LT Y31 Conv Fields";
-        vDecimal: Decimal;
-    begin
         vDecimal := 0.0001;
         if Try34(R, vDecimal) then Observer.Observe('assign.0p0001', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.0p0001');
-        Observer.Finish();
+        Observer.Expect('assign.0', 'P0DT0H0M0.0S');
+        Observer.Expect('assign.1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int64.');
+        Observer.Expect('assign.1p5|code', 'ConversionCast');
+        Observer.Expect('assign.m1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value -1.5 to System.Int64.');
+        Observer.Expect('assign.m1p5|code', 'ConversionCast');
+        Observer.Expect('assign.2p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2.5 to System.Int64.');
+        Observer.Expect('assign.2p5|code', 'ConversionCast');
+        Observer.Expect('assign.3', 'P0DT0H0M0.003S');
+        Observer.Expect('assign.255', 'P0DT0H0M0.255S');
+        Observer.Expect('assign.256', 'P0DT0H0M0.256S');
+        Observer.Expect('assign.2p31', 'P24DT20H31M23.648S');
+        Observer.Expect('assign.0p0001|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 0.0001 to System.Int64.');
+        Observer.Expect('assign.0p0001|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -2707,16 +2728,6 @@ codeunit 92413 "LT Y31 Cv Char"
         if Try1(vChar, vInteger) then Observer.Observe('assign.65', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.65');
         if Try3(vChar, vInteger) then Observer.Observe('arg_byvalue.65', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.65');
         if Try5(vChar, vInteger) then Observer.Observe('exit.65', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.65');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_To_Integer_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vChar: Char;
-        vInteger: Integer;
-    begin
         vChar := 97;
         if Try1(vChar, vInteger) then Observer.Observe('assign.97', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.97');
         if Try3(vChar, vInteger) then Observer.Observe('arg_byvalue.97', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.97');
@@ -2725,16 +2736,6 @@ codeunit 92413 "LT Y31 Cv Char"
         if Try1(vChar, vInteger) then Observer.Observe('assign.255', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.255');
         if Try3(vChar, vInteger) then Observer.Observe('arg_byvalue.255', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.255');
         if Try5(vChar, vInteger) then Observer.Observe('exit.255', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.255');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_To_Integer_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        vChar: Char;
-        vInteger: Integer;
-    begin
         vChar := 256;
         if Try1(vChar, vInteger) then Observer.Observe('assign.256', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.256');
         if Try3(vChar, vInteger) then Observer.Observe('arg_byvalue.256', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.256');
@@ -2743,7 +2744,25 @@ codeunit 92413 "LT Y31 Cv Char"
         if Try1(vChar, vInteger) then Observer.Observe('assign.65535', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.65535');
         if Try3(vChar, vInteger) then Observer.Observe('arg_byvalue.65535', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.65535');
         if Try5(vChar, vInteger) then Observer.Observe('exit.65535', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.65535');
-        Observer.Finish();
+        Observer.Expect('assign.0', '0');
+        Observer.Expect('arg_byvalue.0', '0');
+        Observer.Expect('exit.0', '0');
+        Observer.Expect('assign.65', '65');
+        Observer.Expect('arg_byvalue.65', '65');
+        Observer.Expect('exit.65', '65');
+        Observer.Expect('assign.97', '97');
+        Observer.Expect('arg_byvalue.97', '97');
+        Observer.Expect('exit.97', '97');
+        Observer.Expect('assign.255', '255');
+        Observer.Expect('arg_byvalue.255', '255');
+        Observer.Expect('exit.255', '255');
+        Observer.Expect('assign.256', '256');
+        Observer.Expect('arg_byvalue.256', '256');
+        Observer.Expect('exit.256', '256');
+        Observer.Expect('assign.65535', '65535');
+        Observer.Expect('arg_byvalue.65535', '65535');
+        Observer.Expect('exit.65535', '65535');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2761,16 +2780,6 @@ codeunit 92413 "LT Y31 Cv Char"
         if Try6(vBigInteger, vChar) then Observer.Observe('assign.65', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.65');
         if Try8(vBigInteger, vChar) then Observer.Observe('arg_byvalue.65', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.65');
         if Try10(vBigInteger, vChar) then Observer.Observe('exit.65', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.65');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_To_BigInteger_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vBigInteger: BigInteger;
-        vChar: Char;
-    begin
         vChar := 97;
         if Try6(vBigInteger, vChar) then Observer.Observe('assign.97', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.97');
         if Try8(vBigInteger, vChar) then Observer.Observe('arg_byvalue.97', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.97');
@@ -2779,16 +2788,6 @@ codeunit 92413 "LT Y31 Cv Char"
         if Try6(vBigInteger, vChar) then Observer.Observe('assign.255', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.255');
         if Try8(vBigInteger, vChar) then Observer.Observe('arg_byvalue.255', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.255');
         if Try10(vBigInteger, vChar) then Observer.Observe('exit.255', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.255');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_To_BigInteger_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        vBigInteger: BigInteger;
-        vChar: Char;
-    begin
         vChar := 256;
         if Try6(vBigInteger, vChar) then Observer.Observe('assign.256', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.256');
         if Try8(vBigInteger, vChar) then Observer.Observe('arg_byvalue.256', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.256');
@@ -2797,7 +2796,25 @@ codeunit 92413 "LT Y31 Cv Char"
         if Try6(vBigInteger, vChar) then Observer.Observe('assign.65535', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.65535');
         if Try8(vBigInteger, vChar) then Observer.Observe('arg_byvalue.65535', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.65535');
         if Try10(vBigInteger, vChar) then Observer.Observe('exit.65535', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.65535');
-        Observer.Finish();
+        Observer.Expect('assign.0', '0');
+        Observer.Expect('arg_byvalue.0', '0');
+        Observer.Expect('exit.0', '0');
+        Observer.Expect('assign.65', '65');
+        Observer.Expect('arg_byvalue.65', '65');
+        Observer.Expect('exit.65', '65');
+        Observer.Expect('assign.97', '97');
+        Observer.Expect('arg_byvalue.97', '97');
+        Observer.Expect('exit.97', '97');
+        Observer.Expect('assign.255', '255');
+        Observer.Expect('arg_byvalue.255', '255');
+        Observer.Expect('exit.255', '255');
+        Observer.Expect('assign.256', '256');
+        Observer.Expect('arg_byvalue.256', '256');
+        Observer.Expect('exit.256', '256');
+        Observer.Expect('assign.65535', '65535');
+        Observer.Expect('arg_byvalue.65535', '65535');
+        Observer.Expect('exit.65535', '65535');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2815,16 +2832,6 @@ codeunit 92413 "LT Y31 Cv Char"
         if Try11(vChar, vDecimal) then Observer.Observe('assign.65', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.65');
         if Try13(vChar, vDecimal) then Observer.Observe('arg_byvalue.65', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.65');
         if Try15(vChar, vDecimal) then Observer.Observe('exit.65', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.65');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_To_Decimal_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vChar: Char;
-        vDecimal: Decimal;
-    begin
         vChar := 97;
         if Try11(vChar, vDecimal) then Observer.Observe('assign.97', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.97');
         if Try13(vChar, vDecimal) then Observer.Observe('arg_byvalue.97', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.97');
@@ -2833,16 +2840,6 @@ codeunit 92413 "LT Y31 Cv Char"
         if Try11(vChar, vDecimal) then Observer.Observe('assign.255', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.255');
         if Try13(vChar, vDecimal) then Observer.Observe('arg_byvalue.255', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.255');
         if Try15(vChar, vDecimal) then Observer.Observe('exit.255', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.255');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_To_Decimal_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        vChar: Char;
-        vDecimal: Decimal;
-    begin
         vChar := 256;
         if Try11(vChar, vDecimal) then Observer.Observe('assign.256', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.256');
         if Try13(vChar, vDecimal) then Observer.Observe('arg_byvalue.256', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.256');
@@ -2851,7 +2848,25 @@ codeunit 92413 "LT Y31 Cv Char"
         if Try11(vChar, vDecimal) then Observer.Observe('assign.65535', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.65535');
         if Try13(vChar, vDecimal) then Observer.Observe('arg_byvalue.65535', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.65535');
         if Try15(vChar, vDecimal) then Observer.Observe('exit.65535', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.65535');
-        Observer.Finish();
+        Observer.Expect('assign.0', '0');
+        Observer.Expect('arg_byvalue.0', '0');
+        Observer.Expect('exit.0', '0');
+        Observer.Expect('assign.65', '65');
+        Observer.Expect('arg_byvalue.65', '65');
+        Observer.Expect('exit.65', '65');
+        Observer.Expect('assign.97', '97');
+        Observer.Expect('arg_byvalue.97', '97');
+        Observer.Expect('exit.97', '97');
+        Observer.Expect('assign.255', '255');
+        Observer.Expect('arg_byvalue.255', '255');
+        Observer.Expect('exit.255', '255');
+        Observer.Expect('assign.256', '256');
+        Observer.Expect('arg_byvalue.256', '256');
+        Observer.Expect('exit.256', '256');
+        Observer.Expect('assign.65535', '65535');
+        Observer.Expect('arg_byvalue.65535', '65535');
+        Observer.Expect('exit.65535', '65535');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2869,16 +2884,6 @@ codeunit 92413 "LT Y31 Cv Char"
         if Try16(vByte, vChar) then Observer.Observe('assign.65', Format(vByte, 0, 9)) else Observer.ObserveError('assign.65');
         if Try18(vByte, vChar) then Observer.Observe('arg_byvalue.65', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.65');
         if Try20(vByte, vChar) then Observer.Observe('exit.65', Format(vByte, 0, 9)) else Observer.ObserveError('exit.65');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_To_Byte_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vByte: Byte;
-        vChar: Char;
-    begin
         vChar := 97;
         if Try16(vByte, vChar) then Observer.Observe('assign.97', Format(vByte, 0, 9)) else Observer.ObserveError('assign.97');
         if Try18(vByte, vChar) then Observer.Observe('arg_byvalue.97', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.97');
@@ -2887,16 +2892,6 @@ codeunit 92413 "LT Y31 Cv Char"
         if Try16(vByte, vChar) then Observer.Observe('assign.255', Format(vByte, 0, 9)) else Observer.ObserveError('assign.255');
         if Try18(vByte, vChar) then Observer.Observe('arg_byvalue.255', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.255');
         if Try20(vByte, vChar) then Observer.Observe('exit.255', Format(vByte, 0, 9)) else Observer.ObserveError('exit.255');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_To_Byte_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        vByte: Byte;
-        vChar: Char;
-    begin
         vChar := 256;
         if Try16(vByte, vChar) then Observer.Observe('assign.256', Format(vByte, 0, 9)) else Observer.ObserveError('assign.256');
         if Try18(vByte, vChar) then Observer.Observe('arg_byvalue.256', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.256');
@@ -2905,7 +2900,25 @@ codeunit 92413 "LT Y31 Cv Char"
         if Try16(vByte, vChar) then Observer.Observe('assign.65535', Format(vByte, 0, 9)) else Observer.ObserveError('assign.65535');
         if Try18(vByte, vChar) then Observer.Observe('arg_byvalue.65535', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.65535');
         if Try20(vByte, vChar) then Observer.Observe('exit.65535', Format(vByte, 0, 9)) else Observer.ObserveError('exit.65535');
-        Observer.Finish();
+        Observer.Expect('assign.0', '\u0000');
+        Observer.Expect('arg_byvalue.0', '\u0000');
+        Observer.Expect('exit.0', '\u0000');
+        Observer.Expect('assign.65', 'A');
+        Observer.Expect('arg_byvalue.65', 'A');
+        Observer.Expect('exit.65', 'A');
+        Observer.Expect('assign.97', 'a');
+        Observer.Expect('arg_byvalue.97', 'a');
+        Observer.Expect('exit.97', 'a');
+        Observer.Expect('assign.255', 'ÿ');
+        Observer.Expect('arg_byvalue.255', 'ÿ');
+        Observer.Expect('exit.255', 'ÿ');
+        Observer.Expect('assign.256', 'A');
+        Observer.Expect('arg_byvalue.256', 'A');
+        Observer.Expect('exit.256', 'A');
+        Observer.Expect('assign.65535', '?');
+        Observer.Expect('arg_byvalue.65535', '?');
+        Observer.Expect('exit.65535', '?');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2924,17 +2937,6 @@ codeunit 92413 "LT Y31 Cv Char"
         if Try21(vChar, vOption) then Observer.Observe('assign.65', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.65');
         if Try23(vChar, vOption) then Observer.Observe('arg_byvalue.65', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.65');
         if Try25(vChar, vOption) then Observer.Observe('exit.65', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.65');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_To_Option_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vChar: Char;
-        vOption: Option A,B,C;
-    begin
         vChar := 97;
         if Try21(vChar, vOption) then Observer.Observe('assign.97', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.97');
         if Try23(vChar, vOption) then Observer.Observe('arg_byvalue.97', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.97');
@@ -2943,17 +2945,6 @@ codeunit 92413 "LT Y31 Cv Char"
         if Try21(vChar, vOption) then Observer.Observe('assign.255', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.255');
         if Try23(vChar, vOption) then Observer.Observe('arg_byvalue.255', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.255');
         if Try25(vChar, vOption) then Observer.Observe('exit.255', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.255');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_To_Option_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vChar: Char;
-        vOption: Option A,B,C;
-    begin
         vChar := 256;
         if Try21(vChar, vOption) then Observer.Observe('assign.256', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.256');
         if Try23(vChar, vOption) then Observer.Observe('arg_byvalue.256', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.256');
@@ -2962,7 +2953,25 @@ codeunit 92413 "LT Y31 Cv Char"
         if Try21(vChar, vOption) then Observer.Observe('assign.65535', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.65535');
         if Try23(vChar, vOption) then Observer.Observe('arg_byvalue.65535', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.65535');
         if Try25(vChar, vOption) then Observer.Observe('exit.65535', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.65535');
-        Observer.Finish();
+        Observer.Expect('assign.0', 'A|0');
+        Observer.Expect('arg_byvalue.0', 'A|0');
+        Observer.Expect('exit.0', 'A|0');
+        Observer.Expect('assign.65', '65|65');
+        Observer.Expect('arg_byvalue.65', '65|65');
+        Observer.Expect('exit.65', '65|65');
+        Observer.Expect('assign.97', '97|97');
+        Observer.Expect('arg_byvalue.97', '97|97');
+        Observer.Expect('exit.97', '97|97');
+        Observer.Expect('assign.255', '255|255');
+        Observer.Expect('arg_byvalue.255', '255|255');
+        Observer.Expect('exit.255', '255|255');
+        Observer.Expect('assign.256', '256|256');
+        Observer.Expect('arg_byvalue.256', '256|256');
+        Observer.Expect('exit.256', '256|256');
+        Observer.Expect('assign.65535', '65535|65535');
+        Observer.Expect('arg_byvalue.65535', '65535|65535');
+        Observer.Expect('exit.65535', '65535|65535');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2980,16 +2989,6 @@ codeunit 92413 "LT Y31 Cv Char"
         if Try26(vChar, vText) then Observer.Observe('assign.65', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.65');
         if Try28(vChar, vText) then Observer.Observe('arg_byvalue.65', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.65');
         if Try30(vChar, vText) then Observer.Observe('exit.65', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.65');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_To_Text_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vChar: Char;
-        vText: Text;
-    begin
         vChar := 97;
         if Try26(vChar, vText) then Observer.Observe('assign.97', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.97');
         if Try28(vChar, vText) then Observer.Observe('arg_byvalue.97', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.97');
@@ -2998,16 +2997,6 @@ codeunit 92413 "LT Y31 Cv Char"
         if Try26(vChar, vText) then Observer.Observe('assign.255', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.255');
         if Try28(vChar, vText) then Observer.Observe('arg_byvalue.255', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.255');
         if Try30(vChar, vText) then Observer.Observe('exit.255', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.255');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_To_Text_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        vChar: Char;
-        vText: Text;
-    begin
         vChar := 256;
         if Try26(vChar, vText) then Observer.Observe('assign.256', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.256');
         if Try28(vChar, vText) then Observer.Observe('arg_byvalue.256', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.256');
@@ -3016,7 +3005,25 @@ codeunit 92413 "LT Y31 Cv Char"
         if Try26(vChar, vText) then Observer.Observe('assign.65535', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.65535');
         if Try28(vChar, vText) then Observer.Observe('arg_byvalue.65535', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.65535');
         if Try30(vChar, vText) then Observer.Observe('exit.65535', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.65535');
-        Observer.Finish();
+        Observer.Expect('assign.0', '\u0000|1');
+        Observer.Expect('arg_byvalue.0', '\u0000|1');
+        Observer.Expect('exit.0', '\u0000|1');
+        Observer.Expect('assign.65', 'A|1');
+        Observer.Expect('arg_byvalue.65', 'A|1');
+        Observer.Expect('exit.65', 'A|1');
+        Observer.Expect('assign.97', 'a|1');
+        Observer.Expect('arg_byvalue.97', 'a|1');
+        Observer.Expect('exit.97', 'a|1');
+        Observer.Expect('assign.255', 'ÿ|1');
+        Observer.Expect('arg_byvalue.255', 'ÿ|1');
+        Observer.Expect('exit.255', 'ÿ|1');
+        Observer.Expect('assign.256', 'Ā|1');
+        Observer.Expect('arg_byvalue.256', 'Ā|1');
+        Observer.Expect('exit.256', 'Ā|1');
+        Observer.Expect('assign.65535', '\uFFFF|1');
+        Observer.Expect('arg_byvalue.65535', '\uFFFF|1');
+        Observer.Expect('exit.65535', '\uFFFF|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3034,16 +3041,6 @@ codeunit 92413 "LT Y31 Cv Char"
         if Try31(vChar, vText10) then Observer.Observe('assign.65', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.65');
         if Try33(vChar, vText10) then Observer.Observe('arg_byvalue.65', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.65');
         if Try35(vChar, vText10) then Observer.Observe('exit.65', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.65');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_To_Text10_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vChar: Char;
-        vText10: Text[10];
-    begin
         vChar := 97;
         if Try31(vChar, vText10) then Observer.Observe('assign.97', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.97');
         if Try33(vChar, vText10) then Observer.Observe('arg_byvalue.97', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.97');
@@ -3052,16 +3049,6 @@ codeunit 92413 "LT Y31 Cv Char"
         if Try31(vChar, vText10) then Observer.Observe('assign.255', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.255');
         if Try33(vChar, vText10) then Observer.Observe('arg_byvalue.255', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.255');
         if Try35(vChar, vText10) then Observer.Observe('exit.255', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.255');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_To_Text10_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        vChar: Char;
-        vText10: Text[10];
-    begin
         vChar := 256;
         if Try31(vChar, vText10) then Observer.Observe('assign.256', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.256');
         if Try33(vChar, vText10) then Observer.Observe('arg_byvalue.256', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.256');
@@ -3070,7 +3057,25 @@ codeunit 92413 "LT Y31 Cv Char"
         if Try31(vChar, vText10) then Observer.Observe('assign.65535', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.65535');
         if Try33(vChar, vText10) then Observer.Observe('arg_byvalue.65535', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.65535');
         if Try35(vChar, vText10) then Observer.Observe('exit.65535', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.65535');
-        Observer.Finish();
+        Observer.Expect('assign.0', '\u0000|1');
+        Observer.Expect('arg_byvalue.0', '\u0000|1');
+        Observer.Expect('exit.0', '\u0000|1');
+        Observer.Expect('assign.65', 'A|1');
+        Observer.Expect('arg_byvalue.65', 'A|1');
+        Observer.Expect('exit.65', 'A|1');
+        Observer.Expect('assign.97', 'a|1');
+        Observer.Expect('arg_byvalue.97', 'a|1');
+        Observer.Expect('exit.97', 'a|1');
+        Observer.Expect('assign.255', 'ÿ|1');
+        Observer.Expect('arg_byvalue.255', 'ÿ|1');
+        Observer.Expect('exit.255', 'ÿ|1');
+        Observer.Expect('assign.256', 'Ā|1');
+        Observer.Expect('arg_byvalue.256', 'Ā|1');
+        Observer.Expect('exit.256', 'Ā|1');
+        Observer.Expect('assign.65535', '\uFFFF|1');
+        Observer.Expect('arg_byvalue.65535', '\uFFFF|1');
+        Observer.Expect('exit.65535', '\uFFFF|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3088,16 +3093,6 @@ codeunit 92413 "LT Y31 Cv Char"
         if Try36(vChar, vText3) then Observer.Observe('assign.65', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.65');
         if Try38(vChar, vText3) then Observer.Observe('arg_byvalue.65', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.65');
         if Try40(vChar, vText3) then Observer.Observe('exit.65', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.65');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_To_Text3_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vChar: Char;
-        vText3: Text[3];
-    begin
         vChar := 97;
         if Try36(vChar, vText3) then Observer.Observe('assign.97', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.97');
         if Try38(vChar, vText3) then Observer.Observe('arg_byvalue.97', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.97');
@@ -3106,16 +3101,6 @@ codeunit 92413 "LT Y31 Cv Char"
         if Try36(vChar, vText3) then Observer.Observe('assign.255', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.255');
         if Try38(vChar, vText3) then Observer.Observe('arg_byvalue.255', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.255');
         if Try40(vChar, vText3) then Observer.Observe('exit.255', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.255');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_To_Text3_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        vChar: Char;
-        vText3: Text[3];
-    begin
         vChar := 256;
         if Try36(vChar, vText3) then Observer.Observe('assign.256', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.256');
         if Try38(vChar, vText3) then Observer.Observe('arg_byvalue.256', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.256');
@@ -3124,7 +3109,25 @@ codeunit 92413 "LT Y31 Cv Char"
         if Try36(vChar, vText3) then Observer.Observe('assign.65535', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.65535');
         if Try38(vChar, vText3) then Observer.Observe('arg_byvalue.65535', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.65535');
         if Try40(vChar, vText3) then Observer.Observe('exit.65535', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.65535');
-        Observer.Finish();
+        Observer.Expect('assign.0', '\u0000|1');
+        Observer.Expect('arg_byvalue.0', '\u0000|1');
+        Observer.Expect('exit.0', '\u0000|1');
+        Observer.Expect('assign.65', 'A|1');
+        Observer.Expect('arg_byvalue.65', 'A|1');
+        Observer.Expect('exit.65', 'A|1');
+        Observer.Expect('assign.97', 'a|1');
+        Observer.Expect('arg_byvalue.97', 'a|1');
+        Observer.Expect('exit.97', 'a|1');
+        Observer.Expect('assign.255', 'ÿ|1');
+        Observer.Expect('arg_byvalue.255', 'ÿ|1');
+        Observer.Expect('exit.255', 'ÿ|1');
+        Observer.Expect('assign.256', 'Ā|1');
+        Observer.Expect('arg_byvalue.256', 'Ā|1');
+        Observer.Expect('exit.256', 'Ā|1');
+        Observer.Expect('assign.65535', '\uFFFF|1');
+        Observer.Expect('arg_byvalue.65535', '\uFFFF|1');
+        Observer.Expect('exit.65535', '\uFFFF|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3142,16 +3145,6 @@ codeunit 92413 "LT Y31 Cv Char"
         if Try41(vChar, vCode10) then Observer.Observe('assign.65', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.65');
         if Try43(vChar, vCode10) then Observer.Observe('arg_byvalue.65', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.65');
         if Try45(vChar, vCode10) then Observer.Observe('exit.65', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.65');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_To_Code10_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vChar: Char;
-        vCode10: Code[10];
-    begin
         vChar := 97;
         if Try41(vChar, vCode10) then Observer.Observe('assign.97', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.97');
         if Try43(vChar, vCode10) then Observer.Observe('arg_byvalue.97', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.97');
@@ -3160,16 +3153,6 @@ codeunit 92413 "LT Y31 Cv Char"
         if Try41(vChar, vCode10) then Observer.Observe('assign.255', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.255');
         if Try43(vChar, vCode10) then Observer.Observe('arg_byvalue.255', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.255');
         if Try45(vChar, vCode10) then Observer.Observe('exit.255', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.255');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_To_Code10_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        vChar: Char;
-        vCode10: Code[10];
-    begin
         vChar := 256;
         if Try41(vChar, vCode10) then Observer.Observe('assign.256', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.256');
         if Try43(vChar, vCode10) then Observer.Observe('arg_byvalue.256', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.256');
@@ -3178,7 +3161,25 @@ codeunit 92413 "LT Y31 Cv Char"
         if Try41(vChar, vCode10) then Observer.Observe('assign.65535', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.65535');
         if Try43(vChar, vCode10) then Observer.Observe('arg_byvalue.65535', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.65535');
         if Try45(vChar, vCode10) then Observer.Observe('exit.65535', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.65535');
-        Observer.Finish();
+        Observer.Expect('assign.0', '\u0000|1');
+        Observer.Expect('arg_byvalue.0', '\u0000|1');
+        Observer.Expect('exit.0', '\u0000|1');
+        Observer.Expect('assign.65', 'A|1');
+        Observer.Expect('arg_byvalue.65', 'A|1');
+        Observer.Expect('exit.65', 'A|1');
+        Observer.Expect('assign.97', 'A|1');
+        Observer.Expect('arg_byvalue.97', 'A|1');
+        Observer.Expect('exit.97', 'A|1');
+        Observer.Expect('assign.255', 'Ÿ|1');
+        Observer.Expect('arg_byvalue.255', 'Ÿ|1');
+        Observer.Expect('exit.255', 'Ÿ|1');
+        Observer.Expect('assign.256', 'Ā|1');
+        Observer.Expect('arg_byvalue.256', 'Ā|1');
+        Observer.Expect('exit.256', 'Ā|1');
+        Observer.Expect('assign.65535', '\uFFFF|1');
+        Observer.Expect('arg_byvalue.65535', '\uFFFF|1');
+        Observer.Expect('exit.65535', '\uFFFF|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3196,16 +3197,6 @@ codeunit 92413 "LT Y31 Cv Char"
         if Try46(vChar, vCode3) then Observer.Observe('assign.65', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.65');
         if Try48(vChar, vCode3) then Observer.Observe('arg_byvalue.65', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.65');
         if Try50(vChar, vCode3) then Observer.Observe('exit.65', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.65');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_To_Code3_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vChar: Char;
-        vCode3: Code[3];
-    begin
         vChar := 97;
         if Try46(vChar, vCode3) then Observer.Observe('assign.97', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.97');
         if Try48(vChar, vCode3) then Observer.Observe('arg_byvalue.97', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.97');
@@ -3214,16 +3205,6 @@ codeunit 92413 "LT Y31 Cv Char"
         if Try46(vChar, vCode3) then Observer.Observe('assign.255', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.255');
         if Try48(vChar, vCode3) then Observer.Observe('arg_byvalue.255', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.255');
         if Try50(vChar, vCode3) then Observer.Observe('exit.255', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.255');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_To_Code3_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        vChar: Char;
-        vCode3: Code[3];
-    begin
         vChar := 256;
         if Try46(vChar, vCode3) then Observer.Observe('assign.256', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.256');
         if Try48(vChar, vCode3) then Observer.Observe('arg_byvalue.256', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.256');
@@ -3232,7 +3213,25 @@ codeunit 92413 "LT Y31 Cv Char"
         if Try46(vChar, vCode3) then Observer.Observe('assign.65535', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.65535');
         if Try48(vChar, vCode3) then Observer.Observe('arg_byvalue.65535', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.65535');
         if Try50(vChar, vCode3) then Observer.Observe('exit.65535', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.65535');
-        Observer.Finish();
+        Observer.Expect('assign.0', '\u0000|1');
+        Observer.Expect('arg_byvalue.0', '\u0000|1');
+        Observer.Expect('exit.0', '\u0000|1');
+        Observer.Expect('assign.65', 'A|1');
+        Observer.Expect('arg_byvalue.65', 'A|1');
+        Observer.Expect('exit.65', 'A|1');
+        Observer.Expect('assign.97', 'A|1');
+        Observer.Expect('arg_byvalue.97', 'A|1');
+        Observer.Expect('exit.97', 'A|1');
+        Observer.Expect('assign.255', 'Ÿ|1');
+        Observer.Expect('arg_byvalue.255', 'Ÿ|1');
+        Observer.Expect('exit.255', 'Ÿ|1');
+        Observer.Expect('assign.256', 'Ā|1');
+        Observer.Expect('arg_byvalue.256', 'Ā|1');
+        Observer.Expect('exit.256', 'Ā|1');
+        Observer.Expect('assign.65535', '\uFFFF|1');
+        Observer.Expect('arg_byvalue.65535', '\uFFFF|1');
+        Observer.Expect('exit.65535', '\uFFFF|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3250,16 +3249,6 @@ codeunit 92413 "LT Y31 Cv Char"
         if Try51(vChar, vCode250) then Observer.Observe('assign.65', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.65');
         if Try53(vChar, vCode250) then Observer.Observe('arg_byvalue.65', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.65');
         if Try55(vChar, vCode250) then Observer.Observe('exit.65', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.65');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_To_Code250_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vChar: Char;
-        vCode250: Code[250];
-    begin
         vChar := 97;
         if Try51(vChar, vCode250) then Observer.Observe('assign.97', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.97');
         if Try53(vChar, vCode250) then Observer.Observe('arg_byvalue.97', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.97');
@@ -3268,16 +3257,6 @@ codeunit 92413 "LT Y31 Cv Char"
         if Try51(vChar, vCode250) then Observer.Observe('assign.255', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.255');
         if Try53(vChar, vCode250) then Observer.Observe('arg_byvalue.255', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.255');
         if Try55(vChar, vCode250) then Observer.Observe('exit.255', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.255');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_To_Code250_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        vChar: Char;
-        vCode250: Code[250];
-    begin
         vChar := 256;
         if Try51(vChar, vCode250) then Observer.Observe('assign.256', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.256');
         if Try53(vChar, vCode250) then Observer.Observe('arg_byvalue.256', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.256');
@@ -3286,7 +3265,25 @@ codeunit 92413 "LT Y31 Cv Char"
         if Try51(vChar, vCode250) then Observer.Observe('assign.65535', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.65535');
         if Try53(vChar, vCode250) then Observer.Observe('arg_byvalue.65535', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.65535');
         if Try55(vChar, vCode250) then Observer.Observe('exit.65535', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.65535');
-        Observer.Finish();
+        Observer.Expect('assign.0', '\u0000|1');
+        Observer.Expect('arg_byvalue.0', '\u0000|1');
+        Observer.Expect('exit.0', '\u0000|1');
+        Observer.Expect('assign.65', 'A|1');
+        Observer.Expect('arg_byvalue.65', 'A|1');
+        Observer.Expect('exit.65', 'A|1');
+        Observer.Expect('assign.97', 'A|1');
+        Observer.Expect('arg_byvalue.97', 'A|1');
+        Observer.Expect('exit.97', 'A|1');
+        Observer.Expect('assign.255', 'Ÿ|1');
+        Observer.Expect('arg_byvalue.255', 'Ÿ|1');
+        Observer.Expect('exit.255', 'Ÿ|1');
+        Observer.Expect('assign.256', 'Ā|1');
+        Observer.Expect('arg_byvalue.256', 'Ā|1');
+        Observer.Expect('exit.256', 'Ā|1');
+        Observer.Expect('assign.65535', '\uFFFF|1');
+        Observer.Expect('arg_byvalue.65535', '\uFFFF|1');
+        Observer.Expect('exit.65535', '\uFFFF|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3304,16 +3301,6 @@ codeunit 92413 "LT Y31 Cv Char"
         if Try56(vChar, vDuration) then Observer.Observe('assign.65', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.65');
         if Try58(vChar, vDuration) then Observer.Observe('arg_byvalue.65', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.65');
         if Try60(vChar, vDuration) then Observer.Observe('exit.65', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.65');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_To_Duration_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vChar: Char;
-        vDuration: Duration;
-    begin
         vChar := 97;
         if Try56(vChar, vDuration) then Observer.Observe('assign.97', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.97');
         if Try58(vChar, vDuration) then Observer.Observe('arg_byvalue.97', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.97');
@@ -3322,16 +3309,6 @@ codeunit 92413 "LT Y31 Cv Char"
         if Try56(vChar, vDuration) then Observer.Observe('assign.255', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.255');
         if Try58(vChar, vDuration) then Observer.Observe('arg_byvalue.255', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.255');
         if Try60(vChar, vDuration) then Observer.Observe('exit.255', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.255');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_To_Duration_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        vChar: Char;
-        vDuration: Duration;
-    begin
         vChar := 256;
         if Try56(vChar, vDuration) then Observer.Observe('assign.256', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.256');
         if Try58(vChar, vDuration) then Observer.Observe('arg_byvalue.256', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.256');
@@ -3340,7 +3317,25 @@ codeunit 92413 "LT Y31 Cv Char"
         if Try56(vChar, vDuration) then Observer.Observe('assign.65535', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.65535');
         if Try58(vChar, vDuration) then Observer.Observe('arg_byvalue.65535', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.65535');
         if Try60(vChar, vDuration) then Observer.Observe('exit.65535', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.65535');
-        Observer.Finish();
+        Observer.Expect('assign.0', 'P0DT0H0M0.0S');
+        Observer.Expect('arg_byvalue.0', 'P0DT0H0M0.0S');
+        Observer.Expect('exit.0', 'P0DT0H0M0.0S');
+        Observer.Expect('assign.65', 'P0DT0H0M0.065S');
+        Observer.Expect('arg_byvalue.65', 'P0DT0H0M0.065S');
+        Observer.Expect('exit.65', 'P0DT0H0M0.065S');
+        Observer.Expect('assign.97', 'P0DT0H0M0.097S');
+        Observer.Expect('arg_byvalue.97', 'P0DT0H0M0.097S');
+        Observer.Expect('exit.97', 'P0DT0H0M0.097S');
+        Observer.Expect('assign.255', 'P0DT0H0M0.255S');
+        Observer.Expect('arg_byvalue.255', 'P0DT0H0M0.255S');
+        Observer.Expect('exit.255', 'P0DT0H0M0.255S');
+        Observer.Expect('assign.256', 'P0DT0H0M0.256S');
+        Observer.Expect('arg_byvalue.256', 'P0DT0H0M0.256S');
+        Observer.Expect('exit.256', 'P0DT0H0M0.256S');
+        Observer.Expect('assign.65535', 'P0DT0H1M5.535S');
+        Observer.Expect('arg_byvalue.65535', 'P0DT0H1M5.535S');
+        Observer.Expect('exit.65535', 'P0DT0H1M5.535S');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3362,7 +3357,13 @@ codeunit 92413 "LT Y31 Cv Char"
         if Try61(R, vChar) then Observer.Observe('assign.256', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.256');
         vChar := 65535;
         if Try61(R, vChar) then Observer.Observe('assign.65535', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.65535');
-        Observer.Finish();
+        Observer.Expect('assign.0', '0');
+        Observer.Expect('assign.65', '65');
+        Observer.Expect('assign.97', '97');
+        Observer.Expect('assign.255', '255');
+        Observer.Expect('assign.256', '256');
+        Observer.Expect('assign.65535', '65535');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3384,7 +3385,13 @@ codeunit 92413 "LT Y31 Cv Char"
         if Try62(R, vChar) then Observer.Observe('assign.256', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.256');
         vChar := 65535;
         if Try62(R, vChar) then Observer.Observe('assign.65535', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.65535');
-        Observer.Finish();
+        Observer.Expect('assign.0', '0');
+        Observer.Expect('assign.65', '65');
+        Observer.Expect('assign.97', '97');
+        Observer.Expect('assign.255', '255');
+        Observer.Expect('assign.256', '256');
+        Observer.Expect('assign.65535', '65535');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3406,7 +3413,13 @@ codeunit 92413 "LT Y31 Cv Char"
         if Try63(R, vChar) then Observer.Observe('assign.256', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.256');
         vChar := 65535;
         if Try63(R, vChar) then Observer.Observe('assign.65535', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.65535');
-        Observer.Finish();
+        Observer.Expect('assign.0', '0');
+        Observer.Expect('assign.65', '65');
+        Observer.Expect('assign.97', '97');
+        Observer.Expect('assign.255', '255');
+        Observer.Expect('assign.256', '256');
+        Observer.Expect('assign.65535', '65535');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3429,7 +3442,13 @@ codeunit 92413 "LT Y31 Cv Char"
         if Try64(R, vChar) then Observer.Observe('assign.256', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.256');
         vChar := 65535;
         if Try64(R, vChar) then Observer.Observe('assign.65535', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.65535');
-        Observer.Finish();
+        Observer.Expect('assign.0', 'A|0');
+        Observer.Expect('assign.65', '65|65');
+        Observer.Expect('assign.97', '97|97');
+        Observer.Expect('assign.255', '255|255');
+        Observer.Expect('assign.256', '256|256');
+        Observer.Expect('assign.65535', '65535|65535');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3451,7 +3470,13 @@ codeunit 92413 "LT Y31 Cv Char"
         if Try65(R, vChar) then Observer.Observe('assign.256', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.256');
         vChar := 65535;
         if Try65(R, vChar) then Observer.Observe('assign.65535', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.65535');
-        Observer.Finish();
+        Observer.Expect('assign.0', '\u0000|1');
+        Observer.Expect('assign.65', 'A|1');
+        Observer.Expect('assign.97', 'a|1');
+        Observer.Expect('assign.255', 'ÿ|1');
+        Observer.Expect('assign.256', 'Ā|1');
+        Observer.Expect('assign.65535', '\uFFFF|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3473,7 +3498,13 @@ codeunit 92413 "LT Y31 Cv Char"
         if Try66(R, vChar) then Observer.Observe('assign.256', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.256');
         vChar := 65535;
         if Try66(R, vChar) then Observer.Observe('assign.65535', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.65535');
-        Observer.Finish();
+        Observer.Expect('assign.0', '\u0000|1');
+        Observer.Expect('assign.65', 'A|1');
+        Observer.Expect('assign.97', 'A|1');
+        Observer.Expect('assign.255', 'Ÿ|1');
+        Observer.Expect('assign.256', 'Ā|1');
+        Observer.Expect('assign.65535', '\uFFFF|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3495,7 +3526,13 @@ codeunit 92413 "LT Y31 Cv Char"
         if Try67(R, vChar) then Observer.Observe('assign.256', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.256');
         vChar := 65535;
         if Try67(R, vChar) then Observer.Observe('assign.65535', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.65535');
-        Observer.Finish();
+        Observer.Expect('assign.0', 'P0DT0H0M0.0S');
+        Observer.Expect('assign.65', 'P0DT0H0M0.065S');
+        Observer.Expect('assign.97', 'P0DT0H0M0.097S');
+        Observer.Expect('assign.255', 'P0DT0H0M0.255S');
+        Observer.Expect('assign.256', 'P0DT0H0M0.256S');
+        Observer.Expect('assign.65535', 'P0DT0H1M5.535S');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -3948,21 +3985,20 @@ codeunit 92414 "LT Y31 Cv Byte"
         if Try1(vByte, vInteger) then Observer.Observe('assign.97', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.97');
         if Try3(vByte, vInteger) then Observer.Observe('arg_byvalue.97', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.97');
         if Try5(vByte, vInteger) then Observer.Observe('exit.97', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.97');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Byte_To_Integer_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vByte: Byte;
-        vInteger: Integer;
-    begin
         vByte := 255;
         if Try1(vByte, vInteger) then Observer.Observe('assign.255', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.255');
         if Try3(vByte, vInteger) then Observer.Observe('arg_byvalue.255', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.255');
         if Try5(vByte, vInteger) then Observer.Observe('exit.255', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.255');
-        Observer.Finish();
+        Observer.Expect('assign.0', '0');
+        Observer.Expect('arg_byvalue.0', '0');
+        Observer.Expect('exit.0', '0');
+        Observer.Expect('assign.97', '97');
+        Observer.Expect('arg_byvalue.97', '97');
+        Observer.Expect('exit.97', '97');
+        Observer.Expect('assign.255', '255');
+        Observer.Expect('arg_byvalue.255', '255');
+        Observer.Expect('exit.255', '255');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3980,21 +4016,20 @@ codeunit 92414 "LT Y31 Cv Byte"
         if Try6(vBigInteger, vByte) then Observer.Observe('assign.97', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.97');
         if Try8(vBigInteger, vByte) then Observer.Observe('arg_byvalue.97', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.97');
         if Try10(vBigInteger, vByte) then Observer.Observe('exit.97', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.97');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Byte_To_BigInteger_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vBigInteger: BigInteger;
-        vByte: Byte;
-    begin
         vByte := 255;
         if Try6(vBigInteger, vByte) then Observer.Observe('assign.255', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.255');
         if Try8(vBigInteger, vByte) then Observer.Observe('arg_byvalue.255', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.255');
         if Try10(vBigInteger, vByte) then Observer.Observe('exit.255', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.255');
-        Observer.Finish();
+        Observer.Expect('assign.0', '0');
+        Observer.Expect('arg_byvalue.0', '0');
+        Observer.Expect('exit.0', '0');
+        Observer.Expect('assign.97', '97');
+        Observer.Expect('arg_byvalue.97', '97');
+        Observer.Expect('exit.97', '97');
+        Observer.Expect('assign.255', '255');
+        Observer.Expect('arg_byvalue.255', '255');
+        Observer.Expect('exit.255', '255');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4012,21 +4047,20 @@ codeunit 92414 "LT Y31 Cv Byte"
         if Try11(vByte, vDecimal) then Observer.Observe('assign.97', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.97');
         if Try13(vByte, vDecimal) then Observer.Observe('arg_byvalue.97', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.97');
         if Try15(vByte, vDecimal) then Observer.Observe('exit.97', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.97');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Byte_To_Decimal_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vByte: Byte;
-        vDecimal: Decimal;
-    begin
         vByte := 255;
         if Try11(vByte, vDecimal) then Observer.Observe('assign.255', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.255');
         if Try13(vByte, vDecimal) then Observer.Observe('arg_byvalue.255', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.255');
         if Try15(vByte, vDecimal) then Observer.Observe('exit.255', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.255');
-        Observer.Finish();
+        Observer.Expect('assign.0', '0');
+        Observer.Expect('arg_byvalue.0', '0');
+        Observer.Expect('exit.0', '0');
+        Observer.Expect('assign.97', '97');
+        Observer.Expect('arg_byvalue.97', '97');
+        Observer.Expect('exit.97', '97');
+        Observer.Expect('assign.255', '255');
+        Observer.Expect('arg_byvalue.255', '255');
+        Observer.Expect('exit.255', '255');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4045,22 +4079,20 @@ codeunit 92414 "LT Y31 Cv Byte"
         if Try16(vByte, vChar) then Observer.Observe('assign.97', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.97');
         if Try18(vByte, vChar) then Observer.Observe('arg_byvalue.97', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.97');
         if Try20(vByte, vChar) then Observer.Observe('exit.97', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.97');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Byte_To_Char_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vByte: Byte;
-        vChar: Char;
-    begin
         vByte := 255;
         if Try16(vByte, vChar) then Observer.Observe('assign.255', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.255');
         if Try18(vByte, vChar) then Observer.Observe('arg_byvalue.255', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.255');
         if Try20(vByte, vChar) then Observer.Observe('exit.255', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.255');
-        Observer.Finish();
+        Observer.Expect('assign.0', '\u0000|0');
+        Observer.Expect('arg_byvalue.0', '\u0000|0');
+        Observer.Expect('exit.0', '\u0000|0');
+        Observer.Expect('assign.97', 'a|97');
+        Observer.Expect('arg_byvalue.97', 'a|97');
+        Observer.Expect('exit.97', 'a|97');
+        Observer.Expect('assign.255', ' |160');
+        Observer.Expect('arg_byvalue.255', ' |160');
+        Observer.Expect('exit.255', ' |160');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4079,22 +4111,20 @@ codeunit 92414 "LT Y31 Cv Byte"
         if Try21(vByte, vOption) then Observer.Observe('assign.97', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.97');
         if Try23(vByte, vOption) then Observer.Observe('arg_byvalue.97', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.97');
         if Try25(vByte, vOption) then Observer.Observe('exit.97', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.97');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Byte_To_Option_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vByte: Byte;
-        vOption: Option A,B,C;
-    begin
         vByte := 255;
         if Try21(vByte, vOption) then Observer.Observe('assign.255', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.255');
         if Try23(vByte, vOption) then Observer.Observe('arg_byvalue.255', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.255');
         if Try25(vByte, vOption) then Observer.Observe('exit.255', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.255');
-        Observer.Finish();
+        Observer.Expect('assign.0', 'A|0');
+        Observer.Expect('arg_byvalue.0', 'A|0');
+        Observer.Expect('exit.0', 'A|0');
+        Observer.Expect('assign.97', '97|97');
+        Observer.Expect('arg_byvalue.97', '97|97');
+        Observer.Expect('exit.97', '97|97');
+        Observer.Expect('assign.255', '255|255');
+        Observer.Expect('arg_byvalue.255', '255|255');
+        Observer.Expect('exit.255', '255|255');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4112,21 +4142,20 @@ codeunit 92414 "LT Y31 Cv Byte"
         if Try26(vByte, vDuration) then Observer.Observe('assign.97', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.97');
         if Try28(vByte, vDuration) then Observer.Observe('arg_byvalue.97', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.97');
         if Try30(vByte, vDuration) then Observer.Observe('exit.97', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.97');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Byte_To_Duration_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vByte: Byte;
-        vDuration: Duration;
-    begin
         vByte := 255;
         if Try26(vByte, vDuration) then Observer.Observe('assign.255', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.255');
         if Try28(vByte, vDuration) then Observer.Observe('arg_byvalue.255', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.255');
         if Try30(vByte, vDuration) then Observer.Observe('exit.255', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.255');
-        Observer.Finish();
+        Observer.Expect('assign.0', 'P0DT0H0M0.0S');
+        Observer.Expect('arg_byvalue.0', 'P0DT0H0M0.0S');
+        Observer.Expect('exit.0', 'P0DT0H0M0.0S');
+        Observer.Expect('assign.97', 'P0DT0H0M0.097S');
+        Observer.Expect('arg_byvalue.97', 'P0DT0H0M0.097S');
+        Observer.Expect('exit.97', 'P0DT0H0M0.097S');
+        Observer.Expect('assign.255', 'P0DT0H0M0.255S');
+        Observer.Expect('arg_byvalue.255', 'P0DT0H0M0.255S');
+        Observer.Expect('exit.255', 'P0DT0H0M0.255S');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4142,7 +4171,10 @@ codeunit 92414 "LT Y31 Cv Byte"
         if Try31(R, vByte) then Observer.Observe('assign.97', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.97');
         vByte := 255;
         if Try31(R, vByte) then Observer.Observe('assign.255', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.255');
-        Observer.Finish();
+        Observer.Expect('assign.0', '0');
+        Observer.Expect('assign.97', '97');
+        Observer.Expect('assign.255', '255');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4158,7 +4190,10 @@ codeunit 92414 "LT Y31 Cv Byte"
         if Try32(R, vByte) then Observer.Observe('assign.97', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.97');
         vByte := 255;
         if Try32(R, vByte) then Observer.Observe('assign.255', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.255');
-        Observer.Finish();
+        Observer.Expect('assign.0', '0');
+        Observer.Expect('assign.97', '97');
+        Observer.Expect('assign.255', '255');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4174,7 +4209,10 @@ codeunit 92414 "LT Y31 Cv Byte"
         if Try33(R, vByte) then Observer.Observe('assign.97', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.97');
         vByte := 255;
         if Try33(R, vByte) then Observer.Observe('assign.255', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.255');
-        Observer.Finish();
+        Observer.Expect('assign.0', '0');
+        Observer.Expect('assign.97', '97');
+        Observer.Expect('assign.255', '255');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4191,7 +4229,10 @@ codeunit 92414 "LT Y31 Cv Byte"
         if Try34(R, vByte) then Observer.Observe('assign.97', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.97');
         vByte := 255;
         if Try34(R, vByte) then Observer.Observe('assign.255', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.255');
-        Observer.Finish();
+        Observer.Expect('assign.0', 'A|0');
+        Observer.Expect('assign.97', '97|97');
+        Observer.Expect('assign.255', '255|255');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4207,7 +4248,10 @@ codeunit 92414 "LT Y31 Cv Byte"
         if Try35(R, vByte) then Observer.Observe('assign.97', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.97');
         vByte := 255;
         if Try35(R, vByte) then Observer.Observe('assign.255', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.255');
-        Observer.Finish();
+        Observer.Expect('assign.0', 'P0DT0H0M0.0S');
+        Observer.Expect('assign.97', 'P0DT0H0M0.097S');
+        Observer.Expect('assign.255', 'P0DT0H0M0.255S');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -4460,16 +4504,6 @@ codeunit 92415 "LT Y31 Cv Option"
         if Try1(vInteger, vOption) then Observer.Observe('assign.2', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.2');
         if Try3(vInteger, vOption) then Observer.Observe('arg_byvalue.2', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.2');
         if Try5(vInteger, vOption) then Observer.Observe('exit.2', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.2');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Option_To_Integer_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vInteger: Integer;
-        vOption: Option A,B,C;
-    begin
         vOption := 3;
         if Try1(vInteger, vOption) then Observer.Observe('assign.3', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.3');
         if Try3(vInteger, vOption) then Observer.Observe('arg_byvalue.3', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.3');
@@ -4478,7 +4512,19 @@ codeunit 92415 "LT Y31 Cv Option"
         if Try1(vInteger, vOption) then Observer.Observe('assign.m1', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.m1');
         if Try3(vInteger, vOption) then Observer.Observe('arg_byvalue.m1', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.m1');
         if Try5(vInteger, vOption) then Observer.Observe('exit.m1', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.m1');
-        Observer.Finish();
+        Observer.Expect('assign.0', '0');
+        Observer.Expect('arg_byvalue.0', '0');
+        Observer.Expect('exit.0', '0');
+        Observer.Expect('assign.2', '2');
+        Observer.Expect('arg_byvalue.2', '2');
+        Observer.Expect('exit.2', '2');
+        Observer.Expect('assign.3', '3');
+        Observer.Expect('arg_byvalue.3', '3');
+        Observer.Expect('exit.3', '3');
+        Observer.Expect('assign.m1', '-1');
+        Observer.Expect('arg_byvalue.m1', '-1');
+        Observer.Expect('exit.m1', '-1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4496,16 +4542,6 @@ codeunit 92415 "LT Y31 Cv Option"
         if Try6(vBigInteger, vOption) then Observer.Observe('assign.2', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.2');
         if Try8(vBigInteger, vOption) then Observer.Observe('arg_byvalue.2', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.2');
         if Try10(vBigInteger, vOption) then Observer.Observe('exit.2', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.2');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Option_To_BigInteger_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vBigInteger: BigInteger;
-        vOption: Option A,B,C;
-    begin
         vOption := 3;
         if Try6(vBigInteger, vOption) then Observer.Observe('assign.3', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.3');
         if Try8(vBigInteger, vOption) then Observer.Observe('arg_byvalue.3', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.3');
@@ -4514,7 +4550,19 @@ codeunit 92415 "LT Y31 Cv Option"
         if Try6(vBigInteger, vOption) then Observer.Observe('assign.m1', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.m1');
         if Try8(vBigInteger, vOption) then Observer.Observe('arg_byvalue.m1', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.m1');
         if Try10(vBigInteger, vOption) then Observer.Observe('exit.m1', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.m1');
-        Observer.Finish();
+        Observer.Expect('assign.0', '0');
+        Observer.Expect('arg_byvalue.0', '0');
+        Observer.Expect('exit.0', '0');
+        Observer.Expect('assign.2', '2');
+        Observer.Expect('arg_byvalue.2', '2');
+        Observer.Expect('exit.2', '2');
+        Observer.Expect('assign.3', '3');
+        Observer.Expect('arg_byvalue.3', '3');
+        Observer.Expect('exit.3', '3');
+        Observer.Expect('assign.m1', '-1');
+        Observer.Expect('arg_byvalue.m1', '-1');
+        Observer.Expect('exit.m1', '-1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4532,16 +4580,6 @@ codeunit 92415 "LT Y31 Cv Option"
         if Try11(vDecimal, vOption) then Observer.Observe('assign.2', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.2');
         if Try13(vDecimal, vOption) then Observer.Observe('arg_byvalue.2', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.2');
         if Try15(vDecimal, vOption) then Observer.Observe('exit.2', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.2');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Option_To_Decimal_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vDecimal: Decimal;
-        vOption: Option A,B,C;
-    begin
         vOption := 3;
         if Try11(vDecimal, vOption) then Observer.Observe('assign.3', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.3');
         if Try13(vDecimal, vOption) then Observer.Observe('arg_byvalue.3', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.3');
@@ -4550,7 +4588,19 @@ codeunit 92415 "LT Y31 Cv Option"
         if Try11(vDecimal, vOption) then Observer.Observe('assign.m1', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.m1');
         if Try13(vDecimal, vOption) then Observer.Observe('arg_byvalue.m1', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.m1');
         if Try15(vDecimal, vOption) then Observer.Observe('exit.m1', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.m1');
-        Observer.Finish();
+        Observer.Expect('assign.0', '0');
+        Observer.Expect('arg_byvalue.0', '0');
+        Observer.Expect('exit.0', '0');
+        Observer.Expect('assign.2', '2');
+        Observer.Expect('arg_byvalue.2', '2');
+        Observer.Expect('exit.2', '2');
+        Observer.Expect('assign.3', '3');
+        Observer.Expect('arg_byvalue.3', '3');
+        Observer.Expect('exit.3', '3');
+        Observer.Expect('assign.m1', '-1');
+        Observer.Expect('arg_byvalue.m1', '-1');
+        Observer.Expect('exit.m1', '-1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4569,17 +4619,6 @@ codeunit 92415 "LT Y31 Cv Option"
         if Try16(vChar, vOption) then Observer.Observe('assign.2', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.2');
         if Try18(vChar, vOption) then Observer.Observe('arg_byvalue.2', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.2');
         if Try20(vChar, vOption) then Observer.Observe('exit.2', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.2');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Option_To_Char_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vChar: Char;
-        vOption: Option A,B,C;
-    begin
         vOption := 3;
         if Try16(vChar, vOption) then Observer.Observe('assign.3', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.3');
         if Try18(vChar, vOption) then Observer.Observe('arg_byvalue.3', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.3');
@@ -4588,7 +4627,22 @@ codeunit 92415 "LT Y31 Cv Option"
         if Try16(vChar, vOption) then Observer.Observe('assign.m1', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.m1');
         if Try18(vChar, vOption) then Observer.Observe('arg_byvalue.m1', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.m1');
         if Try20(vChar, vOption) then Observer.Observe('exit.m1', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.m1');
-        Observer.Finish();
+        Observer.Expect('assign.0', '\u0000|0');
+        Observer.Expect('arg_byvalue.0', '\u0000|0');
+        Observer.Expect('exit.0', '\u0000|0');
+        Observer.Expect('assign.2', '\u0002|2');
+        Observer.Expect('arg_byvalue.2', '\u0002|2');
+        Observer.Expect('exit.2', '\u0002|2');
+        Observer.Expect('assign.3', '\u0003|3');
+        Observer.Expect('arg_byvalue.3', '\u0003|3');
+        Observer.Expect('exit.3', '\u0003|3');
+        Observer.Expect('assign.m1|text', 'Overflow under conversion of System.Int32 value -1 to System.Char.');
+        Observer.Expect('assign.m1|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.m1|text', 'Overflow under conversion of System.Int32 value -1 to System.Char.');
+        Observer.Expect('arg_byvalue.m1|code', 'ConversionCast');
+        Observer.Expect('exit.m1|text', 'Overflow under conversion of System.Int32 value -1 to System.Char.');
+        Observer.Expect('exit.m1|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4606,16 +4660,6 @@ codeunit 92415 "LT Y31 Cv Option"
         if Try21(vByte, vOption) then Observer.Observe('assign.2', Format(vByte, 0, 9)) else Observer.ObserveError('assign.2');
         if Try23(vByte, vOption) then Observer.Observe('arg_byvalue.2', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.2');
         if Try25(vByte, vOption) then Observer.Observe('exit.2', Format(vByte, 0, 9)) else Observer.ObserveError('exit.2');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Option_To_Byte_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vByte: Byte;
-        vOption: Option A,B,C;
-    begin
         vOption := 3;
         if Try21(vByte, vOption) then Observer.Observe('assign.3', Format(vByte, 0, 9)) else Observer.ObserveError('assign.3');
         if Try23(vByte, vOption) then Observer.Observe('arg_byvalue.3', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.3');
@@ -4624,7 +4668,22 @@ codeunit 92415 "LT Y31 Cv Option"
         if Try21(vByte, vOption) then Observer.Observe('assign.m1', Format(vByte, 0, 9)) else Observer.ObserveError('assign.m1');
         if Try23(vByte, vOption) then Observer.Observe('arg_byvalue.m1', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.m1');
         if Try25(vByte, vOption) then Observer.Observe('exit.m1', Format(vByte, 0, 9)) else Observer.ObserveError('exit.m1');
-        Observer.Finish();
+        Observer.Expect('assign.0', '\u0000');
+        Observer.Expect('arg_byvalue.0', '\u0000');
+        Observer.Expect('exit.0', '\u0000');
+        Observer.Expect('assign.2', '\u0002');
+        Observer.Expect('arg_byvalue.2', '\u0002');
+        Observer.Expect('exit.2', '\u0002');
+        Observer.Expect('assign.3', '\u0003');
+        Observer.Expect('arg_byvalue.3', '\u0003');
+        Observer.Expect('exit.3', '\u0003');
+        Observer.Expect('assign.m1|text', 'Overflow under conversion of System.Int32 value -1 to System.Byte.');
+        Observer.Expect('assign.m1|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.m1|text', 'Overflow under conversion of System.Int32 value -1 to System.Byte.');
+        Observer.Expect('arg_byvalue.m1|code', 'ConversionCast');
+        Observer.Expect('exit.m1|text', 'Overflow under conversion of System.Int32 value -1 to System.Byte.');
+        Observer.Expect('exit.m1|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4642,16 +4701,6 @@ codeunit 92415 "LT Y31 Cv Option"
         if Try26(vEnum, vOption) then Observer.Observe('assign.2', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('assign.2');
         if Try28(vEnum, vOption) then Observer.Observe('arg_byvalue.2', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('arg_byvalue.2');
         if Try30(vEnum, vOption) then Observer.Observe('exit.2', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('exit.2');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Option_To_Enum_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vEnum: Enum "LT Y31 E";
-        vOption: Option A,B,C;
-    begin
         vOption := 3;
         if Try26(vEnum, vOption) then Observer.Observe('assign.3', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('assign.3');
         if Try28(vEnum, vOption) then Observer.Observe('arg_byvalue.3', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('arg_byvalue.3');
@@ -4660,7 +4709,19 @@ codeunit 92415 "LT Y31 Cv Option"
         if Try26(vEnum, vOption) then Observer.Observe('assign.m1', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('assign.m1');
         if Try28(vEnum, vOption) then Observer.Observe('arg_byvalue.m1', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('arg_byvalue.m1');
         if Try30(vEnum, vOption) then Observer.Observe('exit.m1', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('exit.m1');
-        Observer.Finish();
+        Observer.Expect('assign.0', 'A|0');
+        Observer.Expect('arg_byvalue.0', 'A|0');
+        Observer.Expect('exit.0', 'A|0');
+        Observer.Expect('assign.2', 'C|2');
+        Observer.Expect('arg_byvalue.2', 'C|2');
+        Observer.Expect('exit.2', 'C|2');
+        Observer.Expect('assign.3', '3|3');
+        Observer.Expect('arg_byvalue.3', '3|3');
+        Observer.Expect('exit.3', '3|3');
+        Observer.Expect('assign.m1', '-1|-1');
+        Observer.Expect('arg_byvalue.m1', '-1|-1');
+        Observer.Expect('exit.m1', '-1|-1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4678,16 +4739,6 @@ codeunit 92415 "LT Y31 Cv Option"
         if Try31(vEnumImpl, vOption) then Observer.Observe('assign.2', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('assign.2');
         if Try33(vEnumImpl, vOption) then Observer.Observe('arg_byvalue.2', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('arg_byvalue.2');
         if Try35(vEnumImpl, vOption) then Observer.Observe('exit.2', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('exit.2');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Option_To_EnumImpl_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vEnumImpl: Enum "LT Y31 EI";
-        vOption: Option A,B,C;
-    begin
         vOption := 3;
         if Try31(vEnumImpl, vOption) then Observer.Observe('assign.3', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('assign.3');
         if Try33(vEnumImpl, vOption) then Observer.Observe('arg_byvalue.3', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('arg_byvalue.3');
@@ -4696,7 +4747,19 @@ codeunit 92415 "LT Y31 Cv Option"
         if Try31(vEnumImpl, vOption) then Observer.Observe('assign.m1', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('assign.m1');
         if Try33(vEnumImpl, vOption) then Observer.Observe('arg_byvalue.m1', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('arg_byvalue.m1');
         if Try35(vEnumImpl, vOption) then Observer.Observe('exit.m1', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('exit.m1');
-        Observer.Finish();
+        Observer.Expect('assign.0', 'A|0');
+        Observer.Expect('arg_byvalue.0', 'A|0');
+        Observer.Expect('exit.0', 'A|0');
+        Observer.Expect('assign.2', '2|2');
+        Observer.Expect('arg_byvalue.2', '2|2');
+        Observer.Expect('exit.2', '2|2');
+        Observer.Expect('assign.3', '3|3');
+        Observer.Expect('arg_byvalue.3', '3|3');
+        Observer.Expect('exit.3', '3|3');
+        Observer.Expect('assign.m1', '-1|-1');
+        Observer.Expect('arg_byvalue.m1', '-1|-1');
+        Observer.Expect('exit.m1', '-1|-1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4714,16 +4777,6 @@ codeunit 92415 "LT Y31 Cv Option"
         if Try36(vDuration, vOption) then Observer.Observe('assign.2', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.2');
         if Try38(vDuration, vOption) then Observer.Observe('arg_byvalue.2', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.2');
         if Try40(vDuration, vOption) then Observer.Observe('exit.2', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.2');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Option_To_Duration_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vDuration: Duration;
-        vOption: Option A,B,C;
-    begin
         vOption := 3;
         if Try36(vDuration, vOption) then Observer.Observe('assign.3', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.3');
         if Try38(vDuration, vOption) then Observer.Observe('arg_byvalue.3', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.3');
@@ -4732,7 +4785,19 @@ codeunit 92415 "LT Y31 Cv Option"
         if Try36(vDuration, vOption) then Observer.Observe('assign.m1', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.m1');
         if Try38(vDuration, vOption) then Observer.Observe('arg_byvalue.m1', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.m1');
         if Try40(vDuration, vOption) then Observer.Observe('exit.m1', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.m1');
-        Observer.Finish();
+        Observer.Expect('assign.0', 'P0DT0H0M0.0S');
+        Observer.Expect('arg_byvalue.0', 'P0DT0H0M0.0S');
+        Observer.Expect('exit.0', 'P0DT0H0M0.0S');
+        Observer.Expect('assign.2', 'P0DT0H0M0.002S');
+        Observer.Expect('arg_byvalue.2', 'P0DT0H0M0.002S');
+        Observer.Expect('exit.2', 'P0DT0H0M0.002S');
+        Observer.Expect('assign.3', 'P0DT0H0M0.003S');
+        Observer.Expect('arg_byvalue.3', 'P0DT0H0M0.003S');
+        Observer.Expect('exit.3', 'P0DT0H0M0.003S');
+        Observer.Expect('assign.m1', '-P0DT0H0M0.001S');
+        Observer.Expect('arg_byvalue.m1', '-P0DT0H0M0.001S');
+        Observer.Expect('exit.m1', '-P0DT0H0M0.001S');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4750,7 +4815,11 @@ codeunit 92415 "LT Y31 Cv Option"
         if Try41(R, vOption) then Observer.Observe('assign.3', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.3');
         vOption := -1;
         if Try41(R, vOption) then Observer.Observe('assign.m1', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.m1');
-        Observer.Finish();
+        Observer.Expect('assign.0', '0');
+        Observer.Expect('assign.2', '2');
+        Observer.Expect('assign.3', '3');
+        Observer.Expect('assign.m1', '-1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4768,7 +4837,11 @@ codeunit 92415 "LT Y31 Cv Option"
         if Try42(R, vOption) then Observer.Observe('assign.3', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.3');
         vOption := -1;
         if Try42(R, vOption) then Observer.Observe('assign.m1', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.m1');
-        Observer.Finish();
+        Observer.Expect('assign.0', '0');
+        Observer.Expect('assign.2', '2');
+        Observer.Expect('assign.3', '3');
+        Observer.Expect('assign.m1', '-1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4786,7 +4859,11 @@ codeunit 92415 "LT Y31 Cv Option"
         if Try43(R, vOption) then Observer.Observe('assign.3', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.3');
         vOption := -1;
         if Try43(R, vOption) then Observer.Observe('assign.m1', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.m1');
-        Observer.Finish();
+        Observer.Expect('assign.0', '0');
+        Observer.Expect('assign.2', '2');
+        Observer.Expect('assign.3', '3');
+        Observer.Expect('assign.m1', '-1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4804,7 +4881,11 @@ codeunit 92415 "LT Y31 Cv Option"
         if Try44(R, vOption) then Observer.Observe('assign.3', Format(R.Enum) + '|' + Format(R.Enum.AsInteger())) else Observer.ObserveError('assign.3');
         vOption := -1;
         if Try44(R, vOption) then Observer.Observe('assign.m1', Format(R.Enum) + '|' + Format(R.Enum.AsInteger())) else Observer.ObserveError('assign.m1');
-        Observer.Finish();
+        Observer.Expect('assign.0', 'A|0');
+        Observer.Expect('assign.2', 'C|2');
+        Observer.Expect('assign.3', '3|3');
+        Observer.Expect('assign.m1', '-1|-1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4822,7 +4903,11 @@ codeunit 92415 "LT Y31 Cv Option"
         if Try45(R, vOption) then Observer.Observe('assign.3', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.3');
         vOption := -1;
         if Try45(R, vOption) then Observer.Observe('assign.m1', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.m1');
-        Observer.Finish();
+        Observer.Expect('assign.0', 'P0DT0H0M0.0S');
+        Observer.Expect('assign.2', 'P0DT0H0M0.002S');
+        Observer.Expect('assign.3', 'P0DT0H0M0.003S');
+        Observer.Expect('assign.m1', '-P0DT0H0M0.001S');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -5137,21 +5222,20 @@ codeunit 92416 "LT Y31 Cv Enum"
         if Try1(vEnum, vInteger) then Observer.Observe('assign.C', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.C');
         if Try3(vEnum, vInteger) then Observer.Observe('arg_byvalue.C', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.C');
         if Try5(vEnum, vInteger) then Observer.Observe('exit.C', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.C');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Enum_To_Integer_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vEnum: Enum "LT Y31 E";
-        vInteger: Integer;
-    begin
         vEnum := 5;
         if Try1(vEnum, vInteger) then Observer.Observe('assign.ord5', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.ord5');
         if Try3(vEnum, vInteger) then Observer.Observe('arg_byvalue.ord5', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.ord5');
         if Try5(vEnum, vInteger) then Observer.Observe('exit.ord5', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.ord5');
-        Observer.Finish();
+        Observer.Expect('assign.A', '0');
+        Observer.Expect('arg_byvalue.A', '0');
+        Observer.Expect('exit.A', '0');
+        Observer.Expect('assign.C', '2');
+        Observer.Expect('arg_byvalue.C', '2');
+        Observer.Expect('exit.C', '2');
+        Observer.Expect('assign.ord5', '5');
+        Observer.Expect('arg_byvalue.ord5', '5');
+        Observer.Expect('exit.ord5', '5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -5170,22 +5254,20 @@ codeunit 92416 "LT Y31 Cv Enum"
         if Try11(vEnum, vOption) then Observer.Observe('assign.C', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.C');
         if Try13(vEnum, vOption) then Observer.Observe('arg_byvalue.C', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.C');
         if Try15(vEnum, vOption) then Observer.Observe('exit.C', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.C');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Enum_To_Option_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vEnum: Enum "LT Y31 E";
-        vOption: Option A,B,C;
-    begin
         vEnum := 5;
         if Try11(vEnum, vOption) then Observer.Observe('assign.ord5', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.ord5');
         if Try13(vEnum, vOption) then Observer.Observe('arg_byvalue.ord5', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.ord5');
         if Try15(vEnum, vOption) then Observer.Observe('exit.ord5', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.ord5');
-        Observer.Finish();
+        Observer.Expect('assign.A', 'A|0');
+        Observer.Expect('arg_byvalue.A', 'A|0');
+        Observer.Expect('exit.A', 'A|0');
+        Observer.Expect('assign.C', 'C|2');
+        Observer.Expect('arg_byvalue.C', 'C|2');
+        Observer.Expect('exit.C', 'C|2');
+        Observer.Expect('assign.ord5', '5|5');
+        Observer.Expect('arg_byvalue.ord5', '5|5');
+        Observer.Expect('exit.ord5', '5|5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -5201,7 +5283,10 @@ codeunit 92416 "LT Y31 Cv Enum"
         if Try16(R, vEnum) then Observer.Observe('assign.C', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.C');
         vEnum := 5;
         if Try16(R, vEnum) then Observer.Observe('assign.ord5', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.ord5');
-        Observer.Finish();
+        Observer.Expect('assign.A', '0');
+        Observer.Expect('assign.C', '2');
+        Observer.Expect('assign.ord5', '5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -5218,7 +5303,10 @@ codeunit 92416 "LT Y31 Cv Enum"
         if Try18(R, vEnum) then Observer.Observe('assign.C', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.C');
         vEnum := 5;
         if Try18(R, vEnum) then Observer.Observe('assign.ord5', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.ord5');
-        Observer.Finish();
+        Observer.Expect('assign.A', 'A|0');
+        Observer.Expect('assign.C', 'C|2');
+        Observer.Expect('assign.ord5', '5|5');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -5326,7 +5414,13 @@ codeunit 92417 "LT Y31 Cv EnumImpl"
         if Try1(vEnumImpl, vInteger) then Observer.Observe('assign.ord9', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.ord9');
         if Try3(vEnumImpl, vInteger) then Observer.Observe('arg_byvalue.ord9', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.ord9');
         if Try5(vEnumImpl, vInteger) then Observer.Observe('exit.ord9', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.ord9');
-        Observer.Finish();
+        Observer.Expect('assign.A', '0');
+        Observer.Expect('arg_byvalue.A', '0');
+        Observer.Expect('exit.A', '0');
+        Observer.Expect('assign.ord9', '9');
+        Observer.Expect('arg_byvalue.ord9', '9');
+        Observer.Expect('exit.ord9', '9');
+        Observer.Verify();
     end;
 
     [Test]
@@ -5345,7 +5439,13 @@ codeunit 92417 "LT Y31 Cv EnumImpl"
         if Try11(vEnumImpl, vOption) then Observer.Observe('assign.ord9', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.ord9');
         if Try13(vEnumImpl, vOption) then Observer.Observe('arg_byvalue.ord9', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.ord9');
         if Try15(vEnumImpl, vOption) then Observer.Observe('exit.ord9', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.ord9');
-        Observer.Finish();
+        Observer.Expect('assign.A', 'A|0');
+        Observer.Expect('arg_byvalue.A', 'A|0');
+        Observer.Expect('exit.A', 'A|0');
+        Observer.Expect('assign.ord9', '9|9');
+        Observer.Expect('arg_byvalue.ord9', '9|9');
+        Observer.Expect('exit.ord9', '9|9');
+        Observer.Verify();
     end;
 
     [Test]
@@ -5359,7 +5459,9 @@ codeunit 92417 "LT Y31 Cv EnumImpl"
         if Try16(R, vEnumImpl) then Observer.Observe('assign.A', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.A');
         vEnumImpl := 9;
         if Try16(R, vEnumImpl) then Observer.Observe('assign.ord9', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.ord9');
-        Observer.Finish();
+        Observer.Expect('assign.A', '0');
+        Observer.Expect('assign.ord9', '9');
+        Observer.Verify();
     end;
 
     [Test]
@@ -5374,7 +5476,9 @@ codeunit 92417 "LT Y31 Cv EnumImpl"
         if Try18(R, vEnumImpl) then Observer.Observe('assign.A', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.A');
         vEnumImpl := 9;
         if Try18(R, vEnumImpl) then Observer.Observe('assign.ord9', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.ord9');
-        Observer.Finish();
+        Observer.Expect('assign.A', 'A|0');
+        Observer.Expect('assign.ord9', '9|9');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -5482,16 +5586,6 @@ codeunit 92418 "LT Y31 Cv Text"
         if Try1(vText, vText10) then Observer.Observe('assign.a', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.a');
         if Try3(vText, vText10) then Observer.Observe('arg_byvalue.a', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.a');
         if Try5(vText, vText10) then Observer.Observe('exit.a', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.a');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text_To_Text10_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vText: Text;
-        vText10: Text[10];
-    begin
         vText := 'abc';
         if Try1(vText, vText10) then Observer.Observe('assign.abc', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.abc');
         if Try3(vText, vText10) then Observer.Observe('arg_byvalue.abc', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.abc');
@@ -5500,16 +5594,6 @@ codeunit 92418 "LT Y31 Cv Text"
         if Try1(vText, vText10) then Observer.Observe('assign.lead', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.lead');
         if Try3(vText, vText10) then Observer.Observe('arg_byvalue.lead', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.lead');
         if Try5(vText, vText10) then Observer.Observe('exit.lead', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.lead');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text_To_Text10_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        vText: Text;
-        vText10: Text[10];
-    begin
         vText := 'ab ';
         if Try1(vText, vText10) then Observer.Observe('assign.trail', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.trail');
         if Try3(vText, vText10) then Observer.Observe('arg_byvalue.trail', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.trail');
@@ -5518,16 +5602,6 @@ codeunit 92418 "LT Y31 Cv Text"
         if Try1(vText, vText10) then Observer.Observe('assign.ten', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.ten');
         if Try3(vText, vText10) then Observer.Observe('arg_byvalue.ten', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.ten');
         if Try5(vText, vText10) then Observer.Observe('exit.ten', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.ten');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text_To_Text10_4()
-    var
-        Observer: Codeunit "Probe Observer";
-        vText: Text;
-        vText10: Text[10];
-    begin
         vText := 'abcdefghijk';
         if Try1(vText, vText10) then Observer.Observe('assign.eleven', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.eleven');
         if Try3(vText, vText10) then Observer.Observe('arg_byvalue.eleven', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.eleven');
@@ -5536,16 +5610,6 @@ codeunit 92418 "LT Y31 Cv Text"
         if Try1(vText, vText10) then Observer.Observe('assign.umlaut', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.umlaut');
         if Try3(vText, vText10) then Observer.Observe('arg_byvalue.umlaut', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.umlaut');
         if Try5(vText, vText10) then Observer.Observe('exit.umlaut', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.umlaut');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text_To_Text10_5()
-    var
-        Observer: Codeunit "Probe Observer";
-        vText: Text;
-        vText10: Text[10];
-    begin
         vText := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         if Try1(vText, vText10) then Observer.Observe('assign.guid', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.guid');
         if Try3(vText, vText10) then Observer.Observe('arg_byvalue.guid', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.guid');
@@ -5554,16 +5618,6 @@ codeunit 92418 "LT Y31 Cv Text"
         if Try1(vText, vText10) then Observer.Observe('assign.guidlow', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.guidlow');
         if Try3(vText, vText10) then Observer.Observe('arg_byvalue.guidlow', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.guidlow');
         if Try5(vText, vText10) then Observer.Observe('exit.guidlow', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.guidlow');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text_To_Text10_6()
-    var
-        Observer: Codeunit "Probe Observer";
-        vText: Text;
-        vText10: Text[10];
-    begin
         vText := 'xyz';
         if Try1(vText, vText10) then Observer.Observe('assign.notguid', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.notguid');
         if Try3(vText, vText10) then Observer.Observe('arg_byvalue.notguid', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.notguid');
@@ -5572,7 +5626,52 @@ codeunit 92418 "LT Y31 Cv Text"
         if Try1(vText, vText10) then Observer.Observe('assign.digits', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.digits');
         if Try3(vText, vText10) then Observer.Observe('arg_byvalue.digits', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.digits');
         if Try5(vText, vText10) then Observer.Observe('exit.digits', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.digits');
-        Observer.Finish();
+        Observer.Expect('assign.empty', '|0');
+        Observer.Expect('arg_byvalue.empty', '|0');
+        Observer.Expect('exit.empty', '|0');
+        Observer.Expect('assign.a', 'a|1');
+        Observer.Expect('arg_byvalue.a', 'a|1');
+        Observer.Expect('exit.a', 'a|1');
+        Observer.Expect('assign.abc', 'abc|3');
+        Observer.Expect('arg_byvalue.abc', 'abc|3');
+        Observer.Expect('exit.abc', 'abc|3');
+        Observer.Expect('assign.lead', ' ab|3');
+        Observer.Expect('arg_byvalue.lead', ' ab|3');
+        Observer.Expect('exit.lead', ' ab|3');
+        Observer.Expect('assign.trail', 'ab |3');
+        Observer.Expect('arg_byvalue.trail', 'ab |3');
+        Observer.Expect('exit.trail', 'ab |3');
+        Observer.Expect('assign.ten', 'abcdefghij|10');
+        Observer.Expect('arg_byvalue.ten', 'abcdefghij|10');
+        Observer.Expect('exit.ten', 'abcdefghij|10');
+        Observer.Expect('assign.eleven|text', 'The length of the string is 11, but it must be less than or equal to 10 characters. Value: abcdefghijk');
+        Observer.Expect('assign.eleven|code', 'StringLengthExceeded');
+        Observer.Expect('arg_byvalue.eleven|text', 'The length of the string is 11, but it must be less than or equal to 10 characters. Value: abcdefghijk');
+        Observer.Expect('arg_byvalue.eleven|code', 'StringLengthExceeded');
+        Observer.Expect('exit.eleven|text', 'The length of the string is 11, but it must be less than or equal to 10 characters. Value: abcdefghijk');
+        Observer.Expect('exit.eleven|code', 'StringLengthExceeded');
+        Observer.Expect('assign.umlaut', 'äöß|3');
+        Observer.Expect('arg_byvalue.umlaut', 'äöß|3');
+        Observer.Expect('exit.umlaut', 'äöß|3');
+        Observer.Expect('assign.guid|text', 'The length of the string is 38, but it must be less than or equal to 10 characters. Value: {5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('assign.guid|code', 'StringLengthExceeded');
+        Observer.Expect('arg_byvalue.guid|text', 'The length of the string is 38, but it must be less than or equal to 10 characters. Value: {5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('arg_byvalue.guid|code', 'StringLengthExceeded');
+        Observer.Expect('exit.guid|text', 'The length of the string is 38, but it must be less than or equal to 10 characters. Value: {5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('exit.guid|code', 'StringLengthExceeded');
+        Observer.Expect('assign.guidlow|text', 'The length of the string is 36, but it must be less than or equal to 10 characters. Value: 5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b');
+        Observer.Expect('assign.guidlow|code', 'StringLengthExceeded');
+        Observer.Expect('arg_byvalue.guidlow|text', 'The length of the string is 36, but it must be less than or equal to 10 characters. Value: 5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b');
+        Observer.Expect('arg_byvalue.guidlow|code', 'StringLengthExceeded');
+        Observer.Expect('exit.guidlow|text', 'The length of the string is 36, but it must be less than or equal to 10 characters. Value: 5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b');
+        Observer.Expect('exit.guidlow|code', 'StringLengthExceeded');
+        Observer.Expect('assign.notguid', 'xyz|3');
+        Observer.Expect('arg_byvalue.notguid', 'xyz|3');
+        Observer.Expect('exit.notguid', 'xyz|3');
+        Observer.Expect('assign.digits', '12|2');
+        Observer.Expect('arg_byvalue.digits', '12|2');
+        Observer.Expect('exit.digits', '12|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -5590,16 +5689,6 @@ codeunit 92418 "LT Y31 Cv Text"
         if Try6(vText, vText3) then Observer.Observe('assign.a', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.a');
         if Try8(vText, vText3) then Observer.Observe('arg_byvalue.a', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.a');
         if Try10(vText, vText3) then Observer.Observe('exit.a', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.a');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text_To_Text3_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vText: Text;
-        vText3: Text[3];
-    begin
         vText := 'abc';
         if Try6(vText, vText3) then Observer.Observe('assign.abc', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.abc');
         if Try8(vText, vText3) then Observer.Observe('arg_byvalue.abc', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.abc');
@@ -5608,16 +5697,6 @@ codeunit 92418 "LT Y31 Cv Text"
         if Try6(vText, vText3) then Observer.Observe('assign.lead', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.lead');
         if Try8(vText, vText3) then Observer.Observe('arg_byvalue.lead', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.lead');
         if Try10(vText, vText3) then Observer.Observe('exit.lead', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.lead');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text_To_Text3_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        vText: Text;
-        vText3: Text[3];
-    begin
         vText := 'ab ';
         if Try6(vText, vText3) then Observer.Observe('assign.trail', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.trail');
         if Try8(vText, vText3) then Observer.Observe('arg_byvalue.trail', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.trail');
@@ -5626,16 +5705,6 @@ codeunit 92418 "LT Y31 Cv Text"
         if Try6(vText, vText3) then Observer.Observe('assign.ten', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.ten');
         if Try8(vText, vText3) then Observer.Observe('arg_byvalue.ten', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.ten');
         if Try10(vText, vText3) then Observer.Observe('exit.ten', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.ten');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text_To_Text3_4()
-    var
-        Observer: Codeunit "Probe Observer";
-        vText: Text;
-        vText3: Text[3];
-    begin
         vText := 'abcdefghijk';
         if Try6(vText, vText3) then Observer.Observe('assign.eleven', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.eleven');
         if Try8(vText, vText3) then Observer.Observe('arg_byvalue.eleven', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.eleven');
@@ -5644,16 +5713,6 @@ codeunit 92418 "LT Y31 Cv Text"
         if Try6(vText, vText3) then Observer.Observe('assign.umlaut', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.umlaut');
         if Try8(vText, vText3) then Observer.Observe('arg_byvalue.umlaut', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.umlaut');
         if Try10(vText, vText3) then Observer.Observe('exit.umlaut', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.umlaut');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text_To_Text3_5()
-    var
-        Observer: Codeunit "Probe Observer";
-        vText: Text;
-        vText3: Text[3];
-    begin
         vText := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         if Try6(vText, vText3) then Observer.Observe('assign.guid', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.guid');
         if Try8(vText, vText3) then Observer.Observe('arg_byvalue.guid', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.guid');
@@ -5662,16 +5721,6 @@ codeunit 92418 "LT Y31 Cv Text"
         if Try6(vText, vText3) then Observer.Observe('assign.guidlow', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.guidlow');
         if Try8(vText, vText3) then Observer.Observe('arg_byvalue.guidlow', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.guidlow');
         if Try10(vText, vText3) then Observer.Observe('exit.guidlow', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.guidlow');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text_To_Text3_6()
-    var
-        Observer: Codeunit "Probe Observer";
-        vText: Text;
-        vText3: Text[3];
-    begin
         vText := 'xyz';
         if Try6(vText, vText3) then Observer.Observe('assign.notguid', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.notguid');
         if Try8(vText, vText3) then Observer.Observe('arg_byvalue.notguid', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.notguid');
@@ -5680,7 +5729,55 @@ codeunit 92418 "LT Y31 Cv Text"
         if Try6(vText, vText3) then Observer.Observe('assign.digits', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.digits');
         if Try8(vText, vText3) then Observer.Observe('arg_byvalue.digits', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.digits');
         if Try10(vText, vText3) then Observer.Observe('exit.digits', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.digits');
-        Observer.Finish();
+        Observer.Expect('assign.empty', '|0');
+        Observer.Expect('arg_byvalue.empty', '|0');
+        Observer.Expect('exit.empty', '|0');
+        Observer.Expect('assign.a', 'a|1');
+        Observer.Expect('arg_byvalue.a', 'a|1');
+        Observer.Expect('exit.a', 'a|1');
+        Observer.Expect('assign.abc', 'abc|3');
+        Observer.Expect('arg_byvalue.abc', 'abc|3');
+        Observer.Expect('exit.abc', 'abc|3');
+        Observer.Expect('assign.lead', ' ab|3');
+        Observer.Expect('arg_byvalue.lead', ' ab|3');
+        Observer.Expect('exit.lead', ' ab|3');
+        Observer.Expect('assign.trail', 'ab |3');
+        Observer.Expect('arg_byvalue.trail', 'ab |3');
+        Observer.Expect('exit.trail', 'ab |3');
+        Observer.Expect('assign.ten|text', 'The length of the string is 10, but it must be less than or equal to 3 characters. Value: abcdefghij');
+        Observer.Expect('assign.ten|code', 'StringLengthExceeded');
+        Observer.Expect('arg_byvalue.ten|text', 'The length of the string is 10, but it must be less than or equal to 3 characters. Value: abcdefghij');
+        Observer.Expect('arg_byvalue.ten|code', 'StringLengthExceeded');
+        Observer.Expect('exit.ten|text', 'The length of the string is 10, but it must be less than or equal to 3 characters. Value: abcdefghij');
+        Observer.Expect('exit.ten|code', 'StringLengthExceeded');
+        Observer.Expect('assign.eleven|text', 'The length of the string is 11, but it must be less than or equal to 3 characters. Value: abcdefghijk');
+        Observer.Expect('assign.eleven|code', 'StringLengthExceeded');
+        Observer.Expect('arg_byvalue.eleven|text', 'The length of the string is 11, but it must be less than or equal to 3 characters. Value: abcdefghijk');
+        Observer.Expect('arg_byvalue.eleven|code', 'StringLengthExceeded');
+        Observer.Expect('exit.eleven|text', 'The length of the string is 11, but it must be less than or equal to 3 characters. Value: abcdefghijk');
+        Observer.Expect('exit.eleven|code', 'StringLengthExceeded');
+        Observer.Expect('assign.umlaut', 'äöß|3');
+        Observer.Expect('arg_byvalue.umlaut', 'äöß|3');
+        Observer.Expect('exit.umlaut', 'äöß|3');
+        Observer.Expect('assign.guid|text', 'The length of the string is 38, but it must be less than or equal to 3 characters. Value: {5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('assign.guid|code', 'StringLengthExceeded');
+        Observer.Expect('arg_byvalue.guid|text', 'The length of the string is 38, but it must be less than or equal to 3 characters. Value: {5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('arg_byvalue.guid|code', 'StringLengthExceeded');
+        Observer.Expect('exit.guid|text', 'The length of the string is 38, but it must be less than or equal to 3 characters. Value: {5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('exit.guid|code', 'StringLengthExceeded');
+        Observer.Expect('assign.guidlow|text', 'The length of the string is 36, but it must be less than or equal to 3 characters. Value: 5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b');
+        Observer.Expect('assign.guidlow|code', 'StringLengthExceeded');
+        Observer.Expect('arg_byvalue.guidlow|text', 'The length of the string is 36, but it must be less than or equal to 3 characters. Value: 5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b');
+        Observer.Expect('arg_byvalue.guidlow|code', 'StringLengthExceeded');
+        Observer.Expect('exit.guidlow|text', 'The length of the string is 36, but it must be less than or equal to 3 characters. Value: 5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b');
+        Observer.Expect('exit.guidlow|code', 'StringLengthExceeded');
+        Observer.Expect('assign.notguid', 'xyz|3');
+        Observer.Expect('arg_byvalue.notguid', 'xyz|3');
+        Observer.Expect('exit.notguid', 'xyz|3');
+        Observer.Expect('assign.digits', '12|2');
+        Observer.Expect('arg_byvalue.digits', '12|2');
+        Observer.Expect('exit.digits', '12|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -5698,16 +5795,6 @@ codeunit 92418 "LT Y31 Cv Text"
         if Try11(vCode10, vText) then Observer.Observe('assign.a', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.a');
         if Try13(vCode10, vText) then Observer.Observe('arg_byvalue.a', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.a');
         if Try15(vCode10, vText) then Observer.Observe('exit.a', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.a');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text_To_Code10_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vCode10: Code[10];
-        vText: Text;
-    begin
         vText := 'abc';
         if Try11(vCode10, vText) then Observer.Observe('assign.abc', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.abc');
         if Try13(vCode10, vText) then Observer.Observe('arg_byvalue.abc', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.abc');
@@ -5716,16 +5803,6 @@ codeunit 92418 "LT Y31 Cv Text"
         if Try11(vCode10, vText) then Observer.Observe('assign.lead', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.lead');
         if Try13(vCode10, vText) then Observer.Observe('arg_byvalue.lead', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.lead');
         if Try15(vCode10, vText) then Observer.Observe('exit.lead', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.lead');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text_To_Code10_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        vCode10: Code[10];
-        vText: Text;
-    begin
         vText := 'ab ';
         if Try11(vCode10, vText) then Observer.Observe('assign.trail', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.trail');
         if Try13(vCode10, vText) then Observer.Observe('arg_byvalue.trail', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.trail');
@@ -5734,16 +5811,6 @@ codeunit 92418 "LT Y31 Cv Text"
         if Try11(vCode10, vText) then Observer.Observe('assign.ten', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.ten');
         if Try13(vCode10, vText) then Observer.Observe('arg_byvalue.ten', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.ten');
         if Try15(vCode10, vText) then Observer.Observe('exit.ten', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.ten');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text_To_Code10_4()
-    var
-        Observer: Codeunit "Probe Observer";
-        vCode10: Code[10];
-        vText: Text;
-    begin
         vText := 'abcdefghijk';
         if Try11(vCode10, vText) then Observer.Observe('assign.eleven', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.eleven');
         if Try13(vCode10, vText) then Observer.Observe('arg_byvalue.eleven', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.eleven');
@@ -5752,16 +5819,6 @@ codeunit 92418 "LT Y31 Cv Text"
         if Try11(vCode10, vText) then Observer.Observe('assign.umlaut', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.umlaut');
         if Try13(vCode10, vText) then Observer.Observe('arg_byvalue.umlaut', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.umlaut');
         if Try15(vCode10, vText) then Observer.Observe('exit.umlaut', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.umlaut');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text_To_Code10_5()
-    var
-        Observer: Codeunit "Probe Observer";
-        vCode10: Code[10];
-        vText: Text;
-    begin
         vText := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         if Try11(vCode10, vText) then Observer.Observe('assign.guid', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.guid');
         if Try13(vCode10, vText) then Observer.Observe('arg_byvalue.guid', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.guid');
@@ -5770,16 +5827,6 @@ codeunit 92418 "LT Y31 Cv Text"
         if Try11(vCode10, vText) then Observer.Observe('assign.guidlow', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.guidlow');
         if Try13(vCode10, vText) then Observer.Observe('arg_byvalue.guidlow', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.guidlow');
         if Try15(vCode10, vText) then Observer.Observe('exit.guidlow', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.guidlow');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text_To_Code10_6()
-    var
-        Observer: Codeunit "Probe Observer";
-        vCode10: Code[10];
-        vText: Text;
-    begin
         vText := 'xyz';
         if Try11(vCode10, vText) then Observer.Observe('assign.notguid', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.notguid');
         if Try13(vCode10, vText) then Observer.Observe('arg_byvalue.notguid', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.notguid');
@@ -5788,7 +5835,52 @@ codeunit 92418 "LT Y31 Cv Text"
         if Try11(vCode10, vText) then Observer.Observe('assign.digits', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.digits');
         if Try13(vCode10, vText) then Observer.Observe('arg_byvalue.digits', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.digits');
         if Try15(vCode10, vText) then Observer.Observe('exit.digits', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.digits');
-        Observer.Finish();
+        Observer.Expect('assign.empty', '|0');
+        Observer.Expect('arg_byvalue.empty', '|0');
+        Observer.Expect('exit.empty', '|0');
+        Observer.Expect('assign.a', 'A|1');
+        Observer.Expect('arg_byvalue.a', 'A|1');
+        Observer.Expect('exit.a', 'A|1');
+        Observer.Expect('assign.abc', 'ABC|3');
+        Observer.Expect('arg_byvalue.abc', 'ABC|3');
+        Observer.Expect('exit.abc', 'ABC|3');
+        Observer.Expect('assign.lead', 'AB|2');
+        Observer.Expect('arg_byvalue.lead', 'AB|2');
+        Observer.Expect('exit.lead', 'AB|2');
+        Observer.Expect('assign.trail', 'AB|2');
+        Observer.Expect('arg_byvalue.trail', 'AB|2');
+        Observer.Expect('exit.trail', 'AB|2');
+        Observer.Expect('assign.ten', 'ABCDEFGHIJ|10');
+        Observer.Expect('arg_byvalue.ten', 'ABCDEFGHIJ|10');
+        Observer.Expect('exit.ten', 'ABCDEFGHIJ|10');
+        Observer.Expect('assign.eleven|text', 'The length of the string is 11, but it must be less than or equal to 10 characters. Value: abcdefghijk');
+        Observer.Expect('assign.eleven|code', 'StringLengthExceeded');
+        Observer.Expect('arg_byvalue.eleven|text', 'The length of the string is 11, but it must be less than or equal to 10 characters. Value: abcdefghijk');
+        Observer.Expect('arg_byvalue.eleven|code', 'StringLengthExceeded');
+        Observer.Expect('exit.eleven|text', 'The length of the string is 11, but it must be less than or equal to 10 characters. Value: abcdefghijk');
+        Observer.Expect('exit.eleven|code', 'StringLengthExceeded');
+        Observer.Expect('assign.umlaut', 'ÄÖß|3');
+        Observer.Expect('arg_byvalue.umlaut', 'ÄÖß|3');
+        Observer.Expect('exit.umlaut', 'ÄÖß|3');
+        Observer.Expect('assign.guid|text', 'The length of the string is 38, but it must be less than or equal to 10 characters. Value: {5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('assign.guid|code', 'StringLengthExceeded');
+        Observer.Expect('arg_byvalue.guid|text', 'The length of the string is 38, but it must be less than or equal to 10 characters. Value: {5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('arg_byvalue.guid|code', 'StringLengthExceeded');
+        Observer.Expect('exit.guid|text', 'The length of the string is 38, but it must be less than or equal to 10 characters. Value: {5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('exit.guid|code', 'StringLengthExceeded');
+        Observer.Expect('assign.guidlow|text', 'The length of the string is 36, but it must be less than or equal to 10 characters. Value: 5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b');
+        Observer.Expect('assign.guidlow|code', 'StringLengthExceeded');
+        Observer.Expect('arg_byvalue.guidlow|text', 'The length of the string is 36, but it must be less than or equal to 10 characters. Value: 5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b');
+        Observer.Expect('arg_byvalue.guidlow|code', 'StringLengthExceeded');
+        Observer.Expect('exit.guidlow|text', 'The length of the string is 36, but it must be less than or equal to 10 characters. Value: 5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b');
+        Observer.Expect('exit.guidlow|code', 'StringLengthExceeded');
+        Observer.Expect('assign.notguid', 'XYZ|3');
+        Observer.Expect('arg_byvalue.notguid', 'XYZ|3');
+        Observer.Expect('exit.notguid', 'XYZ|3');
+        Observer.Expect('assign.digits', '12|2');
+        Observer.Expect('arg_byvalue.digits', '12|2');
+        Observer.Expect('exit.digits', '12|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -5806,16 +5898,6 @@ codeunit 92418 "LT Y31 Cv Text"
         if Try16(vCode3, vText) then Observer.Observe('assign.a', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.a');
         if Try18(vCode3, vText) then Observer.Observe('arg_byvalue.a', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.a');
         if Try20(vCode3, vText) then Observer.Observe('exit.a', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.a');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text_To_Code3_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vCode3: Code[3];
-        vText: Text;
-    begin
         vText := 'abc';
         if Try16(vCode3, vText) then Observer.Observe('assign.abc', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.abc');
         if Try18(vCode3, vText) then Observer.Observe('arg_byvalue.abc', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.abc');
@@ -5824,16 +5906,6 @@ codeunit 92418 "LT Y31 Cv Text"
         if Try16(vCode3, vText) then Observer.Observe('assign.lead', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.lead');
         if Try18(vCode3, vText) then Observer.Observe('arg_byvalue.lead', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.lead');
         if Try20(vCode3, vText) then Observer.Observe('exit.lead', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.lead');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text_To_Code3_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        vCode3: Code[3];
-        vText: Text;
-    begin
         vText := 'ab ';
         if Try16(vCode3, vText) then Observer.Observe('assign.trail', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.trail');
         if Try18(vCode3, vText) then Observer.Observe('arg_byvalue.trail', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.trail');
@@ -5842,16 +5914,6 @@ codeunit 92418 "LT Y31 Cv Text"
         if Try16(vCode3, vText) then Observer.Observe('assign.ten', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.ten');
         if Try18(vCode3, vText) then Observer.Observe('arg_byvalue.ten', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.ten');
         if Try20(vCode3, vText) then Observer.Observe('exit.ten', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.ten');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text_To_Code3_4()
-    var
-        Observer: Codeunit "Probe Observer";
-        vCode3: Code[3];
-        vText: Text;
-    begin
         vText := 'abcdefghijk';
         if Try16(vCode3, vText) then Observer.Observe('assign.eleven', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.eleven');
         if Try18(vCode3, vText) then Observer.Observe('arg_byvalue.eleven', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.eleven');
@@ -5860,16 +5922,6 @@ codeunit 92418 "LT Y31 Cv Text"
         if Try16(vCode3, vText) then Observer.Observe('assign.umlaut', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.umlaut');
         if Try18(vCode3, vText) then Observer.Observe('arg_byvalue.umlaut', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.umlaut');
         if Try20(vCode3, vText) then Observer.Observe('exit.umlaut', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.umlaut');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text_To_Code3_5()
-    var
-        Observer: Codeunit "Probe Observer";
-        vCode3: Code[3];
-        vText: Text;
-    begin
         vText := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         if Try16(vCode3, vText) then Observer.Observe('assign.guid', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.guid');
         if Try18(vCode3, vText) then Observer.Observe('arg_byvalue.guid', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.guid');
@@ -5878,16 +5930,6 @@ codeunit 92418 "LT Y31 Cv Text"
         if Try16(vCode3, vText) then Observer.Observe('assign.guidlow', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.guidlow');
         if Try18(vCode3, vText) then Observer.Observe('arg_byvalue.guidlow', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.guidlow');
         if Try20(vCode3, vText) then Observer.Observe('exit.guidlow', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.guidlow');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text_To_Code3_6()
-    var
-        Observer: Codeunit "Probe Observer";
-        vCode3: Code[3];
-        vText: Text;
-    begin
         vText := 'xyz';
         if Try16(vCode3, vText) then Observer.Observe('assign.notguid', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.notguid');
         if Try18(vCode3, vText) then Observer.Observe('arg_byvalue.notguid', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.notguid');
@@ -5896,7 +5938,55 @@ codeunit 92418 "LT Y31 Cv Text"
         if Try16(vCode3, vText) then Observer.Observe('assign.digits', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.digits');
         if Try18(vCode3, vText) then Observer.Observe('arg_byvalue.digits', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.digits');
         if Try20(vCode3, vText) then Observer.Observe('exit.digits', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.digits');
-        Observer.Finish();
+        Observer.Expect('assign.empty', '|0');
+        Observer.Expect('arg_byvalue.empty', '|0');
+        Observer.Expect('exit.empty', '|0');
+        Observer.Expect('assign.a', 'A|1');
+        Observer.Expect('arg_byvalue.a', 'A|1');
+        Observer.Expect('exit.a', 'A|1');
+        Observer.Expect('assign.abc', 'ABC|3');
+        Observer.Expect('arg_byvalue.abc', 'ABC|3');
+        Observer.Expect('exit.abc', 'ABC|3');
+        Observer.Expect('assign.lead', 'AB|2');
+        Observer.Expect('arg_byvalue.lead', 'AB|2');
+        Observer.Expect('exit.lead', 'AB|2');
+        Observer.Expect('assign.trail', 'AB|2');
+        Observer.Expect('arg_byvalue.trail', 'AB|2');
+        Observer.Expect('exit.trail', 'AB|2');
+        Observer.Expect('assign.ten|text', 'The length of the string is 10, but it must be less than or equal to 3 characters. Value: abcdefghij');
+        Observer.Expect('assign.ten|code', 'StringLengthExceeded');
+        Observer.Expect('arg_byvalue.ten|text', 'The length of the string is 10, but it must be less than or equal to 3 characters. Value: abcdefghij');
+        Observer.Expect('arg_byvalue.ten|code', 'StringLengthExceeded');
+        Observer.Expect('exit.ten|text', 'The length of the string is 10, but it must be less than or equal to 3 characters. Value: abcdefghij');
+        Observer.Expect('exit.ten|code', 'StringLengthExceeded');
+        Observer.Expect('assign.eleven|text', 'The length of the string is 11, but it must be less than or equal to 3 characters. Value: abcdefghijk');
+        Observer.Expect('assign.eleven|code', 'StringLengthExceeded');
+        Observer.Expect('arg_byvalue.eleven|text', 'The length of the string is 11, but it must be less than or equal to 3 characters. Value: abcdefghijk');
+        Observer.Expect('arg_byvalue.eleven|code', 'StringLengthExceeded');
+        Observer.Expect('exit.eleven|text', 'The length of the string is 11, but it must be less than or equal to 3 characters. Value: abcdefghijk');
+        Observer.Expect('exit.eleven|code', 'StringLengthExceeded');
+        Observer.Expect('assign.umlaut', 'ÄÖß|3');
+        Observer.Expect('arg_byvalue.umlaut', 'ÄÖß|3');
+        Observer.Expect('exit.umlaut', 'ÄÖß|3');
+        Observer.Expect('assign.guid|text', 'The length of the string is 38, but it must be less than or equal to 3 characters. Value: {5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('assign.guid|code', 'StringLengthExceeded');
+        Observer.Expect('arg_byvalue.guid|text', 'The length of the string is 38, but it must be less than or equal to 3 characters. Value: {5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('arg_byvalue.guid|code', 'StringLengthExceeded');
+        Observer.Expect('exit.guid|text', 'The length of the string is 38, but it must be less than or equal to 3 characters. Value: {5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('exit.guid|code', 'StringLengthExceeded');
+        Observer.Expect('assign.guidlow|text', 'The length of the string is 36, but it must be less than or equal to 3 characters. Value: 5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b');
+        Observer.Expect('assign.guidlow|code', 'StringLengthExceeded');
+        Observer.Expect('arg_byvalue.guidlow|text', 'The length of the string is 36, but it must be less than or equal to 3 characters. Value: 5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b');
+        Observer.Expect('arg_byvalue.guidlow|code', 'StringLengthExceeded');
+        Observer.Expect('exit.guidlow|text', 'The length of the string is 36, but it must be less than or equal to 3 characters. Value: 5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b');
+        Observer.Expect('exit.guidlow|code', 'StringLengthExceeded');
+        Observer.Expect('assign.notguid', 'XYZ|3');
+        Observer.Expect('arg_byvalue.notguid', 'XYZ|3');
+        Observer.Expect('exit.notguid', 'XYZ|3');
+        Observer.Expect('assign.digits', '12|2');
+        Observer.Expect('arg_byvalue.digits', '12|2');
+        Observer.Expect('exit.digits', '12|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -5914,16 +6004,6 @@ codeunit 92418 "LT Y31 Cv Text"
         if Try21(vCode250, vText) then Observer.Observe('assign.a', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.a');
         if Try23(vCode250, vText) then Observer.Observe('arg_byvalue.a', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.a');
         if Try25(vCode250, vText) then Observer.Observe('exit.a', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.a');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text_To_Code250_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vCode250: Code[250];
-        vText: Text;
-    begin
         vText := 'abc';
         if Try21(vCode250, vText) then Observer.Observe('assign.abc', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.abc');
         if Try23(vCode250, vText) then Observer.Observe('arg_byvalue.abc', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.abc');
@@ -5932,16 +6012,6 @@ codeunit 92418 "LT Y31 Cv Text"
         if Try21(vCode250, vText) then Observer.Observe('assign.lead', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.lead');
         if Try23(vCode250, vText) then Observer.Observe('arg_byvalue.lead', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.lead');
         if Try25(vCode250, vText) then Observer.Observe('exit.lead', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.lead');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text_To_Code250_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        vCode250: Code[250];
-        vText: Text;
-    begin
         vText := 'ab ';
         if Try21(vCode250, vText) then Observer.Observe('assign.trail', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.trail');
         if Try23(vCode250, vText) then Observer.Observe('arg_byvalue.trail', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.trail');
@@ -5950,16 +6020,6 @@ codeunit 92418 "LT Y31 Cv Text"
         if Try21(vCode250, vText) then Observer.Observe('assign.ten', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.ten');
         if Try23(vCode250, vText) then Observer.Observe('arg_byvalue.ten', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.ten');
         if Try25(vCode250, vText) then Observer.Observe('exit.ten', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.ten');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text_To_Code250_4()
-    var
-        Observer: Codeunit "Probe Observer";
-        vCode250: Code[250];
-        vText: Text;
-    begin
         vText := 'abcdefghijk';
         if Try21(vCode250, vText) then Observer.Observe('assign.eleven', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.eleven');
         if Try23(vCode250, vText) then Observer.Observe('arg_byvalue.eleven', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.eleven');
@@ -5968,16 +6028,6 @@ codeunit 92418 "LT Y31 Cv Text"
         if Try21(vCode250, vText) then Observer.Observe('assign.umlaut', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.umlaut');
         if Try23(vCode250, vText) then Observer.Observe('arg_byvalue.umlaut', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.umlaut');
         if Try25(vCode250, vText) then Observer.Observe('exit.umlaut', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.umlaut');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text_To_Code250_5()
-    var
-        Observer: Codeunit "Probe Observer";
-        vCode250: Code[250];
-        vText: Text;
-    begin
         vText := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         if Try21(vCode250, vText) then Observer.Observe('assign.guid', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.guid');
         if Try23(vCode250, vText) then Observer.Observe('arg_byvalue.guid', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.guid');
@@ -5986,16 +6036,6 @@ codeunit 92418 "LT Y31 Cv Text"
         if Try21(vCode250, vText) then Observer.Observe('assign.guidlow', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.guidlow');
         if Try23(vCode250, vText) then Observer.Observe('arg_byvalue.guidlow', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.guidlow');
         if Try25(vCode250, vText) then Observer.Observe('exit.guidlow', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.guidlow');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text_To_Code250_6()
-    var
-        Observer: Codeunit "Probe Observer";
-        vCode250: Code[250];
-        vText: Text;
-    begin
         vText := 'xyz';
         if Try21(vCode250, vText) then Observer.Observe('assign.notguid', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.notguid');
         if Try23(vCode250, vText) then Observer.Observe('arg_byvalue.notguid', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.notguid');
@@ -6004,7 +6044,43 @@ codeunit 92418 "LT Y31 Cv Text"
         if Try21(vCode250, vText) then Observer.Observe('assign.digits', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.digits');
         if Try23(vCode250, vText) then Observer.Observe('arg_byvalue.digits', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.digits');
         if Try25(vCode250, vText) then Observer.Observe('exit.digits', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.digits');
-        Observer.Finish();
+        Observer.Expect('assign.empty', '|0');
+        Observer.Expect('arg_byvalue.empty', '|0');
+        Observer.Expect('exit.empty', '|0');
+        Observer.Expect('assign.a', 'A|1');
+        Observer.Expect('arg_byvalue.a', 'A|1');
+        Observer.Expect('exit.a', 'A|1');
+        Observer.Expect('assign.abc', 'ABC|3');
+        Observer.Expect('arg_byvalue.abc', 'ABC|3');
+        Observer.Expect('exit.abc', 'ABC|3');
+        Observer.Expect('assign.lead', 'AB|2');
+        Observer.Expect('arg_byvalue.lead', 'AB|2');
+        Observer.Expect('exit.lead', 'AB|2');
+        Observer.Expect('assign.trail', 'AB|2');
+        Observer.Expect('arg_byvalue.trail', 'AB|2');
+        Observer.Expect('exit.trail', 'AB|2');
+        Observer.Expect('assign.ten', 'ABCDEFGHIJ|10');
+        Observer.Expect('arg_byvalue.ten', 'ABCDEFGHIJ|10');
+        Observer.Expect('exit.ten', 'ABCDEFGHIJ|10');
+        Observer.Expect('assign.eleven', 'ABCDEFGHIJK|11');
+        Observer.Expect('arg_byvalue.eleven', 'ABCDEFGHIJK|11');
+        Observer.Expect('exit.eleven', 'ABCDEFGHIJK|11');
+        Observer.Expect('assign.umlaut', 'ÄÖß|3');
+        Observer.Expect('arg_byvalue.umlaut', 'ÄÖß|3');
+        Observer.Expect('exit.umlaut', 'ÄÖß|3');
+        Observer.Expect('assign.guid', '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}|38');
+        Observer.Expect('arg_byvalue.guid', '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}|38');
+        Observer.Expect('exit.guid', '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}|38');
+        Observer.Expect('assign.guidlow', '5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B|36');
+        Observer.Expect('arg_byvalue.guidlow', '5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B|36');
+        Observer.Expect('exit.guidlow', '5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B|36');
+        Observer.Expect('assign.notguid', 'XYZ|3');
+        Observer.Expect('arg_byvalue.notguid', 'XYZ|3');
+        Observer.Expect('exit.notguid', 'XYZ|3');
+        Observer.Expect('assign.digits', '12|2');
+        Observer.Expect('arg_byvalue.digits', '12|2');
+        Observer.Expect('exit.digits', '12|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -6022,16 +6098,6 @@ codeunit 92418 "LT Y31 Cv Text"
         if Try26(vGuid, vText) then Observer.Observe('assign.a', Format(vGuid)) else Observer.ObserveError('assign.a');
         if Try28(vGuid, vText) then Observer.Observe('arg_byvalue.a', Format(vGuid)) else Observer.ObserveError('arg_byvalue.a');
         if Try30(vGuid, vText) then Observer.Observe('exit.a', Format(vGuid)) else Observer.ObserveError('exit.a');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text_To_Guid_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vGuid: Guid;
-        vText: Text;
-    begin
         vText := 'abc';
         if Try26(vGuid, vText) then Observer.Observe('assign.abc', Format(vGuid)) else Observer.ObserveError('assign.abc');
         if Try28(vGuid, vText) then Observer.Observe('arg_byvalue.abc', Format(vGuid)) else Observer.ObserveError('arg_byvalue.abc');
@@ -6040,16 +6106,6 @@ codeunit 92418 "LT Y31 Cv Text"
         if Try26(vGuid, vText) then Observer.Observe('assign.lead', Format(vGuid)) else Observer.ObserveError('assign.lead');
         if Try28(vGuid, vText) then Observer.Observe('arg_byvalue.lead', Format(vGuid)) else Observer.ObserveError('arg_byvalue.lead');
         if Try30(vGuid, vText) then Observer.Observe('exit.lead', Format(vGuid)) else Observer.ObserveError('exit.lead');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text_To_Guid_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        vGuid: Guid;
-        vText: Text;
-    begin
         vText := 'ab ';
         if Try26(vGuid, vText) then Observer.Observe('assign.trail', Format(vGuid)) else Observer.ObserveError('assign.trail');
         if Try28(vGuid, vText) then Observer.Observe('arg_byvalue.trail', Format(vGuid)) else Observer.ObserveError('arg_byvalue.trail');
@@ -6058,16 +6114,6 @@ codeunit 92418 "LT Y31 Cv Text"
         if Try26(vGuid, vText) then Observer.Observe('assign.ten', Format(vGuid)) else Observer.ObserveError('assign.ten');
         if Try28(vGuid, vText) then Observer.Observe('arg_byvalue.ten', Format(vGuid)) else Observer.ObserveError('arg_byvalue.ten');
         if Try30(vGuid, vText) then Observer.Observe('exit.ten', Format(vGuid)) else Observer.ObserveError('exit.ten');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text_To_Guid_4()
-    var
-        Observer: Codeunit "Probe Observer";
-        vGuid: Guid;
-        vText: Text;
-    begin
         vText := 'abcdefghijk';
         if Try26(vGuid, vText) then Observer.Observe('assign.eleven', Format(vGuid)) else Observer.ObserveError('assign.eleven');
         if Try28(vGuid, vText) then Observer.Observe('arg_byvalue.eleven', Format(vGuid)) else Observer.ObserveError('arg_byvalue.eleven');
@@ -6076,16 +6122,6 @@ codeunit 92418 "LT Y31 Cv Text"
         if Try26(vGuid, vText) then Observer.Observe('assign.umlaut', Format(vGuid)) else Observer.ObserveError('assign.umlaut');
         if Try28(vGuid, vText) then Observer.Observe('arg_byvalue.umlaut', Format(vGuid)) else Observer.ObserveError('arg_byvalue.umlaut');
         if Try30(vGuid, vText) then Observer.Observe('exit.umlaut', Format(vGuid)) else Observer.ObserveError('exit.umlaut');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text_To_Guid_5()
-    var
-        Observer: Codeunit "Probe Observer";
-        vGuid: Guid;
-        vText: Text;
-    begin
         vText := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         if Try26(vGuid, vText) then Observer.Observe('assign.guid', Format(vGuid)) else Observer.ObserveError('assign.guid');
         if Try28(vGuid, vText) then Observer.Observe('arg_byvalue.guid', Format(vGuid)) else Observer.ObserveError('arg_byvalue.guid');
@@ -6094,16 +6130,6 @@ codeunit 92418 "LT Y31 Cv Text"
         if Try26(vGuid, vText) then Observer.Observe('assign.guidlow', Format(vGuid)) else Observer.ObserveError('assign.guidlow');
         if Try28(vGuid, vText) then Observer.Observe('arg_byvalue.guidlow', Format(vGuid)) else Observer.ObserveError('arg_byvalue.guidlow');
         if Try30(vGuid, vText) then Observer.Observe('exit.guidlow', Format(vGuid)) else Observer.ObserveError('exit.guidlow');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text_To_Guid_6()
-    var
-        Observer: Codeunit "Probe Observer";
-        vGuid: Guid;
-        vText: Text;
-    begin
         vText := 'xyz';
         if Try26(vGuid, vText) then Observer.Observe('assign.notguid', Format(vGuid)) else Observer.ObserveError('assign.notguid');
         if Try28(vGuid, vText) then Observer.Observe('arg_byvalue.notguid', Format(vGuid)) else Observer.ObserveError('arg_byvalue.notguid');
@@ -6112,7 +6138,73 @@ codeunit 92418 "LT Y31 Cv Text"
         if Try26(vGuid, vText) then Observer.Observe('assign.digits', Format(vGuid)) else Observer.ObserveError('assign.digits');
         if Try28(vGuid, vText) then Observer.Observe('arg_byvalue.digits', Format(vGuid)) else Observer.ObserveError('arg_byvalue.digits');
         if Try30(vGuid, vText) then Observer.Observe('exit.digits', Format(vGuid)) else Observer.ObserveError('exit.digits');
-        Observer.Finish();
+        Observer.Expect('assign.empty|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('assign.empty|code', 'InvalidGuidFormat');
+        Observer.Expect('arg_byvalue.empty|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('arg_byvalue.empty|code', 'InvalidGuidFormat');
+        Observer.Expect('exit.empty|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('exit.empty|code', 'InvalidGuidFormat');
+        Observer.Expect('assign.a|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('assign.a|code', 'InvalidGuidFormat');
+        Observer.Expect('arg_byvalue.a|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('arg_byvalue.a|code', 'InvalidGuidFormat');
+        Observer.Expect('exit.a|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('exit.a|code', 'InvalidGuidFormat');
+        Observer.Expect('assign.abc|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('assign.abc|code', 'InvalidGuidFormat');
+        Observer.Expect('arg_byvalue.abc|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('arg_byvalue.abc|code', 'InvalidGuidFormat');
+        Observer.Expect('exit.abc|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('exit.abc|code', 'InvalidGuidFormat');
+        Observer.Expect('assign.lead|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('assign.lead|code', 'InvalidGuidFormat');
+        Observer.Expect('arg_byvalue.lead|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('arg_byvalue.lead|code', 'InvalidGuidFormat');
+        Observer.Expect('exit.lead|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('exit.lead|code', 'InvalidGuidFormat');
+        Observer.Expect('assign.trail|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('assign.trail|code', 'InvalidGuidFormat');
+        Observer.Expect('arg_byvalue.trail|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('arg_byvalue.trail|code', 'InvalidGuidFormat');
+        Observer.Expect('exit.trail|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('exit.trail|code', 'InvalidGuidFormat');
+        Observer.Expect('assign.ten|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('assign.ten|code', 'InvalidGuidFormat');
+        Observer.Expect('arg_byvalue.ten|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('arg_byvalue.ten|code', 'InvalidGuidFormat');
+        Observer.Expect('exit.ten|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('exit.ten|code', 'InvalidGuidFormat');
+        Observer.Expect('assign.eleven|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('assign.eleven|code', 'InvalidGuidFormat');
+        Observer.Expect('arg_byvalue.eleven|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('arg_byvalue.eleven|code', 'InvalidGuidFormat');
+        Observer.Expect('exit.eleven|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('exit.eleven|code', 'InvalidGuidFormat');
+        Observer.Expect('assign.umlaut|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('assign.umlaut|code', 'InvalidGuidFormat');
+        Observer.Expect('arg_byvalue.umlaut|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('arg_byvalue.umlaut|code', 'InvalidGuidFormat');
+        Observer.Expect('exit.umlaut|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('exit.umlaut|code', 'InvalidGuidFormat');
+        Observer.Expect('assign.guid', '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('arg_byvalue.guid', '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('exit.guid', '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('assign.guidlow', '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('arg_byvalue.guidlow', '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('exit.guidlow', '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('assign.notguid|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('assign.notguid|code', 'InvalidGuidFormat');
+        Observer.Expect('arg_byvalue.notguid|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('arg_byvalue.notguid|code', 'InvalidGuidFormat');
+        Observer.Expect('exit.notguid|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('exit.notguid|code', 'InvalidGuidFormat');
+        Observer.Expect('assign.digits|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('assign.digits|code', 'InvalidGuidFormat');
+        Observer.Expect('arg_byvalue.digits|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('arg_byvalue.digits|code', 'InvalidGuidFormat');
+        Observer.Expect('exit.digits|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('exit.digits|code', 'InvalidGuidFormat');
+        Observer.Verify();
     end;
 
     [Test]
@@ -6138,16 +6230,6 @@ codeunit 92418 "LT Y31 Cv Text"
         if Try31(R, vText) then Observer.Observe('assign.eleven', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.eleven');
         vText := 'äöß';
         if Try31(R, vText) then Observer.Observe('assign.umlaut', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.umlaut');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text_To_FText10_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        R: Record "LT Y31 Conv Fields";
-        vText: Text;
-    begin
         vText := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         if Try31(R, vText) then Observer.Observe('assign.guid', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.guid');
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
@@ -6156,7 +6238,22 @@ codeunit 92418 "LT Y31 Cv Text"
         if Try31(R, vText) then Observer.Observe('assign.notguid', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.notguid');
         vText := '12';
         if Try31(R, vText) then Observer.Observe('assign.digits', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.digits');
-        Observer.Finish();
+        Observer.Expect('assign.empty', '|0');
+        Observer.Expect('assign.a', 'a|1');
+        Observer.Expect('assign.abc', 'abc|3');
+        Observer.Expect('assign.lead', ' ab|3');
+        Observer.Expect('assign.trail', 'ab |3');
+        Observer.Expect('assign.ten', 'abcdefghij|10');
+        Observer.Expect('assign.eleven|text', 'The length of the string is 11, but it must be less than or equal to 10 characters. Value: abcdefghijk');
+        Observer.Expect('assign.eleven|code', 'StringLengthExceeded');
+        Observer.Expect('assign.umlaut', 'äöß|3');
+        Observer.Expect('assign.guid|text', 'The length of the string is 38, but it must be less than or equal to 10 characters. Value: {5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('assign.guid|code', 'StringLengthExceeded');
+        Observer.Expect('assign.guidlow|text', 'The length of the string is 36, but it must be less than or equal to 10 characters. Value: 5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b');
+        Observer.Expect('assign.guidlow|code', 'StringLengthExceeded');
+        Observer.Expect('assign.notguid', 'xyz|3');
+        Observer.Expect('assign.digits', '12|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -6182,16 +6279,6 @@ codeunit 92418 "LT Y31 Cv Text"
         if Try32(R, vText) then Observer.Observe('assign.eleven', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.eleven');
         vText := 'äöß';
         if Try32(R, vText) then Observer.Observe('assign.umlaut', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.umlaut');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text_To_FCode10_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        R: Record "LT Y31 Conv Fields";
-        vText: Text;
-    begin
         vText := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         if Try32(R, vText) then Observer.Observe('assign.guid', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.guid');
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
@@ -6200,7 +6287,22 @@ codeunit 92418 "LT Y31 Cv Text"
         if Try32(R, vText) then Observer.Observe('assign.notguid', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.notguid');
         vText := '12';
         if Try32(R, vText) then Observer.Observe('assign.digits', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.digits');
-        Observer.Finish();
+        Observer.Expect('assign.empty', '|0');
+        Observer.Expect('assign.a', 'A|1');
+        Observer.Expect('assign.abc', 'ABC|3');
+        Observer.Expect('assign.lead', 'AB|2');
+        Observer.Expect('assign.trail', 'AB|2');
+        Observer.Expect('assign.ten', 'ABCDEFGHIJ|10');
+        Observer.Expect('assign.eleven|text', 'The length of the string is 11, but it must be less than or equal to 10 characters. Value: abcdefghijk');
+        Observer.Expect('assign.eleven|code', 'StringLengthExceeded');
+        Observer.Expect('assign.umlaut', 'ÄÖß|3');
+        Observer.Expect('assign.guid|text', 'The length of the string is 38, but it must be less than or equal to 10 characters. Value: {5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('assign.guid|code', 'StringLengthExceeded');
+        Observer.Expect('assign.guidlow|text', 'The length of the string is 36, but it must be less than or equal to 10 characters. Value: 5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b');
+        Observer.Expect('assign.guidlow|code', 'StringLengthExceeded');
+        Observer.Expect('assign.notguid', 'XYZ|3');
+        Observer.Expect('assign.digits', '12|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -6226,16 +6328,6 @@ codeunit 92418 "LT Y31 Cv Text"
         if Try33(R, vText) then Observer.Observe('assign.eleven', Format(R.Guid)) else Observer.ObserveError('assign.eleven');
         vText := 'äöß';
         if Try33(R, vText) then Observer.Observe('assign.umlaut', Format(R.Guid)) else Observer.ObserveError('assign.umlaut');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text_To_FGuid_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        R: Record "LT Y31 Conv Fields";
-        vText: Text;
-    begin
         vText := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         if Try33(R, vText) then Observer.Observe('assign.guid', Format(R.Guid)) else Observer.ObserveError('assign.guid');
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
@@ -6244,7 +6336,29 @@ codeunit 92418 "LT Y31 Cv Text"
         if Try33(R, vText) then Observer.Observe('assign.notguid', Format(R.Guid)) else Observer.ObserveError('assign.notguid');
         vText := '12';
         if Try33(R, vText) then Observer.Observe('assign.digits', Format(R.Guid)) else Observer.ObserveError('assign.digits');
-        Observer.Finish();
+        Observer.Expect('assign.empty|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('assign.empty|code', 'InvalidGuidFormat');
+        Observer.Expect('assign.a|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('assign.a|code', 'InvalidGuidFormat');
+        Observer.Expect('assign.abc|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('assign.abc|code', 'InvalidGuidFormat');
+        Observer.Expect('assign.lead|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('assign.lead|code', 'InvalidGuidFormat');
+        Observer.Expect('assign.trail|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('assign.trail|code', 'InvalidGuidFormat');
+        Observer.Expect('assign.ten|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('assign.ten|code', 'InvalidGuidFormat');
+        Observer.Expect('assign.eleven|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('assign.eleven|code', 'InvalidGuidFormat');
+        Observer.Expect('assign.umlaut|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('assign.umlaut|code', 'InvalidGuidFormat');
+        Observer.Expect('assign.guid', '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('assign.guidlow', '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('assign.notguid|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('assign.notguid|code', 'InvalidGuidFormat');
+        Observer.Expect('assign.digits|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('assign.digits|code', 'InvalidGuidFormat');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -6483,16 +6597,6 @@ codeunit 92419 "LT Y31 Cv Text10"
         if Try1(vText, vText10) then Observer.Observe('assign.a', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.a');
         if Try3(vText, vText10) then Observer.Observe('arg_byvalue.a', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.a');
         if Try5(vText, vText10) then Observer.Observe('exit.a', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.a');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text10_To_Text_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vText: Text;
-        vText10: Text[10];
-    begin
         vText10 := 'abc';
         if Try1(vText, vText10) then Observer.Observe('assign.abc', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.abc');
         if Try3(vText, vText10) then Observer.Observe('arg_byvalue.abc', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.abc');
@@ -6501,7 +6605,19 @@ codeunit 92419 "LT Y31 Cv Text10"
         if Try1(vText, vText10) then Observer.Observe('assign.ten', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.ten');
         if Try3(vText, vText10) then Observer.Observe('arg_byvalue.ten', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.ten');
         if Try5(vText, vText10) then Observer.Observe('exit.ten', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.ten');
-        Observer.Finish();
+        Observer.Expect('assign.empty', '|0');
+        Observer.Expect('arg_byvalue.empty', '|0');
+        Observer.Expect('exit.empty', '|0');
+        Observer.Expect('assign.a', 'a|1');
+        Observer.Expect('arg_byvalue.a', 'a|1');
+        Observer.Expect('exit.a', 'a|1');
+        Observer.Expect('assign.abc', 'abc|3');
+        Observer.Expect('arg_byvalue.abc', 'abc|3');
+        Observer.Expect('exit.abc', 'abc|3');
+        Observer.Expect('assign.ten', 'abcdefghij|10');
+        Observer.Expect('arg_byvalue.ten', 'abcdefghij|10');
+        Observer.Expect('exit.ten', 'abcdefghij|10');
+        Observer.Verify();
     end;
 
     [Test]
@@ -6519,16 +6635,6 @@ codeunit 92419 "LT Y31 Cv Text10"
         if Try6(vText10, vText3) then Observer.Observe('assign.a', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.a');
         if Try8(vText10, vText3) then Observer.Observe('arg_byvalue.a', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.a');
         if Try10(vText10, vText3) then Observer.Observe('exit.a', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.a');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text10_To_Text3_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vText10: Text[10];
-        vText3: Text[3];
-    begin
         vText10 := 'abc';
         if Try6(vText10, vText3) then Observer.Observe('assign.abc', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.abc');
         if Try8(vText10, vText3) then Observer.Observe('arg_byvalue.abc', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.abc');
@@ -6537,7 +6643,22 @@ codeunit 92419 "LT Y31 Cv Text10"
         if Try6(vText10, vText3) then Observer.Observe('assign.ten', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.ten');
         if Try8(vText10, vText3) then Observer.Observe('arg_byvalue.ten', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.ten');
         if Try10(vText10, vText3) then Observer.Observe('exit.ten', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.ten');
-        Observer.Finish();
+        Observer.Expect('assign.empty', '|0');
+        Observer.Expect('arg_byvalue.empty', '|0');
+        Observer.Expect('exit.empty', '|0');
+        Observer.Expect('assign.a', 'a|1');
+        Observer.Expect('arg_byvalue.a', 'a|1');
+        Observer.Expect('exit.a', 'a|1');
+        Observer.Expect('assign.abc', 'abc|3');
+        Observer.Expect('arg_byvalue.abc', 'abc|3');
+        Observer.Expect('exit.abc', 'abc|3');
+        Observer.Expect('assign.ten|text', 'The length of the string is 10, but it must be less than or equal to 3 characters. Value: abcdefghij');
+        Observer.Expect('assign.ten|code', 'StringLengthExceeded');
+        Observer.Expect('arg_byvalue.ten|text', 'The length of the string is 10, but it must be less than or equal to 3 characters. Value: abcdefghij');
+        Observer.Expect('arg_byvalue.ten|code', 'StringLengthExceeded');
+        Observer.Expect('exit.ten|text', 'The length of the string is 10, but it must be less than or equal to 3 characters. Value: abcdefghij');
+        Observer.Expect('exit.ten|code', 'StringLengthExceeded');
+        Observer.Verify();
     end;
 
     [Test]
@@ -6555,16 +6676,6 @@ codeunit 92419 "LT Y31 Cv Text10"
         if Try11(vCode10, vText10) then Observer.Observe('assign.a', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.a');
         if Try13(vCode10, vText10) then Observer.Observe('arg_byvalue.a', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.a');
         if Try15(vCode10, vText10) then Observer.Observe('exit.a', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.a');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text10_To_Code10_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vCode10: Code[10];
-        vText10: Text[10];
-    begin
         vText10 := 'abc';
         if Try11(vCode10, vText10) then Observer.Observe('assign.abc', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.abc');
         if Try13(vCode10, vText10) then Observer.Observe('arg_byvalue.abc', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.abc');
@@ -6573,7 +6684,19 @@ codeunit 92419 "LT Y31 Cv Text10"
         if Try11(vCode10, vText10) then Observer.Observe('assign.ten', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.ten');
         if Try13(vCode10, vText10) then Observer.Observe('arg_byvalue.ten', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.ten');
         if Try15(vCode10, vText10) then Observer.Observe('exit.ten', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.ten');
-        Observer.Finish();
+        Observer.Expect('assign.empty', '|0');
+        Observer.Expect('arg_byvalue.empty', '|0');
+        Observer.Expect('exit.empty', '|0');
+        Observer.Expect('assign.a', 'A|1');
+        Observer.Expect('arg_byvalue.a', 'A|1');
+        Observer.Expect('exit.a', 'A|1');
+        Observer.Expect('assign.abc', 'ABC|3');
+        Observer.Expect('arg_byvalue.abc', 'ABC|3');
+        Observer.Expect('exit.abc', 'ABC|3');
+        Observer.Expect('assign.ten', 'ABCDEFGHIJ|10');
+        Observer.Expect('arg_byvalue.ten', 'ABCDEFGHIJ|10');
+        Observer.Expect('exit.ten', 'ABCDEFGHIJ|10');
+        Observer.Verify();
     end;
 
     [Test]
@@ -6591,16 +6714,6 @@ codeunit 92419 "LT Y31 Cv Text10"
         if Try16(vCode3, vText10) then Observer.Observe('assign.a', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.a');
         if Try18(vCode3, vText10) then Observer.Observe('arg_byvalue.a', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.a');
         if Try20(vCode3, vText10) then Observer.Observe('exit.a', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.a');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text10_To_Code3_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vCode3: Code[3];
-        vText10: Text[10];
-    begin
         vText10 := 'abc';
         if Try16(vCode3, vText10) then Observer.Observe('assign.abc', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.abc');
         if Try18(vCode3, vText10) then Observer.Observe('arg_byvalue.abc', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.abc');
@@ -6609,7 +6722,22 @@ codeunit 92419 "LT Y31 Cv Text10"
         if Try16(vCode3, vText10) then Observer.Observe('assign.ten', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.ten');
         if Try18(vCode3, vText10) then Observer.Observe('arg_byvalue.ten', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.ten');
         if Try20(vCode3, vText10) then Observer.Observe('exit.ten', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.ten');
-        Observer.Finish();
+        Observer.Expect('assign.empty', '|0');
+        Observer.Expect('arg_byvalue.empty', '|0');
+        Observer.Expect('exit.empty', '|0');
+        Observer.Expect('assign.a', 'A|1');
+        Observer.Expect('arg_byvalue.a', 'A|1');
+        Observer.Expect('exit.a', 'A|1');
+        Observer.Expect('assign.abc', 'ABC|3');
+        Observer.Expect('arg_byvalue.abc', 'ABC|3');
+        Observer.Expect('exit.abc', 'ABC|3');
+        Observer.Expect('assign.ten|text', 'The length of the string is 10, but it must be less than or equal to 3 characters. Value: abcdefghij');
+        Observer.Expect('assign.ten|code', 'StringLengthExceeded');
+        Observer.Expect('arg_byvalue.ten|text', 'The length of the string is 10, but it must be less than or equal to 3 characters. Value: abcdefghij');
+        Observer.Expect('arg_byvalue.ten|code', 'StringLengthExceeded');
+        Observer.Expect('exit.ten|text', 'The length of the string is 10, but it must be less than or equal to 3 characters. Value: abcdefghij');
+        Observer.Expect('exit.ten|code', 'StringLengthExceeded');
+        Observer.Verify();
     end;
 
     [Test]
@@ -6627,16 +6755,6 @@ codeunit 92419 "LT Y31 Cv Text10"
         if Try21(vCode250, vText10) then Observer.Observe('assign.a', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.a');
         if Try23(vCode250, vText10) then Observer.Observe('arg_byvalue.a', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.a');
         if Try25(vCode250, vText10) then Observer.Observe('exit.a', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.a');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text10_To_Code250_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vCode250: Code[250];
-        vText10: Text[10];
-    begin
         vText10 := 'abc';
         if Try21(vCode250, vText10) then Observer.Observe('assign.abc', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.abc');
         if Try23(vCode250, vText10) then Observer.Observe('arg_byvalue.abc', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.abc');
@@ -6645,7 +6763,19 @@ codeunit 92419 "LT Y31 Cv Text10"
         if Try21(vCode250, vText10) then Observer.Observe('assign.ten', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.ten');
         if Try23(vCode250, vText10) then Observer.Observe('arg_byvalue.ten', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.ten');
         if Try25(vCode250, vText10) then Observer.Observe('exit.ten', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.ten');
-        Observer.Finish();
+        Observer.Expect('assign.empty', '|0');
+        Observer.Expect('arg_byvalue.empty', '|0');
+        Observer.Expect('exit.empty', '|0');
+        Observer.Expect('assign.a', 'A|1');
+        Observer.Expect('arg_byvalue.a', 'A|1');
+        Observer.Expect('exit.a', 'A|1');
+        Observer.Expect('assign.abc', 'ABC|3');
+        Observer.Expect('arg_byvalue.abc', 'ABC|3');
+        Observer.Expect('exit.abc', 'ABC|3');
+        Observer.Expect('assign.ten', 'ABCDEFGHIJ|10');
+        Observer.Expect('arg_byvalue.ten', 'ABCDEFGHIJ|10');
+        Observer.Expect('exit.ten', 'ABCDEFGHIJ|10');
+        Observer.Verify();
     end;
 
     [Test]
@@ -6663,16 +6793,6 @@ codeunit 92419 "LT Y31 Cv Text10"
         if Try26(vGuid, vText10) then Observer.Observe('assign.a', Format(vGuid)) else Observer.ObserveError('assign.a');
         if Try28(vGuid, vText10) then Observer.Observe('arg_byvalue.a', Format(vGuid)) else Observer.ObserveError('arg_byvalue.a');
         if Try30(vGuid, vText10) then Observer.Observe('exit.a', Format(vGuid)) else Observer.ObserveError('exit.a');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text10_To_Guid_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vGuid: Guid;
-        vText10: Text[10];
-    begin
         vText10 := 'abc';
         if Try26(vGuid, vText10) then Observer.Observe('assign.abc', Format(vGuid)) else Observer.ObserveError('assign.abc');
         if Try28(vGuid, vText10) then Observer.Observe('arg_byvalue.abc', Format(vGuid)) else Observer.ObserveError('arg_byvalue.abc');
@@ -6681,7 +6801,31 @@ codeunit 92419 "LT Y31 Cv Text10"
         if Try26(vGuid, vText10) then Observer.Observe('assign.ten', Format(vGuid)) else Observer.ObserveError('assign.ten');
         if Try28(vGuid, vText10) then Observer.Observe('arg_byvalue.ten', Format(vGuid)) else Observer.ObserveError('arg_byvalue.ten');
         if Try30(vGuid, vText10) then Observer.Observe('exit.ten', Format(vGuid)) else Observer.ObserveError('exit.ten');
-        Observer.Finish();
+        Observer.Expect('assign.empty|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('assign.empty|code', 'InvalidGuidFormat');
+        Observer.Expect('arg_byvalue.empty|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('arg_byvalue.empty|code', 'InvalidGuidFormat');
+        Observer.Expect('exit.empty|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('exit.empty|code', 'InvalidGuidFormat');
+        Observer.Expect('assign.a|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('assign.a|code', 'InvalidGuidFormat');
+        Observer.Expect('arg_byvalue.a|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('arg_byvalue.a|code', 'InvalidGuidFormat');
+        Observer.Expect('exit.a|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('exit.a|code', 'InvalidGuidFormat');
+        Observer.Expect('assign.abc|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('assign.abc|code', 'InvalidGuidFormat');
+        Observer.Expect('arg_byvalue.abc|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('arg_byvalue.abc|code', 'InvalidGuidFormat');
+        Observer.Expect('exit.abc|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('exit.abc|code', 'InvalidGuidFormat');
+        Observer.Expect('assign.ten|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('assign.ten|code', 'InvalidGuidFormat');
+        Observer.Expect('arg_byvalue.ten|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('arg_byvalue.ten|code', 'InvalidGuidFormat');
+        Observer.Expect('exit.ten|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('exit.ten|code', 'InvalidGuidFormat');
+        Observer.Verify();
     end;
 
     [Test]
@@ -6699,7 +6843,11 @@ codeunit 92419 "LT Y31 Cv Text10"
         if Try31(R, vText10) then Observer.Observe('assign.abc', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.abc');
         vText10 := 'abcdefghij';
         if Try31(R, vText10) then Observer.Observe('assign.ten', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.ten');
-        Observer.Finish();
+        Observer.Expect('assign.empty', '|0');
+        Observer.Expect('assign.a', 'A|1');
+        Observer.Expect('assign.abc', 'ABC|3');
+        Observer.Expect('assign.ten', 'ABCDEFGHIJ|10');
+        Observer.Verify();
     end;
 
     [Test]
@@ -6717,7 +6865,15 @@ codeunit 92419 "LT Y31 Cv Text10"
         if Try32(R, vText10) then Observer.Observe('assign.abc', Format(R.Guid)) else Observer.ObserveError('assign.abc');
         vText10 := 'abcdefghij';
         if Try32(R, vText10) then Observer.Observe('assign.ten', Format(R.Guid)) else Observer.ObserveError('assign.ten');
-        Observer.Finish();
+        Observer.Expect('assign.empty|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('assign.empty|code', 'InvalidGuidFormat');
+        Observer.Expect('assign.a|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('assign.a|code', 'InvalidGuidFormat');
+        Observer.Expect('assign.abc|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('assign.abc|code', 'InvalidGuidFormat');
+        Observer.Expect('assign.ten|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('assign.ten|code', 'InvalidGuidFormat');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -6949,16 +7105,6 @@ codeunit 92420 "LT Y31 Cv Code10"
         if Try1(vCode10, vText) then Observer.Observe('assign.ABC', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.ABC');
         if Try3(vCode10, vText) then Observer.Observe('arg_byvalue.ABC', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.ABC');
         if Try5(vCode10, vText) then Observer.Observe('exit.ABC', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.ABC');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Code10_To_Text_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vCode10: Code[10];
-        vText: Text;
-    begin
         vCode10 := 'ABCDEFGHIJ';
         if Try1(vCode10, vText) then Observer.Observe('assign.ten', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.ten');
         if Try3(vCode10, vText) then Observer.Observe('arg_byvalue.ten', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.ten');
@@ -6967,7 +7113,19 @@ codeunit 92420 "LT Y31 Cv Code10"
         if Try1(vCode10, vText) then Observer.Observe('assign.digits', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.digits');
         if Try3(vCode10, vText) then Observer.Observe('arg_byvalue.digits', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.digits');
         if Try5(vCode10, vText) then Observer.Observe('exit.digits', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.digits');
-        Observer.Finish();
+        Observer.Expect('assign.empty', '|0');
+        Observer.Expect('arg_byvalue.empty', '|0');
+        Observer.Expect('exit.empty', '|0');
+        Observer.Expect('assign.ABC', 'ABC|3');
+        Observer.Expect('arg_byvalue.ABC', 'ABC|3');
+        Observer.Expect('exit.ABC', 'ABC|3');
+        Observer.Expect('assign.ten', 'ABCDEFGHIJ|10');
+        Observer.Expect('arg_byvalue.ten', 'ABCDEFGHIJ|10');
+        Observer.Expect('exit.ten', 'ABCDEFGHIJ|10');
+        Observer.Expect('assign.digits', '12|2');
+        Observer.Expect('arg_byvalue.digits', '12|2');
+        Observer.Expect('exit.digits', '12|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -6985,16 +7143,6 @@ codeunit 92420 "LT Y31 Cv Code10"
         if Try6(vCode10, vText10) then Observer.Observe('assign.ABC', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.ABC');
         if Try8(vCode10, vText10) then Observer.Observe('arg_byvalue.ABC', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.ABC');
         if Try10(vCode10, vText10) then Observer.Observe('exit.ABC', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.ABC');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Code10_To_Text10_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vCode10: Code[10];
-        vText10: Text[10];
-    begin
         vCode10 := 'ABCDEFGHIJ';
         if Try6(vCode10, vText10) then Observer.Observe('assign.ten', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.ten');
         if Try8(vCode10, vText10) then Observer.Observe('arg_byvalue.ten', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.ten');
@@ -7003,7 +7151,19 @@ codeunit 92420 "LT Y31 Cv Code10"
         if Try6(vCode10, vText10) then Observer.Observe('assign.digits', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.digits');
         if Try8(vCode10, vText10) then Observer.Observe('arg_byvalue.digits', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.digits');
         if Try10(vCode10, vText10) then Observer.Observe('exit.digits', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.digits');
-        Observer.Finish();
+        Observer.Expect('assign.empty', '|0');
+        Observer.Expect('arg_byvalue.empty', '|0');
+        Observer.Expect('exit.empty', '|0');
+        Observer.Expect('assign.ABC', 'ABC|3');
+        Observer.Expect('arg_byvalue.ABC', 'ABC|3');
+        Observer.Expect('exit.ABC', 'ABC|3');
+        Observer.Expect('assign.ten', 'ABCDEFGHIJ|10');
+        Observer.Expect('arg_byvalue.ten', 'ABCDEFGHIJ|10');
+        Observer.Expect('exit.ten', 'ABCDEFGHIJ|10');
+        Observer.Expect('assign.digits', '12|2');
+        Observer.Expect('arg_byvalue.digits', '12|2');
+        Observer.Expect('exit.digits', '12|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -7021,16 +7181,6 @@ codeunit 92420 "LT Y31 Cv Code10"
         if Try11(vCode10, vText3) then Observer.Observe('assign.ABC', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.ABC');
         if Try13(vCode10, vText3) then Observer.Observe('arg_byvalue.ABC', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.ABC');
         if Try15(vCode10, vText3) then Observer.Observe('exit.ABC', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.ABC');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Code10_To_Text3_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vCode10: Code[10];
-        vText3: Text[3];
-    begin
         vCode10 := 'ABCDEFGHIJ';
         if Try11(vCode10, vText3) then Observer.Observe('assign.ten', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.ten');
         if Try13(vCode10, vText3) then Observer.Observe('arg_byvalue.ten', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.ten');
@@ -7039,7 +7189,22 @@ codeunit 92420 "LT Y31 Cv Code10"
         if Try11(vCode10, vText3) then Observer.Observe('assign.digits', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.digits');
         if Try13(vCode10, vText3) then Observer.Observe('arg_byvalue.digits', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.digits');
         if Try15(vCode10, vText3) then Observer.Observe('exit.digits', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.digits');
-        Observer.Finish();
+        Observer.Expect('assign.empty', '|0');
+        Observer.Expect('arg_byvalue.empty', '|0');
+        Observer.Expect('exit.empty', '|0');
+        Observer.Expect('assign.ABC', 'ABC|3');
+        Observer.Expect('arg_byvalue.ABC', 'ABC|3');
+        Observer.Expect('exit.ABC', 'ABC|3');
+        Observer.Expect('assign.ten|text', 'The length of the string is 10, but it must be less than or equal to 3 characters. Value: ABCDEFGHIJ');
+        Observer.Expect('assign.ten|code', 'StringLengthExceeded');
+        Observer.Expect('arg_byvalue.ten|text', 'The length of the string is 10, but it must be less than or equal to 3 characters. Value: ABCDEFGHIJ');
+        Observer.Expect('arg_byvalue.ten|code', 'StringLengthExceeded');
+        Observer.Expect('exit.ten|text', 'The length of the string is 10, but it must be less than or equal to 3 characters. Value: ABCDEFGHIJ');
+        Observer.Expect('exit.ten|code', 'StringLengthExceeded');
+        Observer.Expect('assign.digits', '12|2');
+        Observer.Expect('arg_byvalue.digits', '12|2');
+        Observer.Expect('exit.digits', '12|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -7057,16 +7222,6 @@ codeunit 92420 "LT Y31 Cv Code10"
         if Try16(vCode10, vCode3) then Observer.Observe('assign.ABC', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.ABC');
         if Try18(vCode10, vCode3) then Observer.Observe('arg_byvalue.ABC', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.ABC');
         if Try20(vCode10, vCode3) then Observer.Observe('exit.ABC', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.ABC');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Code10_To_Code3_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vCode10: Code[10];
-        vCode3: Code[3];
-    begin
         vCode10 := 'ABCDEFGHIJ';
         if Try16(vCode10, vCode3) then Observer.Observe('assign.ten', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.ten');
         if Try18(vCode10, vCode3) then Observer.Observe('arg_byvalue.ten', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.ten');
@@ -7075,7 +7230,22 @@ codeunit 92420 "LT Y31 Cv Code10"
         if Try16(vCode10, vCode3) then Observer.Observe('assign.digits', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.digits');
         if Try18(vCode10, vCode3) then Observer.Observe('arg_byvalue.digits', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.digits');
         if Try20(vCode10, vCode3) then Observer.Observe('exit.digits', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.digits');
-        Observer.Finish();
+        Observer.Expect('assign.empty', '|0');
+        Observer.Expect('arg_byvalue.empty', '|0');
+        Observer.Expect('exit.empty', '|0');
+        Observer.Expect('assign.ABC', 'ABC|3');
+        Observer.Expect('arg_byvalue.ABC', 'ABC|3');
+        Observer.Expect('exit.ABC', 'ABC|3');
+        Observer.Expect('assign.ten|text', 'The length of the string is 10, but it must be less than or equal to 3 characters. Value: ABCDEFGHIJ');
+        Observer.Expect('assign.ten|code', 'StringLengthExceeded');
+        Observer.Expect('arg_byvalue.ten|text', 'The length of the string is 10, but it must be less than or equal to 3 characters. Value: ABCDEFGHIJ');
+        Observer.Expect('arg_byvalue.ten|code', 'StringLengthExceeded');
+        Observer.Expect('exit.ten|text', 'The length of the string is 10, but it must be less than or equal to 3 characters. Value: ABCDEFGHIJ');
+        Observer.Expect('exit.ten|code', 'StringLengthExceeded');
+        Observer.Expect('assign.digits', '12|2');
+        Observer.Expect('arg_byvalue.digits', '12|2');
+        Observer.Expect('exit.digits', '12|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -7093,16 +7263,6 @@ codeunit 92420 "LT Y31 Cv Code10"
         if Try21(vCode10, vCode250) then Observer.Observe('assign.ABC', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.ABC');
         if Try23(vCode10, vCode250) then Observer.Observe('arg_byvalue.ABC', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.ABC');
         if Try25(vCode10, vCode250) then Observer.Observe('exit.ABC', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.ABC');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Code10_To_Code250_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vCode10: Code[10];
-        vCode250: Code[250];
-    begin
         vCode10 := 'ABCDEFGHIJ';
         if Try21(vCode10, vCode250) then Observer.Observe('assign.ten', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.ten');
         if Try23(vCode10, vCode250) then Observer.Observe('arg_byvalue.ten', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.ten');
@@ -7111,7 +7271,19 @@ codeunit 92420 "LT Y31 Cv Code10"
         if Try21(vCode10, vCode250) then Observer.Observe('assign.digits', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.digits');
         if Try23(vCode10, vCode250) then Observer.Observe('arg_byvalue.digits', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.digits');
         if Try25(vCode10, vCode250) then Observer.Observe('exit.digits', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.digits');
-        Observer.Finish();
+        Observer.Expect('assign.empty', '|0');
+        Observer.Expect('arg_byvalue.empty', '|0');
+        Observer.Expect('exit.empty', '|0');
+        Observer.Expect('assign.ABC', 'ABC|3');
+        Observer.Expect('arg_byvalue.ABC', 'ABC|3');
+        Observer.Expect('exit.ABC', 'ABC|3');
+        Observer.Expect('assign.ten', 'ABCDEFGHIJ|10');
+        Observer.Expect('arg_byvalue.ten', 'ABCDEFGHIJ|10');
+        Observer.Expect('exit.ten', 'ABCDEFGHIJ|10');
+        Observer.Expect('assign.digits', '12|2');
+        Observer.Expect('arg_byvalue.digits', '12|2');
+        Observer.Expect('exit.digits', '12|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -7129,16 +7301,6 @@ codeunit 92420 "LT Y31 Cv Code10"
         if Try26(vCode10, vGuid) then Observer.Observe('assign.ABC', Format(vGuid)) else Observer.ObserveError('assign.ABC');
         if Try28(vCode10, vGuid) then Observer.Observe('arg_byvalue.ABC', Format(vGuid)) else Observer.ObserveError('arg_byvalue.ABC');
         if Try30(vCode10, vGuid) then Observer.Observe('exit.ABC', Format(vGuid)) else Observer.ObserveError('exit.ABC');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Code10_To_Guid_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vCode10: Code[10];
-        vGuid: Guid;
-    begin
         vCode10 := 'ABCDEFGHIJ';
         if Try26(vCode10, vGuid) then Observer.Observe('assign.ten', Format(vGuid)) else Observer.ObserveError('assign.ten');
         if Try28(vCode10, vGuid) then Observer.Observe('arg_byvalue.ten', Format(vGuid)) else Observer.ObserveError('arg_byvalue.ten');
@@ -7147,7 +7309,31 @@ codeunit 92420 "LT Y31 Cv Code10"
         if Try26(vCode10, vGuid) then Observer.Observe('assign.digits', Format(vGuid)) else Observer.ObserveError('assign.digits');
         if Try28(vCode10, vGuid) then Observer.Observe('arg_byvalue.digits', Format(vGuid)) else Observer.ObserveError('arg_byvalue.digits');
         if Try30(vCode10, vGuid) then Observer.Observe('exit.digits', Format(vGuid)) else Observer.ObserveError('exit.digits');
-        Observer.Finish();
+        Observer.Expect('assign.empty|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('assign.empty|code', 'InvalidGuidFormat');
+        Observer.Expect('arg_byvalue.empty|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('arg_byvalue.empty|code', 'InvalidGuidFormat');
+        Observer.Expect('exit.empty|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('exit.empty|code', 'InvalidGuidFormat');
+        Observer.Expect('assign.ABC|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('assign.ABC|code', 'InvalidGuidFormat');
+        Observer.Expect('arg_byvalue.ABC|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('arg_byvalue.ABC|code', 'InvalidGuidFormat');
+        Observer.Expect('exit.ABC|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('exit.ABC|code', 'InvalidGuidFormat');
+        Observer.Expect('assign.ten|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('assign.ten|code', 'InvalidGuidFormat');
+        Observer.Expect('arg_byvalue.ten|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('arg_byvalue.ten|code', 'InvalidGuidFormat');
+        Observer.Expect('exit.ten|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('exit.ten|code', 'InvalidGuidFormat');
+        Observer.Expect('assign.digits|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('assign.digits|code', 'InvalidGuidFormat');
+        Observer.Expect('arg_byvalue.digits|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('arg_byvalue.digits|code', 'InvalidGuidFormat');
+        Observer.Expect('exit.digits|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('exit.digits|code', 'InvalidGuidFormat');
+        Observer.Verify();
     end;
 
     [Test]
@@ -7165,7 +7351,11 @@ codeunit 92420 "LT Y31 Cv Code10"
         if Try31(R, vCode10) then Observer.Observe('assign.ten', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.ten');
         vCode10 := '12';
         if Try31(R, vCode10) then Observer.Observe('assign.digits', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.digits');
-        Observer.Finish();
+        Observer.Expect('assign.empty', '|0');
+        Observer.Expect('assign.ABC', 'ABC|3');
+        Observer.Expect('assign.ten', 'ABCDEFGHIJ|10');
+        Observer.Expect('assign.digits', '12|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -7183,7 +7373,15 @@ codeunit 92420 "LT Y31 Cv Code10"
         if Try32(R, vCode10) then Observer.Observe('assign.ten', Format(R.Guid)) else Observer.ObserveError('assign.ten');
         vCode10 := '12';
         if Try32(R, vCode10) then Observer.Observe('assign.digits', Format(R.Guid)) else Observer.ObserveError('assign.digits');
-        Observer.Finish();
+        Observer.Expect('assign.empty|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('assign.empty|code', 'InvalidGuidFormat');
+        Observer.Expect('assign.ABC|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('assign.ABC|code', 'InvalidGuidFormat');
+        Observer.Expect('assign.ten|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('assign.ten|code', 'InvalidGuidFormat');
+        Observer.Expect('assign.digits|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('assign.digits|code', 'InvalidGuidFormat');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -7409,7 +7607,10 @@ codeunit 92421 "LT Y31 Cv Label"
         if Try1(vText) then Observer.Observe('assign.abc', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.abc');
         if Try3(vText) then Observer.Observe('arg_byvalue.abc', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.abc');
         if Try5(vText) then Observer.Observe('exit.abc', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.abc');
-        Observer.Finish();
+        Observer.Expect('assign.abc', 'abc|3');
+        Observer.Expect('arg_byvalue.abc', 'abc|3');
+        Observer.Expect('exit.abc', 'abc|3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -7421,7 +7622,10 @@ codeunit 92421 "LT Y31 Cv Label"
         if Try6(vText10) then Observer.Observe('assign.abc', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.abc');
         if Try8(vText10) then Observer.Observe('arg_byvalue.abc', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.abc');
         if Try10(vText10) then Observer.Observe('exit.abc', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.abc');
-        Observer.Finish();
+        Observer.Expect('assign.abc', 'abc|3');
+        Observer.Expect('arg_byvalue.abc', 'abc|3');
+        Observer.Expect('exit.abc', 'abc|3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -7433,7 +7637,10 @@ codeunit 92421 "LT Y31 Cv Label"
         if Try11(vText3) then Observer.Observe('assign.abc', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.abc');
         if Try13(vText3) then Observer.Observe('arg_byvalue.abc', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.abc');
         if Try15(vText3) then Observer.Observe('exit.abc', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.abc');
-        Observer.Finish();
+        Observer.Expect('assign.abc', 'abc|3');
+        Observer.Expect('arg_byvalue.abc', 'abc|3');
+        Observer.Expect('exit.abc', 'abc|3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -7445,7 +7652,10 @@ codeunit 92421 "LT Y31 Cv Label"
         if Try16(vCode10) then Observer.Observe('assign.abc', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.abc');
         if Try18(vCode10) then Observer.Observe('arg_byvalue.abc', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.abc');
         if Try20(vCode10) then Observer.Observe('exit.abc', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.abc');
-        Observer.Finish();
+        Observer.Expect('assign.abc', 'ABC|3');
+        Observer.Expect('arg_byvalue.abc', 'ABC|3');
+        Observer.Expect('exit.abc', 'ABC|3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -7457,7 +7667,10 @@ codeunit 92421 "LT Y31 Cv Label"
         if Try21(vCode3) then Observer.Observe('assign.abc', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.abc');
         if Try23(vCode3) then Observer.Observe('arg_byvalue.abc', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.abc');
         if Try25(vCode3) then Observer.Observe('exit.abc', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.abc');
-        Observer.Finish();
+        Observer.Expect('assign.abc', 'ABC|3');
+        Observer.Expect('arg_byvalue.abc', 'ABC|3');
+        Observer.Expect('exit.abc', 'ABC|3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -7469,7 +7682,10 @@ codeunit 92421 "LT Y31 Cv Label"
         if Try26(vCode250) then Observer.Observe('assign.abc', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.abc');
         if Try28(vCode250) then Observer.Observe('arg_byvalue.abc', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.abc');
         if Try30(vCode250) then Observer.Observe('exit.abc', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.abc');
-        Observer.Finish();
+        Observer.Expect('assign.abc', 'ABC|3');
+        Observer.Expect('arg_byvalue.abc', 'ABC|3');
+        Observer.Expect('exit.abc', 'ABC|3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -7481,7 +7697,13 @@ codeunit 92421 "LT Y31 Cv Label"
         if Try31(vGuid) then Observer.Observe('assign.abc', Format(vGuid)) else Observer.ObserveError('assign.abc');
         if Try33(vGuid) then Observer.Observe('arg_byvalue.abc', Format(vGuid)) else Observer.ObserveError('arg_byvalue.abc');
         if Try35(vGuid) then Observer.Observe('exit.abc', Format(vGuid)) else Observer.ObserveError('exit.abc');
-        Observer.Finish();
+        Observer.Expect('assign.abc|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('assign.abc|code', 'InvalidGuidFormat');
+        Observer.Expect('arg_byvalue.abc|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('arg_byvalue.abc|code', 'InvalidGuidFormat');
+        Observer.Expect('exit.abc|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('exit.abc|code', 'InvalidGuidFormat');
+        Observer.Verify();
     end;
 
     [Test]
@@ -7491,7 +7713,8 @@ codeunit 92421 "LT Y31 Cv Label"
         R: Record "LT Y31 Conv Fields";
     begin
         if Try36(R) then Observer.Observe('assign.abc', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.abc');
-        Observer.Finish();
+        Observer.Expect('assign.abc', 'abc|3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -7501,7 +7724,8 @@ codeunit 92421 "LT Y31 Cv Label"
         R: Record "LT Y31 Conv Fields";
     begin
         if Try37(R) then Observer.Observe('assign.abc', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.abc');
-        Observer.Finish();
+        Observer.Expect('assign.abc', 'ABC|3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -7511,7 +7735,9 @@ codeunit 92421 "LT Y31 Cv Label"
         R: Record "LT Y31 Conv Fields";
     begin
         if Try38(R) then Observer.Observe('assign.abc', Format(R.Guid)) else Observer.ObserveError('assign.abc');
-        Observer.Finish();
+        Observer.Expect('assign.abc|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('assign.abc|code', 'InvalidGuidFormat');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -7823,7 +8049,10 @@ codeunit 92422 "LT Y31 Cv LabelLong"
         if Try1(vText) then Observer.Observe('assign.eleven', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.eleven');
         if Try3(vText) then Observer.Observe('arg_byvalue.eleven', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.eleven');
         if Try5(vText) then Observer.Observe('exit.eleven', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.eleven');
-        Observer.Finish();
+        Observer.Expect('assign.eleven', 'abcdefghijk|11');
+        Observer.Expect('arg_byvalue.eleven', 'abcdefghijk|11');
+        Observer.Expect('exit.eleven', 'abcdefghijk|11');
+        Observer.Verify();
     end;
 
     [Test]
@@ -7835,7 +8064,13 @@ codeunit 92422 "LT Y31 Cv LabelLong"
         if Try6(vText10) then Observer.Observe('assign.eleven', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.eleven');
         if Try8(vText10) then Observer.Observe('arg_byvalue.eleven', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.eleven');
         if Try10(vText10) then Observer.Observe('exit.eleven', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.eleven');
-        Observer.Finish();
+        Observer.Expect('assign.eleven|text', 'The length of the string is 11, but it must be less than or equal to 10 characters. Value: abcdefghijk');
+        Observer.Expect('assign.eleven|code', 'StringLengthExceeded');
+        Observer.Expect('arg_byvalue.eleven|text', 'The length of the string is 11, but it must be less than or equal to 10 characters. Value: abcdefghijk');
+        Observer.Expect('arg_byvalue.eleven|code', 'StringLengthExceeded');
+        Observer.Expect('exit.eleven|text', 'The length of the string is 11, but it must be less than or equal to 10 characters. Value: abcdefghijk');
+        Observer.Expect('exit.eleven|code', 'StringLengthExceeded');
+        Observer.Verify();
     end;
 
     [Test]
@@ -7847,7 +8082,13 @@ codeunit 92422 "LT Y31 Cv LabelLong"
         if Try11(vText3) then Observer.Observe('assign.eleven', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.eleven');
         if Try13(vText3) then Observer.Observe('arg_byvalue.eleven', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.eleven');
         if Try15(vText3) then Observer.Observe('exit.eleven', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.eleven');
-        Observer.Finish();
+        Observer.Expect('assign.eleven|text', 'The length of the string is 11, but it must be less than or equal to 3 characters. Value: abcdefghijk');
+        Observer.Expect('assign.eleven|code', 'StringLengthExceeded');
+        Observer.Expect('arg_byvalue.eleven|text', 'The length of the string is 11, but it must be less than or equal to 3 characters. Value: abcdefghijk');
+        Observer.Expect('arg_byvalue.eleven|code', 'StringLengthExceeded');
+        Observer.Expect('exit.eleven|text', 'The length of the string is 11, but it must be less than or equal to 3 characters. Value: abcdefghijk');
+        Observer.Expect('exit.eleven|code', 'StringLengthExceeded');
+        Observer.Verify();
     end;
 
     [Test]
@@ -7859,7 +8100,13 @@ codeunit 92422 "LT Y31 Cv LabelLong"
         if Try16(vCode10) then Observer.Observe('assign.eleven', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.eleven');
         if Try18(vCode10) then Observer.Observe('arg_byvalue.eleven', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.eleven');
         if Try20(vCode10) then Observer.Observe('exit.eleven', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.eleven');
-        Observer.Finish();
+        Observer.Expect('assign.eleven|text', 'The length of the string is 11, but it must be less than or equal to 10 characters. Value: abcdefghijk');
+        Observer.Expect('assign.eleven|code', 'StringLengthExceeded');
+        Observer.Expect('arg_byvalue.eleven|text', 'The length of the string is 11, but it must be less than or equal to 10 characters. Value: abcdefghijk');
+        Observer.Expect('arg_byvalue.eleven|code', 'StringLengthExceeded');
+        Observer.Expect('exit.eleven|text', 'The length of the string is 11, but it must be less than or equal to 10 characters. Value: abcdefghijk');
+        Observer.Expect('exit.eleven|code', 'StringLengthExceeded');
+        Observer.Verify();
     end;
 
     [Test]
@@ -7871,7 +8118,13 @@ codeunit 92422 "LT Y31 Cv LabelLong"
         if Try21(vCode3) then Observer.Observe('assign.eleven', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.eleven');
         if Try23(vCode3) then Observer.Observe('arg_byvalue.eleven', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.eleven');
         if Try25(vCode3) then Observer.Observe('exit.eleven', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.eleven');
-        Observer.Finish();
+        Observer.Expect('assign.eleven|text', 'The length of the string is 11, but it must be less than or equal to 3 characters. Value: abcdefghijk');
+        Observer.Expect('assign.eleven|code', 'StringLengthExceeded');
+        Observer.Expect('arg_byvalue.eleven|text', 'The length of the string is 11, but it must be less than or equal to 3 characters. Value: abcdefghijk');
+        Observer.Expect('arg_byvalue.eleven|code', 'StringLengthExceeded');
+        Observer.Expect('exit.eleven|text', 'The length of the string is 11, but it must be less than or equal to 3 characters. Value: abcdefghijk');
+        Observer.Expect('exit.eleven|code', 'StringLengthExceeded');
+        Observer.Verify();
     end;
 
     [Test]
@@ -7883,7 +8136,10 @@ codeunit 92422 "LT Y31 Cv LabelLong"
         if Try26(vCode250) then Observer.Observe('assign.eleven', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.eleven');
         if Try28(vCode250) then Observer.Observe('arg_byvalue.eleven', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.eleven');
         if Try30(vCode250) then Observer.Observe('exit.eleven', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.eleven');
-        Observer.Finish();
+        Observer.Expect('assign.eleven', 'ABCDEFGHIJK|11');
+        Observer.Expect('arg_byvalue.eleven', 'ABCDEFGHIJK|11');
+        Observer.Expect('exit.eleven', 'ABCDEFGHIJK|11');
+        Observer.Verify();
     end;
 
     [Test]
@@ -7895,7 +8151,13 @@ codeunit 92422 "LT Y31 Cv LabelLong"
         if Try31(vGuid) then Observer.Observe('assign.eleven', Format(vGuid)) else Observer.ObserveError('assign.eleven');
         if Try33(vGuid) then Observer.Observe('arg_byvalue.eleven', Format(vGuid)) else Observer.ObserveError('arg_byvalue.eleven');
         if Try35(vGuid) then Observer.Observe('exit.eleven', Format(vGuid)) else Observer.ObserveError('exit.eleven');
-        Observer.Finish();
+        Observer.Expect('assign.eleven|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('assign.eleven|code', 'InvalidGuidFormat');
+        Observer.Expect('arg_byvalue.eleven|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('arg_byvalue.eleven|code', 'InvalidGuidFormat');
+        Observer.Expect('exit.eleven|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('exit.eleven|code', 'InvalidGuidFormat');
+        Observer.Verify();
     end;
 
     [Test]
@@ -7905,7 +8167,9 @@ codeunit 92422 "LT Y31 Cv LabelLong"
         R: Record "LT Y31 Conv Fields";
     begin
         if Try36(R) then Observer.Observe('assign.eleven', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.eleven');
-        Observer.Finish();
+        Observer.Expect('assign.eleven|text', 'The length of the string is 11, but it must be less than or equal to 10 characters. Value: abcdefghijk');
+        Observer.Expect('assign.eleven|code', 'StringLengthExceeded');
+        Observer.Verify();
     end;
 
     [Test]
@@ -7915,7 +8179,9 @@ codeunit 92422 "LT Y31 Cv LabelLong"
         R: Record "LT Y31 Conv Fields";
     begin
         if Try37(R) then Observer.Observe('assign.eleven', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.eleven');
-        Observer.Finish();
+        Observer.Expect('assign.eleven|text', 'The length of the string is 11, but it must be less than or equal to 10 characters. Value: abcdefghijk');
+        Observer.Expect('assign.eleven|code', 'StringLengthExceeded');
+        Observer.Verify();
     end;
 
     [Test]
@@ -7925,7 +8191,9 @@ codeunit 92422 "LT Y31 Cv LabelLong"
         R: Record "LT Y31 Conv Fields";
     begin
         if Try38(R) then Observer.Observe('assign.eleven', Format(R.Guid)) else Observer.ObserveError('assign.eleven');
-        Observer.Finish();
+        Observer.Expect('assign.eleven|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('assign.eleven|code', 'InvalidGuidFormat');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -8242,7 +8510,13 @@ codeunit 92423 "LT Y31 Cv Guid"
         if Try1(vGuid, vText) then Observer.Observe('assign.g', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.g');
         if Try3(vGuid, vText) then Observer.Observe('arg_byvalue.g', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.g');
         if Try5(vGuid, vText) then Observer.Observe('exit.g', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.g');
-        Observer.Finish();
+        Observer.Expect('assign.null', '{00000000-0000-0000-0000-000000000000}|38');
+        Observer.Expect('arg_byvalue.null', '{00000000-0000-0000-0000-000000000000}|38');
+        Observer.Expect('exit.null', '{00000000-0000-0000-0000-000000000000}|38');
+        Observer.Expect('assign.g', '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}|38');
+        Observer.Expect('arg_byvalue.g', '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}|38');
+        Observer.Expect('exit.g', '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}|38');
+        Observer.Verify();
     end;
 
     [Test]
@@ -8255,7 +8529,11 @@ codeunit 92423 "LT Y31 Cv Guid"
         if Try7(vGuid, vText10) then Observer.Observe('arg_byvalue.null', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.null');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         if Try7(vGuid, vText10) then Observer.Observe('arg_byvalue.g', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.g');
-        Observer.Finish();
+        Observer.Expect('arg_byvalue.null|text', 'The length of the string is 38, but it must be less than or equal to 10 characters. Value: {00000000-0000-0000-0000-000000000000}');
+        Observer.Expect('arg_byvalue.null|code', 'StringLengthExceeded');
+        Observer.Expect('arg_byvalue.g|text', 'The length of the string is 38, but it must be less than or equal to 10 characters. Value: {5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('arg_byvalue.g|code', 'StringLengthExceeded');
+        Observer.Verify();
     end;
 
     [Test]
@@ -8268,7 +8546,11 @@ codeunit 92423 "LT Y31 Cv Guid"
         if Try9(vGuid, vText3) then Observer.Observe('arg_byvalue.null', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.null');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         if Try9(vGuid, vText3) then Observer.Observe('arg_byvalue.g', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.g');
-        Observer.Finish();
+        Observer.Expect('arg_byvalue.null|text', 'The length of the string is 38, but it must be less than or equal to 3 characters. Value: {00000000-0000-0000-0000-000000000000}');
+        Observer.Expect('arg_byvalue.null|code', 'StringLengthExceeded');
+        Observer.Expect('arg_byvalue.g|text', 'The length of the string is 38, but it must be less than or equal to 3 characters. Value: {5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('arg_byvalue.g|code', 'StringLengthExceeded');
+        Observer.Verify();
     end;
 
     [Test]
@@ -8281,7 +8563,11 @@ codeunit 92423 "LT Y31 Cv Guid"
         if Try11(vCode10, vGuid) then Observer.Observe('arg_byvalue.null', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.null');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         if Try11(vCode10, vGuid) then Observer.Observe('arg_byvalue.g', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.g');
-        Observer.Finish();
+        Observer.Expect('arg_byvalue.null|text', 'The length of the string is 38, but it must be less than or equal to 10 characters. Value: {00000000-0000-0000-0000-000000000000}');
+        Observer.Expect('arg_byvalue.null|code', 'StringLengthExceeded');
+        Observer.Expect('arg_byvalue.g|text', 'The length of the string is 38, but it must be less than or equal to 10 characters. Value: {5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('arg_byvalue.g|code', 'StringLengthExceeded');
+        Observer.Verify();
     end;
 
     [Test]
@@ -8294,7 +8580,11 @@ codeunit 92423 "LT Y31 Cv Guid"
         if Try13(vCode3, vGuid) then Observer.Observe('arg_byvalue.null', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.null');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         if Try13(vCode3, vGuid) then Observer.Observe('arg_byvalue.g', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.g');
-        Observer.Finish();
+        Observer.Expect('arg_byvalue.null|text', 'The length of the string is 38, but it must be less than or equal to 3 characters. Value: {00000000-0000-0000-0000-000000000000}');
+        Observer.Expect('arg_byvalue.null|code', 'StringLengthExceeded');
+        Observer.Expect('arg_byvalue.g|text', 'The length of the string is 38, but it must be less than or equal to 3 characters. Value: {5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('arg_byvalue.g|code', 'StringLengthExceeded');
+        Observer.Verify();
     end;
 
     [Test]
@@ -8311,7 +8601,13 @@ codeunit 92423 "LT Y31 Cv Guid"
         if Try14(vCode250, vGuid) then Observer.Observe('assign.g', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.g');
         if Try16(vCode250, vGuid) then Observer.Observe('arg_byvalue.g', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.g');
         if Try18(vCode250, vGuid) then Observer.Observe('exit.g', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.g');
-        Observer.Finish();
+        Observer.Expect('assign.null', '{00000000-0000-0000-0000-000000000000}|38');
+        Observer.Expect('arg_byvalue.null', '{00000000-0000-0000-0000-000000000000}|38');
+        Observer.Expect('exit.null', '{00000000-0000-0000-0000-000000000000}|38');
+        Observer.Expect('assign.g', '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}|38');
+        Observer.Expect('arg_byvalue.g', '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}|38');
+        Observer.Expect('exit.g', '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}|38');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -8453,16 +8749,6 @@ codeunit 92424 "LT Y31 Cv Duration"
         if Try1(vDuration, vInteger) then Observer.Observe('assign.1', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.1');
         if Try3(vDuration, vInteger) then Observer.Observe('arg_byvalue.1', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.1');
         if Try5(vDuration, vInteger) then Observer.Observe('exit.1', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.1');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Duration_To_Integer_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vDuration: Duration;
-        vInteger: Integer;
-    begin
         vDuration := 255;
         if Try1(vDuration, vInteger) then Observer.Observe('assign.255', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.255');
         if Try3(vDuration, vInteger) then Observer.Observe('arg_byvalue.255', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.255');
@@ -8471,21 +8757,29 @@ codeunit 92424 "LT Y31 Cv Duration"
         if Try1(vDuration, vInteger) then Observer.Observe('assign.m1', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.m1');
         if Try3(vDuration, vInteger) then Observer.Observe('arg_byvalue.m1', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.m1');
         if Try5(vDuration, vInteger) then Observer.Observe('exit.m1', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.m1');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Duration_To_Integer_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        vDuration: Duration;
-        vInteger: Integer;
-    begin
         vDuration := 2147483648L;
         if Try1(vDuration, vInteger) then Observer.Observe('assign.2p31', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.2p31');
         if Try3(vDuration, vInteger) then Observer.Observe('arg_byvalue.2p31', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.2p31');
         if Try5(vDuration, vInteger) then Observer.Observe('exit.2p31', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.2p31');
-        Observer.Finish();
+        Observer.Expect('assign.0', '0');
+        Observer.Expect('arg_byvalue.0', '0');
+        Observer.Expect('exit.0', '0');
+        Observer.Expect('assign.1', '1');
+        Observer.Expect('arg_byvalue.1', '1');
+        Observer.Expect('exit.1', '1');
+        Observer.Expect('assign.255', '255');
+        Observer.Expect('arg_byvalue.255', '255');
+        Observer.Expect('exit.255', '255');
+        Observer.Expect('assign.m1', '-1');
+        Observer.Expect('arg_byvalue.m1', '-1');
+        Observer.Expect('exit.m1', '-1');
+        Observer.Expect('assign.2p31|text', 'Overflow under conversion of System.Int64 value 2147483648 to System.Int32.');
+        Observer.Expect('assign.2p31|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.2p31|text', 'Overflow under conversion of System.Int64 value 2147483648 to System.Int32.');
+        Observer.Expect('arg_byvalue.2p31|code', 'ConversionCast');
+        Observer.Expect('exit.2p31|text', 'Overflow under conversion of System.Int64 value 2147483648 to System.Int32.');
+        Observer.Expect('exit.2p31|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -8503,16 +8797,6 @@ codeunit 92424 "LT Y31 Cv Duration"
         if Try6(vBigInteger, vDuration) then Observer.Observe('assign.1', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.1');
         if Try8(vBigInteger, vDuration) then Observer.Observe('arg_byvalue.1', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.1');
         if Try10(vBigInteger, vDuration) then Observer.Observe('exit.1', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.1');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Duration_To_BigInteger_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vBigInteger: BigInteger;
-        vDuration: Duration;
-    begin
         vDuration := 255;
         if Try6(vBigInteger, vDuration) then Observer.Observe('assign.255', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.255');
         if Try8(vBigInteger, vDuration) then Observer.Observe('arg_byvalue.255', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.255');
@@ -8521,21 +8805,26 @@ codeunit 92424 "LT Y31 Cv Duration"
         if Try6(vBigInteger, vDuration) then Observer.Observe('assign.m1', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.m1');
         if Try8(vBigInteger, vDuration) then Observer.Observe('arg_byvalue.m1', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.m1');
         if Try10(vBigInteger, vDuration) then Observer.Observe('exit.m1', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.m1');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Duration_To_BigInteger_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        vBigInteger: BigInteger;
-        vDuration: Duration;
-    begin
         vDuration := 2147483648L;
         if Try6(vBigInteger, vDuration) then Observer.Observe('assign.2p31', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.2p31');
         if Try8(vBigInteger, vDuration) then Observer.Observe('arg_byvalue.2p31', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.2p31');
         if Try10(vBigInteger, vDuration) then Observer.Observe('exit.2p31', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.2p31');
-        Observer.Finish();
+        Observer.Expect('assign.0', '0');
+        Observer.Expect('arg_byvalue.0', '0');
+        Observer.Expect('exit.0', '0');
+        Observer.Expect('assign.1', '1');
+        Observer.Expect('arg_byvalue.1', '1');
+        Observer.Expect('exit.1', '1');
+        Observer.Expect('assign.255', '255');
+        Observer.Expect('arg_byvalue.255', '255');
+        Observer.Expect('exit.255', '255');
+        Observer.Expect('assign.m1', '-1');
+        Observer.Expect('arg_byvalue.m1', '-1');
+        Observer.Expect('exit.m1', '-1');
+        Observer.Expect('assign.2p31', '2147483648');
+        Observer.Expect('arg_byvalue.2p31', '2147483648');
+        Observer.Expect('exit.2p31', '2147483648');
+        Observer.Verify();
     end;
 
     [Test]
@@ -8553,16 +8842,6 @@ codeunit 92424 "LT Y31 Cv Duration"
         if Try11(vDecimal, vDuration) then Observer.Observe('assign.1', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.1');
         if Try13(vDecimal, vDuration) then Observer.Observe('arg_byvalue.1', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.1');
         if Try15(vDecimal, vDuration) then Observer.Observe('exit.1', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.1');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Duration_To_Decimal_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vDecimal: Decimal;
-        vDuration: Duration;
-    begin
         vDuration := 255;
         if Try11(vDecimal, vDuration) then Observer.Observe('assign.255', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.255');
         if Try13(vDecimal, vDuration) then Observer.Observe('arg_byvalue.255', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.255');
@@ -8571,21 +8850,26 @@ codeunit 92424 "LT Y31 Cv Duration"
         if Try11(vDecimal, vDuration) then Observer.Observe('assign.m1', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.m1');
         if Try13(vDecimal, vDuration) then Observer.Observe('arg_byvalue.m1', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.m1');
         if Try15(vDecimal, vDuration) then Observer.Observe('exit.m1', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.m1');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Duration_To_Decimal_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        vDecimal: Decimal;
-        vDuration: Duration;
-    begin
         vDuration := 2147483648L;
         if Try11(vDecimal, vDuration) then Observer.Observe('assign.2p31', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.2p31');
         if Try13(vDecimal, vDuration) then Observer.Observe('arg_byvalue.2p31', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.2p31');
         if Try15(vDecimal, vDuration) then Observer.Observe('exit.2p31', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.2p31');
-        Observer.Finish();
+        Observer.Expect('assign.0', '0');
+        Observer.Expect('arg_byvalue.0', '0');
+        Observer.Expect('exit.0', '0');
+        Observer.Expect('assign.1', '1');
+        Observer.Expect('arg_byvalue.1', '1');
+        Observer.Expect('exit.1', '1');
+        Observer.Expect('assign.255', '255');
+        Observer.Expect('arg_byvalue.255', '255');
+        Observer.Expect('exit.255', '255');
+        Observer.Expect('assign.m1', '-1');
+        Observer.Expect('arg_byvalue.m1', '-1');
+        Observer.Expect('exit.m1', '-1');
+        Observer.Expect('assign.2p31', '2147483648');
+        Observer.Expect('arg_byvalue.2p31', '2147483648');
+        Observer.Expect('exit.2p31', '2147483648');
+        Observer.Verify();
     end;
 
     [Test]
@@ -8604,17 +8888,6 @@ codeunit 92424 "LT Y31 Cv Duration"
         if Try16(vChar, vDuration) then Observer.Observe('assign.1', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.1');
         if Try18(vChar, vDuration) then Observer.Observe('arg_byvalue.1', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.1');
         if Try20(vChar, vDuration) then Observer.Observe('exit.1', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.1');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Duration_To_Char_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vChar: Char;
-        vDuration: Duration;
-    begin
         vDuration := 255;
         if Try16(vChar, vDuration) then Observer.Observe('assign.255', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.255');
         if Try18(vChar, vDuration) then Observer.Observe('arg_byvalue.255', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.255');
@@ -8623,22 +8896,32 @@ codeunit 92424 "LT Y31 Cv Duration"
         if Try16(vChar, vDuration) then Observer.Observe('assign.m1', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.m1');
         if Try18(vChar, vDuration) then Observer.Observe('arg_byvalue.m1', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.m1');
         if Try20(vChar, vDuration) then Observer.Observe('exit.m1', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.m1');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Duration_To_Char_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vChar: Char;
-        vDuration: Duration;
-    begin
         vDuration := 2147483648L;
         if Try16(vChar, vDuration) then Observer.Observe('assign.2p31', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.2p31');
         if Try18(vChar, vDuration) then Observer.Observe('arg_byvalue.2p31', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.2p31');
         if Try20(vChar, vDuration) then Observer.Observe('exit.2p31', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.2p31');
-        Observer.Finish();
+        Observer.Expect('assign.0', '\u0000|0');
+        Observer.Expect('arg_byvalue.0', '\u0000|0');
+        Observer.Expect('exit.0', '\u0000|0');
+        Observer.Expect('assign.1', '\u0001|1');
+        Observer.Expect('arg_byvalue.1', '\u0001|1');
+        Observer.Expect('exit.1', '\u0001|1');
+        Observer.Expect('assign.255', 'ÿ|255');
+        Observer.Expect('arg_byvalue.255', 'ÿ|255');
+        Observer.Expect('exit.255', 'ÿ|255');
+        Observer.Expect('assign.m1|text', 'Overflow under conversion of System.Int64 value -1 to System.Char.');
+        Observer.Expect('assign.m1|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.m1|text', 'Overflow under conversion of System.Int64 value -1 to System.Char.');
+        Observer.Expect('arg_byvalue.m1|code', 'ConversionCast');
+        Observer.Expect('exit.m1|text', 'Overflow under conversion of System.Int64 value -1 to System.Char.');
+        Observer.Expect('exit.m1|code', 'ConversionCast');
+        Observer.Expect('assign.2p31|text', 'Overflow under conversion of System.Int64 value 2147483648 to System.Char.');
+        Observer.Expect('assign.2p31|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.2p31|text', 'Overflow under conversion of System.Int64 value 2147483648 to System.Char.');
+        Observer.Expect('arg_byvalue.2p31|code', 'ConversionCast');
+        Observer.Expect('exit.2p31|text', 'Overflow under conversion of System.Int64 value 2147483648 to System.Char.');
+        Observer.Expect('exit.2p31|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -8656,16 +8939,6 @@ codeunit 92424 "LT Y31 Cv Duration"
         if Try21(vByte, vDuration) then Observer.Observe('assign.1', Format(vByte, 0, 9)) else Observer.ObserveError('assign.1');
         if Try23(vByte, vDuration) then Observer.Observe('arg_byvalue.1', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.1');
         if Try25(vByte, vDuration) then Observer.Observe('exit.1', Format(vByte, 0, 9)) else Observer.ObserveError('exit.1');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Duration_To_Byte_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vByte: Byte;
-        vDuration: Duration;
-    begin
         vDuration := 255;
         if Try21(vByte, vDuration) then Observer.Observe('assign.255', Format(vByte, 0, 9)) else Observer.ObserveError('assign.255');
         if Try23(vByte, vDuration) then Observer.Observe('arg_byvalue.255', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.255');
@@ -8674,21 +8947,32 @@ codeunit 92424 "LT Y31 Cv Duration"
         if Try21(vByte, vDuration) then Observer.Observe('assign.m1', Format(vByte, 0, 9)) else Observer.ObserveError('assign.m1');
         if Try23(vByte, vDuration) then Observer.Observe('arg_byvalue.m1', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.m1');
         if Try25(vByte, vDuration) then Observer.Observe('exit.m1', Format(vByte, 0, 9)) else Observer.ObserveError('exit.m1');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Duration_To_Byte_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        vByte: Byte;
-        vDuration: Duration;
-    begin
         vDuration := 2147483648L;
         if Try21(vByte, vDuration) then Observer.Observe('assign.2p31', Format(vByte, 0, 9)) else Observer.ObserveError('assign.2p31');
         if Try23(vByte, vDuration) then Observer.Observe('arg_byvalue.2p31', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.2p31');
         if Try25(vByte, vDuration) then Observer.Observe('exit.2p31', Format(vByte, 0, 9)) else Observer.ObserveError('exit.2p31');
-        Observer.Finish();
+        Observer.Expect('assign.0', '\u0000');
+        Observer.Expect('arg_byvalue.0', '\u0000');
+        Observer.Expect('exit.0', '\u0000');
+        Observer.Expect('assign.1', '\u0001');
+        Observer.Expect('arg_byvalue.1', '\u0001');
+        Observer.Expect('exit.1', '\u0001');
+        Observer.Expect('assign.255', ' ');
+        Observer.Expect('arg_byvalue.255', ' ');
+        Observer.Expect('exit.255', ' ');
+        Observer.Expect('assign.m1|text', 'Overflow under conversion of System.Int64 value -1 to System.Byte.');
+        Observer.Expect('assign.m1|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.m1|text', 'Overflow under conversion of System.Int64 value -1 to System.Byte.');
+        Observer.Expect('arg_byvalue.m1|code', 'ConversionCast');
+        Observer.Expect('exit.m1|text', 'Overflow under conversion of System.Int64 value -1 to System.Byte.');
+        Observer.Expect('exit.m1|code', 'ConversionCast');
+        Observer.Expect('assign.2p31|text', 'Overflow under conversion of System.Int64 value 2147483648 to System.Byte.');
+        Observer.Expect('assign.2p31|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.2p31|text', 'Overflow under conversion of System.Int64 value 2147483648 to System.Byte.');
+        Observer.Expect('arg_byvalue.2p31|code', 'ConversionCast');
+        Observer.Expect('exit.2p31|text', 'Overflow under conversion of System.Int64 value 2147483648 to System.Byte.');
+        Observer.Expect('exit.2p31|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -8707,17 +8991,6 @@ codeunit 92424 "LT Y31 Cv Duration"
         if Try26(vDuration, vOption) then Observer.Observe('assign.1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.1');
         if Try28(vDuration, vOption) then Observer.Observe('arg_byvalue.1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.1');
         if Try30(vDuration, vOption) then Observer.Observe('exit.1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.1');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Duration_To_Option_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vDuration: Duration;
-        vOption: Option A,B,C;
-    begin
         vDuration := 255;
         if Try26(vDuration, vOption) then Observer.Observe('assign.255', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.255');
         if Try28(vDuration, vOption) then Observer.Observe('arg_byvalue.255', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.255');
@@ -8726,22 +8999,29 @@ codeunit 92424 "LT Y31 Cv Duration"
         if Try26(vDuration, vOption) then Observer.Observe('assign.m1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.m1');
         if Try28(vDuration, vOption) then Observer.Observe('arg_byvalue.m1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.m1');
         if Try30(vDuration, vOption) then Observer.Observe('exit.m1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.m1');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Duration_To_Option_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vDuration: Duration;
-        vOption: Option A,B,C;
-    begin
         vDuration := 2147483648L;
         if Try26(vDuration, vOption) then Observer.Observe('assign.2p31', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.2p31');
         if Try28(vDuration, vOption) then Observer.Observe('arg_byvalue.2p31', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.2p31');
         if Try30(vDuration, vOption) then Observer.Observe('exit.2p31', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.2p31');
-        Observer.Finish();
+        Observer.Expect('assign.0', 'A|0');
+        Observer.Expect('arg_byvalue.0', 'A|0');
+        Observer.Expect('exit.0', 'A|0');
+        Observer.Expect('assign.1', 'B|1');
+        Observer.Expect('arg_byvalue.1', 'B|1');
+        Observer.Expect('exit.1', 'B|1');
+        Observer.Expect('assign.255', '255|255');
+        Observer.Expect('arg_byvalue.255', '255|255');
+        Observer.Expect('exit.255', '255|255');
+        Observer.Expect('assign.m1', '-1|-1');
+        Observer.Expect('arg_byvalue.m1', '-1|-1');
+        Observer.Expect('exit.m1', '-1|-1');
+        Observer.Expect('assign.2p31|text', 'Overflow under conversion of System.Int64 value 2147483648 to System.Int32.');
+        Observer.Expect('assign.2p31|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.2p31|text', 'Overflow under conversion of System.Int64 value 2147483648 to System.Int32.');
+        Observer.Expect('arg_byvalue.2p31|code', 'ConversionCast');
+        Observer.Expect('exit.2p31|text', 'Overflow under conversion of System.Int64 value 2147483648 to System.Int32.');
+        Observer.Expect('exit.2p31|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -8761,7 +9041,13 @@ codeunit 92424 "LT Y31 Cv Duration"
         if Try31(R, vDuration) then Observer.Observe('assign.m1', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.m1');
         vDuration := 2147483648L;
         if Try31(R, vDuration) then Observer.Observe('assign.2p31', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.2p31');
-        Observer.Finish();
+        Observer.Expect('assign.0', '0');
+        Observer.Expect('assign.1', '1');
+        Observer.Expect('assign.255', '255');
+        Observer.Expect('assign.m1', '-1');
+        Observer.Expect('assign.2p31|text', 'Overflow under conversion of System.Int64 value 2147483648 to System.Int32.');
+        Observer.Expect('assign.2p31|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -8781,7 +9067,12 @@ codeunit 92424 "LT Y31 Cv Duration"
         if Try32(R, vDuration) then Observer.Observe('assign.m1', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.m1');
         vDuration := 2147483648L;
         if Try32(R, vDuration) then Observer.Observe('assign.2p31', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.2p31');
-        Observer.Finish();
+        Observer.Expect('assign.0', '0');
+        Observer.Expect('assign.1', '1');
+        Observer.Expect('assign.255', '255');
+        Observer.Expect('assign.m1', '-1');
+        Observer.Expect('assign.2p31', '2147483648');
+        Observer.Verify();
     end;
 
     [Test]
@@ -8801,7 +9092,12 @@ codeunit 92424 "LT Y31 Cv Duration"
         if Try33(R, vDuration) then Observer.Observe('assign.m1', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.m1');
         vDuration := 2147483648L;
         if Try33(R, vDuration) then Observer.Observe('assign.2p31', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.2p31');
-        Observer.Finish();
+        Observer.Expect('assign.0', '0');
+        Observer.Expect('assign.1', '1');
+        Observer.Expect('assign.255', '255');
+        Observer.Expect('assign.m1', '-1');
+        Observer.Expect('assign.2p31', '2147483648');
+        Observer.Verify();
     end;
 
     [Test]
@@ -8822,7 +9118,13 @@ codeunit 92424 "LT Y31 Cv Duration"
         if Try34(R, vDuration) then Observer.Observe('assign.m1', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.m1');
         vDuration := 2147483648L;
         if Try34(R, vDuration) then Observer.Observe('assign.2p31', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.2p31');
-        Observer.Finish();
+        Observer.Expect('assign.0', 'A|0');
+        Observer.Expect('assign.1', 'B|1');
+        Observer.Expect('assign.255', '255|255');
+        Observer.Expect('assign.m1', '-1|-1');
+        Observer.Expect('assign.2p31|text', 'Overflow under conversion of System.Int64 value 2147483648 to System.Int32.');
+        Observer.Expect('assign.2p31|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -9057,6 +9359,7 @@ codeunit 92425 "LT Y31 Cv Variant"
     procedure Variant_To_Integer()
     var
         Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
         vInteger: Integer;
         vVariant: Variant;
     begin
@@ -9068,16 +9371,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try1(vInteger, vVariant) then Observer.Observe('assign.int300', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.int300');
         if Try3(vInteger, vVariant) then Observer.Observe('arg_byvalue.int300', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.int300');
         if Try5(vInteger, vVariant) then Observer.Observe('exit.int300', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.int300');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Integer_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vInteger: Integer;
-        vVariant: Variant;
-    begin
         vVariant := 3000000000L;
         if Try1(vInteger, vVariant) then Observer.Observe('assign.big', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.big');
         if Try3(vInteger, vVariant) then Observer.Observe('arg_byvalue.big', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.big');
@@ -9086,17 +9379,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try1(vInteger, vVariant) then Observer.Observe('assign.dec1p5', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.dec1p5');
         if Try3(vInteger, vVariant) then Observer.Observe('arg_byvalue.dec1p5', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.dec1p5');
         if Try5(vInteger, vVariant) then Observer.Observe('exit.dec1p5', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.dec1p5');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Integer_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vInteger: Integer;
-        vVariant: Variant;
-    begin
         vVariant := 2.0;
         if Try1(vInteger, vVariant) then Observer.Observe('assign.dec2', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.dec2');
         if Try3(vInteger, vVariant) then Observer.Observe('arg_byvalue.dec2', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.dec2');
@@ -9105,17 +9387,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try1(vInteger, vVariant) then Observer.Observe('assign.charA', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.charA');
         if Try3(vInteger, vVariant) then Observer.Observe('arg_byvalue.charA', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.charA');
         if Try5(vInteger, vVariant) then Observer.Observe('exit.charA', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.charA');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Integer_4()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vInteger: Integer;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsByte(65);
         if Try1(vInteger, vVariant) then Observer.Observe('assign.byte65', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.byte65');
         if Try3(vInteger, vVariant) then Observer.Observe('arg_byvalue.byte65', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.byte65');
@@ -9124,17 +9395,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try1(vInteger, vVariant) then Observer.Observe('assign.optB', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.optB');
         if Try3(vInteger, vVariant) then Observer.Observe('arg_byvalue.optB', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.optB');
         if Try5(vInteger, vVariant) then Observer.Observe('exit.optB', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.optB');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Integer_5()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vInteger: Integer;
-        vVariant: Variant;
-    begin
         vVariant := "LT Y31 E"::C;
         if Try1(vInteger, vVariant) then Observer.Observe('assign.enumC', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.enumC');
         if Try3(vInteger, vVariant) then Observer.Observe('arg_byvalue.enumC', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.enumC');
@@ -9143,17 +9403,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try1(vInteger, vVariant) then Observer.Observe('assign.textabc', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.textabc');
         if Try3(vInteger, vVariant) then Observer.Observe('arg_byvalue.textabc', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.textabc');
         if Try5(vInteger, vVariant) then Observer.Observe('exit.textabc', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.textabc');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Integer_6()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vInteger: Integer;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsText('abcdefghijk');
         if Try1(vInteger, vVariant) then Observer.Observe('assign.text11', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.text11');
         if Try3(vInteger, vVariant) then Observer.Observe('arg_byvalue.text11', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.text11');
@@ -9162,17 +9411,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try1(vInteger, vVariant) then Observer.Observe('assign.text12', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.text12');
         if Try3(vInteger, vVariant) then Observer.Observe('arg_byvalue.text12', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.text12');
         if Try5(vInteger, vVariant) then Observer.Observe('exit.text12', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.text12');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Integer_7()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vInteger: Integer;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsCode('abc');
         if Try1(vInteger, vVariant) then Observer.Observe('assign.codeABC', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.codeABC');
         if Try3(vInteger, vVariant) then Observer.Observe('arg_byvalue.codeABC', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.codeABC');
@@ -9181,17 +9419,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try1(vInteger, vVariant) then Observer.Observe('assign.code12', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.code12');
         if Try3(vInteger, vVariant) then Observer.Observe('arg_byvalue.code12', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.code12');
         if Try5(vInteger, vVariant) then Observer.Observe('exit.code12', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.code12');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Integer_8()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vInteger: Integer;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsGuid('{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
         if Try1(vInteger, vVariant) then Observer.Observe('assign.guid', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.guid');
         if Try3(vInteger, vVariant) then Observer.Observe('arg_byvalue.guid', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.guid');
@@ -9200,13 +9427,80 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try1(vInteger, vVariant) then Observer.Observe('assign.boolF', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.boolF');
         if Try3(vInteger, vVariant) then Observer.Observe('arg_byvalue.boolF', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.boolF');
         if Try5(vInteger, vVariant) then Observer.Observe('exit.boolF', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.boolF');
-        Observer.Finish();
+        Observer.Expect('assign.int3', '3');
+        Observer.Expect('arg_byvalue.int3', '3');
+        Observer.Expect('exit.int3', '3');
+        Observer.Expect('assign.int300', '300');
+        Observer.Expect('arg_byvalue.int300', '300');
+        Observer.Expect('exit.int300', '300');
+        Observer.Expect('assign.big|text', 'The expression Variant cannot be type-converted to a Integer value.');
+        Observer.Expect('assign.big|code', 'TypeConversion:Overflow');
+        Observer.Expect('arg_byvalue.big|text', 'The expression Variant cannot be type-converted to a Integer value.');
+        Observer.Expect('arg_byvalue.big|code', 'TypeConversion:Overflow');
+        Observer.Expect('exit.big|text', 'The expression Variant cannot be type-converted to a Integer value.');
+        Observer.Expect('exit.big|code', 'TypeConversion:Overflow');
+        Observer.Expect('assign.dec1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int32.');
+        Observer.Expect('assign.dec1p5|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.dec1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int32.');
+        Observer.Expect('arg_byvalue.dec1p5|code', 'ConversionCast');
+        Observer.Expect('exit.dec1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int32.');
+        Observer.Expect('exit.dec1p5|code', 'ConversionCast');
+        Observer.Expect('assign.dec2', '2');
+        Observer.Expect('arg_byvalue.dec2', '2');
+        Observer.Expect('exit.dec2', '2');
+        Observer.Expect('assign.charA', '65');
+        Observer.Expect('arg_byvalue.charA', '65');
+        Observer.Expect('exit.charA', '65');
+        Observer.Expect('assign.byte65', '65');
+        Observer.Expect('arg_byvalue.byte65', '65');
+        Observer.Expect('exit.byte65', '65');
+        Observer.Expect('assign.optB', '1');
+        Observer.Expect('arg_byvalue.optB', '1');
+        Observer.Expect('exit.optB', '1');
+        Observer.Expect('assign.enumC', '2');
+        Observer.Expect('arg_byvalue.enumC', '2');
+        Observer.Expect('exit.enumC', '2');
+        Observer.Expect('assign.textabc|text', 'The expression Variant cannot be type-converted to a Integer value.');
+        Observer.Expect('assign.textabc|code', 'TypeConversion:Format');
+        Observer.Expect('arg_byvalue.textabc|text', 'The expression Variant cannot be type-converted to a Integer value.');
+        Observer.Expect('arg_byvalue.textabc|code', 'TypeConversion:Format');
+        Observer.Expect('exit.textabc|text', 'The expression Variant cannot be type-converted to a Integer value.');
+        Observer.Expect('exit.textabc|code', 'TypeConversion:Format');
+        Observer.Expect('assign.text11|text', 'The expression Variant cannot be type-converted to a Integer value.');
+        Observer.Expect('assign.text11|code', 'TypeConversion:Format');
+        Observer.Expect('arg_byvalue.text11|text', 'The expression Variant cannot be type-converted to a Integer value.');
+        Observer.Expect('arg_byvalue.text11|code', 'TypeConversion:Format');
+        Observer.Expect('exit.text11|text', 'The expression Variant cannot be type-converted to a Integer value.');
+        Observer.Expect('exit.text11|code', 'TypeConversion:Format');
+        Observer.Expect('assign.text12', '12');
+        Observer.Expect('arg_byvalue.text12', '12');
+        Observer.Expect('exit.text12', '12');
+        Observer.Expect('assign.codeABC|text', 'The expression Variant cannot be type-converted to a Integer value.');
+        Observer.Expect('assign.codeABC|code', 'TypeConversion:Format');
+        Observer.Expect('arg_byvalue.codeABC|text', 'The expression Variant cannot be type-converted to a Integer value.');
+        Observer.Expect('arg_byvalue.codeABC|code', 'TypeConversion:Format');
+        Observer.Expect('exit.codeABC|text', 'The expression Variant cannot be type-converted to a Integer value.');
+        Observer.Expect('exit.codeABC|code', 'TypeConversion:Format');
+        Observer.Expect('assign.code12', '12');
+        Observer.Expect('arg_byvalue.code12', '12');
+        Observer.Expect('exit.code12', '12');
+        Observer.Expect('assign.guid|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavGuid to System.Int32.');
+        Observer.Expect('assign.guid|code', 'Conversion');
+        Observer.Expect('arg_byvalue.guid|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavGuid to System.Int32.');
+        Observer.Expect('arg_byvalue.guid|code', 'Conversion');
+        Observer.Expect('exit.guid|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavGuid to System.Int32.');
+        Observer.Expect('exit.guid|code', 'Conversion');
+        Observer.Expect('assign.boolF', '0');
+        Observer.Expect('arg_byvalue.boolF', '0');
+        Observer.Expect('exit.boolF', '0');
+        Observer.Verify();
     end;
 
     [Test]
-    procedure Variant_To_Integer_9()
+    procedure Variant_To_Integer_2()
     var
         Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
         vInteger: Integer;
         vVariant: Variant;
     begin
@@ -9218,16 +9512,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try1(vInteger, vVariant) then Observer.Observe('assign.date', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.date');
         if Try3(vInteger, vVariant) then Observer.Observe('arg_byvalue.date', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.date');
         if Try5(vInteger, vVariant) then Observer.Observe('exit.date', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.date');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Integer_10()
-    var
-        Observer: Codeunit "Probe Observer";
-        vInteger: Integer;
-        vVariant: Variant;
-    begin
         vVariant := 120000T;
         if Try1(vInteger, vVariant) then Observer.Observe('assign.time', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.time');
         if Try3(vInteger, vVariant) then Observer.Observe('arg_byvalue.time', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.time');
@@ -9236,28 +9520,36 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try1(vInteger, vVariant) then Observer.Observe('assign.dt', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.dt');
         if Try3(vInteger, vVariant) then Observer.Observe('arg_byvalue.dt', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.dt');
         if Try5(vInteger, vVariant) then Observer.Observe('exit.dt', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.dt');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Integer_11()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vInteger: Integer;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsDuration(65);
         if Try1(vInteger, vVariant) then Observer.Observe('assign.dur65', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.dur65');
         if Try3(vInteger, vVariant) then Observer.Observe('arg_byvalue.dur65', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.dur65');
         if Try5(vInteger, vVariant) then Observer.Observe('exit.dur65', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.dur65');
-        Observer.Finish();
+        Observer.Expect('assign.boolT', '1');
+        Observer.Expect('arg_byvalue.boolT', '1');
+        Observer.Expect('exit.boolT', '1');
+        Observer.Expect('assign.date', '1480025');
+        Observer.Expect('arg_byvalue.date', '1480025');
+        Observer.Expect('exit.date', '1480025');
+        Observer.Expect('assign.time', '43200001');
+        Observer.Expect('arg_byvalue.time', '43200001');
+        Observer.Expect('exit.time', '43200001');
+        Observer.Expect('assign.dt|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32.');
+        Observer.Expect('assign.dt|code', 'Conversion');
+        Observer.Expect('arg_byvalue.dt|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32.');
+        Observer.Expect('arg_byvalue.dt|code', 'Conversion');
+        Observer.Expect('exit.dt|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32.');
+        Observer.Expect('exit.dt|code', 'Conversion');
+        Observer.Expect('assign.dur65', '65');
+        Observer.Expect('arg_byvalue.dur65', '65');
+        Observer.Expect('exit.dur65', '65');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Variant_To_BigInteger()
     var
         Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
         vBigInteger: BigInteger;
         vVariant: Variant;
     begin
@@ -9269,16 +9561,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try6(vBigInteger, vVariant) then Observer.Observe('assign.int300', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.int300');
         if Try8(vBigInteger, vVariant) then Observer.Observe('arg_byvalue.int300', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.int300');
         if Try10(vBigInteger, vVariant) then Observer.Observe('exit.int300', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.int300');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_BigInteger_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vBigInteger: BigInteger;
-        vVariant: Variant;
-    begin
         vVariant := 3000000000L;
         if Try6(vBigInteger, vVariant) then Observer.Observe('assign.big', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.big');
         if Try8(vBigInteger, vVariant) then Observer.Observe('arg_byvalue.big', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.big');
@@ -9287,17 +9569,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try6(vBigInteger, vVariant) then Observer.Observe('assign.dec1p5', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.dec1p5');
         if Try8(vBigInteger, vVariant) then Observer.Observe('arg_byvalue.dec1p5', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.dec1p5');
         if Try10(vBigInteger, vVariant) then Observer.Observe('exit.dec1p5', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.dec1p5');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_BigInteger_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vBigInteger: BigInteger;
-        vVariant: Variant;
-    begin
         vVariant := 2.0;
         if Try6(vBigInteger, vVariant) then Observer.Observe('assign.dec2', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.dec2');
         if Try8(vBigInteger, vVariant) then Observer.Observe('arg_byvalue.dec2', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.dec2');
@@ -9306,17 +9577,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try6(vBigInteger, vVariant) then Observer.Observe('assign.charA', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.charA');
         if Try8(vBigInteger, vVariant) then Observer.Observe('arg_byvalue.charA', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.charA');
         if Try10(vBigInteger, vVariant) then Observer.Observe('exit.charA', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.charA');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_BigInteger_4()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vBigInteger: BigInteger;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsByte(65);
         if Try6(vBigInteger, vVariant) then Observer.Observe('assign.byte65', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.byte65');
         if Try8(vBigInteger, vVariant) then Observer.Observe('arg_byvalue.byte65', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.byte65');
@@ -9325,17 +9585,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try6(vBigInteger, vVariant) then Observer.Observe('assign.optB', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.optB');
         if Try8(vBigInteger, vVariant) then Observer.Observe('arg_byvalue.optB', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.optB');
         if Try10(vBigInteger, vVariant) then Observer.Observe('exit.optB', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.optB');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_BigInteger_5()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vBigInteger: BigInteger;
-        vVariant: Variant;
-    begin
         vVariant := "LT Y31 E"::C;
         if Try6(vBigInteger, vVariant) then Observer.Observe('assign.enumC', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.enumC');
         if Try8(vBigInteger, vVariant) then Observer.Observe('arg_byvalue.enumC', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.enumC');
@@ -9344,17 +9593,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try6(vBigInteger, vVariant) then Observer.Observe('assign.textabc', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.textabc');
         if Try8(vBigInteger, vVariant) then Observer.Observe('arg_byvalue.textabc', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.textabc');
         if Try10(vBigInteger, vVariant) then Observer.Observe('exit.textabc', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.textabc');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_BigInteger_6()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vBigInteger: BigInteger;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsText('abcdefghijk');
         if Try6(vBigInteger, vVariant) then Observer.Observe('assign.text11', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.text11');
         if Try8(vBigInteger, vVariant) then Observer.Observe('arg_byvalue.text11', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.text11');
@@ -9363,17 +9601,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try6(vBigInteger, vVariant) then Observer.Observe('assign.text12', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.text12');
         if Try8(vBigInteger, vVariant) then Observer.Observe('arg_byvalue.text12', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.text12');
         if Try10(vBigInteger, vVariant) then Observer.Observe('exit.text12', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.text12');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_BigInteger_7()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vBigInteger: BigInteger;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsCode('abc');
         if Try6(vBigInteger, vVariant) then Observer.Observe('assign.codeABC', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.codeABC');
         if Try8(vBigInteger, vVariant) then Observer.Observe('arg_byvalue.codeABC', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.codeABC');
@@ -9382,17 +9609,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try6(vBigInteger, vVariant) then Observer.Observe('assign.code12', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.code12');
         if Try8(vBigInteger, vVariant) then Observer.Observe('arg_byvalue.code12', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.code12');
         if Try10(vBigInteger, vVariant) then Observer.Observe('exit.code12', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.code12');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_BigInteger_8()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vBigInteger: BigInteger;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsGuid('{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
         if Try6(vBigInteger, vVariant) then Observer.Observe('assign.guid', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.guid');
         if Try8(vBigInteger, vVariant) then Observer.Observe('arg_byvalue.guid', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.guid');
@@ -9401,13 +9617,77 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try6(vBigInteger, vVariant) then Observer.Observe('assign.boolF', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.boolF');
         if Try8(vBigInteger, vVariant) then Observer.Observe('arg_byvalue.boolF', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.boolF');
         if Try10(vBigInteger, vVariant) then Observer.Observe('exit.boolF', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.boolF');
-        Observer.Finish();
+        Observer.Expect('assign.int3', '3');
+        Observer.Expect('arg_byvalue.int3', '3');
+        Observer.Expect('exit.int3', '3');
+        Observer.Expect('assign.int300', '300');
+        Observer.Expect('arg_byvalue.int300', '300');
+        Observer.Expect('exit.int300', '300');
+        Observer.Expect('assign.big', '3000000000');
+        Observer.Expect('arg_byvalue.big', '3000000000');
+        Observer.Expect('exit.big', '3000000000');
+        Observer.Expect('assign.dec1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int64.');
+        Observer.Expect('assign.dec1p5|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.dec1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int64.');
+        Observer.Expect('arg_byvalue.dec1p5|code', 'ConversionCast');
+        Observer.Expect('exit.dec1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int64.');
+        Observer.Expect('exit.dec1p5|code', 'ConversionCast');
+        Observer.Expect('assign.dec2', '2');
+        Observer.Expect('arg_byvalue.dec2', '2');
+        Observer.Expect('exit.dec2', '2');
+        Observer.Expect('assign.charA', '65');
+        Observer.Expect('arg_byvalue.charA', '65');
+        Observer.Expect('exit.charA', '65');
+        Observer.Expect('assign.byte65', '65');
+        Observer.Expect('arg_byvalue.byte65', '65');
+        Observer.Expect('exit.byte65', '65');
+        Observer.Expect('assign.optB', '1');
+        Observer.Expect('arg_byvalue.optB', '1');
+        Observer.Expect('exit.optB', '1');
+        Observer.Expect('assign.enumC', '2');
+        Observer.Expect('arg_byvalue.enumC', '2');
+        Observer.Expect('exit.enumC', '2');
+        Observer.Expect('assign.textabc|text', 'The expression Variant cannot be type-converted to a BigInteger value.');
+        Observer.Expect('assign.textabc|code', 'TypeConversion:Format');
+        Observer.Expect('arg_byvalue.textabc|text', 'The expression Variant cannot be type-converted to a BigInteger value.');
+        Observer.Expect('arg_byvalue.textabc|code', 'TypeConversion:Format');
+        Observer.Expect('exit.textabc|text', 'The expression Variant cannot be type-converted to a BigInteger value.');
+        Observer.Expect('exit.textabc|code', 'TypeConversion:Format');
+        Observer.Expect('assign.text11|text', 'The expression Variant cannot be type-converted to a BigInteger value.');
+        Observer.Expect('assign.text11|code', 'TypeConversion:Format');
+        Observer.Expect('arg_byvalue.text11|text', 'The expression Variant cannot be type-converted to a BigInteger value.');
+        Observer.Expect('arg_byvalue.text11|code', 'TypeConversion:Format');
+        Observer.Expect('exit.text11|text', 'The expression Variant cannot be type-converted to a BigInteger value.');
+        Observer.Expect('exit.text11|code', 'TypeConversion:Format');
+        Observer.Expect('assign.text12', '12');
+        Observer.Expect('arg_byvalue.text12', '12');
+        Observer.Expect('exit.text12', '12');
+        Observer.Expect('assign.codeABC|text', 'The expression Variant cannot be type-converted to a BigInteger value.');
+        Observer.Expect('assign.codeABC|code', 'TypeConversion:Format');
+        Observer.Expect('arg_byvalue.codeABC|text', 'The expression Variant cannot be type-converted to a BigInteger value.');
+        Observer.Expect('arg_byvalue.codeABC|code', 'TypeConversion:Format');
+        Observer.Expect('exit.codeABC|text', 'The expression Variant cannot be type-converted to a BigInteger value.');
+        Observer.Expect('exit.codeABC|code', 'TypeConversion:Format');
+        Observer.Expect('assign.code12', '12');
+        Observer.Expect('arg_byvalue.code12', '12');
+        Observer.Expect('exit.code12', '12');
+        Observer.Expect('assign.guid|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavGuid to System.Int32.');
+        Observer.Expect('assign.guid|code', 'Conversion');
+        Observer.Expect('arg_byvalue.guid|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavGuid to System.Int32.');
+        Observer.Expect('arg_byvalue.guid|code', 'Conversion');
+        Observer.Expect('exit.guid|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavGuid to System.Int32.');
+        Observer.Expect('exit.guid|code', 'Conversion');
+        Observer.Expect('assign.boolF', '0');
+        Observer.Expect('arg_byvalue.boolF', '0');
+        Observer.Expect('exit.boolF', '0');
+        Observer.Verify();
     end;
 
     [Test]
-    procedure Variant_To_BigInteger_9()
+    procedure Variant_To_BigInteger_2()
     var
         Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
         vBigInteger: BigInteger;
         vVariant: Variant;
     begin
@@ -9419,16 +9699,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try6(vBigInteger, vVariant) then Observer.Observe('assign.date', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.date');
         if Try8(vBigInteger, vVariant) then Observer.Observe('arg_byvalue.date', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.date');
         if Try10(vBigInteger, vVariant) then Observer.Observe('exit.date', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.date');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_BigInteger_10()
-    var
-        Observer: Codeunit "Probe Observer";
-        vBigInteger: BigInteger;
-        vVariant: Variant;
-    begin
         vVariant := 120000T;
         if Try6(vBigInteger, vVariant) then Observer.Observe('assign.time', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.time');
         if Try8(vBigInteger, vVariant) then Observer.Observe('arg_byvalue.time', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.time');
@@ -9437,28 +9707,33 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try6(vBigInteger, vVariant) then Observer.Observe('assign.dt', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.dt');
         if Try8(vBigInteger, vVariant) then Observer.Observe('arg_byvalue.dt', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.dt');
         if Try10(vBigInteger, vVariant) then Observer.Observe('exit.dt', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.dt');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_BigInteger_11()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vBigInteger: BigInteger;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsDuration(65);
         if Try6(vBigInteger, vVariant) then Observer.Observe('assign.dur65', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.dur65');
         if Try8(vBigInteger, vVariant) then Observer.Observe('arg_byvalue.dur65', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.dur65');
         if Try10(vBigInteger, vVariant) then Observer.Observe('exit.dur65', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.dur65');
-        Observer.Finish();
+        Observer.Expect('assign.boolT', '1');
+        Observer.Expect('arg_byvalue.boolT', '1');
+        Observer.Expect('exit.boolT', '1');
+        Observer.Expect('assign.date', '1480025');
+        Observer.Expect('arg_byvalue.date', '1480025');
+        Observer.Expect('exit.date', '1480025');
+        Observer.Expect('assign.time', '43200001');
+        Observer.Expect('arg_byvalue.time', '43200001');
+        Observer.Expect('exit.time', '43200001');
+        Observer.Expect('assign.dt', '63937080000001');
+        Observer.Expect('arg_byvalue.dt', '63937080000001');
+        Observer.Expect('exit.dt', '63937080000001');
+        Observer.Expect('assign.dur65', '65');
+        Observer.Expect('arg_byvalue.dur65', '65');
+        Observer.Expect('exit.dur65', '65');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Variant_To_Decimal()
     var
         Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
         vDecimal: Decimal;
         vVariant: Variant;
     begin
@@ -9470,16 +9745,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try11(vDecimal, vVariant) then Observer.Observe('assign.int300', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.int300');
         if Try13(vDecimal, vVariant) then Observer.Observe('arg_byvalue.int300', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.int300');
         if Try15(vDecimal, vVariant) then Observer.Observe('exit.int300', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.int300');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Decimal_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vDecimal: Decimal;
-        vVariant: Variant;
-    begin
         vVariant := 3000000000L;
         if Try11(vDecimal, vVariant) then Observer.Observe('assign.big', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.big');
         if Try13(vDecimal, vVariant) then Observer.Observe('arg_byvalue.big', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.big');
@@ -9488,17 +9753,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try11(vDecimal, vVariant) then Observer.Observe('assign.dec1p5', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.dec1p5');
         if Try13(vDecimal, vVariant) then Observer.Observe('arg_byvalue.dec1p5', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.dec1p5');
         if Try15(vDecimal, vVariant) then Observer.Observe('exit.dec1p5', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.dec1p5');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Decimal_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vDecimal: Decimal;
-        vVariant: Variant;
-    begin
         vVariant := 2.0;
         if Try11(vDecimal, vVariant) then Observer.Observe('assign.dec2', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.dec2');
         if Try13(vDecimal, vVariant) then Observer.Observe('arg_byvalue.dec2', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.dec2');
@@ -9507,17 +9761,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try11(vDecimal, vVariant) then Observer.Observe('assign.charA', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.charA');
         if Try13(vDecimal, vVariant) then Observer.Observe('arg_byvalue.charA', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.charA');
         if Try15(vDecimal, vVariant) then Observer.Observe('exit.charA', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.charA');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Decimal_4()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vDecimal: Decimal;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsByte(65);
         if Try11(vDecimal, vVariant) then Observer.Observe('assign.byte65', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.byte65');
         if Try13(vDecimal, vVariant) then Observer.Observe('arg_byvalue.byte65', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.byte65');
@@ -9526,17 +9769,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try11(vDecimal, vVariant) then Observer.Observe('assign.optB', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.optB');
         if Try13(vDecimal, vVariant) then Observer.Observe('arg_byvalue.optB', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.optB');
         if Try15(vDecimal, vVariant) then Observer.Observe('exit.optB', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.optB');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Decimal_5()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vDecimal: Decimal;
-        vVariant: Variant;
-    begin
         vVariant := "LT Y31 E"::C;
         if Try11(vDecimal, vVariant) then Observer.Observe('assign.enumC', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.enumC');
         if Try13(vDecimal, vVariant) then Observer.Observe('arg_byvalue.enumC', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.enumC');
@@ -9545,17 +9777,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try11(vDecimal, vVariant) then Observer.Observe('assign.textabc', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.textabc');
         if Try13(vDecimal, vVariant) then Observer.Observe('arg_byvalue.textabc', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.textabc');
         if Try15(vDecimal, vVariant) then Observer.Observe('exit.textabc', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.textabc');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Decimal_6()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vDecimal: Decimal;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsText('abcdefghijk');
         if Try11(vDecimal, vVariant) then Observer.Observe('assign.text11', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.text11');
         if Try13(vDecimal, vVariant) then Observer.Observe('arg_byvalue.text11', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.text11');
@@ -9564,17 +9785,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try11(vDecimal, vVariant) then Observer.Observe('assign.text12', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.text12');
         if Try13(vDecimal, vVariant) then Observer.Observe('arg_byvalue.text12', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.text12');
         if Try15(vDecimal, vVariant) then Observer.Observe('exit.text12', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.text12');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Decimal_7()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vDecimal: Decimal;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsCode('abc');
         if Try11(vDecimal, vVariant) then Observer.Observe('assign.codeABC', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.codeABC');
         if Try13(vDecimal, vVariant) then Observer.Observe('arg_byvalue.codeABC', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.codeABC');
@@ -9583,17 +9793,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try11(vDecimal, vVariant) then Observer.Observe('assign.code12', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.code12');
         if Try13(vDecimal, vVariant) then Observer.Observe('arg_byvalue.code12', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.code12');
         if Try15(vDecimal, vVariant) then Observer.Observe('exit.code12', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.code12');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Decimal_8()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vDecimal: Decimal;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsGuid('{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
         if Try11(vDecimal, vVariant) then Observer.Observe('assign.guid', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.guid');
         if Try13(vDecimal, vVariant) then Observer.Observe('arg_byvalue.guid', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.guid');
@@ -9602,13 +9801,74 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try11(vDecimal, vVariant) then Observer.Observe('assign.boolF', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.boolF');
         if Try13(vDecimal, vVariant) then Observer.Observe('arg_byvalue.boolF', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.boolF');
         if Try15(vDecimal, vVariant) then Observer.Observe('exit.boolF', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.boolF');
-        Observer.Finish();
+        Observer.Expect('assign.int3', '3');
+        Observer.Expect('arg_byvalue.int3', '3');
+        Observer.Expect('exit.int3', '3');
+        Observer.Expect('assign.int300', '300');
+        Observer.Expect('arg_byvalue.int300', '300');
+        Observer.Expect('exit.int300', '300');
+        Observer.Expect('assign.big', '3000000000');
+        Observer.Expect('arg_byvalue.big', '3000000000');
+        Observer.Expect('exit.big', '3000000000');
+        Observer.Expect('assign.dec1p5', '1.5');
+        Observer.Expect('arg_byvalue.dec1p5', '1.5');
+        Observer.Expect('exit.dec1p5', '1.5');
+        Observer.Expect('assign.dec2', '2');
+        Observer.Expect('arg_byvalue.dec2', '2');
+        Observer.Expect('exit.dec2', '2');
+        Observer.Expect('assign.charA', '65');
+        Observer.Expect('arg_byvalue.charA', '65');
+        Observer.Expect('exit.charA', '65');
+        Observer.Expect('assign.byte65', '65');
+        Observer.Expect('arg_byvalue.byte65', '65');
+        Observer.Expect('exit.byte65', '65');
+        Observer.Expect('assign.optB', '1');
+        Observer.Expect('arg_byvalue.optB', '1');
+        Observer.Expect('exit.optB', '1');
+        Observer.Expect('assign.enumC', '2');
+        Observer.Expect('arg_byvalue.enumC', '2');
+        Observer.Expect('exit.enumC', '2');
+        Observer.Expect('assign.textabc|text', 'The expression Variant cannot be type-converted to a Decimal value.');
+        Observer.Expect('assign.textabc|code', 'TypeConversion:Format');
+        Observer.Expect('arg_byvalue.textabc|text', 'The expression Variant cannot be type-converted to a Decimal value.');
+        Observer.Expect('arg_byvalue.textabc|code', 'TypeConversion:Format');
+        Observer.Expect('exit.textabc|text', 'The expression Variant cannot be type-converted to a Decimal value.');
+        Observer.Expect('exit.textabc|code', 'TypeConversion:Format');
+        Observer.Expect('assign.text11|text', 'The expression Variant cannot be type-converted to a Decimal value.');
+        Observer.Expect('assign.text11|code', 'TypeConversion:Format');
+        Observer.Expect('arg_byvalue.text11|text', 'The expression Variant cannot be type-converted to a Decimal value.');
+        Observer.Expect('arg_byvalue.text11|code', 'TypeConversion:Format');
+        Observer.Expect('exit.text11|text', 'The expression Variant cannot be type-converted to a Decimal value.');
+        Observer.Expect('exit.text11|code', 'TypeConversion:Format');
+        Observer.Expect('assign.text12', '12');
+        Observer.Expect('arg_byvalue.text12', '12');
+        Observer.Expect('exit.text12', '12');
+        Observer.Expect('assign.codeABC|text', 'The expression Variant cannot be type-converted to a Decimal value.');
+        Observer.Expect('assign.codeABC|code', 'TypeConversion:Format');
+        Observer.Expect('arg_byvalue.codeABC|text', 'The expression Variant cannot be type-converted to a Decimal value.');
+        Observer.Expect('arg_byvalue.codeABC|code', 'TypeConversion:Format');
+        Observer.Expect('exit.codeABC|text', 'The expression Variant cannot be type-converted to a Decimal value.');
+        Observer.Expect('exit.codeABC|code', 'TypeConversion:Format');
+        Observer.Expect('assign.code12', '12');
+        Observer.Expect('arg_byvalue.code12', '12');
+        Observer.Expect('exit.code12', '12');
+        Observer.Expect('assign.guid|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavGuid to System.Int32.');
+        Observer.Expect('assign.guid|code', 'Conversion');
+        Observer.Expect('arg_byvalue.guid|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavGuid to System.Int32.');
+        Observer.Expect('arg_byvalue.guid|code', 'Conversion');
+        Observer.Expect('exit.guid|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavGuid to System.Int32.');
+        Observer.Expect('exit.guid|code', 'Conversion');
+        Observer.Expect('assign.boolF', '0');
+        Observer.Expect('arg_byvalue.boolF', '0');
+        Observer.Expect('exit.boolF', '0');
+        Observer.Verify();
     end;
 
     [Test]
-    procedure Variant_To_Decimal_9()
+    procedure Variant_To_Decimal_2()
     var
         Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
         vDecimal: Decimal;
         vVariant: Variant;
     begin
@@ -9620,16 +9880,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try11(vDecimal, vVariant) then Observer.Observe('assign.date', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.date');
         if Try13(vDecimal, vVariant) then Observer.Observe('arg_byvalue.date', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.date');
         if Try15(vDecimal, vVariant) then Observer.Observe('exit.date', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.date');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Decimal_10()
-    var
-        Observer: Codeunit "Probe Observer";
-        vDecimal: Decimal;
-        vVariant: Variant;
-    begin
         vVariant := 120000T;
         if Try11(vDecimal, vVariant) then Observer.Observe('assign.time', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.time');
         if Try13(vDecimal, vVariant) then Observer.Observe('arg_byvalue.time', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.time');
@@ -9638,22 +9888,26 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try11(vDecimal, vVariant) then Observer.Observe('assign.dt', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.dt');
         if Try13(vDecimal, vVariant) then Observer.Observe('arg_byvalue.dt', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.dt');
         if Try15(vDecimal, vVariant) then Observer.Observe('exit.dt', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.dt');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Decimal_11()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vDecimal: Decimal;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsDuration(65);
         if Try11(vDecimal, vVariant) then Observer.Observe('assign.dur65', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.dur65');
         if Try13(vDecimal, vVariant) then Observer.Observe('arg_byvalue.dur65', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.dur65');
         if Try15(vDecimal, vVariant) then Observer.Observe('exit.dur65', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.dur65');
-        Observer.Finish();
+        Observer.Expect('assign.boolT', '1');
+        Observer.Expect('arg_byvalue.boolT', '1');
+        Observer.Expect('exit.boolT', '1');
+        Observer.Expect('assign.date', '1480025');
+        Observer.Expect('arg_byvalue.date', '1480025');
+        Observer.Expect('exit.date', '1480025');
+        Observer.Expect('assign.time', '43200001');
+        Observer.Expect('arg_byvalue.time', '43200001');
+        Observer.Expect('exit.time', '43200001');
+        Observer.Expect('assign.dt', '63937080000001');
+        Observer.Expect('arg_byvalue.dt', '63937080000001');
+        Observer.Expect('exit.dt', '63937080000001');
+        Observer.Expect('assign.dur65', '65');
+        Observer.Expect('arg_byvalue.dur65', '65');
+        Observer.Expect('exit.dur65', '65');
+        Observer.Verify();
     end;
 
     [Test]
@@ -9672,17 +9926,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try16(vChar, vVariant) then Observer.Observe('assign.int300', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.int300');
         if Try18(vChar, vVariant) then Observer.Observe('arg_byvalue.int300', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.int300');
         if Try20(vChar, vVariant) then Observer.Observe('exit.int300', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.int300');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Char_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vChar: Char;
-        vVariant: Variant;
-    begin
         vVariant := 3000000000L;
         if Try16(vChar, vVariant) then Observer.Observe('assign.big', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.big');
         if Try18(vChar, vVariant) then Observer.Observe('arg_byvalue.big', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.big');
@@ -9691,17 +9934,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try16(vChar, vVariant) then Observer.Observe('assign.dec1p5', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.dec1p5');
         if Try18(vChar, vVariant) then Observer.Observe('arg_byvalue.dec1p5', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.dec1p5');
         if Try20(vChar, vVariant) then Observer.Observe('exit.dec1p5', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.dec1p5');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Char_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vChar: Char;
-        vVariant: Variant;
-    begin
         vVariant := 2.0;
         if Try16(vChar, vVariant) then Observer.Observe('assign.dec2', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.dec2');
         if Try18(vChar, vVariant) then Observer.Observe('arg_byvalue.dec2', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.dec2');
@@ -9710,17 +9942,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try16(vChar, vVariant) then Observer.Observe('assign.charA', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.charA');
         if Try18(vChar, vVariant) then Observer.Observe('arg_byvalue.charA', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.charA');
         if Try20(vChar, vVariant) then Observer.Observe('exit.charA', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.charA');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Char_4()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vChar: Char;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsByte(65);
         if Try16(vChar, vVariant) then Observer.Observe('assign.byte65', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.byte65');
         if Try18(vChar, vVariant) then Observer.Observe('arg_byvalue.byte65', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.byte65');
@@ -9729,17 +9950,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try16(vChar, vVariant) then Observer.Observe('assign.optB', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.optB');
         if Try18(vChar, vVariant) then Observer.Observe('arg_byvalue.optB', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.optB');
         if Try20(vChar, vVariant) then Observer.Observe('exit.optB', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.optB');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Char_5()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vChar: Char;
-        vVariant: Variant;
-    begin
         vVariant := "LT Y31 E"::C;
         if Try16(vChar, vVariant) then Observer.Observe('assign.enumC', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.enumC');
         if Try18(vChar, vVariant) then Observer.Observe('arg_byvalue.enumC', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.enumC');
@@ -9748,17 +9958,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try16(vChar, vVariant) then Observer.Observe('assign.textabc', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.textabc');
         if Try18(vChar, vVariant) then Observer.Observe('arg_byvalue.textabc', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.textabc');
         if Try20(vChar, vVariant) then Observer.Observe('exit.textabc', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.textabc');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Char_6()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vChar: Char;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsText('abcdefghijk');
         if Try16(vChar, vVariant) then Observer.Observe('assign.text11', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.text11');
         if Try18(vChar, vVariant) then Observer.Observe('arg_byvalue.text11', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.text11');
@@ -9767,17 +9966,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try16(vChar, vVariant) then Observer.Observe('assign.text12', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.text12');
         if Try18(vChar, vVariant) then Observer.Observe('arg_byvalue.text12', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.text12');
         if Try20(vChar, vVariant) then Observer.Observe('exit.text12', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.text12');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Char_7()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vChar: Char;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsCode('abc');
         if Try16(vChar, vVariant) then Observer.Observe('assign.codeABC', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.codeABC');
         if Try18(vChar, vVariant) then Observer.Observe('arg_byvalue.codeABC', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.codeABC');
@@ -9786,17 +9974,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try16(vChar, vVariant) then Observer.Observe('assign.code12', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.code12');
         if Try18(vChar, vVariant) then Observer.Observe('arg_byvalue.code12', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.code12');
         if Try20(vChar, vVariant) then Observer.Observe('exit.code12', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.code12');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Char_8()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vChar: Char;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsGuid('{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
         if Try16(vChar, vVariant) then Observer.Observe('assign.guid', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.guid');
         if Try18(vChar, vVariant) then Observer.Observe('arg_byvalue.guid', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.guid');
@@ -9805,11 +9982,77 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try16(vChar, vVariant) then Observer.Observe('assign.boolF', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.boolF');
         if Try18(vChar, vVariant) then Observer.Observe('arg_byvalue.boolF', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.boolF');
         if Try20(vChar, vVariant) then Observer.Observe('exit.boolF', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.boolF');
-        Observer.Finish();
+        Observer.Expect('assign.int3', '\u0003|3');
+        Observer.Expect('arg_byvalue.int3', '\u0003|3');
+        Observer.Expect('exit.int3', '\u0003|3');
+        Observer.Expect('assign.int300', 'Ĭ|300');
+        Observer.Expect('arg_byvalue.int300', 'Ĭ|300');
+        Observer.Expect('exit.int300', 'Ĭ|300');
+        Observer.Expect('assign.big|text', 'The expression Variant cannot be type-converted to a Char value.');
+        Observer.Expect('assign.big|code', 'TypeConversion:Overflow');
+        Observer.Expect('arg_byvalue.big|text', 'The expression Variant cannot be type-converted to a Char value.');
+        Observer.Expect('arg_byvalue.big|code', 'TypeConversion:Overflow');
+        Observer.Expect('exit.big|text', 'The expression Variant cannot be type-converted to a Char value.');
+        Observer.Expect('exit.big|code', 'TypeConversion:Overflow');
+        Observer.Expect('assign.dec1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int32.');
+        Observer.Expect('assign.dec1p5|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.dec1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int32.');
+        Observer.Expect('arg_byvalue.dec1p5|code', 'ConversionCast');
+        Observer.Expect('exit.dec1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int32.');
+        Observer.Expect('exit.dec1p5|code', 'ConversionCast');
+        Observer.Expect('assign.dec2', '\u0002|2');
+        Observer.Expect('arg_byvalue.dec2', '\u0002|2');
+        Observer.Expect('exit.dec2', '\u0002|2');
+        Observer.Expect('assign.charA', 'A|65');
+        Observer.Expect('arg_byvalue.charA', 'A|65');
+        Observer.Expect('exit.charA', 'A|65');
+        Observer.Expect('assign.byte65', 'A|65');
+        Observer.Expect('arg_byvalue.byte65', 'A|65');
+        Observer.Expect('exit.byte65', 'A|65');
+        Observer.Expect('assign.optB', '\u0001|1');
+        Observer.Expect('arg_byvalue.optB', '\u0001|1');
+        Observer.Expect('exit.optB', '\u0001|1');
+        Observer.Expect('assign.enumC', '\u0002|2');
+        Observer.Expect('arg_byvalue.enumC', '\u0002|2');
+        Observer.Expect('exit.enumC', '\u0002|2');
+        Observer.Expect('assign.textabc|text', 'The expression Variant cannot be type-converted to a Char value.');
+        Observer.Expect('assign.textabc|code', 'TypeConversion:Format');
+        Observer.Expect('arg_byvalue.textabc|text', 'The expression Variant cannot be type-converted to a Char value.');
+        Observer.Expect('arg_byvalue.textabc|code', 'TypeConversion:Format');
+        Observer.Expect('exit.textabc|text', 'The expression Variant cannot be type-converted to a Char value.');
+        Observer.Expect('exit.textabc|code', 'TypeConversion:Format');
+        Observer.Expect('assign.text11|text', 'The expression Variant cannot be type-converted to a Char value.');
+        Observer.Expect('assign.text11|code', 'TypeConversion:Format');
+        Observer.Expect('arg_byvalue.text11|text', 'The expression Variant cannot be type-converted to a Char value.');
+        Observer.Expect('arg_byvalue.text11|code', 'TypeConversion:Format');
+        Observer.Expect('exit.text11|text', 'The expression Variant cannot be type-converted to a Char value.');
+        Observer.Expect('exit.text11|code', 'TypeConversion:Format');
+        Observer.Expect('assign.text12', '\u000C|12');
+        Observer.Expect('arg_byvalue.text12', '\u000C|12');
+        Observer.Expect('exit.text12', '\u000C|12');
+        Observer.Expect('assign.codeABC|text', 'The expression Variant cannot be type-converted to a Char value.');
+        Observer.Expect('assign.codeABC|code', 'TypeConversion:Format');
+        Observer.Expect('arg_byvalue.codeABC|text', 'The expression Variant cannot be type-converted to a Char value.');
+        Observer.Expect('arg_byvalue.codeABC|code', 'TypeConversion:Format');
+        Observer.Expect('exit.codeABC|text', 'The expression Variant cannot be type-converted to a Char value.');
+        Observer.Expect('exit.codeABC|code', 'TypeConversion:Format');
+        Observer.Expect('assign.code12', '\u000C|12');
+        Observer.Expect('arg_byvalue.code12', '\u000C|12');
+        Observer.Expect('exit.code12', '\u000C|12');
+        Observer.Expect('assign.guid|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavGuid to System.Int32.');
+        Observer.Expect('assign.guid|code', 'Conversion');
+        Observer.Expect('arg_byvalue.guid|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavGuid to System.Int32.');
+        Observer.Expect('arg_byvalue.guid|code', 'Conversion');
+        Observer.Expect('exit.guid|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavGuid to System.Int32.');
+        Observer.Expect('exit.guid|code', 'Conversion');
+        Observer.Expect('assign.boolF', '\u0000|0');
+        Observer.Expect('arg_byvalue.boolF', '\u0000|0');
+        Observer.Expect('exit.boolF', '\u0000|0');
+        Observer.Verify();
     end;
 
     [Test]
-    procedure Variant_To_Char_9()
+    procedure Variant_To_Char_2()
     var
         Observer: Codeunit "Probe Observer";
         Util: Codeunit "LT Y31 Conv Util";
@@ -9824,17 +10067,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try16(vChar, vVariant) then Observer.Observe('assign.date', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.date');
         if Try18(vChar, vVariant) then Observer.Observe('arg_byvalue.date', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.date');
         if Try20(vChar, vVariant) then Observer.Observe('exit.date', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.date');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Char_10()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vChar: Char;
-        vVariant: Variant;
-    begin
         vVariant := 120000T;
         if Try16(vChar, vVariant) then Observer.Observe('assign.time', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.time');
         if Try18(vChar, vVariant) then Observer.Observe('arg_byvalue.time', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.time');
@@ -9843,28 +10075,42 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try16(vChar, vVariant) then Observer.Observe('assign.dt', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.dt');
         if Try18(vChar, vVariant) then Observer.Observe('arg_byvalue.dt', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.dt');
         if Try20(vChar, vVariant) then Observer.Observe('exit.dt', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.dt');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Char_11()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vChar: Char;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsDuration(65);
         if Try16(vChar, vVariant) then Observer.Observe('assign.dur65', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.dur65');
         if Try18(vChar, vVariant) then Observer.Observe('arg_byvalue.dur65', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.dur65');
         if Try20(vChar, vVariant) then Observer.Observe('exit.dur65', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.dur65');
-        Observer.Finish();
+        Observer.Expect('assign.boolT', '\u0001|1');
+        Observer.Expect('arg_byvalue.boolT', '\u0001|1');
+        Observer.Expect('exit.boolT', '\u0001|1');
+        Observer.Expect('assign.date|text', 'Overflow under conversion of System.Int32 value 1480025 to System.Char.');
+        Observer.Expect('assign.date|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.date|text', 'Overflow under conversion of System.Int32 value 1480025 to System.Char.');
+        Observer.Expect('arg_byvalue.date|code', 'ConversionCast');
+        Observer.Expect('exit.date|text', 'Overflow under conversion of System.Int32 value 1480025 to System.Char.');
+        Observer.Expect('exit.date|code', 'ConversionCast');
+        Observer.Expect('assign.time|text', 'Overflow under conversion of System.Int32 value 43200001 to System.Char.');
+        Observer.Expect('assign.time|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.time|text', 'Overflow under conversion of System.Int32 value 43200001 to System.Char.');
+        Observer.Expect('arg_byvalue.time|code', 'ConversionCast');
+        Observer.Expect('exit.time|text', 'Overflow under conversion of System.Int32 value 43200001 to System.Char.');
+        Observer.Expect('exit.time|code', 'ConversionCast');
+        Observer.Expect('assign.dt|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32.');
+        Observer.Expect('assign.dt|code', 'Conversion');
+        Observer.Expect('arg_byvalue.dt|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32.');
+        Observer.Expect('arg_byvalue.dt|code', 'Conversion');
+        Observer.Expect('exit.dt|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32.');
+        Observer.Expect('exit.dt|code', 'Conversion');
+        Observer.Expect('assign.dur65', 'A|65');
+        Observer.Expect('arg_byvalue.dur65', 'A|65');
+        Observer.Expect('exit.dur65', 'A|65');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Variant_To_Byte()
     var
         Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
         vByte: Byte;
         vVariant: Variant;
     begin
@@ -9876,16 +10122,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try21(vByte, vVariant) then Observer.Observe('assign.int300', Format(vByte, 0, 9)) else Observer.ObserveError('assign.int300');
         if Try23(vByte, vVariant) then Observer.Observe('arg_byvalue.int300', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.int300');
         if Try25(vByte, vVariant) then Observer.Observe('exit.int300', Format(vByte, 0, 9)) else Observer.ObserveError('exit.int300');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Byte_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vByte: Byte;
-        vVariant: Variant;
-    begin
         vVariant := 3000000000L;
         if Try21(vByte, vVariant) then Observer.Observe('assign.big', Format(vByte, 0, 9)) else Observer.ObserveError('assign.big');
         if Try23(vByte, vVariant) then Observer.Observe('arg_byvalue.big', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.big');
@@ -9894,17 +10130,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try21(vByte, vVariant) then Observer.Observe('assign.dec1p5', Format(vByte, 0, 9)) else Observer.ObserveError('assign.dec1p5');
         if Try23(vByte, vVariant) then Observer.Observe('arg_byvalue.dec1p5', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.dec1p5');
         if Try25(vByte, vVariant) then Observer.Observe('exit.dec1p5', Format(vByte, 0, 9)) else Observer.ObserveError('exit.dec1p5');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Byte_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vByte: Byte;
-        vVariant: Variant;
-    begin
         vVariant := 2.0;
         if Try21(vByte, vVariant) then Observer.Observe('assign.dec2', Format(vByte, 0, 9)) else Observer.ObserveError('assign.dec2');
         if Try23(vByte, vVariant) then Observer.Observe('arg_byvalue.dec2', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.dec2');
@@ -9913,17 +10138,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try21(vByte, vVariant) then Observer.Observe('assign.charA', Format(vByte, 0, 9)) else Observer.ObserveError('assign.charA');
         if Try23(vByte, vVariant) then Observer.Observe('arg_byvalue.charA', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.charA');
         if Try25(vByte, vVariant) then Observer.Observe('exit.charA', Format(vByte, 0, 9)) else Observer.ObserveError('exit.charA');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Byte_4()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vByte: Byte;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsByte(65);
         if Try21(vByte, vVariant) then Observer.Observe('assign.byte65', Format(vByte, 0, 9)) else Observer.ObserveError('assign.byte65');
         if Try23(vByte, vVariant) then Observer.Observe('arg_byvalue.byte65', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.byte65');
@@ -9932,17 +10146,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try21(vByte, vVariant) then Observer.Observe('assign.optB', Format(vByte, 0, 9)) else Observer.ObserveError('assign.optB');
         if Try23(vByte, vVariant) then Observer.Observe('arg_byvalue.optB', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.optB');
         if Try25(vByte, vVariant) then Observer.Observe('exit.optB', Format(vByte, 0, 9)) else Observer.ObserveError('exit.optB');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Byte_5()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vByte: Byte;
-        vVariant: Variant;
-    begin
         vVariant := "LT Y31 E"::C;
         if Try21(vByte, vVariant) then Observer.Observe('assign.enumC', Format(vByte, 0, 9)) else Observer.ObserveError('assign.enumC');
         if Try23(vByte, vVariant) then Observer.Observe('arg_byvalue.enumC', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.enumC');
@@ -9951,17 +10154,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try21(vByte, vVariant) then Observer.Observe('assign.textabc', Format(vByte, 0, 9)) else Observer.ObserveError('assign.textabc');
         if Try23(vByte, vVariant) then Observer.Observe('arg_byvalue.textabc', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.textabc');
         if Try25(vByte, vVariant) then Observer.Observe('exit.textabc', Format(vByte, 0, 9)) else Observer.ObserveError('exit.textabc');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Byte_6()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vByte: Byte;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsText('abcdefghijk');
         if Try21(vByte, vVariant) then Observer.Observe('assign.text11', Format(vByte, 0, 9)) else Observer.ObserveError('assign.text11');
         if Try23(vByte, vVariant) then Observer.Observe('arg_byvalue.text11', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.text11');
@@ -9970,17 +10162,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try21(vByte, vVariant) then Observer.Observe('assign.text12', Format(vByte, 0, 9)) else Observer.ObserveError('assign.text12');
         if Try23(vByte, vVariant) then Observer.Observe('arg_byvalue.text12', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.text12');
         if Try25(vByte, vVariant) then Observer.Observe('exit.text12', Format(vByte, 0, 9)) else Observer.ObserveError('exit.text12');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Byte_7()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vByte: Byte;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsCode('abc');
         if Try21(vByte, vVariant) then Observer.Observe('assign.codeABC', Format(vByte, 0, 9)) else Observer.ObserveError('assign.codeABC');
         if Try23(vByte, vVariant) then Observer.Observe('arg_byvalue.codeABC', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.codeABC');
@@ -9989,17 +10170,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try21(vByte, vVariant) then Observer.Observe('assign.code12', Format(vByte, 0, 9)) else Observer.ObserveError('assign.code12');
         if Try23(vByte, vVariant) then Observer.Observe('arg_byvalue.code12', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.code12');
         if Try25(vByte, vVariant) then Observer.Observe('exit.code12', Format(vByte, 0, 9)) else Observer.ObserveError('exit.code12');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Byte_8()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vByte: Byte;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsGuid('{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
         if Try21(vByte, vVariant) then Observer.Observe('assign.guid', Format(vByte, 0, 9)) else Observer.ObserveError('assign.guid');
         if Try23(vByte, vVariant) then Observer.Observe('arg_byvalue.guid', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.guid');
@@ -10008,13 +10178,83 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try21(vByte, vVariant) then Observer.Observe('assign.boolF', Format(vByte, 0, 9)) else Observer.ObserveError('assign.boolF');
         if Try23(vByte, vVariant) then Observer.Observe('arg_byvalue.boolF', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.boolF');
         if Try25(vByte, vVariant) then Observer.Observe('exit.boolF', Format(vByte, 0, 9)) else Observer.ObserveError('exit.boolF');
-        Observer.Finish();
+        Observer.Expect('assign.int3', '\u0003');
+        Observer.Expect('arg_byvalue.int3', '\u0003');
+        Observer.Expect('exit.int3', '\u0003');
+        Observer.Expect('assign.int300|text', 'The expression Variant cannot be type-converted to a Byte value.');
+        Observer.Expect('assign.int300|code', 'TypeConversion:Overflow');
+        Observer.Expect('arg_byvalue.int300|text', 'The expression Variant cannot be type-converted to a Byte value.');
+        Observer.Expect('arg_byvalue.int300|code', 'TypeConversion:Overflow');
+        Observer.Expect('exit.int300|text', 'The expression Variant cannot be type-converted to a Byte value.');
+        Observer.Expect('exit.int300|code', 'TypeConversion:Overflow');
+        Observer.Expect('assign.big|text', 'The expression Variant cannot be type-converted to a Byte value.');
+        Observer.Expect('assign.big|code', 'TypeConversion:Overflow');
+        Observer.Expect('arg_byvalue.big|text', 'The expression Variant cannot be type-converted to a Byte value.');
+        Observer.Expect('arg_byvalue.big|code', 'TypeConversion:Overflow');
+        Observer.Expect('exit.big|text', 'The expression Variant cannot be type-converted to a Byte value.');
+        Observer.Expect('exit.big|code', 'TypeConversion:Overflow');
+        Observer.Expect('assign.dec1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int32.');
+        Observer.Expect('assign.dec1p5|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.dec1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int32.');
+        Observer.Expect('arg_byvalue.dec1p5|code', 'ConversionCast');
+        Observer.Expect('exit.dec1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int32.');
+        Observer.Expect('exit.dec1p5|code', 'ConversionCast');
+        Observer.Expect('assign.dec2', '\u0002');
+        Observer.Expect('arg_byvalue.dec2', '\u0002');
+        Observer.Expect('exit.dec2', '\u0002');
+        Observer.Expect('assign.charA', 'A');
+        Observer.Expect('arg_byvalue.charA', 'A');
+        Observer.Expect('exit.charA', 'A');
+        Observer.Expect('assign.byte65', 'A');
+        Observer.Expect('arg_byvalue.byte65', 'A');
+        Observer.Expect('exit.byte65', 'A');
+        Observer.Expect('assign.optB', '\u0001');
+        Observer.Expect('arg_byvalue.optB', '\u0001');
+        Observer.Expect('exit.optB', '\u0001');
+        Observer.Expect('assign.enumC', '\u0002');
+        Observer.Expect('arg_byvalue.enumC', '\u0002');
+        Observer.Expect('exit.enumC', '\u0002');
+        Observer.Expect('assign.textabc|text', 'The expression Variant cannot be type-converted to a Byte value.');
+        Observer.Expect('assign.textabc|code', 'TypeConversion:Format');
+        Observer.Expect('arg_byvalue.textabc|text', 'The expression Variant cannot be type-converted to a Byte value.');
+        Observer.Expect('arg_byvalue.textabc|code', 'TypeConversion:Format');
+        Observer.Expect('exit.textabc|text', 'The expression Variant cannot be type-converted to a Byte value.');
+        Observer.Expect('exit.textabc|code', 'TypeConversion:Format');
+        Observer.Expect('assign.text11|text', 'The expression Variant cannot be type-converted to a Byte value.');
+        Observer.Expect('assign.text11|code', 'TypeConversion:Format');
+        Observer.Expect('arg_byvalue.text11|text', 'The expression Variant cannot be type-converted to a Byte value.');
+        Observer.Expect('arg_byvalue.text11|code', 'TypeConversion:Format');
+        Observer.Expect('exit.text11|text', 'The expression Variant cannot be type-converted to a Byte value.');
+        Observer.Expect('exit.text11|code', 'TypeConversion:Format');
+        Observer.Expect('assign.text12', '\u000C');
+        Observer.Expect('arg_byvalue.text12', '\u000C');
+        Observer.Expect('exit.text12', '\u000C');
+        Observer.Expect('assign.codeABC|text', 'The expression Variant cannot be type-converted to a Byte value.');
+        Observer.Expect('assign.codeABC|code', 'TypeConversion:Format');
+        Observer.Expect('arg_byvalue.codeABC|text', 'The expression Variant cannot be type-converted to a Byte value.');
+        Observer.Expect('arg_byvalue.codeABC|code', 'TypeConversion:Format');
+        Observer.Expect('exit.codeABC|text', 'The expression Variant cannot be type-converted to a Byte value.');
+        Observer.Expect('exit.codeABC|code', 'TypeConversion:Format');
+        Observer.Expect('assign.code12', '\u000C');
+        Observer.Expect('arg_byvalue.code12', '\u000C');
+        Observer.Expect('exit.code12', '\u000C');
+        Observer.Expect('assign.guid|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavGuid to System.Int32.');
+        Observer.Expect('assign.guid|code', 'Conversion');
+        Observer.Expect('arg_byvalue.guid|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavGuid to System.Int32.');
+        Observer.Expect('arg_byvalue.guid|code', 'Conversion');
+        Observer.Expect('exit.guid|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavGuid to System.Int32.');
+        Observer.Expect('exit.guid|code', 'Conversion');
+        Observer.Expect('assign.boolF', '\u0000');
+        Observer.Expect('arg_byvalue.boolF', '\u0000');
+        Observer.Expect('exit.boolF', '\u0000');
+        Observer.Verify();
     end;
 
     [Test]
-    procedure Variant_To_Byte_9()
+    procedure Variant_To_Byte_2()
     var
         Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
         vByte: Byte;
         vVariant: Variant;
     begin
@@ -10026,16 +10266,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try21(vByte, vVariant) then Observer.Observe('assign.date', Format(vByte, 0, 9)) else Observer.ObserveError('assign.date');
         if Try23(vByte, vVariant) then Observer.Observe('arg_byvalue.date', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.date');
         if Try25(vByte, vVariant) then Observer.Observe('exit.date', Format(vByte, 0, 9)) else Observer.ObserveError('exit.date');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Byte_10()
-    var
-        Observer: Codeunit "Probe Observer";
-        vByte: Byte;
-        vVariant: Variant;
-    begin
         vVariant := 120000T;
         if Try21(vByte, vVariant) then Observer.Observe('assign.time', Format(vByte, 0, 9)) else Observer.ObserveError('assign.time');
         if Try23(vByte, vVariant) then Observer.Observe('arg_byvalue.time', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.time');
@@ -10044,22 +10274,35 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try21(vByte, vVariant) then Observer.Observe('assign.dt', Format(vByte, 0, 9)) else Observer.ObserveError('assign.dt');
         if Try23(vByte, vVariant) then Observer.Observe('arg_byvalue.dt', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.dt');
         if Try25(vByte, vVariant) then Observer.Observe('exit.dt', Format(vByte, 0, 9)) else Observer.ObserveError('exit.dt');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Byte_11()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vByte: Byte;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsDuration(65);
         if Try21(vByte, vVariant) then Observer.Observe('assign.dur65', Format(vByte, 0, 9)) else Observer.ObserveError('assign.dur65');
         if Try23(vByte, vVariant) then Observer.Observe('arg_byvalue.dur65', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.dur65');
         if Try25(vByte, vVariant) then Observer.Observe('exit.dur65', Format(vByte, 0, 9)) else Observer.ObserveError('exit.dur65');
-        Observer.Finish();
+        Observer.Expect('assign.boolT', '\u0001');
+        Observer.Expect('arg_byvalue.boolT', '\u0001');
+        Observer.Expect('exit.boolT', '\u0001');
+        Observer.Expect('assign.date|text', 'The expression Variant cannot be type-converted to a Byte value.');
+        Observer.Expect('assign.date|code', 'TypeConversion:Overflow');
+        Observer.Expect('arg_byvalue.date|text', 'The expression Variant cannot be type-converted to a Byte value.');
+        Observer.Expect('arg_byvalue.date|code', 'TypeConversion:Overflow');
+        Observer.Expect('exit.date|text', 'The expression Variant cannot be type-converted to a Byte value.');
+        Observer.Expect('exit.date|code', 'TypeConversion:Overflow');
+        Observer.Expect('assign.time|text', 'The expression Variant cannot be type-converted to a Byte value.');
+        Observer.Expect('assign.time|code', 'TypeConversion:Overflow');
+        Observer.Expect('arg_byvalue.time|text', 'The expression Variant cannot be type-converted to a Byte value.');
+        Observer.Expect('arg_byvalue.time|code', 'TypeConversion:Overflow');
+        Observer.Expect('exit.time|text', 'The expression Variant cannot be type-converted to a Byte value.');
+        Observer.Expect('exit.time|code', 'TypeConversion:Overflow');
+        Observer.Expect('assign.dt|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32.');
+        Observer.Expect('assign.dt|code', 'Conversion');
+        Observer.Expect('arg_byvalue.dt|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32.');
+        Observer.Expect('arg_byvalue.dt|code', 'Conversion');
+        Observer.Expect('exit.dt|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32.');
+        Observer.Expect('exit.dt|code', 'Conversion');
+        Observer.Expect('assign.dur65', 'A');
+        Observer.Expect('arg_byvalue.dur65', 'A');
+        Observer.Expect('exit.dur65', 'A');
+        Observer.Verify();
     end;
 
     [Test]
@@ -10078,17 +10321,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try26(vOption, vVariant) then Observer.Observe('assign.int300', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.int300');
         if Try28(vOption, vVariant) then Observer.Observe('arg_byvalue.int300', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.int300');
         if Try30(vOption, vVariant) then Observer.Observe('exit.int300', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.int300');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Option_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vOption: Option A,B,C;
-        vVariant: Variant;
-    begin
         vVariant := 3000000000L;
         if Try26(vOption, vVariant) then Observer.Observe('assign.big', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.big');
         if Try28(vOption, vVariant) then Observer.Observe('arg_byvalue.big', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.big');
@@ -10097,17 +10329,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try26(vOption, vVariant) then Observer.Observe('assign.dec1p5', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.dec1p5');
         if Try28(vOption, vVariant) then Observer.Observe('arg_byvalue.dec1p5', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.dec1p5');
         if Try30(vOption, vVariant) then Observer.Observe('exit.dec1p5', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.dec1p5');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Option_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vOption: Option A,B,C;
-        vVariant: Variant;
-    begin
         vVariant := 2.0;
         if Try26(vOption, vVariant) then Observer.Observe('assign.dec2', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.dec2');
         if Try28(vOption, vVariant) then Observer.Observe('arg_byvalue.dec2', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.dec2');
@@ -10116,17 +10337,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try26(vOption, vVariant) then Observer.Observe('assign.charA', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.charA');
         if Try28(vOption, vVariant) then Observer.Observe('arg_byvalue.charA', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.charA');
         if Try30(vOption, vVariant) then Observer.Observe('exit.charA', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.charA');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Option_4()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vOption: Option A,B,C;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsByte(65);
         if Try26(vOption, vVariant) then Observer.Observe('assign.byte65', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.byte65');
         if Try28(vOption, vVariant) then Observer.Observe('arg_byvalue.byte65', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.byte65');
@@ -10135,17 +10345,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try26(vOption, vVariant) then Observer.Observe('assign.optB', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.optB');
         if Try28(vOption, vVariant) then Observer.Observe('arg_byvalue.optB', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.optB');
         if Try30(vOption, vVariant) then Observer.Observe('exit.optB', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.optB');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Option_5()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vOption: Option A,B,C;
-        vVariant: Variant;
-    begin
         vVariant := "LT Y31 E"::C;
         if Try26(vOption, vVariant) then Observer.Observe('assign.enumC', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.enumC');
         if Try28(vOption, vVariant) then Observer.Observe('arg_byvalue.enumC', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.enumC');
@@ -10154,17 +10353,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try26(vOption, vVariant) then Observer.Observe('assign.textabc', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.textabc');
         if Try28(vOption, vVariant) then Observer.Observe('arg_byvalue.textabc', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.textabc');
         if Try30(vOption, vVariant) then Observer.Observe('exit.textabc', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.textabc');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Option_6()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vOption: Option A,B,C;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsText('abcdefghijk');
         if Try26(vOption, vVariant) then Observer.Observe('assign.text11', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.text11');
         if Try28(vOption, vVariant) then Observer.Observe('arg_byvalue.text11', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.text11');
@@ -10173,17 +10361,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try26(vOption, vVariant) then Observer.Observe('assign.text12', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.text12');
         if Try28(vOption, vVariant) then Observer.Observe('arg_byvalue.text12', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.text12');
         if Try30(vOption, vVariant) then Observer.Observe('exit.text12', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.text12');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Option_7()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vOption: Option A,B,C;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsCode('abc');
         if Try26(vOption, vVariant) then Observer.Observe('assign.codeABC', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.codeABC');
         if Try28(vOption, vVariant) then Observer.Observe('arg_byvalue.codeABC', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.codeABC');
@@ -10192,17 +10369,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try26(vOption, vVariant) then Observer.Observe('assign.code12', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.code12');
         if Try28(vOption, vVariant) then Observer.Observe('arg_byvalue.code12', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.code12');
         if Try30(vOption, vVariant) then Observer.Observe('exit.code12', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.code12');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Option_8()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vOption: Option A,B,C;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsGuid('{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
         if Try26(vOption, vVariant) then Observer.Observe('assign.guid', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.guid');
         if Try28(vOption, vVariant) then Observer.Observe('arg_byvalue.guid', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.guid');
@@ -10211,11 +10377,77 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try26(vOption, vVariant) then Observer.Observe('assign.boolF', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.boolF');
         if Try28(vOption, vVariant) then Observer.Observe('arg_byvalue.boolF', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.boolF');
         if Try30(vOption, vVariant) then Observer.Observe('exit.boolF', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.boolF');
-        Observer.Finish();
+        Observer.Expect('assign.int3', '3|3');
+        Observer.Expect('arg_byvalue.int3', '3|3');
+        Observer.Expect('exit.int3', '3|3');
+        Observer.Expect('assign.int300', '300|300');
+        Observer.Expect('arg_byvalue.int300', '300|300');
+        Observer.Expect('exit.int300', '300|300');
+        Observer.Expect('assign.big|text', 'The expression Variant cannot be type-converted to a Integer value.');
+        Observer.Expect('assign.big|code', 'TypeConversion:Overflow');
+        Observer.Expect('arg_byvalue.big|text', 'The expression Variant cannot be type-converted to a Integer value.');
+        Observer.Expect('arg_byvalue.big|code', 'TypeConversion:Overflow');
+        Observer.Expect('exit.big|text', 'The expression Variant cannot be type-converted to a Integer value.');
+        Observer.Expect('exit.big|code', 'TypeConversion:Overflow');
+        Observer.Expect('assign.dec1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int32.');
+        Observer.Expect('assign.dec1p5|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.dec1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int32.');
+        Observer.Expect('arg_byvalue.dec1p5|code', 'ConversionCast');
+        Observer.Expect('exit.dec1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int32.');
+        Observer.Expect('exit.dec1p5|code', 'ConversionCast');
+        Observer.Expect('assign.dec2', 'C|2');
+        Observer.Expect('arg_byvalue.dec2', 'C|2');
+        Observer.Expect('exit.dec2', '2|2');
+        Observer.Expect('assign.charA', '65|65');
+        Observer.Expect('arg_byvalue.charA', '65|65');
+        Observer.Expect('exit.charA', '65|65');
+        Observer.Expect('assign.byte65', '65|65');
+        Observer.Expect('arg_byvalue.byte65', '65|65');
+        Observer.Expect('exit.byte65', '65|65');
+        Observer.Expect('assign.optB', 'B|1');
+        Observer.Expect('arg_byvalue.optB', 'B|1');
+        Observer.Expect('exit.optB', '1|1');
+        Observer.Expect('assign.enumC', 'C|2');
+        Observer.Expect('arg_byvalue.enumC', 'C|2');
+        Observer.Expect('exit.enumC', '2|2');
+        Observer.Expect('assign.textabc|text', 'The expression Variant cannot be type-converted to a Integer value.');
+        Observer.Expect('assign.textabc|code', 'TypeConversion:Format');
+        Observer.Expect('arg_byvalue.textabc|text', 'The expression Variant cannot be type-converted to a Integer value.');
+        Observer.Expect('arg_byvalue.textabc|code', 'TypeConversion:Format');
+        Observer.Expect('exit.textabc|text', 'The expression Variant cannot be type-converted to a Integer value.');
+        Observer.Expect('exit.textabc|code', 'TypeConversion:Format');
+        Observer.Expect('assign.text11|text', 'The expression Variant cannot be type-converted to a Integer value.');
+        Observer.Expect('assign.text11|code', 'TypeConversion:Format');
+        Observer.Expect('arg_byvalue.text11|text', 'The expression Variant cannot be type-converted to a Integer value.');
+        Observer.Expect('arg_byvalue.text11|code', 'TypeConversion:Format');
+        Observer.Expect('exit.text11|text', 'The expression Variant cannot be type-converted to a Integer value.');
+        Observer.Expect('exit.text11|code', 'TypeConversion:Format');
+        Observer.Expect('assign.text12', '12|12');
+        Observer.Expect('arg_byvalue.text12', '12|12');
+        Observer.Expect('exit.text12', '12|12');
+        Observer.Expect('assign.codeABC|text', 'The expression Variant cannot be type-converted to a Integer value.');
+        Observer.Expect('assign.codeABC|code', 'TypeConversion:Format');
+        Observer.Expect('arg_byvalue.codeABC|text', 'The expression Variant cannot be type-converted to a Integer value.');
+        Observer.Expect('arg_byvalue.codeABC|code', 'TypeConversion:Format');
+        Observer.Expect('exit.codeABC|text', 'The expression Variant cannot be type-converted to a Integer value.');
+        Observer.Expect('exit.codeABC|code', 'TypeConversion:Format');
+        Observer.Expect('assign.code12', '12|12');
+        Observer.Expect('arg_byvalue.code12', '12|12');
+        Observer.Expect('exit.code12', '12|12');
+        Observer.Expect('assign.guid|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavGuid to System.Int32.');
+        Observer.Expect('assign.guid|code', 'Conversion');
+        Observer.Expect('arg_byvalue.guid|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavGuid to System.Int32.');
+        Observer.Expect('arg_byvalue.guid|code', 'Conversion');
+        Observer.Expect('exit.guid|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavGuid to System.Int32.');
+        Observer.Expect('exit.guid|code', 'Conversion');
+        Observer.Expect('assign.boolF', 'A|0');
+        Observer.Expect('arg_byvalue.boolF', 'A|0');
+        Observer.Expect('exit.boolF', '0|0');
+        Observer.Verify();
     end;
 
     [Test]
-    procedure Variant_To_Option_9()
+    procedure Variant_To_Option_2()
     var
         Observer: Codeunit "Probe Observer";
         Util: Codeunit "LT Y31 Conv Util";
@@ -10230,17 +10462,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try26(vOption, vVariant) then Observer.Observe('assign.date', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.date');
         if Try28(vOption, vVariant) then Observer.Observe('arg_byvalue.date', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.date');
         if Try30(vOption, vVariant) then Observer.Observe('exit.date', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.date');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Option_10()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vOption: Option A,B,C;
-        vVariant: Variant;
-    begin
         vVariant := 120000T;
         if Try26(vOption, vVariant) then Observer.Observe('assign.time', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.time');
         if Try28(vOption, vVariant) then Observer.Observe('arg_byvalue.time', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.time');
@@ -10249,28 +10470,36 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try26(vOption, vVariant) then Observer.Observe('assign.dt', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.dt');
         if Try28(vOption, vVariant) then Observer.Observe('arg_byvalue.dt', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.dt');
         if Try30(vOption, vVariant) then Observer.Observe('exit.dt', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.dt');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Option_11()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vOption: Option A,B,C;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsDuration(65);
         if Try26(vOption, vVariant) then Observer.Observe('assign.dur65', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.dur65');
         if Try28(vOption, vVariant) then Observer.Observe('arg_byvalue.dur65', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.dur65');
         if Try30(vOption, vVariant) then Observer.Observe('exit.dur65', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.dur65');
-        Observer.Finish();
+        Observer.Expect('assign.boolT', 'B|1');
+        Observer.Expect('arg_byvalue.boolT', 'B|1');
+        Observer.Expect('exit.boolT', '1|1');
+        Observer.Expect('assign.date', '1480025|1480025');
+        Observer.Expect('arg_byvalue.date', '1480025|1480025');
+        Observer.Expect('exit.date', '1480025|1480025');
+        Observer.Expect('assign.time', '43200001|43200001');
+        Observer.Expect('arg_byvalue.time', '43200001|43200001');
+        Observer.Expect('exit.time', '43200001|43200001');
+        Observer.Expect('assign.dt|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32.');
+        Observer.Expect('assign.dt|code', 'Conversion');
+        Observer.Expect('arg_byvalue.dt|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32.');
+        Observer.Expect('arg_byvalue.dt|code', 'Conversion');
+        Observer.Expect('exit.dt|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32.');
+        Observer.Expect('exit.dt|code', 'Conversion');
+        Observer.Expect('assign.dur65', '65|65');
+        Observer.Expect('arg_byvalue.dur65', '65|65');
+        Observer.Expect('exit.dur65', '65|65');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Variant_To_Text()
     var
         Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
         vText: Text;
         vVariant: Variant;
     begin
@@ -10282,16 +10511,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try31(vText, vVariant) then Observer.Observe('assign.int300', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.int300');
         if Try33(vText, vVariant) then Observer.Observe('arg_byvalue.int300', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.int300');
         if Try35(vText, vVariant) then Observer.Observe('exit.int300', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.int300');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Text_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vText: Text;
-        vVariant: Variant;
-    begin
         vVariant := 3000000000L;
         if Try31(vText, vVariant) then Observer.Observe('assign.big', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.big');
         if Try33(vText, vVariant) then Observer.Observe('arg_byvalue.big', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.big');
@@ -10300,17 +10519,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try31(vText, vVariant) then Observer.Observe('assign.dec1p5', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.dec1p5');
         if Try33(vText, vVariant) then Observer.Observe('arg_byvalue.dec1p5', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.dec1p5');
         if Try35(vText, vVariant) then Observer.Observe('exit.dec1p5', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.dec1p5');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Text_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vText: Text;
-        vVariant: Variant;
-    begin
         vVariant := 2.0;
         if Try31(vText, vVariant) then Observer.Observe('assign.dec2', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.dec2');
         if Try33(vText, vVariant) then Observer.Observe('arg_byvalue.dec2', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.dec2');
@@ -10319,17 +10527,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try31(vText, vVariant) then Observer.Observe('assign.charA', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.charA');
         if Try33(vText, vVariant) then Observer.Observe('arg_byvalue.charA', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.charA');
         if Try35(vText, vVariant) then Observer.Observe('exit.charA', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.charA');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Text_4()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vText: Text;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsByte(65);
         if Try31(vText, vVariant) then Observer.Observe('assign.byte65', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.byte65');
         if Try33(vText, vVariant) then Observer.Observe('arg_byvalue.byte65', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.byte65');
@@ -10338,17 +10535,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try31(vText, vVariant) then Observer.Observe('assign.optB', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.optB');
         if Try33(vText, vVariant) then Observer.Observe('arg_byvalue.optB', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.optB');
         if Try35(vText, vVariant) then Observer.Observe('exit.optB', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.optB');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Text_5()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vText: Text;
-        vVariant: Variant;
-    begin
         vVariant := "LT Y31 E"::C;
         if Try31(vText, vVariant) then Observer.Observe('assign.enumC', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.enumC');
         if Try33(vText, vVariant) then Observer.Observe('arg_byvalue.enumC', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.enumC');
@@ -10357,17 +10543,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try31(vText, vVariant) then Observer.Observe('assign.textabc', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.textabc');
         if Try33(vText, vVariant) then Observer.Observe('arg_byvalue.textabc', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.textabc');
         if Try35(vText, vVariant) then Observer.Observe('exit.textabc', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.textabc');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Text_6()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vText: Text;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsText('abcdefghijk');
         if Try31(vText, vVariant) then Observer.Observe('assign.text11', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.text11');
         if Try33(vText, vVariant) then Observer.Observe('arg_byvalue.text11', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.text11');
@@ -10376,17 +10551,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try31(vText, vVariant) then Observer.Observe('assign.text12', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.text12');
         if Try33(vText, vVariant) then Observer.Observe('arg_byvalue.text12', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.text12');
         if Try35(vText, vVariant) then Observer.Observe('exit.text12', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.text12');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Text_7()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vText: Text;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsCode('abc');
         if Try31(vText, vVariant) then Observer.Observe('assign.codeABC', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.codeABC');
         if Try33(vText, vVariant) then Observer.Observe('arg_byvalue.codeABC', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.codeABC');
@@ -10395,17 +10559,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try31(vText, vVariant) then Observer.Observe('assign.code12', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.code12');
         if Try33(vText, vVariant) then Observer.Observe('arg_byvalue.code12', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.code12');
         if Try35(vText, vVariant) then Observer.Observe('exit.code12', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.code12');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Text_8()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vText: Text;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsGuid('{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
         if Try31(vText, vVariant) then Observer.Observe('assign.guid', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.guid');
         if Try33(vText, vVariant) then Observer.Observe('arg_byvalue.guid', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.guid');
@@ -10414,13 +10567,86 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try31(vText, vVariant) then Observer.Observe('assign.boolF', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.boolF');
         if Try33(vText, vVariant) then Observer.Observe('arg_byvalue.boolF', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.boolF');
         if Try35(vText, vVariant) then Observer.Observe('exit.boolF', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.boolF');
-        Observer.Finish();
+        Observer.Expect('assign.int3|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('assign.int3|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.int3|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('arg_byvalue.int3|code', 'TypeConversion');
+        Observer.Expect('exit.int3|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('exit.int3|code', 'TypeConversion');
+        Observer.Expect('assign.int300|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('assign.int300|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.int300|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('arg_byvalue.int300|code', 'TypeConversion');
+        Observer.Expect('exit.int300|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('exit.int300|code', 'TypeConversion');
+        Observer.Expect('assign.big|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('assign.big|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.big|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('arg_byvalue.big|code', 'TypeConversion');
+        Observer.Expect('exit.big|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('exit.big|code', 'TypeConversion');
+        Observer.Expect('assign.dec1p5|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('assign.dec1p5|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.dec1p5|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('arg_byvalue.dec1p5|code', 'TypeConversion');
+        Observer.Expect('exit.dec1p5|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('exit.dec1p5|code', 'TypeConversion');
+        Observer.Expect('assign.dec2|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('assign.dec2|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.dec2|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('arg_byvalue.dec2|code', 'TypeConversion');
+        Observer.Expect('exit.dec2|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('exit.dec2|code', 'TypeConversion');
+        Observer.Expect('assign.charA', 'A|1');
+        Observer.Expect('arg_byvalue.charA', 'A|1');
+        Observer.Expect('exit.charA', 'A|1');
+        Observer.Expect('assign.byte65', 'A|1');
+        Observer.Expect('arg_byvalue.byte65', 'A|1');
+        Observer.Expect('exit.byte65', 'A|1');
+        Observer.Expect('assign.optB|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('assign.optB|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.optB|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('arg_byvalue.optB|code', 'TypeConversion');
+        Observer.Expect('exit.optB|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('exit.optB|code', 'TypeConversion');
+        Observer.Expect('assign.enumC|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('assign.enumC|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.enumC|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('arg_byvalue.enumC|code', 'TypeConversion');
+        Observer.Expect('exit.enumC|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('exit.enumC|code', 'TypeConversion');
+        Observer.Expect('assign.textabc', 'abc|3');
+        Observer.Expect('arg_byvalue.textabc', 'abc|3');
+        Observer.Expect('exit.textabc', 'abc|3');
+        Observer.Expect('assign.text11', 'abcdefghijk|11');
+        Observer.Expect('arg_byvalue.text11', 'abcdefghijk|11');
+        Observer.Expect('exit.text11', 'abcdefghijk|11');
+        Observer.Expect('assign.text12', '12|2');
+        Observer.Expect('arg_byvalue.text12', '12|2');
+        Observer.Expect('exit.text12', '12|2');
+        Observer.Expect('assign.codeABC', 'ABC|3');
+        Observer.Expect('arg_byvalue.codeABC', 'ABC|3');
+        Observer.Expect('exit.codeABC', 'ABC|3');
+        Observer.Expect('assign.code12', '12|2');
+        Observer.Expect('arg_byvalue.code12', '12|2');
+        Observer.Expect('exit.code12', '12|2');
+        Observer.Expect('assign.guid', '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}|38');
+        Observer.Expect('arg_byvalue.guid', '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}|38');
+        Observer.Expect('exit.guid', '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}|38');
+        Observer.Expect('assign.boolF|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('assign.boolF|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.boolF|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('arg_byvalue.boolF|code', 'TypeConversion');
+        Observer.Expect('exit.boolF|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('exit.boolF|code', 'TypeConversion');
+        Observer.Verify();
     end;
 
     [Test]
-    procedure Variant_To_Text_9()
+    procedure Variant_To_Text_2()
     var
         Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
         vText: Text;
         vVariant: Variant;
     begin
@@ -10432,16 +10658,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try31(vText, vVariant) then Observer.Observe('assign.date', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.date');
         if Try33(vText, vVariant) then Observer.Observe('arg_byvalue.date', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.date');
         if Try35(vText, vVariant) then Observer.Observe('exit.date', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.date');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Text_10()
-    var
-        Observer: Codeunit "Probe Observer";
-        vText: Text;
-        vVariant: Variant;
-    begin
         vVariant := 120000T;
         if Try31(vText, vVariant) then Observer.Observe('assign.time', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.time');
         if Try33(vText, vVariant) then Observer.Observe('arg_byvalue.time', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.time');
@@ -10450,28 +10666,48 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try31(vText, vVariant) then Observer.Observe('assign.dt', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.dt');
         if Try33(vText, vVariant) then Observer.Observe('arg_byvalue.dt', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.dt');
         if Try35(vText, vVariant) then Observer.Observe('exit.dt', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.dt');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Text_11()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vText: Text;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsDuration(65);
         if Try31(vText, vVariant) then Observer.Observe('assign.dur65', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.dur65');
         if Try33(vText, vVariant) then Observer.Observe('arg_byvalue.dur65', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.dur65');
         if Try35(vText, vVariant) then Observer.Observe('exit.dur65', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.dur65');
-        Observer.Finish();
+        Observer.Expect('assign.boolT|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('assign.boolT|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.boolT|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('arg_byvalue.boolT|code', 'TypeConversion');
+        Observer.Expect('exit.boolT|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('exit.boolT|code', 'TypeConversion');
+        Observer.Expect('assign.date|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('assign.date|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.date|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('arg_byvalue.date|code', 'TypeConversion');
+        Observer.Expect('exit.date|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('exit.date|code', 'TypeConversion');
+        Observer.Expect('assign.time|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('assign.time|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.time|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('arg_byvalue.time|code', 'TypeConversion');
+        Observer.Expect('exit.time|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('exit.time|code', 'TypeConversion');
+        Observer.Expect('assign.dt|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('assign.dt|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.dt|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('arg_byvalue.dt|code', 'TypeConversion');
+        Observer.Expect('exit.dt|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('exit.dt|code', 'TypeConversion');
+        Observer.Expect('assign.dur65|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('assign.dur65|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.dur65|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('arg_byvalue.dur65|code', 'TypeConversion');
+        Observer.Expect('exit.dur65|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('exit.dur65|code', 'TypeConversion');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Variant_To_Text10()
     var
         Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
         vText10: Text[10];
         vVariant: Variant;
     begin
@@ -10483,16 +10719,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try36(vText10, vVariant) then Observer.Observe('assign.int300', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.int300');
         if Try38(vText10, vVariant) then Observer.Observe('arg_byvalue.int300', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.int300');
         if Try40(vText10, vVariant) then Observer.Observe('exit.int300', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.int300');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Text10_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vText10: Text[10];
-        vVariant: Variant;
-    begin
         vVariant := 3000000000L;
         if Try36(vText10, vVariant) then Observer.Observe('assign.big', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.big');
         if Try38(vText10, vVariant) then Observer.Observe('arg_byvalue.big', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.big');
@@ -10501,17 +10727,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try36(vText10, vVariant) then Observer.Observe('assign.dec1p5', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.dec1p5');
         if Try38(vText10, vVariant) then Observer.Observe('arg_byvalue.dec1p5', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.dec1p5');
         if Try40(vText10, vVariant) then Observer.Observe('exit.dec1p5', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.dec1p5');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Text10_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vText10: Text[10];
-        vVariant: Variant;
-    begin
         vVariant := 2.0;
         if Try36(vText10, vVariant) then Observer.Observe('assign.dec2', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.dec2');
         if Try38(vText10, vVariant) then Observer.Observe('arg_byvalue.dec2', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.dec2');
@@ -10520,17 +10735,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try36(vText10, vVariant) then Observer.Observe('assign.charA', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.charA');
         if Try38(vText10, vVariant) then Observer.Observe('arg_byvalue.charA', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.charA');
         if Try40(vText10, vVariant) then Observer.Observe('exit.charA', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.charA');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Text10_4()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vText10: Text[10];
-        vVariant: Variant;
-    begin
         vVariant := Util.AsByte(65);
         if Try36(vText10, vVariant) then Observer.Observe('assign.byte65', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.byte65');
         if Try38(vText10, vVariant) then Observer.Observe('arg_byvalue.byte65', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.byte65');
@@ -10539,17 +10743,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try36(vText10, vVariant) then Observer.Observe('assign.optB', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.optB');
         if Try38(vText10, vVariant) then Observer.Observe('arg_byvalue.optB', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.optB');
         if Try40(vText10, vVariant) then Observer.Observe('exit.optB', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.optB');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Text10_5()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vText10: Text[10];
-        vVariant: Variant;
-    begin
         vVariant := "LT Y31 E"::C;
         if Try36(vText10, vVariant) then Observer.Observe('assign.enumC', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.enumC');
         if Try38(vText10, vVariant) then Observer.Observe('arg_byvalue.enumC', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.enumC');
@@ -10558,17 +10751,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try36(vText10, vVariant) then Observer.Observe('assign.textabc', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.textabc');
         if Try38(vText10, vVariant) then Observer.Observe('arg_byvalue.textabc', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.textabc');
         if Try40(vText10, vVariant) then Observer.Observe('exit.textabc', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.textabc');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Text10_6()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vText10: Text[10];
-        vVariant: Variant;
-    begin
         vVariant := Util.AsText('abcdefghijk');
         if Try36(vText10, vVariant) then Observer.Observe('assign.text11', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.text11');
         if Try38(vText10, vVariant) then Observer.Observe('arg_byvalue.text11', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.text11');
@@ -10577,17 +10759,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try36(vText10, vVariant) then Observer.Observe('assign.text12', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.text12');
         if Try38(vText10, vVariant) then Observer.Observe('arg_byvalue.text12', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.text12');
         if Try40(vText10, vVariant) then Observer.Observe('exit.text12', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.text12');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Text10_7()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vText10: Text[10];
-        vVariant: Variant;
-    begin
         vVariant := Util.AsCode('abc');
         if Try36(vText10, vVariant) then Observer.Observe('assign.codeABC', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.codeABC');
         if Try38(vText10, vVariant) then Observer.Observe('arg_byvalue.codeABC', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.codeABC');
@@ -10596,17 +10767,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try36(vText10, vVariant) then Observer.Observe('assign.code12', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.code12');
         if Try38(vText10, vVariant) then Observer.Observe('arg_byvalue.code12', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.code12');
         if Try40(vText10, vVariant) then Observer.Observe('exit.code12', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.code12');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Text10_8()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vText10: Text[10];
-        vVariant: Variant;
-    begin
         vVariant := Util.AsGuid('{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
         if Try36(vText10, vVariant) then Observer.Observe('assign.guid', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.guid');
         if Try38(vText10, vVariant) then Observer.Observe('arg_byvalue.guid', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.guid');
@@ -10615,13 +10775,92 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try36(vText10, vVariant) then Observer.Observe('assign.boolF', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.boolF');
         if Try38(vText10, vVariant) then Observer.Observe('arg_byvalue.boolF', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.boolF');
         if Try40(vText10, vVariant) then Observer.Observe('exit.boolF', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.boolF');
-        Observer.Finish();
+        Observer.Expect('assign.int3|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('assign.int3|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.int3|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('arg_byvalue.int3|code', 'TypeConversion');
+        Observer.Expect('exit.int3|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('exit.int3|code', 'TypeConversion');
+        Observer.Expect('assign.int300|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('assign.int300|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.int300|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('arg_byvalue.int300|code', 'TypeConversion');
+        Observer.Expect('exit.int300|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('exit.int300|code', 'TypeConversion');
+        Observer.Expect('assign.big|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('assign.big|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.big|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('arg_byvalue.big|code', 'TypeConversion');
+        Observer.Expect('exit.big|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('exit.big|code', 'TypeConversion');
+        Observer.Expect('assign.dec1p5|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('assign.dec1p5|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.dec1p5|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('arg_byvalue.dec1p5|code', 'TypeConversion');
+        Observer.Expect('exit.dec1p5|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('exit.dec1p5|code', 'TypeConversion');
+        Observer.Expect('assign.dec2|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('assign.dec2|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.dec2|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('arg_byvalue.dec2|code', 'TypeConversion');
+        Observer.Expect('exit.dec2|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('exit.dec2|code', 'TypeConversion');
+        Observer.Expect('assign.charA', 'A|1');
+        Observer.Expect('arg_byvalue.charA', 'A|1');
+        Observer.Expect('exit.charA', 'A|1');
+        Observer.Expect('assign.byte65', 'A|1');
+        Observer.Expect('arg_byvalue.byte65', 'A|1');
+        Observer.Expect('exit.byte65', 'A|1');
+        Observer.Expect('assign.optB|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('assign.optB|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.optB|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('arg_byvalue.optB|code', 'TypeConversion');
+        Observer.Expect('exit.optB|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('exit.optB|code', 'TypeConversion');
+        Observer.Expect('assign.enumC|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('assign.enumC|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.enumC|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('arg_byvalue.enumC|code', 'TypeConversion');
+        Observer.Expect('exit.enumC|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('exit.enumC|code', 'TypeConversion');
+        Observer.Expect('assign.textabc', 'abc|3');
+        Observer.Expect('arg_byvalue.textabc', 'abc|3');
+        Observer.Expect('exit.textabc', 'abc|3');
+        Observer.Expect('assign.text11|text', 'The length of the string is 11, but it must be less than or equal to 10 characters. Value: abcdefghijk');
+        Observer.Expect('assign.text11|code', 'StringLengthExceeded');
+        Observer.Expect('arg_byvalue.text11|text', 'The length of the string is 11, but it must be less than or equal to 10 characters. Value: abcdefghijk');
+        Observer.Expect('arg_byvalue.text11|code', 'StringLengthExceeded');
+        Observer.Expect('exit.text11|text', 'The length of the string is 11, but it must be less than or equal to 10 characters. Value: abcdefghijk');
+        Observer.Expect('exit.text11|code', 'StringLengthExceeded');
+        Observer.Expect('assign.text12', '12|2');
+        Observer.Expect('arg_byvalue.text12', '12|2');
+        Observer.Expect('exit.text12', '12|2');
+        Observer.Expect('assign.codeABC', 'ABC|3');
+        Observer.Expect('arg_byvalue.codeABC', 'ABC|3');
+        Observer.Expect('exit.codeABC', 'ABC|3');
+        Observer.Expect('assign.code12', '12|2');
+        Observer.Expect('arg_byvalue.code12', '12|2');
+        Observer.Expect('exit.code12', '12|2');
+        Observer.Expect('assign.guid|text', 'The length of the string is 38, but it must be less than or equal to 10 characters. Value: {5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('assign.guid|code', 'StringLengthExceeded');
+        Observer.Expect('arg_byvalue.guid|text', 'The length of the string is 38, but it must be less than or equal to 10 characters. Value: {5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('arg_byvalue.guid|code', 'StringLengthExceeded');
+        Observer.Expect('exit.guid|text', 'The length of the string is 38, but it must be less than or equal to 10 characters. Value: {5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('exit.guid|code', 'StringLengthExceeded');
+        Observer.Expect('assign.boolF|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('assign.boolF|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.boolF|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('arg_byvalue.boolF|code', 'TypeConversion');
+        Observer.Expect('exit.boolF|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('exit.boolF|code', 'TypeConversion');
+        Observer.Verify();
     end;
 
     [Test]
-    procedure Variant_To_Text10_9()
+    procedure Variant_To_Text10_2()
     var
         Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
         vText10: Text[10];
         vVariant: Variant;
     begin
@@ -10633,16 +10872,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try36(vText10, vVariant) then Observer.Observe('assign.date', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.date');
         if Try38(vText10, vVariant) then Observer.Observe('arg_byvalue.date', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.date');
         if Try40(vText10, vVariant) then Observer.Observe('exit.date', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.date');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Text10_10()
-    var
-        Observer: Codeunit "Probe Observer";
-        vText10: Text[10];
-        vVariant: Variant;
-    begin
         vVariant := 120000T;
         if Try36(vText10, vVariant) then Observer.Observe('assign.time', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.time');
         if Try38(vText10, vVariant) then Observer.Observe('arg_byvalue.time', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.time');
@@ -10651,28 +10880,48 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try36(vText10, vVariant) then Observer.Observe('assign.dt', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.dt');
         if Try38(vText10, vVariant) then Observer.Observe('arg_byvalue.dt', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.dt');
         if Try40(vText10, vVariant) then Observer.Observe('exit.dt', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.dt');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Text10_11()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vText10: Text[10];
-        vVariant: Variant;
-    begin
         vVariant := Util.AsDuration(65);
         if Try36(vText10, vVariant) then Observer.Observe('assign.dur65', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.dur65');
         if Try38(vText10, vVariant) then Observer.Observe('arg_byvalue.dur65', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.dur65');
         if Try40(vText10, vVariant) then Observer.Observe('exit.dur65', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.dur65');
-        Observer.Finish();
+        Observer.Expect('assign.boolT|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('assign.boolT|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.boolT|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('arg_byvalue.boolT|code', 'TypeConversion');
+        Observer.Expect('exit.boolT|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('exit.boolT|code', 'TypeConversion');
+        Observer.Expect('assign.date|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('assign.date|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.date|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('arg_byvalue.date|code', 'TypeConversion');
+        Observer.Expect('exit.date|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('exit.date|code', 'TypeConversion');
+        Observer.Expect('assign.time|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('assign.time|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.time|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('arg_byvalue.time|code', 'TypeConversion');
+        Observer.Expect('exit.time|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('exit.time|code', 'TypeConversion');
+        Observer.Expect('assign.dt|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('assign.dt|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.dt|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('arg_byvalue.dt|code', 'TypeConversion');
+        Observer.Expect('exit.dt|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('exit.dt|code', 'TypeConversion');
+        Observer.Expect('assign.dur65|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('assign.dur65|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.dur65|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('arg_byvalue.dur65|code', 'TypeConversion');
+        Observer.Expect('exit.dur65|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('exit.dur65|code', 'TypeConversion');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Variant_To_Text3()
     var
         Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
         vText3: Text[3];
         vVariant: Variant;
     begin
@@ -10684,16 +10933,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try41(vText3, vVariant) then Observer.Observe('assign.int300', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.int300');
         if Try43(vText3, vVariant) then Observer.Observe('arg_byvalue.int300', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.int300');
         if Try45(vText3, vVariant) then Observer.Observe('exit.int300', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.int300');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Text3_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vText3: Text[3];
-        vVariant: Variant;
-    begin
         vVariant := 3000000000L;
         if Try41(vText3, vVariant) then Observer.Observe('assign.big', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.big');
         if Try43(vText3, vVariant) then Observer.Observe('arg_byvalue.big', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.big');
@@ -10702,17 +10941,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try41(vText3, vVariant) then Observer.Observe('assign.dec1p5', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.dec1p5');
         if Try43(vText3, vVariant) then Observer.Observe('arg_byvalue.dec1p5', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.dec1p5');
         if Try45(vText3, vVariant) then Observer.Observe('exit.dec1p5', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.dec1p5');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Text3_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vText3: Text[3];
-        vVariant: Variant;
-    begin
         vVariant := 2.0;
         if Try41(vText3, vVariant) then Observer.Observe('assign.dec2', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.dec2');
         if Try43(vText3, vVariant) then Observer.Observe('arg_byvalue.dec2', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.dec2');
@@ -10721,17 +10949,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try41(vText3, vVariant) then Observer.Observe('assign.charA', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.charA');
         if Try43(vText3, vVariant) then Observer.Observe('arg_byvalue.charA', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.charA');
         if Try45(vText3, vVariant) then Observer.Observe('exit.charA', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.charA');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Text3_4()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vText3: Text[3];
-        vVariant: Variant;
-    begin
         vVariant := Util.AsByte(65);
         if Try41(vText3, vVariant) then Observer.Observe('assign.byte65', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.byte65');
         if Try43(vText3, vVariant) then Observer.Observe('arg_byvalue.byte65', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.byte65');
@@ -10740,17 +10957,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try41(vText3, vVariant) then Observer.Observe('assign.optB', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.optB');
         if Try43(vText3, vVariant) then Observer.Observe('arg_byvalue.optB', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.optB');
         if Try45(vText3, vVariant) then Observer.Observe('exit.optB', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.optB');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Text3_5()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vText3: Text[3];
-        vVariant: Variant;
-    begin
         vVariant := "LT Y31 E"::C;
         if Try41(vText3, vVariant) then Observer.Observe('assign.enumC', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.enumC');
         if Try43(vText3, vVariant) then Observer.Observe('arg_byvalue.enumC', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.enumC');
@@ -10759,17 +10965,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try41(vText3, vVariant) then Observer.Observe('assign.textabc', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.textabc');
         if Try43(vText3, vVariant) then Observer.Observe('arg_byvalue.textabc', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.textabc');
         if Try45(vText3, vVariant) then Observer.Observe('exit.textabc', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.textabc');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Text3_6()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vText3: Text[3];
-        vVariant: Variant;
-    begin
         vVariant := Util.AsText('abcdefghijk');
         if Try41(vText3, vVariant) then Observer.Observe('assign.text11', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.text11');
         if Try43(vText3, vVariant) then Observer.Observe('arg_byvalue.text11', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.text11');
@@ -10778,17 +10973,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try41(vText3, vVariant) then Observer.Observe('assign.text12', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.text12');
         if Try43(vText3, vVariant) then Observer.Observe('arg_byvalue.text12', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.text12');
         if Try45(vText3, vVariant) then Observer.Observe('exit.text12', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.text12');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Text3_7()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vText3: Text[3];
-        vVariant: Variant;
-    begin
         vVariant := Util.AsCode('abc');
         if Try41(vText3, vVariant) then Observer.Observe('assign.codeABC', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.codeABC');
         if Try43(vText3, vVariant) then Observer.Observe('arg_byvalue.codeABC', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.codeABC');
@@ -10797,17 +10981,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try41(vText3, vVariant) then Observer.Observe('assign.code12', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.code12');
         if Try43(vText3, vVariant) then Observer.Observe('arg_byvalue.code12', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.code12');
         if Try45(vText3, vVariant) then Observer.Observe('exit.code12', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.code12');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Text3_8()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vText3: Text[3];
-        vVariant: Variant;
-    begin
         vVariant := Util.AsGuid('{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
         if Try41(vText3, vVariant) then Observer.Observe('assign.guid', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.guid');
         if Try43(vText3, vVariant) then Observer.Observe('arg_byvalue.guid', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.guid');
@@ -10816,13 +10989,92 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try41(vText3, vVariant) then Observer.Observe('assign.boolF', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.boolF');
         if Try43(vText3, vVariant) then Observer.Observe('arg_byvalue.boolF', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.boolF');
         if Try45(vText3, vVariant) then Observer.Observe('exit.boolF', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.boolF');
-        Observer.Finish();
+        Observer.Expect('assign.int3|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('assign.int3|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.int3|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('arg_byvalue.int3|code', 'TypeConversion');
+        Observer.Expect('exit.int3|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('exit.int3|code', 'TypeConversion');
+        Observer.Expect('assign.int300|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('assign.int300|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.int300|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('arg_byvalue.int300|code', 'TypeConversion');
+        Observer.Expect('exit.int300|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('exit.int300|code', 'TypeConversion');
+        Observer.Expect('assign.big|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('assign.big|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.big|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('arg_byvalue.big|code', 'TypeConversion');
+        Observer.Expect('exit.big|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('exit.big|code', 'TypeConversion');
+        Observer.Expect('assign.dec1p5|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('assign.dec1p5|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.dec1p5|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('arg_byvalue.dec1p5|code', 'TypeConversion');
+        Observer.Expect('exit.dec1p5|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('exit.dec1p5|code', 'TypeConversion');
+        Observer.Expect('assign.dec2|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('assign.dec2|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.dec2|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('arg_byvalue.dec2|code', 'TypeConversion');
+        Observer.Expect('exit.dec2|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('exit.dec2|code', 'TypeConversion');
+        Observer.Expect('assign.charA', 'A|1');
+        Observer.Expect('arg_byvalue.charA', 'A|1');
+        Observer.Expect('exit.charA', 'A|1');
+        Observer.Expect('assign.byte65', 'A|1');
+        Observer.Expect('arg_byvalue.byte65', 'A|1');
+        Observer.Expect('exit.byte65', 'A|1');
+        Observer.Expect('assign.optB|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('assign.optB|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.optB|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('arg_byvalue.optB|code', 'TypeConversion');
+        Observer.Expect('exit.optB|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('exit.optB|code', 'TypeConversion');
+        Observer.Expect('assign.enumC|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('assign.enumC|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.enumC|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('arg_byvalue.enumC|code', 'TypeConversion');
+        Observer.Expect('exit.enumC|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('exit.enumC|code', 'TypeConversion');
+        Observer.Expect('assign.textabc', 'abc|3');
+        Observer.Expect('arg_byvalue.textabc', 'abc|3');
+        Observer.Expect('exit.textabc', 'abc|3');
+        Observer.Expect('assign.text11|text', 'The length of the string is 11, but it must be less than or equal to 3 characters. Value: abcdefghijk');
+        Observer.Expect('assign.text11|code', 'StringLengthExceeded');
+        Observer.Expect('arg_byvalue.text11|text', 'The length of the string is 11, but it must be less than or equal to 3 characters. Value: abcdefghijk');
+        Observer.Expect('arg_byvalue.text11|code', 'StringLengthExceeded');
+        Observer.Expect('exit.text11|text', 'The length of the string is 11, but it must be less than or equal to 3 characters. Value: abcdefghijk');
+        Observer.Expect('exit.text11|code', 'StringLengthExceeded');
+        Observer.Expect('assign.text12', '12|2');
+        Observer.Expect('arg_byvalue.text12', '12|2');
+        Observer.Expect('exit.text12', '12|2');
+        Observer.Expect('assign.codeABC', 'ABC|3');
+        Observer.Expect('arg_byvalue.codeABC', 'ABC|3');
+        Observer.Expect('exit.codeABC', 'ABC|3');
+        Observer.Expect('assign.code12', '12|2');
+        Observer.Expect('arg_byvalue.code12', '12|2');
+        Observer.Expect('exit.code12', '12|2');
+        Observer.Expect('assign.guid|text', 'The length of the string is 38, but it must be less than or equal to 3 characters. Value: {5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('assign.guid|code', 'StringLengthExceeded');
+        Observer.Expect('arg_byvalue.guid|text', 'The length of the string is 38, but it must be less than or equal to 3 characters. Value: {5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('arg_byvalue.guid|code', 'StringLengthExceeded');
+        Observer.Expect('exit.guid|text', 'The length of the string is 38, but it must be less than or equal to 3 characters. Value: {5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('exit.guid|code', 'StringLengthExceeded');
+        Observer.Expect('assign.boolF|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('assign.boolF|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.boolF|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('arg_byvalue.boolF|code', 'TypeConversion');
+        Observer.Expect('exit.boolF|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('exit.boolF|code', 'TypeConversion');
+        Observer.Verify();
     end;
 
     [Test]
-    procedure Variant_To_Text3_9()
+    procedure Variant_To_Text3_2()
     var
         Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
         vText3: Text[3];
         vVariant: Variant;
     begin
@@ -10834,16 +11086,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try41(vText3, vVariant) then Observer.Observe('assign.date', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.date');
         if Try43(vText3, vVariant) then Observer.Observe('arg_byvalue.date', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.date');
         if Try45(vText3, vVariant) then Observer.Observe('exit.date', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.date');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Text3_10()
-    var
-        Observer: Codeunit "Probe Observer";
-        vText3: Text[3];
-        vVariant: Variant;
-    begin
         vVariant := 120000T;
         if Try41(vText3, vVariant) then Observer.Observe('assign.time', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.time');
         if Try43(vText3, vVariant) then Observer.Observe('arg_byvalue.time', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.time');
@@ -10852,28 +11094,48 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try41(vText3, vVariant) then Observer.Observe('assign.dt', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.dt');
         if Try43(vText3, vVariant) then Observer.Observe('arg_byvalue.dt', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.dt');
         if Try45(vText3, vVariant) then Observer.Observe('exit.dt', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.dt');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Text3_11()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vText3: Text[3];
-        vVariant: Variant;
-    begin
         vVariant := Util.AsDuration(65);
         if Try41(vText3, vVariant) then Observer.Observe('assign.dur65', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.dur65');
         if Try43(vText3, vVariant) then Observer.Observe('arg_byvalue.dur65', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.dur65');
         if Try45(vText3, vVariant) then Observer.Observe('exit.dur65', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.dur65');
-        Observer.Finish();
+        Observer.Expect('assign.boolT|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('assign.boolT|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.boolT|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('arg_byvalue.boolT|code', 'TypeConversion');
+        Observer.Expect('exit.boolT|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('exit.boolT|code', 'TypeConversion');
+        Observer.Expect('assign.date|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('assign.date|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.date|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('arg_byvalue.date|code', 'TypeConversion');
+        Observer.Expect('exit.date|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('exit.date|code', 'TypeConversion');
+        Observer.Expect('assign.time|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('assign.time|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.time|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('arg_byvalue.time|code', 'TypeConversion');
+        Observer.Expect('exit.time|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('exit.time|code', 'TypeConversion');
+        Observer.Expect('assign.dt|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('assign.dt|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.dt|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('arg_byvalue.dt|code', 'TypeConversion');
+        Observer.Expect('exit.dt|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('exit.dt|code', 'TypeConversion');
+        Observer.Expect('assign.dur65|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('assign.dur65|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.dur65|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('arg_byvalue.dur65|code', 'TypeConversion');
+        Observer.Expect('exit.dur65|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('exit.dur65|code', 'TypeConversion');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Variant_To_Code10()
     var
         Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
         vCode10: Code[10];
         vVariant: Variant;
     begin
@@ -10885,16 +11147,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try46(vCode10, vVariant) then Observer.Observe('assign.int300', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.int300');
         if Try48(vCode10, vVariant) then Observer.Observe('arg_byvalue.int300', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.int300');
         if Try50(vCode10, vVariant) then Observer.Observe('exit.int300', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.int300');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Code10_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vCode10: Code[10];
-        vVariant: Variant;
-    begin
         vVariant := 3000000000L;
         if Try46(vCode10, vVariant) then Observer.Observe('assign.big', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.big');
         if Try48(vCode10, vVariant) then Observer.Observe('arg_byvalue.big', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.big');
@@ -10903,17 +11155,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try46(vCode10, vVariant) then Observer.Observe('assign.dec1p5', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.dec1p5');
         if Try48(vCode10, vVariant) then Observer.Observe('arg_byvalue.dec1p5', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.dec1p5');
         if Try50(vCode10, vVariant) then Observer.Observe('exit.dec1p5', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.dec1p5');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Code10_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vCode10: Code[10];
-        vVariant: Variant;
-    begin
         vVariant := 2.0;
         if Try46(vCode10, vVariant) then Observer.Observe('assign.dec2', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.dec2');
         if Try48(vCode10, vVariant) then Observer.Observe('arg_byvalue.dec2', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.dec2');
@@ -10922,17 +11163,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try46(vCode10, vVariant) then Observer.Observe('assign.charA', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.charA');
         if Try48(vCode10, vVariant) then Observer.Observe('arg_byvalue.charA', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.charA');
         if Try50(vCode10, vVariant) then Observer.Observe('exit.charA', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.charA');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Code10_4()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vCode10: Code[10];
-        vVariant: Variant;
-    begin
         vVariant := Util.AsByte(65);
         if Try46(vCode10, vVariant) then Observer.Observe('assign.byte65', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.byte65');
         if Try48(vCode10, vVariant) then Observer.Observe('arg_byvalue.byte65', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.byte65');
@@ -10941,17 +11171,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try46(vCode10, vVariant) then Observer.Observe('assign.optB', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.optB');
         if Try48(vCode10, vVariant) then Observer.Observe('arg_byvalue.optB', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.optB');
         if Try50(vCode10, vVariant) then Observer.Observe('exit.optB', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.optB');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Code10_5()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vCode10: Code[10];
-        vVariant: Variant;
-    begin
         vVariant := "LT Y31 E"::C;
         if Try46(vCode10, vVariant) then Observer.Observe('assign.enumC', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.enumC');
         if Try48(vCode10, vVariant) then Observer.Observe('arg_byvalue.enumC', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.enumC');
@@ -10960,17 +11179,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try46(vCode10, vVariant) then Observer.Observe('assign.textabc', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.textabc');
         if Try48(vCode10, vVariant) then Observer.Observe('arg_byvalue.textabc', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.textabc');
         if Try50(vCode10, vVariant) then Observer.Observe('exit.textabc', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.textabc');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Code10_6()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vCode10: Code[10];
-        vVariant: Variant;
-    begin
         vVariant := Util.AsText('abcdefghijk');
         if Try46(vCode10, vVariant) then Observer.Observe('assign.text11', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.text11');
         if Try48(vCode10, vVariant) then Observer.Observe('arg_byvalue.text11', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.text11');
@@ -10979,17 +11187,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try46(vCode10, vVariant) then Observer.Observe('assign.text12', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.text12');
         if Try48(vCode10, vVariant) then Observer.Observe('arg_byvalue.text12', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.text12');
         if Try50(vCode10, vVariant) then Observer.Observe('exit.text12', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.text12');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Code10_7()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vCode10: Code[10];
-        vVariant: Variant;
-    begin
         vVariant := Util.AsCode('abc');
         if Try46(vCode10, vVariant) then Observer.Observe('assign.codeABC', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.codeABC');
         if Try48(vCode10, vVariant) then Observer.Observe('arg_byvalue.codeABC', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.codeABC');
@@ -10998,17 +11195,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try46(vCode10, vVariant) then Observer.Observe('assign.code12', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.code12');
         if Try48(vCode10, vVariant) then Observer.Observe('arg_byvalue.code12', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.code12');
         if Try50(vCode10, vVariant) then Observer.Observe('exit.code12', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.code12');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Code10_8()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vCode10: Code[10];
-        vVariant: Variant;
-    begin
         vVariant := Util.AsGuid('{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
         if Try46(vCode10, vVariant) then Observer.Observe('assign.guid', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.guid');
         if Try48(vCode10, vVariant) then Observer.Observe('arg_byvalue.guid', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.guid');
@@ -11017,13 +11203,92 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try46(vCode10, vVariant) then Observer.Observe('assign.boolF', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.boolF');
         if Try48(vCode10, vVariant) then Observer.Observe('arg_byvalue.boolF', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.boolF');
         if Try50(vCode10, vVariant) then Observer.Observe('exit.boolF', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.boolF');
-        Observer.Finish();
+        Observer.Expect('assign.int3|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('assign.int3|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.int3|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('arg_byvalue.int3|code', 'TypeConversion');
+        Observer.Expect('exit.int3|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('exit.int3|code', 'TypeConversion');
+        Observer.Expect('assign.int300|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('assign.int300|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.int300|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('arg_byvalue.int300|code', 'TypeConversion');
+        Observer.Expect('exit.int300|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('exit.int300|code', 'TypeConversion');
+        Observer.Expect('assign.big|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('assign.big|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.big|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('arg_byvalue.big|code', 'TypeConversion');
+        Observer.Expect('exit.big|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('exit.big|code', 'TypeConversion');
+        Observer.Expect('assign.dec1p5|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('assign.dec1p5|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.dec1p5|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('arg_byvalue.dec1p5|code', 'TypeConversion');
+        Observer.Expect('exit.dec1p5|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('exit.dec1p5|code', 'TypeConversion');
+        Observer.Expect('assign.dec2|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('assign.dec2|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.dec2|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('arg_byvalue.dec2|code', 'TypeConversion');
+        Observer.Expect('exit.dec2|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('exit.dec2|code', 'TypeConversion');
+        Observer.Expect('assign.charA', 'A|1');
+        Observer.Expect('arg_byvalue.charA', 'A|1');
+        Observer.Expect('exit.charA', 'A|1');
+        Observer.Expect('assign.byte65', 'A|1');
+        Observer.Expect('arg_byvalue.byte65', 'A|1');
+        Observer.Expect('exit.byte65', 'A|1');
+        Observer.Expect('assign.optB|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('assign.optB|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.optB|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('arg_byvalue.optB|code', 'TypeConversion');
+        Observer.Expect('exit.optB|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('exit.optB|code', 'TypeConversion');
+        Observer.Expect('assign.enumC|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('assign.enumC|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.enumC|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('arg_byvalue.enumC|code', 'TypeConversion');
+        Observer.Expect('exit.enumC|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('exit.enumC|code', 'TypeConversion');
+        Observer.Expect('assign.textabc', 'ABC|3');
+        Observer.Expect('arg_byvalue.textabc', 'ABC|3');
+        Observer.Expect('exit.textabc', 'ABC|3');
+        Observer.Expect('assign.text11|text', 'The length of the string is 11, but it must be less than or equal to 10 characters. Value: abcdefghijk');
+        Observer.Expect('assign.text11|code', 'StringLengthExceeded');
+        Observer.Expect('arg_byvalue.text11|text', 'The length of the string is 11, but it must be less than or equal to 10 characters. Value: abcdefghijk');
+        Observer.Expect('arg_byvalue.text11|code', 'StringLengthExceeded');
+        Observer.Expect('exit.text11|text', 'The length of the string is 11, but it must be less than or equal to 10 characters. Value: abcdefghijk');
+        Observer.Expect('exit.text11|code', 'StringLengthExceeded');
+        Observer.Expect('assign.text12', '12|2');
+        Observer.Expect('arg_byvalue.text12', '12|2');
+        Observer.Expect('exit.text12', '12|2');
+        Observer.Expect('assign.codeABC', 'ABC|3');
+        Observer.Expect('arg_byvalue.codeABC', 'ABC|3');
+        Observer.Expect('exit.codeABC', 'ABC|3');
+        Observer.Expect('assign.code12', '12|2');
+        Observer.Expect('arg_byvalue.code12', '12|2');
+        Observer.Expect('exit.code12', '12|2');
+        Observer.Expect('assign.guid|text', 'The length of the string is 38, but it must be less than or equal to 10 characters. Value: {5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('assign.guid|code', 'StringLengthExceeded');
+        Observer.Expect('arg_byvalue.guid|text', 'The length of the string is 38, but it must be less than or equal to 10 characters. Value: {5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('arg_byvalue.guid|code', 'StringLengthExceeded');
+        Observer.Expect('exit.guid|text', 'The length of the string is 38, but it must be less than or equal to 10 characters. Value: {5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('exit.guid|code', 'StringLengthExceeded');
+        Observer.Expect('assign.boolF|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('assign.boolF|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.boolF|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('arg_byvalue.boolF|code', 'TypeConversion');
+        Observer.Expect('exit.boolF|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('exit.boolF|code', 'TypeConversion');
+        Observer.Verify();
     end;
 
     [Test]
-    procedure Variant_To_Code10_9()
+    procedure Variant_To_Code10_2()
     var
         Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
         vCode10: Code[10];
         vVariant: Variant;
     begin
@@ -11035,16 +11300,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try46(vCode10, vVariant) then Observer.Observe('assign.date', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.date');
         if Try48(vCode10, vVariant) then Observer.Observe('arg_byvalue.date', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.date');
         if Try50(vCode10, vVariant) then Observer.Observe('exit.date', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.date');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Code10_10()
-    var
-        Observer: Codeunit "Probe Observer";
-        vCode10: Code[10];
-        vVariant: Variant;
-    begin
         vVariant := 120000T;
         if Try46(vCode10, vVariant) then Observer.Observe('assign.time', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.time');
         if Try48(vCode10, vVariant) then Observer.Observe('arg_byvalue.time', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.time');
@@ -11053,28 +11308,48 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try46(vCode10, vVariant) then Observer.Observe('assign.dt', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.dt');
         if Try48(vCode10, vVariant) then Observer.Observe('arg_byvalue.dt', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.dt');
         if Try50(vCode10, vVariant) then Observer.Observe('exit.dt', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.dt');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Code10_11()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vCode10: Code[10];
-        vVariant: Variant;
-    begin
         vVariant := Util.AsDuration(65);
         if Try46(vCode10, vVariant) then Observer.Observe('assign.dur65', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.dur65');
         if Try48(vCode10, vVariant) then Observer.Observe('arg_byvalue.dur65', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.dur65');
         if Try50(vCode10, vVariant) then Observer.Observe('exit.dur65', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.dur65');
-        Observer.Finish();
+        Observer.Expect('assign.boolT|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('assign.boolT|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.boolT|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('arg_byvalue.boolT|code', 'TypeConversion');
+        Observer.Expect('exit.boolT|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('exit.boolT|code', 'TypeConversion');
+        Observer.Expect('assign.date|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('assign.date|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.date|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('arg_byvalue.date|code', 'TypeConversion');
+        Observer.Expect('exit.date|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('exit.date|code', 'TypeConversion');
+        Observer.Expect('assign.time|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('assign.time|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.time|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('arg_byvalue.time|code', 'TypeConversion');
+        Observer.Expect('exit.time|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('exit.time|code', 'TypeConversion');
+        Observer.Expect('assign.dt|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('assign.dt|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.dt|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('arg_byvalue.dt|code', 'TypeConversion');
+        Observer.Expect('exit.dt|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('exit.dt|code', 'TypeConversion');
+        Observer.Expect('assign.dur65|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('assign.dur65|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.dur65|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('arg_byvalue.dur65|code', 'TypeConversion');
+        Observer.Expect('exit.dur65|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('exit.dur65|code', 'TypeConversion');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Variant_To_Code3()
     var
         Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
         vCode3: Code[3];
         vVariant: Variant;
     begin
@@ -11086,16 +11361,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try51(vCode3, vVariant) then Observer.Observe('assign.int300', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.int300');
         if Try53(vCode3, vVariant) then Observer.Observe('arg_byvalue.int300', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.int300');
         if Try55(vCode3, vVariant) then Observer.Observe('exit.int300', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.int300');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Code3_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vCode3: Code[3];
-        vVariant: Variant;
-    begin
         vVariant := 3000000000L;
         if Try51(vCode3, vVariant) then Observer.Observe('assign.big', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.big');
         if Try53(vCode3, vVariant) then Observer.Observe('arg_byvalue.big', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.big');
@@ -11104,17 +11369,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try51(vCode3, vVariant) then Observer.Observe('assign.dec1p5', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.dec1p5');
         if Try53(vCode3, vVariant) then Observer.Observe('arg_byvalue.dec1p5', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.dec1p5');
         if Try55(vCode3, vVariant) then Observer.Observe('exit.dec1p5', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.dec1p5');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Code3_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vCode3: Code[3];
-        vVariant: Variant;
-    begin
         vVariant := 2.0;
         if Try51(vCode3, vVariant) then Observer.Observe('assign.dec2', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.dec2');
         if Try53(vCode3, vVariant) then Observer.Observe('arg_byvalue.dec2', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.dec2');
@@ -11123,17 +11377,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try51(vCode3, vVariant) then Observer.Observe('assign.charA', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.charA');
         if Try53(vCode3, vVariant) then Observer.Observe('arg_byvalue.charA', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.charA');
         if Try55(vCode3, vVariant) then Observer.Observe('exit.charA', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.charA');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Code3_4()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vCode3: Code[3];
-        vVariant: Variant;
-    begin
         vVariant := Util.AsByte(65);
         if Try51(vCode3, vVariant) then Observer.Observe('assign.byte65', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.byte65');
         if Try53(vCode3, vVariant) then Observer.Observe('arg_byvalue.byte65', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.byte65');
@@ -11142,17 +11385,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try51(vCode3, vVariant) then Observer.Observe('assign.optB', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.optB');
         if Try53(vCode3, vVariant) then Observer.Observe('arg_byvalue.optB', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.optB');
         if Try55(vCode3, vVariant) then Observer.Observe('exit.optB', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.optB');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Code3_5()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vCode3: Code[3];
-        vVariant: Variant;
-    begin
         vVariant := "LT Y31 E"::C;
         if Try51(vCode3, vVariant) then Observer.Observe('assign.enumC', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.enumC');
         if Try53(vCode3, vVariant) then Observer.Observe('arg_byvalue.enumC', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.enumC');
@@ -11161,17 +11393,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try51(vCode3, vVariant) then Observer.Observe('assign.textabc', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.textabc');
         if Try53(vCode3, vVariant) then Observer.Observe('arg_byvalue.textabc', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.textabc');
         if Try55(vCode3, vVariant) then Observer.Observe('exit.textabc', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.textabc');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Code3_6()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vCode3: Code[3];
-        vVariant: Variant;
-    begin
         vVariant := Util.AsText('abcdefghijk');
         if Try51(vCode3, vVariant) then Observer.Observe('assign.text11', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.text11');
         if Try53(vCode3, vVariant) then Observer.Observe('arg_byvalue.text11', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.text11');
@@ -11180,17 +11401,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try51(vCode3, vVariant) then Observer.Observe('assign.text12', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.text12');
         if Try53(vCode3, vVariant) then Observer.Observe('arg_byvalue.text12', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.text12');
         if Try55(vCode3, vVariant) then Observer.Observe('exit.text12', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.text12');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Code3_7()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vCode3: Code[3];
-        vVariant: Variant;
-    begin
         vVariant := Util.AsCode('abc');
         if Try51(vCode3, vVariant) then Observer.Observe('assign.codeABC', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.codeABC');
         if Try53(vCode3, vVariant) then Observer.Observe('arg_byvalue.codeABC', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.codeABC');
@@ -11199,17 +11409,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try51(vCode3, vVariant) then Observer.Observe('assign.code12', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.code12');
         if Try53(vCode3, vVariant) then Observer.Observe('arg_byvalue.code12', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.code12');
         if Try55(vCode3, vVariant) then Observer.Observe('exit.code12', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.code12');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Code3_8()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vCode3: Code[3];
-        vVariant: Variant;
-    begin
         vVariant := Util.AsGuid('{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
         if Try51(vCode3, vVariant) then Observer.Observe('assign.guid', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.guid');
         if Try53(vCode3, vVariant) then Observer.Observe('arg_byvalue.guid', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.guid');
@@ -11218,13 +11417,92 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try51(vCode3, vVariant) then Observer.Observe('assign.boolF', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.boolF');
         if Try53(vCode3, vVariant) then Observer.Observe('arg_byvalue.boolF', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.boolF');
         if Try55(vCode3, vVariant) then Observer.Observe('exit.boolF', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.boolF');
-        Observer.Finish();
+        Observer.Expect('assign.int3|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('assign.int3|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.int3|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('arg_byvalue.int3|code', 'TypeConversion');
+        Observer.Expect('exit.int3|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('exit.int3|code', 'TypeConversion');
+        Observer.Expect('assign.int300|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('assign.int300|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.int300|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('arg_byvalue.int300|code', 'TypeConversion');
+        Observer.Expect('exit.int300|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('exit.int300|code', 'TypeConversion');
+        Observer.Expect('assign.big|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('assign.big|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.big|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('arg_byvalue.big|code', 'TypeConversion');
+        Observer.Expect('exit.big|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('exit.big|code', 'TypeConversion');
+        Observer.Expect('assign.dec1p5|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('assign.dec1p5|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.dec1p5|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('arg_byvalue.dec1p5|code', 'TypeConversion');
+        Observer.Expect('exit.dec1p5|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('exit.dec1p5|code', 'TypeConversion');
+        Observer.Expect('assign.dec2|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('assign.dec2|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.dec2|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('arg_byvalue.dec2|code', 'TypeConversion');
+        Observer.Expect('exit.dec2|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('exit.dec2|code', 'TypeConversion');
+        Observer.Expect('assign.charA', 'A|1');
+        Observer.Expect('arg_byvalue.charA', 'A|1');
+        Observer.Expect('exit.charA', 'A|1');
+        Observer.Expect('assign.byte65', 'A|1');
+        Observer.Expect('arg_byvalue.byte65', 'A|1');
+        Observer.Expect('exit.byte65', 'A|1');
+        Observer.Expect('assign.optB|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('assign.optB|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.optB|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('arg_byvalue.optB|code', 'TypeConversion');
+        Observer.Expect('exit.optB|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('exit.optB|code', 'TypeConversion');
+        Observer.Expect('assign.enumC|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('assign.enumC|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.enumC|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('arg_byvalue.enumC|code', 'TypeConversion');
+        Observer.Expect('exit.enumC|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('exit.enumC|code', 'TypeConversion');
+        Observer.Expect('assign.textabc', 'ABC|3');
+        Observer.Expect('arg_byvalue.textabc', 'ABC|3');
+        Observer.Expect('exit.textabc', 'ABC|3');
+        Observer.Expect('assign.text11|text', 'The length of the string is 11, but it must be less than or equal to 3 characters. Value: abcdefghijk');
+        Observer.Expect('assign.text11|code', 'StringLengthExceeded');
+        Observer.Expect('arg_byvalue.text11|text', 'The length of the string is 11, but it must be less than or equal to 3 characters. Value: abcdefghijk');
+        Observer.Expect('arg_byvalue.text11|code', 'StringLengthExceeded');
+        Observer.Expect('exit.text11|text', 'The length of the string is 11, but it must be less than or equal to 3 characters. Value: abcdefghijk');
+        Observer.Expect('exit.text11|code', 'StringLengthExceeded');
+        Observer.Expect('assign.text12', '12|2');
+        Observer.Expect('arg_byvalue.text12', '12|2');
+        Observer.Expect('exit.text12', '12|2');
+        Observer.Expect('assign.codeABC', 'ABC|3');
+        Observer.Expect('arg_byvalue.codeABC', 'ABC|3');
+        Observer.Expect('exit.codeABC', 'ABC|3');
+        Observer.Expect('assign.code12', '12|2');
+        Observer.Expect('arg_byvalue.code12', '12|2');
+        Observer.Expect('exit.code12', '12|2');
+        Observer.Expect('assign.guid|text', 'The length of the string is 38, but it must be less than or equal to 3 characters. Value: {5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('assign.guid|code', 'StringLengthExceeded');
+        Observer.Expect('arg_byvalue.guid|text', 'The length of the string is 38, but it must be less than or equal to 3 characters. Value: {5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('arg_byvalue.guid|code', 'StringLengthExceeded');
+        Observer.Expect('exit.guid|text', 'The length of the string is 38, but it must be less than or equal to 3 characters. Value: {5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('exit.guid|code', 'StringLengthExceeded');
+        Observer.Expect('assign.boolF|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('assign.boolF|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.boolF|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('arg_byvalue.boolF|code', 'TypeConversion');
+        Observer.Expect('exit.boolF|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('exit.boolF|code', 'TypeConversion');
+        Observer.Verify();
     end;
 
     [Test]
-    procedure Variant_To_Code3_9()
+    procedure Variant_To_Code3_2()
     var
         Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
         vCode3: Code[3];
         vVariant: Variant;
     begin
@@ -11236,16 +11514,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try51(vCode3, vVariant) then Observer.Observe('assign.date', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.date');
         if Try53(vCode3, vVariant) then Observer.Observe('arg_byvalue.date', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.date');
         if Try55(vCode3, vVariant) then Observer.Observe('exit.date', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.date');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Code3_10()
-    var
-        Observer: Codeunit "Probe Observer";
-        vCode3: Code[3];
-        vVariant: Variant;
-    begin
         vVariant := 120000T;
         if Try51(vCode3, vVariant) then Observer.Observe('assign.time', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.time');
         if Try53(vCode3, vVariant) then Observer.Observe('arg_byvalue.time', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.time');
@@ -11254,28 +11522,48 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try51(vCode3, vVariant) then Observer.Observe('assign.dt', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.dt');
         if Try53(vCode3, vVariant) then Observer.Observe('arg_byvalue.dt', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.dt');
         if Try55(vCode3, vVariant) then Observer.Observe('exit.dt', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.dt');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Code3_11()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vCode3: Code[3];
-        vVariant: Variant;
-    begin
         vVariant := Util.AsDuration(65);
         if Try51(vCode3, vVariant) then Observer.Observe('assign.dur65', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.dur65');
         if Try53(vCode3, vVariant) then Observer.Observe('arg_byvalue.dur65', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.dur65');
         if Try55(vCode3, vVariant) then Observer.Observe('exit.dur65', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.dur65');
-        Observer.Finish();
+        Observer.Expect('assign.boolT|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('assign.boolT|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.boolT|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('arg_byvalue.boolT|code', 'TypeConversion');
+        Observer.Expect('exit.boolT|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('exit.boolT|code', 'TypeConversion');
+        Observer.Expect('assign.date|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('assign.date|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.date|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('arg_byvalue.date|code', 'TypeConversion');
+        Observer.Expect('exit.date|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('exit.date|code', 'TypeConversion');
+        Observer.Expect('assign.time|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('assign.time|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.time|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('arg_byvalue.time|code', 'TypeConversion');
+        Observer.Expect('exit.time|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('exit.time|code', 'TypeConversion');
+        Observer.Expect('assign.dt|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('assign.dt|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.dt|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('arg_byvalue.dt|code', 'TypeConversion');
+        Observer.Expect('exit.dt|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('exit.dt|code', 'TypeConversion');
+        Observer.Expect('assign.dur65|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('assign.dur65|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.dur65|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('arg_byvalue.dur65|code', 'TypeConversion');
+        Observer.Expect('exit.dur65|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('exit.dur65|code', 'TypeConversion');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Variant_To_Code250()
     var
         Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
         vCode250: Code[250];
         vVariant: Variant;
     begin
@@ -11287,16 +11575,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try56(vCode250, vVariant) then Observer.Observe('assign.int300', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.int300');
         if Try58(vCode250, vVariant) then Observer.Observe('arg_byvalue.int300', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.int300');
         if Try60(vCode250, vVariant) then Observer.Observe('exit.int300', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.int300');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Code250_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vCode250: Code[250];
-        vVariant: Variant;
-    begin
         vVariant := 3000000000L;
         if Try56(vCode250, vVariant) then Observer.Observe('assign.big', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.big');
         if Try58(vCode250, vVariant) then Observer.Observe('arg_byvalue.big', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.big');
@@ -11305,17 +11583,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try56(vCode250, vVariant) then Observer.Observe('assign.dec1p5', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.dec1p5');
         if Try58(vCode250, vVariant) then Observer.Observe('arg_byvalue.dec1p5', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.dec1p5');
         if Try60(vCode250, vVariant) then Observer.Observe('exit.dec1p5', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.dec1p5');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Code250_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vCode250: Code[250];
-        vVariant: Variant;
-    begin
         vVariant := 2.0;
         if Try56(vCode250, vVariant) then Observer.Observe('assign.dec2', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.dec2');
         if Try58(vCode250, vVariant) then Observer.Observe('arg_byvalue.dec2', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.dec2');
@@ -11324,17 +11591,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try56(vCode250, vVariant) then Observer.Observe('assign.charA', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.charA');
         if Try58(vCode250, vVariant) then Observer.Observe('arg_byvalue.charA', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.charA');
         if Try60(vCode250, vVariant) then Observer.Observe('exit.charA', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.charA');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Code250_4()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vCode250: Code[250];
-        vVariant: Variant;
-    begin
         vVariant := Util.AsByte(65);
         if Try56(vCode250, vVariant) then Observer.Observe('assign.byte65', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.byte65');
         if Try58(vCode250, vVariant) then Observer.Observe('arg_byvalue.byte65', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.byte65');
@@ -11343,17 +11599,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try56(vCode250, vVariant) then Observer.Observe('assign.optB', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.optB');
         if Try58(vCode250, vVariant) then Observer.Observe('arg_byvalue.optB', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.optB');
         if Try60(vCode250, vVariant) then Observer.Observe('exit.optB', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.optB');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Code250_5()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vCode250: Code[250];
-        vVariant: Variant;
-    begin
         vVariant := "LT Y31 E"::C;
         if Try56(vCode250, vVariant) then Observer.Observe('assign.enumC', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.enumC');
         if Try58(vCode250, vVariant) then Observer.Observe('arg_byvalue.enumC', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.enumC');
@@ -11362,17 +11607,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try56(vCode250, vVariant) then Observer.Observe('assign.textabc', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.textabc');
         if Try58(vCode250, vVariant) then Observer.Observe('arg_byvalue.textabc', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.textabc');
         if Try60(vCode250, vVariant) then Observer.Observe('exit.textabc', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.textabc');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Code250_6()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vCode250: Code[250];
-        vVariant: Variant;
-    begin
         vVariant := Util.AsText('abcdefghijk');
         if Try56(vCode250, vVariant) then Observer.Observe('assign.text11', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.text11');
         if Try58(vCode250, vVariant) then Observer.Observe('arg_byvalue.text11', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.text11');
@@ -11381,17 +11615,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try56(vCode250, vVariant) then Observer.Observe('assign.text12', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.text12');
         if Try58(vCode250, vVariant) then Observer.Observe('arg_byvalue.text12', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.text12');
         if Try60(vCode250, vVariant) then Observer.Observe('exit.text12', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.text12');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Code250_7()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vCode250: Code[250];
-        vVariant: Variant;
-    begin
         vVariant := Util.AsCode('abc');
         if Try56(vCode250, vVariant) then Observer.Observe('assign.codeABC', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.codeABC');
         if Try58(vCode250, vVariant) then Observer.Observe('arg_byvalue.codeABC', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.codeABC');
@@ -11400,17 +11623,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try56(vCode250, vVariant) then Observer.Observe('assign.code12', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.code12');
         if Try58(vCode250, vVariant) then Observer.Observe('arg_byvalue.code12', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.code12');
         if Try60(vCode250, vVariant) then Observer.Observe('exit.code12', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.code12');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Code250_8()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vCode250: Code[250];
-        vVariant: Variant;
-    begin
         vVariant := Util.AsGuid('{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
         if Try56(vCode250, vVariant) then Observer.Observe('assign.guid', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.guid');
         if Try58(vCode250, vVariant) then Observer.Observe('arg_byvalue.guid', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.guid');
@@ -11419,13 +11631,86 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try56(vCode250, vVariant) then Observer.Observe('assign.boolF', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.boolF');
         if Try58(vCode250, vVariant) then Observer.Observe('arg_byvalue.boolF', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.boolF');
         if Try60(vCode250, vVariant) then Observer.Observe('exit.boolF', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.boolF');
-        Observer.Finish();
+        Observer.Expect('assign.int3|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('assign.int3|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.int3|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('arg_byvalue.int3|code', 'TypeConversion');
+        Observer.Expect('exit.int3|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('exit.int3|code', 'TypeConversion');
+        Observer.Expect('assign.int300|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('assign.int300|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.int300|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('arg_byvalue.int300|code', 'TypeConversion');
+        Observer.Expect('exit.int300|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('exit.int300|code', 'TypeConversion');
+        Observer.Expect('assign.big|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('assign.big|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.big|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('arg_byvalue.big|code', 'TypeConversion');
+        Observer.Expect('exit.big|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('exit.big|code', 'TypeConversion');
+        Observer.Expect('assign.dec1p5|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('assign.dec1p5|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.dec1p5|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('arg_byvalue.dec1p5|code', 'TypeConversion');
+        Observer.Expect('exit.dec1p5|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('exit.dec1p5|code', 'TypeConversion');
+        Observer.Expect('assign.dec2|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('assign.dec2|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.dec2|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('arg_byvalue.dec2|code', 'TypeConversion');
+        Observer.Expect('exit.dec2|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('exit.dec2|code', 'TypeConversion');
+        Observer.Expect('assign.charA', 'A|1');
+        Observer.Expect('arg_byvalue.charA', 'A|1');
+        Observer.Expect('exit.charA', 'A|1');
+        Observer.Expect('assign.byte65', 'A|1');
+        Observer.Expect('arg_byvalue.byte65', 'A|1');
+        Observer.Expect('exit.byte65', 'A|1');
+        Observer.Expect('assign.optB|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('assign.optB|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.optB|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('arg_byvalue.optB|code', 'TypeConversion');
+        Observer.Expect('exit.optB|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('exit.optB|code', 'TypeConversion');
+        Observer.Expect('assign.enumC|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('assign.enumC|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.enumC|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('arg_byvalue.enumC|code', 'TypeConversion');
+        Observer.Expect('exit.enumC|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('exit.enumC|code', 'TypeConversion');
+        Observer.Expect('assign.textabc', 'ABC|3');
+        Observer.Expect('arg_byvalue.textabc', 'ABC|3');
+        Observer.Expect('exit.textabc', 'ABC|3');
+        Observer.Expect('assign.text11', 'ABCDEFGHIJK|11');
+        Observer.Expect('arg_byvalue.text11', 'ABCDEFGHIJK|11');
+        Observer.Expect('exit.text11', 'ABCDEFGHIJK|11');
+        Observer.Expect('assign.text12', '12|2');
+        Observer.Expect('arg_byvalue.text12', '12|2');
+        Observer.Expect('exit.text12', '12|2');
+        Observer.Expect('assign.codeABC', 'ABC|3');
+        Observer.Expect('arg_byvalue.codeABC', 'ABC|3');
+        Observer.Expect('exit.codeABC', 'ABC|3');
+        Observer.Expect('assign.code12', '12|2');
+        Observer.Expect('arg_byvalue.code12', '12|2');
+        Observer.Expect('exit.code12', '12|2');
+        Observer.Expect('assign.guid', '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}|38');
+        Observer.Expect('arg_byvalue.guid', '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}|38');
+        Observer.Expect('exit.guid', '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}|38');
+        Observer.Expect('assign.boolF|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('assign.boolF|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.boolF|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('arg_byvalue.boolF|code', 'TypeConversion');
+        Observer.Expect('exit.boolF|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('exit.boolF|code', 'TypeConversion');
+        Observer.Verify();
     end;
 
     [Test]
-    procedure Variant_To_Code250_9()
+    procedure Variant_To_Code250_2()
     var
         Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
         vCode250: Code[250];
         vVariant: Variant;
     begin
@@ -11437,16 +11722,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try56(vCode250, vVariant) then Observer.Observe('assign.date', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.date');
         if Try58(vCode250, vVariant) then Observer.Observe('arg_byvalue.date', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.date');
         if Try60(vCode250, vVariant) then Observer.Observe('exit.date', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.date');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Code250_10()
-    var
-        Observer: Codeunit "Probe Observer";
-        vCode250: Code[250];
-        vVariant: Variant;
-    begin
         vVariant := 120000T;
         if Try56(vCode250, vVariant) then Observer.Observe('assign.time', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.time');
         if Try58(vCode250, vVariant) then Observer.Observe('arg_byvalue.time', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.time');
@@ -11455,28 +11730,48 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try56(vCode250, vVariant) then Observer.Observe('assign.dt', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.dt');
         if Try58(vCode250, vVariant) then Observer.Observe('arg_byvalue.dt', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.dt');
         if Try60(vCode250, vVariant) then Observer.Observe('exit.dt', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.dt');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Code250_11()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vCode250: Code[250];
-        vVariant: Variant;
-    begin
         vVariant := Util.AsDuration(65);
         if Try56(vCode250, vVariant) then Observer.Observe('assign.dur65', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.dur65');
         if Try58(vCode250, vVariant) then Observer.Observe('arg_byvalue.dur65', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.dur65');
         if Try60(vCode250, vVariant) then Observer.Observe('exit.dur65', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.dur65');
-        Observer.Finish();
+        Observer.Expect('assign.boolT|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('assign.boolT|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.boolT|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('arg_byvalue.boolT|code', 'TypeConversion');
+        Observer.Expect('exit.boolT|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('exit.boolT|code', 'TypeConversion');
+        Observer.Expect('assign.date|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('assign.date|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.date|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('arg_byvalue.date|code', 'TypeConversion');
+        Observer.Expect('exit.date|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('exit.date|code', 'TypeConversion');
+        Observer.Expect('assign.time|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('assign.time|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.time|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('arg_byvalue.time|code', 'TypeConversion');
+        Observer.Expect('exit.time|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('exit.time|code', 'TypeConversion');
+        Observer.Expect('assign.dt|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('assign.dt|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.dt|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('arg_byvalue.dt|code', 'TypeConversion');
+        Observer.Expect('exit.dt|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('exit.dt|code', 'TypeConversion');
+        Observer.Expect('assign.dur65|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('assign.dur65|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.dur65|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('arg_byvalue.dur65|code', 'TypeConversion');
+        Observer.Expect('exit.dur65|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('exit.dur65|code', 'TypeConversion');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Variant_To_Guid()
     var
         Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
         vGuid: Guid;
         vVariant: Variant;
     begin
@@ -11488,16 +11783,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try61(vGuid, vVariant) then Observer.Observe('assign.int300', Format(vGuid)) else Observer.ObserveError('assign.int300');
         if Try63(vGuid, vVariant) then Observer.Observe('arg_byvalue.int300', Format(vGuid)) else Observer.ObserveError('arg_byvalue.int300');
         if Try65(vGuid, vVariant) then Observer.Observe('exit.int300', Format(vGuid)) else Observer.ObserveError('exit.int300');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Guid_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vGuid: Guid;
-        vVariant: Variant;
-    begin
         vVariant := 3000000000L;
         if Try61(vGuid, vVariant) then Observer.Observe('assign.big', Format(vGuid)) else Observer.ObserveError('assign.big');
         if Try63(vGuid, vVariant) then Observer.Observe('arg_byvalue.big', Format(vGuid)) else Observer.ObserveError('arg_byvalue.big');
@@ -11506,17 +11791,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try61(vGuid, vVariant) then Observer.Observe('assign.dec1p5', Format(vGuid)) else Observer.ObserveError('assign.dec1p5');
         if Try63(vGuid, vVariant) then Observer.Observe('arg_byvalue.dec1p5', Format(vGuid)) else Observer.ObserveError('arg_byvalue.dec1p5');
         if Try65(vGuid, vVariant) then Observer.Observe('exit.dec1p5', Format(vGuid)) else Observer.ObserveError('exit.dec1p5');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Guid_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vGuid: Guid;
-        vVariant: Variant;
-    begin
         vVariant := 2.0;
         if Try61(vGuid, vVariant) then Observer.Observe('assign.dec2', Format(vGuid)) else Observer.ObserveError('assign.dec2');
         if Try63(vGuid, vVariant) then Observer.Observe('arg_byvalue.dec2', Format(vGuid)) else Observer.ObserveError('arg_byvalue.dec2');
@@ -11525,17 +11799,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try61(vGuid, vVariant) then Observer.Observe('assign.charA', Format(vGuid)) else Observer.ObserveError('assign.charA');
         if Try63(vGuid, vVariant) then Observer.Observe('arg_byvalue.charA', Format(vGuid)) else Observer.ObserveError('arg_byvalue.charA');
         if Try65(vGuid, vVariant) then Observer.Observe('exit.charA', Format(vGuid)) else Observer.ObserveError('exit.charA');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Guid_4()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vGuid: Guid;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsByte(65);
         if Try61(vGuid, vVariant) then Observer.Observe('assign.byte65', Format(vGuid)) else Observer.ObserveError('assign.byte65');
         if Try63(vGuid, vVariant) then Observer.Observe('arg_byvalue.byte65', Format(vGuid)) else Observer.ObserveError('arg_byvalue.byte65');
@@ -11544,17 +11807,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try61(vGuid, vVariant) then Observer.Observe('assign.optB', Format(vGuid)) else Observer.ObserveError('assign.optB');
         if Try63(vGuid, vVariant) then Observer.Observe('arg_byvalue.optB', Format(vGuid)) else Observer.ObserveError('arg_byvalue.optB');
         if Try65(vGuid, vVariant) then Observer.Observe('exit.optB', Format(vGuid)) else Observer.ObserveError('exit.optB');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Guid_5()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vGuid: Guid;
-        vVariant: Variant;
-    begin
         vVariant := "LT Y31 E"::C;
         if Try61(vGuid, vVariant) then Observer.Observe('assign.enumC', Format(vGuid)) else Observer.ObserveError('assign.enumC');
         if Try63(vGuid, vVariant) then Observer.Observe('arg_byvalue.enumC', Format(vGuid)) else Observer.ObserveError('arg_byvalue.enumC');
@@ -11563,17 +11815,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try61(vGuid, vVariant) then Observer.Observe('assign.textabc', Format(vGuid)) else Observer.ObserveError('assign.textabc');
         if Try63(vGuid, vVariant) then Observer.Observe('arg_byvalue.textabc', Format(vGuid)) else Observer.ObserveError('arg_byvalue.textabc');
         if Try65(vGuid, vVariant) then Observer.Observe('exit.textabc', Format(vGuid)) else Observer.ObserveError('exit.textabc');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Guid_6()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vGuid: Guid;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsText('abcdefghijk');
         if Try61(vGuid, vVariant) then Observer.Observe('assign.text11', Format(vGuid)) else Observer.ObserveError('assign.text11');
         if Try63(vGuid, vVariant) then Observer.Observe('arg_byvalue.text11', Format(vGuid)) else Observer.ObserveError('arg_byvalue.text11');
@@ -11582,17 +11823,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try61(vGuid, vVariant) then Observer.Observe('assign.text12', Format(vGuid)) else Observer.ObserveError('assign.text12');
         if Try63(vGuid, vVariant) then Observer.Observe('arg_byvalue.text12', Format(vGuid)) else Observer.ObserveError('arg_byvalue.text12');
         if Try65(vGuid, vVariant) then Observer.Observe('exit.text12', Format(vGuid)) else Observer.ObserveError('exit.text12');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Guid_7()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vGuid: Guid;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsCode('abc');
         if Try61(vGuid, vVariant) then Observer.Observe('assign.codeABC', Format(vGuid)) else Observer.ObserveError('assign.codeABC');
         if Try63(vGuid, vVariant) then Observer.Observe('arg_byvalue.codeABC', Format(vGuid)) else Observer.ObserveError('arg_byvalue.codeABC');
@@ -11601,17 +11831,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try61(vGuid, vVariant) then Observer.Observe('assign.code12', Format(vGuid)) else Observer.ObserveError('assign.code12');
         if Try63(vGuid, vVariant) then Observer.Observe('arg_byvalue.code12', Format(vGuid)) else Observer.ObserveError('arg_byvalue.code12');
         if Try65(vGuid, vVariant) then Observer.Observe('exit.code12', Format(vGuid)) else Observer.ObserveError('exit.code12');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Guid_8()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vGuid: Guid;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsGuid('{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
         if Try61(vGuid, vVariant) then Observer.Observe('assign.guid', Format(vGuid)) else Observer.ObserveError('assign.guid');
         if Try63(vGuid, vVariant) then Observer.Observe('arg_byvalue.guid', Format(vGuid)) else Observer.ObserveError('arg_byvalue.guid');
@@ -11620,13 +11839,107 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try61(vGuid, vVariant) then Observer.Observe('assign.boolF', Format(vGuid)) else Observer.ObserveError('assign.boolF');
         if Try63(vGuid, vVariant) then Observer.Observe('arg_byvalue.boolF', Format(vGuid)) else Observer.ObserveError('arg_byvalue.boolF');
         if Try65(vGuid, vVariant) then Observer.Observe('exit.boolF', Format(vGuid)) else Observer.ObserveError('exit.boolF');
-        Observer.Finish();
+        Observer.Expect('assign.int3|text', 'The expression Variant cannot be type-converted to a GUID value.');
+        Observer.Expect('assign.int3|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.int3|text', 'The expression Variant cannot be type-converted to a GUID value.');
+        Observer.Expect('arg_byvalue.int3|code', 'TypeConversion');
+        Observer.Expect('exit.int3|text', 'The expression Variant cannot be type-converted to a GUID value.');
+        Observer.Expect('exit.int3|code', 'TypeConversion');
+        Observer.Expect('assign.int300|text', 'The expression Variant cannot be type-converted to a GUID value.');
+        Observer.Expect('assign.int300|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.int300|text', 'The expression Variant cannot be type-converted to a GUID value.');
+        Observer.Expect('arg_byvalue.int300|code', 'TypeConversion');
+        Observer.Expect('exit.int300|text', 'The expression Variant cannot be type-converted to a GUID value.');
+        Observer.Expect('exit.int300|code', 'TypeConversion');
+        Observer.Expect('assign.big|text', 'The expression Variant cannot be type-converted to a GUID value.');
+        Observer.Expect('assign.big|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.big|text', 'The expression Variant cannot be type-converted to a GUID value.');
+        Observer.Expect('arg_byvalue.big|code', 'TypeConversion');
+        Observer.Expect('exit.big|text', 'The expression Variant cannot be type-converted to a GUID value.');
+        Observer.Expect('exit.big|code', 'TypeConversion');
+        Observer.Expect('assign.dec1p5|text', 'The expression Variant cannot be type-converted to a GUID value.');
+        Observer.Expect('assign.dec1p5|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.dec1p5|text', 'The expression Variant cannot be type-converted to a GUID value.');
+        Observer.Expect('arg_byvalue.dec1p5|code', 'TypeConversion');
+        Observer.Expect('exit.dec1p5|text', 'The expression Variant cannot be type-converted to a GUID value.');
+        Observer.Expect('exit.dec1p5|code', 'TypeConversion');
+        Observer.Expect('assign.dec2|text', 'The expression Variant cannot be type-converted to a GUID value.');
+        Observer.Expect('assign.dec2|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.dec2|text', 'The expression Variant cannot be type-converted to a GUID value.');
+        Observer.Expect('arg_byvalue.dec2|code', 'TypeConversion');
+        Observer.Expect('exit.dec2|text', 'The expression Variant cannot be type-converted to a GUID value.');
+        Observer.Expect('exit.dec2|code', 'TypeConversion');
+        Observer.Expect('assign.charA|text', 'The expression Variant cannot be type-converted to a GUID value.');
+        Observer.Expect('assign.charA|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.charA|text', 'The expression Variant cannot be type-converted to a GUID value.');
+        Observer.Expect('arg_byvalue.charA|code', 'TypeConversion');
+        Observer.Expect('exit.charA|text', 'The expression Variant cannot be type-converted to a GUID value.');
+        Observer.Expect('exit.charA|code', 'TypeConversion');
+        Observer.Expect('assign.byte65|text', 'The expression Variant cannot be type-converted to a GUID value.');
+        Observer.Expect('assign.byte65|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.byte65|text', 'The expression Variant cannot be type-converted to a GUID value.');
+        Observer.Expect('arg_byvalue.byte65|code', 'TypeConversion');
+        Observer.Expect('exit.byte65|text', 'The expression Variant cannot be type-converted to a GUID value.');
+        Observer.Expect('exit.byte65|code', 'TypeConversion');
+        Observer.Expect('assign.optB|text', 'The expression Variant cannot be type-converted to a GUID value.');
+        Observer.Expect('assign.optB|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.optB|text', 'The expression Variant cannot be type-converted to a GUID value.');
+        Observer.Expect('arg_byvalue.optB|code', 'TypeConversion');
+        Observer.Expect('exit.optB|text', 'The expression Variant cannot be type-converted to a GUID value.');
+        Observer.Expect('exit.optB|code', 'TypeConversion');
+        Observer.Expect('assign.enumC|text', 'The expression Variant cannot be type-converted to a GUID value.');
+        Observer.Expect('assign.enumC|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.enumC|text', 'The expression Variant cannot be type-converted to a GUID value.');
+        Observer.Expect('arg_byvalue.enumC|code', 'TypeConversion');
+        Observer.Expect('exit.enumC|text', 'The expression Variant cannot be type-converted to a GUID value.');
+        Observer.Expect('exit.enumC|code', 'TypeConversion');
+        Observer.Expect('assign.textabc|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('assign.textabc|code', 'InvalidGuidFormat');
+        Observer.Expect('arg_byvalue.textabc|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('arg_byvalue.textabc|code', 'InvalidGuidFormat');
+        Observer.Expect('exit.textabc|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('exit.textabc|code', 'InvalidGuidFormat');
+        Observer.Expect('assign.text11|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('assign.text11|code', 'InvalidGuidFormat');
+        Observer.Expect('arg_byvalue.text11|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('arg_byvalue.text11|code', 'InvalidGuidFormat');
+        Observer.Expect('exit.text11|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('exit.text11|code', 'InvalidGuidFormat');
+        Observer.Expect('assign.text12|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('assign.text12|code', 'InvalidGuidFormat');
+        Observer.Expect('arg_byvalue.text12|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('arg_byvalue.text12|code', 'InvalidGuidFormat');
+        Observer.Expect('exit.text12|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('exit.text12|code', 'InvalidGuidFormat');
+        Observer.Expect('assign.codeABC|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('assign.codeABC|code', 'InvalidGuidFormat');
+        Observer.Expect('arg_byvalue.codeABC|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('arg_byvalue.codeABC|code', 'InvalidGuidFormat');
+        Observer.Expect('exit.codeABC|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('exit.codeABC|code', 'InvalidGuidFormat');
+        Observer.Expect('assign.code12|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('assign.code12|code', 'InvalidGuidFormat');
+        Observer.Expect('arg_byvalue.code12|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('arg_byvalue.code12|code', 'InvalidGuidFormat');
+        Observer.Expect('exit.code12|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('exit.code12|code', 'InvalidGuidFormat');
+        Observer.Expect('assign.guid', '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('arg_byvalue.guid', '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('exit.guid', '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('assign.boolF|text', 'The expression Variant cannot be type-converted to a GUID value.');
+        Observer.Expect('assign.boolF|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.boolF|text', 'The expression Variant cannot be type-converted to a GUID value.');
+        Observer.Expect('arg_byvalue.boolF|code', 'TypeConversion');
+        Observer.Expect('exit.boolF|text', 'The expression Variant cannot be type-converted to a GUID value.');
+        Observer.Expect('exit.boolF|code', 'TypeConversion');
+        Observer.Verify();
     end;
 
     [Test]
-    procedure Variant_To_Guid_9()
+    procedure Variant_To_Guid_2()
     var
         Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
         vGuid: Guid;
         vVariant: Variant;
     begin
@@ -11638,16 +11951,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try61(vGuid, vVariant) then Observer.Observe('assign.date', Format(vGuid)) else Observer.ObserveError('assign.date');
         if Try63(vGuid, vVariant) then Observer.Observe('arg_byvalue.date', Format(vGuid)) else Observer.ObserveError('arg_byvalue.date');
         if Try65(vGuid, vVariant) then Observer.Observe('exit.date', Format(vGuid)) else Observer.ObserveError('exit.date');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Guid_10()
-    var
-        Observer: Codeunit "Probe Observer";
-        vGuid: Guid;
-        vVariant: Variant;
-    begin
         vVariant := 120000T;
         if Try61(vGuid, vVariant) then Observer.Observe('assign.time', Format(vGuid)) else Observer.ObserveError('assign.time');
         if Try63(vGuid, vVariant) then Observer.Observe('arg_byvalue.time', Format(vGuid)) else Observer.ObserveError('arg_byvalue.time');
@@ -11656,28 +11959,48 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try61(vGuid, vVariant) then Observer.Observe('assign.dt', Format(vGuid)) else Observer.ObserveError('assign.dt');
         if Try63(vGuid, vVariant) then Observer.Observe('arg_byvalue.dt', Format(vGuid)) else Observer.ObserveError('arg_byvalue.dt');
         if Try65(vGuid, vVariant) then Observer.Observe('exit.dt', Format(vGuid)) else Observer.ObserveError('exit.dt');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Guid_11()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vGuid: Guid;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsDuration(65);
         if Try61(vGuid, vVariant) then Observer.Observe('assign.dur65', Format(vGuid)) else Observer.ObserveError('assign.dur65');
         if Try63(vGuid, vVariant) then Observer.Observe('arg_byvalue.dur65', Format(vGuid)) else Observer.ObserveError('arg_byvalue.dur65');
         if Try65(vGuid, vVariant) then Observer.Observe('exit.dur65', Format(vGuid)) else Observer.ObserveError('exit.dur65');
-        Observer.Finish();
+        Observer.Expect('assign.boolT|text', 'The expression Variant cannot be type-converted to a GUID value.');
+        Observer.Expect('assign.boolT|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.boolT|text', 'The expression Variant cannot be type-converted to a GUID value.');
+        Observer.Expect('arg_byvalue.boolT|code', 'TypeConversion');
+        Observer.Expect('exit.boolT|text', 'The expression Variant cannot be type-converted to a GUID value.');
+        Observer.Expect('exit.boolT|code', 'TypeConversion');
+        Observer.Expect('assign.date|text', 'The expression Variant cannot be type-converted to a GUID value.');
+        Observer.Expect('assign.date|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.date|text', 'The expression Variant cannot be type-converted to a GUID value.');
+        Observer.Expect('arg_byvalue.date|code', 'TypeConversion');
+        Observer.Expect('exit.date|text', 'The expression Variant cannot be type-converted to a GUID value.');
+        Observer.Expect('exit.date|code', 'TypeConversion');
+        Observer.Expect('assign.time|text', 'The expression Variant cannot be type-converted to a GUID value.');
+        Observer.Expect('assign.time|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.time|text', 'The expression Variant cannot be type-converted to a GUID value.');
+        Observer.Expect('arg_byvalue.time|code', 'TypeConversion');
+        Observer.Expect('exit.time|text', 'The expression Variant cannot be type-converted to a GUID value.');
+        Observer.Expect('exit.time|code', 'TypeConversion');
+        Observer.Expect('assign.dt|text', 'The expression Variant cannot be type-converted to a GUID value.');
+        Observer.Expect('assign.dt|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.dt|text', 'The expression Variant cannot be type-converted to a GUID value.');
+        Observer.Expect('arg_byvalue.dt|code', 'TypeConversion');
+        Observer.Expect('exit.dt|text', 'The expression Variant cannot be type-converted to a GUID value.');
+        Observer.Expect('exit.dt|code', 'TypeConversion');
+        Observer.Expect('assign.dur65|text', 'The expression Variant cannot be type-converted to a GUID value.');
+        Observer.Expect('assign.dur65|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.dur65|text', 'The expression Variant cannot be type-converted to a GUID value.');
+        Observer.Expect('arg_byvalue.dur65|code', 'TypeConversion');
+        Observer.Expect('exit.dur65|text', 'The expression Variant cannot be type-converted to a GUID value.');
+        Observer.Expect('exit.dur65|code', 'TypeConversion');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Variant_To_Duration()
     var
         Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
         vDuration: Duration;
         vVariant: Variant;
     begin
@@ -11689,16 +12012,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try66(vDuration, vVariant) then Observer.Observe('assign.int300', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.int300');
         if Try68(vDuration, vVariant) then Observer.Observe('arg_byvalue.int300', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.int300');
         if Try70(vDuration, vVariant) then Observer.Observe('exit.int300', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.int300');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Duration_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vDuration: Duration;
-        vVariant: Variant;
-    begin
         vVariant := 3000000000L;
         if Try66(vDuration, vVariant) then Observer.Observe('assign.big', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.big');
         if Try68(vDuration, vVariant) then Observer.Observe('arg_byvalue.big', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.big');
@@ -11707,17 +12020,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try66(vDuration, vVariant) then Observer.Observe('assign.dec1p5', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.dec1p5');
         if Try68(vDuration, vVariant) then Observer.Observe('arg_byvalue.dec1p5', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.dec1p5');
         if Try70(vDuration, vVariant) then Observer.Observe('exit.dec1p5', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.dec1p5');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Duration_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vDuration: Duration;
-        vVariant: Variant;
-    begin
         vVariant := 2.0;
         if Try66(vDuration, vVariant) then Observer.Observe('assign.dec2', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.dec2');
         if Try68(vDuration, vVariant) then Observer.Observe('arg_byvalue.dec2', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.dec2');
@@ -11726,17 +12028,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try66(vDuration, vVariant) then Observer.Observe('assign.charA', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.charA');
         if Try68(vDuration, vVariant) then Observer.Observe('arg_byvalue.charA', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.charA');
         if Try70(vDuration, vVariant) then Observer.Observe('exit.charA', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.charA');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Duration_4()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vDuration: Duration;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsByte(65);
         if Try66(vDuration, vVariant) then Observer.Observe('assign.byte65', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.byte65');
         if Try68(vDuration, vVariant) then Observer.Observe('arg_byvalue.byte65', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.byte65');
@@ -11745,17 +12036,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try66(vDuration, vVariant) then Observer.Observe('assign.optB', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.optB');
         if Try68(vDuration, vVariant) then Observer.Observe('arg_byvalue.optB', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.optB');
         if Try70(vDuration, vVariant) then Observer.Observe('exit.optB', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.optB');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Duration_5()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vDuration: Duration;
-        vVariant: Variant;
-    begin
         vVariant := "LT Y31 E"::C;
         if Try66(vDuration, vVariant) then Observer.Observe('assign.enumC', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.enumC');
         if Try68(vDuration, vVariant) then Observer.Observe('arg_byvalue.enumC', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.enumC');
@@ -11764,17 +12044,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try66(vDuration, vVariant) then Observer.Observe('assign.textabc', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.textabc');
         if Try68(vDuration, vVariant) then Observer.Observe('arg_byvalue.textabc', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.textabc');
         if Try70(vDuration, vVariant) then Observer.Observe('exit.textabc', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.textabc');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Duration_6()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vDuration: Duration;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsText('abcdefghijk');
         if Try66(vDuration, vVariant) then Observer.Observe('assign.text11', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.text11');
         if Try68(vDuration, vVariant) then Observer.Observe('arg_byvalue.text11', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.text11');
@@ -11783,17 +12052,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try66(vDuration, vVariant) then Observer.Observe('assign.text12', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.text12');
         if Try68(vDuration, vVariant) then Observer.Observe('arg_byvalue.text12', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.text12');
         if Try70(vDuration, vVariant) then Observer.Observe('exit.text12', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.text12');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Duration_7()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vDuration: Duration;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsCode('abc');
         if Try66(vDuration, vVariant) then Observer.Observe('assign.codeABC', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.codeABC');
         if Try68(vDuration, vVariant) then Observer.Observe('arg_byvalue.codeABC', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.codeABC');
@@ -11802,17 +12060,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try66(vDuration, vVariant) then Observer.Observe('assign.code12', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.code12');
         if Try68(vDuration, vVariant) then Observer.Observe('arg_byvalue.code12', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.code12');
         if Try70(vDuration, vVariant) then Observer.Observe('exit.code12', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.code12');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Duration_8()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vDuration: Duration;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsGuid('{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
         if Try66(vDuration, vVariant) then Observer.Observe('assign.guid', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.guid');
         if Try68(vDuration, vVariant) then Observer.Observe('arg_byvalue.guid', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.guid');
@@ -11821,13 +12068,77 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try66(vDuration, vVariant) then Observer.Observe('assign.boolF', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.boolF');
         if Try68(vDuration, vVariant) then Observer.Observe('arg_byvalue.boolF', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.boolF');
         if Try70(vDuration, vVariant) then Observer.Observe('exit.boolF', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.boolF');
-        Observer.Finish();
+        Observer.Expect('assign.int3', 'P0DT0H0M0.003S');
+        Observer.Expect('arg_byvalue.int3', 'P0DT0H0M0.003S');
+        Observer.Expect('exit.int3', 'P0DT0H0M0.003S');
+        Observer.Expect('assign.int300', 'P0DT0H0M0.3S');
+        Observer.Expect('arg_byvalue.int300', 'P0DT0H0M0.3S');
+        Observer.Expect('exit.int300', 'P0DT0H0M0.3S');
+        Observer.Expect('assign.big', 'P34DT17H20M0.0S');
+        Observer.Expect('arg_byvalue.big', 'P34DT17H20M0.0S');
+        Observer.Expect('exit.big', 'P34DT17H20M0.0S');
+        Observer.Expect('assign.dec1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int64.');
+        Observer.Expect('assign.dec1p5|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.dec1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int64.');
+        Observer.Expect('arg_byvalue.dec1p5|code', 'ConversionCast');
+        Observer.Expect('exit.dec1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int64.');
+        Observer.Expect('exit.dec1p5|code', 'ConversionCast');
+        Observer.Expect('assign.dec2', 'P0DT0H0M0.002S');
+        Observer.Expect('arg_byvalue.dec2', 'P0DT0H0M0.002S');
+        Observer.Expect('exit.dec2', 'P0DT0H0M0.002S');
+        Observer.Expect('assign.charA', 'P0DT0H0M0.065S');
+        Observer.Expect('arg_byvalue.charA', 'P0DT0H0M0.065S');
+        Observer.Expect('exit.charA', 'P0DT0H0M0.065S');
+        Observer.Expect('assign.byte65', 'P0DT0H0M0.065S');
+        Observer.Expect('arg_byvalue.byte65', 'P0DT0H0M0.065S');
+        Observer.Expect('exit.byte65', 'P0DT0H0M0.065S');
+        Observer.Expect('assign.optB', 'P0DT0H0M0.001S');
+        Observer.Expect('arg_byvalue.optB', 'P0DT0H0M0.001S');
+        Observer.Expect('exit.optB', 'P0DT0H0M0.001S');
+        Observer.Expect('assign.enumC', 'P0DT0H0M0.002S');
+        Observer.Expect('arg_byvalue.enumC', 'P0DT0H0M0.002S');
+        Observer.Expect('exit.enumC', 'P0DT0H0M0.002S');
+        Observer.Expect('assign.textabc|text', 'The input string ''abc'' was not in a correct format.');
+        Observer.Expect('assign.textabc|code', 'AL:Format');
+        Observer.Expect('arg_byvalue.textabc|text', 'The input string ''abc'' was not in a correct format.');
+        Observer.Expect('arg_byvalue.textabc|code', 'AL:Format');
+        Observer.Expect('exit.textabc|text', 'The input string ''abc'' was not in a correct format.');
+        Observer.Expect('exit.textabc|code', 'AL:Format');
+        Observer.Expect('assign.text11|text', 'The input string ''abcdefghijk'' was not in a correct format.');
+        Observer.Expect('assign.text11|code', 'AL:Format');
+        Observer.Expect('arg_byvalue.text11|text', 'The input string ''abcdefghijk'' was not in a correct format.');
+        Observer.Expect('arg_byvalue.text11|code', 'AL:Format');
+        Observer.Expect('exit.text11|text', 'The input string ''abcdefghijk'' was not in a correct format.');
+        Observer.Expect('exit.text11|code', 'AL:Format');
+        Observer.Expect('assign.text12', 'P0DT0H0M0.012S');
+        Observer.Expect('arg_byvalue.text12', 'P0DT0H0M0.012S');
+        Observer.Expect('exit.text12', 'P0DT0H0M0.012S');
+        Observer.Expect('assign.codeABC|text', 'The input string ''ABC'' was not in a correct format.');
+        Observer.Expect('assign.codeABC|code', 'AL:Format');
+        Observer.Expect('arg_byvalue.codeABC|text', 'The input string ''ABC'' was not in a correct format.');
+        Observer.Expect('arg_byvalue.codeABC|code', 'AL:Format');
+        Observer.Expect('exit.codeABC|text', 'The input string ''ABC'' was not in a correct format.');
+        Observer.Expect('exit.codeABC|code', 'AL:Format');
+        Observer.Expect('assign.code12', 'P0DT0H0M0.012S');
+        Observer.Expect('arg_byvalue.code12', 'P0DT0H0M0.012S');
+        Observer.Expect('exit.code12', 'P0DT0H0M0.012S');
+        Observer.Expect('assign.guid|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavGuid to System.Int32.');
+        Observer.Expect('assign.guid|code', 'Conversion');
+        Observer.Expect('arg_byvalue.guid|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavGuid to System.Int32.');
+        Observer.Expect('arg_byvalue.guid|code', 'Conversion');
+        Observer.Expect('exit.guid|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavGuid to System.Int32.');
+        Observer.Expect('exit.guid|code', 'Conversion');
+        Observer.Expect('assign.boolF', 'P0DT0H0M0.0S');
+        Observer.Expect('arg_byvalue.boolF', 'P0DT0H0M0.0S');
+        Observer.Expect('exit.boolF', 'P0DT0H0M0.0S');
+        Observer.Verify();
     end;
 
     [Test]
-    procedure Variant_To_Duration_9()
+    procedure Variant_To_Duration_2()
     var
         Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
         vDuration: Duration;
         vVariant: Variant;
     begin
@@ -11839,16 +12150,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try66(vDuration, vVariant) then Observer.Observe('assign.date', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.date');
         if Try68(vDuration, vVariant) then Observer.Observe('arg_byvalue.date', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.date');
         if Try70(vDuration, vVariant) then Observer.Observe('exit.date', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.date');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Duration_10()
-    var
-        Observer: Codeunit "Probe Observer";
-        vDuration: Duration;
-        vVariant: Variant;
-    begin
         vVariant := 120000T;
         if Try66(vDuration, vVariant) then Observer.Observe('assign.time', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.time');
         if Try68(vDuration, vVariant) then Observer.Observe('arg_byvalue.time', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.time');
@@ -11857,28 +12158,33 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try66(vDuration, vVariant) then Observer.Observe('assign.dt', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.dt');
         if Try68(vDuration, vVariant) then Observer.Observe('arg_byvalue.dt', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.dt');
         if Try70(vDuration, vVariant) then Observer.Observe('exit.dt', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.dt');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Duration_11()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vDuration: Duration;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsDuration(65);
         if Try66(vDuration, vVariant) then Observer.Observe('assign.dur65', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.dur65');
         if Try68(vDuration, vVariant) then Observer.Observe('arg_byvalue.dur65', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.dur65');
         if Try70(vDuration, vVariant) then Observer.Observe('exit.dur65', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.dur65');
-        Observer.Finish();
+        Observer.Expect('assign.boolT', 'P0DT0H0M0.001S');
+        Observer.Expect('arg_byvalue.boolT', 'P0DT0H0M0.001S');
+        Observer.Expect('exit.boolT', 'P0DT0H0M0.001S');
+        Observer.Expect('assign.date', 'P0DT0H24M40.025S');
+        Observer.Expect('arg_byvalue.date', 'P0DT0H24M40.025S');
+        Observer.Expect('exit.date', 'P0DT0H24M40.025S');
+        Observer.Expect('assign.time', 'P0DT12H0M0.001S');
+        Observer.Expect('arg_byvalue.time', 'P0DT12H0M0.001S');
+        Observer.Expect('exit.time', 'P0DT12H0M0.001S');
+        Observer.Expect('assign.dt', 'P740012DT12H0M0.001S');
+        Observer.Expect('arg_byvalue.dt', 'P740012DT12H0M0.001S');
+        Observer.Expect('exit.dt', 'P740012DT12H0M0.001S');
+        Observer.Expect('assign.dur65', 'P0DT0H0M0.065S');
+        Observer.Expect('arg_byvalue.dur65', 'P0DT0H0M0.065S');
+        Observer.Expect('exit.dur65', 'P0DT0H0M0.065S');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Variant_To_Boolean()
     var
         Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
         vBoolean: Boolean;
         vVariant: Variant;
     begin
@@ -11890,16 +12196,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try71(vBoolean, vVariant) then Observer.Observe('assign.int300', Format(vBoolean, 0, 9)) else Observer.ObserveError('assign.int300');
         if Try73(vBoolean, vVariant) then Observer.Observe('arg_byvalue.int300', Format(vBoolean, 0, 9)) else Observer.ObserveError('arg_byvalue.int300');
         if Try75(vBoolean, vVariant) then Observer.Observe('exit.int300', Format(vBoolean, 0, 9)) else Observer.ObserveError('exit.int300');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Boolean_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vBoolean: Boolean;
-        vVariant: Variant;
-    begin
         vVariant := 3000000000L;
         if Try71(vBoolean, vVariant) then Observer.Observe('assign.big', Format(vBoolean, 0, 9)) else Observer.ObserveError('assign.big');
         if Try73(vBoolean, vVariant) then Observer.Observe('arg_byvalue.big', Format(vBoolean, 0, 9)) else Observer.ObserveError('arg_byvalue.big');
@@ -11908,17 +12204,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try71(vBoolean, vVariant) then Observer.Observe('assign.dec1p5', Format(vBoolean, 0, 9)) else Observer.ObserveError('assign.dec1p5');
         if Try73(vBoolean, vVariant) then Observer.Observe('arg_byvalue.dec1p5', Format(vBoolean, 0, 9)) else Observer.ObserveError('arg_byvalue.dec1p5');
         if Try75(vBoolean, vVariant) then Observer.Observe('exit.dec1p5', Format(vBoolean, 0, 9)) else Observer.ObserveError('exit.dec1p5');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Boolean_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vBoolean: Boolean;
-        vVariant: Variant;
-    begin
         vVariant := 2.0;
         if Try71(vBoolean, vVariant) then Observer.Observe('assign.dec2', Format(vBoolean, 0, 9)) else Observer.ObserveError('assign.dec2');
         if Try73(vBoolean, vVariant) then Observer.Observe('arg_byvalue.dec2', Format(vBoolean, 0, 9)) else Observer.ObserveError('arg_byvalue.dec2');
@@ -11927,17 +12212,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try71(vBoolean, vVariant) then Observer.Observe('assign.charA', Format(vBoolean, 0, 9)) else Observer.ObserveError('assign.charA');
         if Try73(vBoolean, vVariant) then Observer.Observe('arg_byvalue.charA', Format(vBoolean, 0, 9)) else Observer.ObserveError('arg_byvalue.charA');
         if Try75(vBoolean, vVariant) then Observer.Observe('exit.charA', Format(vBoolean, 0, 9)) else Observer.ObserveError('exit.charA');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Boolean_4()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vBoolean: Boolean;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsByte(65);
         if Try71(vBoolean, vVariant) then Observer.Observe('assign.byte65', Format(vBoolean, 0, 9)) else Observer.ObserveError('assign.byte65');
         if Try73(vBoolean, vVariant) then Observer.Observe('arg_byvalue.byte65', Format(vBoolean, 0, 9)) else Observer.ObserveError('arg_byvalue.byte65');
@@ -11946,17 +12220,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try71(vBoolean, vVariant) then Observer.Observe('assign.optB', Format(vBoolean, 0, 9)) else Observer.ObserveError('assign.optB');
         if Try73(vBoolean, vVariant) then Observer.Observe('arg_byvalue.optB', Format(vBoolean, 0, 9)) else Observer.ObserveError('arg_byvalue.optB');
         if Try75(vBoolean, vVariant) then Observer.Observe('exit.optB', Format(vBoolean, 0, 9)) else Observer.ObserveError('exit.optB');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Boolean_5()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vBoolean: Boolean;
-        vVariant: Variant;
-    begin
         vVariant := "LT Y31 E"::C;
         if Try71(vBoolean, vVariant) then Observer.Observe('assign.enumC', Format(vBoolean, 0, 9)) else Observer.ObserveError('assign.enumC');
         if Try73(vBoolean, vVariant) then Observer.Observe('arg_byvalue.enumC', Format(vBoolean, 0, 9)) else Observer.ObserveError('arg_byvalue.enumC');
@@ -11965,17 +12228,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try71(vBoolean, vVariant) then Observer.Observe('assign.textabc', Format(vBoolean, 0, 9)) else Observer.ObserveError('assign.textabc');
         if Try73(vBoolean, vVariant) then Observer.Observe('arg_byvalue.textabc', Format(vBoolean, 0, 9)) else Observer.ObserveError('arg_byvalue.textabc');
         if Try75(vBoolean, vVariant) then Observer.Observe('exit.textabc', Format(vBoolean, 0, 9)) else Observer.ObserveError('exit.textabc');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Boolean_6()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vBoolean: Boolean;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsText('abcdefghijk');
         if Try71(vBoolean, vVariant) then Observer.Observe('assign.text11', Format(vBoolean, 0, 9)) else Observer.ObserveError('assign.text11');
         if Try73(vBoolean, vVariant) then Observer.Observe('arg_byvalue.text11', Format(vBoolean, 0, 9)) else Observer.ObserveError('arg_byvalue.text11');
@@ -11984,17 +12236,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try71(vBoolean, vVariant) then Observer.Observe('assign.text12', Format(vBoolean, 0, 9)) else Observer.ObserveError('assign.text12');
         if Try73(vBoolean, vVariant) then Observer.Observe('arg_byvalue.text12', Format(vBoolean, 0, 9)) else Observer.ObserveError('arg_byvalue.text12');
         if Try75(vBoolean, vVariant) then Observer.Observe('exit.text12', Format(vBoolean, 0, 9)) else Observer.ObserveError('exit.text12');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Boolean_7()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vBoolean: Boolean;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsCode('abc');
         if Try71(vBoolean, vVariant) then Observer.Observe('assign.codeABC', Format(vBoolean, 0, 9)) else Observer.ObserveError('assign.codeABC');
         if Try73(vBoolean, vVariant) then Observer.Observe('arg_byvalue.codeABC', Format(vBoolean, 0, 9)) else Observer.ObserveError('arg_byvalue.codeABC');
@@ -12003,17 +12244,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try71(vBoolean, vVariant) then Observer.Observe('assign.code12', Format(vBoolean, 0, 9)) else Observer.ObserveError('assign.code12');
         if Try73(vBoolean, vVariant) then Observer.Observe('arg_byvalue.code12', Format(vBoolean, 0, 9)) else Observer.ObserveError('arg_byvalue.code12');
         if Try75(vBoolean, vVariant) then Observer.Observe('exit.code12', Format(vBoolean, 0, 9)) else Observer.ObserveError('exit.code12');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Boolean_8()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vBoolean: Boolean;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsGuid('{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
         if Try71(vBoolean, vVariant) then Observer.Observe('assign.guid', Format(vBoolean, 0, 9)) else Observer.ObserveError('assign.guid');
         if Try73(vBoolean, vVariant) then Observer.Observe('arg_byvalue.guid', Format(vBoolean, 0, 9)) else Observer.ObserveError('arg_byvalue.guid');
@@ -12022,13 +12252,80 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try71(vBoolean, vVariant) then Observer.Observe('assign.boolF', Format(vBoolean, 0, 9)) else Observer.ObserveError('assign.boolF');
         if Try73(vBoolean, vVariant) then Observer.Observe('arg_byvalue.boolF', Format(vBoolean, 0, 9)) else Observer.ObserveError('arg_byvalue.boolF');
         if Try75(vBoolean, vVariant) then Observer.Observe('exit.boolF', Format(vBoolean, 0, 9)) else Observer.ObserveError('exit.boolF');
-        Observer.Finish();
+        Observer.Expect('assign.int3', 'true');
+        Observer.Expect('arg_byvalue.int3', 'true');
+        Observer.Expect('exit.int3', 'true');
+        Observer.Expect('assign.int300', 'true');
+        Observer.Expect('arg_byvalue.int300', 'true');
+        Observer.Expect('exit.int300', 'true');
+        Observer.Expect('assign.big|text', 'The expression Variant cannot be type-converted to a Boolean value.');
+        Observer.Expect('assign.big|code', 'TypeConversion:Overflow');
+        Observer.Expect('arg_byvalue.big|text', 'The expression Variant cannot be type-converted to a Boolean value.');
+        Observer.Expect('arg_byvalue.big|code', 'TypeConversion:Overflow');
+        Observer.Expect('exit.big|text', 'The expression Variant cannot be type-converted to a Boolean value.');
+        Observer.Expect('exit.big|code', 'TypeConversion:Overflow');
+        Observer.Expect('assign.dec1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int32.');
+        Observer.Expect('assign.dec1p5|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.dec1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int32.');
+        Observer.Expect('arg_byvalue.dec1p5|code', 'ConversionCast');
+        Observer.Expect('exit.dec1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int32.');
+        Observer.Expect('exit.dec1p5|code', 'ConversionCast');
+        Observer.Expect('assign.dec2', 'true');
+        Observer.Expect('arg_byvalue.dec2', 'true');
+        Observer.Expect('exit.dec2', 'true');
+        Observer.Expect('assign.charA', 'true');
+        Observer.Expect('arg_byvalue.charA', 'true');
+        Observer.Expect('exit.charA', 'true');
+        Observer.Expect('assign.byte65', 'true');
+        Observer.Expect('arg_byvalue.byte65', 'true');
+        Observer.Expect('exit.byte65', 'true');
+        Observer.Expect('assign.optB', 'true');
+        Observer.Expect('arg_byvalue.optB', 'true');
+        Observer.Expect('exit.optB', 'true');
+        Observer.Expect('assign.enumC', 'true');
+        Observer.Expect('arg_byvalue.enumC', 'true');
+        Observer.Expect('exit.enumC', 'true');
+        Observer.Expect('assign.textabc|text', 'The expression Variant cannot be type-converted to a Boolean value.');
+        Observer.Expect('assign.textabc|code', 'TypeConversion:Format');
+        Observer.Expect('arg_byvalue.textabc|text', 'The expression Variant cannot be type-converted to a Boolean value.');
+        Observer.Expect('arg_byvalue.textabc|code', 'TypeConversion:Format');
+        Observer.Expect('exit.textabc|text', 'The expression Variant cannot be type-converted to a Boolean value.');
+        Observer.Expect('exit.textabc|code', 'TypeConversion:Format');
+        Observer.Expect('assign.text11|text', 'The expression Variant cannot be type-converted to a Boolean value.');
+        Observer.Expect('assign.text11|code', 'TypeConversion:Format');
+        Observer.Expect('arg_byvalue.text11|text', 'The expression Variant cannot be type-converted to a Boolean value.');
+        Observer.Expect('arg_byvalue.text11|code', 'TypeConversion:Format');
+        Observer.Expect('exit.text11|text', 'The expression Variant cannot be type-converted to a Boolean value.');
+        Observer.Expect('exit.text11|code', 'TypeConversion:Format');
+        Observer.Expect('assign.text12', 'true');
+        Observer.Expect('arg_byvalue.text12', 'true');
+        Observer.Expect('exit.text12', 'true');
+        Observer.Expect('assign.codeABC|text', 'The expression Variant cannot be type-converted to a Boolean value.');
+        Observer.Expect('assign.codeABC|code', 'TypeConversion:Format');
+        Observer.Expect('arg_byvalue.codeABC|text', 'The expression Variant cannot be type-converted to a Boolean value.');
+        Observer.Expect('arg_byvalue.codeABC|code', 'TypeConversion:Format');
+        Observer.Expect('exit.codeABC|text', 'The expression Variant cannot be type-converted to a Boolean value.');
+        Observer.Expect('exit.codeABC|code', 'TypeConversion:Format');
+        Observer.Expect('assign.code12', 'true');
+        Observer.Expect('arg_byvalue.code12', 'true');
+        Observer.Expect('exit.code12', 'true');
+        Observer.Expect('assign.guid|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavGuid to System.Int32.');
+        Observer.Expect('assign.guid|code', 'Conversion');
+        Observer.Expect('arg_byvalue.guid|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavGuid to System.Int32.');
+        Observer.Expect('arg_byvalue.guid|code', 'Conversion');
+        Observer.Expect('exit.guid|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavGuid to System.Int32.');
+        Observer.Expect('exit.guid|code', 'Conversion');
+        Observer.Expect('assign.boolF', 'false');
+        Observer.Expect('arg_byvalue.boolF', 'false');
+        Observer.Expect('exit.boolF', 'false');
+        Observer.Verify();
     end;
 
     [Test]
-    procedure Variant_To_Boolean_9()
+    procedure Variant_To_Boolean_2()
     var
         Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
         vBoolean: Boolean;
         vVariant: Variant;
     begin
@@ -12040,16 +12337,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try71(vBoolean, vVariant) then Observer.Observe('assign.date', Format(vBoolean, 0, 9)) else Observer.ObserveError('assign.date');
         if Try73(vBoolean, vVariant) then Observer.Observe('arg_byvalue.date', Format(vBoolean, 0, 9)) else Observer.ObserveError('arg_byvalue.date');
         if Try75(vBoolean, vVariant) then Observer.Observe('exit.date', Format(vBoolean, 0, 9)) else Observer.ObserveError('exit.date');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Boolean_10()
-    var
-        Observer: Codeunit "Probe Observer";
-        vBoolean: Boolean;
-        vVariant: Variant;
-    begin
         vVariant := 120000T;
         if Try71(vBoolean, vVariant) then Observer.Observe('assign.time', Format(vBoolean, 0, 9)) else Observer.ObserveError('assign.time');
         if Try73(vBoolean, vVariant) then Observer.Observe('arg_byvalue.time', Format(vBoolean, 0, 9)) else Observer.ObserveError('arg_byvalue.time');
@@ -12058,28 +12345,36 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try71(vBoolean, vVariant) then Observer.Observe('assign.dt', Format(vBoolean, 0, 9)) else Observer.ObserveError('assign.dt');
         if Try73(vBoolean, vVariant) then Observer.Observe('arg_byvalue.dt', Format(vBoolean, 0, 9)) else Observer.ObserveError('arg_byvalue.dt');
         if Try75(vBoolean, vVariant) then Observer.Observe('exit.dt', Format(vBoolean, 0, 9)) else Observer.ObserveError('exit.dt');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Boolean_11()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vBoolean: Boolean;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsDuration(65);
         if Try71(vBoolean, vVariant) then Observer.Observe('assign.dur65', Format(vBoolean, 0, 9)) else Observer.ObserveError('assign.dur65');
         if Try73(vBoolean, vVariant) then Observer.Observe('arg_byvalue.dur65', Format(vBoolean, 0, 9)) else Observer.ObserveError('arg_byvalue.dur65');
         if Try75(vBoolean, vVariant) then Observer.Observe('exit.dur65', Format(vBoolean, 0, 9)) else Observer.ObserveError('exit.dur65');
-        Observer.Finish();
+        Observer.Expect('assign.boolT', 'true');
+        Observer.Expect('arg_byvalue.boolT', 'true');
+        Observer.Expect('exit.boolT', 'true');
+        Observer.Expect('assign.date', 'true');
+        Observer.Expect('arg_byvalue.date', 'true');
+        Observer.Expect('exit.date', 'true');
+        Observer.Expect('assign.time', 'true');
+        Observer.Expect('arg_byvalue.time', 'true');
+        Observer.Expect('exit.time', 'true');
+        Observer.Expect('assign.dt|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32.');
+        Observer.Expect('assign.dt|code', 'Conversion');
+        Observer.Expect('arg_byvalue.dt|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32.');
+        Observer.Expect('arg_byvalue.dt|code', 'Conversion');
+        Observer.Expect('exit.dt|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32.');
+        Observer.Expect('exit.dt|code', 'Conversion');
+        Observer.Expect('assign.dur65', 'true');
+        Observer.Expect('arg_byvalue.dur65', 'true');
+        Observer.Expect('exit.dur65', 'true');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Variant_To_Date()
     var
         Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
         vDate: Date;
         vVariant: Variant;
     begin
@@ -12091,16 +12386,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try76(vDate, vVariant) then Observer.Observe('assign.int300', Format(vDate, 0, 9)) else Observer.ObserveError('assign.int300');
         if Try78(vDate, vVariant) then Observer.Observe('arg_byvalue.int300', Format(vDate, 0, 9)) else Observer.ObserveError('arg_byvalue.int300');
         if Try80(vDate, vVariant) then Observer.Observe('exit.int300', Format(vDate, 0, 9)) else Observer.ObserveError('exit.int300');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Date_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vDate: Date;
-        vVariant: Variant;
-    begin
         vVariant := 3000000000L;
         if Try76(vDate, vVariant) then Observer.Observe('assign.big', Format(vDate, 0, 9)) else Observer.ObserveError('assign.big');
         if Try78(vDate, vVariant) then Observer.Observe('arg_byvalue.big', Format(vDate, 0, 9)) else Observer.ObserveError('arg_byvalue.big');
@@ -12109,17 +12394,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try76(vDate, vVariant) then Observer.Observe('assign.dec1p5', Format(vDate, 0, 9)) else Observer.ObserveError('assign.dec1p5');
         if Try78(vDate, vVariant) then Observer.Observe('arg_byvalue.dec1p5', Format(vDate, 0, 9)) else Observer.ObserveError('arg_byvalue.dec1p5');
         if Try80(vDate, vVariant) then Observer.Observe('exit.dec1p5', Format(vDate, 0, 9)) else Observer.ObserveError('exit.dec1p5');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Date_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vDate: Date;
-        vVariant: Variant;
-    begin
         vVariant := 2.0;
         if Try76(vDate, vVariant) then Observer.Observe('assign.dec2', Format(vDate, 0, 9)) else Observer.ObserveError('assign.dec2');
         if Try78(vDate, vVariant) then Observer.Observe('arg_byvalue.dec2', Format(vDate, 0, 9)) else Observer.ObserveError('arg_byvalue.dec2');
@@ -12128,17 +12402,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try76(vDate, vVariant) then Observer.Observe('assign.charA', Format(vDate, 0, 9)) else Observer.ObserveError('assign.charA');
         if Try78(vDate, vVariant) then Observer.Observe('arg_byvalue.charA', Format(vDate, 0, 9)) else Observer.ObserveError('arg_byvalue.charA');
         if Try80(vDate, vVariant) then Observer.Observe('exit.charA', Format(vDate, 0, 9)) else Observer.ObserveError('exit.charA');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Date_4()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vDate: Date;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsByte(65);
         if Try76(vDate, vVariant) then Observer.Observe('assign.byte65', Format(vDate, 0, 9)) else Observer.ObserveError('assign.byte65');
         if Try78(vDate, vVariant) then Observer.Observe('arg_byvalue.byte65', Format(vDate, 0, 9)) else Observer.ObserveError('arg_byvalue.byte65');
@@ -12147,17 +12410,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try76(vDate, vVariant) then Observer.Observe('assign.optB', Format(vDate, 0, 9)) else Observer.ObserveError('assign.optB');
         if Try78(vDate, vVariant) then Observer.Observe('arg_byvalue.optB', Format(vDate, 0, 9)) else Observer.ObserveError('arg_byvalue.optB');
         if Try80(vDate, vVariant) then Observer.Observe('exit.optB', Format(vDate, 0, 9)) else Observer.ObserveError('exit.optB');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Date_5()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vDate: Date;
-        vVariant: Variant;
-    begin
         vVariant := "LT Y31 E"::C;
         if Try76(vDate, vVariant) then Observer.Observe('assign.enumC', Format(vDate, 0, 9)) else Observer.ObserveError('assign.enumC');
         if Try78(vDate, vVariant) then Observer.Observe('arg_byvalue.enumC', Format(vDate, 0, 9)) else Observer.ObserveError('arg_byvalue.enumC');
@@ -12166,17 +12418,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try76(vDate, vVariant) then Observer.Observe('assign.textabc', Format(vDate, 0, 9)) else Observer.ObserveError('assign.textabc');
         if Try78(vDate, vVariant) then Observer.Observe('arg_byvalue.textabc', Format(vDate, 0, 9)) else Observer.ObserveError('arg_byvalue.textabc');
         if Try80(vDate, vVariant) then Observer.Observe('exit.textabc', Format(vDate, 0, 9)) else Observer.ObserveError('exit.textabc');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Date_6()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vDate: Date;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsText('abcdefghijk');
         if Try76(vDate, vVariant) then Observer.Observe('assign.text11', Format(vDate, 0, 9)) else Observer.ObserveError('assign.text11');
         if Try78(vDate, vVariant) then Observer.Observe('arg_byvalue.text11', Format(vDate, 0, 9)) else Observer.ObserveError('arg_byvalue.text11');
@@ -12185,17 +12426,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try76(vDate, vVariant) then Observer.Observe('assign.text12', Format(vDate, 0, 9)) else Observer.ObserveError('assign.text12');
         if Try78(vDate, vVariant) then Observer.Observe('arg_byvalue.text12', Format(vDate, 0, 9)) else Observer.ObserveError('arg_byvalue.text12');
         if Try80(vDate, vVariant) then Observer.Observe('exit.text12', Format(vDate, 0, 9)) else Observer.ObserveError('exit.text12');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Date_7()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vDate: Date;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsCode('abc');
         if Try76(vDate, vVariant) then Observer.Observe('assign.codeABC', Format(vDate, 0, 9)) else Observer.ObserveError('assign.codeABC');
         if Try78(vDate, vVariant) then Observer.Observe('arg_byvalue.codeABC', Format(vDate, 0, 9)) else Observer.ObserveError('arg_byvalue.codeABC');
@@ -12204,17 +12434,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try76(vDate, vVariant) then Observer.Observe('assign.code12', Format(vDate, 0, 9)) else Observer.ObserveError('assign.code12');
         if Try78(vDate, vVariant) then Observer.Observe('arg_byvalue.code12', Format(vDate, 0, 9)) else Observer.ObserveError('arg_byvalue.code12');
         if Try80(vDate, vVariant) then Observer.Observe('exit.code12', Format(vDate, 0, 9)) else Observer.ObserveError('exit.code12');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Date_8()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vDate: Date;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsGuid('{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
         if Try76(vDate, vVariant) then Observer.Observe('assign.guid', Format(vDate, 0, 9)) else Observer.ObserveError('assign.guid');
         if Try78(vDate, vVariant) then Observer.Observe('arg_byvalue.guid', Format(vDate, 0, 9)) else Observer.ObserveError('arg_byvalue.guid');
@@ -12223,13 +12442,110 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try76(vDate, vVariant) then Observer.Observe('assign.boolF', Format(vDate, 0, 9)) else Observer.ObserveError('assign.boolF');
         if Try78(vDate, vVariant) then Observer.Observe('arg_byvalue.boolF', Format(vDate, 0, 9)) else Observer.ObserveError('arg_byvalue.boolF');
         if Try80(vDate, vVariant) then Observer.Observe('exit.boolF', Format(vDate, 0, 9)) else Observer.ObserveError('exit.boolF');
-        Observer.Finish();
+        Observer.Expect('assign.int3|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDate value.');
+        Observer.Expect('assign.int3|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.int3|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDate value.');
+        Observer.Expect('arg_byvalue.int3|code', 'TypeConversion');
+        Observer.Expect('exit.int3|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDate value.');
+        Observer.Expect('exit.int3|code', 'TypeConversion');
+        Observer.Expect('assign.int300|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDate value.');
+        Observer.Expect('assign.int300|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.int300|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDate value.');
+        Observer.Expect('arg_byvalue.int300|code', 'TypeConversion');
+        Observer.Expect('exit.int300|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDate value.');
+        Observer.Expect('exit.int300|code', 'TypeConversion');
+        Observer.Expect('assign.big|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDate value.');
+        Observer.Expect('assign.big|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.big|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDate value.');
+        Observer.Expect('arg_byvalue.big|code', 'TypeConversion');
+        Observer.Expect('exit.big|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDate value.');
+        Observer.Expect('exit.big|code', 'TypeConversion');
+        Observer.Expect('assign.dec1p5|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDate value.');
+        Observer.Expect('assign.dec1p5|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.dec1p5|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDate value.');
+        Observer.Expect('arg_byvalue.dec1p5|code', 'TypeConversion');
+        Observer.Expect('exit.dec1p5|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDate value.');
+        Observer.Expect('exit.dec1p5|code', 'TypeConversion');
+        Observer.Expect('assign.dec2|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDate value.');
+        Observer.Expect('assign.dec2|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.dec2|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDate value.');
+        Observer.Expect('arg_byvalue.dec2|code', 'TypeConversion');
+        Observer.Expect('exit.dec2|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDate value.');
+        Observer.Expect('exit.dec2|code', 'TypeConversion');
+        Observer.Expect('assign.charA|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDate value.');
+        Observer.Expect('assign.charA|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.charA|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDate value.');
+        Observer.Expect('arg_byvalue.charA|code', 'TypeConversion');
+        Observer.Expect('exit.charA|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDate value.');
+        Observer.Expect('exit.charA|code', 'TypeConversion');
+        Observer.Expect('assign.byte65|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDate value.');
+        Observer.Expect('assign.byte65|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.byte65|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDate value.');
+        Observer.Expect('arg_byvalue.byte65|code', 'TypeConversion');
+        Observer.Expect('exit.byte65|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDate value.');
+        Observer.Expect('exit.byte65|code', 'TypeConversion');
+        Observer.Expect('assign.optB|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDate value.');
+        Observer.Expect('assign.optB|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.optB|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDate value.');
+        Observer.Expect('arg_byvalue.optB|code', 'TypeConversion');
+        Observer.Expect('exit.optB|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDate value.');
+        Observer.Expect('exit.optB|code', 'TypeConversion');
+        Observer.Expect('assign.enumC|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDate value.');
+        Observer.Expect('assign.enumC|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.enumC|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDate value.');
+        Observer.Expect('arg_byvalue.enumC|code', 'TypeConversion');
+        Observer.Expect('exit.enumC|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDate value.');
+        Observer.Expect('exit.enumC|code', 'TypeConversion');
+        Observer.Expect('assign.textabc|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDate value.');
+        Observer.Expect('assign.textabc|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.textabc|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDate value.');
+        Observer.Expect('arg_byvalue.textabc|code', 'TypeConversion');
+        Observer.Expect('exit.textabc|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDate value.');
+        Observer.Expect('exit.textabc|code', 'TypeConversion');
+        Observer.Expect('assign.text11|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDate value.');
+        Observer.Expect('assign.text11|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.text11|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDate value.');
+        Observer.Expect('arg_byvalue.text11|code', 'TypeConversion');
+        Observer.Expect('exit.text11|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDate value.');
+        Observer.Expect('exit.text11|code', 'TypeConversion');
+        Observer.Expect('assign.text12|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDate value.');
+        Observer.Expect('assign.text12|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.text12|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDate value.');
+        Observer.Expect('arg_byvalue.text12|code', 'TypeConversion');
+        Observer.Expect('exit.text12|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDate value.');
+        Observer.Expect('exit.text12|code', 'TypeConversion');
+        Observer.Expect('assign.codeABC|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDate value.');
+        Observer.Expect('assign.codeABC|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.codeABC|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDate value.');
+        Observer.Expect('arg_byvalue.codeABC|code', 'TypeConversion');
+        Observer.Expect('exit.codeABC|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDate value.');
+        Observer.Expect('exit.codeABC|code', 'TypeConversion');
+        Observer.Expect('assign.code12|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDate value.');
+        Observer.Expect('assign.code12|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.code12|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDate value.');
+        Observer.Expect('arg_byvalue.code12|code', 'TypeConversion');
+        Observer.Expect('exit.code12|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDate value.');
+        Observer.Expect('exit.code12|code', 'TypeConversion');
+        Observer.Expect('assign.guid|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDate value.');
+        Observer.Expect('assign.guid|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.guid|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDate value.');
+        Observer.Expect('arg_byvalue.guid|code', 'TypeConversion');
+        Observer.Expect('exit.guid|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDate value.');
+        Observer.Expect('exit.guid|code', 'TypeConversion');
+        Observer.Expect('assign.boolF|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDate value.');
+        Observer.Expect('assign.boolF|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.boolF|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDate value.');
+        Observer.Expect('arg_byvalue.boolF|code', 'TypeConversion');
+        Observer.Expect('exit.boolF|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDate value.');
+        Observer.Expect('exit.boolF|code', 'TypeConversion');
+        Observer.Verify();
     end;
 
     [Test]
-    procedure Variant_To_Date_9()
+    procedure Variant_To_Date_2()
     var
         Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
         vDate: Date;
         vVariant: Variant;
     begin
@@ -12241,16 +12557,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try76(vDate, vVariant) then Observer.Observe('assign.date', Format(vDate, 0, 9)) else Observer.ObserveError('assign.date');
         if Try78(vDate, vVariant) then Observer.Observe('arg_byvalue.date', Format(vDate, 0, 9)) else Observer.ObserveError('arg_byvalue.date');
         if Try80(vDate, vVariant) then Observer.Observe('exit.date', Format(vDate, 0, 9)) else Observer.ObserveError('exit.date');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Date_10()
-    var
-        Observer: Codeunit "Probe Observer";
-        vDate: Date;
-        vVariant: Variant;
-    begin
         vVariant := 120000T;
         if Try76(vDate, vVariant) then Observer.Observe('assign.time', Format(vDate, 0, 9)) else Observer.ObserveError('assign.time');
         if Try78(vDate, vVariant) then Observer.Observe('arg_byvalue.time', Format(vDate, 0, 9)) else Observer.ObserveError('arg_byvalue.time');
@@ -12259,28 +12565,42 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try76(vDate, vVariant) then Observer.Observe('assign.dt', Format(vDate, 0, 9)) else Observer.ObserveError('assign.dt');
         if Try78(vDate, vVariant) then Observer.Observe('arg_byvalue.dt', Format(vDate, 0, 9)) else Observer.ObserveError('arg_byvalue.dt');
         if Try80(vDate, vVariant) then Observer.Observe('exit.dt', Format(vDate, 0, 9)) else Observer.ObserveError('exit.dt');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Date_11()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vDate: Date;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsDuration(65);
         if Try76(vDate, vVariant) then Observer.Observe('assign.dur65', Format(vDate, 0, 9)) else Observer.ObserveError('assign.dur65');
         if Try78(vDate, vVariant) then Observer.Observe('arg_byvalue.dur65', Format(vDate, 0, 9)) else Observer.ObserveError('arg_byvalue.dur65');
         if Try80(vDate, vVariant) then Observer.Observe('exit.dur65', Format(vDate, 0, 9)) else Observer.ObserveError('exit.dur65');
-        Observer.Finish();
+        Observer.Expect('assign.boolT|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDate value.');
+        Observer.Expect('assign.boolT|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.boolT|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDate value.');
+        Observer.Expect('arg_byvalue.boolT|code', 'TypeConversion');
+        Observer.Expect('exit.boolT|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDate value.');
+        Observer.Expect('exit.boolT|code', 'TypeConversion');
+        Observer.Expect('assign.date', '2026-01-31');
+        Observer.Expect('arg_byvalue.date', '2026-01-31');
+        Observer.Expect('exit.date', '2026-01-31');
+        Observer.Expect('assign.time|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDate value.');
+        Observer.Expect('assign.time|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.time|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDate value.');
+        Observer.Expect('arg_byvalue.time|code', 'TypeConversion');
+        Observer.Expect('exit.time|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDate value.');
+        Observer.Expect('exit.time|code', 'TypeConversion');
+        Observer.Expect('assign.dt', '2026-01-31');
+        Observer.Expect('arg_byvalue.dt', '2026-01-31');
+        Observer.Expect('exit.dt', '2026-01-31');
+        Observer.Expect('assign.dur65|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDate value.');
+        Observer.Expect('assign.dur65|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.dur65|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDate value.');
+        Observer.Expect('arg_byvalue.dur65|code', 'TypeConversion');
+        Observer.Expect('exit.dur65|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDate value.');
+        Observer.Expect('exit.dur65|code', 'TypeConversion');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Variant_To_Time()
     var
         Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
         vTime: Time;
         vVariant: Variant;
     begin
@@ -12292,16 +12612,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try81(vTime, vVariant) then Observer.Observe('assign.int300', Format(vTime, 0, 9)) else Observer.ObserveError('assign.int300');
         if Try83(vTime, vVariant) then Observer.Observe('arg_byvalue.int300', Format(vTime, 0, 9)) else Observer.ObserveError('arg_byvalue.int300');
         if Try85(vTime, vVariant) then Observer.Observe('exit.int300', Format(vTime, 0, 9)) else Observer.ObserveError('exit.int300');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Time_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vTime: Time;
-        vVariant: Variant;
-    begin
         vVariant := 3000000000L;
         if Try81(vTime, vVariant) then Observer.Observe('assign.big', Format(vTime, 0, 9)) else Observer.ObserveError('assign.big');
         if Try83(vTime, vVariant) then Observer.Observe('arg_byvalue.big', Format(vTime, 0, 9)) else Observer.ObserveError('arg_byvalue.big');
@@ -12310,17 +12620,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try81(vTime, vVariant) then Observer.Observe('assign.dec1p5', Format(vTime, 0, 9)) else Observer.ObserveError('assign.dec1p5');
         if Try83(vTime, vVariant) then Observer.Observe('arg_byvalue.dec1p5', Format(vTime, 0, 9)) else Observer.ObserveError('arg_byvalue.dec1p5');
         if Try85(vTime, vVariant) then Observer.Observe('exit.dec1p5', Format(vTime, 0, 9)) else Observer.ObserveError('exit.dec1p5');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Time_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vTime: Time;
-        vVariant: Variant;
-    begin
         vVariant := 2.0;
         if Try81(vTime, vVariant) then Observer.Observe('assign.dec2', Format(vTime, 0, 9)) else Observer.ObserveError('assign.dec2');
         if Try83(vTime, vVariant) then Observer.Observe('arg_byvalue.dec2', Format(vTime, 0, 9)) else Observer.ObserveError('arg_byvalue.dec2');
@@ -12329,17 +12628,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try81(vTime, vVariant) then Observer.Observe('assign.charA', Format(vTime, 0, 9)) else Observer.ObserveError('assign.charA');
         if Try83(vTime, vVariant) then Observer.Observe('arg_byvalue.charA', Format(vTime, 0, 9)) else Observer.ObserveError('arg_byvalue.charA');
         if Try85(vTime, vVariant) then Observer.Observe('exit.charA', Format(vTime, 0, 9)) else Observer.ObserveError('exit.charA');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Time_4()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vTime: Time;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsByte(65);
         if Try81(vTime, vVariant) then Observer.Observe('assign.byte65', Format(vTime, 0, 9)) else Observer.ObserveError('assign.byte65');
         if Try83(vTime, vVariant) then Observer.Observe('arg_byvalue.byte65', Format(vTime, 0, 9)) else Observer.ObserveError('arg_byvalue.byte65');
@@ -12348,17 +12636,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try81(vTime, vVariant) then Observer.Observe('assign.optB', Format(vTime, 0, 9)) else Observer.ObserveError('assign.optB');
         if Try83(vTime, vVariant) then Observer.Observe('arg_byvalue.optB', Format(vTime, 0, 9)) else Observer.ObserveError('arg_byvalue.optB');
         if Try85(vTime, vVariant) then Observer.Observe('exit.optB', Format(vTime, 0, 9)) else Observer.ObserveError('exit.optB');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Time_5()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vTime: Time;
-        vVariant: Variant;
-    begin
         vVariant := "LT Y31 E"::C;
         if Try81(vTime, vVariant) then Observer.Observe('assign.enumC', Format(vTime, 0, 9)) else Observer.ObserveError('assign.enumC');
         if Try83(vTime, vVariant) then Observer.Observe('arg_byvalue.enumC', Format(vTime, 0, 9)) else Observer.ObserveError('arg_byvalue.enumC');
@@ -12367,17 +12644,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try81(vTime, vVariant) then Observer.Observe('assign.textabc', Format(vTime, 0, 9)) else Observer.ObserveError('assign.textabc');
         if Try83(vTime, vVariant) then Observer.Observe('arg_byvalue.textabc', Format(vTime, 0, 9)) else Observer.ObserveError('arg_byvalue.textabc');
         if Try85(vTime, vVariant) then Observer.Observe('exit.textabc', Format(vTime, 0, 9)) else Observer.ObserveError('exit.textabc');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Time_6()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vTime: Time;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsText('abcdefghijk');
         if Try81(vTime, vVariant) then Observer.Observe('assign.text11', Format(vTime, 0, 9)) else Observer.ObserveError('assign.text11');
         if Try83(vTime, vVariant) then Observer.Observe('arg_byvalue.text11', Format(vTime, 0, 9)) else Observer.ObserveError('arg_byvalue.text11');
@@ -12386,17 +12652,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try81(vTime, vVariant) then Observer.Observe('assign.text12', Format(vTime, 0, 9)) else Observer.ObserveError('assign.text12');
         if Try83(vTime, vVariant) then Observer.Observe('arg_byvalue.text12', Format(vTime, 0, 9)) else Observer.ObserveError('arg_byvalue.text12');
         if Try85(vTime, vVariant) then Observer.Observe('exit.text12', Format(vTime, 0, 9)) else Observer.ObserveError('exit.text12');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Time_7()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vTime: Time;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsCode('abc');
         if Try81(vTime, vVariant) then Observer.Observe('assign.codeABC', Format(vTime, 0, 9)) else Observer.ObserveError('assign.codeABC');
         if Try83(vTime, vVariant) then Observer.Observe('arg_byvalue.codeABC', Format(vTime, 0, 9)) else Observer.ObserveError('arg_byvalue.codeABC');
@@ -12405,17 +12660,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try81(vTime, vVariant) then Observer.Observe('assign.code12', Format(vTime, 0, 9)) else Observer.ObserveError('assign.code12');
         if Try83(vTime, vVariant) then Observer.Observe('arg_byvalue.code12', Format(vTime, 0, 9)) else Observer.ObserveError('arg_byvalue.code12');
         if Try85(vTime, vVariant) then Observer.Observe('exit.code12', Format(vTime, 0, 9)) else Observer.ObserveError('exit.code12');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Time_8()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vTime: Time;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsGuid('{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
         if Try81(vTime, vVariant) then Observer.Observe('assign.guid', Format(vTime, 0, 9)) else Observer.ObserveError('assign.guid');
         if Try83(vTime, vVariant) then Observer.Observe('arg_byvalue.guid', Format(vTime, 0, 9)) else Observer.ObserveError('arg_byvalue.guid');
@@ -12424,13 +12668,110 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try81(vTime, vVariant) then Observer.Observe('assign.boolF', Format(vTime, 0, 9)) else Observer.ObserveError('assign.boolF');
         if Try83(vTime, vVariant) then Observer.Observe('arg_byvalue.boolF', Format(vTime, 0, 9)) else Observer.ObserveError('arg_byvalue.boolF');
         if Try85(vTime, vVariant) then Observer.Observe('exit.boolF', Format(vTime, 0, 9)) else Observer.ObserveError('exit.boolF');
-        Observer.Finish();
+        Observer.Expect('assign.int3|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('assign.int3|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.int3|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('arg_byvalue.int3|code', 'TypeConversion');
+        Observer.Expect('exit.int3|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('exit.int3|code', 'TypeConversion');
+        Observer.Expect('assign.int300|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('assign.int300|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.int300|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('arg_byvalue.int300|code', 'TypeConversion');
+        Observer.Expect('exit.int300|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('exit.int300|code', 'TypeConversion');
+        Observer.Expect('assign.big|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('assign.big|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.big|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('arg_byvalue.big|code', 'TypeConversion');
+        Observer.Expect('exit.big|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('exit.big|code', 'TypeConversion');
+        Observer.Expect('assign.dec1p5|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('assign.dec1p5|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.dec1p5|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('arg_byvalue.dec1p5|code', 'TypeConversion');
+        Observer.Expect('exit.dec1p5|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('exit.dec1p5|code', 'TypeConversion');
+        Observer.Expect('assign.dec2|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('assign.dec2|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.dec2|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('arg_byvalue.dec2|code', 'TypeConversion');
+        Observer.Expect('exit.dec2|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('exit.dec2|code', 'TypeConversion');
+        Observer.Expect('assign.charA|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('assign.charA|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.charA|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('arg_byvalue.charA|code', 'TypeConversion');
+        Observer.Expect('exit.charA|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('exit.charA|code', 'TypeConversion');
+        Observer.Expect('assign.byte65|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('assign.byte65|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.byte65|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('arg_byvalue.byte65|code', 'TypeConversion');
+        Observer.Expect('exit.byte65|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('exit.byte65|code', 'TypeConversion');
+        Observer.Expect('assign.optB|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('assign.optB|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.optB|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('arg_byvalue.optB|code', 'TypeConversion');
+        Observer.Expect('exit.optB|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('exit.optB|code', 'TypeConversion');
+        Observer.Expect('assign.enumC|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('assign.enumC|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.enumC|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('arg_byvalue.enumC|code', 'TypeConversion');
+        Observer.Expect('exit.enumC|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('exit.enumC|code', 'TypeConversion');
+        Observer.Expect('assign.textabc|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('assign.textabc|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.textabc|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('arg_byvalue.textabc|code', 'TypeConversion');
+        Observer.Expect('exit.textabc|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('exit.textabc|code', 'TypeConversion');
+        Observer.Expect('assign.text11|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('assign.text11|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.text11|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('arg_byvalue.text11|code', 'TypeConversion');
+        Observer.Expect('exit.text11|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('exit.text11|code', 'TypeConversion');
+        Observer.Expect('assign.text12|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('assign.text12|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.text12|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('arg_byvalue.text12|code', 'TypeConversion');
+        Observer.Expect('exit.text12|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('exit.text12|code', 'TypeConversion');
+        Observer.Expect('assign.codeABC|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('assign.codeABC|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.codeABC|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('arg_byvalue.codeABC|code', 'TypeConversion');
+        Observer.Expect('exit.codeABC|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('exit.codeABC|code', 'TypeConversion');
+        Observer.Expect('assign.code12|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('assign.code12|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.code12|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('arg_byvalue.code12|code', 'TypeConversion');
+        Observer.Expect('exit.code12|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('exit.code12|code', 'TypeConversion');
+        Observer.Expect('assign.guid|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('assign.guid|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.guid|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('arg_byvalue.guid|code', 'TypeConversion');
+        Observer.Expect('exit.guid|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('exit.guid|code', 'TypeConversion');
+        Observer.Expect('assign.boolF|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('assign.boolF|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.boolF|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('arg_byvalue.boolF|code', 'TypeConversion');
+        Observer.Expect('exit.boolF|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('exit.boolF|code', 'TypeConversion');
+        Observer.Verify();
     end;
 
     [Test]
-    procedure Variant_To_Time_9()
+    procedure Variant_To_Time_2()
     var
         Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
         vTime: Time;
         vVariant: Variant;
     begin
@@ -12442,16 +12783,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try81(vTime, vVariant) then Observer.Observe('assign.date', Format(vTime, 0, 9)) else Observer.ObserveError('assign.date');
         if Try83(vTime, vVariant) then Observer.Observe('arg_byvalue.date', Format(vTime, 0, 9)) else Observer.ObserveError('arg_byvalue.date');
         if Try85(vTime, vVariant) then Observer.Observe('exit.date', Format(vTime, 0, 9)) else Observer.ObserveError('exit.date');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Time_10()
-    var
-        Observer: Codeunit "Probe Observer";
-        vTime: Time;
-        vVariant: Variant;
-    begin
         vVariant := 120000T;
         if Try81(vTime, vVariant) then Observer.Observe('assign.time', Format(vTime, 0, 9)) else Observer.ObserveError('assign.time');
         if Try83(vTime, vVariant) then Observer.Observe('arg_byvalue.time', Format(vTime, 0, 9)) else Observer.ObserveError('arg_byvalue.time');
@@ -12460,28 +12791,45 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try81(vTime, vVariant) then Observer.Observe('assign.dt', Format(vTime, 0, 9)) else Observer.ObserveError('assign.dt');
         if Try83(vTime, vVariant) then Observer.Observe('arg_byvalue.dt', Format(vTime, 0, 9)) else Observer.ObserveError('arg_byvalue.dt');
         if Try85(vTime, vVariant) then Observer.Observe('exit.dt', Format(vTime, 0, 9)) else Observer.ObserveError('exit.dt');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_Time_11()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vTime: Time;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsDuration(65);
         if Try81(vTime, vVariant) then Observer.Observe('assign.dur65', Format(vTime, 0, 9)) else Observer.ObserveError('assign.dur65');
         if Try83(vTime, vVariant) then Observer.Observe('arg_byvalue.dur65', Format(vTime, 0, 9)) else Observer.ObserveError('arg_byvalue.dur65');
         if Try85(vTime, vVariant) then Observer.Observe('exit.dur65', Format(vTime, 0, 9)) else Observer.ObserveError('exit.dur65');
-        Observer.Finish();
+        Observer.Expect('assign.boolT|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('assign.boolT|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.boolT|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('arg_byvalue.boolT|code', 'TypeConversion');
+        Observer.Expect('exit.boolT|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('exit.boolT|code', 'TypeConversion');
+        Observer.Expect('assign.date|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('assign.date|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.date|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('arg_byvalue.date|code', 'TypeConversion');
+        Observer.Expect('exit.date|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('exit.date|code', 'TypeConversion');
+        Observer.Expect('assign.time', '12:00:00');
+        Observer.Expect('arg_byvalue.time', '12:00:00');
+        Observer.Expect('exit.time', '12:00:00');
+        Observer.Expect('assign.dt|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('assign.dt|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.dt|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('arg_byvalue.dt|code', 'TypeConversion');
+        Observer.Expect('exit.dt|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('exit.dt|code', 'TypeConversion');
+        Observer.Expect('assign.dur65|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('assign.dur65|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.dur65|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('arg_byvalue.dur65|code', 'TypeConversion');
+        Observer.Expect('exit.dur65|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavTime value.');
+        Observer.Expect('exit.dur65|code', 'TypeConversion');
+        Observer.Verify();
     end;
 
     [Test]
     procedure Variant_To_DateTime()
     var
         Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
         vDateTime: DateTime;
         vVariant: Variant;
     begin
@@ -12493,16 +12841,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try86(vDateTime, vVariant) then Observer.Observe('assign.int300', Format(vDateTime, 0, 9)) else Observer.ObserveError('assign.int300');
         if Try88(vDateTime, vVariant) then Observer.Observe('arg_byvalue.int300', Format(vDateTime, 0, 9)) else Observer.ObserveError('arg_byvalue.int300');
         if Try90(vDateTime, vVariant) then Observer.Observe('exit.int300', Format(vDateTime, 0, 9)) else Observer.ObserveError('exit.int300');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_DateTime_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vDateTime: DateTime;
-        vVariant: Variant;
-    begin
         vVariant := 3000000000L;
         if Try86(vDateTime, vVariant) then Observer.Observe('assign.big', Format(vDateTime, 0, 9)) else Observer.ObserveError('assign.big');
         if Try88(vDateTime, vVariant) then Observer.Observe('arg_byvalue.big', Format(vDateTime, 0, 9)) else Observer.ObserveError('arg_byvalue.big');
@@ -12511,17 +12849,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try86(vDateTime, vVariant) then Observer.Observe('assign.dec1p5', Format(vDateTime, 0, 9)) else Observer.ObserveError('assign.dec1p5');
         if Try88(vDateTime, vVariant) then Observer.Observe('arg_byvalue.dec1p5', Format(vDateTime, 0, 9)) else Observer.ObserveError('arg_byvalue.dec1p5');
         if Try90(vDateTime, vVariant) then Observer.Observe('exit.dec1p5', Format(vDateTime, 0, 9)) else Observer.ObserveError('exit.dec1p5');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_DateTime_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vDateTime: DateTime;
-        vVariant: Variant;
-    begin
         vVariant := 2.0;
         if Try86(vDateTime, vVariant) then Observer.Observe('assign.dec2', Format(vDateTime, 0, 9)) else Observer.ObserveError('assign.dec2');
         if Try88(vDateTime, vVariant) then Observer.Observe('arg_byvalue.dec2', Format(vDateTime, 0, 9)) else Observer.ObserveError('arg_byvalue.dec2');
@@ -12530,17 +12857,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try86(vDateTime, vVariant) then Observer.Observe('assign.charA', Format(vDateTime, 0, 9)) else Observer.ObserveError('assign.charA');
         if Try88(vDateTime, vVariant) then Observer.Observe('arg_byvalue.charA', Format(vDateTime, 0, 9)) else Observer.ObserveError('arg_byvalue.charA');
         if Try90(vDateTime, vVariant) then Observer.Observe('exit.charA', Format(vDateTime, 0, 9)) else Observer.ObserveError('exit.charA');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_DateTime_4()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vDateTime: DateTime;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsByte(65);
         if Try86(vDateTime, vVariant) then Observer.Observe('assign.byte65', Format(vDateTime, 0, 9)) else Observer.ObserveError('assign.byte65');
         if Try88(vDateTime, vVariant) then Observer.Observe('arg_byvalue.byte65', Format(vDateTime, 0, 9)) else Observer.ObserveError('arg_byvalue.byte65');
@@ -12549,17 +12865,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try86(vDateTime, vVariant) then Observer.Observe('assign.optB', Format(vDateTime, 0, 9)) else Observer.ObserveError('assign.optB');
         if Try88(vDateTime, vVariant) then Observer.Observe('arg_byvalue.optB', Format(vDateTime, 0, 9)) else Observer.ObserveError('arg_byvalue.optB');
         if Try90(vDateTime, vVariant) then Observer.Observe('exit.optB', Format(vDateTime, 0, 9)) else Observer.ObserveError('exit.optB');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_DateTime_5()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vDateTime: DateTime;
-        vVariant: Variant;
-    begin
         vVariant := "LT Y31 E"::C;
         if Try86(vDateTime, vVariant) then Observer.Observe('assign.enumC', Format(vDateTime, 0, 9)) else Observer.ObserveError('assign.enumC');
         if Try88(vDateTime, vVariant) then Observer.Observe('arg_byvalue.enumC', Format(vDateTime, 0, 9)) else Observer.ObserveError('arg_byvalue.enumC');
@@ -12568,17 +12873,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try86(vDateTime, vVariant) then Observer.Observe('assign.textabc', Format(vDateTime, 0, 9)) else Observer.ObserveError('assign.textabc');
         if Try88(vDateTime, vVariant) then Observer.Observe('arg_byvalue.textabc', Format(vDateTime, 0, 9)) else Observer.ObserveError('arg_byvalue.textabc');
         if Try90(vDateTime, vVariant) then Observer.Observe('exit.textabc', Format(vDateTime, 0, 9)) else Observer.ObserveError('exit.textabc');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_DateTime_6()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vDateTime: DateTime;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsText('abcdefghijk');
         if Try86(vDateTime, vVariant) then Observer.Observe('assign.text11', Format(vDateTime, 0, 9)) else Observer.ObserveError('assign.text11');
         if Try88(vDateTime, vVariant) then Observer.Observe('arg_byvalue.text11', Format(vDateTime, 0, 9)) else Observer.ObserveError('arg_byvalue.text11');
@@ -12587,17 +12881,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try86(vDateTime, vVariant) then Observer.Observe('assign.text12', Format(vDateTime, 0, 9)) else Observer.ObserveError('assign.text12');
         if Try88(vDateTime, vVariant) then Observer.Observe('arg_byvalue.text12', Format(vDateTime, 0, 9)) else Observer.ObserveError('arg_byvalue.text12');
         if Try90(vDateTime, vVariant) then Observer.Observe('exit.text12', Format(vDateTime, 0, 9)) else Observer.ObserveError('exit.text12');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_DateTime_7()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vDateTime: DateTime;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsCode('abc');
         if Try86(vDateTime, vVariant) then Observer.Observe('assign.codeABC', Format(vDateTime, 0, 9)) else Observer.ObserveError('assign.codeABC');
         if Try88(vDateTime, vVariant) then Observer.Observe('arg_byvalue.codeABC', Format(vDateTime, 0, 9)) else Observer.ObserveError('arg_byvalue.codeABC');
@@ -12606,17 +12889,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try86(vDateTime, vVariant) then Observer.Observe('assign.code12', Format(vDateTime, 0, 9)) else Observer.ObserveError('assign.code12');
         if Try88(vDateTime, vVariant) then Observer.Observe('arg_byvalue.code12', Format(vDateTime, 0, 9)) else Observer.ObserveError('arg_byvalue.code12');
         if Try90(vDateTime, vVariant) then Observer.Observe('exit.code12', Format(vDateTime, 0, 9)) else Observer.ObserveError('exit.code12');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_DateTime_8()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vDateTime: DateTime;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsGuid('{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
         if Try86(vDateTime, vVariant) then Observer.Observe('assign.guid', Format(vDateTime, 0, 9)) else Observer.ObserveError('assign.guid');
         if Try88(vDateTime, vVariant) then Observer.Observe('arg_byvalue.guid', Format(vDateTime, 0, 9)) else Observer.ObserveError('arg_byvalue.guid');
@@ -12625,13 +12897,110 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try86(vDateTime, vVariant) then Observer.Observe('assign.boolF', Format(vDateTime, 0, 9)) else Observer.ObserveError('assign.boolF');
         if Try88(vDateTime, vVariant) then Observer.Observe('arg_byvalue.boolF', Format(vDateTime, 0, 9)) else Observer.ObserveError('arg_byvalue.boolF');
         if Try90(vDateTime, vVariant) then Observer.Observe('exit.boolF', Format(vDateTime, 0, 9)) else Observer.ObserveError('exit.boolF');
-        Observer.Finish();
+        Observer.Expect('assign.int3|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDateTime value.');
+        Observer.Expect('assign.int3|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.int3|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDateTime value.');
+        Observer.Expect('arg_byvalue.int3|code', 'TypeConversion');
+        Observer.Expect('exit.int3|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDateTime value.');
+        Observer.Expect('exit.int3|code', 'TypeConversion');
+        Observer.Expect('assign.int300|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDateTime value.');
+        Observer.Expect('assign.int300|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.int300|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDateTime value.');
+        Observer.Expect('arg_byvalue.int300|code', 'TypeConversion');
+        Observer.Expect('exit.int300|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDateTime value.');
+        Observer.Expect('exit.int300|code', 'TypeConversion');
+        Observer.Expect('assign.big|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDateTime value.');
+        Observer.Expect('assign.big|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.big|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDateTime value.');
+        Observer.Expect('arg_byvalue.big|code', 'TypeConversion');
+        Observer.Expect('exit.big|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDateTime value.');
+        Observer.Expect('exit.big|code', 'TypeConversion');
+        Observer.Expect('assign.dec1p5|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDateTime value.');
+        Observer.Expect('assign.dec1p5|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.dec1p5|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDateTime value.');
+        Observer.Expect('arg_byvalue.dec1p5|code', 'TypeConversion');
+        Observer.Expect('exit.dec1p5|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDateTime value.');
+        Observer.Expect('exit.dec1p5|code', 'TypeConversion');
+        Observer.Expect('assign.dec2|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDateTime value.');
+        Observer.Expect('assign.dec2|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.dec2|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDateTime value.');
+        Observer.Expect('arg_byvalue.dec2|code', 'TypeConversion');
+        Observer.Expect('exit.dec2|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDateTime value.');
+        Observer.Expect('exit.dec2|code', 'TypeConversion');
+        Observer.Expect('assign.charA|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDateTime value.');
+        Observer.Expect('assign.charA|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.charA|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDateTime value.');
+        Observer.Expect('arg_byvalue.charA|code', 'TypeConversion');
+        Observer.Expect('exit.charA|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDateTime value.');
+        Observer.Expect('exit.charA|code', 'TypeConversion');
+        Observer.Expect('assign.byte65|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDateTime value.');
+        Observer.Expect('assign.byte65|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.byte65|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDateTime value.');
+        Observer.Expect('arg_byvalue.byte65|code', 'TypeConversion');
+        Observer.Expect('exit.byte65|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDateTime value.');
+        Observer.Expect('exit.byte65|code', 'TypeConversion');
+        Observer.Expect('assign.optB|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDateTime value.');
+        Observer.Expect('assign.optB|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.optB|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDateTime value.');
+        Observer.Expect('arg_byvalue.optB|code', 'TypeConversion');
+        Observer.Expect('exit.optB|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDateTime value.');
+        Observer.Expect('exit.optB|code', 'TypeConversion');
+        Observer.Expect('assign.enumC|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDateTime value.');
+        Observer.Expect('assign.enumC|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.enumC|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDateTime value.');
+        Observer.Expect('arg_byvalue.enumC|code', 'TypeConversion');
+        Observer.Expect('exit.enumC|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDateTime value.');
+        Observer.Expect('exit.enumC|code', 'TypeConversion');
+        Observer.Expect('assign.textabc|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDateTime value.');
+        Observer.Expect('assign.textabc|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.textabc|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDateTime value.');
+        Observer.Expect('arg_byvalue.textabc|code', 'TypeConversion');
+        Observer.Expect('exit.textabc|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDateTime value.');
+        Observer.Expect('exit.textabc|code', 'TypeConversion');
+        Observer.Expect('assign.text11|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDateTime value.');
+        Observer.Expect('assign.text11|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.text11|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDateTime value.');
+        Observer.Expect('arg_byvalue.text11|code', 'TypeConversion');
+        Observer.Expect('exit.text11|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDateTime value.');
+        Observer.Expect('exit.text11|code', 'TypeConversion');
+        Observer.Expect('assign.text12|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDateTime value.');
+        Observer.Expect('assign.text12|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.text12|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDateTime value.');
+        Observer.Expect('arg_byvalue.text12|code', 'TypeConversion');
+        Observer.Expect('exit.text12|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDateTime value.');
+        Observer.Expect('exit.text12|code', 'TypeConversion');
+        Observer.Expect('assign.codeABC|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDateTime value.');
+        Observer.Expect('assign.codeABC|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.codeABC|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDateTime value.');
+        Observer.Expect('arg_byvalue.codeABC|code', 'TypeConversion');
+        Observer.Expect('exit.codeABC|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDateTime value.');
+        Observer.Expect('exit.codeABC|code', 'TypeConversion');
+        Observer.Expect('assign.code12|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDateTime value.');
+        Observer.Expect('assign.code12|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.code12|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDateTime value.');
+        Observer.Expect('arg_byvalue.code12|code', 'TypeConversion');
+        Observer.Expect('exit.code12|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDateTime value.');
+        Observer.Expect('exit.code12|code', 'TypeConversion');
+        Observer.Expect('assign.guid|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDateTime value.');
+        Observer.Expect('assign.guid|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.guid|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDateTime value.');
+        Observer.Expect('arg_byvalue.guid|code', 'TypeConversion');
+        Observer.Expect('exit.guid|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDateTime value.');
+        Observer.Expect('exit.guid|code', 'TypeConversion');
+        Observer.Expect('assign.boolF|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDateTime value.');
+        Observer.Expect('assign.boolF|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.boolF|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDateTime value.');
+        Observer.Expect('arg_byvalue.boolF|code', 'TypeConversion');
+        Observer.Expect('exit.boolF|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDateTime value.');
+        Observer.Expect('exit.boolF|code', 'TypeConversion');
+        Observer.Verify();
     end;
 
     [Test]
-    procedure Variant_To_DateTime_9()
+    procedure Variant_To_DateTime_2()
     var
         Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
         vDateTime: DateTime;
         vVariant: Variant;
     begin
@@ -12643,16 +13012,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try86(vDateTime, vVariant) then Observer.Observe('assign.date', Format(vDateTime, 0, 9)) else Observer.ObserveError('assign.date');
         if Try88(vDateTime, vVariant) then Observer.Observe('arg_byvalue.date', Format(vDateTime, 0, 9)) else Observer.ObserveError('arg_byvalue.date');
         if Try90(vDateTime, vVariant) then Observer.Observe('exit.date', Format(vDateTime, 0, 9)) else Observer.ObserveError('exit.date');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_DateTime_10()
-    var
-        Observer: Codeunit "Probe Observer";
-        vDateTime: DateTime;
-        vVariant: Variant;
-    begin
         vVariant := 120000T;
         if Try86(vDateTime, vVariant) then Observer.Observe('assign.time', Format(vDateTime, 0, 9)) else Observer.ObserveError('assign.time');
         if Try88(vDateTime, vVariant) then Observer.Observe('arg_byvalue.time', Format(vDateTime, 0, 9)) else Observer.ObserveError('arg_byvalue.time');
@@ -12661,22 +13020,35 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try86(vDateTime, vVariant) then Observer.Observe('assign.dt', Format(vDateTime, 0, 9)) else Observer.ObserveError('assign.dt');
         if Try88(vDateTime, vVariant) then Observer.Observe('arg_byvalue.dt', Format(vDateTime, 0, 9)) else Observer.ObserveError('arg_byvalue.dt');
         if Try90(vDateTime, vVariant) then Observer.Observe('exit.dt', Format(vDateTime, 0, 9)) else Observer.ObserveError('exit.dt');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_DateTime_11()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vDateTime: DateTime;
-        vVariant: Variant;
-    begin
         vVariant := Util.AsDuration(65);
         if Try86(vDateTime, vVariant) then Observer.Observe('assign.dur65', Format(vDateTime, 0, 9)) else Observer.ObserveError('assign.dur65');
         if Try88(vDateTime, vVariant) then Observer.Observe('arg_byvalue.dur65', Format(vDateTime, 0, 9)) else Observer.ObserveError('arg_byvalue.dur65');
         if Try90(vDateTime, vVariant) then Observer.Observe('exit.dur65', Format(vDateTime, 0, 9)) else Observer.ObserveError('exit.dur65');
-        Observer.Finish();
+        Observer.Expect('assign.boolT|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDateTime value.');
+        Observer.Expect('assign.boolT|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.boolT|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDateTime value.');
+        Observer.Expect('arg_byvalue.boolT|code', 'TypeConversion');
+        Observer.Expect('exit.boolT|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDateTime value.');
+        Observer.Expect('exit.boolT|code', 'TypeConversion');
+        Observer.Expect('assign.date', '2026-01-31T00:00:00Z');
+        Observer.Expect('arg_byvalue.date', '2026-01-31T00:00:00Z');
+        Observer.Expect('exit.date', '2026-01-31T00:00:00Z');
+        Observer.Expect('assign.time|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDateTime value.');
+        Observer.Expect('assign.time|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.time|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDateTime value.');
+        Observer.Expect('arg_byvalue.time|code', 'TypeConversion');
+        Observer.Expect('exit.time|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDateTime value.');
+        Observer.Expect('exit.time|code', 'TypeConversion');
+        Observer.Expect('assign.dt', '2026-01-31T12:00:00Z');
+        Observer.Expect('arg_byvalue.dt', '2026-01-31T12:00:00Z');
+        Observer.Expect('exit.dt', '2026-01-31T12:00:00Z');
+        Observer.Expect('assign.dur65|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDateTime value.');
+        Observer.Expect('assign.dur65|code', 'TypeConversion');
+        Observer.Expect('arg_byvalue.dur65|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDateTime value.');
+        Observer.Expect('arg_byvalue.dur65|code', 'TypeConversion');
+        Observer.Expect('exit.dur65|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavDateTime value.');
+        Observer.Expect('exit.dur65|code', 'TypeConversion');
+        Observer.Verify();
     end;
 
     [Test]
@@ -12703,17 +13075,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try91(R, vVariant) then Observer.Observe('assign.byte65', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.byte65');
         vVariant := Util.AsOption(1);
         if Try91(R, vVariant) then Observer.Observe('assign.optB', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.optB');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_FInteger_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        R: Record "LT Y31 Conv Fields";
-        Util: Codeunit "LT Y31 Conv Util";
-        vVariant: Variant;
-    begin
         vVariant := "LT Y31 E"::C;
         if Try91(R, vVariant) then Observer.Observe('assign.enumC', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.enumC');
         vVariant := Util.AsText('abc');
@@ -12730,17 +13091,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try91(R, vVariant) then Observer.Observe('assign.guid', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.guid');
         vVariant := false;
         if Try91(R, vVariant) then Observer.Observe('assign.boolF', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.boolF');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_FInteger_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        R: Record "LT Y31 Conv Fields";
-        Util: Codeunit "LT Y31 Conv Util";
-        vVariant: Variant;
-    begin
         vVariant := true;
         if Try91(R, vVariant) then Observer.Observe('assign.boolT', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.boolT');
         vVariant := 20260131D;
@@ -12751,7 +13101,35 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try91(R, vVariant) then Observer.Observe('assign.dt', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.dt');
         vVariant := Util.AsDuration(65);
         if Try91(R, vVariant) then Observer.Observe('assign.dur65', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.dur65');
-        Observer.Finish();
+        Observer.Expect('assign.int3', '3');
+        Observer.Expect('assign.int300', '300');
+        Observer.Expect('assign.big|text', 'The expression Variant cannot be type-converted to a Integer value.');
+        Observer.Expect('assign.big|code', 'TypeConversion:Overflow');
+        Observer.Expect('assign.dec1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int32.');
+        Observer.Expect('assign.dec1p5|code', 'ConversionCast');
+        Observer.Expect('assign.dec2', '2');
+        Observer.Expect('assign.charA', '65');
+        Observer.Expect('assign.byte65', '65');
+        Observer.Expect('assign.optB', '1');
+        Observer.Expect('assign.enumC', '2');
+        Observer.Expect('assign.textabc|text', 'The expression Variant cannot be type-converted to a Integer value.');
+        Observer.Expect('assign.textabc|code', 'TypeConversion:Format');
+        Observer.Expect('assign.text11|text', 'The expression Variant cannot be type-converted to a Integer value.');
+        Observer.Expect('assign.text11|code', 'TypeConversion:Format');
+        Observer.Expect('assign.text12', '12');
+        Observer.Expect('assign.codeABC|text', 'The expression Variant cannot be type-converted to a Integer value.');
+        Observer.Expect('assign.codeABC|code', 'TypeConversion:Format');
+        Observer.Expect('assign.code12', '12');
+        Observer.Expect('assign.guid|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavGuid to System.Int32.');
+        Observer.Expect('assign.guid|code', 'Conversion');
+        Observer.Expect('assign.boolF', '0');
+        Observer.Expect('assign.boolT', '1');
+        Observer.Expect('assign.date', '1480025');
+        Observer.Expect('assign.time', '43200001');
+        Observer.Expect('assign.dt|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32.');
+        Observer.Expect('assign.dt|code', 'Conversion');
+        Observer.Expect('assign.dur65', '65');
+        Observer.Verify();
     end;
 
     [Test]
@@ -12778,17 +13156,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try92(R, vVariant) then Observer.Observe('assign.byte65', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.byte65');
         vVariant := Util.AsOption(1);
         if Try92(R, vVariant) then Observer.Observe('assign.optB', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.optB');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_FBigInteger_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        R: Record "LT Y31 Conv Fields";
-        Util: Codeunit "LT Y31 Conv Util";
-        vVariant: Variant;
-    begin
         vVariant := "LT Y31 E"::C;
         if Try92(R, vVariant) then Observer.Observe('assign.enumC', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.enumC');
         vVariant := Util.AsText('abc');
@@ -12805,17 +13172,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try92(R, vVariant) then Observer.Observe('assign.guid', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.guid');
         vVariant := false;
         if Try92(R, vVariant) then Observer.Observe('assign.boolF', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.boolF');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_FBigInteger_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        R: Record "LT Y31 Conv Fields";
-        Util: Codeunit "LT Y31 Conv Util";
-        vVariant: Variant;
-    begin
         vVariant := true;
         if Try92(R, vVariant) then Observer.Observe('assign.boolT', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.boolT');
         vVariant := 20260131D;
@@ -12826,7 +13182,33 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try92(R, vVariant) then Observer.Observe('assign.dt', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.dt');
         vVariant := Util.AsDuration(65);
         if Try92(R, vVariant) then Observer.Observe('assign.dur65', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.dur65');
-        Observer.Finish();
+        Observer.Expect('assign.int3', '3');
+        Observer.Expect('assign.int300', '300');
+        Observer.Expect('assign.big', '3000000000');
+        Observer.Expect('assign.dec1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int64.');
+        Observer.Expect('assign.dec1p5|code', 'ConversionCast');
+        Observer.Expect('assign.dec2', '2');
+        Observer.Expect('assign.charA', '65');
+        Observer.Expect('assign.byte65', '65');
+        Observer.Expect('assign.optB', '1');
+        Observer.Expect('assign.enumC', '2');
+        Observer.Expect('assign.textabc|text', 'The expression Variant cannot be type-converted to a BigInteger value.');
+        Observer.Expect('assign.textabc|code', 'TypeConversion:Format');
+        Observer.Expect('assign.text11|text', 'The expression Variant cannot be type-converted to a BigInteger value.');
+        Observer.Expect('assign.text11|code', 'TypeConversion:Format');
+        Observer.Expect('assign.text12', '12');
+        Observer.Expect('assign.codeABC|text', 'The expression Variant cannot be type-converted to a BigInteger value.');
+        Observer.Expect('assign.codeABC|code', 'TypeConversion:Format');
+        Observer.Expect('assign.code12', '12');
+        Observer.Expect('assign.guid|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavGuid to System.Int32.');
+        Observer.Expect('assign.guid|code', 'Conversion');
+        Observer.Expect('assign.boolF', '0');
+        Observer.Expect('assign.boolT', '1');
+        Observer.Expect('assign.date', '1480025');
+        Observer.Expect('assign.time', '43200001');
+        Observer.Expect('assign.dt', '63937080000001');
+        Observer.Expect('assign.dur65', '65');
+        Observer.Verify();
     end;
 
     [Test]
@@ -12853,17 +13235,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try93(R, vVariant) then Observer.Observe('assign.byte65', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.byte65');
         vVariant := Util.AsOption(1);
         if Try93(R, vVariant) then Observer.Observe('assign.optB', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.optB');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_FDecimal_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        R: Record "LT Y31 Conv Fields";
-        Util: Codeunit "LT Y31 Conv Util";
-        vVariant: Variant;
-    begin
         vVariant := "LT Y31 E"::C;
         if Try93(R, vVariant) then Observer.Observe('assign.enumC', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.enumC');
         vVariant := Util.AsText('abc');
@@ -12880,17 +13251,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try93(R, vVariant) then Observer.Observe('assign.guid', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.guid');
         vVariant := false;
         if Try93(R, vVariant) then Observer.Observe('assign.boolF', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.boolF');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_FDecimal_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        R: Record "LT Y31 Conv Fields";
-        Util: Codeunit "LT Y31 Conv Util";
-        vVariant: Variant;
-    begin
         vVariant := true;
         if Try93(R, vVariant) then Observer.Observe('assign.boolT', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.boolT');
         vVariant := 20260131D;
@@ -12901,7 +13261,32 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try93(R, vVariant) then Observer.Observe('assign.dt', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.dt');
         vVariant := Util.AsDuration(65);
         if Try93(R, vVariant) then Observer.Observe('assign.dur65', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.dur65');
-        Observer.Finish();
+        Observer.Expect('assign.int3', '3');
+        Observer.Expect('assign.int300', '300');
+        Observer.Expect('assign.big', '3000000000');
+        Observer.Expect('assign.dec1p5', '1.5');
+        Observer.Expect('assign.dec2', '2');
+        Observer.Expect('assign.charA', '65');
+        Observer.Expect('assign.byte65', '65');
+        Observer.Expect('assign.optB', '1');
+        Observer.Expect('assign.enumC', '2');
+        Observer.Expect('assign.textabc|text', 'The expression Variant cannot be type-converted to a Decimal value.');
+        Observer.Expect('assign.textabc|code', 'TypeConversion:Format');
+        Observer.Expect('assign.text11|text', 'The expression Variant cannot be type-converted to a Decimal value.');
+        Observer.Expect('assign.text11|code', 'TypeConversion:Format');
+        Observer.Expect('assign.text12', '12');
+        Observer.Expect('assign.codeABC|text', 'The expression Variant cannot be type-converted to a Decimal value.');
+        Observer.Expect('assign.codeABC|code', 'TypeConversion:Format');
+        Observer.Expect('assign.code12', '12');
+        Observer.Expect('assign.guid|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavGuid to System.Int32.');
+        Observer.Expect('assign.guid|code', 'Conversion');
+        Observer.Expect('assign.boolF', '0');
+        Observer.Expect('assign.boolT', '1');
+        Observer.Expect('assign.date', '1480025');
+        Observer.Expect('assign.time', '43200001');
+        Observer.Expect('assign.dt', '63937080000001');
+        Observer.Expect('assign.dur65', '65');
+        Observer.Verify();
     end;
 
     [Test]
@@ -12928,17 +13313,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try94(R, vVariant) then Observer.Observe('assign.byte65', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.byte65');
         vVariant := Util.AsOption(1);
         if Try94(R, vVariant) then Observer.Observe('assign.optB', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.optB');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_FOption_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        R: Record "LT Y31 Conv Fields";
-        Util: Codeunit "LT Y31 Conv Util";
-        vVariant: Variant;
-    begin
         vVariant := "LT Y31 E"::C;
         if Try94(R, vVariant) then Observer.Observe('assign.enumC', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.enumC');
         vVariant := Util.AsText('abc');
@@ -12955,17 +13329,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try94(R, vVariant) then Observer.Observe('assign.guid', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.guid');
         vVariant := false;
         if Try94(R, vVariant) then Observer.Observe('assign.boolF', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.boolF');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_FOption_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        R: Record "LT Y31 Conv Fields";
-        Util: Codeunit "LT Y31 Conv Util";
-        vVariant: Variant;
-    begin
         vVariant := true;
         if Try94(R, vVariant) then Observer.Observe('assign.boolT', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.boolT');
         vVariant := 20260131D;
@@ -12976,7 +13339,35 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try94(R, vVariant) then Observer.Observe('assign.dt', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.dt');
         vVariant := Util.AsDuration(65);
         if Try94(R, vVariant) then Observer.Observe('assign.dur65', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.dur65');
-        Observer.Finish();
+        Observer.Expect('assign.int3', '3|3');
+        Observer.Expect('assign.int300', '300|300');
+        Observer.Expect('assign.big|text', 'The expression Variant cannot be type-converted to a Integer value.');
+        Observer.Expect('assign.big|code', 'TypeConversion:Overflow');
+        Observer.Expect('assign.dec1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int32.');
+        Observer.Expect('assign.dec1p5|code', 'ConversionCast');
+        Observer.Expect('assign.dec2', 'C|2');
+        Observer.Expect('assign.charA', '65|65');
+        Observer.Expect('assign.byte65', '65|65');
+        Observer.Expect('assign.optB', 'B|1');
+        Observer.Expect('assign.enumC', 'C|2');
+        Observer.Expect('assign.textabc|text', 'The expression Variant cannot be type-converted to a Integer value.');
+        Observer.Expect('assign.textabc|code', 'TypeConversion:Format');
+        Observer.Expect('assign.text11|text', 'The expression Variant cannot be type-converted to a Integer value.');
+        Observer.Expect('assign.text11|code', 'TypeConversion:Format');
+        Observer.Expect('assign.text12', '12|12');
+        Observer.Expect('assign.codeABC|text', 'The expression Variant cannot be type-converted to a Integer value.');
+        Observer.Expect('assign.codeABC|code', 'TypeConversion:Format');
+        Observer.Expect('assign.code12', '12|12');
+        Observer.Expect('assign.guid|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavGuid to System.Int32.');
+        Observer.Expect('assign.guid|code', 'Conversion');
+        Observer.Expect('assign.boolF', 'A|0');
+        Observer.Expect('assign.boolT', 'B|1');
+        Observer.Expect('assign.date', '1480025|1480025');
+        Observer.Expect('assign.time', '43200001|43200001');
+        Observer.Expect('assign.dt|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32.');
+        Observer.Expect('assign.dt|code', 'Conversion');
+        Observer.Expect('assign.dur65', '65|65');
+        Observer.Verify();
     end;
 
     [Test]
@@ -13003,17 +13394,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try95(R, vVariant) then Observer.Observe('assign.byte65', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.byte65');
         vVariant := Util.AsOption(1);
         if Try95(R, vVariant) then Observer.Observe('assign.optB', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.optB');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_FText10_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        R: Record "LT Y31 Conv Fields";
-        Util: Codeunit "LT Y31 Conv Util";
-        vVariant: Variant;
-    begin
         vVariant := "LT Y31 E"::C;
         if Try95(R, vVariant) then Observer.Observe('assign.enumC', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.enumC');
         vVariant := Util.AsText('abc');
@@ -13030,17 +13410,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try95(R, vVariant) then Observer.Observe('assign.guid', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.guid');
         vVariant := false;
         if Try95(R, vVariant) then Observer.Observe('assign.boolF', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.boolF');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_FText10_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        R: Record "LT Y31 Conv Fields";
-        Util: Codeunit "LT Y31 Conv Util";
-        vVariant: Variant;
-    begin
         vVariant := true;
         if Try95(R, vVariant) then Observer.Observe('assign.boolT', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.boolT');
         vVariant := 20260131D;
@@ -13051,7 +13420,43 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try95(R, vVariant) then Observer.Observe('assign.dt', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.dt');
         vVariant := Util.AsDuration(65);
         if Try95(R, vVariant) then Observer.Observe('assign.dur65', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.dur65');
-        Observer.Finish();
+        Observer.Expect('assign.int3|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('assign.int3|code', 'TypeConversion');
+        Observer.Expect('assign.int300|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('assign.int300|code', 'TypeConversion');
+        Observer.Expect('assign.big|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('assign.big|code', 'TypeConversion');
+        Observer.Expect('assign.dec1p5|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('assign.dec1p5|code', 'TypeConversion');
+        Observer.Expect('assign.dec2|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('assign.dec2|code', 'TypeConversion');
+        Observer.Expect('assign.charA', 'A|1');
+        Observer.Expect('assign.byte65', 'A|1');
+        Observer.Expect('assign.optB|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('assign.optB|code', 'TypeConversion');
+        Observer.Expect('assign.enumC|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('assign.enumC|code', 'TypeConversion');
+        Observer.Expect('assign.textabc', 'abc|3');
+        Observer.Expect('assign.text11|text', 'The length of the string is 11, but it must be less than or equal to 10 characters. Value: abcdefghijk');
+        Observer.Expect('assign.text11|code', 'StringLengthExceeded');
+        Observer.Expect('assign.text12', '12|2');
+        Observer.Expect('assign.codeABC', 'ABC|3');
+        Observer.Expect('assign.code12', '12|2');
+        Observer.Expect('assign.guid|text', 'The length of the string is 38, but it must be less than or equal to 10 characters. Value: {5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('assign.guid|code', 'StringLengthExceeded');
+        Observer.Expect('assign.boolF|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('assign.boolF|code', 'TypeConversion');
+        Observer.Expect('assign.boolT|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('assign.boolT|code', 'TypeConversion');
+        Observer.Expect('assign.date|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('assign.date|code', 'TypeConversion');
+        Observer.Expect('assign.time|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('assign.time|code', 'TypeConversion');
+        Observer.Expect('assign.dt|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('assign.dt|code', 'TypeConversion');
+        Observer.Expect('assign.dur65|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.');
+        Observer.Expect('assign.dur65|code', 'TypeConversion');
+        Observer.Verify();
     end;
 
     [Test]
@@ -13078,17 +13483,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try96(R, vVariant) then Observer.Observe('assign.byte65', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.byte65');
         vVariant := Util.AsOption(1);
         if Try96(R, vVariant) then Observer.Observe('assign.optB', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.optB');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_FCode10_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        R: Record "LT Y31 Conv Fields";
-        Util: Codeunit "LT Y31 Conv Util";
-        vVariant: Variant;
-    begin
         vVariant := "LT Y31 E"::C;
         if Try96(R, vVariant) then Observer.Observe('assign.enumC', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.enumC');
         vVariant := Util.AsText('abc');
@@ -13105,17 +13499,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try96(R, vVariant) then Observer.Observe('assign.guid', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.guid');
         vVariant := false;
         if Try96(R, vVariant) then Observer.Observe('assign.boolF', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.boolF');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_FCode10_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        R: Record "LT Y31 Conv Fields";
-        Util: Codeunit "LT Y31 Conv Util";
-        vVariant: Variant;
-    begin
         vVariant := true;
         if Try96(R, vVariant) then Observer.Observe('assign.boolT', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.boolT');
         vVariant := 20260131D;
@@ -13126,7 +13509,43 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try96(R, vVariant) then Observer.Observe('assign.dt', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.dt');
         vVariant := Util.AsDuration(65);
         if Try96(R, vVariant) then Observer.Observe('assign.dur65', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.dur65');
-        Observer.Finish();
+        Observer.Expect('assign.int3|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('assign.int3|code', 'TypeConversion');
+        Observer.Expect('assign.int300|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('assign.int300|code', 'TypeConversion');
+        Observer.Expect('assign.big|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('assign.big|code', 'TypeConversion');
+        Observer.Expect('assign.dec1p5|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('assign.dec1p5|code', 'TypeConversion');
+        Observer.Expect('assign.dec2|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('assign.dec2|code', 'TypeConversion');
+        Observer.Expect('assign.charA', 'A|1');
+        Observer.Expect('assign.byte65', 'A|1');
+        Observer.Expect('assign.optB|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('assign.optB|code', 'TypeConversion');
+        Observer.Expect('assign.enumC|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('assign.enumC|code', 'TypeConversion');
+        Observer.Expect('assign.textabc', 'ABC|3');
+        Observer.Expect('assign.text11|text', 'The length of the string is 11, but it must be less than or equal to 10 characters. Value: abcdefghijk');
+        Observer.Expect('assign.text11|code', 'StringLengthExceeded');
+        Observer.Expect('assign.text12', '12|2');
+        Observer.Expect('assign.codeABC', 'ABC|3');
+        Observer.Expect('assign.code12', '12|2');
+        Observer.Expect('assign.guid|text', 'The length of the string is 38, but it must be less than or equal to 10 characters. Value: {5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('assign.guid|code', 'StringLengthExceeded');
+        Observer.Expect('assign.boolF|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('assign.boolF|code', 'TypeConversion');
+        Observer.Expect('assign.boolT|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('assign.boolT|code', 'TypeConversion');
+        Observer.Expect('assign.date|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('assign.date|code', 'TypeConversion');
+        Observer.Expect('assign.time|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('assign.time|code', 'TypeConversion');
+        Observer.Expect('assign.dt|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('assign.dt|code', 'TypeConversion');
+        Observer.Expect('assign.dur65|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavCode value.');
+        Observer.Expect('assign.dur65|code', 'TypeConversion');
+        Observer.Verify();
     end;
 
     [Test]
@@ -13153,17 +13572,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try97(R, vVariant) then Observer.Observe('assign.byte65', Format(R.Guid)) else Observer.ObserveError('assign.byte65');
         vVariant := Util.AsOption(1);
         if Try97(R, vVariant) then Observer.Observe('assign.optB', Format(R.Guid)) else Observer.ObserveError('assign.optB');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_FGuid_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        R: Record "LT Y31 Conv Fields";
-        Util: Codeunit "LT Y31 Conv Util";
-        vVariant: Variant;
-    begin
         vVariant := "LT Y31 E"::C;
         if Try97(R, vVariant) then Observer.Observe('assign.enumC', Format(R.Guid)) else Observer.ObserveError('assign.enumC');
         vVariant := Util.AsText('abc');
@@ -13180,17 +13588,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try97(R, vVariant) then Observer.Observe('assign.guid', Format(R.Guid)) else Observer.ObserveError('assign.guid');
         vVariant := false;
         if Try97(R, vVariant) then Observer.Observe('assign.boolF', Format(R.Guid)) else Observer.ObserveError('assign.boolF');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_FGuid_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        R: Record "LT Y31 Conv Fields";
-        Util: Codeunit "LT Y31 Conv Util";
-        vVariant: Variant;
-    begin
         vVariant := true;
         if Try97(R, vVariant) then Observer.Observe('assign.boolT', Format(R.Guid)) else Observer.ObserveError('assign.boolT');
         vVariant := 20260131D;
@@ -13201,7 +13598,48 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try97(R, vVariant) then Observer.Observe('assign.dt', Format(R.Guid)) else Observer.ObserveError('assign.dt');
         vVariant := Util.AsDuration(65);
         if Try97(R, vVariant) then Observer.Observe('assign.dur65', Format(R.Guid)) else Observer.ObserveError('assign.dur65');
-        Observer.Finish();
+        Observer.Expect('assign.int3|text', 'The expression Variant cannot be type-converted to a GUID value.');
+        Observer.Expect('assign.int3|code', 'TypeConversion');
+        Observer.Expect('assign.int300|text', 'The expression Variant cannot be type-converted to a GUID value.');
+        Observer.Expect('assign.int300|code', 'TypeConversion');
+        Observer.Expect('assign.big|text', 'The expression Variant cannot be type-converted to a GUID value.');
+        Observer.Expect('assign.big|code', 'TypeConversion');
+        Observer.Expect('assign.dec1p5|text', 'The expression Variant cannot be type-converted to a GUID value.');
+        Observer.Expect('assign.dec1p5|code', 'TypeConversion');
+        Observer.Expect('assign.dec2|text', 'The expression Variant cannot be type-converted to a GUID value.');
+        Observer.Expect('assign.dec2|code', 'TypeConversion');
+        Observer.Expect('assign.charA|text', 'The expression Variant cannot be type-converted to a GUID value.');
+        Observer.Expect('assign.charA|code', 'TypeConversion');
+        Observer.Expect('assign.byte65|text', 'The expression Variant cannot be type-converted to a GUID value.');
+        Observer.Expect('assign.byte65|code', 'TypeConversion');
+        Observer.Expect('assign.optB|text', 'The expression Variant cannot be type-converted to a GUID value.');
+        Observer.Expect('assign.optB|code', 'TypeConversion');
+        Observer.Expect('assign.enumC|text', 'The expression Variant cannot be type-converted to a GUID value.');
+        Observer.Expect('assign.enumC|code', 'TypeConversion');
+        Observer.Expect('assign.textabc|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('assign.textabc|code', 'InvalidGuidFormat');
+        Observer.Expect('assign.text11|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('assign.text11|code', 'InvalidGuidFormat');
+        Observer.Expect('assign.text12|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('assign.text12|code', 'InvalidGuidFormat');
+        Observer.Expect('assign.codeABC|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('assign.codeABC|code', 'InvalidGuidFormat');
+        Observer.Expect('assign.code12|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('assign.code12|code', 'InvalidGuidFormat');
+        Observer.Expect('assign.guid', '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('assign.boolF|text', 'The expression Variant cannot be type-converted to a GUID value.');
+        Observer.Expect('assign.boolF|code', 'TypeConversion');
+        Observer.Expect('assign.boolT|text', 'The expression Variant cannot be type-converted to a GUID value.');
+        Observer.Expect('assign.boolT|code', 'TypeConversion');
+        Observer.Expect('assign.date|text', 'The expression Variant cannot be type-converted to a GUID value.');
+        Observer.Expect('assign.date|code', 'TypeConversion');
+        Observer.Expect('assign.time|text', 'The expression Variant cannot be type-converted to a GUID value.');
+        Observer.Expect('assign.time|code', 'TypeConversion');
+        Observer.Expect('assign.dt|text', 'The expression Variant cannot be type-converted to a GUID value.');
+        Observer.Expect('assign.dt|code', 'TypeConversion');
+        Observer.Expect('assign.dur65|text', 'The expression Variant cannot be type-converted to a GUID value.');
+        Observer.Expect('assign.dur65|code', 'TypeConversion');
+        Observer.Verify();
     end;
 
     [Test]
@@ -13228,17 +13666,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try98(R, vVariant) then Observer.Observe('assign.byte65', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.byte65');
         vVariant := Util.AsOption(1);
         if Try98(R, vVariant) then Observer.Observe('assign.optB', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.optB');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_FDuration_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        R: Record "LT Y31 Conv Fields";
-        Util: Codeunit "LT Y31 Conv Util";
-        vVariant: Variant;
-    begin
         vVariant := "LT Y31 E"::C;
         if Try98(R, vVariant) then Observer.Observe('assign.enumC', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.enumC');
         vVariant := Util.AsText('abc');
@@ -13255,17 +13682,6 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try98(R, vVariant) then Observer.Observe('assign.guid', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.guid');
         vVariant := false;
         if Try98(R, vVariant) then Observer.Observe('assign.boolF', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.boolF');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Variant_To_FDuration_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        R: Record "LT Y31 Conv Fields";
-        Util: Codeunit "LT Y31 Conv Util";
-        vVariant: Variant;
-    begin
         vVariant := true;
         if Try98(R, vVariant) then Observer.Observe('assign.boolT', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.boolT');
         vVariant := 20260131D;
@@ -13276,7 +13692,33 @@ codeunit 92425 "LT Y31 Cv Variant"
         if Try98(R, vVariant) then Observer.Observe('assign.dt', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.dt');
         vVariant := Util.AsDuration(65);
         if Try98(R, vVariant) then Observer.Observe('assign.dur65', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.dur65');
-        Observer.Finish();
+        Observer.Expect('assign.int3', 'P0DT0H0M0.003S');
+        Observer.Expect('assign.int300', 'P0DT0H0M0.3S');
+        Observer.Expect('assign.big', 'P34DT17H20M0.0S');
+        Observer.Expect('assign.dec1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int64.');
+        Observer.Expect('assign.dec1p5|code', 'ConversionCast');
+        Observer.Expect('assign.dec2', 'P0DT0H0M0.002S');
+        Observer.Expect('assign.charA', 'P0DT0H0M0.065S');
+        Observer.Expect('assign.byte65', 'P0DT0H0M0.065S');
+        Observer.Expect('assign.optB', 'P0DT0H0M0.001S');
+        Observer.Expect('assign.enumC', 'P0DT0H0M0.002S');
+        Observer.Expect('assign.textabc|text', 'The input string ''abc'' was not in a correct format.');
+        Observer.Expect('assign.textabc|code', 'AL:Format');
+        Observer.Expect('assign.text11|text', 'The input string ''abcdefghijk'' was not in a correct format.');
+        Observer.Expect('assign.text11|code', 'AL:Format');
+        Observer.Expect('assign.text12', 'P0DT0H0M0.012S');
+        Observer.Expect('assign.codeABC|text', 'The input string ''ABC'' was not in a correct format.');
+        Observer.Expect('assign.codeABC|code', 'AL:Format');
+        Observer.Expect('assign.code12', 'P0DT0H0M0.012S');
+        Observer.Expect('assign.guid|text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavGuid to System.Int32.');
+        Observer.Expect('assign.guid|code', 'Conversion');
+        Observer.Expect('assign.boolF', 'P0DT0H0M0.0S');
+        Observer.Expect('assign.boolT', 'P0DT0H0M0.001S');
+        Observer.Expect('assign.date', 'P0DT0H24M40.025S');
+        Observer.Expect('assign.time', 'P0DT12H0M0.001S');
+        Observer.Expect('assign.dt', 'P740012DT12H0M0.001S');
+        Observer.Expect('assign.dur65', 'P0DT0H0M0.065S');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -13916,7 +14358,13 @@ codeunit 92426 "LT Y31 Cv Literals"
         if Try1(vInteger) then Observer.Observe('assign.dec1p5', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.dec1p5');
         if Try3(vInteger) then Observer.Observe('arg_byvalue.dec1p5', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.dec1p5');
         if Try5(vInteger) then Observer.Observe('exit.dec1p5', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.dec1p5');
-        Observer.Finish();
+        Observer.Expect('assign.dec1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int32.');
+        Observer.Expect('assign.dec1p5|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.dec1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int32.');
+        Observer.Expect('arg_byvalue.dec1p5|code', 'ConversionCast');
+        Observer.Expect('exit.dec1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int32.');
+        Observer.Expect('exit.dec1p5|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -13928,7 +14376,13 @@ codeunit 92426 "LT Y31 Cv Literals"
         if Try6(vBigInteger) then Observer.Observe('assign.dec1p5', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.dec1p5');
         if Try8(vBigInteger) then Observer.Observe('arg_byvalue.dec1p5', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.dec1p5');
         if Try10(vBigInteger) then Observer.Observe('exit.dec1p5', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.dec1p5');
-        Observer.Finish();
+        Observer.Expect('assign.dec1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int64.');
+        Observer.Expect('assign.dec1p5|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.dec1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int64.');
+        Observer.Expect('arg_byvalue.dec1p5|code', 'ConversionCast');
+        Observer.Expect('exit.dec1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int64.');
+        Observer.Expect('exit.dec1p5|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -13940,7 +14394,10 @@ codeunit 92426 "LT Y31 Cv Literals"
         if Try11(vDecimal) then Observer.Observe('assign.dec1p5', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.dec1p5');
         if Try13(vDecimal) then Observer.Observe('arg_byvalue.dec1p5', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.dec1p5');
         if Try15(vDecimal) then Observer.Observe('exit.dec1p5', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.dec1p5');
-        Observer.Finish();
+        Observer.Expect('assign.dec1p5', '1.5');
+        Observer.Expect('arg_byvalue.dec1p5', '1.5');
+        Observer.Expect('exit.dec1p5', '1.5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -13953,7 +14410,13 @@ codeunit 92426 "LT Y31 Cv Literals"
         if Try16(vChar) then Observer.Observe('assign.dec1p5', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.dec1p5');
         if Try18(vChar) then Observer.Observe('arg_byvalue.dec1p5', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.dec1p5');
         if Try20(vChar) then Observer.Observe('exit.dec1p5', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.dec1p5');
-        Observer.Finish();
+        Observer.Expect('assign.dec1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Char.');
+        Observer.Expect('assign.dec1p5|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.dec1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Char.');
+        Observer.Expect('arg_byvalue.dec1p5|code', 'ConversionCast');
+        Observer.Expect('exit.dec1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Char.');
+        Observer.Expect('exit.dec1p5|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -13965,7 +14428,13 @@ codeunit 92426 "LT Y31 Cv Literals"
         if Try21(vByte) then Observer.Observe('assign.dec1p5', Format(vByte, 0, 9)) else Observer.ObserveError('assign.dec1p5');
         if Try23(vByte) then Observer.Observe('arg_byvalue.dec1p5', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.dec1p5');
         if Try25(vByte) then Observer.Observe('exit.dec1p5', Format(vByte, 0, 9)) else Observer.ObserveError('exit.dec1p5');
-        Observer.Finish();
+        Observer.Expect('assign.dec1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Byte.');
+        Observer.Expect('assign.dec1p5|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.dec1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Byte.');
+        Observer.Expect('arg_byvalue.dec1p5|code', 'ConversionCast');
+        Observer.Expect('exit.dec1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Byte.');
+        Observer.Expect('exit.dec1p5|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -13977,7 +14446,13 @@ codeunit 92426 "LT Y31 Cv Literals"
         if Try26(vDuration) then Observer.Observe('assign.dec1p5', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.dec1p5');
         if Try28(vDuration) then Observer.Observe('arg_byvalue.dec1p5', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.dec1p5');
         if Try30(vDuration) then Observer.Observe('exit.dec1p5', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.dec1p5');
-        Observer.Finish();
+        Observer.Expect('assign.dec1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int64.');
+        Observer.Expect('assign.dec1p5|code', 'ConversionCast');
+        Observer.Expect('arg_byvalue.dec1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int64.');
+        Observer.Expect('arg_byvalue.dec1p5|code', 'ConversionCast');
+        Observer.Expect('exit.dec1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int64.');
+        Observer.Expect('exit.dec1p5|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -13987,7 +14462,9 @@ codeunit 92426 "LT Y31 Cv Literals"
         R: Record "LT Y31 Conv Fields";
     begin
         if Try31(R) then Observer.Observe('assign.dec1p5', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.dec1p5');
-        Observer.Finish();
+        Observer.Expect('assign.dec1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int32.');
+        Observer.Expect('assign.dec1p5|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -13997,7 +14474,9 @@ codeunit 92426 "LT Y31 Cv Literals"
         R: Record "LT Y31 Conv Fields";
     begin
         if Try32(R) then Observer.Observe('assign.dec1p5', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.dec1p5');
-        Observer.Finish();
+        Observer.Expect('assign.dec1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int64.');
+        Observer.Expect('assign.dec1p5|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -14007,7 +14486,8 @@ codeunit 92426 "LT Y31 Cv Literals"
         R: Record "LT Y31 Conv Fields";
     begin
         if Try33(R) then Observer.Observe('assign.dec1p5', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.dec1p5');
-        Observer.Finish();
+        Observer.Expect('assign.dec1p5', '1.5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -14017,7 +14497,9 @@ codeunit 92426 "LT Y31 Cv Literals"
         R: Record "LT Y31 Conv Fields";
     begin
         if Try34(R) then Observer.Observe('assign.dec1p5', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.dec1p5');
-        Observer.Finish();
+        Observer.Expect('assign.dec1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int64.');
+        Observer.Expect('assign.dec1p5|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -14028,7 +14510,9 @@ codeunit 92426 "LT Y31 Cv Literals"
     begin
         if Try35(vInteger) then Observer.Observe('assign.chara', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.chara');
         if Try37(vInteger) then Observer.Observe('exit.chara', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.chara');
-        Observer.Finish();
+        Observer.Expect('assign.chara', '97');
+        Observer.Expect('exit.chara', '97');
+        Observer.Verify();
     end;
 
     [Test]
@@ -14039,7 +14523,9 @@ codeunit 92426 "LT Y31 Cv Literals"
     begin
         if Try38(vBigInteger) then Observer.Observe('assign.chara', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.chara');
         if Try40(vBigInteger) then Observer.Observe('exit.chara', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.chara');
-        Observer.Finish();
+        Observer.Expect('assign.chara', '97');
+        Observer.Expect('exit.chara', '97');
+        Observer.Verify();
     end;
 
     [Test]
@@ -14050,7 +14536,9 @@ codeunit 92426 "LT Y31 Cv Literals"
     begin
         if Try41(vDecimal) then Observer.Observe('assign.chara', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.chara');
         if Try43(vDecimal) then Observer.Observe('exit.chara', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.chara');
-        Observer.Finish();
+        Observer.Expect('assign.chara', '97');
+        Observer.Expect('exit.chara', '97');
+        Observer.Verify();
     end;
 
     [Test]
@@ -14063,7 +14551,10 @@ codeunit 92426 "LT Y31 Cv Literals"
         if Try44(vChar) then Observer.Observe('assign.chara', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.chara');
         if Try46(vChar) then Observer.Observe('arg_byvalue.chara', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.chara');
         if Try48(vChar) then Observer.Observe('exit.chara', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.chara');
-        Observer.Finish();
+        Observer.Expect('assign.chara', 'a|97');
+        Observer.Expect('arg_byvalue.chara', 'a|97');
+        Observer.Expect('exit.chara', 'a|97');
+        Observer.Verify();
     end;
 
     [Test]
@@ -14075,7 +14566,10 @@ codeunit 92426 "LT Y31 Cv Literals"
         if Try49(vByte) then Observer.Observe('assign.chara', Format(vByte, 0, 9)) else Observer.ObserveError('assign.chara');
         if Try51(vByte) then Observer.Observe('arg_byvalue.chara', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.chara');
         if Try53(vByte) then Observer.Observe('exit.chara', Format(vByte, 0, 9)) else Observer.ObserveError('exit.chara');
-        Observer.Finish();
+        Observer.Expect('assign.chara', 'a');
+        Observer.Expect('arg_byvalue.chara', 'a');
+        Observer.Expect('exit.chara', 'a');
+        Observer.Verify();
     end;
 
     [Test]
@@ -14087,7 +14581,9 @@ codeunit 92426 "LT Y31 Cv Literals"
     begin
         if Try54(vOption) then Observer.Observe('assign.chara', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.chara');
         if Try56(vOption) then Observer.Observe('exit.chara', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.chara');
-        Observer.Finish();
+        Observer.Expect('assign.chara', '97|97');
+        Observer.Expect('exit.chara', '97|97');
+        Observer.Verify();
     end;
 
     [Test]
@@ -14099,7 +14595,10 @@ codeunit 92426 "LT Y31 Cv Literals"
         if Try57(vText) then Observer.Observe('assign.chara', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.chara');
         if Try59(vText) then Observer.Observe('arg_byvalue.chara', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.chara');
         if Try61(vText) then Observer.Observe('exit.chara', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.chara');
-        Observer.Finish();
+        Observer.Expect('assign.chara', 'a|1');
+        Observer.Expect('arg_byvalue.chara', 'a|1');
+        Observer.Expect('exit.chara', 'a|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -14111,7 +14610,10 @@ codeunit 92426 "LT Y31 Cv Literals"
         if Try62(vText10) then Observer.Observe('assign.chara', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.chara');
         if Try64(vText10) then Observer.Observe('arg_byvalue.chara', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.chara');
         if Try66(vText10) then Observer.Observe('exit.chara', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.chara');
-        Observer.Finish();
+        Observer.Expect('assign.chara', 'a|1');
+        Observer.Expect('arg_byvalue.chara', 'a|1');
+        Observer.Expect('exit.chara', 'a|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -14123,7 +14625,10 @@ codeunit 92426 "LT Y31 Cv Literals"
         if Try67(vText3) then Observer.Observe('assign.chara', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.chara');
         if Try69(vText3) then Observer.Observe('arg_byvalue.chara', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.chara');
         if Try71(vText3) then Observer.Observe('exit.chara', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.chara');
-        Observer.Finish();
+        Observer.Expect('assign.chara', 'a|1');
+        Observer.Expect('arg_byvalue.chara', 'a|1');
+        Observer.Expect('exit.chara', 'a|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -14135,7 +14640,10 @@ codeunit 92426 "LT Y31 Cv Literals"
         if Try72(vCode10) then Observer.Observe('assign.chara', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.chara');
         if Try74(vCode10) then Observer.Observe('arg_byvalue.chara', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.chara');
         if Try76(vCode10) then Observer.Observe('exit.chara', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.chara');
-        Observer.Finish();
+        Observer.Expect('assign.chara', 'A|1');
+        Observer.Expect('arg_byvalue.chara', 'A|1');
+        Observer.Expect('exit.chara', 'A|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -14147,7 +14655,10 @@ codeunit 92426 "LT Y31 Cv Literals"
         if Try77(vCode3) then Observer.Observe('assign.chara', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.chara');
         if Try79(vCode3) then Observer.Observe('arg_byvalue.chara', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.chara');
         if Try81(vCode3) then Observer.Observe('exit.chara', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.chara');
-        Observer.Finish();
+        Observer.Expect('assign.chara', 'A|1');
+        Observer.Expect('arg_byvalue.chara', 'A|1');
+        Observer.Expect('exit.chara', 'A|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -14159,7 +14670,10 @@ codeunit 92426 "LT Y31 Cv Literals"
         if Try82(vCode250) then Observer.Observe('assign.chara', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.chara');
         if Try84(vCode250) then Observer.Observe('arg_byvalue.chara', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.chara');
         if Try86(vCode250) then Observer.Observe('exit.chara', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.chara');
-        Observer.Finish();
+        Observer.Expect('assign.chara', 'A|1');
+        Observer.Expect('arg_byvalue.chara', 'A|1');
+        Observer.Expect('exit.chara', 'A|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -14169,7 +14683,9 @@ codeunit 92426 "LT Y31 Cv Literals"
         vGuid: Guid;
     begin
         if Try88(vGuid) then Observer.Observe('arg_byvalue.chara', Format(vGuid)) else Observer.ObserveError('arg_byvalue.chara');
-        Observer.Finish();
+        Observer.Expect('arg_byvalue.chara|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('arg_byvalue.chara|code', 'InvalidGuidFormat');
+        Observer.Verify();
     end;
 
     [Test]
@@ -14180,7 +14696,9 @@ codeunit 92426 "LT Y31 Cv Literals"
     begin
         if Try89(vDuration) then Observer.Observe('assign.chara', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.chara');
         if Try91(vDuration) then Observer.Observe('exit.chara', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.chara');
-        Observer.Finish();
+        Observer.Expect('assign.chara', 'P0DT0H0M0.097S');
+        Observer.Expect('exit.chara', 'P0DT0H0M0.097S');
+        Observer.Verify();
     end;
 
     [Test]
@@ -14190,7 +14708,8 @@ codeunit 92426 "LT Y31 Cv Literals"
         R: Record "LT Y31 Conv Fields";
     begin
         if Try92(R) then Observer.Observe('assign.chara', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.chara');
-        Observer.Finish();
+        Observer.Expect('assign.chara', '97');
+        Observer.Verify();
     end;
 
     [Test]
@@ -14200,7 +14719,8 @@ codeunit 92426 "LT Y31 Cv Literals"
         R: Record "LT Y31 Conv Fields";
     begin
         if Try93(R) then Observer.Observe('assign.chara', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.chara');
-        Observer.Finish();
+        Observer.Expect('assign.chara', '97');
+        Observer.Verify();
     end;
 
     [Test]
@@ -14210,7 +14730,8 @@ codeunit 92426 "LT Y31 Cv Literals"
         R: Record "LT Y31 Conv Fields";
     begin
         if Try94(R) then Observer.Observe('assign.chara', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.chara');
-        Observer.Finish();
+        Observer.Expect('assign.chara', '97');
+        Observer.Verify();
     end;
 
     [Test]
@@ -14221,7 +14742,8 @@ codeunit 92426 "LT Y31 Cv Literals"
         Util: Codeunit "LT Y31 Conv Util";
     begin
         if Try95(R) then Observer.Observe('assign.chara', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.chara');
-        Observer.Finish();
+        Observer.Expect('assign.chara', '97|97');
+        Observer.Verify();
     end;
 
     [Test]
@@ -14231,7 +14753,8 @@ codeunit 92426 "LT Y31 Cv Literals"
         R: Record "LT Y31 Conv Fields";
     begin
         if Try96(R) then Observer.Observe('assign.chara', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.chara');
-        Observer.Finish();
+        Observer.Expect('assign.chara', 'a|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -14241,7 +14764,8 @@ codeunit 92426 "LT Y31 Cv Literals"
         R: Record "LT Y31 Conv Fields";
     begin
         if Try97(R) then Observer.Observe('assign.chara', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.chara');
-        Observer.Finish();
+        Observer.Expect('assign.chara', 'A|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -14251,7 +14775,8 @@ codeunit 92426 "LT Y31 Cv Literals"
         R: Record "LT Y31 Conv Fields";
     begin
         if Try98(R) then Observer.Observe('assign.chara', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.chara');
-        Observer.Finish();
+        Observer.Expect('assign.chara', 'P0DT0H0M0.097S');
+        Observer.Verify();
     end;
 
     [Test]
@@ -14263,7 +14788,10 @@ codeunit 92426 "LT Y31 Cv Literals"
         if Try99(vText) then Observer.Observe('assign.abc', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.abc');
         if Try101(vText) then Observer.Observe('arg_byvalue.abc', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.abc');
         if Try103(vText) then Observer.Observe('exit.abc', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.abc');
-        Observer.Finish();
+        Observer.Expect('assign.abc', 'abc|3');
+        Observer.Expect('arg_byvalue.abc', 'abc|3');
+        Observer.Expect('exit.abc', 'abc|3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -14275,7 +14803,10 @@ codeunit 92426 "LT Y31 Cv Literals"
         if Try104(vText10) then Observer.Observe('assign.abc', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.abc');
         if Try106(vText10) then Observer.Observe('arg_byvalue.abc', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.abc');
         if Try108(vText10) then Observer.Observe('exit.abc', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.abc');
-        Observer.Finish();
+        Observer.Expect('assign.abc', 'abc|3');
+        Observer.Expect('arg_byvalue.abc', 'abc|3');
+        Observer.Expect('exit.abc', 'abc|3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -14287,7 +14818,10 @@ codeunit 92426 "LT Y31 Cv Literals"
         if Try109(vText3) then Observer.Observe('assign.abc', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.abc');
         if Try111(vText3) then Observer.Observe('arg_byvalue.abc', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.abc');
         if Try113(vText3) then Observer.Observe('exit.abc', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.abc');
-        Observer.Finish();
+        Observer.Expect('assign.abc', 'abc|3');
+        Observer.Expect('arg_byvalue.abc', 'abc|3');
+        Observer.Expect('exit.abc', 'abc|3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -14299,7 +14833,10 @@ codeunit 92426 "LT Y31 Cv Literals"
         if Try114(vCode10) then Observer.Observe('assign.abc', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.abc');
         if Try116(vCode10) then Observer.Observe('arg_byvalue.abc', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.abc');
         if Try118(vCode10) then Observer.Observe('exit.abc', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.abc');
-        Observer.Finish();
+        Observer.Expect('assign.abc', 'ABC|3');
+        Observer.Expect('arg_byvalue.abc', 'ABC|3');
+        Observer.Expect('exit.abc', 'ABC|3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -14311,7 +14848,10 @@ codeunit 92426 "LT Y31 Cv Literals"
         if Try119(vCode3) then Observer.Observe('assign.abc', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.abc');
         if Try121(vCode3) then Observer.Observe('arg_byvalue.abc', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.abc');
         if Try123(vCode3) then Observer.Observe('exit.abc', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.abc');
-        Observer.Finish();
+        Observer.Expect('assign.abc', 'ABC|3');
+        Observer.Expect('arg_byvalue.abc', 'ABC|3');
+        Observer.Expect('exit.abc', 'ABC|3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -14323,7 +14863,10 @@ codeunit 92426 "LT Y31 Cv Literals"
         if Try124(vCode250) then Observer.Observe('assign.abc', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.abc');
         if Try126(vCode250) then Observer.Observe('arg_byvalue.abc', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.abc');
         if Try128(vCode250) then Observer.Observe('exit.abc', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.abc');
-        Observer.Finish();
+        Observer.Expect('assign.abc', 'ABC|3');
+        Observer.Expect('arg_byvalue.abc', 'ABC|3');
+        Observer.Expect('exit.abc', 'ABC|3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -14335,7 +14878,13 @@ codeunit 92426 "LT Y31 Cv Literals"
         if Try129(vGuid) then Observer.Observe('assign.abc', Format(vGuid)) else Observer.ObserveError('assign.abc');
         if Try131(vGuid) then Observer.Observe('arg_byvalue.abc', Format(vGuid)) else Observer.ObserveError('arg_byvalue.abc');
         if Try133(vGuid) then Observer.Observe('exit.abc', Format(vGuid)) else Observer.ObserveError('exit.abc');
-        Observer.Finish();
+        Observer.Expect('assign.abc|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('assign.abc|code', 'InvalidGuidFormat');
+        Observer.Expect('arg_byvalue.abc|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('arg_byvalue.abc|code', 'InvalidGuidFormat');
+        Observer.Expect('exit.abc|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('exit.abc|code', 'InvalidGuidFormat');
+        Observer.Verify();
     end;
 
     [Test]
@@ -14345,7 +14894,8 @@ codeunit 92426 "LT Y31 Cv Literals"
         R: Record "LT Y31 Conv Fields";
     begin
         if Try134(R) then Observer.Observe('assign.abc', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.abc');
-        Observer.Finish();
+        Observer.Expect('assign.abc', 'abc|3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -14355,7 +14905,8 @@ codeunit 92426 "LT Y31 Cv Literals"
         R: Record "LT Y31 Conv Fields";
     begin
         if Try135(R) then Observer.Observe('assign.abc', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.abc');
-        Observer.Finish();
+        Observer.Expect('assign.abc', 'ABC|3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -14365,7 +14916,9 @@ codeunit 92426 "LT Y31 Cv Literals"
         R: Record "LT Y31 Conv Fields";
     begin
         if Try136(R) then Observer.Observe('assign.abc', Format(R.Guid)) else Observer.ObserveError('assign.abc');
-        Observer.Finish();
+        Observer.Expect('assign.abc|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('assign.abc|code', 'InvalidGuidFormat');
+        Observer.Verify();
     end;
 
     [Test]
@@ -14377,7 +14930,10 @@ codeunit 92426 "LT Y31 Cv Literals"
         if Try137(vText) then Observer.Observe('assign.empty', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.empty');
         if Try139(vText) then Observer.Observe('arg_byvalue.empty', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.empty');
         if Try141(vText) then Observer.Observe('exit.empty', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.empty');
-        Observer.Finish();
+        Observer.Expect('assign.empty', '|0');
+        Observer.Expect('arg_byvalue.empty', '|0');
+        Observer.Expect('exit.empty', '|0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -14389,7 +14945,10 @@ codeunit 92426 "LT Y31 Cv Literals"
         if Try142(vText10) then Observer.Observe('assign.empty', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.empty');
         if Try144(vText10) then Observer.Observe('arg_byvalue.empty', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.empty');
         if Try146(vText10) then Observer.Observe('exit.empty', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.empty');
-        Observer.Finish();
+        Observer.Expect('assign.empty', '|0');
+        Observer.Expect('arg_byvalue.empty', '|0');
+        Observer.Expect('exit.empty', '|0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -14401,7 +14960,10 @@ codeunit 92426 "LT Y31 Cv Literals"
         if Try147(vText3) then Observer.Observe('assign.empty', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.empty');
         if Try149(vText3) then Observer.Observe('arg_byvalue.empty', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.empty');
         if Try151(vText3) then Observer.Observe('exit.empty', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.empty');
-        Observer.Finish();
+        Observer.Expect('assign.empty', '|0');
+        Observer.Expect('arg_byvalue.empty', '|0');
+        Observer.Expect('exit.empty', '|0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -14413,7 +14975,10 @@ codeunit 92426 "LT Y31 Cv Literals"
         if Try152(vCode10) then Observer.Observe('assign.empty', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.empty');
         if Try154(vCode10) then Observer.Observe('arg_byvalue.empty', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.empty');
         if Try156(vCode10) then Observer.Observe('exit.empty', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.empty');
-        Observer.Finish();
+        Observer.Expect('assign.empty', '|0');
+        Observer.Expect('arg_byvalue.empty', '|0');
+        Observer.Expect('exit.empty', '|0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -14425,7 +14990,10 @@ codeunit 92426 "LT Y31 Cv Literals"
         if Try157(vCode3) then Observer.Observe('assign.empty', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.empty');
         if Try159(vCode3) then Observer.Observe('arg_byvalue.empty', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.empty');
         if Try161(vCode3) then Observer.Observe('exit.empty', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.empty');
-        Observer.Finish();
+        Observer.Expect('assign.empty', '|0');
+        Observer.Expect('arg_byvalue.empty', '|0');
+        Observer.Expect('exit.empty', '|0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -14437,7 +15005,10 @@ codeunit 92426 "LT Y31 Cv Literals"
         if Try162(vCode250) then Observer.Observe('assign.empty', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.empty');
         if Try164(vCode250) then Observer.Observe('arg_byvalue.empty', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.empty');
         if Try166(vCode250) then Observer.Observe('exit.empty', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.empty');
-        Observer.Finish();
+        Observer.Expect('assign.empty', '|0');
+        Observer.Expect('arg_byvalue.empty', '|0');
+        Observer.Expect('exit.empty', '|0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -14449,7 +15020,13 @@ codeunit 92426 "LT Y31 Cv Literals"
         if Try167(vGuid) then Observer.Observe('assign.empty', Format(vGuid)) else Observer.ObserveError('assign.empty');
         if Try169(vGuid) then Observer.Observe('arg_byvalue.empty', Format(vGuid)) else Observer.ObserveError('arg_byvalue.empty');
         if Try171(vGuid) then Observer.Observe('exit.empty', Format(vGuid)) else Observer.ObserveError('exit.empty');
-        Observer.Finish();
+        Observer.Expect('assign.empty|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('assign.empty|code', 'InvalidGuidFormat');
+        Observer.Expect('arg_byvalue.empty|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('arg_byvalue.empty|code', 'InvalidGuidFormat');
+        Observer.Expect('exit.empty|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('exit.empty|code', 'InvalidGuidFormat');
+        Observer.Verify();
     end;
 
     [Test]
@@ -14459,7 +15036,8 @@ codeunit 92426 "LT Y31 Cv Literals"
         R: Record "LT Y31 Conv Fields";
     begin
         if Try172(R) then Observer.Observe('assign.empty', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.empty');
-        Observer.Finish();
+        Observer.Expect('assign.empty', '|0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -14469,7 +15047,8 @@ codeunit 92426 "LT Y31 Cv Literals"
         R: Record "LT Y31 Conv Fields";
     begin
         if Try173(R) then Observer.Observe('assign.empty', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.empty');
-        Observer.Finish();
+        Observer.Expect('assign.empty', '|0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -14479,7 +15058,9 @@ codeunit 92426 "LT Y31 Cv Literals"
         R: Record "LT Y31 Conv Fields";
     begin
         if Try174(R) then Observer.Observe('assign.empty', Format(R.Guid)) else Observer.ObserveError('assign.empty');
-        Observer.Finish();
+        Observer.Expect('assign.empty|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('assign.empty|code', 'InvalidGuidFormat');
+        Observer.Verify();
     end;
 
     [Test]
@@ -14491,7 +15072,10 @@ codeunit 92426 "LT Y31 Cv Literals"
         if Try175(vInteger) then Observer.Observe('assign.i7', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.i7');
         if Try177(vInteger) then Observer.Observe('arg_byvalue.i7', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.i7');
         if Try179(vInteger) then Observer.Observe('exit.i7', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.i7');
-        Observer.Finish();
+        Observer.Expect('assign.i7', '7');
+        Observer.Expect('arg_byvalue.i7', '7');
+        Observer.Expect('exit.i7', '7');
+        Observer.Verify();
     end;
 
     [Test]
@@ -14503,7 +15087,10 @@ codeunit 92426 "LT Y31 Cv Literals"
         if Try180(vBigInteger) then Observer.Observe('assign.i7', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.i7');
         if Try182(vBigInteger) then Observer.Observe('arg_byvalue.i7', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.i7');
         if Try184(vBigInteger) then Observer.Observe('exit.i7', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.i7');
-        Observer.Finish();
+        Observer.Expect('assign.i7', '7');
+        Observer.Expect('arg_byvalue.i7', '7');
+        Observer.Expect('exit.i7', '7');
+        Observer.Verify();
     end;
 
     [Test]
@@ -14515,7 +15102,10 @@ codeunit 92426 "LT Y31 Cv Literals"
         if Try185(vDecimal) then Observer.Observe('assign.i7', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.i7');
         if Try187(vDecimal) then Observer.Observe('arg_byvalue.i7', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.i7');
         if Try189(vDecimal) then Observer.Observe('exit.i7', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.i7');
-        Observer.Finish();
+        Observer.Expect('assign.i7', '7');
+        Observer.Expect('arg_byvalue.i7', '7');
+        Observer.Expect('exit.i7', '7');
+        Observer.Verify();
     end;
 
     [Test]
@@ -14528,7 +15118,10 @@ codeunit 92426 "LT Y31 Cv Literals"
         if Try190(vChar) then Observer.Observe('assign.i7', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.i7');
         if Try192(vChar) then Observer.Observe('arg_byvalue.i7', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.i7');
         if Try194(vChar) then Observer.Observe('exit.i7', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.i7');
-        Observer.Finish();
+        Observer.Expect('assign.i7', '\u0007|7');
+        Observer.Expect('arg_byvalue.i7', '\u0007|7');
+        Observer.Expect('exit.i7', '\u0007|7');
+        Observer.Verify();
     end;
 
     [Test]
@@ -14540,7 +15133,10 @@ codeunit 92426 "LT Y31 Cv Literals"
         if Try195(vByte) then Observer.Observe('assign.i7', Format(vByte, 0, 9)) else Observer.ObserveError('assign.i7');
         if Try197(vByte) then Observer.Observe('arg_byvalue.i7', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.i7');
         if Try199(vByte) then Observer.Observe('exit.i7', Format(vByte, 0, 9)) else Observer.ObserveError('exit.i7');
-        Observer.Finish();
+        Observer.Expect('assign.i7', '\u0007');
+        Observer.Expect('arg_byvalue.i7', '\u0007');
+        Observer.Expect('exit.i7', '\u0007');
+        Observer.Verify();
     end;
 
     [Test]
@@ -14553,7 +15149,10 @@ codeunit 92426 "LT Y31 Cv Literals"
         if Try200(vOption) then Observer.Observe('assign.i7', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.i7');
         if Try202(vOption) then Observer.Observe('arg_byvalue.i7', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.i7');
         if Try204(vOption) then Observer.Observe('exit.i7', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.i7');
-        Observer.Finish();
+        Observer.Expect('assign.i7', '7|7');
+        Observer.Expect('arg_byvalue.i7', '7|7');
+        Observer.Expect('exit.i7', '7|7');
+        Observer.Verify();
     end;
 
     [Test]
@@ -14565,7 +15164,10 @@ codeunit 92426 "LT Y31 Cv Literals"
         if Try205(vEnum) then Observer.Observe('assign.i7', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('assign.i7');
         if Try207(vEnum) then Observer.Observe('arg_byvalue.i7', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('arg_byvalue.i7');
         if Try209(vEnum) then Observer.Observe('exit.i7', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('exit.i7');
-        Observer.Finish();
+        Observer.Expect('assign.i7', '7|7');
+        Observer.Expect('arg_byvalue.i7', '7|7');
+        Observer.Expect('exit.i7', '7|7');
+        Observer.Verify();
     end;
 
     [Test]
@@ -14577,7 +15179,10 @@ codeunit 92426 "LT Y31 Cv Literals"
         if Try210(vEnumImpl) then Observer.Observe('assign.i7', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('assign.i7');
         if Try212(vEnumImpl) then Observer.Observe('arg_byvalue.i7', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('arg_byvalue.i7');
         if Try214(vEnumImpl) then Observer.Observe('exit.i7', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('exit.i7');
-        Observer.Finish();
+        Observer.Expect('assign.i7', '7|7');
+        Observer.Expect('arg_byvalue.i7', '7|7');
+        Observer.Expect('exit.i7', '7|7');
+        Observer.Verify();
     end;
 
     [Test]
@@ -14589,7 +15194,10 @@ codeunit 92426 "LT Y31 Cv Literals"
         if Try215(vDuration) then Observer.Observe('assign.i7', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.i7');
         if Try217(vDuration) then Observer.Observe('arg_byvalue.i7', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.i7');
         if Try219(vDuration) then Observer.Observe('exit.i7', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.i7');
-        Observer.Finish();
+        Observer.Expect('assign.i7', 'P0DT0H0M0.007S');
+        Observer.Expect('arg_byvalue.i7', 'P0DT0H0M0.007S');
+        Observer.Expect('exit.i7', 'P0DT0H0M0.007S');
+        Observer.Verify();
     end;
 
     [Test]
@@ -14599,7 +15207,8 @@ codeunit 92426 "LT Y31 Cv Literals"
         R: Record "LT Y31 Conv Fields";
     begin
         if Try220(R) then Observer.Observe('assign.i7', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.i7');
-        Observer.Finish();
+        Observer.Expect('assign.i7', '7');
+        Observer.Verify();
     end;
 
     [Test]
@@ -14609,7 +15218,8 @@ codeunit 92426 "LT Y31 Cv Literals"
         R: Record "LT Y31 Conv Fields";
     begin
         if Try221(R) then Observer.Observe('assign.i7', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.i7');
-        Observer.Finish();
+        Observer.Expect('assign.i7', '7');
+        Observer.Verify();
     end;
 
     [Test]
@@ -14619,7 +15229,8 @@ codeunit 92426 "LT Y31 Cv Literals"
         R: Record "LT Y31 Conv Fields";
     begin
         if Try222(R) then Observer.Observe('assign.i7', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.i7');
-        Observer.Finish();
+        Observer.Expect('assign.i7', '7');
+        Observer.Verify();
     end;
 
     [Test]
@@ -14630,7 +15241,8 @@ codeunit 92426 "LT Y31 Cv Literals"
         Util: Codeunit "LT Y31 Conv Util";
     begin
         if Try223(R) then Observer.Observe('assign.i7', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.i7');
-        Observer.Finish();
+        Observer.Expect('assign.i7', '7|7');
+        Observer.Verify();
     end;
 
     [Test]
@@ -14640,7 +15252,8 @@ codeunit 92426 "LT Y31 Cv Literals"
         R: Record "LT Y31 Conv Fields";
     begin
         if Try224(R) then Observer.Observe('assign.i7', Format(R.Enum) + '|' + Format(R.Enum.AsInteger())) else Observer.ObserveError('assign.i7');
-        Observer.Finish();
+        Observer.Expect('assign.i7', '7|7');
+        Observer.Verify();
     end;
 
     [Test]
@@ -14650,7 +15263,8 @@ codeunit 92426 "LT Y31 Cv Literals"
         R: Record "LT Y31 Conv Fields";
     begin
         if Try225(R) then Observer.Observe('assign.i7', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.i7');
-        Observer.Finish();
+        Observer.Expect('assign.i7', 'P0DT0H0M0.007S');
+        Observer.Verify();
     end;
 
     [Test]
@@ -14662,7 +15276,10 @@ codeunit 92426 "LT Y31 Cv Literals"
         if Try226(vInteger) then Observer.Observe('assign.enumC', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.enumC');
         if Try228(vInteger) then Observer.Observe('arg_byvalue.enumC', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.enumC');
         if Try230(vInteger) then Observer.Observe('exit.enumC', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.enumC');
-        Observer.Finish();
+        Observer.Expect('assign.enumC', '2');
+        Observer.Expect('arg_byvalue.enumC', '2');
+        Observer.Expect('exit.enumC', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -14675,7 +15292,10 @@ codeunit 92426 "LT Y31 Cv Literals"
         if Try236(vOption) then Observer.Observe('assign.enumC', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.enumC');
         if Try238(vOption) then Observer.Observe('arg_byvalue.enumC', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.enumC');
         if Try240(vOption) then Observer.Observe('exit.enumC', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.enumC');
-        Observer.Finish();
+        Observer.Expect('assign.enumC', 'C|2');
+        Observer.Expect('arg_byvalue.enumC', 'C|2');
+        Observer.Expect('exit.enumC', 'C|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -14687,7 +15307,10 @@ codeunit 92426 "LT Y31 Cv Literals"
         if Try241(vEnum) then Observer.Observe('assign.enumC', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('assign.enumC');
         if Try243(vEnum) then Observer.Observe('arg_byvalue.enumC', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('arg_byvalue.enumC');
         if Try245(vEnum) then Observer.Observe('exit.enumC', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('exit.enumC');
-        Observer.Finish();
+        Observer.Expect('assign.enumC', 'C|2');
+        Observer.Expect('arg_byvalue.enumC', 'C|2');
+        Observer.Expect('exit.enumC', 'C|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -14697,7 +15320,8 @@ codeunit 92426 "LT Y31 Cv Literals"
         R: Record "LT Y31 Conv Fields";
     begin
         if Try246(R) then Observer.Observe('assign.enumC', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.enumC');
-        Observer.Finish();
+        Observer.Expect('assign.enumC', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -14708,7 +15332,8 @@ codeunit 92426 "LT Y31 Cv Literals"
         Util: Codeunit "LT Y31 Conv Util";
     begin
         if Try248(R) then Observer.Observe('assign.enumC', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.enumC');
-        Observer.Finish();
+        Observer.Expect('assign.enumC', 'C|2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -14718,7 +15343,8 @@ codeunit 92426 "LT Y31 Cv Literals"
         R: Record "LT Y31 Conv Fields";
     begin
         if Try249(R) then Observer.Observe('assign.enumC', Format(R.Enum) + '|' + Format(R.Enum.AsInteger())) else Observer.ObserveError('assign.enumC');
-        Observer.Finish();
+        Observer.Expect('assign.enumC', 'C|2');
+        Observer.Verify();
     end;
 
     [TryFunction]

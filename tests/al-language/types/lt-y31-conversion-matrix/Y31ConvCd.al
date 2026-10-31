@@ -36,7 +36,11 @@ codeunit 92464 "LT Y31 Cd Integer"
         vBigInteger := 65;
         Res := false;
         if Try1(Res, V, vBigInteger, vInteger) then Observer.Observe('cond_branches.1.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.65.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.65.65.t', 'Integer|65');
+        Observer.Expect('cond_branches.65.65.f', 'Integer|65');
+        Observer.Expect('cond_branches.1.65.t', 'Integer|1');
+        Observer.Expect('cond_branches.1.65.f', 'Integer|65');
+        Observer.Verify();
     end;
 
     [Test]
@@ -81,7 +85,17 @@ codeunit 92464 "LT Y31 Cd Integer"
         vDecimal := 1.5;
         Res := false;
         if Try2(Res, V, vDecimal, vInteger) then Observer.Observe('cond_branches.1.1p5.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.1p5.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.65.65.t', 'Integer|65');
+        Observer.Expect('cond_branches.65.65.f', 'Integer|65');
+        Observer.Expect('cond_branches.65.1p5.t', 'Integer|65');
+        Observer.Expect('cond_branches.65.1p5.f|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int32.');
+        Observer.Expect('cond_branches.65.1p5.f|code', 'ConversionCast');
+        Observer.Expect('cond_branches.1.65.t', 'Integer|1');
+        Observer.Expect('cond_branches.1.65.f', 'Integer|65');
+        Observer.Expect('cond_branches.1.1p5.t', 'Integer|1');
+        Observer.Expect('cond_branches.1.1p5.f|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int32.');
+        Observer.Expect('cond_branches.1.1p5.f|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -126,7 +140,15 @@ codeunit 92464 "LT Y31 Cd Integer"
         vChar := 97;
         Res := false;
         if Try3(Res, V, vChar, vInteger) then Observer.Observe('cond_branches.1.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.a.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.65.A.t', 'Integer|65');
+        Observer.Expect('cond_branches.65.A.f', 'Integer|65');
+        Observer.Expect('cond_branches.65.a.t', 'Integer|65');
+        Observer.Expect('cond_branches.65.a.f', 'Integer|97');
+        Observer.Expect('cond_branches.1.A.t', 'Integer|1');
+        Observer.Expect('cond_branches.1.A.f', 'Integer|65');
+        Observer.Expect('cond_branches.1.a.t', 'Integer|1');
+        Observer.Expect('cond_branches.1.a.f', 'Integer|97');
+        Observer.Verify();
     end;
 
     [Test]
@@ -155,7 +177,11 @@ codeunit 92464 "LT Y31 Cd Integer"
         vByte := 65;
         Res := false;
         if Try4(Res, V, vByte, vInteger) then Observer.Observe('cond_branches.1.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.65.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.65.65.t', 'Integer|65');
+        Observer.Expect('cond_branches.65.65.f', 'Integer|65');
+        Observer.Expect('cond_branches.1.65.t', 'Integer|1');
+        Observer.Expect('cond_branches.1.65.f', 'Integer|65');
+        Observer.Verify();
     end;
 
     [Test]
@@ -200,7 +226,15 @@ codeunit 92464 "LT Y31 Cd Integer"
         vOption := 3;
         Res := false;
         if Try5(Res, V, vInteger, vOption) then Observer.Observe('cond_branches.1.3.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.3.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.65.1.t', 'Integer|65');
+        Observer.Expect('cond_branches.65.1.f', 'Integer|1');
+        Observer.Expect('cond_branches.65.3.t', 'Integer|65');
+        Observer.Expect('cond_branches.65.3.f', 'Integer|3');
+        Observer.Expect('cond_branches.1.1.t', 'Integer|1');
+        Observer.Expect('cond_branches.1.1.f', 'Integer|1');
+        Observer.Expect('cond_branches.1.3.t', 'Integer|1');
+        Observer.Expect('cond_branches.1.3.f', 'Integer|3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -245,7 +279,15 @@ codeunit 92464 "LT Y31 Cd Integer"
         vEnum := 5;
         Res := false;
         if Try6(Res, V, vEnum, vInteger) then Observer.Observe('cond_branches.1.ord5.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.ord5.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.65.B.t', 'Integer|65');
+        Observer.Expect('cond_branches.65.B.f', 'Integer|1');
+        Observer.Expect('cond_branches.65.ord5.t', 'Integer|65');
+        Observer.Expect('cond_branches.65.ord5.f', 'Integer|5');
+        Observer.Expect('cond_branches.1.B.t', 'Integer|1');
+        Observer.Expect('cond_branches.1.B.f', 'Integer|1');
+        Observer.Expect('cond_branches.1.ord5.t', 'Integer|1');
+        Observer.Expect('cond_branches.1.ord5.f', 'Integer|5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -274,7 +316,11 @@ codeunit 92464 "LT Y31 Cd Integer"
         vEnumImpl := "LT Y31 EI"::A;
         Res := false;
         if Try7(Res, V, vEnumImpl, vInteger) then Observer.Observe('cond_branches.1.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.A.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.65.A.t', 'Integer|65');
+        Observer.Expect('cond_branches.65.A.f', 'Integer|0');
+        Observer.Expect('cond_branches.1.A.t', 'Integer|1');
+        Observer.Expect('cond_branches.1.A.f', 'Integer|0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -303,7 +349,11 @@ codeunit 92464 "LT Y31 Cd Integer"
         vDuration := 65;
         Res := false;
         if Try8(Res, V, vDuration, vInteger) then Observer.Observe('cond_branches.1.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.65.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.65.65.t', 'Integer|65');
+        Observer.Expect('cond_branches.65.65.f', 'Integer|65');
+        Observer.Expect('cond_branches.1.65.t', 'Integer|1');
+        Observer.Expect('cond_branches.1.65.f', 'Integer|65');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -402,7 +452,11 @@ codeunit 92465 "LT Y31 Cd BigInteger"
         vInteger := 1;
         Res := false;
         if Try1(Res, V, vBigInteger, vInteger) then Observer.Observe('cond_branches.65.1.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.1.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.65.65.t', 'BigInteger|65');
+        Observer.Expect('cond_branches.65.65.f', 'BigInteger|65');
+        Observer.Expect('cond_branches.65.1.t', 'BigInteger|65');
+        Observer.Expect('cond_branches.65.1.f', 'BigInteger|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -431,7 +485,12 @@ codeunit 92465 "LT Y31 Cd BigInteger"
         vDecimal := 1.5;
         Res := false;
         if Try2(Res, V, vBigInteger, vDecimal) then Observer.Observe('cond_branches.65.1p5.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.1p5.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.65.65.t', 'BigInteger|65');
+        Observer.Expect('cond_branches.65.65.f', 'BigInteger|65');
+        Observer.Expect('cond_branches.65.1p5.t', 'BigInteger|65');
+        Observer.Expect('cond_branches.65.1p5.f|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int64.');
+        Observer.Expect('cond_branches.65.1p5.f|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -460,7 +519,11 @@ codeunit 92465 "LT Y31 Cd BigInteger"
         vChar := 97;
         Res := false;
         if Try3(Res, V, vBigInteger, vChar) then Observer.Observe('cond_branches.65.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.a.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.65.A.t', 'BigInteger|65');
+        Observer.Expect('cond_branches.65.A.f', 'BigInteger|65');
+        Observer.Expect('cond_branches.65.a.t', 'BigInteger|65');
+        Observer.Expect('cond_branches.65.a.f', 'BigInteger|97');
+        Observer.Verify();
     end;
 
     [Test]
@@ -481,7 +544,9 @@ codeunit 92465 "LT Y31 Cd BigInteger"
         vByte := 65;
         Res := false;
         if Try4(Res, V, vBigInteger, vByte) then Observer.Observe('cond_branches.65.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.65.65.t', 'BigInteger|65');
+        Observer.Expect('cond_branches.65.65.f', 'BigInteger|65');
+        Observer.Verify();
     end;
 
     [Test]
@@ -510,7 +575,11 @@ codeunit 92465 "LT Y31 Cd BigInteger"
         vOption := 3;
         Res := false;
         if Try5(Res, V, vBigInteger, vOption) then Observer.Observe('cond_branches.65.3.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.3.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.65.1.t', 'BigInteger|65');
+        Observer.Expect('cond_branches.65.1.f', 'BigInteger|1');
+        Observer.Expect('cond_branches.65.3.t', 'BigInteger|65');
+        Observer.Expect('cond_branches.65.3.f', 'BigInteger|3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -531,7 +600,9 @@ codeunit 92465 "LT Y31 Cd BigInteger"
         vDuration := 65;
         Res := false;
         if Try8(Res, V, vBigInteger, vDuration) then Observer.Observe('cond_branches.65.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.65.65.t', 'BigInteger|65');
+        Observer.Expect('cond_branches.65.65.f', 'BigInteger|65');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -632,7 +703,15 @@ codeunit 92466 "LT Y31 Cd Decimal"
         vInteger := 1;
         Res := false;
         if Try1(Res, V, vDecimal, vInteger) then Observer.Observe('cond_branches.1p5.1.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1p5.1.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.65.65.t', 'Decimal|65');
+        Observer.Expect('cond_branches.65.65.f', 'Decimal|65');
+        Observer.Expect('cond_branches.65.1.t', 'Decimal|65');
+        Observer.Expect('cond_branches.65.1.f', 'Decimal|1');
+        Observer.Expect('cond_branches.1p5.65.t', 'Decimal|1.5');
+        Observer.Expect('cond_branches.1p5.65.f', 'Decimal|65');
+        Observer.Expect('cond_branches.1p5.1.t', 'Decimal|1.5');
+        Observer.Expect('cond_branches.1p5.1.f', 'Decimal|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -661,7 +740,11 @@ codeunit 92466 "LT Y31 Cd Decimal"
         vBigInteger := 65;
         Res := false;
         if Try2(Res, V, vBigInteger, vDecimal) then Observer.Observe('cond_branches.1p5.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1p5.65.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.65.65.t', 'Decimal|65');
+        Observer.Expect('cond_branches.65.65.f', 'Decimal|65');
+        Observer.Expect('cond_branches.1p5.65.t', 'Decimal|1.5');
+        Observer.Expect('cond_branches.1p5.65.f', 'Decimal|65');
+        Observer.Verify();
     end;
 
     [Test]
@@ -706,7 +789,15 @@ codeunit 92466 "LT Y31 Cd Decimal"
         vChar := 97;
         Res := false;
         if Try3(Res, V, vChar, vDecimal) then Observer.Observe('cond_branches.1p5.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1p5.a.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.65.A.t', 'Decimal|65');
+        Observer.Expect('cond_branches.65.A.f', 'Decimal|65');
+        Observer.Expect('cond_branches.65.a.t', 'Decimal|65');
+        Observer.Expect('cond_branches.65.a.f', 'Decimal|97');
+        Observer.Expect('cond_branches.1p5.A.t', 'Decimal|1.5');
+        Observer.Expect('cond_branches.1p5.A.f', 'Decimal|65');
+        Observer.Expect('cond_branches.1p5.a.t', 'Decimal|1.5');
+        Observer.Expect('cond_branches.1p5.a.f', 'Decimal|97');
+        Observer.Verify();
     end;
 
     [Test]
@@ -735,7 +826,11 @@ codeunit 92466 "LT Y31 Cd Decimal"
         vByte := 65;
         Res := false;
         if Try4(Res, V, vByte, vDecimal) then Observer.Observe('cond_branches.1p5.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1p5.65.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.65.65.t', 'Decimal|65');
+        Observer.Expect('cond_branches.65.65.f', 'Decimal|65');
+        Observer.Expect('cond_branches.1p5.65.t', 'Decimal|1.5');
+        Observer.Expect('cond_branches.1p5.65.f', 'Decimal|65');
+        Observer.Verify();
     end;
 
     [Test]
@@ -780,7 +875,15 @@ codeunit 92466 "LT Y31 Cd Decimal"
         vOption := 3;
         Res := false;
         if Try5(Res, V, vDecimal, vOption) then Observer.Observe('cond_branches.1p5.3.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1p5.3.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.65.1.t', 'Decimal|65');
+        Observer.Expect('cond_branches.65.1.f', 'Decimal|1');
+        Observer.Expect('cond_branches.65.3.t', 'Decimal|65');
+        Observer.Expect('cond_branches.65.3.f', 'Decimal|3');
+        Observer.Expect('cond_branches.1p5.1.t', 'Decimal|1.5');
+        Observer.Expect('cond_branches.1p5.1.f', 'Decimal|1');
+        Observer.Expect('cond_branches.1p5.3.t', 'Decimal|1.5');
+        Observer.Expect('cond_branches.1p5.3.f', 'Decimal|3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -809,7 +912,11 @@ codeunit 92466 "LT Y31 Cd Decimal"
         vDuration := 65;
         Res := false;
         if Try6(Res, V, vDecimal, vDuration) then Observer.Observe('cond_branches.1p5.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1p5.65.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.65.65.t', 'Decimal|65');
+        Observer.Expect('cond_branches.65.65.f', 'Decimal|65');
+        Observer.Expect('cond_branches.1p5.65.t', 'Decimal|1.5');
+        Observer.Expect('cond_branches.1p5.65.f', 'Decimal|65');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -910,7 +1017,15 @@ codeunit 92467 "LT Y31 Cd Char"
         vInteger := 1;
         Res := false;
         if Try1(Res, V, vChar, vInteger) then Observer.Observe('cond_branches.a.1.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.1.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.A.65.t', 'Char|A');
+        Observer.Expect('cond_branches.A.65.f', 'Char|A');
+        Observer.Expect('cond_branches.A.1.t', 'Char|A');
+        Observer.Expect('cond_branches.A.1.f', 'Char|\u0001');
+        Observer.Expect('cond_branches.a.65.t', 'Char|a');
+        Observer.Expect('cond_branches.a.65.f', 'Char|A');
+        Observer.Expect('cond_branches.a.1.t', 'Char|a');
+        Observer.Expect('cond_branches.a.1.f', 'Char|\u0001');
+        Observer.Verify();
     end;
 
     [Test]
@@ -939,7 +1054,11 @@ codeunit 92467 "LT Y31 Cd Char"
         vBigInteger := 65;
         Res := false;
         if Try2(Res, V, vBigInteger, vChar) then Observer.Observe('cond_branches.a.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.65.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.A.65.t', 'Char|A');
+        Observer.Expect('cond_branches.A.65.f', 'Char|A');
+        Observer.Expect('cond_branches.a.65.t', 'Char|a');
+        Observer.Expect('cond_branches.a.65.f', 'Char|A');
+        Observer.Verify();
     end;
 
     [Test]
@@ -984,7 +1103,17 @@ codeunit 92467 "LT Y31 Cd Char"
         vDecimal := 1.5;
         Res := false;
         if Try3(Res, V, vChar, vDecimal) then Observer.Observe('cond_branches.a.1p5.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.1p5.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.A.65.t', 'Char|A');
+        Observer.Expect('cond_branches.A.65.f', 'Char|A');
+        Observer.Expect('cond_branches.A.1p5.t', 'Char|A');
+        Observer.Expect('cond_branches.A.1p5.f|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Char.');
+        Observer.Expect('cond_branches.A.1p5.f|code', 'ConversionCast');
+        Observer.Expect('cond_branches.a.65.t', 'Char|a');
+        Observer.Expect('cond_branches.a.65.f', 'Char|A');
+        Observer.Expect('cond_branches.a.1p5.t', 'Char|a');
+        Observer.Expect('cond_branches.a.1p5.f|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Char.');
+        Observer.Expect('cond_branches.a.1p5.f|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1013,7 +1142,11 @@ codeunit 92467 "LT Y31 Cd Char"
         vByte := 65;
         Res := false;
         if Try4(Res, V, vByte, vChar) then Observer.Observe('cond_branches.a.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.65.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.A.65.t', 'Char|A');
+        Observer.Expect('cond_branches.A.65.f', 'Char|A');
+        Observer.Expect('cond_branches.a.65.t', 'Char|a');
+        Observer.Expect('cond_branches.a.65.f', 'Char|A');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1058,7 +1191,15 @@ codeunit 92467 "LT Y31 Cd Char"
         vOption := 3;
         Res := false;
         if Try5(Res, V, vChar, vOption) then Observer.Observe('cond_branches.a.3.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.3.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.A.1.t', 'Char|A');
+        Observer.Expect('cond_branches.A.1.f', 'Char|\u0001');
+        Observer.Expect('cond_branches.A.3.t', 'Char|A');
+        Observer.Expect('cond_branches.A.3.f', 'Char|\u0003');
+        Observer.Expect('cond_branches.a.1.t', 'Char|a');
+        Observer.Expect('cond_branches.a.1.f', 'Char|\u0001');
+        Observer.Expect('cond_branches.a.3.t', 'Char|a');
+        Observer.Expect('cond_branches.a.3.f', 'Char|\u0003');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1087,7 +1228,11 @@ codeunit 92467 "LT Y31 Cd Char"
         vDuration := 65;
         Res := false;
         if Try6(Res, V, vChar, vDuration) then Observer.Observe('cond_branches.a.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.65.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.A.65.t', 'Char|A');
+        Observer.Expect('cond_branches.A.65.f', 'Char|A');
+        Observer.Expect('cond_branches.a.65.t', 'Char|a');
+        Observer.Expect('cond_branches.a.65.f', 'Char|A');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -1172,7 +1317,11 @@ codeunit 92468 "LT Y31 Cd Byte"
         vInteger := 1;
         Res := false;
         if Try1(Res, V, vByte, vInteger) then Observer.Observe('cond_branches.65.1.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.1.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.65.65.t', 'Byte|A');
+        Observer.Expect('cond_branches.65.65.f', 'Byte|A');
+        Observer.Expect('cond_branches.65.1.t', 'Byte|A');
+        Observer.Expect('cond_branches.65.1.f', 'Byte|\u0001');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1193,7 +1342,9 @@ codeunit 92468 "LT Y31 Cd Byte"
         vBigInteger := 65;
         Res := false;
         if Try2(Res, V, vBigInteger, vByte) then Observer.Observe('cond_branches.65.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.65.65.t', 'Byte|A');
+        Observer.Expect('cond_branches.65.65.f', 'Byte|A');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1222,7 +1373,12 @@ codeunit 92468 "LT Y31 Cd Byte"
         vDecimal := 1.5;
         Res := false;
         if Try3(Res, V, vByte, vDecimal) then Observer.Observe('cond_branches.65.1p5.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.1p5.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.65.65.t', 'Byte|A');
+        Observer.Expect('cond_branches.65.65.f', 'Byte|A');
+        Observer.Expect('cond_branches.65.1p5.t', 'Byte|A');
+        Observer.Expect('cond_branches.65.1p5.f|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Byte.');
+        Observer.Expect('cond_branches.65.1p5.f|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1251,7 +1407,11 @@ codeunit 92468 "LT Y31 Cd Byte"
         vChar := 97;
         Res := false;
         if Try4(Res, V, vByte, vChar) then Observer.Observe('cond_branches.65.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.a.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.65.A.t', 'Byte|A');
+        Observer.Expect('cond_branches.65.A.f', 'Byte|A');
+        Observer.Expect('cond_branches.65.a.t', 'Byte|A');
+        Observer.Expect('cond_branches.65.a.f', 'Byte|a');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1280,7 +1440,11 @@ codeunit 92468 "LT Y31 Cd Byte"
         vOption := 3;
         Res := false;
         if Try5(Res, V, vByte, vOption) then Observer.Observe('cond_branches.65.3.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.3.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.65.1.t', 'Byte|A');
+        Observer.Expect('cond_branches.65.1.f', 'Byte|\u0001');
+        Observer.Expect('cond_branches.65.3.t', 'Byte|A');
+        Observer.Expect('cond_branches.65.3.f', 'Byte|\u0003');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1301,7 +1465,9 @@ codeunit 92468 "LT Y31 Cd Byte"
         vDuration := 65;
         Res := false;
         if Try6(Res, V, vByte, vDuration) then Observer.Observe('cond_branches.65.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.65.65.t', 'Byte|A');
+        Observer.Expect('cond_branches.65.65.f', 'Byte|A');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -1402,7 +1568,15 @@ codeunit 92469 "LT Y31 Cd Option"
         vInteger := 1;
         Res := false;
         if Try1(Res, V, vInteger, vOption) then Observer.Observe('cond_branches.3.1.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.3.1.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.1.65.t', 'Option|1');
+        Observer.Expect('cond_branches.1.65.f', 'Option|65');
+        Observer.Expect('cond_branches.1.1.t', 'Option|1');
+        Observer.Expect('cond_branches.1.1.f', 'Option|1');
+        Observer.Expect('cond_branches.3.65.t', 'Option|3');
+        Observer.Expect('cond_branches.3.65.f', 'Option|65');
+        Observer.Expect('cond_branches.3.1.t', 'Option|3');
+        Observer.Expect('cond_branches.3.1.f', 'Option|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1431,7 +1605,11 @@ codeunit 92469 "LT Y31 Cd Option"
         vBigInteger := 65;
         Res := false;
         if Try2(Res, V, vBigInteger, vOption) then Observer.Observe('cond_branches.3.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.3.65.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.1.65.t', 'Option|1');
+        Observer.Expect('cond_branches.1.65.f', 'Option|65');
+        Observer.Expect('cond_branches.3.65.t', 'Option|3');
+        Observer.Expect('cond_branches.3.65.f', 'Option|65');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1476,7 +1654,17 @@ codeunit 92469 "LT Y31 Cd Option"
         vDecimal := 1.5;
         Res := false;
         if Try3(Res, V, vDecimal, vOption) then Observer.Observe('cond_branches.3.1p5.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.3.1p5.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.1.65.t', 'Option|1');
+        Observer.Expect('cond_branches.1.65.f', 'Option|65');
+        Observer.Expect('cond_branches.1.1p5.t', 'Option|1');
+        Observer.Expect('cond_branches.1.1p5.f|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int32.');
+        Observer.Expect('cond_branches.1.1p5.f|code', 'ConversionCast');
+        Observer.Expect('cond_branches.3.65.t', 'Option|3');
+        Observer.Expect('cond_branches.3.65.f', 'Option|65');
+        Observer.Expect('cond_branches.3.1p5.t', 'Option|3');
+        Observer.Expect('cond_branches.3.1p5.f|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int32.');
+        Observer.Expect('cond_branches.3.1p5.f|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1521,7 +1709,15 @@ codeunit 92469 "LT Y31 Cd Option"
         vChar := 97;
         Res := false;
         if Try4(Res, V, vChar, vOption) then Observer.Observe('cond_branches.3.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.3.a.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.1.A.t', 'Option|1');
+        Observer.Expect('cond_branches.1.A.f', 'Option|65');
+        Observer.Expect('cond_branches.1.a.t', 'Option|1');
+        Observer.Expect('cond_branches.1.a.f', 'Option|97');
+        Observer.Expect('cond_branches.3.A.t', 'Option|3');
+        Observer.Expect('cond_branches.3.A.f', 'Option|65');
+        Observer.Expect('cond_branches.3.a.t', 'Option|3');
+        Observer.Expect('cond_branches.3.a.f', 'Option|97');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1550,7 +1746,11 @@ codeunit 92469 "LT Y31 Cd Option"
         vByte := 65;
         Res := false;
         if Try5(Res, V, vByte, vOption) then Observer.Observe('cond_branches.3.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.3.65.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.1.65.t', 'Option|1');
+        Observer.Expect('cond_branches.1.65.f', 'Option|65');
+        Observer.Expect('cond_branches.3.65.t', 'Option|3');
+        Observer.Expect('cond_branches.3.65.f', 'Option|65');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1595,7 +1795,15 @@ codeunit 92469 "LT Y31 Cd Option"
         vEnum := 5;
         Res := false;
         if Try6(Res, V, vEnum, vOption) then Observer.Observe('cond_branches.3.ord5.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.3.ord5.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.1.B.t', 'Option|1');
+        Observer.Expect('cond_branches.1.B.f', 'Option|1');
+        Observer.Expect('cond_branches.1.ord5.t', 'Option|1');
+        Observer.Expect('cond_branches.1.ord5.f', 'Option|5');
+        Observer.Expect('cond_branches.3.B.t', 'Option|3');
+        Observer.Expect('cond_branches.3.B.f', 'Option|1');
+        Observer.Expect('cond_branches.3.ord5.t', 'Option|3');
+        Observer.Expect('cond_branches.3.ord5.f', 'Option|5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1624,7 +1832,11 @@ codeunit 92469 "LT Y31 Cd Option"
         vEnumImpl := "LT Y31 EI"::A;
         Res := false;
         if Try7(Res, V, vEnumImpl, vOption) then Observer.Observe('cond_branches.3.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.3.A.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.1.A.t', 'Option|1');
+        Observer.Expect('cond_branches.1.A.f', 'Option|0');
+        Observer.Expect('cond_branches.3.A.t', 'Option|3');
+        Observer.Expect('cond_branches.3.A.f', 'Option|0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1653,7 +1865,11 @@ codeunit 92469 "LT Y31 Cd Option"
         vDuration := 65;
         Res := false;
         if Try8(Res, V, vDuration, vOption) then Observer.Observe('cond_branches.3.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.3.65.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.1.65.t', 'Option|1');
+        Observer.Expect('cond_branches.1.65.f', 'Option|65');
+        Observer.Expect('cond_branches.3.65.t', 'Option|3');
+        Observer.Expect('cond_branches.3.65.f', 'Option|65');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -1768,7 +1984,15 @@ codeunit 92470 "LT Y31 Cd Enum"
         vInteger := 1;
         Res := false;
         if Try1(Res, V, vEnum, vInteger) then Observer.Observe('cond_branches.ord5.1.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.ord5.1.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.B.65.t', 'Option|1');
+        Observer.Expect('cond_branches.B.65.f', 'Option|65');
+        Observer.Expect('cond_branches.B.1.t', 'Option|1');
+        Observer.Expect('cond_branches.B.1.f', 'Option|1');
+        Observer.Expect('cond_branches.ord5.65.t', 'Option|5');
+        Observer.Expect('cond_branches.ord5.65.f', 'Option|65');
+        Observer.Expect('cond_branches.ord5.1.t', 'Option|5');
+        Observer.Expect('cond_branches.ord5.1.f', 'Option|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1797,7 +2021,11 @@ codeunit 92470 "LT Y31 Cd Enum"
         vBigInteger := 65;
         Res := false;
         if Try2(Res, V, vBigInteger, vEnum) then Observer.Observe('cond_branches.ord5.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.ord5.65.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.B.65.t', 'Option|1');
+        Observer.Expect('cond_branches.B.65.f', 'Option|65');
+        Observer.Expect('cond_branches.ord5.65.t', 'Option|5');
+        Observer.Expect('cond_branches.ord5.65.f', 'Option|65');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1842,7 +2070,15 @@ codeunit 92470 "LT Y31 Cd Enum"
         vOption := 3;
         Res := false;
         if Try3(Res, V, vEnum, vOption) then Observer.Observe('cond_branches.ord5.3.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.ord5.3.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.B.1.t', 'Option|1');
+        Observer.Expect('cond_branches.B.1.f', 'Option|1');
+        Observer.Expect('cond_branches.B.3.t', 'Option|1');
+        Observer.Expect('cond_branches.B.3.f', 'Option|3');
+        Observer.Expect('cond_branches.ord5.1.t', 'Option|5');
+        Observer.Expect('cond_branches.ord5.1.f', 'Option|1');
+        Observer.Expect('cond_branches.ord5.3.t', 'Option|5');
+        Observer.Expect('cond_branches.ord5.3.f', 'Option|3');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -1923,20 +2159,6 @@ codeunit 92473 "LT Y31 Cd Text"
         vChar := 97;
         Res := false;
         if Try2(Res, vChar, vOut, vText) then Observer.Observe('cond_to_text.a.a.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.a.a.f');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text_Char_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Res: Boolean;
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vChar: Char;
-        vOut: Text;
-        vText: Text;
-    begin
         vText := 'A';
         vChar := 65;
         Res := true;
@@ -1969,20 +2191,6 @@ codeunit 92473 "LT Y31 Cd Text"
         vChar := 97;
         Res := false;
         if Try2(Res, vChar, vOut, vText) then Observer.Observe('cond_to_text.A.a.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.a.f');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text_Char_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        Res: Boolean;
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vChar: Char;
-        vOut: Text;
-        vText: Text;
-    begin
         vText := 'abc';
         vChar := 65;
         Res := true;
@@ -2015,20 +2223,6 @@ codeunit 92473 "LT Y31 Cd Text"
         vChar := 97;
         Res := false;
         if Try2(Res, vChar, vOut, vText) then Observer.Observe('cond_to_text.abc.a.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.a.f');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text_Char_4()
-    var
-        Observer: Codeunit "Probe Observer";
-        Res: Boolean;
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vChar: Char;
-        vOut: Text;
-        vText: Text;
-    begin
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         vChar := 65;
         Res := true;
@@ -2061,20 +2255,6 @@ codeunit 92473 "LT Y31 Cd Text"
         vChar := 97;
         Res := false;
         if Try2(Res, vChar, vOut, vText) then Observer.Observe('cond_to_text.guidlow.a.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.guidlow.a.f');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text_Char_5()
-    var
-        Observer: Codeunit "Probe Observer";
-        Res: Boolean;
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vChar: Char;
-        vOut: Text;
-        vText: Text;
-    begin
         vText := 'abcdefghijk';
         vChar := 65;
         Res := true;
@@ -2107,7 +2287,47 @@ codeunit 92473 "LT Y31 Cd Text"
         vChar := 97;
         Res := false;
         if Try2(Res, vChar, vOut, vText) then Observer.Observe('cond_to_text.eleven.a.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.eleven.a.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.a.A.t', 'Text|a');
+        Observer.Expect('cond_branches.a.A.f', 'Text|A');
+        Observer.Expect('cond_to_text.a.A.t', 'a|1');
+        Observer.Expect('cond_to_text.a.A.f', 'A|1');
+        Observer.Expect('cond_branches.a.a.t', 'Text|a');
+        Observer.Expect('cond_branches.a.a.f', 'Text|a');
+        Observer.Expect('cond_to_text.a.a.t', 'a|1');
+        Observer.Expect('cond_to_text.a.a.f', 'a|1');
+        Observer.Expect('cond_branches.A.A.t', 'Text|A');
+        Observer.Expect('cond_branches.A.A.f', 'Text|A');
+        Observer.Expect('cond_to_text.A.A.t', 'A|1');
+        Observer.Expect('cond_to_text.A.A.f', 'A|1');
+        Observer.Expect('cond_branches.A.a.t', 'Text|A');
+        Observer.Expect('cond_branches.A.a.f', 'Text|a');
+        Observer.Expect('cond_to_text.A.a.t', 'A|1');
+        Observer.Expect('cond_to_text.A.a.f', 'a|1');
+        Observer.Expect('cond_branches.abc.A.t', 'Text|abc');
+        Observer.Expect('cond_branches.abc.A.f', 'Text|A');
+        Observer.Expect('cond_to_text.abc.A.t', 'abc|3');
+        Observer.Expect('cond_to_text.abc.A.f', 'A|1');
+        Observer.Expect('cond_branches.abc.a.t', 'Text|abc');
+        Observer.Expect('cond_branches.abc.a.f', 'Text|a');
+        Observer.Expect('cond_to_text.abc.a.t', 'abc|3');
+        Observer.Expect('cond_to_text.abc.a.f', 'a|1');
+        Observer.Expect('cond_branches.guidlow.A.t', 'Text|5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b');
+        Observer.Expect('cond_branches.guidlow.A.f', 'Text|A');
+        Observer.Expect('cond_to_text.guidlow.A.t', '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b|36');
+        Observer.Expect('cond_to_text.guidlow.A.f', 'A|1');
+        Observer.Expect('cond_branches.guidlow.a.t', 'Text|5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b');
+        Observer.Expect('cond_branches.guidlow.a.f', 'Text|a');
+        Observer.Expect('cond_to_text.guidlow.a.t', '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b|36');
+        Observer.Expect('cond_to_text.guidlow.a.f', 'a|1');
+        Observer.Expect('cond_branches.eleven.A.t', 'Text|abcdefghijk');
+        Observer.Expect('cond_branches.eleven.A.f', 'Text|A');
+        Observer.Expect('cond_to_text.eleven.A.t', 'abcdefghijk|11');
+        Observer.Expect('cond_to_text.eleven.A.f', 'A|1');
+        Observer.Expect('cond_branches.eleven.a.t', 'Text|abcdefghijk');
+        Observer.Expect('cond_branches.eleven.a.f', 'Text|a');
+        Observer.Expect('cond_to_text.eleven.a.t', 'abcdefghijk|11');
+        Observer.Expect('cond_to_text.eleven.a.f', 'a|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2153,20 +2373,6 @@ codeunit 92473 "LT Y31 Cd Text"
         vText10 := 'abc';
         Res := false;
         if Try4(Res, vOut, vText, vText10) then Observer.Observe('cond_to_text.A.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.abc.f');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text_Text10_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Res: Boolean;
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vOut: Text;
-        vText: Text;
-        vText10: Text[10];
-    begin
         vText := 'abc';
         vText10 := 'abc';
         Res := true;
@@ -2199,20 +2405,6 @@ codeunit 92473 "LT Y31 Cd Text"
         vText10 := 'abc';
         Res := false;
         if Try4(Res, vOut, vText, vText10) then Observer.Observe('cond_to_text.guidlow.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.guidlow.abc.f');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text_Text10_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        Res: Boolean;
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vOut: Text;
-        vText: Text;
-        vText10: Text[10];
-    begin
         vText := 'abcdefghijk';
         vText10 := 'abc';
         Res := true;
@@ -2229,7 +2421,27 @@ codeunit 92473 "LT Y31 Cd Text"
         vText10 := 'abc';
         Res := false;
         if Try4(Res, vOut, vText, vText10) then Observer.Observe('cond_to_text.eleven.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.eleven.abc.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.a.abc.t', 'Text|a');
+        Observer.Expect('cond_branches.a.abc.f', 'Text|abc');
+        Observer.Expect('cond_to_text.a.abc.t', 'a|1');
+        Observer.Expect('cond_to_text.a.abc.f', 'abc|3');
+        Observer.Expect('cond_branches.A.abc.t', 'Text|A');
+        Observer.Expect('cond_branches.A.abc.f', 'Text|abc');
+        Observer.Expect('cond_to_text.A.abc.t', 'A|1');
+        Observer.Expect('cond_to_text.A.abc.f', 'abc|3');
+        Observer.Expect('cond_branches.abc.abc.t', 'Text|abc');
+        Observer.Expect('cond_branches.abc.abc.f', 'Text|abc');
+        Observer.Expect('cond_to_text.abc.abc.t', 'abc|3');
+        Observer.Expect('cond_to_text.abc.abc.f', 'abc|3');
+        Observer.Expect('cond_branches.guidlow.abc.t', 'Text|5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b');
+        Observer.Expect('cond_branches.guidlow.abc.f', 'Text|abc');
+        Observer.Expect('cond_to_text.guidlow.abc.t', '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b|36');
+        Observer.Expect('cond_to_text.guidlow.abc.f', 'abc|3');
+        Observer.Expect('cond_branches.eleven.abc.t', 'Text|abcdefghijk');
+        Observer.Expect('cond_branches.eleven.abc.f', 'Text|abc');
+        Observer.Expect('cond_to_text.eleven.abc.t', 'abcdefghijk|11');
+        Observer.Expect('cond_to_text.eleven.abc.f', 'abc|3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2275,20 +2487,6 @@ codeunit 92473 "LT Y31 Cd Text"
         vCode10 := 'ABC';
         Res := false;
         if Try6(Res, vCode10, vOut, vText) then Observer.Observe('cond_to_text.a.ABC.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.a.ABC.f');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text_Code10_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Res: Boolean;
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vCode10: Code[10];
-        vOut: Text;
-        vText: Text;
-    begin
         vText := 'A';
         vCode10 := 'A';
         Res := true;
@@ -2321,20 +2519,6 @@ codeunit 92473 "LT Y31 Cd Text"
         vCode10 := 'ABC';
         Res := false;
         if Try6(Res, vCode10, vOut, vText) then Observer.Observe('cond_to_text.A.ABC.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.ABC.f');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text_Code10_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        Res: Boolean;
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vCode10: Code[10];
-        vOut: Text;
-        vText: Text;
-    begin
         vText := 'abc';
         vCode10 := 'A';
         Res := true;
@@ -2367,20 +2551,6 @@ codeunit 92473 "LT Y31 Cd Text"
         vCode10 := 'ABC';
         Res := false;
         if Try6(Res, vCode10, vOut, vText) then Observer.Observe('cond_to_text.abc.ABC.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.ABC.f');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text_Code10_4()
-    var
-        Observer: Codeunit "Probe Observer";
-        Res: Boolean;
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vCode10: Code[10];
-        vOut: Text;
-        vText: Text;
-    begin
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         vCode10 := 'A';
         Res := true;
@@ -2413,20 +2583,6 @@ codeunit 92473 "LT Y31 Cd Text"
         vCode10 := 'ABC';
         Res := false;
         if Try6(Res, vCode10, vOut, vText) then Observer.Observe('cond_to_text.guidlow.ABC.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.guidlow.ABC.f');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text_Code10_5()
-    var
-        Observer: Codeunit "Probe Observer";
-        Res: Boolean;
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vCode10: Code[10];
-        vOut: Text;
-        vText: Text;
-    begin
         vText := 'abcdefghijk';
         vCode10 := 'A';
         Res := true;
@@ -2459,7 +2615,47 @@ codeunit 92473 "LT Y31 Cd Text"
         vCode10 := 'ABC';
         Res := false;
         if Try6(Res, vCode10, vOut, vText) then Observer.Observe('cond_to_text.eleven.ABC.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.eleven.ABC.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.a.A.t', 'Text|a');
+        Observer.Expect('cond_branches.a.A.f', 'Text|A');
+        Observer.Expect('cond_to_text.a.A.t', 'a|1');
+        Observer.Expect('cond_to_text.a.A.f', 'A|1');
+        Observer.Expect('cond_branches.a.ABC.t', 'Text|a');
+        Observer.Expect('cond_branches.a.ABC.f', 'Text|ABC');
+        Observer.Expect('cond_to_text.a.ABC.t', 'a|1');
+        Observer.Expect('cond_to_text.a.ABC.f', 'ABC|3');
+        Observer.Expect('cond_branches.A.A.t', 'Text|A');
+        Observer.Expect('cond_branches.A.A.f', 'Text|A');
+        Observer.Expect('cond_to_text.A.A.t', 'A|1');
+        Observer.Expect('cond_to_text.A.A.f', 'A|1');
+        Observer.Expect('cond_branches.A.ABC.t', 'Text|A');
+        Observer.Expect('cond_branches.A.ABC.f', 'Text|ABC');
+        Observer.Expect('cond_to_text.A.ABC.t', 'A|1');
+        Observer.Expect('cond_to_text.A.ABC.f', 'ABC|3');
+        Observer.Expect('cond_branches.abc.A.t', 'Text|abc');
+        Observer.Expect('cond_branches.abc.A.f', 'Text|A');
+        Observer.Expect('cond_to_text.abc.A.t', 'abc|3');
+        Observer.Expect('cond_to_text.abc.A.f', 'A|1');
+        Observer.Expect('cond_branches.abc.ABC.t', 'Text|abc');
+        Observer.Expect('cond_branches.abc.ABC.f', 'Text|ABC');
+        Observer.Expect('cond_to_text.abc.ABC.t', 'abc|3');
+        Observer.Expect('cond_to_text.abc.ABC.f', 'ABC|3');
+        Observer.Expect('cond_branches.guidlow.A.t', 'Text|5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b');
+        Observer.Expect('cond_branches.guidlow.A.f', 'Text|A');
+        Observer.Expect('cond_to_text.guidlow.A.t', '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b|36');
+        Observer.Expect('cond_to_text.guidlow.A.f', 'A|1');
+        Observer.Expect('cond_branches.guidlow.ABC.t', 'Text|5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b');
+        Observer.Expect('cond_branches.guidlow.ABC.f', 'Text|ABC');
+        Observer.Expect('cond_to_text.guidlow.ABC.t', '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b|36');
+        Observer.Expect('cond_to_text.guidlow.ABC.f', 'ABC|3');
+        Observer.Expect('cond_branches.eleven.A.t', 'Text|abcdefghijk');
+        Observer.Expect('cond_branches.eleven.A.f', 'Text|A');
+        Observer.Expect('cond_to_text.eleven.A.t', 'abcdefghijk|11');
+        Observer.Expect('cond_to_text.eleven.A.f', 'A|1');
+        Observer.Expect('cond_branches.eleven.ABC.t', 'Text|abcdefghijk');
+        Observer.Expect('cond_branches.eleven.ABC.f', 'Text|ABC');
+        Observer.Expect('cond_to_text.eleven.ABC.t', 'abcdefghijk|11');
+        Observer.Expect('cond_to_text.eleven.ABC.f', 'ABC|3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2505,20 +2701,6 @@ codeunit 92473 "LT Y31 Cd Text"
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         Res := false;
         if Try8(Res, vGuid, vOut, vText) then Observer.Observe('cond_to_text.A.g.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.g.f');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text_Guid_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Res: Boolean;
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vGuid: Guid;
-        vOut: Text;
-        vText: Text;
-    begin
         vText := 'abc';
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         Res := true;
@@ -2551,20 +2733,6 @@ codeunit 92473 "LT Y31 Cd Text"
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         Res := false;
         if Try8(Res, vGuid, vOut, vText) then Observer.Observe('cond_to_text.guidlow.g.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.guidlow.g.f');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text_Guid_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        Res: Boolean;
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vGuid: Guid;
-        vOut: Text;
-        vText: Text;
-    begin
         vText := 'abcdefghijk';
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         Res := true;
@@ -2581,7 +2749,27 @@ codeunit 92473 "LT Y31 Cd Text"
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         Res := false;
         if Try8(Res, vGuid, vOut, vText) then Observer.Observe('cond_to_text.eleven.g.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.eleven.g.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.a.g.t', 'Text|a');
+        Observer.Expect('cond_branches.a.g.f', 'Text|{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('cond_to_text.a.g.t', 'a|1');
+        Observer.Expect('cond_to_text.a.g.f', '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}|38');
+        Observer.Expect('cond_branches.A.g.t', 'Text|A');
+        Observer.Expect('cond_branches.A.g.f', 'Text|{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('cond_to_text.A.g.t', 'A|1');
+        Observer.Expect('cond_to_text.A.g.f', '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}|38');
+        Observer.Expect('cond_branches.abc.g.t', 'Text|abc');
+        Observer.Expect('cond_branches.abc.g.f', 'Text|{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('cond_to_text.abc.g.t', 'abc|3');
+        Observer.Expect('cond_to_text.abc.g.f', '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}|38');
+        Observer.Expect('cond_branches.guidlow.g.t', 'Text|5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b');
+        Observer.Expect('cond_branches.guidlow.g.f', 'Text|{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('cond_to_text.guidlow.g.t', '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b|36');
+        Observer.Expect('cond_to_text.guidlow.g.f', '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}|38');
+        Observer.Expect('cond_branches.eleven.g.t', 'Text|abcdefghijk');
+        Observer.Expect('cond_branches.eleven.g.f', 'Text|{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('cond_to_text.eleven.g.t', 'abcdefghijk|11');
+        Observer.Expect('cond_to_text.eleven.g.f', '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}|38');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2618,19 +2806,6 @@ codeunit 92473 "LT Y31 Cd Text"
         vText := 'A';
         Res := false;
         if Try10(Res, vOut, vText) then Observer.Observe('cond_to_text.A.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.abc.f');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text_Label_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Res: Boolean;
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vOut: Text;
-        vText: Text;
-    begin
         vText := 'abc';
         Res := true;
         if Try9(Res, V, vText) then Observer.Observe('cond_branches.abc.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.abc.t');
@@ -2655,19 +2830,6 @@ codeunit 92473 "LT Y31 Cd Text"
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         Res := false;
         if Try10(Res, vOut, vText) then Observer.Observe('cond_to_text.guidlow.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.guidlow.abc.f');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text_Label_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        Res: Boolean;
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vOut: Text;
-        vText: Text;
-    begin
         vText := 'abcdefghijk';
         Res := true;
         if Try9(Res, V, vText) then Observer.Observe('cond_branches.eleven.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.eleven.abc.t');
@@ -2680,7 +2842,27 @@ codeunit 92473 "LT Y31 Cd Text"
         vText := 'abcdefghijk';
         Res := false;
         if Try10(Res, vOut, vText) then Observer.Observe('cond_to_text.eleven.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.eleven.abc.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.a.abc.t', 'Text|a');
+        Observer.Expect('cond_branches.a.abc.f', 'Text|abc');
+        Observer.Expect('cond_to_text.a.abc.t', 'a|1');
+        Observer.Expect('cond_to_text.a.abc.f', 'abc|3');
+        Observer.Expect('cond_branches.A.abc.t', 'Text|A');
+        Observer.Expect('cond_branches.A.abc.f', 'Text|abc');
+        Observer.Expect('cond_to_text.A.abc.t', 'A|1');
+        Observer.Expect('cond_to_text.A.abc.f', 'abc|3');
+        Observer.Expect('cond_branches.abc.abc.t', 'Text|abc');
+        Observer.Expect('cond_branches.abc.abc.f', 'Text|abc');
+        Observer.Expect('cond_to_text.abc.abc.t', 'abc|3');
+        Observer.Expect('cond_to_text.abc.abc.f', 'abc|3');
+        Observer.Expect('cond_branches.guidlow.abc.t', 'Text|5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b');
+        Observer.Expect('cond_branches.guidlow.abc.f', 'Text|abc');
+        Observer.Expect('cond_to_text.guidlow.abc.t', '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b|36');
+        Observer.Expect('cond_to_text.guidlow.abc.f', 'abc|3');
+        Observer.Expect('cond_branches.eleven.abc.t', 'Text|abcdefghijk');
+        Observer.Expect('cond_branches.eleven.abc.f', 'Text|abc');
+        Observer.Expect('cond_to_text.eleven.abc.t', 'abcdefghijk|11');
+        Observer.Expect('cond_to_text.eleven.abc.f', 'abc|3');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -2814,7 +2996,15 @@ codeunit 92474 "LT Y31 Cd Text10"
         vChar := 97;
         Res := false;
         if Try2(Res, vChar, vOut, vText10) then Observer.Observe('cond_to_text.abc.a.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.a.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.abc.A.t', 'Text|abc');
+        Observer.Expect('cond_branches.abc.A.f', 'Text|A');
+        Observer.Expect('cond_to_text.abc.A.t', 'abc|3');
+        Observer.Expect('cond_to_text.abc.A.f', 'A|1');
+        Observer.Expect('cond_branches.abc.a.t', 'Text|abc');
+        Observer.Expect('cond_branches.abc.a.f', 'Text|a');
+        Observer.Expect('cond_to_text.abc.a.t', 'abc|3');
+        Observer.Expect('cond_to_text.abc.a.f', 'a|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2860,20 +3050,6 @@ codeunit 92474 "LT Y31 Cd Text10"
         vText := 'A';
         Res := false;
         if Try4(Res, vOut, vText, vText10) then Observer.Observe('cond_to_text.abc.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.A.f');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text10_Text_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Res: Boolean;
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vOut: Text;
-        vText: Text;
-        vText10: Text[10];
-    begin
         vText10 := 'abc';
         vText := 'abc';
         Res := true;
@@ -2906,20 +3082,6 @@ codeunit 92474 "LT Y31 Cd Text10"
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         Res := false;
         if Try4(Res, vOut, vText, vText10) then Observer.Observe('cond_to_text.abc.guidlow.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.guidlow.f');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text10_Text_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        Res: Boolean;
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vOut: Text;
-        vText: Text;
-        vText10: Text[10];
-    begin
         vText10 := 'abc';
         vText := 'abcdefghijk';
         Res := true;
@@ -2936,7 +3098,31 @@ codeunit 92474 "LT Y31 Cd Text10"
         vText := 'abcdefghijk';
         Res := false;
         if Try4(Res, vOut, vText, vText10) then Observer.Observe('cond_to_text.abc.eleven.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.eleven.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.abc.a.t', 'Text|abc');
+        Observer.Expect('cond_branches.abc.a.f', 'Text|a');
+        Observer.Expect('cond_to_text.abc.a.t', 'abc|3');
+        Observer.Expect('cond_to_text.abc.a.f', 'a|1');
+        Observer.Expect('cond_branches.abc.A.t', 'Text|abc');
+        Observer.Expect('cond_branches.abc.A.f', 'Text|A');
+        Observer.Expect('cond_to_text.abc.A.t', 'abc|3');
+        Observer.Expect('cond_to_text.abc.A.f', 'A|1');
+        Observer.Expect('cond_branches.abc.abc.t', 'Text|abc');
+        Observer.Expect('cond_branches.abc.abc.f', 'Text|abc');
+        Observer.Expect('cond_to_text.abc.abc.t', 'abc|3');
+        Observer.Expect('cond_to_text.abc.abc.f', 'abc|3');
+        Observer.Expect('cond_branches.abc.guidlow.t', 'Text|abc');
+        Observer.Expect('cond_branches.abc.guidlow.f|text', 'The length of the string is 36, but it must be less than or equal to 10 characters. Value: 5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b');
+        Observer.Expect('cond_branches.abc.guidlow.f|code', 'StringLengthExceeded');
+        Observer.Expect('cond_to_text.abc.guidlow.t', 'abc|3');
+        Observer.Expect('cond_to_text.abc.guidlow.f|text', 'The length of the string is 36, but it must be less than or equal to 10 characters. Value: 5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b');
+        Observer.Expect('cond_to_text.abc.guidlow.f|code', 'StringLengthExceeded');
+        Observer.Expect('cond_branches.abc.eleven.t', 'Text|abc');
+        Observer.Expect('cond_branches.abc.eleven.f|text', 'The length of the string is 11, but it must be less than or equal to 10 characters. Value: abcdefghijk');
+        Observer.Expect('cond_branches.abc.eleven.f|code', 'StringLengthExceeded');
+        Observer.Expect('cond_to_text.abc.eleven.t', 'abc|3');
+        Observer.Expect('cond_to_text.abc.eleven.f|text', 'The length of the string is 11, but it must be less than or equal to 10 characters. Value: abcdefghijk');
+        Observer.Expect('cond_to_text.abc.eleven.f|code', 'StringLengthExceeded');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2982,7 +3168,15 @@ codeunit 92474 "LT Y31 Cd Text10"
         vCode10 := 'ABC';
         Res := false;
         if Try6(Res, vCode10, vOut, vText10) then Observer.Observe('cond_to_text.abc.ABC.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.ABC.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.abc.A.t', 'Text|abc');
+        Observer.Expect('cond_branches.abc.A.f', 'Text|A');
+        Observer.Expect('cond_to_text.abc.A.t', 'abc|3');
+        Observer.Expect('cond_to_text.abc.A.f', 'A|1');
+        Observer.Expect('cond_branches.abc.ABC.t', 'Text|abc');
+        Observer.Expect('cond_branches.abc.ABC.f', 'Text|ABC');
+        Observer.Expect('cond_to_text.abc.ABC.t', 'abc|3');
+        Observer.Expect('cond_to_text.abc.ABC.f', 'ABC|3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3007,7 +3201,11 @@ codeunit 92474 "LT Y31 Cd Text10"
         vText10 := 'abc';
         Res := false;
         if Try8(Res, vOut, vText10) then Observer.Observe('cond_to_text.abc.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.abc.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.abc.abc.t', 'Text|abc');
+        Observer.Expect('cond_branches.abc.abc.f', 'Text|abc');
+        Observer.Expect('cond_to_text.abc.abc.t', 'abc|3');
+        Observer.Expect('cond_to_text.abc.abc.f', 'abc|3');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -3127,20 +3325,6 @@ codeunit 92475 "LT Y31 Cd Code10"
         vChar := 97;
         Res := false;
         if Try2(Res, vChar, vCode10, vOut) then Observer.Observe('cond_to_text.A.a.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.a.f');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Code10_Char_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Res: Boolean;
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vChar: Char;
-        vCode10: Code[10];
-        vOut: Text;
-    begin
         vCode10 := 'ABC';
         vChar := 65;
         Res := true;
@@ -3173,7 +3357,23 @@ codeunit 92475 "LT Y31 Cd Code10"
         vChar := 97;
         Res := false;
         if Try2(Res, vChar, vCode10, vOut) then Observer.Observe('cond_to_text.ABC.a.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.ABC.a.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.A.A.t', 'Code|A');
+        Observer.Expect('cond_branches.A.A.f', 'Code|A');
+        Observer.Expect('cond_to_text.A.A.t', 'A|1');
+        Observer.Expect('cond_to_text.A.A.f', 'A|1');
+        Observer.Expect('cond_branches.A.a.t', 'Code|A');
+        Observer.Expect('cond_branches.A.a.f', 'Code|A');
+        Observer.Expect('cond_to_text.A.a.t', 'A|1');
+        Observer.Expect('cond_to_text.A.a.f', 'A|1');
+        Observer.Expect('cond_branches.ABC.A.t', 'Code|ABC');
+        Observer.Expect('cond_branches.ABC.A.f', 'Code|A');
+        Observer.Expect('cond_to_text.ABC.A.t', 'ABC|3');
+        Observer.Expect('cond_to_text.ABC.A.f', 'A|1');
+        Observer.Expect('cond_branches.ABC.a.t', 'Code|ABC');
+        Observer.Expect('cond_branches.ABC.a.f', 'Code|A');
+        Observer.Expect('cond_to_text.ABC.a.t', 'ABC|3');
+        Observer.Expect('cond_to_text.ABC.a.f', 'A|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3219,20 +3419,6 @@ codeunit 92475 "LT Y31 Cd Code10"
         vText := 'A';
         Res := false;
         if Try4(Res, vCode10, vOut, vText) then Observer.Observe('cond_to_text.A.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.A.f');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Code10_Text_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Res: Boolean;
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vCode10: Code[10];
-        vOut: Text;
-        vText: Text;
-    begin
         vCode10 := 'A';
         vText := 'abc';
         Res := true;
@@ -3265,20 +3451,6 @@ codeunit 92475 "LT Y31 Cd Code10"
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         Res := false;
         if Try4(Res, vCode10, vOut, vText) then Observer.Observe('cond_to_text.A.guidlow.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.guidlow.f');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Code10_Text_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        Res: Boolean;
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vCode10: Code[10];
-        vOut: Text;
-        vText: Text;
-    begin
         vCode10 := 'A';
         vText := 'abcdefghijk';
         Res := true;
@@ -3311,20 +3483,6 @@ codeunit 92475 "LT Y31 Cd Code10"
         vText := 'a';
         Res := false;
         if Try4(Res, vCode10, vOut, vText) then Observer.Observe('cond_to_text.ABC.a.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.ABC.a.f');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Code10_Text_4()
-    var
-        Observer: Codeunit "Probe Observer";
-        Res: Boolean;
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vCode10: Code[10];
-        vOut: Text;
-        vText: Text;
-    begin
         vCode10 := 'ABC';
         vText := 'A';
         Res := true;
@@ -3357,20 +3515,6 @@ codeunit 92475 "LT Y31 Cd Code10"
         vText := 'abc';
         Res := false;
         if Try4(Res, vCode10, vOut, vText) then Observer.Observe('cond_to_text.ABC.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.ABC.abc.f');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Code10_Text_5()
-    var
-        Observer: Codeunit "Probe Observer";
-        Res: Boolean;
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vCode10: Code[10];
-        vOut: Text;
-        vText: Text;
-    begin
         vCode10 := 'ABC';
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         Res := true;
@@ -3403,7 +3547,55 @@ codeunit 92475 "LT Y31 Cd Code10"
         vText := 'abcdefghijk';
         Res := false;
         if Try4(Res, vCode10, vOut, vText) then Observer.Observe('cond_to_text.ABC.eleven.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.ABC.eleven.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.A.a.t', 'Code|A');
+        Observer.Expect('cond_branches.A.a.f', 'Code|A');
+        Observer.Expect('cond_to_text.A.a.t', 'A|1');
+        Observer.Expect('cond_to_text.A.a.f', 'A|1');
+        Observer.Expect('cond_branches.A.A.t', 'Code|A');
+        Observer.Expect('cond_branches.A.A.f', 'Code|A');
+        Observer.Expect('cond_to_text.A.A.t', 'A|1');
+        Observer.Expect('cond_to_text.A.A.f', 'A|1');
+        Observer.Expect('cond_branches.A.abc.t', 'Code|A');
+        Observer.Expect('cond_branches.A.abc.f', 'Code|ABC');
+        Observer.Expect('cond_to_text.A.abc.t', 'A|1');
+        Observer.Expect('cond_to_text.A.abc.f', 'ABC|3');
+        Observer.Expect('cond_branches.A.guidlow.t', 'Code|A');
+        Observer.Expect('cond_branches.A.guidlow.f|text', 'The length of the string is 36, but it must be less than or equal to 10 characters. Value: 5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b');
+        Observer.Expect('cond_branches.A.guidlow.f|code', 'StringLengthExceeded');
+        Observer.Expect('cond_to_text.A.guidlow.t', 'A|1');
+        Observer.Expect('cond_to_text.A.guidlow.f|text', 'The length of the string is 36, but it must be less than or equal to 10 characters. Value: 5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b');
+        Observer.Expect('cond_to_text.A.guidlow.f|code', 'StringLengthExceeded');
+        Observer.Expect('cond_branches.A.eleven.t', 'Code|A');
+        Observer.Expect('cond_branches.A.eleven.f|text', 'The length of the string is 11, but it must be less than or equal to 10 characters. Value: abcdefghijk');
+        Observer.Expect('cond_branches.A.eleven.f|code', 'StringLengthExceeded');
+        Observer.Expect('cond_to_text.A.eleven.t', 'A|1');
+        Observer.Expect('cond_to_text.A.eleven.f|text', 'The length of the string is 11, but it must be less than or equal to 10 characters. Value: abcdefghijk');
+        Observer.Expect('cond_to_text.A.eleven.f|code', 'StringLengthExceeded');
+        Observer.Expect('cond_branches.ABC.a.t', 'Code|ABC');
+        Observer.Expect('cond_branches.ABC.a.f', 'Code|A');
+        Observer.Expect('cond_to_text.ABC.a.t', 'ABC|3');
+        Observer.Expect('cond_to_text.ABC.a.f', 'A|1');
+        Observer.Expect('cond_branches.ABC.A.t', 'Code|ABC');
+        Observer.Expect('cond_branches.ABC.A.f', 'Code|A');
+        Observer.Expect('cond_to_text.ABC.A.t', 'ABC|3');
+        Observer.Expect('cond_to_text.ABC.A.f', 'A|1');
+        Observer.Expect('cond_branches.ABC.abc.t', 'Code|ABC');
+        Observer.Expect('cond_branches.ABC.abc.f', 'Code|ABC');
+        Observer.Expect('cond_to_text.ABC.abc.t', 'ABC|3');
+        Observer.Expect('cond_to_text.ABC.abc.f', 'ABC|3');
+        Observer.Expect('cond_branches.ABC.guidlow.t', 'Code|ABC');
+        Observer.Expect('cond_branches.ABC.guidlow.f|text', 'The length of the string is 36, but it must be less than or equal to 10 characters. Value: 5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b');
+        Observer.Expect('cond_branches.ABC.guidlow.f|code', 'StringLengthExceeded');
+        Observer.Expect('cond_to_text.ABC.guidlow.t', 'ABC|3');
+        Observer.Expect('cond_to_text.ABC.guidlow.f|text', 'The length of the string is 36, but it must be less than or equal to 10 characters. Value: 5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b');
+        Observer.Expect('cond_to_text.ABC.guidlow.f|code', 'StringLengthExceeded');
+        Observer.Expect('cond_branches.ABC.eleven.t', 'Code|ABC');
+        Observer.Expect('cond_branches.ABC.eleven.f|text', 'The length of the string is 11, but it must be less than or equal to 10 characters. Value: abcdefghijk');
+        Observer.Expect('cond_branches.ABC.eleven.f|code', 'StringLengthExceeded');
+        Observer.Expect('cond_to_text.ABC.eleven.t', 'ABC|3');
+        Observer.Expect('cond_to_text.ABC.eleven.f|text', 'The length of the string is 11, but it must be less than or equal to 10 characters. Value: abcdefghijk');
+        Observer.Expect('cond_to_text.ABC.eleven.f|code', 'StringLengthExceeded');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3449,7 +3641,15 @@ codeunit 92475 "LT Y31 Cd Code10"
         vText10 := 'abc';
         Res := false;
         if Try6(Res, vCode10, vOut, vText10) then Observer.Observe('cond_to_text.ABC.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.ABC.abc.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.A.abc.t', 'Code|A');
+        Observer.Expect('cond_branches.A.abc.f', 'Code|ABC');
+        Observer.Expect('cond_to_text.A.abc.t', 'A|1');
+        Observer.Expect('cond_to_text.A.abc.f', 'ABC|3');
+        Observer.Expect('cond_branches.ABC.abc.t', 'Code|ABC');
+        Observer.Expect('cond_branches.ABC.abc.f', 'Code|ABC');
+        Observer.Expect('cond_to_text.ABC.abc.t', 'ABC|3');
+        Observer.Expect('cond_to_text.ABC.abc.f', 'ABC|3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3486,7 +3686,15 @@ codeunit 92475 "LT Y31 Cd Code10"
         vCode10 := 'ABC';
         Res := false;
         if Try8(Res, vCode10, vOut) then Observer.Observe('cond_to_text.ABC.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.ABC.abc.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.A.abc.t', 'Code|A');
+        Observer.Expect('cond_branches.A.abc.f', 'Code|ABC');
+        Observer.Expect('cond_to_text.A.abc.t', 'A|1');
+        Observer.Expect('cond_to_text.A.abc.f', 'ABC|3');
+        Observer.Expect('cond_branches.ABC.abc.t', 'Code|ABC');
+        Observer.Expect('cond_branches.ABC.abc.f', 'Code|ABC');
+        Observer.Expect('cond_to_text.ABC.abc.t', 'ABC|3');
+        Observer.Expect('cond_to_text.ABC.abc.f', 'ABC|3');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -3606,20 +3814,6 @@ codeunit 92476 "LT Y31 Cd Guid"
         vText := 'A';
         Res := false;
         if Try2(Res, vGuid, vOut, vText) then Observer.Observe('cond_to_text.g.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.g.A.f');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Guid_Text_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Res: Boolean;
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vGuid: Guid;
-        vOut: Text;
-        vText: Text;
-    begin
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vText := 'abc';
         Res := true;
@@ -3652,20 +3846,6 @@ codeunit 92476 "LT Y31 Cd Guid"
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         Res := false;
         if Try2(Res, vGuid, vOut, vText) then Observer.Observe('cond_to_text.g.guidlow.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.g.guidlow.f');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Guid_Text_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        Res: Boolean;
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vGuid: Guid;
-        vOut: Text;
-        vText: Text;
-    begin
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vText := 'abcdefghijk';
         Res := true;
@@ -3682,7 +3862,35 @@ codeunit 92476 "LT Y31 Cd Guid"
         vText := 'abcdefghijk';
         Res := false;
         if Try2(Res, vGuid, vOut, vText) then Observer.Observe('cond_to_text.g.eleven.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.g.eleven.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.g.a.t', 'Guid|{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('cond_branches.g.a.f|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('cond_branches.g.a.f|code', 'InvalidGuidFormat');
+        Observer.Expect('cond_to_text.g.a.t', '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}|38');
+        Observer.Expect('cond_to_text.g.a.f|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('cond_to_text.g.a.f|code', 'InvalidGuidFormat');
+        Observer.Expect('cond_branches.g.A.t', 'Guid|{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('cond_branches.g.A.f|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('cond_branches.g.A.f|code', 'InvalidGuidFormat');
+        Observer.Expect('cond_to_text.g.A.t', '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}|38');
+        Observer.Expect('cond_to_text.g.A.f|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('cond_to_text.g.A.f|code', 'InvalidGuidFormat');
+        Observer.Expect('cond_branches.g.abc.t', 'Guid|{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('cond_branches.g.abc.f|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('cond_branches.g.abc.f|code', 'InvalidGuidFormat');
+        Observer.Expect('cond_to_text.g.abc.t', '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}|38');
+        Observer.Expect('cond_to_text.g.abc.f|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('cond_to_text.g.abc.f|code', 'InvalidGuidFormat');
+        Observer.Expect('cond_branches.g.guidlow.t', 'Guid|{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('cond_branches.g.guidlow.f', 'Guid|{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('cond_to_text.g.guidlow.t', '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}|38');
+        Observer.Expect('cond_to_text.g.guidlow.f', '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}|38');
+        Observer.Expect('cond_branches.g.eleven.t', 'Guid|{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('cond_branches.g.eleven.f|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('cond_branches.g.eleven.f|code', 'InvalidGuidFormat');
+        Observer.Expect('cond_to_text.g.eleven.t', '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}|38');
+        Observer.Expect('cond_to_text.g.eleven.f|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('cond_to_text.g.eleven.f|code', 'InvalidGuidFormat');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3712,7 +3920,13 @@ codeunit 92476 "LT Y31 Cd Guid"
         vText10 := 'abc';
         Res := false;
         if Try4(Res, vGuid, vOut, vText10) then Observer.Observe('cond_to_text.g.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.g.abc.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.g.abc.t', 'Guid|{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('cond_branches.g.abc.f|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('cond_branches.g.abc.f|code', 'InvalidGuidFormat');
+        Observer.Expect('cond_to_text.g.abc.t', '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}|38');
+        Observer.Expect('cond_to_text.g.abc.f|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('cond_to_text.g.abc.f|code', 'InvalidGuidFormat');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3758,7 +3972,19 @@ codeunit 92476 "LT Y31 Cd Guid"
         vCode10 := 'ABC';
         Res := false;
         if Try6(Res, vCode10, vGuid, vOut) then Observer.Observe('cond_to_text.g.ABC.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.g.ABC.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.g.A.t', 'Guid|{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('cond_branches.g.A.f|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('cond_branches.g.A.f|code', 'InvalidGuidFormat');
+        Observer.Expect('cond_to_text.g.A.t', '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}|38');
+        Observer.Expect('cond_to_text.g.A.f|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('cond_to_text.g.A.f|code', 'InvalidGuidFormat');
+        Observer.Expect('cond_branches.g.ABC.t', 'Guid|{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('cond_branches.g.ABC.f|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('cond_branches.g.ABC.f|code', 'InvalidGuidFormat');
+        Observer.Expect('cond_to_text.g.ABC.t', '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}|38');
+        Observer.Expect('cond_to_text.g.ABC.f|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('cond_to_text.g.ABC.f|code', 'InvalidGuidFormat');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3783,7 +4009,13 @@ codeunit 92476 "LT Y31 Cd Guid"
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         Res := false;
         if Try8(Res, vGuid, vOut) then Observer.Observe('cond_to_text.g.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.g.abc.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.g.abc.t', 'Guid|{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('cond_branches.g.abc.f|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('cond_branches.g.abc.f|code', 'InvalidGuidFormat');
+        Observer.Expect('cond_to_text.g.abc.t', '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}|38');
+        Observer.Expect('cond_to_text.g.abc.f|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('cond_to_text.g.abc.f|code', 'InvalidGuidFormat');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -3886,7 +4118,11 @@ codeunit 92480 "LT Y31 Cd Duration"
         vInteger := 1;
         Res := false;
         if Try1(Res, V, vDuration, vInteger) then Observer.Observe('cond_branches.65.1.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.1.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.65.65.t', 'Duration|P0DT0H0M0.065S');
+        Observer.Expect('cond_branches.65.65.f', 'Duration|P0DT0H0M0.065S');
+        Observer.Expect('cond_branches.65.1.t', 'Duration|P0DT0H0M0.065S');
+        Observer.Expect('cond_branches.65.1.f', 'Duration|P0DT0H0M0.001S');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3907,7 +4143,9 @@ codeunit 92480 "LT Y31 Cd Duration"
         vBigInteger := 65;
         Res := false;
         if Try2(Res, V, vBigInteger, vDuration) then Observer.Observe('cond_branches.65.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.65.65.t', 'Duration|P0DT0H0M0.065S');
+        Observer.Expect('cond_branches.65.65.f', 'Duration|P0DT0H0M0.065S');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3936,7 +4174,12 @@ codeunit 92480 "LT Y31 Cd Duration"
         vDecimal := 1.5;
         Res := false;
         if Try3(Res, V, vDecimal, vDuration) then Observer.Observe('cond_branches.65.1p5.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.1p5.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.65.65.t', 'Duration|P0DT0H0M0.065S');
+        Observer.Expect('cond_branches.65.65.f', 'Duration|P0DT0H0M0.065S');
+        Observer.Expect('cond_branches.65.1p5.t', 'Duration|P0DT0H0M0.065S');
+        Observer.Expect('cond_branches.65.1p5.f|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int64.');
+        Observer.Expect('cond_branches.65.1p5.f|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3965,7 +4208,11 @@ codeunit 92480 "LT Y31 Cd Duration"
         vChar := 97;
         Res := false;
         if Try4(Res, V, vChar, vDuration) then Observer.Observe('cond_branches.65.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.a.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.65.A.t', 'Duration|P0DT0H0M0.065S');
+        Observer.Expect('cond_branches.65.A.f', 'Duration|P0DT0H0M0.065S');
+        Observer.Expect('cond_branches.65.a.t', 'Duration|P0DT0H0M0.065S');
+        Observer.Expect('cond_branches.65.a.f', 'Duration|P0DT0H0M0.097S');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3986,7 +4233,9 @@ codeunit 92480 "LT Y31 Cd Duration"
         vByte := 65;
         Res := false;
         if Try5(Res, V, vByte, vDuration) then Observer.Observe('cond_branches.65.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.65.65.t', 'Duration|P0DT0H0M0.065S');
+        Observer.Expect('cond_branches.65.65.f', 'Duration|P0DT0H0M0.065S');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4015,7 +4264,11 @@ codeunit 92480 "LT Y31 Cd Duration"
         vOption := 3;
         Res := false;
         if Try6(Res, V, vDuration, vOption) then Observer.Observe('cond_branches.65.3.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.3.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.65.1.t', 'Duration|P0DT0H0M0.065S');
+        Observer.Expect('cond_branches.65.1.f', 'Duration|P0DT0H0M0.001S');
+        Observer.Expect('cond_branches.65.3.t', 'Duration|P0DT0H0M0.065S');
+        Observer.Expect('cond_branches.65.3.f', 'Duration|P0DT0H0M0.003S');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -4108,7 +4361,15 @@ codeunit 92481 "LT Y31 Cd Label"
         vChar := 97;
         Res := false;
         if Try2(Res, vChar, vOut) then Observer.Observe('cond_to_text.abc.a.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.a.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.abc.A.t', 'Text|abc');
+        Observer.Expect('cond_branches.abc.A.f', 'Text|A');
+        Observer.Expect('cond_to_text.abc.A.t', 'abc|3');
+        Observer.Expect('cond_to_text.abc.A.f', 'A|1');
+        Observer.Expect('cond_branches.abc.a.t', 'Text|abc');
+        Observer.Expect('cond_branches.abc.a.f', 'Text|a');
+        Observer.Expect('cond_to_text.abc.a.t', 'abc|3');
+        Observer.Expect('cond_to_text.abc.a.f', 'a|1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4145,19 +4406,6 @@ codeunit 92481 "LT Y31 Cd Label"
         vText := 'A';
         Res := false;
         if Try4(Res, vOut, vText) then Observer.Observe('cond_to_text.abc.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.A.f');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Label_Text_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Res: Boolean;
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vOut: Text;
-        vText: Text;
-    begin
         vText := 'abc';
         Res := true;
         if Try3(Res, V, vText) then Observer.Observe('cond_branches.abc.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.abc.t');
@@ -4182,19 +4430,6 @@ codeunit 92481 "LT Y31 Cd Label"
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         Res := false;
         if Try4(Res, vOut, vText) then Observer.Observe('cond_to_text.abc.guidlow.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.guidlow.f');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Label_Text_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        Res: Boolean;
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vOut: Text;
-        vText: Text;
-    begin
         vText := 'abcdefghijk';
         Res := true;
         if Try3(Res, V, vText) then Observer.Observe('cond_branches.abc.eleven.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.eleven.t');
@@ -4207,7 +4442,27 @@ codeunit 92481 "LT Y31 Cd Label"
         vText := 'abcdefghijk';
         Res := false;
         if Try4(Res, vOut, vText) then Observer.Observe('cond_to_text.abc.eleven.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.eleven.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.abc.a.t', '|abc');
+        Observer.Expect('cond_branches.abc.a.f', 'Text|a');
+        Observer.Expect('cond_to_text.abc.a.t', 'abc|3');
+        Observer.Expect('cond_to_text.abc.a.f', 'a|1');
+        Observer.Expect('cond_branches.abc.A.t', '|abc');
+        Observer.Expect('cond_branches.abc.A.f', 'Text|A');
+        Observer.Expect('cond_to_text.abc.A.t', 'abc|3');
+        Observer.Expect('cond_to_text.abc.A.f', 'A|1');
+        Observer.Expect('cond_branches.abc.abc.t', '|abc');
+        Observer.Expect('cond_branches.abc.abc.f', 'Text|abc');
+        Observer.Expect('cond_to_text.abc.abc.t', 'abc|3');
+        Observer.Expect('cond_to_text.abc.abc.f', 'abc|3');
+        Observer.Expect('cond_branches.abc.guidlow.t', '|abc');
+        Observer.Expect('cond_branches.abc.guidlow.f', 'Text|5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b');
+        Observer.Expect('cond_to_text.abc.guidlow.t', 'abc|3');
+        Observer.Expect('cond_to_text.abc.guidlow.f', '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b|36');
+        Observer.Expect('cond_branches.abc.eleven.t', '|abc');
+        Observer.Expect('cond_branches.abc.eleven.f', 'Text|abcdefghijk');
+        Observer.Expect('cond_to_text.abc.eleven.t', 'abc|3');
+        Observer.Expect('cond_to_text.abc.eleven.f', 'abcdefghijk|11');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4232,7 +4487,11 @@ codeunit 92481 "LT Y31 Cd Label"
         vText10 := 'abc';
         Res := false;
         if Try6(Res, vOut, vText10) then Observer.Observe('cond_to_text.abc.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.abc.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.abc.abc.t', '|abc');
+        Observer.Expect('cond_branches.abc.abc.f', 'Text|abc');
+        Observer.Expect('cond_to_text.abc.abc.t', 'abc|3');
+        Observer.Expect('cond_to_text.abc.abc.f', 'abc|3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4269,7 +4528,15 @@ codeunit 92481 "LT Y31 Cd Label"
         vCode10 := 'ABC';
         Res := false;
         if Try8(Res, vCode10, vOut) then Observer.Observe('cond_to_text.abc.ABC.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.ABC.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.abc.A.t', '|abc');
+        Observer.Expect('cond_branches.abc.A.f', 'Code|A');
+        Observer.Expect('cond_to_text.abc.A.t', 'abc|3');
+        Observer.Expect('cond_to_text.abc.A.f', 'A|1');
+        Observer.Expect('cond_branches.abc.ABC.t', '|abc');
+        Observer.Expect('cond_branches.abc.ABC.f', 'Code|ABC');
+        Observer.Expect('cond_to_text.abc.ABC.t', 'abc|3');
+        Observer.Expect('cond_to_text.abc.ABC.f', 'ABC|3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4294,7 +4561,11 @@ codeunit 92481 "LT Y31 Cd Label"
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         Res := false;
         if Try10(Res, vGuid, vOut) then Observer.Observe('cond_to_text.abc.g.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.g.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.abc.g.t', 'Text|abc');
+        Observer.Expect('cond_branches.abc.g.f', 'Text|{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('cond_to_text.abc.g.t', 'abc|3');
+        Observer.Expect('cond_to_text.abc.g.f', '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}|38');
+        Observer.Verify();
     end;
 
     [TryFunction]

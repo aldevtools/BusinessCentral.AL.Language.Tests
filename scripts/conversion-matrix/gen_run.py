@@ -492,8 +492,12 @@ def render(u, observed):
     out = [HEADER % u.title]
     out.append('codeunit %d "%s"' % (u.cid, u.name))
     out.append('{')
-    out.append('    Subtype = Test;')
-    out.append('    TestPermissions = Disabled;')
+    all_parts = [x for tname, stmts in u.tests for x in final_parts(tname, stmts, observed, u.name)]
+    if observed is None or any(x[2] is not None for x in all_parts):
+        out.append('    Subtype = Test;')
+        out.append('    TestPermissions = Disabled;')
+    else:
+        out.append('    // Every procedure is held (no BC result), so this is no test codeunit.')
     out.append('')
     for tname, stmts in u.tests:
         for name, part, obs_names in final_parts(tname, stmts, observed, u.name):

@@ -42,7 +42,15 @@ codeunit 92428 "LT Y31 Cmp Integer"
         vInteger := 1;
         vBigInteger := 65;
         if Try4(Res, vBigInteger, vInteger) then Observer.Observe('case_label.1.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1.65');
-        Observer.Finish();
+        Observer.Expect('eq.65.65', 'true');
+        Observer.Expect('lt.65.65', 'false');
+        Observer.Expect('in_set.65.65', 'true');
+        Observer.Expect('case_label.65.65', 'true');
+        Observer.Expect('eq.1.65', 'false');
+        Observer.Expect('lt.1.65', 'true');
+        Observer.Expect('in_set.1.65', 'false');
+        Observer.Expect('case_label.1.65', 'false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -77,17 +85,6 @@ codeunit 92428 "LT Y31 Cmp Integer"
         vInteger := 65;
         vDecimal := 1.5;
         if Try8(Res, vDecimal, vInteger) then Observer.Observe('case_label.65.1p5', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.1p5');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Integer_Decimal_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Res: Boolean;
-        vDecimal: Decimal;
-        vInteger: Integer;
-    begin
         vInteger := 1;
         vDecimal := 65;
         if Try5(Res, vDecimal, vInteger) then Observer.Observe('eq.1.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.1.65');
@@ -112,7 +109,27 @@ codeunit 92428 "LT Y31 Cmp Integer"
         vInteger := 1;
         vDecimal := 1.5;
         if Try8(Res, vDecimal, vInteger) then Observer.Observe('case_label.1.1p5', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1.1p5');
-        Observer.Finish();
+        Observer.Expect('eq.65.65', 'true');
+        Observer.Expect('lt.65.65', 'false');
+        Observer.Expect('in_set.65.65', 'true');
+        Observer.Expect('case_label.65.65', 'true');
+        Observer.Expect('eq.65.1p5', 'false');
+        Observer.Expect('lt.65.1p5', 'false');
+        Observer.Expect('in_set.65.1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int32.');
+        Observer.Expect('in_set.65.1p5|code', 'ConversionCast');
+        Observer.Expect('case_label.65.1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int32.');
+        Observer.Expect('case_label.65.1p5|code', 'ConversionCast');
+        Observer.Expect('eq.1.65', 'false');
+        Observer.Expect('lt.1.65', 'true');
+        Observer.Expect('in_set.1.65', 'false');
+        Observer.Expect('case_label.1.65', 'false');
+        Observer.Expect('eq.1.1p5', 'false');
+        Observer.Expect('lt.1.1p5', 'true');
+        Observer.Expect('in_set.1.1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int32.');
+        Observer.Expect('in_set.1.1p5|code', 'ConversionCast');
+        Observer.Expect('case_label.1.1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int32.');
+        Observer.Expect('case_label.1.1p5|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -147,17 +164,6 @@ codeunit 92428 "LT Y31 Cmp Integer"
         vInteger := 65;
         vChar := 97;
         if Try12(Res, vChar, vInteger) then Observer.Observe('case_label.65.a', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.a');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Integer_Char_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Res: Boolean;
-        vChar: Char;
-        vInteger: Integer;
-    begin
         vInteger := 1;
         vChar := 65;
         if Try9(Res, vChar, vInteger) then Observer.Observe('eq.1.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.1.A');
@@ -182,7 +188,23 @@ codeunit 92428 "LT Y31 Cmp Integer"
         vInteger := 1;
         vChar := 97;
         if Try12(Res, vChar, vInteger) then Observer.Observe('case_label.1.a', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1.a');
-        Observer.Finish();
+        Observer.Expect('eq.65.A', 'true');
+        Observer.Expect('lt.65.A', 'false');
+        Observer.Expect('in_set.65.A', 'true');
+        Observer.Expect('case_label.65.A', 'true');
+        Observer.Expect('eq.65.a', 'false');
+        Observer.Expect('lt.65.a', 'true');
+        Observer.Expect('in_set.65.a', 'false');
+        Observer.Expect('case_label.65.a', 'false');
+        Observer.Expect('eq.1.A', 'false');
+        Observer.Expect('lt.1.A', 'true');
+        Observer.Expect('in_set.1.A', 'false');
+        Observer.Expect('case_label.1.A', 'false');
+        Observer.Expect('eq.1.a', 'false');
+        Observer.Expect('lt.1.a', 'true');
+        Observer.Expect('in_set.1.a', 'false');
+        Observer.Expect('case_label.1.a', 'false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -217,7 +239,15 @@ codeunit 92428 "LT Y31 Cmp Integer"
         vInteger := 1;
         vByte := 65;
         if Try16(Res, vByte, vInteger) then Observer.Observe('case_label.1.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1.65');
-        Observer.Finish();
+        Observer.Expect('eq.65.65', 'true');
+        Observer.Expect('lt.65.65', 'false');
+        Observer.Expect('in_set.65.65', 'true');
+        Observer.Expect('case_label.65.65', 'true');
+        Observer.Expect('eq.1.65', 'false');
+        Observer.Expect('lt.1.65', 'true');
+        Observer.Expect('in_set.1.65', 'false');
+        Observer.Expect('case_label.1.65', 'false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -252,17 +282,6 @@ codeunit 92428 "LT Y31 Cmp Integer"
         vInteger := 65;
         vOption := 3;
         if Try20(Res, vInteger, vOption) then Observer.Observe('case_label.65.3', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.3');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Integer_Option_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Res: Boolean;
-        vInteger: Integer;
-        vOption: Option A,B,C;
-    begin
         vInteger := 1;
         vOption := 1;
         if Try17(Res, vInteger, vOption) then Observer.Observe('eq.1.1', Format(Res, 0, 9)) else Observer.ObserveError('eq.1.1');
@@ -287,7 +306,23 @@ codeunit 92428 "LT Y31 Cmp Integer"
         vInteger := 1;
         vOption := 3;
         if Try20(Res, vInteger, vOption) then Observer.Observe('case_label.1.3', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1.3');
-        Observer.Finish();
+        Observer.Expect('eq.65.1', 'false');
+        Observer.Expect('lt.65.1', 'false');
+        Observer.Expect('in_set.65.1', 'false');
+        Observer.Expect('case_label.65.1', 'false');
+        Observer.Expect('eq.65.3', 'false');
+        Observer.Expect('lt.65.3', 'false');
+        Observer.Expect('in_set.65.3', 'false');
+        Observer.Expect('case_label.65.3', 'false');
+        Observer.Expect('eq.1.1', 'true');
+        Observer.Expect('lt.1.1', 'false');
+        Observer.Expect('in_set.1.1', 'true');
+        Observer.Expect('case_label.1.1', 'true');
+        Observer.Expect('eq.1.3', 'false');
+        Observer.Expect('lt.1.3', 'true');
+        Observer.Expect('in_set.1.3', 'false');
+        Observer.Expect('case_label.1.3', 'false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -322,17 +357,6 @@ codeunit 92428 "LT Y31 Cmp Integer"
         vInteger := 65;
         vEnum := 5;
         if Try24(Res, vEnum, vInteger) then Observer.Observe('case_label.65.ord5', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.ord5');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Integer_Enum_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Res: Boolean;
-        vEnum: Enum "LT Y31 E";
-        vInteger: Integer;
-    begin
         vInteger := 1;
         vEnum := "LT Y31 E"::B;
         if Try21(Res, vEnum, vInteger) then Observer.Observe('eq.1.B', Format(Res, 0, 9)) else Observer.ObserveError('eq.1.B');
@@ -357,7 +381,23 @@ codeunit 92428 "LT Y31 Cmp Integer"
         vInteger := 1;
         vEnum := 5;
         if Try24(Res, vEnum, vInteger) then Observer.Observe('case_label.1.ord5', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1.ord5');
-        Observer.Finish();
+        Observer.Expect('eq.65.B', 'false');
+        Observer.Expect('lt.65.B', 'false');
+        Observer.Expect('in_set.65.B', 'false');
+        Observer.Expect('case_label.65.B', 'false');
+        Observer.Expect('eq.65.ord5', 'false');
+        Observer.Expect('lt.65.ord5', 'false');
+        Observer.Expect('in_set.65.ord5', 'false');
+        Observer.Expect('case_label.65.ord5', 'false');
+        Observer.Expect('eq.1.B', 'true');
+        Observer.Expect('lt.1.B', 'false');
+        Observer.Expect('in_set.1.B', 'true');
+        Observer.Expect('case_label.1.B', 'true');
+        Observer.Expect('eq.1.ord5', 'false');
+        Observer.Expect('lt.1.ord5', 'true');
+        Observer.Expect('in_set.1.ord5', 'false');
+        Observer.Expect('case_label.1.ord5', 'false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -392,7 +432,15 @@ codeunit 92428 "LT Y31 Cmp Integer"
         vInteger := 1;
         vEnumImpl := "LT Y31 EI"::A;
         if Try28(Res, vEnumImpl, vInteger) then Observer.Observe('case_label.1.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1.A');
-        Observer.Finish();
+        Observer.Expect('eq.65.A', 'false');
+        Observer.Expect('lt.65.A', 'false');
+        Observer.Expect('in_set.65.A', 'false');
+        Observer.Expect('case_label.65.A', 'false');
+        Observer.Expect('eq.1.A', 'false');
+        Observer.Expect('lt.1.A', 'false');
+        Observer.Expect('in_set.1.A', 'false');
+        Observer.Expect('case_label.1.A', 'false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -427,7 +475,15 @@ codeunit 92428 "LT Y31 Cmp Integer"
         vInteger := 1;
         vDuration := 65;
         if Try32(Res, vDuration, vInteger) then Observer.Observe('case_label.1.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1.65');
-        Observer.Finish();
+        Observer.Expect('eq.65.65', 'true');
+        Observer.Expect('lt.65.65', 'false');
+        Observer.Expect('in_set.65.65', 'true');
+        Observer.Expect('case_label.65.65', 'true');
+        Observer.Expect('eq.1.65', 'false');
+        Observer.Expect('lt.1.65', 'true');
+        Observer.Expect('in_set.1.65', 'false');
+        Observer.Expect('case_label.1.65', 'false');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -700,7 +756,15 @@ codeunit 92429 "LT Y31 Cmp BigInteger"
         vBigInteger := 65;
         vInteger := 1;
         if Try4(Res, vBigInteger, vInteger) then Observer.Observe('case_label.65.1', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.1');
-        Observer.Finish();
+        Observer.Expect('eq.65.65', 'true');
+        Observer.Expect('lt.65.65', 'false');
+        Observer.Expect('in_set.65.65', 'true');
+        Observer.Expect('case_label.65.65', 'true');
+        Observer.Expect('eq.65.1', 'false');
+        Observer.Expect('lt.65.1', 'false');
+        Observer.Expect('in_set.65.1', 'false');
+        Observer.Expect('case_label.65.1', 'false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -735,7 +799,17 @@ codeunit 92429 "LT Y31 Cmp BigInteger"
         vBigInteger := 65;
         vDecimal := 1.5;
         if Try8(Res, vBigInteger, vDecimal) then Observer.Observe('case_label.65.1p5', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.1p5');
-        Observer.Finish();
+        Observer.Expect('eq.65.65', 'true');
+        Observer.Expect('lt.65.65', 'false');
+        Observer.Expect('in_set.65.65', 'true');
+        Observer.Expect('case_label.65.65', 'true');
+        Observer.Expect('eq.65.1p5', 'false');
+        Observer.Expect('lt.65.1p5', 'false');
+        Observer.Expect('in_set.65.1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int64.');
+        Observer.Expect('in_set.65.1p5|code', 'ConversionCast');
+        Observer.Expect('case_label.65.1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int64.');
+        Observer.Expect('case_label.65.1p5|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -770,7 +844,15 @@ codeunit 92429 "LT Y31 Cmp BigInteger"
         vBigInteger := 65;
         vChar := 97;
         if Try12(Res, vBigInteger, vChar) then Observer.Observe('case_label.65.a', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.a');
-        Observer.Finish();
+        Observer.Expect('eq.65.A', 'true');
+        Observer.Expect('lt.65.A', 'false');
+        Observer.Expect('in_set.65.A', 'true');
+        Observer.Expect('case_label.65.A', 'true');
+        Observer.Expect('eq.65.a', 'false');
+        Observer.Expect('lt.65.a', 'true');
+        Observer.Expect('in_set.65.a', 'false');
+        Observer.Expect('case_label.65.a', 'false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -793,7 +875,11 @@ codeunit 92429 "LT Y31 Cmp BigInteger"
         vBigInteger := 65;
         vByte := 65;
         if Try16(Res, vBigInteger, vByte) then Observer.Observe('case_label.65.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.65');
-        Observer.Finish();
+        Observer.Expect('eq.65.65', 'true');
+        Observer.Expect('lt.65.65', 'false');
+        Observer.Expect('in_set.65.65', 'true');
+        Observer.Expect('case_label.65.65', 'true');
+        Observer.Verify();
     end;
 
     [Test]
@@ -828,7 +914,15 @@ codeunit 92429 "LT Y31 Cmp BigInteger"
         vBigInteger := 65;
         vOption := 3;
         if Try20(Res, vBigInteger, vOption) then Observer.Observe('case_label.65.3', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.3');
-        Observer.Finish();
+        Observer.Expect('eq.65.1', 'false');
+        Observer.Expect('lt.65.1', 'false');
+        Observer.Expect('in_set.65.1', 'false');
+        Observer.Expect('case_label.65.1', 'false');
+        Observer.Expect('eq.65.3', 'false');
+        Observer.Expect('lt.65.3', 'false');
+        Observer.Expect('in_set.65.3', 'false');
+        Observer.Expect('case_label.65.3', 'false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -851,7 +945,11 @@ codeunit 92429 "LT Y31 Cmp BigInteger"
         vBigInteger := 65;
         vEnum := 5;
         if Try22(Res, vBigInteger, vEnum) then Observer.Observe('case_label.65.ord5', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.ord5');
-        Observer.Finish();
+        Observer.Expect('in_set.65.B', 'false');
+        Observer.Expect('case_label.65.B', 'false');
+        Observer.Expect('in_set.65.ord5', 'false');
+        Observer.Expect('case_label.65.ord5', 'false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -868,7 +966,9 @@ codeunit 92429 "LT Y31 Cmp BigInteger"
         vBigInteger := 65;
         vEnumImpl := "LT Y31 EI"::A;
         if Try24(Res, vBigInteger, vEnumImpl) then Observer.Observe('case_label.65.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.A');
-        Observer.Finish();
+        Observer.Expect('in_set.65.A', 'false');
+        Observer.Expect('case_label.65.A', 'false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -891,7 +991,11 @@ codeunit 92429 "LT Y31 Cmp BigInteger"
         vBigInteger := 65;
         vDuration := 65;
         if Try28(Res, vBigInteger, vDuration) then Observer.Observe('case_label.65.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.65');
-        Observer.Finish();
+        Observer.Expect('eq.65.65', 'true');
+        Observer.Expect('lt.65.65', 'false');
+        Observer.Expect('in_set.65.65', 'true');
+        Observer.Expect('case_label.65.65', 'true');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -1140,17 +1244,6 @@ codeunit 92430 "LT Y31 Cmp Decimal"
         vDecimal := 65;
         vInteger := 1;
         if Try4(Res, vDecimal, vInteger) then Observer.Observe('case_label.65.1', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.1');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Decimal_Integer_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Res: Boolean;
-        vDecimal: Decimal;
-        vInteger: Integer;
-    begin
         vDecimal := 1.5;
         vInteger := 65;
         if Try1(Res, vDecimal, vInteger) then Observer.Observe('eq.1p5.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.1p5.65');
@@ -1175,7 +1268,23 @@ codeunit 92430 "LT Y31 Cmp Decimal"
         vDecimal := 1.5;
         vInteger := 1;
         if Try4(Res, vDecimal, vInteger) then Observer.Observe('case_label.1p5.1', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1p5.1');
-        Observer.Finish();
+        Observer.Expect('eq.65.65', 'true');
+        Observer.Expect('lt.65.65', 'false');
+        Observer.Expect('in_set.65.65', 'true');
+        Observer.Expect('case_label.65.65', 'true');
+        Observer.Expect('eq.65.1', 'false');
+        Observer.Expect('lt.65.1', 'false');
+        Observer.Expect('in_set.65.1', 'false');
+        Observer.Expect('case_label.65.1', 'false');
+        Observer.Expect('eq.1p5.65', 'false');
+        Observer.Expect('lt.1p5.65', 'true');
+        Observer.Expect('in_set.1p5.65', 'false');
+        Observer.Expect('case_label.1p5.65', 'false');
+        Observer.Expect('eq.1p5.1', 'false');
+        Observer.Expect('lt.1p5.1', 'false');
+        Observer.Expect('in_set.1p5.1', 'false');
+        Observer.Expect('case_label.1p5.1', 'false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1210,7 +1319,15 @@ codeunit 92430 "LT Y31 Cmp Decimal"
         vDecimal := 1.5;
         vBigInteger := 65;
         if Try8(Res, vBigInteger, vDecimal) then Observer.Observe('case_label.1p5.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1p5.65');
-        Observer.Finish();
+        Observer.Expect('eq.65.65', 'true');
+        Observer.Expect('lt.65.65', 'false');
+        Observer.Expect('in_set.65.65', 'true');
+        Observer.Expect('case_label.65.65', 'true');
+        Observer.Expect('eq.1p5.65', 'false');
+        Observer.Expect('lt.1p5.65', 'true');
+        Observer.Expect('in_set.1p5.65', 'false');
+        Observer.Expect('case_label.1p5.65', 'false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1245,17 +1362,6 @@ codeunit 92430 "LT Y31 Cmp Decimal"
         vDecimal := 65;
         vChar := 97;
         if Try12(Res, vChar, vDecimal) then Observer.Observe('case_label.65.a', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.a');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Decimal_Char_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Res: Boolean;
-        vChar: Char;
-        vDecimal: Decimal;
-    begin
         vDecimal := 1.5;
         vChar := 65;
         if Try9(Res, vChar, vDecimal) then Observer.Observe('eq.1p5.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.1p5.A');
@@ -1280,7 +1386,23 @@ codeunit 92430 "LT Y31 Cmp Decimal"
         vDecimal := 1.5;
         vChar := 97;
         if Try12(Res, vChar, vDecimal) then Observer.Observe('case_label.1p5.a', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1p5.a');
-        Observer.Finish();
+        Observer.Expect('eq.65.A', 'true');
+        Observer.Expect('lt.65.A', 'false');
+        Observer.Expect('in_set.65.A', 'true');
+        Observer.Expect('case_label.65.A', 'true');
+        Observer.Expect('eq.65.a', 'false');
+        Observer.Expect('lt.65.a', 'true');
+        Observer.Expect('in_set.65.a', 'false');
+        Observer.Expect('case_label.65.a', 'false');
+        Observer.Expect('eq.1p5.A', 'false');
+        Observer.Expect('lt.1p5.A', 'true');
+        Observer.Expect('in_set.1p5.A', 'false');
+        Observer.Expect('case_label.1p5.A', 'false');
+        Observer.Expect('eq.1p5.a', 'false');
+        Observer.Expect('lt.1p5.a', 'true');
+        Observer.Expect('in_set.1p5.a', 'false');
+        Observer.Expect('case_label.1p5.a', 'false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1315,7 +1437,15 @@ codeunit 92430 "LT Y31 Cmp Decimal"
         vDecimal := 1.5;
         vByte := 65;
         if Try16(Res, vByte, vDecimal) then Observer.Observe('case_label.1p5.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1p5.65');
-        Observer.Finish();
+        Observer.Expect('eq.65.65', 'true');
+        Observer.Expect('lt.65.65', 'false');
+        Observer.Expect('in_set.65.65', 'true');
+        Observer.Expect('case_label.65.65', 'true');
+        Observer.Expect('eq.1p5.65', 'false');
+        Observer.Expect('lt.1p5.65', 'true');
+        Observer.Expect('in_set.1p5.65', 'false');
+        Observer.Expect('case_label.1p5.65', 'false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1350,17 +1480,6 @@ codeunit 92430 "LT Y31 Cmp Decimal"
         vDecimal := 65;
         vOption := 3;
         if Try20(Res, vDecimal, vOption) then Observer.Observe('case_label.65.3', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.3');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Decimal_Option_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Res: Boolean;
-        vDecimal: Decimal;
-        vOption: Option A,B,C;
-    begin
         vDecimal := 1.5;
         vOption := 1;
         if Try17(Res, vDecimal, vOption) then Observer.Observe('eq.1p5.1', Format(Res, 0, 9)) else Observer.ObserveError('eq.1p5.1');
@@ -1385,7 +1504,23 @@ codeunit 92430 "LT Y31 Cmp Decimal"
         vDecimal := 1.5;
         vOption := 3;
         if Try20(Res, vDecimal, vOption) then Observer.Observe('case_label.1p5.3', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1p5.3');
-        Observer.Finish();
+        Observer.Expect('eq.65.1', 'false');
+        Observer.Expect('lt.65.1', 'false');
+        Observer.Expect('in_set.65.1', 'false');
+        Observer.Expect('case_label.65.1', 'false');
+        Observer.Expect('eq.65.3', 'false');
+        Observer.Expect('lt.65.3', 'false');
+        Observer.Expect('in_set.65.3', 'false');
+        Observer.Expect('case_label.65.3', 'false');
+        Observer.Expect('eq.1p5.1', 'false');
+        Observer.Expect('lt.1p5.1', 'false');
+        Observer.Expect('in_set.1p5.1', 'false');
+        Observer.Expect('case_label.1p5.1', 'false');
+        Observer.Expect('eq.1p5.3', 'false');
+        Observer.Expect('lt.1p5.3', 'true');
+        Observer.Expect('in_set.1p5.3', 'false');
+        Observer.Expect('case_label.1p5.3', 'false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1420,7 +1555,15 @@ codeunit 92430 "LT Y31 Cmp Decimal"
         vDecimal := 1.5;
         vDuration := 65;
         if Try24(Res, vDecimal, vDuration) then Observer.Observe('case_label.1p5.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1p5.65');
-        Observer.Finish();
+        Observer.Expect('eq.65.65', 'true');
+        Observer.Expect('lt.65.65', 'false');
+        Observer.Expect('in_set.65.65', 'true');
+        Observer.Expect('case_label.65.65', 'true');
+        Observer.Expect('eq.1p5.65', 'false');
+        Observer.Expect('lt.1p5.65', 'true');
+        Observer.Expect('in_set.1p5.65', 'false');
+        Observer.Expect('case_label.1p5.65', 'false');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -1637,17 +1780,6 @@ codeunit 92431 "LT Y31 Cmp Char"
         vChar := 65;
         vInteger := 1;
         if Try4(Res, vChar, vInteger) then Observer.Observe('case_label.A.1', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.1');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_Integer_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Res: Boolean;
-        vChar: Char;
-        vInteger: Integer;
-    begin
         vChar := 97;
         vInteger := 65;
         if Try1(Res, vChar, vInteger) then Observer.Observe('eq.a.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.a.65');
@@ -1672,7 +1804,23 @@ codeunit 92431 "LT Y31 Cmp Char"
         vChar := 97;
         vInteger := 1;
         if Try4(Res, vChar, vInteger) then Observer.Observe('case_label.a.1', Format(Res, 0, 9)) else Observer.ObserveError('case_label.a.1');
-        Observer.Finish();
+        Observer.Expect('eq.A.65', 'true');
+        Observer.Expect('lt.A.65', 'false');
+        Observer.Expect('in_set.A.65', 'true');
+        Observer.Expect('case_label.A.65', 'true');
+        Observer.Expect('eq.A.1', 'false');
+        Observer.Expect('lt.A.1', 'false');
+        Observer.Expect('in_set.A.1', 'false');
+        Observer.Expect('case_label.A.1', 'false');
+        Observer.Expect('eq.a.65', 'false');
+        Observer.Expect('lt.a.65', 'false');
+        Observer.Expect('in_set.a.65', 'false');
+        Observer.Expect('case_label.a.65', 'false');
+        Observer.Expect('eq.a.1', 'false');
+        Observer.Expect('lt.a.1', 'false');
+        Observer.Expect('in_set.a.1', 'false');
+        Observer.Expect('case_label.a.1', 'false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1707,7 +1855,15 @@ codeunit 92431 "LT Y31 Cmp Char"
         vChar := 97;
         vBigInteger := 65;
         if Try8(Res, vBigInteger, vChar) then Observer.Observe('case_label.a.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.a.65');
-        Observer.Finish();
+        Observer.Expect('eq.A.65', 'true');
+        Observer.Expect('lt.A.65', 'false');
+        Observer.Expect('in_set.A.65', 'true');
+        Observer.Expect('case_label.A.65', 'true');
+        Observer.Expect('eq.a.65', 'false');
+        Observer.Expect('lt.a.65', 'false');
+        Observer.Expect('in_set.a.65', 'false');
+        Observer.Expect('case_label.a.65', 'false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1742,17 +1898,6 @@ codeunit 92431 "LT Y31 Cmp Char"
         vChar := 65;
         vDecimal := 1.5;
         if Try12(Res, vChar, vDecimal) then Observer.Observe('case_label.A.1p5', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.1p5');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_Decimal_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Res: Boolean;
-        vChar: Char;
-        vDecimal: Decimal;
-    begin
         vChar := 97;
         vDecimal := 65;
         if Try9(Res, vChar, vDecimal) then Observer.Observe('eq.a.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.a.65');
@@ -1777,7 +1922,27 @@ codeunit 92431 "LT Y31 Cmp Char"
         vChar := 97;
         vDecimal := 1.5;
         if Try12(Res, vChar, vDecimal) then Observer.Observe('case_label.a.1p5', Format(Res, 0, 9)) else Observer.ObserveError('case_label.a.1p5');
-        Observer.Finish();
+        Observer.Expect('eq.A.65', 'true');
+        Observer.Expect('lt.A.65', 'false');
+        Observer.Expect('in_set.A.65', 'true');
+        Observer.Expect('case_label.A.65', 'true');
+        Observer.Expect('eq.A.1p5', 'false');
+        Observer.Expect('lt.A.1p5', 'false');
+        Observer.Expect('in_set.A.1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Char.');
+        Observer.Expect('in_set.A.1p5|code', 'ConversionCast');
+        Observer.Expect('case_label.A.1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Char.');
+        Observer.Expect('case_label.A.1p5|code', 'ConversionCast');
+        Observer.Expect('eq.a.65', 'false');
+        Observer.Expect('lt.a.65', 'false');
+        Observer.Expect('in_set.a.65', 'false');
+        Observer.Expect('case_label.a.65', 'false');
+        Observer.Expect('eq.a.1p5', 'false');
+        Observer.Expect('lt.a.1p5', 'false');
+        Observer.Expect('in_set.a.1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Char.');
+        Observer.Expect('in_set.a.1p5|code', 'ConversionCast');
+        Observer.Expect('case_label.a.1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Char.');
+        Observer.Expect('case_label.a.1p5|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1812,7 +1977,15 @@ codeunit 92431 "LT Y31 Cmp Char"
         vChar := 97;
         vByte := 65;
         if Try16(Res, vByte, vChar) then Observer.Observe('case_label.a.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.a.65');
-        Observer.Finish();
+        Observer.Expect('eq.A.65', 'true');
+        Observer.Expect('lt.A.65', 'false');
+        Observer.Expect('in_set.A.65', 'true');
+        Observer.Expect('case_label.A.65', 'true');
+        Observer.Expect('eq.a.65', 'false');
+        Observer.Expect('lt.a.65', 'false');
+        Observer.Expect('in_set.a.65', 'false');
+        Observer.Expect('case_label.a.65', 'false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1847,17 +2020,6 @@ codeunit 92431 "LT Y31 Cmp Char"
         vChar := 65;
         vOption := 3;
         if Try20(Res, vChar, vOption) then Observer.Observe('case_label.A.3', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.3');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_Option_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Res: Boolean;
-        vChar: Char;
-        vOption: Option A,B,C;
-    begin
         vChar := 97;
         vOption := 1;
         if Try17(Res, vChar, vOption) then Observer.Observe('eq.a.1', Format(Res, 0, 9)) else Observer.ObserveError('eq.a.1');
@@ -1882,7 +2044,23 @@ codeunit 92431 "LT Y31 Cmp Char"
         vChar := 97;
         vOption := 3;
         if Try20(Res, vChar, vOption) then Observer.Observe('case_label.a.3', Format(Res, 0, 9)) else Observer.ObserveError('case_label.a.3');
-        Observer.Finish();
+        Observer.Expect('eq.A.1', 'false');
+        Observer.Expect('lt.A.1', 'false');
+        Observer.Expect('in_set.A.1', 'false');
+        Observer.Expect('case_label.A.1', 'false');
+        Observer.Expect('eq.A.3', 'false');
+        Observer.Expect('lt.A.3', 'false');
+        Observer.Expect('in_set.A.3', 'false');
+        Observer.Expect('case_label.A.3', 'false');
+        Observer.Expect('eq.a.1', 'false');
+        Observer.Expect('lt.a.1', 'false');
+        Observer.Expect('in_set.a.1', 'false');
+        Observer.Expect('case_label.a.1', 'false');
+        Observer.Expect('eq.a.3', 'false');
+        Observer.Expect('lt.a.3', 'false');
+        Observer.Expect('in_set.a.3', 'false');
+        Observer.Expect('case_label.a.3', 'false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1917,7 +2095,15 @@ codeunit 92431 "LT Y31 Cmp Char"
         vChar := 97;
         vEnum := 5;
         if Try22(Res, vChar, vEnum) then Observer.Observe('lt.a.ord5', Format(Res, 0, 9)) else Observer.ObserveError('lt.a.ord5');
-        Observer.Finish();
+        Observer.Expect('eq.A.B', 'false');
+        Observer.Expect('lt.A.B', 'false');
+        Observer.Expect('eq.A.ord5', 'false');
+        Observer.Expect('lt.A.ord5', 'false');
+        Observer.Expect('eq.a.B', 'false');
+        Observer.Expect('lt.a.B', 'false');
+        Observer.Expect('eq.a.ord5', 'false');
+        Observer.Expect('lt.a.ord5', 'false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1940,7 +2126,11 @@ codeunit 92431 "LT Y31 Cmp Char"
         vChar := 97;
         vEnumImpl := "LT Y31 EI"::A;
         if Try24(Res, vChar, vEnumImpl) then Observer.Observe('lt.a.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.a.A');
-        Observer.Finish();
+        Observer.Expect('eq.A.A', 'false');
+        Observer.Expect('lt.A.A', 'false');
+        Observer.Expect('eq.a.A', 'false');
+        Observer.Expect('lt.a.A', 'false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1975,17 +2165,6 @@ codeunit 92431 "LT Y31 Cmp Char"
         vChar := 65;
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         if Try26(Res, vChar, vText) then Observer.Observe('lt.A.guidlow', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.guidlow');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_Text_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Res: Boolean;
-        vChar: Char;
-        vText: Text;
-    begin
         vChar := 97;
         vText := 'a';
         if Try25(Res, vChar, vText) then Observer.Observe('eq.a.a', Format(Res, 0, 9)) else Observer.ObserveError('eq.a.a');
@@ -2010,7 +2189,23 @@ codeunit 92431 "LT Y31 Cmp Char"
         vChar := 97;
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         if Try26(Res, vChar, vText) then Observer.Observe('lt.a.guidlow', Format(Res, 0, 9)) else Observer.ObserveError('lt.a.guidlow');
-        Observer.Finish();
+        Observer.Expect('eq.A.a', 'false');
+        Observer.Expect('lt.A.a', 'false');
+        Observer.Expect('eq.A.A', 'true');
+        Observer.Expect('lt.A.A', 'false');
+        Observer.Expect('eq.A.abc', 'false');
+        Observer.Expect('lt.A.abc', 'true');
+        Observer.Expect('eq.A.guidlow', 'false');
+        Observer.Expect('lt.A.guidlow', 'false');
+        Observer.Expect('eq.a.a', 'true');
+        Observer.Expect('lt.a.a', 'false');
+        Observer.Expect('eq.a.A', 'false');
+        Observer.Expect('lt.a.A', 'true');
+        Observer.Expect('eq.a.abc', 'false');
+        Observer.Expect('lt.a.abc', 'true');
+        Observer.Expect('eq.a.guidlow', 'false');
+        Observer.Expect('lt.a.guidlow', 'false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2033,7 +2228,11 @@ codeunit 92431 "LT Y31 Cmp Char"
         vChar := 97;
         vText10 := 'abc';
         if Try28(Res, vChar, vText10) then Observer.Observe('lt.a.abc', Format(Res, 0, 9)) else Observer.ObserveError('lt.a.abc');
-        Observer.Finish();
+        Observer.Expect('eq.A.abc', 'false');
+        Observer.Expect('lt.A.abc', 'true');
+        Observer.Expect('eq.a.abc', 'false');
+        Observer.Expect('lt.a.abc', 'true');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2068,7 +2267,15 @@ codeunit 92431 "LT Y31 Cmp Char"
         vChar := 97;
         vCode10 := 'ABC';
         if Try30(Res, vChar, vCode10) then Observer.Observe('lt.a.ABC', Format(Res, 0, 9)) else Observer.ObserveError('lt.a.ABC');
-        Observer.Finish();
+        Observer.Expect('eq.A.A', 'true');
+        Observer.Expect('lt.A.A', 'false');
+        Observer.Expect('eq.A.ABC', 'false');
+        Observer.Expect('lt.A.ABC', 'true');
+        Observer.Expect('eq.a.A', 'false');
+        Observer.Expect('lt.a.A', 'true');
+        Observer.Expect('eq.a.ABC', 'false');
+        Observer.Expect('lt.a.ABC', 'true');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2091,7 +2298,13 @@ codeunit 92431 "LT Y31 Cmp Char"
         vChar := 97;
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         if Try32(Res, vChar, vGuid) then Observer.Observe('lt.a.g', Format(Res, 0, 9)) else Observer.ObserveError('lt.a.g');
-        Observer.Finish();
+        Observer.Expect('eq.A.g|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('eq.A.g|code', 'InvalidGuidFormat');
+        Observer.Expect('lt.A.g', 'false');
+        Observer.Expect('eq.a.g|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('eq.a.g|code', 'InvalidGuidFormat');
+        Observer.Expect('lt.a.g', 'false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2126,7 +2339,15 @@ codeunit 92431 "LT Y31 Cmp Char"
         vChar := 97;
         vDuration := 65;
         if Try36(Res, vChar, vDuration) then Observer.Observe('case_label.a.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.a.65');
-        Observer.Finish();
+        Observer.Expect('eq.A.65', 'true');
+        Observer.Expect('lt.A.65', 'false');
+        Observer.Expect('in_set.A.65', 'true');
+        Observer.Expect('case_label.A.65', 'true');
+        Observer.Expect('eq.a.65', 'false');
+        Observer.Expect('lt.a.65', 'false');
+        Observer.Expect('in_set.a.65', 'false');
+        Observer.Expect('case_label.a.65', 'false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2144,7 +2365,11 @@ codeunit 92431 "LT Y31 Cmp Char"
         if Try37(Res, vChar) then Observer.Observe('eq.a.abc', Format(Res, 0, 9)) else Observer.ObserveError('eq.a.abc');
         vChar := 97;
         if Try38(Res, vChar) then Observer.Observe('lt.a.abc', Format(Res, 0, 9)) else Observer.ObserveError('lt.a.abc');
-        Observer.Finish();
+        Observer.Expect('eq.A.abc', 'false');
+        Observer.Expect('lt.A.abc', 'true');
+        Observer.Expect('eq.a.abc', 'false');
+        Observer.Expect('lt.a.abc', 'true');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -2449,7 +2674,15 @@ codeunit 92432 "LT Y31 Cmp Byte"
         vByte := 65;
         vInteger := 1;
         if Try4(Res, vByte, vInteger) then Observer.Observe('case_label.65.1', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.1');
-        Observer.Finish();
+        Observer.Expect('eq.65.65', 'true');
+        Observer.Expect('lt.65.65', 'false');
+        Observer.Expect('in_set.65.65', 'true');
+        Observer.Expect('case_label.65.65', 'true');
+        Observer.Expect('eq.65.1', 'false');
+        Observer.Expect('lt.65.1', 'false');
+        Observer.Expect('in_set.65.1', 'false');
+        Observer.Expect('case_label.65.1', 'false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2472,7 +2705,11 @@ codeunit 92432 "LT Y31 Cmp Byte"
         vByte := 65;
         vBigInteger := 65;
         if Try8(Res, vBigInteger, vByte) then Observer.Observe('case_label.65.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.65');
-        Observer.Finish();
+        Observer.Expect('eq.65.65', 'true');
+        Observer.Expect('lt.65.65', 'false');
+        Observer.Expect('in_set.65.65', 'true');
+        Observer.Expect('case_label.65.65', 'true');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2507,7 +2744,17 @@ codeunit 92432 "LT Y31 Cmp Byte"
         vByte := 65;
         vDecimal := 1.5;
         if Try12(Res, vByte, vDecimal) then Observer.Observe('case_label.65.1p5', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.1p5');
-        Observer.Finish();
+        Observer.Expect('eq.65.65', 'true');
+        Observer.Expect('lt.65.65', 'false');
+        Observer.Expect('in_set.65.65', 'true');
+        Observer.Expect('case_label.65.65', 'true');
+        Observer.Expect('eq.65.1p5', 'false');
+        Observer.Expect('lt.65.1p5', 'false');
+        Observer.Expect('in_set.65.1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Byte.');
+        Observer.Expect('in_set.65.1p5|code', 'ConversionCast');
+        Observer.Expect('case_label.65.1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Byte.');
+        Observer.Expect('case_label.65.1p5|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2542,7 +2789,15 @@ codeunit 92432 "LT Y31 Cmp Byte"
         vByte := 65;
         vChar := 97;
         if Try16(Res, vByte, vChar) then Observer.Observe('case_label.65.a', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.a');
-        Observer.Finish();
+        Observer.Expect('eq.65.A', 'true');
+        Observer.Expect('lt.65.A', 'false');
+        Observer.Expect('in_set.65.A', 'true');
+        Observer.Expect('case_label.65.A', 'true');
+        Observer.Expect('eq.65.a', 'false');
+        Observer.Expect('lt.65.a', 'true');
+        Observer.Expect('in_set.65.a', 'false');
+        Observer.Expect('case_label.65.a', 'false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2577,7 +2832,15 @@ codeunit 92432 "LT Y31 Cmp Byte"
         vByte := 65;
         vOption := 3;
         if Try20(Res, vByte, vOption) then Observer.Observe('case_label.65.3', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.3');
-        Observer.Finish();
+        Observer.Expect('eq.65.1', 'false');
+        Observer.Expect('lt.65.1', 'false');
+        Observer.Expect('in_set.65.1', 'false');
+        Observer.Expect('case_label.65.1', 'false');
+        Observer.Expect('eq.65.3', 'false');
+        Observer.Expect('lt.65.3', 'false');
+        Observer.Expect('in_set.65.3', 'false');
+        Observer.Expect('case_label.65.3', 'false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2600,7 +2863,11 @@ codeunit 92432 "LT Y31 Cmp Byte"
         vByte := 65;
         vEnum := 5;
         if Try22(Res, vByte, vEnum) then Observer.Observe('lt.65.ord5', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.ord5');
-        Observer.Finish();
+        Observer.Expect('eq.65.B', 'false');
+        Observer.Expect('lt.65.B', 'false');
+        Observer.Expect('eq.65.ord5', 'false');
+        Observer.Expect('lt.65.ord5', 'false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2617,7 +2884,9 @@ codeunit 92432 "LT Y31 Cmp Byte"
         vByte := 65;
         vEnumImpl := "LT Y31 EI"::A;
         if Try24(Res, vByte, vEnumImpl) then Observer.Observe('lt.65.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.A');
-        Observer.Finish();
+        Observer.Expect('eq.65.A', 'false');
+        Observer.Expect('lt.65.A', 'false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2640,7 +2909,11 @@ codeunit 92432 "LT Y31 Cmp Byte"
         vByte := 65;
         vDuration := 65;
         if Try28(Res, vByte, vDuration) then Observer.Observe('case_label.65.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.65');
-        Observer.Finish();
+        Observer.Expect('eq.65.65', 'true');
+        Observer.Expect('lt.65.65', 'false');
+        Observer.Expect('in_set.65.65', 'true');
+        Observer.Expect('case_label.65.65', 'true');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -2881,17 +3154,6 @@ codeunit 92433 "LT Y31 Cmp Option"
         vOption := 1;
         vInteger := 1;
         if Try4(Res, vInteger, vOption) then Observer.Observe('case_label.1.1', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1.1');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Option_Integer_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Res: Boolean;
-        vInteger: Integer;
-        vOption: Option A,B,C;
-    begin
         vOption := 3;
         vInteger := 65;
         if Try1(Res, vInteger, vOption) then Observer.Observe('eq.3.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.3.65');
@@ -2916,7 +3178,23 @@ codeunit 92433 "LT Y31 Cmp Option"
         vOption := 3;
         vInteger := 1;
         if Try4(Res, vInteger, vOption) then Observer.Observe('case_label.3.1', Format(Res, 0, 9)) else Observer.ObserveError('case_label.3.1');
-        Observer.Finish();
+        Observer.Expect('eq.1.65', 'false');
+        Observer.Expect('lt.1.65', 'true');
+        Observer.Expect('in_set.1.65', 'false');
+        Observer.Expect('case_label.1.65', 'false');
+        Observer.Expect('eq.1.1', 'true');
+        Observer.Expect('lt.1.1', 'false');
+        Observer.Expect('in_set.1.1', 'true');
+        Observer.Expect('case_label.1.1', 'true');
+        Observer.Expect('eq.3.65', 'false');
+        Observer.Expect('lt.3.65', 'true');
+        Observer.Expect('in_set.3.65', 'false');
+        Observer.Expect('case_label.3.65', 'false');
+        Observer.Expect('eq.3.1', 'false');
+        Observer.Expect('lt.3.1', 'false');
+        Observer.Expect('in_set.3.1', 'false');
+        Observer.Expect('case_label.3.1', 'false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2951,7 +3229,15 @@ codeunit 92433 "LT Y31 Cmp Option"
         vOption := 3;
         vBigInteger := 65;
         if Try8(Res, vBigInteger, vOption) then Observer.Observe('case_label.3.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.3.65');
-        Observer.Finish();
+        Observer.Expect('eq.1.65', 'false');
+        Observer.Expect('lt.1.65', 'true');
+        Observer.Expect('in_set.1.65', 'false');
+        Observer.Expect('case_label.1.65', 'false');
+        Observer.Expect('eq.3.65', 'false');
+        Observer.Expect('lt.3.65', 'true');
+        Observer.Expect('in_set.3.65', 'false');
+        Observer.Expect('case_label.3.65', 'false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2986,17 +3272,6 @@ codeunit 92433 "LT Y31 Cmp Option"
         vOption := 1;
         vDecimal := 1.5;
         if Try12(Res, vDecimal, vOption) then Observer.Observe('case_label.1.1p5', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1.1p5');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Option_Decimal_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Res: Boolean;
-        vDecimal: Decimal;
-        vOption: Option A,B,C;
-    begin
         vOption := 3;
         vDecimal := 65;
         if Try9(Res, vDecimal, vOption) then Observer.Observe('eq.3.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.3.65');
@@ -3021,7 +3296,27 @@ codeunit 92433 "LT Y31 Cmp Option"
         vOption := 3;
         vDecimal := 1.5;
         if Try12(Res, vDecimal, vOption) then Observer.Observe('case_label.3.1p5', Format(Res, 0, 9)) else Observer.ObserveError('case_label.3.1p5');
-        Observer.Finish();
+        Observer.Expect('eq.1.65', 'false');
+        Observer.Expect('lt.1.65', 'true');
+        Observer.Expect('in_set.1.65', 'false');
+        Observer.Expect('case_label.1.65', 'false');
+        Observer.Expect('eq.1.1p5', 'false');
+        Observer.Expect('lt.1.1p5', 'true');
+        Observer.Expect('in_set.1.1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int32.');
+        Observer.Expect('in_set.1.1p5|code', 'ConversionCast');
+        Observer.Expect('case_label.1.1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int32.');
+        Observer.Expect('case_label.1.1p5|code', 'ConversionCast');
+        Observer.Expect('eq.3.65', 'false');
+        Observer.Expect('lt.3.65', 'true');
+        Observer.Expect('in_set.3.65', 'false');
+        Observer.Expect('case_label.3.65', 'false');
+        Observer.Expect('eq.3.1p5', 'false');
+        Observer.Expect('lt.3.1p5', 'false');
+        Observer.Expect('in_set.3.1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int32.');
+        Observer.Expect('in_set.3.1p5|code', 'ConversionCast');
+        Observer.Expect('case_label.3.1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int32.');
+        Observer.Expect('case_label.3.1p5|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3056,17 +3351,6 @@ codeunit 92433 "LT Y31 Cmp Option"
         vOption := 1;
         vChar := 97;
         if Try16(Res, vChar, vOption) then Observer.Observe('case_label.1.a', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1.a');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Option_Char_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Res: Boolean;
-        vChar: Char;
-        vOption: Option A,B,C;
-    begin
         vOption := 3;
         vChar := 65;
         if Try13(Res, vChar, vOption) then Observer.Observe('eq.3.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.3.A');
@@ -3091,7 +3375,23 @@ codeunit 92433 "LT Y31 Cmp Option"
         vOption := 3;
         vChar := 97;
         if Try16(Res, vChar, vOption) then Observer.Observe('case_label.3.a', Format(Res, 0, 9)) else Observer.ObserveError('case_label.3.a');
-        Observer.Finish();
+        Observer.Expect('eq.1.A', 'false');
+        Observer.Expect('lt.1.A', 'true');
+        Observer.Expect('in_set.1.A', 'false');
+        Observer.Expect('case_label.1.A', 'false');
+        Observer.Expect('eq.1.a', 'false');
+        Observer.Expect('lt.1.a', 'true');
+        Observer.Expect('in_set.1.a', 'false');
+        Observer.Expect('case_label.1.a', 'false');
+        Observer.Expect('eq.3.A', 'false');
+        Observer.Expect('lt.3.A', 'true');
+        Observer.Expect('in_set.3.A', 'false');
+        Observer.Expect('case_label.3.A', 'false');
+        Observer.Expect('eq.3.a', 'false');
+        Observer.Expect('lt.3.a', 'true');
+        Observer.Expect('in_set.3.a', 'false');
+        Observer.Expect('case_label.3.a', 'false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3126,7 +3426,15 @@ codeunit 92433 "LT Y31 Cmp Option"
         vOption := 3;
         vByte := 65;
         if Try20(Res, vByte, vOption) then Observer.Observe('case_label.3.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.3.65');
-        Observer.Finish();
+        Observer.Expect('eq.1.65', 'false');
+        Observer.Expect('lt.1.65', 'true');
+        Observer.Expect('in_set.1.65', 'false');
+        Observer.Expect('case_label.1.65', 'false');
+        Observer.Expect('eq.3.65', 'false');
+        Observer.Expect('lt.3.65', 'true');
+        Observer.Expect('in_set.3.65', 'false');
+        Observer.Expect('case_label.3.65', 'false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3161,17 +3469,6 @@ codeunit 92433 "LT Y31 Cmp Option"
         vOption := 1;
         vEnum := 5;
         if Try24(Res, vEnum, vOption) then Observer.Observe('case_label.1.ord5', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1.ord5');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Option_Enum_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Res: Boolean;
-        vEnum: Enum "LT Y31 E";
-        vOption: Option A,B,C;
-    begin
         vOption := 3;
         vEnum := "LT Y31 E"::B;
         if Try21(Res, vEnum, vOption) then Observer.Observe('eq.3.B', Format(Res, 0, 9)) else Observer.ObserveError('eq.3.B');
@@ -3196,7 +3493,23 @@ codeunit 92433 "LT Y31 Cmp Option"
         vOption := 3;
         vEnum := 5;
         if Try24(Res, vEnum, vOption) then Observer.Observe('case_label.3.ord5', Format(Res, 0, 9)) else Observer.ObserveError('case_label.3.ord5');
-        Observer.Finish();
+        Observer.Expect('eq.1.B', 'true');
+        Observer.Expect('lt.1.B', 'false');
+        Observer.Expect('in_set.1.B', 'true');
+        Observer.Expect('case_label.1.B', 'true');
+        Observer.Expect('eq.1.ord5', 'false');
+        Observer.Expect('lt.1.ord5', 'true');
+        Observer.Expect('in_set.1.ord5', 'false');
+        Observer.Expect('case_label.1.ord5', 'false');
+        Observer.Expect('eq.3.B', 'false');
+        Observer.Expect('lt.3.B', 'false');
+        Observer.Expect('in_set.3.B', 'false');
+        Observer.Expect('case_label.3.B', 'false');
+        Observer.Expect('eq.3.ord5', 'false');
+        Observer.Expect('lt.3.ord5', 'true');
+        Observer.Expect('in_set.3.ord5', 'false');
+        Observer.Expect('case_label.3.ord5', 'false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3231,7 +3544,15 @@ codeunit 92433 "LT Y31 Cmp Option"
         vOption := 3;
         vEnumImpl := "LT Y31 EI"::A;
         if Try28(Res, vEnumImpl, vOption) then Observer.Observe('case_label.3.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.3.A');
-        Observer.Finish();
+        Observer.Expect('eq.1.A', 'false');
+        Observer.Expect('lt.1.A', 'false');
+        Observer.Expect('in_set.1.A', 'false');
+        Observer.Expect('case_label.1.A', 'false');
+        Observer.Expect('eq.3.A', 'false');
+        Observer.Expect('lt.3.A', 'false');
+        Observer.Expect('in_set.3.A', 'false');
+        Observer.Expect('case_label.3.A', 'false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3266,7 +3587,15 @@ codeunit 92433 "LT Y31 Cmp Option"
         vOption := 3;
         vDuration := 65;
         if Try32(Res, vDuration, vOption) then Observer.Observe('case_label.3.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.3.65');
-        Observer.Finish();
+        Observer.Expect('eq.1.65', 'false');
+        Observer.Expect('lt.1.65', 'true');
+        Observer.Expect('in_set.1.65', 'false');
+        Observer.Expect('case_label.1.65', 'false');
+        Observer.Expect('eq.3.65', 'false');
+        Observer.Expect('lt.3.65', 'true');
+        Observer.Expect('in_set.3.65', 'false');
+        Observer.Expect('case_label.3.65', 'false');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -3539,17 +3868,6 @@ codeunit 92434 "LT Y31 Cmp Enum"
         vEnum := "LT Y31 E"::B;
         vInteger := 1;
         if Try4(Res, vEnum, vInteger) then Observer.Observe('case_label.B.1', Format(Res, 0, 9)) else Observer.ObserveError('case_label.B.1');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Enum_Integer_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Res: Boolean;
-        vEnum: Enum "LT Y31 E";
-        vInteger: Integer;
-    begin
         vEnum := 5;
         vInteger := 65;
         if Try1(Res, vEnum, vInteger) then Observer.Observe('eq.ord5.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.ord5.65');
@@ -3574,7 +3892,23 @@ codeunit 92434 "LT Y31 Cmp Enum"
         vEnum := 5;
         vInteger := 1;
         if Try4(Res, vEnum, vInteger) then Observer.Observe('case_label.ord5.1', Format(Res, 0, 9)) else Observer.ObserveError('case_label.ord5.1');
-        Observer.Finish();
+        Observer.Expect('eq.B.65', 'false');
+        Observer.Expect('lt.B.65', 'true');
+        Observer.Expect('in_set.B.65', 'false');
+        Observer.Expect('case_label.B.65', 'false');
+        Observer.Expect('eq.B.1', 'true');
+        Observer.Expect('lt.B.1', 'false');
+        Observer.Expect('in_set.B.1', 'true');
+        Observer.Expect('case_label.B.1', 'true');
+        Observer.Expect('eq.ord5.65', 'false');
+        Observer.Expect('lt.ord5.65', 'true');
+        Observer.Expect('in_set.ord5.65', 'false');
+        Observer.Expect('case_label.ord5.65', 'false');
+        Observer.Expect('eq.ord5.1', 'false');
+        Observer.Expect('lt.ord5.1', 'false');
+        Observer.Expect('in_set.ord5.1', 'false');
+        Observer.Expect('case_label.ord5.1', 'false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3597,7 +3931,11 @@ codeunit 92434 "LT Y31 Cmp Enum"
         vEnum := 5;
         vBigInteger := 65;
         if Try6(Res, vBigInteger, vEnum) then Observer.Observe('case_label.ord5.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.ord5.65');
-        Observer.Finish();
+        Observer.Expect('in_set.B.65', 'false');
+        Observer.Expect('case_label.B.65', 'false');
+        Observer.Expect('in_set.ord5.65', 'false');
+        Observer.Expect('case_label.ord5.65', 'false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3632,7 +3970,15 @@ codeunit 92434 "LT Y31 Cmp Enum"
         vEnum := 5;
         vChar := 97;
         if Try8(Res, vChar, vEnum) then Observer.Observe('lt.ord5.a', Format(Res, 0, 9)) else Observer.ObserveError('lt.ord5.a');
-        Observer.Finish();
+        Observer.Expect('eq.B.A', 'false');
+        Observer.Expect('lt.B.A', 'true');
+        Observer.Expect('eq.B.a', 'false');
+        Observer.Expect('lt.B.a', 'true');
+        Observer.Expect('eq.ord5.A', 'false');
+        Observer.Expect('lt.ord5.A', 'true');
+        Observer.Expect('eq.ord5.a', 'false');
+        Observer.Expect('lt.ord5.a', 'true');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3655,7 +4001,11 @@ codeunit 92434 "LT Y31 Cmp Enum"
         vEnum := 5;
         vByte := 65;
         if Try10(Res, vByte, vEnum) then Observer.Observe('lt.ord5.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.ord5.65');
-        Observer.Finish();
+        Observer.Expect('eq.B.65', 'false');
+        Observer.Expect('lt.B.65', 'true');
+        Observer.Expect('eq.ord5.65', 'false');
+        Observer.Expect('lt.ord5.65', 'true');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3690,17 +4040,6 @@ codeunit 92434 "LT Y31 Cmp Enum"
         vEnum := "LT Y31 E"::B;
         vOption := 3;
         if Try14(Res, vEnum, vOption) then Observer.Observe('case_label.B.3', Format(Res, 0, 9)) else Observer.ObserveError('case_label.B.3');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Enum_Option_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Res: Boolean;
-        vEnum: Enum "LT Y31 E";
-        vOption: Option A,B,C;
-    begin
         vEnum := 5;
         vOption := 1;
         if Try11(Res, vEnum, vOption) then Observer.Observe('eq.ord5.1', Format(Res, 0, 9)) else Observer.ObserveError('eq.ord5.1');
@@ -3725,7 +4064,23 @@ codeunit 92434 "LT Y31 Cmp Enum"
         vEnum := 5;
         vOption := 3;
         if Try14(Res, vEnum, vOption) then Observer.Observe('case_label.ord5.3', Format(Res, 0, 9)) else Observer.ObserveError('case_label.ord5.3');
-        Observer.Finish();
+        Observer.Expect('eq.B.1', 'true');
+        Observer.Expect('lt.B.1', 'false');
+        Observer.Expect('in_set.B.1', 'true');
+        Observer.Expect('case_label.B.1', 'true');
+        Observer.Expect('eq.B.3', 'false');
+        Observer.Expect('lt.B.3', 'true');
+        Observer.Expect('in_set.B.3', 'false');
+        Observer.Expect('case_label.B.3', 'false');
+        Observer.Expect('eq.ord5.1', 'false');
+        Observer.Expect('lt.ord5.1', 'false');
+        Observer.Expect('in_set.ord5.1', 'false');
+        Observer.Expect('case_label.ord5.1', 'false');
+        Observer.Expect('eq.ord5.3', 'false');
+        Observer.Expect('lt.ord5.3', 'false');
+        Observer.Expect('in_set.ord5.3', 'false');
+        Observer.Expect('case_label.ord5.3', 'false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3748,7 +4103,11 @@ codeunit 92434 "LT Y31 Cmp Enum"
         vEnum := 5;
         vEnumImpl := "LT Y31 EI"::A;
         if Try16(Res, vEnum, vEnumImpl) then Observer.Observe('lt.ord5.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.ord5.A');
-        Observer.Finish();
+        Observer.Expect('eq.B.A', 'false');
+        Observer.Expect('lt.B.A', 'false');
+        Observer.Expect('eq.ord5.A', 'false');
+        Observer.Expect('lt.ord5.A', 'false');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -3905,7 +4264,15 @@ codeunit 92435 "LT Y31 Cmp EnumImpl"
         vEnumImpl := "LT Y31 EI"::A;
         vInteger := 1;
         if Try4(Res, vEnumImpl, vInteger) then Observer.Observe('case_label.A.1', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.1');
-        Observer.Finish();
+        Observer.Expect('eq.A.65', 'false');
+        Observer.Expect('lt.A.65', 'true');
+        Observer.Expect('in_set.A.65', 'false');
+        Observer.Expect('case_label.A.65', 'false');
+        Observer.Expect('eq.A.1', 'false');
+        Observer.Expect('lt.A.1', 'true');
+        Observer.Expect('in_set.A.1', 'false');
+        Observer.Expect('case_label.A.1', 'false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3922,7 +4289,9 @@ codeunit 92435 "LT Y31 Cmp EnumImpl"
         vEnumImpl := "LT Y31 EI"::A;
         vBigInteger := 65;
         if Try6(Res, vBigInteger, vEnumImpl) then Observer.Observe('case_label.A.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.65');
-        Observer.Finish();
+        Observer.Expect('in_set.A.65', 'false');
+        Observer.Expect('case_label.A.65', 'false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3945,7 +4314,11 @@ codeunit 92435 "LT Y31 Cmp EnumImpl"
         vEnumImpl := "LT Y31 EI"::A;
         vChar := 97;
         if Try8(Res, vChar, vEnumImpl) then Observer.Observe('lt.A.a', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.a');
-        Observer.Finish();
+        Observer.Expect('eq.A.A', 'false');
+        Observer.Expect('lt.A.A', 'true');
+        Observer.Expect('eq.A.a', 'false');
+        Observer.Expect('lt.A.a', 'true');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3962,7 +4335,9 @@ codeunit 92435 "LT Y31 Cmp EnumImpl"
         vEnumImpl := "LT Y31 EI"::A;
         vByte := 65;
         if Try10(Res, vByte, vEnumImpl) then Observer.Observe('lt.A.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.65');
-        Observer.Finish();
+        Observer.Expect('eq.A.65', 'false');
+        Observer.Expect('lt.A.65', 'true');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3997,7 +4372,15 @@ codeunit 92435 "LT Y31 Cmp EnumImpl"
         vEnumImpl := "LT Y31 EI"::A;
         vOption := 3;
         if Try14(Res, vEnumImpl, vOption) then Observer.Observe('case_label.A.3', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.3');
-        Observer.Finish();
+        Observer.Expect('eq.A.1', 'false');
+        Observer.Expect('lt.A.1', 'true');
+        Observer.Expect('in_set.A.1', 'false');
+        Observer.Expect('case_label.A.1', 'false');
+        Observer.Expect('eq.A.3', 'false');
+        Observer.Expect('lt.A.3', 'true');
+        Observer.Expect('in_set.A.3', 'false');
+        Observer.Expect('case_label.A.3', 'false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4020,7 +4403,11 @@ codeunit 92435 "LT Y31 Cmp EnumImpl"
         vEnumImpl := "LT Y31 EI"::A;
         vEnum := 5;
         if Try16(Res, vEnum, vEnumImpl) then Observer.Observe('lt.A.ord5', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.ord5');
-        Observer.Finish();
+        Observer.Expect('eq.A.B', 'false');
+        Observer.Expect('lt.A.B', 'true');
+        Observer.Expect('eq.A.ord5', 'false');
+        Observer.Expect('lt.A.ord5', 'true');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -4177,17 +4564,6 @@ codeunit 92437 "LT Y31 Cmp Text"
         vText := 'a';
         vChar := 97;
         if Try4(Res, vChar, vText) then Observer.Observe('case_label.a.a', Format(Res, 0, 9)) else Observer.ObserveError('case_label.a.a');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text_Char_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Res: Boolean;
-        vChar: Char;
-        vText: Text;
-    begin
         vText := 'A';
         vChar := 65;
         if Try1(Res, vChar, vText) then Observer.Observe('eq.A.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.A');
@@ -4212,17 +4588,6 @@ codeunit 92437 "LT Y31 Cmp Text"
         vText := 'A';
         vChar := 97;
         if Try4(Res, vChar, vText) then Observer.Observe('case_label.A.a', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.a');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text_Char_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        Res: Boolean;
-        vChar: Char;
-        vText: Text;
-    begin
         vText := 'abc';
         vChar := 65;
         if Try1(Res, vChar, vText) then Observer.Observe('eq.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.abc.A');
@@ -4247,17 +4612,6 @@ codeunit 92437 "LT Y31 Cmp Text"
         vText := 'abc';
         vChar := 97;
         if Try4(Res, vChar, vText) then Observer.Observe('case_label.abc.a', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.a');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text_Char_4()
-    var
-        Observer: Codeunit "Probe Observer";
-        Res: Boolean;
-        vChar: Char;
-        vText: Text;
-    begin
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         vChar := 65;
         if Try1(Res, vChar, vText) then Observer.Observe('eq.guidlow.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.guidlow.A');
@@ -4282,7 +4636,39 @@ codeunit 92437 "LT Y31 Cmp Text"
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         vChar := 97;
         if Try4(Res, vChar, vText) then Observer.Observe('case_label.guidlow.a', Format(Res, 0, 9)) else Observer.ObserveError('case_label.guidlow.a');
-        Observer.Finish();
+        Observer.Expect('eq.a.A', 'false');
+        Observer.Expect('lt.a.A', 'true');
+        Observer.Expect('in_set.a.A', 'false');
+        Observer.Expect('case_label.a.A', 'false');
+        Observer.Expect('eq.a.a', 'true');
+        Observer.Expect('lt.a.a', 'false');
+        Observer.Expect('in_set.a.a', 'true');
+        Observer.Expect('case_label.a.a', 'true');
+        Observer.Expect('eq.A.A', 'true');
+        Observer.Expect('lt.A.A', 'false');
+        Observer.Expect('in_set.A.A', 'true');
+        Observer.Expect('case_label.A.A', 'true');
+        Observer.Expect('eq.A.a', 'false');
+        Observer.Expect('lt.A.a', 'false');
+        Observer.Expect('in_set.A.a', 'false');
+        Observer.Expect('case_label.A.a', 'false');
+        Observer.Expect('eq.abc.A', 'false');
+        Observer.Expect('lt.abc.A', 'false');
+        Observer.Expect('in_set.abc.A', 'false');
+        Observer.Expect('case_label.abc.A', 'false');
+        Observer.Expect('eq.abc.a', 'false');
+        Observer.Expect('lt.abc.a', 'false');
+        Observer.Expect('in_set.abc.a', 'false');
+        Observer.Expect('case_label.abc.a', 'false');
+        Observer.Expect('eq.guidlow.A', 'false');
+        Observer.Expect('lt.guidlow.A', 'true');
+        Observer.Expect('in_set.guidlow.A', 'false');
+        Observer.Expect('case_label.guidlow.A', 'false');
+        Observer.Expect('eq.guidlow.a', 'false');
+        Observer.Expect('lt.guidlow.a', 'true');
+        Observer.Expect('in_set.guidlow.a', 'false');
+        Observer.Expect('case_label.guidlow.a', 'false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4317,17 +4703,6 @@ codeunit 92437 "LT Y31 Cmp Text"
         vText := 'A';
         vText10 := 'abc';
         if Try8(Res, vText, vText10) then Observer.Observe('case_label.A.abc', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.abc');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text_Text10_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Res: Boolean;
-        vText: Text;
-        vText10: Text[10];
-    begin
         vText := 'abc';
         vText10 := 'abc';
         if Try5(Res, vText, vText10) then Observer.Observe('eq.abc.abc', Format(Res, 0, 9)) else Observer.ObserveError('eq.abc.abc');
@@ -4352,7 +4727,23 @@ codeunit 92437 "LT Y31 Cmp Text"
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         vText10 := 'abc';
         if Try8(Res, vText, vText10) then Observer.Observe('case_label.guidlow.abc', Format(Res, 0, 9)) else Observer.ObserveError('case_label.guidlow.abc');
-        Observer.Finish();
+        Observer.Expect('eq.a.abc', 'false');
+        Observer.Expect('lt.a.abc', 'true');
+        Observer.Expect('in_set.a.abc', 'false');
+        Observer.Expect('case_label.a.abc', 'false');
+        Observer.Expect('eq.A.abc', 'false');
+        Observer.Expect('lt.A.abc', 'true');
+        Observer.Expect('in_set.A.abc', 'false');
+        Observer.Expect('case_label.A.abc', 'false');
+        Observer.Expect('eq.abc.abc', 'true');
+        Observer.Expect('lt.abc.abc', 'false');
+        Observer.Expect('in_set.abc.abc', 'true');
+        Observer.Expect('case_label.abc.abc', 'true');
+        Observer.Expect('eq.guidlow.abc', 'false');
+        Observer.Expect('lt.guidlow.abc', 'true');
+        Observer.Expect('in_set.guidlow.abc', 'false');
+        Observer.Expect('case_label.guidlow.abc', 'false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4387,17 +4778,6 @@ codeunit 92437 "LT Y31 Cmp Text"
         vText := 'a';
         vCode10 := 'ABC';
         if Try12(Res, vCode10, vText) then Observer.Observe('case_label.a.ABC', Format(Res, 0, 9)) else Observer.ObserveError('case_label.a.ABC');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text_Code10_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Res: Boolean;
-        vCode10: Code[10];
-        vText: Text;
-    begin
         vText := 'A';
         vCode10 := 'A';
         if Try9(Res, vCode10, vText) then Observer.Observe('eq.A.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.A');
@@ -4422,17 +4802,6 @@ codeunit 92437 "LT Y31 Cmp Text"
         vText := 'A';
         vCode10 := 'ABC';
         if Try12(Res, vCode10, vText) then Observer.Observe('case_label.A.ABC', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.ABC');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text_Code10_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        Res: Boolean;
-        vCode10: Code[10];
-        vText: Text;
-    begin
         vText := 'abc';
         vCode10 := 'A';
         if Try9(Res, vCode10, vText) then Observer.Observe('eq.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.abc.A');
@@ -4457,17 +4826,6 @@ codeunit 92437 "LT Y31 Cmp Text"
         vText := 'abc';
         vCode10 := 'ABC';
         if Try12(Res, vCode10, vText) then Observer.Observe('case_label.abc.ABC', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.ABC');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text_Code10_4()
-    var
-        Observer: Codeunit "Probe Observer";
-        Res: Boolean;
-        vCode10: Code[10];
-        vText: Text;
-    begin
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         vCode10 := 'A';
         if Try9(Res, vCode10, vText) then Observer.Observe('eq.guidlow.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.guidlow.A');
@@ -4492,7 +4850,39 @@ codeunit 92437 "LT Y31 Cmp Text"
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         vCode10 := 'ABC';
         if Try12(Res, vCode10, vText) then Observer.Observe('case_label.guidlow.ABC', Format(Res, 0, 9)) else Observer.ObserveError('case_label.guidlow.ABC');
-        Observer.Finish();
+        Observer.Expect('eq.a.A', 'false');
+        Observer.Expect('lt.a.A', 'true');
+        Observer.Expect('in_set.a.A', 'false');
+        Observer.Expect('case_label.a.A', 'false');
+        Observer.Expect('eq.a.ABC', 'false');
+        Observer.Expect('lt.a.ABC', 'true');
+        Observer.Expect('in_set.a.ABC', 'false');
+        Observer.Expect('case_label.a.ABC', 'false');
+        Observer.Expect('eq.A.A', 'true');
+        Observer.Expect('lt.A.A', 'false');
+        Observer.Expect('in_set.A.A', 'true');
+        Observer.Expect('case_label.A.A', 'true');
+        Observer.Expect('eq.A.ABC', 'false');
+        Observer.Expect('lt.A.ABC', 'true');
+        Observer.Expect('in_set.A.ABC', 'false');
+        Observer.Expect('case_label.A.ABC', 'false');
+        Observer.Expect('eq.abc.A', 'false');
+        Observer.Expect('lt.abc.A', 'false');
+        Observer.Expect('in_set.abc.A', 'false');
+        Observer.Expect('case_label.abc.A', 'false');
+        Observer.Expect('eq.abc.ABC', 'false');
+        Observer.Expect('lt.abc.ABC', 'true');
+        Observer.Expect('in_set.abc.ABC', 'false');
+        Observer.Expect('case_label.abc.ABC', 'false');
+        Observer.Expect('eq.guidlow.A', 'false');
+        Observer.Expect('lt.guidlow.A', 'true');
+        Observer.Expect('in_set.guidlow.A', 'false');
+        Observer.Expect('case_label.guidlow.A', 'false');
+        Observer.Expect('eq.guidlow.ABC', 'false');
+        Observer.Expect('lt.guidlow.ABC', 'true');
+        Observer.Expect('in_set.guidlow.ABC', 'false');
+        Observer.Expect('case_label.guidlow.ABC', 'false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4527,17 +4917,6 @@ codeunit 92437 "LT Y31 Cmp Text"
         vText := 'A';
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         if Try16(Res, vGuid, vText) then Observer.Observe('case_label.A.g', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.g');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text_Guid_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Res: Boolean;
-        vGuid: Guid;
-        vText: Text;
-    begin
         vText := 'abc';
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         if Try13(Res, vGuid, vText) then Observer.Observe('eq.abc.g', Format(Res, 0, 9)) else Observer.ObserveError('eq.abc.g');
@@ -4562,7 +4941,26 @@ codeunit 92437 "LT Y31 Cmp Text"
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         if Try16(Res, vGuid, vText) then Observer.Observe('case_label.guidlow.g', Format(Res, 0, 9)) else Observer.ObserveError('case_label.guidlow.g');
-        Observer.Finish();
+        Observer.Expect('eq.a.g|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('eq.a.g|code', 'InvalidGuidFormat');
+        Observer.Expect('lt.a.g', 'false');
+        Observer.Expect('in_set.a.g', 'false');
+        Observer.Expect('case_label.a.g', 'false');
+        Observer.Expect('eq.A.g|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('eq.A.g|code', 'InvalidGuidFormat');
+        Observer.Expect('lt.A.g', 'false');
+        Observer.Expect('in_set.A.g', 'false');
+        Observer.Expect('case_label.A.g', 'false');
+        Observer.Expect('eq.abc.g|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('eq.abc.g|code', 'InvalidGuidFormat');
+        Observer.Expect('lt.abc.g', 'false');
+        Observer.Expect('in_set.abc.g', 'false');
+        Observer.Expect('case_label.abc.g', 'false');
+        Observer.Expect('eq.guidlow.g', 'true');
+        Observer.Expect('lt.guidlow.g', 'false');
+        Observer.Expect('in_set.guidlow.g', 'false');
+        Observer.Expect('case_label.guidlow.g', 'false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4588,16 +4986,6 @@ codeunit 92437 "LT Y31 Cmp Text"
         if Try19(Res, vText) then Observer.Observe('in_set.A.abc', Format(Res, 0, 9)) else Observer.ObserveError('in_set.A.abc');
         vText := 'A';
         if Try20(Res, vText) then Observer.Observe('case_label.A.abc', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.abc');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text_Label_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Res: Boolean;
-        vText: Text;
-    begin
         vText := 'abc';
         if Try17(Res, vText) then Observer.Observe('eq.abc.abc', Format(Res, 0, 9)) else Observer.ObserveError('eq.abc.abc');
         vText := 'abc';
@@ -4614,7 +5002,23 @@ codeunit 92437 "LT Y31 Cmp Text"
         if Try19(Res, vText) then Observer.Observe('in_set.guidlow.abc', Format(Res, 0, 9)) else Observer.ObserveError('in_set.guidlow.abc');
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         if Try20(Res, vText) then Observer.Observe('case_label.guidlow.abc', Format(Res, 0, 9)) else Observer.ObserveError('case_label.guidlow.abc');
-        Observer.Finish();
+        Observer.Expect('eq.a.abc', 'false');
+        Observer.Expect('lt.a.abc', 'true');
+        Observer.Expect('in_set.a.abc', 'false');
+        Observer.Expect('case_label.a.abc', 'false');
+        Observer.Expect('eq.A.abc', 'false');
+        Observer.Expect('lt.A.abc', 'true');
+        Observer.Expect('in_set.A.abc', 'false');
+        Observer.Expect('case_label.A.abc', 'false');
+        Observer.Expect('eq.abc.abc', 'true');
+        Observer.Expect('lt.abc.abc', 'false');
+        Observer.Expect('in_set.abc.abc', 'true');
+        Observer.Expect('case_label.abc.abc', 'true');
+        Observer.Expect('eq.guidlow.abc', 'false');
+        Observer.Expect('lt.guidlow.abc', 'true');
+        Observer.Expect('in_set.guidlow.abc', 'false');
+        Observer.Expect('case_label.guidlow.abc', 'false');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -4811,7 +5215,15 @@ codeunit 92438 "LT Y31 Cmp Text10"
         vText10 := 'abc';
         vChar := 97;
         if Try4(Res, vChar, vText10) then Observer.Observe('case_label.abc.a', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.a');
-        Observer.Finish();
+        Observer.Expect('eq.abc.A', 'false');
+        Observer.Expect('lt.abc.A', 'false');
+        Observer.Expect('in_set.abc.A', 'false');
+        Observer.Expect('case_label.abc.A', 'false');
+        Observer.Expect('eq.abc.a', 'false');
+        Observer.Expect('lt.abc.a', 'false');
+        Observer.Expect('in_set.abc.a', 'false');
+        Observer.Expect('case_label.abc.a', 'false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4846,17 +5258,6 @@ codeunit 92438 "LT Y31 Cmp Text10"
         vText10 := 'abc';
         vText := 'A';
         if Try8(Res, vText, vText10) then Observer.Observe('case_label.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.A');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text10_Text_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Res: Boolean;
-        vText: Text;
-        vText10: Text[10];
-    begin
         vText10 := 'abc';
         vText := 'abc';
         if Try5(Res, vText, vText10) then Observer.Observe('eq.abc.abc', Format(Res, 0, 9)) else Observer.ObserveError('eq.abc.abc');
@@ -4881,7 +5282,25 @@ codeunit 92438 "LT Y31 Cmp Text10"
         vText10 := 'abc';
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         if Try8(Res, vText, vText10) then Observer.Observe('case_label.abc.guidlow', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.guidlow');
-        Observer.Finish();
+        Observer.Expect('eq.abc.a', 'false');
+        Observer.Expect('lt.abc.a', 'false');
+        Observer.Expect('in_set.abc.a', 'false');
+        Observer.Expect('case_label.abc.a', 'false');
+        Observer.Expect('eq.abc.A', 'false');
+        Observer.Expect('lt.abc.A', 'false');
+        Observer.Expect('in_set.abc.A', 'false');
+        Observer.Expect('case_label.abc.A', 'false');
+        Observer.Expect('eq.abc.abc', 'true');
+        Observer.Expect('lt.abc.abc', 'false');
+        Observer.Expect('in_set.abc.abc', 'true');
+        Observer.Expect('case_label.abc.abc', 'true');
+        Observer.Expect('eq.abc.guidlow', 'false');
+        Observer.Expect('lt.abc.guidlow', 'false');
+        Observer.Expect('in_set.abc.guidlow|text', 'The length of the string is 36, but it must be less than or equal to 10 characters. Value: 5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b');
+        Observer.Expect('in_set.abc.guidlow|code', 'StringLengthExceeded');
+        Observer.Expect('case_label.abc.guidlow|text', 'The length of the string is 36, but it must be less than or equal to 10 characters. Value: 5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b');
+        Observer.Expect('case_label.abc.guidlow|code', 'StringLengthExceeded');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4916,7 +5335,15 @@ codeunit 92438 "LT Y31 Cmp Text10"
         vText10 := 'abc';
         vCode10 := 'ABC';
         if Try12(Res, vCode10, vText10) then Observer.Observe('case_label.abc.ABC', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.ABC');
-        Observer.Finish();
+        Observer.Expect('eq.abc.A', 'false');
+        Observer.Expect('lt.abc.A', 'false');
+        Observer.Expect('in_set.abc.A', 'false');
+        Observer.Expect('case_label.abc.A', 'false');
+        Observer.Expect('eq.abc.ABC', 'false');
+        Observer.Expect('lt.abc.ABC', 'true');
+        Observer.Expect('in_set.abc.ABC', 'false');
+        Observer.Expect('case_label.abc.ABC', 'false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4936,7 +5363,12 @@ codeunit 92438 "LT Y31 Cmp Text10"
         vText10 := 'abc';
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         if Try15(Res, vGuid, vText10) then Observer.Observe('case_label.abc.g', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.g');
-        Observer.Finish();
+        Observer.Expect('eq.abc.g|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('eq.abc.g|code', 'InvalidGuidFormat');
+        Observer.Expect('lt.abc.g', 'false');
+        Observer.Expect('case_label.abc.g|text', 'The length of the string is 38, but it must be less than or equal to 10 characters. Value: {5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('case_label.abc.g|code', 'StringLengthExceeded');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4954,7 +5386,11 @@ codeunit 92438 "LT Y31 Cmp Text10"
         if Try18(Res, vText10) then Observer.Observe('in_set.abc.abc', Format(Res, 0, 9)) else Observer.ObserveError('in_set.abc.abc');
         vText10 := 'abc';
         if Try19(Res, vText10) then Observer.Observe('case_label.abc.abc', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.abc');
-        Observer.Finish();
+        Observer.Expect('eq.abc.abc', 'true');
+        Observer.Expect('lt.abc.abc', 'false');
+        Observer.Expect('in_set.abc.abc', 'true');
+        Observer.Expect('case_label.abc.abc', 'true');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -5145,17 +5581,6 @@ codeunit 92439 "LT Y31 Cmp Code10"
         vCode10 := 'A';
         vChar := 97;
         if Try4(Res, vChar, vCode10) then Observer.Observe('case_label.A.a', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.a');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Code10_Char_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Res: Boolean;
-        vChar: Char;
-        vCode10: Code[10];
-    begin
         vCode10 := 'ABC';
         vChar := 65;
         if Try1(Res, vChar, vCode10) then Observer.Observe('eq.ABC.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.ABC.A');
@@ -5180,7 +5605,23 @@ codeunit 92439 "LT Y31 Cmp Code10"
         vCode10 := 'ABC';
         vChar := 97;
         if Try4(Res, vChar, vCode10) then Observer.Observe('case_label.ABC.a', Format(Res, 0, 9)) else Observer.ObserveError('case_label.ABC.a');
-        Observer.Finish();
+        Observer.Expect('eq.A.A', 'true');
+        Observer.Expect('lt.A.A', 'false');
+        Observer.Expect('in_set.A.A', 'true');
+        Observer.Expect('case_label.A.A', 'true');
+        Observer.Expect('eq.A.a', 'false');
+        Observer.Expect('lt.A.a', 'false');
+        Observer.Expect('in_set.A.a', 'true');
+        Observer.Expect('case_label.A.a', 'true');
+        Observer.Expect('eq.ABC.A', 'false');
+        Observer.Expect('lt.ABC.A', 'false');
+        Observer.Expect('in_set.ABC.A', 'false');
+        Observer.Expect('case_label.ABC.A', 'false');
+        Observer.Expect('eq.ABC.a', 'false');
+        Observer.Expect('lt.ABC.a', 'false');
+        Observer.Expect('in_set.ABC.a', 'false');
+        Observer.Expect('case_label.ABC.a', 'false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -5215,17 +5656,6 @@ codeunit 92439 "LT Y31 Cmp Code10"
         vCode10 := 'A';
         vText := 'A';
         if Try8(Res, vCode10, vText) then Observer.Observe('case_label.A.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.A');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Code10_Text_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Res: Boolean;
-        vCode10: Code[10];
-        vText: Text;
-    begin
         vCode10 := 'A';
         vText := 'abc';
         if Try5(Res, vCode10, vText) then Observer.Observe('eq.A.abc', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.abc');
@@ -5250,17 +5680,6 @@ codeunit 92439 "LT Y31 Cmp Code10"
         vCode10 := 'A';
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         if Try8(Res, vCode10, vText) then Observer.Observe('case_label.A.guidlow', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.guidlow');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Code10_Text_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        Res: Boolean;
-        vCode10: Code[10];
-        vText: Text;
-    begin
         vCode10 := 'ABC';
         vText := 'a';
         if Try5(Res, vCode10, vText) then Observer.Observe('eq.ABC.a', Format(Res, 0, 9)) else Observer.ObserveError('eq.ABC.a');
@@ -5285,17 +5704,6 @@ codeunit 92439 "LT Y31 Cmp Code10"
         vCode10 := 'ABC';
         vText := 'A';
         if Try8(Res, vCode10, vText) then Observer.Observe('case_label.ABC.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.ABC.A');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Code10_Text_4()
-    var
-        Observer: Codeunit "Probe Observer";
-        Res: Boolean;
-        vCode10: Code[10];
-        vText: Text;
-    begin
         vCode10 := 'ABC';
         vText := 'abc';
         if Try5(Res, vCode10, vText) then Observer.Observe('eq.ABC.abc', Format(Res, 0, 9)) else Observer.ObserveError('eq.ABC.abc');
@@ -5320,7 +5728,43 @@ codeunit 92439 "LT Y31 Cmp Code10"
         vCode10 := 'ABC';
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         if Try8(Res, vCode10, vText) then Observer.Observe('case_label.ABC.guidlow', Format(Res, 0, 9)) else Observer.ObserveError('case_label.ABC.guidlow');
-        Observer.Finish();
+        Observer.Expect('eq.A.a', 'false');
+        Observer.Expect('lt.A.a', 'false');
+        Observer.Expect('in_set.A.a', 'true');
+        Observer.Expect('case_label.A.a', 'true');
+        Observer.Expect('eq.A.A', 'true');
+        Observer.Expect('lt.A.A', 'false');
+        Observer.Expect('in_set.A.A', 'true');
+        Observer.Expect('case_label.A.A', 'true');
+        Observer.Expect('eq.A.abc', 'false');
+        Observer.Expect('lt.A.abc', 'true');
+        Observer.Expect('in_set.A.abc', 'false');
+        Observer.Expect('case_label.A.abc', 'false');
+        Observer.Expect('eq.A.guidlow', 'false');
+        Observer.Expect('lt.A.guidlow', 'false');
+        Observer.Expect('in_set.A.guidlow|text', 'The length of the string is 36, but it must be less than or equal to 10 characters. Value: 5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b');
+        Observer.Expect('in_set.A.guidlow|code', 'StringLengthExceeded');
+        Observer.Expect('case_label.A.guidlow|text', 'The length of the string is 36, but it must be less than or equal to 10 characters. Value: 5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b');
+        Observer.Expect('case_label.A.guidlow|code', 'StringLengthExceeded');
+        Observer.Expect('eq.ABC.a', 'false');
+        Observer.Expect('lt.ABC.a', 'false');
+        Observer.Expect('in_set.ABC.a', 'false');
+        Observer.Expect('case_label.ABC.a', 'false');
+        Observer.Expect('eq.ABC.A', 'false');
+        Observer.Expect('lt.ABC.A', 'false');
+        Observer.Expect('in_set.ABC.A', 'false');
+        Observer.Expect('case_label.ABC.A', 'false');
+        Observer.Expect('eq.ABC.abc', 'false');
+        Observer.Expect('lt.ABC.abc', 'false');
+        Observer.Expect('in_set.ABC.abc', 'true');
+        Observer.Expect('case_label.ABC.abc', 'true');
+        Observer.Expect('eq.ABC.guidlow', 'false');
+        Observer.Expect('lt.ABC.guidlow', 'false');
+        Observer.Expect('in_set.ABC.guidlow|text', 'The length of the string is 36, but it must be less than or equal to 10 characters. Value: 5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b');
+        Observer.Expect('in_set.ABC.guidlow|code', 'StringLengthExceeded');
+        Observer.Expect('case_label.ABC.guidlow|text', 'The length of the string is 36, but it must be less than or equal to 10 characters. Value: 5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b');
+        Observer.Expect('case_label.ABC.guidlow|code', 'StringLengthExceeded');
+        Observer.Verify();
     end;
 
     [Test]
@@ -5355,7 +5799,15 @@ codeunit 92439 "LT Y31 Cmp Code10"
         vCode10 := 'ABC';
         vText10 := 'abc';
         if Try12(Res, vCode10, vText10) then Observer.Observe('case_label.ABC.abc', Format(Res, 0, 9)) else Observer.ObserveError('case_label.ABC.abc');
-        Observer.Finish();
+        Observer.Expect('eq.A.abc', 'false');
+        Observer.Expect('lt.A.abc', 'true');
+        Observer.Expect('in_set.A.abc', 'false');
+        Observer.Expect('case_label.A.abc', 'false');
+        Observer.Expect('eq.ABC.abc', 'false');
+        Observer.Expect('lt.ABC.abc', 'false');
+        Observer.Expect('in_set.ABC.abc', 'true');
+        Observer.Expect('case_label.ABC.abc', 'true');
+        Observer.Verify();
     end;
 
     [Test]
@@ -5384,7 +5836,17 @@ codeunit 92439 "LT Y31 Cmp Code10"
         vCode10 := 'ABC';
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         if Try15(Res, vCode10, vGuid) then Observer.Observe('case_label.ABC.g', Format(Res, 0, 9)) else Observer.ObserveError('case_label.ABC.g');
-        Observer.Finish();
+        Observer.Expect('eq.A.g|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('eq.A.g|code', 'InvalidGuidFormat');
+        Observer.Expect('lt.A.g', 'false');
+        Observer.Expect('case_label.A.g|text', 'The length of the string is 38, but it must be less than or equal to 10 characters. Value: {5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('case_label.A.g|code', 'StringLengthExceeded');
+        Observer.Expect('eq.ABC.g|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('eq.ABC.g|code', 'InvalidGuidFormat');
+        Observer.Expect('lt.ABC.g', 'false');
+        Observer.Expect('case_label.ABC.g|text', 'The length of the string is 38, but it must be less than or equal to 10 characters. Value: {5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('case_label.ABC.g|code', 'StringLengthExceeded');
+        Observer.Verify();
     end;
 
     [Test]
@@ -5410,7 +5872,15 @@ codeunit 92439 "LT Y31 Cmp Code10"
         if Try18(Res, vCode10) then Observer.Observe('in_set.ABC.abc', Format(Res, 0, 9)) else Observer.ObserveError('in_set.ABC.abc');
         vCode10 := 'ABC';
         if Try19(Res, vCode10) then Observer.Observe('case_label.ABC.abc', Format(Res, 0, 9)) else Observer.ObserveError('case_label.ABC.abc');
-        Observer.Finish();
+        Observer.Expect('eq.A.abc', 'false');
+        Observer.Expect('lt.A.abc', 'true');
+        Observer.Expect('in_set.A.abc', 'false');
+        Observer.Expect('case_label.A.abc', 'false');
+        Observer.Expect('eq.ABC.abc', 'false');
+        Observer.Expect('lt.ABC.abc', 'false');
+        Observer.Expect('in_set.ABC.abc', 'true');
+        Observer.Expect('case_label.ABC.abc', 'true');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -5589,7 +6059,13 @@ codeunit 92440 "LT Y31 Cmp Guid"
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vChar := 97;
         if Try2(Res, vChar, vGuid) then Observer.Observe('lt.g.a', Format(Res, 0, 9)) else Observer.ObserveError('lt.g.a');
-        Observer.Finish();
+        Observer.Expect('eq.g.A|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('eq.g.A|code', 'InvalidGuidFormat');
+        Observer.Expect('lt.g.A', 'true');
+        Observer.Expect('eq.g.a|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('eq.g.a|code', 'InvalidGuidFormat');
+        Observer.Expect('lt.g.a', 'true');
+        Observer.Verify();
     end;
 
     [Test]
@@ -5624,17 +6100,6 @@ codeunit 92440 "LT Y31 Cmp Guid"
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vText := 'A';
         if Try6(Res, vGuid, vText) then Observer.Observe('case_label.g.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.g.A');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Guid_Text_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Res: Boolean;
-        vGuid: Guid;
-        vText: Text;
-    begin
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vText := 'abc';
         if Try3(Res, vGuid, vText) then Observer.Observe('eq.g.abc', Format(Res, 0, 9)) else Observer.ObserveError('eq.g.abc');
@@ -5659,7 +6124,32 @@ codeunit 92440 "LT Y31 Cmp Guid"
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         if Try6(Res, vGuid, vText) then Observer.Observe('case_label.g.guidlow', Format(Res, 0, 9)) else Observer.ObserveError('case_label.g.guidlow');
-        Observer.Finish();
+        Observer.Expect('eq.g.a|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('eq.g.a|code', 'InvalidGuidFormat');
+        Observer.Expect('lt.g.a', 'true');
+        Observer.Expect('in_set.g.a|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('in_set.g.a|code', 'InvalidGuidFormat');
+        Observer.Expect('case_label.g.a|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('case_label.g.a|code', 'InvalidGuidFormat');
+        Observer.Expect('eq.g.A|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('eq.g.A|code', 'InvalidGuidFormat');
+        Observer.Expect('lt.g.A', 'true');
+        Observer.Expect('in_set.g.A|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('in_set.g.A|code', 'InvalidGuidFormat');
+        Observer.Expect('case_label.g.A|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('case_label.g.A|code', 'InvalidGuidFormat');
+        Observer.Expect('eq.g.abc|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('eq.g.abc|code', 'InvalidGuidFormat');
+        Observer.Expect('lt.g.abc', 'true');
+        Observer.Expect('in_set.g.abc|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('in_set.g.abc|code', 'InvalidGuidFormat');
+        Observer.Expect('case_label.g.abc|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('case_label.g.abc|code', 'InvalidGuidFormat');
+        Observer.Expect('eq.g.guidlow', 'true');
+        Observer.Expect('lt.g.guidlow', 'true');
+        Observer.Expect('in_set.g.guidlow', 'true');
+        Observer.Expect('case_label.g.guidlow', 'true');
+        Observer.Verify();
     end;
 
     [Test]
@@ -5682,7 +6172,14 @@ codeunit 92440 "LT Y31 Cmp Guid"
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vText10 := 'abc';
         if Try10(Res, vGuid, vText10) then Observer.Observe('case_label.g.abc', Format(Res, 0, 9)) else Observer.ObserveError('case_label.g.abc');
-        Observer.Finish();
+        Observer.Expect('eq.g.abc|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('eq.g.abc|code', 'InvalidGuidFormat');
+        Observer.Expect('lt.g.abc', 'true');
+        Observer.Expect('in_set.g.abc|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('in_set.g.abc|code', 'InvalidGuidFormat');
+        Observer.Expect('case_label.g.abc|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('case_label.g.abc|code', 'InvalidGuidFormat');
+        Observer.Verify();
     end;
 
     [Test]
@@ -5717,7 +6214,21 @@ codeunit 92440 "LT Y31 Cmp Guid"
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vCode10 := 'ABC';
         if Try14(Res, vCode10, vGuid) then Observer.Observe('case_label.g.ABC', Format(Res, 0, 9)) else Observer.ObserveError('case_label.g.ABC');
-        Observer.Finish();
+        Observer.Expect('eq.g.A|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('eq.g.A|code', 'InvalidGuidFormat');
+        Observer.Expect('lt.g.A', 'true');
+        Observer.Expect('in_set.g.A|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('in_set.g.A|code', 'InvalidGuidFormat');
+        Observer.Expect('case_label.g.A|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('case_label.g.A|code', 'InvalidGuidFormat');
+        Observer.Expect('eq.g.ABC|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('eq.g.ABC|code', 'InvalidGuidFormat');
+        Observer.Expect('lt.g.ABC', 'true');
+        Observer.Expect('in_set.g.ABC|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('in_set.g.ABC|code', 'InvalidGuidFormat');
+        Observer.Expect('case_label.g.ABC|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('case_label.g.ABC|code', 'InvalidGuidFormat');
+        Observer.Verify();
     end;
 
     [Test]
@@ -5735,7 +6246,14 @@ codeunit 92440 "LT Y31 Cmp Guid"
         if Try17(Res, vGuid) then Observer.Observe('in_set.g.abc', Format(Res, 0, 9)) else Observer.ObserveError('in_set.g.abc');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         if Try18(Res, vGuid) then Observer.Observe('case_label.g.abc', Format(Res, 0, 9)) else Observer.ObserveError('case_label.g.abc');
-        Observer.Finish();
+        Observer.Expect('eq.g.abc|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('eq.g.abc|code', 'InvalidGuidFormat');
+        Observer.Expect('lt.g.abc', 'true');
+        Observer.Expect('in_set.g.abc|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('in_set.g.abc|code', 'InvalidGuidFormat');
+        Observer.Expect('case_label.g.abc|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('case_label.g.abc|code', 'InvalidGuidFormat');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -5916,7 +6434,15 @@ codeunit 92444 "LT Y31 Cmp Duration"
         vDuration := 65;
         vInteger := 1;
         if Try4(Res, vDuration, vInteger) then Observer.Observe('case_label.65.1', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.1');
-        Observer.Finish();
+        Observer.Expect('eq.65.65', 'true');
+        Observer.Expect('lt.65.65', 'false');
+        Observer.Expect('in_set.65.65', 'true');
+        Observer.Expect('case_label.65.65', 'true');
+        Observer.Expect('eq.65.1', 'false');
+        Observer.Expect('lt.65.1', 'false');
+        Observer.Expect('in_set.65.1', 'false');
+        Observer.Expect('case_label.65.1', 'false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -5939,7 +6465,11 @@ codeunit 92444 "LT Y31 Cmp Duration"
         vDuration := 65;
         vBigInteger := 65;
         if Try8(Res, vBigInteger, vDuration) then Observer.Observe('case_label.65.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.65');
-        Observer.Finish();
+        Observer.Expect('eq.65.65', 'true');
+        Observer.Expect('lt.65.65', 'false');
+        Observer.Expect('in_set.65.65', 'true');
+        Observer.Expect('case_label.65.65', 'true');
+        Observer.Verify();
     end;
 
     [Test]
@@ -5974,7 +6504,17 @@ codeunit 92444 "LT Y31 Cmp Duration"
         vDuration := 65;
         vDecimal := 1.5;
         if Try12(Res, vDecimal, vDuration) then Observer.Observe('case_label.65.1p5', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.1p5');
-        Observer.Finish();
+        Observer.Expect('eq.65.65', 'true');
+        Observer.Expect('lt.65.65', 'false');
+        Observer.Expect('in_set.65.65', 'true');
+        Observer.Expect('case_label.65.65', 'true');
+        Observer.Expect('eq.65.1p5', 'false');
+        Observer.Expect('lt.65.1p5', 'false');
+        Observer.Expect('in_set.65.1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int64.');
+        Observer.Expect('in_set.65.1p5|code', 'ConversionCast');
+        Observer.Expect('case_label.65.1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int64.');
+        Observer.Expect('case_label.65.1p5|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -6009,7 +6549,15 @@ codeunit 92444 "LT Y31 Cmp Duration"
         vDuration := 65;
         vChar := 97;
         if Try16(Res, vChar, vDuration) then Observer.Observe('case_label.65.a', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.a');
-        Observer.Finish();
+        Observer.Expect('eq.65.A', 'true');
+        Observer.Expect('lt.65.A', 'false');
+        Observer.Expect('in_set.65.A', 'true');
+        Observer.Expect('case_label.65.A', 'true');
+        Observer.Expect('eq.65.a', 'false');
+        Observer.Expect('lt.65.a', 'true');
+        Observer.Expect('in_set.65.a', 'false');
+        Observer.Expect('case_label.65.a', 'false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -6032,7 +6580,11 @@ codeunit 92444 "LT Y31 Cmp Duration"
         vDuration := 65;
         vByte := 65;
         if Try20(Res, vByte, vDuration) then Observer.Observe('case_label.65.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.65');
-        Observer.Finish();
+        Observer.Expect('eq.65.65', 'true');
+        Observer.Expect('lt.65.65', 'false');
+        Observer.Expect('in_set.65.65', 'true');
+        Observer.Expect('case_label.65.65', 'true');
+        Observer.Verify();
     end;
 
     [Test]
@@ -6067,7 +6619,15 @@ codeunit 92444 "LT Y31 Cmp Duration"
         vDuration := 65;
         vOption := 3;
         if Try24(Res, vDuration, vOption) then Observer.Observe('case_label.65.3', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.3');
-        Observer.Finish();
+        Observer.Expect('eq.65.1', 'false');
+        Observer.Expect('lt.65.1', 'false');
+        Observer.Expect('in_set.65.1', 'false');
+        Observer.Expect('case_label.65.1', 'false');
+        Observer.Expect('eq.65.3', 'false');
+        Observer.Expect('lt.65.3', 'false');
+        Observer.Expect('in_set.65.3', 'false');
+        Observer.Expect('case_label.65.3', 'false');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -6275,7 +6835,15 @@ codeunit 92445 "LT Y31 Cmp Label"
         if Try3(Res, vChar) then Observer.Observe('in_set.abc.a', Format(Res, 0, 9)) else Observer.ObserveError('in_set.abc.a');
         vChar := 97;
         if Try4(Res, vChar) then Observer.Observe('case_label.abc.a', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.a');
-        Observer.Finish();
+        Observer.Expect('eq.abc.A', 'false');
+        Observer.Expect('lt.abc.A', 'false');
+        Observer.Expect('in_set.abc.A', 'false');
+        Observer.Expect('case_label.abc.A', 'false');
+        Observer.Expect('eq.abc.a', 'false');
+        Observer.Expect('lt.abc.a', 'false');
+        Observer.Expect('in_set.abc.a', 'false');
+        Observer.Expect('case_label.abc.a', 'false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -6301,16 +6869,6 @@ codeunit 92445 "LT Y31 Cmp Label"
         if Try7(Res, vText) then Observer.Observe('in_set.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.abc.A');
         vText := 'A';
         if Try8(Res, vText) then Observer.Observe('case_label.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.A');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Label_Text_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Res: Boolean;
-        vText: Text;
-    begin
         vText := 'abc';
         if Try5(Res, vText) then Observer.Observe('eq.abc.abc', Format(Res, 0, 9)) else Observer.ObserveError('eq.abc.abc');
         vText := 'abc';
@@ -6327,7 +6885,23 @@ codeunit 92445 "LT Y31 Cmp Label"
         if Try7(Res, vText) then Observer.Observe('in_set.abc.guidlow', Format(Res, 0, 9)) else Observer.ObserveError('in_set.abc.guidlow');
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         if Try8(Res, vText) then Observer.Observe('case_label.abc.guidlow', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.guidlow');
-        Observer.Finish();
+        Observer.Expect('eq.abc.a', 'false');
+        Observer.Expect('lt.abc.a', 'false');
+        Observer.Expect('in_set.abc.a', 'false');
+        Observer.Expect('case_label.abc.a', 'false');
+        Observer.Expect('eq.abc.A', 'false');
+        Observer.Expect('lt.abc.A', 'false');
+        Observer.Expect('in_set.abc.A', 'false');
+        Observer.Expect('case_label.abc.A', 'false');
+        Observer.Expect('eq.abc.abc', 'true');
+        Observer.Expect('lt.abc.abc', 'false');
+        Observer.Expect('in_set.abc.abc', 'true');
+        Observer.Expect('case_label.abc.abc', 'true');
+        Observer.Expect('eq.abc.guidlow', 'false');
+        Observer.Expect('lt.abc.guidlow', 'false');
+        Observer.Expect('in_set.abc.guidlow', 'false');
+        Observer.Expect('case_label.abc.guidlow', 'false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -6345,7 +6919,11 @@ codeunit 92445 "LT Y31 Cmp Label"
         if Try11(Res, vText10) then Observer.Observe('in_set.abc.abc', Format(Res, 0, 9)) else Observer.ObserveError('in_set.abc.abc');
         vText10 := 'abc';
         if Try12(Res, vText10) then Observer.Observe('case_label.abc.abc', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.abc');
-        Observer.Finish();
+        Observer.Expect('eq.abc.abc', 'true');
+        Observer.Expect('lt.abc.abc', 'false');
+        Observer.Expect('in_set.abc.abc', 'true');
+        Observer.Expect('case_label.abc.abc', 'true');
+        Observer.Verify();
     end;
 
     [Test]
@@ -6371,7 +6949,15 @@ codeunit 92445 "LT Y31 Cmp Label"
         if Try15(Res, vCode10) then Observer.Observe('in_set.abc.ABC', Format(Res, 0, 9)) else Observer.ObserveError('in_set.abc.ABC');
         vCode10 := 'ABC';
         if Try16(Res, vCode10) then Observer.Observe('case_label.abc.ABC', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.ABC');
-        Observer.Finish();
+        Observer.Expect('eq.abc.A', 'false');
+        Observer.Expect('lt.abc.A', 'false');
+        Observer.Expect('in_set.abc.A', 'false');
+        Observer.Expect('case_label.abc.A', 'false');
+        Observer.Expect('eq.abc.ABC', 'false');
+        Observer.Expect('lt.abc.ABC', 'true');
+        Observer.Expect('in_set.abc.ABC', 'false');
+        Observer.Expect('case_label.abc.ABC', 'false');
+        Observer.Verify();
     end;
 
     [Test]
@@ -6389,7 +6975,12 @@ codeunit 92445 "LT Y31 Cmp Label"
         if Try19(Res, vGuid) then Observer.Observe('in_set.abc.g', Format(Res, 0, 9)) else Observer.ObserveError('in_set.abc.g');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         if Try20(Res, vGuid) then Observer.Observe('case_label.abc.g', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.g');
-        Observer.Finish();
+        Observer.Expect('eq.abc.g|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('eq.abc.g|code', 'InvalidGuidFormat');
+        Observer.Expect('lt.abc.g', 'false');
+        Observer.Expect('in_set.abc.g', 'false');
+        Observer.Expect('case_label.abc.g', 'false');
+        Observer.Verify();
     end;
 
     [TryFunction]

@@ -34,3 +34,15 @@ Enum, the `Is...` kinds of a Variant result) or the error text and code.
 2. Run it on BC (the corpus CI); keep the result JSON (`legs.<major>.tests[].message`).
 3. `python3 gen_run.py --matrix compile-matrix.csv --out <folder> --observed <result.json>` writes the final form with the values BC
    produced.
+
+## Held
+
+A part of a test without a BC result is written as a procedure `Held_<test>` with no `[Test]` attribute (`--hold-unobserved`); a codeunit
+whose parts are all held is no test codeunit. On the corpus CI (BC 29.0 Linux container, 2026-10-31) these killed the session twice
+("session killed twice by this codeunit: hub connection closed"), so they are Linux suspects and wait for a Windows check:
+
+- an Enum value (with or without an interface, a variable or an enum literal) converted to BigInteger by `:=`, a by-value argument or
+  `exit`, into a BigInteger variable or field (`LT Y31 Sus 1` to `6`);
+- `B ? BigInteger : Enum` (the false branch converted to BigInteger), into a Variant (`LT Y31 Sus 9`, `10`);
+- one of the tests of `LT Y31 Ar Byte` (Byte with Integer, Decimal, Char, Byte, Option, Date, Time, DateTime, Duration under `+`, `-`
+  and `+=`); Byte with BigInteger, Enum and an Enum with an interface ran without a crash in codeunits of their own.

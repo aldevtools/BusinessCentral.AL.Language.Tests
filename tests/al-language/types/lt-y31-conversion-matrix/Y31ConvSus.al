@@ -7,11 +7,10 @@
 
 codeunit 92500 "LT Y31 Sus 1"
 {
-    Subtype = Test;
-    TestPermissions = Disabled;
+    // Every procedure is held (no BC result), so this is no test codeunit.
 
-    [Test]
-    procedure Enum_To_BigInteger()
+    // Held: no BC result for this part on the corpus CI (see scripts/conversion-matrix/README.md, "Held").
+    procedure Held_Enum_To_BigInteger()
     var
         Observer: Codeunit "Probe Observer";
         vBigInteger: BigInteger;
@@ -28,8 +27,8 @@ codeunit 92500 "LT Y31 Sus 1"
         Observer.Finish();
     end;
 
-    [Test]
-    procedure Enum_To_BigInteger_2()
+    // Held: no BC result for this part on the corpus CI (see scripts/conversion-matrix/README.md, "Held").
+    procedure Held_Enum_To_BigInteger_2()
     var
         Observer: Codeunit "Probe Observer";
         vBigInteger: BigInteger;
@@ -84,11 +83,10 @@ codeunit 92500 "LT Y31 Sus 1"
 
 codeunit 92501 "LT Y31 Sus 2"
 {
-    Subtype = Test;
-    TestPermissions = Disabled;
+    // Every procedure is held (no BC result), so this is no test codeunit.
 
-    [Test]
-    procedure Enum_To_FBigInteger()
+    // Held: no BC result for this part on the corpus CI (see scripts/conversion-matrix/README.md, "Held").
+    procedure Held_Enum_To_FBigInteger()
     var
         Observer: Codeunit "Probe Observer";
         R: Record "LT Y31 Conv Fields";
@@ -121,11 +119,10 @@ codeunit 92501 "LT Y31 Sus 2"
 
 codeunit 92502 "LT Y31 Sus 3"
 {
-    Subtype = Test;
-    TestPermissions = Disabled;
+    // Every procedure is held (no BC result), so this is no test codeunit.
 
-    [Test]
-    procedure EnumImpl_To_BigInteger()
+    // Held: no BC result for this part on the corpus CI (see scripts/conversion-matrix/README.md, "Held").
+    procedure Held_EnumImpl_To_BigInteger()
     var
         Observer: Codeunit "Probe Observer";
         vBigInteger: BigInteger;
@@ -184,11 +181,10 @@ codeunit 92502 "LT Y31 Sus 3"
 
 codeunit 92503 "LT Y31 Sus 4"
 {
-    Subtype = Test;
-    TestPermissions = Disabled;
+    // Every procedure is held (no BC result), so this is no test codeunit.
 
-    [Test]
-    procedure EnumImpl_To_FBigInteger()
+    // Held: no BC result for this part on the corpus CI (see scripts/conversion-matrix/README.md, "Held").
+    procedure Held_EnumImpl_To_FBigInteger()
     var
         Observer: Codeunit "Probe Observer";
         R: Record "LT Y31 Conv Fields";
@@ -219,11 +215,10 @@ codeunit 92503 "LT Y31 Sus 4"
 
 codeunit 92504 "LT Y31 Sus 5"
 {
-    Subtype = Test;
-    TestPermissions = Disabled;
+    // Every procedure is held (no BC result), so this is no test codeunit.
 
-    [Test]
-    procedure LitEnum_To_BigInteger()
+    // Held: no BC result for this part on the corpus CI (see scripts/conversion-matrix/README.md, "Held").
+    procedure Held_LitEnum_To_BigInteger()
     var
         Observer: Codeunit "Probe Observer";
         vBigInteger: BigInteger;
@@ -276,11 +271,10 @@ codeunit 92504 "LT Y31 Sus 5"
 
 codeunit 92505 "LT Y31 Sus 6"
 {
-    Subtype = Test;
-    TestPermissions = Disabled;
+    // Every procedure is held (no BC result), so this is no test codeunit.
 
-    [Test]
-    procedure LitEnum_To_FBigInteger()
+    // Held: no BC result for this part on the corpus CI (see scripts/conversion-matrix/README.md, "Held").
+    procedure Held_LitEnum_To_FBigInteger()
     var
         Observer: Codeunit "Probe Observer";
         R: Record "LT Y31 Conv Fields";
@@ -337,7 +331,13 @@ codeunit 92506 "LT Y31 Sus 7"
         vByte := 255;
         vBigInteger := 65;
         if Try6(vBigInteger, vByte) then Observer.Observe('compound_add.255.65', Format(vBigInteger, 0, 9)) else Observer.ObserveError('compound_add.255.65');
-        Observer.Finish();
+        Observer.Expect('add.65.65', 'BigInteger|130');
+        Observer.Expect('sub.65.65', 'BigInteger|0');
+        Observer.Expect('compound_add.65.65', '130');
+        Observer.Expect('add.255.65', 'BigInteger|320');
+        Observer.Expect('sub.255.65', 'BigInteger|190');
+        Observer.Expect('compound_add.255.65', '320');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -407,18 +407,6 @@ codeunit 92507 "LT Y31 Sus 8"
         vByte := 255;
         vEnum := "LT Y31 E"::B;
         if Try20(V, vByte, vEnum) then Observer.Observe('sub.255.B', Util.VShow(V)) else Observer.ObserveError('sub.255.B');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Byte_Enum_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vByte: Byte;
-        vEnum: Enum "LT Y31 E";
-    begin
         vByte := 255;
         vEnum := "LT Y31 E"::B;
         if Try21(vByte, vEnum) then Observer.Observe('compound_add.255.B', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('compound_add.255.B');
@@ -431,7 +419,19 @@ codeunit 92507 "LT Y31 Sus 8"
         vByte := 255;
         vEnum := 5;
         if Try21(vByte, vEnum) then Observer.Observe('compound_add.255.ord5', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('compound_add.255.ord5');
-        Observer.Finish();
+        Observer.Expect('add.65.B', 'Integer|66');
+        Observer.Expect('sub.65.B', 'Integer|64');
+        Observer.Expect('compound_add.65.B', '66|66');
+        Observer.Expect('add.65.ord5', 'Integer|70');
+        Observer.Expect('sub.65.ord5', 'Integer|60');
+        Observer.Expect('compound_add.65.ord5', '70|70');
+        Observer.Expect('add.255.B', 'Integer|256');
+        Observer.Expect('sub.255.B', 'Integer|254');
+        Observer.Expect('compound_add.255.B', '256|256');
+        Observer.Expect('add.255.ord5', 'Integer|260');
+        Observer.Expect('sub.255.ord5', 'Integer|250');
+        Observer.Expect('compound_add.255.ord5', '260|260');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -495,7 +495,13 @@ codeunit 92508 "LT Y31 Sus 9"
         vByte := 255;
         vEnumImpl := "LT Y31 EI"::A;
         if Try24(vByte, vEnumImpl) then Observer.Observe('compound_add.255.A', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('compound_add.255.A');
-        Observer.Finish();
+        Observer.Expect('add.65.A', 'Integer|65');
+        Observer.Expect('sub.65.A', 'Integer|65');
+        Observer.Expect('compound_add.65.A', '65|65');
+        Observer.Expect('add.255.A', 'Integer|255');
+        Observer.Expect('sub.255.A', 'Integer|255');
+        Observer.Expect('compound_add.255.A', '255|255');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -529,11 +535,10 @@ codeunit 92508 "LT Y31 Sus 9"
 
 codeunit 92509 "LT Y31 Sus 10"
 {
-    Subtype = Test;
-    TestPermissions = Disabled;
+    // Every procedure is held (no BC result), so this is no test codeunit.
 
-    [Test]
-    procedure BigInteger_Enum()
+    // Held: no BC result for this part on the corpus CI (see scripts/conversion-matrix/README.md, "Held").
+    procedure Held_BigInteger_Enum()
     var
         Observer: Codeunit "Probe Observer";
         Res: Boolean;
@@ -579,11 +584,10 @@ codeunit 92509 "LT Y31 Sus 10"
 
 codeunit 92510 "LT Y31 Sus 11"
 {
-    Subtype = Test;
-    TestPermissions = Disabled;
+    // Every procedure is held (no BC result), so this is no test codeunit.
 
-    [Test]
-    procedure BigInteger_EnumImpl()
+    // Held: no BC result for this part on the corpus CI (see scripts/conversion-matrix/README.md, "Held").
+    procedure Held_BigInteger_EnumImpl()
     var
         Observer: Codeunit "Probe Observer";
         Res: Boolean;
@@ -650,7 +654,11 @@ codeunit 92511 "LT Y31 Sus 12"
         vInteger := 1;
         Res := false;
         if Try1(Res, V, vEnumImpl, vInteger) then Observer.Observe('cond_branches.A.1.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.1.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.A.65.t', 'Option|0');
+        Observer.Expect('cond_branches.A.65.f', 'Option|65');
+        Observer.Expect('cond_branches.A.1.t', 'Option|0');
+        Observer.Expect('cond_branches.A.1.f', 'Option|1');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -692,7 +700,9 @@ codeunit 92512 "LT Y31 Sus 13"
         vBigInteger := 65;
         Res := false;
         if Try2(Res, V, vBigInteger, vEnumImpl) then Observer.Observe('cond_branches.A.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.65.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.A.65.t', 'Option|0');
+        Observer.Expect('cond_branches.A.65.f', 'Option|65');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -742,7 +752,11 @@ codeunit 92513 "LT Y31 Sus 14"
         vOption := 3;
         Res := false;
         if Try3(Res, V, vEnumImpl, vOption) then Observer.Observe('cond_branches.A.3.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.3.f');
-        Observer.Finish();
+        Observer.Expect('cond_branches.A.1.t', 'Option|0');
+        Observer.Expect('cond_branches.A.1.f', 'Option|1');
+        Observer.Expect('cond_branches.A.3.t', 'Option|0');
+        Observer.Expect('cond_branches.A.3.f', 'Option|3');
+        Observer.Verify();
     end;
 
     [TryFunction]

@@ -43,18 +43,6 @@ codeunit 92427 "LT Y31 Tp Value"
         if Try1(TP, vText) then Observer.Observe('assign.ten', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.ten');
         if Try3(TP, vText) then Observer.Observe('arg_byvalue.ten', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.ten');
         TP.Close();
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure TestPageValue_To_Text_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        RowR: Record "LT Y31 Conv Fields";
-        TP: TestPage "LT Y31 Conv Card";
-        vShown: Text;
-        vText: Text;
-    begin
         RowR.DeleteAll();
         RowR.Init();
         RowR.Integer := 1;
@@ -79,7 +67,19 @@ codeunit 92427 "LT Y31 Tp Value"
         if Try1(TP, vText) then Observer.Observe('assign.empty', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.empty');
         if Try3(TP, vText) then Observer.Observe('arg_byvalue.empty', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.empty');
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('shown.abc', 'abc|3');
+        Observer.Expect('assign.abc', 'abc|3');
+        Observer.Expect('arg_byvalue.abc', 'abc|3');
+        Observer.Expect('shown.ten', 'abcdefghij|10');
+        Observer.Expect('assign.ten', 'abcdefghij|10');
+        Observer.Expect('arg_byvalue.ten', 'abcdefghij|10');
+        Observer.Expect('shown.lead', ' ab|3');
+        Observer.Expect('assign.lead', ' ab|3');
+        Observer.Expect('arg_byvalue.lead', ' ab|3');
+        Observer.Expect('shown.empty', '|0');
+        Observer.Expect('assign.empty', '|0');
+        Observer.Expect('arg_byvalue.empty', '|0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -115,18 +115,6 @@ codeunit 92427 "LT Y31 Tp Value"
         if Try4(TP, vText10) then Observer.Observe('assign.ten', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.ten');
         if Try6(TP, vText10) then Observer.Observe('arg_byvalue.ten', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.ten');
         TP.Close();
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure TestPageValue_To_Text10_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        RowR: Record "LT Y31 Conv Fields";
-        TP: TestPage "LT Y31 Conv Card";
-        vShown: Text;
-        vText10: Text[10];
-    begin
         RowR.DeleteAll();
         RowR.Init();
         RowR.Integer := 1;
@@ -151,7 +139,19 @@ codeunit 92427 "LT Y31 Tp Value"
         if Try4(TP, vText10) then Observer.Observe('assign.empty', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.empty');
         if Try6(TP, vText10) then Observer.Observe('arg_byvalue.empty', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.empty');
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('shown.abc', 'abc|3');
+        Observer.Expect('assign.abc', 'abc|3');
+        Observer.Expect('arg_byvalue.abc', 'abc|3');
+        Observer.Expect('shown.ten', 'abcdefghij|10');
+        Observer.Expect('assign.ten', 'abcdefghij|10');
+        Observer.Expect('arg_byvalue.ten', 'abcdefghij|10');
+        Observer.Expect('shown.lead', ' ab|3');
+        Observer.Expect('assign.lead', ' ab|3');
+        Observer.Expect('arg_byvalue.lead', ' ab|3');
+        Observer.Expect('shown.empty', '|0');
+        Observer.Expect('assign.empty', '|0');
+        Observer.Expect('arg_byvalue.empty', '|0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -187,18 +187,6 @@ codeunit 92427 "LT Y31 Tp Value"
         if Try7(TP, vText3) then Observer.Observe('assign.ten', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.ten');
         if Try9(TP, vText3) then Observer.Observe('arg_byvalue.ten', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.ten');
         TP.Close();
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure TestPageValue_To_Text3_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        RowR: Record "LT Y31 Conv Fields";
-        TP: TestPage "LT Y31 Conv Card";
-        vShown: Text;
-        vText3: Text[3];
-    begin
         RowR.DeleteAll();
         RowR.Init();
         RowR.Integer := 1;
@@ -223,7 +211,21 @@ codeunit 92427 "LT Y31 Tp Value"
         if Try7(TP, vText3) then Observer.Observe('assign.empty', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.empty');
         if Try9(TP, vText3) then Observer.Observe('arg_byvalue.empty', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.empty');
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('shown.abc', 'abc|3');
+        Observer.Expect('assign.abc', 'abc|3');
+        Observer.Expect('arg_byvalue.abc', 'abc|3');
+        Observer.Expect('shown.ten', 'abcdefghij|10');
+        Observer.Expect('assign.ten|text', 'The length of the string is 10, but it must be less than or equal to 3 characters. Value: abcdefghij');
+        Observer.Expect('assign.ten|code', 'StringLengthExceeded');
+        Observer.Expect('arg_byvalue.ten|text', 'The length of the string is 10, but it must be less than or equal to 3 characters. Value: abcdefghij');
+        Observer.Expect('arg_byvalue.ten|code', 'StringLengthExceeded');
+        Observer.Expect('shown.lead', ' ab|3');
+        Observer.Expect('assign.lead', ' ab|3');
+        Observer.Expect('arg_byvalue.lead', ' ab|3');
+        Observer.Expect('shown.empty', '|0');
+        Observer.Expect('assign.empty', '|0');
+        Observer.Expect('arg_byvalue.empty', '|0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -259,18 +261,6 @@ codeunit 92427 "LT Y31 Tp Value"
         if Try10(TP, vCode10) then Observer.Observe('assign.ten', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.ten');
         if Try12(TP, vCode10) then Observer.Observe('arg_byvalue.ten', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.ten');
         TP.Close();
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure TestPageValue_To_Code10_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        RowR: Record "LT Y31 Conv Fields";
-        TP: TestPage "LT Y31 Conv Card";
-        vCode10: Code[10];
-        vShown: Text;
-    begin
         RowR.DeleteAll();
         RowR.Init();
         RowR.Integer := 1;
@@ -295,7 +285,19 @@ codeunit 92427 "LT Y31 Tp Value"
         if Try10(TP, vCode10) then Observer.Observe('assign.empty', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.empty');
         if Try12(TP, vCode10) then Observer.Observe('arg_byvalue.empty', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.empty');
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('shown.abc', 'abc|3');
+        Observer.Expect('assign.abc', 'ABC|3');
+        Observer.Expect('arg_byvalue.abc', 'ABC|3');
+        Observer.Expect('shown.ten', 'abcdefghij|10');
+        Observer.Expect('assign.ten', 'ABCDEFGHIJ|10');
+        Observer.Expect('arg_byvalue.ten', 'ABCDEFGHIJ|10');
+        Observer.Expect('shown.lead', ' ab|3');
+        Observer.Expect('assign.lead', 'AB|2');
+        Observer.Expect('arg_byvalue.lead', 'AB|2');
+        Observer.Expect('shown.empty', '|0');
+        Observer.Expect('assign.empty', '|0');
+        Observer.Expect('arg_byvalue.empty', '|0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -331,18 +333,6 @@ codeunit 92427 "LT Y31 Tp Value"
         if Try13(TP, vCode3) then Observer.Observe('assign.ten', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.ten');
         if Try15(TP, vCode3) then Observer.Observe('arg_byvalue.ten', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.ten');
         TP.Close();
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure TestPageValue_To_Code3_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        RowR: Record "LT Y31 Conv Fields";
-        TP: TestPage "LT Y31 Conv Card";
-        vCode3: Code[3];
-        vShown: Text;
-    begin
         RowR.DeleteAll();
         RowR.Init();
         RowR.Integer := 1;
@@ -367,7 +357,21 @@ codeunit 92427 "LT Y31 Tp Value"
         if Try13(TP, vCode3) then Observer.Observe('assign.empty', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.empty');
         if Try15(TP, vCode3) then Observer.Observe('arg_byvalue.empty', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.empty');
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('shown.abc', 'abc|3');
+        Observer.Expect('assign.abc', 'ABC|3');
+        Observer.Expect('arg_byvalue.abc', 'ABC|3');
+        Observer.Expect('shown.ten', 'abcdefghij|10');
+        Observer.Expect('assign.ten|text', 'The length of the string is 10, but it must be less than or equal to 3 characters. Value: abcdefghij');
+        Observer.Expect('assign.ten|code', 'StringLengthExceeded');
+        Observer.Expect('arg_byvalue.ten|text', 'The length of the string is 10, but it must be less than or equal to 3 characters. Value: abcdefghij');
+        Observer.Expect('arg_byvalue.ten|code', 'StringLengthExceeded');
+        Observer.Expect('shown.lead', ' ab|3');
+        Observer.Expect('assign.lead', 'AB|2');
+        Observer.Expect('arg_byvalue.lead', 'AB|2');
+        Observer.Expect('shown.empty', '|0');
+        Observer.Expect('assign.empty', '|0');
+        Observer.Expect('arg_byvalue.empty', '|0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -403,18 +407,6 @@ codeunit 92427 "LT Y31 Tp Value"
         if Try16(TP, vGuid) then Observer.Observe('assign.ten', Format(vGuid)) else Observer.ObserveError('assign.ten');
         if Try18(TP, vGuid) then Observer.Observe('arg_byvalue.ten', Format(vGuid)) else Observer.ObserveError('arg_byvalue.ten');
         TP.Close();
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure TestPageValue_To_Guid_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        RowR: Record "LT Y31 Conv Fields";
-        TP: TestPage "LT Y31 Conv Card";
-        vGuid: Guid;
-        vShown: Text;
-    begin
         RowR.DeleteAll();
         RowR.Init();
         RowR.Integer := 1;
@@ -439,7 +431,27 @@ codeunit 92427 "LT Y31 Tp Value"
         if Try16(TP, vGuid) then Observer.Observe('assign.empty', Format(vGuid)) else Observer.ObserveError('assign.empty');
         if Try18(TP, vGuid) then Observer.Observe('arg_byvalue.empty', Format(vGuid)) else Observer.ObserveError('arg_byvalue.empty');
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('shown.abc', 'abc|3');
+        Observer.Expect('assign.abc|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('assign.abc|code', 'InvalidGuidFormat');
+        Observer.Expect('arg_byvalue.abc|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('arg_byvalue.abc|code', 'InvalidGuidFormat');
+        Observer.Expect('shown.ten', 'abcdefghij|10');
+        Observer.Expect('assign.ten|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('assign.ten|code', 'InvalidGuidFormat');
+        Observer.Expect('arg_byvalue.ten|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('arg_byvalue.ten|code', 'InvalidGuidFormat');
+        Observer.Expect('shown.lead', ' ab|3');
+        Observer.Expect('assign.lead|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('assign.lead|code', 'InvalidGuidFormat');
+        Observer.Expect('arg_byvalue.lead|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('arg_byvalue.lead|code', 'InvalidGuidFormat');
+        Observer.Expect('shown.empty', '|0');
+        Observer.Expect('assign.empty|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('assign.empty|code', 'InvalidGuidFormat');
+        Observer.Expect('arg_byvalue.empty|text', 'Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.');
+        Observer.Expect('arg_byvalue.empty|code', 'InvalidGuidFormat');
+        Observer.Verify();
     end;
 
     [Test]
@@ -495,7 +507,15 @@ codeunit 92427 "LT Y31 Tp Value"
         Observer.Observe('shown.empty', vShown + '|' + Format(StrLen(vShown)));
         if Try19(R, TP) then Observer.Observe('assign.empty', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.empty');
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('shown.abc', 'abc|3');
+        Observer.Expect('assign.abc', 'ABC|3');
+        Observer.Expect('shown.ten', 'abcdefghij|10');
+        Observer.Expect('assign.ten', 'ABCDEFGHIJ|10');
+        Observer.Expect('shown.lead', ' ab|3');
+        Observer.Expect('assign.lead', 'AB|2');
+        Observer.Expect('shown.empty', '|0');
+        Observer.Expect('assign.empty', '|0');
+        Observer.Verify();
     end;
 
     [TryFunction]

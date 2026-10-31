@@ -43,18 +43,6 @@ codeunit 92446 "LT Y31 Ar Integer"
         vInteger := 65;
         vInteger_R := 2147483647;
         if Try2(V, vInteger, vInteger_R) then Observer.Observe('sub.65.max', Util.VShow(V)) else Observer.ObserveError('sub.65.max');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Integer_Integer_Same_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vInteger: Integer;
-        vInteger_R: Integer;
-    begin
         vInteger := 65;
         vInteger_R := 2147483647;
         if Try3(vInteger, vInteger_R) then Observer.Observe('compound_add.65.max', Format(vInteger_R, 0, 9)) else Observer.ObserveError('compound_add.65.max');
@@ -79,18 +67,6 @@ codeunit 92446 "LT Y31 Ar Integer"
         vInteger := 1;
         vInteger_R := 2147483647;
         if Try1(V, vInteger, vInteger_R) then Observer.Observe('add.1.max', Util.VShow(V)) else Observer.ObserveError('add.1.max');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Integer_Integer_Same_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vInteger: Integer;
-        vInteger_R: Integer;
-    begin
         vInteger := 1;
         vInteger_R := 2147483647;
         if Try2(V, vInteger, vInteger_R) then Observer.Observe('sub.1.max', Util.VShow(V)) else Observer.ObserveError('sub.1.max');
@@ -115,18 +91,6 @@ codeunit 92446 "LT Y31 Ar Integer"
         vInteger := 2147483647;
         vInteger_R := 1;
         if Try3(vInteger, vInteger_R) then Observer.Observe('compound_add.max.1', Format(vInteger_R, 0, 9)) else Observer.ObserveError('compound_add.max.1');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Integer_Integer_Same_4()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vInteger: Integer;
-        vInteger_R: Integer;
-    begin
         vInteger := 2147483647;
         vInteger_R := 2147483647;
         if Try1(V, vInteger, vInteger_R) then Observer.Observe('add.max.max', Util.VShow(V)) else Observer.ObserveError('add.max.max');
@@ -136,7 +100,44 @@ codeunit 92446 "LT Y31 Ar Integer"
         vInteger := 2147483647;
         vInteger_R := 2147483647;
         if Try3(vInteger, vInteger_R) then Observer.Observe('compound_add.max.max', Format(vInteger_R, 0, 9)) else Observer.ObserveError('compound_add.max.max');
-        Observer.Finish();
+        Observer.Expect('add.65.65', 'Integer|130');
+        Observer.Expect('sub.65.65', 'Integer|0');
+        Observer.Expect('compound_add.65.65', '130');
+        Observer.Expect('add.65.1', 'Integer|66');
+        Observer.Expect('sub.65.1', 'Integer|64');
+        Observer.Expect('compound_add.65.1', '66');
+        Observer.Expect('add.65.max|text', 'Arithmetic operation resulted in an overflow.');
+        Observer.Expect('add.65.max|code', 'AL:Overflow');
+        Observer.Expect('sub.65.max', 'Integer|-2147483582');
+        Observer.Expect('compound_add.65.max|text', 'Arithmetic operation resulted in an overflow.');
+        Observer.Expect('compound_add.65.max|code', 'AL:Overflow');
+        Observer.Expect('add.1.65', 'Integer|66');
+        Observer.Expect('sub.1.65', 'Integer|-64');
+        Observer.Expect('compound_add.1.65', '66');
+        Observer.Expect('add.1.1', 'Integer|2');
+        Observer.Expect('sub.1.1', 'Integer|0');
+        Observer.Expect('compound_add.1.1', '2');
+        Observer.Expect('add.1.max|text', 'Arithmetic operation resulted in an overflow.');
+        Observer.Expect('add.1.max|code', 'AL:Overflow');
+        Observer.Expect('sub.1.max', 'Integer|-2147483646');
+        Observer.Expect('compound_add.1.max|text', 'Arithmetic operation resulted in an overflow.');
+        Observer.Expect('compound_add.1.max|code', 'AL:Overflow');
+        Observer.Expect('add.max.65|text', 'Arithmetic operation resulted in an overflow.');
+        Observer.Expect('add.max.65|code', 'AL:Overflow');
+        Observer.Expect('sub.max.65', 'Integer|2147483582');
+        Observer.Expect('compound_add.max.65|text', 'Arithmetic operation resulted in an overflow.');
+        Observer.Expect('compound_add.max.65|code', 'AL:Overflow');
+        Observer.Expect('add.max.1|text', 'Arithmetic operation resulted in an overflow.');
+        Observer.Expect('add.max.1|code', 'AL:Overflow');
+        Observer.Expect('sub.max.1', 'Integer|2147483646');
+        Observer.Expect('compound_add.max.1|text', 'Arithmetic operation resulted in an overflow.');
+        Observer.Expect('compound_add.max.1|code', 'AL:Overflow');
+        Observer.Expect('add.max.max|text', 'Arithmetic operation resulted in an overflow.');
+        Observer.Expect('add.max.max|code', 'AL:Overflow');
+        Observer.Expect('sub.max.max', 'Integer|0');
+        Observer.Expect('compound_add.max.max|text', 'Arithmetic operation resulted in an overflow.');
+        Observer.Expect('compound_add.max.max|code', 'AL:Overflow');
+        Observer.Verify();
     end;
 
     [Test]
@@ -172,20 +173,19 @@ codeunit 92446 "LT Y31 Ar Integer"
         vInteger := 2147483647;
         vBigInteger := 65;
         if Try5(V, vBigInteger, vInteger) then Observer.Observe('sub.max.65', Util.VShow(V)) else Observer.ObserveError('sub.max.65');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Integer_BigInteger_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vBigInteger: BigInteger;
-        vInteger: Integer;
-    begin
         vInteger := 2147483647;
         vBigInteger := 65;
         if Try6(vBigInteger, vInteger) then Observer.Observe('compound_add.max.65', Format(vBigInteger, 0, 9)) else Observer.ObserveError('compound_add.max.65');
-        Observer.Finish();
+        Observer.Expect('add.65.65', 'BigInteger|130');
+        Observer.Expect('sub.65.65', 'BigInteger|0');
+        Observer.Expect('compound_add.65.65', '130');
+        Observer.Expect('add.1.65', 'BigInteger|66');
+        Observer.Expect('sub.1.65', 'BigInteger|-64');
+        Observer.Expect('compound_add.1.65', '66');
+        Observer.Expect('add.max.65', 'BigInteger|2147483712');
+        Observer.Expect('sub.max.65', 'BigInteger|2147483582');
+        Observer.Expect('compound_add.max.65', '2147483712');
+        Observer.Verify();
     end;
 
     [Test]
@@ -221,18 +221,6 @@ codeunit 92446 "LT Y31 Ar Integer"
         vInteger := 1;
         vDecimal := 65;
         if Try8(V, vDecimal, vInteger) then Observer.Observe('sub.1.65', Util.VShow(V)) else Observer.ObserveError('sub.1.65');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Integer_Decimal_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vDecimal: Decimal;
-        vInteger: Integer;
-    begin
         vInteger := 1;
         vDecimal := 65;
         if Try9(vDecimal, vInteger) then Observer.Observe('compound_add.1.65', Format(vDecimal, 0, 9)) else Observer.ObserveError('compound_add.1.65');
@@ -257,25 +245,31 @@ codeunit 92446 "LT Y31 Ar Integer"
         vInteger := 2147483647;
         vDecimal := 1.5;
         if Try7(V, vDecimal, vInteger) then Observer.Observe('add.max.1p5', Util.VShow(V)) else Observer.ObserveError('add.max.1p5');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Integer_Decimal_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vDecimal: Decimal;
-        vInteger: Integer;
-    begin
         vInteger := 2147483647;
         vDecimal := 1.5;
         if Try8(V, vDecimal, vInteger) then Observer.Observe('sub.max.1p5', Util.VShow(V)) else Observer.ObserveError('sub.max.1p5');
         vInteger := 2147483647;
         vDecimal := 1.5;
         if Try9(vDecimal, vInteger) then Observer.Observe('compound_add.max.1p5', Format(vDecimal, 0, 9)) else Observer.ObserveError('compound_add.max.1p5');
-        Observer.Finish();
+        Observer.Expect('add.65.65', 'Decimal|130');
+        Observer.Expect('sub.65.65', 'Decimal|0');
+        Observer.Expect('compound_add.65.65', '130');
+        Observer.Expect('add.65.1p5', 'Decimal|66.5');
+        Observer.Expect('sub.65.1p5', 'Decimal|63.5');
+        Observer.Expect('compound_add.65.1p5', '66.5');
+        Observer.Expect('add.1.65', 'Decimal|66');
+        Observer.Expect('sub.1.65', 'Decimal|-64');
+        Observer.Expect('compound_add.1.65', '66');
+        Observer.Expect('add.1.1p5', 'Decimal|2.5');
+        Observer.Expect('sub.1.1p5', 'Decimal|-0.5');
+        Observer.Expect('compound_add.1.1p5', '2.5');
+        Observer.Expect('add.max.65', 'Decimal|2147483712');
+        Observer.Expect('sub.max.65', 'Decimal|2147483582');
+        Observer.Expect('compound_add.max.65', '2147483712');
+        Observer.Expect('add.max.1p5', 'Decimal|2147483648.5');
+        Observer.Expect('sub.max.1p5', 'Decimal|2147483645.5');
+        Observer.Expect('compound_add.max.1p5', '2147483648.5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -311,18 +305,6 @@ codeunit 92446 "LT Y31 Ar Integer"
         vInteger := 65;
         vChar := 65535;
         if Try11(V, vChar, vInteger) then Observer.Observe('sub.65.65535', Util.VShow(V)) else Observer.ObserveError('sub.65.65535');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Integer_Char_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vChar: Char;
-        vInteger: Integer;
-    begin
         vInteger := 65;
         vChar := 65535;
         if Try12(vChar, vInteger) then Observer.Observe('compound_add.65.65535', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.65.65535');
@@ -347,18 +329,6 @@ codeunit 92446 "LT Y31 Ar Integer"
         vInteger := 1;
         vChar := 65535;
         if Try10(V, vChar, vInteger) then Observer.Observe('add.1.65535', Util.VShow(V)) else Observer.ObserveError('add.1.65535');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Integer_Char_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vChar: Char;
-        vInteger: Integer;
-    begin
         vInteger := 1;
         vChar := 65535;
         if Try11(V, vChar, vInteger) then Observer.Observe('sub.1.65535', Util.VShow(V)) else Observer.ObserveError('sub.1.65535');
@@ -383,18 +353,6 @@ codeunit 92446 "LT Y31 Ar Integer"
         vInteger := 2147483647;
         vChar := 97;
         if Try12(vChar, vInteger) then Observer.Observe('compound_add.max.a', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.max.a');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Integer_Char_4()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vChar: Char;
-        vInteger: Integer;
-    begin
         vInteger := 2147483647;
         vChar := 65535;
         if Try10(V, vChar, vInteger) then Observer.Observe('add.max.65535', Util.VShow(V)) else Observer.ObserveError('add.max.65535');
@@ -404,7 +362,42 @@ codeunit 92446 "LT Y31 Ar Integer"
         vInteger := 2147483647;
         vChar := 65535;
         if Try12(vChar, vInteger) then Observer.Observe('compound_add.max.65535', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.max.65535');
-        Observer.Finish();
+        Observer.Expect('add.65.A', 'Integer|130');
+        Observer.Expect('sub.65.A', 'Integer|0');
+        Observer.Expect('compound_add.65.A', '|130');
+        Observer.Expect('add.65.a', 'Integer|162');
+        Observer.Expect('sub.65.a', 'Integer|-32');
+        Observer.Expect('compound_add.65.a', '¢|162');
+        Observer.Expect('add.65.65535', 'Integer|65600');
+        Observer.Expect('sub.65.65535', 'Integer|-65470');
+        Observer.Expect('compound_add.65.65535|text', 'Overflow under conversion of System.Int32 value 65600 to System.Char.');
+        Observer.Expect('compound_add.65.65535|code', 'ConversionCast');
+        Observer.Expect('add.1.A', 'Integer|66');
+        Observer.Expect('sub.1.A', 'Integer|-64');
+        Observer.Expect('compound_add.1.A', 'B|66');
+        Observer.Expect('add.1.a', 'Integer|98');
+        Observer.Expect('sub.1.a', 'Integer|-96');
+        Observer.Expect('compound_add.1.a', 'b|98');
+        Observer.Expect('add.1.65535', 'Integer|65536');
+        Observer.Expect('sub.1.65535', 'Integer|-65534');
+        Observer.Expect('compound_add.1.65535|text', 'Overflow under conversion of System.Int32 value 65536 to System.Char.');
+        Observer.Expect('compound_add.1.65535|code', 'ConversionCast');
+        Observer.Expect('add.max.A|text', 'Arithmetic operation resulted in an overflow.');
+        Observer.Expect('add.max.A|code', 'AL:Overflow');
+        Observer.Expect('sub.max.A', 'Integer|2147483582');
+        Observer.Expect('compound_add.max.A|text', 'Arithmetic operation resulted in an overflow.');
+        Observer.Expect('compound_add.max.A|code', 'AL:Overflow');
+        Observer.Expect('add.max.a|text', 'Arithmetic operation resulted in an overflow.');
+        Observer.Expect('add.max.a|code', 'AL:Overflow');
+        Observer.Expect('sub.max.a', 'Integer|2147483550');
+        Observer.Expect('compound_add.max.a|text', 'Arithmetic operation resulted in an overflow.');
+        Observer.Expect('compound_add.max.a|code', 'AL:Overflow');
+        Observer.Expect('add.max.65535|text', 'Arithmetic operation resulted in an overflow.');
+        Observer.Expect('add.max.65535|code', 'AL:Overflow');
+        Observer.Expect('sub.max.65535', 'Integer|2147418112');
+        Observer.Expect('compound_add.max.65535|text', 'Arithmetic operation resulted in an overflow.');
+        Observer.Expect('compound_add.max.65535|code', 'AL:Overflow');
+        Observer.Verify();
     end;
 
     [Test]
@@ -440,18 +433,6 @@ codeunit 92446 "LT Y31 Ar Integer"
         vInteger := 1;
         vByte := 65;
         if Try14(V, vByte, vInteger) then Observer.Observe('sub.1.65', Util.VShow(V)) else Observer.ObserveError('sub.1.65');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Integer_Byte_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vByte: Byte;
-        vInteger: Integer;
-    begin
         vInteger := 1;
         vByte := 65;
         if Try15(vByte, vInteger) then Observer.Observe('compound_add.1.65', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.1.65');
@@ -476,25 +457,37 @@ codeunit 92446 "LT Y31 Ar Integer"
         vInteger := 2147483647;
         vByte := 255;
         if Try13(V, vByte, vInteger) then Observer.Observe('add.max.255', Util.VShow(V)) else Observer.ObserveError('add.max.255');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Integer_Byte_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vByte: Byte;
-        vInteger: Integer;
-    begin
         vInteger := 2147483647;
         vByte := 255;
         if Try14(V, vByte, vInteger) then Observer.Observe('sub.max.255', Util.VShow(V)) else Observer.ObserveError('sub.max.255');
         vInteger := 2147483647;
         vByte := 255;
         if Try15(vByte, vInteger) then Observer.Observe('compound_add.max.255', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.max.255');
-        Observer.Finish();
+        Observer.Expect('add.65.65', 'Integer|130');
+        Observer.Expect('sub.65.65', 'Integer|0');
+        Observer.Expect('compound_add.65.65', 'é');
+        Observer.Expect('add.65.255', 'Integer|320');
+        Observer.Expect('sub.65.255', 'Integer|-190');
+        Observer.Expect('compound_add.65.255|text', 'Overflow under conversion of System.Int32 value 320 to System.Byte.');
+        Observer.Expect('compound_add.65.255|code', 'ConversionCast');
+        Observer.Expect('add.1.65', 'Integer|66');
+        Observer.Expect('sub.1.65', 'Integer|-64');
+        Observer.Expect('compound_add.1.65', 'B');
+        Observer.Expect('add.1.255', 'Integer|256');
+        Observer.Expect('sub.1.255', 'Integer|-254');
+        Observer.Expect('compound_add.1.255|text', 'Overflow under conversion of System.Int32 value 256 to System.Byte.');
+        Observer.Expect('compound_add.1.255|code', 'ConversionCast');
+        Observer.Expect('add.max.65|text', 'Arithmetic operation resulted in an overflow.');
+        Observer.Expect('add.max.65|code', 'AL:Overflow');
+        Observer.Expect('sub.max.65', 'Integer|2147483582');
+        Observer.Expect('compound_add.max.65|text', 'Arithmetic operation resulted in an overflow.');
+        Observer.Expect('compound_add.max.65|code', 'AL:Overflow');
+        Observer.Expect('add.max.255|text', 'Arithmetic operation resulted in an overflow.');
+        Observer.Expect('add.max.255|code', 'AL:Overflow');
+        Observer.Expect('sub.max.255', 'Integer|2147483392');
+        Observer.Expect('compound_add.max.255|text', 'Arithmetic operation resulted in an overflow.');
+        Observer.Expect('compound_add.max.255|code', 'AL:Overflow');
+        Observer.Verify();
     end;
 
     [Test]
@@ -530,18 +523,6 @@ codeunit 92446 "LT Y31 Ar Integer"
         vInteger := 1;
         vOption := 1;
         if Try17(V, vInteger, vOption) then Observer.Observe('sub.1.1', Util.VShow(V)) else Observer.ObserveError('sub.1.1');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Integer_Option_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vInteger: Integer;
-        vOption: Option A,B,C;
-    begin
         vInteger := 1;
         vOption := 1;
         if Try18(vInteger, vOption) then Observer.Observe('compound_add.1.1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.1.1');
@@ -566,25 +547,35 @@ codeunit 92446 "LT Y31 Ar Integer"
         vInteger := 2147483647;
         vOption := 3;
         if Try16(V, vInteger, vOption) then Observer.Observe('add.max.3', Util.VShow(V)) else Observer.ObserveError('add.max.3');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Integer_Option_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vInteger: Integer;
-        vOption: Option A,B,C;
-    begin
         vInteger := 2147483647;
         vOption := 3;
         if Try17(V, vInteger, vOption) then Observer.Observe('sub.max.3', Util.VShow(V)) else Observer.ObserveError('sub.max.3');
         vInteger := 2147483647;
         vOption := 3;
         if Try18(vInteger, vOption) then Observer.Observe('compound_add.max.3', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.max.3');
-        Observer.Finish();
+        Observer.Expect('add.65.1', 'Integer|66');
+        Observer.Expect('sub.65.1', 'Integer|64');
+        Observer.Expect('compound_add.65.1', '66|66');
+        Observer.Expect('add.65.3', 'Integer|68');
+        Observer.Expect('sub.65.3', 'Integer|62');
+        Observer.Expect('compound_add.65.3', '68|68');
+        Observer.Expect('add.1.1', 'Integer|2');
+        Observer.Expect('sub.1.1', 'Integer|0');
+        Observer.Expect('compound_add.1.1', 'C|2');
+        Observer.Expect('add.1.3', 'Integer|4');
+        Observer.Expect('sub.1.3', 'Integer|-2');
+        Observer.Expect('compound_add.1.3', '4|4');
+        Observer.Expect('add.max.1|text', 'Arithmetic operation resulted in an overflow.');
+        Observer.Expect('add.max.1|code', 'AL:Overflow');
+        Observer.Expect('sub.max.1', 'Integer|2147483646');
+        Observer.Expect('compound_add.max.1|text', 'Arithmetic operation resulted in an overflow.');
+        Observer.Expect('compound_add.max.1|code', 'AL:Overflow');
+        Observer.Expect('add.max.3|text', 'Arithmetic operation resulted in an overflow.');
+        Observer.Expect('add.max.3|code', 'AL:Overflow');
+        Observer.Expect('sub.max.3', 'Integer|2147483644');
+        Observer.Expect('compound_add.max.3|text', 'Arithmetic operation resulted in an overflow.');
+        Observer.Expect('compound_add.max.3|code', 'AL:Overflow');
+        Observer.Verify();
     end;
 
     [Test]
@@ -620,18 +611,6 @@ codeunit 92446 "LT Y31 Ar Integer"
         vInteger := 1;
         vEnum := "LT Y31 E"::B;
         if Try20(V, vEnum, vInteger) then Observer.Observe('sub.1.B', Util.VShow(V)) else Observer.ObserveError('sub.1.B');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Integer_Enum_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vEnum: Enum "LT Y31 E";
-        vInteger: Integer;
-    begin
         vInteger := 1;
         vEnum := "LT Y31 E"::B;
         if Try21(vEnum, vInteger) then Observer.Observe('compound_add.1.B', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('compound_add.1.B');
@@ -656,25 +635,35 @@ codeunit 92446 "LT Y31 Ar Integer"
         vInteger := 2147483647;
         vEnum := 5;
         if Try19(V, vEnum, vInteger) then Observer.Observe('add.max.ord5', Util.VShow(V)) else Observer.ObserveError('add.max.ord5');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Integer_Enum_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vEnum: Enum "LT Y31 E";
-        vInteger: Integer;
-    begin
         vInteger := 2147483647;
         vEnum := 5;
         if Try20(V, vEnum, vInteger) then Observer.Observe('sub.max.ord5', Util.VShow(V)) else Observer.ObserveError('sub.max.ord5');
         vInteger := 2147483647;
         vEnum := 5;
         if Try21(vEnum, vInteger) then Observer.Observe('compound_add.max.ord5', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('compound_add.max.ord5');
-        Observer.Finish();
+        Observer.Expect('add.65.B', 'Integer|66');
+        Observer.Expect('sub.65.B', 'Integer|64');
+        Observer.Expect('compound_add.65.B', '66|66');
+        Observer.Expect('add.65.ord5', 'Integer|70');
+        Observer.Expect('sub.65.ord5', 'Integer|60');
+        Observer.Expect('compound_add.65.ord5', '70|70');
+        Observer.Expect('add.1.B', 'Integer|2');
+        Observer.Expect('sub.1.B', 'Integer|0');
+        Observer.Expect('compound_add.1.B', 'C|2');
+        Observer.Expect('add.1.ord5', 'Integer|6');
+        Observer.Expect('sub.1.ord5', 'Integer|-4');
+        Observer.Expect('compound_add.1.ord5', '6|6');
+        Observer.Expect('add.max.B|text', 'Arithmetic operation resulted in an overflow.');
+        Observer.Expect('add.max.B|code', 'AL:Overflow');
+        Observer.Expect('sub.max.B', 'Integer|2147483646');
+        Observer.Expect('compound_add.max.B|text', 'Arithmetic operation resulted in an overflow.');
+        Observer.Expect('compound_add.max.B|code', 'AL:Overflow');
+        Observer.Expect('add.max.ord5|text', 'Arithmetic operation resulted in an overflow.');
+        Observer.Expect('add.max.ord5|code', 'AL:Overflow');
+        Observer.Expect('sub.max.ord5', 'Integer|2147483642');
+        Observer.Expect('compound_add.max.ord5|text', 'Arithmetic operation resulted in an overflow.');
+        Observer.Expect('compound_add.max.ord5|code', 'AL:Overflow');
+        Observer.Verify();
     end;
 
     [Test]
@@ -710,20 +699,19 @@ codeunit 92446 "LT Y31 Ar Integer"
         vInteger := 2147483647;
         vEnumImpl := "LT Y31 EI"::A;
         if Try23(V, vEnumImpl, vInteger) then Observer.Observe('sub.max.A', Util.VShow(V)) else Observer.ObserveError('sub.max.A');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Integer_EnumImpl_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vEnumImpl: Enum "LT Y31 EI";
-        vInteger: Integer;
-    begin
         vInteger := 2147483647;
         vEnumImpl := "LT Y31 EI"::A;
         if Try24(vEnumImpl, vInteger) then Observer.Observe('compound_add.max.A', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('compound_add.max.A');
-        Observer.Finish();
+        Observer.Expect('add.65.A', 'Integer|65');
+        Observer.Expect('sub.65.A', 'Integer|65');
+        Observer.Expect('compound_add.65.A', '65|65');
+        Observer.Expect('add.1.A', 'Integer|1');
+        Observer.Expect('sub.1.A', 'Integer|1');
+        Observer.Expect('compound_add.1.A', '1|1');
+        Observer.Expect('add.max.A', 'Integer|2147483647');
+        Observer.Expect('sub.max.A', 'Integer|2147483647');
+        Observer.Expect('compound_add.max.A', '2147483647|2147483647');
+        Observer.Verify();
     end;
 
     [Test]
@@ -742,7 +730,11 @@ codeunit 92446 "LT Y31 Ar Integer"
         vInteger := 2147483647;
         vDate := 20260131D;
         if Try25(vDate, vInteger) then Observer.Observe('compound_add.max.d', Format(vDate, 0, 9)) else Observer.ObserveError('compound_add.max.d');
-        Observer.Finish();
+        Observer.Expect('compound_add.65.d', '2026-04-06');
+        Observer.Expect('compound_add.1.d', '2026-02-01');
+        Observer.Expect('compound_add.max.d|text', 'Arithmetic operation resulted in an overflow.');
+        Observer.Expect('compound_add.max.d|code', 'AL:Overflow');
+        Observer.Verify();
     end;
 
     [Test]
@@ -761,7 +753,10 @@ codeunit 92446 "LT Y31 Ar Integer"
         vInteger := 2147483647;
         vTime := 120000T;
         if Try26(vInteger, vTime) then Observer.Observe('compound_add.max.t', Format(vTime, 0, 9)) else Observer.ObserveError('compound_add.max.t');
-        Observer.Finish();
+        Observer.Expect('compound_add.65.t', '12:00:00.065');
+        Observer.Expect('compound_add.1.t', '12:00:00.001');
+        Observer.Expect('compound_add.max.t', '08:31:23.647');
+        Observer.Verify();
     end;
 
     [Test]
@@ -780,7 +775,10 @@ codeunit 92446 "LT Y31 Ar Integer"
         vInteger := 2147483647;
         vDateTime := CreateDateTime(20260131D, 120000T);
         if Try27(vDateTime, vInteger) then Observer.Observe('compound_add.max.dt', Format(vDateTime, 0, 9)) else Observer.ObserveError('compound_add.max.dt');
-        Observer.Finish();
+        Observer.Expect('compound_add.65.dt', '2026-01-31T12:00:00.065Z');
+        Observer.Expect('compound_add.1.dt', '2026-01-31T12:00:00.001Z');
+        Observer.Expect('compound_add.max.dt', '2026-02-25T08:31:23.647Z');
+        Observer.Verify();
     end;
 
     [Test]
@@ -816,20 +814,19 @@ codeunit 92446 "LT Y31 Ar Integer"
         vInteger := 2147483647;
         vDuration := 65;
         if Try29(V, vDuration, vInteger) then Observer.Observe('sub.max.65', Util.VShow(V)) else Observer.ObserveError('sub.max.65');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Integer_Duration_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vDuration: Duration;
-        vInteger: Integer;
-    begin
         vInteger := 2147483647;
         vDuration := 65;
         if Try30(vDuration, vInteger) then Observer.Observe('compound_add.max.65', Format(vDuration, 0, 9)) else Observer.ObserveError('compound_add.max.65');
-        Observer.Finish();
+        Observer.Expect('add.65.65', 'BigInteger|130');
+        Observer.Expect('sub.65.65', 'BigInteger|0');
+        Observer.Expect('compound_add.65.65', 'P0DT0H0M0.13S');
+        Observer.Expect('add.1.65', 'BigInteger|66');
+        Observer.Expect('sub.1.65', 'BigInteger|-64');
+        Observer.Expect('compound_add.1.65', 'P0DT0H0M0.066S');
+        Observer.Expect('add.max.65', 'BigInteger|2147483712');
+        Observer.Expect('sub.max.65', 'BigInteger|2147483582');
+        Observer.Expect('compound_add.max.65', 'P24DT20H31M23.712S');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -1077,20 +1074,20 @@ codeunit 92447 "LT Y31 Ar BigInteger"
         vBigInteger := 65;
         vInteger := 2147483647;
         if Try2(V, vBigInteger, vInteger) then Observer.Observe('sub.65.max', Util.VShow(V)) else Observer.ObserveError('sub.65.max');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure BigInteger_Integer_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vBigInteger: BigInteger;
-        vInteger: Integer;
-    begin
         vBigInteger := 65;
         vInteger := 2147483647;
         if Try3(vBigInteger, vInteger) then Observer.Observe('compound_add.65.max', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.65.max');
-        Observer.Finish();
+        Observer.Expect('add.65.65', 'BigInteger|130');
+        Observer.Expect('sub.65.65', 'BigInteger|0');
+        Observer.Expect('compound_add.65.65', '130');
+        Observer.Expect('add.65.1', 'BigInteger|66');
+        Observer.Expect('sub.65.1', 'BigInteger|64');
+        Observer.Expect('compound_add.65.1', '66');
+        Observer.Expect('add.65.max', 'BigInteger|2147483712');
+        Observer.Expect('sub.65.max', 'BigInteger|-2147483582');
+        Observer.Expect('compound_add.65.max|text', 'Overflow under conversion of System.Int64 value 2147483712 to System.Int32.');
+        Observer.Expect('compound_add.65.max|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1111,7 +1108,10 @@ codeunit 92447 "LT Y31 Ar BigInteger"
         vBigInteger := 65;
         vBigInteger_R := 65;
         if Try6(vBigInteger, vBigInteger_R) then Observer.Observe('compound_add.65.65', Format(vBigInteger_R, 0, 9)) else Observer.ObserveError('compound_add.65.65');
-        Observer.Finish();
+        Observer.Expect('add.65.65', 'BigInteger|130');
+        Observer.Expect('sub.65.65', 'BigInteger|0');
+        Observer.Expect('compound_add.65.65', '130');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1141,7 +1141,13 @@ codeunit 92447 "LT Y31 Ar BigInteger"
         vBigInteger := 65;
         vDecimal := 1.5;
         if Try9(vBigInteger, vDecimal) then Observer.Observe('compound_add.65.1p5', Format(vDecimal, 0, 9)) else Observer.ObserveError('compound_add.65.1p5');
-        Observer.Finish();
+        Observer.Expect('add.65.65', 'Decimal|130');
+        Observer.Expect('sub.65.65', 'Decimal|0');
+        Observer.Expect('compound_add.65.65', '130');
+        Observer.Expect('add.65.1p5', 'Decimal|66.5');
+        Observer.Expect('sub.65.1p5', 'Decimal|63.5');
+        Observer.Expect('compound_add.65.1p5', '66.5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1177,21 +1183,20 @@ codeunit 92447 "LT Y31 Ar BigInteger"
         vBigInteger := 65;
         vChar := 65535;
         if Try11(V, vBigInteger, vChar) then Observer.Observe('sub.65.65535', Util.VShow(V)) else Observer.ObserveError('sub.65.65535');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure BigInteger_Char_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vBigInteger: BigInteger;
-        vChar: Char;
-    begin
         vBigInteger := 65;
         vChar := 65535;
         if Try12(vBigInteger, vChar) then Observer.Observe('compound_add.65.65535', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.65.65535');
-        Observer.Finish();
+        Observer.Expect('add.65.A', 'BigInteger|130');
+        Observer.Expect('sub.65.A', 'BigInteger|0');
+        Observer.Expect('compound_add.65.A', '|130');
+        Observer.Expect('add.65.a', 'BigInteger|162');
+        Observer.Expect('sub.65.a', 'BigInteger|-32');
+        Observer.Expect('compound_add.65.a', '¢|162');
+        Observer.Expect('add.65.65535', 'BigInteger|65600');
+        Observer.Expect('sub.65.65535', 'BigInteger|-65470');
+        Observer.Expect('compound_add.65.65535|text', 'Overflow under conversion of System.Int64 value 65600 to System.Char.');
+        Observer.Expect('compound_add.65.65535|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1221,7 +1226,14 @@ codeunit 92447 "LT Y31 Ar BigInteger"
         vBigInteger := 65;
         vByte := 255;
         if Try15(vBigInteger, vByte) then Observer.Observe('compound_add.65.255', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.65.255');
-        Observer.Finish();
+        Observer.Expect('add.65.65', 'BigInteger|130');
+        Observer.Expect('sub.65.65', 'BigInteger|0');
+        Observer.Expect('compound_add.65.65', 'é');
+        Observer.Expect('add.65.255', 'BigInteger|320');
+        Observer.Expect('sub.65.255', 'BigInteger|-190');
+        Observer.Expect('compound_add.65.255|text', 'Overflow under conversion of System.Int64 value 320 to System.Byte.');
+        Observer.Expect('compound_add.65.255|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1251,7 +1263,13 @@ codeunit 92447 "LT Y31 Ar BigInteger"
         vBigInteger := 65;
         vOption := 3;
         if Try18(vBigInteger, vOption) then Observer.Observe('compound_add.65.3', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.65.3');
-        Observer.Finish();
+        Observer.Expect('add.65.1', 'BigInteger|66');
+        Observer.Expect('sub.65.1', 'BigInteger|64');
+        Observer.Expect('compound_add.65.1', '66|66');
+        Observer.Expect('add.65.3', 'BigInteger|68');
+        Observer.Expect('sub.65.3', 'BigInteger|62');
+        Observer.Expect('compound_add.65.3', '68|68');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1264,7 +1282,8 @@ codeunit 92447 "LT Y31 Ar BigInteger"
         vBigInteger := 65;
         vDate := 20260131D;
         if Try19(vBigInteger, vDate) then Observer.Observe('compound_add.65.d', Format(vDate, 0, 9)) else Observer.ObserveError('compound_add.65.d');
-        Observer.Finish();
+        Observer.Expect('compound_add.65.d', '2026-04-06');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1277,7 +1296,8 @@ codeunit 92447 "LT Y31 Ar BigInteger"
         vBigInteger := 65;
         vTime := 120000T;
         if Try20(vBigInteger, vTime) then Observer.Observe('compound_add.65.t', Format(vTime, 0, 9)) else Observer.ObserveError('compound_add.65.t');
-        Observer.Finish();
+        Observer.Expect('compound_add.65.t', '12:00:00.065');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1290,7 +1310,8 @@ codeunit 92447 "LT Y31 Ar BigInteger"
         vBigInteger := 65;
         vDateTime := CreateDateTime(20260131D, 120000T);
         if Try21(vBigInteger, vDateTime) then Observer.Observe('compound_add.65.dt', Format(vDateTime, 0, 9)) else Observer.ObserveError('compound_add.65.dt');
-        Observer.Finish();
+        Observer.Expect('compound_add.65.dt', '2026-01-31T12:00:00.065Z');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1311,7 +1332,10 @@ codeunit 92447 "LT Y31 Ar BigInteger"
         vBigInteger := 65;
         vDuration := 65;
         if Try24(vBigInteger, vDuration) then Observer.Observe('compound_add.65.65', Format(vDuration, 0, 9)) else Observer.ObserveError('compound_add.65.65');
-        Observer.Finish();
+        Observer.Expect('add.65.65', 'BigInteger|130');
+        Observer.Expect('sub.65.65', 'BigInteger|0');
+        Observer.Expect('compound_add.65.65', 'P0DT0H0M0.13S');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -1519,18 +1543,6 @@ codeunit 92448 "LT Y31 Ar Decimal"
         vDecimal := 65;
         vInteger := 2147483647;
         if Try2(V, vDecimal, vInteger) then Observer.Observe('sub.65.max', Util.VShow(V)) else Observer.ObserveError('sub.65.max');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Decimal_Integer_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vDecimal: Decimal;
-        vInteger: Integer;
-    begin
         vDecimal := 65;
         vInteger := 2147483647;
         if Try3(vDecimal, vInteger) then Observer.Observe('compound_add.65.max', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.65.max');
@@ -1555,25 +1567,35 @@ codeunit 92448 "LT Y31 Ar Decimal"
         vDecimal := 1.5;
         vInteger := 2147483647;
         if Try1(V, vDecimal, vInteger) then Observer.Observe('add.1p5.max', Util.VShow(V)) else Observer.ObserveError('add.1p5.max');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Decimal_Integer_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vDecimal: Decimal;
-        vInteger: Integer;
-    begin
         vDecimal := 1.5;
         vInteger := 2147483647;
         if Try2(V, vDecimal, vInteger) then Observer.Observe('sub.1p5.max', Util.VShow(V)) else Observer.ObserveError('sub.1p5.max');
         vDecimal := 1.5;
         vInteger := 2147483647;
         if Try3(vDecimal, vInteger) then Observer.Observe('compound_add.1p5.max', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.1p5.max');
-        Observer.Finish();
+        Observer.Expect('add.65.65', 'Decimal|130');
+        Observer.Expect('sub.65.65', 'Decimal|0');
+        Observer.Expect('compound_add.65.65', '130');
+        Observer.Expect('add.65.1', 'Decimal|66');
+        Observer.Expect('sub.65.1', 'Decimal|64');
+        Observer.Expect('compound_add.65.1', '66');
+        Observer.Expect('add.65.max', 'Decimal|2147483712');
+        Observer.Expect('sub.65.max', 'Decimal|-2147483582');
+        Observer.Expect('compound_add.65.max|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2147483712 to System.Int32.');
+        Observer.Expect('compound_add.65.max|code', 'ConversionCast');
+        Observer.Expect('add.1p5.65', 'Decimal|66.5');
+        Observer.Expect('sub.1p5.65', 'Decimal|-63.5');
+        Observer.Expect('compound_add.1p5.65|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 66.5 to System.Int32.');
+        Observer.Expect('compound_add.1p5.65|code', 'ConversionCast');
+        Observer.Expect('add.1p5.1', 'Decimal|2.5');
+        Observer.Expect('sub.1p5.1', 'Decimal|0.5');
+        Observer.Expect('compound_add.1p5.1|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2.5 to System.Int32.');
+        Observer.Expect('compound_add.1p5.1|code', 'ConversionCast');
+        Observer.Expect('add.1p5.max', 'Decimal|2147483648.5');
+        Observer.Expect('sub.1p5.max', 'Decimal|-2147483645.5');
+        Observer.Expect('compound_add.1p5.max|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2147483648.5 to System.Int32.');
+        Observer.Expect('compound_add.1p5.max|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1603,7 +1625,14 @@ codeunit 92448 "LT Y31 Ar Decimal"
         vDecimal := 1.5;
         vBigInteger := 65;
         if Try6(vBigInteger, vDecimal) then Observer.Observe('compound_add.1p5.65', Format(vBigInteger, 0, 9)) else Observer.ObserveError('compound_add.1p5.65');
-        Observer.Finish();
+        Observer.Expect('add.65.65', 'Decimal|130');
+        Observer.Expect('sub.65.65', 'Decimal|0');
+        Observer.Expect('compound_add.65.65', '130');
+        Observer.Expect('add.1p5.65', 'Decimal|66.5');
+        Observer.Expect('sub.1p5.65', 'Decimal|-63.5');
+        Observer.Expect('compound_add.1p5.65|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 66.5 to System.Int64.');
+        Observer.Expect('compound_add.1p5.65|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1639,18 +1668,6 @@ codeunit 92448 "LT Y31 Ar Decimal"
         vDecimal := 1.5;
         vDecimal_R := 65;
         if Try8(V, vDecimal, vDecimal_R) then Observer.Observe('sub.1p5.65', Util.VShow(V)) else Observer.ObserveError('sub.1p5.65');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Decimal_Decimal_Same_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vDecimal: Decimal;
-        vDecimal_R: Decimal;
-    begin
         vDecimal := 1.5;
         vDecimal_R := 65;
         if Try9(vDecimal, vDecimal_R) then Observer.Observe('compound_add.1p5.65', Format(vDecimal_R, 0, 9)) else Observer.ObserveError('compound_add.1p5.65');
@@ -1663,7 +1680,19 @@ codeunit 92448 "LT Y31 Ar Decimal"
         vDecimal := 1.5;
         vDecimal_R := 1.5;
         if Try9(vDecimal, vDecimal_R) then Observer.Observe('compound_add.1p5.1p5', Format(vDecimal_R, 0, 9)) else Observer.ObserveError('compound_add.1p5.1p5');
-        Observer.Finish();
+        Observer.Expect('add.65.65', 'Decimal|130');
+        Observer.Expect('sub.65.65', 'Decimal|0');
+        Observer.Expect('compound_add.65.65', '130');
+        Observer.Expect('add.65.1p5', 'Decimal|66.5');
+        Observer.Expect('sub.65.1p5', 'Decimal|63.5');
+        Observer.Expect('compound_add.65.1p5', '66.5');
+        Observer.Expect('add.1p5.65', 'Decimal|66.5');
+        Observer.Expect('sub.1p5.65', 'Decimal|-63.5');
+        Observer.Expect('compound_add.1p5.65', '66.5');
+        Observer.Expect('add.1p5.1p5', 'Decimal|3');
+        Observer.Expect('sub.1p5.1p5', 'Decimal|0');
+        Observer.Expect('compound_add.1p5.1p5', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1699,18 +1728,6 @@ codeunit 92448 "LT Y31 Ar Decimal"
         vDecimal := 65;
         vChar := 65535;
         if Try11(V, vChar, vDecimal) then Observer.Observe('sub.65.65535', Util.VShow(V)) else Observer.ObserveError('sub.65.65535');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Decimal_Char_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vChar: Char;
-        vDecimal: Decimal;
-    begin
         vDecimal := 65;
         vChar := 65535;
         if Try12(vChar, vDecimal) then Observer.Observe('compound_add.65.65535', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.65.65535');
@@ -1735,25 +1752,35 @@ codeunit 92448 "LT Y31 Ar Decimal"
         vDecimal := 1.5;
         vChar := 65535;
         if Try10(V, vChar, vDecimal) then Observer.Observe('add.1p5.65535', Util.VShow(V)) else Observer.ObserveError('add.1p5.65535');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Decimal_Char_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vChar: Char;
-        vDecimal: Decimal;
-    begin
         vDecimal := 1.5;
         vChar := 65535;
         if Try11(V, vChar, vDecimal) then Observer.Observe('sub.1p5.65535', Util.VShow(V)) else Observer.ObserveError('sub.1p5.65535');
         vDecimal := 1.5;
         vChar := 65535;
         if Try12(vChar, vDecimal) then Observer.Observe('compound_add.1p5.65535', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.1p5.65535');
-        Observer.Finish();
+        Observer.Expect('add.65.A', 'Decimal|130');
+        Observer.Expect('sub.65.A', 'Decimal|0');
+        Observer.Expect('compound_add.65.A', '|130');
+        Observer.Expect('add.65.a', 'Decimal|162');
+        Observer.Expect('sub.65.a', 'Decimal|-32');
+        Observer.Expect('compound_add.65.a', '¢|162');
+        Observer.Expect('add.65.65535', 'Decimal|65600');
+        Observer.Expect('sub.65.65535', 'Decimal|-65470');
+        Observer.Expect('compound_add.65.65535|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 65600 to System.Char.');
+        Observer.Expect('compound_add.65.65535|code', 'ConversionCast');
+        Observer.Expect('add.1p5.A', 'Decimal|66.5');
+        Observer.Expect('sub.1p5.A', 'Decimal|-63.5');
+        Observer.Expect('compound_add.1p5.A|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 66.5 to System.Char.');
+        Observer.Expect('compound_add.1p5.A|code', 'ConversionCast');
+        Observer.Expect('add.1p5.a', 'Decimal|98.5');
+        Observer.Expect('sub.1p5.a', 'Decimal|-95.5');
+        Observer.Expect('compound_add.1p5.a|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 98.5 to System.Char.');
+        Observer.Expect('compound_add.1p5.a|code', 'ConversionCast');
+        Observer.Expect('add.1p5.65535', 'Decimal|65536.5');
+        Observer.Expect('sub.1p5.65535', 'Decimal|-65533.5');
+        Observer.Expect('compound_add.1p5.65535|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 65536.5 to System.Char.');
+        Observer.Expect('compound_add.1p5.65535|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1789,18 +1816,6 @@ codeunit 92448 "LT Y31 Ar Decimal"
         vDecimal := 1.5;
         vByte := 65;
         if Try14(V, vByte, vDecimal) then Observer.Observe('sub.1p5.65', Util.VShow(V)) else Observer.ObserveError('sub.1p5.65');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Decimal_Byte_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vByte: Byte;
-        vDecimal: Decimal;
-    begin
         vDecimal := 1.5;
         vByte := 65;
         if Try15(vByte, vDecimal) then Observer.Observe('compound_add.1p5.65', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.1p5.65');
@@ -1813,7 +1828,22 @@ codeunit 92448 "LT Y31 Ar Decimal"
         vDecimal := 1.5;
         vByte := 255;
         if Try15(vByte, vDecimal) then Observer.Observe('compound_add.1p5.255', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.1p5.255');
-        Observer.Finish();
+        Observer.Expect('add.65.65', 'Decimal|130');
+        Observer.Expect('sub.65.65', 'Decimal|0');
+        Observer.Expect('compound_add.65.65', 'é');
+        Observer.Expect('add.65.255', 'Decimal|320');
+        Observer.Expect('sub.65.255', 'Decimal|-190');
+        Observer.Expect('compound_add.65.255|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 320 to System.Byte.');
+        Observer.Expect('compound_add.65.255|code', 'ConversionCast');
+        Observer.Expect('add.1p5.65', 'Decimal|66.5');
+        Observer.Expect('sub.1p5.65', 'Decimal|-63.5');
+        Observer.Expect('compound_add.1p5.65|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 66.5 to System.Byte.');
+        Observer.Expect('compound_add.1p5.65|code', 'ConversionCast');
+        Observer.Expect('add.1p5.255', 'Decimal|256.5');
+        Observer.Expect('sub.1p5.255', 'Decimal|-253.5');
+        Observer.Expect('compound_add.1p5.255|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 256.5 to System.Byte.');
+        Observer.Expect('compound_add.1p5.255|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1849,18 +1879,6 @@ codeunit 92448 "LT Y31 Ar Decimal"
         vDecimal := 1.5;
         vOption := 1;
         if Try17(V, vDecimal, vOption) then Observer.Observe('sub.1p5.1', Util.VShow(V)) else Observer.ObserveError('sub.1p5.1');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Decimal_Option_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vDecimal: Decimal;
-        vOption: Option A,B,C;
-    begin
         vDecimal := 1.5;
         vOption := 1;
         if Try18(vDecimal, vOption) then Observer.Observe('compound_add.1p5.1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.1p5.1');
@@ -1873,7 +1891,21 @@ codeunit 92448 "LT Y31 Ar Decimal"
         vDecimal := 1.5;
         vOption := 3;
         if Try18(vDecimal, vOption) then Observer.Observe('compound_add.1p5.3', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.1p5.3');
-        Observer.Finish();
+        Observer.Expect('add.65.1', 'Decimal|66');
+        Observer.Expect('sub.65.1', 'Decimal|64');
+        Observer.Expect('compound_add.65.1', '66|66');
+        Observer.Expect('add.65.3', 'Decimal|68');
+        Observer.Expect('sub.65.3', 'Decimal|62');
+        Observer.Expect('compound_add.65.3', '68|68');
+        Observer.Expect('add.1p5.1', 'Decimal|2.5');
+        Observer.Expect('sub.1p5.1', 'Decimal|0.5');
+        Observer.Expect('compound_add.1p5.1|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2.5 to System.Int32.');
+        Observer.Expect('compound_add.1p5.1|code', 'ConversionCast');
+        Observer.Expect('add.1p5.3', 'Decimal|4.5');
+        Observer.Expect('sub.1p5.3', 'Decimal|-1.5');
+        Observer.Expect('compound_add.1p5.3|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 4.5 to System.Int32.');
+        Observer.Expect('compound_add.1p5.3|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1889,7 +1921,10 @@ codeunit 92448 "LT Y31 Ar Decimal"
         vDecimal := 1.5;
         vDate := 20260131D;
         if Try19(vDate, vDecimal) then Observer.Observe('compound_add.1p5.d', Format(vDate, 0, 9)) else Observer.ObserveError('compound_add.1p5.d');
-        Observer.Finish();
+        Observer.Expect('compound_add.65.d', '2026-04-06');
+        Observer.Expect('compound_add.1p5.d|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int32.');
+        Observer.Expect('compound_add.1p5.d|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1905,7 +1940,10 @@ codeunit 92448 "LT Y31 Ar Decimal"
         vDecimal := 1.5;
         vTime := 120000T;
         if Try20(vDecimal, vTime) then Observer.Observe('compound_add.1p5.t', Format(vTime, 0, 9)) else Observer.ObserveError('compound_add.1p5.t');
-        Observer.Finish();
+        Observer.Expect('compound_add.65.t', '12:00:00.065');
+        Observer.Expect('compound_add.1p5.t|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int32.');
+        Observer.Expect('compound_add.1p5.t|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1921,7 +1959,10 @@ codeunit 92448 "LT Y31 Ar Decimal"
         vDecimal := 1.5;
         vDateTime := CreateDateTime(20260131D, 120000T);
         if Try21(vDateTime, vDecimal) then Observer.Observe('compound_add.1p5.dt', Format(vDateTime, 0, 9)) else Observer.ObserveError('compound_add.1p5.dt');
-        Observer.Finish();
+        Observer.Expect('compound_add.65.dt', '2026-01-31T12:00:00.065Z');
+        Observer.Expect('compound_add.1p5.dt|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int64.');
+        Observer.Expect('compound_add.1p5.dt|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1951,7 +1992,14 @@ codeunit 92448 "LT Y31 Ar Decimal"
         vDecimal := 1.5;
         vDuration := 65;
         if Try24(vDecimal, vDuration) then Observer.Observe('compound_add.1p5.65', Format(vDuration, 0, 9)) else Observer.ObserveError('compound_add.1p5.65');
-        Observer.Finish();
+        Observer.Expect('add.65.65', 'Decimal|130');
+        Observer.Expect('sub.65.65', 'Decimal|0');
+        Observer.Expect('compound_add.65.65', 'P0DT0H0M0.13S');
+        Observer.Expect('add.1p5.65', 'Decimal|66.5');
+        Observer.Expect('sub.1p5.65', 'Decimal|-63.5');
+        Observer.Expect('compound_add.1p5.65|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 66.5 to System.Int64.');
+        Observer.Expect('compound_add.1p5.65|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -2159,18 +2207,6 @@ codeunit 92449 "LT Y31 Ar Char"
         vChar := 65;
         vInteger := 2147483647;
         if Try2(V, vChar, vInteger) then Observer.Observe('sub.A.max', Util.VShow(V)) else Observer.ObserveError('sub.A.max');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_Integer_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vChar: Char;
-        vInteger: Integer;
-    begin
         vChar := 65;
         vInteger := 2147483647;
         if Try3(vChar, vInteger) then Observer.Observe('compound_add.A.max', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.A.max');
@@ -2195,18 +2231,6 @@ codeunit 92449 "LT Y31 Ar Char"
         vChar := 97;
         vInteger := 2147483647;
         if Try1(V, vChar, vInteger) then Observer.Observe('add.a.max', Util.VShow(V)) else Observer.ObserveError('add.a.max');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_Integer_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vChar: Char;
-        vInteger: Integer;
-    begin
         vChar := 97;
         vInteger := 2147483647;
         if Try2(V, vChar, vInteger) then Observer.Observe('sub.a.max', Util.VShow(V)) else Observer.ObserveError('sub.a.max');
@@ -2231,18 +2255,6 @@ codeunit 92449 "LT Y31 Ar Char"
         vChar := 65535;
         vInteger := 1;
         if Try3(vChar, vInteger) then Observer.Observe('compound_add.65535.1', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.65535.1');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_Integer_4()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vChar: Char;
-        vInteger: Integer;
-    begin
         vChar := 65535;
         vInteger := 2147483647;
         if Try1(V, vChar, vInteger) then Observer.Observe('add.65535.max', Util.VShow(V)) else Observer.ObserveError('add.65535.max');
@@ -2252,7 +2264,40 @@ codeunit 92449 "LT Y31 Ar Char"
         vChar := 65535;
         vInteger := 2147483647;
         if Try3(vChar, vInteger) then Observer.Observe('compound_add.65535.max', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.65535.max');
-        Observer.Finish();
+        Observer.Expect('add.A.65', 'Integer|130');
+        Observer.Expect('sub.A.65', 'Integer|0');
+        Observer.Expect('compound_add.A.65', '130');
+        Observer.Expect('add.A.1', 'Integer|66');
+        Observer.Expect('sub.A.1', 'Integer|64');
+        Observer.Expect('compound_add.A.1', '66');
+        Observer.Expect('add.A.max|text', 'Arithmetic operation resulted in an overflow.');
+        Observer.Expect('add.A.max|code', 'AL:Overflow');
+        Observer.Expect('sub.A.max', 'Integer|-2147483582');
+        Observer.Expect('compound_add.A.max|text', 'Arithmetic operation resulted in an overflow.');
+        Observer.Expect('compound_add.A.max|code', 'AL:Overflow');
+        Observer.Expect('add.a.65', 'Integer|162');
+        Observer.Expect('sub.a.65', 'Integer|32');
+        Observer.Expect('compound_add.a.65', '162');
+        Observer.Expect('add.a.1', 'Integer|98');
+        Observer.Expect('sub.a.1', 'Integer|96');
+        Observer.Expect('compound_add.a.1', '98');
+        Observer.Expect('add.a.max|text', 'Arithmetic operation resulted in an overflow.');
+        Observer.Expect('add.a.max|code', 'AL:Overflow');
+        Observer.Expect('sub.a.max', 'Integer|-2147483550');
+        Observer.Expect('compound_add.a.max|text', 'Arithmetic operation resulted in an overflow.');
+        Observer.Expect('compound_add.a.max|code', 'AL:Overflow');
+        Observer.Expect('add.65535.65', 'Integer|65600');
+        Observer.Expect('sub.65535.65', 'Integer|65470');
+        Observer.Expect('compound_add.65535.65', '65600');
+        Observer.Expect('add.65535.1', 'Integer|65536');
+        Observer.Expect('sub.65535.1', 'Integer|65534');
+        Observer.Expect('compound_add.65535.1', '65536');
+        Observer.Expect('add.65535.max|text', 'Arithmetic operation resulted in an overflow.');
+        Observer.Expect('add.65535.max|code', 'AL:Overflow');
+        Observer.Expect('sub.65535.max', 'Integer|-2147418112');
+        Observer.Expect('compound_add.65535.max|text', 'Arithmetic operation resulted in an overflow.');
+        Observer.Expect('compound_add.65535.max|code', 'AL:Overflow');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2288,20 +2333,19 @@ codeunit 92449 "LT Y31 Ar Char"
         vChar := 65535;
         vBigInteger := 65;
         if Try5(V, vBigInteger, vChar) then Observer.Observe('sub.65535.65', Util.VShow(V)) else Observer.ObserveError('sub.65535.65');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_BigInteger_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vBigInteger: BigInteger;
-        vChar: Char;
-    begin
         vChar := 65535;
         vBigInteger := 65;
         if Try6(vBigInteger, vChar) then Observer.Observe('compound_add.65535.65', Format(vBigInteger, 0, 9)) else Observer.ObserveError('compound_add.65535.65');
-        Observer.Finish();
+        Observer.Expect('add.A.65', 'BigInteger|130');
+        Observer.Expect('sub.A.65', 'BigInteger|0');
+        Observer.Expect('compound_add.A.65', '130');
+        Observer.Expect('add.a.65', 'BigInteger|162');
+        Observer.Expect('sub.a.65', 'BigInteger|32');
+        Observer.Expect('compound_add.a.65', '162');
+        Observer.Expect('add.65535.65', 'BigInteger|65600');
+        Observer.Expect('sub.65535.65', 'BigInteger|65470');
+        Observer.Expect('compound_add.65535.65', '65600');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2337,18 +2381,6 @@ codeunit 92449 "LT Y31 Ar Char"
         vChar := 97;
         vDecimal := 65;
         if Try8(V, vChar, vDecimal) then Observer.Observe('sub.a.65', Util.VShow(V)) else Observer.ObserveError('sub.a.65');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_Decimal_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vChar: Char;
-        vDecimal: Decimal;
-    begin
         vChar := 97;
         vDecimal := 65;
         if Try9(vChar, vDecimal) then Observer.Observe('compound_add.a.65', Format(vDecimal, 0, 9)) else Observer.ObserveError('compound_add.a.65');
@@ -2373,25 +2405,31 @@ codeunit 92449 "LT Y31 Ar Char"
         vChar := 65535;
         vDecimal := 1.5;
         if Try7(V, vChar, vDecimal) then Observer.Observe('add.65535.1p5', Util.VShow(V)) else Observer.ObserveError('add.65535.1p5');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_Decimal_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vChar: Char;
-        vDecimal: Decimal;
-    begin
         vChar := 65535;
         vDecimal := 1.5;
         if Try8(V, vChar, vDecimal) then Observer.Observe('sub.65535.1p5', Util.VShow(V)) else Observer.ObserveError('sub.65535.1p5');
         vChar := 65535;
         vDecimal := 1.5;
         if Try9(vChar, vDecimal) then Observer.Observe('compound_add.65535.1p5', Format(vDecimal, 0, 9)) else Observer.ObserveError('compound_add.65535.1p5');
-        Observer.Finish();
+        Observer.Expect('add.A.65', 'Decimal|130');
+        Observer.Expect('sub.A.65', 'Decimal|0');
+        Observer.Expect('compound_add.A.65', '130');
+        Observer.Expect('add.A.1p5', 'Decimal|66.5');
+        Observer.Expect('sub.A.1p5', 'Decimal|63.5');
+        Observer.Expect('compound_add.A.1p5', '66.5');
+        Observer.Expect('add.a.65', 'Decimal|162');
+        Observer.Expect('sub.a.65', 'Decimal|32');
+        Observer.Expect('compound_add.a.65', '162');
+        Observer.Expect('add.a.1p5', 'Decimal|98.5');
+        Observer.Expect('sub.a.1p5', 'Decimal|95.5');
+        Observer.Expect('compound_add.a.1p5', '98.5');
+        Observer.Expect('add.65535.65', 'Decimal|65600');
+        Observer.Expect('sub.65535.65', 'Decimal|65470');
+        Observer.Expect('compound_add.65535.65', '65600');
+        Observer.Expect('add.65535.1p5', 'Decimal|65536.5');
+        Observer.Expect('sub.65535.1p5', 'Decimal|65533.5');
+        Observer.Expect('compound_add.65535.1p5', '65536.5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2427,18 +2465,6 @@ codeunit 92449 "LT Y31 Ar Char"
         vChar := 65;
         vChar_R := 65535;
         if Try11(V, vChar, vChar_R) then Observer.Observe('sub.A.65535', Util.VShow(V)) else Observer.ObserveError('sub.A.65535');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_Char_Same_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vChar: Char;
-        vChar_R: Char;
-    begin
         vChar := 65;
         vChar_R := 65535;
         if Try12(vChar, vChar_R) then Observer.Observe('compound_add.A.65535', Format(vChar_R) + '|' + Format(Util.CharOrd(vChar_R))) else Observer.ObserveError('compound_add.A.65535');
@@ -2463,18 +2489,6 @@ codeunit 92449 "LT Y31 Ar Char"
         vChar := 97;
         vChar_R := 65535;
         if Try10(V, vChar, vChar_R) then Observer.Observe('add.a.65535', Util.VShow(V)) else Observer.ObserveError('add.a.65535');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_Char_Same_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vChar: Char;
-        vChar_R: Char;
-    begin
         vChar := 97;
         vChar_R := 65535;
         if Try11(V, vChar, vChar_R) then Observer.Observe('sub.a.65535', Util.VShow(V)) else Observer.ObserveError('sub.a.65535');
@@ -2499,18 +2513,6 @@ codeunit 92449 "LT Y31 Ar Char"
         vChar := 65535;
         vChar_R := 97;
         if Try12(vChar, vChar_R) then Observer.Observe('compound_add.65535.a', Format(vChar_R) + '|' + Format(Util.CharOrd(vChar_R))) else Observer.ObserveError('compound_add.65535.a');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_Char_Same_4()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vChar: Char;
-        vChar_R: Char;
-    begin
         vChar := 65535;
         vChar_R := 65535;
         if Try10(V, vChar, vChar_R) then Observer.Observe('add.65535.65535', Util.VShow(V)) else Observer.ObserveError('add.65535.65535');
@@ -2520,7 +2522,39 @@ codeunit 92449 "LT Y31 Ar Char"
         vChar := 65535;
         vChar_R := 65535;
         if Try12(vChar, vChar_R) then Observer.Observe('compound_add.65535.65535', Format(vChar_R) + '|' + Format(Util.CharOrd(vChar_R))) else Observer.ObserveError('compound_add.65535.65535');
-        Observer.Finish();
+        Observer.Expect('add.A.A', 'Integer|130');
+        Observer.Expect('sub.A.A', 'Integer|0');
+        Observer.Expect('compound_add.A.A', '|130');
+        Observer.Expect('add.A.a', 'Integer|162');
+        Observer.Expect('sub.A.a', 'Integer|-32');
+        Observer.Expect('compound_add.A.a', '¢|162');
+        Observer.Expect('add.A.65535', 'Integer|65600');
+        Observer.Expect('sub.A.65535', 'Integer|-65470');
+        Observer.Expect('compound_add.A.65535|text', 'Overflow under conversion of System.Int32 value 65600 to System.Char.');
+        Observer.Expect('compound_add.A.65535|code', 'ConversionCast');
+        Observer.Expect('add.a.A', 'Integer|162');
+        Observer.Expect('sub.a.A', 'Integer|32');
+        Observer.Expect('compound_add.a.A', '¢|162');
+        Observer.Expect('add.a.a', 'Integer|194');
+        Observer.Expect('sub.a.a', 'Integer|0');
+        Observer.Expect('compound_add.a.a', 'Â|194');
+        Observer.Expect('add.a.65535', 'Integer|65632');
+        Observer.Expect('sub.a.65535', 'Integer|-65438');
+        Observer.Expect('compound_add.a.65535|text', 'Overflow under conversion of System.Int32 value 65632 to System.Char.');
+        Observer.Expect('compound_add.a.65535|code', 'ConversionCast');
+        Observer.Expect('add.65535.A', 'Integer|65600');
+        Observer.Expect('sub.65535.A', 'Integer|65470');
+        Observer.Expect('compound_add.65535.A|text', 'Overflow under conversion of System.Int32 value 65600 to System.Char.');
+        Observer.Expect('compound_add.65535.A|code', 'ConversionCast');
+        Observer.Expect('add.65535.a', 'Integer|65632');
+        Observer.Expect('sub.65535.a', 'Integer|65438');
+        Observer.Expect('compound_add.65535.a|text', 'Overflow under conversion of System.Int32 value 65632 to System.Char.');
+        Observer.Expect('compound_add.65535.a|code', 'ConversionCast');
+        Observer.Expect('add.65535.65535', 'Integer|131070');
+        Observer.Expect('sub.65535.65535', 'Integer|0');
+        Observer.Expect('compound_add.65535.65535|text', 'Overflow under conversion of System.Int32 value 131070 to System.Char.');
+        Observer.Expect('compound_add.65535.65535|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2556,18 +2590,6 @@ codeunit 92449 "LT Y31 Ar Char"
         vChar := 97;
         vByte := 65;
         if Try14(V, vByte, vChar) then Observer.Observe('sub.a.65', Util.VShow(V)) else Observer.ObserveError('sub.a.65');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_Byte_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vByte: Byte;
-        vChar: Char;
-    begin
         vChar := 97;
         vByte := 65;
         if Try15(vByte, vChar) then Observer.Observe('compound_add.a.65', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.a.65');
@@ -2592,25 +2614,34 @@ codeunit 92449 "LT Y31 Ar Char"
         vChar := 65535;
         vByte := 255;
         if Try13(V, vByte, vChar) then Observer.Observe('add.65535.255', Util.VShow(V)) else Observer.ObserveError('add.65535.255');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_Byte_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vByte: Byte;
-        vChar: Char;
-    begin
         vChar := 65535;
         vByte := 255;
         if Try14(V, vByte, vChar) then Observer.Observe('sub.65535.255', Util.VShow(V)) else Observer.ObserveError('sub.65535.255');
         vChar := 65535;
         vByte := 255;
         if Try15(vByte, vChar) then Observer.Observe('compound_add.65535.255', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.65535.255');
-        Observer.Finish();
+        Observer.Expect('add.A.65', 'Integer|130');
+        Observer.Expect('sub.A.65', 'Integer|0');
+        Observer.Expect('compound_add.A.65', 'é');
+        Observer.Expect('add.A.255', 'Integer|225');
+        Observer.Expect('sub.A.255', 'Integer|-95');
+        Observer.Expect('compound_add.A.255', 'ß');
+        Observer.Expect('add.a.65', 'Integer|162');
+        Observer.Expect('sub.a.65', 'Integer|32');
+        Observer.Expect('compound_add.a.65', 'ó');
+        Observer.Expect('add.a.255', 'Integer|257');
+        Observer.Expect('sub.a.255', 'Integer|-63');
+        Observer.Expect('compound_add.a.255|text', 'Overflow under conversion of System.Int32 value 257 to System.Byte.');
+        Observer.Expect('compound_add.a.255|code', 'ConversionCast');
+        Observer.Expect('add.65535.65', 'Integer|65600');
+        Observer.Expect('sub.65535.65', 'Integer|65470');
+        Observer.Expect('compound_add.65535.65|text', 'Overflow under conversion of System.Int32 value 65600 to System.Byte.');
+        Observer.Expect('compound_add.65535.65|code', 'ConversionCast');
+        Observer.Expect('add.65535.255', 'Integer|65695');
+        Observer.Expect('sub.65535.255', 'Integer|65375');
+        Observer.Expect('compound_add.65535.255|text', 'Overflow under conversion of System.Int32 value 65695 to System.Byte.');
+        Observer.Expect('compound_add.65535.255|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2646,18 +2677,6 @@ codeunit 92449 "LT Y31 Ar Char"
         vChar := 97;
         vOption := 1;
         if Try17(V, vChar, vOption) then Observer.Observe('sub.a.1', Util.VShow(V)) else Observer.ObserveError('sub.a.1');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_Option_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vChar: Char;
-        vOption: Option A,B,C;
-    begin
         vChar := 97;
         vOption := 1;
         if Try18(vChar, vOption) then Observer.Observe('compound_add.a.1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.a.1');
@@ -2682,25 +2701,31 @@ codeunit 92449 "LT Y31 Ar Char"
         vChar := 65535;
         vOption := 3;
         if Try16(V, vChar, vOption) then Observer.Observe('add.65535.3', Util.VShow(V)) else Observer.ObserveError('add.65535.3');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_Option_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vChar: Char;
-        vOption: Option A,B,C;
-    begin
         vChar := 65535;
         vOption := 3;
         if Try17(V, vChar, vOption) then Observer.Observe('sub.65535.3', Util.VShow(V)) else Observer.ObserveError('sub.65535.3');
         vChar := 65535;
         vOption := 3;
         if Try18(vChar, vOption) then Observer.Observe('compound_add.65535.3', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.65535.3');
-        Observer.Finish();
+        Observer.Expect('add.A.1', 'Integer|66');
+        Observer.Expect('sub.A.1', 'Integer|64');
+        Observer.Expect('compound_add.A.1', '66|66');
+        Observer.Expect('add.A.3', 'Integer|68');
+        Observer.Expect('sub.A.3', 'Integer|62');
+        Observer.Expect('compound_add.A.3', '68|68');
+        Observer.Expect('add.a.1', 'Integer|98');
+        Observer.Expect('sub.a.1', 'Integer|96');
+        Observer.Expect('compound_add.a.1', '98|98');
+        Observer.Expect('add.a.3', 'Integer|100');
+        Observer.Expect('sub.a.3', 'Integer|94');
+        Observer.Expect('compound_add.a.3', '100|100');
+        Observer.Expect('add.65535.1', 'Integer|65536');
+        Observer.Expect('sub.65535.1', 'Integer|65534');
+        Observer.Expect('compound_add.65535.1', '65536|65536');
+        Observer.Expect('add.65535.3', 'Integer|65538');
+        Observer.Expect('sub.65535.3', 'Integer|65532');
+        Observer.Expect('compound_add.65535.3', '65538|65538');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2736,18 +2761,6 @@ codeunit 92449 "LT Y31 Ar Char"
         vChar := 97;
         vEnum := "LT Y31 E"::B;
         if Try20(V, vChar, vEnum) then Observer.Observe('sub.a.B', Util.VShow(V)) else Observer.ObserveError('sub.a.B');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_Enum_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vChar: Char;
-        vEnum: Enum "LT Y31 E";
-    begin
         vChar := 97;
         vEnum := "LT Y31 E"::B;
         if Try21(vChar, vEnum) then Observer.Observe('compound_add.a.B', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('compound_add.a.B');
@@ -2772,25 +2785,31 @@ codeunit 92449 "LT Y31 Ar Char"
         vChar := 65535;
         vEnum := 5;
         if Try19(V, vChar, vEnum) then Observer.Observe('add.65535.ord5', Util.VShow(V)) else Observer.ObserveError('add.65535.ord5');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_Enum_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vChar: Char;
-        vEnum: Enum "LT Y31 E";
-    begin
         vChar := 65535;
         vEnum := 5;
         if Try20(V, vChar, vEnum) then Observer.Observe('sub.65535.ord5', Util.VShow(V)) else Observer.ObserveError('sub.65535.ord5');
         vChar := 65535;
         vEnum := 5;
         if Try21(vChar, vEnum) then Observer.Observe('compound_add.65535.ord5', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('compound_add.65535.ord5');
-        Observer.Finish();
+        Observer.Expect('add.A.B', 'Integer|66');
+        Observer.Expect('sub.A.B', 'Integer|64');
+        Observer.Expect('compound_add.A.B', '66|66');
+        Observer.Expect('add.A.ord5', 'Integer|70');
+        Observer.Expect('sub.A.ord5', 'Integer|60');
+        Observer.Expect('compound_add.A.ord5', '70|70');
+        Observer.Expect('add.a.B', 'Integer|98');
+        Observer.Expect('sub.a.B', 'Integer|96');
+        Observer.Expect('compound_add.a.B', '98|98');
+        Observer.Expect('add.a.ord5', 'Integer|102');
+        Observer.Expect('sub.a.ord5', 'Integer|92');
+        Observer.Expect('compound_add.a.ord5', '102|102');
+        Observer.Expect('add.65535.B', 'Integer|65536');
+        Observer.Expect('sub.65535.B', 'Integer|65534');
+        Observer.Expect('compound_add.65535.B', '65536|65536');
+        Observer.Expect('add.65535.ord5', 'Integer|65540');
+        Observer.Expect('sub.65535.ord5', 'Integer|65530');
+        Observer.Expect('compound_add.65535.ord5', '65540|65540');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2826,20 +2845,19 @@ codeunit 92449 "LT Y31 Ar Char"
         vChar := 65535;
         vEnumImpl := "LT Y31 EI"::A;
         if Try23(V, vChar, vEnumImpl) then Observer.Observe('sub.65535.A', Util.VShow(V)) else Observer.ObserveError('sub.65535.A');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_EnumImpl_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vChar: Char;
-        vEnumImpl: Enum "LT Y31 EI";
-    begin
         vChar := 65535;
         vEnumImpl := "LT Y31 EI"::A;
         if Try24(vChar, vEnumImpl) then Observer.Observe('compound_add.65535.A', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('compound_add.65535.A');
-        Observer.Finish();
+        Observer.Expect('add.A.A', 'Integer|65');
+        Observer.Expect('sub.A.A', 'Integer|65');
+        Observer.Expect('compound_add.A.A', '65|65');
+        Observer.Expect('add.a.A', 'Integer|97');
+        Observer.Expect('sub.a.A', 'Integer|97');
+        Observer.Expect('compound_add.a.A', '97|97');
+        Observer.Expect('add.65535.A', 'Integer|65535');
+        Observer.Expect('sub.65535.A', 'Integer|65535');
+        Observer.Expect('compound_add.65535.A', '65535|65535');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2875,18 +2893,6 @@ codeunit 92449 "LT Y31 Ar Char"
         vChar := 65;
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         if Try26(vChar, vText) then Observer.Observe('compound_add.A.guidlow', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.A.guidlow');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_Text_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vChar: Char;
-        vText: Text;
-    begin
         vChar := 97;
         vText := 'a';
         if Try25(V, vChar, vText) then Observer.Observe('add.a.a', Util.VShow(V)) else Observer.ObserveError('add.a.a');
@@ -2911,18 +2917,6 @@ codeunit 92449 "LT Y31 Ar Char"
         vChar := 97;
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         if Try26(vChar, vText) then Observer.Observe('compound_add.a.guidlow', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.a.guidlow');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_Text_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vChar: Char;
-        vText: Text;
-    begin
         vChar := 65535;
         vText := 'a';
         if Try25(V, vChar, vText) then Observer.Observe('add.65535.a', Util.VShow(V)) else Observer.ObserveError('add.65535.a');
@@ -2947,7 +2941,31 @@ codeunit 92449 "LT Y31 Ar Char"
         vChar := 65535;
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         if Try26(vChar, vText) then Observer.Observe('compound_add.65535.guidlow', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.65535.guidlow');
-        Observer.Finish();
+        Observer.Expect('add.A.a', 'Text|Aa');
+        Observer.Expect('compound_add.A.a', 'aA|2');
+        Observer.Expect('add.A.A', 'Text|AA');
+        Observer.Expect('compound_add.A.A', 'AA|2');
+        Observer.Expect('add.A.abc', 'Text|Aabc');
+        Observer.Expect('compound_add.A.abc', 'abcA|4');
+        Observer.Expect('add.A.guidlow', 'Text|A5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b');
+        Observer.Expect('compound_add.A.guidlow', '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6bA|37');
+        Observer.Expect('add.a.a', 'Text|aa');
+        Observer.Expect('compound_add.a.a', 'aa|2');
+        Observer.Expect('add.a.A', 'Text|aA');
+        Observer.Expect('compound_add.a.A', 'Aa|2');
+        Observer.Expect('add.a.abc', 'Text|aabc');
+        Observer.Expect('compound_add.a.abc', 'abca|4');
+        Observer.Expect('add.a.guidlow', 'Text|a5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b');
+        Observer.Expect('compound_add.a.guidlow', '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6ba|37');
+        Observer.Expect('add.65535.a', 'Text|\uFFFFa');
+        Observer.Expect('compound_add.65535.a', 'a\uFFFF|2');
+        Observer.Expect('add.65535.A', 'Text|\uFFFFA');
+        Observer.Expect('compound_add.65535.A', 'A\uFFFF|2');
+        Observer.Expect('add.65535.abc', 'Text|\uFFFFabc');
+        Observer.Expect('compound_add.65535.abc', 'abc\uFFFF|4');
+        Observer.Expect('add.65535.guidlow', 'Text|\uFFFF5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b');
+        Observer.Expect('compound_add.65535.guidlow', '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b\uFFFF|37');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2977,7 +2995,13 @@ codeunit 92449 "LT Y31 Ar Char"
         vChar := 65535;
         vText10 := 'abc';
         if Try28(vChar, vText10) then Observer.Observe('compound_add.65535.abc', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('compound_add.65535.abc');
-        Observer.Finish();
+        Observer.Expect('add.A.abc', 'Text|Aabc');
+        Observer.Expect('compound_add.A.abc', 'abcA|4');
+        Observer.Expect('add.a.abc', 'Text|aabc');
+        Observer.Expect('compound_add.a.abc', 'abca|4');
+        Observer.Expect('add.65535.abc', 'Text|\uFFFFabc');
+        Observer.Expect('compound_add.65535.abc', 'abc\uFFFF|4');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3013,18 +3037,6 @@ codeunit 92449 "LT Y31 Ar Char"
         vChar := 97;
         vCode10 := 'ABC';
         if Try30(vChar, vCode10) then Observer.Observe('compound_add.a.ABC', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('compound_add.a.ABC');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_Code10_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vChar: Char;
-        vCode10: Code[10];
-    begin
         vChar := 65535;
         vCode10 := 'A';
         if Try29(V, vChar, vCode10) then Observer.Observe('add.65535.A', Util.VShow(V)) else Observer.ObserveError('add.65535.A');
@@ -3037,7 +3049,19 @@ codeunit 92449 "LT Y31 Ar Char"
         vChar := 65535;
         vCode10 := 'ABC';
         if Try30(vChar, vCode10) then Observer.Observe('compound_add.65535.ABC', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('compound_add.65535.ABC');
-        Observer.Finish();
+        Observer.Expect('add.A.A', 'Text|AA');
+        Observer.Expect('compound_add.A.A', 'AA|2');
+        Observer.Expect('add.A.ABC', 'Text|AABC');
+        Observer.Expect('compound_add.A.ABC', 'ABCA|4');
+        Observer.Expect('add.a.A', 'Text|aA');
+        Observer.Expect('compound_add.a.A', 'AA|2');
+        Observer.Expect('add.a.ABC', 'Text|aABC');
+        Observer.Expect('compound_add.a.ABC', 'ABCA|4');
+        Observer.Expect('add.65535.A', 'Text|\uFFFFA');
+        Observer.Expect('compound_add.65535.A', 'A\uFFFF|2');
+        Observer.Expect('add.65535.ABC', 'Text|\uFFFFABC');
+        Observer.Expect('compound_add.65535.ABC', 'ABC\uFFFF|4');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3067,7 +3091,13 @@ codeunit 92449 "LT Y31 Ar Char"
         vChar := 65535;
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         if Try32(vChar, vGuid) then Observer.Observe('compound_add.65535.g', Format(vGuid)) else Observer.ObserveError('compound_add.65535.g');
-        Observer.Finish();
+        Observer.Expect('add.A.g', 'Text|A{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('compound_add.A.g', '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('add.a.g', 'Text|a{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('compound_add.a.g', '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('add.65535.g', 'Text|\uFFFF{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('compound_add.65535.g', '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3086,7 +3116,10 @@ codeunit 92449 "LT Y31 Ar Char"
         vChar := 65535;
         vDate := 20260131D;
         if Try33(vChar, vDate) then Observer.Observe('compound_add.65535.d', Format(vDate, 0, 9)) else Observer.ObserveError('compound_add.65535.d');
-        Observer.Finish();
+        Observer.Expect('compound_add.A.d', '2026-04-06');
+        Observer.Expect('compound_add.a.d', '2026-05-08');
+        Observer.Expect('compound_add.65535.d', '2205-07-07');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3105,7 +3138,10 @@ codeunit 92449 "LT Y31 Ar Char"
         vChar := 65535;
         vTime := 120000T;
         if Try34(vChar, vTime) then Observer.Observe('compound_add.65535.t', Format(vTime, 0, 9)) else Observer.ObserveError('compound_add.65535.t');
-        Observer.Finish();
+        Observer.Expect('compound_add.A.t', '12:00:00.065');
+        Observer.Expect('compound_add.a.t', '12:00:00.097');
+        Observer.Expect('compound_add.65535.t', '12:01:05.535');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3124,7 +3160,10 @@ codeunit 92449 "LT Y31 Ar Char"
         vChar := 65535;
         vDateTime := CreateDateTime(20260131D, 120000T);
         if Try35(vChar, vDateTime) then Observer.Observe('compound_add.65535.dt', Format(vDateTime, 0, 9)) else Observer.ObserveError('compound_add.65535.dt');
-        Observer.Finish();
+        Observer.Expect('compound_add.A.dt', '2026-01-31T12:00:00.065Z');
+        Observer.Expect('compound_add.a.dt', '2026-01-31T12:00:00.097Z');
+        Observer.Expect('compound_add.65535.dt', '2026-01-31T12:01:05.535Z');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3160,20 +3199,19 @@ codeunit 92449 "LT Y31 Ar Char"
         vChar := 65535;
         vDuration := 65;
         if Try37(V, vChar, vDuration) then Observer.Observe('sub.65535.65', Util.VShow(V)) else Observer.ObserveError('sub.65535.65');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_Duration_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vChar: Char;
-        vDuration: Duration;
-    begin
         vChar := 65535;
         vDuration := 65;
         if Try38(vChar, vDuration) then Observer.Observe('compound_add.65535.65', Format(vDuration, 0, 9)) else Observer.ObserveError('compound_add.65535.65');
-        Observer.Finish();
+        Observer.Expect('add.A.65', 'BigInteger|130');
+        Observer.Expect('sub.A.65', 'BigInteger|0');
+        Observer.Expect('compound_add.A.65', 'P0DT0H0M0.13S');
+        Observer.Expect('add.a.65', 'BigInteger|162');
+        Observer.Expect('sub.a.65', 'BigInteger|32');
+        Observer.Expect('compound_add.a.65', 'P0DT0H0M0.162S');
+        Observer.Expect('add.65535.65', 'BigInteger|65600');
+        Observer.Expect('sub.65535.65', 'BigInteger|65470');
+        Observer.Expect('compound_add.65535.65', 'P0DT0H1M5.6S');
+        Observer.Verify();
     end;
 
     [Test]
@@ -3190,7 +3228,10 @@ codeunit 92449 "LT Y31 Ar Char"
         if Try39(V, vChar) then Observer.Observe('add.a.abc', Util.VShow(V)) else Observer.ObserveError('add.a.abc');
         vChar := 65535;
         if Try39(V, vChar) then Observer.Observe('add.65535.abc', Util.VShow(V)) else Observer.ObserveError('add.65535.abc');
-        Observer.Finish();
+        Observer.Expect('add.A.abc', 'Text|Aabc');
+        Observer.Expect('add.a.abc', 'Text|aabc');
+        Observer.Expect('add.65535.abc', 'Text|\uFFFFabc');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -3463,11 +3504,10 @@ codeunit 92449 "LT Y31 Ar Char"
 
 codeunit 92450 "LT Y31 Ar Byte"
 {
-    Subtype = Test;
-    TestPermissions = Disabled;
+    // Every procedure is held (no BC result), so this is no test codeunit.
 
-    [Test]
-    procedure Byte_Integer()
+    // Held: no BC result for this part on the corpus CI (see scripts/conversion-matrix/README.md, "Held").
+    procedure Held_Byte_Integer()
     var
         Observer: Codeunit "Probe Observer";
         Util: Codeunit "LT Y31 Conv Util";
@@ -3502,8 +3542,8 @@ codeunit 92450 "LT Y31 Ar Byte"
         Observer.Finish();
     end;
 
-    [Test]
-    procedure Byte_Integer_2()
+    // Held: no BC result for this part on the corpus CI (see scripts/conversion-matrix/README.md, "Held").
+    procedure Held_Byte_Integer_2()
     var
         Observer: Codeunit "Probe Observer";
         Util: Codeunit "LT Y31 Conv Util";
@@ -3538,8 +3578,8 @@ codeunit 92450 "LT Y31 Ar Byte"
         Observer.Finish();
     end;
 
-    [Test]
-    procedure Byte_Integer_3()
+    // Held: no BC result for this part on the corpus CI (see scripts/conversion-matrix/README.md, "Held").
+    procedure Held_Byte_Integer_3()
     var
         Observer: Codeunit "Probe Observer";
         Util: Codeunit "LT Y31 Conv Util";
@@ -3556,8 +3596,8 @@ codeunit 92450 "LT Y31 Ar Byte"
         Observer.Finish();
     end;
 
-    [Test]
-    procedure Byte_Decimal()
+    // Held: no BC result for this part on the corpus CI (see scripts/conversion-matrix/README.md, "Held").
+    procedure Held_Byte_Decimal()
     var
         Observer: Codeunit "Probe Observer";
         Util: Codeunit "LT Y31 Conv Util";
@@ -3592,8 +3632,8 @@ codeunit 92450 "LT Y31 Ar Byte"
         Observer.Finish();
     end;
 
-    [Test]
-    procedure Byte_Decimal_2()
+    // Held: no BC result for this part on the corpus CI (see scripts/conversion-matrix/README.md, "Held").
+    procedure Held_Byte_Decimal_2()
     var
         Observer: Codeunit "Probe Observer";
         Util: Codeunit "LT Y31 Conv Util";
@@ -3616,8 +3656,8 @@ codeunit 92450 "LT Y31 Ar Byte"
         Observer.Finish();
     end;
 
-    [Test]
-    procedure Byte_Char()
+    // Held: no BC result for this part on the corpus CI (see scripts/conversion-matrix/README.md, "Held").
+    procedure Held_Byte_Char()
     var
         Observer: Codeunit "Probe Observer";
         Util: Codeunit "LT Y31 Conv Util";
@@ -3652,8 +3692,8 @@ codeunit 92450 "LT Y31 Ar Byte"
         Observer.Finish();
     end;
 
-    [Test]
-    procedure Byte_Char_2()
+    // Held: no BC result for this part on the corpus CI (see scripts/conversion-matrix/README.md, "Held").
+    procedure Held_Byte_Char_2()
     var
         Observer: Codeunit "Probe Observer";
         Util: Codeunit "LT Y31 Conv Util";
@@ -3688,8 +3728,8 @@ codeunit 92450 "LT Y31 Ar Byte"
         Observer.Finish();
     end;
 
-    [Test]
-    procedure Byte_Char_3()
+    // Held: no BC result for this part on the corpus CI (see scripts/conversion-matrix/README.md, "Held").
+    procedure Held_Byte_Char_3()
     var
         Observer: Codeunit "Probe Observer";
         Util: Codeunit "LT Y31 Conv Util";
@@ -3706,8 +3746,8 @@ codeunit 92450 "LT Y31 Ar Byte"
         Observer.Finish();
     end;
 
-    [Test]
-    procedure Byte_Byte_Same()
+    // Held: no BC result for this part on the corpus CI (see scripts/conversion-matrix/README.md, "Held").
+    procedure Held_Byte_Byte_Same()
     var
         Observer: Codeunit "Probe Observer";
         Util: Codeunit "LT Y31 Conv Util";
@@ -3742,8 +3782,8 @@ codeunit 92450 "LT Y31 Ar Byte"
         Observer.Finish();
     end;
 
-    [Test]
-    procedure Byte_Byte_Same_2()
+    // Held: no BC result for this part on the corpus CI (see scripts/conversion-matrix/README.md, "Held").
+    procedure Held_Byte_Byte_Same_2()
     var
         Observer: Codeunit "Probe Observer";
         Util: Codeunit "LT Y31 Conv Util";
@@ -3766,8 +3806,8 @@ codeunit 92450 "LT Y31 Ar Byte"
         Observer.Finish();
     end;
 
-    [Test]
-    procedure Byte_Option()
+    // Held: no BC result for this part on the corpus CI (see scripts/conversion-matrix/README.md, "Held").
+    procedure Held_Byte_Option()
     var
         Observer: Codeunit "Probe Observer";
         Util: Codeunit "LT Y31 Conv Util";
@@ -3802,8 +3842,8 @@ codeunit 92450 "LT Y31 Ar Byte"
         Observer.Finish();
     end;
 
-    [Test]
-    procedure Byte_Option_2()
+    // Held: no BC result for this part on the corpus CI (see scripts/conversion-matrix/README.md, "Held").
+    procedure Held_Byte_Option_2()
     var
         Observer: Codeunit "Probe Observer";
         Util: Codeunit "LT Y31 Conv Util";
@@ -3826,8 +3866,8 @@ codeunit 92450 "LT Y31 Ar Byte"
         Observer.Finish();
     end;
 
-    [Test]
-    procedure Byte_Date()
+    // Held: no BC result for this part on the corpus CI (see scripts/conversion-matrix/README.md, "Held").
+    procedure Held_Byte_Date()
     var
         Observer: Codeunit "Probe Observer";
         vByte: Byte;
@@ -3842,8 +3882,8 @@ codeunit 92450 "LT Y31 Ar Byte"
         Observer.Finish();
     end;
 
-    [Test]
-    procedure Byte_Time()
+    // Held: no BC result for this part on the corpus CI (see scripts/conversion-matrix/README.md, "Held").
+    procedure Held_Byte_Time()
     var
         Observer: Codeunit "Probe Observer";
         vByte: Byte;
@@ -3858,8 +3898,8 @@ codeunit 92450 "LT Y31 Ar Byte"
         Observer.Finish();
     end;
 
-    [Test]
-    procedure Byte_DateTime()
+    // Held: no BC result for this part on the corpus CI (see scripts/conversion-matrix/README.md, "Held").
+    procedure Held_Byte_DateTime()
     var
         Observer: Codeunit "Probe Observer";
         vByte: Byte;
@@ -3874,8 +3914,8 @@ codeunit 92450 "LT Y31 Ar Byte"
         Observer.Finish();
     end;
 
-    [Test]
-    procedure Byte_Duration()
+    // Held: no BC result for this part on the corpus CI (see scripts/conversion-matrix/README.md, "Held").
+    procedure Held_Byte_Duration()
     var
         Observer: Codeunit "Probe Observer";
         Util: Codeunit "LT Y31 Conv Util";
@@ -4089,18 +4129,6 @@ codeunit 92451 "LT Y31 Ar Option"
         vOption := 1;
         vInteger := 2147483647;
         if Try2(V, vInteger, vOption) then Observer.Observe('sub.1.max', Util.VShow(V)) else Observer.ObserveError('sub.1.max');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Option_Integer_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vInteger: Integer;
-        vOption: Option A,B,C;
-    begin
         vOption := 1;
         vInteger := 2147483647;
         if Try3(vInteger, vOption) then Observer.Observe('compound_add.1.max', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.1.max');
@@ -4125,25 +4153,35 @@ codeunit 92451 "LT Y31 Ar Option"
         vOption := 3;
         vInteger := 2147483647;
         if Try1(V, vInteger, vOption) then Observer.Observe('add.3.max', Util.VShow(V)) else Observer.ObserveError('add.3.max');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Option_Integer_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vInteger: Integer;
-        vOption: Option A,B,C;
-    begin
         vOption := 3;
         vInteger := 2147483647;
         if Try2(V, vInteger, vOption) then Observer.Observe('sub.3.max', Util.VShow(V)) else Observer.ObserveError('sub.3.max');
         vOption := 3;
         vInteger := 2147483647;
         if Try3(vInteger, vOption) then Observer.Observe('compound_add.3.max', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.3.max');
-        Observer.Finish();
+        Observer.Expect('add.1.65', 'Integer|66');
+        Observer.Expect('sub.1.65', 'Integer|-64');
+        Observer.Expect('compound_add.1.65', '66');
+        Observer.Expect('add.1.1', 'Integer|2');
+        Observer.Expect('sub.1.1', 'Integer|0');
+        Observer.Expect('compound_add.1.1', '2');
+        Observer.Expect('add.1.max|text', 'Arithmetic operation resulted in an overflow.');
+        Observer.Expect('add.1.max|code', 'AL:Overflow');
+        Observer.Expect('sub.1.max', 'Integer|-2147483646');
+        Observer.Expect('compound_add.1.max|text', 'Arithmetic operation resulted in an overflow.');
+        Observer.Expect('compound_add.1.max|code', 'AL:Overflow');
+        Observer.Expect('add.3.65', 'Integer|68');
+        Observer.Expect('sub.3.65', 'Integer|-62');
+        Observer.Expect('compound_add.3.65', '68');
+        Observer.Expect('add.3.1', 'Integer|4');
+        Observer.Expect('sub.3.1', 'Integer|2');
+        Observer.Expect('compound_add.3.1', '4');
+        Observer.Expect('add.3.max|text', 'Arithmetic operation resulted in an overflow.');
+        Observer.Expect('add.3.max|code', 'AL:Overflow');
+        Observer.Expect('sub.3.max', 'Integer|-2147483644');
+        Observer.Expect('compound_add.3.max|text', 'Arithmetic operation resulted in an overflow.');
+        Observer.Expect('compound_add.3.max|code', 'AL:Overflow');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4173,7 +4211,13 @@ codeunit 92451 "LT Y31 Ar Option"
         vOption := 3;
         vBigInteger := 65;
         if Try6(vBigInteger, vOption) then Observer.Observe('compound_add.3.65', Format(vBigInteger, 0, 9)) else Observer.ObserveError('compound_add.3.65');
-        Observer.Finish();
+        Observer.Expect('add.1.65', 'BigInteger|66');
+        Observer.Expect('sub.1.65', 'BigInteger|-64');
+        Observer.Expect('compound_add.1.65', '66');
+        Observer.Expect('add.3.65', 'BigInteger|68');
+        Observer.Expect('sub.3.65', 'BigInteger|-62');
+        Observer.Expect('compound_add.3.65', '68');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4209,18 +4253,6 @@ codeunit 92451 "LT Y31 Ar Option"
         vOption := 3;
         vDecimal := 65;
         if Try8(V, vDecimal, vOption) then Observer.Observe('sub.3.65', Util.VShow(V)) else Observer.ObserveError('sub.3.65');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Option_Decimal_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vDecimal: Decimal;
-        vOption: Option A,B,C;
-    begin
         vOption := 3;
         vDecimal := 65;
         if Try9(vDecimal, vOption) then Observer.Observe('compound_add.3.65', Format(vDecimal, 0, 9)) else Observer.ObserveError('compound_add.3.65');
@@ -4233,7 +4265,19 @@ codeunit 92451 "LT Y31 Ar Option"
         vOption := 3;
         vDecimal := 1.5;
         if Try9(vDecimal, vOption) then Observer.Observe('compound_add.3.1p5', Format(vDecimal, 0, 9)) else Observer.ObserveError('compound_add.3.1p5');
-        Observer.Finish();
+        Observer.Expect('add.1.65', 'Decimal|66');
+        Observer.Expect('sub.1.65', 'Decimal|-64');
+        Observer.Expect('compound_add.1.65', '66');
+        Observer.Expect('add.1.1p5', 'Decimal|2.5');
+        Observer.Expect('sub.1.1p5', 'Decimal|-0.5');
+        Observer.Expect('compound_add.1.1p5', '2.5');
+        Observer.Expect('add.3.65', 'Decimal|68');
+        Observer.Expect('sub.3.65', 'Decimal|-62');
+        Observer.Expect('compound_add.3.65', '68');
+        Observer.Expect('add.3.1p5', 'Decimal|4.5');
+        Observer.Expect('sub.3.1p5', 'Decimal|1.5');
+        Observer.Expect('compound_add.3.1p5', '4.5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4269,18 +4313,6 @@ codeunit 92451 "LT Y31 Ar Option"
         vOption := 1;
         vChar := 65535;
         if Try11(V, vChar, vOption) then Observer.Observe('sub.1.65535', Util.VShow(V)) else Observer.ObserveError('sub.1.65535');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Option_Char_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vChar: Char;
-        vOption: Option A,B,C;
-    begin
         vOption := 1;
         vChar := 65535;
         if Try12(vChar, vOption) then Observer.Observe('compound_add.1.65535', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.1.65535');
@@ -4305,25 +4337,33 @@ codeunit 92451 "LT Y31 Ar Option"
         vOption := 3;
         vChar := 65535;
         if Try10(V, vChar, vOption) then Observer.Observe('add.3.65535', Util.VShow(V)) else Observer.ObserveError('add.3.65535');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Option_Char_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vChar: Char;
-        vOption: Option A,B,C;
-    begin
         vOption := 3;
         vChar := 65535;
         if Try11(V, vChar, vOption) then Observer.Observe('sub.3.65535', Util.VShow(V)) else Observer.ObserveError('sub.3.65535');
         vOption := 3;
         vChar := 65535;
         if Try12(vChar, vOption) then Observer.Observe('compound_add.3.65535', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.3.65535');
-        Observer.Finish();
+        Observer.Expect('add.1.A', 'Integer|66');
+        Observer.Expect('sub.1.A', 'Integer|-64');
+        Observer.Expect('compound_add.1.A', 'B|66');
+        Observer.Expect('add.1.a', 'Integer|98');
+        Observer.Expect('sub.1.a', 'Integer|-96');
+        Observer.Expect('compound_add.1.a', 'b|98');
+        Observer.Expect('add.1.65535', 'Integer|65536');
+        Observer.Expect('sub.1.65535', 'Integer|-65534');
+        Observer.Expect('compound_add.1.65535|text', 'Overflow under conversion of System.Int32 value 65536 to System.Char.');
+        Observer.Expect('compound_add.1.65535|code', 'ConversionCast');
+        Observer.Expect('add.3.A', 'Integer|68');
+        Observer.Expect('sub.3.A', 'Integer|-62');
+        Observer.Expect('compound_add.3.A', 'D|68');
+        Observer.Expect('add.3.a', 'Integer|100');
+        Observer.Expect('sub.3.a', 'Integer|-94');
+        Observer.Expect('compound_add.3.a', 'd|100');
+        Observer.Expect('add.3.65535', 'Integer|65538');
+        Observer.Expect('sub.3.65535', 'Integer|-65532');
+        Observer.Expect('compound_add.3.65535|text', 'Overflow under conversion of System.Int32 value 65538 to System.Char.');
+        Observer.Expect('compound_add.3.65535|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4359,18 +4399,6 @@ codeunit 92451 "LT Y31 Ar Option"
         vOption := 3;
         vByte := 65;
         if Try14(V, vByte, vOption) then Observer.Observe('sub.3.65', Util.VShow(V)) else Observer.ObserveError('sub.3.65');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Option_Byte_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vByte: Byte;
-        vOption: Option A,B,C;
-    begin
         vOption := 3;
         vByte := 65;
         if Try15(vByte, vOption) then Observer.Observe('compound_add.3.65', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.3.65');
@@ -4383,7 +4411,21 @@ codeunit 92451 "LT Y31 Ar Option"
         vOption := 3;
         vByte := 255;
         if Try15(vByte, vOption) then Observer.Observe('compound_add.3.255', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.3.255');
-        Observer.Finish();
+        Observer.Expect('add.1.65', 'Integer|66');
+        Observer.Expect('sub.1.65', 'Integer|-64');
+        Observer.Expect('compound_add.1.65', 'B');
+        Observer.Expect('add.1.255', 'Integer|256');
+        Observer.Expect('sub.1.255', 'Integer|-254');
+        Observer.Expect('compound_add.1.255|text', 'Overflow under conversion of System.Int32 value 256 to System.Byte.');
+        Observer.Expect('compound_add.1.255|code', 'ConversionCast');
+        Observer.Expect('add.3.65', 'Integer|68');
+        Observer.Expect('sub.3.65', 'Integer|-62');
+        Observer.Expect('compound_add.3.65', 'D');
+        Observer.Expect('add.3.255', 'Integer|258');
+        Observer.Expect('sub.3.255', 'Integer|-252');
+        Observer.Expect('compound_add.3.255|text', 'Overflow under conversion of System.Int32 value 258 to System.Byte.');
+        Observer.Expect('compound_add.3.255|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4419,18 +4461,6 @@ codeunit 92451 "LT Y31 Ar Option"
         vOption := 3;
         vOption_R := 1;
         if Try17(V, vOption, vOption_R) then Observer.Observe('sub.3.1', Util.VShow(V)) else Observer.ObserveError('sub.3.1');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Option_Option_Same_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vOption: Option A,B,C;
-        vOption_R: Option A,B,C;
-    begin
         vOption := 3;
         vOption_R := 1;
         if Try18(vOption, vOption_R) then Observer.Observe('compound_add.3.1', Format(vOption_R) + '|' + Format(Util.OptOrd(vOption_R))) else Observer.ObserveError('compound_add.3.1');
@@ -4443,7 +4473,19 @@ codeunit 92451 "LT Y31 Ar Option"
         vOption := 3;
         vOption_R := 3;
         if Try18(vOption, vOption_R) then Observer.Observe('compound_add.3.3', Format(vOption_R) + '|' + Format(Util.OptOrd(vOption_R))) else Observer.ObserveError('compound_add.3.3');
-        Observer.Finish();
+        Observer.Expect('add.1.1', 'Option|2');
+        Observer.Expect('sub.1.1', 'Option|0');
+        Observer.Expect('compound_add.1.1', 'C|2');
+        Observer.Expect('add.1.3', 'Option|4');
+        Observer.Expect('sub.1.3', 'Option|-2');
+        Observer.Expect('compound_add.1.3', '4|4');
+        Observer.Expect('add.3.1', 'Option|4');
+        Observer.Expect('sub.3.1', 'Option|2');
+        Observer.Expect('compound_add.3.1', '4|4');
+        Observer.Expect('add.3.3', 'Option|6');
+        Observer.Expect('sub.3.3', 'Option|0');
+        Observer.Expect('compound_add.3.3', '6|6');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4479,18 +4521,6 @@ codeunit 92451 "LT Y31 Ar Option"
         vOption := 3;
         vEnum := "LT Y31 E"::B;
         if Try20(V, vEnum, vOption) then Observer.Observe('sub.3.B', Util.VShow(V)) else Observer.ObserveError('sub.3.B');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Option_Enum_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vEnum: Enum "LT Y31 E";
-        vOption: Option A,B,C;
-    begin
         vOption := 3;
         vEnum := "LT Y31 E"::B;
         if Try21(vEnum, vOption) then Observer.Observe('compound_add.3.B', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('compound_add.3.B');
@@ -4503,7 +4533,19 @@ codeunit 92451 "LT Y31 Ar Option"
         vOption := 3;
         vEnum := 5;
         if Try21(vEnum, vOption) then Observer.Observe('compound_add.3.ord5', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('compound_add.3.ord5');
-        Observer.Finish();
+        Observer.Expect('add.1.B', 'Option|2');
+        Observer.Expect('sub.1.B', 'Option|0');
+        Observer.Expect('compound_add.1.B', 'C|2');
+        Observer.Expect('add.1.ord5', 'Option|6');
+        Observer.Expect('sub.1.ord5', 'Option|-4');
+        Observer.Expect('compound_add.1.ord5', '6|6');
+        Observer.Expect('add.3.B', 'Option|4');
+        Observer.Expect('sub.3.B', 'Option|2');
+        Observer.Expect('compound_add.3.B', '4|4');
+        Observer.Expect('add.3.ord5', 'Option|8');
+        Observer.Expect('sub.3.ord5', 'Option|-2');
+        Observer.Expect('compound_add.3.ord5', '8|8');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4533,7 +4575,13 @@ codeunit 92451 "LT Y31 Ar Option"
         vOption := 3;
         vEnumImpl := "LT Y31 EI"::A;
         if Try24(vEnumImpl, vOption) then Observer.Observe('compound_add.3.A', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('compound_add.3.A');
-        Observer.Finish();
+        Observer.Expect('add.1.A', 'Option|1');
+        Observer.Expect('sub.1.A', 'Option|1');
+        Observer.Expect('compound_add.1.A', '1|1');
+        Observer.Expect('add.3.A', 'Option|3');
+        Observer.Expect('sub.3.A', 'Option|3');
+        Observer.Expect('compound_add.3.A', '3|3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4549,7 +4597,9 @@ codeunit 92451 "LT Y31 Ar Option"
         vOption := 3;
         vDate := 20260131D;
         if Try25(vDate, vOption) then Observer.Observe('compound_add.3.d', Format(vDate, 0, 9)) else Observer.ObserveError('compound_add.3.d');
-        Observer.Finish();
+        Observer.Expect('compound_add.1.d', '2026-02-01');
+        Observer.Expect('compound_add.3.d', '2026-02-03');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4565,7 +4615,9 @@ codeunit 92451 "LT Y31 Ar Option"
         vOption := 3;
         vTime := 120000T;
         if Try26(vOption, vTime) then Observer.Observe('compound_add.3.t', Format(vTime, 0, 9)) else Observer.ObserveError('compound_add.3.t');
-        Observer.Finish();
+        Observer.Expect('compound_add.1.t', '12:00:00.001');
+        Observer.Expect('compound_add.3.t', '12:00:00.003');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4581,7 +4633,9 @@ codeunit 92451 "LT Y31 Ar Option"
         vOption := 3;
         vDateTime := CreateDateTime(20260131D, 120000T);
         if Try27(vDateTime, vOption) then Observer.Observe('compound_add.3.dt', Format(vDateTime, 0, 9)) else Observer.ObserveError('compound_add.3.dt');
-        Observer.Finish();
+        Observer.Expect('compound_add.1.dt', '2026-01-31T12:00:00.001Z');
+        Observer.Expect('compound_add.3.dt', '2026-01-31T12:00:00.003Z');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4611,7 +4665,13 @@ codeunit 92451 "LT Y31 Ar Option"
         vOption := 3;
         vDuration := 65;
         if Try30(vDuration, vOption) then Observer.Observe('compound_add.3.65', Format(vDuration, 0, 9)) else Observer.ObserveError('compound_add.3.65');
-        Observer.Finish();
+        Observer.Expect('add.1.65', 'BigInteger|66');
+        Observer.Expect('sub.1.65', 'BigInteger|-64');
+        Observer.Expect('compound_add.1.65', 'P0DT0H0M0.066S');
+        Observer.Expect('add.3.65', 'BigInteger|68');
+        Observer.Expect('sub.3.65', 'BigInteger|-62');
+        Observer.Expect('compound_add.3.65', 'P0DT0H0M0.068S');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -4859,18 +4919,6 @@ codeunit 92452 "LT Y31 Ar Enum"
         vEnum := "LT Y31 E"::B;
         vInteger := 2147483647;
         if Try2(V, vEnum, vInteger) then Observer.Observe('sub.B.max', Util.VShow(V)) else Observer.ObserveError('sub.B.max');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Enum_Integer_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vEnum: Enum "LT Y31 E";
-        vInteger: Integer;
-    begin
         vEnum := "LT Y31 E"::B;
         vInteger := 2147483647;
         if Try3(vEnum, vInteger) then Observer.Observe('compound_add.B.max', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.B.max');
@@ -4895,25 +4943,35 @@ codeunit 92452 "LT Y31 Ar Enum"
         vEnum := 5;
         vInteger := 2147483647;
         if Try1(V, vEnum, vInteger) then Observer.Observe('add.ord5.max', Util.VShow(V)) else Observer.ObserveError('add.ord5.max');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Enum_Integer_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vEnum: Enum "LT Y31 E";
-        vInteger: Integer;
-    begin
         vEnum := 5;
         vInteger := 2147483647;
         if Try2(V, vEnum, vInteger) then Observer.Observe('sub.ord5.max', Util.VShow(V)) else Observer.ObserveError('sub.ord5.max');
         vEnum := 5;
         vInteger := 2147483647;
         if Try3(vEnum, vInteger) then Observer.Observe('compound_add.ord5.max', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.ord5.max');
-        Observer.Finish();
+        Observer.Expect('add.B.65', 'Integer|66');
+        Observer.Expect('sub.B.65', 'Integer|-64');
+        Observer.Expect('compound_add.B.65', '66');
+        Observer.Expect('add.B.1', 'Integer|2');
+        Observer.Expect('sub.B.1', 'Integer|0');
+        Observer.Expect('compound_add.B.1', '2');
+        Observer.Expect('add.B.max|text', 'Arithmetic operation resulted in an overflow.');
+        Observer.Expect('add.B.max|code', 'AL:Overflow');
+        Observer.Expect('sub.B.max', 'Integer|-2147483646');
+        Observer.Expect('compound_add.B.max|text', 'Arithmetic operation resulted in an overflow.');
+        Observer.Expect('compound_add.B.max|code', 'AL:Overflow');
+        Observer.Expect('add.ord5.65', 'Integer|70');
+        Observer.Expect('sub.ord5.65', 'Integer|-60');
+        Observer.Expect('compound_add.ord5.65', '70');
+        Observer.Expect('add.ord5.1', 'Integer|6');
+        Observer.Expect('sub.ord5.1', 'Integer|4');
+        Observer.Expect('compound_add.ord5.1', '6');
+        Observer.Expect('add.ord5.max|text', 'Arithmetic operation resulted in an overflow.');
+        Observer.Expect('add.ord5.max|code', 'AL:Overflow');
+        Observer.Expect('sub.ord5.max', 'Integer|-2147483642');
+        Observer.Expect('compound_add.ord5.max|text', 'Arithmetic operation resulted in an overflow.');
+        Observer.Expect('compound_add.ord5.max|code', 'AL:Overflow');
+        Observer.Verify();
     end;
 
     [Test]
@@ -4949,18 +5007,6 @@ codeunit 92452 "LT Y31 Ar Enum"
         vEnum := "LT Y31 E"::B;
         vChar := 65535;
         if Try5(V, vChar, vEnum) then Observer.Observe('sub.B.65535', Util.VShow(V)) else Observer.ObserveError('sub.B.65535');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Enum_Char_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vChar: Char;
-        vEnum: Enum "LT Y31 E";
-    begin
         vEnum := "LT Y31 E"::B;
         vChar := 65535;
         if Try6(vChar, vEnum) then Observer.Observe('compound_add.B.65535', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.B.65535');
@@ -4985,25 +5031,33 @@ codeunit 92452 "LT Y31 Ar Enum"
         vEnum := 5;
         vChar := 65535;
         if Try4(V, vChar, vEnum) then Observer.Observe('add.ord5.65535', Util.VShow(V)) else Observer.ObserveError('add.ord5.65535');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Enum_Char_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vChar: Char;
-        vEnum: Enum "LT Y31 E";
-    begin
         vEnum := 5;
         vChar := 65535;
         if Try5(V, vChar, vEnum) then Observer.Observe('sub.ord5.65535', Util.VShow(V)) else Observer.ObserveError('sub.ord5.65535');
         vEnum := 5;
         vChar := 65535;
         if Try6(vChar, vEnum) then Observer.Observe('compound_add.ord5.65535', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.ord5.65535');
-        Observer.Finish();
+        Observer.Expect('add.B.A', 'Integer|66');
+        Observer.Expect('sub.B.A', 'Integer|-64');
+        Observer.Expect('compound_add.B.A', 'B|66');
+        Observer.Expect('add.B.a', 'Integer|98');
+        Observer.Expect('sub.B.a', 'Integer|-96');
+        Observer.Expect('compound_add.B.a', 'b|98');
+        Observer.Expect('add.B.65535', 'Integer|65536');
+        Observer.Expect('sub.B.65535', 'Integer|-65534');
+        Observer.Expect('compound_add.B.65535|text', 'Overflow under conversion of System.Int32 value 65536 to System.Char.');
+        Observer.Expect('compound_add.B.65535|code', 'ConversionCast');
+        Observer.Expect('add.ord5.A', 'Integer|70');
+        Observer.Expect('sub.ord5.A', 'Integer|-60');
+        Observer.Expect('compound_add.ord5.A', 'F|70');
+        Observer.Expect('add.ord5.a', 'Integer|102');
+        Observer.Expect('sub.ord5.a', 'Integer|-92');
+        Observer.Expect('compound_add.ord5.a', 'f|102');
+        Observer.Expect('add.ord5.65535', 'Integer|65540');
+        Observer.Expect('sub.ord5.65535', 'Integer|-65530');
+        Observer.Expect('compound_add.ord5.65535|text', 'Overflow under conversion of System.Int32 value 65540 to System.Char.');
+        Observer.Expect('compound_add.ord5.65535|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -5039,18 +5093,6 @@ codeunit 92452 "LT Y31 Ar Enum"
         vEnum := 5;
         vByte := 65;
         if Try8(V, vByte, vEnum) then Observer.Observe('sub.ord5.65', Util.VShow(V)) else Observer.ObserveError('sub.ord5.65');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Enum_Byte_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vByte: Byte;
-        vEnum: Enum "LT Y31 E";
-    begin
         vEnum := 5;
         vByte := 65;
         if Try9(vByte, vEnum) then Observer.Observe('compound_add.ord5.65', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.ord5.65');
@@ -5063,7 +5105,21 @@ codeunit 92452 "LT Y31 Ar Enum"
         vEnum := 5;
         vByte := 255;
         if Try9(vByte, vEnum) then Observer.Observe('compound_add.ord5.255', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.ord5.255');
-        Observer.Finish();
+        Observer.Expect('add.B.65', 'Integer|66');
+        Observer.Expect('sub.B.65', 'Integer|-64');
+        Observer.Expect('compound_add.B.65', 'B');
+        Observer.Expect('add.B.255', 'Integer|256');
+        Observer.Expect('sub.B.255', 'Integer|-254');
+        Observer.Expect('compound_add.B.255|text', 'Overflow under conversion of System.Int32 value 256 to System.Byte.');
+        Observer.Expect('compound_add.B.255|code', 'ConversionCast');
+        Observer.Expect('add.ord5.65', 'Integer|70');
+        Observer.Expect('sub.ord5.65', 'Integer|-60');
+        Observer.Expect('compound_add.ord5.65', 'F');
+        Observer.Expect('add.ord5.255', 'Integer|260');
+        Observer.Expect('sub.ord5.255', 'Integer|-250');
+        Observer.Expect('compound_add.ord5.255|text', 'Overflow under conversion of System.Int32 value 260 to System.Byte.');
+        Observer.Expect('compound_add.ord5.255|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -5099,18 +5155,6 @@ codeunit 92452 "LT Y31 Ar Enum"
         vEnum := 5;
         vOption := 1;
         if Try11(V, vEnum, vOption) then Observer.Observe('sub.ord5.1', Util.VShow(V)) else Observer.ObserveError('sub.ord5.1');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Enum_Option_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vEnum: Enum "LT Y31 E";
-        vOption: Option A,B,C;
-    begin
         vEnum := 5;
         vOption := 1;
         if Try12(vEnum, vOption) then Observer.Observe('compound_add.ord5.1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.ord5.1');
@@ -5123,7 +5167,19 @@ codeunit 92452 "LT Y31 Ar Enum"
         vEnum := 5;
         vOption := 3;
         if Try12(vEnum, vOption) then Observer.Observe('compound_add.ord5.3', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.ord5.3');
-        Observer.Finish();
+        Observer.Expect('add.B.1', 'Option|2');
+        Observer.Expect('sub.B.1', 'Option|0');
+        Observer.Expect('compound_add.B.1', 'C|2');
+        Observer.Expect('add.B.3', 'Option|4');
+        Observer.Expect('sub.B.3', 'Option|-2');
+        Observer.Expect('compound_add.B.3', '4|4');
+        Observer.Expect('add.ord5.1', 'Option|6');
+        Observer.Expect('sub.ord5.1', 'Option|4');
+        Observer.Expect('compound_add.ord5.1', '6|6');
+        Observer.Expect('add.ord5.3', 'Option|8');
+        Observer.Expect('sub.ord5.3', 'Option|2');
+        Observer.Expect('compound_add.ord5.3', '8|8');
+        Observer.Verify();
     end;
 
     [Test]
@@ -5159,18 +5215,6 @@ codeunit 92452 "LT Y31 Ar Enum"
         vEnum := 5;
         vEnum_R := "LT Y31 E"::B;
         if Try14(V, vEnum, vEnum_R) then Observer.Observe('sub.ord5.B', Util.VShow(V)) else Observer.ObserveError('sub.ord5.B');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Enum_Enum_Same_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vEnum: Enum "LT Y31 E";
-        vEnum_R: Enum "LT Y31 E";
-    begin
         vEnum := 5;
         vEnum_R := "LT Y31 E"::B;
         if Try15(vEnum, vEnum_R) then Observer.Observe('compound_add.ord5.B', Format(vEnum_R) + '|' + Format(vEnum_R.AsInteger())) else Observer.ObserveError('compound_add.ord5.B');
@@ -5183,7 +5227,19 @@ codeunit 92452 "LT Y31 Ar Enum"
         vEnum := 5;
         vEnum_R := 5;
         if Try15(vEnum, vEnum_R) then Observer.Observe('compound_add.ord5.ord5', Format(vEnum_R) + '|' + Format(vEnum_R.AsInteger())) else Observer.ObserveError('compound_add.ord5.ord5');
-        Observer.Finish();
+        Observer.Expect('add.B.B', 'Option|2');
+        Observer.Expect('sub.B.B', 'Option|0');
+        Observer.Expect('compound_add.B.B', 'C|2');
+        Observer.Expect('add.B.ord5', 'Option|6');
+        Observer.Expect('sub.B.ord5', 'Option|-4');
+        Observer.Expect('compound_add.B.ord5', '6|6');
+        Observer.Expect('add.ord5.B', 'Option|6');
+        Observer.Expect('sub.ord5.B', 'Option|4');
+        Observer.Expect('compound_add.ord5.B', '6|6');
+        Observer.Expect('add.ord5.ord5', 'Option|10');
+        Observer.Expect('sub.ord5.ord5', 'Option|0');
+        Observer.Expect('compound_add.ord5.ord5', '10|10');
+        Observer.Verify();
     end;
 
     [Test]
@@ -5213,7 +5269,13 @@ codeunit 92452 "LT Y31 Ar Enum"
         vEnum := 5;
         vEnumImpl := "LT Y31 EI"::A;
         if Try18(vEnum, vEnumImpl) then Observer.Observe('compound_add.ord5.A', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('compound_add.ord5.A');
-        Observer.Finish();
+        Observer.Expect('add.B.A', 'Option|1');
+        Observer.Expect('sub.B.A', 'Option|1');
+        Observer.Expect('compound_add.B.A', '1|1');
+        Observer.Expect('add.ord5.A', 'Option|5');
+        Observer.Expect('sub.ord5.A', 'Option|5');
+        Observer.Expect('compound_add.ord5.A', '5|5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -5229,7 +5291,9 @@ codeunit 92452 "LT Y31 Ar Enum"
         vEnum := 5;
         vDate := 20260131D;
         if Try19(vDate, vEnum) then Observer.Observe('compound_add.ord5.d', Format(vDate, 0, 9)) else Observer.ObserveError('compound_add.ord5.d');
-        Observer.Finish();
+        Observer.Expect('compound_add.B.d', '2026-02-01');
+        Observer.Expect('compound_add.ord5.d', '2026-02-05');
+        Observer.Verify();
     end;
 
     [Test]
@@ -5245,7 +5309,9 @@ codeunit 92452 "LT Y31 Ar Enum"
         vEnum := 5;
         vTime := 120000T;
         if Try20(vEnum, vTime) then Observer.Observe('compound_add.ord5.t', Format(vTime, 0, 9)) else Observer.ObserveError('compound_add.ord5.t');
-        Observer.Finish();
+        Observer.Expect('compound_add.B.t', '12:00:00.001');
+        Observer.Expect('compound_add.ord5.t', '12:00:00.005');
+        Observer.Verify();
     end;
 
     [Test]
@@ -5261,7 +5327,9 @@ codeunit 92452 "LT Y31 Ar Enum"
         vEnum := 5;
         vDateTime := CreateDateTime(20260131D, 120000T);
         if Try21(vDateTime, vEnum) then Observer.Observe('compound_add.ord5.dt', Format(vDateTime, 0, 9)) else Observer.ObserveError('compound_add.ord5.dt');
-        Observer.Finish();
+        Observer.Expect('compound_add.B.dt', '2026-01-31T12:00:00.001Z');
+        Observer.Expect('compound_add.ord5.dt', '2026-01-31T12:00:00.005Z');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -5449,20 +5517,19 @@ codeunit 92453 "LT Y31 Ar EnumImpl"
         vEnumImpl := "LT Y31 EI"::A;
         vInteger := 2147483647;
         if Try2(V, vEnumImpl, vInteger) then Observer.Observe('sub.A.max', Util.VShow(V)) else Observer.ObserveError('sub.A.max');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure EnumImpl_Integer_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vEnumImpl: Enum "LT Y31 EI";
-        vInteger: Integer;
-    begin
         vEnumImpl := "LT Y31 EI"::A;
         vInteger := 2147483647;
         if Try3(vEnumImpl, vInteger) then Observer.Observe('compound_add.A.max', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.A.max');
-        Observer.Finish();
+        Observer.Expect('add.A.65', 'Integer|65');
+        Observer.Expect('sub.A.65', 'Integer|-65');
+        Observer.Expect('compound_add.A.65', '65');
+        Observer.Expect('add.A.1', 'Integer|1');
+        Observer.Expect('sub.A.1', 'Integer|-1');
+        Observer.Expect('compound_add.A.1', '1');
+        Observer.Expect('add.A.max', 'Integer|2147483647');
+        Observer.Expect('sub.A.max', 'Integer|-2147483647');
+        Observer.Expect('compound_add.A.max', '2147483647');
+        Observer.Verify();
     end;
 
     [Test]
@@ -5498,21 +5565,19 @@ codeunit 92453 "LT Y31 Ar EnumImpl"
         vEnumImpl := "LT Y31 EI"::A;
         vChar := 65535;
         if Try5(V, vChar, vEnumImpl) then Observer.Observe('sub.A.65535', Util.VShow(V)) else Observer.ObserveError('sub.A.65535');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure EnumImpl_Char_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vChar: Char;
-        vEnumImpl: Enum "LT Y31 EI";
-    begin
         vEnumImpl := "LT Y31 EI"::A;
         vChar := 65535;
         if Try6(vChar, vEnumImpl) then Observer.Observe('compound_add.A.65535', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.A.65535');
-        Observer.Finish();
+        Observer.Expect('add.A.A', 'Integer|65');
+        Observer.Expect('sub.A.A', 'Integer|-65');
+        Observer.Expect('compound_add.A.A', 'A|65');
+        Observer.Expect('add.A.a', 'Integer|97');
+        Observer.Expect('sub.A.a', 'Integer|-97');
+        Observer.Expect('compound_add.A.a', 'a|97');
+        Observer.Expect('add.A.65535', 'Integer|65535');
+        Observer.Expect('sub.A.65535', 'Integer|-65535');
+        Observer.Expect('compound_add.A.65535', '\uFFFF|65535');
+        Observer.Verify();
     end;
 
     [Test]
@@ -5542,7 +5607,13 @@ codeunit 92453 "LT Y31 Ar EnumImpl"
         vEnumImpl := "LT Y31 EI"::A;
         vByte := 255;
         if Try9(vByte, vEnumImpl) then Observer.Observe('compound_add.A.255', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.A.255');
-        Observer.Finish();
+        Observer.Expect('add.A.65', 'Integer|65');
+        Observer.Expect('sub.A.65', 'Integer|-65');
+        Observer.Expect('compound_add.A.65', 'A');
+        Observer.Expect('add.A.255', 'Integer|255');
+        Observer.Expect('sub.A.255', 'Integer|-255');
+        Observer.Expect('compound_add.A.255', ' ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -5572,7 +5643,13 @@ codeunit 92453 "LT Y31 Ar EnumImpl"
         vEnumImpl := "LT Y31 EI"::A;
         vOption := 3;
         if Try12(vEnumImpl, vOption) then Observer.Observe('compound_add.A.3', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.A.3');
-        Observer.Finish();
+        Observer.Expect('add.A.1', 'Option|1');
+        Observer.Expect('sub.A.1', 'Option|-1');
+        Observer.Expect('compound_add.A.1', 'B|1');
+        Observer.Expect('add.A.3', 'Option|3');
+        Observer.Expect('sub.A.3', 'Option|-3');
+        Observer.Expect('compound_add.A.3', '3|3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -5602,7 +5679,13 @@ codeunit 92453 "LT Y31 Ar EnumImpl"
         vEnumImpl := "LT Y31 EI"::A;
         vEnum := 5;
         if Try15(vEnum, vEnumImpl) then Observer.Observe('compound_add.A.ord5', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('compound_add.A.ord5');
-        Observer.Finish();
+        Observer.Expect('add.A.B', 'Option|1');
+        Observer.Expect('sub.A.B', 'Option|-1');
+        Observer.Expect('compound_add.A.B', 'B|1');
+        Observer.Expect('add.A.ord5', 'Option|5');
+        Observer.Expect('sub.A.ord5', 'Option|-5');
+        Observer.Expect('compound_add.A.ord5', '5|5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -5623,7 +5706,10 @@ codeunit 92453 "LT Y31 Ar EnumImpl"
         vEnumImpl := "LT Y31 EI"::A;
         vEnumImpl_R := "LT Y31 EI"::A;
         if Try18(vEnumImpl, vEnumImpl_R) then Observer.Observe('compound_add.A.A', Format(vEnumImpl_R) + '|' + Format(vEnumImpl_R.AsInteger())) else Observer.ObserveError('compound_add.A.A');
-        Observer.Finish();
+        Observer.Expect('add.A.A', 'Option|0');
+        Observer.Expect('sub.A.A', 'Option|0');
+        Observer.Expect('compound_add.A.A', 'A|0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -5636,7 +5722,8 @@ codeunit 92453 "LT Y31 Ar EnumImpl"
         vEnumImpl := "LT Y31 EI"::A;
         vDate := 20260131D;
         if Try19(vDate, vEnumImpl) then Observer.Observe('compound_add.A.d', Format(vDate, 0, 9)) else Observer.ObserveError('compound_add.A.d');
-        Observer.Finish();
+        Observer.Expect('compound_add.A.d', '2026-01-31');
+        Observer.Verify();
     end;
 
     [Test]
@@ -5649,7 +5736,8 @@ codeunit 92453 "LT Y31 Ar EnumImpl"
         vEnumImpl := "LT Y31 EI"::A;
         vTime := 120000T;
         if Try20(vEnumImpl, vTime) then Observer.Observe('compound_add.A.t', Format(vTime, 0, 9)) else Observer.ObserveError('compound_add.A.t');
-        Observer.Finish();
+        Observer.Expect('compound_add.A.t', '12:00:00');
+        Observer.Verify();
     end;
 
     [Test]
@@ -5662,7 +5750,8 @@ codeunit 92453 "LT Y31 Ar EnumImpl"
         vEnumImpl := "LT Y31 EI"::A;
         vDateTime := CreateDateTime(20260131D, 120000T);
         if Try21(vDateTime, vEnumImpl) then Observer.Observe('compound_add.A.dt', Format(vDateTime, 0, 9)) else Observer.ObserveError('compound_add.A.dt');
-        Observer.Finish();
+        Observer.Expect('compound_add.A.dt', '2026-01-31T12:00:00Z');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -5850,18 +5939,6 @@ codeunit 92455 "LT Y31 Ar Text"
         vText := 'abc';
         vChar := 97;
         if Try1(V, vChar, vText) then Observer.Observe('add.abc.a', Util.VShow(V)) else Observer.ObserveError('add.abc.a');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text_Char_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vChar: Char;
-        vText: Text;
-    begin
         vText := 'abc';
         vChar := 65535;
         if Try1(V, vChar, vText) then Observer.Observe('add.abc.65535', Util.VShow(V)) else Observer.ObserveError('add.abc.65535');
@@ -5874,7 +5951,19 @@ codeunit 92455 "LT Y31 Ar Text"
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         vChar := 65535;
         if Try1(V, vChar, vText) then Observer.Observe('add.guidlow.65535', Util.VShow(V)) else Observer.ObserveError('add.guidlow.65535');
-        Observer.Finish();
+        Observer.Expect('add.a.A', 'Text|aA');
+        Observer.Expect('add.a.a', 'Text|aa');
+        Observer.Expect('add.a.65535', 'Text|a\uFFFF');
+        Observer.Expect('add.A.A', 'Text|AA');
+        Observer.Expect('add.A.a', 'Text|Aa');
+        Observer.Expect('add.A.65535', 'Text|A\uFFFF');
+        Observer.Expect('add.abc.A', 'Text|abcA');
+        Observer.Expect('add.abc.a', 'Text|abca');
+        Observer.Expect('add.abc.65535', 'Text|abc\uFFFF');
+        Observer.Expect('add.guidlow.A', 'Text|5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6bA');
+        Observer.Expect('add.guidlow.a', 'Text|5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6ba');
+        Observer.Expect('add.guidlow.65535', 'Text|5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b\uFFFF');
+        Observer.Verify();
     end;
 
     [Test]
@@ -5910,18 +5999,6 @@ codeunit 92455 "LT Y31 Ar Text"
         vText := 'a';
         vText_R := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         if Try3(vText, vText_R) then Observer.Observe('compound_add.a.guidlow', vText_R + '|' + Format(StrLen(vText_R))) else Observer.ObserveError('compound_add.a.guidlow');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text_Text_Same_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vText: Text;
-        vText_R: Text;
-    begin
         vText := 'A';
         vText_R := 'a';
         if Try2(V, vText, vText_R) then Observer.Observe('add.A.a', Util.VShow(V)) else Observer.ObserveError('add.A.a');
@@ -5946,18 +6023,6 @@ codeunit 92455 "LT Y31 Ar Text"
         vText := 'A';
         vText_R := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         if Try3(vText, vText_R) then Observer.Observe('compound_add.A.guidlow', vText_R + '|' + Format(StrLen(vText_R))) else Observer.ObserveError('compound_add.A.guidlow');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text_Text_Same_3()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vText: Text;
-        vText_R: Text;
-    begin
         vText := 'abc';
         vText_R := 'a';
         if Try2(V, vText, vText_R) then Observer.Observe('add.abc.a', Util.VShow(V)) else Observer.ObserveError('add.abc.a');
@@ -5982,18 +6047,6 @@ codeunit 92455 "LT Y31 Ar Text"
         vText := 'abc';
         vText_R := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         if Try3(vText, vText_R) then Observer.Observe('compound_add.abc.guidlow', vText_R + '|' + Format(StrLen(vText_R))) else Observer.ObserveError('compound_add.abc.guidlow');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text_Text_Same_4()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vText: Text;
-        vText_R: Text;
-    begin
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         vText_R := 'a';
         if Try2(V, vText, vText_R) then Observer.Observe('add.guidlow.a', Util.VShow(V)) else Observer.ObserveError('add.guidlow.a');
@@ -6018,7 +6071,39 @@ codeunit 92455 "LT Y31 Ar Text"
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         vText_R := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         if Try3(vText, vText_R) then Observer.Observe('compound_add.guidlow.guidlow', vText_R + '|' + Format(StrLen(vText_R))) else Observer.ObserveError('compound_add.guidlow.guidlow');
-        Observer.Finish();
+        Observer.Expect('add.a.a', 'Text|aa');
+        Observer.Expect('compound_add.a.a', 'aa|2');
+        Observer.Expect('add.a.A', 'Text|aA');
+        Observer.Expect('compound_add.a.A', 'Aa|2');
+        Observer.Expect('add.a.abc', 'Text|aabc');
+        Observer.Expect('compound_add.a.abc', 'abca|4');
+        Observer.Expect('add.a.guidlow', 'Text|a5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b');
+        Observer.Expect('compound_add.a.guidlow', '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6ba|37');
+        Observer.Expect('add.A.a', 'Text|Aa');
+        Observer.Expect('compound_add.A.a', 'aA|2');
+        Observer.Expect('add.A.A', 'Text|AA');
+        Observer.Expect('compound_add.A.A', 'AA|2');
+        Observer.Expect('add.A.abc', 'Text|Aabc');
+        Observer.Expect('compound_add.A.abc', 'abcA|4');
+        Observer.Expect('add.A.guidlow', 'Text|A5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b');
+        Observer.Expect('compound_add.A.guidlow', '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6bA|37');
+        Observer.Expect('add.abc.a', 'Text|abca');
+        Observer.Expect('compound_add.abc.a', 'aabc|4');
+        Observer.Expect('add.abc.A', 'Text|abcA');
+        Observer.Expect('compound_add.abc.A', 'Aabc|4');
+        Observer.Expect('add.abc.abc', 'Text|abcabc');
+        Observer.Expect('compound_add.abc.abc', 'abcabc|6');
+        Observer.Expect('add.abc.guidlow', 'Text|abc5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b');
+        Observer.Expect('compound_add.abc.guidlow', '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6babc|39');
+        Observer.Expect('add.guidlow.a', 'Text|5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6ba');
+        Observer.Expect('compound_add.guidlow.a', 'a5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b|37');
+        Observer.Expect('add.guidlow.A', 'Text|5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6bA');
+        Observer.Expect('compound_add.guidlow.A', 'A5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b|37');
+        Observer.Expect('add.guidlow.abc', 'Text|5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6babc');
+        Observer.Expect('compound_add.guidlow.abc', 'abc5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b|39');
+        Observer.Expect('add.guidlow.guidlow', 'Text|5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b');
+        Observer.Expect('compound_add.guidlow.guidlow', '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b|72');
+        Observer.Verify();
     end;
 
     [Test]
@@ -6054,7 +6139,16 @@ codeunit 92455 "LT Y31 Ar Text"
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         vText10 := 'abc';
         if Try5(vText, vText10) then Observer.Observe('compound_add.guidlow.abc', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('compound_add.guidlow.abc');
-        Observer.Finish();
+        Observer.Expect('add.a.abc', 'Text|aabc');
+        Observer.Expect('compound_add.a.abc', 'abca|4');
+        Observer.Expect('add.A.abc', 'Text|Aabc');
+        Observer.Expect('compound_add.A.abc', 'abcA|4');
+        Observer.Expect('add.abc.abc', 'Text|abcabc');
+        Observer.Expect('compound_add.abc.abc', 'abcabc|6');
+        Observer.Expect('add.guidlow.abc', 'Text|5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6babc');
+        Observer.Expect('compound_add.guidlow.abc|text', 'The length of the string is 39, but it must be less than or equal to 10 characters. Value: abc5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b');
+        Observer.Expect('compound_add.guidlow.abc|code', 'StringLengthExceeded');
+        Observer.Verify();
     end;
 
     [Test]
@@ -6090,18 +6184,6 @@ codeunit 92455 "LT Y31 Ar Text"
         vText := 'A';
         vCode10 := 'ABC';
         if Try7(vCode10, vText) then Observer.Observe('compound_add.A.ABC', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('compound_add.A.ABC');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text_Code10_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vCode10: Code[10];
-        vText: Text;
-    begin
         vText := 'abc';
         vCode10 := 'A';
         if Try6(V, vCode10, vText) then Observer.Observe('add.abc.A', Util.VShow(V)) else Observer.ObserveError('add.abc.A');
@@ -6126,7 +6208,25 @@ codeunit 92455 "LT Y31 Ar Text"
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         vCode10 := 'ABC';
         if Try7(vCode10, vText) then Observer.Observe('compound_add.guidlow.ABC', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('compound_add.guidlow.ABC');
-        Observer.Finish();
+        Observer.Expect('add.a.A', 'Text|aA');
+        Observer.Expect('compound_add.a.A', 'AA|2');
+        Observer.Expect('add.a.ABC', 'Text|aABC');
+        Observer.Expect('compound_add.a.ABC', 'ABCA|4');
+        Observer.Expect('add.A.A', 'Text|AA');
+        Observer.Expect('compound_add.A.A', 'AA|2');
+        Observer.Expect('add.A.ABC', 'Text|AABC');
+        Observer.Expect('compound_add.A.ABC', 'ABCA|4');
+        Observer.Expect('add.abc.A', 'Text|abcA');
+        Observer.Expect('compound_add.abc.A', 'AABC|4');
+        Observer.Expect('add.abc.ABC', 'Text|abcABC');
+        Observer.Expect('compound_add.abc.ABC', 'ABCABC|6');
+        Observer.Expect('add.guidlow.A', 'Text|5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6bA');
+        Observer.Expect('compound_add.guidlow.A|text', 'The length of the string is 37, but it must be less than or equal to 10 characters. Value: A5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b');
+        Observer.Expect('compound_add.guidlow.A|code', 'StringLengthExceeded');
+        Observer.Expect('add.guidlow.ABC', 'Text|5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6bABC');
+        Observer.Expect('compound_add.guidlow.ABC|text', 'The length of the string is 39, but it must be less than or equal to 10 characters. Value: ABC5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b');
+        Observer.Expect('compound_add.guidlow.ABC|code', 'StringLengthExceeded');
+        Observer.Verify();
     end;
 
     [Test]
@@ -6162,7 +6262,15 @@ codeunit 92455 "LT Y31 Ar Text"
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         if Try9(vGuid, vText) then Observer.Observe('compound_add.guidlow.g', Format(vGuid)) else Observer.ObserveError('compound_add.guidlow.g');
-        Observer.Finish();
+        Observer.Expect('add.a.g', 'Text|a{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('compound_add.a.g', '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('add.A.g', 'Text|A{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('compound_add.A.g', '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('add.abc.g', 'Text|abc{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('compound_add.abc.g', '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('add.guidlow.g', 'Text|5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('compound_add.guidlow.g', '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -6181,7 +6289,11 @@ codeunit 92455 "LT Y31 Ar Text"
         if Try10(V, vText) then Observer.Observe('add.abc.abc', Util.VShow(V)) else Observer.ObserveError('add.abc.abc');
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         if Try10(V, vText) then Observer.Observe('add.guidlow.abc', Util.VShow(V)) else Observer.ObserveError('add.guidlow.abc');
-        Observer.Finish();
+        Observer.Expect('add.a.abc', 'Text|aabc');
+        Observer.Expect('add.A.abc', 'Text|Aabc');
+        Observer.Expect('add.abc.abc', 'Text|abcabc');
+        Observer.Expect('add.guidlow.abc', 'Text|5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6babc');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -6284,7 +6396,10 @@ codeunit 92456 "LT Y31 Ar Text10"
         vText10 := 'abc';
         vChar := 65535;
         if Try1(V, vChar, vText10) then Observer.Observe('add.abc.65535', Util.VShow(V)) else Observer.ObserveError('add.abc.65535');
-        Observer.Finish();
+        Observer.Expect('add.abc.A', 'Text|abcA');
+        Observer.Expect('add.abc.a', 'Text|abca');
+        Observer.Expect('add.abc.65535', 'Text|abc\uFFFF');
+        Observer.Verify();
     end;
 
     [Test]
@@ -6320,7 +6435,15 @@ codeunit 92456 "LT Y31 Ar Text10"
         vText10 := 'abc';
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         if Try3(vText, vText10) then Observer.Observe('compound_add.abc.guidlow', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.abc.guidlow');
-        Observer.Finish();
+        Observer.Expect('add.abc.a', 'Text|abca');
+        Observer.Expect('compound_add.abc.a', 'aabc|4');
+        Observer.Expect('add.abc.A', 'Text|abcA');
+        Observer.Expect('compound_add.abc.A', 'Aabc|4');
+        Observer.Expect('add.abc.abc', 'Text|abcabc');
+        Observer.Expect('compound_add.abc.abc', 'abcabc|6');
+        Observer.Expect('add.abc.guidlow', 'Text|abc5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b');
+        Observer.Expect('compound_add.abc.guidlow', '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6babc|39');
+        Observer.Verify();
     end;
 
     [Test]
@@ -6338,7 +6461,9 @@ codeunit 92456 "LT Y31 Ar Text10"
         vText10 := 'abc';
         vText10_R := 'abc';
         if Try5(vText10, vText10_R) then Observer.Observe('compound_add.abc.abc', vText10_R + '|' + Format(StrLen(vText10_R))) else Observer.ObserveError('compound_add.abc.abc');
-        Observer.Finish();
+        Observer.Expect('add.abc.abc', 'Text|abcabc');
+        Observer.Expect('compound_add.abc.abc', 'abcabc|6');
+        Observer.Verify();
     end;
 
     [Test]
@@ -6362,7 +6487,11 @@ codeunit 92456 "LT Y31 Ar Text10"
         vText10 := 'abc';
         vCode10 := 'ABC';
         if Try7(vCode10, vText10) then Observer.Observe('compound_add.abc.ABC', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('compound_add.abc.ABC');
-        Observer.Finish();
+        Observer.Expect('add.abc.A', 'Text|abcA');
+        Observer.Expect('compound_add.abc.A', 'AABC|4');
+        Observer.Expect('add.abc.ABC', 'Text|abcABC');
+        Observer.Expect('compound_add.abc.ABC', 'ABCABC|6');
+        Observer.Verify();
     end;
 
     [Test]
@@ -6380,7 +6509,9 @@ codeunit 92456 "LT Y31 Ar Text10"
         vText10 := 'abc';
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         if Try9(vGuid, vText10) then Observer.Observe('compound_add.abc.g', Format(vGuid)) else Observer.ObserveError('compound_add.abc.g');
-        Observer.Finish();
+        Observer.Expect('add.abc.g', 'Text|abc{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('compound_add.abc.g', '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -6393,7 +6524,8 @@ codeunit 92456 "LT Y31 Ar Text10"
     begin
         vText10 := 'abc';
         if Try10(V, vText10) then Observer.Observe('add.abc.abc', Util.VShow(V)) else Observer.ObserveError('add.abc.abc');
-        Observer.Finish();
+        Observer.Expect('add.abc.abc', 'Text|abcabc');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -6505,7 +6637,13 @@ codeunit 92457 "LT Y31 Ar Code10"
         vCode10 := 'ABC';
         vChar := 65535;
         if Try1(V, vChar, vCode10) then Observer.Observe('add.ABC.65535', Util.VShow(V)) else Observer.ObserveError('add.ABC.65535');
-        Observer.Finish();
+        Observer.Expect('add.A.A', 'Text|AA');
+        Observer.Expect('add.A.a', 'Text|Aa');
+        Observer.Expect('add.A.65535', 'Text|A\uFFFF');
+        Observer.Expect('add.ABC.A', 'Text|ABCA');
+        Observer.Expect('add.ABC.a', 'Text|ABCa');
+        Observer.Expect('add.ABC.65535', 'Text|ABC\uFFFF');
+        Observer.Verify();
     end;
 
     [Test]
@@ -6541,18 +6679,6 @@ codeunit 92457 "LT Y31 Ar Code10"
         vCode10 := 'A';
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         if Try3(vCode10, vText) then Observer.Observe('compound_add.A.guidlow', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.A.guidlow');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Code10_Text_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vCode10: Code[10];
-        vText: Text;
-    begin
         vCode10 := 'ABC';
         vText := 'a';
         if Try2(V, vCode10, vText) then Observer.Observe('add.ABC.a', Util.VShow(V)) else Observer.ObserveError('add.ABC.a');
@@ -6577,7 +6703,23 @@ codeunit 92457 "LT Y31 Ar Code10"
         vCode10 := 'ABC';
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         if Try3(vCode10, vText) then Observer.Observe('compound_add.ABC.guidlow', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.ABC.guidlow');
-        Observer.Finish();
+        Observer.Expect('add.A.a', 'Text|Aa');
+        Observer.Expect('compound_add.A.a', 'aA|2');
+        Observer.Expect('add.A.A', 'Text|AA');
+        Observer.Expect('compound_add.A.A', 'AA|2');
+        Observer.Expect('add.A.abc', 'Text|Aabc');
+        Observer.Expect('compound_add.A.abc', 'abcA|4');
+        Observer.Expect('add.A.guidlow', 'Text|A5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b');
+        Observer.Expect('compound_add.A.guidlow', '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6bA|37');
+        Observer.Expect('add.ABC.a', 'Text|ABCa');
+        Observer.Expect('compound_add.ABC.a', 'aABC|4');
+        Observer.Expect('add.ABC.A', 'Text|ABCA');
+        Observer.Expect('compound_add.ABC.A', 'AABC|4');
+        Observer.Expect('add.ABC.abc', 'Text|ABCabc');
+        Observer.Expect('compound_add.ABC.abc', 'abcABC|6');
+        Observer.Expect('add.ABC.guidlow', 'Text|ABC5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b');
+        Observer.Expect('compound_add.ABC.guidlow', '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6bABC|39');
+        Observer.Verify();
     end;
 
     [Test]
@@ -6601,7 +6743,11 @@ codeunit 92457 "LT Y31 Ar Code10"
         vCode10 := 'ABC';
         vText10 := 'abc';
         if Try5(vCode10, vText10) then Observer.Observe('compound_add.ABC.abc', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('compound_add.ABC.abc');
-        Observer.Finish();
+        Observer.Expect('add.A.abc', 'Text|Aabc');
+        Observer.Expect('compound_add.A.abc', 'abcA|4');
+        Observer.Expect('add.ABC.abc', 'Text|ABCabc');
+        Observer.Expect('compound_add.ABC.abc', 'abcABC|6');
+        Observer.Verify();
     end;
 
     [Test]
@@ -6637,7 +6783,15 @@ codeunit 92457 "LT Y31 Ar Code10"
         vCode10 := 'ABC';
         vCode10_R := 'ABC';
         if Try7(vCode10, vCode10_R) then Observer.Observe('compound_add.ABC.ABC', vCode10_R + '|' + Format(StrLen(vCode10_R))) else Observer.ObserveError('compound_add.ABC.ABC');
-        Observer.Finish();
+        Observer.Expect('add.A.A', 'Text|AA');
+        Observer.Expect('compound_add.A.A', 'AA|2');
+        Observer.Expect('add.A.ABC', 'Text|AABC');
+        Observer.Expect('compound_add.A.ABC', 'ABCA|4');
+        Observer.Expect('add.ABC.A', 'Text|ABCA');
+        Observer.Expect('compound_add.ABC.A', 'AABC|4');
+        Observer.Expect('add.ABC.ABC', 'Text|ABCABC');
+        Observer.Expect('compound_add.ABC.ABC', 'ABCABC|6');
+        Observer.Verify();
     end;
 
     [Test]
@@ -6661,7 +6815,11 @@ codeunit 92457 "LT Y31 Ar Code10"
         vCode10 := 'ABC';
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         if Try9(vCode10, vGuid) then Observer.Observe('compound_add.ABC.g', Format(vGuid)) else Observer.ObserveError('compound_add.ABC.g');
-        Observer.Finish();
+        Observer.Expect('add.A.g', 'Text|A{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('compound_add.A.g', '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('add.ABC.g', 'Text|ABC{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('compound_add.ABC.g', '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -6676,7 +6834,9 @@ codeunit 92457 "LT Y31 Ar Code10"
         if Try10(V, vCode10) then Observer.Observe('add.A.abc', Util.VShow(V)) else Observer.ObserveError('add.A.abc');
         vCode10 := 'ABC';
         if Try10(V, vCode10) then Observer.Observe('add.ABC.abc', Util.VShow(V)) else Observer.ObserveError('add.ABC.abc');
-        Observer.Finish();
+        Observer.Expect('add.A.abc', 'Text|Aabc');
+        Observer.Expect('add.ABC.abc', 'Text|ABCabc');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -6779,7 +6939,10 @@ codeunit 92458 "LT Y31 Ar Guid"
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vChar := 65535;
         if Try1(V, vChar, vGuid) then Observer.Observe('add.g.65535', Util.VShow(V)) else Observer.ObserveError('add.g.65535');
-        Observer.Finish();
+        Observer.Expect('add.g.A', 'Text|{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}A');
+        Observer.Expect('add.g.a', 'Text|{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}a');
+        Observer.Expect('add.g.65535', 'Text|{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}\uFFFF');
+        Observer.Verify();
     end;
 
     [Test]
@@ -6815,7 +6978,15 @@ codeunit 92458 "LT Y31 Ar Guid"
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         if Try3(vGuid, vText) then Observer.Observe('compound_add.g.guidlow', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.g.guidlow');
-        Observer.Finish();
+        Observer.Expect('add.g.a', 'Text|{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}a');
+        Observer.Expect('compound_add.g.a', 'a{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}|39');
+        Observer.Expect('add.g.A', 'Text|{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}A');
+        Observer.Expect('compound_add.g.A', 'A{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}|39');
+        Observer.Expect('add.g.abc', 'Text|{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}abc');
+        Observer.Expect('compound_add.g.abc', 'abc{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}|41');
+        Observer.Expect('add.g.guidlow', 'Text|{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b');
+        Observer.Expect('compound_add.g.guidlow', '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}|74');
+        Observer.Verify();
     end;
 
     [Test]
@@ -6833,7 +7004,10 @@ codeunit 92458 "LT Y31 Ar Guid"
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vText10 := 'abc';
         if Try5(vGuid, vText10) then Observer.Observe('compound_add.g.abc', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('compound_add.g.abc');
-        Observer.Finish();
+        Observer.Expect('add.g.abc', 'Text|{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}abc');
+        Observer.Expect('compound_add.g.abc|text', 'The length of the string is 41, but it must be less than or equal to 10 characters. Value: abc{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('compound_add.g.abc|code', 'StringLengthExceeded');
+        Observer.Verify();
     end;
 
     [Test]
@@ -6857,7 +7031,13 @@ codeunit 92458 "LT Y31 Ar Guid"
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vCode10 := 'ABC';
         if Try7(vCode10, vGuid) then Observer.Observe('compound_add.g.ABC', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('compound_add.g.ABC');
-        Observer.Finish();
+        Observer.Expect('add.g.A', 'Text|{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}A');
+        Observer.Expect('compound_add.g.A|text', 'The length of the string is 39, but it must be less than or equal to 10 characters. Value: A{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('compound_add.g.A|code', 'StringLengthExceeded');
+        Observer.Expect('add.g.ABC', 'Text|{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}ABC');
+        Observer.Expect('compound_add.g.ABC|text', 'The length of the string is 41, but it must be less than or equal to 10 characters. Value: ABC{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('compound_add.g.ABC|code', 'StringLengthExceeded');
+        Observer.Verify();
     end;
 
     [Test]
@@ -6875,7 +7055,9 @@ codeunit 92458 "LT Y31 Ar Guid"
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vGuid_R := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         if Try9(vGuid, vGuid_R) then Observer.Observe('compound_add.g.g', Format(vGuid_R)) else Observer.ObserveError('compound_add.g.g');
-        Observer.Finish();
+        Observer.Expect('add.g.g', 'Text|{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('compound_add.g.g', '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -6888,7 +7070,8 @@ codeunit 92458 "LT Y31 Ar Guid"
     begin
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         if Try10(V, vGuid) then Observer.Observe('add.g.abc', Util.VShow(V)) else Observer.ObserveError('add.g.abc');
-        Observer.Finish();
+        Observer.Expect('add.g.abc', 'Text|{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}abc');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -7000,7 +7183,15 @@ codeunit 92459 "LT Y31 Ar Date"
         vDate := 20260131D;
         vInteger := 2147483647;
         if Try2(V, vDate, vInteger) then Observer.Observe('sub.d.max', Util.VShow(V)) else Observer.ObserveError('sub.d.max');
-        Observer.Finish();
+        Observer.Expect('add.d.65', 'Date|2026-04-06');
+        Observer.Expect('sub.d.65', 'Date|2025-11-27');
+        Observer.Expect('add.d.1', 'Date|2026-02-01');
+        Observer.Expect('sub.d.1', 'Date|2026-01-30');
+        Observer.Expect('add.d.max|text', 'Arithmetic operation resulted in an overflow.');
+        Observer.Expect('add.d.max|code', 'AL:Overflow');
+        Observer.Expect('sub.d.max|text', 'Arithmetic operation resulted in an overflow.');
+        Observer.Expect('sub.d.max|code', 'AL:Overflow');
+        Observer.Verify();
     end;
 
     [Test]
@@ -7018,7 +7209,9 @@ codeunit 92459 "LT Y31 Ar Date"
         vDate := 20260131D;
         vBigInteger := 65;
         if Try4(V, vBigInteger, vDate) then Observer.Observe('sub.d.65', Util.VShow(V)) else Observer.ObserveError('sub.d.65');
-        Observer.Finish();
+        Observer.Expect('add.d.65', 'Date|2026-04-06');
+        Observer.Expect('sub.d.65', 'Date|2025-11-27');
+        Observer.Verify();
     end;
 
     [Test]
@@ -7042,7 +7235,13 @@ codeunit 92459 "LT Y31 Ar Date"
         vDate := 20260131D;
         vDecimal := 1.5;
         if Try6(V, vDate, vDecimal) then Observer.Observe('sub.d.1p5', Util.VShow(V)) else Observer.ObserveError('sub.d.1p5');
-        Observer.Finish();
+        Observer.Expect('add.d.65', 'Date|2026-04-06');
+        Observer.Expect('sub.d.65', 'Date|2025-11-27');
+        Observer.Expect('add.d.1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int32.');
+        Observer.Expect('add.d.1p5|code', 'ConversionCast');
+        Observer.Expect('sub.d.1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value -1.5 to System.Int32.');
+        Observer.Expect('sub.d.1p5|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -7072,7 +7271,13 @@ codeunit 92459 "LT Y31 Ar Date"
         vDate := 20260131D;
         vChar := 65535;
         if Try8(V, vChar, vDate) then Observer.Observe('sub.d.65535', Util.VShow(V)) else Observer.ObserveError('sub.d.65535');
-        Observer.Finish();
+        Observer.Expect('add.d.A', 'Date|2026-04-06');
+        Observer.Expect('sub.d.A', 'Date|2025-11-27');
+        Observer.Expect('add.d.a', 'Date|2026-05-08');
+        Observer.Expect('sub.d.a', 'Date|2025-10-26');
+        Observer.Expect('add.d.65535', 'Date|2205-07-07');
+        Observer.Expect('sub.d.65535', 'Date|1846-08-28');
+        Observer.Verify();
     end;
 
     [Test]
@@ -7096,7 +7301,11 @@ codeunit 92459 "LT Y31 Ar Date"
         vDate := 20260131D;
         vByte := 255;
         if Try10(V, vByte, vDate) then Observer.Observe('sub.d.255', Util.VShow(V)) else Observer.ObserveError('sub.d.255');
-        Observer.Finish();
+        Observer.Expect('add.d.65', 'Date|2026-04-06');
+        Observer.Expect('sub.d.65', 'Date|2025-11-27');
+        Observer.Expect('add.d.255', 'Date|2026-10-13');
+        Observer.Expect('sub.d.255', 'Date|2025-05-21');
+        Observer.Verify();
     end;
 
     [Test]
@@ -7120,7 +7329,11 @@ codeunit 92459 "LT Y31 Ar Date"
         vDate := 20260131D;
         vOption := 3;
         if Try12(V, vDate, vOption) then Observer.Observe('sub.d.3', Util.VShow(V)) else Observer.ObserveError('sub.d.3');
-        Observer.Finish();
+        Observer.Expect('add.d.1', 'Date|2026-02-01');
+        Observer.Expect('sub.d.1', 'Date|2026-01-30');
+        Observer.Expect('add.d.3', 'Date|2026-02-03');
+        Observer.Expect('sub.d.3', 'Date|2026-01-28');
+        Observer.Verify();
     end;
 
     [Test]
@@ -7144,7 +7357,11 @@ codeunit 92459 "LT Y31 Ar Date"
         vDate := 20260131D;
         vEnum := 5;
         if Try14(V, vDate, vEnum) then Observer.Observe('sub.d.ord5', Util.VShow(V)) else Observer.ObserveError('sub.d.ord5');
-        Observer.Finish();
+        Observer.Expect('add.d.B', 'Date|2026-02-01');
+        Observer.Expect('sub.d.B', 'Date|2026-01-30');
+        Observer.Expect('add.d.ord5', 'Date|2026-02-05');
+        Observer.Expect('sub.d.ord5', 'Date|2026-01-26');
+        Observer.Verify();
     end;
 
     [Test]
@@ -7162,7 +7379,9 @@ codeunit 92459 "LT Y31 Ar Date"
         vDate := 20260131D;
         vEnumImpl := "LT Y31 EI"::A;
         if Try16(V, vDate, vEnumImpl) then Observer.Observe('sub.d.A', Util.VShow(V)) else Observer.ObserveError('sub.d.A');
-        Observer.Finish();
+        Observer.Expect('add.d.A', 'Date|2026-01-31');
+        Observer.Expect('sub.d.A', 'Date|2026-01-31');
+        Observer.Verify();
     end;
 
     [Test]
@@ -7177,7 +7396,8 @@ codeunit 92459 "LT Y31 Ar Date"
         vDate := 20260131D;
         vDate_R := 20260131D;
         if Try17(V, vDate, vDate_R) then Observer.Observe('sub.d.d', Util.VShow(V)) else Observer.ObserveError('sub.d.d');
-        Observer.Finish();
+        Observer.Expect('sub.d.d', 'Integer|0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -7195,7 +7415,9 @@ codeunit 92459 "LT Y31 Ar Date"
         vDate := 20260131D;
         vDuration := 65;
         if Try19(V, vDate, vDuration) then Observer.Observe('sub.d.65', Util.VShow(V)) else Observer.ObserveError('sub.d.65');
-        Observer.Finish();
+        Observer.Expect('add.d.65', 'Date|2026-04-06');
+        Observer.Expect('sub.d.65', 'Date|2025-11-27');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -7372,7 +7594,13 @@ codeunit 92460 "LT Y31 Ar Time"
         vTime := 120000T;
         vInteger := 2147483647;
         if Try2(V, vInteger, vTime) then Observer.Observe('sub.t.max', Util.VShow(V)) else Observer.ObserveError('sub.t.max');
-        Observer.Finish();
+        Observer.Expect('add.t.65', 'Time|12:00:00.065');
+        Observer.Expect('sub.t.65', 'Time|11:59:59.935');
+        Observer.Expect('add.t.1', 'Time|12:00:00.001');
+        Observer.Expect('sub.t.1', 'Time|11:59:59.999');
+        Observer.Expect('add.t.max', 'Time|08:31:23.647');
+        Observer.Expect('sub.t.max', 'Time|15:28:36.353');
+        Observer.Verify();
     end;
 
     [Test]
@@ -7390,7 +7618,9 @@ codeunit 92460 "LT Y31 Ar Time"
         vTime := 120000T;
         vBigInteger := 65;
         if Try4(V, vBigInteger, vTime) then Observer.Observe('sub.t.65', Util.VShow(V)) else Observer.ObserveError('sub.t.65');
-        Observer.Finish();
+        Observer.Expect('add.t.65', 'Time|12:00:00.065');
+        Observer.Expect('sub.t.65', 'Time|11:59:59.935');
+        Observer.Verify();
     end;
 
     [Test]
@@ -7414,7 +7644,13 @@ codeunit 92460 "LT Y31 Ar Time"
         vTime := 120000T;
         vDecimal := 1.5;
         if Try6(V, vDecimal, vTime) then Observer.Observe('sub.t.1p5', Util.VShow(V)) else Observer.ObserveError('sub.t.1p5');
-        Observer.Finish();
+        Observer.Expect('add.t.65', 'Time|12:00:00.065');
+        Observer.Expect('sub.t.65', 'Time|11:59:59.935');
+        Observer.Expect('add.t.1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int32.');
+        Observer.Expect('add.t.1p5|code', 'ConversionCast');
+        Observer.Expect('sub.t.1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value -1.5 to System.Int32.');
+        Observer.Expect('sub.t.1p5|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -7444,7 +7680,13 @@ codeunit 92460 "LT Y31 Ar Time"
         vTime := 120000T;
         vChar := 65535;
         if Try8(V, vChar, vTime) then Observer.Observe('sub.t.65535', Util.VShow(V)) else Observer.ObserveError('sub.t.65535');
-        Observer.Finish();
+        Observer.Expect('add.t.A', 'Time|12:00:00.065');
+        Observer.Expect('sub.t.A', 'Time|11:59:59.935');
+        Observer.Expect('add.t.a', 'Time|12:00:00.097');
+        Observer.Expect('sub.t.a', 'Time|11:59:59.903');
+        Observer.Expect('add.t.65535', 'Time|12:01:05.535');
+        Observer.Expect('sub.t.65535', 'Time|11:58:54.465');
+        Observer.Verify();
     end;
 
     [Test]
@@ -7468,7 +7710,11 @@ codeunit 92460 "LT Y31 Ar Time"
         vTime := 120000T;
         vByte := 255;
         if Try10(V, vByte, vTime) then Observer.Observe('sub.t.255', Util.VShow(V)) else Observer.ObserveError('sub.t.255');
-        Observer.Finish();
+        Observer.Expect('add.t.65', 'Time|12:00:00.065');
+        Observer.Expect('sub.t.65', 'Time|11:59:59.935');
+        Observer.Expect('add.t.255', 'Time|12:00:00.255');
+        Observer.Expect('sub.t.255', 'Time|11:59:59.745');
+        Observer.Verify();
     end;
 
     [Test]
@@ -7492,7 +7738,11 @@ codeunit 92460 "LT Y31 Ar Time"
         vTime := 120000T;
         vOption := 3;
         if Try12(V, vOption, vTime) then Observer.Observe('sub.t.3', Util.VShow(V)) else Observer.ObserveError('sub.t.3');
-        Observer.Finish();
+        Observer.Expect('add.t.1', 'Time|12:00:00.001');
+        Observer.Expect('sub.t.1', 'Time|11:59:59.999');
+        Observer.Expect('add.t.3', 'Time|12:00:00.003');
+        Observer.Expect('sub.t.3', 'Time|11:59:59.997');
+        Observer.Verify();
     end;
 
     [Test]
@@ -7516,7 +7766,11 @@ codeunit 92460 "LT Y31 Ar Time"
         vTime := 120000T;
         vEnum := 5;
         if Try14(V, vEnum, vTime) then Observer.Observe('sub.t.ord5', Util.VShow(V)) else Observer.ObserveError('sub.t.ord5');
-        Observer.Finish();
+        Observer.Expect('add.t.B', 'Time|12:00:00.001');
+        Observer.Expect('sub.t.B', 'Time|11:59:59.999');
+        Observer.Expect('add.t.ord5', 'Time|12:00:00.005');
+        Observer.Expect('sub.t.ord5', 'Time|11:59:59.995');
+        Observer.Verify();
     end;
 
     [Test]
@@ -7534,7 +7788,9 @@ codeunit 92460 "LT Y31 Ar Time"
         vTime := 120000T;
         vEnumImpl := "LT Y31 EI"::A;
         if Try16(V, vEnumImpl, vTime) then Observer.Observe('sub.t.A', Util.VShow(V)) else Observer.ObserveError('sub.t.A');
-        Observer.Finish();
+        Observer.Expect('add.t.A', 'Time|12:00:00');
+        Observer.Expect('sub.t.A', 'Time|12:00:00');
+        Observer.Verify();
     end;
 
     [Test]
@@ -7549,7 +7805,8 @@ codeunit 92460 "LT Y31 Ar Time"
         vTime := 120000T;
         vTime_R := 120000T;
         if Try17(V, vTime, vTime_R) then Observer.Observe('sub.t.t', Util.VShow(V)) else Observer.ObserveError('sub.t.t');
-        Observer.Finish();
+        Observer.Expect('sub.t.t', 'Integer|0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -7567,7 +7824,9 @@ codeunit 92460 "LT Y31 Ar Time"
         vTime := 120000T;
         vDuration := 65;
         if Try19(V, vDuration, vTime) then Observer.Observe('sub.t.65', Util.VShow(V)) else Observer.ObserveError('sub.t.65');
-        Observer.Finish();
+        Observer.Expect('add.t.65', 'Time|12:00:00.065');
+        Observer.Expect('sub.t.65', 'Time|11:59:59.935');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -7744,7 +8003,13 @@ codeunit 92461 "LT Y31 Ar DateTime"
         vDateTime := CreateDateTime(20260131D, 120000T);
         vInteger := 2147483647;
         if Try2(V, vDateTime, vInteger) then Observer.Observe('sub.dt.max', Util.VShow(V)) else Observer.ObserveError('sub.dt.max');
-        Observer.Finish();
+        Observer.Expect('add.dt.65', 'DateTime|2026-01-31T12:00:00.065Z');
+        Observer.Expect('sub.dt.65', 'DateTime|2026-01-31T11:59:59.935Z');
+        Observer.Expect('add.dt.1', 'DateTime|2026-01-31T12:00:00.001Z');
+        Observer.Expect('sub.dt.1', 'DateTime|2026-01-31T11:59:59.999Z');
+        Observer.Expect('add.dt.max', 'DateTime|2026-02-25T08:31:23.647Z');
+        Observer.Expect('sub.dt.max', 'DateTime|2026-01-06T15:28:36.353Z');
+        Observer.Verify();
     end;
 
     [Test]
@@ -7762,7 +8027,9 @@ codeunit 92461 "LT Y31 Ar DateTime"
         vDateTime := CreateDateTime(20260131D, 120000T);
         vBigInteger := 65;
         if Try4(V, vBigInteger, vDateTime) then Observer.Observe('sub.dt.65', Util.VShow(V)) else Observer.ObserveError('sub.dt.65');
-        Observer.Finish();
+        Observer.Expect('add.dt.65', 'DateTime|2026-01-31T12:00:00.065Z');
+        Observer.Expect('sub.dt.65', 'DateTime|2026-01-31T11:59:59.935Z');
+        Observer.Verify();
     end;
 
     [Test]
@@ -7786,7 +8053,13 @@ codeunit 92461 "LT Y31 Ar DateTime"
         vDateTime := CreateDateTime(20260131D, 120000T);
         vDecimal := 1.5;
         if Try6(V, vDateTime, vDecimal) then Observer.Observe('sub.dt.1p5', Util.VShow(V)) else Observer.ObserveError('sub.dt.1p5');
-        Observer.Finish();
+        Observer.Expect('add.dt.65', 'DateTime|2026-01-31T12:00:00.065Z');
+        Observer.Expect('sub.dt.65', 'DateTime|2026-01-31T11:59:59.935Z');
+        Observer.Expect('add.dt.1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 1.5 to System.Int64.');
+        Observer.Expect('add.dt.1p5|code', 'ConversionCast');
+        Observer.Expect('sub.dt.1p5|text', 'Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value -1.5 to System.Int64.');
+        Observer.Expect('sub.dt.1p5|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -7816,7 +8089,13 @@ codeunit 92461 "LT Y31 Ar DateTime"
         vDateTime := CreateDateTime(20260131D, 120000T);
         vChar := 65535;
         if Try8(V, vChar, vDateTime) then Observer.Observe('sub.dt.65535', Util.VShow(V)) else Observer.ObserveError('sub.dt.65535');
-        Observer.Finish();
+        Observer.Expect('add.dt.A', 'DateTime|2026-01-31T12:00:00.065Z');
+        Observer.Expect('sub.dt.A', 'DateTime|2026-01-31T11:59:59.935Z');
+        Observer.Expect('add.dt.a', 'DateTime|2026-01-31T12:00:00.097Z');
+        Observer.Expect('sub.dt.a', 'DateTime|2026-01-31T11:59:59.903Z');
+        Observer.Expect('add.dt.65535', 'DateTime|2026-01-31T12:01:05.535Z');
+        Observer.Expect('sub.dt.65535', 'DateTime|2026-01-31T11:58:54.465Z');
+        Observer.Verify();
     end;
 
     [Test]
@@ -7840,7 +8119,11 @@ codeunit 92461 "LT Y31 Ar DateTime"
         vDateTime := CreateDateTime(20260131D, 120000T);
         vByte := 255;
         if Try10(V, vByte, vDateTime) then Observer.Observe('sub.dt.255', Util.VShow(V)) else Observer.ObserveError('sub.dt.255');
-        Observer.Finish();
+        Observer.Expect('add.dt.65', 'DateTime|2026-01-31T12:00:00.065Z');
+        Observer.Expect('sub.dt.65', 'DateTime|2026-01-31T11:59:59.935Z');
+        Observer.Expect('add.dt.255', 'DateTime|2026-01-31T12:00:00.255Z');
+        Observer.Expect('sub.dt.255', 'DateTime|2026-01-31T11:59:59.745Z');
+        Observer.Verify();
     end;
 
     [Test]
@@ -7864,7 +8147,11 @@ codeunit 92461 "LT Y31 Ar DateTime"
         vDateTime := CreateDateTime(20260131D, 120000T);
         vOption := 3;
         if Try12(V, vDateTime, vOption) then Observer.Observe('sub.dt.3', Util.VShow(V)) else Observer.ObserveError('sub.dt.3');
-        Observer.Finish();
+        Observer.Expect('add.dt.1', 'DateTime|2026-01-31T12:00:00.001Z');
+        Observer.Expect('sub.dt.1', 'DateTime|2026-01-31T11:59:59.999Z');
+        Observer.Expect('add.dt.3', 'DateTime|2026-01-31T12:00:00.003Z');
+        Observer.Expect('sub.dt.3', 'DateTime|2026-01-31T11:59:59.997Z');
+        Observer.Verify();
     end;
 
     [Test]
@@ -7888,7 +8175,11 @@ codeunit 92461 "LT Y31 Ar DateTime"
         vDateTime := CreateDateTime(20260131D, 120000T);
         vEnum := 5;
         if Try14(V, vDateTime, vEnum) then Observer.Observe('sub.dt.ord5', Util.VShow(V)) else Observer.ObserveError('sub.dt.ord5');
-        Observer.Finish();
+        Observer.Expect('add.dt.B', 'DateTime|2026-01-31T12:00:00.001Z');
+        Observer.Expect('sub.dt.B', 'DateTime|2026-01-31T11:59:59.999Z');
+        Observer.Expect('add.dt.ord5', 'DateTime|2026-01-31T12:00:00.005Z');
+        Observer.Expect('sub.dt.ord5', 'DateTime|2026-01-31T11:59:59.995Z');
+        Observer.Verify();
     end;
 
     [Test]
@@ -7906,7 +8197,9 @@ codeunit 92461 "LT Y31 Ar DateTime"
         vDateTime := CreateDateTime(20260131D, 120000T);
         vEnumImpl := "LT Y31 EI"::A;
         if Try16(V, vDateTime, vEnumImpl) then Observer.Observe('sub.dt.A', Util.VShow(V)) else Observer.ObserveError('sub.dt.A');
-        Observer.Finish();
+        Observer.Expect('add.dt.A', 'DateTime|2026-01-31T12:00:00Z');
+        Observer.Expect('sub.dt.A', 'DateTime|2026-01-31T12:00:00Z');
+        Observer.Verify();
     end;
 
     [Test]
@@ -7921,7 +8214,8 @@ codeunit 92461 "LT Y31 Ar DateTime"
         vDateTime := CreateDateTime(20260131D, 120000T);
         vDateTime_R := CreateDateTime(20260131D, 120000T);
         if Try17(V, vDateTime, vDateTime_R) then Observer.Observe('sub.dt.dt', Util.VShow(V)) else Observer.ObserveError('sub.dt.dt');
-        Observer.Finish();
+        Observer.Expect('sub.dt.dt', 'Duration|P0DT0H0M0.0S');
+        Observer.Verify();
     end;
 
     [Test]
@@ -7939,7 +8233,9 @@ codeunit 92461 "LT Y31 Ar DateTime"
         vDateTime := CreateDateTime(20260131D, 120000T);
         vDuration := 65;
         if Try19(V, vDateTime, vDuration) then Observer.Observe('sub.dt.65', Util.VShow(V)) else Observer.ObserveError('sub.dt.65');
-        Observer.Finish();
+        Observer.Expect('add.dt.65', 'DateTime|2026-01-31T12:00:00.065Z');
+        Observer.Expect('sub.dt.65', 'DateTime|2026-01-31T11:59:59.935Z');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -8122,20 +8418,20 @@ codeunit 92462 "LT Y31 Ar Duration"
         vDuration := 65;
         vInteger := 2147483647;
         if Try2(V, vDuration, vInteger) then Observer.Observe('sub.65.max', Util.VShow(V)) else Observer.ObserveError('sub.65.max');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Duration_Integer_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vDuration: Duration;
-        vInteger: Integer;
-    begin
         vDuration := 65;
         vInteger := 2147483647;
         if Try3(vDuration, vInteger) then Observer.Observe('compound_add.65.max', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.65.max');
-        Observer.Finish();
+        Observer.Expect('add.65.65', 'BigInteger|130');
+        Observer.Expect('sub.65.65', 'BigInteger|0');
+        Observer.Expect('compound_add.65.65', '130');
+        Observer.Expect('add.65.1', 'BigInteger|66');
+        Observer.Expect('sub.65.1', 'BigInteger|64');
+        Observer.Expect('compound_add.65.1', '66');
+        Observer.Expect('add.65.max', 'BigInteger|2147483712');
+        Observer.Expect('sub.65.max', 'BigInteger|-2147483582');
+        Observer.Expect('compound_add.65.max|text', 'Overflow under conversion of System.Int64 value 2147483712 to System.Int32.');
+        Observer.Expect('compound_add.65.max|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -8156,7 +8452,10 @@ codeunit 92462 "LT Y31 Ar Duration"
         vDuration := 65;
         vBigInteger := 65;
         if Try6(vBigInteger, vDuration) then Observer.Observe('compound_add.65.65', Format(vBigInteger, 0, 9)) else Observer.ObserveError('compound_add.65.65');
-        Observer.Finish();
+        Observer.Expect('add.65.65', 'BigInteger|130');
+        Observer.Expect('sub.65.65', 'BigInteger|0');
+        Observer.Expect('compound_add.65.65', '130');
+        Observer.Verify();
     end;
 
     [Test]
@@ -8186,7 +8485,13 @@ codeunit 92462 "LT Y31 Ar Duration"
         vDuration := 65;
         vDecimal := 1.5;
         if Try9(vDecimal, vDuration) then Observer.Observe('compound_add.65.1p5', Format(vDecimal, 0, 9)) else Observer.ObserveError('compound_add.65.1p5');
-        Observer.Finish();
+        Observer.Expect('add.65.65', 'Decimal|130');
+        Observer.Expect('sub.65.65', 'Decimal|0');
+        Observer.Expect('compound_add.65.65', '130');
+        Observer.Expect('add.65.1p5', 'Decimal|66.5');
+        Observer.Expect('sub.65.1p5', 'Decimal|63.5');
+        Observer.Expect('compound_add.65.1p5', '66.5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -8222,21 +8527,20 @@ codeunit 92462 "LT Y31 Ar Duration"
         vDuration := 65;
         vChar := 65535;
         if Try11(V, vChar, vDuration) then Observer.Observe('sub.65.65535', Util.VShow(V)) else Observer.ObserveError('sub.65.65535');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Duration_Char_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vChar: Char;
-        vDuration: Duration;
-    begin
         vDuration := 65;
         vChar := 65535;
         if Try12(vChar, vDuration) then Observer.Observe('compound_add.65.65535', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.65.65535');
-        Observer.Finish();
+        Observer.Expect('add.65.A', 'BigInteger|130');
+        Observer.Expect('sub.65.A', 'BigInteger|0');
+        Observer.Expect('compound_add.65.A', '|130');
+        Observer.Expect('add.65.a', 'BigInteger|162');
+        Observer.Expect('sub.65.a', 'BigInteger|-32');
+        Observer.Expect('compound_add.65.a', '¢|162');
+        Observer.Expect('add.65.65535', 'BigInteger|65600');
+        Observer.Expect('sub.65.65535', 'BigInteger|-65470');
+        Observer.Expect('compound_add.65.65535|text', 'Overflow under conversion of System.Int64 value 65600 to System.Char.');
+        Observer.Expect('compound_add.65.65535|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -8266,7 +8570,14 @@ codeunit 92462 "LT Y31 Ar Duration"
         vDuration := 65;
         vByte := 255;
         if Try15(vByte, vDuration) then Observer.Observe('compound_add.65.255', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.65.255');
-        Observer.Finish();
+        Observer.Expect('add.65.65', 'BigInteger|130');
+        Observer.Expect('sub.65.65', 'BigInteger|0');
+        Observer.Expect('compound_add.65.65', 'é');
+        Observer.Expect('add.65.255', 'BigInteger|320');
+        Observer.Expect('sub.65.255', 'BigInteger|-190');
+        Observer.Expect('compound_add.65.255|text', 'Overflow under conversion of System.Int64 value 320 to System.Byte.');
+        Observer.Expect('compound_add.65.255|code', 'ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -8296,7 +8607,13 @@ codeunit 92462 "LT Y31 Ar Duration"
         vDuration := 65;
         vOption := 3;
         if Try18(vDuration, vOption) then Observer.Observe('compound_add.65.3', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.65.3');
-        Observer.Finish();
+        Observer.Expect('add.65.1', 'BigInteger|66');
+        Observer.Expect('sub.65.1', 'BigInteger|64');
+        Observer.Expect('compound_add.65.1', '66|66');
+        Observer.Expect('add.65.3', 'BigInteger|68');
+        Observer.Expect('sub.65.3', 'BigInteger|62');
+        Observer.Expect('compound_add.65.3', '68|68');
+        Observer.Verify();
     end;
 
     [Test]
@@ -8309,7 +8626,8 @@ codeunit 92462 "LT Y31 Ar Duration"
         vDuration := 65;
         vDate := 20260131D;
         if Try19(vDate, vDuration) then Observer.Observe('compound_add.65.d', Format(vDate, 0, 9)) else Observer.ObserveError('compound_add.65.d');
-        Observer.Finish();
+        Observer.Expect('compound_add.65.d', '2026-04-06');
+        Observer.Verify();
     end;
 
     [Test]
@@ -8322,7 +8640,8 @@ codeunit 92462 "LT Y31 Ar Duration"
         vDuration := 65;
         vTime := 120000T;
         if Try20(vDuration, vTime) then Observer.Observe('compound_add.65.t', Format(vTime, 0, 9)) else Observer.ObserveError('compound_add.65.t');
-        Observer.Finish();
+        Observer.Expect('compound_add.65.t', '12:00:00.065');
+        Observer.Verify();
     end;
 
     [Test]
@@ -8335,7 +8654,8 @@ codeunit 92462 "LT Y31 Ar Duration"
         vDuration := 65;
         vDateTime := CreateDateTime(20260131D, 120000T);
         if Try21(vDateTime, vDuration) then Observer.Observe('compound_add.65.dt', Format(vDateTime, 0, 9)) else Observer.ObserveError('compound_add.65.dt');
-        Observer.Finish();
+        Observer.Expect('compound_add.65.dt', '2026-01-31T12:00:00.065Z');
+        Observer.Verify();
     end;
 
     [Test]
@@ -8356,7 +8676,10 @@ codeunit 92462 "LT Y31 Ar Duration"
         vDuration := 65;
         vDuration_R := 65;
         if Try24(vDuration, vDuration_R) then Observer.Observe('compound_add.65.65', Format(vDuration_R, 0, 9)) else Observer.ObserveError('compound_add.65.65');
-        Observer.Finish();
+        Observer.Expect('add.65.65', 'BigInteger|130');
+        Observer.Expect('sub.65.65', 'BigInteger|0');
+        Observer.Expect('compound_add.65.65', 'P0DT0H0M0.13S');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -8545,7 +8868,10 @@ codeunit 92463 "LT Y31 Ar Label"
         if Try1(V, vChar) then Observer.Observe('add.abc.a', Util.VShow(V)) else Observer.ObserveError('add.abc.a');
         vChar := 65535;
         if Try1(V, vChar) then Observer.Observe('add.abc.65535', Util.VShow(V)) else Observer.ObserveError('add.abc.65535');
-        Observer.Finish();
+        Observer.Expect('add.abc.A', 'Text|abcA');
+        Observer.Expect('add.abc.a', 'Text|abca');
+        Observer.Expect('add.abc.65535', 'Text|abc\uFFFF');
+        Observer.Verify();
     end;
 
     [Test]
@@ -8572,7 +8898,15 @@ codeunit 92463 "LT Y31 Ar Label"
         if Try2(V, vText) then Observer.Observe('add.abc.guidlow', Util.VShow(V)) else Observer.ObserveError('add.abc.guidlow');
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         if Try3(vText) then Observer.Observe('compound_add.abc.guidlow', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.abc.guidlow');
-        Observer.Finish();
+        Observer.Expect('add.abc.a', 'Text|abca');
+        Observer.Expect('compound_add.abc.a', 'aabc|4');
+        Observer.Expect('add.abc.A', 'Text|abcA');
+        Observer.Expect('compound_add.abc.A', 'Aabc|4');
+        Observer.Expect('add.abc.abc', 'Text|abcabc');
+        Observer.Expect('compound_add.abc.abc', 'abcabc|6');
+        Observer.Expect('add.abc.guidlow', 'Text|abc5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b');
+        Observer.Expect('compound_add.abc.guidlow', '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6babc|39');
+        Observer.Verify();
     end;
 
     [Test]
@@ -8587,7 +8921,9 @@ codeunit 92463 "LT Y31 Ar Label"
         if Try4(V, vText10) then Observer.Observe('add.abc.abc', Util.VShow(V)) else Observer.ObserveError('add.abc.abc');
         vText10 := 'abc';
         if Try5(vText10) then Observer.Observe('compound_add.abc.abc', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('compound_add.abc.abc');
-        Observer.Finish();
+        Observer.Expect('add.abc.abc', 'Text|abcabc');
+        Observer.Expect('compound_add.abc.abc', 'abcabc|6');
+        Observer.Verify();
     end;
 
     [Test]
@@ -8606,7 +8942,11 @@ codeunit 92463 "LT Y31 Ar Label"
         if Try6(V, vCode10) then Observer.Observe('add.abc.ABC', Util.VShow(V)) else Observer.ObserveError('add.abc.ABC');
         vCode10 := 'ABC';
         if Try7(vCode10) then Observer.Observe('compound_add.abc.ABC', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('compound_add.abc.ABC');
-        Observer.Finish();
+        Observer.Expect('add.abc.A', 'Text|abcA');
+        Observer.Expect('compound_add.abc.A', 'AABC|4');
+        Observer.Expect('add.abc.ABC', 'Text|abcABC');
+        Observer.Expect('compound_add.abc.ABC', 'ABCABC|6');
+        Observer.Verify();
     end;
 
     [Test]
@@ -8621,7 +8961,9 @@ codeunit 92463 "LT Y31 Ar Label"
         if Try8(V, vGuid) then Observer.Observe('add.abc.g', Util.VShow(V)) else Observer.ObserveError('add.abc.g');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         if Try9(vGuid) then Observer.Observe('compound_add.abc.g', Format(vGuid)) else Observer.ObserveError('compound_add.abc.g');
-        Observer.Finish();
+        Observer.Expect('add.abc.g', 'Text|abc{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Expect('compound_add.abc.g', '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -8632,7 +8974,8 @@ codeunit 92463 "LT Y31 Ar Label"
         V: Variant;
     begin
         if Try10(V) then Observer.Observe('add.abc.abc', Util.VShow(V)) else Observer.ObserveError('add.abc.abc');
-        Observer.Finish();
+        Observer.Expect('add.abc.abc', 'Text|abcabc');
+        Observer.Verify();
     end;
 
     [TryFunction]
