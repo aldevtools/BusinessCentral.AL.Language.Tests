@@ -1174,7 +1174,14 @@ codeunit 88269 "LT RM Refill Tests"
         Ws.Next();
         Y34Refill(Ws, 'aBc');
         Ws.Close();
-        Observer.Finish();
+        Observer.Expect('before', 'B');
+        Observer.Expect('validate log', 'R:B-2;R:B-2;R:c;R:B-2;R:B-1;R:B;R:a;R:B-2;R:B-2;C:B-2;');
+        Observer.Expect('shown after validate', 'B-2');
+        Observer.Expect('expanded after validate', 'No');
+        Observer.Expect('rows', 'a B B-1 B-2 c');
+        Observer.Expect('walk log', 'R:a;R:a;C:a;R:B;R:B;C:B;R:B-1;R:B-1;C:B-1;R:B-2;R:B-2;C:B-2;R:c;R:c;C:c;');
+        Observer.Expect('shown after walk', 'c');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1189,7 +1196,14 @@ codeunit 88269 "LT RM Refill Tests"
         Ws.First();
         Y34Refill(Ws, 'aB');
         Ws.Close();
-        Observer.Finish();
+        Observer.Expect('before', 'A');
+        Observer.Expect('validate log', 'R:a;R:B;R:B-1;R:B-2;R:a;R:a;C:a;');
+        Observer.Expect('shown after validate', 'a');
+        Observer.Expect('expanded after validate', 'Yes');
+        Observer.Expect('rows', 'a B');
+        Observer.Expect('walk log', 'R:B;R:B;C:B;');
+        Observer.Expect('shown after walk', 'B');
+        Observer.Verify();
     end;
 }
 
