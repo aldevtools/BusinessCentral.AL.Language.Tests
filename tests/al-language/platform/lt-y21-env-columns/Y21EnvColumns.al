@@ -13,7 +13,8 @@
 //  - Windows Language: Enabled, Form Enabled, Report Enabled and XMLport Enabled are Yes on every row, Dataport Enabled and Help File
 //    Exist on none, ETX File Exist on 48 rows (49 on BC 29).
 //  - Session Event: one row for the running session; its columns equal the session's Active Session row and UserId()/UserSecurityId().
-//  - Database Wait Statistics: the set of categories changed between runs (16 or 17 rows: "Tracing"), only rules are asserted.
+//  - Database Wait Statistics: the set of categories changed between runs (16 or 17 rows: "Tracing", fewer in a later BC 28.5 run),
+//    only the rules of a row are asserted.
 //  - Database Locks gave no stable value (2 rows before an insert, 0 after it, 0 and 0 on BC 27.5); not asserted.
 // BC versions: 27.5, 28.5, 29.0
 
@@ -197,7 +198,6 @@ codeunit 92150 "LT Y21 Env Columns"
         StartTime: DateTime;
         SameStart: Boolean;
     begin
-        Observer.Observe('count>=16', Format(WaitStats.Count() >= 16));
         SameStart := true;
         if WaitStats.FindSet() then begin
             StartTime := WaitStats."Database start time";
@@ -214,14 +214,9 @@ codeunit 92150 "LT Y21 Env Columns"
                     Rules += 'time without tasks ' + WaitStats."Wait Category" + ';';
             until WaitStats.Next() = 0;
         end;
-        WaitStats.Reset();
-        WaitStats.SetRange("Wait Category", 'Lock');
-        Observer.Observe('has Lock', Format(not WaitStats.IsEmpty()));
         Observer.Observe('rules broken', Rules);
         Observer.Observe('same start time', Format(SameStart));
         Observer.Observe('start time', Dump.DtRule(StartTime));
-        Observer.Expect('count>=16', 'Yes');
-        Observer.Expect('has Lock', 'Yes');
         Observer.Expect('rules broken', '');
         Observer.Expect('same start time', 'Yes');
         Observer.Expect('start time', 'past');
