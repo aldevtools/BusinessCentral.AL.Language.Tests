@@ -309,7 +309,7 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
     procedure Y26_ThreeLinkCurr_LookupRefresh()
     var
         Setting: Record "LT Y15 Lookup Setting";
-        Schedule: TestPage "LT Y26 Three Link Curr Schedule";
+        Schedule: TestPage "LT Y26 3Link Curr Schedule";
     begin
         Setup(false);
         PickCount := 0;
@@ -350,7 +350,7 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
     procedure Y26_TwoLinkCurr_LookupRefresh()
     var
         Setting: Record "LT Y15 Lookup Setting";
-        Schedule: TestPage "LT Y26 Two Link Curr Schedule";
+        Schedule: TestPage "LT Y26 2Link Curr Schedule";
     begin
         Setup(false);
         PickCount := 0;
@@ -391,7 +391,7 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
     procedure Y26_ThreeLinkPlain_LookupRefresh()
     var
         Setting: Record "LT Y15 Lookup Setting";
-        Schedule: TestPage "LT Y26 Three Link Plain Schedule";
+        Schedule: TestPage "LT Y26 3Link Plain Schedule";
     begin
         Setup(false);
         PickCount := 0;
@@ -432,7 +432,7 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
     procedure Y26_TwoLinkPlain_LookupRefresh()
     var
         Setting: Record "LT Y15 Lookup Setting";
-        Schedule: TestPage "LT Y26 Two Link Plain Schedule";
+        Schedule: TestPage "LT Y26 2Link Plain Schedule";
     begin
         Setup(false);
         PickCount := 0;
@@ -473,7 +473,7 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
     procedure Y26_ThreeLinkCurr_RegionsSet()
     var
         Setting: Record "LT Y15 Lookup Setting";
-        Schedule: TestPage "LT Y26 Three Link Curr Schedule";
+        Schedule: TestPage "LT Y26 3Link Curr Schedule";
     begin
         Setup(true);
         PickCount := 0;
@@ -514,7 +514,7 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
     procedure Y26_ThreeLinkCurr_LookupTwice()
     var
         Setting: Record "LT Y15 Lookup Setting";
-        Schedule: TestPage "LT Y26 Three Link Curr Schedule";
+        Schedule: TestPage "LT Y26 3Link Curr Schedule";
     begin
         Setup(false);
         PickCount := 0;
@@ -619,7 +619,7 @@ page 92220 "LT Y26 Logging Resource Part"
                 field("No."; Rec."No.") { ApplicationArea = All; }
                 field("Group Code"; Rec."Group Code") { ApplicationArea = All; }
                 field(PartCurrent; PartCurrent) { ApplicationArea = All; Caption = 'Part Current'; }
-                field(PartFn; PartFn()) { ApplicationArea = All; Caption = 'Part Fn'; }
+                field(PartFn; GetPartNo()) { ApplicationArea = All; Caption = 'Part Fn'; }
             }
         }
     }
@@ -635,7 +635,7 @@ page 92220 "LT Y26 Logging Resource Part"
         PartCurrent := Rec."No.";
     end;
 
-    local procedure PartFn(): Code[20]
+    local procedure GetPartNo(): Code[20]
     begin
         Log.Add('p-fn ' + Rec."No.");
         exit(Rec."No.");
@@ -646,7 +646,7 @@ page 92220 "LT Y26 Logging Resource Part"
         Log: Codeunit "LT Y15 Lookup Log";
 }
 
-page 92221 "LT Y26 Three Link Curr Schedule"
+page 92221 "LT Y26 3Link Curr Schedule"
 {
     PageType = List;
     SourceTable = "LT Y15 Lookup Resource";
@@ -688,7 +688,7 @@ page 92221 "LT Y26 Three Link Curr Schedule"
             {
                 field("No."; Rec."No.") { ApplicationArea = All; }
                 field(CurrentNo; CurrentNo) { ApplicationArea = All; Caption = 'Current No.'; }
-                field(HostFn; HostFn()) { ApplicationArea = All; Caption = 'Host Fn'; }
+                field(HostFn; GetHostNo()) { ApplicationArea = All; Caption = 'Host Fn'; }
             }
             part(Resources; "LT Y26 Logging Resource Part")
             {
@@ -717,7 +717,7 @@ page 92221 "LT Y26 Three Link Curr Schedule"
         CurrentNo := Rec."No.";
     end;
 
-    local procedure HostFn(): Code[20]
+    local procedure GetHostNo(): Code[20]
     begin
         Log.Add('h-fn ' + Rec."No.");
         exit(Rec."No.");
@@ -729,7 +729,7 @@ page 92221 "LT Y26 Three Link Curr Schedule"
         Log: Codeunit "LT Y15 Lookup Log";
 }
 
-page 92222 "LT Y26 Two Link Curr Schedule"
+page 92222 "LT Y26 2Link Curr Schedule"
 {
     PageType = List;
     SourceTable = "LT Y15 Lookup Resource";
@@ -771,7 +771,7 @@ page 92222 "LT Y26 Two Link Curr Schedule"
             {
                 field("No."; Rec."No.") { ApplicationArea = All; }
                 field(CurrentNo; CurrentNo) { ApplicationArea = All; Caption = 'Current No.'; }
-                field(HostFn; HostFn()) { ApplicationArea = All; Caption = 'Host Fn'; }
+                field(HostFn; GetHostNo()) { ApplicationArea = All; Caption = 'Host Fn'; }
             }
             part(Resources; "LT Y26 Logging Resource Part")
             {
@@ -799,7 +799,7 @@ page 92222 "LT Y26 Two Link Curr Schedule"
         CurrentNo := Rec."No.";
     end;
 
-    local procedure HostFn(): Code[20]
+    local procedure GetHostNo(): Code[20]
     begin
         Log.Add('h-fn ' + Rec."No.");
         exit(Rec."No.");
@@ -811,7 +811,7 @@ page 92222 "LT Y26 Two Link Curr Schedule"
         Log: Codeunit "LT Y15 Lookup Log";
 }
 
-page 92223 "LT Y26 Three Link Plain Schedule"
+page 92223 "LT Y26 3Link Plain Schedule"
 {
     PageType = List;
     SourceTable = "LT Y15 Lookup Resource";
@@ -853,7 +853,7 @@ page 92223 "LT Y26 Three Link Plain Schedule"
             {
                 field("No."; Rec."No.") { ApplicationArea = All; }
                 field(CurrentNo; CurrentNo) { ApplicationArea = All; Caption = 'Current No.'; }
-                field(HostFn; HostFn()) { ApplicationArea = All; Caption = 'Host Fn'; }
+                field(HostFn; GetHostNo()) { ApplicationArea = All; Caption = 'Host Fn'; }
             }
             part(Resources; "LT Y26 Logging Resource Part")
             {
@@ -877,7 +877,7 @@ page 92223 "LT Y26 Three Link Plain Schedule"
         CurrentNo := Rec."No.";
     end;
 
-    local procedure HostFn(): Code[20]
+    local procedure GetHostNo(): Code[20]
     begin
         Log.Add('h-fn ' + Rec."No.");
         exit(Rec."No.");
@@ -889,7 +889,7 @@ page 92223 "LT Y26 Three Link Plain Schedule"
         Log: Codeunit "LT Y15 Lookup Log";
 }
 
-page 92224 "LT Y26 Two Link Plain Schedule"
+page 92224 "LT Y26 2Link Plain Schedule"
 {
     PageType = List;
     SourceTable = "LT Y15 Lookup Resource";
@@ -931,7 +931,7 @@ page 92224 "LT Y26 Two Link Plain Schedule"
             {
                 field("No."; Rec."No.") { ApplicationArea = All; }
                 field(CurrentNo; CurrentNo) { ApplicationArea = All; Caption = 'Current No.'; }
-                field(HostFn; HostFn()) { ApplicationArea = All; Caption = 'Host Fn'; }
+                field(HostFn; GetHostNo()) { ApplicationArea = All; Caption = 'Host Fn'; }
             }
             part(Resources; "LT Y26 Logging Resource Part")
             {
@@ -954,7 +954,7 @@ page 92224 "LT Y26 Two Link Plain Schedule"
         CurrentNo := Rec."No.";
     end;
 
-    local procedure HostFn(): Code[20]
+    local procedure GetHostNo(): Code[20]
     begin
         Log.Add('h-fn ' + Rec."No.");
         exit(Rec."No.");
