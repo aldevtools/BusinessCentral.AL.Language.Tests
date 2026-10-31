@@ -10,7 +10,9 @@
 // Facts (BC 29 SaaS sandbox; the corpus CI legs check the other majors): invokedby is UserSecurityId() and layoutapplicationid the app id of the
 //        module that holds the layout, both as lower-case GUID text without braces (a JSON string); reportrunid has the same form, is not the null
 //        Guid and differs per SaveAs; companyname is CompanyName(). invokeddatetime is a JSON string of the form yyyy-mm-ddThh:mm:ss.fff+hh:mm
-//        (an offset, not Z) that Evaluate(DateTime, Text, 9) reads as the time of the call. filterviews holds one object per data item,
+//        (an offset, not Z) that Evaluate(DateTime, Text, 9) reads as the time of the call; fff are the milliseconds of that time. When
+//        the milliseconds end in zeros the fraction is shorter (seen as .d on BC 28.5, run 41193457271), so the test checks the three
+//        digits only when the last millisecond digit is not 0. filterviews holds one object per data item,
 //        {"name":"Rows","tableid":70826,"view":"VERSION(1) SORTING(Field1) WHERE(...)"}, after SetTableView, with a RecordRef and with a data item view
 //        in the request parameters; it is [] for request parameters with options only and for a report whose only filter is its DataItemTableView.
 //        A report without a Caption gives its object name as objectname.
@@ -221,21 +223,54 @@ codeunit 90867 "LT Y2 RptMrg Unmasked"
         After: DateTime;
         Stamp: DateTime;
         Txt: Text;
+        Fraction: Text;
+        Offset: Text;
+        Ms: Text;
+        MsOfDay: BigInteger;
     begin
         Helper.SeedRows(1);
         Before := CurrentDateTime();
         SaveMain(Cap, Payload);
         After := CurrentDateTime();
         Txt := Value(Payload, 'invokeddatetime');
+        SplitFraction(Txt, Fraction, Offset);
         Observer.Observe('raw is a string', Format(CopyStr(Raw(Payload, 'invokeddatetime'), 1, 1) = '"'));
-        Observer.Observe('shape', Digits(Txt));
+        Observer.Observe('shape without the fraction', Digits(CopyStr(Txt, 1, 19) + Offset));
         Observer.Observe('evaluates', Format(Evaluate(Stamp, Txt, 9)));
         Observer.Observe('within the call (1 s slack)', Format((Stamp >= Before - 1000) and (Stamp <= After + 1000)));
+        // The milliseconds of the time Evaluate read, as three digits. The text was 'dddd-dd-ddTdd:dd:dd.ddd+dd:dd' in every run
+        // except one where the milliseconds ended in 00 and BC wrote one digit; the length of the fraction is checked only when
+        // the last millisecond digit is not 0, its value always.
+        MsOfDay := Stamp - CreateDateTime(DT2Date(Stamp), 0T);
+        Ms := Format(MsOfDay mod 1000);
+        Ms := PadStr('', 3 - StrLen(Ms), '0') + Ms;
+        if CopyStr(Ms, 3, 1) <> '0' then
+            Observer.Observe('fraction', Fraction)
+        else
+            Observer.Observe('fraction', PadStr(Fraction, 3, '0'));
         Observer.Expect('raw is a string', 'Yes');
-        Observer.Expect('shape', 'dddd-dd-ddTdd:dd:dd.ddd+dd:dd');
+        Observer.Expect('shape without the fraction', 'dddd-dd-ddTdd:dd:dd+dd:dd');
         Observer.Expect('evaluates', 'Yes');
         Observer.Expect('within the call (1 s slack)', 'Yes');
+        Observer.Expect('fraction', Ms);
         Observer.Verify();
+    end;
+
+    // Splits 'yyyy-mm-ddThh:mm:ss[.f...]<offset>' after the seconds: Fraction gets the digits after the dot (empty without a dot),
+    // Offset the rest.
+    local procedure SplitFraction(Txt: Text; var Fraction: Text; var Offset: Text)
+    var
+        i: Integer;
+    begin
+        Fraction := '';
+        Offset := CopyStr(Txt, 20);
+        if CopyStr(Offset, 1, 1) <> '.' then
+            exit;
+        i := 2;
+        while (i <= StrLen(Offset)) and (CopyStr(Offset, i, 1) in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']) do
+            i += 1;
+        Fraction := CopyStr(Offset, 2, i - 2);
+        Offset := CopyStr(Offset, i);
     end;
 
     [Test]
