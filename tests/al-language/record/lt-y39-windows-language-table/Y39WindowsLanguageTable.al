@@ -2,7 +2,7 @@
 // Scope: in-scope
 // Fixtures used: none (self-contained test codeunit 92700)
 // Probe: observe probe (writer Y39, 2026-10-31, al-runner issue 6558, corpus issue 955). Every row of the system table Windows Language
-//   (2000000045), read through a RecordRef: 16 fields (1 Language ID, 2 Primary Language ID, 10 Name, 11 Abbreviated Name, 20 Enabled,
+//   (2000000045), measured with a RecordRef dump of every field: 16 fields (1 Language ID, 2 Primary Language ID, 10 Name, 11 Abbreviated Name, 20 Enabled,
 //   21 Globally Enabled, 22 Form Enabled, 23 Report Enabled, 24 Dataport Enabled, 25 XMLport Enabled, 30 Primary CodePage,
 //   31 STX File Exist, 32 ETX File Exist, 33 Help File Exist, 34 Localization Exist, 35 Language Tag), primary key Language ID.
 //   Each expected row below is "<field values in that order>" joined by '|'.
@@ -11,11 +11,10 @@
 //   (Utf8CodePage(); no Windows BC 29 container answered, so the split is by major).
 // Linux suspect: the Linux CI containers build the table from ICU culture data, not Windows NLS data, and differ from Windows and SaaS
 //   (aldevtools/MsDyn365Bc.On.Linux issue 198 covers the Chinese ids): other culture names (1027 'Catalan (Spain)' for 'Catalan (Catalan)',
-//   2107 'Northern Sami (Sweden)' for 'Sami, Northern (Sweden)'), rows that do not exist there (9225 en-029, 1028 zh-TW, 3076, 4100, 5124 and
-//   more), an extra row 31748 zh-Hant, and Primary CodePage '1' on BC 27/28. The [Test] procedures check the rows on which Linux agrees;
+//   2107 'Northern Sami (Sweden)' for 'Sami, Northern (Sweden)'), rows that do not exist there (9225 en-029, 3076 zh-HK, 4100 zh-SG, 5124 zh-MO and
+//   more; 1028 zh-TW on BC 27/28), an extra row 31748 zh-Hant, and Primary CodePage '1' on BC 27/28. The [Test] procedures check the rows on which Linux agrees;
 //   the Suspect_ procedures (no [Test]) hold the Windows/SaaS values of the other rows, the row count and the full walk.
-
-// Linux CI (rows, rows equal to Windows/SaaS, extra rows): 27.5 (208, 150, 1), 28.5 (208, 150, 1), 29.0 (208, 180, 1).
+// Linux CI (rows, rows equal to Windows/SaaS, extra rows): 27.5 (208, 150, 1), 28.5 (208, 150, 1), 29.0 (212, 182, 1).
 // BC versions: 27, 28, 29
 
 codeunit 92700 "LT Y39 WinLang Table"
@@ -385,6 +384,9 @@ codeunit 92700 "LT Y39 WinLang Table"
         Ids.Add(1091);
         Ids.Add(1092);
 #if BC29PLUS
+        Ids.Add(1094);
+#endif
+#if BC29PLUS
         Ids.Add(1095);
 #endif
 #if BC29PLUS
@@ -424,6 +426,9 @@ codeunit 92700 "LT Y39 WinLang Table"
 #endif
 #if BC29PLUS
         Ids.Add(1111);
+#endif
+#if BC29PLUS
+        Ids.Add(1113);
 #endif
 #if BC29PLUS
         Ids.Add(1114);
@@ -640,6 +645,9 @@ codeunit 92700 "LT Y39 WinLang Table"
         Check(1091);
         Check(1092);
 #if BC29PLUS
+        Check(1094);
+#endif
+#if BC29PLUS
         Check(1095);
 #endif
 #if BC29PLUS
@@ -684,6 +692,9 @@ codeunit 92700 "LT Y39 WinLang Table"
 #endif
 #if BC29PLUS
         Check(1111);
+#endif
+#if BC29PLUS
+        Check(1113);
 #endif
 #if BC29PLUS
         Check(1114);
@@ -883,7 +894,6 @@ codeunit 92700 "LT Y39 WinLang Table"
 
     // ---- Held: Linux suspect (Windows 27.5/28.5 and SaaS 29 values; the Linux CI containers differ, see the header) ----
 
-    [Test]
     procedure Suspect_WindowsLanguage_Walk_AllRows()
     var
         WindowsLanguage: Record "Windows Language";
@@ -905,7 +915,6 @@ codeunit 92700 "LT Y39 WinLang Table"
             Error('Windows Language 31748 (zh-Hant): a row, expected none');
     end;
 
-    [Test]
     procedure Suspect_WindowsLanguage_Rows_LinuxDiffers()
     begin
         Check(1027);
@@ -937,7 +946,9 @@ codeunit 92700 "LT Y39 WinLang Table"
 #endif
         Check(1089);
         Check(1093);
+#if not BC29PLUS
         Check(1094);
+#endif
 #if not BC29PLUS
         Check(1095);
 #endif
@@ -979,7 +990,9 @@ codeunit 92700 "LT Y39 WinLang Table"
 #if not BC29PLUS
         Check(1111);
 #endif
+#if not BC29PLUS
         Check(1113);
+#endif
 #if not BC29PLUS
         Check(1114);
 #endif
