@@ -72,8 +72,8 @@ codeunit 92354 "LT Y35 Privacy Approval"
         exit(Result);
     end;
 
-    [TryFunction]
-    local procedure TryInsert(Id: Code[50]; UserSid: Guid; Approved: Boolean; var Shown: Text)
+    // Insert() as a Boolean: a duplicate key gives false, no error.
+    local procedure Insert(Op: Text; Id: Code[50]; UserSid: Guid; Approved: Boolean)
     var
         Approval: Record "Privacy Notice Approval";
     begin
@@ -81,28 +81,17 @@ codeunit 92354 "LT Y35 Privacy Approval"
         Approval.ID := Id;
         Approval."User SID" := UserSid;
         Approval.Approved := Approved;
-        Shown := Format(Approval.Insert()) + '|' + Row(Approval);
+        Observer.Observe(Op, Format(Approval.Insert()) + '|' + Row(Approval));
     end;
 
-    local procedure Insert(Op: Text; Id: Code[50]; UserSid: Guid; Approved: Boolean)
-    var
-        Shown: Text;
-    begin
-        if TryInsert(Id, UserSid, Approved, Shown) then
-            Observer.Observe(Op, Shown)
-        else
-            Observer.ObserveError(Op);
-    end;
-
+    // Deletes the approvals of Id. A Privacy Notice row is not deleted: the app has no Delete permission on it (InherentEntitlements
+    // RIMdX; BC 29 SaaS: "Your license does not grant you ... Delete"); the test isolation rolls it back.
     local procedure Clean(Id: Code[50])
     var
         Approval: Record "Privacy Notice Approval";
-        Notice: Record "Privacy Notice";
     begin
         Approval.SetRange(ID, Id);
         Approval.DeleteAll();
-        if Notice.Get(Id) then
-            Notice.Delete();
     end;
 
     local procedure Flags(Id: Code[50]): Text
@@ -167,10 +156,12 @@ codeunit 92354 "LT Y35 Privacy Approval"
         EmptyGuid: Guid;
     begin
         Clean('LT-C303P');
-        Notice.Init();
-        Notice.ID := 'LT-C303P';
-        Notice."Integration Service Name" := 'LT Y35';
-        Notice.Insert();
+        if not Notice.Get('LT-C303P') then begin
+            Notice.Init();
+            Notice.ID := 'LT-C303P';
+            Notice."Integration Service Name" := 'LT Y35';
+            Notice.Insert();
+        end;
         Observer.Observe('before', Flags('LT-C303P'));
         Insert('insert_admin', 'LT-C303P', EmptyGuid, true);
         Observer.Observe('after_admin_approved', Flags('LT-C303P'));
@@ -184,6 +175,7 @@ codeunit 92354 "LT Y35 Privacy Approval"
         Approval.Modify();
         Observer.Observe('after_user_approved', Flags('LT-C303P'));
         Clean('LT-C303P');
+        Observer.Observe('after_all_deleted', Flags('LT-C303P'));
         Observer.Finish();
     end;
 }

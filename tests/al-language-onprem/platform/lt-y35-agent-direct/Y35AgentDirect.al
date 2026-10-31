@@ -4,10 +4,40 @@
 // Probe (gap cycle 3, C3-02): what each read and write of the platform table Agent does when this (non-Microsoft) app calls it directly in a
 //   test session on the corpus container: the shape of System Application Test's LibraryMockAgent.DeleteAllAgents (SetFilter on
 //   "Agent Metadata Provider" + FindSet) and GetOrCreateDefaultAgent (SetRange + SetFilter + FindFirst, then Insert(true)).
-//   Each operation runs in a TryFunction: ok and what it returned, or the error text and code.
+//   Each read runs in a TryFunction; each write runs in the OnRun of codeunit 98665 through Codeunit.Run (the containers refuse a write
+//   inside a TryFunction: "Call to the function 'INSERT' is not allowed inside the call to ... when it is used as a TryFunction.").
+//   Observed: ok and what it returned, or the error text and code.
 //   The Microsoft-caller neighbour (Agent API of the System Application): tests/al-language/platform/lt-y35-agent-api/Y35AgentApi.al.
 // BC versions: 27.5, 28.5, 29.0. Enum "Agent Metadata Provider" has the value "Personal Agent" (1) on BC 29 only; on BC 27/28 both filter
 //   values are the default (0).
+
+codeunit 98665 "LT Y35 Agent Direct Runner"
+{
+    var
+        RunTrigger: Boolean;
+        Shown: Text;
+
+    trigger OnRun()
+    var
+        Agent: Record Agent;
+    begin
+        Shown := '';
+        Agent.Init();
+        Agent."User Name" := 'LTY35';
+        Agent."Display Name" := 'LT Y35';
+        Shown := Format(Agent.Insert(RunTrigger));
+    end;
+
+    procedure SetRunTrigger(NewRunTrigger: Boolean)
+    begin
+        RunTrigger := NewRunTrigger;
+    end;
+
+    procedure GetShown(): Text
+    begin
+        exit(Shown);
+    end;
+}
 
 codeunit 98664 "LT Y35 Agent Direct"
 {
@@ -80,15 +110,16 @@ codeunit 98664 "LT Y35 Agent Direct"
         Shown := Format(Agent.Get(CreateGuid()));
     end;
 
-    [TryFunction]
-    local procedure TryInsert(RunTrigger: Boolean; var Shown: Text)
+    local procedure RunInsert(Op: Text; RunTrigger: Boolean)
     var
-        Agent: Record Agent;
+        Runner: Codeunit "LT Y35 Agent Direct Runner";
     begin
-        Agent.Init();
-        Agent."User Name" := 'LTY35';
-        Agent."Display Name" := 'LT Y35';
-        Shown := Format(Agent.Insert(RunTrigger));
+        Runner.SetRunTrigger(RunTrigger);
+        Commit();
+        if Runner.Run() then
+            Observer.Observe(Op, 'ok|' + Runner.GetShown())
+        else
+            Observer.ObserveError(Op);
     end;
 
     [TryFunction]
@@ -135,12 +166,10 @@ codeunit 98664 "LT Y35 Agent Direct"
 
     [Test]
     procedure C302_AgentDirect_Inserts()
-    var
-        Shown: Text;
     begin
-        Run('insert_true', TryInsert(true, Shown), Shown);
+        RunInsert('insert_true', true);
         Observer.Observe('in_write_transaction_1', Format(Database.IsInWriteTransaction()));
-        Run('insert_false', TryInsert(false, Shown), Shown);
+        RunInsert('insert_false', false);
         Observer.Observe('in_write_transaction_2', Format(Database.IsInWriteTransaction()));
         Observer.Finish();
     end;

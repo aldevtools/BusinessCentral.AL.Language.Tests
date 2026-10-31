@@ -6,10 +6,90 @@
 // Probe (gap cycle 3, C3-03): rows at the start, writes and filtered reads of the stored platform tables Webhook Subscription (2000000199),
 //   Webhook Notification (2000000194), MCP Configuration Tool (2000000293) and Tenant Profile Setting (2000000083) on the corpus container:
 //   does the container hold rows, does the platform fill or check a column on a write, how do filters, Delete(true), DeleteAll(true) and
-//   ModifyAll answer. Neighbours: lt-y21-env-columns/Y21EnvColumnsOnPrem.al:317-344 (Webhook Subscription "Created By" kept as written),
+//   ModifyAll answer. Writes whose outcome may be an error run in codeunit 98671 through Codeunit.Run (the containers refuse a write inside a
+//   TryFunction). Neighbours: lt-y21-env-columns/Y21EnvColumnsOnPrem.al:317-344 (Webhook Subscription "Created By" kept as written),
 //   lt-aw-fresh-tenant/AwOnPremTests.al:174-225 (MCP Configuration rows). Every test deletes its own keys first (prefix LT-C303 / LT C303).
 // BC versions: 27.5, 28.5, 29.0. "API Version" of MCP Configuration Tool exists on BC 28 and later; its "Object Type" has the members
 //   Query and Codeunit on BC 29 only (BC 27/28: Page), so the second tool is a Page on BC 27/28.
+
+// Runs one write in its OnRun, called through Codeunit.Run.
+codeunit 98671 "LT Y35 Stored Table Runner"
+{
+    var
+        Op: Text;
+        KeyText: Text;
+        CodeValue: Code[50];
+        GuidValue: Guid;
+        IntValue: Integer;
+        Shown: Text;
+
+    trigger OnRun()
+    var
+        Sub: Record "Webhook Subscription";
+        Tool: Record "MCP Configuration Tool";
+        Setting: Record "Tenant Profile Setting";
+    begin
+        Shown := '';
+        case Op of
+            'webhook':
+                begin
+                    Sub.Init();
+                    Sub."Subscription ID" := CopyStr(KeyText, 1, MaxStrLen(Sub."Subscription ID"));
+                    Sub.Endpoint := 'https://lt.example/hook';
+                    Sub."Created By" := CodeValue;
+                    Sub."Client State" := 'state';
+                    Shown := Format(Sub.Insert());
+                end;
+            'mcp_page', 'mcp_codeunit':
+                begin
+                    Tool.Init();
+                    Tool.ID := GuidValue;
+#if BC29PLUS
+                    if Op = 'mcp_codeunit' then
+                        Tool."Object Type" := Tool."Object Type"::Codeunit
+                    else
+                        Tool."Object Type" := Tool."Object Type"::Page;
+#else
+                    Tool."Object Type" := Tool."Object Type"::Page;
+#endif
+                    Tool."Object ID" := IntValue;
+                    Tool."Allow Read" := true;
+#if BC28PLUS
+                    Tool."API Version" := 'v2.0';
+#endif
+                    Shown := Format(Tool.Insert());
+                end;
+            'tps_insert':
+                begin
+                    Setting.Init();
+                    Setting."App ID" := GuidValue;
+                    Setting."Profile ID" := CopyStr(CodeValue, 1, MaxStrLen(Setting."Profile ID"));
+                    Setting."Default Role Center" := true;
+                    Shown := Format(Setting.Insert());
+                end;
+            'tps_modifyall':
+                Setting.ModifyAll("Default Role Center", false);
+        end;
+    end;
+
+    procedure Set(NewOp: Text; NewKey: Text; NewCode: Code[50]; NewGuid: Guid; NewInt: Integer)
+    begin
+        Op := NewOp;
+        KeyText := NewKey;
+        CodeValue := NewCode;
+        GuidValue := NewGuid;
+        IntValue := NewInt;
+    end;
+
+    procedure RunAndObserve(var Observer: Codeunit "Probe Observer"; ObservedName: Text)
+    begin
+        Commit();
+        if Run() then
+            Observer.Observe(ObservedName, 'ok|' + Shown)
+        else
+            Observer.ObserveError(ObservedName);
+    end;
+}
 
 codeunit 98668 "LT Y35 Webhook Tables"
 {
@@ -20,7 +100,6 @@ codeunit 98668 "LT Y35 Webhook Tables"
         Observer: Codeunit "Probe Observer";
         RowTexts: Codeunit "LT AW OnPrem Row Text";
         SystemSkipTok: Label 'SystemId|SystemCreatedAt|SystemCreatedBy|SystemModifiedAt|SystemModifiedBy|SystemRowVersion', Locked = true;
-        EndpointTok: Label 'https://lt.example/hook', Locked = true;
 
     local procedure SubscriptionRows(var Sub: Record "Webhook Subscription"): Text
     var
@@ -48,17 +127,13 @@ codeunit 98668 "LT Y35 Webhook Tables"
         exit(Rows);
     end;
 
-    [TryFunction]
-    local procedure TryInsertSubscription(SubscriptionId: Text[150]; CreatedBy: Code[50]; var Shown: Text)
+    local procedure InsertSubscription(ObservedName: Text; SubscriptionId: Text; CreatedBy: Code[50])
     var
-        Sub: Record "Webhook Subscription";
+        Runner: Codeunit "LT Y35 Stored Table Runner";
+        NoGuid: Guid;
     begin
-        Sub.Init();
-        Sub."Subscription ID" := SubscriptionId;
-        Sub.Endpoint := EndpointTok;
-        Sub."Created By" := CreatedBy;
-        Sub."Client State" := 'state';
-        Shown := Format(Sub.Insert());
+        Runner.Set('webhook', SubscriptionId, CreatedBy, NoGuid, 0);
+        Runner.RunAndObserve(Observer, ObservedName);
     end;
 
     local procedure Clean()
@@ -89,21 +164,11 @@ codeunit 98668 "LT Y35 Webhook Tables"
     procedure C303_Webhook_RowsAndWrites()
     var
         Sub: Record "Webhook Subscription";
-        Shown: Text;
     begin
         Clean();
-        if TryInsertSubscription('LT-C303-B', 'X PAYPAL Y', Shown) then
-            Observer.Observe('insert_b', Shown)
-        else
-            Observer.ObserveError('insert_b');
-        if TryInsertSubscription('LT-C303-A', '', Shown) then
-            Observer.Observe('insert_a', Shown)
-        else
-            Observer.ObserveError('insert_a');
-        if TryInsertSubscription('LT-C303-B', '', Shown) then
-            Observer.Observe('insert_dup', Shown)
-        else
-            Observer.ObserveError('insert_dup');
+        InsertSubscription('insert_b', 'LT-C303-B', 'X PAYPAL Y');
+        InsertSubscription('insert_a', 'LT-C303-A', '');
+        InsertSubscription('insert_dup', 'LT-C303-B', '');
         Sub.SetFilter("Subscription ID", 'LT-C303*');
         Observer.Observe('count_own', Format(Sub.Count()));
         Observer.Observe('rows_own', SubscriptionRows(Sub));
@@ -197,30 +262,12 @@ codeunit 98669 "LT Y35 MCP Tool Table"
         exit(Config.SystemId);
     end;
 
-    [TryFunction]
-    local procedure TryInsertTool(ConfigId: Guid; ObjectType: Option; ObjectId: Integer; var Shown: Text)
+    local procedure InsertTool(ObservedName: Text; ConfigId: Guid; RunnerOp: Text; ObjectId: Integer)
     var
-        Tool: Record "MCP Configuration Tool";
+        Runner: Codeunit "LT Y35 Stored Table Runner";
     begin
-        Tool.Init();
-        Tool.ID := ConfigId;
-        Tool."Object Type" := ObjectType;
-        Tool."Object ID" := ObjectId;
-        Tool."Allow Read" := true;
-#if BC28PLUS
-        Tool."API Version" := 'v2.0';
-#endif
-        Shown := Format(Tool.Insert());
-    end;
-
-    local procedure InsertTool(Op: Text; ConfigId: Guid; ObjectType: Option; ObjectId: Integer)
-    var
-        Shown: Text;
-    begin
-        if TryInsertTool(ConfigId, ObjectType, ObjectId, Shown) then
-            Observer.Observe(Op, Shown)
-        else
-            Observer.ObserveError(Op);
+        Runner.Set(RunnerOp, '', '', ConfigId, ObjectId);
+        Runner.RunAndObserve(Observer, ObservedName);
     end;
 
     [Test]
@@ -274,7 +321,7 @@ codeunit 98669 "LT Y35 MCP Tool Table"
         Tool2."Allow Create" := true;
         Observer.Observe('insert_query', Format(Tool2.Insert()));
         Clear(Tool);
-        Observer.Observe('get_by_key', Format(Tool.Get(ConfigId, Tool."Object Type"::Page, 1)));
+        Observer.Observe('get_by_key', Format(Tool.Get(ConfigId, 'mcp_page', 1)));
         Observer.Observe('get_row', ToolRow(Tool));
         Clear(Tool);
         Observer.Observe('get_by_systemid', Format(Tool.GetBySystemId(ToolSystemId)));
@@ -302,31 +349,27 @@ codeunit 98669 "LT Y35 MCP Tool Table"
         NoParent: Guid;
     begin
         NoParent := CreateGuid();
-        InsertTool('insert_no_config', NoParent, Tool."Object Type"::Page, 1);
+        InsertTool('insert_no_config', NoParent, 'mcp_page', 1);
         Tool.SetRange(ID, NoParent);
         Observer.Observe('count_no_config', Format(Tool.Count()));
         Tool.DeleteAll();
         if Config.Get('') then
             DefaultId := Config.SystemId;
-        InsertTool('insert_default_config', DefaultId, Tool."Object Type"::Page, 3);
+        InsertTool('insert_default_config', DefaultId, 'mcp_page', 3);
         Tool.SetRange(ID, DefaultId);
         Tool.SetRange("Object ID", 3);
         Tool.DeleteAll();
         OwnId := OwnConfig('LT C303 M2');
-        InsertTool('insert_own', OwnId, Tool."Object Type"::Page, 4);
-#if BC29PLUS
-        InsertTool('insert_codeunit_0', OwnId, Tool."Object Type"::Codeunit, 0);
-#else
-        InsertTool('insert_codeunit_0', OwnId, Tool."Object Type"::Page, 0);
-#endif
-        InsertTool('insert_page_not_api', OwnId, Tool."Object Type"::Page, 2000000000);
+        InsertTool('insert_own', OwnId, 'mcp_page', 4);
+        InsertTool('insert_codeunit_0', OwnId, 'mcp_codeunit', 0);
+        InsertTool('insert_page_not_api', OwnId, 'mcp_page', 2000000000);
         Config.Get('LT C303 M2');
         Observer.Observe('delete_config', Format(Config.Delete()));
         Tool.Reset();
         Tool.SetRange(ID, OwnId);
         Observer.Observe('tools_after_config_delete', Format(Tool.Count()));
         OwnId := OwnConfig('LT C303 M2T');
-        InsertTool('insert_own_t', OwnId, Tool."Object Type"::Page, 4);
+        InsertTool('insert_own_t', OwnId, 'mcp_page', 4);
         Config.Get('LT C303 M2T');
         Observer.Observe('delete_config_true', Format(Config.Delete(true)));
         Tool.SetRange(ID, OwnId);
@@ -374,34 +417,12 @@ codeunit 98670 "LT Y35 Tenant Profile Setting"
         exit('NOT FOUND');
     end;
 
-    [TryFunction]
-    local procedure TryInsert(AppId: Guid; ProfileId: Code[30]; var Shown: Text)
+    local procedure Insert(ObservedName: Text; AppId: Guid; ProfileId: Code[30])
     var
-        Setting: Record "Tenant Profile Setting";
+        Runner: Codeunit "LT Y35 Stored Table Runner";
     begin
-        Setting.Init();
-        Setting."App ID" := AppId;
-        Setting."Profile ID" := ProfileId;
-        Setting."Default Role Center" := true;
-        Shown := Format(Setting.Insert());
-    end;
-
-    [TryFunction]
-    local procedure TryModifyAll()
-    var
-        Setting: Record "Tenant Profile Setting";
-    begin
-        Setting.ModifyAll("Default Role Center", false);
-    end;
-
-    local procedure Insert(Op: Text; AppId: Guid; ProfileId: Code[30])
-    var
-        Shown: Text;
-    begin
-        if TryInsert(AppId, ProfileId, Shown) then
-            Observer.Observe(Op, Shown)
-        else
-            Observer.ObserveError(Op);
+        Runner.Set('tps_insert', '', ProfileId, AppId, 0);
+        Runner.RunAndObserve(Observer, ObservedName);
     end;
 
     local procedure AllProfileState(ProfileId: Code[30]): Text
@@ -430,16 +451,16 @@ codeunit 98670 "LT Y35 Tenant Profile Setting"
     procedure C303_TenantProfileSetting_RowsAndWrites()
     var
         Setting: Record "Tenant Profile Setting";
+        Runner: Codeunit "LT Y35 Stored Table Runner";
+        NoGuid: Guid;
         ProfileId: Code[30];
     begin
         ProfileId := OwnProfileId();
         Observer.Observe('own_profile_id', ProfileId);
         Observer.Observe('count_start', Format(Setting.Count()));
         Observer.Observe('rows_start', Rows(Setting));
-        if TryModifyAll() then
-            Observer.Observe('modifyall', 'ok')
-        else
-            Observer.ObserveError('modifyall');
+        Runner.Set('tps_modifyall', '', '', NoGuid, 0);
+        Runner.RunAndObserve(Observer, 'modifyall');
         Setting.SetRange("Default Role Center", true);
         Observer.Observe('count_default_after_modifyall', Format(Setting.Count()));
         Setting.Reset();

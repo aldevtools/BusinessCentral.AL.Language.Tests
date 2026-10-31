@@ -14,9 +14,13 @@
 // Keys: prefix C301 (A1's OnRun writes), C302 (A2's test writes), C306 (A6's OnRun writes, hub). A0's OnRun deletes every key and
 //   sequence first, so a rerun reads the same. Every storage call is in codeunit 81574, so the module is the same for all codeunits.
 // Writes(P), in this order: set P-MOD-CM / P-COM-CM / P-USR-CM / P-CAU-CM (scopes Module, Company, User, CompanyAndUser); insert
-//   sequence P-SEQ-CM (seed 100) and take Next twice; insert company-wide sequence P-SEQ-CW (seed 200) and take Next once; Restart
-//   P-SEQ-OLD-R (made by A0) at 500; Next of P-SEQ-OLD-N (made by A0); Commit; then, left open: set P-MOD-OPEN, insert P-SEQ-OPEN
-//   (seed 10) and take Next once, delete P-MOD-DEL (stored by A0).
+//   sequence P-SEQ-CM (seed 100) and take Next twice; insert company-wide sequence P-SEQ-CW (seed 200) and take Next once; Next of
+//   P-SEQ-OLD-N (made by A0); Commit; then, left open: set P-MOD-OPEN, insert P-SEQ-OPEN (seed 10) and take Next once, delete
+//   P-MOD-DEL (stored by A0). P-SEQ-OLD-R (made by A0) is left alone: see Suspect_RestartInTestCodeunit.
+// Linux suspect (not asserted, procedure Suspect_RestartInTestCodeunit in A1): NumberSequence.Restart of a sequence, in OnRun or in a
+//   test of a codeunit run by 130450 (and by the hub), ends the session at the end of the codeunit with "An unexpected error occurred
+//   after a database command was cancelled." (SQL: "Cannot roll back 4. No transaction or savepoint of that name was found.");
+//   the codeunit gives no result. Seen on the Linux containers 27.5, 28.5, 29.0; to be checked on Windows.
 // BC versions: 27.5, 28.5, 29.0
 
 codeunit 81574 "LT Y35 Probe Store"
@@ -129,7 +133,6 @@ codeunit 81574 "LT Y35 Probe Store"
         Log += NextStep('next-cm', P + '-SEQ-CM', false);
         Log += Step('insert-cw', TrySeqInsert(P + '-SEQ-CW', 200, true));
         Log += NextStep('next-cw', P + '-SEQ-CW', true);
-        Log += Step('restart-old-r', TrySeqRestart(P + '-SEQ-OLD-R', 500));
         Log += NextStep('next-old-n', P + '-SEQ-OLD-N', false);
         Commit();
         SetStore(P + '-MOD-OPEN', 'open', DataScope::Module);
@@ -255,6 +258,12 @@ codeunit 81567 "LT Y35 A1 OnRun Writes"
     trigger OnRun()
     begin
         OnRunLog := Store.Writes('C301');
+    end;
+
+    // Linux suspect (see the header): not a test. Called from OnRun before Writes it ended the session at the codeunit end.
+    procedure Suspect_RestartInTestCodeunit(): Boolean
+    begin
+        exit(Store.TrySeqRestart('C301-SEQ-OLD-R', 500));
     end;
 
     [Test]
