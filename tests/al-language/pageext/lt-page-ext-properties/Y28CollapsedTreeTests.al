@@ -31,7 +31,15 @@ codeunit 92279 "LT Y28 Collapsed Tree Tests"
         Observer.Observe('last', Format(P.Last()) + '/' + P.IdCtl.Value());
         Observer.Observe('previous', Format(P.Previous()) + '/' + P.IdCtl.Value());
         Observer.Observe('previous-2', Format(P.Previous()) + '/' + P.IdCtl.Value());
-        Observer.Finish();
+        Observer.Expect('open-log', 'open count=5 filters= fg0[] copy=5/1,2,3,4,5,;open-end count=5 filters=;agr1;agr2;agr3;agr4;agr5;agr1;agr1;agcr1 n=5;');
+        Observer.Expect('current', '1');
+        Observer.Expect('testpage-filter-indent', '');
+        Observer.Expect('walk', '1:Root 1,4:Root 2,');
+        Observer.Expect('walk-log', 'agr4;agr4;agcr4 n=5;');
+        Observer.Expect('last', 'Yes/4');
+        Observer.Expect('previous', 'Yes/1');
+        Observer.Expect('previous-2', 'No/1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -45,7 +53,10 @@ codeunit 92279 "LT Y28 Collapsed Tree Tests"
         Observer.Observe('open-log', Log.Take());
         Observer.Observe('current', P.IdCtl.Value());
         Observer.Observe('walk', Walk(P));
-        Observer.Finish();
+        Observer.Expect('open-log', 'open count=5 filters= fg0[] copy=5/1,2,3,4,5,;open-end count=5 filters=;agr1;agr2;agr3;agr4;agr5;agr1;agr1;agcr1 n=5;');
+        Observer.Expect('current', '1');
+        Observer.Expect('walk', '1:Root 1,4:Root 2,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -59,7 +70,10 @@ codeunit 92279 "LT Y28 Collapsed Tree Tests"
         Observer.Observe('open-log', Log.Take());
         Observer.Observe('current', P.IdCtl.Value());
         Observer.Observe('walk', Walk(P));
-        Observer.Finish();
+        Observer.Expect('open-log', 'open count=5 filters= fg0[] copy=5/1,2,3,4,5,;fs1;fs2;fs3;fs4;fs5;open-end count=5 filters=;agr5;agr4;agr3;agr2;agr1;agr5;agr5;agcr5 n=5;');
+        Observer.Expect('current', '5');
+        Observer.Expect('walk', '1:Root 1,4:Root 2,5:Child 2A,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -73,7 +87,10 @@ codeunit 92279 "LT Y28 Collapsed Tree Tests"
         Observer.Observe('open-log', Log.Take());
         Observer.Observe('current', P.IdCtl.Value());
         Observer.Observe('walk', Walk(P));
-        Observer.Finish();
+        Observer.Expect('open-log', 'open count=5 filters= fg0[] copy=5/1,2,3,4,5,;open-end count=3 filters=Indent: 1;agr2;agr3;agr5;agr2;agr2;agcr2 n=3;');
+        Observer.Expect('current', '2');
+        Observer.Expect('walk', '2:Child 1A,3:Child 1B,5:Child 2A,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -87,7 +104,10 @@ codeunit 92279 "LT Y28 Collapsed Tree Tests"
         Observer.Observe('open-log', Log.Take());
         Observer.Observe('current', P.IdCtl.Value());
         Observer.Observe('walk', Walk(P));
-        Observer.Finish();
+        Observer.Expect('open-log', 'open count=5 filters= fg0[] copy=5/1,2,3,4,5,;get2=Yes;open-end count=5 filters=;agr2;agr3;agr4;agr5;agr2;agr1;agr2;agr2;agcr2 n=5;');
+        Observer.Expect('current', '2');
+        Observer.Expect('walk', '1:Root 1,2:Child 1A,3:Child 1B,4:Root 2,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -103,7 +123,9 @@ codeunit 92279 "LT Y28 Collapsed Tree Tests"
         P.CountAct.Invoke();
         Observer.Observe('action-log', Log.Take());
         Observer.Observe('current', P.IdCtl.Value());
-        Observer.Finish();
+        Observer.Expect('action-log', 'agr4;act cur=4 count=5 filters= fg0[] copy=5/1,2,3,4,5,;sel count=1 filters=Id: 4 fg0[0:Id: 4|] copy=1/4,;agr4;agr4;agr5;agr4;agr3;agr2;agr1;agr4;agr4;agcr4 n=5;');
+        Observer.Expect('current', '4');
+        Observer.Verify();
     end;
 
     [Test]
@@ -121,7 +143,10 @@ codeunit 92279 "LT Y28 Collapsed Tree Tests"
         P.CountAct.Invoke();
         Observer.Observe('action-log', Log.Take());
         Observer.Observe('walk', Walk(P));
-        Observer.Finish();
+        Observer.Expect('next', 'Yes/2');
+        Observer.Expect('action-log', 'agr2;act cur=2 count=5 filters= fg0[] copy=5/1,2,3,4,5,;sel count=1 filters=Id: 2 fg0[0:Id: 2|] copy=1/2,;agr2;agr2;agr3;agr4;agr5;agr2;agr1;agr2;agr2;agcr2 n=5;');
+        Observer.Expect('walk', '1:Root 1,2:Child 1A,3:Child 1B,4:Root 2,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -138,7 +163,10 @@ codeunit 92279 "LT Y28 Collapsed Tree Tests"
         Observer.Observe('action-log', Log.Take());
         Observer.Observe('current', P.IdCtl.Value());
         Observer.Observe('walk', Walk(P));
-        Observer.Finish();
+        Observer.Expect('action-log', 'agr1;reset count=5;agr1;agr1;agr2;agr3;agr4;agr5;agr1;agr1;agcr1 n=5;');
+        Observer.Expect('current', '1');
+        Observer.Expect('walk', '1:Root 1,4:Root 2,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -155,7 +183,10 @@ codeunit 92279 "LT Y28 Collapsed Tree Tests"
         Observer.Observe('action-log', Log.Take());
         Observer.Observe('current', P.IdCtl.Value());
         Observer.Observe('walk', Walk(P));
-        Observer.Finish();
+        Observer.Expect('action-log', 'agr1;get2=Yes;agr2;agr2;agr3;agr4;agr5;agr2;agr1;agr2;agr2;agcr2 n=5;');
+        Observer.Expect('current', '2');
+        Observer.Expect('walk', '1:Root 1,2:Child 1A,3:Child 1B,4:Root 2,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -181,7 +212,11 @@ codeunit 92279 "LT Y28 Collapsed Tree Tests"
         else
             Observer.ObserveError('goto-root-error');
         Observer.Observe('current-after-root', P.IdCtl.Value());
-        Observer.Finish();
+        Observer.Expect('goto-child', 'No');
+        Observer.Expect('current-after-child', '4');
+        Observer.Expect('goto-root', 'Yes');
+        Observer.Expect('current-after-root', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -197,7 +232,11 @@ codeunit 92279 "LT Y28 Collapsed Tree Tests"
         Observer.Observe('current-after-child', P.IdCtl.Value());
         Observer.Observe('find-root', Format(P.FindFirstField(NameCtl, 'Root 1')));
         Observer.Observe('current-after-root', P.IdCtl.Value());
-        Observer.Finish();
+        Observer.Expect('find-child', 'No');
+        Observer.Expect('current-after-child', '4');
+        Observer.Expect('find-root', 'Yes');
+        Observer.Expect('current-after-root', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -215,7 +254,10 @@ codeunit 92279 "LT Y28 Collapsed Tree Tests"
         P.Filter.SetFilter(Indent, '');
         P.Filter.SetFilter(Id, '2..4');
         Observer.Observe('walk-id-2-4', Walk(P));
-        Observer.Finish();
+        Observer.Expect('filter-log', 'agr2;agr3;agr5;agr2;agr2;agcr2 n=3;');
+        Observer.Expect('walk-indent-1', '2:Child 1A,3:Child 1B,5:Child 2A,');
+        Observer.Expect('walk-id-2-4', '2:Child 1A,3:Child 1B,4:Root 2,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -236,7 +278,11 @@ codeunit 92279 "LT Y28 Collapsed Tree Tests"
         Observer.Observe('walk', Names);
         P.First();
         Observer.Observe('first-expanded', Format(P.IsExpanded()));
-        Observer.Finish();
+        Observer.Expect('open-log', 'open count=5 filters= fg0[];');
+        Observer.Expect('current', '1');
+        Observer.Expect('walk', '1:Root 1,4:Root 2,');
+        Observer.Expect('first-expanded', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -257,7 +303,11 @@ codeunit 92279 "LT Y28 Collapsed Tree Tests"
         Observer.Observe('walk', Names);
         P.First();
         Observer.Observe('first-expanded', Format(P.IsExpanded()));
-        Observer.Finish();
+        Observer.Expect('open-log', 'open count=5;agr1;agr2;agr3;agr4;agr5;agr1;');
+        Observer.Expect('current', '1');
+        Observer.Expect('walk', '1:Root 1,4:Root 2,');
+        Observer.Expect('first-expanded', 'No');
+        Observer.Verify();
     end;
 
     local procedure Start(Mode: Text)
