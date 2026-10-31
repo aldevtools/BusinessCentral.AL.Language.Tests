@@ -3,7 +3,7 @@
 // the AL Language Coverage Tests app add their own. Each trigger appends its tag to Log.
 // Tests: tests/al-language/tableextension/lt-bw-cross-app/Y20CrossAppValidateOrder.al.
 
-table 61176 "LT Y20 XA Validate"
+table 61133 "LT Y20 XA Validate"
 {
     DataClassification = SystemMetadata;
 
@@ -22,7 +22,7 @@ table 61176 "LT Y20 XA Validate"
     keys { key(PK; K) { Clustered = true; } }
 }
 
-tableextension 61177 "LT Y20 XA Validate Ext" extends "LT Y20 XA Validate"
+tableextension 61134 "LT Y20 XA Validate Ext" extends "LT Y20 XA Validate"
 {
     fields
     {
