@@ -180,4 +180,154 @@ codeunit 85723 "LT DB JPath Leads"
         Observer.Expect('index_2|code', '');
         Observer.Verify();
     end;
+
+    // Writer Y47 (al-runner issue 6588): a filter expression on a JsonArray root ('$.[?(@.id==2)]' and '$[?(@.id==2)]'), on a JsonToken
+    // holding the array, and the close neighbours (string compare, no match, several matches, other operators). Observed like Sel above.
+    [TryFunction]
+    local procedure Y47_TrySelArr(A: JsonArray; Path: Text; var T: JsonToken; var Ret: Boolean)
+    begin
+        Ret := A.SelectToken(Path, T);
+    end;
+
+    local procedure Y47_SelArr(var Observer: Codeunit "Probe Observer"; Name: Text; A: JsonArray; Path: Text)
+    var
+        T: JsonToken;
+        Ret: Boolean;
+        Written: Text;
+    begin
+        ClearLastError();
+        if not Y47_TrySelArr(A, Path, T, Ret) then begin
+            Observer.Observe(Name, 'raised');
+            Observer.ObserveError(Name);
+            exit;
+        end;
+        if Ret then
+            T.WriteTo(Written);
+        Observer.Observe(Name, Format(Ret) + ' [' + Written + ']');
+        Observer.ObserveError(Name);
+    end;
+
+    [TryFunction]
+    local procedure Y47_TrySelTok(Tok: JsonToken; Path: Text; var T: JsonToken; var Ret: Boolean)
+    begin
+        Ret := Tok.SelectToken(Path, T);
+    end;
+
+    local procedure Y47_SelTok(var Observer: Codeunit "Probe Observer"; Name: Text; Tok: JsonToken; Path: Text)
+    var
+        T: JsonToken;
+        Ret: Boolean;
+        Written: Text;
+    begin
+        ClearLastError();
+        if not Y47_TrySelTok(Tok, Path, T, Ret) then begin
+            Observer.Observe(Name, 'raised');
+            Observer.ObserveError(Name);
+            exit;
+        end;
+        if Ret then
+            T.WriteTo(Written);
+        Observer.Observe(Name, Format(Ret) + ' [' + Written + ']');
+        Observer.ObserveError(Name);
+    end;
+
+    local procedure Y47_Records() A: JsonArray
+    begin
+        A.ReadFrom('[{"id":1,"name":"first"},{"id":2,"name":"second"}]');
+    end;
+
+    local procedure Y47_TwoMatches() A: JsonArray
+    begin
+        A.ReadFrom('[{"id":1,"name":"first"},{"id":2,"name":"second"},{"id":2,"name":"third"}]');
+    end;
+
+    [Test]
+    procedure Y47_ArrayFilter_ReporterShapes()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Y47_SelArr(Observer, 'dot', Y47_Records(), '$.[?(@.id==2)]');
+        Y47_SelArr(Observer, 'nodot', Y47_Records(), '$[?(@.id==2)]');
+        Y47_SelArr(Observer, 'noroot', Y47_Records(), '[?(@.id==2)]');
+        Y47_SelArr(Observer, 'deep', Y47_Records(), '$..[?(@.id==2)]');
+        Y47_SelArr(Observer, 'dot_name', Y47_Records(), '$.[?(@.id==2)].name');
+        Y47_SelArr(Observer, 'nodot_name', Y47_Records(), '$[?(@.id==2)].name');
+        Y47_SelArr(Observer, 'spaces', Y47_Records(), '$[?(@.id == 2)]');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y47_ArrayFilter_Neighbours()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Y47_SelArr(Observer, 'str_single', Y47_Records(), '$[?(@.name==''second'')]');
+        Y47_SelArr(Observer, 'str_double', Y47_Records(), '$[?(@.name=="second")]');
+        Y47_SelArr(Observer, 'str_vs_number', Y47_Records(), '$[?(@.id==''2'')]');
+        Y47_SelArr(Observer, 'nomatch', Y47_Records(), '$[?(@.id==9)]');
+        Y47_SelArr(Observer, 'nomatch_dot', Y47_Records(), '$.[?(@.id==9)]');
+        Y47_SelArr(Observer, 'missing_prop', Y47_Records(), '$[?(@.x==2)]');
+        Y47_SelArr(Observer, 'two_matches', Y47_TwoMatches(), '$[?(@.id==2)]');
+        Y47_SelArr(Observer, 'two_matches_dot', Y47_TwoMatches(), '$.[?(@.id==2)]');
+        Y47_SelArr(Observer, 'two_matches_name', Y47_TwoMatches(), '$[?(@.name==''third'')]');
+        Y47_SelArr(Observer, 'gt_one', Y47_Records(), '$[?(@.id>1)]');
+        Y47_SelArr(Observer, 'ne', Y47_Records(), '$[?(@.id!=1)]');
+        Y47_SelArr(Observer, 'le', Y47_Records(), '$[?(@.id<=1)]');
+        Y47_SelArr(Observer, 'and', Y47_Records(), '$[?(@.id==2 && @.name==''second'')]');
+        Y47_SelArr(Observer, 'exists', Y47_Records(), '$[?(@.name)]');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y47_TokenFilter()
+    var
+        Observer: Codeunit "Probe Observer";
+        Tok: JsonToken;
+        ObjTok: JsonToken;
+    begin
+        Tok.ReadFrom('[{"id":1,"name":"first"},{"id":2,"name":"second"}]');
+        ObjTok.ReadFrom('{"list":[{"id":1,"name":"first"},{"id":2,"name":"second"}]}');
+        Y47_SelTok(Observer, 'tok_dot', Tok, '$.[?(@.id==2)]');
+        Y47_SelTok(Observer, 'tok_nodot', Tok, '$[?(@.id==2)]');
+        Y47_SelTok(Observer, 'tok_nomatch', Tok, '$[?(@.id==9)]');
+        Y47_SelTok(Observer, 'obj_list', ObjTok, '$.list[?(@.id==2)]');
+        Y47_SelTok(Observer, 'obj_list_name', ObjTok, '$.list[?(@.id==2)].name');
+        Y47_SelTok(Observer, 'obj_list_nomatch', ObjTok, '$.list[?(@.id==9)]');
+        Observer.Finish();
+    end;
+#if BC28PLUS
+
+    [Test]
+    procedure Y47_SelectTokens_ArrayFilter()
+    var
+        Observer: Codeunit "Probe Observer";
+        L: List of [JsonToken];
+        T: JsonToken;
+        B: Boolean;
+        Written: Text;
+        All: Text;
+    begin
+        B := Y47_TwoMatches().SelectTokens('$[?(@.id==2)]', L);
+        foreach T in L do begin
+            T.WriteTo(Written);
+            All += Written + ';';
+        end;
+        Observer.Observe('nodot', Format(B) + ' ' + Format(L.Count()) + ' ' + All);
+        Observer.ObserveError('nodot');
+        Clear(L);
+        All := '';
+        B := Y47_TwoMatches().SelectTokens('$.[?(@.id==2)]', L);
+        foreach T in L do begin
+            T.WriteTo(Written);
+            All += Written + ';';
+        end;
+        Observer.Observe('dot', Format(B) + ' ' + Format(L.Count()) + ' ' + All);
+        Observer.ObserveError('dot');
+        Clear(L);
+        B := Y47_TwoMatches().SelectTokens('$[?(@.id==9)]', L);
+        Observer.Observe('nomatch', Format(B) + ' ' + Format(L.Count()));
+        Observer.ObserveError('nomatch');
+        Observer.Finish();
+    end;
+#endif
 }
