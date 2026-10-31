@@ -4,7 +4,8 @@
 // Writer Y40 (2026-10-31): Report methods that RUN the report, called bare (no CurrReport., no variable) in the report's own
 // procedure and trigger: a procedure that does UseRequestPage(false); RunModal(); exit(Found) (a processing-only report that runs
 // itself to look for rows), bare Run(), a second call on the same variable, the bare RunModal() with the request page (handler typed
-// on the report), and a bare RunModal() inside OnPreReport while the report runs. The getters and setters of the bare form
+// on the report), a bare RunModal() inside OnPreReport while the report runs, and the bare RequestOptionsPage.Caption (get and set)
+// on a variable never run and inside OnPreReport (CurrReport.RequestOptionsPage gives AL0161: must-not-compile case 2514). The getters and setters of the bare form
 // (UseRequestPage, SetTableView, ObjectId, ...) are report/lt-y36-bare-report-member/Y36BareReportMember.al (writer Y36).
 // BC versions: 27 - 29
 table 92720 "LT Y40 BRR Row"
@@ -68,6 +69,8 @@ report 92722 "LT Y40 BRR Finder"
 
     requestpage
     {
+        Caption = 'LT Y40 Finder Options';
+
         layout
         {
             area(Content)
@@ -92,7 +95,7 @@ report 92722 "LT Y40 BRR Finder"
 
     trigger OnPreReport()
     begin
-        Log.Add('pre');
+        Log.Add('pre caption=' + OptionsCaptionText());
         if RunInsidePreReport then begin
             RunInsidePreReport := false;
             if TryBareRunModal() then
@@ -143,6 +146,17 @@ report 92722 "LT Y40 BRR Finder"
     procedure State(): Text
     begin
         exit('found=' + Format(Found) + ' visited=' + Format(Visited) + ' note=' + Note + ' userp=' + Format(UseRequestPage()));
+    end;
+
+    // Bare RequestOptionsPage (CurrReport.RequestOptionsPage does not compile: must-not-compile case 2514).
+    procedure OptionsCaptionText(): Text
+    begin
+        exit(RequestOptionsPage.Caption);
+    end;
+
+    procedure SetOptionsCaption(NewCaption: Text)
+    begin
+        RequestOptionsPage.Caption := NewCaption;
     end;
 
     [TryFunction]
@@ -272,6 +286,46 @@ codeunit 92725 "LT Y40 BRR Tests"
         Rep.RunModalWithPage();
         Observer.Observe('log', Log.Take());
         Observer.Observe('state', Rep.State());
+        Observer.Finish();
+    end;
+
+    [TryFunction]
+    local procedure TryOptionsCaption(var Rep: Report "LT Y40 BRR Finder"; var Caption: Text)
+    begin
+        Caption := Rep.OptionsCaptionText();
+    end;
+
+    [TryFunction]
+    local procedure TrySetOptionsCaption(var Rep: Report "LT Y40 BRR Finder"; NewCaption: Text)
+    begin
+        Rep.SetOptionsCaption(NewCaption);
+    end;
+
+    [Test]
+    procedure Y40_BareRequestOptionsPage_Caption()
+    var
+        Rep: Report "LT Y40 BRR Finder";
+        Caption: Text;
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed(1);
+        ClearLastError();
+        if TryOptionsCaption(Rep, Caption) then
+            Observer.Observe('unrun_get', 'ok ' + Caption)
+        else
+            Observer.Observe('unrun_get', 'error:' + GetLastErrorText() + '|' + GetLastErrorCode());
+        ClearLastError();
+        if TrySetOptionsCaption(Rep, 'Changed') then
+            Observer.Observe('unrun_set', 'ok')
+        else
+            Observer.Observe('unrun_set', 'error:' + GetLastErrorText() + '|' + GetLastErrorCode());
+        ClearLastError();
+        if TryOptionsCaption(Rep, Caption) then
+            Observer.Observe('unrun_get_after_set', 'ok ' + Caption)
+        else
+            Observer.Observe('unrun_get_after_set', 'error:' + GetLastErrorText() + '|' + GetLastErrorCode());
+        Observer.Observe('run', FindModal(Rep));
+        Observer.Observe('log', Log.Take());
         Observer.Finish();
     end;
 
