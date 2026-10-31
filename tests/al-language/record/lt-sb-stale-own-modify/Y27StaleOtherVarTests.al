@@ -12,6 +12,11 @@
 /// The row's triggers count into the row: OnValidate of Description adds 1 to "Validate Count"; OnModify adds 1 to "Modify Count" and copies
 /// xRec."Remaining Quantity" and xRec.Description. 'stored' is Description|Remaining Quantity|Validate Count|Modify Count|xRec Remaining
 /// Quantity|xRec Description of the row read back; 'buffer' the same fields of the stale variable after its write.
+/// Measured (BC 29 SaaS sandbox and the CI legs): after 1, 2 or 3 Commits, when the new transaction Modified the row through the other
+/// variable (another field, the same field, an unchanged Modify, two Modifies) or inserted another row, the stale Modify(true) is ACCEPTED and
+/// writes the whole stale copy: the other variable's change is lost (Remaining Quantity 100). OnValidate and OnModify run once; xRec in OnModify
+/// holds the buffer's own values. When the other variable Deleted the row, the stale Modify fails with DB:RecordNotFound. When the new
+/// transaction did nothing, it fails with DB:RecordChanged, as in SbStaleOwnModify.al.
 /// </summary>
 codeunit 92252 "LT Y27 Stale Other Var"
 {
@@ -90,7 +95,11 @@ codeunit 92252 "LT Y27 Stale Other Var"
         Y27InsertStale(Row, 1);
         Poster.Post('A', 5);
         Y27StaleWrite(Row, Observer);
-        Observer.Finish();
+        Observer.Expect('write', 'ok');
+        Observer.Expect('buffer', 'Changed|100|1|1|100|Changed');
+        Observer.Expect('stored', 'Changed|100|1|1|100|Changed');
+        Observer.Expect('rows', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -102,7 +111,11 @@ codeunit 92252 "LT Y27 Stale Other Var"
         Y27InsertStale(Row, 1);
         Poster.PostDescription('A', 'Other');
         Y27StaleWrite(Row, Observer);
-        Observer.Finish();
+        Observer.Expect('write', 'ok');
+        Observer.Expect('buffer', 'Changed|100|1|1|100|Changed');
+        Observer.Expect('stored', 'Changed|100|1|1|100|Changed');
+        Observer.Expect('rows', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -114,7 +127,12 @@ codeunit 92252 "LT Y27 Stale Other Var"
         Y27InsertStale(Row, 1);
         Poster.DeleteRow('A');
         Y27StaleWriteError(Row, Observer);
-        Observer.Finish();
+        Observer.Expect('write|text', 'The LT Y27 Stale Row does not exist. Identification fields and values: No.=''A''');
+        Observer.Expect('write|code', 'DB:RecordNotFound');
+        Observer.Expect('buffer', 'Changed|100|1|1|100|Changed');
+        Observer.Expect('stored', 'Original|100|0|0|0|');
+        Observer.Expect('rows', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -126,7 +144,11 @@ codeunit 92252 "LT Y27 Stale Other Var"
         Y27InsertStale(Row, 2);
         Poster.Post('A', 5);
         Y27StaleWrite(Row, Observer);
-        Observer.Finish();
+        Observer.Expect('write', 'ok');
+        Observer.Expect('buffer', 'Changed|100|1|1|100|Changed');
+        Observer.Expect('stored', 'Changed|100|1|1|100|Changed');
+        Observer.Expect('rows', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -138,7 +160,11 @@ codeunit 92252 "LT Y27 Stale Other Var"
         Y27InsertStale(Row, 2);
         Poster.PostDescription('A', 'Other');
         Y27StaleWrite(Row, Observer);
-        Observer.Finish();
+        Observer.Expect('write', 'ok');
+        Observer.Expect('buffer', 'Changed|100|1|1|100|Changed');
+        Observer.Expect('stored', 'Changed|100|1|1|100|Changed');
+        Observer.Expect('rows', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -150,7 +176,12 @@ codeunit 92252 "LT Y27 Stale Other Var"
         Y27InsertStale(Row, 2);
         Poster.DeleteRow('A');
         Y27StaleWriteError(Row, Observer);
-        Observer.Finish();
+        Observer.Expect('write|text', 'The LT Y27 Stale Row does not exist. Identification fields and values: No.=''A''');
+        Observer.Expect('write|code', 'DB:RecordNotFound');
+        Observer.Expect('buffer', 'Changed|100|1|1|100|Changed');
+        Observer.Expect('stored', 'Original|90|0|0|0|');
+        Observer.Expect('rows', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -162,7 +193,11 @@ codeunit 92252 "LT Y27 Stale Other Var"
         Y27InsertStale(Row, 3);
         Poster.Post('A', 5);
         Y27StaleWrite(Row, Observer);
-        Observer.Finish();
+        Observer.Expect('write', 'ok');
+        Observer.Expect('buffer', 'Changed|100|1|1|100|Changed');
+        Observer.Expect('stored', 'Changed|100|1|1|100|Changed');
+        Observer.Expect('rows', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -174,7 +209,11 @@ codeunit 92252 "LT Y27 Stale Other Var"
         Y27InsertStale(Row, 3);
         Poster.PostDescription('A', 'Other');
         Y27StaleWrite(Row, Observer);
-        Observer.Finish();
+        Observer.Expect('write', 'ok');
+        Observer.Expect('buffer', 'Changed|100|1|1|100|Changed');
+        Observer.Expect('stored', 'Changed|100|1|1|100|Changed');
+        Observer.Expect('rows', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -186,7 +225,12 @@ codeunit 92252 "LT Y27 Stale Other Var"
         Y27InsertStale(Row, 3);
         Poster.DeleteRow('A');
         Y27StaleWriteError(Row, Observer);
-        Observer.Finish();
+        Observer.Expect('write|text', 'The LT Y27 Stale Row does not exist. Identification fields and values: No.=''A''');
+        Observer.Expect('write|code', 'DB:RecordNotFound');
+        Observer.Expect('buffer', 'Changed|100|1|1|100|Changed');
+        Observer.Expect('stored', 'Original|80|0|0|0|');
+        Observer.Expect('rows', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -198,7 +242,11 @@ codeunit 92252 "LT Y27 Stale Other Var"
         Y27InsertStale(Row, 2);
         Poster.InsertAnotherRow('B');
         Y27StaleWrite(Row, Observer);
-        Observer.Finish();
+        Observer.Expect('write', 'ok');
+        Observer.Expect('buffer', 'Changed|100|1|1|100|Changed');
+        Observer.Expect('stored', 'Changed|100|1|1|100|Changed');
+        Observer.Expect('rows', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -210,7 +258,11 @@ codeunit 92252 "LT Y27 Stale Other Var"
         Y27InsertStale(Row, 2);
         Poster.Post('A', 0);
         Y27StaleWrite(Row, Observer);
-        Observer.Finish();
+        Observer.Expect('write', 'ok');
+        Observer.Expect('buffer', 'Changed|100|1|1|100|Changed');
+        Observer.Expect('stored', 'Changed|100|1|1|100|Changed');
+        Observer.Expect('rows', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -221,7 +273,12 @@ codeunit 92252 "LT Y27 Stale Other Var"
     begin
         Y27InsertStale(Row, 2);
         Y27StaleWriteError(Row, Observer);
-        Observer.Finish();
+        Observer.Expect('write|text', 'The changes to the LT Y27 Stale Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\No.=''A''');
+        Observer.Expect('write|code', 'DB:RecordChanged');
+        Observer.Expect('buffer', 'Changed|100|1|1|100|Changed');
+        Observer.Expect('stored', 'Original|90|0|0|0|');
+        Observer.Expect('rows', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -232,7 +289,12 @@ codeunit 92252 "LT Y27 Stale Other Var"
     begin
         Y27InsertStale(Row, 3);
         Y27StaleWriteError(Row, Observer);
-        Observer.Finish();
+        Observer.Expect('write|text', 'The changes to the LT Y27 Stale Row record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\No.=''A''');
+        Observer.Expect('write|code', 'DB:RecordChanged');
+        Observer.Expect('buffer', 'Changed|100|1|1|100|Changed');
+        Observer.Expect('stored', 'Original|80|0|0|0|');
+        Observer.Expect('rows', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -249,7 +311,11 @@ codeunit 92252 "LT Y27 Stale Other Var"
         Observer.Observe('buffer', Y27Fields(Row));
         Y27ObserveStored(Observer);
         Y27Cleanup();
-        Observer.Finish();
+        Observer.Expect('write', 'ok');
+        Observer.Expect('buffer', 'Changed|100|0|0|0|');
+        Observer.Expect('stored', 'Changed|100|0|0|0|');
+        Observer.Expect('rows', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -262,6 +328,10 @@ codeunit 92252 "LT Y27 Stale Other Var"
         Poster.Post('A', 5);
         Poster.Post('A', 1);
         Y27StaleWrite(Row, Observer);
-        Observer.Finish();
+        Observer.Expect('write', 'ok');
+        Observer.Expect('buffer', 'Changed|100|1|1|100|Changed');
+        Observer.Expect('stored', 'Changed|100|1|1|100|Changed');
+        Observer.Expect('rows', '1');
+        Observer.Verify();
     end;
 }
