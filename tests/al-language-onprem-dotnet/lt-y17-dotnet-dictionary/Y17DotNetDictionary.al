@@ -39,15 +39,15 @@ codeunit 99480 "LT Y17 DotNet Dictionary"
     end;
 
     [TryFunction]
-    local procedure TryAdd(var Dict: DotNet LtY17DnDict; Key: Integer; Value: Text)
+    local procedure TryAdd(var Dict: DotNet LtY17DnDict; DictKey: Integer; Value: Text)
     begin
-        Dict.Add(Key, Value);
+        Dict.Add(DictKey, Value);
     end;
 
     [TryFunction]
-    local procedure TryItem(var Dict: DotNet LtY17DnDict; Key: Integer; var Result: Text)
+    local procedure TryItem(var Dict: DotNet LtY17DnDict; DictKey: Integer; var Result: Text)
     begin
-        Result := Format(Dict.Item(Key));
+        Result := Format(Dict.Item(DictKey));
     end;
 
     [TryFunction]
