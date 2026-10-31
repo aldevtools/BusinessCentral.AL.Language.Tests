@@ -115,7 +115,7 @@ codeunit 91953 "LT Y19 Perm Cross App"
         Error('LT Y19 ok %1', Result);
     end;
 
-    // The Permission Set rows (all apps) of a role id: count, then per row the app name.
+    // The Permission Set rows (all apps) of a role id: count, then per row the app id.
     local procedure PermissionSetRows(RoleId: Code[20]): Text
     var
         MetadataPermissionSet: Record "Metadata Permission Set";
@@ -124,7 +124,7 @@ codeunit 91953 "LT Y19 Perm Cross App"
         MetadataPermissionSet.SetRange("Role ID", RoleId);
         if MetadataPermissionSet.FindSet() then
             repeat
-                Result += MetadataPermissionSet."App Name" + ';';
+                Result += Format(MetadataPermissionSet."App ID") + ';';
             until MetadataPermissionSet.Next() = 0;
         exit(Format(MetadataPermissionSet.Count()) + ': ' + Result);
     end;
