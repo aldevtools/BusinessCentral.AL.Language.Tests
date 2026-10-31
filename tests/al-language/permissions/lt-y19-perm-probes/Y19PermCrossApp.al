@@ -9,6 +9,8 @@
 //   xapp-b (the two do not depend on each other; both compile), publishing xapp-b fails with HTTP 422 "Publishing failed due to 'The object
 //   name 'LT Y19 DUP' can only appear once for the type 'PermissionSet'. The same object exists in both extension (...)" (BC 29.0, CI run
 //   41188729109). So two apps in one database never declare the same role id.
+// Facts (BC 27.5, 28.5, 29.0): the app name in the error is the app whose code makes the access: xapp-b code on an xapp-a table gives
+//   ': AL Language XApp B'; this app's code on xapp-a or xapp-b tables gives ': AL Language Coverage Tests'.
 // BC versions: 27, 28, 29
 
 codeunit 91953 "LT Y19 Perm Cross App"
@@ -34,7 +36,19 @@ codeunit 91953 "LT Y19 Perm Cross App"
         RunCase(Observer, 'test_inserts_xa', 'LT Y19 None', 5);
         RunCase(Observer, 'test_inserts_xb', 'LT Y19 None', 6);
         Helper.RestoreMock(Mock, WasStarted);
-        Observer.Finish();
+        Observer.Expect('xb_reads_xa|text', 'Sorry, the current permissions prevented the action. (TableData 61184 LT Y19 XA Row Read: AL Language XApp B)');
+        Observer.Expect('xb_reads_xa|code', 'DB:ClientReadDenied');
+        Observer.Expect('xb_inserts_xa|text', 'Sorry, the current permissions prevented the action. (TableData 61184 LT Y19 XA Row Insert: AL Language XApp B)');
+        Observer.Expect('xb_inserts_xa|code', 'DB:ClientInsertDenied');
+        Observer.Expect('xb_inserts_own|text', 'Sorry, the current permissions prevented the action. (TableData 61188 LT Y19 XB Row Insert: AL Language XApp B)');
+        Observer.Expect('xb_inserts_own|code', 'DB:ClientInsertDenied');
+        Observer.Expect('test_reads_xa|text', 'Sorry, the current permissions prevented the action. (TableData 61184 LT Y19 XA Row Read: AL Language Coverage Tests)');
+        Observer.Expect('test_reads_xa|code', 'DB:ClientReadDenied');
+        Observer.Expect('test_inserts_xa|text', 'Sorry, the current permissions prevented the action. (TableData 61184 LT Y19 XA Row Insert: AL Language Coverage Tests)');
+        Observer.Expect('test_inserts_xa|code', 'DB:ClientInsertDenied');
+        Observer.Expect('test_inserts_xb|text', 'Sorry, the current permissions prevented the action. (TableData 61188 LT Y19 XB Row Insert: AL Language Coverage Tests)');
+        Observer.Expect('test_inserts_xb|code', 'DB:ClientInsertDenied');
+        Observer.Verify();
     end;
 
     local procedure RunCase(var Observer: Codeunit "Probe Observer"; Name: Text; SetName: Code[20]; Which: Integer)

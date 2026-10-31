@@ -6,7 +6,9 @@
 //   inserts into the row table; method 3 sets the narrow set inside asserterror and inserts after the rollback, then cleans up.
 //   Codeunit 91956 (the next test codeunit of the run): method 1 inserts before anything else, then method 2 cleans up.
 //   Each insert runs inside asserterror and ends with the own error 'LT Y19 ok', so nothing stays.
-//   Without Tests-TestLibraries (this app): the runner does not touch the mock between methods or codeunits.
+// Facts (BC 27.5, 28.5, 29.0): the narrow set denies the insert in the method that set it; in the next method of the same codeunit and in
+//   the first method of the next codeunit the insert goes through (the assignment does not outlive the test method). A Set inside
+//   asserterror survives the rollback (the insert after it is denied). After Stop, IsStarted is false.
 // BC versions: 27, 28, 29
 
 codeunit 91955 "LT Y19 Mock Lifetime A"
@@ -25,7 +27,10 @@ codeunit 91955 "LT Y19 Mock Lifetime A"
         asserterror InsertRow(1);
         Observer.ObserveError('insert_same_method');
         Observer.Observe('is_started', Format(Mock.IsStarted()));
-        Observer.Finish();
+        Observer.Expect('insert_same_method|text', 'Sorry, the current permissions prevented the action. (TableData 91900 LT Y19 Row Insert: AL Language Coverage Tests)');
+        Observer.Expect('insert_same_method|code', 'DB:ClientInsertDenied');
+        Observer.Expect('is_started', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -37,7 +42,10 @@ codeunit 91955 "LT Y19 Mock Lifetime A"
         Observer.Observe('is_started_new_variable', Format(Mock.IsStarted()));
         asserterror InsertRow(2);
         Observer.ObserveError('insert_next_method');
-        Observer.Finish();
+        Observer.Ignore('is_started_new_variable'); // IsStarted() on entry to a test read Yes and No in different runs (CpPermLeads.al header): not an oracle
+        Observer.Expect('insert_next_method|text', 'LT Y19 ok 2');
+        Observer.Expect('insert_next_method|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -62,7 +70,14 @@ codeunit 91955 "LT Y19 Mock Lifetime A"
         // Leave the narrow set for the next test codeunit (91956 removes it).
         Mock.Start();
         Mock.Set('LT Y19 R');
-        Observer.Finish();
+        Observer.Expect('insert_after_clear|text', 'LT Y19 ok 3');
+        Observer.Expect('insert_after_clear|code', 'Dialog');
+        Observer.Expect('set_inside_asserterror|text', 'LT Y19 set done');
+        Observer.Expect('set_inside_asserterror|code', 'Dialog');
+        Observer.Expect('insert_after_rollback|text', 'Sorry, the current permissions prevented the action. (TableData 91900 LT Y19 Row Insert: AL Language Coverage Tests)');
+        Observer.Expect('insert_after_rollback|code', 'DB:ClientInsertDenied');
+        Observer.Expect('is_started_after_stop', 'No');
+        Observer.Verify();
     end;
 
     local procedure SetThenFail(var Mock: Codeunit "Permissions Mock")
@@ -95,7 +110,10 @@ codeunit 91956 "LT Y19 Mock Lifetime B"
         Observer.Observe('is_started_next_codeunit', Format(Mock.IsStarted()));
         asserterror InsertRow(1);
         Observer.ObserveError('insert_next_codeunit');
-        Observer.Finish();
+        Observer.Ignore('is_started_next_codeunit'); // IsStarted() on entry to a test read Yes and No in different runs (CpPermLeads.al header): not an oracle
+        Observer.Expect('insert_next_codeunit|text', 'LT Y19 ok 1');
+        Observer.Expect('insert_next_codeunit|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -110,7 +128,9 @@ codeunit 91956 "LT Y19 Mock Lifetime B"
         Mock.Stop();
         asserterror InsertRow(2);
         Observer.ObserveError('insert_after_cleanup');
-        Observer.Finish();
+        Observer.Expect('insert_after_cleanup|text', 'LT Y19 ok 2');
+        Observer.Expect('insert_after_cleanup|code', 'Dialog');
+        Observer.Verify();
     end;
 
     local procedure InsertRow(NewId: Integer)

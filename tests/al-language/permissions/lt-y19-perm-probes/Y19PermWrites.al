@@ -10,6 +10,12 @@
 // Shape (CpPermLeads.al): each case reseeds with no set assigned, assigns the set (Permissions Mock.Set: the set plus All Objects), runs ONE
 //   operation inside asserterror that ends with the own error 'LT Y19 ok <rows after>', observes text and code, clears the assignment.
 //   The rows after are read through an InherentPermissions procedure ("LT Y19 Perm Helper".DescribeRows), so the read itself is never denied.
+// Facts (BC 27.5, 28.5, 29.0): Rename needs M (R: Modify error; RIM renames). DeleteAll/ModifyAll, with or without triggers, need D/M
+//   even when the filter matches no row of a non-empty table. A trigger write on B is checked against the triggering table's Permissions
+//   property: without it the user's imd is not enough (Insert/Modify/Delete); with Permissions = imd the user's imd works and a user with
+//   nothing on B gets IndirectInsert/IndirectModify/IndirectDelete. Permissions = d with a user who has d deletes; with nothing:
+//   IndirectDelete (DB:ClientDeleteDenied). Direct M beats Permissions = m. RecordRef writes are checked like record writes; temporary
+//   records (variable, TableType = Temporary, RecordRef.Open(.., true)) are never checked.
 // BC versions: 27, 28, 29
 
 codeunit 91950 "LT Y19 Perm Writes"
@@ -32,7 +38,13 @@ codeunit 91950 "LT Y19 Perm Writes"
         RunCase(Observer, 'rename_rim', 'LT Y19 RIM', 1);
         RunCase(Observer, 'rename_rimd', 'LT Y19 RIMD', 1);
         Helper.RestoreMock(Mock, WasStarted);
-        Observer.Finish();
+        Observer.Expect('rename_r|text', 'Sorry, the current permissions prevented the action. (TableData 91900 LT Y19 Row Modify: AL Language Coverage Tests)');
+        Observer.Expect('rename_r|code', 'DB:ClientModifyDenied');
+        Observer.Expect('rename_rim|text', 'LT Y19 ok rows 2=20;11=10;');
+        Observer.Expect('rename_rim|code', 'Dialog');
+        Observer.Expect('rename_rimd|text', 'LT Y19 ok rows 2=20;11=10;');
+        Observer.Expect('rename_rimd|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -44,7 +56,23 @@ codeunit 91950 "LT Y19 Perm Writes"
         WasStarted := Helper.StartMock(Mock);
         RunP2(Observer, 'r', 'LT Y19 R');
         Helper.RestoreMock(Mock, WasStarted);
-        Observer.Finish();
+        Observer.Expect('deleteall_r|text', 'Sorry, the current permissions prevented the action. (TableData 91900 LT Y19 Row Delete: AL Language Coverage Tests)');
+        Observer.Expect('deleteall_r|code', 'DB:ClientDeleteDenied');
+        Observer.Expect('deleteall_true_r|text', 'Sorry, the current permissions prevented the action. (TableData 91900 LT Y19 Row Delete: AL Language Coverage Tests)');
+        Observer.Expect('deleteall_true_r|code', 'DB:ClientDeleteDenied');
+        Observer.Expect('modifyall_r|text', 'Sorry, the current permissions prevented the action. (TableData 91900 LT Y19 Row Modify: AL Language Coverage Tests)');
+        Observer.Expect('modifyall_r|code', 'DB:ClientModifyDenied');
+        Observer.Expect('modifyall_true_r|text', 'Sorry, the current permissions prevented the action. (TableData 91900 LT Y19 Row Modify: AL Language Coverage Tests)');
+        Observer.Expect('modifyall_true_r|code', 'DB:ClientModifyDenied');
+        Observer.Expect('nomatch_deleteall_r|text', 'Sorry, the current permissions prevented the action. (TableData 91900 LT Y19 Row Delete: AL Language Coverage Tests)');
+        Observer.Expect('nomatch_deleteall_r|code', 'DB:ClientDeleteDenied');
+        Observer.Expect('nomatch_deleteall_true_r|text', 'Sorry, the current permissions prevented the action. (TableData 91900 LT Y19 Row Delete: AL Language Coverage Tests)');
+        Observer.Expect('nomatch_deleteall_true_r|code', 'DB:ClientDeleteDenied');
+        Observer.Expect('nomatch_modifyall_r|text', 'Sorry, the current permissions prevented the action. (TableData 91900 LT Y19 Row Modify: AL Language Coverage Tests)');
+        Observer.Expect('nomatch_modifyall_r|code', 'DB:ClientModifyDenied');
+        Observer.Expect('nomatch_modifyall_true_r|text', 'Sorry, the current permissions prevented the action. (TableData 91900 LT Y19 Row Modify: AL Language Coverage Tests)');
+        Observer.Expect('nomatch_modifyall_true_r|code', 'DB:ClientModifyDenied');
+        Observer.Verify();
     end;
 
     [Test]
@@ -56,7 +84,23 @@ codeunit 91950 "LT Y19 Perm Writes"
         WasStarted := Helper.StartMock(Mock);
         RunP2(Observer, 'ri', 'LT Y19 RI');
         Helper.RestoreMock(Mock, WasStarted);
-        Observer.Finish();
+        Observer.Expect('deleteall_ri|text', 'Sorry, the current permissions prevented the action. (TableData 91900 LT Y19 Row Delete: AL Language Coverage Tests)');
+        Observer.Expect('deleteall_ri|code', 'DB:ClientDeleteDenied');
+        Observer.Expect('deleteall_true_ri|text', 'Sorry, the current permissions prevented the action. (TableData 91900 LT Y19 Row Delete: AL Language Coverage Tests)');
+        Observer.Expect('deleteall_true_ri|code', 'DB:ClientDeleteDenied');
+        Observer.Expect('modifyall_ri|text', 'Sorry, the current permissions prevented the action. (TableData 91900 LT Y19 Row Modify: AL Language Coverage Tests)');
+        Observer.Expect('modifyall_ri|code', 'DB:ClientModifyDenied');
+        Observer.Expect('modifyall_true_ri|text', 'Sorry, the current permissions prevented the action. (TableData 91900 LT Y19 Row Modify: AL Language Coverage Tests)');
+        Observer.Expect('modifyall_true_ri|code', 'DB:ClientModifyDenied');
+        Observer.Expect('nomatch_deleteall_ri|text', 'Sorry, the current permissions prevented the action. (TableData 91900 LT Y19 Row Delete: AL Language Coverage Tests)');
+        Observer.Expect('nomatch_deleteall_ri|code', 'DB:ClientDeleteDenied');
+        Observer.Expect('nomatch_deleteall_true_ri|text', 'Sorry, the current permissions prevented the action. (TableData 91900 LT Y19 Row Delete: AL Language Coverage Tests)');
+        Observer.Expect('nomatch_deleteall_true_ri|code', 'DB:ClientDeleteDenied');
+        Observer.Expect('nomatch_modifyall_ri|text', 'Sorry, the current permissions prevented the action. (TableData 91900 LT Y19 Row Modify: AL Language Coverage Tests)');
+        Observer.Expect('nomatch_modifyall_ri|code', 'DB:ClientModifyDenied');
+        Observer.Expect('nomatch_modifyall_true_ri|text', 'Sorry, the current permissions prevented the action. (TableData 91900 LT Y19 Row Modify: AL Language Coverage Tests)');
+        Observer.Expect('nomatch_modifyall_true_ri|code', 'DB:ClientModifyDenied');
+        Observer.Verify();
     end;
 
     [Test]
@@ -68,7 +112,19 @@ codeunit 91950 "LT Y19 Perm Writes"
         WasStarted := Helper.StartMock(Mock);
         RunP3(Observer, 'imd', 'LT Y19 Trig Imd B');
         Helper.RestoreMock(Mock, WasStarted);
-        Observer.Finish();
+        Observer.Expect('a_insert_imd|text', 'Sorry, the current permissions prevented the action. (TableData 91903 LT Y19 Trig B Insert: AL Language Coverage Tests)');
+        Observer.Expect('a_insert_imd|code', 'DB:ClientInsertDenied');
+        Observer.Expect('a_modify_imd|text', 'Sorry, the current permissions prevented the action. (TableData 91903 LT Y19 Trig B Modify: AL Language Coverage Tests)');
+        Observer.Expect('a_modify_imd|code', 'DB:ClientModifyDenied');
+        Observer.Expect('a_delete_imd|text', 'Sorry, the current permissions prevented the action. (TableData 91903 LT Y19 Trig B Delete: AL Language Coverage Tests)');
+        Observer.Expect('a_delete_imd|code', 'DB:ClientDeleteDenied');
+        Observer.Expect('aperm_insert_imd|text', 'LT Y19 ok b 1=0;2=0;rows 1=10;2=20;');
+        Observer.Expect('aperm_insert_imd|code', 'Dialog');
+        Observer.Expect('aperm_modify_imd|text', 'LT Y19 ok b 1=5;rows 1=10;2=20;');
+        Observer.Expect('aperm_modify_imd|code', 'Dialog');
+        Observer.Expect('aperm_delete_imd|text', 'LT Y19 ok b rows 1=10;2=20;');
+        Observer.Expect('aperm_delete_imd|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -80,7 +136,19 @@ codeunit 91950 "LT Y19 Perm Writes"
         WasStarted := Helper.StartMock(Mock);
         RunP3(Observer, 'none', 'LT Y19 Trig No B');
         Helper.RestoreMock(Mock, WasStarted);
-        Observer.Finish();
+        Observer.Expect('a_insert_none|text', 'Sorry, the current permissions prevented the action. (TableData 91903 LT Y19 Trig B Insert: AL Language Coverage Tests)');
+        Observer.Expect('a_insert_none|code', 'DB:ClientInsertDenied');
+        Observer.Expect('a_modify_none|text', 'Sorry, the current permissions prevented the action. (TableData 91903 LT Y19 Trig B Modify: AL Language Coverage Tests)');
+        Observer.Expect('a_modify_none|code', 'DB:ClientModifyDenied');
+        Observer.Expect('a_delete_none|text', 'Sorry, the current permissions prevented the action. (TableData 91903 LT Y19 Trig B Delete: AL Language Coverage Tests)');
+        Observer.Expect('a_delete_none|code', 'DB:ClientDeleteDenied');
+        Observer.Expect('aperm_insert_none|text', 'Sorry, the current permissions prevented the action. (TableData 91903 LT Y19 Trig B IndirectInsert: AL Language Coverage Tests)');
+        Observer.Expect('aperm_insert_none|code', 'DB:ClientInsertDenied');
+        Observer.Expect('aperm_modify_none|text', 'Sorry, the current permissions prevented the action. (TableData 91903 LT Y19 Trig B IndirectModify: AL Language Coverage Tests)');
+        Observer.Expect('aperm_modify_none|code', 'DB:ClientModifyDenied');
+        Observer.Expect('aperm_delete_none|text', 'Sorry, the current permissions prevented the action. (TableData 91903 LT Y19 Trig B IndirectDelete: AL Language Coverage Tests)');
+        Observer.Expect('aperm_delete_none|code', 'DB:ClientDeleteDenied');
+        Observer.Verify();
     end;
 
     [Test]
@@ -97,7 +165,19 @@ codeunit 91950 "LT Y19 Perm Writes"
         RunCase(Observer, 'modifier_user_none', 'LT Y19 None', 42);
         RunCase(Observer, 'direct_modify_user_m', 'LT Y19 R M', 44);
         Helper.RestoreMock(Mock, WasStarted);
-        Observer.Finish();
+        Observer.Expect('deleter_user_d|text', 'LT Y19 ok rows 2=20;');
+        Observer.Expect('deleter_user_d|code', 'Dialog');
+        Observer.Expect('deleter_user_none|text', 'Sorry, the current permissions prevented the action. (TableData 91900 LT Y19 Row IndirectDelete: AL Language Coverage Tests)');
+        Observer.Expect('deleter_user_none|code', 'DB:ClientDeleteDenied');
+        Observer.Expect('direct_delete_user_d|text', 'Sorry, the current permissions prevented the action. (TableData 91900 LT Y19 Row Delete: AL Language Coverage Tests)');
+        Observer.Expect('direct_delete_user_d|code', 'DB:ClientDeleteDenied');
+        Observer.Expect('modifier_user_m|text', 'LT Y19 ok rows 1=77;2=20;');
+        Observer.Expect('modifier_user_m|code', 'Dialog');
+        Observer.Expect('modifier_user_none|text', 'Sorry, the current permissions prevented the action. (TableData 91900 LT Y19 Row IndirectModify: AL Language Coverage Tests)');
+        Observer.Expect('modifier_user_none|code', 'DB:ClientModifyDenied');
+        Observer.Expect('direct_modify_user_m|text', 'LT Y19 ok rows 1=77;2=20;');
+        Observer.Expect('direct_modify_user_m|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -111,7 +191,13 @@ codeunit 91950 "LT Y19 Perm Writes"
         RunCase(Observer, 'recref_modify', 'LT Y19 None', 62);
         RunCase(Observer, 'recref_delete', 'LT Y19 None', 63);
         Helper.RestoreMock(Mock, WasStarted);
-        Observer.Finish();
+        Observer.Expect('recref_insert|text', 'Sorry, the current permissions prevented the action. (TableData 91900 LT Y19 Row Insert: AL Language Coverage Tests)');
+        Observer.Expect('recref_insert|code', 'DB:ClientInsertDenied');
+        Observer.Expect('recref_modify|text', 'Sorry, the current permissions prevented the action. (TableData 91900 LT Y19 Row Modify: AL Language Coverage Tests)');
+        Observer.Expect('recref_modify|code', 'DB:ClientModifyDenied');
+        Observer.Expect('recref_delete|text', 'Sorry, the current permissions prevented the action. (TableData 91900 LT Y19 Row Delete: AL Language Coverage Tests)');
+        Observer.Expect('recref_delete|code', 'DB:ClientDeleteDenied');
+        Observer.Verify();
     end;
 
     [Test]
@@ -129,7 +215,21 @@ codeunit 91950 "LT Y19 Perm Writes"
         RunCase(Observer, 'temp_table_delete', 'LT Y19 None', 69);
         RunCase(Observer, 'temp_recref_insert', 'LT Y19 None', 70);
         Helper.RestoreMock(Mock, WasStarted);
-        Observer.Finish();
+        Observer.Expect('temp_var_insert|text', 'LT Y19 ok temp 1 rows 1=10;2=20;');
+        Observer.Expect('temp_var_insert|code', 'Dialog');
+        Observer.Expect('temp_var_modify|text', 'LT Y19 ok temp 1 rows 1=10;2=20;');
+        Observer.Expect('temp_var_modify|code', 'Dialog');
+        Observer.Expect('temp_var_delete|text', 'LT Y19 ok temp 0 rows 1=10;2=20;');
+        Observer.Expect('temp_var_delete|code', 'Dialog');
+        Observer.Expect('temp_table_insert|text', 'LT Y19 ok temp 1 rows 1=10;2=20;');
+        Observer.Expect('temp_table_insert|code', 'Dialog');
+        Observer.Expect('temp_table_modify|text', 'LT Y19 ok temp 1 rows 1=10;2=20;');
+        Observer.Expect('temp_table_modify|code', 'Dialog');
+        Observer.Expect('temp_table_delete|text', 'LT Y19 ok temp 0 rows 1=10;2=20;');
+        Observer.Expect('temp_table_delete|code', 'Dialog');
+        Observer.Expect('temp_recref_insert|text', 'LT Y19 ok temp 1 rows 1=10;2=20;');
+        Observer.Expect('temp_recref_insert|code', 'Dialog');
+        Observer.Verify();
     end;
 
     local procedure RunP2(var Observer: Codeunit "Probe Observer"; Tag: Text; SetName: Code[20])

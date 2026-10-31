@@ -5,6 +5,9 @@
 //   SUPER) and SetExactPermissionSet('SUPER') (SUPER alone): an insert into an own table, a direct insert into G/L Entry and an insert into
 //   Tenant Media (each inside asserterror, ending with the own error 'LT Y19 ok', so nothing stays), ReadPermission and WritePermission of
 //   each table, and "User Permissions".GetEffectivePermission for TableData, Codeunit, Page and Report.
+// Facts (BC 27.5, 28.5, 29.0): Set('SUPER') and SetExactPermissionSet('SUPER') behave the same: every write goes through, ReadPermission and
+//   WritePermission are true, GetEffectivePermission gives Yes for read, insert, modify and delete on table data and Execute on the
+//   codeunit, page and report.
 // BC versions: 27, 28, 29
 
 codeunit 91951 "LT Y19 Perm Super"
@@ -26,7 +29,26 @@ codeunit 91951 "LT Y19 Perm Super"
         Mock.Set('SUPER');
         ObserveAll(Observer, false);
         Helper.RestoreMock(Mock, WasStarted);
-        Observer.Finish();
+        Observer.Expect('own_read_permission', 'Yes');
+        Observer.Expect('own_write_permission', 'Yes');
+        Observer.Expect('gl_entry_read_permission', 'Yes');
+        Observer.Expect('gl_entry_write_permission', 'Yes');
+        Observer.Expect('tenant_media_read_permission', 'Yes');
+        Observer.Expect('tenant_media_write_permission', 'Yes');
+        Observer.Expect('effective_own_table_data', 'Yes,Yes,Yes,Yes, ');
+        Observer.Expect('effective_gl_entry', 'Yes,Yes,Yes,Yes, ');
+        Observer.Expect('effective_tenant_media', 'Yes,Yes,Yes,Yes, ');
+        Observer.Expect('effective_codeunit', ' , , , ,Yes');
+        Observer.Expect('effective_own_codeunit', ' , , , ,Yes');
+        Observer.Expect('effective_page', ' , , , ,Yes');
+        Observer.Expect('effective_report', ' , , , ,Yes');
+        Observer.Expect('own_insert|text', 'LT Y19 ok own');
+        Observer.Expect('own_insert|code', 'Dialog');
+        Observer.Expect('gl_entry_insert|text', 'LT Y19 ok gl entry');
+        Observer.Expect('gl_entry_insert|code', 'Dialog');
+        Observer.Expect('tenant_media_insert|text', 'LT Y19 ok tenant media');
+        Observer.Expect('tenant_media_insert|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -39,7 +61,26 @@ codeunit 91951 "LT Y19 Perm Super"
         Mock.SetExactPermissionSet('SUPER');
         ObserveAll(Observer, true);
         Helper.RestoreMock(Mock, WasStarted);
-        Observer.Finish();
+        Observer.Expect('own_read_permission', 'Yes');
+        Observer.Expect('own_write_permission', 'Yes');
+        Observer.Expect('gl_entry_read_permission', 'Yes');
+        Observer.Expect('gl_entry_write_permission', 'Yes');
+        Observer.Expect('tenant_media_read_permission', 'Yes');
+        Observer.Expect('tenant_media_write_permission', 'Yes');
+        Observer.Expect('effective_own_table_data', 'Yes,Yes,Yes,Yes, ');
+        Observer.Expect('effective_gl_entry', 'Yes,Yes,Yes,Yes, ');
+        Observer.Expect('effective_tenant_media', 'Yes,Yes,Yes,Yes, ');
+        Observer.Expect('effective_codeunit', ' , , , ,Yes');
+        Observer.Expect('effective_own_codeunit', ' , , , ,Yes');
+        Observer.Expect('effective_page', ' , , , ,Yes');
+        Observer.Expect('effective_report', ' , , , ,Yes');
+        Observer.Expect('own_insert|text', 'LT Y19 ok own');
+        Observer.Expect('own_insert|code', 'Dialog');
+        Observer.Expect('gl_entry_insert|text', 'LT Y19 ok gl entry');
+        Observer.Expect('gl_entry_insert|code', 'Dialog');
+        Observer.Expect('tenant_media_insert|text', 'LT Y19 ok tenant media');
+        Observer.Expect('tenant_media_insert|code', 'Dialog');
+        Observer.Verify();
     end;
 
     local procedure ObserveAll(var Observer: Codeunit "Probe Observer"; Exact: Boolean)

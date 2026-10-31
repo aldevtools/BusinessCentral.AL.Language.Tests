@@ -4,6 +4,8 @@
 // Probe: al-runtime-rs ADR-062 probe P13 (stage 1), writer Y19: system tables under a narrow set. Permissions Mock.Set of an own set that
 //   names no system table (plus All Objects): insert into Tenant Media, IsolatedStorage.Set/Get/Contains/Delete (the API), and reads of
 //   AllObj, Field and Company. Writes end in the own error 'LT Y19 ok', so nothing stays.
+// Facts (BC 27.5, 28.5, 29.0): under the narrow set, Tenant Media and Company are denied (read and insert; ReadPermission and
+//   WritePermission false); AllObj and Field read; the IsolatedStorage API works in module and company scope.
 // BC versions: 27, 28, 29
 
 codeunit 91954 "LT Y19 Perm System Tables"
@@ -37,7 +39,27 @@ codeunit 91954 "LT Y19 Perm System Tables"
         Observer.Observe('company_read_permission', Format(ReadPermissionOf(Database::Company)));
         Observer.Observe('company_write_permission', Format(WritePermissionOf(Database::Company)));
         Helper.RestoreMock(Mock, WasStarted);
-        Observer.Finish();
+        Observer.Expect('tenant_media_insert|text', 'Sorry, the current permissions prevented the action. (TableData 2000000184 Tenant Media Insert: AL Language Coverage Tests)');
+        Observer.Expect('tenant_media_insert|code', 'DB:ClientInsertDenied');
+        Observer.Expect('isolated_storage_set|text', 'LT Y19 ok Yes Yes v1 Yes Yes');
+        Observer.Expect('isolated_storage_set|code', 'Dialog');
+        Observer.Expect('isolated_storage_set_company|text', 'LT Y19 ok Yes Yes v2 Yes');
+        Observer.Expect('isolated_storage_set_company|code', 'Dialog');
+        Observer.Expect('allobj_read|text', 'LT Y19 ok Yes LT Y19 Row');
+        Observer.Expect('allobj_read|code', 'Dialog');
+        Observer.Expect('field_read|text', 'LT Y19 ok Yes');
+        Observer.Expect('field_read|code', 'Dialog');
+        Observer.Expect('company_read|text', 'Sorry, the current permissions prevented the action. (TableData 2000000006 Company Read: AL Language Coverage Tests)');
+        Observer.Expect('company_read|code', 'DB:ClientReadDenied');
+        Observer.Expect('tenant_media_read|text', 'Sorry, the current permissions prevented the action. (TableData 2000000184 Tenant Media Read: AL Language Coverage Tests)');
+        Observer.Expect('tenant_media_read|code', 'DB:ClientReadDenied');
+        Observer.Expect('tenant_media_read_permission', 'No');
+        Observer.Expect('tenant_media_write_permission', 'No');
+        Observer.Expect('allobj_read_permission', 'Yes');
+        Observer.Expect('field_read_permission', 'Yes');
+        Observer.Expect('company_read_permission', 'No');
+        Observer.Expect('company_write_permission', 'No');
+        Observer.Verify();
     end;
 
     local procedure RunCase(var Observer: Codeunit "Probe Observer"; Name: Text; Which: Integer)
