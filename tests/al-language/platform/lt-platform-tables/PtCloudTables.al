@@ -740,13 +740,33 @@ codeunit 67107 "LT PT Cloud Tables"
         Y17Observer.Observe('rows after modifyall', Y17CfgRows());
         Y17Observer.Observe('get current company', Format(Cfg.Get(0, '', CopyStr(CompanyName(), 1, 30))) + '|' + Y17Shorten(Cfg."Header Part Name") + '|' + Y17Shorten(Cfg."Theme Part Name"));
         Cfg.DeleteAll();
-        Y17Observer.Finish();
-    end;
-
-    [Test]
-    procedure Y17_TenantReportLayoutCfg_Shapes_More1()
-    begin
-        Y17Observer.More();
+        Y17Observer.Expect('part layouts', '91874|Y17Body|Word|Body;91874|Y17HF|Word|Header/Footer;91874|Y17Theme|Word|Theme;2000000001|Y17DefHF|Word|Header/Footer;2000000001|Y17DefTheme|Word|Theme;');
+        Y17Observer.Expect('fresh rows', '0');
+        Y17Observer.Expect('invalid header part', 'No');
+        Y17Observer.Expect('invalid header part|text', 'The Header/Footer part ''x::A'' must reference a Header/Footer-subtype layout in the tenants Report Layout List.');
+        Y17Observer.Expect('header part of the theme subtype', 'No');
+        Y17Observer.Expect('header part of the theme subtype|text', 'The Header/Footer part ''<this app>::Y17DefTheme'' must reference a Header/Footer-subtype layout in the tenants Report Layout List.');
+        Y17Observer.Expect('global default, parts of an ordinary report', 'No');
+        Y17Observer.Expect('global default, parts of an ordinary report|text', 'The Header/Footer part ''<this app>::Y17HF'' must reference a Header/Footer-subtype layout in the tenants Report Layout List.');
+        Y17Observer.Expect('global default', 'returned Yes');
+        Y17Observer.Expect('current company', 'returned Yes');
+        Y17Observer.Expect('report level, own parts', 'returned Yes');
+        Y17Observer.Expect('report level, default parts', 'returned Yes');
+        Y17Observer.Expect('body layout by plain name', 'No');
+        Y17Observer.Expect('body layout by plain name|text', 'The Body part ''Y17Body'' must reference a Body-subtype layout in the tenants Report Layout List.');
+        Y17Observer.Expect('body layout by composite name', 'returned Yes');
+        Y17Observer.Expect('default subtype layout', 'No');
+        Y17Observer.Expect('default subtype layout|text', 'The Body part ''<this app>::Rdl'' must reference a Body-subtype layout in the tenants Report Layout List.');
+        Y17Observer.Expect('unknown report', 'returned Yes');
+        Y17Observer.Expect('undeclared layout', 'No');
+        Y17Observer.Expect('undeclared layout|text', 'The Body part ''<this app>::NoSuchLayout'' must reference a Body-subtype layout in the tenants Report Layout List.');
+        Y17Observer.Expect('duplicate', 'returned No');
+        Y17Observer.Expect('rows', '0|||<this app>::Y17DefHF|<this app>::Y17DefTheme;0||<current company>|<this app>::Y17DefHF|;91873|||<this app>::Y17DefHF|<this app>::Y17DefTheme;91874|||<this app>::Y17HF|<this app>::Y17Theme;91874|<this app>::Y17Body||<this app>::Y17HF|;99999990|||<this app>::Y17DefHF|<this app>::Y17DefTheme;');
+        Y17Observer.Expect('count header', '2');
+        Y17Observer.Expect('modifyall header blank', 'Yes');
+        Y17Observer.Expect('rows after modifyall', '0|||<this app>::Y17DefHF|<this app>::Y17DefTheme;0||<current company>|<this app>::Y17DefHF|;91873|||<this app>::Y17DefHF|<this app>::Y17DefTheme;91874||||<this app>::Y17Theme;91874|<this app>::Y17Body|||;99999990|||<this app>::Y17DefHF|<this app>::Y17DefTheme;');
+        Y17Observer.Expect('get current company', 'Yes|<this app>::Y17DefHF|');
+        Y17Observer.Verify();
     end;
 #endif
 }
