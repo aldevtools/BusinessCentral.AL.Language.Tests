@@ -10,1060 +10,957 @@ codeunit 92410 "LT Y31 Cv Integer"
     Subtype = Test;
     TestPermissions = Disabled;
 
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        R: Record "LT Y31 Conv Fields";
-        vBigInteger: BigInteger;
-        vByte: Byte;
-        vChar: Char;
-        vDecimal: Decimal;
-        vDuration: Duration;
-        vEnum: Enum "LT Y31 E";
-        vEnumImpl: Enum "LT Y31 EI";
-        vInteger: Integer;
-        vOption: Option A,B,C;
-
     [Test]
     procedure Integer_To_BigInteger()
+    var
+        Observer: Codeunit "Probe Observer";
+        vBigInteger: BigInteger;
+        vInteger: Integer;
     begin
         vInteger := 0;
-        if Try1() then Observer.Observe('assign.0', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.0');
-        if Try2() then Observer.Observe('arg_byvalue.0', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.0');
-        if Try3() then Observer.Observe('exit.0', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.0');
+        if Try1(vBigInteger, vInteger) then Observer.Observe('assign.0', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.0');
+        if Try3(vBigInteger, vInteger) then Observer.Observe('arg_byvalue.0', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.0');
+        if Try5(vBigInteger, vInteger) then Observer.Observe('exit.0', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.0');
         vInteger := -1;
-        if Try1() then Observer.Observe('assign.m1', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.m1');
-        if Try2() then Observer.Observe('arg_byvalue.m1', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.m1');
-        if Try3() then Observer.Observe('exit.m1', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.m1');
-        vInteger := 3;
-        if Try1() then Observer.Observe('assign.3', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.3');
-        if Try2() then Observer.Observe('arg_byvalue.3', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.3');
-        if Try3() then Observer.Observe('exit.3', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.3');
-        vInteger := 255;
-        if Try1() then Observer.Observe('assign.255', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.255');
-        if Try2() then Observer.Observe('arg_byvalue.255', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.255');
-        if Try3() then Observer.Observe('exit.255', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.255');
-        vInteger := 256;
-        if Try1() then Observer.Observe('assign.256', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.256');
-        if Try2() then Observer.Observe('arg_byvalue.256', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.256');
-        if Try3() then Observer.Observe('exit.256', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.256');
-        vInteger := 65536;
-        if Try1() then Observer.Observe('assign.65536', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.65536');
-        if Try2() then Observer.Observe('arg_byvalue.65536', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.65536');
-        if Try3() then Observer.Observe('exit.65536', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.65536');
-        vInteger := 2147483647;
-        if Try1() then Observer.Observe('assign.max', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.max');
-        if Try2() then Observer.Observe('arg_byvalue.max', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.max');
-        if Try3() then Observer.Observe('exit.max', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.max');
+        if Try1(vBigInteger, vInteger) then Observer.Observe('assign.m1', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.m1');
+        if Try3(vBigInteger, vInteger) then Observer.Observe('arg_byvalue.m1', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.m1');
+        if Try5(vBigInteger, vInteger) then Observer.Observe('exit.m1', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.m1');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Integer_To_BigInteger_More1()
+    procedure Integer_To_BigInteger_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vBigInteger: BigInteger;
+        vInteger: Integer;
     begin
-        Observer.More();
+        vInteger := 3;
+        if Try1(vBigInteger, vInteger) then Observer.Observe('assign.3', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.3');
+        if Try3(vBigInteger, vInteger) then Observer.Observe('arg_byvalue.3', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.3');
+        if Try5(vBigInteger, vInteger) then Observer.Observe('exit.3', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.3');
+        vInteger := 255;
+        if Try1(vBigInteger, vInteger) then Observer.Observe('assign.255', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.255');
+        if Try3(vBigInteger, vInteger) then Observer.Observe('arg_byvalue.255', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.255');
+        if Try5(vBigInteger, vInteger) then Observer.Observe('exit.255', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.255');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Integer_To_BigInteger_More2()
+    procedure Integer_To_BigInteger_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        vBigInteger: BigInteger;
+        vInteger: Integer;
     begin
-        Observer.More();
+        vInteger := 256;
+        if Try1(vBigInteger, vInteger) then Observer.Observe('assign.256', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.256');
+        if Try3(vBigInteger, vInteger) then Observer.Observe('arg_byvalue.256', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.256');
+        if Try5(vBigInteger, vInteger) then Observer.Observe('exit.256', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.256');
+        vInteger := 65536;
+        if Try1(vBigInteger, vInteger) then Observer.Observe('assign.65536', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.65536');
+        if Try3(vBigInteger, vInteger) then Observer.Observe('arg_byvalue.65536', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.65536');
+        if Try5(vBigInteger, vInteger) then Observer.Observe('exit.65536', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.65536');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Integer_To_BigInteger_More3()
+    procedure Integer_To_BigInteger_4()
+    var
+        Observer: Codeunit "Probe Observer";
+        vBigInteger: BigInteger;
+        vInteger: Integer;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_To_BigInteger_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_To_BigInteger_More5()
-    begin
-        Observer.More();
+        vInteger := 2147483647;
+        if Try1(vBigInteger, vInteger) then Observer.Observe('assign.max', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.max');
+        if Try3(vBigInteger, vInteger) then Observer.Observe('arg_byvalue.max', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.max');
+        if Try5(vBigInteger, vInteger) then Observer.Observe('exit.max', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.max');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Integer_To_Decimal()
+    var
+        Observer: Codeunit "Probe Observer";
+        vDecimal: Decimal;
+        vInteger: Integer;
     begin
         vInteger := 0;
-        if Try4() then Observer.Observe('assign.0', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.0');
-        if Try5() then Observer.Observe('arg_byvalue.0', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.0');
-        if Try6() then Observer.Observe('exit.0', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.0');
+        if Try6(vDecimal, vInteger) then Observer.Observe('assign.0', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.0');
+        if Try8(vDecimal, vInteger) then Observer.Observe('arg_byvalue.0', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.0');
+        if Try10(vDecimal, vInteger) then Observer.Observe('exit.0', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.0');
         vInteger := -1;
-        if Try4() then Observer.Observe('assign.m1', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.m1');
-        if Try5() then Observer.Observe('arg_byvalue.m1', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.m1');
-        if Try6() then Observer.Observe('exit.m1', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.m1');
-        vInteger := 3;
-        if Try4() then Observer.Observe('assign.3', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.3');
-        if Try5() then Observer.Observe('arg_byvalue.3', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.3');
-        if Try6() then Observer.Observe('exit.3', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.3');
-        vInteger := 255;
-        if Try4() then Observer.Observe('assign.255', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.255');
-        if Try5() then Observer.Observe('arg_byvalue.255', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.255');
-        if Try6() then Observer.Observe('exit.255', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.255');
-        vInteger := 256;
-        if Try4() then Observer.Observe('assign.256', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.256');
-        if Try5() then Observer.Observe('arg_byvalue.256', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.256');
-        if Try6() then Observer.Observe('exit.256', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.256');
-        vInteger := 65536;
-        if Try4() then Observer.Observe('assign.65536', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.65536');
-        if Try5() then Observer.Observe('arg_byvalue.65536', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.65536');
-        if Try6() then Observer.Observe('exit.65536', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.65536');
-        vInteger := 2147483647;
-        if Try4() then Observer.Observe('assign.max', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.max');
-        if Try5() then Observer.Observe('arg_byvalue.max', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.max');
-        if Try6() then Observer.Observe('exit.max', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.max');
+        if Try6(vDecimal, vInteger) then Observer.Observe('assign.m1', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.m1');
+        if Try8(vDecimal, vInteger) then Observer.Observe('arg_byvalue.m1', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.m1');
+        if Try10(vDecimal, vInteger) then Observer.Observe('exit.m1', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.m1');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Integer_To_Decimal_More1()
+    procedure Integer_To_Decimal_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vDecimal: Decimal;
+        vInteger: Integer;
     begin
-        Observer.More();
+        vInteger := 3;
+        if Try6(vDecimal, vInteger) then Observer.Observe('assign.3', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.3');
+        if Try8(vDecimal, vInteger) then Observer.Observe('arg_byvalue.3', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.3');
+        if Try10(vDecimal, vInteger) then Observer.Observe('exit.3', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.3');
+        vInteger := 255;
+        if Try6(vDecimal, vInteger) then Observer.Observe('assign.255', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.255');
+        if Try8(vDecimal, vInteger) then Observer.Observe('arg_byvalue.255', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.255');
+        if Try10(vDecimal, vInteger) then Observer.Observe('exit.255', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.255');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Integer_To_Decimal_More2()
+    procedure Integer_To_Decimal_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        vDecimal: Decimal;
+        vInteger: Integer;
     begin
-        Observer.More();
+        vInteger := 256;
+        if Try6(vDecimal, vInteger) then Observer.Observe('assign.256', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.256');
+        if Try8(vDecimal, vInteger) then Observer.Observe('arg_byvalue.256', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.256');
+        if Try10(vDecimal, vInteger) then Observer.Observe('exit.256', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.256');
+        vInteger := 65536;
+        if Try6(vDecimal, vInteger) then Observer.Observe('assign.65536', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.65536');
+        if Try8(vDecimal, vInteger) then Observer.Observe('arg_byvalue.65536', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.65536');
+        if Try10(vDecimal, vInteger) then Observer.Observe('exit.65536', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.65536');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Integer_To_Decimal_More3()
+    procedure Integer_To_Decimal_4()
+    var
+        Observer: Codeunit "Probe Observer";
+        vDecimal: Decimal;
+        vInteger: Integer;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_To_Decimal_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_To_Decimal_More5()
-    begin
-        Observer.More();
+        vInteger := 2147483647;
+        if Try6(vDecimal, vInteger) then Observer.Observe('assign.max', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.max');
+        if Try8(vDecimal, vInteger) then Observer.Observe('arg_byvalue.max', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.max');
+        if Try10(vDecimal, vInteger) then Observer.Observe('exit.max', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.max');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Integer_To_Char()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vChar: Char;
+        vInteger: Integer;
     begin
         vInteger := 0;
-        if Try7() then Observer.Observe('assign.0', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.0');
-        if Try8() then Observer.Observe('arg_byvalue.0', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.0');
-        if Try9() then Observer.Observe('exit.0', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.0');
+        if Try11(vChar, vInteger) then Observer.Observe('assign.0', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.0');
+        if Try13(vChar, vInteger) then Observer.Observe('arg_byvalue.0', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.0');
+        if Try15(vChar, vInteger) then Observer.Observe('exit.0', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.0');
         vInteger := -1;
-        if Try7() then Observer.Observe('assign.m1', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.m1');
-        if Try8() then Observer.Observe('arg_byvalue.m1', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.m1');
-        if Try9() then Observer.Observe('exit.m1', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.m1');
-        vInteger := 3;
-        if Try7() then Observer.Observe('assign.3', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.3');
-        if Try8() then Observer.Observe('arg_byvalue.3', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.3');
-        if Try9() then Observer.Observe('exit.3', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.3');
-        vInteger := 255;
-        if Try7() then Observer.Observe('assign.255', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.255');
-        if Try8() then Observer.Observe('arg_byvalue.255', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.255');
-        if Try9() then Observer.Observe('exit.255', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.255');
-        vInteger := 256;
-        if Try7() then Observer.Observe('assign.256', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.256');
-        if Try8() then Observer.Observe('arg_byvalue.256', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.256');
-        if Try9() then Observer.Observe('exit.256', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.256');
-        vInteger := 65536;
-        if Try7() then Observer.Observe('assign.65536', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.65536');
-        if Try8() then Observer.Observe('arg_byvalue.65536', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.65536');
-        if Try9() then Observer.Observe('exit.65536', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.65536');
-        vInteger := 2147483647;
-        if Try7() then Observer.Observe('assign.max', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.max');
-        if Try8() then Observer.Observe('arg_byvalue.max', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.max');
-        if Try9() then Observer.Observe('exit.max', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.max');
+        if Try11(vChar, vInteger) then Observer.Observe('assign.m1', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.m1');
+        if Try13(vChar, vInteger) then Observer.Observe('arg_byvalue.m1', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.m1');
+        if Try15(vChar, vInteger) then Observer.Observe('exit.m1', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.m1');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Integer_To_Char_More1()
+    procedure Integer_To_Char_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vChar: Char;
+        vInteger: Integer;
     begin
-        Observer.More();
+        vInteger := 3;
+        if Try11(vChar, vInteger) then Observer.Observe('assign.3', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.3');
+        if Try13(vChar, vInteger) then Observer.Observe('arg_byvalue.3', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.3');
+        if Try15(vChar, vInteger) then Observer.Observe('exit.3', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.3');
+        vInteger := 255;
+        if Try11(vChar, vInteger) then Observer.Observe('assign.255', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.255');
+        if Try13(vChar, vInteger) then Observer.Observe('arg_byvalue.255', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.255');
+        if Try15(vChar, vInteger) then Observer.Observe('exit.255', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.255');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Integer_To_Char_More2()
+    procedure Integer_To_Char_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vChar: Char;
+        vInteger: Integer;
     begin
-        Observer.More();
+        vInteger := 256;
+        if Try11(vChar, vInteger) then Observer.Observe('assign.256', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.256');
+        if Try13(vChar, vInteger) then Observer.Observe('arg_byvalue.256', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.256');
+        if Try15(vChar, vInteger) then Observer.Observe('exit.256', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.256');
+        vInteger := 65536;
+        if Try11(vChar, vInteger) then Observer.Observe('assign.65536', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.65536');
+        if Try13(vChar, vInteger) then Observer.Observe('arg_byvalue.65536', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.65536');
+        if Try15(vChar, vInteger) then Observer.Observe('exit.65536', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.65536');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Integer_To_Char_More3()
+    procedure Integer_To_Char_4()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vChar: Char;
+        vInteger: Integer;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_To_Char_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_To_Char_More5()
-    begin
-        Observer.More();
+        vInteger := 2147483647;
+        if Try11(vChar, vInteger) then Observer.Observe('assign.max', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.max');
+        if Try13(vChar, vInteger) then Observer.Observe('arg_byvalue.max', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.max');
+        if Try15(vChar, vInteger) then Observer.Observe('exit.max', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.max');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Integer_To_Byte()
+    var
+        Observer: Codeunit "Probe Observer";
+        vByte: Byte;
+        vInteger: Integer;
     begin
         vInteger := 0;
-        if Try10() then Observer.Observe('assign.0', Format(vByte, 0, 9)) else Observer.ObserveError('assign.0');
-        if Try11() then Observer.Observe('arg_byvalue.0', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.0');
-        if Try12() then Observer.Observe('exit.0', Format(vByte, 0, 9)) else Observer.ObserveError('exit.0');
+        if Try16(vByte, vInteger) then Observer.Observe('assign.0', Format(vByte, 0, 9)) else Observer.ObserveError('assign.0');
+        if Try18(vByte, vInteger) then Observer.Observe('arg_byvalue.0', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.0');
+        if Try20(vByte, vInteger) then Observer.Observe('exit.0', Format(vByte, 0, 9)) else Observer.ObserveError('exit.0');
         vInteger := -1;
-        if Try10() then Observer.Observe('assign.m1', Format(vByte, 0, 9)) else Observer.ObserveError('assign.m1');
-        if Try11() then Observer.Observe('arg_byvalue.m1', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.m1');
-        if Try12() then Observer.Observe('exit.m1', Format(vByte, 0, 9)) else Observer.ObserveError('exit.m1');
-        vInteger := 3;
-        if Try10() then Observer.Observe('assign.3', Format(vByte, 0, 9)) else Observer.ObserveError('assign.3');
-        if Try11() then Observer.Observe('arg_byvalue.3', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.3');
-        if Try12() then Observer.Observe('exit.3', Format(vByte, 0, 9)) else Observer.ObserveError('exit.3');
-        vInteger := 255;
-        if Try10() then Observer.Observe('assign.255', Format(vByte, 0, 9)) else Observer.ObserveError('assign.255');
-        if Try11() then Observer.Observe('arg_byvalue.255', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.255');
-        if Try12() then Observer.Observe('exit.255', Format(vByte, 0, 9)) else Observer.ObserveError('exit.255');
-        vInteger := 256;
-        if Try10() then Observer.Observe('assign.256', Format(vByte, 0, 9)) else Observer.ObserveError('assign.256');
-        if Try11() then Observer.Observe('arg_byvalue.256', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.256');
-        if Try12() then Observer.Observe('exit.256', Format(vByte, 0, 9)) else Observer.ObserveError('exit.256');
-        vInteger := 65536;
-        if Try10() then Observer.Observe('assign.65536', Format(vByte, 0, 9)) else Observer.ObserveError('assign.65536');
-        if Try11() then Observer.Observe('arg_byvalue.65536', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.65536');
-        if Try12() then Observer.Observe('exit.65536', Format(vByte, 0, 9)) else Observer.ObserveError('exit.65536');
-        vInteger := 2147483647;
-        if Try10() then Observer.Observe('assign.max', Format(vByte, 0, 9)) else Observer.ObserveError('assign.max');
-        if Try11() then Observer.Observe('arg_byvalue.max', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.max');
-        if Try12() then Observer.Observe('exit.max', Format(vByte, 0, 9)) else Observer.ObserveError('exit.max');
+        if Try16(vByte, vInteger) then Observer.Observe('assign.m1', Format(vByte, 0, 9)) else Observer.ObserveError('assign.m1');
+        if Try18(vByte, vInteger) then Observer.Observe('arg_byvalue.m1', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.m1');
+        if Try20(vByte, vInteger) then Observer.Observe('exit.m1', Format(vByte, 0, 9)) else Observer.ObserveError('exit.m1');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Integer_To_Byte_More1()
+    procedure Integer_To_Byte_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vByte: Byte;
+        vInteger: Integer;
     begin
-        Observer.More();
+        vInteger := 3;
+        if Try16(vByte, vInteger) then Observer.Observe('assign.3', Format(vByte, 0, 9)) else Observer.ObserveError('assign.3');
+        if Try18(vByte, vInteger) then Observer.Observe('arg_byvalue.3', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.3');
+        if Try20(vByte, vInteger) then Observer.Observe('exit.3', Format(vByte, 0, 9)) else Observer.ObserveError('exit.3');
+        vInteger := 255;
+        if Try16(vByte, vInteger) then Observer.Observe('assign.255', Format(vByte, 0, 9)) else Observer.ObserveError('assign.255');
+        if Try18(vByte, vInteger) then Observer.Observe('arg_byvalue.255', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.255');
+        if Try20(vByte, vInteger) then Observer.Observe('exit.255', Format(vByte, 0, 9)) else Observer.ObserveError('exit.255');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Integer_To_Byte_More2()
+    procedure Integer_To_Byte_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        vByte: Byte;
+        vInteger: Integer;
     begin
-        Observer.More();
+        vInteger := 256;
+        if Try16(vByte, vInteger) then Observer.Observe('assign.256', Format(vByte, 0, 9)) else Observer.ObserveError('assign.256');
+        if Try18(vByte, vInteger) then Observer.Observe('arg_byvalue.256', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.256');
+        if Try20(vByte, vInteger) then Observer.Observe('exit.256', Format(vByte, 0, 9)) else Observer.ObserveError('exit.256');
+        vInteger := 65536;
+        if Try16(vByte, vInteger) then Observer.Observe('assign.65536', Format(vByte, 0, 9)) else Observer.ObserveError('assign.65536');
+        if Try18(vByte, vInteger) then Observer.Observe('arg_byvalue.65536', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.65536');
+        if Try20(vByte, vInteger) then Observer.Observe('exit.65536', Format(vByte, 0, 9)) else Observer.ObserveError('exit.65536');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Integer_To_Byte_More3()
+    procedure Integer_To_Byte_4()
+    var
+        Observer: Codeunit "Probe Observer";
+        vByte: Byte;
+        vInteger: Integer;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_To_Byte_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_To_Byte_More5()
-    begin
-        Observer.More();
+        vInteger := 2147483647;
+        if Try16(vByte, vInteger) then Observer.Observe('assign.max', Format(vByte, 0, 9)) else Observer.ObserveError('assign.max');
+        if Try18(vByte, vInteger) then Observer.Observe('arg_byvalue.max', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.max');
+        if Try20(vByte, vInteger) then Observer.Observe('exit.max', Format(vByte, 0, 9)) else Observer.ObserveError('exit.max');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Integer_To_Option()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vInteger: Integer;
+        vOption: Option A,B,C;
     begin
         vInteger := 0;
-        if Try13() then Observer.Observe('assign.0', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.0');
-        if Try14() then Observer.Observe('arg_byvalue.0', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.0');
-        if Try15() then Observer.Observe('exit.0', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.0');
+        if Try21(vInteger, vOption) then Observer.Observe('assign.0', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.0');
+        if Try23(vInteger, vOption) then Observer.Observe('arg_byvalue.0', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.0');
+        if Try25(vInteger, vOption) then Observer.Observe('exit.0', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.0');
         vInteger := -1;
-        if Try13() then Observer.Observe('assign.m1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.m1');
-        if Try14() then Observer.Observe('arg_byvalue.m1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.m1');
-        if Try15() then Observer.Observe('exit.m1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.m1');
-        vInteger := 3;
-        if Try13() then Observer.Observe('assign.3', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.3');
-        if Try14() then Observer.Observe('arg_byvalue.3', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.3');
-        if Try15() then Observer.Observe('exit.3', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.3');
-        vInteger := 255;
-        if Try13() then Observer.Observe('assign.255', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.255');
-        if Try14() then Observer.Observe('arg_byvalue.255', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.255');
-        if Try15() then Observer.Observe('exit.255', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.255');
-        vInteger := 256;
-        if Try13() then Observer.Observe('assign.256', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.256');
-        if Try14() then Observer.Observe('arg_byvalue.256', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.256');
-        if Try15() then Observer.Observe('exit.256', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.256');
-        vInteger := 65536;
-        if Try13() then Observer.Observe('assign.65536', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.65536');
-        if Try14() then Observer.Observe('arg_byvalue.65536', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.65536');
-        if Try15() then Observer.Observe('exit.65536', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.65536');
-        vInteger := 2147483647;
-        if Try13() then Observer.Observe('assign.max', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.max');
-        if Try14() then Observer.Observe('arg_byvalue.max', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.max');
-        if Try15() then Observer.Observe('exit.max', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.max');
+        if Try21(vInteger, vOption) then Observer.Observe('assign.m1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.m1');
+        if Try23(vInteger, vOption) then Observer.Observe('arg_byvalue.m1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.m1');
+        if Try25(vInteger, vOption) then Observer.Observe('exit.m1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.m1');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Integer_To_Option_More1()
+    procedure Integer_To_Option_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vInteger: Integer;
+        vOption: Option A,B,C;
     begin
-        Observer.More();
+        vInteger := 3;
+        if Try21(vInteger, vOption) then Observer.Observe('assign.3', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.3');
+        if Try23(vInteger, vOption) then Observer.Observe('arg_byvalue.3', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.3');
+        if Try25(vInteger, vOption) then Observer.Observe('exit.3', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.3');
+        vInteger := 255;
+        if Try21(vInteger, vOption) then Observer.Observe('assign.255', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.255');
+        if Try23(vInteger, vOption) then Observer.Observe('arg_byvalue.255', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.255');
+        if Try25(vInteger, vOption) then Observer.Observe('exit.255', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.255');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Integer_To_Option_More2()
+    procedure Integer_To_Option_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vInteger: Integer;
+        vOption: Option A,B,C;
     begin
-        Observer.More();
+        vInteger := 256;
+        if Try21(vInteger, vOption) then Observer.Observe('assign.256', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.256');
+        if Try23(vInteger, vOption) then Observer.Observe('arg_byvalue.256', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.256');
+        if Try25(vInteger, vOption) then Observer.Observe('exit.256', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.256');
+        vInteger := 65536;
+        if Try21(vInteger, vOption) then Observer.Observe('assign.65536', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.65536');
+        if Try23(vInteger, vOption) then Observer.Observe('arg_byvalue.65536', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.65536');
+        if Try25(vInteger, vOption) then Observer.Observe('exit.65536', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.65536');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Integer_To_Option_More3()
+    procedure Integer_To_Option_4()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vInteger: Integer;
+        vOption: Option A,B,C;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_To_Option_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_To_Option_More5()
-    begin
-        Observer.More();
+        vInteger := 2147483647;
+        if Try21(vInteger, vOption) then Observer.Observe('assign.max', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.max');
+        if Try23(vInteger, vOption) then Observer.Observe('arg_byvalue.max', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.max');
+        if Try25(vInteger, vOption) then Observer.Observe('exit.max', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.max');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Integer_To_Enum()
+    var
+        Observer: Codeunit "Probe Observer";
+        vEnum: Enum "LT Y31 E";
+        vInteger: Integer;
     begin
         vInteger := 0;
-        if Try16() then Observer.Observe('assign.0', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('assign.0');
-        if Try17() then Observer.Observe('arg_byvalue.0', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('arg_byvalue.0');
-        if Try18() then Observer.Observe('exit.0', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('exit.0');
+        if Try26(vEnum, vInteger) then Observer.Observe('assign.0', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('assign.0');
+        if Try28(vEnum, vInteger) then Observer.Observe('arg_byvalue.0', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('arg_byvalue.0');
+        if Try30(vEnum, vInteger) then Observer.Observe('exit.0', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('exit.0');
         vInteger := -1;
-        if Try16() then Observer.Observe('assign.m1', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('assign.m1');
-        if Try17() then Observer.Observe('arg_byvalue.m1', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('arg_byvalue.m1');
-        if Try18() then Observer.Observe('exit.m1', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('exit.m1');
-        vInteger := 3;
-        if Try16() then Observer.Observe('assign.3', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('assign.3');
-        if Try17() then Observer.Observe('arg_byvalue.3', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('arg_byvalue.3');
-        if Try18() then Observer.Observe('exit.3', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('exit.3');
-        vInteger := 255;
-        if Try16() then Observer.Observe('assign.255', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('assign.255');
-        if Try17() then Observer.Observe('arg_byvalue.255', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('arg_byvalue.255');
-        if Try18() then Observer.Observe('exit.255', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('exit.255');
-        vInteger := 256;
-        if Try16() then Observer.Observe('assign.256', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('assign.256');
-        if Try17() then Observer.Observe('arg_byvalue.256', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('arg_byvalue.256');
-        if Try18() then Observer.Observe('exit.256', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('exit.256');
-        vInteger := 65536;
-        if Try16() then Observer.Observe('assign.65536', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('assign.65536');
-        if Try17() then Observer.Observe('arg_byvalue.65536', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('arg_byvalue.65536');
-        if Try18() then Observer.Observe('exit.65536', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('exit.65536');
-        vInteger := 2147483647;
-        if Try16() then Observer.Observe('assign.max', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('assign.max');
-        if Try17() then Observer.Observe('arg_byvalue.max', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('arg_byvalue.max');
-        if Try18() then Observer.Observe('exit.max', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('exit.max');
+        if Try26(vEnum, vInteger) then Observer.Observe('assign.m1', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('assign.m1');
+        if Try28(vEnum, vInteger) then Observer.Observe('arg_byvalue.m1', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('arg_byvalue.m1');
+        if Try30(vEnum, vInteger) then Observer.Observe('exit.m1', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('exit.m1');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Integer_To_Enum_More1()
+    procedure Integer_To_Enum_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vEnum: Enum "LT Y31 E";
+        vInteger: Integer;
     begin
-        Observer.More();
+        vInteger := 3;
+        if Try26(vEnum, vInteger) then Observer.Observe('assign.3', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('assign.3');
+        if Try28(vEnum, vInteger) then Observer.Observe('arg_byvalue.3', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('arg_byvalue.3');
+        if Try30(vEnum, vInteger) then Observer.Observe('exit.3', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('exit.3');
+        vInteger := 255;
+        if Try26(vEnum, vInteger) then Observer.Observe('assign.255', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('assign.255');
+        if Try28(vEnum, vInteger) then Observer.Observe('arg_byvalue.255', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('arg_byvalue.255');
+        if Try30(vEnum, vInteger) then Observer.Observe('exit.255', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('exit.255');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Integer_To_Enum_More2()
+    procedure Integer_To_Enum_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        vEnum: Enum "LT Y31 E";
+        vInteger: Integer;
     begin
-        Observer.More();
+        vInteger := 256;
+        if Try26(vEnum, vInteger) then Observer.Observe('assign.256', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('assign.256');
+        if Try28(vEnum, vInteger) then Observer.Observe('arg_byvalue.256', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('arg_byvalue.256');
+        if Try30(vEnum, vInteger) then Observer.Observe('exit.256', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('exit.256');
+        vInteger := 65536;
+        if Try26(vEnum, vInteger) then Observer.Observe('assign.65536', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('assign.65536');
+        if Try28(vEnum, vInteger) then Observer.Observe('arg_byvalue.65536', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('arg_byvalue.65536');
+        if Try30(vEnum, vInteger) then Observer.Observe('exit.65536', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('exit.65536');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Integer_To_Enum_More3()
+    procedure Integer_To_Enum_4()
+    var
+        Observer: Codeunit "Probe Observer";
+        vEnum: Enum "LT Y31 E";
+        vInteger: Integer;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_To_Enum_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_To_Enum_More5()
-    begin
-        Observer.More();
+        vInteger := 2147483647;
+        if Try26(vEnum, vInteger) then Observer.Observe('assign.max', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('assign.max');
+        if Try28(vEnum, vInteger) then Observer.Observe('arg_byvalue.max', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('arg_byvalue.max');
+        if Try30(vEnum, vInteger) then Observer.Observe('exit.max', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('exit.max');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Integer_To_EnumImpl()
+    var
+        Observer: Codeunit "Probe Observer";
+        vEnumImpl: Enum "LT Y31 EI";
+        vInteger: Integer;
     begin
         vInteger := 0;
-        if Try19() then Observer.Observe('assign.0', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('assign.0');
-        if Try20() then Observer.Observe('arg_byvalue.0', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('arg_byvalue.0');
-        if Try21() then Observer.Observe('exit.0', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('exit.0');
+        if Try31(vEnumImpl, vInteger) then Observer.Observe('assign.0', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('assign.0');
+        if Try33(vEnumImpl, vInteger) then Observer.Observe('arg_byvalue.0', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('arg_byvalue.0');
+        if Try35(vEnumImpl, vInteger) then Observer.Observe('exit.0', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('exit.0');
         vInteger := -1;
-        if Try19() then Observer.Observe('assign.m1', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('assign.m1');
-        if Try20() then Observer.Observe('arg_byvalue.m1', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('arg_byvalue.m1');
-        if Try21() then Observer.Observe('exit.m1', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('exit.m1');
-        vInteger := 3;
-        if Try19() then Observer.Observe('assign.3', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('assign.3');
-        if Try20() then Observer.Observe('arg_byvalue.3', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('arg_byvalue.3');
-        if Try21() then Observer.Observe('exit.3', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('exit.3');
-        vInteger := 255;
-        if Try19() then Observer.Observe('assign.255', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('assign.255');
-        if Try20() then Observer.Observe('arg_byvalue.255', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('arg_byvalue.255');
-        if Try21() then Observer.Observe('exit.255', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('exit.255');
-        vInteger := 256;
-        if Try19() then Observer.Observe('assign.256', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('assign.256');
-        if Try20() then Observer.Observe('arg_byvalue.256', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('arg_byvalue.256');
-        if Try21() then Observer.Observe('exit.256', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('exit.256');
-        vInteger := 65536;
-        if Try19() then Observer.Observe('assign.65536', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('assign.65536');
-        if Try20() then Observer.Observe('arg_byvalue.65536', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('arg_byvalue.65536');
-        if Try21() then Observer.Observe('exit.65536', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('exit.65536');
-        vInteger := 2147483647;
-        if Try19() then Observer.Observe('assign.max', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('assign.max');
-        if Try20() then Observer.Observe('arg_byvalue.max', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('arg_byvalue.max');
-        if Try21() then Observer.Observe('exit.max', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('exit.max');
+        if Try31(vEnumImpl, vInteger) then Observer.Observe('assign.m1', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('assign.m1');
+        if Try33(vEnumImpl, vInteger) then Observer.Observe('arg_byvalue.m1', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('arg_byvalue.m1');
+        if Try35(vEnumImpl, vInteger) then Observer.Observe('exit.m1', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('exit.m1');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Integer_To_EnumImpl_More1()
+    procedure Integer_To_EnumImpl_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vEnumImpl: Enum "LT Y31 EI";
+        vInteger: Integer;
     begin
-        Observer.More();
+        vInteger := 3;
+        if Try31(vEnumImpl, vInteger) then Observer.Observe('assign.3', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('assign.3');
+        if Try33(vEnumImpl, vInteger) then Observer.Observe('arg_byvalue.3', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('arg_byvalue.3');
+        if Try35(vEnumImpl, vInteger) then Observer.Observe('exit.3', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('exit.3');
+        vInteger := 255;
+        if Try31(vEnumImpl, vInteger) then Observer.Observe('assign.255', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('assign.255');
+        if Try33(vEnumImpl, vInteger) then Observer.Observe('arg_byvalue.255', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('arg_byvalue.255');
+        if Try35(vEnumImpl, vInteger) then Observer.Observe('exit.255', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('exit.255');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Integer_To_EnumImpl_More2()
+    procedure Integer_To_EnumImpl_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        vEnumImpl: Enum "LT Y31 EI";
+        vInteger: Integer;
     begin
-        Observer.More();
+        vInteger := 256;
+        if Try31(vEnumImpl, vInteger) then Observer.Observe('assign.256', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('assign.256');
+        if Try33(vEnumImpl, vInteger) then Observer.Observe('arg_byvalue.256', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('arg_byvalue.256');
+        if Try35(vEnumImpl, vInteger) then Observer.Observe('exit.256', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('exit.256');
+        vInteger := 65536;
+        if Try31(vEnumImpl, vInteger) then Observer.Observe('assign.65536', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('assign.65536');
+        if Try33(vEnumImpl, vInteger) then Observer.Observe('arg_byvalue.65536', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('arg_byvalue.65536');
+        if Try35(vEnumImpl, vInteger) then Observer.Observe('exit.65536', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('exit.65536');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Integer_To_EnumImpl_More3()
+    procedure Integer_To_EnumImpl_4()
+    var
+        Observer: Codeunit "Probe Observer";
+        vEnumImpl: Enum "LT Y31 EI";
+        vInteger: Integer;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_To_EnumImpl_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_To_EnumImpl_More5()
-    begin
-        Observer.More();
+        vInteger := 2147483647;
+        if Try31(vEnumImpl, vInteger) then Observer.Observe('assign.max', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('assign.max');
+        if Try33(vEnumImpl, vInteger) then Observer.Observe('arg_byvalue.max', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('arg_byvalue.max');
+        if Try35(vEnumImpl, vInteger) then Observer.Observe('exit.max', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('exit.max');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Integer_To_Duration()
+    var
+        Observer: Codeunit "Probe Observer";
+        vDuration: Duration;
+        vInteger: Integer;
     begin
         vInteger := 0;
-        if Try22() then Observer.Observe('assign.0', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.0');
-        if Try23() then Observer.Observe('arg_byvalue.0', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.0');
-        if Try24() then Observer.Observe('exit.0', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.0');
+        if Try36(vDuration, vInteger) then Observer.Observe('assign.0', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.0');
+        if Try38(vDuration, vInteger) then Observer.Observe('arg_byvalue.0', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.0');
+        if Try40(vDuration, vInteger) then Observer.Observe('exit.0', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.0');
         vInteger := -1;
-        if Try22() then Observer.Observe('assign.m1', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.m1');
-        if Try23() then Observer.Observe('arg_byvalue.m1', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.m1');
-        if Try24() then Observer.Observe('exit.m1', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.m1');
-        vInteger := 3;
-        if Try22() then Observer.Observe('assign.3', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.3');
-        if Try23() then Observer.Observe('arg_byvalue.3', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.3');
-        if Try24() then Observer.Observe('exit.3', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.3');
-        vInteger := 255;
-        if Try22() then Observer.Observe('assign.255', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.255');
-        if Try23() then Observer.Observe('arg_byvalue.255', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.255');
-        if Try24() then Observer.Observe('exit.255', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.255');
-        vInteger := 256;
-        if Try22() then Observer.Observe('assign.256', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.256');
-        if Try23() then Observer.Observe('arg_byvalue.256', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.256');
-        if Try24() then Observer.Observe('exit.256', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.256');
-        vInteger := 65536;
-        if Try22() then Observer.Observe('assign.65536', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.65536');
-        if Try23() then Observer.Observe('arg_byvalue.65536', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.65536');
-        if Try24() then Observer.Observe('exit.65536', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.65536');
-        vInteger := 2147483647;
-        if Try22() then Observer.Observe('assign.max', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.max');
-        if Try23() then Observer.Observe('arg_byvalue.max', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.max');
-        if Try24() then Observer.Observe('exit.max', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.max');
+        if Try36(vDuration, vInteger) then Observer.Observe('assign.m1', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.m1');
+        if Try38(vDuration, vInteger) then Observer.Observe('arg_byvalue.m1', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.m1');
+        if Try40(vDuration, vInteger) then Observer.Observe('exit.m1', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.m1');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Integer_To_Duration_More1()
+    procedure Integer_To_Duration_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vDuration: Duration;
+        vInteger: Integer;
     begin
-        Observer.More();
+        vInteger := 3;
+        if Try36(vDuration, vInteger) then Observer.Observe('assign.3', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.3');
+        if Try38(vDuration, vInteger) then Observer.Observe('arg_byvalue.3', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.3');
+        if Try40(vDuration, vInteger) then Observer.Observe('exit.3', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.3');
+        vInteger := 255;
+        if Try36(vDuration, vInteger) then Observer.Observe('assign.255', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.255');
+        if Try38(vDuration, vInteger) then Observer.Observe('arg_byvalue.255', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.255');
+        if Try40(vDuration, vInteger) then Observer.Observe('exit.255', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.255');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Integer_To_Duration_More2()
+    procedure Integer_To_Duration_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        vDuration: Duration;
+        vInteger: Integer;
     begin
-        Observer.More();
+        vInteger := 256;
+        if Try36(vDuration, vInteger) then Observer.Observe('assign.256', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.256');
+        if Try38(vDuration, vInteger) then Observer.Observe('arg_byvalue.256', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.256');
+        if Try40(vDuration, vInteger) then Observer.Observe('exit.256', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.256');
+        vInteger := 65536;
+        if Try36(vDuration, vInteger) then Observer.Observe('assign.65536', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.65536');
+        if Try38(vDuration, vInteger) then Observer.Observe('arg_byvalue.65536', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.65536');
+        if Try40(vDuration, vInteger) then Observer.Observe('exit.65536', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.65536');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Integer_To_Duration_More3()
+    procedure Integer_To_Duration_4()
+    var
+        Observer: Codeunit "Probe Observer";
+        vDuration: Duration;
+        vInteger: Integer;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_To_Duration_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_To_Duration_More5()
-    begin
-        Observer.More();
+        vInteger := 2147483647;
+        if Try36(vDuration, vInteger) then Observer.Observe('assign.max', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.max');
+        if Try38(vDuration, vInteger) then Observer.Observe('arg_byvalue.max', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.max');
+        if Try40(vDuration, vInteger) then Observer.Observe('exit.max', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.max');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Integer_To_FBigInteger()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
+        vInteger: Integer;
     begin
         vInteger := 0;
-        if Try25() then Observer.Observe('assign.0', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.0');
+        if Try41(R, vInteger) then Observer.Observe('assign.0', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.0');
         vInteger := -1;
-        if Try25() then Observer.Observe('assign.m1', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.m1');
+        if Try41(R, vInteger) then Observer.Observe('assign.m1', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.m1');
         vInteger := 3;
-        if Try25() then Observer.Observe('assign.3', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.3');
+        if Try41(R, vInteger) then Observer.Observe('assign.3', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.3');
         vInteger := 255;
-        if Try25() then Observer.Observe('assign.255', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.255');
+        if Try41(R, vInteger) then Observer.Observe('assign.255', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.255');
         vInteger := 256;
-        if Try25() then Observer.Observe('assign.256', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.256');
+        if Try41(R, vInteger) then Observer.Observe('assign.256', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.256');
         vInteger := 65536;
-        if Try25() then Observer.Observe('assign.65536', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.65536');
+        if Try41(R, vInteger) then Observer.Observe('assign.65536', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.65536');
         vInteger := 2147483647;
-        if Try25() then Observer.Observe('assign.max', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.max');
+        if Try41(R, vInteger) then Observer.Observe('assign.max', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.max');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Integer_To_FBigInteger_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_To_FBigInteger_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_To_FBigInteger_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_To_FBigInteger_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_To_FBigInteger_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Integer_To_FDecimal()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
+        vInteger: Integer;
     begin
         vInteger := 0;
-        if Try26() then Observer.Observe('assign.0', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.0');
+        if Try42(R, vInteger) then Observer.Observe('assign.0', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.0');
         vInteger := -1;
-        if Try26() then Observer.Observe('assign.m1', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.m1');
+        if Try42(R, vInteger) then Observer.Observe('assign.m1', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.m1');
         vInteger := 3;
-        if Try26() then Observer.Observe('assign.3', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.3');
+        if Try42(R, vInteger) then Observer.Observe('assign.3', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.3');
         vInteger := 255;
-        if Try26() then Observer.Observe('assign.255', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.255');
+        if Try42(R, vInteger) then Observer.Observe('assign.255', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.255');
         vInteger := 256;
-        if Try26() then Observer.Observe('assign.256', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.256');
+        if Try42(R, vInteger) then Observer.Observe('assign.256', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.256');
         vInteger := 65536;
-        if Try26() then Observer.Observe('assign.65536', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.65536');
+        if Try42(R, vInteger) then Observer.Observe('assign.65536', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.65536');
         vInteger := 2147483647;
-        if Try26() then Observer.Observe('assign.max', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.max');
+        if Try42(R, vInteger) then Observer.Observe('assign.max', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.max');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Integer_To_FDecimal_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_To_FDecimal_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_To_FDecimal_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_To_FDecimal_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_To_FDecimal_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Integer_To_FOption()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
+        Util: Codeunit "LT Y31 Conv Util";
+        vInteger: Integer;
     begin
         vInteger := 0;
-        if Try27() then Observer.Observe('assign.0', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.0');
+        if Try43(R, vInteger) then Observer.Observe('assign.0', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.0');
         vInteger := -1;
-        if Try27() then Observer.Observe('assign.m1', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.m1');
+        if Try43(R, vInteger) then Observer.Observe('assign.m1', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.m1');
         vInteger := 3;
-        if Try27() then Observer.Observe('assign.3', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.3');
+        if Try43(R, vInteger) then Observer.Observe('assign.3', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.3');
         vInteger := 255;
-        if Try27() then Observer.Observe('assign.255', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.255');
+        if Try43(R, vInteger) then Observer.Observe('assign.255', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.255');
         vInteger := 256;
-        if Try27() then Observer.Observe('assign.256', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.256');
+        if Try43(R, vInteger) then Observer.Observe('assign.256', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.256');
         vInteger := 65536;
-        if Try27() then Observer.Observe('assign.65536', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.65536');
+        if Try43(R, vInteger) then Observer.Observe('assign.65536', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.65536');
         vInteger := 2147483647;
-        if Try27() then Observer.Observe('assign.max', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.max');
+        if Try43(R, vInteger) then Observer.Observe('assign.max', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.max');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Integer_To_FOption_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_To_FOption_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_To_FOption_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_To_FOption_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_To_FOption_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Integer_To_FEnum()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
+        vInteger: Integer;
     begin
         vInteger := 0;
-        if Try28() then Observer.Observe('assign.0', Format(R.Enum) + '|' + Format(R.Enum.AsInteger())) else Observer.ObserveError('assign.0');
+        if Try44(R, vInteger) then Observer.Observe('assign.0', Format(R.Enum) + '|' + Format(R.Enum.AsInteger())) else Observer.ObserveError('assign.0');
         vInteger := -1;
-        if Try28() then Observer.Observe('assign.m1', Format(R.Enum) + '|' + Format(R.Enum.AsInteger())) else Observer.ObserveError('assign.m1');
+        if Try44(R, vInteger) then Observer.Observe('assign.m1', Format(R.Enum) + '|' + Format(R.Enum.AsInteger())) else Observer.ObserveError('assign.m1');
         vInteger := 3;
-        if Try28() then Observer.Observe('assign.3', Format(R.Enum) + '|' + Format(R.Enum.AsInteger())) else Observer.ObserveError('assign.3');
+        if Try44(R, vInteger) then Observer.Observe('assign.3', Format(R.Enum) + '|' + Format(R.Enum.AsInteger())) else Observer.ObserveError('assign.3');
         vInteger := 255;
-        if Try28() then Observer.Observe('assign.255', Format(R.Enum) + '|' + Format(R.Enum.AsInteger())) else Observer.ObserveError('assign.255');
+        if Try44(R, vInteger) then Observer.Observe('assign.255', Format(R.Enum) + '|' + Format(R.Enum.AsInteger())) else Observer.ObserveError('assign.255');
         vInteger := 256;
-        if Try28() then Observer.Observe('assign.256', Format(R.Enum) + '|' + Format(R.Enum.AsInteger())) else Observer.ObserveError('assign.256');
+        if Try44(R, vInteger) then Observer.Observe('assign.256', Format(R.Enum) + '|' + Format(R.Enum.AsInteger())) else Observer.ObserveError('assign.256');
         vInteger := 65536;
-        if Try28() then Observer.Observe('assign.65536', Format(R.Enum) + '|' + Format(R.Enum.AsInteger())) else Observer.ObserveError('assign.65536');
+        if Try44(R, vInteger) then Observer.Observe('assign.65536', Format(R.Enum) + '|' + Format(R.Enum.AsInteger())) else Observer.ObserveError('assign.65536');
         vInteger := 2147483647;
-        if Try28() then Observer.Observe('assign.max', Format(R.Enum) + '|' + Format(R.Enum.AsInteger())) else Observer.ObserveError('assign.max');
+        if Try44(R, vInteger) then Observer.Observe('assign.max', Format(R.Enum) + '|' + Format(R.Enum.AsInteger())) else Observer.ObserveError('assign.max');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Integer_To_FEnum_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_To_FEnum_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_To_FEnum_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_To_FEnum_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_To_FEnum_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Integer_To_FDuration()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
+        vInteger: Integer;
     begin
         vInteger := 0;
-        if Try29() then Observer.Observe('assign.0', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.0');
+        if Try45(R, vInteger) then Observer.Observe('assign.0', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.0');
         vInteger := -1;
-        if Try29() then Observer.Observe('assign.m1', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.m1');
+        if Try45(R, vInteger) then Observer.Observe('assign.m1', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.m1');
         vInteger := 3;
-        if Try29() then Observer.Observe('assign.3', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.3');
+        if Try45(R, vInteger) then Observer.Observe('assign.3', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.3');
         vInteger := 255;
-        if Try29() then Observer.Observe('assign.255', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.255');
+        if Try45(R, vInteger) then Observer.Observe('assign.255', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.255');
         vInteger := 256;
-        if Try29() then Observer.Observe('assign.256', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.256');
+        if Try45(R, vInteger) then Observer.Observe('assign.256', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.256');
         vInteger := 65536;
-        if Try29() then Observer.Observe('assign.65536', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.65536');
+        if Try45(R, vInteger) then Observer.Observe('assign.65536', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.65536');
         vInteger := 2147483647;
-        if Try29() then Observer.Observe('assign.max', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.max');
+        if Try45(R, vInteger) then Observer.Observe('assign.max', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.max');
         Observer.Finish();
     end;
 
-    [Test]
-    procedure Integer_To_FDuration_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_To_FDuration_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_To_FDuration_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_To_FDuration_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_To_FDuration_More5()
-    begin
-        Observer.More();
-    end;
-
     [TryFunction]
-    local procedure Try1()
+    local procedure Try1(var vBigInteger: BigInteger; var vInteger: Integer)
     begin
         Clear(vBigInteger);
         vBigInteger := vInteger;
     end;
 
-    local procedure PA_BigInteger_1(p: BigInteger)
+    local procedure PA_BigInteger_2(p: BigInteger; var vBigInteger: BigInteger)
     begin
         vBigInteger := p;
     end;
 
     [TryFunction]
-    local procedure Try2()
+    local procedure Try3(var vBigInteger: BigInteger; var vInteger: Integer)
     begin
         Clear(vBigInteger);
-        PA_BigInteger_1(vInteger);
+        PA_BigInteger_2(vInteger, vBigInteger);
     end;
 
-    local procedure EX_BigInteger_2(): BigInteger
+    local procedure EX_BigInteger_4(var vInteger: Integer): BigInteger
     begin
         exit(vInteger);
     end;
 
     [TryFunction]
-    local procedure Try3()
+    local procedure Try5(var vBigInteger: BigInteger; var vInteger: Integer)
     begin
         Clear(vBigInteger);
-        vBigInteger := EX_BigInteger_2();
+        vBigInteger := EX_BigInteger_4(vInteger);
     end;
 
     [TryFunction]
-    local procedure Try4()
+    local procedure Try6(var vDecimal: Decimal; var vInteger: Integer)
     begin
         Clear(vDecimal);
         vDecimal := vInteger;
     end;
 
-    local procedure PA_Decimal_4(p: Decimal)
+    local procedure PA_Decimal_7(p: Decimal; var vDecimal: Decimal)
     begin
         vDecimal := p;
     end;
 
     [TryFunction]
-    local procedure Try5()
+    local procedure Try8(var vDecimal: Decimal; var vInteger: Integer)
     begin
         Clear(vDecimal);
-        PA_Decimal_4(vInteger);
+        PA_Decimal_7(vInteger, vDecimal);
     end;
 
-    local procedure EX_Decimal_5(): Decimal
+    local procedure EX_Decimal_9(var vInteger: Integer): Decimal
     begin
         exit(vInteger);
     end;
 
     [TryFunction]
-    local procedure Try6()
+    local procedure Try10(var vDecimal: Decimal; var vInteger: Integer)
     begin
         Clear(vDecimal);
-        vDecimal := EX_Decimal_5();
+        vDecimal := EX_Decimal_9(vInteger);
     end;
 
     [TryFunction]
-    local procedure Try7()
+    local procedure Try11(var vChar: Char; var vInteger: Integer)
     begin
         Clear(vChar);
         vChar := vInteger;
     end;
 
-    local procedure PA_Char_7(p: Char)
+    local procedure PA_Char_12(p: Char; var vChar: Char)
     begin
         vChar := p;
     end;
 
     [TryFunction]
-    local procedure Try8()
+    local procedure Try13(var vChar: Char; var vInteger: Integer)
     begin
         Clear(vChar);
-        PA_Char_7(vInteger);
+        PA_Char_12(vInteger, vChar);
     end;
 
-    local procedure EX_Char_8(): Char
+    local procedure EX_Char_14(var vInteger: Integer): Char
     begin
         exit(vInteger);
     end;
 
     [TryFunction]
-    local procedure Try9()
+    local procedure Try15(var vChar: Char; var vInteger: Integer)
     begin
         Clear(vChar);
-        vChar := EX_Char_8();
+        vChar := EX_Char_14(vInteger);
     end;
 
     [TryFunction]
-    local procedure Try10()
+    local procedure Try16(var vByte: Byte; var vInteger: Integer)
     begin
         Clear(vByte);
         vByte := vInteger;
     end;
 
-    local procedure PA_Byte_10(p: Byte)
+    local procedure PA_Byte_17(p: Byte; var vByte: Byte)
     begin
         vByte := p;
     end;
 
     [TryFunction]
-    local procedure Try11()
+    local procedure Try18(var vByte: Byte; var vInteger: Integer)
     begin
         Clear(vByte);
-        PA_Byte_10(vInteger);
+        PA_Byte_17(vInteger, vByte);
     end;
 
-    local procedure EX_Byte_11(): Byte
+    local procedure EX_Byte_19(var vInteger: Integer): Byte
     begin
         exit(vInteger);
     end;
 
     [TryFunction]
-    local procedure Try12()
+    local procedure Try20(var vByte: Byte; var vInteger: Integer)
     begin
         Clear(vByte);
-        vByte := EX_Byte_11();
+        vByte := EX_Byte_19(vInteger);
     end;
 
     [TryFunction]
-    local procedure Try13()
+    local procedure Try21(var vInteger: Integer; var vOption: Option A,B,C)
     begin
         Clear(vOption);
         vOption := vInteger;
     end;
 
-    local procedure PA_Option_13(p: Option A,B,C)
+    local procedure PA_Option_22(p: Option A,B,C; var vOption: Option A,B,C)
     begin
         vOption := p;
     end;
 
     [TryFunction]
-    local procedure Try14()
+    local procedure Try23(var vInteger: Integer; var vOption: Option A,B,C)
     begin
         Clear(vOption);
-        PA_Option_13(vInteger);
+        PA_Option_22(vInteger, vOption);
     end;
 
-    local procedure EX_Option_14(): Option A,B,C
+    local procedure EX_Option_24(var vInteger: Integer): Option A,B,C
     begin
         exit(vInteger);
     end;
 
     [TryFunction]
-    local procedure Try15()
+    local procedure Try25(var vInteger: Integer; var vOption: Option A,B,C)
     begin
         Clear(vOption);
-        vOption := EX_Option_14();
+        vOption := EX_Option_24(vInteger);
     end;
 
     [TryFunction]
-    local procedure Try16()
+    local procedure Try26(var vEnum: Enum "LT Y31 E"; var vInteger: Integer)
     begin
         Clear(vEnum);
         vEnum := vInteger;
     end;
 
-    local procedure PA_Enum_16(p: Enum "LT Y31 E")
+    local procedure PA_Enum_27(p: Enum "LT Y31 E"; var vEnum: Enum "LT Y31 E")
     begin
         vEnum := p;
     end;
 
     [TryFunction]
-    local procedure Try17()
+    local procedure Try28(var vEnum: Enum "LT Y31 E"; var vInteger: Integer)
     begin
         Clear(vEnum);
-        PA_Enum_16(vInteger);
+        PA_Enum_27(vInteger, vEnum);
     end;
 
-    local procedure EX_Enum_17(): Enum "LT Y31 E"
+    local procedure EX_Enum_29(var vInteger: Integer): Enum "LT Y31 E"
     begin
         exit(vInteger);
     end;
 
     [TryFunction]
-    local procedure Try18()
+    local procedure Try30(var vEnum: Enum "LT Y31 E"; var vInteger: Integer)
     begin
         Clear(vEnum);
-        vEnum := EX_Enum_17();
+        vEnum := EX_Enum_29(vInteger);
     end;
 
     [TryFunction]
-    local procedure Try19()
+    local procedure Try31(var vEnumImpl: Enum "LT Y31 EI"; var vInteger: Integer)
     begin
         Clear(vEnumImpl);
         vEnumImpl := vInteger;
     end;
 
-    local procedure PA_EnumImpl_19(p: Enum "LT Y31 EI")
+    local procedure PA_EnumImpl_32(p: Enum "LT Y31 EI"; var vEnumImpl: Enum "LT Y31 EI")
     begin
         vEnumImpl := p;
     end;
 
     [TryFunction]
-    local procedure Try20()
+    local procedure Try33(var vEnumImpl: Enum "LT Y31 EI"; var vInteger: Integer)
     begin
         Clear(vEnumImpl);
-        PA_EnumImpl_19(vInteger);
+        PA_EnumImpl_32(vInteger, vEnumImpl);
     end;
 
-    local procedure EX_EnumImpl_20(): Enum "LT Y31 EI"
+    local procedure EX_EnumImpl_34(var vInteger: Integer): Enum "LT Y31 EI"
     begin
         exit(vInteger);
     end;
 
     [TryFunction]
-    local procedure Try21()
+    local procedure Try35(var vEnumImpl: Enum "LT Y31 EI"; var vInteger: Integer)
     begin
         Clear(vEnumImpl);
-        vEnumImpl := EX_EnumImpl_20();
+        vEnumImpl := EX_EnumImpl_34(vInteger);
     end;
 
     [TryFunction]
-    local procedure Try22()
+    local procedure Try36(var vDuration: Duration; var vInteger: Integer)
     begin
         Clear(vDuration);
         vDuration := vInteger;
     end;
 
-    local procedure PA_Duration_22(p: Duration)
+    local procedure PA_Duration_37(p: Duration; var vDuration: Duration)
     begin
         vDuration := p;
     end;
 
     [TryFunction]
-    local procedure Try23()
+    local procedure Try38(var vDuration: Duration; var vInteger: Integer)
     begin
         Clear(vDuration);
-        PA_Duration_22(vInteger);
+        PA_Duration_37(vInteger, vDuration);
     end;
 
-    local procedure EX_Duration_23(): Duration
+    local procedure EX_Duration_39(var vInteger: Integer): Duration
     begin
         exit(vInteger);
     end;
 
     [TryFunction]
-    local procedure Try24()
+    local procedure Try40(var vDuration: Duration; var vInteger: Integer)
     begin
         Clear(vDuration);
-        vDuration := EX_Duration_23();
+        vDuration := EX_Duration_39(vInteger);
     end;
 
     [TryFunction]
-    local procedure Try25()
+    local procedure Try41(var R: Record "LT Y31 Conv Fields"; var vInteger: Integer)
     begin
         Clear(R.BigInteger);
         R.BigInteger := vInteger;
     end;
 
     [TryFunction]
-    local procedure Try26()
+    local procedure Try42(var R: Record "LT Y31 Conv Fields"; var vInteger: Integer)
     begin
         Clear(R.Decimal);
         R.Decimal := vInteger;
     end;
 
     [TryFunction]
-    local procedure Try27()
+    local procedure Try43(var R: Record "LT Y31 Conv Fields"; var vInteger: Integer)
     begin
         Clear(R.Option);
         R.Option := vInteger;
     end;
 
     [TryFunction]
-    local procedure Try28()
+    local procedure Try44(var R: Record "LT Y31 Conv Fields"; var vInteger: Integer)
     begin
         Clear(R.Enum);
         R.Enum := vInteger;
     end;
 
     [TryFunction]
-    local procedure Try29()
+    local procedure Try45(var R: Record "LT Y31 Conv Fields"; var vInteger: Integer)
     begin
         Clear(R.Duration);
         R.Duration := vInteger;
@@ -1083,976 +980,791 @@ codeunit 92411 "LT Y31 Cv BigInteger"
     Subtype = Test;
     TestPermissions = Disabled;
 
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        R: Record "LT Y31 Conv Fields";
-        vBigInteger: BigInteger;
-        vByte: Byte;
-        vChar: Char;
-        vDecimal: Decimal;
-        vDuration: Duration;
-        vEnum: Enum "LT Y31 E";
-        vEnumImpl: Enum "LT Y31 EI";
-        vInteger: Integer;
-        vOption: Option A,B,C;
-
     [Test]
     procedure BigInteger_To_Integer()
+    var
+        Observer: Codeunit "Probe Observer";
+        vBigInteger: BigInteger;
+        vInteger: Integer;
     begin
         vBigInteger := 0;
-        if Try1() then Observer.Observe('assign.0', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.0');
-        if Try2() then Observer.Observe('arg_byvalue.0', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.0');
-        if Try3() then Observer.Observe('exit.0', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.0');
+        if Try1(vBigInteger, vInteger) then Observer.Observe('assign.0', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.0');
+        if Try3(vBigInteger, vInteger) then Observer.Observe('arg_byvalue.0', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.0');
+        if Try5(vBigInteger, vInteger) then Observer.Observe('exit.0', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.0');
         vBigInteger := -1;
-        if Try1() then Observer.Observe('assign.m1', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.m1');
-        if Try2() then Observer.Observe('arg_byvalue.m1', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.m1');
-        if Try3() then Observer.Observe('exit.m1', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.m1');
-        vBigInteger := 3;
-        if Try1() then Observer.Observe('assign.3', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.3');
-        if Try2() then Observer.Observe('arg_byvalue.3', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.3');
-        if Try3() then Observer.Observe('exit.3', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.3');
-        vBigInteger := 2147483648L;
-        if Try1() then Observer.Observe('assign.2p31', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.2p31');
-        if Try2() then Observer.Observe('arg_byvalue.2p31', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.2p31');
-        if Try3() then Observer.Observe('exit.2p31', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.2p31');
-        vBigInteger := -2147483649L;
-        if Try1() then Observer.Observe('assign.m2p31m1', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.m2p31m1');
-        if Try2() then Observer.Observe('arg_byvalue.m2p31m1', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.m2p31m1');
-        if Try3() then Observer.Observe('exit.m2p31m1', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.m2p31m1');
+        if Try1(vBigInteger, vInteger) then Observer.Observe('assign.m1', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.m1');
+        if Try3(vBigInteger, vInteger) then Observer.Observe('arg_byvalue.m1', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.m1');
+        if Try5(vBigInteger, vInteger) then Observer.Observe('exit.m1', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.m1');
         Observer.Finish();
     end;
 
     [Test]
-    procedure BigInteger_To_Integer_More1()
+    procedure BigInteger_To_Integer_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vBigInteger: BigInteger;
+        vInteger: Integer;
     begin
-        Observer.More();
+        vBigInteger := 3;
+        if Try1(vBigInteger, vInteger) then Observer.Observe('assign.3', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.3');
+        if Try3(vBigInteger, vInteger) then Observer.Observe('arg_byvalue.3', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.3');
+        if Try5(vBigInteger, vInteger) then Observer.Observe('exit.3', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.3');
+        vBigInteger := 2147483648L;
+        if Try1(vBigInteger, vInteger) then Observer.Observe('assign.2p31', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.2p31');
+        if Try3(vBigInteger, vInteger) then Observer.Observe('arg_byvalue.2p31', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.2p31');
+        if Try5(vBigInteger, vInteger) then Observer.Observe('exit.2p31', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.2p31');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure BigInteger_To_Integer_More2()
+    procedure BigInteger_To_Integer_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        vBigInteger: BigInteger;
+        vInteger: Integer;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_To_Integer_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_To_Integer_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_To_Integer_More5()
-    begin
-        Observer.More();
+        vBigInteger := -2147483649L;
+        if Try1(vBigInteger, vInteger) then Observer.Observe('assign.m2p31m1', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.m2p31m1');
+        if Try3(vBigInteger, vInteger) then Observer.Observe('arg_byvalue.m2p31m1', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.m2p31m1');
+        if Try5(vBigInteger, vInteger) then Observer.Observe('exit.m2p31m1', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.m2p31m1');
+        Observer.Finish();
     end;
 
     [Test]
     procedure BigInteger_To_Decimal()
+    var
+        Observer: Codeunit "Probe Observer";
+        vBigInteger: BigInteger;
+        vDecimal: Decimal;
     begin
         vBigInteger := 0;
-        if Try4() then Observer.Observe('assign.0', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.0');
-        if Try5() then Observer.Observe('arg_byvalue.0', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.0');
-        if Try6() then Observer.Observe('exit.0', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.0');
+        if Try6(vBigInteger, vDecimal) then Observer.Observe('assign.0', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.0');
+        if Try8(vBigInteger, vDecimal) then Observer.Observe('arg_byvalue.0', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.0');
+        if Try10(vBigInteger, vDecimal) then Observer.Observe('exit.0', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.0');
         vBigInteger := -1;
-        if Try4() then Observer.Observe('assign.m1', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.m1');
-        if Try5() then Observer.Observe('arg_byvalue.m1', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.m1');
-        if Try6() then Observer.Observe('exit.m1', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.m1');
-        vBigInteger := 3;
-        if Try4() then Observer.Observe('assign.3', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.3');
-        if Try5() then Observer.Observe('arg_byvalue.3', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.3');
-        if Try6() then Observer.Observe('exit.3', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.3');
-        vBigInteger := 2147483648L;
-        if Try4() then Observer.Observe('assign.2p31', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.2p31');
-        if Try5() then Observer.Observe('arg_byvalue.2p31', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.2p31');
-        if Try6() then Observer.Observe('exit.2p31', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.2p31');
-        vBigInteger := -2147483649L;
-        if Try4() then Observer.Observe('assign.m2p31m1', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.m2p31m1');
-        if Try5() then Observer.Observe('arg_byvalue.m2p31m1', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.m2p31m1');
-        if Try6() then Observer.Observe('exit.m2p31m1', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.m2p31m1');
+        if Try6(vBigInteger, vDecimal) then Observer.Observe('assign.m1', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.m1');
+        if Try8(vBigInteger, vDecimal) then Observer.Observe('arg_byvalue.m1', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.m1');
+        if Try10(vBigInteger, vDecimal) then Observer.Observe('exit.m1', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.m1');
         Observer.Finish();
     end;
 
     [Test]
-    procedure BigInteger_To_Decimal_More1()
+    procedure BigInteger_To_Decimal_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vBigInteger: BigInteger;
+        vDecimal: Decimal;
     begin
-        Observer.More();
+        vBigInteger := 3;
+        if Try6(vBigInteger, vDecimal) then Observer.Observe('assign.3', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.3');
+        if Try8(vBigInteger, vDecimal) then Observer.Observe('arg_byvalue.3', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.3');
+        if Try10(vBigInteger, vDecimal) then Observer.Observe('exit.3', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.3');
+        vBigInteger := 2147483648L;
+        if Try6(vBigInteger, vDecimal) then Observer.Observe('assign.2p31', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.2p31');
+        if Try8(vBigInteger, vDecimal) then Observer.Observe('arg_byvalue.2p31', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.2p31');
+        if Try10(vBigInteger, vDecimal) then Observer.Observe('exit.2p31', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.2p31');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure BigInteger_To_Decimal_More2()
+    procedure BigInteger_To_Decimal_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        vBigInteger: BigInteger;
+        vDecimal: Decimal;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_To_Decimal_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_To_Decimal_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_To_Decimal_More5()
-    begin
-        Observer.More();
+        vBigInteger := -2147483649L;
+        if Try6(vBigInteger, vDecimal) then Observer.Observe('assign.m2p31m1', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.m2p31m1');
+        if Try8(vBigInteger, vDecimal) then Observer.Observe('arg_byvalue.m2p31m1', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.m2p31m1');
+        if Try10(vBigInteger, vDecimal) then Observer.Observe('exit.m2p31m1', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.m2p31m1');
+        Observer.Finish();
     end;
 
     [Test]
     procedure BigInteger_To_Char()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vBigInteger: BigInteger;
+        vChar: Char;
     begin
         vBigInteger := 0;
-        if Try7() then Observer.Observe('assign.0', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.0');
-        if Try8() then Observer.Observe('arg_byvalue.0', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.0');
-        if Try9() then Observer.Observe('exit.0', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.0');
+        if Try11(vBigInteger, vChar) then Observer.Observe('assign.0', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.0');
+        if Try13(vBigInteger, vChar) then Observer.Observe('arg_byvalue.0', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.0');
+        if Try15(vBigInteger, vChar) then Observer.Observe('exit.0', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.0');
         vBigInteger := -1;
-        if Try7() then Observer.Observe('assign.m1', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.m1');
-        if Try8() then Observer.Observe('arg_byvalue.m1', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.m1');
-        if Try9() then Observer.Observe('exit.m1', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.m1');
-        vBigInteger := 3;
-        if Try7() then Observer.Observe('assign.3', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.3');
-        if Try8() then Observer.Observe('arg_byvalue.3', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.3');
-        if Try9() then Observer.Observe('exit.3', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.3');
-        vBigInteger := 2147483648L;
-        if Try7() then Observer.Observe('assign.2p31', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.2p31');
-        if Try8() then Observer.Observe('arg_byvalue.2p31', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.2p31');
-        if Try9() then Observer.Observe('exit.2p31', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.2p31');
-        vBigInteger := -2147483649L;
-        if Try7() then Observer.Observe('assign.m2p31m1', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.m2p31m1');
-        if Try8() then Observer.Observe('arg_byvalue.m2p31m1', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.m2p31m1');
-        if Try9() then Observer.Observe('exit.m2p31m1', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.m2p31m1');
+        if Try11(vBigInteger, vChar) then Observer.Observe('assign.m1', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.m1');
+        if Try13(vBigInteger, vChar) then Observer.Observe('arg_byvalue.m1', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.m1');
+        if Try15(vBigInteger, vChar) then Observer.Observe('exit.m1', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.m1');
         Observer.Finish();
     end;
 
     [Test]
-    procedure BigInteger_To_Char_More1()
+    procedure BigInteger_To_Char_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vBigInteger: BigInteger;
+        vChar: Char;
     begin
-        Observer.More();
+        vBigInteger := 3;
+        if Try11(vBigInteger, vChar) then Observer.Observe('assign.3', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.3');
+        if Try13(vBigInteger, vChar) then Observer.Observe('arg_byvalue.3', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.3');
+        if Try15(vBigInteger, vChar) then Observer.Observe('exit.3', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.3');
+        vBigInteger := 2147483648L;
+        if Try11(vBigInteger, vChar) then Observer.Observe('assign.2p31', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.2p31');
+        if Try13(vBigInteger, vChar) then Observer.Observe('arg_byvalue.2p31', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.2p31');
+        if Try15(vBigInteger, vChar) then Observer.Observe('exit.2p31', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.2p31');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure BigInteger_To_Char_More2()
+    procedure BigInteger_To_Char_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vBigInteger: BigInteger;
+        vChar: Char;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_To_Char_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_To_Char_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_To_Char_More5()
-    begin
-        Observer.More();
+        vBigInteger := -2147483649L;
+        if Try11(vBigInteger, vChar) then Observer.Observe('assign.m2p31m1', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.m2p31m1');
+        if Try13(vBigInteger, vChar) then Observer.Observe('arg_byvalue.m2p31m1', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.m2p31m1');
+        if Try15(vBigInteger, vChar) then Observer.Observe('exit.m2p31m1', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.m2p31m1');
+        Observer.Finish();
     end;
 
     [Test]
     procedure BigInteger_To_Byte()
+    var
+        Observer: Codeunit "Probe Observer";
+        vBigInteger: BigInteger;
+        vByte: Byte;
     begin
         vBigInteger := 0;
-        if Try10() then Observer.Observe('assign.0', Format(vByte, 0, 9)) else Observer.ObserveError('assign.0');
-        if Try11() then Observer.Observe('arg_byvalue.0', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.0');
-        if Try12() then Observer.Observe('exit.0', Format(vByte, 0, 9)) else Observer.ObserveError('exit.0');
+        if Try16(vBigInteger, vByte) then Observer.Observe('assign.0', Format(vByte, 0, 9)) else Observer.ObserveError('assign.0');
+        if Try18(vBigInteger, vByte) then Observer.Observe('arg_byvalue.0', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.0');
+        if Try20(vBigInteger, vByte) then Observer.Observe('exit.0', Format(vByte, 0, 9)) else Observer.ObserveError('exit.0');
         vBigInteger := -1;
-        if Try10() then Observer.Observe('assign.m1', Format(vByte, 0, 9)) else Observer.ObserveError('assign.m1');
-        if Try11() then Observer.Observe('arg_byvalue.m1', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.m1');
-        if Try12() then Observer.Observe('exit.m1', Format(vByte, 0, 9)) else Observer.ObserveError('exit.m1');
-        vBigInteger := 3;
-        if Try10() then Observer.Observe('assign.3', Format(vByte, 0, 9)) else Observer.ObserveError('assign.3');
-        if Try11() then Observer.Observe('arg_byvalue.3', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.3');
-        if Try12() then Observer.Observe('exit.3', Format(vByte, 0, 9)) else Observer.ObserveError('exit.3');
-        vBigInteger := 2147483648L;
-        if Try10() then Observer.Observe('assign.2p31', Format(vByte, 0, 9)) else Observer.ObserveError('assign.2p31');
-        if Try11() then Observer.Observe('arg_byvalue.2p31', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.2p31');
-        if Try12() then Observer.Observe('exit.2p31', Format(vByte, 0, 9)) else Observer.ObserveError('exit.2p31');
-        vBigInteger := -2147483649L;
-        if Try10() then Observer.Observe('assign.m2p31m1', Format(vByte, 0, 9)) else Observer.ObserveError('assign.m2p31m1');
-        if Try11() then Observer.Observe('arg_byvalue.m2p31m1', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.m2p31m1');
-        if Try12() then Observer.Observe('exit.m2p31m1', Format(vByte, 0, 9)) else Observer.ObserveError('exit.m2p31m1');
+        if Try16(vBigInteger, vByte) then Observer.Observe('assign.m1', Format(vByte, 0, 9)) else Observer.ObserveError('assign.m1');
+        if Try18(vBigInteger, vByte) then Observer.Observe('arg_byvalue.m1', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.m1');
+        if Try20(vBigInteger, vByte) then Observer.Observe('exit.m1', Format(vByte, 0, 9)) else Observer.ObserveError('exit.m1');
         Observer.Finish();
     end;
 
     [Test]
-    procedure BigInteger_To_Byte_More1()
+    procedure BigInteger_To_Byte_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vBigInteger: BigInteger;
+        vByte: Byte;
     begin
-        Observer.More();
+        vBigInteger := 3;
+        if Try16(vBigInteger, vByte) then Observer.Observe('assign.3', Format(vByte, 0, 9)) else Observer.ObserveError('assign.3');
+        if Try18(vBigInteger, vByte) then Observer.Observe('arg_byvalue.3', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.3');
+        if Try20(vBigInteger, vByte) then Observer.Observe('exit.3', Format(vByte, 0, 9)) else Observer.ObserveError('exit.3');
+        vBigInteger := 2147483648L;
+        if Try16(vBigInteger, vByte) then Observer.Observe('assign.2p31', Format(vByte, 0, 9)) else Observer.ObserveError('assign.2p31');
+        if Try18(vBigInteger, vByte) then Observer.Observe('arg_byvalue.2p31', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.2p31');
+        if Try20(vBigInteger, vByte) then Observer.Observe('exit.2p31', Format(vByte, 0, 9)) else Observer.ObserveError('exit.2p31');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure BigInteger_To_Byte_More2()
+    procedure BigInteger_To_Byte_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        vBigInteger: BigInteger;
+        vByte: Byte;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_To_Byte_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_To_Byte_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_To_Byte_More5()
-    begin
-        Observer.More();
+        vBigInteger := -2147483649L;
+        if Try16(vBigInteger, vByte) then Observer.Observe('assign.m2p31m1', Format(vByte, 0, 9)) else Observer.ObserveError('assign.m2p31m1');
+        if Try18(vBigInteger, vByte) then Observer.Observe('arg_byvalue.m2p31m1', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.m2p31m1');
+        if Try20(vBigInteger, vByte) then Observer.Observe('exit.m2p31m1', Format(vByte, 0, 9)) else Observer.ObserveError('exit.m2p31m1');
+        Observer.Finish();
     end;
 
     [Test]
     procedure BigInteger_To_Option()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vBigInteger: BigInteger;
+        vOption: Option A,B,C;
     begin
         vBigInteger := 0;
-        if Try13() then Observer.Observe('assign.0', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.0');
-        if Try14() then Observer.Observe('arg_byvalue.0', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.0');
-        if Try15() then Observer.Observe('exit.0', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.0');
+        if Try21(vBigInteger, vOption) then Observer.Observe('assign.0', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.0');
+        if Try23(vBigInteger, vOption) then Observer.Observe('arg_byvalue.0', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.0');
+        if Try25(vBigInteger, vOption) then Observer.Observe('exit.0', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.0');
         vBigInteger := -1;
-        if Try13() then Observer.Observe('assign.m1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.m1');
-        if Try14() then Observer.Observe('arg_byvalue.m1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.m1');
-        if Try15() then Observer.Observe('exit.m1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.m1');
-        vBigInteger := 3;
-        if Try13() then Observer.Observe('assign.3', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.3');
-        if Try14() then Observer.Observe('arg_byvalue.3', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.3');
-        if Try15() then Observer.Observe('exit.3', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.3');
-        vBigInteger := 2147483648L;
-        if Try13() then Observer.Observe('assign.2p31', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.2p31');
-        if Try14() then Observer.Observe('arg_byvalue.2p31', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.2p31');
-        if Try15() then Observer.Observe('exit.2p31', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.2p31');
-        vBigInteger := -2147483649L;
-        if Try13() then Observer.Observe('assign.m2p31m1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.m2p31m1');
-        if Try14() then Observer.Observe('arg_byvalue.m2p31m1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.m2p31m1');
-        if Try15() then Observer.Observe('exit.m2p31m1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.m2p31m1');
+        if Try21(vBigInteger, vOption) then Observer.Observe('assign.m1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.m1');
+        if Try23(vBigInteger, vOption) then Observer.Observe('arg_byvalue.m1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.m1');
+        if Try25(vBigInteger, vOption) then Observer.Observe('exit.m1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.m1');
         Observer.Finish();
     end;
 
     [Test]
-    procedure BigInteger_To_Option_More1()
+    procedure BigInteger_To_Option_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vBigInteger: BigInteger;
+        vOption: Option A,B,C;
     begin
-        Observer.More();
+        vBigInteger := 3;
+        if Try21(vBigInteger, vOption) then Observer.Observe('assign.3', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.3');
+        if Try23(vBigInteger, vOption) then Observer.Observe('arg_byvalue.3', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.3');
+        if Try25(vBigInteger, vOption) then Observer.Observe('exit.3', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.3');
+        vBigInteger := 2147483648L;
+        if Try21(vBigInteger, vOption) then Observer.Observe('assign.2p31', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.2p31');
+        if Try23(vBigInteger, vOption) then Observer.Observe('arg_byvalue.2p31', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.2p31');
+        if Try25(vBigInteger, vOption) then Observer.Observe('exit.2p31', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.2p31');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure BigInteger_To_Option_More2()
+    procedure BigInteger_To_Option_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vBigInteger: BigInteger;
+        vOption: Option A,B,C;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_To_Option_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_To_Option_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_To_Option_More5()
-    begin
-        Observer.More();
+        vBigInteger := -2147483649L;
+        if Try21(vBigInteger, vOption) then Observer.Observe('assign.m2p31m1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.m2p31m1');
+        if Try23(vBigInteger, vOption) then Observer.Observe('arg_byvalue.m2p31m1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.m2p31m1');
+        if Try25(vBigInteger, vOption) then Observer.Observe('exit.m2p31m1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.m2p31m1');
+        Observer.Finish();
     end;
 
     [Test]
     procedure BigInteger_To_Enum()
+    var
+        Observer: Codeunit "Probe Observer";
+        vBigInteger: BigInteger;
+        vEnum: Enum "LT Y31 E";
     begin
         vBigInteger := 0;
-        if Try16() then Observer.Observe('assign.0', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('assign.0');
-        if Try17() then Observer.Observe('arg_byvalue.0', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('arg_byvalue.0');
-        if Try18() then Observer.Observe('exit.0', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('exit.0');
+        if Try26(vBigInteger, vEnum) then Observer.Observe('assign.0', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('assign.0');
+        if Try28(vBigInteger, vEnum) then Observer.Observe('arg_byvalue.0', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('arg_byvalue.0');
+        if Try30(vBigInteger, vEnum) then Observer.Observe('exit.0', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('exit.0');
         vBigInteger := -1;
-        if Try16() then Observer.Observe('assign.m1', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('assign.m1');
-        if Try17() then Observer.Observe('arg_byvalue.m1', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('arg_byvalue.m1');
-        if Try18() then Observer.Observe('exit.m1', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('exit.m1');
-        vBigInteger := 3;
-        if Try16() then Observer.Observe('assign.3', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('assign.3');
-        if Try17() then Observer.Observe('arg_byvalue.3', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('arg_byvalue.3');
-        if Try18() then Observer.Observe('exit.3', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('exit.3');
-        vBigInteger := 2147483648L;
-        if Try16() then Observer.Observe('assign.2p31', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('assign.2p31');
-        if Try17() then Observer.Observe('arg_byvalue.2p31', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('arg_byvalue.2p31');
-        if Try18() then Observer.Observe('exit.2p31', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('exit.2p31');
-        vBigInteger := -2147483649L;
-        if Try16() then Observer.Observe('assign.m2p31m1', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('assign.m2p31m1');
-        if Try17() then Observer.Observe('arg_byvalue.m2p31m1', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('arg_byvalue.m2p31m1');
-        if Try18() then Observer.Observe('exit.m2p31m1', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('exit.m2p31m1');
+        if Try26(vBigInteger, vEnum) then Observer.Observe('assign.m1', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('assign.m1');
+        if Try28(vBigInteger, vEnum) then Observer.Observe('arg_byvalue.m1', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('arg_byvalue.m1');
+        if Try30(vBigInteger, vEnum) then Observer.Observe('exit.m1', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('exit.m1');
         Observer.Finish();
     end;
 
     [Test]
-    procedure BigInteger_To_Enum_More1()
+    procedure BigInteger_To_Enum_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vBigInteger: BigInteger;
+        vEnum: Enum "LT Y31 E";
     begin
-        Observer.More();
+        vBigInteger := 3;
+        if Try26(vBigInteger, vEnum) then Observer.Observe('assign.3', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('assign.3');
+        if Try28(vBigInteger, vEnum) then Observer.Observe('arg_byvalue.3', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('arg_byvalue.3');
+        if Try30(vBigInteger, vEnum) then Observer.Observe('exit.3', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('exit.3');
+        vBigInteger := 2147483648L;
+        if Try26(vBigInteger, vEnum) then Observer.Observe('assign.2p31', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('assign.2p31');
+        if Try28(vBigInteger, vEnum) then Observer.Observe('arg_byvalue.2p31', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('arg_byvalue.2p31');
+        if Try30(vBigInteger, vEnum) then Observer.Observe('exit.2p31', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('exit.2p31');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure BigInteger_To_Enum_More2()
+    procedure BigInteger_To_Enum_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        vBigInteger: BigInteger;
+        vEnum: Enum "LT Y31 E";
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_To_Enum_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_To_Enum_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_To_Enum_More5()
-    begin
-        Observer.More();
+        vBigInteger := -2147483649L;
+        if Try26(vBigInteger, vEnum) then Observer.Observe('assign.m2p31m1', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('assign.m2p31m1');
+        if Try28(vBigInteger, vEnum) then Observer.Observe('arg_byvalue.m2p31m1', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('arg_byvalue.m2p31m1');
+        if Try30(vBigInteger, vEnum) then Observer.Observe('exit.m2p31m1', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('exit.m2p31m1');
+        Observer.Finish();
     end;
 
     [Test]
     procedure BigInteger_To_EnumImpl()
+    var
+        Observer: Codeunit "Probe Observer";
+        vBigInteger: BigInteger;
+        vEnumImpl: Enum "LT Y31 EI";
     begin
         vBigInteger := 0;
-        if Try19() then Observer.Observe('assign.0', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('assign.0');
-        if Try20() then Observer.Observe('arg_byvalue.0', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('arg_byvalue.0');
-        if Try21() then Observer.Observe('exit.0', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('exit.0');
+        if Try31(vBigInteger, vEnumImpl) then Observer.Observe('assign.0', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('assign.0');
+        if Try33(vBigInteger, vEnumImpl) then Observer.Observe('arg_byvalue.0', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('arg_byvalue.0');
+        if Try35(vBigInteger, vEnumImpl) then Observer.Observe('exit.0', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('exit.0');
         vBigInteger := -1;
-        if Try19() then Observer.Observe('assign.m1', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('assign.m1');
-        if Try20() then Observer.Observe('arg_byvalue.m1', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('arg_byvalue.m1');
-        if Try21() then Observer.Observe('exit.m1', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('exit.m1');
-        vBigInteger := 3;
-        if Try19() then Observer.Observe('assign.3', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('assign.3');
-        if Try20() then Observer.Observe('arg_byvalue.3', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('arg_byvalue.3');
-        if Try21() then Observer.Observe('exit.3', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('exit.3');
-        vBigInteger := 2147483648L;
-        if Try19() then Observer.Observe('assign.2p31', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('assign.2p31');
-        if Try20() then Observer.Observe('arg_byvalue.2p31', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('arg_byvalue.2p31');
-        if Try21() then Observer.Observe('exit.2p31', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('exit.2p31');
-        vBigInteger := -2147483649L;
-        if Try19() then Observer.Observe('assign.m2p31m1', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('assign.m2p31m1');
-        if Try20() then Observer.Observe('arg_byvalue.m2p31m1', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('arg_byvalue.m2p31m1');
-        if Try21() then Observer.Observe('exit.m2p31m1', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('exit.m2p31m1');
+        if Try31(vBigInteger, vEnumImpl) then Observer.Observe('assign.m1', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('assign.m1');
+        if Try33(vBigInteger, vEnumImpl) then Observer.Observe('arg_byvalue.m1', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('arg_byvalue.m1');
+        if Try35(vBigInteger, vEnumImpl) then Observer.Observe('exit.m1', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('exit.m1');
         Observer.Finish();
     end;
 
     [Test]
-    procedure BigInteger_To_EnumImpl_More1()
+    procedure BigInteger_To_EnumImpl_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vBigInteger: BigInteger;
+        vEnumImpl: Enum "LT Y31 EI";
     begin
-        Observer.More();
+        vBigInteger := 3;
+        if Try31(vBigInteger, vEnumImpl) then Observer.Observe('assign.3', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('assign.3');
+        if Try33(vBigInteger, vEnumImpl) then Observer.Observe('arg_byvalue.3', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('arg_byvalue.3');
+        if Try35(vBigInteger, vEnumImpl) then Observer.Observe('exit.3', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('exit.3');
+        vBigInteger := 2147483648L;
+        if Try31(vBigInteger, vEnumImpl) then Observer.Observe('assign.2p31', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('assign.2p31');
+        if Try33(vBigInteger, vEnumImpl) then Observer.Observe('arg_byvalue.2p31', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('arg_byvalue.2p31');
+        if Try35(vBigInteger, vEnumImpl) then Observer.Observe('exit.2p31', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('exit.2p31');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure BigInteger_To_EnumImpl_More2()
+    procedure BigInteger_To_EnumImpl_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        vBigInteger: BigInteger;
+        vEnumImpl: Enum "LT Y31 EI";
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_To_EnumImpl_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_To_EnumImpl_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_To_EnumImpl_More5()
-    begin
-        Observer.More();
+        vBigInteger := -2147483649L;
+        if Try31(vBigInteger, vEnumImpl) then Observer.Observe('assign.m2p31m1', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('assign.m2p31m1');
+        if Try33(vBigInteger, vEnumImpl) then Observer.Observe('arg_byvalue.m2p31m1', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('arg_byvalue.m2p31m1');
+        if Try35(vBigInteger, vEnumImpl) then Observer.Observe('exit.m2p31m1', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('exit.m2p31m1');
+        Observer.Finish();
     end;
 
     [Test]
     procedure BigInteger_To_Duration()
+    var
+        Observer: Codeunit "Probe Observer";
+        vBigInteger: BigInteger;
+        vDuration: Duration;
     begin
         vBigInteger := 0;
-        if Try22() then Observer.Observe('assign.0', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.0');
-        if Try23() then Observer.Observe('arg_byvalue.0', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.0');
-        if Try24() then Observer.Observe('exit.0', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.0');
+        if Try36(vBigInteger, vDuration) then Observer.Observe('assign.0', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.0');
+        if Try38(vBigInteger, vDuration) then Observer.Observe('arg_byvalue.0', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.0');
+        if Try40(vBigInteger, vDuration) then Observer.Observe('exit.0', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.0');
         vBigInteger := -1;
-        if Try22() then Observer.Observe('assign.m1', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.m1');
-        if Try23() then Observer.Observe('arg_byvalue.m1', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.m1');
-        if Try24() then Observer.Observe('exit.m1', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.m1');
-        vBigInteger := 3;
-        if Try22() then Observer.Observe('assign.3', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.3');
-        if Try23() then Observer.Observe('arg_byvalue.3', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.3');
-        if Try24() then Observer.Observe('exit.3', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.3');
-        vBigInteger := 2147483648L;
-        if Try22() then Observer.Observe('assign.2p31', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.2p31');
-        if Try23() then Observer.Observe('arg_byvalue.2p31', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.2p31');
-        if Try24() then Observer.Observe('exit.2p31', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.2p31');
-        vBigInteger := -2147483649L;
-        if Try22() then Observer.Observe('assign.m2p31m1', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.m2p31m1');
-        if Try23() then Observer.Observe('arg_byvalue.m2p31m1', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.m2p31m1');
-        if Try24() then Observer.Observe('exit.m2p31m1', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.m2p31m1');
+        if Try36(vBigInteger, vDuration) then Observer.Observe('assign.m1', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.m1');
+        if Try38(vBigInteger, vDuration) then Observer.Observe('arg_byvalue.m1', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.m1');
+        if Try40(vBigInteger, vDuration) then Observer.Observe('exit.m1', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.m1');
         Observer.Finish();
     end;
 
     [Test]
-    procedure BigInteger_To_Duration_More1()
+    procedure BigInteger_To_Duration_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vBigInteger: BigInteger;
+        vDuration: Duration;
     begin
-        Observer.More();
+        vBigInteger := 3;
+        if Try36(vBigInteger, vDuration) then Observer.Observe('assign.3', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.3');
+        if Try38(vBigInteger, vDuration) then Observer.Observe('arg_byvalue.3', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.3');
+        if Try40(vBigInteger, vDuration) then Observer.Observe('exit.3', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.3');
+        vBigInteger := 2147483648L;
+        if Try36(vBigInteger, vDuration) then Observer.Observe('assign.2p31', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.2p31');
+        if Try38(vBigInteger, vDuration) then Observer.Observe('arg_byvalue.2p31', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.2p31');
+        if Try40(vBigInteger, vDuration) then Observer.Observe('exit.2p31', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.2p31');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure BigInteger_To_Duration_More2()
+    procedure BigInteger_To_Duration_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        vBigInteger: BigInteger;
+        vDuration: Duration;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_To_Duration_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_To_Duration_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_To_Duration_More5()
-    begin
-        Observer.More();
+        vBigInteger := -2147483649L;
+        if Try36(vBigInteger, vDuration) then Observer.Observe('assign.m2p31m1', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.m2p31m1');
+        if Try38(vBigInteger, vDuration) then Observer.Observe('arg_byvalue.m2p31m1', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.m2p31m1');
+        if Try40(vBigInteger, vDuration) then Observer.Observe('exit.m2p31m1', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.m2p31m1');
+        Observer.Finish();
     end;
 
     [Test]
     procedure BigInteger_To_FInteger()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
+        vBigInteger: BigInteger;
     begin
         vBigInteger := 0;
-        if Try25() then Observer.Observe('assign.0', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.0');
+        if Try41(R, vBigInteger) then Observer.Observe('assign.0', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.0');
         vBigInteger := -1;
-        if Try25() then Observer.Observe('assign.m1', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.m1');
+        if Try41(R, vBigInteger) then Observer.Observe('assign.m1', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.m1');
         vBigInteger := 3;
-        if Try25() then Observer.Observe('assign.3', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.3');
+        if Try41(R, vBigInteger) then Observer.Observe('assign.3', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.3');
         vBigInteger := 2147483648L;
-        if Try25() then Observer.Observe('assign.2p31', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.2p31');
+        if Try41(R, vBigInteger) then Observer.Observe('assign.2p31', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.2p31');
         vBigInteger := -2147483649L;
-        if Try25() then Observer.Observe('assign.m2p31m1', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.m2p31m1');
+        if Try41(R, vBigInteger) then Observer.Observe('assign.m2p31m1', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.m2p31m1');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure BigInteger_To_FInteger_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_To_FInteger_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_To_FInteger_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_To_FInteger_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_To_FInteger_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure BigInteger_To_FDecimal()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
+        vBigInteger: BigInteger;
     begin
         vBigInteger := 0;
-        if Try26() then Observer.Observe('assign.0', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.0');
+        if Try42(R, vBigInteger) then Observer.Observe('assign.0', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.0');
         vBigInteger := -1;
-        if Try26() then Observer.Observe('assign.m1', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.m1');
+        if Try42(R, vBigInteger) then Observer.Observe('assign.m1', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.m1');
         vBigInteger := 3;
-        if Try26() then Observer.Observe('assign.3', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.3');
+        if Try42(R, vBigInteger) then Observer.Observe('assign.3', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.3');
         vBigInteger := 2147483648L;
-        if Try26() then Observer.Observe('assign.2p31', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.2p31');
+        if Try42(R, vBigInteger) then Observer.Observe('assign.2p31', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.2p31');
         vBigInteger := -2147483649L;
-        if Try26() then Observer.Observe('assign.m2p31m1', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.m2p31m1');
+        if Try42(R, vBigInteger) then Observer.Observe('assign.m2p31m1', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.m2p31m1');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure BigInteger_To_FDecimal_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_To_FDecimal_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_To_FDecimal_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_To_FDecimal_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_To_FDecimal_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure BigInteger_To_FOption()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
+        Util: Codeunit "LT Y31 Conv Util";
+        vBigInteger: BigInteger;
     begin
         vBigInteger := 0;
-        if Try27() then Observer.Observe('assign.0', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.0');
+        if Try43(R, vBigInteger) then Observer.Observe('assign.0', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.0');
         vBigInteger := -1;
-        if Try27() then Observer.Observe('assign.m1', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.m1');
+        if Try43(R, vBigInteger) then Observer.Observe('assign.m1', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.m1');
         vBigInteger := 3;
-        if Try27() then Observer.Observe('assign.3', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.3');
+        if Try43(R, vBigInteger) then Observer.Observe('assign.3', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.3');
         vBigInteger := 2147483648L;
-        if Try27() then Observer.Observe('assign.2p31', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.2p31');
+        if Try43(R, vBigInteger) then Observer.Observe('assign.2p31', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.2p31');
         vBigInteger := -2147483649L;
-        if Try27() then Observer.Observe('assign.m2p31m1', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.m2p31m1');
+        if Try43(R, vBigInteger) then Observer.Observe('assign.m2p31m1', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.m2p31m1');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure BigInteger_To_FOption_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_To_FOption_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_To_FOption_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_To_FOption_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_To_FOption_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure BigInteger_To_FEnum()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
+        vBigInteger: BigInteger;
     begin
         vBigInteger := 0;
-        if Try28() then Observer.Observe('assign.0', Format(R.Enum) + '|' + Format(R.Enum.AsInteger())) else Observer.ObserveError('assign.0');
+        if Try44(R, vBigInteger) then Observer.Observe('assign.0', Format(R.Enum) + '|' + Format(R.Enum.AsInteger())) else Observer.ObserveError('assign.0');
         vBigInteger := -1;
-        if Try28() then Observer.Observe('assign.m1', Format(R.Enum) + '|' + Format(R.Enum.AsInteger())) else Observer.ObserveError('assign.m1');
+        if Try44(R, vBigInteger) then Observer.Observe('assign.m1', Format(R.Enum) + '|' + Format(R.Enum.AsInteger())) else Observer.ObserveError('assign.m1');
         vBigInteger := 3;
-        if Try28() then Observer.Observe('assign.3', Format(R.Enum) + '|' + Format(R.Enum.AsInteger())) else Observer.ObserveError('assign.3');
+        if Try44(R, vBigInteger) then Observer.Observe('assign.3', Format(R.Enum) + '|' + Format(R.Enum.AsInteger())) else Observer.ObserveError('assign.3');
         vBigInteger := 2147483648L;
-        if Try28() then Observer.Observe('assign.2p31', Format(R.Enum) + '|' + Format(R.Enum.AsInteger())) else Observer.ObserveError('assign.2p31');
+        if Try44(R, vBigInteger) then Observer.Observe('assign.2p31', Format(R.Enum) + '|' + Format(R.Enum.AsInteger())) else Observer.ObserveError('assign.2p31');
         vBigInteger := -2147483649L;
-        if Try28() then Observer.Observe('assign.m2p31m1', Format(R.Enum) + '|' + Format(R.Enum.AsInteger())) else Observer.ObserveError('assign.m2p31m1');
+        if Try44(R, vBigInteger) then Observer.Observe('assign.m2p31m1', Format(R.Enum) + '|' + Format(R.Enum.AsInteger())) else Observer.ObserveError('assign.m2p31m1');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure BigInteger_To_FEnum_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_To_FEnum_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_To_FEnum_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_To_FEnum_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_To_FEnum_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure BigInteger_To_FDuration()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
+        vBigInteger: BigInteger;
     begin
         vBigInteger := 0;
-        if Try29() then Observer.Observe('assign.0', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.0');
+        if Try45(R, vBigInteger) then Observer.Observe('assign.0', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.0');
         vBigInteger := -1;
-        if Try29() then Observer.Observe('assign.m1', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.m1');
+        if Try45(R, vBigInteger) then Observer.Observe('assign.m1', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.m1');
         vBigInteger := 3;
-        if Try29() then Observer.Observe('assign.3', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.3');
+        if Try45(R, vBigInteger) then Observer.Observe('assign.3', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.3');
         vBigInteger := 2147483648L;
-        if Try29() then Observer.Observe('assign.2p31', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.2p31');
+        if Try45(R, vBigInteger) then Observer.Observe('assign.2p31', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.2p31');
         vBigInteger := -2147483649L;
-        if Try29() then Observer.Observe('assign.m2p31m1', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.m2p31m1');
+        if Try45(R, vBigInteger) then Observer.Observe('assign.m2p31m1', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.m2p31m1');
         Observer.Finish();
     end;
 
-    [Test]
-    procedure BigInteger_To_FDuration_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_To_FDuration_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_To_FDuration_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_To_FDuration_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_To_FDuration_More5()
-    begin
-        Observer.More();
-    end;
-
     [TryFunction]
-    local procedure Try1()
+    local procedure Try1(var vBigInteger: BigInteger; var vInteger: Integer)
     begin
         Clear(vInteger);
         vInteger := vBigInteger;
     end;
 
-    local procedure PA_Integer_1(p: Integer)
+    local procedure PA_Integer_2(p: Integer; var vInteger: Integer)
     begin
         vInteger := p;
     end;
 
     [TryFunction]
-    local procedure Try2()
+    local procedure Try3(var vBigInteger: BigInteger; var vInteger: Integer)
     begin
         Clear(vInteger);
-        PA_Integer_1(vBigInteger);
+        PA_Integer_2(vBigInteger, vInteger);
     end;
 
-    local procedure EX_Integer_2(): Integer
+    local procedure EX_Integer_4(var vBigInteger: BigInteger): Integer
     begin
         exit(vBigInteger);
     end;
 
     [TryFunction]
-    local procedure Try3()
+    local procedure Try5(var vBigInteger: BigInteger; var vInteger: Integer)
     begin
         Clear(vInteger);
-        vInteger := EX_Integer_2();
+        vInteger := EX_Integer_4(vBigInteger);
     end;
 
     [TryFunction]
-    local procedure Try4()
+    local procedure Try6(var vBigInteger: BigInteger; var vDecimal: Decimal)
     begin
         Clear(vDecimal);
         vDecimal := vBigInteger;
     end;
 
-    local procedure PA_Decimal_4(p: Decimal)
+    local procedure PA_Decimal_7(p: Decimal; var vDecimal: Decimal)
     begin
         vDecimal := p;
     end;
 
     [TryFunction]
-    local procedure Try5()
+    local procedure Try8(var vBigInteger: BigInteger; var vDecimal: Decimal)
     begin
         Clear(vDecimal);
-        PA_Decimal_4(vBigInteger);
+        PA_Decimal_7(vBigInteger, vDecimal);
     end;
 
-    local procedure EX_Decimal_5(): Decimal
+    local procedure EX_Decimal_9(var vBigInteger: BigInteger): Decimal
     begin
         exit(vBigInteger);
     end;
 
     [TryFunction]
-    local procedure Try6()
+    local procedure Try10(var vBigInteger: BigInteger; var vDecimal: Decimal)
     begin
         Clear(vDecimal);
-        vDecimal := EX_Decimal_5();
+        vDecimal := EX_Decimal_9(vBigInteger);
     end;
 
     [TryFunction]
-    local procedure Try7()
+    local procedure Try11(var vBigInteger: BigInteger; var vChar: Char)
     begin
         Clear(vChar);
         vChar := vBigInteger;
     end;
 
-    local procedure PA_Char_7(p: Char)
+    local procedure PA_Char_12(p: Char; var vChar: Char)
     begin
         vChar := p;
     end;
 
     [TryFunction]
-    local procedure Try8()
+    local procedure Try13(var vBigInteger: BigInteger; var vChar: Char)
     begin
         Clear(vChar);
-        PA_Char_7(vBigInteger);
+        PA_Char_12(vBigInteger, vChar);
     end;
 
-    local procedure EX_Char_8(): Char
+    local procedure EX_Char_14(var vBigInteger: BigInteger): Char
     begin
         exit(vBigInteger);
     end;
 
     [TryFunction]
-    local procedure Try9()
+    local procedure Try15(var vBigInteger: BigInteger; var vChar: Char)
     begin
         Clear(vChar);
-        vChar := EX_Char_8();
+        vChar := EX_Char_14(vBigInteger);
     end;
 
     [TryFunction]
-    local procedure Try10()
+    local procedure Try16(var vBigInteger: BigInteger; var vByte: Byte)
     begin
         Clear(vByte);
         vByte := vBigInteger;
     end;
 
-    local procedure PA_Byte_10(p: Byte)
+    local procedure PA_Byte_17(p: Byte; var vByte: Byte)
     begin
         vByte := p;
     end;
 
     [TryFunction]
-    local procedure Try11()
+    local procedure Try18(var vBigInteger: BigInteger; var vByte: Byte)
     begin
         Clear(vByte);
-        PA_Byte_10(vBigInteger);
+        PA_Byte_17(vBigInteger, vByte);
     end;
 
-    local procedure EX_Byte_11(): Byte
+    local procedure EX_Byte_19(var vBigInteger: BigInteger): Byte
     begin
         exit(vBigInteger);
     end;
 
     [TryFunction]
-    local procedure Try12()
+    local procedure Try20(var vBigInteger: BigInteger; var vByte: Byte)
     begin
         Clear(vByte);
-        vByte := EX_Byte_11();
+        vByte := EX_Byte_19(vBigInteger);
     end;
 
     [TryFunction]
-    local procedure Try13()
+    local procedure Try21(var vBigInteger: BigInteger; var vOption: Option A,B,C)
     begin
         Clear(vOption);
         vOption := vBigInteger;
     end;
 
-    local procedure PA_Option_13(p: Option A,B,C)
+    local procedure PA_Option_22(p: Option A,B,C; var vOption: Option A,B,C)
     begin
         vOption := p;
     end;
 
     [TryFunction]
-    local procedure Try14()
+    local procedure Try23(var vBigInteger: BigInteger; var vOption: Option A,B,C)
     begin
         Clear(vOption);
-        PA_Option_13(vBigInteger);
+        PA_Option_22(vBigInteger, vOption);
     end;
 
-    local procedure EX_Option_14(): Option A,B,C
+    local procedure EX_Option_24(var vBigInteger: BigInteger): Option A,B,C
     begin
         exit(vBigInteger);
     end;
 
     [TryFunction]
-    local procedure Try15()
+    local procedure Try25(var vBigInteger: BigInteger; var vOption: Option A,B,C)
     begin
         Clear(vOption);
-        vOption := EX_Option_14();
+        vOption := EX_Option_24(vBigInteger);
     end;
 
     [TryFunction]
-    local procedure Try16()
+    local procedure Try26(var vBigInteger: BigInteger; var vEnum: Enum "LT Y31 E")
     begin
         Clear(vEnum);
         vEnum := vBigInteger;
     end;
 
-    local procedure PA_Enum_16(p: Enum "LT Y31 E")
+    local procedure PA_Enum_27(p: Enum "LT Y31 E"; var vEnum: Enum "LT Y31 E")
     begin
         vEnum := p;
     end;
 
     [TryFunction]
-    local procedure Try17()
+    local procedure Try28(var vBigInteger: BigInteger; var vEnum: Enum "LT Y31 E")
     begin
         Clear(vEnum);
-        PA_Enum_16(vBigInteger);
+        PA_Enum_27(vBigInteger, vEnum);
     end;
 
-    local procedure EX_Enum_17(): Enum "LT Y31 E"
+    local procedure EX_Enum_29(var vBigInteger: BigInteger): Enum "LT Y31 E"
     begin
         exit(vBigInteger);
     end;
 
     [TryFunction]
-    local procedure Try18()
+    local procedure Try30(var vBigInteger: BigInteger; var vEnum: Enum "LT Y31 E")
     begin
         Clear(vEnum);
-        vEnum := EX_Enum_17();
+        vEnum := EX_Enum_29(vBigInteger);
     end;
 
     [TryFunction]
-    local procedure Try19()
+    local procedure Try31(var vBigInteger: BigInteger; var vEnumImpl: Enum "LT Y31 EI")
     begin
         Clear(vEnumImpl);
         vEnumImpl := vBigInteger;
     end;
 
-    local procedure PA_EnumImpl_19(p: Enum "LT Y31 EI")
+    local procedure PA_EnumImpl_32(p: Enum "LT Y31 EI"; var vEnumImpl: Enum "LT Y31 EI")
     begin
         vEnumImpl := p;
     end;
 
     [TryFunction]
-    local procedure Try20()
+    local procedure Try33(var vBigInteger: BigInteger; var vEnumImpl: Enum "LT Y31 EI")
     begin
         Clear(vEnumImpl);
-        PA_EnumImpl_19(vBigInteger);
+        PA_EnumImpl_32(vBigInteger, vEnumImpl);
     end;
 
-    local procedure EX_EnumImpl_20(): Enum "LT Y31 EI"
+    local procedure EX_EnumImpl_34(var vBigInteger: BigInteger): Enum "LT Y31 EI"
     begin
         exit(vBigInteger);
     end;
 
     [TryFunction]
-    local procedure Try21()
+    local procedure Try35(var vBigInteger: BigInteger; var vEnumImpl: Enum "LT Y31 EI")
     begin
         Clear(vEnumImpl);
-        vEnumImpl := EX_EnumImpl_20();
+        vEnumImpl := EX_EnumImpl_34(vBigInteger);
     end;
 
     [TryFunction]
-    local procedure Try22()
+    local procedure Try36(var vBigInteger: BigInteger; var vDuration: Duration)
     begin
         Clear(vDuration);
         vDuration := vBigInteger;
     end;
 
-    local procedure PA_Duration_22(p: Duration)
+    local procedure PA_Duration_37(p: Duration; var vDuration: Duration)
     begin
         vDuration := p;
     end;
 
     [TryFunction]
-    local procedure Try23()
+    local procedure Try38(var vBigInteger: BigInteger; var vDuration: Duration)
     begin
         Clear(vDuration);
-        PA_Duration_22(vBigInteger);
+        PA_Duration_37(vBigInteger, vDuration);
     end;
 
-    local procedure EX_Duration_23(): Duration
+    local procedure EX_Duration_39(var vBigInteger: BigInteger): Duration
     begin
         exit(vBigInteger);
     end;
 
     [TryFunction]
-    local procedure Try24()
+    local procedure Try40(var vBigInteger: BigInteger; var vDuration: Duration)
     begin
         Clear(vDuration);
-        vDuration := EX_Duration_23();
+        vDuration := EX_Duration_39(vBigInteger);
     end;
 
     [TryFunction]
-    local procedure Try25()
+    local procedure Try41(var R: Record "LT Y31 Conv Fields"; var vBigInteger: BigInteger)
     begin
         Clear(R.Integer);
         R.Integer := vBigInteger;
     end;
 
     [TryFunction]
-    local procedure Try26()
+    local procedure Try42(var R: Record "LT Y31 Conv Fields"; var vBigInteger: BigInteger)
     begin
         Clear(R.Decimal);
         R.Decimal := vBigInteger;
     end;
 
     [TryFunction]
-    local procedure Try27()
+    local procedure Try43(var R: Record "LT Y31 Conv Fields"; var vBigInteger: BigInteger)
     begin
         Clear(R.Option);
         R.Option := vBigInteger;
     end;
 
     [TryFunction]
-    local procedure Try28()
+    local procedure Try44(var R: Record "LT Y31 Conv Fields"; var vBigInteger: BigInteger)
     begin
         Clear(R.Enum);
         R.Enum := vBigInteger;
     end;
 
     [TryFunction]
-    local procedure Try29()
+    local procedure Try45(var R: Record "LT Y31 Conv Fields"; var vBigInteger: BigInteger)
     begin
         Clear(R.Duration);
         R.Duration := vBigInteger;
@@ -2072,875 +1784,895 @@ codeunit 92412 "LT Y31 Cv Decimal"
     Subtype = Test;
     TestPermissions = Disabled;
 
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        R: Record "LT Y31 Conv Fields";
-        vBigInteger: BigInteger;
-        vByte: Byte;
-        vChar: Char;
-        vDecimal: Decimal;
-        vDuration: Duration;
-        vInteger: Integer;
-        vOption: Option A,B,C;
-
     [Test]
     procedure Decimal_To_Integer()
+    var
+        Observer: Codeunit "Probe Observer";
+        vDecimal: Decimal;
+        vInteger: Integer;
     begin
         vDecimal := 0;
-        if Try1() then Observer.Observe('assign.0', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.0');
-        if Try2() then Observer.Observe('arg_byvalue.0', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.0');
-        if Try3() then Observer.Observe('exit.0', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.0');
+        if Try1(vDecimal, vInteger) then Observer.Observe('assign.0', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.0');
+        if Try3(vDecimal, vInteger) then Observer.Observe('arg_byvalue.0', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.0');
+        if Try5(vDecimal, vInteger) then Observer.Observe('exit.0', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.0');
         vDecimal := 1.5;
-        if Try1() then Observer.Observe('assign.1p5', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.1p5');
-        if Try2() then Observer.Observe('arg_byvalue.1p5', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.1p5');
-        if Try3() then Observer.Observe('exit.1p5', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.1p5');
-        vDecimal := -1.5;
-        if Try1() then Observer.Observe('assign.m1p5', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.m1p5');
-        if Try2() then Observer.Observe('arg_byvalue.m1p5', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.m1p5');
-        if Try3() then Observer.Observe('exit.m1p5', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.m1p5');
-        vDecimal := 2.5;
-        if Try1() then Observer.Observe('assign.2p5', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.2p5');
-        if Try2() then Observer.Observe('arg_byvalue.2p5', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.2p5');
-        if Try3() then Observer.Observe('exit.2p5', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.2p5');
-        vDecimal := 3;
-        if Try1() then Observer.Observe('assign.3', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.3');
-        if Try2() then Observer.Observe('arg_byvalue.3', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.3');
-        if Try3() then Observer.Observe('exit.3', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.3');
-        vDecimal := 255;
-        if Try1() then Observer.Observe('assign.255', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.255');
-        if Try2() then Observer.Observe('arg_byvalue.255', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.255');
-        if Try3() then Observer.Observe('exit.255', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.255');
-        vDecimal := 256;
-        if Try1() then Observer.Observe('assign.256', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.256');
-        if Try2() then Observer.Observe('arg_byvalue.256', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.256');
-        if Try3() then Observer.Observe('exit.256', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.256');
-        vDecimal := 2147483648.0;
-        if Try1() then Observer.Observe('assign.2p31', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.2p31');
-        if Try2() then Observer.Observe('arg_byvalue.2p31', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.2p31');
-        if Try3() then Observer.Observe('exit.2p31', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.2p31');
-        vDecimal := 0.0001;
-        if Try1() then Observer.Observe('assign.0p0001', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.0p0001');
-        if Try2() then Observer.Observe('arg_byvalue.0p0001', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.0p0001');
-        if Try3() then Observer.Observe('exit.0p0001', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.0p0001');
+        if Try1(vDecimal, vInteger) then Observer.Observe('assign.1p5', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.1p5');
+        if Try3(vDecimal, vInteger) then Observer.Observe('arg_byvalue.1p5', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.1p5');
+        if Try5(vDecimal, vInteger) then Observer.Observe('exit.1p5', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.1p5');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Decimal_To_Integer_More1()
+    procedure Decimal_To_Integer_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vDecimal: Decimal;
+        vInteger: Integer;
     begin
-        Observer.More();
+        vDecimal := -1.5;
+        if Try1(vDecimal, vInteger) then Observer.Observe('assign.m1p5', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.m1p5');
+        if Try3(vDecimal, vInteger) then Observer.Observe('arg_byvalue.m1p5', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.m1p5');
+        if Try5(vDecimal, vInteger) then Observer.Observe('exit.m1p5', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.m1p5');
+        vDecimal := 2.5;
+        if Try1(vDecimal, vInteger) then Observer.Observe('assign.2p5', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.2p5');
+        if Try3(vDecimal, vInteger) then Observer.Observe('arg_byvalue.2p5', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.2p5');
+        if Try5(vDecimal, vInteger) then Observer.Observe('exit.2p5', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.2p5');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Decimal_To_Integer_More2()
+    procedure Decimal_To_Integer_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        vDecimal: Decimal;
+        vInteger: Integer;
     begin
-        Observer.More();
+        vDecimal := 3;
+        if Try1(vDecimal, vInteger) then Observer.Observe('assign.3', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.3');
+        if Try3(vDecimal, vInteger) then Observer.Observe('arg_byvalue.3', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.3');
+        if Try5(vDecimal, vInteger) then Observer.Observe('exit.3', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.3');
+        vDecimal := 255;
+        if Try1(vDecimal, vInteger) then Observer.Observe('assign.255', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.255');
+        if Try3(vDecimal, vInteger) then Observer.Observe('arg_byvalue.255', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.255');
+        if Try5(vDecimal, vInteger) then Observer.Observe('exit.255', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.255');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Decimal_To_Integer_More3()
+    procedure Decimal_To_Integer_4()
+    var
+        Observer: Codeunit "Probe Observer";
+        vDecimal: Decimal;
+        vInteger: Integer;
     begin
-        Observer.More();
+        vDecimal := 256;
+        if Try1(vDecimal, vInteger) then Observer.Observe('assign.256', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.256');
+        if Try3(vDecimal, vInteger) then Observer.Observe('arg_byvalue.256', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.256');
+        if Try5(vDecimal, vInteger) then Observer.Observe('exit.256', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.256');
+        vDecimal := 2147483648.0;
+        if Try1(vDecimal, vInteger) then Observer.Observe('assign.2p31', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.2p31');
+        if Try3(vDecimal, vInteger) then Observer.Observe('arg_byvalue.2p31', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.2p31');
+        if Try5(vDecimal, vInteger) then Observer.Observe('exit.2p31', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.2p31');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Decimal_To_Integer_More4()
+    procedure Decimal_To_Integer_5()
+    var
+        Observer: Codeunit "Probe Observer";
+        vDecimal: Decimal;
+        vInteger: Integer;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_To_Integer_More5()
-    begin
-        Observer.More();
+        vDecimal := 0.0001;
+        if Try1(vDecimal, vInteger) then Observer.Observe('assign.0p0001', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.0p0001');
+        if Try3(vDecimal, vInteger) then Observer.Observe('arg_byvalue.0p0001', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.0p0001');
+        if Try5(vDecimal, vInteger) then Observer.Observe('exit.0p0001', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.0p0001');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Decimal_To_BigInteger()
+    var
+        Observer: Codeunit "Probe Observer";
+        vBigInteger: BigInteger;
+        vDecimal: Decimal;
     begin
         vDecimal := 0;
-        if Try4() then Observer.Observe('assign.0', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.0');
-        if Try5() then Observer.Observe('arg_byvalue.0', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.0');
-        if Try6() then Observer.Observe('exit.0', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.0');
+        if Try6(vBigInteger, vDecimal) then Observer.Observe('assign.0', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.0');
+        if Try8(vBigInteger, vDecimal) then Observer.Observe('arg_byvalue.0', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.0');
+        if Try10(vBigInteger, vDecimal) then Observer.Observe('exit.0', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.0');
         vDecimal := 1.5;
-        if Try4() then Observer.Observe('assign.1p5', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.1p5');
-        if Try5() then Observer.Observe('arg_byvalue.1p5', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.1p5');
-        if Try6() then Observer.Observe('exit.1p5', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.1p5');
-        vDecimal := -1.5;
-        if Try4() then Observer.Observe('assign.m1p5', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.m1p5');
-        if Try5() then Observer.Observe('arg_byvalue.m1p5', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.m1p5');
-        if Try6() then Observer.Observe('exit.m1p5', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.m1p5');
-        vDecimal := 2.5;
-        if Try4() then Observer.Observe('assign.2p5', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.2p5');
-        if Try5() then Observer.Observe('arg_byvalue.2p5', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.2p5');
-        if Try6() then Observer.Observe('exit.2p5', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.2p5');
-        vDecimal := 3;
-        if Try4() then Observer.Observe('assign.3', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.3');
-        if Try5() then Observer.Observe('arg_byvalue.3', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.3');
-        if Try6() then Observer.Observe('exit.3', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.3');
-        vDecimal := 255;
-        if Try4() then Observer.Observe('assign.255', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.255');
-        if Try5() then Observer.Observe('arg_byvalue.255', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.255');
-        if Try6() then Observer.Observe('exit.255', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.255');
-        vDecimal := 256;
-        if Try4() then Observer.Observe('assign.256', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.256');
-        if Try5() then Observer.Observe('arg_byvalue.256', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.256');
-        if Try6() then Observer.Observe('exit.256', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.256');
-        vDecimal := 2147483648.0;
-        if Try4() then Observer.Observe('assign.2p31', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.2p31');
-        if Try5() then Observer.Observe('arg_byvalue.2p31', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.2p31');
-        if Try6() then Observer.Observe('exit.2p31', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.2p31');
-        vDecimal := 0.0001;
-        if Try4() then Observer.Observe('assign.0p0001', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.0p0001');
-        if Try5() then Observer.Observe('arg_byvalue.0p0001', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.0p0001');
-        if Try6() then Observer.Observe('exit.0p0001', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.0p0001');
+        if Try6(vBigInteger, vDecimal) then Observer.Observe('assign.1p5', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.1p5');
+        if Try8(vBigInteger, vDecimal) then Observer.Observe('arg_byvalue.1p5', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.1p5');
+        if Try10(vBigInteger, vDecimal) then Observer.Observe('exit.1p5', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.1p5');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Decimal_To_BigInteger_More1()
+    procedure Decimal_To_BigInteger_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vBigInteger: BigInteger;
+        vDecimal: Decimal;
     begin
-        Observer.More();
+        vDecimal := -1.5;
+        if Try6(vBigInteger, vDecimal) then Observer.Observe('assign.m1p5', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.m1p5');
+        if Try8(vBigInteger, vDecimal) then Observer.Observe('arg_byvalue.m1p5', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.m1p5');
+        if Try10(vBigInteger, vDecimal) then Observer.Observe('exit.m1p5', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.m1p5');
+        vDecimal := 2.5;
+        if Try6(vBigInteger, vDecimal) then Observer.Observe('assign.2p5', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.2p5');
+        if Try8(vBigInteger, vDecimal) then Observer.Observe('arg_byvalue.2p5', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.2p5');
+        if Try10(vBigInteger, vDecimal) then Observer.Observe('exit.2p5', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.2p5');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Decimal_To_BigInteger_More2()
+    procedure Decimal_To_BigInteger_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        vBigInteger: BigInteger;
+        vDecimal: Decimal;
     begin
-        Observer.More();
+        vDecimal := 3;
+        if Try6(vBigInteger, vDecimal) then Observer.Observe('assign.3', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.3');
+        if Try8(vBigInteger, vDecimal) then Observer.Observe('arg_byvalue.3', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.3');
+        if Try10(vBigInteger, vDecimal) then Observer.Observe('exit.3', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.3');
+        vDecimal := 255;
+        if Try6(vBigInteger, vDecimal) then Observer.Observe('assign.255', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.255');
+        if Try8(vBigInteger, vDecimal) then Observer.Observe('arg_byvalue.255', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.255');
+        if Try10(vBigInteger, vDecimal) then Observer.Observe('exit.255', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.255');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Decimal_To_BigInteger_More3()
+    procedure Decimal_To_BigInteger_4()
+    var
+        Observer: Codeunit "Probe Observer";
+        vBigInteger: BigInteger;
+        vDecimal: Decimal;
     begin
-        Observer.More();
+        vDecimal := 256;
+        if Try6(vBigInteger, vDecimal) then Observer.Observe('assign.256', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.256');
+        if Try8(vBigInteger, vDecimal) then Observer.Observe('arg_byvalue.256', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.256');
+        if Try10(vBigInteger, vDecimal) then Observer.Observe('exit.256', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.256');
+        vDecimal := 2147483648.0;
+        if Try6(vBigInteger, vDecimal) then Observer.Observe('assign.2p31', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.2p31');
+        if Try8(vBigInteger, vDecimal) then Observer.Observe('arg_byvalue.2p31', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.2p31');
+        if Try10(vBigInteger, vDecimal) then Observer.Observe('exit.2p31', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.2p31');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Decimal_To_BigInteger_More4()
+    procedure Decimal_To_BigInteger_5()
+    var
+        Observer: Codeunit "Probe Observer";
+        vBigInteger: BigInteger;
+        vDecimal: Decimal;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_To_BigInteger_More5()
-    begin
-        Observer.More();
+        vDecimal := 0.0001;
+        if Try6(vBigInteger, vDecimal) then Observer.Observe('assign.0p0001', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.0p0001');
+        if Try8(vBigInteger, vDecimal) then Observer.Observe('arg_byvalue.0p0001', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.0p0001');
+        if Try10(vBigInteger, vDecimal) then Observer.Observe('exit.0p0001', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.0p0001');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Decimal_To_Char()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vChar: Char;
+        vDecimal: Decimal;
     begin
         vDecimal := 0;
-        if Try7() then Observer.Observe('assign.0', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.0');
-        if Try8() then Observer.Observe('arg_byvalue.0', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.0');
-        if Try9() then Observer.Observe('exit.0', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.0');
+        if Try11(vChar, vDecimal) then Observer.Observe('assign.0', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.0');
+        if Try13(vChar, vDecimal) then Observer.Observe('arg_byvalue.0', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.0');
+        if Try15(vChar, vDecimal) then Observer.Observe('exit.0', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.0');
         vDecimal := 1.5;
-        if Try7() then Observer.Observe('assign.1p5', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.1p5');
-        if Try8() then Observer.Observe('arg_byvalue.1p5', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.1p5');
-        if Try9() then Observer.Observe('exit.1p5', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.1p5');
-        vDecimal := -1.5;
-        if Try7() then Observer.Observe('assign.m1p5', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.m1p5');
-        if Try8() then Observer.Observe('arg_byvalue.m1p5', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.m1p5');
-        if Try9() then Observer.Observe('exit.m1p5', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.m1p5');
-        vDecimal := 2.5;
-        if Try7() then Observer.Observe('assign.2p5', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.2p5');
-        if Try8() then Observer.Observe('arg_byvalue.2p5', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.2p5');
-        if Try9() then Observer.Observe('exit.2p5', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.2p5');
-        vDecimal := 3;
-        if Try7() then Observer.Observe('assign.3', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.3');
-        if Try8() then Observer.Observe('arg_byvalue.3', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.3');
-        if Try9() then Observer.Observe('exit.3', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.3');
-        vDecimal := 255;
-        if Try7() then Observer.Observe('assign.255', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.255');
-        if Try8() then Observer.Observe('arg_byvalue.255', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.255');
-        if Try9() then Observer.Observe('exit.255', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.255');
-        vDecimal := 256;
-        if Try7() then Observer.Observe('assign.256', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.256');
-        if Try8() then Observer.Observe('arg_byvalue.256', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.256');
-        if Try9() then Observer.Observe('exit.256', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.256');
-        vDecimal := 2147483648.0;
-        if Try7() then Observer.Observe('assign.2p31', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.2p31');
-        if Try8() then Observer.Observe('arg_byvalue.2p31', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.2p31');
-        if Try9() then Observer.Observe('exit.2p31', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.2p31');
-        vDecimal := 0.0001;
-        if Try7() then Observer.Observe('assign.0p0001', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.0p0001');
-        if Try8() then Observer.Observe('arg_byvalue.0p0001', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.0p0001');
-        if Try9() then Observer.Observe('exit.0p0001', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.0p0001');
+        if Try11(vChar, vDecimal) then Observer.Observe('assign.1p5', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.1p5');
+        if Try13(vChar, vDecimal) then Observer.Observe('arg_byvalue.1p5', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.1p5');
+        if Try15(vChar, vDecimal) then Observer.Observe('exit.1p5', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.1p5');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Decimal_To_Char_More1()
+    procedure Decimal_To_Char_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vChar: Char;
+        vDecimal: Decimal;
     begin
-        Observer.More();
+        vDecimal := -1.5;
+        if Try11(vChar, vDecimal) then Observer.Observe('assign.m1p5', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.m1p5');
+        if Try13(vChar, vDecimal) then Observer.Observe('arg_byvalue.m1p5', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.m1p5');
+        if Try15(vChar, vDecimal) then Observer.Observe('exit.m1p5', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.m1p5');
+        vDecimal := 2.5;
+        if Try11(vChar, vDecimal) then Observer.Observe('assign.2p5', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.2p5');
+        if Try13(vChar, vDecimal) then Observer.Observe('arg_byvalue.2p5', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.2p5');
+        if Try15(vChar, vDecimal) then Observer.Observe('exit.2p5', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.2p5');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Decimal_To_Char_More2()
+    procedure Decimal_To_Char_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vChar: Char;
+        vDecimal: Decimal;
     begin
-        Observer.More();
+        vDecimal := 3;
+        if Try11(vChar, vDecimal) then Observer.Observe('assign.3', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.3');
+        if Try13(vChar, vDecimal) then Observer.Observe('arg_byvalue.3', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.3');
+        if Try15(vChar, vDecimal) then Observer.Observe('exit.3', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.3');
+        vDecimal := 255;
+        if Try11(vChar, vDecimal) then Observer.Observe('assign.255', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.255');
+        if Try13(vChar, vDecimal) then Observer.Observe('arg_byvalue.255', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.255');
+        if Try15(vChar, vDecimal) then Observer.Observe('exit.255', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.255');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Decimal_To_Char_More3()
+    procedure Decimal_To_Char_4()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vChar: Char;
+        vDecimal: Decimal;
     begin
-        Observer.More();
+        vDecimal := 256;
+        if Try11(vChar, vDecimal) then Observer.Observe('assign.256', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.256');
+        if Try13(vChar, vDecimal) then Observer.Observe('arg_byvalue.256', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.256');
+        if Try15(vChar, vDecimal) then Observer.Observe('exit.256', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.256');
+        vDecimal := 2147483648.0;
+        if Try11(vChar, vDecimal) then Observer.Observe('assign.2p31', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.2p31');
+        if Try13(vChar, vDecimal) then Observer.Observe('arg_byvalue.2p31', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.2p31');
+        if Try15(vChar, vDecimal) then Observer.Observe('exit.2p31', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.2p31');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Decimal_To_Char_More4()
+    procedure Decimal_To_Char_5()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vChar: Char;
+        vDecimal: Decimal;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_To_Char_More5()
-    begin
-        Observer.More();
+        vDecimal := 0.0001;
+        if Try11(vChar, vDecimal) then Observer.Observe('assign.0p0001', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.0p0001');
+        if Try13(vChar, vDecimal) then Observer.Observe('arg_byvalue.0p0001', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.0p0001');
+        if Try15(vChar, vDecimal) then Observer.Observe('exit.0p0001', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.0p0001');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Decimal_To_Byte()
+    var
+        Observer: Codeunit "Probe Observer";
+        vByte: Byte;
+        vDecimal: Decimal;
     begin
         vDecimal := 0;
-        if Try10() then Observer.Observe('assign.0', Format(vByte, 0, 9)) else Observer.ObserveError('assign.0');
-        if Try11() then Observer.Observe('arg_byvalue.0', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.0');
-        if Try12() then Observer.Observe('exit.0', Format(vByte, 0, 9)) else Observer.ObserveError('exit.0');
+        if Try16(vByte, vDecimal) then Observer.Observe('assign.0', Format(vByte, 0, 9)) else Observer.ObserveError('assign.0');
+        if Try18(vByte, vDecimal) then Observer.Observe('arg_byvalue.0', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.0');
+        if Try20(vByte, vDecimal) then Observer.Observe('exit.0', Format(vByte, 0, 9)) else Observer.ObserveError('exit.0');
         vDecimal := 1.5;
-        if Try10() then Observer.Observe('assign.1p5', Format(vByte, 0, 9)) else Observer.ObserveError('assign.1p5');
-        if Try11() then Observer.Observe('arg_byvalue.1p5', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.1p5');
-        if Try12() then Observer.Observe('exit.1p5', Format(vByte, 0, 9)) else Observer.ObserveError('exit.1p5');
-        vDecimal := -1.5;
-        if Try10() then Observer.Observe('assign.m1p5', Format(vByte, 0, 9)) else Observer.ObserveError('assign.m1p5');
-        if Try11() then Observer.Observe('arg_byvalue.m1p5', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.m1p5');
-        if Try12() then Observer.Observe('exit.m1p5', Format(vByte, 0, 9)) else Observer.ObserveError('exit.m1p5');
-        vDecimal := 2.5;
-        if Try10() then Observer.Observe('assign.2p5', Format(vByte, 0, 9)) else Observer.ObserveError('assign.2p5');
-        if Try11() then Observer.Observe('arg_byvalue.2p5', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.2p5');
-        if Try12() then Observer.Observe('exit.2p5', Format(vByte, 0, 9)) else Observer.ObserveError('exit.2p5');
-        vDecimal := 3;
-        if Try10() then Observer.Observe('assign.3', Format(vByte, 0, 9)) else Observer.ObserveError('assign.3');
-        if Try11() then Observer.Observe('arg_byvalue.3', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.3');
-        if Try12() then Observer.Observe('exit.3', Format(vByte, 0, 9)) else Observer.ObserveError('exit.3');
-        vDecimal := 255;
-        if Try10() then Observer.Observe('assign.255', Format(vByte, 0, 9)) else Observer.ObserveError('assign.255');
-        if Try11() then Observer.Observe('arg_byvalue.255', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.255');
-        if Try12() then Observer.Observe('exit.255', Format(vByte, 0, 9)) else Observer.ObserveError('exit.255');
-        vDecimal := 256;
-        if Try10() then Observer.Observe('assign.256', Format(vByte, 0, 9)) else Observer.ObserveError('assign.256');
-        if Try11() then Observer.Observe('arg_byvalue.256', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.256');
-        if Try12() then Observer.Observe('exit.256', Format(vByte, 0, 9)) else Observer.ObserveError('exit.256');
-        vDecimal := 2147483648.0;
-        if Try10() then Observer.Observe('assign.2p31', Format(vByte, 0, 9)) else Observer.ObserveError('assign.2p31');
-        if Try11() then Observer.Observe('arg_byvalue.2p31', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.2p31');
-        if Try12() then Observer.Observe('exit.2p31', Format(vByte, 0, 9)) else Observer.ObserveError('exit.2p31');
-        vDecimal := 0.0001;
-        if Try10() then Observer.Observe('assign.0p0001', Format(vByte, 0, 9)) else Observer.ObserveError('assign.0p0001');
-        if Try11() then Observer.Observe('arg_byvalue.0p0001', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.0p0001');
-        if Try12() then Observer.Observe('exit.0p0001', Format(vByte, 0, 9)) else Observer.ObserveError('exit.0p0001');
+        if Try16(vByte, vDecimal) then Observer.Observe('assign.1p5', Format(vByte, 0, 9)) else Observer.ObserveError('assign.1p5');
+        if Try18(vByte, vDecimal) then Observer.Observe('arg_byvalue.1p5', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.1p5');
+        if Try20(vByte, vDecimal) then Observer.Observe('exit.1p5', Format(vByte, 0, 9)) else Observer.ObserveError('exit.1p5');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Decimal_To_Byte_More1()
+    procedure Decimal_To_Byte_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vByte: Byte;
+        vDecimal: Decimal;
     begin
-        Observer.More();
+        vDecimal := -1.5;
+        if Try16(vByte, vDecimal) then Observer.Observe('assign.m1p5', Format(vByte, 0, 9)) else Observer.ObserveError('assign.m1p5');
+        if Try18(vByte, vDecimal) then Observer.Observe('arg_byvalue.m1p5', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.m1p5');
+        if Try20(vByte, vDecimal) then Observer.Observe('exit.m1p5', Format(vByte, 0, 9)) else Observer.ObserveError('exit.m1p5');
+        vDecimal := 2.5;
+        if Try16(vByte, vDecimal) then Observer.Observe('assign.2p5', Format(vByte, 0, 9)) else Observer.ObserveError('assign.2p5');
+        if Try18(vByte, vDecimal) then Observer.Observe('arg_byvalue.2p5', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.2p5');
+        if Try20(vByte, vDecimal) then Observer.Observe('exit.2p5', Format(vByte, 0, 9)) else Observer.ObserveError('exit.2p5');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Decimal_To_Byte_More2()
+    procedure Decimal_To_Byte_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        vByte: Byte;
+        vDecimal: Decimal;
     begin
-        Observer.More();
+        vDecimal := 3;
+        if Try16(vByte, vDecimal) then Observer.Observe('assign.3', Format(vByte, 0, 9)) else Observer.ObserveError('assign.3');
+        if Try18(vByte, vDecimal) then Observer.Observe('arg_byvalue.3', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.3');
+        if Try20(vByte, vDecimal) then Observer.Observe('exit.3', Format(vByte, 0, 9)) else Observer.ObserveError('exit.3');
+        vDecimal := 255;
+        if Try16(vByte, vDecimal) then Observer.Observe('assign.255', Format(vByte, 0, 9)) else Observer.ObserveError('assign.255');
+        if Try18(vByte, vDecimal) then Observer.Observe('arg_byvalue.255', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.255');
+        if Try20(vByte, vDecimal) then Observer.Observe('exit.255', Format(vByte, 0, 9)) else Observer.ObserveError('exit.255');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Decimal_To_Byte_More3()
+    procedure Decimal_To_Byte_4()
+    var
+        Observer: Codeunit "Probe Observer";
+        vByte: Byte;
+        vDecimal: Decimal;
     begin
-        Observer.More();
+        vDecimal := 256;
+        if Try16(vByte, vDecimal) then Observer.Observe('assign.256', Format(vByte, 0, 9)) else Observer.ObserveError('assign.256');
+        if Try18(vByte, vDecimal) then Observer.Observe('arg_byvalue.256', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.256');
+        if Try20(vByte, vDecimal) then Observer.Observe('exit.256', Format(vByte, 0, 9)) else Observer.ObserveError('exit.256');
+        vDecimal := 2147483648.0;
+        if Try16(vByte, vDecimal) then Observer.Observe('assign.2p31', Format(vByte, 0, 9)) else Observer.ObserveError('assign.2p31');
+        if Try18(vByte, vDecimal) then Observer.Observe('arg_byvalue.2p31', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.2p31');
+        if Try20(vByte, vDecimal) then Observer.Observe('exit.2p31', Format(vByte, 0, 9)) else Observer.ObserveError('exit.2p31');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Decimal_To_Byte_More4()
+    procedure Decimal_To_Byte_5()
+    var
+        Observer: Codeunit "Probe Observer";
+        vByte: Byte;
+        vDecimal: Decimal;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_To_Byte_More5()
-    begin
-        Observer.More();
+        vDecimal := 0.0001;
+        if Try16(vByte, vDecimal) then Observer.Observe('assign.0p0001', Format(vByte, 0, 9)) else Observer.ObserveError('assign.0p0001');
+        if Try18(vByte, vDecimal) then Observer.Observe('arg_byvalue.0p0001', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.0p0001');
+        if Try20(vByte, vDecimal) then Observer.Observe('exit.0p0001', Format(vByte, 0, 9)) else Observer.ObserveError('exit.0p0001');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Decimal_To_Option()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vDecimal: Decimal;
+        vOption: Option A,B,C;
     begin
         vDecimal := 0;
-        if Try13() then Observer.Observe('assign.0', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.0');
-        if Try14() then Observer.Observe('arg_byvalue.0', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.0');
-        if Try15() then Observer.Observe('exit.0', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.0');
+        if Try21(vDecimal, vOption) then Observer.Observe('assign.0', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.0');
+        if Try23(vDecimal, vOption) then Observer.Observe('arg_byvalue.0', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.0');
+        if Try25(vDecimal, vOption) then Observer.Observe('exit.0', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.0');
         vDecimal := 1.5;
-        if Try13() then Observer.Observe('assign.1p5', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.1p5');
-        if Try14() then Observer.Observe('arg_byvalue.1p5', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.1p5');
-        if Try15() then Observer.Observe('exit.1p5', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.1p5');
-        vDecimal := -1.5;
-        if Try13() then Observer.Observe('assign.m1p5', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.m1p5');
-        if Try14() then Observer.Observe('arg_byvalue.m1p5', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.m1p5');
-        if Try15() then Observer.Observe('exit.m1p5', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.m1p5');
-        vDecimal := 2.5;
-        if Try13() then Observer.Observe('assign.2p5', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.2p5');
-        if Try14() then Observer.Observe('arg_byvalue.2p5', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.2p5');
-        if Try15() then Observer.Observe('exit.2p5', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.2p5');
-        vDecimal := 3;
-        if Try13() then Observer.Observe('assign.3', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.3');
-        if Try14() then Observer.Observe('arg_byvalue.3', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.3');
-        if Try15() then Observer.Observe('exit.3', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.3');
-        vDecimal := 255;
-        if Try13() then Observer.Observe('assign.255', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.255');
-        if Try14() then Observer.Observe('arg_byvalue.255', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.255');
-        if Try15() then Observer.Observe('exit.255', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.255');
-        vDecimal := 256;
-        if Try13() then Observer.Observe('assign.256', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.256');
-        if Try14() then Observer.Observe('arg_byvalue.256', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.256');
-        if Try15() then Observer.Observe('exit.256', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.256');
-        vDecimal := 2147483648.0;
-        if Try13() then Observer.Observe('assign.2p31', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.2p31');
-        if Try14() then Observer.Observe('arg_byvalue.2p31', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.2p31');
-        if Try15() then Observer.Observe('exit.2p31', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.2p31');
-        vDecimal := 0.0001;
-        if Try13() then Observer.Observe('assign.0p0001', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.0p0001');
-        if Try14() then Observer.Observe('arg_byvalue.0p0001', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.0p0001');
-        if Try15() then Observer.Observe('exit.0p0001', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.0p0001');
+        if Try21(vDecimal, vOption) then Observer.Observe('assign.1p5', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.1p5');
+        if Try23(vDecimal, vOption) then Observer.Observe('arg_byvalue.1p5', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.1p5');
+        if Try25(vDecimal, vOption) then Observer.Observe('exit.1p5', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.1p5');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Decimal_To_Option_More1()
+    procedure Decimal_To_Option_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vDecimal: Decimal;
+        vOption: Option A,B,C;
     begin
-        Observer.More();
+        vDecimal := -1.5;
+        if Try21(vDecimal, vOption) then Observer.Observe('assign.m1p5', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.m1p5');
+        if Try23(vDecimal, vOption) then Observer.Observe('arg_byvalue.m1p5', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.m1p5');
+        if Try25(vDecimal, vOption) then Observer.Observe('exit.m1p5', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.m1p5');
+        vDecimal := 2.5;
+        if Try21(vDecimal, vOption) then Observer.Observe('assign.2p5', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.2p5');
+        if Try23(vDecimal, vOption) then Observer.Observe('arg_byvalue.2p5', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.2p5');
+        if Try25(vDecimal, vOption) then Observer.Observe('exit.2p5', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.2p5');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Decimal_To_Option_More2()
+    procedure Decimal_To_Option_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vDecimal: Decimal;
+        vOption: Option A,B,C;
     begin
-        Observer.More();
+        vDecimal := 3;
+        if Try21(vDecimal, vOption) then Observer.Observe('assign.3', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.3');
+        if Try23(vDecimal, vOption) then Observer.Observe('arg_byvalue.3', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.3');
+        if Try25(vDecimal, vOption) then Observer.Observe('exit.3', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.3');
+        vDecimal := 255;
+        if Try21(vDecimal, vOption) then Observer.Observe('assign.255', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.255');
+        if Try23(vDecimal, vOption) then Observer.Observe('arg_byvalue.255', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.255');
+        if Try25(vDecimal, vOption) then Observer.Observe('exit.255', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.255');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Decimal_To_Option_More3()
+    procedure Decimal_To_Option_4()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vDecimal: Decimal;
+        vOption: Option A,B,C;
     begin
-        Observer.More();
+        vDecimal := 256;
+        if Try21(vDecimal, vOption) then Observer.Observe('assign.256', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.256');
+        if Try23(vDecimal, vOption) then Observer.Observe('arg_byvalue.256', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.256');
+        if Try25(vDecimal, vOption) then Observer.Observe('exit.256', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.256');
+        vDecimal := 2147483648.0;
+        if Try21(vDecimal, vOption) then Observer.Observe('assign.2p31', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.2p31');
+        if Try23(vDecimal, vOption) then Observer.Observe('arg_byvalue.2p31', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.2p31');
+        if Try25(vDecimal, vOption) then Observer.Observe('exit.2p31', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.2p31');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Decimal_To_Option_More4()
+    procedure Decimal_To_Option_5()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vDecimal: Decimal;
+        vOption: Option A,B,C;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_To_Option_More5()
-    begin
-        Observer.More();
+        vDecimal := 0.0001;
+        if Try21(vDecimal, vOption) then Observer.Observe('assign.0p0001', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.0p0001');
+        if Try23(vDecimal, vOption) then Observer.Observe('arg_byvalue.0p0001', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.0p0001');
+        if Try25(vDecimal, vOption) then Observer.Observe('exit.0p0001', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.0p0001');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Decimal_To_Duration()
+    var
+        Observer: Codeunit "Probe Observer";
+        vDecimal: Decimal;
+        vDuration: Duration;
     begin
         vDecimal := 0;
-        if Try16() then Observer.Observe('assign.0', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.0');
-        if Try17() then Observer.Observe('arg_byvalue.0', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.0');
-        if Try18() then Observer.Observe('exit.0', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.0');
+        if Try26(vDecimal, vDuration) then Observer.Observe('assign.0', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.0');
+        if Try28(vDecimal, vDuration) then Observer.Observe('arg_byvalue.0', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.0');
+        if Try30(vDecimal, vDuration) then Observer.Observe('exit.0', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.0');
         vDecimal := 1.5;
-        if Try16() then Observer.Observe('assign.1p5', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.1p5');
-        if Try17() then Observer.Observe('arg_byvalue.1p5', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.1p5');
-        if Try18() then Observer.Observe('exit.1p5', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.1p5');
-        vDecimal := -1.5;
-        if Try16() then Observer.Observe('assign.m1p5', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.m1p5');
-        if Try17() then Observer.Observe('arg_byvalue.m1p5', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.m1p5');
-        if Try18() then Observer.Observe('exit.m1p5', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.m1p5');
-        vDecimal := 2.5;
-        if Try16() then Observer.Observe('assign.2p5', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.2p5');
-        if Try17() then Observer.Observe('arg_byvalue.2p5', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.2p5');
-        if Try18() then Observer.Observe('exit.2p5', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.2p5');
-        vDecimal := 3;
-        if Try16() then Observer.Observe('assign.3', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.3');
-        if Try17() then Observer.Observe('arg_byvalue.3', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.3');
-        if Try18() then Observer.Observe('exit.3', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.3');
-        vDecimal := 255;
-        if Try16() then Observer.Observe('assign.255', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.255');
-        if Try17() then Observer.Observe('arg_byvalue.255', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.255');
-        if Try18() then Observer.Observe('exit.255', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.255');
-        vDecimal := 256;
-        if Try16() then Observer.Observe('assign.256', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.256');
-        if Try17() then Observer.Observe('arg_byvalue.256', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.256');
-        if Try18() then Observer.Observe('exit.256', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.256');
-        vDecimal := 2147483648.0;
-        if Try16() then Observer.Observe('assign.2p31', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.2p31');
-        if Try17() then Observer.Observe('arg_byvalue.2p31', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.2p31');
-        if Try18() then Observer.Observe('exit.2p31', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.2p31');
-        vDecimal := 0.0001;
-        if Try16() then Observer.Observe('assign.0p0001', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.0p0001');
-        if Try17() then Observer.Observe('arg_byvalue.0p0001', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.0p0001');
-        if Try18() then Observer.Observe('exit.0p0001', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.0p0001');
+        if Try26(vDecimal, vDuration) then Observer.Observe('assign.1p5', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.1p5');
+        if Try28(vDecimal, vDuration) then Observer.Observe('arg_byvalue.1p5', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.1p5');
+        if Try30(vDecimal, vDuration) then Observer.Observe('exit.1p5', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.1p5');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Decimal_To_Duration_More1()
+    procedure Decimal_To_Duration_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vDecimal: Decimal;
+        vDuration: Duration;
     begin
-        Observer.More();
+        vDecimal := -1.5;
+        if Try26(vDecimal, vDuration) then Observer.Observe('assign.m1p5', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.m1p5');
+        if Try28(vDecimal, vDuration) then Observer.Observe('arg_byvalue.m1p5', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.m1p5');
+        if Try30(vDecimal, vDuration) then Observer.Observe('exit.m1p5', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.m1p5');
+        vDecimal := 2.5;
+        if Try26(vDecimal, vDuration) then Observer.Observe('assign.2p5', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.2p5');
+        if Try28(vDecimal, vDuration) then Observer.Observe('arg_byvalue.2p5', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.2p5');
+        if Try30(vDecimal, vDuration) then Observer.Observe('exit.2p5', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.2p5');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Decimal_To_Duration_More2()
+    procedure Decimal_To_Duration_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        vDecimal: Decimal;
+        vDuration: Duration;
     begin
-        Observer.More();
+        vDecimal := 3;
+        if Try26(vDecimal, vDuration) then Observer.Observe('assign.3', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.3');
+        if Try28(vDecimal, vDuration) then Observer.Observe('arg_byvalue.3', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.3');
+        if Try30(vDecimal, vDuration) then Observer.Observe('exit.3', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.3');
+        vDecimal := 255;
+        if Try26(vDecimal, vDuration) then Observer.Observe('assign.255', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.255');
+        if Try28(vDecimal, vDuration) then Observer.Observe('arg_byvalue.255', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.255');
+        if Try30(vDecimal, vDuration) then Observer.Observe('exit.255', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.255');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Decimal_To_Duration_More3()
+    procedure Decimal_To_Duration_4()
+    var
+        Observer: Codeunit "Probe Observer";
+        vDecimal: Decimal;
+        vDuration: Duration;
     begin
-        Observer.More();
+        vDecimal := 256;
+        if Try26(vDecimal, vDuration) then Observer.Observe('assign.256', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.256');
+        if Try28(vDecimal, vDuration) then Observer.Observe('arg_byvalue.256', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.256');
+        if Try30(vDecimal, vDuration) then Observer.Observe('exit.256', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.256');
+        vDecimal := 2147483648.0;
+        if Try26(vDecimal, vDuration) then Observer.Observe('assign.2p31', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.2p31');
+        if Try28(vDecimal, vDuration) then Observer.Observe('arg_byvalue.2p31', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.2p31');
+        if Try30(vDecimal, vDuration) then Observer.Observe('exit.2p31', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.2p31');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Decimal_To_Duration_More4()
+    procedure Decimal_To_Duration_5()
+    var
+        Observer: Codeunit "Probe Observer";
+        vDecimal: Decimal;
+        vDuration: Duration;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_To_Duration_More5()
-    begin
-        Observer.More();
+        vDecimal := 0.0001;
+        if Try26(vDecimal, vDuration) then Observer.Observe('assign.0p0001', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.0p0001');
+        if Try28(vDecimal, vDuration) then Observer.Observe('arg_byvalue.0p0001', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.0p0001');
+        if Try30(vDecimal, vDuration) then Observer.Observe('exit.0p0001', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.0p0001');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Decimal_To_FInteger()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
+        vDecimal: Decimal;
     begin
         vDecimal := 0;
-        if Try19() then Observer.Observe('assign.0', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.0');
+        if Try31(R, vDecimal) then Observer.Observe('assign.0', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.0');
         vDecimal := 1.5;
-        if Try19() then Observer.Observe('assign.1p5', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.1p5');
+        if Try31(R, vDecimal) then Observer.Observe('assign.1p5', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.1p5');
         vDecimal := -1.5;
-        if Try19() then Observer.Observe('assign.m1p5', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.m1p5');
+        if Try31(R, vDecimal) then Observer.Observe('assign.m1p5', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.m1p5');
         vDecimal := 2.5;
-        if Try19() then Observer.Observe('assign.2p5', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.2p5');
+        if Try31(R, vDecimal) then Observer.Observe('assign.2p5', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.2p5');
         vDecimal := 3;
-        if Try19() then Observer.Observe('assign.3', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.3');
+        if Try31(R, vDecimal) then Observer.Observe('assign.3', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.3');
         vDecimal := 255;
-        if Try19() then Observer.Observe('assign.255', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.255');
+        if Try31(R, vDecimal) then Observer.Observe('assign.255', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.255');
         vDecimal := 256;
-        if Try19() then Observer.Observe('assign.256', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.256');
+        if Try31(R, vDecimal) then Observer.Observe('assign.256', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.256');
         vDecimal := 2147483648.0;
-        if Try19() then Observer.Observe('assign.2p31', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.2p31');
-        vDecimal := 0.0001;
-        if Try19() then Observer.Observe('assign.0p0001', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.0p0001');
+        if Try31(R, vDecimal) then Observer.Observe('assign.2p31', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.2p31');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Decimal_To_FInteger_More1()
+    procedure Decimal_To_FInteger_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
+        vDecimal: Decimal;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_To_FInteger_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_To_FInteger_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_To_FInteger_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_To_FInteger_More5()
-    begin
-        Observer.More();
+        vDecimal := 0.0001;
+        if Try31(R, vDecimal) then Observer.Observe('assign.0p0001', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.0p0001');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Decimal_To_FBigInteger()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
+        vDecimal: Decimal;
     begin
         vDecimal := 0;
-        if Try20() then Observer.Observe('assign.0', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.0');
+        if Try32(R, vDecimal) then Observer.Observe('assign.0', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.0');
         vDecimal := 1.5;
-        if Try20() then Observer.Observe('assign.1p5', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.1p5');
+        if Try32(R, vDecimal) then Observer.Observe('assign.1p5', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.1p5');
         vDecimal := -1.5;
-        if Try20() then Observer.Observe('assign.m1p5', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.m1p5');
+        if Try32(R, vDecimal) then Observer.Observe('assign.m1p5', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.m1p5');
         vDecimal := 2.5;
-        if Try20() then Observer.Observe('assign.2p5', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.2p5');
+        if Try32(R, vDecimal) then Observer.Observe('assign.2p5', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.2p5');
         vDecimal := 3;
-        if Try20() then Observer.Observe('assign.3', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.3');
+        if Try32(R, vDecimal) then Observer.Observe('assign.3', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.3');
         vDecimal := 255;
-        if Try20() then Observer.Observe('assign.255', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.255');
+        if Try32(R, vDecimal) then Observer.Observe('assign.255', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.255');
         vDecimal := 256;
-        if Try20() then Observer.Observe('assign.256', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.256');
+        if Try32(R, vDecimal) then Observer.Observe('assign.256', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.256');
         vDecimal := 2147483648.0;
-        if Try20() then Observer.Observe('assign.2p31', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.2p31');
-        vDecimal := 0.0001;
-        if Try20() then Observer.Observe('assign.0p0001', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.0p0001');
+        if Try32(R, vDecimal) then Observer.Observe('assign.2p31', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.2p31');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Decimal_To_FBigInteger_More1()
+    procedure Decimal_To_FBigInteger_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
+        vDecimal: Decimal;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_To_FBigInteger_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_To_FBigInteger_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_To_FBigInteger_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_To_FBigInteger_More5()
-    begin
-        Observer.More();
+        vDecimal := 0.0001;
+        if Try32(R, vDecimal) then Observer.Observe('assign.0p0001', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.0p0001');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Decimal_To_FOption()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
+        Util: Codeunit "LT Y31 Conv Util";
+        vDecimal: Decimal;
     begin
         vDecimal := 0;
-        if Try21() then Observer.Observe('assign.0', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.0');
+        if Try33(R, vDecimal) then Observer.Observe('assign.0', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.0');
         vDecimal := 1.5;
-        if Try21() then Observer.Observe('assign.1p5', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.1p5');
+        if Try33(R, vDecimal) then Observer.Observe('assign.1p5', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.1p5');
         vDecimal := -1.5;
-        if Try21() then Observer.Observe('assign.m1p5', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.m1p5');
+        if Try33(R, vDecimal) then Observer.Observe('assign.m1p5', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.m1p5');
         vDecimal := 2.5;
-        if Try21() then Observer.Observe('assign.2p5', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.2p5');
+        if Try33(R, vDecimal) then Observer.Observe('assign.2p5', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.2p5');
         vDecimal := 3;
-        if Try21() then Observer.Observe('assign.3', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.3');
+        if Try33(R, vDecimal) then Observer.Observe('assign.3', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.3');
         vDecimal := 255;
-        if Try21() then Observer.Observe('assign.255', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.255');
+        if Try33(R, vDecimal) then Observer.Observe('assign.255', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.255');
         vDecimal := 256;
-        if Try21() then Observer.Observe('assign.256', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.256');
+        if Try33(R, vDecimal) then Observer.Observe('assign.256', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.256');
         vDecimal := 2147483648.0;
-        if Try21() then Observer.Observe('assign.2p31', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.2p31');
-        vDecimal := 0.0001;
-        if Try21() then Observer.Observe('assign.0p0001', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.0p0001');
+        if Try33(R, vDecimal) then Observer.Observe('assign.2p31', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.2p31');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Decimal_To_FOption_More1()
+    procedure Decimal_To_FOption_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
+        Util: Codeunit "LT Y31 Conv Util";
+        vDecimal: Decimal;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_To_FOption_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_To_FOption_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_To_FOption_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_To_FOption_More5()
-    begin
-        Observer.More();
+        vDecimal := 0.0001;
+        if Try33(R, vDecimal) then Observer.Observe('assign.0p0001', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.0p0001');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Decimal_To_FDuration()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
+        vDecimal: Decimal;
     begin
         vDecimal := 0;
-        if Try22() then Observer.Observe('assign.0', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.0');
+        if Try34(R, vDecimal) then Observer.Observe('assign.0', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.0');
         vDecimal := 1.5;
-        if Try22() then Observer.Observe('assign.1p5', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.1p5');
+        if Try34(R, vDecimal) then Observer.Observe('assign.1p5', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.1p5');
         vDecimal := -1.5;
-        if Try22() then Observer.Observe('assign.m1p5', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.m1p5');
+        if Try34(R, vDecimal) then Observer.Observe('assign.m1p5', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.m1p5');
         vDecimal := 2.5;
-        if Try22() then Observer.Observe('assign.2p5', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.2p5');
+        if Try34(R, vDecimal) then Observer.Observe('assign.2p5', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.2p5');
         vDecimal := 3;
-        if Try22() then Observer.Observe('assign.3', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.3');
+        if Try34(R, vDecimal) then Observer.Observe('assign.3', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.3');
         vDecimal := 255;
-        if Try22() then Observer.Observe('assign.255', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.255');
+        if Try34(R, vDecimal) then Observer.Observe('assign.255', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.255');
         vDecimal := 256;
-        if Try22() then Observer.Observe('assign.256', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.256');
+        if Try34(R, vDecimal) then Observer.Observe('assign.256', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.256');
         vDecimal := 2147483648.0;
-        if Try22() then Observer.Observe('assign.2p31', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.2p31');
-        vDecimal := 0.0001;
-        if Try22() then Observer.Observe('assign.0p0001', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.0p0001');
+        if Try34(R, vDecimal) then Observer.Observe('assign.2p31', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.2p31');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Decimal_To_FDuration_More1()
+    procedure Decimal_To_FDuration_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
+        vDecimal: Decimal;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_To_FDuration_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_To_FDuration_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_To_FDuration_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_To_FDuration_More5()
-    begin
-        Observer.More();
+        vDecimal := 0.0001;
+        if Try34(R, vDecimal) then Observer.Observe('assign.0p0001', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.0p0001');
+        Observer.Finish();
     end;
 
     [TryFunction]
-    local procedure Try1()
+    local procedure Try1(var vDecimal: Decimal; var vInteger: Integer)
     begin
         Clear(vInteger);
         vInteger := vDecimal;
     end;
 
-    local procedure PA_Integer_1(p: Integer)
+    local procedure PA_Integer_2(p: Integer; var vInteger: Integer)
     begin
         vInteger := p;
     end;
 
     [TryFunction]
-    local procedure Try2()
+    local procedure Try3(var vDecimal: Decimal; var vInteger: Integer)
     begin
         Clear(vInteger);
-        PA_Integer_1(vDecimal);
+        PA_Integer_2(vDecimal, vInteger);
     end;
 
-    local procedure EX_Integer_2(): Integer
+    local procedure EX_Integer_4(var vDecimal: Decimal): Integer
     begin
         exit(vDecimal);
     end;
 
     [TryFunction]
-    local procedure Try3()
+    local procedure Try5(var vDecimal: Decimal; var vInteger: Integer)
     begin
         Clear(vInteger);
-        vInteger := EX_Integer_2();
+        vInteger := EX_Integer_4(vDecimal);
     end;
 
     [TryFunction]
-    local procedure Try4()
+    local procedure Try6(var vBigInteger: BigInteger; var vDecimal: Decimal)
     begin
         Clear(vBigInteger);
         vBigInteger := vDecimal;
     end;
 
-    local procedure PA_BigInteger_4(p: BigInteger)
+    local procedure PA_BigInteger_7(p: BigInteger; var vBigInteger: BigInteger)
     begin
         vBigInteger := p;
     end;
 
     [TryFunction]
-    local procedure Try5()
+    local procedure Try8(var vBigInteger: BigInteger; var vDecimal: Decimal)
     begin
         Clear(vBigInteger);
-        PA_BigInteger_4(vDecimal);
+        PA_BigInteger_7(vDecimal, vBigInteger);
     end;
 
-    local procedure EX_BigInteger_5(): BigInteger
+    local procedure EX_BigInteger_9(var vDecimal: Decimal): BigInteger
     begin
         exit(vDecimal);
     end;
 
     [TryFunction]
-    local procedure Try6()
+    local procedure Try10(var vBigInteger: BigInteger; var vDecimal: Decimal)
     begin
         Clear(vBigInteger);
-        vBigInteger := EX_BigInteger_5();
+        vBigInteger := EX_BigInteger_9(vDecimal);
     end;
 
     [TryFunction]
-    local procedure Try7()
+    local procedure Try11(var vChar: Char; var vDecimal: Decimal)
     begin
         Clear(vChar);
         vChar := vDecimal;
     end;
 
-    local procedure PA_Char_7(p: Char)
+    local procedure PA_Char_12(p: Char; var vChar: Char)
     begin
         vChar := p;
     end;
 
     [TryFunction]
-    local procedure Try8()
+    local procedure Try13(var vChar: Char; var vDecimal: Decimal)
     begin
         Clear(vChar);
-        PA_Char_7(vDecimal);
+        PA_Char_12(vDecimal, vChar);
     end;
 
-    local procedure EX_Char_8(): Char
+    local procedure EX_Char_14(var vDecimal: Decimal): Char
     begin
         exit(vDecimal);
     end;
 
     [TryFunction]
-    local procedure Try9()
+    local procedure Try15(var vChar: Char; var vDecimal: Decimal)
     begin
         Clear(vChar);
-        vChar := EX_Char_8();
+        vChar := EX_Char_14(vDecimal);
     end;
 
     [TryFunction]
-    local procedure Try10()
+    local procedure Try16(var vByte: Byte; var vDecimal: Decimal)
     begin
         Clear(vByte);
         vByte := vDecimal;
     end;
 
-    local procedure PA_Byte_10(p: Byte)
+    local procedure PA_Byte_17(p: Byte; var vByte: Byte)
     begin
         vByte := p;
     end;
 
     [TryFunction]
-    local procedure Try11()
+    local procedure Try18(var vByte: Byte; var vDecimal: Decimal)
     begin
         Clear(vByte);
-        PA_Byte_10(vDecimal);
+        PA_Byte_17(vDecimal, vByte);
     end;
 
-    local procedure EX_Byte_11(): Byte
+    local procedure EX_Byte_19(var vDecimal: Decimal): Byte
     begin
         exit(vDecimal);
     end;
 
     [TryFunction]
-    local procedure Try12()
+    local procedure Try20(var vByte: Byte; var vDecimal: Decimal)
     begin
         Clear(vByte);
-        vByte := EX_Byte_11();
+        vByte := EX_Byte_19(vDecimal);
     end;
 
     [TryFunction]
-    local procedure Try13()
+    local procedure Try21(var vDecimal: Decimal; var vOption: Option A,B,C)
     begin
         Clear(vOption);
         vOption := vDecimal;
     end;
 
-    local procedure PA_Option_13(p: Option A,B,C)
+    local procedure PA_Option_22(p: Option A,B,C; var vOption: Option A,B,C)
     begin
         vOption := p;
     end;
 
     [TryFunction]
-    local procedure Try14()
+    local procedure Try23(var vDecimal: Decimal; var vOption: Option A,B,C)
     begin
         Clear(vOption);
-        PA_Option_13(vDecimal);
+        PA_Option_22(vDecimal, vOption);
     end;
 
-    local procedure EX_Option_14(): Option A,B,C
+    local procedure EX_Option_24(var vDecimal: Decimal): Option A,B,C
     begin
         exit(vDecimal);
     end;
 
     [TryFunction]
-    local procedure Try15()
+    local procedure Try25(var vDecimal: Decimal; var vOption: Option A,B,C)
     begin
         Clear(vOption);
-        vOption := EX_Option_14();
+        vOption := EX_Option_24(vDecimal);
     end;
 
     [TryFunction]
-    local procedure Try16()
+    local procedure Try26(var vDecimal: Decimal; var vDuration: Duration)
     begin
         Clear(vDuration);
         vDuration := vDecimal;
     end;
 
-    local procedure PA_Duration_16(p: Duration)
+    local procedure PA_Duration_27(p: Duration; var vDuration: Duration)
     begin
         vDuration := p;
     end;
 
     [TryFunction]
-    local procedure Try17()
+    local procedure Try28(var vDecimal: Decimal; var vDuration: Duration)
     begin
         Clear(vDuration);
-        PA_Duration_16(vDecimal);
+        PA_Duration_27(vDecimal, vDuration);
     end;
 
-    local procedure EX_Duration_17(): Duration
+    local procedure EX_Duration_29(var vDecimal: Decimal): Duration
     begin
         exit(vDecimal);
     end;
 
     [TryFunction]
-    local procedure Try18()
+    local procedure Try30(var vDecimal: Decimal; var vDuration: Duration)
     begin
         Clear(vDuration);
-        vDuration := EX_Duration_17();
+        vDuration := EX_Duration_29(vDecimal);
     end;
 
     [TryFunction]
-    local procedure Try19()
+    local procedure Try31(var R: Record "LT Y31 Conv Fields"; var vDecimal: Decimal)
     begin
         Clear(R.Integer);
         R.Integer := vDecimal;
     end;
 
     [TryFunction]
-    local procedure Try20()
+    local procedure Try32(var R: Record "LT Y31 Conv Fields"; var vDecimal: Decimal)
     begin
         Clear(R.BigInteger);
         R.BigInteger := vDecimal;
     end;
 
     [TryFunction]
-    local procedure Try21()
+    local procedure Try33(var R: Record "LT Y31 Conv Fields"; var vDecimal: Decimal)
     begin
         Clear(R.Option);
         R.Option := vDecimal;
     end;
 
     [TryFunction]
-    local procedure Try22()
+    local procedure Try34(var R: Record "LT Y31 Conv Fields"; var vDecimal: Decimal)
     begin
         Clear(R.Duration);
         R.Duration := vDecimal;
@@ -2960,1496 +2692,1228 @@ codeunit 92413 "LT Y31 Cv Char"
     Subtype = Test;
     TestPermissions = Disabled;
 
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        R: Record "LT Y31 Conv Fields";
-        vBigInteger: BigInteger;
-        vByte: Byte;
-        vChar: Char;
-        vCode10: Code[10];
-        vCode250: Code[250];
-        vCode3: Code[3];
-        vDecimal: Decimal;
-        vDuration: Duration;
-        vInteger: Integer;
-        vOption: Option A,B,C;
-        vText: Text;
-        vText10: Text[10];
-        vText3: Text[3];
-
     [Test]
     procedure Char_To_Integer()
+    var
+        Observer: Codeunit "Probe Observer";
+        vChar: Char;
+        vInteger: Integer;
     begin
         vChar := 0;
-        if Try1() then Observer.Observe('assign.0', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.0');
-        if Try2() then Observer.Observe('arg_byvalue.0', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.0');
-        if Try3() then Observer.Observe('exit.0', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.0');
+        if Try1(vChar, vInteger) then Observer.Observe('assign.0', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.0');
+        if Try3(vChar, vInteger) then Observer.Observe('arg_byvalue.0', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.0');
+        if Try5(vChar, vInteger) then Observer.Observe('exit.0', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.0');
         vChar := 65;
-        if Try1() then Observer.Observe('assign.65', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.65');
-        if Try2() then Observer.Observe('arg_byvalue.65', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.65');
-        if Try3() then Observer.Observe('exit.65', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.65');
-        vChar := 97;
-        if Try1() then Observer.Observe('assign.97', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.97');
-        if Try2() then Observer.Observe('arg_byvalue.97', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.97');
-        if Try3() then Observer.Observe('exit.97', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.97');
-        vChar := 255;
-        if Try1() then Observer.Observe('assign.255', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.255');
-        if Try2() then Observer.Observe('arg_byvalue.255', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.255');
-        if Try3() then Observer.Observe('exit.255', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.255');
-        vChar := 256;
-        if Try1() then Observer.Observe('assign.256', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.256');
-        if Try2() then Observer.Observe('arg_byvalue.256', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.256');
-        if Try3() then Observer.Observe('exit.256', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.256');
-        vChar := 65535;
-        if Try1() then Observer.Observe('assign.65535', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.65535');
-        if Try2() then Observer.Observe('arg_byvalue.65535', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.65535');
-        if Try3() then Observer.Observe('exit.65535', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.65535');
+        if Try1(vChar, vInteger) then Observer.Observe('assign.65', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.65');
+        if Try3(vChar, vInteger) then Observer.Observe('arg_byvalue.65', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.65');
+        if Try5(vChar, vInteger) then Observer.Observe('exit.65', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.65');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Char_To_Integer_More1()
+    procedure Char_To_Integer_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vChar: Char;
+        vInteger: Integer;
     begin
-        Observer.More();
+        vChar := 97;
+        if Try1(vChar, vInteger) then Observer.Observe('assign.97', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.97');
+        if Try3(vChar, vInteger) then Observer.Observe('arg_byvalue.97', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.97');
+        if Try5(vChar, vInteger) then Observer.Observe('exit.97', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.97');
+        vChar := 255;
+        if Try1(vChar, vInteger) then Observer.Observe('assign.255', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.255');
+        if Try3(vChar, vInteger) then Observer.Observe('arg_byvalue.255', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.255');
+        if Try5(vChar, vInteger) then Observer.Observe('exit.255', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.255');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Char_To_Integer_More2()
+    procedure Char_To_Integer_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        vChar: Char;
+        vInteger: Integer;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_To_Integer_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_To_Integer_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_To_Integer_More5()
-    begin
-        Observer.More();
+        vChar := 256;
+        if Try1(vChar, vInteger) then Observer.Observe('assign.256', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.256');
+        if Try3(vChar, vInteger) then Observer.Observe('arg_byvalue.256', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.256');
+        if Try5(vChar, vInteger) then Observer.Observe('exit.256', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.256');
+        vChar := 65535;
+        if Try1(vChar, vInteger) then Observer.Observe('assign.65535', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.65535');
+        if Try3(vChar, vInteger) then Observer.Observe('arg_byvalue.65535', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.65535');
+        if Try5(vChar, vInteger) then Observer.Observe('exit.65535', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.65535');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Char_To_BigInteger()
+    var
+        Observer: Codeunit "Probe Observer";
+        vBigInteger: BigInteger;
+        vChar: Char;
     begin
         vChar := 0;
-        if Try4() then Observer.Observe('assign.0', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.0');
-        if Try5() then Observer.Observe('arg_byvalue.0', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.0');
-        if Try6() then Observer.Observe('exit.0', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.0');
+        if Try6(vBigInteger, vChar) then Observer.Observe('assign.0', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.0');
+        if Try8(vBigInteger, vChar) then Observer.Observe('arg_byvalue.0', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.0');
+        if Try10(vBigInteger, vChar) then Observer.Observe('exit.0', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.0');
         vChar := 65;
-        if Try4() then Observer.Observe('assign.65', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.65');
-        if Try5() then Observer.Observe('arg_byvalue.65', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.65');
-        if Try6() then Observer.Observe('exit.65', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.65');
-        vChar := 97;
-        if Try4() then Observer.Observe('assign.97', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.97');
-        if Try5() then Observer.Observe('arg_byvalue.97', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.97');
-        if Try6() then Observer.Observe('exit.97', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.97');
-        vChar := 255;
-        if Try4() then Observer.Observe('assign.255', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.255');
-        if Try5() then Observer.Observe('arg_byvalue.255', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.255');
-        if Try6() then Observer.Observe('exit.255', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.255');
-        vChar := 256;
-        if Try4() then Observer.Observe('assign.256', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.256');
-        if Try5() then Observer.Observe('arg_byvalue.256', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.256');
-        if Try6() then Observer.Observe('exit.256', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.256');
-        vChar := 65535;
-        if Try4() then Observer.Observe('assign.65535', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.65535');
-        if Try5() then Observer.Observe('arg_byvalue.65535', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.65535');
-        if Try6() then Observer.Observe('exit.65535', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.65535');
+        if Try6(vBigInteger, vChar) then Observer.Observe('assign.65', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.65');
+        if Try8(vBigInteger, vChar) then Observer.Observe('arg_byvalue.65', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.65');
+        if Try10(vBigInteger, vChar) then Observer.Observe('exit.65', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.65');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Char_To_BigInteger_More1()
+    procedure Char_To_BigInteger_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vBigInteger: BigInteger;
+        vChar: Char;
     begin
-        Observer.More();
+        vChar := 97;
+        if Try6(vBigInteger, vChar) then Observer.Observe('assign.97', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.97');
+        if Try8(vBigInteger, vChar) then Observer.Observe('arg_byvalue.97', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.97');
+        if Try10(vBigInteger, vChar) then Observer.Observe('exit.97', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.97');
+        vChar := 255;
+        if Try6(vBigInteger, vChar) then Observer.Observe('assign.255', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.255');
+        if Try8(vBigInteger, vChar) then Observer.Observe('arg_byvalue.255', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.255');
+        if Try10(vBigInteger, vChar) then Observer.Observe('exit.255', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.255');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Char_To_BigInteger_More2()
+    procedure Char_To_BigInteger_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        vBigInteger: BigInteger;
+        vChar: Char;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_To_BigInteger_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_To_BigInteger_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_To_BigInteger_More5()
-    begin
-        Observer.More();
+        vChar := 256;
+        if Try6(vBigInteger, vChar) then Observer.Observe('assign.256', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.256');
+        if Try8(vBigInteger, vChar) then Observer.Observe('arg_byvalue.256', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.256');
+        if Try10(vBigInteger, vChar) then Observer.Observe('exit.256', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.256');
+        vChar := 65535;
+        if Try6(vBigInteger, vChar) then Observer.Observe('assign.65535', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.65535');
+        if Try8(vBigInteger, vChar) then Observer.Observe('arg_byvalue.65535', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.65535');
+        if Try10(vBigInteger, vChar) then Observer.Observe('exit.65535', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.65535');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Char_To_Decimal()
+    var
+        Observer: Codeunit "Probe Observer";
+        vChar: Char;
+        vDecimal: Decimal;
     begin
         vChar := 0;
-        if Try7() then Observer.Observe('assign.0', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.0');
-        if Try8() then Observer.Observe('arg_byvalue.0', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.0');
-        if Try9() then Observer.Observe('exit.0', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.0');
+        if Try11(vChar, vDecimal) then Observer.Observe('assign.0', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.0');
+        if Try13(vChar, vDecimal) then Observer.Observe('arg_byvalue.0', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.0');
+        if Try15(vChar, vDecimal) then Observer.Observe('exit.0', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.0');
         vChar := 65;
-        if Try7() then Observer.Observe('assign.65', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.65');
-        if Try8() then Observer.Observe('arg_byvalue.65', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.65');
-        if Try9() then Observer.Observe('exit.65', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.65');
-        vChar := 97;
-        if Try7() then Observer.Observe('assign.97', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.97');
-        if Try8() then Observer.Observe('arg_byvalue.97', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.97');
-        if Try9() then Observer.Observe('exit.97', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.97');
-        vChar := 255;
-        if Try7() then Observer.Observe('assign.255', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.255');
-        if Try8() then Observer.Observe('arg_byvalue.255', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.255');
-        if Try9() then Observer.Observe('exit.255', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.255');
-        vChar := 256;
-        if Try7() then Observer.Observe('assign.256', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.256');
-        if Try8() then Observer.Observe('arg_byvalue.256', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.256');
-        if Try9() then Observer.Observe('exit.256', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.256');
-        vChar := 65535;
-        if Try7() then Observer.Observe('assign.65535', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.65535');
-        if Try8() then Observer.Observe('arg_byvalue.65535', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.65535');
-        if Try9() then Observer.Observe('exit.65535', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.65535');
+        if Try11(vChar, vDecimal) then Observer.Observe('assign.65', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.65');
+        if Try13(vChar, vDecimal) then Observer.Observe('arg_byvalue.65', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.65');
+        if Try15(vChar, vDecimal) then Observer.Observe('exit.65', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.65');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Char_To_Decimal_More1()
+    procedure Char_To_Decimal_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vChar: Char;
+        vDecimal: Decimal;
     begin
-        Observer.More();
+        vChar := 97;
+        if Try11(vChar, vDecimal) then Observer.Observe('assign.97', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.97');
+        if Try13(vChar, vDecimal) then Observer.Observe('arg_byvalue.97', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.97');
+        if Try15(vChar, vDecimal) then Observer.Observe('exit.97', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.97');
+        vChar := 255;
+        if Try11(vChar, vDecimal) then Observer.Observe('assign.255', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.255');
+        if Try13(vChar, vDecimal) then Observer.Observe('arg_byvalue.255', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.255');
+        if Try15(vChar, vDecimal) then Observer.Observe('exit.255', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.255');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Char_To_Decimal_More2()
+    procedure Char_To_Decimal_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        vChar: Char;
+        vDecimal: Decimal;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_To_Decimal_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_To_Decimal_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_To_Decimal_More5()
-    begin
-        Observer.More();
+        vChar := 256;
+        if Try11(vChar, vDecimal) then Observer.Observe('assign.256', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.256');
+        if Try13(vChar, vDecimal) then Observer.Observe('arg_byvalue.256', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.256');
+        if Try15(vChar, vDecimal) then Observer.Observe('exit.256', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.256');
+        vChar := 65535;
+        if Try11(vChar, vDecimal) then Observer.Observe('assign.65535', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.65535');
+        if Try13(vChar, vDecimal) then Observer.Observe('arg_byvalue.65535', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.65535');
+        if Try15(vChar, vDecimal) then Observer.Observe('exit.65535', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.65535');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Char_To_Byte()
+    var
+        Observer: Codeunit "Probe Observer";
+        vByte: Byte;
+        vChar: Char;
     begin
         vChar := 0;
-        if Try10() then Observer.Observe('assign.0', Format(vByte, 0, 9)) else Observer.ObserveError('assign.0');
-        if Try11() then Observer.Observe('arg_byvalue.0', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.0');
-        if Try12() then Observer.Observe('exit.0', Format(vByte, 0, 9)) else Observer.ObserveError('exit.0');
+        if Try16(vByte, vChar) then Observer.Observe('assign.0', Format(vByte, 0, 9)) else Observer.ObserveError('assign.0');
+        if Try18(vByte, vChar) then Observer.Observe('arg_byvalue.0', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.0');
+        if Try20(vByte, vChar) then Observer.Observe('exit.0', Format(vByte, 0, 9)) else Observer.ObserveError('exit.0');
         vChar := 65;
-        if Try10() then Observer.Observe('assign.65', Format(vByte, 0, 9)) else Observer.ObserveError('assign.65');
-        if Try11() then Observer.Observe('arg_byvalue.65', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.65');
-        if Try12() then Observer.Observe('exit.65', Format(vByte, 0, 9)) else Observer.ObserveError('exit.65');
-        vChar := 97;
-        if Try10() then Observer.Observe('assign.97', Format(vByte, 0, 9)) else Observer.ObserveError('assign.97');
-        if Try11() then Observer.Observe('arg_byvalue.97', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.97');
-        if Try12() then Observer.Observe('exit.97', Format(vByte, 0, 9)) else Observer.ObserveError('exit.97');
-        vChar := 255;
-        if Try10() then Observer.Observe('assign.255', Format(vByte, 0, 9)) else Observer.ObserveError('assign.255');
-        if Try11() then Observer.Observe('arg_byvalue.255', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.255');
-        if Try12() then Observer.Observe('exit.255', Format(vByte, 0, 9)) else Observer.ObserveError('exit.255');
-        vChar := 256;
-        if Try10() then Observer.Observe('assign.256', Format(vByte, 0, 9)) else Observer.ObserveError('assign.256');
-        if Try11() then Observer.Observe('arg_byvalue.256', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.256');
-        if Try12() then Observer.Observe('exit.256', Format(vByte, 0, 9)) else Observer.ObserveError('exit.256');
-        vChar := 65535;
-        if Try10() then Observer.Observe('assign.65535', Format(vByte, 0, 9)) else Observer.ObserveError('assign.65535');
-        if Try11() then Observer.Observe('arg_byvalue.65535', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.65535');
-        if Try12() then Observer.Observe('exit.65535', Format(vByte, 0, 9)) else Observer.ObserveError('exit.65535');
+        if Try16(vByte, vChar) then Observer.Observe('assign.65', Format(vByte, 0, 9)) else Observer.ObserveError('assign.65');
+        if Try18(vByte, vChar) then Observer.Observe('arg_byvalue.65', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.65');
+        if Try20(vByte, vChar) then Observer.Observe('exit.65', Format(vByte, 0, 9)) else Observer.ObserveError('exit.65');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Char_To_Byte_More1()
+    procedure Char_To_Byte_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vByte: Byte;
+        vChar: Char;
     begin
-        Observer.More();
+        vChar := 97;
+        if Try16(vByte, vChar) then Observer.Observe('assign.97', Format(vByte, 0, 9)) else Observer.ObserveError('assign.97');
+        if Try18(vByte, vChar) then Observer.Observe('arg_byvalue.97', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.97');
+        if Try20(vByte, vChar) then Observer.Observe('exit.97', Format(vByte, 0, 9)) else Observer.ObserveError('exit.97');
+        vChar := 255;
+        if Try16(vByte, vChar) then Observer.Observe('assign.255', Format(vByte, 0, 9)) else Observer.ObserveError('assign.255');
+        if Try18(vByte, vChar) then Observer.Observe('arg_byvalue.255', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.255');
+        if Try20(vByte, vChar) then Observer.Observe('exit.255', Format(vByte, 0, 9)) else Observer.ObserveError('exit.255');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Char_To_Byte_More2()
+    procedure Char_To_Byte_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        vByte: Byte;
+        vChar: Char;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_To_Byte_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_To_Byte_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_To_Byte_More5()
-    begin
-        Observer.More();
+        vChar := 256;
+        if Try16(vByte, vChar) then Observer.Observe('assign.256', Format(vByte, 0, 9)) else Observer.ObserveError('assign.256');
+        if Try18(vByte, vChar) then Observer.Observe('arg_byvalue.256', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.256');
+        if Try20(vByte, vChar) then Observer.Observe('exit.256', Format(vByte, 0, 9)) else Observer.ObserveError('exit.256');
+        vChar := 65535;
+        if Try16(vByte, vChar) then Observer.Observe('assign.65535', Format(vByte, 0, 9)) else Observer.ObserveError('assign.65535');
+        if Try18(vByte, vChar) then Observer.Observe('arg_byvalue.65535', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.65535');
+        if Try20(vByte, vChar) then Observer.Observe('exit.65535', Format(vByte, 0, 9)) else Observer.ObserveError('exit.65535');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Char_To_Option()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vChar: Char;
+        vOption: Option A,B,C;
     begin
         vChar := 0;
-        if Try13() then Observer.Observe('assign.0', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.0');
-        if Try14() then Observer.Observe('arg_byvalue.0', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.0');
-        if Try15() then Observer.Observe('exit.0', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.0');
+        if Try21(vChar, vOption) then Observer.Observe('assign.0', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.0');
+        if Try23(vChar, vOption) then Observer.Observe('arg_byvalue.0', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.0');
+        if Try25(vChar, vOption) then Observer.Observe('exit.0', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.0');
         vChar := 65;
-        if Try13() then Observer.Observe('assign.65', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.65');
-        if Try14() then Observer.Observe('arg_byvalue.65', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.65');
-        if Try15() then Observer.Observe('exit.65', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.65');
-        vChar := 97;
-        if Try13() then Observer.Observe('assign.97', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.97');
-        if Try14() then Observer.Observe('arg_byvalue.97', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.97');
-        if Try15() then Observer.Observe('exit.97', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.97');
-        vChar := 255;
-        if Try13() then Observer.Observe('assign.255', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.255');
-        if Try14() then Observer.Observe('arg_byvalue.255', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.255');
-        if Try15() then Observer.Observe('exit.255', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.255');
-        vChar := 256;
-        if Try13() then Observer.Observe('assign.256', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.256');
-        if Try14() then Observer.Observe('arg_byvalue.256', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.256');
-        if Try15() then Observer.Observe('exit.256', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.256');
-        vChar := 65535;
-        if Try13() then Observer.Observe('assign.65535', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.65535');
-        if Try14() then Observer.Observe('arg_byvalue.65535', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.65535');
-        if Try15() then Observer.Observe('exit.65535', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.65535');
+        if Try21(vChar, vOption) then Observer.Observe('assign.65', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.65');
+        if Try23(vChar, vOption) then Observer.Observe('arg_byvalue.65', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.65');
+        if Try25(vChar, vOption) then Observer.Observe('exit.65', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.65');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Char_To_Option_More1()
+    procedure Char_To_Option_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vChar: Char;
+        vOption: Option A,B,C;
     begin
-        Observer.More();
+        vChar := 97;
+        if Try21(vChar, vOption) then Observer.Observe('assign.97', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.97');
+        if Try23(vChar, vOption) then Observer.Observe('arg_byvalue.97', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.97');
+        if Try25(vChar, vOption) then Observer.Observe('exit.97', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.97');
+        vChar := 255;
+        if Try21(vChar, vOption) then Observer.Observe('assign.255', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.255');
+        if Try23(vChar, vOption) then Observer.Observe('arg_byvalue.255', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.255');
+        if Try25(vChar, vOption) then Observer.Observe('exit.255', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.255');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Char_To_Option_More2()
+    procedure Char_To_Option_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vChar: Char;
+        vOption: Option A,B,C;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_To_Option_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_To_Option_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_To_Option_More5()
-    begin
-        Observer.More();
+        vChar := 256;
+        if Try21(vChar, vOption) then Observer.Observe('assign.256', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.256');
+        if Try23(vChar, vOption) then Observer.Observe('arg_byvalue.256', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.256');
+        if Try25(vChar, vOption) then Observer.Observe('exit.256', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.256');
+        vChar := 65535;
+        if Try21(vChar, vOption) then Observer.Observe('assign.65535', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.65535');
+        if Try23(vChar, vOption) then Observer.Observe('arg_byvalue.65535', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.65535');
+        if Try25(vChar, vOption) then Observer.Observe('exit.65535', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.65535');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Char_To_Text()
+    var
+        Observer: Codeunit "Probe Observer";
+        vChar: Char;
+        vText: Text;
     begin
         vChar := 0;
-        if Try16() then Observer.Observe('assign.0', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.0');
-        if Try17() then Observer.Observe('arg_byvalue.0', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.0');
-        if Try18() then Observer.Observe('exit.0', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.0');
+        if Try26(vChar, vText) then Observer.Observe('assign.0', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.0');
+        if Try28(vChar, vText) then Observer.Observe('arg_byvalue.0', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.0');
+        if Try30(vChar, vText) then Observer.Observe('exit.0', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.0');
         vChar := 65;
-        if Try16() then Observer.Observe('assign.65', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.65');
-        if Try17() then Observer.Observe('arg_byvalue.65', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.65');
-        if Try18() then Observer.Observe('exit.65', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.65');
-        vChar := 97;
-        if Try16() then Observer.Observe('assign.97', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.97');
-        if Try17() then Observer.Observe('arg_byvalue.97', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.97');
-        if Try18() then Observer.Observe('exit.97', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.97');
-        vChar := 255;
-        if Try16() then Observer.Observe('assign.255', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.255');
-        if Try17() then Observer.Observe('arg_byvalue.255', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.255');
-        if Try18() then Observer.Observe('exit.255', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.255');
-        vChar := 256;
-        if Try16() then Observer.Observe('assign.256', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.256');
-        if Try17() then Observer.Observe('arg_byvalue.256', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.256');
-        if Try18() then Observer.Observe('exit.256', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.256');
-        vChar := 65535;
-        if Try16() then Observer.Observe('assign.65535', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.65535');
-        if Try17() then Observer.Observe('arg_byvalue.65535', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.65535');
-        if Try18() then Observer.Observe('exit.65535', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.65535');
+        if Try26(vChar, vText) then Observer.Observe('assign.65', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.65');
+        if Try28(vChar, vText) then Observer.Observe('arg_byvalue.65', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.65');
+        if Try30(vChar, vText) then Observer.Observe('exit.65', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.65');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Char_To_Text_More1()
+    procedure Char_To_Text_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vChar: Char;
+        vText: Text;
     begin
-        Observer.More();
+        vChar := 97;
+        if Try26(vChar, vText) then Observer.Observe('assign.97', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.97');
+        if Try28(vChar, vText) then Observer.Observe('arg_byvalue.97', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.97');
+        if Try30(vChar, vText) then Observer.Observe('exit.97', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.97');
+        vChar := 255;
+        if Try26(vChar, vText) then Observer.Observe('assign.255', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.255');
+        if Try28(vChar, vText) then Observer.Observe('arg_byvalue.255', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.255');
+        if Try30(vChar, vText) then Observer.Observe('exit.255', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.255');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Char_To_Text_More2()
+    procedure Char_To_Text_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        vChar: Char;
+        vText: Text;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_To_Text_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_To_Text_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_To_Text_More5()
-    begin
-        Observer.More();
+        vChar := 256;
+        if Try26(vChar, vText) then Observer.Observe('assign.256', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.256');
+        if Try28(vChar, vText) then Observer.Observe('arg_byvalue.256', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.256');
+        if Try30(vChar, vText) then Observer.Observe('exit.256', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.256');
+        vChar := 65535;
+        if Try26(vChar, vText) then Observer.Observe('assign.65535', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.65535');
+        if Try28(vChar, vText) then Observer.Observe('arg_byvalue.65535', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.65535');
+        if Try30(vChar, vText) then Observer.Observe('exit.65535', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.65535');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Char_To_Text10()
+    var
+        Observer: Codeunit "Probe Observer";
+        vChar: Char;
+        vText10: Text[10];
     begin
         vChar := 0;
-        if Try19() then Observer.Observe('assign.0', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.0');
-        if Try20() then Observer.Observe('arg_byvalue.0', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.0');
-        if Try21() then Observer.Observe('exit.0', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.0');
+        if Try31(vChar, vText10) then Observer.Observe('assign.0', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.0');
+        if Try33(vChar, vText10) then Observer.Observe('arg_byvalue.0', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.0');
+        if Try35(vChar, vText10) then Observer.Observe('exit.0', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.0');
         vChar := 65;
-        if Try19() then Observer.Observe('assign.65', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.65');
-        if Try20() then Observer.Observe('arg_byvalue.65', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.65');
-        if Try21() then Observer.Observe('exit.65', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.65');
-        vChar := 97;
-        if Try19() then Observer.Observe('assign.97', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.97');
-        if Try20() then Observer.Observe('arg_byvalue.97', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.97');
-        if Try21() then Observer.Observe('exit.97', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.97');
-        vChar := 255;
-        if Try19() then Observer.Observe('assign.255', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.255');
-        if Try20() then Observer.Observe('arg_byvalue.255', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.255');
-        if Try21() then Observer.Observe('exit.255', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.255');
-        vChar := 256;
-        if Try19() then Observer.Observe('assign.256', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.256');
-        if Try20() then Observer.Observe('arg_byvalue.256', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.256');
-        if Try21() then Observer.Observe('exit.256', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.256');
-        vChar := 65535;
-        if Try19() then Observer.Observe('assign.65535', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.65535');
-        if Try20() then Observer.Observe('arg_byvalue.65535', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.65535');
-        if Try21() then Observer.Observe('exit.65535', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.65535');
+        if Try31(vChar, vText10) then Observer.Observe('assign.65', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.65');
+        if Try33(vChar, vText10) then Observer.Observe('arg_byvalue.65', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.65');
+        if Try35(vChar, vText10) then Observer.Observe('exit.65', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.65');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Char_To_Text10_More1()
+    procedure Char_To_Text10_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vChar: Char;
+        vText10: Text[10];
     begin
-        Observer.More();
+        vChar := 97;
+        if Try31(vChar, vText10) then Observer.Observe('assign.97', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.97');
+        if Try33(vChar, vText10) then Observer.Observe('arg_byvalue.97', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.97');
+        if Try35(vChar, vText10) then Observer.Observe('exit.97', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.97');
+        vChar := 255;
+        if Try31(vChar, vText10) then Observer.Observe('assign.255', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.255');
+        if Try33(vChar, vText10) then Observer.Observe('arg_byvalue.255', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.255');
+        if Try35(vChar, vText10) then Observer.Observe('exit.255', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.255');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Char_To_Text10_More2()
+    procedure Char_To_Text10_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        vChar: Char;
+        vText10: Text[10];
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_To_Text10_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_To_Text10_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_To_Text10_More5()
-    begin
-        Observer.More();
+        vChar := 256;
+        if Try31(vChar, vText10) then Observer.Observe('assign.256', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.256');
+        if Try33(vChar, vText10) then Observer.Observe('arg_byvalue.256', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.256');
+        if Try35(vChar, vText10) then Observer.Observe('exit.256', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.256');
+        vChar := 65535;
+        if Try31(vChar, vText10) then Observer.Observe('assign.65535', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.65535');
+        if Try33(vChar, vText10) then Observer.Observe('arg_byvalue.65535', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.65535');
+        if Try35(vChar, vText10) then Observer.Observe('exit.65535', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.65535');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Char_To_Text3()
+    var
+        Observer: Codeunit "Probe Observer";
+        vChar: Char;
+        vText3: Text[3];
     begin
         vChar := 0;
-        if Try22() then Observer.Observe('assign.0', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.0');
-        if Try23() then Observer.Observe('arg_byvalue.0', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.0');
-        if Try24() then Observer.Observe('exit.0', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.0');
+        if Try36(vChar, vText3) then Observer.Observe('assign.0', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.0');
+        if Try38(vChar, vText3) then Observer.Observe('arg_byvalue.0', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.0');
+        if Try40(vChar, vText3) then Observer.Observe('exit.0', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.0');
         vChar := 65;
-        if Try22() then Observer.Observe('assign.65', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.65');
-        if Try23() then Observer.Observe('arg_byvalue.65', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.65');
-        if Try24() then Observer.Observe('exit.65', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.65');
-        vChar := 97;
-        if Try22() then Observer.Observe('assign.97', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.97');
-        if Try23() then Observer.Observe('arg_byvalue.97', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.97');
-        if Try24() then Observer.Observe('exit.97', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.97');
-        vChar := 255;
-        if Try22() then Observer.Observe('assign.255', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.255');
-        if Try23() then Observer.Observe('arg_byvalue.255', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.255');
-        if Try24() then Observer.Observe('exit.255', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.255');
-        vChar := 256;
-        if Try22() then Observer.Observe('assign.256', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.256');
-        if Try23() then Observer.Observe('arg_byvalue.256', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.256');
-        if Try24() then Observer.Observe('exit.256', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.256');
-        vChar := 65535;
-        if Try22() then Observer.Observe('assign.65535', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.65535');
-        if Try23() then Observer.Observe('arg_byvalue.65535', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.65535');
-        if Try24() then Observer.Observe('exit.65535', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.65535');
+        if Try36(vChar, vText3) then Observer.Observe('assign.65', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.65');
+        if Try38(vChar, vText3) then Observer.Observe('arg_byvalue.65', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.65');
+        if Try40(vChar, vText3) then Observer.Observe('exit.65', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.65');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Char_To_Text3_More1()
+    procedure Char_To_Text3_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vChar: Char;
+        vText3: Text[3];
     begin
-        Observer.More();
+        vChar := 97;
+        if Try36(vChar, vText3) then Observer.Observe('assign.97', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.97');
+        if Try38(vChar, vText3) then Observer.Observe('arg_byvalue.97', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.97');
+        if Try40(vChar, vText3) then Observer.Observe('exit.97', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.97');
+        vChar := 255;
+        if Try36(vChar, vText3) then Observer.Observe('assign.255', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.255');
+        if Try38(vChar, vText3) then Observer.Observe('arg_byvalue.255', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.255');
+        if Try40(vChar, vText3) then Observer.Observe('exit.255', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.255');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Char_To_Text3_More2()
+    procedure Char_To_Text3_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        vChar: Char;
+        vText3: Text[3];
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_To_Text3_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_To_Text3_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_To_Text3_More5()
-    begin
-        Observer.More();
+        vChar := 256;
+        if Try36(vChar, vText3) then Observer.Observe('assign.256', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.256');
+        if Try38(vChar, vText3) then Observer.Observe('arg_byvalue.256', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.256');
+        if Try40(vChar, vText3) then Observer.Observe('exit.256', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.256');
+        vChar := 65535;
+        if Try36(vChar, vText3) then Observer.Observe('assign.65535', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.65535');
+        if Try38(vChar, vText3) then Observer.Observe('arg_byvalue.65535', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.65535');
+        if Try40(vChar, vText3) then Observer.Observe('exit.65535', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.65535');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Char_To_Code10()
+    var
+        Observer: Codeunit "Probe Observer";
+        vChar: Char;
+        vCode10: Code[10];
     begin
         vChar := 0;
-        if Try25() then Observer.Observe('assign.0', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.0');
-        if Try26() then Observer.Observe('arg_byvalue.0', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.0');
-        if Try27() then Observer.Observe('exit.0', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.0');
+        if Try41(vChar, vCode10) then Observer.Observe('assign.0', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.0');
+        if Try43(vChar, vCode10) then Observer.Observe('arg_byvalue.0', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.0');
+        if Try45(vChar, vCode10) then Observer.Observe('exit.0', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.0');
         vChar := 65;
-        if Try25() then Observer.Observe('assign.65', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.65');
-        if Try26() then Observer.Observe('arg_byvalue.65', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.65');
-        if Try27() then Observer.Observe('exit.65', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.65');
-        vChar := 97;
-        if Try25() then Observer.Observe('assign.97', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.97');
-        if Try26() then Observer.Observe('arg_byvalue.97', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.97');
-        if Try27() then Observer.Observe('exit.97', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.97');
-        vChar := 255;
-        if Try25() then Observer.Observe('assign.255', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.255');
-        if Try26() then Observer.Observe('arg_byvalue.255', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.255');
-        if Try27() then Observer.Observe('exit.255', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.255');
-        vChar := 256;
-        if Try25() then Observer.Observe('assign.256', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.256');
-        if Try26() then Observer.Observe('arg_byvalue.256', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.256');
-        if Try27() then Observer.Observe('exit.256', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.256');
-        vChar := 65535;
-        if Try25() then Observer.Observe('assign.65535', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.65535');
-        if Try26() then Observer.Observe('arg_byvalue.65535', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.65535');
-        if Try27() then Observer.Observe('exit.65535', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.65535');
+        if Try41(vChar, vCode10) then Observer.Observe('assign.65', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.65');
+        if Try43(vChar, vCode10) then Observer.Observe('arg_byvalue.65', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.65');
+        if Try45(vChar, vCode10) then Observer.Observe('exit.65', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.65');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Char_To_Code10_More1()
+    procedure Char_To_Code10_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vChar: Char;
+        vCode10: Code[10];
     begin
-        Observer.More();
+        vChar := 97;
+        if Try41(vChar, vCode10) then Observer.Observe('assign.97', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.97');
+        if Try43(vChar, vCode10) then Observer.Observe('arg_byvalue.97', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.97');
+        if Try45(vChar, vCode10) then Observer.Observe('exit.97', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.97');
+        vChar := 255;
+        if Try41(vChar, vCode10) then Observer.Observe('assign.255', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.255');
+        if Try43(vChar, vCode10) then Observer.Observe('arg_byvalue.255', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.255');
+        if Try45(vChar, vCode10) then Observer.Observe('exit.255', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.255');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Char_To_Code10_More2()
+    procedure Char_To_Code10_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        vChar: Char;
+        vCode10: Code[10];
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_To_Code10_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_To_Code10_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_To_Code10_More5()
-    begin
-        Observer.More();
+        vChar := 256;
+        if Try41(vChar, vCode10) then Observer.Observe('assign.256', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.256');
+        if Try43(vChar, vCode10) then Observer.Observe('arg_byvalue.256', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.256');
+        if Try45(vChar, vCode10) then Observer.Observe('exit.256', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.256');
+        vChar := 65535;
+        if Try41(vChar, vCode10) then Observer.Observe('assign.65535', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.65535');
+        if Try43(vChar, vCode10) then Observer.Observe('arg_byvalue.65535', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.65535');
+        if Try45(vChar, vCode10) then Observer.Observe('exit.65535', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.65535');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Char_To_Code3()
+    var
+        Observer: Codeunit "Probe Observer";
+        vChar: Char;
+        vCode3: Code[3];
     begin
         vChar := 0;
-        if Try28() then Observer.Observe('assign.0', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.0');
-        if Try29() then Observer.Observe('arg_byvalue.0', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.0');
-        if Try30() then Observer.Observe('exit.0', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.0');
+        if Try46(vChar, vCode3) then Observer.Observe('assign.0', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.0');
+        if Try48(vChar, vCode3) then Observer.Observe('arg_byvalue.0', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.0');
+        if Try50(vChar, vCode3) then Observer.Observe('exit.0', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.0');
         vChar := 65;
-        if Try28() then Observer.Observe('assign.65', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.65');
-        if Try29() then Observer.Observe('arg_byvalue.65', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.65');
-        if Try30() then Observer.Observe('exit.65', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.65');
-        vChar := 97;
-        if Try28() then Observer.Observe('assign.97', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.97');
-        if Try29() then Observer.Observe('arg_byvalue.97', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.97');
-        if Try30() then Observer.Observe('exit.97', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.97');
-        vChar := 255;
-        if Try28() then Observer.Observe('assign.255', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.255');
-        if Try29() then Observer.Observe('arg_byvalue.255', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.255');
-        if Try30() then Observer.Observe('exit.255', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.255');
-        vChar := 256;
-        if Try28() then Observer.Observe('assign.256', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.256');
-        if Try29() then Observer.Observe('arg_byvalue.256', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.256');
-        if Try30() then Observer.Observe('exit.256', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.256');
-        vChar := 65535;
-        if Try28() then Observer.Observe('assign.65535', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.65535');
-        if Try29() then Observer.Observe('arg_byvalue.65535', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.65535');
-        if Try30() then Observer.Observe('exit.65535', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.65535');
+        if Try46(vChar, vCode3) then Observer.Observe('assign.65', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.65');
+        if Try48(vChar, vCode3) then Observer.Observe('arg_byvalue.65', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.65');
+        if Try50(vChar, vCode3) then Observer.Observe('exit.65', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.65');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Char_To_Code3_More1()
+    procedure Char_To_Code3_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vChar: Char;
+        vCode3: Code[3];
     begin
-        Observer.More();
+        vChar := 97;
+        if Try46(vChar, vCode3) then Observer.Observe('assign.97', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.97');
+        if Try48(vChar, vCode3) then Observer.Observe('arg_byvalue.97', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.97');
+        if Try50(vChar, vCode3) then Observer.Observe('exit.97', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.97');
+        vChar := 255;
+        if Try46(vChar, vCode3) then Observer.Observe('assign.255', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.255');
+        if Try48(vChar, vCode3) then Observer.Observe('arg_byvalue.255', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.255');
+        if Try50(vChar, vCode3) then Observer.Observe('exit.255', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.255');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Char_To_Code3_More2()
+    procedure Char_To_Code3_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        vChar: Char;
+        vCode3: Code[3];
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_To_Code3_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_To_Code3_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_To_Code3_More5()
-    begin
-        Observer.More();
+        vChar := 256;
+        if Try46(vChar, vCode3) then Observer.Observe('assign.256', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.256');
+        if Try48(vChar, vCode3) then Observer.Observe('arg_byvalue.256', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.256');
+        if Try50(vChar, vCode3) then Observer.Observe('exit.256', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.256');
+        vChar := 65535;
+        if Try46(vChar, vCode3) then Observer.Observe('assign.65535', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.65535');
+        if Try48(vChar, vCode3) then Observer.Observe('arg_byvalue.65535', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.65535');
+        if Try50(vChar, vCode3) then Observer.Observe('exit.65535', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.65535');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Char_To_Code250()
+    var
+        Observer: Codeunit "Probe Observer";
+        vChar: Char;
+        vCode250: Code[250];
     begin
         vChar := 0;
-        if Try31() then Observer.Observe('assign.0', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.0');
-        if Try32() then Observer.Observe('arg_byvalue.0', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.0');
-        if Try33() then Observer.Observe('exit.0', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.0');
+        if Try51(vChar, vCode250) then Observer.Observe('assign.0', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.0');
+        if Try53(vChar, vCode250) then Observer.Observe('arg_byvalue.0', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.0');
+        if Try55(vChar, vCode250) then Observer.Observe('exit.0', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.0');
         vChar := 65;
-        if Try31() then Observer.Observe('assign.65', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.65');
-        if Try32() then Observer.Observe('arg_byvalue.65', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.65');
-        if Try33() then Observer.Observe('exit.65', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.65');
-        vChar := 97;
-        if Try31() then Observer.Observe('assign.97', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.97');
-        if Try32() then Observer.Observe('arg_byvalue.97', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.97');
-        if Try33() then Observer.Observe('exit.97', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.97');
-        vChar := 255;
-        if Try31() then Observer.Observe('assign.255', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.255');
-        if Try32() then Observer.Observe('arg_byvalue.255', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.255');
-        if Try33() then Observer.Observe('exit.255', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.255');
-        vChar := 256;
-        if Try31() then Observer.Observe('assign.256', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.256');
-        if Try32() then Observer.Observe('arg_byvalue.256', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.256');
-        if Try33() then Observer.Observe('exit.256', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.256');
-        vChar := 65535;
-        if Try31() then Observer.Observe('assign.65535', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.65535');
-        if Try32() then Observer.Observe('arg_byvalue.65535', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.65535');
-        if Try33() then Observer.Observe('exit.65535', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.65535');
+        if Try51(vChar, vCode250) then Observer.Observe('assign.65', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.65');
+        if Try53(vChar, vCode250) then Observer.Observe('arg_byvalue.65', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.65');
+        if Try55(vChar, vCode250) then Observer.Observe('exit.65', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.65');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Char_To_Code250_More1()
+    procedure Char_To_Code250_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vChar: Char;
+        vCode250: Code[250];
     begin
-        Observer.More();
+        vChar := 97;
+        if Try51(vChar, vCode250) then Observer.Observe('assign.97', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.97');
+        if Try53(vChar, vCode250) then Observer.Observe('arg_byvalue.97', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.97');
+        if Try55(vChar, vCode250) then Observer.Observe('exit.97', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.97');
+        vChar := 255;
+        if Try51(vChar, vCode250) then Observer.Observe('assign.255', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.255');
+        if Try53(vChar, vCode250) then Observer.Observe('arg_byvalue.255', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.255');
+        if Try55(vChar, vCode250) then Observer.Observe('exit.255', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.255');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Char_To_Code250_More2()
+    procedure Char_To_Code250_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        vChar: Char;
+        vCode250: Code[250];
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_To_Code250_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_To_Code250_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_To_Code250_More5()
-    begin
-        Observer.More();
+        vChar := 256;
+        if Try51(vChar, vCode250) then Observer.Observe('assign.256', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.256');
+        if Try53(vChar, vCode250) then Observer.Observe('arg_byvalue.256', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.256');
+        if Try55(vChar, vCode250) then Observer.Observe('exit.256', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.256');
+        vChar := 65535;
+        if Try51(vChar, vCode250) then Observer.Observe('assign.65535', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.65535');
+        if Try53(vChar, vCode250) then Observer.Observe('arg_byvalue.65535', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.65535');
+        if Try55(vChar, vCode250) then Observer.Observe('exit.65535', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.65535');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Char_To_Duration()
+    var
+        Observer: Codeunit "Probe Observer";
+        vChar: Char;
+        vDuration: Duration;
     begin
         vChar := 0;
-        if Try34() then Observer.Observe('assign.0', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.0');
-        if Try35() then Observer.Observe('arg_byvalue.0', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.0');
-        if Try36() then Observer.Observe('exit.0', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.0');
+        if Try56(vChar, vDuration) then Observer.Observe('assign.0', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.0');
+        if Try58(vChar, vDuration) then Observer.Observe('arg_byvalue.0', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.0');
+        if Try60(vChar, vDuration) then Observer.Observe('exit.0', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.0');
         vChar := 65;
-        if Try34() then Observer.Observe('assign.65', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.65');
-        if Try35() then Observer.Observe('arg_byvalue.65', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.65');
-        if Try36() then Observer.Observe('exit.65', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.65');
-        vChar := 97;
-        if Try34() then Observer.Observe('assign.97', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.97');
-        if Try35() then Observer.Observe('arg_byvalue.97', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.97');
-        if Try36() then Observer.Observe('exit.97', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.97');
-        vChar := 255;
-        if Try34() then Observer.Observe('assign.255', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.255');
-        if Try35() then Observer.Observe('arg_byvalue.255', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.255');
-        if Try36() then Observer.Observe('exit.255', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.255');
-        vChar := 256;
-        if Try34() then Observer.Observe('assign.256', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.256');
-        if Try35() then Observer.Observe('arg_byvalue.256', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.256');
-        if Try36() then Observer.Observe('exit.256', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.256');
-        vChar := 65535;
-        if Try34() then Observer.Observe('assign.65535', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.65535');
-        if Try35() then Observer.Observe('arg_byvalue.65535', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.65535');
-        if Try36() then Observer.Observe('exit.65535', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.65535');
+        if Try56(vChar, vDuration) then Observer.Observe('assign.65', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.65');
+        if Try58(vChar, vDuration) then Observer.Observe('arg_byvalue.65', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.65');
+        if Try60(vChar, vDuration) then Observer.Observe('exit.65', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.65');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Char_To_Duration_More1()
+    procedure Char_To_Duration_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vChar: Char;
+        vDuration: Duration;
     begin
-        Observer.More();
+        vChar := 97;
+        if Try56(vChar, vDuration) then Observer.Observe('assign.97', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.97');
+        if Try58(vChar, vDuration) then Observer.Observe('arg_byvalue.97', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.97');
+        if Try60(vChar, vDuration) then Observer.Observe('exit.97', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.97');
+        vChar := 255;
+        if Try56(vChar, vDuration) then Observer.Observe('assign.255', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.255');
+        if Try58(vChar, vDuration) then Observer.Observe('arg_byvalue.255', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.255');
+        if Try60(vChar, vDuration) then Observer.Observe('exit.255', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.255');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Char_To_Duration_More2()
+    procedure Char_To_Duration_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        vChar: Char;
+        vDuration: Duration;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_To_Duration_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_To_Duration_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_To_Duration_More5()
-    begin
-        Observer.More();
+        vChar := 256;
+        if Try56(vChar, vDuration) then Observer.Observe('assign.256', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.256');
+        if Try58(vChar, vDuration) then Observer.Observe('arg_byvalue.256', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.256');
+        if Try60(vChar, vDuration) then Observer.Observe('exit.256', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.256');
+        vChar := 65535;
+        if Try56(vChar, vDuration) then Observer.Observe('assign.65535', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.65535');
+        if Try58(vChar, vDuration) then Observer.Observe('arg_byvalue.65535', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.65535');
+        if Try60(vChar, vDuration) then Observer.Observe('exit.65535', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.65535');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Char_To_FInteger()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
+        vChar: Char;
     begin
         vChar := 0;
-        if Try37() then Observer.Observe('assign.0', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.0');
+        if Try61(R, vChar) then Observer.Observe('assign.0', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.0');
         vChar := 65;
-        if Try37() then Observer.Observe('assign.65', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.65');
+        if Try61(R, vChar) then Observer.Observe('assign.65', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.65');
         vChar := 97;
-        if Try37() then Observer.Observe('assign.97', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.97');
+        if Try61(R, vChar) then Observer.Observe('assign.97', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.97');
         vChar := 255;
-        if Try37() then Observer.Observe('assign.255', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.255');
+        if Try61(R, vChar) then Observer.Observe('assign.255', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.255');
         vChar := 256;
-        if Try37() then Observer.Observe('assign.256', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.256');
+        if Try61(R, vChar) then Observer.Observe('assign.256', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.256');
         vChar := 65535;
-        if Try37() then Observer.Observe('assign.65535', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.65535');
+        if Try61(R, vChar) then Observer.Observe('assign.65535', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.65535');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_To_FInteger_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_To_FInteger_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_To_FInteger_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_To_FInteger_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_To_FInteger_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Char_To_FBigInteger()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
+        vChar: Char;
     begin
         vChar := 0;
-        if Try38() then Observer.Observe('assign.0', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.0');
+        if Try62(R, vChar) then Observer.Observe('assign.0', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.0');
         vChar := 65;
-        if Try38() then Observer.Observe('assign.65', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.65');
+        if Try62(R, vChar) then Observer.Observe('assign.65', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.65');
         vChar := 97;
-        if Try38() then Observer.Observe('assign.97', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.97');
+        if Try62(R, vChar) then Observer.Observe('assign.97', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.97');
         vChar := 255;
-        if Try38() then Observer.Observe('assign.255', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.255');
+        if Try62(R, vChar) then Observer.Observe('assign.255', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.255');
         vChar := 256;
-        if Try38() then Observer.Observe('assign.256', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.256');
+        if Try62(R, vChar) then Observer.Observe('assign.256', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.256');
         vChar := 65535;
-        if Try38() then Observer.Observe('assign.65535', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.65535');
+        if Try62(R, vChar) then Observer.Observe('assign.65535', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.65535');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_To_FBigInteger_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_To_FBigInteger_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_To_FBigInteger_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_To_FBigInteger_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_To_FBigInteger_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Char_To_FDecimal()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
+        vChar: Char;
     begin
         vChar := 0;
-        if Try39() then Observer.Observe('assign.0', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.0');
+        if Try63(R, vChar) then Observer.Observe('assign.0', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.0');
         vChar := 65;
-        if Try39() then Observer.Observe('assign.65', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.65');
+        if Try63(R, vChar) then Observer.Observe('assign.65', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.65');
         vChar := 97;
-        if Try39() then Observer.Observe('assign.97', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.97');
+        if Try63(R, vChar) then Observer.Observe('assign.97', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.97');
         vChar := 255;
-        if Try39() then Observer.Observe('assign.255', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.255');
+        if Try63(R, vChar) then Observer.Observe('assign.255', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.255');
         vChar := 256;
-        if Try39() then Observer.Observe('assign.256', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.256');
+        if Try63(R, vChar) then Observer.Observe('assign.256', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.256');
         vChar := 65535;
-        if Try39() then Observer.Observe('assign.65535', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.65535');
+        if Try63(R, vChar) then Observer.Observe('assign.65535', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.65535');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_To_FDecimal_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_To_FDecimal_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_To_FDecimal_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_To_FDecimal_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_To_FDecimal_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Char_To_FOption()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
+        Util: Codeunit "LT Y31 Conv Util";
+        vChar: Char;
     begin
         vChar := 0;
-        if Try40() then Observer.Observe('assign.0', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.0');
+        if Try64(R, vChar) then Observer.Observe('assign.0', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.0');
         vChar := 65;
-        if Try40() then Observer.Observe('assign.65', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.65');
+        if Try64(R, vChar) then Observer.Observe('assign.65', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.65');
         vChar := 97;
-        if Try40() then Observer.Observe('assign.97', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.97');
+        if Try64(R, vChar) then Observer.Observe('assign.97', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.97');
         vChar := 255;
-        if Try40() then Observer.Observe('assign.255', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.255');
+        if Try64(R, vChar) then Observer.Observe('assign.255', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.255');
         vChar := 256;
-        if Try40() then Observer.Observe('assign.256', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.256');
+        if Try64(R, vChar) then Observer.Observe('assign.256', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.256');
         vChar := 65535;
-        if Try40() then Observer.Observe('assign.65535', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.65535');
+        if Try64(R, vChar) then Observer.Observe('assign.65535', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.65535');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_To_FOption_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_To_FOption_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_To_FOption_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_To_FOption_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_To_FOption_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Char_To_FText10()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
+        vChar: Char;
     begin
         vChar := 0;
-        if Try41() then Observer.Observe('assign.0', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.0');
+        if Try65(R, vChar) then Observer.Observe('assign.0', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.0');
         vChar := 65;
-        if Try41() then Observer.Observe('assign.65', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.65');
+        if Try65(R, vChar) then Observer.Observe('assign.65', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.65');
         vChar := 97;
-        if Try41() then Observer.Observe('assign.97', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.97');
+        if Try65(R, vChar) then Observer.Observe('assign.97', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.97');
         vChar := 255;
-        if Try41() then Observer.Observe('assign.255', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.255');
+        if Try65(R, vChar) then Observer.Observe('assign.255', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.255');
         vChar := 256;
-        if Try41() then Observer.Observe('assign.256', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.256');
+        if Try65(R, vChar) then Observer.Observe('assign.256', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.256');
         vChar := 65535;
-        if Try41() then Observer.Observe('assign.65535', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.65535');
+        if Try65(R, vChar) then Observer.Observe('assign.65535', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.65535');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_To_FText10_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_To_FText10_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_To_FText10_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_To_FText10_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_To_FText10_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Char_To_FCode10()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
+        vChar: Char;
     begin
         vChar := 0;
-        if Try42() then Observer.Observe('assign.0', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.0');
+        if Try66(R, vChar) then Observer.Observe('assign.0', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.0');
         vChar := 65;
-        if Try42() then Observer.Observe('assign.65', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.65');
+        if Try66(R, vChar) then Observer.Observe('assign.65', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.65');
         vChar := 97;
-        if Try42() then Observer.Observe('assign.97', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.97');
+        if Try66(R, vChar) then Observer.Observe('assign.97', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.97');
         vChar := 255;
-        if Try42() then Observer.Observe('assign.255', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.255');
+        if Try66(R, vChar) then Observer.Observe('assign.255', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.255');
         vChar := 256;
-        if Try42() then Observer.Observe('assign.256', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.256');
+        if Try66(R, vChar) then Observer.Observe('assign.256', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.256');
         vChar := 65535;
-        if Try42() then Observer.Observe('assign.65535', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.65535');
+        if Try66(R, vChar) then Observer.Observe('assign.65535', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.65535');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_To_FCode10_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_To_FCode10_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_To_FCode10_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_To_FCode10_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_To_FCode10_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Char_To_FDuration()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
+        vChar: Char;
     begin
         vChar := 0;
-        if Try43() then Observer.Observe('assign.0', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.0');
+        if Try67(R, vChar) then Observer.Observe('assign.0', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.0');
         vChar := 65;
-        if Try43() then Observer.Observe('assign.65', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.65');
+        if Try67(R, vChar) then Observer.Observe('assign.65', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.65');
         vChar := 97;
-        if Try43() then Observer.Observe('assign.97', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.97');
+        if Try67(R, vChar) then Observer.Observe('assign.97', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.97');
         vChar := 255;
-        if Try43() then Observer.Observe('assign.255', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.255');
+        if Try67(R, vChar) then Observer.Observe('assign.255', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.255');
         vChar := 256;
-        if Try43() then Observer.Observe('assign.256', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.256');
+        if Try67(R, vChar) then Observer.Observe('assign.256', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.256');
         vChar := 65535;
-        if Try43() then Observer.Observe('assign.65535', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.65535');
+        if Try67(R, vChar) then Observer.Observe('assign.65535', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.65535');
         Observer.Finish();
     end;
 
-    [Test]
-    procedure Char_To_FDuration_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_To_FDuration_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_To_FDuration_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_To_FDuration_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_To_FDuration_More5()
-    begin
-        Observer.More();
-    end;
-
     [TryFunction]
-    local procedure Try1()
+    local procedure Try1(var vChar: Char; var vInteger: Integer)
     begin
         Clear(vInteger);
         vInteger := vChar;
     end;
 
-    local procedure PA_Integer_1(p: Integer)
+    local procedure PA_Integer_2(p: Integer; var vInteger: Integer)
     begin
         vInteger := p;
     end;
 
     [TryFunction]
-    local procedure Try2()
+    local procedure Try3(var vChar: Char; var vInteger: Integer)
     begin
         Clear(vInteger);
-        PA_Integer_1(vChar);
+        PA_Integer_2(vChar, vInteger);
     end;
 
-    local procedure EX_Integer_2(): Integer
+    local procedure EX_Integer_4(var vChar: Char): Integer
     begin
         exit(vChar);
     end;
 
     [TryFunction]
-    local procedure Try3()
+    local procedure Try5(var vChar: Char; var vInteger: Integer)
     begin
         Clear(vInteger);
-        vInteger := EX_Integer_2();
+        vInteger := EX_Integer_4(vChar);
     end;
 
     [TryFunction]
-    local procedure Try4()
+    local procedure Try6(var vBigInteger: BigInteger; var vChar: Char)
     begin
         Clear(vBigInteger);
         vBigInteger := vChar;
     end;
 
-    local procedure PA_BigInteger_4(p: BigInteger)
+    local procedure PA_BigInteger_7(p: BigInteger; var vBigInteger: BigInteger)
     begin
         vBigInteger := p;
     end;
 
     [TryFunction]
-    local procedure Try5()
+    local procedure Try8(var vBigInteger: BigInteger; var vChar: Char)
     begin
         Clear(vBigInteger);
-        PA_BigInteger_4(vChar);
+        PA_BigInteger_7(vChar, vBigInteger);
     end;
 
-    local procedure EX_BigInteger_5(): BigInteger
+    local procedure EX_BigInteger_9(var vChar: Char): BigInteger
     begin
         exit(vChar);
     end;
 
     [TryFunction]
-    local procedure Try6()
+    local procedure Try10(var vBigInteger: BigInteger; var vChar: Char)
     begin
         Clear(vBigInteger);
-        vBigInteger := EX_BigInteger_5();
+        vBigInteger := EX_BigInteger_9(vChar);
     end;
 
     [TryFunction]
-    local procedure Try7()
+    local procedure Try11(var vChar: Char; var vDecimal: Decimal)
     begin
         Clear(vDecimal);
         vDecimal := vChar;
     end;
 
-    local procedure PA_Decimal_7(p: Decimal)
+    local procedure PA_Decimal_12(p: Decimal; var vDecimal: Decimal)
     begin
         vDecimal := p;
     end;
 
     [TryFunction]
-    local procedure Try8()
+    local procedure Try13(var vChar: Char; var vDecimal: Decimal)
     begin
         Clear(vDecimal);
-        PA_Decimal_7(vChar);
+        PA_Decimal_12(vChar, vDecimal);
     end;
 
-    local procedure EX_Decimal_8(): Decimal
+    local procedure EX_Decimal_14(var vChar: Char): Decimal
     begin
         exit(vChar);
     end;
 
     [TryFunction]
-    local procedure Try9()
+    local procedure Try15(var vChar: Char; var vDecimal: Decimal)
     begin
         Clear(vDecimal);
-        vDecimal := EX_Decimal_8();
+        vDecimal := EX_Decimal_14(vChar);
     end;
 
     [TryFunction]
-    local procedure Try10()
+    local procedure Try16(var vByte: Byte; var vChar: Char)
     begin
         Clear(vByte);
         vByte := vChar;
     end;
 
-    local procedure PA_Byte_10(p: Byte)
+    local procedure PA_Byte_17(p: Byte; var vByte: Byte)
     begin
         vByte := p;
     end;
 
     [TryFunction]
-    local procedure Try11()
+    local procedure Try18(var vByte: Byte; var vChar: Char)
     begin
         Clear(vByte);
-        PA_Byte_10(vChar);
+        PA_Byte_17(vChar, vByte);
     end;
 
-    local procedure EX_Byte_11(): Byte
+    local procedure EX_Byte_19(var vChar: Char): Byte
     begin
         exit(vChar);
     end;
 
     [TryFunction]
-    local procedure Try12()
+    local procedure Try20(var vByte: Byte; var vChar: Char)
     begin
         Clear(vByte);
-        vByte := EX_Byte_11();
+        vByte := EX_Byte_19(vChar);
     end;
 
     [TryFunction]
-    local procedure Try13()
+    local procedure Try21(var vChar: Char; var vOption: Option A,B,C)
     begin
         Clear(vOption);
         vOption := vChar;
     end;
 
-    local procedure PA_Option_13(p: Option A,B,C)
+    local procedure PA_Option_22(p: Option A,B,C; var vOption: Option A,B,C)
     begin
         vOption := p;
     end;
 
     [TryFunction]
-    local procedure Try14()
+    local procedure Try23(var vChar: Char; var vOption: Option A,B,C)
     begin
         Clear(vOption);
-        PA_Option_13(vChar);
+        PA_Option_22(vChar, vOption);
     end;
 
-    local procedure EX_Option_14(): Option A,B,C
+    local procedure EX_Option_24(var vChar: Char): Option A,B,C
     begin
         exit(vChar);
     end;
 
     [TryFunction]
-    local procedure Try15()
+    local procedure Try25(var vChar: Char; var vOption: Option A,B,C)
     begin
         Clear(vOption);
-        vOption := EX_Option_14();
+        vOption := EX_Option_24(vChar);
     end;
 
     [TryFunction]
-    local procedure Try16()
+    local procedure Try26(var vChar: Char; var vText: Text)
     begin
         Clear(vText);
         vText := vChar;
     end;
 
-    local procedure PA_Text_16(p: Text)
+    local procedure PA_Text_27(p: Text; var vText: Text)
     begin
         vText := p;
     end;
 
     [TryFunction]
-    local procedure Try17()
+    local procedure Try28(var vChar: Char; var vText: Text)
     begin
         Clear(vText);
-        PA_Text_16(vChar);
+        PA_Text_27(vChar, vText);
     end;
 
-    local procedure EX_Text_17(): Text
+    local procedure EX_Text_29(var vChar: Char): Text
     begin
         exit(vChar);
     end;
 
     [TryFunction]
-    local procedure Try18()
+    local procedure Try30(var vChar: Char; var vText: Text)
     begin
         Clear(vText);
-        vText := EX_Text_17();
+        vText := EX_Text_29(vChar);
     end;
 
     [TryFunction]
-    local procedure Try19()
+    local procedure Try31(var vChar: Char; var vText10: Text[10])
     begin
         Clear(vText10);
         vText10 := vChar;
     end;
 
-    local procedure PA_Text10_19(p: Text[10])
+    local procedure PA_Text10_32(p: Text[10]; var vText10: Text[10])
     begin
         vText10 := p;
     end;
 
     [TryFunction]
-    local procedure Try20()
+    local procedure Try33(var vChar: Char; var vText10: Text[10])
     begin
         Clear(vText10);
-        PA_Text10_19(vChar);
+        PA_Text10_32(vChar, vText10);
     end;
 
-    local procedure EX_Text10_20(): Text[10]
+    local procedure EX_Text10_34(var vChar: Char): Text[10]
     begin
         exit(vChar);
     end;
 
     [TryFunction]
-    local procedure Try21()
+    local procedure Try35(var vChar: Char; var vText10: Text[10])
     begin
         Clear(vText10);
-        vText10 := EX_Text10_20();
+        vText10 := EX_Text10_34(vChar);
     end;
 
     [TryFunction]
-    local procedure Try22()
+    local procedure Try36(var vChar: Char; var vText3: Text[3])
     begin
         Clear(vText3);
         vText3 := vChar;
     end;
 
-    local procedure PA_Text3_22(p: Text[3])
+    local procedure PA_Text3_37(p: Text[3]; var vText3: Text[3])
     begin
         vText3 := p;
     end;
 
     [TryFunction]
-    local procedure Try23()
+    local procedure Try38(var vChar: Char; var vText3: Text[3])
     begin
         Clear(vText3);
-        PA_Text3_22(vChar);
+        PA_Text3_37(vChar, vText3);
     end;
 
-    local procedure EX_Text3_23(): Text[3]
+    local procedure EX_Text3_39(var vChar: Char): Text[3]
     begin
         exit(vChar);
     end;
 
     [TryFunction]
-    local procedure Try24()
+    local procedure Try40(var vChar: Char; var vText3: Text[3])
     begin
         Clear(vText3);
-        vText3 := EX_Text3_23();
+        vText3 := EX_Text3_39(vChar);
     end;
 
     [TryFunction]
-    local procedure Try25()
+    local procedure Try41(var vChar: Char; var vCode10: Code[10])
     begin
         Clear(vCode10);
         vCode10 := vChar;
     end;
 
-    local procedure PA_Code10_25(p: Code[10])
+    local procedure PA_Code10_42(p: Code[10]; var vCode10: Code[10])
     begin
         vCode10 := p;
     end;
 
     [TryFunction]
-    local procedure Try26()
+    local procedure Try43(var vChar: Char; var vCode10: Code[10])
     begin
         Clear(vCode10);
-        PA_Code10_25(vChar);
+        PA_Code10_42(vChar, vCode10);
     end;
 
-    local procedure EX_Code10_26(): Code[10]
+    local procedure EX_Code10_44(var vChar: Char): Code[10]
     begin
         exit(vChar);
     end;
 
     [TryFunction]
-    local procedure Try27()
+    local procedure Try45(var vChar: Char; var vCode10: Code[10])
     begin
         Clear(vCode10);
-        vCode10 := EX_Code10_26();
+        vCode10 := EX_Code10_44(vChar);
     end;
 
     [TryFunction]
-    local procedure Try28()
+    local procedure Try46(var vChar: Char; var vCode3: Code[3])
     begin
         Clear(vCode3);
         vCode3 := vChar;
     end;
 
-    local procedure PA_Code3_28(p: Code[3])
+    local procedure PA_Code3_47(p: Code[3]; var vCode3: Code[3])
     begin
         vCode3 := p;
     end;
 
     [TryFunction]
-    local procedure Try29()
+    local procedure Try48(var vChar: Char; var vCode3: Code[3])
     begin
         Clear(vCode3);
-        PA_Code3_28(vChar);
+        PA_Code3_47(vChar, vCode3);
     end;
 
-    local procedure EX_Code3_29(): Code[3]
+    local procedure EX_Code3_49(var vChar: Char): Code[3]
     begin
         exit(vChar);
     end;
 
     [TryFunction]
-    local procedure Try30()
+    local procedure Try50(var vChar: Char; var vCode3: Code[3])
     begin
         Clear(vCode3);
-        vCode3 := EX_Code3_29();
+        vCode3 := EX_Code3_49(vChar);
     end;
 
     [TryFunction]
-    local procedure Try31()
+    local procedure Try51(var vChar: Char; var vCode250: Code[250])
     begin
         Clear(vCode250);
         vCode250 := vChar;
     end;
 
-    local procedure PA_Code250_31(p: Code[250])
+    local procedure PA_Code250_52(p: Code[250]; var vCode250: Code[250])
     begin
         vCode250 := p;
     end;
 
     [TryFunction]
-    local procedure Try32()
+    local procedure Try53(var vChar: Char; var vCode250: Code[250])
     begin
         Clear(vCode250);
-        PA_Code250_31(vChar);
+        PA_Code250_52(vChar, vCode250);
     end;
 
-    local procedure EX_Code250_32(): Code[250]
+    local procedure EX_Code250_54(var vChar: Char): Code[250]
     begin
         exit(vChar);
     end;
 
     [TryFunction]
-    local procedure Try33()
+    local procedure Try55(var vChar: Char; var vCode250: Code[250])
     begin
         Clear(vCode250);
-        vCode250 := EX_Code250_32();
+        vCode250 := EX_Code250_54(vChar);
     end;
 
     [TryFunction]
-    local procedure Try34()
+    local procedure Try56(var vChar: Char; var vDuration: Duration)
     begin
         Clear(vDuration);
         vDuration := vChar;
     end;
 
-    local procedure PA_Duration_34(p: Duration)
+    local procedure PA_Duration_57(p: Duration; var vDuration: Duration)
     begin
         vDuration := p;
     end;
 
     [TryFunction]
-    local procedure Try35()
+    local procedure Try58(var vChar: Char; var vDuration: Duration)
     begin
         Clear(vDuration);
-        PA_Duration_34(vChar);
+        PA_Duration_57(vChar, vDuration);
     end;
 
-    local procedure EX_Duration_35(): Duration
+    local procedure EX_Duration_59(var vChar: Char): Duration
     begin
         exit(vChar);
     end;
 
     [TryFunction]
-    local procedure Try36()
+    local procedure Try60(var vChar: Char; var vDuration: Duration)
     begin
         Clear(vDuration);
-        vDuration := EX_Duration_35();
+        vDuration := EX_Duration_59(vChar);
     end;
 
     [TryFunction]
-    local procedure Try37()
+    local procedure Try61(var R: Record "LT Y31 Conv Fields"; var vChar: Char)
     begin
         Clear(R.Integer);
         R.Integer := vChar;
     end;
 
     [TryFunction]
-    local procedure Try38()
+    local procedure Try62(var R: Record "LT Y31 Conv Fields"; var vChar: Char)
     begin
         Clear(R.BigInteger);
         R.BigInteger := vChar;
     end;
 
     [TryFunction]
-    local procedure Try39()
+    local procedure Try63(var R: Record "LT Y31 Conv Fields"; var vChar: Char)
     begin
         Clear(R.Decimal);
         R.Decimal := vChar;
     end;
 
     [TryFunction]
-    local procedure Try40()
+    local procedure Try64(var R: Record "LT Y31 Conv Fields"; var vChar: Char)
     begin
         Clear(R.Option);
         R.Option := vChar;
     end;
 
     [TryFunction]
-    local procedure Try41()
+    local procedure Try65(var R: Record "LT Y31 Conv Fields"; var vChar: Char)
     begin
         Clear(R.Text10);
         R.Text10 := vChar;
     end;
 
     [TryFunction]
-    local procedure Try42()
+    local procedure Try66(var R: Record "LT Y31 Conv Fields"; var vChar: Char)
     begin
         Clear(R.Code10);
         R.Code10 := vChar;
     end;
 
     [TryFunction]
-    local procedure Try43()
+    local procedure Try67(var R: Record "LT Y31 Conv Fields"; var vChar: Char)
     begin
         Clear(R.Duration);
         R.Duration := vChar;
@@ -4469,732 +3933,499 @@ codeunit 92414 "LT Y31 Cv Byte"
     Subtype = Test;
     TestPermissions = Disabled;
 
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        R: Record "LT Y31 Conv Fields";
-        vBigInteger: BigInteger;
-        vByte: Byte;
-        vChar: Char;
-        vDecimal: Decimal;
-        vDuration: Duration;
-        vInteger: Integer;
-        vOption: Option A,B,C;
-
     [Test]
     procedure Byte_To_Integer()
+    var
+        Observer: Codeunit "Probe Observer";
+        vByte: Byte;
+        vInteger: Integer;
     begin
         vByte := 0;
-        if Try1() then Observer.Observe('assign.0', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.0');
-        if Try2() then Observer.Observe('arg_byvalue.0', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.0');
-        if Try3() then Observer.Observe('exit.0', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.0');
+        if Try1(vByte, vInteger) then Observer.Observe('assign.0', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.0');
+        if Try3(vByte, vInteger) then Observer.Observe('arg_byvalue.0', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.0');
+        if Try5(vByte, vInteger) then Observer.Observe('exit.0', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.0');
         vByte := 97;
-        if Try1() then Observer.Observe('assign.97', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.97');
-        if Try2() then Observer.Observe('arg_byvalue.97', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.97');
-        if Try3() then Observer.Observe('exit.97', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.97');
-        vByte := 255;
-        if Try1() then Observer.Observe('assign.255', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.255');
-        if Try2() then Observer.Observe('arg_byvalue.255', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.255');
-        if Try3() then Observer.Observe('exit.255', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.255');
+        if Try1(vByte, vInteger) then Observer.Observe('assign.97', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.97');
+        if Try3(vByte, vInteger) then Observer.Observe('arg_byvalue.97', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.97');
+        if Try5(vByte, vInteger) then Observer.Observe('exit.97', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.97');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Byte_To_Integer_More1()
+    procedure Byte_To_Integer_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vByte: Byte;
+        vInteger: Integer;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_To_Integer_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_To_Integer_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_To_Integer_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_To_Integer_More5()
-    begin
-        Observer.More();
+        vByte := 255;
+        if Try1(vByte, vInteger) then Observer.Observe('assign.255', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.255');
+        if Try3(vByte, vInteger) then Observer.Observe('arg_byvalue.255', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.255');
+        if Try5(vByte, vInteger) then Observer.Observe('exit.255', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.255');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Byte_To_BigInteger()
+    var
+        Observer: Codeunit "Probe Observer";
+        vBigInteger: BigInteger;
+        vByte: Byte;
     begin
         vByte := 0;
-        if Try4() then Observer.Observe('assign.0', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.0');
-        if Try5() then Observer.Observe('arg_byvalue.0', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.0');
-        if Try6() then Observer.Observe('exit.0', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.0');
+        if Try6(vBigInteger, vByte) then Observer.Observe('assign.0', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.0');
+        if Try8(vBigInteger, vByte) then Observer.Observe('arg_byvalue.0', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.0');
+        if Try10(vBigInteger, vByte) then Observer.Observe('exit.0', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.0');
         vByte := 97;
-        if Try4() then Observer.Observe('assign.97', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.97');
-        if Try5() then Observer.Observe('arg_byvalue.97', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.97');
-        if Try6() then Observer.Observe('exit.97', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.97');
-        vByte := 255;
-        if Try4() then Observer.Observe('assign.255', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.255');
-        if Try5() then Observer.Observe('arg_byvalue.255', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.255');
-        if Try6() then Observer.Observe('exit.255', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.255');
+        if Try6(vBigInteger, vByte) then Observer.Observe('assign.97', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.97');
+        if Try8(vBigInteger, vByte) then Observer.Observe('arg_byvalue.97', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.97');
+        if Try10(vBigInteger, vByte) then Observer.Observe('exit.97', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.97');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Byte_To_BigInteger_More1()
+    procedure Byte_To_BigInteger_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vBigInteger: BigInteger;
+        vByte: Byte;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_To_BigInteger_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_To_BigInteger_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_To_BigInteger_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_To_BigInteger_More5()
-    begin
-        Observer.More();
+        vByte := 255;
+        if Try6(vBigInteger, vByte) then Observer.Observe('assign.255', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.255');
+        if Try8(vBigInteger, vByte) then Observer.Observe('arg_byvalue.255', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.255');
+        if Try10(vBigInteger, vByte) then Observer.Observe('exit.255', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.255');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Byte_To_Decimal()
+    var
+        Observer: Codeunit "Probe Observer";
+        vByte: Byte;
+        vDecimal: Decimal;
     begin
         vByte := 0;
-        if Try7() then Observer.Observe('assign.0', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.0');
-        if Try8() then Observer.Observe('arg_byvalue.0', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.0');
-        if Try9() then Observer.Observe('exit.0', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.0');
+        if Try11(vByte, vDecimal) then Observer.Observe('assign.0', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.0');
+        if Try13(vByte, vDecimal) then Observer.Observe('arg_byvalue.0', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.0');
+        if Try15(vByte, vDecimal) then Observer.Observe('exit.0', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.0');
         vByte := 97;
-        if Try7() then Observer.Observe('assign.97', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.97');
-        if Try8() then Observer.Observe('arg_byvalue.97', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.97');
-        if Try9() then Observer.Observe('exit.97', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.97');
-        vByte := 255;
-        if Try7() then Observer.Observe('assign.255', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.255');
-        if Try8() then Observer.Observe('arg_byvalue.255', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.255');
-        if Try9() then Observer.Observe('exit.255', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.255');
+        if Try11(vByte, vDecimal) then Observer.Observe('assign.97', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.97');
+        if Try13(vByte, vDecimal) then Observer.Observe('arg_byvalue.97', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.97');
+        if Try15(vByte, vDecimal) then Observer.Observe('exit.97', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.97');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Byte_To_Decimal_More1()
+    procedure Byte_To_Decimal_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vByte: Byte;
+        vDecimal: Decimal;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_To_Decimal_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_To_Decimal_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_To_Decimal_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_To_Decimal_More5()
-    begin
-        Observer.More();
+        vByte := 255;
+        if Try11(vByte, vDecimal) then Observer.Observe('assign.255', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.255');
+        if Try13(vByte, vDecimal) then Observer.Observe('arg_byvalue.255', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.255');
+        if Try15(vByte, vDecimal) then Observer.Observe('exit.255', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.255');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Byte_To_Char()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vByte: Byte;
+        vChar: Char;
     begin
         vByte := 0;
-        if Try10() then Observer.Observe('assign.0', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.0');
-        if Try11() then Observer.Observe('arg_byvalue.0', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.0');
-        if Try12() then Observer.Observe('exit.0', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.0');
+        if Try16(vByte, vChar) then Observer.Observe('assign.0', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.0');
+        if Try18(vByte, vChar) then Observer.Observe('arg_byvalue.0', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.0');
+        if Try20(vByte, vChar) then Observer.Observe('exit.0', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.0');
         vByte := 97;
-        if Try10() then Observer.Observe('assign.97', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.97');
-        if Try11() then Observer.Observe('arg_byvalue.97', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.97');
-        if Try12() then Observer.Observe('exit.97', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.97');
-        vByte := 255;
-        if Try10() then Observer.Observe('assign.255', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.255');
-        if Try11() then Observer.Observe('arg_byvalue.255', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.255');
-        if Try12() then Observer.Observe('exit.255', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.255');
+        if Try16(vByte, vChar) then Observer.Observe('assign.97', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.97');
+        if Try18(vByte, vChar) then Observer.Observe('arg_byvalue.97', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.97');
+        if Try20(vByte, vChar) then Observer.Observe('exit.97', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.97');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Byte_To_Char_More1()
+    procedure Byte_To_Char_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vByte: Byte;
+        vChar: Char;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_To_Char_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_To_Char_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_To_Char_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_To_Char_More5()
-    begin
-        Observer.More();
+        vByte := 255;
+        if Try16(vByte, vChar) then Observer.Observe('assign.255', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.255');
+        if Try18(vByte, vChar) then Observer.Observe('arg_byvalue.255', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.255');
+        if Try20(vByte, vChar) then Observer.Observe('exit.255', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.255');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Byte_To_Option()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vByte: Byte;
+        vOption: Option A,B,C;
     begin
         vByte := 0;
-        if Try13() then Observer.Observe('assign.0', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.0');
-        if Try14() then Observer.Observe('arg_byvalue.0', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.0');
-        if Try15() then Observer.Observe('exit.0', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.0');
+        if Try21(vByte, vOption) then Observer.Observe('assign.0', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.0');
+        if Try23(vByte, vOption) then Observer.Observe('arg_byvalue.0', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.0');
+        if Try25(vByte, vOption) then Observer.Observe('exit.0', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.0');
         vByte := 97;
-        if Try13() then Observer.Observe('assign.97', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.97');
-        if Try14() then Observer.Observe('arg_byvalue.97', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.97');
-        if Try15() then Observer.Observe('exit.97', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.97');
-        vByte := 255;
-        if Try13() then Observer.Observe('assign.255', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.255');
-        if Try14() then Observer.Observe('arg_byvalue.255', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.255');
-        if Try15() then Observer.Observe('exit.255', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.255');
+        if Try21(vByte, vOption) then Observer.Observe('assign.97', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.97');
+        if Try23(vByte, vOption) then Observer.Observe('arg_byvalue.97', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.97');
+        if Try25(vByte, vOption) then Observer.Observe('exit.97', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.97');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Byte_To_Option_More1()
+    procedure Byte_To_Option_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vByte: Byte;
+        vOption: Option A,B,C;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_To_Option_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_To_Option_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_To_Option_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_To_Option_More5()
-    begin
-        Observer.More();
+        vByte := 255;
+        if Try21(vByte, vOption) then Observer.Observe('assign.255', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.255');
+        if Try23(vByte, vOption) then Observer.Observe('arg_byvalue.255', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.255');
+        if Try25(vByte, vOption) then Observer.Observe('exit.255', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.255');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Byte_To_Duration()
+    var
+        Observer: Codeunit "Probe Observer";
+        vByte: Byte;
+        vDuration: Duration;
     begin
         vByte := 0;
-        if Try16() then Observer.Observe('assign.0', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.0');
-        if Try17() then Observer.Observe('arg_byvalue.0', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.0');
-        if Try18() then Observer.Observe('exit.0', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.0');
+        if Try26(vByte, vDuration) then Observer.Observe('assign.0', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.0');
+        if Try28(vByte, vDuration) then Observer.Observe('arg_byvalue.0', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.0');
+        if Try30(vByte, vDuration) then Observer.Observe('exit.0', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.0');
         vByte := 97;
-        if Try16() then Observer.Observe('assign.97', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.97');
-        if Try17() then Observer.Observe('arg_byvalue.97', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.97');
-        if Try18() then Observer.Observe('exit.97', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.97');
-        vByte := 255;
-        if Try16() then Observer.Observe('assign.255', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.255');
-        if Try17() then Observer.Observe('arg_byvalue.255', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.255');
-        if Try18() then Observer.Observe('exit.255', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.255');
+        if Try26(vByte, vDuration) then Observer.Observe('assign.97', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.97');
+        if Try28(vByte, vDuration) then Observer.Observe('arg_byvalue.97', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.97');
+        if Try30(vByte, vDuration) then Observer.Observe('exit.97', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.97');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Byte_To_Duration_More1()
+    procedure Byte_To_Duration_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vByte: Byte;
+        vDuration: Duration;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_To_Duration_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_To_Duration_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_To_Duration_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_To_Duration_More5()
-    begin
-        Observer.More();
+        vByte := 255;
+        if Try26(vByte, vDuration) then Observer.Observe('assign.255', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.255');
+        if Try28(vByte, vDuration) then Observer.Observe('arg_byvalue.255', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.255');
+        if Try30(vByte, vDuration) then Observer.Observe('exit.255', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.255');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Byte_To_FInteger()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
+        vByte: Byte;
     begin
         vByte := 0;
-        if Try19() then Observer.Observe('assign.0', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.0');
+        if Try31(R, vByte) then Observer.Observe('assign.0', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.0');
         vByte := 97;
-        if Try19() then Observer.Observe('assign.97', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.97');
+        if Try31(R, vByte) then Observer.Observe('assign.97', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.97');
         vByte := 255;
-        if Try19() then Observer.Observe('assign.255', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.255');
+        if Try31(R, vByte) then Observer.Observe('assign.255', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.255');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Byte_To_FInteger_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_To_FInteger_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_To_FInteger_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_To_FInteger_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_To_FInteger_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Byte_To_FBigInteger()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
+        vByte: Byte;
     begin
         vByte := 0;
-        if Try20() then Observer.Observe('assign.0', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.0');
+        if Try32(R, vByte) then Observer.Observe('assign.0', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.0');
         vByte := 97;
-        if Try20() then Observer.Observe('assign.97', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.97');
+        if Try32(R, vByte) then Observer.Observe('assign.97', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.97');
         vByte := 255;
-        if Try20() then Observer.Observe('assign.255', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.255');
+        if Try32(R, vByte) then Observer.Observe('assign.255', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.255');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Byte_To_FBigInteger_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_To_FBigInteger_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_To_FBigInteger_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_To_FBigInteger_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_To_FBigInteger_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Byte_To_FDecimal()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
+        vByte: Byte;
     begin
         vByte := 0;
-        if Try21() then Observer.Observe('assign.0', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.0');
+        if Try33(R, vByte) then Observer.Observe('assign.0', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.0');
         vByte := 97;
-        if Try21() then Observer.Observe('assign.97', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.97');
+        if Try33(R, vByte) then Observer.Observe('assign.97', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.97');
         vByte := 255;
-        if Try21() then Observer.Observe('assign.255', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.255');
+        if Try33(R, vByte) then Observer.Observe('assign.255', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.255');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Byte_To_FDecimal_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_To_FDecimal_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_To_FDecimal_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_To_FDecimal_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_To_FDecimal_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Byte_To_FOption()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
+        Util: Codeunit "LT Y31 Conv Util";
+        vByte: Byte;
     begin
         vByte := 0;
-        if Try22() then Observer.Observe('assign.0', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.0');
+        if Try34(R, vByte) then Observer.Observe('assign.0', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.0');
         vByte := 97;
-        if Try22() then Observer.Observe('assign.97', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.97');
+        if Try34(R, vByte) then Observer.Observe('assign.97', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.97');
         vByte := 255;
-        if Try22() then Observer.Observe('assign.255', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.255');
+        if Try34(R, vByte) then Observer.Observe('assign.255', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.255');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Byte_To_FOption_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_To_FOption_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_To_FOption_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_To_FOption_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_To_FOption_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Byte_To_FDuration()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
+        vByte: Byte;
     begin
         vByte := 0;
-        if Try23() then Observer.Observe('assign.0', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.0');
+        if Try35(R, vByte) then Observer.Observe('assign.0', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.0');
         vByte := 97;
-        if Try23() then Observer.Observe('assign.97', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.97');
+        if Try35(R, vByte) then Observer.Observe('assign.97', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.97');
         vByte := 255;
-        if Try23() then Observer.Observe('assign.255', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.255');
+        if Try35(R, vByte) then Observer.Observe('assign.255', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.255');
         Observer.Finish();
     end;
 
-    [Test]
-    procedure Byte_To_FDuration_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_To_FDuration_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_To_FDuration_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_To_FDuration_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_To_FDuration_More5()
-    begin
-        Observer.More();
-    end;
-
     [TryFunction]
-    local procedure Try1()
+    local procedure Try1(var vByte: Byte; var vInteger: Integer)
     begin
         Clear(vInteger);
         vInteger := vByte;
     end;
 
-    local procedure PA_Integer_1(p: Integer)
+    local procedure PA_Integer_2(p: Integer; var vInteger: Integer)
     begin
         vInteger := p;
     end;
 
     [TryFunction]
-    local procedure Try2()
+    local procedure Try3(var vByte: Byte; var vInteger: Integer)
     begin
         Clear(vInteger);
-        PA_Integer_1(vByte);
+        PA_Integer_2(vByte, vInteger);
     end;
 
-    local procedure EX_Integer_2(): Integer
+    local procedure EX_Integer_4(var vByte: Byte): Integer
     begin
         exit(vByte);
     end;
 
     [TryFunction]
-    local procedure Try3()
+    local procedure Try5(var vByte: Byte; var vInteger: Integer)
     begin
         Clear(vInteger);
-        vInteger := EX_Integer_2();
+        vInteger := EX_Integer_4(vByte);
     end;
 
     [TryFunction]
-    local procedure Try4()
+    local procedure Try6(var vBigInteger: BigInteger; var vByte: Byte)
     begin
         Clear(vBigInteger);
         vBigInteger := vByte;
     end;
 
-    local procedure PA_BigInteger_4(p: BigInteger)
+    local procedure PA_BigInteger_7(p: BigInteger; var vBigInteger: BigInteger)
     begin
         vBigInteger := p;
     end;
 
     [TryFunction]
-    local procedure Try5()
+    local procedure Try8(var vBigInteger: BigInteger; var vByte: Byte)
     begin
         Clear(vBigInteger);
-        PA_BigInteger_4(vByte);
+        PA_BigInteger_7(vByte, vBigInteger);
     end;
 
-    local procedure EX_BigInteger_5(): BigInteger
+    local procedure EX_BigInteger_9(var vByte: Byte): BigInteger
     begin
         exit(vByte);
     end;
 
     [TryFunction]
-    local procedure Try6()
+    local procedure Try10(var vBigInteger: BigInteger; var vByte: Byte)
     begin
         Clear(vBigInteger);
-        vBigInteger := EX_BigInteger_5();
+        vBigInteger := EX_BigInteger_9(vByte);
     end;
 
     [TryFunction]
-    local procedure Try7()
+    local procedure Try11(var vByte: Byte; var vDecimal: Decimal)
     begin
         Clear(vDecimal);
         vDecimal := vByte;
     end;
 
-    local procedure PA_Decimal_7(p: Decimal)
+    local procedure PA_Decimal_12(p: Decimal; var vDecimal: Decimal)
     begin
         vDecimal := p;
     end;
 
     [TryFunction]
-    local procedure Try8()
+    local procedure Try13(var vByte: Byte; var vDecimal: Decimal)
     begin
         Clear(vDecimal);
-        PA_Decimal_7(vByte);
+        PA_Decimal_12(vByte, vDecimal);
     end;
 
-    local procedure EX_Decimal_8(): Decimal
+    local procedure EX_Decimal_14(var vByte: Byte): Decimal
     begin
         exit(vByte);
     end;
 
     [TryFunction]
-    local procedure Try9()
+    local procedure Try15(var vByte: Byte; var vDecimal: Decimal)
     begin
         Clear(vDecimal);
-        vDecimal := EX_Decimal_8();
+        vDecimal := EX_Decimal_14(vByte);
     end;
 
     [TryFunction]
-    local procedure Try10()
+    local procedure Try16(var vByte: Byte; var vChar: Char)
     begin
         Clear(vChar);
         vChar := vByte;
     end;
 
-    local procedure PA_Char_10(p: Char)
+    local procedure PA_Char_17(p: Char; var vChar: Char)
     begin
         vChar := p;
     end;
 
     [TryFunction]
-    local procedure Try11()
+    local procedure Try18(var vByte: Byte; var vChar: Char)
     begin
         Clear(vChar);
-        PA_Char_10(vByte);
+        PA_Char_17(vByte, vChar);
     end;
 
-    local procedure EX_Char_11(): Char
+    local procedure EX_Char_19(var vByte: Byte): Char
     begin
         exit(vByte);
     end;
 
     [TryFunction]
-    local procedure Try12()
+    local procedure Try20(var vByte: Byte; var vChar: Char)
     begin
         Clear(vChar);
-        vChar := EX_Char_11();
+        vChar := EX_Char_19(vByte);
     end;
 
     [TryFunction]
-    local procedure Try13()
+    local procedure Try21(var vByte: Byte; var vOption: Option A,B,C)
     begin
         Clear(vOption);
         vOption := vByte;
     end;
 
-    local procedure PA_Option_13(p: Option A,B,C)
+    local procedure PA_Option_22(p: Option A,B,C; var vOption: Option A,B,C)
     begin
         vOption := p;
     end;
 
     [TryFunction]
-    local procedure Try14()
+    local procedure Try23(var vByte: Byte; var vOption: Option A,B,C)
     begin
         Clear(vOption);
-        PA_Option_13(vByte);
+        PA_Option_22(vByte, vOption);
     end;
 
-    local procedure EX_Option_14(): Option A,B,C
+    local procedure EX_Option_24(var vByte: Byte): Option A,B,C
     begin
         exit(vByte);
     end;
 
     [TryFunction]
-    local procedure Try15()
+    local procedure Try25(var vByte: Byte; var vOption: Option A,B,C)
     begin
         Clear(vOption);
-        vOption := EX_Option_14();
+        vOption := EX_Option_24(vByte);
     end;
 
     [TryFunction]
-    local procedure Try16()
+    local procedure Try26(var vByte: Byte; var vDuration: Duration)
     begin
         Clear(vDuration);
         vDuration := vByte;
     end;
 
-    local procedure PA_Duration_16(p: Duration)
+    local procedure PA_Duration_27(p: Duration; var vDuration: Duration)
     begin
         vDuration := p;
     end;
 
     [TryFunction]
-    local procedure Try17()
+    local procedure Try28(var vByte: Byte; var vDuration: Duration)
     begin
         Clear(vDuration);
-        PA_Duration_16(vByte);
+        PA_Duration_27(vByte, vDuration);
     end;
 
-    local procedure EX_Duration_17(): Duration
+    local procedure EX_Duration_29(var vByte: Byte): Duration
     begin
         exit(vByte);
     end;
 
     [TryFunction]
-    local procedure Try18()
+    local procedure Try30(var vByte: Byte; var vDuration: Duration)
     begin
         Clear(vDuration);
-        vDuration := EX_Duration_17();
+        vDuration := EX_Duration_29(vByte);
     end;
 
     [TryFunction]
-    local procedure Try19()
+    local procedure Try31(var R: Record "LT Y31 Conv Fields"; var vByte: Byte)
     begin
         Clear(R.Integer);
         R.Integer := vByte;
     end;
 
     [TryFunction]
-    local procedure Try20()
+    local procedure Try32(var R: Record "LT Y31 Conv Fields"; var vByte: Byte)
     begin
         Clear(R.BigInteger);
         R.BigInteger := vByte;
     end;
 
     [TryFunction]
-    local procedure Try21()
+    local procedure Try33(var R: Record "LT Y31 Conv Fields"; var vByte: Byte)
     begin
         Clear(R.Decimal);
         R.Decimal := vByte;
     end;
 
     [TryFunction]
-    local procedure Try22()
+    local procedure Try34(var R: Record "LT Y31 Conv Fields"; var vByte: Byte)
     begin
         Clear(R.Option);
         R.Option := vByte;
     end;
 
     [TryFunction]
-    local procedure Try23()
+    local procedure Try35(var R: Record "LT Y31 Conv Fields"; var vByte: Byte)
     begin
         Clear(R.Duration);
         R.Duration := vByte;
@@ -5214,934 +4445,664 @@ codeunit 92415 "LT Y31 Cv Option"
     Subtype = Test;
     TestPermissions = Disabled;
 
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        R: Record "LT Y31 Conv Fields";
-        vBigInteger: BigInteger;
-        vByte: Byte;
-        vChar: Char;
-        vDecimal: Decimal;
-        vDuration: Duration;
-        vEnum: Enum "LT Y31 E";
-        vEnumImpl: Enum "LT Y31 EI";
-        vInteger: Integer;
-        vOption: Option A,B,C;
-
     [Test]
     procedure Option_To_Integer()
+    var
+        Observer: Codeunit "Probe Observer";
+        vInteger: Integer;
+        vOption: Option A,B,C;
     begin
         vOption := 0;
-        if Try1() then Observer.Observe('assign.0', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.0');
-        if Try2() then Observer.Observe('arg_byvalue.0', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.0');
-        if Try3() then Observer.Observe('exit.0', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.0');
+        if Try1(vInteger, vOption) then Observer.Observe('assign.0', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.0');
+        if Try3(vInteger, vOption) then Observer.Observe('arg_byvalue.0', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.0');
+        if Try5(vInteger, vOption) then Observer.Observe('exit.0', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.0');
         vOption := 2;
-        if Try1() then Observer.Observe('assign.2', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.2');
-        if Try2() then Observer.Observe('arg_byvalue.2', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.2');
-        if Try3() then Observer.Observe('exit.2', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.2');
-        vOption := 3;
-        if Try1() then Observer.Observe('assign.3', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.3');
-        if Try2() then Observer.Observe('arg_byvalue.3', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.3');
-        if Try3() then Observer.Observe('exit.3', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.3');
-        vOption := -1;
-        if Try1() then Observer.Observe('assign.m1', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.m1');
-        if Try2() then Observer.Observe('arg_byvalue.m1', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.m1');
-        if Try3() then Observer.Observe('exit.m1', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.m1');
+        if Try1(vInteger, vOption) then Observer.Observe('assign.2', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.2');
+        if Try3(vInteger, vOption) then Observer.Observe('arg_byvalue.2', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.2');
+        if Try5(vInteger, vOption) then Observer.Observe('exit.2', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.2');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Option_To_Integer_More1()
+    procedure Option_To_Integer_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vInteger: Integer;
+        vOption: Option A,B,C;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_To_Integer_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_To_Integer_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_To_Integer_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_To_Integer_More5()
-    begin
-        Observer.More();
+        vOption := 3;
+        if Try1(vInteger, vOption) then Observer.Observe('assign.3', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.3');
+        if Try3(vInteger, vOption) then Observer.Observe('arg_byvalue.3', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.3');
+        if Try5(vInteger, vOption) then Observer.Observe('exit.3', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.3');
+        vOption := -1;
+        if Try1(vInteger, vOption) then Observer.Observe('assign.m1', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.m1');
+        if Try3(vInteger, vOption) then Observer.Observe('arg_byvalue.m1', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.m1');
+        if Try5(vInteger, vOption) then Observer.Observe('exit.m1', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.m1');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Option_To_BigInteger()
+    var
+        Observer: Codeunit "Probe Observer";
+        vBigInteger: BigInteger;
+        vOption: Option A,B,C;
     begin
         vOption := 0;
-        if Try4() then Observer.Observe('assign.0', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.0');
-        if Try5() then Observer.Observe('arg_byvalue.0', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.0');
-        if Try6() then Observer.Observe('exit.0', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.0');
+        if Try6(vBigInteger, vOption) then Observer.Observe('assign.0', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.0');
+        if Try8(vBigInteger, vOption) then Observer.Observe('arg_byvalue.0', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.0');
+        if Try10(vBigInteger, vOption) then Observer.Observe('exit.0', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.0');
         vOption := 2;
-        if Try4() then Observer.Observe('assign.2', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.2');
-        if Try5() then Observer.Observe('arg_byvalue.2', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.2');
-        if Try6() then Observer.Observe('exit.2', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.2');
-        vOption := 3;
-        if Try4() then Observer.Observe('assign.3', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.3');
-        if Try5() then Observer.Observe('arg_byvalue.3', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.3');
-        if Try6() then Observer.Observe('exit.3', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.3');
-        vOption := -1;
-        if Try4() then Observer.Observe('assign.m1', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.m1');
-        if Try5() then Observer.Observe('arg_byvalue.m1', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.m1');
-        if Try6() then Observer.Observe('exit.m1', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.m1');
+        if Try6(vBigInteger, vOption) then Observer.Observe('assign.2', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.2');
+        if Try8(vBigInteger, vOption) then Observer.Observe('arg_byvalue.2', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.2');
+        if Try10(vBigInteger, vOption) then Observer.Observe('exit.2', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.2');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Option_To_BigInteger_More1()
+    procedure Option_To_BigInteger_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vBigInteger: BigInteger;
+        vOption: Option A,B,C;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_To_BigInteger_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_To_BigInteger_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_To_BigInteger_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_To_BigInteger_More5()
-    begin
-        Observer.More();
+        vOption := 3;
+        if Try6(vBigInteger, vOption) then Observer.Observe('assign.3', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.3');
+        if Try8(vBigInteger, vOption) then Observer.Observe('arg_byvalue.3', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.3');
+        if Try10(vBigInteger, vOption) then Observer.Observe('exit.3', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.3');
+        vOption := -1;
+        if Try6(vBigInteger, vOption) then Observer.Observe('assign.m1', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.m1');
+        if Try8(vBigInteger, vOption) then Observer.Observe('arg_byvalue.m1', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.m1');
+        if Try10(vBigInteger, vOption) then Observer.Observe('exit.m1', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.m1');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Option_To_Decimal()
+    var
+        Observer: Codeunit "Probe Observer";
+        vDecimal: Decimal;
+        vOption: Option A,B,C;
     begin
         vOption := 0;
-        if Try7() then Observer.Observe('assign.0', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.0');
-        if Try8() then Observer.Observe('arg_byvalue.0', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.0');
-        if Try9() then Observer.Observe('exit.0', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.0');
+        if Try11(vDecimal, vOption) then Observer.Observe('assign.0', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.0');
+        if Try13(vDecimal, vOption) then Observer.Observe('arg_byvalue.0', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.0');
+        if Try15(vDecimal, vOption) then Observer.Observe('exit.0', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.0');
         vOption := 2;
-        if Try7() then Observer.Observe('assign.2', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.2');
-        if Try8() then Observer.Observe('arg_byvalue.2', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.2');
-        if Try9() then Observer.Observe('exit.2', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.2');
-        vOption := 3;
-        if Try7() then Observer.Observe('assign.3', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.3');
-        if Try8() then Observer.Observe('arg_byvalue.3', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.3');
-        if Try9() then Observer.Observe('exit.3', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.3');
-        vOption := -1;
-        if Try7() then Observer.Observe('assign.m1', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.m1');
-        if Try8() then Observer.Observe('arg_byvalue.m1', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.m1');
-        if Try9() then Observer.Observe('exit.m1', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.m1');
+        if Try11(vDecimal, vOption) then Observer.Observe('assign.2', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.2');
+        if Try13(vDecimal, vOption) then Observer.Observe('arg_byvalue.2', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.2');
+        if Try15(vDecimal, vOption) then Observer.Observe('exit.2', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.2');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Option_To_Decimal_More1()
+    procedure Option_To_Decimal_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vDecimal: Decimal;
+        vOption: Option A,B,C;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_To_Decimal_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_To_Decimal_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_To_Decimal_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_To_Decimal_More5()
-    begin
-        Observer.More();
+        vOption := 3;
+        if Try11(vDecimal, vOption) then Observer.Observe('assign.3', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.3');
+        if Try13(vDecimal, vOption) then Observer.Observe('arg_byvalue.3', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.3');
+        if Try15(vDecimal, vOption) then Observer.Observe('exit.3', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.3');
+        vOption := -1;
+        if Try11(vDecimal, vOption) then Observer.Observe('assign.m1', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.m1');
+        if Try13(vDecimal, vOption) then Observer.Observe('arg_byvalue.m1', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.m1');
+        if Try15(vDecimal, vOption) then Observer.Observe('exit.m1', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.m1');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Option_To_Char()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vChar: Char;
+        vOption: Option A,B,C;
     begin
         vOption := 0;
-        if Try10() then Observer.Observe('assign.0', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.0');
-        if Try11() then Observer.Observe('arg_byvalue.0', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.0');
-        if Try12() then Observer.Observe('exit.0', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.0');
+        if Try16(vChar, vOption) then Observer.Observe('assign.0', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.0');
+        if Try18(vChar, vOption) then Observer.Observe('arg_byvalue.0', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.0');
+        if Try20(vChar, vOption) then Observer.Observe('exit.0', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.0');
         vOption := 2;
-        if Try10() then Observer.Observe('assign.2', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.2');
-        if Try11() then Observer.Observe('arg_byvalue.2', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.2');
-        if Try12() then Observer.Observe('exit.2', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.2');
-        vOption := 3;
-        if Try10() then Observer.Observe('assign.3', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.3');
-        if Try11() then Observer.Observe('arg_byvalue.3', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.3');
-        if Try12() then Observer.Observe('exit.3', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.3');
-        vOption := -1;
-        if Try10() then Observer.Observe('assign.m1', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.m1');
-        if Try11() then Observer.Observe('arg_byvalue.m1', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.m1');
-        if Try12() then Observer.Observe('exit.m1', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.m1');
+        if Try16(vChar, vOption) then Observer.Observe('assign.2', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.2');
+        if Try18(vChar, vOption) then Observer.Observe('arg_byvalue.2', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.2');
+        if Try20(vChar, vOption) then Observer.Observe('exit.2', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.2');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Option_To_Char_More1()
+    procedure Option_To_Char_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vChar: Char;
+        vOption: Option A,B,C;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_To_Char_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_To_Char_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_To_Char_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_To_Char_More5()
-    begin
-        Observer.More();
+        vOption := 3;
+        if Try16(vChar, vOption) then Observer.Observe('assign.3', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.3');
+        if Try18(vChar, vOption) then Observer.Observe('arg_byvalue.3', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.3');
+        if Try20(vChar, vOption) then Observer.Observe('exit.3', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.3');
+        vOption := -1;
+        if Try16(vChar, vOption) then Observer.Observe('assign.m1', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.m1');
+        if Try18(vChar, vOption) then Observer.Observe('arg_byvalue.m1', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.m1');
+        if Try20(vChar, vOption) then Observer.Observe('exit.m1', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.m1');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Option_To_Byte()
+    var
+        Observer: Codeunit "Probe Observer";
+        vByte: Byte;
+        vOption: Option A,B,C;
     begin
         vOption := 0;
-        if Try13() then Observer.Observe('assign.0', Format(vByte, 0, 9)) else Observer.ObserveError('assign.0');
-        if Try14() then Observer.Observe('arg_byvalue.0', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.0');
-        if Try15() then Observer.Observe('exit.0', Format(vByte, 0, 9)) else Observer.ObserveError('exit.0');
+        if Try21(vByte, vOption) then Observer.Observe('assign.0', Format(vByte, 0, 9)) else Observer.ObserveError('assign.0');
+        if Try23(vByte, vOption) then Observer.Observe('arg_byvalue.0', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.0');
+        if Try25(vByte, vOption) then Observer.Observe('exit.0', Format(vByte, 0, 9)) else Observer.ObserveError('exit.0');
         vOption := 2;
-        if Try13() then Observer.Observe('assign.2', Format(vByte, 0, 9)) else Observer.ObserveError('assign.2');
-        if Try14() then Observer.Observe('arg_byvalue.2', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.2');
-        if Try15() then Observer.Observe('exit.2', Format(vByte, 0, 9)) else Observer.ObserveError('exit.2');
-        vOption := 3;
-        if Try13() then Observer.Observe('assign.3', Format(vByte, 0, 9)) else Observer.ObserveError('assign.3');
-        if Try14() then Observer.Observe('arg_byvalue.3', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.3');
-        if Try15() then Observer.Observe('exit.3', Format(vByte, 0, 9)) else Observer.ObserveError('exit.3');
-        vOption := -1;
-        if Try13() then Observer.Observe('assign.m1', Format(vByte, 0, 9)) else Observer.ObserveError('assign.m1');
-        if Try14() then Observer.Observe('arg_byvalue.m1', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.m1');
-        if Try15() then Observer.Observe('exit.m1', Format(vByte, 0, 9)) else Observer.ObserveError('exit.m1');
+        if Try21(vByte, vOption) then Observer.Observe('assign.2', Format(vByte, 0, 9)) else Observer.ObserveError('assign.2');
+        if Try23(vByte, vOption) then Observer.Observe('arg_byvalue.2', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.2');
+        if Try25(vByte, vOption) then Observer.Observe('exit.2', Format(vByte, 0, 9)) else Observer.ObserveError('exit.2');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Option_To_Byte_More1()
+    procedure Option_To_Byte_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vByte: Byte;
+        vOption: Option A,B,C;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_To_Byte_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_To_Byte_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_To_Byte_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_To_Byte_More5()
-    begin
-        Observer.More();
+        vOption := 3;
+        if Try21(vByte, vOption) then Observer.Observe('assign.3', Format(vByte, 0, 9)) else Observer.ObserveError('assign.3');
+        if Try23(vByte, vOption) then Observer.Observe('arg_byvalue.3', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.3');
+        if Try25(vByte, vOption) then Observer.Observe('exit.3', Format(vByte, 0, 9)) else Observer.ObserveError('exit.3');
+        vOption := -1;
+        if Try21(vByte, vOption) then Observer.Observe('assign.m1', Format(vByte, 0, 9)) else Observer.ObserveError('assign.m1');
+        if Try23(vByte, vOption) then Observer.Observe('arg_byvalue.m1', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.m1');
+        if Try25(vByte, vOption) then Observer.Observe('exit.m1', Format(vByte, 0, 9)) else Observer.ObserveError('exit.m1');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Option_To_Enum()
+    var
+        Observer: Codeunit "Probe Observer";
+        vEnum: Enum "LT Y31 E";
+        vOption: Option A,B,C;
     begin
         vOption := 0;
-        if Try16() then Observer.Observe('assign.0', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('assign.0');
-        if Try17() then Observer.Observe('arg_byvalue.0', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('arg_byvalue.0');
-        if Try18() then Observer.Observe('exit.0', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('exit.0');
+        if Try26(vEnum, vOption) then Observer.Observe('assign.0', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('assign.0');
+        if Try28(vEnum, vOption) then Observer.Observe('arg_byvalue.0', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('arg_byvalue.0');
+        if Try30(vEnum, vOption) then Observer.Observe('exit.0', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('exit.0');
         vOption := 2;
-        if Try16() then Observer.Observe('assign.2', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('assign.2');
-        if Try17() then Observer.Observe('arg_byvalue.2', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('arg_byvalue.2');
-        if Try18() then Observer.Observe('exit.2', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('exit.2');
-        vOption := 3;
-        if Try16() then Observer.Observe('assign.3', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('assign.3');
-        if Try17() then Observer.Observe('arg_byvalue.3', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('arg_byvalue.3');
-        if Try18() then Observer.Observe('exit.3', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('exit.3');
-        vOption := -1;
-        if Try16() then Observer.Observe('assign.m1', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('assign.m1');
-        if Try17() then Observer.Observe('arg_byvalue.m1', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('arg_byvalue.m1');
-        if Try18() then Observer.Observe('exit.m1', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('exit.m1');
+        if Try26(vEnum, vOption) then Observer.Observe('assign.2', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('assign.2');
+        if Try28(vEnum, vOption) then Observer.Observe('arg_byvalue.2', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('arg_byvalue.2');
+        if Try30(vEnum, vOption) then Observer.Observe('exit.2', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('exit.2');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Option_To_Enum_More1()
+    procedure Option_To_Enum_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vEnum: Enum "LT Y31 E";
+        vOption: Option A,B,C;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_To_Enum_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_To_Enum_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_To_Enum_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_To_Enum_More5()
-    begin
-        Observer.More();
+        vOption := 3;
+        if Try26(vEnum, vOption) then Observer.Observe('assign.3', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('assign.3');
+        if Try28(vEnum, vOption) then Observer.Observe('arg_byvalue.3', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('arg_byvalue.3');
+        if Try30(vEnum, vOption) then Observer.Observe('exit.3', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('exit.3');
+        vOption := -1;
+        if Try26(vEnum, vOption) then Observer.Observe('assign.m1', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('assign.m1');
+        if Try28(vEnum, vOption) then Observer.Observe('arg_byvalue.m1', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('arg_byvalue.m1');
+        if Try30(vEnum, vOption) then Observer.Observe('exit.m1', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('exit.m1');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Option_To_EnumImpl()
+    var
+        Observer: Codeunit "Probe Observer";
+        vEnumImpl: Enum "LT Y31 EI";
+        vOption: Option A,B,C;
     begin
         vOption := 0;
-        if Try19() then Observer.Observe('assign.0', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('assign.0');
-        if Try20() then Observer.Observe('arg_byvalue.0', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('arg_byvalue.0');
-        if Try21() then Observer.Observe('exit.0', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('exit.0');
+        if Try31(vEnumImpl, vOption) then Observer.Observe('assign.0', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('assign.0');
+        if Try33(vEnumImpl, vOption) then Observer.Observe('arg_byvalue.0', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('arg_byvalue.0');
+        if Try35(vEnumImpl, vOption) then Observer.Observe('exit.0', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('exit.0');
         vOption := 2;
-        if Try19() then Observer.Observe('assign.2', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('assign.2');
-        if Try20() then Observer.Observe('arg_byvalue.2', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('arg_byvalue.2');
-        if Try21() then Observer.Observe('exit.2', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('exit.2');
-        vOption := 3;
-        if Try19() then Observer.Observe('assign.3', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('assign.3');
-        if Try20() then Observer.Observe('arg_byvalue.3', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('arg_byvalue.3');
-        if Try21() then Observer.Observe('exit.3', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('exit.3');
-        vOption := -1;
-        if Try19() then Observer.Observe('assign.m1', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('assign.m1');
-        if Try20() then Observer.Observe('arg_byvalue.m1', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('arg_byvalue.m1');
-        if Try21() then Observer.Observe('exit.m1', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('exit.m1');
+        if Try31(vEnumImpl, vOption) then Observer.Observe('assign.2', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('assign.2');
+        if Try33(vEnumImpl, vOption) then Observer.Observe('arg_byvalue.2', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('arg_byvalue.2');
+        if Try35(vEnumImpl, vOption) then Observer.Observe('exit.2', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('exit.2');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Option_To_EnumImpl_More1()
+    procedure Option_To_EnumImpl_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vEnumImpl: Enum "LT Y31 EI";
+        vOption: Option A,B,C;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_To_EnumImpl_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_To_EnumImpl_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_To_EnumImpl_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_To_EnumImpl_More5()
-    begin
-        Observer.More();
+        vOption := 3;
+        if Try31(vEnumImpl, vOption) then Observer.Observe('assign.3', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('assign.3');
+        if Try33(vEnumImpl, vOption) then Observer.Observe('arg_byvalue.3', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('arg_byvalue.3');
+        if Try35(vEnumImpl, vOption) then Observer.Observe('exit.3', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('exit.3');
+        vOption := -1;
+        if Try31(vEnumImpl, vOption) then Observer.Observe('assign.m1', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('assign.m1');
+        if Try33(vEnumImpl, vOption) then Observer.Observe('arg_byvalue.m1', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('arg_byvalue.m1');
+        if Try35(vEnumImpl, vOption) then Observer.Observe('exit.m1', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('exit.m1');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Option_To_Duration()
+    var
+        Observer: Codeunit "Probe Observer";
+        vDuration: Duration;
+        vOption: Option A,B,C;
     begin
         vOption := 0;
-        if Try22() then Observer.Observe('assign.0', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.0');
-        if Try23() then Observer.Observe('arg_byvalue.0', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.0');
-        if Try24() then Observer.Observe('exit.0', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.0');
+        if Try36(vDuration, vOption) then Observer.Observe('assign.0', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.0');
+        if Try38(vDuration, vOption) then Observer.Observe('arg_byvalue.0', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.0');
+        if Try40(vDuration, vOption) then Observer.Observe('exit.0', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.0');
         vOption := 2;
-        if Try22() then Observer.Observe('assign.2', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.2');
-        if Try23() then Observer.Observe('arg_byvalue.2', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.2');
-        if Try24() then Observer.Observe('exit.2', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.2');
-        vOption := 3;
-        if Try22() then Observer.Observe('assign.3', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.3');
-        if Try23() then Observer.Observe('arg_byvalue.3', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.3');
-        if Try24() then Observer.Observe('exit.3', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.3');
-        vOption := -1;
-        if Try22() then Observer.Observe('assign.m1', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.m1');
-        if Try23() then Observer.Observe('arg_byvalue.m1', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.m1');
-        if Try24() then Observer.Observe('exit.m1', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.m1');
+        if Try36(vDuration, vOption) then Observer.Observe('assign.2', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.2');
+        if Try38(vDuration, vOption) then Observer.Observe('arg_byvalue.2', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.2');
+        if Try40(vDuration, vOption) then Observer.Observe('exit.2', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.2');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Option_To_Duration_More1()
+    procedure Option_To_Duration_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vDuration: Duration;
+        vOption: Option A,B,C;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_To_Duration_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_To_Duration_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_To_Duration_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_To_Duration_More5()
-    begin
-        Observer.More();
+        vOption := 3;
+        if Try36(vDuration, vOption) then Observer.Observe('assign.3', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.3');
+        if Try38(vDuration, vOption) then Observer.Observe('arg_byvalue.3', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.3');
+        if Try40(vDuration, vOption) then Observer.Observe('exit.3', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.3');
+        vOption := -1;
+        if Try36(vDuration, vOption) then Observer.Observe('assign.m1', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.m1');
+        if Try38(vDuration, vOption) then Observer.Observe('arg_byvalue.m1', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.m1');
+        if Try40(vDuration, vOption) then Observer.Observe('exit.m1', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.m1');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Option_To_FInteger()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
+        vOption: Option A,B,C;
     begin
         vOption := 0;
-        if Try25() then Observer.Observe('assign.0', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.0');
+        if Try41(R, vOption) then Observer.Observe('assign.0', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.0');
         vOption := 2;
-        if Try25() then Observer.Observe('assign.2', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.2');
+        if Try41(R, vOption) then Observer.Observe('assign.2', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.2');
         vOption := 3;
-        if Try25() then Observer.Observe('assign.3', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.3');
+        if Try41(R, vOption) then Observer.Observe('assign.3', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.3');
         vOption := -1;
-        if Try25() then Observer.Observe('assign.m1', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.m1');
+        if Try41(R, vOption) then Observer.Observe('assign.m1', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.m1');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Option_To_FInteger_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_To_FInteger_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_To_FInteger_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_To_FInteger_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_To_FInteger_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Option_To_FBigInteger()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
+        vOption: Option A,B,C;
     begin
         vOption := 0;
-        if Try26() then Observer.Observe('assign.0', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.0');
+        if Try42(R, vOption) then Observer.Observe('assign.0', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.0');
         vOption := 2;
-        if Try26() then Observer.Observe('assign.2', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.2');
+        if Try42(R, vOption) then Observer.Observe('assign.2', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.2');
         vOption := 3;
-        if Try26() then Observer.Observe('assign.3', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.3');
+        if Try42(R, vOption) then Observer.Observe('assign.3', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.3');
         vOption := -1;
-        if Try26() then Observer.Observe('assign.m1', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.m1');
+        if Try42(R, vOption) then Observer.Observe('assign.m1', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.m1');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Option_To_FBigInteger_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_To_FBigInteger_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_To_FBigInteger_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_To_FBigInteger_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_To_FBigInteger_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Option_To_FDecimal()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
+        vOption: Option A,B,C;
     begin
         vOption := 0;
-        if Try27() then Observer.Observe('assign.0', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.0');
+        if Try43(R, vOption) then Observer.Observe('assign.0', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.0');
         vOption := 2;
-        if Try27() then Observer.Observe('assign.2', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.2');
+        if Try43(R, vOption) then Observer.Observe('assign.2', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.2');
         vOption := 3;
-        if Try27() then Observer.Observe('assign.3', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.3');
+        if Try43(R, vOption) then Observer.Observe('assign.3', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.3');
         vOption := -1;
-        if Try27() then Observer.Observe('assign.m1', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.m1');
+        if Try43(R, vOption) then Observer.Observe('assign.m1', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.m1');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Option_To_FDecimal_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_To_FDecimal_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_To_FDecimal_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_To_FDecimal_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_To_FDecimal_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Option_To_FEnum()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
+        vOption: Option A,B,C;
     begin
         vOption := 0;
-        if Try28() then Observer.Observe('assign.0', Format(R.Enum) + '|' + Format(R.Enum.AsInteger())) else Observer.ObserveError('assign.0');
+        if Try44(R, vOption) then Observer.Observe('assign.0', Format(R.Enum) + '|' + Format(R.Enum.AsInteger())) else Observer.ObserveError('assign.0');
         vOption := 2;
-        if Try28() then Observer.Observe('assign.2', Format(R.Enum) + '|' + Format(R.Enum.AsInteger())) else Observer.ObserveError('assign.2');
+        if Try44(R, vOption) then Observer.Observe('assign.2', Format(R.Enum) + '|' + Format(R.Enum.AsInteger())) else Observer.ObserveError('assign.2');
         vOption := 3;
-        if Try28() then Observer.Observe('assign.3', Format(R.Enum) + '|' + Format(R.Enum.AsInteger())) else Observer.ObserveError('assign.3');
+        if Try44(R, vOption) then Observer.Observe('assign.3', Format(R.Enum) + '|' + Format(R.Enum.AsInteger())) else Observer.ObserveError('assign.3');
         vOption := -1;
-        if Try28() then Observer.Observe('assign.m1', Format(R.Enum) + '|' + Format(R.Enum.AsInteger())) else Observer.ObserveError('assign.m1');
+        if Try44(R, vOption) then Observer.Observe('assign.m1', Format(R.Enum) + '|' + Format(R.Enum.AsInteger())) else Observer.ObserveError('assign.m1');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Option_To_FEnum_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_To_FEnum_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_To_FEnum_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_To_FEnum_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_To_FEnum_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Option_To_FDuration()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
+        vOption: Option A,B,C;
     begin
         vOption := 0;
-        if Try29() then Observer.Observe('assign.0', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.0');
+        if Try45(R, vOption) then Observer.Observe('assign.0', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.0');
         vOption := 2;
-        if Try29() then Observer.Observe('assign.2', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.2');
+        if Try45(R, vOption) then Observer.Observe('assign.2', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.2');
         vOption := 3;
-        if Try29() then Observer.Observe('assign.3', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.3');
+        if Try45(R, vOption) then Observer.Observe('assign.3', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.3');
         vOption := -1;
-        if Try29() then Observer.Observe('assign.m1', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.m1');
+        if Try45(R, vOption) then Observer.Observe('assign.m1', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.m1');
         Observer.Finish();
     end;
 
-    [Test]
-    procedure Option_To_FDuration_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_To_FDuration_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_To_FDuration_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_To_FDuration_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_To_FDuration_More5()
-    begin
-        Observer.More();
-    end;
-
     [TryFunction]
-    local procedure Try1()
+    local procedure Try1(var vInteger: Integer; var vOption: Option A,B,C)
     begin
         Clear(vInteger);
         vInteger := vOption;
     end;
 
-    local procedure PA_Integer_1(p: Integer)
+    local procedure PA_Integer_2(p: Integer; var vInteger: Integer)
     begin
         vInteger := p;
     end;
 
     [TryFunction]
-    local procedure Try2()
+    local procedure Try3(var vInteger: Integer; var vOption: Option A,B,C)
     begin
         Clear(vInteger);
-        PA_Integer_1(vOption);
+        PA_Integer_2(vOption, vInteger);
     end;
 
-    local procedure EX_Integer_2(): Integer
+    local procedure EX_Integer_4(var vOption: Option A,B,C): Integer
     begin
         exit(vOption);
     end;
 
     [TryFunction]
-    local procedure Try3()
+    local procedure Try5(var vInteger: Integer; var vOption: Option A,B,C)
     begin
         Clear(vInteger);
-        vInteger := EX_Integer_2();
+        vInteger := EX_Integer_4(vOption);
     end;
 
     [TryFunction]
-    local procedure Try4()
+    local procedure Try6(var vBigInteger: BigInteger; var vOption: Option A,B,C)
     begin
         Clear(vBigInteger);
         vBigInteger := vOption;
     end;
 
-    local procedure PA_BigInteger_4(p: BigInteger)
+    local procedure PA_BigInteger_7(p: BigInteger; var vBigInteger: BigInteger)
     begin
         vBigInteger := p;
     end;
 
     [TryFunction]
-    local procedure Try5()
+    local procedure Try8(var vBigInteger: BigInteger; var vOption: Option A,B,C)
     begin
         Clear(vBigInteger);
-        PA_BigInteger_4(vOption);
+        PA_BigInteger_7(vOption, vBigInteger);
     end;
 
-    local procedure EX_BigInteger_5(): BigInteger
+    local procedure EX_BigInteger_9(var vOption: Option A,B,C): BigInteger
     begin
         exit(vOption);
     end;
 
     [TryFunction]
-    local procedure Try6()
+    local procedure Try10(var vBigInteger: BigInteger; var vOption: Option A,B,C)
     begin
         Clear(vBigInteger);
-        vBigInteger := EX_BigInteger_5();
+        vBigInteger := EX_BigInteger_9(vOption);
     end;
 
     [TryFunction]
-    local procedure Try7()
+    local procedure Try11(var vDecimal: Decimal; var vOption: Option A,B,C)
     begin
         Clear(vDecimal);
         vDecimal := vOption;
     end;
 
-    local procedure PA_Decimal_7(p: Decimal)
+    local procedure PA_Decimal_12(p: Decimal; var vDecimal: Decimal)
     begin
         vDecimal := p;
     end;
 
     [TryFunction]
-    local procedure Try8()
+    local procedure Try13(var vDecimal: Decimal; var vOption: Option A,B,C)
     begin
         Clear(vDecimal);
-        PA_Decimal_7(vOption);
+        PA_Decimal_12(vOption, vDecimal);
     end;
 
-    local procedure EX_Decimal_8(): Decimal
+    local procedure EX_Decimal_14(var vOption: Option A,B,C): Decimal
     begin
         exit(vOption);
     end;
 
     [TryFunction]
-    local procedure Try9()
+    local procedure Try15(var vDecimal: Decimal; var vOption: Option A,B,C)
     begin
         Clear(vDecimal);
-        vDecimal := EX_Decimal_8();
+        vDecimal := EX_Decimal_14(vOption);
     end;
 
     [TryFunction]
-    local procedure Try10()
+    local procedure Try16(var vChar: Char; var vOption: Option A,B,C)
     begin
         Clear(vChar);
         vChar := vOption;
     end;
 
-    local procedure PA_Char_10(p: Char)
+    local procedure PA_Char_17(p: Char; var vChar: Char)
     begin
         vChar := p;
     end;
 
     [TryFunction]
-    local procedure Try11()
+    local procedure Try18(var vChar: Char; var vOption: Option A,B,C)
     begin
         Clear(vChar);
-        PA_Char_10(vOption);
+        PA_Char_17(vOption, vChar);
     end;
 
-    local procedure EX_Char_11(): Char
+    local procedure EX_Char_19(var vOption: Option A,B,C): Char
     begin
         exit(vOption);
     end;
 
     [TryFunction]
-    local procedure Try12()
+    local procedure Try20(var vChar: Char; var vOption: Option A,B,C)
     begin
         Clear(vChar);
-        vChar := EX_Char_11();
+        vChar := EX_Char_19(vOption);
     end;
 
     [TryFunction]
-    local procedure Try13()
+    local procedure Try21(var vByte: Byte; var vOption: Option A,B,C)
     begin
         Clear(vByte);
         vByte := vOption;
     end;
 
-    local procedure PA_Byte_13(p: Byte)
+    local procedure PA_Byte_22(p: Byte; var vByte: Byte)
     begin
         vByte := p;
     end;
 
     [TryFunction]
-    local procedure Try14()
+    local procedure Try23(var vByte: Byte; var vOption: Option A,B,C)
     begin
         Clear(vByte);
-        PA_Byte_13(vOption);
+        PA_Byte_22(vOption, vByte);
     end;
 
-    local procedure EX_Byte_14(): Byte
+    local procedure EX_Byte_24(var vOption: Option A,B,C): Byte
     begin
         exit(vOption);
     end;
 
     [TryFunction]
-    local procedure Try15()
+    local procedure Try25(var vByte: Byte; var vOption: Option A,B,C)
     begin
         Clear(vByte);
-        vByte := EX_Byte_14();
+        vByte := EX_Byte_24(vOption);
     end;
 
     [TryFunction]
-    local procedure Try16()
+    local procedure Try26(var vEnum: Enum "LT Y31 E"; var vOption: Option A,B,C)
     begin
         Clear(vEnum);
         vEnum := vOption;
     end;
 
-    local procedure PA_Enum_16(p: Enum "LT Y31 E")
+    local procedure PA_Enum_27(p: Enum "LT Y31 E"; var vEnum: Enum "LT Y31 E")
     begin
         vEnum := p;
     end;
 
     [TryFunction]
-    local procedure Try17()
+    local procedure Try28(var vEnum: Enum "LT Y31 E"; var vOption: Option A,B,C)
     begin
         Clear(vEnum);
-        PA_Enum_16(vOption);
+        PA_Enum_27(vOption, vEnum);
     end;
 
-    local procedure EX_Enum_17(): Enum "LT Y31 E"
+    local procedure EX_Enum_29(var vOption: Option A,B,C): Enum "LT Y31 E"
     begin
         exit(vOption);
     end;
 
     [TryFunction]
-    local procedure Try18()
+    local procedure Try30(var vEnum: Enum "LT Y31 E"; var vOption: Option A,B,C)
     begin
         Clear(vEnum);
-        vEnum := EX_Enum_17();
+        vEnum := EX_Enum_29(vOption);
     end;
 
     [TryFunction]
-    local procedure Try19()
+    local procedure Try31(var vEnumImpl: Enum "LT Y31 EI"; var vOption: Option A,B,C)
     begin
         Clear(vEnumImpl);
         vEnumImpl := vOption;
     end;
 
-    local procedure PA_EnumImpl_19(p: Enum "LT Y31 EI")
+    local procedure PA_EnumImpl_32(p: Enum "LT Y31 EI"; var vEnumImpl: Enum "LT Y31 EI")
     begin
         vEnumImpl := p;
     end;
 
     [TryFunction]
-    local procedure Try20()
+    local procedure Try33(var vEnumImpl: Enum "LT Y31 EI"; var vOption: Option A,B,C)
     begin
         Clear(vEnumImpl);
-        PA_EnumImpl_19(vOption);
+        PA_EnumImpl_32(vOption, vEnumImpl);
     end;
 
-    local procedure EX_EnumImpl_20(): Enum "LT Y31 EI"
+    local procedure EX_EnumImpl_34(var vOption: Option A,B,C): Enum "LT Y31 EI"
     begin
         exit(vOption);
     end;
 
     [TryFunction]
-    local procedure Try21()
+    local procedure Try35(var vEnumImpl: Enum "LT Y31 EI"; var vOption: Option A,B,C)
     begin
         Clear(vEnumImpl);
-        vEnumImpl := EX_EnumImpl_20();
+        vEnumImpl := EX_EnumImpl_34(vOption);
     end;
 
     [TryFunction]
-    local procedure Try22()
+    local procedure Try36(var vDuration: Duration; var vOption: Option A,B,C)
     begin
         Clear(vDuration);
         vDuration := vOption;
     end;
 
-    local procedure PA_Duration_22(p: Duration)
+    local procedure PA_Duration_37(p: Duration; var vDuration: Duration)
     begin
         vDuration := p;
     end;
 
     [TryFunction]
-    local procedure Try23()
+    local procedure Try38(var vDuration: Duration; var vOption: Option A,B,C)
     begin
         Clear(vDuration);
-        PA_Duration_22(vOption);
+        PA_Duration_37(vOption, vDuration);
     end;
 
-    local procedure EX_Duration_23(): Duration
+    local procedure EX_Duration_39(var vOption: Option A,B,C): Duration
     begin
         exit(vOption);
     end;
 
     [TryFunction]
-    local procedure Try24()
+    local procedure Try40(var vDuration: Duration; var vOption: Option A,B,C)
     begin
         Clear(vDuration);
-        vDuration := EX_Duration_23();
+        vDuration := EX_Duration_39(vOption);
     end;
 
     [TryFunction]
-    local procedure Try25()
+    local procedure Try41(var R: Record "LT Y31 Conv Fields"; var vOption: Option A,B,C)
     begin
         Clear(R.Integer);
         R.Integer := vOption;
     end;
 
     [TryFunction]
-    local procedure Try26()
+    local procedure Try42(var R: Record "LT Y31 Conv Fields"; var vOption: Option A,B,C)
     begin
         Clear(R.BigInteger);
         R.BigInteger := vOption;
     end;
 
     [TryFunction]
-    local procedure Try27()
+    local procedure Try43(var R: Record "LT Y31 Conv Fields"; var vOption: Option A,B,C)
     begin
         Clear(R.Decimal);
         R.Decimal := vOption;
     end;
 
     [TryFunction]
-    local procedure Try28()
+    local procedure Try44(var R: Record "LT Y31 Conv Fields"; var vOption: Option A,B,C)
     begin
         Clear(R.Enum);
         R.Enum := vOption;
     end;
 
     [TryFunction]
-    local procedure Try29()
+    local procedure Try45(var R: Record "LT Y31 Conv Fields"; var vOption: Option A,B,C)
     begin
         Clear(R.Duration);
         R.Duration := vOption;
@@ -6161,394 +5122,262 @@ codeunit 92416 "LT Y31 Cv Enum"
     Subtype = Test;
     TestPermissions = Disabled;
 
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        R: Record "LT Y31 Conv Fields";
-        vBigInteger: BigInteger;
-        vEnum: Enum "LT Y31 E";
-        vInteger: Integer;
-        vOption: Option A,B,C;
-
     [Test]
     procedure Enum_To_Integer()
+    var
+        Observer: Codeunit "Probe Observer";
+        vEnum: Enum "LT Y31 E";
+        vInteger: Integer;
     begin
         vEnum := "LT Y31 E"::A;
-        if Try1() then Observer.Observe('assign.A', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.A');
-        if Try2() then Observer.Observe('arg_byvalue.A', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.A');
-        if Try3() then Observer.Observe('exit.A', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.A');
+        if Try1(vEnum, vInteger) then Observer.Observe('assign.A', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.A');
+        if Try3(vEnum, vInteger) then Observer.Observe('arg_byvalue.A', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.A');
+        if Try5(vEnum, vInteger) then Observer.Observe('exit.A', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.A');
         vEnum := "LT Y31 E"::C;
-        if Try1() then Observer.Observe('assign.C', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.C');
-        if Try2() then Observer.Observe('arg_byvalue.C', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.C');
-        if Try3() then Observer.Observe('exit.C', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.C');
-        vEnum := 5;
-        if Try1() then Observer.Observe('assign.ord5', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.ord5');
-        if Try2() then Observer.Observe('arg_byvalue.ord5', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.ord5');
-        if Try3() then Observer.Observe('exit.ord5', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.ord5');
+        if Try1(vEnum, vInteger) then Observer.Observe('assign.C', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.C');
+        if Try3(vEnum, vInteger) then Observer.Observe('arg_byvalue.C', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.C');
+        if Try5(vEnum, vInteger) then Observer.Observe('exit.C', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.C');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Enum_To_Integer_More1()
+    procedure Enum_To_Integer_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vEnum: Enum "LT Y31 E";
+        vInteger: Integer;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_To_Integer_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_To_Integer_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_To_Integer_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_To_Integer_More5()
-    begin
-        Observer.More();
+        vEnum := 5;
+        if Try1(vEnum, vInteger) then Observer.Observe('assign.ord5', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.ord5');
+        if Try3(vEnum, vInteger) then Observer.Observe('arg_byvalue.ord5', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.ord5');
+        if Try5(vEnum, vInteger) then Observer.Observe('exit.ord5', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.ord5');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Enum_To_BigInteger()
+    var
+        Observer: Codeunit "Probe Observer";
+        vBigInteger: BigInteger;
+        vEnum: Enum "LT Y31 E";
     begin
         vEnum := "LT Y31 E"::A;
-        if Try4() then Observer.Observe('assign.A', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.A');
-        if Try5() then Observer.Observe('arg_byvalue.A', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.A');
-        if Try6() then Observer.Observe('exit.A', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.A');
+        if Try6(vBigInteger, vEnum) then Observer.Observe('assign.A', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.A');
+        if Try8(vBigInteger, vEnum) then Observer.Observe('arg_byvalue.A', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.A');
+        if Try10(vBigInteger, vEnum) then Observer.Observe('exit.A', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.A');
         vEnum := "LT Y31 E"::C;
-        if Try4() then Observer.Observe('assign.C', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.C');
-        if Try5() then Observer.Observe('arg_byvalue.C', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.C');
-        if Try6() then Observer.Observe('exit.C', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.C');
-        vEnum := 5;
-        if Try4() then Observer.Observe('assign.ord5', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.ord5');
-        if Try5() then Observer.Observe('arg_byvalue.ord5', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.ord5');
-        if Try6() then Observer.Observe('exit.ord5', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.ord5');
+        if Try6(vBigInteger, vEnum) then Observer.Observe('assign.C', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.C');
+        if Try8(vBigInteger, vEnum) then Observer.Observe('arg_byvalue.C', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.C');
+        if Try10(vBigInteger, vEnum) then Observer.Observe('exit.C', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.C');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Enum_To_BigInteger_More1()
+    procedure Enum_To_BigInteger_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vBigInteger: BigInteger;
+        vEnum: Enum "LT Y31 E";
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_To_BigInteger_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_To_BigInteger_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_To_BigInteger_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_To_BigInteger_More5()
-    begin
-        Observer.More();
+        vEnum := 5;
+        if Try6(vBigInteger, vEnum) then Observer.Observe('assign.ord5', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.ord5');
+        if Try8(vBigInteger, vEnum) then Observer.Observe('arg_byvalue.ord5', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.ord5');
+        if Try10(vBigInteger, vEnum) then Observer.Observe('exit.ord5', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.ord5');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Enum_To_Option()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vEnum: Enum "LT Y31 E";
+        vOption: Option A,B,C;
     begin
         vEnum := "LT Y31 E"::A;
-        if Try7() then Observer.Observe('assign.A', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.A');
-        if Try8() then Observer.Observe('arg_byvalue.A', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.A');
-        if Try9() then Observer.Observe('exit.A', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.A');
+        if Try11(vEnum, vOption) then Observer.Observe('assign.A', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.A');
+        if Try13(vEnum, vOption) then Observer.Observe('arg_byvalue.A', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.A');
+        if Try15(vEnum, vOption) then Observer.Observe('exit.A', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.A');
         vEnum := "LT Y31 E"::C;
-        if Try7() then Observer.Observe('assign.C', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.C');
-        if Try8() then Observer.Observe('arg_byvalue.C', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.C');
-        if Try9() then Observer.Observe('exit.C', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.C');
-        vEnum := 5;
-        if Try7() then Observer.Observe('assign.ord5', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.ord5');
-        if Try8() then Observer.Observe('arg_byvalue.ord5', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.ord5');
-        if Try9() then Observer.Observe('exit.ord5', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.ord5');
+        if Try11(vEnum, vOption) then Observer.Observe('assign.C', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.C');
+        if Try13(vEnum, vOption) then Observer.Observe('arg_byvalue.C', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.C');
+        if Try15(vEnum, vOption) then Observer.Observe('exit.C', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.C');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Enum_To_Option_More1()
+    procedure Enum_To_Option_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vEnum: Enum "LT Y31 E";
+        vOption: Option A,B,C;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_To_Option_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_To_Option_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_To_Option_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_To_Option_More5()
-    begin
-        Observer.More();
+        vEnum := 5;
+        if Try11(vEnum, vOption) then Observer.Observe('assign.ord5', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.ord5');
+        if Try13(vEnum, vOption) then Observer.Observe('arg_byvalue.ord5', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.ord5');
+        if Try15(vEnum, vOption) then Observer.Observe('exit.ord5', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.ord5');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Enum_To_FInteger()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
+        vEnum: Enum "LT Y31 E";
     begin
         vEnum := "LT Y31 E"::A;
-        if Try10() then Observer.Observe('assign.A', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.A');
+        if Try16(R, vEnum) then Observer.Observe('assign.A', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.A');
         vEnum := "LT Y31 E"::C;
-        if Try10() then Observer.Observe('assign.C', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.C');
+        if Try16(R, vEnum) then Observer.Observe('assign.C', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.C');
         vEnum := 5;
-        if Try10() then Observer.Observe('assign.ord5', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.ord5');
+        if Try16(R, vEnum) then Observer.Observe('assign.ord5', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.ord5');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Enum_To_FInteger_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_To_FInteger_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_To_FInteger_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_To_FInteger_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_To_FInteger_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Enum_To_FBigInteger()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
+        vEnum: Enum "LT Y31 E";
     begin
         vEnum := "LT Y31 E"::A;
-        if Try11() then Observer.Observe('assign.A', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.A');
+        if Try17(R, vEnum) then Observer.Observe('assign.A', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.A');
         vEnum := "LT Y31 E"::C;
-        if Try11() then Observer.Observe('assign.C', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.C');
+        if Try17(R, vEnum) then Observer.Observe('assign.C', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.C');
         vEnum := 5;
-        if Try11() then Observer.Observe('assign.ord5', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.ord5');
+        if Try17(R, vEnum) then Observer.Observe('assign.ord5', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.ord5');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Enum_To_FBigInteger_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_To_FBigInteger_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_To_FBigInteger_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_To_FBigInteger_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_To_FBigInteger_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Enum_To_FOption()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
+        Util: Codeunit "LT Y31 Conv Util";
+        vEnum: Enum "LT Y31 E";
     begin
         vEnum := "LT Y31 E"::A;
-        if Try12() then Observer.Observe('assign.A', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.A');
+        if Try18(R, vEnum) then Observer.Observe('assign.A', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.A');
         vEnum := "LT Y31 E"::C;
-        if Try12() then Observer.Observe('assign.C', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.C');
+        if Try18(R, vEnum) then Observer.Observe('assign.C', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.C');
         vEnum := 5;
-        if Try12() then Observer.Observe('assign.ord5', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.ord5');
+        if Try18(R, vEnum) then Observer.Observe('assign.ord5', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.ord5');
         Observer.Finish();
     end;
 
-    [Test]
-    procedure Enum_To_FOption_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_To_FOption_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_To_FOption_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_To_FOption_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_To_FOption_More5()
-    begin
-        Observer.More();
-    end;
-
     [TryFunction]
-    local procedure Try1()
+    local procedure Try1(var vEnum: Enum "LT Y31 E"; var vInteger: Integer)
     begin
         Clear(vInteger);
         vInteger := vEnum;
     end;
 
-    local procedure PA_Integer_1(p: Integer)
+    local procedure PA_Integer_2(p: Integer; var vInteger: Integer)
     begin
         vInteger := p;
     end;
 
     [TryFunction]
-    local procedure Try2()
+    local procedure Try3(var vEnum: Enum "LT Y31 E"; var vInteger: Integer)
     begin
         Clear(vInteger);
-        PA_Integer_1(vEnum);
+        PA_Integer_2(vEnum, vInteger);
     end;
 
-    local procedure EX_Integer_2(): Integer
+    local procedure EX_Integer_4(var vEnum: Enum "LT Y31 E"): Integer
     begin
         exit(vEnum);
     end;
 
     [TryFunction]
-    local procedure Try3()
+    local procedure Try5(var vEnum: Enum "LT Y31 E"; var vInteger: Integer)
     begin
         Clear(vInteger);
-        vInteger := EX_Integer_2();
+        vInteger := EX_Integer_4(vEnum);
     end;
 
     [TryFunction]
-    local procedure Try4()
+    local procedure Try6(var vBigInteger: BigInteger; var vEnum: Enum "LT Y31 E")
     begin
         Clear(vBigInteger);
         vBigInteger := vEnum;
     end;
 
-    local procedure PA_BigInteger_4(p: BigInteger)
+    local procedure PA_BigInteger_7(p: BigInteger; var vBigInteger: BigInteger)
     begin
         vBigInteger := p;
     end;
 
     [TryFunction]
-    local procedure Try5()
+    local procedure Try8(var vBigInteger: BigInteger; var vEnum: Enum "LT Y31 E")
     begin
         Clear(vBigInteger);
-        PA_BigInteger_4(vEnum);
+        PA_BigInteger_7(vEnum, vBigInteger);
     end;
 
-    local procedure EX_BigInteger_5(): BigInteger
+    local procedure EX_BigInteger_9(var vEnum: Enum "LT Y31 E"): BigInteger
     begin
         exit(vEnum);
     end;
 
     [TryFunction]
-    local procedure Try6()
+    local procedure Try10(var vBigInteger: BigInteger; var vEnum: Enum "LT Y31 E")
     begin
         Clear(vBigInteger);
-        vBigInteger := EX_BigInteger_5();
+        vBigInteger := EX_BigInteger_9(vEnum);
     end;
 
     [TryFunction]
-    local procedure Try7()
+    local procedure Try11(var vEnum: Enum "LT Y31 E"; var vOption: Option A,B,C)
     begin
         Clear(vOption);
         vOption := vEnum;
     end;
 
-    local procedure PA_Option_7(p: Option A,B,C)
+    local procedure PA_Option_12(p: Option A,B,C; var vOption: Option A,B,C)
     begin
         vOption := p;
     end;
 
     [TryFunction]
-    local procedure Try8()
+    local procedure Try13(var vEnum: Enum "LT Y31 E"; var vOption: Option A,B,C)
     begin
         Clear(vOption);
-        PA_Option_7(vEnum);
+        PA_Option_12(vEnum, vOption);
     end;
 
-    local procedure EX_Option_8(): Option A,B,C
+    local procedure EX_Option_14(var vEnum: Enum "LT Y31 E"): Option A,B,C
     begin
         exit(vEnum);
     end;
 
     [TryFunction]
-    local procedure Try9()
+    local procedure Try15(var vEnum: Enum "LT Y31 E"; var vOption: Option A,B,C)
     begin
         Clear(vOption);
-        vOption := EX_Option_8();
+        vOption := EX_Option_14(vEnum);
     end;
 
     [TryFunction]
-    local procedure Try10()
+    local procedure Try16(var R: Record "LT Y31 Conv Fields"; var vEnum: Enum "LT Y31 E")
     begin
         Clear(R.Integer);
         R.Integer := vEnum;
     end;
 
     [TryFunction]
-    local procedure Try11()
+    local procedure Try17(var R: Record "LT Y31 Conv Fields"; var vEnum: Enum "LT Y31 E")
     begin
         Clear(R.BigInteger);
         R.BigInteger := vEnum;
     end;
 
     [TryFunction]
-    local procedure Try12()
+    local procedure Try18(var R: Record "LT Y31 Conv Fields"; var vEnum: Enum "LT Y31 E")
     begin
         Clear(R.Option);
         R.Option := vEnum;
@@ -6568,376 +5397,213 @@ codeunit 92417 "LT Y31 Cv EnumImpl"
     Subtype = Test;
     TestPermissions = Disabled;
 
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        R: Record "LT Y31 Conv Fields";
-        vBigInteger: BigInteger;
-        vEnumImpl: Enum "LT Y31 EI";
-        vInteger: Integer;
-        vOption: Option A,B,C;
-
     [Test]
     procedure EnumImpl_To_Integer()
+    var
+        Observer: Codeunit "Probe Observer";
+        vEnumImpl: Enum "LT Y31 EI";
+        vInteger: Integer;
     begin
         vEnumImpl := "LT Y31 EI"::A;
-        if Try1() then Observer.Observe('assign.A', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.A');
-        if Try2() then Observer.Observe('arg_byvalue.A', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.A');
-        if Try3() then Observer.Observe('exit.A', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.A');
+        if Try1(vEnumImpl, vInteger) then Observer.Observe('assign.A', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.A');
+        if Try3(vEnumImpl, vInteger) then Observer.Observe('arg_byvalue.A', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.A');
+        if Try5(vEnumImpl, vInteger) then Observer.Observe('exit.A', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.A');
         vEnumImpl := 9;
-        if Try1() then Observer.Observe('assign.ord9', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.ord9');
-        if Try2() then Observer.Observe('arg_byvalue.ord9', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.ord9');
-        if Try3() then Observer.Observe('exit.ord9', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.ord9');
+        if Try1(vEnumImpl, vInteger) then Observer.Observe('assign.ord9', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.ord9');
+        if Try3(vEnumImpl, vInteger) then Observer.Observe('arg_byvalue.ord9', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.ord9');
+        if Try5(vEnumImpl, vInteger) then Observer.Observe('exit.ord9', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.ord9');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure EnumImpl_To_Integer_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_To_Integer_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_To_Integer_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_To_Integer_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_To_Integer_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure EnumImpl_To_BigInteger()
+    var
+        Observer: Codeunit "Probe Observer";
+        vBigInteger: BigInteger;
+        vEnumImpl: Enum "LT Y31 EI";
     begin
         vEnumImpl := "LT Y31 EI"::A;
-        if Try4() then Observer.Observe('assign.A', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.A');
-        if Try5() then Observer.Observe('arg_byvalue.A', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.A');
-        if Try6() then Observer.Observe('exit.A', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.A');
+        if Try6(vBigInteger, vEnumImpl) then Observer.Observe('assign.A', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.A');
+        if Try8(vBigInteger, vEnumImpl) then Observer.Observe('arg_byvalue.A', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.A');
+        if Try10(vBigInteger, vEnumImpl) then Observer.Observe('exit.A', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.A');
         vEnumImpl := 9;
-        if Try4() then Observer.Observe('assign.ord9', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.ord9');
-        if Try5() then Observer.Observe('arg_byvalue.ord9', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.ord9');
-        if Try6() then Observer.Observe('exit.ord9', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.ord9');
+        if Try6(vBigInteger, vEnumImpl) then Observer.Observe('assign.ord9', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.ord9');
+        if Try8(vBigInteger, vEnumImpl) then Observer.Observe('arg_byvalue.ord9', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.ord9');
+        if Try10(vBigInteger, vEnumImpl) then Observer.Observe('exit.ord9', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.ord9');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure EnumImpl_To_BigInteger_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_To_BigInteger_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_To_BigInteger_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_To_BigInteger_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_To_BigInteger_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure EnumImpl_To_Option()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vEnumImpl: Enum "LT Y31 EI";
+        vOption: Option A,B,C;
     begin
         vEnumImpl := "LT Y31 EI"::A;
-        if Try7() then Observer.Observe('assign.A', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.A');
-        if Try8() then Observer.Observe('arg_byvalue.A', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.A');
-        if Try9() then Observer.Observe('exit.A', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.A');
+        if Try11(vEnumImpl, vOption) then Observer.Observe('assign.A', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.A');
+        if Try13(vEnumImpl, vOption) then Observer.Observe('arg_byvalue.A', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.A');
+        if Try15(vEnumImpl, vOption) then Observer.Observe('exit.A', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.A');
         vEnumImpl := 9;
-        if Try7() then Observer.Observe('assign.ord9', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.ord9');
-        if Try8() then Observer.Observe('arg_byvalue.ord9', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.ord9');
-        if Try9() then Observer.Observe('exit.ord9', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.ord9');
+        if Try11(vEnumImpl, vOption) then Observer.Observe('assign.ord9', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.ord9');
+        if Try13(vEnumImpl, vOption) then Observer.Observe('arg_byvalue.ord9', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.ord9');
+        if Try15(vEnumImpl, vOption) then Observer.Observe('exit.ord9', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.ord9');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure EnumImpl_To_Option_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_To_Option_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_To_Option_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_To_Option_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_To_Option_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure EnumImpl_To_FInteger()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
+        vEnumImpl: Enum "LT Y31 EI";
     begin
         vEnumImpl := "LT Y31 EI"::A;
-        if Try10() then Observer.Observe('assign.A', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.A');
+        if Try16(R, vEnumImpl) then Observer.Observe('assign.A', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.A');
         vEnumImpl := 9;
-        if Try10() then Observer.Observe('assign.ord9', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.ord9');
+        if Try16(R, vEnumImpl) then Observer.Observe('assign.ord9', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.ord9');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure EnumImpl_To_FInteger_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_To_FInteger_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_To_FInteger_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_To_FInteger_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_To_FInteger_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure EnumImpl_To_FBigInteger()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
+        vEnumImpl: Enum "LT Y31 EI";
     begin
         vEnumImpl := "LT Y31 EI"::A;
-        if Try11() then Observer.Observe('assign.A', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.A');
+        if Try17(R, vEnumImpl) then Observer.Observe('assign.A', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.A');
         vEnumImpl := 9;
-        if Try11() then Observer.Observe('assign.ord9', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.ord9');
+        if Try17(R, vEnumImpl) then Observer.Observe('assign.ord9', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.ord9');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure EnumImpl_To_FBigInteger_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_To_FBigInteger_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_To_FBigInteger_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_To_FBigInteger_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_To_FBigInteger_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure EnumImpl_To_FOption()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
+        Util: Codeunit "LT Y31 Conv Util";
+        vEnumImpl: Enum "LT Y31 EI";
     begin
         vEnumImpl := "LT Y31 EI"::A;
-        if Try12() then Observer.Observe('assign.A', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.A');
+        if Try18(R, vEnumImpl) then Observer.Observe('assign.A', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.A');
         vEnumImpl := 9;
-        if Try12() then Observer.Observe('assign.ord9', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.ord9');
+        if Try18(R, vEnumImpl) then Observer.Observe('assign.ord9', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.ord9');
         Observer.Finish();
     end;
 
-    [Test]
-    procedure EnumImpl_To_FOption_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_To_FOption_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_To_FOption_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_To_FOption_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_To_FOption_More5()
-    begin
-        Observer.More();
-    end;
-
     [TryFunction]
-    local procedure Try1()
+    local procedure Try1(var vEnumImpl: Enum "LT Y31 EI"; var vInteger: Integer)
     begin
         Clear(vInteger);
         vInteger := vEnumImpl;
     end;
 
-    local procedure PA_Integer_1(p: Integer)
+    local procedure PA_Integer_2(p: Integer; var vInteger: Integer)
     begin
         vInteger := p;
     end;
 
     [TryFunction]
-    local procedure Try2()
+    local procedure Try3(var vEnumImpl: Enum "LT Y31 EI"; var vInteger: Integer)
     begin
         Clear(vInteger);
-        PA_Integer_1(vEnumImpl);
+        PA_Integer_2(vEnumImpl, vInteger);
     end;
 
-    local procedure EX_Integer_2(): Integer
+    local procedure EX_Integer_4(var vEnumImpl: Enum "LT Y31 EI"): Integer
     begin
         exit(vEnumImpl);
     end;
 
     [TryFunction]
-    local procedure Try3()
+    local procedure Try5(var vEnumImpl: Enum "LT Y31 EI"; var vInteger: Integer)
     begin
         Clear(vInteger);
-        vInteger := EX_Integer_2();
+        vInteger := EX_Integer_4(vEnumImpl);
     end;
 
     [TryFunction]
-    local procedure Try4()
+    local procedure Try6(var vBigInteger: BigInteger; var vEnumImpl: Enum "LT Y31 EI")
     begin
         Clear(vBigInteger);
         vBigInteger := vEnumImpl;
     end;
 
-    local procedure PA_BigInteger_4(p: BigInteger)
+    local procedure PA_BigInteger_7(p: BigInteger; var vBigInteger: BigInteger)
     begin
         vBigInteger := p;
     end;
 
     [TryFunction]
-    local procedure Try5()
+    local procedure Try8(var vBigInteger: BigInteger; var vEnumImpl: Enum "LT Y31 EI")
     begin
         Clear(vBigInteger);
-        PA_BigInteger_4(vEnumImpl);
+        PA_BigInteger_7(vEnumImpl, vBigInteger);
     end;
 
-    local procedure EX_BigInteger_5(): BigInteger
+    local procedure EX_BigInteger_9(var vEnumImpl: Enum "LT Y31 EI"): BigInteger
     begin
         exit(vEnumImpl);
     end;
 
     [TryFunction]
-    local procedure Try6()
+    local procedure Try10(var vBigInteger: BigInteger; var vEnumImpl: Enum "LT Y31 EI")
     begin
         Clear(vBigInteger);
-        vBigInteger := EX_BigInteger_5();
+        vBigInteger := EX_BigInteger_9(vEnumImpl);
     end;
 
     [TryFunction]
-    local procedure Try7()
+    local procedure Try11(var vEnumImpl: Enum "LT Y31 EI"; var vOption: Option A,B,C)
     begin
         Clear(vOption);
         vOption := vEnumImpl;
     end;
 
-    local procedure PA_Option_7(p: Option A,B,C)
+    local procedure PA_Option_12(p: Option A,B,C; var vOption: Option A,B,C)
     begin
         vOption := p;
     end;
 
     [TryFunction]
-    local procedure Try8()
+    local procedure Try13(var vEnumImpl: Enum "LT Y31 EI"; var vOption: Option A,B,C)
     begin
         Clear(vOption);
-        PA_Option_7(vEnumImpl);
+        PA_Option_12(vEnumImpl, vOption);
     end;
 
-    local procedure EX_Option_8(): Option A,B,C
+    local procedure EX_Option_14(var vEnumImpl: Enum "LT Y31 EI"): Option A,B,C
     begin
         exit(vEnumImpl);
     end;
 
     [TryFunction]
-    local procedure Try9()
+    local procedure Try15(var vEnumImpl: Enum "LT Y31 EI"; var vOption: Option A,B,C)
     begin
         Clear(vOption);
-        vOption := EX_Option_8();
+        vOption := EX_Option_14(vEnumImpl);
     end;
 
     [TryFunction]
-    local procedure Try10()
+    local procedure Try16(var R: Record "LT Y31 Conv Fields"; var vEnumImpl: Enum "LT Y31 EI")
     begin
         Clear(R.Integer);
         R.Integer := vEnumImpl;
     end;
 
     [TryFunction]
-    local procedure Try11()
+    local procedure Try17(var R: Record "LT Y31 Conv Fields"; var vEnumImpl: Enum "LT Y31 EI")
     begin
         Clear(R.BigInteger);
         R.BigInteger := vEnumImpl;
     end;
 
     [TryFunction]
-    local procedure Try12()
+    local procedure Try18(var R: Record "LT Y31 Conv Fields"; var vEnumImpl: Enum "LT Y31 EI")
     begin
         Clear(R.Option);
         R.Option := vEnumImpl;
@@ -6957,904 +5623,988 @@ codeunit 92418 "LT Y31 Cv Text"
     Subtype = Test;
     TestPermissions = Disabled;
 
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        R: Record "LT Y31 Conv Fields";
-        vCode10: Code[10];
-        vCode250: Code[250];
-        vCode3: Code[3];
-        vGuid: Guid;
-        vText: Text;
-        vText10: Text[10];
-        vText3: Text[3];
-
     [Test]
     procedure Text_To_Text10()
+    var
+        Observer: Codeunit "Probe Observer";
+        vText: Text;
+        vText10: Text[10];
     begin
         vText := '';
-        if Try1() then Observer.Observe('assign.empty', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.empty');
-        if Try2() then Observer.Observe('arg_byvalue.empty', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.empty');
-        if Try3() then Observer.Observe('exit.empty', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.empty');
+        if Try1(vText, vText10) then Observer.Observe('assign.empty', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.empty');
+        if Try3(vText, vText10) then Observer.Observe('arg_byvalue.empty', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.empty');
+        if Try5(vText, vText10) then Observer.Observe('exit.empty', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.empty');
         vText := 'a';
-        if Try1() then Observer.Observe('assign.a', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.a');
-        if Try2() then Observer.Observe('arg_byvalue.a', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.a');
-        if Try3() then Observer.Observe('exit.a', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.a');
-        vText := 'abc';
-        if Try1() then Observer.Observe('assign.abc', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.abc');
-        if Try2() then Observer.Observe('arg_byvalue.abc', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.abc');
-        if Try3() then Observer.Observe('exit.abc', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.abc');
-        vText := ' ab';
-        if Try1() then Observer.Observe('assign.lead', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.lead');
-        if Try2() then Observer.Observe('arg_byvalue.lead', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.lead');
-        if Try3() then Observer.Observe('exit.lead', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.lead');
-        vText := 'ab ';
-        if Try1() then Observer.Observe('assign.trail', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.trail');
-        if Try2() then Observer.Observe('arg_byvalue.trail', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.trail');
-        if Try3() then Observer.Observe('exit.trail', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.trail');
-        vText := 'abcdefghij';
-        if Try1() then Observer.Observe('assign.ten', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.ten');
-        if Try2() then Observer.Observe('arg_byvalue.ten', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.ten');
-        if Try3() then Observer.Observe('exit.ten', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.ten');
-        vText := 'abcdefghijk';
-        if Try1() then Observer.Observe('assign.eleven', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.eleven');
-        if Try2() then Observer.Observe('arg_byvalue.eleven', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.eleven');
-        if Try3() then Observer.Observe('exit.eleven', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.eleven');
-        vText := 'äöß';
-        if Try1() then Observer.Observe('assign.umlaut', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.umlaut');
-        if Try2() then Observer.Observe('arg_byvalue.umlaut', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.umlaut');
-        if Try3() then Observer.Observe('exit.umlaut', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.umlaut');
-        vText := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try1() then Observer.Observe('assign.guid', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.guid');
-        if Try2() then Observer.Observe('arg_byvalue.guid', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.guid');
-        if Try3() then Observer.Observe('exit.guid', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.guid');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        if Try1() then Observer.Observe('assign.guidlow', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.guidlow');
-        if Try2() then Observer.Observe('arg_byvalue.guidlow', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.guidlow');
-        if Try3() then Observer.Observe('exit.guidlow', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.guidlow');
-        vText := 'xyz';
-        if Try1() then Observer.Observe('assign.notguid', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.notguid');
-        if Try2() then Observer.Observe('arg_byvalue.notguid', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.notguid');
-        if Try3() then Observer.Observe('exit.notguid', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.notguid');
-        vText := '12';
-        if Try1() then Observer.Observe('assign.digits', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.digits');
-        if Try2() then Observer.Observe('arg_byvalue.digits', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.digits');
-        if Try3() then Observer.Observe('exit.digits', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.digits');
+        if Try1(vText, vText10) then Observer.Observe('assign.a', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.a');
+        if Try3(vText, vText10) then Observer.Observe('arg_byvalue.a', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.a');
+        if Try5(vText, vText10) then Observer.Observe('exit.a', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.a');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Text_To_Text10_More1()
+    procedure Text_To_Text10_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vText: Text;
+        vText10: Text[10];
     begin
-        Observer.More();
+        vText := 'abc';
+        if Try1(vText, vText10) then Observer.Observe('assign.abc', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.abc');
+        if Try3(vText, vText10) then Observer.Observe('arg_byvalue.abc', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.abc');
+        if Try5(vText, vText10) then Observer.Observe('exit.abc', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.abc');
+        vText := ' ab';
+        if Try1(vText, vText10) then Observer.Observe('assign.lead', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.lead');
+        if Try3(vText, vText10) then Observer.Observe('arg_byvalue.lead', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.lead');
+        if Try5(vText, vText10) then Observer.Observe('exit.lead', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.lead');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Text_To_Text10_More2()
+    procedure Text_To_Text10_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        vText: Text;
+        vText10: Text[10];
     begin
-        Observer.More();
+        vText := 'ab ';
+        if Try1(vText, vText10) then Observer.Observe('assign.trail', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.trail');
+        if Try3(vText, vText10) then Observer.Observe('arg_byvalue.trail', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.trail');
+        if Try5(vText, vText10) then Observer.Observe('exit.trail', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.trail');
+        vText := 'abcdefghij';
+        if Try1(vText, vText10) then Observer.Observe('assign.ten', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.ten');
+        if Try3(vText, vText10) then Observer.Observe('arg_byvalue.ten', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.ten');
+        if Try5(vText, vText10) then Observer.Observe('exit.ten', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.ten');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Text_To_Text10_More3()
+    procedure Text_To_Text10_4()
+    var
+        Observer: Codeunit "Probe Observer";
+        vText: Text;
+        vText10: Text[10];
     begin
-        Observer.More();
+        vText := 'abcdefghijk';
+        if Try1(vText, vText10) then Observer.Observe('assign.eleven', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.eleven');
+        if Try3(vText, vText10) then Observer.Observe('arg_byvalue.eleven', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.eleven');
+        if Try5(vText, vText10) then Observer.Observe('exit.eleven', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.eleven');
+        vText := 'äöß';
+        if Try1(vText, vText10) then Observer.Observe('assign.umlaut', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.umlaut');
+        if Try3(vText, vText10) then Observer.Observe('arg_byvalue.umlaut', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.umlaut');
+        if Try5(vText, vText10) then Observer.Observe('exit.umlaut', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.umlaut');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Text_To_Text10_More4()
+    procedure Text_To_Text10_5()
+    var
+        Observer: Codeunit "Probe Observer";
+        vText: Text;
+        vText10: Text[10];
     begin
-        Observer.More();
+        vText := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        if Try1(vText, vText10) then Observer.Observe('assign.guid', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.guid');
+        if Try3(vText, vText10) then Observer.Observe('arg_byvalue.guid', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.guid');
+        if Try5(vText, vText10) then Observer.Observe('exit.guid', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.guid');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        if Try1(vText, vText10) then Observer.Observe('assign.guidlow', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.guidlow');
+        if Try3(vText, vText10) then Observer.Observe('arg_byvalue.guidlow', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.guidlow');
+        if Try5(vText, vText10) then Observer.Observe('exit.guidlow', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.guidlow');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Text_To_Text10_More5()
+    procedure Text_To_Text10_6()
+    var
+        Observer: Codeunit "Probe Observer";
+        vText: Text;
+        vText10: Text[10];
     begin
-        Observer.More();
+        vText := 'xyz';
+        if Try1(vText, vText10) then Observer.Observe('assign.notguid', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.notguid');
+        if Try3(vText, vText10) then Observer.Observe('arg_byvalue.notguid', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.notguid');
+        if Try5(vText, vText10) then Observer.Observe('exit.notguid', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.notguid');
+        vText := '12';
+        if Try1(vText, vText10) then Observer.Observe('assign.digits', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.digits');
+        if Try3(vText, vText10) then Observer.Observe('arg_byvalue.digits', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.digits');
+        if Try5(vText, vText10) then Observer.Observe('exit.digits', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.digits');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Text_To_Text3()
+    var
+        Observer: Codeunit "Probe Observer";
+        vText: Text;
+        vText3: Text[3];
     begin
         vText := '';
-        if Try4() then Observer.Observe('assign.empty', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.empty');
-        if Try5() then Observer.Observe('arg_byvalue.empty', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.empty');
-        if Try6() then Observer.Observe('exit.empty', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.empty');
+        if Try6(vText, vText3) then Observer.Observe('assign.empty', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.empty');
+        if Try8(vText, vText3) then Observer.Observe('arg_byvalue.empty', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.empty');
+        if Try10(vText, vText3) then Observer.Observe('exit.empty', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.empty');
         vText := 'a';
-        if Try4() then Observer.Observe('assign.a', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.a');
-        if Try5() then Observer.Observe('arg_byvalue.a', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.a');
-        if Try6() then Observer.Observe('exit.a', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.a');
-        vText := 'abc';
-        if Try4() then Observer.Observe('assign.abc', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.abc');
-        if Try5() then Observer.Observe('arg_byvalue.abc', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.abc');
-        if Try6() then Observer.Observe('exit.abc', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.abc');
-        vText := ' ab';
-        if Try4() then Observer.Observe('assign.lead', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.lead');
-        if Try5() then Observer.Observe('arg_byvalue.lead', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.lead');
-        if Try6() then Observer.Observe('exit.lead', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.lead');
-        vText := 'ab ';
-        if Try4() then Observer.Observe('assign.trail', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.trail');
-        if Try5() then Observer.Observe('arg_byvalue.trail', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.trail');
-        if Try6() then Observer.Observe('exit.trail', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.trail');
-        vText := 'abcdefghij';
-        if Try4() then Observer.Observe('assign.ten', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.ten');
-        if Try5() then Observer.Observe('arg_byvalue.ten', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.ten');
-        if Try6() then Observer.Observe('exit.ten', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.ten');
-        vText := 'abcdefghijk';
-        if Try4() then Observer.Observe('assign.eleven', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.eleven');
-        if Try5() then Observer.Observe('arg_byvalue.eleven', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.eleven');
-        if Try6() then Observer.Observe('exit.eleven', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.eleven');
-        vText := 'äöß';
-        if Try4() then Observer.Observe('assign.umlaut', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.umlaut');
-        if Try5() then Observer.Observe('arg_byvalue.umlaut', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.umlaut');
-        if Try6() then Observer.Observe('exit.umlaut', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.umlaut');
-        vText := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try4() then Observer.Observe('assign.guid', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.guid');
-        if Try5() then Observer.Observe('arg_byvalue.guid', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.guid');
-        if Try6() then Observer.Observe('exit.guid', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.guid');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        if Try4() then Observer.Observe('assign.guidlow', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.guidlow');
-        if Try5() then Observer.Observe('arg_byvalue.guidlow', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.guidlow');
-        if Try6() then Observer.Observe('exit.guidlow', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.guidlow');
-        vText := 'xyz';
-        if Try4() then Observer.Observe('assign.notguid', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.notguid');
-        if Try5() then Observer.Observe('arg_byvalue.notguid', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.notguid');
-        if Try6() then Observer.Observe('exit.notguid', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.notguid');
-        vText := '12';
-        if Try4() then Observer.Observe('assign.digits', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.digits');
-        if Try5() then Observer.Observe('arg_byvalue.digits', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.digits');
-        if Try6() then Observer.Observe('exit.digits', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.digits');
+        if Try6(vText, vText3) then Observer.Observe('assign.a', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.a');
+        if Try8(vText, vText3) then Observer.Observe('arg_byvalue.a', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.a');
+        if Try10(vText, vText3) then Observer.Observe('exit.a', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.a');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Text_To_Text3_More1()
+    procedure Text_To_Text3_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vText: Text;
+        vText3: Text[3];
     begin
-        Observer.More();
+        vText := 'abc';
+        if Try6(vText, vText3) then Observer.Observe('assign.abc', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.abc');
+        if Try8(vText, vText3) then Observer.Observe('arg_byvalue.abc', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.abc');
+        if Try10(vText, vText3) then Observer.Observe('exit.abc', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.abc');
+        vText := ' ab';
+        if Try6(vText, vText3) then Observer.Observe('assign.lead', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.lead');
+        if Try8(vText, vText3) then Observer.Observe('arg_byvalue.lead', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.lead');
+        if Try10(vText, vText3) then Observer.Observe('exit.lead', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.lead');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Text_To_Text3_More2()
+    procedure Text_To_Text3_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        vText: Text;
+        vText3: Text[3];
     begin
-        Observer.More();
+        vText := 'ab ';
+        if Try6(vText, vText3) then Observer.Observe('assign.trail', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.trail');
+        if Try8(vText, vText3) then Observer.Observe('arg_byvalue.trail', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.trail');
+        if Try10(vText, vText3) then Observer.Observe('exit.trail', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.trail');
+        vText := 'abcdefghij';
+        if Try6(vText, vText3) then Observer.Observe('assign.ten', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.ten');
+        if Try8(vText, vText3) then Observer.Observe('arg_byvalue.ten', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.ten');
+        if Try10(vText, vText3) then Observer.Observe('exit.ten', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.ten');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Text_To_Text3_More3()
+    procedure Text_To_Text3_4()
+    var
+        Observer: Codeunit "Probe Observer";
+        vText: Text;
+        vText3: Text[3];
     begin
-        Observer.More();
+        vText := 'abcdefghijk';
+        if Try6(vText, vText3) then Observer.Observe('assign.eleven', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.eleven');
+        if Try8(vText, vText3) then Observer.Observe('arg_byvalue.eleven', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.eleven');
+        if Try10(vText, vText3) then Observer.Observe('exit.eleven', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.eleven');
+        vText := 'äöß';
+        if Try6(vText, vText3) then Observer.Observe('assign.umlaut', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.umlaut');
+        if Try8(vText, vText3) then Observer.Observe('arg_byvalue.umlaut', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.umlaut');
+        if Try10(vText, vText3) then Observer.Observe('exit.umlaut', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.umlaut');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Text_To_Text3_More4()
+    procedure Text_To_Text3_5()
+    var
+        Observer: Codeunit "Probe Observer";
+        vText: Text;
+        vText3: Text[3];
     begin
-        Observer.More();
+        vText := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        if Try6(vText, vText3) then Observer.Observe('assign.guid', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.guid');
+        if Try8(vText, vText3) then Observer.Observe('arg_byvalue.guid', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.guid');
+        if Try10(vText, vText3) then Observer.Observe('exit.guid', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.guid');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        if Try6(vText, vText3) then Observer.Observe('assign.guidlow', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.guidlow');
+        if Try8(vText, vText3) then Observer.Observe('arg_byvalue.guidlow', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.guidlow');
+        if Try10(vText, vText3) then Observer.Observe('exit.guidlow', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.guidlow');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Text_To_Text3_More5()
+    procedure Text_To_Text3_6()
+    var
+        Observer: Codeunit "Probe Observer";
+        vText: Text;
+        vText3: Text[3];
     begin
-        Observer.More();
+        vText := 'xyz';
+        if Try6(vText, vText3) then Observer.Observe('assign.notguid', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.notguid');
+        if Try8(vText, vText3) then Observer.Observe('arg_byvalue.notguid', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.notguid');
+        if Try10(vText, vText3) then Observer.Observe('exit.notguid', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.notguid');
+        vText := '12';
+        if Try6(vText, vText3) then Observer.Observe('assign.digits', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.digits');
+        if Try8(vText, vText3) then Observer.Observe('arg_byvalue.digits', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.digits');
+        if Try10(vText, vText3) then Observer.Observe('exit.digits', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.digits');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Text_To_Code10()
+    var
+        Observer: Codeunit "Probe Observer";
+        vCode10: Code[10];
+        vText: Text;
     begin
         vText := '';
-        if Try7() then Observer.Observe('assign.empty', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.empty');
-        if Try8() then Observer.Observe('arg_byvalue.empty', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.empty');
-        if Try9() then Observer.Observe('exit.empty', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.empty');
+        if Try11(vCode10, vText) then Observer.Observe('assign.empty', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.empty');
+        if Try13(vCode10, vText) then Observer.Observe('arg_byvalue.empty', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.empty');
+        if Try15(vCode10, vText) then Observer.Observe('exit.empty', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.empty');
         vText := 'a';
-        if Try7() then Observer.Observe('assign.a', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.a');
-        if Try8() then Observer.Observe('arg_byvalue.a', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.a');
-        if Try9() then Observer.Observe('exit.a', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.a');
-        vText := 'abc';
-        if Try7() then Observer.Observe('assign.abc', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.abc');
-        if Try8() then Observer.Observe('arg_byvalue.abc', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.abc');
-        if Try9() then Observer.Observe('exit.abc', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.abc');
-        vText := ' ab';
-        if Try7() then Observer.Observe('assign.lead', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.lead');
-        if Try8() then Observer.Observe('arg_byvalue.lead', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.lead');
-        if Try9() then Observer.Observe('exit.lead', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.lead');
-        vText := 'ab ';
-        if Try7() then Observer.Observe('assign.trail', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.trail');
-        if Try8() then Observer.Observe('arg_byvalue.trail', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.trail');
-        if Try9() then Observer.Observe('exit.trail', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.trail');
-        vText := 'abcdefghij';
-        if Try7() then Observer.Observe('assign.ten', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.ten');
-        if Try8() then Observer.Observe('arg_byvalue.ten', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.ten');
-        if Try9() then Observer.Observe('exit.ten', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.ten');
-        vText := 'abcdefghijk';
-        if Try7() then Observer.Observe('assign.eleven', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.eleven');
-        if Try8() then Observer.Observe('arg_byvalue.eleven', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.eleven');
-        if Try9() then Observer.Observe('exit.eleven', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.eleven');
-        vText := 'äöß';
-        if Try7() then Observer.Observe('assign.umlaut', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.umlaut');
-        if Try8() then Observer.Observe('arg_byvalue.umlaut', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.umlaut');
-        if Try9() then Observer.Observe('exit.umlaut', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.umlaut');
-        vText := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try7() then Observer.Observe('assign.guid', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.guid');
-        if Try8() then Observer.Observe('arg_byvalue.guid', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.guid');
-        if Try9() then Observer.Observe('exit.guid', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.guid');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        if Try7() then Observer.Observe('assign.guidlow', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.guidlow');
-        if Try8() then Observer.Observe('arg_byvalue.guidlow', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.guidlow');
-        if Try9() then Observer.Observe('exit.guidlow', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.guidlow');
-        vText := 'xyz';
-        if Try7() then Observer.Observe('assign.notguid', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.notguid');
-        if Try8() then Observer.Observe('arg_byvalue.notguid', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.notguid');
-        if Try9() then Observer.Observe('exit.notguid', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.notguid');
-        vText := '12';
-        if Try7() then Observer.Observe('assign.digits', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.digits');
-        if Try8() then Observer.Observe('arg_byvalue.digits', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.digits');
-        if Try9() then Observer.Observe('exit.digits', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.digits');
+        if Try11(vCode10, vText) then Observer.Observe('assign.a', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.a');
+        if Try13(vCode10, vText) then Observer.Observe('arg_byvalue.a', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.a');
+        if Try15(vCode10, vText) then Observer.Observe('exit.a', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.a');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Text_To_Code10_More1()
+    procedure Text_To_Code10_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vCode10: Code[10];
+        vText: Text;
     begin
-        Observer.More();
+        vText := 'abc';
+        if Try11(vCode10, vText) then Observer.Observe('assign.abc', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.abc');
+        if Try13(vCode10, vText) then Observer.Observe('arg_byvalue.abc', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.abc');
+        if Try15(vCode10, vText) then Observer.Observe('exit.abc', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.abc');
+        vText := ' ab';
+        if Try11(vCode10, vText) then Observer.Observe('assign.lead', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.lead');
+        if Try13(vCode10, vText) then Observer.Observe('arg_byvalue.lead', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.lead');
+        if Try15(vCode10, vText) then Observer.Observe('exit.lead', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.lead');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Text_To_Code10_More2()
+    procedure Text_To_Code10_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        vCode10: Code[10];
+        vText: Text;
     begin
-        Observer.More();
+        vText := 'ab ';
+        if Try11(vCode10, vText) then Observer.Observe('assign.trail', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.trail');
+        if Try13(vCode10, vText) then Observer.Observe('arg_byvalue.trail', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.trail');
+        if Try15(vCode10, vText) then Observer.Observe('exit.trail', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.trail');
+        vText := 'abcdefghij';
+        if Try11(vCode10, vText) then Observer.Observe('assign.ten', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.ten');
+        if Try13(vCode10, vText) then Observer.Observe('arg_byvalue.ten', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.ten');
+        if Try15(vCode10, vText) then Observer.Observe('exit.ten', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.ten');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Text_To_Code10_More3()
+    procedure Text_To_Code10_4()
+    var
+        Observer: Codeunit "Probe Observer";
+        vCode10: Code[10];
+        vText: Text;
     begin
-        Observer.More();
+        vText := 'abcdefghijk';
+        if Try11(vCode10, vText) then Observer.Observe('assign.eleven', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.eleven');
+        if Try13(vCode10, vText) then Observer.Observe('arg_byvalue.eleven', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.eleven');
+        if Try15(vCode10, vText) then Observer.Observe('exit.eleven', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.eleven');
+        vText := 'äöß';
+        if Try11(vCode10, vText) then Observer.Observe('assign.umlaut', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.umlaut');
+        if Try13(vCode10, vText) then Observer.Observe('arg_byvalue.umlaut', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.umlaut');
+        if Try15(vCode10, vText) then Observer.Observe('exit.umlaut', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.umlaut');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Text_To_Code10_More4()
+    procedure Text_To_Code10_5()
+    var
+        Observer: Codeunit "Probe Observer";
+        vCode10: Code[10];
+        vText: Text;
     begin
-        Observer.More();
+        vText := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        if Try11(vCode10, vText) then Observer.Observe('assign.guid', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.guid');
+        if Try13(vCode10, vText) then Observer.Observe('arg_byvalue.guid', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.guid');
+        if Try15(vCode10, vText) then Observer.Observe('exit.guid', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.guid');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        if Try11(vCode10, vText) then Observer.Observe('assign.guidlow', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.guidlow');
+        if Try13(vCode10, vText) then Observer.Observe('arg_byvalue.guidlow', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.guidlow');
+        if Try15(vCode10, vText) then Observer.Observe('exit.guidlow', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.guidlow');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Text_To_Code10_More5()
+    procedure Text_To_Code10_6()
+    var
+        Observer: Codeunit "Probe Observer";
+        vCode10: Code[10];
+        vText: Text;
     begin
-        Observer.More();
+        vText := 'xyz';
+        if Try11(vCode10, vText) then Observer.Observe('assign.notguid', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.notguid');
+        if Try13(vCode10, vText) then Observer.Observe('arg_byvalue.notguid', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.notguid');
+        if Try15(vCode10, vText) then Observer.Observe('exit.notguid', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.notguid');
+        vText := '12';
+        if Try11(vCode10, vText) then Observer.Observe('assign.digits', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.digits');
+        if Try13(vCode10, vText) then Observer.Observe('arg_byvalue.digits', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.digits');
+        if Try15(vCode10, vText) then Observer.Observe('exit.digits', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.digits');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Text_To_Code3()
+    var
+        Observer: Codeunit "Probe Observer";
+        vCode3: Code[3];
+        vText: Text;
     begin
         vText := '';
-        if Try10() then Observer.Observe('assign.empty', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.empty');
-        if Try11() then Observer.Observe('arg_byvalue.empty', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.empty');
-        if Try12() then Observer.Observe('exit.empty', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.empty');
+        if Try16(vCode3, vText) then Observer.Observe('assign.empty', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.empty');
+        if Try18(vCode3, vText) then Observer.Observe('arg_byvalue.empty', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.empty');
+        if Try20(vCode3, vText) then Observer.Observe('exit.empty', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.empty');
         vText := 'a';
-        if Try10() then Observer.Observe('assign.a', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.a');
-        if Try11() then Observer.Observe('arg_byvalue.a', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.a');
-        if Try12() then Observer.Observe('exit.a', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.a');
-        vText := 'abc';
-        if Try10() then Observer.Observe('assign.abc', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.abc');
-        if Try11() then Observer.Observe('arg_byvalue.abc', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.abc');
-        if Try12() then Observer.Observe('exit.abc', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.abc');
-        vText := ' ab';
-        if Try10() then Observer.Observe('assign.lead', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.lead');
-        if Try11() then Observer.Observe('arg_byvalue.lead', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.lead');
-        if Try12() then Observer.Observe('exit.lead', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.lead');
-        vText := 'ab ';
-        if Try10() then Observer.Observe('assign.trail', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.trail');
-        if Try11() then Observer.Observe('arg_byvalue.trail', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.trail');
-        if Try12() then Observer.Observe('exit.trail', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.trail');
-        vText := 'abcdefghij';
-        if Try10() then Observer.Observe('assign.ten', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.ten');
-        if Try11() then Observer.Observe('arg_byvalue.ten', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.ten');
-        if Try12() then Observer.Observe('exit.ten', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.ten');
-        vText := 'abcdefghijk';
-        if Try10() then Observer.Observe('assign.eleven', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.eleven');
-        if Try11() then Observer.Observe('arg_byvalue.eleven', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.eleven');
-        if Try12() then Observer.Observe('exit.eleven', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.eleven');
-        vText := 'äöß';
-        if Try10() then Observer.Observe('assign.umlaut', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.umlaut');
-        if Try11() then Observer.Observe('arg_byvalue.umlaut', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.umlaut');
-        if Try12() then Observer.Observe('exit.umlaut', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.umlaut');
-        vText := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try10() then Observer.Observe('assign.guid', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.guid');
-        if Try11() then Observer.Observe('arg_byvalue.guid', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.guid');
-        if Try12() then Observer.Observe('exit.guid', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.guid');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        if Try10() then Observer.Observe('assign.guidlow', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.guidlow');
-        if Try11() then Observer.Observe('arg_byvalue.guidlow', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.guidlow');
-        if Try12() then Observer.Observe('exit.guidlow', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.guidlow');
-        vText := 'xyz';
-        if Try10() then Observer.Observe('assign.notguid', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.notguid');
-        if Try11() then Observer.Observe('arg_byvalue.notguid', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.notguid');
-        if Try12() then Observer.Observe('exit.notguid', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.notguid');
-        vText := '12';
-        if Try10() then Observer.Observe('assign.digits', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.digits');
-        if Try11() then Observer.Observe('arg_byvalue.digits', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.digits');
-        if Try12() then Observer.Observe('exit.digits', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.digits');
+        if Try16(vCode3, vText) then Observer.Observe('assign.a', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.a');
+        if Try18(vCode3, vText) then Observer.Observe('arg_byvalue.a', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.a');
+        if Try20(vCode3, vText) then Observer.Observe('exit.a', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.a');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Text_To_Code3_More1()
+    procedure Text_To_Code3_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vCode3: Code[3];
+        vText: Text;
     begin
-        Observer.More();
+        vText := 'abc';
+        if Try16(vCode3, vText) then Observer.Observe('assign.abc', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.abc');
+        if Try18(vCode3, vText) then Observer.Observe('arg_byvalue.abc', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.abc');
+        if Try20(vCode3, vText) then Observer.Observe('exit.abc', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.abc');
+        vText := ' ab';
+        if Try16(vCode3, vText) then Observer.Observe('assign.lead', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.lead');
+        if Try18(vCode3, vText) then Observer.Observe('arg_byvalue.lead', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.lead');
+        if Try20(vCode3, vText) then Observer.Observe('exit.lead', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.lead');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Text_To_Code3_More2()
+    procedure Text_To_Code3_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        vCode3: Code[3];
+        vText: Text;
     begin
-        Observer.More();
+        vText := 'ab ';
+        if Try16(vCode3, vText) then Observer.Observe('assign.trail', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.trail');
+        if Try18(vCode3, vText) then Observer.Observe('arg_byvalue.trail', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.trail');
+        if Try20(vCode3, vText) then Observer.Observe('exit.trail', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.trail');
+        vText := 'abcdefghij';
+        if Try16(vCode3, vText) then Observer.Observe('assign.ten', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.ten');
+        if Try18(vCode3, vText) then Observer.Observe('arg_byvalue.ten', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.ten');
+        if Try20(vCode3, vText) then Observer.Observe('exit.ten', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.ten');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Text_To_Code3_More3()
+    procedure Text_To_Code3_4()
+    var
+        Observer: Codeunit "Probe Observer";
+        vCode3: Code[3];
+        vText: Text;
     begin
-        Observer.More();
+        vText := 'abcdefghijk';
+        if Try16(vCode3, vText) then Observer.Observe('assign.eleven', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.eleven');
+        if Try18(vCode3, vText) then Observer.Observe('arg_byvalue.eleven', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.eleven');
+        if Try20(vCode3, vText) then Observer.Observe('exit.eleven', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.eleven');
+        vText := 'äöß';
+        if Try16(vCode3, vText) then Observer.Observe('assign.umlaut', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.umlaut');
+        if Try18(vCode3, vText) then Observer.Observe('arg_byvalue.umlaut', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.umlaut');
+        if Try20(vCode3, vText) then Observer.Observe('exit.umlaut', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.umlaut');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Text_To_Code3_More4()
+    procedure Text_To_Code3_5()
+    var
+        Observer: Codeunit "Probe Observer";
+        vCode3: Code[3];
+        vText: Text;
     begin
-        Observer.More();
+        vText := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        if Try16(vCode3, vText) then Observer.Observe('assign.guid', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.guid');
+        if Try18(vCode3, vText) then Observer.Observe('arg_byvalue.guid', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.guid');
+        if Try20(vCode3, vText) then Observer.Observe('exit.guid', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.guid');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        if Try16(vCode3, vText) then Observer.Observe('assign.guidlow', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.guidlow');
+        if Try18(vCode3, vText) then Observer.Observe('arg_byvalue.guidlow', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.guidlow');
+        if Try20(vCode3, vText) then Observer.Observe('exit.guidlow', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.guidlow');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Text_To_Code3_More5()
+    procedure Text_To_Code3_6()
+    var
+        Observer: Codeunit "Probe Observer";
+        vCode3: Code[3];
+        vText: Text;
     begin
-        Observer.More();
+        vText := 'xyz';
+        if Try16(vCode3, vText) then Observer.Observe('assign.notguid', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.notguid');
+        if Try18(vCode3, vText) then Observer.Observe('arg_byvalue.notguid', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.notguid');
+        if Try20(vCode3, vText) then Observer.Observe('exit.notguid', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.notguid');
+        vText := '12';
+        if Try16(vCode3, vText) then Observer.Observe('assign.digits', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.digits');
+        if Try18(vCode3, vText) then Observer.Observe('arg_byvalue.digits', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.digits');
+        if Try20(vCode3, vText) then Observer.Observe('exit.digits', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.digits');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Text_To_Code250()
+    var
+        Observer: Codeunit "Probe Observer";
+        vCode250: Code[250];
+        vText: Text;
     begin
         vText := '';
-        if Try13() then Observer.Observe('assign.empty', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.empty');
-        if Try14() then Observer.Observe('arg_byvalue.empty', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.empty');
-        if Try15() then Observer.Observe('exit.empty', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.empty');
+        if Try21(vCode250, vText) then Observer.Observe('assign.empty', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.empty');
+        if Try23(vCode250, vText) then Observer.Observe('arg_byvalue.empty', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.empty');
+        if Try25(vCode250, vText) then Observer.Observe('exit.empty', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.empty');
         vText := 'a';
-        if Try13() then Observer.Observe('assign.a', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.a');
-        if Try14() then Observer.Observe('arg_byvalue.a', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.a');
-        if Try15() then Observer.Observe('exit.a', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.a');
-        vText := 'abc';
-        if Try13() then Observer.Observe('assign.abc', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.abc');
-        if Try14() then Observer.Observe('arg_byvalue.abc', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.abc');
-        if Try15() then Observer.Observe('exit.abc', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.abc');
-        vText := ' ab';
-        if Try13() then Observer.Observe('assign.lead', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.lead');
-        if Try14() then Observer.Observe('arg_byvalue.lead', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.lead');
-        if Try15() then Observer.Observe('exit.lead', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.lead');
-        vText := 'ab ';
-        if Try13() then Observer.Observe('assign.trail', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.trail');
-        if Try14() then Observer.Observe('arg_byvalue.trail', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.trail');
-        if Try15() then Observer.Observe('exit.trail', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.trail');
-        vText := 'abcdefghij';
-        if Try13() then Observer.Observe('assign.ten', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.ten');
-        if Try14() then Observer.Observe('arg_byvalue.ten', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.ten');
-        if Try15() then Observer.Observe('exit.ten', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.ten');
-        vText := 'abcdefghijk';
-        if Try13() then Observer.Observe('assign.eleven', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.eleven');
-        if Try14() then Observer.Observe('arg_byvalue.eleven', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.eleven');
-        if Try15() then Observer.Observe('exit.eleven', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.eleven');
-        vText := 'äöß';
-        if Try13() then Observer.Observe('assign.umlaut', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.umlaut');
-        if Try14() then Observer.Observe('arg_byvalue.umlaut', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.umlaut');
-        if Try15() then Observer.Observe('exit.umlaut', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.umlaut');
-        vText := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try13() then Observer.Observe('assign.guid', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.guid');
-        if Try14() then Observer.Observe('arg_byvalue.guid', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.guid');
-        if Try15() then Observer.Observe('exit.guid', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.guid');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        if Try13() then Observer.Observe('assign.guidlow', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.guidlow');
-        if Try14() then Observer.Observe('arg_byvalue.guidlow', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.guidlow');
-        if Try15() then Observer.Observe('exit.guidlow', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.guidlow');
-        vText := 'xyz';
-        if Try13() then Observer.Observe('assign.notguid', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.notguid');
-        if Try14() then Observer.Observe('arg_byvalue.notguid', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.notguid');
-        if Try15() then Observer.Observe('exit.notguid', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.notguid');
-        vText := '12';
-        if Try13() then Observer.Observe('assign.digits', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.digits');
-        if Try14() then Observer.Observe('arg_byvalue.digits', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.digits');
-        if Try15() then Observer.Observe('exit.digits', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.digits');
+        if Try21(vCode250, vText) then Observer.Observe('assign.a', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.a');
+        if Try23(vCode250, vText) then Observer.Observe('arg_byvalue.a', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.a');
+        if Try25(vCode250, vText) then Observer.Observe('exit.a', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.a');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Text_To_Code250_More1()
+    procedure Text_To_Code250_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vCode250: Code[250];
+        vText: Text;
     begin
-        Observer.More();
+        vText := 'abc';
+        if Try21(vCode250, vText) then Observer.Observe('assign.abc', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.abc');
+        if Try23(vCode250, vText) then Observer.Observe('arg_byvalue.abc', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.abc');
+        if Try25(vCode250, vText) then Observer.Observe('exit.abc', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.abc');
+        vText := ' ab';
+        if Try21(vCode250, vText) then Observer.Observe('assign.lead', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.lead');
+        if Try23(vCode250, vText) then Observer.Observe('arg_byvalue.lead', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.lead');
+        if Try25(vCode250, vText) then Observer.Observe('exit.lead', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.lead');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Text_To_Code250_More2()
+    procedure Text_To_Code250_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        vCode250: Code[250];
+        vText: Text;
     begin
-        Observer.More();
+        vText := 'ab ';
+        if Try21(vCode250, vText) then Observer.Observe('assign.trail', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.trail');
+        if Try23(vCode250, vText) then Observer.Observe('arg_byvalue.trail', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.trail');
+        if Try25(vCode250, vText) then Observer.Observe('exit.trail', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.trail');
+        vText := 'abcdefghij';
+        if Try21(vCode250, vText) then Observer.Observe('assign.ten', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.ten');
+        if Try23(vCode250, vText) then Observer.Observe('arg_byvalue.ten', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.ten');
+        if Try25(vCode250, vText) then Observer.Observe('exit.ten', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.ten');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Text_To_Code250_More3()
+    procedure Text_To_Code250_4()
+    var
+        Observer: Codeunit "Probe Observer";
+        vCode250: Code[250];
+        vText: Text;
     begin
-        Observer.More();
+        vText := 'abcdefghijk';
+        if Try21(vCode250, vText) then Observer.Observe('assign.eleven', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.eleven');
+        if Try23(vCode250, vText) then Observer.Observe('arg_byvalue.eleven', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.eleven');
+        if Try25(vCode250, vText) then Observer.Observe('exit.eleven', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.eleven');
+        vText := 'äöß';
+        if Try21(vCode250, vText) then Observer.Observe('assign.umlaut', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.umlaut');
+        if Try23(vCode250, vText) then Observer.Observe('arg_byvalue.umlaut', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.umlaut');
+        if Try25(vCode250, vText) then Observer.Observe('exit.umlaut', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.umlaut');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Text_To_Code250_More4()
+    procedure Text_To_Code250_5()
+    var
+        Observer: Codeunit "Probe Observer";
+        vCode250: Code[250];
+        vText: Text;
     begin
-        Observer.More();
+        vText := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        if Try21(vCode250, vText) then Observer.Observe('assign.guid', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.guid');
+        if Try23(vCode250, vText) then Observer.Observe('arg_byvalue.guid', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.guid');
+        if Try25(vCode250, vText) then Observer.Observe('exit.guid', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.guid');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        if Try21(vCode250, vText) then Observer.Observe('assign.guidlow', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.guidlow');
+        if Try23(vCode250, vText) then Observer.Observe('arg_byvalue.guidlow', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.guidlow');
+        if Try25(vCode250, vText) then Observer.Observe('exit.guidlow', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.guidlow');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Text_To_Code250_More5()
+    procedure Text_To_Code250_6()
+    var
+        Observer: Codeunit "Probe Observer";
+        vCode250: Code[250];
+        vText: Text;
     begin
-        Observer.More();
+        vText := 'xyz';
+        if Try21(vCode250, vText) then Observer.Observe('assign.notguid', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.notguid');
+        if Try23(vCode250, vText) then Observer.Observe('arg_byvalue.notguid', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.notguid');
+        if Try25(vCode250, vText) then Observer.Observe('exit.notguid', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.notguid');
+        vText := '12';
+        if Try21(vCode250, vText) then Observer.Observe('assign.digits', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.digits');
+        if Try23(vCode250, vText) then Observer.Observe('arg_byvalue.digits', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.digits');
+        if Try25(vCode250, vText) then Observer.Observe('exit.digits', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.digits');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Text_To_Guid()
+    var
+        Observer: Codeunit "Probe Observer";
+        vGuid: Guid;
+        vText: Text;
     begin
         vText := '';
-        if Try16() then Observer.Observe('assign.empty', Format(vGuid)) else Observer.ObserveError('assign.empty');
-        if Try17() then Observer.Observe('arg_byvalue.empty', Format(vGuid)) else Observer.ObserveError('arg_byvalue.empty');
-        if Try18() then Observer.Observe('exit.empty', Format(vGuid)) else Observer.ObserveError('exit.empty');
+        if Try26(vGuid, vText) then Observer.Observe('assign.empty', Format(vGuid)) else Observer.ObserveError('assign.empty');
+        if Try28(vGuid, vText) then Observer.Observe('arg_byvalue.empty', Format(vGuid)) else Observer.ObserveError('arg_byvalue.empty');
+        if Try30(vGuid, vText) then Observer.Observe('exit.empty', Format(vGuid)) else Observer.ObserveError('exit.empty');
         vText := 'a';
-        if Try16() then Observer.Observe('assign.a', Format(vGuid)) else Observer.ObserveError('assign.a');
-        if Try17() then Observer.Observe('arg_byvalue.a', Format(vGuid)) else Observer.ObserveError('arg_byvalue.a');
-        if Try18() then Observer.Observe('exit.a', Format(vGuid)) else Observer.ObserveError('exit.a');
-        vText := 'abc';
-        if Try16() then Observer.Observe('assign.abc', Format(vGuid)) else Observer.ObserveError('assign.abc');
-        if Try17() then Observer.Observe('arg_byvalue.abc', Format(vGuid)) else Observer.ObserveError('arg_byvalue.abc');
-        if Try18() then Observer.Observe('exit.abc', Format(vGuid)) else Observer.ObserveError('exit.abc');
-        vText := ' ab';
-        if Try16() then Observer.Observe('assign.lead', Format(vGuid)) else Observer.ObserveError('assign.lead');
-        if Try17() then Observer.Observe('arg_byvalue.lead', Format(vGuid)) else Observer.ObserveError('arg_byvalue.lead');
-        if Try18() then Observer.Observe('exit.lead', Format(vGuid)) else Observer.ObserveError('exit.lead');
-        vText := 'ab ';
-        if Try16() then Observer.Observe('assign.trail', Format(vGuid)) else Observer.ObserveError('assign.trail');
-        if Try17() then Observer.Observe('arg_byvalue.trail', Format(vGuid)) else Observer.ObserveError('arg_byvalue.trail');
-        if Try18() then Observer.Observe('exit.trail', Format(vGuid)) else Observer.ObserveError('exit.trail');
-        vText := 'abcdefghij';
-        if Try16() then Observer.Observe('assign.ten', Format(vGuid)) else Observer.ObserveError('assign.ten');
-        if Try17() then Observer.Observe('arg_byvalue.ten', Format(vGuid)) else Observer.ObserveError('arg_byvalue.ten');
-        if Try18() then Observer.Observe('exit.ten', Format(vGuid)) else Observer.ObserveError('exit.ten');
-        vText := 'abcdefghijk';
-        if Try16() then Observer.Observe('assign.eleven', Format(vGuid)) else Observer.ObserveError('assign.eleven');
-        if Try17() then Observer.Observe('arg_byvalue.eleven', Format(vGuid)) else Observer.ObserveError('arg_byvalue.eleven');
-        if Try18() then Observer.Observe('exit.eleven', Format(vGuid)) else Observer.ObserveError('exit.eleven');
-        vText := 'äöß';
-        if Try16() then Observer.Observe('assign.umlaut', Format(vGuid)) else Observer.ObserveError('assign.umlaut');
-        if Try17() then Observer.Observe('arg_byvalue.umlaut', Format(vGuid)) else Observer.ObserveError('arg_byvalue.umlaut');
-        if Try18() then Observer.Observe('exit.umlaut', Format(vGuid)) else Observer.ObserveError('exit.umlaut');
-        vText := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try16() then Observer.Observe('assign.guid', Format(vGuid)) else Observer.ObserveError('assign.guid');
-        if Try17() then Observer.Observe('arg_byvalue.guid', Format(vGuid)) else Observer.ObserveError('arg_byvalue.guid');
-        if Try18() then Observer.Observe('exit.guid', Format(vGuid)) else Observer.ObserveError('exit.guid');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        if Try16() then Observer.Observe('assign.guidlow', Format(vGuid)) else Observer.ObserveError('assign.guidlow');
-        if Try17() then Observer.Observe('arg_byvalue.guidlow', Format(vGuid)) else Observer.ObserveError('arg_byvalue.guidlow');
-        if Try18() then Observer.Observe('exit.guidlow', Format(vGuid)) else Observer.ObserveError('exit.guidlow');
-        vText := 'xyz';
-        if Try16() then Observer.Observe('assign.notguid', Format(vGuid)) else Observer.ObserveError('assign.notguid');
-        if Try17() then Observer.Observe('arg_byvalue.notguid', Format(vGuid)) else Observer.ObserveError('arg_byvalue.notguid');
-        if Try18() then Observer.Observe('exit.notguid', Format(vGuid)) else Observer.ObserveError('exit.notguid');
-        vText := '12';
-        if Try16() then Observer.Observe('assign.digits', Format(vGuid)) else Observer.ObserveError('assign.digits');
-        if Try17() then Observer.Observe('arg_byvalue.digits', Format(vGuid)) else Observer.ObserveError('arg_byvalue.digits');
-        if Try18() then Observer.Observe('exit.digits', Format(vGuid)) else Observer.ObserveError('exit.digits');
+        if Try26(vGuid, vText) then Observer.Observe('assign.a', Format(vGuid)) else Observer.ObserveError('assign.a');
+        if Try28(vGuid, vText) then Observer.Observe('arg_byvalue.a', Format(vGuid)) else Observer.ObserveError('arg_byvalue.a');
+        if Try30(vGuid, vText) then Observer.Observe('exit.a', Format(vGuid)) else Observer.ObserveError('exit.a');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Text_To_Guid_More1()
+    procedure Text_To_Guid_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vGuid: Guid;
+        vText: Text;
     begin
-        Observer.More();
+        vText := 'abc';
+        if Try26(vGuid, vText) then Observer.Observe('assign.abc', Format(vGuid)) else Observer.ObserveError('assign.abc');
+        if Try28(vGuid, vText) then Observer.Observe('arg_byvalue.abc', Format(vGuid)) else Observer.ObserveError('arg_byvalue.abc');
+        if Try30(vGuid, vText) then Observer.Observe('exit.abc', Format(vGuid)) else Observer.ObserveError('exit.abc');
+        vText := ' ab';
+        if Try26(vGuid, vText) then Observer.Observe('assign.lead', Format(vGuid)) else Observer.ObserveError('assign.lead');
+        if Try28(vGuid, vText) then Observer.Observe('arg_byvalue.lead', Format(vGuid)) else Observer.ObserveError('arg_byvalue.lead');
+        if Try30(vGuid, vText) then Observer.Observe('exit.lead', Format(vGuid)) else Observer.ObserveError('exit.lead');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Text_To_Guid_More2()
+    procedure Text_To_Guid_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        vGuid: Guid;
+        vText: Text;
     begin
-        Observer.More();
+        vText := 'ab ';
+        if Try26(vGuid, vText) then Observer.Observe('assign.trail', Format(vGuid)) else Observer.ObserveError('assign.trail');
+        if Try28(vGuid, vText) then Observer.Observe('arg_byvalue.trail', Format(vGuid)) else Observer.ObserveError('arg_byvalue.trail');
+        if Try30(vGuid, vText) then Observer.Observe('exit.trail', Format(vGuid)) else Observer.ObserveError('exit.trail');
+        vText := 'abcdefghij';
+        if Try26(vGuid, vText) then Observer.Observe('assign.ten', Format(vGuid)) else Observer.ObserveError('assign.ten');
+        if Try28(vGuid, vText) then Observer.Observe('arg_byvalue.ten', Format(vGuid)) else Observer.ObserveError('arg_byvalue.ten');
+        if Try30(vGuid, vText) then Observer.Observe('exit.ten', Format(vGuid)) else Observer.ObserveError('exit.ten');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Text_To_Guid_More3()
+    procedure Text_To_Guid_4()
+    var
+        Observer: Codeunit "Probe Observer";
+        vGuid: Guid;
+        vText: Text;
     begin
-        Observer.More();
+        vText := 'abcdefghijk';
+        if Try26(vGuid, vText) then Observer.Observe('assign.eleven', Format(vGuid)) else Observer.ObserveError('assign.eleven');
+        if Try28(vGuid, vText) then Observer.Observe('arg_byvalue.eleven', Format(vGuid)) else Observer.ObserveError('arg_byvalue.eleven');
+        if Try30(vGuid, vText) then Observer.Observe('exit.eleven', Format(vGuid)) else Observer.ObserveError('exit.eleven');
+        vText := 'äöß';
+        if Try26(vGuid, vText) then Observer.Observe('assign.umlaut', Format(vGuid)) else Observer.ObserveError('assign.umlaut');
+        if Try28(vGuid, vText) then Observer.Observe('arg_byvalue.umlaut', Format(vGuid)) else Observer.ObserveError('arg_byvalue.umlaut');
+        if Try30(vGuid, vText) then Observer.Observe('exit.umlaut', Format(vGuid)) else Observer.ObserveError('exit.umlaut');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Text_To_Guid_More4()
+    procedure Text_To_Guid_5()
+    var
+        Observer: Codeunit "Probe Observer";
+        vGuid: Guid;
+        vText: Text;
     begin
-        Observer.More();
+        vText := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        if Try26(vGuid, vText) then Observer.Observe('assign.guid', Format(vGuid)) else Observer.ObserveError('assign.guid');
+        if Try28(vGuid, vText) then Observer.Observe('arg_byvalue.guid', Format(vGuid)) else Observer.ObserveError('arg_byvalue.guid');
+        if Try30(vGuid, vText) then Observer.Observe('exit.guid', Format(vGuid)) else Observer.ObserveError('exit.guid');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        if Try26(vGuid, vText) then Observer.Observe('assign.guidlow', Format(vGuid)) else Observer.ObserveError('assign.guidlow');
+        if Try28(vGuid, vText) then Observer.Observe('arg_byvalue.guidlow', Format(vGuid)) else Observer.ObserveError('arg_byvalue.guidlow');
+        if Try30(vGuid, vText) then Observer.Observe('exit.guidlow', Format(vGuid)) else Observer.ObserveError('exit.guidlow');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Text_To_Guid_More5()
+    procedure Text_To_Guid_6()
+    var
+        Observer: Codeunit "Probe Observer";
+        vGuid: Guid;
+        vText: Text;
     begin
-        Observer.More();
+        vText := 'xyz';
+        if Try26(vGuid, vText) then Observer.Observe('assign.notguid', Format(vGuid)) else Observer.ObserveError('assign.notguid');
+        if Try28(vGuid, vText) then Observer.Observe('arg_byvalue.notguid', Format(vGuid)) else Observer.ObserveError('arg_byvalue.notguid');
+        if Try30(vGuid, vText) then Observer.Observe('exit.notguid', Format(vGuid)) else Observer.ObserveError('exit.notguid');
+        vText := '12';
+        if Try26(vGuid, vText) then Observer.Observe('assign.digits', Format(vGuid)) else Observer.ObserveError('assign.digits');
+        if Try28(vGuid, vText) then Observer.Observe('arg_byvalue.digits', Format(vGuid)) else Observer.ObserveError('arg_byvalue.digits');
+        if Try30(vGuid, vText) then Observer.Observe('exit.digits', Format(vGuid)) else Observer.ObserveError('exit.digits');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Text_To_FText10()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
+        vText: Text;
     begin
         vText := '';
-        if Try19() then Observer.Observe('assign.empty', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.empty');
+        if Try31(R, vText) then Observer.Observe('assign.empty', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.empty');
         vText := 'a';
-        if Try19() then Observer.Observe('assign.a', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.a');
+        if Try31(R, vText) then Observer.Observe('assign.a', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.a');
         vText := 'abc';
-        if Try19() then Observer.Observe('assign.abc', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.abc');
+        if Try31(R, vText) then Observer.Observe('assign.abc', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.abc');
         vText := ' ab';
-        if Try19() then Observer.Observe('assign.lead', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.lead');
+        if Try31(R, vText) then Observer.Observe('assign.lead', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.lead');
         vText := 'ab ';
-        if Try19() then Observer.Observe('assign.trail', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.trail');
+        if Try31(R, vText) then Observer.Observe('assign.trail', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.trail');
         vText := 'abcdefghij';
-        if Try19() then Observer.Observe('assign.ten', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.ten');
+        if Try31(R, vText) then Observer.Observe('assign.ten', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.ten');
         vText := 'abcdefghijk';
-        if Try19() then Observer.Observe('assign.eleven', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.eleven');
+        if Try31(R, vText) then Observer.Observe('assign.eleven', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.eleven');
         vText := 'äöß';
-        if Try19() then Observer.Observe('assign.umlaut', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.umlaut');
-        vText := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try19() then Observer.Observe('assign.guid', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.guid');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        if Try19() then Observer.Observe('assign.guidlow', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.guidlow');
-        vText := 'xyz';
-        if Try19() then Observer.Observe('assign.notguid', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.notguid');
-        vText := '12';
-        if Try19() then Observer.Observe('assign.digits', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.digits');
+        if Try31(R, vText) then Observer.Observe('assign.umlaut', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.umlaut');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Text_To_FText10_More1()
+    procedure Text_To_FText10_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
+        vText: Text;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text_To_FText10_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text_To_FText10_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text_To_FText10_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text_To_FText10_More5()
-    begin
-        Observer.More();
+        vText := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        if Try31(R, vText) then Observer.Observe('assign.guid', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.guid');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        if Try31(R, vText) then Observer.Observe('assign.guidlow', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.guidlow');
+        vText := 'xyz';
+        if Try31(R, vText) then Observer.Observe('assign.notguid', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.notguid');
+        vText := '12';
+        if Try31(R, vText) then Observer.Observe('assign.digits', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.digits');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Text_To_FCode10()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
+        vText: Text;
     begin
         vText := '';
-        if Try20() then Observer.Observe('assign.empty', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.empty');
+        if Try32(R, vText) then Observer.Observe('assign.empty', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.empty');
         vText := 'a';
-        if Try20() then Observer.Observe('assign.a', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.a');
+        if Try32(R, vText) then Observer.Observe('assign.a', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.a');
         vText := 'abc';
-        if Try20() then Observer.Observe('assign.abc', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.abc');
+        if Try32(R, vText) then Observer.Observe('assign.abc', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.abc');
         vText := ' ab';
-        if Try20() then Observer.Observe('assign.lead', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.lead');
+        if Try32(R, vText) then Observer.Observe('assign.lead', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.lead');
         vText := 'ab ';
-        if Try20() then Observer.Observe('assign.trail', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.trail');
+        if Try32(R, vText) then Observer.Observe('assign.trail', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.trail');
         vText := 'abcdefghij';
-        if Try20() then Observer.Observe('assign.ten', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.ten');
+        if Try32(R, vText) then Observer.Observe('assign.ten', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.ten');
         vText := 'abcdefghijk';
-        if Try20() then Observer.Observe('assign.eleven', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.eleven');
+        if Try32(R, vText) then Observer.Observe('assign.eleven', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.eleven');
         vText := 'äöß';
-        if Try20() then Observer.Observe('assign.umlaut', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.umlaut');
-        vText := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try20() then Observer.Observe('assign.guid', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.guid');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        if Try20() then Observer.Observe('assign.guidlow', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.guidlow');
-        vText := 'xyz';
-        if Try20() then Observer.Observe('assign.notguid', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.notguid');
-        vText := '12';
-        if Try20() then Observer.Observe('assign.digits', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.digits');
+        if Try32(R, vText) then Observer.Observe('assign.umlaut', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.umlaut');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Text_To_FCode10_More1()
+    procedure Text_To_FCode10_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
+        vText: Text;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text_To_FCode10_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text_To_FCode10_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text_To_FCode10_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text_To_FCode10_More5()
-    begin
-        Observer.More();
+        vText := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        if Try32(R, vText) then Observer.Observe('assign.guid', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.guid');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        if Try32(R, vText) then Observer.Observe('assign.guidlow', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.guidlow');
+        vText := 'xyz';
+        if Try32(R, vText) then Observer.Observe('assign.notguid', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.notguid');
+        vText := '12';
+        if Try32(R, vText) then Observer.Observe('assign.digits', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.digits');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Text_To_FGuid()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
+        vText: Text;
     begin
         vText := '';
-        if Try21() then Observer.Observe('assign.empty', Format(R.Guid)) else Observer.ObserveError('assign.empty');
+        if Try33(R, vText) then Observer.Observe('assign.empty', Format(R.Guid)) else Observer.ObserveError('assign.empty');
         vText := 'a';
-        if Try21() then Observer.Observe('assign.a', Format(R.Guid)) else Observer.ObserveError('assign.a');
+        if Try33(R, vText) then Observer.Observe('assign.a', Format(R.Guid)) else Observer.ObserveError('assign.a');
         vText := 'abc';
-        if Try21() then Observer.Observe('assign.abc', Format(R.Guid)) else Observer.ObserveError('assign.abc');
+        if Try33(R, vText) then Observer.Observe('assign.abc', Format(R.Guid)) else Observer.ObserveError('assign.abc');
         vText := ' ab';
-        if Try21() then Observer.Observe('assign.lead', Format(R.Guid)) else Observer.ObserveError('assign.lead');
+        if Try33(R, vText) then Observer.Observe('assign.lead', Format(R.Guid)) else Observer.ObserveError('assign.lead');
         vText := 'ab ';
-        if Try21() then Observer.Observe('assign.trail', Format(R.Guid)) else Observer.ObserveError('assign.trail');
+        if Try33(R, vText) then Observer.Observe('assign.trail', Format(R.Guid)) else Observer.ObserveError('assign.trail');
         vText := 'abcdefghij';
-        if Try21() then Observer.Observe('assign.ten', Format(R.Guid)) else Observer.ObserveError('assign.ten');
+        if Try33(R, vText) then Observer.Observe('assign.ten', Format(R.Guid)) else Observer.ObserveError('assign.ten');
         vText := 'abcdefghijk';
-        if Try21() then Observer.Observe('assign.eleven', Format(R.Guid)) else Observer.ObserveError('assign.eleven');
+        if Try33(R, vText) then Observer.Observe('assign.eleven', Format(R.Guid)) else Observer.ObserveError('assign.eleven');
         vText := 'äöß';
-        if Try21() then Observer.Observe('assign.umlaut', Format(R.Guid)) else Observer.ObserveError('assign.umlaut');
-        vText := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try21() then Observer.Observe('assign.guid', Format(R.Guid)) else Observer.ObserveError('assign.guid');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        if Try21() then Observer.Observe('assign.guidlow', Format(R.Guid)) else Observer.ObserveError('assign.guidlow');
-        vText := 'xyz';
-        if Try21() then Observer.Observe('assign.notguid', Format(R.Guid)) else Observer.ObserveError('assign.notguid');
-        vText := '12';
-        if Try21() then Observer.Observe('assign.digits', Format(R.Guid)) else Observer.ObserveError('assign.digits');
+        if Try33(R, vText) then Observer.Observe('assign.umlaut', Format(R.Guid)) else Observer.ObserveError('assign.umlaut');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Text_To_FGuid_More1()
+    procedure Text_To_FGuid_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
+        vText: Text;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text_To_FGuid_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text_To_FGuid_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text_To_FGuid_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text_To_FGuid_More5()
-    begin
-        Observer.More();
+        vText := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        if Try33(R, vText) then Observer.Observe('assign.guid', Format(R.Guid)) else Observer.ObserveError('assign.guid');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        if Try33(R, vText) then Observer.Observe('assign.guidlow', Format(R.Guid)) else Observer.ObserveError('assign.guidlow');
+        vText := 'xyz';
+        if Try33(R, vText) then Observer.Observe('assign.notguid', Format(R.Guid)) else Observer.ObserveError('assign.notguid');
+        vText := '12';
+        if Try33(R, vText) then Observer.Observe('assign.digits', Format(R.Guid)) else Observer.ObserveError('assign.digits');
+        Observer.Finish();
     end;
 
     [TryFunction]
-    local procedure Try1()
+    local procedure Try1(var vText: Text; var vText10: Text[10])
     begin
         Clear(vText10);
         vText10 := vText;
     end;
 
-    local procedure PA_Text10_1(p: Text[10])
+    local procedure PA_Text10_2(p: Text[10]; var vText10: Text[10])
     begin
         vText10 := p;
     end;
 
     [TryFunction]
-    local procedure Try2()
+    local procedure Try3(var vText: Text; var vText10: Text[10])
     begin
         Clear(vText10);
-        PA_Text10_1(vText);
+        PA_Text10_2(vText, vText10);
     end;
 
-    local procedure EX_Text10_2(): Text[10]
+    local procedure EX_Text10_4(var vText: Text): Text[10]
     begin
         exit(vText);
     end;
 
     [TryFunction]
-    local procedure Try3()
+    local procedure Try5(var vText: Text; var vText10: Text[10])
     begin
         Clear(vText10);
-        vText10 := EX_Text10_2();
+        vText10 := EX_Text10_4(vText);
     end;
 
     [TryFunction]
-    local procedure Try4()
+    local procedure Try6(var vText: Text; var vText3: Text[3])
     begin
         Clear(vText3);
         vText3 := vText;
     end;
 
-    local procedure PA_Text3_4(p: Text[3])
+    local procedure PA_Text3_7(p: Text[3]; var vText3: Text[3])
     begin
         vText3 := p;
     end;
 
     [TryFunction]
-    local procedure Try5()
+    local procedure Try8(var vText: Text; var vText3: Text[3])
     begin
         Clear(vText3);
-        PA_Text3_4(vText);
+        PA_Text3_7(vText, vText3);
     end;
 
-    local procedure EX_Text3_5(): Text[3]
+    local procedure EX_Text3_9(var vText: Text): Text[3]
     begin
         exit(vText);
     end;
 
     [TryFunction]
-    local procedure Try6()
+    local procedure Try10(var vText: Text; var vText3: Text[3])
     begin
         Clear(vText3);
-        vText3 := EX_Text3_5();
+        vText3 := EX_Text3_9(vText);
     end;
 
     [TryFunction]
-    local procedure Try7()
+    local procedure Try11(var vCode10: Code[10]; var vText: Text)
     begin
         Clear(vCode10);
         vCode10 := vText;
     end;
 
-    local procedure PA_Code10_7(p: Code[10])
+    local procedure PA_Code10_12(p: Code[10]; var vCode10: Code[10])
     begin
         vCode10 := p;
     end;
 
     [TryFunction]
-    local procedure Try8()
+    local procedure Try13(var vCode10: Code[10]; var vText: Text)
     begin
         Clear(vCode10);
-        PA_Code10_7(vText);
+        PA_Code10_12(vText, vCode10);
     end;
 
-    local procedure EX_Code10_8(): Code[10]
+    local procedure EX_Code10_14(var vText: Text): Code[10]
     begin
         exit(vText);
     end;
 
     [TryFunction]
-    local procedure Try9()
+    local procedure Try15(var vCode10: Code[10]; var vText: Text)
     begin
         Clear(vCode10);
-        vCode10 := EX_Code10_8();
+        vCode10 := EX_Code10_14(vText);
     end;
 
     [TryFunction]
-    local procedure Try10()
+    local procedure Try16(var vCode3: Code[3]; var vText: Text)
     begin
         Clear(vCode3);
         vCode3 := vText;
     end;
 
-    local procedure PA_Code3_10(p: Code[3])
+    local procedure PA_Code3_17(p: Code[3]; var vCode3: Code[3])
     begin
         vCode3 := p;
     end;
 
     [TryFunction]
-    local procedure Try11()
+    local procedure Try18(var vCode3: Code[3]; var vText: Text)
     begin
         Clear(vCode3);
-        PA_Code3_10(vText);
+        PA_Code3_17(vText, vCode3);
     end;
 
-    local procedure EX_Code3_11(): Code[3]
+    local procedure EX_Code3_19(var vText: Text): Code[3]
     begin
         exit(vText);
     end;
 
     [TryFunction]
-    local procedure Try12()
+    local procedure Try20(var vCode3: Code[3]; var vText: Text)
     begin
         Clear(vCode3);
-        vCode3 := EX_Code3_11();
+        vCode3 := EX_Code3_19(vText);
     end;
 
     [TryFunction]
-    local procedure Try13()
+    local procedure Try21(var vCode250: Code[250]; var vText: Text)
     begin
         Clear(vCode250);
         vCode250 := vText;
     end;
 
-    local procedure PA_Code250_13(p: Code[250])
+    local procedure PA_Code250_22(p: Code[250]; var vCode250: Code[250])
     begin
         vCode250 := p;
     end;
 
     [TryFunction]
-    local procedure Try14()
+    local procedure Try23(var vCode250: Code[250]; var vText: Text)
     begin
         Clear(vCode250);
-        PA_Code250_13(vText);
+        PA_Code250_22(vText, vCode250);
     end;
 
-    local procedure EX_Code250_14(): Code[250]
+    local procedure EX_Code250_24(var vText: Text): Code[250]
     begin
         exit(vText);
     end;
 
     [TryFunction]
-    local procedure Try15()
+    local procedure Try25(var vCode250: Code[250]; var vText: Text)
     begin
         Clear(vCode250);
-        vCode250 := EX_Code250_14();
+        vCode250 := EX_Code250_24(vText);
     end;
 
     [TryFunction]
-    local procedure Try16()
+    local procedure Try26(var vGuid: Guid; var vText: Text)
     begin
         Clear(vGuid);
         vGuid := vText;
     end;
 
-    local procedure PA_Guid_16(p: Guid)
+    local procedure PA_Guid_27(p: Guid; var vGuid: Guid)
     begin
         vGuid := p;
     end;
 
     [TryFunction]
-    local procedure Try17()
+    local procedure Try28(var vGuid: Guid; var vText: Text)
     begin
         Clear(vGuid);
-        PA_Guid_16(vText);
+        PA_Guid_27(vText, vGuid);
     end;
 
-    local procedure EX_Guid_17(): Guid
+    local procedure EX_Guid_29(var vText: Text): Guid
     begin
         exit(vText);
     end;
 
     [TryFunction]
-    local procedure Try18()
+    local procedure Try30(var vGuid: Guid; var vText: Text)
     begin
         Clear(vGuid);
-        vGuid := EX_Guid_17();
+        vGuid := EX_Guid_29(vText);
     end;
 
     [TryFunction]
-    local procedure Try19()
+    local procedure Try31(var R: Record "LT Y31 Conv Fields"; var vText: Text)
     begin
         Clear(R.Text10);
         R.Text10 := vText;
     end;
 
     [TryFunction]
-    local procedure Try20()
+    local procedure Try32(var R: Record "LT Y31 Conv Fields"; var vText: Text)
     begin
         Clear(R.Code10);
         R.Code10 := vText;
     end;
 
     [TryFunction]
-    local procedure Try21()
+    local procedure Try33(var R: Record "LT Y31 Conv Fields"; var vText: Text)
     begin
         Clear(R.Guid);
         R.Guid := vText;
@@ -7874,613 +6624,453 @@ codeunit 92419 "LT Y31 Cv Text10"
     Subtype = Test;
     TestPermissions = Disabled;
 
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        R: Record "LT Y31 Conv Fields";
-        vCode10: Code[10];
-        vCode250: Code[250];
-        vCode3: Code[3];
-        vGuid: Guid;
-        vText: Text;
-        vText10: Text[10];
-        vText3: Text[3];
-
     [Test]
     procedure Text10_To_Text()
+    var
+        Observer: Codeunit "Probe Observer";
+        vText: Text;
+        vText10: Text[10];
     begin
         vText10 := '';
-        if Try1() then Observer.Observe('assign.empty', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.empty');
-        if Try2() then Observer.Observe('arg_byvalue.empty', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.empty');
-        if Try3() then Observer.Observe('exit.empty', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.empty');
+        if Try1(vText, vText10) then Observer.Observe('assign.empty', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.empty');
+        if Try3(vText, vText10) then Observer.Observe('arg_byvalue.empty', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.empty');
+        if Try5(vText, vText10) then Observer.Observe('exit.empty', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.empty');
         vText10 := 'a';
-        if Try1() then Observer.Observe('assign.a', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.a');
-        if Try2() then Observer.Observe('arg_byvalue.a', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.a');
-        if Try3() then Observer.Observe('exit.a', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.a');
-        vText10 := 'abc';
-        if Try1() then Observer.Observe('assign.abc', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.abc');
-        if Try2() then Observer.Observe('arg_byvalue.abc', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.abc');
-        if Try3() then Observer.Observe('exit.abc', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.abc');
-        vText10 := 'abcdefghij';
-        if Try1() then Observer.Observe('assign.ten', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.ten');
-        if Try2() then Observer.Observe('arg_byvalue.ten', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.ten');
-        if Try3() then Observer.Observe('exit.ten', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.ten');
+        if Try1(vText, vText10) then Observer.Observe('assign.a', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.a');
+        if Try3(vText, vText10) then Observer.Observe('arg_byvalue.a', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.a');
+        if Try5(vText, vText10) then Observer.Observe('exit.a', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.a');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Text10_To_Text_More1()
+    procedure Text10_To_Text_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vText: Text;
+        vText10: Text[10];
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_To_Text_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_To_Text_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_To_Text_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_To_Text_More5()
-    begin
-        Observer.More();
+        vText10 := 'abc';
+        if Try1(vText, vText10) then Observer.Observe('assign.abc', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.abc');
+        if Try3(vText, vText10) then Observer.Observe('arg_byvalue.abc', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.abc');
+        if Try5(vText, vText10) then Observer.Observe('exit.abc', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.abc');
+        vText10 := 'abcdefghij';
+        if Try1(vText, vText10) then Observer.Observe('assign.ten', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.ten');
+        if Try3(vText, vText10) then Observer.Observe('arg_byvalue.ten', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.ten');
+        if Try5(vText, vText10) then Observer.Observe('exit.ten', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.ten');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Text10_To_Text3()
+    var
+        Observer: Codeunit "Probe Observer";
+        vText10: Text[10];
+        vText3: Text[3];
     begin
         vText10 := '';
-        if Try4() then Observer.Observe('assign.empty', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.empty');
-        if Try5() then Observer.Observe('arg_byvalue.empty', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.empty');
-        if Try6() then Observer.Observe('exit.empty', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.empty');
+        if Try6(vText10, vText3) then Observer.Observe('assign.empty', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.empty');
+        if Try8(vText10, vText3) then Observer.Observe('arg_byvalue.empty', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.empty');
+        if Try10(vText10, vText3) then Observer.Observe('exit.empty', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.empty');
         vText10 := 'a';
-        if Try4() then Observer.Observe('assign.a', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.a');
-        if Try5() then Observer.Observe('arg_byvalue.a', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.a');
-        if Try6() then Observer.Observe('exit.a', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.a');
-        vText10 := 'abc';
-        if Try4() then Observer.Observe('assign.abc', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.abc');
-        if Try5() then Observer.Observe('arg_byvalue.abc', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.abc');
-        if Try6() then Observer.Observe('exit.abc', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.abc');
-        vText10 := 'abcdefghij';
-        if Try4() then Observer.Observe('assign.ten', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.ten');
-        if Try5() then Observer.Observe('arg_byvalue.ten', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.ten');
-        if Try6() then Observer.Observe('exit.ten', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.ten');
+        if Try6(vText10, vText3) then Observer.Observe('assign.a', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.a');
+        if Try8(vText10, vText3) then Observer.Observe('arg_byvalue.a', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.a');
+        if Try10(vText10, vText3) then Observer.Observe('exit.a', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.a');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Text10_To_Text3_More1()
+    procedure Text10_To_Text3_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vText10: Text[10];
+        vText3: Text[3];
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_To_Text3_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_To_Text3_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_To_Text3_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_To_Text3_More5()
-    begin
-        Observer.More();
+        vText10 := 'abc';
+        if Try6(vText10, vText3) then Observer.Observe('assign.abc', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.abc');
+        if Try8(vText10, vText3) then Observer.Observe('arg_byvalue.abc', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.abc');
+        if Try10(vText10, vText3) then Observer.Observe('exit.abc', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.abc');
+        vText10 := 'abcdefghij';
+        if Try6(vText10, vText3) then Observer.Observe('assign.ten', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.ten');
+        if Try8(vText10, vText3) then Observer.Observe('arg_byvalue.ten', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.ten');
+        if Try10(vText10, vText3) then Observer.Observe('exit.ten', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.ten');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Text10_To_Code10()
+    var
+        Observer: Codeunit "Probe Observer";
+        vCode10: Code[10];
+        vText10: Text[10];
     begin
         vText10 := '';
-        if Try7() then Observer.Observe('assign.empty', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.empty');
-        if Try8() then Observer.Observe('arg_byvalue.empty', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.empty');
-        if Try9() then Observer.Observe('exit.empty', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.empty');
+        if Try11(vCode10, vText10) then Observer.Observe('assign.empty', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.empty');
+        if Try13(vCode10, vText10) then Observer.Observe('arg_byvalue.empty', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.empty');
+        if Try15(vCode10, vText10) then Observer.Observe('exit.empty', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.empty');
         vText10 := 'a';
-        if Try7() then Observer.Observe('assign.a', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.a');
-        if Try8() then Observer.Observe('arg_byvalue.a', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.a');
-        if Try9() then Observer.Observe('exit.a', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.a');
-        vText10 := 'abc';
-        if Try7() then Observer.Observe('assign.abc', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.abc');
-        if Try8() then Observer.Observe('arg_byvalue.abc', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.abc');
-        if Try9() then Observer.Observe('exit.abc', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.abc');
-        vText10 := 'abcdefghij';
-        if Try7() then Observer.Observe('assign.ten', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.ten');
-        if Try8() then Observer.Observe('arg_byvalue.ten', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.ten');
-        if Try9() then Observer.Observe('exit.ten', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.ten');
+        if Try11(vCode10, vText10) then Observer.Observe('assign.a', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.a');
+        if Try13(vCode10, vText10) then Observer.Observe('arg_byvalue.a', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.a');
+        if Try15(vCode10, vText10) then Observer.Observe('exit.a', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.a');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Text10_To_Code10_More1()
+    procedure Text10_To_Code10_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vCode10: Code[10];
+        vText10: Text[10];
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_To_Code10_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_To_Code10_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_To_Code10_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_To_Code10_More5()
-    begin
-        Observer.More();
+        vText10 := 'abc';
+        if Try11(vCode10, vText10) then Observer.Observe('assign.abc', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.abc');
+        if Try13(vCode10, vText10) then Observer.Observe('arg_byvalue.abc', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.abc');
+        if Try15(vCode10, vText10) then Observer.Observe('exit.abc', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.abc');
+        vText10 := 'abcdefghij';
+        if Try11(vCode10, vText10) then Observer.Observe('assign.ten', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.ten');
+        if Try13(vCode10, vText10) then Observer.Observe('arg_byvalue.ten', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.ten');
+        if Try15(vCode10, vText10) then Observer.Observe('exit.ten', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.ten');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Text10_To_Code3()
+    var
+        Observer: Codeunit "Probe Observer";
+        vCode3: Code[3];
+        vText10: Text[10];
     begin
         vText10 := '';
-        if Try10() then Observer.Observe('assign.empty', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.empty');
-        if Try11() then Observer.Observe('arg_byvalue.empty', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.empty');
-        if Try12() then Observer.Observe('exit.empty', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.empty');
+        if Try16(vCode3, vText10) then Observer.Observe('assign.empty', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.empty');
+        if Try18(vCode3, vText10) then Observer.Observe('arg_byvalue.empty', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.empty');
+        if Try20(vCode3, vText10) then Observer.Observe('exit.empty', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.empty');
         vText10 := 'a';
-        if Try10() then Observer.Observe('assign.a', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.a');
-        if Try11() then Observer.Observe('arg_byvalue.a', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.a');
-        if Try12() then Observer.Observe('exit.a', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.a');
-        vText10 := 'abc';
-        if Try10() then Observer.Observe('assign.abc', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.abc');
-        if Try11() then Observer.Observe('arg_byvalue.abc', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.abc');
-        if Try12() then Observer.Observe('exit.abc', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.abc');
-        vText10 := 'abcdefghij';
-        if Try10() then Observer.Observe('assign.ten', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.ten');
-        if Try11() then Observer.Observe('arg_byvalue.ten', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.ten');
-        if Try12() then Observer.Observe('exit.ten', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.ten');
+        if Try16(vCode3, vText10) then Observer.Observe('assign.a', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.a');
+        if Try18(vCode3, vText10) then Observer.Observe('arg_byvalue.a', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.a');
+        if Try20(vCode3, vText10) then Observer.Observe('exit.a', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.a');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Text10_To_Code3_More1()
+    procedure Text10_To_Code3_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vCode3: Code[3];
+        vText10: Text[10];
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_To_Code3_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_To_Code3_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_To_Code3_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_To_Code3_More5()
-    begin
-        Observer.More();
+        vText10 := 'abc';
+        if Try16(vCode3, vText10) then Observer.Observe('assign.abc', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.abc');
+        if Try18(vCode3, vText10) then Observer.Observe('arg_byvalue.abc', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.abc');
+        if Try20(vCode3, vText10) then Observer.Observe('exit.abc', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.abc');
+        vText10 := 'abcdefghij';
+        if Try16(vCode3, vText10) then Observer.Observe('assign.ten', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.ten');
+        if Try18(vCode3, vText10) then Observer.Observe('arg_byvalue.ten', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.ten');
+        if Try20(vCode3, vText10) then Observer.Observe('exit.ten', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.ten');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Text10_To_Code250()
+    var
+        Observer: Codeunit "Probe Observer";
+        vCode250: Code[250];
+        vText10: Text[10];
     begin
         vText10 := '';
-        if Try13() then Observer.Observe('assign.empty', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.empty');
-        if Try14() then Observer.Observe('arg_byvalue.empty', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.empty');
-        if Try15() then Observer.Observe('exit.empty', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.empty');
+        if Try21(vCode250, vText10) then Observer.Observe('assign.empty', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.empty');
+        if Try23(vCode250, vText10) then Observer.Observe('arg_byvalue.empty', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.empty');
+        if Try25(vCode250, vText10) then Observer.Observe('exit.empty', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.empty');
         vText10 := 'a';
-        if Try13() then Observer.Observe('assign.a', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.a');
-        if Try14() then Observer.Observe('arg_byvalue.a', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.a');
-        if Try15() then Observer.Observe('exit.a', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.a');
-        vText10 := 'abc';
-        if Try13() then Observer.Observe('assign.abc', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.abc');
-        if Try14() then Observer.Observe('arg_byvalue.abc', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.abc');
-        if Try15() then Observer.Observe('exit.abc', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.abc');
-        vText10 := 'abcdefghij';
-        if Try13() then Observer.Observe('assign.ten', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.ten');
-        if Try14() then Observer.Observe('arg_byvalue.ten', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.ten');
-        if Try15() then Observer.Observe('exit.ten', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.ten');
+        if Try21(vCode250, vText10) then Observer.Observe('assign.a', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.a');
+        if Try23(vCode250, vText10) then Observer.Observe('arg_byvalue.a', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.a');
+        if Try25(vCode250, vText10) then Observer.Observe('exit.a', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.a');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Text10_To_Code250_More1()
+    procedure Text10_To_Code250_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vCode250: Code[250];
+        vText10: Text[10];
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_To_Code250_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_To_Code250_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_To_Code250_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_To_Code250_More5()
-    begin
-        Observer.More();
+        vText10 := 'abc';
+        if Try21(vCode250, vText10) then Observer.Observe('assign.abc', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.abc');
+        if Try23(vCode250, vText10) then Observer.Observe('arg_byvalue.abc', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.abc');
+        if Try25(vCode250, vText10) then Observer.Observe('exit.abc', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.abc');
+        vText10 := 'abcdefghij';
+        if Try21(vCode250, vText10) then Observer.Observe('assign.ten', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.ten');
+        if Try23(vCode250, vText10) then Observer.Observe('arg_byvalue.ten', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.ten');
+        if Try25(vCode250, vText10) then Observer.Observe('exit.ten', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.ten');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Text10_To_Guid()
+    var
+        Observer: Codeunit "Probe Observer";
+        vGuid: Guid;
+        vText10: Text[10];
     begin
         vText10 := '';
-        if Try16() then Observer.Observe('assign.empty', Format(vGuid)) else Observer.ObserveError('assign.empty');
-        if Try17() then Observer.Observe('arg_byvalue.empty', Format(vGuid)) else Observer.ObserveError('arg_byvalue.empty');
-        if Try18() then Observer.Observe('exit.empty', Format(vGuid)) else Observer.ObserveError('exit.empty');
+        if Try26(vGuid, vText10) then Observer.Observe('assign.empty', Format(vGuid)) else Observer.ObserveError('assign.empty');
+        if Try28(vGuid, vText10) then Observer.Observe('arg_byvalue.empty', Format(vGuid)) else Observer.ObserveError('arg_byvalue.empty');
+        if Try30(vGuid, vText10) then Observer.Observe('exit.empty', Format(vGuid)) else Observer.ObserveError('exit.empty');
         vText10 := 'a';
-        if Try16() then Observer.Observe('assign.a', Format(vGuid)) else Observer.ObserveError('assign.a');
-        if Try17() then Observer.Observe('arg_byvalue.a', Format(vGuid)) else Observer.ObserveError('arg_byvalue.a');
-        if Try18() then Observer.Observe('exit.a', Format(vGuid)) else Observer.ObserveError('exit.a');
-        vText10 := 'abc';
-        if Try16() then Observer.Observe('assign.abc', Format(vGuid)) else Observer.ObserveError('assign.abc');
-        if Try17() then Observer.Observe('arg_byvalue.abc', Format(vGuid)) else Observer.ObserveError('arg_byvalue.abc');
-        if Try18() then Observer.Observe('exit.abc', Format(vGuid)) else Observer.ObserveError('exit.abc');
-        vText10 := 'abcdefghij';
-        if Try16() then Observer.Observe('assign.ten', Format(vGuid)) else Observer.ObserveError('assign.ten');
-        if Try17() then Observer.Observe('arg_byvalue.ten', Format(vGuid)) else Observer.ObserveError('arg_byvalue.ten');
-        if Try18() then Observer.Observe('exit.ten', Format(vGuid)) else Observer.ObserveError('exit.ten');
+        if Try26(vGuid, vText10) then Observer.Observe('assign.a', Format(vGuid)) else Observer.ObserveError('assign.a');
+        if Try28(vGuid, vText10) then Observer.Observe('arg_byvalue.a', Format(vGuid)) else Observer.ObserveError('arg_byvalue.a');
+        if Try30(vGuid, vText10) then Observer.Observe('exit.a', Format(vGuid)) else Observer.ObserveError('exit.a');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Text10_To_Guid_More1()
+    procedure Text10_To_Guid_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vGuid: Guid;
+        vText10: Text[10];
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_To_Guid_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_To_Guid_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_To_Guid_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_To_Guid_More5()
-    begin
-        Observer.More();
+        vText10 := 'abc';
+        if Try26(vGuid, vText10) then Observer.Observe('assign.abc', Format(vGuid)) else Observer.ObserveError('assign.abc');
+        if Try28(vGuid, vText10) then Observer.Observe('arg_byvalue.abc', Format(vGuid)) else Observer.ObserveError('arg_byvalue.abc');
+        if Try30(vGuid, vText10) then Observer.Observe('exit.abc', Format(vGuid)) else Observer.ObserveError('exit.abc');
+        vText10 := 'abcdefghij';
+        if Try26(vGuid, vText10) then Observer.Observe('assign.ten', Format(vGuid)) else Observer.ObserveError('assign.ten');
+        if Try28(vGuid, vText10) then Observer.Observe('arg_byvalue.ten', Format(vGuid)) else Observer.ObserveError('arg_byvalue.ten');
+        if Try30(vGuid, vText10) then Observer.Observe('exit.ten', Format(vGuid)) else Observer.ObserveError('exit.ten');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Text10_To_FCode10()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
+        vText10: Text[10];
     begin
         vText10 := '';
-        if Try19() then Observer.Observe('assign.empty', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.empty');
+        if Try31(R, vText10) then Observer.Observe('assign.empty', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.empty');
         vText10 := 'a';
-        if Try19() then Observer.Observe('assign.a', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.a');
+        if Try31(R, vText10) then Observer.Observe('assign.a', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.a');
         vText10 := 'abc';
-        if Try19() then Observer.Observe('assign.abc', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.abc');
+        if Try31(R, vText10) then Observer.Observe('assign.abc', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.abc');
         vText10 := 'abcdefghij';
-        if Try19() then Observer.Observe('assign.ten', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.ten');
+        if Try31(R, vText10) then Observer.Observe('assign.ten', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.ten');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text10_To_FCode10_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_To_FCode10_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_To_FCode10_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_To_FCode10_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_To_FCode10_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Text10_To_FGuid()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
+        vText10: Text[10];
     begin
         vText10 := '';
-        if Try20() then Observer.Observe('assign.empty', Format(R.Guid)) else Observer.ObserveError('assign.empty');
+        if Try32(R, vText10) then Observer.Observe('assign.empty', Format(R.Guid)) else Observer.ObserveError('assign.empty');
         vText10 := 'a';
-        if Try20() then Observer.Observe('assign.a', Format(R.Guid)) else Observer.ObserveError('assign.a');
+        if Try32(R, vText10) then Observer.Observe('assign.a', Format(R.Guid)) else Observer.ObserveError('assign.a');
         vText10 := 'abc';
-        if Try20() then Observer.Observe('assign.abc', Format(R.Guid)) else Observer.ObserveError('assign.abc');
+        if Try32(R, vText10) then Observer.Observe('assign.abc', Format(R.Guid)) else Observer.ObserveError('assign.abc');
         vText10 := 'abcdefghij';
-        if Try20() then Observer.Observe('assign.ten', Format(R.Guid)) else Observer.ObserveError('assign.ten');
+        if Try32(R, vText10) then Observer.Observe('assign.ten', Format(R.Guid)) else Observer.ObserveError('assign.ten');
         Observer.Finish();
     end;
 
-    [Test]
-    procedure Text10_To_FGuid_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_To_FGuid_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_To_FGuid_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_To_FGuid_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_To_FGuid_More5()
-    begin
-        Observer.More();
-    end;
-
     [TryFunction]
-    local procedure Try1()
+    local procedure Try1(var vText: Text; var vText10: Text[10])
     begin
         Clear(vText);
         vText := vText10;
     end;
 
-    local procedure PA_Text_1(p: Text)
+    local procedure PA_Text_2(p: Text; var vText: Text)
     begin
         vText := p;
     end;
 
     [TryFunction]
-    local procedure Try2()
+    local procedure Try3(var vText: Text; var vText10: Text[10])
     begin
         Clear(vText);
-        PA_Text_1(vText10);
+        PA_Text_2(vText10, vText);
     end;
 
-    local procedure EX_Text_2(): Text
+    local procedure EX_Text_4(var vText10: Text[10]): Text
     begin
         exit(vText10);
     end;
 
     [TryFunction]
-    local procedure Try3()
+    local procedure Try5(var vText: Text; var vText10: Text[10])
     begin
         Clear(vText);
-        vText := EX_Text_2();
+        vText := EX_Text_4(vText10);
     end;
 
     [TryFunction]
-    local procedure Try4()
+    local procedure Try6(var vText10: Text[10]; var vText3: Text[3])
     begin
         Clear(vText3);
         vText3 := vText10;
     end;
 
-    local procedure PA_Text3_4(p: Text[3])
+    local procedure PA_Text3_7(p: Text[3]; var vText3: Text[3])
     begin
         vText3 := p;
     end;
 
     [TryFunction]
-    local procedure Try5()
+    local procedure Try8(var vText10: Text[10]; var vText3: Text[3])
     begin
         Clear(vText3);
-        PA_Text3_4(vText10);
+        PA_Text3_7(vText10, vText3);
     end;
 
-    local procedure EX_Text3_5(): Text[3]
+    local procedure EX_Text3_9(var vText10: Text[10]): Text[3]
     begin
         exit(vText10);
     end;
 
     [TryFunction]
-    local procedure Try6()
+    local procedure Try10(var vText10: Text[10]; var vText3: Text[3])
     begin
         Clear(vText3);
-        vText3 := EX_Text3_5();
+        vText3 := EX_Text3_9(vText10);
     end;
 
     [TryFunction]
-    local procedure Try7()
+    local procedure Try11(var vCode10: Code[10]; var vText10: Text[10])
     begin
         Clear(vCode10);
         vCode10 := vText10;
     end;
 
-    local procedure PA_Code10_7(p: Code[10])
+    local procedure PA_Code10_12(p: Code[10]; var vCode10: Code[10])
     begin
         vCode10 := p;
     end;
 
     [TryFunction]
-    local procedure Try8()
+    local procedure Try13(var vCode10: Code[10]; var vText10: Text[10])
     begin
         Clear(vCode10);
-        PA_Code10_7(vText10);
+        PA_Code10_12(vText10, vCode10);
     end;
 
-    local procedure EX_Code10_8(): Code[10]
+    local procedure EX_Code10_14(var vText10: Text[10]): Code[10]
     begin
         exit(vText10);
     end;
 
     [TryFunction]
-    local procedure Try9()
+    local procedure Try15(var vCode10: Code[10]; var vText10: Text[10])
     begin
         Clear(vCode10);
-        vCode10 := EX_Code10_8();
+        vCode10 := EX_Code10_14(vText10);
     end;
 
     [TryFunction]
-    local procedure Try10()
+    local procedure Try16(var vCode3: Code[3]; var vText10: Text[10])
     begin
         Clear(vCode3);
         vCode3 := vText10;
     end;
 
-    local procedure PA_Code3_10(p: Code[3])
+    local procedure PA_Code3_17(p: Code[3]; var vCode3: Code[3])
     begin
         vCode3 := p;
     end;
 
     [TryFunction]
-    local procedure Try11()
+    local procedure Try18(var vCode3: Code[3]; var vText10: Text[10])
     begin
         Clear(vCode3);
-        PA_Code3_10(vText10);
+        PA_Code3_17(vText10, vCode3);
     end;
 
-    local procedure EX_Code3_11(): Code[3]
+    local procedure EX_Code3_19(var vText10: Text[10]): Code[3]
     begin
         exit(vText10);
     end;
 
     [TryFunction]
-    local procedure Try12()
+    local procedure Try20(var vCode3: Code[3]; var vText10: Text[10])
     begin
         Clear(vCode3);
-        vCode3 := EX_Code3_11();
+        vCode3 := EX_Code3_19(vText10);
     end;
 
     [TryFunction]
-    local procedure Try13()
+    local procedure Try21(var vCode250: Code[250]; var vText10: Text[10])
     begin
         Clear(vCode250);
         vCode250 := vText10;
     end;
 
-    local procedure PA_Code250_13(p: Code[250])
+    local procedure PA_Code250_22(p: Code[250]; var vCode250: Code[250])
     begin
         vCode250 := p;
     end;
 
     [TryFunction]
-    local procedure Try14()
+    local procedure Try23(var vCode250: Code[250]; var vText10: Text[10])
     begin
         Clear(vCode250);
-        PA_Code250_13(vText10);
+        PA_Code250_22(vText10, vCode250);
     end;
 
-    local procedure EX_Code250_14(): Code[250]
+    local procedure EX_Code250_24(var vText10: Text[10]): Code[250]
     begin
         exit(vText10);
     end;
 
     [TryFunction]
-    local procedure Try15()
+    local procedure Try25(var vCode250: Code[250]; var vText10: Text[10])
     begin
         Clear(vCode250);
-        vCode250 := EX_Code250_14();
+        vCode250 := EX_Code250_24(vText10);
     end;
 
     [TryFunction]
-    local procedure Try16()
+    local procedure Try26(var vGuid: Guid; var vText10: Text[10])
     begin
         Clear(vGuid);
         vGuid := vText10;
     end;
 
-    local procedure PA_Guid_16(p: Guid)
+    local procedure PA_Guid_27(p: Guid; var vGuid: Guid)
     begin
         vGuid := p;
     end;
 
     [TryFunction]
-    local procedure Try17()
+    local procedure Try28(var vGuid: Guid; var vText10: Text[10])
     begin
         Clear(vGuid);
-        PA_Guid_16(vText10);
+        PA_Guid_27(vText10, vGuid);
     end;
 
-    local procedure EX_Guid_17(): Guid
+    local procedure EX_Guid_29(var vText10: Text[10]): Guid
     begin
         exit(vText10);
     end;
 
     [TryFunction]
-    local procedure Try18()
+    local procedure Try30(var vGuid: Guid; var vText10: Text[10])
     begin
         Clear(vGuid);
-        vGuid := EX_Guid_17();
+        vGuid := EX_Guid_29(vText10);
     end;
 
     [TryFunction]
-    local procedure Try19()
+    local procedure Try31(var R: Record "LT Y31 Conv Fields"; var vText10: Text[10])
     begin
         Clear(R.Code10);
         R.Code10 := vText10;
     end;
 
     [TryFunction]
-    local procedure Try20()
+    local procedure Try32(var R: Record "LT Y31 Conv Fields"; var vText10: Text[10])
     begin
         Clear(R.Guid);
         R.Guid := vText10;
@@ -8500,613 +7090,453 @@ codeunit 92420 "LT Y31 Cv Code10"
     Subtype = Test;
     TestPermissions = Disabled;
 
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        R: Record "LT Y31 Conv Fields";
-        vCode10: Code[10];
-        vCode250: Code[250];
-        vCode3: Code[3];
-        vGuid: Guid;
-        vText: Text;
-        vText10: Text[10];
-        vText3: Text[3];
-
     [Test]
     procedure Code10_To_Text()
+    var
+        Observer: Codeunit "Probe Observer";
+        vCode10: Code[10];
+        vText: Text;
     begin
         vCode10 := '';
-        if Try1() then Observer.Observe('assign.empty', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.empty');
-        if Try2() then Observer.Observe('arg_byvalue.empty', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.empty');
-        if Try3() then Observer.Observe('exit.empty', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.empty');
+        if Try1(vCode10, vText) then Observer.Observe('assign.empty', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.empty');
+        if Try3(vCode10, vText) then Observer.Observe('arg_byvalue.empty', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.empty');
+        if Try5(vCode10, vText) then Observer.Observe('exit.empty', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.empty');
         vCode10 := 'abc';
-        if Try1() then Observer.Observe('assign.ABC', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.ABC');
-        if Try2() then Observer.Observe('arg_byvalue.ABC', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.ABC');
-        if Try3() then Observer.Observe('exit.ABC', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.ABC');
-        vCode10 := 'ABCDEFGHIJ';
-        if Try1() then Observer.Observe('assign.ten', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.ten');
-        if Try2() then Observer.Observe('arg_byvalue.ten', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.ten');
-        if Try3() then Observer.Observe('exit.ten', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.ten');
-        vCode10 := '12';
-        if Try1() then Observer.Observe('assign.digits', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.digits');
-        if Try2() then Observer.Observe('arg_byvalue.digits', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.digits');
-        if Try3() then Observer.Observe('exit.digits', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.digits');
+        if Try1(vCode10, vText) then Observer.Observe('assign.ABC', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.ABC');
+        if Try3(vCode10, vText) then Observer.Observe('arg_byvalue.ABC', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.ABC');
+        if Try5(vCode10, vText) then Observer.Observe('exit.ABC', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.ABC');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Code10_To_Text_More1()
+    procedure Code10_To_Text_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vCode10: Code[10];
+        vText: Text;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_To_Text_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_To_Text_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_To_Text_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_To_Text_More5()
-    begin
-        Observer.More();
+        vCode10 := 'ABCDEFGHIJ';
+        if Try1(vCode10, vText) then Observer.Observe('assign.ten', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.ten');
+        if Try3(vCode10, vText) then Observer.Observe('arg_byvalue.ten', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.ten');
+        if Try5(vCode10, vText) then Observer.Observe('exit.ten', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.ten');
+        vCode10 := '12';
+        if Try1(vCode10, vText) then Observer.Observe('assign.digits', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.digits');
+        if Try3(vCode10, vText) then Observer.Observe('arg_byvalue.digits', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.digits');
+        if Try5(vCode10, vText) then Observer.Observe('exit.digits', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.digits');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Code10_To_Text10()
+    var
+        Observer: Codeunit "Probe Observer";
+        vCode10: Code[10];
+        vText10: Text[10];
     begin
         vCode10 := '';
-        if Try4() then Observer.Observe('assign.empty', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.empty');
-        if Try5() then Observer.Observe('arg_byvalue.empty', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.empty');
-        if Try6() then Observer.Observe('exit.empty', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.empty');
+        if Try6(vCode10, vText10) then Observer.Observe('assign.empty', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.empty');
+        if Try8(vCode10, vText10) then Observer.Observe('arg_byvalue.empty', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.empty');
+        if Try10(vCode10, vText10) then Observer.Observe('exit.empty', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.empty');
         vCode10 := 'abc';
-        if Try4() then Observer.Observe('assign.ABC', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.ABC');
-        if Try5() then Observer.Observe('arg_byvalue.ABC', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.ABC');
-        if Try6() then Observer.Observe('exit.ABC', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.ABC');
-        vCode10 := 'ABCDEFGHIJ';
-        if Try4() then Observer.Observe('assign.ten', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.ten');
-        if Try5() then Observer.Observe('arg_byvalue.ten', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.ten');
-        if Try6() then Observer.Observe('exit.ten', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.ten');
-        vCode10 := '12';
-        if Try4() then Observer.Observe('assign.digits', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.digits');
-        if Try5() then Observer.Observe('arg_byvalue.digits', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.digits');
-        if Try6() then Observer.Observe('exit.digits', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.digits');
+        if Try6(vCode10, vText10) then Observer.Observe('assign.ABC', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.ABC');
+        if Try8(vCode10, vText10) then Observer.Observe('arg_byvalue.ABC', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.ABC');
+        if Try10(vCode10, vText10) then Observer.Observe('exit.ABC', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.ABC');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Code10_To_Text10_More1()
+    procedure Code10_To_Text10_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vCode10: Code[10];
+        vText10: Text[10];
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_To_Text10_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_To_Text10_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_To_Text10_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_To_Text10_More5()
-    begin
-        Observer.More();
+        vCode10 := 'ABCDEFGHIJ';
+        if Try6(vCode10, vText10) then Observer.Observe('assign.ten', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.ten');
+        if Try8(vCode10, vText10) then Observer.Observe('arg_byvalue.ten', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.ten');
+        if Try10(vCode10, vText10) then Observer.Observe('exit.ten', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.ten');
+        vCode10 := '12';
+        if Try6(vCode10, vText10) then Observer.Observe('assign.digits', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.digits');
+        if Try8(vCode10, vText10) then Observer.Observe('arg_byvalue.digits', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.digits');
+        if Try10(vCode10, vText10) then Observer.Observe('exit.digits', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.digits');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Code10_To_Text3()
+    var
+        Observer: Codeunit "Probe Observer";
+        vCode10: Code[10];
+        vText3: Text[3];
     begin
         vCode10 := '';
-        if Try7() then Observer.Observe('assign.empty', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.empty');
-        if Try8() then Observer.Observe('arg_byvalue.empty', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.empty');
-        if Try9() then Observer.Observe('exit.empty', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.empty');
+        if Try11(vCode10, vText3) then Observer.Observe('assign.empty', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.empty');
+        if Try13(vCode10, vText3) then Observer.Observe('arg_byvalue.empty', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.empty');
+        if Try15(vCode10, vText3) then Observer.Observe('exit.empty', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.empty');
         vCode10 := 'abc';
-        if Try7() then Observer.Observe('assign.ABC', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.ABC');
-        if Try8() then Observer.Observe('arg_byvalue.ABC', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.ABC');
-        if Try9() then Observer.Observe('exit.ABC', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.ABC');
-        vCode10 := 'ABCDEFGHIJ';
-        if Try7() then Observer.Observe('assign.ten', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.ten');
-        if Try8() then Observer.Observe('arg_byvalue.ten', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.ten');
-        if Try9() then Observer.Observe('exit.ten', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.ten');
-        vCode10 := '12';
-        if Try7() then Observer.Observe('assign.digits', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.digits');
-        if Try8() then Observer.Observe('arg_byvalue.digits', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.digits');
-        if Try9() then Observer.Observe('exit.digits', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.digits');
+        if Try11(vCode10, vText3) then Observer.Observe('assign.ABC', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.ABC');
+        if Try13(vCode10, vText3) then Observer.Observe('arg_byvalue.ABC', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.ABC');
+        if Try15(vCode10, vText3) then Observer.Observe('exit.ABC', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.ABC');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Code10_To_Text3_More1()
+    procedure Code10_To_Text3_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vCode10: Code[10];
+        vText3: Text[3];
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_To_Text3_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_To_Text3_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_To_Text3_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_To_Text3_More5()
-    begin
-        Observer.More();
+        vCode10 := 'ABCDEFGHIJ';
+        if Try11(vCode10, vText3) then Observer.Observe('assign.ten', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.ten');
+        if Try13(vCode10, vText3) then Observer.Observe('arg_byvalue.ten', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.ten');
+        if Try15(vCode10, vText3) then Observer.Observe('exit.ten', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.ten');
+        vCode10 := '12';
+        if Try11(vCode10, vText3) then Observer.Observe('assign.digits', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.digits');
+        if Try13(vCode10, vText3) then Observer.Observe('arg_byvalue.digits', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.digits');
+        if Try15(vCode10, vText3) then Observer.Observe('exit.digits', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.digits');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Code10_To_Code3()
+    var
+        Observer: Codeunit "Probe Observer";
+        vCode10: Code[10];
+        vCode3: Code[3];
     begin
         vCode10 := '';
-        if Try10() then Observer.Observe('assign.empty', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.empty');
-        if Try11() then Observer.Observe('arg_byvalue.empty', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.empty');
-        if Try12() then Observer.Observe('exit.empty', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.empty');
+        if Try16(vCode10, vCode3) then Observer.Observe('assign.empty', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.empty');
+        if Try18(vCode10, vCode3) then Observer.Observe('arg_byvalue.empty', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.empty');
+        if Try20(vCode10, vCode3) then Observer.Observe('exit.empty', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.empty');
         vCode10 := 'abc';
-        if Try10() then Observer.Observe('assign.ABC', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.ABC');
-        if Try11() then Observer.Observe('arg_byvalue.ABC', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.ABC');
-        if Try12() then Observer.Observe('exit.ABC', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.ABC');
-        vCode10 := 'ABCDEFGHIJ';
-        if Try10() then Observer.Observe('assign.ten', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.ten');
-        if Try11() then Observer.Observe('arg_byvalue.ten', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.ten');
-        if Try12() then Observer.Observe('exit.ten', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.ten');
-        vCode10 := '12';
-        if Try10() then Observer.Observe('assign.digits', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.digits');
-        if Try11() then Observer.Observe('arg_byvalue.digits', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.digits');
-        if Try12() then Observer.Observe('exit.digits', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.digits');
+        if Try16(vCode10, vCode3) then Observer.Observe('assign.ABC', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.ABC');
+        if Try18(vCode10, vCode3) then Observer.Observe('arg_byvalue.ABC', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.ABC');
+        if Try20(vCode10, vCode3) then Observer.Observe('exit.ABC', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.ABC');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Code10_To_Code3_More1()
+    procedure Code10_To_Code3_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vCode10: Code[10];
+        vCode3: Code[3];
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_To_Code3_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_To_Code3_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_To_Code3_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_To_Code3_More5()
-    begin
-        Observer.More();
+        vCode10 := 'ABCDEFGHIJ';
+        if Try16(vCode10, vCode3) then Observer.Observe('assign.ten', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.ten');
+        if Try18(vCode10, vCode3) then Observer.Observe('arg_byvalue.ten', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.ten');
+        if Try20(vCode10, vCode3) then Observer.Observe('exit.ten', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.ten');
+        vCode10 := '12';
+        if Try16(vCode10, vCode3) then Observer.Observe('assign.digits', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.digits');
+        if Try18(vCode10, vCode3) then Observer.Observe('arg_byvalue.digits', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.digits');
+        if Try20(vCode10, vCode3) then Observer.Observe('exit.digits', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.digits');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Code10_To_Code250()
+    var
+        Observer: Codeunit "Probe Observer";
+        vCode10: Code[10];
+        vCode250: Code[250];
     begin
         vCode10 := '';
-        if Try13() then Observer.Observe('assign.empty', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.empty');
-        if Try14() then Observer.Observe('arg_byvalue.empty', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.empty');
-        if Try15() then Observer.Observe('exit.empty', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.empty');
+        if Try21(vCode10, vCode250) then Observer.Observe('assign.empty', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.empty');
+        if Try23(vCode10, vCode250) then Observer.Observe('arg_byvalue.empty', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.empty');
+        if Try25(vCode10, vCode250) then Observer.Observe('exit.empty', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.empty');
         vCode10 := 'abc';
-        if Try13() then Observer.Observe('assign.ABC', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.ABC');
-        if Try14() then Observer.Observe('arg_byvalue.ABC', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.ABC');
-        if Try15() then Observer.Observe('exit.ABC', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.ABC');
-        vCode10 := 'ABCDEFGHIJ';
-        if Try13() then Observer.Observe('assign.ten', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.ten');
-        if Try14() then Observer.Observe('arg_byvalue.ten', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.ten');
-        if Try15() then Observer.Observe('exit.ten', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.ten');
-        vCode10 := '12';
-        if Try13() then Observer.Observe('assign.digits', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.digits');
-        if Try14() then Observer.Observe('arg_byvalue.digits', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.digits');
-        if Try15() then Observer.Observe('exit.digits', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.digits');
+        if Try21(vCode10, vCode250) then Observer.Observe('assign.ABC', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.ABC');
+        if Try23(vCode10, vCode250) then Observer.Observe('arg_byvalue.ABC', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.ABC');
+        if Try25(vCode10, vCode250) then Observer.Observe('exit.ABC', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.ABC');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Code10_To_Code250_More1()
+    procedure Code10_To_Code250_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vCode10: Code[10];
+        vCode250: Code[250];
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_To_Code250_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_To_Code250_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_To_Code250_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_To_Code250_More5()
-    begin
-        Observer.More();
+        vCode10 := 'ABCDEFGHIJ';
+        if Try21(vCode10, vCode250) then Observer.Observe('assign.ten', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.ten');
+        if Try23(vCode10, vCode250) then Observer.Observe('arg_byvalue.ten', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.ten');
+        if Try25(vCode10, vCode250) then Observer.Observe('exit.ten', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.ten');
+        vCode10 := '12';
+        if Try21(vCode10, vCode250) then Observer.Observe('assign.digits', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.digits');
+        if Try23(vCode10, vCode250) then Observer.Observe('arg_byvalue.digits', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.digits');
+        if Try25(vCode10, vCode250) then Observer.Observe('exit.digits', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.digits');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Code10_To_Guid()
+    var
+        Observer: Codeunit "Probe Observer";
+        vCode10: Code[10];
+        vGuid: Guid;
     begin
         vCode10 := '';
-        if Try16() then Observer.Observe('assign.empty', Format(vGuid)) else Observer.ObserveError('assign.empty');
-        if Try17() then Observer.Observe('arg_byvalue.empty', Format(vGuid)) else Observer.ObserveError('arg_byvalue.empty');
-        if Try18() then Observer.Observe('exit.empty', Format(vGuid)) else Observer.ObserveError('exit.empty');
+        if Try26(vCode10, vGuid) then Observer.Observe('assign.empty', Format(vGuid)) else Observer.ObserveError('assign.empty');
+        if Try28(vCode10, vGuid) then Observer.Observe('arg_byvalue.empty', Format(vGuid)) else Observer.ObserveError('arg_byvalue.empty');
+        if Try30(vCode10, vGuid) then Observer.Observe('exit.empty', Format(vGuid)) else Observer.ObserveError('exit.empty');
         vCode10 := 'abc';
-        if Try16() then Observer.Observe('assign.ABC', Format(vGuid)) else Observer.ObserveError('assign.ABC');
-        if Try17() then Observer.Observe('arg_byvalue.ABC', Format(vGuid)) else Observer.ObserveError('arg_byvalue.ABC');
-        if Try18() then Observer.Observe('exit.ABC', Format(vGuid)) else Observer.ObserveError('exit.ABC');
-        vCode10 := 'ABCDEFGHIJ';
-        if Try16() then Observer.Observe('assign.ten', Format(vGuid)) else Observer.ObserveError('assign.ten');
-        if Try17() then Observer.Observe('arg_byvalue.ten', Format(vGuid)) else Observer.ObserveError('arg_byvalue.ten');
-        if Try18() then Observer.Observe('exit.ten', Format(vGuid)) else Observer.ObserveError('exit.ten');
-        vCode10 := '12';
-        if Try16() then Observer.Observe('assign.digits', Format(vGuid)) else Observer.ObserveError('assign.digits');
-        if Try17() then Observer.Observe('arg_byvalue.digits', Format(vGuid)) else Observer.ObserveError('arg_byvalue.digits');
-        if Try18() then Observer.Observe('exit.digits', Format(vGuid)) else Observer.ObserveError('exit.digits');
+        if Try26(vCode10, vGuid) then Observer.Observe('assign.ABC', Format(vGuid)) else Observer.ObserveError('assign.ABC');
+        if Try28(vCode10, vGuid) then Observer.Observe('arg_byvalue.ABC', Format(vGuid)) else Observer.ObserveError('arg_byvalue.ABC');
+        if Try30(vCode10, vGuid) then Observer.Observe('exit.ABC', Format(vGuid)) else Observer.ObserveError('exit.ABC');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Code10_To_Guid_More1()
+    procedure Code10_To_Guid_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vCode10: Code[10];
+        vGuid: Guid;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_To_Guid_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_To_Guid_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_To_Guid_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_To_Guid_More5()
-    begin
-        Observer.More();
+        vCode10 := 'ABCDEFGHIJ';
+        if Try26(vCode10, vGuid) then Observer.Observe('assign.ten', Format(vGuid)) else Observer.ObserveError('assign.ten');
+        if Try28(vCode10, vGuid) then Observer.Observe('arg_byvalue.ten', Format(vGuid)) else Observer.ObserveError('arg_byvalue.ten');
+        if Try30(vCode10, vGuid) then Observer.Observe('exit.ten', Format(vGuid)) else Observer.ObserveError('exit.ten');
+        vCode10 := '12';
+        if Try26(vCode10, vGuid) then Observer.Observe('assign.digits', Format(vGuid)) else Observer.ObserveError('assign.digits');
+        if Try28(vCode10, vGuid) then Observer.Observe('arg_byvalue.digits', Format(vGuid)) else Observer.ObserveError('arg_byvalue.digits');
+        if Try30(vCode10, vGuid) then Observer.Observe('exit.digits', Format(vGuid)) else Observer.ObserveError('exit.digits');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Code10_To_FText10()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
+        vCode10: Code[10];
     begin
         vCode10 := '';
-        if Try19() then Observer.Observe('assign.empty', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.empty');
+        if Try31(R, vCode10) then Observer.Observe('assign.empty', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.empty');
         vCode10 := 'abc';
-        if Try19() then Observer.Observe('assign.ABC', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.ABC');
+        if Try31(R, vCode10) then Observer.Observe('assign.ABC', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.ABC');
         vCode10 := 'ABCDEFGHIJ';
-        if Try19() then Observer.Observe('assign.ten', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.ten');
+        if Try31(R, vCode10) then Observer.Observe('assign.ten', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.ten');
         vCode10 := '12';
-        if Try19() then Observer.Observe('assign.digits', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.digits');
+        if Try31(R, vCode10) then Observer.Observe('assign.digits', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.digits');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Code10_To_FText10_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_To_FText10_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_To_FText10_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_To_FText10_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_To_FText10_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Code10_To_FGuid()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
+        vCode10: Code[10];
     begin
         vCode10 := '';
-        if Try20() then Observer.Observe('assign.empty', Format(R.Guid)) else Observer.ObserveError('assign.empty');
+        if Try32(R, vCode10) then Observer.Observe('assign.empty', Format(R.Guid)) else Observer.ObserveError('assign.empty');
         vCode10 := 'abc';
-        if Try20() then Observer.Observe('assign.ABC', Format(R.Guid)) else Observer.ObserveError('assign.ABC');
+        if Try32(R, vCode10) then Observer.Observe('assign.ABC', Format(R.Guid)) else Observer.ObserveError('assign.ABC');
         vCode10 := 'ABCDEFGHIJ';
-        if Try20() then Observer.Observe('assign.ten', Format(R.Guid)) else Observer.ObserveError('assign.ten');
+        if Try32(R, vCode10) then Observer.Observe('assign.ten', Format(R.Guid)) else Observer.ObserveError('assign.ten');
         vCode10 := '12';
-        if Try20() then Observer.Observe('assign.digits', Format(R.Guid)) else Observer.ObserveError('assign.digits');
+        if Try32(R, vCode10) then Observer.Observe('assign.digits', Format(R.Guid)) else Observer.ObserveError('assign.digits');
         Observer.Finish();
     end;
 
-    [Test]
-    procedure Code10_To_FGuid_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_To_FGuid_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_To_FGuid_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_To_FGuid_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_To_FGuid_More5()
-    begin
-        Observer.More();
-    end;
-
     [TryFunction]
-    local procedure Try1()
+    local procedure Try1(var vCode10: Code[10]; var vText: Text)
     begin
         Clear(vText);
         vText := vCode10;
     end;
 
-    local procedure PA_Text_1(p: Text)
+    local procedure PA_Text_2(p: Text; var vText: Text)
     begin
         vText := p;
     end;
 
     [TryFunction]
-    local procedure Try2()
+    local procedure Try3(var vCode10: Code[10]; var vText: Text)
     begin
         Clear(vText);
-        PA_Text_1(vCode10);
+        PA_Text_2(vCode10, vText);
     end;
 
-    local procedure EX_Text_2(): Text
+    local procedure EX_Text_4(var vCode10: Code[10]): Text
     begin
         exit(vCode10);
     end;
 
     [TryFunction]
-    local procedure Try3()
+    local procedure Try5(var vCode10: Code[10]; var vText: Text)
     begin
         Clear(vText);
-        vText := EX_Text_2();
+        vText := EX_Text_4(vCode10);
     end;
 
     [TryFunction]
-    local procedure Try4()
+    local procedure Try6(var vCode10: Code[10]; var vText10: Text[10])
     begin
         Clear(vText10);
         vText10 := vCode10;
     end;
 
-    local procedure PA_Text10_4(p: Text[10])
+    local procedure PA_Text10_7(p: Text[10]; var vText10: Text[10])
     begin
         vText10 := p;
     end;
 
     [TryFunction]
-    local procedure Try5()
+    local procedure Try8(var vCode10: Code[10]; var vText10: Text[10])
     begin
         Clear(vText10);
-        PA_Text10_4(vCode10);
+        PA_Text10_7(vCode10, vText10);
     end;
 
-    local procedure EX_Text10_5(): Text[10]
+    local procedure EX_Text10_9(var vCode10: Code[10]): Text[10]
     begin
         exit(vCode10);
     end;
 
     [TryFunction]
-    local procedure Try6()
+    local procedure Try10(var vCode10: Code[10]; var vText10: Text[10])
     begin
         Clear(vText10);
-        vText10 := EX_Text10_5();
+        vText10 := EX_Text10_9(vCode10);
     end;
 
     [TryFunction]
-    local procedure Try7()
+    local procedure Try11(var vCode10: Code[10]; var vText3: Text[3])
     begin
         Clear(vText3);
         vText3 := vCode10;
     end;
 
-    local procedure PA_Text3_7(p: Text[3])
+    local procedure PA_Text3_12(p: Text[3]; var vText3: Text[3])
     begin
         vText3 := p;
     end;
 
     [TryFunction]
-    local procedure Try8()
+    local procedure Try13(var vCode10: Code[10]; var vText3: Text[3])
     begin
         Clear(vText3);
-        PA_Text3_7(vCode10);
+        PA_Text3_12(vCode10, vText3);
     end;
 
-    local procedure EX_Text3_8(): Text[3]
+    local procedure EX_Text3_14(var vCode10: Code[10]): Text[3]
     begin
         exit(vCode10);
     end;
 
     [TryFunction]
-    local procedure Try9()
+    local procedure Try15(var vCode10: Code[10]; var vText3: Text[3])
     begin
         Clear(vText3);
-        vText3 := EX_Text3_8();
+        vText3 := EX_Text3_14(vCode10);
     end;
 
     [TryFunction]
-    local procedure Try10()
+    local procedure Try16(var vCode10: Code[10]; var vCode3: Code[3])
     begin
         Clear(vCode3);
         vCode3 := vCode10;
     end;
 
-    local procedure PA_Code3_10(p: Code[3])
+    local procedure PA_Code3_17(p: Code[3]; var vCode3: Code[3])
     begin
         vCode3 := p;
     end;
 
     [TryFunction]
-    local procedure Try11()
+    local procedure Try18(var vCode10: Code[10]; var vCode3: Code[3])
     begin
         Clear(vCode3);
-        PA_Code3_10(vCode10);
+        PA_Code3_17(vCode10, vCode3);
     end;
 
-    local procedure EX_Code3_11(): Code[3]
+    local procedure EX_Code3_19(var vCode10: Code[10]): Code[3]
     begin
         exit(vCode10);
     end;
 
     [TryFunction]
-    local procedure Try12()
+    local procedure Try20(var vCode10: Code[10]; var vCode3: Code[3])
     begin
         Clear(vCode3);
-        vCode3 := EX_Code3_11();
+        vCode3 := EX_Code3_19(vCode10);
     end;
 
     [TryFunction]
-    local procedure Try13()
+    local procedure Try21(var vCode10: Code[10]; var vCode250: Code[250])
     begin
         Clear(vCode250);
         vCode250 := vCode10;
     end;
 
-    local procedure PA_Code250_13(p: Code[250])
+    local procedure PA_Code250_22(p: Code[250]; var vCode250: Code[250])
     begin
         vCode250 := p;
     end;
 
     [TryFunction]
-    local procedure Try14()
+    local procedure Try23(var vCode10: Code[10]; var vCode250: Code[250])
     begin
         Clear(vCode250);
-        PA_Code250_13(vCode10);
+        PA_Code250_22(vCode10, vCode250);
     end;
 
-    local procedure EX_Code250_14(): Code[250]
+    local procedure EX_Code250_24(var vCode10: Code[10]): Code[250]
     begin
         exit(vCode10);
     end;
 
     [TryFunction]
-    local procedure Try15()
+    local procedure Try25(var vCode10: Code[10]; var vCode250: Code[250])
     begin
         Clear(vCode250);
-        vCode250 := EX_Code250_14();
+        vCode250 := EX_Code250_24(vCode10);
     end;
 
     [TryFunction]
-    local procedure Try16()
+    local procedure Try26(var vCode10: Code[10]; var vGuid: Guid)
     begin
         Clear(vGuid);
         vGuid := vCode10;
     end;
 
-    local procedure PA_Guid_16(p: Guid)
+    local procedure PA_Guid_27(p: Guid; var vGuid: Guid)
     begin
         vGuid := p;
     end;
 
     [TryFunction]
-    local procedure Try17()
+    local procedure Try28(var vCode10: Code[10]; var vGuid: Guid)
     begin
         Clear(vGuid);
-        PA_Guid_16(vCode10);
+        PA_Guid_27(vCode10, vGuid);
     end;
 
-    local procedure EX_Guid_17(): Guid
+    local procedure EX_Guid_29(var vCode10: Code[10]): Guid
     begin
         exit(vCode10);
     end;
 
     [TryFunction]
-    local procedure Try18()
+    local procedure Try30(var vCode10: Code[10]; var vGuid: Guid)
     begin
         Clear(vGuid);
-        vGuid := EX_Guid_17();
+        vGuid := EX_Guid_29(vCode10);
     end;
 
     [TryFunction]
-    local procedure Try19()
+    local procedure Try31(var R: Record "LT Y31 Conv Fields"; var vCode10: Code[10])
     begin
         Clear(R.Text10);
         R.Text10 := vCode10;
     end;
 
     [TryFunction]
-    local procedure Try20()
+    local procedure Try32(var R: Record "LT Y31 Conv Fields"; var vCode10: Code[10])
     begin
         Clear(R.Guid);
         R.Guid := vCode10;
@@ -9126,636 +7556,401 @@ codeunit 92421 "LT Y31 Cv Label"
     Subtype = Test;
     TestPermissions = Disabled;
 
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        R: Record "LT Y31 Conv Fields";
-        vCode10: Code[10];
-        vCode250: Code[250];
-        vCode3: Code[3];
-        vGuid: Guid;
-        vLabel: Label 'abc', Locked = true;
-        vText: Text;
-        vText10: Text[10];
-        vText3: Text[3];
-
     [Test]
     procedure Label_To_Text()
+    var
+        Observer: Codeunit "Probe Observer";
+        vText: Text;
     begin
-        if Try1() then Observer.Observe('assign.abc', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.abc');
-        if Try2() then Observer.Observe('arg_byvalue.abc', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.abc');
-        if Try3() then Observer.Observe('exit.abc', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.abc');
+        if Try1(vText) then Observer.Observe('assign.abc', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.abc');
+        if Try3(vText) then Observer.Observe('arg_byvalue.abc', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.abc');
+        if Try5(vText) then Observer.Observe('exit.abc', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.abc');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Label_To_Text_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_To_Text_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_To_Text_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_To_Text_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_To_Text_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Label_To_Text10()
+    var
+        Observer: Codeunit "Probe Observer";
+        vText10: Text[10];
     begin
-        if Try4() then Observer.Observe('assign.abc', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.abc');
-        if Try5() then Observer.Observe('arg_byvalue.abc', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.abc');
-        if Try6() then Observer.Observe('exit.abc', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.abc');
+        if Try6(vText10) then Observer.Observe('assign.abc', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.abc');
+        if Try8(vText10) then Observer.Observe('arg_byvalue.abc', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.abc');
+        if Try10(vText10) then Observer.Observe('exit.abc', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.abc');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Label_To_Text10_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_To_Text10_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_To_Text10_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_To_Text10_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_To_Text10_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Label_To_Text3()
+    var
+        Observer: Codeunit "Probe Observer";
+        vText3: Text[3];
     begin
-        if Try7() then Observer.Observe('assign.abc', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.abc');
-        if Try8() then Observer.Observe('arg_byvalue.abc', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.abc');
-        if Try9() then Observer.Observe('exit.abc', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.abc');
+        if Try11(vText3) then Observer.Observe('assign.abc', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.abc');
+        if Try13(vText3) then Observer.Observe('arg_byvalue.abc', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.abc');
+        if Try15(vText3) then Observer.Observe('exit.abc', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.abc');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Label_To_Text3_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_To_Text3_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_To_Text3_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_To_Text3_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_To_Text3_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Label_To_Code10()
+    var
+        Observer: Codeunit "Probe Observer";
+        vCode10: Code[10];
     begin
-        if Try10() then Observer.Observe('assign.abc', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.abc');
-        if Try11() then Observer.Observe('arg_byvalue.abc', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.abc');
-        if Try12() then Observer.Observe('exit.abc', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.abc');
+        if Try16(vCode10) then Observer.Observe('assign.abc', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.abc');
+        if Try18(vCode10) then Observer.Observe('arg_byvalue.abc', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.abc');
+        if Try20(vCode10) then Observer.Observe('exit.abc', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.abc');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Label_To_Code10_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_To_Code10_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_To_Code10_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_To_Code10_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_To_Code10_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Label_To_Code3()
+    var
+        Observer: Codeunit "Probe Observer";
+        vCode3: Code[3];
     begin
-        if Try13() then Observer.Observe('assign.abc', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.abc');
-        if Try14() then Observer.Observe('arg_byvalue.abc', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.abc');
-        if Try15() then Observer.Observe('exit.abc', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.abc');
+        if Try21(vCode3) then Observer.Observe('assign.abc', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.abc');
+        if Try23(vCode3) then Observer.Observe('arg_byvalue.abc', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.abc');
+        if Try25(vCode3) then Observer.Observe('exit.abc', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.abc');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Label_To_Code3_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_To_Code3_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_To_Code3_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_To_Code3_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_To_Code3_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Label_To_Code250()
+    var
+        Observer: Codeunit "Probe Observer";
+        vCode250: Code[250];
     begin
-        if Try16() then Observer.Observe('assign.abc', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.abc');
-        if Try17() then Observer.Observe('arg_byvalue.abc', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.abc');
-        if Try18() then Observer.Observe('exit.abc', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.abc');
+        if Try26(vCode250) then Observer.Observe('assign.abc', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.abc');
+        if Try28(vCode250) then Observer.Observe('arg_byvalue.abc', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.abc');
+        if Try30(vCode250) then Observer.Observe('exit.abc', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.abc');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Label_To_Code250_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_To_Code250_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_To_Code250_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_To_Code250_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_To_Code250_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Label_To_Guid()
+    var
+        Observer: Codeunit "Probe Observer";
+        vGuid: Guid;
     begin
-        if Try19() then Observer.Observe('assign.abc', Format(vGuid)) else Observer.ObserveError('assign.abc');
-        if Try20() then Observer.Observe('arg_byvalue.abc', Format(vGuid)) else Observer.ObserveError('arg_byvalue.abc');
-        if Try21() then Observer.Observe('exit.abc', Format(vGuid)) else Observer.ObserveError('exit.abc');
+        if Try31(vGuid) then Observer.Observe('assign.abc', Format(vGuid)) else Observer.ObserveError('assign.abc');
+        if Try33(vGuid) then Observer.Observe('arg_byvalue.abc', Format(vGuid)) else Observer.ObserveError('arg_byvalue.abc');
+        if Try35(vGuid) then Observer.Observe('exit.abc', Format(vGuid)) else Observer.ObserveError('exit.abc');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Label_To_Guid_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_To_Guid_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_To_Guid_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_To_Guid_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_To_Guid_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Label_To_FText10()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
     begin
-        if Try22() then Observer.Observe('assign.abc', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.abc');
+        if Try36(R) then Observer.Observe('assign.abc', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.abc');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Label_To_FText10_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_To_FText10_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_To_FText10_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_To_FText10_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_To_FText10_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Label_To_FCode10()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
     begin
-        if Try23() then Observer.Observe('assign.abc', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.abc');
+        if Try37(R) then Observer.Observe('assign.abc', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.abc');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Label_To_FCode10_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_To_FCode10_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_To_FCode10_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_To_FCode10_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_To_FCode10_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Label_To_FGuid()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
     begin
-        if Try24() then Observer.Observe('assign.abc', Format(R.Guid)) else Observer.ObserveError('assign.abc');
+        if Try38(R) then Observer.Observe('assign.abc', Format(R.Guid)) else Observer.ObserveError('assign.abc');
         Observer.Finish();
     end;
 
-    [Test]
-    procedure Label_To_FGuid_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_To_FGuid_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_To_FGuid_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_To_FGuid_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_To_FGuid_More5()
-    begin
-        Observer.More();
-    end;
-
     [TryFunction]
-    local procedure Try1()
+    local procedure Try1(var vText: Text)
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Clear(vText);
         vText := vLabel;
     end;
 
-    local procedure PA_Text_1(p: Text)
+    local procedure PA_Text_2(p: Text; var vText: Text)
     begin
         vText := p;
     end;
 
     [TryFunction]
-    local procedure Try2()
+    local procedure Try3(var vText: Text)
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Clear(vText);
-        PA_Text_1(vLabel);
+        PA_Text_2(vLabel, vText);
     end;
 
-    local procedure EX_Text_2(): Text
+    local procedure EX_Text_4(): Text
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         exit(vLabel);
     end;
 
     [TryFunction]
-    local procedure Try3()
+    local procedure Try5(var vText: Text)
     begin
         Clear(vText);
-        vText := EX_Text_2();
+        vText := EX_Text_4();
     end;
 
     [TryFunction]
-    local procedure Try4()
+    local procedure Try6(var vText10: Text[10])
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Clear(vText10);
         vText10 := vLabel;
     end;
 
-    local procedure PA_Text10_4(p: Text[10])
+    local procedure PA_Text10_7(p: Text[10]; var vText10: Text[10])
     begin
         vText10 := p;
     end;
 
     [TryFunction]
-    local procedure Try5()
+    local procedure Try8(var vText10: Text[10])
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Clear(vText10);
-        PA_Text10_4(vLabel);
+        PA_Text10_7(vLabel, vText10);
     end;
 
-    local procedure EX_Text10_5(): Text[10]
+    local procedure EX_Text10_9(): Text[10]
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         exit(vLabel);
     end;
 
     [TryFunction]
-    local procedure Try6()
+    local procedure Try10(var vText10: Text[10])
     begin
         Clear(vText10);
-        vText10 := EX_Text10_5();
+        vText10 := EX_Text10_9();
     end;
 
     [TryFunction]
-    local procedure Try7()
+    local procedure Try11(var vText3: Text[3])
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Clear(vText3);
         vText3 := vLabel;
     end;
 
-    local procedure PA_Text3_7(p: Text[3])
+    local procedure PA_Text3_12(p: Text[3]; var vText3: Text[3])
     begin
         vText3 := p;
     end;
 
     [TryFunction]
-    local procedure Try8()
+    local procedure Try13(var vText3: Text[3])
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Clear(vText3);
-        PA_Text3_7(vLabel);
+        PA_Text3_12(vLabel, vText3);
     end;
 
-    local procedure EX_Text3_8(): Text[3]
+    local procedure EX_Text3_14(): Text[3]
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         exit(vLabel);
     end;
 
     [TryFunction]
-    local procedure Try9()
+    local procedure Try15(var vText3: Text[3])
     begin
         Clear(vText3);
-        vText3 := EX_Text3_8();
+        vText3 := EX_Text3_14();
     end;
 
     [TryFunction]
-    local procedure Try10()
+    local procedure Try16(var vCode10: Code[10])
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Clear(vCode10);
         vCode10 := vLabel;
     end;
 
-    local procedure PA_Code10_10(p: Code[10])
+    local procedure PA_Code10_17(p: Code[10]; var vCode10: Code[10])
     begin
         vCode10 := p;
     end;
 
     [TryFunction]
-    local procedure Try11()
+    local procedure Try18(var vCode10: Code[10])
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Clear(vCode10);
-        PA_Code10_10(vLabel);
+        PA_Code10_17(vLabel, vCode10);
     end;
 
-    local procedure EX_Code10_11(): Code[10]
+    local procedure EX_Code10_19(): Code[10]
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         exit(vLabel);
     end;
 
     [TryFunction]
-    local procedure Try12()
+    local procedure Try20(var vCode10: Code[10])
     begin
         Clear(vCode10);
-        vCode10 := EX_Code10_11();
+        vCode10 := EX_Code10_19();
     end;
 
     [TryFunction]
-    local procedure Try13()
+    local procedure Try21(var vCode3: Code[3])
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Clear(vCode3);
         vCode3 := vLabel;
     end;
 
-    local procedure PA_Code3_13(p: Code[3])
+    local procedure PA_Code3_22(p: Code[3]; var vCode3: Code[3])
     begin
         vCode3 := p;
     end;
 
     [TryFunction]
-    local procedure Try14()
+    local procedure Try23(var vCode3: Code[3])
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Clear(vCode3);
-        PA_Code3_13(vLabel);
+        PA_Code3_22(vLabel, vCode3);
     end;
 
-    local procedure EX_Code3_14(): Code[3]
+    local procedure EX_Code3_24(): Code[3]
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         exit(vLabel);
     end;
 
     [TryFunction]
-    local procedure Try15()
+    local procedure Try25(var vCode3: Code[3])
     begin
         Clear(vCode3);
-        vCode3 := EX_Code3_14();
+        vCode3 := EX_Code3_24();
     end;
 
     [TryFunction]
-    local procedure Try16()
+    local procedure Try26(var vCode250: Code[250])
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Clear(vCode250);
         vCode250 := vLabel;
     end;
 
-    local procedure PA_Code250_16(p: Code[250])
+    local procedure PA_Code250_27(p: Code[250]; var vCode250: Code[250])
     begin
         vCode250 := p;
     end;
 
     [TryFunction]
-    local procedure Try17()
+    local procedure Try28(var vCode250: Code[250])
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Clear(vCode250);
-        PA_Code250_16(vLabel);
+        PA_Code250_27(vLabel, vCode250);
     end;
 
-    local procedure EX_Code250_17(): Code[250]
+    local procedure EX_Code250_29(): Code[250]
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         exit(vLabel);
     end;
 
     [TryFunction]
-    local procedure Try18()
+    local procedure Try30(var vCode250: Code[250])
     begin
         Clear(vCode250);
-        vCode250 := EX_Code250_17();
+        vCode250 := EX_Code250_29();
     end;
 
     [TryFunction]
-    local procedure Try19()
+    local procedure Try31(var vGuid: Guid)
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Clear(vGuid);
         vGuid := vLabel;
     end;
 
-    local procedure PA_Guid_19(p: Guid)
+    local procedure PA_Guid_32(p: Guid; var vGuid: Guid)
     begin
         vGuid := p;
     end;
 
     [TryFunction]
-    local procedure Try20()
+    local procedure Try33(var vGuid: Guid)
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Clear(vGuid);
-        PA_Guid_19(vLabel);
+        PA_Guid_32(vLabel, vGuid);
     end;
 
-    local procedure EX_Guid_20(): Guid
+    local procedure EX_Guid_34(): Guid
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         exit(vLabel);
     end;
 
     [TryFunction]
-    local procedure Try21()
+    local procedure Try35(var vGuid: Guid)
     begin
         Clear(vGuid);
-        vGuid := EX_Guid_20();
+        vGuid := EX_Guid_34();
     end;
 
     [TryFunction]
-    local procedure Try22()
+    local procedure Try36(var R: Record "LT Y31 Conv Fields")
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Clear(R.Text10);
         R.Text10 := vLabel;
     end;
 
     [TryFunction]
-    local procedure Try23()
+    local procedure Try37(var R: Record "LT Y31 Conv Fields")
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Clear(R.Code10);
         R.Code10 := vLabel;
     end;
 
     [TryFunction]
-    local procedure Try24()
+    local procedure Try38(var R: Record "LT Y31 Conv Fields")
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Clear(R.Guid);
         R.Guid := vLabel;
@@ -9775,636 +7970,401 @@ codeunit 92422 "LT Y31 Cv LabelLong"
     Subtype = Test;
     TestPermissions = Disabled;
 
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        R: Record "LT Y31 Conv Fields";
-        vCode10: Code[10];
-        vCode250: Code[250];
-        vCode3: Code[3];
-        vGuid: Guid;
-        vLabelLong: Label 'abcdefghijk', Locked = true;
-        vText: Text;
-        vText10: Text[10];
-        vText3: Text[3];
-
     [Test]
     procedure LabelLong_To_Text()
+    var
+        Observer: Codeunit "Probe Observer";
+        vText: Text;
     begin
-        if Try1() then Observer.Observe('assign.eleven', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.eleven');
-        if Try2() then Observer.Observe('arg_byvalue.eleven', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.eleven');
-        if Try3() then Observer.Observe('exit.eleven', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.eleven');
+        if Try1(vText) then Observer.Observe('assign.eleven', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.eleven');
+        if Try3(vText) then Observer.Observe('arg_byvalue.eleven', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.eleven');
+        if Try5(vText) then Observer.Observe('exit.eleven', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.eleven');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LabelLong_To_Text_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LabelLong_To_Text_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LabelLong_To_Text_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LabelLong_To_Text_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LabelLong_To_Text_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LabelLong_To_Text10()
+    var
+        Observer: Codeunit "Probe Observer";
+        vText10: Text[10];
     begin
-        if Try4() then Observer.Observe('assign.eleven', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.eleven');
-        if Try5() then Observer.Observe('arg_byvalue.eleven', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.eleven');
-        if Try6() then Observer.Observe('exit.eleven', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.eleven');
+        if Try6(vText10) then Observer.Observe('assign.eleven', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.eleven');
+        if Try8(vText10) then Observer.Observe('arg_byvalue.eleven', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.eleven');
+        if Try10(vText10) then Observer.Observe('exit.eleven', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.eleven');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LabelLong_To_Text10_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LabelLong_To_Text10_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LabelLong_To_Text10_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LabelLong_To_Text10_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LabelLong_To_Text10_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LabelLong_To_Text3()
+    var
+        Observer: Codeunit "Probe Observer";
+        vText3: Text[3];
     begin
-        if Try7() then Observer.Observe('assign.eleven', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.eleven');
-        if Try8() then Observer.Observe('arg_byvalue.eleven', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.eleven');
-        if Try9() then Observer.Observe('exit.eleven', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.eleven');
+        if Try11(vText3) then Observer.Observe('assign.eleven', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.eleven');
+        if Try13(vText3) then Observer.Observe('arg_byvalue.eleven', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.eleven');
+        if Try15(vText3) then Observer.Observe('exit.eleven', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.eleven');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LabelLong_To_Text3_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LabelLong_To_Text3_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LabelLong_To_Text3_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LabelLong_To_Text3_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LabelLong_To_Text3_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LabelLong_To_Code10()
+    var
+        Observer: Codeunit "Probe Observer";
+        vCode10: Code[10];
     begin
-        if Try10() then Observer.Observe('assign.eleven', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.eleven');
-        if Try11() then Observer.Observe('arg_byvalue.eleven', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.eleven');
-        if Try12() then Observer.Observe('exit.eleven', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.eleven');
+        if Try16(vCode10) then Observer.Observe('assign.eleven', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.eleven');
+        if Try18(vCode10) then Observer.Observe('arg_byvalue.eleven', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.eleven');
+        if Try20(vCode10) then Observer.Observe('exit.eleven', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.eleven');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LabelLong_To_Code10_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LabelLong_To_Code10_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LabelLong_To_Code10_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LabelLong_To_Code10_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LabelLong_To_Code10_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LabelLong_To_Code3()
+    var
+        Observer: Codeunit "Probe Observer";
+        vCode3: Code[3];
     begin
-        if Try13() then Observer.Observe('assign.eleven', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.eleven');
-        if Try14() then Observer.Observe('arg_byvalue.eleven', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.eleven');
-        if Try15() then Observer.Observe('exit.eleven', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.eleven');
+        if Try21(vCode3) then Observer.Observe('assign.eleven', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.eleven');
+        if Try23(vCode3) then Observer.Observe('arg_byvalue.eleven', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.eleven');
+        if Try25(vCode3) then Observer.Observe('exit.eleven', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.eleven');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LabelLong_To_Code3_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LabelLong_To_Code3_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LabelLong_To_Code3_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LabelLong_To_Code3_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LabelLong_To_Code3_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LabelLong_To_Code250()
+    var
+        Observer: Codeunit "Probe Observer";
+        vCode250: Code[250];
     begin
-        if Try16() then Observer.Observe('assign.eleven', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.eleven');
-        if Try17() then Observer.Observe('arg_byvalue.eleven', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.eleven');
-        if Try18() then Observer.Observe('exit.eleven', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.eleven');
+        if Try26(vCode250) then Observer.Observe('assign.eleven', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.eleven');
+        if Try28(vCode250) then Observer.Observe('arg_byvalue.eleven', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.eleven');
+        if Try30(vCode250) then Observer.Observe('exit.eleven', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.eleven');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LabelLong_To_Code250_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LabelLong_To_Code250_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LabelLong_To_Code250_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LabelLong_To_Code250_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LabelLong_To_Code250_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LabelLong_To_Guid()
+    var
+        Observer: Codeunit "Probe Observer";
+        vGuid: Guid;
     begin
-        if Try19() then Observer.Observe('assign.eleven', Format(vGuid)) else Observer.ObserveError('assign.eleven');
-        if Try20() then Observer.Observe('arg_byvalue.eleven', Format(vGuid)) else Observer.ObserveError('arg_byvalue.eleven');
-        if Try21() then Observer.Observe('exit.eleven', Format(vGuid)) else Observer.ObserveError('exit.eleven');
+        if Try31(vGuid) then Observer.Observe('assign.eleven', Format(vGuid)) else Observer.ObserveError('assign.eleven');
+        if Try33(vGuid) then Observer.Observe('arg_byvalue.eleven', Format(vGuid)) else Observer.ObserveError('arg_byvalue.eleven');
+        if Try35(vGuid) then Observer.Observe('exit.eleven', Format(vGuid)) else Observer.ObserveError('exit.eleven');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LabelLong_To_Guid_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LabelLong_To_Guid_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LabelLong_To_Guid_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LabelLong_To_Guid_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LabelLong_To_Guid_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LabelLong_To_FText10()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
     begin
-        if Try22() then Observer.Observe('assign.eleven', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.eleven');
+        if Try36(R) then Observer.Observe('assign.eleven', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.eleven');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LabelLong_To_FText10_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LabelLong_To_FText10_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LabelLong_To_FText10_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LabelLong_To_FText10_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LabelLong_To_FText10_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LabelLong_To_FCode10()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
     begin
-        if Try23() then Observer.Observe('assign.eleven', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.eleven');
+        if Try37(R) then Observer.Observe('assign.eleven', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.eleven');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LabelLong_To_FCode10_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LabelLong_To_FCode10_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LabelLong_To_FCode10_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LabelLong_To_FCode10_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LabelLong_To_FCode10_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LabelLong_To_FGuid()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
     begin
-        if Try24() then Observer.Observe('assign.eleven', Format(R.Guid)) else Observer.ObserveError('assign.eleven');
+        if Try38(R) then Observer.Observe('assign.eleven', Format(R.Guid)) else Observer.ObserveError('assign.eleven');
         Observer.Finish();
     end;
 
-    [Test]
-    procedure LabelLong_To_FGuid_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LabelLong_To_FGuid_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LabelLong_To_FGuid_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LabelLong_To_FGuid_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LabelLong_To_FGuid_More5()
-    begin
-        Observer.More();
-    end;
-
     [TryFunction]
-    local procedure Try1()
+    local procedure Try1(var vText: Text)
+    var
+        vLabelLong: Label 'abcdefghijk', Locked = true;
     begin
         Clear(vText);
         vText := vLabelLong;
     end;
 
-    local procedure PA_Text_1(p: Text)
+    local procedure PA_Text_2(p: Text; var vText: Text)
     begin
         vText := p;
     end;
 
     [TryFunction]
-    local procedure Try2()
+    local procedure Try3(var vText: Text)
+    var
+        vLabelLong: Label 'abcdefghijk', Locked = true;
     begin
         Clear(vText);
-        PA_Text_1(vLabelLong);
+        PA_Text_2(vLabelLong, vText);
     end;
 
-    local procedure EX_Text_2(): Text
+    local procedure EX_Text_4(): Text
+    var
+        vLabelLong: Label 'abcdefghijk', Locked = true;
     begin
         exit(vLabelLong);
     end;
 
     [TryFunction]
-    local procedure Try3()
+    local procedure Try5(var vText: Text)
     begin
         Clear(vText);
-        vText := EX_Text_2();
+        vText := EX_Text_4();
     end;
 
     [TryFunction]
-    local procedure Try4()
+    local procedure Try6(var vText10: Text[10])
+    var
+        vLabelLong: Label 'abcdefghijk', Locked = true;
     begin
         Clear(vText10);
         vText10 := vLabelLong;
     end;
 
-    local procedure PA_Text10_4(p: Text[10])
+    local procedure PA_Text10_7(p: Text[10]; var vText10: Text[10])
     begin
         vText10 := p;
     end;
 
     [TryFunction]
-    local procedure Try5()
+    local procedure Try8(var vText10: Text[10])
+    var
+        vLabelLong: Label 'abcdefghijk', Locked = true;
     begin
         Clear(vText10);
-        PA_Text10_4(vLabelLong);
+        PA_Text10_7(vLabelLong, vText10);
     end;
 
-    local procedure EX_Text10_5(): Text[10]
+    local procedure EX_Text10_9(): Text[10]
+    var
+        vLabelLong: Label 'abcdefghijk', Locked = true;
     begin
         exit(vLabelLong);
     end;
 
     [TryFunction]
-    local procedure Try6()
+    local procedure Try10(var vText10: Text[10])
     begin
         Clear(vText10);
-        vText10 := EX_Text10_5();
+        vText10 := EX_Text10_9();
     end;
 
     [TryFunction]
-    local procedure Try7()
+    local procedure Try11(var vText3: Text[3])
+    var
+        vLabelLong: Label 'abcdefghijk', Locked = true;
     begin
         Clear(vText3);
         vText3 := vLabelLong;
     end;
 
-    local procedure PA_Text3_7(p: Text[3])
+    local procedure PA_Text3_12(p: Text[3]; var vText3: Text[3])
     begin
         vText3 := p;
     end;
 
     [TryFunction]
-    local procedure Try8()
+    local procedure Try13(var vText3: Text[3])
+    var
+        vLabelLong: Label 'abcdefghijk', Locked = true;
     begin
         Clear(vText3);
-        PA_Text3_7(vLabelLong);
+        PA_Text3_12(vLabelLong, vText3);
     end;
 
-    local procedure EX_Text3_8(): Text[3]
+    local procedure EX_Text3_14(): Text[3]
+    var
+        vLabelLong: Label 'abcdefghijk', Locked = true;
     begin
         exit(vLabelLong);
     end;
 
     [TryFunction]
-    local procedure Try9()
+    local procedure Try15(var vText3: Text[3])
     begin
         Clear(vText3);
-        vText3 := EX_Text3_8();
+        vText3 := EX_Text3_14();
     end;
 
     [TryFunction]
-    local procedure Try10()
+    local procedure Try16(var vCode10: Code[10])
+    var
+        vLabelLong: Label 'abcdefghijk', Locked = true;
     begin
         Clear(vCode10);
         vCode10 := vLabelLong;
     end;
 
-    local procedure PA_Code10_10(p: Code[10])
+    local procedure PA_Code10_17(p: Code[10]; var vCode10: Code[10])
     begin
         vCode10 := p;
     end;
 
     [TryFunction]
-    local procedure Try11()
+    local procedure Try18(var vCode10: Code[10])
+    var
+        vLabelLong: Label 'abcdefghijk', Locked = true;
     begin
         Clear(vCode10);
-        PA_Code10_10(vLabelLong);
+        PA_Code10_17(vLabelLong, vCode10);
     end;
 
-    local procedure EX_Code10_11(): Code[10]
+    local procedure EX_Code10_19(): Code[10]
+    var
+        vLabelLong: Label 'abcdefghijk', Locked = true;
     begin
         exit(vLabelLong);
     end;
 
     [TryFunction]
-    local procedure Try12()
+    local procedure Try20(var vCode10: Code[10])
     begin
         Clear(vCode10);
-        vCode10 := EX_Code10_11();
+        vCode10 := EX_Code10_19();
     end;
 
     [TryFunction]
-    local procedure Try13()
+    local procedure Try21(var vCode3: Code[3])
+    var
+        vLabelLong: Label 'abcdefghijk', Locked = true;
     begin
         Clear(vCode3);
         vCode3 := vLabelLong;
     end;
 
-    local procedure PA_Code3_13(p: Code[3])
+    local procedure PA_Code3_22(p: Code[3]; var vCode3: Code[3])
     begin
         vCode3 := p;
     end;
 
     [TryFunction]
-    local procedure Try14()
+    local procedure Try23(var vCode3: Code[3])
+    var
+        vLabelLong: Label 'abcdefghijk', Locked = true;
     begin
         Clear(vCode3);
-        PA_Code3_13(vLabelLong);
+        PA_Code3_22(vLabelLong, vCode3);
     end;
 
-    local procedure EX_Code3_14(): Code[3]
+    local procedure EX_Code3_24(): Code[3]
+    var
+        vLabelLong: Label 'abcdefghijk', Locked = true;
     begin
         exit(vLabelLong);
     end;
 
     [TryFunction]
-    local procedure Try15()
+    local procedure Try25(var vCode3: Code[3])
     begin
         Clear(vCode3);
-        vCode3 := EX_Code3_14();
+        vCode3 := EX_Code3_24();
     end;
 
     [TryFunction]
-    local procedure Try16()
+    local procedure Try26(var vCode250: Code[250])
+    var
+        vLabelLong: Label 'abcdefghijk', Locked = true;
     begin
         Clear(vCode250);
         vCode250 := vLabelLong;
     end;
 
-    local procedure PA_Code250_16(p: Code[250])
+    local procedure PA_Code250_27(p: Code[250]; var vCode250: Code[250])
     begin
         vCode250 := p;
     end;
 
     [TryFunction]
-    local procedure Try17()
+    local procedure Try28(var vCode250: Code[250])
+    var
+        vLabelLong: Label 'abcdefghijk', Locked = true;
     begin
         Clear(vCode250);
-        PA_Code250_16(vLabelLong);
+        PA_Code250_27(vLabelLong, vCode250);
     end;
 
-    local procedure EX_Code250_17(): Code[250]
+    local procedure EX_Code250_29(): Code[250]
+    var
+        vLabelLong: Label 'abcdefghijk', Locked = true;
     begin
         exit(vLabelLong);
     end;
 
     [TryFunction]
-    local procedure Try18()
+    local procedure Try30(var vCode250: Code[250])
     begin
         Clear(vCode250);
-        vCode250 := EX_Code250_17();
+        vCode250 := EX_Code250_29();
     end;
 
     [TryFunction]
-    local procedure Try19()
+    local procedure Try31(var vGuid: Guid)
+    var
+        vLabelLong: Label 'abcdefghijk', Locked = true;
     begin
         Clear(vGuid);
         vGuid := vLabelLong;
     end;
 
-    local procedure PA_Guid_19(p: Guid)
+    local procedure PA_Guid_32(p: Guid; var vGuid: Guid)
     begin
         vGuid := p;
     end;
 
     [TryFunction]
-    local procedure Try20()
+    local procedure Try33(var vGuid: Guid)
+    var
+        vLabelLong: Label 'abcdefghijk', Locked = true;
     begin
         Clear(vGuid);
-        PA_Guid_19(vLabelLong);
+        PA_Guid_32(vLabelLong, vGuid);
     end;
 
-    local procedure EX_Guid_20(): Guid
+    local procedure EX_Guid_34(): Guid
+    var
+        vLabelLong: Label 'abcdefghijk', Locked = true;
     begin
         exit(vLabelLong);
     end;
 
     [TryFunction]
-    local procedure Try21()
+    local procedure Try35(var vGuid: Guid)
     begin
         Clear(vGuid);
-        vGuid := EX_Guid_20();
+        vGuid := EX_Guid_34();
     end;
 
     [TryFunction]
-    local procedure Try22()
+    local procedure Try36(var R: Record "LT Y31 Conv Fields")
+    var
+        vLabelLong: Label 'abcdefghijk', Locked = true;
     begin
         Clear(R.Text10);
         R.Text10 := vLabelLong;
     end;
 
     [TryFunction]
-    local procedure Try23()
+    local procedure Try37(var R: Record "LT Y31 Conv Fields")
+    var
+        vLabelLong: Label 'abcdefghijk', Locked = true;
     begin
         Clear(R.Code10);
         R.Code10 := vLabelLong;
     end;
 
     [TryFunction]
-    local procedure Try24()
+    local procedure Try38(var R: Record "LT Y31 Conv Fields")
+    var
+        vLabelLong: Label 'abcdefghijk', Locked = true;
     begin
         Clear(R.Guid);
         R.Guid := vLabelLong;
@@ -10424,367 +8384,200 @@ codeunit 92423 "LT Y31 Cv Guid"
     Subtype = Test;
     TestPermissions = Disabled;
 
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        vCode10: Code[10];
-        vCode250: Code[250];
-        vCode3: Code[3];
-        vGuid: Guid;
-        vText: Text;
-        vText10: Text[10];
-        vText3: Text[3];
-
     [Test]
     procedure Guid_To_Text()
+    var
+        Observer: Codeunit "Probe Observer";
+        vGuid: Guid;
+        vText: Text;
     begin
-        if Try1() then Observer.Observe('assign.null', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.null');
-        if Try2() then Observer.Observe('arg_byvalue.null', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.null');
-        if Try3() then Observer.Observe('exit.null', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.null');
+        if Try1(vGuid, vText) then Observer.Observe('assign.null', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.null');
+        if Try3(vGuid, vText) then Observer.Observe('arg_byvalue.null', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.null');
+        if Try5(vGuid, vText) then Observer.Observe('exit.null', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.null');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try1() then Observer.Observe('assign.g', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.g');
-        if Try2() then Observer.Observe('arg_byvalue.g', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.g');
-        if Try3() then Observer.Observe('exit.g', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.g');
+        if Try1(vGuid, vText) then Observer.Observe('assign.g', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.g');
+        if Try3(vGuid, vText) then Observer.Observe('arg_byvalue.g', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.g');
+        if Try5(vGuid, vText) then Observer.Observe('exit.g', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.g');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Guid_To_Text_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_To_Text_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_To_Text_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_To_Text_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_To_Text_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Guid_To_Text10()
+    var
+        Observer: Codeunit "Probe Observer";
+        vGuid: Guid;
+        vText10: Text[10];
     begin
-        if Try4() then Observer.Observe('arg_byvalue.null', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.null');
+        if Try7(vGuid, vText10) then Observer.Observe('arg_byvalue.null', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.null');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try4() then Observer.Observe('arg_byvalue.g', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.g');
+        if Try7(vGuid, vText10) then Observer.Observe('arg_byvalue.g', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.g');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Guid_To_Text10_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_To_Text10_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_To_Text10_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_To_Text10_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_To_Text10_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Guid_To_Text3()
+    var
+        Observer: Codeunit "Probe Observer";
+        vGuid: Guid;
+        vText3: Text[3];
     begin
-        if Try5() then Observer.Observe('arg_byvalue.null', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.null');
+        if Try9(vGuid, vText3) then Observer.Observe('arg_byvalue.null', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.null');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try5() then Observer.Observe('arg_byvalue.g', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.g');
+        if Try9(vGuid, vText3) then Observer.Observe('arg_byvalue.g', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.g');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Guid_To_Text3_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_To_Text3_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_To_Text3_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_To_Text3_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_To_Text3_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Guid_To_Code10()
+    var
+        Observer: Codeunit "Probe Observer";
+        vCode10: Code[10];
+        vGuid: Guid;
     begin
-        if Try6() then Observer.Observe('arg_byvalue.null', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.null');
+        if Try11(vCode10, vGuid) then Observer.Observe('arg_byvalue.null', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.null');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try6() then Observer.Observe('arg_byvalue.g', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.g');
+        if Try11(vCode10, vGuid) then Observer.Observe('arg_byvalue.g', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.g');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Guid_To_Code10_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_To_Code10_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_To_Code10_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_To_Code10_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_To_Code10_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Guid_To_Code3()
+    var
+        Observer: Codeunit "Probe Observer";
+        vCode3: Code[3];
+        vGuid: Guid;
     begin
-        if Try7() then Observer.Observe('arg_byvalue.null', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.null');
+        if Try13(vCode3, vGuid) then Observer.Observe('arg_byvalue.null', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.null');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try7() then Observer.Observe('arg_byvalue.g', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.g');
+        if Try13(vCode3, vGuid) then Observer.Observe('arg_byvalue.g', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.g');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Guid_To_Code3_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_To_Code3_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_To_Code3_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_To_Code3_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_To_Code3_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Guid_To_Code250()
+    var
+        Observer: Codeunit "Probe Observer";
+        vCode250: Code[250];
+        vGuid: Guid;
     begin
-        if Try8() then Observer.Observe('assign.null', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.null');
-        if Try9() then Observer.Observe('arg_byvalue.null', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.null');
-        if Try10() then Observer.Observe('exit.null', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.null');
+        if Try14(vCode250, vGuid) then Observer.Observe('assign.null', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.null');
+        if Try16(vCode250, vGuid) then Observer.Observe('arg_byvalue.null', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.null');
+        if Try18(vCode250, vGuid) then Observer.Observe('exit.null', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.null');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try8() then Observer.Observe('assign.g', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.g');
-        if Try9() then Observer.Observe('arg_byvalue.g', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.g');
-        if Try10() then Observer.Observe('exit.g', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.g');
+        if Try14(vCode250, vGuid) then Observer.Observe('assign.g', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.g');
+        if Try16(vCode250, vGuid) then Observer.Observe('arg_byvalue.g', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.g');
+        if Try18(vCode250, vGuid) then Observer.Observe('exit.g', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.g');
         Observer.Finish();
     end;
 
-    [Test]
-    procedure Guid_To_Code250_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_To_Code250_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_To_Code250_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_To_Code250_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_To_Code250_More5()
-    begin
-        Observer.More();
-    end;
-
     [TryFunction]
-    local procedure Try1()
+    local procedure Try1(var vGuid: Guid; var vText: Text)
     begin
         Clear(vText);
         vText := vGuid;
     end;
 
-    local procedure PA_Text_1(p: Text)
+    local procedure PA_Text_2(p: Text; var vText: Text)
     begin
         vText := p;
     end;
 
     [TryFunction]
-    local procedure Try2()
+    local procedure Try3(var vGuid: Guid; var vText: Text)
     begin
         Clear(vText);
-        PA_Text_1(vGuid);
+        PA_Text_2(vGuid, vText);
     end;
 
-    local procedure EX_Text_2(): Text
+    local procedure EX_Text_4(var vGuid: Guid): Text
     begin
         exit(vGuid);
     end;
 
     [TryFunction]
-    local procedure Try3()
+    local procedure Try5(var vGuid: Guid; var vText: Text)
     begin
         Clear(vText);
-        vText := EX_Text_2();
+        vText := EX_Text_4(vGuid);
     end;
 
-    local procedure PA_Text10_3(p: Text[10])
+    local procedure PA_Text10_6(p: Text[10]; var vText10: Text[10])
     begin
         vText10 := p;
     end;
 
     [TryFunction]
-    local procedure Try4()
+    local procedure Try7(var vGuid: Guid; var vText10: Text[10])
     begin
         Clear(vText10);
-        PA_Text10_3(vGuid);
+        PA_Text10_6(vGuid, vText10);
     end;
 
-    local procedure PA_Text3_4(p: Text[3])
+    local procedure PA_Text3_8(p: Text[3]; var vText3: Text[3])
     begin
         vText3 := p;
     end;
 
     [TryFunction]
-    local procedure Try5()
+    local procedure Try9(var vGuid: Guid; var vText3: Text[3])
     begin
         Clear(vText3);
-        PA_Text3_4(vGuid);
+        PA_Text3_8(vGuid, vText3);
     end;
 
-    local procedure PA_Code10_5(p: Code[10])
+    local procedure PA_Code10_10(p: Code[10]; var vCode10: Code[10])
     begin
         vCode10 := p;
     end;
 
     [TryFunction]
-    local procedure Try6()
+    local procedure Try11(var vCode10: Code[10]; var vGuid: Guid)
     begin
         Clear(vCode10);
-        PA_Code10_5(vGuid);
+        PA_Code10_10(vGuid, vCode10);
     end;
 
-    local procedure PA_Code3_6(p: Code[3])
+    local procedure PA_Code3_12(p: Code[3]; var vCode3: Code[3])
     begin
         vCode3 := p;
     end;
 
     [TryFunction]
-    local procedure Try7()
+    local procedure Try13(var vCode3: Code[3]; var vGuid: Guid)
     begin
         Clear(vCode3);
-        PA_Code3_6(vGuid);
+        PA_Code3_12(vGuid, vCode3);
     end;
 
     [TryFunction]
-    local procedure Try8()
+    local procedure Try14(var vCode250: Code[250]; var vGuid: Guid)
     begin
         Clear(vCode250);
         vCode250 := vGuid;
     end;
 
-    local procedure PA_Code250_8(p: Code[250])
+    local procedure PA_Code250_15(p: Code[250]; var vCode250: Code[250])
     begin
         vCode250 := p;
     end;
 
     [TryFunction]
-    local procedure Try9()
+    local procedure Try16(var vCode250: Code[250]; var vGuid: Guid)
     begin
         Clear(vCode250);
-        PA_Code250_8(vGuid);
+        PA_Code250_15(vGuid, vCode250);
     end;
 
-    local procedure EX_Code250_9(): Code[250]
+    local procedure EX_Code250_17(var vGuid: Guid): Code[250]
     begin
         exit(vGuid);
     end;
 
     [TryFunction]
-    local procedure Try10()
+    local procedure Try18(var vCode250: Code[250]; var vGuid: Guid)
     begin
         Clear(vCode250);
-        vCode250 := EX_Code250_9();
+        vCode250 := EX_Code250_17(vGuid);
     end;
 
 }
@@ -10801,747 +8594,602 @@ codeunit 92424 "LT Y31 Cv Duration"
     Subtype = Test;
     TestPermissions = Disabled;
 
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        R: Record "LT Y31 Conv Fields";
-        vBigInteger: BigInteger;
-        vByte: Byte;
-        vChar: Char;
-        vDecimal: Decimal;
-        vDuration: Duration;
-        vInteger: Integer;
-        vOption: Option A,B,C;
-
     [Test]
     procedure Duration_To_Integer()
+    var
+        Observer: Codeunit "Probe Observer";
+        vDuration: Duration;
+        vInteger: Integer;
     begin
         vDuration := 0;
-        if Try1() then Observer.Observe('assign.0', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.0');
-        if Try2() then Observer.Observe('arg_byvalue.0', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.0');
-        if Try3() then Observer.Observe('exit.0', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.0');
+        if Try1(vDuration, vInteger) then Observer.Observe('assign.0', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.0');
+        if Try3(vDuration, vInteger) then Observer.Observe('arg_byvalue.0', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.0');
+        if Try5(vDuration, vInteger) then Observer.Observe('exit.0', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.0');
         vDuration := 1;
-        if Try1() then Observer.Observe('assign.1', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.1');
-        if Try2() then Observer.Observe('arg_byvalue.1', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.1');
-        if Try3() then Observer.Observe('exit.1', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.1');
-        vDuration := 255;
-        if Try1() then Observer.Observe('assign.255', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.255');
-        if Try2() then Observer.Observe('arg_byvalue.255', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.255');
-        if Try3() then Observer.Observe('exit.255', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.255');
-        vDuration := -1;
-        if Try1() then Observer.Observe('assign.m1', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.m1');
-        if Try2() then Observer.Observe('arg_byvalue.m1', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.m1');
-        if Try3() then Observer.Observe('exit.m1', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.m1');
-        vDuration := 2147483648L;
-        if Try1() then Observer.Observe('assign.2p31', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.2p31');
-        if Try2() then Observer.Observe('arg_byvalue.2p31', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.2p31');
-        if Try3() then Observer.Observe('exit.2p31', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.2p31');
+        if Try1(vDuration, vInteger) then Observer.Observe('assign.1', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.1');
+        if Try3(vDuration, vInteger) then Observer.Observe('arg_byvalue.1', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.1');
+        if Try5(vDuration, vInteger) then Observer.Observe('exit.1', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.1');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Duration_To_Integer_More1()
+    procedure Duration_To_Integer_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vDuration: Duration;
+        vInteger: Integer;
     begin
-        Observer.More();
+        vDuration := 255;
+        if Try1(vDuration, vInteger) then Observer.Observe('assign.255', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.255');
+        if Try3(vDuration, vInteger) then Observer.Observe('arg_byvalue.255', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.255');
+        if Try5(vDuration, vInteger) then Observer.Observe('exit.255', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.255');
+        vDuration := -1;
+        if Try1(vDuration, vInteger) then Observer.Observe('assign.m1', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.m1');
+        if Try3(vDuration, vInteger) then Observer.Observe('arg_byvalue.m1', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.m1');
+        if Try5(vDuration, vInteger) then Observer.Observe('exit.m1', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.m1');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Duration_To_Integer_More2()
+    procedure Duration_To_Integer_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        vDuration: Duration;
+        vInteger: Integer;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_To_Integer_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_To_Integer_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_To_Integer_More5()
-    begin
-        Observer.More();
+        vDuration := 2147483648L;
+        if Try1(vDuration, vInteger) then Observer.Observe('assign.2p31', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.2p31');
+        if Try3(vDuration, vInteger) then Observer.Observe('arg_byvalue.2p31', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.2p31');
+        if Try5(vDuration, vInteger) then Observer.Observe('exit.2p31', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.2p31');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Duration_To_BigInteger()
+    var
+        Observer: Codeunit "Probe Observer";
+        vBigInteger: BigInteger;
+        vDuration: Duration;
     begin
         vDuration := 0;
-        if Try4() then Observer.Observe('assign.0', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.0');
-        if Try5() then Observer.Observe('arg_byvalue.0', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.0');
-        if Try6() then Observer.Observe('exit.0', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.0');
+        if Try6(vBigInteger, vDuration) then Observer.Observe('assign.0', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.0');
+        if Try8(vBigInteger, vDuration) then Observer.Observe('arg_byvalue.0', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.0');
+        if Try10(vBigInteger, vDuration) then Observer.Observe('exit.0', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.0');
         vDuration := 1;
-        if Try4() then Observer.Observe('assign.1', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.1');
-        if Try5() then Observer.Observe('arg_byvalue.1', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.1');
-        if Try6() then Observer.Observe('exit.1', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.1');
-        vDuration := 255;
-        if Try4() then Observer.Observe('assign.255', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.255');
-        if Try5() then Observer.Observe('arg_byvalue.255', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.255');
-        if Try6() then Observer.Observe('exit.255', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.255');
-        vDuration := -1;
-        if Try4() then Observer.Observe('assign.m1', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.m1');
-        if Try5() then Observer.Observe('arg_byvalue.m1', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.m1');
-        if Try6() then Observer.Observe('exit.m1', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.m1');
-        vDuration := 2147483648L;
-        if Try4() then Observer.Observe('assign.2p31', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.2p31');
-        if Try5() then Observer.Observe('arg_byvalue.2p31', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.2p31');
-        if Try6() then Observer.Observe('exit.2p31', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.2p31');
+        if Try6(vBigInteger, vDuration) then Observer.Observe('assign.1', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.1');
+        if Try8(vBigInteger, vDuration) then Observer.Observe('arg_byvalue.1', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.1');
+        if Try10(vBigInteger, vDuration) then Observer.Observe('exit.1', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.1');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Duration_To_BigInteger_More1()
+    procedure Duration_To_BigInteger_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vBigInteger: BigInteger;
+        vDuration: Duration;
     begin
-        Observer.More();
+        vDuration := 255;
+        if Try6(vBigInteger, vDuration) then Observer.Observe('assign.255', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.255');
+        if Try8(vBigInteger, vDuration) then Observer.Observe('arg_byvalue.255', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.255');
+        if Try10(vBigInteger, vDuration) then Observer.Observe('exit.255', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.255');
+        vDuration := -1;
+        if Try6(vBigInteger, vDuration) then Observer.Observe('assign.m1', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.m1');
+        if Try8(vBigInteger, vDuration) then Observer.Observe('arg_byvalue.m1', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.m1');
+        if Try10(vBigInteger, vDuration) then Observer.Observe('exit.m1', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.m1');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Duration_To_BigInteger_More2()
+    procedure Duration_To_BigInteger_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        vBigInteger: BigInteger;
+        vDuration: Duration;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_To_BigInteger_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_To_BigInteger_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_To_BigInteger_More5()
-    begin
-        Observer.More();
+        vDuration := 2147483648L;
+        if Try6(vBigInteger, vDuration) then Observer.Observe('assign.2p31', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.2p31');
+        if Try8(vBigInteger, vDuration) then Observer.Observe('arg_byvalue.2p31', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.2p31');
+        if Try10(vBigInteger, vDuration) then Observer.Observe('exit.2p31', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.2p31');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Duration_To_Decimal()
+    var
+        Observer: Codeunit "Probe Observer";
+        vDecimal: Decimal;
+        vDuration: Duration;
     begin
         vDuration := 0;
-        if Try7() then Observer.Observe('assign.0', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.0');
-        if Try8() then Observer.Observe('arg_byvalue.0', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.0');
-        if Try9() then Observer.Observe('exit.0', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.0');
+        if Try11(vDecimal, vDuration) then Observer.Observe('assign.0', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.0');
+        if Try13(vDecimal, vDuration) then Observer.Observe('arg_byvalue.0', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.0');
+        if Try15(vDecimal, vDuration) then Observer.Observe('exit.0', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.0');
         vDuration := 1;
-        if Try7() then Observer.Observe('assign.1', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.1');
-        if Try8() then Observer.Observe('arg_byvalue.1', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.1');
-        if Try9() then Observer.Observe('exit.1', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.1');
-        vDuration := 255;
-        if Try7() then Observer.Observe('assign.255', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.255');
-        if Try8() then Observer.Observe('arg_byvalue.255', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.255');
-        if Try9() then Observer.Observe('exit.255', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.255');
-        vDuration := -1;
-        if Try7() then Observer.Observe('assign.m1', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.m1');
-        if Try8() then Observer.Observe('arg_byvalue.m1', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.m1');
-        if Try9() then Observer.Observe('exit.m1', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.m1');
-        vDuration := 2147483648L;
-        if Try7() then Observer.Observe('assign.2p31', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.2p31');
-        if Try8() then Observer.Observe('arg_byvalue.2p31', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.2p31');
-        if Try9() then Observer.Observe('exit.2p31', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.2p31');
+        if Try11(vDecimal, vDuration) then Observer.Observe('assign.1', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.1');
+        if Try13(vDecimal, vDuration) then Observer.Observe('arg_byvalue.1', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.1');
+        if Try15(vDecimal, vDuration) then Observer.Observe('exit.1', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.1');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Duration_To_Decimal_More1()
+    procedure Duration_To_Decimal_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vDecimal: Decimal;
+        vDuration: Duration;
     begin
-        Observer.More();
+        vDuration := 255;
+        if Try11(vDecimal, vDuration) then Observer.Observe('assign.255', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.255');
+        if Try13(vDecimal, vDuration) then Observer.Observe('arg_byvalue.255', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.255');
+        if Try15(vDecimal, vDuration) then Observer.Observe('exit.255', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.255');
+        vDuration := -1;
+        if Try11(vDecimal, vDuration) then Observer.Observe('assign.m1', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.m1');
+        if Try13(vDecimal, vDuration) then Observer.Observe('arg_byvalue.m1', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.m1');
+        if Try15(vDecimal, vDuration) then Observer.Observe('exit.m1', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.m1');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Duration_To_Decimal_More2()
+    procedure Duration_To_Decimal_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        vDecimal: Decimal;
+        vDuration: Duration;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_To_Decimal_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_To_Decimal_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_To_Decimal_More5()
-    begin
-        Observer.More();
+        vDuration := 2147483648L;
+        if Try11(vDecimal, vDuration) then Observer.Observe('assign.2p31', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.2p31');
+        if Try13(vDecimal, vDuration) then Observer.Observe('arg_byvalue.2p31', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.2p31');
+        if Try15(vDecimal, vDuration) then Observer.Observe('exit.2p31', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.2p31');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Duration_To_Char()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vChar: Char;
+        vDuration: Duration;
     begin
         vDuration := 0;
-        if Try10() then Observer.Observe('assign.0', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.0');
-        if Try11() then Observer.Observe('arg_byvalue.0', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.0');
-        if Try12() then Observer.Observe('exit.0', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.0');
+        if Try16(vChar, vDuration) then Observer.Observe('assign.0', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.0');
+        if Try18(vChar, vDuration) then Observer.Observe('arg_byvalue.0', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.0');
+        if Try20(vChar, vDuration) then Observer.Observe('exit.0', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.0');
         vDuration := 1;
-        if Try10() then Observer.Observe('assign.1', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.1');
-        if Try11() then Observer.Observe('arg_byvalue.1', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.1');
-        if Try12() then Observer.Observe('exit.1', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.1');
-        vDuration := 255;
-        if Try10() then Observer.Observe('assign.255', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.255');
-        if Try11() then Observer.Observe('arg_byvalue.255', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.255');
-        if Try12() then Observer.Observe('exit.255', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.255');
-        vDuration := -1;
-        if Try10() then Observer.Observe('assign.m1', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.m1');
-        if Try11() then Observer.Observe('arg_byvalue.m1', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.m1');
-        if Try12() then Observer.Observe('exit.m1', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.m1');
-        vDuration := 2147483648L;
-        if Try10() then Observer.Observe('assign.2p31', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.2p31');
-        if Try11() then Observer.Observe('arg_byvalue.2p31', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.2p31');
-        if Try12() then Observer.Observe('exit.2p31', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.2p31');
+        if Try16(vChar, vDuration) then Observer.Observe('assign.1', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.1');
+        if Try18(vChar, vDuration) then Observer.Observe('arg_byvalue.1', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.1');
+        if Try20(vChar, vDuration) then Observer.Observe('exit.1', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.1');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Duration_To_Char_More1()
+    procedure Duration_To_Char_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vChar: Char;
+        vDuration: Duration;
     begin
-        Observer.More();
+        vDuration := 255;
+        if Try16(vChar, vDuration) then Observer.Observe('assign.255', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.255');
+        if Try18(vChar, vDuration) then Observer.Observe('arg_byvalue.255', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.255');
+        if Try20(vChar, vDuration) then Observer.Observe('exit.255', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.255');
+        vDuration := -1;
+        if Try16(vChar, vDuration) then Observer.Observe('assign.m1', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.m1');
+        if Try18(vChar, vDuration) then Observer.Observe('arg_byvalue.m1', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.m1');
+        if Try20(vChar, vDuration) then Observer.Observe('exit.m1', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.m1');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Duration_To_Char_More2()
+    procedure Duration_To_Char_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vChar: Char;
+        vDuration: Duration;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_To_Char_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_To_Char_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_To_Char_More5()
-    begin
-        Observer.More();
+        vDuration := 2147483648L;
+        if Try16(vChar, vDuration) then Observer.Observe('assign.2p31', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.2p31');
+        if Try18(vChar, vDuration) then Observer.Observe('arg_byvalue.2p31', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.2p31');
+        if Try20(vChar, vDuration) then Observer.Observe('exit.2p31', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.2p31');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Duration_To_Byte()
+    var
+        Observer: Codeunit "Probe Observer";
+        vByte: Byte;
+        vDuration: Duration;
     begin
         vDuration := 0;
-        if Try13() then Observer.Observe('assign.0', Format(vByte, 0, 9)) else Observer.ObserveError('assign.0');
-        if Try14() then Observer.Observe('arg_byvalue.0', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.0');
-        if Try15() then Observer.Observe('exit.0', Format(vByte, 0, 9)) else Observer.ObserveError('exit.0');
+        if Try21(vByte, vDuration) then Observer.Observe('assign.0', Format(vByte, 0, 9)) else Observer.ObserveError('assign.0');
+        if Try23(vByte, vDuration) then Observer.Observe('arg_byvalue.0', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.0');
+        if Try25(vByte, vDuration) then Observer.Observe('exit.0', Format(vByte, 0, 9)) else Observer.ObserveError('exit.0');
         vDuration := 1;
-        if Try13() then Observer.Observe('assign.1', Format(vByte, 0, 9)) else Observer.ObserveError('assign.1');
-        if Try14() then Observer.Observe('arg_byvalue.1', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.1');
-        if Try15() then Observer.Observe('exit.1', Format(vByte, 0, 9)) else Observer.ObserveError('exit.1');
-        vDuration := 255;
-        if Try13() then Observer.Observe('assign.255', Format(vByte, 0, 9)) else Observer.ObserveError('assign.255');
-        if Try14() then Observer.Observe('arg_byvalue.255', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.255');
-        if Try15() then Observer.Observe('exit.255', Format(vByte, 0, 9)) else Observer.ObserveError('exit.255');
-        vDuration := -1;
-        if Try13() then Observer.Observe('assign.m1', Format(vByte, 0, 9)) else Observer.ObserveError('assign.m1');
-        if Try14() then Observer.Observe('arg_byvalue.m1', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.m1');
-        if Try15() then Observer.Observe('exit.m1', Format(vByte, 0, 9)) else Observer.ObserveError('exit.m1');
-        vDuration := 2147483648L;
-        if Try13() then Observer.Observe('assign.2p31', Format(vByte, 0, 9)) else Observer.ObserveError('assign.2p31');
-        if Try14() then Observer.Observe('arg_byvalue.2p31', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.2p31');
-        if Try15() then Observer.Observe('exit.2p31', Format(vByte, 0, 9)) else Observer.ObserveError('exit.2p31');
+        if Try21(vByte, vDuration) then Observer.Observe('assign.1', Format(vByte, 0, 9)) else Observer.ObserveError('assign.1');
+        if Try23(vByte, vDuration) then Observer.Observe('arg_byvalue.1', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.1');
+        if Try25(vByte, vDuration) then Observer.Observe('exit.1', Format(vByte, 0, 9)) else Observer.ObserveError('exit.1');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Duration_To_Byte_More1()
+    procedure Duration_To_Byte_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vByte: Byte;
+        vDuration: Duration;
     begin
-        Observer.More();
+        vDuration := 255;
+        if Try21(vByte, vDuration) then Observer.Observe('assign.255', Format(vByte, 0, 9)) else Observer.ObserveError('assign.255');
+        if Try23(vByte, vDuration) then Observer.Observe('arg_byvalue.255', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.255');
+        if Try25(vByte, vDuration) then Observer.Observe('exit.255', Format(vByte, 0, 9)) else Observer.ObserveError('exit.255');
+        vDuration := -1;
+        if Try21(vByte, vDuration) then Observer.Observe('assign.m1', Format(vByte, 0, 9)) else Observer.ObserveError('assign.m1');
+        if Try23(vByte, vDuration) then Observer.Observe('arg_byvalue.m1', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.m1');
+        if Try25(vByte, vDuration) then Observer.Observe('exit.m1', Format(vByte, 0, 9)) else Observer.ObserveError('exit.m1');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Duration_To_Byte_More2()
+    procedure Duration_To_Byte_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        vByte: Byte;
+        vDuration: Duration;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_To_Byte_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_To_Byte_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_To_Byte_More5()
-    begin
-        Observer.More();
+        vDuration := 2147483648L;
+        if Try21(vByte, vDuration) then Observer.Observe('assign.2p31', Format(vByte, 0, 9)) else Observer.ObserveError('assign.2p31');
+        if Try23(vByte, vDuration) then Observer.Observe('arg_byvalue.2p31', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.2p31');
+        if Try25(vByte, vDuration) then Observer.Observe('exit.2p31', Format(vByte, 0, 9)) else Observer.ObserveError('exit.2p31');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Duration_To_Option()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vDuration: Duration;
+        vOption: Option A,B,C;
     begin
         vDuration := 0;
-        if Try16() then Observer.Observe('assign.0', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.0');
-        if Try17() then Observer.Observe('arg_byvalue.0', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.0');
-        if Try18() then Observer.Observe('exit.0', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.0');
+        if Try26(vDuration, vOption) then Observer.Observe('assign.0', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.0');
+        if Try28(vDuration, vOption) then Observer.Observe('arg_byvalue.0', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.0');
+        if Try30(vDuration, vOption) then Observer.Observe('exit.0', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.0');
         vDuration := 1;
-        if Try16() then Observer.Observe('assign.1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.1');
-        if Try17() then Observer.Observe('arg_byvalue.1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.1');
-        if Try18() then Observer.Observe('exit.1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.1');
-        vDuration := 255;
-        if Try16() then Observer.Observe('assign.255', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.255');
-        if Try17() then Observer.Observe('arg_byvalue.255', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.255');
-        if Try18() then Observer.Observe('exit.255', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.255');
-        vDuration := -1;
-        if Try16() then Observer.Observe('assign.m1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.m1');
-        if Try17() then Observer.Observe('arg_byvalue.m1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.m1');
-        if Try18() then Observer.Observe('exit.m1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.m1');
-        vDuration := 2147483648L;
-        if Try16() then Observer.Observe('assign.2p31', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.2p31');
-        if Try17() then Observer.Observe('arg_byvalue.2p31', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.2p31');
-        if Try18() then Observer.Observe('exit.2p31', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.2p31');
+        if Try26(vDuration, vOption) then Observer.Observe('assign.1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.1');
+        if Try28(vDuration, vOption) then Observer.Observe('arg_byvalue.1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.1');
+        if Try30(vDuration, vOption) then Observer.Observe('exit.1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.1');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Duration_To_Option_More1()
+    procedure Duration_To_Option_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vDuration: Duration;
+        vOption: Option A,B,C;
     begin
-        Observer.More();
+        vDuration := 255;
+        if Try26(vDuration, vOption) then Observer.Observe('assign.255', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.255');
+        if Try28(vDuration, vOption) then Observer.Observe('arg_byvalue.255', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.255');
+        if Try30(vDuration, vOption) then Observer.Observe('exit.255', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.255');
+        vDuration := -1;
+        if Try26(vDuration, vOption) then Observer.Observe('assign.m1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.m1');
+        if Try28(vDuration, vOption) then Observer.Observe('arg_byvalue.m1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.m1');
+        if Try30(vDuration, vOption) then Observer.Observe('exit.m1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.m1');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Duration_To_Option_More2()
+    procedure Duration_To_Option_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vDuration: Duration;
+        vOption: Option A,B,C;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_To_Option_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_To_Option_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_To_Option_More5()
-    begin
-        Observer.More();
+        vDuration := 2147483648L;
+        if Try26(vDuration, vOption) then Observer.Observe('assign.2p31', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.2p31');
+        if Try28(vDuration, vOption) then Observer.Observe('arg_byvalue.2p31', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.2p31');
+        if Try30(vDuration, vOption) then Observer.Observe('exit.2p31', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.2p31');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Duration_To_FInteger()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
+        vDuration: Duration;
     begin
         vDuration := 0;
-        if Try19() then Observer.Observe('assign.0', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.0');
+        if Try31(R, vDuration) then Observer.Observe('assign.0', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.0');
         vDuration := 1;
-        if Try19() then Observer.Observe('assign.1', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.1');
+        if Try31(R, vDuration) then Observer.Observe('assign.1', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.1');
         vDuration := 255;
-        if Try19() then Observer.Observe('assign.255', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.255');
+        if Try31(R, vDuration) then Observer.Observe('assign.255', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.255');
         vDuration := -1;
-        if Try19() then Observer.Observe('assign.m1', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.m1');
+        if Try31(R, vDuration) then Observer.Observe('assign.m1', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.m1');
         vDuration := 2147483648L;
-        if Try19() then Observer.Observe('assign.2p31', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.2p31');
+        if Try31(R, vDuration) then Observer.Observe('assign.2p31', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.2p31');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Duration_To_FInteger_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_To_FInteger_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_To_FInteger_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_To_FInteger_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_To_FInteger_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Duration_To_FBigInteger()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
+        vDuration: Duration;
     begin
         vDuration := 0;
-        if Try20() then Observer.Observe('assign.0', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.0');
+        if Try32(R, vDuration) then Observer.Observe('assign.0', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.0');
         vDuration := 1;
-        if Try20() then Observer.Observe('assign.1', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.1');
+        if Try32(R, vDuration) then Observer.Observe('assign.1', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.1');
         vDuration := 255;
-        if Try20() then Observer.Observe('assign.255', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.255');
+        if Try32(R, vDuration) then Observer.Observe('assign.255', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.255');
         vDuration := -1;
-        if Try20() then Observer.Observe('assign.m1', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.m1');
+        if Try32(R, vDuration) then Observer.Observe('assign.m1', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.m1');
         vDuration := 2147483648L;
-        if Try20() then Observer.Observe('assign.2p31', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.2p31');
+        if Try32(R, vDuration) then Observer.Observe('assign.2p31', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.2p31');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Duration_To_FBigInteger_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_To_FBigInteger_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_To_FBigInteger_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_To_FBigInteger_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_To_FBigInteger_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Duration_To_FDecimal()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
+        vDuration: Duration;
     begin
         vDuration := 0;
-        if Try21() then Observer.Observe('assign.0', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.0');
+        if Try33(R, vDuration) then Observer.Observe('assign.0', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.0');
         vDuration := 1;
-        if Try21() then Observer.Observe('assign.1', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.1');
+        if Try33(R, vDuration) then Observer.Observe('assign.1', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.1');
         vDuration := 255;
-        if Try21() then Observer.Observe('assign.255', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.255');
+        if Try33(R, vDuration) then Observer.Observe('assign.255', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.255');
         vDuration := -1;
-        if Try21() then Observer.Observe('assign.m1', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.m1');
+        if Try33(R, vDuration) then Observer.Observe('assign.m1', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.m1');
         vDuration := 2147483648L;
-        if Try21() then Observer.Observe('assign.2p31', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.2p31');
+        if Try33(R, vDuration) then Observer.Observe('assign.2p31', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.2p31');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Duration_To_FDecimal_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_To_FDecimal_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_To_FDecimal_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_To_FDecimal_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_To_FDecimal_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Duration_To_FOption()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
+        Util: Codeunit "LT Y31 Conv Util";
+        vDuration: Duration;
     begin
         vDuration := 0;
-        if Try22() then Observer.Observe('assign.0', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.0');
+        if Try34(R, vDuration) then Observer.Observe('assign.0', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.0');
         vDuration := 1;
-        if Try22() then Observer.Observe('assign.1', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.1');
+        if Try34(R, vDuration) then Observer.Observe('assign.1', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.1');
         vDuration := 255;
-        if Try22() then Observer.Observe('assign.255', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.255');
+        if Try34(R, vDuration) then Observer.Observe('assign.255', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.255');
         vDuration := -1;
-        if Try22() then Observer.Observe('assign.m1', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.m1');
+        if Try34(R, vDuration) then Observer.Observe('assign.m1', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.m1');
         vDuration := 2147483648L;
-        if Try22() then Observer.Observe('assign.2p31', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.2p31');
+        if Try34(R, vDuration) then Observer.Observe('assign.2p31', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.2p31');
         Observer.Finish();
     end;
 
-    [Test]
-    procedure Duration_To_FOption_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_To_FOption_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_To_FOption_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_To_FOption_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_To_FOption_More5()
-    begin
-        Observer.More();
-    end;
-
     [TryFunction]
-    local procedure Try1()
+    local procedure Try1(var vDuration: Duration; var vInteger: Integer)
     begin
         Clear(vInteger);
         vInteger := vDuration;
     end;
 
-    local procedure PA_Integer_1(p: Integer)
+    local procedure PA_Integer_2(p: Integer; var vInteger: Integer)
     begin
         vInteger := p;
     end;
 
     [TryFunction]
-    local procedure Try2()
+    local procedure Try3(var vDuration: Duration; var vInteger: Integer)
     begin
         Clear(vInteger);
-        PA_Integer_1(vDuration);
+        PA_Integer_2(vDuration, vInteger);
     end;
 
-    local procedure EX_Integer_2(): Integer
+    local procedure EX_Integer_4(var vDuration: Duration): Integer
     begin
         exit(vDuration);
     end;
 
     [TryFunction]
-    local procedure Try3()
+    local procedure Try5(var vDuration: Duration; var vInteger: Integer)
     begin
         Clear(vInteger);
-        vInteger := EX_Integer_2();
+        vInteger := EX_Integer_4(vDuration);
     end;
 
     [TryFunction]
-    local procedure Try4()
+    local procedure Try6(var vBigInteger: BigInteger; var vDuration: Duration)
     begin
         Clear(vBigInteger);
         vBigInteger := vDuration;
     end;
 
-    local procedure PA_BigInteger_4(p: BigInteger)
+    local procedure PA_BigInteger_7(p: BigInteger; var vBigInteger: BigInteger)
     begin
         vBigInteger := p;
     end;
 
     [TryFunction]
-    local procedure Try5()
+    local procedure Try8(var vBigInteger: BigInteger; var vDuration: Duration)
     begin
         Clear(vBigInteger);
-        PA_BigInteger_4(vDuration);
+        PA_BigInteger_7(vDuration, vBigInteger);
     end;
 
-    local procedure EX_BigInteger_5(): BigInteger
+    local procedure EX_BigInteger_9(var vDuration: Duration): BigInteger
     begin
         exit(vDuration);
     end;
 
     [TryFunction]
-    local procedure Try6()
+    local procedure Try10(var vBigInteger: BigInteger; var vDuration: Duration)
     begin
         Clear(vBigInteger);
-        vBigInteger := EX_BigInteger_5();
+        vBigInteger := EX_BigInteger_9(vDuration);
     end;
 
     [TryFunction]
-    local procedure Try7()
+    local procedure Try11(var vDecimal: Decimal; var vDuration: Duration)
     begin
         Clear(vDecimal);
         vDecimal := vDuration;
     end;
 
-    local procedure PA_Decimal_7(p: Decimal)
+    local procedure PA_Decimal_12(p: Decimal; var vDecimal: Decimal)
     begin
         vDecimal := p;
     end;
 
     [TryFunction]
-    local procedure Try8()
+    local procedure Try13(var vDecimal: Decimal; var vDuration: Duration)
     begin
         Clear(vDecimal);
-        PA_Decimal_7(vDuration);
+        PA_Decimal_12(vDuration, vDecimal);
     end;
 
-    local procedure EX_Decimal_8(): Decimal
+    local procedure EX_Decimal_14(var vDuration: Duration): Decimal
     begin
         exit(vDuration);
     end;
 
     [TryFunction]
-    local procedure Try9()
+    local procedure Try15(var vDecimal: Decimal; var vDuration: Duration)
     begin
         Clear(vDecimal);
-        vDecimal := EX_Decimal_8();
+        vDecimal := EX_Decimal_14(vDuration);
     end;
 
     [TryFunction]
-    local procedure Try10()
+    local procedure Try16(var vChar: Char; var vDuration: Duration)
     begin
         Clear(vChar);
         vChar := vDuration;
     end;
 
-    local procedure PA_Char_10(p: Char)
+    local procedure PA_Char_17(p: Char; var vChar: Char)
     begin
         vChar := p;
     end;
 
     [TryFunction]
-    local procedure Try11()
+    local procedure Try18(var vChar: Char; var vDuration: Duration)
     begin
         Clear(vChar);
-        PA_Char_10(vDuration);
+        PA_Char_17(vDuration, vChar);
     end;
 
-    local procedure EX_Char_11(): Char
+    local procedure EX_Char_19(var vDuration: Duration): Char
     begin
         exit(vDuration);
     end;
 
     [TryFunction]
-    local procedure Try12()
+    local procedure Try20(var vChar: Char; var vDuration: Duration)
     begin
         Clear(vChar);
-        vChar := EX_Char_11();
+        vChar := EX_Char_19(vDuration);
     end;
 
     [TryFunction]
-    local procedure Try13()
+    local procedure Try21(var vByte: Byte; var vDuration: Duration)
     begin
         Clear(vByte);
         vByte := vDuration;
     end;
 
-    local procedure PA_Byte_13(p: Byte)
+    local procedure PA_Byte_22(p: Byte; var vByte: Byte)
     begin
         vByte := p;
     end;
 
     [TryFunction]
-    local procedure Try14()
+    local procedure Try23(var vByte: Byte; var vDuration: Duration)
     begin
         Clear(vByte);
-        PA_Byte_13(vDuration);
+        PA_Byte_22(vDuration, vByte);
     end;
 
-    local procedure EX_Byte_14(): Byte
+    local procedure EX_Byte_24(var vDuration: Duration): Byte
     begin
         exit(vDuration);
     end;
 
     [TryFunction]
-    local procedure Try15()
+    local procedure Try25(var vByte: Byte; var vDuration: Duration)
     begin
         Clear(vByte);
-        vByte := EX_Byte_14();
+        vByte := EX_Byte_24(vDuration);
     end;
 
     [TryFunction]
-    local procedure Try16()
+    local procedure Try26(var vDuration: Duration; var vOption: Option A,B,C)
     begin
         Clear(vOption);
         vOption := vDuration;
     end;
 
-    local procedure PA_Option_16(p: Option A,B,C)
+    local procedure PA_Option_27(p: Option A,B,C; var vOption: Option A,B,C)
     begin
         vOption := p;
     end;
 
     [TryFunction]
-    local procedure Try17()
+    local procedure Try28(var vDuration: Duration; var vOption: Option A,B,C)
     begin
         Clear(vOption);
-        PA_Option_16(vDuration);
+        PA_Option_27(vDuration, vOption);
     end;
 
-    local procedure EX_Option_17(): Option A,B,C
+    local procedure EX_Option_29(var vDuration: Duration): Option A,B,C
     begin
         exit(vDuration);
     end;
 
     [TryFunction]
-    local procedure Try18()
+    local procedure Try30(var vDuration: Duration; var vOption: Option A,B,C)
     begin
         Clear(vOption);
-        vOption := EX_Option_17();
+        vOption := EX_Option_29(vDuration);
     end;
 
     [TryFunction]
-    local procedure Try19()
+    local procedure Try31(var R: Record "LT Y31 Conv Fields"; var vDuration: Duration)
     begin
         Clear(R.Integer);
         R.Integer := vDuration;
     end;
 
     [TryFunction]
-    local procedure Try20()
+    local procedure Try32(var R: Record "LT Y31 Conv Fields"; var vDuration: Duration)
     begin
         Clear(R.BigInteger);
         R.BigInteger := vDuration;
     end;
 
     [TryFunction]
-    local procedure Try21()
+    local procedure Try33(var R: Record "LT Y31 Conv Fields"; var vDuration: Duration)
     begin
         Clear(R.Decimal);
         R.Decimal := vDuration;
     end;
 
     [TryFunction]
-    local procedure Try22()
+    local procedure Try34(var R: Record "LT Y31 Conv Fields"; var vDuration: Duration)
     begin
         Clear(R.Option);
         R.Option := vDuration;
@@ -11561,4414 +9209,2404 @@ codeunit 92425 "LT Y31 Cv Literals"
     Subtype = Test;
     TestPermissions = Disabled;
 
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        R: Record "LT Y31 Conv Fields";
-        vBigInteger: BigInteger;
-        vByte: Byte;
-        vChar: Char;
-        vCode10: Code[10];
-        vCode250: Code[250];
-        vCode3: Code[3];
-        vDecimal: Decimal;
-        vDuration: Duration;
-        vEnum: Enum "LT Y31 E";
-        vEnumImpl: Enum "LT Y31 EI";
-        vGuid: Guid;
-        vInteger: Integer;
-        vOption: Option A,B,C;
-        vText: Text;
-        vText10: Text[10];
-        vText3: Text[3];
-
     [Test]
     procedure LitDecimal_To_Integer()
+    var
+        Observer: Codeunit "Probe Observer";
+        vInteger: Integer;
     begin
-        if Try1() then Observer.Observe('assign.dec1p5', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.dec1p5');
-        if Try2() then Observer.Observe('arg_byvalue.dec1p5', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.dec1p5');
-        if Try3() then Observer.Observe('exit.dec1p5', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.dec1p5');
+        if Try1(vInteger) then Observer.Observe('assign.dec1p5', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.dec1p5');
+        if Try3(vInteger) then Observer.Observe('arg_byvalue.dec1p5', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.dec1p5');
+        if Try5(vInteger) then Observer.Observe('exit.dec1p5', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.dec1p5');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitDecimal_To_Integer_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitDecimal_To_Integer_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitDecimal_To_Integer_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitDecimal_To_Integer_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitDecimal_To_Integer_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitDecimal_To_BigInteger()
+    var
+        Observer: Codeunit "Probe Observer";
+        vBigInteger: BigInteger;
     begin
-        if Try4() then Observer.Observe('assign.dec1p5', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.dec1p5');
-        if Try5() then Observer.Observe('arg_byvalue.dec1p5', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.dec1p5');
-        if Try6() then Observer.Observe('exit.dec1p5', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.dec1p5');
+        if Try6(vBigInteger) then Observer.Observe('assign.dec1p5', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.dec1p5');
+        if Try8(vBigInteger) then Observer.Observe('arg_byvalue.dec1p5', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.dec1p5');
+        if Try10(vBigInteger) then Observer.Observe('exit.dec1p5', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.dec1p5');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitDecimal_To_BigInteger_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitDecimal_To_BigInteger_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitDecimal_To_BigInteger_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitDecimal_To_BigInteger_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitDecimal_To_BigInteger_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitDecimal_To_Decimal()
+    var
+        Observer: Codeunit "Probe Observer";
+        vDecimal: Decimal;
     begin
-        if Try7() then Observer.Observe('assign.dec1p5', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.dec1p5');
-        if Try8() then Observer.Observe('arg_byvalue.dec1p5', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.dec1p5');
-        if Try9() then Observer.Observe('exit.dec1p5', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.dec1p5');
+        if Try11(vDecimal) then Observer.Observe('assign.dec1p5', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.dec1p5');
+        if Try13(vDecimal) then Observer.Observe('arg_byvalue.dec1p5', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.dec1p5');
+        if Try15(vDecimal) then Observer.Observe('exit.dec1p5', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.dec1p5');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitDecimal_To_Decimal_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitDecimal_To_Decimal_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitDecimal_To_Decimal_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitDecimal_To_Decimal_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitDecimal_To_Decimal_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitDecimal_To_Char()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vChar: Char;
     begin
-        if Try10() then Observer.Observe('assign.dec1p5', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.dec1p5');
-        if Try11() then Observer.Observe('arg_byvalue.dec1p5', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.dec1p5');
-        if Try12() then Observer.Observe('exit.dec1p5', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.dec1p5');
+        if Try16(vChar) then Observer.Observe('assign.dec1p5', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.dec1p5');
+        if Try18(vChar) then Observer.Observe('arg_byvalue.dec1p5', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.dec1p5');
+        if Try20(vChar) then Observer.Observe('exit.dec1p5', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.dec1p5');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitDecimal_To_Char_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitDecimal_To_Char_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitDecimal_To_Char_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitDecimal_To_Char_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitDecimal_To_Char_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitDecimal_To_Byte()
+    var
+        Observer: Codeunit "Probe Observer";
+        vByte: Byte;
     begin
-        if Try13() then Observer.Observe('assign.dec1p5', Format(vByte, 0, 9)) else Observer.ObserveError('assign.dec1p5');
-        if Try14() then Observer.Observe('arg_byvalue.dec1p5', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.dec1p5');
-        if Try15() then Observer.Observe('exit.dec1p5', Format(vByte, 0, 9)) else Observer.ObserveError('exit.dec1p5');
+        if Try21(vByte) then Observer.Observe('assign.dec1p5', Format(vByte, 0, 9)) else Observer.ObserveError('assign.dec1p5');
+        if Try23(vByte) then Observer.Observe('arg_byvalue.dec1p5', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.dec1p5');
+        if Try25(vByte) then Observer.Observe('exit.dec1p5', Format(vByte, 0, 9)) else Observer.ObserveError('exit.dec1p5');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitDecimal_To_Byte_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitDecimal_To_Byte_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitDecimal_To_Byte_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitDecimal_To_Byte_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitDecimal_To_Byte_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitDecimal_To_Duration()
+    var
+        Observer: Codeunit "Probe Observer";
+        vDuration: Duration;
     begin
-        if Try16() then Observer.Observe('assign.dec1p5', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.dec1p5');
-        if Try17() then Observer.Observe('arg_byvalue.dec1p5', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.dec1p5');
-        if Try18() then Observer.Observe('exit.dec1p5', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.dec1p5');
+        if Try26(vDuration) then Observer.Observe('assign.dec1p5', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.dec1p5');
+        if Try28(vDuration) then Observer.Observe('arg_byvalue.dec1p5', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.dec1p5');
+        if Try30(vDuration) then Observer.Observe('exit.dec1p5', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.dec1p5');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitDecimal_To_Duration_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitDecimal_To_Duration_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitDecimal_To_Duration_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitDecimal_To_Duration_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitDecimal_To_Duration_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitDecimal_To_FInteger()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
     begin
-        if Try19() then Observer.Observe('assign.dec1p5', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.dec1p5');
+        if Try31(R) then Observer.Observe('assign.dec1p5', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.dec1p5');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitDecimal_To_FInteger_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitDecimal_To_FInteger_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitDecimal_To_FInteger_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitDecimal_To_FInteger_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitDecimal_To_FInteger_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitDecimal_To_FBigInteger()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
     begin
-        if Try20() then Observer.Observe('assign.dec1p5', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.dec1p5');
+        if Try32(R) then Observer.Observe('assign.dec1p5', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.dec1p5');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitDecimal_To_FBigInteger_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitDecimal_To_FBigInteger_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitDecimal_To_FBigInteger_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitDecimal_To_FBigInteger_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitDecimal_To_FBigInteger_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitDecimal_To_FDecimal()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
     begin
-        if Try21() then Observer.Observe('assign.dec1p5', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.dec1p5');
+        if Try33(R) then Observer.Observe('assign.dec1p5', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.dec1p5');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitDecimal_To_FDecimal_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitDecimal_To_FDecimal_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitDecimal_To_FDecimal_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitDecimal_To_FDecimal_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitDecimal_To_FDecimal_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitDecimal_To_FDuration()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
     begin
-        if Try22() then Observer.Observe('assign.dec1p5', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.dec1p5');
+        if Try34(R) then Observer.Observe('assign.dec1p5', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.dec1p5');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitDecimal_To_FDuration_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitDecimal_To_FDuration_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitDecimal_To_FDuration_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitDecimal_To_FDuration_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitDecimal_To_FDuration_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitChar1_To_Integer()
+    var
+        Observer: Codeunit "Probe Observer";
+        vInteger: Integer;
     begin
-        if Try23() then Observer.Observe('assign.chara', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.chara');
-        if Try24() then Observer.Observe('exit.chara', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.chara');
+        if Try35(vInteger) then Observer.Observe('assign.chara', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.chara');
+        if Try37(vInteger) then Observer.Observe('exit.chara', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.chara');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Integer_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Integer_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Integer_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Integer_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Integer_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitChar1_To_BigInteger()
+    var
+        Observer: Codeunit "Probe Observer";
+        vBigInteger: BigInteger;
     begin
-        if Try25() then Observer.Observe('assign.chara', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.chara');
-        if Try26() then Observer.Observe('exit.chara', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.chara');
+        if Try38(vBigInteger) then Observer.Observe('assign.chara', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.chara');
+        if Try40(vBigInteger) then Observer.Observe('exit.chara', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.chara');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitChar1_To_BigInteger_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_BigInteger_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_BigInteger_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_BigInteger_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_BigInteger_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitChar1_To_Decimal()
+    var
+        Observer: Codeunit "Probe Observer";
+        vDecimal: Decimal;
     begin
-        if Try27() then Observer.Observe('assign.chara', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.chara');
-        if Try28() then Observer.Observe('exit.chara', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.chara');
+        if Try41(vDecimal) then Observer.Observe('assign.chara', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.chara');
+        if Try43(vDecimal) then Observer.Observe('exit.chara', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.chara');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Decimal_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Decimal_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Decimal_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Decimal_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Decimal_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitChar1_To_Char()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vChar: Char;
     begin
-        if Try29() then Observer.Observe('assign.chara', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.chara');
-        if Try30() then Observer.Observe('arg_byvalue.chara', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.chara');
-        if Try31() then Observer.Observe('exit.chara', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.chara');
+        if Try44(vChar) then Observer.Observe('assign.chara', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.chara');
+        if Try46(vChar) then Observer.Observe('arg_byvalue.chara', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.chara');
+        if Try48(vChar) then Observer.Observe('exit.chara', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.chara');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Char_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Char_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Char_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Char_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Char_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitChar1_To_Byte()
+    var
+        Observer: Codeunit "Probe Observer";
+        vByte: Byte;
     begin
-        if Try32() then Observer.Observe('assign.chara', Format(vByte, 0, 9)) else Observer.ObserveError('assign.chara');
-        if Try33() then Observer.Observe('arg_byvalue.chara', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.chara');
-        if Try34() then Observer.Observe('exit.chara', Format(vByte, 0, 9)) else Observer.ObserveError('exit.chara');
+        if Try49(vByte) then Observer.Observe('assign.chara', Format(vByte, 0, 9)) else Observer.ObserveError('assign.chara');
+        if Try51(vByte) then Observer.Observe('arg_byvalue.chara', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.chara');
+        if Try53(vByte) then Observer.Observe('exit.chara', Format(vByte, 0, 9)) else Observer.ObserveError('exit.chara');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Byte_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Byte_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Byte_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Byte_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Byte_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitChar1_To_Option()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vOption: Option A,B,C;
     begin
-        if Try35() then Observer.Observe('assign.chara', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.chara');
-        if Try36() then Observer.Observe('exit.chara', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.chara');
+        if Try54(vOption) then Observer.Observe('assign.chara', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.chara');
+        if Try56(vOption) then Observer.Observe('exit.chara', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.chara');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Option_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Option_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Option_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Option_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Option_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitChar1_To_Text()
+    var
+        Observer: Codeunit "Probe Observer";
+        vText: Text;
     begin
-        if Try37() then Observer.Observe('assign.chara', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.chara');
-        if Try38() then Observer.Observe('arg_byvalue.chara', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.chara');
-        if Try39() then Observer.Observe('exit.chara', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.chara');
+        if Try57(vText) then Observer.Observe('assign.chara', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.chara');
+        if Try59(vText) then Observer.Observe('arg_byvalue.chara', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.chara');
+        if Try61(vText) then Observer.Observe('exit.chara', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.chara');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Text_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Text_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Text_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Text_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Text_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitChar1_To_Text10()
+    var
+        Observer: Codeunit "Probe Observer";
+        vText10: Text[10];
     begin
-        if Try40() then Observer.Observe('assign.chara', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.chara');
-        if Try41() then Observer.Observe('arg_byvalue.chara', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.chara');
-        if Try42() then Observer.Observe('exit.chara', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.chara');
+        if Try62(vText10) then Observer.Observe('assign.chara', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.chara');
+        if Try64(vText10) then Observer.Observe('arg_byvalue.chara', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.chara');
+        if Try66(vText10) then Observer.Observe('exit.chara', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.chara');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Text10_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Text10_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Text10_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Text10_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Text10_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitChar1_To_Text3()
+    var
+        Observer: Codeunit "Probe Observer";
+        vText3: Text[3];
     begin
-        if Try43() then Observer.Observe('assign.chara', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.chara');
-        if Try44() then Observer.Observe('arg_byvalue.chara', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.chara');
-        if Try45() then Observer.Observe('exit.chara', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.chara');
+        if Try67(vText3) then Observer.Observe('assign.chara', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.chara');
+        if Try69(vText3) then Observer.Observe('arg_byvalue.chara', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.chara');
+        if Try71(vText3) then Observer.Observe('exit.chara', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.chara');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Text3_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Text3_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Text3_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Text3_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Text3_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitChar1_To_Code10()
+    var
+        Observer: Codeunit "Probe Observer";
+        vCode10: Code[10];
     begin
-        if Try46() then Observer.Observe('assign.chara', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.chara');
-        if Try47() then Observer.Observe('arg_byvalue.chara', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.chara');
-        if Try48() then Observer.Observe('exit.chara', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.chara');
+        if Try72(vCode10) then Observer.Observe('assign.chara', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.chara');
+        if Try74(vCode10) then Observer.Observe('arg_byvalue.chara', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.chara');
+        if Try76(vCode10) then Observer.Observe('exit.chara', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.chara');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Code10_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Code10_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Code10_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Code10_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Code10_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitChar1_To_Code3()
+    var
+        Observer: Codeunit "Probe Observer";
+        vCode3: Code[3];
     begin
-        if Try49() then Observer.Observe('assign.chara', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.chara');
-        if Try50() then Observer.Observe('arg_byvalue.chara', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.chara');
-        if Try51() then Observer.Observe('exit.chara', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.chara');
+        if Try77(vCode3) then Observer.Observe('assign.chara', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.chara');
+        if Try79(vCode3) then Observer.Observe('arg_byvalue.chara', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.chara');
+        if Try81(vCode3) then Observer.Observe('exit.chara', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.chara');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Code3_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Code3_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Code3_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Code3_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Code3_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitChar1_To_Code250()
+    var
+        Observer: Codeunit "Probe Observer";
+        vCode250: Code[250];
     begin
-        if Try52() then Observer.Observe('assign.chara', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.chara');
-        if Try53() then Observer.Observe('arg_byvalue.chara', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.chara');
-        if Try54() then Observer.Observe('exit.chara', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.chara');
+        if Try82(vCode250) then Observer.Observe('assign.chara', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.chara');
+        if Try84(vCode250) then Observer.Observe('arg_byvalue.chara', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.chara');
+        if Try86(vCode250) then Observer.Observe('exit.chara', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.chara');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Code250_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Code250_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Code250_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Code250_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Code250_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitChar1_To_Guid()
+    var
+        Observer: Codeunit "Probe Observer";
+        vGuid: Guid;
     begin
-        if Try55() then Observer.Observe('arg_byvalue.chara', Format(vGuid)) else Observer.ObserveError('arg_byvalue.chara');
+        if Try88(vGuid) then Observer.Observe('arg_byvalue.chara', Format(vGuid)) else Observer.ObserveError('arg_byvalue.chara');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Guid_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Guid_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Guid_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Guid_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Guid_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitChar1_To_Duration()
+    var
+        Observer: Codeunit "Probe Observer";
+        vDuration: Duration;
     begin
-        if Try56() then Observer.Observe('assign.chara', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.chara');
-        if Try57() then Observer.Observe('exit.chara', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.chara');
+        if Try89(vDuration) then Observer.Observe('assign.chara', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.chara');
+        if Try91(vDuration) then Observer.Observe('exit.chara', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.chara');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Duration_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Duration_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Duration_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Duration_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_Duration_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitChar1_To_FInteger()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
     begin
-        if Try58() then Observer.Observe('assign.chara', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.chara');
+        if Try92(R) then Observer.Observe('assign.chara', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.chara');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitChar1_To_FInteger_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_FInteger_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_FInteger_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_FInteger_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_FInteger_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitChar1_To_FBigInteger()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
     begin
-        if Try59() then Observer.Observe('assign.chara', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.chara');
+        if Try93(R) then Observer.Observe('assign.chara', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.chara');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitChar1_To_FBigInteger_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_FBigInteger_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_FBigInteger_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_FBigInteger_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_FBigInteger_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitChar1_To_FDecimal()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
     begin
-        if Try60() then Observer.Observe('assign.chara', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.chara');
+        if Try94(R) then Observer.Observe('assign.chara', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.chara');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitChar1_To_FDecimal_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_FDecimal_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_FDecimal_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_FDecimal_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_FDecimal_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitChar1_To_FOption()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
+        Util: Codeunit "LT Y31 Conv Util";
     begin
-        if Try61() then Observer.Observe('assign.chara', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.chara');
+        if Try95(R) then Observer.Observe('assign.chara', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.chara');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitChar1_To_FOption_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_FOption_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_FOption_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_FOption_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_FOption_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitChar1_To_FText10()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
     begin
-        if Try62() then Observer.Observe('assign.chara', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.chara');
+        if Try96(R) then Observer.Observe('assign.chara', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.chara');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitChar1_To_FText10_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_FText10_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_FText10_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_FText10_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_FText10_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitChar1_To_FCode10()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
     begin
-        if Try63() then Observer.Observe('assign.chara', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.chara');
+        if Try97(R) then Observer.Observe('assign.chara', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.chara');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitChar1_To_FCode10_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_FCode10_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_FCode10_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_FCode10_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_FCode10_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitChar1_To_FDuration()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
     begin
-        if Try64() then Observer.Observe('assign.chara', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.chara');
+        if Try98(R) then Observer.Observe('assign.chara', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.chara');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitChar1_To_FDuration_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_FDuration_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_FDuration_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_FDuration_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitChar1_To_FDuration_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitText_To_Text()
+    var
+        Observer: Codeunit "Probe Observer";
+        vText: Text;
     begin
-        if Try65() then Observer.Observe('assign.abc', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.abc');
-        if Try66() then Observer.Observe('arg_byvalue.abc', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.abc');
-        if Try67() then Observer.Observe('exit.abc', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.abc');
+        if Try99(vText) then Observer.Observe('assign.abc', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.abc');
+        if Try101(vText) then Observer.Observe('arg_byvalue.abc', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.abc');
+        if Try103(vText) then Observer.Observe('exit.abc', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.abc');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitText_To_Text_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitText_To_Text_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitText_To_Text_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitText_To_Text_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitText_To_Text_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitText_To_Text10()
+    var
+        Observer: Codeunit "Probe Observer";
+        vText10: Text[10];
     begin
-        if Try68() then Observer.Observe('assign.abc', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.abc');
-        if Try69() then Observer.Observe('arg_byvalue.abc', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.abc');
-        if Try70() then Observer.Observe('exit.abc', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.abc');
+        if Try104(vText10) then Observer.Observe('assign.abc', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.abc');
+        if Try106(vText10) then Observer.Observe('arg_byvalue.abc', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.abc');
+        if Try108(vText10) then Observer.Observe('exit.abc', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.abc');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitText_To_Text10_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitText_To_Text10_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitText_To_Text10_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitText_To_Text10_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitText_To_Text10_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitText_To_Text3()
+    var
+        Observer: Codeunit "Probe Observer";
+        vText3: Text[3];
     begin
-        if Try71() then Observer.Observe('assign.abc', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.abc');
-        if Try72() then Observer.Observe('arg_byvalue.abc', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.abc');
-        if Try73() then Observer.Observe('exit.abc', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.abc');
+        if Try109(vText3) then Observer.Observe('assign.abc', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.abc');
+        if Try111(vText3) then Observer.Observe('arg_byvalue.abc', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.abc');
+        if Try113(vText3) then Observer.Observe('exit.abc', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.abc');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitText_To_Text3_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitText_To_Text3_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitText_To_Text3_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitText_To_Text3_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitText_To_Text3_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitText_To_Code10()
+    var
+        Observer: Codeunit "Probe Observer";
+        vCode10: Code[10];
     begin
-        if Try74() then Observer.Observe('assign.abc', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.abc');
-        if Try75() then Observer.Observe('arg_byvalue.abc', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.abc');
-        if Try76() then Observer.Observe('exit.abc', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.abc');
+        if Try114(vCode10) then Observer.Observe('assign.abc', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.abc');
+        if Try116(vCode10) then Observer.Observe('arg_byvalue.abc', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.abc');
+        if Try118(vCode10) then Observer.Observe('exit.abc', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.abc');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitText_To_Code10_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitText_To_Code10_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitText_To_Code10_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitText_To_Code10_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitText_To_Code10_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitText_To_Code3()
+    var
+        Observer: Codeunit "Probe Observer";
+        vCode3: Code[3];
     begin
-        if Try77() then Observer.Observe('assign.abc', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.abc');
-        if Try78() then Observer.Observe('arg_byvalue.abc', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.abc');
-        if Try79() then Observer.Observe('exit.abc', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.abc');
+        if Try119(vCode3) then Observer.Observe('assign.abc', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.abc');
+        if Try121(vCode3) then Observer.Observe('arg_byvalue.abc', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.abc');
+        if Try123(vCode3) then Observer.Observe('exit.abc', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.abc');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitText_To_Code3_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitText_To_Code3_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitText_To_Code3_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitText_To_Code3_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitText_To_Code3_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitText_To_Code250()
+    var
+        Observer: Codeunit "Probe Observer";
+        vCode250: Code[250];
     begin
-        if Try80() then Observer.Observe('assign.abc', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.abc');
-        if Try81() then Observer.Observe('arg_byvalue.abc', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.abc');
-        if Try82() then Observer.Observe('exit.abc', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.abc');
+        if Try124(vCode250) then Observer.Observe('assign.abc', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.abc');
+        if Try126(vCode250) then Observer.Observe('arg_byvalue.abc', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.abc');
+        if Try128(vCode250) then Observer.Observe('exit.abc', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.abc');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitText_To_Code250_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitText_To_Code250_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitText_To_Code250_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitText_To_Code250_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitText_To_Code250_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitText_To_Guid()
+    var
+        Observer: Codeunit "Probe Observer";
+        vGuid: Guid;
     begin
-        if Try83() then Observer.Observe('assign.abc', Format(vGuid)) else Observer.ObserveError('assign.abc');
-        if Try84() then Observer.Observe('arg_byvalue.abc', Format(vGuid)) else Observer.ObserveError('arg_byvalue.abc');
-        if Try85() then Observer.Observe('exit.abc', Format(vGuid)) else Observer.ObserveError('exit.abc');
+        if Try129(vGuid) then Observer.Observe('assign.abc', Format(vGuid)) else Observer.ObserveError('assign.abc');
+        if Try131(vGuid) then Observer.Observe('arg_byvalue.abc', Format(vGuid)) else Observer.ObserveError('arg_byvalue.abc');
+        if Try133(vGuid) then Observer.Observe('exit.abc', Format(vGuid)) else Observer.ObserveError('exit.abc');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitText_To_Guid_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitText_To_Guid_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitText_To_Guid_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitText_To_Guid_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitText_To_Guid_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitText_To_FText10()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
     begin
-        if Try86() then Observer.Observe('assign.abc', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.abc');
+        if Try134(R) then Observer.Observe('assign.abc', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.abc');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitText_To_FText10_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitText_To_FText10_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitText_To_FText10_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitText_To_FText10_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitText_To_FText10_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitText_To_FCode10()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
     begin
-        if Try87() then Observer.Observe('assign.abc', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.abc');
+        if Try135(R) then Observer.Observe('assign.abc', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.abc');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitText_To_FCode10_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitText_To_FCode10_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitText_To_FCode10_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitText_To_FCode10_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitText_To_FCode10_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitText_To_FGuid()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
     begin
-        if Try88() then Observer.Observe('assign.abc', Format(R.Guid)) else Observer.ObserveError('assign.abc');
+        if Try136(R) then Observer.Observe('assign.abc', Format(R.Guid)) else Observer.ObserveError('assign.abc');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitText_To_FGuid_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitText_To_FGuid_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitText_To_FGuid_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitText_To_FGuid_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitText_To_FGuid_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitTextEmpty_To_Text()
+    var
+        Observer: Codeunit "Probe Observer";
+        vText: Text;
     begin
-        if Try89() then Observer.Observe('assign.empty', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.empty');
-        if Try90() then Observer.Observe('arg_byvalue.empty', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.empty');
-        if Try91() then Observer.Observe('exit.empty', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.empty');
+        if Try137(vText) then Observer.Observe('assign.empty', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.empty');
+        if Try139(vText) then Observer.Observe('arg_byvalue.empty', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.empty');
+        if Try141(vText) then Observer.Observe('exit.empty', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.empty');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitTextEmpty_To_Text_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitTextEmpty_To_Text_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitTextEmpty_To_Text_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitTextEmpty_To_Text_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitTextEmpty_To_Text_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitTextEmpty_To_Text10()
+    var
+        Observer: Codeunit "Probe Observer";
+        vText10: Text[10];
     begin
-        if Try92() then Observer.Observe('assign.empty', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.empty');
-        if Try93() then Observer.Observe('arg_byvalue.empty', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.empty');
-        if Try94() then Observer.Observe('exit.empty', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.empty');
+        if Try142(vText10) then Observer.Observe('assign.empty', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.empty');
+        if Try144(vText10) then Observer.Observe('arg_byvalue.empty', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.empty');
+        if Try146(vText10) then Observer.Observe('exit.empty', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.empty');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitTextEmpty_To_Text10_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitTextEmpty_To_Text10_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitTextEmpty_To_Text10_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitTextEmpty_To_Text10_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitTextEmpty_To_Text10_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitTextEmpty_To_Text3()
+    var
+        Observer: Codeunit "Probe Observer";
+        vText3: Text[3];
     begin
-        if Try95() then Observer.Observe('assign.empty', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.empty');
-        if Try96() then Observer.Observe('arg_byvalue.empty', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.empty');
-        if Try97() then Observer.Observe('exit.empty', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.empty');
+        if Try147(vText3) then Observer.Observe('assign.empty', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.empty');
+        if Try149(vText3) then Observer.Observe('arg_byvalue.empty', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.empty');
+        if Try151(vText3) then Observer.Observe('exit.empty', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.empty');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitTextEmpty_To_Text3_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitTextEmpty_To_Text3_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitTextEmpty_To_Text3_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitTextEmpty_To_Text3_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitTextEmpty_To_Text3_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitTextEmpty_To_Code10()
+    var
+        Observer: Codeunit "Probe Observer";
+        vCode10: Code[10];
     begin
-        if Try98() then Observer.Observe('assign.empty', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.empty');
-        if Try99() then Observer.Observe('arg_byvalue.empty', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.empty');
-        if Try100() then Observer.Observe('exit.empty', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.empty');
+        if Try152(vCode10) then Observer.Observe('assign.empty', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.empty');
+        if Try154(vCode10) then Observer.Observe('arg_byvalue.empty', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.empty');
+        if Try156(vCode10) then Observer.Observe('exit.empty', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.empty');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitTextEmpty_To_Code10_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitTextEmpty_To_Code10_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitTextEmpty_To_Code10_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitTextEmpty_To_Code10_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitTextEmpty_To_Code10_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitTextEmpty_To_Code3()
+    var
+        Observer: Codeunit "Probe Observer";
+        vCode3: Code[3];
     begin
-        if Try101() then Observer.Observe('assign.empty', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.empty');
-        if Try102() then Observer.Observe('arg_byvalue.empty', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.empty');
-        if Try103() then Observer.Observe('exit.empty', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.empty');
+        if Try157(vCode3) then Observer.Observe('assign.empty', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.empty');
+        if Try159(vCode3) then Observer.Observe('arg_byvalue.empty', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.empty');
+        if Try161(vCode3) then Observer.Observe('exit.empty', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.empty');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitTextEmpty_To_Code3_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitTextEmpty_To_Code3_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitTextEmpty_To_Code3_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitTextEmpty_To_Code3_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitTextEmpty_To_Code3_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitTextEmpty_To_Code250()
+    var
+        Observer: Codeunit "Probe Observer";
+        vCode250: Code[250];
     begin
-        if Try104() then Observer.Observe('assign.empty', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.empty');
-        if Try105() then Observer.Observe('arg_byvalue.empty', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.empty');
-        if Try106() then Observer.Observe('exit.empty', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.empty');
+        if Try162(vCode250) then Observer.Observe('assign.empty', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.empty');
+        if Try164(vCode250) then Observer.Observe('arg_byvalue.empty', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.empty');
+        if Try166(vCode250) then Observer.Observe('exit.empty', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.empty');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitTextEmpty_To_Code250_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitTextEmpty_To_Code250_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitTextEmpty_To_Code250_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitTextEmpty_To_Code250_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitTextEmpty_To_Code250_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitTextEmpty_To_Guid()
+    var
+        Observer: Codeunit "Probe Observer";
+        vGuid: Guid;
     begin
-        if Try107() then Observer.Observe('assign.empty', Format(vGuid)) else Observer.ObserveError('assign.empty');
-        if Try108() then Observer.Observe('arg_byvalue.empty', Format(vGuid)) else Observer.ObserveError('arg_byvalue.empty');
-        if Try109() then Observer.Observe('exit.empty', Format(vGuid)) else Observer.ObserveError('exit.empty');
+        if Try167(vGuid) then Observer.Observe('assign.empty', Format(vGuid)) else Observer.ObserveError('assign.empty');
+        if Try169(vGuid) then Observer.Observe('arg_byvalue.empty', Format(vGuid)) else Observer.ObserveError('arg_byvalue.empty');
+        if Try171(vGuid) then Observer.Observe('exit.empty', Format(vGuid)) else Observer.ObserveError('exit.empty');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitTextEmpty_To_Guid_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitTextEmpty_To_Guid_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitTextEmpty_To_Guid_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitTextEmpty_To_Guid_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitTextEmpty_To_Guid_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitTextEmpty_To_FText10()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
     begin
-        if Try110() then Observer.Observe('assign.empty', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.empty');
+        if Try172(R) then Observer.Observe('assign.empty', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.empty');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitTextEmpty_To_FText10_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitTextEmpty_To_FText10_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitTextEmpty_To_FText10_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitTextEmpty_To_FText10_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitTextEmpty_To_FText10_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitTextEmpty_To_FCode10()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
     begin
-        if Try111() then Observer.Observe('assign.empty', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.empty');
+        if Try173(R) then Observer.Observe('assign.empty', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.empty');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitTextEmpty_To_FCode10_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitTextEmpty_To_FCode10_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitTextEmpty_To_FCode10_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitTextEmpty_To_FCode10_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitTextEmpty_To_FCode10_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitTextEmpty_To_FGuid()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
     begin
-        if Try112() then Observer.Observe('assign.empty', Format(R.Guid)) else Observer.ObserveError('assign.empty');
+        if Try174(R) then Observer.Observe('assign.empty', Format(R.Guid)) else Observer.ObserveError('assign.empty');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitTextEmpty_To_FGuid_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitTextEmpty_To_FGuid_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitTextEmpty_To_FGuid_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitTextEmpty_To_FGuid_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitTextEmpty_To_FGuid_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitInteger_To_Integer()
+    var
+        Observer: Codeunit "Probe Observer";
+        vInteger: Integer;
     begin
-        if Try113() then Observer.Observe('assign.i7', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.i7');
-        if Try114() then Observer.Observe('arg_byvalue.i7', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.i7');
-        if Try115() then Observer.Observe('exit.i7', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.i7');
+        if Try175(vInteger) then Observer.Observe('assign.i7', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.i7');
+        if Try177(vInteger) then Observer.Observe('arg_byvalue.i7', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.i7');
+        if Try179(vInteger) then Observer.Observe('exit.i7', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.i7');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitInteger_To_Integer_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitInteger_To_Integer_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitInteger_To_Integer_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitInteger_To_Integer_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitInteger_To_Integer_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitInteger_To_BigInteger()
+    var
+        Observer: Codeunit "Probe Observer";
+        vBigInteger: BigInteger;
     begin
-        if Try116() then Observer.Observe('assign.i7', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.i7');
-        if Try117() then Observer.Observe('arg_byvalue.i7', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.i7');
-        if Try118() then Observer.Observe('exit.i7', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.i7');
+        if Try180(vBigInteger) then Observer.Observe('assign.i7', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.i7');
+        if Try182(vBigInteger) then Observer.Observe('arg_byvalue.i7', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.i7');
+        if Try184(vBigInteger) then Observer.Observe('exit.i7', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.i7');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitInteger_To_BigInteger_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitInteger_To_BigInteger_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitInteger_To_BigInteger_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitInteger_To_BigInteger_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitInteger_To_BigInteger_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitInteger_To_Decimal()
+    var
+        Observer: Codeunit "Probe Observer";
+        vDecimal: Decimal;
     begin
-        if Try119() then Observer.Observe('assign.i7', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.i7');
-        if Try120() then Observer.Observe('arg_byvalue.i7', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.i7');
-        if Try121() then Observer.Observe('exit.i7', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.i7');
+        if Try185(vDecimal) then Observer.Observe('assign.i7', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.i7');
+        if Try187(vDecimal) then Observer.Observe('arg_byvalue.i7', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.i7');
+        if Try189(vDecimal) then Observer.Observe('exit.i7', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.i7');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitInteger_To_Decimal_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitInteger_To_Decimal_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitInteger_To_Decimal_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitInteger_To_Decimal_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitInteger_To_Decimal_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitInteger_To_Char()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vChar: Char;
     begin
-        if Try122() then Observer.Observe('assign.i7', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.i7');
-        if Try123() then Observer.Observe('arg_byvalue.i7', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.i7');
-        if Try124() then Observer.Observe('exit.i7', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.i7');
+        if Try190(vChar) then Observer.Observe('assign.i7', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.i7');
+        if Try192(vChar) then Observer.Observe('arg_byvalue.i7', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.i7');
+        if Try194(vChar) then Observer.Observe('exit.i7', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.i7');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitInteger_To_Char_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitInteger_To_Char_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitInteger_To_Char_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitInteger_To_Char_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitInteger_To_Char_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitInteger_To_Byte()
+    var
+        Observer: Codeunit "Probe Observer";
+        vByte: Byte;
     begin
-        if Try125() then Observer.Observe('assign.i7', Format(vByte, 0, 9)) else Observer.ObserveError('assign.i7');
-        if Try126() then Observer.Observe('arg_byvalue.i7', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.i7');
-        if Try127() then Observer.Observe('exit.i7', Format(vByte, 0, 9)) else Observer.ObserveError('exit.i7');
+        if Try195(vByte) then Observer.Observe('assign.i7', Format(vByte, 0, 9)) else Observer.ObserveError('assign.i7');
+        if Try197(vByte) then Observer.Observe('arg_byvalue.i7', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.i7');
+        if Try199(vByte) then Observer.Observe('exit.i7', Format(vByte, 0, 9)) else Observer.ObserveError('exit.i7');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitInteger_To_Byte_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitInteger_To_Byte_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitInteger_To_Byte_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitInteger_To_Byte_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitInteger_To_Byte_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitInteger_To_Option()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vOption: Option A,B,C;
     begin
-        if Try128() then Observer.Observe('assign.i7', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.i7');
-        if Try129() then Observer.Observe('arg_byvalue.i7', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.i7');
-        if Try130() then Observer.Observe('exit.i7', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.i7');
+        if Try200(vOption) then Observer.Observe('assign.i7', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.i7');
+        if Try202(vOption) then Observer.Observe('arg_byvalue.i7', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.i7');
+        if Try204(vOption) then Observer.Observe('exit.i7', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.i7');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitInteger_To_Option_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitInteger_To_Option_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitInteger_To_Option_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitInteger_To_Option_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitInteger_To_Option_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitInteger_To_Enum()
+    var
+        Observer: Codeunit "Probe Observer";
+        vEnum: Enum "LT Y31 E";
     begin
-        if Try131() then Observer.Observe('assign.i7', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('assign.i7');
-        if Try132() then Observer.Observe('arg_byvalue.i7', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('arg_byvalue.i7');
-        if Try133() then Observer.Observe('exit.i7', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('exit.i7');
+        if Try205(vEnum) then Observer.Observe('assign.i7', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('assign.i7');
+        if Try207(vEnum) then Observer.Observe('arg_byvalue.i7', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('arg_byvalue.i7');
+        if Try209(vEnum) then Observer.Observe('exit.i7', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('exit.i7');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitInteger_To_Enum_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitInteger_To_Enum_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitInteger_To_Enum_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitInteger_To_Enum_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitInteger_To_Enum_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitInteger_To_EnumImpl()
+    var
+        Observer: Codeunit "Probe Observer";
+        vEnumImpl: Enum "LT Y31 EI";
     begin
-        if Try134() then Observer.Observe('assign.i7', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('assign.i7');
-        if Try135() then Observer.Observe('arg_byvalue.i7', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('arg_byvalue.i7');
-        if Try136() then Observer.Observe('exit.i7', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('exit.i7');
+        if Try210(vEnumImpl) then Observer.Observe('assign.i7', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('assign.i7');
+        if Try212(vEnumImpl) then Observer.Observe('arg_byvalue.i7', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('arg_byvalue.i7');
+        if Try214(vEnumImpl) then Observer.Observe('exit.i7', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('exit.i7');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitInteger_To_EnumImpl_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitInteger_To_EnumImpl_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitInteger_To_EnumImpl_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitInteger_To_EnumImpl_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitInteger_To_EnumImpl_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitInteger_To_Duration()
+    var
+        Observer: Codeunit "Probe Observer";
+        vDuration: Duration;
     begin
-        if Try137() then Observer.Observe('assign.i7', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.i7');
-        if Try138() then Observer.Observe('arg_byvalue.i7', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.i7');
-        if Try139() then Observer.Observe('exit.i7', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.i7');
+        if Try215(vDuration) then Observer.Observe('assign.i7', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.i7');
+        if Try217(vDuration) then Observer.Observe('arg_byvalue.i7', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.i7');
+        if Try219(vDuration) then Observer.Observe('exit.i7', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.i7');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitInteger_To_Duration_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitInteger_To_Duration_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitInteger_To_Duration_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitInteger_To_Duration_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitInteger_To_Duration_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitInteger_To_FInteger()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
     begin
-        if Try140() then Observer.Observe('assign.i7', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.i7');
+        if Try220(R) then Observer.Observe('assign.i7', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.i7');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitInteger_To_FInteger_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitInteger_To_FInteger_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitInteger_To_FInteger_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitInteger_To_FInteger_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitInteger_To_FInteger_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitInteger_To_FBigInteger()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
     begin
-        if Try141() then Observer.Observe('assign.i7', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.i7');
+        if Try221(R) then Observer.Observe('assign.i7', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.i7');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitInteger_To_FBigInteger_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitInteger_To_FBigInteger_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitInteger_To_FBigInteger_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitInteger_To_FBigInteger_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitInteger_To_FBigInteger_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitInteger_To_FDecimal()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
     begin
-        if Try142() then Observer.Observe('assign.i7', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.i7');
+        if Try222(R) then Observer.Observe('assign.i7', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.i7');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitInteger_To_FDecimal_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitInteger_To_FDecimal_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitInteger_To_FDecimal_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitInteger_To_FDecimal_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitInteger_To_FDecimal_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitInteger_To_FOption()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
+        Util: Codeunit "LT Y31 Conv Util";
     begin
-        if Try143() then Observer.Observe('assign.i7', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.i7');
+        if Try223(R) then Observer.Observe('assign.i7', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.i7');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitInteger_To_FOption_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitInteger_To_FOption_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitInteger_To_FOption_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitInteger_To_FOption_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitInteger_To_FOption_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitInteger_To_FEnum()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
     begin
-        if Try144() then Observer.Observe('assign.i7', Format(R.Enum) + '|' + Format(R.Enum.AsInteger())) else Observer.ObserveError('assign.i7');
+        if Try224(R) then Observer.Observe('assign.i7', Format(R.Enum) + '|' + Format(R.Enum.AsInteger())) else Observer.ObserveError('assign.i7');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitInteger_To_FEnum_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitInteger_To_FEnum_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitInteger_To_FEnum_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitInteger_To_FEnum_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitInteger_To_FEnum_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitInteger_To_FDuration()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
     begin
-        if Try145() then Observer.Observe('assign.i7', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.i7');
+        if Try225(R) then Observer.Observe('assign.i7', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.i7');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitInteger_To_FDuration_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitInteger_To_FDuration_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitInteger_To_FDuration_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitInteger_To_FDuration_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitInteger_To_FDuration_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitEnum_To_Integer()
+    var
+        Observer: Codeunit "Probe Observer";
+        vInteger: Integer;
     begin
-        if Try146() then Observer.Observe('assign.enumC', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.enumC');
-        if Try147() then Observer.Observe('arg_byvalue.enumC', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.enumC');
-        if Try148() then Observer.Observe('exit.enumC', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.enumC');
+        if Try226(vInteger) then Observer.Observe('assign.enumC', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.enumC');
+        if Try228(vInteger) then Observer.Observe('arg_byvalue.enumC', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.enumC');
+        if Try230(vInteger) then Observer.Observe('exit.enumC', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.enumC');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitEnum_To_Integer_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitEnum_To_Integer_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitEnum_To_Integer_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitEnum_To_Integer_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitEnum_To_Integer_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitEnum_To_BigInteger()
+    var
+        Observer: Codeunit "Probe Observer";
+        vBigInteger: BigInteger;
     begin
-        if Try149() then Observer.Observe('assign.enumC', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.enumC');
-        if Try150() then Observer.Observe('arg_byvalue.enumC', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.enumC');
-        if Try151() then Observer.Observe('exit.enumC', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.enumC');
+        if Try231(vBigInteger) then Observer.Observe('assign.enumC', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.enumC');
+        if Try233(vBigInteger) then Observer.Observe('arg_byvalue.enumC', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.enumC');
+        if Try235(vBigInteger) then Observer.Observe('exit.enumC', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.enumC');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitEnum_To_BigInteger_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitEnum_To_BigInteger_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitEnum_To_BigInteger_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitEnum_To_BigInteger_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitEnum_To_BigInteger_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitEnum_To_Option()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vOption: Option A,B,C;
     begin
-        if Try152() then Observer.Observe('assign.enumC', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.enumC');
-        if Try153() then Observer.Observe('arg_byvalue.enumC', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.enumC');
-        if Try154() then Observer.Observe('exit.enumC', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.enumC');
+        if Try236(vOption) then Observer.Observe('assign.enumC', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.enumC');
+        if Try238(vOption) then Observer.Observe('arg_byvalue.enumC', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.enumC');
+        if Try240(vOption) then Observer.Observe('exit.enumC', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.enumC');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitEnum_To_Option_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitEnum_To_Option_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitEnum_To_Option_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitEnum_To_Option_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitEnum_To_Option_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitEnum_To_Enum()
+    var
+        Observer: Codeunit "Probe Observer";
+        vEnum: Enum "LT Y31 E";
     begin
-        if Try155() then Observer.Observe('assign.enumC', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('assign.enumC');
-        if Try156() then Observer.Observe('arg_byvalue.enumC', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('arg_byvalue.enumC');
-        if Try157() then Observer.Observe('exit.enumC', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('exit.enumC');
+        if Try241(vEnum) then Observer.Observe('assign.enumC', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('assign.enumC');
+        if Try243(vEnum) then Observer.Observe('arg_byvalue.enumC', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('arg_byvalue.enumC');
+        if Try245(vEnum) then Observer.Observe('exit.enumC', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('exit.enumC');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitEnum_To_Enum_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitEnum_To_Enum_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitEnum_To_Enum_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitEnum_To_Enum_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitEnum_To_Enum_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitEnum_To_FInteger()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
     begin
-        if Try158() then Observer.Observe('assign.enumC', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.enumC');
+        if Try246(R) then Observer.Observe('assign.enumC', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.enumC');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitEnum_To_FInteger_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitEnum_To_FInteger_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitEnum_To_FInteger_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitEnum_To_FInteger_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitEnum_To_FInteger_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitEnum_To_FBigInteger()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
     begin
-        if Try159() then Observer.Observe('assign.enumC', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.enumC');
+        if Try247(R) then Observer.Observe('assign.enumC', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.enumC');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitEnum_To_FBigInteger_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitEnum_To_FBigInteger_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitEnum_To_FBigInteger_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitEnum_To_FBigInteger_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitEnum_To_FBigInteger_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitEnum_To_FOption()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
+        Util: Codeunit "LT Y31 Conv Util";
     begin
-        if Try160() then Observer.Observe('assign.enumC', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.enumC');
+        if Try248(R) then Observer.Observe('assign.enumC', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.enumC');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitEnum_To_FOption_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitEnum_To_FOption_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitEnum_To_FOption_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitEnum_To_FOption_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitEnum_To_FOption_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure LitEnum_To_FEnum()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
     begin
-        if Try161() then Observer.Observe('assign.enumC', Format(R.Enum) + '|' + Format(R.Enum.AsInteger())) else Observer.ObserveError('assign.enumC');
+        if Try249(R) then Observer.Observe('assign.enumC', Format(R.Enum) + '|' + Format(R.Enum.AsInteger())) else Observer.ObserveError('assign.enumC');
         Observer.Finish();
     end;
 
-    [Test]
-    procedure LitEnum_To_FEnum_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitEnum_To_FEnum_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitEnum_To_FEnum_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitEnum_To_FEnum_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure LitEnum_To_FEnum_More5()
-    begin
-        Observer.More();
-    end;
-
     [TryFunction]
-    local procedure Try1()
+    local procedure Try1(var vInteger: Integer)
     begin
         Clear(vInteger);
         vInteger := 1.5;
     end;
 
-    local procedure PA_Integer_1(p: Integer)
+    local procedure PA_Integer_2(p: Integer; var vInteger: Integer)
     begin
         vInteger := p;
     end;
 
     [TryFunction]
-    local procedure Try2()
+    local procedure Try3(var vInteger: Integer)
     begin
         Clear(vInteger);
-        PA_Integer_1(1.5);
+        PA_Integer_2(1.5, vInteger);
     end;
 
-    local procedure EX_Integer_2(): Integer
+    local procedure EX_Integer_4(): Integer
     begin
         exit(1.5);
     end;
 
     [TryFunction]
-    local procedure Try3()
+    local procedure Try5(var vInteger: Integer)
     begin
         Clear(vInteger);
-        vInteger := EX_Integer_2();
+        vInteger := EX_Integer_4();
     end;
 
     [TryFunction]
-    local procedure Try4()
+    local procedure Try6(var vBigInteger: BigInteger)
     begin
         Clear(vBigInteger);
         vBigInteger := 1.5;
     end;
 
-    local procedure PA_BigInteger_4(p: BigInteger)
+    local procedure PA_BigInteger_7(p: BigInteger; var vBigInteger: BigInteger)
     begin
         vBigInteger := p;
     end;
 
     [TryFunction]
-    local procedure Try5()
+    local procedure Try8(var vBigInteger: BigInteger)
     begin
         Clear(vBigInteger);
-        PA_BigInteger_4(1.5);
+        PA_BigInteger_7(1.5, vBigInteger);
     end;
 
-    local procedure EX_BigInteger_5(): BigInteger
+    local procedure EX_BigInteger_9(): BigInteger
     begin
         exit(1.5);
     end;
 
     [TryFunction]
-    local procedure Try6()
+    local procedure Try10(var vBigInteger: BigInteger)
     begin
         Clear(vBigInteger);
-        vBigInteger := EX_BigInteger_5();
+        vBigInteger := EX_BigInteger_9();
     end;
 
     [TryFunction]
-    local procedure Try7()
+    local procedure Try11(var vDecimal: Decimal)
     begin
         Clear(vDecimal);
         vDecimal := 1.5;
     end;
 
-    local procedure PA_Decimal_7(p: Decimal)
+    local procedure PA_Decimal_12(p: Decimal; var vDecimal: Decimal)
     begin
         vDecimal := p;
     end;
 
     [TryFunction]
-    local procedure Try8()
+    local procedure Try13(var vDecimal: Decimal)
     begin
         Clear(vDecimal);
-        PA_Decimal_7(1.5);
+        PA_Decimal_12(1.5, vDecimal);
     end;
 
-    local procedure EX_Decimal_8(): Decimal
+    local procedure EX_Decimal_14(): Decimal
     begin
         exit(1.5);
     end;
 
     [TryFunction]
-    local procedure Try9()
+    local procedure Try15(var vDecimal: Decimal)
     begin
         Clear(vDecimal);
-        vDecimal := EX_Decimal_8();
+        vDecimal := EX_Decimal_14();
     end;
 
     [TryFunction]
-    local procedure Try10()
+    local procedure Try16(var vChar: Char)
     begin
         Clear(vChar);
         vChar := 1.5;
     end;
 
-    local procedure PA_Char_10(p: Char)
+    local procedure PA_Char_17(p: Char; var vChar: Char)
     begin
         vChar := p;
     end;
 
     [TryFunction]
-    local procedure Try11()
+    local procedure Try18(var vChar: Char)
     begin
         Clear(vChar);
-        PA_Char_10(1.5);
+        PA_Char_17(1.5, vChar);
     end;
 
-    local procedure EX_Char_11(): Char
+    local procedure EX_Char_19(): Char
     begin
         exit(1.5);
     end;
 
     [TryFunction]
-    local procedure Try12()
+    local procedure Try20(var vChar: Char)
     begin
         Clear(vChar);
-        vChar := EX_Char_11();
+        vChar := EX_Char_19();
     end;
 
     [TryFunction]
-    local procedure Try13()
+    local procedure Try21(var vByte: Byte)
     begin
         Clear(vByte);
         vByte := 1.5;
     end;
 
-    local procedure PA_Byte_13(p: Byte)
+    local procedure PA_Byte_22(p: Byte; var vByte: Byte)
     begin
         vByte := p;
     end;
 
     [TryFunction]
-    local procedure Try14()
+    local procedure Try23(var vByte: Byte)
     begin
         Clear(vByte);
-        PA_Byte_13(1.5);
+        PA_Byte_22(1.5, vByte);
     end;
 
-    local procedure EX_Byte_14(): Byte
+    local procedure EX_Byte_24(): Byte
     begin
         exit(1.5);
     end;
 
     [TryFunction]
-    local procedure Try15()
+    local procedure Try25(var vByte: Byte)
     begin
         Clear(vByte);
-        vByte := EX_Byte_14();
+        vByte := EX_Byte_24();
     end;
 
     [TryFunction]
-    local procedure Try16()
+    local procedure Try26(var vDuration: Duration)
     begin
         Clear(vDuration);
         vDuration := 1.5;
     end;
 
-    local procedure PA_Duration_16(p: Duration)
+    local procedure PA_Duration_27(p: Duration; var vDuration: Duration)
     begin
         vDuration := p;
     end;
 
     [TryFunction]
-    local procedure Try17()
+    local procedure Try28(var vDuration: Duration)
     begin
         Clear(vDuration);
-        PA_Duration_16(1.5);
+        PA_Duration_27(1.5, vDuration);
     end;
 
-    local procedure EX_Duration_17(): Duration
+    local procedure EX_Duration_29(): Duration
     begin
         exit(1.5);
     end;
 
     [TryFunction]
-    local procedure Try18()
+    local procedure Try30(var vDuration: Duration)
     begin
         Clear(vDuration);
-        vDuration := EX_Duration_17();
+        vDuration := EX_Duration_29();
     end;
 
     [TryFunction]
-    local procedure Try19()
+    local procedure Try31(var R: Record "LT Y31 Conv Fields")
     begin
         Clear(R.Integer);
         R.Integer := 1.5;
     end;
 
     [TryFunction]
-    local procedure Try20()
+    local procedure Try32(var R: Record "LT Y31 Conv Fields")
     begin
         Clear(R.BigInteger);
         R.BigInteger := 1.5;
     end;
 
     [TryFunction]
-    local procedure Try21()
+    local procedure Try33(var R: Record "LT Y31 Conv Fields")
     begin
         Clear(R.Decimal);
         R.Decimal := 1.5;
     end;
 
     [TryFunction]
-    local procedure Try22()
+    local procedure Try34(var R: Record "LT Y31 Conv Fields")
     begin
         Clear(R.Duration);
         R.Duration := 1.5;
     end;
 
     [TryFunction]
-    local procedure Try23()
+    local procedure Try35(var vInteger: Integer)
     begin
         Clear(vInteger);
         vInteger := 'a';
     end;
 
-    local procedure EX_Integer_23(): Integer
+    local procedure EX_Integer_36(): Integer
     begin
         exit('a');
     end;
 
     [TryFunction]
-    local procedure Try24()
+    local procedure Try37(var vInteger: Integer)
     begin
         Clear(vInteger);
-        vInteger := EX_Integer_23();
+        vInteger := EX_Integer_36();
     end;
 
     [TryFunction]
-    local procedure Try25()
+    local procedure Try38(var vBigInteger: BigInteger)
     begin
         Clear(vBigInteger);
         vBigInteger := 'a';
     end;
 
-    local procedure EX_BigInteger_25(): BigInteger
+    local procedure EX_BigInteger_39(): BigInteger
     begin
         exit('a');
     end;
 
     [TryFunction]
-    local procedure Try26()
+    local procedure Try40(var vBigInteger: BigInteger)
     begin
         Clear(vBigInteger);
-        vBigInteger := EX_BigInteger_25();
+        vBigInteger := EX_BigInteger_39();
     end;
 
     [TryFunction]
-    local procedure Try27()
+    local procedure Try41(var vDecimal: Decimal)
     begin
         Clear(vDecimal);
         vDecimal := 'a';
     end;
 
-    local procedure EX_Decimal_27(): Decimal
+    local procedure EX_Decimal_42(): Decimal
     begin
         exit('a');
     end;
 
     [TryFunction]
-    local procedure Try28()
+    local procedure Try43(var vDecimal: Decimal)
     begin
         Clear(vDecimal);
-        vDecimal := EX_Decimal_27();
+        vDecimal := EX_Decimal_42();
     end;
 
     [TryFunction]
-    local procedure Try29()
+    local procedure Try44(var vChar: Char)
     begin
         Clear(vChar);
         vChar := 'a';
     end;
 
-    local procedure PA_Char_29(p: Char)
+    local procedure PA_Char_45(p: Char; var vChar: Char)
     begin
         vChar := p;
     end;
 
     [TryFunction]
-    local procedure Try30()
+    local procedure Try46(var vChar: Char)
     begin
         Clear(vChar);
-        PA_Char_29('a');
+        PA_Char_45('a', vChar);
     end;
 
-    local procedure EX_Char_30(): Char
+    local procedure EX_Char_47(): Char
     begin
         exit('a');
     end;
 
     [TryFunction]
-    local procedure Try31()
+    local procedure Try48(var vChar: Char)
     begin
         Clear(vChar);
-        vChar := EX_Char_30();
+        vChar := EX_Char_47();
     end;
 
     [TryFunction]
-    local procedure Try32()
+    local procedure Try49(var vByte: Byte)
     begin
         Clear(vByte);
         vByte := 'a';
     end;
 
-    local procedure PA_Byte_32(p: Byte)
+    local procedure PA_Byte_50(p: Byte; var vByte: Byte)
     begin
         vByte := p;
     end;
 
     [TryFunction]
-    local procedure Try33()
+    local procedure Try51(var vByte: Byte)
     begin
         Clear(vByte);
-        PA_Byte_32('a');
+        PA_Byte_50('a', vByte);
     end;
 
-    local procedure EX_Byte_33(): Byte
+    local procedure EX_Byte_52(): Byte
     begin
         exit('a');
     end;
 
     [TryFunction]
-    local procedure Try34()
+    local procedure Try53(var vByte: Byte)
     begin
         Clear(vByte);
-        vByte := EX_Byte_33();
+        vByte := EX_Byte_52();
     end;
 
     [TryFunction]
-    local procedure Try35()
+    local procedure Try54(var vOption: Option A,B,C)
     begin
         Clear(vOption);
         vOption := 'a';
     end;
 
-    local procedure EX_Option_35(): Option A,B,C
+    local procedure EX_Option_55(): Option A,B,C
     begin
         exit('a');
     end;
 
     [TryFunction]
-    local procedure Try36()
+    local procedure Try56(var vOption: Option A,B,C)
     begin
         Clear(vOption);
-        vOption := EX_Option_35();
+        vOption := EX_Option_55();
     end;
 
     [TryFunction]
-    local procedure Try37()
+    local procedure Try57(var vText: Text)
     begin
         Clear(vText);
         vText := 'a';
     end;
 
-    local procedure PA_Text_37(p: Text)
+    local procedure PA_Text_58(p: Text; var vText: Text)
     begin
         vText := p;
     end;
 
     [TryFunction]
-    local procedure Try38()
+    local procedure Try59(var vText: Text)
     begin
         Clear(vText);
-        PA_Text_37('a');
+        PA_Text_58('a', vText);
     end;
 
-    local procedure EX_Text_38(): Text
+    local procedure EX_Text_60(): Text
     begin
         exit('a');
     end;
 
     [TryFunction]
-    local procedure Try39()
+    local procedure Try61(var vText: Text)
     begin
         Clear(vText);
-        vText := EX_Text_38();
+        vText := EX_Text_60();
     end;
 
     [TryFunction]
-    local procedure Try40()
+    local procedure Try62(var vText10: Text[10])
     begin
         Clear(vText10);
         vText10 := 'a';
     end;
 
-    local procedure PA_Text10_40(p: Text[10])
+    local procedure PA_Text10_63(p: Text[10]; var vText10: Text[10])
     begin
         vText10 := p;
     end;
 
     [TryFunction]
-    local procedure Try41()
+    local procedure Try64(var vText10: Text[10])
     begin
         Clear(vText10);
-        PA_Text10_40('a');
+        PA_Text10_63('a', vText10);
     end;
 
-    local procedure EX_Text10_41(): Text[10]
+    local procedure EX_Text10_65(): Text[10]
     begin
         exit('a');
     end;
 
     [TryFunction]
-    local procedure Try42()
+    local procedure Try66(var vText10: Text[10])
     begin
         Clear(vText10);
-        vText10 := EX_Text10_41();
+        vText10 := EX_Text10_65();
     end;
 
     [TryFunction]
-    local procedure Try43()
+    local procedure Try67(var vText3: Text[3])
     begin
         Clear(vText3);
         vText3 := 'a';
     end;
 
-    local procedure PA_Text3_43(p: Text[3])
+    local procedure PA_Text3_68(p: Text[3]; var vText3: Text[3])
     begin
         vText3 := p;
     end;
 
     [TryFunction]
-    local procedure Try44()
+    local procedure Try69(var vText3: Text[3])
     begin
         Clear(vText3);
-        PA_Text3_43('a');
+        PA_Text3_68('a', vText3);
     end;
 
-    local procedure EX_Text3_44(): Text[3]
+    local procedure EX_Text3_70(): Text[3]
     begin
         exit('a');
     end;
 
     [TryFunction]
-    local procedure Try45()
+    local procedure Try71(var vText3: Text[3])
     begin
         Clear(vText3);
-        vText3 := EX_Text3_44();
+        vText3 := EX_Text3_70();
     end;
 
     [TryFunction]
-    local procedure Try46()
+    local procedure Try72(var vCode10: Code[10])
     begin
         Clear(vCode10);
         vCode10 := 'a';
     end;
 
-    local procedure PA_Code10_46(p: Code[10])
+    local procedure PA_Code10_73(p: Code[10]; var vCode10: Code[10])
     begin
         vCode10 := p;
     end;
 
     [TryFunction]
-    local procedure Try47()
+    local procedure Try74(var vCode10: Code[10])
     begin
         Clear(vCode10);
-        PA_Code10_46('a');
-    end;
-
-    local procedure EX_Code10_47(): Code[10]
-    begin
-        exit('a');
-    end;
-
-    [TryFunction]
-    local procedure Try48()
-    begin
-        Clear(vCode10);
-        vCode10 := EX_Code10_47();
-    end;
-
-    [TryFunction]
-    local procedure Try49()
-    begin
-        Clear(vCode3);
-        vCode3 := 'a';
-    end;
-
-    local procedure PA_Code3_49(p: Code[3])
-    begin
-        vCode3 := p;
-    end;
-
-    [TryFunction]
-    local procedure Try50()
-    begin
-        Clear(vCode3);
-        PA_Code3_49('a');
-    end;
-
-    local procedure EX_Code3_50(): Code[3]
-    begin
-        exit('a');
-    end;
-
-    [TryFunction]
-    local procedure Try51()
-    begin
-        Clear(vCode3);
-        vCode3 := EX_Code3_50();
-    end;
-
-    [TryFunction]
-    local procedure Try52()
-    begin
-        Clear(vCode250);
-        vCode250 := 'a';
-    end;
-
-    local procedure PA_Code250_52(p: Code[250])
-    begin
-        vCode250 := p;
-    end;
-
-    [TryFunction]
-    local procedure Try53()
-    begin
-        Clear(vCode250);
-        PA_Code250_52('a');
-    end;
-
-    local procedure EX_Code250_53(): Code[250]
-    begin
-        exit('a');
-    end;
-
-    [TryFunction]
-    local procedure Try54()
-    begin
-        Clear(vCode250);
-        vCode250 := EX_Code250_53();
-    end;
-
-    local procedure PA_Guid_54(p: Guid)
-    begin
-        vGuid := p;
-    end;
-
-    [TryFunction]
-    local procedure Try55()
-    begin
-        Clear(vGuid);
-        PA_Guid_54('a');
-    end;
-
-    [TryFunction]
-    local procedure Try56()
-    begin
-        Clear(vDuration);
-        vDuration := 'a';
-    end;
-
-    local procedure EX_Duration_56(): Duration
-    begin
-        exit('a');
-    end;
-
-    [TryFunction]
-    local procedure Try57()
-    begin
-        Clear(vDuration);
-        vDuration := EX_Duration_56();
-    end;
-
-    [TryFunction]
-    local procedure Try58()
-    begin
-        Clear(R.Integer);
-        R.Integer := 'a';
-    end;
-
-    [TryFunction]
-    local procedure Try59()
-    begin
-        Clear(R.BigInteger);
-        R.BigInteger := 'a';
-    end;
-
-    [TryFunction]
-    local procedure Try60()
-    begin
-        Clear(R.Decimal);
-        R.Decimal := 'a';
-    end;
-
-    [TryFunction]
-    local procedure Try61()
-    begin
-        Clear(R.Option);
-        R.Option := 'a';
-    end;
-
-    [TryFunction]
-    local procedure Try62()
-    begin
-        Clear(R.Text10);
-        R.Text10 := 'a';
-    end;
-
-    [TryFunction]
-    local procedure Try63()
-    begin
-        Clear(R.Code10);
-        R.Code10 := 'a';
-    end;
-
-    [TryFunction]
-    local procedure Try64()
-    begin
-        Clear(R.Duration);
-        R.Duration := 'a';
-    end;
-
-    [TryFunction]
-    local procedure Try65()
-    begin
-        Clear(vText);
-        vText := 'abc';
-    end;
-
-    local procedure PA_Text_65(p: Text)
-    begin
-        vText := p;
-    end;
-
-    [TryFunction]
-    local procedure Try66()
-    begin
-        Clear(vText);
-        PA_Text_65('abc');
-    end;
-
-    local procedure EX_Text_66(): Text
-    begin
-        exit('abc');
-    end;
-
-    [TryFunction]
-    local procedure Try67()
-    begin
-        Clear(vText);
-        vText := EX_Text_66();
-    end;
-
-    [TryFunction]
-    local procedure Try68()
-    begin
-        Clear(vText10);
-        vText10 := 'abc';
-    end;
-
-    local procedure PA_Text10_68(p: Text[10])
-    begin
-        vText10 := p;
-    end;
-
-    [TryFunction]
-    local procedure Try69()
-    begin
-        Clear(vText10);
-        PA_Text10_68('abc');
-    end;
-
-    local procedure EX_Text10_69(): Text[10]
-    begin
-        exit('abc');
-    end;
-
-    [TryFunction]
-    local procedure Try70()
-    begin
-        Clear(vText10);
-        vText10 := EX_Text10_69();
-    end;
-
-    [TryFunction]
-    local procedure Try71()
-    begin
-        Clear(vText3);
-        vText3 := 'abc';
-    end;
-
-    local procedure PA_Text3_71(p: Text[3])
-    begin
-        vText3 := p;
-    end;
-
-    [TryFunction]
-    local procedure Try72()
-    begin
-        Clear(vText3);
-        PA_Text3_71('abc');
-    end;
-
-    local procedure EX_Text3_72(): Text[3]
-    begin
-        exit('abc');
-    end;
-
-    [TryFunction]
-    local procedure Try73()
-    begin
-        Clear(vText3);
-        vText3 := EX_Text3_72();
-    end;
-
-    [TryFunction]
-    local procedure Try74()
-    begin
-        Clear(vCode10);
-        vCode10 := 'abc';
-    end;
-
-    local procedure PA_Code10_74(p: Code[10])
-    begin
-        vCode10 := p;
-    end;
-
-    [TryFunction]
-    local procedure Try75()
-    begin
-        Clear(vCode10);
-        PA_Code10_74('abc');
+        PA_Code10_73('a', vCode10);
     end;
 
     local procedure EX_Code10_75(): Code[10]
     begin
-        exit('abc');
+        exit('a');
     end;
 
     [TryFunction]
-    local procedure Try76()
+    local procedure Try76(var vCode10: Code[10])
     begin
         Clear(vCode10);
         vCode10 := EX_Code10_75();
     end;
 
     [TryFunction]
-    local procedure Try77()
+    local procedure Try77(var vCode3: Code[3])
     begin
         Clear(vCode3);
-        vCode3 := 'abc';
+        vCode3 := 'a';
     end;
 
-    local procedure PA_Code3_77(p: Code[3])
+    local procedure PA_Code3_78(p: Code[3]; var vCode3: Code[3])
     begin
         vCode3 := p;
     end;
 
     [TryFunction]
-    local procedure Try78()
+    local procedure Try79(var vCode3: Code[3])
     begin
         Clear(vCode3);
-        PA_Code3_77('abc');
+        PA_Code3_78('a', vCode3);
     end;
 
-    local procedure EX_Code3_78(): Code[3]
+    local procedure EX_Code3_80(): Code[3]
     begin
-        exit('abc');
+        exit('a');
     end;
 
     [TryFunction]
-    local procedure Try79()
+    local procedure Try81(var vCode3: Code[3])
     begin
         Clear(vCode3);
-        vCode3 := EX_Code3_78();
+        vCode3 := EX_Code3_80();
     end;
 
     [TryFunction]
-    local procedure Try80()
+    local procedure Try82(var vCode250: Code[250])
     begin
         Clear(vCode250);
-        vCode250 := 'abc';
+        vCode250 := 'a';
     end;
 
-    local procedure PA_Code250_80(p: Code[250])
+    local procedure PA_Code250_83(p: Code[250]; var vCode250: Code[250])
     begin
         vCode250 := p;
     end;
 
     [TryFunction]
-    local procedure Try81()
+    local procedure Try84(var vCode250: Code[250])
     begin
         Clear(vCode250);
-        PA_Code250_80('abc');
+        PA_Code250_83('a', vCode250);
     end;
 
-    local procedure EX_Code250_81(): Code[250]
+    local procedure EX_Code250_85(): Code[250]
     begin
-        exit('abc');
+        exit('a');
     end;
 
     [TryFunction]
-    local procedure Try82()
+    local procedure Try86(var vCode250: Code[250])
     begin
         Clear(vCode250);
-        vCode250 := EX_Code250_81();
+        vCode250 := EX_Code250_85();
     end;
 
-    [TryFunction]
-    local procedure Try83()
-    begin
-        Clear(vGuid);
-        vGuid := 'abc';
-    end;
-
-    local procedure PA_Guid_83(p: Guid)
+    local procedure PA_Guid_87(p: Guid; var vGuid: Guid)
     begin
         vGuid := p;
     end;
 
     [TryFunction]
-    local procedure Try84()
+    local procedure Try88(var vGuid: Guid)
     begin
         Clear(vGuid);
-        PA_Guid_83('abc');
+        PA_Guid_87('a', vGuid);
     end;
 
-    local procedure EX_Guid_84(): Guid
+    [TryFunction]
+    local procedure Try89(var vDuration: Duration)
+    begin
+        Clear(vDuration);
+        vDuration := 'a';
+    end;
+
+    local procedure EX_Duration_90(): Duration
+    begin
+        exit('a');
+    end;
+
+    [TryFunction]
+    local procedure Try91(var vDuration: Duration)
+    begin
+        Clear(vDuration);
+        vDuration := EX_Duration_90();
+    end;
+
+    [TryFunction]
+    local procedure Try92(var R: Record "LT Y31 Conv Fields")
+    begin
+        Clear(R.Integer);
+        R.Integer := 'a';
+    end;
+
+    [TryFunction]
+    local procedure Try93(var R: Record "LT Y31 Conv Fields")
+    begin
+        Clear(R.BigInteger);
+        R.BigInteger := 'a';
+    end;
+
+    [TryFunction]
+    local procedure Try94(var R: Record "LT Y31 Conv Fields")
+    begin
+        Clear(R.Decimal);
+        R.Decimal := 'a';
+    end;
+
+    [TryFunction]
+    local procedure Try95(var R: Record "LT Y31 Conv Fields")
+    begin
+        Clear(R.Option);
+        R.Option := 'a';
+    end;
+
+    [TryFunction]
+    local procedure Try96(var R: Record "LT Y31 Conv Fields")
+    begin
+        Clear(R.Text10);
+        R.Text10 := 'a';
+    end;
+
+    [TryFunction]
+    local procedure Try97(var R: Record "LT Y31 Conv Fields")
+    begin
+        Clear(R.Code10);
+        R.Code10 := 'a';
+    end;
+
+    [TryFunction]
+    local procedure Try98(var R: Record "LT Y31 Conv Fields")
+    begin
+        Clear(R.Duration);
+        R.Duration := 'a';
+    end;
+
+    [TryFunction]
+    local procedure Try99(var vText: Text)
+    begin
+        Clear(vText);
+        vText := 'abc';
+    end;
+
+    local procedure PA_Text_100(p: Text; var vText: Text)
+    begin
+        vText := p;
+    end;
+
+    [TryFunction]
+    local procedure Try101(var vText: Text)
+    begin
+        Clear(vText);
+        PA_Text_100('abc', vText);
+    end;
+
+    local procedure EX_Text_102(): Text
     begin
         exit('abc');
     end;
 
     [TryFunction]
-    local procedure Try85()
+    local procedure Try103(var vText: Text)
     begin
-        Clear(vGuid);
-        vGuid := EX_Guid_84();
+        Clear(vText);
+        vText := EX_Text_102();
     end;
 
     [TryFunction]
-    local procedure Try86()
+    local procedure Try104(var vText10: Text[10])
+    begin
+        Clear(vText10);
+        vText10 := 'abc';
+    end;
+
+    local procedure PA_Text10_105(p: Text[10]; var vText10: Text[10])
+    begin
+        vText10 := p;
+    end;
+
+    [TryFunction]
+    local procedure Try106(var vText10: Text[10])
+    begin
+        Clear(vText10);
+        PA_Text10_105('abc', vText10);
+    end;
+
+    local procedure EX_Text10_107(): Text[10]
+    begin
+        exit('abc');
+    end;
+
+    [TryFunction]
+    local procedure Try108(var vText10: Text[10])
+    begin
+        Clear(vText10);
+        vText10 := EX_Text10_107();
+    end;
+
+    [TryFunction]
+    local procedure Try109(var vText3: Text[3])
+    begin
+        Clear(vText3);
+        vText3 := 'abc';
+    end;
+
+    local procedure PA_Text3_110(p: Text[3]; var vText3: Text[3])
+    begin
+        vText3 := p;
+    end;
+
+    [TryFunction]
+    local procedure Try111(var vText3: Text[3])
+    begin
+        Clear(vText3);
+        PA_Text3_110('abc', vText3);
+    end;
+
+    local procedure EX_Text3_112(): Text[3]
+    begin
+        exit('abc');
+    end;
+
+    [TryFunction]
+    local procedure Try113(var vText3: Text[3])
+    begin
+        Clear(vText3);
+        vText3 := EX_Text3_112();
+    end;
+
+    [TryFunction]
+    local procedure Try114(var vCode10: Code[10])
+    begin
+        Clear(vCode10);
+        vCode10 := 'abc';
+    end;
+
+    local procedure PA_Code10_115(p: Code[10]; var vCode10: Code[10])
+    begin
+        vCode10 := p;
+    end;
+
+    [TryFunction]
+    local procedure Try116(var vCode10: Code[10])
+    begin
+        Clear(vCode10);
+        PA_Code10_115('abc', vCode10);
+    end;
+
+    local procedure EX_Code10_117(): Code[10]
+    begin
+        exit('abc');
+    end;
+
+    [TryFunction]
+    local procedure Try118(var vCode10: Code[10])
+    begin
+        Clear(vCode10);
+        vCode10 := EX_Code10_117();
+    end;
+
+    [TryFunction]
+    local procedure Try119(var vCode3: Code[3])
+    begin
+        Clear(vCode3);
+        vCode3 := 'abc';
+    end;
+
+    local procedure PA_Code3_120(p: Code[3]; var vCode3: Code[3])
+    begin
+        vCode3 := p;
+    end;
+
+    [TryFunction]
+    local procedure Try121(var vCode3: Code[3])
+    begin
+        Clear(vCode3);
+        PA_Code3_120('abc', vCode3);
+    end;
+
+    local procedure EX_Code3_122(): Code[3]
+    begin
+        exit('abc');
+    end;
+
+    [TryFunction]
+    local procedure Try123(var vCode3: Code[3])
+    begin
+        Clear(vCode3);
+        vCode3 := EX_Code3_122();
+    end;
+
+    [TryFunction]
+    local procedure Try124(var vCode250: Code[250])
+    begin
+        Clear(vCode250);
+        vCode250 := 'abc';
+    end;
+
+    local procedure PA_Code250_125(p: Code[250]; var vCode250: Code[250])
+    begin
+        vCode250 := p;
+    end;
+
+    [TryFunction]
+    local procedure Try126(var vCode250: Code[250])
+    begin
+        Clear(vCode250);
+        PA_Code250_125('abc', vCode250);
+    end;
+
+    local procedure EX_Code250_127(): Code[250]
+    begin
+        exit('abc');
+    end;
+
+    [TryFunction]
+    local procedure Try128(var vCode250: Code[250])
+    begin
+        Clear(vCode250);
+        vCode250 := EX_Code250_127();
+    end;
+
+    [TryFunction]
+    local procedure Try129(var vGuid: Guid)
+    begin
+        Clear(vGuid);
+        vGuid := 'abc';
+    end;
+
+    local procedure PA_Guid_130(p: Guid; var vGuid: Guid)
+    begin
+        vGuid := p;
+    end;
+
+    [TryFunction]
+    local procedure Try131(var vGuid: Guid)
+    begin
+        Clear(vGuid);
+        PA_Guid_130('abc', vGuid);
+    end;
+
+    local procedure EX_Guid_132(): Guid
+    begin
+        exit('abc');
+    end;
+
+    [TryFunction]
+    local procedure Try133(var vGuid: Guid)
+    begin
+        Clear(vGuid);
+        vGuid := EX_Guid_132();
+    end;
+
+    [TryFunction]
+    local procedure Try134(var R: Record "LT Y31 Conv Fields")
     begin
         Clear(R.Text10);
         R.Text10 := 'abc';
     end;
 
     [TryFunction]
-    local procedure Try87()
+    local procedure Try135(var R: Record "LT Y31 Conv Fields")
     begin
         Clear(R.Code10);
         R.Code10 := 'abc';
     end;
 
     [TryFunction]
-    local procedure Try88()
+    local procedure Try136(var R: Record "LT Y31 Conv Fields")
     begin
         Clear(R.Guid);
         R.Guid := 'abc';
     end;
 
     [TryFunction]
-    local procedure Try89()
+    local procedure Try137(var vText: Text)
     begin
         Clear(vText);
         vText := '';
     end;
 
-    local procedure PA_Text_89(p: Text)
+    local procedure PA_Text_138(p: Text; var vText: Text)
     begin
         vText := p;
     end;
 
     [TryFunction]
-    local procedure Try90()
+    local procedure Try139(var vText: Text)
     begin
         Clear(vText);
-        PA_Text_89('');
+        PA_Text_138('', vText);
     end;
 
-    local procedure EX_Text_90(): Text
+    local procedure EX_Text_140(): Text
     begin
         exit('');
     end;
 
     [TryFunction]
-    local procedure Try91()
+    local procedure Try141(var vText: Text)
     begin
         Clear(vText);
-        vText := EX_Text_90();
+        vText := EX_Text_140();
     end;
 
     [TryFunction]
-    local procedure Try92()
+    local procedure Try142(var vText10: Text[10])
     begin
         Clear(vText10);
         vText10 := '';
     end;
 
-    local procedure PA_Text10_92(p: Text[10])
+    local procedure PA_Text10_143(p: Text[10]; var vText10: Text[10])
     begin
         vText10 := p;
     end;
 
     [TryFunction]
-    local procedure Try93()
+    local procedure Try144(var vText10: Text[10])
     begin
         Clear(vText10);
-        PA_Text10_92('');
+        PA_Text10_143('', vText10);
     end;
 
-    local procedure EX_Text10_93(): Text[10]
+    local procedure EX_Text10_145(): Text[10]
     begin
         exit('');
     end;
 
     [TryFunction]
-    local procedure Try94()
+    local procedure Try146(var vText10: Text[10])
     begin
         Clear(vText10);
-        vText10 := EX_Text10_93();
+        vText10 := EX_Text10_145();
     end;
 
     [TryFunction]
-    local procedure Try95()
+    local procedure Try147(var vText3: Text[3])
     begin
         Clear(vText3);
         vText3 := '';
     end;
 
-    local procedure PA_Text3_95(p: Text[3])
+    local procedure PA_Text3_148(p: Text[3]; var vText3: Text[3])
     begin
         vText3 := p;
     end;
 
     [TryFunction]
-    local procedure Try96()
+    local procedure Try149(var vText3: Text[3])
     begin
         Clear(vText3);
-        PA_Text3_95('');
+        PA_Text3_148('', vText3);
     end;
 
-    local procedure EX_Text3_96(): Text[3]
+    local procedure EX_Text3_150(): Text[3]
     begin
         exit('');
     end;
 
     [TryFunction]
-    local procedure Try97()
+    local procedure Try151(var vText3: Text[3])
     begin
         Clear(vText3);
-        vText3 := EX_Text3_96();
+        vText3 := EX_Text3_150();
     end;
 
     [TryFunction]
-    local procedure Try98()
+    local procedure Try152(var vCode10: Code[10])
     begin
         Clear(vCode10);
         vCode10 := '';
     end;
 
-    local procedure PA_Code10_98(p: Code[10])
+    local procedure PA_Code10_153(p: Code[10]; var vCode10: Code[10])
     begin
         vCode10 := p;
     end;
 
     [TryFunction]
-    local procedure Try99()
+    local procedure Try154(var vCode10: Code[10])
     begin
         Clear(vCode10);
-        PA_Code10_98('');
+        PA_Code10_153('', vCode10);
     end;
 
-    local procedure EX_Code10_99(): Code[10]
+    local procedure EX_Code10_155(): Code[10]
     begin
         exit('');
     end;
 
     [TryFunction]
-    local procedure Try100()
+    local procedure Try156(var vCode10: Code[10])
     begin
         Clear(vCode10);
-        vCode10 := EX_Code10_99();
+        vCode10 := EX_Code10_155();
     end;
 
     [TryFunction]
-    local procedure Try101()
+    local procedure Try157(var vCode3: Code[3])
     begin
         Clear(vCode3);
         vCode3 := '';
     end;
 
-    local procedure PA_Code3_101(p: Code[3])
+    local procedure PA_Code3_158(p: Code[3]; var vCode3: Code[3])
     begin
         vCode3 := p;
     end;
 
     [TryFunction]
-    local procedure Try102()
+    local procedure Try159(var vCode3: Code[3])
     begin
         Clear(vCode3);
-        PA_Code3_101('');
+        PA_Code3_158('', vCode3);
     end;
 
-    local procedure EX_Code3_102(): Code[3]
+    local procedure EX_Code3_160(): Code[3]
     begin
         exit('');
     end;
 
     [TryFunction]
-    local procedure Try103()
+    local procedure Try161(var vCode3: Code[3])
     begin
         Clear(vCode3);
-        vCode3 := EX_Code3_102();
+        vCode3 := EX_Code3_160();
     end;
 
     [TryFunction]
-    local procedure Try104()
+    local procedure Try162(var vCode250: Code[250])
     begin
         Clear(vCode250);
         vCode250 := '';
     end;
 
-    local procedure PA_Code250_104(p: Code[250])
+    local procedure PA_Code250_163(p: Code[250]; var vCode250: Code[250])
     begin
         vCode250 := p;
     end;
 
     [TryFunction]
-    local procedure Try105()
+    local procedure Try164(var vCode250: Code[250])
     begin
         Clear(vCode250);
-        PA_Code250_104('');
+        PA_Code250_163('', vCode250);
     end;
 
-    local procedure EX_Code250_105(): Code[250]
+    local procedure EX_Code250_165(): Code[250]
     begin
         exit('');
     end;
 
     [TryFunction]
-    local procedure Try106()
+    local procedure Try166(var vCode250: Code[250])
     begin
         Clear(vCode250);
-        vCode250 := EX_Code250_105();
+        vCode250 := EX_Code250_165();
     end;
 
     [TryFunction]
-    local procedure Try107()
+    local procedure Try167(var vGuid: Guid)
     begin
         Clear(vGuid);
         vGuid := '';
     end;
 
-    local procedure PA_Guid_107(p: Guid)
+    local procedure PA_Guid_168(p: Guid; var vGuid: Guid)
     begin
         vGuid := p;
     end;
 
     [TryFunction]
-    local procedure Try108()
+    local procedure Try169(var vGuid: Guid)
     begin
         Clear(vGuid);
-        PA_Guid_107('');
+        PA_Guid_168('', vGuid);
     end;
 
-    local procedure EX_Guid_108(): Guid
+    local procedure EX_Guid_170(): Guid
     begin
         exit('');
     end;
 
     [TryFunction]
-    local procedure Try109()
+    local procedure Try171(var vGuid: Guid)
     begin
         Clear(vGuid);
-        vGuid := EX_Guid_108();
+        vGuid := EX_Guid_170();
     end;
 
     [TryFunction]
-    local procedure Try110()
+    local procedure Try172(var R: Record "LT Y31 Conv Fields")
     begin
         Clear(R.Text10);
         R.Text10 := '';
     end;
 
     [TryFunction]
-    local procedure Try111()
+    local procedure Try173(var R: Record "LT Y31 Conv Fields")
     begin
         Clear(R.Code10);
         R.Code10 := '';
     end;
 
     [TryFunction]
-    local procedure Try112()
+    local procedure Try174(var R: Record "LT Y31 Conv Fields")
     begin
         Clear(R.Guid);
         R.Guid := '';
     end;
 
     [TryFunction]
-    local procedure Try113()
+    local procedure Try175(var vInteger: Integer)
     begin
         Clear(vInteger);
         vInteger := 7;
     end;
 
-    local procedure PA_Integer_113(p: Integer)
+    local procedure PA_Integer_176(p: Integer; var vInteger: Integer)
     begin
         vInteger := p;
     end;
 
     [TryFunction]
-    local procedure Try114()
+    local procedure Try177(var vInteger: Integer)
     begin
         Clear(vInteger);
-        PA_Integer_113(7);
+        PA_Integer_176(7, vInteger);
     end;
 
-    local procedure EX_Integer_114(): Integer
+    local procedure EX_Integer_178(): Integer
     begin
         exit(7);
     end;
 
     [TryFunction]
-    local procedure Try115()
+    local procedure Try179(var vInteger: Integer)
     begin
         Clear(vInteger);
-        vInteger := EX_Integer_114();
+        vInteger := EX_Integer_178();
     end;
 
     [TryFunction]
-    local procedure Try116()
+    local procedure Try180(var vBigInteger: BigInteger)
     begin
         Clear(vBigInteger);
         vBigInteger := 7;
     end;
 
-    local procedure PA_BigInteger_116(p: BigInteger)
+    local procedure PA_BigInteger_181(p: BigInteger; var vBigInteger: BigInteger)
     begin
         vBigInteger := p;
     end;
 
     [TryFunction]
-    local procedure Try117()
+    local procedure Try182(var vBigInteger: BigInteger)
     begin
         Clear(vBigInteger);
-        PA_BigInteger_116(7);
+        PA_BigInteger_181(7, vBigInteger);
     end;
 
-    local procedure EX_BigInteger_117(): BigInteger
+    local procedure EX_BigInteger_183(): BigInteger
     begin
         exit(7);
     end;
 
     [TryFunction]
-    local procedure Try118()
+    local procedure Try184(var vBigInteger: BigInteger)
     begin
         Clear(vBigInteger);
-        vBigInteger := EX_BigInteger_117();
+        vBigInteger := EX_BigInteger_183();
     end;
 
     [TryFunction]
-    local procedure Try119()
+    local procedure Try185(var vDecimal: Decimal)
     begin
         Clear(vDecimal);
         vDecimal := 7;
     end;
 
-    local procedure PA_Decimal_119(p: Decimal)
+    local procedure PA_Decimal_186(p: Decimal; var vDecimal: Decimal)
     begin
         vDecimal := p;
     end;
 
     [TryFunction]
-    local procedure Try120()
+    local procedure Try187(var vDecimal: Decimal)
     begin
         Clear(vDecimal);
-        PA_Decimal_119(7);
+        PA_Decimal_186(7, vDecimal);
     end;
 
-    local procedure EX_Decimal_120(): Decimal
+    local procedure EX_Decimal_188(): Decimal
     begin
         exit(7);
     end;
 
     [TryFunction]
-    local procedure Try121()
+    local procedure Try189(var vDecimal: Decimal)
     begin
         Clear(vDecimal);
-        vDecimal := EX_Decimal_120();
+        vDecimal := EX_Decimal_188();
     end;
 
     [TryFunction]
-    local procedure Try122()
+    local procedure Try190(var vChar: Char)
     begin
         Clear(vChar);
         vChar := 7;
     end;
 
-    local procedure PA_Char_122(p: Char)
+    local procedure PA_Char_191(p: Char; var vChar: Char)
     begin
         vChar := p;
     end;
 
     [TryFunction]
-    local procedure Try123()
+    local procedure Try192(var vChar: Char)
     begin
         Clear(vChar);
-        PA_Char_122(7);
+        PA_Char_191(7, vChar);
     end;
 
-    local procedure EX_Char_123(): Char
+    local procedure EX_Char_193(): Char
     begin
         exit(7);
     end;
 
     [TryFunction]
-    local procedure Try124()
+    local procedure Try194(var vChar: Char)
     begin
         Clear(vChar);
-        vChar := EX_Char_123();
+        vChar := EX_Char_193();
     end;
 
     [TryFunction]
-    local procedure Try125()
+    local procedure Try195(var vByte: Byte)
     begin
         Clear(vByte);
         vByte := 7;
     end;
 
-    local procedure PA_Byte_125(p: Byte)
+    local procedure PA_Byte_196(p: Byte; var vByte: Byte)
     begin
         vByte := p;
     end;
 
     [TryFunction]
-    local procedure Try126()
+    local procedure Try197(var vByte: Byte)
     begin
         Clear(vByte);
-        PA_Byte_125(7);
+        PA_Byte_196(7, vByte);
     end;
 
-    local procedure EX_Byte_126(): Byte
+    local procedure EX_Byte_198(): Byte
     begin
         exit(7);
     end;
 
     [TryFunction]
-    local procedure Try127()
+    local procedure Try199(var vByte: Byte)
     begin
         Clear(vByte);
-        vByte := EX_Byte_126();
+        vByte := EX_Byte_198();
     end;
 
     [TryFunction]
-    local procedure Try128()
+    local procedure Try200(var vOption: Option A,B,C)
     begin
         Clear(vOption);
         vOption := 7;
     end;
 
-    local procedure PA_Option_128(p: Option A,B,C)
+    local procedure PA_Option_201(p: Option A,B,C; var vOption: Option A,B,C)
     begin
         vOption := p;
     end;
 
     [TryFunction]
-    local procedure Try129()
+    local procedure Try202(var vOption: Option A,B,C)
     begin
         Clear(vOption);
-        PA_Option_128(7);
+        PA_Option_201(7, vOption);
     end;
 
-    local procedure EX_Option_129(): Option A,B,C
+    local procedure EX_Option_203(): Option A,B,C
     begin
         exit(7);
     end;
 
     [TryFunction]
-    local procedure Try130()
+    local procedure Try204(var vOption: Option A,B,C)
     begin
         Clear(vOption);
-        vOption := EX_Option_129();
+        vOption := EX_Option_203();
     end;
 
     [TryFunction]
-    local procedure Try131()
+    local procedure Try205(var vEnum: Enum "LT Y31 E")
     begin
         Clear(vEnum);
         vEnum := 7;
     end;
 
-    local procedure PA_Enum_131(p: Enum "LT Y31 E")
+    local procedure PA_Enum_206(p: Enum "LT Y31 E"; var vEnum: Enum "LT Y31 E")
     begin
         vEnum := p;
     end;
 
     [TryFunction]
-    local procedure Try132()
+    local procedure Try207(var vEnum: Enum "LT Y31 E")
     begin
         Clear(vEnum);
-        PA_Enum_131(7);
+        PA_Enum_206(7, vEnum);
     end;
 
-    local procedure EX_Enum_132(): Enum "LT Y31 E"
+    local procedure EX_Enum_208(): Enum "LT Y31 E"
     begin
         exit(7);
     end;
 
     [TryFunction]
-    local procedure Try133()
+    local procedure Try209(var vEnum: Enum "LT Y31 E")
     begin
         Clear(vEnum);
-        vEnum := EX_Enum_132();
+        vEnum := EX_Enum_208();
     end;
 
     [TryFunction]
-    local procedure Try134()
+    local procedure Try210(var vEnumImpl: Enum "LT Y31 EI")
     begin
         Clear(vEnumImpl);
         vEnumImpl := 7;
     end;
 
-    local procedure PA_EnumImpl_134(p: Enum "LT Y31 EI")
+    local procedure PA_EnumImpl_211(p: Enum "LT Y31 EI"; var vEnumImpl: Enum "LT Y31 EI")
     begin
         vEnumImpl := p;
     end;
 
     [TryFunction]
-    local procedure Try135()
+    local procedure Try212(var vEnumImpl: Enum "LT Y31 EI")
     begin
         Clear(vEnumImpl);
-        PA_EnumImpl_134(7);
+        PA_EnumImpl_211(7, vEnumImpl);
     end;
 
-    local procedure EX_EnumImpl_135(): Enum "LT Y31 EI"
+    local procedure EX_EnumImpl_213(): Enum "LT Y31 EI"
     begin
         exit(7);
     end;
 
     [TryFunction]
-    local procedure Try136()
+    local procedure Try214(var vEnumImpl: Enum "LT Y31 EI")
     begin
         Clear(vEnumImpl);
-        vEnumImpl := EX_EnumImpl_135();
+        vEnumImpl := EX_EnumImpl_213();
     end;
 
     [TryFunction]
-    local procedure Try137()
+    local procedure Try215(var vDuration: Duration)
     begin
         Clear(vDuration);
         vDuration := 7;
     end;
 
-    local procedure PA_Duration_137(p: Duration)
+    local procedure PA_Duration_216(p: Duration; var vDuration: Duration)
     begin
         vDuration := p;
     end;
 
     [TryFunction]
-    local procedure Try138()
+    local procedure Try217(var vDuration: Duration)
     begin
         Clear(vDuration);
-        PA_Duration_137(7);
+        PA_Duration_216(7, vDuration);
     end;
 
-    local procedure EX_Duration_138(): Duration
+    local procedure EX_Duration_218(): Duration
     begin
         exit(7);
     end;
 
     [TryFunction]
-    local procedure Try139()
+    local procedure Try219(var vDuration: Duration)
     begin
         Clear(vDuration);
-        vDuration := EX_Duration_138();
+        vDuration := EX_Duration_218();
     end;
 
     [TryFunction]
-    local procedure Try140()
+    local procedure Try220(var R: Record "LT Y31 Conv Fields")
     begin
         Clear(R.Integer);
         R.Integer := 7;
     end;
 
     [TryFunction]
-    local procedure Try141()
+    local procedure Try221(var R: Record "LT Y31 Conv Fields")
     begin
         Clear(R.BigInteger);
         R.BigInteger := 7;
     end;
 
     [TryFunction]
-    local procedure Try142()
+    local procedure Try222(var R: Record "LT Y31 Conv Fields")
     begin
         Clear(R.Decimal);
         R.Decimal := 7;
     end;
 
     [TryFunction]
-    local procedure Try143()
+    local procedure Try223(var R: Record "LT Y31 Conv Fields")
     begin
         Clear(R.Option);
         R.Option := 7;
     end;
 
     [TryFunction]
-    local procedure Try144()
+    local procedure Try224(var R: Record "LT Y31 Conv Fields")
     begin
         Clear(R.Enum);
         R.Enum := 7;
     end;
 
     [TryFunction]
-    local procedure Try145()
+    local procedure Try225(var R: Record "LT Y31 Conv Fields")
     begin
         Clear(R.Duration);
         R.Duration := 7;
     end;
 
     [TryFunction]
-    local procedure Try146()
+    local procedure Try226(var vInteger: Integer)
     begin
         Clear(vInteger);
         vInteger := "LT Y31 E"::C;
     end;
 
-    local procedure PA_Integer_146(p: Integer)
+    local procedure PA_Integer_227(p: Integer; var vInteger: Integer)
     begin
         vInteger := p;
     end;
 
     [TryFunction]
-    local procedure Try147()
+    local procedure Try228(var vInteger: Integer)
     begin
         Clear(vInteger);
-        PA_Integer_146("LT Y31 E"::C);
+        PA_Integer_227("LT Y31 E"::C, vInteger);
     end;
 
-    local procedure EX_Integer_147(): Integer
+    local procedure EX_Integer_229(): Integer
     begin
         exit("LT Y31 E"::C);
     end;
 
     [TryFunction]
-    local procedure Try148()
+    local procedure Try230(var vInteger: Integer)
     begin
         Clear(vInteger);
-        vInteger := EX_Integer_147();
+        vInteger := EX_Integer_229();
     end;
 
     [TryFunction]
-    local procedure Try149()
+    local procedure Try231(var vBigInteger: BigInteger)
     begin
         Clear(vBigInteger);
         vBigInteger := "LT Y31 E"::C;
     end;
 
-    local procedure PA_BigInteger_149(p: BigInteger)
+    local procedure PA_BigInteger_232(p: BigInteger; var vBigInteger: BigInteger)
     begin
         vBigInteger := p;
     end;
 
     [TryFunction]
-    local procedure Try150()
+    local procedure Try233(var vBigInteger: BigInteger)
     begin
         Clear(vBigInteger);
-        PA_BigInteger_149("LT Y31 E"::C);
+        PA_BigInteger_232("LT Y31 E"::C, vBigInteger);
     end;
 
-    local procedure EX_BigInteger_150(): BigInteger
+    local procedure EX_BigInteger_234(): BigInteger
     begin
         exit("LT Y31 E"::C);
     end;
 
     [TryFunction]
-    local procedure Try151()
+    local procedure Try235(var vBigInteger: BigInteger)
     begin
         Clear(vBigInteger);
-        vBigInteger := EX_BigInteger_150();
+        vBigInteger := EX_BigInteger_234();
     end;
 
     [TryFunction]
-    local procedure Try152()
+    local procedure Try236(var vOption: Option A,B,C)
     begin
         Clear(vOption);
         vOption := "LT Y31 E"::C;
     end;
 
-    local procedure PA_Option_152(p: Option A,B,C)
+    local procedure PA_Option_237(p: Option A,B,C; var vOption: Option A,B,C)
     begin
         vOption := p;
     end;
 
     [TryFunction]
-    local procedure Try153()
+    local procedure Try238(var vOption: Option A,B,C)
     begin
         Clear(vOption);
-        PA_Option_152("LT Y31 E"::C);
+        PA_Option_237("LT Y31 E"::C, vOption);
     end;
 
-    local procedure EX_Option_153(): Option A,B,C
+    local procedure EX_Option_239(): Option A,B,C
     begin
         exit("LT Y31 E"::C);
     end;
 
     [TryFunction]
-    local procedure Try154()
+    local procedure Try240(var vOption: Option A,B,C)
     begin
         Clear(vOption);
-        vOption := EX_Option_153();
+        vOption := EX_Option_239();
     end;
 
     [TryFunction]
-    local procedure Try155()
+    local procedure Try241(var vEnum: Enum "LT Y31 E")
     begin
         Clear(vEnum);
         vEnum := "LT Y31 E"::C;
     end;
 
-    local procedure PA_Enum_155(p: Enum "LT Y31 E")
+    local procedure PA_Enum_242(p: Enum "LT Y31 E"; var vEnum: Enum "LT Y31 E")
     begin
         vEnum := p;
     end;
 
     [TryFunction]
-    local procedure Try156()
+    local procedure Try243(var vEnum: Enum "LT Y31 E")
     begin
         Clear(vEnum);
-        PA_Enum_155("LT Y31 E"::C);
+        PA_Enum_242("LT Y31 E"::C, vEnum);
     end;
 
-    local procedure EX_Enum_156(): Enum "LT Y31 E"
+    local procedure EX_Enum_244(): Enum "LT Y31 E"
     begin
         exit("LT Y31 E"::C);
     end;
 
     [TryFunction]
-    local procedure Try157()
+    local procedure Try245(var vEnum: Enum "LT Y31 E")
     begin
         Clear(vEnum);
-        vEnum := EX_Enum_156();
+        vEnum := EX_Enum_244();
     end;
 
     [TryFunction]
-    local procedure Try158()
+    local procedure Try246(var R: Record "LT Y31 Conv Fields")
     begin
         Clear(R.Integer);
         R.Integer := "LT Y31 E"::C;
     end;
 
     [TryFunction]
-    local procedure Try159()
+    local procedure Try247(var R: Record "LT Y31 Conv Fields")
     begin
         Clear(R.BigInteger);
         R.BigInteger := "LT Y31 E"::C;
     end;
 
     [TryFunction]
-    local procedure Try160()
+    local procedure Try248(var R: Record "LT Y31 Conv Fields")
     begin
         Clear(R.Option);
         R.Option := "LT Y31 E"::C;
     end;
 
     [TryFunction]
-    local procedure Try161()
+    local procedure Try249(var R: Record "LT Y31 Conv Fields")
     begin
         Clear(R.Enum);
         R.Enum := "LT Y31 E"::C;

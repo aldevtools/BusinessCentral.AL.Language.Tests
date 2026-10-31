@@ -10,617 +10,446 @@ codeunit 92427 "LT Y31 Cmp Integer"
     Subtype = Test;
     TestPermissions = Disabled;
 
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        Res: Boolean;
-        V: Variant;
-        vBigInteger: BigInteger;
-        vByte: Byte;
-        vChar: Char;
-        vDecimal: Decimal;
-        vDuration: Duration;
-        vEnum: Enum "LT Y31 E";
-        vEnumImpl: Enum "LT Y31 EI";
-        vInteger: Integer;
-        vOption: Option A,B,C;
-
     [Test]
     procedure Integer_BigInteger()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vBigInteger: BigInteger;
+        vInteger: Integer;
     begin
         vInteger := 65;
         vBigInteger := 65;
-        if Try1() then Observer.Observe('eq.65.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.65');
+        if Try1(Res, vBigInteger, vInteger) then Observer.Observe('eq.65.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.65');
         vInteger := 65;
         vBigInteger := 65;
-        if Try2() then Observer.Observe('lt.65.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.65');
+        if Try2(Res, vBigInteger, vInteger) then Observer.Observe('lt.65.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.65');
         vInteger := 65;
         vBigInteger := 65;
-        if Try3() then Observer.Observe('in_set.65.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.65');
+        if Try3(Res, vBigInteger, vInteger) then Observer.Observe('in_set.65.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.65');
         vInteger := 65;
         vBigInteger := 65;
-        if Try4() then Observer.Observe('case_label.65.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.65');
+        if Try4(Res, vBigInteger, vInteger) then Observer.Observe('case_label.65.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.65');
         vInteger := 1;
         vBigInteger := 65;
-        if Try1() then Observer.Observe('eq.1.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.1.65');
+        if Try1(Res, vBigInteger, vInteger) then Observer.Observe('eq.1.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.1.65');
         vInteger := 1;
         vBigInteger := 65;
-        if Try2() then Observer.Observe('lt.1.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.1.65');
+        if Try2(Res, vBigInteger, vInteger) then Observer.Observe('lt.1.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.1.65');
         vInteger := 1;
         vBigInteger := 65;
-        if Try3() then Observer.Observe('in_set.1.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1.65');
+        if Try3(Res, vBigInteger, vInteger) then Observer.Observe('in_set.1.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1.65');
         vInteger := 1;
         vBigInteger := 65;
-        if Try4() then Observer.Observe('case_label.1.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1.65');
+        if Try4(Res, vBigInteger, vInteger) then Observer.Observe('case_label.1.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1.65');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Integer_BigInteger_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_BigInteger_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_BigInteger_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_BigInteger_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_BigInteger_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Integer_Decimal()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vDecimal: Decimal;
+        vInteger: Integer;
     begin
         vInteger := 65;
         vDecimal := 65;
-        if Try5() then Observer.Observe('eq.65.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.65');
+        if Try5(Res, vDecimal, vInteger) then Observer.Observe('eq.65.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.65');
         vInteger := 65;
         vDecimal := 65;
-        if Try6() then Observer.Observe('lt.65.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.65');
+        if Try6(Res, vDecimal, vInteger) then Observer.Observe('lt.65.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.65');
         vInteger := 65;
         vDecimal := 65;
-        if Try7() then Observer.Observe('in_set.65.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.65');
+        if Try7(Res, vDecimal, vInteger) then Observer.Observe('in_set.65.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.65');
         vInteger := 65;
         vDecimal := 65;
-        if Try8() then Observer.Observe('case_label.65.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.65');
+        if Try8(Res, vDecimal, vInteger) then Observer.Observe('case_label.65.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.65');
         vInteger := 65;
         vDecimal := 1.5;
-        if Try5() then Observer.Observe('eq.65.1p5', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.1p5');
+        if Try5(Res, vDecimal, vInteger) then Observer.Observe('eq.65.1p5', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.1p5');
         vInteger := 65;
         vDecimal := 1.5;
-        if Try6() then Observer.Observe('lt.65.1p5', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.1p5');
+        if Try6(Res, vDecimal, vInteger) then Observer.Observe('lt.65.1p5', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.1p5');
         vInteger := 65;
         vDecimal := 1.5;
-        if Try7() then Observer.Observe('in_set.65.1p5', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.1p5');
+        if Try7(Res, vDecimal, vInteger) then Observer.Observe('in_set.65.1p5', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.1p5');
         vInteger := 65;
         vDecimal := 1.5;
-        if Try8() then Observer.Observe('case_label.65.1p5', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.1p5');
-        vInteger := 1;
-        vDecimal := 65;
-        if Try5() then Observer.Observe('eq.1.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.1.65');
-        vInteger := 1;
-        vDecimal := 65;
-        if Try6() then Observer.Observe('lt.1.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.1.65');
-        vInteger := 1;
-        vDecimal := 65;
-        if Try7() then Observer.Observe('in_set.1.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1.65');
-        vInteger := 1;
-        vDecimal := 65;
-        if Try8() then Observer.Observe('case_label.1.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1.65');
-        vInteger := 1;
-        vDecimal := 1.5;
-        if Try5() then Observer.Observe('eq.1.1p5', Format(Res, 0, 9)) else Observer.ObserveError('eq.1.1p5');
-        vInteger := 1;
-        vDecimal := 1.5;
-        if Try6() then Observer.Observe('lt.1.1p5', Format(Res, 0, 9)) else Observer.ObserveError('lt.1.1p5');
-        vInteger := 1;
-        vDecimal := 1.5;
-        if Try7() then Observer.Observe('in_set.1.1p5', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1.1p5');
-        vInteger := 1;
-        vDecimal := 1.5;
-        if Try8() then Observer.Observe('case_label.1.1p5', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1.1p5');
+        if Try8(Res, vDecimal, vInteger) then Observer.Observe('case_label.65.1p5', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.1p5');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Integer_Decimal_More1()
+    procedure Integer_Decimal_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vDecimal: Decimal;
+        vInteger: Integer;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Decimal_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Decimal_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Decimal_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Decimal_More5()
-    begin
-        Observer.More();
+        vInteger := 1;
+        vDecimal := 65;
+        if Try5(Res, vDecimal, vInteger) then Observer.Observe('eq.1.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.1.65');
+        vInteger := 1;
+        vDecimal := 65;
+        if Try6(Res, vDecimal, vInteger) then Observer.Observe('lt.1.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.1.65');
+        vInteger := 1;
+        vDecimal := 65;
+        if Try7(Res, vDecimal, vInteger) then Observer.Observe('in_set.1.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1.65');
+        vInteger := 1;
+        vDecimal := 65;
+        if Try8(Res, vDecimal, vInteger) then Observer.Observe('case_label.1.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1.65');
+        vInteger := 1;
+        vDecimal := 1.5;
+        if Try5(Res, vDecimal, vInteger) then Observer.Observe('eq.1.1p5', Format(Res, 0, 9)) else Observer.ObserveError('eq.1.1p5');
+        vInteger := 1;
+        vDecimal := 1.5;
+        if Try6(Res, vDecimal, vInteger) then Observer.Observe('lt.1.1p5', Format(Res, 0, 9)) else Observer.ObserveError('lt.1.1p5');
+        vInteger := 1;
+        vDecimal := 1.5;
+        if Try7(Res, vDecimal, vInteger) then Observer.Observe('in_set.1.1p5', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1.1p5');
+        vInteger := 1;
+        vDecimal := 1.5;
+        if Try8(Res, vDecimal, vInteger) then Observer.Observe('case_label.1.1p5', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1.1p5');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Integer_Char()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vChar: Char;
+        vInteger: Integer;
     begin
         vInteger := 65;
         vChar := 65;
-        if Try9() then Observer.Observe('eq.65.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.A');
+        if Try9(Res, vChar, vInteger) then Observer.Observe('eq.65.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.A');
         vInteger := 65;
         vChar := 65;
-        if Try10() then Observer.Observe('lt.65.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.A');
+        if Try10(Res, vChar, vInteger) then Observer.Observe('lt.65.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.A');
         vInteger := 65;
         vChar := 65;
-        if Try11() then Observer.Observe('in_set.65.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.A');
+        if Try11(Res, vChar, vInteger) then Observer.Observe('in_set.65.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.A');
         vInteger := 65;
         vChar := 65;
-        if Try12() then Observer.Observe('case_label.65.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.A');
+        if Try12(Res, vChar, vInteger) then Observer.Observe('case_label.65.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.A');
         vInteger := 65;
         vChar := 97;
-        if Try9() then Observer.Observe('eq.65.a', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.a');
+        if Try9(Res, vChar, vInteger) then Observer.Observe('eq.65.a', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.a');
         vInteger := 65;
         vChar := 97;
-        if Try10() then Observer.Observe('lt.65.a', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.a');
+        if Try10(Res, vChar, vInteger) then Observer.Observe('lt.65.a', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.a');
         vInteger := 65;
         vChar := 97;
-        if Try11() then Observer.Observe('in_set.65.a', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.a');
+        if Try11(Res, vChar, vInteger) then Observer.Observe('in_set.65.a', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.a');
         vInteger := 65;
         vChar := 97;
-        if Try12() then Observer.Observe('case_label.65.a', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.a');
-        vInteger := 1;
-        vChar := 65;
-        if Try9() then Observer.Observe('eq.1.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.1.A');
-        vInteger := 1;
-        vChar := 65;
-        if Try10() then Observer.Observe('lt.1.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.1.A');
-        vInteger := 1;
-        vChar := 65;
-        if Try11() then Observer.Observe('in_set.1.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1.A');
-        vInteger := 1;
-        vChar := 65;
-        if Try12() then Observer.Observe('case_label.1.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1.A');
-        vInteger := 1;
-        vChar := 97;
-        if Try9() then Observer.Observe('eq.1.a', Format(Res, 0, 9)) else Observer.ObserveError('eq.1.a');
-        vInteger := 1;
-        vChar := 97;
-        if Try10() then Observer.Observe('lt.1.a', Format(Res, 0, 9)) else Observer.ObserveError('lt.1.a');
-        vInteger := 1;
-        vChar := 97;
-        if Try11() then Observer.Observe('in_set.1.a', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1.a');
-        vInteger := 1;
-        vChar := 97;
-        if Try12() then Observer.Observe('case_label.1.a', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1.a');
+        if Try12(Res, vChar, vInteger) then Observer.Observe('case_label.65.a', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.a');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Integer_Char_More1()
+    procedure Integer_Char_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vChar: Char;
+        vInteger: Integer;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Char_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Char_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Char_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Char_More5()
-    begin
-        Observer.More();
+        vInteger := 1;
+        vChar := 65;
+        if Try9(Res, vChar, vInteger) then Observer.Observe('eq.1.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.1.A');
+        vInteger := 1;
+        vChar := 65;
+        if Try10(Res, vChar, vInteger) then Observer.Observe('lt.1.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.1.A');
+        vInteger := 1;
+        vChar := 65;
+        if Try11(Res, vChar, vInteger) then Observer.Observe('in_set.1.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1.A');
+        vInteger := 1;
+        vChar := 65;
+        if Try12(Res, vChar, vInteger) then Observer.Observe('case_label.1.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1.A');
+        vInteger := 1;
+        vChar := 97;
+        if Try9(Res, vChar, vInteger) then Observer.Observe('eq.1.a', Format(Res, 0, 9)) else Observer.ObserveError('eq.1.a');
+        vInteger := 1;
+        vChar := 97;
+        if Try10(Res, vChar, vInteger) then Observer.Observe('lt.1.a', Format(Res, 0, 9)) else Observer.ObserveError('lt.1.a');
+        vInteger := 1;
+        vChar := 97;
+        if Try11(Res, vChar, vInteger) then Observer.Observe('in_set.1.a', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1.a');
+        vInteger := 1;
+        vChar := 97;
+        if Try12(Res, vChar, vInteger) then Observer.Observe('case_label.1.a', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1.a');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Integer_Byte()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vByte: Byte;
+        vInteger: Integer;
     begin
         vInteger := 65;
         vByte := 65;
-        if Try13() then Observer.Observe('eq.65.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.65');
+        if Try13(Res, vByte, vInteger) then Observer.Observe('eq.65.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.65');
         vInteger := 65;
         vByte := 65;
-        if Try14() then Observer.Observe('lt.65.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.65');
+        if Try14(Res, vByte, vInteger) then Observer.Observe('lt.65.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.65');
         vInteger := 65;
         vByte := 65;
-        if Try15() then Observer.Observe('in_set.65.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.65');
+        if Try15(Res, vByte, vInteger) then Observer.Observe('in_set.65.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.65');
         vInteger := 65;
         vByte := 65;
-        if Try16() then Observer.Observe('case_label.65.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.65');
+        if Try16(Res, vByte, vInteger) then Observer.Observe('case_label.65.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.65');
         vInteger := 1;
         vByte := 65;
-        if Try13() then Observer.Observe('eq.1.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.1.65');
+        if Try13(Res, vByte, vInteger) then Observer.Observe('eq.1.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.1.65');
         vInteger := 1;
         vByte := 65;
-        if Try14() then Observer.Observe('lt.1.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.1.65');
+        if Try14(Res, vByte, vInteger) then Observer.Observe('lt.1.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.1.65');
         vInteger := 1;
         vByte := 65;
-        if Try15() then Observer.Observe('in_set.1.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1.65');
+        if Try15(Res, vByte, vInteger) then Observer.Observe('in_set.1.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1.65');
         vInteger := 1;
         vByte := 65;
-        if Try16() then Observer.Observe('case_label.1.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1.65');
+        if Try16(Res, vByte, vInteger) then Observer.Observe('case_label.1.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1.65');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Integer_Byte_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Byte_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Byte_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Byte_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Byte_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Integer_Option()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vInteger: Integer;
+        vOption: Option A,B,C;
     begin
         vInteger := 65;
         vOption := 1;
-        if Try17() then Observer.Observe('eq.65.1', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.1');
+        if Try17(Res, vInteger, vOption) then Observer.Observe('eq.65.1', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.1');
         vInteger := 65;
         vOption := 1;
-        if Try18() then Observer.Observe('lt.65.1', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.1');
+        if Try18(Res, vInteger, vOption) then Observer.Observe('lt.65.1', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.1');
         vInteger := 65;
         vOption := 1;
-        if Try19() then Observer.Observe('in_set.65.1', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.1');
+        if Try19(Res, vInteger, vOption) then Observer.Observe('in_set.65.1', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.1');
         vInteger := 65;
         vOption := 1;
-        if Try20() then Observer.Observe('case_label.65.1', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.1');
+        if Try20(Res, vInteger, vOption) then Observer.Observe('case_label.65.1', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.1');
         vInteger := 65;
         vOption := 3;
-        if Try17() then Observer.Observe('eq.65.3', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.3');
+        if Try17(Res, vInteger, vOption) then Observer.Observe('eq.65.3', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.3');
         vInteger := 65;
         vOption := 3;
-        if Try18() then Observer.Observe('lt.65.3', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.3');
+        if Try18(Res, vInteger, vOption) then Observer.Observe('lt.65.3', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.3');
         vInteger := 65;
         vOption := 3;
-        if Try19() then Observer.Observe('in_set.65.3', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.3');
+        if Try19(Res, vInteger, vOption) then Observer.Observe('in_set.65.3', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.3');
         vInteger := 65;
         vOption := 3;
-        if Try20() then Observer.Observe('case_label.65.3', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.3');
-        vInteger := 1;
-        vOption := 1;
-        if Try17() then Observer.Observe('eq.1.1', Format(Res, 0, 9)) else Observer.ObserveError('eq.1.1');
-        vInteger := 1;
-        vOption := 1;
-        if Try18() then Observer.Observe('lt.1.1', Format(Res, 0, 9)) else Observer.ObserveError('lt.1.1');
-        vInteger := 1;
-        vOption := 1;
-        if Try19() then Observer.Observe('in_set.1.1', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1.1');
-        vInteger := 1;
-        vOption := 1;
-        if Try20() then Observer.Observe('case_label.1.1', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1.1');
-        vInteger := 1;
-        vOption := 3;
-        if Try17() then Observer.Observe('eq.1.3', Format(Res, 0, 9)) else Observer.ObserveError('eq.1.3');
-        vInteger := 1;
-        vOption := 3;
-        if Try18() then Observer.Observe('lt.1.3', Format(Res, 0, 9)) else Observer.ObserveError('lt.1.3');
-        vInteger := 1;
-        vOption := 3;
-        if Try19() then Observer.Observe('in_set.1.3', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1.3');
-        vInteger := 1;
-        vOption := 3;
-        if Try20() then Observer.Observe('case_label.1.3', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1.3');
+        if Try20(Res, vInteger, vOption) then Observer.Observe('case_label.65.3', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.3');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Integer_Option_More1()
+    procedure Integer_Option_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vInteger: Integer;
+        vOption: Option A,B,C;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Option_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Option_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Option_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Option_More5()
-    begin
-        Observer.More();
+        vInteger := 1;
+        vOption := 1;
+        if Try17(Res, vInteger, vOption) then Observer.Observe('eq.1.1', Format(Res, 0, 9)) else Observer.ObserveError('eq.1.1');
+        vInteger := 1;
+        vOption := 1;
+        if Try18(Res, vInteger, vOption) then Observer.Observe('lt.1.1', Format(Res, 0, 9)) else Observer.ObserveError('lt.1.1');
+        vInteger := 1;
+        vOption := 1;
+        if Try19(Res, vInteger, vOption) then Observer.Observe('in_set.1.1', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1.1');
+        vInteger := 1;
+        vOption := 1;
+        if Try20(Res, vInteger, vOption) then Observer.Observe('case_label.1.1', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1.1');
+        vInteger := 1;
+        vOption := 3;
+        if Try17(Res, vInteger, vOption) then Observer.Observe('eq.1.3', Format(Res, 0, 9)) else Observer.ObserveError('eq.1.3');
+        vInteger := 1;
+        vOption := 3;
+        if Try18(Res, vInteger, vOption) then Observer.Observe('lt.1.3', Format(Res, 0, 9)) else Observer.ObserveError('lt.1.3');
+        vInteger := 1;
+        vOption := 3;
+        if Try19(Res, vInteger, vOption) then Observer.Observe('in_set.1.3', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1.3');
+        vInteger := 1;
+        vOption := 3;
+        if Try20(Res, vInteger, vOption) then Observer.Observe('case_label.1.3', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1.3');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Integer_Enum()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vEnum: Enum "LT Y31 E";
+        vInteger: Integer;
     begin
         vInteger := 65;
         vEnum := "LT Y31 E"::B;
-        if Try21() then Observer.Observe('eq.65.B', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.B');
+        if Try21(Res, vEnum, vInteger) then Observer.Observe('eq.65.B', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.B');
         vInteger := 65;
         vEnum := "LT Y31 E"::B;
-        if Try22() then Observer.Observe('lt.65.B', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.B');
+        if Try22(Res, vEnum, vInteger) then Observer.Observe('lt.65.B', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.B');
         vInteger := 65;
         vEnum := "LT Y31 E"::B;
-        if Try23() then Observer.Observe('in_set.65.B', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.B');
+        if Try23(Res, vEnum, vInteger) then Observer.Observe('in_set.65.B', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.B');
         vInteger := 65;
         vEnum := "LT Y31 E"::B;
-        if Try24() then Observer.Observe('case_label.65.B', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.B');
+        if Try24(Res, vEnum, vInteger) then Observer.Observe('case_label.65.B', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.B');
         vInteger := 65;
         vEnum := 5;
-        if Try21() then Observer.Observe('eq.65.ord5', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.ord5');
+        if Try21(Res, vEnum, vInteger) then Observer.Observe('eq.65.ord5', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.ord5');
         vInteger := 65;
         vEnum := 5;
-        if Try22() then Observer.Observe('lt.65.ord5', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.ord5');
+        if Try22(Res, vEnum, vInteger) then Observer.Observe('lt.65.ord5', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.ord5');
         vInteger := 65;
         vEnum := 5;
-        if Try23() then Observer.Observe('in_set.65.ord5', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.ord5');
+        if Try23(Res, vEnum, vInteger) then Observer.Observe('in_set.65.ord5', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.ord5');
         vInteger := 65;
         vEnum := 5;
-        if Try24() then Observer.Observe('case_label.65.ord5', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.ord5');
-        vInteger := 1;
-        vEnum := "LT Y31 E"::B;
-        if Try21() then Observer.Observe('eq.1.B', Format(Res, 0, 9)) else Observer.ObserveError('eq.1.B');
-        vInteger := 1;
-        vEnum := "LT Y31 E"::B;
-        if Try22() then Observer.Observe('lt.1.B', Format(Res, 0, 9)) else Observer.ObserveError('lt.1.B');
-        vInteger := 1;
-        vEnum := "LT Y31 E"::B;
-        if Try23() then Observer.Observe('in_set.1.B', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1.B');
-        vInteger := 1;
-        vEnum := "LT Y31 E"::B;
-        if Try24() then Observer.Observe('case_label.1.B', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1.B');
-        vInteger := 1;
-        vEnum := 5;
-        if Try21() then Observer.Observe('eq.1.ord5', Format(Res, 0, 9)) else Observer.ObserveError('eq.1.ord5');
-        vInteger := 1;
-        vEnum := 5;
-        if Try22() then Observer.Observe('lt.1.ord5', Format(Res, 0, 9)) else Observer.ObserveError('lt.1.ord5');
-        vInteger := 1;
-        vEnum := 5;
-        if Try23() then Observer.Observe('in_set.1.ord5', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1.ord5');
-        vInteger := 1;
-        vEnum := 5;
-        if Try24() then Observer.Observe('case_label.1.ord5', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1.ord5');
+        if Try24(Res, vEnum, vInteger) then Observer.Observe('case_label.65.ord5', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.ord5');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Integer_Enum_More1()
+    procedure Integer_Enum_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vEnum: Enum "LT Y31 E";
+        vInteger: Integer;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Enum_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Enum_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Enum_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Enum_More5()
-    begin
-        Observer.More();
+        vInteger := 1;
+        vEnum := "LT Y31 E"::B;
+        if Try21(Res, vEnum, vInteger) then Observer.Observe('eq.1.B', Format(Res, 0, 9)) else Observer.ObserveError('eq.1.B');
+        vInteger := 1;
+        vEnum := "LT Y31 E"::B;
+        if Try22(Res, vEnum, vInteger) then Observer.Observe('lt.1.B', Format(Res, 0, 9)) else Observer.ObserveError('lt.1.B');
+        vInteger := 1;
+        vEnum := "LT Y31 E"::B;
+        if Try23(Res, vEnum, vInteger) then Observer.Observe('in_set.1.B', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1.B');
+        vInteger := 1;
+        vEnum := "LT Y31 E"::B;
+        if Try24(Res, vEnum, vInteger) then Observer.Observe('case_label.1.B', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1.B');
+        vInteger := 1;
+        vEnum := 5;
+        if Try21(Res, vEnum, vInteger) then Observer.Observe('eq.1.ord5', Format(Res, 0, 9)) else Observer.ObserveError('eq.1.ord5');
+        vInteger := 1;
+        vEnum := 5;
+        if Try22(Res, vEnum, vInteger) then Observer.Observe('lt.1.ord5', Format(Res, 0, 9)) else Observer.ObserveError('lt.1.ord5');
+        vInteger := 1;
+        vEnum := 5;
+        if Try23(Res, vEnum, vInteger) then Observer.Observe('in_set.1.ord5', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1.ord5');
+        vInteger := 1;
+        vEnum := 5;
+        if Try24(Res, vEnum, vInteger) then Observer.Observe('case_label.1.ord5', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1.ord5');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Integer_EnumImpl()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vEnumImpl: Enum "LT Y31 EI";
+        vInteger: Integer;
     begin
         vInteger := 65;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try25() then Observer.Observe('eq.65.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.A');
+        if Try25(Res, vEnumImpl, vInteger) then Observer.Observe('eq.65.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.A');
         vInteger := 65;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try26() then Observer.Observe('lt.65.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.A');
+        if Try26(Res, vEnumImpl, vInteger) then Observer.Observe('lt.65.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.A');
         vInteger := 65;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try27() then Observer.Observe('in_set.65.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.A');
+        if Try27(Res, vEnumImpl, vInteger) then Observer.Observe('in_set.65.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.A');
         vInteger := 65;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try28() then Observer.Observe('case_label.65.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.A');
+        if Try28(Res, vEnumImpl, vInteger) then Observer.Observe('case_label.65.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.A');
         vInteger := 1;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try25() then Observer.Observe('eq.1.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.1.A');
+        if Try25(Res, vEnumImpl, vInteger) then Observer.Observe('eq.1.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.1.A');
         vInteger := 1;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try26() then Observer.Observe('lt.1.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.1.A');
+        if Try26(Res, vEnumImpl, vInteger) then Observer.Observe('lt.1.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.1.A');
         vInteger := 1;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try27() then Observer.Observe('in_set.1.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1.A');
+        if Try27(Res, vEnumImpl, vInteger) then Observer.Observe('in_set.1.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1.A');
         vInteger := 1;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try28() then Observer.Observe('case_label.1.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1.A');
+        if Try28(Res, vEnumImpl, vInteger) then Observer.Observe('case_label.1.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1.A');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Integer_EnumImpl_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_EnumImpl_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_EnumImpl_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_EnumImpl_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_EnumImpl_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Integer_Duration()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vDuration: Duration;
+        vInteger: Integer;
     begin
         vInteger := 65;
         vDuration := 65;
-        if Try29() then Observer.Observe('eq.65.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.65');
+        if Try29(Res, vDuration, vInteger) then Observer.Observe('eq.65.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.65');
         vInteger := 65;
         vDuration := 65;
-        if Try30() then Observer.Observe('lt.65.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.65');
+        if Try30(Res, vDuration, vInteger) then Observer.Observe('lt.65.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.65');
         vInteger := 65;
         vDuration := 65;
-        if Try31() then Observer.Observe('in_set.65.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.65');
+        if Try31(Res, vDuration, vInteger) then Observer.Observe('in_set.65.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.65');
         vInteger := 65;
         vDuration := 65;
-        if Try32() then Observer.Observe('case_label.65.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.65');
+        if Try32(Res, vDuration, vInteger) then Observer.Observe('case_label.65.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.65');
         vInteger := 1;
         vDuration := 65;
-        if Try29() then Observer.Observe('eq.1.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.1.65');
+        if Try29(Res, vDuration, vInteger) then Observer.Observe('eq.1.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.1.65');
         vInteger := 1;
         vDuration := 65;
-        if Try30() then Observer.Observe('lt.1.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.1.65');
+        if Try30(Res, vDuration, vInteger) then Observer.Observe('lt.1.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.1.65');
         vInteger := 1;
         vDuration := 65;
-        if Try31() then Observer.Observe('in_set.1.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1.65');
+        if Try31(Res, vDuration, vInteger) then Observer.Observe('in_set.1.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1.65');
         vInteger := 1;
         vDuration := 65;
-        if Try32() then Observer.Observe('case_label.1.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1.65');
+        if Try32(Res, vDuration, vInteger) then Observer.Observe('case_label.1.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1.65');
         Observer.Finish();
     end;
 
-    [Test]
-    procedure Integer_Duration_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Duration_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Duration_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Duration_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Duration_More5()
-    begin
-        Observer.More();
-    end;
-
     [TryFunction]
-    local procedure Try1()
+    local procedure Try1(var Res: Boolean; var vBigInteger: BigInteger; var vInteger: Integer)
     begin
         Res := vInteger = vBigInteger;
     end;
 
     [TryFunction]
-    local procedure Try2()
+    local procedure Try2(var Res: Boolean; var vBigInteger: BigInteger; var vInteger: Integer)
     begin
         Res := vInteger < vBigInteger;
     end;
 
     [TryFunction]
-    local procedure Try3()
+    local procedure Try3(var Res: Boolean; var vBigInteger: BigInteger; var vInteger: Integer)
     begin
         Res := vInteger in [vBigInteger];
     end;
 
     [TryFunction]
-    local procedure Try4()
+    local procedure Try4(var Res: Boolean; var vBigInteger: BigInteger; var vInteger: Integer)
     begin
         Res := false;
         case vInteger of
@@ -630,25 +459,25 @@ codeunit 92427 "LT Y31 Cmp Integer"
     end;
 
     [TryFunction]
-    local procedure Try5()
+    local procedure Try5(var Res: Boolean; var vDecimal: Decimal; var vInteger: Integer)
     begin
         Res := vInteger = vDecimal;
     end;
 
     [TryFunction]
-    local procedure Try6()
+    local procedure Try6(var Res: Boolean; var vDecimal: Decimal; var vInteger: Integer)
     begin
         Res := vInteger < vDecimal;
     end;
 
     [TryFunction]
-    local procedure Try7()
+    local procedure Try7(var Res: Boolean; var vDecimal: Decimal; var vInteger: Integer)
     begin
         Res := vInteger in [vDecimal];
     end;
 
     [TryFunction]
-    local procedure Try8()
+    local procedure Try8(var Res: Boolean; var vDecimal: Decimal; var vInteger: Integer)
     begin
         Res := false;
         case vInteger of
@@ -658,25 +487,25 @@ codeunit 92427 "LT Y31 Cmp Integer"
     end;
 
     [TryFunction]
-    local procedure Try9()
+    local procedure Try9(var Res: Boolean; var vChar: Char; var vInteger: Integer)
     begin
         Res := vInteger = vChar;
     end;
 
     [TryFunction]
-    local procedure Try10()
+    local procedure Try10(var Res: Boolean; var vChar: Char; var vInteger: Integer)
     begin
         Res := vInteger < vChar;
     end;
 
     [TryFunction]
-    local procedure Try11()
+    local procedure Try11(var Res: Boolean; var vChar: Char; var vInteger: Integer)
     begin
         Res := vInteger in [vChar];
     end;
 
     [TryFunction]
-    local procedure Try12()
+    local procedure Try12(var Res: Boolean; var vChar: Char; var vInteger: Integer)
     begin
         Res := false;
         case vInteger of
@@ -686,25 +515,25 @@ codeunit 92427 "LT Y31 Cmp Integer"
     end;
 
     [TryFunction]
-    local procedure Try13()
+    local procedure Try13(var Res: Boolean; var vByte: Byte; var vInteger: Integer)
     begin
         Res := vInteger = vByte;
     end;
 
     [TryFunction]
-    local procedure Try14()
+    local procedure Try14(var Res: Boolean; var vByte: Byte; var vInteger: Integer)
     begin
         Res := vInteger < vByte;
     end;
 
     [TryFunction]
-    local procedure Try15()
+    local procedure Try15(var Res: Boolean; var vByte: Byte; var vInteger: Integer)
     begin
         Res := vInteger in [vByte];
     end;
 
     [TryFunction]
-    local procedure Try16()
+    local procedure Try16(var Res: Boolean; var vByte: Byte; var vInteger: Integer)
     begin
         Res := false;
         case vInteger of
@@ -714,25 +543,25 @@ codeunit 92427 "LT Y31 Cmp Integer"
     end;
 
     [TryFunction]
-    local procedure Try17()
+    local procedure Try17(var Res: Boolean; var vInteger: Integer; var vOption: Option A,B,C)
     begin
         Res := vInteger = vOption;
     end;
 
     [TryFunction]
-    local procedure Try18()
+    local procedure Try18(var Res: Boolean; var vInteger: Integer; var vOption: Option A,B,C)
     begin
         Res := vInteger < vOption;
     end;
 
     [TryFunction]
-    local procedure Try19()
+    local procedure Try19(var Res: Boolean; var vInteger: Integer; var vOption: Option A,B,C)
     begin
         Res := vInteger in [vOption];
     end;
 
     [TryFunction]
-    local procedure Try20()
+    local procedure Try20(var Res: Boolean; var vInteger: Integer; var vOption: Option A,B,C)
     begin
         Res := false;
         case vInteger of
@@ -742,25 +571,25 @@ codeunit 92427 "LT Y31 Cmp Integer"
     end;
 
     [TryFunction]
-    local procedure Try21()
+    local procedure Try21(var Res: Boolean; var vEnum: Enum "LT Y31 E"; var vInteger: Integer)
     begin
         Res := vInteger = vEnum;
     end;
 
     [TryFunction]
-    local procedure Try22()
+    local procedure Try22(var Res: Boolean; var vEnum: Enum "LT Y31 E"; var vInteger: Integer)
     begin
         Res := vInteger < vEnum;
     end;
 
     [TryFunction]
-    local procedure Try23()
+    local procedure Try23(var Res: Boolean; var vEnum: Enum "LT Y31 E"; var vInteger: Integer)
     begin
         Res := vInteger in [vEnum];
     end;
 
     [TryFunction]
-    local procedure Try24()
+    local procedure Try24(var Res: Boolean; var vEnum: Enum "LT Y31 E"; var vInteger: Integer)
     begin
         Res := false;
         case vInteger of
@@ -770,25 +599,25 @@ codeunit 92427 "LT Y31 Cmp Integer"
     end;
 
     [TryFunction]
-    local procedure Try25()
+    local procedure Try25(var Res: Boolean; var vEnumImpl: Enum "LT Y31 EI"; var vInteger: Integer)
     begin
         Res := vInteger = vEnumImpl;
     end;
 
     [TryFunction]
-    local procedure Try26()
+    local procedure Try26(var Res: Boolean; var vEnumImpl: Enum "LT Y31 EI"; var vInteger: Integer)
     begin
         Res := vInteger < vEnumImpl;
     end;
 
     [TryFunction]
-    local procedure Try27()
+    local procedure Try27(var Res: Boolean; var vEnumImpl: Enum "LT Y31 EI"; var vInteger: Integer)
     begin
         Res := vInteger in [vEnumImpl];
     end;
 
     [TryFunction]
-    local procedure Try28()
+    local procedure Try28(var Res: Boolean; var vEnumImpl: Enum "LT Y31 EI"; var vInteger: Integer)
     begin
         Res := false;
         case vInteger of
@@ -798,25 +627,25 @@ codeunit 92427 "LT Y31 Cmp Integer"
     end;
 
     [TryFunction]
-    local procedure Try29()
+    local procedure Try29(var Res: Boolean; var vDuration: Duration; var vInteger: Integer)
     begin
         Res := vInteger = vDuration;
     end;
 
     [TryFunction]
-    local procedure Try30()
+    local procedure Try30(var Res: Boolean; var vDuration: Duration; var vInteger: Integer)
     begin
         Res := vInteger < vDuration;
     end;
 
     [TryFunction]
-    local procedure Try31()
+    local procedure Try31(var Res: Boolean; var vDuration: Duration; var vInteger: Integer)
     begin
         Res := vInteger in [vDuration];
     end;
 
     [TryFunction]
-    local procedure Try32()
+    local procedure Try32(var Res: Boolean; var vDuration: Duration; var vInteger: Integer)
     begin
         Res := false;
         case vInteger of
@@ -839,467 +668,252 @@ codeunit 92428 "LT Y31 Cmp BigInteger"
     Subtype = Test;
     TestPermissions = Disabled;
 
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        Res: Boolean;
-        V: Variant;
-        vBigInteger: BigInteger;
-        vByte: Byte;
-        vChar: Char;
-        vDecimal: Decimal;
-        vDuration: Duration;
-        vEnum: Enum "LT Y31 E";
-        vEnumImpl: Enum "LT Y31 EI";
-        vInteger: Integer;
-        vOption: Option A,B,C;
-
     [Test]
     procedure BigInteger_Integer()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vBigInteger: BigInteger;
+        vInteger: Integer;
     begin
         vBigInteger := 65;
         vInteger := 65;
-        if Try1() then Observer.Observe('eq.65.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.65');
+        if Try1(Res, vBigInteger, vInteger) then Observer.Observe('eq.65.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.65');
         vBigInteger := 65;
         vInteger := 65;
-        if Try2() then Observer.Observe('lt.65.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.65');
+        if Try2(Res, vBigInteger, vInteger) then Observer.Observe('lt.65.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.65');
         vBigInteger := 65;
         vInteger := 65;
-        if Try3() then Observer.Observe('in_set.65.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.65');
+        if Try3(Res, vBigInteger, vInteger) then Observer.Observe('in_set.65.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.65');
         vBigInteger := 65;
         vInteger := 65;
-        if Try4() then Observer.Observe('case_label.65.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.65');
+        if Try4(Res, vBigInteger, vInteger) then Observer.Observe('case_label.65.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.65');
         vBigInteger := 65;
         vInteger := 1;
-        if Try1() then Observer.Observe('eq.65.1', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.1');
+        if Try1(Res, vBigInteger, vInteger) then Observer.Observe('eq.65.1', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.1');
         vBigInteger := 65;
         vInteger := 1;
-        if Try2() then Observer.Observe('lt.65.1', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.1');
+        if Try2(Res, vBigInteger, vInteger) then Observer.Observe('lt.65.1', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.1');
         vBigInteger := 65;
         vInteger := 1;
-        if Try3() then Observer.Observe('in_set.65.1', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.1');
+        if Try3(Res, vBigInteger, vInteger) then Observer.Observe('in_set.65.1', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.1');
         vBigInteger := 65;
         vInteger := 1;
-        if Try4() then Observer.Observe('case_label.65.1', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.1');
+        if Try4(Res, vBigInteger, vInteger) then Observer.Observe('case_label.65.1', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.1');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure BigInteger_Integer_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Integer_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Integer_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Integer_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Integer_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure BigInteger_Decimal()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vBigInteger: BigInteger;
+        vDecimal: Decimal;
     begin
         vBigInteger := 65;
         vDecimal := 65;
-        if Try5() then Observer.Observe('eq.65.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.65');
+        if Try5(Res, vBigInteger, vDecimal) then Observer.Observe('eq.65.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.65');
         vBigInteger := 65;
         vDecimal := 65;
-        if Try6() then Observer.Observe('lt.65.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.65');
+        if Try6(Res, vBigInteger, vDecimal) then Observer.Observe('lt.65.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.65');
         vBigInteger := 65;
         vDecimal := 65;
-        if Try7() then Observer.Observe('in_set.65.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.65');
+        if Try7(Res, vBigInteger, vDecimal) then Observer.Observe('in_set.65.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.65');
         vBigInteger := 65;
         vDecimal := 65;
-        if Try8() then Observer.Observe('case_label.65.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.65');
+        if Try8(Res, vBigInteger, vDecimal) then Observer.Observe('case_label.65.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.65');
         vBigInteger := 65;
         vDecimal := 1.5;
-        if Try5() then Observer.Observe('eq.65.1p5', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.1p5');
+        if Try5(Res, vBigInteger, vDecimal) then Observer.Observe('eq.65.1p5', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.1p5');
         vBigInteger := 65;
         vDecimal := 1.5;
-        if Try6() then Observer.Observe('lt.65.1p5', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.1p5');
+        if Try6(Res, vBigInteger, vDecimal) then Observer.Observe('lt.65.1p5', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.1p5');
         vBigInteger := 65;
         vDecimal := 1.5;
-        if Try7() then Observer.Observe('in_set.65.1p5', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.1p5');
+        if Try7(Res, vBigInteger, vDecimal) then Observer.Observe('in_set.65.1p5', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.1p5');
         vBigInteger := 65;
         vDecimal := 1.5;
-        if Try8() then Observer.Observe('case_label.65.1p5', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.1p5');
+        if Try8(Res, vBigInteger, vDecimal) then Observer.Observe('case_label.65.1p5', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.1p5');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure BigInteger_Decimal_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Decimal_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Decimal_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Decimal_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Decimal_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure BigInteger_Char()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vBigInteger: BigInteger;
+        vChar: Char;
     begin
         vBigInteger := 65;
         vChar := 65;
-        if Try9() then Observer.Observe('eq.65.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.A');
+        if Try9(Res, vBigInteger, vChar) then Observer.Observe('eq.65.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.A');
         vBigInteger := 65;
         vChar := 65;
-        if Try10() then Observer.Observe('lt.65.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.A');
+        if Try10(Res, vBigInteger, vChar) then Observer.Observe('lt.65.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.A');
         vBigInteger := 65;
         vChar := 65;
-        if Try11() then Observer.Observe('in_set.65.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.A');
+        if Try11(Res, vBigInteger, vChar) then Observer.Observe('in_set.65.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.A');
         vBigInteger := 65;
         vChar := 65;
-        if Try12() then Observer.Observe('case_label.65.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.A');
+        if Try12(Res, vBigInteger, vChar) then Observer.Observe('case_label.65.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.A');
         vBigInteger := 65;
         vChar := 97;
-        if Try9() then Observer.Observe('eq.65.a', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.a');
+        if Try9(Res, vBigInteger, vChar) then Observer.Observe('eq.65.a', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.a');
         vBigInteger := 65;
         vChar := 97;
-        if Try10() then Observer.Observe('lt.65.a', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.a');
+        if Try10(Res, vBigInteger, vChar) then Observer.Observe('lt.65.a', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.a');
         vBigInteger := 65;
         vChar := 97;
-        if Try11() then Observer.Observe('in_set.65.a', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.a');
+        if Try11(Res, vBigInteger, vChar) then Observer.Observe('in_set.65.a', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.a');
         vBigInteger := 65;
         vChar := 97;
-        if Try12() then Observer.Observe('case_label.65.a', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.a');
+        if Try12(Res, vBigInteger, vChar) then Observer.Observe('case_label.65.a', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.a');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure BigInteger_Char_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Char_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Char_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Char_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Char_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure BigInteger_Byte()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vBigInteger: BigInteger;
+        vByte: Byte;
     begin
         vBigInteger := 65;
         vByte := 65;
-        if Try13() then Observer.Observe('eq.65.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.65');
+        if Try13(Res, vBigInteger, vByte) then Observer.Observe('eq.65.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.65');
         vBigInteger := 65;
         vByte := 65;
-        if Try14() then Observer.Observe('lt.65.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.65');
+        if Try14(Res, vBigInteger, vByte) then Observer.Observe('lt.65.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.65');
         vBigInteger := 65;
         vByte := 65;
-        if Try15() then Observer.Observe('in_set.65.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.65');
+        if Try15(Res, vBigInteger, vByte) then Observer.Observe('in_set.65.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.65');
         vBigInteger := 65;
         vByte := 65;
-        if Try16() then Observer.Observe('case_label.65.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.65');
+        if Try16(Res, vBigInteger, vByte) then Observer.Observe('case_label.65.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.65');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure BigInteger_Byte_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Byte_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Byte_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Byte_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Byte_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure BigInteger_Option()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vBigInteger: BigInteger;
+        vOption: Option A,B,C;
     begin
         vBigInteger := 65;
         vOption := 1;
-        if Try17() then Observer.Observe('eq.65.1', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.1');
+        if Try17(Res, vBigInteger, vOption) then Observer.Observe('eq.65.1', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.1');
         vBigInteger := 65;
         vOption := 1;
-        if Try18() then Observer.Observe('lt.65.1', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.1');
+        if Try18(Res, vBigInteger, vOption) then Observer.Observe('lt.65.1', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.1');
         vBigInteger := 65;
         vOption := 1;
-        if Try19() then Observer.Observe('in_set.65.1', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.1');
+        if Try19(Res, vBigInteger, vOption) then Observer.Observe('in_set.65.1', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.1');
         vBigInteger := 65;
         vOption := 1;
-        if Try20() then Observer.Observe('case_label.65.1', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.1');
+        if Try20(Res, vBigInteger, vOption) then Observer.Observe('case_label.65.1', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.1');
         vBigInteger := 65;
         vOption := 3;
-        if Try17() then Observer.Observe('eq.65.3', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.3');
+        if Try17(Res, vBigInteger, vOption) then Observer.Observe('eq.65.3', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.3');
         vBigInteger := 65;
         vOption := 3;
-        if Try18() then Observer.Observe('lt.65.3', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.3');
+        if Try18(Res, vBigInteger, vOption) then Observer.Observe('lt.65.3', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.3');
         vBigInteger := 65;
         vOption := 3;
-        if Try19() then Observer.Observe('in_set.65.3', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.3');
+        if Try19(Res, vBigInteger, vOption) then Observer.Observe('in_set.65.3', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.3');
         vBigInteger := 65;
         vOption := 3;
-        if Try20() then Observer.Observe('case_label.65.3', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.3');
+        if Try20(Res, vBigInteger, vOption) then Observer.Observe('case_label.65.3', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.3');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure BigInteger_Option_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Option_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Option_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Option_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Option_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure BigInteger_Enum()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vBigInteger: BigInteger;
+        vEnum: Enum "LT Y31 E";
     begin
         vBigInteger := 65;
         vEnum := "LT Y31 E"::B;
-        if Try21() then Observer.Observe('in_set.65.B', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.B');
+        if Try21(Res, vBigInteger, vEnum) then Observer.Observe('in_set.65.B', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.B');
         vBigInteger := 65;
         vEnum := "LT Y31 E"::B;
-        if Try22() then Observer.Observe('case_label.65.B', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.B');
+        if Try22(Res, vBigInteger, vEnum) then Observer.Observe('case_label.65.B', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.B');
         vBigInteger := 65;
         vEnum := 5;
-        if Try21() then Observer.Observe('in_set.65.ord5', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.ord5');
+        if Try21(Res, vBigInteger, vEnum) then Observer.Observe('in_set.65.ord5', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.ord5');
         vBigInteger := 65;
         vEnum := 5;
-        if Try22() then Observer.Observe('case_label.65.ord5', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.ord5');
+        if Try22(Res, vBigInteger, vEnum) then Observer.Observe('case_label.65.ord5', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.ord5');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure BigInteger_Enum_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Enum_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Enum_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Enum_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Enum_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure BigInteger_EnumImpl()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vBigInteger: BigInteger;
+        vEnumImpl: Enum "LT Y31 EI";
     begin
         vBigInteger := 65;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try23() then Observer.Observe('in_set.65.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.A');
+        if Try23(Res, vBigInteger, vEnumImpl) then Observer.Observe('in_set.65.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.A');
         vBigInteger := 65;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try24() then Observer.Observe('case_label.65.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.A');
+        if Try24(Res, vBigInteger, vEnumImpl) then Observer.Observe('case_label.65.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.A');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure BigInteger_EnumImpl_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_EnumImpl_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_EnumImpl_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_EnumImpl_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_EnumImpl_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure BigInteger_Duration()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vBigInteger: BigInteger;
+        vDuration: Duration;
     begin
         vBigInteger := 65;
         vDuration := 65;
-        if Try25() then Observer.Observe('eq.65.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.65');
+        if Try25(Res, vBigInteger, vDuration) then Observer.Observe('eq.65.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.65');
         vBigInteger := 65;
         vDuration := 65;
-        if Try26() then Observer.Observe('lt.65.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.65');
+        if Try26(Res, vBigInteger, vDuration) then Observer.Observe('lt.65.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.65');
         vBigInteger := 65;
         vDuration := 65;
-        if Try27() then Observer.Observe('in_set.65.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.65');
+        if Try27(Res, vBigInteger, vDuration) then Observer.Observe('in_set.65.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.65');
         vBigInteger := 65;
         vDuration := 65;
-        if Try28() then Observer.Observe('case_label.65.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.65');
+        if Try28(Res, vBigInteger, vDuration) then Observer.Observe('case_label.65.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.65');
         Observer.Finish();
     end;
 
-    [Test]
-    procedure BigInteger_Duration_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Duration_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Duration_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Duration_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Duration_More5()
-    begin
-        Observer.More();
-    end;
-
     [TryFunction]
-    local procedure Try1()
+    local procedure Try1(var Res: Boolean; var vBigInteger: BigInteger; var vInteger: Integer)
     begin
         Res := vBigInteger = vInteger;
     end;
 
     [TryFunction]
-    local procedure Try2()
+    local procedure Try2(var Res: Boolean; var vBigInteger: BigInteger; var vInteger: Integer)
     begin
         Res := vBigInteger < vInteger;
     end;
 
     [TryFunction]
-    local procedure Try3()
+    local procedure Try3(var Res: Boolean; var vBigInteger: BigInteger; var vInteger: Integer)
     begin
         Res := vBigInteger in [vInteger];
     end;
 
     [TryFunction]
-    local procedure Try4()
+    local procedure Try4(var Res: Boolean; var vBigInteger: BigInteger; var vInteger: Integer)
     begin
         Res := false;
         case vBigInteger of
@@ -1309,25 +923,25 @@ codeunit 92428 "LT Y31 Cmp BigInteger"
     end;
 
     [TryFunction]
-    local procedure Try5()
+    local procedure Try5(var Res: Boolean; var vBigInteger: BigInteger; var vDecimal: Decimal)
     begin
         Res := vBigInteger = vDecimal;
     end;
 
     [TryFunction]
-    local procedure Try6()
+    local procedure Try6(var Res: Boolean; var vBigInteger: BigInteger; var vDecimal: Decimal)
     begin
         Res := vBigInteger < vDecimal;
     end;
 
     [TryFunction]
-    local procedure Try7()
+    local procedure Try7(var Res: Boolean; var vBigInteger: BigInteger; var vDecimal: Decimal)
     begin
         Res := vBigInteger in [vDecimal];
     end;
 
     [TryFunction]
-    local procedure Try8()
+    local procedure Try8(var Res: Boolean; var vBigInteger: BigInteger; var vDecimal: Decimal)
     begin
         Res := false;
         case vBigInteger of
@@ -1337,25 +951,25 @@ codeunit 92428 "LT Y31 Cmp BigInteger"
     end;
 
     [TryFunction]
-    local procedure Try9()
+    local procedure Try9(var Res: Boolean; var vBigInteger: BigInteger; var vChar: Char)
     begin
         Res := vBigInteger = vChar;
     end;
 
     [TryFunction]
-    local procedure Try10()
+    local procedure Try10(var Res: Boolean; var vBigInteger: BigInteger; var vChar: Char)
     begin
         Res := vBigInteger < vChar;
     end;
 
     [TryFunction]
-    local procedure Try11()
+    local procedure Try11(var Res: Boolean; var vBigInteger: BigInteger; var vChar: Char)
     begin
         Res := vBigInteger in [vChar];
     end;
 
     [TryFunction]
-    local procedure Try12()
+    local procedure Try12(var Res: Boolean; var vBigInteger: BigInteger; var vChar: Char)
     begin
         Res := false;
         case vBigInteger of
@@ -1365,25 +979,25 @@ codeunit 92428 "LT Y31 Cmp BigInteger"
     end;
 
     [TryFunction]
-    local procedure Try13()
+    local procedure Try13(var Res: Boolean; var vBigInteger: BigInteger; var vByte: Byte)
     begin
         Res := vBigInteger = vByte;
     end;
 
     [TryFunction]
-    local procedure Try14()
+    local procedure Try14(var Res: Boolean; var vBigInteger: BigInteger; var vByte: Byte)
     begin
         Res := vBigInteger < vByte;
     end;
 
     [TryFunction]
-    local procedure Try15()
+    local procedure Try15(var Res: Boolean; var vBigInteger: BigInteger; var vByte: Byte)
     begin
         Res := vBigInteger in [vByte];
     end;
 
     [TryFunction]
-    local procedure Try16()
+    local procedure Try16(var Res: Boolean; var vBigInteger: BigInteger; var vByte: Byte)
     begin
         Res := false;
         case vBigInteger of
@@ -1393,25 +1007,25 @@ codeunit 92428 "LT Y31 Cmp BigInteger"
     end;
 
     [TryFunction]
-    local procedure Try17()
+    local procedure Try17(var Res: Boolean; var vBigInteger: BigInteger; var vOption: Option A,B,C)
     begin
         Res := vBigInteger = vOption;
     end;
 
     [TryFunction]
-    local procedure Try18()
+    local procedure Try18(var Res: Boolean; var vBigInteger: BigInteger; var vOption: Option A,B,C)
     begin
         Res := vBigInteger < vOption;
     end;
 
     [TryFunction]
-    local procedure Try19()
+    local procedure Try19(var Res: Boolean; var vBigInteger: BigInteger; var vOption: Option A,B,C)
     begin
         Res := vBigInteger in [vOption];
     end;
 
     [TryFunction]
-    local procedure Try20()
+    local procedure Try20(var Res: Boolean; var vBigInteger: BigInteger; var vOption: Option A,B,C)
     begin
         Res := false;
         case vBigInteger of
@@ -1421,13 +1035,13 @@ codeunit 92428 "LT Y31 Cmp BigInteger"
     end;
 
     [TryFunction]
-    local procedure Try21()
+    local procedure Try21(var Res: Boolean; var vBigInteger: BigInteger; var vEnum: Enum "LT Y31 E")
     begin
         Res := vBigInteger in [vEnum];
     end;
 
     [TryFunction]
-    local procedure Try22()
+    local procedure Try22(var Res: Boolean; var vBigInteger: BigInteger; var vEnum: Enum "LT Y31 E")
     begin
         Res := false;
         case vBigInteger of
@@ -1437,13 +1051,13 @@ codeunit 92428 "LT Y31 Cmp BigInteger"
     end;
 
     [TryFunction]
-    local procedure Try23()
+    local procedure Try23(var Res: Boolean; var vBigInteger: BigInteger; var vEnumImpl: Enum "LT Y31 EI")
     begin
         Res := vBigInteger in [vEnumImpl];
     end;
 
     [TryFunction]
-    local procedure Try24()
+    local procedure Try24(var Res: Boolean; var vBigInteger: BigInteger; var vEnumImpl: Enum "LT Y31 EI")
     begin
         Res := false;
         case vBigInteger of
@@ -1453,25 +1067,25 @@ codeunit 92428 "LT Y31 Cmp BigInteger"
     end;
 
     [TryFunction]
-    local procedure Try25()
+    local procedure Try25(var Res: Boolean; var vBigInteger: BigInteger; var vDuration: Duration)
     begin
         Res := vBigInteger = vDuration;
     end;
 
     [TryFunction]
-    local procedure Try26()
+    local procedure Try26(var Res: Boolean; var vBigInteger: BigInteger; var vDuration: Duration)
     begin
         Res := vBigInteger < vDuration;
     end;
 
     [TryFunction]
-    local procedure Try27()
+    local procedure Try27(var Res: Boolean; var vBigInteger: BigInteger; var vDuration: Duration)
     begin
         Res := vBigInteger in [vDuration];
     end;
 
     [TryFunction]
-    local procedure Try28()
+    local procedure Try28(var Res: Boolean; var vBigInteger: BigInteger; var vDuration: Duration)
     begin
         Res := false;
         case vBigInteger of
@@ -1494,471 +1108,341 @@ codeunit 92429 "LT Y31 Cmp Decimal"
     Subtype = Test;
     TestPermissions = Disabled;
 
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        Res: Boolean;
-        V: Variant;
-        vBigInteger: BigInteger;
-        vByte: Byte;
-        vChar: Char;
-        vDecimal: Decimal;
-        vDuration: Duration;
-        vInteger: Integer;
-        vOption: Option A,B,C;
-
     [Test]
     procedure Decimal_Integer()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vDecimal: Decimal;
+        vInteger: Integer;
     begin
         vDecimal := 65;
         vInteger := 65;
-        if Try1() then Observer.Observe('eq.65.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.65');
+        if Try1(Res, vDecimal, vInteger) then Observer.Observe('eq.65.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.65');
         vDecimal := 65;
         vInteger := 65;
-        if Try2() then Observer.Observe('lt.65.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.65');
+        if Try2(Res, vDecimal, vInteger) then Observer.Observe('lt.65.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.65');
         vDecimal := 65;
         vInteger := 65;
-        if Try3() then Observer.Observe('in_set.65.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.65');
+        if Try3(Res, vDecimal, vInteger) then Observer.Observe('in_set.65.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.65');
         vDecimal := 65;
         vInteger := 65;
-        if Try4() then Observer.Observe('case_label.65.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.65');
+        if Try4(Res, vDecimal, vInteger) then Observer.Observe('case_label.65.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.65');
         vDecimal := 65;
         vInteger := 1;
-        if Try1() then Observer.Observe('eq.65.1', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.1');
+        if Try1(Res, vDecimal, vInteger) then Observer.Observe('eq.65.1', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.1');
         vDecimal := 65;
         vInteger := 1;
-        if Try2() then Observer.Observe('lt.65.1', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.1');
+        if Try2(Res, vDecimal, vInteger) then Observer.Observe('lt.65.1', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.1');
         vDecimal := 65;
         vInteger := 1;
-        if Try3() then Observer.Observe('in_set.65.1', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.1');
+        if Try3(Res, vDecimal, vInteger) then Observer.Observe('in_set.65.1', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.1');
         vDecimal := 65;
         vInteger := 1;
-        if Try4() then Observer.Observe('case_label.65.1', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.1');
-        vDecimal := 1.5;
-        vInteger := 65;
-        if Try1() then Observer.Observe('eq.1p5.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.1p5.65');
-        vDecimal := 1.5;
-        vInteger := 65;
-        if Try2() then Observer.Observe('lt.1p5.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.1p5.65');
-        vDecimal := 1.5;
-        vInteger := 65;
-        if Try3() then Observer.Observe('in_set.1p5.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1p5.65');
-        vDecimal := 1.5;
-        vInteger := 65;
-        if Try4() then Observer.Observe('case_label.1p5.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1p5.65');
-        vDecimal := 1.5;
-        vInteger := 1;
-        if Try1() then Observer.Observe('eq.1p5.1', Format(Res, 0, 9)) else Observer.ObserveError('eq.1p5.1');
-        vDecimal := 1.5;
-        vInteger := 1;
-        if Try2() then Observer.Observe('lt.1p5.1', Format(Res, 0, 9)) else Observer.ObserveError('lt.1p5.1');
-        vDecimal := 1.5;
-        vInteger := 1;
-        if Try3() then Observer.Observe('in_set.1p5.1', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1p5.1');
-        vDecimal := 1.5;
-        vInteger := 1;
-        if Try4() then Observer.Observe('case_label.1p5.1', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1p5.1');
+        if Try4(Res, vDecimal, vInteger) then Observer.Observe('case_label.65.1', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.1');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Decimal_Integer_More1()
+    procedure Decimal_Integer_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vDecimal: Decimal;
+        vInteger: Integer;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Integer_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Integer_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Integer_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Integer_More5()
-    begin
-        Observer.More();
+        vDecimal := 1.5;
+        vInteger := 65;
+        if Try1(Res, vDecimal, vInteger) then Observer.Observe('eq.1p5.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.1p5.65');
+        vDecimal := 1.5;
+        vInteger := 65;
+        if Try2(Res, vDecimal, vInteger) then Observer.Observe('lt.1p5.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.1p5.65');
+        vDecimal := 1.5;
+        vInteger := 65;
+        if Try3(Res, vDecimal, vInteger) then Observer.Observe('in_set.1p5.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1p5.65');
+        vDecimal := 1.5;
+        vInteger := 65;
+        if Try4(Res, vDecimal, vInteger) then Observer.Observe('case_label.1p5.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1p5.65');
+        vDecimal := 1.5;
+        vInteger := 1;
+        if Try1(Res, vDecimal, vInteger) then Observer.Observe('eq.1p5.1', Format(Res, 0, 9)) else Observer.ObserveError('eq.1p5.1');
+        vDecimal := 1.5;
+        vInteger := 1;
+        if Try2(Res, vDecimal, vInteger) then Observer.Observe('lt.1p5.1', Format(Res, 0, 9)) else Observer.ObserveError('lt.1p5.1');
+        vDecimal := 1.5;
+        vInteger := 1;
+        if Try3(Res, vDecimal, vInteger) then Observer.Observe('in_set.1p5.1', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1p5.1');
+        vDecimal := 1.5;
+        vInteger := 1;
+        if Try4(Res, vDecimal, vInteger) then Observer.Observe('case_label.1p5.1', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1p5.1');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Decimal_BigInteger()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vBigInteger: BigInteger;
+        vDecimal: Decimal;
     begin
         vDecimal := 65;
         vBigInteger := 65;
-        if Try5() then Observer.Observe('eq.65.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.65');
+        if Try5(Res, vBigInteger, vDecimal) then Observer.Observe('eq.65.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.65');
         vDecimal := 65;
         vBigInteger := 65;
-        if Try6() then Observer.Observe('lt.65.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.65');
+        if Try6(Res, vBigInteger, vDecimal) then Observer.Observe('lt.65.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.65');
         vDecimal := 65;
         vBigInteger := 65;
-        if Try7() then Observer.Observe('in_set.65.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.65');
+        if Try7(Res, vBigInteger, vDecimal) then Observer.Observe('in_set.65.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.65');
         vDecimal := 65;
         vBigInteger := 65;
-        if Try8() then Observer.Observe('case_label.65.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.65');
+        if Try8(Res, vBigInteger, vDecimal) then Observer.Observe('case_label.65.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.65');
         vDecimal := 1.5;
         vBigInteger := 65;
-        if Try5() then Observer.Observe('eq.1p5.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.1p5.65');
+        if Try5(Res, vBigInteger, vDecimal) then Observer.Observe('eq.1p5.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.1p5.65');
         vDecimal := 1.5;
         vBigInteger := 65;
-        if Try6() then Observer.Observe('lt.1p5.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.1p5.65');
+        if Try6(Res, vBigInteger, vDecimal) then Observer.Observe('lt.1p5.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.1p5.65');
         vDecimal := 1.5;
         vBigInteger := 65;
-        if Try7() then Observer.Observe('in_set.1p5.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1p5.65');
+        if Try7(Res, vBigInteger, vDecimal) then Observer.Observe('in_set.1p5.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1p5.65');
         vDecimal := 1.5;
         vBigInteger := 65;
-        if Try8() then Observer.Observe('case_label.1p5.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1p5.65');
+        if Try8(Res, vBigInteger, vDecimal) then Observer.Observe('case_label.1p5.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1p5.65');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Decimal_BigInteger_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_BigInteger_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_BigInteger_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_BigInteger_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_BigInteger_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Decimal_Char()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vChar: Char;
+        vDecimal: Decimal;
     begin
         vDecimal := 65;
         vChar := 65;
-        if Try9() then Observer.Observe('eq.65.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.A');
+        if Try9(Res, vChar, vDecimal) then Observer.Observe('eq.65.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.A');
         vDecimal := 65;
         vChar := 65;
-        if Try10() then Observer.Observe('lt.65.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.A');
+        if Try10(Res, vChar, vDecimal) then Observer.Observe('lt.65.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.A');
         vDecimal := 65;
         vChar := 65;
-        if Try11() then Observer.Observe('in_set.65.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.A');
+        if Try11(Res, vChar, vDecimal) then Observer.Observe('in_set.65.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.A');
         vDecimal := 65;
         vChar := 65;
-        if Try12() then Observer.Observe('case_label.65.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.A');
+        if Try12(Res, vChar, vDecimal) then Observer.Observe('case_label.65.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.A');
         vDecimal := 65;
         vChar := 97;
-        if Try9() then Observer.Observe('eq.65.a', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.a');
+        if Try9(Res, vChar, vDecimal) then Observer.Observe('eq.65.a', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.a');
         vDecimal := 65;
         vChar := 97;
-        if Try10() then Observer.Observe('lt.65.a', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.a');
+        if Try10(Res, vChar, vDecimal) then Observer.Observe('lt.65.a', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.a');
         vDecimal := 65;
         vChar := 97;
-        if Try11() then Observer.Observe('in_set.65.a', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.a');
+        if Try11(Res, vChar, vDecimal) then Observer.Observe('in_set.65.a', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.a');
         vDecimal := 65;
         vChar := 97;
-        if Try12() then Observer.Observe('case_label.65.a', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.a');
-        vDecimal := 1.5;
-        vChar := 65;
-        if Try9() then Observer.Observe('eq.1p5.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.1p5.A');
-        vDecimal := 1.5;
-        vChar := 65;
-        if Try10() then Observer.Observe('lt.1p5.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.1p5.A');
-        vDecimal := 1.5;
-        vChar := 65;
-        if Try11() then Observer.Observe('in_set.1p5.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1p5.A');
-        vDecimal := 1.5;
-        vChar := 65;
-        if Try12() then Observer.Observe('case_label.1p5.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1p5.A');
-        vDecimal := 1.5;
-        vChar := 97;
-        if Try9() then Observer.Observe('eq.1p5.a', Format(Res, 0, 9)) else Observer.ObserveError('eq.1p5.a');
-        vDecimal := 1.5;
-        vChar := 97;
-        if Try10() then Observer.Observe('lt.1p5.a', Format(Res, 0, 9)) else Observer.ObserveError('lt.1p5.a');
-        vDecimal := 1.5;
-        vChar := 97;
-        if Try11() then Observer.Observe('in_set.1p5.a', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1p5.a');
-        vDecimal := 1.5;
-        vChar := 97;
-        if Try12() then Observer.Observe('case_label.1p5.a', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1p5.a');
+        if Try12(Res, vChar, vDecimal) then Observer.Observe('case_label.65.a', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.a');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Decimal_Char_More1()
+    procedure Decimal_Char_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vChar: Char;
+        vDecimal: Decimal;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Char_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Char_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Char_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Char_More5()
-    begin
-        Observer.More();
+        vDecimal := 1.5;
+        vChar := 65;
+        if Try9(Res, vChar, vDecimal) then Observer.Observe('eq.1p5.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.1p5.A');
+        vDecimal := 1.5;
+        vChar := 65;
+        if Try10(Res, vChar, vDecimal) then Observer.Observe('lt.1p5.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.1p5.A');
+        vDecimal := 1.5;
+        vChar := 65;
+        if Try11(Res, vChar, vDecimal) then Observer.Observe('in_set.1p5.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1p5.A');
+        vDecimal := 1.5;
+        vChar := 65;
+        if Try12(Res, vChar, vDecimal) then Observer.Observe('case_label.1p5.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1p5.A');
+        vDecimal := 1.5;
+        vChar := 97;
+        if Try9(Res, vChar, vDecimal) then Observer.Observe('eq.1p5.a', Format(Res, 0, 9)) else Observer.ObserveError('eq.1p5.a');
+        vDecimal := 1.5;
+        vChar := 97;
+        if Try10(Res, vChar, vDecimal) then Observer.Observe('lt.1p5.a', Format(Res, 0, 9)) else Observer.ObserveError('lt.1p5.a');
+        vDecimal := 1.5;
+        vChar := 97;
+        if Try11(Res, vChar, vDecimal) then Observer.Observe('in_set.1p5.a', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1p5.a');
+        vDecimal := 1.5;
+        vChar := 97;
+        if Try12(Res, vChar, vDecimal) then Observer.Observe('case_label.1p5.a', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1p5.a');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Decimal_Byte()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vByte: Byte;
+        vDecimal: Decimal;
     begin
         vDecimal := 65;
         vByte := 65;
-        if Try13() then Observer.Observe('eq.65.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.65');
+        if Try13(Res, vByte, vDecimal) then Observer.Observe('eq.65.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.65');
         vDecimal := 65;
         vByte := 65;
-        if Try14() then Observer.Observe('lt.65.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.65');
+        if Try14(Res, vByte, vDecimal) then Observer.Observe('lt.65.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.65');
         vDecimal := 65;
         vByte := 65;
-        if Try15() then Observer.Observe('in_set.65.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.65');
+        if Try15(Res, vByte, vDecimal) then Observer.Observe('in_set.65.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.65');
         vDecimal := 65;
         vByte := 65;
-        if Try16() then Observer.Observe('case_label.65.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.65');
+        if Try16(Res, vByte, vDecimal) then Observer.Observe('case_label.65.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.65');
         vDecimal := 1.5;
         vByte := 65;
-        if Try13() then Observer.Observe('eq.1p5.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.1p5.65');
+        if Try13(Res, vByte, vDecimal) then Observer.Observe('eq.1p5.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.1p5.65');
         vDecimal := 1.5;
         vByte := 65;
-        if Try14() then Observer.Observe('lt.1p5.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.1p5.65');
+        if Try14(Res, vByte, vDecimal) then Observer.Observe('lt.1p5.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.1p5.65');
         vDecimal := 1.5;
         vByte := 65;
-        if Try15() then Observer.Observe('in_set.1p5.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1p5.65');
+        if Try15(Res, vByte, vDecimal) then Observer.Observe('in_set.1p5.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1p5.65');
         vDecimal := 1.5;
         vByte := 65;
-        if Try16() then Observer.Observe('case_label.1p5.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1p5.65');
+        if Try16(Res, vByte, vDecimal) then Observer.Observe('case_label.1p5.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1p5.65');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Decimal_Byte_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Byte_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Byte_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Byte_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Byte_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Decimal_Option()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vDecimal: Decimal;
+        vOption: Option A,B,C;
     begin
         vDecimal := 65;
         vOption := 1;
-        if Try17() then Observer.Observe('eq.65.1', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.1');
+        if Try17(Res, vDecimal, vOption) then Observer.Observe('eq.65.1', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.1');
         vDecimal := 65;
         vOption := 1;
-        if Try18() then Observer.Observe('lt.65.1', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.1');
+        if Try18(Res, vDecimal, vOption) then Observer.Observe('lt.65.1', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.1');
         vDecimal := 65;
         vOption := 1;
-        if Try19() then Observer.Observe('in_set.65.1', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.1');
+        if Try19(Res, vDecimal, vOption) then Observer.Observe('in_set.65.1', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.1');
         vDecimal := 65;
         vOption := 1;
-        if Try20() then Observer.Observe('case_label.65.1', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.1');
+        if Try20(Res, vDecimal, vOption) then Observer.Observe('case_label.65.1', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.1');
         vDecimal := 65;
         vOption := 3;
-        if Try17() then Observer.Observe('eq.65.3', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.3');
+        if Try17(Res, vDecimal, vOption) then Observer.Observe('eq.65.3', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.3');
         vDecimal := 65;
         vOption := 3;
-        if Try18() then Observer.Observe('lt.65.3', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.3');
+        if Try18(Res, vDecimal, vOption) then Observer.Observe('lt.65.3', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.3');
         vDecimal := 65;
         vOption := 3;
-        if Try19() then Observer.Observe('in_set.65.3', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.3');
+        if Try19(Res, vDecimal, vOption) then Observer.Observe('in_set.65.3', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.3');
         vDecimal := 65;
         vOption := 3;
-        if Try20() then Observer.Observe('case_label.65.3', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.3');
-        vDecimal := 1.5;
-        vOption := 1;
-        if Try17() then Observer.Observe('eq.1p5.1', Format(Res, 0, 9)) else Observer.ObserveError('eq.1p5.1');
-        vDecimal := 1.5;
-        vOption := 1;
-        if Try18() then Observer.Observe('lt.1p5.1', Format(Res, 0, 9)) else Observer.ObserveError('lt.1p5.1');
-        vDecimal := 1.5;
-        vOption := 1;
-        if Try19() then Observer.Observe('in_set.1p5.1', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1p5.1');
-        vDecimal := 1.5;
-        vOption := 1;
-        if Try20() then Observer.Observe('case_label.1p5.1', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1p5.1');
-        vDecimal := 1.5;
-        vOption := 3;
-        if Try17() then Observer.Observe('eq.1p5.3', Format(Res, 0, 9)) else Observer.ObserveError('eq.1p5.3');
-        vDecimal := 1.5;
-        vOption := 3;
-        if Try18() then Observer.Observe('lt.1p5.3', Format(Res, 0, 9)) else Observer.ObserveError('lt.1p5.3');
-        vDecimal := 1.5;
-        vOption := 3;
-        if Try19() then Observer.Observe('in_set.1p5.3', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1p5.3');
-        vDecimal := 1.5;
-        vOption := 3;
-        if Try20() then Observer.Observe('case_label.1p5.3', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1p5.3');
+        if Try20(Res, vDecimal, vOption) then Observer.Observe('case_label.65.3', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.3');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Decimal_Option_More1()
+    procedure Decimal_Option_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vDecimal: Decimal;
+        vOption: Option A,B,C;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Option_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Option_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Option_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Option_More5()
-    begin
-        Observer.More();
+        vDecimal := 1.5;
+        vOption := 1;
+        if Try17(Res, vDecimal, vOption) then Observer.Observe('eq.1p5.1', Format(Res, 0, 9)) else Observer.ObserveError('eq.1p5.1');
+        vDecimal := 1.5;
+        vOption := 1;
+        if Try18(Res, vDecimal, vOption) then Observer.Observe('lt.1p5.1', Format(Res, 0, 9)) else Observer.ObserveError('lt.1p5.1');
+        vDecimal := 1.5;
+        vOption := 1;
+        if Try19(Res, vDecimal, vOption) then Observer.Observe('in_set.1p5.1', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1p5.1');
+        vDecimal := 1.5;
+        vOption := 1;
+        if Try20(Res, vDecimal, vOption) then Observer.Observe('case_label.1p5.1', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1p5.1');
+        vDecimal := 1.5;
+        vOption := 3;
+        if Try17(Res, vDecimal, vOption) then Observer.Observe('eq.1p5.3', Format(Res, 0, 9)) else Observer.ObserveError('eq.1p5.3');
+        vDecimal := 1.5;
+        vOption := 3;
+        if Try18(Res, vDecimal, vOption) then Observer.Observe('lt.1p5.3', Format(Res, 0, 9)) else Observer.ObserveError('lt.1p5.3');
+        vDecimal := 1.5;
+        vOption := 3;
+        if Try19(Res, vDecimal, vOption) then Observer.Observe('in_set.1p5.3', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1p5.3');
+        vDecimal := 1.5;
+        vOption := 3;
+        if Try20(Res, vDecimal, vOption) then Observer.Observe('case_label.1p5.3', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1p5.3');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Decimal_Duration()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vDecimal: Decimal;
+        vDuration: Duration;
     begin
         vDecimal := 65;
         vDuration := 65;
-        if Try21() then Observer.Observe('eq.65.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.65');
+        if Try21(Res, vDecimal, vDuration) then Observer.Observe('eq.65.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.65');
         vDecimal := 65;
         vDuration := 65;
-        if Try22() then Observer.Observe('lt.65.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.65');
+        if Try22(Res, vDecimal, vDuration) then Observer.Observe('lt.65.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.65');
         vDecimal := 65;
         vDuration := 65;
-        if Try23() then Observer.Observe('in_set.65.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.65');
+        if Try23(Res, vDecimal, vDuration) then Observer.Observe('in_set.65.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.65');
         vDecimal := 65;
         vDuration := 65;
-        if Try24() then Observer.Observe('case_label.65.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.65');
+        if Try24(Res, vDecimal, vDuration) then Observer.Observe('case_label.65.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.65');
         vDecimal := 1.5;
         vDuration := 65;
-        if Try21() then Observer.Observe('eq.1p5.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.1p5.65');
+        if Try21(Res, vDecimal, vDuration) then Observer.Observe('eq.1p5.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.1p5.65');
         vDecimal := 1.5;
         vDuration := 65;
-        if Try22() then Observer.Observe('lt.1p5.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.1p5.65');
+        if Try22(Res, vDecimal, vDuration) then Observer.Observe('lt.1p5.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.1p5.65');
         vDecimal := 1.5;
         vDuration := 65;
-        if Try23() then Observer.Observe('in_set.1p5.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1p5.65');
+        if Try23(Res, vDecimal, vDuration) then Observer.Observe('in_set.1p5.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1p5.65');
         vDecimal := 1.5;
         vDuration := 65;
-        if Try24() then Observer.Observe('case_label.1p5.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1p5.65');
+        if Try24(Res, vDecimal, vDuration) then Observer.Observe('case_label.1p5.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1p5.65');
         Observer.Finish();
     end;
 
-    [Test]
-    procedure Decimal_Duration_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Duration_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Duration_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Duration_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Duration_More5()
-    begin
-        Observer.More();
-    end;
-
     [TryFunction]
-    local procedure Try1()
+    local procedure Try1(var Res: Boolean; var vDecimal: Decimal; var vInteger: Integer)
     begin
         Res := vDecimal = vInteger;
     end;
 
     [TryFunction]
-    local procedure Try2()
+    local procedure Try2(var Res: Boolean; var vDecimal: Decimal; var vInteger: Integer)
     begin
         Res := vDecimal < vInteger;
     end;
 
     [TryFunction]
-    local procedure Try3()
+    local procedure Try3(var Res: Boolean; var vDecimal: Decimal; var vInteger: Integer)
     begin
         Res := vDecimal in [vInteger];
     end;
 
     [TryFunction]
-    local procedure Try4()
+    local procedure Try4(var Res: Boolean; var vDecimal: Decimal; var vInteger: Integer)
     begin
         Res := false;
         case vDecimal of
@@ -1968,25 +1452,25 @@ codeunit 92429 "LT Y31 Cmp Decimal"
     end;
 
     [TryFunction]
-    local procedure Try5()
+    local procedure Try5(var Res: Boolean; var vBigInteger: BigInteger; var vDecimal: Decimal)
     begin
         Res := vDecimal = vBigInteger;
     end;
 
     [TryFunction]
-    local procedure Try6()
+    local procedure Try6(var Res: Boolean; var vBigInteger: BigInteger; var vDecimal: Decimal)
     begin
         Res := vDecimal < vBigInteger;
     end;
 
     [TryFunction]
-    local procedure Try7()
+    local procedure Try7(var Res: Boolean; var vBigInteger: BigInteger; var vDecimal: Decimal)
     begin
         Res := vDecimal in [vBigInteger];
     end;
 
     [TryFunction]
-    local procedure Try8()
+    local procedure Try8(var Res: Boolean; var vBigInteger: BigInteger; var vDecimal: Decimal)
     begin
         Res := false;
         case vDecimal of
@@ -1996,25 +1480,25 @@ codeunit 92429 "LT Y31 Cmp Decimal"
     end;
 
     [TryFunction]
-    local procedure Try9()
+    local procedure Try9(var Res: Boolean; var vChar: Char; var vDecimal: Decimal)
     begin
         Res := vDecimal = vChar;
     end;
 
     [TryFunction]
-    local procedure Try10()
+    local procedure Try10(var Res: Boolean; var vChar: Char; var vDecimal: Decimal)
     begin
         Res := vDecimal < vChar;
     end;
 
     [TryFunction]
-    local procedure Try11()
+    local procedure Try11(var Res: Boolean; var vChar: Char; var vDecimal: Decimal)
     begin
         Res := vDecimal in [vChar];
     end;
 
     [TryFunction]
-    local procedure Try12()
+    local procedure Try12(var Res: Boolean; var vChar: Char; var vDecimal: Decimal)
     begin
         Res := false;
         case vDecimal of
@@ -2024,25 +1508,25 @@ codeunit 92429 "LT Y31 Cmp Decimal"
     end;
 
     [TryFunction]
-    local procedure Try13()
+    local procedure Try13(var Res: Boolean; var vByte: Byte; var vDecimal: Decimal)
     begin
         Res := vDecimal = vByte;
     end;
 
     [TryFunction]
-    local procedure Try14()
+    local procedure Try14(var Res: Boolean; var vByte: Byte; var vDecimal: Decimal)
     begin
         Res := vDecimal < vByte;
     end;
 
     [TryFunction]
-    local procedure Try15()
+    local procedure Try15(var Res: Boolean; var vByte: Byte; var vDecimal: Decimal)
     begin
         Res := vDecimal in [vByte];
     end;
 
     [TryFunction]
-    local procedure Try16()
+    local procedure Try16(var Res: Boolean; var vByte: Byte; var vDecimal: Decimal)
     begin
         Res := false;
         case vDecimal of
@@ -2052,25 +1536,25 @@ codeunit 92429 "LT Y31 Cmp Decimal"
     end;
 
     [TryFunction]
-    local procedure Try17()
+    local procedure Try17(var Res: Boolean; var vDecimal: Decimal; var vOption: Option A,B,C)
     begin
         Res := vDecimal = vOption;
     end;
 
     [TryFunction]
-    local procedure Try18()
+    local procedure Try18(var Res: Boolean; var vDecimal: Decimal; var vOption: Option A,B,C)
     begin
         Res := vDecimal < vOption;
     end;
 
     [TryFunction]
-    local procedure Try19()
+    local procedure Try19(var Res: Boolean; var vDecimal: Decimal; var vOption: Option A,B,C)
     begin
         Res := vDecimal in [vOption];
     end;
 
     [TryFunction]
-    local procedure Try20()
+    local procedure Try20(var Res: Boolean; var vDecimal: Decimal; var vOption: Option A,B,C)
     begin
         Res := false;
         case vDecimal of
@@ -2080,25 +1564,25 @@ codeunit 92429 "LT Y31 Cmp Decimal"
     end;
 
     [TryFunction]
-    local procedure Try21()
+    local procedure Try21(var Res: Boolean; var vDecimal: Decimal; var vDuration: Duration)
     begin
         Res := vDecimal = vDuration;
     end;
 
     [TryFunction]
-    local procedure Try22()
+    local procedure Try22(var Res: Boolean; var vDecimal: Decimal; var vDuration: Duration)
     begin
         Res := vDecimal < vDuration;
     end;
 
     [TryFunction]
-    local procedure Try23()
+    local procedure Try23(var Res: Boolean; var vDecimal: Decimal; var vDuration: Duration)
     begin
         Res := vDecimal in [vDuration];
     end;
 
     [TryFunction]
-    local procedure Try24()
+    local procedure Try24(var Res: Boolean; var vDecimal: Decimal; var vDuration: Duration)
     begin
         Res := false;
         case vDecimal of
@@ -2121,870 +1605,568 @@ codeunit 92430 "LT Y31 Cmp Char"
     Subtype = Test;
     TestPermissions = Disabled;
 
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        Res: Boolean;
-        V: Variant;
-        vBigInteger: BigInteger;
-        vByte: Byte;
-        vChar: Char;
-        vCode10: Code[10];
-        vDecimal: Decimal;
-        vDuration: Duration;
-        vEnum: Enum "LT Y31 E";
-        vEnumImpl: Enum "LT Y31 EI";
-        vGuid: Guid;
-        vInteger: Integer;
-        vLabel: Label 'abc', Locked = true;
-        vOption: Option A,B,C;
-        vText: Text;
-        vText10: Text[10];
-
     [Test]
     procedure Char_Integer()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vChar: Char;
+        vInteger: Integer;
     begin
         vChar := 65;
         vInteger := 65;
-        if Try1() then Observer.Observe('eq.A.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.65');
+        if Try1(Res, vChar, vInteger) then Observer.Observe('eq.A.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.65');
         vChar := 65;
         vInteger := 65;
-        if Try2() then Observer.Observe('lt.A.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.65');
+        if Try2(Res, vChar, vInteger) then Observer.Observe('lt.A.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.65');
         vChar := 65;
         vInteger := 65;
-        if Try3() then Observer.Observe('in_set.A.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.A.65');
+        if Try3(Res, vChar, vInteger) then Observer.Observe('in_set.A.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.A.65');
         vChar := 65;
         vInteger := 65;
-        if Try4() then Observer.Observe('case_label.A.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.65');
+        if Try4(Res, vChar, vInteger) then Observer.Observe('case_label.A.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.65');
         vChar := 65;
         vInteger := 1;
-        if Try1() then Observer.Observe('eq.A.1', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.1');
+        if Try1(Res, vChar, vInteger) then Observer.Observe('eq.A.1', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.1');
         vChar := 65;
         vInteger := 1;
-        if Try2() then Observer.Observe('lt.A.1', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.1');
+        if Try2(Res, vChar, vInteger) then Observer.Observe('lt.A.1', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.1');
         vChar := 65;
         vInteger := 1;
-        if Try3() then Observer.Observe('in_set.A.1', Format(Res, 0, 9)) else Observer.ObserveError('in_set.A.1');
+        if Try3(Res, vChar, vInteger) then Observer.Observe('in_set.A.1', Format(Res, 0, 9)) else Observer.ObserveError('in_set.A.1');
         vChar := 65;
         vInteger := 1;
-        if Try4() then Observer.Observe('case_label.A.1', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.1');
-        vChar := 97;
-        vInteger := 65;
-        if Try1() then Observer.Observe('eq.a.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.a.65');
-        vChar := 97;
-        vInteger := 65;
-        if Try2() then Observer.Observe('lt.a.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.a.65');
-        vChar := 97;
-        vInteger := 65;
-        if Try3() then Observer.Observe('in_set.a.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.a.65');
-        vChar := 97;
-        vInteger := 65;
-        if Try4() then Observer.Observe('case_label.a.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.a.65');
-        vChar := 97;
-        vInteger := 1;
-        if Try1() then Observer.Observe('eq.a.1', Format(Res, 0, 9)) else Observer.ObserveError('eq.a.1');
-        vChar := 97;
-        vInteger := 1;
-        if Try2() then Observer.Observe('lt.a.1', Format(Res, 0, 9)) else Observer.ObserveError('lt.a.1');
-        vChar := 97;
-        vInteger := 1;
-        if Try3() then Observer.Observe('in_set.a.1', Format(Res, 0, 9)) else Observer.ObserveError('in_set.a.1');
-        vChar := 97;
-        vInteger := 1;
-        if Try4() then Observer.Observe('case_label.a.1', Format(Res, 0, 9)) else Observer.ObserveError('case_label.a.1');
+        if Try4(Res, vChar, vInteger) then Observer.Observe('case_label.A.1', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.1');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Char_Integer_More1()
+    procedure Char_Integer_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vChar: Char;
+        vInteger: Integer;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Integer_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Integer_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Integer_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Integer_More5()
-    begin
-        Observer.More();
+        vChar := 97;
+        vInteger := 65;
+        if Try1(Res, vChar, vInteger) then Observer.Observe('eq.a.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.a.65');
+        vChar := 97;
+        vInteger := 65;
+        if Try2(Res, vChar, vInteger) then Observer.Observe('lt.a.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.a.65');
+        vChar := 97;
+        vInteger := 65;
+        if Try3(Res, vChar, vInteger) then Observer.Observe('in_set.a.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.a.65');
+        vChar := 97;
+        vInteger := 65;
+        if Try4(Res, vChar, vInteger) then Observer.Observe('case_label.a.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.a.65');
+        vChar := 97;
+        vInteger := 1;
+        if Try1(Res, vChar, vInteger) then Observer.Observe('eq.a.1', Format(Res, 0, 9)) else Observer.ObserveError('eq.a.1');
+        vChar := 97;
+        vInteger := 1;
+        if Try2(Res, vChar, vInteger) then Observer.Observe('lt.a.1', Format(Res, 0, 9)) else Observer.ObserveError('lt.a.1');
+        vChar := 97;
+        vInteger := 1;
+        if Try3(Res, vChar, vInteger) then Observer.Observe('in_set.a.1', Format(Res, 0, 9)) else Observer.ObserveError('in_set.a.1');
+        vChar := 97;
+        vInteger := 1;
+        if Try4(Res, vChar, vInteger) then Observer.Observe('case_label.a.1', Format(Res, 0, 9)) else Observer.ObserveError('case_label.a.1');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Char_BigInteger()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vBigInteger: BigInteger;
+        vChar: Char;
     begin
         vChar := 65;
         vBigInteger := 65;
-        if Try5() then Observer.Observe('eq.A.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.65');
+        if Try5(Res, vBigInteger, vChar) then Observer.Observe('eq.A.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.65');
         vChar := 65;
         vBigInteger := 65;
-        if Try6() then Observer.Observe('lt.A.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.65');
+        if Try6(Res, vBigInteger, vChar) then Observer.Observe('lt.A.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.65');
         vChar := 65;
         vBigInteger := 65;
-        if Try7() then Observer.Observe('in_set.A.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.A.65');
+        if Try7(Res, vBigInteger, vChar) then Observer.Observe('in_set.A.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.A.65');
         vChar := 65;
         vBigInteger := 65;
-        if Try8() then Observer.Observe('case_label.A.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.65');
+        if Try8(Res, vBigInteger, vChar) then Observer.Observe('case_label.A.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.65');
         vChar := 97;
         vBigInteger := 65;
-        if Try5() then Observer.Observe('eq.a.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.a.65');
+        if Try5(Res, vBigInteger, vChar) then Observer.Observe('eq.a.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.a.65');
         vChar := 97;
         vBigInteger := 65;
-        if Try6() then Observer.Observe('lt.a.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.a.65');
+        if Try6(Res, vBigInteger, vChar) then Observer.Observe('lt.a.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.a.65');
         vChar := 97;
         vBigInteger := 65;
-        if Try7() then Observer.Observe('in_set.a.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.a.65');
+        if Try7(Res, vBigInteger, vChar) then Observer.Observe('in_set.a.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.a.65');
         vChar := 97;
         vBigInteger := 65;
-        if Try8() then Observer.Observe('case_label.a.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.a.65');
+        if Try8(Res, vBigInteger, vChar) then Observer.Observe('case_label.a.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.a.65');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_BigInteger_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_BigInteger_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_BigInteger_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_BigInteger_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_BigInteger_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Char_Decimal()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vChar: Char;
+        vDecimal: Decimal;
     begin
         vChar := 65;
         vDecimal := 65;
-        if Try9() then Observer.Observe('eq.A.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.65');
+        if Try9(Res, vChar, vDecimal) then Observer.Observe('eq.A.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.65');
         vChar := 65;
         vDecimal := 65;
-        if Try10() then Observer.Observe('lt.A.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.65');
+        if Try10(Res, vChar, vDecimal) then Observer.Observe('lt.A.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.65');
         vChar := 65;
         vDecimal := 65;
-        if Try11() then Observer.Observe('in_set.A.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.A.65');
+        if Try11(Res, vChar, vDecimal) then Observer.Observe('in_set.A.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.A.65');
         vChar := 65;
         vDecimal := 65;
-        if Try12() then Observer.Observe('case_label.A.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.65');
+        if Try12(Res, vChar, vDecimal) then Observer.Observe('case_label.A.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.65');
         vChar := 65;
         vDecimal := 1.5;
-        if Try9() then Observer.Observe('eq.A.1p5', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.1p5');
+        if Try9(Res, vChar, vDecimal) then Observer.Observe('eq.A.1p5', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.1p5');
         vChar := 65;
         vDecimal := 1.5;
-        if Try10() then Observer.Observe('lt.A.1p5', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.1p5');
+        if Try10(Res, vChar, vDecimal) then Observer.Observe('lt.A.1p5', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.1p5');
         vChar := 65;
         vDecimal := 1.5;
-        if Try11() then Observer.Observe('in_set.A.1p5', Format(Res, 0, 9)) else Observer.ObserveError('in_set.A.1p5');
+        if Try11(Res, vChar, vDecimal) then Observer.Observe('in_set.A.1p5', Format(Res, 0, 9)) else Observer.ObserveError('in_set.A.1p5');
         vChar := 65;
         vDecimal := 1.5;
-        if Try12() then Observer.Observe('case_label.A.1p5', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.1p5');
-        vChar := 97;
-        vDecimal := 65;
-        if Try9() then Observer.Observe('eq.a.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.a.65');
-        vChar := 97;
-        vDecimal := 65;
-        if Try10() then Observer.Observe('lt.a.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.a.65');
-        vChar := 97;
-        vDecimal := 65;
-        if Try11() then Observer.Observe('in_set.a.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.a.65');
-        vChar := 97;
-        vDecimal := 65;
-        if Try12() then Observer.Observe('case_label.a.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.a.65');
-        vChar := 97;
-        vDecimal := 1.5;
-        if Try9() then Observer.Observe('eq.a.1p5', Format(Res, 0, 9)) else Observer.ObserveError('eq.a.1p5');
-        vChar := 97;
-        vDecimal := 1.5;
-        if Try10() then Observer.Observe('lt.a.1p5', Format(Res, 0, 9)) else Observer.ObserveError('lt.a.1p5');
-        vChar := 97;
-        vDecimal := 1.5;
-        if Try11() then Observer.Observe('in_set.a.1p5', Format(Res, 0, 9)) else Observer.ObserveError('in_set.a.1p5');
-        vChar := 97;
-        vDecimal := 1.5;
-        if Try12() then Observer.Observe('case_label.a.1p5', Format(Res, 0, 9)) else Observer.ObserveError('case_label.a.1p5');
+        if Try12(Res, vChar, vDecimal) then Observer.Observe('case_label.A.1p5', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.1p5');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Char_Decimal_More1()
+    procedure Char_Decimal_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vChar: Char;
+        vDecimal: Decimal;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Decimal_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Decimal_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Decimal_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Decimal_More5()
-    begin
-        Observer.More();
+        vChar := 97;
+        vDecimal := 65;
+        if Try9(Res, vChar, vDecimal) then Observer.Observe('eq.a.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.a.65');
+        vChar := 97;
+        vDecimal := 65;
+        if Try10(Res, vChar, vDecimal) then Observer.Observe('lt.a.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.a.65');
+        vChar := 97;
+        vDecimal := 65;
+        if Try11(Res, vChar, vDecimal) then Observer.Observe('in_set.a.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.a.65');
+        vChar := 97;
+        vDecimal := 65;
+        if Try12(Res, vChar, vDecimal) then Observer.Observe('case_label.a.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.a.65');
+        vChar := 97;
+        vDecimal := 1.5;
+        if Try9(Res, vChar, vDecimal) then Observer.Observe('eq.a.1p5', Format(Res, 0, 9)) else Observer.ObserveError('eq.a.1p5');
+        vChar := 97;
+        vDecimal := 1.5;
+        if Try10(Res, vChar, vDecimal) then Observer.Observe('lt.a.1p5', Format(Res, 0, 9)) else Observer.ObserveError('lt.a.1p5');
+        vChar := 97;
+        vDecimal := 1.5;
+        if Try11(Res, vChar, vDecimal) then Observer.Observe('in_set.a.1p5', Format(Res, 0, 9)) else Observer.ObserveError('in_set.a.1p5');
+        vChar := 97;
+        vDecimal := 1.5;
+        if Try12(Res, vChar, vDecimal) then Observer.Observe('case_label.a.1p5', Format(Res, 0, 9)) else Observer.ObserveError('case_label.a.1p5');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Char_Byte()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vByte: Byte;
+        vChar: Char;
     begin
         vChar := 65;
         vByte := 65;
-        if Try13() then Observer.Observe('eq.A.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.65');
+        if Try13(Res, vByte, vChar) then Observer.Observe('eq.A.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.65');
         vChar := 65;
         vByte := 65;
-        if Try14() then Observer.Observe('lt.A.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.65');
+        if Try14(Res, vByte, vChar) then Observer.Observe('lt.A.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.65');
         vChar := 65;
         vByte := 65;
-        if Try15() then Observer.Observe('in_set.A.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.A.65');
+        if Try15(Res, vByte, vChar) then Observer.Observe('in_set.A.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.A.65');
         vChar := 65;
         vByte := 65;
-        if Try16() then Observer.Observe('case_label.A.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.65');
+        if Try16(Res, vByte, vChar) then Observer.Observe('case_label.A.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.65');
         vChar := 97;
         vByte := 65;
-        if Try13() then Observer.Observe('eq.a.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.a.65');
+        if Try13(Res, vByte, vChar) then Observer.Observe('eq.a.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.a.65');
         vChar := 97;
         vByte := 65;
-        if Try14() then Observer.Observe('lt.a.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.a.65');
+        if Try14(Res, vByte, vChar) then Observer.Observe('lt.a.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.a.65');
         vChar := 97;
         vByte := 65;
-        if Try15() then Observer.Observe('in_set.a.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.a.65');
+        if Try15(Res, vByte, vChar) then Observer.Observe('in_set.a.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.a.65');
         vChar := 97;
         vByte := 65;
-        if Try16() then Observer.Observe('case_label.a.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.a.65');
+        if Try16(Res, vByte, vChar) then Observer.Observe('case_label.a.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.a.65');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_Byte_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Byte_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Byte_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Byte_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Byte_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Char_Option()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vChar: Char;
+        vOption: Option A,B,C;
     begin
         vChar := 65;
         vOption := 1;
-        if Try17() then Observer.Observe('eq.A.1', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.1');
+        if Try17(Res, vChar, vOption) then Observer.Observe('eq.A.1', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.1');
         vChar := 65;
         vOption := 1;
-        if Try18() then Observer.Observe('lt.A.1', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.1');
+        if Try18(Res, vChar, vOption) then Observer.Observe('lt.A.1', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.1');
         vChar := 65;
         vOption := 1;
-        if Try19() then Observer.Observe('in_set.A.1', Format(Res, 0, 9)) else Observer.ObserveError('in_set.A.1');
+        if Try19(Res, vChar, vOption) then Observer.Observe('in_set.A.1', Format(Res, 0, 9)) else Observer.ObserveError('in_set.A.1');
         vChar := 65;
         vOption := 1;
-        if Try20() then Observer.Observe('case_label.A.1', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.1');
+        if Try20(Res, vChar, vOption) then Observer.Observe('case_label.A.1', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.1');
         vChar := 65;
         vOption := 3;
-        if Try17() then Observer.Observe('eq.A.3', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.3');
+        if Try17(Res, vChar, vOption) then Observer.Observe('eq.A.3', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.3');
         vChar := 65;
         vOption := 3;
-        if Try18() then Observer.Observe('lt.A.3', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.3');
+        if Try18(Res, vChar, vOption) then Observer.Observe('lt.A.3', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.3');
         vChar := 65;
         vOption := 3;
-        if Try19() then Observer.Observe('in_set.A.3', Format(Res, 0, 9)) else Observer.ObserveError('in_set.A.3');
+        if Try19(Res, vChar, vOption) then Observer.Observe('in_set.A.3', Format(Res, 0, 9)) else Observer.ObserveError('in_set.A.3');
         vChar := 65;
         vOption := 3;
-        if Try20() then Observer.Observe('case_label.A.3', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.3');
-        vChar := 97;
-        vOption := 1;
-        if Try17() then Observer.Observe('eq.a.1', Format(Res, 0, 9)) else Observer.ObserveError('eq.a.1');
-        vChar := 97;
-        vOption := 1;
-        if Try18() then Observer.Observe('lt.a.1', Format(Res, 0, 9)) else Observer.ObserveError('lt.a.1');
-        vChar := 97;
-        vOption := 1;
-        if Try19() then Observer.Observe('in_set.a.1', Format(Res, 0, 9)) else Observer.ObserveError('in_set.a.1');
-        vChar := 97;
-        vOption := 1;
-        if Try20() then Observer.Observe('case_label.a.1', Format(Res, 0, 9)) else Observer.ObserveError('case_label.a.1');
-        vChar := 97;
-        vOption := 3;
-        if Try17() then Observer.Observe('eq.a.3', Format(Res, 0, 9)) else Observer.ObserveError('eq.a.3');
-        vChar := 97;
-        vOption := 3;
-        if Try18() then Observer.Observe('lt.a.3', Format(Res, 0, 9)) else Observer.ObserveError('lt.a.3');
-        vChar := 97;
-        vOption := 3;
-        if Try19() then Observer.Observe('in_set.a.3', Format(Res, 0, 9)) else Observer.ObserveError('in_set.a.3');
-        vChar := 97;
-        vOption := 3;
-        if Try20() then Observer.Observe('case_label.a.3', Format(Res, 0, 9)) else Observer.ObserveError('case_label.a.3');
+        if Try20(Res, vChar, vOption) then Observer.Observe('case_label.A.3', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.3');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Char_Option_More1()
+    procedure Char_Option_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vChar: Char;
+        vOption: Option A,B,C;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Option_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Option_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Option_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Option_More5()
-    begin
-        Observer.More();
+        vChar := 97;
+        vOption := 1;
+        if Try17(Res, vChar, vOption) then Observer.Observe('eq.a.1', Format(Res, 0, 9)) else Observer.ObserveError('eq.a.1');
+        vChar := 97;
+        vOption := 1;
+        if Try18(Res, vChar, vOption) then Observer.Observe('lt.a.1', Format(Res, 0, 9)) else Observer.ObserveError('lt.a.1');
+        vChar := 97;
+        vOption := 1;
+        if Try19(Res, vChar, vOption) then Observer.Observe('in_set.a.1', Format(Res, 0, 9)) else Observer.ObserveError('in_set.a.1');
+        vChar := 97;
+        vOption := 1;
+        if Try20(Res, vChar, vOption) then Observer.Observe('case_label.a.1', Format(Res, 0, 9)) else Observer.ObserveError('case_label.a.1');
+        vChar := 97;
+        vOption := 3;
+        if Try17(Res, vChar, vOption) then Observer.Observe('eq.a.3', Format(Res, 0, 9)) else Observer.ObserveError('eq.a.3');
+        vChar := 97;
+        vOption := 3;
+        if Try18(Res, vChar, vOption) then Observer.Observe('lt.a.3', Format(Res, 0, 9)) else Observer.ObserveError('lt.a.3');
+        vChar := 97;
+        vOption := 3;
+        if Try19(Res, vChar, vOption) then Observer.Observe('in_set.a.3', Format(Res, 0, 9)) else Observer.ObserveError('in_set.a.3');
+        vChar := 97;
+        vOption := 3;
+        if Try20(Res, vChar, vOption) then Observer.Observe('case_label.a.3', Format(Res, 0, 9)) else Observer.ObserveError('case_label.a.3');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Char_Enum()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vChar: Char;
+        vEnum: Enum "LT Y31 E";
     begin
         vChar := 65;
         vEnum := "LT Y31 E"::B;
-        if Try21() then Observer.Observe('eq.A.B', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.B');
+        if Try21(Res, vChar, vEnum) then Observer.Observe('eq.A.B', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.B');
         vChar := 65;
         vEnum := "LT Y31 E"::B;
-        if Try22() then Observer.Observe('lt.A.B', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.B');
+        if Try22(Res, vChar, vEnum) then Observer.Observe('lt.A.B', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.B');
         vChar := 65;
         vEnum := 5;
-        if Try21() then Observer.Observe('eq.A.ord5', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.ord5');
+        if Try21(Res, vChar, vEnum) then Observer.Observe('eq.A.ord5', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.ord5');
         vChar := 65;
         vEnum := 5;
-        if Try22() then Observer.Observe('lt.A.ord5', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.ord5');
+        if Try22(Res, vChar, vEnum) then Observer.Observe('lt.A.ord5', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.ord5');
         vChar := 97;
         vEnum := "LT Y31 E"::B;
-        if Try21() then Observer.Observe('eq.a.B', Format(Res, 0, 9)) else Observer.ObserveError('eq.a.B');
+        if Try21(Res, vChar, vEnum) then Observer.Observe('eq.a.B', Format(Res, 0, 9)) else Observer.ObserveError('eq.a.B');
         vChar := 97;
         vEnum := "LT Y31 E"::B;
-        if Try22() then Observer.Observe('lt.a.B', Format(Res, 0, 9)) else Observer.ObserveError('lt.a.B');
+        if Try22(Res, vChar, vEnum) then Observer.Observe('lt.a.B', Format(Res, 0, 9)) else Observer.ObserveError('lt.a.B');
         vChar := 97;
         vEnum := 5;
-        if Try21() then Observer.Observe('eq.a.ord5', Format(Res, 0, 9)) else Observer.ObserveError('eq.a.ord5');
+        if Try21(Res, vChar, vEnum) then Observer.Observe('eq.a.ord5', Format(Res, 0, 9)) else Observer.ObserveError('eq.a.ord5');
         vChar := 97;
         vEnum := 5;
-        if Try22() then Observer.Observe('lt.a.ord5', Format(Res, 0, 9)) else Observer.ObserveError('lt.a.ord5');
+        if Try22(Res, vChar, vEnum) then Observer.Observe('lt.a.ord5', Format(Res, 0, 9)) else Observer.ObserveError('lt.a.ord5');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_Enum_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Enum_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Enum_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Enum_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Enum_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Char_EnumImpl()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vChar: Char;
+        vEnumImpl: Enum "LT Y31 EI";
     begin
         vChar := 65;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try23() then Observer.Observe('eq.A.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.A');
+        if Try23(Res, vChar, vEnumImpl) then Observer.Observe('eq.A.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.A');
         vChar := 65;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try24() then Observer.Observe('lt.A.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.A');
+        if Try24(Res, vChar, vEnumImpl) then Observer.Observe('lt.A.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.A');
         vChar := 97;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try23() then Observer.Observe('eq.a.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.a.A');
+        if Try23(Res, vChar, vEnumImpl) then Observer.Observe('eq.a.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.a.A');
         vChar := 97;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try24() then Observer.Observe('lt.a.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.a.A');
+        if Try24(Res, vChar, vEnumImpl) then Observer.Observe('lt.a.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.a.A');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_EnumImpl_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_EnumImpl_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_EnumImpl_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_EnumImpl_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_EnumImpl_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Char_Text()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vChar: Char;
+        vText: Text;
     begin
         vChar := 65;
         vText := 'a';
-        if Try25() then Observer.Observe('eq.A.a', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.a');
+        if Try25(Res, vChar, vText) then Observer.Observe('eq.A.a', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.a');
         vChar := 65;
         vText := 'a';
-        if Try26() then Observer.Observe('lt.A.a', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.a');
+        if Try26(Res, vChar, vText) then Observer.Observe('lt.A.a', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.a');
         vChar := 65;
         vText := 'A';
-        if Try25() then Observer.Observe('eq.A.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.A');
+        if Try25(Res, vChar, vText) then Observer.Observe('eq.A.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.A');
         vChar := 65;
         vText := 'A';
-        if Try26() then Observer.Observe('lt.A.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.A');
+        if Try26(Res, vChar, vText) then Observer.Observe('lt.A.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.A');
         vChar := 65;
         vText := 'abc';
-        if Try25() then Observer.Observe('eq.A.abc', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.abc');
+        if Try25(Res, vChar, vText) then Observer.Observe('eq.A.abc', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.abc');
         vChar := 65;
         vText := 'abc';
-        if Try26() then Observer.Observe('lt.A.abc', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.abc');
+        if Try26(Res, vChar, vText) then Observer.Observe('lt.A.abc', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.abc');
         vChar := 65;
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        if Try25() then Observer.Observe('eq.A.guidlow', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.guidlow');
+        if Try25(Res, vChar, vText) then Observer.Observe('eq.A.guidlow', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.guidlow');
         vChar := 65;
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        if Try26() then Observer.Observe('lt.A.guidlow', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.guidlow');
-        vChar := 97;
-        vText := 'a';
-        if Try25() then Observer.Observe('eq.a.a', Format(Res, 0, 9)) else Observer.ObserveError('eq.a.a');
-        vChar := 97;
-        vText := 'a';
-        if Try26() then Observer.Observe('lt.a.a', Format(Res, 0, 9)) else Observer.ObserveError('lt.a.a');
-        vChar := 97;
-        vText := 'A';
-        if Try25() then Observer.Observe('eq.a.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.a.A');
-        vChar := 97;
-        vText := 'A';
-        if Try26() then Observer.Observe('lt.a.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.a.A');
-        vChar := 97;
-        vText := 'abc';
-        if Try25() then Observer.Observe('eq.a.abc', Format(Res, 0, 9)) else Observer.ObserveError('eq.a.abc');
-        vChar := 97;
-        vText := 'abc';
-        if Try26() then Observer.Observe('lt.a.abc', Format(Res, 0, 9)) else Observer.ObserveError('lt.a.abc');
-        vChar := 97;
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        if Try25() then Observer.Observe('eq.a.guidlow', Format(Res, 0, 9)) else Observer.ObserveError('eq.a.guidlow');
-        vChar := 97;
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        if Try26() then Observer.Observe('lt.a.guidlow', Format(Res, 0, 9)) else Observer.ObserveError('lt.a.guidlow');
+        if Try26(Res, vChar, vText) then Observer.Observe('lt.A.guidlow', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.guidlow');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Char_Text_More1()
+    procedure Char_Text_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vChar: Char;
+        vText: Text;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Text_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Text_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Text_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Text_More5()
-    begin
-        Observer.More();
+        vChar := 97;
+        vText := 'a';
+        if Try25(Res, vChar, vText) then Observer.Observe('eq.a.a', Format(Res, 0, 9)) else Observer.ObserveError('eq.a.a');
+        vChar := 97;
+        vText := 'a';
+        if Try26(Res, vChar, vText) then Observer.Observe('lt.a.a', Format(Res, 0, 9)) else Observer.ObserveError('lt.a.a');
+        vChar := 97;
+        vText := 'A';
+        if Try25(Res, vChar, vText) then Observer.Observe('eq.a.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.a.A');
+        vChar := 97;
+        vText := 'A';
+        if Try26(Res, vChar, vText) then Observer.Observe('lt.a.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.a.A');
+        vChar := 97;
+        vText := 'abc';
+        if Try25(Res, vChar, vText) then Observer.Observe('eq.a.abc', Format(Res, 0, 9)) else Observer.ObserveError('eq.a.abc');
+        vChar := 97;
+        vText := 'abc';
+        if Try26(Res, vChar, vText) then Observer.Observe('lt.a.abc', Format(Res, 0, 9)) else Observer.ObserveError('lt.a.abc');
+        vChar := 97;
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        if Try25(Res, vChar, vText) then Observer.Observe('eq.a.guidlow', Format(Res, 0, 9)) else Observer.ObserveError('eq.a.guidlow');
+        vChar := 97;
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        if Try26(Res, vChar, vText) then Observer.Observe('lt.a.guidlow', Format(Res, 0, 9)) else Observer.ObserveError('lt.a.guidlow');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Char_Text10()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vChar: Char;
+        vText10: Text[10];
     begin
         vChar := 65;
         vText10 := 'abc';
-        if Try27() then Observer.Observe('eq.A.abc', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.abc');
+        if Try27(Res, vChar, vText10) then Observer.Observe('eq.A.abc', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.abc');
         vChar := 65;
         vText10 := 'abc';
-        if Try28() then Observer.Observe('lt.A.abc', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.abc');
+        if Try28(Res, vChar, vText10) then Observer.Observe('lt.A.abc', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.abc');
         vChar := 97;
         vText10 := 'abc';
-        if Try27() then Observer.Observe('eq.a.abc', Format(Res, 0, 9)) else Observer.ObserveError('eq.a.abc');
+        if Try27(Res, vChar, vText10) then Observer.Observe('eq.a.abc', Format(Res, 0, 9)) else Observer.ObserveError('eq.a.abc');
         vChar := 97;
         vText10 := 'abc';
-        if Try28() then Observer.Observe('lt.a.abc', Format(Res, 0, 9)) else Observer.ObserveError('lt.a.abc');
+        if Try28(Res, vChar, vText10) then Observer.Observe('lt.a.abc', Format(Res, 0, 9)) else Observer.ObserveError('lt.a.abc');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_Text10_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Text10_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Text10_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Text10_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Text10_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Char_Code10()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vChar: Char;
+        vCode10: Code[10];
     begin
         vChar := 65;
         vCode10 := 'A';
-        if Try29() then Observer.Observe('eq.A.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.A');
+        if Try29(Res, vChar, vCode10) then Observer.Observe('eq.A.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.A');
         vChar := 65;
         vCode10 := 'A';
-        if Try30() then Observer.Observe('lt.A.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.A');
+        if Try30(Res, vChar, vCode10) then Observer.Observe('lt.A.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.A');
         vChar := 65;
         vCode10 := 'ABC';
-        if Try29() then Observer.Observe('eq.A.ABC', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.ABC');
+        if Try29(Res, vChar, vCode10) then Observer.Observe('eq.A.ABC', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.ABC');
         vChar := 65;
         vCode10 := 'ABC';
-        if Try30() then Observer.Observe('lt.A.ABC', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.ABC');
+        if Try30(Res, vChar, vCode10) then Observer.Observe('lt.A.ABC', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.ABC');
         vChar := 97;
         vCode10 := 'A';
-        if Try29() then Observer.Observe('eq.a.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.a.A');
+        if Try29(Res, vChar, vCode10) then Observer.Observe('eq.a.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.a.A');
         vChar := 97;
         vCode10 := 'A';
-        if Try30() then Observer.Observe('lt.a.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.a.A');
+        if Try30(Res, vChar, vCode10) then Observer.Observe('lt.a.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.a.A');
         vChar := 97;
         vCode10 := 'ABC';
-        if Try29() then Observer.Observe('eq.a.ABC', Format(Res, 0, 9)) else Observer.ObserveError('eq.a.ABC');
+        if Try29(Res, vChar, vCode10) then Observer.Observe('eq.a.ABC', Format(Res, 0, 9)) else Observer.ObserveError('eq.a.ABC');
         vChar := 97;
         vCode10 := 'ABC';
-        if Try30() then Observer.Observe('lt.a.ABC', Format(Res, 0, 9)) else Observer.ObserveError('lt.a.ABC');
+        if Try30(Res, vChar, vCode10) then Observer.Observe('lt.a.ABC', Format(Res, 0, 9)) else Observer.ObserveError('lt.a.ABC');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_Code10_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Code10_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Code10_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Code10_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Code10_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Char_Guid()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vChar: Char;
+        vGuid: Guid;
     begin
         vChar := 65;
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try31() then Observer.Observe('eq.A.g', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.g');
+        if Try31(Res, vChar, vGuid) then Observer.Observe('eq.A.g', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.g');
         vChar := 65;
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try32() then Observer.Observe('lt.A.g', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.g');
+        if Try32(Res, vChar, vGuid) then Observer.Observe('lt.A.g', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.g');
         vChar := 97;
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try31() then Observer.Observe('eq.a.g', Format(Res, 0, 9)) else Observer.ObserveError('eq.a.g');
+        if Try31(Res, vChar, vGuid) then Observer.Observe('eq.a.g', Format(Res, 0, 9)) else Observer.ObserveError('eq.a.g');
         vChar := 97;
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try32() then Observer.Observe('lt.a.g', Format(Res, 0, 9)) else Observer.ObserveError('lt.a.g');
+        if Try32(Res, vChar, vGuid) then Observer.Observe('lt.a.g', Format(Res, 0, 9)) else Observer.ObserveError('lt.a.g');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_Guid_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Guid_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Guid_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Guid_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Guid_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Char_Duration()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vChar: Char;
+        vDuration: Duration;
     begin
         vChar := 65;
         vDuration := 65;
-        if Try33() then Observer.Observe('eq.A.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.65');
+        if Try33(Res, vChar, vDuration) then Observer.Observe('eq.A.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.65');
         vChar := 65;
         vDuration := 65;
-        if Try34() then Observer.Observe('lt.A.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.65');
+        if Try34(Res, vChar, vDuration) then Observer.Observe('lt.A.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.65');
         vChar := 65;
         vDuration := 65;
-        if Try35() then Observer.Observe('in_set.A.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.A.65');
+        if Try35(Res, vChar, vDuration) then Observer.Observe('in_set.A.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.A.65');
         vChar := 65;
         vDuration := 65;
-        if Try36() then Observer.Observe('case_label.A.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.65');
+        if Try36(Res, vChar, vDuration) then Observer.Observe('case_label.A.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.65');
         vChar := 97;
         vDuration := 65;
-        if Try33() then Observer.Observe('eq.a.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.a.65');
+        if Try33(Res, vChar, vDuration) then Observer.Observe('eq.a.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.a.65');
         vChar := 97;
         vDuration := 65;
-        if Try34() then Observer.Observe('lt.a.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.a.65');
+        if Try34(Res, vChar, vDuration) then Observer.Observe('lt.a.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.a.65');
         vChar := 97;
         vDuration := 65;
-        if Try35() then Observer.Observe('in_set.a.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.a.65');
+        if Try35(Res, vChar, vDuration) then Observer.Observe('in_set.a.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.a.65');
         vChar := 97;
         vDuration := 65;
-        if Try36() then Observer.Observe('case_label.a.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.a.65');
+        if Try36(Res, vChar, vDuration) then Observer.Observe('case_label.a.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.a.65');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_Duration_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Duration_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Duration_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Duration_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Duration_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Char_Label()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vChar: Char;
     begin
         vChar := 65;
-        if Try37() then Observer.Observe('eq.A.abc', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.abc');
+        if Try37(Res, vChar) then Observer.Observe('eq.A.abc', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.abc');
         vChar := 65;
-        if Try38() then Observer.Observe('lt.A.abc', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.abc');
+        if Try38(Res, vChar) then Observer.Observe('lt.A.abc', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.abc');
         vChar := 97;
-        if Try37() then Observer.Observe('eq.a.abc', Format(Res, 0, 9)) else Observer.ObserveError('eq.a.abc');
+        if Try37(Res, vChar) then Observer.Observe('eq.a.abc', Format(Res, 0, 9)) else Observer.ObserveError('eq.a.abc');
         vChar := 97;
-        if Try38() then Observer.Observe('lt.a.abc', Format(Res, 0, 9)) else Observer.ObserveError('lt.a.abc');
+        if Try38(Res, vChar) then Observer.Observe('lt.a.abc', Format(Res, 0, 9)) else Observer.ObserveError('lt.a.abc');
         Observer.Finish();
     end;
 
-    [Test]
-    procedure Char_Label_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Label_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Label_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Label_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Label_More5()
-    begin
-        Observer.More();
-    end;
-
     [TryFunction]
-    local procedure Try1()
+    local procedure Try1(var Res: Boolean; var vChar: Char; var vInteger: Integer)
     begin
         Res := vChar = vInteger;
     end;
 
     [TryFunction]
-    local procedure Try2()
+    local procedure Try2(var Res: Boolean; var vChar: Char; var vInteger: Integer)
     begin
         Res := vChar < vInteger;
     end;
 
     [TryFunction]
-    local procedure Try3()
+    local procedure Try3(var Res: Boolean; var vChar: Char; var vInteger: Integer)
     begin
         Res := vChar in [vInteger];
     end;
 
     [TryFunction]
-    local procedure Try4()
+    local procedure Try4(var Res: Boolean; var vChar: Char; var vInteger: Integer)
     begin
         Res := false;
         case vChar of
@@ -2994,25 +2176,25 @@ codeunit 92430 "LT Y31 Cmp Char"
     end;
 
     [TryFunction]
-    local procedure Try5()
+    local procedure Try5(var Res: Boolean; var vBigInteger: BigInteger; var vChar: Char)
     begin
         Res := vChar = vBigInteger;
     end;
 
     [TryFunction]
-    local procedure Try6()
+    local procedure Try6(var Res: Boolean; var vBigInteger: BigInteger; var vChar: Char)
     begin
         Res := vChar < vBigInteger;
     end;
 
     [TryFunction]
-    local procedure Try7()
+    local procedure Try7(var Res: Boolean; var vBigInteger: BigInteger; var vChar: Char)
     begin
         Res := vChar in [vBigInteger];
     end;
 
     [TryFunction]
-    local procedure Try8()
+    local procedure Try8(var Res: Boolean; var vBigInteger: BigInteger; var vChar: Char)
     begin
         Res := false;
         case vChar of
@@ -3022,25 +2204,25 @@ codeunit 92430 "LT Y31 Cmp Char"
     end;
 
     [TryFunction]
-    local procedure Try9()
+    local procedure Try9(var Res: Boolean; var vChar: Char; var vDecimal: Decimal)
     begin
         Res := vChar = vDecimal;
     end;
 
     [TryFunction]
-    local procedure Try10()
+    local procedure Try10(var Res: Boolean; var vChar: Char; var vDecimal: Decimal)
     begin
         Res := vChar < vDecimal;
     end;
 
     [TryFunction]
-    local procedure Try11()
+    local procedure Try11(var Res: Boolean; var vChar: Char; var vDecimal: Decimal)
     begin
         Res := vChar in [vDecimal];
     end;
 
     [TryFunction]
-    local procedure Try12()
+    local procedure Try12(var Res: Boolean; var vChar: Char; var vDecimal: Decimal)
     begin
         Res := false;
         case vChar of
@@ -3050,25 +2232,25 @@ codeunit 92430 "LT Y31 Cmp Char"
     end;
 
     [TryFunction]
-    local procedure Try13()
+    local procedure Try13(var Res: Boolean; var vByte: Byte; var vChar: Char)
     begin
         Res := vChar = vByte;
     end;
 
     [TryFunction]
-    local procedure Try14()
+    local procedure Try14(var Res: Boolean; var vByte: Byte; var vChar: Char)
     begin
         Res := vChar < vByte;
     end;
 
     [TryFunction]
-    local procedure Try15()
+    local procedure Try15(var Res: Boolean; var vByte: Byte; var vChar: Char)
     begin
         Res := vChar in [vByte];
     end;
 
     [TryFunction]
-    local procedure Try16()
+    local procedure Try16(var Res: Boolean; var vByte: Byte; var vChar: Char)
     begin
         Res := false;
         case vChar of
@@ -3078,25 +2260,25 @@ codeunit 92430 "LT Y31 Cmp Char"
     end;
 
     [TryFunction]
-    local procedure Try17()
+    local procedure Try17(var Res: Boolean; var vChar: Char; var vOption: Option A,B,C)
     begin
         Res := vChar = vOption;
     end;
 
     [TryFunction]
-    local procedure Try18()
+    local procedure Try18(var Res: Boolean; var vChar: Char; var vOption: Option A,B,C)
     begin
         Res := vChar < vOption;
     end;
 
     [TryFunction]
-    local procedure Try19()
+    local procedure Try19(var Res: Boolean; var vChar: Char; var vOption: Option A,B,C)
     begin
         Res := vChar in [vOption];
     end;
 
     [TryFunction]
-    local procedure Try20()
+    local procedure Try20(var Res: Boolean; var vChar: Char; var vOption: Option A,B,C)
     begin
         Res := false;
         case vChar of
@@ -3106,97 +2288,97 @@ codeunit 92430 "LT Y31 Cmp Char"
     end;
 
     [TryFunction]
-    local procedure Try21()
+    local procedure Try21(var Res: Boolean; var vChar: Char; var vEnum: Enum "LT Y31 E")
     begin
         Res := vChar = vEnum;
     end;
 
     [TryFunction]
-    local procedure Try22()
+    local procedure Try22(var Res: Boolean; var vChar: Char; var vEnum: Enum "LT Y31 E")
     begin
         Res := vChar < vEnum;
     end;
 
     [TryFunction]
-    local procedure Try23()
+    local procedure Try23(var Res: Boolean; var vChar: Char; var vEnumImpl: Enum "LT Y31 EI")
     begin
         Res := vChar = vEnumImpl;
     end;
 
     [TryFunction]
-    local procedure Try24()
+    local procedure Try24(var Res: Boolean; var vChar: Char; var vEnumImpl: Enum "LT Y31 EI")
     begin
         Res := vChar < vEnumImpl;
     end;
 
     [TryFunction]
-    local procedure Try25()
+    local procedure Try25(var Res: Boolean; var vChar: Char; var vText: Text)
     begin
         Res := vChar = vText;
     end;
 
     [TryFunction]
-    local procedure Try26()
+    local procedure Try26(var Res: Boolean; var vChar: Char; var vText: Text)
     begin
         Res := vChar < vText;
     end;
 
     [TryFunction]
-    local procedure Try27()
+    local procedure Try27(var Res: Boolean; var vChar: Char; var vText10: Text[10])
     begin
         Res := vChar = vText10;
     end;
 
     [TryFunction]
-    local procedure Try28()
+    local procedure Try28(var Res: Boolean; var vChar: Char; var vText10: Text[10])
     begin
         Res := vChar < vText10;
     end;
 
     [TryFunction]
-    local procedure Try29()
+    local procedure Try29(var Res: Boolean; var vChar: Char; var vCode10: Code[10])
     begin
         Res := vChar = vCode10;
     end;
 
     [TryFunction]
-    local procedure Try30()
+    local procedure Try30(var Res: Boolean; var vChar: Char; var vCode10: Code[10])
     begin
         Res := vChar < vCode10;
     end;
 
     [TryFunction]
-    local procedure Try31()
+    local procedure Try31(var Res: Boolean; var vChar: Char; var vGuid: Guid)
     begin
         Res := vChar = vGuid;
     end;
 
     [TryFunction]
-    local procedure Try32()
+    local procedure Try32(var Res: Boolean; var vChar: Char; var vGuid: Guid)
     begin
         Res := vChar < vGuid;
     end;
 
     [TryFunction]
-    local procedure Try33()
+    local procedure Try33(var Res: Boolean; var vChar: Char; var vDuration: Duration)
     begin
         Res := vChar = vDuration;
     end;
 
     [TryFunction]
-    local procedure Try34()
+    local procedure Try34(var Res: Boolean; var vChar: Char; var vDuration: Duration)
     begin
         Res := vChar < vDuration;
     end;
 
     [TryFunction]
-    local procedure Try35()
+    local procedure Try35(var Res: Boolean; var vChar: Char; var vDuration: Duration)
     begin
         Res := vChar in [vDuration];
     end;
 
     [TryFunction]
-    local procedure Try36()
+    local procedure Try36(var Res: Boolean; var vChar: Char; var vDuration: Duration)
     begin
         Res := false;
         case vChar of
@@ -3206,13 +2388,17 @@ codeunit 92430 "LT Y31 Cmp Char"
     end;
 
     [TryFunction]
-    local procedure Try37()
+    local procedure Try37(var Res: Boolean; var vChar: Char)
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Res := vChar = vLabel;
     end;
 
     [TryFunction]
-    local procedure Try38()
+    local procedure Try38(var Res: Boolean; var vChar: Char)
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Res := vChar < vLabel;
     end;
@@ -3231,467 +2417,252 @@ codeunit 92431 "LT Y31 Cmp Byte"
     Subtype = Test;
     TestPermissions = Disabled;
 
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        Res: Boolean;
-        V: Variant;
-        vBigInteger: BigInteger;
-        vByte: Byte;
-        vChar: Char;
-        vDecimal: Decimal;
-        vDuration: Duration;
-        vEnum: Enum "LT Y31 E";
-        vEnumImpl: Enum "LT Y31 EI";
-        vInteger: Integer;
-        vOption: Option A,B,C;
-
     [Test]
     procedure Byte_Integer()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vByte: Byte;
+        vInteger: Integer;
     begin
         vByte := 65;
         vInteger := 65;
-        if Try1() then Observer.Observe('eq.65.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.65');
+        if Try1(Res, vByte, vInteger) then Observer.Observe('eq.65.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.65');
         vByte := 65;
         vInteger := 65;
-        if Try2() then Observer.Observe('lt.65.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.65');
+        if Try2(Res, vByte, vInteger) then Observer.Observe('lt.65.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.65');
         vByte := 65;
         vInteger := 65;
-        if Try3() then Observer.Observe('in_set.65.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.65');
+        if Try3(Res, vByte, vInteger) then Observer.Observe('in_set.65.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.65');
         vByte := 65;
         vInteger := 65;
-        if Try4() then Observer.Observe('case_label.65.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.65');
+        if Try4(Res, vByte, vInteger) then Observer.Observe('case_label.65.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.65');
         vByte := 65;
         vInteger := 1;
-        if Try1() then Observer.Observe('eq.65.1', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.1');
+        if Try1(Res, vByte, vInteger) then Observer.Observe('eq.65.1', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.1');
         vByte := 65;
         vInteger := 1;
-        if Try2() then Observer.Observe('lt.65.1', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.1');
+        if Try2(Res, vByte, vInteger) then Observer.Observe('lt.65.1', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.1');
         vByte := 65;
         vInteger := 1;
-        if Try3() then Observer.Observe('in_set.65.1', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.1');
+        if Try3(Res, vByte, vInteger) then Observer.Observe('in_set.65.1', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.1');
         vByte := 65;
         vInteger := 1;
-        if Try4() then Observer.Observe('case_label.65.1', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.1');
+        if Try4(Res, vByte, vInteger) then Observer.Observe('case_label.65.1', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.1');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Byte_Integer_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Integer_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Integer_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Integer_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Integer_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Byte_BigInteger()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vBigInteger: BigInteger;
+        vByte: Byte;
     begin
         vByte := 65;
         vBigInteger := 65;
-        if Try5() then Observer.Observe('eq.65.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.65');
+        if Try5(Res, vBigInteger, vByte) then Observer.Observe('eq.65.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.65');
         vByte := 65;
         vBigInteger := 65;
-        if Try6() then Observer.Observe('lt.65.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.65');
+        if Try6(Res, vBigInteger, vByte) then Observer.Observe('lt.65.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.65');
         vByte := 65;
         vBigInteger := 65;
-        if Try7() then Observer.Observe('in_set.65.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.65');
+        if Try7(Res, vBigInteger, vByte) then Observer.Observe('in_set.65.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.65');
         vByte := 65;
         vBigInteger := 65;
-        if Try8() then Observer.Observe('case_label.65.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.65');
+        if Try8(Res, vBigInteger, vByte) then Observer.Observe('case_label.65.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.65');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Byte_BigInteger_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_BigInteger_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_BigInteger_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_BigInteger_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_BigInteger_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Byte_Decimal()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vByte: Byte;
+        vDecimal: Decimal;
     begin
         vByte := 65;
         vDecimal := 65;
-        if Try9() then Observer.Observe('eq.65.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.65');
+        if Try9(Res, vByte, vDecimal) then Observer.Observe('eq.65.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.65');
         vByte := 65;
         vDecimal := 65;
-        if Try10() then Observer.Observe('lt.65.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.65');
+        if Try10(Res, vByte, vDecimal) then Observer.Observe('lt.65.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.65');
         vByte := 65;
         vDecimal := 65;
-        if Try11() then Observer.Observe('in_set.65.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.65');
+        if Try11(Res, vByte, vDecimal) then Observer.Observe('in_set.65.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.65');
         vByte := 65;
         vDecimal := 65;
-        if Try12() then Observer.Observe('case_label.65.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.65');
+        if Try12(Res, vByte, vDecimal) then Observer.Observe('case_label.65.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.65');
         vByte := 65;
         vDecimal := 1.5;
-        if Try9() then Observer.Observe('eq.65.1p5', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.1p5');
+        if Try9(Res, vByte, vDecimal) then Observer.Observe('eq.65.1p5', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.1p5');
         vByte := 65;
         vDecimal := 1.5;
-        if Try10() then Observer.Observe('lt.65.1p5', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.1p5');
+        if Try10(Res, vByte, vDecimal) then Observer.Observe('lt.65.1p5', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.1p5');
         vByte := 65;
         vDecimal := 1.5;
-        if Try11() then Observer.Observe('in_set.65.1p5', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.1p5');
+        if Try11(Res, vByte, vDecimal) then Observer.Observe('in_set.65.1p5', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.1p5');
         vByte := 65;
         vDecimal := 1.5;
-        if Try12() then Observer.Observe('case_label.65.1p5', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.1p5');
+        if Try12(Res, vByte, vDecimal) then Observer.Observe('case_label.65.1p5', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.1p5');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Byte_Decimal_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Decimal_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Decimal_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Decimal_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Decimal_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Byte_Char()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vByte: Byte;
+        vChar: Char;
     begin
         vByte := 65;
         vChar := 65;
-        if Try13() then Observer.Observe('eq.65.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.A');
+        if Try13(Res, vByte, vChar) then Observer.Observe('eq.65.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.A');
         vByte := 65;
         vChar := 65;
-        if Try14() then Observer.Observe('lt.65.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.A');
+        if Try14(Res, vByte, vChar) then Observer.Observe('lt.65.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.A');
         vByte := 65;
         vChar := 65;
-        if Try15() then Observer.Observe('in_set.65.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.A');
+        if Try15(Res, vByte, vChar) then Observer.Observe('in_set.65.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.A');
         vByte := 65;
         vChar := 65;
-        if Try16() then Observer.Observe('case_label.65.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.A');
+        if Try16(Res, vByte, vChar) then Observer.Observe('case_label.65.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.A');
         vByte := 65;
         vChar := 97;
-        if Try13() then Observer.Observe('eq.65.a', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.a');
+        if Try13(Res, vByte, vChar) then Observer.Observe('eq.65.a', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.a');
         vByte := 65;
         vChar := 97;
-        if Try14() then Observer.Observe('lt.65.a', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.a');
+        if Try14(Res, vByte, vChar) then Observer.Observe('lt.65.a', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.a');
         vByte := 65;
         vChar := 97;
-        if Try15() then Observer.Observe('in_set.65.a', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.a');
+        if Try15(Res, vByte, vChar) then Observer.Observe('in_set.65.a', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.a');
         vByte := 65;
         vChar := 97;
-        if Try16() then Observer.Observe('case_label.65.a', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.a');
+        if Try16(Res, vByte, vChar) then Observer.Observe('case_label.65.a', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.a');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Byte_Char_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Char_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Char_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Char_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Char_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Byte_Option()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vByte: Byte;
+        vOption: Option A,B,C;
     begin
         vByte := 65;
         vOption := 1;
-        if Try17() then Observer.Observe('eq.65.1', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.1');
+        if Try17(Res, vByte, vOption) then Observer.Observe('eq.65.1', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.1');
         vByte := 65;
         vOption := 1;
-        if Try18() then Observer.Observe('lt.65.1', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.1');
+        if Try18(Res, vByte, vOption) then Observer.Observe('lt.65.1', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.1');
         vByte := 65;
         vOption := 1;
-        if Try19() then Observer.Observe('in_set.65.1', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.1');
+        if Try19(Res, vByte, vOption) then Observer.Observe('in_set.65.1', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.1');
         vByte := 65;
         vOption := 1;
-        if Try20() then Observer.Observe('case_label.65.1', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.1');
+        if Try20(Res, vByte, vOption) then Observer.Observe('case_label.65.1', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.1');
         vByte := 65;
         vOption := 3;
-        if Try17() then Observer.Observe('eq.65.3', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.3');
+        if Try17(Res, vByte, vOption) then Observer.Observe('eq.65.3', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.3');
         vByte := 65;
         vOption := 3;
-        if Try18() then Observer.Observe('lt.65.3', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.3');
+        if Try18(Res, vByte, vOption) then Observer.Observe('lt.65.3', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.3');
         vByte := 65;
         vOption := 3;
-        if Try19() then Observer.Observe('in_set.65.3', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.3');
+        if Try19(Res, vByte, vOption) then Observer.Observe('in_set.65.3', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.3');
         vByte := 65;
         vOption := 3;
-        if Try20() then Observer.Observe('case_label.65.3', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.3');
+        if Try20(Res, vByte, vOption) then Observer.Observe('case_label.65.3', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.3');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Byte_Option_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Option_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Option_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Option_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Option_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Byte_Enum()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vByte: Byte;
+        vEnum: Enum "LT Y31 E";
     begin
         vByte := 65;
         vEnum := "LT Y31 E"::B;
-        if Try21() then Observer.Observe('eq.65.B', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.B');
+        if Try21(Res, vByte, vEnum) then Observer.Observe('eq.65.B', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.B');
         vByte := 65;
         vEnum := "LT Y31 E"::B;
-        if Try22() then Observer.Observe('lt.65.B', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.B');
+        if Try22(Res, vByte, vEnum) then Observer.Observe('lt.65.B', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.B');
         vByte := 65;
         vEnum := 5;
-        if Try21() then Observer.Observe('eq.65.ord5', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.ord5');
+        if Try21(Res, vByte, vEnum) then Observer.Observe('eq.65.ord5', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.ord5');
         vByte := 65;
         vEnum := 5;
-        if Try22() then Observer.Observe('lt.65.ord5', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.ord5');
+        if Try22(Res, vByte, vEnum) then Observer.Observe('lt.65.ord5', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.ord5');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Byte_Enum_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Enum_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Enum_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Enum_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Enum_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Byte_EnumImpl()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vByte: Byte;
+        vEnumImpl: Enum "LT Y31 EI";
     begin
         vByte := 65;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try23() then Observer.Observe('eq.65.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.A');
+        if Try23(Res, vByte, vEnumImpl) then Observer.Observe('eq.65.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.A');
         vByte := 65;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try24() then Observer.Observe('lt.65.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.A');
+        if Try24(Res, vByte, vEnumImpl) then Observer.Observe('lt.65.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.A');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Byte_EnumImpl_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_EnumImpl_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_EnumImpl_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_EnumImpl_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_EnumImpl_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Byte_Duration()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vByte: Byte;
+        vDuration: Duration;
     begin
         vByte := 65;
         vDuration := 65;
-        if Try25() then Observer.Observe('eq.65.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.65');
+        if Try25(Res, vByte, vDuration) then Observer.Observe('eq.65.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.65');
         vByte := 65;
         vDuration := 65;
-        if Try26() then Observer.Observe('lt.65.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.65');
+        if Try26(Res, vByte, vDuration) then Observer.Observe('lt.65.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.65');
         vByte := 65;
         vDuration := 65;
-        if Try27() then Observer.Observe('in_set.65.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.65');
+        if Try27(Res, vByte, vDuration) then Observer.Observe('in_set.65.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.65');
         vByte := 65;
         vDuration := 65;
-        if Try28() then Observer.Observe('case_label.65.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.65');
+        if Try28(Res, vByte, vDuration) then Observer.Observe('case_label.65.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.65');
         Observer.Finish();
     end;
 
-    [Test]
-    procedure Byte_Duration_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Duration_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Duration_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Duration_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Duration_More5()
-    begin
-        Observer.More();
-    end;
-
     [TryFunction]
-    local procedure Try1()
+    local procedure Try1(var Res: Boolean; var vByte: Byte; var vInteger: Integer)
     begin
         Res := vByte = vInteger;
     end;
 
     [TryFunction]
-    local procedure Try2()
+    local procedure Try2(var Res: Boolean; var vByte: Byte; var vInteger: Integer)
     begin
         Res := vByte < vInteger;
     end;
 
     [TryFunction]
-    local procedure Try3()
+    local procedure Try3(var Res: Boolean; var vByte: Byte; var vInteger: Integer)
     begin
         Res := vByte in [vInteger];
     end;
 
     [TryFunction]
-    local procedure Try4()
+    local procedure Try4(var Res: Boolean; var vByte: Byte; var vInteger: Integer)
     begin
         Res := false;
         case vByte of
@@ -3701,25 +2672,25 @@ codeunit 92431 "LT Y31 Cmp Byte"
     end;
 
     [TryFunction]
-    local procedure Try5()
+    local procedure Try5(var Res: Boolean; var vBigInteger: BigInteger; var vByte: Byte)
     begin
         Res := vByte = vBigInteger;
     end;
 
     [TryFunction]
-    local procedure Try6()
+    local procedure Try6(var Res: Boolean; var vBigInteger: BigInteger; var vByte: Byte)
     begin
         Res := vByte < vBigInteger;
     end;
 
     [TryFunction]
-    local procedure Try7()
+    local procedure Try7(var Res: Boolean; var vBigInteger: BigInteger; var vByte: Byte)
     begin
         Res := vByte in [vBigInteger];
     end;
 
     [TryFunction]
-    local procedure Try8()
+    local procedure Try8(var Res: Boolean; var vBigInteger: BigInteger; var vByte: Byte)
     begin
         Res := false;
         case vByte of
@@ -3729,25 +2700,25 @@ codeunit 92431 "LT Y31 Cmp Byte"
     end;
 
     [TryFunction]
-    local procedure Try9()
+    local procedure Try9(var Res: Boolean; var vByte: Byte; var vDecimal: Decimal)
     begin
         Res := vByte = vDecimal;
     end;
 
     [TryFunction]
-    local procedure Try10()
+    local procedure Try10(var Res: Boolean; var vByte: Byte; var vDecimal: Decimal)
     begin
         Res := vByte < vDecimal;
     end;
 
     [TryFunction]
-    local procedure Try11()
+    local procedure Try11(var Res: Boolean; var vByte: Byte; var vDecimal: Decimal)
     begin
         Res := vByte in [vDecimal];
     end;
 
     [TryFunction]
-    local procedure Try12()
+    local procedure Try12(var Res: Boolean; var vByte: Byte; var vDecimal: Decimal)
     begin
         Res := false;
         case vByte of
@@ -3757,25 +2728,25 @@ codeunit 92431 "LT Y31 Cmp Byte"
     end;
 
     [TryFunction]
-    local procedure Try13()
+    local procedure Try13(var Res: Boolean; var vByte: Byte; var vChar: Char)
     begin
         Res := vByte = vChar;
     end;
 
     [TryFunction]
-    local procedure Try14()
+    local procedure Try14(var Res: Boolean; var vByte: Byte; var vChar: Char)
     begin
         Res := vByte < vChar;
     end;
 
     [TryFunction]
-    local procedure Try15()
+    local procedure Try15(var Res: Boolean; var vByte: Byte; var vChar: Char)
     begin
         Res := vByte in [vChar];
     end;
 
     [TryFunction]
-    local procedure Try16()
+    local procedure Try16(var Res: Boolean; var vByte: Byte; var vChar: Char)
     begin
         Res := false;
         case vByte of
@@ -3785,25 +2756,25 @@ codeunit 92431 "LT Y31 Cmp Byte"
     end;
 
     [TryFunction]
-    local procedure Try17()
+    local procedure Try17(var Res: Boolean; var vByte: Byte; var vOption: Option A,B,C)
     begin
         Res := vByte = vOption;
     end;
 
     [TryFunction]
-    local procedure Try18()
+    local procedure Try18(var Res: Boolean; var vByte: Byte; var vOption: Option A,B,C)
     begin
         Res := vByte < vOption;
     end;
 
     [TryFunction]
-    local procedure Try19()
+    local procedure Try19(var Res: Boolean; var vByte: Byte; var vOption: Option A,B,C)
     begin
         Res := vByte in [vOption];
     end;
 
     [TryFunction]
-    local procedure Try20()
+    local procedure Try20(var Res: Boolean; var vByte: Byte; var vOption: Option A,B,C)
     begin
         Res := false;
         case vByte of
@@ -3813,49 +2784,49 @@ codeunit 92431 "LT Y31 Cmp Byte"
     end;
 
     [TryFunction]
-    local procedure Try21()
+    local procedure Try21(var Res: Boolean; var vByte: Byte; var vEnum: Enum "LT Y31 E")
     begin
         Res := vByte = vEnum;
     end;
 
     [TryFunction]
-    local procedure Try22()
+    local procedure Try22(var Res: Boolean; var vByte: Byte; var vEnum: Enum "LT Y31 E")
     begin
         Res := vByte < vEnum;
     end;
 
     [TryFunction]
-    local procedure Try23()
+    local procedure Try23(var Res: Boolean; var vByte: Byte; var vEnumImpl: Enum "LT Y31 EI")
     begin
         Res := vByte = vEnumImpl;
     end;
 
     [TryFunction]
-    local procedure Try24()
+    local procedure Try24(var Res: Boolean; var vByte: Byte; var vEnumImpl: Enum "LT Y31 EI")
     begin
         Res := vByte < vEnumImpl;
     end;
 
     [TryFunction]
-    local procedure Try25()
+    local procedure Try25(var Res: Boolean; var vByte: Byte; var vDuration: Duration)
     begin
         Res := vByte = vDuration;
     end;
 
     [TryFunction]
-    local procedure Try26()
+    local procedure Try26(var Res: Boolean; var vByte: Byte; var vDuration: Duration)
     begin
         Res := vByte < vDuration;
     end;
 
     [TryFunction]
-    local procedure Try27()
+    local procedure Try27(var Res: Boolean; var vByte: Byte; var vDuration: Duration)
     begin
         Res := vByte in [vDuration];
     end;
 
     [TryFunction]
-    local procedure Try28()
+    local procedure Try28(var Res: Boolean; var vByte: Byte; var vDuration: Duration)
     begin
         Res := false;
         case vByte of
@@ -3878,617 +2849,446 @@ codeunit 92432 "LT Y31 Cmp Option"
     Subtype = Test;
     TestPermissions = Disabled;
 
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        Res: Boolean;
-        V: Variant;
-        vBigInteger: BigInteger;
-        vByte: Byte;
-        vChar: Char;
-        vDecimal: Decimal;
-        vDuration: Duration;
-        vEnum: Enum "LT Y31 E";
-        vEnumImpl: Enum "LT Y31 EI";
-        vInteger: Integer;
-        vOption: Option A,B,C;
-
     [Test]
     procedure Option_Integer()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vInteger: Integer;
+        vOption: Option A,B,C;
     begin
         vOption := 1;
         vInteger := 65;
-        if Try1() then Observer.Observe('eq.1.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.1.65');
+        if Try1(Res, vInteger, vOption) then Observer.Observe('eq.1.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.1.65');
         vOption := 1;
         vInteger := 65;
-        if Try2() then Observer.Observe('lt.1.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.1.65');
+        if Try2(Res, vInteger, vOption) then Observer.Observe('lt.1.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.1.65');
         vOption := 1;
         vInteger := 65;
-        if Try3() then Observer.Observe('in_set.1.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1.65');
+        if Try3(Res, vInteger, vOption) then Observer.Observe('in_set.1.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1.65');
         vOption := 1;
         vInteger := 65;
-        if Try4() then Observer.Observe('case_label.1.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1.65');
+        if Try4(Res, vInteger, vOption) then Observer.Observe('case_label.1.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1.65');
         vOption := 1;
         vInteger := 1;
-        if Try1() then Observer.Observe('eq.1.1', Format(Res, 0, 9)) else Observer.ObserveError('eq.1.1');
+        if Try1(Res, vInteger, vOption) then Observer.Observe('eq.1.1', Format(Res, 0, 9)) else Observer.ObserveError('eq.1.1');
         vOption := 1;
         vInteger := 1;
-        if Try2() then Observer.Observe('lt.1.1', Format(Res, 0, 9)) else Observer.ObserveError('lt.1.1');
+        if Try2(Res, vInteger, vOption) then Observer.Observe('lt.1.1', Format(Res, 0, 9)) else Observer.ObserveError('lt.1.1');
         vOption := 1;
         vInteger := 1;
-        if Try3() then Observer.Observe('in_set.1.1', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1.1');
+        if Try3(Res, vInteger, vOption) then Observer.Observe('in_set.1.1', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1.1');
         vOption := 1;
         vInteger := 1;
-        if Try4() then Observer.Observe('case_label.1.1', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1.1');
-        vOption := 3;
-        vInteger := 65;
-        if Try1() then Observer.Observe('eq.3.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.3.65');
-        vOption := 3;
-        vInteger := 65;
-        if Try2() then Observer.Observe('lt.3.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.3.65');
-        vOption := 3;
-        vInteger := 65;
-        if Try3() then Observer.Observe('in_set.3.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.3.65');
-        vOption := 3;
-        vInteger := 65;
-        if Try4() then Observer.Observe('case_label.3.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.3.65');
-        vOption := 3;
-        vInteger := 1;
-        if Try1() then Observer.Observe('eq.3.1', Format(Res, 0, 9)) else Observer.ObserveError('eq.3.1');
-        vOption := 3;
-        vInteger := 1;
-        if Try2() then Observer.Observe('lt.3.1', Format(Res, 0, 9)) else Observer.ObserveError('lt.3.1');
-        vOption := 3;
-        vInteger := 1;
-        if Try3() then Observer.Observe('in_set.3.1', Format(Res, 0, 9)) else Observer.ObserveError('in_set.3.1');
-        vOption := 3;
-        vInteger := 1;
-        if Try4() then Observer.Observe('case_label.3.1', Format(Res, 0, 9)) else Observer.ObserveError('case_label.3.1');
+        if Try4(Res, vInteger, vOption) then Observer.Observe('case_label.1.1', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1.1');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Option_Integer_More1()
+    procedure Option_Integer_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vInteger: Integer;
+        vOption: Option A,B,C;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Integer_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Integer_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Integer_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Integer_More5()
-    begin
-        Observer.More();
+        vOption := 3;
+        vInteger := 65;
+        if Try1(Res, vInteger, vOption) then Observer.Observe('eq.3.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.3.65');
+        vOption := 3;
+        vInteger := 65;
+        if Try2(Res, vInteger, vOption) then Observer.Observe('lt.3.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.3.65');
+        vOption := 3;
+        vInteger := 65;
+        if Try3(Res, vInteger, vOption) then Observer.Observe('in_set.3.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.3.65');
+        vOption := 3;
+        vInteger := 65;
+        if Try4(Res, vInteger, vOption) then Observer.Observe('case_label.3.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.3.65');
+        vOption := 3;
+        vInteger := 1;
+        if Try1(Res, vInteger, vOption) then Observer.Observe('eq.3.1', Format(Res, 0, 9)) else Observer.ObserveError('eq.3.1');
+        vOption := 3;
+        vInteger := 1;
+        if Try2(Res, vInteger, vOption) then Observer.Observe('lt.3.1', Format(Res, 0, 9)) else Observer.ObserveError('lt.3.1');
+        vOption := 3;
+        vInteger := 1;
+        if Try3(Res, vInteger, vOption) then Observer.Observe('in_set.3.1', Format(Res, 0, 9)) else Observer.ObserveError('in_set.3.1');
+        vOption := 3;
+        vInteger := 1;
+        if Try4(Res, vInteger, vOption) then Observer.Observe('case_label.3.1', Format(Res, 0, 9)) else Observer.ObserveError('case_label.3.1');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Option_BigInteger()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vBigInteger: BigInteger;
+        vOption: Option A,B,C;
     begin
         vOption := 1;
         vBigInteger := 65;
-        if Try5() then Observer.Observe('eq.1.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.1.65');
+        if Try5(Res, vBigInteger, vOption) then Observer.Observe('eq.1.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.1.65');
         vOption := 1;
         vBigInteger := 65;
-        if Try6() then Observer.Observe('lt.1.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.1.65');
+        if Try6(Res, vBigInteger, vOption) then Observer.Observe('lt.1.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.1.65');
         vOption := 1;
         vBigInteger := 65;
-        if Try7() then Observer.Observe('in_set.1.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1.65');
+        if Try7(Res, vBigInteger, vOption) then Observer.Observe('in_set.1.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1.65');
         vOption := 1;
         vBigInteger := 65;
-        if Try8() then Observer.Observe('case_label.1.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1.65');
+        if Try8(Res, vBigInteger, vOption) then Observer.Observe('case_label.1.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1.65');
         vOption := 3;
         vBigInteger := 65;
-        if Try5() then Observer.Observe('eq.3.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.3.65');
+        if Try5(Res, vBigInteger, vOption) then Observer.Observe('eq.3.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.3.65');
         vOption := 3;
         vBigInteger := 65;
-        if Try6() then Observer.Observe('lt.3.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.3.65');
+        if Try6(Res, vBigInteger, vOption) then Observer.Observe('lt.3.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.3.65');
         vOption := 3;
         vBigInteger := 65;
-        if Try7() then Observer.Observe('in_set.3.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.3.65');
+        if Try7(Res, vBigInteger, vOption) then Observer.Observe('in_set.3.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.3.65');
         vOption := 3;
         vBigInteger := 65;
-        if Try8() then Observer.Observe('case_label.3.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.3.65');
+        if Try8(Res, vBigInteger, vOption) then Observer.Observe('case_label.3.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.3.65');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Option_BigInteger_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_BigInteger_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_BigInteger_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_BigInteger_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_BigInteger_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Option_Decimal()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vDecimal: Decimal;
+        vOption: Option A,B,C;
     begin
         vOption := 1;
         vDecimal := 65;
-        if Try9() then Observer.Observe('eq.1.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.1.65');
+        if Try9(Res, vDecimal, vOption) then Observer.Observe('eq.1.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.1.65');
         vOption := 1;
         vDecimal := 65;
-        if Try10() then Observer.Observe('lt.1.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.1.65');
+        if Try10(Res, vDecimal, vOption) then Observer.Observe('lt.1.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.1.65');
         vOption := 1;
         vDecimal := 65;
-        if Try11() then Observer.Observe('in_set.1.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1.65');
+        if Try11(Res, vDecimal, vOption) then Observer.Observe('in_set.1.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1.65');
         vOption := 1;
         vDecimal := 65;
-        if Try12() then Observer.Observe('case_label.1.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1.65');
+        if Try12(Res, vDecimal, vOption) then Observer.Observe('case_label.1.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1.65');
         vOption := 1;
         vDecimal := 1.5;
-        if Try9() then Observer.Observe('eq.1.1p5', Format(Res, 0, 9)) else Observer.ObserveError('eq.1.1p5');
+        if Try9(Res, vDecimal, vOption) then Observer.Observe('eq.1.1p5', Format(Res, 0, 9)) else Observer.ObserveError('eq.1.1p5');
         vOption := 1;
         vDecimal := 1.5;
-        if Try10() then Observer.Observe('lt.1.1p5', Format(Res, 0, 9)) else Observer.ObserveError('lt.1.1p5');
+        if Try10(Res, vDecimal, vOption) then Observer.Observe('lt.1.1p5', Format(Res, 0, 9)) else Observer.ObserveError('lt.1.1p5');
         vOption := 1;
         vDecimal := 1.5;
-        if Try11() then Observer.Observe('in_set.1.1p5', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1.1p5');
+        if Try11(Res, vDecimal, vOption) then Observer.Observe('in_set.1.1p5', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1.1p5');
         vOption := 1;
         vDecimal := 1.5;
-        if Try12() then Observer.Observe('case_label.1.1p5', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1.1p5');
-        vOption := 3;
-        vDecimal := 65;
-        if Try9() then Observer.Observe('eq.3.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.3.65');
-        vOption := 3;
-        vDecimal := 65;
-        if Try10() then Observer.Observe('lt.3.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.3.65');
-        vOption := 3;
-        vDecimal := 65;
-        if Try11() then Observer.Observe('in_set.3.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.3.65');
-        vOption := 3;
-        vDecimal := 65;
-        if Try12() then Observer.Observe('case_label.3.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.3.65');
-        vOption := 3;
-        vDecimal := 1.5;
-        if Try9() then Observer.Observe('eq.3.1p5', Format(Res, 0, 9)) else Observer.ObserveError('eq.3.1p5');
-        vOption := 3;
-        vDecimal := 1.5;
-        if Try10() then Observer.Observe('lt.3.1p5', Format(Res, 0, 9)) else Observer.ObserveError('lt.3.1p5');
-        vOption := 3;
-        vDecimal := 1.5;
-        if Try11() then Observer.Observe('in_set.3.1p5', Format(Res, 0, 9)) else Observer.ObserveError('in_set.3.1p5');
-        vOption := 3;
-        vDecimal := 1.5;
-        if Try12() then Observer.Observe('case_label.3.1p5', Format(Res, 0, 9)) else Observer.ObserveError('case_label.3.1p5');
+        if Try12(Res, vDecimal, vOption) then Observer.Observe('case_label.1.1p5', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1.1p5');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Option_Decimal_More1()
+    procedure Option_Decimal_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vDecimal: Decimal;
+        vOption: Option A,B,C;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Decimal_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Decimal_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Decimal_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Decimal_More5()
-    begin
-        Observer.More();
+        vOption := 3;
+        vDecimal := 65;
+        if Try9(Res, vDecimal, vOption) then Observer.Observe('eq.3.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.3.65');
+        vOption := 3;
+        vDecimal := 65;
+        if Try10(Res, vDecimal, vOption) then Observer.Observe('lt.3.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.3.65');
+        vOption := 3;
+        vDecimal := 65;
+        if Try11(Res, vDecimal, vOption) then Observer.Observe('in_set.3.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.3.65');
+        vOption := 3;
+        vDecimal := 65;
+        if Try12(Res, vDecimal, vOption) then Observer.Observe('case_label.3.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.3.65');
+        vOption := 3;
+        vDecimal := 1.5;
+        if Try9(Res, vDecimal, vOption) then Observer.Observe('eq.3.1p5', Format(Res, 0, 9)) else Observer.ObserveError('eq.3.1p5');
+        vOption := 3;
+        vDecimal := 1.5;
+        if Try10(Res, vDecimal, vOption) then Observer.Observe('lt.3.1p5', Format(Res, 0, 9)) else Observer.ObserveError('lt.3.1p5');
+        vOption := 3;
+        vDecimal := 1.5;
+        if Try11(Res, vDecimal, vOption) then Observer.Observe('in_set.3.1p5', Format(Res, 0, 9)) else Observer.ObserveError('in_set.3.1p5');
+        vOption := 3;
+        vDecimal := 1.5;
+        if Try12(Res, vDecimal, vOption) then Observer.Observe('case_label.3.1p5', Format(Res, 0, 9)) else Observer.ObserveError('case_label.3.1p5');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Option_Char()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vChar: Char;
+        vOption: Option A,B,C;
     begin
         vOption := 1;
         vChar := 65;
-        if Try13() then Observer.Observe('eq.1.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.1.A');
+        if Try13(Res, vChar, vOption) then Observer.Observe('eq.1.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.1.A');
         vOption := 1;
         vChar := 65;
-        if Try14() then Observer.Observe('lt.1.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.1.A');
+        if Try14(Res, vChar, vOption) then Observer.Observe('lt.1.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.1.A');
         vOption := 1;
         vChar := 65;
-        if Try15() then Observer.Observe('in_set.1.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1.A');
+        if Try15(Res, vChar, vOption) then Observer.Observe('in_set.1.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1.A');
         vOption := 1;
         vChar := 65;
-        if Try16() then Observer.Observe('case_label.1.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1.A');
+        if Try16(Res, vChar, vOption) then Observer.Observe('case_label.1.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1.A');
         vOption := 1;
         vChar := 97;
-        if Try13() then Observer.Observe('eq.1.a', Format(Res, 0, 9)) else Observer.ObserveError('eq.1.a');
+        if Try13(Res, vChar, vOption) then Observer.Observe('eq.1.a', Format(Res, 0, 9)) else Observer.ObserveError('eq.1.a');
         vOption := 1;
         vChar := 97;
-        if Try14() then Observer.Observe('lt.1.a', Format(Res, 0, 9)) else Observer.ObserveError('lt.1.a');
+        if Try14(Res, vChar, vOption) then Observer.Observe('lt.1.a', Format(Res, 0, 9)) else Observer.ObserveError('lt.1.a');
         vOption := 1;
         vChar := 97;
-        if Try15() then Observer.Observe('in_set.1.a', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1.a');
+        if Try15(Res, vChar, vOption) then Observer.Observe('in_set.1.a', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1.a');
         vOption := 1;
         vChar := 97;
-        if Try16() then Observer.Observe('case_label.1.a', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1.a');
-        vOption := 3;
-        vChar := 65;
-        if Try13() then Observer.Observe('eq.3.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.3.A');
-        vOption := 3;
-        vChar := 65;
-        if Try14() then Observer.Observe('lt.3.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.3.A');
-        vOption := 3;
-        vChar := 65;
-        if Try15() then Observer.Observe('in_set.3.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.3.A');
-        vOption := 3;
-        vChar := 65;
-        if Try16() then Observer.Observe('case_label.3.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.3.A');
-        vOption := 3;
-        vChar := 97;
-        if Try13() then Observer.Observe('eq.3.a', Format(Res, 0, 9)) else Observer.ObserveError('eq.3.a');
-        vOption := 3;
-        vChar := 97;
-        if Try14() then Observer.Observe('lt.3.a', Format(Res, 0, 9)) else Observer.ObserveError('lt.3.a');
-        vOption := 3;
-        vChar := 97;
-        if Try15() then Observer.Observe('in_set.3.a', Format(Res, 0, 9)) else Observer.ObserveError('in_set.3.a');
-        vOption := 3;
-        vChar := 97;
-        if Try16() then Observer.Observe('case_label.3.a', Format(Res, 0, 9)) else Observer.ObserveError('case_label.3.a');
+        if Try16(Res, vChar, vOption) then Observer.Observe('case_label.1.a', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1.a');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Option_Char_More1()
+    procedure Option_Char_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vChar: Char;
+        vOption: Option A,B,C;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Char_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Char_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Char_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Char_More5()
-    begin
-        Observer.More();
+        vOption := 3;
+        vChar := 65;
+        if Try13(Res, vChar, vOption) then Observer.Observe('eq.3.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.3.A');
+        vOption := 3;
+        vChar := 65;
+        if Try14(Res, vChar, vOption) then Observer.Observe('lt.3.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.3.A');
+        vOption := 3;
+        vChar := 65;
+        if Try15(Res, vChar, vOption) then Observer.Observe('in_set.3.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.3.A');
+        vOption := 3;
+        vChar := 65;
+        if Try16(Res, vChar, vOption) then Observer.Observe('case_label.3.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.3.A');
+        vOption := 3;
+        vChar := 97;
+        if Try13(Res, vChar, vOption) then Observer.Observe('eq.3.a', Format(Res, 0, 9)) else Observer.ObserveError('eq.3.a');
+        vOption := 3;
+        vChar := 97;
+        if Try14(Res, vChar, vOption) then Observer.Observe('lt.3.a', Format(Res, 0, 9)) else Observer.ObserveError('lt.3.a');
+        vOption := 3;
+        vChar := 97;
+        if Try15(Res, vChar, vOption) then Observer.Observe('in_set.3.a', Format(Res, 0, 9)) else Observer.ObserveError('in_set.3.a');
+        vOption := 3;
+        vChar := 97;
+        if Try16(Res, vChar, vOption) then Observer.Observe('case_label.3.a', Format(Res, 0, 9)) else Observer.ObserveError('case_label.3.a');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Option_Byte()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vByte: Byte;
+        vOption: Option A,B,C;
     begin
         vOption := 1;
         vByte := 65;
-        if Try17() then Observer.Observe('eq.1.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.1.65');
+        if Try17(Res, vByte, vOption) then Observer.Observe('eq.1.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.1.65');
         vOption := 1;
         vByte := 65;
-        if Try18() then Observer.Observe('lt.1.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.1.65');
+        if Try18(Res, vByte, vOption) then Observer.Observe('lt.1.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.1.65');
         vOption := 1;
         vByte := 65;
-        if Try19() then Observer.Observe('in_set.1.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1.65');
+        if Try19(Res, vByte, vOption) then Observer.Observe('in_set.1.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1.65');
         vOption := 1;
         vByte := 65;
-        if Try20() then Observer.Observe('case_label.1.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1.65');
+        if Try20(Res, vByte, vOption) then Observer.Observe('case_label.1.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1.65');
         vOption := 3;
         vByte := 65;
-        if Try17() then Observer.Observe('eq.3.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.3.65');
+        if Try17(Res, vByte, vOption) then Observer.Observe('eq.3.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.3.65');
         vOption := 3;
         vByte := 65;
-        if Try18() then Observer.Observe('lt.3.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.3.65');
+        if Try18(Res, vByte, vOption) then Observer.Observe('lt.3.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.3.65');
         vOption := 3;
         vByte := 65;
-        if Try19() then Observer.Observe('in_set.3.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.3.65');
+        if Try19(Res, vByte, vOption) then Observer.Observe('in_set.3.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.3.65');
         vOption := 3;
         vByte := 65;
-        if Try20() then Observer.Observe('case_label.3.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.3.65');
+        if Try20(Res, vByte, vOption) then Observer.Observe('case_label.3.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.3.65');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Option_Byte_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Byte_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Byte_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Byte_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Byte_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Option_Enum()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vEnum: Enum "LT Y31 E";
+        vOption: Option A,B,C;
     begin
         vOption := 1;
         vEnum := "LT Y31 E"::B;
-        if Try21() then Observer.Observe('eq.1.B', Format(Res, 0, 9)) else Observer.ObserveError('eq.1.B');
+        if Try21(Res, vEnum, vOption) then Observer.Observe('eq.1.B', Format(Res, 0, 9)) else Observer.ObserveError('eq.1.B');
         vOption := 1;
         vEnum := "LT Y31 E"::B;
-        if Try22() then Observer.Observe('lt.1.B', Format(Res, 0, 9)) else Observer.ObserveError('lt.1.B');
+        if Try22(Res, vEnum, vOption) then Observer.Observe('lt.1.B', Format(Res, 0, 9)) else Observer.ObserveError('lt.1.B');
         vOption := 1;
         vEnum := "LT Y31 E"::B;
-        if Try23() then Observer.Observe('in_set.1.B', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1.B');
+        if Try23(Res, vEnum, vOption) then Observer.Observe('in_set.1.B', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1.B');
         vOption := 1;
         vEnum := "LT Y31 E"::B;
-        if Try24() then Observer.Observe('case_label.1.B', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1.B');
+        if Try24(Res, vEnum, vOption) then Observer.Observe('case_label.1.B', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1.B');
         vOption := 1;
         vEnum := 5;
-        if Try21() then Observer.Observe('eq.1.ord5', Format(Res, 0, 9)) else Observer.ObserveError('eq.1.ord5');
+        if Try21(Res, vEnum, vOption) then Observer.Observe('eq.1.ord5', Format(Res, 0, 9)) else Observer.ObserveError('eq.1.ord5');
         vOption := 1;
         vEnum := 5;
-        if Try22() then Observer.Observe('lt.1.ord5', Format(Res, 0, 9)) else Observer.ObserveError('lt.1.ord5');
+        if Try22(Res, vEnum, vOption) then Observer.Observe('lt.1.ord5', Format(Res, 0, 9)) else Observer.ObserveError('lt.1.ord5');
         vOption := 1;
         vEnum := 5;
-        if Try23() then Observer.Observe('in_set.1.ord5', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1.ord5');
+        if Try23(Res, vEnum, vOption) then Observer.Observe('in_set.1.ord5', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1.ord5');
         vOption := 1;
         vEnum := 5;
-        if Try24() then Observer.Observe('case_label.1.ord5', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1.ord5');
-        vOption := 3;
-        vEnum := "LT Y31 E"::B;
-        if Try21() then Observer.Observe('eq.3.B', Format(Res, 0, 9)) else Observer.ObserveError('eq.3.B');
-        vOption := 3;
-        vEnum := "LT Y31 E"::B;
-        if Try22() then Observer.Observe('lt.3.B', Format(Res, 0, 9)) else Observer.ObserveError('lt.3.B');
-        vOption := 3;
-        vEnum := "LT Y31 E"::B;
-        if Try23() then Observer.Observe('in_set.3.B', Format(Res, 0, 9)) else Observer.ObserveError('in_set.3.B');
-        vOption := 3;
-        vEnum := "LT Y31 E"::B;
-        if Try24() then Observer.Observe('case_label.3.B', Format(Res, 0, 9)) else Observer.ObserveError('case_label.3.B');
-        vOption := 3;
-        vEnum := 5;
-        if Try21() then Observer.Observe('eq.3.ord5', Format(Res, 0, 9)) else Observer.ObserveError('eq.3.ord5');
-        vOption := 3;
-        vEnum := 5;
-        if Try22() then Observer.Observe('lt.3.ord5', Format(Res, 0, 9)) else Observer.ObserveError('lt.3.ord5');
-        vOption := 3;
-        vEnum := 5;
-        if Try23() then Observer.Observe('in_set.3.ord5', Format(Res, 0, 9)) else Observer.ObserveError('in_set.3.ord5');
-        vOption := 3;
-        vEnum := 5;
-        if Try24() then Observer.Observe('case_label.3.ord5', Format(Res, 0, 9)) else Observer.ObserveError('case_label.3.ord5');
+        if Try24(Res, vEnum, vOption) then Observer.Observe('case_label.1.ord5', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1.ord5');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Option_Enum_More1()
+    procedure Option_Enum_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vEnum: Enum "LT Y31 E";
+        vOption: Option A,B,C;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Enum_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Enum_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Enum_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Enum_More5()
-    begin
-        Observer.More();
+        vOption := 3;
+        vEnum := "LT Y31 E"::B;
+        if Try21(Res, vEnum, vOption) then Observer.Observe('eq.3.B', Format(Res, 0, 9)) else Observer.ObserveError('eq.3.B');
+        vOption := 3;
+        vEnum := "LT Y31 E"::B;
+        if Try22(Res, vEnum, vOption) then Observer.Observe('lt.3.B', Format(Res, 0, 9)) else Observer.ObserveError('lt.3.B');
+        vOption := 3;
+        vEnum := "LT Y31 E"::B;
+        if Try23(Res, vEnum, vOption) then Observer.Observe('in_set.3.B', Format(Res, 0, 9)) else Observer.ObserveError('in_set.3.B');
+        vOption := 3;
+        vEnum := "LT Y31 E"::B;
+        if Try24(Res, vEnum, vOption) then Observer.Observe('case_label.3.B', Format(Res, 0, 9)) else Observer.ObserveError('case_label.3.B');
+        vOption := 3;
+        vEnum := 5;
+        if Try21(Res, vEnum, vOption) then Observer.Observe('eq.3.ord5', Format(Res, 0, 9)) else Observer.ObserveError('eq.3.ord5');
+        vOption := 3;
+        vEnum := 5;
+        if Try22(Res, vEnum, vOption) then Observer.Observe('lt.3.ord5', Format(Res, 0, 9)) else Observer.ObserveError('lt.3.ord5');
+        vOption := 3;
+        vEnum := 5;
+        if Try23(Res, vEnum, vOption) then Observer.Observe('in_set.3.ord5', Format(Res, 0, 9)) else Observer.ObserveError('in_set.3.ord5');
+        vOption := 3;
+        vEnum := 5;
+        if Try24(Res, vEnum, vOption) then Observer.Observe('case_label.3.ord5', Format(Res, 0, 9)) else Observer.ObserveError('case_label.3.ord5');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Option_EnumImpl()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vEnumImpl: Enum "LT Y31 EI";
+        vOption: Option A,B,C;
     begin
         vOption := 1;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try25() then Observer.Observe('eq.1.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.1.A');
+        if Try25(Res, vEnumImpl, vOption) then Observer.Observe('eq.1.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.1.A');
         vOption := 1;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try26() then Observer.Observe('lt.1.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.1.A');
+        if Try26(Res, vEnumImpl, vOption) then Observer.Observe('lt.1.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.1.A');
         vOption := 1;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try27() then Observer.Observe('in_set.1.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1.A');
+        if Try27(Res, vEnumImpl, vOption) then Observer.Observe('in_set.1.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1.A');
         vOption := 1;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try28() then Observer.Observe('case_label.1.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1.A');
+        if Try28(Res, vEnumImpl, vOption) then Observer.Observe('case_label.1.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1.A');
         vOption := 3;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try25() then Observer.Observe('eq.3.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.3.A');
+        if Try25(Res, vEnumImpl, vOption) then Observer.Observe('eq.3.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.3.A');
         vOption := 3;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try26() then Observer.Observe('lt.3.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.3.A');
+        if Try26(Res, vEnumImpl, vOption) then Observer.Observe('lt.3.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.3.A');
         vOption := 3;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try27() then Observer.Observe('in_set.3.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.3.A');
+        if Try27(Res, vEnumImpl, vOption) then Observer.Observe('in_set.3.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.3.A');
         vOption := 3;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try28() then Observer.Observe('case_label.3.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.3.A');
+        if Try28(Res, vEnumImpl, vOption) then Observer.Observe('case_label.3.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.3.A');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Option_EnumImpl_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_EnumImpl_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_EnumImpl_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_EnumImpl_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_EnumImpl_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Option_Duration()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vDuration: Duration;
+        vOption: Option A,B,C;
     begin
         vOption := 1;
         vDuration := 65;
-        if Try29() then Observer.Observe('eq.1.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.1.65');
+        if Try29(Res, vDuration, vOption) then Observer.Observe('eq.1.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.1.65');
         vOption := 1;
         vDuration := 65;
-        if Try30() then Observer.Observe('lt.1.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.1.65');
+        if Try30(Res, vDuration, vOption) then Observer.Observe('lt.1.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.1.65');
         vOption := 1;
         vDuration := 65;
-        if Try31() then Observer.Observe('in_set.1.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1.65');
+        if Try31(Res, vDuration, vOption) then Observer.Observe('in_set.1.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.1.65');
         vOption := 1;
         vDuration := 65;
-        if Try32() then Observer.Observe('case_label.1.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1.65');
+        if Try32(Res, vDuration, vOption) then Observer.Observe('case_label.1.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.1.65');
         vOption := 3;
         vDuration := 65;
-        if Try29() then Observer.Observe('eq.3.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.3.65');
+        if Try29(Res, vDuration, vOption) then Observer.Observe('eq.3.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.3.65');
         vOption := 3;
         vDuration := 65;
-        if Try30() then Observer.Observe('lt.3.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.3.65');
+        if Try30(Res, vDuration, vOption) then Observer.Observe('lt.3.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.3.65');
         vOption := 3;
         vDuration := 65;
-        if Try31() then Observer.Observe('in_set.3.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.3.65');
+        if Try31(Res, vDuration, vOption) then Observer.Observe('in_set.3.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.3.65');
         vOption := 3;
         vDuration := 65;
-        if Try32() then Observer.Observe('case_label.3.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.3.65');
+        if Try32(Res, vDuration, vOption) then Observer.Observe('case_label.3.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.3.65');
         Observer.Finish();
     end;
 
-    [Test]
-    procedure Option_Duration_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Duration_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Duration_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Duration_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Duration_More5()
-    begin
-        Observer.More();
-    end;
-
     [TryFunction]
-    local procedure Try1()
+    local procedure Try1(var Res: Boolean; var vInteger: Integer; var vOption: Option A,B,C)
     begin
         Res := vOption = vInteger;
     end;
 
     [TryFunction]
-    local procedure Try2()
+    local procedure Try2(var Res: Boolean; var vInteger: Integer; var vOption: Option A,B,C)
     begin
         Res := vOption < vInteger;
     end;
 
     [TryFunction]
-    local procedure Try3()
+    local procedure Try3(var Res: Boolean; var vInteger: Integer; var vOption: Option A,B,C)
     begin
         Res := vOption in [vInteger];
     end;
 
     [TryFunction]
-    local procedure Try4()
+    local procedure Try4(var Res: Boolean; var vInteger: Integer; var vOption: Option A,B,C)
     begin
         Res := false;
         case vOption of
@@ -4498,25 +3298,25 @@ codeunit 92432 "LT Y31 Cmp Option"
     end;
 
     [TryFunction]
-    local procedure Try5()
+    local procedure Try5(var Res: Boolean; var vBigInteger: BigInteger; var vOption: Option A,B,C)
     begin
         Res := vOption = vBigInteger;
     end;
 
     [TryFunction]
-    local procedure Try6()
+    local procedure Try6(var Res: Boolean; var vBigInteger: BigInteger; var vOption: Option A,B,C)
     begin
         Res := vOption < vBigInteger;
     end;
 
     [TryFunction]
-    local procedure Try7()
+    local procedure Try7(var Res: Boolean; var vBigInteger: BigInteger; var vOption: Option A,B,C)
     begin
         Res := vOption in [vBigInteger];
     end;
 
     [TryFunction]
-    local procedure Try8()
+    local procedure Try8(var Res: Boolean; var vBigInteger: BigInteger; var vOption: Option A,B,C)
     begin
         Res := false;
         case vOption of
@@ -4526,25 +3326,25 @@ codeunit 92432 "LT Y31 Cmp Option"
     end;
 
     [TryFunction]
-    local procedure Try9()
+    local procedure Try9(var Res: Boolean; var vDecimal: Decimal; var vOption: Option A,B,C)
     begin
         Res := vOption = vDecimal;
     end;
 
     [TryFunction]
-    local procedure Try10()
+    local procedure Try10(var Res: Boolean; var vDecimal: Decimal; var vOption: Option A,B,C)
     begin
         Res := vOption < vDecimal;
     end;
 
     [TryFunction]
-    local procedure Try11()
+    local procedure Try11(var Res: Boolean; var vDecimal: Decimal; var vOption: Option A,B,C)
     begin
         Res := vOption in [vDecimal];
     end;
 
     [TryFunction]
-    local procedure Try12()
+    local procedure Try12(var Res: Boolean; var vDecimal: Decimal; var vOption: Option A,B,C)
     begin
         Res := false;
         case vOption of
@@ -4554,25 +3354,25 @@ codeunit 92432 "LT Y31 Cmp Option"
     end;
 
     [TryFunction]
-    local procedure Try13()
+    local procedure Try13(var Res: Boolean; var vChar: Char; var vOption: Option A,B,C)
     begin
         Res := vOption = vChar;
     end;
 
     [TryFunction]
-    local procedure Try14()
+    local procedure Try14(var Res: Boolean; var vChar: Char; var vOption: Option A,B,C)
     begin
         Res := vOption < vChar;
     end;
 
     [TryFunction]
-    local procedure Try15()
+    local procedure Try15(var Res: Boolean; var vChar: Char; var vOption: Option A,B,C)
     begin
         Res := vOption in [vChar];
     end;
 
     [TryFunction]
-    local procedure Try16()
+    local procedure Try16(var Res: Boolean; var vChar: Char; var vOption: Option A,B,C)
     begin
         Res := false;
         case vOption of
@@ -4582,25 +3382,25 @@ codeunit 92432 "LT Y31 Cmp Option"
     end;
 
     [TryFunction]
-    local procedure Try17()
+    local procedure Try17(var Res: Boolean; var vByte: Byte; var vOption: Option A,B,C)
     begin
         Res := vOption = vByte;
     end;
 
     [TryFunction]
-    local procedure Try18()
+    local procedure Try18(var Res: Boolean; var vByte: Byte; var vOption: Option A,B,C)
     begin
         Res := vOption < vByte;
     end;
 
     [TryFunction]
-    local procedure Try19()
+    local procedure Try19(var Res: Boolean; var vByte: Byte; var vOption: Option A,B,C)
     begin
         Res := vOption in [vByte];
     end;
 
     [TryFunction]
-    local procedure Try20()
+    local procedure Try20(var Res: Boolean; var vByte: Byte; var vOption: Option A,B,C)
     begin
         Res := false;
         case vOption of
@@ -4610,25 +3410,25 @@ codeunit 92432 "LT Y31 Cmp Option"
     end;
 
     [TryFunction]
-    local procedure Try21()
+    local procedure Try21(var Res: Boolean; var vEnum: Enum "LT Y31 E"; var vOption: Option A,B,C)
     begin
         Res := vOption = vEnum;
     end;
 
     [TryFunction]
-    local procedure Try22()
+    local procedure Try22(var Res: Boolean; var vEnum: Enum "LT Y31 E"; var vOption: Option A,B,C)
     begin
         Res := vOption < vEnum;
     end;
 
     [TryFunction]
-    local procedure Try23()
+    local procedure Try23(var Res: Boolean; var vEnum: Enum "LT Y31 E"; var vOption: Option A,B,C)
     begin
         Res := vOption in [vEnum];
     end;
 
     [TryFunction]
-    local procedure Try24()
+    local procedure Try24(var Res: Boolean; var vEnum: Enum "LT Y31 E"; var vOption: Option A,B,C)
     begin
         Res := false;
         case vOption of
@@ -4638,25 +3438,25 @@ codeunit 92432 "LT Y31 Cmp Option"
     end;
 
     [TryFunction]
-    local procedure Try25()
+    local procedure Try25(var Res: Boolean; var vEnumImpl: Enum "LT Y31 EI"; var vOption: Option A,B,C)
     begin
         Res := vOption = vEnumImpl;
     end;
 
     [TryFunction]
-    local procedure Try26()
+    local procedure Try26(var Res: Boolean; var vEnumImpl: Enum "LT Y31 EI"; var vOption: Option A,B,C)
     begin
         Res := vOption < vEnumImpl;
     end;
 
     [TryFunction]
-    local procedure Try27()
+    local procedure Try27(var Res: Boolean; var vEnumImpl: Enum "LT Y31 EI"; var vOption: Option A,B,C)
     begin
         Res := vOption in [vEnumImpl];
     end;
 
     [TryFunction]
-    local procedure Try28()
+    local procedure Try28(var Res: Boolean; var vEnumImpl: Enum "LT Y31 EI"; var vOption: Option A,B,C)
     begin
         Res := false;
         case vOption of
@@ -4666,25 +3466,25 @@ codeunit 92432 "LT Y31 Cmp Option"
     end;
 
     [TryFunction]
-    local procedure Try29()
+    local procedure Try29(var Res: Boolean; var vDuration: Duration; var vOption: Option A,B,C)
     begin
         Res := vOption = vDuration;
     end;
 
     [TryFunction]
-    local procedure Try30()
+    local procedure Try30(var Res: Boolean; var vDuration: Duration; var vOption: Option A,B,C)
     begin
         Res := vOption < vDuration;
     end;
 
     [TryFunction]
-    local procedure Try31()
+    local procedure Try31(var Res: Boolean; var vDuration: Duration; var vOption: Option A,B,C)
     begin
         Res := vOption in [vDuration];
     end;
 
     [TryFunction]
-    local procedure Try32()
+    local procedure Try32(var Res: Boolean; var vDuration: Duration; var vOption: Option A,B,C)
     begin
         Res := false;
         case vOption of
@@ -4707,411 +3507,270 @@ codeunit 92433 "LT Y31 Cmp Enum"
     Subtype = Test;
     TestPermissions = Disabled;
 
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        Res: Boolean;
-        V: Variant;
-        vBigInteger: BigInteger;
-        vByte: Byte;
-        vChar: Char;
-        vEnum: Enum "LT Y31 E";
-        vEnumImpl: Enum "LT Y31 EI";
-        vInteger: Integer;
-        vOption: Option A,B,C;
-
     [Test]
     procedure Enum_Integer()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vEnum: Enum "LT Y31 E";
+        vInteger: Integer;
     begin
         vEnum := "LT Y31 E"::B;
         vInteger := 65;
-        if Try1() then Observer.Observe('eq.B.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.B.65');
+        if Try1(Res, vEnum, vInteger) then Observer.Observe('eq.B.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.B.65');
         vEnum := "LT Y31 E"::B;
         vInteger := 65;
-        if Try2() then Observer.Observe('lt.B.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.B.65');
+        if Try2(Res, vEnum, vInteger) then Observer.Observe('lt.B.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.B.65');
         vEnum := "LT Y31 E"::B;
         vInteger := 65;
-        if Try3() then Observer.Observe('in_set.B.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.B.65');
+        if Try3(Res, vEnum, vInteger) then Observer.Observe('in_set.B.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.B.65');
         vEnum := "LT Y31 E"::B;
         vInteger := 65;
-        if Try4() then Observer.Observe('case_label.B.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.B.65');
+        if Try4(Res, vEnum, vInteger) then Observer.Observe('case_label.B.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.B.65');
         vEnum := "LT Y31 E"::B;
         vInteger := 1;
-        if Try1() then Observer.Observe('eq.B.1', Format(Res, 0, 9)) else Observer.ObserveError('eq.B.1');
+        if Try1(Res, vEnum, vInteger) then Observer.Observe('eq.B.1', Format(Res, 0, 9)) else Observer.ObserveError('eq.B.1');
         vEnum := "LT Y31 E"::B;
         vInteger := 1;
-        if Try2() then Observer.Observe('lt.B.1', Format(Res, 0, 9)) else Observer.ObserveError('lt.B.1');
+        if Try2(Res, vEnum, vInteger) then Observer.Observe('lt.B.1', Format(Res, 0, 9)) else Observer.ObserveError('lt.B.1');
         vEnum := "LT Y31 E"::B;
         vInteger := 1;
-        if Try3() then Observer.Observe('in_set.B.1', Format(Res, 0, 9)) else Observer.ObserveError('in_set.B.1');
+        if Try3(Res, vEnum, vInteger) then Observer.Observe('in_set.B.1', Format(Res, 0, 9)) else Observer.ObserveError('in_set.B.1');
         vEnum := "LT Y31 E"::B;
         vInteger := 1;
-        if Try4() then Observer.Observe('case_label.B.1', Format(Res, 0, 9)) else Observer.ObserveError('case_label.B.1');
-        vEnum := 5;
-        vInteger := 65;
-        if Try1() then Observer.Observe('eq.ord5.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.ord5.65');
-        vEnum := 5;
-        vInteger := 65;
-        if Try2() then Observer.Observe('lt.ord5.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.ord5.65');
-        vEnum := 5;
-        vInteger := 65;
-        if Try3() then Observer.Observe('in_set.ord5.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.ord5.65');
-        vEnum := 5;
-        vInteger := 65;
-        if Try4() then Observer.Observe('case_label.ord5.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.ord5.65');
-        vEnum := 5;
-        vInteger := 1;
-        if Try1() then Observer.Observe('eq.ord5.1', Format(Res, 0, 9)) else Observer.ObserveError('eq.ord5.1');
-        vEnum := 5;
-        vInteger := 1;
-        if Try2() then Observer.Observe('lt.ord5.1', Format(Res, 0, 9)) else Observer.ObserveError('lt.ord5.1');
-        vEnum := 5;
-        vInteger := 1;
-        if Try3() then Observer.Observe('in_set.ord5.1', Format(Res, 0, 9)) else Observer.ObserveError('in_set.ord5.1');
-        vEnum := 5;
-        vInteger := 1;
-        if Try4() then Observer.Observe('case_label.ord5.1', Format(Res, 0, 9)) else Observer.ObserveError('case_label.ord5.1');
+        if Try4(Res, vEnum, vInteger) then Observer.Observe('case_label.B.1', Format(Res, 0, 9)) else Observer.ObserveError('case_label.B.1');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Enum_Integer_More1()
+    procedure Enum_Integer_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vEnum: Enum "LT Y31 E";
+        vInteger: Integer;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_Integer_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_Integer_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_Integer_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_Integer_More5()
-    begin
-        Observer.More();
+        vEnum := 5;
+        vInteger := 65;
+        if Try1(Res, vEnum, vInteger) then Observer.Observe('eq.ord5.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.ord5.65');
+        vEnum := 5;
+        vInteger := 65;
+        if Try2(Res, vEnum, vInteger) then Observer.Observe('lt.ord5.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.ord5.65');
+        vEnum := 5;
+        vInteger := 65;
+        if Try3(Res, vEnum, vInteger) then Observer.Observe('in_set.ord5.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.ord5.65');
+        vEnum := 5;
+        vInteger := 65;
+        if Try4(Res, vEnum, vInteger) then Observer.Observe('case_label.ord5.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.ord5.65');
+        vEnum := 5;
+        vInteger := 1;
+        if Try1(Res, vEnum, vInteger) then Observer.Observe('eq.ord5.1', Format(Res, 0, 9)) else Observer.ObserveError('eq.ord5.1');
+        vEnum := 5;
+        vInteger := 1;
+        if Try2(Res, vEnum, vInteger) then Observer.Observe('lt.ord5.1', Format(Res, 0, 9)) else Observer.ObserveError('lt.ord5.1');
+        vEnum := 5;
+        vInteger := 1;
+        if Try3(Res, vEnum, vInteger) then Observer.Observe('in_set.ord5.1', Format(Res, 0, 9)) else Observer.ObserveError('in_set.ord5.1');
+        vEnum := 5;
+        vInteger := 1;
+        if Try4(Res, vEnum, vInteger) then Observer.Observe('case_label.ord5.1', Format(Res, 0, 9)) else Observer.ObserveError('case_label.ord5.1');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Enum_BigInteger()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vBigInteger: BigInteger;
+        vEnum: Enum "LT Y31 E";
     begin
         vEnum := "LT Y31 E"::B;
         vBigInteger := 65;
-        if Try5() then Observer.Observe('in_set.B.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.B.65');
+        if Try5(Res, vBigInteger, vEnum) then Observer.Observe('in_set.B.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.B.65');
         vEnum := "LT Y31 E"::B;
         vBigInteger := 65;
-        if Try6() then Observer.Observe('case_label.B.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.B.65');
+        if Try6(Res, vBigInteger, vEnum) then Observer.Observe('case_label.B.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.B.65');
         vEnum := 5;
         vBigInteger := 65;
-        if Try5() then Observer.Observe('in_set.ord5.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.ord5.65');
+        if Try5(Res, vBigInteger, vEnum) then Observer.Observe('in_set.ord5.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.ord5.65');
         vEnum := 5;
         vBigInteger := 65;
-        if Try6() then Observer.Observe('case_label.ord5.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.ord5.65');
+        if Try6(Res, vBigInteger, vEnum) then Observer.Observe('case_label.ord5.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.ord5.65');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Enum_BigInteger_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_BigInteger_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_BigInteger_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_BigInteger_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_BigInteger_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Enum_Char()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vChar: Char;
+        vEnum: Enum "LT Y31 E";
     begin
         vEnum := "LT Y31 E"::B;
         vChar := 65;
-        if Try7() then Observer.Observe('eq.B.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.B.A');
+        if Try7(Res, vChar, vEnum) then Observer.Observe('eq.B.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.B.A');
         vEnum := "LT Y31 E"::B;
         vChar := 65;
-        if Try8() then Observer.Observe('lt.B.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.B.A');
+        if Try8(Res, vChar, vEnum) then Observer.Observe('lt.B.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.B.A');
         vEnum := "LT Y31 E"::B;
         vChar := 97;
-        if Try7() then Observer.Observe('eq.B.a', Format(Res, 0, 9)) else Observer.ObserveError('eq.B.a');
+        if Try7(Res, vChar, vEnum) then Observer.Observe('eq.B.a', Format(Res, 0, 9)) else Observer.ObserveError('eq.B.a');
         vEnum := "LT Y31 E"::B;
         vChar := 97;
-        if Try8() then Observer.Observe('lt.B.a', Format(Res, 0, 9)) else Observer.ObserveError('lt.B.a');
+        if Try8(Res, vChar, vEnum) then Observer.Observe('lt.B.a', Format(Res, 0, 9)) else Observer.ObserveError('lt.B.a');
         vEnum := 5;
         vChar := 65;
-        if Try7() then Observer.Observe('eq.ord5.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.ord5.A');
+        if Try7(Res, vChar, vEnum) then Observer.Observe('eq.ord5.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.ord5.A');
         vEnum := 5;
         vChar := 65;
-        if Try8() then Observer.Observe('lt.ord5.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.ord5.A');
+        if Try8(Res, vChar, vEnum) then Observer.Observe('lt.ord5.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.ord5.A');
         vEnum := 5;
         vChar := 97;
-        if Try7() then Observer.Observe('eq.ord5.a', Format(Res, 0, 9)) else Observer.ObserveError('eq.ord5.a');
+        if Try7(Res, vChar, vEnum) then Observer.Observe('eq.ord5.a', Format(Res, 0, 9)) else Observer.ObserveError('eq.ord5.a');
         vEnum := 5;
         vChar := 97;
-        if Try8() then Observer.Observe('lt.ord5.a', Format(Res, 0, 9)) else Observer.ObserveError('lt.ord5.a');
+        if Try8(Res, vChar, vEnum) then Observer.Observe('lt.ord5.a', Format(Res, 0, 9)) else Observer.ObserveError('lt.ord5.a');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Enum_Char_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_Char_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_Char_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_Char_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_Char_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Enum_Byte()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vByte: Byte;
+        vEnum: Enum "LT Y31 E";
     begin
         vEnum := "LT Y31 E"::B;
         vByte := 65;
-        if Try9() then Observer.Observe('eq.B.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.B.65');
+        if Try9(Res, vByte, vEnum) then Observer.Observe('eq.B.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.B.65');
         vEnum := "LT Y31 E"::B;
         vByte := 65;
-        if Try10() then Observer.Observe('lt.B.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.B.65');
+        if Try10(Res, vByte, vEnum) then Observer.Observe('lt.B.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.B.65');
         vEnum := 5;
         vByte := 65;
-        if Try9() then Observer.Observe('eq.ord5.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.ord5.65');
+        if Try9(Res, vByte, vEnum) then Observer.Observe('eq.ord5.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.ord5.65');
         vEnum := 5;
         vByte := 65;
-        if Try10() then Observer.Observe('lt.ord5.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.ord5.65');
+        if Try10(Res, vByte, vEnum) then Observer.Observe('lt.ord5.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.ord5.65');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Enum_Byte_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_Byte_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_Byte_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_Byte_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_Byte_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Enum_Option()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vEnum: Enum "LT Y31 E";
+        vOption: Option A,B,C;
     begin
         vEnum := "LT Y31 E"::B;
         vOption := 1;
-        if Try11() then Observer.Observe('eq.B.1', Format(Res, 0, 9)) else Observer.ObserveError('eq.B.1');
+        if Try11(Res, vEnum, vOption) then Observer.Observe('eq.B.1', Format(Res, 0, 9)) else Observer.ObserveError('eq.B.1');
         vEnum := "LT Y31 E"::B;
         vOption := 1;
-        if Try12() then Observer.Observe('lt.B.1', Format(Res, 0, 9)) else Observer.ObserveError('lt.B.1');
+        if Try12(Res, vEnum, vOption) then Observer.Observe('lt.B.1', Format(Res, 0, 9)) else Observer.ObserveError('lt.B.1');
         vEnum := "LT Y31 E"::B;
         vOption := 1;
-        if Try13() then Observer.Observe('in_set.B.1', Format(Res, 0, 9)) else Observer.ObserveError('in_set.B.1');
+        if Try13(Res, vEnum, vOption) then Observer.Observe('in_set.B.1', Format(Res, 0, 9)) else Observer.ObserveError('in_set.B.1');
         vEnum := "LT Y31 E"::B;
         vOption := 1;
-        if Try14() then Observer.Observe('case_label.B.1', Format(Res, 0, 9)) else Observer.ObserveError('case_label.B.1');
+        if Try14(Res, vEnum, vOption) then Observer.Observe('case_label.B.1', Format(Res, 0, 9)) else Observer.ObserveError('case_label.B.1');
         vEnum := "LT Y31 E"::B;
         vOption := 3;
-        if Try11() then Observer.Observe('eq.B.3', Format(Res, 0, 9)) else Observer.ObserveError('eq.B.3');
+        if Try11(Res, vEnum, vOption) then Observer.Observe('eq.B.3', Format(Res, 0, 9)) else Observer.ObserveError('eq.B.3');
         vEnum := "LT Y31 E"::B;
         vOption := 3;
-        if Try12() then Observer.Observe('lt.B.3', Format(Res, 0, 9)) else Observer.ObserveError('lt.B.3');
+        if Try12(Res, vEnum, vOption) then Observer.Observe('lt.B.3', Format(Res, 0, 9)) else Observer.ObserveError('lt.B.3');
         vEnum := "LT Y31 E"::B;
         vOption := 3;
-        if Try13() then Observer.Observe('in_set.B.3', Format(Res, 0, 9)) else Observer.ObserveError('in_set.B.3');
+        if Try13(Res, vEnum, vOption) then Observer.Observe('in_set.B.3', Format(Res, 0, 9)) else Observer.ObserveError('in_set.B.3');
         vEnum := "LT Y31 E"::B;
         vOption := 3;
-        if Try14() then Observer.Observe('case_label.B.3', Format(Res, 0, 9)) else Observer.ObserveError('case_label.B.3');
-        vEnum := 5;
-        vOption := 1;
-        if Try11() then Observer.Observe('eq.ord5.1', Format(Res, 0, 9)) else Observer.ObserveError('eq.ord5.1');
-        vEnum := 5;
-        vOption := 1;
-        if Try12() then Observer.Observe('lt.ord5.1', Format(Res, 0, 9)) else Observer.ObserveError('lt.ord5.1');
-        vEnum := 5;
-        vOption := 1;
-        if Try13() then Observer.Observe('in_set.ord5.1', Format(Res, 0, 9)) else Observer.ObserveError('in_set.ord5.1');
-        vEnum := 5;
-        vOption := 1;
-        if Try14() then Observer.Observe('case_label.ord5.1', Format(Res, 0, 9)) else Observer.ObserveError('case_label.ord5.1');
-        vEnum := 5;
-        vOption := 3;
-        if Try11() then Observer.Observe('eq.ord5.3', Format(Res, 0, 9)) else Observer.ObserveError('eq.ord5.3');
-        vEnum := 5;
-        vOption := 3;
-        if Try12() then Observer.Observe('lt.ord5.3', Format(Res, 0, 9)) else Observer.ObserveError('lt.ord5.3');
-        vEnum := 5;
-        vOption := 3;
-        if Try13() then Observer.Observe('in_set.ord5.3', Format(Res, 0, 9)) else Observer.ObserveError('in_set.ord5.3');
-        vEnum := 5;
-        vOption := 3;
-        if Try14() then Observer.Observe('case_label.ord5.3', Format(Res, 0, 9)) else Observer.ObserveError('case_label.ord5.3');
+        if Try14(Res, vEnum, vOption) then Observer.Observe('case_label.B.3', Format(Res, 0, 9)) else Observer.ObserveError('case_label.B.3');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Enum_Option_More1()
+    procedure Enum_Option_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vEnum: Enum "LT Y31 E";
+        vOption: Option A,B,C;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_Option_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_Option_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_Option_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_Option_More5()
-    begin
-        Observer.More();
+        vEnum := 5;
+        vOption := 1;
+        if Try11(Res, vEnum, vOption) then Observer.Observe('eq.ord5.1', Format(Res, 0, 9)) else Observer.ObserveError('eq.ord5.1');
+        vEnum := 5;
+        vOption := 1;
+        if Try12(Res, vEnum, vOption) then Observer.Observe('lt.ord5.1', Format(Res, 0, 9)) else Observer.ObserveError('lt.ord5.1');
+        vEnum := 5;
+        vOption := 1;
+        if Try13(Res, vEnum, vOption) then Observer.Observe('in_set.ord5.1', Format(Res, 0, 9)) else Observer.ObserveError('in_set.ord5.1');
+        vEnum := 5;
+        vOption := 1;
+        if Try14(Res, vEnum, vOption) then Observer.Observe('case_label.ord5.1', Format(Res, 0, 9)) else Observer.ObserveError('case_label.ord5.1');
+        vEnum := 5;
+        vOption := 3;
+        if Try11(Res, vEnum, vOption) then Observer.Observe('eq.ord5.3', Format(Res, 0, 9)) else Observer.ObserveError('eq.ord5.3');
+        vEnum := 5;
+        vOption := 3;
+        if Try12(Res, vEnum, vOption) then Observer.Observe('lt.ord5.3', Format(Res, 0, 9)) else Observer.ObserveError('lt.ord5.3');
+        vEnum := 5;
+        vOption := 3;
+        if Try13(Res, vEnum, vOption) then Observer.Observe('in_set.ord5.3', Format(Res, 0, 9)) else Observer.ObserveError('in_set.ord5.3');
+        vEnum := 5;
+        vOption := 3;
+        if Try14(Res, vEnum, vOption) then Observer.Observe('case_label.ord5.3', Format(Res, 0, 9)) else Observer.ObserveError('case_label.ord5.3');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Enum_EnumImpl()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vEnum: Enum "LT Y31 E";
+        vEnumImpl: Enum "LT Y31 EI";
     begin
         vEnum := "LT Y31 E"::B;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try15() then Observer.Observe('eq.B.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.B.A');
+        if Try15(Res, vEnum, vEnumImpl) then Observer.Observe('eq.B.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.B.A');
         vEnum := "LT Y31 E"::B;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try16() then Observer.Observe('lt.B.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.B.A');
+        if Try16(Res, vEnum, vEnumImpl) then Observer.Observe('lt.B.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.B.A');
         vEnum := 5;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try15() then Observer.Observe('eq.ord5.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.ord5.A');
+        if Try15(Res, vEnum, vEnumImpl) then Observer.Observe('eq.ord5.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.ord5.A');
         vEnum := 5;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try16() then Observer.Observe('lt.ord5.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.ord5.A');
+        if Try16(Res, vEnum, vEnumImpl) then Observer.Observe('lt.ord5.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.ord5.A');
         Observer.Finish();
     end;
 
-    [Test]
-    procedure Enum_EnumImpl_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_EnumImpl_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_EnumImpl_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_EnumImpl_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_EnumImpl_More5()
-    begin
-        Observer.More();
-    end;
-
     [TryFunction]
-    local procedure Try1()
+    local procedure Try1(var Res: Boolean; var vEnum: Enum "LT Y31 E"; var vInteger: Integer)
     begin
         Res := vEnum = vInteger;
     end;
 
     [TryFunction]
-    local procedure Try2()
+    local procedure Try2(var Res: Boolean; var vEnum: Enum "LT Y31 E"; var vInteger: Integer)
     begin
         Res := vEnum < vInteger;
     end;
 
     [TryFunction]
-    local procedure Try3()
+    local procedure Try3(var Res: Boolean; var vEnum: Enum "LT Y31 E"; var vInteger: Integer)
     begin
         Res := vEnum in [vInteger];
     end;
 
     [TryFunction]
-    local procedure Try4()
+    local procedure Try4(var Res: Boolean; var vEnum: Enum "LT Y31 E"; var vInteger: Integer)
     begin
         Res := false;
         case vEnum of
@@ -5121,13 +3780,13 @@ codeunit 92433 "LT Y31 Cmp Enum"
     end;
 
     [TryFunction]
-    local procedure Try5()
+    local procedure Try5(var Res: Boolean; var vBigInteger: BigInteger; var vEnum: Enum "LT Y31 E")
     begin
         Res := vEnum in [vBigInteger];
     end;
 
     [TryFunction]
-    local procedure Try6()
+    local procedure Try6(var Res: Boolean; var vBigInteger: BigInteger; var vEnum: Enum "LT Y31 E")
     begin
         Res := false;
         case vEnum of
@@ -5137,49 +3796,49 @@ codeunit 92433 "LT Y31 Cmp Enum"
     end;
 
     [TryFunction]
-    local procedure Try7()
+    local procedure Try7(var Res: Boolean; var vChar: Char; var vEnum: Enum "LT Y31 E")
     begin
         Res := vEnum = vChar;
     end;
 
     [TryFunction]
-    local procedure Try8()
+    local procedure Try8(var Res: Boolean; var vChar: Char; var vEnum: Enum "LT Y31 E")
     begin
         Res := vEnum < vChar;
     end;
 
     [TryFunction]
-    local procedure Try9()
+    local procedure Try9(var Res: Boolean; var vByte: Byte; var vEnum: Enum "LT Y31 E")
     begin
         Res := vEnum = vByte;
     end;
 
     [TryFunction]
-    local procedure Try10()
+    local procedure Try10(var Res: Boolean; var vByte: Byte; var vEnum: Enum "LT Y31 E")
     begin
         Res := vEnum < vByte;
     end;
 
     [TryFunction]
-    local procedure Try11()
+    local procedure Try11(var Res: Boolean; var vEnum: Enum "LT Y31 E"; var vOption: Option A,B,C)
     begin
         Res := vEnum = vOption;
     end;
 
     [TryFunction]
-    local procedure Try12()
+    local procedure Try12(var Res: Boolean; var vEnum: Enum "LT Y31 E"; var vOption: Option A,B,C)
     begin
         Res := vEnum < vOption;
     end;
 
     [TryFunction]
-    local procedure Try13()
+    local procedure Try13(var Res: Boolean; var vEnum: Enum "LT Y31 E"; var vOption: Option A,B,C)
     begin
         Res := vEnum in [vOption];
     end;
 
     [TryFunction]
-    local procedure Try14()
+    local procedure Try14(var Res: Boolean; var vEnum: Enum "LT Y31 E"; var vOption: Option A,B,C)
     begin
         Res := false;
         case vEnum of
@@ -5189,13 +3848,13 @@ codeunit 92433 "LT Y31 Cmp Enum"
     end;
 
     [TryFunction]
-    local procedure Try15()
+    local procedure Try15(var Res: Boolean; var vEnum: Enum "LT Y31 E"; var vEnumImpl: Enum "LT Y31 EI")
     begin
         Res := vEnum = vEnumImpl;
     end;
 
     [TryFunction]
-    local procedure Try16()
+    local procedure Try16(var Res: Boolean; var vEnum: Enum "LT Y31 E"; var vEnumImpl: Enum "LT Y31 EI")
     begin
         Res := vEnum < vEnumImpl;
     end;
@@ -5214,339 +3873,176 @@ codeunit 92434 "LT Y31 Cmp EnumImpl"
     Subtype = Test;
     TestPermissions = Disabled;
 
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        Res: Boolean;
-        V: Variant;
-        vBigInteger: BigInteger;
-        vByte: Byte;
-        vChar: Char;
-        vEnum: Enum "LT Y31 E";
-        vEnumImpl: Enum "LT Y31 EI";
-        vInteger: Integer;
-        vOption: Option A,B,C;
-
     [Test]
     procedure EnumImpl_Integer()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vEnumImpl: Enum "LT Y31 EI";
+        vInteger: Integer;
     begin
         vEnumImpl := "LT Y31 EI"::A;
         vInteger := 65;
-        if Try1() then Observer.Observe('eq.A.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.65');
+        if Try1(Res, vEnumImpl, vInteger) then Observer.Observe('eq.A.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.65');
         vEnumImpl := "LT Y31 EI"::A;
         vInteger := 65;
-        if Try2() then Observer.Observe('lt.A.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.65');
+        if Try2(Res, vEnumImpl, vInteger) then Observer.Observe('lt.A.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.65');
         vEnumImpl := "LT Y31 EI"::A;
         vInteger := 65;
-        if Try3() then Observer.Observe('in_set.A.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.A.65');
+        if Try3(Res, vEnumImpl, vInteger) then Observer.Observe('in_set.A.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.A.65');
         vEnumImpl := "LT Y31 EI"::A;
         vInteger := 65;
-        if Try4() then Observer.Observe('case_label.A.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.65');
+        if Try4(Res, vEnumImpl, vInteger) then Observer.Observe('case_label.A.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.65');
         vEnumImpl := "LT Y31 EI"::A;
         vInteger := 1;
-        if Try1() then Observer.Observe('eq.A.1', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.1');
+        if Try1(Res, vEnumImpl, vInteger) then Observer.Observe('eq.A.1', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.1');
         vEnumImpl := "LT Y31 EI"::A;
         vInteger := 1;
-        if Try2() then Observer.Observe('lt.A.1', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.1');
+        if Try2(Res, vEnumImpl, vInteger) then Observer.Observe('lt.A.1', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.1');
         vEnumImpl := "LT Y31 EI"::A;
         vInteger := 1;
-        if Try3() then Observer.Observe('in_set.A.1', Format(Res, 0, 9)) else Observer.ObserveError('in_set.A.1');
+        if Try3(Res, vEnumImpl, vInteger) then Observer.Observe('in_set.A.1', Format(Res, 0, 9)) else Observer.ObserveError('in_set.A.1');
         vEnumImpl := "LT Y31 EI"::A;
         vInteger := 1;
-        if Try4() then Observer.Observe('case_label.A.1', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.1');
+        if Try4(Res, vEnumImpl, vInteger) then Observer.Observe('case_label.A.1', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.1');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure EnumImpl_Integer_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_Integer_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_Integer_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_Integer_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_Integer_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure EnumImpl_BigInteger()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vBigInteger: BigInteger;
+        vEnumImpl: Enum "LT Y31 EI";
     begin
         vEnumImpl := "LT Y31 EI"::A;
         vBigInteger := 65;
-        if Try5() then Observer.Observe('in_set.A.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.A.65');
+        if Try5(Res, vBigInteger, vEnumImpl) then Observer.Observe('in_set.A.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.A.65');
         vEnumImpl := "LT Y31 EI"::A;
         vBigInteger := 65;
-        if Try6() then Observer.Observe('case_label.A.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.65');
+        if Try6(Res, vBigInteger, vEnumImpl) then Observer.Observe('case_label.A.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.65');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure EnumImpl_BigInteger_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_BigInteger_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_BigInteger_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_BigInteger_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_BigInteger_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure EnumImpl_Char()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vChar: Char;
+        vEnumImpl: Enum "LT Y31 EI";
     begin
         vEnumImpl := "LT Y31 EI"::A;
         vChar := 65;
-        if Try7() then Observer.Observe('eq.A.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.A');
+        if Try7(Res, vChar, vEnumImpl) then Observer.Observe('eq.A.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.A');
         vEnumImpl := "LT Y31 EI"::A;
         vChar := 65;
-        if Try8() then Observer.Observe('lt.A.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.A');
+        if Try8(Res, vChar, vEnumImpl) then Observer.Observe('lt.A.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.A');
         vEnumImpl := "LT Y31 EI"::A;
         vChar := 97;
-        if Try7() then Observer.Observe('eq.A.a', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.a');
+        if Try7(Res, vChar, vEnumImpl) then Observer.Observe('eq.A.a', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.a');
         vEnumImpl := "LT Y31 EI"::A;
         vChar := 97;
-        if Try8() then Observer.Observe('lt.A.a', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.a');
+        if Try8(Res, vChar, vEnumImpl) then Observer.Observe('lt.A.a', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.a');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure EnumImpl_Char_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_Char_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_Char_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_Char_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_Char_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure EnumImpl_Byte()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vByte: Byte;
+        vEnumImpl: Enum "LT Y31 EI";
     begin
         vEnumImpl := "LT Y31 EI"::A;
         vByte := 65;
-        if Try9() then Observer.Observe('eq.A.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.65');
+        if Try9(Res, vByte, vEnumImpl) then Observer.Observe('eq.A.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.65');
         vEnumImpl := "LT Y31 EI"::A;
         vByte := 65;
-        if Try10() then Observer.Observe('lt.A.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.65');
+        if Try10(Res, vByte, vEnumImpl) then Observer.Observe('lt.A.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.65');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure EnumImpl_Byte_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_Byte_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_Byte_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_Byte_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_Byte_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure EnumImpl_Option()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vEnumImpl: Enum "LT Y31 EI";
+        vOption: Option A,B,C;
     begin
         vEnumImpl := "LT Y31 EI"::A;
         vOption := 1;
-        if Try11() then Observer.Observe('eq.A.1', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.1');
+        if Try11(Res, vEnumImpl, vOption) then Observer.Observe('eq.A.1', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.1');
         vEnumImpl := "LT Y31 EI"::A;
         vOption := 1;
-        if Try12() then Observer.Observe('lt.A.1', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.1');
+        if Try12(Res, vEnumImpl, vOption) then Observer.Observe('lt.A.1', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.1');
         vEnumImpl := "LT Y31 EI"::A;
         vOption := 1;
-        if Try13() then Observer.Observe('in_set.A.1', Format(Res, 0, 9)) else Observer.ObserveError('in_set.A.1');
+        if Try13(Res, vEnumImpl, vOption) then Observer.Observe('in_set.A.1', Format(Res, 0, 9)) else Observer.ObserveError('in_set.A.1');
         vEnumImpl := "LT Y31 EI"::A;
         vOption := 1;
-        if Try14() then Observer.Observe('case_label.A.1', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.1');
+        if Try14(Res, vEnumImpl, vOption) then Observer.Observe('case_label.A.1', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.1');
         vEnumImpl := "LT Y31 EI"::A;
         vOption := 3;
-        if Try11() then Observer.Observe('eq.A.3', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.3');
+        if Try11(Res, vEnumImpl, vOption) then Observer.Observe('eq.A.3', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.3');
         vEnumImpl := "LT Y31 EI"::A;
         vOption := 3;
-        if Try12() then Observer.Observe('lt.A.3', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.3');
+        if Try12(Res, vEnumImpl, vOption) then Observer.Observe('lt.A.3', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.3');
         vEnumImpl := "LT Y31 EI"::A;
         vOption := 3;
-        if Try13() then Observer.Observe('in_set.A.3', Format(Res, 0, 9)) else Observer.ObserveError('in_set.A.3');
+        if Try13(Res, vEnumImpl, vOption) then Observer.Observe('in_set.A.3', Format(Res, 0, 9)) else Observer.ObserveError('in_set.A.3');
         vEnumImpl := "LT Y31 EI"::A;
         vOption := 3;
-        if Try14() then Observer.Observe('case_label.A.3', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.3');
+        if Try14(Res, vEnumImpl, vOption) then Observer.Observe('case_label.A.3', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.3');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure EnumImpl_Option_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_Option_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_Option_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_Option_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_Option_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure EnumImpl_Enum()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vEnum: Enum "LT Y31 E";
+        vEnumImpl: Enum "LT Y31 EI";
     begin
         vEnumImpl := "LT Y31 EI"::A;
         vEnum := "LT Y31 E"::B;
-        if Try15() then Observer.Observe('eq.A.B', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.B');
+        if Try15(Res, vEnum, vEnumImpl) then Observer.Observe('eq.A.B', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.B');
         vEnumImpl := "LT Y31 EI"::A;
         vEnum := "LT Y31 E"::B;
-        if Try16() then Observer.Observe('lt.A.B', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.B');
+        if Try16(Res, vEnum, vEnumImpl) then Observer.Observe('lt.A.B', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.B');
         vEnumImpl := "LT Y31 EI"::A;
         vEnum := 5;
-        if Try15() then Observer.Observe('eq.A.ord5', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.ord5');
+        if Try15(Res, vEnum, vEnumImpl) then Observer.Observe('eq.A.ord5', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.ord5');
         vEnumImpl := "LT Y31 EI"::A;
         vEnum := 5;
-        if Try16() then Observer.Observe('lt.A.ord5', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.ord5');
+        if Try16(Res, vEnum, vEnumImpl) then Observer.Observe('lt.A.ord5', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.ord5');
         Observer.Finish();
     end;
 
-    [Test]
-    procedure EnumImpl_Enum_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_Enum_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_Enum_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_Enum_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_Enum_More5()
-    begin
-        Observer.More();
-    end;
-
     [TryFunction]
-    local procedure Try1()
+    local procedure Try1(var Res: Boolean; var vEnumImpl: Enum "LT Y31 EI"; var vInteger: Integer)
     begin
         Res := vEnumImpl = vInteger;
     end;
 
     [TryFunction]
-    local procedure Try2()
+    local procedure Try2(var Res: Boolean; var vEnumImpl: Enum "LT Y31 EI"; var vInteger: Integer)
     begin
         Res := vEnumImpl < vInteger;
     end;
 
     [TryFunction]
-    local procedure Try3()
+    local procedure Try3(var Res: Boolean; var vEnumImpl: Enum "LT Y31 EI"; var vInteger: Integer)
     begin
         Res := vEnumImpl in [vInteger];
     end;
 
     [TryFunction]
-    local procedure Try4()
+    local procedure Try4(var Res: Boolean; var vEnumImpl: Enum "LT Y31 EI"; var vInteger: Integer)
     begin
         Res := false;
         case vEnumImpl of
@@ -5556,13 +4052,13 @@ codeunit 92434 "LT Y31 Cmp EnumImpl"
     end;
 
     [TryFunction]
-    local procedure Try5()
+    local procedure Try5(var Res: Boolean; var vBigInteger: BigInteger; var vEnumImpl: Enum "LT Y31 EI")
     begin
         Res := vEnumImpl in [vBigInteger];
     end;
 
     [TryFunction]
-    local procedure Try6()
+    local procedure Try6(var Res: Boolean; var vBigInteger: BigInteger; var vEnumImpl: Enum "LT Y31 EI")
     begin
         Res := false;
         case vEnumImpl of
@@ -5572,49 +4068,49 @@ codeunit 92434 "LT Y31 Cmp EnumImpl"
     end;
 
     [TryFunction]
-    local procedure Try7()
+    local procedure Try7(var Res: Boolean; var vChar: Char; var vEnumImpl: Enum "LT Y31 EI")
     begin
         Res := vEnumImpl = vChar;
     end;
 
     [TryFunction]
-    local procedure Try8()
+    local procedure Try8(var Res: Boolean; var vChar: Char; var vEnumImpl: Enum "LT Y31 EI")
     begin
         Res := vEnumImpl < vChar;
     end;
 
     [TryFunction]
-    local procedure Try9()
+    local procedure Try9(var Res: Boolean; var vByte: Byte; var vEnumImpl: Enum "LT Y31 EI")
     begin
         Res := vEnumImpl = vByte;
     end;
 
     [TryFunction]
-    local procedure Try10()
+    local procedure Try10(var Res: Boolean; var vByte: Byte; var vEnumImpl: Enum "LT Y31 EI")
     begin
         Res := vEnumImpl < vByte;
     end;
 
     [TryFunction]
-    local procedure Try11()
+    local procedure Try11(var Res: Boolean; var vEnumImpl: Enum "LT Y31 EI"; var vOption: Option A,B,C)
     begin
         Res := vEnumImpl = vOption;
     end;
 
     [TryFunction]
-    local procedure Try12()
+    local procedure Try12(var Res: Boolean; var vEnumImpl: Enum "LT Y31 EI"; var vOption: Option A,B,C)
     begin
         Res := vEnumImpl < vOption;
     end;
 
     [TryFunction]
-    local procedure Try13()
+    local procedure Try13(var Res: Boolean; var vEnumImpl: Enum "LT Y31 EI"; var vOption: Option A,B,C)
     begin
         Res := vEnumImpl in [vOption];
     end;
 
     [TryFunction]
-    local procedure Try14()
+    local procedure Try14(var Res: Boolean; var vEnumImpl: Enum "LT Y31 EI"; var vOption: Option A,B,C)
     begin
         Res := false;
         case vEnumImpl of
@@ -5624,13 +4120,13 @@ codeunit 92434 "LT Y31 Cmp EnumImpl"
     end;
 
     [TryFunction]
-    local procedure Try15()
+    local procedure Try15(var Res: Boolean; var vEnum: Enum "LT Y31 E"; var vEnumImpl: Enum "LT Y31 EI")
     begin
         Res := vEnumImpl = vEnum;
     end;
 
     [TryFunction]
-    local procedure Try16()
+    local procedure Try16(var Res: Boolean; var vEnum: Enum "LT Y31 E"; var vEnumImpl: Enum "LT Y31 EI")
     begin
         Res := vEnumImpl < vEnum;
     end;
@@ -5649,538 +4145,498 @@ codeunit 92436 "LT Y31 Cmp Text"
     Subtype = Test;
     TestPermissions = Disabled;
 
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        Res: Boolean;
-        V: Variant;
-        vChar: Char;
-        vCode10: Code[10];
-        vGuid: Guid;
-        vLabel: Label 'abc', Locked = true;
-        vText: Text;
-        vText10: Text[10];
-
     [Test]
     procedure Text_Char()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vChar: Char;
+        vText: Text;
     begin
         vText := 'a';
         vChar := 65;
-        if Try1() then Observer.Observe('eq.a.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.a.A');
+        if Try1(Res, vChar, vText) then Observer.Observe('eq.a.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.a.A');
         vText := 'a';
         vChar := 65;
-        if Try2() then Observer.Observe('lt.a.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.a.A');
+        if Try2(Res, vChar, vText) then Observer.Observe('lt.a.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.a.A');
         vText := 'a';
         vChar := 65;
-        if Try3() then Observer.Observe('in_set.a.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.a.A');
+        if Try3(Res, vChar, vText) then Observer.Observe('in_set.a.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.a.A');
         vText := 'a';
         vChar := 65;
-        if Try4() then Observer.Observe('case_label.a.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.a.A');
+        if Try4(Res, vChar, vText) then Observer.Observe('case_label.a.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.a.A');
         vText := 'a';
         vChar := 97;
-        if Try1() then Observer.Observe('eq.a.a', Format(Res, 0, 9)) else Observer.ObserveError('eq.a.a');
+        if Try1(Res, vChar, vText) then Observer.Observe('eq.a.a', Format(Res, 0, 9)) else Observer.ObserveError('eq.a.a');
         vText := 'a';
         vChar := 97;
-        if Try2() then Observer.Observe('lt.a.a', Format(Res, 0, 9)) else Observer.ObserveError('lt.a.a');
+        if Try2(Res, vChar, vText) then Observer.Observe('lt.a.a', Format(Res, 0, 9)) else Observer.ObserveError('lt.a.a');
         vText := 'a';
         vChar := 97;
-        if Try3() then Observer.Observe('in_set.a.a', Format(Res, 0, 9)) else Observer.ObserveError('in_set.a.a');
+        if Try3(Res, vChar, vText) then Observer.Observe('in_set.a.a', Format(Res, 0, 9)) else Observer.ObserveError('in_set.a.a');
         vText := 'a';
         vChar := 97;
-        if Try4() then Observer.Observe('case_label.a.a', Format(Res, 0, 9)) else Observer.ObserveError('case_label.a.a');
-        vText := 'A';
-        vChar := 65;
-        if Try1() then Observer.Observe('eq.A.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.A');
-        vText := 'A';
-        vChar := 65;
-        if Try2() then Observer.Observe('lt.A.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.A');
-        vText := 'A';
-        vChar := 65;
-        if Try3() then Observer.Observe('in_set.A.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.A.A');
-        vText := 'A';
-        vChar := 65;
-        if Try4() then Observer.Observe('case_label.A.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.A');
-        vText := 'A';
-        vChar := 97;
-        if Try1() then Observer.Observe('eq.A.a', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.a');
-        vText := 'A';
-        vChar := 97;
-        if Try2() then Observer.Observe('lt.A.a', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.a');
-        vText := 'A';
-        vChar := 97;
-        if Try3() then Observer.Observe('in_set.A.a', Format(Res, 0, 9)) else Observer.ObserveError('in_set.A.a');
-        vText := 'A';
-        vChar := 97;
-        if Try4() then Observer.Observe('case_label.A.a', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.a');
-        vText := 'abc';
-        vChar := 65;
-        if Try1() then Observer.Observe('eq.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.abc.A');
-        vText := 'abc';
-        vChar := 65;
-        if Try2() then Observer.Observe('lt.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.abc.A');
-        vText := 'abc';
-        vChar := 65;
-        if Try3() then Observer.Observe('in_set.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.abc.A');
-        vText := 'abc';
-        vChar := 65;
-        if Try4() then Observer.Observe('case_label.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.A');
-        vText := 'abc';
-        vChar := 97;
-        if Try1() then Observer.Observe('eq.abc.a', Format(Res, 0, 9)) else Observer.ObserveError('eq.abc.a');
-        vText := 'abc';
-        vChar := 97;
-        if Try2() then Observer.Observe('lt.abc.a', Format(Res, 0, 9)) else Observer.ObserveError('lt.abc.a');
-        vText := 'abc';
-        vChar := 97;
-        if Try3() then Observer.Observe('in_set.abc.a', Format(Res, 0, 9)) else Observer.ObserveError('in_set.abc.a');
-        vText := 'abc';
-        vChar := 97;
-        if Try4() then Observer.Observe('case_label.abc.a', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.a');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        vChar := 65;
-        if Try1() then Observer.Observe('eq.guidlow.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.guidlow.A');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        vChar := 65;
-        if Try2() then Observer.Observe('lt.guidlow.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.guidlow.A');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        vChar := 65;
-        if Try3() then Observer.Observe('in_set.guidlow.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.guidlow.A');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        vChar := 65;
-        if Try4() then Observer.Observe('case_label.guidlow.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.guidlow.A');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        vChar := 97;
-        if Try1() then Observer.Observe('eq.guidlow.a', Format(Res, 0, 9)) else Observer.ObserveError('eq.guidlow.a');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        vChar := 97;
-        if Try2() then Observer.Observe('lt.guidlow.a', Format(Res, 0, 9)) else Observer.ObserveError('lt.guidlow.a');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        vChar := 97;
-        if Try3() then Observer.Observe('in_set.guidlow.a', Format(Res, 0, 9)) else Observer.ObserveError('in_set.guidlow.a');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        vChar := 97;
-        if Try4() then Observer.Observe('case_label.guidlow.a', Format(Res, 0, 9)) else Observer.ObserveError('case_label.guidlow.a');
+        if Try4(Res, vChar, vText) then Observer.Observe('case_label.a.a', Format(Res, 0, 9)) else Observer.ObserveError('case_label.a.a');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Text_Char_More1()
+    procedure Text_Char_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vChar: Char;
+        vText: Text;
     begin
-        Observer.More();
+        vText := 'A';
+        vChar := 65;
+        if Try1(Res, vChar, vText) then Observer.Observe('eq.A.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.A');
+        vText := 'A';
+        vChar := 65;
+        if Try2(Res, vChar, vText) then Observer.Observe('lt.A.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.A');
+        vText := 'A';
+        vChar := 65;
+        if Try3(Res, vChar, vText) then Observer.Observe('in_set.A.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.A.A');
+        vText := 'A';
+        vChar := 65;
+        if Try4(Res, vChar, vText) then Observer.Observe('case_label.A.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.A');
+        vText := 'A';
+        vChar := 97;
+        if Try1(Res, vChar, vText) then Observer.Observe('eq.A.a', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.a');
+        vText := 'A';
+        vChar := 97;
+        if Try2(Res, vChar, vText) then Observer.Observe('lt.A.a', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.a');
+        vText := 'A';
+        vChar := 97;
+        if Try3(Res, vChar, vText) then Observer.Observe('in_set.A.a', Format(Res, 0, 9)) else Observer.ObserveError('in_set.A.a');
+        vText := 'A';
+        vChar := 97;
+        if Try4(Res, vChar, vText) then Observer.Observe('case_label.A.a', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.a');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Text_Char_More2()
+    procedure Text_Char_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vChar: Char;
+        vText: Text;
     begin
-        Observer.More();
+        vText := 'abc';
+        vChar := 65;
+        if Try1(Res, vChar, vText) then Observer.Observe('eq.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.abc.A');
+        vText := 'abc';
+        vChar := 65;
+        if Try2(Res, vChar, vText) then Observer.Observe('lt.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.abc.A');
+        vText := 'abc';
+        vChar := 65;
+        if Try3(Res, vChar, vText) then Observer.Observe('in_set.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.abc.A');
+        vText := 'abc';
+        vChar := 65;
+        if Try4(Res, vChar, vText) then Observer.Observe('case_label.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.A');
+        vText := 'abc';
+        vChar := 97;
+        if Try1(Res, vChar, vText) then Observer.Observe('eq.abc.a', Format(Res, 0, 9)) else Observer.ObserveError('eq.abc.a');
+        vText := 'abc';
+        vChar := 97;
+        if Try2(Res, vChar, vText) then Observer.Observe('lt.abc.a', Format(Res, 0, 9)) else Observer.ObserveError('lt.abc.a');
+        vText := 'abc';
+        vChar := 97;
+        if Try3(Res, vChar, vText) then Observer.Observe('in_set.abc.a', Format(Res, 0, 9)) else Observer.ObserveError('in_set.abc.a');
+        vText := 'abc';
+        vChar := 97;
+        if Try4(Res, vChar, vText) then Observer.Observe('case_label.abc.a', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.a');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Text_Char_More3()
+    procedure Text_Char_4()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vChar: Char;
+        vText: Text;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text_Char_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text_Char_More5()
-    begin
-        Observer.More();
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vChar := 65;
+        if Try1(Res, vChar, vText) then Observer.Observe('eq.guidlow.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.guidlow.A');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vChar := 65;
+        if Try2(Res, vChar, vText) then Observer.Observe('lt.guidlow.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.guidlow.A');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vChar := 65;
+        if Try3(Res, vChar, vText) then Observer.Observe('in_set.guidlow.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.guidlow.A');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vChar := 65;
+        if Try4(Res, vChar, vText) then Observer.Observe('case_label.guidlow.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.guidlow.A');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vChar := 97;
+        if Try1(Res, vChar, vText) then Observer.Observe('eq.guidlow.a', Format(Res, 0, 9)) else Observer.ObserveError('eq.guidlow.a');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vChar := 97;
+        if Try2(Res, vChar, vText) then Observer.Observe('lt.guidlow.a', Format(Res, 0, 9)) else Observer.ObserveError('lt.guidlow.a');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vChar := 97;
+        if Try3(Res, vChar, vText) then Observer.Observe('in_set.guidlow.a', Format(Res, 0, 9)) else Observer.ObserveError('in_set.guidlow.a');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vChar := 97;
+        if Try4(Res, vChar, vText) then Observer.Observe('case_label.guidlow.a', Format(Res, 0, 9)) else Observer.ObserveError('case_label.guidlow.a');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Text_Text10()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vText: Text;
+        vText10: Text[10];
     begin
         vText := 'a';
         vText10 := 'abc';
-        if Try5() then Observer.Observe('eq.a.abc', Format(Res, 0, 9)) else Observer.ObserveError('eq.a.abc');
+        if Try5(Res, vText, vText10) then Observer.Observe('eq.a.abc', Format(Res, 0, 9)) else Observer.ObserveError('eq.a.abc');
         vText := 'a';
         vText10 := 'abc';
-        if Try6() then Observer.Observe('lt.a.abc', Format(Res, 0, 9)) else Observer.ObserveError('lt.a.abc');
+        if Try6(Res, vText, vText10) then Observer.Observe('lt.a.abc', Format(Res, 0, 9)) else Observer.ObserveError('lt.a.abc');
         vText := 'a';
         vText10 := 'abc';
-        if Try7() then Observer.Observe('in_set.a.abc', Format(Res, 0, 9)) else Observer.ObserveError('in_set.a.abc');
+        if Try7(Res, vText, vText10) then Observer.Observe('in_set.a.abc', Format(Res, 0, 9)) else Observer.ObserveError('in_set.a.abc');
         vText := 'a';
         vText10 := 'abc';
-        if Try8() then Observer.Observe('case_label.a.abc', Format(Res, 0, 9)) else Observer.ObserveError('case_label.a.abc');
+        if Try8(Res, vText, vText10) then Observer.Observe('case_label.a.abc', Format(Res, 0, 9)) else Observer.ObserveError('case_label.a.abc');
         vText := 'A';
         vText10 := 'abc';
-        if Try5() then Observer.Observe('eq.A.abc', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.abc');
+        if Try5(Res, vText, vText10) then Observer.Observe('eq.A.abc', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.abc');
         vText := 'A';
         vText10 := 'abc';
-        if Try6() then Observer.Observe('lt.A.abc', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.abc');
+        if Try6(Res, vText, vText10) then Observer.Observe('lt.A.abc', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.abc');
         vText := 'A';
         vText10 := 'abc';
-        if Try7() then Observer.Observe('in_set.A.abc', Format(Res, 0, 9)) else Observer.ObserveError('in_set.A.abc');
+        if Try7(Res, vText, vText10) then Observer.Observe('in_set.A.abc', Format(Res, 0, 9)) else Observer.ObserveError('in_set.A.abc');
         vText := 'A';
         vText10 := 'abc';
-        if Try8() then Observer.Observe('case_label.A.abc', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.abc');
-        vText := 'abc';
-        vText10 := 'abc';
-        if Try5() then Observer.Observe('eq.abc.abc', Format(Res, 0, 9)) else Observer.ObserveError('eq.abc.abc');
-        vText := 'abc';
-        vText10 := 'abc';
-        if Try6() then Observer.Observe('lt.abc.abc', Format(Res, 0, 9)) else Observer.ObserveError('lt.abc.abc');
-        vText := 'abc';
-        vText10 := 'abc';
-        if Try7() then Observer.Observe('in_set.abc.abc', Format(Res, 0, 9)) else Observer.ObserveError('in_set.abc.abc');
-        vText := 'abc';
-        vText10 := 'abc';
-        if Try8() then Observer.Observe('case_label.abc.abc', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.abc');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        vText10 := 'abc';
-        if Try5() then Observer.Observe('eq.guidlow.abc', Format(Res, 0, 9)) else Observer.ObserveError('eq.guidlow.abc');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        vText10 := 'abc';
-        if Try6() then Observer.Observe('lt.guidlow.abc', Format(Res, 0, 9)) else Observer.ObserveError('lt.guidlow.abc');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        vText10 := 'abc';
-        if Try7() then Observer.Observe('in_set.guidlow.abc', Format(Res, 0, 9)) else Observer.ObserveError('in_set.guidlow.abc');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        vText10 := 'abc';
-        if Try8() then Observer.Observe('case_label.guidlow.abc', Format(Res, 0, 9)) else Observer.ObserveError('case_label.guidlow.abc');
+        if Try8(Res, vText, vText10) then Observer.Observe('case_label.A.abc', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.abc');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Text_Text10_More1()
+    procedure Text_Text10_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vText: Text;
+        vText10: Text[10];
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text_Text10_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text_Text10_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text_Text10_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text_Text10_More5()
-    begin
-        Observer.More();
+        vText := 'abc';
+        vText10 := 'abc';
+        if Try5(Res, vText, vText10) then Observer.Observe('eq.abc.abc', Format(Res, 0, 9)) else Observer.ObserveError('eq.abc.abc');
+        vText := 'abc';
+        vText10 := 'abc';
+        if Try6(Res, vText, vText10) then Observer.Observe('lt.abc.abc', Format(Res, 0, 9)) else Observer.ObserveError('lt.abc.abc');
+        vText := 'abc';
+        vText10 := 'abc';
+        if Try7(Res, vText, vText10) then Observer.Observe('in_set.abc.abc', Format(Res, 0, 9)) else Observer.ObserveError('in_set.abc.abc');
+        vText := 'abc';
+        vText10 := 'abc';
+        if Try8(Res, vText, vText10) then Observer.Observe('case_label.abc.abc', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.abc');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vText10 := 'abc';
+        if Try5(Res, vText, vText10) then Observer.Observe('eq.guidlow.abc', Format(Res, 0, 9)) else Observer.ObserveError('eq.guidlow.abc');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vText10 := 'abc';
+        if Try6(Res, vText, vText10) then Observer.Observe('lt.guidlow.abc', Format(Res, 0, 9)) else Observer.ObserveError('lt.guidlow.abc');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vText10 := 'abc';
+        if Try7(Res, vText, vText10) then Observer.Observe('in_set.guidlow.abc', Format(Res, 0, 9)) else Observer.ObserveError('in_set.guidlow.abc');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vText10 := 'abc';
+        if Try8(Res, vText, vText10) then Observer.Observe('case_label.guidlow.abc', Format(Res, 0, 9)) else Observer.ObserveError('case_label.guidlow.abc');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Text_Code10()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vCode10: Code[10];
+        vText: Text;
     begin
         vText := 'a';
         vCode10 := 'A';
-        if Try9() then Observer.Observe('eq.a.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.a.A');
+        if Try9(Res, vCode10, vText) then Observer.Observe('eq.a.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.a.A');
         vText := 'a';
         vCode10 := 'A';
-        if Try10() then Observer.Observe('lt.a.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.a.A');
+        if Try10(Res, vCode10, vText) then Observer.Observe('lt.a.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.a.A');
         vText := 'a';
         vCode10 := 'A';
-        if Try11() then Observer.Observe('in_set.a.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.a.A');
+        if Try11(Res, vCode10, vText) then Observer.Observe('in_set.a.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.a.A');
         vText := 'a';
         vCode10 := 'A';
-        if Try12() then Observer.Observe('case_label.a.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.a.A');
+        if Try12(Res, vCode10, vText) then Observer.Observe('case_label.a.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.a.A');
         vText := 'a';
         vCode10 := 'ABC';
-        if Try9() then Observer.Observe('eq.a.ABC', Format(Res, 0, 9)) else Observer.ObserveError('eq.a.ABC');
+        if Try9(Res, vCode10, vText) then Observer.Observe('eq.a.ABC', Format(Res, 0, 9)) else Observer.ObserveError('eq.a.ABC');
         vText := 'a';
         vCode10 := 'ABC';
-        if Try10() then Observer.Observe('lt.a.ABC', Format(Res, 0, 9)) else Observer.ObserveError('lt.a.ABC');
+        if Try10(Res, vCode10, vText) then Observer.Observe('lt.a.ABC', Format(Res, 0, 9)) else Observer.ObserveError('lt.a.ABC');
         vText := 'a';
         vCode10 := 'ABC';
-        if Try11() then Observer.Observe('in_set.a.ABC', Format(Res, 0, 9)) else Observer.ObserveError('in_set.a.ABC');
+        if Try11(Res, vCode10, vText) then Observer.Observe('in_set.a.ABC', Format(Res, 0, 9)) else Observer.ObserveError('in_set.a.ABC');
         vText := 'a';
         vCode10 := 'ABC';
-        if Try12() then Observer.Observe('case_label.a.ABC', Format(Res, 0, 9)) else Observer.ObserveError('case_label.a.ABC');
-        vText := 'A';
-        vCode10 := 'A';
-        if Try9() then Observer.Observe('eq.A.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.A');
-        vText := 'A';
-        vCode10 := 'A';
-        if Try10() then Observer.Observe('lt.A.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.A');
-        vText := 'A';
-        vCode10 := 'A';
-        if Try11() then Observer.Observe('in_set.A.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.A.A');
-        vText := 'A';
-        vCode10 := 'A';
-        if Try12() then Observer.Observe('case_label.A.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.A');
-        vText := 'A';
-        vCode10 := 'ABC';
-        if Try9() then Observer.Observe('eq.A.ABC', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.ABC');
-        vText := 'A';
-        vCode10 := 'ABC';
-        if Try10() then Observer.Observe('lt.A.ABC', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.ABC');
-        vText := 'A';
-        vCode10 := 'ABC';
-        if Try11() then Observer.Observe('in_set.A.ABC', Format(Res, 0, 9)) else Observer.ObserveError('in_set.A.ABC');
-        vText := 'A';
-        vCode10 := 'ABC';
-        if Try12() then Observer.Observe('case_label.A.ABC', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.ABC');
-        vText := 'abc';
-        vCode10 := 'A';
-        if Try9() then Observer.Observe('eq.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.abc.A');
-        vText := 'abc';
-        vCode10 := 'A';
-        if Try10() then Observer.Observe('lt.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.abc.A');
-        vText := 'abc';
-        vCode10 := 'A';
-        if Try11() then Observer.Observe('in_set.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.abc.A');
-        vText := 'abc';
-        vCode10 := 'A';
-        if Try12() then Observer.Observe('case_label.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.A');
-        vText := 'abc';
-        vCode10 := 'ABC';
-        if Try9() then Observer.Observe('eq.abc.ABC', Format(Res, 0, 9)) else Observer.ObserveError('eq.abc.ABC');
-        vText := 'abc';
-        vCode10 := 'ABC';
-        if Try10() then Observer.Observe('lt.abc.ABC', Format(Res, 0, 9)) else Observer.ObserveError('lt.abc.ABC');
-        vText := 'abc';
-        vCode10 := 'ABC';
-        if Try11() then Observer.Observe('in_set.abc.ABC', Format(Res, 0, 9)) else Observer.ObserveError('in_set.abc.ABC');
-        vText := 'abc';
-        vCode10 := 'ABC';
-        if Try12() then Observer.Observe('case_label.abc.ABC', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.ABC');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        vCode10 := 'A';
-        if Try9() then Observer.Observe('eq.guidlow.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.guidlow.A');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        vCode10 := 'A';
-        if Try10() then Observer.Observe('lt.guidlow.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.guidlow.A');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        vCode10 := 'A';
-        if Try11() then Observer.Observe('in_set.guidlow.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.guidlow.A');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        vCode10 := 'A';
-        if Try12() then Observer.Observe('case_label.guidlow.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.guidlow.A');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        vCode10 := 'ABC';
-        if Try9() then Observer.Observe('eq.guidlow.ABC', Format(Res, 0, 9)) else Observer.ObserveError('eq.guidlow.ABC');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        vCode10 := 'ABC';
-        if Try10() then Observer.Observe('lt.guidlow.ABC', Format(Res, 0, 9)) else Observer.ObserveError('lt.guidlow.ABC');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        vCode10 := 'ABC';
-        if Try11() then Observer.Observe('in_set.guidlow.ABC', Format(Res, 0, 9)) else Observer.ObserveError('in_set.guidlow.ABC');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        vCode10 := 'ABC';
-        if Try12() then Observer.Observe('case_label.guidlow.ABC', Format(Res, 0, 9)) else Observer.ObserveError('case_label.guidlow.ABC');
+        if Try12(Res, vCode10, vText) then Observer.Observe('case_label.a.ABC', Format(Res, 0, 9)) else Observer.ObserveError('case_label.a.ABC');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Text_Code10_More1()
+    procedure Text_Code10_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vCode10: Code[10];
+        vText: Text;
     begin
-        Observer.More();
+        vText := 'A';
+        vCode10 := 'A';
+        if Try9(Res, vCode10, vText) then Observer.Observe('eq.A.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.A');
+        vText := 'A';
+        vCode10 := 'A';
+        if Try10(Res, vCode10, vText) then Observer.Observe('lt.A.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.A');
+        vText := 'A';
+        vCode10 := 'A';
+        if Try11(Res, vCode10, vText) then Observer.Observe('in_set.A.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.A.A');
+        vText := 'A';
+        vCode10 := 'A';
+        if Try12(Res, vCode10, vText) then Observer.Observe('case_label.A.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.A');
+        vText := 'A';
+        vCode10 := 'ABC';
+        if Try9(Res, vCode10, vText) then Observer.Observe('eq.A.ABC', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.ABC');
+        vText := 'A';
+        vCode10 := 'ABC';
+        if Try10(Res, vCode10, vText) then Observer.Observe('lt.A.ABC', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.ABC');
+        vText := 'A';
+        vCode10 := 'ABC';
+        if Try11(Res, vCode10, vText) then Observer.Observe('in_set.A.ABC', Format(Res, 0, 9)) else Observer.ObserveError('in_set.A.ABC');
+        vText := 'A';
+        vCode10 := 'ABC';
+        if Try12(Res, vCode10, vText) then Observer.Observe('case_label.A.ABC', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.ABC');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Text_Code10_More2()
+    procedure Text_Code10_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vCode10: Code[10];
+        vText: Text;
     begin
-        Observer.More();
+        vText := 'abc';
+        vCode10 := 'A';
+        if Try9(Res, vCode10, vText) then Observer.Observe('eq.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.abc.A');
+        vText := 'abc';
+        vCode10 := 'A';
+        if Try10(Res, vCode10, vText) then Observer.Observe('lt.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.abc.A');
+        vText := 'abc';
+        vCode10 := 'A';
+        if Try11(Res, vCode10, vText) then Observer.Observe('in_set.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.abc.A');
+        vText := 'abc';
+        vCode10 := 'A';
+        if Try12(Res, vCode10, vText) then Observer.Observe('case_label.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.A');
+        vText := 'abc';
+        vCode10 := 'ABC';
+        if Try9(Res, vCode10, vText) then Observer.Observe('eq.abc.ABC', Format(Res, 0, 9)) else Observer.ObserveError('eq.abc.ABC');
+        vText := 'abc';
+        vCode10 := 'ABC';
+        if Try10(Res, vCode10, vText) then Observer.Observe('lt.abc.ABC', Format(Res, 0, 9)) else Observer.ObserveError('lt.abc.ABC');
+        vText := 'abc';
+        vCode10 := 'ABC';
+        if Try11(Res, vCode10, vText) then Observer.Observe('in_set.abc.ABC', Format(Res, 0, 9)) else Observer.ObserveError('in_set.abc.ABC');
+        vText := 'abc';
+        vCode10 := 'ABC';
+        if Try12(Res, vCode10, vText) then Observer.Observe('case_label.abc.ABC', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.ABC');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Text_Code10_More3()
+    procedure Text_Code10_4()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vCode10: Code[10];
+        vText: Text;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text_Code10_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text_Code10_More5()
-    begin
-        Observer.More();
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vCode10 := 'A';
+        if Try9(Res, vCode10, vText) then Observer.Observe('eq.guidlow.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.guidlow.A');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vCode10 := 'A';
+        if Try10(Res, vCode10, vText) then Observer.Observe('lt.guidlow.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.guidlow.A');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vCode10 := 'A';
+        if Try11(Res, vCode10, vText) then Observer.Observe('in_set.guidlow.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.guidlow.A');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vCode10 := 'A';
+        if Try12(Res, vCode10, vText) then Observer.Observe('case_label.guidlow.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.guidlow.A');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vCode10 := 'ABC';
+        if Try9(Res, vCode10, vText) then Observer.Observe('eq.guidlow.ABC', Format(Res, 0, 9)) else Observer.ObserveError('eq.guidlow.ABC');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vCode10 := 'ABC';
+        if Try10(Res, vCode10, vText) then Observer.Observe('lt.guidlow.ABC', Format(Res, 0, 9)) else Observer.ObserveError('lt.guidlow.ABC');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vCode10 := 'ABC';
+        if Try11(Res, vCode10, vText) then Observer.Observe('in_set.guidlow.ABC', Format(Res, 0, 9)) else Observer.ObserveError('in_set.guidlow.ABC');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vCode10 := 'ABC';
+        if Try12(Res, vCode10, vText) then Observer.Observe('case_label.guidlow.ABC', Format(Res, 0, 9)) else Observer.ObserveError('case_label.guidlow.ABC');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Text_Guid()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vGuid: Guid;
+        vText: Text;
     begin
         vText := 'a';
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try13() then Observer.Observe('eq.a.g', Format(Res, 0, 9)) else Observer.ObserveError('eq.a.g');
+        if Try13(Res, vGuid, vText) then Observer.Observe('eq.a.g', Format(Res, 0, 9)) else Observer.ObserveError('eq.a.g');
         vText := 'a';
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try14() then Observer.Observe('lt.a.g', Format(Res, 0, 9)) else Observer.ObserveError('lt.a.g');
+        if Try14(Res, vGuid, vText) then Observer.Observe('lt.a.g', Format(Res, 0, 9)) else Observer.ObserveError('lt.a.g');
         vText := 'a';
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try15() then Observer.Observe('in_set.a.g', Format(Res, 0, 9)) else Observer.ObserveError('in_set.a.g');
+        if Try15(Res, vGuid, vText) then Observer.Observe('in_set.a.g', Format(Res, 0, 9)) else Observer.ObserveError('in_set.a.g');
         vText := 'a';
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try16() then Observer.Observe('case_label.a.g', Format(Res, 0, 9)) else Observer.ObserveError('case_label.a.g');
+        if Try16(Res, vGuid, vText) then Observer.Observe('case_label.a.g', Format(Res, 0, 9)) else Observer.ObserveError('case_label.a.g');
         vText := 'A';
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try13() then Observer.Observe('eq.A.g', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.g');
+        if Try13(Res, vGuid, vText) then Observer.Observe('eq.A.g', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.g');
         vText := 'A';
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try14() then Observer.Observe('lt.A.g', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.g');
+        if Try14(Res, vGuid, vText) then Observer.Observe('lt.A.g', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.g');
         vText := 'A';
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try15() then Observer.Observe('in_set.A.g', Format(Res, 0, 9)) else Observer.ObserveError('in_set.A.g');
+        if Try15(Res, vGuid, vText) then Observer.Observe('in_set.A.g', Format(Res, 0, 9)) else Observer.ObserveError('in_set.A.g');
         vText := 'A';
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try16() then Observer.Observe('case_label.A.g', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.g');
-        vText := 'abc';
-        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try13() then Observer.Observe('eq.abc.g', Format(Res, 0, 9)) else Observer.ObserveError('eq.abc.g');
-        vText := 'abc';
-        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try14() then Observer.Observe('lt.abc.g', Format(Res, 0, 9)) else Observer.ObserveError('lt.abc.g');
-        vText := 'abc';
-        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try15() then Observer.Observe('in_set.abc.g', Format(Res, 0, 9)) else Observer.ObserveError('in_set.abc.g');
-        vText := 'abc';
-        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try16() then Observer.Observe('case_label.abc.g', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.g');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try13() then Observer.Observe('eq.guidlow.g', Format(Res, 0, 9)) else Observer.ObserveError('eq.guidlow.g');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try14() then Observer.Observe('lt.guidlow.g', Format(Res, 0, 9)) else Observer.ObserveError('lt.guidlow.g');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try15() then Observer.Observe('in_set.guidlow.g', Format(Res, 0, 9)) else Observer.ObserveError('in_set.guidlow.g');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try16() then Observer.Observe('case_label.guidlow.g', Format(Res, 0, 9)) else Observer.ObserveError('case_label.guidlow.g');
+        if Try16(Res, vGuid, vText) then Observer.Observe('case_label.A.g', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.g');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Text_Guid_More1()
+    procedure Text_Guid_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vGuid: Guid;
+        vText: Text;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text_Guid_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text_Guid_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text_Guid_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text_Guid_More5()
-    begin
-        Observer.More();
+        vText := 'abc';
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        if Try13(Res, vGuid, vText) then Observer.Observe('eq.abc.g', Format(Res, 0, 9)) else Observer.ObserveError('eq.abc.g');
+        vText := 'abc';
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        if Try14(Res, vGuid, vText) then Observer.Observe('lt.abc.g', Format(Res, 0, 9)) else Observer.ObserveError('lt.abc.g');
+        vText := 'abc';
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        if Try15(Res, vGuid, vText) then Observer.Observe('in_set.abc.g', Format(Res, 0, 9)) else Observer.ObserveError('in_set.abc.g');
+        vText := 'abc';
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        if Try16(Res, vGuid, vText) then Observer.Observe('case_label.abc.g', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.g');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        if Try13(Res, vGuid, vText) then Observer.Observe('eq.guidlow.g', Format(Res, 0, 9)) else Observer.ObserveError('eq.guidlow.g');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        if Try14(Res, vGuid, vText) then Observer.Observe('lt.guidlow.g', Format(Res, 0, 9)) else Observer.ObserveError('lt.guidlow.g');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        if Try15(Res, vGuid, vText) then Observer.Observe('in_set.guidlow.g', Format(Res, 0, 9)) else Observer.ObserveError('in_set.guidlow.g');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        if Try16(Res, vGuid, vText) then Observer.Observe('case_label.guidlow.g', Format(Res, 0, 9)) else Observer.ObserveError('case_label.guidlow.g');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Text_Label()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vText: Text;
     begin
         vText := 'a';
-        if Try17() then Observer.Observe('eq.a.abc', Format(Res, 0, 9)) else Observer.ObserveError('eq.a.abc');
+        if Try17(Res, vText) then Observer.Observe('eq.a.abc', Format(Res, 0, 9)) else Observer.ObserveError('eq.a.abc');
         vText := 'a';
-        if Try18() then Observer.Observe('lt.a.abc', Format(Res, 0, 9)) else Observer.ObserveError('lt.a.abc');
+        if Try18(Res, vText) then Observer.Observe('lt.a.abc', Format(Res, 0, 9)) else Observer.ObserveError('lt.a.abc');
         vText := 'a';
-        if Try19() then Observer.Observe('in_set.a.abc', Format(Res, 0, 9)) else Observer.ObserveError('in_set.a.abc');
+        if Try19(Res, vText) then Observer.Observe('in_set.a.abc', Format(Res, 0, 9)) else Observer.ObserveError('in_set.a.abc');
         vText := 'a';
-        if Try20() then Observer.Observe('case_label.a.abc', Format(Res, 0, 9)) else Observer.ObserveError('case_label.a.abc');
+        if Try20(Res, vText) then Observer.Observe('case_label.a.abc', Format(Res, 0, 9)) else Observer.ObserveError('case_label.a.abc');
         vText := 'A';
-        if Try17() then Observer.Observe('eq.A.abc', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.abc');
+        if Try17(Res, vText) then Observer.Observe('eq.A.abc', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.abc');
         vText := 'A';
-        if Try18() then Observer.Observe('lt.A.abc', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.abc');
+        if Try18(Res, vText) then Observer.Observe('lt.A.abc', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.abc');
         vText := 'A';
-        if Try19() then Observer.Observe('in_set.A.abc', Format(Res, 0, 9)) else Observer.ObserveError('in_set.A.abc');
+        if Try19(Res, vText) then Observer.Observe('in_set.A.abc', Format(Res, 0, 9)) else Observer.ObserveError('in_set.A.abc');
         vText := 'A';
-        if Try20() then Observer.Observe('case_label.A.abc', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.abc');
-        vText := 'abc';
-        if Try17() then Observer.Observe('eq.abc.abc', Format(Res, 0, 9)) else Observer.ObserveError('eq.abc.abc');
-        vText := 'abc';
-        if Try18() then Observer.Observe('lt.abc.abc', Format(Res, 0, 9)) else Observer.ObserveError('lt.abc.abc');
-        vText := 'abc';
-        if Try19() then Observer.Observe('in_set.abc.abc', Format(Res, 0, 9)) else Observer.ObserveError('in_set.abc.abc');
-        vText := 'abc';
-        if Try20() then Observer.Observe('case_label.abc.abc', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.abc');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        if Try17() then Observer.Observe('eq.guidlow.abc', Format(Res, 0, 9)) else Observer.ObserveError('eq.guidlow.abc');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        if Try18() then Observer.Observe('lt.guidlow.abc', Format(Res, 0, 9)) else Observer.ObserveError('lt.guidlow.abc');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        if Try19() then Observer.Observe('in_set.guidlow.abc', Format(Res, 0, 9)) else Observer.ObserveError('in_set.guidlow.abc');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        if Try20() then Observer.Observe('case_label.guidlow.abc', Format(Res, 0, 9)) else Observer.ObserveError('case_label.guidlow.abc');
+        if Try20(Res, vText) then Observer.Observe('case_label.A.abc', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.abc');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Text_Label_More1()
+    procedure Text_Label_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vText: Text;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text_Label_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text_Label_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text_Label_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text_Label_More5()
-    begin
-        Observer.More();
+        vText := 'abc';
+        if Try17(Res, vText) then Observer.Observe('eq.abc.abc', Format(Res, 0, 9)) else Observer.ObserveError('eq.abc.abc');
+        vText := 'abc';
+        if Try18(Res, vText) then Observer.Observe('lt.abc.abc', Format(Res, 0, 9)) else Observer.ObserveError('lt.abc.abc');
+        vText := 'abc';
+        if Try19(Res, vText) then Observer.Observe('in_set.abc.abc', Format(Res, 0, 9)) else Observer.ObserveError('in_set.abc.abc');
+        vText := 'abc';
+        if Try20(Res, vText) then Observer.Observe('case_label.abc.abc', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.abc');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        if Try17(Res, vText) then Observer.Observe('eq.guidlow.abc', Format(Res, 0, 9)) else Observer.ObserveError('eq.guidlow.abc');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        if Try18(Res, vText) then Observer.Observe('lt.guidlow.abc', Format(Res, 0, 9)) else Observer.ObserveError('lt.guidlow.abc');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        if Try19(Res, vText) then Observer.Observe('in_set.guidlow.abc', Format(Res, 0, 9)) else Observer.ObserveError('in_set.guidlow.abc');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        if Try20(Res, vText) then Observer.Observe('case_label.guidlow.abc', Format(Res, 0, 9)) else Observer.ObserveError('case_label.guidlow.abc');
+        Observer.Finish();
     end;
 
     [TryFunction]
-    local procedure Try1()
+    local procedure Try1(var Res: Boolean; var vChar: Char; var vText: Text)
     begin
         Res := vText = vChar;
     end;
 
     [TryFunction]
-    local procedure Try2()
+    local procedure Try2(var Res: Boolean; var vChar: Char; var vText: Text)
     begin
         Res := vText < vChar;
     end;
 
     [TryFunction]
-    local procedure Try3()
+    local procedure Try3(var Res: Boolean; var vChar: Char; var vText: Text)
     begin
         Res := vText in [vChar];
     end;
 
     [TryFunction]
-    local procedure Try4()
+    local procedure Try4(var Res: Boolean; var vChar: Char; var vText: Text)
     begin
         Res := false;
         case vText of
@@ -6190,25 +4646,25 @@ codeunit 92436 "LT Y31 Cmp Text"
     end;
 
     [TryFunction]
-    local procedure Try5()
+    local procedure Try5(var Res: Boolean; var vText: Text; var vText10: Text[10])
     begin
         Res := vText = vText10;
     end;
 
     [TryFunction]
-    local procedure Try6()
+    local procedure Try6(var Res: Boolean; var vText: Text; var vText10: Text[10])
     begin
         Res := vText < vText10;
     end;
 
     [TryFunction]
-    local procedure Try7()
+    local procedure Try7(var Res: Boolean; var vText: Text; var vText10: Text[10])
     begin
         Res := vText in [vText10];
     end;
 
     [TryFunction]
-    local procedure Try8()
+    local procedure Try8(var Res: Boolean; var vText: Text; var vText10: Text[10])
     begin
         Res := false;
         case vText of
@@ -6218,25 +4674,25 @@ codeunit 92436 "LT Y31 Cmp Text"
     end;
 
     [TryFunction]
-    local procedure Try9()
+    local procedure Try9(var Res: Boolean; var vCode10: Code[10]; var vText: Text)
     begin
         Res := vText = vCode10;
     end;
 
     [TryFunction]
-    local procedure Try10()
+    local procedure Try10(var Res: Boolean; var vCode10: Code[10]; var vText: Text)
     begin
         Res := vText < vCode10;
     end;
 
     [TryFunction]
-    local procedure Try11()
+    local procedure Try11(var Res: Boolean; var vCode10: Code[10]; var vText: Text)
     begin
         Res := vText in [vCode10];
     end;
 
     [TryFunction]
-    local procedure Try12()
+    local procedure Try12(var Res: Boolean; var vCode10: Code[10]; var vText: Text)
     begin
         Res := false;
         case vText of
@@ -6246,25 +4702,25 @@ codeunit 92436 "LT Y31 Cmp Text"
     end;
 
     [TryFunction]
-    local procedure Try13()
+    local procedure Try13(var Res: Boolean; var vGuid: Guid; var vText: Text)
     begin
         Res := vText = vGuid;
     end;
 
     [TryFunction]
-    local procedure Try14()
+    local procedure Try14(var Res: Boolean; var vGuid: Guid; var vText: Text)
     begin
         Res := vText < vGuid;
     end;
 
     [TryFunction]
-    local procedure Try15()
+    local procedure Try15(var Res: Boolean; var vGuid: Guid; var vText: Text)
     begin
         Res := vText in [vGuid];
     end;
 
     [TryFunction]
-    local procedure Try16()
+    local procedure Try16(var Res: Boolean; var vGuid: Guid; var vText: Text)
     begin
         Res := false;
         case vText of
@@ -6274,25 +4730,33 @@ codeunit 92436 "LT Y31 Cmp Text"
     end;
 
     [TryFunction]
-    local procedure Try17()
+    local procedure Try17(var Res: Boolean; var vText: Text)
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Res := vText = vLabel;
     end;
 
     [TryFunction]
-    local procedure Try18()
+    local procedure Try18(var Res: Boolean; var vText: Text)
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Res := vText < vLabel;
     end;
 
     [TryFunction]
-    local procedure Try19()
+    local procedure Try19(var Res: Boolean; var vText: Text)
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Res := vText in [vLabel];
     end;
 
     [TryFunction]
-    local procedure Try20()
+    local procedure Try20(var Res: Boolean; var vText: Text)
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Res := false;
         case vText of
@@ -6315,331 +4779,204 @@ codeunit 92437 "LT Y31 Cmp Text10"
     Subtype = Test;
     TestPermissions = Disabled;
 
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        Res: Boolean;
-        V: Variant;
-        vChar: Char;
-        vCode10: Code[10];
-        vGuid: Guid;
-        vLabel: Label 'abc', Locked = true;
-        vText: Text;
-        vText10: Text[10];
-
     [Test]
     procedure Text10_Char()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vChar: Char;
+        vText10: Text[10];
     begin
         vText10 := 'abc';
         vChar := 65;
-        if Try1() then Observer.Observe('eq.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.abc.A');
+        if Try1(Res, vChar, vText10) then Observer.Observe('eq.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.abc.A');
         vText10 := 'abc';
         vChar := 65;
-        if Try2() then Observer.Observe('lt.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.abc.A');
+        if Try2(Res, vChar, vText10) then Observer.Observe('lt.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.abc.A');
         vText10 := 'abc';
         vChar := 65;
-        if Try3() then Observer.Observe('in_set.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.abc.A');
+        if Try3(Res, vChar, vText10) then Observer.Observe('in_set.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.abc.A');
         vText10 := 'abc';
         vChar := 65;
-        if Try4() then Observer.Observe('case_label.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.A');
+        if Try4(Res, vChar, vText10) then Observer.Observe('case_label.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.A');
         vText10 := 'abc';
         vChar := 97;
-        if Try1() then Observer.Observe('eq.abc.a', Format(Res, 0, 9)) else Observer.ObserveError('eq.abc.a');
+        if Try1(Res, vChar, vText10) then Observer.Observe('eq.abc.a', Format(Res, 0, 9)) else Observer.ObserveError('eq.abc.a');
         vText10 := 'abc';
         vChar := 97;
-        if Try2() then Observer.Observe('lt.abc.a', Format(Res, 0, 9)) else Observer.ObserveError('lt.abc.a');
+        if Try2(Res, vChar, vText10) then Observer.Observe('lt.abc.a', Format(Res, 0, 9)) else Observer.ObserveError('lt.abc.a');
         vText10 := 'abc';
         vChar := 97;
-        if Try3() then Observer.Observe('in_set.abc.a', Format(Res, 0, 9)) else Observer.ObserveError('in_set.abc.a');
+        if Try3(Res, vChar, vText10) then Observer.Observe('in_set.abc.a', Format(Res, 0, 9)) else Observer.ObserveError('in_set.abc.a');
         vText10 := 'abc';
         vChar := 97;
-        if Try4() then Observer.Observe('case_label.abc.a', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.a');
+        if Try4(Res, vChar, vText10) then Observer.Observe('case_label.abc.a', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.a');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text10_Char_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_Char_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_Char_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_Char_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_Char_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Text10_Text()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vText: Text;
+        vText10: Text[10];
     begin
         vText10 := 'abc';
         vText := 'a';
-        if Try5() then Observer.Observe('eq.abc.a', Format(Res, 0, 9)) else Observer.ObserveError('eq.abc.a');
+        if Try5(Res, vText, vText10) then Observer.Observe('eq.abc.a', Format(Res, 0, 9)) else Observer.ObserveError('eq.abc.a');
         vText10 := 'abc';
         vText := 'a';
-        if Try6() then Observer.Observe('lt.abc.a', Format(Res, 0, 9)) else Observer.ObserveError('lt.abc.a');
+        if Try6(Res, vText, vText10) then Observer.Observe('lt.abc.a', Format(Res, 0, 9)) else Observer.ObserveError('lt.abc.a');
         vText10 := 'abc';
         vText := 'a';
-        if Try7() then Observer.Observe('in_set.abc.a', Format(Res, 0, 9)) else Observer.ObserveError('in_set.abc.a');
+        if Try7(Res, vText, vText10) then Observer.Observe('in_set.abc.a', Format(Res, 0, 9)) else Observer.ObserveError('in_set.abc.a');
         vText10 := 'abc';
         vText := 'a';
-        if Try8() then Observer.Observe('case_label.abc.a', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.a');
+        if Try8(Res, vText, vText10) then Observer.Observe('case_label.abc.a', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.a');
         vText10 := 'abc';
         vText := 'A';
-        if Try5() then Observer.Observe('eq.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.abc.A');
+        if Try5(Res, vText, vText10) then Observer.Observe('eq.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.abc.A');
         vText10 := 'abc';
         vText := 'A';
-        if Try6() then Observer.Observe('lt.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.abc.A');
+        if Try6(Res, vText, vText10) then Observer.Observe('lt.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.abc.A');
         vText10 := 'abc';
         vText := 'A';
-        if Try7() then Observer.Observe('in_set.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.abc.A');
+        if Try7(Res, vText, vText10) then Observer.Observe('in_set.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.abc.A');
         vText10 := 'abc';
         vText := 'A';
-        if Try8() then Observer.Observe('case_label.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.A');
-        vText10 := 'abc';
-        vText := 'abc';
-        if Try5() then Observer.Observe('eq.abc.abc', Format(Res, 0, 9)) else Observer.ObserveError('eq.abc.abc');
-        vText10 := 'abc';
-        vText := 'abc';
-        if Try6() then Observer.Observe('lt.abc.abc', Format(Res, 0, 9)) else Observer.ObserveError('lt.abc.abc');
-        vText10 := 'abc';
-        vText := 'abc';
-        if Try7() then Observer.Observe('in_set.abc.abc', Format(Res, 0, 9)) else Observer.ObserveError('in_set.abc.abc');
-        vText10 := 'abc';
-        vText := 'abc';
-        if Try8() then Observer.Observe('case_label.abc.abc', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.abc');
-        vText10 := 'abc';
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        if Try5() then Observer.Observe('eq.abc.guidlow', Format(Res, 0, 9)) else Observer.ObserveError('eq.abc.guidlow');
-        vText10 := 'abc';
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        if Try6() then Observer.Observe('lt.abc.guidlow', Format(Res, 0, 9)) else Observer.ObserveError('lt.abc.guidlow');
-        vText10 := 'abc';
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        if Try7() then Observer.Observe('in_set.abc.guidlow', Format(Res, 0, 9)) else Observer.ObserveError('in_set.abc.guidlow');
-        vText10 := 'abc';
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        if Try8() then Observer.Observe('case_label.abc.guidlow', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.guidlow');
+        if Try8(Res, vText, vText10) then Observer.Observe('case_label.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.A');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Text10_Text_More1()
+    procedure Text10_Text_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vText: Text;
+        vText10: Text[10];
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_Text_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_Text_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_Text_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_Text_More5()
-    begin
-        Observer.More();
+        vText10 := 'abc';
+        vText := 'abc';
+        if Try5(Res, vText, vText10) then Observer.Observe('eq.abc.abc', Format(Res, 0, 9)) else Observer.ObserveError('eq.abc.abc');
+        vText10 := 'abc';
+        vText := 'abc';
+        if Try6(Res, vText, vText10) then Observer.Observe('lt.abc.abc', Format(Res, 0, 9)) else Observer.ObserveError('lt.abc.abc');
+        vText10 := 'abc';
+        vText := 'abc';
+        if Try7(Res, vText, vText10) then Observer.Observe('in_set.abc.abc', Format(Res, 0, 9)) else Observer.ObserveError('in_set.abc.abc');
+        vText10 := 'abc';
+        vText := 'abc';
+        if Try8(Res, vText, vText10) then Observer.Observe('case_label.abc.abc', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.abc');
+        vText10 := 'abc';
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        if Try5(Res, vText, vText10) then Observer.Observe('eq.abc.guidlow', Format(Res, 0, 9)) else Observer.ObserveError('eq.abc.guidlow');
+        vText10 := 'abc';
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        if Try6(Res, vText, vText10) then Observer.Observe('lt.abc.guidlow', Format(Res, 0, 9)) else Observer.ObserveError('lt.abc.guidlow');
+        vText10 := 'abc';
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        if Try7(Res, vText, vText10) then Observer.Observe('in_set.abc.guidlow', Format(Res, 0, 9)) else Observer.ObserveError('in_set.abc.guidlow');
+        vText10 := 'abc';
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        if Try8(Res, vText, vText10) then Observer.Observe('case_label.abc.guidlow', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.guidlow');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Text10_Code10()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vCode10: Code[10];
+        vText10: Text[10];
     begin
         vText10 := 'abc';
         vCode10 := 'A';
-        if Try9() then Observer.Observe('eq.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.abc.A');
+        if Try9(Res, vCode10, vText10) then Observer.Observe('eq.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.abc.A');
         vText10 := 'abc';
         vCode10 := 'A';
-        if Try10() then Observer.Observe('lt.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.abc.A');
+        if Try10(Res, vCode10, vText10) then Observer.Observe('lt.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.abc.A');
         vText10 := 'abc';
         vCode10 := 'A';
-        if Try11() then Observer.Observe('in_set.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.abc.A');
+        if Try11(Res, vCode10, vText10) then Observer.Observe('in_set.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.abc.A');
         vText10 := 'abc';
         vCode10 := 'A';
-        if Try12() then Observer.Observe('case_label.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.A');
+        if Try12(Res, vCode10, vText10) then Observer.Observe('case_label.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.A');
         vText10 := 'abc';
         vCode10 := 'ABC';
-        if Try9() then Observer.Observe('eq.abc.ABC', Format(Res, 0, 9)) else Observer.ObserveError('eq.abc.ABC');
+        if Try9(Res, vCode10, vText10) then Observer.Observe('eq.abc.ABC', Format(Res, 0, 9)) else Observer.ObserveError('eq.abc.ABC');
         vText10 := 'abc';
         vCode10 := 'ABC';
-        if Try10() then Observer.Observe('lt.abc.ABC', Format(Res, 0, 9)) else Observer.ObserveError('lt.abc.ABC');
+        if Try10(Res, vCode10, vText10) then Observer.Observe('lt.abc.ABC', Format(Res, 0, 9)) else Observer.ObserveError('lt.abc.ABC');
         vText10 := 'abc';
         vCode10 := 'ABC';
-        if Try11() then Observer.Observe('in_set.abc.ABC', Format(Res, 0, 9)) else Observer.ObserveError('in_set.abc.ABC');
+        if Try11(Res, vCode10, vText10) then Observer.Observe('in_set.abc.ABC', Format(Res, 0, 9)) else Observer.ObserveError('in_set.abc.ABC');
         vText10 := 'abc';
         vCode10 := 'ABC';
-        if Try12() then Observer.Observe('case_label.abc.ABC', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.ABC');
+        if Try12(Res, vCode10, vText10) then Observer.Observe('case_label.abc.ABC', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.ABC');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text10_Code10_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_Code10_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_Code10_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_Code10_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_Code10_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Text10_Guid()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vGuid: Guid;
+        vText10: Text[10];
     begin
         vText10 := 'abc';
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try13() then Observer.Observe('eq.abc.g', Format(Res, 0, 9)) else Observer.ObserveError('eq.abc.g');
+        if Try13(Res, vGuid, vText10) then Observer.Observe('eq.abc.g', Format(Res, 0, 9)) else Observer.ObserveError('eq.abc.g');
         vText10 := 'abc';
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try14() then Observer.Observe('lt.abc.g', Format(Res, 0, 9)) else Observer.ObserveError('lt.abc.g');
+        if Try14(Res, vGuid, vText10) then Observer.Observe('lt.abc.g', Format(Res, 0, 9)) else Observer.ObserveError('lt.abc.g');
         vText10 := 'abc';
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try15() then Observer.Observe('case_label.abc.g', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.g');
+        if Try15(Res, vGuid, vText10) then Observer.Observe('case_label.abc.g', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.g');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text10_Guid_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_Guid_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_Guid_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_Guid_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_Guid_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Text10_Label()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vText10: Text[10];
     begin
         vText10 := 'abc';
-        if Try16() then Observer.Observe('eq.abc.abc', Format(Res, 0, 9)) else Observer.ObserveError('eq.abc.abc');
+        if Try16(Res, vText10) then Observer.Observe('eq.abc.abc', Format(Res, 0, 9)) else Observer.ObserveError('eq.abc.abc');
         vText10 := 'abc';
-        if Try17() then Observer.Observe('lt.abc.abc', Format(Res, 0, 9)) else Observer.ObserveError('lt.abc.abc');
+        if Try17(Res, vText10) then Observer.Observe('lt.abc.abc', Format(Res, 0, 9)) else Observer.ObserveError('lt.abc.abc');
         vText10 := 'abc';
-        if Try18() then Observer.Observe('in_set.abc.abc', Format(Res, 0, 9)) else Observer.ObserveError('in_set.abc.abc');
+        if Try18(Res, vText10) then Observer.Observe('in_set.abc.abc', Format(Res, 0, 9)) else Observer.ObserveError('in_set.abc.abc');
         vText10 := 'abc';
-        if Try19() then Observer.Observe('case_label.abc.abc', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.abc');
+        if Try19(Res, vText10) then Observer.Observe('case_label.abc.abc', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.abc');
         Observer.Finish();
     end;
 
-    [Test]
-    procedure Text10_Label_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_Label_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_Label_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_Label_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_Label_More5()
-    begin
-        Observer.More();
-    end;
-
     [TryFunction]
-    local procedure Try1()
+    local procedure Try1(var Res: Boolean; var vChar: Char; var vText10: Text[10])
     begin
         Res := vText10 = vChar;
     end;
 
     [TryFunction]
-    local procedure Try2()
+    local procedure Try2(var Res: Boolean; var vChar: Char; var vText10: Text[10])
     begin
         Res := vText10 < vChar;
     end;
 
     [TryFunction]
-    local procedure Try3()
+    local procedure Try3(var Res: Boolean; var vChar: Char; var vText10: Text[10])
     begin
         Res := vText10 in [vChar];
     end;
 
     [TryFunction]
-    local procedure Try4()
+    local procedure Try4(var Res: Boolean; var vChar: Char; var vText10: Text[10])
     begin
         Res := false;
         case vText10 of
@@ -6649,25 +4986,25 @@ codeunit 92437 "LT Y31 Cmp Text10"
     end;
 
     [TryFunction]
-    local procedure Try5()
+    local procedure Try5(var Res: Boolean; var vText: Text; var vText10: Text[10])
     begin
         Res := vText10 = vText;
     end;
 
     [TryFunction]
-    local procedure Try6()
+    local procedure Try6(var Res: Boolean; var vText: Text; var vText10: Text[10])
     begin
         Res := vText10 < vText;
     end;
 
     [TryFunction]
-    local procedure Try7()
+    local procedure Try7(var Res: Boolean; var vText: Text; var vText10: Text[10])
     begin
         Res := vText10 in [vText];
     end;
 
     [TryFunction]
-    local procedure Try8()
+    local procedure Try8(var Res: Boolean; var vText: Text; var vText10: Text[10])
     begin
         Res := false;
         case vText10 of
@@ -6677,25 +5014,25 @@ codeunit 92437 "LT Y31 Cmp Text10"
     end;
 
     [TryFunction]
-    local procedure Try9()
+    local procedure Try9(var Res: Boolean; var vCode10: Code[10]; var vText10: Text[10])
     begin
         Res := vText10 = vCode10;
     end;
 
     [TryFunction]
-    local procedure Try10()
+    local procedure Try10(var Res: Boolean; var vCode10: Code[10]; var vText10: Text[10])
     begin
         Res := vText10 < vCode10;
     end;
 
     [TryFunction]
-    local procedure Try11()
+    local procedure Try11(var Res: Boolean; var vCode10: Code[10]; var vText10: Text[10])
     begin
         Res := vText10 in [vCode10];
     end;
 
     [TryFunction]
-    local procedure Try12()
+    local procedure Try12(var Res: Boolean; var vCode10: Code[10]; var vText10: Text[10])
     begin
         Res := false;
         case vText10 of
@@ -6705,19 +5042,19 @@ codeunit 92437 "LT Y31 Cmp Text10"
     end;
 
     [TryFunction]
-    local procedure Try13()
+    local procedure Try13(var Res: Boolean; var vGuid: Guid; var vText10: Text[10])
     begin
         Res := vText10 = vGuid;
     end;
 
     [TryFunction]
-    local procedure Try14()
+    local procedure Try14(var Res: Boolean; var vGuid: Guid; var vText10: Text[10])
     begin
         Res := vText10 < vGuid;
     end;
 
     [TryFunction]
-    local procedure Try15()
+    local procedure Try15(var Res: Boolean; var vGuid: Guid; var vText10: Text[10])
     begin
         Res := false;
         case vText10 of
@@ -6727,25 +5064,33 @@ codeunit 92437 "LT Y31 Cmp Text10"
     end;
 
     [TryFunction]
-    local procedure Try16()
+    local procedure Try16(var Res: Boolean; var vText10: Text[10])
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Res := vText10 = vLabel;
     end;
 
     [TryFunction]
-    local procedure Try17()
+    local procedure Try17(var Res: Boolean; var vText10: Text[10])
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Res := vText10 < vLabel;
     end;
 
     [TryFunction]
-    local procedure Try18()
+    local procedure Try18(var Res: Boolean; var vText10: Text[10])
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Res := vText10 in [vLabel];
     end;
 
     [TryFunction]
-    local procedure Try19()
+    local procedure Try19(var Res: Boolean; var vText10: Text[10])
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Res := false;
         case vText10 of
@@ -6768,420 +5113,326 @@ codeunit 92438 "LT Y31 Cmp Code10"
     Subtype = Test;
     TestPermissions = Disabled;
 
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        Res: Boolean;
-        V: Variant;
-        vChar: Char;
-        vCode10: Code[10];
-        vGuid: Guid;
-        vLabel: Label 'abc', Locked = true;
-        vText: Text;
-        vText10: Text[10];
-
     [Test]
     procedure Code10_Char()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vChar: Char;
+        vCode10: Code[10];
     begin
         vCode10 := 'A';
         vChar := 65;
-        if Try1() then Observer.Observe('eq.A.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.A');
+        if Try1(Res, vChar, vCode10) then Observer.Observe('eq.A.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.A');
         vCode10 := 'A';
         vChar := 65;
-        if Try2() then Observer.Observe('lt.A.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.A');
+        if Try2(Res, vChar, vCode10) then Observer.Observe('lt.A.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.A');
         vCode10 := 'A';
         vChar := 65;
-        if Try3() then Observer.Observe('in_set.A.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.A.A');
+        if Try3(Res, vChar, vCode10) then Observer.Observe('in_set.A.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.A.A');
         vCode10 := 'A';
         vChar := 65;
-        if Try4() then Observer.Observe('case_label.A.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.A');
+        if Try4(Res, vChar, vCode10) then Observer.Observe('case_label.A.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.A');
         vCode10 := 'A';
         vChar := 97;
-        if Try1() then Observer.Observe('eq.A.a', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.a');
+        if Try1(Res, vChar, vCode10) then Observer.Observe('eq.A.a', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.a');
         vCode10 := 'A';
         vChar := 97;
-        if Try2() then Observer.Observe('lt.A.a', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.a');
+        if Try2(Res, vChar, vCode10) then Observer.Observe('lt.A.a', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.a');
         vCode10 := 'A';
         vChar := 97;
-        if Try3() then Observer.Observe('in_set.A.a', Format(Res, 0, 9)) else Observer.ObserveError('in_set.A.a');
+        if Try3(Res, vChar, vCode10) then Observer.Observe('in_set.A.a', Format(Res, 0, 9)) else Observer.ObserveError('in_set.A.a');
         vCode10 := 'A';
         vChar := 97;
-        if Try4() then Observer.Observe('case_label.A.a', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.a');
-        vCode10 := 'ABC';
-        vChar := 65;
-        if Try1() then Observer.Observe('eq.ABC.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.ABC.A');
-        vCode10 := 'ABC';
-        vChar := 65;
-        if Try2() then Observer.Observe('lt.ABC.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.ABC.A');
-        vCode10 := 'ABC';
-        vChar := 65;
-        if Try3() then Observer.Observe('in_set.ABC.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.ABC.A');
-        vCode10 := 'ABC';
-        vChar := 65;
-        if Try4() then Observer.Observe('case_label.ABC.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.ABC.A');
-        vCode10 := 'ABC';
-        vChar := 97;
-        if Try1() then Observer.Observe('eq.ABC.a', Format(Res, 0, 9)) else Observer.ObserveError('eq.ABC.a');
-        vCode10 := 'ABC';
-        vChar := 97;
-        if Try2() then Observer.Observe('lt.ABC.a', Format(Res, 0, 9)) else Observer.ObserveError('lt.ABC.a');
-        vCode10 := 'ABC';
-        vChar := 97;
-        if Try3() then Observer.Observe('in_set.ABC.a', Format(Res, 0, 9)) else Observer.ObserveError('in_set.ABC.a');
-        vCode10 := 'ABC';
-        vChar := 97;
-        if Try4() then Observer.Observe('case_label.ABC.a', Format(Res, 0, 9)) else Observer.ObserveError('case_label.ABC.a');
+        if Try4(Res, vChar, vCode10) then Observer.Observe('case_label.A.a', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.a');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Code10_Char_More1()
+    procedure Code10_Char_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vChar: Char;
+        vCode10: Code[10];
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_Char_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_Char_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_Char_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_Char_More5()
-    begin
-        Observer.More();
+        vCode10 := 'ABC';
+        vChar := 65;
+        if Try1(Res, vChar, vCode10) then Observer.Observe('eq.ABC.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.ABC.A');
+        vCode10 := 'ABC';
+        vChar := 65;
+        if Try2(Res, vChar, vCode10) then Observer.Observe('lt.ABC.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.ABC.A');
+        vCode10 := 'ABC';
+        vChar := 65;
+        if Try3(Res, vChar, vCode10) then Observer.Observe('in_set.ABC.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.ABC.A');
+        vCode10 := 'ABC';
+        vChar := 65;
+        if Try4(Res, vChar, vCode10) then Observer.Observe('case_label.ABC.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.ABC.A');
+        vCode10 := 'ABC';
+        vChar := 97;
+        if Try1(Res, vChar, vCode10) then Observer.Observe('eq.ABC.a', Format(Res, 0, 9)) else Observer.ObserveError('eq.ABC.a');
+        vCode10 := 'ABC';
+        vChar := 97;
+        if Try2(Res, vChar, vCode10) then Observer.Observe('lt.ABC.a', Format(Res, 0, 9)) else Observer.ObserveError('lt.ABC.a');
+        vCode10 := 'ABC';
+        vChar := 97;
+        if Try3(Res, vChar, vCode10) then Observer.Observe('in_set.ABC.a', Format(Res, 0, 9)) else Observer.ObserveError('in_set.ABC.a');
+        vCode10 := 'ABC';
+        vChar := 97;
+        if Try4(Res, vChar, vCode10) then Observer.Observe('case_label.ABC.a', Format(Res, 0, 9)) else Observer.ObserveError('case_label.ABC.a');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Code10_Text()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vCode10: Code[10];
+        vText: Text;
     begin
         vCode10 := 'A';
         vText := 'a';
-        if Try5() then Observer.Observe('eq.A.a', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.a');
+        if Try5(Res, vCode10, vText) then Observer.Observe('eq.A.a', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.a');
         vCode10 := 'A';
         vText := 'a';
-        if Try6() then Observer.Observe('lt.A.a', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.a');
+        if Try6(Res, vCode10, vText) then Observer.Observe('lt.A.a', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.a');
         vCode10 := 'A';
         vText := 'a';
-        if Try7() then Observer.Observe('in_set.A.a', Format(Res, 0, 9)) else Observer.ObserveError('in_set.A.a');
+        if Try7(Res, vCode10, vText) then Observer.Observe('in_set.A.a', Format(Res, 0, 9)) else Observer.ObserveError('in_set.A.a');
         vCode10 := 'A';
         vText := 'a';
-        if Try8() then Observer.Observe('case_label.A.a', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.a');
+        if Try8(Res, vCode10, vText) then Observer.Observe('case_label.A.a', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.a');
         vCode10 := 'A';
         vText := 'A';
-        if Try5() then Observer.Observe('eq.A.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.A');
+        if Try5(Res, vCode10, vText) then Observer.Observe('eq.A.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.A');
         vCode10 := 'A';
         vText := 'A';
-        if Try6() then Observer.Observe('lt.A.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.A');
+        if Try6(Res, vCode10, vText) then Observer.Observe('lt.A.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.A');
         vCode10 := 'A';
         vText := 'A';
-        if Try7() then Observer.Observe('in_set.A.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.A.A');
+        if Try7(Res, vCode10, vText) then Observer.Observe('in_set.A.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.A.A');
         vCode10 := 'A';
         vText := 'A';
-        if Try8() then Observer.Observe('case_label.A.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.A');
-        vCode10 := 'A';
-        vText := 'abc';
-        if Try5() then Observer.Observe('eq.A.abc', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.abc');
-        vCode10 := 'A';
-        vText := 'abc';
-        if Try6() then Observer.Observe('lt.A.abc', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.abc');
-        vCode10 := 'A';
-        vText := 'abc';
-        if Try7() then Observer.Observe('in_set.A.abc', Format(Res, 0, 9)) else Observer.ObserveError('in_set.A.abc');
-        vCode10 := 'A';
-        vText := 'abc';
-        if Try8() then Observer.Observe('case_label.A.abc', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.abc');
-        vCode10 := 'A';
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        if Try5() then Observer.Observe('eq.A.guidlow', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.guidlow');
-        vCode10 := 'A';
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        if Try6() then Observer.Observe('lt.A.guidlow', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.guidlow');
-        vCode10 := 'A';
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        if Try7() then Observer.Observe('in_set.A.guidlow', Format(Res, 0, 9)) else Observer.ObserveError('in_set.A.guidlow');
-        vCode10 := 'A';
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        if Try8() then Observer.Observe('case_label.A.guidlow', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.guidlow');
-        vCode10 := 'ABC';
-        vText := 'a';
-        if Try5() then Observer.Observe('eq.ABC.a', Format(Res, 0, 9)) else Observer.ObserveError('eq.ABC.a');
-        vCode10 := 'ABC';
-        vText := 'a';
-        if Try6() then Observer.Observe('lt.ABC.a', Format(Res, 0, 9)) else Observer.ObserveError('lt.ABC.a');
-        vCode10 := 'ABC';
-        vText := 'a';
-        if Try7() then Observer.Observe('in_set.ABC.a', Format(Res, 0, 9)) else Observer.ObserveError('in_set.ABC.a');
-        vCode10 := 'ABC';
-        vText := 'a';
-        if Try8() then Observer.Observe('case_label.ABC.a', Format(Res, 0, 9)) else Observer.ObserveError('case_label.ABC.a');
-        vCode10 := 'ABC';
-        vText := 'A';
-        if Try5() then Observer.Observe('eq.ABC.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.ABC.A');
-        vCode10 := 'ABC';
-        vText := 'A';
-        if Try6() then Observer.Observe('lt.ABC.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.ABC.A');
-        vCode10 := 'ABC';
-        vText := 'A';
-        if Try7() then Observer.Observe('in_set.ABC.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.ABC.A');
-        vCode10 := 'ABC';
-        vText := 'A';
-        if Try8() then Observer.Observe('case_label.ABC.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.ABC.A');
-        vCode10 := 'ABC';
-        vText := 'abc';
-        if Try5() then Observer.Observe('eq.ABC.abc', Format(Res, 0, 9)) else Observer.ObserveError('eq.ABC.abc');
-        vCode10 := 'ABC';
-        vText := 'abc';
-        if Try6() then Observer.Observe('lt.ABC.abc', Format(Res, 0, 9)) else Observer.ObserveError('lt.ABC.abc');
-        vCode10 := 'ABC';
-        vText := 'abc';
-        if Try7() then Observer.Observe('in_set.ABC.abc', Format(Res, 0, 9)) else Observer.ObserveError('in_set.ABC.abc');
-        vCode10 := 'ABC';
-        vText := 'abc';
-        if Try8() then Observer.Observe('case_label.ABC.abc', Format(Res, 0, 9)) else Observer.ObserveError('case_label.ABC.abc');
-        vCode10 := 'ABC';
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        if Try5() then Observer.Observe('eq.ABC.guidlow', Format(Res, 0, 9)) else Observer.ObserveError('eq.ABC.guidlow');
-        vCode10 := 'ABC';
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        if Try6() then Observer.Observe('lt.ABC.guidlow', Format(Res, 0, 9)) else Observer.ObserveError('lt.ABC.guidlow');
-        vCode10 := 'ABC';
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        if Try7() then Observer.Observe('in_set.ABC.guidlow', Format(Res, 0, 9)) else Observer.ObserveError('in_set.ABC.guidlow');
-        vCode10 := 'ABC';
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        if Try8() then Observer.Observe('case_label.ABC.guidlow', Format(Res, 0, 9)) else Observer.ObserveError('case_label.ABC.guidlow');
+        if Try8(Res, vCode10, vText) then Observer.Observe('case_label.A.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.A');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Code10_Text_More1()
+    procedure Code10_Text_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vCode10: Code[10];
+        vText: Text;
     begin
-        Observer.More();
+        vCode10 := 'A';
+        vText := 'abc';
+        if Try5(Res, vCode10, vText) then Observer.Observe('eq.A.abc', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.abc');
+        vCode10 := 'A';
+        vText := 'abc';
+        if Try6(Res, vCode10, vText) then Observer.Observe('lt.A.abc', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.abc');
+        vCode10 := 'A';
+        vText := 'abc';
+        if Try7(Res, vCode10, vText) then Observer.Observe('in_set.A.abc', Format(Res, 0, 9)) else Observer.ObserveError('in_set.A.abc');
+        vCode10 := 'A';
+        vText := 'abc';
+        if Try8(Res, vCode10, vText) then Observer.Observe('case_label.A.abc', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.abc');
+        vCode10 := 'A';
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        if Try5(Res, vCode10, vText) then Observer.Observe('eq.A.guidlow', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.guidlow');
+        vCode10 := 'A';
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        if Try6(Res, vCode10, vText) then Observer.Observe('lt.A.guidlow', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.guidlow');
+        vCode10 := 'A';
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        if Try7(Res, vCode10, vText) then Observer.Observe('in_set.A.guidlow', Format(Res, 0, 9)) else Observer.ObserveError('in_set.A.guidlow');
+        vCode10 := 'A';
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        if Try8(Res, vCode10, vText) then Observer.Observe('case_label.A.guidlow', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.guidlow');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Code10_Text_More2()
+    procedure Code10_Text_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vCode10: Code[10];
+        vText: Text;
     begin
-        Observer.More();
+        vCode10 := 'ABC';
+        vText := 'a';
+        if Try5(Res, vCode10, vText) then Observer.Observe('eq.ABC.a', Format(Res, 0, 9)) else Observer.ObserveError('eq.ABC.a');
+        vCode10 := 'ABC';
+        vText := 'a';
+        if Try6(Res, vCode10, vText) then Observer.Observe('lt.ABC.a', Format(Res, 0, 9)) else Observer.ObserveError('lt.ABC.a');
+        vCode10 := 'ABC';
+        vText := 'a';
+        if Try7(Res, vCode10, vText) then Observer.Observe('in_set.ABC.a', Format(Res, 0, 9)) else Observer.ObserveError('in_set.ABC.a');
+        vCode10 := 'ABC';
+        vText := 'a';
+        if Try8(Res, vCode10, vText) then Observer.Observe('case_label.ABC.a', Format(Res, 0, 9)) else Observer.ObserveError('case_label.ABC.a');
+        vCode10 := 'ABC';
+        vText := 'A';
+        if Try5(Res, vCode10, vText) then Observer.Observe('eq.ABC.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.ABC.A');
+        vCode10 := 'ABC';
+        vText := 'A';
+        if Try6(Res, vCode10, vText) then Observer.Observe('lt.ABC.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.ABC.A');
+        vCode10 := 'ABC';
+        vText := 'A';
+        if Try7(Res, vCode10, vText) then Observer.Observe('in_set.ABC.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.ABC.A');
+        vCode10 := 'ABC';
+        vText := 'A';
+        if Try8(Res, vCode10, vText) then Observer.Observe('case_label.ABC.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.ABC.A');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Code10_Text_More3()
+    procedure Code10_Text_4()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vCode10: Code[10];
+        vText: Text;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_Text_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_Text_More5()
-    begin
-        Observer.More();
+        vCode10 := 'ABC';
+        vText := 'abc';
+        if Try5(Res, vCode10, vText) then Observer.Observe('eq.ABC.abc', Format(Res, 0, 9)) else Observer.ObserveError('eq.ABC.abc');
+        vCode10 := 'ABC';
+        vText := 'abc';
+        if Try6(Res, vCode10, vText) then Observer.Observe('lt.ABC.abc', Format(Res, 0, 9)) else Observer.ObserveError('lt.ABC.abc');
+        vCode10 := 'ABC';
+        vText := 'abc';
+        if Try7(Res, vCode10, vText) then Observer.Observe('in_set.ABC.abc', Format(Res, 0, 9)) else Observer.ObserveError('in_set.ABC.abc');
+        vCode10 := 'ABC';
+        vText := 'abc';
+        if Try8(Res, vCode10, vText) then Observer.Observe('case_label.ABC.abc', Format(Res, 0, 9)) else Observer.ObserveError('case_label.ABC.abc');
+        vCode10 := 'ABC';
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        if Try5(Res, vCode10, vText) then Observer.Observe('eq.ABC.guidlow', Format(Res, 0, 9)) else Observer.ObserveError('eq.ABC.guidlow');
+        vCode10 := 'ABC';
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        if Try6(Res, vCode10, vText) then Observer.Observe('lt.ABC.guidlow', Format(Res, 0, 9)) else Observer.ObserveError('lt.ABC.guidlow');
+        vCode10 := 'ABC';
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        if Try7(Res, vCode10, vText) then Observer.Observe('in_set.ABC.guidlow', Format(Res, 0, 9)) else Observer.ObserveError('in_set.ABC.guidlow');
+        vCode10 := 'ABC';
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        if Try8(Res, vCode10, vText) then Observer.Observe('case_label.ABC.guidlow', Format(Res, 0, 9)) else Observer.ObserveError('case_label.ABC.guidlow');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Code10_Text10()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vCode10: Code[10];
+        vText10: Text[10];
     begin
         vCode10 := 'A';
         vText10 := 'abc';
-        if Try9() then Observer.Observe('eq.A.abc', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.abc');
+        if Try9(Res, vCode10, vText10) then Observer.Observe('eq.A.abc', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.abc');
         vCode10 := 'A';
         vText10 := 'abc';
-        if Try10() then Observer.Observe('lt.A.abc', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.abc');
+        if Try10(Res, vCode10, vText10) then Observer.Observe('lt.A.abc', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.abc');
         vCode10 := 'A';
         vText10 := 'abc';
-        if Try11() then Observer.Observe('in_set.A.abc', Format(Res, 0, 9)) else Observer.ObserveError('in_set.A.abc');
+        if Try11(Res, vCode10, vText10) then Observer.Observe('in_set.A.abc', Format(Res, 0, 9)) else Observer.ObserveError('in_set.A.abc');
         vCode10 := 'A';
         vText10 := 'abc';
-        if Try12() then Observer.Observe('case_label.A.abc', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.abc');
+        if Try12(Res, vCode10, vText10) then Observer.Observe('case_label.A.abc', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.abc');
         vCode10 := 'ABC';
         vText10 := 'abc';
-        if Try9() then Observer.Observe('eq.ABC.abc', Format(Res, 0, 9)) else Observer.ObserveError('eq.ABC.abc');
+        if Try9(Res, vCode10, vText10) then Observer.Observe('eq.ABC.abc', Format(Res, 0, 9)) else Observer.ObserveError('eq.ABC.abc');
         vCode10 := 'ABC';
         vText10 := 'abc';
-        if Try10() then Observer.Observe('lt.ABC.abc', Format(Res, 0, 9)) else Observer.ObserveError('lt.ABC.abc');
+        if Try10(Res, vCode10, vText10) then Observer.Observe('lt.ABC.abc', Format(Res, 0, 9)) else Observer.ObserveError('lt.ABC.abc');
         vCode10 := 'ABC';
         vText10 := 'abc';
-        if Try11() then Observer.Observe('in_set.ABC.abc', Format(Res, 0, 9)) else Observer.ObserveError('in_set.ABC.abc');
+        if Try11(Res, vCode10, vText10) then Observer.Observe('in_set.ABC.abc', Format(Res, 0, 9)) else Observer.ObserveError('in_set.ABC.abc');
         vCode10 := 'ABC';
         vText10 := 'abc';
-        if Try12() then Observer.Observe('case_label.ABC.abc', Format(Res, 0, 9)) else Observer.ObserveError('case_label.ABC.abc');
+        if Try12(Res, vCode10, vText10) then Observer.Observe('case_label.ABC.abc', Format(Res, 0, 9)) else Observer.ObserveError('case_label.ABC.abc');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Code10_Text10_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_Text10_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_Text10_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_Text10_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_Text10_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Code10_Guid()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vCode10: Code[10];
+        vGuid: Guid;
     begin
         vCode10 := 'A';
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try13() then Observer.Observe('eq.A.g', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.g');
+        if Try13(Res, vCode10, vGuid) then Observer.Observe('eq.A.g', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.g');
         vCode10 := 'A';
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try14() then Observer.Observe('lt.A.g', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.g');
+        if Try14(Res, vCode10, vGuid) then Observer.Observe('lt.A.g', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.g');
         vCode10 := 'A';
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try15() then Observer.Observe('case_label.A.g', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.g');
+        if Try15(Res, vCode10, vGuid) then Observer.Observe('case_label.A.g', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.g');
         vCode10 := 'ABC';
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try13() then Observer.Observe('eq.ABC.g', Format(Res, 0, 9)) else Observer.ObserveError('eq.ABC.g');
+        if Try13(Res, vCode10, vGuid) then Observer.Observe('eq.ABC.g', Format(Res, 0, 9)) else Observer.ObserveError('eq.ABC.g');
         vCode10 := 'ABC';
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try14() then Observer.Observe('lt.ABC.g', Format(Res, 0, 9)) else Observer.ObserveError('lt.ABC.g');
+        if Try14(Res, vCode10, vGuid) then Observer.Observe('lt.ABC.g', Format(Res, 0, 9)) else Observer.ObserveError('lt.ABC.g');
         vCode10 := 'ABC';
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try15() then Observer.Observe('case_label.ABC.g', Format(Res, 0, 9)) else Observer.ObserveError('case_label.ABC.g');
+        if Try15(Res, vCode10, vGuid) then Observer.Observe('case_label.ABC.g', Format(Res, 0, 9)) else Observer.ObserveError('case_label.ABC.g');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Code10_Guid_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_Guid_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_Guid_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_Guid_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_Guid_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Code10_Label()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vCode10: Code[10];
     begin
         vCode10 := 'A';
-        if Try16() then Observer.Observe('eq.A.abc', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.abc');
+        if Try16(Res, vCode10) then Observer.Observe('eq.A.abc', Format(Res, 0, 9)) else Observer.ObserveError('eq.A.abc');
         vCode10 := 'A';
-        if Try17() then Observer.Observe('lt.A.abc', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.abc');
+        if Try17(Res, vCode10) then Observer.Observe('lt.A.abc', Format(Res, 0, 9)) else Observer.ObserveError('lt.A.abc');
         vCode10 := 'A';
-        if Try18() then Observer.Observe('in_set.A.abc', Format(Res, 0, 9)) else Observer.ObserveError('in_set.A.abc');
+        if Try18(Res, vCode10) then Observer.Observe('in_set.A.abc', Format(Res, 0, 9)) else Observer.ObserveError('in_set.A.abc');
         vCode10 := 'A';
-        if Try19() then Observer.Observe('case_label.A.abc', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.abc');
+        if Try19(Res, vCode10) then Observer.Observe('case_label.A.abc', Format(Res, 0, 9)) else Observer.ObserveError('case_label.A.abc');
         vCode10 := 'ABC';
-        if Try16() then Observer.Observe('eq.ABC.abc', Format(Res, 0, 9)) else Observer.ObserveError('eq.ABC.abc');
+        if Try16(Res, vCode10) then Observer.Observe('eq.ABC.abc', Format(Res, 0, 9)) else Observer.ObserveError('eq.ABC.abc');
         vCode10 := 'ABC';
-        if Try17() then Observer.Observe('lt.ABC.abc', Format(Res, 0, 9)) else Observer.ObserveError('lt.ABC.abc');
+        if Try17(Res, vCode10) then Observer.Observe('lt.ABC.abc', Format(Res, 0, 9)) else Observer.ObserveError('lt.ABC.abc');
         vCode10 := 'ABC';
-        if Try18() then Observer.Observe('in_set.ABC.abc', Format(Res, 0, 9)) else Observer.ObserveError('in_set.ABC.abc');
+        if Try18(Res, vCode10) then Observer.Observe('in_set.ABC.abc', Format(Res, 0, 9)) else Observer.ObserveError('in_set.ABC.abc');
         vCode10 := 'ABC';
-        if Try19() then Observer.Observe('case_label.ABC.abc', Format(Res, 0, 9)) else Observer.ObserveError('case_label.ABC.abc');
+        if Try19(Res, vCode10) then Observer.Observe('case_label.ABC.abc', Format(Res, 0, 9)) else Observer.ObserveError('case_label.ABC.abc');
         Observer.Finish();
     end;
 
-    [Test]
-    procedure Code10_Label_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_Label_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_Label_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_Label_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_Label_More5()
-    begin
-        Observer.More();
-    end;
-
     [TryFunction]
-    local procedure Try1()
+    local procedure Try1(var Res: Boolean; var vChar: Char; var vCode10: Code[10])
     begin
         Res := vCode10 = vChar;
     end;
 
     [TryFunction]
-    local procedure Try2()
+    local procedure Try2(var Res: Boolean; var vChar: Char; var vCode10: Code[10])
     begin
         Res := vCode10 < vChar;
     end;
 
     [TryFunction]
-    local procedure Try3()
+    local procedure Try3(var Res: Boolean; var vChar: Char; var vCode10: Code[10])
     begin
         Res := vCode10 in [vChar];
     end;
 
     [TryFunction]
-    local procedure Try4()
+    local procedure Try4(var Res: Boolean; var vChar: Char; var vCode10: Code[10])
     begin
         Res := false;
         case vCode10 of
@@ -7191,25 +5442,25 @@ codeunit 92438 "LT Y31 Cmp Code10"
     end;
 
     [TryFunction]
-    local procedure Try5()
+    local procedure Try5(var Res: Boolean; var vCode10: Code[10]; var vText: Text)
     begin
         Res := vCode10 = vText;
     end;
 
     [TryFunction]
-    local procedure Try6()
+    local procedure Try6(var Res: Boolean; var vCode10: Code[10]; var vText: Text)
     begin
         Res := vCode10 < vText;
     end;
 
     [TryFunction]
-    local procedure Try7()
+    local procedure Try7(var Res: Boolean; var vCode10: Code[10]; var vText: Text)
     begin
         Res := vCode10 in [vText];
     end;
 
     [TryFunction]
-    local procedure Try8()
+    local procedure Try8(var Res: Boolean; var vCode10: Code[10]; var vText: Text)
     begin
         Res := false;
         case vCode10 of
@@ -7219,25 +5470,25 @@ codeunit 92438 "LT Y31 Cmp Code10"
     end;
 
     [TryFunction]
-    local procedure Try9()
+    local procedure Try9(var Res: Boolean; var vCode10: Code[10]; var vText10: Text[10])
     begin
         Res := vCode10 = vText10;
     end;
 
     [TryFunction]
-    local procedure Try10()
+    local procedure Try10(var Res: Boolean; var vCode10: Code[10]; var vText10: Text[10])
     begin
         Res := vCode10 < vText10;
     end;
 
     [TryFunction]
-    local procedure Try11()
+    local procedure Try11(var Res: Boolean; var vCode10: Code[10]; var vText10: Text[10])
     begin
         Res := vCode10 in [vText10];
     end;
 
     [TryFunction]
-    local procedure Try12()
+    local procedure Try12(var Res: Boolean; var vCode10: Code[10]; var vText10: Text[10])
     begin
         Res := false;
         case vCode10 of
@@ -7247,19 +5498,19 @@ codeunit 92438 "LT Y31 Cmp Code10"
     end;
 
     [TryFunction]
-    local procedure Try13()
+    local procedure Try13(var Res: Boolean; var vCode10: Code[10]; var vGuid: Guid)
     begin
         Res := vCode10 = vGuid;
     end;
 
     [TryFunction]
-    local procedure Try14()
+    local procedure Try14(var Res: Boolean; var vCode10: Code[10]; var vGuid: Guid)
     begin
         Res := vCode10 < vGuid;
     end;
 
     [TryFunction]
-    local procedure Try15()
+    local procedure Try15(var Res: Boolean; var vCode10: Code[10]; var vGuid: Guid)
     begin
         Res := false;
         case vCode10 of
@@ -7269,25 +5520,33 @@ codeunit 92438 "LT Y31 Cmp Code10"
     end;
 
     [TryFunction]
-    local procedure Try16()
+    local procedure Try16(var Res: Boolean; var vCode10: Code[10])
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Res := vCode10 = vLabel;
     end;
 
     [TryFunction]
-    local procedure Try17()
+    local procedure Try17(var Res: Boolean; var vCode10: Code[10])
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Res := vCode10 < vLabel;
     end;
 
     [TryFunction]
-    local procedure Try18()
+    local procedure Try18(var Res: Boolean; var vCode10: Code[10])
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Res := vCode10 in [vLabel];
     end;
 
     [TryFunction]
-    local procedure Try19()
+    local procedure Try19(var Res: Boolean; var vCode10: Code[10])
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Res := false;
         case vCode10 of
@@ -7310,334 +5569,207 @@ codeunit 92439 "LT Y31 Cmp Guid"
     Subtype = Test;
     TestPermissions = Disabled;
 
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        Res: Boolean;
-        V: Variant;
-        vChar: Char;
-        vCode10: Code[10];
-        vGuid: Guid;
-        vLabel: Label 'abc', Locked = true;
-        vText: Text;
-        vText10: Text[10];
-
     [Test]
     procedure Guid_Char()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vChar: Char;
+        vGuid: Guid;
     begin
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vChar := 65;
-        if Try1() then Observer.Observe('eq.g.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.g.A');
+        if Try1(Res, vChar, vGuid) then Observer.Observe('eq.g.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.g.A');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vChar := 65;
-        if Try2() then Observer.Observe('lt.g.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.g.A');
+        if Try2(Res, vChar, vGuid) then Observer.Observe('lt.g.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.g.A');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vChar := 97;
-        if Try1() then Observer.Observe('eq.g.a', Format(Res, 0, 9)) else Observer.ObserveError('eq.g.a');
+        if Try1(Res, vChar, vGuid) then Observer.Observe('eq.g.a', Format(Res, 0, 9)) else Observer.ObserveError('eq.g.a');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vChar := 97;
-        if Try2() then Observer.Observe('lt.g.a', Format(Res, 0, 9)) else Observer.ObserveError('lt.g.a');
+        if Try2(Res, vChar, vGuid) then Observer.Observe('lt.g.a', Format(Res, 0, 9)) else Observer.ObserveError('lt.g.a');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Guid_Char_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_Char_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_Char_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_Char_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_Char_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Guid_Text()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vGuid: Guid;
+        vText: Text;
     begin
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vText := 'a';
-        if Try3() then Observer.Observe('eq.g.a', Format(Res, 0, 9)) else Observer.ObserveError('eq.g.a');
+        if Try3(Res, vGuid, vText) then Observer.Observe('eq.g.a', Format(Res, 0, 9)) else Observer.ObserveError('eq.g.a');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vText := 'a';
-        if Try4() then Observer.Observe('lt.g.a', Format(Res, 0, 9)) else Observer.ObserveError('lt.g.a');
+        if Try4(Res, vGuid, vText) then Observer.Observe('lt.g.a', Format(Res, 0, 9)) else Observer.ObserveError('lt.g.a');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vText := 'a';
-        if Try5() then Observer.Observe('in_set.g.a', Format(Res, 0, 9)) else Observer.ObserveError('in_set.g.a');
+        if Try5(Res, vGuid, vText) then Observer.Observe('in_set.g.a', Format(Res, 0, 9)) else Observer.ObserveError('in_set.g.a');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vText := 'a';
-        if Try6() then Observer.Observe('case_label.g.a', Format(Res, 0, 9)) else Observer.ObserveError('case_label.g.a');
+        if Try6(Res, vGuid, vText) then Observer.Observe('case_label.g.a', Format(Res, 0, 9)) else Observer.ObserveError('case_label.g.a');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vText := 'A';
-        if Try3() then Observer.Observe('eq.g.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.g.A');
+        if Try3(Res, vGuid, vText) then Observer.Observe('eq.g.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.g.A');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vText := 'A';
-        if Try4() then Observer.Observe('lt.g.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.g.A');
+        if Try4(Res, vGuid, vText) then Observer.Observe('lt.g.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.g.A');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vText := 'A';
-        if Try5() then Observer.Observe('in_set.g.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.g.A');
+        if Try5(Res, vGuid, vText) then Observer.Observe('in_set.g.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.g.A');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vText := 'A';
-        if Try6() then Observer.Observe('case_label.g.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.g.A');
-        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        vText := 'abc';
-        if Try3() then Observer.Observe('eq.g.abc', Format(Res, 0, 9)) else Observer.ObserveError('eq.g.abc');
-        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        vText := 'abc';
-        if Try4() then Observer.Observe('lt.g.abc', Format(Res, 0, 9)) else Observer.ObserveError('lt.g.abc');
-        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        vText := 'abc';
-        if Try5() then Observer.Observe('in_set.g.abc', Format(Res, 0, 9)) else Observer.ObserveError('in_set.g.abc');
-        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        vText := 'abc';
-        if Try6() then Observer.Observe('case_label.g.abc', Format(Res, 0, 9)) else Observer.ObserveError('case_label.g.abc');
-        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        if Try3() then Observer.Observe('eq.g.guidlow', Format(Res, 0, 9)) else Observer.ObserveError('eq.g.guidlow');
-        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        if Try4() then Observer.Observe('lt.g.guidlow', Format(Res, 0, 9)) else Observer.ObserveError('lt.g.guidlow');
-        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        if Try5() then Observer.Observe('in_set.g.guidlow', Format(Res, 0, 9)) else Observer.ObserveError('in_set.g.guidlow');
-        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        if Try6() then Observer.Observe('case_label.g.guidlow', Format(Res, 0, 9)) else Observer.ObserveError('case_label.g.guidlow');
+        if Try6(Res, vGuid, vText) then Observer.Observe('case_label.g.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.g.A');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Guid_Text_More1()
+    procedure Guid_Text_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vGuid: Guid;
+        vText: Text;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_Text_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_Text_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_Text_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_Text_More5()
-    begin
-        Observer.More();
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        vText := 'abc';
+        if Try3(Res, vGuid, vText) then Observer.Observe('eq.g.abc', Format(Res, 0, 9)) else Observer.ObserveError('eq.g.abc');
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        vText := 'abc';
+        if Try4(Res, vGuid, vText) then Observer.Observe('lt.g.abc', Format(Res, 0, 9)) else Observer.ObserveError('lt.g.abc');
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        vText := 'abc';
+        if Try5(Res, vGuid, vText) then Observer.Observe('in_set.g.abc', Format(Res, 0, 9)) else Observer.ObserveError('in_set.g.abc');
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        vText := 'abc';
+        if Try6(Res, vGuid, vText) then Observer.Observe('case_label.g.abc', Format(Res, 0, 9)) else Observer.ObserveError('case_label.g.abc');
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        if Try3(Res, vGuid, vText) then Observer.Observe('eq.g.guidlow', Format(Res, 0, 9)) else Observer.ObserveError('eq.g.guidlow');
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        if Try4(Res, vGuid, vText) then Observer.Observe('lt.g.guidlow', Format(Res, 0, 9)) else Observer.ObserveError('lt.g.guidlow');
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        if Try5(Res, vGuid, vText) then Observer.Observe('in_set.g.guidlow', Format(Res, 0, 9)) else Observer.ObserveError('in_set.g.guidlow');
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        if Try6(Res, vGuid, vText) then Observer.Observe('case_label.g.guidlow', Format(Res, 0, 9)) else Observer.ObserveError('case_label.g.guidlow');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Guid_Text10()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vGuid: Guid;
+        vText10: Text[10];
     begin
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vText10 := 'abc';
-        if Try7() then Observer.Observe('eq.g.abc', Format(Res, 0, 9)) else Observer.ObserveError('eq.g.abc');
+        if Try7(Res, vGuid, vText10) then Observer.Observe('eq.g.abc', Format(Res, 0, 9)) else Observer.ObserveError('eq.g.abc');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vText10 := 'abc';
-        if Try8() then Observer.Observe('lt.g.abc', Format(Res, 0, 9)) else Observer.ObserveError('lt.g.abc');
+        if Try8(Res, vGuid, vText10) then Observer.Observe('lt.g.abc', Format(Res, 0, 9)) else Observer.ObserveError('lt.g.abc');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vText10 := 'abc';
-        if Try9() then Observer.Observe('in_set.g.abc', Format(Res, 0, 9)) else Observer.ObserveError('in_set.g.abc');
+        if Try9(Res, vGuid, vText10) then Observer.Observe('in_set.g.abc', Format(Res, 0, 9)) else Observer.ObserveError('in_set.g.abc');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vText10 := 'abc';
-        if Try10() then Observer.Observe('case_label.g.abc', Format(Res, 0, 9)) else Observer.ObserveError('case_label.g.abc');
+        if Try10(Res, vGuid, vText10) then Observer.Observe('case_label.g.abc', Format(Res, 0, 9)) else Observer.ObserveError('case_label.g.abc');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Guid_Text10_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_Text10_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_Text10_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_Text10_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_Text10_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Guid_Code10()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vCode10: Code[10];
+        vGuid: Guid;
     begin
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vCode10 := 'A';
-        if Try11() then Observer.Observe('eq.g.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.g.A');
+        if Try11(Res, vCode10, vGuid) then Observer.Observe('eq.g.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.g.A');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vCode10 := 'A';
-        if Try12() then Observer.Observe('lt.g.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.g.A');
+        if Try12(Res, vCode10, vGuid) then Observer.Observe('lt.g.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.g.A');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vCode10 := 'A';
-        if Try13() then Observer.Observe('in_set.g.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.g.A');
+        if Try13(Res, vCode10, vGuid) then Observer.Observe('in_set.g.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.g.A');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vCode10 := 'A';
-        if Try14() then Observer.Observe('case_label.g.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.g.A');
+        if Try14(Res, vCode10, vGuid) then Observer.Observe('case_label.g.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.g.A');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vCode10 := 'ABC';
-        if Try11() then Observer.Observe('eq.g.ABC', Format(Res, 0, 9)) else Observer.ObserveError('eq.g.ABC');
+        if Try11(Res, vCode10, vGuid) then Observer.Observe('eq.g.ABC', Format(Res, 0, 9)) else Observer.ObserveError('eq.g.ABC');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vCode10 := 'ABC';
-        if Try12() then Observer.Observe('lt.g.ABC', Format(Res, 0, 9)) else Observer.ObserveError('lt.g.ABC');
+        if Try12(Res, vCode10, vGuid) then Observer.Observe('lt.g.ABC', Format(Res, 0, 9)) else Observer.ObserveError('lt.g.ABC');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vCode10 := 'ABC';
-        if Try13() then Observer.Observe('in_set.g.ABC', Format(Res, 0, 9)) else Observer.ObserveError('in_set.g.ABC');
+        if Try13(Res, vCode10, vGuid) then Observer.Observe('in_set.g.ABC', Format(Res, 0, 9)) else Observer.ObserveError('in_set.g.ABC');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vCode10 := 'ABC';
-        if Try14() then Observer.Observe('case_label.g.ABC', Format(Res, 0, 9)) else Observer.ObserveError('case_label.g.ABC');
+        if Try14(Res, vCode10, vGuid) then Observer.Observe('case_label.g.ABC', Format(Res, 0, 9)) else Observer.ObserveError('case_label.g.ABC');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Guid_Code10_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_Code10_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_Code10_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_Code10_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_Code10_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Guid_Label()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vGuid: Guid;
     begin
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try15() then Observer.Observe('eq.g.abc', Format(Res, 0, 9)) else Observer.ObserveError('eq.g.abc');
+        if Try15(Res, vGuid) then Observer.Observe('eq.g.abc', Format(Res, 0, 9)) else Observer.ObserveError('eq.g.abc');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try16() then Observer.Observe('lt.g.abc', Format(Res, 0, 9)) else Observer.ObserveError('lt.g.abc');
+        if Try16(Res, vGuid) then Observer.Observe('lt.g.abc', Format(Res, 0, 9)) else Observer.ObserveError('lt.g.abc');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try17() then Observer.Observe('in_set.g.abc', Format(Res, 0, 9)) else Observer.ObserveError('in_set.g.abc');
+        if Try17(Res, vGuid) then Observer.Observe('in_set.g.abc', Format(Res, 0, 9)) else Observer.ObserveError('in_set.g.abc');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try18() then Observer.Observe('case_label.g.abc', Format(Res, 0, 9)) else Observer.ObserveError('case_label.g.abc');
+        if Try18(Res, vGuid) then Observer.Observe('case_label.g.abc', Format(Res, 0, 9)) else Observer.ObserveError('case_label.g.abc');
         Observer.Finish();
     end;
 
-    [Test]
-    procedure Guid_Label_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_Label_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_Label_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_Label_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_Label_More5()
-    begin
-        Observer.More();
-    end;
-
     [TryFunction]
-    local procedure Try1()
+    local procedure Try1(var Res: Boolean; var vChar: Char; var vGuid: Guid)
     begin
         Res := vGuid = vChar;
     end;
 
     [TryFunction]
-    local procedure Try2()
+    local procedure Try2(var Res: Boolean; var vChar: Char; var vGuid: Guid)
     begin
         Res := vGuid < vChar;
     end;
 
     [TryFunction]
-    local procedure Try3()
+    local procedure Try3(var Res: Boolean; var vGuid: Guid; var vText: Text)
     begin
         Res := vGuid = vText;
     end;
 
     [TryFunction]
-    local procedure Try4()
+    local procedure Try4(var Res: Boolean; var vGuid: Guid; var vText: Text)
     begin
         Res := vGuid < vText;
     end;
 
     [TryFunction]
-    local procedure Try5()
+    local procedure Try5(var Res: Boolean; var vGuid: Guid; var vText: Text)
     begin
         Res := vGuid in [vText];
     end;
 
     [TryFunction]
-    local procedure Try6()
+    local procedure Try6(var Res: Boolean; var vGuid: Guid; var vText: Text)
     begin
         Res := false;
         case vGuid of
@@ -7647,25 +5779,25 @@ codeunit 92439 "LT Y31 Cmp Guid"
     end;
 
     [TryFunction]
-    local procedure Try7()
+    local procedure Try7(var Res: Boolean; var vGuid: Guid; var vText10: Text[10])
     begin
         Res := vGuid = vText10;
     end;
 
     [TryFunction]
-    local procedure Try8()
+    local procedure Try8(var Res: Boolean; var vGuid: Guid; var vText10: Text[10])
     begin
         Res := vGuid < vText10;
     end;
 
     [TryFunction]
-    local procedure Try9()
+    local procedure Try9(var Res: Boolean; var vGuid: Guid; var vText10: Text[10])
     begin
         Res := vGuid in [vText10];
     end;
 
     [TryFunction]
-    local procedure Try10()
+    local procedure Try10(var Res: Boolean; var vGuid: Guid; var vText10: Text[10])
     begin
         Res := false;
         case vGuid of
@@ -7675,25 +5807,25 @@ codeunit 92439 "LT Y31 Cmp Guid"
     end;
 
     [TryFunction]
-    local procedure Try11()
+    local procedure Try11(var Res: Boolean; var vCode10: Code[10]; var vGuid: Guid)
     begin
         Res := vGuid = vCode10;
     end;
 
     [TryFunction]
-    local procedure Try12()
+    local procedure Try12(var Res: Boolean; var vCode10: Code[10]; var vGuid: Guid)
     begin
         Res := vGuid < vCode10;
     end;
 
     [TryFunction]
-    local procedure Try13()
+    local procedure Try13(var Res: Boolean; var vCode10: Code[10]; var vGuid: Guid)
     begin
         Res := vGuid in [vCode10];
     end;
 
     [TryFunction]
-    local procedure Try14()
+    local procedure Try14(var Res: Boolean; var vCode10: Code[10]; var vGuid: Guid)
     begin
         Res := false;
         case vGuid of
@@ -7703,25 +5835,33 @@ codeunit 92439 "LT Y31 Cmp Guid"
     end;
 
     [TryFunction]
-    local procedure Try15()
+    local procedure Try15(var Res: Boolean; var vGuid: Guid)
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Res := vGuid = vLabel;
     end;
 
     [TryFunction]
-    local procedure Try16()
+    local procedure Try16(var Res: Boolean; var vGuid: Guid)
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Res := vGuid < vLabel;
     end;
 
     [TryFunction]
-    local procedure Try17()
+    local procedure Try17(var Res: Boolean; var vGuid: Guid)
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Res := vGuid in [vLabel];
     end;
 
     [TryFunction]
-    local procedure Try18()
+    local procedure Try18(var Res: Boolean; var vGuid: Guid)
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Res := false;
         case vGuid of
@@ -7744,375 +5884,212 @@ codeunit 92443 "LT Y31 Cmp Duration"
     Subtype = Test;
     TestPermissions = Disabled;
 
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        Res: Boolean;
-        V: Variant;
-        vBigInteger: BigInteger;
-        vByte: Byte;
-        vChar: Char;
-        vDecimal: Decimal;
-        vDuration: Duration;
-        vInteger: Integer;
-        vOption: Option A,B,C;
-
     [Test]
     procedure Duration_Integer()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vDuration: Duration;
+        vInteger: Integer;
     begin
         vDuration := 65;
         vInteger := 65;
-        if Try1() then Observer.Observe('eq.65.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.65');
+        if Try1(Res, vDuration, vInteger) then Observer.Observe('eq.65.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.65');
         vDuration := 65;
         vInteger := 65;
-        if Try2() then Observer.Observe('lt.65.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.65');
+        if Try2(Res, vDuration, vInteger) then Observer.Observe('lt.65.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.65');
         vDuration := 65;
         vInteger := 65;
-        if Try3() then Observer.Observe('in_set.65.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.65');
+        if Try3(Res, vDuration, vInteger) then Observer.Observe('in_set.65.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.65');
         vDuration := 65;
         vInteger := 65;
-        if Try4() then Observer.Observe('case_label.65.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.65');
+        if Try4(Res, vDuration, vInteger) then Observer.Observe('case_label.65.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.65');
         vDuration := 65;
         vInteger := 1;
-        if Try1() then Observer.Observe('eq.65.1', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.1');
+        if Try1(Res, vDuration, vInteger) then Observer.Observe('eq.65.1', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.1');
         vDuration := 65;
         vInteger := 1;
-        if Try2() then Observer.Observe('lt.65.1', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.1');
+        if Try2(Res, vDuration, vInteger) then Observer.Observe('lt.65.1', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.1');
         vDuration := 65;
         vInteger := 1;
-        if Try3() then Observer.Observe('in_set.65.1', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.1');
+        if Try3(Res, vDuration, vInteger) then Observer.Observe('in_set.65.1', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.1');
         vDuration := 65;
         vInteger := 1;
-        if Try4() then Observer.Observe('case_label.65.1', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.1');
+        if Try4(Res, vDuration, vInteger) then Observer.Observe('case_label.65.1', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.1');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Duration_Integer_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Integer_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Integer_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Integer_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Integer_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Duration_BigInteger()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vBigInteger: BigInteger;
+        vDuration: Duration;
     begin
         vDuration := 65;
         vBigInteger := 65;
-        if Try5() then Observer.Observe('eq.65.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.65');
+        if Try5(Res, vBigInteger, vDuration) then Observer.Observe('eq.65.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.65');
         vDuration := 65;
         vBigInteger := 65;
-        if Try6() then Observer.Observe('lt.65.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.65');
+        if Try6(Res, vBigInteger, vDuration) then Observer.Observe('lt.65.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.65');
         vDuration := 65;
         vBigInteger := 65;
-        if Try7() then Observer.Observe('in_set.65.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.65');
+        if Try7(Res, vBigInteger, vDuration) then Observer.Observe('in_set.65.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.65');
         vDuration := 65;
         vBigInteger := 65;
-        if Try8() then Observer.Observe('case_label.65.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.65');
+        if Try8(Res, vBigInteger, vDuration) then Observer.Observe('case_label.65.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.65');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Duration_BigInteger_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_BigInteger_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_BigInteger_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_BigInteger_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_BigInteger_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Duration_Decimal()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vDecimal: Decimal;
+        vDuration: Duration;
     begin
         vDuration := 65;
         vDecimal := 65;
-        if Try9() then Observer.Observe('eq.65.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.65');
+        if Try9(Res, vDecimal, vDuration) then Observer.Observe('eq.65.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.65');
         vDuration := 65;
         vDecimal := 65;
-        if Try10() then Observer.Observe('lt.65.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.65');
+        if Try10(Res, vDecimal, vDuration) then Observer.Observe('lt.65.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.65');
         vDuration := 65;
         vDecimal := 65;
-        if Try11() then Observer.Observe('in_set.65.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.65');
+        if Try11(Res, vDecimal, vDuration) then Observer.Observe('in_set.65.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.65');
         vDuration := 65;
         vDecimal := 65;
-        if Try12() then Observer.Observe('case_label.65.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.65');
+        if Try12(Res, vDecimal, vDuration) then Observer.Observe('case_label.65.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.65');
         vDuration := 65;
         vDecimal := 1.5;
-        if Try9() then Observer.Observe('eq.65.1p5', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.1p5');
+        if Try9(Res, vDecimal, vDuration) then Observer.Observe('eq.65.1p5', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.1p5');
         vDuration := 65;
         vDecimal := 1.5;
-        if Try10() then Observer.Observe('lt.65.1p5', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.1p5');
+        if Try10(Res, vDecimal, vDuration) then Observer.Observe('lt.65.1p5', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.1p5');
         vDuration := 65;
         vDecimal := 1.5;
-        if Try11() then Observer.Observe('in_set.65.1p5', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.1p5');
+        if Try11(Res, vDecimal, vDuration) then Observer.Observe('in_set.65.1p5', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.1p5');
         vDuration := 65;
         vDecimal := 1.5;
-        if Try12() then Observer.Observe('case_label.65.1p5', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.1p5');
+        if Try12(Res, vDecimal, vDuration) then Observer.Observe('case_label.65.1p5', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.1p5');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Duration_Decimal_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Decimal_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Decimal_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Decimal_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Decimal_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Duration_Char()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vChar: Char;
+        vDuration: Duration;
     begin
         vDuration := 65;
         vChar := 65;
-        if Try13() then Observer.Observe('eq.65.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.A');
+        if Try13(Res, vChar, vDuration) then Observer.Observe('eq.65.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.A');
         vDuration := 65;
         vChar := 65;
-        if Try14() then Observer.Observe('lt.65.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.A');
+        if Try14(Res, vChar, vDuration) then Observer.Observe('lt.65.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.A');
         vDuration := 65;
         vChar := 65;
-        if Try15() then Observer.Observe('in_set.65.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.A');
+        if Try15(Res, vChar, vDuration) then Observer.Observe('in_set.65.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.A');
         vDuration := 65;
         vChar := 65;
-        if Try16() then Observer.Observe('case_label.65.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.A');
+        if Try16(Res, vChar, vDuration) then Observer.Observe('case_label.65.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.A');
         vDuration := 65;
         vChar := 97;
-        if Try13() then Observer.Observe('eq.65.a', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.a');
+        if Try13(Res, vChar, vDuration) then Observer.Observe('eq.65.a', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.a');
         vDuration := 65;
         vChar := 97;
-        if Try14() then Observer.Observe('lt.65.a', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.a');
+        if Try14(Res, vChar, vDuration) then Observer.Observe('lt.65.a', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.a');
         vDuration := 65;
         vChar := 97;
-        if Try15() then Observer.Observe('in_set.65.a', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.a');
+        if Try15(Res, vChar, vDuration) then Observer.Observe('in_set.65.a', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.a');
         vDuration := 65;
         vChar := 97;
-        if Try16() then Observer.Observe('case_label.65.a', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.a');
+        if Try16(Res, vChar, vDuration) then Observer.Observe('case_label.65.a', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.a');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Duration_Char_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Char_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Char_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Char_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Char_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Duration_Byte()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vByte: Byte;
+        vDuration: Duration;
     begin
         vDuration := 65;
         vByte := 65;
-        if Try17() then Observer.Observe('eq.65.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.65');
+        if Try17(Res, vByte, vDuration) then Observer.Observe('eq.65.65', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.65');
         vDuration := 65;
         vByte := 65;
-        if Try18() then Observer.Observe('lt.65.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.65');
+        if Try18(Res, vByte, vDuration) then Observer.Observe('lt.65.65', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.65');
         vDuration := 65;
         vByte := 65;
-        if Try19() then Observer.Observe('in_set.65.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.65');
+        if Try19(Res, vByte, vDuration) then Observer.Observe('in_set.65.65', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.65');
         vDuration := 65;
         vByte := 65;
-        if Try20() then Observer.Observe('case_label.65.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.65');
+        if Try20(Res, vByte, vDuration) then Observer.Observe('case_label.65.65', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.65');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Duration_Byte_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Byte_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Byte_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Byte_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Byte_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Duration_Option()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vDuration: Duration;
+        vOption: Option A,B,C;
     begin
         vDuration := 65;
         vOption := 1;
-        if Try21() then Observer.Observe('eq.65.1', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.1');
+        if Try21(Res, vDuration, vOption) then Observer.Observe('eq.65.1', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.1');
         vDuration := 65;
         vOption := 1;
-        if Try22() then Observer.Observe('lt.65.1', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.1');
+        if Try22(Res, vDuration, vOption) then Observer.Observe('lt.65.1', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.1');
         vDuration := 65;
         vOption := 1;
-        if Try23() then Observer.Observe('in_set.65.1', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.1');
+        if Try23(Res, vDuration, vOption) then Observer.Observe('in_set.65.1', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.1');
         vDuration := 65;
         vOption := 1;
-        if Try24() then Observer.Observe('case_label.65.1', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.1');
+        if Try24(Res, vDuration, vOption) then Observer.Observe('case_label.65.1', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.1');
         vDuration := 65;
         vOption := 3;
-        if Try21() then Observer.Observe('eq.65.3', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.3');
+        if Try21(Res, vDuration, vOption) then Observer.Observe('eq.65.3', Format(Res, 0, 9)) else Observer.ObserveError('eq.65.3');
         vDuration := 65;
         vOption := 3;
-        if Try22() then Observer.Observe('lt.65.3', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.3');
+        if Try22(Res, vDuration, vOption) then Observer.Observe('lt.65.3', Format(Res, 0, 9)) else Observer.ObserveError('lt.65.3');
         vDuration := 65;
         vOption := 3;
-        if Try23() then Observer.Observe('in_set.65.3', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.3');
+        if Try23(Res, vDuration, vOption) then Observer.Observe('in_set.65.3', Format(Res, 0, 9)) else Observer.ObserveError('in_set.65.3');
         vDuration := 65;
         vOption := 3;
-        if Try24() then Observer.Observe('case_label.65.3', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.3');
+        if Try24(Res, vDuration, vOption) then Observer.Observe('case_label.65.3', Format(Res, 0, 9)) else Observer.ObserveError('case_label.65.3');
         Observer.Finish();
     end;
 
-    [Test]
-    procedure Duration_Option_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Option_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Option_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Option_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Option_More5()
-    begin
-        Observer.More();
-    end;
-
     [TryFunction]
-    local procedure Try1()
+    local procedure Try1(var Res: Boolean; var vDuration: Duration; var vInteger: Integer)
     begin
         Res := vDuration = vInteger;
     end;
 
     [TryFunction]
-    local procedure Try2()
+    local procedure Try2(var Res: Boolean; var vDuration: Duration; var vInteger: Integer)
     begin
         Res := vDuration < vInteger;
     end;
 
     [TryFunction]
-    local procedure Try3()
+    local procedure Try3(var Res: Boolean; var vDuration: Duration; var vInteger: Integer)
     begin
         Res := vDuration in [vInteger];
     end;
 
     [TryFunction]
-    local procedure Try4()
+    local procedure Try4(var Res: Boolean; var vDuration: Duration; var vInteger: Integer)
     begin
         Res := false;
         case vDuration of
@@ -8122,25 +6099,25 @@ codeunit 92443 "LT Y31 Cmp Duration"
     end;
 
     [TryFunction]
-    local procedure Try5()
+    local procedure Try5(var Res: Boolean; var vBigInteger: BigInteger; var vDuration: Duration)
     begin
         Res := vDuration = vBigInteger;
     end;
 
     [TryFunction]
-    local procedure Try6()
+    local procedure Try6(var Res: Boolean; var vBigInteger: BigInteger; var vDuration: Duration)
     begin
         Res := vDuration < vBigInteger;
     end;
 
     [TryFunction]
-    local procedure Try7()
+    local procedure Try7(var Res: Boolean; var vBigInteger: BigInteger; var vDuration: Duration)
     begin
         Res := vDuration in [vBigInteger];
     end;
 
     [TryFunction]
-    local procedure Try8()
+    local procedure Try8(var Res: Boolean; var vBigInteger: BigInteger; var vDuration: Duration)
     begin
         Res := false;
         case vDuration of
@@ -8150,25 +6127,25 @@ codeunit 92443 "LT Y31 Cmp Duration"
     end;
 
     [TryFunction]
-    local procedure Try9()
+    local procedure Try9(var Res: Boolean; var vDecimal: Decimal; var vDuration: Duration)
     begin
         Res := vDuration = vDecimal;
     end;
 
     [TryFunction]
-    local procedure Try10()
+    local procedure Try10(var Res: Boolean; var vDecimal: Decimal; var vDuration: Duration)
     begin
         Res := vDuration < vDecimal;
     end;
 
     [TryFunction]
-    local procedure Try11()
+    local procedure Try11(var Res: Boolean; var vDecimal: Decimal; var vDuration: Duration)
     begin
         Res := vDuration in [vDecimal];
     end;
 
     [TryFunction]
-    local procedure Try12()
+    local procedure Try12(var Res: Boolean; var vDecimal: Decimal; var vDuration: Duration)
     begin
         Res := false;
         case vDuration of
@@ -8178,25 +6155,25 @@ codeunit 92443 "LT Y31 Cmp Duration"
     end;
 
     [TryFunction]
-    local procedure Try13()
+    local procedure Try13(var Res: Boolean; var vChar: Char; var vDuration: Duration)
     begin
         Res := vDuration = vChar;
     end;
 
     [TryFunction]
-    local procedure Try14()
+    local procedure Try14(var Res: Boolean; var vChar: Char; var vDuration: Duration)
     begin
         Res := vDuration < vChar;
     end;
 
     [TryFunction]
-    local procedure Try15()
+    local procedure Try15(var Res: Boolean; var vChar: Char; var vDuration: Duration)
     begin
         Res := vDuration in [vChar];
     end;
 
     [TryFunction]
-    local procedure Try16()
+    local procedure Try16(var Res: Boolean; var vChar: Char; var vDuration: Duration)
     begin
         Res := false;
         case vDuration of
@@ -8206,25 +6183,25 @@ codeunit 92443 "LT Y31 Cmp Duration"
     end;
 
     [TryFunction]
-    local procedure Try17()
+    local procedure Try17(var Res: Boolean; var vByte: Byte; var vDuration: Duration)
     begin
         Res := vDuration = vByte;
     end;
 
     [TryFunction]
-    local procedure Try18()
+    local procedure Try18(var Res: Boolean; var vByte: Byte; var vDuration: Duration)
     begin
         Res := vDuration < vByte;
     end;
 
     [TryFunction]
-    local procedure Try19()
+    local procedure Try19(var Res: Boolean; var vByte: Byte; var vDuration: Duration)
     begin
         Res := vDuration in [vByte];
     end;
 
     [TryFunction]
-    local procedure Try20()
+    local procedure Try20(var Res: Boolean; var vByte: Byte; var vDuration: Duration)
     begin
         Res := false;
         case vDuration of
@@ -8234,25 +6211,25 @@ codeunit 92443 "LT Y31 Cmp Duration"
     end;
 
     [TryFunction]
-    local procedure Try21()
+    local procedure Try21(var Res: Boolean; var vDuration: Duration; var vOption: Option A,B,C)
     begin
         Res := vDuration = vOption;
     end;
 
     [TryFunction]
-    local procedure Try22()
+    local procedure Try22(var Res: Boolean; var vDuration: Duration; var vOption: Option A,B,C)
     begin
         Res := vDuration < vOption;
     end;
 
     [TryFunction]
-    local procedure Try23()
+    local procedure Try23(var Res: Boolean; var vDuration: Duration; var vOption: Option A,B,C)
     begin
         Res := vDuration in [vOption];
     end;
 
     [TryFunction]
-    local procedure Try24()
+    local procedure Try24(var Res: Boolean; var vDuration: Duration; var vOption: Option A,B,C)
     begin
         Res := false;
         case vDuration of
@@ -8275,298 +6252,174 @@ codeunit 92444 "LT Y31 Cmp Label"
     Subtype = Test;
     TestPermissions = Disabled;
 
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        Res: Boolean;
-        V: Variant;
-        vChar: Char;
-        vCode10: Code[10];
-        vGuid: Guid;
-        vLabel: Label 'abc', Locked = true;
-        vText: Text;
-        vText10: Text[10];
-
     [Test]
     procedure Label_Char()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vChar: Char;
     begin
         vChar := 65;
-        if Try1() then Observer.Observe('eq.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.abc.A');
+        if Try1(Res, vChar) then Observer.Observe('eq.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.abc.A');
         vChar := 65;
-        if Try2() then Observer.Observe('lt.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.abc.A');
+        if Try2(Res, vChar) then Observer.Observe('lt.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.abc.A');
         vChar := 65;
-        if Try3() then Observer.Observe('in_set.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.abc.A');
+        if Try3(Res, vChar) then Observer.Observe('in_set.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.abc.A');
         vChar := 65;
-        if Try4() then Observer.Observe('case_label.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.A');
+        if Try4(Res, vChar) then Observer.Observe('case_label.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.A');
         vChar := 97;
-        if Try1() then Observer.Observe('eq.abc.a', Format(Res, 0, 9)) else Observer.ObserveError('eq.abc.a');
+        if Try1(Res, vChar) then Observer.Observe('eq.abc.a', Format(Res, 0, 9)) else Observer.ObserveError('eq.abc.a');
         vChar := 97;
-        if Try2() then Observer.Observe('lt.abc.a', Format(Res, 0, 9)) else Observer.ObserveError('lt.abc.a');
+        if Try2(Res, vChar) then Observer.Observe('lt.abc.a', Format(Res, 0, 9)) else Observer.ObserveError('lt.abc.a');
         vChar := 97;
-        if Try3() then Observer.Observe('in_set.abc.a', Format(Res, 0, 9)) else Observer.ObserveError('in_set.abc.a');
+        if Try3(Res, vChar) then Observer.Observe('in_set.abc.a', Format(Res, 0, 9)) else Observer.ObserveError('in_set.abc.a');
         vChar := 97;
-        if Try4() then Observer.Observe('case_label.abc.a', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.a');
+        if Try4(Res, vChar) then Observer.Observe('case_label.abc.a', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.a');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Label_Char_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_Char_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_Char_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_Char_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_Char_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Label_Text()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vText: Text;
     begin
         vText := 'a';
-        if Try5() then Observer.Observe('eq.abc.a', Format(Res, 0, 9)) else Observer.ObserveError('eq.abc.a');
+        if Try5(Res, vText) then Observer.Observe('eq.abc.a', Format(Res, 0, 9)) else Observer.ObserveError('eq.abc.a');
         vText := 'a';
-        if Try6() then Observer.Observe('lt.abc.a', Format(Res, 0, 9)) else Observer.ObserveError('lt.abc.a');
+        if Try6(Res, vText) then Observer.Observe('lt.abc.a', Format(Res, 0, 9)) else Observer.ObserveError('lt.abc.a');
         vText := 'a';
-        if Try7() then Observer.Observe('in_set.abc.a', Format(Res, 0, 9)) else Observer.ObserveError('in_set.abc.a');
+        if Try7(Res, vText) then Observer.Observe('in_set.abc.a', Format(Res, 0, 9)) else Observer.ObserveError('in_set.abc.a');
         vText := 'a';
-        if Try8() then Observer.Observe('case_label.abc.a', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.a');
+        if Try8(Res, vText) then Observer.Observe('case_label.abc.a', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.a');
         vText := 'A';
-        if Try5() then Observer.Observe('eq.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.abc.A');
+        if Try5(Res, vText) then Observer.Observe('eq.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.abc.A');
         vText := 'A';
-        if Try6() then Observer.Observe('lt.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.abc.A');
+        if Try6(Res, vText) then Observer.Observe('lt.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.abc.A');
         vText := 'A';
-        if Try7() then Observer.Observe('in_set.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.abc.A');
+        if Try7(Res, vText) then Observer.Observe('in_set.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.abc.A');
         vText := 'A';
-        if Try8() then Observer.Observe('case_label.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.A');
-        vText := 'abc';
-        if Try5() then Observer.Observe('eq.abc.abc', Format(Res, 0, 9)) else Observer.ObserveError('eq.abc.abc');
-        vText := 'abc';
-        if Try6() then Observer.Observe('lt.abc.abc', Format(Res, 0, 9)) else Observer.ObserveError('lt.abc.abc');
-        vText := 'abc';
-        if Try7() then Observer.Observe('in_set.abc.abc', Format(Res, 0, 9)) else Observer.ObserveError('in_set.abc.abc');
-        vText := 'abc';
-        if Try8() then Observer.Observe('case_label.abc.abc', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.abc');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        if Try5() then Observer.Observe('eq.abc.guidlow', Format(Res, 0, 9)) else Observer.ObserveError('eq.abc.guidlow');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        if Try6() then Observer.Observe('lt.abc.guidlow', Format(Res, 0, 9)) else Observer.ObserveError('lt.abc.guidlow');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        if Try7() then Observer.Observe('in_set.abc.guidlow', Format(Res, 0, 9)) else Observer.ObserveError('in_set.abc.guidlow');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        if Try8() then Observer.Observe('case_label.abc.guidlow', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.guidlow');
+        if Try8(Res, vText) then Observer.Observe('case_label.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.A');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Label_Text_More1()
+    procedure Label_Text_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vText: Text;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_Text_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_Text_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_Text_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_Text_More5()
-    begin
-        Observer.More();
+        vText := 'abc';
+        if Try5(Res, vText) then Observer.Observe('eq.abc.abc', Format(Res, 0, 9)) else Observer.ObserveError('eq.abc.abc');
+        vText := 'abc';
+        if Try6(Res, vText) then Observer.Observe('lt.abc.abc', Format(Res, 0, 9)) else Observer.ObserveError('lt.abc.abc');
+        vText := 'abc';
+        if Try7(Res, vText) then Observer.Observe('in_set.abc.abc', Format(Res, 0, 9)) else Observer.ObserveError('in_set.abc.abc');
+        vText := 'abc';
+        if Try8(Res, vText) then Observer.Observe('case_label.abc.abc', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.abc');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        if Try5(Res, vText) then Observer.Observe('eq.abc.guidlow', Format(Res, 0, 9)) else Observer.ObserveError('eq.abc.guidlow');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        if Try6(Res, vText) then Observer.Observe('lt.abc.guidlow', Format(Res, 0, 9)) else Observer.ObserveError('lt.abc.guidlow');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        if Try7(Res, vText) then Observer.Observe('in_set.abc.guidlow', Format(Res, 0, 9)) else Observer.ObserveError('in_set.abc.guidlow');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        if Try8(Res, vText) then Observer.Observe('case_label.abc.guidlow', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.guidlow');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Label_Text10()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vText10: Text[10];
     begin
         vText10 := 'abc';
-        if Try9() then Observer.Observe('eq.abc.abc', Format(Res, 0, 9)) else Observer.ObserveError('eq.abc.abc');
+        if Try9(Res, vText10) then Observer.Observe('eq.abc.abc', Format(Res, 0, 9)) else Observer.ObserveError('eq.abc.abc');
         vText10 := 'abc';
-        if Try10() then Observer.Observe('lt.abc.abc', Format(Res, 0, 9)) else Observer.ObserveError('lt.abc.abc');
+        if Try10(Res, vText10) then Observer.Observe('lt.abc.abc', Format(Res, 0, 9)) else Observer.ObserveError('lt.abc.abc');
         vText10 := 'abc';
-        if Try11() then Observer.Observe('in_set.abc.abc', Format(Res, 0, 9)) else Observer.ObserveError('in_set.abc.abc');
+        if Try11(Res, vText10) then Observer.Observe('in_set.abc.abc', Format(Res, 0, 9)) else Observer.ObserveError('in_set.abc.abc');
         vText10 := 'abc';
-        if Try12() then Observer.Observe('case_label.abc.abc', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.abc');
+        if Try12(Res, vText10) then Observer.Observe('case_label.abc.abc', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.abc');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Label_Text10_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_Text10_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_Text10_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_Text10_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_Text10_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Label_Code10()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vCode10: Code[10];
     begin
         vCode10 := 'A';
-        if Try13() then Observer.Observe('eq.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.abc.A');
+        if Try13(Res, vCode10) then Observer.Observe('eq.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('eq.abc.A');
         vCode10 := 'A';
-        if Try14() then Observer.Observe('lt.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.abc.A');
+        if Try14(Res, vCode10) then Observer.Observe('lt.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('lt.abc.A');
         vCode10 := 'A';
-        if Try15() then Observer.Observe('in_set.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.abc.A');
+        if Try15(Res, vCode10) then Observer.Observe('in_set.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('in_set.abc.A');
         vCode10 := 'A';
-        if Try16() then Observer.Observe('case_label.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.A');
+        if Try16(Res, vCode10) then Observer.Observe('case_label.abc.A', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.A');
         vCode10 := 'ABC';
-        if Try13() then Observer.Observe('eq.abc.ABC', Format(Res, 0, 9)) else Observer.ObserveError('eq.abc.ABC');
+        if Try13(Res, vCode10) then Observer.Observe('eq.abc.ABC', Format(Res, 0, 9)) else Observer.ObserveError('eq.abc.ABC');
         vCode10 := 'ABC';
-        if Try14() then Observer.Observe('lt.abc.ABC', Format(Res, 0, 9)) else Observer.ObserveError('lt.abc.ABC');
+        if Try14(Res, vCode10) then Observer.Observe('lt.abc.ABC', Format(Res, 0, 9)) else Observer.ObserveError('lt.abc.ABC');
         vCode10 := 'ABC';
-        if Try15() then Observer.Observe('in_set.abc.ABC', Format(Res, 0, 9)) else Observer.ObserveError('in_set.abc.ABC');
+        if Try15(Res, vCode10) then Observer.Observe('in_set.abc.ABC', Format(Res, 0, 9)) else Observer.ObserveError('in_set.abc.ABC');
         vCode10 := 'ABC';
-        if Try16() then Observer.Observe('case_label.abc.ABC', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.ABC');
+        if Try16(Res, vCode10) then Observer.Observe('case_label.abc.ABC', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.ABC');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Label_Code10_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_Code10_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_Code10_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_Code10_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_Code10_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Label_Guid()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        vGuid: Guid;
     begin
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try17() then Observer.Observe('eq.abc.g', Format(Res, 0, 9)) else Observer.ObserveError('eq.abc.g');
+        if Try17(Res, vGuid) then Observer.Observe('eq.abc.g', Format(Res, 0, 9)) else Observer.ObserveError('eq.abc.g');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try18() then Observer.Observe('lt.abc.g', Format(Res, 0, 9)) else Observer.ObserveError('lt.abc.g');
+        if Try18(Res, vGuid) then Observer.Observe('lt.abc.g', Format(Res, 0, 9)) else Observer.ObserveError('lt.abc.g');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try19() then Observer.Observe('in_set.abc.g', Format(Res, 0, 9)) else Observer.ObserveError('in_set.abc.g');
+        if Try19(Res, vGuid) then Observer.Observe('in_set.abc.g', Format(Res, 0, 9)) else Observer.ObserveError('in_set.abc.g');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try20() then Observer.Observe('case_label.abc.g', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.g');
+        if Try20(Res, vGuid) then Observer.Observe('case_label.abc.g', Format(Res, 0, 9)) else Observer.ObserveError('case_label.abc.g');
         Observer.Finish();
     end;
 
-    [Test]
-    procedure Label_Guid_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_Guid_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_Guid_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_Guid_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_Guid_More5()
-    begin
-        Observer.More();
-    end;
-
     [TryFunction]
-    local procedure Try1()
+    local procedure Try1(var Res: Boolean; var vChar: Char)
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Res := vLabel = vChar;
     end;
 
     [TryFunction]
-    local procedure Try2()
+    local procedure Try2(var Res: Boolean; var vChar: Char)
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Res := vLabel < vChar;
     end;
 
     [TryFunction]
-    local procedure Try3()
+    local procedure Try3(var Res: Boolean; var vChar: Char)
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Res := vLabel in [vChar];
     end;
 
     [TryFunction]
-    local procedure Try4()
+    local procedure Try4(var Res: Boolean; var vChar: Char)
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Res := false;
         case vLabel of
@@ -8576,25 +6429,33 @@ codeunit 92444 "LT Y31 Cmp Label"
     end;
 
     [TryFunction]
-    local procedure Try5()
+    local procedure Try5(var Res: Boolean; var vText: Text)
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Res := vLabel = vText;
     end;
 
     [TryFunction]
-    local procedure Try6()
+    local procedure Try6(var Res: Boolean; var vText: Text)
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Res := vLabel < vText;
     end;
 
     [TryFunction]
-    local procedure Try7()
+    local procedure Try7(var Res: Boolean; var vText: Text)
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Res := vLabel in [vText];
     end;
 
     [TryFunction]
-    local procedure Try8()
+    local procedure Try8(var Res: Boolean; var vText: Text)
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Res := false;
         case vLabel of
@@ -8604,25 +6465,33 @@ codeunit 92444 "LT Y31 Cmp Label"
     end;
 
     [TryFunction]
-    local procedure Try9()
+    local procedure Try9(var Res: Boolean; var vText10: Text[10])
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Res := vLabel = vText10;
     end;
 
     [TryFunction]
-    local procedure Try10()
+    local procedure Try10(var Res: Boolean; var vText10: Text[10])
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Res := vLabel < vText10;
     end;
 
     [TryFunction]
-    local procedure Try11()
+    local procedure Try11(var Res: Boolean; var vText10: Text[10])
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Res := vLabel in [vText10];
     end;
 
     [TryFunction]
-    local procedure Try12()
+    local procedure Try12(var Res: Boolean; var vText10: Text[10])
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Res := false;
         case vLabel of
@@ -8632,25 +6501,33 @@ codeunit 92444 "LT Y31 Cmp Label"
     end;
 
     [TryFunction]
-    local procedure Try13()
+    local procedure Try13(var Res: Boolean; var vCode10: Code[10])
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Res := vLabel = vCode10;
     end;
 
     [TryFunction]
-    local procedure Try14()
+    local procedure Try14(var Res: Boolean; var vCode10: Code[10])
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Res := vLabel < vCode10;
     end;
 
     [TryFunction]
-    local procedure Try15()
+    local procedure Try15(var Res: Boolean; var vCode10: Code[10])
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Res := vLabel in [vCode10];
     end;
 
     [TryFunction]
-    local procedure Try16()
+    local procedure Try16(var Res: Boolean; var vCode10: Code[10])
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Res := false;
         case vLabel of
@@ -8660,25 +6537,33 @@ codeunit 92444 "LT Y31 Cmp Label"
     end;
 
     [TryFunction]
-    local procedure Try17()
+    local procedure Try17(var Res: Boolean; var vGuid: Guid)
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Res := vLabel = vGuid;
     end;
 
     [TryFunction]
-    local procedure Try18()
+    local procedure Try18(var Res: Boolean; var vGuid: Guid)
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Res := vLabel < vGuid;
     end;
 
     [TryFunction]
-    local procedure Try19()
+    local procedure Try19(var Res: Boolean; var vGuid: Guid)
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Res := vLabel in [vGuid];
     end;
 
     [TryFunction]
-    local procedure Try20()
+    local procedure Try20(var Res: Boolean; var vGuid: Guid)
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Res := false;
         case vLabel of

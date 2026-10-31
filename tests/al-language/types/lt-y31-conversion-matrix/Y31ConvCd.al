@@ -10,552 +10,353 @@ codeunit 92463 "LT Y31 Cd Integer"
     Subtype = Test;
     TestPermissions = Disabled;
 
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        Res: Boolean;
-        V: Variant;
-        vBigInteger: BigInteger;
-        vByte: Byte;
-        vChar: Char;
-        vDecimal: Decimal;
-        vDuration: Duration;
-        vEnum: Enum "LT Y31 E";
-        vEnumImpl: Enum "LT Y31 EI";
-        vInteger: Integer;
-        vOption: Option A,B,C;
-
     [Test]
     procedure Integer_BigInteger()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vBigInteger: BigInteger;
+        vInteger: Integer;
     begin
         vInteger := 65;
         vBigInteger := 65;
         Res := true;
-        if Try1() then Observer.Observe('cond_branches.65.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.t');
+        if Try1(Res, V, vBigInteger, vInteger) then Observer.Observe('cond_branches.65.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.t');
         vInteger := 65;
         vBigInteger := 65;
         Res := false;
-        if Try1() then Observer.Observe('cond_branches.65.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.f');
+        if Try1(Res, V, vBigInteger, vInteger) then Observer.Observe('cond_branches.65.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.f');
         vInteger := 1;
         vBigInteger := 65;
         Res := true;
-        if Try1() then Observer.Observe('cond_branches.1.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.65.t');
+        if Try1(Res, V, vBigInteger, vInteger) then Observer.Observe('cond_branches.1.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.65.t');
         vInteger := 1;
         vBigInteger := 65;
         Res := false;
-        if Try1() then Observer.Observe('cond_branches.1.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.65.f');
+        if Try1(Res, V, vBigInteger, vInteger) then Observer.Observe('cond_branches.1.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.65.f');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Integer_BigInteger_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_BigInteger_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_BigInteger_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_BigInteger_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_BigInteger_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Integer_Decimal()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vDecimal: Decimal;
+        vInteger: Integer;
     begin
         vInteger := 65;
         vDecimal := 65;
         Res := true;
-        if Try2() then Observer.Observe('cond_branches.65.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.t');
+        if Try2(Res, V, vDecimal, vInteger) then Observer.Observe('cond_branches.65.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.t');
         vInteger := 65;
         vDecimal := 65;
         Res := false;
-        if Try2() then Observer.Observe('cond_branches.65.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.f');
+        if Try2(Res, V, vDecimal, vInteger) then Observer.Observe('cond_branches.65.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.f');
         vInteger := 65;
         vDecimal := 1.5;
         Res := true;
-        if Try2() then Observer.Observe('cond_branches.65.1p5.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.1p5.t');
+        if Try2(Res, V, vDecimal, vInteger) then Observer.Observe('cond_branches.65.1p5.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.1p5.t');
         vInteger := 65;
         vDecimal := 1.5;
         Res := false;
-        if Try2() then Observer.Observe('cond_branches.65.1p5.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.1p5.f');
+        if Try2(Res, V, vDecimal, vInteger) then Observer.Observe('cond_branches.65.1p5.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.1p5.f');
         vInteger := 1;
         vDecimal := 65;
         Res := true;
-        if Try2() then Observer.Observe('cond_branches.1.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.65.t');
+        if Try2(Res, V, vDecimal, vInteger) then Observer.Observe('cond_branches.1.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.65.t');
         vInteger := 1;
         vDecimal := 65;
         Res := false;
-        if Try2() then Observer.Observe('cond_branches.1.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.65.f');
+        if Try2(Res, V, vDecimal, vInteger) then Observer.Observe('cond_branches.1.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.65.f');
         vInteger := 1;
         vDecimal := 1.5;
         Res := true;
-        if Try2() then Observer.Observe('cond_branches.1.1p5.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.1p5.t');
+        if Try2(Res, V, vDecimal, vInteger) then Observer.Observe('cond_branches.1.1p5.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.1p5.t');
         vInteger := 1;
         vDecimal := 1.5;
         Res := false;
-        if Try2() then Observer.Observe('cond_branches.1.1p5.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.1p5.f');
+        if Try2(Res, V, vDecimal, vInteger) then Observer.Observe('cond_branches.1.1p5.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.1p5.f');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Integer_Decimal_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Decimal_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Decimal_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Decimal_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Decimal_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Integer_Char()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vChar: Char;
+        vInteger: Integer;
     begin
         vInteger := 65;
         vChar := 65;
         Res := true;
-        if Try3() then Observer.Observe('cond_branches.65.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.A.t');
+        if Try3(Res, V, vChar, vInteger) then Observer.Observe('cond_branches.65.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.A.t');
         vInteger := 65;
         vChar := 65;
         Res := false;
-        if Try3() then Observer.Observe('cond_branches.65.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.A.f');
+        if Try3(Res, V, vChar, vInteger) then Observer.Observe('cond_branches.65.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.A.f');
         vInteger := 65;
         vChar := 97;
         Res := true;
-        if Try3() then Observer.Observe('cond_branches.65.a.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.a.t');
+        if Try3(Res, V, vChar, vInteger) then Observer.Observe('cond_branches.65.a.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.a.t');
         vInteger := 65;
         vChar := 97;
         Res := false;
-        if Try3() then Observer.Observe('cond_branches.65.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.a.f');
+        if Try3(Res, V, vChar, vInteger) then Observer.Observe('cond_branches.65.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.a.f');
         vInteger := 1;
         vChar := 65;
         Res := true;
-        if Try3() then Observer.Observe('cond_branches.1.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.A.t');
+        if Try3(Res, V, vChar, vInteger) then Observer.Observe('cond_branches.1.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.A.t');
         vInteger := 1;
         vChar := 65;
         Res := false;
-        if Try3() then Observer.Observe('cond_branches.1.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.A.f');
+        if Try3(Res, V, vChar, vInteger) then Observer.Observe('cond_branches.1.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.A.f');
         vInteger := 1;
         vChar := 97;
         Res := true;
-        if Try3() then Observer.Observe('cond_branches.1.a.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.a.t');
+        if Try3(Res, V, vChar, vInteger) then Observer.Observe('cond_branches.1.a.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.a.t');
         vInteger := 1;
         vChar := 97;
         Res := false;
-        if Try3() then Observer.Observe('cond_branches.1.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.a.f');
+        if Try3(Res, V, vChar, vInteger) then Observer.Observe('cond_branches.1.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.a.f');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Integer_Char_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Char_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Char_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Char_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Char_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Integer_Byte()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vByte: Byte;
+        vInteger: Integer;
     begin
         vInteger := 65;
         vByte := 65;
         Res := true;
-        if Try4() then Observer.Observe('cond_branches.65.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.t');
+        if Try4(Res, V, vByte, vInteger) then Observer.Observe('cond_branches.65.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.t');
         vInteger := 65;
         vByte := 65;
         Res := false;
-        if Try4() then Observer.Observe('cond_branches.65.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.f');
+        if Try4(Res, V, vByte, vInteger) then Observer.Observe('cond_branches.65.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.f');
         vInteger := 1;
         vByte := 65;
         Res := true;
-        if Try4() then Observer.Observe('cond_branches.1.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.65.t');
+        if Try4(Res, V, vByte, vInteger) then Observer.Observe('cond_branches.1.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.65.t');
         vInteger := 1;
         vByte := 65;
         Res := false;
-        if Try4() then Observer.Observe('cond_branches.1.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.65.f');
+        if Try4(Res, V, vByte, vInteger) then Observer.Observe('cond_branches.1.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.65.f');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Integer_Byte_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Byte_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Byte_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Byte_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Byte_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Integer_Option()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vInteger: Integer;
+        vOption: Option A,B,C;
     begin
         vInteger := 65;
         vOption := 1;
         Res := true;
-        if Try5() then Observer.Observe('cond_branches.65.1.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.1.t');
+        if Try5(Res, V, vInteger, vOption) then Observer.Observe('cond_branches.65.1.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.1.t');
         vInteger := 65;
         vOption := 1;
         Res := false;
-        if Try5() then Observer.Observe('cond_branches.65.1.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.1.f');
+        if Try5(Res, V, vInteger, vOption) then Observer.Observe('cond_branches.65.1.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.1.f');
         vInteger := 65;
         vOption := 3;
         Res := true;
-        if Try5() then Observer.Observe('cond_branches.65.3.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.3.t');
+        if Try5(Res, V, vInteger, vOption) then Observer.Observe('cond_branches.65.3.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.3.t');
         vInteger := 65;
         vOption := 3;
         Res := false;
-        if Try5() then Observer.Observe('cond_branches.65.3.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.3.f');
+        if Try5(Res, V, vInteger, vOption) then Observer.Observe('cond_branches.65.3.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.3.f');
         vInteger := 1;
         vOption := 1;
         Res := true;
-        if Try5() then Observer.Observe('cond_branches.1.1.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.1.t');
+        if Try5(Res, V, vInteger, vOption) then Observer.Observe('cond_branches.1.1.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.1.t');
         vInteger := 1;
         vOption := 1;
         Res := false;
-        if Try5() then Observer.Observe('cond_branches.1.1.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.1.f');
+        if Try5(Res, V, vInteger, vOption) then Observer.Observe('cond_branches.1.1.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.1.f');
         vInteger := 1;
         vOption := 3;
         Res := true;
-        if Try5() then Observer.Observe('cond_branches.1.3.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.3.t');
+        if Try5(Res, V, vInteger, vOption) then Observer.Observe('cond_branches.1.3.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.3.t');
         vInteger := 1;
         vOption := 3;
         Res := false;
-        if Try5() then Observer.Observe('cond_branches.1.3.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.3.f');
+        if Try5(Res, V, vInteger, vOption) then Observer.Observe('cond_branches.1.3.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.3.f');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Integer_Option_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Option_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Option_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Option_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Option_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Integer_Enum()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vEnum: Enum "LT Y31 E";
+        vInteger: Integer;
     begin
         vInteger := 65;
         vEnum := "LT Y31 E"::B;
         Res := true;
-        if Try6() then Observer.Observe('cond_branches.65.B.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.B.t');
+        if Try6(Res, V, vEnum, vInteger) then Observer.Observe('cond_branches.65.B.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.B.t');
         vInteger := 65;
         vEnum := "LT Y31 E"::B;
         Res := false;
-        if Try6() then Observer.Observe('cond_branches.65.B.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.B.f');
+        if Try6(Res, V, vEnum, vInteger) then Observer.Observe('cond_branches.65.B.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.B.f');
         vInteger := 65;
         vEnum := 5;
         Res := true;
-        if Try6() then Observer.Observe('cond_branches.65.ord5.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.ord5.t');
+        if Try6(Res, V, vEnum, vInteger) then Observer.Observe('cond_branches.65.ord5.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.ord5.t');
         vInteger := 65;
         vEnum := 5;
         Res := false;
-        if Try6() then Observer.Observe('cond_branches.65.ord5.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.ord5.f');
+        if Try6(Res, V, vEnum, vInteger) then Observer.Observe('cond_branches.65.ord5.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.ord5.f');
         vInteger := 1;
         vEnum := "LT Y31 E"::B;
         Res := true;
-        if Try6() then Observer.Observe('cond_branches.1.B.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.B.t');
+        if Try6(Res, V, vEnum, vInteger) then Observer.Observe('cond_branches.1.B.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.B.t');
         vInteger := 1;
         vEnum := "LT Y31 E"::B;
         Res := false;
-        if Try6() then Observer.Observe('cond_branches.1.B.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.B.f');
+        if Try6(Res, V, vEnum, vInteger) then Observer.Observe('cond_branches.1.B.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.B.f');
         vInteger := 1;
         vEnum := 5;
         Res := true;
-        if Try6() then Observer.Observe('cond_branches.1.ord5.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.ord5.t');
+        if Try6(Res, V, vEnum, vInteger) then Observer.Observe('cond_branches.1.ord5.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.ord5.t');
         vInteger := 1;
         vEnum := 5;
         Res := false;
-        if Try6() then Observer.Observe('cond_branches.1.ord5.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.ord5.f');
+        if Try6(Res, V, vEnum, vInteger) then Observer.Observe('cond_branches.1.ord5.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.ord5.f');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Integer_Enum_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Enum_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Enum_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Enum_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Enum_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Integer_EnumImpl()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vEnumImpl: Enum "LT Y31 EI";
+        vInteger: Integer;
     begin
         vInteger := 65;
         vEnumImpl := "LT Y31 EI"::A;
         Res := true;
-        if Try7() then Observer.Observe('cond_branches.65.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.A.t');
+        if Try7(Res, V, vEnumImpl, vInteger) then Observer.Observe('cond_branches.65.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.A.t');
         vInteger := 65;
         vEnumImpl := "LT Y31 EI"::A;
         Res := false;
-        if Try7() then Observer.Observe('cond_branches.65.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.A.f');
+        if Try7(Res, V, vEnumImpl, vInteger) then Observer.Observe('cond_branches.65.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.A.f');
         vInteger := 1;
         vEnumImpl := "LT Y31 EI"::A;
         Res := true;
-        if Try7() then Observer.Observe('cond_branches.1.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.A.t');
+        if Try7(Res, V, vEnumImpl, vInteger) then Observer.Observe('cond_branches.1.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.A.t');
         vInteger := 1;
         vEnumImpl := "LT Y31 EI"::A;
         Res := false;
-        if Try7() then Observer.Observe('cond_branches.1.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.A.f');
+        if Try7(Res, V, vEnumImpl, vInteger) then Observer.Observe('cond_branches.1.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.A.f');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Integer_EnumImpl_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_EnumImpl_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_EnumImpl_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_EnumImpl_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_EnumImpl_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Integer_Duration()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vDuration: Duration;
+        vInteger: Integer;
     begin
         vInteger := 65;
         vDuration := 65;
         Res := true;
-        if Try8() then Observer.Observe('cond_branches.65.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.t');
+        if Try8(Res, V, vDuration, vInteger) then Observer.Observe('cond_branches.65.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.t');
         vInteger := 65;
         vDuration := 65;
         Res := false;
-        if Try8() then Observer.Observe('cond_branches.65.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.f');
+        if Try8(Res, V, vDuration, vInteger) then Observer.Observe('cond_branches.65.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.f');
         vInteger := 1;
         vDuration := 65;
         Res := true;
-        if Try8() then Observer.Observe('cond_branches.1.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.65.t');
+        if Try8(Res, V, vDuration, vInteger) then Observer.Observe('cond_branches.1.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.65.t');
         vInteger := 1;
         vDuration := 65;
         Res := false;
-        if Try8() then Observer.Observe('cond_branches.1.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.65.f');
+        if Try8(Res, V, vDuration, vInteger) then Observer.Observe('cond_branches.1.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.65.f');
         Observer.Finish();
     end;
 
-    [Test]
-    procedure Integer_Duration_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Duration_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Duration_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Duration_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Duration_More5()
-    begin
-        Observer.More();
-    end;
-
     [TryFunction]
-    local procedure Try1()
+    local procedure Try1(var Res: Boolean; var V: Variant; var vBigInteger: BigInteger; var vInteger: Integer)
     begin
         Clear(V);
         V := Res ? vInteger : vBigInteger;
     end;
 
     [TryFunction]
-    local procedure Try2()
+    local procedure Try2(var Res: Boolean; var V: Variant; var vDecimal: Decimal; var vInteger: Integer)
     begin
         Clear(V);
         V := Res ? vInteger : vDecimal;
     end;
 
     [TryFunction]
-    local procedure Try3()
+    local procedure Try3(var Res: Boolean; var V: Variant; var vChar: Char; var vInteger: Integer)
     begin
         Clear(V);
         V := Res ? vInteger : vChar;
     end;
 
     [TryFunction]
-    local procedure Try4()
+    local procedure Try4(var Res: Boolean; var V: Variant; var vByte: Byte; var vInteger: Integer)
     begin
         Clear(V);
         V := Res ? vInteger : vByte;
     end;
 
     [TryFunction]
-    local procedure Try5()
+    local procedure Try5(var Res: Boolean; var V: Variant; var vInteger: Integer; var vOption: Option A,B,C)
     begin
         Clear(V);
         V := Res ? vInteger : vOption;
     end;
 
     [TryFunction]
-    local procedure Try6()
+    local procedure Try6(var Res: Boolean; var V: Variant; var vEnum: Enum "LT Y31 E"; var vInteger: Integer)
     begin
         Clear(V);
         V := Res ? vInteger : vEnum;
     end;
 
     [TryFunction]
-    local procedure Try7()
+    local procedure Try7(var Res: Boolean; var V: Variant; var vEnumImpl: Enum "LT Y31 EI"; var vInteger: Integer)
     begin
         Clear(V);
         V := Res ? vInteger : vEnumImpl;
     end;
 
     [TryFunction]
-    local procedure Try8()
+    local procedure Try8(var Res: Boolean; var V: Variant; var vDuration: Duration; var vInteger: Integer)
     begin
         Clear(V);
         V := Res ? vInteger : vDuration;
@@ -575,464 +376,265 @@ codeunit 92464 "LT Y31 Cd BigInteger"
     Subtype = Test;
     TestPermissions = Disabled;
 
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        Res: Boolean;
-        V: Variant;
-        vBigInteger: BigInteger;
-        vByte: Byte;
-        vChar: Char;
-        vDecimal: Decimal;
-        vDuration: Duration;
-        vEnum: Enum "LT Y31 E";
-        vEnumImpl: Enum "LT Y31 EI";
-        vInteger: Integer;
-        vOption: Option A,B,C;
-
     [Test]
     procedure BigInteger_Integer()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vBigInteger: BigInteger;
+        vInteger: Integer;
     begin
         vBigInteger := 65;
         vInteger := 65;
         Res := true;
-        if Try1() then Observer.Observe('cond_branches.65.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.t');
+        if Try1(Res, V, vBigInteger, vInteger) then Observer.Observe('cond_branches.65.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.t');
         vBigInteger := 65;
         vInteger := 65;
         Res := false;
-        if Try1() then Observer.Observe('cond_branches.65.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.f');
+        if Try1(Res, V, vBigInteger, vInteger) then Observer.Observe('cond_branches.65.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.f');
         vBigInteger := 65;
         vInteger := 1;
         Res := true;
-        if Try1() then Observer.Observe('cond_branches.65.1.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.1.t');
+        if Try1(Res, V, vBigInteger, vInteger) then Observer.Observe('cond_branches.65.1.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.1.t');
         vBigInteger := 65;
         vInteger := 1;
         Res := false;
-        if Try1() then Observer.Observe('cond_branches.65.1.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.1.f');
+        if Try1(Res, V, vBigInteger, vInteger) then Observer.Observe('cond_branches.65.1.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.1.f');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure BigInteger_Integer_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Integer_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Integer_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Integer_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Integer_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure BigInteger_Decimal()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vBigInteger: BigInteger;
+        vDecimal: Decimal;
     begin
         vBigInteger := 65;
         vDecimal := 65;
         Res := true;
-        if Try2() then Observer.Observe('cond_branches.65.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.t');
+        if Try2(Res, V, vBigInteger, vDecimal) then Observer.Observe('cond_branches.65.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.t');
         vBigInteger := 65;
         vDecimal := 65;
         Res := false;
-        if Try2() then Observer.Observe('cond_branches.65.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.f');
+        if Try2(Res, V, vBigInteger, vDecimal) then Observer.Observe('cond_branches.65.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.f');
         vBigInteger := 65;
         vDecimal := 1.5;
         Res := true;
-        if Try2() then Observer.Observe('cond_branches.65.1p5.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.1p5.t');
+        if Try2(Res, V, vBigInteger, vDecimal) then Observer.Observe('cond_branches.65.1p5.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.1p5.t');
         vBigInteger := 65;
         vDecimal := 1.5;
         Res := false;
-        if Try2() then Observer.Observe('cond_branches.65.1p5.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.1p5.f');
+        if Try2(Res, V, vBigInteger, vDecimal) then Observer.Observe('cond_branches.65.1p5.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.1p5.f');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure BigInteger_Decimal_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Decimal_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Decimal_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Decimal_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Decimal_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure BigInteger_Char()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vBigInteger: BigInteger;
+        vChar: Char;
     begin
         vBigInteger := 65;
         vChar := 65;
         Res := true;
-        if Try3() then Observer.Observe('cond_branches.65.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.A.t');
+        if Try3(Res, V, vBigInteger, vChar) then Observer.Observe('cond_branches.65.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.A.t');
         vBigInteger := 65;
         vChar := 65;
         Res := false;
-        if Try3() then Observer.Observe('cond_branches.65.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.A.f');
+        if Try3(Res, V, vBigInteger, vChar) then Observer.Observe('cond_branches.65.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.A.f');
         vBigInteger := 65;
         vChar := 97;
         Res := true;
-        if Try3() then Observer.Observe('cond_branches.65.a.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.a.t');
+        if Try3(Res, V, vBigInteger, vChar) then Observer.Observe('cond_branches.65.a.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.a.t');
         vBigInteger := 65;
         vChar := 97;
         Res := false;
-        if Try3() then Observer.Observe('cond_branches.65.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.a.f');
+        if Try3(Res, V, vBigInteger, vChar) then Observer.Observe('cond_branches.65.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.a.f');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure BigInteger_Char_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Char_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Char_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Char_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Char_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure BigInteger_Byte()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vBigInteger: BigInteger;
+        vByte: Byte;
     begin
         vBigInteger := 65;
         vByte := 65;
         Res := true;
-        if Try4() then Observer.Observe('cond_branches.65.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.t');
+        if Try4(Res, V, vBigInteger, vByte) then Observer.Observe('cond_branches.65.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.t');
         vBigInteger := 65;
         vByte := 65;
         Res := false;
-        if Try4() then Observer.Observe('cond_branches.65.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.f');
+        if Try4(Res, V, vBigInteger, vByte) then Observer.Observe('cond_branches.65.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.f');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure BigInteger_Byte_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Byte_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Byte_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Byte_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Byte_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure BigInteger_Option()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vBigInteger: BigInteger;
+        vOption: Option A,B,C;
     begin
         vBigInteger := 65;
         vOption := 1;
         Res := true;
-        if Try5() then Observer.Observe('cond_branches.65.1.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.1.t');
+        if Try5(Res, V, vBigInteger, vOption) then Observer.Observe('cond_branches.65.1.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.1.t');
         vBigInteger := 65;
         vOption := 1;
         Res := false;
-        if Try5() then Observer.Observe('cond_branches.65.1.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.1.f');
+        if Try5(Res, V, vBigInteger, vOption) then Observer.Observe('cond_branches.65.1.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.1.f');
         vBigInteger := 65;
         vOption := 3;
         Res := true;
-        if Try5() then Observer.Observe('cond_branches.65.3.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.3.t');
+        if Try5(Res, V, vBigInteger, vOption) then Observer.Observe('cond_branches.65.3.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.3.t');
         vBigInteger := 65;
         vOption := 3;
         Res := false;
-        if Try5() then Observer.Observe('cond_branches.65.3.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.3.f');
+        if Try5(Res, V, vBigInteger, vOption) then Observer.Observe('cond_branches.65.3.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.3.f');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure BigInteger_Option_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Option_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Option_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Option_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Option_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure BigInteger_Enum()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vBigInteger: BigInteger;
+        vEnum: Enum "LT Y31 E";
     begin
         vBigInteger := 65;
         vEnum := "LT Y31 E"::B;
         Res := true;
-        if Try6() then Observer.Observe('cond_branches.65.B.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.B.t');
+        if Try6(Res, V, vBigInteger, vEnum) then Observer.Observe('cond_branches.65.B.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.B.t');
         vBigInteger := 65;
         vEnum := "LT Y31 E"::B;
         Res := false;
-        if Try6() then Observer.Observe('cond_branches.65.B.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.B.f');
+        if Try6(Res, V, vBigInteger, vEnum) then Observer.Observe('cond_branches.65.B.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.B.f');
         vBigInteger := 65;
         vEnum := 5;
         Res := true;
-        if Try6() then Observer.Observe('cond_branches.65.ord5.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.ord5.t');
+        if Try6(Res, V, vBigInteger, vEnum) then Observer.Observe('cond_branches.65.ord5.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.ord5.t');
         vBigInteger := 65;
         vEnum := 5;
         Res := false;
-        if Try6() then Observer.Observe('cond_branches.65.ord5.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.ord5.f');
+        if Try6(Res, V, vBigInteger, vEnum) then Observer.Observe('cond_branches.65.ord5.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.ord5.f');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure BigInteger_Enum_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Enum_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Enum_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Enum_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Enum_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure BigInteger_EnumImpl()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vBigInteger: BigInteger;
+        vEnumImpl: Enum "LT Y31 EI";
     begin
         vBigInteger := 65;
         vEnumImpl := "LT Y31 EI"::A;
         Res := true;
-        if Try7() then Observer.Observe('cond_branches.65.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.A.t');
+        if Try7(Res, V, vBigInteger, vEnumImpl) then Observer.Observe('cond_branches.65.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.A.t');
         vBigInteger := 65;
         vEnumImpl := "LT Y31 EI"::A;
         Res := false;
-        if Try7() then Observer.Observe('cond_branches.65.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.A.f');
+        if Try7(Res, V, vBigInteger, vEnumImpl) then Observer.Observe('cond_branches.65.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.A.f');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure BigInteger_EnumImpl_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_EnumImpl_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_EnumImpl_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_EnumImpl_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_EnumImpl_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure BigInteger_Duration()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vBigInteger: BigInteger;
+        vDuration: Duration;
     begin
         vBigInteger := 65;
         vDuration := 65;
         Res := true;
-        if Try8() then Observer.Observe('cond_branches.65.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.t');
+        if Try8(Res, V, vBigInteger, vDuration) then Observer.Observe('cond_branches.65.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.t');
         vBigInteger := 65;
         vDuration := 65;
         Res := false;
-        if Try8() then Observer.Observe('cond_branches.65.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.f');
+        if Try8(Res, V, vBigInteger, vDuration) then Observer.Observe('cond_branches.65.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.f');
         Observer.Finish();
     end;
 
-    [Test]
-    procedure BigInteger_Duration_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Duration_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Duration_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Duration_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Duration_More5()
-    begin
-        Observer.More();
-    end;
-
     [TryFunction]
-    local procedure Try1()
+    local procedure Try1(var Res: Boolean; var V: Variant; var vBigInteger: BigInteger; var vInteger: Integer)
     begin
         Clear(V);
         V := Res ? vBigInteger : vInteger;
     end;
 
     [TryFunction]
-    local procedure Try2()
+    local procedure Try2(var Res: Boolean; var V: Variant; var vBigInteger: BigInteger; var vDecimal: Decimal)
     begin
         Clear(V);
         V := Res ? vBigInteger : vDecimal;
     end;
 
     [TryFunction]
-    local procedure Try3()
+    local procedure Try3(var Res: Boolean; var V: Variant; var vBigInteger: BigInteger; var vChar: Char)
     begin
         Clear(V);
         V := Res ? vBigInteger : vChar;
     end;
 
     [TryFunction]
-    local procedure Try4()
+    local procedure Try4(var Res: Boolean; var V: Variant; var vBigInteger: BigInteger; var vByte: Byte)
     begin
         Clear(V);
         V := Res ? vBigInteger : vByte;
     end;
 
     [TryFunction]
-    local procedure Try5()
+    local procedure Try5(var Res: Boolean; var V: Variant; var vBigInteger: BigInteger; var vOption: Option A,B,C)
     begin
         Clear(V);
         V := Res ? vBigInteger : vOption;
     end;
 
     [TryFunction]
-    local procedure Try6()
+    local procedure Try6(var Res: Boolean; var V: Variant; var vBigInteger: BigInteger; var vEnum: Enum "LT Y31 E")
     begin
         Clear(V);
         V := Res ? vBigInteger : vEnum;
     end;
 
     [TryFunction]
-    local procedure Try7()
+    local procedure Try7(var Res: Boolean; var V: Variant; var vBigInteger: BigInteger; var vEnumImpl: Enum "LT Y31 EI")
     begin
         Clear(V);
         V := Res ? vBigInteger : vEnumImpl;
     end;
 
     [TryFunction]
-    local procedure Try8()
+    local procedure Try8(var Res: Boolean; var V: Variant; var vBigInteger: BigInteger; var vDuration: Duration)
     begin
         Clear(V);
         V := Res ? vBigInteger : vDuration;
@@ -1052,416 +654,265 @@ codeunit 92465 "LT Y31 Cd Decimal"
     Subtype = Test;
     TestPermissions = Disabled;
 
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        Res: Boolean;
-        V: Variant;
-        vBigInteger: BigInteger;
-        vByte: Byte;
-        vChar: Char;
-        vDecimal: Decimal;
-        vDuration: Duration;
-        vInteger: Integer;
-        vOption: Option A,B,C;
-
     [Test]
     procedure Decimal_Integer()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vDecimal: Decimal;
+        vInteger: Integer;
     begin
         vDecimal := 65;
         vInteger := 65;
         Res := true;
-        if Try1() then Observer.Observe('cond_branches.65.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.t');
+        if Try1(Res, V, vDecimal, vInteger) then Observer.Observe('cond_branches.65.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.t');
         vDecimal := 65;
         vInteger := 65;
         Res := false;
-        if Try1() then Observer.Observe('cond_branches.65.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.f');
+        if Try1(Res, V, vDecimal, vInteger) then Observer.Observe('cond_branches.65.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.f');
         vDecimal := 65;
         vInteger := 1;
         Res := true;
-        if Try1() then Observer.Observe('cond_branches.65.1.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.1.t');
+        if Try1(Res, V, vDecimal, vInteger) then Observer.Observe('cond_branches.65.1.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.1.t');
         vDecimal := 65;
         vInteger := 1;
         Res := false;
-        if Try1() then Observer.Observe('cond_branches.65.1.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.1.f');
+        if Try1(Res, V, vDecimal, vInteger) then Observer.Observe('cond_branches.65.1.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.1.f');
         vDecimal := 1.5;
         vInteger := 65;
         Res := true;
-        if Try1() then Observer.Observe('cond_branches.1p5.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1p5.65.t');
+        if Try1(Res, V, vDecimal, vInteger) then Observer.Observe('cond_branches.1p5.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1p5.65.t');
         vDecimal := 1.5;
         vInteger := 65;
         Res := false;
-        if Try1() then Observer.Observe('cond_branches.1p5.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1p5.65.f');
+        if Try1(Res, V, vDecimal, vInteger) then Observer.Observe('cond_branches.1p5.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1p5.65.f');
         vDecimal := 1.5;
         vInteger := 1;
         Res := true;
-        if Try1() then Observer.Observe('cond_branches.1p5.1.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1p5.1.t');
+        if Try1(Res, V, vDecimal, vInteger) then Observer.Observe('cond_branches.1p5.1.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1p5.1.t');
         vDecimal := 1.5;
         vInteger := 1;
         Res := false;
-        if Try1() then Observer.Observe('cond_branches.1p5.1.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1p5.1.f');
+        if Try1(Res, V, vDecimal, vInteger) then Observer.Observe('cond_branches.1p5.1.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1p5.1.f');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Decimal_Integer_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Integer_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Integer_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Integer_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Integer_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Decimal_BigInteger()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vBigInteger: BigInteger;
+        vDecimal: Decimal;
     begin
         vDecimal := 65;
         vBigInteger := 65;
         Res := true;
-        if Try2() then Observer.Observe('cond_branches.65.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.t');
+        if Try2(Res, V, vBigInteger, vDecimal) then Observer.Observe('cond_branches.65.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.t');
         vDecimal := 65;
         vBigInteger := 65;
         Res := false;
-        if Try2() then Observer.Observe('cond_branches.65.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.f');
+        if Try2(Res, V, vBigInteger, vDecimal) then Observer.Observe('cond_branches.65.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.f');
         vDecimal := 1.5;
         vBigInteger := 65;
         Res := true;
-        if Try2() then Observer.Observe('cond_branches.1p5.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1p5.65.t');
+        if Try2(Res, V, vBigInteger, vDecimal) then Observer.Observe('cond_branches.1p5.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1p5.65.t');
         vDecimal := 1.5;
         vBigInteger := 65;
         Res := false;
-        if Try2() then Observer.Observe('cond_branches.1p5.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1p5.65.f');
+        if Try2(Res, V, vBigInteger, vDecimal) then Observer.Observe('cond_branches.1p5.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1p5.65.f');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Decimal_BigInteger_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_BigInteger_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_BigInteger_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_BigInteger_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_BigInteger_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Decimal_Char()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vChar: Char;
+        vDecimal: Decimal;
     begin
         vDecimal := 65;
         vChar := 65;
         Res := true;
-        if Try3() then Observer.Observe('cond_branches.65.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.A.t');
+        if Try3(Res, V, vChar, vDecimal) then Observer.Observe('cond_branches.65.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.A.t');
         vDecimal := 65;
         vChar := 65;
         Res := false;
-        if Try3() then Observer.Observe('cond_branches.65.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.A.f');
+        if Try3(Res, V, vChar, vDecimal) then Observer.Observe('cond_branches.65.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.A.f');
         vDecimal := 65;
         vChar := 97;
         Res := true;
-        if Try3() then Observer.Observe('cond_branches.65.a.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.a.t');
+        if Try3(Res, V, vChar, vDecimal) then Observer.Observe('cond_branches.65.a.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.a.t');
         vDecimal := 65;
         vChar := 97;
         Res := false;
-        if Try3() then Observer.Observe('cond_branches.65.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.a.f');
+        if Try3(Res, V, vChar, vDecimal) then Observer.Observe('cond_branches.65.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.a.f');
         vDecimal := 1.5;
         vChar := 65;
         Res := true;
-        if Try3() then Observer.Observe('cond_branches.1p5.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1p5.A.t');
+        if Try3(Res, V, vChar, vDecimal) then Observer.Observe('cond_branches.1p5.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1p5.A.t');
         vDecimal := 1.5;
         vChar := 65;
         Res := false;
-        if Try3() then Observer.Observe('cond_branches.1p5.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1p5.A.f');
+        if Try3(Res, V, vChar, vDecimal) then Observer.Observe('cond_branches.1p5.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1p5.A.f');
         vDecimal := 1.5;
         vChar := 97;
         Res := true;
-        if Try3() then Observer.Observe('cond_branches.1p5.a.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1p5.a.t');
+        if Try3(Res, V, vChar, vDecimal) then Observer.Observe('cond_branches.1p5.a.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1p5.a.t');
         vDecimal := 1.5;
         vChar := 97;
         Res := false;
-        if Try3() then Observer.Observe('cond_branches.1p5.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1p5.a.f');
+        if Try3(Res, V, vChar, vDecimal) then Observer.Observe('cond_branches.1p5.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1p5.a.f');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Decimal_Char_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Char_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Char_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Char_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Char_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Decimal_Byte()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vByte: Byte;
+        vDecimal: Decimal;
     begin
         vDecimal := 65;
         vByte := 65;
         Res := true;
-        if Try4() then Observer.Observe('cond_branches.65.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.t');
+        if Try4(Res, V, vByte, vDecimal) then Observer.Observe('cond_branches.65.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.t');
         vDecimal := 65;
         vByte := 65;
         Res := false;
-        if Try4() then Observer.Observe('cond_branches.65.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.f');
+        if Try4(Res, V, vByte, vDecimal) then Observer.Observe('cond_branches.65.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.f');
         vDecimal := 1.5;
         vByte := 65;
         Res := true;
-        if Try4() then Observer.Observe('cond_branches.1p5.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1p5.65.t');
+        if Try4(Res, V, vByte, vDecimal) then Observer.Observe('cond_branches.1p5.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1p5.65.t');
         vDecimal := 1.5;
         vByte := 65;
         Res := false;
-        if Try4() then Observer.Observe('cond_branches.1p5.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1p5.65.f');
+        if Try4(Res, V, vByte, vDecimal) then Observer.Observe('cond_branches.1p5.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1p5.65.f');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Decimal_Byte_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Byte_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Byte_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Byte_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Byte_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Decimal_Option()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vDecimal: Decimal;
+        vOption: Option A,B,C;
     begin
         vDecimal := 65;
         vOption := 1;
         Res := true;
-        if Try5() then Observer.Observe('cond_branches.65.1.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.1.t');
+        if Try5(Res, V, vDecimal, vOption) then Observer.Observe('cond_branches.65.1.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.1.t');
         vDecimal := 65;
         vOption := 1;
         Res := false;
-        if Try5() then Observer.Observe('cond_branches.65.1.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.1.f');
+        if Try5(Res, V, vDecimal, vOption) then Observer.Observe('cond_branches.65.1.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.1.f');
         vDecimal := 65;
         vOption := 3;
         Res := true;
-        if Try5() then Observer.Observe('cond_branches.65.3.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.3.t');
+        if Try5(Res, V, vDecimal, vOption) then Observer.Observe('cond_branches.65.3.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.3.t');
         vDecimal := 65;
         vOption := 3;
         Res := false;
-        if Try5() then Observer.Observe('cond_branches.65.3.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.3.f');
+        if Try5(Res, V, vDecimal, vOption) then Observer.Observe('cond_branches.65.3.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.3.f');
         vDecimal := 1.5;
         vOption := 1;
         Res := true;
-        if Try5() then Observer.Observe('cond_branches.1p5.1.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1p5.1.t');
+        if Try5(Res, V, vDecimal, vOption) then Observer.Observe('cond_branches.1p5.1.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1p5.1.t');
         vDecimal := 1.5;
         vOption := 1;
         Res := false;
-        if Try5() then Observer.Observe('cond_branches.1p5.1.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1p5.1.f');
+        if Try5(Res, V, vDecimal, vOption) then Observer.Observe('cond_branches.1p5.1.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1p5.1.f');
         vDecimal := 1.5;
         vOption := 3;
         Res := true;
-        if Try5() then Observer.Observe('cond_branches.1p5.3.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1p5.3.t');
+        if Try5(Res, V, vDecimal, vOption) then Observer.Observe('cond_branches.1p5.3.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1p5.3.t');
         vDecimal := 1.5;
         vOption := 3;
         Res := false;
-        if Try5() then Observer.Observe('cond_branches.1p5.3.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1p5.3.f');
+        if Try5(Res, V, vDecimal, vOption) then Observer.Observe('cond_branches.1p5.3.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1p5.3.f');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Decimal_Option_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Option_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Option_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Option_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Option_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Decimal_Duration()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vDecimal: Decimal;
+        vDuration: Duration;
     begin
         vDecimal := 65;
         vDuration := 65;
         Res := true;
-        if Try6() then Observer.Observe('cond_branches.65.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.t');
+        if Try6(Res, V, vDecimal, vDuration) then Observer.Observe('cond_branches.65.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.t');
         vDecimal := 65;
         vDuration := 65;
         Res := false;
-        if Try6() then Observer.Observe('cond_branches.65.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.f');
+        if Try6(Res, V, vDecimal, vDuration) then Observer.Observe('cond_branches.65.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.f');
         vDecimal := 1.5;
         vDuration := 65;
         Res := true;
-        if Try6() then Observer.Observe('cond_branches.1p5.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1p5.65.t');
+        if Try6(Res, V, vDecimal, vDuration) then Observer.Observe('cond_branches.1p5.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1p5.65.t');
         vDecimal := 1.5;
         vDuration := 65;
         Res := false;
-        if Try6() then Observer.Observe('cond_branches.1p5.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1p5.65.f');
+        if Try6(Res, V, vDecimal, vDuration) then Observer.Observe('cond_branches.1p5.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1p5.65.f');
         Observer.Finish();
     end;
 
-    [Test]
-    procedure Decimal_Duration_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Duration_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Duration_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Duration_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Duration_More5()
-    begin
-        Observer.More();
-    end;
-
     [TryFunction]
-    local procedure Try1()
+    local procedure Try1(var Res: Boolean; var V: Variant; var vDecimal: Decimal; var vInteger: Integer)
     begin
         Clear(V);
         V := Res ? vDecimal : vInteger;
     end;
 
     [TryFunction]
-    local procedure Try2()
+    local procedure Try2(var Res: Boolean; var V: Variant; var vBigInteger: BigInteger; var vDecimal: Decimal)
     begin
         Clear(V);
         V := Res ? vDecimal : vBigInteger;
     end;
 
     [TryFunction]
-    local procedure Try3()
+    local procedure Try3(var Res: Boolean; var V: Variant; var vChar: Char; var vDecimal: Decimal)
     begin
         Clear(V);
         V := Res ? vDecimal : vChar;
     end;
 
     [TryFunction]
-    local procedure Try4()
+    local procedure Try4(var Res: Boolean; var V: Variant; var vByte: Byte; var vDecimal: Decimal)
     begin
         Clear(V);
         V := Res ? vDecimal : vByte;
     end;
 
     [TryFunction]
-    local procedure Try5()
+    local procedure Try5(var Res: Boolean; var V: Variant; var vDecimal: Decimal; var vOption: Option A,B,C)
     begin
         Clear(V);
         V := Res ? vDecimal : vOption;
     end;
 
     [TryFunction]
-    local procedure Try6()
+    local procedure Try6(var Res: Boolean; var V: Variant; var vDecimal: Decimal; var vDuration: Duration)
     begin
         Clear(V);
         V := Res ? vDecimal : vDuration;
@@ -1481,416 +932,265 @@ codeunit 92466 "LT Y31 Cd Char"
     Subtype = Test;
     TestPermissions = Disabled;
 
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        Res: Boolean;
-        V: Variant;
-        vBigInteger: BigInteger;
-        vByte: Byte;
-        vChar: Char;
-        vDecimal: Decimal;
-        vDuration: Duration;
-        vInteger: Integer;
-        vOption: Option A,B,C;
-
     [Test]
     procedure Char_Integer()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vChar: Char;
+        vInteger: Integer;
     begin
         vChar := 65;
         vInteger := 65;
         Res := true;
-        if Try1() then Observer.Observe('cond_branches.A.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.65.t');
+        if Try1(Res, V, vChar, vInteger) then Observer.Observe('cond_branches.A.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.65.t');
         vChar := 65;
         vInteger := 65;
         Res := false;
-        if Try1() then Observer.Observe('cond_branches.A.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.65.f');
+        if Try1(Res, V, vChar, vInteger) then Observer.Observe('cond_branches.A.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.65.f');
         vChar := 65;
         vInteger := 1;
         Res := true;
-        if Try1() then Observer.Observe('cond_branches.A.1.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.1.t');
+        if Try1(Res, V, vChar, vInteger) then Observer.Observe('cond_branches.A.1.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.1.t');
         vChar := 65;
         vInteger := 1;
         Res := false;
-        if Try1() then Observer.Observe('cond_branches.A.1.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.1.f');
+        if Try1(Res, V, vChar, vInteger) then Observer.Observe('cond_branches.A.1.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.1.f');
         vChar := 97;
         vInteger := 65;
         Res := true;
-        if Try1() then Observer.Observe('cond_branches.a.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.65.t');
+        if Try1(Res, V, vChar, vInteger) then Observer.Observe('cond_branches.a.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.65.t');
         vChar := 97;
         vInteger := 65;
         Res := false;
-        if Try1() then Observer.Observe('cond_branches.a.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.65.f');
+        if Try1(Res, V, vChar, vInteger) then Observer.Observe('cond_branches.a.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.65.f');
         vChar := 97;
         vInteger := 1;
         Res := true;
-        if Try1() then Observer.Observe('cond_branches.a.1.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.1.t');
+        if Try1(Res, V, vChar, vInteger) then Observer.Observe('cond_branches.a.1.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.1.t');
         vChar := 97;
         vInteger := 1;
         Res := false;
-        if Try1() then Observer.Observe('cond_branches.a.1.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.1.f');
+        if Try1(Res, V, vChar, vInteger) then Observer.Observe('cond_branches.a.1.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.1.f');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_Integer_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Integer_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Integer_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Integer_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Integer_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Char_BigInteger()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vBigInteger: BigInteger;
+        vChar: Char;
     begin
         vChar := 65;
         vBigInteger := 65;
         Res := true;
-        if Try2() then Observer.Observe('cond_branches.A.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.65.t');
+        if Try2(Res, V, vBigInteger, vChar) then Observer.Observe('cond_branches.A.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.65.t');
         vChar := 65;
         vBigInteger := 65;
         Res := false;
-        if Try2() then Observer.Observe('cond_branches.A.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.65.f');
+        if Try2(Res, V, vBigInteger, vChar) then Observer.Observe('cond_branches.A.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.65.f');
         vChar := 97;
         vBigInteger := 65;
         Res := true;
-        if Try2() then Observer.Observe('cond_branches.a.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.65.t');
+        if Try2(Res, V, vBigInteger, vChar) then Observer.Observe('cond_branches.a.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.65.t');
         vChar := 97;
         vBigInteger := 65;
         Res := false;
-        if Try2() then Observer.Observe('cond_branches.a.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.65.f');
+        if Try2(Res, V, vBigInteger, vChar) then Observer.Observe('cond_branches.a.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.65.f');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_BigInteger_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_BigInteger_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_BigInteger_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_BigInteger_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_BigInteger_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Char_Decimal()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vChar: Char;
+        vDecimal: Decimal;
     begin
         vChar := 65;
         vDecimal := 65;
         Res := true;
-        if Try3() then Observer.Observe('cond_branches.A.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.65.t');
+        if Try3(Res, V, vChar, vDecimal) then Observer.Observe('cond_branches.A.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.65.t');
         vChar := 65;
         vDecimal := 65;
         Res := false;
-        if Try3() then Observer.Observe('cond_branches.A.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.65.f');
+        if Try3(Res, V, vChar, vDecimal) then Observer.Observe('cond_branches.A.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.65.f');
         vChar := 65;
         vDecimal := 1.5;
         Res := true;
-        if Try3() then Observer.Observe('cond_branches.A.1p5.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.1p5.t');
+        if Try3(Res, V, vChar, vDecimal) then Observer.Observe('cond_branches.A.1p5.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.1p5.t');
         vChar := 65;
         vDecimal := 1.5;
         Res := false;
-        if Try3() then Observer.Observe('cond_branches.A.1p5.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.1p5.f');
+        if Try3(Res, V, vChar, vDecimal) then Observer.Observe('cond_branches.A.1p5.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.1p5.f');
         vChar := 97;
         vDecimal := 65;
         Res := true;
-        if Try3() then Observer.Observe('cond_branches.a.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.65.t');
+        if Try3(Res, V, vChar, vDecimal) then Observer.Observe('cond_branches.a.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.65.t');
         vChar := 97;
         vDecimal := 65;
         Res := false;
-        if Try3() then Observer.Observe('cond_branches.a.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.65.f');
+        if Try3(Res, V, vChar, vDecimal) then Observer.Observe('cond_branches.a.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.65.f');
         vChar := 97;
         vDecimal := 1.5;
         Res := true;
-        if Try3() then Observer.Observe('cond_branches.a.1p5.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.1p5.t');
+        if Try3(Res, V, vChar, vDecimal) then Observer.Observe('cond_branches.a.1p5.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.1p5.t');
         vChar := 97;
         vDecimal := 1.5;
         Res := false;
-        if Try3() then Observer.Observe('cond_branches.a.1p5.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.1p5.f');
+        if Try3(Res, V, vChar, vDecimal) then Observer.Observe('cond_branches.a.1p5.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.1p5.f');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_Decimal_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Decimal_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Decimal_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Decimal_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Decimal_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Char_Byte()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vByte: Byte;
+        vChar: Char;
     begin
         vChar := 65;
         vByte := 65;
         Res := true;
-        if Try4() then Observer.Observe('cond_branches.A.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.65.t');
+        if Try4(Res, V, vByte, vChar) then Observer.Observe('cond_branches.A.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.65.t');
         vChar := 65;
         vByte := 65;
         Res := false;
-        if Try4() then Observer.Observe('cond_branches.A.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.65.f');
+        if Try4(Res, V, vByte, vChar) then Observer.Observe('cond_branches.A.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.65.f');
         vChar := 97;
         vByte := 65;
         Res := true;
-        if Try4() then Observer.Observe('cond_branches.a.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.65.t');
+        if Try4(Res, V, vByte, vChar) then Observer.Observe('cond_branches.a.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.65.t');
         vChar := 97;
         vByte := 65;
         Res := false;
-        if Try4() then Observer.Observe('cond_branches.a.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.65.f');
+        if Try4(Res, V, vByte, vChar) then Observer.Observe('cond_branches.a.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.65.f');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_Byte_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Byte_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Byte_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Byte_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Byte_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Char_Option()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vChar: Char;
+        vOption: Option A,B,C;
     begin
         vChar := 65;
         vOption := 1;
         Res := true;
-        if Try5() then Observer.Observe('cond_branches.A.1.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.1.t');
+        if Try5(Res, V, vChar, vOption) then Observer.Observe('cond_branches.A.1.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.1.t');
         vChar := 65;
         vOption := 1;
         Res := false;
-        if Try5() then Observer.Observe('cond_branches.A.1.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.1.f');
+        if Try5(Res, V, vChar, vOption) then Observer.Observe('cond_branches.A.1.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.1.f');
         vChar := 65;
         vOption := 3;
         Res := true;
-        if Try5() then Observer.Observe('cond_branches.A.3.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.3.t');
+        if Try5(Res, V, vChar, vOption) then Observer.Observe('cond_branches.A.3.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.3.t');
         vChar := 65;
         vOption := 3;
         Res := false;
-        if Try5() then Observer.Observe('cond_branches.A.3.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.3.f');
+        if Try5(Res, V, vChar, vOption) then Observer.Observe('cond_branches.A.3.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.3.f');
         vChar := 97;
         vOption := 1;
         Res := true;
-        if Try5() then Observer.Observe('cond_branches.a.1.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.1.t');
+        if Try5(Res, V, vChar, vOption) then Observer.Observe('cond_branches.a.1.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.1.t');
         vChar := 97;
         vOption := 1;
         Res := false;
-        if Try5() then Observer.Observe('cond_branches.a.1.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.1.f');
+        if Try5(Res, V, vChar, vOption) then Observer.Observe('cond_branches.a.1.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.1.f');
         vChar := 97;
         vOption := 3;
         Res := true;
-        if Try5() then Observer.Observe('cond_branches.a.3.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.3.t');
+        if Try5(Res, V, vChar, vOption) then Observer.Observe('cond_branches.a.3.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.3.t');
         vChar := 97;
         vOption := 3;
         Res := false;
-        if Try5() then Observer.Observe('cond_branches.a.3.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.3.f');
+        if Try5(Res, V, vChar, vOption) then Observer.Observe('cond_branches.a.3.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.3.f');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_Option_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Option_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Option_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Option_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Option_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Char_Duration()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vChar: Char;
+        vDuration: Duration;
     begin
         vChar := 65;
         vDuration := 65;
         Res := true;
-        if Try6() then Observer.Observe('cond_branches.A.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.65.t');
+        if Try6(Res, V, vChar, vDuration) then Observer.Observe('cond_branches.A.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.65.t');
         vChar := 65;
         vDuration := 65;
         Res := false;
-        if Try6() then Observer.Observe('cond_branches.A.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.65.f');
+        if Try6(Res, V, vChar, vDuration) then Observer.Observe('cond_branches.A.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.65.f');
         vChar := 97;
         vDuration := 65;
         Res := true;
-        if Try6() then Observer.Observe('cond_branches.a.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.65.t');
+        if Try6(Res, V, vChar, vDuration) then Observer.Observe('cond_branches.a.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.65.t');
         vChar := 97;
         vDuration := 65;
         Res := false;
-        if Try6() then Observer.Observe('cond_branches.a.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.65.f');
+        if Try6(Res, V, vChar, vDuration) then Observer.Observe('cond_branches.a.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.65.f');
         Observer.Finish();
     end;
 
-    [Test]
-    procedure Char_Duration_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Duration_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Duration_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Duration_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Duration_More5()
-    begin
-        Observer.More();
-    end;
-
     [TryFunction]
-    local procedure Try1()
+    local procedure Try1(var Res: Boolean; var V: Variant; var vChar: Char; var vInteger: Integer)
     begin
         Clear(V);
         V := Res ? vChar : vInteger;
     end;
 
     [TryFunction]
-    local procedure Try2()
+    local procedure Try2(var Res: Boolean; var V: Variant; var vBigInteger: BigInteger; var vChar: Char)
     begin
         Clear(V);
         V := Res ? vChar : vBigInteger;
     end;
 
     [TryFunction]
-    local procedure Try3()
+    local procedure Try3(var Res: Boolean; var V: Variant; var vChar: Char; var vDecimal: Decimal)
     begin
         Clear(V);
         V := Res ? vChar : vDecimal;
     end;
 
     [TryFunction]
-    local procedure Try4()
+    local procedure Try4(var Res: Boolean; var V: Variant; var vByte: Byte; var vChar: Char)
     begin
         Clear(V);
         V := Res ? vChar : vByte;
     end;
 
     [TryFunction]
-    local procedure Try5()
+    local procedure Try5(var Res: Boolean; var V: Variant; var vChar: Char; var vOption: Option A,B,C)
     begin
         Clear(V);
         V := Res ? vChar : vOption;
     end;
 
     [TryFunction]
-    local procedure Try6()
+    local procedure Try6(var Res: Boolean; var V: Variant; var vChar: Char; var vDuration: Duration)
     begin
         Clear(V);
         V := Res ? vChar : vDuration;
@@ -1910,352 +1210,201 @@ codeunit 92467 "LT Y31 Cd Byte"
     Subtype = Test;
     TestPermissions = Disabled;
 
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        Res: Boolean;
-        V: Variant;
-        vBigInteger: BigInteger;
-        vByte: Byte;
-        vChar: Char;
-        vDecimal: Decimal;
-        vDuration: Duration;
-        vInteger: Integer;
-        vOption: Option A,B,C;
-
     [Test]
     procedure Byte_Integer()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vByte: Byte;
+        vInteger: Integer;
     begin
         vByte := 65;
         vInteger := 65;
         Res := true;
-        if Try1() then Observer.Observe('cond_branches.65.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.t');
+        if Try1(Res, V, vByte, vInteger) then Observer.Observe('cond_branches.65.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.t');
         vByte := 65;
         vInteger := 65;
         Res := false;
-        if Try1() then Observer.Observe('cond_branches.65.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.f');
+        if Try1(Res, V, vByte, vInteger) then Observer.Observe('cond_branches.65.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.f');
         vByte := 65;
         vInteger := 1;
         Res := true;
-        if Try1() then Observer.Observe('cond_branches.65.1.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.1.t');
+        if Try1(Res, V, vByte, vInteger) then Observer.Observe('cond_branches.65.1.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.1.t');
         vByte := 65;
         vInteger := 1;
         Res := false;
-        if Try1() then Observer.Observe('cond_branches.65.1.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.1.f');
+        if Try1(Res, V, vByte, vInteger) then Observer.Observe('cond_branches.65.1.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.1.f');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Byte_Integer_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Integer_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Integer_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Integer_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Integer_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Byte_BigInteger()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vBigInteger: BigInteger;
+        vByte: Byte;
     begin
         vByte := 65;
         vBigInteger := 65;
         Res := true;
-        if Try2() then Observer.Observe('cond_branches.65.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.t');
+        if Try2(Res, V, vBigInteger, vByte) then Observer.Observe('cond_branches.65.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.t');
         vByte := 65;
         vBigInteger := 65;
         Res := false;
-        if Try2() then Observer.Observe('cond_branches.65.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.f');
+        if Try2(Res, V, vBigInteger, vByte) then Observer.Observe('cond_branches.65.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.f');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Byte_BigInteger_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_BigInteger_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_BigInteger_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_BigInteger_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_BigInteger_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Byte_Decimal()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vByte: Byte;
+        vDecimal: Decimal;
     begin
         vByte := 65;
         vDecimal := 65;
         Res := true;
-        if Try3() then Observer.Observe('cond_branches.65.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.t');
+        if Try3(Res, V, vByte, vDecimal) then Observer.Observe('cond_branches.65.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.t');
         vByte := 65;
         vDecimal := 65;
         Res := false;
-        if Try3() then Observer.Observe('cond_branches.65.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.f');
+        if Try3(Res, V, vByte, vDecimal) then Observer.Observe('cond_branches.65.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.f');
         vByte := 65;
         vDecimal := 1.5;
         Res := true;
-        if Try3() then Observer.Observe('cond_branches.65.1p5.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.1p5.t');
+        if Try3(Res, V, vByte, vDecimal) then Observer.Observe('cond_branches.65.1p5.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.1p5.t');
         vByte := 65;
         vDecimal := 1.5;
         Res := false;
-        if Try3() then Observer.Observe('cond_branches.65.1p5.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.1p5.f');
+        if Try3(Res, V, vByte, vDecimal) then Observer.Observe('cond_branches.65.1p5.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.1p5.f');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Byte_Decimal_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Decimal_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Decimal_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Decimal_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Decimal_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Byte_Char()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vByte: Byte;
+        vChar: Char;
     begin
         vByte := 65;
         vChar := 65;
         Res := true;
-        if Try4() then Observer.Observe('cond_branches.65.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.A.t');
+        if Try4(Res, V, vByte, vChar) then Observer.Observe('cond_branches.65.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.A.t');
         vByte := 65;
         vChar := 65;
         Res := false;
-        if Try4() then Observer.Observe('cond_branches.65.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.A.f');
+        if Try4(Res, V, vByte, vChar) then Observer.Observe('cond_branches.65.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.A.f');
         vByte := 65;
         vChar := 97;
         Res := true;
-        if Try4() then Observer.Observe('cond_branches.65.a.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.a.t');
+        if Try4(Res, V, vByte, vChar) then Observer.Observe('cond_branches.65.a.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.a.t');
         vByte := 65;
         vChar := 97;
         Res := false;
-        if Try4() then Observer.Observe('cond_branches.65.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.a.f');
+        if Try4(Res, V, vByte, vChar) then Observer.Observe('cond_branches.65.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.a.f');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Byte_Char_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Char_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Char_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Char_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Char_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Byte_Option()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vByte: Byte;
+        vOption: Option A,B,C;
     begin
         vByte := 65;
         vOption := 1;
         Res := true;
-        if Try5() then Observer.Observe('cond_branches.65.1.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.1.t');
+        if Try5(Res, V, vByte, vOption) then Observer.Observe('cond_branches.65.1.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.1.t');
         vByte := 65;
         vOption := 1;
         Res := false;
-        if Try5() then Observer.Observe('cond_branches.65.1.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.1.f');
+        if Try5(Res, V, vByte, vOption) then Observer.Observe('cond_branches.65.1.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.1.f');
         vByte := 65;
         vOption := 3;
         Res := true;
-        if Try5() then Observer.Observe('cond_branches.65.3.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.3.t');
+        if Try5(Res, V, vByte, vOption) then Observer.Observe('cond_branches.65.3.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.3.t');
         vByte := 65;
         vOption := 3;
         Res := false;
-        if Try5() then Observer.Observe('cond_branches.65.3.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.3.f');
+        if Try5(Res, V, vByte, vOption) then Observer.Observe('cond_branches.65.3.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.3.f');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Byte_Option_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Option_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Option_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Option_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Option_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Byte_Duration()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vByte: Byte;
+        vDuration: Duration;
     begin
         vByte := 65;
         vDuration := 65;
         Res := true;
-        if Try6() then Observer.Observe('cond_branches.65.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.t');
+        if Try6(Res, V, vByte, vDuration) then Observer.Observe('cond_branches.65.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.t');
         vByte := 65;
         vDuration := 65;
         Res := false;
-        if Try6() then Observer.Observe('cond_branches.65.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.f');
+        if Try6(Res, V, vByte, vDuration) then Observer.Observe('cond_branches.65.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.f');
         Observer.Finish();
     end;
 
-    [Test]
-    procedure Byte_Duration_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Duration_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Duration_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Duration_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Duration_More5()
-    begin
-        Observer.More();
-    end;
-
     [TryFunction]
-    local procedure Try1()
+    local procedure Try1(var Res: Boolean; var V: Variant; var vByte: Byte; var vInteger: Integer)
     begin
         Clear(V);
         V := Res ? vByte : vInteger;
     end;
 
     [TryFunction]
-    local procedure Try2()
+    local procedure Try2(var Res: Boolean; var V: Variant; var vBigInteger: BigInteger; var vByte: Byte)
     begin
         Clear(V);
         V := Res ? vByte : vBigInteger;
     end;
 
     [TryFunction]
-    local procedure Try3()
+    local procedure Try3(var Res: Boolean; var V: Variant; var vByte: Byte; var vDecimal: Decimal)
     begin
         Clear(V);
         V := Res ? vByte : vDecimal;
     end;
 
     [TryFunction]
-    local procedure Try4()
+    local procedure Try4(var Res: Boolean; var V: Variant; var vByte: Byte; var vChar: Char)
     begin
         Clear(V);
         V := Res ? vByte : vChar;
     end;
 
     [TryFunction]
-    local procedure Try5()
+    local procedure Try5(var Res: Boolean; var V: Variant; var vByte: Byte; var vOption: Option A,B,C)
     begin
         Clear(V);
         V := Res ? vByte : vOption;
     end;
 
     [TryFunction]
-    local procedure Try6()
+    local procedure Try6(var Res: Boolean; var V: Variant; var vByte: Byte; var vDuration: Duration)
     begin
         Clear(V);
         V := Res ? vByte : vDuration;
@@ -2275,552 +1424,353 @@ codeunit 92468 "LT Y31 Cd Option"
     Subtype = Test;
     TestPermissions = Disabled;
 
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        Res: Boolean;
-        V: Variant;
-        vBigInteger: BigInteger;
-        vByte: Byte;
-        vChar: Char;
-        vDecimal: Decimal;
-        vDuration: Duration;
-        vEnum: Enum "LT Y31 E";
-        vEnumImpl: Enum "LT Y31 EI";
-        vInteger: Integer;
-        vOption: Option A,B,C;
-
     [Test]
     procedure Option_Integer()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vInteger: Integer;
+        vOption: Option A,B,C;
     begin
         vOption := 1;
         vInteger := 65;
         Res := true;
-        if Try1() then Observer.Observe('cond_branches.1.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.65.t');
+        if Try1(Res, V, vInteger, vOption) then Observer.Observe('cond_branches.1.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.65.t');
         vOption := 1;
         vInteger := 65;
         Res := false;
-        if Try1() then Observer.Observe('cond_branches.1.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.65.f');
+        if Try1(Res, V, vInteger, vOption) then Observer.Observe('cond_branches.1.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.65.f');
         vOption := 1;
         vInteger := 1;
         Res := true;
-        if Try1() then Observer.Observe('cond_branches.1.1.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.1.t');
+        if Try1(Res, V, vInteger, vOption) then Observer.Observe('cond_branches.1.1.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.1.t');
         vOption := 1;
         vInteger := 1;
         Res := false;
-        if Try1() then Observer.Observe('cond_branches.1.1.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.1.f');
+        if Try1(Res, V, vInteger, vOption) then Observer.Observe('cond_branches.1.1.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.1.f');
         vOption := 3;
         vInteger := 65;
         Res := true;
-        if Try1() then Observer.Observe('cond_branches.3.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.3.65.t');
+        if Try1(Res, V, vInteger, vOption) then Observer.Observe('cond_branches.3.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.3.65.t');
         vOption := 3;
         vInteger := 65;
         Res := false;
-        if Try1() then Observer.Observe('cond_branches.3.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.3.65.f');
+        if Try1(Res, V, vInteger, vOption) then Observer.Observe('cond_branches.3.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.3.65.f');
         vOption := 3;
         vInteger := 1;
         Res := true;
-        if Try1() then Observer.Observe('cond_branches.3.1.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.3.1.t');
+        if Try1(Res, V, vInteger, vOption) then Observer.Observe('cond_branches.3.1.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.3.1.t');
         vOption := 3;
         vInteger := 1;
         Res := false;
-        if Try1() then Observer.Observe('cond_branches.3.1.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.3.1.f');
+        if Try1(Res, V, vInteger, vOption) then Observer.Observe('cond_branches.3.1.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.3.1.f');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Option_Integer_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Integer_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Integer_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Integer_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Integer_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Option_BigInteger()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vBigInteger: BigInteger;
+        vOption: Option A,B,C;
     begin
         vOption := 1;
         vBigInteger := 65;
         Res := true;
-        if Try2() then Observer.Observe('cond_branches.1.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.65.t');
+        if Try2(Res, V, vBigInteger, vOption) then Observer.Observe('cond_branches.1.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.65.t');
         vOption := 1;
         vBigInteger := 65;
         Res := false;
-        if Try2() then Observer.Observe('cond_branches.1.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.65.f');
+        if Try2(Res, V, vBigInteger, vOption) then Observer.Observe('cond_branches.1.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.65.f');
         vOption := 3;
         vBigInteger := 65;
         Res := true;
-        if Try2() then Observer.Observe('cond_branches.3.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.3.65.t');
+        if Try2(Res, V, vBigInteger, vOption) then Observer.Observe('cond_branches.3.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.3.65.t');
         vOption := 3;
         vBigInteger := 65;
         Res := false;
-        if Try2() then Observer.Observe('cond_branches.3.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.3.65.f');
+        if Try2(Res, V, vBigInteger, vOption) then Observer.Observe('cond_branches.3.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.3.65.f');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Option_BigInteger_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_BigInteger_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_BigInteger_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_BigInteger_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_BigInteger_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Option_Decimal()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vDecimal: Decimal;
+        vOption: Option A,B,C;
     begin
         vOption := 1;
         vDecimal := 65;
         Res := true;
-        if Try3() then Observer.Observe('cond_branches.1.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.65.t');
+        if Try3(Res, V, vDecimal, vOption) then Observer.Observe('cond_branches.1.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.65.t');
         vOption := 1;
         vDecimal := 65;
         Res := false;
-        if Try3() then Observer.Observe('cond_branches.1.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.65.f');
+        if Try3(Res, V, vDecimal, vOption) then Observer.Observe('cond_branches.1.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.65.f');
         vOption := 1;
         vDecimal := 1.5;
         Res := true;
-        if Try3() then Observer.Observe('cond_branches.1.1p5.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.1p5.t');
+        if Try3(Res, V, vDecimal, vOption) then Observer.Observe('cond_branches.1.1p5.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.1p5.t');
         vOption := 1;
         vDecimal := 1.5;
         Res := false;
-        if Try3() then Observer.Observe('cond_branches.1.1p5.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.1p5.f');
+        if Try3(Res, V, vDecimal, vOption) then Observer.Observe('cond_branches.1.1p5.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.1p5.f');
         vOption := 3;
         vDecimal := 65;
         Res := true;
-        if Try3() then Observer.Observe('cond_branches.3.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.3.65.t');
+        if Try3(Res, V, vDecimal, vOption) then Observer.Observe('cond_branches.3.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.3.65.t');
         vOption := 3;
         vDecimal := 65;
         Res := false;
-        if Try3() then Observer.Observe('cond_branches.3.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.3.65.f');
+        if Try3(Res, V, vDecimal, vOption) then Observer.Observe('cond_branches.3.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.3.65.f');
         vOption := 3;
         vDecimal := 1.5;
         Res := true;
-        if Try3() then Observer.Observe('cond_branches.3.1p5.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.3.1p5.t');
+        if Try3(Res, V, vDecimal, vOption) then Observer.Observe('cond_branches.3.1p5.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.3.1p5.t');
         vOption := 3;
         vDecimal := 1.5;
         Res := false;
-        if Try3() then Observer.Observe('cond_branches.3.1p5.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.3.1p5.f');
+        if Try3(Res, V, vDecimal, vOption) then Observer.Observe('cond_branches.3.1p5.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.3.1p5.f');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Option_Decimal_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Decimal_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Decimal_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Decimal_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Decimal_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Option_Char()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vChar: Char;
+        vOption: Option A,B,C;
     begin
         vOption := 1;
         vChar := 65;
         Res := true;
-        if Try4() then Observer.Observe('cond_branches.1.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.A.t');
+        if Try4(Res, V, vChar, vOption) then Observer.Observe('cond_branches.1.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.A.t');
         vOption := 1;
         vChar := 65;
         Res := false;
-        if Try4() then Observer.Observe('cond_branches.1.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.A.f');
+        if Try4(Res, V, vChar, vOption) then Observer.Observe('cond_branches.1.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.A.f');
         vOption := 1;
         vChar := 97;
         Res := true;
-        if Try4() then Observer.Observe('cond_branches.1.a.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.a.t');
+        if Try4(Res, V, vChar, vOption) then Observer.Observe('cond_branches.1.a.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.a.t');
         vOption := 1;
         vChar := 97;
         Res := false;
-        if Try4() then Observer.Observe('cond_branches.1.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.a.f');
+        if Try4(Res, V, vChar, vOption) then Observer.Observe('cond_branches.1.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.a.f');
         vOption := 3;
         vChar := 65;
         Res := true;
-        if Try4() then Observer.Observe('cond_branches.3.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.3.A.t');
+        if Try4(Res, V, vChar, vOption) then Observer.Observe('cond_branches.3.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.3.A.t');
         vOption := 3;
         vChar := 65;
         Res := false;
-        if Try4() then Observer.Observe('cond_branches.3.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.3.A.f');
+        if Try4(Res, V, vChar, vOption) then Observer.Observe('cond_branches.3.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.3.A.f');
         vOption := 3;
         vChar := 97;
         Res := true;
-        if Try4() then Observer.Observe('cond_branches.3.a.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.3.a.t');
+        if Try4(Res, V, vChar, vOption) then Observer.Observe('cond_branches.3.a.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.3.a.t');
         vOption := 3;
         vChar := 97;
         Res := false;
-        if Try4() then Observer.Observe('cond_branches.3.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.3.a.f');
+        if Try4(Res, V, vChar, vOption) then Observer.Observe('cond_branches.3.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.3.a.f');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Option_Char_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Char_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Char_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Char_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Char_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Option_Byte()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vByte: Byte;
+        vOption: Option A,B,C;
     begin
         vOption := 1;
         vByte := 65;
         Res := true;
-        if Try5() then Observer.Observe('cond_branches.1.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.65.t');
+        if Try5(Res, V, vByte, vOption) then Observer.Observe('cond_branches.1.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.65.t');
         vOption := 1;
         vByte := 65;
         Res := false;
-        if Try5() then Observer.Observe('cond_branches.1.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.65.f');
+        if Try5(Res, V, vByte, vOption) then Observer.Observe('cond_branches.1.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.65.f');
         vOption := 3;
         vByte := 65;
         Res := true;
-        if Try5() then Observer.Observe('cond_branches.3.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.3.65.t');
+        if Try5(Res, V, vByte, vOption) then Observer.Observe('cond_branches.3.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.3.65.t');
         vOption := 3;
         vByte := 65;
         Res := false;
-        if Try5() then Observer.Observe('cond_branches.3.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.3.65.f');
+        if Try5(Res, V, vByte, vOption) then Observer.Observe('cond_branches.3.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.3.65.f');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Option_Byte_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Byte_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Byte_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Byte_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Byte_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Option_Enum()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vEnum: Enum "LT Y31 E";
+        vOption: Option A,B,C;
     begin
         vOption := 1;
         vEnum := "LT Y31 E"::B;
         Res := true;
-        if Try6() then Observer.Observe('cond_branches.1.B.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.B.t');
+        if Try6(Res, V, vEnum, vOption) then Observer.Observe('cond_branches.1.B.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.B.t');
         vOption := 1;
         vEnum := "LT Y31 E"::B;
         Res := false;
-        if Try6() then Observer.Observe('cond_branches.1.B.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.B.f');
+        if Try6(Res, V, vEnum, vOption) then Observer.Observe('cond_branches.1.B.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.B.f');
         vOption := 1;
         vEnum := 5;
         Res := true;
-        if Try6() then Observer.Observe('cond_branches.1.ord5.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.ord5.t');
+        if Try6(Res, V, vEnum, vOption) then Observer.Observe('cond_branches.1.ord5.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.ord5.t');
         vOption := 1;
         vEnum := 5;
         Res := false;
-        if Try6() then Observer.Observe('cond_branches.1.ord5.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.ord5.f');
+        if Try6(Res, V, vEnum, vOption) then Observer.Observe('cond_branches.1.ord5.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.ord5.f');
         vOption := 3;
         vEnum := "LT Y31 E"::B;
         Res := true;
-        if Try6() then Observer.Observe('cond_branches.3.B.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.3.B.t');
+        if Try6(Res, V, vEnum, vOption) then Observer.Observe('cond_branches.3.B.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.3.B.t');
         vOption := 3;
         vEnum := "LT Y31 E"::B;
         Res := false;
-        if Try6() then Observer.Observe('cond_branches.3.B.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.3.B.f');
+        if Try6(Res, V, vEnum, vOption) then Observer.Observe('cond_branches.3.B.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.3.B.f');
         vOption := 3;
         vEnum := 5;
         Res := true;
-        if Try6() then Observer.Observe('cond_branches.3.ord5.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.3.ord5.t');
+        if Try6(Res, V, vEnum, vOption) then Observer.Observe('cond_branches.3.ord5.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.3.ord5.t');
         vOption := 3;
         vEnum := 5;
         Res := false;
-        if Try6() then Observer.Observe('cond_branches.3.ord5.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.3.ord5.f');
+        if Try6(Res, V, vEnum, vOption) then Observer.Observe('cond_branches.3.ord5.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.3.ord5.f');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Option_Enum_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Enum_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Enum_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Enum_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Enum_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Option_EnumImpl()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vEnumImpl: Enum "LT Y31 EI";
+        vOption: Option A,B,C;
     begin
         vOption := 1;
         vEnumImpl := "LT Y31 EI"::A;
         Res := true;
-        if Try7() then Observer.Observe('cond_branches.1.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.A.t');
+        if Try7(Res, V, vEnumImpl, vOption) then Observer.Observe('cond_branches.1.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.A.t');
         vOption := 1;
         vEnumImpl := "LT Y31 EI"::A;
         Res := false;
-        if Try7() then Observer.Observe('cond_branches.1.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.A.f');
+        if Try7(Res, V, vEnumImpl, vOption) then Observer.Observe('cond_branches.1.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.A.f');
         vOption := 3;
         vEnumImpl := "LT Y31 EI"::A;
         Res := true;
-        if Try7() then Observer.Observe('cond_branches.3.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.3.A.t');
+        if Try7(Res, V, vEnumImpl, vOption) then Observer.Observe('cond_branches.3.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.3.A.t');
         vOption := 3;
         vEnumImpl := "LT Y31 EI"::A;
         Res := false;
-        if Try7() then Observer.Observe('cond_branches.3.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.3.A.f');
+        if Try7(Res, V, vEnumImpl, vOption) then Observer.Observe('cond_branches.3.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.3.A.f');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Option_EnumImpl_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_EnumImpl_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_EnumImpl_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_EnumImpl_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_EnumImpl_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Option_Duration()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vDuration: Duration;
+        vOption: Option A,B,C;
     begin
         vOption := 1;
         vDuration := 65;
         Res := true;
-        if Try8() then Observer.Observe('cond_branches.1.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.65.t');
+        if Try8(Res, V, vDuration, vOption) then Observer.Observe('cond_branches.1.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.65.t');
         vOption := 1;
         vDuration := 65;
         Res := false;
-        if Try8() then Observer.Observe('cond_branches.1.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.65.f');
+        if Try8(Res, V, vDuration, vOption) then Observer.Observe('cond_branches.1.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.1.65.f');
         vOption := 3;
         vDuration := 65;
         Res := true;
-        if Try8() then Observer.Observe('cond_branches.3.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.3.65.t');
+        if Try8(Res, V, vDuration, vOption) then Observer.Observe('cond_branches.3.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.3.65.t');
         vOption := 3;
         vDuration := 65;
         Res := false;
-        if Try8() then Observer.Observe('cond_branches.3.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.3.65.f');
+        if Try8(Res, V, vDuration, vOption) then Observer.Observe('cond_branches.3.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.3.65.f');
         Observer.Finish();
     end;
 
-    [Test]
-    procedure Option_Duration_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Duration_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Duration_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Duration_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Duration_More5()
-    begin
-        Observer.More();
-    end;
-
     [TryFunction]
-    local procedure Try1()
+    local procedure Try1(var Res: Boolean; var V: Variant; var vInteger: Integer; var vOption: Option A,B,C)
     begin
         Clear(V);
         V := Res ? vOption : vInteger;
     end;
 
     [TryFunction]
-    local procedure Try2()
+    local procedure Try2(var Res: Boolean; var V: Variant; var vBigInteger: BigInteger; var vOption: Option A,B,C)
     begin
         Clear(V);
         V := Res ? vOption : vBigInteger;
     end;
 
     [TryFunction]
-    local procedure Try3()
+    local procedure Try3(var Res: Boolean; var V: Variant; var vDecimal: Decimal; var vOption: Option A,B,C)
     begin
         Clear(V);
         V := Res ? vOption : vDecimal;
     end;
 
     [TryFunction]
-    local procedure Try4()
+    local procedure Try4(var Res: Boolean; var V: Variant; var vChar: Char; var vOption: Option A,B,C)
     begin
         Clear(V);
         V := Res ? vOption : vChar;
     end;
 
     [TryFunction]
-    local procedure Try5()
+    local procedure Try5(var Res: Boolean; var V: Variant; var vByte: Byte; var vOption: Option A,B,C)
     begin
         Clear(V);
         V := Res ? vOption : vByte;
     end;
 
     [TryFunction]
-    local procedure Try6()
+    local procedure Try6(var Res: Boolean; var V: Variant; var vEnum: Enum "LT Y31 E"; var vOption: Option A,B,C)
     begin
         Clear(V);
         V := Res ? vOption : vEnum;
     end;
 
     [TryFunction]
-    local procedure Try7()
+    local procedure Try7(var Res: Boolean; var V: Variant; var vEnumImpl: Enum "LT Y31 EI"; var vOption: Option A,B,C)
     begin
         Clear(V);
         V := Res ? vOption : vEnumImpl;
     end;
 
     [TryFunction]
-    local procedure Try8()
+    local procedure Try8(var Res: Boolean; var V: Variant; var vDuration: Duration; var vOption: Option A,B,C)
     begin
         Clear(V);
         V := Res ? vOption : vDuration;
@@ -2840,220 +1790,141 @@ codeunit 92469 "LT Y31 Cd Enum"
     Subtype = Test;
     TestPermissions = Disabled;
 
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        Res: Boolean;
-        V: Variant;
-        vBigInteger: BigInteger;
-        vEnum: Enum "LT Y31 E";
-        vInteger: Integer;
-        vOption: Option A,B,C;
-
     [Test]
     procedure Enum_Integer()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vEnum: Enum "LT Y31 E";
+        vInteger: Integer;
     begin
         vEnum := "LT Y31 E"::B;
         vInteger := 65;
         Res := true;
-        if Try1() then Observer.Observe('cond_branches.B.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.B.65.t');
+        if Try1(Res, V, vEnum, vInteger) then Observer.Observe('cond_branches.B.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.B.65.t');
         vEnum := "LT Y31 E"::B;
         vInteger := 65;
         Res := false;
-        if Try1() then Observer.Observe('cond_branches.B.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.B.65.f');
+        if Try1(Res, V, vEnum, vInteger) then Observer.Observe('cond_branches.B.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.B.65.f');
         vEnum := "LT Y31 E"::B;
         vInteger := 1;
         Res := true;
-        if Try1() then Observer.Observe('cond_branches.B.1.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.B.1.t');
+        if Try1(Res, V, vEnum, vInteger) then Observer.Observe('cond_branches.B.1.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.B.1.t');
         vEnum := "LT Y31 E"::B;
         vInteger := 1;
         Res := false;
-        if Try1() then Observer.Observe('cond_branches.B.1.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.B.1.f');
+        if Try1(Res, V, vEnum, vInteger) then Observer.Observe('cond_branches.B.1.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.B.1.f');
         vEnum := 5;
         vInteger := 65;
         Res := true;
-        if Try1() then Observer.Observe('cond_branches.ord5.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.ord5.65.t');
+        if Try1(Res, V, vEnum, vInteger) then Observer.Observe('cond_branches.ord5.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.ord5.65.t');
         vEnum := 5;
         vInteger := 65;
         Res := false;
-        if Try1() then Observer.Observe('cond_branches.ord5.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.ord5.65.f');
+        if Try1(Res, V, vEnum, vInteger) then Observer.Observe('cond_branches.ord5.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.ord5.65.f');
         vEnum := 5;
         vInteger := 1;
         Res := true;
-        if Try1() then Observer.Observe('cond_branches.ord5.1.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.ord5.1.t');
+        if Try1(Res, V, vEnum, vInteger) then Observer.Observe('cond_branches.ord5.1.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.ord5.1.t');
         vEnum := 5;
         vInteger := 1;
         Res := false;
-        if Try1() then Observer.Observe('cond_branches.ord5.1.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.ord5.1.f');
+        if Try1(Res, V, vEnum, vInteger) then Observer.Observe('cond_branches.ord5.1.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.ord5.1.f');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Enum_Integer_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_Integer_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_Integer_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_Integer_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_Integer_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Enum_BigInteger()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vBigInteger: BigInteger;
+        vEnum: Enum "LT Y31 E";
     begin
         vEnum := "LT Y31 E"::B;
         vBigInteger := 65;
         Res := true;
-        if Try2() then Observer.Observe('cond_branches.B.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.B.65.t');
+        if Try2(Res, V, vBigInteger, vEnum) then Observer.Observe('cond_branches.B.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.B.65.t');
         vEnum := "LT Y31 E"::B;
         vBigInteger := 65;
         Res := false;
-        if Try2() then Observer.Observe('cond_branches.B.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.B.65.f');
+        if Try2(Res, V, vBigInteger, vEnum) then Observer.Observe('cond_branches.B.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.B.65.f');
         vEnum := 5;
         vBigInteger := 65;
         Res := true;
-        if Try2() then Observer.Observe('cond_branches.ord5.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.ord5.65.t');
+        if Try2(Res, V, vBigInteger, vEnum) then Observer.Observe('cond_branches.ord5.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.ord5.65.t');
         vEnum := 5;
         vBigInteger := 65;
         Res := false;
-        if Try2() then Observer.Observe('cond_branches.ord5.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.ord5.65.f');
+        if Try2(Res, V, vBigInteger, vEnum) then Observer.Observe('cond_branches.ord5.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.ord5.65.f');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Enum_BigInteger_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_BigInteger_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_BigInteger_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_BigInteger_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_BigInteger_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Enum_Option()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vEnum: Enum "LT Y31 E";
+        vOption: Option A,B,C;
     begin
         vEnum := "LT Y31 E"::B;
         vOption := 1;
         Res := true;
-        if Try3() then Observer.Observe('cond_branches.B.1.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.B.1.t');
+        if Try3(Res, V, vEnum, vOption) then Observer.Observe('cond_branches.B.1.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.B.1.t');
         vEnum := "LT Y31 E"::B;
         vOption := 1;
         Res := false;
-        if Try3() then Observer.Observe('cond_branches.B.1.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.B.1.f');
+        if Try3(Res, V, vEnum, vOption) then Observer.Observe('cond_branches.B.1.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.B.1.f');
         vEnum := "LT Y31 E"::B;
         vOption := 3;
         Res := true;
-        if Try3() then Observer.Observe('cond_branches.B.3.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.B.3.t');
+        if Try3(Res, V, vEnum, vOption) then Observer.Observe('cond_branches.B.3.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.B.3.t');
         vEnum := "LT Y31 E"::B;
         vOption := 3;
         Res := false;
-        if Try3() then Observer.Observe('cond_branches.B.3.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.B.3.f');
+        if Try3(Res, V, vEnum, vOption) then Observer.Observe('cond_branches.B.3.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.B.3.f');
         vEnum := 5;
         vOption := 1;
         Res := true;
-        if Try3() then Observer.Observe('cond_branches.ord5.1.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.ord5.1.t');
+        if Try3(Res, V, vEnum, vOption) then Observer.Observe('cond_branches.ord5.1.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.ord5.1.t');
         vEnum := 5;
         vOption := 1;
         Res := false;
-        if Try3() then Observer.Observe('cond_branches.ord5.1.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.ord5.1.f');
+        if Try3(Res, V, vEnum, vOption) then Observer.Observe('cond_branches.ord5.1.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.ord5.1.f');
         vEnum := 5;
         vOption := 3;
         Res := true;
-        if Try3() then Observer.Observe('cond_branches.ord5.3.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.ord5.3.t');
+        if Try3(Res, V, vEnum, vOption) then Observer.Observe('cond_branches.ord5.3.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.ord5.3.t');
         vEnum := 5;
         vOption := 3;
         Res := false;
-        if Try3() then Observer.Observe('cond_branches.ord5.3.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.ord5.3.f');
+        if Try3(Res, V, vEnum, vOption) then Observer.Observe('cond_branches.ord5.3.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.ord5.3.f');
         Observer.Finish();
     end;
 
-    [Test]
-    procedure Enum_Option_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_Option_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_Option_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_Option_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_Option_More5()
-    begin
-        Observer.More();
-    end;
-
     [TryFunction]
-    local procedure Try1()
+    local procedure Try1(var Res: Boolean; var V: Variant; var vEnum: Enum "LT Y31 E"; var vInteger: Integer)
     begin
         Clear(V);
         V := Res ? vEnum : vInteger;
     end;
 
     [TryFunction]
-    local procedure Try2()
+    local procedure Try2(var Res: Boolean; var V: Variant; var vBigInteger: BigInteger; var vEnum: Enum "LT Y31 E")
     begin
         Clear(V);
         V := Res ? vEnum : vBigInteger;
     end;
 
     [TryFunction]
-    local procedure Try3()
+    local procedure Try3(var Res: Boolean; var V: Variant; var vEnum: Enum "LT Y31 E"; var vOption: Option A,B,C)
     begin
         Clear(V);
         V := Res ? vEnum : vOption;
@@ -3073,180 +1944,101 @@ codeunit 92470 "LT Y31 Cd EnumImpl"
     Subtype = Test;
     TestPermissions = Disabled;
 
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        Res: Boolean;
-        V: Variant;
-        vBigInteger: BigInteger;
-        vEnumImpl: Enum "LT Y31 EI";
-        vInteger: Integer;
-        vOption: Option A,B,C;
-
     [Test]
     procedure EnumImpl_Integer()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vEnumImpl: Enum "LT Y31 EI";
+        vInteger: Integer;
     begin
         vEnumImpl := "LT Y31 EI"::A;
         vInteger := 65;
         Res := true;
-        if Try1() then Observer.Observe('cond_branches.A.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.65.t');
+        if Try1(Res, V, vEnumImpl, vInteger) then Observer.Observe('cond_branches.A.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.65.t');
         vEnumImpl := "LT Y31 EI"::A;
         vInteger := 65;
         Res := false;
-        if Try1() then Observer.Observe('cond_branches.A.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.65.f');
+        if Try1(Res, V, vEnumImpl, vInteger) then Observer.Observe('cond_branches.A.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.65.f');
         vEnumImpl := "LT Y31 EI"::A;
         vInteger := 1;
         Res := true;
-        if Try1() then Observer.Observe('cond_branches.A.1.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.1.t');
+        if Try1(Res, V, vEnumImpl, vInteger) then Observer.Observe('cond_branches.A.1.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.1.t');
         vEnumImpl := "LT Y31 EI"::A;
         vInteger := 1;
         Res := false;
-        if Try1() then Observer.Observe('cond_branches.A.1.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.1.f');
+        if Try1(Res, V, vEnumImpl, vInteger) then Observer.Observe('cond_branches.A.1.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.1.f');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure EnumImpl_Integer_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_Integer_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_Integer_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_Integer_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_Integer_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure EnumImpl_BigInteger()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vBigInteger: BigInteger;
+        vEnumImpl: Enum "LT Y31 EI";
     begin
         vEnumImpl := "LT Y31 EI"::A;
         vBigInteger := 65;
         Res := true;
-        if Try2() then Observer.Observe('cond_branches.A.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.65.t');
+        if Try2(Res, V, vBigInteger, vEnumImpl) then Observer.Observe('cond_branches.A.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.65.t');
         vEnumImpl := "LT Y31 EI"::A;
         vBigInteger := 65;
         Res := false;
-        if Try2() then Observer.Observe('cond_branches.A.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.65.f');
+        if Try2(Res, V, vBigInteger, vEnumImpl) then Observer.Observe('cond_branches.A.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.65.f');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure EnumImpl_BigInteger_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_BigInteger_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_BigInteger_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_BigInteger_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_BigInteger_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure EnumImpl_Option()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vEnumImpl: Enum "LT Y31 EI";
+        vOption: Option A,B,C;
     begin
         vEnumImpl := "LT Y31 EI"::A;
         vOption := 1;
         Res := true;
-        if Try3() then Observer.Observe('cond_branches.A.1.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.1.t');
+        if Try3(Res, V, vEnumImpl, vOption) then Observer.Observe('cond_branches.A.1.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.1.t');
         vEnumImpl := "LT Y31 EI"::A;
         vOption := 1;
         Res := false;
-        if Try3() then Observer.Observe('cond_branches.A.1.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.1.f');
+        if Try3(Res, V, vEnumImpl, vOption) then Observer.Observe('cond_branches.A.1.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.1.f');
         vEnumImpl := "LT Y31 EI"::A;
         vOption := 3;
         Res := true;
-        if Try3() then Observer.Observe('cond_branches.A.3.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.3.t');
+        if Try3(Res, V, vEnumImpl, vOption) then Observer.Observe('cond_branches.A.3.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.3.t');
         vEnumImpl := "LT Y31 EI"::A;
         vOption := 3;
         Res := false;
-        if Try3() then Observer.Observe('cond_branches.A.3.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.3.f');
+        if Try3(Res, V, vEnumImpl, vOption) then Observer.Observe('cond_branches.A.3.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.3.f');
         Observer.Finish();
     end;
 
-    [Test]
-    procedure EnumImpl_Option_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_Option_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_Option_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_Option_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_Option_More5()
-    begin
-        Observer.More();
-    end;
-
     [TryFunction]
-    local procedure Try1()
+    local procedure Try1(var Res: Boolean; var V: Variant; var vEnumImpl: Enum "LT Y31 EI"; var vInteger: Integer)
     begin
         Clear(V);
         V := Res ? vEnumImpl : vInteger;
     end;
 
     [TryFunction]
-    local procedure Try2()
+    local procedure Try2(var Res: Boolean; var V: Variant; var vBigInteger: BigInteger; var vEnumImpl: Enum "LT Y31 EI")
     begin
         Clear(V);
         V := Res ? vEnumImpl : vBigInteger;
     end;
 
     [TryFunction]
-    local procedure Try3()
+    local procedure Try3(var Res: Boolean; var V: Variant; var vEnumImpl: Enum "LT Y31 EI"; var vOption: Option A,B,C)
     begin
         Clear(V);
         V := Res ? vEnumImpl : vOption;
@@ -3266,804 +2058,878 @@ codeunit 92472 "LT Y31 Cd Text"
     Subtype = Test;
     TestPermissions = Disabled;
 
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        Res: Boolean;
-        V: Variant;
-        vChar: Char;
-        vCode10: Code[10];
-        vGuid: Guid;
-        vLabel: Label 'abc', Locked = true;
-        vOut: Text;
-        vText: Text;
-        vText10: Text[10];
-
     [Test]
     procedure Text_Char()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vChar: Char;
+        vOut: Text;
+        vText: Text;
     begin
         vText := 'a';
         vChar := 65;
         Res := true;
-        if Try1() then Observer.Observe('cond_branches.a.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.A.t');
+        if Try1(Res, V, vChar, vText) then Observer.Observe('cond_branches.a.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.A.t');
         vText := 'a';
         vChar := 65;
         Res := false;
-        if Try1() then Observer.Observe('cond_branches.a.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.A.f');
+        if Try1(Res, V, vChar, vText) then Observer.Observe('cond_branches.a.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.A.f');
         vText := 'a';
         vChar := 65;
         Res := true;
-        if Try2() then Observer.Observe('cond_to_text.a.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.a.A.t');
+        if Try2(Res, vChar, vOut, vText) then Observer.Observe('cond_to_text.a.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.a.A.t');
         vText := 'a';
         vChar := 65;
         Res := false;
-        if Try2() then Observer.Observe('cond_to_text.a.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.a.A.f');
+        if Try2(Res, vChar, vOut, vText) then Observer.Observe('cond_to_text.a.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.a.A.f');
         vText := 'a';
         vChar := 97;
         Res := true;
-        if Try1() then Observer.Observe('cond_branches.a.a.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.a.t');
+        if Try1(Res, V, vChar, vText) then Observer.Observe('cond_branches.a.a.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.a.t');
         vText := 'a';
         vChar := 97;
         Res := false;
-        if Try1() then Observer.Observe('cond_branches.a.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.a.f');
+        if Try1(Res, V, vChar, vText) then Observer.Observe('cond_branches.a.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.a.f');
         vText := 'a';
         vChar := 97;
         Res := true;
-        if Try2() then Observer.Observe('cond_to_text.a.a.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.a.a.t');
+        if Try2(Res, vChar, vOut, vText) then Observer.Observe('cond_to_text.a.a.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.a.a.t');
         vText := 'a';
         vChar := 97;
         Res := false;
-        if Try2() then Observer.Observe('cond_to_text.a.a.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.a.a.f');
-        vText := 'A';
-        vChar := 65;
-        Res := true;
-        if Try1() then Observer.Observe('cond_branches.A.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.A.t');
-        vText := 'A';
-        vChar := 65;
-        Res := false;
-        if Try1() then Observer.Observe('cond_branches.A.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.A.f');
-        vText := 'A';
-        vChar := 65;
-        Res := true;
-        if Try2() then Observer.Observe('cond_to_text.A.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.A.t');
-        vText := 'A';
-        vChar := 65;
-        Res := false;
-        if Try2() then Observer.Observe('cond_to_text.A.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.A.f');
-        vText := 'A';
-        vChar := 97;
-        Res := true;
-        if Try1() then Observer.Observe('cond_branches.A.a.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.a.t');
-        vText := 'A';
-        vChar := 97;
-        Res := false;
-        if Try1() then Observer.Observe('cond_branches.A.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.a.f');
-        vText := 'A';
-        vChar := 97;
-        Res := true;
-        if Try2() then Observer.Observe('cond_to_text.A.a.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.a.t');
-        vText := 'A';
-        vChar := 97;
-        Res := false;
-        if Try2() then Observer.Observe('cond_to_text.A.a.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.a.f');
-        vText := 'abc';
-        vChar := 65;
-        Res := true;
-        if Try1() then Observer.Observe('cond_branches.abc.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.A.t');
-        vText := 'abc';
-        vChar := 65;
-        Res := false;
-        if Try1() then Observer.Observe('cond_branches.abc.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.A.f');
-        vText := 'abc';
-        vChar := 65;
-        Res := true;
-        if Try2() then Observer.Observe('cond_to_text.abc.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.A.t');
-        vText := 'abc';
-        vChar := 65;
-        Res := false;
-        if Try2() then Observer.Observe('cond_to_text.abc.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.A.f');
-        vText := 'abc';
-        vChar := 97;
-        Res := true;
-        if Try1() then Observer.Observe('cond_branches.abc.a.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.a.t');
-        vText := 'abc';
-        vChar := 97;
-        Res := false;
-        if Try1() then Observer.Observe('cond_branches.abc.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.a.f');
-        vText := 'abc';
-        vChar := 97;
-        Res := true;
-        if Try2() then Observer.Observe('cond_to_text.abc.a.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.a.t');
-        vText := 'abc';
-        vChar := 97;
-        Res := false;
-        if Try2() then Observer.Observe('cond_to_text.abc.a.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.a.f');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        vChar := 65;
-        Res := true;
-        if Try1() then Observer.Observe('cond_branches.guidlow.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.guidlow.A.t');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        vChar := 65;
-        Res := false;
-        if Try1() then Observer.Observe('cond_branches.guidlow.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.guidlow.A.f');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        vChar := 65;
-        Res := true;
-        if Try2() then Observer.Observe('cond_to_text.guidlow.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.guidlow.A.t');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        vChar := 65;
-        Res := false;
-        if Try2() then Observer.Observe('cond_to_text.guidlow.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.guidlow.A.f');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        vChar := 97;
-        Res := true;
-        if Try1() then Observer.Observe('cond_branches.guidlow.a.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.guidlow.a.t');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        vChar := 97;
-        Res := false;
-        if Try1() then Observer.Observe('cond_branches.guidlow.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.guidlow.a.f');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        vChar := 97;
-        Res := true;
-        if Try2() then Observer.Observe('cond_to_text.guidlow.a.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.guidlow.a.t');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        vChar := 97;
-        Res := false;
-        if Try2() then Observer.Observe('cond_to_text.guidlow.a.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.guidlow.a.f');
-        vText := 'abcdefghijk';
-        vChar := 65;
-        Res := true;
-        if Try1() then Observer.Observe('cond_branches.eleven.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.eleven.A.t');
-        vText := 'abcdefghijk';
-        vChar := 65;
-        Res := false;
-        if Try1() then Observer.Observe('cond_branches.eleven.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.eleven.A.f');
-        vText := 'abcdefghijk';
-        vChar := 65;
-        Res := true;
-        if Try2() then Observer.Observe('cond_to_text.eleven.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.eleven.A.t');
-        vText := 'abcdefghijk';
-        vChar := 65;
-        Res := false;
-        if Try2() then Observer.Observe('cond_to_text.eleven.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.eleven.A.f');
-        vText := 'abcdefghijk';
-        vChar := 97;
-        Res := true;
-        if Try1() then Observer.Observe('cond_branches.eleven.a.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.eleven.a.t');
-        vText := 'abcdefghijk';
-        vChar := 97;
-        Res := false;
-        if Try1() then Observer.Observe('cond_branches.eleven.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.eleven.a.f');
-        vText := 'abcdefghijk';
-        vChar := 97;
-        Res := true;
-        if Try2() then Observer.Observe('cond_to_text.eleven.a.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.eleven.a.t');
-        vText := 'abcdefghijk';
-        vChar := 97;
-        Res := false;
-        if Try2() then Observer.Observe('cond_to_text.eleven.a.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.eleven.a.f');
+        if Try2(Res, vChar, vOut, vText) then Observer.Observe('cond_to_text.a.a.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.a.a.f');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Text_Char_More1()
+    procedure Text_Char_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vChar: Char;
+        vOut: Text;
+        vText: Text;
     begin
-        Observer.More();
+        vText := 'A';
+        vChar := 65;
+        Res := true;
+        if Try1(Res, V, vChar, vText) then Observer.Observe('cond_branches.A.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.A.t');
+        vText := 'A';
+        vChar := 65;
+        Res := false;
+        if Try1(Res, V, vChar, vText) then Observer.Observe('cond_branches.A.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.A.f');
+        vText := 'A';
+        vChar := 65;
+        Res := true;
+        if Try2(Res, vChar, vOut, vText) then Observer.Observe('cond_to_text.A.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.A.t');
+        vText := 'A';
+        vChar := 65;
+        Res := false;
+        if Try2(Res, vChar, vOut, vText) then Observer.Observe('cond_to_text.A.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.A.f');
+        vText := 'A';
+        vChar := 97;
+        Res := true;
+        if Try1(Res, V, vChar, vText) then Observer.Observe('cond_branches.A.a.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.a.t');
+        vText := 'A';
+        vChar := 97;
+        Res := false;
+        if Try1(Res, V, vChar, vText) then Observer.Observe('cond_branches.A.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.a.f');
+        vText := 'A';
+        vChar := 97;
+        Res := true;
+        if Try2(Res, vChar, vOut, vText) then Observer.Observe('cond_to_text.A.a.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.a.t');
+        vText := 'A';
+        vChar := 97;
+        Res := false;
+        if Try2(Res, vChar, vOut, vText) then Observer.Observe('cond_to_text.A.a.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.a.f');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Text_Char_More2()
+    procedure Text_Char_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vChar: Char;
+        vOut: Text;
+        vText: Text;
     begin
-        Observer.More();
+        vText := 'abc';
+        vChar := 65;
+        Res := true;
+        if Try1(Res, V, vChar, vText) then Observer.Observe('cond_branches.abc.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.A.t');
+        vText := 'abc';
+        vChar := 65;
+        Res := false;
+        if Try1(Res, V, vChar, vText) then Observer.Observe('cond_branches.abc.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.A.f');
+        vText := 'abc';
+        vChar := 65;
+        Res := true;
+        if Try2(Res, vChar, vOut, vText) then Observer.Observe('cond_to_text.abc.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.A.t');
+        vText := 'abc';
+        vChar := 65;
+        Res := false;
+        if Try2(Res, vChar, vOut, vText) then Observer.Observe('cond_to_text.abc.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.A.f');
+        vText := 'abc';
+        vChar := 97;
+        Res := true;
+        if Try1(Res, V, vChar, vText) then Observer.Observe('cond_branches.abc.a.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.a.t');
+        vText := 'abc';
+        vChar := 97;
+        Res := false;
+        if Try1(Res, V, vChar, vText) then Observer.Observe('cond_branches.abc.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.a.f');
+        vText := 'abc';
+        vChar := 97;
+        Res := true;
+        if Try2(Res, vChar, vOut, vText) then Observer.Observe('cond_to_text.abc.a.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.a.t');
+        vText := 'abc';
+        vChar := 97;
+        Res := false;
+        if Try2(Res, vChar, vOut, vText) then Observer.Observe('cond_to_text.abc.a.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.a.f');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Text_Char_More3()
+    procedure Text_Char_4()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vChar: Char;
+        vOut: Text;
+        vText: Text;
     begin
-        Observer.More();
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vChar := 65;
+        Res := true;
+        if Try1(Res, V, vChar, vText) then Observer.Observe('cond_branches.guidlow.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.guidlow.A.t');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vChar := 65;
+        Res := false;
+        if Try1(Res, V, vChar, vText) then Observer.Observe('cond_branches.guidlow.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.guidlow.A.f');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vChar := 65;
+        Res := true;
+        if Try2(Res, vChar, vOut, vText) then Observer.Observe('cond_to_text.guidlow.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.guidlow.A.t');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vChar := 65;
+        Res := false;
+        if Try2(Res, vChar, vOut, vText) then Observer.Observe('cond_to_text.guidlow.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.guidlow.A.f');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vChar := 97;
+        Res := true;
+        if Try1(Res, V, vChar, vText) then Observer.Observe('cond_branches.guidlow.a.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.guidlow.a.t');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vChar := 97;
+        Res := false;
+        if Try1(Res, V, vChar, vText) then Observer.Observe('cond_branches.guidlow.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.guidlow.a.f');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vChar := 97;
+        Res := true;
+        if Try2(Res, vChar, vOut, vText) then Observer.Observe('cond_to_text.guidlow.a.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.guidlow.a.t');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vChar := 97;
+        Res := false;
+        if Try2(Res, vChar, vOut, vText) then Observer.Observe('cond_to_text.guidlow.a.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.guidlow.a.f');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Text_Char_More4()
+    procedure Text_Char_5()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vChar: Char;
+        vOut: Text;
+        vText: Text;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text_Char_More5()
-    begin
-        Observer.More();
+        vText := 'abcdefghijk';
+        vChar := 65;
+        Res := true;
+        if Try1(Res, V, vChar, vText) then Observer.Observe('cond_branches.eleven.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.eleven.A.t');
+        vText := 'abcdefghijk';
+        vChar := 65;
+        Res := false;
+        if Try1(Res, V, vChar, vText) then Observer.Observe('cond_branches.eleven.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.eleven.A.f');
+        vText := 'abcdefghijk';
+        vChar := 65;
+        Res := true;
+        if Try2(Res, vChar, vOut, vText) then Observer.Observe('cond_to_text.eleven.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.eleven.A.t');
+        vText := 'abcdefghijk';
+        vChar := 65;
+        Res := false;
+        if Try2(Res, vChar, vOut, vText) then Observer.Observe('cond_to_text.eleven.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.eleven.A.f');
+        vText := 'abcdefghijk';
+        vChar := 97;
+        Res := true;
+        if Try1(Res, V, vChar, vText) then Observer.Observe('cond_branches.eleven.a.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.eleven.a.t');
+        vText := 'abcdefghijk';
+        vChar := 97;
+        Res := false;
+        if Try1(Res, V, vChar, vText) then Observer.Observe('cond_branches.eleven.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.eleven.a.f');
+        vText := 'abcdefghijk';
+        vChar := 97;
+        Res := true;
+        if Try2(Res, vChar, vOut, vText) then Observer.Observe('cond_to_text.eleven.a.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.eleven.a.t');
+        vText := 'abcdefghijk';
+        vChar := 97;
+        Res := false;
+        if Try2(Res, vChar, vOut, vText) then Observer.Observe('cond_to_text.eleven.a.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.eleven.a.f');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Text_Text10()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vOut: Text;
+        vText: Text;
+        vText10: Text[10];
     begin
         vText := 'a';
         vText10 := 'abc';
         Res := true;
-        if Try3() then Observer.Observe('cond_branches.a.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.abc.t');
+        if Try3(Res, V, vText, vText10) then Observer.Observe('cond_branches.a.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.abc.t');
         vText := 'a';
         vText10 := 'abc';
         Res := false;
-        if Try3() then Observer.Observe('cond_branches.a.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.abc.f');
+        if Try3(Res, V, vText, vText10) then Observer.Observe('cond_branches.a.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.abc.f');
         vText := 'a';
         vText10 := 'abc';
         Res := true;
-        if Try4() then Observer.Observe('cond_to_text.a.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.a.abc.t');
+        if Try4(Res, vOut, vText, vText10) then Observer.Observe('cond_to_text.a.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.a.abc.t');
         vText := 'a';
         vText10 := 'abc';
         Res := false;
-        if Try4() then Observer.Observe('cond_to_text.a.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.a.abc.f');
+        if Try4(Res, vOut, vText, vText10) then Observer.Observe('cond_to_text.a.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.a.abc.f');
         vText := 'A';
         vText10 := 'abc';
         Res := true;
-        if Try3() then Observer.Observe('cond_branches.A.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.abc.t');
+        if Try3(Res, V, vText, vText10) then Observer.Observe('cond_branches.A.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.abc.t');
         vText := 'A';
         vText10 := 'abc';
         Res := false;
-        if Try3() then Observer.Observe('cond_branches.A.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.abc.f');
+        if Try3(Res, V, vText, vText10) then Observer.Observe('cond_branches.A.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.abc.f');
         vText := 'A';
         vText10 := 'abc';
         Res := true;
-        if Try4() then Observer.Observe('cond_to_text.A.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.abc.t');
+        if Try4(Res, vOut, vText, vText10) then Observer.Observe('cond_to_text.A.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.abc.t');
         vText := 'A';
         vText10 := 'abc';
         Res := false;
-        if Try4() then Observer.Observe('cond_to_text.A.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.abc.f');
-        vText := 'abc';
-        vText10 := 'abc';
-        Res := true;
-        if Try3() then Observer.Observe('cond_branches.abc.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.abc.t');
-        vText := 'abc';
-        vText10 := 'abc';
-        Res := false;
-        if Try3() then Observer.Observe('cond_branches.abc.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.abc.f');
-        vText := 'abc';
-        vText10 := 'abc';
-        Res := true;
-        if Try4() then Observer.Observe('cond_to_text.abc.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.abc.t');
-        vText := 'abc';
-        vText10 := 'abc';
-        Res := false;
-        if Try4() then Observer.Observe('cond_to_text.abc.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.abc.f');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        vText10 := 'abc';
-        Res := true;
-        if Try3() then Observer.Observe('cond_branches.guidlow.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.guidlow.abc.t');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        vText10 := 'abc';
-        Res := false;
-        if Try3() then Observer.Observe('cond_branches.guidlow.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.guidlow.abc.f');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        vText10 := 'abc';
-        Res := true;
-        if Try4() then Observer.Observe('cond_to_text.guidlow.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.guidlow.abc.t');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        vText10 := 'abc';
-        Res := false;
-        if Try4() then Observer.Observe('cond_to_text.guidlow.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.guidlow.abc.f');
-        vText := 'abcdefghijk';
-        vText10 := 'abc';
-        Res := true;
-        if Try3() then Observer.Observe('cond_branches.eleven.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.eleven.abc.t');
-        vText := 'abcdefghijk';
-        vText10 := 'abc';
-        Res := false;
-        if Try3() then Observer.Observe('cond_branches.eleven.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.eleven.abc.f');
-        vText := 'abcdefghijk';
-        vText10 := 'abc';
-        Res := true;
-        if Try4() then Observer.Observe('cond_to_text.eleven.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.eleven.abc.t');
-        vText := 'abcdefghijk';
-        vText10 := 'abc';
-        Res := false;
-        if Try4() then Observer.Observe('cond_to_text.eleven.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.eleven.abc.f');
+        if Try4(Res, vOut, vText, vText10) then Observer.Observe('cond_to_text.A.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.abc.f');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Text_Text10_More1()
+    procedure Text_Text10_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vOut: Text;
+        vText: Text;
+        vText10: Text[10];
     begin
-        Observer.More();
+        vText := 'abc';
+        vText10 := 'abc';
+        Res := true;
+        if Try3(Res, V, vText, vText10) then Observer.Observe('cond_branches.abc.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.abc.t');
+        vText := 'abc';
+        vText10 := 'abc';
+        Res := false;
+        if Try3(Res, V, vText, vText10) then Observer.Observe('cond_branches.abc.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.abc.f');
+        vText := 'abc';
+        vText10 := 'abc';
+        Res := true;
+        if Try4(Res, vOut, vText, vText10) then Observer.Observe('cond_to_text.abc.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.abc.t');
+        vText := 'abc';
+        vText10 := 'abc';
+        Res := false;
+        if Try4(Res, vOut, vText, vText10) then Observer.Observe('cond_to_text.abc.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.abc.f');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vText10 := 'abc';
+        Res := true;
+        if Try3(Res, V, vText, vText10) then Observer.Observe('cond_branches.guidlow.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.guidlow.abc.t');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vText10 := 'abc';
+        Res := false;
+        if Try3(Res, V, vText, vText10) then Observer.Observe('cond_branches.guidlow.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.guidlow.abc.f');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vText10 := 'abc';
+        Res := true;
+        if Try4(Res, vOut, vText, vText10) then Observer.Observe('cond_to_text.guidlow.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.guidlow.abc.t');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vText10 := 'abc';
+        Res := false;
+        if Try4(Res, vOut, vText, vText10) then Observer.Observe('cond_to_text.guidlow.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.guidlow.abc.f');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Text_Text10_More2()
+    procedure Text_Text10_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vOut: Text;
+        vText: Text;
+        vText10: Text[10];
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text_Text10_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text_Text10_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text_Text10_More5()
-    begin
-        Observer.More();
+        vText := 'abcdefghijk';
+        vText10 := 'abc';
+        Res := true;
+        if Try3(Res, V, vText, vText10) then Observer.Observe('cond_branches.eleven.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.eleven.abc.t');
+        vText := 'abcdefghijk';
+        vText10 := 'abc';
+        Res := false;
+        if Try3(Res, V, vText, vText10) then Observer.Observe('cond_branches.eleven.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.eleven.abc.f');
+        vText := 'abcdefghijk';
+        vText10 := 'abc';
+        Res := true;
+        if Try4(Res, vOut, vText, vText10) then Observer.Observe('cond_to_text.eleven.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.eleven.abc.t');
+        vText := 'abcdefghijk';
+        vText10 := 'abc';
+        Res := false;
+        if Try4(Res, vOut, vText, vText10) then Observer.Observe('cond_to_text.eleven.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.eleven.abc.f');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Text_Code10()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vCode10: Code[10];
+        vOut: Text;
+        vText: Text;
     begin
         vText := 'a';
         vCode10 := 'A';
         Res := true;
-        if Try5() then Observer.Observe('cond_branches.a.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.A.t');
+        if Try5(Res, V, vCode10, vText) then Observer.Observe('cond_branches.a.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.A.t');
         vText := 'a';
         vCode10 := 'A';
         Res := false;
-        if Try5() then Observer.Observe('cond_branches.a.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.A.f');
+        if Try5(Res, V, vCode10, vText) then Observer.Observe('cond_branches.a.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.A.f');
         vText := 'a';
         vCode10 := 'A';
         Res := true;
-        if Try6() then Observer.Observe('cond_to_text.a.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.a.A.t');
+        if Try6(Res, vCode10, vOut, vText) then Observer.Observe('cond_to_text.a.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.a.A.t');
         vText := 'a';
         vCode10 := 'A';
         Res := false;
-        if Try6() then Observer.Observe('cond_to_text.a.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.a.A.f');
+        if Try6(Res, vCode10, vOut, vText) then Observer.Observe('cond_to_text.a.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.a.A.f');
         vText := 'a';
         vCode10 := 'ABC';
         Res := true;
-        if Try5() then Observer.Observe('cond_branches.a.ABC.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.ABC.t');
+        if Try5(Res, V, vCode10, vText) then Observer.Observe('cond_branches.a.ABC.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.ABC.t');
         vText := 'a';
         vCode10 := 'ABC';
         Res := false;
-        if Try5() then Observer.Observe('cond_branches.a.ABC.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.ABC.f');
+        if Try5(Res, V, vCode10, vText) then Observer.Observe('cond_branches.a.ABC.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.ABC.f');
         vText := 'a';
         vCode10 := 'ABC';
         Res := true;
-        if Try6() then Observer.Observe('cond_to_text.a.ABC.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.a.ABC.t');
+        if Try6(Res, vCode10, vOut, vText) then Observer.Observe('cond_to_text.a.ABC.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.a.ABC.t');
         vText := 'a';
         vCode10 := 'ABC';
         Res := false;
-        if Try6() then Observer.Observe('cond_to_text.a.ABC.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.a.ABC.f');
-        vText := 'A';
-        vCode10 := 'A';
-        Res := true;
-        if Try5() then Observer.Observe('cond_branches.A.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.A.t');
-        vText := 'A';
-        vCode10 := 'A';
-        Res := false;
-        if Try5() then Observer.Observe('cond_branches.A.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.A.f');
-        vText := 'A';
-        vCode10 := 'A';
-        Res := true;
-        if Try6() then Observer.Observe('cond_to_text.A.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.A.t');
-        vText := 'A';
-        vCode10 := 'A';
-        Res := false;
-        if Try6() then Observer.Observe('cond_to_text.A.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.A.f');
-        vText := 'A';
-        vCode10 := 'ABC';
-        Res := true;
-        if Try5() then Observer.Observe('cond_branches.A.ABC.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.ABC.t');
-        vText := 'A';
-        vCode10 := 'ABC';
-        Res := false;
-        if Try5() then Observer.Observe('cond_branches.A.ABC.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.ABC.f');
-        vText := 'A';
-        vCode10 := 'ABC';
-        Res := true;
-        if Try6() then Observer.Observe('cond_to_text.A.ABC.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.ABC.t');
-        vText := 'A';
-        vCode10 := 'ABC';
-        Res := false;
-        if Try6() then Observer.Observe('cond_to_text.A.ABC.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.ABC.f');
-        vText := 'abc';
-        vCode10 := 'A';
-        Res := true;
-        if Try5() then Observer.Observe('cond_branches.abc.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.A.t');
-        vText := 'abc';
-        vCode10 := 'A';
-        Res := false;
-        if Try5() then Observer.Observe('cond_branches.abc.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.A.f');
-        vText := 'abc';
-        vCode10 := 'A';
-        Res := true;
-        if Try6() then Observer.Observe('cond_to_text.abc.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.A.t');
-        vText := 'abc';
-        vCode10 := 'A';
-        Res := false;
-        if Try6() then Observer.Observe('cond_to_text.abc.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.A.f');
-        vText := 'abc';
-        vCode10 := 'ABC';
-        Res := true;
-        if Try5() then Observer.Observe('cond_branches.abc.ABC.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.ABC.t');
-        vText := 'abc';
-        vCode10 := 'ABC';
-        Res := false;
-        if Try5() then Observer.Observe('cond_branches.abc.ABC.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.ABC.f');
-        vText := 'abc';
-        vCode10 := 'ABC';
-        Res := true;
-        if Try6() then Observer.Observe('cond_to_text.abc.ABC.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.ABC.t');
-        vText := 'abc';
-        vCode10 := 'ABC';
-        Res := false;
-        if Try6() then Observer.Observe('cond_to_text.abc.ABC.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.ABC.f');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        vCode10 := 'A';
-        Res := true;
-        if Try5() then Observer.Observe('cond_branches.guidlow.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.guidlow.A.t');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        vCode10 := 'A';
-        Res := false;
-        if Try5() then Observer.Observe('cond_branches.guidlow.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.guidlow.A.f');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        vCode10 := 'A';
-        Res := true;
-        if Try6() then Observer.Observe('cond_to_text.guidlow.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.guidlow.A.t');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        vCode10 := 'A';
-        Res := false;
-        if Try6() then Observer.Observe('cond_to_text.guidlow.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.guidlow.A.f');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        vCode10 := 'ABC';
-        Res := true;
-        if Try5() then Observer.Observe('cond_branches.guidlow.ABC.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.guidlow.ABC.t');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        vCode10 := 'ABC';
-        Res := false;
-        if Try5() then Observer.Observe('cond_branches.guidlow.ABC.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.guidlow.ABC.f');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        vCode10 := 'ABC';
-        Res := true;
-        if Try6() then Observer.Observe('cond_to_text.guidlow.ABC.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.guidlow.ABC.t');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        vCode10 := 'ABC';
-        Res := false;
-        if Try6() then Observer.Observe('cond_to_text.guidlow.ABC.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.guidlow.ABC.f');
-        vText := 'abcdefghijk';
-        vCode10 := 'A';
-        Res := true;
-        if Try5() then Observer.Observe('cond_branches.eleven.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.eleven.A.t');
-        vText := 'abcdefghijk';
-        vCode10 := 'A';
-        Res := false;
-        if Try5() then Observer.Observe('cond_branches.eleven.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.eleven.A.f');
-        vText := 'abcdefghijk';
-        vCode10 := 'A';
-        Res := true;
-        if Try6() then Observer.Observe('cond_to_text.eleven.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.eleven.A.t');
-        vText := 'abcdefghijk';
-        vCode10 := 'A';
-        Res := false;
-        if Try6() then Observer.Observe('cond_to_text.eleven.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.eleven.A.f');
-        vText := 'abcdefghijk';
-        vCode10 := 'ABC';
-        Res := true;
-        if Try5() then Observer.Observe('cond_branches.eleven.ABC.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.eleven.ABC.t');
-        vText := 'abcdefghijk';
-        vCode10 := 'ABC';
-        Res := false;
-        if Try5() then Observer.Observe('cond_branches.eleven.ABC.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.eleven.ABC.f');
-        vText := 'abcdefghijk';
-        vCode10 := 'ABC';
-        Res := true;
-        if Try6() then Observer.Observe('cond_to_text.eleven.ABC.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.eleven.ABC.t');
-        vText := 'abcdefghijk';
-        vCode10 := 'ABC';
-        Res := false;
-        if Try6() then Observer.Observe('cond_to_text.eleven.ABC.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.eleven.ABC.f');
+        if Try6(Res, vCode10, vOut, vText) then Observer.Observe('cond_to_text.a.ABC.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.a.ABC.f');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Text_Code10_More1()
+    procedure Text_Code10_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vCode10: Code[10];
+        vOut: Text;
+        vText: Text;
     begin
-        Observer.More();
+        vText := 'A';
+        vCode10 := 'A';
+        Res := true;
+        if Try5(Res, V, vCode10, vText) then Observer.Observe('cond_branches.A.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.A.t');
+        vText := 'A';
+        vCode10 := 'A';
+        Res := false;
+        if Try5(Res, V, vCode10, vText) then Observer.Observe('cond_branches.A.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.A.f');
+        vText := 'A';
+        vCode10 := 'A';
+        Res := true;
+        if Try6(Res, vCode10, vOut, vText) then Observer.Observe('cond_to_text.A.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.A.t');
+        vText := 'A';
+        vCode10 := 'A';
+        Res := false;
+        if Try6(Res, vCode10, vOut, vText) then Observer.Observe('cond_to_text.A.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.A.f');
+        vText := 'A';
+        vCode10 := 'ABC';
+        Res := true;
+        if Try5(Res, V, vCode10, vText) then Observer.Observe('cond_branches.A.ABC.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.ABC.t');
+        vText := 'A';
+        vCode10 := 'ABC';
+        Res := false;
+        if Try5(Res, V, vCode10, vText) then Observer.Observe('cond_branches.A.ABC.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.ABC.f');
+        vText := 'A';
+        vCode10 := 'ABC';
+        Res := true;
+        if Try6(Res, vCode10, vOut, vText) then Observer.Observe('cond_to_text.A.ABC.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.ABC.t');
+        vText := 'A';
+        vCode10 := 'ABC';
+        Res := false;
+        if Try6(Res, vCode10, vOut, vText) then Observer.Observe('cond_to_text.A.ABC.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.ABC.f');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Text_Code10_More2()
+    procedure Text_Code10_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vCode10: Code[10];
+        vOut: Text;
+        vText: Text;
     begin
-        Observer.More();
+        vText := 'abc';
+        vCode10 := 'A';
+        Res := true;
+        if Try5(Res, V, vCode10, vText) then Observer.Observe('cond_branches.abc.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.A.t');
+        vText := 'abc';
+        vCode10 := 'A';
+        Res := false;
+        if Try5(Res, V, vCode10, vText) then Observer.Observe('cond_branches.abc.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.A.f');
+        vText := 'abc';
+        vCode10 := 'A';
+        Res := true;
+        if Try6(Res, vCode10, vOut, vText) then Observer.Observe('cond_to_text.abc.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.A.t');
+        vText := 'abc';
+        vCode10 := 'A';
+        Res := false;
+        if Try6(Res, vCode10, vOut, vText) then Observer.Observe('cond_to_text.abc.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.A.f');
+        vText := 'abc';
+        vCode10 := 'ABC';
+        Res := true;
+        if Try5(Res, V, vCode10, vText) then Observer.Observe('cond_branches.abc.ABC.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.ABC.t');
+        vText := 'abc';
+        vCode10 := 'ABC';
+        Res := false;
+        if Try5(Res, V, vCode10, vText) then Observer.Observe('cond_branches.abc.ABC.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.ABC.f');
+        vText := 'abc';
+        vCode10 := 'ABC';
+        Res := true;
+        if Try6(Res, vCode10, vOut, vText) then Observer.Observe('cond_to_text.abc.ABC.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.ABC.t');
+        vText := 'abc';
+        vCode10 := 'ABC';
+        Res := false;
+        if Try6(Res, vCode10, vOut, vText) then Observer.Observe('cond_to_text.abc.ABC.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.ABC.f');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Text_Code10_More3()
+    procedure Text_Code10_4()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vCode10: Code[10];
+        vOut: Text;
+        vText: Text;
     begin
-        Observer.More();
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vCode10 := 'A';
+        Res := true;
+        if Try5(Res, V, vCode10, vText) then Observer.Observe('cond_branches.guidlow.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.guidlow.A.t');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vCode10 := 'A';
+        Res := false;
+        if Try5(Res, V, vCode10, vText) then Observer.Observe('cond_branches.guidlow.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.guidlow.A.f');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vCode10 := 'A';
+        Res := true;
+        if Try6(Res, vCode10, vOut, vText) then Observer.Observe('cond_to_text.guidlow.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.guidlow.A.t');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vCode10 := 'A';
+        Res := false;
+        if Try6(Res, vCode10, vOut, vText) then Observer.Observe('cond_to_text.guidlow.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.guidlow.A.f');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vCode10 := 'ABC';
+        Res := true;
+        if Try5(Res, V, vCode10, vText) then Observer.Observe('cond_branches.guidlow.ABC.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.guidlow.ABC.t');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vCode10 := 'ABC';
+        Res := false;
+        if Try5(Res, V, vCode10, vText) then Observer.Observe('cond_branches.guidlow.ABC.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.guidlow.ABC.f');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vCode10 := 'ABC';
+        Res := true;
+        if Try6(Res, vCode10, vOut, vText) then Observer.Observe('cond_to_text.guidlow.ABC.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.guidlow.ABC.t');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vCode10 := 'ABC';
+        Res := false;
+        if Try6(Res, vCode10, vOut, vText) then Observer.Observe('cond_to_text.guidlow.ABC.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.guidlow.ABC.f');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Text_Code10_More4()
+    procedure Text_Code10_5()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vCode10: Code[10];
+        vOut: Text;
+        vText: Text;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text_Code10_More5()
-    begin
-        Observer.More();
+        vText := 'abcdefghijk';
+        vCode10 := 'A';
+        Res := true;
+        if Try5(Res, V, vCode10, vText) then Observer.Observe('cond_branches.eleven.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.eleven.A.t');
+        vText := 'abcdefghijk';
+        vCode10 := 'A';
+        Res := false;
+        if Try5(Res, V, vCode10, vText) then Observer.Observe('cond_branches.eleven.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.eleven.A.f');
+        vText := 'abcdefghijk';
+        vCode10 := 'A';
+        Res := true;
+        if Try6(Res, vCode10, vOut, vText) then Observer.Observe('cond_to_text.eleven.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.eleven.A.t');
+        vText := 'abcdefghijk';
+        vCode10 := 'A';
+        Res := false;
+        if Try6(Res, vCode10, vOut, vText) then Observer.Observe('cond_to_text.eleven.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.eleven.A.f');
+        vText := 'abcdefghijk';
+        vCode10 := 'ABC';
+        Res := true;
+        if Try5(Res, V, vCode10, vText) then Observer.Observe('cond_branches.eleven.ABC.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.eleven.ABC.t');
+        vText := 'abcdefghijk';
+        vCode10 := 'ABC';
+        Res := false;
+        if Try5(Res, V, vCode10, vText) then Observer.Observe('cond_branches.eleven.ABC.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.eleven.ABC.f');
+        vText := 'abcdefghijk';
+        vCode10 := 'ABC';
+        Res := true;
+        if Try6(Res, vCode10, vOut, vText) then Observer.Observe('cond_to_text.eleven.ABC.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.eleven.ABC.t');
+        vText := 'abcdefghijk';
+        vCode10 := 'ABC';
+        Res := false;
+        if Try6(Res, vCode10, vOut, vText) then Observer.Observe('cond_to_text.eleven.ABC.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.eleven.ABC.f');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Text_Guid()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vGuid: Guid;
+        vOut: Text;
+        vText: Text;
     begin
         vText := 'a';
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         Res := true;
-        if Try7() then Observer.Observe('cond_branches.a.g.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.g.t');
+        if Try7(Res, V, vGuid, vText) then Observer.Observe('cond_branches.a.g.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.g.t');
         vText := 'a';
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         Res := false;
-        if Try7() then Observer.Observe('cond_branches.a.g.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.g.f');
+        if Try7(Res, V, vGuid, vText) then Observer.Observe('cond_branches.a.g.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.g.f');
         vText := 'a';
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         Res := true;
-        if Try8() then Observer.Observe('cond_to_text.a.g.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.a.g.t');
+        if Try8(Res, vGuid, vOut, vText) then Observer.Observe('cond_to_text.a.g.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.a.g.t');
         vText := 'a';
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         Res := false;
-        if Try8() then Observer.Observe('cond_to_text.a.g.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.a.g.f');
+        if Try8(Res, vGuid, vOut, vText) then Observer.Observe('cond_to_text.a.g.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.a.g.f');
         vText := 'A';
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         Res := true;
-        if Try7() then Observer.Observe('cond_branches.A.g.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.g.t');
+        if Try7(Res, V, vGuid, vText) then Observer.Observe('cond_branches.A.g.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.g.t');
         vText := 'A';
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         Res := false;
-        if Try7() then Observer.Observe('cond_branches.A.g.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.g.f');
+        if Try7(Res, V, vGuid, vText) then Observer.Observe('cond_branches.A.g.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.g.f');
         vText := 'A';
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         Res := true;
-        if Try8() then Observer.Observe('cond_to_text.A.g.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.g.t');
+        if Try8(Res, vGuid, vOut, vText) then Observer.Observe('cond_to_text.A.g.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.g.t');
         vText := 'A';
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         Res := false;
-        if Try8() then Observer.Observe('cond_to_text.A.g.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.g.f');
-        vText := 'abc';
-        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        Res := true;
-        if Try7() then Observer.Observe('cond_branches.abc.g.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.g.t');
-        vText := 'abc';
-        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        Res := false;
-        if Try7() then Observer.Observe('cond_branches.abc.g.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.g.f');
-        vText := 'abc';
-        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        Res := true;
-        if Try8() then Observer.Observe('cond_to_text.abc.g.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.g.t');
-        vText := 'abc';
-        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        Res := false;
-        if Try8() then Observer.Observe('cond_to_text.abc.g.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.g.f');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        Res := true;
-        if Try7() then Observer.Observe('cond_branches.guidlow.g.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.guidlow.g.t');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        Res := false;
-        if Try7() then Observer.Observe('cond_branches.guidlow.g.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.guidlow.g.f');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        Res := true;
-        if Try8() then Observer.Observe('cond_to_text.guidlow.g.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.guidlow.g.t');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        Res := false;
-        if Try8() then Observer.Observe('cond_to_text.guidlow.g.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.guidlow.g.f');
-        vText := 'abcdefghijk';
-        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        Res := true;
-        if Try7() then Observer.Observe('cond_branches.eleven.g.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.eleven.g.t');
-        vText := 'abcdefghijk';
-        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        Res := false;
-        if Try7() then Observer.Observe('cond_branches.eleven.g.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.eleven.g.f');
-        vText := 'abcdefghijk';
-        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        Res := true;
-        if Try8() then Observer.Observe('cond_to_text.eleven.g.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.eleven.g.t');
-        vText := 'abcdefghijk';
-        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        Res := false;
-        if Try8() then Observer.Observe('cond_to_text.eleven.g.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.eleven.g.f');
+        if Try8(Res, vGuid, vOut, vText) then Observer.Observe('cond_to_text.A.g.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.g.f');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Text_Guid_More1()
+    procedure Text_Guid_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vGuid: Guid;
+        vOut: Text;
+        vText: Text;
     begin
-        Observer.More();
+        vText := 'abc';
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        Res := true;
+        if Try7(Res, V, vGuid, vText) then Observer.Observe('cond_branches.abc.g.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.g.t');
+        vText := 'abc';
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        Res := false;
+        if Try7(Res, V, vGuid, vText) then Observer.Observe('cond_branches.abc.g.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.g.f');
+        vText := 'abc';
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        Res := true;
+        if Try8(Res, vGuid, vOut, vText) then Observer.Observe('cond_to_text.abc.g.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.g.t');
+        vText := 'abc';
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        Res := false;
+        if Try8(Res, vGuid, vOut, vText) then Observer.Observe('cond_to_text.abc.g.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.g.f');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        Res := true;
+        if Try7(Res, V, vGuid, vText) then Observer.Observe('cond_branches.guidlow.g.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.guidlow.g.t');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        Res := false;
+        if Try7(Res, V, vGuid, vText) then Observer.Observe('cond_branches.guidlow.g.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.guidlow.g.f');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        Res := true;
+        if Try8(Res, vGuid, vOut, vText) then Observer.Observe('cond_to_text.guidlow.g.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.guidlow.g.t');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        Res := false;
+        if Try8(Res, vGuid, vOut, vText) then Observer.Observe('cond_to_text.guidlow.g.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.guidlow.g.f');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Text_Guid_More2()
+    procedure Text_Guid_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vGuid: Guid;
+        vOut: Text;
+        vText: Text;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text_Guid_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text_Guid_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text_Guid_More5()
-    begin
-        Observer.More();
+        vText := 'abcdefghijk';
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        Res := true;
+        if Try7(Res, V, vGuid, vText) then Observer.Observe('cond_branches.eleven.g.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.eleven.g.t');
+        vText := 'abcdefghijk';
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        Res := false;
+        if Try7(Res, V, vGuid, vText) then Observer.Observe('cond_branches.eleven.g.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.eleven.g.f');
+        vText := 'abcdefghijk';
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        Res := true;
+        if Try8(Res, vGuid, vOut, vText) then Observer.Observe('cond_to_text.eleven.g.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.eleven.g.t');
+        vText := 'abcdefghijk';
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        Res := false;
+        if Try8(Res, vGuid, vOut, vText) then Observer.Observe('cond_to_text.eleven.g.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.eleven.g.f');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Text_Label()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vOut: Text;
+        vText: Text;
     begin
         vText := 'a';
         Res := true;
-        if Try9() then Observer.Observe('cond_branches.a.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.abc.t');
+        if Try9(Res, V, vText) then Observer.Observe('cond_branches.a.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.abc.t');
         vText := 'a';
         Res := false;
-        if Try9() then Observer.Observe('cond_branches.a.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.abc.f');
+        if Try9(Res, V, vText) then Observer.Observe('cond_branches.a.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.abc.f');
         vText := 'a';
         Res := true;
-        if Try10() then Observer.Observe('cond_to_text.a.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.a.abc.t');
+        if Try10(Res, vOut, vText) then Observer.Observe('cond_to_text.a.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.a.abc.t');
         vText := 'a';
         Res := false;
-        if Try10() then Observer.Observe('cond_to_text.a.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.a.abc.f');
+        if Try10(Res, vOut, vText) then Observer.Observe('cond_to_text.a.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.a.abc.f');
         vText := 'A';
         Res := true;
-        if Try9() then Observer.Observe('cond_branches.A.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.abc.t');
+        if Try9(Res, V, vText) then Observer.Observe('cond_branches.A.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.abc.t');
         vText := 'A';
         Res := false;
-        if Try9() then Observer.Observe('cond_branches.A.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.abc.f');
+        if Try9(Res, V, vText) then Observer.Observe('cond_branches.A.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.abc.f');
         vText := 'A';
         Res := true;
-        if Try10() then Observer.Observe('cond_to_text.A.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.abc.t');
+        if Try10(Res, vOut, vText) then Observer.Observe('cond_to_text.A.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.abc.t');
         vText := 'A';
         Res := false;
-        if Try10() then Observer.Observe('cond_to_text.A.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.abc.f');
-        vText := 'abc';
-        Res := true;
-        if Try9() then Observer.Observe('cond_branches.abc.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.abc.t');
-        vText := 'abc';
-        Res := false;
-        if Try9() then Observer.Observe('cond_branches.abc.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.abc.f');
-        vText := 'abc';
-        Res := true;
-        if Try10() then Observer.Observe('cond_to_text.abc.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.abc.t');
-        vText := 'abc';
-        Res := false;
-        if Try10() then Observer.Observe('cond_to_text.abc.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.abc.f');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        Res := true;
-        if Try9() then Observer.Observe('cond_branches.guidlow.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.guidlow.abc.t');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        Res := false;
-        if Try9() then Observer.Observe('cond_branches.guidlow.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.guidlow.abc.f');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        Res := true;
-        if Try10() then Observer.Observe('cond_to_text.guidlow.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.guidlow.abc.t');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        Res := false;
-        if Try10() then Observer.Observe('cond_to_text.guidlow.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.guidlow.abc.f');
-        vText := 'abcdefghijk';
-        Res := true;
-        if Try9() then Observer.Observe('cond_branches.eleven.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.eleven.abc.t');
-        vText := 'abcdefghijk';
-        Res := false;
-        if Try9() then Observer.Observe('cond_branches.eleven.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.eleven.abc.f');
-        vText := 'abcdefghijk';
-        Res := true;
-        if Try10() then Observer.Observe('cond_to_text.eleven.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.eleven.abc.t');
-        vText := 'abcdefghijk';
-        Res := false;
-        if Try10() then Observer.Observe('cond_to_text.eleven.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.eleven.abc.f');
+        if Try10(Res, vOut, vText) then Observer.Observe('cond_to_text.A.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.abc.f');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Text_Label_More1()
+    procedure Text_Label_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vOut: Text;
+        vText: Text;
     begin
-        Observer.More();
+        vText := 'abc';
+        Res := true;
+        if Try9(Res, V, vText) then Observer.Observe('cond_branches.abc.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.abc.t');
+        vText := 'abc';
+        Res := false;
+        if Try9(Res, V, vText) then Observer.Observe('cond_branches.abc.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.abc.f');
+        vText := 'abc';
+        Res := true;
+        if Try10(Res, vOut, vText) then Observer.Observe('cond_to_text.abc.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.abc.t');
+        vText := 'abc';
+        Res := false;
+        if Try10(Res, vOut, vText) then Observer.Observe('cond_to_text.abc.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.abc.f');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        Res := true;
+        if Try9(Res, V, vText) then Observer.Observe('cond_branches.guidlow.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.guidlow.abc.t');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        Res := false;
+        if Try9(Res, V, vText) then Observer.Observe('cond_branches.guidlow.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.guidlow.abc.f');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        Res := true;
+        if Try10(Res, vOut, vText) then Observer.Observe('cond_to_text.guidlow.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.guidlow.abc.t');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        Res := false;
+        if Try10(Res, vOut, vText) then Observer.Observe('cond_to_text.guidlow.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.guidlow.abc.f');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Text_Label_More2()
+    procedure Text_Label_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vOut: Text;
+        vText: Text;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text_Label_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text_Label_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text_Label_More5()
-    begin
-        Observer.More();
+        vText := 'abcdefghijk';
+        Res := true;
+        if Try9(Res, V, vText) then Observer.Observe('cond_branches.eleven.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.eleven.abc.t');
+        vText := 'abcdefghijk';
+        Res := false;
+        if Try9(Res, V, vText) then Observer.Observe('cond_branches.eleven.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.eleven.abc.f');
+        vText := 'abcdefghijk';
+        Res := true;
+        if Try10(Res, vOut, vText) then Observer.Observe('cond_to_text.eleven.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.eleven.abc.t');
+        vText := 'abcdefghijk';
+        Res := false;
+        if Try10(Res, vOut, vText) then Observer.Observe('cond_to_text.eleven.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.eleven.abc.f');
+        Observer.Finish();
     end;
 
     [TryFunction]
-    local procedure Try1()
+    local procedure Try1(var Res: Boolean; var V: Variant; var vChar: Char; var vText: Text)
     begin
         Clear(V);
         V := Res ? vText : vChar;
     end;
 
     [TryFunction]
-    local procedure Try2()
+    local procedure Try2(var Res: Boolean; var vChar: Char; var vOut: Text; var vText: Text)
     begin
         Clear(vOut);
         vOut := Res ? vText : vChar;
     end;
 
     [TryFunction]
-    local procedure Try3()
+    local procedure Try3(var Res: Boolean; var V: Variant; var vText: Text; var vText10: Text[10])
     begin
         Clear(V);
         V := Res ? vText : vText10;
     end;
 
     [TryFunction]
-    local procedure Try4()
+    local procedure Try4(var Res: Boolean; var vOut: Text; var vText: Text; var vText10: Text[10])
     begin
         Clear(vOut);
         vOut := Res ? vText : vText10;
     end;
 
     [TryFunction]
-    local procedure Try5()
+    local procedure Try5(var Res: Boolean; var V: Variant; var vCode10: Code[10]; var vText: Text)
     begin
         Clear(V);
         V := Res ? vText : vCode10;
     end;
 
     [TryFunction]
-    local procedure Try6()
+    local procedure Try6(var Res: Boolean; var vCode10: Code[10]; var vOut: Text; var vText: Text)
     begin
         Clear(vOut);
         vOut := Res ? vText : vCode10;
     end;
 
     [TryFunction]
-    local procedure Try7()
+    local procedure Try7(var Res: Boolean; var V: Variant; var vGuid: Guid; var vText: Text)
     begin
         Clear(V);
         V := Res ? vText : vGuid;
     end;
 
     [TryFunction]
-    local procedure Try8()
+    local procedure Try8(var Res: Boolean; var vGuid: Guid; var vOut: Text; var vText: Text)
     begin
         Clear(vOut);
         vOut := Res ? vText : vGuid;
     end;
 
     [TryFunction]
-    local procedure Try9()
+    local procedure Try9(var Res: Boolean; var V: Variant; var vText: Text)
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Clear(V);
         V := Res ? vText : vLabel;
     end;
 
     [TryFunction]
-    local procedure Try10()
+    local procedure Try10(var Res: Boolean; var vOut: Text; var vText: Text)
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Clear(vOut);
         vOut := Res ? vText : vLabel;
@@ -4083,369 +2949,300 @@ codeunit 92473 "LT Y31 Cd Text10"
     Subtype = Test;
     TestPermissions = Disabled;
 
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        Res: Boolean;
-        V: Variant;
-        vChar: Char;
-        vCode10: Code[10];
-        vLabel: Label 'abc', Locked = true;
-        vOut: Text;
-        vText: Text;
-        vText10: Text[10];
-
     [Test]
     procedure Text10_Char()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vChar: Char;
+        vOut: Text;
+        vText10: Text[10];
     begin
         vText10 := 'abc';
         vChar := 65;
         Res := true;
-        if Try1() then Observer.Observe('cond_branches.abc.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.A.t');
+        if Try1(Res, V, vChar, vText10) then Observer.Observe('cond_branches.abc.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.A.t');
         vText10 := 'abc';
         vChar := 65;
         Res := false;
-        if Try1() then Observer.Observe('cond_branches.abc.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.A.f');
+        if Try1(Res, V, vChar, vText10) then Observer.Observe('cond_branches.abc.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.A.f');
         vText10 := 'abc';
         vChar := 65;
         Res := true;
-        if Try2() then Observer.Observe('cond_to_text.abc.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.A.t');
+        if Try2(Res, vChar, vOut, vText10) then Observer.Observe('cond_to_text.abc.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.A.t');
         vText10 := 'abc';
         vChar := 65;
         Res := false;
-        if Try2() then Observer.Observe('cond_to_text.abc.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.A.f');
+        if Try2(Res, vChar, vOut, vText10) then Observer.Observe('cond_to_text.abc.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.A.f');
         vText10 := 'abc';
         vChar := 97;
         Res := true;
-        if Try1() then Observer.Observe('cond_branches.abc.a.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.a.t');
+        if Try1(Res, V, vChar, vText10) then Observer.Observe('cond_branches.abc.a.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.a.t');
         vText10 := 'abc';
         vChar := 97;
         Res := false;
-        if Try1() then Observer.Observe('cond_branches.abc.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.a.f');
+        if Try1(Res, V, vChar, vText10) then Observer.Observe('cond_branches.abc.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.a.f');
         vText10 := 'abc';
         vChar := 97;
         Res := true;
-        if Try2() then Observer.Observe('cond_to_text.abc.a.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.a.t');
+        if Try2(Res, vChar, vOut, vText10) then Observer.Observe('cond_to_text.abc.a.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.a.t');
         vText10 := 'abc';
         vChar := 97;
         Res := false;
-        if Try2() then Observer.Observe('cond_to_text.abc.a.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.a.f');
+        if Try2(Res, vChar, vOut, vText10) then Observer.Observe('cond_to_text.abc.a.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.a.f');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text10_Char_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_Char_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_Char_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_Char_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_Char_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Text10_Text()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vOut: Text;
+        vText: Text;
+        vText10: Text[10];
     begin
         vText10 := 'abc';
         vText := 'a';
         Res := true;
-        if Try3() then Observer.Observe('cond_branches.abc.a.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.a.t');
+        if Try3(Res, V, vText, vText10) then Observer.Observe('cond_branches.abc.a.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.a.t');
         vText10 := 'abc';
         vText := 'a';
         Res := false;
-        if Try3() then Observer.Observe('cond_branches.abc.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.a.f');
+        if Try3(Res, V, vText, vText10) then Observer.Observe('cond_branches.abc.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.a.f');
         vText10 := 'abc';
         vText := 'a';
         Res := true;
-        if Try4() then Observer.Observe('cond_to_text.abc.a.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.a.t');
+        if Try4(Res, vOut, vText, vText10) then Observer.Observe('cond_to_text.abc.a.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.a.t');
         vText10 := 'abc';
         vText := 'a';
         Res := false;
-        if Try4() then Observer.Observe('cond_to_text.abc.a.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.a.f');
+        if Try4(Res, vOut, vText, vText10) then Observer.Observe('cond_to_text.abc.a.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.a.f');
         vText10 := 'abc';
         vText := 'A';
         Res := true;
-        if Try3() then Observer.Observe('cond_branches.abc.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.A.t');
+        if Try3(Res, V, vText, vText10) then Observer.Observe('cond_branches.abc.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.A.t');
         vText10 := 'abc';
         vText := 'A';
         Res := false;
-        if Try3() then Observer.Observe('cond_branches.abc.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.A.f');
+        if Try3(Res, V, vText, vText10) then Observer.Observe('cond_branches.abc.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.A.f');
         vText10 := 'abc';
         vText := 'A';
         Res := true;
-        if Try4() then Observer.Observe('cond_to_text.abc.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.A.t');
+        if Try4(Res, vOut, vText, vText10) then Observer.Observe('cond_to_text.abc.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.A.t');
         vText10 := 'abc';
         vText := 'A';
         Res := false;
-        if Try4() then Observer.Observe('cond_to_text.abc.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.A.f');
-        vText10 := 'abc';
-        vText := 'abc';
-        Res := true;
-        if Try3() then Observer.Observe('cond_branches.abc.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.abc.t');
-        vText10 := 'abc';
-        vText := 'abc';
-        Res := false;
-        if Try3() then Observer.Observe('cond_branches.abc.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.abc.f');
-        vText10 := 'abc';
-        vText := 'abc';
-        Res := true;
-        if Try4() then Observer.Observe('cond_to_text.abc.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.abc.t');
-        vText10 := 'abc';
-        vText := 'abc';
-        Res := false;
-        if Try4() then Observer.Observe('cond_to_text.abc.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.abc.f');
-        vText10 := 'abc';
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        Res := true;
-        if Try3() then Observer.Observe('cond_branches.abc.guidlow.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.guidlow.t');
-        vText10 := 'abc';
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        Res := false;
-        if Try3() then Observer.Observe('cond_branches.abc.guidlow.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.guidlow.f');
-        vText10 := 'abc';
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        Res := true;
-        if Try4() then Observer.Observe('cond_to_text.abc.guidlow.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.guidlow.t');
-        vText10 := 'abc';
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        Res := false;
-        if Try4() then Observer.Observe('cond_to_text.abc.guidlow.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.guidlow.f');
-        vText10 := 'abc';
-        vText := 'abcdefghijk';
-        Res := true;
-        if Try3() then Observer.Observe('cond_branches.abc.eleven.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.eleven.t');
-        vText10 := 'abc';
-        vText := 'abcdefghijk';
-        Res := false;
-        if Try3() then Observer.Observe('cond_branches.abc.eleven.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.eleven.f');
-        vText10 := 'abc';
-        vText := 'abcdefghijk';
-        Res := true;
-        if Try4() then Observer.Observe('cond_to_text.abc.eleven.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.eleven.t');
-        vText10 := 'abc';
-        vText := 'abcdefghijk';
-        Res := false;
-        if Try4() then Observer.Observe('cond_to_text.abc.eleven.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.eleven.f');
+        if Try4(Res, vOut, vText, vText10) then Observer.Observe('cond_to_text.abc.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.A.f');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Text10_Text_More1()
+    procedure Text10_Text_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vOut: Text;
+        vText: Text;
+        vText10: Text[10];
     begin
-        Observer.More();
+        vText10 := 'abc';
+        vText := 'abc';
+        Res := true;
+        if Try3(Res, V, vText, vText10) then Observer.Observe('cond_branches.abc.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.abc.t');
+        vText10 := 'abc';
+        vText := 'abc';
+        Res := false;
+        if Try3(Res, V, vText, vText10) then Observer.Observe('cond_branches.abc.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.abc.f');
+        vText10 := 'abc';
+        vText := 'abc';
+        Res := true;
+        if Try4(Res, vOut, vText, vText10) then Observer.Observe('cond_to_text.abc.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.abc.t');
+        vText10 := 'abc';
+        vText := 'abc';
+        Res := false;
+        if Try4(Res, vOut, vText, vText10) then Observer.Observe('cond_to_text.abc.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.abc.f');
+        vText10 := 'abc';
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        Res := true;
+        if Try3(Res, V, vText, vText10) then Observer.Observe('cond_branches.abc.guidlow.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.guidlow.t');
+        vText10 := 'abc';
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        Res := false;
+        if Try3(Res, V, vText, vText10) then Observer.Observe('cond_branches.abc.guidlow.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.guidlow.f');
+        vText10 := 'abc';
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        Res := true;
+        if Try4(Res, vOut, vText, vText10) then Observer.Observe('cond_to_text.abc.guidlow.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.guidlow.t');
+        vText10 := 'abc';
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        Res := false;
+        if Try4(Res, vOut, vText, vText10) then Observer.Observe('cond_to_text.abc.guidlow.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.guidlow.f');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Text10_Text_More2()
+    procedure Text10_Text_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vOut: Text;
+        vText: Text;
+        vText10: Text[10];
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_Text_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_Text_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_Text_More5()
-    begin
-        Observer.More();
+        vText10 := 'abc';
+        vText := 'abcdefghijk';
+        Res := true;
+        if Try3(Res, V, vText, vText10) then Observer.Observe('cond_branches.abc.eleven.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.eleven.t');
+        vText10 := 'abc';
+        vText := 'abcdefghijk';
+        Res := false;
+        if Try3(Res, V, vText, vText10) then Observer.Observe('cond_branches.abc.eleven.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.eleven.f');
+        vText10 := 'abc';
+        vText := 'abcdefghijk';
+        Res := true;
+        if Try4(Res, vOut, vText, vText10) then Observer.Observe('cond_to_text.abc.eleven.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.eleven.t');
+        vText10 := 'abc';
+        vText := 'abcdefghijk';
+        Res := false;
+        if Try4(Res, vOut, vText, vText10) then Observer.Observe('cond_to_text.abc.eleven.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.eleven.f');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Text10_Code10()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vCode10: Code[10];
+        vOut: Text;
+        vText10: Text[10];
     begin
         vText10 := 'abc';
         vCode10 := 'A';
         Res := true;
-        if Try5() then Observer.Observe('cond_branches.abc.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.A.t');
+        if Try5(Res, V, vCode10, vText10) then Observer.Observe('cond_branches.abc.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.A.t');
         vText10 := 'abc';
         vCode10 := 'A';
         Res := false;
-        if Try5() then Observer.Observe('cond_branches.abc.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.A.f');
+        if Try5(Res, V, vCode10, vText10) then Observer.Observe('cond_branches.abc.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.A.f');
         vText10 := 'abc';
         vCode10 := 'A';
         Res := true;
-        if Try6() then Observer.Observe('cond_to_text.abc.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.A.t');
+        if Try6(Res, vCode10, vOut, vText10) then Observer.Observe('cond_to_text.abc.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.A.t');
         vText10 := 'abc';
         vCode10 := 'A';
         Res := false;
-        if Try6() then Observer.Observe('cond_to_text.abc.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.A.f');
+        if Try6(Res, vCode10, vOut, vText10) then Observer.Observe('cond_to_text.abc.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.A.f');
         vText10 := 'abc';
         vCode10 := 'ABC';
         Res := true;
-        if Try5() then Observer.Observe('cond_branches.abc.ABC.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.ABC.t');
+        if Try5(Res, V, vCode10, vText10) then Observer.Observe('cond_branches.abc.ABC.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.ABC.t');
         vText10 := 'abc';
         vCode10 := 'ABC';
         Res := false;
-        if Try5() then Observer.Observe('cond_branches.abc.ABC.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.ABC.f');
+        if Try5(Res, V, vCode10, vText10) then Observer.Observe('cond_branches.abc.ABC.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.ABC.f');
         vText10 := 'abc';
         vCode10 := 'ABC';
         Res := true;
-        if Try6() then Observer.Observe('cond_to_text.abc.ABC.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.ABC.t');
+        if Try6(Res, vCode10, vOut, vText10) then Observer.Observe('cond_to_text.abc.ABC.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.ABC.t');
         vText10 := 'abc';
         vCode10 := 'ABC';
         Res := false;
-        if Try6() then Observer.Observe('cond_to_text.abc.ABC.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.ABC.f');
+        if Try6(Res, vCode10, vOut, vText10) then Observer.Observe('cond_to_text.abc.ABC.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.ABC.f');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text10_Code10_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_Code10_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_Code10_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_Code10_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_Code10_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Text10_Label()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vOut: Text;
+        vText10: Text[10];
     begin
         vText10 := 'abc';
         Res := true;
-        if Try7() then Observer.Observe('cond_branches.abc.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.abc.t');
+        if Try7(Res, V, vText10) then Observer.Observe('cond_branches.abc.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.abc.t');
         vText10 := 'abc';
         Res := false;
-        if Try7() then Observer.Observe('cond_branches.abc.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.abc.f');
+        if Try7(Res, V, vText10) then Observer.Observe('cond_branches.abc.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.abc.f');
         vText10 := 'abc';
         Res := true;
-        if Try8() then Observer.Observe('cond_to_text.abc.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.abc.t');
+        if Try8(Res, vOut, vText10) then Observer.Observe('cond_to_text.abc.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.abc.t');
         vText10 := 'abc';
         Res := false;
-        if Try8() then Observer.Observe('cond_to_text.abc.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.abc.f');
+        if Try8(Res, vOut, vText10) then Observer.Observe('cond_to_text.abc.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.abc.f');
         Observer.Finish();
     end;
 
-    [Test]
-    procedure Text10_Label_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_Label_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_Label_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_Label_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_Label_More5()
-    begin
-        Observer.More();
-    end;
-
     [TryFunction]
-    local procedure Try1()
+    local procedure Try1(var Res: Boolean; var V: Variant; var vChar: Char; var vText10: Text[10])
     begin
         Clear(V);
         V := Res ? vText10 : vChar;
     end;
 
     [TryFunction]
-    local procedure Try2()
+    local procedure Try2(var Res: Boolean; var vChar: Char; var vOut: Text; var vText10: Text[10])
     begin
         Clear(vOut);
         vOut := Res ? vText10 : vChar;
     end;
 
     [TryFunction]
-    local procedure Try3()
+    local procedure Try3(var Res: Boolean; var V: Variant; var vText: Text; var vText10: Text[10])
     begin
         Clear(V);
         V := Res ? vText10 : vText;
     end;
 
     [TryFunction]
-    local procedure Try4()
+    local procedure Try4(var Res: Boolean; var vOut: Text; var vText: Text; var vText10: Text[10])
     begin
         Clear(vOut);
         vOut := Res ? vText10 : vText;
     end;
 
     [TryFunction]
-    local procedure Try5()
+    local procedure Try5(var Res: Boolean; var V: Variant; var vCode10: Code[10]; var vText10: Text[10])
     begin
         Clear(V);
         V := Res ? vText10 : vCode10;
     end;
 
     [TryFunction]
-    local procedure Try6()
+    local procedure Try6(var Res: Boolean; var vCode10: Code[10]; var vOut: Text; var vText10: Text[10])
     begin
         Clear(vOut);
         vOut := Res ? vText10 : vCode10;
     end;
 
     [TryFunction]
-    local procedure Try7()
+    local procedure Try7(var Res: Boolean; var V: Variant; var vText10: Text[10])
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Clear(V);
         V := Res ? vText10 : vLabel;
     end;
 
     [TryFunction]
-    local procedure Try8()
+    local procedure Try8(var Res: Boolean; var vOut: Text; var vText10: Text[10])
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Clear(vOut);
         vOut := Res ? vText10 : vLabel;
@@ -4465,493 +3262,466 @@ codeunit 92474 "LT Y31 Cd Code10"
     Subtype = Test;
     TestPermissions = Disabled;
 
+    [Test]
+    procedure Code10_Char()
     var
         Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
         Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
         V: Variant;
         vChar: Char;
         vCode10: Code[10];
-        vLabel: Label 'abc', Locked = true;
         vOut: Text;
-        vText: Text;
-        vText10: Text[10];
-
-    [Test]
-    procedure Code10_Char()
     begin
         vCode10 := 'A';
         vChar := 65;
         Res := true;
-        if Try1() then Observer.Observe('cond_branches.A.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.A.t');
+        if Try1(Res, V, vChar, vCode10) then Observer.Observe('cond_branches.A.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.A.t');
         vCode10 := 'A';
         vChar := 65;
         Res := false;
-        if Try1() then Observer.Observe('cond_branches.A.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.A.f');
+        if Try1(Res, V, vChar, vCode10) then Observer.Observe('cond_branches.A.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.A.f');
         vCode10 := 'A';
         vChar := 65;
         Res := true;
-        if Try2() then Observer.Observe('cond_to_text.A.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.A.t');
+        if Try2(Res, vChar, vCode10, vOut) then Observer.Observe('cond_to_text.A.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.A.t');
         vCode10 := 'A';
         vChar := 65;
         Res := false;
-        if Try2() then Observer.Observe('cond_to_text.A.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.A.f');
+        if Try2(Res, vChar, vCode10, vOut) then Observer.Observe('cond_to_text.A.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.A.f');
         vCode10 := 'A';
         vChar := 97;
         Res := true;
-        if Try1() then Observer.Observe('cond_branches.A.a.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.a.t');
+        if Try1(Res, V, vChar, vCode10) then Observer.Observe('cond_branches.A.a.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.a.t');
         vCode10 := 'A';
         vChar := 97;
         Res := false;
-        if Try1() then Observer.Observe('cond_branches.A.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.a.f');
+        if Try1(Res, V, vChar, vCode10) then Observer.Observe('cond_branches.A.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.a.f');
         vCode10 := 'A';
         vChar := 97;
         Res := true;
-        if Try2() then Observer.Observe('cond_to_text.A.a.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.a.t');
+        if Try2(Res, vChar, vCode10, vOut) then Observer.Observe('cond_to_text.A.a.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.a.t');
         vCode10 := 'A';
         vChar := 97;
         Res := false;
-        if Try2() then Observer.Observe('cond_to_text.A.a.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.a.f');
-        vCode10 := 'ABC';
-        vChar := 65;
-        Res := true;
-        if Try1() then Observer.Observe('cond_branches.ABC.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.A.t');
-        vCode10 := 'ABC';
-        vChar := 65;
-        Res := false;
-        if Try1() then Observer.Observe('cond_branches.ABC.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.A.f');
-        vCode10 := 'ABC';
-        vChar := 65;
-        Res := true;
-        if Try2() then Observer.Observe('cond_to_text.ABC.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.ABC.A.t');
-        vCode10 := 'ABC';
-        vChar := 65;
-        Res := false;
-        if Try2() then Observer.Observe('cond_to_text.ABC.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.ABC.A.f');
-        vCode10 := 'ABC';
-        vChar := 97;
-        Res := true;
-        if Try1() then Observer.Observe('cond_branches.ABC.a.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.a.t');
-        vCode10 := 'ABC';
-        vChar := 97;
-        Res := false;
-        if Try1() then Observer.Observe('cond_branches.ABC.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.a.f');
-        vCode10 := 'ABC';
-        vChar := 97;
-        Res := true;
-        if Try2() then Observer.Observe('cond_to_text.ABC.a.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.ABC.a.t');
-        vCode10 := 'ABC';
-        vChar := 97;
-        Res := false;
-        if Try2() then Observer.Observe('cond_to_text.ABC.a.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.ABC.a.f');
+        if Try2(Res, vChar, vCode10, vOut) then Observer.Observe('cond_to_text.A.a.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.a.f');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Code10_Char_More1()
+    procedure Code10_Char_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vChar: Char;
+        vCode10: Code[10];
+        vOut: Text;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_Char_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_Char_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_Char_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_Char_More5()
-    begin
-        Observer.More();
+        vCode10 := 'ABC';
+        vChar := 65;
+        Res := true;
+        if Try1(Res, V, vChar, vCode10) then Observer.Observe('cond_branches.ABC.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.A.t');
+        vCode10 := 'ABC';
+        vChar := 65;
+        Res := false;
+        if Try1(Res, V, vChar, vCode10) then Observer.Observe('cond_branches.ABC.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.A.f');
+        vCode10 := 'ABC';
+        vChar := 65;
+        Res := true;
+        if Try2(Res, vChar, vCode10, vOut) then Observer.Observe('cond_to_text.ABC.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.ABC.A.t');
+        vCode10 := 'ABC';
+        vChar := 65;
+        Res := false;
+        if Try2(Res, vChar, vCode10, vOut) then Observer.Observe('cond_to_text.ABC.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.ABC.A.f');
+        vCode10 := 'ABC';
+        vChar := 97;
+        Res := true;
+        if Try1(Res, V, vChar, vCode10) then Observer.Observe('cond_branches.ABC.a.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.a.t');
+        vCode10 := 'ABC';
+        vChar := 97;
+        Res := false;
+        if Try1(Res, V, vChar, vCode10) then Observer.Observe('cond_branches.ABC.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.a.f');
+        vCode10 := 'ABC';
+        vChar := 97;
+        Res := true;
+        if Try2(Res, vChar, vCode10, vOut) then Observer.Observe('cond_to_text.ABC.a.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.ABC.a.t');
+        vCode10 := 'ABC';
+        vChar := 97;
+        Res := false;
+        if Try2(Res, vChar, vCode10, vOut) then Observer.Observe('cond_to_text.ABC.a.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.ABC.a.f');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Code10_Text()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vCode10: Code[10];
+        vOut: Text;
+        vText: Text;
     begin
         vCode10 := 'A';
         vText := 'a';
         Res := true;
-        if Try3() then Observer.Observe('cond_branches.A.a.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.a.t');
+        if Try3(Res, V, vCode10, vText) then Observer.Observe('cond_branches.A.a.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.a.t');
         vCode10 := 'A';
         vText := 'a';
         Res := false;
-        if Try3() then Observer.Observe('cond_branches.A.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.a.f');
+        if Try3(Res, V, vCode10, vText) then Observer.Observe('cond_branches.A.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.a.f');
         vCode10 := 'A';
         vText := 'a';
         Res := true;
-        if Try4() then Observer.Observe('cond_to_text.A.a.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.a.t');
+        if Try4(Res, vCode10, vOut, vText) then Observer.Observe('cond_to_text.A.a.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.a.t');
         vCode10 := 'A';
         vText := 'a';
         Res := false;
-        if Try4() then Observer.Observe('cond_to_text.A.a.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.a.f');
+        if Try4(Res, vCode10, vOut, vText) then Observer.Observe('cond_to_text.A.a.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.a.f');
         vCode10 := 'A';
         vText := 'A';
         Res := true;
-        if Try3() then Observer.Observe('cond_branches.A.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.A.t');
+        if Try3(Res, V, vCode10, vText) then Observer.Observe('cond_branches.A.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.A.t');
         vCode10 := 'A';
         vText := 'A';
         Res := false;
-        if Try3() then Observer.Observe('cond_branches.A.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.A.f');
+        if Try3(Res, V, vCode10, vText) then Observer.Observe('cond_branches.A.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.A.f');
         vCode10 := 'A';
         vText := 'A';
         Res := true;
-        if Try4() then Observer.Observe('cond_to_text.A.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.A.t');
+        if Try4(Res, vCode10, vOut, vText) then Observer.Observe('cond_to_text.A.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.A.t');
         vCode10 := 'A';
         vText := 'A';
         Res := false;
-        if Try4() then Observer.Observe('cond_to_text.A.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.A.f');
-        vCode10 := 'A';
-        vText := 'abc';
-        Res := true;
-        if Try3() then Observer.Observe('cond_branches.A.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.abc.t');
-        vCode10 := 'A';
-        vText := 'abc';
-        Res := false;
-        if Try3() then Observer.Observe('cond_branches.A.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.abc.f');
-        vCode10 := 'A';
-        vText := 'abc';
-        Res := true;
-        if Try4() then Observer.Observe('cond_to_text.A.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.abc.t');
-        vCode10 := 'A';
-        vText := 'abc';
-        Res := false;
-        if Try4() then Observer.Observe('cond_to_text.A.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.abc.f');
-        vCode10 := 'A';
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        Res := true;
-        if Try3() then Observer.Observe('cond_branches.A.guidlow.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.guidlow.t');
-        vCode10 := 'A';
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        Res := false;
-        if Try3() then Observer.Observe('cond_branches.A.guidlow.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.guidlow.f');
-        vCode10 := 'A';
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        Res := true;
-        if Try4() then Observer.Observe('cond_to_text.A.guidlow.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.guidlow.t');
-        vCode10 := 'A';
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        Res := false;
-        if Try4() then Observer.Observe('cond_to_text.A.guidlow.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.guidlow.f');
-        vCode10 := 'A';
-        vText := 'abcdefghijk';
-        Res := true;
-        if Try3() then Observer.Observe('cond_branches.A.eleven.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.eleven.t');
-        vCode10 := 'A';
-        vText := 'abcdefghijk';
-        Res := false;
-        if Try3() then Observer.Observe('cond_branches.A.eleven.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.eleven.f');
-        vCode10 := 'A';
-        vText := 'abcdefghijk';
-        Res := true;
-        if Try4() then Observer.Observe('cond_to_text.A.eleven.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.eleven.t');
-        vCode10 := 'A';
-        vText := 'abcdefghijk';
-        Res := false;
-        if Try4() then Observer.Observe('cond_to_text.A.eleven.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.eleven.f');
-        vCode10 := 'ABC';
-        vText := 'a';
-        Res := true;
-        if Try3() then Observer.Observe('cond_branches.ABC.a.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.a.t');
-        vCode10 := 'ABC';
-        vText := 'a';
-        Res := false;
-        if Try3() then Observer.Observe('cond_branches.ABC.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.a.f');
-        vCode10 := 'ABC';
-        vText := 'a';
-        Res := true;
-        if Try4() then Observer.Observe('cond_to_text.ABC.a.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.ABC.a.t');
-        vCode10 := 'ABC';
-        vText := 'a';
-        Res := false;
-        if Try4() then Observer.Observe('cond_to_text.ABC.a.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.ABC.a.f');
-        vCode10 := 'ABC';
-        vText := 'A';
-        Res := true;
-        if Try3() then Observer.Observe('cond_branches.ABC.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.A.t');
-        vCode10 := 'ABC';
-        vText := 'A';
-        Res := false;
-        if Try3() then Observer.Observe('cond_branches.ABC.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.A.f');
-        vCode10 := 'ABC';
-        vText := 'A';
-        Res := true;
-        if Try4() then Observer.Observe('cond_to_text.ABC.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.ABC.A.t');
-        vCode10 := 'ABC';
-        vText := 'A';
-        Res := false;
-        if Try4() then Observer.Observe('cond_to_text.ABC.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.ABC.A.f');
-        vCode10 := 'ABC';
-        vText := 'abc';
-        Res := true;
-        if Try3() then Observer.Observe('cond_branches.ABC.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.abc.t');
-        vCode10 := 'ABC';
-        vText := 'abc';
-        Res := false;
-        if Try3() then Observer.Observe('cond_branches.ABC.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.abc.f');
-        vCode10 := 'ABC';
-        vText := 'abc';
-        Res := true;
-        if Try4() then Observer.Observe('cond_to_text.ABC.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.ABC.abc.t');
-        vCode10 := 'ABC';
-        vText := 'abc';
-        Res := false;
-        if Try4() then Observer.Observe('cond_to_text.ABC.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.ABC.abc.f');
-        vCode10 := 'ABC';
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        Res := true;
-        if Try3() then Observer.Observe('cond_branches.ABC.guidlow.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.guidlow.t');
-        vCode10 := 'ABC';
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        Res := false;
-        if Try3() then Observer.Observe('cond_branches.ABC.guidlow.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.guidlow.f');
-        vCode10 := 'ABC';
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        Res := true;
-        if Try4() then Observer.Observe('cond_to_text.ABC.guidlow.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.ABC.guidlow.t');
-        vCode10 := 'ABC';
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        Res := false;
-        if Try4() then Observer.Observe('cond_to_text.ABC.guidlow.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.ABC.guidlow.f');
-        vCode10 := 'ABC';
-        vText := 'abcdefghijk';
-        Res := true;
-        if Try3() then Observer.Observe('cond_branches.ABC.eleven.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.eleven.t');
-        vCode10 := 'ABC';
-        vText := 'abcdefghijk';
-        Res := false;
-        if Try3() then Observer.Observe('cond_branches.ABC.eleven.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.eleven.f');
-        vCode10 := 'ABC';
-        vText := 'abcdefghijk';
-        Res := true;
-        if Try4() then Observer.Observe('cond_to_text.ABC.eleven.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.ABC.eleven.t');
-        vCode10 := 'ABC';
-        vText := 'abcdefghijk';
-        Res := false;
-        if Try4() then Observer.Observe('cond_to_text.ABC.eleven.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.ABC.eleven.f');
+        if Try4(Res, vCode10, vOut, vText) then Observer.Observe('cond_to_text.A.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.A.f');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Code10_Text_More1()
+    procedure Code10_Text_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vCode10: Code[10];
+        vOut: Text;
+        vText: Text;
     begin
-        Observer.More();
+        vCode10 := 'A';
+        vText := 'abc';
+        Res := true;
+        if Try3(Res, V, vCode10, vText) then Observer.Observe('cond_branches.A.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.abc.t');
+        vCode10 := 'A';
+        vText := 'abc';
+        Res := false;
+        if Try3(Res, V, vCode10, vText) then Observer.Observe('cond_branches.A.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.abc.f');
+        vCode10 := 'A';
+        vText := 'abc';
+        Res := true;
+        if Try4(Res, vCode10, vOut, vText) then Observer.Observe('cond_to_text.A.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.abc.t');
+        vCode10 := 'A';
+        vText := 'abc';
+        Res := false;
+        if Try4(Res, vCode10, vOut, vText) then Observer.Observe('cond_to_text.A.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.abc.f');
+        vCode10 := 'A';
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        Res := true;
+        if Try3(Res, V, vCode10, vText) then Observer.Observe('cond_branches.A.guidlow.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.guidlow.t');
+        vCode10 := 'A';
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        Res := false;
+        if Try3(Res, V, vCode10, vText) then Observer.Observe('cond_branches.A.guidlow.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.guidlow.f');
+        vCode10 := 'A';
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        Res := true;
+        if Try4(Res, vCode10, vOut, vText) then Observer.Observe('cond_to_text.A.guidlow.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.guidlow.t');
+        vCode10 := 'A';
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        Res := false;
+        if Try4(Res, vCode10, vOut, vText) then Observer.Observe('cond_to_text.A.guidlow.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.guidlow.f');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Code10_Text_More2()
+    procedure Code10_Text_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vCode10: Code[10];
+        vOut: Text;
+        vText: Text;
     begin
-        Observer.More();
+        vCode10 := 'A';
+        vText := 'abcdefghijk';
+        Res := true;
+        if Try3(Res, V, vCode10, vText) then Observer.Observe('cond_branches.A.eleven.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.eleven.t');
+        vCode10 := 'A';
+        vText := 'abcdefghijk';
+        Res := false;
+        if Try3(Res, V, vCode10, vText) then Observer.Observe('cond_branches.A.eleven.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.eleven.f');
+        vCode10 := 'A';
+        vText := 'abcdefghijk';
+        Res := true;
+        if Try4(Res, vCode10, vOut, vText) then Observer.Observe('cond_to_text.A.eleven.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.eleven.t');
+        vCode10 := 'A';
+        vText := 'abcdefghijk';
+        Res := false;
+        if Try4(Res, vCode10, vOut, vText) then Observer.Observe('cond_to_text.A.eleven.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.eleven.f');
+        vCode10 := 'ABC';
+        vText := 'a';
+        Res := true;
+        if Try3(Res, V, vCode10, vText) then Observer.Observe('cond_branches.ABC.a.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.a.t');
+        vCode10 := 'ABC';
+        vText := 'a';
+        Res := false;
+        if Try3(Res, V, vCode10, vText) then Observer.Observe('cond_branches.ABC.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.a.f');
+        vCode10 := 'ABC';
+        vText := 'a';
+        Res := true;
+        if Try4(Res, vCode10, vOut, vText) then Observer.Observe('cond_to_text.ABC.a.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.ABC.a.t');
+        vCode10 := 'ABC';
+        vText := 'a';
+        Res := false;
+        if Try4(Res, vCode10, vOut, vText) then Observer.Observe('cond_to_text.ABC.a.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.ABC.a.f');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Code10_Text_More3()
+    procedure Code10_Text_4()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vCode10: Code[10];
+        vOut: Text;
+        vText: Text;
     begin
-        Observer.More();
+        vCode10 := 'ABC';
+        vText := 'A';
+        Res := true;
+        if Try3(Res, V, vCode10, vText) then Observer.Observe('cond_branches.ABC.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.A.t');
+        vCode10 := 'ABC';
+        vText := 'A';
+        Res := false;
+        if Try3(Res, V, vCode10, vText) then Observer.Observe('cond_branches.ABC.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.A.f');
+        vCode10 := 'ABC';
+        vText := 'A';
+        Res := true;
+        if Try4(Res, vCode10, vOut, vText) then Observer.Observe('cond_to_text.ABC.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.ABC.A.t');
+        vCode10 := 'ABC';
+        vText := 'A';
+        Res := false;
+        if Try4(Res, vCode10, vOut, vText) then Observer.Observe('cond_to_text.ABC.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.ABC.A.f');
+        vCode10 := 'ABC';
+        vText := 'abc';
+        Res := true;
+        if Try3(Res, V, vCode10, vText) then Observer.Observe('cond_branches.ABC.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.abc.t');
+        vCode10 := 'ABC';
+        vText := 'abc';
+        Res := false;
+        if Try3(Res, V, vCode10, vText) then Observer.Observe('cond_branches.ABC.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.abc.f');
+        vCode10 := 'ABC';
+        vText := 'abc';
+        Res := true;
+        if Try4(Res, vCode10, vOut, vText) then Observer.Observe('cond_to_text.ABC.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.ABC.abc.t');
+        vCode10 := 'ABC';
+        vText := 'abc';
+        Res := false;
+        if Try4(Res, vCode10, vOut, vText) then Observer.Observe('cond_to_text.ABC.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.ABC.abc.f');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Code10_Text_More4()
+    procedure Code10_Text_5()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vCode10: Code[10];
+        vOut: Text;
+        vText: Text;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_Text_More5()
-    begin
-        Observer.More();
+        vCode10 := 'ABC';
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        Res := true;
+        if Try3(Res, V, vCode10, vText) then Observer.Observe('cond_branches.ABC.guidlow.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.guidlow.t');
+        vCode10 := 'ABC';
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        Res := false;
+        if Try3(Res, V, vCode10, vText) then Observer.Observe('cond_branches.ABC.guidlow.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.guidlow.f');
+        vCode10 := 'ABC';
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        Res := true;
+        if Try4(Res, vCode10, vOut, vText) then Observer.Observe('cond_to_text.ABC.guidlow.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.ABC.guidlow.t');
+        vCode10 := 'ABC';
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        Res := false;
+        if Try4(Res, vCode10, vOut, vText) then Observer.Observe('cond_to_text.ABC.guidlow.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.ABC.guidlow.f');
+        vCode10 := 'ABC';
+        vText := 'abcdefghijk';
+        Res := true;
+        if Try3(Res, V, vCode10, vText) then Observer.Observe('cond_branches.ABC.eleven.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.eleven.t');
+        vCode10 := 'ABC';
+        vText := 'abcdefghijk';
+        Res := false;
+        if Try3(Res, V, vCode10, vText) then Observer.Observe('cond_branches.ABC.eleven.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.eleven.f');
+        vCode10 := 'ABC';
+        vText := 'abcdefghijk';
+        Res := true;
+        if Try4(Res, vCode10, vOut, vText) then Observer.Observe('cond_to_text.ABC.eleven.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.ABC.eleven.t');
+        vCode10 := 'ABC';
+        vText := 'abcdefghijk';
+        Res := false;
+        if Try4(Res, vCode10, vOut, vText) then Observer.Observe('cond_to_text.ABC.eleven.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.ABC.eleven.f');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Code10_Text10()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vCode10: Code[10];
+        vOut: Text;
+        vText10: Text[10];
     begin
         vCode10 := 'A';
         vText10 := 'abc';
         Res := true;
-        if Try5() then Observer.Observe('cond_branches.A.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.abc.t');
+        if Try5(Res, V, vCode10, vText10) then Observer.Observe('cond_branches.A.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.abc.t');
         vCode10 := 'A';
         vText10 := 'abc';
         Res := false;
-        if Try5() then Observer.Observe('cond_branches.A.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.abc.f');
+        if Try5(Res, V, vCode10, vText10) then Observer.Observe('cond_branches.A.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.abc.f');
         vCode10 := 'A';
         vText10 := 'abc';
         Res := true;
-        if Try6() then Observer.Observe('cond_to_text.A.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.abc.t');
+        if Try6(Res, vCode10, vOut, vText10) then Observer.Observe('cond_to_text.A.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.abc.t');
         vCode10 := 'A';
         vText10 := 'abc';
         Res := false;
-        if Try6() then Observer.Observe('cond_to_text.A.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.abc.f');
+        if Try6(Res, vCode10, vOut, vText10) then Observer.Observe('cond_to_text.A.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.abc.f');
         vCode10 := 'ABC';
         vText10 := 'abc';
         Res := true;
-        if Try5() then Observer.Observe('cond_branches.ABC.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.abc.t');
+        if Try5(Res, V, vCode10, vText10) then Observer.Observe('cond_branches.ABC.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.abc.t');
         vCode10 := 'ABC';
         vText10 := 'abc';
         Res := false;
-        if Try5() then Observer.Observe('cond_branches.ABC.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.abc.f');
+        if Try5(Res, V, vCode10, vText10) then Observer.Observe('cond_branches.ABC.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.abc.f');
         vCode10 := 'ABC';
         vText10 := 'abc';
         Res := true;
-        if Try6() then Observer.Observe('cond_to_text.ABC.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.ABC.abc.t');
+        if Try6(Res, vCode10, vOut, vText10) then Observer.Observe('cond_to_text.ABC.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.ABC.abc.t');
         vCode10 := 'ABC';
         vText10 := 'abc';
         Res := false;
-        if Try6() then Observer.Observe('cond_to_text.ABC.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.ABC.abc.f');
+        if Try6(Res, vCode10, vOut, vText10) then Observer.Observe('cond_to_text.ABC.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.ABC.abc.f');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Code10_Text10_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_Text10_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_Text10_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_Text10_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_Text10_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Code10_Label()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vCode10: Code[10];
+        vOut: Text;
     begin
         vCode10 := 'A';
         Res := true;
-        if Try7() then Observer.Observe('cond_branches.A.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.abc.t');
+        if Try7(Res, V, vCode10) then Observer.Observe('cond_branches.A.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.abc.t');
         vCode10 := 'A';
         Res := false;
-        if Try7() then Observer.Observe('cond_branches.A.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.abc.f');
+        if Try7(Res, V, vCode10) then Observer.Observe('cond_branches.A.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.abc.f');
         vCode10 := 'A';
         Res := true;
-        if Try8() then Observer.Observe('cond_to_text.A.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.abc.t');
+        if Try8(Res, vCode10, vOut) then Observer.Observe('cond_to_text.A.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.abc.t');
         vCode10 := 'A';
         Res := false;
-        if Try8() then Observer.Observe('cond_to_text.A.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.abc.f');
+        if Try8(Res, vCode10, vOut) then Observer.Observe('cond_to_text.A.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.abc.f');
         vCode10 := 'ABC';
         Res := true;
-        if Try7() then Observer.Observe('cond_branches.ABC.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.abc.t');
+        if Try7(Res, V, vCode10) then Observer.Observe('cond_branches.ABC.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.abc.t');
         vCode10 := 'ABC';
         Res := false;
-        if Try7() then Observer.Observe('cond_branches.ABC.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.abc.f');
+        if Try7(Res, V, vCode10) then Observer.Observe('cond_branches.ABC.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.abc.f');
         vCode10 := 'ABC';
         Res := true;
-        if Try8() then Observer.Observe('cond_to_text.ABC.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.ABC.abc.t');
+        if Try8(Res, vCode10, vOut) then Observer.Observe('cond_to_text.ABC.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.ABC.abc.t');
         vCode10 := 'ABC';
         Res := false;
-        if Try8() then Observer.Observe('cond_to_text.ABC.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.ABC.abc.f');
+        if Try8(Res, vCode10, vOut) then Observer.Observe('cond_to_text.ABC.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.ABC.abc.f');
         Observer.Finish();
     end;
 
-    [Test]
-    procedure Code10_Label_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_Label_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_Label_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_Label_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_Label_More5()
-    begin
-        Observer.More();
-    end;
-
     [TryFunction]
-    local procedure Try1()
+    local procedure Try1(var Res: Boolean; var V: Variant; var vChar: Char; var vCode10: Code[10])
     begin
         Clear(V);
         V := Res ? vCode10 : vChar;
     end;
 
     [TryFunction]
-    local procedure Try2()
+    local procedure Try2(var Res: Boolean; var vChar: Char; var vCode10: Code[10]; var vOut: Text)
     begin
         Clear(vOut);
         vOut := Res ? vCode10 : vChar;
     end;
 
     [TryFunction]
-    local procedure Try3()
+    local procedure Try3(var Res: Boolean; var V: Variant; var vCode10: Code[10]; var vText: Text)
     begin
         Clear(V);
         V := Res ? vCode10 : vText;
     end;
 
     [TryFunction]
-    local procedure Try4()
+    local procedure Try4(var Res: Boolean; var vCode10: Code[10]; var vOut: Text; var vText: Text)
     begin
         Clear(vOut);
         vOut := Res ? vCode10 : vText;
     end;
 
     [TryFunction]
-    local procedure Try5()
+    local procedure Try5(var Res: Boolean; var V: Variant; var vCode10: Code[10]; var vText10: Text[10])
     begin
         Clear(V);
         V := Res ? vCode10 : vText10;
     end;
 
     [TryFunction]
-    local procedure Try6()
+    local procedure Try6(var Res: Boolean; var vCode10: Code[10]; var vOut: Text; var vText10: Text[10])
     begin
         Clear(vOut);
         vOut := Res ? vCode10 : vText10;
     end;
 
     [TryFunction]
-    local procedure Try7()
+    local procedure Try7(var Res: Boolean; var V: Variant; var vCode10: Code[10])
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Clear(V);
         V := Res ? vCode10 : vLabel;
     end;
 
     [TryFunction]
-    local procedure Try8()
+    local procedure Try8(var Res: Boolean; var vCode10: Code[10]; var vOut: Text)
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Clear(vOut);
         vOut := Res ? vCode10 : vLabel;
@@ -4971,353 +3741,284 @@ codeunit 92475 "LT Y31 Cd Guid"
     Subtype = Test;
     TestPermissions = Disabled;
 
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        Res: Boolean;
-        V: Variant;
-        vCode10: Code[10];
-        vGuid: Guid;
-        vLabel: Label 'abc', Locked = true;
-        vOut: Text;
-        vText: Text;
-        vText10: Text[10];
-
     [Test]
     procedure Guid_Text()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vGuid: Guid;
+        vOut: Text;
+        vText: Text;
     begin
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vText := 'a';
         Res := true;
-        if Try1() then Observer.Observe('cond_branches.g.a.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.g.a.t');
+        if Try1(Res, V, vGuid, vText) then Observer.Observe('cond_branches.g.a.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.g.a.t');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vText := 'a';
         Res := false;
-        if Try1() then Observer.Observe('cond_branches.g.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.g.a.f');
+        if Try1(Res, V, vGuid, vText) then Observer.Observe('cond_branches.g.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.g.a.f');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vText := 'a';
         Res := true;
-        if Try2() then Observer.Observe('cond_to_text.g.a.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.g.a.t');
+        if Try2(Res, vGuid, vOut, vText) then Observer.Observe('cond_to_text.g.a.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.g.a.t');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vText := 'a';
         Res := false;
-        if Try2() then Observer.Observe('cond_to_text.g.a.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.g.a.f');
+        if Try2(Res, vGuid, vOut, vText) then Observer.Observe('cond_to_text.g.a.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.g.a.f');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vText := 'A';
         Res := true;
-        if Try1() then Observer.Observe('cond_branches.g.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.g.A.t');
+        if Try1(Res, V, vGuid, vText) then Observer.Observe('cond_branches.g.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.g.A.t');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vText := 'A';
         Res := false;
-        if Try1() then Observer.Observe('cond_branches.g.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.g.A.f');
+        if Try1(Res, V, vGuid, vText) then Observer.Observe('cond_branches.g.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.g.A.f');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vText := 'A';
         Res := true;
-        if Try2() then Observer.Observe('cond_to_text.g.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.g.A.t');
+        if Try2(Res, vGuid, vOut, vText) then Observer.Observe('cond_to_text.g.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.g.A.t');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vText := 'A';
         Res := false;
-        if Try2() then Observer.Observe('cond_to_text.g.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.g.A.f');
-        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        vText := 'abc';
-        Res := true;
-        if Try1() then Observer.Observe('cond_branches.g.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.g.abc.t');
-        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        vText := 'abc';
-        Res := false;
-        if Try1() then Observer.Observe('cond_branches.g.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.g.abc.f');
-        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        vText := 'abc';
-        Res := true;
-        if Try2() then Observer.Observe('cond_to_text.g.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.g.abc.t');
-        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        vText := 'abc';
-        Res := false;
-        if Try2() then Observer.Observe('cond_to_text.g.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.g.abc.f');
-        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        Res := true;
-        if Try1() then Observer.Observe('cond_branches.g.guidlow.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.g.guidlow.t');
-        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        Res := false;
-        if Try1() then Observer.Observe('cond_branches.g.guidlow.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.g.guidlow.f');
-        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        Res := true;
-        if Try2() then Observer.Observe('cond_to_text.g.guidlow.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.g.guidlow.t');
-        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        Res := false;
-        if Try2() then Observer.Observe('cond_to_text.g.guidlow.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.g.guidlow.f');
-        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        vText := 'abcdefghijk';
-        Res := true;
-        if Try1() then Observer.Observe('cond_branches.g.eleven.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.g.eleven.t');
-        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        vText := 'abcdefghijk';
-        Res := false;
-        if Try1() then Observer.Observe('cond_branches.g.eleven.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.g.eleven.f');
-        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        vText := 'abcdefghijk';
-        Res := true;
-        if Try2() then Observer.Observe('cond_to_text.g.eleven.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.g.eleven.t');
-        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        vText := 'abcdefghijk';
-        Res := false;
-        if Try2() then Observer.Observe('cond_to_text.g.eleven.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.g.eleven.f');
+        if Try2(Res, vGuid, vOut, vText) then Observer.Observe('cond_to_text.g.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.g.A.f');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Guid_Text_More1()
+    procedure Guid_Text_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vGuid: Guid;
+        vOut: Text;
+        vText: Text;
     begin
-        Observer.More();
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        vText := 'abc';
+        Res := true;
+        if Try1(Res, V, vGuid, vText) then Observer.Observe('cond_branches.g.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.g.abc.t');
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        vText := 'abc';
+        Res := false;
+        if Try1(Res, V, vGuid, vText) then Observer.Observe('cond_branches.g.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.g.abc.f');
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        vText := 'abc';
+        Res := true;
+        if Try2(Res, vGuid, vOut, vText) then Observer.Observe('cond_to_text.g.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.g.abc.t');
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        vText := 'abc';
+        Res := false;
+        if Try2(Res, vGuid, vOut, vText) then Observer.Observe('cond_to_text.g.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.g.abc.f');
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        Res := true;
+        if Try1(Res, V, vGuid, vText) then Observer.Observe('cond_branches.g.guidlow.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.g.guidlow.t');
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        Res := false;
+        if Try1(Res, V, vGuid, vText) then Observer.Observe('cond_branches.g.guidlow.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.g.guidlow.f');
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        Res := true;
+        if Try2(Res, vGuid, vOut, vText) then Observer.Observe('cond_to_text.g.guidlow.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.g.guidlow.t');
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        Res := false;
+        if Try2(Res, vGuid, vOut, vText) then Observer.Observe('cond_to_text.g.guidlow.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.g.guidlow.f');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Guid_Text_More2()
+    procedure Guid_Text_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vGuid: Guid;
+        vOut: Text;
+        vText: Text;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_Text_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_Text_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_Text_More5()
-    begin
-        Observer.More();
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        vText := 'abcdefghijk';
+        Res := true;
+        if Try1(Res, V, vGuid, vText) then Observer.Observe('cond_branches.g.eleven.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.g.eleven.t');
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        vText := 'abcdefghijk';
+        Res := false;
+        if Try1(Res, V, vGuid, vText) then Observer.Observe('cond_branches.g.eleven.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.g.eleven.f');
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        vText := 'abcdefghijk';
+        Res := true;
+        if Try2(Res, vGuid, vOut, vText) then Observer.Observe('cond_to_text.g.eleven.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.g.eleven.t');
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        vText := 'abcdefghijk';
+        Res := false;
+        if Try2(Res, vGuid, vOut, vText) then Observer.Observe('cond_to_text.g.eleven.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.g.eleven.f');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Guid_Text10()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vGuid: Guid;
+        vOut: Text;
+        vText10: Text[10];
     begin
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vText10 := 'abc';
         Res := true;
-        if Try3() then Observer.Observe('cond_branches.g.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.g.abc.t');
+        if Try3(Res, V, vGuid, vText10) then Observer.Observe('cond_branches.g.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.g.abc.t');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vText10 := 'abc';
         Res := false;
-        if Try3() then Observer.Observe('cond_branches.g.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.g.abc.f');
+        if Try3(Res, V, vGuid, vText10) then Observer.Observe('cond_branches.g.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.g.abc.f');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vText10 := 'abc';
         Res := true;
-        if Try4() then Observer.Observe('cond_to_text.g.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.g.abc.t');
+        if Try4(Res, vGuid, vOut, vText10) then Observer.Observe('cond_to_text.g.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.g.abc.t');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vText10 := 'abc';
         Res := false;
-        if Try4() then Observer.Observe('cond_to_text.g.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.g.abc.f');
+        if Try4(Res, vGuid, vOut, vText10) then Observer.Observe('cond_to_text.g.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.g.abc.f');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Guid_Text10_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_Text10_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_Text10_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_Text10_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_Text10_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Guid_Code10()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vCode10: Code[10];
+        vGuid: Guid;
+        vOut: Text;
     begin
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vCode10 := 'A';
         Res := true;
-        if Try5() then Observer.Observe('cond_branches.g.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.g.A.t');
+        if Try5(Res, V, vCode10, vGuid) then Observer.Observe('cond_branches.g.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.g.A.t');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vCode10 := 'A';
         Res := false;
-        if Try5() then Observer.Observe('cond_branches.g.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.g.A.f');
+        if Try5(Res, V, vCode10, vGuid) then Observer.Observe('cond_branches.g.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.g.A.f');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vCode10 := 'A';
         Res := true;
-        if Try6() then Observer.Observe('cond_to_text.g.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.g.A.t');
+        if Try6(Res, vCode10, vGuid, vOut) then Observer.Observe('cond_to_text.g.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.g.A.t');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vCode10 := 'A';
         Res := false;
-        if Try6() then Observer.Observe('cond_to_text.g.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.g.A.f');
+        if Try6(Res, vCode10, vGuid, vOut) then Observer.Observe('cond_to_text.g.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.g.A.f');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vCode10 := 'ABC';
         Res := true;
-        if Try5() then Observer.Observe('cond_branches.g.ABC.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.g.ABC.t');
+        if Try5(Res, V, vCode10, vGuid) then Observer.Observe('cond_branches.g.ABC.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.g.ABC.t');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vCode10 := 'ABC';
         Res := false;
-        if Try5() then Observer.Observe('cond_branches.g.ABC.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.g.ABC.f');
+        if Try5(Res, V, vCode10, vGuid) then Observer.Observe('cond_branches.g.ABC.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.g.ABC.f');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vCode10 := 'ABC';
         Res := true;
-        if Try6() then Observer.Observe('cond_to_text.g.ABC.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.g.ABC.t');
+        if Try6(Res, vCode10, vGuid, vOut) then Observer.Observe('cond_to_text.g.ABC.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.g.ABC.t');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vCode10 := 'ABC';
         Res := false;
-        if Try6() then Observer.Observe('cond_to_text.g.ABC.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.g.ABC.f');
+        if Try6(Res, vCode10, vGuid, vOut) then Observer.Observe('cond_to_text.g.ABC.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.g.ABC.f');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Guid_Code10_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_Code10_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_Code10_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_Code10_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_Code10_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Guid_Label()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vGuid: Guid;
+        vOut: Text;
     begin
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         Res := true;
-        if Try7() then Observer.Observe('cond_branches.g.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.g.abc.t');
+        if Try7(Res, V, vGuid) then Observer.Observe('cond_branches.g.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.g.abc.t');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         Res := false;
-        if Try7() then Observer.Observe('cond_branches.g.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.g.abc.f');
+        if Try7(Res, V, vGuid) then Observer.Observe('cond_branches.g.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.g.abc.f');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         Res := true;
-        if Try8() then Observer.Observe('cond_to_text.g.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.g.abc.t');
+        if Try8(Res, vGuid, vOut) then Observer.Observe('cond_to_text.g.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.g.abc.t');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         Res := false;
-        if Try8() then Observer.Observe('cond_to_text.g.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.g.abc.f');
+        if Try8(Res, vGuid, vOut) then Observer.Observe('cond_to_text.g.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.g.abc.f');
         Observer.Finish();
     end;
 
-    [Test]
-    procedure Guid_Label_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_Label_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_Label_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_Label_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_Label_More5()
-    begin
-        Observer.More();
-    end;
-
     [TryFunction]
-    local procedure Try1()
+    local procedure Try1(var Res: Boolean; var V: Variant; var vGuid: Guid; var vText: Text)
     begin
         Clear(V);
         V := Res ? vGuid : vText;
     end;
 
     [TryFunction]
-    local procedure Try2()
+    local procedure Try2(var Res: Boolean; var vGuid: Guid; var vOut: Text; var vText: Text)
     begin
         Clear(vOut);
         vOut := Res ? vGuid : vText;
     end;
 
     [TryFunction]
-    local procedure Try3()
+    local procedure Try3(var Res: Boolean; var V: Variant; var vGuid: Guid; var vText10: Text[10])
     begin
         Clear(V);
         V := Res ? vGuid : vText10;
     end;
 
     [TryFunction]
-    local procedure Try4()
+    local procedure Try4(var Res: Boolean; var vGuid: Guid; var vOut: Text; var vText10: Text[10])
     begin
         Clear(vOut);
         vOut := Res ? vGuid : vText10;
     end;
 
     [TryFunction]
-    local procedure Try5()
+    local procedure Try5(var Res: Boolean; var V: Variant; var vCode10: Code[10]; var vGuid: Guid)
     begin
         Clear(V);
         V := Res ? vGuid : vCode10;
     end;
 
     [TryFunction]
-    local procedure Try6()
+    local procedure Try6(var Res: Boolean; var vCode10: Code[10]; var vGuid: Guid; var vOut: Text)
     begin
         Clear(vOut);
         vOut := Res ? vGuid : vCode10;
     end;
 
     [TryFunction]
-    local procedure Try7()
+    local procedure Try7(var Res: Boolean; var V: Variant; var vGuid: Guid)
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Clear(V);
         V := Res ? vGuid : vLabel;
     end;
 
     [TryFunction]
-    local procedure Try8()
+    local procedure Try8(var Res: Boolean; var vGuid: Guid; var vOut: Text)
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Clear(vOut);
         vOut := Res ? vGuid : vLabel;
@@ -5337,352 +4038,201 @@ codeunit 92479 "LT Y31 Cd Duration"
     Subtype = Test;
     TestPermissions = Disabled;
 
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        Res: Boolean;
-        V: Variant;
-        vBigInteger: BigInteger;
-        vByte: Byte;
-        vChar: Char;
-        vDecimal: Decimal;
-        vDuration: Duration;
-        vInteger: Integer;
-        vOption: Option A,B,C;
-
     [Test]
     procedure Duration_Integer()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vDuration: Duration;
+        vInteger: Integer;
     begin
         vDuration := 65;
         vInteger := 65;
         Res := true;
-        if Try1() then Observer.Observe('cond_branches.65.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.t');
+        if Try1(Res, V, vDuration, vInteger) then Observer.Observe('cond_branches.65.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.t');
         vDuration := 65;
         vInteger := 65;
         Res := false;
-        if Try1() then Observer.Observe('cond_branches.65.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.f');
+        if Try1(Res, V, vDuration, vInteger) then Observer.Observe('cond_branches.65.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.f');
         vDuration := 65;
         vInteger := 1;
         Res := true;
-        if Try1() then Observer.Observe('cond_branches.65.1.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.1.t');
+        if Try1(Res, V, vDuration, vInteger) then Observer.Observe('cond_branches.65.1.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.1.t');
         vDuration := 65;
         vInteger := 1;
         Res := false;
-        if Try1() then Observer.Observe('cond_branches.65.1.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.1.f');
+        if Try1(Res, V, vDuration, vInteger) then Observer.Observe('cond_branches.65.1.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.1.f');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Duration_Integer_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Integer_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Integer_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Integer_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Integer_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Duration_BigInteger()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vBigInteger: BigInteger;
+        vDuration: Duration;
     begin
         vDuration := 65;
         vBigInteger := 65;
         Res := true;
-        if Try2() then Observer.Observe('cond_branches.65.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.t');
+        if Try2(Res, V, vBigInteger, vDuration) then Observer.Observe('cond_branches.65.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.t');
         vDuration := 65;
         vBigInteger := 65;
         Res := false;
-        if Try2() then Observer.Observe('cond_branches.65.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.f');
+        if Try2(Res, V, vBigInteger, vDuration) then Observer.Observe('cond_branches.65.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.f');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Duration_BigInteger_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_BigInteger_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_BigInteger_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_BigInteger_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_BigInteger_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Duration_Decimal()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vDecimal: Decimal;
+        vDuration: Duration;
     begin
         vDuration := 65;
         vDecimal := 65;
         Res := true;
-        if Try3() then Observer.Observe('cond_branches.65.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.t');
+        if Try3(Res, V, vDecimal, vDuration) then Observer.Observe('cond_branches.65.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.t');
         vDuration := 65;
         vDecimal := 65;
         Res := false;
-        if Try3() then Observer.Observe('cond_branches.65.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.f');
+        if Try3(Res, V, vDecimal, vDuration) then Observer.Observe('cond_branches.65.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.f');
         vDuration := 65;
         vDecimal := 1.5;
         Res := true;
-        if Try3() then Observer.Observe('cond_branches.65.1p5.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.1p5.t');
+        if Try3(Res, V, vDecimal, vDuration) then Observer.Observe('cond_branches.65.1p5.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.1p5.t');
         vDuration := 65;
         vDecimal := 1.5;
         Res := false;
-        if Try3() then Observer.Observe('cond_branches.65.1p5.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.1p5.f');
+        if Try3(Res, V, vDecimal, vDuration) then Observer.Observe('cond_branches.65.1p5.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.1p5.f');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Duration_Decimal_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Decimal_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Decimal_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Decimal_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Decimal_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Duration_Char()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vChar: Char;
+        vDuration: Duration;
     begin
         vDuration := 65;
         vChar := 65;
         Res := true;
-        if Try4() then Observer.Observe('cond_branches.65.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.A.t');
+        if Try4(Res, V, vChar, vDuration) then Observer.Observe('cond_branches.65.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.A.t');
         vDuration := 65;
         vChar := 65;
         Res := false;
-        if Try4() then Observer.Observe('cond_branches.65.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.A.f');
+        if Try4(Res, V, vChar, vDuration) then Observer.Observe('cond_branches.65.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.A.f');
         vDuration := 65;
         vChar := 97;
         Res := true;
-        if Try4() then Observer.Observe('cond_branches.65.a.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.a.t');
+        if Try4(Res, V, vChar, vDuration) then Observer.Observe('cond_branches.65.a.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.a.t');
         vDuration := 65;
         vChar := 97;
         Res := false;
-        if Try4() then Observer.Observe('cond_branches.65.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.a.f');
+        if Try4(Res, V, vChar, vDuration) then Observer.Observe('cond_branches.65.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.a.f');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Duration_Char_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Char_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Char_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Char_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Char_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Duration_Byte()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vByte: Byte;
+        vDuration: Duration;
     begin
         vDuration := 65;
         vByte := 65;
         Res := true;
-        if Try5() then Observer.Observe('cond_branches.65.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.t');
+        if Try5(Res, V, vByte, vDuration) then Observer.Observe('cond_branches.65.65.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.t');
         vDuration := 65;
         vByte := 65;
         Res := false;
-        if Try5() then Observer.Observe('cond_branches.65.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.f');
+        if Try5(Res, V, vByte, vDuration) then Observer.Observe('cond_branches.65.65.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.65.f');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Duration_Byte_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Byte_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Byte_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Byte_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Byte_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Duration_Option()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vDuration: Duration;
+        vOption: Option A,B,C;
     begin
         vDuration := 65;
         vOption := 1;
         Res := true;
-        if Try6() then Observer.Observe('cond_branches.65.1.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.1.t');
+        if Try6(Res, V, vDuration, vOption) then Observer.Observe('cond_branches.65.1.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.1.t');
         vDuration := 65;
         vOption := 1;
         Res := false;
-        if Try6() then Observer.Observe('cond_branches.65.1.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.1.f');
+        if Try6(Res, V, vDuration, vOption) then Observer.Observe('cond_branches.65.1.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.1.f');
         vDuration := 65;
         vOption := 3;
         Res := true;
-        if Try6() then Observer.Observe('cond_branches.65.3.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.3.t');
+        if Try6(Res, V, vDuration, vOption) then Observer.Observe('cond_branches.65.3.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.3.t');
         vDuration := 65;
         vOption := 3;
         Res := false;
-        if Try6() then Observer.Observe('cond_branches.65.3.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.3.f');
+        if Try6(Res, V, vDuration, vOption) then Observer.Observe('cond_branches.65.3.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.65.3.f');
         Observer.Finish();
     end;
 
-    [Test]
-    procedure Duration_Option_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Option_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Option_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Option_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Option_More5()
-    begin
-        Observer.More();
-    end;
-
     [TryFunction]
-    local procedure Try1()
+    local procedure Try1(var Res: Boolean; var V: Variant; var vDuration: Duration; var vInteger: Integer)
     begin
         Clear(V);
         V := Res ? vDuration : vInteger;
     end;
 
     [TryFunction]
-    local procedure Try2()
+    local procedure Try2(var Res: Boolean; var V: Variant; var vBigInteger: BigInteger; var vDuration: Duration)
     begin
         Clear(V);
         V := Res ? vDuration : vBigInteger;
     end;
 
     [TryFunction]
-    local procedure Try3()
+    local procedure Try3(var Res: Boolean; var V: Variant; var vDecimal: Decimal; var vDuration: Duration)
     begin
         Clear(V);
         V := Res ? vDuration : vDecimal;
     end;
 
     [TryFunction]
-    local procedure Try4()
+    local procedure Try4(var Res: Boolean; var V: Variant; var vChar: Char; var vDuration: Duration)
     begin
         Clear(V);
         V := Res ? vDuration : vChar;
     end;
 
     [TryFunction]
-    local procedure Try5()
+    local procedure Try5(var Res: Boolean; var V: Variant; var vByte: Byte; var vDuration: Duration)
     begin
         Clear(V);
         V := Res ? vDuration : vByte;
     end;
 
     [TryFunction]
-    local procedure Try6()
+    local procedure Try6(var Res: Boolean; var V: Variant; var vDuration: Duration; var vOption: Option A,B,C)
     begin
         Clear(V);
         V := Res ? vDuration : vOption;
@@ -5702,396 +4252,314 @@ codeunit 92480 "LT Y31 Cd Label"
     Subtype = Test;
     TestPermissions = Disabled;
 
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        Res: Boolean;
-        V: Variant;
-        vChar: Char;
-        vCode10: Code[10];
-        vGuid: Guid;
-        vLabel: Label 'abc', Locked = true;
-        vOut: Text;
-        vText: Text;
-        vText10: Text[10];
-
     [Test]
     procedure Label_Char()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vChar: Char;
+        vOut: Text;
     begin
         vChar := 65;
         Res := true;
-        if Try1() then Observer.Observe('cond_branches.abc.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.A.t');
+        if Try1(Res, V, vChar) then Observer.Observe('cond_branches.abc.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.A.t');
         vChar := 65;
         Res := false;
-        if Try1() then Observer.Observe('cond_branches.abc.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.A.f');
+        if Try1(Res, V, vChar) then Observer.Observe('cond_branches.abc.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.A.f');
         vChar := 65;
         Res := true;
-        if Try2() then Observer.Observe('cond_to_text.abc.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.A.t');
+        if Try2(Res, vChar, vOut) then Observer.Observe('cond_to_text.abc.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.A.t');
         vChar := 65;
         Res := false;
-        if Try2() then Observer.Observe('cond_to_text.abc.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.A.f');
+        if Try2(Res, vChar, vOut) then Observer.Observe('cond_to_text.abc.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.A.f');
         vChar := 97;
         Res := true;
-        if Try1() then Observer.Observe('cond_branches.abc.a.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.a.t');
+        if Try1(Res, V, vChar) then Observer.Observe('cond_branches.abc.a.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.a.t');
         vChar := 97;
         Res := false;
-        if Try1() then Observer.Observe('cond_branches.abc.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.a.f');
+        if Try1(Res, V, vChar) then Observer.Observe('cond_branches.abc.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.a.f');
         vChar := 97;
         Res := true;
-        if Try2() then Observer.Observe('cond_to_text.abc.a.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.a.t');
+        if Try2(Res, vChar, vOut) then Observer.Observe('cond_to_text.abc.a.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.a.t');
         vChar := 97;
         Res := false;
-        if Try2() then Observer.Observe('cond_to_text.abc.a.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.a.f');
+        if Try2(Res, vChar, vOut) then Observer.Observe('cond_to_text.abc.a.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.a.f');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Label_Char_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_Char_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_Char_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_Char_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_Char_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Label_Text()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vOut: Text;
+        vText: Text;
     begin
         vText := 'a';
         Res := true;
-        if Try3() then Observer.Observe('cond_branches.abc.a.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.a.t');
+        if Try3(Res, V, vText) then Observer.Observe('cond_branches.abc.a.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.a.t');
         vText := 'a';
         Res := false;
-        if Try3() then Observer.Observe('cond_branches.abc.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.a.f');
+        if Try3(Res, V, vText) then Observer.Observe('cond_branches.abc.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.a.f');
         vText := 'a';
         Res := true;
-        if Try4() then Observer.Observe('cond_to_text.abc.a.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.a.t');
+        if Try4(Res, vOut, vText) then Observer.Observe('cond_to_text.abc.a.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.a.t');
         vText := 'a';
         Res := false;
-        if Try4() then Observer.Observe('cond_to_text.abc.a.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.a.f');
+        if Try4(Res, vOut, vText) then Observer.Observe('cond_to_text.abc.a.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.a.f');
         vText := 'A';
         Res := true;
-        if Try3() then Observer.Observe('cond_branches.abc.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.A.t');
+        if Try3(Res, V, vText) then Observer.Observe('cond_branches.abc.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.A.t');
         vText := 'A';
         Res := false;
-        if Try3() then Observer.Observe('cond_branches.abc.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.A.f');
+        if Try3(Res, V, vText) then Observer.Observe('cond_branches.abc.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.A.f');
         vText := 'A';
         Res := true;
-        if Try4() then Observer.Observe('cond_to_text.abc.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.A.t');
+        if Try4(Res, vOut, vText) then Observer.Observe('cond_to_text.abc.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.A.t');
         vText := 'A';
         Res := false;
-        if Try4() then Observer.Observe('cond_to_text.abc.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.A.f');
-        vText := 'abc';
-        Res := true;
-        if Try3() then Observer.Observe('cond_branches.abc.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.abc.t');
-        vText := 'abc';
-        Res := false;
-        if Try3() then Observer.Observe('cond_branches.abc.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.abc.f');
-        vText := 'abc';
-        Res := true;
-        if Try4() then Observer.Observe('cond_to_text.abc.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.abc.t');
-        vText := 'abc';
-        Res := false;
-        if Try4() then Observer.Observe('cond_to_text.abc.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.abc.f');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        Res := true;
-        if Try3() then Observer.Observe('cond_branches.abc.guidlow.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.guidlow.t');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        Res := false;
-        if Try3() then Observer.Observe('cond_branches.abc.guidlow.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.guidlow.f');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        Res := true;
-        if Try4() then Observer.Observe('cond_to_text.abc.guidlow.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.guidlow.t');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        Res := false;
-        if Try4() then Observer.Observe('cond_to_text.abc.guidlow.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.guidlow.f');
-        vText := 'abcdefghijk';
-        Res := true;
-        if Try3() then Observer.Observe('cond_branches.abc.eleven.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.eleven.t');
-        vText := 'abcdefghijk';
-        Res := false;
-        if Try3() then Observer.Observe('cond_branches.abc.eleven.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.eleven.f');
-        vText := 'abcdefghijk';
-        Res := true;
-        if Try4() then Observer.Observe('cond_to_text.abc.eleven.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.eleven.t');
-        vText := 'abcdefghijk';
-        Res := false;
-        if Try4() then Observer.Observe('cond_to_text.abc.eleven.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.eleven.f');
+        if Try4(Res, vOut, vText) then Observer.Observe('cond_to_text.abc.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.A.f');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Label_Text_More1()
+    procedure Label_Text_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vOut: Text;
+        vText: Text;
     begin
-        Observer.More();
+        vText := 'abc';
+        Res := true;
+        if Try3(Res, V, vText) then Observer.Observe('cond_branches.abc.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.abc.t');
+        vText := 'abc';
+        Res := false;
+        if Try3(Res, V, vText) then Observer.Observe('cond_branches.abc.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.abc.f');
+        vText := 'abc';
+        Res := true;
+        if Try4(Res, vOut, vText) then Observer.Observe('cond_to_text.abc.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.abc.t');
+        vText := 'abc';
+        Res := false;
+        if Try4(Res, vOut, vText) then Observer.Observe('cond_to_text.abc.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.abc.f');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        Res := true;
+        if Try3(Res, V, vText) then Observer.Observe('cond_branches.abc.guidlow.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.guidlow.t');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        Res := false;
+        if Try3(Res, V, vText) then Observer.Observe('cond_branches.abc.guidlow.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.guidlow.f');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        Res := true;
+        if Try4(Res, vOut, vText) then Observer.Observe('cond_to_text.abc.guidlow.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.guidlow.t');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        Res := false;
+        if Try4(Res, vOut, vText) then Observer.Observe('cond_to_text.abc.guidlow.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.guidlow.f');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Label_Text_More2()
+    procedure Label_Text_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vOut: Text;
+        vText: Text;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_Text_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_Text_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_Text_More5()
-    begin
-        Observer.More();
+        vText := 'abcdefghijk';
+        Res := true;
+        if Try3(Res, V, vText) then Observer.Observe('cond_branches.abc.eleven.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.eleven.t');
+        vText := 'abcdefghijk';
+        Res := false;
+        if Try3(Res, V, vText) then Observer.Observe('cond_branches.abc.eleven.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.eleven.f');
+        vText := 'abcdefghijk';
+        Res := true;
+        if Try4(Res, vOut, vText) then Observer.Observe('cond_to_text.abc.eleven.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.eleven.t');
+        vText := 'abcdefghijk';
+        Res := false;
+        if Try4(Res, vOut, vText) then Observer.Observe('cond_to_text.abc.eleven.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.eleven.f');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Label_Text10()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vOut: Text;
+        vText10: Text[10];
     begin
         vText10 := 'abc';
         Res := true;
-        if Try5() then Observer.Observe('cond_branches.abc.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.abc.t');
+        if Try5(Res, V, vText10) then Observer.Observe('cond_branches.abc.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.abc.t');
         vText10 := 'abc';
         Res := false;
-        if Try5() then Observer.Observe('cond_branches.abc.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.abc.f');
+        if Try5(Res, V, vText10) then Observer.Observe('cond_branches.abc.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.abc.f');
         vText10 := 'abc';
         Res := true;
-        if Try6() then Observer.Observe('cond_to_text.abc.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.abc.t');
+        if Try6(Res, vOut, vText10) then Observer.Observe('cond_to_text.abc.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.abc.t');
         vText10 := 'abc';
         Res := false;
-        if Try6() then Observer.Observe('cond_to_text.abc.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.abc.f');
+        if Try6(Res, vOut, vText10) then Observer.Observe('cond_to_text.abc.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.abc.f');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Label_Text10_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_Text10_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_Text10_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_Text10_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_Text10_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Label_Code10()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vCode10: Code[10];
+        vOut: Text;
     begin
         vCode10 := 'A';
         Res := true;
-        if Try7() then Observer.Observe('cond_branches.abc.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.A.t');
+        if Try7(Res, V, vCode10) then Observer.Observe('cond_branches.abc.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.A.t');
         vCode10 := 'A';
         Res := false;
-        if Try7() then Observer.Observe('cond_branches.abc.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.A.f');
+        if Try7(Res, V, vCode10) then Observer.Observe('cond_branches.abc.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.A.f');
         vCode10 := 'A';
         Res := true;
-        if Try8() then Observer.Observe('cond_to_text.abc.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.A.t');
+        if Try8(Res, vCode10, vOut) then Observer.Observe('cond_to_text.abc.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.A.t');
         vCode10 := 'A';
         Res := false;
-        if Try8() then Observer.Observe('cond_to_text.abc.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.A.f');
+        if Try8(Res, vCode10, vOut) then Observer.Observe('cond_to_text.abc.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.A.f');
         vCode10 := 'ABC';
         Res := true;
-        if Try7() then Observer.Observe('cond_branches.abc.ABC.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.ABC.t');
+        if Try7(Res, V, vCode10) then Observer.Observe('cond_branches.abc.ABC.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.ABC.t');
         vCode10 := 'ABC';
         Res := false;
-        if Try7() then Observer.Observe('cond_branches.abc.ABC.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.ABC.f');
+        if Try7(Res, V, vCode10) then Observer.Observe('cond_branches.abc.ABC.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.ABC.f');
         vCode10 := 'ABC';
         Res := true;
-        if Try8() then Observer.Observe('cond_to_text.abc.ABC.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.ABC.t');
+        if Try8(Res, vCode10, vOut) then Observer.Observe('cond_to_text.abc.ABC.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.ABC.t');
         vCode10 := 'ABC';
         Res := false;
-        if Try8() then Observer.Observe('cond_to_text.abc.ABC.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.ABC.f');
+        if Try8(Res, vCode10, vOut) then Observer.Observe('cond_to_text.abc.ABC.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.ABC.f');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Label_Code10_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_Code10_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_Code10_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_Code10_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_Code10_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Label_Guid()
+    var
+        Observer: Codeunit "Probe Observer";
+        Res: Boolean;
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vGuid: Guid;
+        vOut: Text;
     begin
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         Res := true;
-        if Try9() then Observer.Observe('cond_branches.abc.g.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.g.t');
+        if Try9(Res, V, vGuid) then Observer.Observe('cond_branches.abc.g.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.g.t');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         Res := false;
-        if Try9() then Observer.Observe('cond_branches.abc.g.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.g.f');
+        if Try9(Res, V, vGuid) then Observer.Observe('cond_branches.abc.g.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.g.f');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         Res := true;
-        if Try10() then Observer.Observe('cond_to_text.abc.g.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.g.t');
+        if Try10(Res, vGuid, vOut) then Observer.Observe('cond_to_text.abc.g.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.g.t');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         Res := false;
-        if Try10() then Observer.Observe('cond_to_text.abc.g.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.g.f');
+        if Try10(Res, vGuid, vOut) then Observer.Observe('cond_to_text.abc.g.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.g.f');
         Observer.Finish();
     end;
 
-    [Test]
-    procedure Label_Guid_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_Guid_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_Guid_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_Guid_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_Guid_More5()
-    begin
-        Observer.More();
-    end;
-
     [TryFunction]
-    local procedure Try1()
+    local procedure Try1(var Res: Boolean; var V: Variant; var vChar: Char)
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Clear(V);
         V := Res ? vLabel : vChar;
     end;
 
     [TryFunction]
-    local procedure Try2()
+    local procedure Try2(var Res: Boolean; var vChar: Char; var vOut: Text)
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Clear(vOut);
         vOut := Res ? vLabel : vChar;
     end;
 
     [TryFunction]
-    local procedure Try3()
+    local procedure Try3(var Res: Boolean; var V: Variant; var vText: Text)
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Clear(V);
         V := Res ? vLabel : vText;
     end;
 
     [TryFunction]
-    local procedure Try4()
+    local procedure Try4(var Res: Boolean; var vOut: Text; var vText: Text)
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Clear(vOut);
         vOut := Res ? vLabel : vText;
     end;
 
     [TryFunction]
-    local procedure Try5()
+    local procedure Try5(var Res: Boolean; var V: Variant; var vText10: Text[10])
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Clear(V);
         V := Res ? vLabel : vText10;
     end;
 
     [TryFunction]
-    local procedure Try6()
+    local procedure Try6(var Res: Boolean; var vOut: Text; var vText10: Text[10])
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Clear(vOut);
         vOut := Res ? vLabel : vText10;
     end;
 
     [TryFunction]
-    local procedure Try7()
+    local procedure Try7(var Res: Boolean; var V: Variant; var vCode10: Code[10])
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Clear(V);
         V := Res ? vLabel : vCode10;
     end;
 
     [TryFunction]
-    local procedure Try8()
+    local procedure Try8(var Res: Boolean; var vCode10: Code[10]; var vOut: Text)
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Clear(vOut);
         vOut := Res ? vLabel : vCode10;
     end;
 
     [TryFunction]
-    local procedure Try9()
+    local procedure Try9(var Res: Boolean; var V: Variant; var vGuid: Guid)
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Clear(V);
         V := Res ? vLabel : vGuid;
     end;
 
     [TryFunction]
-    local procedure Try10()
+    local procedure Try10(var Res: Boolean; var vGuid: Guid; var vOut: Text)
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Clear(vOut);
         vOut := Res ? vLabel : vGuid;

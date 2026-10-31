@@ -10,22 +10,14 @@ codeunit 92426 "LT Y31 Tp Value"
     Subtype = Test;
     TestPermissions = Disabled;
 
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        R: Record "LT Y31 Conv Fields";
-        RowR: Record "LT Y31 Conv Fields";
-        TP: TestPage "LT Y31 Conv Card";
-        vCode10: Code[10];
-        vCode3: Code[3];
-        vGuid: Guid;
-        vShown: Text;
-        vText: Text;
-        vText10: Text[10];
-        vText3: Text[3];
-
     [Test]
     procedure TestPageValue_To_Text()
+    var
+        Observer: Codeunit "Probe Observer";
+        RowR: Record "LT Y31 Conv Fields";
+        TP: TestPage "LT Y31 Conv Card";
+        vShown: Text;
+        vText: Text;
     begin
         RowR.DeleteAll();
         RowR.Init();
@@ -36,8 +28,8 @@ codeunit 92426 "LT Y31 Tp Value"
         TP.GoToRecord(RowR);
         vShown := TP.FText.Value;
         Observer.Observe('shown.abc', vShown + '|' + Format(StrLen(vShown)));
-        if Try1() then Observer.Observe('assign.abc', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.abc');
-        if Try2() then Observer.Observe('arg_byvalue.abc', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.abc');
+        if Try1(TP, vText) then Observer.Observe('assign.abc', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.abc');
+        if Try3(TP, vText) then Observer.Observe('arg_byvalue.abc', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.abc');
         TP.Close();
         RowR.DeleteAll();
         RowR.Init();
@@ -48,9 +40,21 @@ codeunit 92426 "LT Y31 Tp Value"
         TP.GoToRecord(RowR);
         vShown := TP.FText.Value;
         Observer.Observe('shown.ten', vShown + '|' + Format(StrLen(vShown)));
-        if Try1() then Observer.Observe('assign.ten', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.ten');
-        if Try2() then Observer.Observe('arg_byvalue.ten', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.ten');
+        if Try1(TP, vText) then Observer.Observe('assign.ten', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.ten');
+        if Try3(TP, vText) then Observer.Observe('arg_byvalue.ten', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.ten');
         TP.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TestPageValue_To_Text_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        RowR: Record "LT Y31 Conv Fields";
+        TP: TestPage "LT Y31 Conv Card";
+        vShown: Text;
+        vText: Text;
+    begin
         RowR.DeleteAll();
         RowR.Init();
         RowR.Integer := 1;
@@ -60,8 +64,8 @@ codeunit 92426 "LT Y31 Tp Value"
         TP.GoToRecord(RowR);
         vShown := TP.FText.Value;
         Observer.Observe('shown.lead', vShown + '|' + Format(StrLen(vShown)));
-        if Try1() then Observer.Observe('assign.lead', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.lead');
-        if Try2() then Observer.Observe('arg_byvalue.lead', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.lead');
+        if Try1(TP, vText) then Observer.Observe('assign.lead', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.lead');
+        if Try3(TP, vText) then Observer.Observe('arg_byvalue.lead', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.lead');
         TP.Close();
         RowR.DeleteAll();
         RowR.Init();
@@ -72,44 +76,20 @@ codeunit 92426 "LT Y31 Tp Value"
         TP.GoToRecord(RowR);
         vShown := TP.FText.Value;
         Observer.Observe('shown.empty', vShown + '|' + Format(StrLen(vShown)));
-        if Try1() then Observer.Observe('assign.empty', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.empty');
-        if Try2() then Observer.Observe('arg_byvalue.empty', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.empty');
+        if Try1(TP, vText) then Observer.Observe('assign.empty', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.empty');
+        if Try3(TP, vText) then Observer.Observe('arg_byvalue.empty', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.empty');
         TP.Close();
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure TestPageValue_To_Text_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure TestPageValue_To_Text_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure TestPageValue_To_Text_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure TestPageValue_To_Text_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure TestPageValue_To_Text_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure TestPageValue_To_Text10()
+    var
+        Observer: Codeunit "Probe Observer";
+        RowR: Record "LT Y31 Conv Fields";
+        TP: TestPage "LT Y31 Conv Card";
+        vShown: Text;
+        vText10: Text[10];
     begin
         RowR.DeleteAll();
         RowR.Init();
@@ -120,8 +100,8 @@ codeunit 92426 "LT Y31 Tp Value"
         TP.GoToRecord(RowR);
         vShown := TP.FText.Value;
         Observer.Observe('shown.abc', vShown + '|' + Format(StrLen(vShown)));
-        if Try3() then Observer.Observe('assign.abc', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.abc');
-        if Try4() then Observer.Observe('arg_byvalue.abc', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.abc');
+        if Try4(TP, vText10) then Observer.Observe('assign.abc', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.abc');
+        if Try6(TP, vText10) then Observer.Observe('arg_byvalue.abc', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.abc');
         TP.Close();
         RowR.DeleteAll();
         RowR.Init();
@@ -132,9 +112,21 @@ codeunit 92426 "LT Y31 Tp Value"
         TP.GoToRecord(RowR);
         vShown := TP.FText.Value;
         Observer.Observe('shown.ten', vShown + '|' + Format(StrLen(vShown)));
-        if Try3() then Observer.Observe('assign.ten', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.ten');
-        if Try4() then Observer.Observe('arg_byvalue.ten', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.ten');
+        if Try4(TP, vText10) then Observer.Observe('assign.ten', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.ten');
+        if Try6(TP, vText10) then Observer.Observe('arg_byvalue.ten', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.ten');
         TP.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TestPageValue_To_Text10_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        RowR: Record "LT Y31 Conv Fields";
+        TP: TestPage "LT Y31 Conv Card";
+        vShown: Text;
+        vText10: Text[10];
+    begin
         RowR.DeleteAll();
         RowR.Init();
         RowR.Integer := 1;
@@ -144,8 +136,8 @@ codeunit 92426 "LT Y31 Tp Value"
         TP.GoToRecord(RowR);
         vShown := TP.FText.Value;
         Observer.Observe('shown.lead', vShown + '|' + Format(StrLen(vShown)));
-        if Try3() then Observer.Observe('assign.lead', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.lead');
-        if Try4() then Observer.Observe('arg_byvalue.lead', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.lead');
+        if Try4(TP, vText10) then Observer.Observe('assign.lead', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.lead');
+        if Try6(TP, vText10) then Observer.Observe('arg_byvalue.lead', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.lead');
         TP.Close();
         RowR.DeleteAll();
         RowR.Init();
@@ -156,44 +148,20 @@ codeunit 92426 "LT Y31 Tp Value"
         TP.GoToRecord(RowR);
         vShown := TP.FText.Value;
         Observer.Observe('shown.empty', vShown + '|' + Format(StrLen(vShown)));
-        if Try3() then Observer.Observe('assign.empty', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.empty');
-        if Try4() then Observer.Observe('arg_byvalue.empty', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.empty');
+        if Try4(TP, vText10) then Observer.Observe('assign.empty', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.empty');
+        if Try6(TP, vText10) then Observer.Observe('arg_byvalue.empty', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.empty');
         TP.Close();
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure TestPageValue_To_Text10_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure TestPageValue_To_Text10_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure TestPageValue_To_Text10_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure TestPageValue_To_Text10_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure TestPageValue_To_Text10_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure TestPageValue_To_Text3()
+    var
+        Observer: Codeunit "Probe Observer";
+        RowR: Record "LT Y31 Conv Fields";
+        TP: TestPage "LT Y31 Conv Card";
+        vShown: Text;
+        vText3: Text[3];
     begin
         RowR.DeleteAll();
         RowR.Init();
@@ -204,8 +172,8 @@ codeunit 92426 "LT Y31 Tp Value"
         TP.GoToRecord(RowR);
         vShown := TP.FText.Value;
         Observer.Observe('shown.abc', vShown + '|' + Format(StrLen(vShown)));
-        if Try5() then Observer.Observe('assign.abc', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.abc');
-        if Try6() then Observer.Observe('arg_byvalue.abc', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.abc');
+        if Try7(TP, vText3) then Observer.Observe('assign.abc', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.abc');
+        if Try9(TP, vText3) then Observer.Observe('arg_byvalue.abc', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.abc');
         TP.Close();
         RowR.DeleteAll();
         RowR.Init();
@@ -216,9 +184,21 @@ codeunit 92426 "LT Y31 Tp Value"
         TP.GoToRecord(RowR);
         vShown := TP.FText.Value;
         Observer.Observe('shown.ten', vShown + '|' + Format(StrLen(vShown)));
-        if Try5() then Observer.Observe('assign.ten', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.ten');
-        if Try6() then Observer.Observe('arg_byvalue.ten', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.ten');
+        if Try7(TP, vText3) then Observer.Observe('assign.ten', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.ten');
+        if Try9(TP, vText3) then Observer.Observe('arg_byvalue.ten', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.ten');
         TP.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TestPageValue_To_Text3_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        RowR: Record "LT Y31 Conv Fields";
+        TP: TestPage "LT Y31 Conv Card";
+        vShown: Text;
+        vText3: Text[3];
+    begin
         RowR.DeleteAll();
         RowR.Init();
         RowR.Integer := 1;
@@ -228,8 +208,8 @@ codeunit 92426 "LT Y31 Tp Value"
         TP.GoToRecord(RowR);
         vShown := TP.FText.Value;
         Observer.Observe('shown.lead', vShown + '|' + Format(StrLen(vShown)));
-        if Try5() then Observer.Observe('assign.lead', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.lead');
-        if Try6() then Observer.Observe('arg_byvalue.lead', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.lead');
+        if Try7(TP, vText3) then Observer.Observe('assign.lead', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.lead');
+        if Try9(TP, vText3) then Observer.Observe('arg_byvalue.lead', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.lead');
         TP.Close();
         RowR.DeleteAll();
         RowR.Init();
@@ -240,44 +220,20 @@ codeunit 92426 "LT Y31 Tp Value"
         TP.GoToRecord(RowR);
         vShown := TP.FText.Value;
         Observer.Observe('shown.empty', vShown + '|' + Format(StrLen(vShown)));
-        if Try5() then Observer.Observe('assign.empty', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.empty');
-        if Try6() then Observer.Observe('arg_byvalue.empty', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.empty');
+        if Try7(TP, vText3) then Observer.Observe('assign.empty', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.empty');
+        if Try9(TP, vText3) then Observer.Observe('arg_byvalue.empty', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.empty');
         TP.Close();
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure TestPageValue_To_Text3_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure TestPageValue_To_Text3_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure TestPageValue_To_Text3_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure TestPageValue_To_Text3_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure TestPageValue_To_Text3_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure TestPageValue_To_Code10()
+    var
+        Observer: Codeunit "Probe Observer";
+        RowR: Record "LT Y31 Conv Fields";
+        TP: TestPage "LT Y31 Conv Card";
+        vCode10: Code[10];
+        vShown: Text;
     begin
         RowR.DeleteAll();
         RowR.Init();
@@ -288,8 +244,8 @@ codeunit 92426 "LT Y31 Tp Value"
         TP.GoToRecord(RowR);
         vShown := TP.FText.Value;
         Observer.Observe('shown.abc', vShown + '|' + Format(StrLen(vShown)));
-        if Try7() then Observer.Observe('assign.abc', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.abc');
-        if Try8() then Observer.Observe('arg_byvalue.abc', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.abc');
+        if Try10(TP, vCode10) then Observer.Observe('assign.abc', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.abc');
+        if Try12(TP, vCode10) then Observer.Observe('arg_byvalue.abc', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.abc');
         TP.Close();
         RowR.DeleteAll();
         RowR.Init();
@@ -300,9 +256,21 @@ codeunit 92426 "LT Y31 Tp Value"
         TP.GoToRecord(RowR);
         vShown := TP.FText.Value;
         Observer.Observe('shown.ten', vShown + '|' + Format(StrLen(vShown)));
-        if Try7() then Observer.Observe('assign.ten', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.ten');
-        if Try8() then Observer.Observe('arg_byvalue.ten', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.ten');
+        if Try10(TP, vCode10) then Observer.Observe('assign.ten', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.ten');
+        if Try12(TP, vCode10) then Observer.Observe('arg_byvalue.ten', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.ten');
         TP.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TestPageValue_To_Code10_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        RowR: Record "LT Y31 Conv Fields";
+        TP: TestPage "LT Y31 Conv Card";
+        vCode10: Code[10];
+        vShown: Text;
+    begin
         RowR.DeleteAll();
         RowR.Init();
         RowR.Integer := 1;
@@ -312,8 +280,8 @@ codeunit 92426 "LT Y31 Tp Value"
         TP.GoToRecord(RowR);
         vShown := TP.FText.Value;
         Observer.Observe('shown.lead', vShown + '|' + Format(StrLen(vShown)));
-        if Try7() then Observer.Observe('assign.lead', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.lead');
-        if Try8() then Observer.Observe('arg_byvalue.lead', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.lead');
+        if Try10(TP, vCode10) then Observer.Observe('assign.lead', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.lead');
+        if Try12(TP, vCode10) then Observer.Observe('arg_byvalue.lead', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.lead');
         TP.Close();
         RowR.DeleteAll();
         RowR.Init();
@@ -324,44 +292,20 @@ codeunit 92426 "LT Y31 Tp Value"
         TP.GoToRecord(RowR);
         vShown := TP.FText.Value;
         Observer.Observe('shown.empty', vShown + '|' + Format(StrLen(vShown)));
-        if Try7() then Observer.Observe('assign.empty', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.empty');
-        if Try8() then Observer.Observe('arg_byvalue.empty', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.empty');
+        if Try10(TP, vCode10) then Observer.Observe('assign.empty', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.empty');
+        if Try12(TP, vCode10) then Observer.Observe('arg_byvalue.empty', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.empty');
         TP.Close();
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure TestPageValue_To_Code10_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure TestPageValue_To_Code10_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure TestPageValue_To_Code10_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure TestPageValue_To_Code10_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure TestPageValue_To_Code10_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure TestPageValue_To_Code3()
+    var
+        Observer: Codeunit "Probe Observer";
+        RowR: Record "LT Y31 Conv Fields";
+        TP: TestPage "LT Y31 Conv Card";
+        vCode3: Code[3];
+        vShown: Text;
     begin
         RowR.DeleteAll();
         RowR.Init();
@@ -372,8 +316,8 @@ codeunit 92426 "LT Y31 Tp Value"
         TP.GoToRecord(RowR);
         vShown := TP.FText.Value;
         Observer.Observe('shown.abc', vShown + '|' + Format(StrLen(vShown)));
-        if Try9() then Observer.Observe('assign.abc', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.abc');
-        if Try10() then Observer.Observe('arg_byvalue.abc', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.abc');
+        if Try13(TP, vCode3) then Observer.Observe('assign.abc', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.abc');
+        if Try15(TP, vCode3) then Observer.Observe('arg_byvalue.abc', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.abc');
         TP.Close();
         RowR.DeleteAll();
         RowR.Init();
@@ -384,9 +328,21 @@ codeunit 92426 "LT Y31 Tp Value"
         TP.GoToRecord(RowR);
         vShown := TP.FText.Value;
         Observer.Observe('shown.ten', vShown + '|' + Format(StrLen(vShown)));
-        if Try9() then Observer.Observe('assign.ten', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.ten');
-        if Try10() then Observer.Observe('arg_byvalue.ten', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.ten');
+        if Try13(TP, vCode3) then Observer.Observe('assign.ten', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.ten');
+        if Try15(TP, vCode3) then Observer.Observe('arg_byvalue.ten', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.ten');
         TP.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TestPageValue_To_Code3_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        RowR: Record "LT Y31 Conv Fields";
+        TP: TestPage "LT Y31 Conv Card";
+        vCode3: Code[3];
+        vShown: Text;
+    begin
         RowR.DeleteAll();
         RowR.Init();
         RowR.Integer := 1;
@@ -396,8 +352,8 @@ codeunit 92426 "LT Y31 Tp Value"
         TP.GoToRecord(RowR);
         vShown := TP.FText.Value;
         Observer.Observe('shown.lead', vShown + '|' + Format(StrLen(vShown)));
-        if Try9() then Observer.Observe('assign.lead', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.lead');
-        if Try10() then Observer.Observe('arg_byvalue.lead', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.lead');
+        if Try13(TP, vCode3) then Observer.Observe('assign.lead', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.lead');
+        if Try15(TP, vCode3) then Observer.Observe('arg_byvalue.lead', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.lead');
         TP.Close();
         RowR.DeleteAll();
         RowR.Init();
@@ -408,44 +364,20 @@ codeunit 92426 "LT Y31 Tp Value"
         TP.GoToRecord(RowR);
         vShown := TP.FText.Value;
         Observer.Observe('shown.empty', vShown + '|' + Format(StrLen(vShown)));
-        if Try9() then Observer.Observe('assign.empty', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.empty');
-        if Try10() then Observer.Observe('arg_byvalue.empty', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.empty');
+        if Try13(TP, vCode3) then Observer.Observe('assign.empty', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.empty');
+        if Try15(TP, vCode3) then Observer.Observe('arg_byvalue.empty', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.empty');
         TP.Close();
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure TestPageValue_To_Code3_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure TestPageValue_To_Code3_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure TestPageValue_To_Code3_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure TestPageValue_To_Code3_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure TestPageValue_To_Code3_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure TestPageValue_To_Guid()
+    var
+        Observer: Codeunit "Probe Observer";
+        RowR: Record "LT Y31 Conv Fields";
+        TP: TestPage "LT Y31 Conv Card";
+        vGuid: Guid;
+        vShown: Text;
     begin
         RowR.DeleteAll();
         RowR.Init();
@@ -456,8 +388,8 @@ codeunit 92426 "LT Y31 Tp Value"
         TP.GoToRecord(RowR);
         vShown := TP.FText.Value;
         Observer.Observe('shown.abc', vShown + '|' + Format(StrLen(vShown)));
-        if Try11() then Observer.Observe('assign.abc', Format(vGuid)) else Observer.ObserveError('assign.abc');
-        if Try12() then Observer.Observe('arg_byvalue.abc', Format(vGuid)) else Observer.ObserveError('arg_byvalue.abc');
+        if Try16(TP, vGuid) then Observer.Observe('assign.abc', Format(vGuid)) else Observer.ObserveError('assign.abc');
+        if Try18(TP, vGuid) then Observer.Observe('arg_byvalue.abc', Format(vGuid)) else Observer.ObserveError('arg_byvalue.abc');
         TP.Close();
         RowR.DeleteAll();
         RowR.Init();
@@ -468,9 +400,21 @@ codeunit 92426 "LT Y31 Tp Value"
         TP.GoToRecord(RowR);
         vShown := TP.FText.Value;
         Observer.Observe('shown.ten', vShown + '|' + Format(StrLen(vShown)));
-        if Try11() then Observer.Observe('assign.ten', Format(vGuid)) else Observer.ObserveError('assign.ten');
-        if Try12() then Observer.Observe('arg_byvalue.ten', Format(vGuid)) else Observer.ObserveError('arg_byvalue.ten');
+        if Try16(TP, vGuid) then Observer.Observe('assign.ten', Format(vGuid)) else Observer.ObserveError('assign.ten');
+        if Try18(TP, vGuid) then Observer.Observe('arg_byvalue.ten', Format(vGuid)) else Observer.ObserveError('arg_byvalue.ten');
         TP.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TestPageValue_To_Guid_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        RowR: Record "LT Y31 Conv Fields";
+        TP: TestPage "LT Y31 Conv Card";
+        vGuid: Guid;
+        vShown: Text;
+    begin
         RowR.DeleteAll();
         RowR.Init();
         RowR.Integer := 1;
@@ -480,8 +424,8 @@ codeunit 92426 "LT Y31 Tp Value"
         TP.GoToRecord(RowR);
         vShown := TP.FText.Value;
         Observer.Observe('shown.lead', vShown + '|' + Format(StrLen(vShown)));
-        if Try11() then Observer.Observe('assign.lead', Format(vGuid)) else Observer.ObserveError('assign.lead');
-        if Try12() then Observer.Observe('arg_byvalue.lead', Format(vGuid)) else Observer.ObserveError('arg_byvalue.lead');
+        if Try16(TP, vGuid) then Observer.Observe('assign.lead', Format(vGuid)) else Observer.ObserveError('assign.lead');
+        if Try18(TP, vGuid) then Observer.Observe('arg_byvalue.lead', Format(vGuid)) else Observer.ObserveError('arg_byvalue.lead');
         TP.Close();
         RowR.DeleteAll();
         RowR.Init();
@@ -492,44 +436,20 @@ codeunit 92426 "LT Y31 Tp Value"
         TP.GoToRecord(RowR);
         vShown := TP.FText.Value;
         Observer.Observe('shown.empty', vShown + '|' + Format(StrLen(vShown)));
-        if Try11() then Observer.Observe('assign.empty', Format(vGuid)) else Observer.ObserveError('assign.empty');
-        if Try12() then Observer.Observe('arg_byvalue.empty', Format(vGuid)) else Observer.ObserveError('arg_byvalue.empty');
+        if Try16(TP, vGuid) then Observer.Observe('assign.empty', Format(vGuid)) else Observer.ObserveError('assign.empty');
+        if Try18(TP, vGuid) then Observer.Observe('arg_byvalue.empty', Format(vGuid)) else Observer.ObserveError('arg_byvalue.empty');
         TP.Close();
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure TestPageValue_To_Guid_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure TestPageValue_To_Guid_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure TestPageValue_To_Guid_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure TestPageValue_To_Guid_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure TestPageValue_To_Guid_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure TestPageValue_To_FCode10()
+    var
+        Observer: Codeunit "Probe Observer";
+        R: Record "LT Y31 Conv Fields";
+        RowR: Record "LT Y31 Conv Fields";
+        TP: TestPage "LT Y31 Conv Card";
+        vShown: Text;
     begin
         RowR.DeleteAll();
         RowR.Init();
@@ -540,7 +460,7 @@ codeunit 92426 "LT Y31 Tp Value"
         TP.GoToRecord(RowR);
         vShown := TP.FText.Value;
         Observer.Observe('shown.abc', vShown + '|' + Format(StrLen(vShown)));
-        if Try13() then Observer.Observe('assign.abc', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.abc');
+        if Try19(R, TP) then Observer.Observe('assign.abc', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.abc');
         TP.Close();
         RowR.DeleteAll();
         RowR.Init();
@@ -551,7 +471,7 @@ codeunit 92426 "LT Y31 Tp Value"
         TP.GoToRecord(RowR);
         vShown := TP.FText.Value;
         Observer.Observe('shown.ten', vShown + '|' + Format(StrLen(vShown)));
-        if Try13() then Observer.Observe('assign.ten', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.ten');
+        if Try19(R, TP) then Observer.Observe('assign.ten', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.ten');
         TP.Close();
         RowR.DeleteAll();
         RowR.Init();
@@ -562,7 +482,7 @@ codeunit 92426 "LT Y31 Tp Value"
         TP.GoToRecord(RowR);
         vShown := TP.FText.Value;
         Observer.Observe('shown.lead', vShown + '|' + Format(StrLen(vShown)));
-        if Try13() then Observer.Observe('assign.lead', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.lead');
+        if Try19(R, TP) then Observer.Observe('assign.lead', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.lead');
         TP.Close();
         RowR.DeleteAll();
         RowR.Init();
@@ -573,157 +493,127 @@ codeunit 92426 "LT Y31 Tp Value"
         TP.GoToRecord(RowR);
         vShown := TP.FText.Value;
         Observer.Observe('shown.empty', vShown + '|' + Format(StrLen(vShown)));
-        if Try13() then Observer.Observe('assign.empty', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.empty');
+        if Try19(R, TP) then Observer.Observe('assign.empty', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.empty');
         TP.Close();
         Observer.Finish();
     end;
 
-    [Test]
-    procedure TestPageValue_To_FCode10_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure TestPageValue_To_FCode10_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure TestPageValue_To_FCode10_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure TestPageValue_To_FCode10_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure TestPageValue_To_FCode10_More5()
-    begin
-        Observer.More();
-    end;
-
     [TryFunction]
-    local procedure Try1()
+    local procedure Try1(var TP: TestPage "LT Y31 Conv Card"; var vText: Text)
     begin
         Clear(vText);
         vText := TP.FText.Value;
     end;
 
-    local procedure PA_Text_1(p: Text)
+    local procedure PA_Text_2(p: Text; var vText: Text)
     begin
         vText := p;
     end;
 
     [TryFunction]
-    local procedure Try2()
+    local procedure Try3(var TP: TestPage "LT Y31 Conv Card"; var vText: Text)
     begin
         Clear(vText);
-        PA_Text_1(TP.FText.Value);
+        PA_Text_2(TP.FText.Value, vText);
     end;
 
     [TryFunction]
-    local procedure Try3()
+    local procedure Try4(var TP: TestPage "LT Y31 Conv Card"; var vText10: Text[10])
     begin
         Clear(vText10);
         vText10 := TP.FText.Value;
     end;
 
-    local procedure PA_Text10_3(p: Text[10])
+    local procedure PA_Text10_5(p: Text[10]; var vText10: Text[10])
     begin
         vText10 := p;
     end;
 
     [TryFunction]
-    local procedure Try4()
+    local procedure Try6(var TP: TestPage "LT Y31 Conv Card"; var vText10: Text[10])
     begin
         Clear(vText10);
-        PA_Text10_3(TP.FText.Value);
+        PA_Text10_5(TP.FText.Value, vText10);
     end;
 
     [TryFunction]
-    local procedure Try5()
+    local procedure Try7(var TP: TestPage "LT Y31 Conv Card"; var vText3: Text[3])
     begin
         Clear(vText3);
         vText3 := TP.FText.Value;
     end;
 
-    local procedure PA_Text3_5(p: Text[3])
+    local procedure PA_Text3_8(p: Text[3]; var vText3: Text[3])
     begin
         vText3 := p;
     end;
 
     [TryFunction]
-    local procedure Try6()
+    local procedure Try9(var TP: TestPage "LT Y31 Conv Card"; var vText3: Text[3])
     begin
         Clear(vText3);
-        PA_Text3_5(TP.FText.Value);
+        PA_Text3_8(TP.FText.Value, vText3);
     end;
 
     [TryFunction]
-    local procedure Try7()
+    local procedure Try10(var TP: TestPage "LT Y31 Conv Card"; var vCode10: Code[10])
     begin
         Clear(vCode10);
         vCode10 := TP.FText.Value;
     end;
 
-    local procedure PA_Code10_7(p: Code[10])
+    local procedure PA_Code10_11(p: Code[10]; var vCode10: Code[10])
     begin
         vCode10 := p;
     end;
 
     [TryFunction]
-    local procedure Try8()
+    local procedure Try12(var TP: TestPage "LT Y31 Conv Card"; var vCode10: Code[10])
     begin
         Clear(vCode10);
-        PA_Code10_7(TP.FText.Value);
+        PA_Code10_11(TP.FText.Value, vCode10);
     end;
 
     [TryFunction]
-    local procedure Try9()
+    local procedure Try13(var TP: TestPage "LT Y31 Conv Card"; var vCode3: Code[3])
     begin
         Clear(vCode3);
         vCode3 := TP.FText.Value;
     end;
 
-    local procedure PA_Code3_9(p: Code[3])
+    local procedure PA_Code3_14(p: Code[3]; var vCode3: Code[3])
     begin
         vCode3 := p;
     end;
 
     [TryFunction]
-    local procedure Try10()
+    local procedure Try15(var TP: TestPage "LT Y31 Conv Card"; var vCode3: Code[3])
     begin
         Clear(vCode3);
-        PA_Code3_9(TP.FText.Value);
+        PA_Code3_14(TP.FText.Value, vCode3);
     end;
 
     [TryFunction]
-    local procedure Try11()
+    local procedure Try16(var TP: TestPage "LT Y31 Conv Card"; var vGuid: Guid)
     begin
         Clear(vGuid);
         vGuid := TP.FText.Value;
     end;
 
-    local procedure PA_Guid_11(p: Guid)
+    local procedure PA_Guid_17(p: Guid; var vGuid: Guid)
     begin
         vGuid := p;
     end;
 
     [TryFunction]
-    local procedure Try12()
+    local procedure Try18(var TP: TestPage "LT Y31 Conv Card"; var vGuid: Guid)
     begin
         Clear(vGuid);
-        PA_Guid_11(TP.FText.Value);
+        PA_Guid_17(TP.FText.Value, vGuid);
     end;
 
     [TryFunction]
-    local procedure Try13()
+    local procedure Try19(var R: Record "LT Y31 Conv Fields"; var TP: TestPage "LT Y31 Conv Card")
     begin
         Clear(R.Code10);
         R.Code10 := TP.FText.Value;

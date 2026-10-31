@@ -130,7 +130,7 @@ class Unit:
     def __init__(self, cid, name, title):
         self.cid, self.name, self.title = cid, name, title
         self.tests = []   # (name, [statements])
-        self.procs = []   # extra procedures (lines)
+        self.procs = []   # (name, try?, params, return type, body lines)
         self.globals = {}
         self.n = 0
 
@@ -143,9 +143,25 @@ class Unit:
     def tryproc(self, body):
         self.n += 1
         name = 'Try%d' % self.n
-        self.procs.append('    [TryFunction]\n    local procedure %s()\n    begin\n%s\n    end;\n' % (
-            name, '\n'.join('        ' + b for b in body)))
+        self.procs.append((name, True, '', '', body))
         return name
+
+    def pa(self, t):
+        self.n += 1
+        name = 'PA_%s_%d' % (t.replace('.', ''), self.n)
+        self.procs.append((name, False, 'p: %s' % DECL[t], '', ['%s := p;' % var(t)]))
+        return name
+
+    def ex(self, t, expr):
+        self.n += 1
+        name = 'EX_%s_%d' % (t.replace('.', ''), self.n)
+        self.procs.append((name, False, '', DECL[t], ['exit(%s);' % expr]))
+        return name
+
+
+GROUP = '--group--'
+MAX_OBS = 8
+LABELS = ('vLabel', 'vLabelLong', 'vLabel_R')
 
 
 def observe_line(key, tryname, show):
@@ -176,17 +192,16 @@ def gen_cv(m, cid):
                 if c == 'assign':
                     tries[c] = u.tryproc(['Clear(%s);' % var(t), '%s := %s;' % (var(t), var(s))])
                 elif c == 'arg_byvalue':
-                    pa = 'PA_%s_%d' % (t, u.n)
-                    u.procs.append('    local procedure %s(p: %s)\n    begin\n        %s := p;\n    end;\n' % (pa, DECL[t], var(t)))
+                    pa = u.pa(t)
                     tries[c] = u.tryproc(['Clear(%s);' % var(t), '%s(%s);' % (pa, var(s))])
                 else:
-                    ex = 'EX_%s_%d' % (t, u.n)
-                    u.procs.append('    local procedure %s(): %s\n    begin\n        exit(%s);\n    end;\n' % (ex, DECL[t], var(s)))
+                    ex = u.ex(t, var(s))
                     tries[c] = u.tryproc(['Clear(%s);' % var(t), '%s := %s();' % (var(t), ex)])
             for lbl, expr in CV_VALUES[s]:
                 stmts += setv(s, expr)
                 for c in ctxs:
                     stmts.append(observe_line('%s.%s' % (c, lbl), tries[c], fmt(t)))
+                stmts.append(GROUP)
             u.tests.append(('%s_To_%s' % (s, t.replace('.', '')), stmts))
         if u.tests:
             units.append(u)
@@ -205,14 +220,13 @@ def gen_cv(m, cid):
                 if c == 'assign':
                     tr = u.tryproc(['Clear(%s);' % var(t), '%s := %s;' % (var(t), lit)])
                 elif c == 'arg_byvalue':
-                    pa = 'PA_%s_%d' % (t, u.n)
-                    u.procs.append('    local procedure %s(p: %s)\n    begin\n        %s := p;\n    end;\n' % (pa, DECL[t], var(t)))
+                    pa = u.pa(t)
                     tr = u.tryproc(['Clear(%s);' % var(t), '%s(%s);' % (pa, lit)])
                 else:
-                    ex = 'EX_%s_%d' % (t, u.n)
-                    u.procs.append('    local procedure %s(): %s\n    begin\n        exit(%s);\n    end;\n' % (ex, DECL[t], lit))
+                    ex = u.ex(t, lit)
                     tr = u.tryproc(['Clear(%s);' % var(t), '%s := %s();' % (var(t), ex)])
                 stmts.append(observe_line('%s.%s' % (c, lbl), tr, fmt(t)))
+                stmts.append(GROUP)
             u.tests.append(('%s_To_%s' % (lname.replace('lit.', 'Lit'), t.replace('.', '')), stmts))
     units.append(u)
     return units, cid
@@ -240,8 +254,7 @@ def gen_tp(m, cid):
             if c == 'assign':
                 tries[c] = u.tryproc(['Clear(%s);' % var(t), '%s := TP.FText.Value;' % var(t)])
             else:
-                pa = 'PA_%s_%d' % (t, u.n)
-                u.procs.append('    local procedure %s(p: %s)\n    begin\n        %s := p;\n    end;\n' % (pa, DECL[t], var(t)))
+                pa = u.pa(t)
                 tries[c] = u.tryproc(['Clear(%s);' % var(t), '%s(TP.FText.Value);' % pa])
         stmts = []
         for lbl, expr in TP_VALUES:
@@ -251,6 +264,7 @@ def gen_tp(m, cid):
             for c in ctxs:
                 stmts.append(observe_line('%s.%s' % (c, lbl), tries[c], fmt(t)))
             stmts.append('TP.Close();')
+            stmts.append(GROUP)
         u.tests.append(('TestPageValue_To_%s' % t.replace('.', ''), stmts))
     return [u], cid
 
@@ -340,6 +354,7 @@ def gen_ops(m, cid, fam):
                             else:
                                 show = 'Util.VShow(V)'
                             stmts.append(observe_line(key, tries[o], show))
+                            stmts.append(GROUP)
             u.tests.append(('%s_%s' % (s, t if s != t else t + '_Same'), stmts))
         if u.tests:
             units.append(u)
@@ -355,45 +370,125 @@ HEADER = '''// BC Documentation: https://learn.microsoft.com/en-us/dynamics365/b
 '''
 
 
+def strip_strings(line):
+    return re.sub(r"'(?:[^']|'')*'", "''", line)
+
+
+def refs(lines, names):
+    found = set()
+    for l in lines:
+        for w in re.findall(r'[A-Za-z_][A-Za-z0-9_]*', strip_strings(l)):
+            if w in names:
+                found.add(w)
+    return found
+
+
+def chunks(name, stmts):
+    """split a test at its group marks so that every part has at most MAX_OBS observations."""
+    groups, cur = [], []
+    for st in stmts:
+        if st == GROUP:
+            if cur:
+                groups.append(cur)
+            cur = []
+        else:
+            cur.append(st)
+    if cur:
+        groups.append(cur)
+    parts, part, nobs = [], [], 0
+    for g in groups:
+        k = sum(1 for st in g if 'Observer.Observe' in st)
+        if part and nobs + k > MAX_OBS:
+            parts.append(part)
+            part, nobs = [], 0
+        part += g
+        nobs += k
+    if part:
+        parts.append(part)
+    return [(name if i == 0 else '%s_%d' % (name, i + 1), p) for i, p in enumerate(parts)]
+
+
 def render(u, observed):
+    """every variable is local: a test declares what it uses and passes it as a var parameter to the procedures that use it (so a
+    test does not depend on the state an earlier test left). Labels are declared where they are used."""
+    names = dict(u.globals)
+    names['Util'] = 'Codeunit "LT Y31 Conv Util"'
+    labels = {n: d for n, d in names.items() if n in LABELS}
+    vars_ = {n: d for n, d in names.items() if n not in LABELS}
+    procnames = [p[0] for p in u.procs]
+    # names a procedure needs, through the procedures it calls
+    need = {}
+    calls = {}
+    for name, _, _, _, body in u.procs:
+        need[name] = refs(body, vars_)
+        calls[name] = refs(body, set(procnames))
+    changed = True
+    while changed:
+        changed = False
+        for n in need:
+            for c in calls[n]:
+                if not need[c] <= need[n]:
+                    need[n] |= need[c]
+                    changed = True
+    order = {n: sorted(need[n]) for n in need}
+
+    def call_fix(line):
+        def sub(mm):
+            pn, args = mm.group(1), mm.group(2)
+            extra = ', '.join(order[pn])
+            if not extra:
+                return mm.group(0)
+            return '%s(%s)' % (pn, (args + ', ' + extra) if args.strip() else extra)
+        return re.sub(r'\b(%s)\(([^()]*)\)' % '|'.join(map(re.escape, procnames)), sub, line) if procnames else line
+
     out = [HEADER % u.title]
     out.append('codeunit %d "%s"' % (u.cid, u.name))
     out.append('{')
     out.append('    Subtype = Test;')
     out.append('    TestPermissions = Disabled;')
     out.append('')
-    out.append('    var')
-    out.append('        Observer: Codeunit "Probe Observer";')
-    out.append('        Util: Codeunit "LT Y31 Conv Util";')
-    for k in sorted(u.globals):
-        out.append('        %s: %s;' % (k, u.globals[k]))
-    out.append('')
-    for name, stmts in u.tests:
-        out.append('    [Test]')
-        out.append('    procedure %s()' % name)
+    for tname, stmts in u.tests:
+        for name, part in chunks(tname, stmts):
+            used = refs(part, vars_)
+            for st in part:
+                for pn in refs([st], set(procnames)):
+                    used |= need[pn]
+            out.append('    [Test]')
+            out.append('    procedure %s()' % name)
+            out.append('    var')
+            out.append('        Observer: Codeunit "Probe Observer";')
+            for n in sorted(used):
+                out.append('        %s: %s;' % (n, vars_[n]))
+            out.append('    begin')
+            for st in part:
+                out.append('        ' + call_fix(st))
+            if observed is None:
+                out.append('        Observer.Finish();')
+            else:
+                pairs = observed.get((u.name, name))
+                if pairs is None:
+                    raise SystemExit('no observation for %s %s' % (u.name, name))
+                for k, v in pairs:
+                    out.append("        Observer.Expect('%s', %s);" % (k, al_text(v)))
+                out.append('        Observer.Verify();')
+            out.append('    end;')
+            out.append('')
+    for name, is_try, params, ret, body in u.procs:
+        ps = [params] if params else []
+        ps += ['var %s: %s' % (n, vars_[n]) for n in order[name]]
+        lab = sorted(refs(body, labels))
+        if is_try:
+            out.append('    [TryFunction]')
+        out.append('    local procedure %s(%s)%s' % (name, '; '.join(ps), (': ' + ret) if ret else ''))
+        if lab:
+            out.append('    var')
+            for n in lab:
+                out.append('        %s: %s;' % (n, labels[n]))
         out.append('    begin')
-        for s in stmts:
-            out.append('        ' + s)
-        if observed is None:
-            out.append('        Observer.Finish();')
-        else:
-            pairs = observed.get((u.name, name))
-            if pairs is None:
-                raise SystemExit('no observation for %s %s' % (u.name, name))
-            for k, v in pairs:
-                out.append("        Observer.Expect('%s', %s);" % (k, al_text(v)))
-            out.append('        Observer.Verify();')
+        for b in body:
+            out.append('        ' + call_fix(b))
         out.append('    end;')
         out.append('')
-        if observed is None:
-            for i in range(1, 6):
-                out.append('    [Test]')
-                out.append('    procedure %s_More%d()' % (name, i))
-                out.append('    begin')
-                out.append('        Observer.More();')
-                out.append('    end;')
-                out.append('')
-    out.extend(u.procs)
     out.append('}')
     return '\n'.join(out) + '\n'
 
@@ -466,7 +561,8 @@ def main():
         msgs = load_observed(a.observed)
         observed = {}
         for u in units:
-            for name, _ in u.tests:
+            for tname, stmts in u.tests:
+              for name, _ in chunks(tname, stmts):
                 p = observed_pairs(msgs, {}, u, name)
                 if p is not None:
                     observed[(u.name, name)] = p

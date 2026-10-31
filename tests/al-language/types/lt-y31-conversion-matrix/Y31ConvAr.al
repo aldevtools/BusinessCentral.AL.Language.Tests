@@ -10,1137 +10,1022 @@ codeunit 92445 "LT Y31 Ar Integer"
     Subtype = Test;
     TestPermissions = Disabled;
 
+    [Test]
+    procedure Integer_Integer_Same()
     var
         Observer: Codeunit "Probe Observer";
         Util: Codeunit "LT Y31 Conv Util";
-        Res: Boolean;
         V: Variant;
-        vBigInteger: BigInteger;
-        vByte: Byte;
-        vChar: Char;
-        vDate: Date;
-        vDateTime: DateTime;
-        vDecimal: Decimal;
-        vDuration: Duration;
-        vEnum: Enum "LT Y31 E";
-        vEnumImpl: Enum "LT Y31 EI";
         vInteger: Integer;
         vInteger_R: Integer;
-        vOption: Option A,B,C;
-        vTime: Time;
-
-    [Test]
-    procedure Integer_Integer_Same()
     begin
         vInteger := 65;
         vInteger_R := 65;
-        if Try1() then Observer.Observe('add.65.65', Util.VShow(V)) else Observer.ObserveError('add.65.65');
+        if Try1(V, vInteger, vInteger_R) then Observer.Observe('add.65.65', Util.VShow(V)) else Observer.ObserveError('add.65.65');
         vInteger := 65;
         vInteger_R := 65;
-        if Try2() then Observer.Observe('sub.65.65', Util.VShow(V)) else Observer.ObserveError('sub.65.65');
+        if Try2(V, vInteger, vInteger_R) then Observer.Observe('sub.65.65', Util.VShow(V)) else Observer.ObserveError('sub.65.65');
         vInteger := 65;
         vInteger_R := 65;
-        if Try3() then Observer.Observe('compound_add.65.65', Format(vInteger_R, 0, 9)) else Observer.ObserveError('compound_add.65.65');
+        if Try3(vInteger, vInteger_R) then Observer.Observe('compound_add.65.65', Format(vInteger_R, 0, 9)) else Observer.ObserveError('compound_add.65.65');
         vInteger := 65;
         vInteger_R := 1;
-        if Try1() then Observer.Observe('add.65.1', Util.VShow(V)) else Observer.ObserveError('add.65.1');
+        if Try1(V, vInteger, vInteger_R) then Observer.Observe('add.65.1', Util.VShow(V)) else Observer.ObserveError('add.65.1');
         vInteger := 65;
         vInteger_R := 1;
-        if Try2() then Observer.Observe('sub.65.1', Util.VShow(V)) else Observer.ObserveError('sub.65.1');
+        if Try2(V, vInteger, vInteger_R) then Observer.Observe('sub.65.1', Util.VShow(V)) else Observer.ObserveError('sub.65.1');
         vInteger := 65;
         vInteger_R := 1;
-        if Try3() then Observer.Observe('compound_add.65.1', Format(vInteger_R, 0, 9)) else Observer.ObserveError('compound_add.65.1');
+        if Try3(vInteger, vInteger_R) then Observer.Observe('compound_add.65.1', Format(vInteger_R, 0, 9)) else Observer.ObserveError('compound_add.65.1');
         vInteger := 65;
         vInteger_R := 2147483647;
-        if Try1() then Observer.Observe('add.65.max', Util.VShow(V)) else Observer.ObserveError('add.65.max');
+        if Try1(V, vInteger, vInteger_R) then Observer.Observe('add.65.max', Util.VShow(V)) else Observer.ObserveError('add.65.max');
         vInteger := 65;
         vInteger_R := 2147483647;
-        if Try2() then Observer.Observe('sub.65.max', Util.VShow(V)) else Observer.ObserveError('sub.65.max');
-        vInteger := 65;
-        vInteger_R := 2147483647;
-        if Try3() then Observer.Observe('compound_add.65.max', Format(vInteger_R, 0, 9)) else Observer.ObserveError('compound_add.65.max');
-        vInteger := 1;
-        vInteger_R := 65;
-        if Try1() then Observer.Observe('add.1.65', Util.VShow(V)) else Observer.ObserveError('add.1.65');
-        vInteger := 1;
-        vInteger_R := 65;
-        if Try2() then Observer.Observe('sub.1.65', Util.VShow(V)) else Observer.ObserveError('sub.1.65');
-        vInteger := 1;
-        vInteger_R := 65;
-        if Try3() then Observer.Observe('compound_add.1.65', Format(vInteger_R, 0, 9)) else Observer.ObserveError('compound_add.1.65');
-        vInteger := 1;
-        vInteger_R := 1;
-        if Try1() then Observer.Observe('add.1.1', Util.VShow(V)) else Observer.ObserveError('add.1.1');
-        vInteger := 1;
-        vInteger_R := 1;
-        if Try2() then Observer.Observe('sub.1.1', Util.VShow(V)) else Observer.ObserveError('sub.1.1');
-        vInteger := 1;
-        vInteger_R := 1;
-        if Try3() then Observer.Observe('compound_add.1.1', Format(vInteger_R, 0, 9)) else Observer.ObserveError('compound_add.1.1');
-        vInteger := 1;
-        vInteger_R := 2147483647;
-        if Try1() then Observer.Observe('add.1.max', Util.VShow(V)) else Observer.ObserveError('add.1.max');
-        vInteger := 1;
-        vInteger_R := 2147483647;
-        if Try2() then Observer.Observe('sub.1.max', Util.VShow(V)) else Observer.ObserveError('sub.1.max');
-        vInteger := 1;
-        vInteger_R := 2147483647;
-        if Try3() then Observer.Observe('compound_add.1.max', Format(vInteger_R, 0, 9)) else Observer.ObserveError('compound_add.1.max');
-        vInteger := 2147483647;
-        vInteger_R := 65;
-        if Try1() then Observer.Observe('add.max.65', Util.VShow(V)) else Observer.ObserveError('add.max.65');
-        vInteger := 2147483647;
-        vInteger_R := 65;
-        if Try2() then Observer.Observe('sub.max.65', Util.VShow(V)) else Observer.ObserveError('sub.max.65');
-        vInteger := 2147483647;
-        vInteger_R := 65;
-        if Try3() then Observer.Observe('compound_add.max.65', Format(vInteger_R, 0, 9)) else Observer.ObserveError('compound_add.max.65');
-        vInteger := 2147483647;
-        vInteger_R := 1;
-        if Try1() then Observer.Observe('add.max.1', Util.VShow(V)) else Observer.ObserveError('add.max.1');
-        vInteger := 2147483647;
-        vInteger_R := 1;
-        if Try2() then Observer.Observe('sub.max.1', Util.VShow(V)) else Observer.ObserveError('sub.max.1');
-        vInteger := 2147483647;
-        vInteger_R := 1;
-        if Try3() then Observer.Observe('compound_add.max.1', Format(vInteger_R, 0, 9)) else Observer.ObserveError('compound_add.max.1');
-        vInteger := 2147483647;
-        vInteger_R := 2147483647;
-        if Try1() then Observer.Observe('add.max.max', Util.VShow(V)) else Observer.ObserveError('add.max.max');
-        vInteger := 2147483647;
-        vInteger_R := 2147483647;
-        if Try2() then Observer.Observe('sub.max.max', Util.VShow(V)) else Observer.ObserveError('sub.max.max');
-        vInteger := 2147483647;
-        vInteger_R := 2147483647;
-        if Try3() then Observer.Observe('compound_add.max.max', Format(vInteger_R, 0, 9)) else Observer.ObserveError('compound_add.max.max');
+        if Try2(V, vInteger, vInteger_R) then Observer.Observe('sub.65.max', Util.VShow(V)) else Observer.ObserveError('sub.65.max');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Integer_Integer_Same_More1()
+    procedure Integer_Integer_Same_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vInteger: Integer;
+        vInteger_R: Integer;
     begin
-        Observer.More();
+        vInteger := 65;
+        vInteger_R := 2147483647;
+        if Try3(vInteger, vInteger_R) then Observer.Observe('compound_add.65.max', Format(vInteger_R, 0, 9)) else Observer.ObserveError('compound_add.65.max');
+        vInteger := 1;
+        vInteger_R := 65;
+        if Try1(V, vInteger, vInteger_R) then Observer.Observe('add.1.65', Util.VShow(V)) else Observer.ObserveError('add.1.65');
+        vInteger := 1;
+        vInteger_R := 65;
+        if Try2(V, vInteger, vInteger_R) then Observer.Observe('sub.1.65', Util.VShow(V)) else Observer.ObserveError('sub.1.65');
+        vInteger := 1;
+        vInteger_R := 65;
+        if Try3(vInteger, vInteger_R) then Observer.Observe('compound_add.1.65', Format(vInteger_R, 0, 9)) else Observer.ObserveError('compound_add.1.65');
+        vInteger := 1;
+        vInteger_R := 1;
+        if Try1(V, vInteger, vInteger_R) then Observer.Observe('add.1.1', Util.VShow(V)) else Observer.ObserveError('add.1.1');
+        vInteger := 1;
+        vInteger_R := 1;
+        if Try2(V, vInteger, vInteger_R) then Observer.Observe('sub.1.1', Util.VShow(V)) else Observer.ObserveError('sub.1.1');
+        vInteger := 1;
+        vInteger_R := 1;
+        if Try3(vInteger, vInteger_R) then Observer.Observe('compound_add.1.1', Format(vInteger_R, 0, 9)) else Observer.ObserveError('compound_add.1.1');
+        vInteger := 1;
+        vInteger_R := 2147483647;
+        if Try1(V, vInteger, vInteger_R) then Observer.Observe('add.1.max', Util.VShow(V)) else Observer.ObserveError('add.1.max');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Integer_Integer_Same_More2()
+    procedure Integer_Integer_Same_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vInteger: Integer;
+        vInteger_R: Integer;
     begin
-        Observer.More();
+        vInteger := 1;
+        vInteger_R := 2147483647;
+        if Try2(V, vInteger, vInteger_R) then Observer.Observe('sub.1.max', Util.VShow(V)) else Observer.ObserveError('sub.1.max');
+        vInteger := 1;
+        vInteger_R := 2147483647;
+        if Try3(vInteger, vInteger_R) then Observer.Observe('compound_add.1.max', Format(vInteger_R, 0, 9)) else Observer.ObserveError('compound_add.1.max');
+        vInteger := 2147483647;
+        vInteger_R := 65;
+        if Try1(V, vInteger, vInteger_R) then Observer.Observe('add.max.65', Util.VShow(V)) else Observer.ObserveError('add.max.65');
+        vInteger := 2147483647;
+        vInteger_R := 65;
+        if Try2(V, vInteger, vInteger_R) then Observer.Observe('sub.max.65', Util.VShow(V)) else Observer.ObserveError('sub.max.65');
+        vInteger := 2147483647;
+        vInteger_R := 65;
+        if Try3(vInteger, vInteger_R) then Observer.Observe('compound_add.max.65', Format(vInteger_R, 0, 9)) else Observer.ObserveError('compound_add.max.65');
+        vInteger := 2147483647;
+        vInteger_R := 1;
+        if Try1(V, vInteger, vInteger_R) then Observer.Observe('add.max.1', Util.VShow(V)) else Observer.ObserveError('add.max.1');
+        vInteger := 2147483647;
+        vInteger_R := 1;
+        if Try2(V, vInteger, vInteger_R) then Observer.Observe('sub.max.1', Util.VShow(V)) else Observer.ObserveError('sub.max.1');
+        vInteger := 2147483647;
+        vInteger_R := 1;
+        if Try3(vInteger, vInteger_R) then Observer.Observe('compound_add.max.1', Format(vInteger_R, 0, 9)) else Observer.ObserveError('compound_add.max.1');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Integer_Integer_Same_More3()
+    procedure Integer_Integer_Same_4()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vInteger: Integer;
+        vInteger_R: Integer;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Integer_Same_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Integer_Same_More5()
-    begin
-        Observer.More();
+        vInteger := 2147483647;
+        vInteger_R := 2147483647;
+        if Try1(V, vInteger, vInteger_R) then Observer.Observe('add.max.max', Util.VShow(V)) else Observer.ObserveError('add.max.max');
+        vInteger := 2147483647;
+        vInteger_R := 2147483647;
+        if Try2(V, vInteger, vInteger_R) then Observer.Observe('sub.max.max', Util.VShow(V)) else Observer.ObserveError('sub.max.max');
+        vInteger := 2147483647;
+        vInteger_R := 2147483647;
+        if Try3(vInteger, vInteger_R) then Observer.Observe('compound_add.max.max', Format(vInteger_R, 0, 9)) else Observer.ObserveError('compound_add.max.max');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Integer_BigInteger()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vBigInteger: BigInteger;
+        vInteger: Integer;
     begin
         vInteger := 65;
         vBigInteger := 65;
-        if Try4() then Observer.Observe('add.65.65', Util.VShow(V)) else Observer.ObserveError('add.65.65');
+        if Try4(V, vBigInteger, vInteger) then Observer.Observe('add.65.65', Util.VShow(V)) else Observer.ObserveError('add.65.65');
         vInteger := 65;
         vBigInteger := 65;
-        if Try5() then Observer.Observe('sub.65.65', Util.VShow(V)) else Observer.ObserveError('sub.65.65');
+        if Try5(V, vBigInteger, vInteger) then Observer.Observe('sub.65.65', Util.VShow(V)) else Observer.ObserveError('sub.65.65');
         vInteger := 65;
         vBigInteger := 65;
-        if Try6() then Observer.Observe('compound_add.65.65', Format(vBigInteger, 0, 9)) else Observer.ObserveError('compound_add.65.65');
+        if Try6(vBigInteger, vInteger) then Observer.Observe('compound_add.65.65', Format(vBigInteger, 0, 9)) else Observer.ObserveError('compound_add.65.65');
         vInteger := 1;
         vBigInteger := 65;
-        if Try4() then Observer.Observe('add.1.65', Util.VShow(V)) else Observer.ObserveError('add.1.65');
+        if Try4(V, vBigInteger, vInteger) then Observer.Observe('add.1.65', Util.VShow(V)) else Observer.ObserveError('add.1.65');
         vInteger := 1;
         vBigInteger := 65;
-        if Try5() then Observer.Observe('sub.1.65', Util.VShow(V)) else Observer.ObserveError('sub.1.65');
+        if Try5(V, vBigInteger, vInteger) then Observer.Observe('sub.1.65', Util.VShow(V)) else Observer.ObserveError('sub.1.65');
         vInteger := 1;
         vBigInteger := 65;
-        if Try6() then Observer.Observe('compound_add.1.65', Format(vBigInteger, 0, 9)) else Observer.ObserveError('compound_add.1.65');
+        if Try6(vBigInteger, vInteger) then Observer.Observe('compound_add.1.65', Format(vBigInteger, 0, 9)) else Observer.ObserveError('compound_add.1.65');
         vInteger := 2147483647;
         vBigInteger := 65;
-        if Try4() then Observer.Observe('add.max.65', Util.VShow(V)) else Observer.ObserveError('add.max.65');
+        if Try4(V, vBigInteger, vInteger) then Observer.Observe('add.max.65', Util.VShow(V)) else Observer.ObserveError('add.max.65');
         vInteger := 2147483647;
         vBigInteger := 65;
-        if Try5() then Observer.Observe('sub.max.65', Util.VShow(V)) else Observer.ObserveError('sub.max.65');
-        vInteger := 2147483647;
-        vBigInteger := 65;
-        if Try6() then Observer.Observe('compound_add.max.65', Format(vBigInteger, 0, 9)) else Observer.ObserveError('compound_add.max.65');
+        if Try5(V, vBigInteger, vInteger) then Observer.Observe('sub.max.65', Util.VShow(V)) else Observer.ObserveError('sub.max.65');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Integer_BigInteger_More1()
+    procedure Integer_BigInteger_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vBigInteger: BigInteger;
+        vInteger: Integer;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_BigInteger_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_BigInteger_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_BigInteger_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_BigInteger_More5()
-    begin
-        Observer.More();
+        vInteger := 2147483647;
+        vBigInteger := 65;
+        if Try6(vBigInteger, vInteger) then Observer.Observe('compound_add.max.65', Format(vBigInteger, 0, 9)) else Observer.ObserveError('compound_add.max.65');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Integer_Decimal()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vDecimal: Decimal;
+        vInteger: Integer;
     begin
         vInteger := 65;
         vDecimal := 65;
-        if Try7() then Observer.Observe('add.65.65', Util.VShow(V)) else Observer.ObserveError('add.65.65');
+        if Try7(V, vDecimal, vInteger) then Observer.Observe('add.65.65', Util.VShow(V)) else Observer.ObserveError('add.65.65');
         vInteger := 65;
         vDecimal := 65;
-        if Try8() then Observer.Observe('sub.65.65', Util.VShow(V)) else Observer.ObserveError('sub.65.65');
+        if Try8(V, vDecimal, vInteger) then Observer.Observe('sub.65.65', Util.VShow(V)) else Observer.ObserveError('sub.65.65');
         vInteger := 65;
         vDecimal := 65;
-        if Try9() then Observer.Observe('compound_add.65.65', Format(vDecimal, 0, 9)) else Observer.ObserveError('compound_add.65.65');
+        if Try9(vDecimal, vInteger) then Observer.Observe('compound_add.65.65', Format(vDecimal, 0, 9)) else Observer.ObserveError('compound_add.65.65');
         vInteger := 65;
         vDecimal := 1.5;
-        if Try7() then Observer.Observe('add.65.1p5', Util.VShow(V)) else Observer.ObserveError('add.65.1p5');
+        if Try7(V, vDecimal, vInteger) then Observer.Observe('add.65.1p5', Util.VShow(V)) else Observer.ObserveError('add.65.1p5');
         vInteger := 65;
         vDecimal := 1.5;
-        if Try8() then Observer.Observe('sub.65.1p5', Util.VShow(V)) else Observer.ObserveError('sub.65.1p5');
+        if Try8(V, vDecimal, vInteger) then Observer.Observe('sub.65.1p5', Util.VShow(V)) else Observer.ObserveError('sub.65.1p5');
         vInteger := 65;
         vDecimal := 1.5;
-        if Try9() then Observer.Observe('compound_add.65.1p5', Format(vDecimal, 0, 9)) else Observer.ObserveError('compound_add.65.1p5');
+        if Try9(vDecimal, vInteger) then Observer.Observe('compound_add.65.1p5', Format(vDecimal, 0, 9)) else Observer.ObserveError('compound_add.65.1p5');
         vInteger := 1;
         vDecimal := 65;
-        if Try7() then Observer.Observe('add.1.65', Util.VShow(V)) else Observer.ObserveError('add.1.65');
+        if Try7(V, vDecimal, vInteger) then Observer.Observe('add.1.65', Util.VShow(V)) else Observer.ObserveError('add.1.65');
         vInteger := 1;
         vDecimal := 65;
-        if Try8() then Observer.Observe('sub.1.65', Util.VShow(V)) else Observer.ObserveError('sub.1.65');
-        vInteger := 1;
-        vDecimal := 65;
-        if Try9() then Observer.Observe('compound_add.1.65', Format(vDecimal, 0, 9)) else Observer.ObserveError('compound_add.1.65');
-        vInteger := 1;
-        vDecimal := 1.5;
-        if Try7() then Observer.Observe('add.1.1p5', Util.VShow(V)) else Observer.ObserveError('add.1.1p5');
-        vInteger := 1;
-        vDecimal := 1.5;
-        if Try8() then Observer.Observe('sub.1.1p5', Util.VShow(V)) else Observer.ObserveError('sub.1.1p5');
-        vInteger := 1;
-        vDecimal := 1.5;
-        if Try9() then Observer.Observe('compound_add.1.1p5', Format(vDecimal, 0, 9)) else Observer.ObserveError('compound_add.1.1p5');
-        vInteger := 2147483647;
-        vDecimal := 65;
-        if Try7() then Observer.Observe('add.max.65', Util.VShow(V)) else Observer.ObserveError('add.max.65');
-        vInteger := 2147483647;
-        vDecimal := 65;
-        if Try8() then Observer.Observe('sub.max.65', Util.VShow(V)) else Observer.ObserveError('sub.max.65');
-        vInteger := 2147483647;
-        vDecimal := 65;
-        if Try9() then Observer.Observe('compound_add.max.65', Format(vDecimal, 0, 9)) else Observer.ObserveError('compound_add.max.65');
-        vInteger := 2147483647;
-        vDecimal := 1.5;
-        if Try7() then Observer.Observe('add.max.1p5', Util.VShow(V)) else Observer.ObserveError('add.max.1p5');
-        vInteger := 2147483647;
-        vDecimal := 1.5;
-        if Try8() then Observer.Observe('sub.max.1p5', Util.VShow(V)) else Observer.ObserveError('sub.max.1p5');
-        vInteger := 2147483647;
-        vDecimal := 1.5;
-        if Try9() then Observer.Observe('compound_add.max.1p5', Format(vDecimal, 0, 9)) else Observer.ObserveError('compound_add.max.1p5');
+        if Try8(V, vDecimal, vInteger) then Observer.Observe('sub.1.65', Util.VShow(V)) else Observer.ObserveError('sub.1.65');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Integer_Decimal_More1()
+    procedure Integer_Decimal_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vDecimal: Decimal;
+        vInteger: Integer;
     begin
-        Observer.More();
+        vInteger := 1;
+        vDecimal := 65;
+        if Try9(vDecimal, vInteger) then Observer.Observe('compound_add.1.65', Format(vDecimal, 0, 9)) else Observer.ObserveError('compound_add.1.65');
+        vInteger := 1;
+        vDecimal := 1.5;
+        if Try7(V, vDecimal, vInteger) then Observer.Observe('add.1.1p5', Util.VShow(V)) else Observer.ObserveError('add.1.1p5');
+        vInteger := 1;
+        vDecimal := 1.5;
+        if Try8(V, vDecimal, vInteger) then Observer.Observe('sub.1.1p5', Util.VShow(V)) else Observer.ObserveError('sub.1.1p5');
+        vInteger := 1;
+        vDecimal := 1.5;
+        if Try9(vDecimal, vInteger) then Observer.Observe('compound_add.1.1p5', Format(vDecimal, 0, 9)) else Observer.ObserveError('compound_add.1.1p5');
+        vInteger := 2147483647;
+        vDecimal := 65;
+        if Try7(V, vDecimal, vInteger) then Observer.Observe('add.max.65', Util.VShow(V)) else Observer.ObserveError('add.max.65');
+        vInteger := 2147483647;
+        vDecimal := 65;
+        if Try8(V, vDecimal, vInteger) then Observer.Observe('sub.max.65', Util.VShow(V)) else Observer.ObserveError('sub.max.65');
+        vInteger := 2147483647;
+        vDecimal := 65;
+        if Try9(vDecimal, vInteger) then Observer.Observe('compound_add.max.65', Format(vDecimal, 0, 9)) else Observer.ObserveError('compound_add.max.65');
+        vInteger := 2147483647;
+        vDecimal := 1.5;
+        if Try7(V, vDecimal, vInteger) then Observer.Observe('add.max.1p5', Util.VShow(V)) else Observer.ObserveError('add.max.1p5');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Integer_Decimal_More2()
+    procedure Integer_Decimal_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vDecimal: Decimal;
+        vInteger: Integer;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Decimal_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Decimal_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Decimal_More5()
-    begin
-        Observer.More();
+        vInteger := 2147483647;
+        vDecimal := 1.5;
+        if Try8(V, vDecimal, vInteger) then Observer.Observe('sub.max.1p5', Util.VShow(V)) else Observer.ObserveError('sub.max.1p5');
+        vInteger := 2147483647;
+        vDecimal := 1.5;
+        if Try9(vDecimal, vInteger) then Observer.Observe('compound_add.max.1p5', Format(vDecimal, 0, 9)) else Observer.ObserveError('compound_add.max.1p5');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Integer_Char()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vChar: Char;
+        vInteger: Integer;
     begin
         vInteger := 65;
         vChar := 65;
-        if Try10() then Observer.Observe('add.65.A', Util.VShow(V)) else Observer.ObserveError('add.65.A');
+        if Try10(V, vChar, vInteger) then Observer.Observe('add.65.A', Util.VShow(V)) else Observer.ObserveError('add.65.A');
         vInteger := 65;
         vChar := 65;
-        if Try11() then Observer.Observe('sub.65.A', Util.VShow(V)) else Observer.ObserveError('sub.65.A');
+        if Try11(V, vChar, vInteger) then Observer.Observe('sub.65.A', Util.VShow(V)) else Observer.ObserveError('sub.65.A');
         vInteger := 65;
         vChar := 65;
-        if Try12() then Observer.Observe('compound_add.65.A', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.65.A');
+        if Try12(vChar, vInteger) then Observer.Observe('compound_add.65.A', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.65.A');
         vInteger := 65;
         vChar := 97;
-        if Try10() then Observer.Observe('add.65.a', Util.VShow(V)) else Observer.ObserveError('add.65.a');
+        if Try10(V, vChar, vInteger) then Observer.Observe('add.65.a', Util.VShow(V)) else Observer.ObserveError('add.65.a');
         vInteger := 65;
         vChar := 97;
-        if Try11() then Observer.Observe('sub.65.a', Util.VShow(V)) else Observer.ObserveError('sub.65.a');
+        if Try11(V, vChar, vInteger) then Observer.Observe('sub.65.a', Util.VShow(V)) else Observer.ObserveError('sub.65.a');
         vInteger := 65;
         vChar := 97;
-        if Try12() then Observer.Observe('compound_add.65.a', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.65.a');
+        if Try12(vChar, vInteger) then Observer.Observe('compound_add.65.a', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.65.a');
         vInteger := 65;
         vChar := 65535;
-        if Try10() then Observer.Observe('add.65.65535', Util.VShow(V)) else Observer.ObserveError('add.65.65535');
+        if Try10(V, vChar, vInteger) then Observer.Observe('add.65.65535', Util.VShow(V)) else Observer.ObserveError('add.65.65535');
         vInteger := 65;
         vChar := 65535;
-        if Try11() then Observer.Observe('sub.65.65535', Util.VShow(V)) else Observer.ObserveError('sub.65.65535');
-        vInteger := 65;
-        vChar := 65535;
-        if Try12() then Observer.Observe('compound_add.65.65535', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.65.65535');
-        vInteger := 1;
-        vChar := 65;
-        if Try10() then Observer.Observe('add.1.A', Util.VShow(V)) else Observer.ObserveError('add.1.A');
-        vInteger := 1;
-        vChar := 65;
-        if Try11() then Observer.Observe('sub.1.A', Util.VShow(V)) else Observer.ObserveError('sub.1.A');
-        vInteger := 1;
-        vChar := 65;
-        if Try12() then Observer.Observe('compound_add.1.A', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.1.A');
-        vInteger := 1;
-        vChar := 97;
-        if Try10() then Observer.Observe('add.1.a', Util.VShow(V)) else Observer.ObserveError('add.1.a');
-        vInteger := 1;
-        vChar := 97;
-        if Try11() then Observer.Observe('sub.1.a', Util.VShow(V)) else Observer.ObserveError('sub.1.a');
-        vInteger := 1;
-        vChar := 97;
-        if Try12() then Observer.Observe('compound_add.1.a', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.1.a');
-        vInteger := 1;
-        vChar := 65535;
-        if Try10() then Observer.Observe('add.1.65535', Util.VShow(V)) else Observer.ObserveError('add.1.65535');
-        vInteger := 1;
-        vChar := 65535;
-        if Try11() then Observer.Observe('sub.1.65535', Util.VShow(V)) else Observer.ObserveError('sub.1.65535');
-        vInteger := 1;
-        vChar := 65535;
-        if Try12() then Observer.Observe('compound_add.1.65535', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.1.65535');
-        vInteger := 2147483647;
-        vChar := 65;
-        if Try10() then Observer.Observe('add.max.A', Util.VShow(V)) else Observer.ObserveError('add.max.A');
-        vInteger := 2147483647;
-        vChar := 65;
-        if Try11() then Observer.Observe('sub.max.A', Util.VShow(V)) else Observer.ObserveError('sub.max.A');
-        vInteger := 2147483647;
-        vChar := 65;
-        if Try12() then Observer.Observe('compound_add.max.A', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.max.A');
-        vInteger := 2147483647;
-        vChar := 97;
-        if Try10() then Observer.Observe('add.max.a', Util.VShow(V)) else Observer.ObserveError('add.max.a');
-        vInteger := 2147483647;
-        vChar := 97;
-        if Try11() then Observer.Observe('sub.max.a', Util.VShow(V)) else Observer.ObserveError('sub.max.a');
-        vInteger := 2147483647;
-        vChar := 97;
-        if Try12() then Observer.Observe('compound_add.max.a', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.max.a');
-        vInteger := 2147483647;
-        vChar := 65535;
-        if Try10() then Observer.Observe('add.max.65535', Util.VShow(V)) else Observer.ObserveError('add.max.65535');
-        vInteger := 2147483647;
-        vChar := 65535;
-        if Try11() then Observer.Observe('sub.max.65535', Util.VShow(V)) else Observer.ObserveError('sub.max.65535');
-        vInteger := 2147483647;
-        vChar := 65535;
-        if Try12() then Observer.Observe('compound_add.max.65535', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.max.65535');
+        if Try11(V, vChar, vInteger) then Observer.Observe('sub.65.65535', Util.VShow(V)) else Observer.ObserveError('sub.65.65535');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Integer_Char_More1()
+    procedure Integer_Char_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vChar: Char;
+        vInteger: Integer;
     begin
-        Observer.More();
+        vInteger := 65;
+        vChar := 65535;
+        if Try12(vChar, vInteger) then Observer.Observe('compound_add.65.65535', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.65.65535');
+        vInteger := 1;
+        vChar := 65;
+        if Try10(V, vChar, vInteger) then Observer.Observe('add.1.A', Util.VShow(V)) else Observer.ObserveError('add.1.A');
+        vInteger := 1;
+        vChar := 65;
+        if Try11(V, vChar, vInteger) then Observer.Observe('sub.1.A', Util.VShow(V)) else Observer.ObserveError('sub.1.A');
+        vInteger := 1;
+        vChar := 65;
+        if Try12(vChar, vInteger) then Observer.Observe('compound_add.1.A', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.1.A');
+        vInteger := 1;
+        vChar := 97;
+        if Try10(V, vChar, vInteger) then Observer.Observe('add.1.a', Util.VShow(V)) else Observer.ObserveError('add.1.a');
+        vInteger := 1;
+        vChar := 97;
+        if Try11(V, vChar, vInteger) then Observer.Observe('sub.1.a', Util.VShow(V)) else Observer.ObserveError('sub.1.a');
+        vInteger := 1;
+        vChar := 97;
+        if Try12(vChar, vInteger) then Observer.Observe('compound_add.1.a', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.1.a');
+        vInteger := 1;
+        vChar := 65535;
+        if Try10(V, vChar, vInteger) then Observer.Observe('add.1.65535', Util.VShow(V)) else Observer.ObserveError('add.1.65535');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Integer_Char_More2()
+    procedure Integer_Char_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vChar: Char;
+        vInteger: Integer;
     begin
-        Observer.More();
+        vInteger := 1;
+        vChar := 65535;
+        if Try11(V, vChar, vInteger) then Observer.Observe('sub.1.65535', Util.VShow(V)) else Observer.ObserveError('sub.1.65535');
+        vInteger := 1;
+        vChar := 65535;
+        if Try12(vChar, vInteger) then Observer.Observe('compound_add.1.65535', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.1.65535');
+        vInteger := 2147483647;
+        vChar := 65;
+        if Try10(V, vChar, vInteger) then Observer.Observe('add.max.A', Util.VShow(V)) else Observer.ObserveError('add.max.A');
+        vInteger := 2147483647;
+        vChar := 65;
+        if Try11(V, vChar, vInteger) then Observer.Observe('sub.max.A', Util.VShow(V)) else Observer.ObserveError('sub.max.A');
+        vInteger := 2147483647;
+        vChar := 65;
+        if Try12(vChar, vInteger) then Observer.Observe('compound_add.max.A', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.max.A');
+        vInteger := 2147483647;
+        vChar := 97;
+        if Try10(V, vChar, vInteger) then Observer.Observe('add.max.a', Util.VShow(V)) else Observer.ObserveError('add.max.a');
+        vInteger := 2147483647;
+        vChar := 97;
+        if Try11(V, vChar, vInteger) then Observer.Observe('sub.max.a', Util.VShow(V)) else Observer.ObserveError('sub.max.a');
+        vInteger := 2147483647;
+        vChar := 97;
+        if Try12(vChar, vInteger) then Observer.Observe('compound_add.max.a', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.max.a');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Integer_Char_More3()
+    procedure Integer_Char_4()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vChar: Char;
+        vInteger: Integer;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Char_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Char_More5()
-    begin
-        Observer.More();
+        vInteger := 2147483647;
+        vChar := 65535;
+        if Try10(V, vChar, vInteger) then Observer.Observe('add.max.65535', Util.VShow(V)) else Observer.ObserveError('add.max.65535');
+        vInteger := 2147483647;
+        vChar := 65535;
+        if Try11(V, vChar, vInteger) then Observer.Observe('sub.max.65535', Util.VShow(V)) else Observer.ObserveError('sub.max.65535');
+        vInteger := 2147483647;
+        vChar := 65535;
+        if Try12(vChar, vInteger) then Observer.Observe('compound_add.max.65535', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.max.65535');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Integer_Byte()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vByte: Byte;
+        vInteger: Integer;
     begin
         vInteger := 65;
         vByte := 65;
-        if Try13() then Observer.Observe('add.65.65', Util.VShow(V)) else Observer.ObserveError('add.65.65');
+        if Try13(V, vByte, vInteger) then Observer.Observe('add.65.65', Util.VShow(V)) else Observer.ObserveError('add.65.65');
         vInteger := 65;
         vByte := 65;
-        if Try14() then Observer.Observe('sub.65.65', Util.VShow(V)) else Observer.ObserveError('sub.65.65');
+        if Try14(V, vByte, vInteger) then Observer.Observe('sub.65.65', Util.VShow(V)) else Observer.ObserveError('sub.65.65');
         vInteger := 65;
         vByte := 65;
-        if Try15() then Observer.Observe('compound_add.65.65', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.65.65');
+        if Try15(vByte, vInteger) then Observer.Observe('compound_add.65.65', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.65.65');
         vInteger := 65;
         vByte := 255;
-        if Try13() then Observer.Observe('add.65.255', Util.VShow(V)) else Observer.ObserveError('add.65.255');
+        if Try13(V, vByte, vInteger) then Observer.Observe('add.65.255', Util.VShow(V)) else Observer.ObserveError('add.65.255');
         vInteger := 65;
         vByte := 255;
-        if Try14() then Observer.Observe('sub.65.255', Util.VShow(V)) else Observer.ObserveError('sub.65.255');
+        if Try14(V, vByte, vInteger) then Observer.Observe('sub.65.255', Util.VShow(V)) else Observer.ObserveError('sub.65.255');
         vInteger := 65;
         vByte := 255;
-        if Try15() then Observer.Observe('compound_add.65.255', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.65.255');
+        if Try15(vByte, vInteger) then Observer.Observe('compound_add.65.255', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.65.255');
         vInteger := 1;
         vByte := 65;
-        if Try13() then Observer.Observe('add.1.65', Util.VShow(V)) else Observer.ObserveError('add.1.65');
+        if Try13(V, vByte, vInteger) then Observer.Observe('add.1.65', Util.VShow(V)) else Observer.ObserveError('add.1.65');
         vInteger := 1;
         vByte := 65;
-        if Try14() then Observer.Observe('sub.1.65', Util.VShow(V)) else Observer.ObserveError('sub.1.65');
-        vInteger := 1;
-        vByte := 65;
-        if Try15() then Observer.Observe('compound_add.1.65', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.1.65');
-        vInteger := 1;
-        vByte := 255;
-        if Try13() then Observer.Observe('add.1.255', Util.VShow(V)) else Observer.ObserveError('add.1.255');
-        vInteger := 1;
-        vByte := 255;
-        if Try14() then Observer.Observe('sub.1.255', Util.VShow(V)) else Observer.ObserveError('sub.1.255');
-        vInteger := 1;
-        vByte := 255;
-        if Try15() then Observer.Observe('compound_add.1.255', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.1.255');
-        vInteger := 2147483647;
-        vByte := 65;
-        if Try13() then Observer.Observe('add.max.65', Util.VShow(V)) else Observer.ObserveError('add.max.65');
-        vInteger := 2147483647;
-        vByte := 65;
-        if Try14() then Observer.Observe('sub.max.65', Util.VShow(V)) else Observer.ObserveError('sub.max.65');
-        vInteger := 2147483647;
-        vByte := 65;
-        if Try15() then Observer.Observe('compound_add.max.65', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.max.65');
-        vInteger := 2147483647;
-        vByte := 255;
-        if Try13() then Observer.Observe('add.max.255', Util.VShow(V)) else Observer.ObserveError('add.max.255');
-        vInteger := 2147483647;
-        vByte := 255;
-        if Try14() then Observer.Observe('sub.max.255', Util.VShow(V)) else Observer.ObserveError('sub.max.255');
-        vInteger := 2147483647;
-        vByte := 255;
-        if Try15() then Observer.Observe('compound_add.max.255', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.max.255');
+        if Try14(V, vByte, vInteger) then Observer.Observe('sub.1.65', Util.VShow(V)) else Observer.ObserveError('sub.1.65');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Integer_Byte_More1()
+    procedure Integer_Byte_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vByte: Byte;
+        vInteger: Integer;
     begin
-        Observer.More();
+        vInteger := 1;
+        vByte := 65;
+        if Try15(vByte, vInteger) then Observer.Observe('compound_add.1.65', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.1.65');
+        vInteger := 1;
+        vByte := 255;
+        if Try13(V, vByte, vInteger) then Observer.Observe('add.1.255', Util.VShow(V)) else Observer.ObserveError('add.1.255');
+        vInteger := 1;
+        vByte := 255;
+        if Try14(V, vByte, vInteger) then Observer.Observe('sub.1.255', Util.VShow(V)) else Observer.ObserveError('sub.1.255');
+        vInteger := 1;
+        vByte := 255;
+        if Try15(vByte, vInteger) then Observer.Observe('compound_add.1.255', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.1.255');
+        vInteger := 2147483647;
+        vByte := 65;
+        if Try13(V, vByte, vInteger) then Observer.Observe('add.max.65', Util.VShow(V)) else Observer.ObserveError('add.max.65');
+        vInteger := 2147483647;
+        vByte := 65;
+        if Try14(V, vByte, vInteger) then Observer.Observe('sub.max.65', Util.VShow(V)) else Observer.ObserveError('sub.max.65');
+        vInteger := 2147483647;
+        vByte := 65;
+        if Try15(vByte, vInteger) then Observer.Observe('compound_add.max.65', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.max.65');
+        vInteger := 2147483647;
+        vByte := 255;
+        if Try13(V, vByte, vInteger) then Observer.Observe('add.max.255', Util.VShow(V)) else Observer.ObserveError('add.max.255');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Integer_Byte_More2()
+    procedure Integer_Byte_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vByte: Byte;
+        vInteger: Integer;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Byte_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Byte_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Byte_More5()
-    begin
-        Observer.More();
+        vInteger := 2147483647;
+        vByte := 255;
+        if Try14(V, vByte, vInteger) then Observer.Observe('sub.max.255', Util.VShow(V)) else Observer.ObserveError('sub.max.255');
+        vInteger := 2147483647;
+        vByte := 255;
+        if Try15(vByte, vInteger) then Observer.Observe('compound_add.max.255', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.max.255');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Integer_Option()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vInteger: Integer;
+        vOption: Option A,B,C;
     begin
         vInteger := 65;
         vOption := 1;
-        if Try16() then Observer.Observe('add.65.1', Util.VShow(V)) else Observer.ObserveError('add.65.1');
+        if Try16(V, vInteger, vOption) then Observer.Observe('add.65.1', Util.VShow(V)) else Observer.ObserveError('add.65.1');
         vInteger := 65;
         vOption := 1;
-        if Try17() then Observer.Observe('sub.65.1', Util.VShow(V)) else Observer.ObserveError('sub.65.1');
+        if Try17(V, vInteger, vOption) then Observer.Observe('sub.65.1', Util.VShow(V)) else Observer.ObserveError('sub.65.1');
         vInteger := 65;
         vOption := 1;
-        if Try18() then Observer.Observe('compound_add.65.1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.65.1');
+        if Try18(vInteger, vOption) then Observer.Observe('compound_add.65.1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.65.1');
         vInteger := 65;
         vOption := 3;
-        if Try16() then Observer.Observe('add.65.3', Util.VShow(V)) else Observer.ObserveError('add.65.3');
+        if Try16(V, vInteger, vOption) then Observer.Observe('add.65.3', Util.VShow(V)) else Observer.ObserveError('add.65.3');
         vInteger := 65;
         vOption := 3;
-        if Try17() then Observer.Observe('sub.65.3', Util.VShow(V)) else Observer.ObserveError('sub.65.3');
+        if Try17(V, vInteger, vOption) then Observer.Observe('sub.65.3', Util.VShow(V)) else Observer.ObserveError('sub.65.3');
         vInteger := 65;
         vOption := 3;
-        if Try18() then Observer.Observe('compound_add.65.3', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.65.3');
+        if Try18(vInteger, vOption) then Observer.Observe('compound_add.65.3', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.65.3');
         vInteger := 1;
         vOption := 1;
-        if Try16() then Observer.Observe('add.1.1', Util.VShow(V)) else Observer.ObserveError('add.1.1');
+        if Try16(V, vInteger, vOption) then Observer.Observe('add.1.1', Util.VShow(V)) else Observer.ObserveError('add.1.1');
         vInteger := 1;
         vOption := 1;
-        if Try17() then Observer.Observe('sub.1.1', Util.VShow(V)) else Observer.ObserveError('sub.1.1');
-        vInteger := 1;
-        vOption := 1;
-        if Try18() then Observer.Observe('compound_add.1.1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.1.1');
-        vInteger := 1;
-        vOption := 3;
-        if Try16() then Observer.Observe('add.1.3', Util.VShow(V)) else Observer.ObserveError('add.1.3');
-        vInteger := 1;
-        vOption := 3;
-        if Try17() then Observer.Observe('sub.1.3', Util.VShow(V)) else Observer.ObserveError('sub.1.3');
-        vInteger := 1;
-        vOption := 3;
-        if Try18() then Observer.Observe('compound_add.1.3', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.1.3');
-        vInteger := 2147483647;
-        vOption := 1;
-        if Try16() then Observer.Observe('add.max.1', Util.VShow(V)) else Observer.ObserveError('add.max.1');
-        vInteger := 2147483647;
-        vOption := 1;
-        if Try17() then Observer.Observe('sub.max.1', Util.VShow(V)) else Observer.ObserveError('sub.max.1');
-        vInteger := 2147483647;
-        vOption := 1;
-        if Try18() then Observer.Observe('compound_add.max.1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.max.1');
-        vInteger := 2147483647;
-        vOption := 3;
-        if Try16() then Observer.Observe('add.max.3', Util.VShow(V)) else Observer.ObserveError('add.max.3');
-        vInteger := 2147483647;
-        vOption := 3;
-        if Try17() then Observer.Observe('sub.max.3', Util.VShow(V)) else Observer.ObserveError('sub.max.3');
-        vInteger := 2147483647;
-        vOption := 3;
-        if Try18() then Observer.Observe('compound_add.max.3', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.max.3');
+        if Try17(V, vInteger, vOption) then Observer.Observe('sub.1.1', Util.VShow(V)) else Observer.ObserveError('sub.1.1');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Integer_Option_More1()
+    procedure Integer_Option_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vInteger: Integer;
+        vOption: Option A,B,C;
     begin
-        Observer.More();
+        vInteger := 1;
+        vOption := 1;
+        if Try18(vInteger, vOption) then Observer.Observe('compound_add.1.1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.1.1');
+        vInteger := 1;
+        vOption := 3;
+        if Try16(V, vInteger, vOption) then Observer.Observe('add.1.3', Util.VShow(V)) else Observer.ObserveError('add.1.3');
+        vInteger := 1;
+        vOption := 3;
+        if Try17(V, vInteger, vOption) then Observer.Observe('sub.1.3', Util.VShow(V)) else Observer.ObserveError('sub.1.3');
+        vInteger := 1;
+        vOption := 3;
+        if Try18(vInteger, vOption) then Observer.Observe('compound_add.1.3', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.1.3');
+        vInteger := 2147483647;
+        vOption := 1;
+        if Try16(V, vInteger, vOption) then Observer.Observe('add.max.1', Util.VShow(V)) else Observer.ObserveError('add.max.1');
+        vInteger := 2147483647;
+        vOption := 1;
+        if Try17(V, vInteger, vOption) then Observer.Observe('sub.max.1', Util.VShow(V)) else Observer.ObserveError('sub.max.1');
+        vInteger := 2147483647;
+        vOption := 1;
+        if Try18(vInteger, vOption) then Observer.Observe('compound_add.max.1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.max.1');
+        vInteger := 2147483647;
+        vOption := 3;
+        if Try16(V, vInteger, vOption) then Observer.Observe('add.max.3', Util.VShow(V)) else Observer.ObserveError('add.max.3');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Integer_Option_More2()
+    procedure Integer_Option_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vInteger: Integer;
+        vOption: Option A,B,C;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Option_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Option_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Option_More5()
-    begin
-        Observer.More();
+        vInteger := 2147483647;
+        vOption := 3;
+        if Try17(V, vInteger, vOption) then Observer.Observe('sub.max.3', Util.VShow(V)) else Observer.ObserveError('sub.max.3');
+        vInteger := 2147483647;
+        vOption := 3;
+        if Try18(vInteger, vOption) then Observer.Observe('compound_add.max.3', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.max.3');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Integer_Enum()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vEnum: Enum "LT Y31 E";
+        vInteger: Integer;
     begin
         vInteger := 65;
         vEnum := "LT Y31 E"::B;
-        if Try19() then Observer.Observe('add.65.B', Util.VShow(V)) else Observer.ObserveError('add.65.B');
+        if Try19(V, vEnum, vInteger) then Observer.Observe('add.65.B', Util.VShow(V)) else Observer.ObserveError('add.65.B');
         vInteger := 65;
         vEnum := "LT Y31 E"::B;
-        if Try20() then Observer.Observe('sub.65.B', Util.VShow(V)) else Observer.ObserveError('sub.65.B');
+        if Try20(V, vEnum, vInteger) then Observer.Observe('sub.65.B', Util.VShow(V)) else Observer.ObserveError('sub.65.B');
         vInteger := 65;
         vEnum := "LT Y31 E"::B;
-        if Try21() then Observer.Observe('compound_add.65.B', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('compound_add.65.B');
+        if Try21(vEnum, vInteger) then Observer.Observe('compound_add.65.B', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('compound_add.65.B');
         vInteger := 65;
         vEnum := 5;
-        if Try19() then Observer.Observe('add.65.ord5', Util.VShow(V)) else Observer.ObserveError('add.65.ord5');
+        if Try19(V, vEnum, vInteger) then Observer.Observe('add.65.ord5', Util.VShow(V)) else Observer.ObserveError('add.65.ord5');
         vInteger := 65;
         vEnum := 5;
-        if Try20() then Observer.Observe('sub.65.ord5', Util.VShow(V)) else Observer.ObserveError('sub.65.ord5');
+        if Try20(V, vEnum, vInteger) then Observer.Observe('sub.65.ord5', Util.VShow(V)) else Observer.ObserveError('sub.65.ord5');
         vInteger := 65;
         vEnum := 5;
-        if Try21() then Observer.Observe('compound_add.65.ord5', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('compound_add.65.ord5');
+        if Try21(vEnum, vInteger) then Observer.Observe('compound_add.65.ord5', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('compound_add.65.ord5');
         vInteger := 1;
         vEnum := "LT Y31 E"::B;
-        if Try19() then Observer.Observe('add.1.B', Util.VShow(V)) else Observer.ObserveError('add.1.B');
+        if Try19(V, vEnum, vInteger) then Observer.Observe('add.1.B', Util.VShow(V)) else Observer.ObserveError('add.1.B');
         vInteger := 1;
         vEnum := "LT Y31 E"::B;
-        if Try20() then Observer.Observe('sub.1.B', Util.VShow(V)) else Observer.ObserveError('sub.1.B');
-        vInteger := 1;
-        vEnum := "LT Y31 E"::B;
-        if Try21() then Observer.Observe('compound_add.1.B', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('compound_add.1.B');
-        vInteger := 1;
-        vEnum := 5;
-        if Try19() then Observer.Observe('add.1.ord5', Util.VShow(V)) else Observer.ObserveError('add.1.ord5');
-        vInteger := 1;
-        vEnum := 5;
-        if Try20() then Observer.Observe('sub.1.ord5', Util.VShow(V)) else Observer.ObserveError('sub.1.ord5');
-        vInteger := 1;
-        vEnum := 5;
-        if Try21() then Observer.Observe('compound_add.1.ord5', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('compound_add.1.ord5');
-        vInteger := 2147483647;
-        vEnum := "LT Y31 E"::B;
-        if Try19() then Observer.Observe('add.max.B', Util.VShow(V)) else Observer.ObserveError('add.max.B');
-        vInteger := 2147483647;
-        vEnum := "LT Y31 E"::B;
-        if Try20() then Observer.Observe('sub.max.B', Util.VShow(V)) else Observer.ObserveError('sub.max.B');
-        vInteger := 2147483647;
-        vEnum := "LT Y31 E"::B;
-        if Try21() then Observer.Observe('compound_add.max.B', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('compound_add.max.B');
-        vInteger := 2147483647;
-        vEnum := 5;
-        if Try19() then Observer.Observe('add.max.ord5', Util.VShow(V)) else Observer.ObserveError('add.max.ord5');
-        vInteger := 2147483647;
-        vEnum := 5;
-        if Try20() then Observer.Observe('sub.max.ord5', Util.VShow(V)) else Observer.ObserveError('sub.max.ord5');
-        vInteger := 2147483647;
-        vEnum := 5;
-        if Try21() then Observer.Observe('compound_add.max.ord5', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('compound_add.max.ord5');
+        if Try20(V, vEnum, vInteger) then Observer.Observe('sub.1.B', Util.VShow(V)) else Observer.ObserveError('sub.1.B');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Integer_Enum_More1()
+    procedure Integer_Enum_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vEnum: Enum "LT Y31 E";
+        vInteger: Integer;
     begin
-        Observer.More();
+        vInteger := 1;
+        vEnum := "LT Y31 E"::B;
+        if Try21(vEnum, vInteger) then Observer.Observe('compound_add.1.B', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('compound_add.1.B');
+        vInteger := 1;
+        vEnum := 5;
+        if Try19(V, vEnum, vInteger) then Observer.Observe('add.1.ord5', Util.VShow(V)) else Observer.ObserveError('add.1.ord5');
+        vInteger := 1;
+        vEnum := 5;
+        if Try20(V, vEnum, vInteger) then Observer.Observe('sub.1.ord5', Util.VShow(V)) else Observer.ObserveError('sub.1.ord5');
+        vInteger := 1;
+        vEnum := 5;
+        if Try21(vEnum, vInteger) then Observer.Observe('compound_add.1.ord5', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('compound_add.1.ord5');
+        vInteger := 2147483647;
+        vEnum := "LT Y31 E"::B;
+        if Try19(V, vEnum, vInteger) then Observer.Observe('add.max.B', Util.VShow(V)) else Observer.ObserveError('add.max.B');
+        vInteger := 2147483647;
+        vEnum := "LT Y31 E"::B;
+        if Try20(V, vEnum, vInteger) then Observer.Observe('sub.max.B', Util.VShow(V)) else Observer.ObserveError('sub.max.B');
+        vInteger := 2147483647;
+        vEnum := "LT Y31 E"::B;
+        if Try21(vEnum, vInteger) then Observer.Observe('compound_add.max.B', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('compound_add.max.B');
+        vInteger := 2147483647;
+        vEnum := 5;
+        if Try19(V, vEnum, vInteger) then Observer.Observe('add.max.ord5', Util.VShow(V)) else Observer.ObserveError('add.max.ord5');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Integer_Enum_More2()
+    procedure Integer_Enum_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vEnum: Enum "LT Y31 E";
+        vInteger: Integer;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Enum_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Enum_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Enum_More5()
-    begin
-        Observer.More();
+        vInteger := 2147483647;
+        vEnum := 5;
+        if Try20(V, vEnum, vInteger) then Observer.Observe('sub.max.ord5', Util.VShow(V)) else Observer.ObserveError('sub.max.ord5');
+        vInteger := 2147483647;
+        vEnum := 5;
+        if Try21(vEnum, vInteger) then Observer.Observe('compound_add.max.ord5', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('compound_add.max.ord5');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Integer_EnumImpl()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vEnumImpl: Enum "LT Y31 EI";
+        vInteger: Integer;
     begin
         vInteger := 65;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try22() then Observer.Observe('add.65.A', Util.VShow(V)) else Observer.ObserveError('add.65.A');
+        if Try22(V, vEnumImpl, vInteger) then Observer.Observe('add.65.A', Util.VShow(V)) else Observer.ObserveError('add.65.A');
         vInteger := 65;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try23() then Observer.Observe('sub.65.A', Util.VShow(V)) else Observer.ObserveError('sub.65.A');
+        if Try23(V, vEnumImpl, vInteger) then Observer.Observe('sub.65.A', Util.VShow(V)) else Observer.ObserveError('sub.65.A');
         vInteger := 65;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try24() then Observer.Observe('compound_add.65.A', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('compound_add.65.A');
+        if Try24(vEnumImpl, vInteger) then Observer.Observe('compound_add.65.A', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('compound_add.65.A');
         vInteger := 1;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try22() then Observer.Observe('add.1.A', Util.VShow(V)) else Observer.ObserveError('add.1.A');
+        if Try22(V, vEnumImpl, vInteger) then Observer.Observe('add.1.A', Util.VShow(V)) else Observer.ObserveError('add.1.A');
         vInteger := 1;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try23() then Observer.Observe('sub.1.A', Util.VShow(V)) else Observer.ObserveError('sub.1.A');
+        if Try23(V, vEnumImpl, vInteger) then Observer.Observe('sub.1.A', Util.VShow(V)) else Observer.ObserveError('sub.1.A');
         vInteger := 1;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try24() then Observer.Observe('compound_add.1.A', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('compound_add.1.A');
+        if Try24(vEnumImpl, vInteger) then Observer.Observe('compound_add.1.A', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('compound_add.1.A');
         vInteger := 2147483647;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try22() then Observer.Observe('add.max.A', Util.VShow(V)) else Observer.ObserveError('add.max.A');
+        if Try22(V, vEnumImpl, vInteger) then Observer.Observe('add.max.A', Util.VShow(V)) else Observer.ObserveError('add.max.A');
         vInteger := 2147483647;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try23() then Observer.Observe('sub.max.A', Util.VShow(V)) else Observer.ObserveError('sub.max.A');
-        vInteger := 2147483647;
-        vEnumImpl := "LT Y31 EI"::A;
-        if Try24() then Observer.Observe('compound_add.max.A', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('compound_add.max.A');
+        if Try23(V, vEnumImpl, vInteger) then Observer.Observe('sub.max.A', Util.VShow(V)) else Observer.ObserveError('sub.max.A');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Integer_EnumImpl_More1()
+    procedure Integer_EnumImpl_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vEnumImpl: Enum "LT Y31 EI";
+        vInteger: Integer;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_EnumImpl_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_EnumImpl_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_EnumImpl_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_EnumImpl_More5()
-    begin
-        Observer.More();
+        vInteger := 2147483647;
+        vEnumImpl := "LT Y31 EI"::A;
+        if Try24(vEnumImpl, vInteger) then Observer.Observe('compound_add.max.A', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('compound_add.max.A');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Integer_Date()
+    var
+        Observer: Codeunit "Probe Observer";
+        vDate: Date;
+        vInteger: Integer;
     begin
         vInteger := 65;
         vDate := 20260131D;
-        if Try25() then Observer.Observe('compound_add.65.d', Format(vDate, 0, 9)) else Observer.ObserveError('compound_add.65.d');
+        if Try25(vDate, vInteger) then Observer.Observe('compound_add.65.d', Format(vDate, 0, 9)) else Observer.ObserveError('compound_add.65.d');
         vInteger := 1;
         vDate := 20260131D;
-        if Try25() then Observer.Observe('compound_add.1.d', Format(vDate, 0, 9)) else Observer.ObserveError('compound_add.1.d');
+        if Try25(vDate, vInteger) then Observer.Observe('compound_add.1.d', Format(vDate, 0, 9)) else Observer.ObserveError('compound_add.1.d');
         vInteger := 2147483647;
         vDate := 20260131D;
-        if Try25() then Observer.Observe('compound_add.max.d', Format(vDate, 0, 9)) else Observer.ObserveError('compound_add.max.d');
+        if Try25(vDate, vInteger) then Observer.Observe('compound_add.max.d', Format(vDate, 0, 9)) else Observer.ObserveError('compound_add.max.d');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Integer_Date_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Date_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Date_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Date_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Date_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Integer_Time()
+    var
+        Observer: Codeunit "Probe Observer";
+        vInteger: Integer;
+        vTime: Time;
     begin
         vInteger := 65;
         vTime := 120000T;
-        if Try26() then Observer.Observe('compound_add.65.t', Format(vTime, 0, 9)) else Observer.ObserveError('compound_add.65.t');
+        if Try26(vInteger, vTime) then Observer.Observe('compound_add.65.t', Format(vTime, 0, 9)) else Observer.ObserveError('compound_add.65.t');
         vInteger := 1;
         vTime := 120000T;
-        if Try26() then Observer.Observe('compound_add.1.t', Format(vTime, 0, 9)) else Observer.ObserveError('compound_add.1.t');
+        if Try26(vInteger, vTime) then Observer.Observe('compound_add.1.t', Format(vTime, 0, 9)) else Observer.ObserveError('compound_add.1.t');
         vInteger := 2147483647;
         vTime := 120000T;
-        if Try26() then Observer.Observe('compound_add.max.t', Format(vTime, 0, 9)) else Observer.ObserveError('compound_add.max.t');
+        if Try26(vInteger, vTime) then Observer.Observe('compound_add.max.t', Format(vTime, 0, 9)) else Observer.ObserveError('compound_add.max.t');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Integer_Time_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Time_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Time_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Time_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Time_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Integer_DateTime()
+    var
+        Observer: Codeunit "Probe Observer";
+        vDateTime: DateTime;
+        vInteger: Integer;
     begin
         vInteger := 65;
         vDateTime := CreateDateTime(20260131D, 120000T);
-        if Try27() then Observer.Observe('compound_add.65.dt', Format(vDateTime, 0, 9)) else Observer.ObserveError('compound_add.65.dt');
+        if Try27(vDateTime, vInteger) then Observer.Observe('compound_add.65.dt', Format(vDateTime, 0, 9)) else Observer.ObserveError('compound_add.65.dt');
         vInteger := 1;
         vDateTime := CreateDateTime(20260131D, 120000T);
-        if Try27() then Observer.Observe('compound_add.1.dt', Format(vDateTime, 0, 9)) else Observer.ObserveError('compound_add.1.dt');
+        if Try27(vDateTime, vInteger) then Observer.Observe('compound_add.1.dt', Format(vDateTime, 0, 9)) else Observer.ObserveError('compound_add.1.dt');
         vInteger := 2147483647;
         vDateTime := CreateDateTime(20260131D, 120000T);
-        if Try27() then Observer.Observe('compound_add.max.dt', Format(vDateTime, 0, 9)) else Observer.ObserveError('compound_add.max.dt');
+        if Try27(vDateTime, vInteger) then Observer.Observe('compound_add.max.dt', Format(vDateTime, 0, 9)) else Observer.ObserveError('compound_add.max.dt');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Integer_DateTime_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_DateTime_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_DateTime_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_DateTime_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_DateTime_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Integer_Duration()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vDuration: Duration;
+        vInteger: Integer;
     begin
         vInteger := 65;
         vDuration := 65;
-        if Try28() then Observer.Observe('add.65.65', Util.VShow(V)) else Observer.ObserveError('add.65.65');
+        if Try28(V, vDuration, vInteger) then Observer.Observe('add.65.65', Util.VShow(V)) else Observer.ObserveError('add.65.65');
         vInteger := 65;
         vDuration := 65;
-        if Try29() then Observer.Observe('sub.65.65', Util.VShow(V)) else Observer.ObserveError('sub.65.65');
+        if Try29(V, vDuration, vInteger) then Observer.Observe('sub.65.65', Util.VShow(V)) else Observer.ObserveError('sub.65.65');
         vInteger := 65;
         vDuration := 65;
-        if Try30() then Observer.Observe('compound_add.65.65', Format(vDuration, 0, 9)) else Observer.ObserveError('compound_add.65.65');
+        if Try30(vDuration, vInteger) then Observer.Observe('compound_add.65.65', Format(vDuration, 0, 9)) else Observer.ObserveError('compound_add.65.65');
         vInteger := 1;
         vDuration := 65;
-        if Try28() then Observer.Observe('add.1.65', Util.VShow(V)) else Observer.ObserveError('add.1.65');
+        if Try28(V, vDuration, vInteger) then Observer.Observe('add.1.65', Util.VShow(V)) else Observer.ObserveError('add.1.65');
         vInteger := 1;
         vDuration := 65;
-        if Try29() then Observer.Observe('sub.1.65', Util.VShow(V)) else Observer.ObserveError('sub.1.65');
+        if Try29(V, vDuration, vInteger) then Observer.Observe('sub.1.65', Util.VShow(V)) else Observer.ObserveError('sub.1.65');
         vInteger := 1;
         vDuration := 65;
-        if Try30() then Observer.Observe('compound_add.1.65', Format(vDuration, 0, 9)) else Observer.ObserveError('compound_add.1.65');
+        if Try30(vDuration, vInteger) then Observer.Observe('compound_add.1.65', Format(vDuration, 0, 9)) else Observer.ObserveError('compound_add.1.65');
         vInteger := 2147483647;
         vDuration := 65;
-        if Try28() then Observer.Observe('add.max.65', Util.VShow(V)) else Observer.ObserveError('add.max.65');
+        if Try28(V, vDuration, vInteger) then Observer.Observe('add.max.65', Util.VShow(V)) else Observer.ObserveError('add.max.65');
         vInteger := 2147483647;
         vDuration := 65;
-        if Try29() then Observer.Observe('sub.max.65', Util.VShow(V)) else Observer.ObserveError('sub.max.65');
-        vInteger := 2147483647;
-        vDuration := 65;
-        if Try30() then Observer.Observe('compound_add.max.65', Format(vDuration, 0, 9)) else Observer.ObserveError('compound_add.max.65');
+        if Try29(V, vDuration, vInteger) then Observer.Observe('sub.max.65', Util.VShow(V)) else Observer.ObserveError('sub.max.65');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Integer_Duration_More1()
+    procedure Integer_Duration_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vDuration: Duration;
+        vInteger: Integer;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Duration_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Duration_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Duration_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Integer_Duration_More5()
-    begin
-        Observer.More();
+        vInteger := 2147483647;
+        vDuration := 65;
+        if Try30(vDuration, vInteger) then Observer.Observe('compound_add.max.65', Format(vDuration, 0, 9)) else Observer.ObserveError('compound_add.max.65');
+        Observer.Finish();
     end;
 
     [TryFunction]
-    local procedure Try1()
+    local procedure Try1(var V: Variant; var vInteger: Integer; var vInteger_R: Integer)
     begin
         Clear(V);
         V := vInteger + vInteger_R;
     end;
 
     [TryFunction]
-    local procedure Try2()
+    local procedure Try2(var V: Variant; var vInteger: Integer; var vInteger_R: Integer)
     begin
         Clear(V);
         V := vInteger - vInteger_R;
     end;
 
     [TryFunction]
-    local procedure Try3()
+    local procedure Try3(var vInteger: Integer; var vInteger_R: Integer)
     begin
         vInteger_R += vInteger;
     end;
 
     [TryFunction]
-    local procedure Try4()
+    local procedure Try4(var V: Variant; var vBigInteger: BigInteger; var vInteger: Integer)
     begin
         Clear(V);
         V := vInteger + vBigInteger;
     end;
 
     [TryFunction]
-    local procedure Try5()
+    local procedure Try5(var V: Variant; var vBigInteger: BigInteger; var vInteger: Integer)
     begin
         Clear(V);
         V := vInteger - vBigInteger;
     end;
 
     [TryFunction]
-    local procedure Try6()
+    local procedure Try6(var vBigInteger: BigInteger; var vInteger: Integer)
     begin
         vBigInteger += vInteger;
     end;
 
     [TryFunction]
-    local procedure Try7()
+    local procedure Try7(var V: Variant; var vDecimal: Decimal; var vInteger: Integer)
     begin
         Clear(V);
         V := vInteger + vDecimal;
     end;
 
     [TryFunction]
-    local procedure Try8()
+    local procedure Try8(var V: Variant; var vDecimal: Decimal; var vInteger: Integer)
     begin
         Clear(V);
         V := vInteger - vDecimal;
     end;
 
     [TryFunction]
-    local procedure Try9()
+    local procedure Try9(var vDecimal: Decimal; var vInteger: Integer)
     begin
         vDecimal += vInteger;
     end;
 
     [TryFunction]
-    local procedure Try10()
+    local procedure Try10(var V: Variant; var vChar: Char; var vInteger: Integer)
     begin
         Clear(V);
         V := vInteger + vChar;
     end;
 
     [TryFunction]
-    local procedure Try11()
+    local procedure Try11(var V: Variant; var vChar: Char; var vInteger: Integer)
     begin
         Clear(V);
         V := vInteger - vChar;
     end;
 
     [TryFunction]
-    local procedure Try12()
+    local procedure Try12(var vChar: Char; var vInteger: Integer)
     begin
         vChar += vInteger;
     end;
 
     [TryFunction]
-    local procedure Try13()
+    local procedure Try13(var V: Variant; var vByte: Byte; var vInteger: Integer)
     begin
         Clear(V);
         V := vInteger + vByte;
     end;
 
     [TryFunction]
-    local procedure Try14()
+    local procedure Try14(var V: Variant; var vByte: Byte; var vInteger: Integer)
     begin
         Clear(V);
         V := vInteger - vByte;
     end;
 
     [TryFunction]
-    local procedure Try15()
+    local procedure Try15(var vByte: Byte; var vInteger: Integer)
     begin
         vByte += vInteger;
     end;
 
     [TryFunction]
-    local procedure Try16()
+    local procedure Try16(var V: Variant; var vInteger: Integer; var vOption: Option A,B,C)
     begin
         Clear(V);
         V := vInteger + vOption;
     end;
 
     [TryFunction]
-    local procedure Try17()
+    local procedure Try17(var V: Variant; var vInteger: Integer; var vOption: Option A,B,C)
     begin
         Clear(V);
         V := vInteger - vOption;
     end;
 
     [TryFunction]
-    local procedure Try18()
+    local procedure Try18(var vInteger: Integer; var vOption: Option A,B,C)
     begin
         vOption += vInteger;
     end;
 
     [TryFunction]
-    local procedure Try19()
+    local procedure Try19(var V: Variant; var vEnum: Enum "LT Y31 E"; var vInteger: Integer)
     begin
         Clear(V);
         V := vInteger + vEnum;
     end;
 
     [TryFunction]
-    local procedure Try20()
+    local procedure Try20(var V: Variant; var vEnum: Enum "LT Y31 E"; var vInteger: Integer)
     begin
         Clear(V);
         V := vInteger - vEnum;
     end;
 
     [TryFunction]
-    local procedure Try21()
+    local procedure Try21(var vEnum: Enum "LT Y31 E"; var vInteger: Integer)
     begin
         vEnum += vInteger;
     end;
 
     [TryFunction]
-    local procedure Try22()
+    local procedure Try22(var V: Variant; var vEnumImpl: Enum "LT Y31 EI"; var vInteger: Integer)
     begin
         Clear(V);
         V := vInteger + vEnumImpl;
     end;
 
     [TryFunction]
-    local procedure Try23()
+    local procedure Try23(var V: Variant; var vEnumImpl: Enum "LT Y31 EI"; var vInteger: Integer)
     begin
         Clear(V);
         V := vInteger - vEnumImpl;
     end;
 
     [TryFunction]
-    local procedure Try24()
+    local procedure Try24(var vEnumImpl: Enum "LT Y31 EI"; var vInteger: Integer)
     begin
         vEnumImpl += vInteger;
     end;
 
     [TryFunction]
-    local procedure Try25()
+    local procedure Try25(var vDate: Date; var vInteger: Integer)
     begin
         vDate += vInteger;
     end;
 
     [TryFunction]
-    local procedure Try26()
+    local procedure Try26(var vInteger: Integer; var vTime: Time)
     begin
         vTime += vInteger;
     end;
 
     [TryFunction]
-    local procedure Try27()
+    local procedure Try27(var vDateTime: DateTime; var vInteger: Integer)
     begin
         vDateTime += vInteger;
     end;
 
     [TryFunction]
-    local procedure Try28()
+    local procedure Try28(var V: Variant; var vDuration: Duration; var vInteger: Integer)
     begin
         Clear(V);
         V := vInteger + vDuration;
     end;
 
     [TryFunction]
-    local procedure Try29()
+    local procedure Try29(var V: Variant; var vDuration: Duration; var vInteger: Integer)
     begin
         Clear(V);
         V := vInteger - vDuration;
     end;
 
     [TryFunction]
-    local procedure Try30()
+    local procedure Try30(var vDuration: Duration; var vInteger: Integer)
     begin
         vDuration += vInteger;
     end;
@@ -1159,672 +1044,430 @@ codeunit 92446 "LT Y31 Ar BigInteger"
     Subtype = Test;
     TestPermissions = Disabled;
 
+    [Test]
+    procedure BigInteger_Integer()
     var
         Observer: Codeunit "Probe Observer";
         Util: Codeunit "LT Y31 Conv Util";
-        Res: Boolean;
         V: Variant;
         vBigInteger: BigInteger;
-        vBigInteger_R: BigInteger;
-        vByte: Byte;
-        vChar: Char;
-        vDate: Date;
-        vDateTime: DateTime;
-        vDecimal: Decimal;
-        vDuration: Duration;
         vInteger: Integer;
-        vOption: Option A,B,C;
-        vTime: Time;
-
-    [Test]
-    procedure BigInteger_Integer()
     begin
         vBigInteger := 65;
         vInteger := 65;
-        if Try1() then Observer.Observe('add.65.65', Util.VShow(V)) else Observer.ObserveError('add.65.65');
+        if Try1(V, vBigInteger, vInteger) then Observer.Observe('add.65.65', Util.VShow(V)) else Observer.ObserveError('add.65.65');
         vBigInteger := 65;
         vInteger := 65;
-        if Try2() then Observer.Observe('sub.65.65', Util.VShow(V)) else Observer.ObserveError('sub.65.65');
+        if Try2(V, vBigInteger, vInteger) then Observer.Observe('sub.65.65', Util.VShow(V)) else Observer.ObserveError('sub.65.65');
         vBigInteger := 65;
         vInteger := 65;
-        if Try3() then Observer.Observe('compound_add.65.65', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.65.65');
+        if Try3(vBigInteger, vInteger) then Observer.Observe('compound_add.65.65', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.65.65');
         vBigInteger := 65;
         vInteger := 1;
-        if Try1() then Observer.Observe('add.65.1', Util.VShow(V)) else Observer.ObserveError('add.65.1');
+        if Try1(V, vBigInteger, vInteger) then Observer.Observe('add.65.1', Util.VShow(V)) else Observer.ObserveError('add.65.1');
         vBigInteger := 65;
         vInteger := 1;
-        if Try2() then Observer.Observe('sub.65.1', Util.VShow(V)) else Observer.ObserveError('sub.65.1');
+        if Try2(V, vBigInteger, vInteger) then Observer.Observe('sub.65.1', Util.VShow(V)) else Observer.ObserveError('sub.65.1');
         vBigInteger := 65;
         vInteger := 1;
-        if Try3() then Observer.Observe('compound_add.65.1', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.65.1');
+        if Try3(vBigInteger, vInteger) then Observer.Observe('compound_add.65.1', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.65.1');
         vBigInteger := 65;
         vInteger := 2147483647;
-        if Try1() then Observer.Observe('add.65.max', Util.VShow(V)) else Observer.ObserveError('add.65.max');
+        if Try1(V, vBigInteger, vInteger) then Observer.Observe('add.65.max', Util.VShow(V)) else Observer.ObserveError('add.65.max');
         vBigInteger := 65;
         vInteger := 2147483647;
-        if Try2() then Observer.Observe('sub.65.max', Util.VShow(V)) else Observer.ObserveError('sub.65.max');
-        vBigInteger := 65;
-        vInteger := 2147483647;
-        if Try3() then Observer.Observe('compound_add.65.max', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.65.max');
+        if Try2(V, vBigInteger, vInteger) then Observer.Observe('sub.65.max', Util.VShow(V)) else Observer.ObserveError('sub.65.max');
         Observer.Finish();
     end;
 
     [Test]
-    procedure BigInteger_Integer_More1()
+    procedure BigInteger_Integer_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vBigInteger: BigInteger;
+        vInteger: Integer;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Integer_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Integer_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Integer_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Integer_More5()
-    begin
-        Observer.More();
+        vBigInteger := 65;
+        vInteger := 2147483647;
+        if Try3(vBigInteger, vInteger) then Observer.Observe('compound_add.65.max', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.65.max');
+        Observer.Finish();
     end;
 
     [Test]
     procedure BigInteger_BigInteger_Same()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vBigInteger: BigInteger;
+        vBigInteger_R: BigInteger;
     begin
         vBigInteger := 65;
         vBigInteger_R := 65;
-        if Try4() then Observer.Observe('add.65.65', Util.VShow(V)) else Observer.ObserveError('add.65.65');
+        if Try4(V, vBigInteger, vBigInteger_R) then Observer.Observe('add.65.65', Util.VShow(V)) else Observer.ObserveError('add.65.65');
         vBigInteger := 65;
         vBigInteger_R := 65;
-        if Try5() then Observer.Observe('sub.65.65', Util.VShow(V)) else Observer.ObserveError('sub.65.65');
+        if Try5(V, vBigInteger, vBigInteger_R) then Observer.Observe('sub.65.65', Util.VShow(V)) else Observer.ObserveError('sub.65.65');
         vBigInteger := 65;
         vBigInteger_R := 65;
-        if Try6() then Observer.Observe('compound_add.65.65', Format(vBigInteger_R, 0, 9)) else Observer.ObserveError('compound_add.65.65');
+        if Try6(vBigInteger, vBigInteger_R) then Observer.Observe('compound_add.65.65', Format(vBigInteger_R, 0, 9)) else Observer.ObserveError('compound_add.65.65');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure BigInteger_BigInteger_Same_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_BigInteger_Same_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_BigInteger_Same_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_BigInteger_Same_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_BigInteger_Same_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure BigInteger_Decimal()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vBigInteger: BigInteger;
+        vDecimal: Decimal;
     begin
         vBigInteger := 65;
         vDecimal := 65;
-        if Try7() then Observer.Observe('add.65.65', Util.VShow(V)) else Observer.ObserveError('add.65.65');
+        if Try7(V, vBigInteger, vDecimal) then Observer.Observe('add.65.65', Util.VShow(V)) else Observer.ObserveError('add.65.65');
         vBigInteger := 65;
         vDecimal := 65;
-        if Try8() then Observer.Observe('sub.65.65', Util.VShow(V)) else Observer.ObserveError('sub.65.65');
+        if Try8(V, vBigInteger, vDecimal) then Observer.Observe('sub.65.65', Util.VShow(V)) else Observer.ObserveError('sub.65.65');
         vBigInteger := 65;
         vDecimal := 65;
-        if Try9() then Observer.Observe('compound_add.65.65', Format(vDecimal, 0, 9)) else Observer.ObserveError('compound_add.65.65');
+        if Try9(vBigInteger, vDecimal) then Observer.Observe('compound_add.65.65', Format(vDecimal, 0, 9)) else Observer.ObserveError('compound_add.65.65');
         vBigInteger := 65;
         vDecimal := 1.5;
-        if Try7() then Observer.Observe('add.65.1p5', Util.VShow(V)) else Observer.ObserveError('add.65.1p5');
+        if Try7(V, vBigInteger, vDecimal) then Observer.Observe('add.65.1p5', Util.VShow(V)) else Observer.ObserveError('add.65.1p5');
         vBigInteger := 65;
         vDecimal := 1.5;
-        if Try8() then Observer.Observe('sub.65.1p5', Util.VShow(V)) else Observer.ObserveError('sub.65.1p5');
+        if Try8(V, vBigInteger, vDecimal) then Observer.Observe('sub.65.1p5', Util.VShow(V)) else Observer.ObserveError('sub.65.1p5');
         vBigInteger := 65;
         vDecimal := 1.5;
-        if Try9() then Observer.Observe('compound_add.65.1p5', Format(vDecimal, 0, 9)) else Observer.ObserveError('compound_add.65.1p5');
+        if Try9(vBigInteger, vDecimal) then Observer.Observe('compound_add.65.1p5', Format(vDecimal, 0, 9)) else Observer.ObserveError('compound_add.65.1p5');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure BigInteger_Decimal_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Decimal_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Decimal_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Decimal_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Decimal_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure BigInteger_Char()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vBigInteger: BigInteger;
+        vChar: Char;
     begin
         vBigInteger := 65;
         vChar := 65;
-        if Try10() then Observer.Observe('add.65.A', Util.VShow(V)) else Observer.ObserveError('add.65.A');
+        if Try10(V, vBigInteger, vChar) then Observer.Observe('add.65.A', Util.VShow(V)) else Observer.ObserveError('add.65.A');
         vBigInteger := 65;
         vChar := 65;
-        if Try11() then Observer.Observe('sub.65.A', Util.VShow(V)) else Observer.ObserveError('sub.65.A');
+        if Try11(V, vBigInteger, vChar) then Observer.Observe('sub.65.A', Util.VShow(V)) else Observer.ObserveError('sub.65.A');
         vBigInteger := 65;
         vChar := 65;
-        if Try12() then Observer.Observe('compound_add.65.A', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.65.A');
+        if Try12(vBigInteger, vChar) then Observer.Observe('compound_add.65.A', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.65.A');
         vBigInteger := 65;
         vChar := 97;
-        if Try10() then Observer.Observe('add.65.a', Util.VShow(V)) else Observer.ObserveError('add.65.a');
+        if Try10(V, vBigInteger, vChar) then Observer.Observe('add.65.a', Util.VShow(V)) else Observer.ObserveError('add.65.a');
         vBigInteger := 65;
         vChar := 97;
-        if Try11() then Observer.Observe('sub.65.a', Util.VShow(V)) else Observer.ObserveError('sub.65.a');
+        if Try11(V, vBigInteger, vChar) then Observer.Observe('sub.65.a', Util.VShow(V)) else Observer.ObserveError('sub.65.a');
         vBigInteger := 65;
         vChar := 97;
-        if Try12() then Observer.Observe('compound_add.65.a', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.65.a');
+        if Try12(vBigInteger, vChar) then Observer.Observe('compound_add.65.a', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.65.a');
         vBigInteger := 65;
         vChar := 65535;
-        if Try10() then Observer.Observe('add.65.65535', Util.VShow(V)) else Observer.ObserveError('add.65.65535');
+        if Try10(V, vBigInteger, vChar) then Observer.Observe('add.65.65535', Util.VShow(V)) else Observer.ObserveError('add.65.65535');
         vBigInteger := 65;
         vChar := 65535;
-        if Try11() then Observer.Observe('sub.65.65535', Util.VShow(V)) else Observer.ObserveError('sub.65.65535');
-        vBigInteger := 65;
-        vChar := 65535;
-        if Try12() then Observer.Observe('compound_add.65.65535', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.65.65535');
+        if Try11(V, vBigInteger, vChar) then Observer.Observe('sub.65.65535', Util.VShow(V)) else Observer.ObserveError('sub.65.65535');
         Observer.Finish();
     end;
 
     [Test]
-    procedure BigInteger_Char_More1()
+    procedure BigInteger_Char_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vBigInteger: BigInteger;
+        vChar: Char;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Char_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Char_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Char_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Char_More5()
-    begin
-        Observer.More();
+        vBigInteger := 65;
+        vChar := 65535;
+        if Try12(vBigInteger, vChar) then Observer.Observe('compound_add.65.65535', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.65.65535');
+        Observer.Finish();
     end;
 
     [Test]
     procedure BigInteger_Byte()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vBigInteger: BigInteger;
+        vByte: Byte;
     begin
         vBigInteger := 65;
         vByte := 65;
-        if Try13() then Observer.Observe('add.65.65', Util.VShow(V)) else Observer.ObserveError('add.65.65');
+        if Try13(V, vBigInteger, vByte) then Observer.Observe('add.65.65', Util.VShow(V)) else Observer.ObserveError('add.65.65');
         vBigInteger := 65;
         vByte := 65;
-        if Try14() then Observer.Observe('sub.65.65', Util.VShow(V)) else Observer.ObserveError('sub.65.65');
+        if Try14(V, vBigInteger, vByte) then Observer.Observe('sub.65.65', Util.VShow(V)) else Observer.ObserveError('sub.65.65');
         vBigInteger := 65;
         vByte := 65;
-        if Try15() then Observer.Observe('compound_add.65.65', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.65.65');
+        if Try15(vBigInteger, vByte) then Observer.Observe('compound_add.65.65', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.65.65');
         vBigInteger := 65;
         vByte := 255;
-        if Try13() then Observer.Observe('add.65.255', Util.VShow(V)) else Observer.ObserveError('add.65.255');
+        if Try13(V, vBigInteger, vByte) then Observer.Observe('add.65.255', Util.VShow(V)) else Observer.ObserveError('add.65.255');
         vBigInteger := 65;
         vByte := 255;
-        if Try14() then Observer.Observe('sub.65.255', Util.VShow(V)) else Observer.ObserveError('sub.65.255');
+        if Try14(V, vBigInteger, vByte) then Observer.Observe('sub.65.255', Util.VShow(V)) else Observer.ObserveError('sub.65.255');
         vBigInteger := 65;
         vByte := 255;
-        if Try15() then Observer.Observe('compound_add.65.255', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.65.255');
+        if Try15(vBigInteger, vByte) then Observer.Observe('compound_add.65.255', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.65.255');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure BigInteger_Byte_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Byte_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Byte_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Byte_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Byte_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure BigInteger_Option()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vBigInteger: BigInteger;
+        vOption: Option A,B,C;
     begin
         vBigInteger := 65;
         vOption := 1;
-        if Try16() then Observer.Observe('add.65.1', Util.VShow(V)) else Observer.ObserveError('add.65.1');
+        if Try16(V, vBigInteger, vOption) then Observer.Observe('add.65.1', Util.VShow(V)) else Observer.ObserveError('add.65.1');
         vBigInteger := 65;
         vOption := 1;
-        if Try17() then Observer.Observe('sub.65.1', Util.VShow(V)) else Observer.ObserveError('sub.65.1');
+        if Try17(V, vBigInteger, vOption) then Observer.Observe('sub.65.1', Util.VShow(V)) else Observer.ObserveError('sub.65.1');
         vBigInteger := 65;
         vOption := 1;
-        if Try18() then Observer.Observe('compound_add.65.1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.65.1');
+        if Try18(vBigInteger, vOption) then Observer.Observe('compound_add.65.1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.65.1');
         vBigInteger := 65;
         vOption := 3;
-        if Try16() then Observer.Observe('add.65.3', Util.VShow(V)) else Observer.ObserveError('add.65.3');
+        if Try16(V, vBigInteger, vOption) then Observer.Observe('add.65.3', Util.VShow(V)) else Observer.ObserveError('add.65.3');
         vBigInteger := 65;
         vOption := 3;
-        if Try17() then Observer.Observe('sub.65.3', Util.VShow(V)) else Observer.ObserveError('sub.65.3');
+        if Try17(V, vBigInteger, vOption) then Observer.Observe('sub.65.3', Util.VShow(V)) else Observer.ObserveError('sub.65.3');
         vBigInteger := 65;
         vOption := 3;
-        if Try18() then Observer.Observe('compound_add.65.3', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.65.3');
+        if Try18(vBigInteger, vOption) then Observer.Observe('compound_add.65.3', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.65.3');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure BigInteger_Option_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Option_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Option_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Option_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Option_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure BigInteger_Date()
+    var
+        Observer: Codeunit "Probe Observer";
+        vBigInteger: BigInteger;
+        vDate: Date;
     begin
         vBigInteger := 65;
         vDate := 20260131D;
-        if Try19() then Observer.Observe('compound_add.65.d', Format(vDate, 0, 9)) else Observer.ObserveError('compound_add.65.d');
+        if Try19(vBigInteger, vDate) then Observer.Observe('compound_add.65.d', Format(vDate, 0, 9)) else Observer.ObserveError('compound_add.65.d');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure BigInteger_Date_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Date_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Date_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Date_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Date_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure BigInteger_Time()
+    var
+        Observer: Codeunit "Probe Observer";
+        vBigInteger: BigInteger;
+        vTime: Time;
     begin
         vBigInteger := 65;
         vTime := 120000T;
-        if Try20() then Observer.Observe('compound_add.65.t', Format(vTime, 0, 9)) else Observer.ObserveError('compound_add.65.t');
+        if Try20(vBigInteger, vTime) then Observer.Observe('compound_add.65.t', Format(vTime, 0, 9)) else Observer.ObserveError('compound_add.65.t');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure BigInteger_Time_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Time_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Time_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Time_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Time_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure BigInteger_DateTime()
+    var
+        Observer: Codeunit "Probe Observer";
+        vBigInteger: BigInteger;
+        vDateTime: DateTime;
     begin
         vBigInteger := 65;
         vDateTime := CreateDateTime(20260131D, 120000T);
-        if Try21() then Observer.Observe('compound_add.65.dt', Format(vDateTime, 0, 9)) else Observer.ObserveError('compound_add.65.dt');
+        if Try21(vBigInteger, vDateTime) then Observer.Observe('compound_add.65.dt', Format(vDateTime, 0, 9)) else Observer.ObserveError('compound_add.65.dt');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure BigInteger_DateTime_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_DateTime_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_DateTime_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_DateTime_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_DateTime_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure BigInteger_Duration()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vBigInteger: BigInteger;
+        vDuration: Duration;
     begin
         vBigInteger := 65;
         vDuration := 65;
-        if Try22() then Observer.Observe('add.65.65', Util.VShow(V)) else Observer.ObserveError('add.65.65');
+        if Try22(V, vBigInteger, vDuration) then Observer.Observe('add.65.65', Util.VShow(V)) else Observer.ObserveError('add.65.65');
         vBigInteger := 65;
         vDuration := 65;
-        if Try23() then Observer.Observe('sub.65.65', Util.VShow(V)) else Observer.ObserveError('sub.65.65');
+        if Try23(V, vBigInteger, vDuration) then Observer.Observe('sub.65.65', Util.VShow(V)) else Observer.ObserveError('sub.65.65');
         vBigInteger := 65;
         vDuration := 65;
-        if Try24() then Observer.Observe('compound_add.65.65', Format(vDuration, 0, 9)) else Observer.ObserveError('compound_add.65.65');
+        if Try24(vBigInteger, vDuration) then Observer.Observe('compound_add.65.65', Format(vDuration, 0, 9)) else Observer.ObserveError('compound_add.65.65');
         Observer.Finish();
     end;
 
-    [Test]
-    procedure BigInteger_Duration_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Duration_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Duration_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Duration_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure BigInteger_Duration_More5()
-    begin
-        Observer.More();
-    end;
-
     [TryFunction]
-    local procedure Try1()
+    local procedure Try1(var V: Variant; var vBigInteger: BigInteger; var vInteger: Integer)
     begin
         Clear(V);
         V := vBigInteger + vInteger;
     end;
 
     [TryFunction]
-    local procedure Try2()
+    local procedure Try2(var V: Variant; var vBigInteger: BigInteger; var vInteger: Integer)
     begin
         Clear(V);
         V := vBigInteger - vInteger;
     end;
 
     [TryFunction]
-    local procedure Try3()
+    local procedure Try3(var vBigInteger: BigInteger; var vInteger: Integer)
     begin
         vInteger += vBigInteger;
     end;
 
     [TryFunction]
-    local procedure Try4()
+    local procedure Try4(var V: Variant; var vBigInteger: BigInteger; var vBigInteger_R: BigInteger)
     begin
         Clear(V);
         V := vBigInteger + vBigInteger_R;
     end;
 
     [TryFunction]
-    local procedure Try5()
+    local procedure Try5(var V: Variant; var vBigInteger: BigInteger; var vBigInteger_R: BigInteger)
     begin
         Clear(V);
         V := vBigInteger - vBigInteger_R;
     end;
 
     [TryFunction]
-    local procedure Try6()
+    local procedure Try6(var vBigInteger: BigInteger; var vBigInteger_R: BigInteger)
     begin
         vBigInteger_R += vBigInteger;
     end;
 
     [TryFunction]
-    local procedure Try7()
+    local procedure Try7(var V: Variant; var vBigInteger: BigInteger; var vDecimal: Decimal)
     begin
         Clear(V);
         V := vBigInteger + vDecimal;
     end;
 
     [TryFunction]
-    local procedure Try8()
+    local procedure Try8(var V: Variant; var vBigInteger: BigInteger; var vDecimal: Decimal)
     begin
         Clear(V);
         V := vBigInteger - vDecimal;
     end;
 
     [TryFunction]
-    local procedure Try9()
+    local procedure Try9(var vBigInteger: BigInteger; var vDecimal: Decimal)
     begin
         vDecimal += vBigInteger;
     end;
 
     [TryFunction]
-    local procedure Try10()
+    local procedure Try10(var V: Variant; var vBigInteger: BigInteger; var vChar: Char)
     begin
         Clear(V);
         V := vBigInteger + vChar;
     end;
 
     [TryFunction]
-    local procedure Try11()
+    local procedure Try11(var V: Variant; var vBigInteger: BigInteger; var vChar: Char)
     begin
         Clear(V);
         V := vBigInteger - vChar;
     end;
 
     [TryFunction]
-    local procedure Try12()
+    local procedure Try12(var vBigInteger: BigInteger; var vChar: Char)
     begin
         vChar += vBigInteger;
     end;
 
     [TryFunction]
-    local procedure Try13()
+    local procedure Try13(var V: Variant; var vBigInteger: BigInteger; var vByte: Byte)
     begin
         Clear(V);
         V := vBigInteger + vByte;
     end;
 
     [TryFunction]
-    local procedure Try14()
+    local procedure Try14(var V: Variant; var vBigInteger: BigInteger; var vByte: Byte)
     begin
         Clear(V);
         V := vBigInteger - vByte;
     end;
 
     [TryFunction]
-    local procedure Try15()
+    local procedure Try15(var vBigInteger: BigInteger; var vByte: Byte)
     begin
         vByte += vBigInteger;
     end;
 
     [TryFunction]
-    local procedure Try16()
+    local procedure Try16(var V: Variant; var vBigInteger: BigInteger; var vOption: Option A,B,C)
     begin
         Clear(V);
         V := vBigInteger + vOption;
     end;
 
     [TryFunction]
-    local procedure Try17()
+    local procedure Try17(var V: Variant; var vBigInteger: BigInteger; var vOption: Option A,B,C)
     begin
         Clear(V);
         V := vBigInteger - vOption;
     end;
 
     [TryFunction]
-    local procedure Try18()
+    local procedure Try18(var vBigInteger: BigInteger; var vOption: Option A,B,C)
     begin
         vOption += vBigInteger;
     end;
 
     [TryFunction]
-    local procedure Try19()
+    local procedure Try19(var vBigInteger: BigInteger; var vDate: Date)
     begin
         vDate += vBigInteger;
     end;
 
     [TryFunction]
-    local procedure Try20()
+    local procedure Try20(var vBigInteger: BigInteger; var vTime: Time)
     begin
         vTime += vBigInteger;
     end;
 
     [TryFunction]
-    local procedure Try21()
+    local procedure Try21(var vBigInteger: BigInteger; var vDateTime: DateTime)
     begin
         vDateTime += vBigInteger;
     end;
 
     [TryFunction]
-    local procedure Try22()
+    local procedure Try22(var V: Variant; var vBigInteger: BigInteger; var vDuration: Duration)
     begin
         Clear(V);
         V := vBigInteger + vDuration;
     end;
 
     [TryFunction]
-    local procedure Try23()
+    local procedure Try23(var V: Variant; var vBigInteger: BigInteger; var vDuration: Duration)
     begin
         Clear(V);
         V := vBigInteger - vDuration;
     end;
 
     [TryFunction]
-    local procedure Try24()
+    local procedure Try24(var vBigInteger: BigInteger; var vDuration: Duration)
     begin
         vDuration += vBigInteger;
     end;
@@ -1843,807 +1486,628 @@ codeunit 92447 "LT Y31 Ar Decimal"
     Subtype = Test;
     TestPermissions = Disabled;
 
+    [Test]
+    procedure Decimal_Integer()
     var
         Observer: Codeunit "Probe Observer";
         Util: Codeunit "LT Y31 Conv Util";
-        Res: Boolean;
         V: Variant;
-        vBigInteger: BigInteger;
-        vByte: Byte;
-        vChar: Char;
-        vDate: Date;
-        vDateTime: DateTime;
         vDecimal: Decimal;
-        vDecimal_R: Decimal;
-        vDuration: Duration;
         vInteger: Integer;
-        vOption: Option A,B,C;
-        vTime: Time;
-
-    [Test]
-    procedure Decimal_Integer()
     begin
         vDecimal := 65;
         vInteger := 65;
-        if Try1() then Observer.Observe('add.65.65', Util.VShow(V)) else Observer.ObserveError('add.65.65');
+        if Try1(V, vDecimal, vInteger) then Observer.Observe('add.65.65', Util.VShow(V)) else Observer.ObserveError('add.65.65');
         vDecimal := 65;
         vInteger := 65;
-        if Try2() then Observer.Observe('sub.65.65', Util.VShow(V)) else Observer.ObserveError('sub.65.65');
+        if Try2(V, vDecimal, vInteger) then Observer.Observe('sub.65.65', Util.VShow(V)) else Observer.ObserveError('sub.65.65');
         vDecimal := 65;
         vInteger := 65;
-        if Try3() then Observer.Observe('compound_add.65.65', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.65.65');
+        if Try3(vDecimal, vInteger) then Observer.Observe('compound_add.65.65', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.65.65');
         vDecimal := 65;
         vInteger := 1;
-        if Try1() then Observer.Observe('add.65.1', Util.VShow(V)) else Observer.ObserveError('add.65.1');
+        if Try1(V, vDecimal, vInteger) then Observer.Observe('add.65.1', Util.VShow(V)) else Observer.ObserveError('add.65.1');
         vDecimal := 65;
         vInteger := 1;
-        if Try2() then Observer.Observe('sub.65.1', Util.VShow(V)) else Observer.ObserveError('sub.65.1');
+        if Try2(V, vDecimal, vInteger) then Observer.Observe('sub.65.1', Util.VShow(V)) else Observer.ObserveError('sub.65.1');
         vDecimal := 65;
         vInteger := 1;
-        if Try3() then Observer.Observe('compound_add.65.1', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.65.1');
+        if Try3(vDecimal, vInteger) then Observer.Observe('compound_add.65.1', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.65.1');
         vDecimal := 65;
         vInteger := 2147483647;
-        if Try1() then Observer.Observe('add.65.max', Util.VShow(V)) else Observer.ObserveError('add.65.max');
+        if Try1(V, vDecimal, vInteger) then Observer.Observe('add.65.max', Util.VShow(V)) else Observer.ObserveError('add.65.max');
         vDecimal := 65;
         vInteger := 2147483647;
-        if Try2() then Observer.Observe('sub.65.max', Util.VShow(V)) else Observer.ObserveError('sub.65.max');
-        vDecimal := 65;
-        vInteger := 2147483647;
-        if Try3() then Observer.Observe('compound_add.65.max', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.65.max');
-        vDecimal := 1.5;
-        vInteger := 65;
-        if Try1() then Observer.Observe('add.1p5.65', Util.VShow(V)) else Observer.ObserveError('add.1p5.65');
-        vDecimal := 1.5;
-        vInteger := 65;
-        if Try2() then Observer.Observe('sub.1p5.65', Util.VShow(V)) else Observer.ObserveError('sub.1p5.65');
-        vDecimal := 1.5;
-        vInteger := 65;
-        if Try3() then Observer.Observe('compound_add.1p5.65', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.1p5.65');
-        vDecimal := 1.5;
-        vInteger := 1;
-        if Try1() then Observer.Observe('add.1p5.1', Util.VShow(V)) else Observer.ObserveError('add.1p5.1');
-        vDecimal := 1.5;
-        vInteger := 1;
-        if Try2() then Observer.Observe('sub.1p5.1', Util.VShow(V)) else Observer.ObserveError('sub.1p5.1');
-        vDecimal := 1.5;
-        vInteger := 1;
-        if Try3() then Observer.Observe('compound_add.1p5.1', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.1p5.1');
-        vDecimal := 1.5;
-        vInteger := 2147483647;
-        if Try1() then Observer.Observe('add.1p5.max', Util.VShow(V)) else Observer.ObserveError('add.1p5.max');
-        vDecimal := 1.5;
-        vInteger := 2147483647;
-        if Try2() then Observer.Observe('sub.1p5.max', Util.VShow(V)) else Observer.ObserveError('sub.1p5.max');
-        vDecimal := 1.5;
-        vInteger := 2147483647;
-        if Try3() then Observer.Observe('compound_add.1p5.max', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.1p5.max');
+        if Try2(V, vDecimal, vInteger) then Observer.Observe('sub.65.max', Util.VShow(V)) else Observer.ObserveError('sub.65.max');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Decimal_Integer_More1()
+    procedure Decimal_Integer_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vDecimal: Decimal;
+        vInteger: Integer;
     begin
-        Observer.More();
+        vDecimal := 65;
+        vInteger := 2147483647;
+        if Try3(vDecimal, vInteger) then Observer.Observe('compound_add.65.max', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.65.max');
+        vDecimal := 1.5;
+        vInteger := 65;
+        if Try1(V, vDecimal, vInteger) then Observer.Observe('add.1p5.65', Util.VShow(V)) else Observer.ObserveError('add.1p5.65');
+        vDecimal := 1.5;
+        vInteger := 65;
+        if Try2(V, vDecimal, vInteger) then Observer.Observe('sub.1p5.65', Util.VShow(V)) else Observer.ObserveError('sub.1p5.65');
+        vDecimal := 1.5;
+        vInteger := 65;
+        if Try3(vDecimal, vInteger) then Observer.Observe('compound_add.1p5.65', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.1p5.65');
+        vDecimal := 1.5;
+        vInteger := 1;
+        if Try1(V, vDecimal, vInteger) then Observer.Observe('add.1p5.1', Util.VShow(V)) else Observer.ObserveError('add.1p5.1');
+        vDecimal := 1.5;
+        vInteger := 1;
+        if Try2(V, vDecimal, vInteger) then Observer.Observe('sub.1p5.1', Util.VShow(V)) else Observer.ObserveError('sub.1p5.1');
+        vDecimal := 1.5;
+        vInteger := 1;
+        if Try3(vDecimal, vInteger) then Observer.Observe('compound_add.1p5.1', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.1p5.1');
+        vDecimal := 1.5;
+        vInteger := 2147483647;
+        if Try1(V, vDecimal, vInteger) then Observer.Observe('add.1p5.max', Util.VShow(V)) else Observer.ObserveError('add.1p5.max');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Decimal_Integer_More2()
+    procedure Decimal_Integer_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vDecimal: Decimal;
+        vInteger: Integer;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Integer_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Integer_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Integer_More5()
-    begin
-        Observer.More();
+        vDecimal := 1.5;
+        vInteger := 2147483647;
+        if Try2(V, vDecimal, vInteger) then Observer.Observe('sub.1p5.max', Util.VShow(V)) else Observer.ObserveError('sub.1p5.max');
+        vDecimal := 1.5;
+        vInteger := 2147483647;
+        if Try3(vDecimal, vInteger) then Observer.Observe('compound_add.1p5.max', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.1p5.max');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Decimal_BigInteger()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vBigInteger: BigInteger;
+        vDecimal: Decimal;
     begin
         vDecimal := 65;
         vBigInteger := 65;
-        if Try4() then Observer.Observe('add.65.65', Util.VShow(V)) else Observer.ObserveError('add.65.65');
+        if Try4(V, vBigInteger, vDecimal) then Observer.Observe('add.65.65', Util.VShow(V)) else Observer.ObserveError('add.65.65');
         vDecimal := 65;
         vBigInteger := 65;
-        if Try5() then Observer.Observe('sub.65.65', Util.VShow(V)) else Observer.ObserveError('sub.65.65');
+        if Try5(V, vBigInteger, vDecimal) then Observer.Observe('sub.65.65', Util.VShow(V)) else Observer.ObserveError('sub.65.65');
         vDecimal := 65;
         vBigInteger := 65;
-        if Try6() then Observer.Observe('compound_add.65.65', Format(vBigInteger, 0, 9)) else Observer.ObserveError('compound_add.65.65');
+        if Try6(vBigInteger, vDecimal) then Observer.Observe('compound_add.65.65', Format(vBigInteger, 0, 9)) else Observer.ObserveError('compound_add.65.65');
         vDecimal := 1.5;
         vBigInteger := 65;
-        if Try4() then Observer.Observe('add.1p5.65', Util.VShow(V)) else Observer.ObserveError('add.1p5.65');
+        if Try4(V, vBigInteger, vDecimal) then Observer.Observe('add.1p5.65', Util.VShow(V)) else Observer.ObserveError('add.1p5.65');
         vDecimal := 1.5;
         vBigInteger := 65;
-        if Try5() then Observer.Observe('sub.1p5.65', Util.VShow(V)) else Observer.ObserveError('sub.1p5.65');
+        if Try5(V, vBigInteger, vDecimal) then Observer.Observe('sub.1p5.65', Util.VShow(V)) else Observer.ObserveError('sub.1p5.65');
         vDecimal := 1.5;
         vBigInteger := 65;
-        if Try6() then Observer.Observe('compound_add.1p5.65', Format(vBigInteger, 0, 9)) else Observer.ObserveError('compound_add.1p5.65');
+        if Try6(vBigInteger, vDecimal) then Observer.Observe('compound_add.1p5.65', Format(vBigInteger, 0, 9)) else Observer.ObserveError('compound_add.1p5.65');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Decimal_BigInteger_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_BigInteger_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_BigInteger_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_BigInteger_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_BigInteger_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Decimal_Decimal_Same()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vDecimal: Decimal;
+        vDecimal_R: Decimal;
     begin
         vDecimal := 65;
         vDecimal_R := 65;
-        if Try7() then Observer.Observe('add.65.65', Util.VShow(V)) else Observer.ObserveError('add.65.65');
+        if Try7(V, vDecimal, vDecimal_R) then Observer.Observe('add.65.65', Util.VShow(V)) else Observer.ObserveError('add.65.65');
         vDecimal := 65;
         vDecimal_R := 65;
-        if Try8() then Observer.Observe('sub.65.65', Util.VShow(V)) else Observer.ObserveError('sub.65.65');
+        if Try8(V, vDecimal, vDecimal_R) then Observer.Observe('sub.65.65', Util.VShow(V)) else Observer.ObserveError('sub.65.65');
         vDecimal := 65;
         vDecimal_R := 65;
-        if Try9() then Observer.Observe('compound_add.65.65', Format(vDecimal_R, 0, 9)) else Observer.ObserveError('compound_add.65.65');
+        if Try9(vDecimal, vDecimal_R) then Observer.Observe('compound_add.65.65', Format(vDecimal_R, 0, 9)) else Observer.ObserveError('compound_add.65.65');
         vDecimal := 65;
         vDecimal_R := 1.5;
-        if Try7() then Observer.Observe('add.65.1p5', Util.VShow(V)) else Observer.ObserveError('add.65.1p5');
+        if Try7(V, vDecimal, vDecimal_R) then Observer.Observe('add.65.1p5', Util.VShow(V)) else Observer.ObserveError('add.65.1p5');
         vDecimal := 65;
         vDecimal_R := 1.5;
-        if Try8() then Observer.Observe('sub.65.1p5', Util.VShow(V)) else Observer.ObserveError('sub.65.1p5');
+        if Try8(V, vDecimal, vDecimal_R) then Observer.Observe('sub.65.1p5', Util.VShow(V)) else Observer.ObserveError('sub.65.1p5');
         vDecimal := 65;
         vDecimal_R := 1.5;
-        if Try9() then Observer.Observe('compound_add.65.1p5', Format(vDecimal_R, 0, 9)) else Observer.ObserveError('compound_add.65.1p5');
+        if Try9(vDecimal, vDecimal_R) then Observer.Observe('compound_add.65.1p5', Format(vDecimal_R, 0, 9)) else Observer.ObserveError('compound_add.65.1p5');
         vDecimal := 1.5;
         vDecimal_R := 65;
-        if Try7() then Observer.Observe('add.1p5.65', Util.VShow(V)) else Observer.ObserveError('add.1p5.65');
+        if Try7(V, vDecimal, vDecimal_R) then Observer.Observe('add.1p5.65', Util.VShow(V)) else Observer.ObserveError('add.1p5.65');
         vDecimal := 1.5;
         vDecimal_R := 65;
-        if Try8() then Observer.Observe('sub.1p5.65', Util.VShow(V)) else Observer.ObserveError('sub.1p5.65');
-        vDecimal := 1.5;
-        vDecimal_R := 65;
-        if Try9() then Observer.Observe('compound_add.1p5.65', Format(vDecimal_R, 0, 9)) else Observer.ObserveError('compound_add.1p5.65');
-        vDecimal := 1.5;
-        vDecimal_R := 1.5;
-        if Try7() then Observer.Observe('add.1p5.1p5', Util.VShow(V)) else Observer.ObserveError('add.1p5.1p5');
-        vDecimal := 1.5;
-        vDecimal_R := 1.5;
-        if Try8() then Observer.Observe('sub.1p5.1p5', Util.VShow(V)) else Observer.ObserveError('sub.1p5.1p5');
-        vDecimal := 1.5;
-        vDecimal_R := 1.5;
-        if Try9() then Observer.Observe('compound_add.1p5.1p5', Format(vDecimal_R, 0, 9)) else Observer.ObserveError('compound_add.1p5.1p5');
+        if Try8(V, vDecimal, vDecimal_R) then Observer.Observe('sub.1p5.65', Util.VShow(V)) else Observer.ObserveError('sub.1p5.65');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Decimal_Decimal_Same_More1()
+    procedure Decimal_Decimal_Same_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vDecimal: Decimal;
+        vDecimal_R: Decimal;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Decimal_Same_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Decimal_Same_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Decimal_Same_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Decimal_Same_More5()
-    begin
-        Observer.More();
+        vDecimal := 1.5;
+        vDecimal_R := 65;
+        if Try9(vDecimal, vDecimal_R) then Observer.Observe('compound_add.1p5.65', Format(vDecimal_R, 0, 9)) else Observer.ObserveError('compound_add.1p5.65');
+        vDecimal := 1.5;
+        vDecimal_R := 1.5;
+        if Try7(V, vDecimal, vDecimal_R) then Observer.Observe('add.1p5.1p5', Util.VShow(V)) else Observer.ObserveError('add.1p5.1p5');
+        vDecimal := 1.5;
+        vDecimal_R := 1.5;
+        if Try8(V, vDecimal, vDecimal_R) then Observer.Observe('sub.1p5.1p5', Util.VShow(V)) else Observer.ObserveError('sub.1p5.1p5');
+        vDecimal := 1.5;
+        vDecimal_R := 1.5;
+        if Try9(vDecimal, vDecimal_R) then Observer.Observe('compound_add.1p5.1p5', Format(vDecimal_R, 0, 9)) else Observer.ObserveError('compound_add.1p5.1p5');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Decimal_Char()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vChar: Char;
+        vDecimal: Decimal;
     begin
         vDecimal := 65;
         vChar := 65;
-        if Try10() then Observer.Observe('add.65.A', Util.VShow(V)) else Observer.ObserveError('add.65.A');
+        if Try10(V, vChar, vDecimal) then Observer.Observe('add.65.A', Util.VShow(V)) else Observer.ObserveError('add.65.A');
         vDecimal := 65;
         vChar := 65;
-        if Try11() then Observer.Observe('sub.65.A', Util.VShow(V)) else Observer.ObserveError('sub.65.A');
+        if Try11(V, vChar, vDecimal) then Observer.Observe('sub.65.A', Util.VShow(V)) else Observer.ObserveError('sub.65.A');
         vDecimal := 65;
         vChar := 65;
-        if Try12() then Observer.Observe('compound_add.65.A', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.65.A');
+        if Try12(vChar, vDecimal) then Observer.Observe('compound_add.65.A', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.65.A');
         vDecimal := 65;
         vChar := 97;
-        if Try10() then Observer.Observe('add.65.a', Util.VShow(V)) else Observer.ObserveError('add.65.a');
+        if Try10(V, vChar, vDecimal) then Observer.Observe('add.65.a', Util.VShow(V)) else Observer.ObserveError('add.65.a');
         vDecimal := 65;
         vChar := 97;
-        if Try11() then Observer.Observe('sub.65.a', Util.VShow(V)) else Observer.ObserveError('sub.65.a');
+        if Try11(V, vChar, vDecimal) then Observer.Observe('sub.65.a', Util.VShow(V)) else Observer.ObserveError('sub.65.a');
         vDecimal := 65;
         vChar := 97;
-        if Try12() then Observer.Observe('compound_add.65.a', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.65.a');
+        if Try12(vChar, vDecimal) then Observer.Observe('compound_add.65.a', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.65.a');
         vDecimal := 65;
         vChar := 65535;
-        if Try10() then Observer.Observe('add.65.65535', Util.VShow(V)) else Observer.ObserveError('add.65.65535');
+        if Try10(V, vChar, vDecimal) then Observer.Observe('add.65.65535', Util.VShow(V)) else Observer.ObserveError('add.65.65535');
         vDecimal := 65;
         vChar := 65535;
-        if Try11() then Observer.Observe('sub.65.65535', Util.VShow(V)) else Observer.ObserveError('sub.65.65535');
-        vDecimal := 65;
-        vChar := 65535;
-        if Try12() then Observer.Observe('compound_add.65.65535', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.65.65535');
-        vDecimal := 1.5;
-        vChar := 65;
-        if Try10() then Observer.Observe('add.1p5.A', Util.VShow(V)) else Observer.ObserveError('add.1p5.A');
-        vDecimal := 1.5;
-        vChar := 65;
-        if Try11() then Observer.Observe('sub.1p5.A', Util.VShow(V)) else Observer.ObserveError('sub.1p5.A');
-        vDecimal := 1.5;
-        vChar := 65;
-        if Try12() then Observer.Observe('compound_add.1p5.A', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.1p5.A');
-        vDecimal := 1.5;
-        vChar := 97;
-        if Try10() then Observer.Observe('add.1p5.a', Util.VShow(V)) else Observer.ObserveError('add.1p5.a');
-        vDecimal := 1.5;
-        vChar := 97;
-        if Try11() then Observer.Observe('sub.1p5.a', Util.VShow(V)) else Observer.ObserveError('sub.1p5.a');
-        vDecimal := 1.5;
-        vChar := 97;
-        if Try12() then Observer.Observe('compound_add.1p5.a', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.1p5.a');
-        vDecimal := 1.5;
-        vChar := 65535;
-        if Try10() then Observer.Observe('add.1p5.65535', Util.VShow(V)) else Observer.ObserveError('add.1p5.65535');
-        vDecimal := 1.5;
-        vChar := 65535;
-        if Try11() then Observer.Observe('sub.1p5.65535', Util.VShow(V)) else Observer.ObserveError('sub.1p5.65535');
-        vDecimal := 1.5;
-        vChar := 65535;
-        if Try12() then Observer.Observe('compound_add.1p5.65535', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.1p5.65535');
+        if Try11(V, vChar, vDecimal) then Observer.Observe('sub.65.65535', Util.VShow(V)) else Observer.ObserveError('sub.65.65535');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Decimal_Char_More1()
+    procedure Decimal_Char_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vChar: Char;
+        vDecimal: Decimal;
     begin
-        Observer.More();
+        vDecimal := 65;
+        vChar := 65535;
+        if Try12(vChar, vDecimal) then Observer.Observe('compound_add.65.65535', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.65.65535');
+        vDecimal := 1.5;
+        vChar := 65;
+        if Try10(V, vChar, vDecimal) then Observer.Observe('add.1p5.A', Util.VShow(V)) else Observer.ObserveError('add.1p5.A');
+        vDecimal := 1.5;
+        vChar := 65;
+        if Try11(V, vChar, vDecimal) then Observer.Observe('sub.1p5.A', Util.VShow(V)) else Observer.ObserveError('sub.1p5.A');
+        vDecimal := 1.5;
+        vChar := 65;
+        if Try12(vChar, vDecimal) then Observer.Observe('compound_add.1p5.A', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.1p5.A');
+        vDecimal := 1.5;
+        vChar := 97;
+        if Try10(V, vChar, vDecimal) then Observer.Observe('add.1p5.a', Util.VShow(V)) else Observer.ObserveError('add.1p5.a');
+        vDecimal := 1.5;
+        vChar := 97;
+        if Try11(V, vChar, vDecimal) then Observer.Observe('sub.1p5.a', Util.VShow(V)) else Observer.ObserveError('sub.1p5.a');
+        vDecimal := 1.5;
+        vChar := 97;
+        if Try12(vChar, vDecimal) then Observer.Observe('compound_add.1p5.a', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.1p5.a');
+        vDecimal := 1.5;
+        vChar := 65535;
+        if Try10(V, vChar, vDecimal) then Observer.Observe('add.1p5.65535', Util.VShow(V)) else Observer.ObserveError('add.1p5.65535');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Decimal_Char_More2()
+    procedure Decimal_Char_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vChar: Char;
+        vDecimal: Decimal;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Char_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Char_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Char_More5()
-    begin
-        Observer.More();
+        vDecimal := 1.5;
+        vChar := 65535;
+        if Try11(V, vChar, vDecimal) then Observer.Observe('sub.1p5.65535', Util.VShow(V)) else Observer.ObserveError('sub.1p5.65535');
+        vDecimal := 1.5;
+        vChar := 65535;
+        if Try12(vChar, vDecimal) then Observer.Observe('compound_add.1p5.65535', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.1p5.65535');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Decimal_Byte()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vByte: Byte;
+        vDecimal: Decimal;
     begin
         vDecimal := 65;
         vByte := 65;
-        if Try13() then Observer.Observe('add.65.65', Util.VShow(V)) else Observer.ObserveError('add.65.65');
+        if Try13(V, vByte, vDecimal) then Observer.Observe('add.65.65', Util.VShow(V)) else Observer.ObserveError('add.65.65');
         vDecimal := 65;
         vByte := 65;
-        if Try14() then Observer.Observe('sub.65.65', Util.VShow(V)) else Observer.ObserveError('sub.65.65');
+        if Try14(V, vByte, vDecimal) then Observer.Observe('sub.65.65', Util.VShow(V)) else Observer.ObserveError('sub.65.65');
         vDecimal := 65;
         vByte := 65;
-        if Try15() then Observer.Observe('compound_add.65.65', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.65.65');
+        if Try15(vByte, vDecimal) then Observer.Observe('compound_add.65.65', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.65.65');
         vDecimal := 65;
         vByte := 255;
-        if Try13() then Observer.Observe('add.65.255', Util.VShow(V)) else Observer.ObserveError('add.65.255');
+        if Try13(V, vByte, vDecimal) then Observer.Observe('add.65.255', Util.VShow(V)) else Observer.ObserveError('add.65.255');
         vDecimal := 65;
         vByte := 255;
-        if Try14() then Observer.Observe('sub.65.255', Util.VShow(V)) else Observer.ObserveError('sub.65.255');
+        if Try14(V, vByte, vDecimal) then Observer.Observe('sub.65.255', Util.VShow(V)) else Observer.ObserveError('sub.65.255');
         vDecimal := 65;
         vByte := 255;
-        if Try15() then Observer.Observe('compound_add.65.255', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.65.255');
+        if Try15(vByte, vDecimal) then Observer.Observe('compound_add.65.255', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.65.255');
         vDecimal := 1.5;
         vByte := 65;
-        if Try13() then Observer.Observe('add.1p5.65', Util.VShow(V)) else Observer.ObserveError('add.1p5.65');
+        if Try13(V, vByte, vDecimal) then Observer.Observe('add.1p5.65', Util.VShow(V)) else Observer.ObserveError('add.1p5.65');
         vDecimal := 1.5;
         vByte := 65;
-        if Try14() then Observer.Observe('sub.1p5.65', Util.VShow(V)) else Observer.ObserveError('sub.1p5.65');
-        vDecimal := 1.5;
-        vByte := 65;
-        if Try15() then Observer.Observe('compound_add.1p5.65', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.1p5.65');
-        vDecimal := 1.5;
-        vByte := 255;
-        if Try13() then Observer.Observe('add.1p5.255', Util.VShow(V)) else Observer.ObserveError('add.1p5.255');
-        vDecimal := 1.5;
-        vByte := 255;
-        if Try14() then Observer.Observe('sub.1p5.255', Util.VShow(V)) else Observer.ObserveError('sub.1p5.255');
-        vDecimal := 1.5;
-        vByte := 255;
-        if Try15() then Observer.Observe('compound_add.1p5.255', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.1p5.255');
+        if Try14(V, vByte, vDecimal) then Observer.Observe('sub.1p5.65', Util.VShow(V)) else Observer.ObserveError('sub.1p5.65');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Decimal_Byte_More1()
+    procedure Decimal_Byte_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vByte: Byte;
+        vDecimal: Decimal;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Byte_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Byte_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Byte_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Byte_More5()
-    begin
-        Observer.More();
+        vDecimal := 1.5;
+        vByte := 65;
+        if Try15(vByte, vDecimal) then Observer.Observe('compound_add.1p5.65', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.1p5.65');
+        vDecimal := 1.5;
+        vByte := 255;
+        if Try13(V, vByte, vDecimal) then Observer.Observe('add.1p5.255', Util.VShow(V)) else Observer.ObserveError('add.1p5.255');
+        vDecimal := 1.5;
+        vByte := 255;
+        if Try14(V, vByte, vDecimal) then Observer.Observe('sub.1p5.255', Util.VShow(V)) else Observer.ObserveError('sub.1p5.255');
+        vDecimal := 1.5;
+        vByte := 255;
+        if Try15(vByte, vDecimal) then Observer.Observe('compound_add.1p5.255', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.1p5.255');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Decimal_Option()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vDecimal: Decimal;
+        vOption: Option A,B,C;
     begin
         vDecimal := 65;
         vOption := 1;
-        if Try16() then Observer.Observe('add.65.1', Util.VShow(V)) else Observer.ObserveError('add.65.1');
+        if Try16(V, vDecimal, vOption) then Observer.Observe('add.65.1', Util.VShow(V)) else Observer.ObserveError('add.65.1');
         vDecimal := 65;
         vOption := 1;
-        if Try17() then Observer.Observe('sub.65.1', Util.VShow(V)) else Observer.ObserveError('sub.65.1');
+        if Try17(V, vDecimal, vOption) then Observer.Observe('sub.65.1', Util.VShow(V)) else Observer.ObserveError('sub.65.1');
         vDecimal := 65;
         vOption := 1;
-        if Try18() then Observer.Observe('compound_add.65.1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.65.1');
+        if Try18(vDecimal, vOption) then Observer.Observe('compound_add.65.1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.65.1');
         vDecimal := 65;
         vOption := 3;
-        if Try16() then Observer.Observe('add.65.3', Util.VShow(V)) else Observer.ObserveError('add.65.3');
+        if Try16(V, vDecimal, vOption) then Observer.Observe('add.65.3', Util.VShow(V)) else Observer.ObserveError('add.65.3');
         vDecimal := 65;
         vOption := 3;
-        if Try17() then Observer.Observe('sub.65.3', Util.VShow(V)) else Observer.ObserveError('sub.65.3');
+        if Try17(V, vDecimal, vOption) then Observer.Observe('sub.65.3', Util.VShow(V)) else Observer.ObserveError('sub.65.3');
         vDecimal := 65;
         vOption := 3;
-        if Try18() then Observer.Observe('compound_add.65.3', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.65.3');
+        if Try18(vDecimal, vOption) then Observer.Observe('compound_add.65.3', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.65.3');
         vDecimal := 1.5;
         vOption := 1;
-        if Try16() then Observer.Observe('add.1p5.1', Util.VShow(V)) else Observer.ObserveError('add.1p5.1');
+        if Try16(V, vDecimal, vOption) then Observer.Observe('add.1p5.1', Util.VShow(V)) else Observer.ObserveError('add.1p5.1');
         vDecimal := 1.5;
         vOption := 1;
-        if Try17() then Observer.Observe('sub.1p5.1', Util.VShow(V)) else Observer.ObserveError('sub.1p5.1');
-        vDecimal := 1.5;
-        vOption := 1;
-        if Try18() then Observer.Observe('compound_add.1p5.1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.1p5.1');
-        vDecimal := 1.5;
-        vOption := 3;
-        if Try16() then Observer.Observe('add.1p5.3', Util.VShow(V)) else Observer.ObserveError('add.1p5.3');
-        vDecimal := 1.5;
-        vOption := 3;
-        if Try17() then Observer.Observe('sub.1p5.3', Util.VShow(V)) else Observer.ObserveError('sub.1p5.3');
-        vDecimal := 1.5;
-        vOption := 3;
-        if Try18() then Observer.Observe('compound_add.1p5.3', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.1p5.3');
+        if Try17(V, vDecimal, vOption) then Observer.Observe('sub.1p5.1', Util.VShow(V)) else Observer.ObserveError('sub.1p5.1');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Decimal_Option_More1()
+    procedure Decimal_Option_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vDecimal: Decimal;
+        vOption: Option A,B,C;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Option_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Option_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Option_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Option_More5()
-    begin
-        Observer.More();
+        vDecimal := 1.5;
+        vOption := 1;
+        if Try18(vDecimal, vOption) then Observer.Observe('compound_add.1p5.1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.1p5.1');
+        vDecimal := 1.5;
+        vOption := 3;
+        if Try16(V, vDecimal, vOption) then Observer.Observe('add.1p5.3', Util.VShow(V)) else Observer.ObserveError('add.1p5.3');
+        vDecimal := 1.5;
+        vOption := 3;
+        if Try17(V, vDecimal, vOption) then Observer.Observe('sub.1p5.3', Util.VShow(V)) else Observer.ObserveError('sub.1p5.3');
+        vDecimal := 1.5;
+        vOption := 3;
+        if Try18(vDecimal, vOption) then Observer.Observe('compound_add.1p5.3', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.1p5.3');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Decimal_Date()
+    var
+        Observer: Codeunit "Probe Observer";
+        vDate: Date;
+        vDecimal: Decimal;
     begin
         vDecimal := 65;
         vDate := 20260131D;
-        if Try19() then Observer.Observe('compound_add.65.d', Format(vDate, 0, 9)) else Observer.ObserveError('compound_add.65.d');
+        if Try19(vDate, vDecimal) then Observer.Observe('compound_add.65.d', Format(vDate, 0, 9)) else Observer.ObserveError('compound_add.65.d');
         vDecimal := 1.5;
         vDate := 20260131D;
-        if Try19() then Observer.Observe('compound_add.1p5.d', Format(vDate, 0, 9)) else Observer.ObserveError('compound_add.1p5.d');
+        if Try19(vDate, vDecimal) then Observer.Observe('compound_add.1p5.d', Format(vDate, 0, 9)) else Observer.ObserveError('compound_add.1p5.d');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Decimal_Date_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Date_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Date_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Date_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Date_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Decimal_Time()
+    var
+        Observer: Codeunit "Probe Observer";
+        vDecimal: Decimal;
+        vTime: Time;
     begin
         vDecimal := 65;
         vTime := 120000T;
-        if Try20() then Observer.Observe('compound_add.65.t', Format(vTime, 0, 9)) else Observer.ObserveError('compound_add.65.t');
+        if Try20(vDecimal, vTime) then Observer.Observe('compound_add.65.t', Format(vTime, 0, 9)) else Observer.ObserveError('compound_add.65.t');
         vDecimal := 1.5;
         vTime := 120000T;
-        if Try20() then Observer.Observe('compound_add.1p5.t', Format(vTime, 0, 9)) else Observer.ObserveError('compound_add.1p5.t');
+        if Try20(vDecimal, vTime) then Observer.Observe('compound_add.1p5.t', Format(vTime, 0, 9)) else Observer.ObserveError('compound_add.1p5.t');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Decimal_Time_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Time_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Time_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Time_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Time_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Decimal_DateTime()
+    var
+        Observer: Codeunit "Probe Observer";
+        vDateTime: DateTime;
+        vDecimal: Decimal;
     begin
         vDecimal := 65;
         vDateTime := CreateDateTime(20260131D, 120000T);
-        if Try21() then Observer.Observe('compound_add.65.dt', Format(vDateTime, 0, 9)) else Observer.ObserveError('compound_add.65.dt');
+        if Try21(vDateTime, vDecimal) then Observer.Observe('compound_add.65.dt', Format(vDateTime, 0, 9)) else Observer.ObserveError('compound_add.65.dt');
         vDecimal := 1.5;
         vDateTime := CreateDateTime(20260131D, 120000T);
-        if Try21() then Observer.Observe('compound_add.1p5.dt', Format(vDateTime, 0, 9)) else Observer.ObserveError('compound_add.1p5.dt');
+        if Try21(vDateTime, vDecimal) then Observer.Observe('compound_add.1p5.dt', Format(vDateTime, 0, 9)) else Observer.ObserveError('compound_add.1p5.dt');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Decimal_DateTime_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_DateTime_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_DateTime_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_DateTime_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_DateTime_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Decimal_Duration()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vDecimal: Decimal;
+        vDuration: Duration;
     begin
         vDecimal := 65;
         vDuration := 65;
-        if Try22() then Observer.Observe('add.65.65', Util.VShow(V)) else Observer.ObserveError('add.65.65');
+        if Try22(V, vDecimal, vDuration) then Observer.Observe('add.65.65', Util.VShow(V)) else Observer.ObserveError('add.65.65');
         vDecimal := 65;
         vDuration := 65;
-        if Try23() then Observer.Observe('sub.65.65', Util.VShow(V)) else Observer.ObserveError('sub.65.65');
+        if Try23(V, vDecimal, vDuration) then Observer.Observe('sub.65.65', Util.VShow(V)) else Observer.ObserveError('sub.65.65');
         vDecimal := 65;
         vDuration := 65;
-        if Try24() then Observer.Observe('compound_add.65.65', Format(vDuration, 0, 9)) else Observer.ObserveError('compound_add.65.65');
+        if Try24(vDecimal, vDuration) then Observer.Observe('compound_add.65.65', Format(vDuration, 0, 9)) else Observer.ObserveError('compound_add.65.65');
         vDecimal := 1.5;
         vDuration := 65;
-        if Try22() then Observer.Observe('add.1p5.65', Util.VShow(V)) else Observer.ObserveError('add.1p5.65');
+        if Try22(V, vDecimal, vDuration) then Observer.Observe('add.1p5.65', Util.VShow(V)) else Observer.ObserveError('add.1p5.65');
         vDecimal := 1.5;
         vDuration := 65;
-        if Try23() then Observer.Observe('sub.1p5.65', Util.VShow(V)) else Observer.ObserveError('sub.1p5.65');
+        if Try23(V, vDecimal, vDuration) then Observer.Observe('sub.1p5.65', Util.VShow(V)) else Observer.ObserveError('sub.1p5.65');
         vDecimal := 1.5;
         vDuration := 65;
-        if Try24() then Observer.Observe('compound_add.1p5.65', Format(vDuration, 0, 9)) else Observer.ObserveError('compound_add.1p5.65');
+        if Try24(vDecimal, vDuration) then Observer.Observe('compound_add.1p5.65', Format(vDuration, 0, 9)) else Observer.ObserveError('compound_add.1p5.65');
         Observer.Finish();
     end;
 
-    [Test]
-    procedure Decimal_Duration_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Duration_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Duration_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Duration_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Decimal_Duration_More5()
-    begin
-        Observer.More();
-    end;
-
     [TryFunction]
-    local procedure Try1()
+    local procedure Try1(var V: Variant; var vDecimal: Decimal; var vInteger: Integer)
     begin
         Clear(V);
         V := vDecimal + vInteger;
     end;
 
     [TryFunction]
-    local procedure Try2()
+    local procedure Try2(var V: Variant; var vDecimal: Decimal; var vInteger: Integer)
     begin
         Clear(V);
         V := vDecimal - vInteger;
     end;
 
     [TryFunction]
-    local procedure Try3()
+    local procedure Try3(var vDecimal: Decimal; var vInteger: Integer)
     begin
         vInteger += vDecimal;
     end;
 
     [TryFunction]
-    local procedure Try4()
+    local procedure Try4(var V: Variant; var vBigInteger: BigInteger; var vDecimal: Decimal)
     begin
         Clear(V);
         V := vDecimal + vBigInteger;
     end;
 
     [TryFunction]
-    local procedure Try5()
+    local procedure Try5(var V: Variant; var vBigInteger: BigInteger; var vDecimal: Decimal)
     begin
         Clear(V);
         V := vDecimal - vBigInteger;
     end;
 
     [TryFunction]
-    local procedure Try6()
+    local procedure Try6(var vBigInteger: BigInteger; var vDecimal: Decimal)
     begin
         vBigInteger += vDecimal;
     end;
 
     [TryFunction]
-    local procedure Try7()
+    local procedure Try7(var V: Variant; var vDecimal: Decimal; var vDecimal_R: Decimal)
     begin
         Clear(V);
         V := vDecimal + vDecimal_R;
     end;
 
     [TryFunction]
-    local procedure Try8()
+    local procedure Try8(var V: Variant; var vDecimal: Decimal; var vDecimal_R: Decimal)
     begin
         Clear(V);
         V := vDecimal - vDecimal_R;
     end;
 
     [TryFunction]
-    local procedure Try9()
+    local procedure Try9(var vDecimal: Decimal; var vDecimal_R: Decimal)
     begin
         vDecimal_R += vDecimal;
     end;
 
     [TryFunction]
-    local procedure Try10()
+    local procedure Try10(var V: Variant; var vChar: Char; var vDecimal: Decimal)
     begin
         Clear(V);
         V := vDecimal + vChar;
     end;
 
     [TryFunction]
-    local procedure Try11()
+    local procedure Try11(var V: Variant; var vChar: Char; var vDecimal: Decimal)
     begin
         Clear(V);
         V := vDecimal - vChar;
     end;
 
     [TryFunction]
-    local procedure Try12()
+    local procedure Try12(var vChar: Char; var vDecimal: Decimal)
     begin
         vChar += vDecimal;
     end;
 
     [TryFunction]
-    local procedure Try13()
+    local procedure Try13(var V: Variant; var vByte: Byte; var vDecimal: Decimal)
     begin
         Clear(V);
         V := vDecimal + vByte;
     end;
 
     [TryFunction]
-    local procedure Try14()
+    local procedure Try14(var V: Variant; var vByte: Byte; var vDecimal: Decimal)
     begin
         Clear(V);
         V := vDecimal - vByte;
     end;
 
     [TryFunction]
-    local procedure Try15()
+    local procedure Try15(var vByte: Byte; var vDecimal: Decimal)
     begin
         vByte += vDecimal;
     end;
 
     [TryFunction]
-    local procedure Try16()
+    local procedure Try16(var V: Variant; var vDecimal: Decimal; var vOption: Option A,B,C)
     begin
         Clear(V);
         V := vDecimal + vOption;
     end;
 
     [TryFunction]
-    local procedure Try17()
+    local procedure Try17(var V: Variant; var vDecimal: Decimal; var vOption: Option A,B,C)
     begin
         Clear(V);
         V := vDecimal - vOption;
     end;
 
     [TryFunction]
-    local procedure Try18()
+    local procedure Try18(var vDecimal: Decimal; var vOption: Option A,B,C)
     begin
         vOption += vDecimal;
     end;
 
     [TryFunction]
-    local procedure Try19()
+    local procedure Try19(var vDate: Date; var vDecimal: Decimal)
     begin
         vDate += vDecimal;
     end;
 
     [TryFunction]
-    local procedure Try20()
+    local procedure Try20(var vDecimal: Decimal; var vTime: Time)
     begin
         vTime += vDecimal;
     end;
 
     [TryFunction]
-    local procedure Try21()
+    local procedure Try21(var vDateTime: DateTime; var vDecimal: Decimal)
     begin
         vDateTime += vDecimal;
     end;
 
     [TryFunction]
-    local procedure Try22()
+    local procedure Try22(var V: Variant; var vDecimal: Decimal; var vDuration: Duration)
     begin
         Clear(V);
         V := vDecimal + vDuration;
     end;
 
     [TryFunction]
-    local procedure Try23()
+    local procedure Try23(var V: Variant; var vDecimal: Decimal; var vDuration: Duration)
     begin
         Clear(V);
         V := vDecimal - vDuration;
     end;
 
     [TryFunction]
-    local procedure Try24()
+    local procedure Try24(var vDecimal: Decimal; var vDuration: Duration)
     begin
         vDuration += vDecimal;
     end;
@@ -2662,1530 +2126,1327 @@ codeunit 92448 "LT Y31 Ar Char"
     Subtype = Test;
     TestPermissions = Disabled;
 
+    [Test]
+    procedure Char_Integer()
     var
         Observer: Codeunit "Probe Observer";
         Util: Codeunit "LT Y31 Conv Util";
-        Res: Boolean;
         V: Variant;
-        vBigInteger: BigInteger;
-        vByte: Byte;
         vChar: Char;
-        vChar_R: Char;
-        vCode10: Code[10];
-        vDate: Date;
-        vDateTime: DateTime;
-        vDecimal: Decimal;
-        vDuration: Duration;
-        vEnum: Enum "LT Y31 E";
-        vEnumImpl: Enum "LT Y31 EI";
-        vGuid: Guid;
         vInteger: Integer;
-        vLabel: Label 'abc', Locked = true;
-        vOption: Option A,B,C;
-        vText: Text;
-        vText10: Text[10];
-        vTime: Time;
-
-    [Test]
-    procedure Char_Integer()
     begin
         vChar := 65;
         vInteger := 65;
-        if Try1() then Observer.Observe('add.A.65', Util.VShow(V)) else Observer.ObserveError('add.A.65');
+        if Try1(V, vChar, vInteger) then Observer.Observe('add.A.65', Util.VShow(V)) else Observer.ObserveError('add.A.65');
         vChar := 65;
         vInteger := 65;
-        if Try2() then Observer.Observe('sub.A.65', Util.VShow(V)) else Observer.ObserveError('sub.A.65');
+        if Try2(V, vChar, vInteger) then Observer.Observe('sub.A.65', Util.VShow(V)) else Observer.ObserveError('sub.A.65');
         vChar := 65;
         vInteger := 65;
-        if Try3() then Observer.Observe('compound_add.A.65', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.A.65');
+        if Try3(vChar, vInteger) then Observer.Observe('compound_add.A.65', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.A.65');
         vChar := 65;
         vInteger := 1;
-        if Try1() then Observer.Observe('add.A.1', Util.VShow(V)) else Observer.ObserveError('add.A.1');
+        if Try1(V, vChar, vInteger) then Observer.Observe('add.A.1', Util.VShow(V)) else Observer.ObserveError('add.A.1');
         vChar := 65;
         vInteger := 1;
-        if Try2() then Observer.Observe('sub.A.1', Util.VShow(V)) else Observer.ObserveError('sub.A.1');
+        if Try2(V, vChar, vInteger) then Observer.Observe('sub.A.1', Util.VShow(V)) else Observer.ObserveError('sub.A.1');
         vChar := 65;
         vInteger := 1;
-        if Try3() then Observer.Observe('compound_add.A.1', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.A.1');
+        if Try3(vChar, vInteger) then Observer.Observe('compound_add.A.1', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.A.1');
         vChar := 65;
         vInteger := 2147483647;
-        if Try1() then Observer.Observe('add.A.max', Util.VShow(V)) else Observer.ObserveError('add.A.max');
+        if Try1(V, vChar, vInteger) then Observer.Observe('add.A.max', Util.VShow(V)) else Observer.ObserveError('add.A.max');
         vChar := 65;
         vInteger := 2147483647;
-        if Try2() then Observer.Observe('sub.A.max', Util.VShow(V)) else Observer.ObserveError('sub.A.max');
-        vChar := 65;
-        vInteger := 2147483647;
-        if Try3() then Observer.Observe('compound_add.A.max', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.A.max');
-        vChar := 97;
-        vInteger := 65;
-        if Try1() then Observer.Observe('add.a.65', Util.VShow(V)) else Observer.ObserveError('add.a.65');
-        vChar := 97;
-        vInteger := 65;
-        if Try2() then Observer.Observe('sub.a.65', Util.VShow(V)) else Observer.ObserveError('sub.a.65');
-        vChar := 97;
-        vInteger := 65;
-        if Try3() then Observer.Observe('compound_add.a.65', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.a.65');
-        vChar := 97;
-        vInteger := 1;
-        if Try1() then Observer.Observe('add.a.1', Util.VShow(V)) else Observer.ObserveError('add.a.1');
-        vChar := 97;
-        vInteger := 1;
-        if Try2() then Observer.Observe('sub.a.1', Util.VShow(V)) else Observer.ObserveError('sub.a.1');
-        vChar := 97;
-        vInteger := 1;
-        if Try3() then Observer.Observe('compound_add.a.1', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.a.1');
-        vChar := 97;
-        vInteger := 2147483647;
-        if Try1() then Observer.Observe('add.a.max', Util.VShow(V)) else Observer.ObserveError('add.a.max');
-        vChar := 97;
-        vInteger := 2147483647;
-        if Try2() then Observer.Observe('sub.a.max', Util.VShow(V)) else Observer.ObserveError('sub.a.max');
-        vChar := 97;
-        vInteger := 2147483647;
-        if Try3() then Observer.Observe('compound_add.a.max', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.a.max');
-        vChar := 65535;
-        vInteger := 65;
-        if Try1() then Observer.Observe('add.65535.65', Util.VShow(V)) else Observer.ObserveError('add.65535.65');
-        vChar := 65535;
-        vInteger := 65;
-        if Try2() then Observer.Observe('sub.65535.65', Util.VShow(V)) else Observer.ObserveError('sub.65535.65');
-        vChar := 65535;
-        vInteger := 65;
-        if Try3() then Observer.Observe('compound_add.65535.65', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.65535.65');
-        vChar := 65535;
-        vInteger := 1;
-        if Try1() then Observer.Observe('add.65535.1', Util.VShow(V)) else Observer.ObserveError('add.65535.1');
-        vChar := 65535;
-        vInteger := 1;
-        if Try2() then Observer.Observe('sub.65535.1', Util.VShow(V)) else Observer.ObserveError('sub.65535.1');
-        vChar := 65535;
-        vInteger := 1;
-        if Try3() then Observer.Observe('compound_add.65535.1', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.65535.1');
-        vChar := 65535;
-        vInteger := 2147483647;
-        if Try1() then Observer.Observe('add.65535.max', Util.VShow(V)) else Observer.ObserveError('add.65535.max');
-        vChar := 65535;
-        vInteger := 2147483647;
-        if Try2() then Observer.Observe('sub.65535.max', Util.VShow(V)) else Observer.ObserveError('sub.65535.max');
-        vChar := 65535;
-        vInteger := 2147483647;
-        if Try3() then Observer.Observe('compound_add.65535.max', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.65535.max');
+        if Try2(V, vChar, vInteger) then Observer.Observe('sub.A.max', Util.VShow(V)) else Observer.ObserveError('sub.A.max');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Char_Integer_More1()
+    procedure Char_Integer_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vChar: Char;
+        vInteger: Integer;
     begin
-        Observer.More();
+        vChar := 65;
+        vInteger := 2147483647;
+        if Try3(vChar, vInteger) then Observer.Observe('compound_add.A.max', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.A.max');
+        vChar := 97;
+        vInteger := 65;
+        if Try1(V, vChar, vInteger) then Observer.Observe('add.a.65', Util.VShow(V)) else Observer.ObserveError('add.a.65');
+        vChar := 97;
+        vInteger := 65;
+        if Try2(V, vChar, vInteger) then Observer.Observe('sub.a.65', Util.VShow(V)) else Observer.ObserveError('sub.a.65');
+        vChar := 97;
+        vInteger := 65;
+        if Try3(vChar, vInteger) then Observer.Observe('compound_add.a.65', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.a.65');
+        vChar := 97;
+        vInteger := 1;
+        if Try1(V, vChar, vInteger) then Observer.Observe('add.a.1', Util.VShow(V)) else Observer.ObserveError('add.a.1');
+        vChar := 97;
+        vInteger := 1;
+        if Try2(V, vChar, vInteger) then Observer.Observe('sub.a.1', Util.VShow(V)) else Observer.ObserveError('sub.a.1');
+        vChar := 97;
+        vInteger := 1;
+        if Try3(vChar, vInteger) then Observer.Observe('compound_add.a.1', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.a.1');
+        vChar := 97;
+        vInteger := 2147483647;
+        if Try1(V, vChar, vInteger) then Observer.Observe('add.a.max', Util.VShow(V)) else Observer.ObserveError('add.a.max');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Char_Integer_More2()
+    procedure Char_Integer_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vChar: Char;
+        vInteger: Integer;
     begin
-        Observer.More();
+        vChar := 97;
+        vInteger := 2147483647;
+        if Try2(V, vChar, vInteger) then Observer.Observe('sub.a.max', Util.VShow(V)) else Observer.ObserveError('sub.a.max');
+        vChar := 97;
+        vInteger := 2147483647;
+        if Try3(vChar, vInteger) then Observer.Observe('compound_add.a.max', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.a.max');
+        vChar := 65535;
+        vInteger := 65;
+        if Try1(V, vChar, vInteger) then Observer.Observe('add.65535.65', Util.VShow(V)) else Observer.ObserveError('add.65535.65');
+        vChar := 65535;
+        vInteger := 65;
+        if Try2(V, vChar, vInteger) then Observer.Observe('sub.65535.65', Util.VShow(V)) else Observer.ObserveError('sub.65535.65');
+        vChar := 65535;
+        vInteger := 65;
+        if Try3(vChar, vInteger) then Observer.Observe('compound_add.65535.65', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.65535.65');
+        vChar := 65535;
+        vInteger := 1;
+        if Try1(V, vChar, vInteger) then Observer.Observe('add.65535.1', Util.VShow(V)) else Observer.ObserveError('add.65535.1');
+        vChar := 65535;
+        vInteger := 1;
+        if Try2(V, vChar, vInteger) then Observer.Observe('sub.65535.1', Util.VShow(V)) else Observer.ObserveError('sub.65535.1');
+        vChar := 65535;
+        vInteger := 1;
+        if Try3(vChar, vInteger) then Observer.Observe('compound_add.65535.1', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.65535.1');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Char_Integer_More3()
+    procedure Char_Integer_4()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vChar: Char;
+        vInteger: Integer;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Integer_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Integer_More5()
-    begin
-        Observer.More();
+        vChar := 65535;
+        vInteger := 2147483647;
+        if Try1(V, vChar, vInteger) then Observer.Observe('add.65535.max', Util.VShow(V)) else Observer.ObserveError('add.65535.max');
+        vChar := 65535;
+        vInteger := 2147483647;
+        if Try2(V, vChar, vInteger) then Observer.Observe('sub.65535.max', Util.VShow(V)) else Observer.ObserveError('sub.65535.max');
+        vChar := 65535;
+        vInteger := 2147483647;
+        if Try3(vChar, vInteger) then Observer.Observe('compound_add.65535.max', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.65535.max');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Char_BigInteger()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vBigInteger: BigInteger;
+        vChar: Char;
     begin
         vChar := 65;
         vBigInteger := 65;
-        if Try4() then Observer.Observe('add.A.65', Util.VShow(V)) else Observer.ObserveError('add.A.65');
+        if Try4(V, vBigInteger, vChar) then Observer.Observe('add.A.65', Util.VShow(V)) else Observer.ObserveError('add.A.65');
         vChar := 65;
         vBigInteger := 65;
-        if Try5() then Observer.Observe('sub.A.65', Util.VShow(V)) else Observer.ObserveError('sub.A.65');
+        if Try5(V, vBigInteger, vChar) then Observer.Observe('sub.A.65', Util.VShow(V)) else Observer.ObserveError('sub.A.65');
         vChar := 65;
         vBigInteger := 65;
-        if Try6() then Observer.Observe('compound_add.A.65', Format(vBigInteger, 0, 9)) else Observer.ObserveError('compound_add.A.65');
+        if Try6(vBigInteger, vChar) then Observer.Observe('compound_add.A.65', Format(vBigInteger, 0, 9)) else Observer.ObserveError('compound_add.A.65');
         vChar := 97;
         vBigInteger := 65;
-        if Try4() then Observer.Observe('add.a.65', Util.VShow(V)) else Observer.ObserveError('add.a.65');
+        if Try4(V, vBigInteger, vChar) then Observer.Observe('add.a.65', Util.VShow(V)) else Observer.ObserveError('add.a.65');
         vChar := 97;
         vBigInteger := 65;
-        if Try5() then Observer.Observe('sub.a.65', Util.VShow(V)) else Observer.ObserveError('sub.a.65');
+        if Try5(V, vBigInteger, vChar) then Observer.Observe('sub.a.65', Util.VShow(V)) else Observer.ObserveError('sub.a.65');
         vChar := 97;
         vBigInteger := 65;
-        if Try6() then Observer.Observe('compound_add.a.65', Format(vBigInteger, 0, 9)) else Observer.ObserveError('compound_add.a.65');
+        if Try6(vBigInteger, vChar) then Observer.Observe('compound_add.a.65', Format(vBigInteger, 0, 9)) else Observer.ObserveError('compound_add.a.65');
         vChar := 65535;
         vBigInteger := 65;
-        if Try4() then Observer.Observe('add.65535.65', Util.VShow(V)) else Observer.ObserveError('add.65535.65');
+        if Try4(V, vBigInteger, vChar) then Observer.Observe('add.65535.65', Util.VShow(V)) else Observer.ObserveError('add.65535.65');
         vChar := 65535;
         vBigInteger := 65;
-        if Try5() then Observer.Observe('sub.65535.65', Util.VShow(V)) else Observer.ObserveError('sub.65535.65');
-        vChar := 65535;
-        vBigInteger := 65;
-        if Try6() then Observer.Observe('compound_add.65535.65', Format(vBigInteger, 0, 9)) else Observer.ObserveError('compound_add.65535.65');
+        if Try5(V, vBigInteger, vChar) then Observer.Observe('sub.65535.65', Util.VShow(V)) else Observer.ObserveError('sub.65535.65');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Char_BigInteger_More1()
+    procedure Char_BigInteger_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vBigInteger: BigInteger;
+        vChar: Char;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_BigInteger_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_BigInteger_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_BigInteger_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_BigInteger_More5()
-    begin
-        Observer.More();
+        vChar := 65535;
+        vBigInteger := 65;
+        if Try6(vBigInteger, vChar) then Observer.Observe('compound_add.65535.65', Format(vBigInteger, 0, 9)) else Observer.ObserveError('compound_add.65535.65');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Char_Decimal()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vChar: Char;
+        vDecimal: Decimal;
     begin
         vChar := 65;
         vDecimal := 65;
-        if Try7() then Observer.Observe('add.A.65', Util.VShow(V)) else Observer.ObserveError('add.A.65');
+        if Try7(V, vChar, vDecimal) then Observer.Observe('add.A.65', Util.VShow(V)) else Observer.ObserveError('add.A.65');
         vChar := 65;
         vDecimal := 65;
-        if Try8() then Observer.Observe('sub.A.65', Util.VShow(V)) else Observer.ObserveError('sub.A.65');
+        if Try8(V, vChar, vDecimal) then Observer.Observe('sub.A.65', Util.VShow(V)) else Observer.ObserveError('sub.A.65');
         vChar := 65;
         vDecimal := 65;
-        if Try9() then Observer.Observe('compound_add.A.65', Format(vDecimal, 0, 9)) else Observer.ObserveError('compound_add.A.65');
+        if Try9(vChar, vDecimal) then Observer.Observe('compound_add.A.65', Format(vDecimal, 0, 9)) else Observer.ObserveError('compound_add.A.65');
         vChar := 65;
         vDecimal := 1.5;
-        if Try7() then Observer.Observe('add.A.1p5', Util.VShow(V)) else Observer.ObserveError('add.A.1p5');
+        if Try7(V, vChar, vDecimal) then Observer.Observe('add.A.1p5', Util.VShow(V)) else Observer.ObserveError('add.A.1p5');
         vChar := 65;
         vDecimal := 1.5;
-        if Try8() then Observer.Observe('sub.A.1p5', Util.VShow(V)) else Observer.ObserveError('sub.A.1p5');
+        if Try8(V, vChar, vDecimal) then Observer.Observe('sub.A.1p5', Util.VShow(V)) else Observer.ObserveError('sub.A.1p5');
         vChar := 65;
         vDecimal := 1.5;
-        if Try9() then Observer.Observe('compound_add.A.1p5', Format(vDecimal, 0, 9)) else Observer.ObserveError('compound_add.A.1p5');
+        if Try9(vChar, vDecimal) then Observer.Observe('compound_add.A.1p5', Format(vDecimal, 0, 9)) else Observer.ObserveError('compound_add.A.1p5');
         vChar := 97;
         vDecimal := 65;
-        if Try7() then Observer.Observe('add.a.65', Util.VShow(V)) else Observer.ObserveError('add.a.65');
+        if Try7(V, vChar, vDecimal) then Observer.Observe('add.a.65', Util.VShow(V)) else Observer.ObserveError('add.a.65');
         vChar := 97;
         vDecimal := 65;
-        if Try8() then Observer.Observe('sub.a.65', Util.VShow(V)) else Observer.ObserveError('sub.a.65');
-        vChar := 97;
-        vDecimal := 65;
-        if Try9() then Observer.Observe('compound_add.a.65', Format(vDecimal, 0, 9)) else Observer.ObserveError('compound_add.a.65');
-        vChar := 97;
-        vDecimal := 1.5;
-        if Try7() then Observer.Observe('add.a.1p5', Util.VShow(V)) else Observer.ObserveError('add.a.1p5');
-        vChar := 97;
-        vDecimal := 1.5;
-        if Try8() then Observer.Observe('sub.a.1p5', Util.VShow(V)) else Observer.ObserveError('sub.a.1p5');
-        vChar := 97;
-        vDecimal := 1.5;
-        if Try9() then Observer.Observe('compound_add.a.1p5', Format(vDecimal, 0, 9)) else Observer.ObserveError('compound_add.a.1p5');
-        vChar := 65535;
-        vDecimal := 65;
-        if Try7() then Observer.Observe('add.65535.65', Util.VShow(V)) else Observer.ObserveError('add.65535.65');
-        vChar := 65535;
-        vDecimal := 65;
-        if Try8() then Observer.Observe('sub.65535.65', Util.VShow(V)) else Observer.ObserveError('sub.65535.65');
-        vChar := 65535;
-        vDecimal := 65;
-        if Try9() then Observer.Observe('compound_add.65535.65', Format(vDecimal, 0, 9)) else Observer.ObserveError('compound_add.65535.65');
-        vChar := 65535;
-        vDecimal := 1.5;
-        if Try7() then Observer.Observe('add.65535.1p5', Util.VShow(V)) else Observer.ObserveError('add.65535.1p5');
-        vChar := 65535;
-        vDecimal := 1.5;
-        if Try8() then Observer.Observe('sub.65535.1p5', Util.VShow(V)) else Observer.ObserveError('sub.65535.1p5');
-        vChar := 65535;
-        vDecimal := 1.5;
-        if Try9() then Observer.Observe('compound_add.65535.1p5', Format(vDecimal, 0, 9)) else Observer.ObserveError('compound_add.65535.1p5');
+        if Try8(V, vChar, vDecimal) then Observer.Observe('sub.a.65', Util.VShow(V)) else Observer.ObserveError('sub.a.65');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Char_Decimal_More1()
+    procedure Char_Decimal_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vChar: Char;
+        vDecimal: Decimal;
     begin
-        Observer.More();
+        vChar := 97;
+        vDecimal := 65;
+        if Try9(vChar, vDecimal) then Observer.Observe('compound_add.a.65', Format(vDecimal, 0, 9)) else Observer.ObserveError('compound_add.a.65');
+        vChar := 97;
+        vDecimal := 1.5;
+        if Try7(V, vChar, vDecimal) then Observer.Observe('add.a.1p5', Util.VShow(V)) else Observer.ObserveError('add.a.1p5');
+        vChar := 97;
+        vDecimal := 1.5;
+        if Try8(V, vChar, vDecimal) then Observer.Observe('sub.a.1p5', Util.VShow(V)) else Observer.ObserveError('sub.a.1p5');
+        vChar := 97;
+        vDecimal := 1.5;
+        if Try9(vChar, vDecimal) then Observer.Observe('compound_add.a.1p5', Format(vDecimal, 0, 9)) else Observer.ObserveError('compound_add.a.1p5');
+        vChar := 65535;
+        vDecimal := 65;
+        if Try7(V, vChar, vDecimal) then Observer.Observe('add.65535.65', Util.VShow(V)) else Observer.ObserveError('add.65535.65');
+        vChar := 65535;
+        vDecimal := 65;
+        if Try8(V, vChar, vDecimal) then Observer.Observe('sub.65535.65', Util.VShow(V)) else Observer.ObserveError('sub.65535.65');
+        vChar := 65535;
+        vDecimal := 65;
+        if Try9(vChar, vDecimal) then Observer.Observe('compound_add.65535.65', Format(vDecimal, 0, 9)) else Observer.ObserveError('compound_add.65535.65');
+        vChar := 65535;
+        vDecimal := 1.5;
+        if Try7(V, vChar, vDecimal) then Observer.Observe('add.65535.1p5', Util.VShow(V)) else Observer.ObserveError('add.65535.1p5');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Char_Decimal_More2()
+    procedure Char_Decimal_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vChar: Char;
+        vDecimal: Decimal;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Decimal_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Decimal_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Decimal_More5()
-    begin
-        Observer.More();
+        vChar := 65535;
+        vDecimal := 1.5;
+        if Try8(V, vChar, vDecimal) then Observer.Observe('sub.65535.1p5', Util.VShow(V)) else Observer.ObserveError('sub.65535.1p5');
+        vChar := 65535;
+        vDecimal := 1.5;
+        if Try9(vChar, vDecimal) then Observer.Observe('compound_add.65535.1p5', Format(vDecimal, 0, 9)) else Observer.ObserveError('compound_add.65535.1p5');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Char_Char_Same()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vChar: Char;
+        vChar_R: Char;
     begin
         vChar := 65;
         vChar_R := 65;
-        if Try10() then Observer.Observe('add.A.A', Util.VShow(V)) else Observer.ObserveError('add.A.A');
+        if Try10(V, vChar, vChar_R) then Observer.Observe('add.A.A', Util.VShow(V)) else Observer.ObserveError('add.A.A');
         vChar := 65;
         vChar_R := 65;
-        if Try11() then Observer.Observe('sub.A.A', Util.VShow(V)) else Observer.ObserveError('sub.A.A');
+        if Try11(V, vChar, vChar_R) then Observer.Observe('sub.A.A', Util.VShow(V)) else Observer.ObserveError('sub.A.A');
         vChar := 65;
         vChar_R := 65;
-        if Try12() then Observer.Observe('compound_add.A.A', Format(vChar_R) + '|' + Format(Util.CharOrd(vChar_R))) else Observer.ObserveError('compound_add.A.A');
+        if Try12(vChar, vChar_R) then Observer.Observe('compound_add.A.A', Format(vChar_R) + '|' + Format(Util.CharOrd(vChar_R))) else Observer.ObserveError('compound_add.A.A');
         vChar := 65;
         vChar_R := 97;
-        if Try10() then Observer.Observe('add.A.a', Util.VShow(V)) else Observer.ObserveError('add.A.a');
+        if Try10(V, vChar, vChar_R) then Observer.Observe('add.A.a', Util.VShow(V)) else Observer.ObserveError('add.A.a');
         vChar := 65;
         vChar_R := 97;
-        if Try11() then Observer.Observe('sub.A.a', Util.VShow(V)) else Observer.ObserveError('sub.A.a');
+        if Try11(V, vChar, vChar_R) then Observer.Observe('sub.A.a', Util.VShow(V)) else Observer.ObserveError('sub.A.a');
         vChar := 65;
         vChar_R := 97;
-        if Try12() then Observer.Observe('compound_add.A.a', Format(vChar_R) + '|' + Format(Util.CharOrd(vChar_R))) else Observer.ObserveError('compound_add.A.a');
+        if Try12(vChar, vChar_R) then Observer.Observe('compound_add.A.a', Format(vChar_R) + '|' + Format(Util.CharOrd(vChar_R))) else Observer.ObserveError('compound_add.A.a');
         vChar := 65;
         vChar_R := 65535;
-        if Try10() then Observer.Observe('add.A.65535', Util.VShow(V)) else Observer.ObserveError('add.A.65535');
+        if Try10(V, vChar, vChar_R) then Observer.Observe('add.A.65535', Util.VShow(V)) else Observer.ObserveError('add.A.65535');
         vChar := 65;
         vChar_R := 65535;
-        if Try11() then Observer.Observe('sub.A.65535', Util.VShow(V)) else Observer.ObserveError('sub.A.65535');
-        vChar := 65;
-        vChar_R := 65535;
-        if Try12() then Observer.Observe('compound_add.A.65535', Format(vChar_R) + '|' + Format(Util.CharOrd(vChar_R))) else Observer.ObserveError('compound_add.A.65535');
-        vChar := 97;
-        vChar_R := 65;
-        if Try10() then Observer.Observe('add.a.A', Util.VShow(V)) else Observer.ObserveError('add.a.A');
-        vChar := 97;
-        vChar_R := 65;
-        if Try11() then Observer.Observe('sub.a.A', Util.VShow(V)) else Observer.ObserveError('sub.a.A');
-        vChar := 97;
-        vChar_R := 65;
-        if Try12() then Observer.Observe('compound_add.a.A', Format(vChar_R) + '|' + Format(Util.CharOrd(vChar_R))) else Observer.ObserveError('compound_add.a.A');
-        vChar := 97;
-        vChar_R := 97;
-        if Try10() then Observer.Observe('add.a.a', Util.VShow(V)) else Observer.ObserveError('add.a.a');
-        vChar := 97;
-        vChar_R := 97;
-        if Try11() then Observer.Observe('sub.a.a', Util.VShow(V)) else Observer.ObserveError('sub.a.a');
-        vChar := 97;
-        vChar_R := 97;
-        if Try12() then Observer.Observe('compound_add.a.a', Format(vChar_R) + '|' + Format(Util.CharOrd(vChar_R))) else Observer.ObserveError('compound_add.a.a');
-        vChar := 97;
-        vChar_R := 65535;
-        if Try10() then Observer.Observe('add.a.65535', Util.VShow(V)) else Observer.ObserveError('add.a.65535');
-        vChar := 97;
-        vChar_R := 65535;
-        if Try11() then Observer.Observe('sub.a.65535', Util.VShow(V)) else Observer.ObserveError('sub.a.65535');
-        vChar := 97;
-        vChar_R := 65535;
-        if Try12() then Observer.Observe('compound_add.a.65535', Format(vChar_R) + '|' + Format(Util.CharOrd(vChar_R))) else Observer.ObserveError('compound_add.a.65535');
-        vChar := 65535;
-        vChar_R := 65;
-        if Try10() then Observer.Observe('add.65535.A', Util.VShow(V)) else Observer.ObserveError('add.65535.A');
-        vChar := 65535;
-        vChar_R := 65;
-        if Try11() then Observer.Observe('sub.65535.A', Util.VShow(V)) else Observer.ObserveError('sub.65535.A');
-        vChar := 65535;
-        vChar_R := 65;
-        if Try12() then Observer.Observe('compound_add.65535.A', Format(vChar_R) + '|' + Format(Util.CharOrd(vChar_R))) else Observer.ObserveError('compound_add.65535.A');
-        vChar := 65535;
-        vChar_R := 97;
-        if Try10() then Observer.Observe('add.65535.a', Util.VShow(V)) else Observer.ObserveError('add.65535.a');
-        vChar := 65535;
-        vChar_R := 97;
-        if Try11() then Observer.Observe('sub.65535.a', Util.VShow(V)) else Observer.ObserveError('sub.65535.a');
-        vChar := 65535;
-        vChar_R := 97;
-        if Try12() then Observer.Observe('compound_add.65535.a', Format(vChar_R) + '|' + Format(Util.CharOrd(vChar_R))) else Observer.ObserveError('compound_add.65535.a');
-        vChar := 65535;
-        vChar_R := 65535;
-        if Try10() then Observer.Observe('add.65535.65535', Util.VShow(V)) else Observer.ObserveError('add.65535.65535');
-        vChar := 65535;
-        vChar_R := 65535;
-        if Try11() then Observer.Observe('sub.65535.65535', Util.VShow(V)) else Observer.ObserveError('sub.65535.65535');
-        vChar := 65535;
-        vChar_R := 65535;
-        if Try12() then Observer.Observe('compound_add.65535.65535', Format(vChar_R) + '|' + Format(Util.CharOrd(vChar_R))) else Observer.ObserveError('compound_add.65535.65535');
+        if Try11(V, vChar, vChar_R) then Observer.Observe('sub.A.65535', Util.VShow(V)) else Observer.ObserveError('sub.A.65535');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Char_Char_Same_More1()
+    procedure Char_Char_Same_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vChar: Char;
+        vChar_R: Char;
     begin
-        Observer.More();
+        vChar := 65;
+        vChar_R := 65535;
+        if Try12(vChar, vChar_R) then Observer.Observe('compound_add.A.65535', Format(vChar_R) + '|' + Format(Util.CharOrd(vChar_R))) else Observer.ObserveError('compound_add.A.65535');
+        vChar := 97;
+        vChar_R := 65;
+        if Try10(V, vChar, vChar_R) then Observer.Observe('add.a.A', Util.VShow(V)) else Observer.ObserveError('add.a.A');
+        vChar := 97;
+        vChar_R := 65;
+        if Try11(V, vChar, vChar_R) then Observer.Observe('sub.a.A', Util.VShow(V)) else Observer.ObserveError('sub.a.A');
+        vChar := 97;
+        vChar_R := 65;
+        if Try12(vChar, vChar_R) then Observer.Observe('compound_add.a.A', Format(vChar_R) + '|' + Format(Util.CharOrd(vChar_R))) else Observer.ObserveError('compound_add.a.A');
+        vChar := 97;
+        vChar_R := 97;
+        if Try10(V, vChar, vChar_R) then Observer.Observe('add.a.a', Util.VShow(V)) else Observer.ObserveError('add.a.a');
+        vChar := 97;
+        vChar_R := 97;
+        if Try11(V, vChar, vChar_R) then Observer.Observe('sub.a.a', Util.VShow(V)) else Observer.ObserveError('sub.a.a');
+        vChar := 97;
+        vChar_R := 97;
+        if Try12(vChar, vChar_R) then Observer.Observe('compound_add.a.a', Format(vChar_R) + '|' + Format(Util.CharOrd(vChar_R))) else Observer.ObserveError('compound_add.a.a');
+        vChar := 97;
+        vChar_R := 65535;
+        if Try10(V, vChar, vChar_R) then Observer.Observe('add.a.65535', Util.VShow(V)) else Observer.ObserveError('add.a.65535');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Char_Char_Same_More2()
+    procedure Char_Char_Same_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vChar: Char;
+        vChar_R: Char;
     begin
-        Observer.More();
+        vChar := 97;
+        vChar_R := 65535;
+        if Try11(V, vChar, vChar_R) then Observer.Observe('sub.a.65535', Util.VShow(V)) else Observer.ObserveError('sub.a.65535');
+        vChar := 97;
+        vChar_R := 65535;
+        if Try12(vChar, vChar_R) then Observer.Observe('compound_add.a.65535', Format(vChar_R) + '|' + Format(Util.CharOrd(vChar_R))) else Observer.ObserveError('compound_add.a.65535');
+        vChar := 65535;
+        vChar_R := 65;
+        if Try10(V, vChar, vChar_R) then Observer.Observe('add.65535.A', Util.VShow(V)) else Observer.ObserveError('add.65535.A');
+        vChar := 65535;
+        vChar_R := 65;
+        if Try11(V, vChar, vChar_R) then Observer.Observe('sub.65535.A', Util.VShow(V)) else Observer.ObserveError('sub.65535.A');
+        vChar := 65535;
+        vChar_R := 65;
+        if Try12(vChar, vChar_R) then Observer.Observe('compound_add.65535.A', Format(vChar_R) + '|' + Format(Util.CharOrd(vChar_R))) else Observer.ObserveError('compound_add.65535.A');
+        vChar := 65535;
+        vChar_R := 97;
+        if Try10(V, vChar, vChar_R) then Observer.Observe('add.65535.a', Util.VShow(V)) else Observer.ObserveError('add.65535.a');
+        vChar := 65535;
+        vChar_R := 97;
+        if Try11(V, vChar, vChar_R) then Observer.Observe('sub.65535.a', Util.VShow(V)) else Observer.ObserveError('sub.65535.a');
+        vChar := 65535;
+        vChar_R := 97;
+        if Try12(vChar, vChar_R) then Observer.Observe('compound_add.65535.a', Format(vChar_R) + '|' + Format(Util.CharOrd(vChar_R))) else Observer.ObserveError('compound_add.65535.a');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Char_Char_Same_More3()
+    procedure Char_Char_Same_4()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vChar: Char;
+        vChar_R: Char;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Char_Same_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Char_Same_More5()
-    begin
-        Observer.More();
+        vChar := 65535;
+        vChar_R := 65535;
+        if Try10(V, vChar, vChar_R) then Observer.Observe('add.65535.65535', Util.VShow(V)) else Observer.ObserveError('add.65535.65535');
+        vChar := 65535;
+        vChar_R := 65535;
+        if Try11(V, vChar, vChar_R) then Observer.Observe('sub.65535.65535', Util.VShow(V)) else Observer.ObserveError('sub.65535.65535');
+        vChar := 65535;
+        vChar_R := 65535;
+        if Try12(vChar, vChar_R) then Observer.Observe('compound_add.65535.65535', Format(vChar_R) + '|' + Format(Util.CharOrd(vChar_R))) else Observer.ObserveError('compound_add.65535.65535');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Char_Byte()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vByte: Byte;
+        vChar: Char;
     begin
         vChar := 65;
         vByte := 65;
-        if Try13() then Observer.Observe('add.A.65', Util.VShow(V)) else Observer.ObserveError('add.A.65');
+        if Try13(V, vByte, vChar) then Observer.Observe('add.A.65', Util.VShow(V)) else Observer.ObserveError('add.A.65');
         vChar := 65;
         vByte := 65;
-        if Try14() then Observer.Observe('sub.A.65', Util.VShow(V)) else Observer.ObserveError('sub.A.65');
+        if Try14(V, vByte, vChar) then Observer.Observe('sub.A.65', Util.VShow(V)) else Observer.ObserveError('sub.A.65');
         vChar := 65;
         vByte := 65;
-        if Try15() then Observer.Observe('compound_add.A.65', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.A.65');
+        if Try15(vByte, vChar) then Observer.Observe('compound_add.A.65', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.A.65');
         vChar := 65;
         vByte := 255;
-        if Try13() then Observer.Observe('add.A.255', Util.VShow(V)) else Observer.ObserveError('add.A.255');
+        if Try13(V, vByte, vChar) then Observer.Observe('add.A.255', Util.VShow(V)) else Observer.ObserveError('add.A.255');
         vChar := 65;
         vByte := 255;
-        if Try14() then Observer.Observe('sub.A.255', Util.VShow(V)) else Observer.ObserveError('sub.A.255');
+        if Try14(V, vByte, vChar) then Observer.Observe('sub.A.255', Util.VShow(V)) else Observer.ObserveError('sub.A.255');
         vChar := 65;
         vByte := 255;
-        if Try15() then Observer.Observe('compound_add.A.255', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.A.255');
+        if Try15(vByte, vChar) then Observer.Observe('compound_add.A.255', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.A.255');
         vChar := 97;
         vByte := 65;
-        if Try13() then Observer.Observe('add.a.65', Util.VShow(V)) else Observer.ObserveError('add.a.65');
+        if Try13(V, vByte, vChar) then Observer.Observe('add.a.65', Util.VShow(V)) else Observer.ObserveError('add.a.65');
         vChar := 97;
         vByte := 65;
-        if Try14() then Observer.Observe('sub.a.65', Util.VShow(V)) else Observer.ObserveError('sub.a.65');
-        vChar := 97;
-        vByte := 65;
-        if Try15() then Observer.Observe('compound_add.a.65', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.a.65');
-        vChar := 97;
-        vByte := 255;
-        if Try13() then Observer.Observe('add.a.255', Util.VShow(V)) else Observer.ObserveError('add.a.255');
-        vChar := 97;
-        vByte := 255;
-        if Try14() then Observer.Observe('sub.a.255', Util.VShow(V)) else Observer.ObserveError('sub.a.255');
-        vChar := 97;
-        vByte := 255;
-        if Try15() then Observer.Observe('compound_add.a.255', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.a.255');
-        vChar := 65535;
-        vByte := 65;
-        if Try13() then Observer.Observe('add.65535.65', Util.VShow(V)) else Observer.ObserveError('add.65535.65');
-        vChar := 65535;
-        vByte := 65;
-        if Try14() then Observer.Observe('sub.65535.65', Util.VShow(V)) else Observer.ObserveError('sub.65535.65');
-        vChar := 65535;
-        vByte := 65;
-        if Try15() then Observer.Observe('compound_add.65535.65', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.65535.65');
-        vChar := 65535;
-        vByte := 255;
-        if Try13() then Observer.Observe('add.65535.255', Util.VShow(V)) else Observer.ObserveError('add.65535.255');
-        vChar := 65535;
-        vByte := 255;
-        if Try14() then Observer.Observe('sub.65535.255', Util.VShow(V)) else Observer.ObserveError('sub.65535.255');
-        vChar := 65535;
-        vByte := 255;
-        if Try15() then Observer.Observe('compound_add.65535.255', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.65535.255');
+        if Try14(V, vByte, vChar) then Observer.Observe('sub.a.65', Util.VShow(V)) else Observer.ObserveError('sub.a.65');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Char_Byte_More1()
+    procedure Char_Byte_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vByte: Byte;
+        vChar: Char;
     begin
-        Observer.More();
+        vChar := 97;
+        vByte := 65;
+        if Try15(vByte, vChar) then Observer.Observe('compound_add.a.65', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.a.65');
+        vChar := 97;
+        vByte := 255;
+        if Try13(V, vByte, vChar) then Observer.Observe('add.a.255', Util.VShow(V)) else Observer.ObserveError('add.a.255');
+        vChar := 97;
+        vByte := 255;
+        if Try14(V, vByte, vChar) then Observer.Observe('sub.a.255', Util.VShow(V)) else Observer.ObserveError('sub.a.255');
+        vChar := 97;
+        vByte := 255;
+        if Try15(vByte, vChar) then Observer.Observe('compound_add.a.255', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.a.255');
+        vChar := 65535;
+        vByte := 65;
+        if Try13(V, vByte, vChar) then Observer.Observe('add.65535.65', Util.VShow(V)) else Observer.ObserveError('add.65535.65');
+        vChar := 65535;
+        vByte := 65;
+        if Try14(V, vByte, vChar) then Observer.Observe('sub.65535.65', Util.VShow(V)) else Observer.ObserveError('sub.65535.65');
+        vChar := 65535;
+        vByte := 65;
+        if Try15(vByte, vChar) then Observer.Observe('compound_add.65535.65', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.65535.65');
+        vChar := 65535;
+        vByte := 255;
+        if Try13(V, vByte, vChar) then Observer.Observe('add.65535.255', Util.VShow(V)) else Observer.ObserveError('add.65535.255');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Char_Byte_More2()
+    procedure Char_Byte_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vByte: Byte;
+        vChar: Char;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Byte_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Byte_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Byte_More5()
-    begin
-        Observer.More();
+        vChar := 65535;
+        vByte := 255;
+        if Try14(V, vByte, vChar) then Observer.Observe('sub.65535.255', Util.VShow(V)) else Observer.ObserveError('sub.65535.255');
+        vChar := 65535;
+        vByte := 255;
+        if Try15(vByte, vChar) then Observer.Observe('compound_add.65535.255', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.65535.255');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Char_Option()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vChar: Char;
+        vOption: Option A,B,C;
     begin
         vChar := 65;
         vOption := 1;
-        if Try16() then Observer.Observe('add.A.1', Util.VShow(V)) else Observer.ObserveError('add.A.1');
+        if Try16(V, vChar, vOption) then Observer.Observe('add.A.1', Util.VShow(V)) else Observer.ObserveError('add.A.1');
         vChar := 65;
         vOption := 1;
-        if Try17() then Observer.Observe('sub.A.1', Util.VShow(V)) else Observer.ObserveError('sub.A.1');
+        if Try17(V, vChar, vOption) then Observer.Observe('sub.A.1', Util.VShow(V)) else Observer.ObserveError('sub.A.1');
         vChar := 65;
         vOption := 1;
-        if Try18() then Observer.Observe('compound_add.A.1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.A.1');
+        if Try18(vChar, vOption) then Observer.Observe('compound_add.A.1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.A.1');
         vChar := 65;
         vOption := 3;
-        if Try16() then Observer.Observe('add.A.3', Util.VShow(V)) else Observer.ObserveError('add.A.3');
+        if Try16(V, vChar, vOption) then Observer.Observe('add.A.3', Util.VShow(V)) else Observer.ObserveError('add.A.3');
         vChar := 65;
         vOption := 3;
-        if Try17() then Observer.Observe('sub.A.3', Util.VShow(V)) else Observer.ObserveError('sub.A.3');
+        if Try17(V, vChar, vOption) then Observer.Observe('sub.A.3', Util.VShow(V)) else Observer.ObserveError('sub.A.3');
         vChar := 65;
         vOption := 3;
-        if Try18() then Observer.Observe('compound_add.A.3', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.A.3');
+        if Try18(vChar, vOption) then Observer.Observe('compound_add.A.3', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.A.3');
         vChar := 97;
         vOption := 1;
-        if Try16() then Observer.Observe('add.a.1', Util.VShow(V)) else Observer.ObserveError('add.a.1');
+        if Try16(V, vChar, vOption) then Observer.Observe('add.a.1', Util.VShow(V)) else Observer.ObserveError('add.a.1');
         vChar := 97;
         vOption := 1;
-        if Try17() then Observer.Observe('sub.a.1', Util.VShow(V)) else Observer.ObserveError('sub.a.1');
-        vChar := 97;
-        vOption := 1;
-        if Try18() then Observer.Observe('compound_add.a.1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.a.1');
-        vChar := 97;
-        vOption := 3;
-        if Try16() then Observer.Observe('add.a.3', Util.VShow(V)) else Observer.ObserveError('add.a.3');
-        vChar := 97;
-        vOption := 3;
-        if Try17() then Observer.Observe('sub.a.3', Util.VShow(V)) else Observer.ObserveError('sub.a.3');
-        vChar := 97;
-        vOption := 3;
-        if Try18() then Observer.Observe('compound_add.a.3', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.a.3');
-        vChar := 65535;
-        vOption := 1;
-        if Try16() then Observer.Observe('add.65535.1', Util.VShow(V)) else Observer.ObserveError('add.65535.1');
-        vChar := 65535;
-        vOption := 1;
-        if Try17() then Observer.Observe('sub.65535.1', Util.VShow(V)) else Observer.ObserveError('sub.65535.1');
-        vChar := 65535;
-        vOption := 1;
-        if Try18() then Observer.Observe('compound_add.65535.1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.65535.1');
-        vChar := 65535;
-        vOption := 3;
-        if Try16() then Observer.Observe('add.65535.3', Util.VShow(V)) else Observer.ObserveError('add.65535.3');
-        vChar := 65535;
-        vOption := 3;
-        if Try17() then Observer.Observe('sub.65535.3', Util.VShow(V)) else Observer.ObserveError('sub.65535.3');
-        vChar := 65535;
-        vOption := 3;
-        if Try18() then Observer.Observe('compound_add.65535.3', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.65535.3');
+        if Try17(V, vChar, vOption) then Observer.Observe('sub.a.1', Util.VShow(V)) else Observer.ObserveError('sub.a.1');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Char_Option_More1()
+    procedure Char_Option_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vChar: Char;
+        vOption: Option A,B,C;
     begin
-        Observer.More();
+        vChar := 97;
+        vOption := 1;
+        if Try18(vChar, vOption) then Observer.Observe('compound_add.a.1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.a.1');
+        vChar := 97;
+        vOption := 3;
+        if Try16(V, vChar, vOption) then Observer.Observe('add.a.3', Util.VShow(V)) else Observer.ObserveError('add.a.3');
+        vChar := 97;
+        vOption := 3;
+        if Try17(V, vChar, vOption) then Observer.Observe('sub.a.3', Util.VShow(V)) else Observer.ObserveError('sub.a.3');
+        vChar := 97;
+        vOption := 3;
+        if Try18(vChar, vOption) then Observer.Observe('compound_add.a.3', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.a.3');
+        vChar := 65535;
+        vOption := 1;
+        if Try16(V, vChar, vOption) then Observer.Observe('add.65535.1', Util.VShow(V)) else Observer.ObserveError('add.65535.1');
+        vChar := 65535;
+        vOption := 1;
+        if Try17(V, vChar, vOption) then Observer.Observe('sub.65535.1', Util.VShow(V)) else Observer.ObserveError('sub.65535.1');
+        vChar := 65535;
+        vOption := 1;
+        if Try18(vChar, vOption) then Observer.Observe('compound_add.65535.1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.65535.1');
+        vChar := 65535;
+        vOption := 3;
+        if Try16(V, vChar, vOption) then Observer.Observe('add.65535.3', Util.VShow(V)) else Observer.ObserveError('add.65535.3');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Char_Option_More2()
+    procedure Char_Option_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vChar: Char;
+        vOption: Option A,B,C;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Option_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Option_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Option_More5()
-    begin
-        Observer.More();
+        vChar := 65535;
+        vOption := 3;
+        if Try17(V, vChar, vOption) then Observer.Observe('sub.65535.3', Util.VShow(V)) else Observer.ObserveError('sub.65535.3');
+        vChar := 65535;
+        vOption := 3;
+        if Try18(vChar, vOption) then Observer.Observe('compound_add.65535.3', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.65535.3');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Char_Enum()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vChar: Char;
+        vEnum: Enum "LT Y31 E";
     begin
         vChar := 65;
         vEnum := "LT Y31 E"::B;
-        if Try19() then Observer.Observe('add.A.B', Util.VShow(V)) else Observer.ObserveError('add.A.B');
+        if Try19(V, vChar, vEnum) then Observer.Observe('add.A.B', Util.VShow(V)) else Observer.ObserveError('add.A.B');
         vChar := 65;
         vEnum := "LT Y31 E"::B;
-        if Try20() then Observer.Observe('sub.A.B', Util.VShow(V)) else Observer.ObserveError('sub.A.B');
+        if Try20(V, vChar, vEnum) then Observer.Observe('sub.A.B', Util.VShow(V)) else Observer.ObserveError('sub.A.B');
         vChar := 65;
         vEnum := "LT Y31 E"::B;
-        if Try21() then Observer.Observe('compound_add.A.B', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('compound_add.A.B');
+        if Try21(vChar, vEnum) then Observer.Observe('compound_add.A.B', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('compound_add.A.B');
         vChar := 65;
         vEnum := 5;
-        if Try19() then Observer.Observe('add.A.ord5', Util.VShow(V)) else Observer.ObserveError('add.A.ord5');
+        if Try19(V, vChar, vEnum) then Observer.Observe('add.A.ord5', Util.VShow(V)) else Observer.ObserveError('add.A.ord5');
         vChar := 65;
         vEnum := 5;
-        if Try20() then Observer.Observe('sub.A.ord5', Util.VShow(V)) else Observer.ObserveError('sub.A.ord5');
+        if Try20(V, vChar, vEnum) then Observer.Observe('sub.A.ord5', Util.VShow(V)) else Observer.ObserveError('sub.A.ord5');
         vChar := 65;
         vEnum := 5;
-        if Try21() then Observer.Observe('compound_add.A.ord5', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('compound_add.A.ord5');
+        if Try21(vChar, vEnum) then Observer.Observe('compound_add.A.ord5', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('compound_add.A.ord5');
         vChar := 97;
         vEnum := "LT Y31 E"::B;
-        if Try19() then Observer.Observe('add.a.B', Util.VShow(V)) else Observer.ObserveError('add.a.B');
+        if Try19(V, vChar, vEnum) then Observer.Observe('add.a.B', Util.VShow(V)) else Observer.ObserveError('add.a.B');
         vChar := 97;
         vEnum := "LT Y31 E"::B;
-        if Try20() then Observer.Observe('sub.a.B', Util.VShow(V)) else Observer.ObserveError('sub.a.B');
-        vChar := 97;
-        vEnum := "LT Y31 E"::B;
-        if Try21() then Observer.Observe('compound_add.a.B', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('compound_add.a.B');
-        vChar := 97;
-        vEnum := 5;
-        if Try19() then Observer.Observe('add.a.ord5', Util.VShow(V)) else Observer.ObserveError('add.a.ord5');
-        vChar := 97;
-        vEnum := 5;
-        if Try20() then Observer.Observe('sub.a.ord5', Util.VShow(V)) else Observer.ObserveError('sub.a.ord5');
-        vChar := 97;
-        vEnum := 5;
-        if Try21() then Observer.Observe('compound_add.a.ord5', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('compound_add.a.ord5');
-        vChar := 65535;
-        vEnum := "LT Y31 E"::B;
-        if Try19() then Observer.Observe('add.65535.B', Util.VShow(V)) else Observer.ObserveError('add.65535.B');
-        vChar := 65535;
-        vEnum := "LT Y31 E"::B;
-        if Try20() then Observer.Observe('sub.65535.B', Util.VShow(V)) else Observer.ObserveError('sub.65535.B');
-        vChar := 65535;
-        vEnum := "LT Y31 E"::B;
-        if Try21() then Observer.Observe('compound_add.65535.B', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('compound_add.65535.B');
-        vChar := 65535;
-        vEnum := 5;
-        if Try19() then Observer.Observe('add.65535.ord5', Util.VShow(V)) else Observer.ObserveError('add.65535.ord5');
-        vChar := 65535;
-        vEnum := 5;
-        if Try20() then Observer.Observe('sub.65535.ord5', Util.VShow(V)) else Observer.ObserveError('sub.65535.ord5');
-        vChar := 65535;
-        vEnum := 5;
-        if Try21() then Observer.Observe('compound_add.65535.ord5', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('compound_add.65535.ord5');
+        if Try20(V, vChar, vEnum) then Observer.Observe('sub.a.B', Util.VShow(V)) else Observer.ObserveError('sub.a.B');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Char_Enum_More1()
+    procedure Char_Enum_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vChar: Char;
+        vEnum: Enum "LT Y31 E";
     begin
-        Observer.More();
+        vChar := 97;
+        vEnum := "LT Y31 E"::B;
+        if Try21(vChar, vEnum) then Observer.Observe('compound_add.a.B', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('compound_add.a.B');
+        vChar := 97;
+        vEnum := 5;
+        if Try19(V, vChar, vEnum) then Observer.Observe('add.a.ord5', Util.VShow(V)) else Observer.ObserveError('add.a.ord5');
+        vChar := 97;
+        vEnum := 5;
+        if Try20(V, vChar, vEnum) then Observer.Observe('sub.a.ord5', Util.VShow(V)) else Observer.ObserveError('sub.a.ord5');
+        vChar := 97;
+        vEnum := 5;
+        if Try21(vChar, vEnum) then Observer.Observe('compound_add.a.ord5', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('compound_add.a.ord5');
+        vChar := 65535;
+        vEnum := "LT Y31 E"::B;
+        if Try19(V, vChar, vEnum) then Observer.Observe('add.65535.B', Util.VShow(V)) else Observer.ObserveError('add.65535.B');
+        vChar := 65535;
+        vEnum := "LT Y31 E"::B;
+        if Try20(V, vChar, vEnum) then Observer.Observe('sub.65535.B', Util.VShow(V)) else Observer.ObserveError('sub.65535.B');
+        vChar := 65535;
+        vEnum := "LT Y31 E"::B;
+        if Try21(vChar, vEnum) then Observer.Observe('compound_add.65535.B', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('compound_add.65535.B');
+        vChar := 65535;
+        vEnum := 5;
+        if Try19(V, vChar, vEnum) then Observer.Observe('add.65535.ord5', Util.VShow(V)) else Observer.ObserveError('add.65535.ord5');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Char_Enum_More2()
+    procedure Char_Enum_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vChar: Char;
+        vEnum: Enum "LT Y31 E";
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Enum_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Enum_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Enum_More5()
-    begin
-        Observer.More();
+        vChar := 65535;
+        vEnum := 5;
+        if Try20(V, vChar, vEnum) then Observer.Observe('sub.65535.ord5', Util.VShow(V)) else Observer.ObserveError('sub.65535.ord5');
+        vChar := 65535;
+        vEnum := 5;
+        if Try21(vChar, vEnum) then Observer.Observe('compound_add.65535.ord5', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('compound_add.65535.ord5');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Char_EnumImpl()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vChar: Char;
+        vEnumImpl: Enum "LT Y31 EI";
     begin
         vChar := 65;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try22() then Observer.Observe('add.A.A', Util.VShow(V)) else Observer.ObserveError('add.A.A');
+        if Try22(V, vChar, vEnumImpl) then Observer.Observe('add.A.A', Util.VShow(V)) else Observer.ObserveError('add.A.A');
         vChar := 65;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try23() then Observer.Observe('sub.A.A', Util.VShow(V)) else Observer.ObserveError('sub.A.A');
+        if Try23(V, vChar, vEnumImpl) then Observer.Observe('sub.A.A', Util.VShow(V)) else Observer.ObserveError('sub.A.A');
         vChar := 65;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try24() then Observer.Observe('compound_add.A.A', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('compound_add.A.A');
+        if Try24(vChar, vEnumImpl) then Observer.Observe('compound_add.A.A', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('compound_add.A.A');
         vChar := 97;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try22() then Observer.Observe('add.a.A', Util.VShow(V)) else Observer.ObserveError('add.a.A');
+        if Try22(V, vChar, vEnumImpl) then Observer.Observe('add.a.A', Util.VShow(V)) else Observer.ObserveError('add.a.A');
         vChar := 97;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try23() then Observer.Observe('sub.a.A', Util.VShow(V)) else Observer.ObserveError('sub.a.A');
+        if Try23(V, vChar, vEnumImpl) then Observer.Observe('sub.a.A', Util.VShow(V)) else Observer.ObserveError('sub.a.A');
         vChar := 97;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try24() then Observer.Observe('compound_add.a.A', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('compound_add.a.A');
+        if Try24(vChar, vEnumImpl) then Observer.Observe('compound_add.a.A', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('compound_add.a.A');
         vChar := 65535;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try22() then Observer.Observe('add.65535.A', Util.VShow(V)) else Observer.ObserveError('add.65535.A');
+        if Try22(V, vChar, vEnumImpl) then Observer.Observe('add.65535.A', Util.VShow(V)) else Observer.ObserveError('add.65535.A');
         vChar := 65535;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try23() then Observer.Observe('sub.65535.A', Util.VShow(V)) else Observer.ObserveError('sub.65535.A');
-        vChar := 65535;
-        vEnumImpl := "LT Y31 EI"::A;
-        if Try24() then Observer.Observe('compound_add.65535.A', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('compound_add.65535.A');
+        if Try23(V, vChar, vEnumImpl) then Observer.Observe('sub.65535.A', Util.VShow(V)) else Observer.ObserveError('sub.65535.A');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Char_EnumImpl_More1()
+    procedure Char_EnumImpl_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vChar: Char;
+        vEnumImpl: Enum "LT Y31 EI";
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_EnumImpl_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_EnumImpl_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_EnumImpl_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_EnumImpl_More5()
-    begin
-        Observer.More();
+        vChar := 65535;
+        vEnumImpl := "LT Y31 EI"::A;
+        if Try24(vChar, vEnumImpl) then Observer.Observe('compound_add.65535.A', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('compound_add.65535.A');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Char_Text()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vChar: Char;
+        vText: Text;
     begin
         vChar := 65;
         vText := 'a';
-        if Try25() then Observer.Observe('add.A.a', Util.VShow(V)) else Observer.ObserveError('add.A.a');
+        if Try25(V, vChar, vText) then Observer.Observe('add.A.a', Util.VShow(V)) else Observer.ObserveError('add.A.a');
         vChar := 65;
         vText := 'a';
-        if Try26() then Observer.Observe('compound_add.A.a', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.A.a');
+        if Try26(vChar, vText) then Observer.Observe('compound_add.A.a', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.A.a');
         vChar := 65;
         vText := 'A';
-        if Try25() then Observer.Observe('add.A.A', Util.VShow(V)) else Observer.ObserveError('add.A.A');
+        if Try25(V, vChar, vText) then Observer.Observe('add.A.A', Util.VShow(V)) else Observer.ObserveError('add.A.A');
         vChar := 65;
         vText := 'A';
-        if Try26() then Observer.Observe('compound_add.A.A', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.A.A');
+        if Try26(vChar, vText) then Observer.Observe('compound_add.A.A', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.A.A');
         vChar := 65;
         vText := 'abc';
-        if Try25() then Observer.Observe('add.A.abc', Util.VShow(V)) else Observer.ObserveError('add.A.abc');
+        if Try25(V, vChar, vText) then Observer.Observe('add.A.abc', Util.VShow(V)) else Observer.ObserveError('add.A.abc');
         vChar := 65;
         vText := 'abc';
-        if Try26() then Observer.Observe('compound_add.A.abc', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.A.abc');
+        if Try26(vChar, vText) then Observer.Observe('compound_add.A.abc', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.A.abc');
         vChar := 65;
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        if Try25() then Observer.Observe('add.A.guidlow', Util.VShow(V)) else Observer.ObserveError('add.A.guidlow');
+        if Try25(V, vChar, vText) then Observer.Observe('add.A.guidlow', Util.VShow(V)) else Observer.ObserveError('add.A.guidlow');
         vChar := 65;
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        if Try26() then Observer.Observe('compound_add.A.guidlow', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.A.guidlow');
-        vChar := 97;
-        vText := 'a';
-        if Try25() then Observer.Observe('add.a.a', Util.VShow(V)) else Observer.ObserveError('add.a.a');
-        vChar := 97;
-        vText := 'a';
-        if Try26() then Observer.Observe('compound_add.a.a', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.a.a');
-        vChar := 97;
-        vText := 'A';
-        if Try25() then Observer.Observe('add.a.A', Util.VShow(V)) else Observer.ObserveError('add.a.A');
-        vChar := 97;
-        vText := 'A';
-        if Try26() then Observer.Observe('compound_add.a.A', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.a.A');
-        vChar := 97;
-        vText := 'abc';
-        if Try25() then Observer.Observe('add.a.abc', Util.VShow(V)) else Observer.ObserveError('add.a.abc');
-        vChar := 97;
-        vText := 'abc';
-        if Try26() then Observer.Observe('compound_add.a.abc', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.a.abc');
-        vChar := 97;
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        if Try25() then Observer.Observe('add.a.guidlow', Util.VShow(V)) else Observer.ObserveError('add.a.guidlow');
-        vChar := 97;
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        if Try26() then Observer.Observe('compound_add.a.guidlow', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.a.guidlow');
-        vChar := 65535;
-        vText := 'a';
-        if Try25() then Observer.Observe('add.65535.a', Util.VShow(V)) else Observer.ObserveError('add.65535.a');
-        vChar := 65535;
-        vText := 'a';
-        if Try26() then Observer.Observe('compound_add.65535.a', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.65535.a');
-        vChar := 65535;
-        vText := 'A';
-        if Try25() then Observer.Observe('add.65535.A', Util.VShow(V)) else Observer.ObserveError('add.65535.A');
-        vChar := 65535;
-        vText := 'A';
-        if Try26() then Observer.Observe('compound_add.65535.A', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.65535.A');
-        vChar := 65535;
-        vText := 'abc';
-        if Try25() then Observer.Observe('add.65535.abc', Util.VShow(V)) else Observer.ObserveError('add.65535.abc');
-        vChar := 65535;
-        vText := 'abc';
-        if Try26() then Observer.Observe('compound_add.65535.abc', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.65535.abc');
-        vChar := 65535;
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        if Try25() then Observer.Observe('add.65535.guidlow', Util.VShow(V)) else Observer.ObserveError('add.65535.guidlow');
-        vChar := 65535;
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        if Try26() then Observer.Observe('compound_add.65535.guidlow', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.65535.guidlow');
+        if Try26(vChar, vText) then Observer.Observe('compound_add.A.guidlow', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.A.guidlow');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Char_Text_More1()
+    procedure Char_Text_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vChar: Char;
+        vText: Text;
     begin
-        Observer.More();
+        vChar := 97;
+        vText := 'a';
+        if Try25(V, vChar, vText) then Observer.Observe('add.a.a', Util.VShow(V)) else Observer.ObserveError('add.a.a');
+        vChar := 97;
+        vText := 'a';
+        if Try26(vChar, vText) then Observer.Observe('compound_add.a.a', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.a.a');
+        vChar := 97;
+        vText := 'A';
+        if Try25(V, vChar, vText) then Observer.Observe('add.a.A', Util.VShow(V)) else Observer.ObserveError('add.a.A');
+        vChar := 97;
+        vText := 'A';
+        if Try26(vChar, vText) then Observer.Observe('compound_add.a.A', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.a.A');
+        vChar := 97;
+        vText := 'abc';
+        if Try25(V, vChar, vText) then Observer.Observe('add.a.abc', Util.VShow(V)) else Observer.ObserveError('add.a.abc');
+        vChar := 97;
+        vText := 'abc';
+        if Try26(vChar, vText) then Observer.Observe('compound_add.a.abc', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.a.abc');
+        vChar := 97;
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        if Try25(V, vChar, vText) then Observer.Observe('add.a.guidlow', Util.VShow(V)) else Observer.ObserveError('add.a.guidlow');
+        vChar := 97;
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        if Try26(vChar, vText) then Observer.Observe('compound_add.a.guidlow', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.a.guidlow');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Char_Text_More2()
+    procedure Char_Text_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vChar: Char;
+        vText: Text;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Text_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Text_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Text_More5()
-    begin
-        Observer.More();
+        vChar := 65535;
+        vText := 'a';
+        if Try25(V, vChar, vText) then Observer.Observe('add.65535.a', Util.VShow(V)) else Observer.ObserveError('add.65535.a');
+        vChar := 65535;
+        vText := 'a';
+        if Try26(vChar, vText) then Observer.Observe('compound_add.65535.a', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.65535.a');
+        vChar := 65535;
+        vText := 'A';
+        if Try25(V, vChar, vText) then Observer.Observe('add.65535.A', Util.VShow(V)) else Observer.ObserveError('add.65535.A');
+        vChar := 65535;
+        vText := 'A';
+        if Try26(vChar, vText) then Observer.Observe('compound_add.65535.A', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.65535.A');
+        vChar := 65535;
+        vText := 'abc';
+        if Try25(V, vChar, vText) then Observer.Observe('add.65535.abc', Util.VShow(V)) else Observer.ObserveError('add.65535.abc');
+        vChar := 65535;
+        vText := 'abc';
+        if Try26(vChar, vText) then Observer.Observe('compound_add.65535.abc', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.65535.abc');
+        vChar := 65535;
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        if Try25(V, vChar, vText) then Observer.Observe('add.65535.guidlow', Util.VShow(V)) else Observer.ObserveError('add.65535.guidlow');
+        vChar := 65535;
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        if Try26(vChar, vText) then Observer.Observe('compound_add.65535.guidlow', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.65535.guidlow');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Char_Text10()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vChar: Char;
+        vText10: Text[10];
     begin
         vChar := 65;
         vText10 := 'abc';
-        if Try27() then Observer.Observe('add.A.abc', Util.VShow(V)) else Observer.ObserveError('add.A.abc');
+        if Try27(V, vChar, vText10) then Observer.Observe('add.A.abc', Util.VShow(V)) else Observer.ObserveError('add.A.abc');
         vChar := 65;
         vText10 := 'abc';
-        if Try28() then Observer.Observe('compound_add.A.abc', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('compound_add.A.abc');
+        if Try28(vChar, vText10) then Observer.Observe('compound_add.A.abc', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('compound_add.A.abc');
         vChar := 97;
         vText10 := 'abc';
-        if Try27() then Observer.Observe('add.a.abc', Util.VShow(V)) else Observer.ObserveError('add.a.abc');
+        if Try27(V, vChar, vText10) then Observer.Observe('add.a.abc', Util.VShow(V)) else Observer.ObserveError('add.a.abc');
         vChar := 97;
         vText10 := 'abc';
-        if Try28() then Observer.Observe('compound_add.a.abc', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('compound_add.a.abc');
+        if Try28(vChar, vText10) then Observer.Observe('compound_add.a.abc', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('compound_add.a.abc');
         vChar := 65535;
         vText10 := 'abc';
-        if Try27() then Observer.Observe('add.65535.abc', Util.VShow(V)) else Observer.ObserveError('add.65535.abc');
+        if Try27(V, vChar, vText10) then Observer.Observe('add.65535.abc', Util.VShow(V)) else Observer.ObserveError('add.65535.abc');
         vChar := 65535;
         vText10 := 'abc';
-        if Try28() then Observer.Observe('compound_add.65535.abc', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('compound_add.65535.abc');
+        if Try28(vChar, vText10) then Observer.Observe('compound_add.65535.abc', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('compound_add.65535.abc');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_Text10_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Text10_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Text10_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Text10_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Text10_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Char_Code10()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vChar: Char;
+        vCode10: Code[10];
     begin
         vChar := 65;
         vCode10 := 'A';
-        if Try29() then Observer.Observe('add.A.A', Util.VShow(V)) else Observer.ObserveError('add.A.A');
+        if Try29(V, vChar, vCode10) then Observer.Observe('add.A.A', Util.VShow(V)) else Observer.ObserveError('add.A.A');
         vChar := 65;
         vCode10 := 'A';
-        if Try30() then Observer.Observe('compound_add.A.A', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('compound_add.A.A');
+        if Try30(vChar, vCode10) then Observer.Observe('compound_add.A.A', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('compound_add.A.A');
         vChar := 65;
         vCode10 := 'ABC';
-        if Try29() then Observer.Observe('add.A.ABC', Util.VShow(V)) else Observer.ObserveError('add.A.ABC');
+        if Try29(V, vChar, vCode10) then Observer.Observe('add.A.ABC', Util.VShow(V)) else Observer.ObserveError('add.A.ABC');
         vChar := 65;
         vCode10 := 'ABC';
-        if Try30() then Observer.Observe('compound_add.A.ABC', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('compound_add.A.ABC');
+        if Try30(vChar, vCode10) then Observer.Observe('compound_add.A.ABC', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('compound_add.A.ABC');
         vChar := 97;
         vCode10 := 'A';
-        if Try29() then Observer.Observe('add.a.A', Util.VShow(V)) else Observer.ObserveError('add.a.A');
+        if Try29(V, vChar, vCode10) then Observer.Observe('add.a.A', Util.VShow(V)) else Observer.ObserveError('add.a.A');
         vChar := 97;
         vCode10 := 'A';
-        if Try30() then Observer.Observe('compound_add.a.A', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('compound_add.a.A');
+        if Try30(vChar, vCode10) then Observer.Observe('compound_add.a.A', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('compound_add.a.A');
         vChar := 97;
         vCode10 := 'ABC';
-        if Try29() then Observer.Observe('add.a.ABC', Util.VShow(V)) else Observer.ObserveError('add.a.ABC');
+        if Try29(V, vChar, vCode10) then Observer.Observe('add.a.ABC', Util.VShow(V)) else Observer.ObserveError('add.a.ABC');
         vChar := 97;
         vCode10 := 'ABC';
-        if Try30() then Observer.Observe('compound_add.a.ABC', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('compound_add.a.ABC');
-        vChar := 65535;
-        vCode10 := 'A';
-        if Try29() then Observer.Observe('add.65535.A', Util.VShow(V)) else Observer.ObserveError('add.65535.A');
-        vChar := 65535;
-        vCode10 := 'A';
-        if Try30() then Observer.Observe('compound_add.65535.A', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('compound_add.65535.A');
-        vChar := 65535;
-        vCode10 := 'ABC';
-        if Try29() then Observer.Observe('add.65535.ABC', Util.VShow(V)) else Observer.ObserveError('add.65535.ABC');
-        vChar := 65535;
-        vCode10 := 'ABC';
-        if Try30() then Observer.Observe('compound_add.65535.ABC', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('compound_add.65535.ABC');
+        if Try30(vChar, vCode10) then Observer.Observe('compound_add.a.ABC', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('compound_add.a.ABC');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Char_Code10_More1()
+    procedure Char_Code10_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vChar: Char;
+        vCode10: Code[10];
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Code10_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Code10_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Code10_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Code10_More5()
-    begin
-        Observer.More();
+        vChar := 65535;
+        vCode10 := 'A';
+        if Try29(V, vChar, vCode10) then Observer.Observe('add.65535.A', Util.VShow(V)) else Observer.ObserveError('add.65535.A');
+        vChar := 65535;
+        vCode10 := 'A';
+        if Try30(vChar, vCode10) then Observer.Observe('compound_add.65535.A', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('compound_add.65535.A');
+        vChar := 65535;
+        vCode10 := 'ABC';
+        if Try29(V, vChar, vCode10) then Observer.Observe('add.65535.ABC', Util.VShow(V)) else Observer.ObserveError('add.65535.ABC');
+        vChar := 65535;
+        vCode10 := 'ABC';
+        if Try30(vChar, vCode10) then Observer.Observe('compound_add.65535.ABC', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('compound_add.65535.ABC');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Char_Guid()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vChar: Char;
+        vGuid: Guid;
     begin
         vChar := 65;
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try31() then Observer.Observe('add.A.g', Util.VShow(V)) else Observer.ObserveError('add.A.g');
+        if Try31(V, vChar, vGuid) then Observer.Observe('add.A.g', Util.VShow(V)) else Observer.ObserveError('add.A.g');
         vChar := 65;
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try32() then Observer.Observe('compound_add.A.g', Format(vGuid)) else Observer.ObserveError('compound_add.A.g');
+        if Try32(vChar, vGuid) then Observer.Observe('compound_add.A.g', Format(vGuid)) else Observer.ObserveError('compound_add.A.g');
         vChar := 97;
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try31() then Observer.Observe('add.a.g', Util.VShow(V)) else Observer.ObserveError('add.a.g');
+        if Try31(V, vChar, vGuid) then Observer.Observe('add.a.g', Util.VShow(V)) else Observer.ObserveError('add.a.g');
         vChar := 97;
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try32() then Observer.Observe('compound_add.a.g', Format(vGuid)) else Observer.ObserveError('compound_add.a.g');
+        if Try32(vChar, vGuid) then Observer.Observe('compound_add.a.g', Format(vGuid)) else Observer.ObserveError('compound_add.a.g');
         vChar := 65535;
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try31() then Observer.Observe('add.65535.g', Util.VShow(V)) else Observer.ObserveError('add.65535.g');
+        if Try31(V, vChar, vGuid) then Observer.Observe('add.65535.g', Util.VShow(V)) else Observer.ObserveError('add.65535.g');
         vChar := 65535;
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try32() then Observer.Observe('compound_add.65535.g', Format(vGuid)) else Observer.ObserveError('compound_add.65535.g');
+        if Try32(vChar, vGuid) then Observer.Observe('compound_add.65535.g', Format(vGuid)) else Observer.ObserveError('compound_add.65535.g');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_Guid_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Guid_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Guid_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Guid_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Guid_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Char_Date()
+    var
+        Observer: Codeunit "Probe Observer";
+        vChar: Char;
+        vDate: Date;
     begin
         vChar := 65;
         vDate := 20260131D;
-        if Try33() then Observer.Observe('compound_add.A.d', Format(vDate, 0, 9)) else Observer.ObserveError('compound_add.A.d');
+        if Try33(vChar, vDate) then Observer.Observe('compound_add.A.d', Format(vDate, 0, 9)) else Observer.ObserveError('compound_add.A.d');
         vChar := 97;
         vDate := 20260131D;
-        if Try33() then Observer.Observe('compound_add.a.d', Format(vDate, 0, 9)) else Observer.ObserveError('compound_add.a.d');
+        if Try33(vChar, vDate) then Observer.Observe('compound_add.a.d', Format(vDate, 0, 9)) else Observer.ObserveError('compound_add.a.d');
         vChar := 65535;
         vDate := 20260131D;
-        if Try33() then Observer.Observe('compound_add.65535.d', Format(vDate, 0, 9)) else Observer.ObserveError('compound_add.65535.d');
+        if Try33(vChar, vDate) then Observer.Observe('compound_add.65535.d', Format(vDate, 0, 9)) else Observer.ObserveError('compound_add.65535.d');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_Date_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Date_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Date_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Date_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Date_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Char_Time()
+    var
+        Observer: Codeunit "Probe Observer";
+        vChar: Char;
+        vTime: Time;
     begin
         vChar := 65;
         vTime := 120000T;
-        if Try34() then Observer.Observe('compound_add.A.t', Format(vTime, 0, 9)) else Observer.ObserveError('compound_add.A.t');
+        if Try34(vChar, vTime) then Observer.Observe('compound_add.A.t', Format(vTime, 0, 9)) else Observer.ObserveError('compound_add.A.t');
         vChar := 97;
         vTime := 120000T;
-        if Try34() then Observer.Observe('compound_add.a.t', Format(vTime, 0, 9)) else Observer.ObserveError('compound_add.a.t');
+        if Try34(vChar, vTime) then Observer.Observe('compound_add.a.t', Format(vTime, 0, 9)) else Observer.ObserveError('compound_add.a.t');
         vChar := 65535;
         vTime := 120000T;
-        if Try34() then Observer.Observe('compound_add.65535.t', Format(vTime, 0, 9)) else Observer.ObserveError('compound_add.65535.t');
+        if Try34(vChar, vTime) then Observer.Observe('compound_add.65535.t', Format(vTime, 0, 9)) else Observer.ObserveError('compound_add.65535.t');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_Time_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Time_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Time_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Time_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Time_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Char_DateTime()
+    var
+        Observer: Codeunit "Probe Observer";
+        vChar: Char;
+        vDateTime: DateTime;
     begin
         vChar := 65;
         vDateTime := CreateDateTime(20260131D, 120000T);
-        if Try35() then Observer.Observe('compound_add.A.dt', Format(vDateTime, 0, 9)) else Observer.ObserveError('compound_add.A.dt');
+        if Try35(vChar, vDateTime) then Observer.Observe('compound_add.A.dt', Format(vDateTime, 0, 9)) else Observer.ObserveError('compound_add.A.dt');
         vChar := 97;
         vDateTime := CreateDateTime(20260131D, 120000T);
-        if Try35() then Observer.Observe('compound_add.a.dt', Format(vDateTime, 0, 9)) else Observer.ObserveError('compound_add.a.dt');
+        if Try35(vChar, vDateTime) then Observer.Observe('compound_add.a.dt', Format(vDateTime, 0, 9)) else Observer.ObserveError('compound_add.a.dt');
         vChar := 65535;
         vDateTime := CreateDateTime(20260131D, 120000T);
-        if Try35() then Observer.Observe('compound_add.65535.dt', Format(vDateTime, 0, 9)) else Observer.ObserveError('compound_add.65535.dt');
+        if Try35(vChar, vDateTime) then Observer.Observe('compound_add.65535.dt', Format(vDateTime, 0, 9)) else Observer.ObserveError('compound_add.65535.dt');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Char_DateTime_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_DateTime_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_DateTime_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_DateTime_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_DateTime_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Char_Duration()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vChar: Char;
+        vDuration: Duration;
     begin
         vChar := 65;
         vDuration := 65;
-        if Try36() then Observer.Observe('add.A.65', Util.VShow(V)) else Observer.ObserveError('add.A.65');
+        if Try36(V, vChar, vDuration) then Observer.Observe('add.A.65', Util.VShow(V)) else Observer.ObserveError('add.A.65');
         vChar := 65;
         vDuration := 65;
-        if Try37() then Observer.Observe('sub.A.65', Util.VShow(V)) else Observer.ObserveError('sub.A.65');
+        if Try37(V, vChar, vDuration) then Observer.Observe('sub.A.65', Util.VShow(V)) else Observer.ObserveError('sub.A.65');
         vChar := 65;
         vDuration := 65;
-        if Try38() then Observer.Observe('compound_add.A.65', Format(vDuration, 0, 9)) else Observer.ObserveError('compound_add.A.65');
+        if Try38(vChar, vDuration) then Observer.Observe('compound_add.A.65', Format(vDuration, 0, 9)) else Observer.ObserveError('compound_add.A.65');
         vChar := 97;
         vDuration := 65;
-        if Try36() then Observer.Observe('add.a.65', Util.VShow(V)) else Observer.ObserveError('add.a.65');
+        if Try36(V, vChar, vDuration) then Observer.Observe('add.a.65', Util.VShow(V)) else Observer.ObserveError('add.a.65');
         vChar := 97;
         vDuration := 65;
-        if Try37() then Observer.Observe('sub.a.65', Util.VShow(V)) else Observer.ObserveError('sub.a.65');
+        if Try37(V, vChar, vDuration) then Observer.Observe('sub.a.65', Util.VShow(V)) else Observer.ObserveError('sub.a.65');
         vChar := 97;
         vDuration := 65;
-        if Try38() then Observer.Observe('compound_add.a.65', Format(vDuration, 0, 9)) else Observer.ObserveError('compound_add.a.65');
+        if Try38(vChar, vDuration) then Observer.Observe('compound_add.a.65', Format(vDuration, 0, 9)) else Observer.ObserveError('compound_add.a.65');
         vChar := 65535;
         vDuration := 65;
-        if Try36() then Observer.Observe('add.65535.65', Util.VShow(V)) else Observer.ObserveError('add.65535.65');
+        if Try36(V, vChar, vDuration) then Observer.Observe('add.65535.65', Util.VShow(V)) else Observer.ObserveError('add.65535.65');
         vChar := 65535;
         vDuration := 65;
-        if Try37() then Observer.Observe('sub.65535.65', Util.VShow(V)) else Observer.ObserveError('sub.65535.65');
-        vChar := 65535;
-        vDuration := 65;
-        if Try38() then Observer.Observe('compound_add.65535.65', Format(vDuration, 0, 9)) else Observer.ObserveError('compound_add.65535.65');
+        if Try37(V, vChar, vDuration) then Observer.Observe('sub.65535.65', Util.VShow(V)) else Observer.ObserveError('sub.65535.65');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Char_Duration_More1()
+    procedure Char_Duration_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vChar: Char;
+        vDuration: Duration;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Duration_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Duration_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Duration_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Duration_More5()
-    begin
-        Observer.More();
+        vChar := 65535;
+        vDuration := 65;
+        if Try38(vChar, vDuration) then Observer.Observe('compound_add.65535.65', Format(vDuration, 0, 9)) else Observer.ObserveError('compound_add.65535.65');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Char_Label()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vChar: Char;
     begin
         vChar := 65;
-        if Try39() then Observer.Observe('add.A.abc', Util.VShow(V)) else Observer.ObserveError('add.A.abc');
+        if Try39(V, vChar) then Observer.Observe('add.A.abc', Util.VShow(V)) else Observer.ObserveError('add.A.abc');
         vChar := 97;
-        if Try39() then Observer.Observe('add.a.abc', Util.VShow(V)) else Observer.ObserveError('add.a.abc');
+        if Try39(V, vChar) then Observer.Observe('add.a.abc', Util.VShow(V)) else Observer.ObserveError('add.a.abc');
         vChar := 65535;
-        if Try39() then Observer.Observe('add.65535.abc', Util.VShow(V)) else Observer.ObserveError('add.65535.abc');
+        if Try39(V, vChar) then Observer.Observe('add.65535.abc', Util.VShow(V)) else Observer.ObserveError('add.65535.abc');
         Observer.Finish();
     end;
 
-    [Test]
-    procedure Char_Label_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Label_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Label_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Label_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Char_Label_More5()
-    begin
-        Observer.More();
-    end;
-
     [TryFunction]
-    local procedure Try1()
+    local procedure Try1(var V: Variant; var vChar: Char; var vInteger: Integer)
     begin
         Clear(V);
         V := vChar + vInteger;
     end;
 
     [TryFunction]
-    local procedure Try2()
+    local procedure Try2(var V: Variant; var vChar: Char; var vInteger: Integer)
     begin
         Clear(V);
         V := vChar - vInteger;
     end;
 
     [TryFunction]
-    local procedure Try3()
+    local procedure Try3(var vChar: Char; var vInteger: Integer)
     begin
         vInteger += vChar;
     end;
 
     [TryFunction]
-    local procedure Try4()
+    local procedure Try4(var V: Variant; var vBigInteger: BigInteger; var vChar: Char)
     begin
         Clear(V);
         V := vChar + vBigInteger;
     end;
 
     [TryFunction]
-    local procedure Try5()
+    local procedure Try5(var V: Variant; var vBigInteger: BigInteger; var vChar: Char)
     begin
         Clear(V);
         V := vChar - vBigInteger;
     end;
 
     [TryFunction]
-    local procedure Try6()
+    local procedure Try6(var vBigInteger: BigInteger; var vChar: Char)
     begin
         vBigInteger += vChar;
     end;
 
     [TryFunction]
-    local procedure Try7()
+    local procedure Try7(var V: Variant; var vChar: Char; var vDecimal: Decimal)
     begin
         Clear(V);
         V := vChar + vDecimal;
     end;
 
     [TryFunction]
-    local procedure Try8()
+    local procedure Try8(var V: Variant; var vChar: Char; var vDecimal: Decimal)
     begin
         Clear(V);
         V := vChar - vDecimal;
     end;
 
     [TryFunction]
-    local procedure Try9()
+    local procedure Try9(var vChar: Char; var vDecimal: Decimal)
     begin
         vDecimal += vChar;
     end;
 
     [TryFunction]
-    local procedure Try10()
+    local procedure Try10(var V: Variant; var vChar: Char; var vChar_R: Char)
     begin
         Clear(V);
         V := vChar + vChar_R;
     end;
 
     [TryFunction]
-    local procedure Try11()
+    local procedure Try11(var V: Variant; var vChar: Char; var vChar_R: Char)
     begin
         Clear(V);
         V := vChar - vChar_R;
     end;
 
     [TryFunction]
-    local procedure Try12()
+    local procedure Try12(var vChar: Char; var vChar_R: Char)
     begin
         vChar_R += vChar;
     end;
 
     [TryFunction]
-    local procedure Try13()
+    local procedure Try13(var V: Variant; var vByte: Byte; var vChar: Char)
     begin
         Clear(V);
         V := vChar + vByte;
     end;
 
     [TryFunction]
-    local procedure Try14()
+    local procedure Try14(var V: Variant; var vByte: Byte; var vChar: Char)
     begin
         Clear(V);
         V := vChar - vByte;
     end;
 
     [TryFunction]
-    local procedure Try15()
+    local procedure Try15(var vByte: Byte; var vChar: Char)
     begin
         vByte += vChar;
     end;
 
     [TryFunction]
-    local procedure Try16()
+    local procedure Try16(var V: Variant; var vChar: Char; var vOption: Option A,B,C)
     begin
         Clear(V);
         V := vChar + vOption;
     end;
 
     [TryFunction]
-    local procedure Try17()
+    local procedure Try17(var V: Variant; var vChar: Char; var vOption: Option A,B,C)
     begin
         Clear(V);
         V := vChar - vOption;
     end;
 
     [TryFunction]
-    local procedure Try18()
+    local procedure Try18(var vChar: Char; var vOption: Option A,B,C)
     begin
         vOption += vChar;
     end;
 
     [TryFunction]
-    local procedure Try19()
+    local procedure Try19(var V: Variant; var vChar: Char; var vEnum: Enum "LT Y31 E")
     begin
         Clear(V);
         V := vChar + vEnum;
     end;
 
     [TryFunction]
-    local procedure Try20()
+    local procedure Try20(var V: Variant; var vChar: Char; var vEnum: Enum "LT Y31 E")
     begin
         Clear(V);
         V := vChar - vEnum;
     end;
 
     [TryFunction]
-    local procedure Try21()
+    local procedure Try21(var vChar: Char; var vEnum: Enum "LT Y31 E")
     begin
         vEnum += vChar;
     end;
 
     [TryFunction]
-    local procedure Try22()
+    local procedure Try22(var V: Variant; var vChar: Char; var vEnumImpl: Enum "LT Y31 EI")
     begin
         Clear(V);
         V := vChar + vEnumImpl;
     end;
 
     [TryFunction]
-    local procedure Try23()
+    local procedure Try23(var V: Variant; var vChar: Char; var vEnumImpl: Enum "LT Y31 EI")
     begin
         Clear(V);
         V := vChar - vEnumImpl;
     end;
 
     [TryFunction]
-    local procedure Try24()
+    local procedure Try24(var vChar: Char; var vEnumImpl: Enum "LT Y31 EI")
     begin
         vEnumImpl += vChar;
     end;
 
     [TryFunction]
-    local procedure Try25()
+    local procedure Try25(var V: Variant; var vChar: Char; var vText: Text)
     begin
         Clear(V);
         V := vChar + vText;
     end;
 
     [TryFunction]
-    local procedure Try26()
+    local procedure Try26(var vChar: Char; var vText: Text)
     begin
         vText += vChar;
     end;
 
     [TryFunction]
-    local procedure Try27()
+    local procedure Try27(var V: Variant; var vChar: Char; var vText10: Text[10])
     begin
         Clear(V);
         V := vChar + vText10;
     end;
 
     [TryFunction]
-    local procedure Try28()
+    local procedure Try28(var vChar: Char; var vText10: Text[10])
     begin
         vText10 += vChar;
     end;
 
     [TryFunction]
-    local procedure Try29()
+    local procedure Try29(var V: Variant; var vChar: Char; var vCode10: Code[10])
     begin
         Clear(V);
         V := vChar + vCode10;
     end;
 
     [TryFunction]
-    local procedure Try30()
+    local procedure Try30(var vChar: Char; var vCode10: Code[10])
     begin
         vCode10 += vChar;
     end;
 
     [TryFunction]
-    local procedure Try31()
+    local procedure Try31(var V: Variant; var vChar: Char; var vGuid: Guid)
     begin
         Clear(V);
         V := vChar + vGuid;
     end;
 
     [TryFunction]
-    local procedure Try32()
+    local procedure Try32(var vChar: Char; var vGuid: Guid)
     begin
         vGuid += vChar;
     end;
 
     [TryFunction]
-    local procedure Try33()
+    local procedure Try33(var vChar: Char; var vDate: Date)
     begin
         vDate += vChar;
     end;
 
     [TryFunction]
-    local procedure Try34()
+    local procedure Try34(var vChar: Char; var vTime: Time)
     begin
         vTime += vChar;
     end;
 
     [TryFunction]
-    local procedure Try35()
+    local procedure Try35(var vChar: Char; var vDateTime: DateTime)
     begin
         vDateTime += vChar;
     end;
 
     [TryFunction]
-    local procedure Try36()
+    local procedure Try36(var V: Variant; var vChar: Char; var vDuration: Duration)
     begin
         Clear(V);
         V := vChar + vDuration;
     end;
 
     [TryFunction]
-    local procedure Try37()
+    local procedure Try37(var V: Variant; var vChar: Char; var vDuration: Duration)
     begin
         Clear(V);
         V := vChar - vDuration;
     end;
 
     [TryFunction]
-    local procedure Try38()
+    local procedure Try38(var vChar: Char; var vDuration: Duration)
     begin
         vDuration += vChar;
     end;
 
     [TryFunction]
-    local procedure Try39()
+    local procedure Try39(var V: Variant; var vChar: Char)
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Clear(V);
         V := vChar + vLabel;
@@ -4205,975 +3466,758 @@ codeunit 92449 "LT Y31 Ar Byte"
     Subtype = Test;
     TestPermissions = Disabled;
 
+    [Test]
+    procedure Byte_Integer()
     var
         Observer: Codeunit "Probe Observer";
         Util: Codeunit "LT Y31 Conv Util";
-        Res: Boolean;
         V: Variant;
-        vBigInteger: BigInteger;
         vByte: Byte;
-        vByte_R: Byte;
-        vChar: Char;
-        vDate: Date;
-        vDateTime: DateTime;
-        vDecimal: Decimal;
-        vDuration: Duration;
-        vEnum: Enum "LT Y31 E";
-        vEnumImpl: Enum "LT Y31 EI";
         vInteger: Integer;
-        vOption: Option A,B,C;
-        vTime: Time;
-
-    [Test]
-    procedure Byte_Integer()
     begin
         vByte := 65;
         vInteger := 65;
-        if Try1() then Observer.Observe('add.65.65', Util.VShow(V)) else Observer.ObserveError('add.65.65');
+        if Try1(V, vByte, vInteger) then Observer.Observe('add.65.65', Util.VShow(V)) else Observer.ObserveError('add.65.65');
         vByte := 65;
         vInteger := 65;
-        if Try2() then Observer.Observe('sub.65.65', Util.VShow(V)) else Observer.ObserveError('sub.65.65');
+        if Try2(V, vByte, vInteger) then Observer.Observe('sub.65.65', Util.VShow(V)) else Observer.ObserveError('sub.65.65');
         vByte := 65;
         vInteger := 65;
-        if Try3() then Observer.Observe('compound_add.65.65', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.65.65');
+        if Try3(vByte, vInteger) then Observer.Observe('compound_add.65.65', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.65.65');
         vByte := 65;
         vInteger := 1;
-        if Try1() then Observer.Observe('add.65.1', Util.VShow(V)) else Observer.ObserveError('add.65.1');
+        if Try1(V, vByte, vInteger) then Observer.Observe('add.65.1', Util.VShow(V)) else Observer.ObserveError('add.65.1');
         vByte := 65;
         vInteger := 1;
-        if Try2() then Observer.Observe('sub.65.1', Util.VShow(V)) else Observer.ObserveError('sub.65.1');
+        if Try2(V, vByte, vInteger) then Observer.Observe('sub.65.1', Util.VShow(V)) else Observer.ObserveError('sub.65.1');
         vByte := 65;
         vInteger := 1;
-        if Try3() then Observer.Observe('compound_add.65.1', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.65.1');
+        if Try3(vByte, vInteger) then Observer.Observe('compound_add.65.1', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.65.1');
         vByte := 65;
         vInteger := 2147483647;
-        if Try1() then Observer.Observe('add.65.max', Util.VShow(V)) else Observer.ObserveError('add.65.max');
+        if Try1(V, vByte, vInteger) then Observer.Observe('add.65.max', Util.VShow(V)) else Observer.ObserveError('add.65.max');
         vByte := 65;
         vInteger := 2147483647;
-        if Try2() then Observer.Observe('sub.65.max', Util.VShow(V)) else Observer.ObserveError('sub.65.max');
-        vByte := 65;
-        vInteger := 2147483647;
-        if Try3() then Observer.Observe('compound_add.65.max', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.65.max');
-        vByte := 255;
-        vInteger := 65;
-        if Try1() then Observer.Observe('add.255.65', Util.VShow(V)) else Observer.ObserveError('add.255.65');
-        vByte := 255;
-        vInteger := 65;
-        if Try2() then Observer.Observe('sub.255.65', Util.VShow(V)) else Observer.ObserveError('sub.255.65');
-        vByte := 255;
-        vInteger := 65;
-        if Try3() then Observer.Observe('compound_add.255.65', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.255.65');
-        vByte := 255;
-        vInteger := 1;
-        if Try1() then Observer.Observe('add.255.1', Util.VShow(V)) else Observer.ObserveError('add.255.1');
-        vByte := 255;
-        vInteger := 1;
-        if Try2() then Observer.Observe('sub.255.1', Util.VShow(V)) else Observer.ObserveError('sub.255.1');
-        vByte := 255;
-        vInteger := 1;
-        if Try3() then Observer.Observe('compound_add.255.1', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.255.1');
-        vByte := 255;
-        vInteger := 2147483647;
-        if Try1() then Observer.Observe('add.255.max', Util.VShow(V)) else Observer.ObserveError('add.255.max');
-        vByte := 255;
-        vInteger := 2147483647;
-        if Try2() then Observer.Observe('sub.255.max', Util.VShow(V)) else Observer.ObserveError('sub.255.max');
-        vByte := 255;
-        vInteger := 2147483647;
-        if Try3() then Observer.Observe('compound_add.255.max', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.255.max');
+        if Try2(V, vByte, vInteger) then Observer.Observe('sub.65.max', Util.VShow(V)) else Observer.ObserveError('sub.65.max');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Byte_Integer_More1()
+    procedure Byte_Integer_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vByte: Byte;
+        vInteger: Integer;
     begin
-        Observer.More();
+        vByte := 65;
+        vInteger := 2147483647;
+        if Try3(vByte, vInteger) then Observer.Observe('compound_add.65.max', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.65.max');
+        vByte := 255;
+        vInteger := 65;
+        if Try1(V, vByte, vInteger) then Observer.Observe('add.255.65', Util.VShow(V)) else Observer.ObserveError('add.255.65');
+        vByte := 255;
+        vInteger := 65;
+        if Try2(V, vByte, vInteger) then Observer.Observe('sub.255.65', Util.VShow(V)) else Observer.ObserveError('sub.255.65');
+        vByte := 255;
+        vInteger := 65;
+        if Try3(vByte, vInteger) then Observer.Observe('compound_add.255.65', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.255.65');
+        vByte := 255;
+        vInteger := 1;
+        if Try1(V, vByte, vInteger) then Observer.Observe('add.255.1', Util.VShow(V)) else Observer.ObserveError('add.255.1');
+        vByte := 255;
+        vInteger := 1;
+        if Try2(V, vByte, vInteger) then Observer.Observe('sub.255.1', Util.VShow(V)) else Observer.ObserveError('sub.255.1');
+        vByte := 255;
+        vInteger := 1;
+        if Try3(vByte, vInteger) then Observer.Observe('compound_add.255.1', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.255.1');
+        vByte := 255;
+        vInteger := 2147483647;
+        if Try1(V, vByte, vInteger) then Observer.Observe('add.255.max', Util.VShow(V)) else Observer.ObserveError('add.255.max');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Byte_Integer_More2()
+    procedure Byte_Integer_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vByte: Byte;
+        vInteger: Integer;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Integer_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Integer_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Integer_More5()
-    begin
-        Observer.More();
+        vByte := 255;
+        vInteger := 2147483647;
+        if Try2(V, vByte, vInteger) then Observer.Observe('sub.255.max', Util.VShow(V)) else Observer.ObserveError('sub.255.max');
+        vByte := 255;
+        vInteger := 2147483647;
+        if Try3(vByte, vInteger) then Observer.Observe('compound_add.255.max', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.255.max');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Byte_BigInteger()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vBigInteger: BigInteger;
+        vByte: Byte;
     begin
         vByte := 65;
         vBigInteger := 65;
-        if Try4() then Observer.Observe('add.65.65', Util.VShow(V)) else Observer.ObserveError('add.65.65');
+        if Try4(V, vBigInteger, vByte) then Observer.Observe('add.65.65', Util.VShow(V)) else Observer.ObserveError('add.65.65');
         vByte := 65;
         vBigInteger := 65;
-        if Try5() then Observer.Observe('sub.65.65', Util.VShow(V)) else Observer.ObserveError('sub.65.65');
+        if Try5(V, vBigInteger, vByte) then Observer.Observe('sub.65.65', Util.VShow(V)) else Observer.ObserveError('sub.65.65');
         vByte := 65;
         vBigInteger := 65;
-        if Try6() then Observer.Observe('compound_add.65.65', Format(vBigInteger, 0, 9)) else Observer.ObserveError('compound_add.65.65');
+        if Try6(vBigInteger, vByte) then Observer.Observe('compound_add.65.65', Format(vBigInteger, 0, 9)) else Observer.ObserveError('compound_add.65.65');
         vByte := 255;
         vBigInteger := 65;
-        if Try4() then Observer.Observe('add.255.65', Util.VShow(V)) else Observer.ObserveError('add.255.65');
+        if Try4(V, vBigInteger, vByte) then Observer.Observe('add.255.65', Util.VShow(V)) else Observer.ObserveError('add.255.65');
         vByte := 255;
         vBigInteger := 65;
-        if Try5() then Observer.Observe('sub.255.65', Util.VShow(V)) else Observer.ObserveError('sub.255.65');
+        if Try5(V, vBigInteger, vByte) then Observer.Observe('sub.255.65', Util.VShow(V)) else Observer.ObserveError('sub.255.65');
         vByte := 255;
         vBigInteger := 65;
-        if Try6() then Observer.Observe('compound_add.255.65', Format(vBigInteger, 0, 9)) else Observer.ObserveError('compound_add.255.65');
+        if Try6(vBigInteger, vByte) then Observer.Observe('compound_add.255.65', Format(vBigInteger, 0, 9)) else Observer.ObserveError('compound_add.255.65');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Byte_BigInteger_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_BigInteger_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_BigInteger_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_BigInteger_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_BigInteger_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Byte_Decimal()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vByte: Byte;
+        vDecimal: Decimal;
     begin
         vByte := 65;
         vDecimal := 65;
-        if Try7() then Observer.Observe('add.65.65', Util.VShow(V)) else Observer.ObserveError('add.65.65');
+        if Try7(V, vByte, vDecimal) then Observer.Observe('add.65.65', Util.VShow(V)) else Observer.ObserveError('add.65.65');
         vByte := 65;
         vDecimal := 65;
-        if Try8() then Observer.Observe('sub.65.65', Util.VShow(V)) else Observer.ObserveError('sub.65.65');
+        if Try8(V, vByte, vDecimal) then Observer.Observe('sub.65.65', Util.VShow(V)) else Observer.ObserveError('sub.65.65');
         vByte := 65;
         vDecimal := 65;
-        if Try9() then Observer.Observe('compound_add.65.65', Format(vDecimal, 0, 9)) else Observer.ObserveError('compound_add.65.65');
+        if Try9(vByte, vDecimal) then Observer.Observe('compound_add.65.65', Format(vDecimal, 0, 9)) else Observer.ObserveError('compound_add.65.65');
         vByte := 65;
         vDecimal := 1.5;
-        if Try7() then Observer.Observe('add.65.1p5', Util.VShow(V)) else Observer.ObserveError('add.65.1p5');
+        if Try7(V, vByte, vDecimal) then Observer.Observe('add.65.1p5', Util.VShow(V)) else Observer.ObserveError('add.65.1p5');
         vByte := 65;
         vDecimal := 1.5;
-        if Try8() then Observer.Observe('sub.65.1p5', Util.VShow(V)) else Observer.ObserveError('sub.65.1p5');
+        if Try8(V, vByte, vDecimal) then Observer.Observe('sub.65.1p5', Util.VShow(V)) else Observer.ObserveError('sub.65.1p5');
         vByte := 65;
         vDecimal := 1.5;
-        if Try9() then Observer.Observe('compound_add.65.1p5', Format(vDecimal, 0, 9)) else Observer.ObserveError('compound_add.65.1p5');
+        if Try9(vByte, vDecimal) then Observer.Observe('compound_add.65.1p5', Format(vDecimal, 0, 9)) else Observer.ObserveError('compound_add.65.1p5');
         vByte := 255;
         vDecimal := 65;
-        if Try7() then Observer.Observe('add.255.65', Util.VShow(V)) else Observer.ObserveError('add.255.65');
+        if Try7(V, vByte, vDecimal) then Observer.Observe('add.255.65', Util.VShow(V)) else Observer.ObserveError('add.255.65');
         vByte := 255;
         vDecimal := 65;
-        if Try8() then Observer.Observe('sub.255.65', Util.VShow(V)) else Observer.ObserveError('sub.255.65');
-        vByte := 255;
-        vDecimal := 65;
-        if Try9() then Observer.Observe('compound_add.255.65', Format(vDecimal, 0, 9)) else Observer.ObserveError('compound_add.255.65');
-        vByte := 255;
-        vDecimal := 1.5;
-        if Try7() then Observer.Observe('add.255.1p5', Util.VShow(V)) else Observer.ObserveError('add.255.1p5');
-        vByte := 255;
-        vDecimal := 1.5;
-        if Try8() then Observer.Observe('sub.255.1p5', Util.VShow(V)) else Observer.ObserveError('sub.255.1p5');
-        vByte := 255;
-        vDecimal := 1.5;
-        if Try9() then Observer.Observe('compound_add.255.1p5', Format(vDecimal, 0, 9)) else Observer.ObserveError('compound_add.255.1p5');
+        if Try8(V, vByte, vDecimal) then Observer.Observe('sub.255.65', Util.VShow(V)) else Observer.ObserveError('sub.255.65');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Byte_Decimal_More1()
+    procedure Byte_Decimal_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vByte: Byte;
+        vDecimal: Decimal;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Decimal_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Decimal_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Decimal_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Decimal_More5()
-    begin
-        Observer.More();
+        vByte := 255;
+        vDecimal := 65;
+        if Try9(vByte, vDecimal) then Observer.Observe('compound_add.255.65', Format(vDecimal, 0, 9)) else Observer.ObserveError('compound_add.255.65');
+        vByte := 255;
+        vDecimal := 1.5;
+        if Try7(V, vByte, vDecimal) then Observer.Observe('add.255.1p5', Util.VShow(V)) else Observer.ObserveError('add.255.1p5');
+        vByte := 255;
+        vDecimal := 1.5;
+        if Try8(V, vByte, vDecimal) then Observer.Observe('sub.255.1p5', Util.VShow(V)) else Observer.ObserveError('sub.255.1p5');
+        vByte := 255;
+        vDecimal := 1.5;
+        if Try9(vByte, vDecimal) then Observer.Observe('compound_add.255.1p5', Format(vDecimal, 0, 9)) else Observer.ObserveError('compound_add.255.1p5');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Byte_Char()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vByte: Byte;
+        vChar: Char;
     begin
         vByte := 65;
         vChar := 65;
-        if Try10() then Observer.Observe('add.65.A', Util.VShow(V)) else Observer.ObserveError('add.65.A');
+        if Try10(V, vByte, vChar) then Observer.Observe('add.65.A', Util.VShow(V)) else Observer.ObserveError('add.65.A');
         vByte := 65;
         vChar := 65;
-        if Try11() then Observer.Observe('sub.65.A', Util.VShow(V)) else Observer.ObserveError('sub.65.A');
+        if Try11(V, vByte, vChar) then Observer.Observe('sub.65.A', Util.VShow(V)) else Observer.ObserveError('sub.65.A');
         vByte := 65;
         vChar := 65;
-        if Try12() then Observer.Observe('compound_add.65.A', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.65.A');
+        if Try12(vByte, vChar) then Observer.Observe('compound_add.65.A', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.65.A');
         vByte := 65;
         vChar := 97;
-        if Try10() then Observer.Observe('add.65.a', Util.VShow(V)) else Observer.ObserveError('add.65.a');
+        if Try10(V, vByte, vChar) then Observer.Observe('add.65.a', Util.VShow(V)) else Observer.ObserveError('add.65.a');
         vByte := 65;
         vChar := 97;
-        if Try11() then Observer.Observe('sub.65.a', Util.VShow(V)) else Observer.ObserveError('sub.65.a');
+        if Try11(V, vByte, vChar) then Observer.Observe('sub.65.a', Util.VShow(V)) else Observer.ObserveError('sub.65.a');
         vByte := 65;
         vChar := 97;
-        if Try12() then Observer.Observe('compound_add.65.a', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.65.a');
+        if Try12(vByte, vChar) then Observer.Observe('compound_add.65.a', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.65.a');
         vByte := 65;
         vChar := 65535;
-        if Try10() then Observer.Observe('add.65.65535', Util.VShow(V)) else Observer.ObserveError('add.65.65535');
+        if Try10(V, vByte, vChar) then Observer.Observe('add.65.65535', Util.VShow(V)) else Observer.ObserveError('add.65.65535');
         vByte := 65;
         vChar := 65535;
-        if Try11() then Observer.Observe('sub.65.65535', Util.VShow(V)) else Observer.ObserveError('sub.65.65535');
-        vByte := 65;
-        vChar := 65535;
-        if Try12() then Observer.Observe('compound_add.65.65535', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.65.65535');
-        vByte := 255;
-        vChar := 65;
-        if Try10() then Observer.Observe('add.255.A', Util.VShow(V)) else Observer.ObserveError('add.255.A');
-        vByte := 255;
-        vChar := 65;
-        if Try11() then Observer.Observe('sub.255.A', Util.VShow(V)) else Observer.ObserveError('sub.255.A');
-        vByte := 255;
-        vChar := 65;
-        if Try12() then Observer.Observe('compound_add.255.A', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.255.A');
-        vByte := 255;
-        vChar := 97;
-        if Try10() then Observer.Observe('add.255.a', Util.VShow(V)) else Observer.ObserveError('add.255.a');
-        vByte := 255;
-        vChar := 97;
-        if Try11() then Observer.Observe('sub.255.a', Util.VShow(V)) else Observer.ObserveError('sub.255.a');
-        vByte := 255;
-        vChar := 97;
-        if Try12() then Observer.Observe('compound_add.255.a', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.255.a');
-        vByte := 255;
-        vChar := 65535;
-        if Try10() then Observer.Observe('add.255.65535', Util.VShow(V)) else Observer.ObserveError('add.255.65535');
-        vByte := 255;
-        vChar := 65535;
-        if Try11() then Observer.Observe('sub.255.65535', Util.VShow(V)) else Observer.ObserveError('sub.255.65535');
-        vByte := 255;
-        vChar := 65535;
-        if Try12() then Observer.Observe('compound_add.255.65535', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.255.65535');
+        if Try11(V, vByte, vChar) then Observer.Observe('sub.65.65535', Util.VShow(V)) else Observer.ObserveError('sub.65.65535');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Byte_Char_More1()
+    procedure Byte_Char_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vByte: Byte;
+        vChar: Char;
     begin
-        Observer.More();
+        vByte := 65;
+        vChar := 65535;
+        if Try12(vByte, vChar) then Observer.Observe('compound_add.65.65535', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.65.65535');
+        vByte := 255;
+        vChar := 65;
+        if Try10(V, vByte, vChar) then Observer.Observe('add.255.A', Util.VShow(V)) else Observer.ObserveError('add.255.A');
+        vByte := 255;
+        vChar := 65;
+        if Try11(V, vByte, vChar) then Observer.Observe('sub.255.A', Util.VShow(V)) else Observer.ObserveError('sub.255.A');
+        vByte := 255;
+        vChar := 65;
+        if Try12(vByte, vChar) then Observer.Observe('compound_add.255.A', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.255.A');
+        vByte := 255;
+        vChar := 97;
+        if Try10(V, vByte, vChar) then Observer.Observe('add.255.a', Util.VShow(V)) else Observer.ObserveError('add.255.a');
+        vByte := 255;
+        vChar := 97;
+        if Try11(V, vByte, vChar) then Observer.Observe('sub.255.a', Util.VShow(V)) else Observer.ObserveError('sub.255.a');
+        vByte := 255;
+        vChar := 97;
+        if Try12(vByte, vChar) then Observer.Observe('compound_add.255.a', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.255.a');
+        vByte := 255;
+        vChar := 65535;
+        if Try10(V, vByte, vChar) then Observer.Observe('add.255.65535', Util.VShow(V)) else Observer.ObserveError('add.255.65535');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Byte_Char_More2()
+    procedure Byte_Char_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vByte: Byte;
+        vChar: Char;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Char_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Char_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Char_More5()
-    begin
-        Observer.More();
+        vByte := 255;
+        vChar := 65535;
+        if Try11(V, vByte, vChar) then Observer.Observe('sub.255.65535', Util.VShow(V)) else Observer.ObserveError('sub.255.65535');
+        vByte := 255;
+        vChar := 65535;
+        if Try12(vByte, vChar) then Observer.Observe('compound_add.255.65535', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.255.65535');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Byte_Byte_Same()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vByte: Byte;
+        vByte_R: Byte;
     begin
         vByte := 65;
         vByte_R := 65;
-        if Try13() then Observer.Observe('add.65.65', Util.VShow(V)) else Observer.ObserveError('add.65.65');
+        if Try13(V, vByte, vByte_R) then Observer.Observe('add.65.65', Util.VShow(V)) else Observer.ObserveError('add.65.65');
         vByte := 65;
         vByte_R := 65;
-        if Try14() then Observer.Observe('sub.65.65', Util.VShow(V)) else Observer.ObserveError('sub.65.65');
+        if Try14(V, vByte, vByte_R) then Observer.Observe('sub.65.65', Util.VShow(V)) else Observer.ObserveError('sub.65.65');
         vByte := 65;
         vByte_R := 65;
-        if Try15() then Observer.Observe('compound_add.65.65', Format(vByte_R, 0, 9)) else Observer.ObserveError('compound_add.65.65');
+        if Try15(vByte, vByte_R) then Observer.Observe('compound_add.65.65', Format(vByte_R, 0, 9)) else Observer.ObserveError('compound_add.65.65');
         vByte := 65;
         vByte_R := 255;
-        if Try13() then Observer.Observe('add.65.255', Util.VShow(V)) else Observer.ObserveError('add.65.255');
+        if Try13(V, vByte, vByte_R) then Observer.Observe('add.65.255', Util.VShow(V)) else Observer.ObserveError('add.65.255');
         vByte := 65;
         vByte_R := 255;
-        if Try14() then Observer.Observe('sub.65.255', Util.VShow(V)) else Observer.ObserveError('sub.65.255');
+        if Try14(V, vByte, vByte_R) then Observer.Observe('sub.65.255', Util.VShow(V)) else Observer.ObserveError('sub.65.255');
         vByte := 65;
         vByte_R := 255;
-        if Try15() then Observer.Observe('compound_add.65.255', Format(vByte_R, 0, 9)) else Observer.ObserveError('compound_add.65.255');
+        if Try15(vByte, vByte_R) then Observer.Observe('compound_add.65.255', Format(vByte_R, 0, 9)) else Observer.ObserveError('compound_add.65.255');
         vByte := 255;
         vByte_R := 65;
-        if Try13() then Observer.Observe('add.255.65', Util.VShow(V)) else Observer.ObserveError('add.255.65');
+        if Try13(V, vByte, vByte_R) then Observer.Observe('add.255.65', Util.VShow(V)) else Observer.ObserveError('add.255.65');
         vByte := 255;
         vByte_R := 65;
-        if Try14() then Observer.Observe('sub.255.65', Util.VShow(V)) else Observer.ObserveError('sub.255.65');
-        vByte := 255;
-        vByte_R := 65;
-        if Try15() then Observer.Observe('compound_add.255.65', Format(vByte_R, 0, 9)) else Observer.ObserveError('compound_add.255.65');
-        vByte := 255;
-        vByte_R := 255;
-        if Try13() then Observer.Observe('add.255.255', Util.VShow(V)) else Observer.ObserveError('add.255.255');
-        vByte := 255;
-        vByte_R := 255;
-        if Try14() then Observer.Observe('sub.255.255', Util.VShow(V)) else Observer.ObserveError('sub.255.255');
-        vByte := 255;
-        vByte_R := 255;
-        if Try15() then Observer.Observe('compound_add.255.255', Format(vByte_R, 0, 9)) else Observer.ObserveError('compound_add.255.255');
+        if Try14(V, vByte, vByte_R) then Observer.Observe('sub.255.65', Util.VShow(V)) else Observer.ObserveError('sub.255.65');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Byte_Byte_Same_More1()
+    procedure Byte_Byte_Same_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vByte: Byte;
+        vByte_R: Byte;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Byte_Same_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Byte_Same_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Byte_Same_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Byte_Same_More5()
-    begin
-        Observer.More();
+        vByte := 255;
+        vByte_R := 65;
+        if Try15(vByte, vByte_R) then Observer.Observe('compound_add.255.65', Format(vByte_R, 0, 9)) else Observer.ObserveError('compound_add.255.65');
+        vByte := 255;
+        vByte_R := 255;
+        if Try13(V, vByte, vByte_R) then Observer.Observe('add.255.255', Util.VShow(V)) else Observer.ObserveError('add.255.255');
+        vByte := 255;
+        vByte_R := 255;
+        if Try14(V, vByte, vByte_R) then Observer.Observe('sub.255.255', Util.VShow(V)) else Observer.ObserveError('sub.255.255');
+        vByte := 255;
+        vByte_R := 255;
+        if Try15(vByte, vByte_R) then Observer.Observe('compound_add.255.255', Format(vByte_R, 0, 9)) else Observer.ObserveError('compound_add.255.255');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Byte_Option()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vByte: Byte;
+        vOption: Option A,B,C;
     begin
         vByte := 65;
         vOption := 1;
-        if Try16() then Observer.Observe('add.65.1', Util.VShow(V)) else Observer.ObserveError('add.65.1');
+        if Try16(V, vByte, vOption) then Observer.Observe('add.65.1', Util.VShow(V)) else Observer.ObserveError('add.65.1');
         vByte := 65;
         vOption := 1;
-        if Try17() then Observer.Observe('sub.65.1', Util.VShow(V)) else Observer.ObserveError('sub.65.1');
+        if Try17(V, vByte, vOption) then Observer.Observe('sub.65.1', Util.VShow(V)) else Observer.ObserveError('sub.65.1');
         vByte := 65;
         vOption := 1;
-        if Try18() then Observer.Observe('compound_add.65.1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.65.1');
+        if Try18(vByte, vOption) then Observer.Observe('compound_add.65.1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.65.1');
         vByte := 65;
         vOption := 3;
-        if Try16() then Observer.Observe('add.65.3', Util.VShow(V)) else Observer.ObserveError('add.65.3');
+        if Try16(V, vByte, vOption) then Observer.Observe('add.65.3', Util.VShow(V)) else Observer.ObserveError('add.65.3');
         vByte := 65;
         vOption := 3;
-        if Try17() then Observer.Observe('sub.65.3', Util.VShow(V)) else Observer.ObserveError('sub.65.3');
+        if Try17(V, vByte, vOption) then Observer.Observe('sub.65.3', Util.VShow(V)) else Observer.ObserveError('sub.65.3');
         vByte := 65;
         vOption := 3;
-        if Try18() then Observer.Observe('compound_add.65.3', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.65.3');
+        if Try18(vByte, vOption) then Observer.Observe('compound_add.65.3', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.65.3');
         vByte := 255;
         vOption := 1;
-        if Try16() then Observer.Observe('add.255.1', Util.VShow(V)) else Observer.ObserveError('add.255.1');
+        if Try16(V, vByte, vOption) then Observer.Observe('add.255.1', Util.VShow(V)) else Observer.ObserveError('add.255.1');
         vByte := 255;
         vOption := 1;
-        if Try17() then Observer.Observe('sub.255.1', Util.VShow(V)) else Observer.ObserveError('sub.255.1');
-        vByte := 255;
-        vOption := 1;
-        if Try18() then Observer.Observe('compound_add.255.1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.255.1');
-        vByte := 255;
-        vOption := 3;
-        if Try16() then Observer.Observe('add.255.3', Util.VShow(V)) else Observer.ObserveError('add.255.3');
-        vByte := 255;
-        vOption := 3;
-        if Try17() then Observer.Observe('sub.255.3', Util.VShow(V)) else Observer.ObserveError('sub.255.3');
-        vByte := 255;
-        vOption := 3;
-        if Try18() then Observer.Observe('compound_add.255.3', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.255.3');
+        if Try17(V, vByte, vOption) then Observer.Observe('sub.255.1', Util.VShow(V)) else Observer.ObserveError('sub.255.1');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Byte_Option_More1()
+    procedure Byte_Option_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vByte: Byte;
+        vOption: Option A,B,C;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Option_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Option_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Option_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Option_More5()
-    begin
-        Observer.More();
+        vByte := 255;
+        vOption := 1;
+        if Try18(vByte, vOption) then Observer.Observe('compound_add.255.1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.255.1');
+        vByte := 255;
+        vOption := 3;
+        if Try16(V, vByte, vOption) then Observer.Observe('add.255.3', Util.VShow(V)) else Observer.ObserveError('add.255.3');
+        vByte := 255;
+        vOption := 3;
+        if Try17(V, vByte, vOption) then Observer.Observe('sub.255.3', Util.VShow(V)) else Observer.ObserveError('sub.255.3');
+        vByte := 255;
+        vOption := 3;
+        if Try18(vByte, vOption) then Observer.Observe('compound_add.255.3', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.255.3');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Byte_Enum()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vByte: Byte;
+        vEnum: Enum "LT Y31 E";
     begin
         vByte := 65;
         vEnum := "LT Y31 E"::B;
-        if Try19() then Observer.Observe('add.65.B', Util.VShow(V)) else Observer.ObserveError('add.65.B');
+        if Try19(V, vByte, vEnum) then Observer.Observe('add.65.B', Util.VShow(V)) else Observer.ObserveError('add.65.B');
         vByte := 65;
         vEnum := "LT Y31 E"::B;
-        if Try20() then Observer.Observe('sub.65.B', Util.VShow(V)) else Observer.ObserveError('sub.65.B');
+        if Try20(V, vByte, vEnum) then Observer.Observe('sub.65.B', Util.VShow(V)) else Observer.ObserveError('sub.65.B');
         vByte := 65;
         vEnum := "LT Y31 E"::B;
-        if Try21() then Observer.Observe('compound_add.65.B', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('compound_add.65.B');
+        if Try21(vByte, vEnum) then Observer.Observe('compound_add.65.B', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('compound_add.65.B');
         vByte := 65;
         vEnum := 5;
-        if Try19() then Observer.Observe('add.65.ord5', Util.VShow(V)) else Observer.ObserveError('add.65.ord5');
+        if Try19(V, vByte, vEnum) then Observer.Observe('add.65.ord5', Util.VShow(V)) else Observer.ObserveError('add.65.ord5');
         vByte := 65;
         vEnum := 5;
-        if Try20() then Observer.Observe('sub.65.ord5', Util.VShow(V)) else Observer.ObserveError('sub.65.ord5');
+        if Try20(V, vByte, vEnum) then Observer.Observe('sub.65.ord5', Util.VShow(V)) else Observer.ObserveError('sub.65.ord5');
         vByte := 65;
         vEnum := 5;
-        if Try21() then Observer.Observe('compound_add.65.ord5', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('compound_add.65.ord5');
+        if Try21(vByte, vEnum) then Observer.Observe('compound_add.65.ord5', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('compound_add.65.ord5');
         vByte := 255;
         vEnum := "LT Y31 E"::B;
-        if Try19() then Observer.Observe('add.255.B', Util.VShow(V)) else Observer.ObserveError('add.255.B');
+        if Try19(V, vByte, vEnum) then Observer.Observe('add.255.B', Util.VShow(V)) else Observer.ObserveError('add.255.B');
         vByte := 255;
         vEnum := "LT Y31 E"::B;
-        if Try20() then Observer.Observe('sub.255.B', Util.VShow(V)) else Observer.ObserveError('sub.255.B');
-        vByte := 255;
-        vEnum := "LT Y31 E"::B;
-        if Try21() then Observer.Observe('compound_add.255.B', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('compound_add.255.B');
-        vByte := 255;
-        vEnum := 5;
-        if Try19() then Observer.Observe('add.255.ord5', Util.VShow(V)) else Observer.ObserveError('add.255.ord5');
-        vByte := 255;
-        vEnum := 5;
-        if Try20() then Observer.Observe('sub.255.ord5', Util.VShow(V)) else Observer.ObserveError('sub.255.ord5');
-        vByte := 255;
-        vEnum := 5;
-        if Try21() then Observer.Observe('compound_add.255.ord5', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('compound_add.255.ord5');
+        if Try20(V, vByte, vEnum) then Observer.Observe('sub.255.B', Util.VShow(V)) else Observer.ObserveError('sub.255.B');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Byte_Enum_More1()
+    procedure Byte_Enum_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vByte: Byte;
+        vEnum: Enum "LT Y31 E";
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Enum_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Enum_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Enum_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Enum_More5()
-    begin
-        Observer.More();
+        vByte := 255;
+        vEnum := "LT Y31 E"::B;
+        if Try21(vByte, vEnum) then Observer.Observe('compound_add.255.B', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('compound_add.255.B');
+        vByte := 255;
+        vEnum := 5;
+        if Try19(V, vByte, vEnum) then Observer.Observe('add.255.ord5', Util.VShow(V)) else Observer.ObserveError('add.255.ord5');
+        vByte := 255;
+        vEnum := 5;
+        if Try20(V, vByte, vEnum) then Observer.Observe('sub.255.ord5', Util.VShow(V)) else Observer.ObserveError('sub.255.ord5');
+        vByte := 255;
+        vEnum := 5;
+        if Try21(vByte, vEnum) then Observer.Observe('compound_add.255.ord5', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('compound_add.255.ord5');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Byte_EnumImpl()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vByte: Byte;
+        vEnumImpl: Enum "LT Y31 EI";
     begin
         vByte := 65;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try22() then Observer.Observe('add.65.A', Util.VShow(V)) else Observer.ObserveError('add.65.A');
+        if Try22(V, vByte, vEnumImpl) then Observer.Observe('add.65.A', Util.VShow(V)) else Observer.ObserveError('add.65.A');
         vByte := 65;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try23() then Observer.Observe('sub.65.A', Util.VShow(V)) else Observer.ObserveError('sub.65.A');
+        if Try23(V, vByte, vEnumImpl) then Observer.Observe('sub.65.A', Util.VShow(V)) else Observer.ObserveError('sub.65.A');
         vByte := 65;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try24() then Observer.Observe('compound_add.65.A', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('compound_add.65.A');
+        if Try24(vByte, vEnumImpl) then Observer.Observe('compound_add.65.A', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('compound_add.65.A');
         vByte := 255;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try22() then Observer.Observe('add.255.A', Util.VShow(V)) else Observer.ObserveError('add.255.A');
+        if Try22(V, vByte, vEnumImpl) then Observer.Observe('add.255.A', Util.VShow(V)) else Observer.ObserveError('add.255.A');
         vByte := 255;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try23() then Observer.Observe('sub.255.A', Util.VShow(V)) else Observer.ObserveError('sub.255.A');
+        if Try23(V, vByte, vEnumImpl) then Observer.Observe('sub.255.A', Util.VShow(V)) else Observer.ObserveError('sub.255.A');
         vByte := 255;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try24() then Observer.Observe('compound_add.255.A', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('compound_add.255.A');
+        if Try24(vByte, vEnumImpl) then Observer.Observe('compound_add.255.A', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('compound_add.255.A');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Byte_EnumImpl_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_EnumImpl_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_EnumImpl_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_EnumImpl_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_EnumImpl_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Byte_Date()
+    var
+        Observer: Codeunit "Probe Observer";
+        vByte: Byte;
+        vDate: Date;
     begin
         vByte := 65;
         vDate := 20260131D;
-        if Try25() then Observer.Observe('compound_add.65.d', Format(vDate, 0, 9)) else Observer.ObserveError('compound_add.65.d');
+        if Try25(vByte, vDate) then Observer.Observe('compound_add.65.d', Format(vDate, 0, 9)) else Observer.ObserveError('compound_add.65.d');
         vByte := 255;
         vDate := 20260131D;
-        if Try25() then Observer.Observe('compound_add.255.d', Format(vDate, 0, 9)) else Observer.ObserveError('compound_add.255.d');
+        if Try25(vByte, vDate) then Observer.Observe('compound_add.255.d', Format(vDate, 0, 9)) else Observer.ObserveError('compound_add.255.d');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Byte_Date_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Date_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Date_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Date_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Date_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Byte_Time()
+    var
+        Observer: Codeunit "Probe Observer";
+        vByte: Byte;
+        vTime: Time;
     begin
         vByte := 65;
         vTime := 120000T;
-        if Try26() then Observer.Observe('compound_add.65.t', Format(vTime, 0, 9)) else Observer.ObserveError('compound_add.65.t');
+        if Try26(vByte, vTime) then Observer.Observe('compound_add.65.t', Format(vTime, 0, 9)) else Observer.ObserveError('compound_add.65.t');
         vByte := 255;
         vTime := 120000T;
-        if Try26() then Observer.Observe('compound_add.255.t', Format(vTime, 0, 9)) else Observer.ObserveError('compound_add.255.t');
+        if Try26(vByte, vTime) then Observer.Observe('compound_add.255.t', Format(vTime, 0, 9)) else Observer.ObserveError('compound_add.255.t');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Byte_Time_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Time_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Time_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Time_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Time_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Byte_DateTime()
+    var
+        Observer: Codeunit "Probe Observer";
+        vByte: Byte;
+        vDateTime: DateTime;
     begin
         vByte := 65;
         vDateTime := CreateDateTime(20260131D, 120000T);
-        if Try27() then Observer.Observe('compound_add.65.dt', Format(vDateTime, 0, 9)) else Observer.ObserveError('compound_add.65.dt');
+        if Try27(vByte, vDateTime) then Observer.Observe('compound_add.65.dt', Format(vDateTime, 0, 9)) else Observer.ObserveError('compound_add.65.dt');
         vByte := 255;
         vDateTime := CreateDateTime(20260131D, 120000T);
-        if Try27() then Observer.Observe('compound_add.255.dt', Format(vDateTime, 0, 9)) else Observer.ObserveError('compound_add.255.dt');
+        if Try27(vByte, vDateTime) then Observer.Observe('compound_add.255.dt', Format(vDateTime, 0, 9)) else Observer.ObserveError('compound_add.255.dt');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Byte_DateTime_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_DateTime_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_DateTime_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_DateTime_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_DateTime_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Byte_Duration()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vByte: Byte;
+        vDuration: Duration;
     begin
         vByte := 65;
         vDuration := 65;
-        if Try28() then Observer.Observe('add.65.65', Util.VShow(V)) else Observer.ObserveError('add.65.65');
+        if Try28(V, vByte, vDuration) then Observer.Observe('add.65.65', Util.VShow(V)) else Observer.ObserveError('add.65.65');
         vByte := 65;
         vDuration := 65;
-        if Try29() then Observer.Observe('sub.65.65', Util.VShow(V)) else Observer.ObserveError('sub.65.65');
+        if Try29(V, vByte, vDuration) then Observer.Observe('sub.65.65', Util.VShow(V)) else Observer.ObserveError('sub.65.65');
         vByte := 65;
         vDuration := 65;
-        if Try30() then Observer.Observe('compound_add.65.65', Format(vDuration, 0, 9)) else Observer.ObserveError('compound_add.65.65');
+        if Try30(vByte, vDuration) then Observer.Observe('compound_add.65.65', Format(vDuration, 0, 9)) else Observer.ObserveError('compound_add.65.65');
         vByte := 255;
         vDuration := 65;
-        if Try28() then Observer.Observe('add.255.65', Util.VShow(V)) else Observer.ObserveError('add.255.65');
+        if Try28(V, vByte, vDuration) then Observer.Observe('add.255.65', Util.VShow(V)) else Observer.ObserveError('add.255.65');
         vByte := 255;
         vDuration := 65;
-        if Try29() then Observer.Observe('sub.255.65', Util.VShow(V)) else Observer.ObserveError('sub.255.65');
+        if Try29(V, vByte, vDuration) then Observer.Observe('sub.255.65', Util.VShow(V)) else Observer.ObserveError('sub.255.65');
         vByte := 255;
         vDuration := 65;
-        if Try30() then Observer.Observe('compound_add.255.65', Format(vDuration, 0, 9)) else Observer.ObserveError('compound_add.255.65');
+        if Try30(vByte, vDuration) then Observer.Observe('compound_add.255.65', Format(vDuration, 0, 9)) else Observer.ObserveError('compound_add.255.65');
         Observer.Finish();
     end;
 
-    [Test]
-    procedure Byte_Duration_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Duration_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Duration_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Duration_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Byte_Duration_More5()
-    begin
-        Observer.More();
-    end;
-
     [TryFunction]
-    local procedure Try1()
+    local procedure Try1(var V: Variant; var vByte: Byte; var vInteger: Integer)
     begin
         Clear(V);
         V := vByte + vInteger;
     end;
 
     [TryFunction]
-    local procedure Try2()
+    local procedure Try2(var V: Variant; var vByte: Byte; var vInteger: Integer)
     begin
         Clear(V);
         V := vByte - vInteger;
     end;
 
     [TryFunction]
-    local procedure Try3()
+    local procedure Try3(var vByte: Byte; var vInteger: Integer)
     begin
         vInteger += vByte;
     end;
 
     [TryFunction]
-    local procedure Try4()
+    local procedure Try4(var V: Variant; var vBigInteger: BigInteger; var vByte: Byte)
     begin
         Clear(V);
         V := vByte + vBigInteger;
     end;
 
     [TryFunction]
-    local procedure Try5()
+    local procedure Try5(var V: Variant; var vBigInteger: BigInteger; var vByte: Byte)
     begin
         Clear(V);
         V := vByte - vBigInteger;
     end;
 
     [TryFunction]
-    local procedure Try6()
+    local procedure Try6(var vBigInteger: BigInteger; var vByte: Byte)
     begin
         vBigInteger += vByte;
     end;
 
     [TryFunction]
-    local procedure Try7()
+    local procedure Try7(var V: Variant; var vByte: Byte; var vDecimal: Decimal)
     begin
         Clear(V);
         V := vByte + vDecimal;
     end;
 
     [TryFunction]
-    local procedure Try8()
+    local procedure Try8(var V: Variant; var vByte: Byte; var vDecimal: Decimal)
     begin
         Clear(V);
         V := vByte - vDecimal;
     end;
 
     [TryFunction]
-    local procedure Try9()
+    local procedure Try9(var vByte: Byte; var vDecimal: Decimal)
     begin
         vDecimal += vByte;
     end;
 
     [TryFunction]
-    local procedure Try10()
+    local procedure Try10(var V: Variant; var vByte: Byte; var vChar: Char)
     begin
         Clear(V);
         V := vByte + vChar;
     end;
 
     [TryFunction]
-    local procedure Try11()
+    local procedure Try11(var V: Variant; var vByte: Byte; var vChar: Char)
     begin
         Clear(V);
         V := vByte - vChar;
     end;
 
     [TryFunction]
-    local procedure Try12()
+    local procedure Try12(var vByte: Byte; var vChar: Char)
     begin
         vChar += vByte;
     end;
 
     [TryFunction]
-    local procedure Try13()
+    local procedure Try13(var V: Variant; var vByte: Byte; var vByte_R: Byte)
     begin
         Clear(V);
         V := vByte + vByte_R;
     end;
 
     [TryFunction]
-    local procedure Try14()
+    local procedure Try14(var V: Variant; var vByte: Byte; var vByte_R: Byte)
     begin
         Clear(V);
         V := vByte - vByte_R;
     end;
 
     [TryFunction]
-    local procedure Try15()
+    local procedure Try15(var vByte: Byte; var vByte_R: Byte)
     begin
         vByte_R += vByte;
     end;
 
     [TryFunction]
-    local procedure Try16()
+    local procedure Try16(var V: Variant; var vByte: Byte; var vOption: Option A,B,C)
     begin
         Clear(V);
         V := vByte + vOption;
     end;
 
     [TryFunction]
-    local procedure Try17()
+    local procedure Try17(var V: Variant; var vByte: Byte; var vOption: Option A,B,C)
     begin
         Clear(V);
         V := vByte - vOption;
     end;
 
     [TryFunction]
-    local procedure Try18()
+    local procedure Try18(var vByte: Byte; var vOption: Option A,B,C)
     begin
         vOption += vByte;
     end;
 
     [TryFunction]
-    local procedure Try19()
+    local procedure Try19(var V: Variant; var vByte: Byte; var vEnum: Enum "LT Y31 E")
     begin
         Clear(V);
         V := vByte + vEnum;
     end;
 
     [TryFunction]
-    local procedure Try20()
+    local procedure Try20(var V: Variant; var vByte: Byte; var vEnum: Enum "LT Y31 E")
     begin
         Clear(V);
         V := vByte - vEnum;
     end;
 
     [TryFunction]
-    local procedure Try21()
+    local procedure Try21(var vByte: Byte; var vEnum: Enum "LT Y31 E")
     begin
         vEnum += vByte;
     end;
 
     [TryFunction]
-    local procedure Try22()
+    local procedure Try22(var V: Variant; var vByte: Byte; var vEnumImpl: Enum "LT Y31 EI")
     begin
         Clear(V);
         V := vByte + vEnumImpl;
     end;
 
     [TryFunction]
-    local procedure Try23()
+    local procedure Try23(var V: Variant; var vByte: Byte; var vEnumImpl: Enum "LT Y31 EI")
     begin
         Clear(V);
         V := vByte - vEnumImpl;
     end;
 
     [TryFunction]
-    local procedure Try24()
+    local procedure Try24(var vByte: Byte; var vEnumImpl: Enum "LT Y31 EI")
     begin
         vEnumImpl += vByte;
     end;
 
     [TryFunction]
-    local procedure Try25()
+    local procedure Try25(var vByte: Byte; var vDate: Date)
     begin
         vDate += vByte;
     end;
 
     [TryFunction]
-    local procedure Try26()
+    local procedure Try26(var vByte: Byte; var vTime: Time)
     begin
         vTime += vByte;
     end;
 
     [TryFunction]
-    local procedure Try27()
+    local procedure Try27(var vByte: Byte; var vDateTime: DateTime)
     begin
         vDateTime += vByte;
     end;
 
     [TryFunction]
-    local procedure Try28()
+    local procedure Try28(var V: Variant; var vByte: Byte; var vDuration: Duration)
     begin
         Clear(V);
         V := vByte + vDuration;
     end;
 
     [TryFunction]
-    local procedure Try29()
+    local procedure Try29(var V: Variant; var vByte: Byte; var vDuration: Duration)
     begin
         Clear(V);
         V := vByte - vDuration;
     end;
 
     [TryFunction]
-    local procedure Try30()
+    local procedure Try30(var vByte: Byte; var vDuration: Duration)
     begin
         vDuration += vByte;
     end;
@@ -5192,975 +4236,758 @@ codeunit 92450 "LT Y31 Ar Option"
     Subtype = Test;
     TestPermissions = Disabled;
 
+    [Test]
+    procedure Option_Integer()
     var
         Observer: Codeunit "Probe Observer";
         Util: Codeunit "LT Y31 Conv Util";
-        Res: Boolean;
         V: Variant;
-        vBigInteger: BigInteger;
-        vByte: Byte;
-        vChar: Char;
-        vDate: Date;
-        vDateTime: DateTime;
-        vDecimal: Decimal;
-        vDuration: Duration;
-        vEnum: Enum "LT Y31 E";
-        vEnumImpl: Enum "LT Y31 EI";
         vInteger: Integer;
         vOption: Option A,B,C;
-        vOption_R: Option A,B,C;
-        vTime: Time;
-
-    [Test]
-    procedure Option_Integer()
     begin
         vOption := 1;
         vInteger := 65;
-        if Try1() then Observer.Observe('add.1.65', Util.VShow(V)) else Observer.ObserveError('add.1.65');
+        if Try1(V, vInteger, vOption) then Observer.Observe('add.1.65', Util.VShow(V)) else Observer.ObserveError('add.1.65');
         vOption := 1;
         vInteger := 65;
-        if Try2() then Observer.Observe('sub.1.65', Util.VShow(V)) else Observer.ObserveError('sub.1.65');
+        if Try2(V, vInteger, vOption) then Observer.Observe('sub.1.65', Util.VShow(V)) else Observer.ObserveError('sub.1.65');
         vOption := 1;
         vInteger := 65;
-        if Try3() then Observer.Observe('compound_add.1.65', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.1.65');
+        if Try3(vInteger, vOption) then Observer.Observe('compound_add.1.65', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.1.65');
         vOption := 1;
         vInteger := 1;
-        if Try1() then Observer.Observe('add.1.1', Util.VShow(V)) else Observer.ObserveError('add.1.1');
+        if Try1(V, vInteger, vOption) then Observer.Observe('add.1.1', Util.VShow(V)) else Observer.ObserveError('add.1.1');
         vOption := 1;
         vInteger := 1;
-        if Try2() then Observer.Observe('sub.1.1', Util.VShow(V)) else Observer.ObserveError('sub.1.1');
+        if Try2(V, vInteger, vOption) then Observer.Observe('sub.1.1', Util.VShow(V)) else Observer.ObserveError('sub.1.1');
         vOption := 1;
         vInteger := 1;
-        if Try3() then Observer.Observe('compound_add.1.1', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.1.1');
+        if Try3(vInteger, vOption) then Observer.Observe('compound_add.1.1', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.1.1');
         vOption := 1;
         vInteger := 2147483647;
-        if Try1() then Observer.Observe('add.1.max', Util.VShow(V)) else Observer.ObserveError('add.1.max');
+        if Try1(V, vInteger, vOption) then Observer.Observe('add.1.max', Util.VShow(V)) else Observer.ObserveError('add.1.max');
         vOption := 1;
         vInteger := 2147483647;
-        if Try2() then Observer.Observe('sub.1.max', Util.VShow(V)) else Observer.ObserveError('sub.1.max');
-        vOption := 1;
-        vInteger := 2147483647;
-        if Try3() then Observer.Observe('compound_add.1.max', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.1.max');
-        vOption := 3;
-        vInteger := 65;
-        if Try1() then Observer.Observe('add.3.65', Util.VShow(V)) else Observer.ObserveError('add.3.65');
-        vOption := 3;
-        vInteger := 65;
-        if Try2() then Observer.Observe('sub.3.65', Util.VShow(V)) else Observer.ObserveError('sub.3.65');
-        vOption := 3;
-        vInteger := 65;
-        if Try3() then Observer.Observe('compound_add.3.65', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.3.65');
-        vOption := 3;
-        vInteger := 1;
-        if Try1() then Observer.Observe('add.3.1', Util.VShow(V)) else Observer.ObserveError('add.3.1');
-        vOption := 3;
-        vInteger := 1;
-        if Try2() then Observer.Observe('sub.3.1', Util.VShow(V)) else Observer.ObserveError('sub.3.1');
-        vOption := 3;
-        vInteger := 1;
-        if Try3() then Observer.Observe('compound_add.3.1', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.3.1');
-        vOption := 3;
-        vInteger := 2147483647;
-        if Try1() then Observer.Observe('add.3.max', Util.VShow(V)) else Observer.ObserveError('add.3.max');
-        vOption := 3;
-        vInteger := 2147483647;
-        if Try2() then Observer.Observe('sub.3.max', Util.VShow(V)) else Observer.ObserveError('sub.3.max');
-        vOption := 3;
-        vInteger := 2147483647;
-        if Try3() then Observer.Observe('compound_add.3.max', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.3.max');
+        if Try2(V, vInteger, vOption) then Observer.Observe('sub.1.max', Util.VShow(V)) else Observer.ObserveError('sub.1.max');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Option_Integer_More1()
+    procedure Option_Integer_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vInteger: Integer;
+        vOption: Option A,B,C;
     begin
-        Observer.More();
+        vOption := 1;
+        vInteger := 2147483647;
+        if Try3(vInteger, vOption) then Observer.Observe('compound_add.1.max', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.1.max');
+        vOption := 3;
+        vInteger := 65;
+        if Try1(V, vInteger, vOption) then Observer.Observe('add.3.65', Util.VShow(V)) else Observer.ObserveError('add.3.65');
+        vOption := 3;
+        vInteger := 65;
+        if Try2(V, vInteger, vOption) then Observer.Observe('sub.3.65', Util.VShow(V)) else Observer.ObserveError('sub.3.65');
+        vOption := 3;
+        vInteger := 65;
+        if Try3(vInteger, vOption) then Observer.Observe('compound_add.3.65', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.3.65');
+        vOption := 3;
+        vInteger := 1;
+        if Try1(V, vInteger, vOption) then Observer.Observe('add.3.1', Util.VShow(V)) else Observer.ObserveError('add.3.1');
+        vOption := 3;
+        vInteger := 1;
+        if Try2(V, vInteger, vOption) then Observer.Observe('sub.3.1', Util.VShow(V)) else Observer.ObserveError('sub.3.1');
+        vOption := 3;
+        vInteger := 1;
+        if Try3(vInteger, vOption) then Observer.Observe('compound_add.3.1', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.3.1');
+        vOption := 3;
+        vInteger := 2147483647;
+        if Try1(V, vInteger, vOption) then Observer.Observe('add.3.max', Util.VShow(V)) else Observer.ObserveError('add.3.max');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Option_Integer_More2()
+    procedure Option_Integer_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vInteger: Integer;
+        vOption: Option A,B,C;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Integer_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Integer_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Integer_More5()
-    begin
-        Observer.More();
+        vOption := 3;
+        vInteger := 2147483647;
+        if Try2(V, vInteger, vOption) then Observer.Observe('sub.3.max', Util.VShow(V)) else Observer.ObserveError('sub.3.max');
+        vOption := 3;
+        vInteger := 2147483647;
+        if Try3(vInteger, vOption) then Observer.Observe('compound_add.3.max', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.3.max');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Option_BigInteger()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vBigInteger: BigInteger;
+        vOption: Option A,B,C;
     begin
         vOption := 1;
         vBigInteger := 65;
-        if Try4() then Observer.Observe('add.1.65', Util.VShow(V)) else Observer.ObserveError('add.1.65');
+        if Try4(V, vBigInteger, vOption) then Observer.Observe('add.1.65', Util.VShow(V)) else Observer.ObserveError('add.1.65');
         vOption := 1;
         vBigInteger := 65;
-        if Try5() then Observer.Observe('sub.1.65', Util.VShow(V)) else Observer.ObserveError('sub.1.65');
+        if Try5(V, vBigInteger, vOption) then Observer.Observe('sub.1.65', Util.VShow(V)) else Observer.ObserveError('sub.1.65');
         vOption := 1;
         vBigInteger := 65;
-        if Try6() then Observer.Observe('compound_add.1.65', Format(vBigInteger, 0, 9)) else Observer.ObserveError('compound_add.1.65');
+        if Try6(vBigInteger, vOption) then Observer.Observe('compound_add.1.65', Format(vBigInteger, 0, 9)) else Observer.ObserveError('compound_add.1.65');
         vOption := 3;
         vBigInteger := 65;
-        if Try4() then Observer.Observe('add.3.65', Util.VShow(V)) else Observer.ObserveError('add.3.65');
+        if Try4(V, vBigInteger, vOption) then Observer.Observe('add.3.65', Util.VShow(V)) else Observer.ObserveError('add.3.65');
         vOption := 3;
         vBigInteger := 65;
-        if Try5() then Observer.Observe('sub.3.65', Util.VShow(V)) else Observer.ObserveError('sub.3.65');
+        if Try5(V, vBigInteger, vOption) then Observer.Observe('sub.3.65', Util.VShow(V)) else Observer.ObserveError('sub.3.65');
         vOption := 3;
         vBigInteger := 65;
-        if Try6() then Observer.Observe('compound_add.3.65', Format(vBigInteger, 0, 9)) else Observer.ObserveError('compound_add.3.65');
+        if Try6(vBigInteger, vOption) then Observer.Observe('compound_add.3.65', Format(vBigInteger, 0, 9)) else Observer.ObserveError('compound_add.3.65');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Option_BigInteger_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_BigInteger_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_BigInteger_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_BigInteger_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_BigInteger_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Option_Decimal()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vDecimal: Decimal;
+        vOption: Option A,B,C;
     begin
         vOption := 1;
         vDecimal := 65;
-        if Try7() then Observer.Observe('add.1.65', Util.VShow(V)) else Observer.ObserveError('add.1.65');
+        if Try7(V, vDecimal, vOption) then Observer.Observe('add.1.65', Util.VShow(V)) else Observer.ObserveError('add.1.65');
         vOption := 1;
         vDecimal := 65;
-        if Try8() then Observer.Observe('sub.1.65', Util.VShow(V)) else Observer.ObserveError('sub.1.65');
+        if Try8(V, vDecimal, vOption) then Observer.Observe('sub.1.65', Util.VShow(V)) else Observer.ObserveError('sub.1.65');
         vOption := 1;
         vDecimal := 65;
-        if Try9() then Observer.Observe('compound_add.1.65', Format(vDecimal, 0, 9)) else Observer.ObserveError('compound_add.1.65');
+        if Try9(vDecimal, vOption) then Observer.Observe('compound_add.1.65', Format(vDecimal, 0, 9)) else Observer.ObserveError('compound_add.1.65');
         vOption := 1;
         vDecimal := 1.5;
-        if Try7() then Observer.Observe('add.1.1p5', Util.VShow(V)) else Observer.ObserveError('add.1.1p5');
+        if Try7(V, vDecimal, vOption) then Observer.Observe('add.1.1p5', Util.VShow(V)) else Observer.ObserveError('add.1.1p5');
         vOption := 1;
         vDecimal := 1.5;
-        if Try8() then Observer.Observe('sub.1.1p5', Util.VShow(V)) else Observer.ObserveError('sub.1.1p5');
+        if Try8(V, vDecimal, vOption) then Observer.Observe('sub.1.1p5', Util.VShow(V)) else Observer.ObserveError('sub.1.1p5');
         vOption := 1;
         vDecimal := 1.5;
-        if Try9() then Observer.Observe('compound_add.1.1p5', Format(vDecimal, 0, 9)) else Observer.ObserveError('compound_add.1.1p5');
+        if Try9(vDecimal, vOption) then Observer.Observe('compound_add.1.1p5', Format(vDecimal, 0, 9)) else Observer.ObserveError('compound_add.1.1p5');
         vOption := 3;
         vDecimal := 65;
-        if Try7() then Observer.Observe('add.3.65', Util.VShow(V)) else Observer.ObserveError('add.3.65');
+        if Try7(V, vDecimal, vOption) then Observer.Observe('add.3.65', Util.VShow(V)) else Observer.ObserveError('add.3.65');
         vOption := 3;
         vDecimal := 65;
-        if Try8() then Observer.Observe('sub.3.65', Util.VShow(V)) else Observer.ObserveError('sub.3.65');
-        vOption := 3;
-        vDecimal := 65;
-        if Try9() then Observer.Observe('compound_add.3.65', Format(vDecimal, 0, 9)) else Observer.ObserveError('compound_add.3.65');
-        vOption := 3;
-        vDecimal := 1.5;
-        if Try7() then Observer.Observe('add.3.1p5', Util.VShow(V)) else Observer.ObserveError('add.3.1p5');
-        vOption := 3;
-        vDecimal := 1.5;
-        if Try8() then Observer.Observe('sub.3.1p5', Util.VShow(V)) else Observer.ObserveError('sub.3.1p5');
-        vOption := 3;
-        vDecimal := 1.5;
-        if Try9() then Observer.Observe('compound_add.3.1p5', Format(vDecimal, 0, 9)) else Observer.ObserveError('compound_add.3.1p5');
+        if Try8(V, vDecimal, vOption) then Observer.Observe('sub.3.65', Util.VShow(V)) else Observer.ObserveError('sub.3.65');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Option_Decimal_More1()
+    procedure Option_Decimal_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vDecimal: Decimal;
+        vOption: Option A,B,C;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Decimal_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Decimal_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Decimal_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Decimal_More5()
-    begin
-        Observer.More();
+        vOption := 3;
+        vDecimal := 65;
+        if Try9(vDecimal, vOption) then Observer.Observe('compound_add.3.65', Format(vDecimal, 0, 9)) else Observer.ObserveError('compound_add.3.65');
+        vOption := 3;
+        vDecimal := 1.5;
+        if Try7(V, vDecimal, vOption) then Observer.Observe('add.3.1p5', Util.VShow(V)) else Observer.ObserveError('add.3.1p5');
+        vOption := 3;
+        vDecimal := 1.5;
+        if Try8(V, vDecimal, vOption) then Observer.Observe('sub.3.1p5', Util.VShow(V)) else Observer.ObserveError('sub.3.1p5');
+        vOption := 3;
+        vDecimal := 1.5;
+        if Try9(vDecimal, vOption) then Observer.Observe('compound_add.3.1p5', Format(vDecimal, 0, 9)) else Observer.ObserveError('compound_add.3.1p5');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Option_Char()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vChar: Char;
+        vOption: Option A,B,C;
     begin
         vOption := 1;
         vChar := 65;
-        if Try10() then Observer.Observe('add.1.A', Util.VShow(V)) else Observer.ObserveError('add.1.A');
+        if Try10(V, vChar, vOption) then Observer.Observe('add.1.A', Util.VShow(V)) else Observer.ObserveError('add.1.A');
         vOption := 1;
         vChar := 65;
-        if Try11() then Observer.Observe('sub.1.A', Util.VShow(V)) else Observer.ObserveError('sub.1.A');
+        if Try11(V, vChar, vOption) then Observer.Observe('sub.1.A', Util.VShow(V)) else Observer.ObserveError('sub.1.A');
         vOption := 1;
         vChar := 65;
-        if Try12() then Observer.Observe('compound_add.1.A', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.1.A');
+        if Try12(vChar, vOption) then Observer.Observe('compound_add.1.A', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.1.A');
         vOption := 1;
         vChar := 97;
-        if Try10() then Observer.Observe('add.1.a', Util.VShow(V)) else Observer.ObserveError('add.1.a');
+        if Try10(V, vChar, vOption) then Observer.Observe('add.1.a', Util.VShow(V)) else Observer.ObserveError('add.1.a');
         vOption := 1;
         vChar := 97;
-        if Try11() then Observer.Observe('sub.1.a', Util.VShow(V)) else Observer.ObserveError('sub.1.a');
+        if Try11(V, vChar, vOption) then Observer.Observe('sub.1.a', Util.VShow(V)) else Observer.ObserveError('sub.1.a');
         vOption := 1;
         vChar := 97;
-        if Try12() then Observer.Observe('compound_add.1.a', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.1.a');
+        if Try12(vChar, vOption) then Observer.Observe('compound_add.1.a', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.1.a');
         vOption := 1;
         vChar := 65535;
-        if Try10() then Observer.Observe('add.1.65535', Util.VShow(V)) else Observer.ObserveError('add.1.65535');
+        if Try10(V, vChar, vOption) then Observer.Observe('add.1.65535', Util.VShow(V)) else Observer.ObserveError('add.1.65535');
         vOption := 1;
         vChar := 65535;
-        if Try11() then Observer.Observe('sub.1.65535', Util.VShow(V)) else Observer.ObserveError('sub.1.65535');
-        vOption := 1;
-        vChar := 65535;
-        if Try12() then Observer.Observe('compound_add.1.65535', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.1.65535');
-        vOption := 3;
-        vChar := 65;
-        if Try10() then Observer.Observe('add.3.A', Util.VShow(V)) else Observer.ObserveError('add.3.A');
-        vOption := 3;
-        vChar := 65;
-        if Try11() then Observer.Observe('sub.3.A', Util.VShow(V)) else Observer.ObserveError('sub.3.A');
-        vOption := 3;
-        vChar := 65;
-        if Try12() then Observer.Observe('compound_add.3.A', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.3.A');
-        vOption := 3;
-        vChar := 97;
-        if Try10() then Observer.Observe('add.3.a', Util.VShow(V)) else Observer.ObserveError('add.3.a');
-        vOption := 3;
-        vChar := 97;
-        if Try11() then Observer.Observe('sub.3.a', Util.VShow(V)) else Observer.ObserveError('sub.3.a');
-        vOption := 3;
-        vChar := 97;
-        if Try12() then Observer.Observe('compound_add.3.a', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.3.a');
-        vOption := 3;
-        vChar := 65535;
-        if Try10() then Observer.Observe('add.3.65535', Util.VShow(V)) else Observer.ObserveError('add.3.65535');
-        vOption := 3;
-        vChar := 65535;
-        if Try11() then Observer.Observe('sub.3.65535', Util.VShow(V)) else Observer.ObserveError('sub.3.65535');
-        vOption := 3;
-        vChar := 65535;
-        if Try12() then Observer.Observe('compound_add.3.65535', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.3.65535');
+        if Try11(V, vChar, vOption) then Observer.Observe('sub.1.65535', Util.VShow(V)) else Observer.ObserveError('sub.1.65535');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Option_Char_More1()
+    procedure Option_Char_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vChar: Char;
+        vOption: Option A,B,C;
     begin
-        Observer.More();
+        vOption := 1;
+        vChar := 65535;
+        if Try12(vChar, vOption) then Observer.Observe('compound_add.1.65535', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.1.65535');
+        vOption := 3;
+        vChar := 65;
+        if Try10(V, vChar, vOption) then Observer.Observe('add.3.A', Util.VShow(V)) else Observer.ObserveError('add.3.A');
+        vOption := 3;
+        vChar := 65;
+        if Try11(V, vChar, vOption) then Observer.Observe('sub.3.A', Util.VShow(V)) else Observer.ObserveError('sub.3.A');
+        vOption := 3;
+        vChar := 65;
+        if Try12(vChar, vOption) then Observer.Observe('compound_add.3.A', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.3.A');
+        vOption := 3;
+        vChar := 97;
+        if Try10(V, vChar, vOption) then Observer.Observe('add.3.a', Util.VShow(V)) else Observer.ObserveError('add.3.a');
+        vOption := 3;
+        vChar := 97;
+        if Try11(V, vChar, vOption) then Observer.Observe('sub.3.a', Util.VShow(V)) else Observer.ObserveError('sub.3.a');
+        vOption := 3;
+        vChar := 97;
+        if Try12(vChar, vOption) then Observer.Observe('compound_add.3.a', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.3.a');
+        vOption := 3;
+        vChar := 65535;
+        if Try10(V, vChar, vOption) then Observer.Observe('add.3.65535', Util.VShow(V)) else Observer.ObserveError('add.3.65535');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Option_Char_More2()
+    procedure Option_Char_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vChar: Char;
+        vOption: Option A,B,C;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Char_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Char_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Char_More5()
-    begin
-        Observer.More();
+        vOption := 3;
+        vChar := 65535;
+        if Try11(V, vChar, vOption) then Observer.Observe('sub.3.65535', Util.VShow(V)) else Observer.ObserveError('sub.3.65535');
+        vOption := 3;
+        vChar := 65535;
+        if Try12(vChar, vOption) then Observer.Observe('compound_add.3.65535', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.3.65535');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Option_Byte()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vByte: Byte;
+        vOption: Option A,B,C;
     begin
         vOption := 1;
         vByte := 65;
-        if Try13() then Observer.Observe('add.1.65', Util.VShow(V)) else Observer.ObserveError('add.1.65');
+        if Try13(V, vByte, vOption) then Observer.Observe('add.1.65', Util.VShow(V)) else Observer.ObserveError('add.1.65');
         vOption := 1;
         vByte := 65;
-        if Try14() then Observer.Observe('sub.1.65', Util.VShow(V)) else Observer.ObserveError('sub.1.65');
+        if Try14(V, vByte, vOption) then Observer.Observe('sub.1.65', Util.VShow(V)) else Observer.ObserveError('sub.1.65');
         vOption := 1;
         vByte := 65;
-        if Try15() then Observer.Observe('compound_add.1.65', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.1.65');
+        if Try15(vByte, vOption) then Observer.Observe('compound_add.1.65', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.1.65');
         vOption := 1;
         vByte := 255;
-        if Try13() then Observer.Observe('add.1.255', Util.VShow(V)) else Observer.ObserveError('add.1.255');
+        if Try13(V, vByte, vOption) then Observer.Observe('add.1.255', Util.VShow(V)) else Observer.ObserveError('add.1.255');
         vOption := 1;
         vByte := 255;
-        if Try14() then Observer.Observe('sub.1.255', Util.VShow(V)) else Observer.ObserveError('sub.1.255');
+        if Try14(V, vByte, vOption) then Observer.Observe('sub.1.255', Util.VShow(V)) else Observer.ObserveError('sub.1.255');
         vOption := 1;
         vByte := 255;
-        if Try15() then Observer.Observe('compound_add.1.255', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.1.255');
+        if Try15(vByte, vOption) then Observer.Observe('compound_add.1.255', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.1.255');
         vOption := 3;
         vByte := 65;
-        if Try13() then Observer.Observe('add.3.65', Util.VShow(V)) else Observer.ObserveError('add.3.65');
+        if Try13(V, vByte, vOption) then Observer.Observe('add.3.65', Util.VShow(V)) else Observer.ObserveError('add.3.65');
         vOption := 3;
         vByte := 65;
-        if Try14() then Observer.Observe('sub.3.65', Util.VShow(V)) else Observer.ObserveError('sub.3.65');
-        vOption := 3;
-        vByte := 65;
-        if Try15() then Observer.Observe('compound_add.3.65', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.3.65');
-        vOption := 3;
-        vByte := 255;
-        if Try13() then Observer.Observe('add.3.255', Util.VShow(V)) else Observer.ObserveError('add.3.255');
-        vOption := 3;
-        vByte := 255;
-        if Try14() then Observer.Observe('sub.3.255', Util.VShow(V)) else Observer.ObserveError('sub.3.255');
-        vOption := 3;
-        vByte := 255;
-        if Try15() then Observer.Observe('compound_add.3.255', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.3.255');
+        if Try14(V, vByte, vOption) then Observer.Observe('sub.3.65', Util.VShow(V)) else Observer.ObserveError('sub.3.65');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Option_Byte_More1()
+    procedure Option_Byte_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vByte: Byte;
+        vOption: Option A,B,C;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Byte_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Byte_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Byte_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Byte_More5()
-    begin
-        Observer.More();
+        vOption := 3;
+        vByte := 65;
+        if Try15(vByte, vOption) then Observer.Observe('compound_add.3.65', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.3.65');
+        vOption := 3;
+        vByte := 255;
+        if Try13(V, vByte, vOption) then Observer.Observe('add.3.255', Util.VShow(V)) else Observer.ObserveError('add.3.255');
+        vOption := 3;
+        vByte := 255;
+        if Try14(V, vByte, vOption) then Observer.Observe('sub.3.255', Util.VShow(V)) else Observer.ObserveError('sub.3.255');
+        vOption := 3;
+        vByte := 255;
+        if Try15(vByte, vOption) then Observer.Observe('compound_add.3.255', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.3.255');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Option_Option_Same()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vOption: Option A,B,C;
+        vOption_R: Option A,B,C;
     begin
         vOption := 1;
         vOption_R := 1;
-        if Try16() then Observer.Observe('add.1.1', Util.VShow(V)) else Observer.ObserveError('add.1.1');
+        if Try16(V, vOption, vOption_R) then Observer.Observe('add.1.1', Util.VShow(V)) else Observer.ObserveError('add.1.1');
         vOption := 1;
         vOption_R := 1;
-        if Try17() then Observer.Observe('sub.1.1', Util.VShow(V)) else Observer.ObserveError('sub.1.1');
+        if Try17(V, vOption, vOption_R) then Observer.Observe('sub.1.1', Util.VShow(V)) else Observer.ObserveError('sub.1.1');
         vOption := 1;
         vOption_R := 1;
-        if Try18() then Observer.Observe('compound_add.1.1', Format(vOption_R) + '|' + Format(Util.OptOrd(vOption_R))) else Observer.ObserveError('compound_add.1.1');
+        if Try18(vOption, vOption_R) then Observer.Observe('compound_add.1.1', Format(vOption_R) + '|' + Format(Util.OptOrd(vOption_R))) else Observer.ObserveError('compound_add.1.1');
         vOption := 1;
         vOption_R := 3;
-        if Try16() then Observer.Observe('add.1.3', Util.VShow(V)) else Observer.ObserveError('add.1.3');
+        if Try16(V, vOption, vOption_R) then Observer.Observe('add.1.3', Util.VShow(V)) else Observer.ObserveError('add.1.3');
         vOption := 1;
         vOption_R := 3;
-        if Try17() then Observer.Observe('sub.1.3', Util.VShow(V)) else Observer.ObserveError('sub.1.3');
+        if Try17(V, vOption, vOption_R) then Observer.Observe('sub.1.3', Util.VShow(V)) else Observer.ObserveError('sub.1.3');
         vOption := 1;
         vOption_R := 3;
-        if Try18() then Observer.Observe('compound_add.1.3', Format(vOption_R) + '|' + Format(Util.OptOrd(vOption_R))) else Observer.ObserveError('compound_add.1.3');
+        if Try18(vOption, vOption_R) then Observer.Observe('compound_add.1.3', Format(vOption_R) + '|' + Format(Util.OptOrd(vOption_R))) else Observer.ObserveError('compound_add.1.3');
         vOption := 3;
         vOption_R := 1;
-        if Try16() then Observer.Observe('add.3.1', Util.VShow(V)) else Observer.ObserveError('add.3.1');
+        if Try16(V, vOption, vOption_R) then Observer.Observe('add.3.1', Util.VShow(V)) else Observer.ObserveError('add.3.1');
         vOption := 3;
         vOption_R := 1;
-        if Try17() then Observer.Observe('sub.3.1', Util.VShow(V)) else Observer.ObserveError('sub.3.1');
-        vOption := 3;
-        vOption_R := 1;
-        if Try18() then Observer.Observe('compound_add.3.1', Format(vOption_R) + '|' + Format(Util.OptOrd(vOption_R))) else Observer.ObserveError('compound_add.3.1');
-        vOption := 3;
-        vOption_R := 3;
-        if Try16() then Observer.Observe('add.3.3', Util.VShow(V)) else Observer.ObserveError('add.3.3');
-        vOption := 3;
-        vOption_R := 3;
-        if Try17() then Observer.Observe('sub.3.3', Util.VShow(V)) else Observer.ObserveError('sub.3.3');
-        vOption := 3;
-        vOption_R := 3;
-        if Try18() then Observer.Observe('compound_add.3.3', Format(vOption_R) + '|' + Format(Util.OptOrd(vOption_R))) else Observer.ObserveError('compound_add.3.3');
+        if Try17(V, vOption, vOption_R) then Observer.Observe('sub.3.1', Util.VShow(V)) else Observer.ObserveError('sub.3.1');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Option_Option_Same_More1()
+    procedure Option_Option_Same_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vOption: Option A,B,C;
+        vOption_R: Option A,B,C;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Option_Same_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Option_Same_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Option_Same_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Option_Same_More5()
-    begin
-        Observer.More();
+        vOption := 3;
+        vOption_R := 1;
+        if Try18(vOption, vOption_R) then Observer.Observe('compound_add.3.1', Format(vOption_R) + '|' + Format(Util.OptOrd(vOption_R))) else Observer.ObserveError('compound_add.3.1');
+        vOption := 3;
+        vOption_R := 3;
+        if Try16(V, vOption, vOption_R) then Observer.Observe('add.3.3', Util.VShow(V)) else Observer.ObserveError('add.3.3');
+        vOption := 3;
+        vOption_R := 3;
+        if Try17(V, vOption, vOption_R) then Observer.Observe('sub.3.3', Util.VShow(V)) else Observer.ObserveError('sub.3.3');
+        vOption := 3;
+        vOption_R := 3;
+        if Try18(vOption, vOption_R) then Observer.Observe('compound_add.3.3', Format(vOption_R) + '|' + Format(Util.OptOrd(vOption_R))) else Observer.ObserveError('compound_add.3.3');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Option_Enum()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vEnum: Enum "LT Y31 E";
+        vOption: Option A,B,C;
     begin
         vOption := 1;
         vEnum := "LT Y31 E"::B;
-        if Try19() then Observer.Observe('add.1.B', Util.VShow(V)) else Observer.ObserveError('add.1.B');
+        if Try19(V, vEnum, vOption) then Observer.Observe('add.1.B', Util.VShow(V)) else Observer.ObserveError('add.1.B');
         vOption := 1;
         vEnum := "LT Y31 E"::B;
-        if Try20() then Observer.Observe('sub.1.B', Util.VShow(V)) else Observer.ObserveError('sub.1.B');
+        if Try20(V, vEnum, vOption) then Observer.Observe('sub.1.B', Util.VShow(V)) else Observer.ObserveError('sub.1.B');
         vOption := 1;
         vEnum := "LT Y31 E"::B;
-        if Try21() then Observer.Observe('compound_add.1.B', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('compound_add.1.B');
+        if Try21(vEnum, vOption) then Observer.Observe('compound_add.1.B', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('compound_add.1.B');
         vOption := 1;
         vEnum := 5;
-        if Try19() then Observer.Observe('add.1.ord5', Util.VShow(V)) else Observer.ObserveError('add.1.ord5');
+        if Try19(V, vEnum, vOption) then Observer.Observe('add.1.ord5', Util.VShow(V)) else Observer.ObserveError('add.1.ord5');
         vOption := 1;
         vEnum := 5;
-        if Try20() then Observer.Observe('sub.1.ord5', Util.VShow(V)) else Observer.ObserveError('sub.1.ord5');
+        if Try20(V, vEnum, vOption) then Observer.Observe('sub.1.ord5', Util.VShow(V)) else Observer.ObserveError('sub.1.ord5');
         vOption := 1;
         vEnum := 5;
-        if Try21() then Observer.Observe('compound_add.1.ord5', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('compound_add.1.ord5');
+        if Try21(vEnum, vOption) then Observer.Observe('compound_add.1.ord5', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('compound_add.1.ord5');
         vOption := 3;
         vEnum := "LT Y31 E"::B;
-        if Try19() then Observer.Observe('add.3.B', Util.VShow(V)) else Observer.ObserveError('add.3.B');
+        if Try19(V, vEnum, vOption) then Observer.Observe('add.3.B', Util.VShow(V)) else Observer.ObserveError('add.3.B');
         vOption := 3;
         vEnum := "LT Y31 E"::B;
-        if Try20() then Observer.Observe('sub.3.B', Util.VShow(V)) else Observer.ObserveError('sub.3.B');
-        vOption := 3;
-        vEnum := "LT Y31 E"::B;
-        if Try21() then Observer.Observe('compound_add.3.B', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('compound_add.3.B');
-        vOption := 3;
-        vEnum := 5;
-        if Try19() then Observer.Observe('add.3.ord5', Util.VShow(V)) else Observer.ObserveError('add.3.ord5');
-        vOption := 3;
-        vEnum := 5;
-        if Try20() then Observer.Observe('sub.3.ord5', Util.VShow(V)) else Observer.ObserveError('sub.3.ord5');
-        vOption := 3;
-        vEnum := 5;
-        if Try21() then Observer.Observe('compound_add.3.ord5', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('compound_add.3.ord5');
+        if Try20(V, vEnum, vOption) then Observer.Observe('sub.3.B', Util.VShow(V)) else Observer.ObserveError('sub.3.B');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Option_Enum_More1()
+    procedure Option_Enum_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vEnum: Enum "LT Y31 E";
+        vOption: Option A,B,C;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Enum_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Enum_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Enum_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Enum_More5()
-    begin
-        Observer.More();
+        vOption := 3;
+        vEnum := "LT Y31 E"::B;
+        if Try21(vEnum, vOption) then Observer.Observe('compound_add.3.B', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('compound_add.3.B');
+        vOption := 3;
+        vEnum := 5;
+        if Try19(V, vEnum, vOption) then Observer.Observe('add.3.ord5', Util.VShow(V)) else Observer.ObserveError('add.3.ord5');
+        vOption := 3;
+        vEnum := 5;
+        if Try20(V, vEnum, vOption) then Observer.Observe('sub.3.ord5', Util.VShow(V)) else Observer.ObserveError('sub.3.ord5');
+        vOption := 3;
+        vEnum := 5;
+        if Try21(vEnum, vOption) then Observer.Observe('compound_add.3.ord5', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('compound_add.3.ord5');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Option_EnumImpl()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vEnumImpl: Enum "LT Y31 EI";
+        vOption: Option A,B,C;
     begin
         vOption := 1;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try22() then Observer.Observe('add.1.A', Util.VShow(V)) else Observer.ObserveError('add.1.A');
+        if Try22(V, vEnumImpl, vOption) then Observer.Observe('add.1.A', Util.VShow(V)) else Observer.ObserveError('add.1.A');
         vOption := 1;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try23() then Observer.Observe('sub.1.A', Util.VShow(V)) else Observer.ObserveError('sub.1.A');
+        if Try23(V, vEnumImpl, vOption) then Observer.Observe('sub.1.A', Util.VShow(V)) else Observer.ObserveError('sub.1.A');
         vOption := 1;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try24() then Observer.Observe('compound_add.1.A', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('compound_add.1.A');
+        if Try24(vEnumImpl, vOption) then Observer.Observe('compound_add.1.A', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('compound_add.1.A');
         vOption := 3;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try22() then Observer.Observe('add.3.A', Util.VShow(V)) else Observer.ObserveError('add.3.A');
+        if Try22(V, vEnumImpl, vOption) then Observer.Observe('add.3.A', Util.VShow(V)) else Observer.ObserveError('add.3.A');
         vOption := 3;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try23() then Observer.Observe('sub.3.A', Util.VShow(V)) else Observer.ObserveError('sub.3.A');
+        if Try23(V, vEnumImpl, vOption) then Observer.Observe('sub.3.A', Util.VShow(V)) else Observer.ObserveError('sub.3.A');
         vOption := 3;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try24() then Observer.Observe('compound_add.3.A', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('compound_add.3.A');
+        if Try24(vEnumImpl, vOption) then Observer.Observe('compound_add.3.A', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('compound_add.3.A');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Option_EnumImpl_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_EnumImpl_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_EnumImpl_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_EnumImpl_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_EnumImpl_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Option_Date()
+    var
+        Observer: Codeunit "Probe Observer";
+        vDate: Date;
+        vOption: Option A,B,C;
     begin
         vOption := 1;
         vDate := 20260131D;
-        if Try25() then Observer.Observe('compound_add.1.d', Format(vDate, 0, 9)) else Observer.ObserveError('compound_add.1.d');
+        if Try25(vDate, vOption) then Observer.Observe('compound_add.1.d', Format(vDate, 0, 9)) else Observer.ObserveError('compound_add.1.d');
         vOption := 3;
         vDate := 20260131D;
-        if Try25() then Observer.Observe('compound_add.3.d', Format(vDate, 0, 9)) else Observer.ObserveError('compound_add.3.d');
+        if Try25(vDate, vOption) then Observer.Observe('compound_add.3.d', Format(vDate, 0, 9)) else Observer.ObserveError('compound_add.3.d');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Option_Date_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Date_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Date_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Date_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Date_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Option_Time()
+    var
+        Observer: Codeunit "Probe Observer";
+        vOption: Option A,B,C;
+        vTime: Time;
     begin
         vOption := 1;
         vTime := 120000T;
-        if Try26() then Observer.Observe('compound_add.1.t', Format(vTime, 0, 9)) else Observer.ObserveError('compound_add.1.t');
+        if Try26(vOption, vTime) then Observer.Observe('compound_add.1.t', Format(vTime, 0, 9)) else Observer.ObserveError('compound_add.1.t');
         vOption := 3;
         vTime := 120000T;
-        if Try26() then Observer.Observe('compound_add.3.t', Format(vTime, 0, 9)) else Observer.ObserveError('compound_add.3.t');
+        if Try26(vOption, vTime) then Observer.Observe('compound_add.3.t', Format(vTime, 0, 9)) else Observer.ObserveError('compound_add.3.t');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Option_Time_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Time_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Time_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Time_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Time_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Option_DateTime()
+    var
+        Observer: Codeunit "Probe Observer";
+        vDateTime: DateTime;
+        vOption: Option A,B,C;
     begin
         vOption := 1;
         vDateTime := CreateDateTime(20260131D, 120000T);
-        if Try27() then Observer.Observe('compound_add.1.dt', Format(vDateTime, 0, 9)) else Observer.ObserveError('compound_add.1.dt');
+        if Try27(vDateTime, vOption) then Observer.Observe('compound_add.1.dt', Format(vDateTime, 0, 9)) else Observer.ObserveError('compound_add.1.dt');
         vOption := 3;
         vDateTime := CreateDateTime(20260131D, 120000T);
-        if Try27() then Observer.Observe('compound_add.3.dt', Format(vDateTime, 0, 9)) else Observer.ObserveError('compound_add.3.dt');
+        if Try27(vDateTime, vOption) then Observer.Observe('compound_add.3.dt', Format(vDateTime, 0, 9)) else Observer.ObserveError('compound_add.3.dt');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Option_DateTime_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_DateTime_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_DateTime_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_DateTime_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_DateTime_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Option_Duration()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vDuration: Duration;
+        vOption: Option A,B,C;
     begin
         vOption := 1;
         vDuration := 65;
-        if Try28() then Observer.Observe('add.1.65', Util.VShow(V)) else Observer.ObserveError('add.1.65');
+        if Try28(V, vDuration, vOption) then Observer.Observe('add.1.65', Util.VShow(V)) else Observer.ObserveError('add.1.65');
         vOption := 1;
         vDuration := 65;
-        if Try29() then Observer.Observe('sub.1.65', Util.VShow(V)) else Observer.ObserveError('sub.1.65');
+        if Try29(V, vDuration, vOption) then Observer.Observe('sub.1.65', Util.VShow(V)) else Observer.ObserveError('sub.1.65');
         vOption := 1;
         vDuration := 65;
-        if Try30() then Observer.Observe('compound_add.1.65', Format(vDuration, 0, 9)) else Observer.ObserveError('compound_add.1.65');
+        if Try30(vDuration, vOption) then Observer.Observe('compound_add.1.65', Format(vDuration, 0, 9)) else Observer.ObserveError('compound_add.1.65');
         vOption := 3;
         vDuration := 65;
-        if Try28() then Observer.Observe('add.3.65', Util.VShow(V)) else Observer.ObserveError('add.3.65');
+        if Try28(V, vDuration, vOption) then Observer.Observe('add.3.65', Util.VShow(V)) else Observer.ObserveError('add.3.65');
         vOption := 3;
         vDuration := 65;
-        if Try29() then Observer.Observe('sub.3.65', Util.VShow(V)) else Observer.ObserveError('sub.3.65');
+        if Try29(V, vDuration, vOption) then Observer.Observe('sub.3.65', Util.VShow(V)) else Observer.ObserveError('sub.3.65');
         vOption := 3;
         vDuration := 65;
-        if Try30() then Observer.Observe('compound_add.3.65', Format(vDuration, 0, 9)) else Observer.ObserveError('compound_add.3.65');
+        if Try30(vDuration, vOption) then Observer.Observe('compound_add.3.65', Format(vDuration, 0, 9)) else Observer.ObserveError('compound_add.3.65');
         Observer.Finish();
     end;
 
-    [Test]
-    procedure Option_Duration_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Duration_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Duration_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Duration_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Option_Duration_More5()
-    begin
-        Observer.More();
-    end;
-
     [TryFunction]
-    local procedure Try1()
+    local procedure Try1(var V: Variant; var vInteger: Integer; var vOption: Option A,B,C)
     begin
         Clear(V);
         V := vOption + vInteger;
     end;
 
     [TryFunction]
-    local procedure Try2()
+    local procedure Try2(var V: Variant; var vInteger: Integer; var vOption: Option A,B,C)
     begin
         Clear(V);
         V := vOption - vInteger;
     end;
 
     [TryFunction]
-    local procedure Try3()
+    local procedure Try3(var vInteger: Integer; var vOption: Option A,B,C)
     begin
         vInteger += vOption;
     end;
 
     [TryFunction]
-    local procedure Try4()
+    local procedure Try4(var V: Variant; var vBigInteger: BigInteger; var vOption: Option A,B,C)
     begin
         Clear(V);
         V := vOption + vBigInteger;
     end;
 
     [TryFunction]
-    local procedure Try5()
+    local procedure Try5(var V: Variant; var vBigInteger: BigInteger; var vOption: Option A,B,C)
     begin
         Clear(V);
         V := vOption - vBigInteger;
     end;
 
     [TryFunction]
-    local procedure Try6()
+    local procedure Try6(var vBigInteger: BigInteger; var vOption: Option A,B,C)
     begin
         vBigInteger += vOption;
     end;
 
     [TryFunction]
-    local procedure Try7()
+    local procedure Try7(var V: Variant; var vDecimal: Decimal; var vOption: Option A,B,C)
     begin
         Clear(V);
         V := vOption + vDecimal;
     end;
 
     [TryFunction]
-    local procedure Try8()
+    local procedure Try8(var V: Variant; var vDecimal: Decimal; var vOption: Option A,B,C)
     begin
         Clear(V);
         V := vOption - vDecimal;
     end;
 
     [TryFunction]
-    local procedure Try9()
+    local procedure Try9(var vDecimal: Decimal; var vOption: Option A,B,C)
     begin
         vDecimal += vOption;
     end;
 
     [TryFunction]
-    local procedure Try10()
+    local procedure Try10(var V: Variant; var vChar: Char; var vOption: Option A,B,C)
     begin
         Clear(V);
         V := vOption + vChar;
     end;
 
     [TryFunction]
-    local procedure Try11()
+    local procedure Try11(var V: Variant; var vChar: Char; var vOption: Option A,B,C)
     begin
         Clear(V);
         V := vOption - vChar;
     end;
 
     [TryFunction]
-    local procedure Try12()
+    local procedure Try12(var vChar: Char; var vOption: Option A,B,C)
     begin
         vChar += vOption;
     end;
 
     [TryFunction]
-    local procedure Try13()
+    local procedure Try13(var V: Variant; var vByte: Byte; var vOption: Option A,B,C)
     begin
         Clear(V);
         V := vOption + vByte;
     end;
 
     [TryFunction]
-    local procedure Try14()
+    local procedure Try14(var V: Variant; var vByte: Byte; var vOption: Option A,B,C)
     begin
         Clear(V);
         V := vOption - vByte;
     end;
 
     [TryFunction]
-    local procedure Try15()
+    local procedure Try15(var vByte: Byte; var vOption: Option A,B,C)
     begin
         vByte += vOption;
     end;
 
     [TryFunction]
-    local procedure Try16()
+    local procedure Try16(var V: Variant; var vOption: Option A,B,C; var vOption_R: Option A,B,C)
     begin
         Clear(V);
         V := vOption + vOption_R;
     end;
 
     [TryFunction]
-    local procedure Try17()
+    local procedure Try17(var V: Variant; var vOption: Option A,B,C; var vOption_R: Option A,B,C)
     begin
         Clear(V);
         V := vOption - vOption_R;
     end;
 
     [TryFunction]
-    local procedure Try18()
+    local procedure Try18(var vOption: Option A,B,C; var vOption_R: Option A,B,C)
     begin
         vOption_R += vOption;
     end;
 
     [TryFunction]
-    local procedure Try19()
+    local procedure Try19(var V: Variant; var vEnum: Enum "LT Y31 E"; var vOption: Option A,B,C)
     begin
         Clear(V);
         V := vOption + vEnum;
     end;
 
     [TryFunction]
-    local procedure Try20()
+    local procedure Try20(var V: Variant; var vEnum: Enum "LT Y31 E"; var vOption: Option A,B,C)
     begin
         Clear(V);
         V := vOption - vEnum;
     end;
 
     [TryFunction]
-    local procedure Try21()
+    local procedure Try21(var vEnum: Enum "LT Y31 E"; var vOption: Option A,B,C)
     begin
         vEnum += vOption;
     end;
 
     [TryFunction]
-    local procedure Try22()
+    local procedure Try22(var V: Variant; var vEnumImpl: Enum "LT Y31 EI"; var vOption: Option A,B,C)
     begin
         Clear(V);
         V := vOption + vEnumImpl;
     end;
 
     [TryFunction]
-    local procedure Try23()
+    local procedure Try23(var V: Variant; var vEnumImpl: Enum "LT Y31 EI"; var vOption: Option A,B,C)
     begin
         Clear(V);
         V := vOption - vEnumImpl;
     end;
 
     [TryFunction]
-    local procedure Try24()
+    local procedure Try24(var vEnumImpl: Enum "LT Y31 EI"; var vOption: Option A,B,C)
     begin
         vEnumImpl += vOption;
     end;
 
     [TryFunction]
-    local procedure Try25()
+    local procedure Try25(var vDate: Date; var vOption: Option A,B,C)
     begin
         vDate += vOption;
     end;
 
     [TryFunction]
-    local procedure Try26()
+    local procedure Try26(var vOption: Option A,B,C; var vTime: Time)
     begin
         vTime += vOption;
     end;
 
     [TryFunction]
-    local procedure Try27()
+    local procedure Try27(var vDateTime: DateTime; var vOption: Option A,B,C)
     begin
         vDateTime += vOption;
     end;
 
     [TryFunction]
-    local procedure Try28()
+    local procedure Try28(var V: Variant; var vDuration: Duration; var vOption: Option A,B,C)
     begin
         Clear(V);
         V := vOption + vDuration;
     end;
 
     [TryFunction]
-    local procedure Try29()
+    local procedure Try29(var V: Variant; var vDuration: Duration; var vOption: Option A,B,C)
     begin
         Clear(V);
         V := vOption - vDuration;
     end;
 
     [TryFunction]
-    local procedure Try30()
+    local procedure Try30(var vDuration: Duration; var vOption: Option A,B,C)
     begin
         vDuration += vOption;
     end;
@@ -6179,732 +5006,578 @@ codeunit 92451 "LT Y31 Ar Enum"
     Subtype = Test;
     TestPermissions = Disabled;
 
+    [Test]
+    procedure Enum_Integer()
     var
         Observer: Codeunit "Probe Observer";
         Util: Codeunit "LT Y31 Conv Util";
-        Res: Boolean;
         V: Variant;
-        vByte: Byte;
-        vChar: Char;
-        vDate: Date;
-        vDateTime: DateTime;
         vEnum: Enum "LT Y31 E";
-        vEnumImpl: Enum "LT Y31 EI";
-        vEnum_R: Enum "LT Y31 E";
         vInteger: Integer;
-        vOption: Option A,B,C;
-        vTime: Time;
-
-    [Test]
-    procedure Enum_Integer()
     begin
         vEnum := "LT Y31 E"::B;
         vInteger := 65;
-        if Try1() then Observer.Observe('add.B.65', Util.VShow(V)) else Observer.ObserveError('add.B.65');
+        if Try1(V, vEnum, vInteger) then Observer.Observe('add.B.65', Util.VShow(V)) else Observer.ObserveError('add.B.65');
         vEnum := "LT Y31 E"::B;
         vInteger := 65;
-        if Try2() then Observer.Observe('sub.B.65', Util.VShow(V)) else Observer.ObserveError('sub.B.65');
+        if Try2(V, vEnum, vInteger) then Observer.Observe('sub.B.65', Util.VShow(V)) else Observer.ObserveError('sub.B.65');
         vEnum := "LT Y31 E"::B;
         vInteger := 65;
-        if Try3() then Observer.Observe('compound_add.B.65', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.B.65');
+        if Try3(vEnum, vInteger) then Observer.Observe('compound_add.B.65', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.B.65');
         vEnum := "LT Y31 E"::B;
         vInteger := 1;
-        if Try1() then Observer.Observe('add.B.1', Util.VShow(V)) else Observer.ObserveError('add.B.1');
+        if Try1(V, vEnum, vInteger) then Observer.Observe('add.B.1', Util.VShow(V)) else Observer.ObserveError('add.B.1');
         vEnum := "LT Y31 E"::B;
         vInteger := 1;
-        if Try2() then Observer.Observe('sub.B.1', Util.VShow(V)) else Observer.ObserveError('sub.B.1');
+        if Try2(V, vEnum, vInteger) then Observer.Observe('sub.B.1', Util.VShow(V)) else Observer.ObserveError('sub.B.1');
         vEnum := "LT Y31 E"::B;
         vInteger := 1;
-        if Try3() then Observer.Observe('compound_add.B.1', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.B.1');
+        if Try3(vEnum, vInteger) then Observer.Observe('compound_add.B.1', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.B.1');
         vEnum := "LT Y31 E"::B;
         vInteger := 2147483647;
-        if Try1() then Observer.Observe('add.B.max', Util.VShow(V)) else Observer.ObserveError('add.B.max');
+        if Try1(V, vEnum, vInteger) then Observer.Observe('add.B.max', Util.VShow(V)) else Observer.ObserveError('add.B.max');
         vEnum := "LT Y31 E"::B;
         vInteger := 2147483647;
-        if Try2() then Observer.Observe('sub.B.max', Util.VShow(V)) else Observer.ObserveError('sub.B.max');
-        vEnum := "LT Y31 E"::B;
-        vInteger := 2147483647;
-        if Try3() then Observer.Observe('compound_add.B.max', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.B.max');
-        vEnum := 5;
-        vInteger := 65;
-        if Try1() then Observer.Observe('add.ord5.65', Util.VShow(V)) else Observer.ObserveError('add.ord5.65');
-        vEnum := 5;
-        vInteger := 65;
-        if Try2() then Observer.Observe('sub.ord5.65', Util.VShow(V)) else Observer.ObserveError('sub.ord5.65');
-        vEnum := 5;
-        vInteger := 65;
-        if Try3() then Observer.Observe('compound_add.ord5.65', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.ord5.65');
-        vEnum := 5;
-        vInteger := 1;
-        if Try1() then Observer.Observe('add.ord5.1', Util.VShow(V)) else Observer.ObserveError('add.ord5.1');
-        vEnum := 5;
-        vInteger := 1;
-        if Try2() then Observer.Observe('sub.ord5.1', Util.VShow(V)) else Observer.ObserveError('sub.ord5.1');
-        vEnum := 5;
-        vInteger := 1;
-        if Try3() then Observer.Observe('compound_add.ord5.1', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.ord5.1');
-        vEnum := 5;
-        vInteger := 2147483647;
-        if Try1() then Observer.Observe('add.ord5.max', Util.VShow(V)) else Observer.ObserveError('add.ord5.max');
-        vEnum := 5;
-        vInteger := 2147483647;
-        if Try2() then Observer.Observe('sub.ord5.max', Util.VShow(V)) else Observer.ObserveError('sub.ord5.max');
-        vEnum := 5;
-        vInteger := 2147483647;
-        if Try3() then Observer.Observe('compound_add.ord5.max', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.ord5.max');
+        if Try2(V, vEnum, vInteger) then Observer.Observe('sub.B.max', Util.VShow(V)) else Observer.ObserveError('sub.B.max');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Enum_Integer_More1()
+    procedure Enum_Integer_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vEnum: Enum "LT Y31 E";
+        vInteger: Integer;
     begin
-        Observer.More();
+        vEnum := "LT Y31 E"::B;
+        vInteger := 2147483647;
+        if Try3(vEnum, vInteger) then Observer.Observe('compound_add.B.max', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.B.max');
+        vEnum := 5;
+        vInteger := 65;
+        if Try1(V, vEnum, vInteger) then Observer.Observe('add.ord5.65', Util.VShow(V)) else Observer.ObserveError('add.ord5.65');
+        vEnum := 5;
+        vInteger := 65;
+        if Try2(V, vEnum, vInteger) then Observer.Observe('sub.ord5.65', Util.VShow(V)) else Observer.ObserveError('sub.ord5.65');
+        vEnum := 5;
+        vInteger := 65;
+        if Try3(vEnum, vInteger) then Observer.Observe('compound_add.ord5.65', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.ord5.65');
+        vEnum := 5;
+        vInteger := 1;
+        if Try1(V, vEnum, vInteger) then Observer.Observe('add.ord5.1', Util.VShow(V)) else Observer.ObserveError('add.ord5.1');
+        vEnum := 5;
+        vInteger := 1;
+        if Try2(V, vEnum, vInteger) then Observer.Observe('sub.ord5.1', Util.VShow(V)) else Observer.ObserveError('sub.ord5.1');
+        vEnum := 5;
+        vInteger := 1;
+        if Try3(vEnum, vInteger) then Observer.Observe('compound_add.ord5.1', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.ord5.1');
+        vEnum := 5;
+        vInteger := 2147483647;
+        if Try1(V, vEnum, vInteger) then Observer.Observe('add.ord5.max', Util.VShow(V)) else Observer.ObserveError('add.ord5.max');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Enum_Integer_More2()
+    procedure Enum_Integer_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vEnum: Enum "LT Y31 E";
+        vInteger: Integer;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_Integer_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_Integer_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_Integer_More5()
-    begin
-        Observer.More();
+        vEnum := 5;
+        vInteger := 2147483647;
+        if Try2(V, vEnum, vInteger) then Observer.Observe('sub.ord5.max', Util.VShow(V)) else Observer.ObserveError('sub.ord5.max');
+        vEnum := 5;
+        vInteger := 2147483647;
+        if Try3(vEnum, vInteger) then Observer.Observe('compound_add.ord5.max', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.ord5.max');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Enum_Char()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vChar: Char;
+        vEnum: Enum "LT Y31 E";
     begin
         vEnum := "LT Y31 E"::B;
         vChar := 65;
-        if Try4() then Observer.Observe('add.B.A', Util.VShow(V)) else Observer.ObserveError('add.B.A');
+        if Try4(V, vChar, vEnum) then Observer.Observe('add.B.A', Util.VShow(V)) else Observer.ObserveError('add.B.A');
         vEnum := "LT Y31 E"::B;
         vChar := 65;
-        if Try5() then Observer.Observe('sub.B.A', Util.VShow(V)) else Observer.ObserveError('sub.B.A');
+        if Try5(V, vChar, vEnum) then Observer.Observe('sub.B.A', Util.VShow(V)) else Observer.ObserveError('sub.B.A');
         vEnum := "LT Y31 E"::B;
         vChar := 65;
-        if Try6() then Observer.Observe('compound_add.B.A', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.B.A');
+        if Try6(vChar, vEnum) then Observer.Observe('compound_add.B.A', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.B.A');
         vEnum := "LT Y31 E"::B;
         vChar := 97;
-        if Try4() then Observer.Observe('add.B.a', Util.VShow(V)) else Observer.ObserveError('add.B.a');
+        if Try4(V, vChar, vEnum) then Observer.Observe('add.B.a', Util.VShow(V)) else Observer.ObserveError('add.B.a');
         vEnum := "LT Y31 E"::B;
         vChar := 97;
-        if Try5() then Observer.Observe('sub.B.a', Util.VShow(V)) else Observer.ObserveError('sub.B.a');
+        if Try5(V, vChar, vEnum) then Observer.Observe('sub.B.a', Util.VShow(V)) else Observer.ObserveError('sub.B.a');
         vEnum := "LT Y31 E"::B;
         vChar := 97;
-        if Try6() then Observer.Observe('compound_add.B.a', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.B.a');
+        if Try6(vChar, vEnum) then Observer.Observe('compound_add.B.a', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.B.a');
         vEnum := "LT Y31 E"::B;
         vChar := 65535;
-        if Try4() then Observer.Observe('add.B.65535', Util.VShow(V)) else Observer.ObserveError('add.B.65535');
+        if Try4(V, vChar, vEnum) then Observer.Observe('add.B.65535', Util.VShow(V)) else Observer.ObserveError('add.B.65535');
         vEnum := "LT Y31 E"::B;
         vChar := 65535;
-        if Try5() then Observer.Observe('sub.B.65535', Util.VShow(V)) else Observer.ObserveError('sub.B.65535');
-        vEnum := "LT Y31 E"::B;
-        vChar := 65535;
-        if Try6() then Observer.Observe('compound_add.B.65535', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.B.65535');
-        vEnum := 5;
-        vChar := 65;
-        if Try4() then Observer.Observe('add.ord5.A', Util.VShow(V)) else Observer.ObserveError('add.ord5.A');
-        vEnum := 5;
-        vChar := 65;
-        if Try5() then Observer.Observe('sub.ord5.A', Util.VShow(V)) else Observer.ObserveError('sub.ord5.A');
-        vEnum := 5;
-        vChar := 65;
-        if Try6() then Observer.Observe('compound_add.ord5.A', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.ord5.A');
-        vEnum := 5;
-        vChar := 97;
-        if Try4() then Observer.Observe('add.ord5.a', Util.VShow(V)) else Observer.ObserveError('add.ord5.a');
-        vEnum := 5;
-        vChar := 97;
-        if Try5() then Observer.Observe('sub.ord5.a', Util.VShow(V)) else Observer.ObserveError('sub.ord5.a');
-        vEnum := 5;
-        vChar := 97;
-        if Try6() then Observer.Observe('compound_add.ord5.a', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.ord5.a');
-        vEnum := 5;
-        vChar := 65535;
-        if Try4() then Observer.Observe('add.ord5.65535', Util.VShow(V)) else Observer.ObserveError('add.ord5.65535');
-        vEnum := 5;
-        vChar := 65535;
-        if Try5() then Observer.Observe('sub.ord5.65535', Util.VShow(V)) else Observer.ObserveError('sub.ord5.65535');
-        vEnum := 5;
-        vChar := 65535;
-        if Try6() then Observer.Observe('compound_add.ord5.65535', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.ord5.65535');
+        if Try5(V, vChar, vEnum) then Observer.Observe('sub.B.65535', Util.VShow(V)) else Observer.ObserveError('sub.B.65535');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Enum_Char_More1()
+    procedure Enum_Char_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vChar: Char;
+        vEnum: Enum "LT Y31 E";
     begin
-        Observer.More();
+        vEnum := "LT Y31 E"::B;
+        vChar := 65535;
+        if Try6(vChar, vEnum) then Observer.Observe('compound_add.B.65535', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.B.65535');
+        vEnum := 5;
+        vChar := 65;
+        if Try4(V, vChar, vEnum) then Observer.Observe('add.ord5.A', Util.VShow(V)) else Observer.ObserveError('add.ord5.A');
+        vEnum := 5;
+        vChar := 65;
+        if Try5(V, vChar, vEnum) then Observer.Observe('sub.ord5.A', Util.VShow(V)) else Observer.ObserveError('sub.ord5.A');
+        vEnum := 5;
+        vChar := 65;
+        if Try6(vChar, vEnum) then Observer.Observe('compound_add.ord5.A', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.ord5.A');
+        vEnum := 5;
+        vChar := 97;
+        if Try4(V, vChar, vEnum) then Observer.Observe('add.ord5.a', Util.VShow(V)) else Observer.ObserveError('add.ord5.a');
+        vEnum := 5;
+        vChar := 97;
+        if Try5(V, vChar, vEnum) then Observer.Observe('sub.ord5.a', Util.VShow(V)) else Observer.ObserveError('sub.ord5.a');
+        vEnum := 5;
+        vChar := 97;
+        if Try6(vChar, vEnum) then Observer.Observe('compound_add.ord5.a', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.ord5.a');
+        vEnum := 5;
+        vChar := 65535;
+        if Try4(V, vChar, vEnum) then Observer.Observe('add.ord5.65535', Util.VShow(V)) else Observer.ObserveError('add.ord5.65535');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Enum_Char_More2()
+    procedure Enum_Char_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vChar: Char;
+        vEnum: Enum "LT Y31 E";
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_Char_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_Char_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_Char_More5()
-    begin
-        Observer.More();
+        vEnum := 5;
+        vChar := 65535;
+        if Try5(V, vChar, vEnum) then Observer.Observe('sub.ord5.65535', Util.VShow(V)) else Observer.ObserveError('sub.ord5.65535');
+        vEnum := 5;
+        vChar := 65535;
+        if Try6(vChar, vEnum) then Observer.Observe('compound_add.ord5.65535', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.ord5.65535');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Enum_Byte()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vByte: Byte;
+        vEnum: Enum "LT Y31 E";
     begin
         vEnum := "LT Y31 E"::B;
         vByte := 65;
-        if Try7() then Observer.Observe('add.B.65', Util.VShow(V)) else Observer.ObserveError('add.B.65');
+        if Try7(V, vByte, vEnum) then Observer.Observe('add.B.65', Util.VShow(V)) else Observer.ObserveError('add.B.65');
         vEnum := "LT Y31 E"::B;
         vByte := 65;
-        if Try8() then Observer.Observe('sub.B.65', Util.VShow(V)) else Observer.ObserveError('sub.B.65');
+        if Try8(V, vByte, vEnum) then Observer.Observe('sub.B.65', Util.VShow(V)) else Observer.ObserveError('sub.B.65');
         vEnum := "LT Y31 E"::B;
         vByte := 65;
-        if Try9() then Observer.Observe('compound_add.B.65', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.B.65');
+        if Try9(vByte, vEnum) then Observer.Observe('compound_add.B.65', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.B.65');
         vEnum := "LT Y31 E"::B;
         vByte := 255;
-        if Try7() then Observer.Observe('add.B.255', Util.VShow(V)) else Observer.ObserveError('add.B.255');
+        if Try7(V, vByte, vEnum) then Observer.Observe('add.B.255', Util.VShow(V)) else Observer.ObserveError('add.B.255');
         vEnum := "LT Y31 E"::B;
         vByte := 255;
-        if Try8() then Observer.Observe('sub.B.255', Util.VShow(V)) else Observer.ObserveError('sub.B.255');
+        if Try8(V, vByte, vEnum) then Observer.Observe('sub.B.255', Util.VShow(V)) else Observer.ObserveError('sub.B.255');
         vEnum := "LT Y31 E"::B;
         vByte := 255;
-        if Try9() then Observer.Observe('compound_add.B.255', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.B.255');
+        if Try9(vByte, vEnum) then Observer.Observe('compound_add.B.255', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.B.255');
         vEnum := 5;
         vByte := 65;
-        if Try7() then Observer.Observe('add.ord5.65', Util.VShow(V)) else Observer.ObserveError('add.ord5.65');
+        if Try7(V, vByte, vEnum) then Observer.Observe('add.ord5.65', Util.VShow(V)) else Observer.ObserveError('add.ord5.65');
         vEnum := 5;
         vByte := 65;
-        if Try8() then Observer.Observe('sub.ord5.65', Util.VShow(V)) else Observer.ObserveError('sub.ord5.65');
-        vEnum := 5;
-        vByte := 65;
-        if Try9() then Observer.Observe('compound_add.ord5.65', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.ord5.65');
-        vEnum := 5;
-        vByte := 255;
-        if Try7() then Observer.Observe('add.ord5.255', Util.VShow(V)) else Observer.ObserveError('add.ord5.255');
-        vEnum := 5;
-        vByte := 255;
-        if Try8() then Observer.Observe('sub.ord5.255', Util.VShow(V)) else Observer.ObserveError('sub.ord5.255');
-        vEnum := 5;
-        vByte := 255;
-        if Try9() then Observer.Observe('compound_add.ord5.255', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.ord5.255');
+        if Try8(V, vByte, vEnum) then Observer.Observe('sub.ord5.65', Util.VShow(V)) else Observer.ObserveError('sub.ord5.65');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Enum_Byte_More1()
+    procedure Enum_Byte_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vByte: Byte;
+        vEnum: Enum "LT Y31 E";
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_Byte_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_Byte_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_Byte_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_Byte_More5()
-    begin
-        Observer.More();
+        vEnum := 5;
+        vByte := 65;
+        if Try9(vByte, vEnum) then Observer.Observe('compound_add.ord5.65', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.ord5.65');
+        vEnum := 5;
+        vByte := 255;
+        if Try7(V, vByte, vEnum) then Observer.Observe('add.ord5.255', Util.VShow(V)) else Observer.ObserveError('add.ord5.255');
+        vEnum := 5;
+        vByte := 255;
+        if Try8(V, vByte, vEnum) then Observer.Observe('sub.ord5.255', Util.VShow(V)) else Observer.ObserveError('sub.ord5.255');
+        vEnum := 5;
+        vByte := 255;
+        if Try9(vByte, vEnum) then Observer.Observe('compound_add.ord5.255', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.ord5.255');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Enum_Option()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vEnum: Enum "LT Y31 E";
+        vOption: Option A,B,C;
     begin
         vEnum := "LT Y31 E"::B;
         vOption := 1;
-        if Try10() then Observer.Observe('add.B.1', Util.VShow(V)) else Observer.ObserveError('add.B.1');
+        if Try10(V, vEnum, vOption) then Observer.Observe('add.B.1', Util.VShow(V)) else Observer.ObserveError('add.B.1');
         vEnum := "LT Y31 E"::B;
         vOption := 1;
-        if Try11() then Observer.Observe('sub.B.1', Util.VShow(V)) else Observer.ObserveError('sub.B.1');
+        if Try11(V, vEnum, vOption) then Observer.Observe('sub.B.1', Util.VShow(V)) else Observer.ObserveError('sub.B.1');
         vEnum := "LT Y31 E"::B;
         vOption := 1;
-        if Try12() then Observer.Observe('compound_add.B.1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.B.1');
+        if Try12(vEnum, vOption) then Observer.Observe('compound_add.B.1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.B.1');
         vEnum := "LT Y31 E"::B;
         vOption := 3;
-        if Try10() then Observer.Observe('add.B.3', Util.VShow(V)) else Observer.ObserveError('add.B.3');
+        if Try10(V, vEnum, vOption) then Observer.Observe('add.B.3', Util.VShow(V)) else Observer.ObserveError('add.B.3');
         vEnum := "LT Y31 E"::B;
         vOption := 3;
-        if Try11() then Observer.Observe('sub.B.3', Util.VShow(V)) else Observer.ObserveError('sub.B.3');
+        if Try11(V, vEnum, vOption) then Observer.Observe('sub.B.3', Util.VShow(V)) else Observer.ObserveError('sub.B.3');
         vEnum := "LT Y31 E"::B;
         vOption := 3;
-        if Try12() then Observer.Observe('compound_add.B.3', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.B.3');
+        if Try12(vEnum, vOption) then Observer.Observe('compound_add.B.3', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.B.3');
         vEnum := 5;
         vOption := 1;
-        if Try10() then Observer.Observe('add.ord5.1', Util.VShow(V)) else Observer.ObserveError('add.ord5.1');
+        if Try10(V, vEnum, vOption) then Observer.Observe('add.ord5.1', Util.VShow(V)) else Observer.ObserveError('add.ord5.1');
         vEnum := 5;
         vOption := 1;
-        if Try11() then Observer.Observe('sub.ord5.1', Util.VShow(V)) else Observer.ObserveError('sub.ord5.1');
-        vEnum := 5;
-        vOption := 1;
-        if Try12() then Observer.Observe('compound_add.ord5.1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.ord5.1');
-        vEnum := 5;
-        vOption := 3;
-        if Try10() then Observer.Observe('add.ord5.3', Util.VShow(V)) else Observer.ObserveError('add.ord5.3');
-        vEnum := 5;
-        vOption := 3;
-        if Try11() then Observer.Observe('sub.ord5.3', Util.VShow(V)) else Observer.ObserveError('sub.ord5.3');
-        vEnum := 5;
-        vOption := 3;
-        if Try12() then Observer.Observe('compound_add.ord5.3', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.ord5.3');
+        if Try11(V, vEnum, vOption) then Observer.Observe('sub.ord5.1', Util.VShow(V)) else Observer.ObserveError('sub.ord5.1');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Enum_Option_More1()
+    procedure Enum_Option_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vEnum: Enum "LT Y31 E";
+        vOption: Option A,B,C;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_Option_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_Option_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_Option_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_Option_More5()
-    begin
-        Observer.More();
+        vEnum := 5;
+        vOption := 1;
+        if Try12(vEnum, vOption) then Observer.Observe('compound_add.ord5.1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.ord5.1');
+        vEnum := 5;
+        vOption := 3;
+        if Try10(V, vEnum, vOption) then Observer.Observe('add.ord5.3', Util.VShow(V)) else Observer.ObserveError('add.ord5.3');
+        vEnum := 5;
+        vOption := 3;
+        if Try11(V, vEnum, vOption) then Observer.Observe('sub.ord5.3', Util.VShow(V)) else Observer.ObserveError('sub.ord5.3');
+        vEnum := 5;
+        vOption := 3;
+        if Try12(vEnum, vOption) then Observer.Observe('compound_add.ord5.3', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.ord5.3');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Enum_Enum_Same()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vEnum: Enum "LT Y31 E";
+        vEnum_R: Enum "LT Y31 E";
     begin
         vEnum := "LT Y31 E"::B;
         vEnum_R := "LT Y31 E"::B;
-        if Try13() then Observer.Observe('add.B.B', Util.VShow(V)) else Observer.ObserveError('add.B.B');
+        if Try13(V, vEnum, vEnum_R) then Observer.Observe('add.B.B', Util.VShow(V)) else Observer.ObserveError('add.B.B');
         vEnum := "LT Y31 E"::B;
         vEnum_R := "LT Y31 E"::B;
-        if Try14() then Observer.Observe('sub.B.B', Util.VShow(V)) else Observer.ObserveError('sub.B.B');
+        if Try14(V, vEnum, vEnum_R) then Observer.Observe('sub.B.B', Util.VShow(V)) else Observer.ObserveError('sub.B.B');
         vEnum := "LT Y31 E"::B;
         vEnum_R := "LT Y31 E"::B;
-        if Try15() then Observer.Observe('compound_add.B.B', Format(vEnum_R) + '|' + Format(vEnum_R.AsInteger())) else Observer.ObserveError('compound_add.B.B');
+        if Try15(vEnum, vEnum_R) then Observer.Observe('compound_add.B.B', Format(vEnum_R) + '|' + Format(vEnum_R.AsInteger())) else Observer.ObserveError('compound_add.B.B');
         vEnum := "LT Y31 E"::B;
         vEnum_R := 5;
-        if Try13() then Observer.Observe('add.B.ord5', Util.VShow(V)) else Observer.ObserveError('add.B.ord5');
+        if Try13(V, vEnum, vEnum_R) then Observer.Observe('add.B.ord5', Util.VShow(V)) else Observer.ObserveError('add.B.ord5');
         vEnum := "LT Y31 E"::B;
         vEnum_R := 5;
-        if Try14() then Observer.Observe('sub.B.ord5', Util.VShow(V)) else Observer.ObserveError('sub.B.ord5');
+        if Try14(V, vEnum, vEnum_R) then Observer.Observe('sub.B.ord5', Util.VShow(V)) else Observer.ObserveError('sub.B.ord5');
         vEnum := "LT Y31 E"::B;
         vEnum_R := 5;
-        if Try15() then Observer.Observe('compound_add.B.ord5', Format(vEnum_R) + '|' + Format(vEnum_R.AsInteger())) else Observer.ObserveError('compound_add.B.ord5');
+        if Try15(vEnum, vEnum_R) then Observer.Observe('compound_add.B.ord5', Format(vEnum_R) + '|' + Format(vEnum_R.AsInteger())) else Observer.ObserveError('compound_add.B.ord5');
         vEnum := 5;
         vEnum_R := "LT Y31 E"::B;
-        if Try13() then Observer.Observe('add.ord5.B', Util.VShow(V)) else Observer.ObserveError('add.ord5.B');
+        if Try13(V, vEnum, vEnum_R) then Observer.Observe('add.ord5.B', Util.VShow(V)) else Observer.ObserveError('add.ord5.B');
         vEnum := 5;
         vEnum_R := "LT Y31 E"::B;
-        if Try14() then Observer.Observe('sub.ord5.B', Util.VShow(V)) else Observer.ObserveError('sub.ord5.B');
-        vEnum := 5;
-        vEnum_R := "LT Y31 E"::B;
-        if Try15() then Observer.Observe('compound_add.ord5.B', Format(vEnum_R) + '|' + Format(vEnum_R.AsInteger())) else Observer.ObserveError('compound_add.ord5.B');
-        vEnum := 5;
-        vEnum_R := 5;
-        if Try13() then Observer.Observe('add.ord5.ord5', Util.VShow(V)) else Observer.ObserveError('add.ord5.ord5');
-        vEnum := 5;
-        vEnum_R := 5;
-        if Try14() then Observer.Observe('sub.ord5.ord5', Util.VShow(V)) else Observer.ObserveError('sub.ord5.ord5');
-        vEnum := 5;
-        vEnum_R := 5;
-        if Try15() then Observer.Observe('compound_add.ord5.ord5', Format(vEnum_R) + '|' + Format(vEnum_R.AsInteger())) else Observer.ObserveError('compound_add.ord5.ord5');
+        if Try14(V, vEnum, vEnum_R) then Observer.Observe('sub.ord5.B', Util.VShow(V)) else Observer.ObserveError('sub.ord5.B');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Enum_Enum_Same_More1()
+    procedure Enum_Enum_Same_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vEnum: Enum "LT Y31 E";
+        vEnum_R: Enum "LT Y31 E";
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_Enum_Same_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_Enum_Same_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_Enum_Same_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_Enum_Same_More5()
-    begin
-        Observer.More();
+        vEnum := 5;
+        vEnum_R := "LT Y31 E"::B;
+        if Try15(vEnum, vEnum_R) then Observer.Observe('compound_add.ord5.B', Format(vEnum_R) + '|' + Format(vEnum_R.AsInteger())) else Observer.ObserveError('compound_add.ord5.B');
+        vEnum := 5;
+        vEnum_R := 5;
+        if Try13(V, vEnum, vEnum_R) then Observer.Observe('add.ord5.ord5', Util.VShow(V)) else Observer.ObserveError('add.ord5.ord5');
+        vEnum := 5;
+        vEnum_R := 5;
+        if Try14(V, vEnum, vEnum_R) then Observer.Observe('sub.ord5.ord5', Util.VShow(V)) else Observer.ObserveError('sub.ord5.ord5');
+        vEnum := 5;
+        vEnum_R := 5;
+        if Try15(vEnum, vEnum_R) then Observer.Observe('compound_add.ord5.ord5', Format(vEnum_R) + '|' + Format(vEnum_R.AsInteger())) else Observer.ObserveError('compound_add.ord5.ord5');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Enum_EnumImpl()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vEnum: Enum "LT Y31 E";
+        vEnumImpl: Enum "LT Y31 EI";
     begin
         vEnum := "LT Y31 E"::B;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try16() then Observer.Observe('add.B.A', Util.VShow(V)) else Observer.ObserveError('add.B.A');
+        if Try16(V, vEnum, vEnumImpl) then Observer.Observe('add.B.A', Util.VShow(V)) else Observer.ObserveError('add.B.A');
         vEnum := "LT Y31 E"::B;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try17() then Observer.Observe('sub.B.A', Util.VShow(V)) else Observer.ObserveError('sub.B.A');
+        if Try17(V, vEnum, vEnumImpl) then Observer.Observe('sub.B.A', Util.VShow(V)) else Observer.ObserveError('sub.B.A');
         vEnum := "LT Y31 E"::B;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try18() then Observer.Observe('compound_add.B.A', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('compound_add.B.A');
+        if Try18(vEnum, vEnumImpl) then Observer.Observe('compound_add.B.A', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('compound_add.B.A');
         vEnum := 5;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try16() then Observer.Observe('add.ord5.A', Util.VShow(V)) else Observer.ObserveError('add.ord5.A');
+        if Try16(V, vEnum, vEnumImpl) then Observer.Observe('add.ord5.A', Util.VShow(V)) else Observer.ObserveError('add.ord5.A');
         vEnum := 5;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try17() then Observer.Observe('sub.ord5.A', Util.VShow(V)) else Observer.ObserveError('sub.ord5.A');
+        if Try17(V, vEnum, vEnumImpl) then Observer.Observe('sub.ord5.A', Util.VShow(V)) else Observer.ObserveError('sub.ord5.A');
         vEnum := 5;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try18() then Observer.Observe('compound_add.ord5.A', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('compound_add.ord5.A');
+        if Try18(vEnum, vEnumImpl) then Observer.Observe('compound_add.ord5.A', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('compound_add.ord5.A');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Enum_EnumImpl_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_EnumImpl_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_EnumImpl_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_EnumImpl_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_EnumImpl_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Enum_Date()
+    var
+        Observer: Codeunit "Probe Observer";
+        vDate: Date;
+        vEnum: Enum "LT Y31 E";
     begin
         vEnum := "LT Y31 E"::B;
         vDate := 20260131D;
-        if Try19() then Observer.Observe('compound_add.B.d', Format(vDate, 0, 9)) else Observer.ObserveError('compound_add.B.d');
+        if Try19(vDate, vEnum) then Observer.Observe('compound_add.B.d', Format(vDate, 0, 9)) else Observer.ObserveError('compound_add.B.d');
         vEnum := 5;
         vDate := 20260131D;
-        if Try19() then Observer.Observe('compound_add.ord5.d', Format(vDate, 0, 9)) else Observer.ObserveError('compound_add.ord5.d');
+        if Try19(vDate, vEnum) then Observer.Observe('compound_add.ord5.d', Format(vDate, 0, 9)) else Observer.ObserveError('compound_add.ord5.d');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Enum_Date_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_Date_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_Date_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_Date_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_Date_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Enum_Time()
+    var
+        Observer: Codeunit "Probe Observer";
+        vEnum: Enum "LT Y31 E";
+        vTime: Time;
     begin
         vEnum := "LT Y31 E"::B;
         vTime := 120000T;
-        if Try20() then Observer.Observe('compound_add.B.t', Format(vTime, 0, 9)) else Observer.ObserveError('compound_add.B.t');
+        if Try20(vEnum, vTime) then Observer.Observe('compound_add.B.t', Format(vTime, 0, 9)) else Observer.ObserveError('compound_add.B.t');
         vEnum := 5;
         vTime := 120000T;
-        if Try20() then Observer.Observe('compound_add.ord5.t', Format(vTime, 0, 9)) else Observer.ObserveError('compound_add.ord5.t');
+        if Try20(vEnum, vTime) then Observer.Observe('compound_add.ord5.t', Format(vTime, 0, 9)) else Observer.ObserveError('compound_add.ord5.t');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Enum_Time_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_Time_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_Time_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_Time_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_Time_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Enum_DateTime()
+    var
+        Observer: Codeunit "Probe Observer";
+        vDateTime: DateTime;
+        vEnum: Enum "LT Y31 E";
     begin
         vEnum := "LT Y31 E"::B;
         vDateTime := CreateDateTime(20260131D, 120000T);
-        if Try21() then Observer.Observe('compound_add.B.dt', Format(vDateTime, 0, 9)) else Observer.ObserveError('compound_add.B.dt');
+        if Try21(vDateTime, vEnum) then Observer.Observe('compound_add.B.dt', Format(vDateTime, 0, 9)) else Observer.ObserveError('compound_add.B.dt');
         vEnum := 5;
         vDateTime := CreateDateTime(20260131D, 120000T);
-        if Try21() then Observer.Observe('compound_add.ord5.dt', Format(vDateTime, 0, 9)) else Observer.ObserveError('compound_add.ord5.dt');
+        if Try21(vDateTime, vEnum) then Observer.Observe('compound_add.ord5.dt', Format(vDateTime, 0, 9)) else Observer.ObserveError('compound_add.ord5.dt');
         Observer.Finish();
     end;
 
-    [Test]
-    procedure Enum_DateTime_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_DateTime_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_DateTime_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_DateTime_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Enum_DateTime_More5()
-    begin
-        Observer.More();
-    end;
-
     [TryFunction]
-    local procedure Try1()
+    local procedure Try1(var V: Variant; var vEnum: Enum "LT Y31 E"; var vInteger: Integer)
     begin
         Clear(V);
         V := vEnum + vInteger;
     end;
 
     [TryFunction]
-    local procedure Try2()
+    local procedure Try2(var V: Variant; var vEnum: Enum "LT Y31 E"; var vInteger: Integer)
     begin
         Clear(V);
         V := vEnum - vInteger;
     end;
 
     [TryFunction]
-    local procedure Try3()
+    local procedure Try3(var vEnum: Enum "LT Y31 E"; var vInteger: Integer)
     begin
         vInteger += vEnum;
     end;
 
     [TryFunction]
-    local procedure Try4()
+    local procedure Try4(var V: Variant; var vChar: Char; var vEnum: Enum "LT Y31 E")
     begin
         Clear(V);
         V := vEnum + vChar;
     end;
 
     [TryFunction]
-    local procedure Try5()
+    local procedure Try5(var V: Variant; var vChar: Char; var vEnum: Enum "LT Y31 E")
     begin
         Clear(V);
         V := vEnum - vChar;
     end;
 
     [TryFunction]
-    local procedure Try6()
+    local procedure Try6(var vChar: Char; var vEnum: Enum "LT Y31 E")
     begin
         vChar += vEnum;
     end;
 
     [TryFunction]
-    local procedure Try7()
+    local procedure Try7(var V: Variant; var vByte: Byte; var vEnum: Enum "LT Y31 E")
     begin
         Clear(V);
         V := vEnum + vByte;
     end;
 
     [TryFunction]
-    local procedure Try8()
+    local procedure Try8(var V: Variant; var vByte: Byte; var vEnum: Enum "LT Y31 E")
     begin
         Clear(V);
         V := vEnum - vByte;
     end;
 
     [TryFunction]
-    local procedure Try9()
+    local procedure Try9(var vByte: Byte; var vEnum: Enum "LT Y31 E")
     begin
         vByte += vEnum;
     end;
 
     [TryFunction]
-    local procedure Try10()
+    local procedure Try10(var V: Variant; var vEnum: Enum "LT Y31 E"; var vOption: Option A,B,C)
     begin
         Clear(V);
         V := vEnum + vOption;
     end;
 
     [TryFunction]
-    local procedure Try11()
+    local procedure Try11(var V: Variant; var vEnum: Enum "LT Y31 E"; var vOption: Option A,B,C)
     begin
         Clear(V);
         V := vEnum - vOption;
     end;
 
     [TryFunction]
-    local procedure Try12()
+    local procedure Try12(var vEnum: Enum "LT Y31 E"; var vOption: Option A,B,C)
     begin
         vOption += vEnum;
     end;
 
     [TryFunction]
-    local procedure Try13()
+    local procedure Try13(var V: Variant; var vEnum: Enum "LT Y31 E"; var vEnum_R: Enum "LT Y31 E")
     begin
         Clear(V);
         V := vEnum + vEnum_R;
     end;
 
     [TryFunction]
-    local procedure Try14()
+    local procedure Try14(var V: Variant; var vEnum: Enum "LT Y31 E"; var vEnum_R: Enum "LT Y31 E")
     begin
         Clear(V);
         V := vEnum - vEnum_R;
     end;
 
     [TryFunction]
-    local procedure Try15()
+    local procedure Try15(var vEnum: Enum "LT Y31 E"; var vEnum_R: Enum "LT Y31 E")
     begin
         vEnum_R += vEnum;
     end;
 
     [TryFunction]
-    local procedure Try16()
+    local procedure Try16(var V: Variant; var vEnum: Enum "LT Y31 E"; var vEnumImpl: Enum "LT Y31 EI")
     begin
         Clear(V);
         V := vEnum + vEnumImpl;
     end;
 
     [TryFunction]
-    local procedure Try17()
+    local procedure Try17(var V: Variant; var vEnum: Enum "LT Y31 E"; var vEnumImpl: Enum "LT Y31 EI")
     begin
         Clear(V);
         V := vEnum - vEnumImpl;
     end;
 
     [TryFunction]
-    local procedure Try18()
+    local procedure Try18(var vEnum: Enum "LT Y31 E"; var vEnumImpl: Enum "LT Y31 EI")
     begin
         vEnumImpl += vEnum;
     end;
 
     [TryFunction]
-    local procedure Try19()
+    local procedure Try19(var vDate: Date; var vEnum: Enum "LT Y31 E")
     begin
         vDate += vEnum;
     end;
 
     [TryFunction]
-    local procedure Try20()
+    local procedure Try20(var vEnum: Enum "LT Y31 E"; var vTime: Time)
     begin
         vTime += vEnum;
     end;
 
     [TryFunction]
-    local procedure Try21()
+    local procedure Try21(var vDateTime: DateTime; var vEnum: Enum "LT Y31 E")
     begin
         vDateTime += vEnum;
     end;
@@ -6923,606 +5596,389 @@ codeunit 92452 "LT Y31 Ar EnumImpl"
     Subtype = Test;
     TestPermissions = Disabled;
 
+    [Test]
+    procedure EnumImpl_Integer()
     var
         Observer: Codeunit "Probe Observer";
         Util: Codeunit "LT Y31 Conv Util";
-        Res: Boolean;
         V: Variant;
-        vByte: Byte;
-        vChar: Char;
-        vDate: Date;
-        vDateTime: DateTime;
-        vEnum: Enum "LT Y31 E";
         vEnumImpl: Enum "LT Y31 EI";
-        vEnumImpl_R: Enum "LT Y31 EI";
         vInteger: Integer;
-        vOption: Option A,B,C;
-        vTime: Time;
-
-    [Test]
-    procedure EnumImpl_Integer()
     begin
         vEnumImpl := "LT Y31 EI"::A;
         vInteger := 65;
-        if Try1() then Observer.Observe('add.A.65', Util.VShow(V)) else Observer.ObserveError('add.A.65');
+        if Try1(V, vEnumImpl, vInteger) then Observer.Observe('add.A.65', Util.VShow(V)) else Observer.ObserveError('add.A.65');
         vEnumImpl := "LT Y31 EI"::A;
         vInteger := 65;
-        if Try2() then Observer.Observe('sub.A.65', Util.VShow(V)) else Observer.ObserveError('sub.A.65');
+        if Try2(V, vEnumImpl, vInteger) then Observer.Observe('sub.A.65', Util.VShow(V)) else Observer.ObserveError('sub.A.65');
         vEnumImpl := "LT Y31 EI"::A;
         vInteger := 65;
-        if Try3() then Observer.Observe('compound_add.A.65', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.A.65');
+        if Try3(vEnumImpl, vInteger) then Observer.Observe('compound_add.A.65', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.A.65');
         vEnumImpl := "LT Y31 EI"::A;
         vInteger := 1;
-        if Try1() then Observer.Observe('add.A.1', Util.VShow(V)) else Observer.ObserveError('add.A.1');
+        if Try1(V, vEnumImpl, vInteger) then Observer.Observe('add.A.1', Util.VShow(V)) else Observer.ObserveError('add.A.1');
         vEnumImpl := "LT Y31 EI"::A;
         vInteger := 1;
-        if Try2() then Observer.Observe('sub.A.1', Util.VShow(V)) else Observer.ObserveError('sub.A.1');
+        if Try2(V, vEnumImpl, vInteger) then Observer.Observe('sub.A.1', Util.VShow(V)) else Observer.ObserveError('sub.A.1');
         vEnumImpl := "LT Y31 EI"::A;
         vInteger := 1;
-        if Try3() then Observer.Observe('compound_add.A.1', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.A.1');
+        if Try3(vEnumImpl, vInteger) then Observer.Observe('compound_add.A.1', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.A.1');
         vEnumImpl := "LT Y31 EI"::A;
         vInteger := 2147483647;
-        if Try1() then Observer.Observe('add.A.max', Util.VShow(V)) else Observer.ObserveError('add.A.max');
+        if Try1(V, vEnumImpl, vInteger) then Observer.Observe('add.A.max', Util.VShow(V)) else Observer.ObserveError('add.A.max');
         vEnumImpl := "LT Y31 EI"::A;
         vInteger := 2147483647;
-        if Try2() then Observer.Observe('sub.A.max', Util.VShow(V)) else Observer.ObserveError('sub.A.max');
-        vEnumImpl := "LT Y31 EI"::A;
-        vInteger := 2147483647;
-        if Try3() then Observer.Observe('compound_add.A.max', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.A.max');
+        if Try2(V, vEnumImpl, vInteger) then Observer.Observe('sub.A.max', Util.VShow(V)) else Observer.ObserveError('sub.A.max');
         Observer.Finish();
     end;
 
     [Test]
-    procedure EnumImpl_Integer_More1()
+    procedure EnumImpl_Integer_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vEnumImpl: Enum "LT Y31 EI";
+        vInteger: Integer;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_Integer_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_Integer_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_Integer_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_Integer_More5()
-    begin
-        Observer.More();
+        vEnumImpl := "LT Y31 EI"::A;
+        vInteger := 2147483647;
+        if Try3(vEnumImpl, vInteger) then Observer.Observe('compound_add.A.max', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.A.max');
+        Observer.Finish();
     end;
 
     [Test]
     procedure EnumImpl_Char()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vChar: Char;
+        vEnumImpl: Enum "LT Y31 EI";
     begin
         vEnumImpl := "LT Y31 EI"::A;
         vChar := 65;
-        if Try4() then Observer.Observe('add.A.A', Util.VShow(V)) else Observer.ObserveError('add.A.A');
+        if Try4(V, vChar, vEnumImpl) then Observer.Observe('add.A.A', Util.VShow(V)) else Observer.ObserveError('add.A.A');
         vEnumImpl := "LT Y31 EI"::A;
         vChar := 65;
-        if Try5() then Observer.Observe('sub.A.A', Util.VShow(V)) else Observer.ObserveError('sub.A.A');
+        if Try5(V, vChar, vEnumImpl) then Observer.Observe('sub.A.A', Util.VShow(V)) else Observer.ObserveError('sub.A.A');
         vEnumImpl := "LT Y31 EI"::A;
         vChar := 65;
-        if Try6() then Observer.Observe('compound_add.A.A', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.A.A');
+        if Try6(vChar, vEnumImpl) then Observer.Observe('compound_add.A.A', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.A.A');
         vEnumImpl := "LT Y31 EI"::A;
         vChar := 97;
-        if Try4() then Observer.Observe('add.A.a', Util.VShow(V)) else Observer.ObserveError('add.A.a');
+        if Try4(V, vChar, vEnumImpl) then Observer.Observe('add.A.a', Util.VShow(V)) else Observer.ObserveError('add.A.a');
         vEnumImpl := "LT Y31 EI"::A;
         vChar := 97;
-        if Try5() then Observer.Observe('sub.A.a', Util.VShow(V)) else Observer.ObserveError('sub.A.a');
+        if Try5(V, vChar, vEnumImpl) then Observer.Observe('sub.A.a', Util.VShow(V)) else Observer.ObserveError('sub.A.a');
         vEnumImpl := "LT Y31 EI"::A;
         vChar := 97;
-        if Try6() then Observer.Observe('compound_add.A.a', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.A.a');
+        if Try6(vChar, vEnumImpl) then Observer.Observe('compound_add.A.a', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.A.a');
         vEnumImpl := "LT Y31 EI"::A;
         vChar := 65535;
-        if Try4() then Observer.Observe('add.A.65535', Util.VShow(V)) else Observer.ObserveError('add.A.65535');
+        if Try4(V, vChar, vEnumImpl) then Observer.Observe('add.A.65535', Util.VShow(V)) else Observer.ObserveError('add.A.65535');
         vEnumImpl := "LT Y31 EI"::A;
         vChar := 65535;
-        if Try5() then Observer.Observe('sub.A.65535', Util.VShow(V)) else Observer.ObserveError('sub.A.65535');
-        vEnumImpl := "LT Y31 EI"::A;
-        vChar := 65535;
-        if Try6() then Observer.Observe('compound_add.A.65535', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.A.65535');
+        if Try5(V, vChar, vEnumImpl) then Observer.Observe('sub.A.65535', Util.VShow(V)) else Observer.ObserveError('sub.A.65535');
         Observer.Finish();
     end;
 
     [Test]
-    procedure EnumImpl_Char_More1()
+    procedure EnumImpl_Char_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vChar: Char;
+        vEnumImpl: Enum "LT Y31 EI";
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_Char_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_Char_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_Char_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_Char_More5()
-    begin
-        Observer.More();
+        vEnumImpl := "LT Y31 EI"::A;
+        vChar := 65535;
+        if Try6(vChar, vEnumImpl) then Observer.Observe('compound_add.A.65535', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.A.65535');
+        Observer.Finish();
     end;
 
     [Test]
     procedure EnumImpl_Byte()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vByte: Byte;
+        vEnumImpl: Enum "LT Y31 EI";
     begin
         vEnumImpl := "LT Y31 EI"::A;
         vByte := 65;
-        if Try7() then Observer.Observe('add.A.65', Util.VShow(V)) else Observer.ObserveError('add.A.65');
+        if Try7(V, vByte, vEnumImpl) then Observer.Observe('add.A.65', Util.VShow(V)) else Observer.ObserveError('add.A.65');
         vEnumImpl := "LT Y31 EI"::A;
         vByte := 65;
-        if Try8() then Observer.Observe('sub.A.65', Util.VShow(V)) else Observer.ObserveError('sub.A.65');
+        if Try8(V, vByte, vEnumImpl) then Observer.Observe('sub.A.65', Util.VShow(V)) else Observer.ObserveError('sub.A.65');
         vEnumImpl := "LT Y31 EI"::A;
         vByte := 65;
-        if Try9() then Observer.Observe('compound_add.A.65', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.A.65');
+        if Try9(vByte, vEnumImpl) then Observer.Observe('compound_add.A.65', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.A.65');
         vEnumImpl := "LT Y31 EI"::A;
         vByte := 255;
-        if Try7() then Observer.Observe('add.A.255', Util.VShow(V)) else Observer.ObserveError('add.A.255');
+        if Try7(V, vByte, vEnumImpl) then Observer.Observe('add.A.255', Util.VShow(V)) else Observer.ObserveError('add.A.255');
         vEnumImpl := "LT Y31 EI"::A;
         vByte := 255;
-        if Try8() then Observer.Observe('sub.A.255', Util.VShow(V)) else Observer.ObserveError('sub.A.255');
+        if Try8(V, vByte, vEnumImpl) then Observer.Observe('sub.A.255', Util.VShow(V)) else Observer.ObserveError('sub.A.255');
         vEnumImpl := "LT Y31 EI"::A;
         vByte := 255;
-        if Try9() then Observer.Observe('compound_add.A.255', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.A.255');
+        if Try9(vByte, vEnumImpl) then Observer.Observe('compound_add.A.255', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.A.255');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure EnumImpl_Byte_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_Byte_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_Byte_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_Byte_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_Byte_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure EnumImpl_Option()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vEnumImpl: Enum "LT Y31 EI";
+        vOption: Option A,B,C;
     begin
         vEnumImpl := "LT Y31 EI"::A;
         vOption := 1;
-        if Try10() then Observer.Observe('add.A.1', Util.VShow(V)) else Observer.ObserveError('add.A.1');
+        if Try10(V, vEnumImpl, vOption) then Observer.Observe('add.A.1', Util.VShow(V)) else Observer.ObserveError('add.A.1');
         vEnumImpl := "LT Y31 EI"::A;
         vOption := 1;
-        if Try11() then Observer.Observe('sub.A.1', Util.VShow(V)) else Observer.ObserveError('sub.A.1');
+        if Try11(V, vEnumImpl, vOption) then Observer.Observe('sub.A.1', Util.VShow(V)) else Observer.ObserveError('sub.A.1');
         vEnumImpl := "LT Y31 EI"::A;
         vOption := 1;
-        if Try12() then Observer.Observe('compound_add.A.1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.A.1');
+        if Try12(vEnumImpl, vOption) then Observer.Observe('compound_add.A.1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.A.1');
         vEnumImpl := "LT Y31 EI"::A;
         vOption := 3;
-        if Try10() then Observer.Observe('add.A.3', Util.VShow(V)) else Observer.ObserveError('add.A.3');
+        if Try10(V, vEnumImpl, vOption) then Observer.Observe('add.A.3', Util.VShow(V)) else Observer.ObserveError('add.A.3');
         vEnumImpl := "LT Y31 EI"::A;
         vOption := 3;
-        if Try11() then Observer.Observe('sub.A.3', Util.VShow(V)) else Observer.ObserveError('sub.A.3');
+        if Try11(V, vEnumImpl, vOption) then Observer.Observe('sub.A.3', Util.VShow(V)) else Observer.ObserveError('sub.A.3');
         vEnumImpl := "LT Y31 EI"::A;
         vOption := 3;
-        if Try12() then Observer.Observe('compound_add.A.3', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.A.3');
+        if Try12(vEnumImpl, vOption) then Observer.Observe('compound_add.A.3', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.A.3');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure EnumImpl_Option_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_Option_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_Option_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_Option_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_Option_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure EnumImpl_Enum()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vEnum: Enum "LT Y31 E";
+        vEnumImpl: Enum "LT Y31 EI";
     begin
         vEnumImpl := "LT Y31 EI"::A;
         vEnum := "LT Y31 E"::B;
-        if Try13() then Observer.Observe('add.A.B', Util.VShow(V)) else Observer.ObserveError('add.A.B');
+        if Try13(V, vEnum, vEnumImpl) then Observer.Observe('add.A.B', Util.VShow(V)) else Observer.ObserveError('add.A.B');
         vEnumImpl := "LT Y31 EI"::A;
         vEnum := "LT Y31 E"::B;
-        if Try14() then Observer.Observe('sub.A.B', Util.VShow(V)) else Observer.ObserveError('sub.A.B');
+        if Try14(V, vEnum, vEnumImpl) then Observer.Observe('sub.A.B', Util.VShow(V)) else Observer.ObserveError('sub.A.B');
         vEnumImpl := "LT Y31 EI"::A;
         vEnum := "LT Y31 E"::B;
-        if Try15() then Observer.Observe('compound_add.A.B', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('compound_add.A.B');
+        if Try15(vEnum, vEnumImpl) then Observer.Observe('compound_add.A.B', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('compound_add.A.B');
         vEnumImpl := "LT Y31 EI"::A;
         vEnum := 5;
-        if Try13() then Observer.Observe('add.A.ord5', Util.VShow(V)) else Observer.ObserveError('add.A.ord5');
+        if Try13(V, vEnum, vEnumImpl) then Observer.Observe('add.A.ord5', Util.VShow(V)) else Observer.ObserveError('add.A.ord5');
         vEnumImpl := "LT Y31 EI"::A;
         vEnum := 5;
-        if Try14() then Observer.Observe('sub.A.ord5', Util.VShow(V)) else Observer.ObserveError('sub.A.ord5');
+        if Try14(V, vEnum, vEnumImpl) then Observer.Observe('sub.A.ord5', Util.VShow(V)) else Observer.ObserveError('sub.A.ord5');
         vEnumImpl := "LT Y31 EI"::A;
         vEnum := 5;
-        if Try15() then Observer.Observe('compound_add.A.ord5', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('compound_add.A.ord5');
+        if Try15(vEnum, vEnumImpl) then Observer.Observe('compound_add.A.ord5', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('compound_add.A.ord5');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure EnumImpl_Enum_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_Enum_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_Enum_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_Enum_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_Enum_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure EnumImpl_EnumImpl_Same()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vEnumImpl: Enum "LT Y31 EI";
+        vEnumImpl_R: Enum "LT Y31 EI";
     begin
         vEnumImpl := "LT Y31 EI"::A;
         vEnumImpl_R := "LT Y31 EI"::A;
-        if Try16() then Observer.Observe('add.A.A', Util.VShow(V)) else Observer.ObserveError('add.A.A');
+        if Try16(V, vEnumImpl, vEnumImpl_R) then Observer.Observe('add.A.A', Util.VShow(V)) else Observer.ObserveError('add.A.A');
         vEnumImpl := "LT Y31 EI"::A;
         vEnumImpl_R := "LT Y31 EI"::A;
-        if Try17() then Observer.Observe('sub.A.A', Util.VShow(V)) else Observer.ObserveError('sub.A.A');
+        if Try17(V, vEnumImpl, vEnumImpl_R) then Observer.Observe('sub.A.A', Util.VShow(V)) else Observer.ObserveError('sub.A.A');
         vEnumImpl := "LT Y31 EI"::A;
         vEnumImpl_R := "LT Y31 EI"::A;
-        if Try18() then Observer.Observe('compound_add.A.A', Format(vEnumImpl_R) + '|' + Format(vEnumImpl_R.AsInteger())) else Observer.ObserveError('compound_add.A.A');
+        if Try18(vEnumImpl, vEnumImpl_R) then Observer.Observe('compound_add.A.A', Format(vEnumImpl_R) + '|' + Format(vEnumImpl_R.AsInteger())) else Observer.ObserveError('compound_add.A.A');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure EnumImpl_EnumImpl_Same_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_EnumImpl_Same_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_EnumImpl_Same_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_EnumImpl_Same_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_EnumImpl_Same_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure EnumImpl_Date()
+    var
+        Observer: Codeunit "Probe Observer";
+        vDate: Date;
+        vEnumImpl: Enum "LT Y31 EI";
     begin
         vEnumImpl := "LT Y31 EI"::A;
         vDate := 20260131D;
-        if Try19() then Observer.Observe('compound_add.A.d', Format(vDate, 0, 9)) else Observer.ObserveError('compound_add.A.d');
+        if Try19(vDate, vEnumImpl) then Observer.Observe('compound_add.A.d', Format(vDate, 0, 9)) else Observer.ObserveError('compound_add.A.d');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure EnumImpl_Date_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_Date_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_Date_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_Date_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_Date_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure EnumImpl_Time()
+    var
+        Observer: Codeunit "Probe Observer";
+        vEnumImpl: Enum "LT Y31 EI";
+        vTime: Time;
     begin
         vEnumImpl := "LT Y31 EI"::A;
         vTime := 120000T;
-        if Try20() then Observer.Observe('compound_add.A.t', Format(vTime, 0, 9)) else Observer.ObserveError('compound_add.A.t');
+        if Try20(vEnumImpl, vTime) then Observer.Observe('compound_add.A.t', Format(vTime, 0, 9)) else Observer.ObserveError('compound_add.A.t');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure EnumImpl_Time_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_Time_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_Time_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_Time_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_Time_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure EnumImpl_DateTime()
+    var
+        Observer: Codeunit "Probe Observer";
+        vDateTime: DateTime;
+        vEnumImpl: Enum "LT Y31 EI";
     begin
         vEnumImpl := "LT Y31 EI"::A;
         vDateTime := CreateDateTime(20260131D, 120000T);
-        if Try21() then Observer.Observe('compound_add.A.dt', Format(vDateTime, 0, 9)) else Observer.ObserveError('compound_add.A.dt');
+        if Try21(vDateTime, vEnumImpl) then Observer.Observe('compound_add.A.dt', Format(vDateTime, 0, 9)) else Observer.ObserveError('compound_add.A.dt');
         Observer.Finish();
     end;
 
-    [Test]
-    procedure EnumImpl_DateTime_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_DateTime_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_DateTime_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_DateTime_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure EnumImpl_DateTime_More5()
-    begin
-        Observer.More();
-    end;
-
     [TryFunction]
-    local procedure Try1()
+    local procedure Try1(var V: Variant; var vEnumImpl: Enum "LT Y31 EI"; var vInteger: Integer)
     begin
         Clear(V);
         V := vEnumImpl + vInteger;
     end;
 
     [TryFunction]
-    local procedure Try2()
+    local procedure Try2(var V: Variant; var vEnumImpl: Enum "LT Y31 EI"; var vInteger: Integer)
     begin
         Clear(V);
         V := vEnumImpl - vInteger;
     end;
 
     [TryFunction]
-    local procedure Try3()
+    local procedure Try3(var vEnumImpl: Enum "LT Y31 EI"; var vInteger: Integer)
     begin
         vInteger += vEnumImpl;
     end;
 
     [TryFunction]
-    local procedure Try4()
+    local procedure Try4(var V: Variant; var vChar: Char; var vEnumImpl: Enum "LT Y31 EI")
     begin
         Clear(V);
         V := vEnumImpl + vChar;
     end;
 
     [TryFunction]
-    local procedure Try5()
+    local procedure Try5(var V: Variant; var vChar: Char; var vEnumImpl: Enum "LT Y31 EI")
     begin
         Clear(V);
         V := vEnumImpl - vChar;
     end;
 
     [TryFunction]
-    local procedure Try6()
+    local procedure Try6(var vChar: Char; var vEnumImpl: Enum "LT Y31 EI")
     begin
         vChar += vEnumImpl;
     end;
 
     [TryFunction]
-    local procedure Try7()
+    local procedure Try7(var V: Variant; var vByte: Byte; var vEnumImpl: Enum "LT Y31 EI")
     begin
         Clear(V);
         V := vEnumImpl + vByte;
     end;
 
     [TryFunction]
-    local procedure Try8()
+    local procedure Try8(var V: Variant; var vByte: Byte; var vEnumImpl: Enum "LT Y31 EI")
     begin
         Clear(V);
         V := vEnumImpl - vByte;
     end;
 
     [TryFunction]
-    local procedure Try9()
+    local procedure Try9(var vByte: Byte; var vEnumImpl: Enum "LT Y31 EI")
     begin
         vByte += vEnumImpl;
     end;
 
     [TryFunction]
-    local procedure Try10()
+    local procedure Try10(var V: Variant; var vEnumImpl: Enum "LT Y31 EI"; var vOption: Option A,B,C)
     begin
         Clear(V);
         V := vEnumImpl + vOption;
     end;
 
     [TryFunction]
-    local procedure Try11()
+    local procedure Try11(var V: Variant; var vEnumImpl: Enum "LT Y31 EI"; var vOption: Option A,B,C)
     begin
         Clear(V);
         V := vEnumImpl - vOption;
     end;
 
     [TryFunction]
-    local procedure Try12()
+    local procedure Try12(var vEnumImpl: Enum "LT Y31 EI"; var vOption: Option A,B,C)
     begin
         vOption += vEnumImpl;
     end;
 
     [TryFunction]
-    local procedure Try13()
+    local procedure Try13(var V: Variant; var vEnum: Enum "LT Y31 E"; var vEnumImpl: Enum "LT Y31 EI")
     begin
         Clear(V);
         V := vEnumImpl + vEnum;
     end;
 
     [TryFunction]
-    local procedure Try14()
+    local procedure Try14(var V: Variant; var vEnum: Enum "LT Y31 E"; var vEnumImpl: Enum "LT Y31 EI")
     begin
         Clear(V);
         V := vEnumImpl - vEnum;
     end;
 
     [TryFunction]
-    local procedure Try15()
+    local procedure Try15(var vEnum: Enum "LT Y31 E"; var vEnumImpl: Enum "LT Y31 EI")
     begin
         vEnum += vEnumImpl;
     end;
 
     [TryFunction]
-    local procedure Try16()
+    local procedure Try16(var V: Variant; var vEnumImpl: Enum "LT Y31 EI"; var vEnumImpl_R: Enum "LT Y31 EI")
     begin
         Clear(V);
         V := vEnumImpl + vEnumImpl_R;
     end;
 
     [TryFunction]
-    local procedure Try17()
+    local procedure Try17(var V: Variant; var vEnumImpl: Enum "LT Y31 EI"; var vEnumImpl_R: Enum "LT Y31 EI")
     begin
         Clear(V);
         V := vEnumImpl - vEnumImpl_R;
     end;
 
     [TryFunction]
-    local procedure Try18()
+    local procedure Try18(var vEnumImpl: Enum "LT Y31 EI"; var vEnumImpl_R: Enum "LT Y31 EI")
     begin
         vEnumImpl_R += vEnumImpl;
     end;
 
     [TryFunction]
-    local procedure Try19()
+    local procedure Try19(var vDate: Date; var vEnumImpl: Enum "LT Y31 EI")
     begin
         vDate += vEnumImpl;
     end;
 
     [TryFunction]
-    local procedure Try20()
+    local procedure Try20(var vEnumImpl: Enum "LT Y31 EI"; var vTime: Time)
     begin
         vTime += vEnumImpl;
     end;
 
     [TryFunction]
-    local procedure Try21()
+    local procedure Try21(var vDateTime: DateTime; var vEnumImpl: Enum "LT Y31 EI")
     begin
         vDateTime += vEnumImpl;
     end;
@@ -7541,532 +5997,436 @@ codeunit 92454 "LT Y31 Ar Text"
     Subtype = Test;
     TestPermissions = Disabled;
 
+    [Test]
+    procedure Text_Char()
     var
         Observer: Codeunit "Probe Observer";
         Util: Codeunit "LT Y31 Conv Util";
-        Res: Boolean;
         V: Variant;
         vChar: Char;
-        vCode10: Code[10];
-        vGuid: Guid;
-        vLabel: Label 'abc', Locked = true;
         vText: Text;
-        vText10: Text[10];
-        vText_R: Text;
-
-    [Test]
-    procedure Text_Char()
     begin
         vText := 'a';
         vChar := 65;
-        if Try1() then Observer.Observe('add.a.A', Util.VShow(V)) else Observer.ObserveError('add.a.A');
+        if Try1(V, vChar, vText) then Observer.Observe('add.a.A', Util.VShow(V)) else Observer.ObserveError('add.a.A');
         vText := 'a';
         vChar := 97;
-        if Try1() then Observer.Observe('add.a.a', Util.VShow(V)) else Observer.ObserveError('add.a.a');
+        if Try1(V, vChar, vText) then Observer.Observe('add.a.a', Util.VShow(V)) else Observer.ObserveError('add.a.a');
         vText := 'a';
         vChar := 65535;
-        if Try1() then Observer.Observe('add.a.65535', Util.VShow(V)) else Observer.ObserveError('add.a.65535');
+        if Try1(V, vChar, vText) then Observer.Observe('add.a.65535', Util.VShow(V)) else Observer.ObserveError('add.a.65535');
         vText := 'A';
         vChar := 65;
-        if Try1() then Observer.Observe('add.A.A', Util.VShow(V)) else Observer.ObserveError('add.A.A');
+        if Try1(V, vChar, vText) then Observer.Observe('add.A.A', Util.VShow(V)) else Observer.ObserveError('add.A.A');
         vText := 'A';
         vChar := 97;
-        if Try1() then Observer.Observe('add.A.a', Util.VShow(V)) else Observer.ObserveError('add.A.a');
+        if Try1(V, vChar, vText) then Observer.Observe('add.A.a', Util.VShow(V)) else Observer.ObserveError('add.A.a');
         vText := 'A';
         vChar := 65535;
-        if Try1() then Observer.Observe('add.A.65535', Util.VShow(V)) else Observer.ObserveError('add.A.65535');
+        if Try1(V, vChar, vText) then Observer.Observe('add.A.65535', Util.VShow(V)) else Observer.ObserveError('add.A.65535');
         vText := 'abc';
         vChar := 65;
-        if Try1() then Observer.Observe('add.abc.A', Util.VShow(V)) else Observer.ObserveError('add.abc.A');
+        if Try1(V, vChar, vText) then Observer.Observe('add.abc.A', Util.VShow(V)) else Observer.ObserveError('add.abc.A');
         vText := 'abc';
         vChar := 97;
-        if Try1() then Observer.Observe('add.abc.a', Util.VShow(V)) else Observer.ObserveError('add.abc.a');
-        vText := 'abc';
-        vChar := 65535;
-        if Try1() then Observer.Observe('add.abc.65535', Util.VShow(V)) else Observer.ObserveError('add.abc.65535');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        vChar := 65;
-        if Try1() then Observer.Observe('add.guidlow.A', Util.VShow(V)) else Observer.ObserveError('add.guidlow.A');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        vChar := 97;
-        if Try1() then Observer.Observe('add.guidlow.a', Util.VShow(V)) else Observer.ObserveError('add.guidlow.a');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        vChar := 65535;
-        if Try1() then Observer.Observe('add.guidlow.65535', Util.VShow(V)) else Observer.ObserveError('add.guidlow.65535');
+        if Try1(V, vChar, vText) then Observer.Observe('add.abc.a', Util.VShow(V)) else Observer.ObserveError('add.abc.a');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Text_Char_More1()
+    procedure Text_Char_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vChar: Char;
+        vText: Text;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text_Char_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text_Char_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text_Char_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text_Char_More5()
-    begin
-        Observer.More();
+        vText := 'abc';
+        vChar := 65535;
+        if Try1(V, vChar, vText) then Observer.Observe('add.abc.65535', Util.VShow(V)) else Observer.ObserveError('add.abc.65535');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vChar := 65;
+        if Try1(V, vChar, vText) then Observer.Observe('add.guidlow.A', Util.VShow(V)) else Observer.ObserveError('add.guidlow.A');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vChar := 97;
+        if Try1(V, vChar, vText) then Observer.Observe('add.guidlow.a', Util.VShow(V)) else Observer.ObserveError('add.guidlow.a');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vChar := 65535;
+        if Try1(V, vChar, vText) then Observer.Observe('add.guidlow.65535', Util.VShow(V)) else Observer.ObserveError('add.guidlow.65535');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Text_Text_Same()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vText: Text;
+        vText_R: Text;
     begin
         vText := 'a';
         vText_R := 'a';
-        if Try2() then Observer.Observe('add.a.a', Util.VShow(V)) else Observer.ObserveError('add.a.a');
+        if Try2(V, vText, vText_R) then Observer.Observe('add.a.a', Util.VShow(V)) else Observer.ObserveError('add.a.a');
         vText := 'a';
         vText_R := 'a';
-        if Try3() then Observer.Observe('compound_add.a.a', vText_R + '|' + Format(StrLen(vText_R))) else Observer.ObserveError('compound_add.a.a');
+        if Try3(vText, vText_R) then Observer.Observe('compound_add.a.a', vText_R + '|' + Format(StrLen(vText_R))) else Observer.ObserveError('compound_add.a.a');
         vText := 'a';
         vText_R := 'A';
-        if Try2() then Observer.Observe('add.a.A', Util.VShow(V)) else Observer.ObserveError('add.a.A');
+        if Try2(V, vText, vText_R) then Observer.Observe('add.a.A', Util.VShow(V)) else Observer.ObserveError('add.a.A');
         vText := 'a';
         vText_R := 'A';
-        if Try3() then Observer.Observe('compound_add.a.A', vText_R + '|' + Format(StrLen(vText_R))) else Observer.ObserveError('compound_add.a.A');
+        if Try3(vText, vText_R) then Observer.Observe('compound_add.a.A', vText_R + '|' + Format(StrLen(vText_R))) else Observer.ObserveError('compound_add.a.A');
         vText := 'a';
         vText_R := 'abc';
-        if Try2() then Observer.Observe('add.a.abc', Util.VShow(V)) else Observer.ObserveError('add.a.abc');
+        if Try2(V, vText, vText_R) then Observer.Observe('add.a.abc', Util.VShow(V)) else Observer.ObserveError('add.a.abc');
         vText := 'a';
         vText_R := 'abc';
-        if Try3() then Observer.Observe('compound_add.a.abc', vText_R + '|' + Format(StrLen(vText_R))) else Observer.ObserveError('compound_add.a.abc');
+        if Try3(vText, vText_R) then Observer.Observe('compound_add.a.abc', vText_R + '|' + Format(StrLen(vText_R))) else Observer.ObserveError('compound_add.a.abc');
         vText := 'a';
         vText_R := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        if Try2() then Observer.Observe('add.a.guidlow', Util.VShow(V)) else Observer.ObserveError('add.a.guidlow');
+        if Try2(V, vText, vText_R) then Observer.Observe('add.a.guidlow', Util.VShow(V)) else Observer.ObserveError('add.a.guidlow');
         vText := 'a';
         vText_R := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        if Try3() then Observer.Observe('compound_add.a.guidlow', vText_R + '|' + Format(StrLen(vText_R))) else Observer.ObserveError('compound_add.a.guidlow');
-        vText := 'A';
-        vText_R := 'a';
-        if Try2() then Observer.Observe('add.A.a', Util.VShow(V)) else Observer.ObserveError('add.A.a');
-        vText := 'A';
-        vText_R := 'a';
-        if Try3() then Observer.Observe('compound_add.A.a', vText_R + '|' + Format(StrLen(vText_R))) else Observer.ObserveError('compound_add.A.a');
-        vText := 'A';
-        vText_R := 'A';
-        if Try2() then Observer.Observe('add.A.A', Util.VShow(V)) else Observer.ObserveError('add.A.A');
-        vText := 'A';
-        vText_R := 'A';
-        if Try3() then Observer.Observe('compound_add.A.A', vText_R + '|' + Format(StrLen(vText_R))) else Observer.ObserveError('compound_add.A.A');
-        vText := 'A';
-        vText_R := 'abc';
-        if Try2() then Observer.Observe('add.A.abc', Util.VShow(V)) else Observer.ObserveError('add.A.abc');
-        vText := 'A';
-        vText_R := 'abc';
-        if Try3() then Observer.Observe('compound_add.A.abc', vText_R + '|' + Format(StrLen(vText_R))) else Observer.ObserveError('compound_add.A.abc');
-        vText := 'A';
-        vText_R := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        if Try2() then Observer.Observe('add.A.guidlow', Util.VShow(V)) else Observer.ObserveError('add.A.guidlow');
-        vText := 'A';
-        vText_R := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        if Try3() then Observer.Observe('compound_add.A.guidlow', vText_R + '|' + Format(StrLen(vText_R))) else Observer.ObserveError('compound_add.A.guidlow');
-        vText := 'abc';
-        vText_R := 'a';
-        if Try2() then Observer.Observe('add.abc.a', Util.VShow(V)) else Observer.ObserveError('add.abc.a');
-        vText := 'abc';
-        vText_R := 'a';
-        if Try3() then Observer.Observe('compound_add.abc.a', vText_R + '|' + Format(StrLen(vText_R))) else Observer.ObserveError('compound_add.abc.a');
-        vText := 'abc';
-        vText_R := 'A';
-        if Try2() then Observer.Observe('add.abc.A', Util.VShow(V)) else Observer.ObserveError('add.abc.A');
-        vText := 'abc';
-        vText_R := 'A';
-        if Try3() then Observer.Observe('compound_add.abc.A', vText_R + '|' + Format(StrLen(vText_R))) else Observer.ObserveError('compound_add.abc.A');
-        vText := 'abc';
-        vText_R := 'abc';
-        if Try2() then Observer.Observe('add.abc.abc', Util.VShow(V)) else Observer.ObserveError('add.abc.abc');
-        vText := 'abc';
-        vText_R := 'abc';
-        if Try3() then Observer.Observe('compound_add.abc.abc', vText_R + '|' + Format(StrLen(vText_R))) else Observer.ObserveError('compound_add.abc.abc');
-        vText := 'abc';
-        vText_R := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        if Try2() then Observer.Observe('add.abc.guidlow', Util.VShow(V)) else Observer.ObserveError('add.abc.guidlow');
-        vText := 'abc';
-        vText_R := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        if Try3() then Observer.Observe('compound_add.abc.guidlow', vText_R + '|' + Format(StrLen(vText_R))) else Observer.ObserveError('compound_add.abc.guidlow');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        vText_R := 'a';
-        if Try2() then Observer.Observe('add.guidlow.a', Util.VShow(V)) else Observer.ObserveError('add.guidlow.a');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        vText_R := 'a';
-        if Try3() then Observer.Observe('compound_add.guidlow.a', vText_R + '|' + Format(StrLen(vText_R))) else Observer.ObserveError('compound_add.guidlow.a');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        vText_R := 'A';
-        if Try2() then Observer.Observe('add.guidlow.A', Util.VShow(V)) else Observer.ObserveError('add.guidlow.A');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        vText_R := 'A';
-        if Try3() then Observer.Observe('compound_add.guidlow.A', vText_R + '|' + Format(StrLen(vText_R))) else Observer.ObserveError('compound_add.guidlow.A');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        vText_R := 'abc';
-        if Try2() then Observer.Observe('add.guidlow.abc', Util.VShow(V)) else Observer.ObserveError('add.guidlow.abc');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        vText_R := 'abc';
-        if Try3() then Observer.Observe('compound_add.guidlow.abc', vText_R + '|' + Format(StrLen(vText_R))) else Observer.ObserveError('compound_add.guidlow.abc');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        vText_R := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        if Try2() then Observer.Observe('add.guidlow.guidlow', Util.VShow(V)) else Observer.ObserveError('add.guidlow.guidlow');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        vText_R := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        if Try3() then Observer.Observe('compound_add.guidlow.guidlow', vText_R + '|' + Format(StrLen(vText_R))) else Observer.ObserveError('compound_add.guidlow.guidlow');
+        if Try3(vText, vText_R) then Observer.Observe('compound_add.a.guidlow', vText_R + '|' + Format(StrLen(vText_R))) else Observer.ObserveError('compound_add.a.guidlow');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Text_Text_Same_More1()
+    procedure Text_Text_Same_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vText: Text;
+        vText_R: Text;
     begin
-        Observer.More();
+        vText := 'A';
+        vText_R := 'a';
+        if Try2(V, vText, vText_R) then Observer.Observe('add.A.a', Util.VShow(V)) else Observer.ObserveError('add.A.a');
+        vText := 'A';
+        vText_R := 'a';
+        if Try3(vText, vText_R) then Observer.Observe('compound_add.A.a', vText_R + '|' + Format(StrLen(vText_R))) else Observer.ObserveError('compound_add.A.a');
+        vText := 'A';
+        vText_R := 'A';
+        if Try2(V, vText, vText_R) then Observer.Observe('add.A.A', Util.VShow(V)) else Observer.ObserveError('add.A.A');
+        vText := 'A';
+        vText_R := 'A';
+        if Try3(vText, vText_R) then Observer.Observe('compound_add.A.A', vText_R + '|' + Format(StrLen(vText_R))) else Observer.ObserveError('compound_add.A.A');
+        vText := 'A';
+        vText_R := 'abc';
+        if Try2(V, vText, vText_R) then Observer.Observe('add.A.abc', Util.VShow(V)) else Observer.ObserveError('add.A.abc');
+        vText := 'A';
+        vText_R := 'abc';
+        if Try3(vText, vText_R) then Observer.Observe('compound_add.A.abc', vText_R + '|' + Format(StrLen(vText_R))) else Observer.ObserveError('compound_add.A.abc');
+        vText := 'A';
+        vText_R := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        if Try2(V, vText, vText_R) then Observer.Observe('add.A.guidlow', Util.VShow(V)) else Observer.ObserveError('add.A.guidlow');
+        vText := 'A';
+        vText_R := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        if Try3(vText, vText_R) then Observer.Observe('compound_add.A.guidlow', vText_R + '|' + Format(StrLen(vText_R))) else Observer.ObserveError('compound_add.A.guidlow');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Text_Text_Same_More2()
+    procedure Text_Text_Same_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vText: Text;
+        vText_R: Text;
     begin
-        Observer.More();
+        vText := 'abc';
+        vText_R := 'a';
+        if Try2(V, vText, vText_R) then Observer.Observe('add.abc.a', Util.VShow(V)) else Observer.ObserveError('add.abc.a');
+        vText := 'abc';
+        vText_R := 'a';
+        if Try3(vText, vText_R) then Observer.Observe('compound_add.abc.a', vText_R + '|' + Format(StrLen(vText_R))) else Observer.ObserveError('compound_add.abc.a');
+        vText := 'abc';
+        vText_R := 'A';
+        if Try2(V, vText, vText_R) then Observer.Observe('add.abc.A', Util.VShow(V)) else Observer.ObserveError('add.abc.A');
+        vText := 'abc';
+        vText_R := 'A';
+        if Try3(vText, vText_R) then Observer.Observe('compound_add.abc.A', vText_R + '|' + Format(StrLen(vText_R))) else Observer.ObserveError('compound_add.abc.A');
+        vText := 'abc';
+        vText_R := 'abc';
+        if Try2(V, vText, vText_R) then Observer.Observe('add.abc.abc', Util.VShow(V)) else Observer.ObserveError('add.abc.abc');
+        vText := 'abc';
+        vText_R := 'abc';
+        if Try3(vText, vText_R) then Observer.Observe('compound_add.abc.abc', vText_R + '|' + Format(StrLen(vText_R))) else Observer.ObserveError('compound_add.abc.abc');
+        vText := 'abc';
+        vText_R := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        if Try2(V, vText, vText_R) then Observer.Observe('add.abc.guidlow', Util.VShow(V)) else Observer.ObserveError('add.abc.guidlow');
+        vText := 'abc';
+        vText_R := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        if Try3(vText, vText_R) then Observer.Observe('compound_add.abc.guidlow', vText_R + '|' + Format(StrLen(vText_R))) else Observer.ObserveError('compound_add.abc.guidlow');
+        Observer.Finish();
     end;
 
     [Test]
-    procedure Text_Text_Same_More3()
+    procedure Text_Text_Same_4()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vText: Text;
+        vText_R: Text;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text_Text_Same_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text_Text_Same_More5()
-    begin
-        Observer.More();
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vText_R := 'a';
+        if Try2(V, vText, vText_R) then Observer.Observe('add.guidlow.a', Util.VShow(V)) else Observer.ObserveError('add.guidlow.a');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vText_R := 'a';
+        if Try3(vText, vText_R) then Observer.Observe('compound_add.guidlow.a', vText_R + '|' + Format(StrLen(vText_R))) else Observer.ObserveError('compound_add.guidlow.a');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vText_R := 'A';
+        if Try2(V, vText, vText_R) then Observer.Observe('add.guidlow.A', Util.VShow(V)) else Observer.ObserveError('add.guidlow.A');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vText_R := 'A';
+        if Try3(vText, vText_R) then Observer.Observe('compound_add.guidlow.A', vText_R + '|' + Format(StrLen(vText_R))) else Observer.ObserveError('compound_add.guidlow.A');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vText_R := 'abc';
+        if Try2(V, vText, vText_R) then Observer.Observe('add.guidlow.abc', Util.VShow(V)) else Observer.ObserveError('add.guidlow.abc');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vText_R := 'abc';
+        if Try3(vText, vText_R) then Observer.Observe('compound_add.guidlow.abc', vText_R + '|' + Format(StrLen(vText_R))) else Observer.ObserveError('compound_add.guidlow.abc');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vText_R := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        if Try2(V, vText, vText_R) then Observer.Observe('add.guidlow.guidlow', Util.VShow(V)) else Observer.ObserveError('add.guidlow.guidlow');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vText_R := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        if Try3(vText, vText_R) then Observer.Observe('compound_add.guidlow.guidlow', vText_R + '|' + Format(StrLen(vText_R))) else Observer.ObserveError('compound_add.guidlow.guidlow');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Text_Text10()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vText: Text;
+        vText10: Text[10];
     begin
         vText := 'a';
         vText10 := 'abc';
-        if Try4() then Observer.Observe('add.a.abc', Util.VShow(V)) else Observer.ObserveError('add.a.abc');
+        if Try4(V, vText, vText10) then Observer.Observe('add.a.abc', Util.VShow(V)) else Observer.ObserveError('add.a.abc');
         vText := 'a';
         vText10 := 'abc';
-        if Try5() then Observer.Observe('compound_add.a.abc', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('compound_add.a.abc');
+        if Try5(vText, vText10) then Observer.Observe('compound_add.a.abc', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('compound_add.a.abc');
         vText := 'A';
         vText10 := 'abc';
-        if Try4() then Observer.Observe('add.A.abc', Util.VShow(V)) else Observer.ObserveError('add.A.abc');
+        if Try4(V, vText, vText10) then Observer.Observe('add.A.abc', Util.VShow(V)) else Observer.ObserveError('add.A.abc');
         vText := 'A';
         vText10 := 'abc';
-        if Try5() then Observer.Observe('compound_add.A.abc', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('compound_add.A.abc');
+        if Try5(vText, vText10) then Observer.Observe('compound_add.A.abc', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('compound_add.A.abc');
         vText := 'abc';
         vText10 := 'abc';
-        if Try4() then Observer.Observe('add.abc.abc', Util.VShow(V)) else Observer.ObserveError('add.abc.abc');
+        if Try4(V, vText, vText10) then Observer.Observe('add.abc.abc', Util.VShow(V)) else Observer.ObserveError('add.abc.abc');
         vText := 'abc';
         vText10 := 'abc';
-        if Try5() then Observer.Observe('compound_add.abc.abc', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('compound_add.abc.abc');
+        if Try5(vText, vText10) then Observer.Observe('compound_add.abc.abc', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('compound_add.abc.abc');
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         vText10 := 'abc';
-        if Try4() then Observer.Observe('add.guidlow.abc', Util.VShow(V)) else Observer.ObserveError('add.guidlow.abc');
+        if Try4(V, vText, vText10) then Observer.Observe('add.guidlow.abc', Util.VShow(V)) else Observer.ObserveError('add.guidlow.abc');
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         vText10 := 'abc';
-        if Try5() then Observer.Observe('compound_add.guidlow.abc', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('compound_add.guidlow.abc');
+        if Try5(vText, vText10) then Observer.Observe('compound_add.guidlow.abc', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('compound_add.guidlow.abc');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text_Text10_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text_Text10_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text_Text10_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text_Text10_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text_Text10_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Text_Code10()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vCode10: Code[10];
+        vText: Text;
     begin
         vText := 'a';
         vCode10 := 'A';
-        if Try6() then Observer.Observe('add.a.A', Util.VShow(V)) else Observer.ObserveError('add.a.A');
+        if Try6(V, vCode10, vText) then Observer.Observe('add.a.A', Util.VShow(V)) else Observer.ObserveError('add.a.A');
         vText := 'a';
         vCode10 := 'A';
-        if Try7() then Observer.Observe('compound_add.a.A', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('compound_add.a.A');
+        if Try7(vCode10, vText) then Observer.Observe('compound_add.a.A', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('compound_add.a.A');
         vText := 'a';
         vCode10 := 'ABC';
-        if Try6() then Observer.Observe('add.a.ABC', Util.VShow(V)) else Observer.ObserveError('add.a.ABC');
+        if Try6(V, vCode10, vText) then Observer.Observe('add.a.ABC', Util.VShow(V)) else Observer.ObserveError('add.a.ABC');
         vText := 'a';
         vCode10 := 'ABC';
-        if Try7() then Observer.Observe('compound_add.a.ABC', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('compound_add.a.ABC');
+        if Try7(vCode10, vText) then Observer.Observe('compound_add.a.ABC', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('compound_add.a.ABC');
         vText := 'A';
         vCode10 := 'A';
-        if Try6() then Observer.Observe('add.A.A', Util.VShow(V)) else Observer.ObserveError('add.A.A');
+        if Try6(V, vCode10, vText) then Observer.Observe('add.A.A', Util.VShow(V)) else Observer.ObserveError('add.A.A');
         vText := 'A';
         vCode10 := 'A';
-        if Try7() then Observer.Observe('compound_add.A.A', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('compound_add.A.A');
+        if Try7(vCode10, vText) then Observer.Observe('compound_add.A.A', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('compound_add.A.A');
         vText := 'A';
         vCode10 := 'ABC';
-        if Try6() then Observer.Observe('add.A.ABC', Util.VShow(V)) else Observer.ObserveError('add.A.ABC');
+        if Try6(V, vCode10, vText) then Observer.Observe('add.A.ABC', Util.VShow(V)) else Observer.ObserveError('add.A.ABC');
         vText := 'A';
         vCode10 := 'ABC';
-        if Try7() then Observer.Observe('compound_add.A.ABC', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('compound_add.A.ABC');
-        vText := 'abc';
-        vCode10 := 'A';
-        if Try6() then Observer.Observe('add.abc.A', Util.VShow(V)) else Observer.ObserveError('add.abc.A');
-        vText := 'abc';
-        vCode10 := 'A';
-        if Try7() then Observer.Observe('compound_add.abc.A', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('compound_add.abc.A');
-        vText := 'abc';
-        vCode10 := 'ABC';
-        if Try6() then Observer.Observe('add.abc.ABC', Util.VShow(V)) else Observer.ObserveError('add.abc.ABC');
-        vText := 'abc';
-        vCode10 := 'ABC';
-        if Try7() then Observer.Observe('compound_add.abc.ABC', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('compound_add.abc.ABC');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        vCode10 := 'A';
-        if Try6() then Observer.Observe('add.guidlow.A', Util.VShow(V)) else Observer.ObserveError('add.guidlow.A');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        vCode10 := 'A';
-        if Try7() then Observer.Observe('compound_add.guidlow.A', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('compound_add.guidlow.A');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        vCode10 := 'ABC';
-        if Try6() then Observer.Observe('add.guidlow.ABC', Util.VShow(V)) else Observer.ObserveError('add.guidlow.ABC');
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        vCode10 := 'ABC';
-        if Try7() then Observer.Observe('compound_add.guidlow.ABC', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('compound_add.guidlow.ABC');
+        if Try7(vCode10, vText) then Observer.Observe('compound_add.A.ABC', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('compound_add.A.ABC');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Text_Code10_More1()
+    procedure Text_Code10_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vCode10: Code[10];
+        vText: Text;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text_Code10_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text_Code10_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text_Code10_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text_Code10_More5()
-    begin
-        Observer.More();
+        vText := 'abc';
+        vCode10 := 'A';
+        if Try6(V, vCode10, vText) then Observer.Observe('add.abc.A', Util.VShow(V)) else Observer.ObserveError('add.abc.A');
+        vText := 'abc';
+        vCode10 := 'A';
+        if Try7(vCode10, vText) then Observer.Observe('compound_add.abc.A', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('compound_add.abc.A');
+        vText := 'abc';
+        vCode10 := 'ABC';
+        if Try6(V, vCode10, vText) then Observer.Observe('add.abc.ABC', Util.VShow(V)) else Observer.ObserveError('add.abc.ABC');
+        vText := 'abc';
+        vCode10 := 'ABC';
+        if Try7(vCode10, vText) then Observer.Observe('compound_add.abc.ABC', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('compound_add.abc.ABC');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vCode10 := 'A';
+        if Try6(V, vCode10, vText) then Observer.Observe('add.guidlow.A', Util.VShow(V)) else Observer.ObserveError('add.guidlow.A');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vCode10 := 'A';
+        if Try7(vCode10, vText) then Observer.Observe('compound_add.guidlow.A', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('compound_add.guidlow.A');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vCode10 := 'ABC';
+        if Try6(V, vCode10, vText) then Observer.Observe('add.guidlow.ABC', Util.VShow(V)) else Observer.ObserveError('add.guidlow.ABC');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vCode10 := 'ABC';
+        if Try7(vCode10, vText) then Observer.Observe('compound_add.guidlow.ABC', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('compound_add.guidlow.ABC');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Text_Guid()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vGuid: Guid;
+        vText: Text;
     begin
         vText := 'a';
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try8() then Observer.Observe('add.a.g', Util.VShow(V)) else Observer.ObserveError('add.a.g');
+        if Try8(V, vGuid, vText) then Observer.Observe('add.a.g', Util.VShow(V)) else Observer.ObserveError('add.a.g');
         vText := 'a';
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try9() then Observer.Observe('compound_add.a.g', Format(vGuid)) else Observer.ObserveError('compound_add.a.g');
+        if Try9(vGuid, vText) then Observer.Observe('compound_add.a.g', Format(vGuid)) else Observer.ObserveError('compound_add.a.g');
         vText := 'A';
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try8() then Observer.Observe('add.A.g', Util.VShow(V)) else Observer.ObserveError('add.A.g');
+        if Try8(V, vGuid, vText) then Observer.Observe('add.A.g', Util.VShow(V)) else Observer.ObserveError('add.A.g');
         vText := 'A';
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try9() then Observer.Observe('compound_add.A.g', Format(vGuid)) else Observer.ObserveError('compound_add.A.g');
+        if Try9(vGuid, vText) then Observer.Observe('compound_add.A.g', Format(vGuid)) else Observer.ObserveError('compound_add.A.g');
         vText := 'abc';
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try8() then Observer.Observe('add.abc.g', Util.VShow(V)) else Observer.ObserveError('add.abc.g');
+        if Try8(V, vGuid, vText) then Observer.Observe('add.abc.g', Util.VShow(V)) else Observer.ObserveError('add.abc.g');
         vText := 'abc';
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try9() then Observer.Observe('compound_add.abc.g', Format(vGuid)) else Observer.ObserveError('compound_add.abc.g');
+        if Try9(vGuid, vText) then Observer.Observe('compound_add.abc.g', Format(vGuid)) else Observer.ObserveError('compound_add.abc.g');
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try8() then Observer.Observe('add.guidlow.g', Util.VShow(V)) else Observer.ObserveError('add.guidlow.g');
+        if Try8(V, vGuid, vText) then Observer.Observe('add.guidlow.g', Util.VShow(V)) else Observer.ObserveError('add.guidlow.g');
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try9() then Observer.Observe('compound_add.guidlow.g', Format(vGuid)) else Observer.ObserveError('compound_add.guidlow.g');
+        if Try9(vGuid, vText) then Observer.Observe('compound_add.guidlow.g', Format(vGuid)) else Observer.ObserveError('compound_add.guidlow.g');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text_Guid_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text_Guid_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text_Guid_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text_Guid_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text_Guid_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Text_Label()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vText: Text;
     begin
         vText := 'a';
-        if Try10() then Observer.Observe('add.a.abc', Util.VShow(V)) else Observer.ObserveError('add.a.abc');
+        if Try10(V, vText) then Observer.Observe('add.a.abc', Util.VShow(V)) else Observer.ObserveError('add.a.abc');
         vText := 'A';
-        if Try10() then Observer.Observe('add.A.abc', Util.VShow(V)) else Observer.ObserveError('add.A.abc');
+        if Try10(V, vText) then Observer.Observe('add.A.abc', Util.VShow(V)) else Observer.ObserveError('add.A.abc');
         vText := 'abc';
-        if Try10() then Observer.Observe('add.abc.abc', Util.VShow(V)) else Observer.ObserveError('add.abc.abc');
+        if Try10(V, vText) then Observer.Observe('add.abc.abc', Util.VShow(V)) else Observer.ObserveError('add.abc.abc');
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        if Try10() then Observer.Observe('add.guidlow.abc', Util.VShow(V)) else Observer.ObserveError('add.guidlow.abc');
+        if Try10(V, vText) then Observer.Observe('add.guidlow.abc', Util.VShow(V)) else Observer.ObserveError('add.guidlow.abc');
         Observer.Finish();
     end;
 
-    [Test]
-    procedure Text_Label_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text_Label_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text_Label_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text_Label_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text_Label_More5()
-    begin
-        Observer.More();
-    end;
-
     [TryFunction]
-    local procedure Try1()
+    local procedure Try1(var V: Variant; var vChar: Char; var vText: Text)
     begin
         Clear(V);
         V := vText + vChar;
     end;
 
     [TryFunction]
-    local procedure Try2()
+    local procedure Try2(var V: Variant; var vText: Text; var vText_R: Text)
     begin
         Clear(V);
         V := vText + vText_R;
     end;
 
     [TryFunction]
-    local procedure Try3()
+    local procedure Try3(var vText: Text; var vText_R: Text)
     begin
         vText_R += vText;
     end;
 
     [TryFunction]
-    local procedure Try4()
+    local procedure Try4(var V: Variant; var vText: Text; var vText10: Text[10])
     begin
         Clear(V);
         V := vText + vText10;
     end;
 
     [TryFunction]
-    local procedure Try5()
+    local procedure Try5(var vText: Text; var vText10: Text[10])
     begin
         vText10 += vText;
     end;
 
     [TryFunction]
-    local procedure Try6()
+    local procedure Try6(var V: Variant; var vCode10: Code[10]; var vText: Text)
     begin
         Clear(V);
         V := vText + vCode10;
     end;
 
     [TryFunction]
-    local procedure Try7()
+    local procedure Try7(var vCode10: Code[10]; var vText: Text)
     begin
         vCode10 += vText;
     end;
 
     [TryFunction]
-    local procedure Try8()
+    local procedure Try8(var V: Variant; var vGuid: Guid; var vText: Text)
     begin
         Clear(V);
         V := vText + vGuid;
     end;
 
     [TryFunction]
-    local procedure Try9()
+    local procedure Try9(var vGuid: Guid; var vText: Text)
     begin
         vGuid += vText;
     end;
 
     [TryFunction]
-    local procedure Try10()
+    local procedure Try10(var V: Variant; var vText: Text)
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Clear(V);
         V := vText + vLabel;
@@ -8086,355 +6446,199 @@ codeunit 92455 "LT Y31 Ar Text10"
     Subtype = Test;
     TestPermissions = Disabled;
 
+    [Test]
+    procedure Text10_Char()
     var
         Observer: Codeunit "Probe Observer";
         Util: Codeunit "LT Y31 Conv Util";
-        Res: Boolean;
         V: Variant;
         vChar: Char;
-        vCode10: Code[10];
-        vGuid: Guid;
-        vLabel: Label 'abc', Locked = true;
-        vText: Text;
         vText10: Text[10];
-        vText10_R: Text[10];
-
-    [Test]
-    procedure Text10_Char()
     begin
         vText10 := 'abc';
         vChar := 65;
-        if Try1() then Observer.Observe('add.abc.A', Util.VShow(V)) else Observer.ObserveError('add.abc.A');
+        if Try1(V, vChar, vText10) then Observer.Observe('add.abc.A', Util.VShow(V)) else Observer.ObserveError('add.abc.A');
         vText10 := 'abc';
         vChar := 97;
-        if Try1() then Observer.Observe('add.abc.a', Util.VShow(V)) else Observer.ObserveError('add.abc.a');
+        if Try1(V, vChar, vText10) then Observer.Observe('add.abc.a', Util.VShow(V)) else Observer.ObserveError('add.abc.a');
         vText10 := 'abc';
         vChar := 65535;
-        if Try1() then Observer.Observe('add.abc.65535', Util.VShow(V)) else Observer.ObserveError('add.abc.65535');
+        if Try1(V, vChar, vText10) then Observer.Observe('add.abc.65535', Util.VShow(V)) else Observer.ObserveError('add.abc.65535');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text10_Char_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_Char_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_Char_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_Char_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_Char_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Text10_Text()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vText: Text;
+        vText10: Text[10];
     begin
         vText10 := 'abc';
         vText := 'a';
-        if Try2() then Observer.Observe('add.abc.a', Util.VShow(V)) else Observer.ObserveError('add.abc.a');
+        if Try2(V, vText, vText10) then Observer.Observe('add.abc.a', Util.VShow(V)) else Observer.ObserveError('add.abc.a');
         vText10 := 'abc';
         vText := 'a';
-        if Try3() then Observer.Observe('compound_add.abc.a', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.abc.a');
+        if Try3(vText, vText10) then Observer.Observe('compound_add.abc.a', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.abc.a');
         vText10 := 'abc';
         vText := 'A';
-        if Try2() then Observer.Observe('add.abc.A', Util.VShow(V)) else Observer.ObserveError('add.abc.A');
+        if Try2(V, vText, vText10) then Observer.Observe('add.abc.A', Util.VShow(V)) else Observer.ObserveError('add.abc.A');
         vText10 := 'abc';
         vText := 'A';
-        if Try3() then Observer.Observe('compound_add.abc.A', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.abc.A');
+        if Try3(vText, vText10) then Observer.Observe('compound_add.abc.A', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.abc.A');
         vText10 := 'abc';
         vText := 'abc';
-        if Try2() then Observer.Observe('add.abc.abc', Util.VShow(V)) else Observer.ObserveError('add.abc.abc');
+        if Try2(V, vText, vText10) then Observer.Observe('add.abc.abc', Util.VShow(V)) else Observer.ObserveError('add.abc.abc');
         vText10 := 'abc';
         vText := 'abc';
-        if Try3() then Observer.Observe('compound_add.abc.abc', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.abc.abc');
+        if Try3(vText, vText10) then Observer.Observe('compound_add.abc.abc', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.abc.abc');
         vText10 := 'abc';
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        if Try2() then Observer.Observe('add.abc.guidlow', Util.VShow(V)) else Observer.ObserveError('add.abc.guidlow');
+        if Try2(V, vText, vText10) then Observer.Observe('add.abc.guidlow', Util.VShow(V)) else Observer.ObserveError('add.abc.guidlow');
         vText10 := 'abc';
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        if Try3() then Observer.Observe('compound_add.abc.guidlow', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.abc.guidlow');
+        if Try3(vText, vText10) then Observer.Observe('compound_add.abc.guidlow', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.abc.guidlow');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text10_Text_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_Text_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_Text_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_Text_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_Text_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Text10_Text10_Same()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vText10: Text[10];
+        vText10_R: Text[10];
     begin
         vText10 := 'abc';
         vText10_R := 'abc';
-        if Try4() then Observer.Observe('add.abc.abc', Util.VShow(V)) else Observer.ObserveError('add.abc.abc');
+        if Try4(V, vText10, vText10_R) then Observer.Observe('add.abc.abc', Util.VShow(V)) else Observer.ObserveError('add.abc.abc');
         vText10 := 'abc';
         vText10_R := 'abc';
-        if Try5() then Observer.Observe('compound_add.abc.abc', vText10_R + '|' + Format(StrLen(vText10_R))) else Observer.ObserveError('compound_add.abc.abc');
+        if Try5(vText10, vText10_R) then Observer.Observe('compound_add.abc.abc', vText10_R + '|' + Format(StrLen(vText10_R))) else Observer.ObserveError('compound_add.abc.abc');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text10_Text10_Same_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_Text10_Same_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_Text10_Same_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_Text10_Same_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_Text10_Same_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Text10_Code10()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vCode10: Code[10];
+        vText10: Text[10];
     begin
         vText10 := 'abc';
         vCode10 := 'A';
-        if Try6() then Observer.Observe('add.abc.A', Util.VShow(V)) else Observer.ObserveError('add.abc.A');
+        if Try6(V, vCode10, vText10) then Observer.Observe('add.abc.A', Util.VShow(V)) else Observer.ObserveError('add.abc.A');
         vText10 := 'abc';
         vCode10 := 'A';
-        if Try7() then Observer.Observe('compound_add.abc.A', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('compound_add.abc.A');
+        if Try7(vCode10, vText10) then Observer.Observe('compound_add.abc.A', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('compound_add.abc.A');
         vText10 := 'abc';
         vCode10 := 'ABC';
-        if Try6() then Observer.Observe('add.abc.ABC', Util.VShow(V)) else Observer.ObserveError('add.abc.ABC');
+        if Try6(V, vCode10, vText10) then Observer.Observe('add.abc.ABC', Util.VShow(V)) else Observer.ObserveError('add.abc.ABC');
         vText10 := 'abc';
         vCode10 := 'ABC';
-        if Try7() then Observer.Observe('compound_add.abc.ABC', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('compound_add.abc.ABC');
+        if Try7(vCode10, vText10) then Observer.Observe('compound_add.abc.ABC', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('compound_add.abc.ABC');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text10_Code10_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_Code10_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_Code10_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_Code10_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_Code10_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Text10_Guid()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vGuid: Guid;
+        vText10: Text[10];
     begin
         vText10 := 'abc';
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try8() then Observer.Observe('add.abc.g', Util.VShow(V)) else Observer.ObserveError('add.abc.g');
+        if Try8(V, vGuid, vText10) then Observer.Observe('add.abc.g', Util.VShow(V)) else Observer.ObserveError('add.abc.g');
         vText10 := 'abc';
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try9() then Observer.Observe('compound_add.abc.g', Format(vGuid)) else Observer.ObserveError('compound_add.abc.g');
+        if Try9(vGuid, vText10) then Observer.Observe('compound_add.abc.g', Format(vGuid)) else Observer.ObserveError('compound_add.abc.g');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Text10_Guid_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_Guid_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_Guid_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_Guid_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_Guid_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Text10_Label()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vText10: Text[10];
     begin
         vText10 := 'abc';
-        if Try10() then Observer.Observe('add.abc.abc', Util.VShow(V)) else Observer.ObserveError('add.abc.abc');
+        if Try10(V, vText10) then Observer.Observe('add.abc.abc', Util.VShow(V)) else Observer.ObserveError('add.abc.abc');
         Observer.Finish();
     end;
 
-    [Test]
-    procedure Text10_Label_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_Label_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_Label_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_Label_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Text10_Label_More5()
-    begin
-        Observer.More();
-    end;
-
     [TryFunction]
-    local procedure Try1()
+    local procedure Try1(var V: Variant; var vChar: Char; var vText10: Text[10])
     begin
         Clear(V);
         V := vText10 + vChar;
     end;
 
     [TryFunction]
-    local procedure Try2()
+    local procedure Try2(var V: Variant; var vText: Text; var vText10: Text[10])
     begin
         Clear(V);
         V := vText10 + vText;
     end;
 
     [TryFunction]
-    local procedure Try3()
+    local procedure Try3(var vText: Text; var vText10: Text[10])
     begin
         vText += vText10;
     end;
 
     [TryFunction]
-    local procedure Try4()
+    local procedure Try4(var V: Variant; var vText10: Text[10]; var vText10_R: Text[10])
     begin
         Clear(V);
         V := vText10 + vText10_R;
     end;
 
     [TryFunction]
-    local procedure Try5()
+    local procedure Try5(var vText10: Text[10]; var vText10_R: Text[10])
     begin
         vText10_R += vText10;
     end;
 
     [TryFunction]
-    local procedure Try6()
+    local procedure Try6(var V: Variant; var vCode10: Code[10]; var vText10: Text[10])
     begin
         Clear(V);
         V := vText10 + vCode10;
     end;
 
     [TryFunction]
-    local procedure Try7()
+    local procedure Try7(var vCode10: Code[10]; var vText10: Text[10])
     begin
         vCode10 += vText10;
     end;
 
     [TryFunction]
-    local procedure Try8()
+    local procedure Try8(var V: Variant; var vGuid: Guid; var vText10: Text[10])
     begin
         Clear(V);
         V := vText10 + vGuid;
     end;
 
     [TryFunction]
-    local procedure Try9()
+    local procedure Try9(var vGuid: Guid; var vText10: Text[10])
     begin
         vGuid += vText10;
     end;
 
     [TryFunction]
-    local procedure Try10()
+    local procedure Try10(var V: Variant; var vText10: Text[10])
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Clear(V);
         V := vText10 + vLabel;
@@ -8454,414 +6658,270 @@ codeunit 92456 "LT Y31 Ar Code10"
     Subtype = Test;
     TestPermissions = Disabled;
 
+    [Test]
+    procedure Code10_Char()
     var
         Observer: Codeunit "Probe Observer";
         Util: Codeunit "LT Y31 Conv Util";
-        Res: Boolean;
         V: Variant;
         vChar: Char;
         vCode10: Code[10];
-        vCode10_R: Code[10];
-        vGuid: Guid;
-        vLabel: Label 'abc', Locked = true;
-        vText: Text;
-        vText10: Text[10];
-
-    [Test]
-    procedure Code10_Char()
     begin
         vCode10 := 'A';
         vChar := 65;
-        if Try1() then Observer.Observe('add.A.A', Util.VShow(V)) else Observer.ObserveError('add.A.A');
+        if Try1(V, vChar, vCode10) then Observer.Observe('add.A.A', Util.VShow(V)) else Observer.ObserveError('add.A.A');
         vCode10 := 'A';
         vChar := 97;
-        if Try1() then Observer.Observe('add.A.a', Util.VShow(V)) else Observer.ObserveError('add.A.a');
+        if Try1(V, vChar, vCode10) then Observer.Observe('add.A.a', Util.VShow(V)) else Observer.ObserveError('add.A.a');
         vCode10 := 'A';
         vChar := 65535;
-        if Try1() then Observer.Observe('add.A.65535', Util.VShow(V)) else Observer.ObserveError('add.A.65535');
+        if Try1(V, vChar, vCode10) then Observer.Observe('add.A.65535', Util.VShow(V)) else Observer.ObserveError('add.A.65535');
         vCode10 := 'ABC';
         vChar := 65;
-        if Try1() then Observer.Observe('add.ABC.A', Util.VShow(V)) else Observer.ObserveError('add.ABC.A');
+        if Try1(V, vChar, vCode10) then Observer.Observe('add.ABC.A', Util.VShow(V)) else Observer.ObserveError('add.ABC.A');
         vCode10 := 'ABC';
         vChar := 97;
-        if Try1() then Observer.Observe('add.ABC.a', Util.VShow(V)) else Observer.ObserveError('add.ABC.a');
+        if Try1(V, vChar, vCode10) then Observer.Observe('add.ABC.a', Util.VShow(V)) else Observer.ObserveError('add.ABC.a');
         vCode10 := 'ABC';
         vChar := 65535;
-        if Try1() then Observer.Observe('add.ABC.65535', Util.VShow(V)) else Observer.ObserveError('add.ABC.65535');
+        if Try1(V, vChar, vCode10) then Observer.Observe('add.ABC.65535', Util.VShow(V)) else Observer.ObserveError('add.ABC.65535');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Code10_Char_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_Char_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_Char_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_Char_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_Char_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Code10_Text()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vCode10: Code[10];
+        vText: Text;
     begin
         vCode10 := 'A';
         vText := 'a';
-        if Try2() then Observer.Observe('add.A.a', Util.VShow(V)) else Observer.ObserveError('add.A.a');
+        if Try2(V, vCode10, vText) then Observer.Observe('add.A.a', Util.VShow(V)) else Observer.ObserveError('add.A.a');
         vCode10 := 'A';
         vText := 'a';
-        if Try3() then Observer.Observe('compound_add.A.a', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.A.a');
+        if Try3(vCode10, vText) then Observer.Observe('compound_add.A.a', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.A.a');
         vCode10 := 'A';
         vText := 'A';
-        if Try2() then Observer.Observe('add.A.A', Util.VShow(V)) else Observer.ObserveError('add.A.A');
+        if Try2(V, vCode10, vText) then Observer.Observe('add.A.A', Util.VShow(V)) else Observer.ObserveError('add.A.A');
         vCode10 := 'A';
         vText := 'A';
-        if Try3() then Observer.Observe('compound_add.A.A', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.A.A');
+        if Try3(vCode10, vText) then Observer.Observe('compound_add.A.A', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.A.A');
         vCode10 := 'A';
         vText := 'abc';
-        if Try2() then Observer.Observe('add.A.abc', Util.VShow(V)) else Observer.ObserveError('add.A.abc');
+        if Try2(V, vCode10, vText) then Observer.Observe('add.A.abc', Util.VShow(V)) else Observer.ObserveError('add.A.abc');
         vCode10 := 'A';
         vText := 'abc';
-        if Try3() then Observer.Observe('compound_add.A.abc', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.A.abc');
+        if Try3(vCode10, vText) then Observer.Observe('compound_add.A.abc', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.A.abc');
         vCode10 := 'A';
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        if Try2() then Observer.Observe('add.A.guidlow', Util.VShow(V)) else Observer.ObserveError('add.A.guidlow');
+        if Try2(V, vCode10, vText) then Observer.Observe('add.A.guidlow', Util.VShow(V)) else Observer.ObserveError('add.A.guidlow');
         vCode10 := 'A';
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        if Try3() then Observer.Observe('compound_add.A.guidlow', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.A.guidlow');
-        vCode10 := 'ABC';
-        vText := 'a';
-        if Try2() then Observer.Observe('add.ABC.a', Util.VShow(V)) else Observer.ObserveError('add.ABC.a');
-        vCode10 := 'ABC';
-        vText := 'a';
-        if Try3() then Observer.Observe('compound_add.ABC.a', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.ABC.a');
-        vCode10 := 'ABC';
-        vText := 'A';
-        if Try2() then Observer.Observe('add.ABC.A', Util.VShow(V)) else Observer.ObserveError('add.ABC.A');
-        vCode10 := 'ABC';
-        vText := 'A';
-        if Try3() then Observer.Observe('compound_add.ABC.A', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.ABC.A');
-        vCode10 := 'ABC';
-        vText := 'abc';
-        if Try2() then Observer.Observe('add.ABC.abc', Util.VShow(V)) else Observer.ObserveError('add.ABC.abc');
-        vCode10 := 'ABC';
-        vText := 'abc';
-        if Try3() then Observer.Observe('compound_add.ABC.abc', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.ABC.abc');
-        vCode10 := 'ABC';
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        if Try2() then Observer.Observe('add.ABC.guidlow', Util.VShow(V)) else Observer.ObserveError('add.ABC.guidlow');
-        vCode10 := 'ABC';
-        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        if Try3() then Observer.Observe('compound_add.ABC.guidlow', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.ABC.guidlow');
+        if Try3(vCode10, vText) then Observer.Observe('compound_add.A.guidlow', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.A.guidlow');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Code10_Text_More1()
+    procedure Code10_Text_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vCode10: Code[10];
+        vText: Text;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_Text_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_Text_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_Text_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_Text_More5()
-    begin
-        Observer.More();
+        vCode10 := 'ABC';
+        vText := 'a';
+        if Try2(V, vCode10, vText) then Observer.Observe('add.ABC.a', Util.VShow(V)) else Observer.ObserveError('add.ABC.a');
+        vCode10 := 'ABC';
+        vText := 'a';
+        if Try3(vCode10, vText) then Observer.Observe('compound_add.ABC.a', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.ABC.a');
+        vCode10 := 'ABC';
+        vText := 'A';
+        if Try2(V, vCode10, vText) then Observer.Observe('add.ABC.A', Util.VShow(V)) else Observer.ObserveError('add.ABC.A');
+        vCode10 := 'ABC';
+        vText := 'A';
+        if Try3(vCode10, vText) then Observer.Observe('compound_add.ABC.A', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.ABC.A');
+        vCode10 := 'ABC';
+        vText := 'abc';
+        if Try2(V, vCode10, vText) then Observer.Observe('add.ABC.abc', Util.VShow(V)) else Observer.ObserveError('add.ABC.abc');
+        vCode10 := 'ABC';
+        vText := 'abc';
+        if Try3(vCode10, vText) then Observer.Observe('compound_add.ABC.abc', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.ABC.abc');
+        vCode10 := 'ABC';
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        if Try2(V, vCode10, vText) then Observer.Observe('add.ABC.guidlow', Util.VShow(V)) else Observer.ObserveError('add.ABC.guidlow');
+        vCode10 := 'ABC';
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        if Try3(vCode10, vText) then Observer.Observe('compound_add.ABC.guidlow', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.ABC.guidlow');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Code10_Text10()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vCode10: Code[10];
+        vText10: Text[10];
     begin
         vCode10 := 'A';
         vText10 := 'abc';
-        if Try4() then Observer.Observe('add.A.abc', Util.VShow(V)) else Observer.ObserveError('add.A.abc');
+        if Try4(V, vCode10, vText10) then Observer.Observe('add.A.abc', Util.VShow(V)) else Observer.ObserveError('add.A.abc');
         vCode10 := 'A';
         vText10 := 'abc';
-        if Try5() then Observer.Observe('compound_add.A.abc', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('compound_add.A.abc');
+        if Try5(vCode10, vText10) then Observer.Observe('compound_add.A.abc', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('compound_add.A.abc');
         vCode10 := 'ABC';
         vText10 := 'abc';
-        if Try4() then Observer.Observe('add.ABC.abc', Util.VShow(V)) else Observer.ObserveError('add.ABC.abc');
+        if Try4(V, vCode10, vText10) then Observer.Observe('add.ABC.abc', Util.VShow(V)) else Observer.ObserveError('add.ABC.abc');
         vCode10 := 'ABC';
         vText10 := 'abc';
-        if Try5() then Observer.Observe('compound_add.ABC.abc', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('compound_add.ABC.abc');
+        if Try5(vCode10, vText10) then Observer.Observe('compound_add.ABC.abc', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('compound_add.ABC.abc');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Code10_Text10_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_Text10_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_Text10_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_Text10_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_Text10_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Code10_Code10_Same()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vCode10: Code[10];
+        vCode10_R: Code[10];
     begin
         vCode10 := 'A';
         vCode10_R := 'A';
-        if Try6() then Observer.Observe('add.A.A', Util.VShow(V)) else Observer.ObserveError('add.A.A');
+        if Try6(V, vCode10, vCode10_R) then Observer.Observe('add.A.A', Util.VShow(V)) else Observer.ObserveError('add.A.A');
         vCode10 := 'A';
         vCode10_R := 'A';
-        if Try7() then Observer.Observe('compound_add.A.A', vCode10_R + '|' + Format(StrLen(vCode10_R))) else Observer.ObserveError('compound_add.A.A');
+        if Try7(vCode10, vCode10_R) then Observer.Observe('compound_add.A.A', vCode10_R + '|' + Format(StrLen(vCode10_R))) else Observer.ObserveError('compound_add.A.A');
         vCode10 := 'A';
         vCode10_R := 'ABC';
-        if Try6() then Observer.Observe('add.A.ABC', Util.VShow(V)) else Observer.ObserveError('add.A.ABC');
+        if Try6(V, vCode10, vCode10_R) then Observer.Observe('add.A.ABC', Util.VShow(V)) else Observer.ObserveError('add.A.ABC');
         vCode10 := 'A';
         vCode10_R := 'ABC';
-        if Try7() then Observer.Observe('compound_add.A.ABC', vCode10_R + '|' + Format(StrLen(vCode10_R))) else Observer.ObserveError('compound_add.A.ABC');
+        if Try7(vCode10, vCode10_R) then Observer.Observe('compound_add.A.ABC', vCode10_R + '|' + Format(StrLen(vCode10_R))) else Observer.ObserveError('compound_add.A.ABC');
         vCode10 := 'ABC';
         vCode10_R := 'A';
-        if Try6() then Observer.Observe('add.ABC.A', Util.VShow(V)) else Observer.ObserveError('add.ABC.A');
+        if Try6(V, vCode10, vCode10_R) then Observer.Observe('add.ABC.A', Util.VShow(V)) else Observer.ObserveError('add.ABC.A');
         vCode10 := 'ABC';
         vCode10_R := 'A';
-        if Try7() then Observer.Observe('compound_add.ABC.A', vCode10_R + '|' + Format(StrLen(vCode10_R))) else Observer.ObserveError('compound_add.ABC.A');
+        if Try7(vCode10, vCode10_R) then Observer.Observe('compound_add.ABC.A', vCode10_R + '|' + Format(StrLen(vCode10_R))) else Observer.ObserveError('compound_add.ABC.A');
         vCode10 := 'ABC';
         vCode10_R := 'ABC';
-        if Try6() then Observer.Observe('add.ABC.ABC', Util.VShow(V)) else Observer.ObserveError('add.ABC.ABC');
+        if Try6(V, vCode10, vCode10_R) then Observer.Observe('add.ABC.ABC', Util.VShow(V)) else Observer.ObserveError('add.ABC.ABC');
         vCode10 := 'ABC';
         vCode10_R := 'ABC';
-        if Try7() then Observer.Observe('compound_add.ABC.ABC', vCode10_R + '|' + Format(StrLen(vCode10_R))) else Observer.ObserveError('compound_add.ABC.ABC');
+        if Try7(vCode10, vCode10_R) then Observer.Observe('compound_add.ABC.ABC', vCode10_R + '|' + Format(StrLen(vCode10_R))) else Observer.ObserveError('compound_add.ABC.ABC');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Code10_Code10_Same_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_Code10_Same_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_Code10_Same_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_Code10_Same_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_Code10_Same_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Code10_Guid()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vCode10: Code[10];
+        vGuid: Guid;
     begin
         vCode10 := 'A';
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try8() then Observer.Observe('add.A.g', Util.VShow(V)) else Observer.ObserveError('add.A.g');
+        if Try8(V, vCode10, vGuid) then Observer.Observe('add.A.g', Util.VShow(V)) else Observer.ObserveError('add.A.g');
         vCode10 := 'A';
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try9() then Observer.Observe('compound_add.A.g', Format(vGuid)) else Observer.ObserveError('compound_add.A.g');
+        if Try9(vCode10, vGuid) then Observer.Observe('compound_add.A.g', Format(vGuid)) else Observer.ObserveError('compound_add.A.g');
         vCode10 := 'ABC';
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try8() then Observer.Observe('add.ABC.g', Util.VShow(V)) else Observer.ObserveError('add.ABC.g');
+        if Try8(V, vCode10, vGuid) then Observer.Observe('add.ABC.g', Util.VShow(V)) else Observer.ObserveError('add.ABC.g');
         vCode10 := 'ABC';
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try9() then Observer.Observe('compound_add.ABC.g', Format(vGuid)) else Observer.ObserveError('compound_add.ABC.g');
+        if Try9(vCode10, vGuid) then Observer.Observe('compound_add.ABC.g', Format(vGuid)) else Observer.ObserveError('compound_add.ABC.g');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Code10_Guid_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_Guid_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_Guid_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_Guid_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_Guid_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Code10_Label()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vCode10: Code[10];
     begin
         vCode10 := 'A';
-        if Try10() then Observer.Observe('add.A.abc', Util.VShow(V)) else Observer.ObserveError('add.A.abc');
+        if Try10(V, vCode10) then Observer.Observe('add.A.abc', Util.VShow(V)) else Observer.ObserveError('add.A.abc');
         vCode10 := 'ABC';
-        if Try10() then Observer.Observe('add.ABC.abc', Util.VShow(V)) else Observer.ObserveError('add.ABC.abc');
+        if Try10(V, vCode10) then Observer.Observe('add.ABC.abc', Util.VShow(V)) else Observer.ObserveError('add.ABC.abc');
         Observer.Finish();
     end;
 
-    [Test]
-    procedure Code10_Label_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_Label_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_Label_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_Label_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Code10_Label_More5()
-    begin
-        Observer.More();
-    end;
-
     [TryFunction]
-    local procedure Try1()
+    local procedure Try1(var V: Variant; var vChar: Char; var vCode10: Code[10])
     begin
         Clear(V);
         V := vCode10 + vChar;
     end;
 
     [TryFunction]
-    local procedure Try2()
+    local procedure Try2(var V: Variant; var vCode10: Code[10]; var vText: Text)
     begin
         Clear(V);
         V := vCode10 + vText;
     end;
 
     [TryFunction]
-    local procedure Try3()
+    local procedure Try3(var vCode10: Code[10]; var vText: Text)
     begin
         vText += vCode10;
     end;
 
     [TryFunction]
-    local procedure Try4()
+    local procedure Try4(var V: Variant; var vCode10: Code[10]; var vText10: Text[10])
     begin
         Clear(V);
         V := vCode10 + vText10;
     end;
 
     [TryFunction]
-    local procedure Try5()
+    local procedure Try5(var vCode10: Code[10]; var vText10: Text[10])
     begin
         vText10 += vCode10;
     end;
 
     [TryFunction]
-    local procedure Try6()
+    local procedure Try6(var V: Variant; var vCode10: Code[10]; var vCode10_R: Code[10])
     begin
         Clear(V);
         V := vCode10 + vCode10_R;
     end;
 
     [TryFunction]
-    local procedure Try7()
+    local procedure Try7(var vCode10: Code[10]; var vCode10_R: Code[10])
     begin
         vCode10_R += vCode10;
     end;
 
     [TryFunction]
-    local procedure Try8()
+    local procedure Try8(var V: Variant; var vCode10: Code[10]; var vGuid: Guid)
     begin
         Clear(V);
         V := vCode10 + vGuid;
     end;
 
     [TryFunction]
-    local procedure Try9()
+    local procedure Try9(var vCode10: Code[10]; var vGuid: Guid)
     begin
         vGuid += vCode10;
     end;
 
     [TryFunction]
-    local procedure Try10()
+    local procedure Try10(var V: Variant; var vCode10: Code[10])
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Clear(V);
         V := vCode10 + vLabel;
@@ -8881,355 +6941,199 @@ codeunit 92457 "LT Y31 Ar Guid"
     Subtype = Test;
     TestPermissions = Disabled;
 
+    [Test]
+    procedure Guid_Char()
     var
         Observer: Codeunit "Probe Observer";
         Util: Codeunit "LT Y31 Conv Util";
-        Res: Boolean;
         V: Variant;
         vChar: Char;
-        vCode10: Code[10];
         vGuid: Guid;
-        vGuid_R: Guid;
-        vLabel: Label 'abc', Locked = true;
-        vText: Text;
-        vText10: Text[10];
-
-    [Test]
-    procedure Guid_Char()
     begin
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vChar := 65;
-        if Try1() then Observer.Observe('add.g.A', Util.VShow(V)) else Observer.ObserveError('add.g.A');
+        if Try1(V, vChar, vGuid) then Observer.Observe('add.g.A', Util.VShow(V)) else Observer.ObserveError('add.g.A');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vChar := 97;
-        if Try1() then Observer.Observe('add.g.a', Util.VShow(V)) else Observer.ObserveError('add.g.a');
+        if Try1(V, vChar, vGuid) then Observer.Observe('add.g.a', Util.VShow(V)) else Observer.ObserveError('add.g.a');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vChar := 65535;
-        if Try1() then Observer.Observe('add.g.65535', Util.VShow(V)) else Observer.ObserveError('add.g.65535');
+        if Try1(V, vChar, vGuid) then Observer.Observe('add.g.65535', Util.VShow(V)) else Observer.ObserveError('add.g.65535');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Guid_Char_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_Char_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_Char_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_Char_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_Char_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Guid_Text()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vGuid: Guid;
+        vText: Text;
     begin
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vText := 'a';
-        if Try2() then Observer.Observe('add.g.a', Util.VShow(V)) else Observer.ObserveError('add.g.a');
+        if Try2(V, vGuid, vText) then Observer.Observe('add.g.a', Util.VShow(V)) else Observer.ObserveError('add.g.a');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vText := 'a';
-        if Try3() then Observer.Observe('compound_add.g.a', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.g.a');
+        if Try3(vGuid, vText) then Observer.Observe('compound_add.g.a', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.g.a');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vText := 'A';
-        if Try2() then Observer.Observe('add.g.A', Util.VShow(V)) else Observer.ObserveError('add.g.A');
+        if Try2(V, vGuid, vText) then Observer.Observe('add.g.A', Util.VShow(V)) else Observer.ObserveError('add.g.A');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vText := 'A';
-        if Try3() then Observer.Observe('compound_add.g.A', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.g.A');
+        if Try3(vGuid, vText) then Observer.Observe('compound_add.g.A', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.g.A');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vText := 'abc';
-        if Try2() then Observer.Observe('add.g.abc', Util.VShow(V)) else Observer.ObserveError('add.g.abc');
+        if Try2(V, vGuid, vText) then Observer.Observe('add.g.abc', Util.VShow(V)) else Observer.ObserveError('add.g.abc');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vText := 'abc';
-        if Try3() then Observer.Observe('compound_add.g.abc', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.g.abc');
+        if Try3(vGuid, vText) then Observer.Observe('compound_add.g.abc', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.g.abc');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        if Try2() then Observer.Observe('add.g.guidlow', Util.VShow(V)) else Observer.ObserveError('add.g.guidlow');
+        if Try2(V, vGuid, vText) then Observer.Observe('add.g.guidlow', Util.VShow(V)) else Observer.ObserveError('add.g.guidlow');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        if Try3() then Observer.Observe('compound_add.g.guidlow', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.g.guidlow');
+        if Try3(vGuid, vText) then Observer.Observe('compound_add.g.guidlow', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.g.guidlow');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Guid_Text_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_Text_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_Text_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_Text_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_Text_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Guid_Text10()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vGuid: Guid;
+        vText10: Text[10];
     begin
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vText10 := 'abc';
-        if Try4() then Observer.Observe('add.g.abc', Util.VShow(V)) else Observer.ObserveError('add.g.abc');
+        if Try4(V, vGuid, vText10) then Observer.Observe('add.g.abc', Util.VShow(V)) else Observer.ObserveError('add.g.abc');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vText10 := 'abc';
-        if Try5() then Observer.Observe('compound_add.g.abc', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('compound_add.g.abc');
+        if Try5(vGuid, vText10) then Observer.Observe('compound_add.g.abc', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('compound_add.g.abc');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Guid_Text10_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_Text10_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_Text10_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_Text10_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_Text10_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Guid_Code10()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vCode10: Code[10];
+        vGuid: Guid;
     begin
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vCode10 := 'A';
-        if Try6() then Observer.Observe('add.g.A', Util.VShow(V)) else Observer.ObserveError('add.g.A');
+        if Try6(V, vCode10, vGuid) then Observer.Observe('add.g.A', Util.VShow(V)) else Observer.ObserveError('add.g.A');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vCode10 := 'A';
-        if Try7() then Observer.Observe('compound_add.g.A', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('compound_add.g.A');
+        if Try7(vCode10, vGuid) then Observer.Observe('compound_add.g.A', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('compound_add.g.A');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vCode10 := 'ABC';
-        if Try6() then Observer.Observe('add.g.ABC', Util.VShow(V)) else Observer.ObserveError('add.g.ABC');
+        if Try6(V, vCode10, vGuid) then Observer.Observe('add.g.ABC', Util.VShow(V)) else Observer.ObserveError('add.g.ABC');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vCode10 := 'ABC';
-        if Try7() then Observer.Observe('compound_add.g.ABC', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('compound_add.g.ABC');
+        if Try7(vCode10, vGuid) then Observer.Observe('compound_add.g.ABC', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('compound_add.g.ABC');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Guid_Code10_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_Code10_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_Code10_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_Code10_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_Code10_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Guid_Guid_Same()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vGuid: Guid;
+        vGuid_R: Guid;
     begin
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vGuid_R := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try8() then Observer.Observe('add.g.g', Util.VShow(V)) else Observer.ObserveError('add.g.g');
+        if Try8(V, vGuid, vGuid_R) then Observer.Observe('add.g.g', Util.VShow(V)) else Observer.ObserveError('add.g.g');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vGuid_R := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try9() then Observer.Observe('compound_add.g.g', Format(vGuid_R)) else Observer.ObserveError('compound_add.g.g');
+        if Try9(vGuid, vGuid_R) then Observer.Observe('compound_add.g.g', Format(vGuid_R)) else Observer.ObserveError('compound_add.g.g');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Guid_Guid_Same_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_Guid_Same_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_Guid_Same_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_Guid_Same_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_Guid_Same_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Guid_Label()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vGuid: Guid;
     begin
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try10() then Observer.Observe('add.g.abc', Util.VShow(V)) else Observer.ObserveError('add.g.abc');
+        if Try10(V, vGuid) then Observer.Observe('add.g.abc', Util.VShow(V)) else Observer.ObserveError('add.g.abc');
         Observer.Finish();
     end;
 
-    [Test]
-    procedure Guid_Label_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_Label_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_Label_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_Label_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Guid_Label_More5()
-    begin
-        Observer.More();
-    end;
-
     [TryFunction]
-    local procedure Try1()
+    local procedure Try1(var V: Variant; var vChar: Char; var vGuid: Guid)
     begin
         Clear(V);
         V := vGuid + vChar;
     end;
 
     [TryFunction]
-    local procedure Try2()
+    local procedure Try2(var V: Variant; var vGuid: Guid; var vText: Text)
     begin
         Clear(V);
         V := vGuid + vText;
     end;
 
     [TryFunction]
-    local procedure Try3()
+    local procedure Try3(var vGuid: Guid; var vText: Text)
     begin
         vText += vGuid;
     end;
 
     [TryFunction]
-    local procedure Try4()
+    local procedure Try4(var V: Variant; var vGuid: Guid; var vText10: Text[10])
     begin
         Clear(V);
         V := vGuid + vText10;
     end;
 
     [TryFunction]
-    local procedure Try5()
+    local procedure Try5(var vGuid: Guid; var vText10: Text[10])
     begin
         vText10 += vGuid;
     end;
 
     [TryFunction]
-    local procedure Try6()
+    local procedure Try6(var V: Variant; var vCode10: Code[10]; var vGuid: Guid)
     begin
         Clear(V);
         V := vGuid + vCode10;
     end;
 
     [TryFunction]
-    local procedure Try7()
+    local procedure Try7(var vCode10: Code[10]; var vGuid: Guid)
     begin
         vCode10 += vGuid;
     end;
 
     [TryFunction]
-    local procedure Try8()
+    local procedure Try8(var V: Variant; var vGuid: Guid; var vGuid_R: Guid)
     begin
         Clear(V);
         V := vGuid + vGuid_R;
     end;
 
     [TryFunction]
-    local procedure Try9()
+    local procedure Try9(var vGuid: Guid; var vGuid_R: Guid)
     begin
         vGuid_R += vGuid;
     end;
 
     [TryFunction]
-    local procedure Try10()
+    local procedure Try10(var V: Variant; var vGuid: Guid)
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Clear(V);
         V := vGuid + vLabel;
@@ -9249,616 +7153,359 @@ codeunit 92458 "LT Y31 Ar Date"
     Subtype = Test;
     TestPermissions = Disabled;
 
+    [Test]
+    procedure Date_Integer()
     var
         Observer: Codeunit "Probe Observer";
         Util: Codeunit "LT Y31 Conv Util";
-        Res: Boolean;
         V: Variant;
-        vBigInteger: BigInteger;
-        vByte: Byte;
-        vChar: Char;
         vDate: Date;
-        vDate_R: Date;
-        vDecimal: Decimal;
-        vDuration: Duration;
-        vEnum: Enum "LT Y31 E";
-        vEnumImpl: Enum "LT Y31 EI";
         vInteger: Integer;
-        vOption: Option A,B,C;
-
-    [Test]
-    procedure Date_Integer()
     begin
         vDate := 20260131D;
         vInteger := 65;
-        if Try1() then Observer.Observe('add.d.65', Util.VShow(V)) else Observer.ObserveError('add.d.65');
+        if Try1(V, vDate, vInteger) then Observer.Observe('add.d.65', Util.VShow(V)) else Observer.ObserveError('add.d.65');
         vDate := 20260131D;
         vInteger := 65;
-        if Try2() then Observer.Observe('sub.d.65', Util.VShow(V)) else Observer.ObserveError('sub.d.65');
+        if Try2(V, vDate, vInteger) then Observer.Observe('sub.d.65', Util.VShow(V)) else Observer.ObserveError('sub.d.65');
         vDate := 20260131D;
         vInteger := 1;
-        if Try1() then Observer.Observe('add.d.1', Util.VShow(V)) else Observer.ObserveError('add.d.1');
+        if Try1(V, vDate, vInteger) then Observer.Observe('add.d.1', Util.VShow(V)) else Observer.ObserveError('add.d.1');
         vDate := 20260131D;
         vInteger := 1;
-        if Try2() then Observer.Observe('sub.d.1', Util.VShow(V)) else Observer.ObserveError('sub.d.1');
+        if Try2(V, vDate, vInteger) then Observer.Observe('sub.d.1', Util.VShow(V)) else Observer.ObserveError('sub.d.1');
         vDate := 20260131D;
         vInteger := 2147483647;
-        if Try1() then Observer.Observe('add.d.max', Util.VShow(V)) else Observer.ObserveError('add.d.max');
+        if Try1(V, vDate, vInteger) then Observer.Observe('add.d.max', Util.VShow(V)) else Observer.ObserveError('add.d.max');
         vDate := 20260131D;
         vInteger := 2147483647;
-        if Try2() then Observer.Observe('sub.d.max', Util.VShow(V)) else Observer.ObserveError('sub.d.max');
+        if Try2(V, vDate, vInteger) then Observer.Observe('sub.d.max', Util.VShow(V)) else Observer.ObserveError('sub.d.max');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Date_Integer_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Date_Integer_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Date_Integer_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Date_Integer_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Date_Integer_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Date_BigInteger()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vBigInteger: BigInteger;
+        vDate: Date;
     begin
         vDate := 20260131D;
         vBigInteger := 65;
-        if Try3() then Observer.Observe('add.d.65', Util.VShow(V)) else Observer.ObserveError('add.d.65');
+        if Try3(V, vBigInteger, vDate) then Observer.Observe('add.d.65', Util.VShow(V)) else Observer.ObserveError('add.d.65');
         vDate := 20260131D;
         vBigInteger := 65;
-        if Try4() then Observer.Observe('sub.d.65', Util.VShow(V)) else Observer.ObserveError('sub.d.65');
+        if Try4(V, vBigInteger, vDate) then Observer.Observe('sub.d.65', Util.VShow(V)) else Observer.ObserveError('sub.d.65');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Date_BigInteger_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Date_BigInteger_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Date_BigInteger_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Date_BigInteger_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Date_BigInteger_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Date_Decimal()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vDate: Date;
+        vDecimal: Decimal;
     begin
         vDate := 20260131D;
         vDecimal := 65;
-        if Try5() then Observer.Observe('add.d.65', Util.VShow(V)) else Observer.ObserveError('add.d.65');
+        if Try5(V, vDate, vDecimal) then Observer.Observe('add.d.65', Util.VShow(V)) else Observer.ObserveError('add.d.65');
         vDate := 20260131D;
         vDecimal := 65;
-        if Try6() then Observer.Observe('sub.d.65', Util.VShow(V)) else Observer.ObserveError('sub.d.65');
+        if Try6(V, vDate, vDecimal) then Observer.Observe('sub.d.65', Util.VShow(V)) else Observer.ObserveError('sub.d.65');
         vDate := 20260131D;
         vDecimal := 1.5;
-        if Try5() then Observer.Observe('add.d.1p5', Util.VShow(V)) else Observer.ObserveError('add.d.1p5');
+        if Try5(V, vDate, vDecimal) then Observer.Observe('add.d.1p5', Util.VShow(V)) else Observer.ObserveError('add.d.1p5');
         vDate := 20260131D;
         vDecimal := 1.5;
-        if Try6() then Observer.Observe('sub.d.1p5', Util.VShow(V)) else Observer.ObserveError('sub.d.1p5');
+        if Try6(V, vDate, vDecimal) then Observer.Observe('sub.d.1p5', Util.VShow(V)) else Observer.ObserveError('sub.d.1p5');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Date_Decimal_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Date_Decimal_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Date_Decimal_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Date_Decimal_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Date_Decimal_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Date_Char()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vChar: Char;
+        vDate: Date;
     begin
         vDate := 20260131D;
         vChar := 65;
-        if Try7() then Observer.Observe('add.d.A', Util.VShow(V)) else Observer.ObserveError('add.d.A');
+        if Try7(V, vChar, vDate) then Observer.Observe('add.d.A', Util.VShow(V)) else Observer.ObserveError('add.d.A');
         vDate := 20260131D;
         vChar := 65;
-        if Try8() then Observer.Observe('sub.d.A', Util.VShow(V)) else Observer.ObserveError('sub.d.A');
+        if Try8(V, vChar, vDate) then Observer.Observe('sub.d.A', Util.VShow(V)) else Observer.ObserveError('sub.d.A');
         vDate := 20260131D;
         vChar := 97;
-        if Try7() then Observer.Observe('add.d.a', Util.VShow(V)) else Observer.ObserveError('add.d.a');
+        if Try7(V, vChar, vDate) then Observer.Observe('add.d.a', Util.VShow(V)) else Observer.ObserveError('add.d.a');
         vDate := 20260131D;
         vChar := 97;
-        if Try8() then Observer.Observe('sub.d.a', Util.VShow(V)) else Observer.ObserveError('sub.d.a');
+        if Try8(V, vChar, vDate) then Observer.Observe('sub.d.a', Util.VShow(V)) else Observer.ObserveError('sub.d.a');
         vDate := 20260131D;
         vChar := 65535;
-        if Try7() then Observer.Observe('add.d.65535', Util.VShow(V)) else Observer.ObserveError('add.d.65535');
+        if Try7(V, vChar, vDate) then Observer.Observe('add.d.65535', Util.VShow(V)) else Observer.ObserveError('add.d.65535');
         vDate := 20260131D;
         vChar := 65535;
-        if Try8() then Observer.Observe('sub.d.65535', Util.VShow(V)) else Observer.ObserveError('sub.d.65535');
+        if Try8(V, vChar, vDate) then Observer.Observe('sub.d.65535', Util.VShow(V)) else Observer.ObserveError('sub.d.65535');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Date_Char_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Date_Char_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Date_Char_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Date_Char_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Date_Char_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Date_Byte()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vByte: Byte;
+        vDate: Date;
     begin
         vDate := 20260131D;
         vByte := 65;
-        if Try9() then Observer.Observe('add.d.65', Util.VShow(V)) else Observer.ObserveError('add.d.65');
+        if Try9(V, vByte, vDate) then Observer.Observe('add.d.65', Util.VShow(V)) else Observer.ObserveError('add.d.65');
         vDate := 20260131D;
         vByte := 65;
-        if Try10() then Observer.Observe('sub.d.65', Util.VShow(V)) else Observer.ObserveError('sub.d.65');
+        if Try10(V, vByte, vDate) then Observer.Observe('sub.d.65', Util.VShow(V)) else Observer.ObserveError('sub.d.65');
         vDate := 20260131D;
         vByte := 255;
-        if Try9() then Observer.Observe('add.d.255', Util.VShow(V)) else Observer.ObserveError('add.d.255');
+        if Try9(V, vByte, vDate) then Observer.Observe('add.d.255', Util.VShow(V)) else Observer.ObserveError('add.d.255');
         vDate := 20260131D;
         vByte := 255;
-        if Try10() then Observer.Observe('sub.d.255', Util.VShow(V)) else Observer.ObserveError('sub.d.255');
+        if Try10(V, vByte, vDate) then Observer.Observe('sub.d.255', Util.VShow(V)) else Observer.ObserveError('sub.d.255');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Date_Byte_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Date_Byte_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Date_Byte_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Date_Byte_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Date_Byte_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Date_Option()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vDate: Date;
+        vOption: Option A,B,C;
     begin
         vDate := 20260131D;
         vOption := 1;
-        if Try11() then Observer.Observe('add.d.1', Util.VShow(V)) else Observer.ObserveError('add.d.1');
+        if Try11(V, vDate, vOption) then Observer.Observe('add.d.1', Util.VShow(V)) else Observer.ObserveError('add.d.1');
         vDate := 20260131D;
         vOption := 1;
-        if Try12() then Observer.Observe('sub.d.1', Util.VShow(V)) else Observer.ObserveError('sub.d.1');
+        if Try12(V, vDate, vOption) then Observer.Observe('sub.d.1', Util.VShow(V)) else Observer.ObserveError('sub.d.1');
         vDate := 20260131D;
         vOption := 3;
-        if Try11() then Observer.Observe('add.d.3', Util.VShow(V)) else Observer.ObserveError('add.d.3');
+        if Try11(V, vDate, vOption) then Observer.Observe('add.d.3', Util.VShow(V)) else Observer.ObserveError('add.d.3');
         vDate := 20260131D;
         vOption := 3;
-        if Try12() then Observer.Observe('sub.d.3', Util.VShow(V)) else Observer.ObserveError('sub.d.3');
+        if Try12(V, vDate, vOption) then Observer.Observe('sub.d.3', Util.VShow(V)) else Observer.ObserveError('sub.d.3');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Date_Option_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Date_Option_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Date_Option_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Date_Option_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Date_Option_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Date_Enum()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vDate: Date;
+        vEnum: Enum "LT Y31 E";
     begin
         vDate := 20260131D;
         vEnum := "LT Y31 E"::B;
-        if Try13() then Observer.Observe('add.d.B', Util.VShow(V)) else Observer.ObserveError('add.d.B');
+        if Try13(V, vDate, vEnum) then Observer.Observe('add.d.B', Util.VShow(V)) else Observer.ObserveError('add.d.B');
         vDate := 20260131D;
         vEnum := "LT Y31 E"::B;
-        if Try14() then Observer.Observe('sub.d.B', Util.VShow(V)) else Observer.ObserveError('sub.d.B');
+        if Try14(V, vDate, vEnum) then Observer.Observe('sub.d.B', Util.VShow(V)) else Observer.ObserveError('sub.d.B');
         vDate := 20260131D;
         vEnum := 5;
-        if Try13() then Observer.Observe('add.d.ord5', Util.VShow(V)) else Observer.ObserveError('add.d.ord5');
+        if Try13(V, vDate, vEnum) then Observer.Observe('add.d.ord5', Util.VShow(V)) else Observer.ObserveError('add.d.ord5');
         vDate := 20260131D;
         vEnum := 5;
-        if Try14() then Observer.Observe('sub.d.ord5', Util.VShow(V)) else Observer.ObserveError('sub.d.ord5');
+        if Try14(V, vDate, vEnum) then Observer.Observe('sub.d.ord5', Util.VShow(V)) else Observer.ObserveError('sub.d.ord5');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Date_Enum_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Date_Enum_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Date_Enum_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Date_Enum_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Date_Enum_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Date_EnumImpl()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vDate: Date;
+        vEnumImpl: Enum "LT Y31 EI";
     begin
         vDate := 20260131D;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try15() then Observer.Observe('add.d.A', Util.VShow(V)) else Observer.ObserveError('add.d.A');
+        if Try15(V, vDate, vEnumImpl) then Observer.Observe('add.d.A', Util.VShow(V)) else Observer.ObserveError('add.d.A');
         vDate := 20260131D;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try16() then Observer.Observe('sub.d.A', Util.VShow(V)) else Observer.ObserveError('sub.d.A');
+        if Try16(V, vDate, vEnumImpl) then Observer.Observe('sub.d.A', Util.VShow(V)) else Observer.ObserveError('sub.d.A');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Date_EnumImpl_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Date_EnumImpl_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Date_EnumImpl_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Date_EnumImpl_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Date_EnumImpl_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Date_Date_Same()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vDate: Date;
+        vDate_R: Date;
     begin
         vDate := 20260131D;
         vDate_R := 20260131D;
-        if Try17() then Observer.Observe('sub.d.d', Util.VShow(V)) else Observer.ObserveError('sub.d.d');
+        if Try17(V, vDate, vDate_R) then Observer.Observe('sub.d.d', Util.VShow(V)) else Observer.ObserveError('sub.d.d');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Date_Date_Same_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Date_Date_Same_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Date_Date_Same_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Date_Date_Same_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Date_Date_Same_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Date_Duration()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vDate: Date;
+        vDuration: Duration;
     begin
         vDate := 20260131D;
         vDuration := 65;
-        if Try18() then Observer.Observe('add.d.65', Util.VShow(V)) else Observer.ObserveError('add.d.65');
+        if Try18(V, vDate, vDuration) then Observer.Observe('add.d.65', Util.VShow(V)) else Observer.ObserveError('add.d.65');
         vDate := 20260131D;
         vDuration := 65;
-        if Try19() then Observer.Observe('sub.d.65', Util.VShow(V)) else Observer.ObserveError('sub.d.65');
+        if Try19(V, vDate, vDuration) then Observer.Observe('sub.d.65', Util.VShow(V)) else Observer.ObserveError('sub.d.65');
         Observer.Finish();
     end;
 
-    [Test]
-    procedure Date_Duration_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Date_Duration_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Date_Duration_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Date_Duration_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Date_Duration_More5()
-    begin
-        Observer.More();
-    end;
-
     [TryFunction]
-    local procedure Try1()
+    local procedure Try1(var V: Variant; var vDate: Date; var vInteger: Integer)
     begin
         Clear(V);
         V := vDate + vInteger;
     end;
 
     [TryFunction]
-    local procedure Try2()
+    local procedure Try2(var V: Variant; var vDate: Date; var vInteger: Integer)
     begin
         Clear(V);
         V := vDate - vInteger;
     end;
 
     [TryFunction]
-    local procedure Try3()
+    local procedure Try3(var V: Variant; var vBigInteger: BigInteger; var vDate: Date)
     begin
         Clear(V);
         V := vDate + vBigInteger;
     end;
 
     [TryFunction]
-    local procedure Try4()
+    local procedure Try4(var V: Variant; var vBigInteger: BigInteger; var vDate: Date)
     begin
         Clear(V);
         V := vDate - vBigInteger;
     end;
 
     [TryFunction]
-    local procedure Try5()
+    local procedure Try5(var V: Variant; var vDate: Date; var vDecimal: Decimal)
     begin
         Clear(V);
         V := vDate + vDecimal;
     end;
 
     [TryFunction]
-    local procedure Try6()
+    local procedure Try6(var V: Variant; var vDate: Date; var vDecimal: Decimal)
     begin
         Clear(V);
         V := vDate - vDecimal;
     end;
 
     [TryFunction]
-    local procedure Try7()
+    local procedure Try7(var V: Variant; var vChar: Char; var vDate: Date)
     begin
         Clear(V);
         V := vDate + vChar;
     end;
 
     [TryFunction]
-    local procedure Try8()
+    local procedure Try8(var V: Variant; var vChar: Char; var vDate: Date)
     begin
         Clear(V);
         V := vDate - vChar;
     end;
 
     [TryFunction]
-    local procedure Try9()
+    local procedure Try9(var V: Variant; var vByte: Byte; var vDate: Date)
     begin
         Clear(V);
         V := vDate + vByte;
     end;
 
     [TryFunction]
-    local procedure Try10()
+    local procedure Try10(var V: Variant; var vByte: Byte; var vDate: Date)
     begin
         Clear(V);
         V := vDate - vByte;
     end;
 
     [TryFunction]
-    local procedure Try11()
+    local procedure Try11(var V: Variant; var vDate: Date; var vOption: Option A,B,C)
     begin
         Clear(V);
         V := vDate + vOption;
     end;
 
     [TryFunction]
-    local procedure Try12()
+    local procedure Try12(var V: Variant; var vDate: Date; var vOption: Option A,B,C)
     begin
         Clear(V);
         V := vDate - vOption;
     end;
 
     [TryFunction]
-    local procedure Try13()
+    local procedure Try13(var V: Variant; var vDate: Date; var vEnum: Enum "LT Y31 E")
     begin
         Clear(V);
         V := vDate + vEnum;
     end;
 
     [TryFunction]
-    local procedure Try14()
+    local procedure Try14(var V: Variant; var vDate: Date; var vEnum: Enum "LT Y31 E")
     begin
         Clear(V);
         V := vDate - vEnum;
     end;
 
     [TryFunction]
-    local procedure Try15()
+    local procedure Try15(var V: Variant; var vDate: Date; var vEnumImpl: Enum "LT Y31 EI")
     begin
         Clear(V);
         V := vDate + vEnumImpl;
     end;
 
     [TryFunction]
-    local procedure Try16()
+    local procedure Try16(var V: Variant; var vDate: Date; var vEnumImpl: Enum "LT Y31 EI")
     begin
         Clear(V);
         V := vDate - vEnumImpl;
     end;
 
     [TryFunction]
-    local procedure Try17()
+    local procedure Try17(var V: Variant; var vDate: Date; var vDate_R: Date)
     begin
         Clear(V);
         V := vDate - vDate_R;
     end;
 
     [TryFunction]
-    local procedure Try18()
+    local procedure Try18(var V: Variant; var vDate: Date; var vDuration: Duration)
     begin
         Clear(V);
         V := vDate + vDuration;
     end;
 
     [TryFunction]
-    local procedure Try19()
+    local procedure Try19(var V: Variant; var vDate: Date; var vDuration: Duration)
     begin
         Clear(V);
         V := vDate - vDuration;
@@ -9878,616 +7525,359 @@ codeunit 92459 "LT Y31 Ar Time"
     Subtype = Test;
     TestPermissions = Disabled;
 
+    [Test]
+    procedure Time_Integer()
     var
         Observer: Codeunit "Probe Observer";
         Util: Codeunit "LT Y31 Conv Util";
-        Res: Boolean;
         V: Variant;
-        vBigInteger: BigInteger;
-        vByte: Byte;
-        vChar: Char;
-        vDecimal: Decimal;
-        vDuration: Duration;
-        vEnum: Enum "LT Y31 E";
-        vEnumImpl: Enum "LT Y31 EI";
         vInteger: Integer;
-        vOption: Option A,B,C;
         vTime: Time;
-        vTime_R: Time;
-
-    [Test]
-    procedure Time_Integer()
     begin
         vTime := 120000T;
         vInteger := 65;
-        if Try1() then Observer.Observe('add.t.65', Util.VShow(V)) else Observer.ObserveError('add.t.65');
+        if Try1(V, vInteger, vTime) then Observer.Observe('add.t.65', Util.VShow(V)) else Observer.ObserveError('add.t.65');
         vTime := 120000T;
         vInteger := 65;
-        if Try2() then Observer.Observe('sub.t.65', Util.VShow(V)) else Observer.ObserveError('sub.t.65');
+        if Try2(V, vInteger, vTime) then Observer.Observe('sub.t.65', Util.VShow(V)) else Observer.ObserveError('sub.t.65');
         vTime := 120000T;
         vInteger := 1;
-        if Try1() then Observer.Observe('add.t.1', Util.VShow(V)) else Observer.ObserveError('add.t.1');
+        if Try1(V, vInteger, vTime) then Observer.Observe('add.t.1', Util.VShow(V)) else Observer.ObserveError('add.t.1');
         vTime := 120000T;
         vInteger := 1;
-        if Try2() then Observer.Observe('sub.t.1', Util.VShow(V)) else Observer.ObserveError('sub.t.1');
+        if Try2(V, vInteger, vTime) then Observer.Observe('sub.t.1', Util.VShow(V)) else Observer.ObserveError('sub.t.1');
         vTime := 120000T;
         vInteger := 2147483647;
-        if Try1() then Observer.Observe('add.t.max', Util.VShow(V)) else Observer.ObserveError('add.t.max');
+        if Try1(V, vInteger, vTime) then Observer.Observe('add.t.max', Util.VShow(V)) else Observer.ObserveError('add.t.max');
         vTime := 120000T;
         vInteger := 2147483647;
-        if Try2() then Observer.Observe('sub.t.max', Util.VShow(V)) else Observer.ObserveError('sub.t.max');
+        if Try2(V, vInteger, vTime) then Observer.Observe('sub.t.max', Util.VShow(V)) else Observer.ObserveError('sub.t.max');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Time_Integer_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Time_Integer_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Time_Integer_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Time_Integer_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Time_Integer_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Time_BigInteger()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vBigInteger: BigInteger;
+        vTime: Time;
     begin
         vTime := 120000T;
         vBigInteger := 65;
-        if Try3() then Observer.Observe('add.t.65', Util.VShow(V)) else Observer.ObserveError('add.t.65');
+        if Try3(V, vBigInteger, vTime) then Observer.Observe('add.t.65', Util.VShow(V)) else Observer.ObserveError('add.t.65');
         vTime := 120000T;
         vBigInteger := 65;
-        if Try4() then Observer.Observe('sub.t.65', Util.VShow(V)) else Observer.ObserveError('sub.t.65');
+        if Try4(V, vBigInteger, vTime) then Observer.Observe('sub.t.65', Util.VShow(V)) else Observer.ObserveError('sub.t.65');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Time_BigInteger_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Time_BigInteger_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Time_BigInteger_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Time_BigInteger_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Time_BigInteger_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Time_Decimal()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vDecimal: Decimal;
+        vTime: Time;
     begin
         vTime := 120000T;
         vDecimal := 65;
-        if Try5() then Observer.Observe('add.t.65', Util.VShow(V)) else Observer.ObserveError('add.t.65');
+        if Try5(V, vDecimal, vTime) then Observer.Observe('add.t.65', Util.VShow(V)) else Observer.ObserveError('add.t.65');
         vTime := 120000T;
         vDecimal := 65;
-        if Try6() then Observer.Observe('sub.t.65', Util.VShow(V)) else Observer.ObserveError('sub.t.65');
+        if Try6(V, vDecimal, vTime) then Observer.Observe('sub.t.65', Util.VShow(V)) else Observer.ObserveError('sub.t.65');
         vTime := 120000T;
         vDecimal := 1.5;
-        if Try5() then Observer.Observe('add.t.1p5', Util.VShow(V)) else Observer.ObserveError('add.t.1p5');
+        if Try5(V, vDecimal, vTime) then Observer.Observe('add.t.1p5', Util.VShow(V)) else Observer.ObserveError('add.t.1p5');
         vTime := 120000T;
         vDecimal := 1.5;
-        if Try6() then Observer.Observe('sub.t.1p5', Util.VShow(V)) else Observer.ObserveError('sub.t.1p5');
+        if Try6(V, vDecimal, vTime) then Observer.Observe('sub.t.1p5', Util.VShow(V)) else Observer.ObserveError('sub.t.1p5');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Time_Decimal_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Time_Decimal_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Time_Decimal_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Time_Decimal_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Time_Decimal_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Time_Char()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vChar: Char;
+        vTime: Time;
     begin
         vTime := 120000T;
         vChar := 65;
-        if Try7() then Observer.Observe('add.t.A', Util.VShow(V)) else Observer.ObserveError('add.t.A');
+        if Try7(V, vChar, vTime) then Observer.Observe('add.t.A', Util.VShow(V)) else Observer.ObserveError('add.t.A');
         vTime := 120000T;
         vChar := 65;
-        if Try8() then Observer.Observe('sub.t.A', Util.VShow(V)) else Observer.ObserveError('sub.t.A');
+        if Try8(V, vChar, vTime) then Observer.Observe('sub.t.A', Util.VShow(V)) else Observer.ObserveError('sub.t.A');
         vTime := 120000T;
         vChar := 97;
-        if Try7() then Observer.Observe('add.t.a', Util.VShow(V)) else Observer.ObserveError('add.t.a');
+        if Try7(V, vChar, vTime) then Observer.Observe('add.t.a', Util.VShow(V)) else Observer.ObserveError('add.t.a');
         vTime := 120000T;
         vChar := 97;
-        if Try8() then Observer.Observe('sub.t.a', Util.VShow(V)) else Observer.ObserveError('sub.t.a');
+        if Try8(V, vChar, vTime) then Observer.Observe('sub.t.a', Util.VShow(V)) else Observer.ObserveError('sub.t.a');
         vTime := 120000T;
         vChar := 65535;
-        if Try7() then Observer.Observe('add.t.65535', Util.VShow(V)) else Observer.ObserveError('add.t.65535');
+        if Try7(V, vChar, vTime) then Observer.Observe('add.t.65535', Util.VShow(V)) else Observer.ObserveError('add.t.65535');
         vTime := 120000T;
         vChar := 65535;
-        if Try8() then Observer.Observe('sub.t.65535', Util.VShow(V)) else Observer.ObserveError('sub.t.65535');
+        if Try8(V, vChar, vTime) then Observer.Observe('sub.t.65535', Util.VShow(V)) else Observer.ObserveError('sub.t.65535');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Time_Char_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Time_Char_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Time_Char_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Time_Char_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Time_Char_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Time_Byte()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vByte: Byte;
+        vTime: Time;
     begin
         vTime := 120000T;
         vByte := 65;
-        if Try9() then Observer.Observe('add.t.65', Util.VShow(V)) else Observer.ObserveError('add.t.65');
+        if Try9(V, vByte, vTime) then Observer.Observe('add.t.65', Util.VShow(V)) else Observer.ObserveError('add.t.65');
         vTime := 120000T;
         vByte := 65;
-        if Try10() then Observer.Observe('sub.t.65', Util.VShow(V)) else Observer.ObserveError('sub.t.65');
+        if Try10(V, vByte, vTime) then Observer.Observe('sub.t.65', Util.VShow(V)) else Observer.ObserveError('sub.t.65');
         vTime := 120000T;
         vByte := 255;
-        if Try9() then Observer.Observe('add.t.255', Util.VShow(V)) else Observer.ObserveError('add.t.255');
+        if Try9(V, vByte, vTime) then Observer.Observe('add.t.255', Util.VShow(V)) else Observer.ObserveError('add.t.255');
         vTime := 120000T;
         vByte := 255;
-        if Try10() then Observer.Observe('sub.t.255', Util.VShow(V)) else Observer.ObserveError('sub.t.255');
+        if Try10(V, vByte, vTime) then Observer.Observe('sub.t.255', Util.VShow(V)) else Observer.ObserveError('sub.t.255');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Time_Byte_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Time_Byte_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Time_Byte_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Time_Byte_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Time_Byte_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Time_Option()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vOption: Option A,B,C;
+        vTime: Time;
     begin
         vTime := 120000T;
         vOption := 1;
-        if Try11() then Observer.Observe('add.t.1', Util.VShow(V)) else Observer.ObserveError('add.t.1');
+        if Try11(V, vOption, vTime) then Observer.Observe('add.t.1', Util.VShow(V)) else Observer.ObserveError('add.t.1');
         vTime := 120000T;
         vOption := 1;
-        if Try12() then Observer.Observe('sub.t.1', Util.VShow(V)) else Observer.ObserveError('sub.t.1');
+        if Try12(V, vOption, vTime) then Observer.Observe('sub.t.1', Util.VShow(V)) else Observer.ObserveError('sub.t.1');
         vTime := 120000T;
         vOption := 3;
-        if Try11() then Observer.Observe('add.t.3', Util.VShow(V)) else Observer.ObserveError('add.t.3');
+        if Try11(V, vOption, vTime) then Observer.Observe('add.t.3', Util.VShow(V)) else Observer.ObserveError('add.t.3');
         vTime := 120000T;
         vOption := 3;
-        if Try12() then Observer.Observe('sub.t.3', Util.VShow(V)) else Observer.ObserveError('sub.t.3');
+        if Try12(V, vOption, vTime) then Observer.Observe('sub.t.3', Util.VShow(V)) else Observer.ObserveError('sub.t.3');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Time_Option_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Time_Option_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Time_Option_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Time_Option_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Time_Option_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Time_Enum()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vEnum: Enum "LT Y31 E";
+        vTime: Time;
     begin
         vTime := 120000T;
         vEnum := "LT Y31 E"::B;
-        if Try13() then Observer.Observe('add.t.B', Util.VShow(V)) else Observer.ObserveError('add.t.B');
+        if Try13(V, vEnum, vTime) then Observer.Observe('add.t.B', Util.VShow(V)) else Observer.ObserveError('add.t.B');
         vTime := 120000T;
         vEnum := "LT Y31 E"::B;
-        if Try14() then Observer.Observe('sub.t.B', Util.VShow(V)) else Observer.ObserveError('sub.t.B');
+        if Try14(V, vEnum, vTime) then Observer.Observe('sub.t.B', Util.VShow(V)) else Observer.ObserveError('sub.t.B');
         vTime := 120000T;
         vEnum := 5;
-        if Try13() then Observer.Observe('add.t.ord5', Util.VShow(V)) else Observer.ObserveError('add.t.ord5');
+        if Try13(V, vEnum, vTime) then Observer.Observe('add.t.ord5', Util.VShow(V)) else Observer.ObserveError('add.t.ord5');
         vTime := 120000T;
         vEnum := 5;
-        if Try14() then Observer.Observe('sub.t.ord5', Util.VShow(V)) else Observer.ObserveError('sub.t.ord5');
+        if Try14(V, vEnum, vTime) then Observer.Observe('sub.t.ord5', Util.VShow(V)) else Observer.ObserveError('sub.t.ord5');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Time_Enum_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Time_Enum_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Time_Enum_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Time_Enum_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Time_Enum_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Time_EnumImpl()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vEnumImpl: Enum "LT Y31 EI";
+        vTime: Time;
     begin
         vTime := 120000T;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try15() then Observer.Observe('add.t.A', Util.VShow(V)) else Observer.ObserveError('add.t.A');
+        if Try15(V, vEnumImpl, vTime) then Observer.Observe('add.t.A', Util.VShow(V)) else Observer.ObserveError('add.t.A');
         vTime := 120000T;
         vEnumImpl := "LT Y31 EI"::A;
-        if Try16() then Observer.Observe('sub.t.A', Util.VShow(V)) else Observer.ObserveError('sub.t.A');
+        if Try16(V, vEnumImpl, vTime) then Observer.Observe('sub.t.A', Util.VShow(V)) else Observer.ObserveError('sub.t.A');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Time_EnumImpl_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Time_EnumImpl_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Time_EnumImpl_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Time_EnumImpl_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Time_EnumImpl_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Time_Time_Same()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vTime: Time;
+        vTime_R: Time;
     begin
         vTime := 120000T;
         vTime_R := 120000T;
-        if Try17() then Observer.Observe('sub.t.t', Util.VShow(V)) else Observer.ObserveError('sub.t.t');
+        if Try17(V, vTime, vTime_R) then Observer.Observe('sub.t.t', Util.VShow(V)) else Observer.ObserveError('sub.t.t');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Time_Time_Same_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Time_Time_Same_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Time_Time_Same_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Time_Time_Same_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Time_Time_Same_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Time_Duration()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vDuration: Duration;
+        vTime: Time;
     begin
         vTime := 120000T;
         vDuration := 65;
-        if Try18() then Observer.Observe('add.t.65', Util.VShow(V)) else Observer.ObserveError('add.t.65');
+        if Try18(V, vDuration, vTime) then Observer.Observe('add.t.65', Util.VShow(V)) else Observer.ObserveError('add.t.65');
         vTime := 120000T;
         vDuration := 65;
-        if Try19() then Observer.Observe('sub.t.65', Util.VShow(V)) else Observer.ObserveError('sub.t.65');
+        if Try19(V, vDuration, vTime) then Observer.Observe('sub.t.65', Util.VShow(V)) else Observer.ObserveError('sub.t.65');
         Observer.Finish();
     end;
 
-    [Test]
-    procedure Time_Duration_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Time_Duration_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Time_Duration_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Time_Duration_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Time_Duration_More5()
-    begin
-        Observer.More();
-    end;
-
     [TryFunction]
-    local procedure Try1()
+    local procedure Try1(var V: Variant; var vInteger: Integer; var vTime: Time)
     begin
         Clear(V);
         V := vTime + vInteger;
     end;
 
     [TryFunction]
-    local procedure Try2()
+    local procedure Try2(var V: Variant; var vInteger: Integer; var vTime: Time)
     begin
         Clear(V);
         V := vTime - vInteger;
     end;
 
     [TryFunction]
-    local procedure Try3()
+    local procedure Try3(var V: Variant; var vBigInteger: BigInteger; var vTime: Time)
     begin
         Clear(V);
         V := vTime + vBigInteger;
     end;
 
     [TryFunction]
-    local procedure Try4()
+    local procedure Try4(var V: Variant; var vBigInteger: BigInteger; var vTime: Time)
     begin
         Clear(V);
         V := vTime - vBigInteger;
     end;
 
     [TryFunction]
-    local procedure Try5()
+    local procedure Try5(var V: Variant; var vDecimal: Decimal; var vTime: Time)
     begin
         Clear(V);
         V := vTime + vDecimal;
     end;
 
     [TryFunction]
-    local procedure Try6()
+    local procedure Try6(var V: Variant; var vDecimal: Decimal; var vTime: Time)
     begin
         Clear(V);
         V := vTime - vDecimal;
     end;
 
     [TryFunction]
-    local procedure Try7()
+    local procedure Try7(var V: Variant; var vChar: Char; var vTime: Time)
     begin
         Clear(V);
         V := vTime + vChar;
     end;
 
     [TryFunction]
-    local procedure Try8()
+    local procedure Try8(var V: Variant; var vChar: Char; var vTime: Time)
     begin
         Clear(V);
         V := vTime - vChar;
     end;
 
     [TryFunction]
-    local procedure Try9()
+    local procedure Try9(var V: Variant; var vByte: Byte; var vTime: Time)
     begin
         Clear(V);
         V := vTime + vByte;
     end;
 
     [TryFunction]
-    local procedure Try10()
+    local procedure Try10(var V: Variant; var vByte: Byte; var vTime: Time)
     begin
         Clear(V);
         V := vTime - vByte;
     end;
 
     [TryFunction]
-    local procedure Try11()
+    local procedure Try11(var V: Variant; var vOption: Option A,B,C; var vTime: Time)
     begin
         Clear(V);
         V := vTime + vOption;
     end;
 
     [TryFunction]
-    local procedure Try12()
+    local procedure Try12(var V: Variant; var vOption: Option A,B,C; var vTime: Time)
     begin
         Clear(V);
         V := vTime - vOption;
     end;
 
     [TryFunction]
-    local procedure Try13()
+    local procedure Try13(var V: Variant; var vEnum: Enum "LT Y31 E"; var vTime: Time)
     begin
         Clear(V);
         V := vTime + vEnum;
     end;
 
     [TryFunction]
-    local procedure Try14()
+    local procedure Try14(var V: Variant; var vEnum: Enum "LT Y31 E"; var vTime: Time)
     begin
         Clear(V);
         V := vTime - vEnum;
     end;
 
     [TryFunction]
-    local procedure Try15()
+    local procedure Try15(var V: Variant; var vEnumImpl: Enum "LT Y31 EI"; var vTime: Time)
     begin
         Clear(V);
         V := vTime + vEnumImpl;
     end;
 
     [TryFunction]
-    local procedure Try16()
+    local procedure Try16(var V: Variant; var vEnumImpl: Enum "LT Y31 EI"; var vTime: Time)
     begin
         Clear(V);
         V := vTime - vEnumImpl;
     end;
 
     [TryFunction]
-    local procedure Try17()
+    local procedure Try17(var V: Variant; var vTime: Time; var vTime_R: Time)
     begin
         Clear(V);
         V := vTime - vTime_R;
     end;
 
     [TryFunction]
-    local procedure Try18()
+    local procedure Try18(var V: Variant; var vDuration: Duration; var vTime: Time)
     begin
         Clear(V);
         V := vTime + vDuration;
     end;
 
     [TryFunction]
-    local procedure Try19()
+    local procedure Try19(var V: Variant; var vDuration: Duration; var vTime: Time)
     begin
         Clear(V);
         V := vTime - vDuration;
@@ -10507,616 +7897,359 @@ codeunit 92460 "LT Y31 Ar DateTime"
     Subtype = Test;
     TestPermissions = Disabled;
 
+    [Test]
+    procedure DateTime_Integer()
     var
         Observer: Codeunit "Probe Observer";
         Util: Codeunit "LT Y31 Conv Util";
-        Res: Boolean;
         V: Variant;
-        vBigInteger: BigInteger;
-        vByte: Byte;
-        vChar: Char;
         vDateTime: DateTime;
-        vDateTime_R: DateTime;
-        vDecimal: Decimal;
-        vDuration: Duration;
-        vEnum: Enum "LT Y31 E";
-        vEnumImpl: Enum "LT Y31 EI";
         vInteger: Integer;
-        vOption: Option A,B,C;
-
-    [Test]
-    procedure DateTime_Integer()
     begin
         vDateTime := CreateDateTime(20260131D, 120000T);
         vInteger := 65;
-        if Try1() then Observer.Observe('add.dt.65', Util.VShow(V)) else Observer.ObserveError('add.dt.65');
+        if Try1(V, vDateTime, vInteger) then Observer.Observe('add.dt.65', Util.VShow(V)) else Observer.ObserveError('add.dt.65');
         vDateTime := CreateDateTime(20260131D, 120000T);
         vInteger := 65;
-        if Try2() then Observer.Observe('sub.dt.65', Util.VShow(V)) else Observer.ObserveError('sub.dt.65');
+        if Try2(V, vDateTime, vInteger) then Observer.Observe('sub.dt.65', Util.VShow(V)) else Observer.ObserveError('sub.dt.65');
         vDateTime := CreateDateTime(20260131D, 120000T);
         vInteger := 1;
-        if Try1() then Observer.Observe('add.dt.1', Util.VShow(V)) else Observer.ObserveError('add.dt.1');
+        if Try1(V, vDateTime, vInteger) then Observer.Observe('add.dt.1', Util.VShow(V)) else Observer.ObserveError('add.dt.1');
         vDateTime := CreateDateTime(20260131D, 120000T);
         vInteger := 1;
-        if Try2() then Observer.Observe('sub.dt.1', Util.VShow(V)) else Observer.ObserveError('sub.dt.1');
+        if Try2(V, vDateTime, vInteger) then Observer.Observe('sub.dt.1', Util.VShow(V)) else Observer.ObserveError('sub.dt.1');
         vDateTime := CreateDateTime(20260131D, 120000T);
         vInteger := 2147483647;
-        if Try1() then Observer.Observe('add.dt.max', Util.VShow(V)) else Observer.ObserveError('add.dt.max');
+        if Try1(V, vDateTime, vInteger) then Observer.Observe('add.dt.max', Util.VShow(V)) else Observer.ObserveError('add.dt.max');
         vDateTime := CreateDateTime(20260131D, 120000T);
         vInteger := 2147483647;
-        if Try2() then Observer.Observe('sub.dt.max', Util.VShow(V)) else Observer.ObserveError('sub.dt.max');
+        if Try2(V, vDateTime, vInteger) then Observer.Observe('sub.dt.max', Util.VShow(V)) else Observer.ObserveError('sub.dt.max');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure DateTime_Integer_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure DateTime_Integer_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure DateTime_Integer_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure DateTime_Integer_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure DateTime_Integer_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure DateTime_BigInteger()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vBigInteger: BigInteger;
+        vDateTime: DateTime;
     begin
         vDateTime := CreateDateTime(20260131D, 120000T);
         vBigInteger := 65;
-        if Try3() then Observer.Observe('add.dt.65', Util.VShow(V)) else Observer.ObserveError('add.dt.65');
+        if Try3(V, vBigInteger, vDateTime) then Observer.Observe('add.dt.65', Util.VShow(V)) else Observer.ObserveError('add.dt.65');
         vDateTime := CreateDateTime(20260131D, 120000T);
         vBigInteger := 65;
-        if Try4() then Observer.Observe('sub.dt.65', Util.VShow(V)) else Observer.ObserveError('sub.dt.65');
+        if Try4(V, vBigInteger, vDateTime) then Observer.Observe('sub.dt.65', Util.VShow(V)) else Observer.ObserveError('sub.dt.65');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure DateTime_BigInteger_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure DateTime_BigInteger_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure DateTime_BigInteger_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure DateTime_BigInteger_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure DateTime_BigInteger_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure DateTime_Decimal()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vDateTime: DateTime;
+        vDecimal: Decimal;
     begin
         vDateTime := CreateDateTime(20260131D, 120000T);
         vDecimal := 65;
-        if Try5() then Observer.Observe('add.dt.65', Util.VShow(V)) else Observer.ObserveError('add.dt.65');
+        if Try5(V, vDateTime, vDecimal) then Observer.Observe('add.dt.65', Util.VShow(V)) else Observer.ObserveError('add.dt.65');
         vDateTime := CreateDateTime(20260131D, 120000T);
         vDecimal := 65;
-        if Try6() then Observer.Observe('sub.dt.65', Util.VShow(V)) else Observer.ObserveError('sub.dt.65');
+        if Try6(V, vDateTime, vDecimal) then Observer.Observe('sub.dt.65', Util.VShow(V)) else Observer.ObserveError('sub.dt.65');
         vDateTime := CreateDateTime(20260131D, 120000T);
         vDecimal := 1.5;
-        if Try5() then Observer.Observe('add.dt.1p5', Util.VShow(V)) else Observer.ObserveError('add.dt.1p5');
+        if Try5(V, vDateTime, vDecimal) then Observer.Observe('add.dt.1p5', Util.VShow(V)) else Observer.ObserveError('add.dt.1p5');
         vDateTime := CreateDateTime(20260131D, 120000T);
         vDecimal := 1.5;
-        if Try6() then Observer.Observe('sub.dt.1p5', Util.VShow(V)) else Observer.ObserveError('sub.dt.1p5');
+        if Try6(V, vDateTime, vDecimal) then Observer.Observe('sub.dt.1p5', Util.VShow(V)) else Observer.ObserveError('sub.dt.1p5');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure DateTime_Decimal_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure DateTime_Decimal_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure DateTime_Decimal_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure DateTime_Decimal_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure DateTime_Decimal_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure DateTime_Char()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vChar: Char;
+        vDateTime: DateTime;
     begin
         vDateTime := CreateDateTime(20260131D, 120000T);
         vChar := 65;
-        if Try7() then Observer.Observe('add.dt.A', Util.VShow(V)) else Observer.ObserveError('add.dt.A');
+        if Try7(V, vChar, vDateTime) then Observer.Observe('add.dt.A', Util.VShow(V)) else Observer.ObserveError('add.dt.A');
         vDateTime := CreateDateTime(20260131D, 120000T);
         vChar := 65;
-        if Try8() then Observer.Observe('sub.dt.A', Util.VShow(V)) else Observer.ObserveError('sub.dt.A');
+        if Try8(V, vChar, vDateTime) then Observer.Observe('sub.dt.A', Util.VShow(V)) else Observer.ObserveError('sub.dt.A');
         vDateTime := CreateDateTime(20260131D, 120000T);
         vChar := 97;
-        if Try7() then Observer.Observe('add.dt.a', Util.VShow(V)) else Observer.ObserveError('add.dt.a');
+        if Try7(V, vChar, vDateTime) then Observer.Observe('add.dt.a', Util.VShow(V)) else Observer.ObserveError('add.dt.a');
         vDateTime := CreateDateTime(20260131D, 120000T);
         vChar := 97;
-        if Try8() then Observer.Observe('sub.dt.a', Util.VShow(V)) else Observer.ObserveError('sub.dt.a');
+        if Try8(V, vChar, vDateTime) then Observer.Observe('sub.dt.a', Util.VShow(V)) else Observer.ObserveError('sub.dt.a');
         vDateTime := CreateDateTime(20260131D, 120000T);
         vChar := 65535;
-        if Try7() then Observer.Observe('add.dt.65535', Util.VShow(V)) else Observer.ObserveError('add.dt.65535');
+        if Try7(V, vChar, vDateTime) then Observer.Observe('add.dt.65535', Util.VShow(V)) else Observer.ObserveError('add.dt.65535');
         vDateTime := CreateDateTime(20260131D, 120000T);
         vChar := 65535;
-        if Try8() then Observer.Observe('sub.dt.65535', Util.VShow(V)) else Observer.ObserveError('sub.dt.65535');
+        if Try8(V, vChar, vDateTime) then Observer.Observe('sub.dt.65535', Util.VShow(V)) else Observer.ObserveError('sub.dt.65535');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure DateTime_Char_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure DateTime_Char_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure DateTime_Char_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure DateTime_Char_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure DateTime_Char_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure DateTime_Byte()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vByte: Byte;
+        vDateTime: DateTime;
     begin
         vDateTime := CreateDateTime(20260131D, 120000T);
         vByte := 65;
-        if Try9() then Observer.Observe('add.dt.65', Util.VShow(V)) else Observer.ObserveError('add.dt.65');
+        if Try9(V, vByte, vDateTime) then Observer.Observe('add.dt.65', Util.VShow(V)) else Observer.ObserveError('add.dt.65');
         vDateTime := CreateDateTime(20260131D, 120000T);
         vByte := 65;
-        if Try10() then Observer.Observe('sub.dt.65', Util.VShow(V)) else Observer.ObserveError('sub.dt.65');
+        if Try10(V, vByte, vDateTime) then Observer.Observe('sub.dt.65', Util.VShow(V)) else Observer.ObserveError('sub.dt.65');
         vDateTime := CreateDateTime(20260131D, 120000T);
         vByte := 255;
-        if Try9() then Observer.Observe('add.dt.255', Util.VShow(V)) else Observer.ObserveError('add.dt.255');
+        if Try9(V, vByte, vDateTime) then Observer.Observe('add.dt.255', Util.VShow(V)) else Observer.ObserveError('add.dt.255');
         vDateTime := CreateDateTime(20260131D, 120000T);
         vByte := 255;
-        if Try10() then Observer.Observe('sub.dt.255', Util.VShow(V)) else Observer.ObserveError('sub.dt.255');
+        if Try10(V, vByte, vDateTime) then Observer.Observe('sub.dt.255', Util.VShow(V)) else Observer.ObserveError('sub.dt.255');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure DateTime_Byte_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure DateTime_Byte_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure DateTime_Byte_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure DateTime_Byte_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure DateTime_Byte_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure DateTime_Option()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vDateTime: DateTime;
+        vOption: Option A,B,C;
     begin
         vDateTime := CreateDateTime(20260131D, 120000T);
         vOption := 1;
-        if Try11() then Observer.Observe('add.dt.1', Util.VShow(V)) else Observer.ObserveError('add.dt.1');
+        if Try11(V, vDateTime, vOption) then Observer.Observe('add.dt.1', Util.VShow(V)) else Observer.ObserveError('add.dt.1');
         vDateTime := CreateDateTime(20260131D, 120000T);
         vOption := 1;
-        if Try12() then Observer.Observe('sub.dt.1', Util.VShow(V)) else Observer.ObserveError('sub.dt.1');
+        if Try12(V, vDateTime, vOption) then Observer.Observe('sub.dt.1', Util.VShow(V)) else Observer.ObserveError('sub.dt.1');
         vDateTime := CreateDateTime(20260131D, 120000T);
         vOption := 3;
-        if Try11() then Observer.Observe('add.dt.3', Util.VShow(V)) else Observer.ObserveError('add.dt.3');
+        if Try11(V, vDateTime, vOption) then Observer.Observe('add.dt.3', Util.VShow(V)) else Observer.ObserveError('add.dt.3');
         vDateTime := CreateDateTime(20260131D, 120000T);
         vOption := 3;
-        if Try12() then Observer.Observe('sub.dt.3', Util.VShow(V)) else Observer.ObserveError('sub.dt.3');
+        if Try12(V, vDateTime, vOption) then Observer.Observe('sub.dt.3', Util.VShow(V)) else Observer.ObserveError('sub.dt.3');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure DateTime_Option_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure DateTime_Option_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure DateTime_Option_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure DateTime_Option_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure DateTime_Option_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure DateTime_Enum()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vDateTime: DateTime;
+        vEnum: Enum "LT Y31 E";
     begin
         vDateTime := CreateDateTime(20260131D, 120000T);
         vEnum := "LT Y31 E"::B;
-        if Try13() then Observer.Observe('add.dt.B', Util.VShow(V)) else Observer.ObserveError('add.dt.B');
+        if Try13(V, vDateTime, vEnum) then Observer.Observe('add.dt.B', Util.VShow(V)) else Observer.ObserveError('add.dt.B');
         vDateTime := CreateDateTime(20260131D, 120000T);
         vEnum := "LT Y31 E"::B;
-        if Try14() then Observer.Observe('sub.dt.B', Util.VShow(V)) else Observer.ObserveError('sub.dt.B');
+        if Try14(V, vDateTime, vEnum) then Observer.Observe('sub.dt.B', Util.VShow(V)) else Observer.ObserveError('sub.dt.B');
         vDateTime := CreateDateTime(20260131D, 120000T);
         vEnum := 5;
-        if Try13() then Observer.Observe('add.dt.ord5', Util.VShow(V)) else Observer.ObserveError('add.dt.ord5');
+        if Try13(V, vDateTime, vEnum) then Observer.Observe('add.dt.ord5', Util.VShow(V)) else Observer.ObserveError('add.dt.ord5');
         vDateTime := CreateDateTime(20260131D, 120000T);
         vEnum := 5;
-        if Try14() then Observer.Observe('sub.dt.ord5', Util.VShow(V)) else Observer.ObserveError('sub.dt.ord5');
+        if Try14(V, vDateTime, vEnum) then Observer.Observe('sub.dt.ord5', Util.VShow(V)) else Observer.ObserveError('sub.dt.ord5');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure DateTime_Enum_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure DateTime_Enum_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure DateTime_Enum_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure DateTime_Enum_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure DateTime_Enum_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure DateTime_EnumImpl()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vDateTime: DateTime;
+        vEnumImpl: Enum "LT Y31 EI";
     begin
         vDateTime := CreateDateTime(20260131D, 120000T);
         vEnumImpl := "LT Y31 EI"::A;
-        if Try15() then Observer.Observe('add.dt.A', Util.VShow(V)) else Observer.ObserveError('add.dt.A');
+        if Try15(V, vDateTime, vEnumImpl) then Observer.Observe('add.dt.A', Util.VShow(V)) else Observer.ObserveError('add.dt.A');
         vDateTime := CreateDateTime(20260131D, 120000T);
         vEnumImpl := "LT Y31 EI"::A;
-        if Try16() then Observer.Observe('sub.dt.A', Util.VShow(V)) else Observer.ObserveError('sub.dt.A');
+        if Try16(V, vDateTime, vEnumImpl) then Observer.Observe('sub.dt.A', Util.VShow(V)) else Observer.ObserveError('sub.dt.A');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure DateTime_EnumImpl_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure DateTime_EnumImpl_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure DateTime_EnumImpl_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure DateTime_EnumImpl_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure DateTime_EnumImpl_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure DateTime_DateTime_Same()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vDateTime: DateTime;
+        vDateTime_R: DateTime;
     begin
         vDateTime := CreateDateTime(20260131D, 120000T);
         vDateTime_R := CreateDateTime(20260131D, 120000T);
-        if Try17() then Observer.Observe('sub.dt.dt', Util.VShow(V)) else Observer.ObserveError('sub.dt.dt');
+        if Try17(V, vDateTime, vDateTime_R) then Observer.Observe('sub.dt.dt', Util.VShow(V)) else Observer.ObserveError('sub.dt.dt');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure DateTime_DateTime_Same_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure DateTime_DateTime_Same_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure DateTime_DateTime_Same_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure DateTime_DateTime_Same_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure DateTime_DateTime_Same_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure DateTime_Duration()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vDateTime: DateTime;
+        vDuration: Duration;
     begin
         vDateTime := CreateDateTime(20260131D, 120000T);
         vDuration := 65;
-        if Try18() then Observer.Observe('add.dt.65', Util.VShow(V)) else Observer.ObserveError('add.dt.65');
+        if Try18(V, vDateTime, vDuration) then Observer.Observe('add.dt.65', Util.VShow(V)) else Observer.ObserveError('add.dt.65');
         vDateTime := CreateDateTime(20260131D, 120000T);
         vDuration := 65;
-        if Try19() then Observer.Observe('sub.dt.65', Util.VShow(V)) else Observer.ObserveError('sub.dt.65');
+        if Try19(V, vDateTime, vDuration) then Observer.Observe('sub.dt.65', Util.VShow(V)) else Observer.ObserveError('sub.dt.65');
         Observer.Finish();
     end;
 
-    [Test]
-    procedure DateTime_Duration_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure DateTime_Duration_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure DateTime_Duration_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure DateTime_Duration_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure DateTime_Duration_More5()
-    begin
-        Observer.More();
-    end;
-
     [TryFunction]
-    local procedure Try1()
+    local procedure Try1(var V: Variant; var vDateTime: DateTime; var vInteger: Integer)
     begin
         Clear(V);
         V := vDateTime + vInteger;
     end;
 
     [TryFunction]
-    local procedure Try2()
+    local procedure Try2(var V: Variant; var vDateTime: DateTime; var vInteger: Integer)
     begin
         Clear(V);
         V := vDateTime - vInteger;
     end;
 
     [TryFunction]
-    local procedure Try3()
+    local procedure Try3(var V: Variant; var vBigInteger: BigInteger; var vDateTime: DateTime)
     begin
         Clear(V);
         V := vDateTime + vBigInteger;
     end;
 
     [TryFunction]
-    local procedure Try4()
+    local procedure Try4(var V: Variant; var vBigInteger: BigInteger; var vDateTime: DateTime)
     begin
         Clear(V);
         V := vDateTime - vBigInteger;
     end;
 
     [TryFunction]
-    local procedure Try5()
+    local procedure Try5(var V: Variant; var vDateTime: DateTime; var vDecimal: Decimal)
     begin
         Clear(V);
         V := vDateTime + vDecimal;
     end;
 
     [TryFunction]
-    local procedure Try6()
+    local procedure Try6(var V: Variant; var vDateTime: DateTime; var vDecimal: Decimal)
     begin
         Clear(V);
         V := vDateTime - vDecimal;
     end;
 
     [TryFunction]
-    local procedure Try7()
+    local procedure Try7(var V: Variant; var vChar: Char; var vDateTime: DateTime)
     begin
         Clear(V);
         V := vDateTime + vChar;
     end;
 
     [TryFunction]
-    local procedure Try8()
+    local procedure Try8(var V: Variant; var vChar: Char; var vDateTime: DateTime)
     begin
         Clear(V);
         V := vDateTime - vChar;
     end;
 
     [TryFunction]
-    local procedure Try9()
+    local procedure Try9(var V: Variant; var vByte: Byte; var vDateTime: DateTime)
     begin
         Clear(V);
         V := vDateTime + vByte;
     end;
 
     [TryFunction]
-    local procedure Try10()
+    local procedure Try10(var V: Variant; var vByte: Byte; var vDateTime: DateTime)
     begin
         Clear(V);
         V := vDateTime - vByte;
     end;
 
     [TryFunction]
-    local procedure Try11()
+    local procedure Try11(var V: Variant; var vDateTime: DateTime; var vOption: Option A,B,C)
     begin
         Clear(V);
         V := vDateTime + vOption;
     end;
 
     [TryFunction]
-    local procedure Try12()
+    local procedure Try12(var V: Variant; var vDateTime: DateTime; var vOption: Option A,B,C)
     begin
         Clear(V);
         V := vDateTime - vOption;
     end;
 
     [TryFunction]
-    local procedure Try13()
+    local procedure Try13(var V: Variant; var vDateTime: DateTime; var vEnum: Enum "LT Y31 E")
     begin
         Clear(V);
         V := vDateTime + vEnum;
     end;
 
     [TryFunction]
-    local procedure Try14()
+    local procedure Try14(var V: Variant; var vDateTime: DateTime; var vEnum: Enum "LT Y31 E")
     begin
         Clear(V);
         V := vDateTime - vEnum;
     end;
 
     [TryFunction]
-    local procedure Try15()
+    local procedure Try15(var V: Variant; var vDateTime: DateTime; var vEnumImpl: Enum "LT Y31 EI")
     begin
         Clear(V);
         V := vDateTime + vEnumImpl;
     end;
 
     [TryFunction]
-    local procedure Try16()
+    local procedure Try16(var V: Variant; var vDateTime: DateTime; var vEnumImpl: Enum "LT Y31 EI")
     begin
         Clear(V);
         V := vDateTime - vEnumImpl;
     end;
 
     [TryFunction]
-    local procedure Try17()
+    local procedure Try17(var V: Variant; var vDateTime: DateTime; var vDateTime_R: DateTime)
     begin
         Clear(V);
         V := vDateTime - vDateTime_R;
     end;
 
     [TryFunction]
-    local procedure Try18()
+    local procedure Try18(var V: Variant; var vDateTime: DateTime; var vDuration: Duration)
     begin
         Clear(V);
         V := vDateTime + vDuration;
     end;
 
     [TryFunction]
-    local procedure Try19()
+    local procedure Try19(var V: Variant; var vDateTime: DateTime; var vDuration: Duration)
     begin
         Clear(V);
         V := vDateTime - vDuration;
@@ -11136,672 +8269,430 @@ codeunit 92461 "LT Y31 Ar Duration"
     Subtype = Test;
     TestPermissions = Disabled;
 
+    [Test]
+    procedure Duration_Integer()
     var
         Observer: Codeunit "Probe Observer";
         Util: Codeunit "LT Y31 Conv Util";
-        Res: Boolean;
         V: Variant;
-        vBigInteger: BigInteger;
-        vByte: Byte;
-        vChar: Char;
-        vDate: Date;
-        vDateTime: DateTime;
-        vDecimal: Decimal;
         vDuration: Duration;
-        vDuration_R: Duration;
         vInteger: Integer;
-        vOption: Option A,B,C;
-        vTime: Time;
-
-    [Test]
-    procedure Duration_Integer()
     begin
         vDuration := 65;
         vInteger := 65;
-        if Try1() then Observer.Observe('add.65.65', Util.VShow(V)) else Observer.ObserveError('add.65.65');
+        if Try1(V, vDuration, vInteger) then Observer.Observe('add.65.65', Util.VShow(V)) else Observer.ObserveError('add.65.65');
         vDuration := 65;
         vInteger := 65;
-        if Try2() then Observer.Observe('sub.65.65', Util.VShow(V)) else Observer.ObserveError('sub.65.65');
+        if Try2(V, vDuration, vInteger) then Observer.Observe('sub.65.65', Util.VShow(V)) else Observer.ObserveError('sub.65.65');
         vDuration := 65;
         vInteger := 65;
-        if Try3() then Observer.Observe('compound_add.65.65', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.65.65');
+        if Try3(vDuration, vInteger) then Observer.Observe('compound_add.65.65', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.65.65');
         vDuration := 65;
         vInteger := 1;
-        if Try1() then Observer.Observe('add.65.1', Util.VShow(V)) else Observer.ObserveError('add.65.1');
+        if Try1(V, vDuration, vInteger) then Observer.Observe('add.65.1', Util.VShow(V)) else Observer.ObserveError('add.65.1');
         vDuration := 65;
         vInteger := 1;
-        if Try2() then Observer.Observe('sub.65.1', Util.VShow(V)) else Observer.ObserveError('sub.65.1');
+        if Try2(V, vDuration, vInteger) then Observer.Observe('sub.65.1', Util.VShow(V)) else Observer.ObserveError('sub.65.1');
         vDuration := 65;
         vInteger := 1;
-        if Try3() then Observer.Observe('compound_add.65.1', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.65.1');
+        if Try3(vDuration, vInteger) then Observer.Observe('compound_add.65.1', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.65.1');
         vDuration := 65;
         vInteger := 2147483647;
-        if Try1() then Observer.Observe('add.65.max', Util.VShow(V)) else Observer.ObserveError('add.65.max');
+        if Try1(V, vDuration, vInteger) then Observer.Observe('add.65.max', Util.VShow(V)) else Observer.ObserveError('add.65.max');
         vDuration := 65;
         vInteger := 2147483647;
-        if Try2() then Observer.Observe('sub.65.max', Util.VShow(V)) else Observer.ObserveError('sub.65.max');
-        vDuration := 65;
-        vInteger := 2147483647;
-        if Try3() then Observer.Observe('compound_add.65.max', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.65.max');
+        if Try2(V, vDuration, vInteger) then Observer.Observe('sub.65.max', Util.VShow(V)) else Observer.ObserveError('sub.65.max');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Duration_Integer_More1()
+    procedure Duration_Integer_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vDuration: Duration;
+        vInteger: Integer;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Integer_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Integer_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Integer_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Integer_More5()
-    begin
-        Observer.More();
+        vDuration := 65;
+        vInteger := 2147483647;
+        if Try3(vDuration, vInteger) then Observer.Observe('compound_add.65.max', Format(vInteger, 0, 9)) else Observer.ObserveError('compound_add.65.max');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Duration_BigInteger()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vBigInteger: BigInteger;
+        vDuration: Duration;
     begin
         vDuration := 65;
         vBigInteger := 65;
-        if Try4() then Observer.Observe('add.65.65', Util.VShow(V)) else Observer.ObserveError('add.65.65');
+        if Try4(V, vBigInteger, vDuration) then Observer.Observe('add.65.65', Util.VShow(V)) else Observer.ObserveError('add.65.65');
         vDuration := 65;
         vBigInteger := 65;
-        if Try5() then Observer.Observe('sub.65.65', Util.VShow(V)) else Observer.ObserveError('sub.65.65');
+        if Try5(V, vBigInteger, vDuration) then Observer.Observe('sub.65.65', Util.VShow(V)) else Observer.ObserveError('sub.65.65');
         vDuration := 65;
         vBigInteger := 65;
-        if Try6() then Observer.Observe('compound_add.65.65', Format(vBigInteger, 0, 9)) else Observer.ObserveError('compound_add.65.65');
+        if Try6(vBigInteger, vDuration) then Observer.Observe('compound_add.65.65', Format(vBigInteger, 0, 9)) else Observer.ObserveError('compound_add.65.65');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Duration_BigInteger_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_BigInteger_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_BigInteger_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_BigInteger_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_BigInteger_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Duration_Decimal()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vDecimal: Decimal;
+        vDuration: Duration;
     begin
         vDuration := 65;
         vDecimal := 65;
-        if Try7() then Observer.Observe('add.65.65', Util.VShow(V)) else Observer.ObserveError('add.65.65');
+        if Try7(V, vDecimal, vDuration) then Observer.Observe('add.65.65', Util.VShow(V)) else Observer.ObserveError('add.65.65');
         vDuration := 65;
         vDecimal := 65;
-        if Try8() then Observer.Observe('sub.65.65', Util.VShow(V)) else Observer.ObserveError('sub.65.65');
+        if Try8(V, vDecimal, vDuration) then Observer.Observe('sub.65.65', Util.VShow(V)) else Observer.ObserveError('sub.65.65');
         vDuration := 65;
         vDecimal := 65;
-        if Try9() then Observer.Observe('compound_add.65.65', Format(vDecimal, 0, 9)) else Observer.ObserveError('compound_add.65.65');
+        if Try9(vDecimal, vDuration) then Observer.Observe('compound_add.65.65', Format(vDecimal, 0, 9)) else Observer.ObserveError('compound_add.65.65');
         vDuration := 65;
         vDecimal := 1.5;
-        if Try7() then Observer.Observe('add.65.1p5', Util.VShow(V)) else Observer.ObserveError('add.65.1p5');
+        if Try7(V, vDecimal, vDuration) then Observer.Observe('add.65.1p5', Util.VShow(V)) else Observer.ObserveError('add.65.1p5');
         vDuration := 65;
         vDecimal := 1.5;
-        if Try8() then Observer.Observe('sub.65.1p5', Util.VShow(V)) else Observer.ObserveError('sub.65.1p5');
+        if Try8(V, vDecimal, vDuration) then Observer.Observe('sub.65.1p5', Util.VShow(V)) else Observer.ObserveError('sub.65.1p5');
         vDuration := 65;
         vDecimal := 1.5;
-        if Try9() then Observer.Observe('compound_add.65.1p5', Format(vDecimal, 0, 9)) else Observer.ObserveError('compound_add.65.1p5');
+        if Try9(vDecimal, vDuration) then Observer.Observe('compound_add.65.1p5', Format(vDecimal, 0, 9)) else Observer.ObserveError('compound_add.65.1p5');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Duration_Decimal_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Decimal_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Decimal_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Decimal_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Decimal_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Duration_Char()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vChar: Char;
+        vDuration: Duration;
     begin
         vDuration := 65;
         vChar := 65;
-        if Try10() then Observer.Observe('add.65.A', Util.VShow(V)) else Observer.ObserveError('add.65.A');
+        if Try10(V, vChar, vDuration) then Observer.Observe('add.65.A', Util.VShow(V)) else Observer.ObserveError('add.65.A');
         vDuration := 65;
         vChar := 65;
-        if Try11() then Observer.Observe('sub.65.A', Util.VShow(V)) else Observer.ObserveError('sub.65.A');
+        if Try11(V, vChar, vDuration) then Observer.Observe('sub.65.A', Util.VShow(V)) else Observer.ObserveError('sub.65.A');
         vDuration := 65;
         vChar := 65;
-        if Try12() then Observer.Observe('compound_add.65.A', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.65.A');
+        if Try12(vChar, vDuration) then Observer.Observe('compound_add.65.A', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.65.A');
         vDuration := 65;
         vChar := 97;
-        if Try10() then Observer.Observe('add.65.a', Util.VShow(V)) else Observer.ObserveError('add.65.a');
+        if Try10(V, vChar, vDuration) then Observer.Observe('add.65.a', Util.VShow(V)) else Observer.ObserveError('add.65.a');
         vDuration := 65;
         vChar := 97;
-        if Try11() then Observer.Observe('sub.65.a', Util.VShow(V)) else Observer.ObserveError('sub.65.a');
+        if Try11(V, vChar, vDuration) then Observer.Observe('sub.65.a', Util.VShow(V)) else Observer.ObserveError('sub.65.a');
         vDuration := 65;
         vChar := 97;
-        if Try12() then Observer.Observe('compound_add.65.a', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.65.a');
+        if Try12(vChar, vDuration) then Observer.Observe('compound_add.65.a', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.65.a');
         vDuration := 65;
         vChar := 65535;
-        if Try10() then Observer.Observe('add.65.65535', Util.VShow(V)) else Observer.ObserveError('add.65.65535');
+        if Try10(V, vChar, vDuration) then Observer.Observe('add.65.65535', Util.VShow(V)) else Observer.ObserveError('add.65.65535');
         vDuration := 65;
         vChar := 65535;
-        if Try11() then Observer.Observe('sub.65.65535', Util.VShow(V)) else Observer.ObserveError('sub.65.65535');
-        vDuration := 65;
-        vChar := 65535;
-        if Try12() then Observer.Observe('compound_add.65.65535', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.65.65535');
+        if Try11(V, vChar, vDuration) then Observer.Observe('sub.65.65535', Util.VShow(V)) else Observer.ObserveError('sub.65.65535');
         Observer.Finish();
     end;
 
     [Test]
-    procedure Duration_Char_More1()
+    procedure Duration_Char_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vChar: Char;
+        vDuration: Duration;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Char_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Char_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Char_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Char_More5()
-    begin
-        Observer.More();
+        vDuration := 65;
+        vChar := 65535;
+        if Try12(vChar, vDuration) then Observer.Observe('compound_add.65.65535', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('compound_add.65.65535');
+        Observer.Finish();
     end;
 
     [Test]
     procedure Duration_Byte()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vByte: Byte;
+        vDuration: Duration;
     begin
         vDuration := 65;
         vByte := 65;
-        if Try13() then Observer.Observe('add.65.65', Util.VShow(V)) else Observer.ObserveError('add.65.65');
+        if Try13(V, vByte, vDuration) then Observer.Observe('add.65.65', Util.VShow(V)) else Observer.ObserveError('add.65.65');
         vDuration := 65;
         vByte := 65;
-        if Try14() then Observer.Observe('sub.65.65', Util.VShow(V)) else Observer.ObserveError('sub.65.65');
+        if Try14(V, vByte, vDuration) then Observer.Observe('sub.65.65', Util.VShow(V)) else Observer.ObserveError('sub.65.65');
         vDuration := 65;
         vByte := 65;
-        if Try15() then Observer.Observe('compound_add.65.65', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.65.65');
+        if Try15(vByte, vDuration) then Observer.Observe('compound_add.65.65', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.65.65');
         vDuration := 65;
         vByte := 255;
-        if Try13() then Observer.Observe('add.65.255', Util.VShow(V)) else Observer.ObserveError('add.65.255');
+        if Try13(V, vByte, vDuration) then Observer.Observe('add.65.255', Util.VShow(V)) else Observer.ObserveError('add.65.255');
         vDuration := 65;
         vByte := 255;
-        if Try14() then Observer.Observe('sub.65.255', Util.VShow(V)) else Observer.ObserveError('sub.65.255');
+        if Try14(V, vByte, vDuration) then Observer.Observe('sub.65.255', Util.VShow(V)) else Observer.ObserveError('sub.65.255');
         vDuration := 65;
         vByte := 255;
-        if Try15() then Observer.Observe('compound_add.65.255', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.65.255');
+        if Try15(vByte, vDuration) then Observer.Observe('compound_add.65.255', Format(vByte, 0, 9)) else Observer.ObserveError('compound_add.65.255');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Duration_Byte_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Byte_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Byte_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Byte_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Byte_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Duration_Option()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vDuration: Duration;
+        vOption: Option A,B,C;
     begin
         vDuration := 65;
         vOption := 1;
-        if Try16() then Observer.Observe('add.65.1', Util.VShow(V)) else Observer.ObserveError('add.65.1');
+        if Try16(V, vDuration, vOption) then Observer.Observe('add.65.1', Util.VShow(V)) else Observer.ObserveError('add.65.1');
         vDuration := 65;
         vOption := 1;
-        if Try17() then Observer.Observe('sub.65.1', Util.VShow(V)) else Observer.ObserveError('sub.65.1');
+        if Try17(V, vDuration, vOption) then Observer.Observe('sub.65.1', Util.VShow(V)) else Observer.ObserveError('sub.65.1');
         vDuration := 65;
         vOption := 1;
-        if Try18() then Observer.Observe('compound_add.65.1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.65.1');
+        if Try18(vDuration, vOption) then Observer.Observe('compound_add.65.1', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.65.1');
         vDuration := 65;
         vOption := 3;
-        if Try16() then Observer.Observe('add.65.3', Util.VShow(V)) else Observer.ObserveError('add.65.3');
+        if Try16(V, vDuration, vOption) then Observer.Observe('add.65.3', Util.VShow(V)) else Observer.ObserveError('add.65.3');
         vDuration := 65;
         vOption := 3;
-        if Try17() then Observer.Observe('sub.65.3', Util.VShow(V)) else Observer.ObserveError('sub.65.3');
+        if Try17(V, vDuration, vOption) then Observer.Observe('sub.65.3', Util.VShow(V)) else Observer.ObserveError('sub.65.3');
         vDuration := 65;
         vOption := 3;
-        if Try18() then Observer.Observe('compound_add.65.3', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.65.3');
+        if Try18(vDuration, vOption) then Observer.Observe('compound_add.65.3', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('compound_add.65.3');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Duration_Option_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Option_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Option_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Option_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Option_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Duration_Date()
+    var
+        Observer: Codeunit "Probe Observer";
+        vDate: Date;
+        vDuration: Duration;
     begin
         vDuration := 65;
         vDate := 20260131D;
-        if Try19() then Observer.Observe('compound_add.65.d', Format(vDate, 0, 9)) else Observer.ObserveError('compound_add.65.d');
+        if Try19(vDate, vDuration) then Observer.Observe('compound_add.65.d', Format(vDate, 0, 9)) else Observer.ObserveError('compound_add.65.d');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Duration_Date_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Date_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Date_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Date_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Date_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Duration_Time()
+    var
+        Observer: Codeunit "Probe Observer";
+        vDuration: Duration;
+        vTime: Time;
     begin
         vDuration := 65;
         vTime := 120000T;
-        if Try20() then Observer.Observe('compound_add.65.t', Format(vTime, 0, 9)) else Observer.ObserveError('compound_add.65.t');
+        if Try20(vDuration, vTime) then Observer.Observe('compound_add.65.t', Format(vTime, 0, 9)) else Observer.ObserveError('compound_add.65.t');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Duration_Time_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Time_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Time_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Time_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Time_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Duration_DateTime()
+    var
+        Observer: Codeunit "Probe Observer";
+        vDateTime: DateTime;
+        vDuration: Duration;
     begin
         vDuration := 65;
         vDateTime := CreateDateTime(20260131D, 120000T);
-        if Try21() then Observer.Observe('compound_add.65.dt', Format(vDateTime, 0, 9)) else Observer.ObserveError('compound_add.65.dt');
+        if Try21(vDateTime, vDuration) then Observer.Observe('compound_add.65.dt', Format(vDateTime, 0, 9)) else Observer.ObserveError('compound_add.65.dt');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Duration_DateTime_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_DateTime_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_DateTime_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_DateTime_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_DateTime_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Duration_Duration_Same()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vDuration: Duration;
+        vDuration_R: Duration;
     begin
         vDuration := 65;
         vDuration_R := 65;
-        if Try22() then Observer.Observe('add.65.65', Util.VShow(V)) else Observer.ObserveError('add.65.65');
+        if Try22(V, vDuration, vDuration_R) then Observer.Observe('add.65.65', Util.VShow(V)) else Observer.ObserveError('add.65.65');
         vDuration := 65;
         vDuration_R := 65;
-        if Try23() then Observer.Observe('sub.65.65', Util.VShow(V)) else Observer.ObserveError('sub.65.65');
+        if Try23(V, vDuration, vDuration_R) then Observer.Observe('sub.65.65', Util.VShow(V)) else Observer.ObserveError('sub.65.65');
         vDuration := 65;
         vDuration_R := 65;
-        if Try24() then Observer.Observe('compound_add.65.65', Format(vDuration_R, 0, 9)) else Observer.ObserveError('compound_add.65.65');
+        if Try24(vDuration, vDuration_R) then Observer.Observe('compound_add.65.65', Format(vDuration_R, 0, 9)) else Observer.ObserveError('compound_add.65.65');
         Observer.Finish();
     end;
 
-    [Test]
-    procedure Duration_Duration_Same_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Duration_Same_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Duration_Same_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Duration_Same_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Duration_Duration_Same_More5()
-    begin
-        Observer.More();
-    end;
-
     [TryFunction]
-    local procedure Try1()
+    local procedure Try1(var V: Variant; var vDuration: Duration; var vInteger: Integer)
     begin
         Clear(V);
         V := vDuration + vInteger;
     end;
 
     [TryFunction]
-    local procedure Try2()
+    local procedure Try2(var V: Variant; var vDuration: Duration; var vInteger: Integer)
     begin
         Clear(V);
         V := vDuration - vInteger;
     end;
 
     [TryFunction]
-    local procedure Try3()
+    local procedure Try3(var vDuration: Duration; var vInteger: Integer)
     begin
         vInteger += vDuration;
     end;
 
     [TryFunction]
-    local procedure Try4()
+    local procedure Try4(var V: Variant; var vBigInteger: BigInteger; var vDuration: Duration)
     begin
         Clear(V);
         V := vDuration + vBigInteger;
     end;
 
     [TryFunction]
-    local procedure Try5()
+    local procedure Try5(var V: Variant; var vBigInteger: BigInteger; var vDuration: Duration)
     begin
         Clear(V);
         V := vDuration - vBigInteger;
     end;
 
     [TryFunction]
-    local procedure Try6()
+    local procedure Try6(var vBigInteger: BigInteger; var vDuration: Duration)
     begin
         vBigInteger += vDuration;
     end;
 
     [TryFunction]
-    local procedure Try7()
+    local procedure Try7(var V: Variant; var vDecimal: Decimal; var vDuration: Duration)
     begin
         Clear(V);
         V := vDuration + vDecimal;
     end;
 
     [TryFunction]
-    local procedure Try8()
+    local procedure Try8(var V: Variant; var vDecimal: Decimal; var vDuration: Duration)
     begin
         Clear(V);
         V := vDuration - vDecimal;
     end;
 
     [TryFunction]
-    local procedure Try9()
+    local procedure Try9(var vDecimal: Decimal; var vDuration: Duration)
     begin
         vDecimal += vDuration;
     end;
 
     [TryFunction]
-    local procedure Try10()
+    local procedure Try10(var V: Variant; var vChar: Char; var vDuration: Duration)
     begin
         Clear(V);
         V := vDuration + vChar;
     end;
 
     [TryFunction]
-    local procedure Try11()
+    local procedure Try11(var V: Variant; var vChar: Char; var vDuration: Duration)
     begin
         Clear(V);
         V := vDuration - vChar;
     end;
 
     [TryFunction]
-    local procedure Try12()
+    local procedure Try12(var vChar: Char; var vDuration: Duration)
     begin
         vChar += vDuration;
     end;
 
     [TryFunction]
-    local procedure Try13()
+    local procedure Try13(var V: Variant; var vByte: Byte; var vDuration: Duration)
     begin
         Clear(V);
         V := vDuration + vByte;
     end;
 
     [TryFunction]
-    local procedure Try14()
+    local procedure Try14(var V: Variant; var vByte: Byte; var vDuration: Duration)
     begin
         Clear(V);
         V := vDuration - vByte;
     end;
 
     [TryFunction]
-    local procedure Try15()
+    local procedure Try15(var vByte: Byte; var vDuration: Duration)
     begin
         vByte += vDuration;
     end;
 
     [TryFunction]
-    local procedure Try16()
+    local procedure Try16(var V: Variant; var vDuration: Duration; var vOption: Option A,B,C)
     begin
         Clear(V);
         V := vDuration + vOption;
     end;
 
     [TryFunction]
-    local procedure Try17()
+    local procedure Try17(var V: Variant; var vDuration: Duration; var vOption: Option A,B,C)
     begin
         Clear(V);
         V := vDuration - vOption;
     end;
 
     [TryFunction]
-    local procedure Try18()
+    local procedure Try18(var vDuration: Duration; var vOption: Option A,B,C)
     begin
         vOption += vDuration;
     end;
 
     [TryFunction]
-    local procedure Try19()
+    local procedure Try19(var vDate: Date; var vDuration: Duration)
     begin
         vDate += vDuration;
     end;
 
     [TryFunction]
-    local procedure Try20()
+    local procedure Try20(var vDuration: Duration; var vTime: Time)
     begin
         vTime += vDuration;
     end;
 
     [TryFunction]
-    local procedure Try21()
+    local procedure Try21(var vDateTime: DateTime; var vDuration: Duration)
     begin
         vDateTime += vDuration;
     end;
 
     [TryFunction]
-    local procedure Try22()
+    local procedure Try22(var V: Variant; var vDuration: Duration; var vDuration_R: Duration)
     begin
         Clear(V);
         V := vDuration + vDuration_R;
     end;
 
     [TryFunction]
-    local procedure Try23()
+    local procedure Try23(var V: Variant; var vDuration: Duration; var vDuration_R: Duration)
     begin
         Clear(V);
         V := vDuration - vDuration_R;
     end;
 
     [TryFunction]
-    local procedure Try24()
+    local procedure Try24(var vDuration: Duration; var vDuration_R: Duration)
     begin
         vDuration_R += vDuration;
     end;
@@ -11820,335 +8711,192 @@ codeunit 92462 "LT Y31 Ar Label"
     Subtype = Test;
     TestPermissions = Disabled;
 
+    [Test]
+    procedure Label_Char()
     var
         Observer: Codeunit "Probe Observer";
         Util: Codeunit "LT Y31 Conv Util";
-        Res: Boolean;
         V: Variant;
         vChar: Char;
-        vCode10: Code[10];
-        vGuid: Guid;
-        vLabel: Label 'abc', Locked = true;
-        vLabel_R: Label 'abc', Locked = true;
-        vText: Text;
-        vText10: Text[10];
-
-    [Test]
-    procedure Label_Char()
     begin
         vChar := 65;
-        if Try1() then Observer.Observe('add.abc.A', Util.VShow(V)) else Observer.ObserveError('add.abc.A');
+        if Try1(V, vChar) then Observer.Observe('add.abc.A', Util.VShow(V)) else Observer.ObserveError('add.abc.A');
         vChar := 97;
-        if Try1() then Observer.Observe('add.abc.a', Util.VShow(V)) else Observer.ObserveError('add.abc.a');
+        if Try1(V, vChar) then Observer.Observe('add.abc.a', Util.VShow(V)) else Observer.ObserveError('add.abc.a');
         vChar := 65535;
-        if Try1() then Observer.Observe('add.abc.65535', Util.VShow(V)) else Observer.ObserveError('add.abc.65535');
+        if Try1(V, vChar) then Observer.Observe('add.abc.65535', Util.VShow(V)) else Observer.ObserveError('add.abc.65535');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Label_Char_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_Char_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_Char_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_Char_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_Char_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Label_Text()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vText: Text;
     begin
         vText := 'a';
-        if Try2() then Observer.Observe('add.abc.a', Util.VShow(V)) else Observer.ObserveError('add.abc.a');
+        if Try2(V, vText) then Observer.Observe('add.abc.a', Util.VShow(V)) else Observer.ObserveError('add.abc.a');
         vText := 'a';
-        if Try3() then Observer.Observe('compound_add.abc.a', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.abc.a');
+        if Try3(vText) then Observer.Observe('compound_add.abc.a', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.abc.a');
         vText := 'A';
-        if Try2() then Observer.Observe('add.abc.A', Util.VShow(V)) else Observer.ObserveError('add.abc.A');
+        if Try2(V, vText) then Observer.Observe('add.abc.A', Util.VShow(V)) else Observer.ObserveError('add.abc.A');
         vText := 'A';
-        if Try3() then Observer.Observe('compound_add.abc.A', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.abc.A');
+        if Try3(vText) then Observer.Observe('compound_add.abc.A', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.abc.A');
         vText := 'abc';
-        if Try2() then Observer.Observe('add.abc.abc', Util.VShow(V)) else Observer.ObserveError('add.abc.abc');
+        if Try2(V, vText) then Observer.Observe('add.abc.abc', Util.VShow(V)) else Observer.ObserveError('add.abc.abc');
         vText := 'abc';
-        if Try3() then Observer.Observe('compound_add.abc.abc', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.abc.abc');
+        if Try3(vText) then Observer.Observe('compound_add.abc.abc', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.abc.abc');
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        if Try2() then Observer.Observe('add.abc.guidlow', Util.VShow(V)) else Observer.ObserveError('add.abc.guidlow');
+        if Try2(V, vText) then Observer.Observe('add.abc.guidlow', Util.VShow(V)) else Observer.ObserveError('add.abc.guidlow');
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
-        if Try3() then Observer.Observe('compound_add.abc.guidlow', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.abc.guidlow');
+        if Try3(vText) then Observer.Observe('compound_add.abc.guidlow', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('compound_add.abc.guidlow');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Label_Text_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_Text_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_Text_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_Text_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_Text_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Label_Text10()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vText10: Text[10];
     begin
         vText10 := 'abc';
-        if Try4() then Observer.Observe('add.abc.abc', Util.VShow(V)) else Observer.ObserveError('add.abc.abc');
+        if Try4(V, vText10) then Observer.Observe('add.abc.abc', Util.VShow(V)) else Observer.ObserveError('add.abc.abc');
         vText10 := 'abc';
-        if Try5() then Observer.Observe('compound_add.abc.abc', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('compound_add.abc.abc');
+        if Try5(vText10) then Observer.Observe('compound_add.abc.abc', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('compound_add.abc.abc');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Label_Text10_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_Text10_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_Text10_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_Text10_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_Text10_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Label_Code10()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vCode10: Code[10];
     begin
         vCode10 := 'A';
-        if Try6() then Observer.Observe('add.abc.A', Util.VShow(V)) else Observer.ObserveError('add.abc.A');
+        if Try6(V, vCode10) then Observer.Observe('add.abc.A', Util.VShow(V)) else Observer.ObserveError('add.abc.A');
         vCode10 := 'A';
-        if Try7() then Observer.Observe('compound_add.abc.A', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('compound_add.abc.A');
+        if Try7(vCode10) then Observer.Observe('compound_add.abc.A', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('compound_add.abc.A');
         vCode10 := 'ABC';
-        if Try6() then Observer.Observe('add.abc.ABC', Util.VShow(V)) else Observer.ObserveError('add.abc.ABC');
+        if Try6(V, vCode10) then Observer.Observe('add.abc.ABC', Util.VShow(V)) else Observer.ObserveError('add.abc.ABC');
         vCode10 := 'ABC';
-        if Try7() then Observer.Observe('compound_add.abc.ABC', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('compound_add.abc.ABC');
+        if Try7(vCode10) then Observer.Observe('compound_add.abc.ABC', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('compound_add.abc.ABC');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Label_Code10_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_Code10_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_Code10_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_Code10_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_Code10_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Label_Guid()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
+        vGuid: Guid;
     begin
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try8() then Observer.Observe('add.abc.g', Util.VShow(V)) else Observer.ObserveError('add.abc.g');
+        if Try8(V, vGuid) then Observer.Observe('add.abc.g', Util.VShow(V)) else Observer.ObserveError('add.abc.g');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
-        if Try9() then Observer.Observe('compound_add.abc.g', Format(vGuid)) else Observer.ObserveError('compound_add.abc.g');
+        if Try9(vGuid) then Observer.Observe('compound_add.abc.g', Format(vGuid)) else Observer.ObserveError('compound_add.abc.g');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Label_Guid_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_Guid_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_Guid_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_Guid_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_Guid_More5()
-    begin
-        Observer.More();
     end;
 
     [Test]
     procedure Label_Label_Same()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        V: Variant;
     begin
-        if Try10() then Observer.Observe('add.abc.abc', Util.VShow(V)) else Observer.ObserveError('add.abc.abc');
+        if Try10(V) then Observer.Observe('add.abc.abc', Util.VShow(V)) else Observer.ObserveError('add.abc.abc');
         Observer.Finish();
     end;
 
-    [Test]
-    procedure Label_Label_Same_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_Label_Same_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_Label_Same_More3()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_Label_Same_More4()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Label_Label_Same_More5()
-    begin
-        Observer.More();
-    end;
-
     [TryFunction]
-    local procedure Try1()
+    local procedure Try1(var V: Variant; var vChar: Char)
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Clear(V);
         V := vLabel + vChar;
     end;
 
     [TryFunction]
-    local procedure Try2()
+    local procedure Try2(var V: Variant; var vText: Text)
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Clear(V);
         V := vLabel + vText;
     end;
 
     [TryFunction]
-    local procedure Try3()
+    local procedure Try3(var vText: Text)
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         vText += vLabel;
     end;
 
     [TryFunction]
-    local procedure Try4()
+    local procedure Try4(var V: Variant; var vText10: Text[10])
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Clear(V);
         V := vLabel + vText10;
     end;
 
     [TryFunction]
-    local procedure Try5()
+    local procedure Try5(var vText10: Text[10])
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         vText10 += vLabel;
     end;
 
     [TryFunction]
-    local procedure Try6()
+    local procedure Try6(var V: Variant; var vCode10: Code[10])
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Clear(V);
         V := vLabel + vCode10;
     end;
 
     [TryFunction]
-    local procedure Try7()
+    local procedure Try7(var vCode10: Code[10])
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         vCode10 += vLabel;
     end;
 
     [TryFunction]
-    local procedure Try8()
+    local procedure Try8(var V: Variant; var vGuid: Guid)
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         Clear(V);
         V := vLabel + vGuid;
     end;
 
     [TryFunction]
-    local procedure Try9()
+    local procedure Try9(var vGuid: Guid)
+    var
+        vLabel: Label 'abc', Locked = true;
     begin
         vGuid += vLabel;
     end;
 
     [TryFunction]
-    local procedure Try10()
+    local procedure Try10(var V: Variant)
+    var
+        vLabel: Label 'abc', Locked = true;
+        vLabel_R: Label 'abc', Locked = true;
     begin
         Clear(V);
         V := vLabel + vLabel_R;
