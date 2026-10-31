@@ -127,7 +127,6 @@ codeunit 92812 "LT Y41 GoToKey Find Curr"
         Log: Record "LT Y41 Log";
     begin
         P.OpenView();
-        Obs.Observe('open log', Log.Dump());
         Log.ClearLog();
     end;
 
@@ -139,6 +138,21 @@ codeunit 92812 "LT Y41 GoToKey Find Curr"
         Obs.Observe(Prefix + 'no', P.NoCtl.Value());
         Obs.Observe(Prefix + 'visible', Format(P.ShownAction.Visible()));
         Log.ClearLog();
+    end;
+
+    [Test]
+    procedure GK_FindList_Curr_OpenView()
+    var
+        Log: Record "LT Y41 Log";
+        P: TestPage "LT Y41 GK List";
+    begin
+        Seed();
+        P.OpenView();
+        Obs.Observe('open log', Log.Dump());
+        Obs.Observe('no', P.NoCtl.Value());
+        Obs.Observe('visible', Format(P.ShownAction.Visible()));
+        P.Close();
+        Obs.Finish();
     end;
 
     [Test]

@@ -224,7 +224,14 @@ codeunit 92805 "LT Y41 Sel After Close"
         Obs.Observe('currentId', Format(P.CurrentId()));
         P.GetSelected(Sel);
         Describe('sel ', Sel);
-        Obs.Finish();
+        Obs.Expect('action', 'LookupOK');
+        Obs.Expect('handlerSawId', '0');
+        Obs.Expect('currentId', '3');
+        Obs.Expect('sel count', '1');
+        Obs.Expect('sel filters', 'Id: 3');
+        Obs.Expect('sel markedonly', 'No');
+        Obs.Expect('sel ids', '3,');
+        Obs.Verify();
     end;
 
     [Test]
@@ -249,7 +256,15 @@ codeunit 92805 "LT Y41 Sel After Close"
         Sel.FilterGroup(2);
         Obs.Observe('sel group2 filters', Sel.GetFilters());
         Sel.FilterGroup(0);
-        Obs.Finish();
+        Obs.Expect('action', 'LookupOK');
+        Obs.Expect('handlerSawId', '0');
+        Obs.Expect('currentId', '2');
+        Obs.Expect('sel count', '1');
+        Obs.Expect('sel filters', 'Id: 2');
+        Obs.Expect('sel markedonly', 'No');
+        Obs.Expect('sel ids', '2,');
+        Obs.Expect('sel group2 filters', '');
+        Obs.Verify();
     end;
 
     [Test]
@@ -266,7 +281,14 @@ codeunit 92805 "LT Y41 Sel After Close"
         Obs.Observe('currentId', Format(P.CurrentId()));
         P.GetSelected(Sel);
         Describe('sel ', Sel);
-        Obs.Finish();
+        Obs.Expect('action', 'LookupOK');
+        Obs.Expect('handlerSawId', '0');
+        Obs.Expect('currentId', '0');
+        Obs.Expect('sel count', '0');
+        Obs.Expect('sel filters', 'Id: 0');
+        Obs.Expect('sel markedonly', 'No');
+        Obs.Expect('sel ids', '');
+        Obs.Verify();
     end;
 
     [Test]
@@ -284,7 +306,14 @@ codeunit 92805 "LT Y41 Sel After Close"
         Obs.Observe('currentId', Format(P.CurrentId()));
         P.GetSelected(Sel);
         Describe('sel ', Sel);
-        Obs.Finish();
+        Obs.Expect('action', 'LookupCancel');
+        Obs.Expect('handlerSawId', '0');
+        Obs.Expect('currentId', '3');
+        Obs.Expect('sel count', '1');
+        Obs.Expect('sel filters', 'Id: 3');
+        Obs.Expect('sel markedonly', 'No');
+        Obs.Expect('sel ids', '3,');
+        Obs.Verify();
     end;
 
     [Test]
@@ -298,7 +327,9 @@ codeunit 92805 "LT Y41 Sel After Close"
         Obs.Observe('log', Log.Dump());
         Obs.Observe('shownId', TP.IdCtl.Value());
         TP.Close();
-        Obs.Finish();
+        Obs.Expect('log', 'agcr id=1 filters=Id: 1 count=1');
+        Obs.Expect('shownId', '1');
+        Obs.Verify();
     end;
 
     [Test]
@@ -312,7 +343,9 @@ codeunit 92805 "LT Y41 Sel After Close"
         Obs.Observe('log', Log.Dump());
         Obs.Observe('shownId', TP.IdCtl.Value());
         TP.Close();
-        Obs.Finish();
+        Obs.Expect('log', 'new;agcr id=0 filters=Id: 0 count=0');
+        Obs.Expect('shownId', '0');
+        Obs.Verify();
     end;
 
     [Test]
@@ -328,6 +361,12 @@ codeunit 92805 "LT Y41 Sel After Close"
         Obs.Observe('currentId', Format(P.CurrentId()));
         P.GetSelected(Sel);
         Describe('sel ', Sel);
-        Obs.Finish();
+        Obs.Expect('action', 'LookupOK');
+        Obs.Expect('currentId', '3');
+        Obs.Expect('sel count', '1');
+        Obs.Expect('sel filters', 'Id: 3');
+        Obs.Expect('sel markedonly', 'No');
+        Obs.Expect('sel ids', '3,');
+        Obs.Verify();
     end;
 }

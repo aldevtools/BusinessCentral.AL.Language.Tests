@@ -443,7 +443,9 @@ codeunit 92360 "LT Y41 RunPageLink Open"
         Obs.Observe('shown', P.CodeCtl.Value() + '/' + P.NumberCtl.Value());
         P.Close();
         Host.Close();
-        Obs.Finish();
+        Obs.Expect('log', 'listplus open code=P1 number=7 kind=A day= filters=Code: P1, Number: 7 gf0=P1 count=1 read=P1/7;listplus agcr code=P1 number=7 kind=A day=2026-01-15 filters=Code: P1, Number: 7 gf0=P1 count=1');
+        Obs.Expect('shown', 'P1/7');
+        Obs.Verify();
     end;
 
     [Test]
@@ -459,7 +461,9 @@ codeunit 92360 "LT Y41 RunPageLink Open"
         Obs.Observe('shown', P.CodeCtl.Value() + '/' + P.NumberCtl.Value());
         P.Close();
         Host.Close();
-        Obs.Finish();
+        Obs.Expect('log', 'list open code= number=0 kind=A day= filters=Code Filter: P1 gf0= count=3 cf=P1 hostcount=1;list agcr code=P1 number=7 kind=A day=2026-01-15 filters=Code Filter: P1 gf0= count=3 hostcount=1');
+        Obs.Expect('shown', 'P1/7');
+        Obs.Verify();
     end;
 
     [Test]
@@ -480,7 +484,9 @@ codeunit 92360 "LT Y41 RunPageLink Open"
         Obs.Observe('shown rows', Shown);
         P.Close();
         Host.Close();
-        Obs.Finish();
+        Obs.Expect('log', 'temp open code=P1 number=0 kind=A day= filters=Code: P1 gf0=P1 count=0;temp insert blank=Yes code= number=0 kind=A day= filters=Code: P1 gf0=P1 count=0;temp after inserts code=P1 number=2 kind=A day= filters=Code: P1 gf0=P1 count=1;temp agcr code=P1 number=2 kind=A day= filters=Code: P1 gf0=P1 count=1');
+        Obs.Expect('shown rows', 'P1/2,P1/0,');
+        Obs.Verify();
     end;
 
     [Test]
@@ -496,7 +502,9 @@ codeunit 92360 "LT Y41 RunPageLink Open"
         Obs.Observe('shown', P.CodeCtl.Value() + '/' + P.NumberCtl.Value());
         P.Close();
         Host.Close();
-        Obs.Finish();
+        Obs.Expect('log', 'card open code= number=0 kind=B day= filters=Kind: B gf0= count=1;card agcr code=P1 number=8 kind=B day=2026-01-16 filters=Kind: B gf0= count=1');
+        Obs.Expect('shown', 'P1/8');
+        Obs.Verify();
     end;
 
     [Test]
@@ -512,7 +520,9 @@ codeunit 92360 "LT Y41 RunPageLink Open"
         Obs.Observe('shown', P.CodeCtl.Value() + '/' + P.NumberCtl.Value());
         P.Close();
         Host.Close();
-        Obs.Finish();
+        Obs.Expect('log', 'card open code= number=0 kind=A day=2026-01-15 filters=Day: 01/15/26 gf0= count=2;card agcr code=P1 number=7 kind=A day=2026-01-15 filters=Day: 01/15/26 gf0= count=2');
+        Obs.Expect('shown', 'P1/7');
+        Obs.Verify();
     end;
 
     [Test]
@@ -528,7 +538,9 @@ codeunit 92360 "LT Y41 RunPageLink Open"
         Obs.Observe('shown', P.CodeCtl.Value() + '/' + P.NumberCtl.Value());
         P.Close();
         Host.Close();
-        Obs.Finish();
+        Obs.Expect('log', 'card open code=P1 number=0 kind=A day= filters=Code: P1 gf0=P1 count=2;card agcr code=P1 number=7 kind=A day=2026-01-15 filters=Code: P1 gf0=P1 count=2');
+        Obs.Expect('shown', 'P1/7');
+        Obs.Verify();
     end;
 
     [Test]
@@ -544,7 +556,9 @@ codeunit 92360 "LT Y41 RunPageLink Open"
         Obs.Observe('shown', P.CodeCtl.Value() + '/' + P.NumberCtl.Value());
         P.Close();
         Host.Close();
-        Obs.Finish();
+        Obs.Expect('log', 'card open code=P1 number=7 kind=A day= filters=Code: P1 gf0=P1 count=1;card agcr code=P1 number=7 kind=A day=2026-01-15 filters=Code: P1 gf0=P1 count=1');
+        Obs.Expect('shown', 'P1/7');
+        Obs.Verify();
     end;
 
     [Test]
@@ -560,7 +574,9 @@ codeunit 92360 "LT Y41 RunPageLink Open"
         Obs.Observe('shown', P.CodeCtl.Value() + '/' + P.NumberCtl.Value());
         P.Close();
         Host.Close();
-        Obs.Finish();
+        Obs.Expect('log', 'document open code=P1 number=7 kind=A day= filters=Code: P1, Number: 7 gf0=P1 count=1 read=P1/7;document agcr code=P1 number=7 kind=A day=2026-01-15 filters=Code: P1, Number: 7 gf0=P1 count=1');
+        Obs.Expect('shown', 'P1/7');
+        Obs.Verify();
     end;
 
     [Test]
@@ -576,6 +592,8 @@ codeunit 92360 "LT Y41 RunPageLink Open"
         Obs.Observe('shown', P.CodeCtl.Value() + '/' + P.NumberCtl.Value());
         P.Close();
         Host.Close();
-        Obs.Finish();
+        Obs.Expect('log', 'worksheet open code=P1 number=7 kind=A day= filters=Code: P1, Number: 7 gf0=P1 count=1 read=P1/7;worksheet agcr code=P1 number=7 kind=A day=2026-01-15 filters=Code: P1, Number: 7 gf0=P1 count=1');
+        Obs.Expect('shown', 'P1/7');
+        Obs.Verify();
     end;
 }

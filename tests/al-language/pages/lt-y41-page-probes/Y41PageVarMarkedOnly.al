@@ -157,7 +157,9 @@ codeunit 92363 "LT Y41 Page Var MarkedOnly"
         L.LookupMode(true);
         Obs.Observe('action', Format(L.RunModal()));
         Obs.Observe('log', LogNow());
-        Obs.Finish();
+        Obs.Expect('action', 'LookupCancel');
+        Obs.Expect('log', 'open filters=Marked: Yes, Group: 1 mo=Yes count=2 at=;at=R2 shown=R2,R4,');
+        Obs.Verify();
     end;
 
     [Test]
@@ -178,7 +180,13 @@ codeunit 92363 "LT Y41 Page Var MarkedOnly"
         Obs.Observe('log', LogNow());
         L.SetSelectionFilter(R2);
         Describe('sel ', R2);
-        Obs.Finish();
+        Obs.Expect('action', 'LookupOK');
+        Obs.Expect('log', 'open filters=Marked: Yes, Group: 1 mo=Yes count=2 at=;at=R2 shown=R2,R4,;goto=Yes');
+        Obs.Expect('sel filters', 'Marked: Yes, Group: 1');
+        Obs.Expect('sel markedonly', 'Yes');
+        Obs.Expect('sel count', '2');
+        Obs.Expect('sel rows', 'R2,R4,');
+        Obs.Verify();
     end;
 
     [Test]
@@ -207,7 +215,13 @@ codeunit 92363 "LT Y41 Page Var MarkedOnly"
         Obs.Observe('log', LogNow());
         L.SetSelectionFilter(R2);
         Describe('sel ', R2);
-        Obs.Finish();
+        Obs.Expect('action', 'LookupOK');
+        Obs.Expect('log', 'open filters=Marked: Yes mo=Yes count=2 at=;at=R3 shown=R3,R4,;goto=Yes');
+        Obs.Expect('sel filters', 'Marked: Yes');
+        Obs.Expect('sel markedonly', 'Yes');
+        Obs.Expect('sel count', '2');
+        Obs.Expect('sel rows', 'R3,R4,');
+        Obs.Verify();
     end;
 
     [Test]
@@ -224,7 +238,9 @@ codeunit 92363 "LT Y41 Page Var MarkedOnly"
         L.LookupMode(true);
         Obs.Observe('action', Format(L.RunModal()));
         Obs.Observe('log', LogNow());
-        Obs.Finish();
+        Obs.Expect('action', 'LookupCancel');
+        Obs.Expect('log', 'open filters=Marked: Yes, Group: 1 mo=Yes count=0 at=;at= shown=');
+        Obs.Verify();
     end;
 
     [Test]
@@ -242,7 +258,9 @@ codeunit 92363 "LT Y41 Page Var MarkedOnly"
         L.LookupMode(true);
         Obs.Observe('action', Format(L.RunModal()));
         Obs.Observe('log', LogNow());
-        Obs.Finish();
+        Obs.Expect('action', 'LookupCancel');
+        Obs.Expect('log', 'open filters= mo=No count=6 at=R4;at=R4 shown=R1,R2,R3,R4,R5,R6,');
+        Obs.Verify();
     end;
 
     [Test]
@@ -266,6 +284,8 @@ codeunit 92363 "LT Y41 Page Var MarkedOnly"
         L.LookupMode(true);
         Obs.Observe('action', Format(L.RunModal()));
         Obs.Observe('log', LogNow());
-        Obs.Finish();
+        Obs.Expect('action', 'LookupCancel');
+        Obs.Expect('log', 'open filters=Marked: Yes, Group: 1 mo=Yes count=2 at=;at=R2 shown=R2,R4,');
+        Obs.Verify();
     end;
 }

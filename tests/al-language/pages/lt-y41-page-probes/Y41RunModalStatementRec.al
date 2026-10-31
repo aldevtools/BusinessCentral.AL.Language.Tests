@@ -163,6 +163,13 @@ codeunit 92809 "LT Y41 RunModal Stmt Rec"
     end;
 
     [ModalPageHandler]
+    procedure NextCloseHandler(var P: TestPage "LT Y41 RM List")
+    begin
+        P.Next();
+        P.Close();
+    end;
+
+    [ModalPageHandler]
     procedure NextCancelHandler(var P: TestPage "LT Y41 RM List")
     begin
         P.Next();
@@ -177,7 +184,11 @@ codeunit 92809 "LT Y41 RunModal Stmt Rec"
         G.Get('A');
         Setup();
         ObserveAll(G);
-        Obs.Finish();
+        Obs.Expect('rec', 'A|alpha|1|<none>');
+        Obs.Expect('filters', 'Code: A');
+        Obs.Expect('db', 'A|alpha|1|<none>');
+        Obs.Expect('log', 'agr A alpha');
+        Obs.Verify();
     end;
 
     [Test]
@@ -194,7 +205,11 @@ codeunit 92809 "LT Y41 RunModal Stmt Rec"
         Other.Modify();
         Setup();
         ObserveAll(G);
-        Obs.Finish();
+        Obs.Expect('rec', 'A|alpha|1|<none>');
+        Obs.Expect('filters', 'Code: A');
+        Obs.Expect('db', 'A|db|5|<none>');
+        Obs.Expect('log', 'agr A db');
+        Obs.Verify();
     end;
 
     [Test]
@@ -214,7 +229,12 @@ codeunit 92809 "LT Y41 RunModal Stmt Rec"
         Act := Page.RunModal(Page::"LT Y41 RM Card", G);
         Obs.Observe('action', Format(Act));
         ObserveAll(G);
-        Obs.Finish();
+        Obs.Expect('action', 'LookupOK');
+        Obs.Expect('rec', 'A|db|5|<none>');
+        Obs.Expect('filters', 'Code: A');
+        Obs.Expect('db', 'A|db|5|<none>');
+        Obs.Expect('log', 'agr A db');
+        Obs.Verify();
     end;
 
     [Test]
@@ -233,7 +253,17 @@ codeunit 92809 "LT Y41 RunModal Stmt Rec"
         Db.Get('N');
         Obs.Observe('same SystemModifiedAt', Format(G.SystemModifiedAt = Db.SystemModifiedAt));
         Obs.Observe('same SystemId', Format(G.SystemId = Db.SystemId));
-        Obs.Finish();
+        Obs.Expect('rec', 'N|new|0|<none>');
+        Obs.Expect('filters', 'Code: N');
+        Obs.Expect('db', 'N|new|0|<none>');
+        Obs.Expect('log', 'agr N new');
+#if BC28PLUS
+        Obs.Expect('same SystemModifiedAt', 'Yes');
+#else
+        Obs.Expect('same SystemModifiedAt', 'No');
+#endif
+        Obs.Expect('same SystemId', 'Yes');
+        Obs.Verify();
     end;
 
     [Test]
@@ -248,7 +278,11 @@ codeunit 92809 "LT Y41 RunModal Stmt Rec"
         OutS.WriteText('mem');
         Setup();
         ObserveAll(G);
-        Obs.Finish();
+        Obs.Expect('rec', 'A|alpha|1|mem');
+        Obs.Expect('filters', 'Code: A');
+        Obs.Expect('db', 'A|alpha|1|<none>');
+        Obs.Expect('log', 'agr A alpha');
+        Obs.Verify();
     end;
 
     [Test]
@@ -259,7 +293,11 @@ codeunit 92809 "LT Y41 RunModal Stmt Rec"
         G.Get('A');
         Setup();
         ObserveAll(G);
-        Obs.Finish();
+        Obs.Expect('rec', 'A|alpha|1|<none>');
+        Obs.Expect('filters', 'Code: A');
+        Obs.Expect('db', 'A|page|1|<none>');
+        Obs.Expect('log', 'agr A alpha');
+        Obs.Verify();
     end;
 
     [Test]
@@ -272,9 +310,14 @@ codeunit 92809 "LT Y41 RunModal Stmt Rec"
         R.Get('A');
         Page.RunModal(Page::"LT Y41 RM List", R);
         ObserveAll(R);
-        Obs.Finish();
+        Obs.Expect('rec', 'A|alpha|1|<none>');
+        Obs.Expect('filters', '');
+        Obs.Expect('db', 'A|alpha|1|<none>');
+        Obs.Expect('log', '');
+        Obs.Verify();
     end;
 
+    // A list opened with Page.RunModal (not in lookup mode) has no Cancel action: the handler's Cancel().Invoke() raises.
     [Test]
     [HandlerFunctions('NextCancelHandler')]
     procedure RMS_List_Next_Cancel()
@@ -283,7 +326,36 @@ codeunit 92809 "LT Y41 RunModal Stmt Rec"
     begin
         Seed();
         R.Get('A');
+        asserterror Page.RunModal(Page::"LT Y41 RM List", R);
+        Obs.ObserveError('cancel');
+        Obs.Observe('rec', R."Code" + '|' + R.Name + '|' + R.GetFilters());
+        Obs.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('NextCloseHandler')]
+    procedure RMS_List_Next_Close()
+    var
+        R: Record "LT Y41 RM Row";
+    begin
+        Seed();
+        R.Get('A');
         Page.RunModal(Page::"LT Y41 RM List", R);
+        ObserveAll(R);
+        Obs.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('NextOkHandler')]
+    procedure RMS_List_Next_Ok_ExpressionForm()
+    var
+        R: Record "LT Y41 RM Row";
+        Act: Action;
+    begin
+        Seed();
+        R.Get('A');
+        Act := Page.RunModal(Page::"LT Y41 RM List", R);
+        Obs.Observe('action', Format(Act));
         ObserveAll(R);
         Obs.Finish();
     end;
