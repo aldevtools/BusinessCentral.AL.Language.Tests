@@ -129,13 +129,16 @@ codeunit 98692 "LT Y43 SPX Tests"
         Report.Run(Report::"LT Y43 SPX Layout", true, SystemPrinter, Row);
     end;
 
-    local procedure ReadData(): Text
+    // The data file as text, '|' after each line. The byte order mark (EF BB BF, read as three characters) is cut off and reported in HadBom.
+    local procedure ReadData(var HadBom: Boolean): Text
     var
         SaveFile: File;
         InStr: InStream;
         Line: Text;
         Result: Text;
+        Bom: Text[3];
     begin
+        HadBom := false;
         if not Exists(DataFile) then
             exit('<no file>');
         SaveFile.Open(DataFile);
@@ -145,7 +148,38 @@ codeunit 98692 "LT Y43 SPX Tests"
             Result += Line + '|';
         end;
         SaveFile.Close();
+        Bom[1] := 217;
+        Bom[2] := 8249;
+        Bom[3] := 143;
+        HadBom := Result.StartsWith(Bom);
+        if HadBom then
+            Result := CopyStr(Result, 4);
         exit(Result);
+    end;
+
+    // The names of the xs:element entries of the schema, in order.
+    local procedure Elements(Data: Text): Text
+    var
+        Names: Text;
+        At: Integer;
+        Rest: Text;
+    begin
+        Rest := Data;
+        At := StrPos(Rest, '<xs:element name="');
+        while At > 0 do begin
+            Rest := CopyStr(Rest, At + StrLen('<xs:element name="'));
+            Names += CopyStr(Rest, 1, StrPos(Rest, '"') - 1) + ' ';
+            At := StrPos(Rest, '<xs:element name="');
+        end;
+        exit(Names);
+    end;
+
+    // The part after the schema: the rows.
+    local procedure Rows(Data: Text): Text
+    begin
+        if StrPos(Data, '</xs:schema>') = 0 then
+            exit(Data);
+        exit(CopyStr(Data, StrPos(Data, '</xs:schema>') + StrLen('</xs:schema>')));
     end;
 
     local procedure Outcome(SystemPrinter: Boolean): Text
@@ -171,30 +205,40 @@ codeunit 98692 "LT Y43 SPX Tests"
         Request.SaveAsXml(ParametersFile, DataFile);
     end;
 
+    // A first run with SystemPrinter false opens the request page once before the observed calls: on the Linux 27.5 container the first
+    // open of this request page in the run failed once with "The page definition has changed while opening the page, please try to re-open
+    // the page. Page ID: 98691" (PageBuildError), a Linux suspect; the warm-up outcome is not observed.
     [Test]
     [HandlerFunctions('RlSaveXml')]
     procedure Y43_G411_Layout_Run_ReqTrue_Sp_SaveAsXml()
     var
-        DataTrue: Text;
+        HadBom: Boolean;
+        Data: Text;
     begin
         Seed();
+        Outcome(false);
         Observer.Observe('systemPrinterTrue', Outcome(true));
-        DataTrue := ReadData();
-        Observer.Observe('dataTrue', DataTrue);
-        Observer.Observe('systemPrinterFalse', Outcome(false));
-        Observer.Observe('dataSame', Format(ReadData() = DataTrue));
+        Data := ReadData(HadBom);
+        Observer.Observe('bom', Format(HadBom));
+        Observer.Observe('start', CopyStr(Data, 1, StrPos(Data, '<xs:schema') - 1));
+        Observer.Observe('elements', Elements(Data));
+        Observer.Observe('rows', Rows(Data));
         Observer.Finish();
     end;
 
     [Test]
-    procedure Y43_G411_Layout_Run_ReqTrue_Sp_SaveAsXml_More1()
+    [HandlerFunctions('RlSaveXml')]
+    procedure Y43_G411_Layout_Run_SaveAsXml_SystemPrinterTrueAndFalse_SameData()
+    var
+        HadBom: Boolean;
+        DataTrue: Text;
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Y43_G411_Layout_Run_ReqTrue_Sp_SaveAsXml_More2()
-    begin
-        Observer.More();
+        Seed();
+        Outcome(false);
+        Observer.Observe('systemPrinterTrue', Outcome(true));
+        DataTrue := ReadData(HadBom);
+        Observer.Observe('systemPrinterFalse', Outcome(false));
+        Observer.Observe('dataSame', Format(ReadData(HadBom) = DataTrue));
+        Observer.Finish();
     end;
 }

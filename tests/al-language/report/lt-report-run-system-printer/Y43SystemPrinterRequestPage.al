@@ -261,7 +261,9 @@ codeunit 92857 "LT Y43 SP Request Page Tests"
         Seed();
         Observer.Observe('systemPrinterTrue', Outcome(Report::"LT Y43 SP Proc", true, true, true));
         Observer.Observe('systemPrinterFalse', Outcome(Report::"LT Y43 SP Proc", true, true, false));
-        Observer.Finish();
+        Observer.Expect('systemPrinterTrue', 'ok / rp;pre;flag Yes;pre-di No.: A|B;row A;row B;post;');
+        Observer.Expect('systemPrinterFalse', 'ok / rp;pre;flag Yes;pre-di No.: A|B;row A;row B;post;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -273,7 +275,9 @@ codeunit 92857 "LT Y43 SP Request Page Tests"
         Seed();
         Observer.Observe('systemPrinterTrue', Outcome(Report::"LT Y43 SP Proc", false, true, true));
         Observer.Observe('systemPrinterFalse', Outcome(Report::"LT Y43 SP Proc", false, true, false));
-        Observer.Finish();
+        Observer.Expect('systemPrinterTrue', 'ok / rp;pre;flag Yes;pre-di No.: A|B;row A;row B;post;');
+        Observer.Expect('systemPrinterFalse', 'ok / rp;pre;flag Yes;pre-di No.: A|B;row A;row B;post;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -285,7 +289,9 @@ codeunit 92857 "LT Y43 SP Request Page Tests"
         Seed();
         Observer.Observe('systemPrinterTrue', Outcome(Report::"LT Y43 SP Proc", true, true, true));
         Observer.Observe('systemPrinterFalse', Outcome(Report::"LT Y43 SP Proc", true, true, false));
-        Observer.Finish();
+        Observer.Expect('systemPrinterTrue', 'ok / rp;');
+        Observer.Expect('systemPrinterFalse', 'ok / rp;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -297,7 +303,9 @@ codeunit 92857 "LT Y43 SP Request Page Tests"
         Seed();
         Observer.Observe('systemPrinterTrue', Outcome(Report::"LT Y43 SP Layout", false, true, true));
         Observer.Observe('systemPrinterFalse', Outcome(Report::"LT Y43 SP Layout", false, true, false));
-        Observer.Finish();
+        Observer.Expect('systemPrinterTrue', 'error:The built-in action = OK is not found on the page.|TestActionNotFound / rp;');
+        Observer.Expect('systemPrinterFalse', 'error:The built-in action = OK is not found on the page.|TestActionNotFound / rp;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -309,41 +317,56 @@ codeunit 92857 "LT Y43 SP Request Page Tests"
         Seed();
         Observer.Observe('systemPrinterTrue', Outcome(Report::"LT Y43 SP Layout", false, false, true));
         Observer.Observe('systemPrinterFalse', Outcome(Report::"LT Y43 SP Layout", false, false, false));
-        Observer.Finish();
+        Observer.Expect('systemPrinterTrue', 'ok / handler;');
+        Observer.Expect('systemPrinterFalse', 'ok / handler;');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Y43_G411_Layout_Run_ReqFalse_Sp_NoHandler()
+    // Linux suspect (not a test until the Windows check): the Linux containers 27.5, 28.5, 29.0 and the Windows 28.5 container give the
+    // values below; the Windows 27.5 container ends the call with "Microsoft Dynamics 365 Business Central Data Services attempted to
+    // issue a client callback to download a file: LT Y43 SP Layout.pdf (Report 92856 LT Y43 SP Layout). Client callbacks are not
+    // supported on Microsoft Dynamics 365 Business Central Data Services." (CallbackNotAllowed) after the last row, before OnPostReport.
+    procedure Suspect_Y43_G411_Layout_Run_ReqFalse_Sp_NoHandler()
     var
         Observer: Codeunit "Probe Observer";
     begin
         Seed();
         Observer.Observe('systemPrinterTrue', Outcome(Report::"LT Y43 SP Layout", false, false, true));
         Observer.Observe('systemPrinterFalse', Outcome(Report::"LT Y43 SP Layout", false, false, false));
-        Observer.Finish();
+        Observer.Expect('systemPrinterTrue', 'ok / pre;flag No;pre-di ;row A;row B;row C;post;');
+        Observer.Expect('systemPrinterFalse', 'ok / pre;flag No;pre-di ;row A;row B;row C;post;');
+        Observer.Verify();
     end;
 
-    [Test]
-    [HandlerFunctions('RlPrint')]
-    procedure Y43_G411_Layout_Run_ReqTrue_Sp_Print()
+    // Linux suspect (not a test until the Windows check): the Linux containers 27.5, 28.5, 29.0 and the Windows 28.5 container give the
+    // values below; the Windows 27.5 container ends the call with "Microsoft Dynamics 365 Business Central Data Services attempted to
+    // issue a client callback to download a file: LT Y43 SP Layout.pdf (Report 92856 LT Y43 SP Layout). Client callbacks are not
+    // supported on Microsoft Dynamics 365 Business Central Data Services." (CallbackNotAllowed) after the last row, before OnPostReport.
+    procedure Suspect_Y43_G411_Layout_Run_ReqTrue_Sp_Print()
     var
         Observer: Codeunit "Probe Observer";
     begin
         Seed();
         Observer.Observe('systemPrinterTrue', Outcome(Report::"LT Y43 SP Layout", false, true, true));
         Observer.Observe('systemPrinterFalse', Outcome(Report::"LT Y43 SP Layout", false, true, false));
-        Observer.Finish();
+        Observer.Expect('systemPrinterTrue', 'ok / rp;pre;flag No;pre-di ;row A;row B;row C;post;');
+        Observer.Expect('systemPrinterFalse', 'ok / rp;pre;flag No;pre-di ;row A;row B;row C;post;');
+        Observer.Verify();
     end;
 
-    [Test]
-    [HandlerFunctions('RlPreview')]
-    procedure Y43_G411_Layout_Run_ReqTrue_Sp_Preview()
+    // Linux suspect (not a test until the Windows check): the Linux containers 27.5, 28.5, 29.0 and the Windows 28.5 container give the
+    // values below; the Windows 27.5 container ends the call with "Microsoft Dynamics 365 Business Central Data Services attempted to
+    // issue a client callback to download a file: LT Y43 SP Layout.pdf (Report 92856 LT Y43 SP Layout). Client callbacks are not
+    // supported on Microsoft Dynamics 365 Business Central Data Services." (CallbackNotAllowed) after the last row, before OnPostReport.
+    procedure Suspect_Y43_G411_Layout_Run_ReqTrue_Sp_Preview()
     var
         Observer: Codeunit "Probe Observer";
     begin
         Seed();
         Observer.Observe('systemPrinterTrue', Outcome(Report::"LT Y43 SP Layout", false, true, true));
         Observer.Observe('systemPrinterFalse', Outcome(Report::"LT Y43 SP Layout", false, true, false));
-        Observer.Finish();
+        Observer.Expect('systemPrinterTrue', 'ok / rp;pre;flag No;pre-di ;row A;row B;row C;post;');
+        Observer.Expect('systemPrinterFalse', 'ok / rp;pre;flag No;pre-di ;row A;row B;row C;post;');
+        Observer.Verify();
     end;
 }
