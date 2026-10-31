@@ -14,7 +14,7 @@
 // BC versions: 27, 28, 29
 // Y26 (al-runner 6519, follow-up to 6466): objects 92220 - 92224 add a ListPart that logs OnAfterGetRecord, OnAfterGetCurrRecord and
 //   a function control, and four hosts (two- or three-field link, with or without OnAfterGetCurrRecord) with expression controls: a
-//   global CurrentNo (set in OnAfterGetCurrRecord, or in OnAfterGetRecord without it) and a function call HostFn(). The Y26 tests
+//   global CurrentNo (set in OnAfterGetCurrRecord, or in OnAfterGetRecord without it) and a function call GetHostNo(), both showing No. + '/' + the stored resource. The Y26 tests
 //   read every control one at a time after TestField.Lookup and log which triggers each read runs.
 
 table 91710 "LT Y15 Lookup Setting"
@@ -704,13 +704,21 @@ page 92220 "LT Y26 Logging Resource Part"
     trigger OnAfterGetCurrRecord()
     begin
         Log.Add('p-agcr ' + Rec."No.");
-        PartCurrent := Rec."No.";
+        PartCurrent := Rec."No." + '/' + StoredResourceNo();
     end;
 
     local procedure GetPartNo(): Code[20]
     begin
         Log.Add('p-fn ' + Rec."No.");
-        exit(Rec."No.");
+        exit(Rec."No." + '/' + StoredResourceNo());
+    end;
+
+    local procedure StoredResourceNo(): Code[20]
+    var
+        Setting: Record "LT Y15 Lookup Setting";
+    begin
+        if Setting.Get() then
+            exit(Setting."Resource No.");
     end;
 
     var
@@ -786,13 +794,13 @@ page 92221 "LT Y26 3Link Curr Schedule"
     trigger OnAfterGetCurrRecord()
     begin
         Log.Add('h-agcr ' + Rec."No.");
-        CurrentNo := Rec."No.";
+        CurrentNo := Rec."No." + '/' + Setting."Resource No.";
     end;
 
     local procedure GetHostNo(): Code[20]
     begin
         Log.Add('h-fn ' + Rec."No.");
-        exit(Rec."No.");
+        exit(Rec."No." + '/' + Setting."Resource No.");
     end;
 
     var
@@ -868,13 +876,13 @@ page 92222 "LT Y26 2Link Curr Schedule"
     trigger OnAfterGetCurrRecord()
     begin
         Log.Add('h-agcr ' + Rec."No.");
-        CurrentNo := Rec."No.";
+        CurrentNo := Rec."No." + '/' + Setting."Resource No.";
     end;
 
     local procedure GetHostNo(): Code[20]
     begin
         Log.Add('h-fn ' + Rec."No.");
-        exit(Rec."No.");
+        exit(Rec."No." + '/' + Setting."Resource No.");
     end;
 
     var
@@ -946,13 +954,13 @@ page 92223 "LT Y26 3Link Plain Schedule"
     trigger OnAfterGetRecord()
     begin
         Log.Add('h-agr ' + Rec."No.");
-        CurrentNo := Rec."No.";
+        CurrentNo := Rec."No." + '/' + Setting."Resource No.";
     end;
 
     local procedure GetHostNo(): Code[20]
     begin
         Log.Add('h-fn ' + Rec."No.");
-        exit(Rec."No.");
+        exit(Rec."No." + '/' + Setting."Resource No.");
     end;
 
     var
@@ -1023,13 +1031,13 @@ page 92224 "LT Y26 2Link Plain Schedule"
     trigger OnAfterGetRecord()
     begin
         Log.Add('h-agr ' + Rec."No.");
-        CurrentNo := Rec."No.";
+        CurrentNo := Rec."No." + '/' + Setting."Resource No.";
     end;
 
     local procedure GetHostNo(): Code[20]
     begin
         Log.Add('h-fn ' + Rec."No.");
-        exit(Rec."No.");
+        exit(Rec."No." + '/' + Setting."Resource No.");
     end;
 
     var
