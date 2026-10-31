@@ -359,6 +359,7 @@ xmlport 91835 "LT Y17 Ns Empty Import"
                 NamespacePrefix = 'a';
                 XmlName = 'Line';
                 MinOccurs = Zero;
+                UseTemporary = true;
                 fieldelement(Id; Line.Id) { NamespacePrefix = 'b'; }
                 fieldelement(Amount; Line.Amount) { NamespacePrefix = 'b'; }
                 fieldelement(Name; Line.Name) { }
@@ -369,5 +370,13 @@ xmlport 91835 "LT Y17 Ns Empty Import"
     procedure Got(): Text
     begin
         exit(DocId + '/' + EndpointID + '/' + schemeID + '/' + Plain);
+    end;
+
+    procedure Rows() Result: Text
+    begin
+        if Line.FindSet() then
+            repeat
+                Result += Format(Line.Id) + '/' + Line.Name + '/' + Format(Line.Amount, 0, 9) + ';';
+            until Line.Next() = 0;
     end;
 }

@@ -73,7 +73,15 @@ codeunit 91855 "LT Y17 Layout Export Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Describe(Observer, 'rdlc', Report::"LT Y17 Lay R1", LayoutList."Layout Format"::RDLC, true, false);
-        Observer.Finish();
+        Observer.Expect('rdlc rows', '1');
+        Observer.Expect('rdlc layout name', 'Rdl1');
+        Observer.Expect('rdlc returned', 'Yes');
+        Observer.Expect('rdlc length', '2104');
+        Observer.Expect('rdlc has value after', 'No');
+        Observer.Expect('rdlc sha256', 'E28FAC5DB3F79B65DE60707DDBED8F5306BE7605DC4D9A71E1BF2597E440B5EF');
+        Observer.Expect('rdlc starts', '<?xml version="1.0" encoding="utf-8"?>|<Report xmlns="http:/');
+        Observer.Expect('rdlc datasets', '<DataSets>|    <DataSet Name="DataSet_Result">|      <Fields>|        <Field Name="No_">|          <DataField>No_</DataField>|        </Field>|        <Field Name="Name_">|          <DataField>Name_</DataField>|        </Field>|      </Fields>|      <Query>|        <DataSourceName>DataSource</DataSourceName>|        <CommandText />|      </Query>|    </DataSet>|  </DataSets>');
+        Observer.Verify();
     end;
 
     [Test]
@@ -83,7 +91,14 @@ codeunit 91855 "LT Y17 Layout Export Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Describe(Observer, 'word', Report::"LT Y17 Lay R1", LayoutList."Layout Format"::Word, false, true);
-        Observer.Finish();
+        Observer.Expect('word rows', '1');
+        Observer.Expect('word layout name', 'Doc1');
+        Observer.Expect('word returned', 'Yes');
+        Observer.Expect('word length', '5451');
+        Observer.Expect('word has value after', 'No');
+        Observer.Expect('word sha256', '25B756A06026DA7354BB7B74594C2D18B14B1EB15B644949A5EB46D969B5804E');
+        Observer.Expect('word entries', 'word/document.xml;docProps/app.xml;word/settings.xml;customXml/item.xml;customXml/item2.xml;_rels/.rels;word/_rels/document.xml.rels;[Content_Types].xml;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -94,7 +109,20 @@ codeunit 91855 "LT Y17 Layout Export Tests"
     begin
         Describe(Observer, 'rdlc', Report::"LT Y17 Lay R2", LayoutList."Layout Format"::RDLC, false, false);
         Describe(Observer, 'word', Report::"LT Y17 Lay R2", LayoutList."Layout Format"::Word, false, true);
-        Observer.Finish();
+        Observer.Expect('rdlc rows', '1');
+        Observer.Expect('rdlc layout name', './report/lt-y17-layout-export/Y17LayR2.rdl');
+        Observer.Expect('rdlc returned', 'Yes');
+        Observer.Expect('rdlc length', '2104');
+        Observer.Expect('rdlc has value after', 'No');
+        Observer.Expect('rdlc sha256', 'E28FAC5DB3F79B65DE60707DDBED8F5306BE7605DC4D9A71E1BF2597E440B5EF');
+        Observer.Expect('word rows', '1');
+        Observer.Expect('word layout name', './report/lt-y17-layout-export/Y17LayR2.docx');
+        Observer.Expect('word returned', 'Yes');
+        Observer.Expect('word length', '5452');
+        Observer.Expect('word has value after', 'No');
+        Observer.Expect('word sha256', '0777380211152B718E6968A572C6AC17A2A709965B1C43F4EEC5A90F3D1A11B9');
+        Observer.Expect('word entries', 'word/document.xml;docProps/app.xml;word/settings.xml;customXml/item.xml;customXml/item2.xml;_rels/.rels;word/_rels/document.xml.rels;[Content_Types].xml;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -104,7 +132,14 @@ codeunit 91855 "LT Y17 Layout Export Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Describe(Observer, 'excel', Report::"LT Y17 Lay R4", LayoutList."Layout Format"::Excel, false, true);
-        Observer.Finish();
+        Observer.Expect('excel rows', '1');
+        Observer.Expect('excel layout name', 'Xls4');
+        Observer.Expect('excel returned', 'Yes');
+        Observer.Expect('excel length', '20314');
+        Observer.Expect('excel has value after', 'No');
+        Observer.Expect('excel sha256', 'B7748123A94313033D504A565EBB4C708BFD0B5CB9EBD95BB61223A80148BF0D');
+        Observer.Expect('excel entries', '[Content_Types].xml;_rels/.rels;xl/workbook.xml;xl/_rels/workbook.xml.rels;xl/worksheets/sheet1.xml;xl/worksheets/sheet2.xml;xl/worksheets/sheet3.xml;xl/worksheets/sheet4.xml;xl/theme/theme1.xml;xl/styles.xml;xl/sharedStrings.xml;xl/worksheets/_rels/sheet1.xml.rels;xl/worksheets/_rels/sheet2.xml.rels;xl/worksheets/_rels/sheet3.xml.rels;xl/worksheets/_rels/sheet4.xml.rels;xl/tables/table1.xml;xl/tables/table2.xml;xl/tables/table3.xml;xl/tables/table4.xml;xl/tables/table5.xml;xl/tables/table6.xml;xl/tables/table7.xml;docMetadata/LabelInfo.xml;docProps/core.xml;docProps/app.xml;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -115,6 +150,18 @@ codeunit 91855 "LT Y17 Layout Export Tests"
     begin
         Describe(Observer, 'first', Report::"LT Y17 Lay R1", LayoutList."Layout Format"::RDLC, false, false);
         Describe(Observer, 'second', Report::"LT Y17 Lay R1", LayoutList."Layout Format"::RDLC, false, false);
-        Observer.Finish();
+        Observer.Expect('first rows', '1');
+        Observer.Expect('first layout name', 'Rdl1');
+        Observer.Expect('first returned', 'Yes');
+        Observer.Expect('first length', '2104');
+        Observer.Expect('first has value after', 'No');
+        Observer.Expect('first sha256', 'E28FAC5DB3F79B65DE60707DDBED8F5306BE7605DC4D9A71E1BF2597E440B5EF');
+        Observer.Expect('second rows', '1');
+        Observer.Expect('second layout name', 'Rdl1');
+        Observer.Expect('second returned', 'Yes');
+        Observer.Expect('second length', '2104');
+        Observer.Expect('second has value after', 'No');
+        Observer.Expect('second sha256', 'E28FAC5DB3F79B65DE60707DDBED8F5306BE7605DC4D9A71E1BF2597E440B5EF');
+        Observer.Verify();
     end;
 }

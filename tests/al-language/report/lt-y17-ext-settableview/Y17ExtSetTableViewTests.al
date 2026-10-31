@@ -90,7 +90,11 @@ codeunit 91849 "LT Y17 Ext SetTableView Tests"
         PH.SetFilter(Cust, 'C1');
         Rpt.SetTableView(PH);
         RunAndObserve(Observer, Rpt);
-        Observer.Finish();
+        Observer.Expect('run ok', 'Yes');
+        Observer.Expect('run|text', '');
+        Observer.Expect('run|code', '');
+        Observer.Expect('log', 'OnPreReport;pre Req [];Req:A;pre Base [];Base:A/1;pre XH [Cust: C1];XH:2/A/C1;pre XL [];XL:2/A/10000/I1;XL:2/A/20000/I2;Req:B;pre Base [];Base:B/1;pre XH [Cust: C1];XH:1/B/C1;pre XL [];XL:1/B/10000/I1;XL:1/B/20000/I2;OnPostReport;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -107,7 +111,11 @@ codeunit 91849 "LT Y17 Ext SetTableView Tests"
         PL.SetRange(Item, 'I1');
         Rpt.SetTableView(PL);
         RunAndObserve(Observer, Rpt);
-        Observer.Finish();
+        Observer.Expect('run ok', 'Yes');
+        Observer.Expect('run|text', '');
+        Observer.Expect('run|code', '');
+        Observer.Expect('log', 'OnPreReport;pre Req [];Req:A;pre Base [];Base:A/1;pre XH [Cust: C1];XH:2/A/C1;pre XL [Item: I1];XL:2/A/10000/I1;Req:B;pre Base [];Base:B/1;pre XH [Cust: C1];XH:1/B/C1;pre XL [Item: I1];XL:1/B/10000/I1;OnPostReport;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -126,7 +134,11 @@ codeunit 91849 "LT Y17 Ext SetTableView Tests"
         PL.SetRange(Item, 'I1');
         Rpt.SetTableView(PL);
         RunAndObserve(Observer, Rpt);
-        Observer.Finish();
+        Observer.Expect('run ok', 'Yes');
+        Observer.Expect('run|text', '');
+        Observer.Expect('run|code', '');
+        Observer.Expect('log', 'OnPreReport;pre Req [];Req:A;pre Base [];Base:A/1;pre XH [Cust: C1];Req:B;pre Base [];Base:B/1;pre XH [Cust: C1];OnPostReport;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -140,7 +152,11 @@ codeunit 91849 "LT Y17 Ext SetTableView Tests"
         PH.SetRange("No.", 'B');
         Rpt.SetTableView(PH);
         RunAndObserve(Observer, Rpt);
-        Observer.Finish();
+        Observer.Expect('run ok', 'Yes');
+        Observer.Expect('run|text', '');
+        Observer.Expect('run|code', '');
+        Observer.Expect('log', 'OnPreReport;pre Req [];Req:A;pre Base [];Base:A/1;pre XH [No.: B];Req:B;pre Base [];Base:B/1;pre XH [No.: B];XH:1/B/C1;pre XL [];XL:1/B/10000/I1;XL:1/B/20000/I2;OnPostReport;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -155,7 +171,11 @@ codeunit 91849 "LT Y17 Ext SetTableView Tests"
         PH.SetFilter(Cust, 'C1|C2');
         Rpt.SetTableView(PH);
         RunAndObserve(Observer, Rpt);
-        Observer.Finish();
+        Observer.Expect('run ok', 'Yes');
+        Observer.Expect('run|text', '');
+        Observer.Expect('run|code', '');
+        Observer.Expect('log', 'OnPreReport;pre Req [];Req:A;pre Base [];Base:A/1;pre XH [Cust: C1|C2];XH:1/A/C2;pre XL [];XL:1/A/10000/I1;XL:1/A/20000/I2;XH:2/A/C1;pre XL [];XL:2/A/10000/I1;XL:2/A/20000/I2;Req:B;pre Base [];Base:B/1;pre XH [Cust: C1|C2];XH:1/B/C1;pre XL [];XL:1/B/10000/I1;XL:1/B/20000/I2;OnPostReport;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -173,6 +193,10 @@ codeunit 91849 "LT Y17 Ext SetTableView Tests"
         PHTemp.SetFilter(Cust, 'C1');
         Rpt.SetTableView(PHTemp);
         RunAndObserve(Observer, Rpt);
-        Observer.Finish();
+        Observer.Expect('run ok', 'Yes');
+        Observer.Expect('run|text', '');
+        Observer.Expect('run|code', '');
+        Observer.Expect('log', 'OnPreReport;pre Req [];Req:A;pre Base [];Base:A/1;pre XH [Cust: C1];XH:2/A/C1;pre XL [];XL:2/A/10000/I1;XL:2/A/20000/I2;Req:B;pre Base [];Base:B/1;pre XH [Cust: C1];XH:1/B/C1;pre XL [];XL:1/B/10000/I1;XL:1/B/20000/I2;OnPostReport;');
+        Observer.Verify();
     end;
 }

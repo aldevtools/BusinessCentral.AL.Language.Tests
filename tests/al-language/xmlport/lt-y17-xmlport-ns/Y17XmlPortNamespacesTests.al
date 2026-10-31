@@ -63,7 +63,8 @@ codeunit 91836 "LT Y17 Xp Ns Tests"
     begin
         Seed();
         Export(Observer, 'export', Xmlport::"LT Y17 Ns Empty First");
-        Observer.Finish();
+        Observer.Expect('export', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Doc xmlns:a="urn:lt-a" xmlns:b="urn:lt-b" xmlns:u="urn:lt-unused" xmlns="urn:lt-d">|  <b:DocId>D1</b:DocId>|  <a:Party>|    <b:EndpointID schemeID="0088">E1</b:EndpointID>|    <Plain>p</Plain>|  </a:Party>|  <a:Line>|    <b:Id>1</b:Id>|    <b:Amount>1.50</b:Amount>|    <Name>one</Name>|  </a:Line>|  <a:Line>|    <b:Id>2</b:Id>|    <b:Amount>0.00</b:Amount>|    <Name>two</Name>|  </a:Line>|</Doc>|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -73,7 +74,8 @@ codeunit 91836 "LT Y17 Xp Ns Tests"
     begin
         Seed();
         Export(Observer, 'export', Xmlport::"LT Y17 Ns Empty Last");
-        Observer.Finish();
+        Observer.Expect('export', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Doc xmlns:a="urn:lt-a" xmlns:b="urn:lt-b" xmlns:u="urn:lt-unused" xmlns="urn:lt-d">|  <b:DocId>D1</b:DocId>|  <a:Party>|    <b:EndpointID schemeID="0088">E1</b:EndpointID>|    <Plain>p</Plain>|  </a:Party>|  <a:Line>|    <b:Id>1</b:Id>|    <b:Amount>1.50</b:Amount>|    <Name>one</Name>|  </a:Line>|  <a:Line>|    <b:Id>2</b:Id>|    <b:Amount>0.00</b:Amount>|    <Name>two</Name>|  </a:Line>|</Doc>|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -83,7 +85,8 @@ codeunit 91836 "LT Y17 Xp Ns Tests"
     begin
         Seed();
         Export(Observer, 'export', Xmlport::"LT Y17 Ns Empty UseDefault");
-        Observer.Finish();
+        Observer.Expect('export', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Doc xmlns:a="urn:lt-a" xmlns:b="urn:lt-b" xmlns:u="urn:lt-unused" xmlns="urn:lt-dflt">|  <b:DocId>D1</b:DocId>|  <a:Party>|    <b:EndpointID schemeID="0088">E1</b:EndpointID>|    <Plain>p</Plain>|  </a:Party>|  <a:Line>|    <b:Id>1</b:Id>|    <b:Amount>1.50</b:Amount>|    <Name>one</Name>|  </a:Line>|  <a:Line>|    <b:Id>2</b:Id>|    <b:Amount>0.00</b:Amount>|    <Name>two</Name>|  </a:Line>|</Doc>|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -93,7 +96,8 @@ codeunit 91836 "LT Y17 Xp Ns Tests"
     begin
         Seed();
         Export(Observer, 'export', Xmlport::"LT Y17 Ns Prefixed Only");
-        Observer.Finish();
+        Observer.Expect('export', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Doc xmlns:a="urn:lt-a" xmlns:b="urn:lt-b" xmlns:u="urn:lt-unused">|  <b:DocId>D1</b:DocId>|  <a:Party>|    <b:EndpointID schemeID="0088">E1</b:EndpointID>|    <Plain>p</Plain>|  </a:Party>|  <a:Line>|    <b:Id>1</b:Id>|    <b:Amount>1.50</b:Amount>|    <Name>one</Name>|  </a:Line>|  <a:Line>|    <b:Id>2</b:Id>|    <b:Amount>0.00</b:Amount>|    <Name>two</Name>|  </a:Line>|</Doc>|');
+        Observer.Verify();
     end;
 
     local procedure Find(var Observer: Codeunit "Probe Observer"; Doc: XmlDocument; NsMgr: XmlNamespaceManager; XPath: Text)
@@ -131,33 +135,43 @@ codeunit 91836 "LT Y17 Xp Ns Tests"
         Find(Observer, Doc, NsMgr, '/d:Doc/a:Line/d:Name');
         Find(Observer, Doc, NsMgr, '/d:Doc/a:Line/Name');
         Find(Observer, Doc, NsMgr, '/Doc');
-        Observer.Finish();
+        Observer.Expect('export ok', 'Yes');
+        Observer.Expect('read', 'Yes');
+        Observer.Expect('root uri', 'urn:lt-d');
+        Observer.Expect('root local name', 'Doc');
+        Observer.Expect('/d:Doc/a:Party/b:EndpointID', 'found E1');
+        Observer.Expect('/d:Doc/a:Party/d:Plain', 'found p');
+        Observer.Expect('/d:Doc/a:Party/Plain', 'not found');
+        Observer.Expect('/d:Doc/a:Line/d:Name', 'found one');
+        Observer.Expect('/d:Doc/a:Line/Name', 'not found');
+        Observer.Expect('/Doc', 'not found');
+        Observer.Verify();
     end;
 
+    [TryFunction]
+    local procedure TryImport(var Port: XmlPort "LT Y17 Ns Empty Import"; InS: InStream)
+    begin
+        Port.SetSource(InS);
+        Port.Import();
+    end;
+
+    // The import port keeps its rows in a temporary table element, so a failed import writes nothing.
     local procedure Import(var Observer: Codeunit "Probe Observer"; Name: Text; Xml: Text)
     var
-        Row: Record "LT Y17 Ns Row";
         Port: XmlPort "LT Y17 Ns Empty Import";
         TempBlob: Codeunit "Temp Blob";
         OutS: OutStream;
         InS: InStream;
-        Rows: Text;
     begin
-        Row.DeleteAll();
         TempBlob.CreateOutStream(OutS, TextEncoding::UTF8);
         OutS.WriteText(Xml);
         TempBlob.CreateInStream(InS, TextEncoding::UTF8);
-        Port.SetSource(InS);
         ClearLastError();
-        if Port.Import() then
+        if TryImport(Port, InS) then
             Observer.Observe(Name, 'ok ' + Port.Got())
         else
             Observer.ObserveError(Name + ' error');
-        if Row.FindSet() then
-            repeat
-                Rows += Format(Row.Id) + '/' + Row.Name + '/' + Format(Row.Amount, 0, 9) + ';';
-            until Row.Next() = 0;
-        Observer.Observe(Name + ' rows', Rows);
+        Observer.Observe(Name + ' rows', Port.Rows());
     end;
 
     [Test]
