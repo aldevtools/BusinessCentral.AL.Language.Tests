@@ -10,7 +10,8 @@
 // Result (SaaS BC 29): after the action the page still stands on the row it stood on (A20, A24, A01, A03), but First returns true on
 //   A01, the first row of the new view, and runs no OnAfterGetRecord; Next and Previous move from the current row in the new view
 //   (A20 -> A21, A20 -> A19). The action itself runs OnAfterGetRecord 28 times (A20 first, A01 last). The same without row triggers.
-// Source: al-runner issue 6470 (the reporter's repro passed on a real BC 29 container).
+// 6469: A01 and A02 have Room 6, the page stands on A02 (Last) and the action widens the view to 20, 21, 25 or 40 rows.
+// Source: al-runner issues 6470 and 6469 (the reporter's repro passed on a real BC 29 container).
 // BC versions: 27, 28, 29
 
 table 91735 "LT Y15 WV Bin"
@@ -332,5 +333,59 @@ codeunit 91739 "LT Y15 WV Tests"
         Observer.Expect('first', 'true/A01');
         Observer.Expect('count', '5/A05');
         Observer.Verify();
+    end;
+
+    // al-runner issue 6469: A01 and A02 have Room 6, the page stands on A02 (Last) when the action widens the view to Total rows.
+    local procedure ObserveWidenFromLast(Total: Integer)
+    var
+        Bins: TestPage "LT Y15 WV Bins";
+    begin
+        InsertBins(Total, 1, 2);
+        Bins.OpenView();
+        Observer.Observe('last', Format(Bins.Last(), 0, 9) + '/' + Bins."Code".Value());
+        Log.Take();
+        Bins.ShowAll.Invoke();
+        Observer.Observe('after action', Bins."Code".Value() + ' ' + Log.Take());
+        Observer.Observe('first', Format(Bins.First(), 0, 9) + '/' + Bins."Code".Value() + ' ' + Log.Take());
+        Observer.Observe('count', CountToEnd(Bins));
+        Bins.Close();
+
+        Bins.OpenView();
+        Bins.Last();
+        Bins.ShowAll.Invoke();
+        Observer.Observe('next', Format(Bins.Next(), 0, 9) + '/' + Bins."Code".Value());
+        Observer.Observe('previous', Format(Bins.Previous(), 0, 9) + '/' + Bins."Code".Value());
+        Observer.Observe('previous 2', Format(Bins.Previous(), 0, 9) + '/' + Bins."Code".Value());
+        Observer.Observe('last after', Format(Bins.Last(), 0, 9) + '/' + Bins."Code".Value());
+        Bins.Close();
+    end;
+
+    // The reporter's test of 6469: 25 rows.
+    [Test]
+    procedure Y15_WV_FromLast25()
+    begin
+        ObserveWidenFromLast(25);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y15_WV_FromLast20()
+    begin
+        ObserveWidenFromLast(20);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y15_WV_FromLast21()
+    begin
+        ObserveWidenFromLast(21);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y15_WV_FromLast40()
+    begin
+        ObserveWidenFromLast(40);
+        Observer.Finish();
     end;
 }
