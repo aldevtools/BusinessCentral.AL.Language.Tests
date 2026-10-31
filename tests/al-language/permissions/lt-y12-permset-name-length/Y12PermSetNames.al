@@ -42,6 +42,7 @@ codeunit 91560 "LT Y12 PermSet Name Length"
                 Rows += '[' + MetadataPermissionSet."Role ID" + '|' + MetadataPermissionSet.Name + '|' + Format(MetadataPermissionSet.Assignable) + ']';
             until MetadataPermissionSet.Next() = 0;
         Observer.Observe('rows', Rows);
-        Observer.Finish();
+        Observer.Expect('rows', '[LT Y12 PS NOPROP 21CH|Y12 no Assignable 21|No][LT Y12 PS NOT ASSIGNABLE 30 CH|Y12 not assignable 30|No][LT Y12 PS NOTASSIGN21|Y12 not assignable 21|No]');
+        Observer.Verify();
     end;
 }
