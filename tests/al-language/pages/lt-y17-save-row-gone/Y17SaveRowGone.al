@@ -464,7 +464,15 @@ codeunit 91804 "LT Y17 SR Tests"
         Mode := 'set';
         RunTemp(Observer);
         Reset();
-        Observer.Finish();
+        Observer.Expect('before', '');
+        Observer.Expect('result', 'LookupOK');
+        Observer.Expect('log', 'P.OnOpenPage:DEF;P.AGCR:DEF;handler:set;P.Printer.OnValidate:CUSTOM;P.Mail.OnValidate:CUSTOM;note=temp;T.OnRename:CUSTOM x=DEF temp=Yes;P.OnQueryClosePage:LookupOK:CUSTOM;handler end;');
+        Observer.Expect('temp', 'CUSTOM/Yes/Yes/temp');
+        Observer.Expect('temp count', '1');
+        Observer.Expect('temp get DEF', 'No');
+        Observer.Expect('temp get CUSTOM', 'Yes');
+        Observer.Expect('stored', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -485,7 +493,15 @@ codeunit 91804 "LT Y17 SR Tests"
         Mode := 'set';
         RunTemp(Observer);
         Reset();
-        Observer.Finish();
+        Observer.Expect('before', '');
+        Observer.Expect('result', 'LookupOK');
+        Observer.Expect('log', 'P.OnOpenPage:DEF;P.AGCR:DEF;handler:set;P.Printer.OnValidate:CUSTOM;P.Mail.OnValidate:CUSTOM;note=stored;T.OnRename:CUSTOM x=DEF temp=Yes;P.OnQueryClosePage:LookupOK:CUSTOM;handler end;');
+        Observer.Expect('temp', 'CUSTOM/Yes/Yes/stored');
+        Observer.Expect('temp count', '1');
+        Observer.Expect('temp get DEF', 'No');
+        Observer.Expect('temp get CUSTOM', 'Yes');
+        Observer.Expect('stored', 'DEF/No/No/stored;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -498,7 +514,15 @@ codeunit 91804 "LT Y17 SR Tests"
         Mode := 'read';
         RunTemp(Observer);
         Reset();
-        Observer.Finish();
+        Observer.Expect('before', '');
+        Observer.Expect('result', 'LookupOK');
+        Observer.Expect('log', 'P.OnOpenPage:DEF;P.AGCR:DEF;handler:read;note=temp;P.OnQueryClosePage:LookupOK:DEF;handler end;');
+        Observer.Expect('temp', 'DEF/No/No/temp');
+        Observer.Expect('temp count', '1');
+        Observer.Expect('temp get DEF', 'Yes');
+        Observer.Expect('temp get CUSTOM', 'No');
+        Observer.Expect('stored', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -511,7 +535,15 @@ codeunit 91804 "LT Y17 SR Tests"
         Mode := 'cancel';
         RunTemp(Observer);
         Reset();
-        Observer.Finish();
+        Observer.Expect('before', '');
+        Observer.Expect('result', 'LookupCancel');
+        Observer.Expect('log', 'P.OnOpenPage:DEF;P.AGCR:DEF;handler:cancel;P.Printer.OnValidate:CUSTOM;T.OnRename:CUSTOM x=DEF temp=Yes;P.AGCR:CUSTOM;P.OnQueryClosePage:LookupCancel:CUSTOM;handler end;');
+        Observer.Expect('temp', 'CUSTOM/Yes/No/temp');
+        Observer.Expect('temp count', '1');
+        Observer.Expect('temp get DEF', 'No');
+        Observer.Expect('temp get CUSTOM', 'Yes');
+        Observer.Expect('stored', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -537,7 +569,11 @@ codeunit 91804 "LT Y17 SR Tests"
         Observer.Observe('stored', StoredProfiles());
         Reset();
         Commit();
-        Observer.Finish();
+        Observer.Expect('result', 'LookupOK');
+        Observer.Expect('log', 'P.OnOpenPage:DEF;P.AGCR:DEF;handler;P.Printer.OnValidate:CUSTOM;P.Mail.OnValidate:CUSTOM;T.OnRename:CUSTOM x=DEF temp=No;P.OnQueryClosePage:LookupOK:CUSTOM;handler end;');
+        Observer.Expect('var', 'CUSTOM/Yes/Yes/stored');
+        Observer.Expect('stored', 'CUSTOM/Yes/Yes/stored;');
+        Observer.Verify();
     end;
 
     [ModalPageHandler]
@@ -594,6 +630,17 @@ codeunit 91804 "LT Y17 SR Tests"
 
     [Test]
     procedure PgSave_ActionDeletesEditedRow_Card()
+    begin
+        CardCase(true);
+    end;
+
+    [Test]
+    procedure PgSave_ActionDeletesRow_NoEdit_Card()
+    begin
+        CardCase(false);
+    end;
+
+    local procedure CardCase(Edit: Boolean)
     var
         Observer: Codeunit "Probe Observer";
         P: TestPage "LT Y17 SR Doc Card";
@@ -602,39 +649,42 @@ codeunit 91804 "LT Y17 SR Tests"
         P.OpenEdit();
         P.GoToKey('A');
         Observer.Observe('open', Log.Take());
-        P.Name.SetValue('edited');
-        Observer.Observe('setvalue', Log.Take());
-        P.Finish.Invoke();
-        Observer.Observe('invoke', Log.Take());
+        if Edit then begin
+            P.Name.SetValue('edited');
+            Observer.Observe('setvalue', Log.Take());
+        end;
+        ClearLastError();
+        Observer.Observe('invoke ok', Format(TryInvoke(P)));
+        Observer.ObserveError('invoke');
+        Observer.Observe('invoke log', Log.Take());
         Observer.Observe('stored after invoke', StoredDocs());
-        Observer.Observe('shown', P."No.".Value() + '/' + P.Name.Value() + '/' + P.Done.Value());
-        Observer.Observe('read', Log.Take());
-        P.Close();
-        Observer.Observe('close', Log.Take());
+        Observer.Observe('read ok', Format(TryRead(P)));
+        Observer.ObserveError('read');
+        Observer.Observe('read log', Log.Take());
+        Observer.Observe('close ok', Format(TryClose(P)));
+        Observer.ObserveError('close');
+        Observer.Observe('close log', Log.Take());
         Observer.Observe('stored', StoredDocs());
         Reset();
         Observer.Finish();
     end;
 
-    [Test]
-    procedure PgSave_ActionDeletesRow_NoEdit_Card()
-    var
-        Observer: Codeunit "Probe Observer";
-        P: TestPage "LT Y17 SR Doc Card";
+    [TryFunction]
+    local procedure TryInvoke(var P: TestPage "LT Y17 SR Doc Card")
     begin
-        SeedDocs();
-        P.OpenEdit();
-        P.GoToKey('A');
-        Observer.Observe('open', Log.Take());
         P.Finish.Invoke();
-        Observer.Observe('invoke', Log.Take());
-        Observer.Observe('shown', P."No.".Value() + '/' + P.Name.Value() + '/' + P.Done.Value());
-        Observer.Observe('read', Log.Take());
+    end;
+
+    [TryFunction]
+    local procedure TryRead(var P: TestPage "LT Y17 SR Doc Card")
+    begin
+        Log.Add('shown=' + P."No.".Value() + '/' + P.Name.Value() + '/' + P.Done.Value());
+    end;
+
+    [TryFunction]
+    local procedure TryClose(var P: TestPage "LT Y17 SR Doc Card")
+    begin
         P.Close();
-        Observer.Observe('close', Log.Take());
-        Observer.Observe('stored', StoredDocs());
-        Reset();
-        Observer.Finish();
     end;
 
     [Test]
@@ -658,6 +708,14 @@ codeunit 91804 "LT Y17 SR Tests"
         Observer.Observe('close', Log.Take());
         Observer.Observe('stored', StoredDocs());
         Reset();
-        Observer.Finish();
+        Observer.Expect('open', 'P.AGR:A;P.AGR:B;P.AGR:A;P.AGR:A;P.AGCR:A/a;');
+        Observer.Expect('setvalue', '');
+        Observer.Expect('invoke', 'P.OnModifyRecord:A/edited;T.OnModify:A/edited/No;P.AGR:A;P.Finish:A/edited;CB.start:A/edited;CB.end;P.Finish.after:A/edited/Yes;P.AGR:B;P.AGR:B;P.AGCR:B/b;P.AGR:B;P.AGR:B;P.AGCR:B/b;');
+        Observer.Expect('next', 'Yes');
+        Observer.Expect('shown', '//No');
+        Observer.Expect('read', 'P.AGCR:/;');
+        Observer.Expect('close', '');
+        Observer.Expect('stored', 'B/b/No;');
+        Observer.Verify();
     end;
 }

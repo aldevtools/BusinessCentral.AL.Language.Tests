@@ -488,7 +488,23 @@ codeunit 91795 "LT Y17 AF Procedure"
         Card.Close();
         Observer.Observe('after close', Log.Take());
         RestoreSetup();
-        Observer.Finish();
+        Observer.Expect('after open', 'hdr();hdr();hdr(H1);hdr(H1);');
+        Observer.Expect('row', 'H1');
+        Observer.Expect('row log', '');
+        Observer.Expect('A1Hdr', '1,234.568');
+        Observer.Expect('A1Hdr log', '');
+        Observer.Expect('A2Hdr', '1,234.5679');
+        Observer.Expect('A2Hdr log', '');
+        Observer.Expect('next', 'Yes');
+        Observer.Expect('next log', 'hdr(H2);hdr(H2);');
+        Observer.Expect('row2', 'H2');
+        Observer.Expect('row2 log', '');
+        Observer.Expect('A1Hdr row2', '1,234.57');
+        Observer.Expect('A1Hdr row2 log', '');
+        Observer.Expect('A2Hdr row2', '1,234.56789');
+        Observer.Expect('A2Hdr row2 log', '');
+        Observer.Expect('after close', '');
+        Observer.Verify();
     end;
 
     [Test]
