@@ -264,9 +264,10 @@ codeunit 91709 "LT Y15 Part Refresh Tests"
         Observer.Finish();
     end;
 
-    // Two part rows, the part stands on row 2 when Choice is validated: which row the part shows and what Summary each row shows.
+    // Two part rows: at open the part stands on row 2 (the row inserted last); Previous moves it to row 1, then Choice is validated:
+    // which row the part shows and what Summary each row shows.
     [Test]
-    procedure Y15_PartRefresh_TwoRowsPartOnSecond()
+    procedure Y15_PartRefresh_TwoRowsPartOnFirst()
     var
         Worksheet: TestPage "LT Y15 Part Worksheet";
         WorksheetPage: Page "LT Y15 Part Worksheet";
@@ -277,13 +278,14 @@ codeunit 91709 "LT Y15 Part Refresh Tests"
         WorksheetPage.Run();
         Observer.Observe('open log', Log.Take());
         Observer.Observe('at open', Worksheet.Rows."No.".Value() + '/' + Worksheet.Rows.Summary.Value());
-        Observer.Observe('next', Format(Worksheet.Rows.Next(), 0, 9) + '/' + Worksheet.Rows."No.".Value() + '/' + Worksheet.Rows.Summary.Value());
+        Observer.Observe('previous', Format(Worksheet.Rows.Previous(), 0, 9) + '/' + Worksheet.Rows."No.".Value() + '/' + Worksheet.Rows.Summary.Value());
         Log.Take();
         Worksheet.Choice.SetValue('Changed');
         Observer.Observe('setvalue log', Log.Take());
         Observer.Observe('after setvalue', Worksheet.Rows."No.".Value() + '/' + Worksheet.Rows.Summary.Value());
-        Observer.Observe('previous', Format(Worksheet.Rows.Previous(), 0, 9) + '/' + Worksheet.Rows."No.".Value() + '/' + Worksheet.Rows.Summary.Value());
-        Observer.Observe('next again', Format(Worksheet.Rows.Next(), 0, 9) + '/' + Worksheet.Rows."No.".Value() + '/' + Worksheet.Rows.Summary.Value());
+        Observer.Observe('next', Format(Worksheet.Rows.Next(), 0, 9) + '/' + Worksheet.Rows."No.".Value() + '/' + Worksheet.Rows.Summary.Value());
+        Observer.Observe('first', Format(Worksheet.Rows.First(), 0, 9) + '/' + Worksheet.Rows."No.".Value() + '/' + Worksheet.Rows.Summary.Value());
+        Observer.Observe('last', Format(Worksheet.Rows.Last(), 0, 9) + '/' + Worksheet.Rows."No.".Value() + '/' + Worksheet.Rows.Summary.Value());
         Worksheet.Close();
         Observer.Finish();
     end;
