@@ -5,8 +5,7 @@
 // Facts: what HttpClient answers when an [HttpClientHandler] marks the response unsuccessful, blocked by the environment, raises an error,
 //        or sets 2xx/4xx/5xx status codes; Get with a base address, an absolute URL and an Authorization Bearer default header; which
 //        RequestType a handler sees for custom and lower-case methods.
-// BC versions: 29.0. On 27.5 and 28.5 a request is not given to the handler (PZHttpHandler.al, PZHttpBlock.al), so every test is BC29PLUS.
-#if BC29PLUS
+// BC versions: 27, 28, 29. bc-linux 484686d (issue 192) gives the request to the handler on the BC 27 and 28 images too, as Windows 27.5 and 28.5 do (Windows check 2026-10-22), so every test asserts on 27, 28 and 29.
 codeunit 98940 "LT DA Http Handler Odd"
 {
     Subtype = Test;
@@ -264,4 +263,3 @@ codeunit 98940 "LT DA Http Handler Odd"
         Ok := Client.Send(Req, Resp);
     end;
 }
-#endif

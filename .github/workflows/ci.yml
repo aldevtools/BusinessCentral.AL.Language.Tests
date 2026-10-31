@@ -265,15 +265,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.prepare.outputs.matrix) }}
-    # Workflow and scripts pinned for corpus bump 63 to bc-linux 65f6b26: a write into a missing folder fails with
-    # InvalidPath as on Windows (#189). Bump 62 pin 84291ff before: fr-FR group separator U+00A0 on BC 27/28 as on
+    # Workflow and scripts pinned to bc-linux e931ab4: an [HttpClientHandler] is called on BC 27 and 28 as on Windows (#192);
+    # input test_runner_codeunit_id runs a suite through a chosen runner codeunit (#193, job test-isolation-disabled); SkiaSharp
+    # for BC 30 (#201). Corpus bump 63 pin 65f6b26 before: a write into a missing folder fails with InvalidPath as on Windows
+    # (#189). Bump 62 pin 84291ff before: fr-FR group separator U+00A0 on BC 27/28 as on
     # Windows (#174); DotNet System.IO sees the files AL File wrote under the user folder and returns paths with '\'
     # (#175, #181); MediaSet.ImportFile stores the bare file name (#176); Directory/DirectoryInfo listings match patterns
     # case-insensitively and list in name order (#183). Earlier: #165, #166, #167.
-    uses: aldevtools/MsDyn365Bc.On.Linux/.github/workflows/bc-test-from-source.yml@65f6b26bbc5041a567790812773522accfae5473
+    uses: aldevtools/MsDyn365Bc.On.Linux/.github/workflows/bc-test-from-source.yml@e931ab40e3a60c27fd5a3cc257d8534e6feee918
     with:
-      bc_linux_ref:         "65f6b26bbc5041a567790812773522accfae5473"
-      runner_image:         "ghcr.io/aldevtools/msdyn365bc.on.linux/bc-runner:rdlc-65f6b26bbc5041a567790812773522accfae5473"
+      bc_linux_ref:         "e931ab40e3a60c27fd5a3cc257d8534e6feee918"
+      runner_image:         "ghcr.io/aldevtools/msdyn365bc.on.linux/bc-runner:rdlc-e931ab40e3a60c27fd5a3cc257d8534e6feee918"
       bc_version:           ${{ matrix.bc_version }}
       bc_country:           "w1"
       # Dependency apps of al-language, in publish order (an app after the apps it depends on). The cross-app fixtures
@@ -361,15 +363,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.prepare.outputs.matrix) }}
-    # Workflow and scripts pinned for corpus bump 63 to bc-linux 65f6b26: a write into a missing folder fails with
-    # InvalidPath as on Windows (#189). Bump 62 pin 84291ff before: fr-FR group separator U+00A0 on BC 27/28 as on
+    # Workflow and scripts pinned to bc-linux e931ab4: an [HttpClientHandler] is called on BC 27 and 28 as on Windows (#192);
+    # input test_runner_codeunit_id runs a suite through a chosen runner codeunit (#193, job test-isolation-disabled); SkiaSharp
+    # for BC 30 (#201). Corpus bump 63 pin 65f6b26 before: a write into a missing folder fails with InvalidPath as on Windows
+    # (#189). Bump 62 pin 84291ff before: fr-FR group separator U+00A0 on BC 27/28 as on
     # Windows (#174); DotNet System.IO sees the files AL File wrote under the user folder and returns paths with '\'
     # (#175, #181); MediaSet.ImportFile stores the bare file name (#176); Directory/DirectoryInfo listings match patterns
     # case-insensitively and list in name order (#183). Earlier: #165, #166, #167.
-    uses: aldevtools/MsDyn365Bc.On.Linux/.github/workflows/bc-test-from-source.yml@65f6b26bbc5041a567790812773522accfae5473
+    uses: aldevtools/MsDyn365Bc.On.Linux/.github/workflows/bc-test-from-source.yml@e931ab40e3a60c27fd5a3cc257d8534e6feee918
     with:
-      bc_linux_ref:         "65f6b26bbc5041a567790812773522accfae5473"
-      runner_image:         "ghcr.io/aldevtools/msdyn365bc.on.linux/bc-runner:rdlc-65f6b26bbc5041a567790812773522accfae5473"
+      bc_linux_ref:         "e931ab40e3a60c27fd5a3cc257d8534e6feee918"
+      runner_image:         "ghcr.io/aldevtools/msdyn365bc.on.linux/bc-runner:rdlc-e931ab40e3a60c27fd5a3cc257d8534e6feee918"
       bc_version:           ${{ matrix.bc_version }}
       bc_country:           "w1"
       # al-language is a production app HERE only in the sense that it has to be
@@ -410,15 +414,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.prepare.outputs.matrix) }}
-    # Workflow and scripts pinned for corpus bump 63 to bc-linux 65f6b26: a write into a missing folder fails with
-    # InvalidPath as on Windows (#189). Bump 62 pin 84291ff before: fr-FR group separator U+00A0 on BC 27/28 as on
+    # Workflow and scripts pinned to bc-linux e931ab4: an [HttpClientHandler] is called on BC 27 and 28 as on Windows (#192);
+    # input test_runner_codeunit_id runs a suite through a chosen runner codeunit (#193, job test-isolation-disabled); SkiaSharp
+    # for BC 30 (#201). Corpus bump 63 pin 65f6b26 before: a write into a missing folder fails with InvalidPath as on Windows
+    # (#189). Bump 62 pin 84291ff before: fr-FR group separator U+00A0 on BC 27/28 as on
     # Windows (#174); DotNet System.IO sees the files AL File wrote under the user folder and returns paths with '\'
     # (#175, #181); MediaSet.ImportFile stores the bare file name (#176); Directory/DirectoryInfo listings match patterns
     # case-insensitively and list in name order (#183). Earlier: #165, #166, #167.
-    uses: aldevtools/MsDyn365Bc.On.Linux/.github/workflows/bc-test-from-source.yml@65f6b26bbc5041a567790812773522accfae5473
+    uses: aldevtools/MsDyn365Bc.On.Linux/.github/workflows/bc-test-from-source.yml@e931ab40e3a60c27fd5a3cc257d8534e6feee918
     with:
-      bc_linux_ref:         "65f6b26bbc5041a567790812773522accfae5473"
-      runner_image:         "ghcr.io/aldevtools/msdyn365bc.on.linux/bc-runner:65f6b26bbc5041a567790812773522accfae5473"
+      bc_linux_ref:         "e931ab40e3a60c27fd5a3cc257d8534e6feee918"
+      runner_image:         "ghcr.io/aldevtools/msdyn365bc.on.linux/bc-runner:e931ab40e3a60c27fd5a3cc257d8534e6feee918"
       bc_version:           ${{ matrix.bc_version }}
       bc_country:           "w1"
       app_dirs: |
@@ -469,15 +475,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.prepare.outputs.matrix) }}
-    # Workflow and scripts pinned for corpus bump 63 to bc-linux 65f6b26: a write into a missing folder fails with
-    # InvalidPath as on Windows (#189). Bump 62 pin 84291ff before: fr-FR group separator U+00A0 on BC 27/28 as on
+    # Workflow and scripts pinned to bc-linux e931ab4: an [HttpClientHandler] is called on BC 27 and 28 as on Windows (#192);
+    # input test_runner_codeunit_id runs a suite through a chosen runner codeunit (#193, job test-isolation-disabled); SkiaSharp
+    # for BC 30 (#201). Corpus bump 63 pin 65f6b26 before: a write into a missing folder fails with InvalidPath as on Windows
+    # (#189). Bump 62 pin 84291ff before: fr-FR group separator U+00A0 on BC 27/28 as on
     # Windows (#174); DotNet System.IO sees the files AL File wrote under the user folder and returns paths with '\'
     # (#175, #181); MediaSet.ImportFile stores the bare file name (#176); Directory/DirectoryInfo listings match patterns
     # case-insensitively and list in name order (#183). Earlier: #165, #166, #167.
-    uses: aldevtools/MsDyn365Bc.On.Linux/.github/workflows/bc-test-from-source.yml@65f6b26bbc5041a567790812773522accfae5473
+    uses: aldevtools/MsDyn365Bc.On.Linux/.github/workflows/bc-test-from-source.yml@e931ab40e3a60c27fd5a3cc257d8534e6feee918
     with:
-      bc_linux_ref:         "65f6b26bbc5041a567790812773522accfae5473"
-      runner_image:         "ghcr.io/aldevtools/msdyn365bc.on.linux/bc-runner:rdlc-65f6b26bbc5041a567790812773522accfae5473"
+      bc_linux_ref:         "e931ab40e3a60c27fd5a3cc257d8534e6feee918"
+      runner_image:         "ghcr.io/aldevtools/msdyn365bc.on.linux/bc-runner:rdlc-e931ab40e3a60c27fd5a3cc257d8534e6feee918"
       bc_version:           ${{ matrix.bc_version }}
       bc_country:           "w1"
       # al-language is published only because the test app depends on it (Probe Observer). Its own tests run in the
@@ -503,3 +511,48 @@ jobs:
       # RDLC rendering: see the test job above (al-language holds RDLC reports).
       rdlc_renderer:        true
       rdlc_trust_layouts:   true
+
+  # The test app tests/al-language-isolation-disabled, run through Microsoft's runner codeunit 130451 "Test Runner - Isol.
+  # Disabled" (bc-linux input test_runner_codeunit_id, MsDyn365Bc.On.Linux issue 193) instead of 130450.
+  #
+  # WHY A SEPARATE JOB. Some statements need a runner with TestIsolation = Disabled: StartSession in a test raises "Sessions
+  # can only be started in tests that are run by a TestRunner that has TestIsolation set to Disabled." under 130450 (pinned
+  # in tests/al-language/session/TestStartSessionRecord.al). The runner applies to the whole suite, and the tests of the
+  # other apps are measured under 130450, so the tests that need 130451 live in their own app and job. Without test
+  # isolation nothing is rolled back between tests or codeunits: every test cleans up the tables it uses. With the input set
+  # bc-linux runs every codeunit through the websocket runner. Objects live in 92310..92329.
+  #
+  # Not a required status check: its checks are named "BC Isolation Disabled <ver> / test".
+  test-isolation-disabled:
+    name: BC Isolation Disabled ${{ matrix.bc_version }}
+    needs: prepare
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.prepare.outputs.matrix) }}
+    # Pinned to bc-linux e931ab4, the first commit with test_runner_codeunit_id (#193); see the test job above.
+    uses: aldevtools/MsDyn365Bc.On.Linux/.github/workflows/bc-test-from-source.yml@e931ab40e3a60c27fd5a3cc257d8534e6feee918
+    with:
+      bc_linux_ref:         "e931ab40e3a60c27fd5a3cc257d8534e6feee918"
+      runner_image:         "ghcr.io/aldevtools/msdyn365bc.on.linux/bc-runner:e931ab40e3a60c27fd5a3cc257d8534e6feee918"
+      bc_version:           ${{ matrix.bc_version }}
+      bc_country:           "w1"
+      # al-language is published only because the test app depends on it (Probe Observer). Its own tests run in the
+      # test job above.
+      app_dirs: |
+        tests/al-language-internals-fixture
+        tests/al-language-xapp-a
+        tests/al-language-xapp-d
+        tests/al-language-xapp-b
+        tests/al-language-xapp-c
+        tests/al-language
+      test_app_dirs:        "tests/al-language-isolation-disabled"
+      codeunit_range:       ${{ fromJson(needs.prepare.outputs.subset)['tests/al-language-isolation-disabled'] || '92310..92329' }}
+      test_runner_codeunit_id: "130451"
+      preprocessor_symbols: ${{ matrix.preprocessor_symbols }}
+      al_tool_version:      "30.0.43.45776-beta"
+      runtime_version:      ${{ matrix.runtime }}
+      bc_artifact_url: ${{ startsWith(matrix.bc_version, '29.') && 'https://bcartifacts-exdbf9fwegejdqak.b02.azurefd.net/sandbox/29.0.54011.55816/w1' || '' }}
+      # Full-text search: al-language has tables with OptimizeForTextSearch = true (corpus #633).
+      sql_image:            "ghcr.io/aldevtools/msdyn365bc.on.linux/mssql:2022-fts"
+      # No RDLC renderer: no test of this app renders a report (the OnPrem DotNet job publishes al-language with the
+      # same image).

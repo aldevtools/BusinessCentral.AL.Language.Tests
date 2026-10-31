@@ -6,8 +6,8 @@
 //   property-assign form UseServerCertificateValidation := false, after UseResponseCookies(false) and after a Timeout change still reaches the
 //   [HttpClientHandler]: the Boolean of Get, the status, the body the handler wrote, the number of handler calls and the URL the handler sees.
 //   The Cloud-app twin is network/lt-httpclient-property-assign/Y6HttpSettingChanges.al (BlockOutboundRequests).
-// BC versions: 27, 28, 29 (corpus CI); handler values asserted on 29 only: the Linux images of 27 and 28 do not give a request to the handler
-//   (see AyHttpHandler.al, bc-linux issue 192).
+// BC versions: 27, 28, 29 (corpus CI);
+// bc-linux 484686d (issue 192) gives the request to the handler on the BC 27 and 28 images too, as Windows 27.5 and 28.5 do (Windows check 2026-10-22), so every test asserts on 27, 28 and 29.
 
 codeunit 98860 "LT Y6 Http Handler Settings"
 {
@@ -44,9 +44,7 @@ codeunit 98860 "LT Y6 Http Handler Settings"
     end;
 
     [Test]
-#if BC29PLUS
     [HandlerFunctions('EchoHandler')]
-#endif
     procedure Get_AfterSettings_ReachesHandler()
     var
         Observer: Codeunit "Probe Observer";
@@ -55,7 +53,6 @@ codeunit 98860 "LT Y6 Http Handler Settings"
         C3: HttpClient;
         C4: HttpClient;
     begin
-#if BC29PLUS
         C1.UseServerCertificateValidation(false);
         Run(Observer, C1, 'validation false call');
         C2.UseServerCertificateValidation := false;
@@ -71,11 +68,5 @@ codeunit 98860 "LT Y6 Http Handler Settings"
         Observer.Expect('cookies false', 'ret=Yes status=200 body=ok calls=1 path=https://example.invalid/y6');
         Observer.Expect('timeout then both', 'ret=Yes status=200 body=ok calls=1 path=https://example.invalid/y6');
         Observer.Verify();
-#else
-        // The Linux images of BC 27 and 28 do not give the request to the handler (the Get raises 'Unhandled outbound HTTP requests are not
-        // permitted ... AllowOutboundFromHandler'), so no request is sent there and the handler is not bound
-        // (an unused handler fails the test; see AyHttpHandler.al, bc-linux issue 192).
-        Observer.Discard();
-#endif
     end;
 }
