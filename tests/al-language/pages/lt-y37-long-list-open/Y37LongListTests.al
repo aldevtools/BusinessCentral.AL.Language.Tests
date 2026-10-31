@@ -7,7 +7,7 @@
 //   OnOpenPage by Insert in the order 1..29, 31..40, 30 (Rec left on 30, the middle); the same page without row triggers (values and Next
 //   results only); Flag set on the last inserted row without Modify. Per test: the row shown after the open, the trigger log of the open,
 //   then Next, Previous, First, Last (result, row, log).
-//   BC (28.5 Windows, 29 SaaS alike): the page opens on the row OnOpenPage left Rec on. The open read is: that row and the rows after it, at
+//   BC (27.5 and 28.5 Windows containers, 29 SaaS alike): the page opens on the row OnOpenPage left Rec on. The open read is: that row and the rows after it, at
 //   most 20 rows in all (Get(5) of 30 reads 5..24); then, stepping back from the row, at most 20 rows above it (Get(25) of 30 reads 24..5,
 //   FindLast reads 29..10, the temporary source reads 30..40 then 29..10); then the row twice more and OnAfterGetCurrRecord. Each Next and
 //   Previous inside the read rows logs R:<row>;R:<row>;C:<row>; First and Last read on from the edge of the rows read so far (First after
