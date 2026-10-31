@@ -814,7 +814,7 @@ codeunit 73404 "LT XmT XPath Namespaces"
         Txt := '';
         Observer.Observe('assign_prefix', Format(MgrA.LookupPrefix('urn:repro', Txt)) + '|' + Txt);
         Observer.Observe('assign_unprefixed', Format(DocA.SelectNodes('//docNo', MgrA, L)) + '|' + Format(L.Count()));
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -849,7 +849,7 @@ codeunit 73404 "LT XmT XPath Namespaces"
         MgrN.AddNamespace('qy29', 'urn:q-y29');
         Txt := '';
         Observer.Observe('none_doc_table', Format(DocN.NameTable().Get('urn:q-y29', Txt)) + '|' + Txt);
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -871,7 +871,7 @@ codeunit 73404 "LT XmT XPath Namespaces"
         Observer.Observe('call_lookup', Format(MgrC.LookupNamespace('p', Txt)) + '|' + Txt);
         Observer.Observe('assign_select', Format(Doc.SelectNodes('//p:b', MgrA, L)) + '|' + Format(L.Count()));
         Observer.Observe('call_select', Format(Doc.SelectNodes('//p:b', MgrC, L)) + '|' + Format(L.Count()));
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -894,6 +894,6 @@ codeunit 73404 "LT XmT XPath Namespaces"
         Observer.Observe('b_select', Format(Doc.SelectNodes('//s:c', MgrB, L)) + '|' + Format(L.Count()));
         Txt := '';
         Observer.Observe('a_table_has_s', Format(MgrA.NameTable().Get('urn:s', Txt)) + '|' + Txt);
-        Observer.Verify();
+        Observer.Finish();
     end;
 }

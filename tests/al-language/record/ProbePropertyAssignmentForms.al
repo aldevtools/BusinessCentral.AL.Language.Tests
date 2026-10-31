@@ -389,7 +389,7 @@ codeunit 69451 "Probe Property Assign Forms"
         Observer.Observe('baseAddress', C.GetBaseAddress());
         C.UseResponseCookies := true;
         Observer.Observe('useResponseCookies', 'ran');
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -408,7 +408,7 @@ codeunit 69451 "Probe Property Assign Forms"
         R.Content := Ct;
         R.Content().ReadAs(Body);
         Observer.Observe('content', Body);
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -444,7 +444,7 @@ codeunit 69451 "Probe Property Assign Forms"
         E.Add := 'txt-y29';
         E.WriteTo(Xml);
         Observer.Observe('element_add', E.InnerText() + '|' + Xml);
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -460,7 +460,7 @@ codeunit 69451 "Probe Property Assign Forms"
         Observer.Observe('read_default', Format(RO.PreserveWhitespace()));
         RO.PreserveWhitespace := true;
         Observer.Observe('read', Format(RO.PreserveWhitespace()));
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -476,7 +476,7 @@ codeunit 69451 "Probe Property Assign Forms"
         Observer.Observe('length', B.ToText() + '|' + Format(B.Length()));
         B.Capacity := 200;
         Observer.Observe('capacity', Format(B.Capacity()));
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -493,7 +493,7 @@ codeunit 69451 "Probe Property Assign Forms"
         Evaluate(G, '{29292929-0000-0000-0000-000000006526}');
         N.Id := G;
         Observer.Observe('id', Format(N.Id()));
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -513,7 +513,7 @@ codeunit 69451 "Probe Property Assign Forms"
         S.Init();
         S.LanguageId := 1031;
         Observer.Observe('languageId', Format(S.LanguageId()));
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -539,7 +539,7 @@ codeunit 69451 "Probe Property Assign Forms"
         Observer.Observe('sleep', 'ran');
         Dlg.HideSubsequentDialogs := true;
         Observer.Observe('hideSubsequentDialogs', 'ran');
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -554,7 +554,7 @@ codeunit 69451 "Probe Property Assign Forms"
         Observer.Observe('getRoot', E.Name());
         Observer.Observe('getRoot_empty', Format(TryGetRootAssign()));
         Observer.ObserveError('getRoot_empty');
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [TryFunction]
@@ -584,7 +584,7 @@ codeunit 69451 "Probe Property Assign Forms"
         Observer.Observe('readIsolation', Format(Row.ReadIsolation()));
         Row.SecurityFiltering := SecurityFilter::Filtered;
         Observer.Observe('securityFiltering', Format(Row.SecurityFiltering()));
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [TryFunction]
@@ -614,7 +614,7 @@ codeunit 69451 "Probe Property Assign Forms"
         Observer.Observe('unqualified', Format(Target.RunUnqualified()));
         Target.SetAndAnswer := 3;
         Observer.Observe('withReturnValue', Format(Target.Counter()));
-        Observer.Verify();
+        Observer.Finish();
     end;
 }
 
