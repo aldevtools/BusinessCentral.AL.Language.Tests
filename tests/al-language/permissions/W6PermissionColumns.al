@@ -268,7 +268,10 @@ codeunit 67343 "W6 Permission Columns"
             until MetadataPermission.Next() = 0;
         Observer.Observe('rows', Rows);
         Observer.Observe('composed', InputText);
-        Observer.Finish();
+        Observer.Expect('count', '6');
+        Observer.Expect('rows', 'Table Data|67339|[]|[]|0;Table Data|91870|[]|[]|0;Table Data|91871|[]|[]|0;Table|67339|[]|[]|0;Codeunit|67340|[]|[]|0;Page|67341|[]|[]|0;');
+        Observer.Expect('composed', 'LT Y17 PermSet067339111109187010000918711200167339156734018673411');
+        Observer.Verify();
     end;
 
     // The rows of every app permission set: whether any has a non-blank "Security Filter" (Microsoft's sets are environment data: only the
@@ -289,7 +292,9 @@ codeunit 67343 "W6 Permission Columns"
             until MetadataPermission.Next() = 0;
         Observer.Observe('any rows', Format(Total > 0));
         Observer.Observe('rows with a security filter', Format(NonBlank));
-        Observer.Finish();
+        Observer.Expect('any rows', 'Yes');
+        Observer.Expect('rows with a security filter', '0');
+        Observer.Verify();
     end;
 
     // A tenant permission with a security filter set by Evaluate (the only place AL code gives a permission a filter: a permissionset
@@ -322,7 +327,11 @@ codeunit 67343 "W6 Permission Columns"
         Observer.Observe('metadata permission rows', Format(MetadataPermission.Count()));
         TenantPermission.Delete();
         TenantPermissionSet.Delete();
-        Observer.Finish();
+        Observer.Expect('format', 'LT Y17 PM Table2: Id=1..5');
+        Observer.Expect('format 9', 'LT Y17 PM Table2: Id=1..5');
+        Observer.Expect('format 9 read back', 'LT Y17 PM Table2: Id=1..5');
+        Observer.Expect('metadata permission rows', '0');
+        Observer.Verify();
     end;
 
     // Table Metadata column 19 InherentPermissions of an own table that declares InherentPermissions = X and of one that declares none.
@@ -336,6 +345,8 @@ codeunit 67343 "W6 Permission Columns"
         Observer.Observe('declared X', '[' + TableMetadata.InherentPermissions + ']');
         TableMetadata.Get(Database::"LT Y17 PM Table3");
         Observer.Observe('none declared', '[' + TableMetadata.InherentPermissions + ']');
-        Observer.Finish();
+        Observer.Expect('declared X', '[X]');
+        Observer.Expect('none declared', '[]');
+        Observer.Verify();
     end;
 }

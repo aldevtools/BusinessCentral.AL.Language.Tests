@@ -216,7 +216,32 @@ codeunit 90370 "LT UG Report Layout List"
         Observer: Codeunit "Probe Observer";
     begin
         Dump(Observer, 'captioned', Report::"LT Y17 RL Captioned", 'Rdl');
-        Observer.Finish();
+        Observer.Expect('captioned 1 Report ID', 'Integer [91873]');
+        Observer.Expect('captioned 2 Name', 'Text [Rdl]');
+        Observer.Expect('captioned 5 Runtime Package ID', 'GUID other guid');
+        Observer.Expect('captioned 3 Caption', 'Text [Y17 rdl]');
+        Observer.Expect('captioned 4 CaptionML', 'Text []');
+        Observer.Expect('captioned 6 Layout', 'Media not shown');
+        Observer.Expect('captioned 7 Layout Format', 'Option [RDLC]');
+        Observer.Expect('captioned 8 Custom Type', 'GUID null guid');
+        Observer.Expect('captioned 9 MIME Type', 'Text []');
+        Observer.Expect('captioned 10 Description', 'Text [Rdl]');
+        Observer.Expect('captioned 11 Application ID', 'GUID this app');
+        Observer.Expect('captioned 12 Report Name', 'Text [LT Caption Differs]');
+        Observer.Expect('captioned 13 Layout Publisher', 'Text [AL Language Coverage Tests by AL Language]');
+        Observer.Expect('captioned 14 User Defined', 'Boolean [No]');
+        Observer.Expect('captioned 15 ReportIsInstalled', 'Boolean [Yes]');
+        Observer.Expect('captioned 16 IsObsolete', 'Boolean [No]');
+        Observer.Expect('captioned 17 ExcelLayoutMultipleDataSheets', 'Option [Default]');
+#if BC28PLUS
+        Observer.Expect('captioned 18 Layout Status', 'Option [Approved]');
+#endif
+#if BC29PLUS
+        Observer.Expect('captioned 19 Layout Subtype', 'Option [Default]');
+        Observer.Expect('captioned 20 HeaderFooterPart', 'Text []');
+        Observer.Expect('captioned 21 ThemePart', 'Text []');
+#endif
+        Observer.Verify();
     end;
 
     // Column 5 "Runtime Package ID" compared with AllObj of the report and NAV App Installed App of this app (Published Application is
@@ -247,7 +272,12 @@ codeunit 90370 "LT UG Report Layout List"
         Again.SetRange(Name, 'Rdlc');
         Again.FindFirst();
         Observer.Observe('two reads equal', Format(Layouts."Runtime Package ID" = Again."Runtime Package ID"));
-        Observer.Finish();
+        Observer.Expect('= AllObj App Runtime Package ID', 'Yes');
+        Observer.Expect('= AllObj App Package ID', 'Yes');
+        Observer.Expect('= Installed App Package ID', 'Yes');
+        Observer.Expect('= other layout of the report', 'Yes');
+        Observer.Expect('two reads equal', 'Yes');
+        Observer.Verify();
     end;
 
     // A user-defined layout (a Tenant Report Layout row inserted for the report): its Report Layout List row, every column.
@@ -273,6 +303,33 @@ codeunit 90370 "LT UG Report Layout List"
         Dump(Observer, 'user', Report::"LT Y17 RL Captioned", 'LT Y17 User');
         Layout.SetRange("Report ID", Report::"LT Y17 RL Captioned");
         Layout.DeleteAll();
-        Observer.Finish();
+        Observer.Expect('insert', 'Yes');
+        Observer.Expect('rows in report', '2');
+        Observer.Expect('user 1 Report ID', 'Integer [91873]');
+        Observer.Expect('user 2 Name', 'Text [LT Y17 User]');
+        Observer.Expect('user 5 Runtime Package ID', 'GUID null guid');
+        Observer.Expect('user 3 Caption', 'Text [LT Y17 User]');
+        Observer.Expect('user 4 CaptionML', 'Text []');
+        Observer.Expect('user 6 Layout', 'Media not shown');
+        Observer.Expect('user 7 Layout Format', 'Option [RDLC]');
+        Observer.Expect('user 8 Custom Type', 'GUID null guid');
+        Observer.Expect('user 9 MIME Type', 'Text []');
+        Observer.Expect('user 10 Description', 'Text [Y17 user layout]');
+        Observer.Expect('user 11 Application ID', 'GUID null guid');
+        Observer.Expect('user 12 Report Name', 'Text [LT Caption Differs]');
+        Observer.Expect('user 13 Layout Publisher', 'Text []');
+        Observer.Expect('user 14 User Defined', 'Boolean [Yes]');
+        Observer.Expect('user 15 ReportIsInstalled', 'Boolean [Yes]');
+        Observer.Expect('user 16 IsObsolete', 'Boolean [No]');
+        Observer.Expect('user 17 ExcelLayoutMultipleDataSheets', 'Option [Default]');
+#if BC28PLUS
+        Observer.Expect('user 18 Layout Status', 'Option [Approved]');
+#endif
+#if BC29PLUS
+        Observer.Expect('user 19 Layout Subtype', 'Option [Default]');
+        Observer.Expect('user 20 HeaderFooterPart', 'Text []');
+        Observer.Expect('user 21 ThemePart', 'Text []');
+#endif
+        Observer.Verify();
     end;
 }
