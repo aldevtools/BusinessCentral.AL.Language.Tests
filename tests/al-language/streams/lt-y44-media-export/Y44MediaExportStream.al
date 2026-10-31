@@ -6,6 +6,8 @@
 //        .pdf), non-ASCII text, a re-import of the export, text imported with a MIME type, a PNG picture and binary non-picture bytes.
 //        Already pinned nearby: streams/StTMedia.al TR_MediaImportStream_TextContent_ExportStream (two-argument import of text),
 //        types/W7Media.al ExportStream_OfAnImportedPicture (PNG length 99, first bytes on BC 29).
+//        Every value asserted is what BC 27.5, 28.5, 29.0 (CI containers) and a SaaS sandbox BC 29 produced, all the same: text and binary
+//        bytes come back unchanged whatever the file name or MIME type; the 68-byte PNG comes back as the same 99 bytes on every major.
 // BC versions: 27, 28, 29
 
 table 92866 "LT Y44 Media Row"
@@ -126,7 +128,10 @@ codeunit 92865 "LT Y44 Media ExportStream"
         TextStream(AsciiTxt, Source, InS);
         AttachCase('txt', 'LTY44A', 'TestFile_A.txt', InS, true);
         CleanAttachments();
-        Observer.Finish();
+        Observer.Expect('len_txt', '38');
+        Observer.Expect('b64_txt', 'VGVzdCBjb250ZW50IGZvciBhdHRhY2htZW50IEFCQzEyM3h5ejA=');
+        Observer.Expect('readtext_txt', 'Test content for attachment ABC123xyz0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -152,7 +157,12 @@ codeunit 92865 "LT Y44 Media ExportStream"
         DocumentAttachment2.ExportToStream(OutS);
         ObserveBytes('second', Second, true);
         CleanAttachments();
-        Observer.Finish();
+        Observer.Expect('len_first', '38');
+        Observer.Expect('b64_first', 'VGVzdCBjb250ZW50IGZvciBhdHRhY2htZW50IEFCQzEyM3h5ejA=');
+        Observer.Expect('len_second', '38');
+        Observer.Expect('b64_second', 'VGVzdCBjb250ZW50IGZvciBhdHRhY2htZW50IEFCQzEyM3h5ejA=');
+        Observer.Expect('readtext_second', 'Test content for attachment ABC123xyz0');
+        Observer.Verify();
     end;
 
     local procedure OwnCase(Name: Text; var InS: InStream; Mime: Text; UseMime: Boolean; WithText: Boolean)
@@ -184,7 +194,15 @@ codeunit 92865 "LT Y44 Media ExportStream"
         OwnCase('mime_textplain', InS, 'text/plain', true, true);
         TextStream(AsciiTxt, Source, InS);
         OwnCase('mime_empty', InS, '', true, true);
-        Observer.Finish();
+        Observer.Expect('answer_mime_textplain', 'Yes');
+        Observer.Expect('len_mime_textplain', '38');
+        Observer.Expect('b64_mime_textplain', 'VGVzdCBjb250ZW50IGZvciBhdHRhY2htZW50IEFCQzEyM3h5ejA=');
+        Observer.Expect('readtext_mime_textplain', 'Test content for attachment ABC123xyz0');
+        Observer.Expect('answer_mime_empty', 'Yes');
+        Observer.Expect('len_mime_empty', '38');
+        Observer.Expect('b64_mime_empty', 'VGVzdCBjb250ZW50IGZvciBhdHRhY2htZW50IEFCQzEyM3h5ejA=');
+        Observer.Expect('readtext_mime_empty', 'Test content for attachment ABC123xyz0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -201,7 +219,16 @@ codeunit 92865 "LT Y44 Media ExportStream"
         TextStream(AsciiTxt, Source, InS);
         AttachCase('pdf', 'LTY44E', 'X.pdf', InS, true);
         CleanAttachments();
-        Observer.Finish();
+        Observer.Expect('len_nonascii_txt', '10');
+        Observer.Expect('b64_nonascii_txt', 'w4TigqwgbGluZQ==');
+        Observer.Expect('readtext_nonascii_txt', 'Ä€ line');
+        Observer.Expect('len_noext', '38');
+        Observer.Expect('b64_noext', 'VGVzdCBjb250ZW50IGZvciBhdHRhY2htZW50IEFCQzEyM3h5ejA=');
+        Observer.Expect('readtext_noext', 'Test content for attachment ABC123xyz0');
+        Observer.Expect('len_pdf', '38');
+        Observer.Expect('b64_pdf', 'VGVzdCBjb250ZW50IGZvciBhdHRhY2htZW50IEFCQzEyM3h5ejA=');
+        Observer.Expect('readtext_pdf', 'Test content for attachment ABC123xyz0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -216,7 +243,12 @@ codeunit 92865 "LT Y44 Media ExportStream"
         PngStream(Source, InS);
         OwnCase('png_own', InS, '', false, false);
         CleanAttachments();
-        Observer.Finish();
+        Observer.Expect('len_png_attach', '99');
+        Observer.Expect('b64_png_attach', 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAANSURBVBhXY2BgYPgPAAEEAQBwIGULAAAAAElFTkSuQmCC');
+        Observer.Expect('answer_png_own', 'Yes');
+        Observer.Expect('len_png_own', '99');
+        Observer.Expect('b64_png_own', 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAANSURBVBhXY2BgYPgPAAEEAQBwIGULAAAAAElFTkSuQmCC');
+        Observer.Verify();
     end;
 
     [Test]
@@ -227,6 +259,9 @@ codeunit 92865 "LT Y44 Media ExportStream"
     begin
         BinaryStream(Source, InS);
         OwnCase('binary', InS, '', false, false);
-        Observer.Finish();
+        Observer.Expect('answer_binary', 'Yes');
+        Observer.Expect('len_binary', '16');
+        Observer.Expect('b64_binary', 'AAECAwQFBgcICQoLDA0ODw==');
+        Observer.Verify();
     end;
 }

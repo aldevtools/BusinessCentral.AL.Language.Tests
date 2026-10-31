@@ -6,6 +6,9 @@
 //        Create mode and after Dispose; CreateEntry, Entries and Dispose on a variable that holds no object; CreateEntry after Dispose.
 //        The holder codeunit has its own ZipArchive variable, so an error names the holder's routine.
 //        Already pinned nearby: lt-wd-dotnet/WdZipArchiveOverOutStream.al (one entry through CopyStream(ZipEntry.Open(), EntryIn)).
+//        Every value asserted is what BC 27.5, 28.5, 29.0 (Linux CI containers) produced, all the same. The temporary stream that Entry.Open()
+//        returns is closed at the end of the statement (a second CreateEntry works); a stream kept in a variable stays open (CopyStream does not
+//        close it). Only the innermost call stack frame is observed: on 27.5 GetLastErrorCallStack also lists the test runner frames.
 // BC versions: 27, 28, 29
 dotnet
 {
@@ -238,7 +241,19 @@ codeunit 99495 "LT Y44 Zip Create Mode"
         ZipFile.CalcFields(Content);
         Observer.Observe('ziplen>0', Format(ZipFile.Content.Length() > 0));
         ReadZip(ZipFile);
-        Observer.Finish();
+        Observer.Expect('add_a', 'ok');
+        Observer.Expect('add_b', 'ok');
+        Observer.Expect('add_d', 'ok');
+        Observer.Expect('close', 'ok');
+        Observer.Expect('ziplen>0', 'Yes');
+        Observer.Expect('count', '3');
+        Observer.Expect('name_1', 'a.txt');
+        Observer.Expect('content_1', 'hello');
+        Observer.Expect('name_2', 'b/c.txt');
+        Observer.Expect('content_2', 'world');
+        Observer.Expect('name_3', 'd.txt');
+        Observer.Expect('content_3', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -256,7 +271,11 @@ codeunit 99495 "LT Y44 Zip Create Mode"
         ClearLastError();
         Outcome('keep_first', TryAddKeepOpen(Holder, InS, 'a.txt'));
         Outcome('second_create', TryCreateOnly(Holder, 'b.txt'));
-        Observer.Finish();
+        Observer.Expect('keep_first', 'ok');
+        Observer.Expect('stack_second_create', '"LT Y44 Zip Holder"(CodeUnit 99496).CreateOnly line 2 - AL Language Coverage Tests (OnPrem DotNet) by AL Language version 1.0.0.0');
+        Observer.Expect('second_create|text', 'A call to System.IO.Compression.ZipArchive.CreateEntry failed with this message: Entries cannot be created while previously created entries are still open.');
+        Observer.Expect('second_create|code', 'DotNetInvoke:IO');
+        Observer.Verify();
     end;
 
     [Test]
@@ -271,7 +290,9 @@ codeunit 99495 "LT Y44 Zip Create Mode"
         ClearLastError();
         Outcome('writebyte_first', TryAddWriteByte(Holder, 'a.txt'));
         Outcome('second_create', TryCreateOnly(Holder, 'b.txt'));
-        Observer.Finish();
+        Observer.Expect('writebyte_first', 'ok');
+        Observer.Expect('second_create', 'ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -299,7 +320,22 @@ codeunit 99495 "LT Y44 Zip Create Mode"
         asserterror Holder.List(L);
         Observer.Observe('stack_asserterror', TopFrame());
         Observer.ObserveError('asserterror_list_disposed');
-        Observer.Finish();
+        Observer.Expect('stack_count_create', '"LT Y44 Zip Holder"(CodeUnit 99496).EntriesCount line 2 - AL Language Coverage Tests (OnPrem DotNet) by AL Language version 1.0.0.0');
+        Observer.Expect('count_create|text', 'A call to System.IO.Compression.ZipArchive.Entries failed with this message: Cannot access entries in Create mode.');
+        Observer.Expect('count_create|code', 'DotNetInvoke:NotSupported');
+        Observer.Expect('stack_list_create', '"LT Y44 Zip Holder"(CodeUnit 99496).List line 5 - AL Language Coverage Tests (OnPrem DotNet) by AL Language version 1.0.0.0');
+        Observer.Expect('list_create|text', 'A call to System.IO.Compression.ZipArchive.Entries failed with this message: Cannot access entries in Create mode.');
+        Observer.Expect('list_create|code', 'DotNetInvoke:NotSupported');
+        Observer.Expect('stack_count_disposed', '"LT Y44 Zip Holder"(CodeUnit 99496).EntriesCount line 2 - AL Language Coverage Tests (OnPrem DotNet) by AL Language version 1.0.0.0');
+        Observer.Expect('count_disposed|text', 'A call to System.IO.Compression.ZipArchive.Entries failed with this message: Cannot access entries in Create mode.');
+        Observer.Expect('count_disposed|code', 'DotNetInvoke:NotSupported');
+        Observer.Expect('stack_list_disposed', '"LT Y44 Zip Holder"(CodeUnit 99496).List line 5 - AL Language Coverage Tests (OnPrem DotNet) by AL Language version 1.0.0.0');
+        Observer.Expect('list_disposed|text', 'A call to System.IO.Compression.ZipArchive.Entries failed with this message: Cannot access entries in Create mode.');
+        Observer.Expect('list_disposed|code', 'DotNetInvoke:NotSupported');
+        Observer.Expect('stack_asserterror', '"LT Y44 Zip Holder"(CodeUnit 99496).List line 5 - AL Language Coverage Tests (OnPrem DotNet) by AL Language version 1.0.0.0');
+        Observer.Expect('asserterror_list_disposed|text', 'A call to System.IO.Compression.ZipArchive.Entries failed with this message: Cannot access entries in Create mode.');
+        Observer.Expect('asserterror_list_disposed|code', 'DotNetInvoke:NotSupported');
+        Observer.Verify();
     end;
 
     [Test]
@@ -318,7 +354,18 @@ codeunit 99495 "LT Y44 Zip Create Mode"
         ClearLastError();
         asserterror Holder.Add(InS, 'x.txt');
         Observer.ObserveError('asserterror_add_noobject');
-        Observer.Finish();
+        Observer.Expect('stack_add_noobject', '"LT Y44 Zip Holder"(CodeUnit 99496).Add line 4 - AL Language Coverage Tests (OnPrem DotNet) by AL Language version 1.0.0.0');
+        Observer.Expect('add_noobject|text', 'A DotNet variable has not been instantiated. Attempting to call System.IO.Compression.ZipArchive.CreateEntry in CodeUnit LT Y44 Zip Holder: Add');
+        Observer.Expect('add_noobject|code', 'DotNetVariableNotCreated');
+        Observer.Expect('stack_count_noobject', '"LT Y44 Zip Holder"(CodeUnit 99496).EntriesCount line 2 - AL Language Coverage Tests (OnPrem DotNet) by AL Language version 1.0.0.0');
+        Observer.Expect('count_noobject|text', 'A DotNet variable has not been instantiated. Attempting to call System.IO.Compression.ZipArchive.Entries in CodeUnit LT Y44 Zip Holder: EntriesCount');
+        Observer.Expect('count_noobject|code', 'DotNetVariableNotCreated');
+        Observer.Expect('stack_dispose_noobject', '"LT Y44 Zip Holder"(CodeUnit 99496).Close line 2 - AL Language Coverage Tests (OnPrem DotNet) by AL Language version 1.0.0.0');
+        Observer.Expect('dispose_noobject|text', 'A DotNet variable has not been instantiated. Attempting to call System.IO.Compression.ZipArchive.Dispose in CodeUnit LT Y44 Zip Holder: Close');
+        Observer.Expect('dispose_noobject|code', 'DotNetVariableNotCreated');
+        Observer.Expect('asserterror_add_noobject|text', 'A DotNet variable has not been instantiated. Attempting to call System.IO.Compression.ZipArchive.CreateEntry in CodeUnit LT Y44 Zip Holder: Add');
+        Observer.Expect('asserterror_add_noobject|code', 'DotNetVariableNotCreated');
+        Observer.Verify();
     end;
 
     [Test]
@@ -338,6 +385,9 @@ codeunit 99495 "LT Y44 Zip Create Mode"
         TextIn(Buf, 2, 'world', InS);
         ClearLastError();
         Outcome('add_after_dispose', TryAdd(Holder, InS, 'b.txt'));
-        Observer.Finish();
+        Observer.Expect('stack_add_after_dispose', '"LT Y44 Zip Holder"(CodeUnit 99496).Add line 4 - AL Language Coverage Tests (OnPrem DotNet) by AL Language version 1.0.0.0');
+        Observer.Expect('add_after_dispose|text', 'A call to System.IO.Compression.ZipArchive.CreateEntry failed with this message: Cannot access a disposed object.\nObject name: ''System.IO.Compression.ZipArchive''.');
+        Observer.Expect('add_after_dispose|code', 'DotNetInvoke:ObjectDisposed');
+        Observer.Verify();
     end;
 }
