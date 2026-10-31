@@ -23,6 +23,15 @@ import re
 import sys
 
 ID_FIRST = 92410
+ID_SUSPECT = 92500
+# tests whose codeunit lost its BC session on the corpus CI (BC 29.0, 2026-10-31: "session killed twice by this codeunit"): each runs in a
+# codeunit of its own, after the others, until the crashing cell is known (then it is held as a Linux suspect)
+SUSPECTS = [('LT Y31 Cv Enum', 'Enum_To_BigInteger'), ('LT Y31 Cv Enum', 'Enum_To_FBigInteger'),
+            ('LT Y31 Cv EnumImpl', 'EnumImpl_To_BigInteger'), ('LT Y31 Cv EnumImpl', 'EnumImpl_To_FBigInteger'),
+            ('LT Y31 Cv Literals', 'LitEnum_To_BigInteger'), ('LT Y31 Cv Literals', 'LitEnum_To_FBigInteger'),
+            ('LT Y31 Cd BigInteger', 'BigInteger_Enum'), ('LT Y31 Cd BigInteger', 'BigInteger_EnumImpl'),
+            ('LT Y31 Cd EnumImpl', '*'), ('LT Y31 Ar Byte', 'Byte_BigInteger'), ('LT Y31 Ar Byte', 'Byte_Enum'),
+            ('LT Y31 Ar Byte', 'Byte_EnumImpl')]
 FIXTURE_FILE = 'Y31ConvObjects.al'
 
 # type -> AL declaration
@@ -63,7 +72,7 @@ CV_VALUES = {
                 ('byte65', 'Util.AsByte(65)'), ('optB', 'Util.AsOption(1)'), ('enumC', '"LT Y31 E"::C'), ('textabc', "Util.AsText('abc')"),
                 ('text11', "Util.AsText('abcdefghijk')"), ('text12', "Util.AsText('12')"), ('codeABC', "Util.AsCode('abc')"),
                 ('code12', "Util.AsCode('12')"), ('guid', "Util.AsGuid('%s')" % GUID), ('boolF', 'false'), ('boolT', 'true'),
-                ('date', '20260131D'), ('dur65', 'Util.AsDuration(65)')],
+                ('date', '20260131D'), ('time', '120000T'), ('dt', 'CreateDateTime(20260131D, 120000T)'), ('dur65', 'Util.AsDuration(65)')],
 }
 # a few values per type for comparisons, arithmetic and conditional expressions
 FEW = {
@@ -83,7 +92,7 @@ TEXTISH = ('Text', 'Text10', 'Code10', 'Label', 'Guid', 'Char')
 CV_SOURCES = ['Integer', 'BigInteger', 'Decimal', 'Char', 'Byte', 'Option', 'Enum', 'EnumImpl', 'Text', 'Text10', 'Code10', 'Label',
               'LabelLong', 'Guid', 'Duration', 'Variant']
 CV_TARGETS = ['Integer', 'BigInteger', 'Decimal', 'Char', 'Byte', 'Option', 'Enum', 'EnumImpl', 'Text', 'Text10', 'Text3', 'Code10',
-              'Code3', 'Code250', 'Guid', 'Duration'] + list(FIELD_OF)
+              'Code3', 'Code250', 'Guid', 'Duration', 'Boolean', 'Date', 'Time', 'DateTime'] + list(FIELD_OF)
 OP_TYPES = ['Integer', 'BigInteger', 'Decimal', 'Char', 'Byte', 'Option', 'Enum', 'EnumImpl', 'Boolean', 'Text', 'Text10', 'Code10',
             'Guid', 'Date', 'Time', 'DateTime', 'Duration', 'Label']
 LITERALS = [('lit.Decimal', '1.5', 'dec1p5'), ('lit.Char1', "'a'", 'chara'), ('lit.Text', "'abc'", 'abc'), ('lit.TextEmpty', "''", 'empty'),
@@ -414,6 +423,31 @@ def chunks(name, stmts):
     return [(name if i == 0 else '%s_%d' % (name, i + 1), p) for i, p in enumerate(parts)]
 
 
+MAX_OBS_FINAL = 48
+
+
+def final_parts(tname, stmts, final):
+    """the observe form: the chunks of chunks(); the final form joins consecutive chunks up to MAX_OBS_FINAL observations (a Verify
+    has no message limit), and names the observe chunks whose observations it expects."""
+    parts = chunks(tname, stmts)
+    if not final:
+        return [(n, p, [n]) for n, p in parts]
+    out, cur, names, nobs = [], [], [], 0
+    for n, p in parts:
+        k = sum(1 for st in p if 'Observer.Observe' in st)
+        if cur and nobs + k > MAX_OBS_FINAL:
+            out.append(cur_names(tname, len(out)) + (cur, names))
+            cur, names, nobs = [], [], 0
+        cur, names, nobs = cur + p, names + [n], nobs + k
+    if cur:
+        out.append(cur_names(tname, len(out)) + (cur, names))
+    return out
+
+
+def cur_names(tname, i):
+    return (tname if i == 0 else '%s_%d' % (tname, i + 1),)
+
+
 def render(u, observed):
     """every variable is local: a test declares what it uses and passes it as a var parameter to the procedures that use it (so a
     test does not depend on the state an earlier test left). Labels are declared where they are used."""
@@ -454,7 +488,7 @@ def render(u, observed):
     out.append('    TestPermissions = Disabled;')
     out.append('')
     for tname, stmts in u.tests:
-        for name, part in chunks(tname, stmts):
+        for name, part, obs_names in final_parts(tname, stmts, observed is not None):
             used = refs(part, vars_)
             for st in part:
                 for pn in refs([st], set(procnames)):
@@ -471,15 +505,30 @@ def render(u, observed):
             if observed is None:
                 out.append('        Observer.Finish();')
             else:
-                pairs = observed.get((u.name, name))
-                if pairs is None:
-                    raise SystemExit('no observation for %s %s' % (u.name, name))
+                pairs = []
+                for on in obs_names:
+                    got = observed.get((u.name, on))
+                    if got is None:
+                        raise SystemExit('no observation for %s %s' % (u.name, on))
+                    pairs += got
                 for k, v in pairs:
                     out.append("        Observer.Expect('%s', %s);" % (k, al_text(v)))
                 out.append('        Observer.Verify();')
             out.append('    end;')
             out.append('')
+    called = set()
+    for tname, stmts in u.tests:
+        called |= refs([x for x in stmts if x != GROUP], set(procnames))
+    frontier = set(called)
+    while frontier:
+        nxt = set()
+        for n in frontier:
+            nxt |= calls[n] - called
+        called |= nxt
+        frontier = nxt
     for name, is_try, params, ret, body in u.procs:
+        if name not in called:
+            continue
         ps = [params] if params else []
         ps += ['var %s: %s' % (n, vars_[n]) for n in order[name]]
         lab = sorted(refs(body, labels))
@@ -560,8 +609,24 @@ def main():
     for gen in (gen_cv, gen_tp, lambda m, c: gen_ops(m, c, 'Cmp'), lambda m, c: gen_ops(m, c, 'Ar'), lambda m, c: gen_ops(m, c, 'Cd')):
         us, cid = gen(m, cid)
         units += us
-    if cid > 92549:
+    if cid > ID_SUSPECT:
         raise SystemExit('out of ids: %d' % cid)
+    sid = ID_SUSPECT
+    for u in list(units):
+        for tname, stmts in list(u.tests):
+            if (u.name, tname) in SUSPECTS or (u.name, '*') in SUSPECTS:
+                v = Unit(sid, 'LT Y31 Sus %d' % (sid - ID_SUSPECT + 1), u.title + ' (' + tname + ', in a codeunit of its own)')
+                sid += 1
+                v.globals = dict(u.globals)
+                v.procs = u.procs
+                v.tests = [(tname, stmts)]
+                v.family = u.name
+                u.tests.remove((tname, stmts))
+                units.append(v)
+        if not u.tests:
+            units.remove(u)
+    if sid > 92549:
+        raise SystemExit('out of suspect ids: %d' % sid)
     observed = None
     if a.observed:
         msgs = load_observed(a.observed)

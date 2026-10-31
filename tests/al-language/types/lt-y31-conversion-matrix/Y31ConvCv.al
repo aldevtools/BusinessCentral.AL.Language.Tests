@@ -5155,38 +5155,6 @@ codeunit 92416 "LT Y31 Cv Enum"
     end;
 
     [Test]
-    procedure Enum_To_BigInteger()
-    var
-        Observer: Codeunit "Probe Observer";
-        vBigInteger: BigInteger;
-        vEnum: Enum "LT Y31 E";
-    begin
-        vEnum := "LT Y31 E"::A;
-        if Try6(vBigInteger, vEnum) then Observer.Observe('assign.A', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.A');
-        if Try8(vBigInteger, vEnum) then Observer.Observe('arg_byvalue.A', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.A');
-        if Try10(vBigInteger, vEnum) then Observer.Observe('exit.A', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.A');
-        vEnum := "LT Y31 E"::C;
-        if Try6(vBigInteger, vEnum) then Observer.Observe('assign.C', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.C');
-        if Try8(vBigInteger, vEnum) then Observer.Observe('arg_byvalue.C', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.C');
-        if Try10(vBigInteger, vEnum) then Observer.Observe('exit.C', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.C');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Enum_To_BigInteger_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        vBigInteger: BigInteger;
-        vEnum: Enum "LT Y31 E";
-    begin
-        vEnum := 5;
-        if Try6(vBigInteger, vEnum) then Observer.Observe('assign.ord5', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.ord5');
-        if Try8(vBigInteger, vEnum) then Observer.Observe('arg_byvalue.ord5', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.ord5');
-        if Try10(vBigInteger, vEnum) then Observer.Observe('exit.ord5', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.ord5');
-        Observer.Finish();
-    end;
-
-    [Test]
     procedure Enum_To_Option()
     var
         Observer: Codeunit "Probe Observer";
@@ -5233,22 +5201,6 @@ codeunit 92416 "LT Y31 Cv Enum"
         if Try16(R, vEnum) then Observer.Observe('assign.C', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.C');
         vEnum := 5;
         if Try16(R, vEnum) then Observer.Observe('assign.ord5', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.ord5');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Enum_To_FBigInteger()
-    var
-        Observer: Codeunit "Probe Observer";
-        R: Record "LT Y31 Conv Fields";
-        vEnum: Enum "LT Y31 E";
-    begin
-        vEnum := "LT Y31 E"::A;
-        if Try17(R, vEnum) then Observer.Observe('assign.A', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.A');
-        vEnum := "LT Y31 E"::C;
-        if Try17(R, vEnum) then Observer.Observe('assign.C', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.C');
-        vEnum := 5;
-        if Try17(R, vEnum) then Observer.Observe('assign.ord5', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.ord5');
         Observer.Finish();
     end;
 
@@ -5301,37 +5253,6 @@ codeunit 92416 "LT Y31 Cv Enum"
     end;
 
     [TryFunction]
-    local procedure Try6(var vBigInteger: BigInteger; var vEnum: Enum "LT Y31 E")
-    begin
-        Clear(vBigInteger);
-        vBigInteger := vEnum;
-    end;
-
-    local procedure PA_BigInteger_7(p: BigInteger; var vBigInteger: BigInteger)
-    begin
-        vBigInteger := p;
-    end;
-
-    [TryFunction]
-    local procedure Try8(var vBigInteger: BigInteger; var vEnum: Enum "LT Y31 E")
-    begin
-        Clear(vBigInteger);
-        PA_BigInteger_7(vEnum, vBigInteger);
-    end;
-
-    local procedure EX_BigInteger_9(var vEnum: Enum "LT Y31 E"): BigInteger
-    begin
-        exit(vEnum);
-    end;
-
-    [TryFunction]
-    local procedure Try10(var vBigInteger: BigInteger; var vEnum: Enum "LT Y31 E")
-    begin
-        Clear(vBigInteger);
-        vBigInteger := EX_BigInteger_9(vEnum);
-    end;
-
-    [TryFunction]
     local procedure Try11(var vEnum: Enum "LT Y31 E"; var vOption: Option A,B,C)
     begin
         Clear(vOption);
@@ -5367,13 +5288,6 @@ codeunit 92416 "LT Y31 Cv Enum"
     begin
         Clear(R.Integer);
         R.Integer := vEnum;
-    end;
-
-    [TryFunction]
-    local procedure Try17(var R: Record "LT Y31 Conv Fields"; var vEnum: Enum "LT Y31 E")
-    begin
-        Clear(R.BigInteger);
-        R.BigInteger := vEnum;
     end;
 
     [TryFunction]
@@ -5416,24 +5330,6 @@ codeunit 92417 "LT Y31 Cv EnumImpl"
     end;
 
     [Test]
-    procedure EnumImpl_To_BigInteger()
-    var
-        Observer: Codeunit "Probe Observer";
-        vBigInteger: BigInteger;
-        vEnumImpl: Enum "LT Y31 EI";
-    begin
-        vEnumImpl := "LT Y31 EI"::A;
-        if Try6(vBigInteger, vEnumImpl) then Observer.Observe('assign.A', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.A');
-        if Try8(vBigInteger, vEnumImpl) then Observer.Observe('arg_byvalue.A', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.A');
-        if Try10(vBigInteger, vEnumImpl) then Observer.Observe('exit.A', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.A');
-        vEnumImpl := 9;
-        if Try6(vBigInteger, vEnumImpl) then Observer.Observe('assign.ord9', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.ord9');
-        if Try8(vBigInteger, vEnumImpl) then Observer.Observe('arg_byvalue.ord9', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.ord9');
-        if Try10(vBigInteger, vEnumImpl) then Observer.Observe('exit.ord9', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.ord9');
-        Observer.Finish();
-    end;
-
-    [Test]
     procedure EnumImpl_To_Option()
     var
         Observer: Codeunit "Probe Observer";
@@ -5463,20 +5359,6 @@ codeunit 92417 "LT Y31 Cv EnumImpl"
         if Try16(R, vEnumImpl) then Observer.Observe('assign.A', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.A');
         vEnumImpl := 9;
         if Try16(R, vEnumImpl) then Observer.Observe('assign.ord9', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.ord9');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure EnumImpl_To_FBigInteger()
-    var
-        Observer: Codeunit "Probe Observer";
-        R: Record "LT Y31 Conv Fields";
-        vEnumImpl: Enum "LT Y31 EI";
-    begin
-        vEnumImpl := "LT Y31 EI"::A;
-        if Try17(R, vEnumImpl) then Observer.Observe('assign.A', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.A');
-        vEnumImpl := 9;
-        if Try17(R, vEnumImpl) then Observer.Observe('assign.ord9', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.ord9');
         Observer.Finish();
     end;
 
@@ -5527,37 +5409,6 @@ codeunit 92417 "LT Y31 Cv EnumImpl"
     end;
 
     [TryFunction]
-    local procedure Try6(var vBigInteger: BigInteger; var vEnumImpl: Enum "LT Y31 EI")
-    begin
-        Clear(vBigInteger);
-        vBigInteger := vEnumImpl;
-    end;
-
-    local procedure PA_BigInteger_7(p: BigInteger; var vBigInteger: BigInteger)
-    begin
-        vBigInteger := p;
-    end;
-
-    [TryFunction]
-    local procedure Try8(var vBigInteger: BigInteger; var vEnumImpl: Enum "LT Y31 EI")
-    begin
-        Clear(vBigInteger);
-        PA_BigInteger_7(vEnumImpl, vBigInteger);
-    end;
-
-    local procedure EX_BigInteger_9(var vEnumImpl: Enum "LT Y31 EI"): BigInteger
-    begin
-        exit(vEnumImpl);
-    end;
-
-    [TryFunction]
-    local procedure Try10(var vBigInteger: BigInteger; var vEnumImpl: Enum "LT Y31 EI")
-    begin
-        Clear(vBigInteger);
-        vBigInteger := EX_BigInteger_9(vEnumImpl);
-    end;
-
-    [TryFunction]
     local procedure Try11(var vEnumImpl: Enum "LT Y31 EI"; var vOption: Option A,B,C)
     begin
         Clear(vOption);
@@ -5593,13 +5444,6 @@ codeunit 92417 "LT Y31 Cv EnumImpl"
     begin
         Clear(R.Integer);
         R.Integer := vEnumImpl;
-    end;
-
-    [TryFunction]
-    local procedure Try17(var R: Record "LT Y31 Conv Fields"; var vEnumImpl: Enum "LT Y31 EI")
-    begin
-        Clear(R.BigInteger);
-        R.BigInteger := vEnumImpl;
     end;
 
     [TryFunction]
@@ -9381,6 +9225,24 @@ codeunit 92425 "LT Y31 Cv Variant"
     procedure Variant_To_Integer_10()
     var
         Observer: Codeunit "Probe Observer";
+        vInteger: Integer;
+        vVariant: Variant;
+    begin
+        vVariant := 120000T;
+        if Try1(vInteger, vVariant) then Observer.Observe('assign.time', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.time');
+        if Try3(vInteger, vVariant) then Observer.Observe('arg_byvalue.time', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.time');
+        if Try5(vInteger, vVariant) then Observer.Observe('exit.time', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.time');
+        vVariant := CreateDateTime(20260131D, 120000T);
+        if Try1(vInteger, vVariant) then Observer.Observe('assign.dt', Format(vInteger, 0, 9)) else Observer.ObserveError('assign.dt');
+        if Try3(vInteger, vVariant) then Observer.Observe('arg_byvalue.dt', Format(vInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.dt');
+        if Try5(vInteger, vVariant) then Observer.Observe('exit.dt', Format(vInteger, 0, 9)) else Observer.ObserveError('exit.dt');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Variant_To_Integer_11()
+    var
+        Observer: Codeunit "Probe Observer";
         Util: Codeunit "LT Y31 Conv Util";
         vInteger: Integer;
         vVariant: Variant;
@@ -9564,6 +9426,24 @@ codeunit 92425 "LT Y31 Cv Variant"
     procedure Variant_To_BigInteger_10()
     var
         Observer: Codeunit "Probe Observer";
+        vBigInteger: BigInteger;
+        vVariant: Variant;
+    begin
+        vVariant := 120000T;
+        if Try6(vBigInteger, vVariant) then Observer.Observe('assign.time', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.time');
+        if Try8(vBigInteger, vVariant) then Observer.Observe('arg_byvalue.time', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.time');
+        if Try10(vBigInteger, vVariant) then Observer.Observe('exit.time', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.time');
+        vVariant := CreateDateTime(20260131D, 120000T);
+        if Try6(vBigInteger, vVariant) then Observer.Observe('assign.dt', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.dt');
+        if Try8(vBigInteger, vVariant) then Observer.Observe('arg_byvalue.dt', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.dt');
+        if Try10(vBigInteger, vVariant) then Observer.Observe('exit.dt', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.dt');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Variant_To_BigInteger_11()
+    var
+        Observer: Codeunit "Probe Observer";
         Util: Codeunit "LT Y31 Conv Util";
         vBigInteger: BigInteger;
         vVariant: Variant;
@@ -9745,6 +9625,24 @@ codeunit 92425 "LT Y31 Cv Variant"
 
     [Test]
     procedure Variant_To_Decimal_10()
+    var
+        Observer: Codeunit "Probe Observer";
+        vDecimal: Decimal;
+        vVariant: Variant;
+    begin
+        vVariant := 120000T;
+        if Try11(vDecimal, vVariant) then Observer.Observe('assign.time', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.time');
+        if Try13(vDecimal, vVariant) then Observer.Observe('arg_byvalue.time', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.time');
+        if Try15(vDecimal, vVariant) then Observer.Observe('exit.time', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.time');
+        vVariant := CreateDateTime(20260131D, 120000T);
+        if Try11(vDecimal, vVariant) then Observer.Observe('assign.dt', Format(vDecimal, 0, 9)) else Observer.ObserveError('assign.dt');
+        if Try13(vDecimal, vVariant) then Observer.Observe('arg_byvalue.dt', Format(vDecimal, 0, 9)) else Observer.ObserveError('arg_byvalue.dt');
+        if Try15(vDecimal, vVariant) then Observer.Observe('exit.dt', Format(vDecimal, 0, 9)) else Observer.ObserveError('exit.dt');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Variant_To_Decimal_11()
     var
         Observer: Codeunit "Probe Observer";
         Util: Codeunit "LT Y31 Conv Util";
@@ -9937,6 +9835,25 @@ codeunit 92425 "LT Y31 Cv Variant"
         vChar: Char;
         vVariant: Variant;
     begin
+        vVariant := 120000T;
+        if Try16(vChar, vVariant) then Observer.Observe('assign.time', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.time');
+        if Try18(vChar, vVariant) then Observer.Observe('arg_byvalue.time', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.time');
+        if Try20(vChar, vVariant) then Observer.Observe('exit.time', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.time');
+        vVariant := CreateDateTime(20260131D, 120000T);
+        if Try16(vChar, vVariant) then Observer.Observe('assign.dt', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.dt');
+        if Try18(vChar, vVariant) then Observer.Observe('arg_byvalue.dt', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.dt');
+        if Try20(vChar, vVariant) then Observer.Observe('exit.dt', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('exit.dt');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Variant_To_Char_11()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vChar: Char;
+        vVariant: Variant;
+    begin
         vVariant := Util.AsDuration(65);
         if Try16(vChar, vVariant) then Observer.Observe('assign.dur65', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('assign.dur65');
         if Try18(vChar, vVariant) then Observer.Observe('arg_byvalue.dur65', Format(vChar) + '|' + Format(Util.CharOrd(vChar))) else Observer.ObserveError('arg_byvalue.dur65');
@@ -10114,6 +10031,24 @@ codeunit 92425 "LT Y31 Cv Variant"
 
     [Test]
     procedure Variant_To_Byte_10()
+    var
+        Observer: Codeunit "Probe Observer";
+        vByte: Byte;
+        vVariant: Variant;
+    begin
+        vVariant := 120000T;
+        if Try21(vByte, vVariant) then Observer.Observe('assign.time', Format(vByte, 0, 9)) else Observer.ObserveError('assign.time');
+        if Try23(vByte, vVariant) then Observer.Observe('arg_byvalue.time', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.time');
+        if Try25(vByte, vVariant) then Observer.Observe('exit.time', Format(vByte, 0, 9)) else Observer.ObserveError('exit.time');
+        vVariant := CreateDateTime(20260131D, 120000T);
+        if Try21(vByte, vVariant) then Observer.Observe('assign.dt', Format(vByte, 0, 9)) else Observer.ObserveError('assign.dt');
+        if Try23(vByte, vVariant) then Observer.Observe('arg_byvalue.dt', Format(vByte, 0, 9)) else Observer.ObserveError('arg_byvalue.dt');
+        if Try25(vByte, vVariant) then Observer.Observe('exit.dt', Format(vByte, 0, 9)) else Observer.ObserveError('exit.dt');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Variant_To_Byte_11()
     var
         Observer: Codeunit "Probe Observer";
         Util: Codeunit "LT Y31 Conv Util";
@@ -10306,6 +10241,25 @@ codeunit 92425 "LT Y31 Cv Variant"
         vOption: Option A,B,C;
         vVariant: Variant;
     begin
+        vVariant := 120000T;
+        if Try26(vOption, vVariant) then Observer.Observe('assign.time', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.time');
+        if Try28(vOption, vVariant) then Observer.Observe('arg_byvalue.time', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.time');
+        if Try30(vOption, vVariant) then Observer.Observe('exit.time', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.time');
+        vVariant := CreateDateTime(20260131D, 120000T);
+        if Try26(vOption, vVariant) then Observer.Observe('assign.dt', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.dt');
+        if Try28(vOption, vVariant) then Observer.Observe('arg_byvalue.dt', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.dt');
+        if Try30(vOption, vVariant) then Observer.Observe('exit.dt', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('exit.dt');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Variant_To_Option_11()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vOption: Option A,B,C;
+        vVariant: Variant;
+    begin
         vVariant := Util.AsDuration(65);
         if Try26(vOption, vVariant) then Observer.Observe('assign.dur65', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('assign.dur65');
         if Try28(vOption, vVariant) then Observer.Observe('arg_byvalue.dur65', Format(vOption) + '|' + Format(Util.OptOrd(vOption))) else Observer.ObserveError('arg_byvalue.dur65');
@@ -10483,6 +10437,24 @@ codeunit 92425 "LT Y31 Cv Variant"
 
     [Test]
     procedure Variant_To_Text_10()
+    var
+        Observer: Codeunit "Probe Observer";
+        vText: Text;
+        vVariant: Variant;
+    begin
+        vVariant := 120000T;
+        if Try31(vText, vVariant) then Observer.Observe('assign.time', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.time');
+        if Try33(vText, vVariant) then Observer.Observe('arg_byvalue.time', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.time');
+        if Try35(vText, vVariant) then Observer.Observe('exit.time', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.time');
+        vVariant := CreateDateTime(20260131D, 120000T);
+        if Try31(vText, vVariant) then Observer.Observe('assign.dt', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('assign.dt');
+        if Try33(vText, vVariant) then Observer.Observe('arg_byvalue.dt', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('arg_byvalue.dt');
+        if Try35(vText, vVariant) then Observer.Observe('exit.dt', vText + '|' + Format(StrLen(vText))) else Observer.ObserveError('exit.dt');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Variant_To_Text_11()
     var
         Observer: Codeunit "Probe Observer";
         Util: Codeunit "LT Y31 Conv Util";
@@ -10668,6 +10640,24 @@ codeunit 92425 "LT Y31 Cv Variant"
     procedure Variant_To_Text10_10()
     var
         Observer: Codeunit "Probe Observer";
+        vText10: Text[10];
+        vVariant: Variant;
+    begin
+        vVariant := 120000T;
+        if Try36(vText10, vVariant) then Observer.Observe('assign.time', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.time');
+        if Try38(vText10, vVariant) then Observer.Observe('arg_byvalue.time', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.time');
+        if Try40(vText10, vVariant) then Observer.Observe('exit.time', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.time');
+        vVariant := CreateDateTime(20260131D, 120000T);
+        if Try36(vText10, vVariant) then Observer.Observe('assign.dt', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('assign.dt');
+        if Try38(vText10, vVariant) then Observer.Observe('arg_byvalue.dt', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('arg_byvalue.dt');
+        if Try40(vText10, vVariant) then Observer.Observe('exit.dt', vText10 + '|' + Format(StrLen(vText10))) else Observer.ObserveError('exit.dt');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Variant_To_Text10_11()
+    var
+        Observer: Codeunit "Probe Observer";
         Util: Codeunit "LT Y31 Conv Util";
         vText10: Text[10];
         vVariant: Variant;
@@ -10849,6 +10839,24 @@ codeunit 92425 "LT Y31 Cv Variant"
 
     [Test]
     procedure Variant_To_Text3_10()
+    var
+        Observer: Codeunit "Probe Observer";
+        vText3: Text[3];
+        vVariant: Variant;
+    begin
+        vVariant := 120000T;
+        if Try41(vText3, vVariant) then Observer.Observe('assign.time', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.time');
+        if Try43(vText3, vVariant) then Observer.Observe('arg_byvalue.time', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.time');
+        if Try45(vText3, vVariant) then Observer.Observe('exit.time', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.time');
+        vVariant := CreateDateTime(20260131D, 120000T);
+        if Try41(vText3, vVariant) then Observer.Observe('assign.dt', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('assign.dt');
+        if Try43(vText3, vVariant) then Observer.Observe('arg_byvalue.dt', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('arg_byvalue.dt');
+        if Try45(vText3, vVariant) then Observer.Observe('exit.dt', vText3 + '|' + Format(StrLen(vText3))) else Observer.ObserveError('exit.dt');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Variant_To_Text3_11()
     var
         Observer: Codeunit "Probe Observer";
         Util: Codeunit "LT Y31 Conv Util";
@@ -11034,6 +11042,24 @@ codeunit 92425 "LT Y31 Cv Variant"
     procedure Variant_To_Code10_10()
     var
         Observer: Codeunit "Probe Observer";
+        vCode10: Code[10];
+        vVariant: Variant;
+    begin
+        vVariant := 120000T;
+        if Try46(vCode10, vVariant) then Observer.Observe('assign.time', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.time');
+        if Try48(vCode10, vVariant) then Observer.Observe('arg_byvalue.time', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.time');
+        if Try50(vCode10, vVariant) then Observer.Observe('exit.time', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.time');
+        vVariant := CreateDateTime(20260131D, 120000T);
+        if Try46(vCode10, vVariant) then Observer.Observe('assign.dt', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('assign.dt');
+        if Try48(vCode10, vVariant) then Observer.Observe('arg_byvalue.dt', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('arg_byvalue.dt');
+        if Try50(vCode10, vVariant) then Observer.Observe('exit.dt', vCode10 + '|' + Format(StrLen(vCode10))) else Observer.ObserveError('exit.dt');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Variant_To_Code10_11()
+    var
+        Observer: Codeunit "Probe Observer";
         Util: Codeunit "LT Y31 Conv Util";
         vCode10: Code[10];
         vVariant: Variant;
@@ -11215,6 +11241,24 @@ codeunit 92425 "LT Y31 Cv Variant"
 
     [Test]
     procedure Variant_To_Code3_10()
+    var
+        Observer: Codeunit "Probe Observer";
+        vCode3: Code[3];
+        vVariant: Variant;
+    begin
+        vVariant := 120000T;
+        if Try51(vCode3, vVariant) then Observer.Observe('assign.time', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.time');
+        if Try53(vCode3, vVariant) then Observer.Observe('arg_byvalue.time', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.time');
+        if Try55(vCode3, vVariant) then Observer.Observe('exit.time', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.time');
+        vVariant := CreateDateTime(20260131D, 120000T);
+        if Try51(vCode3, vVariant) then Observer.Observe('assign.dt', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('assign.dt');
+        if Try53(vCode3, vVariant) then Observer.Observe('arg_byvalue.dt', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('arg_byvalue.dt');
+        if Try55(vCode3, vVariant) then Observer.Observe('exit.dt', vCode3 + '|' + Format(StrLen(vCode3))) else Observer.ObserveError('exit.dt');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Variant_To_Code3_11()
     var
         Observer: Codeunit "Probe Observer";
         Util: Codeunit "LT Y31 Conv Util";
@@ -11400,6 +11444,24 @@ codeunit 92425 "LT Y31 Cv Variant"
     procedure Variant_To_Code250_10()
     var
         Observer: Codeunit "Probe Observer";
+        vCode250: Code[250];
+        vVariant: Variant;
+    begin
+        vVariant := 120000T;
+        if Try56(vCode250, vVariant) then Observer.Observe('assign.time', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.time');
+        if Try58(vCode250, vVariant) then Observer.Observe('arg_byvalue.time', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.time');
+        if Try60(vCode250, vVariant) then Observer.Observe('exit.time', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.time');
+        vVariant := CreateDateTime(20260131D, 120000T);
+        if Try56(vCode250, vVariant) then Observer.Observe('assign.dt', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('assign.dt');
+        if Try58(vCode250, vVariant) then Observer.Observe('arg_byvalue.dt', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('arg_byvalue.dt');
+        if Try60(vCode250, vVariant) then Observer.Observe('exit.dt', vCode250 + '|' + Format(StrLen(vCode250))) else Observer.ObserveError('exit.dt');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Variant_To_Code250_11()
+    var
+        Observer: Codeunit "Probe Observer";
         Util: Codeunit "LT Y31 Conv Util";
         vCode250: Code[250];
         vVariant: Variant;
@@ -11581,6 +11643,24 @@ codeunit 92425 "LT Y31 Cv Variant"
 
     [Test]
     procedure Variant_To_Guid_10()
+    var
+        Observer: Codeunit "Probe Observer";
+        vGuid: Guid;
+        vVariant: Variant;
+    begin
+        vVariant := 120000T;
+        if Try61(vGuid, vVariant) then Observer.Observe('assign.time', Format(vGuid)) else Observer.ObserveError('assign.time');
+        if Try63(vGuid, vVariant) then Observer.Observe('arg_byvalue.time', Format(vGuid)) else Observer.ObserveError('arg_byvalue.time');
+        if Try65(vGuid, vVariant) then Observer.Observe('exit.time', Format(vGuid)) else Observer.ObserveError('exit.time');
+        vVariant := CreateDateTime(20260131D, 120000T);
+        if Try61(vGuid, vVariant) then Observer.Observe('assign.dt', Format(vGuid)) else Observer.ObserveError('assign.dt');
+        if Try63(vGuid, vVariant) then Observer.Observe('arg_byvalue.dt', Format(vGuid)) else Observer.ObserveError('arg_byvalue.dt');
+        if Try65(vGuid, vVariant) then Observer.Observe('exit.dt', Format(vGuid)) else Observer.ObserveError('exit.dt');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Variant_To_Guid_11()
     var
         Observer: Codeunit "Probe Observer";
         Util: Codeunit "LT Y31 Conv Util";
@@ -11766,6 +11846,24 @@ codeunit 92425 "LT Y31 Cv Variant"
     procedure Variant_To_Duration_10()
     var
         Observer: Codeunit "Probe Observer";
+        vDuration: Duration;
+        vVariant: Variant;
+    begin
+        vVariant := 120000T;
+        if Try66(vDuration, vVariant) then Observer.Observe('assign.time', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.time');
+        if Try68(vDuration, vVariant) then Observer.Observe('arg_byvalue.time', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.time');
+        if Try70(vDuration, vVariant) then Observer.Observe('exit.time', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.time');
+        vVariant := CreateDateTime(20260131D, 120000T);
+        if Try66(vDuration, vVariant) then Observer.Observe('assign.dt', Format(vDuration, 0, 9)) else Observer.ObserveError('assign.dt');
+        if Try68(vDuration, vVariant) then Observer.Observe('arg_byvalue.dt', Format(vDuration, 0, 9)) else Observer.ObserveError('arg_byvalue.dt');
+        if Try70(vDuration, vVariant) then Observer.Observe('exit.dt', Format(vDuration, 0, 9)) else Observer.ObserveError('exit.dt');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Variant_To_Duration_11()
+    var
+        Observer: Codeunit "Probe Observer";
         Util: Codeunit "LT Y31 Conv Util";
         vDuration: Duration;
         vVariant: Variant;
@@ -11778,6 +11876,810 @@ codeunit 92425 "LT Y31 Cv Variant"
     end;
 
     [Test]
+    procedure Variant_To_Boolean()
+    var
+        Observer: Codeunit "Probe Observer";
+        vBoolean: Boolean;
+        vVariant: Variant;
+    begin
+        vVariant := 3;
+        if Try71(vBoolean, vVariant) then Observer.Observe('assign.int3', Format(vBoolean, 0, 9)) else Observer.ObserveError('assign.int3');
+        if Try73(vBoolean, vVariant) then Observer.Observe('arg_byvalue.int3', Format(vBoolean, 0, 9)) else Observer.ObserveError('arg_byvalue.int3');
+        if Try75(vBoolean, vVariant) then Observer.Observe('exit.int3', Format(vBoolean, 0, 9)) else Observer.ObserveError('exit.int3');
+        vVariant := 300;
+        if Try71(vBoolean, vVariant) then Observer.Observe('assign.int300', Format(vBoolean, 0, 9)) else Observer.ObserveError('assign.int300');
+        if Try73(vBoolean, vVariant) then Observer.Observe('arg_byvalue.int300', Format(vBoolean, 0, 9)) else Observer.ObserveError('arg_byvalue.int300');
+        if Try75(vBoolean, vVariant) then Observer.Observe('exit.int300', Format(vBoolean, 0, 9)) else Observer.ObserveError('exit.int300');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Variant_To_Boolean_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vBoolean: Boolean;
+        vVariant: Variant;
+    begin
+        vVariant := 3000000000L;
+        if Try71(vBoolean, vVariant) then Observer.Observe('assign.big', Format(vBoolean, 0, 9)) else Observer.ObserveError('assign.big');
+        if Try73(vBoolean, vVariant) then Observer.Observe('arg_byvalue.big', Format(vBoolean, 0, 9)) else Observer.ObserveError('arg_byvalue.big');
+        if Try75(vBoolean, vVariant) then Observer.Observe('exit.big', Format(vBoolean, 0, 9)) else Observer.ObserveError('exit.big');
+        vVariant := 1.5;
+        if Try71(vBoolean, vVariant) then Observer.Observe('assign.dec1p5', Format(vBoolean, 0, 9)) else Observer.ObserveError('assign.dec1p5');
+        if Try73(vBoolean, vVariant) then Observer.Observe('arg_byvalue.dec1p5', Format(vBoolean, 0, 9)) else Observer.ObserveError('arg_byvalue.dec1p5');
+        if Try75(vBoolean, vVariant) then Observer.Observe('exit.dec1p5', Format(vBoolean, 0, 9)) else Observer.ObserveError('exit.dec1p5');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Variant_To_Boolean_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vBoolean: Boolean;
+        vVariant: Variant;
+    begin
+        vVariant := 2.0;
+        if Try71(vBoolean, vVariant) then Observer.Observe('assign.dec2', Format(vBoolean, 0, 9)) else Observer.ObserveError('assign.dec2');
+        if Try73(vBoolean, vVariant) then Observer.Observe('arg_byvalue.dec2', Format(vBoolean, 0, 9)) else Observer.ObserveError('arg_byvalue.dec2');
+        if Try75(vBoolean, vVariant) then Observer.Observe('exit.dec2', Format(vBoolean, 0, 9)) else Observer.ObserveError('exit.dec2');
+        vVariant := Util.AsChar(65);
+        if Try71(vBoolean, vVariant) then Observer.Observe('assign.charA', Format(vBoolean, 0, 9)) else Observer.ObserveError('assign.charA');
+        if Try73(vBoolean, vVariant) then Observer.Observe('arg_byvalue.charA', Format(vBoolean, 0, 9)) else Observer.ObserveError('arg_byvalue.charA');
+        if Try75(vBoolean, vVariant) then Observer.Observe('exit.charA', Format(vBoolean, 0, 9)) else Observer.ObserveError('exit.charA');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Variant_To_Boolean_4()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vBoolean: Boolean;
+        vVariant: Variant;
+    begin
+        vVariant := Util.AsByte(65);
+        if Try71(vBoolean, vVariant) then Observer.Observe('assign.byte65', Format(vBoolean, 0, 9)) else Observer.ObserveError('assign.byte65');
+        if Try73(vBoolean, vVariant) then Observer.Observe('arg_byvalue.byte65', Format(vBoolean, 0, 9)) else Observer.ObserveError('arg_byvalue.byte65');
+        if Try75(vBoolean, vVariant) then Observer.Observe('exit.byte65', Format(vBoolean, 0, 9)) else Observer.ObserveError('exit.byte65');
+        vVariant := Util.AsOption(1);
+        if Try71(vBoolean, vVariant) then Observer.Observe('assign.optB', Format(vBoolean, 0, 9)) else Observer.ObserveError('assign.optB');
+        if Try73(vBoolean, vVariant) then Observer.Observe('arg_byvalue.optB', Format(vBoolean, 0, 9)) else Observer.ObserveError('arg_byvalue.optB');
+        if Try75(vBoolean, vVariant) then Observer.Observe('exit.optB', Format(vBoolean, 0, 9)) else Observer.ObserveError('exit.optB');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Variant_To_Boolean_5()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vBoolean: Boolean;
+        vVariant: Variant;
+    begin
+        vVariant := "LT Y31 E"::C;
+        if Try71(vBoolean, vVariant) then Observer.Observe('assign.enumC', Format(vBoolean, 0, 9)) else Observer.ObserveError('assign.enumC');
+        if Try73(vBoolean, vVariant) then Observer.Observe('arg_byvalue.enumC', Format(vBoolean, 0, 9)) else Observer.ObserveError('arg_byvalue.enumC');
+        if Try75(vBoolean, vVariant) then Observer.Observe('exit.enumC', Format(vBoolean, 0, 9)) else Observer.ObserveError('exit.enumC');
+        vVariant := Util.AsText('abc');
+        if Try71(vBoolean, vVariant) then Observer.Observe('assign.textabc', Format(vBoolean, 0, 9)) else Observer.ObserveError('assign.textabc');
+        if Try73(vBoolean, vVariant) then Observer.Observe('arg_byvalue.textabc', Format(vBoolean, 0, 9)) else Observer.ObserveError('arg_byvalue.textabc');
+        if Try75(vBoolean, vVariant) then Observer.Observe('exit.textabc', Format(vBoolean, 0, 9)) else Observer.ObserveError('exit.textabc');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Variant_To_Boolean_6()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vBoolean: Boolean;
+        vVariant: Variant;
+    begin
+        vVariant := Util.AsText('abcdefghijk');
+        if Try71(vBoolean, vVariant) then Observer.Observe('assign.text11', Format(vBoolean, 0, 9)) else Observer.ObserveError('assign.text11');
+        if Try73(vBoolean, vVariant) then Observer.Observe('arg_byvalue.text11', Format(vBoolean, 0, 9)) else Observer.ObserveError('arg_byvalue.text11');
+        if Try75(vBoolean, vVariant) then Observer.Observe('exit.text11', Format(vBoolean, 0, 9)) else Observer.ObserveError('exit.text11');
+        vVariant := Util.AsText('12');
+        if Try71(vBoolean, vVariant) then Observer.Observe('assign.text12', Format(vBoolean, 0, 9)) else Observer.ObserveError('assign.text12');
+        if Try73(vBoolean, vVariant) then Observer.Observe('arg_byvalue.text12', Format(vBoolean, 0, 9)) else Observer.ObserveError('arg_byvalue.text12');
+        if Try75(vBoolean, vVariant) then Observer.Observe('exit.text12', Format(vBoolean, 0, 9)) else Observer.ObserveError('exit.text12');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Variant_To_Boolean_7()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vBoolean: Boolean;
+        vVariant: Variant;
+    begin
+        vVariant := Util.AsCode('abc');
+        if Try71(vBoolean, vVariant) then Observer.Observe('assign.codeABC', Format(vBoolean, 0, 9)) else Observer.ObserveError('assign.codeABC');
+        if Try73(vBoolean, vVariant) then Observer.Observe('arg_byvalue.codeABC', Format(vBoolean, 0, 9)) else Observer.ObserveError('arg_byvalue.codeABC');
+        if Try75(vBoolean, vVariant) then Observer.Observe('exit.codeABC', Format(vBoolean, 0, 9)) else Observer.ObserveError('exit.codeABC');
+        vVariant := Util.AsCode('12');
+        if Try71(vBoolean, vVariant) then Observer.Observe('assign.code12', Format(vBoolean, 0, 9)) else Observer.ObserveError('assign.code12');
+        if Try73(vBoolean, vVariant) then Observer.Observe('arg_byvalue.code12', Format(vBoolean, 0, 9)) else Observer.ObserveError('arg_byvalue.code12');
+        if Try75(vBoolean, vVariant) then Observer.Observe('exit.code12', Format(vBoolean, 0, 9)) else Observer.ObserveError('exit.code12');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Variant_To_Boolean_8()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vBoolean: Boolean;
+        vVariant: Variant;
+    begin
+        vVariant := Util.AsGuid('{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        if Try71(vBoolean, vVariant) then Observer.Observe('assign.guid', Format(vBoolean, 0, 9)) else Observer.ObserveError('assign.guid');
+        if Try73(vBoolean, vVariant) then Observer.Observe('arg_byvalue.guid', Format(vBoolean, 0, 9)) else Observer.ObserveError('arg_byvalue.guid');
+        if Try75(vBoolean, vVariant) then Observer.Observe('exit.guid', Format(vBoolean, 0, 9)) else Observer.ObserveError('exit.guid');
+        vVariant := false;
+        if Try71(vBoolean, vVariant) then Observer.Observe('assign.boolF', Format(vBoolean, 0, 9)) else Observer.ObserveError('assign.boolF');
+        if Try73(vBoolean, vVariant) then Observer.Observe('arg_byvalue.boolF', Format(vBoolean, 0, 9)) else Observer.ObserveError('arg_byvalue.boolF');
+        if Try75(vBoolean, vVariant) then Observer.Observe('exit.boolF', Format(vBoolean, 0, 9)) else Observer.ObserveError('exit.boolF');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Variant_To_Boolean_9()
+    var
+        Observer: Codeunit "Probe Observer";
+        vBoolean: Boolean;
+        vVariant: Variant;
+    begin
+        vVariant := true;
+        if Try71(vBoolean, vVariant) then Observer.Observe('assign.boolT', Format(vBoolean, 0, 9)) else Observer.ObserveError('assign.boolT');
+        if Try73(vBoolean, vVariant) then Observer.Observe('arg_byvalue.boolT', Format(vBoolean, 0, 9)) else Observer.ObserveError('arg_byvalue.boolT');
+        if Try75(vBoolean, vVariant) then Observer.Observe('exit.boolT', Format(vBoolean, 0, 9)) else Observer.ObserveError('exit.boolT');
+        vVariant := 20260131D;
+        if Try71(vBoolean, vVariant) then Observer.Observe('assign.date', Format(vBoolean, 0, 9)) else Observer.ObserveError('assign.date');
+        if Try73(vBoolean, vVariant) then Observer.Observe('arg_byvalue.date', Format(vBoolean, 0, 9)) else Observer.ObserveError('arg_byvalue.date');
+        if Try75(vBoolean, vVariant) then Observer.Observe('exit.date', Format(vBoolean, 0, 9)) else Observer.ObserveError('exit.date');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Variant_To_Boolean_10()
+    var
+        Observer: Codeunit "Probe Observer";
+        vBoolean: Boolean;
+        vVariant: Variant;
+    begin
+        vVariant := 120000T;
+        if Try71(vBoolean, vVariant) then Observer.Observe('assign.time', Format(vBoolean, 0, 9)) else Observer.ObserveError('assign.time');
+        if Try73(vBoolean, vVariant) then Observer.Observe('arg_byvalue.time', Format(vBoolean, 0, 9)) else Observer.ObserveError('arg_byvalue.time');
+        if Try75(vBoolean, vVariant) then Observer.Observe('exit.time', Format(vBoolean, 0, 9)) else Observer.ObserveError('exit.time');
+        vVariant := CreateDateTime(20260131D, 120000T);
+        if Try71(vBoolean, vVariant) then Observer.Observe('assign.dt', Format(vBoolean, 0, 9)) else Observer.ObserveError('assign.dt');
+        if Try73(vBoolean, vVariant) then Observer.Observe('arg_byvalue.dt', Format(vBoolean, 0, 9)) else Observer.ObserveError('arg_byvalue.dt');
+        if Try75(vBoolean, vVariant) then Observer.Observe('exit.dt', Format(vBoolean, 0, 9)) else Observer.ObserveError('exit.dt');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Variant_To_Boolean_11()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vBoolean: Boolean;
+        vVariant: Variant;
+    begin
+        vVariant := Util.AsDuration(65);
+        if Try71(vBoolean, vVariant) then Observer.Observe('assign.dur65', Format(vBoolean, 0, 9)) else Observer.ObserveError('assign.dur65');
+        if Try73(vBoolean, vVariant) then Observer.Observe('arg_byvalue.dur65', Format(vBoolean, 0, 9)) else Observer.ObserveError('arg_byvalue.dur65');
+        if Try75(vBoolean, vVariant) then Observer.Observe('exit.dur65', Format(vBoolean, 0, 9)) else Observer.ObserveError('exit.dur65');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Variant_To_Date()
+    var
+        Observer: Codeunit "Probe Observer";
+        vDate: Date;
+        vVariant: Variant;
+    begin
+        vVariant := 3;
+        if Try76(vDate, vVariant) then Observer.Observe('assign.int3', Format(vDate, 0, 9)) else Observer.ObserveError('assign.int3');
+        if Try78(vDate, vVariant) then Observer.Observe('arg_byvalue.int3', Format(vDate, 0, 9)) else Observer.ObserveError('arg_byvalue.int3');
+        if Try80(vDate, vVariant) then Observer.Observe('exit.int3', Format(vDate, 0, 9)) else Observer.ObserveError('exit.int3');
+        vVariant := 300;
+        if Try76(vDate, vVariant) then Observer.Observe('assign.int300', Format(vDate, 0, 9)) else Observer.ObserveError('assign.int300');
+        if Try78(vDate, vVariant) then Observer.Observe('arg_byvalue.int300', Format(vDate, 0, 9)) else Observer.ObserveError('arg_byvalue.int300');
+        if Try80(vDate, vVariant) then Observer.Observe('exit.int300', Format(vDate, 0, 9)) else Observer.ObserveError('exit.int300');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Variant_To_Date_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vDate: Date;
+        vVariant: Variant;
+    begin
+        vVariant := 3000000000L;
+        if Try76(vDate, vVariant) then Observer.Observe('assign.big', Format(vDate, 0, 9)) else Observer.ObserveError('assign.big');
+        if Try78(vDate, vVariant) then Observer.Observe('arg_byvalue.big', Format(vDate, 0, 9)) else Observer.ObserveError('arg_byvalue.big');
+        if Try80(vDate, vVariant) then Observer.Observe('exit.big', Format(vDate, 0, 9)) else Observer.ObserveError('exit.big');
+        vVariant := 1.5;
+        if Try76(vDate, vVariant) then Observer.Observe('assign.dec1p5', Format(vDate, 0, 9)) else Observer.ObserveError('assign.dec1p5');
+        if Try78(vDate, vVariant) then Observer.Observe('arg_byvalue.dec1p5', Format(vDate, 0, 9)) else Observer.ObserveError('arg_byvalue.dec1p5');
+        if Try80(vDate, vVariant) then Observer.Observe('exit.dec1p5', Format(vDate, 0, 9)) else Observer.ObserveError('exit.dec1p5');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Variant_To_Date_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vDate: Date;
+        vVariant: Variant;
+    begin
+        vVariant := 2.0;
+        if Try76(vDate, vVariant) then Observer.Observe('assign.dec2', Format(vDate, 0, 9)) else Observer.ObserveError('assign.dec2');
+        if Try78(vDate, vVariant) then Observer.Observe('arg_byvalue.dec2', Format(vDate, 0, 9)) else Observer.ObserveError('arg_byvalue.dec2');
+        if Try80(vDate, vVariant) then Observer.Observe('exit.dec2', Format(vDate, 0, 9)) else Observer.ObserveError('exit.dec2');
+        vVariant := Util.AsChar(65);
+        if Try76(vDate, vVariant) then Observer.Observe('assign.charA', Format(vDate, 0, 9)) else Observer.ObserveError('assign.charA');
+        if Try78(vDate, vVariant) then Observer.Observe('arg_byvalue.charA', Format(vDate, 0, 9)) else Observer.ObserveError('arg_byvalue.charA');
+        if Try80(vDate, vVariant) then Observer.Observe('exit.charA', Format(vDate, 0, 9)) else Observer.ObserveError('exit.charA');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Variant_To_Date_4()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vDate: Date;
+        vVariant: Variant;
+    begin
+        vVariant := Util.AsByte(65);
+        if Try76(vDate, vVariant) then Observer.Observe('assign.byte65', Format(vDate, 0, 9)) else Observer.ObserveError('assign.byte65');
+        if Try78(vDate, vVariant) then Observer.Observe('arg_byvalue.byte65', Format(vDate, 0, 9)) else Observer.ObserveError('arg_byvalue.byte65');
+        if Try80(vDate, vVariant) then Observer.Observe('exit.byte65', Format(vDate, 0, 9)) else Observer.ObserveError('exit.byte65');
+        vVariant := Util.AsOption(1);
+        if Try76(vDate, vVariant) then Observer.Observe('assign.optB', Format(vDate, 0, 9)) else Observer.ObserveError('assign.optB');
+        if Try78(vDate, vVariant) then Observer.Observe('arg_byvalue.optB', Format(vDate, 0, 9)) else Observer.ObserveError('arg_byvalue.optB');
+        if Try80(vDate, vVariant) then Observer.Observe('exit.optB', Format(vDate, 0, 9)) else Observer.ObserveError('exit.optB');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Variant_To_Date_5()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vDate: Date;
+        vVariant: Variant;
+    begin
+        vVariant := "LT Y31 E"::C;
+        if Try76(vDate, vVariant) then Observer.Observe('assign.enumC', Format(vDate, 0, 9)) else Observer.ObserveError('assign.enumC');
+        if Try78(vDate, vVariant) then Observer.Observe('arg_byvalue.enumC', Format(vDate, 0, 9)) else Observer.ObserveError('arg_byvalue.enumC');
+        if Try80(vDate, vVariant) then Observer.Observe('exit.enumC', Format(vDate, 0, 9)) else Observer.ObserveError('exit.enumC');
+        vVariant := Util.AsText('abc');
+        if Try76(vDate, vVariant) then Observer.Observe('assign.textabc', Format(vDate, 0, 9)) else Observer.ObserveError('assign.textabc');
+        if Try78(vDate, vVariant) then Observer.Observe('arg_byvalue.textabc', Format(vDate, 0, 9)) else Observer.ObserveError('arg_byvalue.textabc');
+        if Try80(vDate, vVariant) then Observer.Observe('exit.textabc', Format(vDate, 0, 9)) else Observer.ObserveError('exit.textabc');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Variant_To_Date_6()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vDate: Date;
+        vVariant: Variant;
+    begin
+        vVariant := Util.AsText('abcdefghijk');
+        if Try76(vDate, vVariant) then Observer.Observe('assign.text11', Format(vDate, 0, 9)) else Observer.ObserveError('assign.text11');
+        if Try78(vDate, vVariant) then Observer.Observe('arg_byvalue.text11', Format(vDate, 0, 9)) else Observer.ObserveError('arg_byvalue.text11');
+        if Try80(vDate, vVariant) then Observer.Observe('exit.text11', Format(vDate, 0, 9)) else Observer.ObserveError('exit.text11');
+        vVariant := Util.AsText('12');
+        if Try76(vDate, vVariant) then Observer.Observe('assign.text12', Format(vDate, 0, 9)) else Observer.ObserveError('assign.text12');
+        if Try78(vDate, vVariant) then Observer.Observe('arg_byvalue.text12', Format(vDate, 0, 9)) else Observer.ObserveError('arg_byvalue.text12');
+        if Try80(vDate, vVariant) then Observer.Observe('exit.text12', Format(vDate, 0, 9)) else Observer.ObserveError('exit.text12');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Variant_To_Date_7()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vDate: Date;
+        vVariant: Variant;
+    begin
+        vVariant := Util.AsCode('abc');
+        if Try76(vDate, vVariant) then Observer.Observe('assign.codeABC', Format(vDate, 0, 9)) else Observer.ObserveError('assign.codeABC');
+        if Try78(vDate, vVariant) then Observer.Observe('arg_byvalue.codeABC', Format(vDate, 0, 9)) else Observer.ObserveError('arg_byvalue.codeABC');
+        if Try80(vDate, vVariant) then Observer.Observe('exit.codeABC', Format(vDate, 0, 9)) else Observer.ObserveError('exit.codeABC');
+        vVariant := Util.AsCode('12');
+        if Try76(vDate, vVariant) then Observer.Observe('assign.code12', Format(vDate, 0, 9)) else Observer.ObserveError('assign.code12');
+        if Try78(vDate, vVariant) then Observer.Observe('arg_byvalue.code12', Format(vDate, 0, 9)) else Observer.ObserveError('arg_byvalue.code12');
+        if Try80(vDate, vVariant) then Observer.Observe('exit.code12', Format(vDate, 0, 9)) else Observer.ObserveError('exit.code12');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Variant_To_Date_8()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vDate: Date;
+        vVariant: Variant;
+    begin
+        vVariant := Util.AsGuid('{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        if Try76(vDate, vVariant) then Observer.Observe('assign.guid', Format(vDate, 0, 9)) else Observer.ObserveError('assign.guid');
+        if Try78(vDate, vVariant) then Observer.Observe('arg_byvalue.guid', Format(vDate, 0, 9)) else Observer.ObserveError('arg_byvalue.guid');
+        if Try80(vDate, vVariant) then Observer.Observe('exit.guid', Format(vDate, 0, 9)) else Observer.ObserveError('exit.guid');
+        vVariant := false;
+        if Try76(vDate, vVariant) then Observer.Observe('assign.boolF', Format(vDate, 0, 9)) else Observer.ObserveError('assign.boolF');
+        if Try78(vDate, vVariant) then Observer.Observe('arg_byvalue.boolF', Format(vDate, 0, 9)) else Observer.ObserveError('arg_byvalue.boolF');
+        if Try80(vDate, vVariant) then Observer.Observe('exit.boolF', Format(vDate, 0, 9)) else Observer.ObserveError('exit.boolF');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Variant_To_Date_9()
+    var
+        Observer: Codeunit "Probe Observer";
+        vDate: Date;
+        vVariant: Variant;
+    begin
+        vVariant := true;
+        if Try76(vDate, vVariant) then Observer.Observe('assign.boolT', Format(vDate, 0, 9)) else Observer.ObserveError('assign.boolT');
+        if Try78(vDate, vVariant) then Observer.Observe('arg_byvalue.boolT', Format(vDate, 0, 9)) else Observer.ObserveError('arg_byvalue.boolT');
+        if Try80(vDate, vVariant) then Observer.Observe('exit.boolT', Format(vDate, 0, 9)) else Observer.ObserveError('exit.boolT');
+        vVariant := 20260131D;
+        if Try76(vDate, vVariant) then Observer.Observe('assign.date', Format(vDate, 0, 9)) else Observer.ObserveError('assign.date');
+        if Try78(vDate, vVariant) then Observer.Observe('arg_byvalue.date', Format(vDate, 0, 9)) else Observer.ObserveError('arg_byvalue.date');
+        if Try80(vDate, vVariant) then Observer.Observe('exit.date', Format(vDate, 0, 9)) else Observer.ObserveError('exit.date');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Variant_To_Date_10()
+    var
+        Observer: Codeunit "Probe Observer";
+        vDate: Date;
+        vVariant: Variant;
+    begin
+        vVariant := 120000T;
+        if Try76(vDate, vVariant) then Observer.Observe('assign.time', Format(vDate, 0, 9)) else Observer.ObserveError('assign.time');
+        if Try78(vDate, vVariant) then Observer.Observe('arg_byvalue.time', Format(vDate, 0, 9)) else Observer.ObserveError('arg_byvalue.time');
+        if Try80(vDate, vVariant) then Observer.Observe('exit.time', Format(vDate, 0, 9)) else Observer.ObserveError('exit.time');
+        vVariant := CreateDateTime(20260131D, 120000T);
+        if Try76(vDate, vVariant) then Observer.Observe('assign.dt', Format(vDate, 0, 9)) else Observer.ObserveError('assign.dt');
+        if Try78(vDate, vVariant) then Observer.Observe('arg_byvalue.dt', Format(vDate, 0, 9)) else Observer.ObserveError('arg_byvalue.dt');
+        if Try80(vDate, vVariant) then Observer.Observe('exit.dt', Format(vDate, 0, 9)) else Observer.ObserveError('exit.dt');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Variant_To_Date_11()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vDate: Date;
+        vVariant: Variant;
+    begin
+        vVariant := Util.AsDuration(65);
+        if Try76(vDate, vVariant) then Observer.Observe('assign.dur65', Format(vDate, 0, 9)) else Observer.ObserveError('assign.dur65');
+        if Try78(vDate, vVariant) then Observer.Observe('arg_byvalue.dur65', Format(vDate, 0, 9)) else Observer.ObserveError('arg_byvalue.dur65');
+        if Try80(vDate, vVariant) then Observer.Observe('exit.dur65', Format(vDate, 0, 9)) else Observer.ObserveError('exit.dur65');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Variant_To_Time()
+    var
+        Observer: Codeunit "Probe Observer";
+        vTime: Time;
+        vVariant: Variant;
+    begin
+        vVariant := 3;
+        if Try81(vTime, vVariant) then Observer.Observe('assign.int3', Format(vTime, 0, 9)) else Observer.ObserveError('assign.int3');
+        if Try83(vTime, vVariant) then Observer.Observe('arg_byvalue.int3', Format(vTime, 0, 9)) else Observer.ObserveError('arg_byvalue.int3');
+        if Try85(vTime, vVariant) then Observer.Observe('exit.int3', Format(vTime, 0, 9)) else Observer.ObserveError('exit.int3');
+        vVariant := 300;
+        if Try81(vTime, vVariant) then Observer.Observe('assign.int300', Format(vTime, 0, 9)) else Observer.ObserveError('assign.int300');
+        if Try83(vTime, vVariant) then Observer.Observe('arg_byvalue.int300', Format(vTime, 0, 9)) else Observer.ObserveError('arg_byvalue.int300');
+        if Try85(vTime, vVariant) then Observer.Observe('exit.int300', Format(vTime, 0, 9)) else Observer.ObserveError('exit.int300');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Variant_To_Time_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vTime: Time;
+        vVariant: Variant;
+    begin
+        vVariant := 3000000000L;
+        if Try81(vTime, vVariant) then Observer.Observe('assign.big', Format(vTime, 0, 9)) else Observer.ObserveError('assign.big');
+        if Try83(vTime, vVariant) then Observer.Observe('arg_byvalue.big', Format(vTime, 0, 9)) else Observer.ObserveError('arg_byvalue.big');
+        if Try85(vTime, vVariant) then Observer.Observe('exit.big', Format(vTime, 0, 9)) else Observer.ObserveError('exit.big');
+        vVariant := 1.5;
+        if Try81(vTime, vVariant) then Observer.Observe('assign.dec1p5', Format(vTime, 0, 9)) else Observer.ObserveError('assign.dec1p5');
+        if Try83(vTime, vVariant) then Observer.Observe('arg_byvalue.dec1p5', Format(vTime, 0, 9)) else Observer.ObserveError('arg_byvalue.dec1p5');
+        if Try85(vTime, vVariant) then Observer.Observe('exit.dec1p5', Format(vTime, 0, 9)) else Observer.ObserveError('exit.dec1p5');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Variant_To_Time_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vTime: Time;
+        vVariant: Variant;
+    begin
+        vVariant := 2.0;
+        if Try81(vTime, vVariant) then Observer.Observe('assign.dec2', Format(vTime, 0, 9)) else Observer.ObserveError('assign.dec2');
+        if Try83(vTime, vVariant) then Observer.Observe('arg_byvalue.dec2', Format(vTime, 0, 9)) else Observer.ObserveError('arg_byvalue.dec2');
+        if Try85(vTime, vVariant) then Observer.Observe('exit.dec2', Format(vTime, 0, 9)) else Observer.ObserveError('exit.dec2');
+        vVariant := Util.AsChar(65);
+        if Try81(vTime, vVariant) then Observer.Observe('assign.charA', Format(vTime, 0, 9)) else Observer.ObserveError('assign.charA');
+        if Try83(vTime, vVariant) then Observer.Observe('arg_byvalue.charA', Format(vTime, 0, 9)) else Observer.ObserveError('arg_byvalue.charA');
+        if Try85(vTime, vVariant) then Observer.Observe('exit.charA', Format(vTime, 0, 9)) else Observer.ObserveError('exit.charA');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Variant_To_Time_4()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vTime: Time;
+        vVariant: Variant;
+    begin
+        vVariant := Util.AsByte(65);
+        if Try81(vTime, vVariant) then Observer.Observe('assign.byte65', Format(vTime, 0, 9)) else Observer.ObserveError('assign.byte65');
+        if Try83(vTime, vVariant) then Observer.Observe('arg_byvalue.byte65', Format(vTime, 0, 9)) else Observer.ObserveError('arg_byvalue.byte65');
+        if Try85(vTime, vVariant) then Observer.Observe('exit.byte65', Format(vTime, 0, 9)) else Observer.ObserveError('exit.byte65');
+        vVariant := Util.AsOption(1);
+        if Try81(vTime, vVariant) then Observer.Observe('assign.optB', Format(vTime, 0, 9)) else Observer.ObserveError('assign.optB');
+        if Try83(vTime, vVariant) then Observer.Observe('arg_byvalue.optB', Format(vTime, 0, 9)) else Observer.ObserveError('arg_byvalue.optB');
+        if Try85(vTime, vVariant) then Observer.Observe('exit.optB', Format(vTime, 0, 9)) else Observer.ObserveError('exit.optB');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Variant_To_Time_5()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vTime: Time;
+        vVariant: Variant;
+    begin
+        vVariant := "LT Y31 E"::C;
+        if Try81(vTime, vVariant) then Observer.Observe('assign.enumC', Format(vTime, 0, 9)) else Observer.ObserveError('assign.enumC');
+        if Try83(vTime, vVariant) then Observer.Observe('arg_byvalue.enumC', Format(vTime, 0, 9)) else Observer.ObserveError('arg_byvalue.enumC');
+        if Try85(vTime, vVariant) then Observer.Observe('exit.enumC', Format(vTime, 0, 9)) else Observer.ObserveError('exit.enumC');
+        vVariant := Util.AsText('abc');
+        if Try81(vTime, vVariant) then Observer.Observe('assign.textabc', Format(vTime, 0, 9)) else Observer.ObserveError('assign.textabc');
+        if Try83(vTime, vVariant) then Observer.Observe('arg_byvalue.textabc', Format(vTime, 0, 9)) else Observer.ObserveError('arg_byvalue.textabc');
+        if Try85(vTime, vVariant) then Observer.Observe('exit.textabc', Format(vTime, 0, 9)) else Observer.ObserveError('exit.textabc');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Variant_To_Time_6()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vTime: Time;
+        vVariant: Variant;
+    begin
+        vVariant := Util.AsText('abcdefghijk');
+        if Try81(vTime, vVariant) then Observer.Observe('assign.text11', Format(vTime, 0, 9)) else Observer.ObserveError('assign.text11');
+        if Try83(vTime, vVariant) then Observer.Observe('arg_byvalue.text11', Format(vTime, 0, 9)) else Observer.ObserveError('arg_byvalue.text11');
+        if Try85(vTime, vVariant) then Observer.Observe('exit.text11', Format(vTime, 0, 9)) else Observer.ObserveError('exit.text11');
+        vVariant := Util.AsText('12');
+        if Try81(vTime, vVariant) then Observer.Observe('assign.text12', Format(vTime, 0, 9)) else Observer.ObserveError('assign.text12');
+        if Try83(vTime, vVariant) then Observer.Observe('arg_byvalue.text12', Format(vTime, 0, 9)) else Observer.ObserveError('arg_byvalue.text12');
+        if Try85(vTime, vVariant) then Observer.Observe('exit.text12', Format(vTime, 0, 9)) else Observer.ObserveError('exit.text12');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Variant_To_Time_7()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vTime: Time;
+        vVariant: Variant;
+    begin
+        vVariant := Util.AsCode('abc');
+        if Try81(vTime, vVariant) then Observer.Observe('assign.codeABC', Format(vTime, 0, 9)) else Observer.ObserveError('assign.codeABC');
+        if Try83(vTime, vVariant) then Observer.Observe('arg_byvalue.codeABC', Format(vTime, 0, 9)) else Observer.ObserveError('arg_byvalue.codeABC');
+        if Try85(vTime, vVariant) then Observer.Observe('exit.codeABC', Format(vTime, 0, 9)) else Observer.ObserveError('exit.codeABC');
+        vVariant := Util.AsCode('12');
+        if Try81(vTime, vVariant) then Observer.Observe('assign.code12', Format(vTime, 0, 9)) else Observer.ObserveError('assign.code12');
+        if Try83(vTime, vVariant) then Observer.Observe('arg_byvalue.code12', Format(vTime, 0, 9)) else Observer.ObserveError('arg_byvalue.code12');
+        if Try85(vTime, vVariant) then Observer.Observe('exit.code12', Format(vTime, 0, 9)) else Observer.ObserveError('exit.code12');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Variant_To_Time_8()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vTime: Time;
+        vVariant: Variant;
+    begin
+        vVariant := Util.AsGuid('{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        if Try81(vTime, vVariant) then Observer.Observe('assign.guid', Format(vTime, 0, 9)) else Observer.ObserveError('assign.guid');
+        if Try83(vTime, vVariant) then Observer.Observe('arg_byvalue.guid', Format(vTime, 0, 9)) else Observer.ObserveError('arg_byvalue.guid');
+        if Try85(vTime, vVariant) then Observer.Observe('exit.guid', Format(vTime, 0, 9)) else Observer.ObserveError('exit.guid');
+        vVariant := false;
+        if Try81(vTime, vVariant) then Observer.Observe('assign.boolF', Format(vTime, 0, 9)) else Observer.ObserveError('assign.boolF');
+        if Try83(vTime, vVariant) then Observer.Observe('arg_byvalue.boolF', Format(vTime, 0, 9)) else Observer.ObserveError('arg_byvalue.boolF');
+        if Try85(vTime, vVariant) then Observer.Observe('exit.boolF', Format(vTime, 0, 9)) else Observer.ObserveError('exit.boolF');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Variant_To_Time_9()
+    var
+        Observer: Codeunit "Probe Observer";
+        vTime: Time;
+        vVariant: Variant;
+    begin
+        vVariant := true;
+        if Try81(vTime, vVariant) then Observer.Observe('assign.boolT', Format(vTime, 0, 9)) else Observer.ObserveError('assign.boolT');
+        if Try83(vTime, vVariant) then Observer.Observe('arg_byvalue.boolT', Format(vTime, 0, 9)) else Observer.ObserveError('arg_byvalue.boolT');
+        if Try85(vTime, vVariant) then Observer.Observe('exit.boolT', Format(vTime, 0, 9)) else Observer.ObserveError('exit.boolT');
+        vVariant := 20260131D;
+        if Try81(vTime, vVariant) then Observer.Observe('assign.date', Format(vTime, 0, 9)) else Observer.ObserveError('assign.date');
+        if Try83(vTime, vVariant) then Observer.Observe('arg_byvalue.date', Format(vTime, 0, 9)) else Observer.ObserveError('arg_byvalue.date');
+        if Try85(vTime, vVariant) then Observer.Observe('exit.date', Format(vTime, 0, 9)) else Observer.ObserveError('exit.date');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Variant_To_Time_10()
+    var
+        Observer: Codeunit "Probe Observer";
+        vTime: Time;
+        vVariant: Variant;
+    begin
+        vVariant := 120000T;
+        if Try81(vTime, vVariant) then Observer.Observe('assign.time', Format(vTime, 0, 9)) else Observer.ObserveError('assign.time');
+        if Try83(vTime, vVariant) then Observer.Observe('arg_byvalue.time', Format(vTime, 0, 9)) else Observer.ObserveError('arg_byvalue.time');
+        if Try85(vTime, vVariant) then Observer.Observe('exit.time', Format(vTime, 0, 9)) else Observer.ObserveError('exit.time');
+        vVariant := CreateDateTime(20260131D, 120000T);
+        if Try81(vTime, vVariant) then Observer.Observe('assign.dt', Format(vTime, 0, 9)) else Observer.ObserveError('assign.dt');
+        if Try83(vTime, vVariant) then Observer.Observe('arg_byvalue.dt', Format(vTime, 0, 9)) else Observer.ObserveError('arg_byvalue.dt');
+        if Try85(vTime, vVariant) then Observer.Observe('exit.dt', Format(vTime, 0, 9)) else Observer.ObserveError('exit.dt');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Variant_To_Time_11()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vTime: Time;
+        vVariant: Variant;
+    begin
+        vVariant := Util.AsDuration(65);
+        if Try81(vTime, vVariant) then Observer.Observe('assign.dur65', Format(vTime, 0, 9)) else Observer.ObserveError('assign.dur65');
+        if Try83(vTime, vVariant) then Observer.Observe('arg_byvalue.dur65', Format(vTime, 0, 9)) else Observer.ObserveError('arg_byvalue.dur65');
+        if Try85(vTime, vVariant) then Observer.Observe('exit.dur65', Format(vTime, 0, 9)) else Observer.ObserveError('exit.dur65');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Variant_To_DateTime()
+    var
+        Observer: Codeunit "Probe Observer";
+        vDateTime: DateTime;
+        vVariant: Variant;
+    begin
+        vVariant := 3;
+        if Try86(vDateTime, vVariant) then Observer.Observe('assign.int3', Format(vDateTime, 0, 9)) else Observer.ObserveError('assign.int3');
+        if Try88(vDateTime, vVariant) then Observer.Observe('arg_byvalue.int3', Format(vDateTime, 0, 9)) else Observer.ObserveError('arg_byvalue.int3');
+        if Try90(vDateTime, vVariant) then Observer.Observe('exit.int3', Format(vDateTime, 0, 9)) else Observer.ObserveError('exit.int3');
+        vVariant := 300;
+        if Try86(vDateTime, vVariant) then Observer.Observe('assign.int300', Format(vDateTime, 0, 9)) else Observer.ObserveError('assign.int300');
+        if Try88(vDateTime, vVariant) then Observer.Observe('arg_byvalue.int300', Format(vDateTime, 0, 9)) else Observer.ObserveError('arg_byvalue.int300');
+        if Try90(vDateTime, vVariant) then Observer.Observe('exit.int300', Format(vDateTime, 0, 9)) else Observer.ObserveError('exit.int300');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Variant_To_DateTime_2()
+    var
+        Observer: Codeunit "Probe Observer";
+        vDateTime: DateTime;
+        vVariant: Variant;
+    begin
+        vVariant := 3000000000L;
+        if Try86(vDateTime, vVariant) then Observer.Observe('assign.big', Format(vDateTime, 0, 9)) else Observer.ObserveError('assign.big');
+        if Try88(vDateTime, vVariant) then Observer.Observe('arg_byvalue.big', Format(vDateTime, 0, 9)) else Observer.ObserveError('arg_byvalue.big');
+        if Try90(vDateTime, vVariant) then Observer.Observe('exit.big', Format(vDateTime, 0, 9)) else Observer.ObserveError('exit.big');
+        vVariant := 1.5;
+        if Try86(vDateTime, vVariant) then Observer.Observe('assign.dec1p5', Format(vDateTime, 0, 9)) else Observer.ObserveError('assign.dec1p5');
+        if Try88(vDateTime, vVariant) then Observer.Observe('arg_byvalue.dec1p5', Format(vDateTime, 0, 9)) else Observer.ObserveError('arg_byvalue.dec1p5');
+        if Try90(vDateTime, vVariant) then Observer.Observe('exit.dec1p5', Format(vDateTime, 0, 9)) else Observer.ObserveError('exit.dec1p5');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Variant_To_DateTime_3()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vDateTime: DateTime;
+        vVariant: Variant;
+    begin
+        vVariant := 2.0;
+        if Try86(vDateTime, vVariant) then Observer.Observe('assign.dec2', Format(vDateTime, 0, 9)) else Observer.ObserveError('assign.dec2');
+        if Try88(vDateTime, vVariant) then Observer.Observe('arg_byvalue.dec2', Format(vDateTime, 0, 9)) else Observer.ObserveError('arg_byvalue.dec2');
+        if Try90(vDateTime, vVariant) then Observer.Observe('exit.dec2', Format(vDateTime, 0, 9)) else Observer.ObserveError('exit.dec2');
+        vVariant := Util.AsChar(65);
+        if Try86(vDateTime, vVariant) then Observer.Observe('assign.charA', Format(vDateTime, 0, 9)) else Observer.ObserveError('assign.charA');
+        if Try88(vDateTime, vVariant) then Observer.Observe('arg_byvalue.charA', Format(vDateTime, 0, 9)) else Observer.ObserveError('arg_byvalue.charA');
+        if Try90(vDateTime, vVariant) then Observer.Observe('exit.charA', Format(vDateTime, 0, 9)) else Observer.ObserveError('exit.charA');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Variant_To_DateTime_4()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vDateTime: DateTime;
+        vVariant: Variant;
+    begin
+        vVariant := Util.AsByte(65);
+        if Try86(vDateTime, vVariant) then Observer.Observe('assign.byte65', Format(vDateTime, 0, 9)) else Observer.ObserveError('assign.byte65');
+        if Try88(vDateTime, vVariant) then Observer.Observe('arg_byvalue.byte65', Format(vDateTime, 0, 9)) else Observer.ObserveError('arg_byvalue.byte65');
+        if Try90(vDateTime, vVariant) then Observer.Observe('exit.byte65', Format(vDateTime, 0, 9)) else Observer.ObserveError('exit.byte65');
+        vVariant := Util.AsOption(1);
+        if Try86(vDateTime, vVariant) then Observer.Observe('assign.optB', Format(vDateTime, 0, 9)) else Observer.ObserveError('assign.optB');
+        if Try88(vDateTime, vVariant) then Observer.Observe('arg_byvalue.optB', Format(vDateTime, 0, 9)) else Observer.ObserveError('arg_byvalue.optB');
+        if Try90(vDateTime, vVariant) then Observer.Observe('exit.optB', Format(vDateTime, 0, 9)) else Observer.ObserveError('exit.optB');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Variant_To_DateTime_5()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vDateTime: DateTime;
+        vVariant: Variant;
+    begin
+        vVariant := "LT Y31 E"::C;
+        if Try86(vDateTime, vVariant) then Observer.Observe('assign.enumC', Format(vDateTime, 0, 9)) else Observer.ObserveError('assign.enumC');
+        if Try88(vDateTime, vVariant) then Observer.Observe('arg_byvalue.enumC', Format(vDateTime, 0, 9)) else Observer.ObserveError('arg_byvalue.enumC');
+        if Try90(vDateTime, vVariant) then Observer.Observe('exit.enumC', Format(vDateTime, 0, 9)) else Observer.ObserveError('exit.enumC');
+        vVariant := Util.AsText('abc');
+        if Try86(vDateTime, vVariant) then Observer.Observe('assign.textabc', Format(vDateTime, 0, 9)) else Observer.ObserveError('assign.textabc');
+        if Try88(vDateTime, vVariant) then Observer.Observe('arg_byvalue.textabc', Format(vDateTime, 0, 9)) else Observer.ObserveError('arg_byvalue.textabc');
+        if Try90(vDateTime, vVariant) then Observer.Observe('exit.textabc', Format(vDateTime, 0, 9)) else Observer.ObserveError('exit.textabc');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Variant_To_DateTime_6()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vDateTime: DateTime;
+        vVariant: Variant;
+    begin
+        vVariant := Util.AsText('abcdefghijk');
+        if Try86(vDateTime, vVariant) then Observer.Observe('assign.text11', Format(vDateTime, 0, 9)) else Observer.ObserveError('assign.text11');
+        if Try88(vDateTime, vVariant) then Observer.Observe('arg_byvalue.text11', Format(vDateTime, 0, 9)) else Observer.ObserveError('arg_byvalue.text11');
+        if Try90(vDateTime, vVariant) then Observer.Observe('exit.text11', Format(vDateTime, 0, 9)) else Observer.ObserveError('exit.text11');
+        vVariant := Util.AsText('12');
+        if Try86(vDateTime, vVariant) then Observer.Observe('assign.text12', Format(vDateTime, 0, 9)) else Observer.ObserveError('assign.text12');
+        if Try88(vDateTime, vVariant) then Observer.Observe('arg_byvalue.text12', Format(vDateTime, 0, 9)) else Observer.ObserveError('arg_byvalue.text12');
+        if Try90(vDateTime, vVariant) then Observer.Observe('exit.text12', Format(vDateTime, 0, 9)) else Observer.ObserveError('exit.text12');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Variant_To_DateTime_7()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vDateTime: DateTime;
+        vVariant: Variant;
+    begin
+        vVariant := Util.AsCode('abc');
+        if Try86(vDateTime, vVariant) then Observer.Observe('assign.codeABC', Format(vDateTime, 0, 9)) else Observer.ObserveError('assign.codeABC');
+        if Try88(vDateTime, vVariant) then Observer.Observe('arg_byvalue.codeABC', Format(vDateTime, 0, 9)) else Observer.ObserveError('arg_byvalue.codeABC');
+        if Try90(vDateTime, vVariant) then Observer.Observe('exit.codeABC', Format(vDateTime, 0, 9)) else Observer.ObserveError('exit.codeABC');
+        vVariant := Util.AsCode('12');
+        if Try86(vDateTime, vVariant) then Observer.Observe('assign.code12', Format(vDateTime, 0, 9)) else Observer.ObserveError('assign.code12');
+        if Try88(vDateTime, vVariant) then Observer.Observe('arg_byvalue.code12', Format(vDateTime, 0, 9)) else Observer.ObserveError('arg_byvalue.code12');
+        if Try90(vDateTime, vVariant) then Observer.Observe('exit.code12', Format(vDateTime, 0, 9)) else Observer.ObserveError('exit.code12');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Variant_To_DateTime_8()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vDateTime: DateTime;
+        vVariant: Variant;
+    begin
+        vVariant := Util.AsGuid('{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
+        if Try86(vDateTime, vVariant) then Observer.Observe('assign.guid', Format(vDateTime, 0, 9)) else Observer.ObserveError('assign.guid');
+        if Try88(vDateTime, vVariant) then Observer.Observe('arg_byvalue.guid', Format(vDateTime, 0, 9)) else Observer.ObserveError('arg_byvalue.guid');
+        if Try90(vDateTime, vVariant) then Observer.Observe('exit.guid', Format(vDateTime, 0, 9)) else Observer.ObserveError('exit.guid');
+        vVariant := false;
+        if Try86(vDateTime, vVariant) then Observer.Observe('assign.boolF', Format(vDateTime, 0, 9)) else Observer.ObserveError('assign.boolF');
+        if Try88(vDateTime, vVariant) then Observer.Observe('arg_byvalue.boolF', Format(vDateTime, 0, 9)) else Observer.ObserveError('arg_byvalue.boolF');
+        if Try90(vDateTime, vVariant) then Observer.Observe('exit.boolF', Format(vDateTime, 0, 9)) else Observer.ObserveError('exit.boolF');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Variant_To_DateTime_9()
+    var
+        Observer: Codeunit "Probe Observer";
+        vDateTime: DateTime;
+        vVariant: Variant;
+    begin
+        vVariant := true;
+        if Try86(vDateTime, vVariant) then Observer.Observe('assign.boolT', Format(vDateTime, 0, 9)) else Observer.ObserveError('assign.boolT');
+        if Try88(vDateTime, vVariant) then Observer.Observe('arg_byvalue.boolT', Format(vDateTime, 0, 9)) else Observer.ObserveError('arg_byvalue.boolT');
+        if Try90(vDateTime, vVariant) then Observer.Observe('exit.boolT', Format(vDateTime, 0, 9)) else Observer.ObserveError('exit.boolT');
+        vVariant := 20260131D;
+        if Try86(vDateTime, vVariant) then Observer.Observe('assign.date', Format(vDateTime, 0, 9)) else Observer.ObserveError('assign.date');
+        if Try88(vDateTime, vVariant) then Observer.Observe('arg_byvalue.date', Format(vDateTime, 0, 9)) else Observer.ObserveError('arg_byvalue.date');
+        if Try90(vDateTime, vVariant) then Observer.Observe('exit.date', Format(vDateTime, 0, 9)) else Observer.ObserveError('exit.date');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Variant_To_DateTime_10()
+    var
+        Observer: Codeunit "Probe Observer";
+        vDateTime: DateTime;
+        vVariant: Variant;
+    begin
+        vVariant := 120000T;
+        if Try86(vDateTime, vVariant) then Observer.Observe('assign.time', Format(vDateTime, 0, 9)) else Observer.ObserveError('assign.time');
+        if Try88(vDateTime, vVariant) then Observer.Observe('arg_byvalue.time', Format(vDateTime, 0, 9)) else Observer.ObserveError('arg_byvalue.time');
+        if Try90(vDateTime, vVariant) then Observer.Observe('exit.time', Format(vDateTime, 0, 9)) else Observer.ObserveError('exit.time');
+        vVariant := CreateDateTime(20260131D, 120000T);
+        if Try86(vDateTime, vVariant) then Observer.Observe('assign.dt', Format(vDateTime, 0, 9)) else Observer.ObserveError('assign.dt');
+        if Try88(vDateTime, vVariant) then Observer.Observe('arg_byvalue.dt', Format(vDateTime, 0, 9)) else Observer.ObserveError('arg_byvalue.dt');
+        if Try90(vDateTime, vVariant) then Observer.Observe('exit.dt', Format(vDateTime, 0, 9)) else Observer.ObserveError('exit.dt');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Variant_To_DateTime_11()
+    var
+        Observer: Codeunit "Probe Observer";
+        Util: Codeunit "LT Y31 Conv Util";
+        vDateTime: DateTime;
+        vVariant: Variant;
+    begin
+        vVariant := Util.AsDuration(65);
+        if Try86(vDateTime, vVariant) then Observer.Observe('assign.dur65', Format(vDateTime, 0, 9)) else Observer.ObserveError('assign.dur65');
+        if Try88(vDateTime, vVariant) then Observer.Observe('arg_byvalue.dur65', Format(vDateTime, 0, 9)) else Observer.ObserveError('arg_byvalue.dur65');
+        if Try90(vDateTime, vVariant) then Observer.Observe('exit.dur65', Format(vDateTime, 0, 9)) else Observer.ObserveError('exit.dur65');
+        Observer.Finish();
+    end;
+
+    [Test]
     procedure Variant_To_FInteger()
     var
         Observer: Codeunit "Probe Observer";
@@ -11786,21 +12688,21 @@ codeunit 92425 "LT Y31 Cv Variant"
         vVariant: Variant;
     begin
         vVariant := 3;
-        if Try71(R, vVariant) then Observer.Observe('assign.int3', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.int3');
+        if Try91(R, vVariant) then Observer.Observe('assign.int3', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.int3');
         vVariant := 300;
-        if Try71(R, vVariant) then Observer.Observe('assign.int300', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.int300');
+        if Try91(R, vVariant) then Observer.Observe('assign.int300', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.int300');
         vVariant := 3000000000L;
-        if Try71(R, vVariant) then Observer.Observe('assign.big', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.big');
+        if Try91(R, vVariant) then Observer.Observe('assign.big', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.big');
         vVariant := 1.5;
-        if Try71(R, vVariant) then Observer.Observe('assign.dec1p5', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.dec1p5');
+        if Try91(R, vVariant) then Observer.Observe('assign.dec1p5', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.dec1p5');
         vVariant := 2.0;
-        if Try71(R, vVariant) then Observer.Observe('assign.dec2', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.dec2');
+        if Try91(R, vVariant) then Observer.Observe('assign.dec2', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.dec2');
         vVariant := Util.AsChar(65);
-        if Try71(R, vVariant) then Observer.Observe('assign.charA', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.charA');
+        if Try91(R, vVariant) then Observer.Observe('assign.charA', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.charA');
         vVariant := Util.AsByte(65);
-        if Try71(R, vVariant) then Observer.Observe('assign.byte65', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.byte65');
+        if Try91(R, vVariant) then Observer.Observe('assign.byte65', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.byte65');
         vVariant := Util.AsOption(1);
-        if Try71(R, vVariant) then Observer.Observe('assign.optB', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.optB');
+        if Try91(R, vVariant) then Observer.Observe('assign.optB', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.optB');
         Observer.Finish();
     end;
 
@@ -11813,21 +12715,21 @@ codeunit 92425 "LT Y31 Cv Variant"
         vVariant: Variant;
     begin
         vVariant := "LT Y31 E"::C;
-        if Try71(R, vVariant) then Observer.Observe('assign.enumC', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.enumC');
+        if Try91(R, vVariant) then Observer.Observe('assign.enumC', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.enumC');
         vVariant := Util.AsText('abc');
-        if Try71(R, vVariant) then Observer.Observe('assign.textabc', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.textabc');
+        if Try91(R, vVariant) then Observer.Observe('assign.textabc', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.textabc');
         vVariant := Util.AsText('abcdefghijk');
-        if Try71(R, vVariant) then Observer.Observe('assign.text11', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.text11');
+        if Try91(R, vVariant) then Observer.Observe('assign.text11', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.text11');
         vVariant := Util.AsText('12');
-        if Try71(R, vVariant) then Observer.Observe('assign.text12', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.text12');
+        if Try91(R, vVariant) then Observer.Observe('assign.text12', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.text12');
         vVariant := Util.AsCode('abc');
-        if Try71(R, vVariant) then Observer.Observe('assign.codeABC', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.codeABC');
+        if Try91(R, vVariant) then Observer.Observe('assign.codeABC', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.codeABC');
         vVariant := Util.AsCode('12');
-        if Try71(R, vVariant) then Observer.Observe('assign.code12', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.code12');
+        if Try91(R, vVariant) then Observer.Observe('assign.code12', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.code12');
         vVariant := Util.AsGuid('{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
-        if Try71(R, vVariant) then Observer.Observe('assign.guid', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.guid');
+        if Try91(R, vVariant) then Observer.Observe('assign.guid', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.guid');
         vVariant := false;
-        if Try71(R, vVariant) then Observer.Observe('assign.boolF', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.boolF');
+        if Try91(R, vVariant) then Observer.Observe('assign.boolF', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.boolF');
         Observer.Finish();
     end;
 
@@ -11840,11 +12742,15 @@ codeunit 92425 "LT Y31 Cv Variant"
         vVariant: Variant;
     begin
         vVariant := true;
-        if Try71(R, vVariant) then Observer.Observe('assign.boolT', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.boolT');
+        if Try91(R, vVariant) then Observer.Observe('assign.boolT', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.boolT');
         vVariant := 20260131D;
-        if Try71(R, vVariant) then Observer.Observe('assign.date', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.date');
+        if Try91(R, vVariant) then Observer.Observe('assign.date', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.date');
+        vVariant := 120000T;
+        if Try91(R, vVariant) then Observer.Observe('assign.time', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.time');
+        vVariant := CreateDateTime(20260131D, 120000T);
+        if Try91(R, vVariant) then Observer.Observe('assign.dt', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.dt');
         vVariant := Util.AsDuration(65);
-        if Try71(R, vVariant) then Observer.Observe('assign.dur65', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.dur65');
+        if Try91(R, vVariant) then Observer.Observe('assign.dur65', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.dur65');
         Observer.Finish();
     end;
 
@@ -11857,21 +12763,21 @@ codeunit 92425 "LT Y31 Cv Variant"
         vVariant: Variant;
     begin
         vVariant := 3;
-        if Try72(R, vVariant) then Observer.Observe('assign.int3', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.int3');
+        if Try92(R, vVariant) then Observer.Observe('assign.int3', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.int3');
         vVariant := 300;
-        if Try72(R, vVariant) then Observer.Observe('assign.int300', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.int300');
+        if Try92(R, vVariant) then Observer.Observe('assign.int300', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.int300');
         vVariant := 3000000000L;
-        if Try72(R, vVariant) then Observer.Observe('assign.big', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.big');
+        if Try92(R, vVariant) then Observer.Observe('assign.big', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.big');
         vVariant := 1.5;
-        if Try72(R, vVariant) then Observer.Observe('assign.dec1p5', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.dec1p5');
+        if Try92(R, vVariant) then Observer.Observe('assign.dec1p5', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.dec1p5');
         vVariant := 2.0;
-        if Try72(R, vVariant) then Observer.Observe('assign.dec2', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.dec2');
+        if Try92(R, vVariant) then Observer.Observe('assign.dec2', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.dec2');
         vVariant := Util.AsChar(65);
-        if Try72(R, vVariant) then Observer.Observe('assign.charA', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.charA');
+        if Try92(R, vVariant) then Observer.Observe('assign.charA', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.charA');
         vVariant := Util.AsByte(65);
-        if Try72(R, vVariant) then Observer.Observe('assign.byte65', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.byte65');
+        if Try92(R, vVariant) then Observer.Observe('assign.byte65', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.byte65');
         vVariant := Util.AsOption(1);
-        if Try72(R, vVariant) then Observer.Observe('assign.optB', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.optB');
+        if Try92(R, vVariant) then Observer.Observe('assign.optB', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.optB');
         Observer.Finish();
     end;
 
@@ -11884,21 +12790,21 @@ codeunit 92425 "LT Y31 Cv Variant"
         vVariant: Variant;
     begin
         vVariant := "LT Y31 E"::C;
-        if Try72(R, vVariant) then Observer.Observe('assign.enumC', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.enumC');
+        if Try92(R, vVariant) then Observer.Observe('assign.enumC', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.enumC');
         vVariant := Util.AsText('abc');
-        if Try72(R, vVariant) then Observer.Observe('assign.textabc', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.textabc');
+        if Try92(R, vVariant) then Observer.Observe('assign.textabc', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.textabc');
         vVariant := Util.AsText('abcdefghijk');
-        if Try72(R, vVariant) then Observer.Observe('assign.text11', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.text11');
+        if Try92(R, vVariant) then Observer.Observe('assign.text11', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.text11');
         vVariant := Util.AsText('12');
-        if Try72(R, vVariant) then Observer.Observe('assign.text12', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.text12');
+        if Try92(R, vVariant) then Observer.Observe('assign.text12', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.text12');
         vVariant := Util.AsCode('abc');
-        if Try72(R, vVariant) then Observer.Observe('assign.codeABC', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.codeABC');
+        if Try92(R, vVariant) then Observer.Observe('assign.codeABC', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.codeABC');
         vVariant := Util.AsCode('12');
-        if Try72(R, vVariant) then Observer.Observe('assign.code12', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.code12');
+        if Try92(R, vVariant) then Observer.Observe('assign.code12', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.code12');
         vVariant := Util.AsGuid('{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
-        if Try72(R, vVariant) then Observer.Observe('assign.guid', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.guid');
+        if Try92(R, vVariant) then Observer.Observe('assign.guid', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.guid');
         vVariant := false;
-        if Try72(R, vVariant) then Observer.Observe('assign.boolF', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.boolF');
+        if Try92(R, vVariant) then Observer.Observe('assign.boolF', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.boolF');
         Observer.Finish();
     end;
 
@@ -11911,11 +12817,15 @@ codeunit 92425 "LT Y31 Cv Variant"
         vVariant: Variant;
     begin
         vVariant := true;
-        if Try72(R, vVariant) then Observer.Observe('assign.boolT', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.boolT');
+        if Try92(R, vVariant) then Observer.Observe('assign.boolT', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.boolT');
         vVariant := 20260131D;
-        if Try72(R, vVariant) then Observer.Observe('assign.date', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.date');
+        if Try92(R, vVariant) then Observer.Observe('assign.date', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.date');
+        vVariant := 120000T;
+        if Try92(R, vVariant) then Observer.Observe('assign.time', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.time');
+        vVariant := CreateDateTime(20260131D, 120000T);
+        if Try92(R, vVariant) then Observer.Observe('assign.dt', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.dt');
         vVariant := Util.AsDuration(65);
-        if Try72(R, vVariant) then Observer.Observe('assign.dur65', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.dur65');
+        if Try92(R, vVariant) then Observer.Observe('assign.dur65', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.dur65');
         Observer.Finish();
     end;
 
@@ -11928,21 +12838,21 @@ codeunit 92425 "LT Y31 Cv Variant"
         vVariant: Variant;
     begin
         vVariant := 3;
-        if Try73(R, vVariant) then Observer.Observe('assign.int3', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.int3');
+        if Try93(R, vVariant) then Observer.Observe('assign.int3', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.int3');
         vVariant := 300;
-        if Try73(R, vVariant) then Observer.Observe('assign.int300', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.int300');
+        if Try93(R, vVariant) then Observer.Observe('assign.int300', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.int300');
         vVariant := 3000000000L;
-        if Try73(R, vVariant) then Observer.Observe('assign.big', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.big');
+        if Try93(R, vVariant) then Observer.Observe('assign.big', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.big');
         vVariant := 1.5;
-        if Try73(R, vVariant) then Observer.Observe('assign.dec1p5', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.dec1p5');
+        if Try93(R, vVariant) then Observer.Observe('assign.dec1p5', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.dec1p5');
         vVariant := 2.0;
-        if Try73(R, vVariant) then Observer.Observe('assign.dec2', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.dec2');
+        if Try93(R, vVariant) then Observer.Observe('assign.dec2', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.dec2');
         vVariant := Util.AsChar(65);
-        if Try73(R, vVariant) then Observer.Observe('assign.charA', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.charA');
+        if Try93(R, vVariant) then Observer.Observe('assign.charA', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.charA');
         vVariant := Util.AsByte(65);
-        if Try73(R, vVariant) then Observer.Observe('assign.byte65', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.byte65');
+        if Try93(R, vVariant) then Observer.Observe('assign.byte65', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.byte65');
         vVariant := Util.AsOption(1);
-        if Try73(R, vVariant) then Observer.Observe('assign.optB', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.optB');
+        if Try93(R, vVariant) then Observer.Observe('assign.optB', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.optB');
         Observer.Finish();
     end;
 
@@ -11955,21 +12865,21 @@ codeunit 92425 "LT Y31 Cv Variant"
         vVariant: Variant;
     begin
         vVariant := "LT Y31 E"::C;
-        if Try73(R, vVariant) then Observer.Observe('assign.enumC', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.enumC');
+        if Try93(R, vVariant) then Observer.Observe('assign.enumC', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.enumC');
         vVariant := Util.AsText('abc');
-        if Try73(R, vVariant) then Observer.Observe('assign.textabc', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.textabc');
+        if Try93(R, vVariant) then Observer.Observe('assign.textabc', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.textabc');
         vVariant := Util.AsText('abcdefghijk');
-        if Try73(R, vVariant) then Observer.Observe('assign.text11', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.text11');
+        if Try93(R, vVariant) then Observer.Observe('assign.text11', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.text11');
         vVariant := Util.AsText('12');
-        if Try73(R, vVariant) then Observer.Observe('assign.text12', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.text12');
+        if Try93(R, vVariant) then Observer.Observe('assign.text12', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.text12');
         vVariant := Util.AsCode('abc');
-        if Try73(R, vVariant) then Observer.Observe('assign.codeABC', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.codeABC');
+        if Try93(R, vVariant) then Observer.Observe('assign.codeABC', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.codeABC');
         vVariant := Util.AsCode('12');
-        if Try73(R, vVariant) then Observer.Observe('assign.code12', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.code12');
+        if Try93(R, vVariant) then Observer.Observe('assign.code12', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.code12');
         vVariant := Util.AsGuid('{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
-        if Try73(R, vVariant) then Observer.Observe('assign.guid', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.guid');
+        if Try93(R, vVariant) then Observer.Observe('assign.guid', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.guid');
         vVariant := false;
-        if Try73(R, vVariant) then Observer.Observe('assign.boolF', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.boolF');
+        if Try93(R, vVariant) then Observer.Observe('assign.boolF', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.boolF');
         Observer.Finish();
     end;
 
@@ -11982,11 +12892,15 @@ codeunit 92425 "LT Y31 Cv Variant"
         vVariant: Variant;
     begin
         vVariant := true;
-        if Try73(R, vVariant) then Observer.Observe('assign.boolT', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.boolT');
+        if Try93(R, vVariant) then Observer.Observe('assign.boolT', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.boolT');
         vVariant := 20260131D;
-        if Try73(R, vVariant) then Observer.Observe('assign.date', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.date');
+        if Try93(R, vVariant) then Observer.Observe('assign.date', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.date');
+        vVariant := 120000T;
+        if Try93(R, vVariant) then Observer.Observe('assign.time', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.time');
+        vVariant := CreateDateTime(20260131D, 120000T);
+        if Try93(R, vVariant) then Observer.Observe('assign.dt', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.dt');
         vVariant := Util.AsDuration(65);
-        if Try73(R, vVariant) then Observer.Observe('assign.dur65', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.dur65');
+        if Try93(R, vVariant) then Observer.Observe('assign.dur65', Format(R.Decimal, 0, 9)) else Observer.ObserveError('assign.dur65');
         Observer.Finish();
     end;
 
@@ -11999,21 +12913,21 @@ codeunit 92425 "LT Y31 Cv Variant"
         vVariant: Variant;
     begin
         vVariant := 3;
-        if Try74(R, vVariant) then Observer.Observe('assign.int3', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.int3');
+        if Try94(R, vVariant) then Observer.Observe('assign.int3', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.int3');
         vVariant := 300;
-        if Try74(R, vVariant) then Observer.Observe('assign.int300', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.int300');
+        if Try94(R, vVariant) then Observer.Observe('assign.int300', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.int300');
         vVariant := 3000000000L;
-        if Try74(R, vVariant) then Observer.Observe('assign.big', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.big');
+        if Try94(R, vVariant) then Observer.Observe('assign.big', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.big');
         vVariant := 1.5;
-        if Try74(R, vVariant) then Observer.Observe('assign.dec1p5', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.dec1p5');
+        if Try94(R, vVariant) then Observer.Observe('assign.dec1p5', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.dec1p5');
         vVariant := 2.0;
-        if Try74(R, vVariant) then Observer.Observe('assign.dec2', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.dec2');
+        if Try94(R, vVariant) then Observer.Observe('assign.dec2', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.dec2');
         vVariant := Util.AsChar(65);
-        if Try74(R, vVariant) then Observer.Observe('assign.charA', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.charA');
+        if Try94(R, vVariant) then Observer.Observe('assign.charA', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.charA');
         vVariant := Util.AsByte(65);
-        if Try74(R, vVariant) then Observer.Observe('assign.byte65', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.byte65');
+        if Try94(R, vVariant) then Observer.Observe('assign.byte65', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.byte65');
         vVariant := Util.AsOption(1);
-        if Try74(R, vVariant) then Observer.Observe('assign.optB', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.optB');
+        if Try94(R, vVariant) then Observer.Observe('assign.optB', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.optB');
         Observer.Finish();
     end;
 
@@ -12026,21 +12940,21 @@ codeunit 92425 "LT Y31 Cv Variant"
         vVariant: Variant;
     begin
         vVariant := "LT Y31 E"::C;
-        if Try74(R, vVariant) then Observer.Observe('assign.enumC', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.enumC');
+        if Try94(R, vVariant) then Observer.Observe('assign.enumC', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.enumC');
         vVariant := Util.AsText('abc');
-        if Try74(R, vVariant) then Observer.Observe('assign.textabc', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.textabc');
+        if Try94(R, vVariant) then Observer.Observe('assign.textabc', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.textabc');
         vVariant := Util.AsText('abcdefghijk');
-        if Try74(R, vVariant) then Observer.Observe('assign.text11', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.text11');
+        if Try94(R, vVariant) then Observer.Observe('assign.text11', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.text11');
         vVariant := Util.AsText('12');
-        if Try74(R, vVariant) then Observer.Observe('assign.text12', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.text12');
+        if Try94(R, vVariant) then Observer.Observe('assign.text12', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.text12');
         vVariant := Util.AsCode('abc');
-        if Try74(R, vVariant) then Observer.Observe('assign.codeABC', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.codeABC');
+        if Try94(R, vVariant) then Observer.Observe('assign.codeABC', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.codeABC');
         vVariant := Util.AsCode('12');
-        if Try74(R, vVariant) then Observer.Observe('assign.code12', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.code12');
+        if Try94(R, vVariant) then Observer.Observe('assign.code12', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.code12');
         vVariant := Util.AsGuid('{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
-        if Try74(R, vVariant) then Observer.Observe('assign.guid', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.guid');
+        if Try94(R, vVariant) then Observer.Observe('assign.guid', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.guid');
         vVariant := false;
-        if Try74(R, vVariant) then Observer.Observe('assign.boolF', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.boolF');
+        if Try94(R, vVariant) then Observer.Observe('assign.boolF', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.boolF');
         Observer.Finish();
     end;
 
@@ -12053,11 +12967,15 @@ codeunit 92425 "LT Y31 Cv Variant"
         vVariant: Variant;
     begin
         vVariant := true;
-        if Try74(R, vVariant) then Observer.Observe('assign.boolT', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.boolT');
+        if Try94(R, vVariant) then Observer.Observe('assign.boolT', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.boolT');
         vVariant := 20260131D;
-        if Try74(R, vVariant) then Observer.Observe('assign.date', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.date');
+        if Try94(R, vVariant) then Observer.Observe('assign.date', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.date');
+        vVariant := 120000T;
+        if Try94(R, vVariant) then Observer.Observe('assign.time', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.time');
+        vVariant := CreateDateTime(20260131D, 120000T);
+        if Try94(R, vVariant) then Observer.Observe('assign.dt', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.dt');
         vVariant := Util.AsDuration(65);
-        if Try74(R, vVariant) then Observer.Observe('assign.dur65', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.dur65');
+        if Try94(R, vVariant) then Observer.Observe('assign.dur65', Format(R.Option) + '|' + Format(Util.OptOrd(R.Option))) else Observer.ObserveError('assign.dur65');
         Observer.Finish();
     end;
 
@@ -12070,21 +12988,21 @@ codeunit 92425 "LT Y31 Cv Variant"
         vVariant: Variant;
     begin
         vVariant := 3;
-        if Try75(R, vVariant) then Observer.Observe('assign.int3', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.int3');
+        if Try95(R, vVariant) then Observer.Observe('assign.int3', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.int3');
         vVariant := 300;
-        if Try75(R, vVariant) then Observer.Observe('assign.int300', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.int300');
+        if Try95(R, vVariant) then Observer.Observe('assign.int300', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.int300');
         vVariant := 3000000000L;
-        if Try75(R, vVariant) then Observer.Observe('assign.big', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.big');
+        if Try95(R, vVariant) then Observer.Observe('assign.big', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.big');
         vVariant := 1.5;
-        if Try75(R, vVariant) then Observer.Observe('assign.dec1p5', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.dec1p5');
+        if Try95(R, vVariant) then Observer.Observe('assign.dec1p5', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.dec1p5');
         vVariant := 2.0;
-        if Try75(R, vVariant) then Observer.Observe('assign.dec2', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.dec2');
+        if Try95(R, vVariant) then Observer.Observe('assign.dec2', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.dec2');
         vVariant := Util.AsChar(65);
-        if Try75(R, vVariant) then Observer.Observe('assign.charA', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.charA');
+        if Try95(R, vVariant) then Observer.Observe('assign.charA', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.charA');
         vVariant := Util.AsByte(65);
-        if Try75(R, vVariant) then Observer.Observe('assign.byte65', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.byte65');
+        if Try95(R, vVariant) then Observer.Observe('assign.byte65', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.byte65');
         vVariant := Util.AsOption(1);
-        if Try75(R, vVariant) then Observer.Observe('assign.optB', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.optB');
+        if Try95(R, vVariant) then Observer.Observe('assign.optB', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.optB');
         Observer.Finish();
     end;
 
@@ -12097,21 +13015,21 @@ codeunit 92425 "LT Y31 Cv Variant"
         vVariant: Variant;
     begin
         vVariant := "LT Y31 E"::C;
-        if Try75(R, vVariant) then Observer.Observe('assign.enumC', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.enumC');
+        if Try95(R, vVariant) then Observer.Observe('assign.enumC', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.enumC');
         vVariant := Util.AsText('abc');
-        if Try75(R, vVariant) then Observer.Observe('assign.textabc', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.textabc');
+        if Try95(R, vVariant) then Observer.Observe('assign.textabc', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.textabc');
         vVariant := Util.AsText('abcdefghijk');
-        if Try75(R, vVariant) then Observer.Observe('assign.text11', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.text11');
+        if Try95(R, vVariant) then Observer.Observe('assign.text11', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.text11');
         vVariant := Util.AsText('12');
-        if Try75(R, vVariant) then Observer.Observe('assign.text12', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.text12');
+        if Try95(R, vVariant) then Observer.Observe('assign.text12', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.text12');
         vVariant := Util.AsCode('abc');
-        if Try75(R, vVariant) then Observer.Observe('assign.codeABC', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.codeABC');
+        if Try95(R, vVariant) then Observer.Observe('assign.codeABC', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.codeABC');
         vVariant := Util.AsCode('12');
-        if Try75(R, vVariant) then Observer.Observe('assign.code12', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.code12');
+        if Try95(R, vVariant) then Observer.Observe('assign.code12', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.code12');
         vVariant := Util.AsGuid('{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
-        if Try75(R, vVariant) then Observer.Observe('assign.guid', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.guid');
+        if Try95(R, vVariant) then Observer.Observe('assign.guid', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.guid');
         vVariant := false;
-        if Try75(R, vVariant) then Observer.Observe('assign.boolF', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.boolF');
+        if Try95(R, vVariant) then Observer.Observe('assign.boolF', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.boolF');
         Observer.Finish();
     end;
 
@@ -12124,11 +13042,15 @@ codeunit 92425 "LT Y31 Cv Variant"
         vVariant: Variant;
     begin
         vVariant := true;
-        if Try75(R, vVariant) then Observer.Observe('assign.boolT', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.boolT');
+        if Try95(R, vVariant) then Observer.Observe('assign.boolT', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.boolT');
         vVariant := 20260131D;
-        if Try75(R, vVariant) then Observer.Observe('assign.date', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.date');
+        if Try95(R, vVariant) then Observer.Observe('assign.date', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.date');
+        vVariant := 120000T;
+        if Try95(R, vVariant) then Observer.Observe('assign.time', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.time');
+        vVariant := CreateDateTime(20260131D, 120000T);
+        if Try95(R, vVariant) then Observer.Observe('assign.dt', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.dt');
         vVariant := Util.AsDuration(65);
-        if Try75(R, vVariant) then Observer.Observe('assign.dur65', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.dur65');
+        if Try95(R, vVariant) then Observer.Observe('assign.dur65', R.Text10 + '|' + Format(StrLen(R.Text10))) else Observer.ObserveError('assign.dur65');
         Observer.Finish();
     end;
 
@@ -12141,21 +13063,21 @@ codeunit 92425 "LT Y31 Cv Variant"
         vVariant: Variant;
     begin
         vVariant := 3;
-        if Try76(R, vVariant) then Observer.Observe('assign.int3', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.int3');
+        if Try96(R, vVariant) then Observer.Observe('assign.int3', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.int3');
         vVariant := 300;
-        if Try76(R, vVariant) then Observer.Observe('assign.int300', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.int300');
+        if Try96(R, vVariant) then Observer.Observe('assign.int300', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.int300');
         vVariant := 3000000000L;
-        if Try76(R, vVariant) then Observer.Observe('assign.big', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.big');
+        if Try96(R, vVariant) then Observer.Observe('assign.big', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.big');
         vVariant := 1.5;
-        if Try76(R, vVariant) then Observer.Observe('assign.dec1p5', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.dec1p5');
+        if Try96(R, vVariant) then Observer.Observe('assign.dec1p5', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.dec1p5');
         vVariant := 2.0;
-        if Try76(R, vVariant) then Observer.Observe('assign.dec2', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.dec2');
+        if Try96(R, vVariant) then Observer.Observe('assign.dec2', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.dec2');
         vVariant := Util.AsChar(65);
-        if Try76(R, vVariant) then Observer.Observe('assign.charA', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.charA');
+        if Try96(R, vVariant) then Observer.Observe('assign.charA', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.charA');
         vVariant := Util.AsByte(65);
-        if Try76(R, vVariant) then Observer.Observe('assign.byte65', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.byte65');
+        if Try96(R, vVariant) then Observer.Observe('assign.byte65', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.byte65');
         vVariant := Util.AsOption(1);
-        if Try76(R, vVariant) then Observer.Observe('assign.optB', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.optB');
+        if Try96(R, vVariant) then Observer.Observe('assign.optB', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.optB');
         Observer.Finish();
     end;
 
@@ -12168,21 +13090,21 @@ codeunit 92425 "LT Y31 Cv Variant"
         vVariant: Variant;
     begin
         vVariant := "LT Y31 E"::C;
-        if Try76(R, vVariant) then Observer.Observe('assign.enumC', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.enumC');
+        if Try96(R, vVariant) then Observer.Observe('assign.enumC', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.enumC');
         vVariant := Util.AsText('abc');
-        if Try76(R, vVariant) then Observer.Observe('assign.textabc', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.textabc');
+        if Try96(R, vVariant) then Observer.Observe('assign.textabc', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.textabc');
         vVariant := Util.AsText('abcdefghijk');
-        if Try76(R, vVariant) then Observer.Observe('assign.text11', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.text11');
+        if Try96(R, vVariant) then Observer.Observe('assign.text11', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.text11');
         vVariant := Util.AsText('12');
-        if Try76(R, vVariant) then Observer.Observe('assign.text12', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.text12');
+        if Try96(R, vVariant) then Observer.Observe('assign.text12', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.text12');
         vVariant := Util.AsCode('abc');
-        if Try76(R, vVariant) then Observer.Observe('assign.codeABC', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.codeABC');
+        if Try96(R, vVariant) then Observer.Observe('assign.codeABC', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.codeABC');
         vVariant := Util.AsCode('12');
-        if Try76(R, vVariant) then Observer.Observe('assign.code12', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.code12');
+        if Try96(R, vVariant) then Observer.Observe('assign.code12', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.code12');
         vVariant := Util.AsGuid('{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
-        if Try76(R, vVariant) then Observer.Observe('assign.guid', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.guid');
+        if Try96(R, vVariant) then Observer.Observe('assign.guid', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.guid');
         vVariant := false;
-        if Try76(R, vVariant) then Observer.Observe('assign.boolF', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.boolF');
+        if Try96(R, vVariant) then Observer.Observe('assign.boolF', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.boolF');
         Observer.Finish();
     end;
 
@@ -12195,11 +13117,15 @@ codeunit 92425 "LT Y31 Cv Variant"
         vVariant: Variant;
     begin
         vVariant := true;
-        if Try76(R, vVariant) then Observer.Observe('assign.boolT', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.boolT');
+        if Try96(R, vVariant) then Observer.Observe('assign.boolT', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.boolT');
         vVariant := 20260131D;
-        if Try76(R, vVariant) then Observer.Observe('assign.date', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.date');
+        if Try96(R, vVariant) then Observer.Observe('assign.date', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.date');
+        vVariant := 120000T;
+        if Try96(R, vVariant) then Observer.Observe('assign.time', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.time');
+        vVariant := CreateDateTime(20260131D, 120000T);
+        if Try96(R, vVariant) then Observer.Observe('assign.dt', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.dt');
         vVariant := Util.AsDuration(65);
-        if Try76(R, vVariant) then Observer.Observe('assign.dur65', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.dur65');
+        if Try96(R, vVariant) then Observer.Observe('assign.dur65', R.Code10 + '|' + Format(StrLen(R.Code10))) else Observer.ObserveError('assign.dur65');
         Observer.Finish();
     end;
 
@@ -12212,21 +13138,21 @@ codeunit 92425 "LT Y31 Cv Variant"
         vVariant: Variant;
     begin
         vVariant := 3;
-        if Try77(R, vVariant) then Observer.Observe('assign.int3', Format(R.Guid)) else Observer.ObserveError('assign.int3');
+        if Try97(R, vVariant) then Observer.Observe('assign.int3', Format(R.Guid)) else Observer.ObserveError('assign.int3');
         vVariant := 300;
-        if Try77(R, vVariant) then Observer.Observe('assign.int300', Format(R.Guid)) else Observer.ObserveError('assign.int300');
+        if Try97(R, vVariant) then Observer.Observe('assign.int300', Format(R.Guid)) else Observer.ObserveError('assign.int300');
         vVariant := 3000000000L;
-        if Try77(R, vVariant) then Observer.Observe('assign.big', Format(R.Guid)) else Observer.ObserveError('assign.big');
+        if Try97(R, vVariant) then Observer.Observe('assign.big', Format(R.Guid)) else Observer.ObserveError('assign.big');
         vVariant := 1.5;
-        if Try77(R, vVariant) then Observer.Observe('assign.dec1p5', Format(R.Guid)) else Observer.ObserveError('assign.dec1p5');
+        if Try97(R, vVariant) then Observer.Observe('assign.dec1p5', Format(R.Guid)) else Observer.ObserveError('assign.dec1p5');
         vVariant := 2.0;
-        if Try77(R, vVariant) then Observer.Observe('assign.dec2', Format(R.Guid)) else Observer.ObserveError('assign.dec2');
+        if Try97(R, vVariant) then Observer.Observe('assign.dec2', Format(R.Guid)) else Observer.ObserveError('assign.dec2');
         vVariant := Util.AsChar(65);
-        if Try77(R, vVariant) then Observer.Observe('assign.charA', Format(R.Guid)) else Observer.ObserveError('assign.charA');
+        if Try97(R, vVariant) then Observer.Observe('assign.charA', Format(R.Guid)) else Observer.ObserveError('assign.charA');
         vVariant := Util.AsByte(65);
-        if Try77(R, vVariant) then Observer.Observe('assign.byte65', Format(R.Guid)) else Observer.ObserveError('assign.byte65');
+        if Try97(R, vVariant) then Observer.Observe('assign.byte65', Format(R.Guid)) else Observer.ObserveError('assign.byte65');
         vVariant := Util.AsOption(1);
-        if Try77(R, vVariant) then Observer.Observe('assign.optB', Format(R.Guid)) else Observer.ObserveError('assign.optB');
+        if Try97(R, vVariant) then Observer.Observe('assign.optB', Format(R.Guid)) else Observer.ObserveError('assign.optB');
         Observer.Finish();
     end;
 
@@ -12239,21 +13165,21 @@ codeunit 92425 "LT Y31 Cv Variant"
         vVariant: Variant;
     begin
         vVariant := "LT Y31 E"::C;
-        if Try77(R, vVariant) then Observer.Observe('assign.enumC', Format(R.Guid)) else Observer.ObserveError('assign.enumC');
+        if Try97(R, vVariant) then Observer.Observe('assign.enumC', Format(R.Guid)) else Observer.ObserveError('assign.enumC');
         vVariant := Util.AsText('abc');
-        if Try77(R, vVariant) then Observer.Observe('assign.textabc', Format(R.Guid)) else Observer.ObserveError('assign.textabc');
+        if Try97(R, vVariant) then Observer.Observe('assign.textabc', Format(R.Guid)) else Observer.ObserveError('assign.textabc');
         vVariant := Util.AsText('abcdefghijk');
-        if Try77(R, vVariant) then Observer.Observe('assign.text11', Format(R.Guid)) else Observer.ObserveError('assign.text11');
+        if Try97(R, vVariant) then Observer.Observe('assign.text11', Format(R.Guid)) else Observer.ObserveError('assign.text11');
         vVariant := Util.AsText('12');
-        if Try77(R, vVariant) then Observer.Observe('assign.text12', Format(R.Guid)) else Observer.ObserveError('assign.text12');
+        if Try97(R, vVariant) then Observer.Observe('assign.text12', Format(R.Guid)) else Observer.ObserveError('assign.text12');
         vVariant := Util.AsCode('abc');
-        if Try77(R, vVariant) then Observer.Observe('assign.codeABC', Format(R.Guid)) else Observer.ObserveError('assign.codeABC');
+        if Try97(R, vVariant) then Observer.Observe('assign.codeABC', Format(R.Guid)) else Observer.ObserveError('assign.codeABC');
         vVariant := Util.AsCode('12');
-        if Try77(R, vVariant) then Observer.Observe('assign.code12', Format(R.Guid)) else Observer.ObserveError('assign.code12');
+        if Try97(R, vVariant) then Observer.Observe('assign.code12', Format(R.Guid)) else Observer.ObserveError('assign.code12');
         vVariant := Util.AsGuid('{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
-        if Try77(R, vVariant) then Observer.Observe('assign.guid', Format(R.Guid)) else Observer.ObserveError('assign.guid');
+        if Try97(R, vVariant) then Observer.Observe('assign.guid', Format(R.Guid)) else Observer.ObserveError('assign.guid');
         vVariant := false;
-        if Try77(R, vVariant) then Observer.Observe('assign.boolF', Format(R.Guid)) else Observer.ObserveError('assign.boolF');
+        if Try97(R, vVariant) then Observer.Observe('assign.boolF', Format(R.Guid)) else Observer.ObserveError('assign.boolF');
         Observer.Finish();
     end;
 
@@ -12266,11 +13192,15 @@ codeunit 92425 "LT Y31 Cv Variant"
         vVariant: Variant;
     begin
         vVariant := true;
-        if Try77(R, vVariant) then Observer.Observe('assign.boolT', Format(R.Guid)) else Observer.ObserveError('assign.boolT');
+        if Try97(R, vVariant) then Observer.Observe('assign.boolT', Format(R.Guid)) else Observer.ObserveError('assign.boolT');
         vVariant := 20260131D;
-        if Try77(R, vVariant) then Observer.Observe('assign.date', Format(R.Guid)) else Observer.ObserveError('assign.date');
+        if Try97(R, vVariant) then Observer.Observe('assign.date', Format(R.Guid)) else Observer.ObserveError('assign.date');
+        vVariant := 120000T;
+        if Try97(R, vVariant) then Observer.Observe('assign.time', Format(R.Guid)) else Observer.ObserveError('assign.time');
+        vVariant := CreateDateTime(20260131D, 120000T);
+        if Try97(R, vVariant) then Observer.Observe('assign.dt', Format(R.Guid)) else Observer.ObserveError('assign.dt');
         vVariant := Util.AsDuration(65);
-        if Try77(R, vVariant) then Observer.Observe('assign.dur65', Format(R.Guid)) else Observer.ObserveError('assign.dur65');
+        if Try97(R, vVariant) then Observer.Observe('assign.dur65', Format(R.Guid)) else Observer.ObserveError('assign.dur65');
         Observer.Finish();
     end;
 
@@ -12283,21 +13213,21 @@ codeunit 92425 "LT Y31 Cv Variant"
         vVariant: Variant;
     begin
         vVariant := 3;
-        if Try78(R, vVariant) then Observer.Observe('assign.int3', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.int3');
+        if Try98(R, vVariant) then Observer.Observe('assign.int3', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.int3');
         vVariant := 300;
-        if Try78(R, vVariant) then Observer.Observe('assign.int300', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.int300');
+        if Try98(R, vVariant) then Observer.Observe('assign.int300', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.int300');
         vVariant := 3000000000L;
-        if Try78(R, vVariant) then Observer.Observe('assign.big', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.big');
+        if Try98(R, vVariant) then Observer.Observe('assign.big', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.big');
         vVariant := 1.5;
-        if Try78(R, vVariant) then Observer.Observe('assign.dec1p5', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.dec1p5');
+        if Try98(R, vVariant) then Observer.Observe('assign.dec1p5', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.dec1p5');
         vVariant := 2.0;
-        if Try78(R, vVariant) then Observer.Observe('assign.dec2', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.dec2');
+        if Try98(R, vVariant) then Observer.Observe('assign.dec2', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.dec2');
         vVariant := Util.AsChar(65);
-        if Try78(R, vVariant) then Observer.Observe('assign.charA', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.charA');
+        if Try98(R, vVariant) then Observer.Observe('assign.charA', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.charA');
         vVariant := Util.AsByte(65);
-        if Try78(R, vVariant) then Observer.Observe('assign.byte65', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.byte65');
+        if Try98(R, vVariant) then Observer.Observe('assign.byte65', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.byte65');
         vVariant := Util.AsOption(1);
-        if Try78(R, vVariant) then Observer.Observe('assign.optB', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.optB');
+        if Try98(R, vVariant) then Observer.Observe('assign.optB', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.optB');
         Observer.Finish();
     end;
 
@@ -12310,21 +13240,21 @@ codeunit 92425 "LT Y31 Cv Variant"
         vVariant: Variant;
     begin
         vVariant := "LT Y31 E"::C;
-        if Try78(R, vVariant) then Observer.Observe('assign.enumC', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.enumC');
+        if Try98(R, vVariant) then Observer.Observe('assign.enumC', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.enumC');
         vVariant := Util.AsText('abc');
-        if Try78(R, vVariant) then Observer.Observe('assign.textabc', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.textabc');
+        if Try98(R, vVariant) then Observer.Observe('assign.textabc', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.textabc');
         vVariant := Util.AsText('abcdefghijk');
-        if Try78(R, vVariant) then Observer.Observe('assign.text11', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.text11');
+        if Try98(R, vVariant) then Observer.Observe('assign.text11', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.text11');
         vVariant := Util.AsText('12');
-        if Try78(R, vVariant) then Observer.Observe('assign.text12', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.text12');
+        if Try98(R, vVariant) then Observer.Observe('assign.text12', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.text12');
         vVariant := Util.AsCode('abc');
-        if Try78(R, vVariant) then Observer.Observe('assign.codeABC', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.codeABC');
+        if Try98(R, vVariant) then Observer.Observe('assign.codeABC', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.codeABC');
         vVariant := Util.AsCode('12');
-        if Try78(R, vVariant) then Observer.Observe('assign.code12', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.code12');
+        if Try98(R, vVariant) then Observer.Observe('assign.code12', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.code12');
         vVariant := Util.AsGuid('{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}');
-        if Try78(R, vVariant) then Observer.Observe('assign.guid', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.guid');
+        if Try98(R, vVariant) then Observer.Observe('assign.guid', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.guid');
         vVariant := false;
-        if Try78(R, vVariant) then Observer.Observe('assign.boolF', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.boolF');
+        if Try98(R, vVariant) then Observer.Observe('assign.boolF', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.boolF');
         Observer.Finish();
     end;
 
@@ -12337,11 +13267,15 @@ codeunit 92425 "LT Y31 Cv Variant"
         vVariant: Variant;
     begin
         vVariant := true;
-        if Try78(R, vVariant) then Observer.Observe('assign.boolT', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.boolT');
+        if Try98(R, vVariant) then Observer.Observe('assign.boolT', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.boolT');
         vVariant := 20260131D;
-        if Try78(R, vVariant) then Observer.Observe('assign.date', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.date');
+        if Try98(R, vVariant) then Observer.Observe('assign.date', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.date');
+        vVariant := 120000T;
+        if Try98(R, vVariant) then Observer.Observe('assign.time', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.time');
+        vVariant := CreateDateTime(20260131D, 120000T);
+        if Try98(R, vVariant) then Observer.Observe('assign.dt', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.dt');
         vVariant := Util.AsDuration(65);
-        if Try78(R, vVariant) then Observer.Observe('assign.dur65', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.dur65');
+        if Try98(R, vVariant) then Observer.Observe('assign.dur65', Format(R.Duration, 0, 9)) else Observer.ObserveError('assign.dur65');
         Observer.Finish();
     end;
 
@@ -12780,56 +13714,180 @@ codeunit 92425 "LT Y31 Cv Variant"
     end;
 
     [TryFunction]
-    local procedure Try71(var R: Record "LT Y31 Conv Fields"; var vVariant: Variant)
+    local procedure Try71(var vBoolean: Boolean; var vVariant: Variant)
+    begin
+        Clear(vBoolean);
+        vBoolean := vVariant;
+    end;
+
+    local procedure PA_Boolean_72(p: Boolean; var vBoolean: Boolean)
+    begin
+        vBoolean := p;
+    end;
+
+    [TryFunction]
+    local procedure Try73(var vBoolean: Boolean; var vVariant: Variant)
+    begin
+        Clear(vBoolean);
+        PA_Boolean_72(vVariant, vBoolean);
+    end;
+
+    local procedure EX_Boolean_74(var vVariant: Variant): Boolean
+    begin
+        exit(vVariant);
+    end;
+
+    [TryFunction]
+    local procedure Try75(var vBoolean: Boolean; var vVariant: Variant)
+    begin
+        Clear(vBoolean);
+        vBoolean := EX_Boolean_74(vVariant);
+    end;
+
+    [TryFunction]
+    local procedure Try76(var vDate: Date; var vVariant: Variant)
+    begin
+        Clear(vDate);
+        vDate := vVariant;
+    end;
+
+    local procedure PA_Date_77(p: Date; var vDate: Date)
+    begin
+        vDate := p;
+    end;
+
+    [TryFunction]
+    local procedure Try78(var vDate: Date; var vVariant: Variant)
+    begin
+        Clear(vDate);
+        PA_Date_77(vVariant, vDate);
+    end;
+
+    local procedure EX_Date_79(var vVariant: Variant): Date
+    begin
+        exit(vVariant);
+    end;
+
+    [TryFunction]
+    local procedure Try80(var vDate: Date; var vVariant: Variant)
+    begin
+        Clear(vDate);
+        vDate := EX_Date_79(vVariant);
+    end;
+
+    [TryFunction]
+    local procedure Try81(var vTime: Time; var vVariant: Variant)
+    begin
+        Clear(vTime);
+        vTime := vVariant;
+    end;
+
+    local procedure PA_Time_82(p: Time; var vTime: Time)
+    begin
+        vTime := p;
+    end;
+
+    [TryFunction]
+    local procedure Try83(var vTime: Time; var vVariant: Variant)
+    begin
+        Clear(vTime);
+        PA_Time_82(vVariant, vTime);
+    end;
+
+    local procedure EX_Time_84(var vVariant: Variant): Time
+    begin
+        exit(vVariant);
+    end;
+
+    [TryFunction]
+    local procedure Try85(var vTime: Time; var vVariant: Variant)
+    begin
+        Clear(vTime);
+        vTime := EX_Time_84(vVariant);
+    end;
+
+    [TryFunction]
+    local procedure Try86(var vDateTime: DateTime; var vVariant: Variant)
+    begin
+        Clear(vDateTime);
+        vDateTime := vVariant;
+    end;
+
+    local procedure PA_DateTime_87(p: DateTime; var vDateTime: DateTime)
+    begin
+        vDateTime := p;
+    end;
+
+    [TryFunction]
+    local procedure Try88(var vDateTime: DateTime; var vVariant: Variant)
+    begin
+        Clear(vDateTime);
+        PA_DateTime_87(vVariant, vDateTime);
+    end;
+
+    local procedure EX_DateTime_89(var vVariant: Variant): DateTime
+    begin
+        exit(vVariant);
+    end;
+
+    [TryFunction]
+    local procedure Try90(var vDateTime: DateTime; var vVariant: Variant)
+    begin
+        Clear(vDateTime);
+        vDateTime := EX_DateTime_89(vVariant);
+    end;
+
+    [TryFunction]
+    local procedure Try91(var R: Record "LT Y31 Conv Fields"; var vVariant: Variant)
     begin
         Clear(R.Integer);
         R.Integer := vVariant;
     end;
 
     [TryFunction]
-    local procedure Try72(var R: Record "LT Y31 Conv Fields"; var vVariant: Variant)
+    local procedure Try92(var R: Record "LT Y31 Conv Fields"; var vVariant: Variant)
     begin
         Clear(R.BigInteger);
         R.BigInteger := vVariant;
     end;
 
     [TryFunction]
-    local procedure Try73(var R: Record "LT Y31 Conv Fields"; var vVariant: Variant)
+    local procedure Try93(var R: Record "LT Y31 Conv Fields"; var vVariant: Variant)
     begin
         Clear(R.Decimal);
         R.Decimal := vVariant;
     end;
 
     [TryFunction]
-    local procedure Try74(var R: Record "LT Y31 Conv Fields"; var vVariant: Variant)
+    local procedure Try94(var R: Record "LT Y31 Conv Fields"; var vVariant: Variant)
     begin
         Clear(R.Option);
         R.Option := vVariant;
     end;
 
     [TryFunction]
-    local procedure Try75(var R: Record "LT Y31 Conv Fields"; var vVariant: Variant)
+    local procedure Try95(var R: Record "LT Y31 Conv Fields"; var vVariant: Variant)
     begin
         Clear(R.Text10);
         R.Text10 := vVariant;
     end;
 
     [TryFunction]
-    local procedure Try76(var R: Record "LT Y31 Conv Fields"; var vVariant: Variant)
+    local procedure Try96(var R: Record "LT Y31 Conv Fields"; var vVariant: Variant)
     begin
         Clear(R.Code10);
         R.Code10 := vVariant;
     end;
 
     [TryFunction]
-    local procedure Try77(var R: Record "LT Y31 Conv Fields"; var vVariant: Variant)
+    local procedure Try97(var R: Record "LT Y31 Conv Fields"; var vVariant: Variant)
     begin
         Clear(R.Guid);
         R.Guid := vVariant;
     end;
 
     [TryFunction]
-    local procedure Try78(var R: Record "LT Y31 Conv Fields"; var vVariant: Variant)
+    local procedure Try98(var R: Record "LT Y31 Conv Fields"; var vVariant: Variant)
     begin
         Clear(R.Duration);
         R.Duration := vVariant;
@@ -13608,18 +14666,6 @@ codeunit 92426 "LT Y31 Cv Literals"
     end;
 
     [Test]
-    procedure LitEnum_To_BigInteger()
-    var
-        Observer: Codeunit "Probe Observer";
-        vBigInteger: BigInteger;
-    begin
-        if Try231(vBigInteger) then Observer.Observe('assign.enumC', Format(vBigInteger, 0, 9)) else Observer.ObserveError('assign.enumC');
-        if Try233(vBigInteger) then Observer.Observe('arg_byvalue.enumC', Format(vBigInteger, 0, 9)) else Observer.ObserveError('arg_byvalue.enumC');
-        if Try235(vBigInteger) then Observer.Observe('exit.enumC', Format(vBigInteger, 0, 9)) else Observer.ObserveError('exit.enumC');
-        Observer.Finish();
-    end;
-
-    [Test]
     procedure LitEnum_To_Option()
     var
         Observer: Codeunit "Probe Observer";
@@ -13651,16 +14697,6 @@ codeunit 92426 "LT Y31 Cv Literals"
         R: Record "LT Y31 Conv Fields";
     begin
         if Try246(R) then Observer.Observe('assign.enumC', Format(R.Integer, 0, 9)) else Observer.ObserveError('assign.enumC');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure LitEnum_To_FBigInteger()
-    var
-        Observer: Codeunit "Probe Observer";
-        R: Record "LT Y31 Conv Fields";
-    begin
-        if Try247(R) then Observer.Observe('assign.enumC', Format(R.BigInteger, 0, 9)) else Observer.ObserveError('assign.enumC');
         Observer.Finish();
     end;
 
@@ -15132,37 +16168,6 @@ codeunit 92426 "LT Y31 Cv Literals"
     end;
 
     [TryFunction]
-    local procedure Try231(var vBigInteger: BigInteger)
-    begin
-        Clear(vBigInteger);
-        vBigInteger := "LT Y31 E"::C;
-    end;
-
-    local procedure PA_BigInteger_232(p: BigInteger; var vBigInteger: BigInteger)
-    begin
-        vBigInteger := p;
-    end;
-
-    [TryFunction]
-    local procedure Try233(var vBigInteger: BigInteger)
-    begin
-        Clear(vBigInteger);
-        PA_BigInteger_232("LT Y31 E"::C, vBigInteger);
-    end;
-
-    local procedure EX_BigInteger_234(): BigInteger
-    begin
-        exit("LT Y31 E"::C);
-    end;
-
-    [TryFunction]
-    local procedure Try235(var vBigInteger: BigInteger)
-    begin
-        Clear(vBigInteger);
-        vBigInteger := EX_BigInteger_234();
-    end;
-
-    [TryFunction]
     local procedure Try236(var vOption: Option A,B,C)
     begin
         Clear(vOption);
@@ -15229,13 +16234,6 @@ codeunit 92426 "LT Y31 Cv Literals"
     begin
         Clear(R.Integer);
         R.Integer := "LT Y31 E"::C;
-    end;
-
-    [TryFunction]
-    local procedure Try247(var R: Record "LT Y31 Conv Fields")
-    begin
-        Clear(R.BigInteger);
-        R.BigInteger := "LT Y31 E"::C;
     end;
 
     [TryFunction]

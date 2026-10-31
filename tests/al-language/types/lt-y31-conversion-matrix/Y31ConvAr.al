@@ -3557,36 +3557,6 @@ codeunit 92450 "LT Y31 Ar Byte"
     end;
 
     [Test]
-    procedure Byte_BigInteger()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vBigInteger: BigInteger;
-        vByte: Byte;
-    begin
-        vByte := 65;
-        vBigInteger := 65;
-        if Try4(V, vBigInteger, vByte) then Observer.Observe('add.65.65', Util.VShow(V)) else Observer.ObserveError('add.65.65');
-        vByte := 65;
-        vBigInteger := 65;
-        if Try5(V, vBigInteger, vByte) then Observer.Observe('sub.65.65', Util.VShow(V)) else Observer.ObserveError('sub.65.65');
-        vByte := 65;
-        vBigInteger := 65;
-        if Try6(vBigInteger, vByte) then Observer.Observe('compound_add.65.65', Format(vBigInteger, 0, 9)) else Observer.ObserveError('compound_add.65.65');
-        vByte := 255;
-        vBigInteger := 65;
-        if Try4(V, vBigInteger, vByte) then Observer.Observe('add.255.65', Util.VShow(V)) else Observer.ObserveError('add.255.65');
-        vByte := 255;
-        vBigInteger := 65;
-        if Try5(V, vBigInteger, vByte) then Observer.Observe('sub.255.65', Util.VShow(V)) else Observer.ObserveError('sub.255.65');
-        vByte := 255;
-        vBigInteger := 65;
-        if Try6(vBigInteger, vByte) then Observer.Observe('compound_add.255.65', Format(vBigInteger, 0, 9)) else Observer.ObserveError('compound_add.255.65');
-        Observer.Finish();
-    end;
-
-    [Test]
     procedure Byte_Decimal()
     var
         Observer: Codeunit "Probe Observer";
@@ -3857,96 +3827,6 @@ codeunit 92450 "LT Y31 Ar Byte"
     end;
 
     [Test]
-    procedure Byte_Enum()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vByte: Byte;
-        vEnum: Enum "LT Y31 E";
-    begin
-        vByte := 65;
-        vEnum := "LT Y31 E"::B;
-        if Try19(V, vByte, vEnum) then Observer.Observe('add.65.B', Util.VShow(V)) else Observer.ObserveError('add.65.B');
-        vByte := 65;
-        vEnum := "LT Y31 E"::B;
-        if Try20(V, vByte, vEnum) then Observer.Observe('sub.65.B', Util.VShow(V)) else Observer.ObserveError('sub.65.B');
-        vByte := 65;
-        vEnum := "LT Y31 E"::B;
-        if Try21(vByte, vEnum) then Observer.Observe('compound_add.65.B', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('compound_add.65.B');
-        vByte := 65;
-        vEnum := 5;
-        if Try19(V, vByte, vEnum) then Observer.Observe('add.65.ord5', Util.VShow(V)) else Observer.ObserveError('add.65.ord5');
-        vByte := 65;
-        vEnum := 5;
-        if Try20(V, vByte, vEnum) then Observer.Observe('sub.65.ord5', Util.VShow(V)) else Observer.ObserveError('sub.65.ord5');
-        vByte := 65;
-        vEnum := 5;
-        if Try21(vByte, vEnum) then Observer.Observe('compound_add.65.ord5', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('compound_add.65.ord5');
-        vByte := 255;
-        vEnum := "LT Y31 E"::B;
-        if Try19(V, vByte, vEnum) then Observer.Observe('add.255.B', Util.VShow(V)) else Observer.ObserveError('add.255.B');
-        vByte := 255;
-        vEnum := "LT Y31 E"::B;
-        if Try20(V, vByte, vEnum) then Observer.Observe('sub.255.B', Util.VShow(V)) else Observer.ObserveError('sub.255.B');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Byte_Enum_2()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vByte: Byte;
-        vEnum: Enum "LT Y31 E";
-    begin
-        vByte := 255;
-        vEnum := "LT Y31 E"::B;
-        if Try21(vByte, vEnum) then Observer.Observe('compound_add.255.B', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('compound_add.255.B');
-        vByte := 255;
-        vEnum := 5;
-        if Try19(V, vByte, vEnum) then Observer.Observe('add.255.ord5', Util.VShow(V)) else Observer.ObserveError('add.255.ord5');
-        vByte := 255;
-        vEnum := 5;
-        if Try20(V, vByte, vEnum) then Observer.Observe('sub.255.ord5', Util.VShow(V)) else Observer.ObserveError('sub.255.ord5');
-        vByte := 255;
-        vEnum := 5;
-        if Try21(vByte, vEnum) then Observer.Observe('compound_add.255.ord5', Format(vEnum) + '|' + Format(vEnum.AsInteger())) else Observer.ObserveError('compound_add.255.ord5');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Byte_EnumImpl()
-    var
-        Observer: Codeunit "Probe Observer";
-        Util: Codeunit "LT Y31 Conv Util";
-        V: Variant;
-        vByte: Byte;
-        vEnumImpl: Enum "LT Y31 EI";
-    begin
-        vByte := 65;
-        vEnumImpl := "LT Y31 EI"::A;
-        if Try22(V, vByte, vEnumImpl) then Observer.Observe('add.65.A', Util.VShow(V)) else Observer.ObserveError('add.65.A');
-        vByte := 65;
-        vEnumImpl := "LT Y31 EI"::A;
-        if Try23(V, vByte, vEnumImpl) then Observer.Observe('sub.65.A', Util.VShow(V)) else Observer.ObserveError('sub.65.A');
-        vByte := 65;
-        vEnumImpl := "LT Y31 EI"::A;
-        if Try24(vByte, vEnumImpl) then Observer.Observe('compound_add.65.A', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('compound_add.65.A');
-        vByte := 255;
-        vEnumImpl := "LT Y31 EI"::A;
-        if Try22(V, vByte, vEnumImpl) then Observer.Observe('add.255.A', Util.VShow(V)) else Observer.ObserveError('add.255.A');
-        vByte := 255;
-        vEnumImpl := "LT Y31 EI"::A;
-        if Try23(V, vByte, vEnumImpl) then Observer.Observe('sub.255.A', Util.VShow(V)) else Observer.ObserveError('sub.255.A');
-        vByte := 255;
-        vEnumImpl := "LT Y31 EI"::A;
-        if Try24(vByte, vEnumImpl) then Observer.Observe('compound_add.255.A', Format(vEnumImpl) + '|' + Format(vEnumImpl.AsInteger())) else Observer.ObserveError('compound_add.255.A');
-        Observer.Finish();
-    end;
-
-    [Test]
     procedure Byte_Date()
     var
         Observer: Codeunit "Probe Observer";
@@ -4045,26 +3925,6 @@ codeunit 92450 "LT Y31 Ar Byte"
     end;
 
     [TryFunction]
-    local procedure Try4(var V: Variant; var vBigInteger: BigInteger; var vByte: Byte)
-    begin
-        Clear(V);
-        V := vByte + vBigInteger;
-    end;
-
-    [TryFunction]
-    local procedure Try5(var V: Variant; var vBigInteger: BigInteger; var vByte: Byte)
-    begin
-        Clear(V);
-        V := vByte - vBigInteger;
-    end;
-
-    [TryFunction]
-    local procedure Try6(var vBigInteger: BigInteger; var vByte: Byte)
-    begin
-        vBigInteger += vByte;
-    end;
-
-    [TryFunction]
     local procedure Try7(var V: Variant; var vByte: Byte; var vDecimal: Decimal)
     begin
         Clear(V);
@@ -4142,46 +4002,6 @@ codeunit 92450 "LT Y31 Ar Byte"
     local procedure Try18(var vByte: Byte; var vOption: Option A,B,C)
     begin
         vOption += vByte;
-    end;
-
-    [TryFunction]
-    local procedure Try19(var V: Variant; var vByte: Byte; var vEnum: Enum "LT Y31 E")
-    begin
-        Clear(V);
-        V := vByte + vEnum;
-    end;
-
-    [TryFunction]
-    local procedure Try20(var V: Variant; var vByte: Byte; var vEnum: Enum "LT Y31 E")
-    begin
-        Clear(V);
-        V := vByte - vEnum;
-    end;
-
-    [TryFunction]
-    local procedure Try21(var vByte: Byte; var vEnum: Enum "LT Y31 E")
-    begin
-        vEnum += vByte;
-    end;
-
-    [TryFunction]
-    local procedure Try22(var V: Variant; var vByte: Byte; var vEnumImpl: Enum "LT Y31 EI")
-    begin
-        Clear(V);
-        V := vByte + vEnumImpl;
-    end;
-
-    [TryFunction]
-    local procedure Try23(var V: Variant; var vByte: Byte; var vEnumImpl: Enum "LT Y31 EI")
-    begin
-        Clear(V);
-        V := vByte - vEnumImpl;
-    end;
-
-    [TryFunction]
-    local procedure Try24(var vByte: Byte; var vEnumImpl: Enum "LT Y31 EI")
-    begin
-        vEnumImpl += vByte;
     end;
 
     [TryFunction]
