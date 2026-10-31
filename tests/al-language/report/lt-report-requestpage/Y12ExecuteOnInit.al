@@ -122,7 +122,8 @@ codeunit 91556 "LT Y12 Execute OnInit"
         Seed();
         A.Execute(Params());
         Observer.Observe('plain', A.Result());
-        Observer.Finish();
+        Observer.Expect('plain', 'seenInInit=[] atPre=[PARAM] otherAtPre=[INIT] log=OnInitReport();OnInit;OnOpenPage(PARAM|INIT);OnClosePage(PARAM);OnPreReport;OnPreDataItem();row 1;row 2;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -137,7 +138,8 @@ codeunit 91556 "LT Y12 Execute OnInit"
         B.SetTableView(Row);
         B.Execute(Params());
         Observer.Observe('settableview', B.Result());
-        Observer.Finish();
+        Observer.Expect('settableview', 'seenInInit=[] atPre=[PARAM] otherAtPre=[INIT] log=OnInitReport();OnInit;OnOpenPage(PARAM|INIT);OnClosePage(PARAM);OnPreReport;OnPreDataItem(No: 2);row 2;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -149,6 +151,7 @@ codeunit 91556 "LT Y12 Execute OnInit"
         Seed();
         C.Execute('');
         Observer.Observe('empty', C.Result());
-        Observer.Finish();
+        Observer.Expect('empty', 'seenInInit=[] atPre=[INIT] otherAtPre=[INIT] log=OnInitReport();OnInit;OnPreReport;OnPreDataItem();row 1;row 2;');
+        Observer.Verify();
     end;
 }
