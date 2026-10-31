@@ -35,7 +35,10 @@ codeunit 99477 "LT Y20 DotNet Full Type Name"
         Observer.Observe('list', Result.Get(1));
         Observer.Observe('length', Format(S.Length));
         Observer.Observe('upper', S.ToUpper());
-        Observer.Finish();
+        Observer.Expect('list', 'abc');
+        Observer.Expect('length', '3');
+        Observer.Expect('upper', 'ABC');
+        Observer.Verify();
     end;
 
     [Test]
@@ -51,7 +54,10 @@ codeunit 99477 "LT Y20 DotNet Full Type Name"
         Observer.Observe('iso', DateTimeDotNet.ToString('yyyy-MM-ddTHH:mm:ss'));
         Bare := DateTimeDotNet;
         Observer.Observe('bare year', Format(Bare.Year));
-        Observer.Finish();
+        Observer.Expect('parts', '2024-3-5 9:7:2');
+        Observer.Expect('iso', '2024-03-05T09:07:02');
+        Observer.Expect('bare year', '2024');
+        Observer.Verify();
     end;
 
     [Test]
@@ -74,6 +80,8 @@ codeunit 99477 "LT Y20 DotNet Full Type Name"
         AppendVia(Quoted, 'p');
         Observer.Observe('text', SysBuilder.ToString());
         Observer.Observe('same object', Format(SysBuilder.Equals(Quoted)));
-        Observer.Finish();
+        Observer.Expect('text', 'sqbup');
+        Observer.Expect('same object', 'Yes');
+        Observer.Verify();
     end;
 }
