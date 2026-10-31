@@ -16,6 +16,11 @@
 //   a function control, and four hosts (two- or three-field link, with or without OnAfterGetCurrRecord) with expression controls: a
 //   global CurrentNo (set in OnAfterGetCurrRecord, or in OnAfterGetRecord without it) and a function call GetHostNo(), both showing No. + '/' + the stored resource. The Y26 tests
 //   read every control one at a time after TestField.Lookup and log which triggers each read runs.
+// Result Y26 (SaaS BC 29, the same for all four hosts): Lookup runs OnLookup, the host function control, OnValidate, the host function
+//   control again; no OnAfterGetRecord or OnAfterGetCurrRecord on the host or the part. Reading controls runs nothing. After it the host
+//   function control shows the picked value ('R1/R2'); the globals (CurrentNo, HeaderCurrent) and the part's controls keep the values of
+//   before ('R1/'). The refresh of CurrPage.Update(false) runs at the start of the next Lookup (host rows and OnAfterGetCurrRecord, not
+//   the part); Next refreshes host and part.
 
 table 91710 "LT Y15 Lookup Setting"
 {
@@ -341,19 +346,31 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
         Observer.Observe('close log', Log.Take());
         Setting.Get();
         Observer.Observe('stored', Setting."Resource No.");
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Y26_ThreeLinkCurr_LookupRefresh_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Y26_ThreeLinkCurr_LookupRefresh_More2()
-    begin
-        Observer.More();
+        Observer.Expect('open log', 'h-agr R1;h-fn R1;h-agr R2;h-fn R2;h-agr R3;h-fn R3;h-agr R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;p-agr R1;p-fn R1;p-agr R1;p-fn R1;p-agcr R1;p-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1');
+        Observer.Expect('before', '/R1//R1/R1//R1//R1/R1//R1/');
+        Observer.Expect('before log', '');
+        Observer.Expect('lookup log', 'lookup;h-fn R1;validate R2;h-fn R1');
+        Observer.Expect('resource no', 'R2');
+        Observer.Expect('resource no log', '');
+        Observer.Expect('header current', 'R1/');
+        Observer.Expect('header current log', '');
+        Observer.Expect('current no', 'R1/');
+        Observer.Expect('current no log', '');
+        Observer.Expect('host fn', 'R1/R2');
+        Observer.Expect('host fn log', '');
+        Observer.Expect('part no', 'R1');
+        Observer.Expect('part no log', '');
+        Observer.Expect('part current', 'R1/');
+        Observer.Expect('part current log', '');
+        Observer.Expect('part fn', 'R1/');
+        Observer.Expect('part fn log', '');
+        Observer.Expect('next', 'true');
+        Observer.Expect('next log', 'h-agr R2;h-agr R2;h-fn R2;h-agcr R2;h-fn R2;h-agr R2;h-fn R2;h-agr R3;h-fn R3;h-agr R2;h-agr R1;h-fn R1;h-agr R2;h-agr R2;h-fn R2;h-agcr R2;h-fn R2;p-agr R2;p-fn R2;p-agr R2;p-fn R2;p-agcr R2;p-fn R2;h-agr R2;h-fn R2;h-agcr R2;h-fn R2');
+        Observer.Expect('after next', 'R2/R2/R2/R2/R2/R2/R2/R2/R2/R2/R2/R2/R2');
+        Observer.Expect('after next log', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'R2');
+        Observer.Verify();
     end;
 
     // Y26: the same with a two-field link.
@@ -394,19 +411,31 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
         Observer.Observe('close log', Log.Take());
         Setting.Get();
         Observer.Observe('stored', Setting."Resource No.");
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Y26_TwoLinkCurr_LookupRefresh_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Y26_TwoLinkCurr_LookupRefresh_More2()
-    begin
-        Observer.More();
+        Observer.Expect('open log', 'h-agr R1;h-fn R1;h-agr R2;h-fn R2;h-agr R3;h-fn R3;h-agr R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;p-agr R1;p-fn R1;p-agr R1;p-fn R1;p-agcr R1;p-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1');
+        Observer.Expect('before', '/R1//R1/R1//R1//R1/R1//R1/');
+        Observer.Expect('before log', '');
+        Observer.Expect('lookup log', 'lookup;h-fn R1;validate R2;h-fn R1');
+        Observer.Expect('resource no', 'R2');
+        Observer.Expect('resource no log', '');
+        Observer.Expect('header current', 'R1/');
+        Observer.Expect('header current log', '');
+        Observer.Expect('current no', 'R1/');
+        Observer.Expect('current no log', '');
+        Observer.Expect('host fn', 'R1/R2');
+        Observer.Expect('host fn log', '');
+        Observer.Expect('part no', 'R1');
+        Observer.Expect('part no log', '');
+        Observer.Expect('part current', 'R1/');
+        Observer.Expect('part current log', '');
+        Observer.Expect('part fn', 'R1/');
+        Observer.Expect('part fn log', '');
+        Observer.Expect('next', 'true');
+        Observer.Expect('next log', 'h-agr R2;h-agr R2;h-fn R2;h-agcr R2;h-fn R2;h-agr R2;h-fn R2;h-agr R3;h-fn R3;h-agr R2;h-agr R1;h-fn R1;h-agr R2;h-agr R2;h-fn R2;h-agcr R2;h-fn R2;p-agr R2;p-fn R2;p-agr R2;p-fn R2;p-agcr R2;p-fn R2;h-agr R2;h-fn R2;h-agcr R2;h-fn R2');
+        Observer.Expect('after next', 'R2/R2/R2/R2/R2/R2/R2/R2/R2/R2/R2/R2/R2');
+        Observer.Expect('after next log', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'R2');
+        Observer.Verify();
     end;
 
     // Y26: three-field link, no OnAfterGetCurrRecord on the host (CurrentNo set in OnAfterGetRecord).
@@ -447,19 +476,31 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
         Observer.Observe('close log', Log.Take());
         Setting.Get();
         Observer.Observe('stored', Setting."Resource No.");
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Y26_ThreeLinkPlain_LookupRefresh_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Y26_ThreeLinkPlain_LookupRefresh_More2()
-    begin
-        Observer.More();
+        Observer.Expect('open log', 'h-agr R1;h-fn R1;h-agr R2;h-fn R2;h-agr R3;h-fn R3;h-agr R1;p-agr R1;p-fn R1;p-agr R1;p-fn R1;p-agcr R1;p-fn R1;h-agr R1;h-fn R1');
+        Observer.Expect('before', '/R1//R1/R1//R1//R1/R1//R1/');
+        Observer.Expect('before log', '');
+        Observer.Expect('lookup log', 'lookup;h-fn R1;validate R2;h-fn R1');
+        Observer.Expect('resource no', 'R2');
+        Observer.Expect('resource no log', '');
+        Observer.Expect('header current', 'R1/');
+        Observer.Expect('header current log', '');
+        Observer.Expect('current no', 'R1/');
+        Observer.Expect('current no log', '');
+        Observer.Expect('host fn', 'R1/R2');
+        Observer.Expect('host fn log', '');
+        Observer.Expect('part no', 'R1');
+        Observer.Expect('part no log', '');
+        Observer.Expect('part current', 'R1/');
+        Observer.Expect('part current log', '');
+        Observer.Expect('part fn', 'R1/');
+        Observer.Expect('part fn log', '');
+        Observer.Expect('next', 'true');
+        Observer.Expect('next log', 'h-agr R2;h-agr R2;h-fn R2;h-agr R3;h-fn R3;h-agr R2;h-agr R1;h-fn R1;p-agr R2;p-fn R2;p-agr R2;p-fn R2;p-agcr R2;p-fn R2;h-agr R2;h-agr R2;h-fn R2');
+        Observer.Expect('after next', 'R2/R2/R2/R2/R2/R2/R2/R2/R2/R2/R2/R2/R2');
+        Observer.Expect('after next log', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'R2');
+        Observer.Verify();
     end;
 
     // Y26: two-field link, no OnAfterGetCurrRecord on the host.
@@ -500,19 +541,31 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
         Observer.Observe('close log', Log.Take());
         Setting.Get();
         Observer.Observe('stored', Setting."Resource No.");
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Y26_TwoLinkPlain_LookupRefresh_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Y26_TwoLinkPlain_LookupRefresh_More2()
-    begin
-        Observer.More();
+        Observer.Expect('open log', 'h-agr R1;h-fn R1;h-agr R2;h-fn R2;h-agr R3;h-fn R3;h-agr R1;p-agr R1;p-fn R1;p-agr R1;p-fn R1;p-agcr R1;p-fn R1;h-agr R1;h-fn R1');
+        Observer.Expect('before', '/R1//R1/R1//R1//R1/R1//R1/');
+        Observer.Expect('before log', '');
+        Observer.Expect('lookup log', 'lookup;h-fn R1;validate R2;h-fn R1');
+        Observer.Expect('resource no', 'R2');
+        Observer.Expect('resource no log', '');
+        Observer.Expect('header current', 'R1/');
+        Observer.Expect('header current log', '');
+        Observer.Expect('current no', 'R1/');
+        Observer.Expect('current no log', '');
+        Observer.Expect('host fn', 'R1/R2');
+        Observer.Expect('host fn log', '');
+        Observer.Expect('part no', 'R1');
+        Observer.Expect('part no log', '');
+        Observer.Expect('part current', 'R1/');
+        Observer.Expect('part current log', '');
+        Observer.Expect('part fn', 'R1/');
+        Observer.Expect('part fn log', '');
+        Observer.Expect('next', 'true');
+        Observer.Expect('next log', 'h-agr R2;h-agr R2;h-fn R2;h-agr R3;h-fn R3;h-agr R2;h-agr R1;h-fn R1;p-agr R2;p-fn R2;p-agr R2;p-fn R2;p-agcr R2;p-fn R2;h-agr R2;h-agr R2;h-fn R2');
+        Observer.Expect('after next', 'R2/R2/R2/R2/R2/R2/R2/R2/R2/R2/R2/R2/R2');
+        Observer.Expect('after next log', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'R2');
+        Observer.Verify();
     end;
 
     // Y26: three-field link with region codes set on every row.
@@ -553,19 +606,31 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
         Observer.Observe('close log', Log.Take());
         Setting.Get();
         Observer.Observe('stored', Setting."Resource No.");
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Y26_ThreeLinkCurr_RegionsSet_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Y26_ThreeLinkCurr_RegionsSet_More2()
-    begin
-        Observer.More();
+        Observer.Expect('open log', 'h-agr R1;h-fn R1;h-agr R2;h-fn R2;h-agr R3;h-fn R3;h-agr R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;p-agr R1;p-fn R1;p-agr R1;p-fn R1;p-agcr R1;p-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1');
+        Observer.Expect('before', '/R1//R1/R1//R1//R1/R1//R1/');
+        Observer.Expect('before log', '');
+        Observer.Expect('lookup log', 'lookup;h-fn R1;validate R2;h-fn R1');
+        Observer.Expect('resource no', 'R2');
+        Observer.Expect('resource no log', '');
+        Observer.Expect('header current', 'R1/');
+        Observer.Expect('header current log', '');
+        Observer.Expect('current no', 'R1/');
+        Observer.Expect('current no log', '');
+        Observer.Expect('host fn', 'R1/R2');
+        Observer.Expect('host fn log', '');
+        Observer.Expect('part no', 'R1');
+        Observer.Expect('part no log', '');
+        Observer.Expect('part current', 'R1/');
+        Observer.Expect('part current log', '');
+        Observer.Expect('part fn', 'R1/');
+        Observer.Expect('part fn log', '');
+        Observer.Expect('next', 'true');
+        Observer.Expect('next log', 'h-agr R2;h-agr R2;h-fn R2;h-agcr R2;h-fn R2;h-agr R2;h-fn R2;h-agr R3;h-fn R3;h-agr R2;h-agr R1;h-fn R1;h-agr R2;h-agr R2;h-fn R2;h-agcr R2;h-fn R2;p-agr R2;p-fn R2;p-agr R2;p-fn R2;p-agcr R2;p-fn R2;h-agr R2;h-fn R2;h-agcr R2;h-fn R2');
+        Observer.Expect('after next', 'R2/R2/R2/R2/R2/R2/R2/R2/R2/R2/R2/R2/R2');
+        Observer.Expect('after next log', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'R2');
+        Observer.Verify();
     end;
 
     // Y26: two lookups in a row (R2, then R3).
@@ -610,19 +675,34 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
         Observer.Observe('close log', Log.Take());
         Setting.Get();
         Observer.Observe('stored', Setting."Resource No.");
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Y26_ThreeLinkCurr_LookupTwice_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Y26_ThreeLinkCurr_LookupTwice_More2()
-    begin
-        Observer.More();
+        Observer.Expect('open log', 'h-agr R1;h-fn R1;h-agr R2;h-fn R2;h-agr R3;h-fn R3;h-agr R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;p-agr R1;p-fn R1;p-agr R1;p-fn R1;p-agcr R1;p-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1');
+        Observer.Expect('before', '/R1//R1/R1//R1//R1/R1//R1/');
+        Observer.Expect('before log', '');
+        Observer.Expect('lookup log', 'lookup;h-fn R1;validate R2;h-fn R1');
+        Observer.Expect('resource no', 'R2');
+        Observer.Expect('resource no log', '');
+        Observer.Expect('header current', 'R1/');
+        Observer.Expect('header current log', '');
+        Observer.Expect('current no', 'R1/');
+        Observer.Expect('current no log', '');
+        Observer.Expect('host fn', 'R1/R2');
+        Observer.Expect('host fn log', '');
+        Observer.Expect('part no', 'R1');
+        Observer.Expect('part no log', '');
+        Observer.Expect('part current', 'R1/');
+        Observer.Expect('part current log', '');
+        Observer.Expect('part fn', 'R1/');
+        Observer.Expect('part fn log', '');
+        Observer.Expect('second lookup log', 'h-agr R1;h-fn R1;h-agr R2;h-fn R2;h-agr R3;h-fn R3;h-agr R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;lookup;h-fn R1;validate R3;h-fn R1');
+        Observer.Expect('second', 'R3/R1/R2/R1/R1/R2/R1/R3/R1/R1//R1/');
+        Observer.Expect('second log', '');
+        Observer.Expect('next', 'true');
+        Observer.Expect('next log', 'h-agr R2;h-agr R2;h-fn R2;h-agcr R2;h-fn R2;h-agr R2;h-fn R2;h-agr R3;h-fn R3;h-agr R2;h-agr R1;h-fn R1;h-agr R2;h-agr R2;h-fn R2;h-agcr R2;h-fn R2;p-agr R2;p-fn R2;p-agr R2;p-fn R2;p-agcr R2;p-fn R2;h-agr R2;h-fn R2;h-agcr R2;h-fn R2');
+        Observer.Expect('after next', 'R3/R2/R3/R2/R2/R3/R2/R3/R2/R2/R3/R2/R3');
+        Observer.Expect('after next log', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'R3');
+        Observer.Verify();
     end;
 
     [ModalPageHandler]
