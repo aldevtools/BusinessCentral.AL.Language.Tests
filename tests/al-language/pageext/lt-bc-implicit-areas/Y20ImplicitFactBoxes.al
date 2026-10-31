@@ -5,7 +5,8 @@
 // Facts: a page extension may add parts to area(FactBoxes) of a Worksheet, a Document, a ListPlus, a StandardDialog, a
 //   ConfirmationDialog and a NavigatePage page that declare none (Card and List are pinned in BcImplicitAreas.al; part pages and
 //   RoleCenter do not compile: must-not-compile 2351 to 2354): the test page opens and runs the extension's OnAfterGetCurrRecord,
-//   which loads the hidden part; the linked part follows the current row; the hidden part as a TestPage part.
+//   which loads the hidden part; the linked part follows the current row; the hidden part as a TestPage part. On a StandardDialog, a
+//   ConfirmationDialog and a NavigatePage the extension compiles and the page opens, but the added part is not on the page.
 // BC versions: 27, 28, 29
 
 codeunit 92126 "LT Y20 Implicit FactBoxes"
@@ -92,13 +93,11 @@ codeunit 92126 "LT Y20 Implicit FactBoxes"
         Setup();
         TP.OpenView();
         Observer.Observe('k', TP.K.Value());
-        Observer.Observe('linked', TP.LinkedBox.BoxK.Value() + '|' + TP.LinkedBox.LoadedCtl.Value() + '|' + Format(TP.LinkedBox.Visible()));
         Observer.Observe('next', Format(TP.Next()));
         Observer.Observe('next k', TP.K.Value());
-        Observer.Observe('next linked', TP.LinkedBox.BoxK.Value() + '|' + TP.LinkedBox.LoadedCtl.Value());
-        // The part added with Visible = false (the reporter's shape, loaded from OnAfterGetCurrRecord).
-        asserterror Observer.Observe('hidden box', TP.Box.LoadedCtl.Value());
-        Observer.ObserveError('hidden box');
+        // The part with a SubPageLink, added by addlast(FactBoxes).
+        asserterror Observer.Observe('linked', TP.LinkedBox.BoxK.Value());
+        Observer.ObserveError('linked');
         Observer.Finish();
     end;
 
@@ -111,13 +110,11 @@ codeunit 92126 "LT Y20 Implicit FactBoxes"
         Setup();
         TP.OpenView();
         Observer.Observe('k', TP.K.Value());
-        Observer.Observe('linked', TP.LinkedBox.BoxK.Value() + '|' + TP.LinkedBox.LoadedCtl.Value() + '|' + Format(TP.LinkedBox.Visible()));
         Observer.Observe('next', Format(TP.Next()));
         Observer.Observe('next k', TP.K.Value());
-        Observer.Observe('next linked', TP.LinkedBox.BoxK.Value() + '|' + TP.LinkedBox.LoadedCtl.Value());
-        // The part added with Visible = false (the reporter's shape, loaded from OnAfterGetCurrRecord).
-        asserterror Observer.Observe('hidden box', TP.Box.LoadedCtl.Value());
-        Observer.ObserveError('hidden box');
+        // The part with a SubPageLink, added by addlast(FactBoxes).
+        asserterror Observer.Observe('linked', TP.LinkedBox.BoxK.Value());
+        Observer.ObserveError('linked');
         Observer.Finish();
     end;
 
@@ -130,13 +127,11 @@ codeunit 92126 "LT Y20 Implicit FactBoxes"
         Setup();
         TP.OpenView();
         Observer.Observe('k', TP.K.Value());
-        Observer.Observe('linked', TP.LinkedBox.BoxK.Value() + '|' + TP.LinkedBox.LoadedCtl.Value() + '|' + Format(TP.LinkedBox.Visible()));
         Observer.Observe('next', Format(TP.Next()));
         Observer.Observe('next k', TP.K.Value());
-        Observer.Observe('next linked', TP.LinkedBox.BoxK.Value() + '|' + TP.LinkedBox.LoadedCtl.Value());
-        // The part added with Visible = false (the reporter's shape, loaded from OnAfterGetCurrRecord).
-        asserterror Observer.Observe('hidden box', TP.Box.LoadedCtl.Value());
-        Observer.ObserveError('hidden box');
+        // The part with a SubPageLink, added by addlast(FactBoxes).
+        asserterror Observer.Observe('linked', TP.LinkedBox.BoxK.Value());
+        Observer.ObserveError('linked');
         Observer.Finish();
     end;
 }
