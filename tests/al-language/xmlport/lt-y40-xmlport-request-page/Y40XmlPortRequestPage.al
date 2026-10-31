@@ -373,7 +373,7 @@ codeunit 92731 "LT Y40 XRP Tests"
         Xp.Run();
     end;
 
-    // The runs below write nothing before they start (the rows come from Seed of the earlier tests): a run with a request page after
+    // The runs with the request window write nothing before they start: a run with a request page after
     // an uncommitted write may end in an error before the page opens (as for reports, Y36BareReportMember.al). A RequestPageHandler
     // cannot be typed on an xmlport (TestRequestPage takes a report only: must-not-compile case 2513), so the runs with the request
     // window have no handler to take the page.
@@ -382,12 +382,12 @@ codeunit 92731 "LT Y40 XRP Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
-        Log.Take();
+        Seed();
         ClearLastError();
         Observer.Observe('run', Outcome(TryRunStatic(false), ''));
         Observer.Observe('log', Log.Take());
         Observer.Expect('run', 'ok ');
-        Observer.Expect('log', 'init;pre only=0;post;');
+        Observer.Expect('log', 'init;pre only=0;row 1;row 2;row 3;post;');
         Observer.Verify();
     end;
 
