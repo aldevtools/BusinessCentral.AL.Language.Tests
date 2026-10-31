@@ -6,6 +6,9 @@
 // (static and instance, does the page open, what the global holds), Xmlport.Run with and without the request window and the
 // instance Run (no handler can take an xmlport request page: TestRequestPage takes a report only, must-not-compile case 2513).
 // Empty request page sections are xmlport/lt-ra-xmlport/RaXmlPortExport.al and platform/lt-ag-contoso/AgXmlPortImport.al.
+// BC (CI 27.5/28.5/29.0, same values): Export and Import from code (instance and static) never open the request page and run with
+//   the globals as code set them. Xmlport.Run(Id, false, false) runs without the page. Xmlport.Run(Id, true, false) and the instance
+//   Run() open the page: OnInitXmlPort runs, then 'Unhandled UI: RequestPage 92728' (MissingUIHandler), also outside a TryFunction.
 // BC versions: 27 - 29
 table 92726 "LT Y40 XRP Row"
 {
@@ -239,7 +242,9 @@ codeunit 92731 "LT Y40 XRP Tests"
             InS.ReadText(Line);
             Result += Line;
         end;
-        exit(Result);
+        // The export is UTF-16 with a byte order mark; read as text, the mark comes out as stray characters. Kept: whether the
+        // declaration names UTF-16, and the text from <Root> on (line breaks dropped by ReadText).
+        exit('decl=' + Format(StrPos(Result, '<?xml version="1.0" encoding="UTF-16" standalone="no"?>') > 0) + ' ' + CopyStr(Result, StrPos(Result, '<Root>')));
     end;
 
     [TryFunction]
@@ -287,7 +292,11 @@ codeunit 92731 "LT Y40 XRP Tests"
         Xml := '';
         Observer.Observe('all', Outcome(TryExportInstance(0, Xml), Xml));
         Observer.Observe('all_log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('only2', 'ok decl=Yes <Root>  <Row>    <Id>2</Id>    <Name>n2</Name>  </Row></Root>');
+        Observer.Expect('only2_log', 'init;pre only=2;row 2;post;');
+        Observer.Expect('all', 'ok decl=Yes <Root>  <Row>    <Id>1</Id>    <Name>n1</Name>  </Row>  <Row>    <Id>2</Id>    <Name>n2</Name>  </Row>  <Row>    <Id>3</Id>    <Name>n3</Name>  </Row></Root>');
+        Observer.Expect('all_log', 'init;pre only=0;row 1;row 2;row 3;post;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -300,7 +309,9 @@ codeunit 92731 "LT Y40 XRP Tests"
         ClearLastError();
         Observer.Observe('static', Outcome(TryExportStatic(Xml), Xml));
         Observer.Observe('log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('static', 'ok decl=Yes <Root>  <Row>    <Id>1</Id>    <Name>n1</Name>  </Row>  <Row>    <Id>2</Id>    <Name>n2</Name>  </Row>  <Row>    <Id>3</Id>    <Name>n3</Name>  </Row></Root>');
+        Observer.Expect('log', 'init;pre only=0;row 1;row 2;row 3;post;');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -338,7 +349,13 @@ codeunit 92731 "LT Y40 XRP Tests"
         Observer.Observe('static', Outcome(TryImport(false, '<Root><Row><Id>9</Id></Row></Root>'), ''));
         Observer.Observe('static_log', Log.Take());
         Observer.Observe('static_rows', Rows());
-        Observer.Finish();
+        Observer.Expect('instance', 'ok ');
+        Observer.Expect('instance_log', 'pre default=dflt;insert 7 dflt;insert 8 given;');
+        Observer.Expect('instance_rows', '7=dflt,8=given,');
+        Observer.Expect('static', 'ok ');
+        Observer.Expect('static_log', 'pre default=;insert 9 ;');
+        Observer.Expect('static_rows', '9=,');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -369,7 +386,9 @@ codeunit 92731 "LT Y40 XRP Tests"
         ClearLastError();
         Observer.Observe('run', Outcome(TryRunStatic(false), ''));
         Observer.Observe('log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('run', 'ok ');
+        Observer.Expect('log', 'init;pre only=0;post;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -381,7 +400,9 @@ codeunit 92731 "LT Y40 XRP Tests"
         ClearLastError();
         Observer.Observe('run', Outcome(TryRunStatic(true), ''));
         Observer.Observe('log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('run', 'error:Unhandled UI: RequestPage 92728|MissingUIHandler');
+        Observer.Expect('log', 'init;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -393,7 +414,9 @@ codeunit 92731 "LT Y40 XRP Tests"
         ClearLastError();
         Observer.Observe('run', Outcome(TryRunInstance(1), ''));
         Observer.Observe('log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('run', 'error:Unhandled UI: RequestPage 92728|MissingUIHandler');
+        Observer.Expect('log', 'init;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -406,6 +429,8 @@ codeunit 92731 "LT Y40 XRP Tests"
         asserterror Xmlport.Run(Xmlport::"LT Y40 XRP Export", true, false);
         Observer.Observe('error', GetLastErrorText() + '|' + GetLastErrorCode());
         Observer.Observe('log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('error', 'Unhandled UI: RequestPage 92728|MissingUIHandler');
+        Observer.Expect('log', 'init;');
+        Observer.Verify();
     end;
 }

@@ -264,6 +264,8 @@ codeunit 68075 "W4 RecRef Get Tests"
 
     // Writer Y40 (2026-10-31): SystemCreatedAtNo, SystemCreatedByNo, SystemModifiedAtNo and SystemModifiedByNo on a RecordRef that is
     // not open (never opened, after Close, after Clear), next to the open ref, and Field(<that number>) on a ref that is not open.
+    // Measured on CI 27.5/28.5/29.0 and SaaS BC 29: 2000000001, 2000000002, 2000000003, 2000000004 in every state, no error;
+    // Field(n) on a ref that is not open raises 'The record is not open.' (RecordNotOpened).
     [TryFunction]
     local procedure Y40TryAuditNo(var RR: RecordRef; Which: Integer; var No: Integer)
     begin
@@ -326,7 +328,11 @@ codeunit 68075 "W4 RecRef Get Tests"
         RR.Open(Database::"W4 RecRef Get Row");
         Clear(RR);
         Observer.Observe('after_clear', Y40AuditNos(RR));
-        Observer.Finish();
+        Observer.Expect('never_opened', '2000000001;2000000002;2000000003;2000000004;');
+        Observer.Expect('open', '2000000001;2000000002;2000000003;2000000004;');
+        Observer.Expect('after_close', '2000000001;2000000002;2000000003;2000000004;');
+        Observer.Expect('after_clear', '2000000001;2000000002;2000000003;2000000004;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -343,6 +349,11 @@ codeunit 68075 "W4 RecRef Get Tests"
         Observer.Observe('open_modified_by', Y40FieldName(RR, RR.SystemModifiedByNo()));
         RR.Close();
         Observer.Observe('after_close_created_at', Y40FieldName(RR, 2000000001));
-        Observer.Finish();
+        Observer.Expect('never_opened_created_at', 'error:The record is not open.|RecordNotOpened');
+        Observer.Expect('never_opened_system_id', 'error:The record is not open.|RecordNotOpened');
+        Observer.Expect('open_created_at', 'ok SystemCreatedAt');
+        Observer.Expect('open_modified_by', 'ok SystemModifiedBy');
+        Observer.Expect('after_close_created_at', 'error:The record is not open.|RecordNotOpened');
+        Observer.Verify();
     end;
 }

@@ -7,6 +7,13 @@
 // on the report), a bare RunModal() inside OnPreReport while the report runs, and the bare RequestOptionsPage.Caption (get and set)
 // on a variable never run and inside OnPreReport (CurrReport.RequestOptionsPage gives AL0161: must-not-compile case 2514). The getters and setters of the bare form
 // (UseRequestPage, SetTableView, ObjectId, ...) are report/lt-y36-bare-report-member/Y36BareReportMember.al (writer Y36).
+// BC (CI 27.5/28.5/29.0, same values): the bare form runs the instance whose procedure runs, the same as the variable would:
+//   UseRequestPage(false); RunModal() runs the triggers once without the page, and the globals the triggers set are read back
+//   through the variable; a SetTableView on the variable before the call applies. A second call on the same variable, and a bare
+//   RunModal() inside OnPreReport of the running instance, raise 'The object has been run. Use the function CLEAR(Report).'
+//   (ObjectHasAlreadyBeenRun); inside OnPreReport the error is caught and the run goes on. Bare RunModal() with the request page opens
+//   it (the handler typed on the report runs, its value reaches the run). Bare RequestOptionsPage.Caption reads the request page's
+//   Caption on a variable never run, and a set Caption is read back, also inside the run.
 // BC versions: 27 - 29
 table 92720 "LT Y40 BRR Row"
 {
@@ -213,7 +220,10 @@ codeunit 92725 "LT Y40 BRR Tests"
         Observer.Observe('call', FindModal(Rep));
         Observer.Observe('log', Log.Take());
         Observer.Observe('state', Rep.State());
-        Observer.Finish();
+        Observer.Expect('call', 'ok found=Yes');
+        Observer.Expect('log', 'init;pre caption=LT Y40 Finder Options;pre-item count=3 note=;post visited=3;');
+        Observer.Expect('state', 'found=Yes visited=3 note= userp=No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -226,7 +236,10 @@ codeunit 92725 "LT Y40 BRR Tests"
         Observer.Observe('call', FindModal(Rep));
         Observer.Observe('log', Log.Take());
         Observer.Observe('state', Rep.State());
-        Observer.Finish();
+        Observer.Expect('call', 'ok found=No');
+        Observer.Expect('log', 'init;pre caption=LT Y40 Finder Options;pre-item count=0 note=;post visited=0;');
+        Observer.Expect('state', 'found=No visited=0 note= userp=No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -241,7 +254,12 @@ codeunit 92725 "LT Y40 BRR Tests"
         Observer.Observe('second', FindModal(Rep));
         Observer.Observe('second_log', Log.Take());
         Observer.Observe('state', Rep.State());
-        Observer.Finish();
+        Observer.Expect('first', 'ok found=Yes');
+        Observer.Expect('first_log', 'init;pre caption=LT Y40 Finder Options;pre-item count=2 note=;post visited=2;');
+        Observer.Expect('second', 'error:The object has been run. Use the function CLEAR(Report).|ObjectHasAlreadyBeenRun');
+        Observer.Expect('second_log', '');
+        Observer.Expect('state', 'found=Yes visited=2 note= userp=No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -254,7 +272,10 @@ codeunit 92725 "LT Y40 BRR Tests"
         Observer.Observe('found', Format(Rep.FindRowsRun()));
         Observer.Observe('log', Log.Take());
         Observer.Observe('state', Rep.State());
-        Observer.Finish();
+        Observer.Expect('found', 'Yes');
+        Observer.Expect('log', 'init;pre caption=LT Y40 Finder Options;pre-item count=2 note=;post visited=2;');
+        Observer.Expect('state', 'found=Yes visited=2 note= userp=No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -270,7 +291,10 @@ codeunit 92725 "LT Y40 BRR Tests"
         Observer.Observe('call', FindModal(Rep));
         Observer.Observe('log', Log.Take());
         Observer.Observe('state', Rep.State());
-        Observer.Finish();
+        Observer.Expect('call', 'ok found=Yes');
+        Observer.Expect('log', 'init;pre caption=LT Y40 Finder Options;pre-item count=1 note=;post visited=1;');
+        Observer.Expect('state', 'found=Yes visited=1 note= userp=No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -281,12 +305,14 @@ codeunit 92725 "LT Y40 BRR Tests"
         Observer: Codeunit "Probe Observer";
     begin
         // No write before the run: an uncommitted write before a run with a request page ends the run in an error before the page
-        // opens (Y36BareReportMember.al, Y36_BareGetter_InsideRun_RequestWindow). The rows of the earlier tests of this codeunit stay.
+        // opens (Y36BareReportMember.al, Y36_BareGetter_InsideRun_RequestWindow).
         Log.Take();
         Rep.RunModalWithPage();
         Observer.Observe('log', Log.Take());
         Observer.Observe('state', Rep.State());
-        Observer.Finish();
+        Observer.Expect('log', 'init;rp-open;handler note=;pre caption=LT Y40 Finder Options;pre-item count=0 note=from handler;post visited=0;');
+        Observer.Expect('state', 'found=No visited=0 note=from handler userp=Yes');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -326,7 +352,12 @@ codeunit 92725 "LT Y40 BRR Tests"
             Observer.Observe('unrun_get_after_set', 'error:' + GetLastErrorText() + '|' + GetLastErrorCode());
         Observer.Observe('run', FindModal(Rep));
         Observer.Observe('log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('unrun_get', 'ok LT Y40 Finder Options');
+        Observer.Expect('unrun_set', 'ok');
+        Observer.Expect('unrun_get_after_set', 'ok Changed');
+        Observer.Expect('run', 'ok found=Yes');
+        Observer.Expect('log', 'init;pre caption=Changed;pre-item count=1 note=;post visited=1;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -339,7 +370,9 @@ codeunit 92725 "LT Y40 BRR Tests"
         Rep.RunModalInsidePreReport();
         Observer.Observe('log', Log.Take());
         Observer.Observe('state', Rep.State());
-        Observer.Finish();
+        Observer.Expect('log', 'init;pre caption=LT Y40 Finder Options;inner-error:The object has been run. Use the function CLEAR(Report).|ObjectHasAlreadyBeenRun;pre-item count=1 note=;post visited=1;');
+        Observer.Expect('state', 'found=Yes visited=1 note= userp=No');
+        Observer.Verify();
     end;
 
     [RequestPageHandler]
