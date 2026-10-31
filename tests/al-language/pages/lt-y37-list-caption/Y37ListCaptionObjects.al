@@ -229,7 +229,7 @@ page 92634 "LT Y37 Cap LG"
 {
     PageType = List;
     SourceTable = "LT Y37 Cap B";
-    SourceTableView = where(Zone = const(Z1));
+    SourceTableView = where(Zone = const('Z1'));
     Caption = 'C313 View List';
     DataCaptionFields = Zone;
     ApplicationArea = All;
