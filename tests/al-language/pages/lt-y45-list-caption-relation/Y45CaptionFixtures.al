@@ -24,6 +24,39 @@ table 92882 "LT Y45 Ref"
     }
 }
 
+table 92884 "LT Y45 Ref Dcf"
+{
+    DataClassification = SystemMetadata;
+    DataCaptionFields = "No.", Name;
+
+    fields
+    {
+        field(1; "No."; Code[20]) { }
+        field(2; Name; Text[50]) { }
+    }
+
+    keys
+    {
+        key(PK; "No.") { Clustered = true; }
+    }
+}
+
+table 92885 "LT Y45 Ref Desc"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; "No."; Code[20]) { }
+        field(2; Description; Text[50]) { }
+    }
+
+    keys
+    {
+        key(PK; "No.") { Clustered = true; }
+    }
+}
+
 table 92883 "LT Y45 Cap Row"
 {
     DataClassification = SystemMetadata;
@@ -33,6 +66,8 @@ table 92883 "LT Y45 Cap Row"
         field(1; Id; Integer) { }
         field(2; RefNo; Code[20]) { TableRelation = "LT Y45 Ref"; }
         field(3; Plain; Code[20]) { }
+        field(4; RefDcf; Code[20]) { TableRelation = "LT Y45 Ref Dcf"; }
+        field(5; RefDesc; Code[20]) { TableRelation = "LT Y45 Ref Desc"; }
     }
 
     keys
@@ -177,6 +212,52 @@ page 92892 "LT Y45 Cap List Two"
                 field(Id; Rec.Id) { ApplicationArea = All; }
                 field(RefNo; Rec.RefNo) { ApplicationArea = All; }
                 field(Plain; Rec.Plain) { ApplicationArea = All; }
+            }
+        }
+    }
+}
+
+page 92893 "LT Y45 Cap List RefDcf"
+{
+    PageType = List;
+    SourceTable = "LT Y45 Cap Row";
+    ApplicationArea = All;
+    UsageCategory = None;
+    Editable = false;
+    Caption = 'Y45 Cap RefDcf';
+    DataCaptionFields = RefDcf;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Rows)
+            {
+                field(Id; Rec.Id) { ApplicationArea = All; }
+                field(RefDcf; Rec.RefDcf) { ApplicationArea = All; }
+            }
+        }
+    }
+}
+
+page 92894 "LT Y45 Cap List RefDesc"
+{
+    PageType = List;
+    SourceTable = "LT Y45 Cap Row";
+    ApplicationArea = All;
+    UsageCategory = None;
+    Editable = false;
+    Caption = 'Y45 Cap RefDesc';
+    DataCaptionFields = RefDesc;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Rows)
+            {
+                field(Id; Rec.Id) { ApplicationArea = All; }
+                field(RefDesc; Rec.RefDesc) { ApplicationArea = All; }
             }
         }
     }

@@ -18,6 +18,12 @@ codeunit 92891 "LT Y45 List Caption Relation"
         AddRow(3, 'R2', 'P2');
         AddRow(4, 'R3', 'P1');
         AddRow(5, 'R9', 'P3');
+        AddRefDcf('D1', 'Dcf One');
+        AddRefDesc('E1', 'Desc One');
+        Row.Get(1);
+        Row.RefDcf := 'D1';
+        Row.RefDesc := 'E1';
+        Row.Modify();
     end;
 
     local procedure AddRef(No: Code[20]; Name: Text[50]; Extra: Text[50])
@@ -27,6 +33,26 @@ codeunit 92891 "LT Y45 List Caption Relation"
         Ref."No." := No;
         Ref.Name := Name;
         Ref.Extra := Extra;
+        Ref.Insert();
+    end;
+
+    local procedure AddRefDcf(No: Code[20]; Name: Text[50])
+    var
+        Ref: Record "LT Y45 Ref Dcf";
+    begin
+        Ref.DeleteAll();
+        Ref."No." := No;
+        Ref.Name := Name;
+        Ref.Insert();
+    end;
+
+    local procedure AddRefDesc(No: Code[20]; Description: Text[50])
+    var
+        Ref: Record "LT Y45 Ref Desc";
+    begin
+        Ref.DeleteAll();
+        Ref."No." := No;
+        Ref.Description := Description;
         Ref.Insert();
     end;
 
@@ -53,7 +79,8 @@ codeunit 92891 "LT Y45 List Caption Relation"
         Page.Run(Page::"LT Y45 Cap List", Row);
         Observer.Observe('caption', TP.Caption());
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('caption', 'Y45 Cap List');
+        Observer.Verify();
     end;
 
     [Test]
@@ -68,7 +95,8 @@ codeunit 92891 "LT Y45 List Caption Relation"
         Page.Run(Page::"LT Y45 Cap List", Row);
         Observer.Observe('caption', TP.Caption());
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('caption', 'Y45 Cap List');
+        Observer.Verify();
     end;
 
     [Test]
@@ -84,7 +112,8 @@ codeunit 92891 "LT Y45 List Caption Relation"
         Page.Run(Page::"LT Y45 Cap List", Row);
         Observer.Observe('caption', TP.Caption());
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('caption', 'Y45 Cap List');
+        Observer.Verify();
     end;
 
     [Test]
@@ -100,7 +129,8 @@ codeunit 92891 "LT Y45 List Caption Relation"
         Page.Run(Page::"LT Y45 Cap List DCF", Row);
         Observer.Observe('caption', TP.Caption());
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('caption', 'Y45 Cap DCF - R1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -116,7 +146,8 @@ codeunit 92891 "LT Y45 List Caption Relation"
         Page.Run(Page::"LT Y45 Cap List DCF", Row);
         Observer.Observe('caption', TP.Caption());
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('caption', 'Y45 Cap DCF');
+        Observer.Verify();
     end;
 
     [Test]
@@ -132,7 +163,8 @@ codeunit 92891 "LT Y45 List Caption Relation"
         Page.Run(Page::"LT Y45 Cap List DCF", Row);
         Observer.Observe('caption', TP.Caption());
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('caption', 'Y45 Cap DCF - R2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -148,7 +180,8 @@ codeunit 92891 "LT Y45 List Caption Relation"
         Page.Run(Page::"LT Y45 Cap List DCF", Row);
         Observer.Observe('caption', TP.Caption());
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('caption', 'Y45 Cap DCF');
+        Observer.Verify();
     end;
 
     [Test]
@@ -164,7 +197,8 @@ codeunit 92891 "LT Y45 List Caption Relation"
         Page.Run(Page::"LT Y45 Cap List DCF", Row);
         Observer.Observe('caption', TP.Caption());
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('caption', 'Y45 Cap DCF');
+        Observer.Verify();
     end;
 
     [Test]
@@ -179,7 +213,8 @@ codeunit 92891 "LT Y45 List Caption Relation"
         Page.Run(Page::"LT Y45 Cap List DCF", Row);
         Observer.Observe('caption', TP.Caption());
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('caption', 'Y45 Cap DCF');
+        Observer.Verify();
     end;
 
     [Test]
@@ -195,7 +230,8 @@ codeunit 92891 "LT Y45 List Caption Relation"
         Page.Run(Page::"LT Y45 Cap List DCF", Row);
         Observer.Observe('caption', TP.Caption());
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('caption', 'Y45 Cap DCF');
+        Observer.Verify();
     end;
 
     [Test]
@@ -210,7 +246,8 @@ codeunit 92891 "LT Y45 List Caption Relation"
         TP.Filter.SetFilter(RefNo, 'R1');
         Observer.Observe('caption', TP.Caption());
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('caption', 'Y45 Cap DCF - R1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -224,7 +261,8 @@ codeunit 92891 "LT Y45 List Caption Relation"
         TP.OpenView();
         Observer.Observe('caption', TP.Caption());
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('caption', 'Y45 Cap DCF');
+        Observer.Verify();
     end;
 
     [Test]
@@ -240,7 +278,8 @@ codeunit 92891 "LT Y45 List Caption Relation"
         Page.Run(Page::"LT Y45 Cap List Plain", Row);
         Observer.Observe('caption', TP.Caption());
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('caption', 'Y45 Cap Plain - P1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -256,7 +295,8 @@ codeunit 92891 "LT Y45 List Caption Relation"
         Page.Run(Page::"LT Y45 Cap List Two", Row);
         Observer.Observe('caption', TP.Caption());
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('caption', 'Y45 Cap Two - R1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -272,7 +312,8 @@ codeunit 92891 "LT Y45 List Caption Relation"
         Page.Run(Page::"LT Y45 Cap Card DCF", Row);
         Observer.Observe('caption', TP.Caption());
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('caption', 'Y45 Cap Card - 2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -288,7 +329,8 @@ codeunit 92891 "LT Y45 List Caption Relation"
         Page.Run(Page::"LT Y45 Cap Card DCF", Row);
         Observer.Observe('caption', TP.Caption());
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('caption', 'Y45 Cap Card - 1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -305,6 +347,72 @@ codeunit 92891 "LT Y45 List Caption Relation"
         Observer.Observe('caption', TP.Caption());
         TP.Next();
         Observer.Observe('caption after next', TP.Caption());
+        TP.Close();
+        Observer.Expect('caption', 'Y45 Cap Card - 2');
+        Observer.Expect('caption after next', 'Y45 Cap Card - 3');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure List_DcfRelatedTableDcf_Filter_Caption()
+    var
+        TP: TestPage "LT Y45 Cap List RefDcf";
+        Row: Record "LT Y45 Cap Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Init(true);
+        Row.SetFilter(RefDcf, 'D1');
+        TP.Trap();
+        Page.Run(Page::"LT Y45 Cap List RefDcf", Row);
+        Observer.Observe('caption', TP.Caption());
+        TP.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure List_DcfRelatedDescription_Filter_Caption()
+    var
+        TP: TestPage "LT Y45 Cap List RefDesc";
+        Row: Record "LT Y45 Cap Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Init(true);
+        Row.SetFilter(RefDesc, 'E1');
+        TP.Trap();
+        Page.Run(Page::"LT Y45 Cap List RefDesc", Row);
+        Observer.Observe('caption', TP.Caption());
+        TP.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure List_Dcf_SetRangeRefNo_Caption()
+    var
+        TP: TestPage "LT Y45 Cap List DCF";
+        Row: Record "LT Y45 Cap Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Init(true);
+        Row.SetRange(RefNo, 'R3');
+        TP.Trap();
+        Page.Run(Page::"LT Y45 Cap List DCF", Row);
+        Observer.Observe('caption', TP.Caption());
+        TP.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure List_Dcf_FilterMissingRefNoRow_Caption()
+    var
+        TP: TestPage "LT Y45 Cap List DCF";
+        Row: Record "LT Y45 Cap Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Init(true);
+        Row.SetRange(RefNo, 'R7');
+        TP.Trap();
+        Page.Run(Page::"LT Y45 Cap List DCF", Row);
+        Observer.Observe('caption', TP.Caption());
         TP.Close();
         Observer.Finish();
     end;
