@@ -326,7 +326,14 @@ codeunit 91766 "LT Y17 RK Tests"
         Observer.Observe('first', Format(P.First()) + '/' + P."Entry No.".Value() + ':' + Log.Take());
         Observer.Observe('last', Format(P.Last()) + '/' + P."Entry No.".Value() + ':' + Log.Take());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', '30:O;R30;R29;R28;R27;R26;R25;R24;R23;R22;R21;R20;R19;R18;R17;R16;R15;R14;R13;R12;R11;R30;R30;R30;C30;');
+        Observer.Expect('filter many', '29:R29;R28;R27;R26;R24;R23;R22;R21;R19;R18;R17;R16;R14;R13;R12;R11;R10;R9;R8;R7;R29;R29;R29;C29;');
+        Observer.Expect('filter one', '10:R10;R10;R10;C10;');
+        Observer.Expect('next', 'No/10:');
+        Observer.Expect('previous', 'No/10:');
+        Observer.Expect('first', 'Yes/10:');
+        Observer.Expect('last', 'Yes/10:');
+        Observer.Verify();
     end;
 
     // One row straight after the open (Desc).
@@ -345,7 +352,11 @@ codeunit 91766 "LT Y17 RK Tests"
         Observer.Observe('next', Format(P.Next()) + '/' + P."Entry No.".Value() + ':' + Log.Take());
         Observer.Observe('first', Format(P.First()) + '/' + P."Entry No.".Value() + ':' + Log.Take());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', '30:O;R30;R29;R28;R27;R26;R25;R24;R23;R22;R21;R20;R19;R18;R17;R16;R15;R14;R13;R12;R11;R30;R30;R30;C30;');
+        Observer.Expect('filter one', '10:R10;R10;R10;C10;');
+        Observer.Expect('next', 'No/10:');
+        Observer.Expect('first', 'Yes/10:');
+        Observer.Verify();
     end;
 
     // 25 of 30 rows, more than a window (Desc): Last, First, then Next 22 times.
@@ -368,7 +379,12 @@ codeunit 91766 "LT Y17 RK Tests"
                 Count += 1;
         Observer.Observe('next 22', Format(Count) + '/' + P."Entry No.".Value() + ':' + Log.Take());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', '30:O;R30;R29;R28;R27;R26;R25;R24;R23;R22;R21;R20;R19;R18;R17;R16;R15;R14;R13;R12;R11;R30;R30;R30;C30;');
+        Observer.Expect('filter many', '29:R29;R28;R27;R26;R24;R23;R22;R21;R19;R18;R17;R16;R14;R13;R12;R11;R10;R9;R8;R7;R29;R29;R29;C29;');
+        Observer.Expect('last', 'Yes/3:R7;R6;R4;R2;R1;R3;R3;R3;C3;');
+        Observer.Expect('first', 'Yes/29:R29;R29;R29;C29;');
+        Observer.Expect('next 22', '22/2:R28;R28;R28;C28;R27;R27;R27;C27;R26;R26;R26;C26;R24;R24;R24;C24;R23;R23;R23;C23;R22;R22;R22;C22;R21;R21;R21;C21;R19;R19;R19;C19;R18;R18;R18;C18;R17;R17;R17;C17;R16;R16;R16;C16;R14;R14;R14;C14;R13;R13;R13;C13;R12;R12;R12;C12;R11;R11;R11;C11;R10;R10;R10;C10;R9;R9;R9;C9;R8;R8;R8;C8;R7;R7;R7;C7;R6;R6;R6;C6;R4;R4;R4;C4;R2;R2;R2;C2;');
+        Observer.Verify();
     end;
 
     // One row straight after the open (Asc).
@@ -387,7 +403,11 @@ codeunit 91766 "LT Y17 RK Tests"
         Observer.Observe('next', Format(P.Next()) + '/' + P."Entry No.".Value() + ':' + Log.Take());
         Observer.Observe('first', Format(P.First()) + '/' + P."Entry No.".Value() + ':' + Log.Take());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', '3:O;R3;R1;R2;R4;R5;R6;R7;R8;R9;R10;R11;R12;R13;R14;R15;R16;R17;R18;R19;R20;R3;R3;R3;C3;');
+        Observer.Expect('filter one', '10:R10;R10;R10;C10;');
+        Observer.Expect('next', 'No/10:');
+        Observer.Expect('first', 'Yes/10:');
+        Observer.Verify();
     end;
 
     // 25 of 30 rows, more than a window (Asc): Last, First, then Next 22 times.
@@ -410,7 +430,12 @@ codeunit 91766 "LT Y17 RK Tests"
                 Count += 1;
         Observer.Observe('next 22', Format(Count) + '/' + P."Entry No.".Value() + ':' + Log.Take());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', '3:O;R3;R1;R2;R4;R5;R6;R7;R8;R9;R10;R11;R12;R13;R14;R15;R16;R17;R18;R19;R20;R3;R3;R3;C3;');
+        Observer.Expect('filter many', '3:R3;R1;R2;R4;R6;R7;R8;R9;R10;R11;R12;R13;R14;R16;R17;R18;R19;R21;R22;R23;R3;R3;R3;C3;');
+        Observer.Expect('last', 'Yes/29:R23;R24;R26;R27;R28;R29;R29;R29;C29;');
+        Observer.Expect('first', 'Yes/3:R3;R3;R3;C3;');
+        Observer.Expect('next 22', '22/27:R1;R1;R1;C1;R2;R2;R2;C2;R4;R4;R4;C4;R6;R6;R6;C6;R7;R7;R7;C7;R8;R8;R8;C8;R9;R9;R9;C9;R10;R10;R10;C10;R11;R11;R11;C11;R12;R12;R12;C12;R13;R13;R13;C13;R14;R14;R14;C14;R16;R16;R16;C16;R17;R17;R17;C17;R18;R18;R18;C18;R19;R19;R19;C19;R21;R21;R21;C21;R22;R22;R22;C22;R23;R23;R23;C23;R24;R24;R24;C24;R26;R26;R26;C26;R27;R27;R27;C27;');
+        Observer.Verify();
     end;
 
     // One row straight after the open (Ws).
@@ -429,7 +454,11 @@ codeunit 91766 "LT Y17 RK Tests"
         Observer.Observe('next', Format(P.Next()) + '/' + P."Entry No.".Value() + ':' + Log.Take());
         Observer.Observe('first', Format(P.First()) + '/' + P."Entry No.".Value() + ':' + Log.Take());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', '3:O;R3;R1;R2;R4;R5;R6;R7;R8;R9;R10;R11;R12;R13;R14;R15;R16;R17;R18;R19;R20;R3;R3;R3;C3;');
+        Observer.Expect('filter one', '10:R10;R10;R10;C10;');
+        Observer.Expect('next', 'No/10:');
+        Observer.Expect('first', 'Yes/10:');
+        Observer.Verify();
     end;
 
     // 25 of 30 rows, more than a window (Ws): Last, First, then Next 22 times.
@@ -452,7 +481,12 @@ codeunit 91766 "LT Y17 RK Tests"
                 Count += 1;
         Observer.Observe('next 22', Format(Count) + '/' + P."Entry No.".Value() + ':' + Log.Take());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', '3:O;R3;R1;R2;R4;R5;R6;R7;R8;R9;R10;R11;R12;R13;R14;R15;R16;R17;R18;R19;R20;R3;R3;R3;C3;');
+        Observer.Expect('filter many', '3:R3;R1;R2;R4;R6;R7;R8;R9;R10;R11;R12;R13;R14;R16;R17;R18;R19;R21;R22;R23;R3;R3;R3;C3;');
+        Observer.Expect('last', 'Yes/29:R23;R24;R26;R27;R28;R29;R29;R29;C29;');
+        Observer.Expect('first', 'Yes/3:R3;R3;R3;C3;');
+        Observer.Expect('next 22', '22/27:R1;R1;R1;C1;R2;R2;R2;C2;R4;R4;R4;C4;R6;R6;R6;C6;R7;R7;R7;C7;R8;R8;R8;C8;R9;R9;R9;C9;R10;R10;R10;C10;R11;R11;R11;C11;R12;R12;R12;C12;R13;R13;R13;C13;R14;R14;R14;C14;R16;R16;R16;C16;R17;R17;R17;C17;R18;R18;R18;C18;R19;R19;R19;C19;R21;R21;R21;C21;R22;R22;R22;C22;R23;R23;R23;C23;R24;R24;R24;C24;R26;R26;R26;C26;R27;R27;R27;C27;');
+        Observer.Verify();
     end;
 
     // Three rows (C00), ties to the pinned ascending Worksheet refill (SuRefillKey.al Name_Filter_Refill).
@@ -471,7 +505,11 @@ codeunit 91766 "LT Y17 RK Tests"
         Observer.Observe('next', Format(P.Next()) + '/' + P."Entry No.".Value() + ':' + Log.Take());
         Observer.Observe('last', Format(P.Last()) + '/' + P."Entry No.".Value() + ':' + Log.Take());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', '30:O;R30;R29;R28;R27;R26;R25;R24;R23;R22;R21;R20;R19;R18;R17;R16;R15;R14;R13;R12;R11;R30;R30;R30;C30;');
+        Observer.Expect('filter three', '2:R2;R1;R3;R2;R2;R2;C2;');
+        Observer.Expect('next', 'Yes/1:R1;R1;R1;C1;');
+        Observer.Expect('last', 'Yes/3:R3;R3;R3;C3;');
+        Observer.Verify();
     end;
 
     // No row matches the new filter.
@@ -489,7 +527,10 @@ codeunit 91766 "LT Y17 RK Tests"
         Observer.Observe('filter none', P."Entry No.".Value() + ':' + Log.Take());
         Observer.Observe('first', Format(P.First()) + '/' + P."Entry No.".Value() + ':' + Log.Take());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', '30:O;R30;R29;R28;R27;R26;R25;R24;R23;R22;R21;R20;R19;R18;R17;R16;R15;R14;R13;R12;R11;R30;R30;R30;C30;');
+        Observer.Expect('filter none', ':');
+        Observer.Expect('first', 'No/:');
+        Observer.Verify();
     end;
 
     // One row, then an action that only logs the Rec it sees (the Apply Entries step of the Microsoft test).
@@ -508,6 +549,9 @@ codeunit 91766 "LT Y17 RK Tests"
         P.LogRec.Invoke();
         Observer.Observe('action', P."Entry No.".Value() + ':' + Log.Take());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', '30:O;R30;R29;R28;R27;R26;R25;R24;R23;R22;R21;R20;R19;R18;R17;R16;R15;R14;R13;R12;R11;R30;R30;R30;C30;');
+        Observer.Expect('filter one', '10:R10;R10;R10;C10;');
+        Observer.Expect('action', '10:R10;A10;R10;R10;R10;R10;R10;C10;');
+        Observer.Verify();
     end;
 }

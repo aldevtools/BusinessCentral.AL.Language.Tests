@@ -466,7 +466,18 @@ codeunit 91782 "LT Y17 JB Tests"
     procedure UpdWs_BatchSwitch_ToBatchWithRows()
     begin
         Switch(20000, 'B2', false, false, false);
-        Observer.Finish();
+        Observer.Expect('open', '10000/A:R:B1/10000;R:B1/20000;R:B1/30000;R:B1/10000;R:B1/10000;C:B1/10000');
+        Observer.Expect('goto', 'Yes/20000:R:B1/20000;R:B1/20000;C:B1/20000');
+        Observer.Expect('setvalue', 'Yes');
+        Observer.Expect('validate log', 'V:start 20000;V:done 10000;R:B2/10000;R:B2/20000;R:B2/10000;R:B2/10000;C:B2/10000');
+        Observer.Expect('current', '10000/B/dB');
+        Observer.Expect('batch', 'B2');
+        Observer.Expect('read log', '');
+        Observer.Expect('next', 'Yes/20000/D:R:B2/20000;R:B2/20000;C:B2/20000');
+        Observer.Expect('rows', '10000/B,20000/D,0/,');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'B1/10000/A/dA;B1/20000/C/dC;B1/30000/E/dE;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Verify();
     end;
 
     // J2: to a batch without lines (blank row or new line?).
@@ -474,7 +485,18 @@ codeunit 91782 "LT Y17 JB Tests"
     procedure UpdWs_BatchSwitch_ToEmptyBatch()
     begin
         Switch(20000, 'B3', false, false, false);
-        Observer.Finish();
+        Observer.Expect('open', '10000/A:R:B1/10000;R:B1/20000;R:B1/30000;R:B1/10000;R:B1/10000;C:B1/10000');
+        Observer.Expect('goto', 'Yes/20000:R:B1/20000;R:B1/20000;C:B1/20000');
+        Observer.Expect('setvalue', 'Yes');
+        Observer.Expect('validate log', 'V:start 20000;V:done 20000;N:B3/0 below=Yes;C:B3/0;N:B3/0 below=Yes;C:B3/0');
+        Observer.Expect('current', '0//');
+        Observer.Expect('batch', 'B3');
+        Observer.Expect('read log', '');
+        Observer.Expect('next', 'No/0/:');
+        Observer.Expect('rows', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'B1/10000/A/dA;B1/20000/C/dC;B1/30000/E/dE;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Verify();
     end;
 
     // J3: from the first row (no GoToKey).
@@ -482,7 +504,17 @@ codeunit 91782 "LT Y17 JB Tests"
     procedure UpdWs_BatchSwitch_FromFirstRow()
     begin
         Switch(0, 'B2', false, false, false);
-        Observer.Finish();
+        Observer.Expect('open', '10000/A:R:B1/10000;R:B1/20000;R:B1/30000;R:B1/10000;R:B1/10000;C:B1/10000');
+        Observer.Expect('setvalue', 'Yes');
+        Observer.Expect('validate log', 'V:start 10000;V:done 10000;R:B2/10000;R:B2/20000;R:B2/10000;R:B2/10000;C:B2/10000');
+        Observer.Expect('current', '10000/B/dB');
+        Observer.Expect('batch', 'B2');
+        Observer.Expect('read log', '');
+        Observer.Expect('next', 'Yes/20000/D:R:B2/20000;R:B2/20000;C:B2/20000');
+        Observer.Expect('rows', '10000/B,20000/D,0/,');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'B1/10000/A/dA;B1/20000/C/dC;B1/30000/E/dE;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Verify();
     end;
 
     // J4: the row was edited before the switch (SaveRecord with a dirty row).
@@ -490,7 +522,19 @@ codeunit 91782 "LT Y17 JB Tests"
     procedure UpdWs_BatchSwitch_AfterEdit()
     begin
         Switch(20000, 'B2', true, false, false);
-        Observer.Finish();
+        Observer.Expect('open', '10000/A:R:B1/10000;R:B1/20000;R:B1/30000;R:B1/10000;R:B1/10000;C:B1/10000');
+        Observer.Expect('goto', 'Yes/20000:R:B1/20000;R:B1/20000;C:B1/20000');
+        Observer.Expect('edit log', '');
+        Observer.Expect('setvalue', 'Yes');
+        Observer.Expect('validate log', 'V:start 20000;M:B1/20000;L.OnModify:B1/20000;V:done 10000;R:B2/10000;R:B2/20000;R:B2/10000;R:B2/10000;C:B2/10000');
+        Observer.Expect('current', '10000/B/dB');
+        Observer.Expect('batch', 'B2');
+        Observer.Expect('read log', '');
+        Observer.Expect('next', 'Yes/20000/D:R:B2/20000;R:B2/20000;C:B2/20000');
+        Observer.Expect('rows', '10000/B,20000/D,0/,');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'B1/10000/A/dA;B1/20000/C/edited;B1/30000/E/dE;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Verify();
     end;
 
     // J5: no Find('-') in code.
@@ -498,7 +542,18 @@ codeunit 91782 "LT Y17 JB Tests"
     procedure UpdWs_BatchSwitch_NoFindInCode()
     begin
         Switch(20000, 'B2', false, true, false);
-        Observer.Finish();
+        Observer.Expect('open', '10000/A:R:B1/10000;R:B1/20000;R:B1/30000;R:B1/10000;R:B1/10000;C:B1/10000');
+        Observer.Expect('goto', 'Yes/20000:R:B1/20000;R:B1/20000;C:B1/20000');
+        Observer.Expect('setvalue', 'Yes');
+        Observer.Expect('validate log', 'V:start 20000;V:done 20000;R:B2/10000;R:B2/20000;R:B2/10000;R:B2/10000;C:B2/10000');
+        Observer.Expect('current', '10000/B/dB');
+        Observer.Expect('batch', 'B2');
+        Observer.Expect('read log', '');
+        Observer.Expect('next', 'Yes/20000/D:R:B2/20000;R:B2/20000;C:B2/20000');
+        Observer.Expect('rows', '10000/B,20000/D,0/,');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'B1/10000/A/dA;B1/20000/C/dC;B1/30000/E/dE;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Verify();
     end;
 
     // J5b: no Find('-') in code, to the empty batch.
@@ -506,7 +561,18 @@ codeunit 91782 "LT Y17 JB Tests"
     procedure UpdWs_BatchSwitch_NoFindInCode_ToEmptyBatch()
     begin
         Switch(20000, 'B3', false, true, false);
-        Observer.Finish();
+        Observer.Expect('open', '10000/A:R:B1/10000;R:B1/20000;R:B1/30000;R:B1/10000;R:B1/10000;C:B1/10000');
+        Observer.Expect('goto', 'Yes/20000:R:B1/20000;R:B1/20000;C:B1/20000');
+        Observer.Expect('setvalue', 'Yes');
+        Observer.Expect('validate log', 'V:start 20000;V:done 20000;N:B3/0 below=Yes;C:B3/0;N:B3/0 below=Yes;C:B3/0');
+        Observer.Expect('current', '0//');
+        Observer.Expect('batch', 'B3');
+        Observer.Expect('read log', '');
+        Observer.Expect('next', 'No/0/:');
+        Observer.Expect('rows', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'B1/10000/A/dA;B1/20000/C/dC;B1/30000/E/dE;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Verify();
     end;
 
     // J7: the filter in filter group 0.
@@ -514,7 +580,18 @@ codeunit 91782 "LT Y17 JB Tests"
     procedure UpdWs_BatchSwitch_FilterGroup0()
     begin
         Switch(20000, 'B2', false, false, true);
-        Observer.Finish();
+        Observer.Expect('open', '10000/A:R:B1/10000;R:B1/20000;R:B1/30000;R:B1/10000;R:B1/10000;C:B1/10000');
+        Observer.Expect('goto', 'Yes/20000:R:B1/20000;R:B1/20000;C:B1/20000');
+        Observer.Expect('setvalue', 'Yes');
+        Observer.Expect('validate log', 'V:start 20000;V:done 10000;R:B2/10000;R:B2/20000;R:B2/10000;R:B2/10000;C:B2/10000');
+        Observer.Expect('current', '10000/B/dB');
+        Observer.Expect('batch', 'B2');
+        Observer.Expect('read log', '');
+        Observer.Expect('next', 'Yes/20000/D:R:B2/20000;R:B2/20000;C:B2/20000');
+        Observer.Expect('rows', '10000/B,20000/D,0/,');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'B1/10000/A/dA;B1/20000/C/dC;B1/30000/E/dE;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Verify();
     end;
 
     // J6: the page with a FactBox linked to the current line.
@@ -538,6 +615,52 @@ codeunit 91782 "LT Y17 JB Tests"
         Observer.Observe('next', Format(W.Next()) + '/' + W."Line No.".Value() + '/' + W."No.".Value() + ':' + Log.Take());
         W.Close();
         Observer.Observe('stored', StoredLines());
+        Observer.Expect('open', '10000/A:R:B1/10000;R:B1/20000;R:B1/30000;R:B1/10000;R:B1/10000;C:B1/10000;F:B1/10000');
+        Observer.Expect('goto', 'Yes/20000:R:B1/20000;R:B1/20000;C:B1/20000;F:B1/20000');
+        Observer.Expect('setvalue', 'Yes');
+        Observer.Expect('validate log', 'V:start 20000;V:done 10000;R:B2/10000;R:B2/20000;R:B2/10000;R:B2/10000;C:B2/10000;F:B2/10000');
+        Observer.Expect('current', '10000/B/dB');
+        Observer.Expect('read log', '');
+        Observer.Expect('next', 'Yes/20000/D:R:B2/20000;R:B2/20000;C:B2/20000;F:B2/20000');
+        Observer.Expect('stored', 'B1/10000/A/dA;B1/20000/C/dC;B1/30000/E/dE;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Verify();
+    end;
+
+    local procedure SwitchBack(NoFind: Boolean)
+    var
+        W: TestPage "LT Y17 JB Worksheet";
+        Ok: Boolean;
+    begin
+        Seed(NoFind, false);
+        W.OpenEdit();
+        W.CurrentBatch.SetValue('B2');
+        Observer.Observe('goto', Format(W.GoToKey('B2', 20000)) + '/' + W."Line No.".Value() + '/' + W."No.".Value());
+        Log.Take();
+        Ok := TrySetBatch(W, 'B1');
+        Observer.Observe('setvalue', Format(Ok));
+        if not Ok then
+            Observer.ObserveError('setvalue error');
+        Observer.Observe('validate log', Log.Take());
+        Observer.Observe('current', W."Line No.".Value() + '/' + W."No.".Value());
+        Observer.Observe('next', Format(W.Next()) + '/' + W."Line No.".Value() + '/' + W."No.".Value() + ':' + Log.Take());
+        W.Close();
+        Observer.Observe('stored', StoredLines());
+    end;
+
+    // J8: from B2/20000 back to B1, whose rows all sort before the old key: Find('-') in code gives B1/10000, the next-after-old-key
+    //   rule of a refresh would give the previous row B1/30000.
+    [Test]
+    procedure UpdWs_BatchSwitch_BackToEarlierBatch()
+    begin
+        SwitchBack(false);
+        Observer.Finish();
+    end;
+
+    // J8 without Find('-') in code.
+    [Test]
+    procedure UpdWs_BatchSwitch_BackToEarlierBatch_NoFind()
+    begin
+        SwitchBack(true);
         Observer.Finish();
     end;
 }

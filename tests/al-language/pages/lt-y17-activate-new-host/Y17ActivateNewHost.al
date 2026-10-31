@@ -391,7 +391,16 @@ codeunit 91773 "LT Y17 AH Tests"
         Observer.Observe('read_log', Log.Take());
         Result('ok', TryOk(Host));
         Stored('stored');
-        Observer.Finish();
+        Observer.Expect('open_new', 'HP.OnNewRecord:;HP.OnAfterGetCurrRecord:;LP.OnAfterGetRecord:|10000;LP.OnAfterGetRecord:|20000;LP.OnAfterGetRecord:|10000;LP.OnAfterGetRecord:|10000;LP.OnAfterGetCurrRecord:|10000;');
+        Observer.Expect('activate', 'Yes');
+        Observer.Expect('activate log', 'HP.OnInsertRecord:;H.OnInsert:;LP.OnAfterGetCurrRecord:AUTO1|0;LP.OnAfterGetCurrRecord:AUTO1|0;LP.OnAfterGetCurrRecord:AUTO1|0;');
+        Observer.Expect('no_after_activate', 'AUTO1');
+        Observer.Expect('read_log', '');
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('ok log', '');
+        Observer.Expect('stored headers', '[AUTO1||]');
+        Observer.Expect('stored lines', '[|10000|seeded][|20000|seeded]');
+        Observer.Verify();
     end;
 
     // Must-have: Activate, then read the part.
@@ -412,7 +421,20 @@ codeunit 91773 "LT Y17 AH Tests"
         Observer.Observe('no', Host."No.".Value());
         Result('close', TryClose(Host));
         Stored('stored');
-        Observer.Finish();
+        Observer.Expect('open_new', 'HP.OnNewRecord:;HP.OnAfterGetCurrRecord:;LP.OnAfterGetRecord:|10000;LP.OnAfterGetRecord:|20000;LP.OnAfterGetRecord:|10000;LP.OnAfterGetRecord:|10000;LP.OnAfterGetCurrRecord:|10000;');
+        Observer.Expect('activate', 'Yes');
+        Observer.Expect('activate log', 'HP.OnInsertRecord:;H.OnInsert:;LP.OnAfterGetCurrRecord:AUTO1|0;LP.OnAfterGetCurrRecord:AUTO1|0;LP.OnAfterGetCurrRecord:AUTO1|0;');
+        Observer.Expect('part_first', 'Yes');
+        Observer.Expect('part_first log', '');
+        Observer.Expect('part_first_found', 'No');
+        Observer.Expect('part_description', '');
+        Observer.Expect('part_read_log', '');
+        Observer.Expect('no', 'AUTO1');
+        Observer.Expect('close', 'Yes');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored headers', '[AUTO1||]');
+        Observer.Expect('stored lines', '[|10000|seeded][|20000|seeded]');
+        Observer.Verify();
     end;
 
     // Must-have: Activate, then SetValue of the same field (the SetValue variant of the refusal).
@@ -431,7 +453,19 @@ codeunit 91773 "LT Y17 AH Tests"
         Observer.Observe('read_log', Log.Take());
         Result('ok', TryOk(Host));
         Stored('stored');
-        Observer.Finish();
+        Observer.Expect('open_new', 'HP.OnNewRecord:;HP.OnAfterGetCurrRecord:;LP.OnAfterGetRecord:|10000;LP.OnAfterGetRecord:|20000;LP.OnAfterGetRecord:|10000;LP.OnAfterGetRecord:|10000;LP.OnAfterGetCurrRecord:|10000;');
+        Observer.Expect('activate', 'Yes');
+        Observer.Expect('activate log', 'HP.OnInsertRecord:;H.OnInsert:;LP.OnAfterGetCurrRecord:AUTO1|0;LP.OnAfterGetCurrRecord:AUTO1|0;LP.OnAfterGetCurrRecord:AUTO1|0;');
+        Observer.Expect('setvalue', 'Yes');
+        Observer.Expect('setvalue log', 'H.OnValidate(Customer No.):C1;');
+        Observer.Expect('no', 'AUTO1');
+        Observer.Expect('customer', 'C1');
+        Observer.Expect('read_log', '');
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('ok log', 'HP.OnModifyRecord:AUTO1;H.OnModify:AUTO1;');
+        Observer.Expect('stored headers', '[AUTO1||C1]');
+        Observer.Expect('stored lines', '[|10000|seeded][|20000|seeded]');
+        Observer.Verify();
     end;
 
     // Neighbour: Activate of the KEY control on the same host.
@@ -448,7 +482,16 @@ codeunit 91773 "LT Y17 AH Tests"
         Observer.Observe('read_log', Log.Take());
         Result('ok', TryOk(Host));
         Stored('stored');
-        Observer.Finish();
+        Observer.Expect('open_new', 'HP.OnNewRecord:;HP.OnAfterGetCurrRecord:;LP.OnAfterGetRecord:|10000;LP.OnAfterGetRecord:|20000;LP.OnAfterGetRecord:|10000;LP.OnAfterGetRecord:|10000;LP.OnAfterGetCurrRecord:|10000;');
+        Observer.Expect('activate', 'Yes');
+        Observer.Expect('activate log', '');
+        Observer.Expect('no_after_activate', '');
+        Observer.Expect('read_log', '');
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('ok log', '');
+        Observer.Expect('stored headers', '');
+        Observer.Expect('stored lines', '[|10000|seeded][|20000|seeded]');
+        Observer.Verify();
     end;
 
     // Neighbour: Activate of a host field, then Close instead of OK.
@@ -463,7 +506,14 @@ codeunit 91773 "LT Y17 AH Tests"
         Result('activate', TryActivateCustomer(Host));
         Result('close', TryClose(Host));
         Stored('stored');
-        Observer.Finish();
+        Observer.Expect('open_new', 'HP.OnNewRecord:;HP.OnAfterGetCurrRecord:;LP.OnAfterGetRecord:|10000;LP.OnAfterGetRecord:|20000;LP.OnAfterGetRecord:|10000;LP.OnAfterGetRecord:|10000;LP.OnAfterGetCurrRecord:|10000;');
+        Observer.Expect('activate', 'Yes');
+        Observer.Expect('activate log', 'HP.OnInsertRecord:;H.OnInsert:;LP.OnAfterGetCurrRecord:AUTO1|0;LP.OnAfterGetCurrRecord:AUTO1|0;LP.OnAfterGetCurrRecord:AUTO1|0;');
+        Observer.Expect('close', 'Yes');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored headers', '[AUTO1||]');
+        Observer.Expect('stored lines', '[|10000|seeded][|20000|seeded]');
+        Observer.Verify();
     end;
 
     // Neighbour: the host is a Card page.
@@ -480,7 +530,16 @@ codeunit 91773 "LT Y17 AH Tests"
         Observer.Observe('read_log', Log.Take());
         Result('ok', TryOkCard(Host));
         Stored('stored');
-        Observer.Finish();
+        Observer.Expect('open_new', 'HP.OnNewRecord:;HP.OnAfterGetCurrRecord:;LP.OnAfterGetRecord:|10000;LP.OnAfterGetRecord:|20000;LP.OnAfterGetRecord:|10000;LP.OnAfterGetRecord:|10000;LP.OnAfterGetCurrRecord:|10000;');
+        Observer.Expect('activate', 'Yes');
+        Observer.Expect('activate log', 'HP.OnInsertRecord:;H.OnInsert:;LP.OnAfterGetCurrRecord:AUTO1|0;LP.OnAfterGetCurrRecord:AUTO1|0;LP.OnAfterGetCurrRecord:AUTO1|0;');
+        Observer.Expect('no_after_activate', 'AUTO1');
+        Observer.Expect('read_log', '');
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('ok log', '');
+        Observer.Expect('stored headers', '[AUTO1||]');
+        Observer.Expect('stored lines', '[|10000|seeded][|20000|seeded]');
+        Observer.Verify();
     end;
 
     // Neighbour (control): no blank-key lines, the part shows no rows.
@@ -497,7 +556,16 @@ codeunit 91773 "LT Y17 AH Tests"
         Observer.Observe('read_log', Log.Take());
         Result('ok', TryOk(Host));
         Stored('stored');
-        Observer.Finish();
+        Observer.Expect('open_new', 'HP.OnNewRecord:;HP.OnAfterGetCurrRecord:;LP.OnAfterGetCurrRecord:|0;LP.OnAfterGetCurrRecord:|0;LP.OnAfterGetCurrRecord:|0;');
+        Observer.Expect('activate', 'Yes');
+        Observer.Expect('activate log', 'HP.OnInsertRecord:;H.OnInsert:;LP.OnAfterGetCurrRecord:AUTO1|0;LP.OnAfterGetCurrRecord:AUTO1|0;LP.OnAfterGetCurrRecord:AUTO1|0;');
+        Observer.Expect('no_after_activate', 'AUTO1');
+        Observer.Expect('read_log', '');
+        Observer.Expect('ok', 'Yes');
+        Observer.Expect('ok log', '');
+        Observer.Expect('stored headers', '[AUTO1||]');
+        Observer.Expect('stored lines', '');
+        Observer.Verify();
     end;
 
     // Neighbour: TestPage.Next on the new host with blank-key part rows.
@@ -516,7 +584,17 @@ codeunit 91773 "LT Y17 AH Tests"
         Observer.Observe('read_log', Log.Take());
         Result('close', TryClose(Host));
         Stored('stored');
-        Observer.Finish();
+        Observer.Expect('open_new', 'HP.OnNewRecord:;HP.OnAfterGetCurrRecord:;LP.OnAfterGetRecord:|10000;LP.OnAfterGetRecord:|20000;LP.OnAfterGetRecord:|10000;LP.OnAfterGetRecord:|10000;LP.OnAfterGetCurrRecord:|10000;');
+        Observer.Expect('next', 'Yes');
+        Observer.Expect('next log', '');
+        Observer.Expect('next_found', 'No');
+        Observer.Expect('no', '');
+        Observer.Expect('read_log', '');
+        Observer.Expect('close', 'Yes');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored headers', '');
+        Observer.Expect('stored lines', '[|10000|seeded][|20000|seeded]');
+        Observer.Verify();
     end;
 
     // Neighbour: TestPage.Last on the new host with blank-key part rows.
@@ -535,6 +613,16 @@ codeunit 91773 "LT Y17 AH Tests"
         Observer.Observe('read_log', Log.Take());
         Result('close', TryClose(Host));
         Stored('stored');
-        Observer.Finish();
+        Observer.Expect('open_new', 'HP.OnNewRecord:;HP.OnAfterGetCurrRecord:;LP.OnAfterGetRecord:|10000;LP.OnAfterGetRecord:|20000;LP.OnAfterGetRecord:|10000;LP.OnAfterGetRecord:|10000;LP.OnAfterGetCurrRecord:|10000;');
+        Observer.Expect('last', 'Yes');
+        Observer.Expect('last log', '');
+        Observer.Expect('last_found', 'No');
+        Observer.Expect('no', '');
+        Observer.Expect('read_log', '');
+        Observer.Expect('close', 'Yes');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored headers', '');
+        Observer.Expect('stored lines', '[|10000|seeded][|20000|seeded]');
+        Observer.Verify();
     end;
 }
