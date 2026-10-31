@@ -8,6 +8,8 @@
 //   CurrPage.Update(false). Code outside the page clears Flag of row 2 and sets a SingleInstance "refresh done" flag; the next
 //   OnAfterGetCurrRecord consumes it, marks the flagged rows again (only row 1), calls CurrPage.Update(false) and notes that it ran.
 //   The page logs OnAfterGetCurrRecord (agcr<Id>).
+//   Version difference: without the refresh, First in the marked view gives row 2 then Next row 1 on BC 27.5 and 29 (SaaS and CI),
+//   but row 1 then Next false on BC 28.5 (CI, Linux; not checked on Windows 28.5 yet).
 // Result (SaaS BC 29): the page opens on row 3 (first in key order) and stays on row 3 after the DrillDown. GoToRecord of row 2 then
 //   returns false and leaves the page on row 1 (the reporter's before=false/1). After the refresh First returns true on row 1, its
 //   OnAfterGetCurrRecord reapplies the marks; then GoToRecord of row 2 is false, Next and Previous are false, Last stays on row 1.
@@ -330,8 +332,14 @@ codeunit 91726 "LT Y15 SK Reapply Tests"
         Observer.Expect('open first', 'true/3/3');
         Observer.Expect('open next', 'true/2/2');
         Observer.Expect('after drilldown', '2/2');
+#if BC28PLUS and not BC29PLUS
+        // BC 28.5 (corpus CI, Linux): First in the marked secondary-key view goes to row 1 and Next finds no further row.
+        Observer.Expect('first', 'true/1/1');
+        Observer.Expect('next', 'false/1/1');
+#else
         Observer.Expect('first', 'true/2/2');
         Observer.Expect('next', 'true/1/1');
+#endif
         Observer.Expect('next 2', 'false/1/1');
         Observer.Expect('goto 2', 'true/2/2');
         Observer.Expect('goto 3', 'false/2/1');
