@@ -253,7 +253,10 @@ codeunit 92381 "LT Y36 BRM Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Start();
-        Report.Run(Report::"LT Y36 BRM A", true);
+        asserterror Report.Run(Report::"LT Y36 BRM A", true);
+        Observer.Observe('static_run_true_code', GetLastErrorCode());
+        Observer.Observe('static_run_true_text', GetLastErrorText());
+        Observer.Observe('static_run_true_stack', GetLastErrorCallStack());
         Observer.Observe('log_static_run_true', L.Take());
         Observer.Finish();
     end;
