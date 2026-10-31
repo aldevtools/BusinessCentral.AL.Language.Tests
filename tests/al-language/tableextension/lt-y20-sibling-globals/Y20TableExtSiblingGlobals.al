@@ -116,7 +116,13 @@ codeunit 92116 "LT Y20 TableExt Sib Globals"
         C.Insert(true);
         Observer.Observe('counter_after_second_insert', Format(C.Y20ReadCounter()));
         Observer.Observe('name_global_code_2', C.Y20NameCodeSeenByA());
-        Observer.Finish();
+        Observer.Expect('name_row', 'Yes/Center one');
+        Observer.Expect('counter_via_b', '1');
+        Observer.Expect('counter_b', '1');
+        Observer.Expect('name_global_code', 'CC1');
+        Observer.Expect('counter_after_second_insert', '2');
+        Observer.Expect('name_global_code_2', 'CC2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -141,7 +147,14 @@ codeunit 92116 "LT Y20 TableExt Sib Globals"
         Observer.Observe('after_init', Format(C.Y20ReadCounter()));
         Clear(C);
         Observer.Observe('after_clear', Format(C.Y20ReadCounter()));
-        Observer.Finish();
+        Observer.Expect('a_writes_b_reads', '7');
+        Observer.Expect('b_writes_a_reads', '9');
+        Observer.Expect('other_variable', '0');
+        Observer.Expect('after_assignment', '0');
+        Observer.Expect('after_copy', '0');
+        Observer.Expect('after_init', '9');
+        Observer.Expect('after_clear', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -156,6 +169,8 @@ codeunit 92116 "LT Y20 TableExt Sib Globals"
         C.Insert(false);
         Observer.Observe('name_rows', Format(N.Count()));
         Observer.Observe('counter', Format(C.Y20ReadCounter()));
-        Observer.Finish();
+        Observer.Expect('name_rows', '0');
+        Observer.Expect('counter', '0');
+        Observer.Verify();
     end;
 }

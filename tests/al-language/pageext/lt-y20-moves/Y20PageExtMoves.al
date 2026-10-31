@@ -140,7 +140,15 @@ codeunit 92108 "LT Y20 PageExt Moves"
             Format(Card.Fourth.Visible()) + Format(Card.Fifth.Visible()));
         Observer.Observe('enabled', Format(Card.First.Enabled()) + Format(Card.Second.Enabled()) + Format(Card.Fifth.Enabled()));
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('first', 'First ran');
+        Observer.Expect('second', 'Second ran');
+        Observer.Expect('third', 'Third ran');
+        Observer.Expect('fourth', 'Fourth ran');
+        Observer.Expect('fifth', 'Fifth ran');
+        Observer.Expect('sixth', 'Sixth ran');
+        Observer.Expect('visible', 'YesYesYesYesYes');
+        Observer.Expect('enabled', 'YesYesYes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -161,7 +169,9 @@ codeunit 92108 "LT Y20 PageExt Moves"
         Card.Close();
         Row.Get('R1');
         Observer.Observe('stored', Row.A + '|' + Row.B + '|' + Row.C + '|' + Row.D + '|' + Row.E);
-        Observer.Finish();
+        Observer.Expect('values', 'R1|a|b|c|d|e');
+        Observer.Expect('stored', 'a2|b2|c|d2|e2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -182,6 +192,7 @@ codeunit 92108 "LT Y20 PageExt Moves"
                 Rows += Name + '=no row;';
         end;
         Observer.Observe('rows', Rows);
-        Observer.Finish();
+        Observer.Expect('rows', 'KCtl=0;ACtl=3;BCtl=4;CCtl=5;DCtl=2;ECtl=1;');
+        Observer.Verify();
     end;
 }

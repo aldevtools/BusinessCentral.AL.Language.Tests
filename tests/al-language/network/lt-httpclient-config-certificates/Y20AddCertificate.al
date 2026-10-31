@@ -43,7 +43,11 @@ codeunit 92110 "LT Y20 Http Add Certificate"
     begin
         Probe(Observer, 'der_seq_pw', 'MAIFAA==', 'pw', true);
         Probe(Observer, 'der_seq_no_pw', 'MAIFAA==', '', false);
-        Observer.Finish();
+        Observer.Expect('der_seq_pw|text', 'There was an error while executing the HTTP request. Make sure you are connecting to a valid endpoint.');
+        Observer.Expect('der_seq_pw|code', 'HttpRequest:Cryptographic');
+        Observer.Expect('der_seq_no_pw|text', 'There was an error while executing the HTTP request. Make sure you are connecting to a valid endpoint.');
+        Observer.Expect('der_seq_no_pw|code', 'HttpRequest:Cryptographic');
+        Observer.Verify();
     end;
 
     [Test]
@@ -58,7 +62,18 @@ codeunit 92110 "LT Y20 Http Add Certificate"
         Probe(Observer, 'pfx_nopw_no_pw', PfxNoPw(), '', false);
         Probe(Observer, 'pfx_nopw_empty_pw', PfxNoPw(), '', true);
         Probe(Observer, 'pfx_nopw_some_pw', PfxNoPw(), 'pw', true);
-        Observer.Finish();
+        Observer.Expect('pfx_right_pw', 'ok');
+        Observer.Expect('pfx_wrong_pw|text', 'There was an error while executing the HTTP request. Make sure you are connecting to a valid endpoint.');
+        Observer.Expect('pfx_wrong_pw|code', 'HttpRequest:Cryptographic');
+        Observer.Expect('pfx_empty_pw|text', 'There was an error while executing the HTTP request. Make sure you are connecting to a valid endpoint.');
+        Observer.Expect('pfx_empty_pw|code', 'HttpRequest:Cryptographic');
+        Observer.Expect('pfx_no_pw|text', 'There was an error while executing the HTTP request. Make sure you are connecting to a valid endpoint.');
+        Observer.Expect('pfx_no_pw|code', 'HttpRequest:Cryptographic');
+        Observer.Expect('pfx_nopw_no_pw', 'ok');
+        Observer.Expect('pfx_nopw_empty_pw', 'ok');
+        Observer.Expect('pfx_nopw_some_pw|text', 'There was an error while executing the HTTP request. Make sure you are connecting to a valid endpoint.');
+        Observer.Expect('pfx_nopw_some_pw|code', 'HttpRequest:Cryptographic');
+        Observer.Verify();
     end;
 
     [Test]
@@ -73,7 +88,8 @@ codeunit 92110 "LT Y20 Http Add Certificate"
         Pwd := SecretStrSubstNo('pw');
         Client.AddCertificate(Cert, Pwd);
         Observer.Observe('secret_pfx_right_pw', 'ok');
-        Observer.Finish();
+        Observer.Expect('secret_pfx_right_pw', 'ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -83,7 +99,9 @@ codeunit 92110 "LT Y20 Http Add Certificate"
     begin
         Probe(Observer, 'cer_no_pw', CerDer(), '', false);
         Probe(Observer, 'cer_pw', CerDer(), 'pw', true);
-        Observer.Finish();
+        Observer.Expect('cer_no_pw', 'ok');
+        Observer.Expect('cer_pw', 'ok');
+        Observer.Verify();
     end;
 
     local procedure PfxPw() Result: Text

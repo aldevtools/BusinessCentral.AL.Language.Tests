@@ -42,7 +42,20 @@ codeunit 92130 "LT Y20 Case Code Label"
             Observer.ObserveError('11 chars, selector its 10-char prefix');
         Observer.Observe('code20 selector, code10 labels', Format(Y20PickWide('ABCDEFGHIJKLMNO', 'ABC', 'XYZ')));
         Observer.Observe('code20 selector, code10 label matches', Format(Y20PickWide('XYZ', 'ABC', 'XYZ')));
-        Observer.Finish();
+        Observer.Expect('fits short', '1');
+        Observer.Expect('fits long', '2');
+        Observer.Expect('fits none', '0');
+        Observer.Expect('fits 10 chars', '2');
+        Observer.Expect('15 chars first, no match|text', 'The length of the string is 15, but it must be less than or equal to 10 characters. Value: ABCDEFGHIJKLMNO');
+        Observer.Expect('15 chars first, no match|code', 'StringLengthExceeded');
+        Observer.Expect('15 chars first, second matches|text', 'The length of the string is 15, but it must be less than or equal to 10 characters. Value: ABCDEFGHIJKLMNO');
+        Observer.Expect('15 chars first, second matches|code', 'StringLengthExceeded');
+        Observer.Expect('first matches, 15 chars second', '1');
+        Observer.Expect('11 chars, selector its 10-char prefix|text', 'The length of the string is 11, but it must be less than or equal to 10 characters. Value: ABCDEFGHIJK');
+        Observer.Expect('11 chars, selector its 10-char prefix|code', 'StringLengthExceeded');
+        Observer.Expect('code20 selector, code10 labels', '0');
+        Observer.Expect('code20 selector, code10 label matches', '2');
+        Observer.Verify();
     end;
 
     local procedure Y20Pick(Selector: Code[10]; Short: Code[20]; Long: Code[20]): Integer

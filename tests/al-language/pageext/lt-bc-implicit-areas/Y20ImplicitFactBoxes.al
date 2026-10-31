@@ -43,7 +43,14 @@ codeunit 92126 "LT Y20 Implicit FactBoxes"
         // The part added with Visible = false (the reporter's shape, loaded from OnAfterGetCurrRecord).
         asserterror Observer.Observe('hidden box', TP.Box.LoadedCtl.Value());
         Observer.ObserveError('hidden box');
-        Observer.Finish();
+        Observer.Expect('k', 'A');
+        Observer.Expect('linked', 'A||Yes');
+        Observer.Expect('next', 'Yes');
+        Observer.Expect('next k', 'B');
+        Observer.Expect('next linked', 'B|');
+        Observer.Expect('hidden box|text', 'The part with ID = n was not found on the page.');
+        Observer.Expect('hidden box|code', 'TestPartNotFound');
+        Observer.Verify();
     end;
 
     [Test]
@@ -62,7 +69,14 @@ codeunit 92126 "LT Y20 Implicit FactBoxes"
         // The part added with Visible = false (the reporter's shape, loaded from OnAfterGetCurrRecord).
         asserterror Observer.Observe('hidden box', TP.Box.LoadedCtl.Value());
         Observer.ObserveError('hidden box');
-        Observer.Finish();
+        Observer.Expect('k', 'A');
+        Observer.Expect('linked', 'A||Yes');
+        Observer.Expect('next', 'Yes');
+        Observer.Expect('next k', 'B');
+        Observer.Expect('next linked', 'B|');
+        Observer.Expect('hidden box|text', 'The part with ID = n was not found on the page.');
+        Observer.Expect('hidden box|code', 'TestPartNotFound');
+        Observer.Verify();
     end;
 
     [Test]
@@ -81,7 +95,14 @@ codeunit 92126 "LT Y20 Implicit FactBoxes"
         // The part added with Visible = false (the reporter's shape, loaded from OnAfterGetCurrRecord).
         asserterror Observer.Observe('hidden box', TP.Box.LoadedCtl.Value());
         Observer.ObserveError('hidden box');
-        Observer.Finish();
+        Observer.Expect('k', 'A');
+        Observer.Expect('linked', 'A||Yes');
+        Observer.Expect('next', 'Yes');
+        Observer.Expect('next k', 'B');
+        Observer.Expect('next linked', 'B|');
+        Observer.Expect('hidden box|text', 'The part with ID = n was not found on the page.');
+        Observer.Expect('hidden box|code', 'TestPartNotFound');
+        Observer.Verify();
     end;
 
     [Test]
@@ -98,7 +119,12 @@ codeunit 92126 "LT Y20 Implicit FactBoxes"
         // The part with a SubPageLink, added by addlast(FactBoxes).
         asserterror Observer.Observe('linked', TP.LinkedBox.BoxK.Value());
         Observer.ObserveError('linked');
-        Observer.Finish();
+        Observer.Expect('k', 'A');
+        Observer.Expect('next', 'Yes');
+        Observer.Expect('next k', 'B');
+        Observer.Expect('linked|text', 'The part with ID = n was not found on the page.');
+        Observer.Expect('linked|code', 'TestPartNotFound');
+        Observer.Verify();
     end;
 
     [Test]
@@ -115,7 +141,12 @@ codeunit 92126 "LT Y20 Implicit FactBoxes"
         // The part with a SubPageLink, added by addlast(FactBoxes).
         asserterror Observer.Observe('linked', TP.LinkedBox.BoxK.Value());
         Observer.ObserveError('linked');
-        Observer.Finish();
+        Observer.Expect('k', 'A');
+        Observer.Expect('next', 'Yes');
+        Observer.Expect('next k', 'B');
+        Observer.Expect('linked|text', 'The part with ID = n was not found on the page.');
+        Observer.Expect('linked|code', 'TestPartNotFound');
+        Observer.Verify();
     end;
 
     [Test]
@@ -132,6 +163,11 @@ codeunit 92126 "LT Y20 Implicit FactBoxes"
         // The part with a SubPageLink, added by addlast(FactBoxes).
         asserterror Observer.Observe('linked', TP.LinkedBox.BoxK.Value());
         Observer.ObserveError('linked');
-        Observer.Finish();
+        Observer.Expect('k', 'A');
+        Observer.Expect('next', 'Yes');
+        Observer.Expect('next k', 'B');
+        Observer.Expect('linked|text', 'The part with ID = n was not found on the page.');
+        Observer.Expect('linked|code', 'TestPartNotFound');
+        Observer.Verify();
     end;
 }

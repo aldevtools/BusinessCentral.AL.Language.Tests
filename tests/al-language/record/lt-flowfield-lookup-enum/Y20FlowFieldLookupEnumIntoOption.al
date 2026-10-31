@@ -120,7 +120,16 @@ codeunit 92103 "LT Y20 FLOpt Lookup"
         Read(Observer, 'zero', 'L0');
         Read(Observer, 'one', 'L1');
         Read(Observer, 'two', 'L2');
-        Observer.Finish();
+        Observer.Expect('zero_format', 'Zero');
+        Observer.Expect('zero_ordinal', '0');
+        Observer.Expect('zero_format9', '0');
+        Observer.Expect('one_format', 'One');
+        Observer.Expect('one_ordinal', '1');
+        Observer.Expect('one_format9', '1');
+        Observer.Expect('two_format', 'Two');
+        Observer.Expect('two_ordinal', '2');
+        Observer.Expect('two_format9', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -134,7 +143,11 @@ codeunit 92103 "LT Y20 FLOpt Lookup"
         Header.Get('H');
         Header.CalcFields("Line Status");
         Observer.Observe('five_eq_dos', Format(Header."Line Status" = Header."Line Status"::Dos));
-        Observer.Finish();
+        Observer.Expect('five_format', 'Five');
+        Observer.Expect('five_ordinal', '5');
+        Observer.Expect('five_format9', '5');
+        Observer.Expect('five_eq_dos', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -144,7 +157,10 @@ codeunit 92103 "LT Y20 FLOpt Lookup"
     begin
         Seed();
         Read(Observer, 'no_row', 'NONE');
-        Observer.Finish();
+        Observer.Expect('no_row_format', 'Nil');
+        Observer.Expect('no_row_ordinal', '0');
+        Observer.Expect('no_row_format9', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -169,7 +185,10 @@ codeunit 92103 "LT Y20 FLOpt Lookup"
         Header.CalcFields("Max Status");
         Ordinal := Header."Max Status";
         Observer.Observe('max_none', Format(Header."Max Status") + '/' + Format(Ordinal));
-        Observer.Finish();
+        Observer.Expect('max_g1', 'Uno/1');
+        Observer.Expect('max_g2', '5/5');
+        Observer.Expect('max_none', 'Nil/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -190,7 +209,10 @@ codeunit 92103 "LT Y20 FLOpt Lookup"
         Observer.Observe('dos_count', Format(Header.Count()));
         Header.SetFilter("Line Status", '%1', 5);
         Observer.Observe('five_count', Format(Header.Count()));
-        Observer.Finish();
+        Observer.Expect('uno_count', '2');
+        Observer.Expect('dos_count', '1');
+        Observer.Expect('five_count', '1');
+        Observer.Verify();
     end;
 
     local procedure AddHeader(No: Code[10]; LineNo: Code[10])

@@ -43,7 +43,9 @@ codeunit 92119 "LT Y20 Cross App Validate"
         R.Log := '';
         R.Validate(F, 'Y');
         Observer.Observe('validate_again', R.Log);
-        Observer.Finish();
+        Observer.Expect('validate', 'xa-before;xb-before;xd-before;xc-before;main-before;table;xa-after;xb-after;xd-after;xc-after;main-after;');
+        Observer.Expect('validate_again', 'xa-before;xb-before;xd-before;xc-before;main-before;table;xa-after;xb-after;xd-after;xc-after;main-after;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -60,6 +62,7 @@ codeunit 92119 "LT Y20 Cross App Validate"
         R.Modify();
         R.Get('K1');
         Observer.Observe('stored', R.F + '|' + R.Log);
-        Observer.Finish();
+        Observer.Expect('stored', 'Z|xa-before;xb-before;xd-before;xc-before;main-before;table;xa-after;xb-after;xd-after;xc-after;main-after;');
+        Observer.Verify();
     end;
 }
