@@ -10,6 +10,12 @@
 //       codeunit whose Permissions property names the table (rimd).
 // Shape (CpPermLeads.al): each case reseeds with no set assigned, assigns the set (Permissions Mock.Set: the set plus All Objects), runs ONE
 //   operation inside asserterror that ends with the own error 'LT Y24 ok <result>', observes text and code, clears the assignment.
+// Facts (BC 27.5, 28.5, 29.0): with rows, every read shape fails with Read (DB:ClientReadDenied), except CalcSums, which fails with
+//   IndirectRead, and Get of a missing key, which raises RecordNotFound. On an empty table no shape raises a permission error. A
+//   FlowField read by SetAutoCalcFields + FindFirst works with nothing on the CalcFormula table; CalcFields of Lookup, Exist, Sum and
+//   Count fails with IndirectRead; a TestPage control showing that FlowField is not on the page ("The field with ID = n is not found
+//   on the page."). With r on the CalcFormula table everything works. ReadPermission needs R (r only inside an object whose Permissions
+//   property names the table); WritePermission needs I, M and D together (IMD: Yes; I or IM: No), r/i/m/d inside such an object.
 // BC versions: 27, 28, 29
 
 codeunit 91975 "LT Y24 Perm Reads"
@@ -32,19 +38,29 @@ codeunit 91975 "LT Y24 Perm Reads"
         WasStarted := Y19Helper.StartMock(Mock);
         RunP14(Observer, 'rows_', false);
         Y19Helper.RestoreMock(Mock, WasStarted);
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Y24_P14_ReadShapesWithRows_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Y24_P14_ReadShapesWithRows_More2()
-    begin
-        Observer.More();
+        Observer.Expect('rows_get_existing|text', 'Sorry, the current permissions prevented the action. (TableData 91936 LT Y24 Row Read: AL Language Coverage Tests)');
+        Observer.Expect('rows_get_existing|code', 'DB:ClientReadDenied');
+        Observer.Expect('rows_get_missing|text', 'The LT Y24 Row does not exist. Identification fields and values: Id=''99''');
+        Observer.Expect('rows_get_missing|code', 'DB:RecordNotFound');
+        Observer.Expect('rows_find_eq|text', 'Sorry, the current permissions prevented the action. (TableData 91936 LT Y24 Row Read: AL Language Coverage Tests)');
+        Observer.Expect('rows_find_eq|code', 'DB:ClientReadDenied');
+        Observer.Expect('rows_find_minus|text', 'Sorry, the current permissions prevented the action. (TableData 91936 LT Y24 Row Read: AL Language Coverage Tests)');
+        Observer.Expect('rows_find_minus|code', 'DB:ClientReadDenied');
+        Observer.Expect('rows_findlast|text', 'Sorry, the current permissions prevented the action. (TableData 91936 LT Y24 Row Read: AL Language Coverage Tests)');
+        Observer.Expect('rows_findlast|code', 'DB:ClientReadDenied');
+        Observer.Expect('rows_findset_next|text', 'Sorry, the current permissions prevented the action. (TableData 91936 LT Y24 Row Read: AL Language Coverage Tests)');
+        Observer.Expect('rows_findset_next|code', 'DB:ClientReadDenied');
+        Observer.Expect('rows_isempty|text', 'Sorry, the current permissions prevented the action. (TableData 91936 LT Y24 Row Read: AL Language Coverage Tests)');
+        Observer.Expect('rows_isempty|code', 'DB:ClientReadDenied');
+        Observer.Expect('rows_countapprox|text', 'Sorry, the current permissions prevented the action. (TableData 91936 LT Y24 Row Read: AL Language Coverage Tests)');
+        Observer.Expect('rows_countapprox|code', 'DB:ClientReadDenied');
+        Observer.Expect('rows_calcsums|text', 'Sorry, the current permissions prevented the action. (TableData 91936 LT Y24 Row IndirectRead: AL Language Coverage Tests)');
+        Observer.Expect('rows_calcsums|code', 'DB:ClientReadDenied');
+        Observer.Expect('rows_setloadfields_findfirst|text', 'Sorry, the current permissions prevented the action. (TableData 91936 LT Y24 Row Read: AL Language Coverage Tests)');
+        Observer.Expect('rows_setloadfields_findfirst|code', 'DB:ClientReadDenied');
+        Observer.Expect('rows_recref_findfirst|text', 'Sorry, the current permissions prevented the action. (TableData 91936 LT Y24 Row Read: AL Language Coverage Tests)');
+        Observer.Expect('rows_recref_findfirst|code', 'DB:ClientReadDenied');
+        Observer.Verify();
     end;
 
     [Test]
@@ -55,19 +71,29 @@ codeunit 91975 "LT Y24 Perm Reads"
         WasStarted := Y19Helper.StartMock(Mock);
         RunP14(Observer, 'empty_', true);
         Y19Helper.RestoreMock(Mock, WasStarted);
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Y24_P14_ReadShapesEmptyTable_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Y24_P14_ReadShapesEmptyTable_More2()
-    begin
-        Observer.More();
+        Observer.Expect('empty_get_existing|text', 'The LT Y24 Row does not exist. Identification fields and values: Id=''1''');
+        Observer.Expect('empty_get_existing|code', 'DB:RecordNotFound');
+        Observer.Expect('empty_get_missing|text', 'The LT Y24 Row does not exist. Identification fields and values: Id=''99''');
+        Observer.Expect('empty_get_missing|code', 'DB:RecordNotFound');
+        Observer.Expect('empty_find_eq|text', 'LT Y24 ok No');
+        Observer.Expect('empty_find_eq|code', 'Dialog');
+        Observer.Expect('empty_find_minus|text', 'LT Y24 ok No 0');
+        Observer.Expect('empty_find_minus|code', 'Dialog');
+        Observer.Expect('empty_findlast|text', 'LT Y24 ok No 0');
+        Observer.Expect('empty_findlast|code', 'Dialog');
+        Observer.Expect('empty_findset_next|text', 'LT Y24 ok findset No');
+        Observer.Expect('empty_findset_next|code', 'Dialog');
+        Observer.Expect('empty_isempty|text', 'LT Y24 ok Yes');
+        Observer.Expect('empty_isempty|code', 'Dialog');
+        Observer.Expect('empty_countapprox|text', 'LT Y24 ok Yes');
+        Observer.Expect('empty_countapprox|code', 'Dialog');
+        Observer.Expect('empty_calcsums|text', 'LT Y24 ok 0');
+        Observer.Expect('empty_calcsums|code', 'Dialog');
+        Observer.Expect('empty_setloadfields_findfirst|text', 'LT Y24 ok No 0');
+        Observer.Expect('empty_setloadfields_findfirst|code', 'Dialog');
+        Observer.Expect('empty_recref_findfirst|text', 'LT Y24 ok No');
+        Observer.Expect('empty_recref_findfirst|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -78,19 +104,19 @@ codeunit 91975 "LT Y24 Perm Reads"
         WasStarted := Y19Helper.StartMock(Mock);
         RunP15(Observer, 'none_', 'LT Y24 FF Parent R');
         Y19Helper.RestoreMock(Mock, WasStarted);
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Y24_P15_FlowFieldsNothingOnSource_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Y24_P15_FlowFieldsNothingOnSource_More2()
-    begin
-        Observer.More();
+        Observer.Expect('none_autocalc_findfirst|text', 'LT Y24 ok Yes 12');
+        Observer.Expect('none_autocalc_findfirst|code', 'Dialog');
+        Observer.Expect('none_calc_lookup|text', 'Sorry, the current permissions prevented the action. (TableData 91937 LT Y24 FF Child IndirectRead: AL Language Coverage Tests)');
+        Observer.Expect('none_calc_lookup|code', 'DB:ClientReadDenied');
+        Observer.Expect('none_calc_exist|text', 'Sorry, the current permissions prevented the action. (TableData 91937 LT Y24 FF Child IndirectRead: AL Language Coverage Tests)');
+        Observer.Expect('none_calc_exist|code', 'DB:ClientReadDenied');
+        Observer.Expect('none_calc_sum|text', 'Sorry, the current permissions prevented the action. (TableData 91937 LT Y24 FF Child IndirectRead: AL Language Coverage Tests)');
+        Observer.Expect('none_calc_sum|code', 'DB:ClientReadDenied');
+        Observer.Expect('none_calc_count|text', 'Sorry, the current permissions prevented the action. (TableData 91937 LT Y24 FF Child IndirectRead: AL Language Coverage Tests)');
+        Observer.Expect('none_calc_count|code', 'DB:ClientReadDenied');
+        Observer.Expect('none_testpage_field|text', 'The field with ID = n is not found on the page.');
+        Observer.Expect('none_testpage_field|code', 'TestFieldNotFound');
+        Observer.Verify();
     end;
 
     [Test]
@@ -101,19 +127,19 @@ codeunit 91975 "LT Y24 Perm Reads"
         WasStarted := Y19Helper.StartMock(Mock);
         RunP15(Observer, 'indr_', 'LT Y24 FF Child Ind');
         Y19Helper.RestoreMock(Mock, WasStarted);
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Y24_P15_FlowFieldsIndirectReadOnSource_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Y24_P15_FlowFieldsIndirectReadOnSource_More2()
-    begin
-        Observer.More();
+        Observer.Expect('indr_autocalc_findfirst|text', 'LT Y24 ok Yes 12');
+        Observer.Expect('indr_autocalc_findfirst|code', 'Dialog');
+        Observer.Expect('indr_calc_lookup|text', 'LT Y24 ok 5');
+        Observer.Expect('indr_calc_lookup|code', 'Dialog');
+        Observer.Expect('indr_calc_exist|text', 'LT Y24 ok Yes');
+        Observer.Expect('indr_calc_exist|code', 'Dialog');
+        Observer.Expect('indr_calc_sum|text', 'LT Y24 ok 12');
+        Observer.Expect('indr_calc_sum|code', 'Dialog');
+        Observer.Expect('indr_calc_count|text', 'LT Y24 ok 2');
+        Observer.Expect('indr_calc_count|code', 'Dialog');
+        Observer.Expect('indr_testpage_field|text', 'LT Y24 ok 12');
+        Observer.Expect('indr_testpage_field|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -130,19 +156,21 @@ codeunit 91975 "LT Y24 Perm Reads"
         RunP19(Observer, 'imd', 'LT Y24 IMD');
         RunP19(Observer, 'rimd', 'LT Y24 RIMD');
         Y19Helper.RestoreMock(Mock, WasStarted);
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Y24_P19_ReadWritePermission_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Y24_P19_ReadWritePermission_More2()
-    begin
-        Observer.More();
+        Observer.Expect('none|test', 'No/No');
+        Observer.Expect('none|object_rimd', 'No/No');
+        Observer.Expect('ind_r|test', 'No/No');
+        Observer.Expect('ind_r|object_rimd', 'Yes/No');
+        Observer.Expect('ind_rimd|test', 'No/No');
+        Observer.Expect('ind_rimd|object_rimd', 'Yes/Yes');
+        Observer.Expect('i|test', 'No/No');
+        Observer.Expect('i|object_rimd', 'No/No');
+        Observer.Expect('im|test', 'No/No');
+        Observer.Expect('im|object_rimd', 'No/No');
+        Observer.Expect('imd|test', 'No/Yes');
+        Observer.Expect('imd|object_rimd', 'No/Yes');
+        Observer.Expect('rimd|test', 'Yes/Yes');
+        Observer.Expect('rimd|object_rimd', 'Yes/Yes');
+        Observer.Verify();
     end;
 
     local procedure RunP14(var Observer: Codeunit "Probe Observer"; Prefix: Text; Empty: Boolean)

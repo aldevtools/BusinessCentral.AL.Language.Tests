@@ -5,11 +5,18 @@
 //   P16 Query.Open/Read and XmlPort.Export over a table the set cannot read (no grant, and indirect r), objects without and with
 //       Permissions = r (lt-permissions-mock-indirect/RiskyReportQueryXmlport.al covers a set WITH R);
 //   P17 Report.SaveAs (Xml dataset) and a processing-only report run without and with its request page, over a table the set cannot
-//       read (no grant, and indirect r), reports without and with Permissions = r;
+//       read (no grant, indirect r, and RIMD as a baseline), reports without and with Permissions = r. Report.SaveAs returns false and
+//       leaves the reason in GetLastErrorText. BC 27 and 28: the reason is the row table (Read, or IndirectRead for the report with
+//       Permissions = r); with r plus the property, or RIMD, the dataset has both rows. BC 29: every SaveAs under these narrow sets fails
+//       first on a read of Company Information by Base Application code (TableData 79 ... Read: Base Application), RIMD included;
 //   P18 TestPage.OpenView/OpenEdit on a page whose source table the set cannot read (with rows), a field read, and a SetValue that
 //       writes under a set without M.
 // Shape (CpPermLeads.al): each case reseeds (and commits the seed before a request page) with no set assigned, assigns the set (Permissions Mock.Set: the set plus All Objects), runs ONE
 //   operation inside asserterror that ends with the own error 'LT Y24 ok <result>', observes text and code, clears the assignment.
+// Facts (BC 27.5, 28.5, 29.0 unless noted): a query, xmlport or report without a Permissions property needs R (Read error, also with r);
+//   with Permissions = r it needs r (IndirectRead error without it). Pages: OpenView, OpenEdit and a field read without R end with
+//   "Page LT Y24 Row Card has to close." (FormAbort:Permission); with R only, SetValue + Close fails with "Page cannot be saved."
+//   (TestWrapped) and SetValue + Next leaves the row unchanged without an error.
 // BC versions: 27, 28, 29
 
 codeunit 91976 "LT Y24 Perm Object Reads"
@@ -32,19 +39,15 @@ codeunit 91976 "LT Y24 Perm Object Reads"
         WasStarted := Y19Helper.StartMock(Mock);
         RunP16(Observer, 'none_', 'LT Y24 None');
         Y19Helper.RestoreMock(Mock, WasStarted);
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Y24_P16_QueryXmlportNoGrant_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Y24_P16_QueryXmlportNoGrant_More2()
-    begin
-        Observer.More();
+        Observer.Expect('none_query|text', 'Sorry, the current permissions prevented the action. (TableData 91936 LT Y24 Row Read: AL Language Coverage Tests)');
+        Observer.Expect('none_query|code', 'DB:ClientReadDenied');
+        Observer.Expect('none_query_perm|text', 'Sorry, the current permissions prevented the action. (TableData 91936 LT Y24 Row IndirectRead: AL Language Coverage Tests)');
+        Observer.Expect('none_query_perm|code', 'DB:ClientReadDenied');
+        Observer.Expect('none_xmlport|text', 'Sorry, the current permissions prevented the action. (TableData 91936 LT Y24 Row Read: AL Language Coverage Tests)');
+        Observer.Expect('none_xmlport|code', 'DB:ClientReadDenied');
+        Observer.Expect('none_xmlport_perm|text', 'Sorry, the current permissions prevented the action. (TableData 91936 LT Y24 Row IndirectRead: AL Language Coverage Tests)');
+        Observer.Expect('none_xmlport_perm|code', 'DB:ClientReadDenied');
+        Observer.Verify();
     end;
 
     [Test]
@@ -55,19 +58,15 @@ codeunit 91976 "LT Y24 Perm Object Reads"
         WasStarted := Y19Helper.StartMock(Mock);
         RunP16(Observer, 'indr_', 'LT Y24 Ind R');
         Y19Helper.RestoreMock(Mock, WasStarted);
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Y24_P16_QueryXmlportIndirectRead_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Y24_P16_QueryXmlportIndirectRead_More2()
-    begin
-        Observer.More();
+        Observer.Expect('indr_query|text', 'Sorry, the current permissions prevented the action. (TableData 91936 LT Y24 Row Read: AL Language Coverage Tests)');
+        Observer.Expect('indr_query|code', 'DB:ClientReadDenied');
+        Observer.Expect('indr_query_perm|text', 'LT Y24 ok 1;2; rows 1=10;2=20;');
+        Observer.Expect('indr_query_perm|code', 'Dialog');
+        Observer.Expect('indr_xmlport|text', 'Sorry, the current permissions prevented the action. (TableData 91936 LT Y24 Row Read: AL Language Coverage Tests)');
+        Observer.Expect('indr_xmlport|code', 'DB:ClientReadDenied');
+        Observer.Expect('indr_xmlport_perm|text', 'LT Y24 ok <?xml version="1.0" encoding="UTF-8" standalone="no"?><Root><Row Id="1" /><Row Id="2" /></Root> rows 1=10;2=20;');
+        Observer.Expect('indr_xmlport_perm|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -80,19 +79,55 @@ codeunit 91976 "LT Y24 Perm Object Reads"
         RunP17(Observer, 'indr_', 'LT Y24 Ind R');
         RunP17(Observer, 'rimd_', 'LT Y24 RIMD');
         Y19Helper.RestoreMock(Mock, WasStarted);
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Y24_P17_ReportNoRequestPage_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Y24_P17_ReportNoRequestPage_More2()
-    begin
-        Observer.More();
+#if BC29PLUS
+        Observer.Expect('none_saveas|text', 'LT Y24 ok No Sorry, the current permissions prevented the action. (TableData 79 Company Information Read: Base Application)  rows 1=10;2=20;');
+#else
+        Observer.Expect('none_saveas|text', 'LT Y24 ok No Sorry, the current permissions prevented the action. (TableData 91936 LT Y24 Row Read: AL Language Coverage Tests)  rows 1=10;2=20;');
+#endif
+        Observer.Expect('none_saveas|code', 'Dialog');
+#if BC29PLUS
+        Observer.Expect('none_saveas_perm|text', 'LT Y24 ok No Sorry, the current permissions prevented the action. (TableData 79 Company Information Read: Base Application)  rows 1=10;2=20;');
+#else
+        Observer.Expect('none_saveas_perm|text', 'LT Y24 ok No Sorry, the current permissions prevented the action. (TableData 91936 LT Y24 Row IndirectRead: AL Language Coverage Tests)  rows 1=10;2=20;');
+#endif
+        Observer.Expect('none_saveas_perm|code', 'Dialog');
+        Observer.Expect('none_run|text', 'Sorry, the current permissions prevented the action. (TableData 91936 LT Y24 Row Read: AL Language Coverage Tests)');
+        Observer.Expect('none_run|code', 'DB:ClientReadDenied');
+        Observer.Expect('none_run_perm|text', 'Sorry, the current permissions prevented the action. (TableData 91936 LT Y24 Row IndirectRead: AL Language Coverage Tests)');
+        Observer.Expect('none_run_perm|code', 'DB:ClientReadDenied');
+#if BC29PLUS
+        Observer.Expect('indr_saveas|text', 'LT Y24 ok No Sorry, the current permissions prevented the action. (TableData 79 Company Information Read: Base Application)  rows 1=10;2=20;');
+#else
+        Observer.Expect('indr_saveas|text', 'LT Y24 ok No Sorry, the current permissions prevented the action. (TableData 91936 LT Y24 Row Read: AL Language Coverage Tests)  rows 1=10;2=20;');
+#endif
+        Observer.Expect('indr_saveas|code', 'Dialog');
+#if BC29PLUS
+        Observer.Expect('indr_saveas_perm|text', 'LT Y24 ok No Sorry, the current permissions prevented the action. (TableData 79 Company Information Read: Base Application)  rows 1=10;2=20;');
+#else
+        Observer.Expect('indr_saveas_perm|text', 'LT Y24 ok Yes IdC;IdC; rows 1=10;2=20;');
+#endif
+        Observer.Expect('indr_saveas_perm|code', 'Dialog');
+        Observer.Expect('indr_run|text', 'Sorry, the current permissions prevented the action. (TableData 91936 LT Y24 Row Read: AL Language Coverage Tests)');
+        Observer.Expect('indr_run|code', 'DB:ClientReadDenied');
+        Observer.Expect('indr_run_perm|text', 'LT Y24 ok seen 1;2; rows 1=10;2=20;');
+        Observer.Expect('indr_run_perm|code', 'Dialog');
+#if BC29PLUS
+        Observer.Expect('rimd_saveas|text', 'LT Y24 ok No Sorry, the current permissions prevented the action. (TableData 79 Company Information Read: Base Application)  rows 1=10;2=20;');
+#else
+        Observer.Expect('rimd_saveas|text', 'LT Y24 ok Yes IdC;IdC; rows 1=10;2=20;');
+#endif
+        Observer.Expect('rimd_saveas|code', 'Dialog');
+#if BC29PLUS
+        Observer.Expect('rimd_saveas_perm|text', 'LT Y24 ok No Sorry, the current permissions prevented the action. (TableData 79 Company Information Read: Base Application)  rows 1=10;2=20;');
+#else
+        Observer.Expect('rimd_saveas_perm|text', 'LT Y24 ok Yes IdC;IdC; rows 1=10;2=20;');
+#endif
+        Observer.Expect('rimd_saveas_perm|code', 'Dialog');
+        Observer.Expect('rimd_run|text', 'LT Y24 ok seen 1;2; rows 1=10;2=20;');
+        Observer.Expect('rimd_run|code', 'Dialog');
+        Observer.Expect('rimd_run_perm|text', 'LT Y24 ok seen 1;2; rows 1=10;2=20;');
+        Observer.Expect('rimd_run_perm|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -105,19 +140,11 @@ codeunit 91976 "LT Y24 Perm Object Reads"
         RunCase(Observer, 'none_run_reqpage', 'LT Y24 None', 45);
         RunCase(Observer, 'indr_run_reqpage', 'LT Y24 Ind R', 45);
         Y19Helper.RestoreMock(Mock, WasStarted);
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Y24_P17_ReportRequestPage_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Y24_P17_ReportRequestPage_More2()
-    begin
-        Observer.More();
+        Observer.Expect('none_run_reqpage|text', 'Sorry, the current permissions prevented the action. (TableData 91936 LT Y24 Row Read: AL Language Coverage Tests)');
+        Observer.Expect('none_run_reqpage|code', 'DB:ClientReadDenied');
+        Observer.Expect('indr_run_reqpage|text', 'Sorry, the current permissions prevented the action. (TableData 91936 LT Y24 Row Read: AL Language Coverage Tests)');
+        Observer.Expect('indr_run_reqpage|code', 'DB:ClientReadDenied');
+        Observer.Verify();
     end;
 
     [Test]
@@ -130,19 +157,11 @@ codeunit 91976 "LT Y24 Perm Object Reads"
         RunCase(Observer, 'none_run_perm_reqpage', 'LT Y24 None', 46);
         RunCase(Observer, 'indr_run_perm_reqpage', 'LT Y24 Ind R', 46);
         Y19Helper.RestoreMock(Mock, WasStarted);
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Y24_P17_ReportPermRequestPage_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Y24_P17_ReportPermRequestPage_More2()
-    begin
-        Observer.More();
+        Observer.Expect('none_run_perm_reqpage|text', 'Sorry, the current permissions prevented the action. (TableData 91936 LT Y24 Row IndirectRead: AL Language Coverage Tests)');
+        Observer.Expect('none_run_perm_reqpage|code', 'DB:ClientReadDenied');
+        Observer.Expect('indr_run_perm_reqpage|text', 'LT Y24 ok seen 1;2; rows 1=10;2=20;');
+        Observer.Expect('indr_run_perm_reqpage|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -157,19 +176,17 @@ codeunit 91976 "LT Y24 Perm Object Reads"
         RunCase(Observer, 'r_setvalue_close', 'LT Y24 R', 54);
         RunCase(Observer, 'r_setvalue_next', 'LT Y24 R', 55);
         Y19Helper.RestoreMock(Mock, WasStarted);
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Y24_P18_Pages_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Y24_P18_Pages_More2()
-    begin
-        Observer.More();
+        Observer.Expect('none_openview|text', 'Page LT Y24 Row Card has to close.');
+        Observer.Expect('none_openview|code', 'FormAbort:Permission');
+        Observer.Expect('none_openedit|text', 'Page LT Y24 Row Card has to close.');
+        Observer.Expect('none_openedit|code', 'FormAbort:Permission');
+        Observer.Expect('none_field_read|text', 'Page LT Y24 Row Card has to close.');
+        Observer.Expect('none_field_read|code', 'FormAbort:Permission');
+        Observer.Expect('r_setvalue_close|text', 'Page cannot be saved.');
+        Observer.Expect('r_setvalue_close|code', 'TestWrapped');
+        Observer.Expect('r_setvalue_next|text', 'LT Y24 ok closed rows 1=10;2=20;');
+        Observer.Expect('r_setvalue_next|code', 'Dialog');
+        Observer.Verify();
     end;
 
     local procedure RunP16(var Observer: Codeunit "Probe Observer"; Prefix: Text; SetName: Code[20])

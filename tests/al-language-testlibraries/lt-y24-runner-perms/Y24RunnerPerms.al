@@ -16,6 +16,10 @@
 //       (D365 Setup grants RIMD), and into "LT Y24 Row" (no set names it).
 // Every write runs inside asserterror and ends with an own error, so nothing stays in Microsoft tables. Every test method declares
 //   [HandlerFunctions] and raises one Message, so the CI runner routes the codeunit to Microsoft's test runner (BiTpHelper.al).
+// Facts (BC 27.5, 28.5, 29.0, Restrictive and default the same): under the runner sets a Test Tables table takes an insert and a read;
+//   a table no set names fails Read and Insert with the app name of the code that accesses it (this app, not the table's app); a direct
+//   G/L Entry insert fails (Insert, DB:ClientInsertDenied); "Gen. Jnl.-Post Line" posts; Company Information reads. After the
+//   SetO365Basic calls Standard Text takes an insert and Payment Terms does not (Insert); after AddO365Setup both do.
 // BC versions: 27, 28, 29
 
 codeunit 81640 "LT Y24 Lower Probe"
@@ -211,19 +215,13 @@ codeunit 81641 "LT Y24 Runner Sets"
     begin
         Message('LT Y24');
         Probe.ObserveRunnerTables(Observer);
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Y24_P23_TestTables_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Y24_P23_TestTables_More2()
-    begin
-        Observer.More();
+        Observer.Expect('test_library_table_insert_read|text', 'LT Y24 ok inserted, findfirst Yes');
+        Observer.Expect('test_library_table_insert_read|code', 'Dialog');
+        Observer.Expect('main_app_table_read|text', 'Sorry, the current permissions prevented the action. (TableData 91936 LT Y24 Row Read: AL Language Coverage Tests (Test Libraries))');
+        Observer.Expect('main_app_table_read|code', 'DB:ClientReadDenied');
+        Observer.Expect('main_app_table_insert|text', 'Sorry, the current permissions prevented the action. (TableData 91936 LT Y24 Row Insert: AL Language Coverage Tests (Test Libraries))');
+        Observer.Expect('main_app_table_insert|code', 'DB:ClientInsertDenied');
+        Observer.Verify();
     end;
 
     [Test]
@@ -234,19 +232,13 @@ codeunit 81641 "LT Y24 Runner Sets"
     begin
         Message('LT Y24');
         Probe.ObserveFullAccess(Observer);
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Y24_P24_FullAccess_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Y24_P24_FullAccess_More2()
-    begin
-        Observer.More();
+        Observer.Expect('gl_entry_insert|text', 'Sorry, the current permissions prevented the action. (TableData 17 G/L Entry Insert: AL Language Coverage Tests (Test Libraries))');
+        Observer.Expect('gl_entry_insert|code', 'DB:ClientInsertDenied');
+        Observer.Expect('gen_jnl_post_line|text', 'LT Y24 ok posted 2');
+        Observer.Expect('gen_jnl_post_line|code', 'Dialog');
+        Observer.Expect('company_information_read|text', 'LT Y24 ok get Yes');
+        Observer.Expect('company_information_read|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [MessageHandler]
@@ -276,19 +268,27 @@ codeunit 81642 "LT Y24 Lower Restrictive"
         Probe.ObserveLowered(Observer, 'basic_');
         Probe.Lower(Observer, true);
         Probe.ObserveLowered(Observer, 'basic_setup_');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Y24_P25_Restrictive_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Y24_P25_Restrictive_More2()
-    begin
-        Observer.More();
+        Observer.Expect('runner_standard_text_insert|text', 'LT Y24 ok inserted');
+        Observer.Expect('runner_standard_text_insert|code', 'Dialog');
+        Observer.Expect('runner_payment_terms_insert|text', 'LT Y24 ok inserted');
+        Observer.Expect('runner_payment_terms_insert|code', 'Dialog');
+        Observer.Expect('runner_main_app_table_insert|text', 'Sorry, the current permissions prevented the action. (TableData 91936 LT Y24 Row Insert: AL Language Coverage Tests (Test Libraries))');
+        Observer.Expect('runner_main_app_table_insert|code', 'DB:ClientInsertDenied');
+        Observer.Expect('mock_started_No', 'Yes');
+        Observer.Expect('basic_standard_text_insert|text', 'LT Y24 ok inserted');
+        Observer.Expect('basic_standard_text_insert|code', 'Dialog');
+        Observer.Expect('basic_payment_terms_insert|text', 'Sorry, the current permissions prevented the action. (TableData 3 Payment Terms Insert: AL Language Coverage Tests (Test Libraries))');
+        Observer.Expect('basic_payment_terms_insert|code', 'DB:ClientInsertDenied');
+        Observer.Expect('basic_main_app_table_insert|text', 'Sorry, the current permissions prevented the action. (TableData 91936 LT Y24 Row Insert: AL Language Coverage Tests (Test Libraries))');
+        Observer.Expect('basic_main_app_table_insert|code', 'DB:ClientInsertDenied');
+        Observer.Expect('mock_started_Yes', 'Yes');
+        Observer.Expect('basic_setup_standard_text_insert|text', 'LT Y24 ok inserted');
+        Observer.Expect('basic_setup_standard_text_insert|code', 'Dialog');
+        Observer.Expect('basic_setup_payment_terms_insert|text', 'LT Y24 ok inserted');
+        Observer.Expect('basic_setup_payment_terms_insert|code', 'Dialog');
+        Observer.Expect('basic_setup_main_app_table_insert|text', 'Sorry, the current permissions prevented the action. (TableData 91936 LT Y24 Row Insert: AL Language Coverage Tests (Test Libraries))');
+        Observer.Expect('basic_setup_main_app_table_insert|code', 'DB:ClientInsertDenied');
+        Observer.Verify();
     end;
 
     [MessageHandler]
@@ -317,19 +317,27 @@ codeunit 81643 "LT Y24 Lower Default"
         Probe.ObserveLowered(Observer, 'basic_');
         Probe.Lower(Observer, true);
         Probe.ObserveLowered(Observer, 'basic_setup_');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Y24_P25_Default_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Y24_P25_Default_More2()
-    begin
-        Observer.More();
+        Observer.Expect('runner_standard_text_insert|text', 'LT Y24 ok inserted');
+        Observer.Expect('runner_standard_text_insert|code', 'Dialog');
+        Observer.Expect('runner_payment_terms_insert|text', 'LT Y24 ok inserted');
+        Observer.Expect('runner_payment_terms_insert|code', 'Dialog');
+        Observer.Expect('runner_main_app_table_insert|text', 'Sorry, the current permissions prevented the action. (TableData 91936 LT Y24 Row Insert: AL Language Coverage Tests (Test Libraries))');
+        Observer.Expect('runner_main_app_table_insert|code', 'DB:ClientInsertDenied');
+        Observer.Expect('mock_started_No', 'Yes');
+        Observer.Expect('basic_standard_text_insert|text', 'LT Y24 ok inserted');
+        Observer.Expect('basic_standard_text_insert|code', 'Dialog');
+        Observer.Expect('basic_payment_terms_insert|text', 'Sorry, the current permissions prevented the action. (TableData 3 Payment Terms Insert: AL Language Coverage Tests (Test Libraries))');
+        Observer.Expect('basic_payment_terms_insert|code', 'DB:ClientInsertDenied');
+        Observer.Expect('basic_main_app_table_insert|text', 'Sorry, the current permissions prevented the action. (TableData 91936 LT Y24 Row Insert: AL Language Coverage Tests (Test Libraries))');
+        Observer.Expect('basic_main_app_table_insert|code', 'DB:ClientInsertDenied');
+        Observer.Expect('mock_started_Yes', 'Yes');
+        Observer.Expect('basic_setup_standard_text_insert|text', 'LT Y24 ok inserted');
+        Observer.Expect('basic_setup_standard_text_insert|code', 'Dialog');
+        Observer.Expect('basic_setup_payment_terms_insert|text', 'LT Y24 ok inserted');
+        Observer.Expect('basic_setup_payment_terms_insert|code', 'Dialog');
+        Observer.Expect('basic_setup_main_app_table_insert|text', 'Sorry, the current permissions prevented the action. (TableData 91936 LT Y24 Row Insert: AL Language Coverage Tests (Test Libraries))');
+        Observer.Expect('basic_setup_main_app_table_insert|code', 'DB:ClientInsertDenied');
+        Observer.Verify();
     end;
 
     [MessageHandler]

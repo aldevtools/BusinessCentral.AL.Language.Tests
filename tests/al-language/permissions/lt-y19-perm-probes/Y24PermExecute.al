@@ -14,6 +14,13 @@
 // Shape: under an exact set nothing but the test codeunit's own code and already created variables runs before the assignment is
 //   cleared: each case assigns the set, runs ONE operation inside asserterror ending with 'LT Y24 ok <result>', keeps the error text
 //   and code in local variables, clears the assignment, and only then observes.
+// Facts (BC 27.5, 28.5, 29.0): without an Execute grant, Codeunit.Run and a codeunit call fail with "(CodeUnit <id> <name> Execute:
+//   <app>)", a report run, XmlPort.Export, Query.Open and a table procedure with Report/XmlPort/Query/Table ... Execute, all
+//   DB:ExecuteObjDenied; Page.Run and TestPage.OpenView end with "Page <name> has to close." (FormAbort:Permission). Execute on the calling
+//   codeunit does not cover the objects it runs. AccessByPermission: guarded fields and actions are not on the page (field/action "with
+//   ID = n is not found"); Set adds All Objects, so an action guarded by codeunit X = X is visible after any Set. GetEffectivePermission:
+//   no set gives Yes x4 on TableData and Execute only on objects; Set gives the set's TableData and Execute on objects (All Objects);
+//   SetExactPermissionSet gives nothing on objects.
 // BC versions: 27, 28, 29
 
 codeunit 91977 "LT Y24 Perm Execute"
@@ -42,19 +49,21 @@ codeunit 91977 "LT Y24 Perm Execute"
         RunExact(Observer, 'tdonly_query_open', 'LT Y24 TD Only', 7);
         RunExact(Observer, 'tdonly_table_procedure', 'LT Y24 TD Only', 8);
         RestoreMock(WasStarted);
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Y24_P20_ExecuteTableDataOnly_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Y24_P20_ExecuteTableDataOnly_More2()
-    begin
-        Observer.More();
+        Observer.Expect('tdonly_codeunit_run|text', 'Sorry, the current permissions prevented the action. (CodeUnit 91947 LT Y24 Exec Target Execute: AL Language Coverage Tests)');
+        Observer.Expect('tdonly_codeunit_run|code', 'DB:ExecuteObjDenied');
+        Observer.Expect('tdonly_codeunit_var|text', 'Sorry, the current permissions prevented the action. (CodeUnit 91947 LT Y24 Exec Target Execute: AL Language Coverage Tests)');
+        Observer.Expect('tdonly_codeunit_var|code', 'DB:ExecuteObjDenied');
+        Observer.Expect('tdonly_report_run|text', 'Sorry, the current permissions prevented the action. (Report 91970 LT Y24 Proc Rep Execute: AL Language Coverage Tests)');
+        Observer.Expect('tdonly_report_run|code', 'DB:ExecuteObjDenied');
+        Observer.Expect('tdonly_testpage_openview|text', 'Page LT Y24 Row Card has to close.');
+        Observer.Expect('tdonly_testpage_openview|code', 'FormAbort:Permission');
+        Observer.Expect('tdonly_xmlport_export|text', 'Sorry, the current permissions prevented the action. (XmlPort 91943 LT Y24 Row Xml Execute: AL Language Coverage Tests)');
+        Observer.Expect('tdonly_xmlport_export|code', 'DB:ExecuteObjDenied');
+        Observer.Expect('tdonly_query_open|text', 'Sorry, the current permissions prevented the action. (Query 91941 LT Y24 Row Query Execute: AL Language Coverage Tests)');
+        Observer.Expect('tdonly_query_open|code', 'DB:ExecuteObjDenied');
+        Observer.Expect('tdonly_table_procedure|text', 'Sorry, the current permissions prevented the action. (Table 91936 LT Y24 Row Execute: AL Language Coverage Tests)');
+        Observer.Expect('tdonly_table_procedure|code', 'DB:ExecuteObjDenied');
+        Observer.Verify();
     end;
 
     [Test]
@@ -70,19 +79,19 @@ codeunit 91977 "LT Y24 Perm Execute"
         RunExact(Observer, 'granter_query_open', 'LT Y24 TD Granter', 17);
         RunExact(Observer, 'granter_table_procedure', 'LT Y24 TD Granter', 18);
         RestoreMock(WasStarted);
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Y24_P20_ExecuteThroughGranter_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Y24_P20_ExecuteThroughGranter_More2()
-    begin
-        Observer.More();
+        Observer.Expect('granter_codeunit_run|text', 'Sorry, the current permissions prevented the action. (CodeUnit 91947 LT Y24 Exec Target Execute: AL Language Coverage Tests)');
+        Observer.Expect('granter_codeunit_run|code', 'DB:ExecuteObjDenied');
+        Observer.Expect('granter_codeunit_var|text', 'Sorry, the current permissions prevented the action. (CodeUnit 91947 LT Y24 Exec Target Execute: AL Language Coverage Tests)');
+        Observer.Expect('granter_codeunit_var|code', 'DB:ExecuteObjDenied');
+        Observer.Expect('granter_report_run|text', 'Sorry, the current permissions prevented the action. (Report 91970 LT Y24 Proc Rep Execute: AL Language Coverage Tests)');
+        Observer.Expect('granter_report_run|code', 'DB:ExecuteObjDenied');
+        Observer.Expect('granter_xmlport_export|text', 'Sorry, the current permissions prevented the action. (XmlPort 91943 LT Y24 Row Xml Execute: AL Language Coverage Tests)');
+        Observer.Expect('granter_xmlport_export|code', 'DB:ExecuteObjDenied');
+        Observer.Expect('granter_query_open|text', 'Sorry, the current permissions prevented the action. (Query 91941 LT Y24 Row Query Execute: AL Language Coverage Tests)');
+        Observer.Expect('granter_query_open|code', 'DB:ExecuteObjDenied');
+        Observer.Expect('granter_table_procedure|text', 'Sorry, the current permissions prevented the action. (Table 91936 LT Y24 Row Execute: AL Language Coverage Tests)');
+        Observer.Expect('granter_table_procedure|code', 'DB:ExecuteObjDenied');
+        Observer.Verify();
     end;
 
     // Page.Run needs a page handler; the last call runs with no set so that the handler is always used once.
@@ -99,19 +108,13 @@ codeunit 91977 "LT Y24 Perm Execute"
         asserterror Op(4);
         Observer.ObserveError('noset_page_run');
         RestoreMock(WasStarted);
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Y24_P20_ExecutePageRun_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Y24_P20_ExecutePageRun_More2()
-    begin
-        Observer.More();
+        Observer.Expect('tdonly_page_run|text', 'Page LT Y24 Row Card has to close.');
+        Observer.Expect('tdonly_page_run|code', 'FormAbort:Permission');
+        Observer.Expect('granter_page_run|text', 'Page LT Y24 Row Card has to close.');
+        Observer.Expect('granter_page_run|code', 'FormAbort:Permission');
+        Observer.Expect('noset_page_run|text', 'LT Y24 ok page');
+        Observer.Expect('noset_page_run|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -130,19 +133,35 @@ codeunit 91977 "LT Y24 Perm Execute"
         Mock.SetExactPermissionSet('LT Y24 ABP Exact NoX');
         ObserveControls(Observer, 'exact_no_x: ');
         RestoreMock(WasStarted);
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Y24_P21_AccessByPermissionPage_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Y24_P21_AccessByPermissionPage_More2()
-    begin
-        Observer.More();
+        Observer.Expect('grant: plain value', '1');
+        Observer.Expect('grant: guard r value', '10');
+        Observer.Expect('grant: guard r visible', 'Yes');
+        Observer.Expect('grant: guard i visible', 'Yes');
+        Observer.Expect('grant: plain action visible', 'Yes');
+        Observer.Expect('grant: guard x action visible', 'Yes');
+        Observer.Expect('grant: guard x action enabled', 'Yes');
+        Observer.Expect('no_grant: plain value', '1');
+        Observer.Expect('no_grant: guard r value', 'error: The field with ID = n is not found on the page.');
+        Observer.Expect('no_grant: guard r visible', 'error: The field with ID = n is not found on the page.');
+        Observer.Expect('no_grant: guard i visible', 'error: The field with ID = n is not found on the page.');
+        Observer.Expect('no_grant: plain action visible', 'Yes');
+        Observer.Expect('no_grant: guard x action visible', 'Yes');
+        Observer.Expect('no_grant: guard x action enabled', 'Yes');
+        Observer.Expect('exact_x: plain value', '1');
+        Observer.Expect('exact_x: guard r value', 'error: The field with ID = n is not found on the page.');
+        Observer.Expect('exact_x: guard r visible', 'error: The field with ID = n is not found on the page.');
+        Observer.Expect('exact_x: guard i visible', 'error: The field with ID = n is not found on the page.');
+        Observer.Expect('exact_x: plain action visible', 'Yes');
+        Observer.Expect('exact_x: guard x action visible', 'Yes');
+        Observer.Expect('exact_x: guard x action enabled', 'Yes');
+        Observer.Expect('exact_no_x: plain value', '1');
+        Observer.Expect('exact_no_x: guard r value', 'error: The field with ID = n is not found on the page.');
+        Observer.Expect('exact_no_x: guard r visible', 'error: The field with ID = n is not found on the page.');
+        Observer.Expect('exact_no_x: guard i visible', 'error: The field with ID = n is not found on the page.');
+        Observer.Expect('exact_no_x: plain action visible', 'Yes');
+        Observer.Expect('exact_no_x: guard x action visible', 'error: The action with ID = n is not found on the page.');
+        Observer.Expect('exact_no_x: guard x action enabled', 'error: The action with ID = n is not found on the page.');
+        Observer.Verify();
     end;
 
     [Test]
@@ -160,19 +179,13 @@ codeunit 91977 "LT Y24 Perm Execute"
         Mock.Set('LT Y24 RIMD');
         RunRequestPage(Observer, 'no_grant');
         RestoreMock(WasStarted);
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Y24_P21_AccessByPermissionRequestPage_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Y24_P21_AccessByPermissionRequestPage_More2()
-    begin
-        Observer.More();
+        Observer.Expect('grant run|text', 'LT Y24 ok seen 1;2;');
+        Observer.Expect('grant run|code', 'Dialog');
+        Observer.Expect('grant request page', 'plain Yes guard Yes');
+        Observer.Expect('no_grant run|text', 'LT Y24 ok seen 1;2;');
+        Observer.Expect('no_grant run|code', 'Dialog');
+        Observer.Expect('no_grant request page', 'plain Yes guard error: The field with ID = n is not found on the page.');
+        Observer.Verify();
     end;
 
     [Test]
@@ -188,19 +201,22 @@ codeunit 91977 "LT Y24 Perm Execute"
         Mock.SetExactPermissionSet('LT Y24 R');
         ObserveRights(Observer, 'exact ');
         RestoreMock(WasStarted);
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Y24_P22_EffectivePermission_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Y24_P22_EffectivePermission_More2()
-    begin
-        Observer.More();
+        Observer.Expect('noset tabledata', 'Yes,Yes,Yes,Yes, ');
+        Observer.Expect('noset table', ' , , , ,Yes');
+        Observer.Expect('noset codeunit', ' , , , ,Yes');
+        Observer.Expect('noset page', ' , , , ,Yes');
+        Observer.Expect('noset report', ' , , , ,Yes');
+        Observer.Expect('set tabledata', 'Yes, , , , ');
+        Observer.Expect('set table', ' , , , ,Yes');
+        Observer.Expect('set codeunit', ' , , , ,Yes');
+        Observer.Expect('set page', ' , , , ,Yes');
+        Observer.Expect('set report', ' , , , ,Yes');
+        Observer.Expect('exact tabledata', 'Yes, , , , ');
+        Observer.Expect('exact table', ' , , , , ');
+        Observer.Expect('exact codeunit', ' , , , , ');
+        Observer.Expect('exact page', ' , , , , ');
+        Observer.Expect('exact report', ' , , , , ');
+        Observer.Verify();
     end;
 
     local procedure StartMock() WasStarted: Boolean
