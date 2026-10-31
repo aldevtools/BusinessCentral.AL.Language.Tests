@@ -12,6 +12,7 @@
 //   lines  ReadText until EOS: per line the count ReadText returned and the line
 //   read   one InStream.Read(Text) on a fresh stream: the count it returned and the text
 //   copy   CopyStream into the Blob of a temporary record, then ReadText until EOS from CreateInStream(TextEncoding::UTF8)
+// 'default' is GetResource(Name, InStream) without an encoding (lines only). A read that raises shows as error:<text>|<code>.
 // A character outside 32..126 is shown as <code> (its integer value), so the observed text is plain ASCII.
 
 table 91900 "LT Y18 Res Blob"
@@ -69,63 +70,67 @@ codeunit 91901 "LT Y18 Res Encodings"
     var
         Observer: Codeunit "Probe Observer";
     begin
-        Observer.Observe('default lines', LinesDefault(Name));
-        Observer.Observe('utf8 lines', Lines(Name, TextEncoding::UTF8));
-        Observer.Observe('utf8 read', ReadOnce(Name, TextEncoding::UTF8));
-        Observer.Observe('utf8 copy', Copied(Name, TextEncoding::UTF8));
-        Observer.Observe('utf16 lines', Lines(Name, TextEncoding::UTF16));
-        Observer.Observe('utf16 read', ReadOnce(Name, TextEncoding::UTF16));
-        Observer.Observe('utf16 copy', Copied(Name, TextEncoding::UTF16));
-        Observer.Observe('windows lines', Lines(Name, TextEncoding::Windows));
-        Observer.Observe('windows read', ReadOnce(Name, TextEncoding::Windows));
-        Observer.Observe('windows copy', Copied(Name, TextEncoding::Windows));
-        Observer.Observe('msdos lines', Lines(Name, TextEncoding::MSDos));
-        Observer.Observe('msdos read', ReadOnce(Name, TextEncoding::MSDos));
-        Observer.Observe('msdos copy', Copied(Name, TextEncoding::MSDos));
+        Observer.Observe('default lines', Probe(Name, 'lines', TextEncoding::UTF8, true));
+        Observer.Observe('utf8 lines', Probe(Name, 'lines', TextEncoding::UTF8, false));
+        Observer.Observe('utf8 read', Probe(Name, 'read', TextEncoding::UTF8, false));
+        Observer.Observe('utf8 copy', Probe(Name, 'copy', TextEncoding::UTF8, false));
+        Observer.Observe('utf16 lines', Probe(Name, 'lines', TextEncoding::UTF16, false));
+        Observer.Observe('utf16 read', Probe(Name, 'read', TextEncoding::UTF16, false));
+        Observer.Observe('utf16 copy', Probe(Name, 'copy', TextEncoding::UTF16, false));
+        Observer.Observe('windows lines', Probe(Name, 'lines', TextEncoding::Windows, false));
+        Observer.Observe('windows read', Probe(Name, 'read', TextEncoding::Windows, false));
+        Observer.Observe('windows copy', Probe(Name, 'copy', TextEncoding::Windows, false));
+        Observer.Observe('msdos lines', Probe(Name, 'lines', TextEncoding::MSDos, false));
+        Observer.Observe('msdos read', Probe(Name, 'read', TextEncoding::MSDos, false));
+        Observer.Observe('msdos copy', Probe(Name, 'copy', TextEncoding::MSDos, false));
         Observer.Finish();
     end;
 
-    local procedure Lines(Name: Text; Encoding: TextEncoding): Text
+    // The read as text, or 'error:' + the error text and code when the read raises.
+    local procedure Probe(Name: Text; Kind: Text; Encoding: TextEncoding; NoEncoding: Boolean): Text
     var
-        S: InStream;
+        Result: Text;
     begin
-        NavApp.GetResource(Name, S, Encoding);
-        exit(ReadLines(S));
+        ClearLastError();
+        if TryRead(Name, Kind, Encoding, NoEncoding, Result) then
+            exit(Result);
+        Result := 'error:' + GetLastErrorText() + '|' + GetLastErrorCode();
+        ClearLastError();
+        exit(Result);
     end;
 
-    local procedure LinesDefault(Name: Text): Text
-    var
-        S: InStream;
-    begin
-        NavApp.GetResource(Name, S);
-        exit(ReadLines(S));
-    end;
-
-    local procedure ReadOnce(Name: Text; Encoding: TextEncoding): Text
-    var
-        S: InStream;
-        Content: Text;
-        N: Integer;
-    begin
-        NavApp.GetResource(Name, S, Encoding);
-        N := S.Read(Content);
-        exit(Format(N) + ':' + Shown(Content) + '|eos=' + Format(S.EOS()));
-    end;
-
-    local procedure Copied(Name: Text; Encoding: TextEncoding): Text
+    [TryFunction]
+    local procedure TryRead(Name: Text; Kind: Text; Encoding: TextEncoding; NoEncoding: Boolean; var Result: Text)
     var
         TempRes: Record "LT Y18 Res Blob" temporary;
         S: InStream;
         Back: InStream;
         O: OutStream;
+        Content: Text;
+        N: Integer;
     begin
-        NavApp.GetResource(Name, S, Encoding);
-        TempRes.Id := 1;
-        TempRes.Data.CreateOutStream(O);
-        CopyStream(O, S);
-        TempRes.Insert();
-        TempRes.Data.CreateInStream(Back, TextEncoding::UTF8);
-        exit(ReadLines(Back));
+        if NoEncoding then
+            NavApp.GetResource(Name, S)
+        else
+            NavApp.GetResource(Name, S, Encoding);
+        case Kind of
+            'lines':
+                Result := ReadLines(S);
+            'read':
+                begin
+                    N := S.Read(Content);
+                    Result := Format(N) + ':' + Shown(Content) + '|eos=' + Format(S.EOS());
+                end;
+            'copy':
+                begin
+                    TempRes.Id := 1;
+                    TempRes.Data.CreateOutStream(O);
+                    CopyStream(O, S);
+                    TempRes.Insert();
+                    TempRes.Data.CreateInStream(Back, TextEncoding::UTF8);
+                    Result := ReadLines(Back);
+                end;
+        end;
     end;
 
     local procedure ReadLines(var S: InStream): Text
