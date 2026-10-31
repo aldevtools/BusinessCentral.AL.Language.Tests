@@ -16,7 +16,7 @@
 // 'default' is GetResource(Name, InStream) without an encoding (lines only). A read that raises shows as error:<text>|<code>.
 // A character outside 32..126 is shown as <code> (its integer value), so the observed text is plain ASCII.
 
-table 91900 "LT Y18 Res Blob"
+table 92000 "LT Y18 Res Blob"
 {
     DataClassification = SystemMetadata;
 
@@ -32,7 +32,7 @@ table 91900 "LT Y18 Res Blob"
     }
 }
 
-codeunit 91901 "LT Y18 Res Encodings"
+codeunit 92001 "LT Y18 Res Encodings"
 {
     Subtype = Test;
     TestPermissions = Disabled;
