@@ -7,6 +7,9 @@
 //   OnAfterGetRecord (the reporter's page, logged); page 91737 is the same without row triggers. The reporter's data: 25 bins A01..A25,
 //   only A20 and A24 have Room 6, so the action adds rows before the row the page stands on (A20). Neighbours: rows added only after
 //   the current row (A01 and A03 filtered), the page moved to A24 before the action, and a small table of 5 rows.
+// Result (SaaS BC 29): after the action the page still stands on the row it stood on (A20, A24, A01, A03), but First returns true on
+//   A01, the first row of the new view, and runs no OnAfterGetRecord; Next and Previous move from the current row in the new view
+//   (A20 -> A21, A20 -> A19). The action itself runs OnAfterGetRecord 28 times (A20 first, A01 last). The same without row triggers.
 // Source: al-runner issue 6470 (the reporter's repro passed on a real BC 29 container).
 // BC versions: 27, 28, 29
 
@@ -205,7 +208,12 @@ codeunit 91739 "LT Y15 WV Tests"
         Observer.Observe('count', CountToEnd(Bins));
         Observer.Observe('last', Format(Bins.Last(), 0, 9) + '/' + Bins."Code".Value());
         Bins.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'A20/6 3:A20-A20');
+        Observer.Expect('after action', 'A20/6 28:A20-A01');
+        Observer.Expect('first', 'true/A01/0 0:-');
+        Observer.Expect('count', '25/A25');
+        Observer.Expect('last', 'true/A25');
+        Observer.Verify();
     end;
 
     // The same page without row triggers.
@@ -222,7 +230,11 @@ codeunit 91739 "LT Y15 WV Tests"
         Observer.Observe('first', Format(Bins.First(), 0, 9) + '/' + Bins."Code".Value());
         Observer.Observe('count', CountToEndPlain(Bins));
         Bins.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'A20');
+        Observer.Expect('after action', 'A20');
+        Observer.Expect('first', 'true/A01');
+        Observer.Expect('count', '25/A25');
+        Observer.Verify();
     end;
 
     // Next and Previous straight after the action, without First.
@@ -251,7 +263,15 @@ codeunit 91739 "LT Y15 WV Tests"
         Observer.Observe('next from A24', Format(Bins.Next(), 0, 9) + '/' + Bins."Code".Value());
         Observer.Observe('first from A24', Format(Bins.First(), 0, 9) + '/' + Bins."Code".Value());
         Bins.Close();
-        Observer.Finish();
+        Observer.Expect('next', 'true/A21');
+        Observer.Expect('previous', 'true/A20');
+        Observer.Expect('previous 2', 'true/A19');
+        Observer.Expect('previous first', 'true/A19');
+        Observer.Expect('next before action', 'true/A24');
+        Observer.Expect('after action from A24', 'A24');
+        Observer.Expect('next from A24', 'true/A25');
+        Observer.Expect('first from A24', 'true/A01');
+        Observer.Verify();
     end;
 
     // Rows are added only after the current row: A01 and A03 have Room 6, the page stands on A01.
@@ -280,7 +300,17 @@ codeunit 91739 "LT Y15 WV Tests"
         Observer.Observe('previous from A03', Format(Bins.Previous(), 0, 9) + '/' + Bins."Code".Value());
         Observer.Observe('first from A03', Format(Bins.First(), 0, 9) + '/' + Bins."Code".Value());
         Bins.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'A01');
+        Observer.Expect('open next', 'true/A03');
+        Observer.Expect('open first', 'true/A01');
+        Observer.Expect('after action', 'A01');
+        Observer.Expect('next', 'true/A02');
+        Observer.Expect('first', 'true/A01');
+        Observer.Expect('count', '25/A25');
+        Observer.Expect('after action from A03', 'A03');
+        Observer.Expect('previous from A03', 'true/A02');
+        Observer.Expect('first from A03', 'true/A01');
+        Observer.Verify();
     end;
 
     // A small table: 5 rows, only A03 and A05 have Room 6.
@@ -297,6 +327,10 @@ codeunit 91739 "LT Y15 WV Tests"
         Observer.Observe('first', Format(Bins.First(), 0, 9) + '/' + Bins."Code".Value());
         Observer.Observe('count', CountToEnd(Bins));
         Bins.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'A03');
+        Observer.Expect('after action', 'A03');
+        Observer.Expect('first', 'true/A01');
+        Observer.Expect('count', '5/A05');
+        Observer.Verify();
     end;
 }
