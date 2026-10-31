@@ -1,4 +1,4 @@
-// Fixtures used: Probe Observer (69160); self-contained helper "LT Y21 Row Dump" (92151) and table "LT Y21 Lock Row" (92152)
+// Fixtures used: Probe Observer (69160); self-contained helper "LT Y21 Row Dump" (92151)
 // Helper of Y21EnvColumns.al: writes the rows of a platform table as text, with every time-like column reduced to a rule
 // (blank, past or future), so the text can be asserted.
 codeunit 92151 "LT Y21 Row Dump"
@@ -108,18 +108,3 @@ codeunit 92151 "LT Y21 Row Dump"
     end;
 }
 
-table 92152 "LT Y21 Lock Row"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; "No."; Integer) { }
-        field(2; Name; Text[30]) { }
-    }
-
-    keys
-    {
-        key(PK; "No.") { Clustered = true; }
-    }
-}

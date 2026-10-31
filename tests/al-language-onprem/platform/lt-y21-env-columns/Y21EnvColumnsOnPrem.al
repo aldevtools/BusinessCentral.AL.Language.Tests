@@ -2,8 +2,24 @@
 // Scope: OnPrem (the tables have Scope = OnPrem in the system symbols; a Cloud app gets AL0296)
 // Fixtures used: Probe Observer (69160), Y21OnPremRowDump.al (LT Y21 OnPrem Row Dump 98661, tables 98662 and 98663)
 // Probe: the columns of OnPrem-scope platform tables whose values come from the service tier, the host, the SQL server or the license,
-// measured in the corpus CI containers (bc-linux). Exact values are asserted only where two CI runs gave the same value; a column that
-// changes between runs or between calls is asserted by a rule (blank, in the past, equal to another column of the session).
+// measured in the corpus CI containers (bc-linux, CI runs 41191247902 attempts 1 and 2, and 41193475549). Exact values are asserted only
+// where the runs gave the same value; a column that changed between runs (the container host name, SQL usage counters) is asserted by
+// a rule or a relation, or left out.
+// Facts (CI containers):
+//  - Drive: BC 27.5 and 28.5 refuse the read ("Server file access by AL functions is disabled. ..."); BC 29.0 gives no row.
+//  - File: Path is Code[98], so the filter is upper-cased and TemporaryPath() (165 characters here) does not fit. On the Linux
+//    container a filter on /tmp/ finds no file (Suspect_File_ListsOwnFile, not a test: the file system is case-sensitive).
+//  - Table Information: per company rows (both companies) for a per-company table; Record Size = Data Size (KB) * 1024 / No. of
+//    Records, Size (KB) = Data Size (KB) + Index Size (KB), Compression = 2; an empty table has 0 in every size column.
+//  - Permission Range: 230 rows of the container's license, all objects 1..99999999 with full RIMDX.
+//  - Database: one row CRONUS, creator sa, created on the day the container's database was made.
+//  - SID - Account ID, Extension Execution Info and Performance Profiles: no rows.
+//  - Server Instance: one row, the session's: service MicrosoftDynamicsNavServer, instance BC, ports 7085 and 7086, Status 0;
+//    the computer name is the container's host name (changes per run, equal to Active Session's).
+//  - Report Printer: no row on 27.5; the browser printer on 28.5 and 29.0.
+//  - Webhook Subscription "Created By", External Event Subscription "Last Modified Date Time", External Event Log Entry "Event Date
+//    Time", External Event Notification "Last Retry Date Time": stored as AL writes them; the platform fills none of them.
+//  - Database Index (BC 28 and later): one row per index and company; usage counters left out (they count earlier tests).
 // BC versions: 27.5, 28.5, 29.0 (Database Index: 28.5 and later)
 
 codeunit 98660 "LT Y21 Env Columns OnPrem"
@@ -22,13 +38,32 @@ codeunit 98660 "LT Y21 Env Columns OnPrem"
         exit(Dump.Dump(RecRef, MaxRows));
     end;
 
+    [TryFunction]
+    local procedure TryRows(TableNo: Integer; MaxRows: Integer; var Result: Text)
+    begin
+        Result := Rows(TableNo, MaxRows);
+    end;
+
     [Test]
     procedure Y21_Drive_Rows()
     var
         Observer: Codeunit "Probe Observer";
+        Result: Text;
     begin
-        Observer.Observe('rows', Rows(Database::Drive, 5));
-        Observer.Finish();
+        Observer.Observe('read', Format(TryRows(Database::Drive, 5, Result)));
+        Observer.Observe('rows', Result);
+        Observer.Observe('error', GetLastErrorText());
+        ClearLastError();
+#if BC29PLUS
+        Observer.Expect('read', 'Yes');
+        Observer.Expect('rows', 'n=0;');
+        Observer.Expect('error', '');
+#else
+        Observer.Expect('read', 'No');
+        Observer.Expect('rows', '');
+        Observer.Expect('error', 'Server file access by AL functions is disabled. Contact your system administrator.');
+#endif
+        Observer.Verify();
     end;
 
     [Test]
@@ -36,12 +71,14 @@ codeunit 98660 "LT Y21 Env Columns OnPrem"
     var
         Observer: Codeunit "Probe Observer";
     begin
-        // Run 1: TemporaryPath() is longer than the Path column (Code[98]), so the filter itself fails.
         Observer.Observe('length', Format(StrLen(TemporaryPath())));
         Observer.Observe('filter', Format(TrySetPath(TemporaryPath())));
         Observer.Observe('error code', GetLastErrorCode());
         ClearLastError();
-        Observer.Finish();
+        Observer.Expect('length', '165');
+        Observer.Expect('filter', 'No');
+        Observer.Expect('error code', 'StringLengthExceeded');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -53,60 +90,48 @@ codeunit 98660 "LT Y21 Env Columns OnPrem"
     end;
 
     [Test]
-    procedure Y21_File_OwnFile()
+    procedure Y21_File_PathFilterUpperCase()
+    var
+        Observer: Codeunit "Probe Observer";
+        FileRec: Record File;
     begin
-        OwnFile('/tmp/');
+        FileRec.SetRange(Path, '/tmp/');
+        Observer.Observe('slash', FileRec.GetFilter(Path));
+        FileRec.SetRange(Path, '/tmp');
+        Observer.Observe('no slash', FileRec.GetFilter(Path));
+        Observer.Expect('slash', '/TMP/');
+        Observer.Expect('no slash', '/TMP');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Y21_File_OwnFileNoSlash()
-    begin
-        OwnFile('/tmp');
-    end;
-
-    local procedure OwnFile(Dir: Text)
+    // Not a test (Linux suspect): on the Linux CI container the File table gives no row for a file just written to /tmp/
+    // (create Yes, len 13, own count 0, count in dir>0 No, with and without the trailing slash). Needs the Windows nightly.
+    procedure Suspect_File_ListsOwnFile(Dir: Text)
     var
         Observer: Codeunit "Probe Observer";
         FileRec: Record File;
         F: File;
         Name: Text;
         Len: Integer;
-        InS: InStream;
-        Content: Text;
-        RecRef: RecordRef;
     begin
         Name := 'LTY21' + DelChr(Format(CreateGuid()), '=', '{}-') + '.txt';
         F.TextMode(true);
-        Observer.Observe('create', Format(F.Create('/tmp/' + Name)));
+        Observer.Observe('create', Format(F.Create(Dir + Name)));
         F.Write('LT Y21 file');
         Len := F.Len();
         F.Close();
         Observer.Observe('len', Format(Len));
         FileRec.SetRange(Path, Dir);
-        Observer.Observe('path filter', FileRec.GetFilter(Path));
         Observer.Observe('count in dir>0', Format(not FileRec.IsEmpty()));
         FileRec.SetRange(Name, Name);
         Observer.Observe('own count', Format(FileRec.Count()));
         if FileRec.FindFirst() then begin
-            Observer.Observe('path', FileRec.Path);
-            Observer.Observe('name eq', Format(FileRec.Name = Name));
             Observer.Observe('is a file', Format(FileRec."Is a file"));
             Observer.Observe('size', Format(FileRec.Size));
             Observer.Observe('date today', Format(FileRec.Date = Today()));
             Observer.Observe('time set', Format(FileRec.Time <> 0T));
-            Observer.Observe('time le now', Format(FileRec.Time <= Time()));
-            FileRec.CalcFields(Data);
-            Observer.Observe('data has value', Format(FileRec.Data.HasValue()));
-            FileRec.Data.CreateInStream(InS);
-            InS.ReadText(Content);
-            Observer.Observe('data', Content);
-            RecRef.GetTable(FileRec);
-            Observer.Observe('row', Dump.Row(RecRef));
         end;
-        FileRec.SetRange(Name);
-        FileRec.SetRange(Path, '/tmp/lt-y21-no-such-folder');
-        Observer.Observe('missing dir count', Format(FileRec.Count()));
-        File.Erase('/tmp/' + Name);
+        File.Erase(Dir + Name);
         Observer.Finish();
     end;
 
@@ -115,7 +140,6 @@ codeunit 98660 "LT Y21 Env Columns OnPrem"
     var
         Observer: Codeunit "Probe Observer";
         Sized: Record "LT Y21 Sized Table";
-        TableInfo: Record "Table Information";
         I: Integer;
     begin
         Observer.Observe('empty table', TableInfoRow(Database::"LT Y21 Empty Table"));
@@ -127,11 +151,14 @@ codeunit 98660 "LT Y21 Env Columns OnPrem"
             Sized.Insert();
         end;
         Observer.Observe('sized after 50', TableInfoRow(Database::"LT Y21 Sized Table"));
-        Observer.Observe('company', TableInfoRow(Database::Company));
-        Observer.Observe('no series', TableInfoRow(308));
-        TableInfo.SetRange("Company Name", CompanyName());
-        Observer.Observe('company rows', Format(TableInfo.Count()));
-        Observer.Finish();
+        Observer.Observe('company rules', SizeRules(Database::Company));
+        Observer.Observe('no series rules', SizeRules(308));
+        Observer.Expect('empty table', 'n=2;[1=<Company>;2=98663;3=LT Y21 Empty Table;4=0;5=0;6=0;7=2;8=0;9=0;][1=My Company;2=98663;3=LT Y21 Empty Table;4=0;5=0;6=0;7=2;8=0;9=0;]');
+        Observer.Expect('sized before', 'n=2;[1=<Company>;2=98662;3=LT Y21 Sized Table;4=0;5=0;6=0;7=2;8=0;9=0;][1=My Company;2=98662;3=LT Y21 Sized Table;4=0;5=0;6=0;7=2;8=0;9=0;]');
+        Observer.Expect('sized after 50', 'n=2;[1=<Company>;2=98662;3=LT Y21 Sized Table;4=50;5=327.68;6=48;7=2;8=16;9=32;][1=My Company;2=98662;3=LT Y21 Sized Table;4=0;5=0;6=0;7=2;8=0;9=0;]');
+        Observer.Expect('company rules', 'rows=1 ok');
+        Observer.Expect('no series rules', 'rows=2 ok');
+        Observer.Verify();
     end;
 
     local procedure TableInfoRow(TableNo: Integer): Text
@@ -142,6 +169,31 @@ codeunit 98660 "LT Y21 Env Columns OnPrem"
         TableInfo.SetRange("Table No.", TableNo);
         RecRef.GetTable(TableInfo);
         exit(Dump.Dump(RecRef, 2));
+    end;
+
+    // Record Size = Data Size (KB) * 1024 / No. of Records (0 without records), Size (KB) = Data Size (KB) + Index Size (KB), Compression 2.
+    local procedure SizeRules(TableNo: Integer): Text
+    var
+        TableInfo: Record "Table Information";
+        Broken: Text;
+    begin
+        TableInfo.SetRange("Table No.", TableNo);
+        if TableInfo.FindSet() then
+            repeat
+                if TableInfo."No. of Records" = 0 then begin
+                    if TableInfo."Record Size" <> 0 then
+                        Broken += ' record size without records';
+                end else
+                    if Round(TableInfo."Record Size", 0.01) <> Round(TableInfo."Data Size (KB)" * 1024 / TableInfo."No. of Records", 0.01) then
+                        Broken += ' record size';
+                if TableInfo."Size (KB)" <> TableInfo."Data Size (KB)" + TableInfo."Index Size (KB)" then
+                    Broken += ' size';
+                if TableInfo.Compression <> 2 then
+                    Broken += ' compression';
+            until TableInfo.Next() = 0;
+        if Broken = '' then
+            Broken := ' ok';
+        exit('rows=' + Format(TableInfo.Count()) + Broken);
     end;
 
     [Test]
@@ -165,34 +217,56 @@ codeunit 98660 "LT Y21 Env Columns OnPrem"
         PermissionRange.SetFilter("To", '>=%1', 50000);
         RecRef.GetTable(PermissionRange);
         Observer.Observe('codeunit 50000', Dump.Dump(RecRef, 2));
-        Observer.Finish();
+        Observer.Expect('count', '230');
+#if BC28PLUS
+        Observer.Expect('digest', '1738678992');
+#else
+        Observer.Expect('digest', '1778057812');
+#endif
+        Observer.Expect('first rows', 'n=230;[1=0;2=0;3=1;4=99999999;10=1;11=1;12=1;13=1;14=1;15=0;][1=0;2=1;3=123456700;4=123456799;10=1;11=1;12=1;13=1;14=1;15=0;][1=0;2=2;3=2000000000;4=2000000300;10=1;11=1;12=1;13=1;14=1;15=0;][1=1;2=0;3=1;4=99999999;10=1;11=1;12=1;13=1;14=1;15=0;]');
+        Observer.Expect('codeunit 50000', 'n=1;[1=5;2=0;3=1;4=99999999;10=1;11=1;12=1;13=1;14=1;15=0;]');
+        Observer.Verify();
     end;
 
     [Test]
-    procedure Y21_Database_Rows()
+    procedure Y21_Database_Row()
     var
         Observer: Codeunit "Probe Observer";
         Db: Record Database;
         ActiveSession: Record "Active Session";
     begin
-        Observer.Observe('rows', Rows(Database::Database, 3));
         ActiveSession.Get(ServiceInstanceId(), SessionId());
+        Observer.Observe('count', Format(Db.Count()));
         if Db.FindFirst() then begin
-            Observer.Observe('raw created', Format(Db.Created, 0, 9));
+            Observer.Observe('name', Db."Database Name");
+            Observer.Observe('creator', Db.Creator);
+            Observer.Observe('created not after today', Format((Db.Created <> 0D) and (Db.Created <= Today())));
+            Observer.Observe('replication type', Format(Db."Replication Type", 0, 9));
+            Observer.Observe('my database', Format(Db."My Database"));
             Observer.Observe('name eq session db', Format(Db."Database Name" = ActiveSession."Database Name"));
         end;
-        Db.SetRange("My Database", true);
-        Observer.Observe('my database count', Format(Db.Count()));
-        Observer.Finish();
+        Observer.Expect('count', '1');
+        Observer.Expect('name', 'CRONUS');
+        Observer.Expect('creator', 'sa');
+        Observer.Expect('created not after today', 'Yes');
+        Observer.Expect('replication type', '0');
+        Observer.Expect('my database', 'Yes');
+        Observer.Expect('name eq session db', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
-    procedure Y21_SidAccountId_Rows()
+    procedure Y21_EmptyTables()
     var
         Observer: Codeunit "Probe Observer";
     begin
-        Observer.Observe('rows', Rows(Database::"SID - Account ID", 3));
-        Observer.Finish();
+        Observer.Observe('sid account id', Rows(Database::"SID - Account ID", 1));
+        Observer.Observe('extension execution info', Rows(Database::"Extension Execution Info", 1));
+        Observer.Observe('performance profiles', Rows(Database::"Performance Profiles", 1));
+        Observer.Expect('sid account id', 'n=0;');
+        Observer.Expect('extension execution info', 'n=0;');
+        Observer.Expect('performance profiles', 'n=0;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -201,20 +275,39 @@ codeunit 98660 "LT Y21 Env Columns OnPrem"
         Observer: Codeunit "Probe Observer";
         ServerInstance: Record "Server Instance";
         ActiveSession: Record "Active Session";
-        RecRef: RecordRef;
     begin
         Observer.Observe('count', Format(ServerInstance.Count()));
         ActiveSession.Get(ServiceInstanceId(), SessionId());
         Observer.Observe('get own', Format(ServerInstance.Get(ServiceInstanceId())));
-        RecRef.GetTable(ServerInstance);
-        Observer.Observe('own row', Dump.Row(RecRef));
+        Observer.Observe('row', Format(ServerInstance."Server Instance ID") + '|' + ServerInstance."Service Name" + '|' + ServerInstance."Server Instance Name" + '|' +
+            Format(ServerInstance."Server Port") + '|' + Format(ServerInstance."Management Port") + '|' + Format(ServerInstance.Status, 0, 9) + '|' +
+            Format(ServerInstance."Last Tenant Config Version"));
         Observer.Observe('instance name eq session', Format(ServerInstance."Server Instance Name" = ActiveSession."Server Instance Name"));
         Observer.Observe('computer name eq session', Format(ServerInstance."Server Computer Name" = ActiveSession."Server Computer Name"));
-        Observer.Observe('raw computer name', ServerInstance."Server Computer Name");
-        Observer.Observe('raw last tenant config version', Format(ServerInstance."Last Tenant Config Version"));
-        Observer.Observe('last active ge login', Format(ServerInstance."Last Active" >= ActiveSession."Login Datetime"));
-        Observer.Observe('rows', Rows(Database::"Server Instance", 3));
-        Observer.Finish();
+        Observer.Observe('computer name set', Format(ServerInstance."Server Computer Name" <> ''));
+        Observer.Observe('last active', Dump.DtRule(ServerInstance."Last Active"));
+        Observer.Expect('count', '1');
+        Observer.Expect('get own', 'Yes');
+        Observer.Expect('row', Format(ServiceInstanceId()) + '|MicrosoftDynamicsNavServer|BC|7085|7086|0|0');
+        Observer.Expect('instance name eq session', 'Yes');
+        Observer.Expect('computer name eq session', 'Yes');
+        Observer.Expect('computer name set', 'Yes');
+        Observer.Expect('last active', 'past');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y21_ReportPrinter_Rows()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('rows', Rows(Database::"Report Printer", 3));
+#if BC28PLUS
+        Observer.Expect('rows', 'n=1;[1=(Handled by the browser);2=(Handled by the browser);3=;4=Browser Printer;5=;6=Sends print jobs to the browser''s printer;]');
+#else
+        Observer.Expect('rows', 'n=0;');
+#endif
+        Observer.Verify();
     end;
 
     [Test]
@@ -240,34 +333,10 @@ codeunit 98660 "LT Y21 Env Columns OnPrem"
         Webhook.Modify();
         Webhook.Get('LTY21B', 'https://example.invalid/y21');
         Observer.Observe('modified created by', '[' + Webhook."Created By" + ']');
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Y21_ExtensionExecutionInfo_Rows()
-    var
-        Observer: Codeunit "Probe Observer";
-    begin
-        Observer.Observe('rows', Rows(Database::"Extension Execution Info", 3));
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Y21_ReportPrinter_Rows()
-    var
-        Observer: Codeunit "Probe Observer";
-    begin
-        Observer.Observe('rows', Rows(Database::"Report Printer", 3));
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Y21_PerformanceProfiles_Rows()
-    var
-        Observer: Codeunit "Probe Observer";
-    begin
-        Observer.Observe('rows', Rows(Database::"Performance Profiles", 2));
-        Observer.Finish();
+        Observer.Expect('blank created by', '[] eq userid=No');
+        Observer.Expect('set created by', '[LTY21USER]');
+        Observer.Expect('modified created by', '[LTY21OTHER]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -275,10 +344,8 @@ codeunit 98660 "LT Y21 Env Columns OnPrem"
     var
         Observer: Codeunit "Probe Observer";
         Sub: Record "External Event Subscription";
-        Before: DateTime;
         Id: Guid;
     begin
-        Before := CurrentDateTime();
         Id := CreateGuid();
         Sub.Init();
         Sub.ID := Id;
@@ -286,16 +353,19 @@ codeunit 98660 "LT Y21 Env Columns OnPrem"
         Sub."Company Name" := CompanyName();
         Sub.Insert();
         Sub.Get(Id);
-        Observer.Observe('insert', Dump.DtRule(Sub."Last Modified Date Time") + ' ge_before=' + Format(Sub."Last Modified Date Time" >= Before));
+        Observer.Observe('insert', Dump.DtRule(Sub."Last Modified Date Time"));
         Sub."Client State" := 'x';
         Sub.Modify();
         Sub.Get(Id);
-        Observer.Observe('modify', Dump.DtRule(Sub."Last Modified Date Time") + ' ge_before=' + Format(Sub."Last Modified Date Time" >= Before));
+        Observer.Observe('modify', Dump.DtRule(Sub."Last Modified Date Time"));
         Sub."Last Modified Date Time" := CreateDateTime(DMY2Date(1, 1, 2020), 0T);
         Sub.Modify();
         Sub.Get(Id);
-        Observer.Observe('modify set', Format(Sub."Last Modified Date Time" = CreateDateTime(DMY2Date(1, 1, 2020), 0T)) + ' ' + Dump.DtRule(Sub."Last Modified Date Time"));
-        Observer.Finish();
+        Observer.Observe('modify set', Format(Sub."Last Modified Date Time" = CreateDateTime(DMY2Date(1, 1, 2020), 0T)));
+        Observer.Expect('insert', 'blank');
+        Observer.Expect('modify', 'blank');
+        Observer.Expect('modify set', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -304,9 +374,7 @@ codeunit 98660 "LT Y21 Env Columns OnPrem"
         Observer: Codeunit "Probe Observer";
         LogEntry: Record "External Event Log Entry";
         RecRef: RecordRef;
-        Before: DateTime;
     begin
-        Before := CurrentDateTime();
         LogEntry.Init();
         LogEntry."Event Name" := 'lty21event';
         LogEntry."Company Name" := CompanyName();
@@ -314,10 +382,11 @@ codeunit 98660 "LT Y21 Env Columns OnPrem"
         Observer.Observe('id', Format(LogEntry.ID));
         LogEntry.SetRange("Event Name", 'lty21event');
         LogEntry.FindFirst();
-        Observer.Observe('insert', Dump.DtRule(LogEntry."Event Date Time") + ' ge_before=' + Format(LogEntry."Event Date Time" >= Before));
         RecRef.GetTable(LogEntry);
         Observer.Observe('row', Dump.Row(RecRef));
-        Observer.Finish();
+        Observer.Expect('id', '1');
+        Observer.Expect('row', '1=1;2=null;3=;4=lty21event;5=<Company>;6=null;7=blank;8=blob:0;9=false;10=null;11=;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -339,7 +408,9 @@ codeunit 98660 "LT Y21 Env Columns OnPrem"
         RecRef.GetTable(Notification);
         RecRef.Find();
         Observer.Observe('modify row', Dump.Row(RecRef));
-        Observer.Finish();
+        Observer.Expect('insert row', '1=1;2=guid;3=0;4=blank;5=0;6=blank;');
+        Observer.Expect('modify row', '1=1;2=guid;3=0;4=blank;5=1;6=blank;');
+        Observer.Verify();
     end;
 
 #if BC28PLUS
@@ -348,22 +419,35 @@ codeunit 98660 "LT Y21 Env Columns OnPrem"
     var
         Observer: Codeunit "Probe Observer";
         Sized: Record "LT Y21 Sized Table";
-        DbIndex: Record "Database Index";
-        RecRef: RecordRef;
         I: Integer;
     begin
-        DbIndex.SetRange(TableId, Database::"LT Y21 Sized Table");
-        RecRef.GetTable(DbIndex);
-        Observer.Observe('empty', Dump.Dump(RecRef, 3));
+        Observer.Observe('empty', IndexRows());
         for I := 1 to 20 do begin
             Sized."No." := I;
             Sized.Name := 'n' + Format(I);
             Sized.Insert();
         end;
-        if Sized.FindFirst() then;
-        RecRef.GetTable(DbIndex);
-        Observer.Observe('after 20', Dump.Dump(RecRef, 3));
+        Observer.Observe('after 20', IndexRows());
         Observer.Finish();
+    end;
+
+    // Per index row: Index Name|Company Name|Column Names|Included Fields|Enabled|Metadata Defined|Unique|Index Size (KB)|Fragmentation %|
+    // Database Start time|Statistics rebuild at|Row count. The usage counters and Last Seek/Scan/Lookup/Update are left out.
+    local procedure IndexRows(): Text
+    var
+        DbIndex: Record "Database Index";
+        Result: Text;
+    begin
+        DbIndex.SetRange(TableId, Database::"LT Y21 Sized Table");
+        Result := 'n=' + Format(DbIndex.Count()) + ';';
+        if DbIndex.FindSet() then
+            repeat
+                Result += DbIndex."Index Name" + '|' + DbIndex."Company Name" + '|' + DbIndex."Column Names" + '|' + DbIndex."Included Fields" + '|' +
+                    Format(DbIndex.Enabled) + '|' + Format(DbIndex."Metadata Defined") + '|' + Format(DbIndex.Unique) + '|' + Format(DbIndex."Index Size (KB)") + '|' +
+                    Format(DbIndex."Fragmentation %", 0, 9) + '|' + Dump.DtRule(DbIndex."Database Start time") + '|' + Dump.DtRule(DbIndex."Statistics rebuild at") + '|' +
+                    Format(DbIndex."Row count") + ';';
+            until DbIndex.Next() = 0;
+        exit(Result);
     end;
 #endif
 }

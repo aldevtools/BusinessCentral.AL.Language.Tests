@@ -1,9 +1,20 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-system-tables
 // Scope: in-scope
-// Fixtures used: Probe Observer (69160), Y21RowDump.al (LT Y21 Row Dump 92151, LT Y21 Lock Row 92152)
+// Fixtures used: Probe Observer (69160), Y21RowDump.al (LT Y21 Row Dump 92151)
 // Probe: the columns of Cloud-scope platform tables whose values come from the service tier, the SQL server or the license, measured in
-// the corpus CI containers (bc-linux). Exact values are asserted only where two CI runs gave the same value; a column that changes
-// between runs or between calls is asserted by a rule (blank, in the past, equal to another column of the session).
+// the corpus CI containers (bc-linux, CI runs 41191247902 attempts 1 and 2, and 41193475549). Exact values are asserted only where the
+// runs gave the same value; a column that changed between runs is asserted by a rule (blank, in the past, equal to another column of
+// the session).
+// Facts (CI containers):
+//  - Printer has no rows, Database Missing Indexes had none (asserted by rules only). RecordRef.Open of Printer, Database Locks and Database Missing Indexes is
+//    refused in a Cloud app ("You cannot open record ... from a RecordRef data type when you are using target ..."), the record works.
+//  - License Information: every read fails, Count() included: the platform's single row holds the whole license text (1516
+//    characters) in the Text[250] column (code StringLengthExceeded).
+//  - Windows Language: Enabled, Form Enabled, Report Enabled and XMLport Enabled are Yes on every row, Dataport Enabled and Help File
+//    Exist on none, ETX File Exist on 48 rows (49 on BC 29).
+//  - Session Event: one row for the running session; its columns equal the session's Active Session row and UserId()/UserSecurityId().
+//  - Database Wait Statistics: the set of categories changed between runs (16 or 17 rows: "Tracing"), only rules are asserted.
+//  - Database Locks gave no stable value (2 rows before an insert, 0 after it, 0 and 0 on BC 27.5); not asserted.
 // BC versions: 27.5, 28.5, 29.0
 
 codeunit 92150 "LT Y21 Env Columns"
@@ -15,52 +26,61 @@ codeunit 92150 "LT Y21 Env Columns"
         Dump: Codeunit "LT Y21 Row Dump";
 
     [Test]
-    procedure Y21_Printer_Rows()
+    procedure Y21_Printer_NoRows()
     var
         Observer: Codeunit "Probe Observer";
         Printer: Record Printer;
-        N: Integer;
     begin
-        // RecordRef.Open of this table is refused in a Cloud app (run 1), so the columns are read through the record.
         Observer.Observe('count', Format(Printer.Count()));
-        if Printer.FindSet() then
-            repeat
-                N += 1;
-                Observer.Observe('row ' + Format(N), Printer.ID + '|' + Printer.Name + '|' + Printer.Driver + '|' + Printer.Device + '|' +
-                    CopyStr(Printer.Payload, 1, 100) + '|' + Printer.Description);
-            until (Printer.Next() = 0) or (N >= 3);
-        Observer.Finish();
+        Observer.Observe('find first', Format(Printer.FindFirst()));
+        Observer.Expect('count', '0');
+        Observer.Expect('find first', 'No');
+        Observer.Verify();
     end;
 
     [Test]
-    procedure Y21_LicenseInformation_Rows()
+    procedure Y21_Printer_RecordRefRefused()
+    var
+        RecRef: RecordRef;
+    begin
+        asserterror RecRef.Open(Database::Printer);
+        if StrPos(GetLastErrorText(), 'You cannot open record 2000000039 from a RecordRef data type when you are using target') <> 1 then
+            Error('unexpected error: %1', GetLastErrorText());
+    end;
+
+    [Test]
+    procedure Y21_LicenseInformation_ReadFails()
     var
         Observer: Codeunit "Probe Observer";
         License: Record "License Information";
     begin
-        Observer.Observe('count', Format(License.Count()));
-        Observer.Observe('is empty', Format(License.IsEmpty()));
-        // Run 1: reading a row fails, its Text holds the whole license text (1516 characters) and the column is Text[250].
+        Observer.Observe('count', Format(TryCount(License)));
+        Observer.Observe('count error code', GetLastErrorCode());
+        Observer.Observe('count error text start', CopyStr(GetLastErrorText(), 1, 78));
+        ClearLastError();
         Observer.Observe('find first', Format(TryFindFirst(License)));
-        Observer.Observe('error code', GetLastErrorCode());
-        Observer.Observe('error text start', CopyStr(GetLastErrorText(), 1, 80));
+        Observer.Observe('find first error code', GetLastErrorCode());
         ClearLastError();
-        Observer.Observe('find set', Format(TryFindSet(License)));
-        Observer.Observe('error code 2', GetLastErrorCode());
-        ClearLastError();
-        Observer.Finish();
+        Observer.Expect('count', 'No');
+        Observer.Expect('count error code', 'StringLengthExceeded');
+        Observer.Expect('count error text start', 'The length of the string is 1516, but it must be less than or equal to 250 char');
+        Observer.Expect('find first', 'No');
+        Observer.Expect('find first error code', 'StringLengthExceeded');
+        Observer.Verify();
+    end;
+
+    [TryFunction]
+    local procedure TryCount(var License: Record "License Information")
+    var
+        N: Integer;
+    begin
+        N := License.Count();
     end;
 
     [TryFunction]
     local procedure TryFindFirst(var License: Record "License Information")
     begin
         License.FindFirst();
-    end;
-
-    [TryFunction]
-    local procedure TryFindSet(var License: Record "License Information")
-    begin
-        License.FindSet();
     end;
 
     [Test]
@@ -94,7 +114,30 @@ codeunit 92150 "LT Y21 Env Columns"
         Observer.Observe('1031', LanguageFlags(1031));
         Observer.Observe('1030', LanguageFlags(1030));
         Observer.Observe('1025', LanguageFlags(1025));
-        Observer.Finish();
+        // Flags: 1 Enabled, 2 Form Enabled, 3 Report Enabled, 4 Dataport Enabled, 5 XMLport Enabled, 6 ETX File Exist, 7 Help File Exist.
+        // The digest of 1, 2, 3 and 5 is the digest of every Language ID (the same rows as AgWindowsLanguage.al counts).
+#if BC29PLUS
+        Observer.Expect('flag 1', 'count=212 digest=837524682');
+        Observer.Expect('flag 2', 'count=212 digest=837524682');
+        Observer.Expect('flag 3', 'count=212 digest=837524682');
+        Observer.Expect('flag 4', 'count=0 digest=0');
+        Observer.Expect('flag 5', 'count=212 digest=837524682');
+        Observer.Expect('flag 6', 'count=49 digest=499707143');
+        Observer.Expect('flag 7', 'count=0 digest=0');
+#else
+        Observer.Expect('flag 1', 'count=208 digest=862752769');
+        Observer.Expect('flag 2', 'count=208 digest=862752769');
+        Observer.Expect('flag 3', 'count=208 digest=862752769');
+        Observer.Expect('flag 4', 'count=0 digest=0');
+        Observer.Expect('flag 5', 'count=208 digest=862752769');
+        Observer.Expect('flag 6', 'count=48 digest=668088811');
+        Observer.Expect('flag 7', 'count=0 digest=0');
+#endif
+        Observer.Expect('1033', 'Yes,Yes,Yes,No,Yes,Yes,No');
+        Observer.Expect('1031', 'Yes,Yes,Yes,No,Yes,Yes,No');
+        Observer.Expect('1030', 'Yes,Yes,Yes,No,Yes,Yes,No');
+        Observer.Expect('1025', 'Yes,Yes,Yes,No,Yes,No,No');
+        Observer.Verify();
     end;
 
     local procedure LanguageFlags(Id: Integer): Text
@@ -114,81 +157,51 @@ codeunit 92150 "LT Y21 Env Columns"
         Observer: Codeunit "Probe Observer";
         SessionEvent: Record "Session Event";
         ActiveSession: Record "Active Session";
-        RecRef: RecordRef;
-        N: Integer;
     begin
         Observer.Observe('total>0', Format(not SessionEvent.IsEmpty()));
         Observer.Observe('active session', Format(ActiveSession.Get(ServiceInstanceId(), SessionId())));
         SessionEvent.SetRange("Session ID", SessionId());
         SessionEvent.SetRange("Server Instance ID", ServiceInstanceId());
-        RecRef.GetTable(SessionEvent);
-        Observer.Observe('own rows', Dump.Dump(RecRef, 3));
-        if SessionEvent.FindSet() then
-            repeat
-                N += 1;
-                if N <= 3 then
-                    Observer.Observe('row ' + Format(N) + ' relations',
-                        'user_sid=' + Format(SessionEvent."User SID" = UserSecurityId()) +
-                        ' user_id=' + Format(SessionEvent."User ID" = UserId()) +
-                        ' db=' + Format(SessionEvent."Database Name" = ActiveSession."Database Name") +
-                        ' ccn=' + Format(SessionEvent."Client Computer Name" = ActiveSession."Client Computer Name") +
-                        ' unique=' + Format(SessionEvent."Session Unique ID" = ActiveSession."Session Unique ID") +
-                        ' client_type=' + Format(SessionEvent."Client Type" = ActiveSession."Client Type") +
-                        ' dt_eq_login=' + Format(SessionEvent."Event Datetime" = ActiveSession."Login Datetime") +
-                        ' dt_ge_login=' + Format(SessionEvent."Event Datetime" >= ActiveSession."Login Datetime"));
-            until SessionEvent.Next() = 0;
-        Observer.Observe('raw db', ActiveSession."Database Name");
-        Observer.Observe('raw ccn', ActiveSession."Client Computer Name");
-        Observer.Finish();
+        Observer.Observe('own rows', Format(SessionEvent.Count()));
+        if SessionEvent.FindFirst() then begin
+            Observer.Observe('event type', Format(SessionEvent."Event Type", 0, 9));
+            Observer.Observe('comment', SessionEvent.Comment);
+            Observer.Observe('database name', SessionEvent."Database Name");
+            Observer.Observe('relations',
+                'user_sid=' + Format(SessionEvent."User SID" = UserSecurityId()) +
+                ' user_id=' + Format(SessionEvent."User ID" = UserId()) +
+                ' db=' + Format(SessionEvent."Database Name" = ActiveSession."Database Name") +
+                ' ccn=' + Format(SessionEvent."Client Computer Name" = ActiveSession."Client Computer Name") +
+                ' unique=' + Format(SessionEvent."Session Unique ID" = ActiveSession."Session Unique ID") +
+                ' client_type=' + Format(SessionEvent."Client Type" = ActiveSession."Client Type") +
+                ' dt_eq_login=' + Format(SessionEvent."Event Datetime" = ActiveSession."Login Datetime"));
+            Observer.Observe('event datetime', Dump.DtRule(SessionEvent."Event Datetime"));
+        end;
+        Observer.Expect('total>0', 'Yes');
+        Observer.Expect('active session', 'Yes');
+        Observer.Expect('own rows', '1');
+        Observer.Expect('event type', '0');
+        Observer.Expect('comment', '');
+        Observer.Expect('database name', 'CRONUS');
+        Observer.Expect('relations', 'user_sid=Yes user_id=Yes db=Yes ccn=Yes unique=Yes client_type=Yes dt_eq_login=Yes');
+        Observer.Expect('event datetime', 'past');
+        Observer.Verify();
     end;
 
     [Test]
-    procedure Y21_DatabaseLocks_AfterInsert()
-    var
-        Observer: Codeunit "Probe Observer";
-        DbLocks: Record "Database Locks";
-        LockRow: Record "LT Y21 Lock Row";
-        N: Integer;
-    begin
-        DbLocks.SetRange("Session ID", SessionId());
-        Observer.Observe('before', Format(DbLocks.Count()));
-        LockRow."No." := 1;
-        LockRow.Name := 'Y21';
-        LockRow.Insert();
-        // RecordRef.Open of this table is refused in a Cloud app (run 1), so the columns are read through the record.
-        Observer.Observe('after insert', Format(DbLocks.Count()));
-        if DbLocks.FindSet() then
-            repeat
-                N += 1;
-                if N <= 4 then
-                    Observer.Observe('row ' + Format(N), DbLocks."Object Name" + '|' + DbLocks."Resource Type" + '|' + Format(DbLocks."Request Mode") + '|' +
-                        Format(DbLocks."Request Status") + '|' + Format(DbLocks."AL Object Type") + '|' + Format(DbLocks."AL Object Id") + '|' +
-                        DbLocks."AL Method Scope" + '|' + DbLocks."AL Object Name" + '|' + DbLocks."AL Object Extension Name");
-                if N <= 4 then
-                    Observer.Observe('row ' + Format(N) + ' relations',
-                        'user=' + Format(DbLocks."User Name" = UserId()) +
-                        ' sql_session_eq_session=' + Format(DbLocks."SQL Session ID" = SessionId()) +
-                        ' tx>0=' + Format(DbLocks."Transaction ID" > 0));
-            until DbLocks.Next() = 0;
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Y21_DatabaseWaitStatistics_Rows()
+    procedure Y21_DatabaseWaitStatistics_Rules()
     var
         Observer: Codeunit "Probe Observer";
         WaitStats: Record "Database Wait Statistics";
-        Categories: Text;
         Rules: Text;
         StartTime: DateTime;
         SameStart: Boolean;
     begin
-        Observer.Observe('count', Format(WaitStats.Count()));
+        Observer.Observe('count>=16', Format(WaitStats.Count() >= 16));
         SameStart := true;
         if WaitStats.FindSet() then begin
             StartTime := WaitStats."Database start time";
             repeat
-                Categories += WaitStats."Wait Category" + ';';
                 if WaitStats."Database start time" <> StartTime then
                     SameStart := false;
                 if WaitStats."Waiting Tasks Count" < 0 then
@@ -201,29 +214,39 @@ codeunit 92150 "LT Y21 Env Columns"
                     Rules += 'time without tasks ' + WaitStats."Wait Category" + ';';
             until WaitStats.Next() = 0;
         end;
-        Observer.Observe('categories', Categories);
+        WaitStats.Reset();
+        WaitStats.SetRange("Wait Category", 'Lock');
+        Observer.Observe('has Lock', Format(not WaitStats.IsEmpty()));
         Observer.Observe('rules broken', Rules);
         Observer.Observe('same start time', Format(SameStart));
         Observer.Observe('start time', Dump.DtRule(StartTime));
-        Observer.Finish();
+        Observer.Expect('count>=16', 'Yes');
+        Observer.Expect('has Lock', 'Yes');
+        Observer.Expect('rules broken', '');
+        Observer.Expect('same start time', 'Yes');
+        Observer.Expect('start time', 'past');
+        Observer.Verify();
     end;
 
     [Test]
-    procedure Y21_DatabaseMissingIndexes_Rows()
+    procedure Y21_DatabaseMissingIndexes_Rules()
     var
         Observer: Codeunit "Probe Observer";
         MissingIndex: Record "Database Missing Indexes";
-        N: Integer;
+        Rules: Text;
     begin
-        // RecordRef.Open of this table is refused in a Cloud app (run 1), so the columns are read through the record.
-        Observer.Observe('count', Format(MissingIndex.Count()));
+        // The CI containers gave no row (a subset run); a full run may give some, so only the rules of a row are asserted.
         if MissingIndex.FindSet() then
             repeat
-                N += 1;
-                Observer.Observe('row ' + Format(N), Format(MissingIndex."Index Handle") + '|' + MissingIndex."Table Name" + '|' + Format(MissingIndex."Extension Id") + '|' +
-                    CopyStr(MissingIndex."Index Equality Columns", 1, 80) + '|' + CopyStr(MissingIndex."Index Inequality Columns", 1, 80) + '|' +
-                    CopyStr(MissingIndex."Index Include Columns", 1, 80) + '|' + Format(MissingIndex."User Seeks") + '|' + Format(MissingIndex."User Scans"));
-            until (MissingIndex.Next() = 0) or (N >= 2);
-        Observer.Finish();
+                if MissingIndex."Table Name" = '' then
+                    Rules += 'no table;';
+                if (MissingIndex."Index Equality Columns" = '') and (MissingIndex."Index Inequality Columns" = '') then
+                    Rules += 'no columns;';
+                if MissingIndex."User Seeks" + MissingIndex."User Scans" < 1 then
+                    Rules += 'never used;';
+            until MissingIndex.Next() = 0;
+        Observer.Observe('rules broken', Rules);
+        Observer.Expect('rules broken', '');
+        Observer.Verify();
     end;
 }
