@@ -428,7 +428,7 @@ codeunit 92381 "LT Y36 BRM Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
-        Start();
+        L.Take();
         asserterror Report.Run(Report::"LT Y36 BRM D", true);
         Observer.Observe('code', GetLastErrorCode());
         Observer.Observe('log', L.Take());
@@ -441,7 +441,7 @@ codeunit 92381 "LT Y36 BRM Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
-        Start();
+        L.Take();
         asserterror Report.Run(Report::"LT Y36 BRM A");
         Observer.Observe('code', GetLastErrorCode());
         Observer.Observe('log', L.Take());
