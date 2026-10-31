@@ -133,4 +133,114 @@ codeunit 68075 "W4 RecRef Get Tests"
         Observer.Expect('missing', 'ok found=No');
         Observer.Verify();
     end;
+
+    // Writer Y30 (2026-10-31): RecordRef.SystemIdNo on a RecordRef that is not open (never opened, after Close, after Clear),
+    // and the state after RecordRef.Get(RecordId) on such a RecordRef (Number, Name, IsEmpty, SystemIdNo), for an existing and a
+    // missing row.
+    [TryFunction]
+    local procedure Y30TrySystemIdNo(var RR: RecordRef; var No: Integer)
+    begin
+        No := RR.SystemIdNo();
+    end;
+
+    local procedure Y30SystemIdNo(var RR: RecordRef): Text
+    var
+        No: Integer;
+    begin
+        ClearLastError();
+        if Y30TrySystemIdNo(RR, No) then
+            exit('ok ' + Format(No));
+        exit('error:' + GetLastErrorText() + '|' + GetLastErrorCode());
+    end;
+
+    [TryFunction]
+    local procedure Y30TryIsEmpty(var RR: RecordRef; var Empty: Boolean)
+    begin
+        Empty := RR.IsEmpty();
+    end;
+
+    local procedure Y30IsEmpty(var RR: RecordRef): Text
+    var
+        Empty: Boolean;
+    begin
+        ClearLastError();
+        if Y30TryIsEmpty(RR, Empty) then
+            exit('ok ' + Format(Empty));
+        exit('error:' + GetLastErrorText() + '|' + GetLastErrorCode());
+    end;
+
+    local procedure Y30State(var RR: RecordRef): Text
+    begin
+        exit('number=' + Format(RR.Number()) + ' sysid=' + Y30SystemIdNo(RR) + ' isempty=' + Y30IsEmpty(RR));
+    end;
+
+    [Test]
+    procedure Y30_SystemIdNo_NotOpen()
+    var
+        RR: RecordRef;
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        Observer.Observe('never_opened', Y30SystemIdNo(RR));
+        RR.Open(Database::"W4 RecRef Get Row");
+        Observer.Observe('open', Y30SystemIdNo(RR));
+        RR.Close();
+        Observer.Observe('after_close', Y30SystemIdNo(RR));
+        Observer.Observe('after_close_number', Format(RR.Number()));
+        RR.Open(Database::"W4 RecRef Get Row");
+        Clear(RR);
+        Observer.Observe('after_clear', Y30SystemIdNo(RR));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y30_GetRecordId_OnUnopened_State()
+    var
+        RR: RecordRef;
+        Found: Boolean;
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        Observer.Observe('existing', Outcome(TryGet(RR, IdOf(1), Found), Found));
+        Observer.Observe('existing_state', Y30State(RR) + ' name=' + RR.Name() + ' info=' + Format(RR.Field(2).Value()));
+        Clear(RR);
+        Observer.Observe('missing', Outcome(TryGet(RR, IdOf(99), Found), Found));
+        Observer.Observe('missing_state', Y30State(RR));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y30_GetRecordId_AfterClose_State()
+    var
+        RR: RecordRef;
+        Found: Boolean;
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        RR.Open(Database::"W4 RecRef Get Row");
+        RR.Close();
+        Observer.Observe('existing', Outcome(TryGet(RR, IdOf(1), Found), Found));
+        Observer.Observe('existing_state', Y30State(RR) + ' info=' + Format(RR.Field(2).Value()));
+        RR.Close();
+        Observer.Observe('missing', Outcome(TryGet(RR, IdOf(99), Found), Found));
+        Observer.Observe('missing_state', Y30State(RR));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y30_GetRecordId_Missing_OnEmptyTable()
+    var
+        R: Record "W4 RecRef Get Row";
+        RR: RecordRef;
+        Found: Boolean;
+        Observer: Codeunit "Probe Observer";
+    begin
+        R.DeleteAll();
+        Observer.Observe('missing', Outcome(TryGet(RR, IdOf(1), Found), Found));
+        Observer.Observe('missing_state', Y30State(RR));
+        RR.Open(Database::"W4 RecRef Get Row");
+        Observer.Observe('opened_missing', Outcome(TryGet(RR, IdOf(1), Found), Found));
+        Observer.Observe('opened_missing_state', Y30State(RR));
+        Observer.Finish();
+    end;
 }
