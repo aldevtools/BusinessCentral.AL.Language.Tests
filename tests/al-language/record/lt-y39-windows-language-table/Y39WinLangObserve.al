@@ -123,4 +123,28 @@ codeunit 92700 "LT Y39 WinLang Observe"
     begin
         Error('Y39OBS:%1', Chunk(201, 220));
     end;
+
+    [Test]
+    procedure Y39Obs_Chunk12()
+    begin
+        Error('Y39OBS:%1', Chunk(221, 240));
+    end;
+
+    [Test]
+    procedure Y39Obs_Chunk13()
+    begin
+        Error('Y39OBS:%1', Chunk(241, 260));
+    end;
+
+    [Test]
+    procedure Y39Obs_Chunk14()
+    begin
+        Error('Y39OBS:%1', Chunk(261, 280));
+    end;
+
+    [Test]
+    procedure Y39Obs_Chunk15()
+    begin
+        Error('Y39OBS:%1', Chunk(281, 300));
+    end;
 }
