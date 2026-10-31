@@ -68,6 +68,8 @@ codeunit 92579 "LT Y38 TF XApp Tests"
             RecRef.Field(33).Value := 1.5;
         if RecRef.FieldExist(40) then
             RecRef.Field(40).Value := 2.5;
+        if RecRef.FieldExist(41) then
+            RecRef.Field(41).Value := 'KEEP';
         if Insert then
             RecRef.Insert();
         RecRef.Close();
@@ -86,7 +88,7 @@ codeunit 92579 "LT Y38 TF XApp Tests"
         end;
     end;
 
-    // Seeds row T1 (CustNo OLD, 1.5 in field 33 and 2.5 in field 40 where they are Decimal) inserted or only in memory, transfers, and
+    // Seeds row T1 (CustNo OLD, 1.5 in field 33 and 2.5 in field 40 where they are Decimal, KEEP in field 41 where it is Text[5]) inserted or only in memory, transfers, and
     // answers the outcome, the target in memory and (Inserted) the stored row read again.
     local procedure RunXa(Mode: Integer; Flag: Boolean; CodValue: Code[10]; Inserted: Boolean; ModifyAfter: Boolean): Text
     var
@@ -127,7 +129,7 @@ codeunit 92579 "LT Y38 TF XApp Tests"
         end;
     end;
 
-    // Seeds row T1 (CustNo OLD, 1.5 in field 33 and 2.5 in field 40 where they are Decimal) inserted or only in memory, transfers, and
+    // Seeds row T1 (CustNo OLD, 1.5 in field 33 and 2.5 in field 40 where they are Decimal, KEEP in field 41 where it is Text[5]) inserted or only in memory, transfers, and
     // answers the outcome, the target in memory and (Inserted) the stored row read again.
     local procedure RunSame(Mode: Integer; Flag: Boolean; CodValue: Code[10]; Inserted: Boolean; ModifyAfter: Boolean): Text
     var
@@ -168,7 +170,7 @@ codeunit 92579 "LT Y38 TF XApp Tests"
         end;
     end;
 
-    // Seeds row T1 (CustNo OLD, 1.5 in field 33 and 2.5 in field 40 where they are Decimal) inserted or only in memory, transfers, and
+    // Seeds row T1 (CustNo OLD, 1.5 in field 33 and 2.5 in field 40 where they are Decimal, KEEP in field 41 where it is Text[5]) inserted or only in memory, transfers, and
     // answers the outcome, the target in memory and (Inserted) the stored row read again.
     local procedure RunP33(Mode: Integer; Flag: Boolean; CodValue: Code[10]; Inserted: Boolean; ModifyAfter: Boolean): Text
     var
@@ -209,7 +211,7 @@ codeunit 92579 "LT Y38 TF XApp Tests"
         end;
     end;
 
-    // Seeds row T1 (CustNo OLD, 1.5 in field 33 and 2.5 in field 40 where they are Decimal) inserted or only in memory, transfers, and
+    // Seeds row T1 (CustNo OLD, 1.5 in field 33 and 2.5 in field 40 where they are Decimal, KEEP in field 41 where it is Text[5]) inserted or only in memory, transfers, and
     // answers the outcome, the target in memory and (Inserted) the stored row read again.
     local procedure RunP40(Mode: Integer; Flag: Boolean; CodValue: Code[10]; Inserted: Boolean; ModifyAfter: Boolean): Text
     var
@@ -250,7 +252,7 @@ codeunit 92579 "LT Y38 TF XApp Tests"
         end;
     end;
 
-    // Seeds row T1 (CustNo OLD, 1.5 in field 33 and 2.5 in field 40 where they are Decimal) inserted or only in memory, transfers, and
+    // Seeds row T1 (CustNo OLD, 1.5 in field 33 and 2.5 in field 40 where they are Decimal, KEEP in field 41 where it is Text[5]) inserted or only in memory, transfers, and
     // answers the outcome, the target in memory and (Inserted) the stored row read again.
     local procedure RunP41(Mode: Integer; Flag: Boolean; CodValue: Code[10]; Inserted: Boolean; ModifyAfter: Boolean): Text
     var
@@ -291,7 +293,7 @@ codeunit 92579 "LT Y38 TF XApp Tests"
         end;
     end;
 
-    // Seeds row T1 (CustNo OLD, 1.5 in field 33 and 2.5 in field 40 where they are Decimal) inserted or only in memory, transfers, and
+    // Seeds row T1 (CustNo OLD, 1.5 in field 33 and 2.5 in field 40 where they are Decimal, KEEP in field 41 where it is Text[5]) inserted or only in memory, transfers, and
     // answers the outcome, the target in memory and (Inserted) the stored row read again.
     local procedure RunP42(Mode: Integer; Flag: Boolean; CodValue: Code[10]; Inserted: Boolean; ModifyAfter: Boolean): Text
     var
@@ -332,7 +334,7 @@ codeunit 92579 "LT Y38 TF XApp Tests"
         end;
     end;
 
-    // Seeds row T1 (CustNo OLD, 1.5 in field 33 and 2.5 in field 40 where they are Decimal) inserted or only in memory, transfers, and
+    // Seeds row T1 (CustNo OLD, 1.5 in field 33 and 2.5 in field 40 where they are Decimal, KEEP in field 41 where it is Text[5]) inserted or only in memory, transfers, and
     // answers the outcome, the target in memory and (Inserted) the stored row read again.
     local procedure RunP43(Mode: Integer; Flag: Boolean; CodValue: Code[10]; Inserted: Boolean; ModifyAfter: Boolean): Text
     var
@@ -373,7 +375,7 @@ codeunit 92579 "LT Y38 TF XApp Tests"
         end;
     end;
 
-    // Seeds row T1 (CustNo OLD, 1.5 in field 33 and 2.5 in field 40 where they are Decimal) inserted or only in memory, transfers, and
+    // Seeds row T1 (CustNo OLD, 1.5 in field 33 and 2.5 in field 40 where they are Decimal, KEEP in field 41 where it is Text[5]) inserted or only in memory, transfers, and
     // answers the outcome, the target in memory and (Inserted) the stored row read again.
     local procedure RunP44(Mode: Integer; Flag: Boolean; CodValue: Code[10]; Inserted: Boolean; ModifyAfter: Boolean): Text
     var
@@ -414,7 +416,7 @@ codeunit 92579 "LT Y38 TF XApp Tests"
         end;
     end;
 
-    // Seeds row T1 (CustNo OLD, 1.5 in field 33 and 2.5 in field 40 where they are Decimal) inserted or only in memory, transfers, and
+    // Seeds row T1 (CustNo OLD, 1.5 in field 33 and 2.5 in field 40 where they are Decimal, KEEP in field 41 where it is Text[5]) inserted or only in memory, transfers, and
     // answers the outcome, the target in memory and (Inserted) the stored row read again.
     local procedure RunP45(Mode: Integer; Flag: Boolean; CodValue: Code[10]; Inserted: Boolean; ModifyAfter: Boolean): Text
     var
@@ -533,6 +535,15 @@ codeunit 92579 "LT Y38 TF XApp Tests"
         Observer.Observe('p40', RunP40(1, true, 'ABC', true, false));
         Observer.Observe('p41', RunP41(1, true, 'ABC', true, false));
         Observer.Observe('p42', RunP42(1, true, 'ABC', true, false));
+        Observer.Finish();
+    end;
+
+    // As SA_TF_Pairs_NoSkip, the other pairs.
+    [Test]
+    procedure SA_TF_Pairs_NoSkip_2()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Observer.Observe('p43', RunP43(1, true, 'ABC', true, false));
         Observer.Observe('p44', RunP44(1, true, 'ABC', true, false));
         Observer.Observe('p45', RunP45(1, true, 'ABC', true, false));

@@ -276,33 +276,9 @@ codeunit 92586 "LT Y38 DK Tests"
         Observer.Finish();
     end;
 
-    // D4: nothing reads T after the duplicate; the test ends. The outcome of the test is the observation.
-    [Test]
-    procedure DK_AfterEvent_Statement_TestEnd()
-    begin
-        Prep(true);
-        InsertDupT('dup', true);
-    end;
-
-    // D4b: as D4 without the Commit after the seed (the DbtEvents shape: seed and duplicate in one transaction).
-    [Test]
-    procedure DK_AfterEvent_Statement_TestEnd_NoCommit()
-    begin
-        Prep(false);
-        InsertDupT('dup', true);
-    end;
-
-    // D4c: the control: table U (no After subscriber), nothing reads U afterwards, the test ends.
-    [Test]
-    procedure DK_NoEvent_Statement_TestEnd()
-    var
-        U: Record "LT Y38 DK U";
-    begin
-        Prep(true);
-        U.Id := 1;
-        U.Name := 'dup';
-        U.Insert(true);
-    end;
+    // D4 (not a corpus case: the test fails on BC): when nothing reads the table after the duplicate and the test ends, the test fails with
+    // 'The record in table LT Y38 DK T already exists. Identification fields and values: Id='1'', with or without a Commit after the seed,
+    // the same as for table U, which has no After subscriber (BC 29 SaaS sandbox, 2026-10-31).
 
     // D5: the After subscriber reads T itself (Count of another T variable).
     [Test]
