@@ -5,7 +5,7 @@
 // Probe (writer Y43, gap cycle 4, G4-11 shape B): Report.Run(Id, true, SystemPrinter, Rec) of a report with an RDLC layout whose request page
 //   handler sets a data item filter and calls SaveAsXml: the outcome, the triggers that ran, and the report data file, with SystemPrinter
 //   true and with false in the same test. Only the data file is read (the parameters file holds the execution time).
-// Probe: values recorded on the corpus CI containers (OnPrem legs).
+// Probe: values recorded on the corpus CI containers (OnPrem legs 27.5, 28.5, 29.0: identical).
 
 codeunit 98690 "LT Y43 SPX Log"
 {
@@ -223,7 +223,12 @@ codeunit 98692 "LT Y43 SPX Tests"
         Observer.Observe('start', CopyStr(Data, 1, StrPos(Data, '<xs:schema') - 1));
         Observer.Observe('elements', Elements(Data));
         Observer.Observe('rows', Rows(Data));
-        Observer.Finish();
+        Observer.Expect('systemPrinterTrue', 'ok / rp;pre;pre-di No.: A|B;row A;row B;post;');
+        Observer.Expect('bom', 'Yes');
+        Observer.Expect('start', '<?xml version="1.0" standalone="yes"?>|<DataSet>|  ');
+        Observer.Expect('elements', 'NewDataSet Result NoCol AmountCol AmountColFormat ');
+        Observer.Expect('rows', '|  <Result>|    <NoCol>A</NoCol>|    <AmountCol>1</AmountCol>|    <AmountColFormat>#,##0.00</AmountColFormat>|  </Result>|  <Result>|    <NoCol>B</NoCol>|    <AmountCol>2</AmountCol>|    <AmountColFormat>#,##0.00</AmountColFormat>|  </Result>|</DataSet>|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -239,6 +244,9 @@ codeunit 98692 "LT Y43 SPX Tests"
         DataTrue := ReadData(HadBom);
         Observer.Observe('systemPrinterFalse', Outcome(false));
         Observer.Observe('dataSame', Format(ReadData(HadBom) = DataTrue));
-        Observer.Finish();
+        Observer.Expect('systemPrinterTrue', 'ok / rp;pre;pre-di No.: A|B;row A;row B;post;');
+        Observer.Expect('systemPrinterFalse', 'ok / rp;pre;pre-di No.: A|B;row A;row B;post;');
+        Observer.Expect('dataSame', 'Yes');
+        Observer.Verify();
     end;
 }
