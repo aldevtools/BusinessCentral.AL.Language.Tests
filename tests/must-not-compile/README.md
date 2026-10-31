@@ -652,4 +652,5 @@ BC container. Run locally with the tools in `~/.al-tool-cache` it passes today w
 | 2321 | AL1043 | app.json `"runtime": "99.0"` (writer Y10). |
 | 2330, 2331 | AL0301 | a Label declaration with a trailing comma after a property (`Locked = true,;`, `Comment = 'c',;`); a comma right after the text compiles: tests/al-language/text/lt-label-textbuilder/TxCLabel.al (writer Y12). |
 | 2332 | AL0107 | a Label declaration with two commas after the text (`'T',,;`) (writer Y12). |
+| 2333, 2334 | AL0305 | a permission set with `Assignable = false` / no `Assignable` and a 31-character name: "cannot exceed 30 characters" (21 to 30 compile: tests/al-language/permissions/lt-y12-permset-name-length/Y12PermSetNames.al; `Assignable = true` is limited to 20, case 2131) (writer Y12). |
 | - | - | app.json `"runtime"` values the AL 30.0.43 compiler accepts (no case possible here): `" 14.0"`, `"14.0 "`, `"16.01"`, `""` and `"30.0"` (writer Y10). |
