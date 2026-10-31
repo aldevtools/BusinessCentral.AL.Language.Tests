@@ -14,6 +14,12 @@
 /// 'log' is the order in which the trigger and the events ran (kept in memory, an asserterror does not undo it); 'marks' the rows the
 /// trigger and the subscribers inserted into the mark table (in the database), read after the Delete; 'stored' Description|Quantity of
 /// row A read back, 'rows' the row count.
+/// Measured (BC 29 SaaS sandbox and the CI legs): the Delete SUCCEEDS (row gone) with 0 Commits, with 1 Commit and nothing after it,
+/// and with 1, 2 or 3 Commits when the other variable modified the row in the new transaction. Order: OnBeforeDeleteEvent, then OnDelete
+/// (Delete(true) only), then OnAfterDeleteEvent; RunTrigger is passed to both events. With 2 or 3 Commits and nothing in the new
+/// transaction (the reporter's shape: the other variable's write was committed), the Delete FAILS with DB:RecordChanged, the same text as
+/// a stale Modify. The check falls AFTER OnBeforeDeleteEvent and AFTER the OnDelete trigger: both run before the error, OnAfterDeleteEvent
+/// does not. What they wrote to the database is rolled back with the failed Delete (no marks after asserterror); the row stays as committed.
 /// </summary>
 codeunit 92335 "LT Y32 Stale Delete"
 {
@@ -300,7 +306,12 @@ codeunit 92335 "LT Y32 Stale Delete"
     begin
         Y32InsertStale(Row, 1, false);
         Y32StaleDelete(Row, false, true, Observer);
-        Observer.Finish();
+        Observer.Expect('delete', 'ok');
+        Observer.Expect('log', 'OnBeforeDeleteEvent(No);OnAfterDeleteEvent(No);');
+        Observer.Expect('marks', 'before;after;');
+        Observer.Expect('stored', 'missing');
+        Observer.Expect('rows', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -311,7 +322,12 @@ codeunit 92335 "LT Y32 Stale Delete"
     begin
         Y32InsertStale(Row, 1, false);
         Y32StaleDelete(Row, true, true, Observer);
-        Observer.Finish();
+        Observer.Expect('delete', 'ok');
+        Observer.Expect('log', 'OnBeforeDeleteEvent(Yes);OnDelete;OnAfterDeleteEvent(Yes);');
+        Observer.Expect('marks', 'before;trigger;after;');
+        Observer.Expect('stored', 'missing');
+        Observer.Expect('rows', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -322,7 +338,12 @@ codeunit 92335 "LT Y32 Stale Delete"
     begin
         Y32InsertStale(Row, 1, false);
         Y32StaleDelete(Row, false, false, Observer);
-        Observer.Finish();
+        Observer.Expect('delete', 'ok');
+        Observer.Expect('log', '');
+        Observer.Expect('marks', '');
+        Observer.Expect('stored', 'missing');
+        Observer.Expect('rows', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -333,7 +354,12 @@ codeunit 92335 "LT Y32 Stale Delete"
     begin
         Y32InsertStale(Row, 1, false);
         Y32StaleDelete(Row, true, false, Observer);
-        Observer.Finish();
+        Observer.Expect('delete', 'ok');
+        Observer.Expect('log', 'OnDelete;');
+        Observer.Expect('marks', 'trigger;');
+        Observer.Expect('stored', 'missing');
+        Observer.Expect('rows', '0');
+        Observer.Verify();
     end;
 
     [Test]
