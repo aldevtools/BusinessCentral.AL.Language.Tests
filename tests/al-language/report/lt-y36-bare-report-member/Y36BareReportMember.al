@@ -148,71 +148,6 @@ report 92378 "LT Y36 BRM B"
     end;
 }
 
-report 92382 "LT Y36 BRM C"
-{
-    ProcessingOnly = true;
-
-    dataset
-    {
-        dataitem(Row; "LT Y36 BRM Row")
-        {
-        }
-    }
-
-    requestpage
-    {
-        layout
-        {
-            area(Content)
-            {
-                field(FlagCtl; Flag)
-                {
-                    ApplicationArea = All;
-                    Caption = 'Flag';
-                }
-            }
-        }
-    }
-
-    trigger OnPreReport()
-    begin
-        L.Add('C pre bare=' + Format(UseRequestPage()));
-    end;
-
-    var
-        Flag: Boolean;
-        L: Codeunit "LT Y36 BRM Log";
-}
-
-report 92383 "LT Y36 BRM D"
-{
-    ProcessingOnly = true;
-
-    requestpage
-    {
-        layout
-        {
-            area(Content)
-            {
-                field(FlagCtl; Flag)
-                {
-                    ApplicationArea = All;
-                    Caption = 'Flag';
-                }
-            }
-        }
-    }
-
-    trigger OnPreReport()
-    begin
-        L.Add('D pre bare=' + Format(UseRequestPage()));
-    end;
-
-    var
-        Flag: Boolean;
-        L: Codeunit "LT Y36 BRM Log";
-}
-
 reportextension 92380 "LT Y36 BRM A Ext" extends "LT Y36 BRM A"
 {
     procedure ExtGetUseRp(): Boolean
@@ -317,13 +252,24 @@ codeunit 92381 "LT Y36 BRM Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
-        Start();
-        asserterror Report.Run(Report::"LT Y36 BRM A", true);
-        Observer.Observe('static_run_true_code', GetLastErrorCode());
-        Observer.Observe('static_run_true_text', GetLastErrorText());
-        Observer.Observe('static_run_true_stack', GetLastErrorCallStack());
-        Observer.Observe('log_static_run_true', L.Take());
+        // No write before the run: after an uncommitted insert in the test, Report.Run(id, true) raises DB:Ok "An error occurred and the
+        // transaction is stopped. ..." before the request page opens and the handler is not called (measured on the 27.5, 28.5 and 29.0
+        // CI containers and on the Windows 28.5 container). The rows that earlier tests left are not logged (WithoutRows).
+        L.Take();
+        Report.Run(Report::"LT Y36 BRM A", true);
+        Observer.Observe('log_static_run_true', WithoutRows(L.Take()));
         Observer.Finish();
+    end;
+
+    local procedure WithoutRows(Log: Text): Text
+    var
+        Entry: Text;
+        Result: Text;
+    begin
+        foreach Entry in Log.Split(';') do
+            if (Entry <> '') and not Entry.StartsWith('row ') then
+                Result += Entry + ';';
+        exit(Result);
     end;
 
     [Test]
@@ -407,59 +353,6 @@ codeunit 92381 "LT Y36 BRM Tests"
         Observer.Expect('run_after_bare_settableview', 'Yes');
         Observer.Expect('log_run_after_bare_settableview', 'pre bare=No curr=No;pre other objectid=Yes Report 92377 readonly=No/No language=Yes region=Yes onlyifdetail=No/No;row 2;');
         Observer.Verify();
-    end;
-
-    [Test]
-    [HandlerFunctions('Y36RequestPageC')]
-    procedure Y36_Diag_C()
-    var
-        Observer: Codeunit "Probe Observer";
-    begin
-        Start();
-        asserterror Report.Run(Report::"LT Y36 BRM C", true);
-        Observer.Observe('code', GetLastErrorCode());
-        Observer.Observe('log', L.Take());
-        Observer.Finish();
-    end;
-
-    [Test]
-    [HandlerFunctions('Y36RequestPageD')]
-    procedure Y36_Diag_D()
-    var
-        Observer: Codeunit "Probe Observer";
-    begin
-        L.Take();
-        asserterror Report.Run(Report::"LT Y36 BRM D", true);
-        Observer.Observe('code', GetLastErrorCode());
-        Observer.Observe('log', L.Take());
-        Observer.Finish();
-    end;
-
-    [Test]
-    [HandlerFunctions('Y36RequestPageA')]
-    procedure Y36_Diag_A_NoArg()
-    var
-        Observer: Codeunit "Probe Observer";
-    begin
-        L.Take();
-        asserterror Report.Run(Report::"LT Y36 BRM A");
-        Observer.Observe('code', GetLastErrorCode());
-        Observer.Observe('log', L.Take());
-        Observer.Finish();
-    end;
-
-    [RequestPageHandler]
-    procedure Y36RequestPageC(var RP: TestRequestPage "LT Y36 BRM C")
-    begin
-        L.Add('rpC');
-        RP.OK().Invoke();
-    end;
-
-    [RequestPageHandler]
-    procedure Y36RequestPageD(var RP: TestRequestPage "LT Y36 BRM D")
-    begin
-        L.Add('rpD');
-        RP.OK().Invoke();
     end;
 
     [RequestPageHandler]
