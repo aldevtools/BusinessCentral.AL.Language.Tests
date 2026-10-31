@@ -3,7 +3,7 @@
 // Fixtures used: none (own objects below; log 91844 is used only by test codeunit 91849)
 // Probe: gap cycle 1, G10 (corpus writer Y17). Objects for Y17ExtSetTableViewTests.al: a processing-only report RB (Req over H > Base over BL)
 // and a reportextension RX that adds, after Base, an item XH over PH (linked to Req) with a nested XL over PL (the Get Source Documents /
-// Serv. Get Source Documents shape); a second report RB2 whose extension adds a top-level item (addafter the only top item).
+// Serv. Get Source Documents shape). A top-level added item does not compile (AL0680): tests/must-not-compile/cases/2340.
 // BC versions: 27-29
 
 table 91840 "LT Y17 Ext H"
@@ -159,56 +159,6 @@ reportextension 91846 "LT Y17 Ext RX" extends "LT Y17 Ext RB"
                 trigger OnAfterGetRecord()
                 begin
                     XLog.Add('XH:' + Format(XH.Subtype) + '/' + XH."No." + '/' + XH.Cust);
-                end;
-            }
-        }
-    }
-
-    var
-        XLog: Codeunit "LT Y17 Ext Log";
-}
-
-report 91847 "LT Y17 Ext RB2"
-{
-    ProcessingOnly = true;
-    UseRequestPage = false;
-
-    dataset
-    {
-        dataitem(Req2; "LT Y17 Ext H")
-        {
-            trigger OnPreDataItem()
-            begin
-                Log.Add('pre Req2 [' + Req2.GetFilters() + ']');
-            end;
-
-            trigger OnAfterGetRecord()
-            begin
-                Log.Add('Req2:' + Req2."No.");
-            end;
-        }
-    }
-
-    var
-        Log: Codeunit "LT Y17 Ext Log";
-}
-
-reportextension 91848 "LT Y17 Ext RX2" extends "LT Y17 Ext RB2"
-{
-    dataset
-    {
-        addafter(Req2)
-        {
-            dataitem(XT; "LT Y17 Ext PH")
-            {
-                trigger OnPreDataItem()
-                begin
-                    XLog.Add('pre XT [' + XT.GetFilters() + ']');
-                end;
-
-                trigger OnAfterGetRecord()
-                begin
-                    XLog.Add('XT:' + Format(XT.Subtype) + '/' + XT."No." + '/' + XT.Cust);
                 end;
             }
         }

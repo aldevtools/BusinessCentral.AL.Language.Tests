@@ -3,7 +3,7 @@
 // Fixtures used: Probe Observer (codeunit 69160); objects of Y17ExtSetTableViewObjects.al
 // Probe: gap cycle 1, G10 (corpus writer Y17). Report.SetTableView with a record whose table only a data item added by a reportextension uses:
 // does the view reach the added item, how it combines with the item's DataItemLink and DataItemTableView, with no rows, a filter on the link
-// field, the key of the view, an item added at the top level, and a temporary record. Log: pre <item> [GetFilters] and <item>:<key> per row.
+// field, the key of the view, and a temporary record (an item added at the top level does not compile: must-not-compile case 2340). Log: pre <item> [GetFilters] and <item>:<key> per row.
 // BC versions: 27-29
 
 codeunit 91849 "LT Y17 Ext SetTableView Tests"
@@ -155,29 +155,6 @@ codeunit 91849 "LT Y17 Ext SetTableView Tests"
         PH.SetFilter(Cust, 'C1|C2');
         Rpt.SetTableView(PH);
         RunAndObserve(Observer, Rpt);
-        Observer.Finish();
-    end;
-
-    [TryFunction]
-    local procedure TryRun2(var Rpt: Report "LT Y17 Ext RB2")
-    begin
-        Rpt.Run();
-    end;
-
-    [Test]
-    procedure ExtItem_TopLevel()
-    var
-        Observer: Codeunit "Probe Observer";
-        PH: Record "LT Y17 Ext PH";
-        Rpt: Report "LT Y17 Ext RB2";
-    begin
-        Seed();
-        PH.SetFilter(Cust, 'C1');
-        Rpt.SetTableView(PH);
-        ClearLastError();
-        Observer.Observe('run ok', Format(TryRun2(Rpt)));
-        Observer.ObserveError('run');
-        Observer.Observe('log', Log.Take());
         Observer.Finish();
     end;
 
