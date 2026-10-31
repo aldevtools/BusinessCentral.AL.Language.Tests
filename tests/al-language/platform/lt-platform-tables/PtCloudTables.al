@@ -621,7 +621,7 @@ codeunit 67107 "LT PT Cloud Tables"
     var
         Observer: Codeunit "Probe Observer";
     begin
-        Standard(Observer, 2000000249, '1=91874;2=Y17Body;3=;4=' + Y17Part('Y17HF') + ';5=' + Y17Part('Y17Theme'), '1=91874;2=Y17Body;3=', '4=');
+        Standard(Observer, 2000000249, '1=91874;2=' + Y17Part('Y17Body') + ';3=;4=' + Y17Part('Y17HF') + ';5=' + Y17Part('Y17Theme'), '1=91874;2=' + Y17Part('Y17Body') + ';3=', '4=');
         Observer.Finish();
     end;
 
@@ -683,34 +683,42 @@ codeunit 67107 "LT PT Cloud Tables"
         Text1: Text;
         HF: Text;
         Th: Text;
+        DHF: Text;
+        DTh: Text;
     begin
         HF := Y17Part('Y17HF');
         Th := Y17Part('Y17Theme');
-        Layouts.SetRange("Report ID", 91874);
+        DHF := Y17Part('Y17DefHF');
+        DTh := Y17Part('Y17DefTheme');
+        Layouts.SetFilter("Report ID", '%1|%2', 91874, 2000000001);
+        Layouts.SetFilter(Name, 'Y17*');
         if Layouts.FindSet() then
             repeat
-                Text1 += Layouts.Name + '|' + Format(Layouts."Layout Format") + '|' + Format(Layouts."Layout Subtype") + ';';
+                Text1 += Format(Layouts."Report ID") + '|' + Layouts.Name + '|' + Format(Layouts."Layout Format") + '|' + Format(Layouts."Layout Subtype") + ';';
             until Layouts.Next() = 0;
         Observer.Observe('part layouts', Text1);
         Observer.Observe('fresh rows', Format(Cfg.Count()));
         Cfg.DeleteAll();
         Y17Try(Observer, 'invalid header part', Y17TryInsertCfg(0, '', '', 'x::A', 'y::B'));
-        Y17Try(Observer, 'header part of the theme subtype', Y17TryInsertCfg(0, '', '', Th, Th));
-        Y17Try(Observer, 'global default', Y17TryInsertCfg(0, '', '', HF, Th));
-        Y17Try(Observer, 'current company', Y17TryInsertCfg(0, '', CopyStr(CompanyName(), 1, 30), HF, ''));
-        Y17Try(Observer, 'report level', Y17TryInsertCfg(91874, '', '', HF, Th));
-        Y17Try(Observer, 'body layout', Y17TryInsertCfg(91874, 'Y17Body', '', HF, ''));
-        Y17Try(Observer, 'default subtype layout', Y17TryInsertCfg(91873, 'Rdl', '', HF, Th));
-        Y17Try(Observer, 'unknown report', Y17TryInsertCfg(99999990, '', '', HF, Th));
-        Y17Try(Observer, 'undeclared layout', Y17TryInsertCfg(91874, 'NoSuchLayout', '', HF, Th));
-        Y17Try(Observer, 'duplicate', Y17TryInsertCfg(0, '', '', HF, Th));
+        Y17Try(Observer, 'header part of the theme subtype', Y17TryInsertCfg(0, '', '', DTh, DTh));
+        Y17Try(Observer, 'global default, parts of an ordinary report', Y17TryInsertCfg(0, '', '', HF, Th));
+        Y17Try(Observer, 'global default', Y17TryInsertCfg(0, '', '', DHF, DTh));
+        Y17Try(Observer, 'current company', Y17TryInsertCfg(0, '', CopyStr(CompanyName(), 1, 30), DHF, ''));
+        Y17Try(Observer, 'report level, own parts', Y17TryInsertCfg(91874, '', '', HF, Th));
+        Y17Try(Observer, 'report level, default parts', Y17TryInsertCfg(91873, '', '', DHF, DTh));
+        Y17Try(Observer, 'body layout by plain name', Y17TryInsertCfg(91874, 'Y17Body', '', HF, ''));
+        Y17Try(Observer, 'body layout by composite name', Y17TryInsertCfg(91874, CopyStr(Y17Part('Y17Body'), 1, 250), '', HF, ''));
+        Y17Try(Observer, 'default subtype layout', Y17TryInsertCfg(91873, CopyStr(Y17Part('Rdl'), 1, 250), '', DHF, DTh));
+        Y17Try(Observer, 'unknown report', Y17TryInsertCfg(99999990, '', '', DHF, DTh));
+        Y17Try(Observer, 'undeclared layout', Y17TryInsertCfg(91874, CopyStr(Y17Part('NoSuchLayout'), 1, 250), '', HF, Th));
+        Y17Try(Observer, 'duplicate', Y17TryInsertCfg(0, '', '', DHF, DTh));
         Observer.Observe('rows', Y17CfgRows());
         Cfg.SetRange("Header Part Name", HF);
         Observer.Observe('count header', Format(Cfg.Count()));
         Y17Try(Observer, 'modifyall header blank', Y17TryModifyAll(Cfg));
         Cfg.Reset();
         Observer.Observe('rows after modifyall', Y17CfgRows());
-        Observer.Observe('get current company', Format(Cfg.Get(0, '', CompanyName())) + '|' + Y17Shorten(Cfg."Header Part Name") + '|' + Y17Shorten(Cfg."Theme Part Name"));
+        Observer.Observe('get current company', Format(Cfg.Get(0, '', CopyStr(CompanyName(), 1, 30))) + '|' + Y17Shorten(Cfg."Header Part Name") + '|' + Y17Shorten(Cfg."Theme Part Name"));
         Cfg.DeleteAll();
         Observer.Finish();
     end;
@@ -753,6 +761,26 @@ report 91874 "LT Y17 Composite Parts"
             Type = Word;
             Subtype = Theme;
             LayoutFile = './LtY17Theme.dotx';
+        }
+    }
+}
+
+// Header/footer and theme parts on the platform report "Tenant Report Defaults" (2000000001), where Microsoft's composite layout parts live.
+reportextension 91875 "LT Y17 Default Parts" extends "Tenant Report Defaults"
+{
+    rendering
+    {
+        layout(Y17DefHF)
+        {
+            Type = Word;
+            Subtype = HeaderFooter;
+            LayoutFile = './LtY17DefHF.docx';
+        }
+        layout(Y17DefTheme)
+        {
+            Type = Word;
+            Subtype = Theme;
+            LayoutFile = './LtY17DefTheme.dotx';
         }
     }
 }
