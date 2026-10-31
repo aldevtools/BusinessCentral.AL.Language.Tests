@@ -8,6 +8,9 @@
 //   Copy of the rows (platform/lt-wc/WcFieldRowCopy.al:53). App Package ID and App Runtime Package ID change with every publish: they are
 //   compared with the ones of field 1 of the same table, not shown.
 // BC versions: 27.5, 28.5, 29.0 (the four rows exist on BC 29)
+// Measured on the CI containers and a BC 29 SaaS sandbox (same values): on BC 29 the four rows are FlowFields of Type Text, Len 50/80,
+//   Enabled, Type Name Text50/Text80, Field Caption 'Created By (User Name)' and so on, DataClassification SystemMetadata, all other columns
+//   blank or zero; their package ids equal field 1's for Customer but not for an own table. On BC 27.5 and 28.5 they do not exist.
 
 table 92356 "LT Y35 UN Table"
 {
@@ -80,14 +83,36 @@ codeunit 92357 "LT Y35 UN Field Rows"
     procedure C305_UserNameFieldRows_OwnTable()
     begin
         ObserveRows(Database::"LT Y35 UN Table");
-        Observer.Finish();
+#if BC29PLUS
+        Observer.Expect('2000000005', 'TableNo=92356;No.=2000000005;TableName=LT Y35 UN Table;FieldName=SystemCreatedByUserName;Type=31488;Len=50;Class=1;Enabled=true;Type Name=Text50;ExternalName=;Field Caption=Created By (User Name);RelationTableNo=0;RelationFieldNo=0;SQLDataType=0;OptionString=;ObsoleteState=0;ObsoleteReason=;DataClassification=6;IsPartOfPrimaryKey=false;OptimizeForTextSearch=false;Access=0;IsAllowedInCustomizations=true;packages as field 1=No;');
+        Observer.Expect('2000000006', 'TableNo=92356;No.=2000000006;TableName=LT Y35 UN Table;FieldName=SystemCreatedByFullName;Type=31488;Len=80;Class=1;Enabled=true;Type Name=Text80;ExternalName=;Field Caption=Created By (Full Name);RelationTableNo=0;RelationFieldNo=0;SQLDataType=0;OptionString=;ObsoleteState=0;ObsoleteReason=;DataClassification=6;IsPartOfPrimaryKey=false;OptimizeForTextSearch=false;Access=0;IsAllowedInCustomizations=true;packages as field 1=No;');
+        Observer.Expect('2000000007', 'TableNo=92356;No.=2000000007;TableName=LT Y35 UN Table;FieldName=SystemModifiedByUserName;Type=31488;Len=50;Class=1;Enabled=true;Type Name=Text50;ExternalName=;Field Caption=Modified By (User Name);RelationTableNo=0;RelationFieldNo=0;SQLDataType=0;OptionString=;ObsoleteState=0;ObsoleteReason=;DataClassification=6;IsPartOfPrimaryKey=false;OptimizeForTextSearch=false;Access=0;IsAllowedInCustomizations=true;packages as field 1=No;');
+        Observer.Expect('2000000008', 'TableNo=92356;No.=2000000008;TableName=LT Y35 UN Table;FieldName=SystemModifiedByFullName;Type=31488;Len=80;Class=1;Enabled=true;Type Name=Text80;ExternalName=;Field Caption=Modified By (Full Name);RelationTableNo=0;RelationFieldNo=0;SQLDataType=0;OptionString=;ObsoleteState=0;ObsoleteReason=;DataClassification=6;IsPartOfPrimaryKey=false;OptimizeForTextSearch=false;Access=0;IsAllowedInCustomizations=true;packages as field 1=No;');
+#else
+        Observer.Expect('2000000005', 'not found');
+        Observer.Expect('2000000006', 'not found');
+        Observer.Expect('2000000007', 'not found');
+        Observer.Expect('2000000008', 'not found');
+#endif
+        Observer.Verify();
     end;
 
     [Test]
     procedure C305_UserNameFieldRows_Customer()
     begin
         ObserveRows(Database::Customer);
-        Observer.Finish();
+#if BC29PLUS
+        Observer.Expect('2000000005', 'TableNo=18;No.=2000000005;TableName=Customer;FieldName=SystemCreatedByUserName;Type=31488;Len=50;Class=1;Enabled=true;Type Name=Text50;ExternalName=;Field Caption=Created By (User Name);RelationTableNo=0;RelationFieldNo=0;SQLDataType=0;OptionString=;ObsoleteState=0;ObsoleteReason=;DataClassification=6;IsPartOfPrimaryKey=false;OptimizeForTextSearch=false;Access=0;IsAllowedInCustomizations=true;packages as field 1=Yes;');
+        Observer.Expect('2000000006', 'TableNo=18;No.=2000000006;TableName=Customer;FieldName=SystemCreatedByFullName;Type=31488;Len=80;Class=1;Enabled=true;Type Name=Text80;ExternalName=;Field Caption=Created By (Full Name);RelationTableNo=0;RelationFieldNo=0;SQLDataType=0;OptionString=;ObsoleteState=0;ObsoleteReason=;DataClassification=6;IsPartOfPrimaryKey=false;OptimizeForTextSearch=false;Access=0;IsAllowedInCustomizations=true;packages as field 1=Yes;');
+        Observer.Expect('2000000007', 'TableNo=18;No.=2000000007;TableName=Customer;FieldName=SystemModifiedByUserName;Type=31488;Len=50;Class=1;Enabled=true;Type Name=Text50;ExternalName=;Field Caption=Modified By (User Name);RelationTableNo=0;RelationFieldNo=0;SQLDataType=0;OptionString=;ObsoleteState=0;ObsoleteReason=;DataClassification=6;IsPartOfPrimaryKey=false;OptimizeForTextSearch=false;Access=0;IsAllowedInCustomizations=true;packages as field 1=Yes;');
+        Observer.Expect('2000000008', 'TableNo=18;No.=2000000008;TableName=Customer;FieldName=SystemModifiedByFullName;Type=31488;Len=80;Class=1;Enabled=true;Type Name=Text80;ExternalName=;Field Caption=Modified By (Full Name);RelationTableNo=0;RelationFieldNo=0;SQLDataType=0;OptionString=;ObsoleteState=0;ObsoleteReason=;DataClassification=6;IsPartOfPrimaryKey=false;OptimizeForTextSearch=false;Access=0;IsAllowedInCustomizations=true;packages as field 1=Yes;');
+#else
+        Observer.Expect('2000000005', 'not found');
+        Observer.Expect('2000000006', 'not found');
+        Observer.Expect('2000000007', 'not found');
+        Observer.Expect('2000000008', 'not found');
+#endif
+        Observer.Verify();
     end;
 
     [Test]
@@ -116,6 +141,25 @@ codeunit 92357 "LT Y35 UN Field Rows"
         F.SetRange(DataClassification);
         F.SetRange(IsPartOfPrimaryKey, false);
         Observer.Observe('not_pk', SystemNos(F));
-        Observer.Finish();
+#if BC29PLUS
+        Observer.Expect('all', '2000000000,2000000001,2000000002,2000000003,2000000004,2000000005,2000000006,2000000007,2000000008,');
+        Observer.Expect('class_normal', '2000000000,2000000001,2000000002,2000000003,2000000004,');
+        Observer.Expect('class_flowfield', '2000000005,2000000006,2000000007,2000000008,');
+        Observer.Expect('enabled', '2000000000,2000000001,2000000002,2000000003,2000000004,2000000005,2000000006,2000000007,2000000008,');
+        Observer.Expect('type_text', '2000000005,2000000006,2000000007,2000000008,');
+        Observer.Expect('obsolete_no', '2000000000,2000000001,2000000002,2000000003,2000000004,2000000005,2000000006,2000000007,2000000008,');
+        Observer.Expect('dataclass_euii', '');
+        Observer.Expect('not_pk', '2000000000,2000000001,2000000002,2000000003,2000000004,2000000005,2000000006,2000000007,2000000008,');
+#else
+        Observer.Expect('all', '2000000000,2000000001,2000000002,2000000003,2000000004,');
+        Observer.Expect('class_normal', '2000000000,2000000001,2000000002,2000000003,2000000004,');
+        Observer.Expect('class_flowfield', '');
+        Observer.Expect('enabled', '2000000000,2000000001,2000000002,2000000003,2000000004,');
+        Observer.Expect('type_text', '');
+        Observer.Expect('obsolete_no', '2000000000,2000000001,2000000002,2000000003,2000000004,');
+        Observer.Expect('dataclass_euii', '');
+        Observer.Expect('not_pk', '2000000000,2000000001,2000000002,2000000003,2000000004,');
+#endif
+        Observer.Verify();
     end;
 }

@@ -9,6 +9,10 @@
 //   Observed: ok and what it returned, or the error text and code.
 //   The Microsoft-caller neighbour (Agent API of the System Application): tests/al-language/platform/lt-y35-agent-api/Y35AgentApi.al.
 // BC versions: 27.5, 28.5, 29.0. Enum "Agent Metadata Provider" has the value "Personal Agent" (1) on BC 29 only; on BC 27/28 both filter
+// Measured on the CI containers 27.5, 28.5 and 29.0: every read and write of Agent (FindSet with the filter, FindFirst, IsEmpty, Count,
+//   FindLast, Get, Insert(true), Insert()) fails with "Agents are temporarily unavailable. ..." (code DB:Ok) and leaves no write transaction;
+//   a temporary Agent record works. This is a property of the container's agent service (a BC 29 SaaS sandbox answers otherwise for the
+//   API calls, see Y35AgentApi.al), so the values pin the corpus container.
 //   values are the default (0).
 
 codeunit 98665 "LT Y35 Agent Direct Runner"
@@ -148,7 +152,14 @@ codeunit 98664 "LT Y35 Agent Direct"
         Shown: Text;
     begin
         Run('findset_filtered', TryFindSetFiltered(Shown), Shown);
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('findset_filtered|text', 'Agents are temporarily unavailable. Please try again later. You can check the Business Central Admin Center and Microsoft 365 Service Health dashboard for updates.');
+        Observer.Expect('findset_filtered|code', 'DB:Ok');
+#else
+        Observer.Expect('findset_filtered|text', 'Agents are temporarily unavailable. Please try again later. You can check the Business Central Admin Center and Microsoft 365 Service Health dashboard for updates.');
+        Observer.Expect('findset_filtered|code', 'DB:Ok');
+#endif
+        Observer.Verify();
     end;
 
     [Test]
@@ -161,7 +172,17 @@ codeunit 98664 "LT Y35 Agent Direct"
         Run('count', TryCount(Shown), Shown);
         Run('findlast', TryFindLast(Shown), Shown);
         Run('get', TryGet(Shown), Shown);
-        Observer.Finish();
+        Observer.Expect('findfirst_filtered|text', 'Agents are temporarily unavailable. Please try again later. You can check the Business Central Admin Center and Microsoft 365 Service Health dashboard for updates.');
+        Observer.Expect('findfirst_filtered|code', 'DB:Ok');
+        Observer.Expect('isempty|text', 'Agents are temporarily unavailable. Please try again later. You can check the Business Central Admin Center and Microsoft 365 Service Health dashboard for updates.');
+        Observer.Expect('isempty|code', 'DB:Ok');
+        Observer.Expect('count|text', 'Agents are temporarily unavailable. Please try again later. You can check the Business Central Admin Center and Microsoft 365 Service Health dashboard for updates.');
+        Observer.Expect('count|code', 'DB:Ok');
+        Observer.Expect('findlast|text', 'Agents are temporarily unavailable. Please try again later. You can check the Business Central Admin Center and Microsoft 365 Service Health dashboard for updates.');
+        Observer.Expect('findlast|code', 'DB:Ok');
+        Observer.Expect('get|text', 'Agents are temporarily unavailable. Please try again later. You can check the Business Central Admin Center and Microsoft 365 Service Health dashboard for updates.');
+        Observer.Expect('get|code', 'DB:Ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -171,7 +192,13 @@ codeunit 98664 "LT Y35 Agent Direct"
         Observer.Observe('in_write_transaction_1', Format(Database.IsInWriteTransaction()));
         RunInsert('insert_false', false);
         Observer.Observe('in_write_transaction_2', Format(Database.IsInWriteTransaction()));
-        Observer.Finish();
+        Observer.Expect('insert_true|text', 'Agents are temporarily unavailable. Please try again later. You can check the Business Central Admin Center and Microsoft 365 Service Health dashboard for updates.');
+        Observer.Expect('insert_true|code', 'DB:Ok');
+        Observer.Expect('in_write_transaction_1', 'No');
+        Observer.Expect('insert_false|text', 'Agents are temporarily unavailable. Please try again later. You can check the Business Central Admin Center and Microsoft 365 Service Health dashboard for updates.');
+        Observer.Expect('insert_false|code', 'DB:Ok');
+        Observer.Expect('in_write_transaction_2', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -180,6 +207,7 @@ codeunit 98664 "LT Y35 Agent Direct"
         Shown: Text;
     begin
         Run('temporary', TryTemporary(Shown), Shown);
-        Observer.Finish();
+        Observer.Expect('temporary', 'ok|Yes|LTY35|1');
+        Observer.Verify();
     end;
 }

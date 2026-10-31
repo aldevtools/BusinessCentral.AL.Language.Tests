@@ -10,6 +10,8 @@
 //   Linux legs run these codeunits under 130450 and not through the TestRunnerHub (see RqIsolationModes.al). The pair A6/B6 has no
 //   handler functions and TestPermissions = Disabled, so on BC 28 and later the hub runs it (RequiredTestIsolation = Codeunit); on
 //   BC 27 every codeunit runs under 130450.
+// The test tool's discovery step runs every OnRun once more before the run itself (seen as a second OnRun in the sequence values), so
+//   every OnRun first deletes and prepares its own keys: A0 prepares C302, A1 prepares C301, A6 prepares C306.
 // Run order is by codeunit id: A0 81566 < A1 81567 < B1 81568 < A2 81569 < B2 81578 (< A6 81579 < B6 81586 on BC 27).
 // Keys: prefix C301 (A1's OnRun writes), C302 (A2's test writes), C306 (A6's OnRun writes, hub). A0's OnRun deletes every key and
 //   sequence first, so a rerun reads the same. Every storage call is in codeunit 81574, so the module is the same for all codeunits.
@@ -209,7 +211,7 @@ codeunit 81574 "LT Y35 Probe Store"
     end;
 }
 
-// A0: prepares the older state in OnRun (committed) and checks it in its test.
+// A0: prepares the older state of C302 in OnRun (committed) and checks it in its test.
 codeunit 81566 "LT Y35 A0 Prepare"
 {
     Subtype = Test;
@@ -221,22 +223,18 @@ codeunit 81566 "LT Y35 A0 Prepare"
 
     trigger OnRun()
     begin
-        Store.Reset('C301');
         Store.Reset('C302');
-        OnRunLog := 'C301:' + Store.Prepare('C301') + ' C302:' + Store.Prepare('C302');
+        OnRunLog := 'C302:' + Store.Prepare('C302');
     end;
 
     [Test]
     [HandlerFunctions('Y35MsgHandler')]
-    procedure C301_A0_Prepared()
+    procedure C302_A0_Prepared()
     var
         Observer: Codeunit "Probe Observer";
     begin
         Message('x');
         Observer.Observe('onrun_log', OnRunLog);
-        Observer.Observe('c301_mod_del', Store.GetStore('C301-MOD-DEL', DataScope::Module));
-        Observer.Observe('c301_seq_old_r_current', Store.SeqCurrent('C301-SEQ-OLD-R', false));
-        Observer.Observe('c301_seq_old_n_current', Store.SeqCurrent('C301-SEQ-OLD-N', false));
         Observer.Observe('c302_mod_del', Store.GetStore('C302-MOD-DEL', DataScope::Module));
         Observer.Observe('c302_seq_old_r_current', Store.SeqCurrent('C302-SEQ-OLD-R', false));
         Observer.Observe('c302_seq_old_n_current', Store.SeqCurrent('C302-SEQ-OLD-N', false));
@@ -259,9 +257,12 @@ codeunit 81567 "LT Y35 A1 OnRun Writes"
         Store: Codeunit "LT Y35 Probe Store";
         OnRunLog: Text;
 
+    // The test tool's discovery step (Test Suite Mgt.SelectTestMethodsByRange) runs OnRun once more, before the run itself, so OnRun
+    // first deletes and prepares its keys again: what it leaves does not depend on how often it ran.
     trigger OnRun()
     begin
-        OnRunLog := Store.Writes('C301');
+        Store.Reset('C301');
+        OnRunLog := Store.Prepare('C301') + Store.Writes('C301');
     end;
 
     // Linux suspect (see the header): not a test. Called from OnRun before Writes it ended the session at the codeunit end.
@@ -362,7 +363,15 @@ codeunit 81569 "LT Y35 A2 Test Writes"
         Observer.Observe('log', Store.Writes('C302'));
         Store.ObserveStorage(Observer, 'C302', '');
         Store.ObserveOpen(Observer, 'C302', '');
-        Observer.Finish();
+        Observer.Expect('log', 'insert-cm=ok;next-cm=100;next-cm=101;insert-cw=ok;next-cw=200;next-old-n=1;insert-open=ok;next-open=10;delete-del=Yes;');
+        Observer.Expect('mod_cm', 'found/committed');
+        Observer.Expect('com_cm', 'found/committed');
+        Observer.Expect('usr_cm', 'found/committed');
+        Observer.Expect('cau_cm', 'found/committed');
+        Observer.Expect('mod_open', 'found/open');
+        Observer.Expect('seq_open_current', '10');
+        Observer.Expect('mod_del', 'missing');
+        Observer.Verify();
     end;
 
     [MessageHandler]
@@ -393,7 +402,18 @@ codeunit 81578 "LT Y35 B2 Reads Test"
         Observer.Observe('t_seq_cw_current', Store.SeqCurrent('C302-SEQ-CW', true));
         Observer.Observe('t_seq_old_r_current', Store.SeqCurrent('C302-SEQ-OLD-R', false));
         Observer.Observe('t_seq_old_n_current', Store.SeqCurrent('C302-SEQ-OLD-N', false));
-        Observer.Finish();
+        Observer.Expect('t_mod_cm', 'missing');
+        Observer.Expect('t_com_cm', 'missing');
+        Observer.Expect('t_usr_cm', 'missing');
+        Observer.Expect('t_cau_cm', 'missing');
+        Observer.Expect('t_mod_open', 'missing');
+        Observer.Expect('t_seq_open_current', 'missing');
+        Observer.Expect('t_mod_del', 'found/old');
+        Observer.Expect('t_seq_cm_current', 'missing');
+        Observer.Expect('t_seq_cw_current', 'missing');
+        Observer.Expect('t_seq_old_r_current', '0');
+        Observer.Expect('t_seq_old_n_current', '1');
+        Observer.Verify();
     end;
 
     [MessageHandler]
@@ -428,7 +448,15 @@ codeunit 81579 "LT Y35 A6 Hub OnRun"
         Observer.Observe('onrun_log', OnRunLog);
         Store.ObserveStorage(Observer, 'C306', '');
         Store.ObserveOpen(Observer, 'C306', '');
-        Observer.Finish();
+        Observer.Expect('onrun_log', 'insert-old-r=ok;insert-old-n=ok;next-old-n=0;insert-cm=ok;next-cm=100;next-cm=101;insert-cw=ok;next-cw=200;next-old-n=1;insert-open=ok;next-open=10;delete-del=Yes;');
+        Observer.Expect('mod_cm', 'found/committed');
+        Observer.Expect('com_cm', 'found/committed');
+        Observer.Expect('usr_cm', 'found/committed');
+        Observer.Expect('cau_cm', 'found/committed');
+        Observer.Expect('mod_open', 'found/open');
+        Observer.Expect('seq_open_current', '10');
+        Observer.Expect('mod_del', 'missing');
+        Observer.Verify();
     end;
 }
 
@@ -448,7 +476,24 @@ codeunit 81586 "LT Y35 B6 Hub Reads"
     begin
         Store.ObserveStorage(Observer, 'C306', '');
         Store.ObserveOpen(Observer, 'C306', '');
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('mod_cm', 'missing');
+        Observer.Expect('com_cm', 'missing');
+        Observer.Expect('usr_cm', 'missing');
+        Observer.Expect('cau_cm', 'missing');
+        Observer.Expect('mod_open', 'missing');
+        Observer.Expect('seq_open_current', 'missing');
+        Observer.Expect('mod_del', 'missing');
+#else
+        Observer.Expect('mod_cm', 'found/committed');
+        Observer.Expect('com_cm', 'found/committed');
+        Observer.Expect('usr_cm', 'found/committed');
+        Observer.Expect('cau_cm', 'found/committed');
+        Observer.Expect('mod_open', 'found/open');
+        Observer.Expect('seq_open_current', '10');
+        Observer.Expect('mod_del', 'missing');
+#endif
+        Observer.Verify();
     end;
 
     [Test]
@@ -457,6 +502,25 @@ codeunit 81586 "LT Y35 B6 Hub Reads"
         Observer: Codeunit "Probe Observer";
     begin
         Store.ObserveSequences(Observer, 'C306', '');
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('seq_cm_current', 'missing');
+        Observer.Expect('seq_cm_next_exists_one_arg', 'No');
+        Observer.Expect('seq_cm_next', 'missing');
+        Observer.Expect('seq_cw_current', 'missing');
+        Observer.Expect('seq_old_r_current', 'missing');
+        Observer.Expect('seq_old_r_next_exists_one_arg', 'No');
+        Observer.Expect('seq_old_r_next', 'missing');
+        Observer.Expect('seq_old_n_current', 'missing');
+#else
+        Observer.Expect('seq_cm_current', '101');
+        Observer.Expect('seq_cm_next_exists_one_arg', 'No');
+        Observer.Expect('seq_cm_next', '102');
+        Observer.Expect('seq_cw_current', '200');
+        Observer.Expect('seq_old_r_current', '0');
+        Observer.Expect('seq_old_r_next_exists_one_arg', 'No');
+        Observer.Expect('seq_old_r_next', '0');
+        Observer.Expect('seq_old_n_current', '1');
+#endif
+        Observer.Verify();
     end;
 }

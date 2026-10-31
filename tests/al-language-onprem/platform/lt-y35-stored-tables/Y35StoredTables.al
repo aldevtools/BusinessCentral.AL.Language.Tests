@@ -11,6 +11,11 @@
 //   lt-aw-fresh-tenant/AwOnPremTests.al:174-225 (MCP Configuration rows). Every test deletes its own keys first (prefix LT-C303 / LT C303).
 // BC versions: 27.5, 28.5, 29.0. "API Version" of MCP Configuration Tool exists on BC 28 and later; its "Object Type" has the members
 //   Query and Codeunit on BC 29 only (BC 27/28: Page), so the second tool is a Page on BC 27/28.
+// Measured on the CI containers: Webhook Subscription, Webhook Notification and MCP Configuration Tool start empty; Tenant Profile Setting
+//   holds two Base Application rows. They behave as normal stored tables: Insert() of a duplicate key gives false, no parent or object
+//   check on MCP Configuration Tool or Tenant Profile Setting, a Webhook Subscription gets Application ID 'NAV' from the platform. Deleting an
+//   MCP Configuration deletes its tools on BC 27.5 and keeps them on BC 28.5 and 29.0. Deleting every Tenant Profile Setting row turns off
+//   "Default Role Center" of the tenant profile in All Profile.
 
 // Runs one write in its OnRun, called through Codeunit.Run.
 codeunit 98671 "LT Y35 Stored Table Runner"
@@ -157,7 +162,18 @@ codeunit 98668 "LT Y35 Webhook Tables"
         Observer.Observe('sub_rows_start', SubscriptionRows(Sub));
         Observer.Observe('notification_count_start', Format(Notification.Count()));
         Observer.Observe('notification_rows_start', NotificationRows(Notification));
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('sub_count_start', '0');
+        Observer.Expect('sub_rows_start', '');
+        Observer.Expect('notification_count_start', '0');
+        Observer.Expect('notification_rows_start', '');
+#else
+        Observer.Expect('sub_count_start', '0');
+        Observer.Expect('sub_rows_start', '');
+        Observer.Expect('notification_count_start', '0');
+        Observer.Expect('notification_rows_start', '');
+#endif
+        Observer.Verify();
     end;
 
     [Test]
@@ -185,7 +201,18 @@ codeunit 98668 "LT Y35 Webhook Tables"
         Observer.Observe('count_after_delete', Format(Sub.Count()));
         Sub.DeleteAll(true);
         Observer.Observe('count_after_deleteall', Format(Sub.Count()));
-        Observer.Finish();
+        Observer.Expect('insert_b', 'ok|Yes');
+        Observer.Expect('insert_a', 'ok|Yes');
+        Observer.Expect('insert_dup', 'ok|No');
+        Observer.Expect('count_own', '2');
+        Observer.Expect('rows_own', '[Subscription ID=LT-C303-A;Endpoint=https://lt.example/hook;Client State=state;Created By=;Run Notification As={00000000-0000-0000-0000-000000000000};Company Name=;Application ID=NAV;][Subscription ID=LT-C303-B;Endpoint=https://lt.example/hook;Client State=state;Created By=X PAYPAL Y;Run Notification As={00000000-0000-0000-0000-000000000000};Company Name=;Application ID=NAV;]');
+        Observer.Expect('count_created_by_paypal', '1');
+        Observer.Expect('isempty_case_insensitive', 'Yes');
+        Observer.Expect('first_key', 'LT-C303-A');
+        Observer.Expect('delete_true', 'Yes');
+        Observer.Expect('count_after_delete', '1');
+        Observer.Expect('count_after_deleteall', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -211,7 +238,11 @@ codeunit 98668 "LT Y35 Webhook Tables"
         Observer.Observe('rows_own', NotificationRows(Notification));
         Notification.DeleteAll();
         Observer.Observe('count_after_deleteall', Format(Notification.Count()));
-        Observer.Finish();
+        Observer.Expect('insert', 'Yes');
+        Observer.Expect('count_own', '1');
+        Observer.Expect('rows_own', '[Resource Type Name=LT;Sequence Number=7;Subscription ID=LT-C303-N;Resource ID=r1;Change Type=created;ID null=No;Notification has value=Yes;]');
+        Observer.Expect('count_after_deleteall', '0');
+        Observer.Verify();
     end;
 }
 
@@ -284,7 +315,10 @@ codeunit 98669 "LT Y35 MCP Tool Table"
             UnderDefault := Tool.Count();
         end;
         Observer.Observe('count_under_default_config', Format(UnderDefault));
-        Observer.Finish();
+        Observer.Expect('count_start', '0');
+        Observer.Expect('rows_start', '');
+        Observer.Expect('count_under_default_config', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -336,7 +370,50 @@ codeunit 98669 "LT Y35 MCP Tool Table"
         Tool2.Find();
         Observer.Observe('delete_query', Format(Tool2.Delete()));
         Observer.Observe('count_after_delete', Format(Tool.Count()));
-        Observer.Finish();
+#if BC29PLUS
+        Observer.Expect('config_systemid_null', 'No');
+        Observer.Expect('insert_page', 'Yes');
+        Observer.Expect('page_row', 'Object Type=0;Object ID=1;Allow Read=true;Allow Create=true;Allow Modify=false;Allow Delete=false;Allow Bound Actions=false;API Version=v2.0;');
+        Observer.Expect('insert_query', 'Yes');
+        Observer.Expect('get_by_key', 'Yes');
+        Observer.Expect('get_row', 'Object Type=0;Object ID=1;Allow Read=true;Allow Create=true;Allow Modify=false;Allow Delete=false;Allow Bound Actions=false;API Version=v2.0;');
+        Observer.Expect('get_by_systemid', 'Yes');
+        Observer.Expect('get_by_systemid_object', 'Page 1');
+        Observer.Expect('modify', 'Yes');
+        Observer.Expect('modified_row', 'Object Type=0;Object ID=1;Allow Read=true;Allow Create=true;Allow Modify=false;Allow Delete=true;Allow Bound Actions=false;API Version=v2.0;');
+        Observer.Expect('rows_after_modifyall', '[Object Type=0;Object ID=1;Allow Read=true;Allow Create=false;Allow Modify=false;Allow Delete=true;Allow Bound Actions=false;API Version=v2.0;][Object Type=1;Object ID=2;Allow Read=false;Allow Create=false;Allow Modify=true;Allow Delete=false;Allow Bound Actions=false;API Version=;]');
+        Observer.Expect('delete_query', 'Yes');
+        Observer.Expect('count_after_delete', '1');
+#elif BC28PLUS
+        Observer.Expect('config_systemid_null', 'No');
+        Observer.Expect('insert_page', 'Yes');
+        Observer.Expect('page_row', 'Object Type=0;Object ID=1;Allow Read=true;Allow Create=true;Allow Modify=false;Allow Delete=false;Allow Bound Actions=false;API Version=v2.0;');
+        Observer.Expect('insert_query', 'Yes');
+        Observer.Expect('get_by_key', 'Yes');
+        Observer.Expect('get_row', 'Object Type=0;Object ID=1;Allow Read=true;Allow Create=true;Allow Modify=false;Allow Delete=false;Allow Bound Actions=false;API Version=v2.0;');
+        Observer.Expect('get_by_systemid', 'Yes');
+        Observer.Expect('get_by_systemid_object', 'Page 1');
+        Observer.Expect('modify', 'Yes');
+        Observer.Expect('modified_row', 'Object Type=0;Object ID=1;Allow Read=true;Allow Create=true;Allow Modify=false;Allow Delete=true;Allow Bound Actions=false;API Version=v2.0;');
+        Observer.Expect('rows_after_modifyall', '[Object Type=0;Object ID=1;Allow Read=true;Allow Create=false;Allow Modify=false;Allow Delete=true;Allow Bound Actions=false;API Version=v2.0;][Object Type=0;Object ID=2;Allow Read=false;Allow Create=false;Allow Modify=true;Allow Delete=false;Allow Bound Actions=false;API Version=;]');
+        Observer.Expect('delete_query', 'Yes');
+        Observer.Expect('count_after_delete', '1');
+#else
+        Observer.Expect('config_systemid_null', 'No');
+        Observer.Expect('insert_page', 'Yes');
+        Observer.Expect('page_row', 'Object Type=0;Object ID=1;Allow Read=true;Allow Create=true;Allow Modify=false;Allow Delete=false;Allow Bound Actions=false;');
+        Observer.Expect('insert_query', 'Yes');
+        Observer.Expect('get_by_key', 'Yes');
+        Observer.Expect('get_row', 'Object Type=0;Object ID=1;Allow Read=true;Allow Create=true;Allow Modify=false;Allow Delete=false;Allow Bound Actions=false;');
+        Observer.Expect('get_by_systemid', 'Yes');
+        Observer.Expect('get_by_systemid_object', 'Page 1');
+        Observer.Expect('modify', 'Yes');
+        Observer.Expect('modified_row', 'Object Type=0;Object ID=1;Allow Read=true;Allow Create=true;Allow Modify=false;Allow Delete=true;Allow Bound Actions=false;');
+        Observer.Expect('rows_after_modifyall', '[Object Type=0;Object ID=1;Allow Read=true;Allow Create=false;Allow Modify=false;Allow Delete=true;Allow Bound Actions=false;][Object Type=0;Object ID=2;Allow Read=false;Allow Create=false;Allow Modify=true;Allow Delete=false;Allow Bound Actions=false;]');
+        Observer.Expect('delete_query', 'Yes');
+        Observer.Expect('count_after_delete', '1');
+#endif
+        Observer.Verify();
     end;
 
     [Test]
@@ -374,7 +451,32 @@ codeunit 98669 "LT Y35 MCP Tool Table"
         Observer.Observe('delete_config_true', Format(Config.Delete(true)));
         Tool.SetRange(ID, OwnId);
         Observer.Observe('tools_after_config_delete_true', Format(Tool.Count()));
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('insert_no_config', 'ok|Yes');
+        Observer.Expect('count_no_config', '1');
+        Observer.Expect('insert_default_config', 'ok|Yes');
+        Observer.Expect('insert_own', 'ok|Yes');
+        Observer.Expect('insert_codeunit_0', 'ok|Yes');
+        Observer.Expect('insert_page_not_api', 'ok|Yes');
+        Observer.Expect('delete_config', 'Yes');
+        Observer.Expect('tools_after_config_delete', '3');
+        Observer.Expect('insert_own_t', 'ok|Yes');
+        Observer.Expect('delete_config_true', 'Yes');
+        Observer.Expect('tools_after_config_delete_true', '1');
+#else
+        Observer.Expect('insert_no_config', 'ok|Yes');
+        Observer.Expect('count_no_config', '1');
+        Observer.Expect('insert_default_config', 'ok|Yes');
+        Observer.Expect('insert_own', 'ok|Yes');
+        Observer.Expect('insert_codeunit_0', 'ok|Yes');
+        Observer.Expect('insert_page_not_api', 'ok|Yes');
+        Observer.Expect('delete_config', 'Yes');
+        Observer.Expect('tools_after_config_delete', '0');
+        Observer.Expect('insert_own_t', 'ok|Yes');
+        Observer.Expect('delete_config_true', 'Yes');
+        Observer.Expect('tools_after_config_delete_true', '0');
+#endif
+        Observer.Verify();
     end;
 }
 
@@ -474,7 +576,16 @@ codeunit 98670 "LT Y35 Tenant Profile Setting"
         Setting.SetRange("Profile ID", 'NOPROFILE');
         Observer.Observe('count_no_profile', Format(Setting.Count()));
         Setting.DeleteAll();
-        Observer.Finish();
+        Observer.Expect('own_profile_id', 'ALT PROFILE SAMEAPP');
+        Observer.Expect('count_start', '2');
+        Observer.Expect('rows_start', '[App ID={437DBF0E-84FF-417A-965D-ED2BB9650972};Profile ID=O365 SALES;Default Role Center=false;Disable Personalization=true;][App ID={437DBF0E-84FF-417A-965D-ED2BB9650972};Profile ID=ORDER PROCESSOR;Default Role Center=false;Disable Personalization=false;]');
+        Observer.Expect('modifyall', 'ok|');
+        Observer.Expect('count_default_after_modifyall', '0');
+        Observer.Expect('insert_own_profile', 'ok|Yes');
+        Observer.Expect('insert_no_profile', 'ok|Yes');
+        Observer.Expect('own_rows', '[App ID={A1B2C3D4-E5F6-7890-ABCD-EF1234567890};Profile ID=ALT PROFILE SAMEAPP;Default Role Center=true;Disable Personalization=false;]');
+        Observer.Expect('count_no_profile', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -496,6 +607,14 @@ codeunit 98670 "LT Y35 Tenant Profile Setting"
         Observer.Observe('count_after_deleteall', Format(Setting.Count()));
         Observer.Observe('all_profile_after_deleteall', AllProfileState(ProfileId));
         Observer.Observe('default_profiles_after_deleteall', DefaultProfiles());
-        Observer.Finish();
+        Observer.Expect('all_profile_before', 'Default Role Center=Yes;Disable Personalization=No');
+        Observer.Expect('default_profiles_before', '1|Tenant:ALT PROFILE SAMEAPP;');
+        Observer.Expect('insert_own_profile', 'ok|Yes');
+        Observer.Expect('all_profile_after_insert', 'Default Role Center=Yes;Disable Personalization=No');
+        Observer.Expect('default_profiles_after_insert', '1|Tenant:ALT PROFILE SAMEAPP;');
+        Observer.Expect('count_after_deleteall', '0');
+        Observer.Expect('all_profile_after_deleteall', 'Default Role Center=No;Disable Personalization=No');
+        Observer.Expect('default_profiles_after_deleteall', '0|');
+        Observer.Verify();
     end;
 }

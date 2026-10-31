@@ -7,6 +7,10 @@
 //   "User SID Filter" = the null Guid and = UserSecurityId(). User SIDs are shown as null / me / other, never as values.
 //   Neighbour: events/lt-platform-triggers/PtObjects.al:93 (Privacy Notice, stored, starts empty).
 // BC versions: 27.5, 28.5, 29.0
+// Measured on the CI containers 27.5, 28.5 and 29.0 and a BC 29 SaaS sandbox (same values, except the rows at the start: the sandbox holds
+//   two approvals): the container starts empty; "Approver User SID" is not filled by the platform; a duplicate Insert() gives false; the
+//   table events fire (DeleteAll fires OnBeforeDeleteEvent per row); Enabled/Disabled look only at the approval of exactly the filtered
+//   User SID (no fallback from the user to the null-SID row).
 
 codeunit 92355 "LT Y35 Privacy Approval Events"
 {
@@ -117,7 +121,9 @@ codeunit 92354 "LT Y35 Privacy Approval"
     begin
         Observer.Observe('count_start', Format(Approval.Count()));
         Observer.Observe('rows_start', Rows(Approval));
-        Observer.Finish();
+        Observer.Expect('count_start', '0');
+        Observer.Expect('rows_start', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -145,7 +151,17 @@ codeunit 92354 "LT Y35 Privacy Approval"
         Observer.Observe('count_after_deleteall', Format(Approval.Count()));
         UnbindSubscription(Events);
         Observer.Observe('events', Events.GetLog());
-        Observer.Finish();
+        Observer.Expect('insert_admin', 'Yes|LT-C303|User SID=null|Approver=null|Approved=Yes');
+        Observer.Expect('insert_user', 'Yes|LT-C303|User SID=me|Approver=null|Approved=No');
+        Observer.Expect('insert_dup', 'No|LT-C303|User SID=me|Approver=null|Approved=Yes');
+        Observer.Expect('get_admin', 'Yes|LT-C303|User SID=null|Approver=null|Approved=Yes');
+        Observer.Expect('get_user', 'Yes|LT-C303|User SID=me|Approver=null|Approved=No');
+        Observer.Expect('modify_user', 'Yes');
+        Observer.Expect('row_after_modify', 'LT-C303|User SID=me|Approver=null|Approved=Yes');
+        Observer.Expect('count_own', '2');
+        Observer.Expect('count_after_deleteall', '0');
+        Observer.Expect('events', 'ins(LT-C303);ins(LT-C303);mod(LT-C303);del(LT-C303);del(LT-C303);');
+        Observer.Verify();
     end;
 
     [Test]
@@ -176,6 +192,14 @@ codeunit 92354 "LT Y35 Privacy Approval"
         Observer.Observe('after_user_approved', Flags('LT-C303P'));
         Clean('LT-C303P');
         Observer.Observe('after_all_deleted', Flags('LT-C303P'));
-        Observer.Finish();
+        Observer.Expect('before', 'null:E=No,D=No|me:E=No,D=No');
+        Observer.Expect('insert_admin', 'Yes|LT-C303P|User SID=null|Approver=null|Approved=Yes');
+        Observer.Expect('after_admin_approved', 'null:E=Yes,D=No|me:E=No,D=No');
+        Observer.Expect('insert_user', 'Yes|LT-C303P|User SID=me|Approver=null|Approved=No');
+        Observer.Expect('after_user_rejected', 'null:E=Yes,D=No|me:E=No,D=Yes');
+        Observer.Expect('after_admin_deleted', 'null:E=No,D=No|me:E=No,D=Yes');
+        Observer.Expect('after_user_approved', 'null:E=No,D=No|me:E=Yes,D=No');
+        Observer.Expect('after_all_deleted', 'null:E=No,D=No|me:E=No,D=No');
+        Observer.Verify();
     end;
 }

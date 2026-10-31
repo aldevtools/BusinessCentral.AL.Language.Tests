@@ -8,6 +8,8 @@
 //   Application System Constants.PlatformFileVersion(). The build and revision numbers change with the container build, so only their
 //   relation to PlatformFileVersion is asserted.
 // BC versions: 27.5, 28.5, 29.0
+// Measured on the CI containers: GetPlatformVersion() is the platform file version (Major = the BC major, Minor 0) and its ToString
+//   equals Application System Constants.PlatformFileVersion() on 27.5, 28.5 and 29.0.
 dotnet
 {
     assembly("mscorlib")
@@ -42,7 +44,8 @@ codeunit 99478 "LT Y35 Platform Version"
     begin
         if not TryGetPlatformVersion(Version) then begin
             Observer.ObserveError('get');
-            Observer.Finish();
+            Observer.Verify();
+            exit;
         end;
         Observer.Observe('is_null', Format(IsNull(Version)));
         Observer.Observe('major', Format(Version.Major));
@@ -60,6 +63,49 @@ codeunit 99478 "LT Y35 Platform Version"
         Other := Other.Parse(Shown);
         Observer.Observe('compare_parsed_self', Format(Version.CompareTo(Other)));
         Observer.Observe('equals_parsed_self', Format(Version.Equals(Other)));
-        Observer.Finish();
+#if BC29PLUS
+        Observer.Expect('is_null', 'No');
+        Observer.Expect('major', '29');
+        Observer.Expect('minor', '0');
+        Observer.Expect('build_positive', 'Yes');
+        Observer.Expect('revision_not_negative', 'Yes');
+        Observer.Ignore('raw_tostring');
+        Observer.Ignore('raw_platform_file_version');
+        Observer.Expect('tostring_equals_platform_file_version', 'Yes');
+        Observer.Expect('format_equals_tostring', 'Yes');
+        Observer.Expect('compare_21_0_43087_0', '1');
+        Observer.Expect('older_compare_platform', '-1');
+        Observer.Expect('compare_parsed_self', '0');
+        Observer.Expect('equals_parsed_self', 'Yes');
+#elif BC28PLUS
+        Observer.Expect('is_null', 'No');
+        Observer.Expect('major', '28');
+        Observer.Expect('minor', '0');
+        Observer.Expect('build_positive', 'Yes');
+        Observer.Expect('revision_not_negative', 'Yes');
+        Observer.Ignore('raw_tostring');
+        Observer.Ignore('raw_platform_file_version');
+        Observer.Expect('tostring_equals_platform_file_version', 'Yes');
+        Observer.Expect('format_equals_tostring', 'Yes');
+        Observer.Expect('compare_21_0_43087_0', '1');
+        Observer.Expect('older_compare_platform', '-1');
+        Observer.Expect('compare_parsed_self', '0');
+        Observer.Expect('equals_parsed_self', 'Yes');
+#else
+        Observer.Expect('is_null', 'No');
+        Observer.Expect('major', '27');
+        Observer.Expect('minor', '0');
+        Observer.Expect('build_positive', 'Yes');
+        Observer.Expect('revision_not_negative', 'Yes');
+        Observer.Ignore('raw_tostring');
+        Observer.Ignore('raw_platform_file_version');
+        Observer.Expect('tostring_equals_platform_file_version', 'Yes');
+        Observer.Expect('format_equals_tostring', 'Yes');
+        Observer.Expect('compare_21_0_43087_0', '1');
+        Observer.Expect('older_compare_platform', '-1');
+        Observer.Expect('compare_parsed_self', '0');
+        Observer.Expect('equals_parsed_self', 'Yes');
+#endif
+        Observer.Verify();
     end;
 }
