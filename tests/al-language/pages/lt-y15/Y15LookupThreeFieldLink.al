@@ -8,6 +8,8 @@
 //   A ListPart over the same table is linked with SubPageLink on No., Group Code and Region Code. The test calls
 //   TestField.Lookup with a handler that picks R2 (or cancels) and reads the header field, the list row and the part.
 //   The page logs OnValidate of ResourceNo and OnAfterGetCurrRecord.
+// Result (SaaS BC 29): as with two link fields, Lookup shows the picked R2 in ResourceNo, OnValidate runs once with R2 and stores it;
+//   the list row stays R1 and the part shows R1 only. Cancel runs only OnLookup and leaves the value blank.
 // Source: al-runner issue 6466 (the reporter's repro passed on a real BC 29 container).
 // BC versions: 27, 28, 29
 
@@ -207,7 +209,15 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
         Setting.Get();
         Observer.Observe('stored', Setting."Resource No.");
         Schedule.Close();
-        Observer.Finish();
+        Observer.Expect('open log', 'agcr R1');
+        Observer.Expect('before', '/R1/R1');
+        Observer.Expect('lookup log', 'lookup;validate R2');
+        Observer.Expect('resource no', 'R2');
+        Observer.Expect('row', 'R1');
+        Observer.Expect('part', 'R1/G1');
+        Observer.Expect('part next', 'false');
+        Observer.Expect('stored', 'R2');
+        Observer.Verify();
     end;
 
     // Region codes set on every row: the part follows the current list row on all three fields.
@@ -228,7 +238,13 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
         Observer.Observe('resource no after next', Schedule.ResourceNo.Value());
         Observer.Observe('last', Format(Schedule.Last(), 0, 9) + '/' + Schedule."No.".Value() + '/' + Schedule.Resources."No.".Value() + '/' + Format(Schedule.Resources.Next(), 0, 9));
         Schedule.Close();
-        Observer.Finish();
+        Observer.Expect('lookup log', 'lookup;validate R2');
+        Observer.Expect('resource no', 'R2');
+        Observer.Expect('part', 'R1');
+        Observer.Expect('next', 'true/R2/R2');
+        Observer.Expect('resource no after next', 'R2');
+        Observer.Expect('last', 'true/R3/R3/false');
+        Observer.Verify();
     end;
 
     // The lookup page is cancelled: OnLookup returns false, nothing is validated.
@@ -249,7 +265,11 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
         Setting.Get();
         Observer.Observe('stored', Setting."Resource No.");
         Schedule.Close();
-        Observer.Finish();
+        Observer.Expect('lookup log', 'lookup');
+        Observer.Expect('resource no', '');
+        Observer.Expect('part', 'R1');
+        Observer.Expect('stored', '');
+        Observer.Verify();
     end;
 
     // Two lookups in a row: the second pick (R3) replaces the first.
@@ -272,7 +292,11 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
         Setting.Get();
         Observer.Observe('stored', Setting."Resource No.");
         Schedule.Close();
-        Observer.Finish();
+        Observer.Expect('first', 'R2');
+        Observer.Expect('second', 'R3');
+        Observer.Expect('log', 'lookup;validate R2;agcr R1;lookup;validate R3');
+        Observer.Expect('stored', 'R3');
+        Observer.Verify();
     end;
 
     [ModalPageHandler]

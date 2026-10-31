@@ -7,6 +7,9 @@
 //   The part's OnAfterGetRecord computes the control Summary from Description: '(A)' when the choice is Changed, else 'A'.
 //   Choice's OnValidate passes the new choice to the part and calls CurrPage.Update(false) (page 91703); page 91704 does the
 //   same without CurrPage.Update. The part logs its OnAfterGetRecord and OnAfterGetCurrRecord calls.
+// Result (SaaS BC 29): validating Choice runs the part's OnAfterGetRecord again and the part shows '(A)' at once, without a move;
+//   First afterwards returns true on row 1 with '(A)' and runs no trigger. With two rows the part keeps the row it stands on.
+//   Without CurrPage.Update no part trigger runs and the part keeps showing 'A', even after First.
 // Source: al-runner issue 6465 (the reporter's repro passed on a real BC 29 container).
 // BC versions: 27, 28, 29
 
@@ -226,7 +229,15 @@ codeunit 91709 "LT Y15 Part Refresh Tests"
     begin
         Log.Take();
         Worksheet.RunModal();
-        Observer.Finish();
+        Observer.Expect('open log', 'AGR1;AGR1;AGCR1');
+        Observer.Expect('first before', 'true/A');
+        Observer.Expect('first before log', '');
+        Observer.Expect('setvalue log', 'AGR1;AGR1;AGCR1');
+        Observer.Expect('summary after setvalue', '1/(A)');
+        Observer.Expect('first after', 'true/(A)');
+        Observer.Expect('first after log', '');
+        Observer.Expect('choice', 'Changed');
+        Observer.Verify();
     end;
 
     [ModalPageHandler]
@@ -261,7 +272,13 @@ codeunit 91709 "LT Y15 Part Refresh Tests"
         Observer.Observe('setvalue initial log', Log.Take());
         Observer.Observe('summary after initial', Worksheet.Rows."No.".Value() + '/' + Worksheet.Rows.Summary.Value());
         Worksheet.Close();
-        Observer.Finish();
+        Observer.Expect('open log', 'AGR1;AGR1;AGCR1');
+        Observer.Expect('summary at open', '1/A');
+        Observer.Expect('setvalue log', 'AGR1;AGR1;AGCR1');
+        Observer.Expect('summary after setvalue', '1/(A)');
+        Observer.Expect('setvalue initial log', 'AGR1;AGR1;AGCR1');
+        Observer.Expect('summary after initial', '1/A');
+        Observer.Verify();
     end;
 
     // Two part rows: at open the part stands on row 2 (the row inserted last); Previous moves it to row 1, then Choice is validated:
@@ -287,7 +304,15 @@ codeunit 91709 "LT Y15 Part Refresh Tests"
         Observer.Observe('first', Format(Worksheet.Rows.First(), 0, 9) + '/' + Worksheet.Rows."No.".Value() + '/' + Worksheet.Rows.Summary.Value());
         Observer.Observe('last', Format(Worksheet.Rows.Last(), 0, 9) + '/' + Worksheet.Rows."No.".Value() + '/' + Worksheet.Rows.Summary.Value());
         Worksheet.Close();
-        Observer.Finish();
+        Observer.Expect('open log', 'AGR2;AGR1;AGR2;AGR2;AGCR2');
+        Observer.Expect('at open', '2/B');
+        Observer.Expect('previous', 'true/1/A');
+        Observer.Expect('setvalue log', 'AGR1;AGR2;AGR1;AGR1;AGCR1');
+        Observer.Expect('after setvalue', '1/(A)');
+        Observer.Expect('next', 'true/2/(B)');
+        Observer.Expect('first', 'true/1/(A)');
+        Observer.Expect('last', 'true/2/(B)');
+        Observer.Verify();
     end;
 
     // Contrast: OnValidate passes the choice but does not call CurrPage.Update.
@@ -306,6 +331,12 @@ codeunit 91709 "LT Y15 Part Refresh Tests"
         Observer.Observe('first', Format(Worksheet.Rows.First(), 0, 9) + '/' + Worksheet.Rows.Summary.Value());
         Observer.Observe('first log', Log.Take());
         Worksheet.Close();
-        Observer.Finish();
+        Observer.Expect('open log', 'AGR1;AGR1;AGCR1');
+        Observer.Expect('summary at open', '1/A');
+        Observer.Expect('setvalue log', '');
+        Observer.Expect('summary after setvalue', '1/A');
+        Observer.Expect('first', 'true/A');
+        Observer.Expect('first log', '');
+        Observer.Verify();
     end;
 }

@@ -8,6 +8,9 @@
 //   ShowOdd sets SetFilter(Id, '1|3') (row 3 follows row 2), ShowNone sets SetRange(Id, 100) (empty view).
 //   The page stands on row 3 (Last) when an action drops row 3 from the view, so only earlier rows remain.
 //   Page 91731 has no row triggers (the reporter's page); page 91732 is the same with OnAfterGetRecord / OnAfterGetCurrRecord logged.
+// Result (SaaS BC 29): when the action drops the current last row 3, the page stands on row 2 (the nearest earlier row of the new
+//   view), with or without CurrPage.Update. Next from there returns false, First returns row 1, Next row 2, Next false.
+//   When a later row follows the dropped row (filter 1|3 from row 2) the page stands on row 3. An empty view shows a blank Id.
 // Source: al-runner issue 6468 (the reporter's repro passed on a real BC 29 container).
 // BC versions: 27, 28, 29
 
@@ -249,7 +252,16 @@ codeunit 91734 "LT Y15 NV Tests"
         Observer.Observe('next end', Format(List.Next(), 0, 9) + '/' + List.Id.Value());
         Observer.Observe('last again', Format(List.Last(), 0, 9) + '/' + List.Id.Value());
         List.Close();
-        Observer.Finish();
+        Observer.Expect('open', '1');
+        Observer.Expect('first', 'true/1');
+        Observer.Expect('after show all', '1');
+        Observer.Expect('last', 'true/3');
+        Observer.Expect('after show included', '2/Yes');
+        Observer.Expect('first again', 'true/1');
+        Observer.Expect('next', 'true/2');
+        Observer.Expect('next end', 'false/2');
+        Observer.Expect('last again', 'true/2');
+        Observer.Verify();
     end;
 
     // Moves straight after the narrowing action, without First: Next, Previous from the row the page stands on.
@@ -270,7 +282,11 @@ codeunit 91734 "LT Y15 NV Tests"
         List.ShowIncluded.Invoke();
         Observer.Observe('previous first', Format(List.Previous(), 0, 9) + '/' + List.Id.Value());
         List.Close();
-        Observer.Finish();
+        Observer.Expect('next', 'false/2');
+        Observer.Expect('previous', 'true/1');
+        Observer.Expect('previous 2', 'false/1');
+        Observer.Expect('previous first', 'true/1');
+        Observer.Verify();
     end;
 
     // GoToRecord and GoToKey after the narrowing action: the dropped row 3 and the remaining rows 1 and 2.
@@ -291,7 +307,12 @@ codeunit 91734 "LT Y15 NV Tests"
         Observer.Observe('goto key 1', Format(List.GoToKey(1), 0, 9) + '/' + List.Id.Value());
         Observer.Observe('next', Format(List.Next(), 0, 9) + '/' + List.Id.Value());
         List.Close();
-        Observer.Finish();
+        Observer.Expect('goto record 3', 'false/2');
+        Observer.Expect('goto record 2', 'true/2');
+        Observer.Expect('goto key 3', 'false/2');
+        Observer.Expect('goto key 1', 'true/1');
+        Observer.Expect('next', 'true/2');
+        Observer.Verify();
     end;
 
     // The action sets the filter without CurrPage.Update(false).
@@ -311,7 +332,12 @@ codeunit 91734 "LT Y15 NV Tests"
         Observer.Observe('next', Format(List.Next(), 0, 9) + '/' + List.Id.Value());
         Observer.Observe('next end', Format(List.Next(), 0, 9) + '/' + List.Id.Value());
         List.Close();
-        Observer.Finish();
+        Observer.Expect('after action', '2/Yes');
+        Observer.Expect('goto record 3', 'false/2');
+        Observer.Expect('first', 'true/1');
+        Observer.Expect('next', 'true/2');
+        Observer.Expect('next end', 'false/2');
+        Observer.Verify();
     end;
 
     // Neighbours: the page stands on row 2 and the action drops it while row 3 follows; the action leaves no row at all.
@@ -336,7 +362,15 @@ codeunit 91734 "LT Y15 NV Tests"
         Observer.Observe('none first', Format(List.First(), 0, 9) + '/[' + List.Id.Value() + ']');
         Observer.Observe('none last', Format(List.Last(), 0, 9) + '/[' + List.Id.Value() + ']');
         List.Close();
-        Observer.Finish();
+        Observer.Expect('on', '2');
+        Observer.Expect('after odd', '3');
+        Observer.Expect('odd next', 'false/3');
+        Observer.Expect('odd first', 'true/1');
+        Observer.Expect('odd next 2', 'true/3');
+        Observer.Expect('after none', '[]');
+        Observer.Expect('none first', 'false/[]');
+        Observer.Expect('none last', 'false/[]');
+        Observer.Verify();
     end;
 
     // The logged page: which row triggers run when the action drops the current last row.
@@ -359,6 +393,13 @@ codeunit 91734 "LT Y15 NV Tests"
         Observer.Observe('next', Format(List.Next(), 0, 9) + '/' + List.Id.Value());
         Observer.Observe('next log', Log.Take());
         List.Close();
-        Observer.Finish();
+        Observer.Expect('on', '3');
+        Observer.Expect('action log', 'agr3;action 3;updated 3;agr2;agr2;agr1;agr2;agr2;agcr2');
+        Observer.Expect('after action', '2');
+        Observer.Expect('first', 'true/1');
+        Observer.Expect('first log', 'agr1;agr1;agcr1');
+        Observer.Expect('next', 'true/2');
+        Observer.Expect('next log', 'agr2;agr2;agcr2');
+        Observer.Verify();
     end;
 }
