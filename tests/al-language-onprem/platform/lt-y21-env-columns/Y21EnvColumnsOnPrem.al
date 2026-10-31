@@ -153,6 +153,8 @@ codeunit 98660 "LT Y21 Env Columns OnPrem"
         Observer.Observe('sized after 50', TableInfoRow(Database::"LT Y21 Sized Table"));
         Observer.Observe('company rules', SizeRules(Database::Company));
         Observer.Observe('no series rules', SizeRules(308));
+        // A passing test commits: remove the rows so that Y21_DatabaseIndex_OwnTable starts from an empty table.
+        Sized.DeleteAll();
         Observer.Expect('empty table', 'n=2;[1=<Company>;2=98663;3=LT Y21 Empty Table;4=0;5=0;6=0;7=2;8=0;9=0;][1=My Company;2=98663;3=LT Y21 Empty Table;4=0;5=0;6=0;7=2;8=0;9=0;]');
         Observer.Expect('sized before', 'n=2;[1=<Company>;2=98662;3=LT Y21 Sized Table;4=0;5=0;6=0;7=2;8=0;9=0;][1=My Company;2=98662;3=LT Y21 Sized Table;4=0;5=0;6=0;7=2;8=0;9=0;]');
         Observer.Expect('sized after 50', 'n=2;[1=<Company>;2=98662;3=LT Y21 Sized Table;4=50;5=327.68;6=48;7=2;8=16;9=32;][1=My Company;2=98662;3=LT Y21 Sized Table;4=0;5=0;6=0;7=2;8=0;9=0;]');

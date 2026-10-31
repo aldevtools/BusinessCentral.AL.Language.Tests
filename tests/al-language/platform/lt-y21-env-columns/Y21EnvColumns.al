@@ -63,7 +63,7 @@ codeunit 92150 "LT Y21 Env Columns"
         ClearLastError();
         Observer.Expect('count', 'No');
         Observer.Expect('count error code', 'StringLengthExceeded');
-        Observer.Expect('count error text start', 'The length of the string is 1516, but it must be less than or equal to 250 char');
+        Observer.Expect('count error text start', 'The length of the string is 1516, but it must be less than or equal to 250 cha');
         Observer.Expect('find first', 'No');
         Observer.Expect('find first error code', 'StringLengthExceeded');
         Observer.Verify();
