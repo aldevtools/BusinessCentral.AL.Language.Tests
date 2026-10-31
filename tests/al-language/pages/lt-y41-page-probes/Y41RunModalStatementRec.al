@@ -7,6 +7,11 @@
 //   inserted with Insert(true), Rec holds a Blob value in memory only, and the page itself edits the row. Also the statement form on a
 //   list whose handler moves to the next row (OK and Cancel), and the stale case in the expression form for contrast.
 //   pages/lt-page-runmodal-rec/PageRunModalRecAfterClose.al pins the expression form with moves.
+// Measured (27.5, 28.5, 29.0 alike unless guarded): in the STATEMENT form Rec is not given back: it keeps the values it had before the
+//   call (a stale Name/Counter stays stale, an in-memory Blob value stays, a Name the page saved is not read back, a list handler's
+//   Next + OK leaves Rec on the start row). In the EXPRESSION form Rec takes the stored row (stale values refreshed, Next + OK gives
+//   the next row). A list run with Page.RunModal (not in lookup mode) has no Cancel action: TestActionNotFound.
+//   After Insert(true), Rec's SystemModifiedAt equals the stored one on 28.5 and 29.0 and differs on 27.5 (guarded).
 // BC versions: all (CI)
 
 table 92806 "LT Y41 RM Row"
@@ -160,13 +165,6 @@ codeunit 92809 "LT Y41 RunModal Stmt Rec"
     begin
         P.Next();
         P.OK().Invoke();
-    end;
-
-    [ModalPageHandler]
-    procedure NextCloseHandler(var P: TestPage "LT Y41 RM List")
-    begin
-        P.Next();
-        P.Close();
     end;
 
     [ModalPageHandler]
@@ -329,20 +327,10 @@ codeunit 92809 "LT Y41 RunModal Stmt Rec"
         asserterror Page.RunModal(Page::"LT Y41 RM List", R);
         Obs.ObserveError('cancel');
         Obs.Observe('rec', R."Code" + '|' + R.Name + '|' + R.GetFilters());
-        Obs.Finish();
-    end;
-
-    [Test]
-    [HandlerFunctions('NextCloseHandler')]
-    procedure RMS_List_Next_Close()
-    var
-        R: Record "LT Y41 RM Row";
-    begin
-        Seed();
-        R.Get('A');
-        Page.RunModal(Page::"LT Y41 RM List", R);
-        ObserveAll(R);
-        Obs.Finish();
+        Obs.Expect('cancel|text', 'The built-in action = Cancel is not found on the page.');
+        Obs.Expect('cancel|code', 'TestActionNotFound');
+        Obs.Expect('rec', 'A|alpha|');
+        Obs.Verify();
     end;
 
     [Test]
@@ -357,6 +345,11 @@ codeunit 92809 "LT Y41 RunModal Stmt Rec"
         Act := Page.RunModal(Page::"LT Y41 RM List", R);
         Obs.Observe('action', Format(Act));
         ObserveAll(R);
-        Obs.Finish();
+        Obs.Expect('action', 'LookupOK');
+        Obs.Expect('rec', 'B|bravo|1|<none>');
+        Obs.Expect('filters', '');
+        Obs.Expect('db', 'B|bravo|1|<none>');
+        Obs.Expect('log', '');
+        Obs.Verify();
     end;
 }

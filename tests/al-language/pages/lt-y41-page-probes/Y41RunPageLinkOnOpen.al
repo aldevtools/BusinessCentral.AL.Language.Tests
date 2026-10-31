@@ -9,6 +9,12 @@
 //   table whose OnOpenPage inserts a row with Code '' and two more rows; an Option and a Date link field; a filter(..) entry; and
 //   a RunPageView beside the link. Log line: <page> open|agcr code= number= kind= day= filters= gf0=<GetFilter(Code)> count= read=.
 //   The page under test is caught with TestPage.Trap.
+// Measured (27.5, 28.5, 29.0 alike): in OnOpenPage, Rec.GetFilters() read on Rec itself shows the link filters, and every link
+//   field with a single value is filled in Rec: field(..), const-like filter('P1'), Option and Date links; a FlowFilter link fills no
+//   field (GetFilter of the FlowFilter gives the value and CalcFields uses it). ListPlus, Document and Worksheet behave as List/Card.
+//   A RunPageView beside the link: its const field is filled too, GetFilters shows only the link. A temporary source table may
+//   Insert a row with Code '' under the link (Insert returns Yes); Count then counts only rows inside the link filter, and a
+//   TestPage walk shows P1/2, then P1/0.
 // BC versions: all (CI)
 
 table 92813 "LT Y41 RPL Host"

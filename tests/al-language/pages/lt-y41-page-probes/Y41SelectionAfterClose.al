@@ -6,6 +6,12 @@
 //   ModalPageHandler set the page's record with SetRecord and answered LookupOK (also with a filter-group-2 view on Sel, with no
 //   SetRecord, with LookupCancel), and when a TestPage handler moved the page with GoToKey and invoked OK. Also: what
 //   OnAfterGetCurrRecord's CurrPage.SetSelectionFilter hands on a list opened with TestPage.OpenNew (with and without SourceTableView).
+// Measured (27.5, 28.5, 29.0 alike): inside a typed handler the page's Rec is blank (CurrentId 0). After RunModal returned, the
+//   Page variable's Rec is the row the handler gave SetRecord (also after LookupCancel), and SetSelectionFilter hands a key filter
+//   on that row ('Id: 3', count 1, MarkedOnly No); it replaces the filters of Sel, so a filter-group-2 filter on Sel is gone after.
+//   Without SetRecord it hands 'Id: 0', count 0. A TestPage handler that moved with GoToKey(3) and OK gives 'Id: 3'.
+//   OpenNew on a non-editable list opens on its first row (no OnNewRecord, selection 'Id: 1'); on an editable list it runs
+//   OnNewRecord and the selection is 'Id: 0', count 0.
 // BC versions: all (CI)
 
 table 92801 "LT Y41 Sel Row"

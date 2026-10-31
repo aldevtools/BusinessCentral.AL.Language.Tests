@@ -8,6 +8,10 @@
 //   the Page variable's SetSelectionFilter hands back after the handler moved to a row and answered LookupOK.
 //   Rows R1..R6, Group 1 for R1-R4 and 2 for R5-R6, Qty = 10 x the row number.
 //   misc/lt-protected-var-abs-query-views/P146ViewMarkedTemp.al pins Page.RunModal(Id, Rec) with MarkedOnly.
+// Measured (27.5, 28.5, 29.0 alike): SetTableView hands the marks over: OnOpenPage sees 'Marked: Yes, Group: 1', MarkedOnly Yes, and
+//   the page shows only the marked rows (none when nothing is marked; the same for a temporary record). After LookupOK on R4, the
+//   Page variable's SetSelectionFilter hands back the marked set (MarkedOnly Yes, both rows), not the row R4. The FilterGroup(-1) /
+//   FilterGroup(2) shape shows the marked rows, GetFilters 'Marked: Yes'. SetRecord does not hand marks over: all 6 rows, on R4.
 // BC versions: all (CI)
 
 table 92361 "LT Y41 PVM Row"
