@@ -205,22 +205,27 @@ codeunit 91814 "LT Y17 SW Tests"
         Observer.Finish();
     end;
 
+    local procedure ObserveOther(var Observer: Codeunit "Probe Observer"; Acct: Code[20])
+    var
+        H: Record "LT Y17 SW Header";
+    begin
+        H.Get(Acct);
+        H.CalcFields("Neg Sum No Detail", "Avg With Detail", "Min With Detail", "Max With Detail");
+        Observer.Observe(Acct + ' neg sum', Format(H."Neg Sum No Detail", 0, 9));
+        Observer.Observe(Acct + ' avg', Format(H."Avg With Detail", 0, 9));
+        Observer.Observe(Acct + ' min', Format(H."Min With Detail", 0, 9));
+        Observer.Observe(Acct + ' max', Format(H."Max With Detail", 0, 9));
+    end;
+
     [Test]
     procedure CalcSumWhereFlowField_OtherMethods()
     var
         Observer: Codeunit "Probe Observer";
         H: Record "LT Y17 SW Header";
-        Acct: Code[20];
     begin
         Seed();
-        foreach Acct in ['A', 'C'] do begin
-            H.Get(Acct);
-            H.CalcFields("Neg Sum No Detail", "Avg With Detail", "Min With Detail", "Max With Detail");
-            Observer.Observe(Acct + ' neg sum', Format(H."Neg Sum No Detail", 0, 9));
-            Observer.Observe(Acct + ' avg', Format(H."Avg With Detail", 0, 9));
-            Observer.Observe(Acct + ' min', Format(H."Min With Detail", 0, 9));
-            Observer.Observe(Acct + ' max', Format(H."Max With Detail", 0, 9));
-        end;
+        ObserveOther(Observer, 'A');
+        ObserveOther(Observer, 'C');
         H.Get('A');
         H.CalcFields("Sum No Detail All");
         Observer.Observe('A sum no detail incl closed', Format(H."Sum No Detail All", 0, 9));
