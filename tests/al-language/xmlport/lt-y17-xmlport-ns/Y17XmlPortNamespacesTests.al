@@ -184,6 +184,7 @@ codeunit 91836 "LT Y17 Xp Ns Tests"
         Observer.Observe('export ok', Format(TryExport(Xmlport::"LT Y17 Ns Empty First", Text)));
         Text := Text.Replace('|', '');
         Import(Observer, 'as exported', Text);
+        Observer.Observe('without xmlns removed', Format(StrPos(Text.Replace(' xmlns="urn:lt-d"', ''), 'xmlns="') = 0));
         Import(Observer, 'without xmlns', Text.Replace(' xmlns="urn:lt-d"', ''));
         Observer.Finish();
     end;
