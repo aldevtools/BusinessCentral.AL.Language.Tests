@@ -11,6 +11,9 @@ codeunit 80424 "LT AX Duration DateTime"
     Subtype = Test;
     TestPermissions = Disabled;
 
+    var
+        Assert: Codeunit Assert;
+
     [TryFunction]
     local procedure TryDivDec(D: Duration; Divisor: Decimal; var Result: Decimal)
     begin
@@ -250,5 +253,103 @@ codeunit 80424 "LT AX Duration DateTime"
         Observer.Expect('T+3e9', 'error:Overflow under conversion of System.Int64 value 3000000000 to System.Int32.|ConversionCast');
         Observer.Expect('0T-1', 'error:Adding to an undefined (0T) time.|InvalidTime');
         Observer.Verify();
+    end;
+
+    // al-runner issue 6285 (reporter's repro, passed on real BC): Duration * Decimal and Decimal * Duration with a Decimal variable
+    // (whole or fractional) multiply into a Decimal that keeps the fraction; assigned to a BigInteger or a Duration.
+    [Test]
+    procedure Duration_Wb_DurationTimesDecimalVariable100()
+    var
+        D: Duration;
+        Pct: Decimal;
+        Result: Decimal;
+    begin
+        D := 28800000;
+        Pct := 100;
+        Result := D * Pct;
+        Assert.AreEqual('2880000000', Format(Result, 0, 9), 'Duration * Decimal 100');
+    end;
+
+    [Test]
+    procedure Duration_Wb_DecimalTimesDurationVariable()
+    var
+        D: Duration;
+        Pct: Decimal;
+        Result: Decimal;
+    begin
+        D := 28800000;
+        Pct := 100;
+        Result := Pct * D;
+        Assert.AreEqual('2880000000', Format(Result, 0, 9), 'Decimal 100 * Duration');
+    end;
+
+    [Test]
+    procedure Duration_Wb_DurationTimesFractionVariable()
+    var
+        D: Duration;
+        Pct: Decimal;
+        Result: Decimal;
+    begin
+        D := 28800000;
+        Pct := 0.5;
+        Result := D * Pct;
+        Assert.AreEqual('14400000', Format(Result, 0, 9), 'Duration * 0.5');
+        Pct := 1.25;
+        Result := D * Pct;
+        Assert.AreEqual('36000000', Format(Result, 0, 9), 'Duration * 1.25');
+    end;
+
+    [Test]
+    procedure Duration_Wb_DurationTimesPercentOverHundredIntoDuration()
+    var
+        D: Duration;
+        Eff: Decimal;
+        Taken: Duration;
+        Back: Decimal;
+    begin
+        D := 28800000;
+        Eff := 100;
+        Taken := D * Eff / 100;
+        Back := Taken;
+        Assert.AreEqual('28800000', Format(Back, 0, 9), 'D * Eff / 100 into Duration');
+    end;
+
+    [Test]
+    procedure Duration_Wb_DurationTimesDecimalIntoBigInteger()
+    var
+        D: Duration;
+        Pct: Decimal;
+        Big: BigInteger;
+    begin
+        D := 28800000;
+        Pct := 100;
+        Big := D * Pct;
+        Assert.AreEqual('2880000000', Format(Big, 0, 9), 'Duration * Decimal 100 into BigInteger');
+    end;
+
+    [Test]
+    procedure Duration_Wb_DurationTimesDecimalIntoDuration()
+    var
+        D: Duration;
+        Pct: Decimal;
+        R: Duration;
+        Back: Decimal;
+    begin
+        D := 28800000;
+        Pct := 0.5;
+        R := D * Pct;
+        Back := R;
+        Assert.AreEqual('14400000', Format(Back, 0, 9), 'Duration * 0.5 into Duration');
+    end;
+
+    [Test]
+    procedure Duration_Wb_DurationTimesFractionPrintsValue()
+    var
+        D: Duration;
+        Pct: Decimal;
+    begin
+        D := 7;
+        Pct := 1.5;
+        Assert.AreEqual('10.5|10.5', Format(D * Pct, 0, 9) + '|' + Format(Pct * D, 0, 9), 'exact values');
     end;
 }

@@ -4,10 +4,11 @@
 // Corpus issues 629 item 16 (the rows a [TestDataSource] hands to a data-driven test) and 626 items 9 and 10
 // (DataSourceContext.AppId and CodeunitId inside ListTestCases and GetTestCase of a codeunit that implements ITestDataSource).
 // The test procedure of a data-driven test takes an Interface ITestContext and has no [Test] attribute (AL0189 with both).
-// LINUX SUSPECT: on the corpus CI (BC 29.0, run 39225437143) every codeunit with a data-driven test ended with
+// The corpus CI (BC 29.0, run 39225437143) ended every codeunit with a data-driven test with
 // "session killed twice by this codeunit: hub connection closed", and no ListTestCases or GetTestCase call was logged.
-// Not asserted until a Windows container shows what BC does: the file compiles only with the symbol LTBI_TESTDATASOURCE_PROBE,
-// which no CI leg defines.
+// Cause (BC SaaS sandbox, 2026-10-30, same result there): this probe calls DataSourceContext.CodeunitId() and AppId() in its sources,
+// and BC ends the session for that (not a Linux fault). The working data-driven tests, with the sandbox answers, are in BiDataDriven.al.
+// This file stays switched off: it compiles only with the symbol LTBI_TESTDATASOURCE_PROBE, which no CI leg defines.
 // Probe: observed values.
 // BC versions: 29
 #if LTBI_TESTDATASOURCE_PROBE

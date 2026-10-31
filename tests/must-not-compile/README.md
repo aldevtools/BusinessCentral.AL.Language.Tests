@@ -618,6 +618,15 @@ is only a reference.
 | 2167 to 2170 | AL0135 | Too few arguments through a codeunit variable, a record variable, `Rec.`/bare inside the table, and `this.` (writer SH). |
 | 2171 to 2173 | AL0126 | An overloaded procedure called with too few, no, or too many arguments: "No overload for method ... takes N arguments" with every candidate, not AL0135 (writer SH). |
 | 2174 to 2188 | AL0135 | The signature text of AL0135 for Record, var Record, var temporary Record, Code[20], Option, Enum, Decimal, Date, var Integer, other scalar and complex parameter types, many parameters, return values and no arguments (writer SH). |
+| 2214 | AL0157 | A variable of type TableFilter (writer SI, al-runner issue 5998). |
+| 2238 to 2240, 2244 | AL0196 | In one app, a page extension procedure (local, or internal) with the name of a protected, public or internal base page procedure compiles, but a bare call of it is ambiguous (writer TI, al-runner issue 6043). A cross-app extension is accepted: pageext/lt-ext-local-same-name. |
+| 2241 to 2243 | AL0440 | In one app, a protected or public page extension procedure with the name and parameters of a protected or public base page procedure (writer TI). A local base procedure never clashes. |
+| 2262 to 2267 | AL0132 | `X::Value` where the table has a field X (enum A) and an enum type X exists: a member only A has in a procedure of a TableNo codeunit, a member only type X has in its OnRun trigger, a member only type X has in the table, in a page on it, and with a global or local variable X (writer UB, issue 6129). |
+| 2300 | AL0223 | BC 29 and later: `TestHandlers` on a codeunit without `Subtype = Test` (the handler value itself is valid). |
+| 2301 | AL0383 | BC 29 and later: `TestHandlers` names an enum value that the system enum TestHandler does not have. |
+| 2302 | AL0189 | BC 29 and later: `[Test]` together with `[TestDataSource]` on one procedure. |
+| 2303 | AL0240 | BC 29 and later: a `[TestDataSource]` procedure whose parameter is an Integer instead of `Interface ITestContext`. |
+| 2305 | AL0261 | BC 29 and later: `TestHandlers` lists the same enum value twice (two different values are accepted: tests/al-language-testlibraries/lt-bi-test-framework/BiTestHandlerBehavior.al). |
 
 Accepted by the compiler, so not cases: an overload in a page extension (the name of a base procedure with other parameter types: tests/al-language/pageext/POPageExtOverload.al), and a bare `exit;` in a procedure with a return value. Also accepted (writer SH, AL 30 on BC 27, 28 and 29): enum, enum extension, enum value, interface and control add-in names longer than 30 characters, a permission set name of 20 characters, field, procedure and variable names of 31 to 120 characters (misc/lt-cv-odd-leads/CvEnumLongNames.al, `LongNamesThatCompile`), objects of different types with one id, an id that an app it does not depend on also uses, and `exit(value)` in the page triggers that return a value (OnQueryClosePage, OnFindRecord, OnNextRecord, OnInsertRecord, OnModifyRecord, OnDeleteRecord, a field OnLookup).
 
@@ -627,3 +636,29 @@ The reusable workflow compiles apps that must build, so it cannot run these. A j
 that major (`bc-linux/scripts/install-al-compiler.sh <bc_version>`), stage the symbols of that major (the step that fills `symbols/` in
 `bc-test-from-source.yml`), then run `check-must-not-compile.py --al AL --symbols symbols --bc-major <major> --al-major <AL major>`. The job needs no
 BC container. Run locally with the tools in `~/.al-tool-cache` it passes today with AL 16.2, 17.0.34, 18.0.43 and 30.0.42 on the 27.0 symbols.
+| 2260 | AL0416 | A control add-in procedure declares a return value (writer TZ). |
+| 2261 | AL0783 | A page extension calls a procedure of the base page's usercontrol (writer TZ). |
+| 2310 | AL1039 | app.json `"runtime": "14"` (writer Y10). |
+| 2311 | AL1039 | app.json `"runtime": 14` (writer Y10). |
+| 2312 | AL1039 | app.json `"runtime": 14.0` (writer Y10). |
+| 2313 | AL1039 | app.json `"runtime": "abc"` (writer Y10). |
+| 2314 | AL1039 | app.json `"runtime": "14.0.0"` (writer Y10). |
+| 2315 | AL1039 | app.json `"runtime": "15.0.0.0"` (writer Y10). |
+| 2316 | AL1039 | app.json `"runtime": "14."` (writer Y10). |
+| 2317 | AL1039 | app.json `"runtime": ".0"` (writer Y10). |
+| 2318 | AL1039 | app.json `"runtime": "-1.0"` (writer Y10). |
+| 2319 | AL1043 | app.json `"runtime": "0.0"` (writer Y10). |
+| 2320 | AL1043 | app.json `"runtime": "19.0"` (writer Y10). |
+| 2321 | AL1043 | app.json `"runtime": "99.0"` (writer Y10). |
+| 2330, 2331 | AL0301 | a Label declaration with a trailing comma after a property (`Locked = true,;`, `Comment = 'c',;`); a comma right after the text compiles: tests/al-language/text/lt-label-textbuilder/TxCLabel.al (writer Y12). |
+| 2332 | AL0107 | a Label declaration with two commas after the text (`'T',,;`) (writer Y12). |
+| 2333, 2334 | AL0305 | a permission set with `Assignable = false` / no `Assignable` and a 31-character name: "cannot exceed 30 characters" (21 to 30 compile: tests/al-language/permissions/lt-y12-permset-name-length/Y12PermSetNames.al; `Assignable = true` is limited to 20, case 2131) (writer Y12). |
+| 2335 | AL0460 | a [RunOnClient] [WithEvents] DotNet variable in a codeunit (OnPrem app): client-side events are allowed only on pages and page extensions; the same declaration on a page compiles: tests/al-language-onprem-dotnet/lt-bg-runonclient/Y16RunOnClientShapes.al (writer Y16). |
+| 2350 | AL0427 | an Enum lookup FlowField over an Option field (the Option lookup FlowField over an Enum field compiles: tests/al-language/record/lt-flowfield-lookup-enum/Y20FlowFieldLookupEnumIntoOption.al) (writer Y20). |
+| 2351 to 2354 | AL0270 | a page extension adds to area(FactBoxes) of a ListPart, CardPart, RoleCenter or HeadlinePart page that declares none; Card, List, Worksheet, Document, ListPlus, StandardDialog, ConfirmationDialog and NavigatePage pages accept it: tests/al-language/pageext/lt-bc-implicit-areas (writer Y20). |
+| 2355 | AL0791 | a DotNet variable named A.B.C is namespace + alias: a name with namespaces no app declares (OnPrem app) (writer Y20). |
+| 2356 | AL0161 | a table extension uses a plain `var` global of another extension of the same table in the same app; with `protected var` it compiles: tests/al-language/tableextension/lt-y20-sibling-globals/Y20TableExtSiblingGlobals.al (writer Y20). |
+| 2357, 2358 | AL0185 | a DotNet variable naming the .NET full type name of a type the app declares under another alias, quoted / unquoted (OnPrem app); `DotNet System.DateTime` compiles because System Application declares alias DateTime in namespace System: tests/al-language-onprem-dotnet/lt-y20-dotnet-fullname/Y20DotNetFullTypeName.al (writer Y20). |
+| 2359 | AL0275 | an app declares outside a namespace a dotnet alias with the name of a System Application alias (String): the bare alias is ambiguous (OnPrem app) (writer Y20). |
+| 2365 to 2372 | AL0129, AL0126, AL0135, AL0133 | the assignment form `X.M := v` of a method-like member where M has no single one-parameter overload: only a getter (`XmlDocument.NameTable`, `XmlElement.InnerText`), a compound assignment (`HttpClient.Timeout += 1`), two one-parameter overloads (`JsonObject.ReadFrom`, AL0126 "takes 0 arguments"), two parameters (`XmlNamespaceManager.AddNamespace`, AL0135), only optional parameters (`Record.LockTable`), no parameter (`XmlNamespaceManager.PushScope`), a right side of the wrong type (`XmlDocument.SetDeclaration`, AL0133). The forms that compile are tested in tests/al-language/record/ProbePropertyAssignmentForms.al and xml/XmlXPathNamespaces.al (writer Y29). |
+| - | - | app.json `"runtime"` values the AL 30.0.43 compiler accepts (no case possible here): `" 14.0"`, `"14.0 "`, `"16.01"`, `""` and `"30.0"` (writer Y10). |
