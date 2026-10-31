@@ -668,6 +668,8 @@ codeunit 69451 "Probe Property Assign Forms"
     // SecurityFiltering, ReadIsolation, ChangeCompany) and on a FieldRef (Validate), next to the call form. Compile (alc 18.1
     // runtime 16.0 and alc 30 runtime 18.0, same result): these compile; RecordRef.LockTable := and ReadConsistency := (AL0129),
     // FieldRef.SetRange := (AL0129) and FieldRef.SetFilter := (AL0135) do not (must-not-compile cases 2501 to 2504).
+    // BC (SaaS BC 29): every assignment form does what the call form does: marks set by RR.Mark := true in a loop on a var RecordRef
+    // are seen by MarkedOnly(true) (2 of 4 rows) and kept by Duplicate() and a copy; MarkedOnly := true with no marks finds 0 rows.
     local procedure Y36SeedRows()
     var
         Row: Record "Probe Pf Row";
@@ -732,7 +734,14 @@ codeunit 69451 "Probe Property Assign Forms"
         RR.MarkedOnly(true);
         Observer.Observe('markedonly_after_unmark_3', Y36Ids(RR));
         RR.Close();
-        Observer.Finish();
+        Observer.Expect('all_rows_before_markedonly', '4:1,2,3,4');
+        Observer.Expect('markedonly_call_true', '2:2,3');
+        Observer.Expect('markedonly_assign_false', '4:1,2,3,4');
+        Observer.Expect('markedonly_getter_after_assign_false', 'No');
+        Observer.Expect('markedonly_assign_true', '2:2,3');
+        Observer.Expect('markedonly_getter_after_assign_true', 'Yes');
+        Observer.Expect('markedonly_after_unmark_3', '1:2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -758,7 +767,13 @@ codeunit 69451 "Probe Property Assign Forms"
         RR.MarkedOnly(true);
         Observer.Observe('markedonly_after_all_cleared', Y36Ids(RR));
         RR.Close();
-        Observer.Finish();
+        Observer.Expect('mark_initial', 'No');
+        Observer.Expect('mark_after_assign_true', 'Yes');
+        Observer.Expect('mark_after_call_false', 'No');
+        Observer.Expect('mark_after_assign_true_then_false', 'No');
+        Observer.Expect('mark_assign_false_on_unmarked', 'No');
+        Observer.Expect('markedonly_after_all_cleared', '0:');
+        Observer.Verify();
     end;
 
     [Test]
@@ -787,7 +802,14 @@ codeunit 69451 "Probe Property Assign Forms"
         Observer.Observe('markedonly_assign_no_marks', Y36Ids(RR));
         Observer.Observe('markedonly_getter_no_marks', Format(RR.MarkedOnly()));
         RR.Close();
-        Observer.Finish();
+        Observer.Expect('ascending_initial', 'Yes');
+        Observer.Expect('ascending_after_assign_false', 'No');
+        Observer.Expect('findfirst_descending', '4');
+        Observer.Expect('findfirst_key2_ascending', '4 a');
+        Observer.Expect('findfirst_key2_descending', '1 d');
+        Observer.Expect('markedonly_assign_no_marks', '0:');
+        Observer.Expect('markedonly_getter_no_marks', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -813,7 +835,10 @@ codeunit 69451 "Probe Property Assign Forms"
         Observer.Observe('copy_markedonly', Y36Ids(RR3));
         Observer.Observe('original_markedonly_after_copy', Format(RR.MarkedOnly()));
         RR.Close();
-        Observer.Finish();
+        Observer.Expect('duplicate_markedonly', '2:1,2');
+        Observer.Expect('copy_markedonly', '2:1,2');
+        Observer.Expect('original_markedonly_after_copy', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -842,7 +867,14 @@ codeunit 69451 "Probe Property Assign Forms"
         FR.Value := 'w';
         Observer.Observe('fieldref_value_assign', Format(FR.Value()));
         RR.Close();
-        Observer.Finish();
+        Observer.Expect('filtergroup', '2');
+        Observer.Expect('securityfiltering', 'Filtered');
+        Observer.Expect('readisolation', 'ReadCommitted');
+        Observer.Expect('changecompany_result_before', 'Yes');
+        Observer.Expect('changecompany_same', 'Yes 4');
+        Observer.Expect('fieldref_validate_assign', 'v');
+        Observer.Expect('fieldref_value_assign', 'w');
+        Observer.Verify();
     end;
 }
 

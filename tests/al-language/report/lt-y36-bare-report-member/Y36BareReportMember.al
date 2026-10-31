@@ -9,6 +9,11 @@
 //   compile in a report and in a report extension. Bare Preview(), Skip(), Quit(), PageNo(), TotalsCausedBy(), ShowOutput(), NewPage(),
 //   CreateTotals() give AL0161 "is inaccessible due to its protection level" (must-not-compile cases 2505 to 2509); Break() is the
 //   loop statement, so `Break();` is a syntax error.
+// BC (SaaS BC 29): the bare form is the instance itself, the same value as CurrReport. and as the variable: on a variable never run
+//   UseRequestPage() is Yes for a report with a request page and No for UseRequestPage = false; during Report.Run(id, false) and a run
+//   after the bare setter UseRequestPage(false) it is No in both forms; the bare setter (also from a report extension) makes the next
+//   Run() show no request page; a variable setter is seen by the bare getter. Bare SetTableView(R) filters the next run (row 2 only).
+//   The run with the request page (Report.Run(id, true) with a handler) is measured on the CI containers only (no UI on the SaaS route).
 // BC versions: 29 (27 and 28 by CI)
 table 92376 "LT Y36 BRM Row"
 {
@@ -215,7 +220,15 @@ codeunit 92381 "LT Y36 BRM Tests"
         RptA.LogBare('unrun');
         Observer.Observe('log_unrun_A', L.Take());
         Observer.Observe('other_bare_unrun_A', RptA.OtherBare());
-        Observer.Finish();
+        Observer.Expect('bare_getter_unrun_A', 'Yes');
+        Observer.Expect('variable_getter_unrun_A', 'Yes');
+        Observer.Expect('bare_getter_unrun_B', 'No');
+        Observer.Expect('variable_getter_unrun_B', 'No');
+        Observer.Expect('ext_bare_getter_unrun_A', 'Yes');
+        Observer.Expect('ext_curr_getter_unrun_A', 'Yes');
+        Observer.Expect('log_unrun_A', 'unrun bare=Yes curr=Yes;');
+        Observer.Expect('other_bare_unrun_A', 'objectid=Yes Report 92377 readonly=No/No language=Yes region=Yes onlyifdetail=No/No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -227,7 +240,10 @@ codeunit 92381 "LT Y36 BRM Tests"
         Observer.Observe('static_run_false', Format(TryStaticRunA(false)));
         Observer.Observe('static_run_false_error', GetLastErrorText());
         Observer.Observe('log_static_run_false', L.Take());
-        Observer.Finish();
+        Observer.Expect('static_run_false', 'Yes');
+        Observer.Expect('static_run_false_error', '');
+        Observer.Expect('log_static_run_false', 'pre bare=No curr=No;pre other objectid=Yes Report 92377 readonly=No/No language=Yes region=Yes onlyifdetail=No/No;row 1;row 2;row 3;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -255,7 +271,12 @@ codeunit 92381 "LT Y36 BRM Tests"
         Observer.Observe('run_after_bare_setter', Format(TryRunA(RptA)));
         Observer.Observe('run_after_bare_setter_error', GetLastErrorText());
         Observer.Observe('log_run_after_bare_setter', L.Take());
-        Observer.Finish();
+        Observer.Expect('variable_getter_after_bare_setter', 'No');
+        Observer.Expect('bare_getter_after_bare_setter', 'No');
+        Observer.Expect('run_after_bare_setter', 'Yes');
+        Observer.Expect('run_after_bare_setter_error', '');
+        Observer.Expect('log_run_after_bare_setter', 'pre bare=No curr=No;pre other objectid=Yes Report 92377 readonly=No/No language=Yes region=Yes onlyifdetail=No/No;row 1;row 2;row 3;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -271,7 +292,12 @@ codeunit 92381 "LT Y36 BRM Tests"
         Observer.Observe('run_after_ext_setter', Format(TryRunA(RptA)));
         Observer.Observe('run_after_ext_setter_error', GetLastErrorText());
         Observer.Observe('log_run_after_ext_setter', L.Take());
-        Observer.Finish();
+        Observer.Expect('variable_getter_after_ext_setter', 'No');
+        Observer.Expect('ext_getter_after_ext_setter', 'No');
+        Observer.Expect('run_after_ext_setter', 'Yes');
+        Observer.Expect('run_after_ext_setter_error', '');
+        Observer.Expect('log_run_after_ext_setter', 'pre bare=No curr=No;pre other objectid=Yes Report 92377 readonly=No/No language=Yes region=Yes onlyifdetail=No/No;row 1;row 2;row 3;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -290,7 +316,11 @@ codeunit 92381 "LT Y36 BRM Tests"
         Observer.Observe('B_bare_getter_after_variable_true', Format(RptB.GetUseRp()));
         RptB.UseRequestPage(false);
         Observer.Observe('B_bare_getter_after_variable_false', Format(RptB.GetUseRp()));
-        Observer.Finish();
+        Observer.Expect('A_bare_getter_after_variable_false', 'No');
+        Observer.Expect('A_bare_getter_after_variable_true', 'Yes');
+        Observer.Expect('B_bare_getter_after_variable_true', 'Yes');
+        Observer.Expect('B_bare_getter_after_variable_false', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -306,7 +336,9 @@ codeunit 92381 "LT Y36 BRM Tests"
         RptA.UseRequestPage(false);
         Observer.Observe('run_after_bare_settableview', Format(TryRunA(RptA)));
         Observer.Observe('log_run_after_bare_settableview', L.Take());
-        Observer.Finish();
+        Observer.Expect('run_after_bare_settableview', 'Yes');
+        Observer.Expect('log_run_after_bare_settableview', 'pre bare=No curr=No;pre other objectid=Yes Report 92377 readonly=No/No language=Yes region=Yes onlyifdetail=No/No;row 2;');
+        Observer.Verify();
     end;
 
     [RequestPageHandler]

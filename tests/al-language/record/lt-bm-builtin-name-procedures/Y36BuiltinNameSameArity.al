@@ -8,6 +8,10 @@
 //   Validate(Text; Text), Row3.Get('A') next to own Get(Code[20]) all compile. Row.Insert(true, true, true) next to own
 //   Insert(Integer; Text; Boolean) does not compile (AL0133, must-not-compile case 2500).
 // The tests record which one runs: the table procedure (it writes a marker into Note and changes no row) or the built-in.
+// BC (SaaS BC 29): the built-in runs whenever the call does not fit the own procedure's types: Get(1, 2) raises AL:ToManyKeyFields
+//   (built-in Get, one-field key), Delete(true) deletes the row, Validate(Note, 'x') validates the field. With matching types the own
+//   procedure runs: Delete('why') and Validate('Note', 'y') (Text, Text) run the table procedure, Get('A') on the Code key table runs
+//   own Get(Code[20]) (returns No, nothing loaded). Bare Insert() and Get(1) inside the table code reach the built-ins.
 // BC versions: 29 (27 and 28 by CI)
 table 92370 "LT Y36 SameArity"
 {
@@ -160,7 +164,11 @@ codeunit 92373 "LT Y36 SameArity"
         else
             Observer.Observe('get_1_2_unused', 'error ' + GetLastErrorCode() + ': ' + GetLastErrorText());
         Observer.Observe('note_after_get_1_2_unused', '[' + Row.Note + '] id ' + Format(Row.Id));
-        Observer.Finish();
+        Observer.Expect('get_1_2', 'error AL:ToManyKeyFields: Too many key fields were specified, so "LT Y36 SameArity" could not be retrieved. The number of fields in the primary key is 1.');
+        Observer.Expect('note_after_get_1_2', '[caller] id 0');
+        Observer.Expect('get_1_2_unused', 'error AL:ToManyKeyFields: Too many key fields were specified, so "LT Y36 SameArity" could not be retrieved. The number of fields in the primary key is 1.');
+        Observer.Expect('note_after_get_1_2_unused', '[caller] id 0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -173,7 +181,9 @@ codeunit 92373 "LT Y36 SameArity"
         Row.Note := 'caller';
         Observer.Observe('get_2_result', Format(Row.Get(2)));
         Observer.Observe('note_after_get_2', '[' + Row.Note + '] id ' + Format(Row.Id));
-        Observer.Finish();
+        Observer.Expect('get_2_result', 'Yes');
+        Observer.Expect('note_after_get_2', '[stored 2] id 2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -200,7 +210,18 @@ codeunit 92373 "LT Y36 SameArity"
         Observer.Observe('delete_noarg_result', Format(Row.Delete()));
         Observer.Observe('note_after_delete_noarg', '[' + Row.Note + ']');
         Observer.Observe('stored_after_delete_noarg', Stored());
-        Observer.Finish();
+        Observer.Expect('delete_true_result', 'Yes');
+        Observer.Expect('note_after_delete_true', '[stored 1]');
+        Observer.Expect('stored_after_delete_true', '1:2=stored 2;');
+        Observer.Expect('note_after_delete_true_unused', '[stored 2]');
+        Observer.Expect('stored_after_delete_true_unused', '0:');
+        Observer.Expect('delete_text_result', 'No');
+        Observer.Expect('note_after_delete_text', '[own Delete(Text)]');
+        Observer.Expect('stored_after_delete_text', '2:1=stored 1;2=stored 2;');
+        Observer.Expect('delete_noarg_result', 'Yes');
+        Observer.Expect('note_after_delete_noarg', '[stored 1]');
+        Observer.Expect('stored_after_delete_noarg', '1:2=stored 2;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -220,7 +241,11 @@ codeunit 92373 "LT Y36 SameArity"
         Row.Validate('Note', 'y');
         Observer.Observe('note_after_validate_text_text', '[' + Row.Note + ']');
         Observer.Observe('stored_after_validates', Stored());
-        Observer.Finish();
+        Observer.Expect('note_after_validate_field_text', '[x]');
+        Observer.Expect('after_validate_id_7', '[stored 1] id 7');
+        Observer.Expect('note_after_validate_text_text', '[own Validate]');
+        Observer.Expect('stored_after_validates', '2:1=stored 1;2=stored 2;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -239,7 +264,11 @@ codeunit 92373 "LT Y36 SameArity"
         Row.Note := 'caller insert';
         Row.Insert();
         Observer.Observe('stored_after_rec_insert', Stored());
-        Observer.Finish();
+        Observer.Expect('bare_insert_then_get_1', 'Yes stored 1');
+        Observer.Expect('row_after_bare_calls', '[stored 1] id 1');
+        Observer.Expect('stored_after_bare_calls', '3:1=stored 1;2=stored 2;5=inside;');
+        Observer.Expect('stored_after_rec_insert', '4:1=stored 1;2=stored 2;5=inside;6=caller insert;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -260,6 +289,10 @@ codeunit 92373 "LT Y36 SameArity"
         Row3.Note := 'caller';
         Observer.Observe('get_Z_result', Format(Row3.Get('Z')));
         Observer.Observe('row3_after_get_Z', '[' + Row3.Note + '] no [' + Row3.No + ']');
-        Observer.Finish();
+        Observer.Expect('get_A_result', 'No');
+        Observer.Expect('row3_after_get_A', '[own Get(Code)] no []');
+        Observer.Expect('get_Z_result', 'No');
+        Observer.Expect('row3_after_get_Z', '[own Get(Code)] no []');
+        Observer.Verify();
     end;
 }

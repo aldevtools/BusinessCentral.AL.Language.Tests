@@ -931,7 +931,9 @@ codeunit 73804 "LT DtT Format"
     end;
 
     // Writer Y36 (gap cycle 3, C3-08): codes without a width on a DateTime (<Minutes>, <Seconds>, <Thousands>, <Hours24>, <Hours12>,
-    // <Year>) and the time stamp string of Microsoft's Quality Management test library.
+    // <Year>) and the time stamp string of Microsoft's Quality Management test library.    // BC (SaaS BC 29): no padding: <Minutes> 0, 5, 9, 10; <Seconds> 0, 5, 9; <Thousands> 0, 5, 78; <Hours24> 0 at 00:30; <Hours12> 12 at
+    // 00:30; so the Quality Management stamp of 2026-03-05 09:07:02 is 260305972. <Year> gives two digits for 1998, 2005, 2031 and four
+    // digits for 2099.
     [Test]
     procedure Y36_DateTime_Format_Minutes_NoWidth()
     var
@@ -943,7 +945,13 @@ codeunit 73804 "LT DtT Format"
         Observer.Observe('min_121000', FmtStr(CreateDateTime(20260305D, 121000T), '<Minutes>'));
         Observer.Observe('min_090702_123', FmtStr(CreateDateTime(20260305D, 090702.123T), '<Minutes>'));
         Observer.Observe('min_125900', FmtStr(CreateDateTime(20260305D, 125900T), '<Minutes>'));
-        Observer.Finish();
+        Observer.Expect('min_120000', '[0]');
+        Observer.Expect('min_120500', '[5]');
+        Observer.Expect('min_120900', '[9]');
+        Observer.Expect('min_121000', '[10]');
+        Observer.Expect('min_090702_123', '[7]');
+        Observer.Expect('min_125900', '[59]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -957,7 +965,13 @@ codeunit 73804 "LT DtT Format"
         Observer.Observe('sec_120010', FmtStr(CreateDateTime(20260305D, 120010T), '<Seconds>'));
         Observer.Observe('sec_120059', FmtStr(CreateDateTime(20260305D, 120059T), '<Seconds>'));
         Observer.Observe('sec_120005_5', FmtStr(CreateDateTime(20260305D, 120005.5T), '<Seconds>'));
-        Observer.Finish();
+        Observer.Expect('sec_120000', '[0]');
+        Observer.Expect('sec_120005', '[5]');
+        Observer.Expect('sec_120009', '[9]');
+        Observer.Expect('sec_120010', '[10]');
+        Observer.Expect('sec_120059', '[59]');
+        Observer.Expect('sec_120005_5', '[5]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -975,7 +989,15 @@ codeunit 73804 "LT DtT Format"
         Observer.Observe('q_prefix_A', FmtStr(CreateDateTime(20260305D, 090702T), 'A' + Stamp));
         Observer.Observe('q_prefix_A0SM', FmtStr(CreateDateTime(20260305D, 090702T), 'A0SM-A' + Stamp));
         Observer.Observe('q_padstr_A', PadStr(Format(CreateDateTime(20260305D, 090702T), 0, 'A' + Stamp), 19, '0'));
-        Observer.Finish();
+        Observer.Expect('q_20260305_090702', '[260305972]');
+        Observer.Expect('q_20261231_235959', '[261231235959]');
+        Observer.Expect('q_20260101_000000', '[260101000]');
+        Observer.Expect('q_20261031_140509', '[2610311459]');
+        Observer.Expect('q_20260305_100000', '[2603051000]');
+        Observer.Expect('q_prefix_A', '[A260305972]');
+        Observer.Expect('q_prefix_A0SM', '[A0SM-A260305972]');
+        Observer.Expect('q_padstr_A', 'A260305972000000000');
+        Observer.Verify();
     end;
 
     [Test]
@@ -990,7 +1012,14 @@ codeunit 73804 "LT DtT Format"
         Observer.Observe('ms_999', FmtStr(CreateDateTime(20260305D, 120000.999T), '<Thousands>'));
         Observer.Observe('z_stamp_078', FmtStr(CreateDateTime(20260305D, 090702.078T), 'Z<Year><Month,2><Day,2><Hours24><Minutes><Seconds><Thousands>'));
         Observer.Observe('z_stamp_000', FmtStr(CreateDateTime(20260305D, 090702T), 'Z<Year><Month,2><Day,2><Hours24><Minutes><Seconds><Thousands>'));
-        Observer.Finish();
+        Observer.Expect('ms_000', '[0]');
+        Observer.Expect('ms_005', '[5]');
+        Observer.Expect('ms_078', '[78]');
+        Observer.Expect('ms_123', '[123]');
+        Observer.Expect('ms_999', '[999]');
+        Observer.Expect('z_stamp_078', '[Z26030597278]');
+        Observer.Expect('z_stamp_000', '[Z2603059720]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1013,6 +1042,21 @@ codeunit 73804 "LT DtT Format"
         Observer.Observe('year_2099', FmtStr(CreateDateTime(20990305D, 120000T), '<Year>'));
         Observer.Observe('year_1998', FmtStr(CreateDateTime(19980305D, 120000T), '<Year>'));
         Observer.Observe('year_2005', FmtStr(CreateDateTime(20050305D, 120000T), '<Year>'));
-        Observer.Finish();
+        Observer.Expect('h24_0030', '[0]');
+        Observer.Expect('h24_0900', '[9]');
+        Observer.Expect('h24_1200', '[12]');
+        Observer.Expect('h24_2300', '[23]');
+        Observer.Expect('h12_0030', '[12]');
+        Observer.Expect('h12_0900', '[9]');
+        Observer.Expect('h12_1200', '[12]');
+        Observer.Expect('h12_2300', '[11]');
+        Observer.Expect('ampm_0030', '[AM]');
+        Observer.Expect('ampm_1200', '[PM]');
+        Observer.Expect('ampm_2300', '[PM]');
+        Observer.Expect('year_2031', '[31]');
+        Observer.Expect('year_2099', '[2099]');
+        Observer.Expect('year_1998', '[98]');
+        Observer.Expect('year_2005', '[05]');
+        Observer.Verify();
     end;
 }
