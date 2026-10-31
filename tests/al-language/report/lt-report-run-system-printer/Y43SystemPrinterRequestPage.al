@@ -232,6 +232,20 @@ codeunit 92857 "LT Y43 SP Request Page Tests"
         Request.OK().Invoke();
     end;
 
+    [RequestPageHandler]
+    procedure RlPrint(var Request: TestRequestPage "LT Y43 SP Layout")
+    begin
+        Log.Add('rp');
+        Request.Print().Invoke();
+    end;
+
+    [RequestPageHandler]
+    procedure RlPreview(var Request: TestRequestPage "LT Y43 SP Layout")
+    begin
+        Log.Add('rp');
+        Request.Preview().Invoke();
+    end;
+
     [ReportHandler]
     procedure RlReport(var R: Report "LT Y43 SP Layout")
     begin
@@ -282,6 +296,7 @@ codeunit 92857 "LT Y43 SP Request Page Tests"
     begin
         Seed();
         Observer.Observe('systemPrinterTrue', Outcome(Report::"LT Y43 SP Layout", false, true, true));
+        Observer.Observe('systemPrinterFalse', Outcome(Report::"LT Y43 SP Layout", false, true, false));
         Observer.Finish();
     end;
 
@@ -293,6 +308,7 @@ codeunit 92857 "LT Y43 SP Request Page Tests"
     begin
         Seed();
         Observer.Observe('systemPrinterTrue', Outcome(Report::"LT Y43 SP Layout", false, false, true));
+        Observer.Observe('systemPrinterFalse', Outcome(Report::"LT Y43 SP Layout", false, false, false));
         Observer.Finish();
     end;
 
@@ -303,6 +319,31 @@ codeunit 92857 "LT Y43 SP Request Page Tests"
     begin
         Seed();
         Observer.Observe('systemPrinterTrue', Outcome(Report::"LT Y43 SP Layout", false, false, true));
+        Observer.Observe('systemPrinterFalse', Outcome(Report::"LT Y43 SP Layout", false, false, false));
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('RlPrint')]
+    procedure Y43_G411_Layout_Run_ReqTrue_Sp_Print()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        Observer.Observe('systemPrinterTrue', Outcome(Report::"LT Y43 SP Layout", false, true, true));
+        Observer.Observe('systemPrinterFalse', Outcome(Report::"LT Y43 SP Layout", false, true, false));
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('RlPreview')]
+    procedure Y43_G411_Layout_Run_ReqTrue_Sp_Preview()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        Observer.Observe('systemPrinterTrue', Outcome(Report::"LT Y43 SP Layout", false, true, true));
+        Observer.Observe('systemPrinterFalse', Outcome(Report::"LT Y43 SP Layout", false, true, false));
         Observer.Finish();
     end;
 }

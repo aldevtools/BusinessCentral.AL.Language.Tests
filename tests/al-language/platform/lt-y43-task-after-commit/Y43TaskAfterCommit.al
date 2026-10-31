@@ -80,20 +80,11 @@ codeunit 92852 "LT Y43 TS After Commit"
     Subtype = Test;
     TestPermissions = Disabled;
 
-    [TryFunction]
-    local procedure TryCancel(Id: Guid; var Answer: Boolean)
-    begin
-        Answer := TaskScheduler.CancelTask(Id);
-    end;
-
+    // CancelTask is called directly, not in a TryFunction: on the Windows 28.5 container a CancelTask inside a TryFunction ends the test with
+    // "Call to the function 'DELETE' is not allowed inside the call to '<test>' when it is used as a TryFunction." (the SaaS sandbox allows it).
     local procedure Cancel(Id: Guid): Text
-    var
-        Answer: Boolean;
     begin
-        ClearLastError();
-        if TryCancel(Id, Answer) then
-            exit(Format(Answer));
-        exit('error:' + GetLastErrorText() + '|' + GetLastErrorCode());
+        exit(Format(TaskScheduler.CancelTask(Id)));
     end;
 
     local procedure ReadTask(Id: Guid): Text
