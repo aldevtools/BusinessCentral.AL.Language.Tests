@@ -274,4 +274,99 @@ codeunit 73711 "LT P132 Report Tests"
         Observer.Expect('row_error', 'LT P132 row 2 failed|Dialog');
         Observer.Verify();
     end;
+
+    // Writer Y38 (gap cycle 3, C3-19): the stored Time of a row (read back with Get) and its dataset column, for milliseconds near the next
+    // second, to tell a rounding of the stored value from a rounding of the dataset text (ms_999 above shows 235959.999T as 12:00:00 AM).
+    local procedure Y38StoredAndColumn(var Observer: Codeunit "Probe Observer"; ObsName: Text; Tm: Time)
+    var
+        Row: Record "LT P132 Time Row";
+        NoDt: DateTime;
+    begin
+        RunOne(Observer, ObsName + '_col', Tm, NoDt, 0);
+        Row.Get(1);
+        Observer.Observe(ObsName + '_stored', Format(Row.Tm, 0, 9) + '|' + Format(Row.Tm = Tm));
+    end;
+
+    [Test]
+    procedure Y38_P132_Dataset_Time_NearNextSecond()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Y38StoredAndColumn(Observer, 'ms_995', 133000.995T);
+        Y38StoredAndColumn(Observer, 'ms_997', 133000.997T);
+        Y38StoredAndColumn(Observer, 'ms_998', 133000.998T);
+        Y38StoredAndColumn(Observer, 'ms_999', 133000.999T);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y38_P132_Dataset_Time_OtherMilliseconds()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Y38StoredAndColumn(Observer, 'ms_002', 133000.002T);
+        Y38StoredAndColumn(Observer, 'ms_499', 133000.499T);
+        Y38StoredAndColumn(Observer, 'ms_501', 133000.501T);
+        Y38StoredAndColumn(Observer, 'ms_750', 133000.750T);
+        Observer.Finish();
+    end;
+
+    // The same Time values as a column bound to a global variable of the report (not stored in a table).
+    local procedure Y38VarColumn(Tm: Time): Text
+    var
+        Rep: Report "LT Y38 Time Var Report";
+        TempBlob: Codeunit "Temp Blob";
+        OutStr: OutStream;
+        InStr: InStream;
+        Line: Text;
+        Result: Text;
+    begin
+        Rep.SetTime(Tm);
+        TempBlob.CreateOutStream(OutStr);
+        if not Rep.SaveAs('', ReportFormat::Xml, OutStr) then
+            exit('SaveAs false');
+        TempBlob.CreateInStream(InStr, TextEncoding::UTF8);
+        while not InStr.EOS() do begin
+            InStr.ReadText(Line);
+            Line := Line.Trim();
+            if Line.StartsWith('<Column ') then
+                Result += Line + '|';
+        end;
+        exit(Result);
+    end;
+
+    [Test]
+    procedure Y38_P132_Dataset_Time_GlobalVariable()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('var_500', Y38VarColumn(133000.500T));
+        Observer.Observe('var_998', Y38VarColumn(133000.998T));
+        Observer.Observe('var_999', Y38VarColumn(133000.999T));
+        Observer.Observe('var_235959_999', Y38VarColumn(235959.999T));
+        Observer.Finish();
+    end;
+}
+
+// Writer Y38 (gap cycle 3, C3-19): one row (Integer 1) with a column bound to a global Time variable. No layout: run with SaveAs Xml only.
+report 92589 "LT Y38 Time Var Report"
+{
+    UsageCategory = None;
+
+    dataset
+    {
+        dataitem(Num; Integer)
+        {
+            DataItemTableView = where(Number = const(1));
+            column(TmC; GlobalTm) { }
+        }
+    }
+
+    var
+        GlobalTm: Time;
+
+    procedure SetTime(Tm: Time)
+    begin
+        GlobalTm := Tm;
+    end;
 }
