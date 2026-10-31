@@ -63,7 +63,10 @@ codeunit 91553 "LT Y12 Published As"
         Row.Reset();
         Row.SetRange(Publisher, 'Microsoft');
         Row.SetFilter("Published As", '<>%1', Row."Published As"::Global);
+        // Environment data, not asserted: the SaaS sandbox has only Global Microsoft apps (Yes), the corpus CI containers also hold Microsoft
+        // apps that CI publishes itself (test libraries), so there it is No.
         Observer.Observe('microsoft_not_global_isempty', Format(Row.IsEmpty()));
+        Observer.Ignore('microsoft_not_global_isempty');
         Row.SetRange("Published As", Row."Published As"::Global);
         Observer.Observe('microsoft_global_isempty', Format(Row.IsEmpty()));
         Row.Reset();
@@ -73,7 +76,6 @@ codeunit 91553 "LT Y12 Published As"
         Observer.Expect('this_app_global_isempty', 'Yes');
         Observer.Expect('this_app_dev_isempty', 'No');
         Observer.Expect('this_app_pte_isempty', 'Yes');
-        Observer.Expect('microsoft_not_global_isempty', 'Yes');
         Observer.Expect('microsoft_global_isempty', 'No');
         Observer.Expect('corpus_publisher_global_count', '0');
         Observer.Verify();
