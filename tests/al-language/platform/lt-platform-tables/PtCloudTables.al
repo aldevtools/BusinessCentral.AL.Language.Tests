@@ -16,6 +16,7 @@ codeunit 67107 "LT PT Cloud Tables"
     var
         Ops: Codeunit "LT PT Ops";
         Y17Inserted: Boolean;
+        Y17Observer: Codeunit "Probe Observer";
 
     local procedure Standard(var Observer: Codeunit "Probe Observer"; TableNo: Integer; InsertRequest: Text; FilterRequest: Text; ChangeRequest: Text)
     begin
@@ -677,7 +678,7 @@ codeunit 67107 "LT PT Cloud Tables"
                 Company := Cfg."Company Name";
                 if Company = CompanyName() then
                     Company := '<current company>';
-                Result += Format(Cfg."Report ID") + '|' + Cfg."Layout Name" + '|' + Company + '|' + Y17Shorten(Cfg."Header Part Name") + '|' + Y17Shorten(Cfg."Theme Part Name") + ';';
+                Result += Format(Cfg."Report ID") + '|' + Y17Shorten(Cfg."Layout Name") + '|' + Company + '|' + Y17Shorten(Cfg."Header Part Name") + '|' + Y17Shorten(Cfg."Theme Part Name") + ';';
             until Cfg.Next() = 0;
         exit(Result);
     end;
@@ -699,7 +700,6 @@ codeunit 67107 "LT PT Cloud Tables"
     var
         Cfg: Record "Tenant Report Layout Cfg";
         Layouts: Record "Report Layout List";
-        Observer: Codeunit "Probe Observer";
         Text1: Text;
         HF: Text;
         Th: Text;
@@ -716,31 +716,37 @@ codeunit 67107 "LT PT Cloud Tables"
             repeat
                 Text1 += Format(Layouts."Report ID") + '|' + Layouts.Name + '|' + Format(Layouts."Layout Format") + '|' + Format(Layouts."Layout Subtype") + ';';
             until Layouts.Next() = 0;
-        Observer.Observe('part layouts', Text1);
-        Observer.Observe('fresh rows', Format(Cfg.Count()));
+        Y17Observer.Observe('part layouts', Text1);
+        Y17Observer.Observe('fresh rows', Format(Cfg.Count()));
         Cfg.DeleteAll();
-        Y17Try(Observer, 'invalid header part', Y17TryInsertCfg(0, '', '', 'x::A', 'y::B'));
-        Y17Try(Observer, 'header part of the theme subtype', Y17TryInsertCfg(0, '', '', DTh, DTh));
-        Y17Try(Observer, 'global default, parts of an ordinary report', Y17TryInsertCfg(0, '', '', HF, Th));
-        Y17Try(Observer, 'global default', Y17TryInsertCfg(0, '', '', DHF, DTh));
-        Y17Try(Observer, 'current company', Y17TryInsertCfg(0, '', CopyStr(CompanyName(), 1, 30), DHF, ''));
-        Y17Try(Observer, 'report level, own parts', Y17TryInsertCfg(91874, '', '', HF, Th));
-        Y17Try(Observer, 'report level, default parts', Y17TryInsertCfg(91873, '', '', DHF, DTh));
-        Y17Try(Observer, 'body layout by plain name', Y17TryInsertCfg(91874, 'Y17Body', '', HF, ''));
-        Y17Try(Observer, 'body layout by composite name', Y17TryInsertCfg(91874, CopyStr(Y17Part('Y17Body'), 1, 250), '', HF, ''));
-        Y17Try(Observer, 'default subtype layout', Y17TryInsertCfg(91873, CopyStr(Y17Part('Rdl'), 1, 250), '', DHF, DTh));
-        Y17Try(Observer, 'unknown report', Y17TryInsertCfg(99999990, '', '', DHF, DTh));
-        Y17Try(Observer, 'undeclared layout', Y17TryInsertCfg(91874, CopyStr(Y17Part('NoSuchLayout'), 1, 250), '', HF, Th));
-        Y17Try(Observer, 'duplicate', Y17TryInsertCfg(0, '', '', DHF, DTh));
-        Observer.Observe('rows', Y17CfgRows());
+        Y17Try(Y17Observer, 'invalid header part', Y17TryInsertCfg(0, '', '', 'x::A', 'y::B'));
+        Y17Try(Y17Observer, 'header part of the theme subtype', Y17TryInsertCfg(0, '', '', DTh, DTh));
+        Y17Try(Y17Observer, 'global default, parts of an ordinary report', Y17TryInsertCfg(0, '', '', HF, Th));
+        Y17Try(Y17Observer, 'global default', Y17TryInsertCfg(0, '', '', DHF, DTh));
+        Y17Try(Y17Observer, 'current company', Y17TryInsertCfg(0, '', CopyStr(CompanyName(), 1, 30), DHF, ''));
+        Y17Try(Y17Observer, 'report level, own parts', Y17TryInsertCfg(91874, '', '', HF, Th));
+        Y17Try(Y17Observer, 'report level, default parts', Y17TryInsertCfg(91873, '', '', DHF, DTh));
+        Y17Try(Y17Observer, 'body layout by plain name', Y17TryInsertCfg(91874, 'Y17Body', '', HF, ''));
+        Y17Try(Y17Observer, 'body layout by composite name', Y17TryInsertCfg(91874, CopyStr(Y17Part('Y17Body'), 1, 250), '', HF, ''));
+        Y17Try(Y17Observer, 'default subtype layout', Y17TryInsertCfg(91873, CopyStr(Y17Part('Rdl'), 1, 250), '', DHF, DTh));
+        Y17Try(Y17Observer, 'unknown report', Y17TryInsertCfg(99999990, '', '', DHF, DTh));
+        Y17Try(Y17Observer, 'undeclared layout', Y17TryInsertCfg(91874, CopyStr(Y17Part('NoSuchLayout'), 1, 250), '', HF, Th));
+        Y17Try(Y17Observer, 'duplicate', Y17TryInsertCfg(0, '', '', DHF, DTh));
+        Y17Observer.Observe('rows', Y17CfgRows());
         Cfg.SetRange("Header Part Name", HF);
-        Observer.Observe('count header', Format(Cfg.Count()));
-        Y17Try(Observer, 'modifyall header blank', Y17TryModifyAll(Cfg));
+        Y17Observer.Observe('count header', Format(Cfg.Count()));
+        Y17Try(Y17Observer, 'modifyall header blank', Y17TryModifyAll(Cfg));
         Cfg.Reset();
-        Observer.Observe('rows after modifyall', Y17CfgRows());
-        Observer.Observe('get current company', Format(Cfg.Get(0, '', CopyStr(CompanyName(), 1, 30))) + '|' + Y17Shorten(Cfg."Header Part Name") + '|' + Y17Shorten(Cfg."Theme Part Name"));
+        Y17Observer.Observe('rows after modifyall', Y17CfgRows());
+        Y17Observer.Observe('get current company', Format(Cfg.Get(0, '', CopyStr(CompanyName(), 1, 30))) + '|' + Y17Shorten(Cfg."Header Part Name") + '|' + Y17Shorten(Cfg."Theme Part Name"));
         Cfg.DeleteAll();
-        Observer.Finish();
+        Y17Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y17_TenantReportLayoutCfg_Shapes_More1()
+    begin
+        Y17Observer.More();
     end;
 #endif
 }
