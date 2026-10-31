@@ -6,6 +6,7 @@
 // and 8D+<1D>; each through CalcDate and through Evaluate into a DateFormula (the stored formula and the CalcDate with it).
 // Settles: date-formula-evaluate-percent-placeholder, calcdate-closing-bracket-missing-after-plus. Object id 67857.
 // Writer TV (2026-10-29, TV_* tests): unit letters with a number other than D and WD: M2 (M0, M1, M12, M13, -M2, CM+M2, M2+D10, 1Y+M2), W2, Q2, Y2.
+// Writer Y43 (2026-10-31, Y43_G413_* tests, gap G4-13): a number before an angle bracket inside a term (-62<D>, 2<D>: the CalcDate(Format(-n) + '<D>') and Evaluate(DateFormula, Format(n) + '<D>') shapes of the test libraries), other units, and other places a bracket can sit inside a term.
 
 codeunit 67857 "LT Date Formula Edges"
 {
@@ -526,6 +527,106 @@ codeunit 67857 "LT Date Formula Edges"
         Observer.Expect('<Y2> 01-15', 'ok:2102-01-01');
         Observer.Expect('eval <W2>', 'ok:stored=W2|calc=2025-01-06');
         Observer.Expect('eval <Q2>', 'ok:stored=Q2|calc=2024-04-01');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y43_G413_NumberBeforeBracket_DayWeek()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Both(Observer, '-62<D>');
+        Both(Observer, '2<D>');
+        Both(Observer, '62<D>');
+        Both(Observer, '+2<D>');
+        Observer.Expect('calc -62<D>', 'ok:2023-11-14');
+        Observer.Expect('eval -62<D>', 'ok:stored=-62D|calc=2023-11-14');
+        Observer.Expect('calc 2<D>', 'ok:2024-01-17');
+        Observer.Expect('eval 2<D>', 'ok:stored=2D|calc=2024-01-17');
+        Observer.Expect('calc 62<D>', 'ok:2024-03-17');
+        Observer.Expect('eval 62<D>', 'ok:stored=62D|calc=2024-03-17');
+        Observer.Expect('calc +2<D>', 'ok:2024-01-17');
+        Observer.Expect('eval +2<D>', 'ok:stored=+2D|calc=2024-01-17');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y43_G413_NumberBeforeBracket_OtherUnits()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Both(Observer, '-1<W>');
+        Both(Observer, '1<M>');
+        Both(Observer, '-1<Q>');
+        Both(Observer, '1<Y>');
+        Observer.Expect('calc -1<W>', 'ok:2024-01-08');
+        Observer.Expect('eval -1<W>', 'ok:stored=-1W|calc=2024-01-08');
+        Observer.Expect('calc 1<M>', 'ok:2024-02-15');
+        Observer.Expect('eval 1<M>', 'ok:stored=1M|calc=2024-02-15');
+        Observer.Expect('calc -1<Q>', 'ok:2023-10-15');
+        Observer.Expect('eval -1<Q>', 'ok:stored=-1Q|calc=2023-10-15');
+        Observer.Expect('calc 1<Y>', 'ok:2025-01-15');
+        Observer.Expect('eval 1<Y>', 'ok:stored=1Y|calc=2025-01-15');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y43_G413_NumberBeforeBracket_More()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Both(Observer, '1<WD>');
+        Both(Observer, 'C<M>');
+        Both(Observer, '-1<CM>');
+        Both(Observer, '1<D>+1<D>');
+        Observer.Expect('calc 1<WD>', 'ok:2024-01-16');
+        Observer.Expect('eval 1<WD>', 'ok:stored=1WD|calc=2024-01-16');
+        Observer.Expect('calc C<M>', 'error:The date formula ''C<M>'' should include a number.|Evaluate');
+        Observer.Expect('eval C<M>', 'error:The date formula ''C<M>'' should include a number.|Evaluate');
+        Observer.Expect('calc -1<CM>', 'error:The date formula ''-1<CM>'' should include a time unit.\\Time units can be: D,WD,W,M,Q, or Y.\C, meaning current time unit based on date, can be specified as a prefix to the time unit.|Evaluate');
+        Observer.Expect('eval -1<CM>', 'error:The date formula ''-1<CM>'' should include a time unit.\\Time units can be: D,WD,W,M,Q, or Y.\C, meaning current time unit based on date, can be specified as a prefix to the time unit.|Evaluate');
+        Observer.Expect('calc 1<D>+1<D>', 'ok:2024-01-17');
+        Observer.Expect('eval 1<D>+1<D>', 'ok:stored=1D+1D|calc=2024-01-17');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y43_G413_NumberBeforeBracket_Mixed()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Both(Observer, '1D+2<D>');
+        Both(Observer, '-62<D>>');
+        Both(Observer, '-<62D>');
+        Both(Observer, '1<0D>');
+        Observer.Expect('calc 1D+2<D>', 'ok:2024-01-18');
+        Observer.Expect('eval 1D+2<D>', 'ok:stored=1D+2D|calc=2024-01-18');
+        Observer.Expect('calc -62<D>>', 'ok:2023-11-14');
+        Observer.Expect('eval -62<D>>', 'ok:stored=-62D|calc=2023-11-14');
+        Observer.Expect('calc -<62D>', 'ok:2023-11-14');
+        Observer.Expect('eval -<62D>', 'ok:stored=-62D|calc=2023-11-14');
+        Observer.Expect('calc 1<0D>', 'error:The date formula ''1<0D>'' should include a time unit.\\Time units can be: D,WD,W,M,Q, or Y.\C, meaning current time unit based on date, can be specified as a prefix to the time unit.|Evaluate');
+        Observer.Expect('eval 1<0D>', 'error:The date formula ''1<0D>'' should include a time unit.\\Time units can be: D,WD,W,M,Q, or Y.\C, meaning current time unit based on date, can be specified as a prefix to the time unit.|Evaluate');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y43_G413_BracketInsideOtherPlaces()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Both(Observer, '<1>D');
+        Both(Observer, '1<>D');
+        Both(Observer, '<1D><1D>');
+        Both(Observer, '1D<+1D>');
+        Observer.Expect('calc <1>D', 'ok:2024-01-16');
+        Observer.Expect('eval <1>D', 'ok:stored=1D|calc=2024-01-16');
+        Observer.Expect('calc 1<>D', 'ok:2024-01-16');
+        Observer.Expect('eval 1<>D', 'ok:stored=1D|calc=2024-01-16');
+        Observer.Expect('calc <1D><1D>', 'error:The date formula ''1D><1D'' must include plus (+) or minus (-).|Evaluate');
+        Observer.Expect('eval <1D><1D>', 'error:The date formula ''1D><1D'' must include plus (+) or minus (-).|Evaluate');
+        Observer.Expect('calc 1D<+1D>', 'ok:2024-01-17');
+        Observer.Expect('eval 1D<+1D>', 'ok:stored=1D+1D|calc=2024-01-17');
         Observer.Verify();
     end;
 }
