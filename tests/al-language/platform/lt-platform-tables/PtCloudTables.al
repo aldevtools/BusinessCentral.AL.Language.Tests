@@ -752,7 +752,7 @@ report 91874 "LT Y17 Composite Parts"
         {
             Type = Word;
             Subtype = Theme;
-            LayoutFile = './LtY17Theme.docx';
+            LayoutFile = './LtY17Theme.dotx';
         }
     }
 }
