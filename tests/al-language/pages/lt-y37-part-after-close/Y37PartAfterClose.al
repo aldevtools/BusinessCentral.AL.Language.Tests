@@ -451,7 +451,14 @@ codeunit 92648 "LT Y37 PC Tests"
         ObserveSel('A', Pg, 0);
         ObserveSel('B', Pg, 1);
         Step('host update false', TryHostUpdate(Pg, false));
-        Observer.Finish();
+        Observer.Expect('A count', '0');
+        Observer.Expect('A filters', 'Vend: '''', Line No.: 0');
+        Observer.Expect('A rows', '');
+        Observer.Expect('B count', '0');
+        Observer.Expect('B filters', 'Vend: '''', Line No.: 0');
+        Observer.Expect('B rows', '');
+        Observer.Expect('host update false', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -472,6 +479,15 @@ codeunit 92648 "LT Y37 PC Tests"
         P.Close();
         ObserveSel('A closed', Pg, 0);
         Step('host update false closed', TryHostUpdate(Pg, false));
-        Observer.Finish();
+        Observer.Expect('shown no', 'V1');
+        Observer.Expect('shown part row', '20000');
+        Observer.Expect('A shown count', '0');
+        Observer.Expect('A shown filters', 'Vend: '''', Line No.: 0');
+        Observer.Expect('A shown rows', '');
+        Observer.Expect('A closed count', '0');
+        Observer.Expect('A closed filters', 'Vend: '''', Line No.: 0');
+        Observer.Expect('A closed rows', '');
+        Observer.Expect('host update false closed', 'Yes');
+        Observer.Verify();
     end;
 }

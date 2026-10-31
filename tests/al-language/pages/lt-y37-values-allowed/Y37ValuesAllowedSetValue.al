@@ -208,7 +208,23 @@ codeunit 92657 "LT Y37 VA Tests"
         Pg.Set(O);
         Observer.Observe('runmodal', Format(Pg.RunModal()));
         Observer.Observe('result', Pg.Result());
-        Observer.Finish();
+        Observer.Expect('initial', 'Released');
+        Observer.Expect('enum finished', 'Finished');
+        Observer.Expect('text released', 'Released');
+        Observer.Expect('enum planned|text', 'Validation error for Field: NewStatus,  Message = ''Your entry of ''3'' is not an acceptable value for ''NewStatus''.''');
+        Observer.Expect('enum planned|code', 'TestValidation');
+        Observer.Expect('after planned', '3');
+        Observer.Expect('text simulated|text', 'Validation error for Field: NewStatus,  Message = ''Your entry of ''Simulated'' is not an acceptable value for ''NewStatus''.''');
+        Observer.Expect('text simulated|code', 'TestValidation');
+        Observer.Expect('integer 2', 'Firm Planned');
+        Observer.Expect('opt initial', 'B');
+        Observer.Expect('opt c', 'C');
+        Observer.Expect('opt a|text', 'Validation error for Field: OptCtl,  Message = ''Your entry of ''A'' is not an acceptable value for ''OptCtl''.''');
+        Observer.Expect('opt a|code', 'TestValidation');
+        Observer.Expect('opt after a', '2');
+        Observer.Expect('runmodal', 'Cancel');
+        Observer.Expect('result', 'Firm Planned|C|status:Finished;status:Released;status:Firm Planned;opt:C;');
+        Observer.Verify();
     end;
 
     [RequestPageHandler]
@@ -247,7 +263,23 @@ codeunit 92657 "LT Y37 VA Tests"
     begin
         Xml := Report.RunRequestPage(Report::"LT Y37 VA Report");
         Observer.Observe('xml options', CopyStr(Xml, StrPos(Xml, '<Options>'), StrPos(Xml, '</Options>') + 10 - StrPos(Xml, '<Options>')));
-        Observer.Finish();
+        Observer.Expect('initial', ' ');
+        Observer.Expect('enum full', 'Full');
+        Observer.Expect('integer 1', 'Full and Partial');
+        Observer.Expect('text full', 'Full');
+        Observer.Expect('enum none|text', 'Validation error for Field: ReservedFromStock,  Message = ''Your entry of ''2'' is not an acceptable value for ''ReservedFromStock''.''');
+        Observer.Expect('enum none|code', 'TestValidation');
+        Observer.Expect('after none', '2');
+        Observer.Expect('integer 4|text', 'Validation error for Field: ReservedFromStock,  Message = ''Your entry of ''2'' is not an acceptable value for ''ReservedFromStock''.''');
+        Observer.Expect('integer 4|code', 'TestValidation');
+        Observer.Expect('mixed partial', 'Partial');
+        Observer.Expect('mixed blank', ' ');
+        Observer.Expect('mixed integer 3', 'None');
+        Observer.Expect('mixed full|text', 'Validation error for Field: MixedStock,  Message = ''Your entry of ''Full'' is not an acceptable value for ''MixedStock''.''');
+        Observer.Expect('mixed full|code', 'TestValidation');
+        Observer.Expect('mixed after full', '3');
+        Observer.Expect('xml options', '<Options><Field name="StockVar">1</Field><Field name="MixedVar">3</Field></Options>');
+        Observer.Verify();
     end;
 
     [Test]
@@ -270,12 +302,18 @@ codeunit 92657 "LT Y37 VA Tests"
         Observer.Observe('o2 initial', P.Status.Value());
         P.Status.SetValue(Enum::"LT Y37 VA Status"::Released);
         Observer.Observe('o2 released', P.Status.Value());
+        P.First();
+        O.Get('O2');
+        Observer.Observe('o2 stored after move', Format(O.Status));
+        Commit();
+        P.GoToKey('O2');
         asserterror P.Status.SetValue(Enum::"LT Y37 VA Status"::Finished);
         Observer.ObserveError('o2 finished');
         Observer.Observe('o2 after finished', P.Status.Value());
         P.First();
         asserterror P.Status.SetValue('Simulated');
         Observer.ObserveError('o1 simulated');
+        Observer.Observe('o1 after simulated', P.Status.Value());
         P.Close();
         O.Get('O1');
         Observer.Observe('o1 stored', Format(O.Status));

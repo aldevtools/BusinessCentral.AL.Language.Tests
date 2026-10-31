@@ -367,16 +367,19 @@ codeunit 92638 "LT Y37 Cap Tests"
         Observer.Verify();
     end;
 
+    // The CLR exception that BC raises for this caption is not caught by asserterror (the test fails with it); Codeunit.Run catches it.
     [Test]
     [HandlerFunctions('HLD')]
     procedure LT_C313_DCF_Date()
     var
-        B: Record "LT Y37 Cap B";
+        Runner: Codeunit "LT Y37 Cap Date Run";
+        Ok: Boolean;
     begin
         Seed();
-        B.SetRange(Dt, DMY2Date(5, 3, 2024));
+        Commit();
         Cap := '<not run>';
-        asserterror Page.RunModal(Page::"LT Y37 Cap LD", B);
+        Ok := Runner.Run();
+        Observer.Observe('date run ok', Format(Ok));
         Observer.Observe('date caption', Cap);
         Observer.Observe('date error', CopyStr(GetLastErrorText(), 1, 160));
         Observer.Observe('date code', GetLastErrorCode());
@@ -395,6 +398,19 @@ codeunit 92638 "LT Y37 Cap Tests"
         Cap := '<not run>';
         Page.RunModal(Page::"LT Y37 Cap LK", B);
         Observer.Observe('option', Cap);
-        Observer.Finish();
+        Observer.Expect('option', 'C313 Kind List - B');
+        Observer.Verify();
+    end;
+}
+
+// Opens the Date caption list with one date filtered (LT_C313_DCF_Date); Codeunit.Run returns the error the open raises.
+codeunit 92639 "LT Y37 Cap Date Run"
+{
+    trigger OnRun()
+    var
+        B: Record "LT Y37 Cap B";
+    begin
+        B.SetRange(Dt, DMY2Date(5, 3, 2024));
+        Page.RunModal(Page::"LT Y37 Cap LD", B);
     end;
 }
