@@ -451,7 +451,8 @@ codeunit 92579 "LT Y38 TF XApp Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('x1', RunXa(1, true, 'ABC', true, false));
-        Observer.Finish();
+        Observer.Expect('x1', 'ok mem:No.=T1;CustNo=C1;OtherName=Src name;Factor=1.5;Qty=2.5;Cod=ABC;Opt=0;Txt=ABC;Dt=;Amt=false; stored:No.=T1;CustNo=OLD;OtherName=;Factor=1.5;Qty=2.5;Cod=KEEP;Opt=0;Txt=;Dt=;Amt=false;');
+        Observer.Verify();
     end;
 
     // X2: as X1 with a false Boolean (1.5 in the target tells "skipped" from "converted to 0").
@@ -461,7 +462,8 @@ codeunit 92579 "LT Y38 TF XApp Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('x2', RunXa(1, false, 'ABC', true, false));
-        Observer.Finish();
+        Observer.Expect('x2', 'ok mem:No.=T1;CustNo=C1;OtherName=Src name;Factor=1.5;Qty=2.5;Cod=ABC;Opt=0;Txt=ABC;Dt=;Amt=false; stored:No.=T1;CustNo=OLD;OtherName=;Factor=1.5;Qty=2.5;Cod=KEEP;Opt=0;Txt=;Dt=;Amt=false;');
+        Observer.Verify();
     end;
 
     // X3: TransferFields(Src) (InitPrimaryKeyFields true) on a target of another app that is not inserted.
@@ -471,7 +473,8 @@ codeunit 92579 "LT Y38 TF XApp Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('x3', RunXa(2, true, 'ABC', false, false));
-        Observer.Finish();
+        Observer.Expect('x3', 'ok mem:No.=S1;CustNo=C1;OtherName=Src name;Factor=0;Qty=0;Cod=ABC;Opt=0;Txt=ABC;Dt=;Amt=false;');
+        Observer.Verify();
     end;
 
     // X4: TransferFields(Src, false, true) (SkipFieldsWithoutCheck) across apps.
@@ -481,7 +484,8 @@ codeunit 92579 "LT Y38 TF XApp Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('x4', RunXa(3, true, 'ABC', true, false));
-        Observer.Finish();
+        Observer.Expect('x4', 'ok mem:No.=T1;CustNo=C1;OtherName=Src name;Factor=1.5;Qty=2.5;Cod=ABC;Opt=0;Txt=ABC;Dt=;Amt=false; stored:No.=T1;CustNo=OLD;OtherName=;Factor=1.5;Qty=2.5;Cod=KEEP;Opt=0;Txt=;Dt=;Amt=false;');
+        Observer.Verify();
     end;
 
     // X5: X1, then Modify of the target and the stored row.
@@ -491,7 +495,8 @@ codeunit 92579 "LT Y38 TF XApp Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('x5', RunXa(1, true, 'ABC', true, true));
-        Observer.Finish();
+        Observer.Expect('x5', 'ok mem:No.=T1;CustNo=C1;OtherName=Src name;Factor=1.5;Qty=2.5;Cod=ABC;Opt=0;Txt=ABC;Dt=;Amt=false; modify:ok stored:No.=T1;CustNo=C1;OtherName=Src name;Factor=1.5;Qty=2.5;Cod=ABC;Opt=0;Txt=ABC;Dt=;Amt=false;');
+        Observer.Verify();
     end;
 
     // Across apps, a Code[10] value longer than the target Text[5], with and without SkipFieldsWithoutCheck.
@@ -502,7 +507,9 @@ codeunit 92579 "LT Y38 TF XApp Tests"
     begin
         Observer.Observe('long_noskip', RunXa(1, true, 'ABCDEFG', true, false));
         Observer.Observe('long_skip', RunXa(3, true, 'ABCDEFG', true, false));
-        Observer.Finish();
+        Observer.Expect('long_noskip', 'ok mem:No.=T1;CustNo=C1;OtherName=Src name;Factor=1.5;Qty=2.5;Cod=KEEP;Opt=0;Txt=ABC;Dt=;Amt=false; stored:No.=T1;CustNo=OLD;OtherName=;Factor=1.5;Qty=2.5;Cod=KEEP;Opt=0;Txt=;Dt=;Amt=false;');
+        Observer.Expect('long_skip', 'ok mem:No.=T1;CustNo=C1;OtherName=Src name;Factor=1.5;Qty=2.5;Cod=KEEP;Opt=0;Txt=ABC;Dt=;Amt=false; stored:No.=T1;CustNo=OLD;OtherName=;Factor=1.5;Qty=2.5;Cod=KEEP;Opt=0;Txt=;Dt=;Amt=false;');
+        Observer.Verify();
     end;
 
     // S1: the same shape within one app.
@@ -512,7 +519,8 @@ codeunit 92579 "LT Y38 TF XApp Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('s1', RunSame(1, true, 'ABC', true, false));
-        Observer.Finish();
+        Observer.Expect('s1', 'error:The following fields must have the same type:\\Field: Factor <-- Flag\Table: LT Y38 TF Same Target <-- LT Y38 TF Source\Type: Decimal <-- Boolean|DB:TypeMisMatch mem:No.=T1;CustNo=C1;OtherName=Src name;Factor=1.5;Qty=2.5;Cod=KEEP;Opt=0;Txt=;Dt=;Amt=false; stored:No.=T1;CustNo=OLD;OtherName=;Factor=1.5;Qty=2.5;Cod=KEEP;Opt=0;Txt=;Dt=;Amt=false;');
+        Observer.Verify();
     end;
 
     // S2: SkipFieldsWithoutCheck within one app.
@@ -522,7 +530,8 @@ codeunit 92579 "LT Y38 TF XApp Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('s2', RunSame(3, true, 'ABC', true, false));
-        Observer.Finish();
+        Observer.Expect('s2', 'ok mem:No.=T1;CustNo=C1;OtherName=Src name;Factor=1.5;Qty=2.5;Cod=ABC;Opt=0;Txt=ABC;Dt=;Amt=false; stored:No.=T1;CustNo=OLD;OtherName=;Factor=1.5;Qty=2.5;Cod=KEEP;Opt=0;Txt=;Dt=;Amt=false;');
+        Observer.Verify();
     end;
 
     // Within one app, one mismatched field per target table, TransferFields(Src, false).
@@ -535,7 +544,11 @@ codeunit 92579 "LT Y38 TF XApp Tests"
         Observer.Observe('p40', RunP40(1, true, 'ABC', true, false));
         Observer.Observe('p41', RunP41(1, true, 'ABC', true, false));
         Observer.Observe('p42', RunP42(1, true, 'ABC', true, false));
-        Observer.Finish();
+        Observer.Expect('p33', 'error:The following fields must have the same type:\\Field: Factor <-- Flag\Table: LT Y38 TF Pair 33 <-- LT Y38 TF Source\Type: Decimal <-- Boolean|DB:TypeMisMatch mem:No.=T1;CustNo=C1;Factor=1.5; stored:No.=T1;CustNo=OLD;Factor=1.5;');
+        Observer.Expect('p40', 'error:The following fields must have the same type:\\Field: Qty <-- Qty\Table: LT Y38 TF Pair 40 <-- LT Y38 TF Source\Type: Decimal <-- Integer|DB:TypeMisMatch mem:No.=T1;CustNo=C1;Qty=2.5; stored:No.=T1;CustNo=OLD;Qty=2.5;');
+        Observer.Expect('p41', 'ok mem:No.=T1;CustNo=C1;Cod=ABC; stored:No.=T1;CustNo=OLD;Cod=KEEP;');
+        Observer.Expect('p42', 'error:The following fields must have the same type:\\Field: Opt <-- Opt\Table: LT Y38 TF Pair 42 <-- LT Y38 TF Source\Type: Integer <-- Option|DB:TypeMisMatch mem:No.=T1;CustNo=C1;Opt=0; stored:No.=T1;CustNo=OLD;Opt=0;');
+        Observer.Verify();
     end;
 
     // As SA_TF_Pairs_NoSkip, the other pairs.
@@ -549,7 +562,12 @@ codeunit 92579 "LT Y38 TF XApp Tests"
         Observer.Observe('p45', RunP45(1, true, 'ABC', true, false));
         Observer.Observe('p33_false', RunP33(1, false, 'ABC', true, false));
         Observer.Observe('p41_long', RunP41(1, true, 'ABCDEFG', true, false));
-        Observer.Finish();
+        Observer.Expect('p43', 'ok mem:No.=T1;CustNo=C1;Txt=ABC; stored:No.=T1;CustNo=OLD;Txt=;');
+        Observer.Expect('p44', 'error:The following fields must have the same type:\\Field: Dt <-- Dt\Table: LT Y38 TF Pair 44 <-- LT Y38 TF Source\Type: DateTime <-- Date|DB:TypeMisMatch mem:No.=T1;CustNo=C1;Dt=; stored:No.=T1;CustNo=OLD;Dt=;');
+        Observer.Expect('p45', 'error:The following fields must have the same type:\\Field: Amt <-- Amt\Table: LT Y38 TF Pair 45 <-- LT Y38 TF Source\Type: Boolean <-- Decimal|DB:TypeMisMatch mem:No.=T1;CustNo=C1;Amt=false; stored:No.=T1;CustNo=OLD;Amt=false;');
+        Observer.Expect('p33_false', 'error:The following fields must have the same type:\\Field: Factor <-- Flag\Table: LT Y38 TF Pair 33 <-- LT Y38 TF Source\Type: Decimal <-- Boolean|DB:TypeMisMatch mem:No.=T1;CustNo=C1;Factor=1.5; stored:No.=T1;CustNo=OLD;Factor=1.5;');
+        Observer.Expect('p41_long', 'error:The contents of the Cod field cannot be copied to the Cod field because the size of the Cod field is too small.\\Type: Text5 <-- Code10\Field: Cod <-- Cod\Table: LT Y38 TF Pair 41 <-- LT Y38 TF Source|DB:TypeMisMatch mem:No.=T1;CustNo=C1;Cod=KEEP; stored:No.=T1;CustNo=OLD;Cod=KEEP;');
+        Observer.Verify();
     end;
 
     // Within one app, one mismatched field per target table, TransferFields(Src, false, true).
@@ -566,7 +584,15 @@ codeunit 92579 "LT Y38 TF XApp Tests"
         Observer.Observe('p44', RunP44(3, true, 'ABC', true, false));
         Observer.Observe('p45', RunP45(3, true, 'ABC', true, false));
         Observer.Observe('p41_long', RunP41(3, true, 'ABCDEFG', true, false));
-        Observer.Finish();
+        Observer.Expect('p33', 'ok mem:No.=T1;CustNo=C1;Factor=1.5; stored:No.=T1;CustNo=OLD;Factor=1.5;');
+        Observer.Expect('p40', 'ok mem:No.=T1;CustNo=C1;Qty=2.5; stored:No.=T1;CustNo=OLD;Qty=2.5;');
+        Observer.Expect('p41', 'ok mem:No.=T1;CustNo=C1;Cod=ABC; stored:No.=T1;CustNo=OLD;Cod=KEEP;');
+        Observer.Expect('p42', 'ok mem:No.=T1;CustNo=C1;Opt=0; stored:No.=T1;CustNo=OLD;Opt=0;');
+        Observer.Expect('p43', 'ok mem:No.=T1;CustNo=C1;Txt=ABC; stored:No.=T1;CustNo=OLD;Txt=;');
+        Observer.Expect('p44', 'ok mem:No.=T1;CustNo=C1;Dt=; stored:No.=T1;CustNo=OLD;Dt=;');
+        Observer.Expect('p45', 'ok mem:No.=T1;CustNo=C1;Amt=false; stored:No.=T1;CustNo=OLD;Amt=false;');
+        Observer.Expect('p41_long', 'ok mem:No.=T1;CustNo=C1;Cod=KEEP; stored:No.=T1;CustNo=OLD;Cod=KEEP;');
+        Observer.Verify();
     end;
 
     // Within one app, one mismatched field per target table, TransferFields(Src) on a target that is not inserted.
@@ -582,6 +608,13 @@ codeunit 92579 "LT Y38 TF XApp Tests"
         Observer.Observe('p43', RunP43(2, true, 'ABC', false, false));
         Observer.Observe('p44', RunP44(2, true, 'ABC', false, false));
         Observer.Observe('p45', RunP45(2, true, 'ABC', false, false));
-        Observer.Finish();
+        Observer.Expect('p33', 'error:The following fields must have the same type:\\Field: Factor <-- Flag\Table: LT Y38 TF Pair 33 <-- LT Y38 TF Source\Type: Decimal <-- Boolean|DB:TypeMisMatch mem:No.=S1;CustNo=C1;Factor=0;');
+        Observer.Expect('p40', 'error:The following fields must have the same type:\\Field: Qty <-- Qty\Table: LT Y38 TF Pair 40 <-- LT Y38 TF Source\Type: Decimal <-- Integer|DB:TypeMisMatch mem:No.=S1;CustNo=C1;Qty=0;');
+        Observer.Expect('p41', 'ok mem:No.=S1;CustNo=C1;Cod=ABC;');
+        Observer.Expect('p42', 'error:The following fields must have the same type:\\Field: Opt <-- Opt\Table: LT Y38 TF Pair 42 <-- LT Y38 TF Source\Type: Integer <-- Option|DB:TypeMisMatch mem:No.=S1;CustNo=C1;Opt=0;');
+        Observer.Expect('p43', 'ok mem:No.=S1;CustNo=C1;Txt=ABC;');
+        Observer.Expect('p44', 'error:The following fields must have the same type:\\Field: Dt <-- Dt\Table: LT Y38 TF Pair 44 <-- LT Y38 TF Source\Type: DateTime <-- Date|DB:TypeMisMatch mem:No.=S1;CustNo=C1;Dt=;');
+        Observer.Expect('p45', 'error:The following fields must have the same type:\\Field: Amt <-- Amt\Table: LT Y38 TF Pair 45 <-- LT Y38 TF Source\Type: Boolean <-- Decimal|DB:TypeMisMatch mem:No.=S1;CustNo=C1;Amt=false;');
+        Observer.Verify();
     end;
 }

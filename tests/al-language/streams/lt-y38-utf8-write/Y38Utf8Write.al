@@ -101,7 +101,10 @@ codeunit 92588 "LT Y38 UW Tests"
         B.Data.CreateInStream(Ins, TextEncoding::UTF8);
         N := Ins.Read(Back);
         Observer.Observe('read', Format(N) + '|' + Back + '|' + Format(Back = Original) + '|eos=' + Format(Ins.EOS()));
-        Observer.Finish();
+        Observer.Expect('ret', '20');
+        Observer.Expect('hex', '20:D09FD180D0B8D0B2D0B5D18220D0BCD0B8D18000');
+        Observer.Expect('read', '20|Привет мир|Yes|eos=Yes');
+        Observer.Verify();
     end;
 
     // N1b: the statement form of Read (result not used), as the Email message code does.
@@ -125,7 +128,8 @@ codeunit 92588 "LT Y38 UW Tests"
         B.Data.CreateInStream(Ins, TextEncoding::UTF8);
         Ins.Read(Back);
         Observer.Observe('read', Back + '|len=' + Format(StrLen(Back)));
-        Observer.Finish();
+        Observer.Expect('read', 'Привет мир|len=10');
+        Observer.Verify();
     end;
 
     // N2: Cyrillic on each encoding of a Temp Blob stream.
@@ -139,7 +143,12 @@ codeunit 92588 "LT Y38 UW Tests"
         Observer.Observe('windows', WriteEnc(TextEncoding::Windows, 'Привет'));
         Observer.Observe('msdos', WriteEnc(TextEncoding::MSDos, 'Привет'));
         Observer.Observe('none', WriteNoEnc('Привет'));
-        Observer.Finish();
+        Observer.Expect('utf8', '13|13:D09FD180D0B8D0B2D0B5D18200');
+        Observer.Expect('utf16', '14|14:1F04400438043204350442040000');
+        Observer.Expect('windows', '7|7:3F3F3F3F3F3F00');
+        Observer.Expect('msdos', '7|7:3F3F3F3F3F3F00');
+        Observer.Expect('none', '7|7:3F3F3F3F3F3F00');
+        Observer.Verify();
     end;
 
     // N3: two zero-terminated texts on one UTF-8 stream, read back with the return value used, then once more at the end.
@@ -164,6 +173,10 @@ codeunit 92588 "LT Y38 UW Tests"
         Observer.Observe('read2', Format(N) + '|' + T + '|eos=' + Format(Ins.EOS()));
         N := Ins.Read(T);
         Observer.Observe('read3', Format(N) + '|' + T + '|eos=' + Format(Ins.EOS()));
-        Observer.Finish();
+        Observer.Expect('hex', '16:D09FD180D0B8D0B2D0B5D18200616200');
+        Observer.Expect('read1', '13|Привет|eos=No');
+        Observer.Expect('read2', '3|ab|eos=Yes');
+        Observer.Expect('read3', '1||eos=Yes');
+        Observer.Verify();
     end;
 }

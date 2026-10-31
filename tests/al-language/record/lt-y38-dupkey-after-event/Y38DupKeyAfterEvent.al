@@ -210,7 +210,14 @@ codeunit 92586 "LT Y38 DK Tests"
         Observer.Observe('log after count', Log.Take());
         Observer.Observe('stored', StoredT());
         Observer.Observe('count after', Format(T2.Count()));
-        Observer.Finish();
+        Observer.Expect('insert', 'no error');
+        Observer.Expect('log', 'BI1(dup)/Yes,TI1(dup),AI1(dup)/Yes/temp=No/sid-null=No');
+        Observer.Expect('count|text', 'The record in table LT Y38 DK T already exists. Identification fields and values: Id=''1''');
+        Observer.Expect('count|code', 'DB:RecordExists');
+        Observer.Expect('log after count', '');
+        Observer.Expect('stored', 'orig');
+        Observer.Expect('count after', '1');
+        Observer.Verify();
     end;
 
     // D2: the next access is Commit.
@@ -228,7 +235,12 @@ codeunit 92586 "LT Y38 DK Tests"
         Observer.ObserveError('commit');
         Observer.Observe('stored', StoredT());
         Observer.Observe('count after', Format(T2.Count()));
-        Observer.Finish();
+        Observer.Expect('log', 'BI1(dup)/Yes,TI1(dup),AI1(dup)/Yes/temp=No/sid-null=No');
+        Observer.Expect('commit|text', 'The record in table LT Y38 DK T already exists. Identification fields and values: Id=''1''');
+        Observer.Expect('commit|code', 'DB:RecordExists');
+        Observer.Expect('stored', 'orig');
+        Observer.Expect('count after', '1');
+        Observer.Verify();
     end;
 
     // D3: the DbtEvents order (a guarded Insert of the same key next), then Commit.
@@ -253,7 +265,13 @@ codeunit 92586 "LT Y38 DK Tests"
         Observer.Observe('commit', 'no error');
         Observer.Observe('stored', StoredT());
         Observer.Observe('count after', Format(T2.Count()));
-        Observer.Finish();
+        Observer.Expect('log', 'BI1(dup)/Yes,TI1(dup),AI1(dup)/Yes/temp=No/sid-null=No');
+        Observer.Expect('guarded', 'No|The record in table LT Y38 DK T already exists. Identification fields and values: Id=''1''');
+        Observer.Expect('log guarded', 'BI1(dup2)/Yes,TI1(dup2)');
+        Observer.Expect('commit', 'no error');
+        Observer.Expect('stored', 'orig');
+        Observer.Expect('count after', '1');
+        Observer.Verify();
     end;
 
     // D3b: as D3 without the Commit: the next access after the guarded Insert is a Count.
@@ -273,7 +291,10 @@ codeunit 92586 "LT Y38 DK Tests"
         Observer.Observe('guarded', Format(Ok));
         Observer.Observe('count', Format(T2.Count()));
         Observer.Observe('stored', StoredT());
-        Observer.Finish();
+        Observer.Expect('guarded', 'No');
+        Observer.Expect('count', '1');
+        Observer.Expect('stored', 'orig');
+        Observer.Verify();
     end;
 
     // D4 (not a corpus case: the test fails on BC): when nothing reads the table after the duplicate and the test ends, the test fails with
@@ -294,7 +315,11 @@ codeunit 92586 "LT Y38 DK Tests"
         Log.SetReads(false, false);
         Observer.Observe('log', Log.Take());
         Observer.Observe('stored', StoredT());
-        Observer.Finish();
+        Observer.Expect('insert|text', 'The record in table LT Y38 DK T already exists. Identification fields and values: Id=''1''');
+        Observer.Expect('insert|code', 'DB:RecordExists');
+        Observer.Expect('log', 'BI1(dup)/Yes,TI1(dup),AI1(dup)/Yes/temp=No/sid-null=No');
+        Observer.Expect('stored', 'orig');
+        Observer.Verify();
     end;
 
     // D5b: the After subscriber reads another table (U) instead.
@@ -313,7 +338,10 @@ codeunit 92586 "LT Y38 DK Tests"
         Observer.Observe('log', Log.Take());
         asserterror N := T2.Count();
         Observer.ObserveError('count');
-        Observer.Finish();
+        Observer.Expect('log', 'BI1(dup)/Yes,TI1(dup),AI1(dup)/Yes/temp=No/sid-null=No,ucnt=1');
+        Observer.Expect('count|text', 'The record in table LT Y38 DK T already exists. Identification fields and values: Id=''1''');
+        Observer.Expect('count|code', 'DB:RecordExists');
+        Observer.Verify();
     end;
 
     // D6: Insert(false): the After event runs with RunTrigger No.
@@ -331,7 +359,11 @@ codeunit 92586 "LT Y38 DK Tests"
         asserterror N := T2.Count();
         Observer.ObserveError('count');
         Observer.Observe('stored', StoredT());
-        Observer.Finish();
+        Observer.Expect('log', 'BI1(dup)/No,AI1(dup)/No/temp=No/sid-null=No');
+        Observer.Expect('count|text', 'The record in table LT Y38 DK T already exists. Identification fields and values: Id=''1''');
+        Observer.Expect('count|code', 'DB:RecordExists');
+        Observer.Expect('stored', 'orig');
+        Observer.Verify();
     end;
 
     // D7: table V has a table-extension OnAfterInsert trigger and no subscribers.
@@ -352,6 +384,10 @@ codeunit 92586 "LT Y38 DK Tests"
         Observer.Observe('log', Log.Take());
         asserterror N := V2.Count();
         Observer.ObserveError('count');
-        Observer.Finish();
+        Observer.Expect('insert', 'no error');
+        Observer.Expect('log', 'XAI1(dup)');
+        Observer.Expect('count|text', 'The record in table LT Y38 DK V already exists. Identification fields and values: Id=''1''');
+        Observer.Expect('count|code', 'DB:RecordExists');
+        Observer.Verify();
     end;
 }

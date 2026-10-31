@@ -296,7 +296,15 @@ codeunit 73711 "LT P132 Report Tests"
         Y38StoredAndColumn(Observer, 'ms_997', 133000.997T);
         Y38StoredAndColumn(Observer, 'ms_998', 133000.998T);
         Y38StoredAndColumn(Observer, 'ms_999', 133000.999T);
-        Observer.Finish();
+        Observer.Expect('ms_995_col', '<Column name="IdC">1</Column>|<Column name="TmC">1:30:00 PM</Column>|<Column name="DtmC"></Column>|<Column name="DurC"></Column>|');
+        Observer.Expect('ms_995_stored', '13:30:00.997|No');
+        Observer.Expect('ms_997_col', '<Column name="IdC">1</Column>|<Column name="TmC">1:30:00 PM</Column>|<Column name="DtmC"></Column>|<Column name="DurC"></Column>|');
+        Observer.Expect('ms_997_stored', '13:30:00.997|Yes');
+        Observer.Expect('ms_998_col', '<Column name="IdC">1</Column>|<Column name="TmC">1:30:00 PM</Column>|<Column name="DtmC"></Column>|<Column name="DurC"></Column>|');
+        Observer.Expect('ms_998_stored', '13:30:00.997|No');
+        Observer.Expect('ms_999_col', '<Column name="IdC">1</Column>|<Column name="TmC">1:30:01 PM</Column>|<Column name="DtmC"></Column>|<Column name="DurC"></Column>|');
+        Observer.Expect('ms_999_stored', '13:30:01|No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -308,7 +316,15 @@ codeunit 73711 "LT P132 Report Tests"
         Y38StoredAndColumn(Observer, 'ms_499', 133000.499T);
         Y38StoredAndColumn(Observer, 'ms_501', 133000.501T);
         Y38StoredAndColumn(Observer, 'ms_750', 133000.750T);
-        Observer.Finish();
+        Observer.Expect('ms_002_col', '<Column name="IdC">1</Column>|<Column name="TmC">1:30:00 PM</Column>|<Column name="DtmC"></Column>|<Column name="DurC"></Column>|');
+        Observer.Expect('ms_002_stored', '13:30:00.003|No');
+        Observer.Expect('ms_499_col', '<Column name="IdC">1</Column>|<Column name="TmC">1:30:00 PM</Column>|<Column name="DtmC"></Column>|<Column name="DurC"></Column>|');
+        Observer.Expect('ms_499_stored', '13:30:00.5|No');
+        Observer.Expect('ms_501_col', '<Column name="IdC">1</Column>|<Column name="TmC">1:30:00 PM</Column>|<Column name="DtmC"></Column>|<Column name="DurC"></Column>|');
+        Observer.Expect('ms_501_stored', '13:30:00.5|No');
+        Observer.Expect('ms_750_col', '<Column name="IdC">1</Column>|<Column name="TmC">1:30:00 PM</Column>|<Column name="DtmC"></Column>|<Column name="DurC"></Column>|');
+        Observer.Expect('ms_750_stored', '13:30:00.75|Yes');
+        Observer.Verify();
     end;
 
     // The same Time values as a column bound to a global variable of the report (not stored in a table).
@@ -344,7 +360,11 @@ codeunit 73711 "LT P132 Report Tests"
         Observer.Observe('var_998', Y38VarColumn(133000.998T));
         Observer.Observe('var_999', Y38VarColumn(133000.999T));
         Observer.Observe('var_235959_999', Y38VarColumn(235959.999T));
-        Observer.Finish();
+        Observer.Expect('var_500', '<Column name="TmC">1:30:00 PM</Column>|');
+        Observer.Expect('var_998', '<Column name="TmC">1:30:00 PM</Column>|');
+        Observer.Expect('var_999', '<Column name="TmC">1:30:00 PM</Column>|');
+        Observer.Expect('var_235959_999', '<Column name="TmC">11:59:59 PM</Column>|');
+        Observer.Verify();
     end;
 }
 
