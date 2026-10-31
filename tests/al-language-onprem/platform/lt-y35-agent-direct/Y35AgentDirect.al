@@ -1,0 +1,156 @@
+// BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/ai/ai-agent-overview
+// Scope: in-scope (OnPrem app: table Agent (2000000260) has Scope = OnPrem)
+// Fixtures used: Probe Observer (69160), from the AL Language Coverage Tests app
+// Probe (gap cycle 3, C3-02): what each read and write of the platform table Agent does when this (non-Microsoft) app calls it directly in a
+//   test session on the corpus container: the shape of System Application Test's LibraryMockAgent.DeleteAllAgents (SetFilter on
+//   "Agent Metadata Provider" + FindSet) and GetOrCreateDefaultAgent (SetRange + SetFilter + FindFirst, then Insert(true)).
+//   Each operation runs in a TryFunction: ok and what it returned, or the error text and code.
+//   The Microsoft-caller neighbour (Agent API of the System Application): tests/al-language/platform/lt-y35-agent-api/Y35AgentApi.al.
+// BC versions: 27.5, 28.5, 29.0. Enum "Agent Metadata Provider" has the value "Personal Agent" (1) on BC 29 only; on BC 27/28 both filter
+//   values are the default (0).
+
+codeunit 98664 "LT Y35 Agent Direct"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    var
+        Observer: Codeunit "Probe Observer";
+
+    local procedure Provider1(var P: Enum "Agent Metadata Provider")
+    begin
+#if BC29PLUS
+        P := P::"Personal Agent";
+#endif
+    end;
+
+    [TryFunction]
+    local procedure TryFindSetFiltered(var Shown: Text)
+    var
+        Agent: Record Agent;
+        P0: Enum "Agent Metadata Provider";
+        P1: Enum "Agent Metadata Provider";
+    begin
+        Provider1(P1);
+        Agent.SetFilter("Agent Metadata Provider", '%1|%2', P0, P1);
+        Shown := Format(Agent.FindSet());
+    end;
+
+    [TryFunction]
+    local procedure TryFindFirstFiltered(var Shown: Text)
+    var
+        Agent: Record Agent;
+        P1: Enum "Agent Metadata Provider";
+    begin
+        Provider1(P1);
+        Agent.SetRange("Agent Metadata Provider", P1);
+        Agent.SetFilter("User Name", 'X');
+        Shown := Format(Agent.FindFirst());
+    end;
+
+    [TryFunction]
+    local procedure TryIsEmpty(var Shown: Text)
+    var
+        Agent: Record Agent;
+    begin
+        Shown := Format(Agent.IsEmpty());
+    end;
+
+    [TryFunction]
+    local procedure TryCount(var Shown: Text)
+    var
+        Agent: Record Agent;
+    begin
+        Shown := Format(Agent.Count());
+    end;
+
+    [TryFunction]
+    local procedure TryFindLast(var Shown: Text)
+    var
+        Agent: Record Agent;
+    begin
+        Shown := Format(Agent.FindLast());
+    end;
+
+    [TryFunction]
+    local procedure TryGet(var Shown: Text)
+    var
+        Agent: Record Agent;
+    begin
+        Shown := Format(Agent.Get(CreateGuid()));
+    end;
+
+    [TryFunction]
+    local procedure TryInsert(RunTrigger: Boolean; var Shown: Text)
+    var
+        Agent: Record Agent;
+    begin
+        Agent.Init();
+        Agent."User Name" := 'LTY35';
+        Agent."Display Name" := 'LT Y35';
+        Shown := Format(Agent.Insert(RunTrigger));
+    end;
+
+    [TryFunction]
+    local procedure TryTemporary(var Shown: Text)
+    var
+        TempAgent: Record Agent temporary;
+    begin
+        TempAgent.Init();
+        TempAgent."User Security ID" := CreateGuid();
+        TempAgent."User Name" := 'LTY35';
+        TempAgent.Insert();
+        Shown := Format(TempAgent.FindFirst()) + '|' + TempAgent."User Name" + '|' + Format(TempAgent.Count());
+    end;
+
+    local procedure Run(Op: Text; Ok: Boolean; Shown: Text)
+    begin
+        if Ok then
+            Observer.Observe(Op, 'ok|' + Shown)
+        else
+            Observer.ObserveError(Op);
+    end;
+
+    [Test]
+    procedure C302_AgentDirect_FindSetFiltered()
+    var
+        Shown: Text;
+    begin
+        Run('findset_filtered', TryFindSetFiltered(Shown), Shown);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure C302_AgentDirect_Reads()
+    var
+        Shown: Text;
+    begin
+        Run('findfirst_filtered', TryFindFirstFiltered(Shown), Shown);
+        Run('isempty', TryIsEmpty(Shown), Shown);
+        Run('count', TryCount(Shown), Shown);
+        Run('findlast', TryFindLast(Shown), Shown);
+        Run('get', TryGet(Shown), Shown);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure C302_AgentDirect_Inserts()
+    var
+        Shown: Text;
+    begin
+        Run('insert_true', TryInsert(true, Shown), Shown);
+        Observer.Observe('in_write_transaction_1', Format(Database.IsInWriteTransaction()));
+        Run('insert_false', TryInsert(false, Shown), Shown);
+        Observer.Observe('in_write_transaction_2', Format(Database.IsInWriteTransaction()));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure C302_AgentDirect_Temporary()
+    var
+        Shown: Text;
+    begin
+        Run('temporary', TryTemporary(Shown), Shown);
+        Observer.Finish();
+    end;
+}
