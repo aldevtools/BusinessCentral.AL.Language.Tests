@@ -6,6 +6,10 @@
 // RunModal, RunRequestPage after a SetValue, RunModal with a record, an OnQueryClosePage that answers false, and
 // RunRequestPage of a report that is not ProcessingOnly (with and without a layout).
 // Every run goes through Codeunit.Run (LT Y42 Rq Runner), so an error is observed, not fatal.
+// BC 27.5, 28.5 and 29.0 (Linux CI and Windows 27.5/28.5 alike): every shape closes the page with Cancel (OnQueryClosePage sees the
+// handler's SetValue, then OnClosePage), the report does not run, no error; the Cancel close stores nothing for SaveValues;
+// RunRequestPage returns '' and opens on the defaults, not on saved values. An OnQueryClosePage that answers false leaves the last
+// error 'The page cannot be closed at this time.' (FormCloseNotAllowed) without failing the call, skips OnClosePage and RUNS the report.
 
 table 92820 "LT Y42 Rq Row"
 {
@@ -572,7 +576,12 @@ codeunit 92822 "LT Y42 Rq Left Open"
         HMode := 0;
         Exec(Observer, 'var run', 3, 0);
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('var run ok', 'Yes');
+        Observer.Expect('var run error|text', '');
+        Observer.Expect('var run error|code', '');
+        Observer.Expect('var run log', 'init;rp init text=;rp open text=init flag=No;h text=init;rp qc Cancel text=init;rp close text=init;');
+        Observer.Expect('rows', '3');
+        Observer.Verify();
     end;
 
     // T2: a report variable's Run of a ProcessingOnly report with RequestFilterFields and SaveValues (the Batch Post shape).
@@ -588,7 +597,16 @@ codeunit 92822 "LT Y42 Rq Left Open"
         HMode := 0;
         Exec(Observer, 'var run', 4, 0);
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('prime ok', 'Yes');
+        Observer.Expect('prime error|text', '');
+        Observer.Expect('prime error|code', '');
+        Observer.Expect('prime log', 'init;rp init text=;rp open text=init;h text=init textvis=Yes hiddenvis=No;rp qc OK text=prime;rp close text=prime;pre text=prime filter=[];D pre;post;');
+        Observer.Expect('var run ok', 'Yes');
+        Observer.Expect('var run error|text', '');
+        Observer.Expect('var run error|code', '');
+        Observer.Expect('var run log', 'init;rp init text=;rp open text=prime;h text=prime textvis=Yes hiddenvis=No;rp qc Cancel text=prime;rp close text=prime;');
+        Observer.Expect('rows', '3');
+        Observer.Verify();
     end;
 
     // T3: Report.Run of a report whose OnInitReport runs a report variable of a not-ProcessingOnly report.
@@ -601,7 +619,11 @@ codeunit 92822 "LT Y42 Rq Left Open"
         Seed();
         HMode := 0;
         Exec(Observer, 'wrapper', 0, Report::"LT Y42 Rq Wrapper");
-        Observer.Finish();
+        Observer.Expect('wrapper ok', 'Yes');
+        Observer.Expect('wrapper error|text', '');
+        Observer.Expect('wrapper error|code', '');
+        Observer.Expect('wrapper log', 'wrapper init;init;rp init text=;set flag;rp open text=init flag=Yes;h text=init;rp qc Cancel text=init;rp close text=init;wrapper after;wrapper pre;');
+        Observer.Verify();
     end;
 
     // T4: RunModal by id and on a report variable.
@@ -615,7 +637,15 @@ codeunit 92822 "LT Y42 Rq Left Open"
         HMode := 0;
         Exec(Observer, 'runmodal id', 1, Report::"LT Y42 Rq NotProc");
         Exec(Observer, 'runmodal var', 5, 0);
-        Observer.Finish();
+        Observer.Expect('runmodal id ok', 'Yes');
+        Observer.Expect('runmodal id error|text', '');
+        Observer.Expect('runmodal id error|code', '');
+        Observer.Expect('runmodal id log', 'init;rp init text=;rp open text=init flag=No;h text=init;rp qc Cancel text=init;rp close text=init;');
+        Observer.Expect('runmodal var ok', 'Yes');
+        Observer.Expect('runmodal var error|text', '');
+        Observer.Expect('runmodal var error|code', '');
+        Observer.Expect('runmodal var log', 'init;rp init text=;rp open text=init flag=No;h text=init;rp qc Cancel text=init;rp close text=init;');
+        Observer.Verify();
     end;
 
     // T6: Report.RunModal(Id, true, false, Rec), the print path.
@@ -628,7 +658,11 @@ codeunit 92822 "LT Y42 Rq Left Open"
         Seed();
         HMode := 0;
         Exec(Observer, 'runmodal rec', 6, Report::"LT Y42 Rq NotProc");
-        Observer.Finish();
+        Observer.Expect('runmodal rec ok', 'Yes');
+        Observer.Expect('runmodal rec error|text', '');
+        Observer.Expect('runmodal rec error|code', '');
+        Observer.Expect('runmodal rec log', 'init;rp init text=;rp open text=init flag=No;h text=init;rp qc Cancel text=init;rp close text=init;');
+        Observer.Verify();
     end;
 
     // T3 (SaveValues), not ProcessingOnly: a SetValue in a handler that leaves the page open, then the next run shows ...
@@ -643,7 +677,15 @@ codeunit 92822 "LT Y42 Rq Left Open"
         Exec(Observer, 'set and leave', 0, Report::"LT Y42 Rq NotProc");
         HMode := 0;
         Exec(Observer, 'next run', 0, Report::"LT Y42 Rq NotProc");
-        Observer.Finish();
+        Observer.Expect('set and leave ok', 'Yes');
+        Observer.Expect('set and leave error|text', '');
+        Observer.Expect('set and leave error|code', '');
+        Observer.Expect('set and leave log', 'init;rp init text=;rp open text=init flag=No;h text=init;rp qc Cancel text=typed;rp close text=typed;');
+        Observer.Expect('next run ok', 'Yes');
+        Observer.Expect('next run error|text', '');
+        Observer.Expect('next run error|code', '');
+        Observer.Expect('next run log', 'init;rp init text=;rp open text=init flag=No;h text=init;rp qc Cancel text=init;rp close text=init;');
+        Observer.Verify();
     end;
 
     // T3 (SaveValues), ProcessingOnly.
@@ -660,7 +702,19 @@ codeunit 92822 "LT Y42 Rq Left Open"
         Exec(Observer, 'set and leave', 0, Report::"LT Y42 Rq Proc");
         HMode := 2;
         Exec(Observer, 'next run', 0, Report::"LT Y42 Rq Proc");
-        Observer.Finish();
+        Observer.Expect('prime ok', 'Yes');
+        Observer.Expect('prime error|text', '');
+        Observer.Expect('prime error|code', '');
+        Observer.Expect('prime log', 'init;rp init text=;rp open text=prime;h text=prime textvis=Yes hiddenvis=No;rp qc OK text=prime;rp close text=prime;pre text=prime filter=[];D pre;post;');
+        Observer.Expect('set and leave ok', 'Yes');
+        Observer.Expect('set and leave error|text', '');
+        Observer.Expect('set and leave error|code', '');
+        Observer.Expect('set and leave log', 'init;rp init text=;rp open text=prime;h text=prime textvis=Yes hiddenvis=No;rp qc Cancel text=typed;rp close text=typed;');
+        Observer.Expect('next run ok', 'Yes');
+        Observer.Expect('next run error|text', '');
+        Observer.Expect('next run error|code', '');
+        Observer.Expect('next run log', 'init;rp init text=;rp open text=prime;h text=prime textvis=Yes hiddenvis=No;rp qc OK text=prime;rp close text=prime;pre text=prime filter=[];D pre;post;');
+        Observer.Verify();
     end;
 
     // T5: RunRequestPage on a SaveValues page with a SetValue, page left open: the returned text, and what the next run shows.
@@ -677,7 +731,20 @@ codeunit 92822 "LT Y42 Rq Left Open"
         ExecResult(Observer, 'rrp', 2, Report::"LT Y42 Rq Proc");
         HMode := 2;
         Exec(Observer, 'next run', 0, Report::"LT Y42 Rq Proc");
-        Observer.Finish();
+        Observer.Expect('prime ok', 'Yes');
+        Observer.Expect('prime error|text', '');
+        Observer.Expect('prime error|code', '');
+        Observer.Expect('prime log', 'init;rp init text=;rp open text=prime;h text=prime textvis=Yes hiddenvis=No;rp qc OK text=prime;rp close text=prime;pre text=prime filter=[];D pre;post;');
+        Observer.Expect('rrp ok', 'Yes');
+        Observer.Expect('rrp error|text', '');
+        Observer.Expect('rrp error|code', '');
+        Observer.Expect('rrp log', 'init;rp init text=;rp open text=init;h text=init textvis=Yes hiddenvis=No;rp qc Cancel text=typed;rp close text=typed;');
+        Observer.Expect('rrp result', '');
+        Observer.Expect('next run ok', 'Yes');
+        Observer.Expect('next run error|text', '');
+        Observer.Expect('next run error|code', '');
+        Observer.Expect('next run log', 'init;rp init text=;rp open text=prime;h text=prime textvis=Yes hiddenvis=No;rp qc OK text=prime;rp close text=prime;pre text=prime filter=[];D pre;post;');
+        Observer.Verify();
     end;
 
     // T7: OnQueryClosePage answers false when the page is left open.
@@ -692,7 +759,16 @@ codeunit 92822 "LT Y42 Rq Left Open"
         Exec(Observer, 'run', 0, Report::"LT Y42 Rq QcFalse");
         HMode := 0;
         ExecResult(Observer, 'rrp', 2, Report::"LT Y42 Rq QcFalse");
-        Observer.Finish();
+        Observer.Expect('run ok', 'Yes');
+        Observer.Expect('run error|text', 'The page cannot be closed at this time.');
+        Observer.Expect('run error|code', 'FormCloseNotAllowed');
+        Observer.Expect('run log', 'init;rp open text=init;h text=init;rp qc Cancel text=init;pre text=init;');
+        Observer.Expect('rrp ok', 'Yes');
+        Observer.Expect('rrp error|text', 'The page cannot be closed at this time.');
+        Observer.Expect('rrp error|code', 'FormCloseNotAllowed');
+        Observer.Expect('rrp log', 'init;rp open text=init;h text=init;rp qc Cancel text=init;pre text=init;');
+        Observer.Expect('rrp result', '<?xml version="1.0" standalone="yes"?><ReportParameters name="LT Y42 Rq QcFalse" id="92823"><DataItems><DataItem name="D">VERSION(1) SORTING(Field1)</DataItem></DataItems></ReportParameters>');
+        Observer.Verify();
     end;
 
     // T9: RunRequestPage of a report that is not ProcessingOnly, two data items with RequestFilterFields, no layout.
@@ -705,7 +781,12 @@ codeunit 92822 "LT Y42 Rq Left Open"
         Seed();
         HMode := 0;
         ExecResult(Observer, 'rrp', 2, Report::"LT Y42 Rq NotProc Two");
-        Observer.Finish();
+        Observer.Expect('rrp ok', 'Yes');
+        Observer.Expect('rrp error|text', '');
+        Observer.Expect('rrp error|code', '');
+        Observer.Expect('rrp log', 'init;rp open text=init;h text=init;rp qc Cancel text=init;rp close text=init;');
+        Observer.Expect('rrp result', '');
+        Observer.Verify();
     end;
 
     // T9 with an RDLC layout.
@@ -718,7 +799,12 @@ codeunit 92822 "LT Y42 Rq Left Open"
         Seed();
         HMode := 0;
         ExecResult(Observer, 'rrp', 2, Report::"LT Y42 Rq NotProc Layout");
-        Observer.Finish();
+        Observer.Expect('rrp ok', 'Yes');
+        Observer.Expect('rrp error|text', '');
+        Observer.Expect('rrp error|code', '');
+        Observer.Expect('rrp log', 'init;rp open text=init;h text=init;rp qc Cancel text=init;rp close text=init;');
+        Observer.Expect('rrp result', '');
+        Observer.Verify();
     end;
 
     [RequestPageHandler]

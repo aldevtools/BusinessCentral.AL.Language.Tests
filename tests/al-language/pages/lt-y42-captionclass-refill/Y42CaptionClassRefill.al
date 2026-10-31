@@ -275,7 +275,14 @@ codeunit 92827 "LT Y42 Cc Refill"
         Observer.Observe('events caption action', S.Take());
         TP.Close();
         Observer.Observe('events close', S.Take());
-        Observer.Finish();
+        Observer.Expect('events open', 'resolve(Y42R|start t1);resolve(Y42R|row 1 t1);');
+        Observer.Expect('caption open', 'resolved:start t1');
+        Observer.Expect('events caption open', '');
+        Observer.Expect('events action', 'resolve(Y42R|action t1);');
+        Observer.Expect('caption action', 'resolved:action t1');
+        Observer.Expect('events caption action', '');
+        Observer.Expect('events close', '');
+        Observer.Verify();
     end;
 
     // Step 2: the action changes the variable without CurrPage.Update, then a row move.
@@ -297,7 +304,14 @@ codeunit 92827 "LT Y42 Cc Refill"
         Observer.Observe('caption next', TP.CapFld.Caption());
         Observer.Observe('events caption next', S.Take());
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('events action', 'resolve(Y42R|noupd t2);');
+        Observer.Expect('caption action', 'resolved:noupd t2');
+        Observer.Expect('events caption action', '');
+        Observer.Expect('next', 'Yes');
+        Observer.Expect('events next', '');
+        Observer.Expect('caption next', 'resolved:noupd t2');
+        Observer.Expect('events caption next', '');
+        Observer.Verify();
     end;
 
     // Step 3: a Worksheet over a temporary table refilled by an action (the Item Tracing shape), twice.
@@ -320,7 +334,15 @@ codeunit 92827 "LT Y42 Cc Refill"
         Observer.Observe('caption trace2', TP.CapFld.Caption());
         Observer.Observe('events caption trace2', S.Take());
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('events open', 'resolve(Y42R|start t3);');
+        Observer.Expect('events trace1', 'resolve(Y42R|traced 1 t3);');
+        Observer.Expect('caption trace1', 'resolved:traced 1 t3');
+        Observer.Expect('events caption trace1', '');
+        Observer.Expect('first id trace1', '12');
+        Observer.Expect('events trace2', 'resolve(Y42R|traced 2 t3);');
+        Observer.Expect('caption trace2', 'resolved:traced 2 t3');
+        Observer.Expect('events caption trace2', '');
+        Observer.Verify();
     end;
 
     // Step 4: an expression over Rec on a row move.
@@ -344,7 +366,16 @@ codeunit 92827 "LT Y42 Cc Refill"
         Observer.Observe('rowcap previous', TP.RowCap.Caption());
         Observer.Observe('events rowcap previous', S.Take());
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('events open', 'resolve(Y42R|start t4);resolve(Y42R|row 1 t4);');
+        Observer.Expect('rowcap open', 'resolved:row 1 t4');
+        Observer.Expect('events rowcap open', '');
+        Observer.Expect('events next', '');
+        Observer.Expect('rowcap next', 'resolved:row 1 t4');
+        Observer.Expect('events rowcap next', '');
+        Observer.Expect('events previous', '');
+        Observer.Expect('rowcap previous', 'resolved:row 1 t4');
+        Observer.Expect('events rowcap previous', '');
+        Observer.Verify();
     end;
 
     // Step 5: the action sets the same text again and calls CurrPage.Update(false).
@@ -362,7 +393,10 @@ codeunit 92827 "LT Y42 Cc Refill"
         Observer.Observe('caption same', TP.CapFld.Caption());
         Observer.Observe('events caption same', S.Take());
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('events same', '');
+        Observer.Expect('caption same', 'resolved:start t5');
+        Observer.Expect('events caption same', '');
+        Observer.Verify();
     end;
 
     // Step 6: the action changes the text to an area-3 text.
@@ -380,6 +414,9 @@ codeunit 92827 "LT Y42 Cc Refill"
         Observer.Observe('caption area3', TP.CapFld.Caption());
         Observer.Observe('events caption area3', S.Take());
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('events area3', '');
+        Observer.Expect('caption area3', 'area three t6');
+        Observer.Expect('events caption area3', '');
+        Observer.Verify();
     end;
 }

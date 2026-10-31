@@ -9,6 +9,8 @@
 //     the trigger order, and whether saved values reach the next test.
 // SaveValues with an extension field on the extension's own global alone is pinned in
 // report/lt-ch-report-leads/ChReportLeads.al:133-146.
+// BC 27.5-29.0: the handler reaches the extension's field on the empty base page; SaveValues stores and restores both extension
+// fields (base array element and own global), Cancel stores nothing, and the stored values reach the next test of the codeunit.
 
 table 92825 "LT Y42 Rx Row"
 {
@@ -251,7 +253,11 @@ codeunit 92832 "LT Y42 Rx Request Page"
     begin
         Seed();
         Exec(Observer, 'run', 0, Report::"LT Y42 Xa Empty Rp");
-        Observer.Finish();
+        Observer.Expect('run ok', 'Yes');
+        Observer.Expect('run error|text', '');
+        Observer.Expect('run error|code', '');
+        Observer.Expect('run log', 'h flag=No;ext post flag=Yes;');
+        Observer.Verify();
     end;
 
     // T2: the same report without the request window.
@@ -262,7 +268,11 @@ codeunit 92832 "LT Y42 Rx Request Page"
     begin
         Seed();
         Exec(Observer, 'run', 1, Report::"LT Y42 Xa Empty Rp");
-        Observer.Finish();
+        Observer.Expect('run ok', 'Yes');
+        Observer.Expect('run error|text', '');
+        Observer.Expect('run error|code', '');
+        Observer.Expect('run log', 'ext post flag=No;');
+        Observer.Verify();
     end;
 
     // T3, T4, T6: first run after a known stored state sets the extension fields; the second run reads them back.
@@ -278,7 +288,19 @@ codeunit 92832 "LT Y42 Rx Request Page"
         Exec(Observer, 'first', 2, Report::"LT Y42 Rx Saved");
         HMode := 3;
         Exec(Observer, 'second', 2, Report::"LT Y42 Rx Saved");
-        Observer.Finish();
+        Observer.Expect('prime ok', 'Yes');
+        Observer.Expect('prime error|text', '');
+        Observer.Expect('prime error|code', '');
+        Observer.Expect('prime log', 'base init;base open opt1=Yes opt3=No;ext open opt3=No note=;h opt1=Yes opt3=No note=;row A;ext item A;row B;ext item B;ext post opt1=Yes opt3=No note=;');
+        Observer.Expect('first ok', 'Yes');
+        Observer.Expect('first error|text', '');
+        Observer.Expect('first error|code', '');
+        Observer.Expect('first log', 'base init;base open opt1=Yes opt3=No;ext open opt3=No note=;h opt1=Yes opt3=No note=;row A;ext item A;row B;ext item B;ext post opt1=Yes opt3=Yes note=x;');
+        Observer.Expect('second ok', 'Yes');
+        Observer.Expect('second error|text', '');
+        Observer.Expect('second error|code', '');
+        Observer.Expect('second log', 'base init;base open opt1=Yes opt3=Yes;ext open opt3=Yes note=x;h opt1=Yes opt3=Yes note=x;row A;ext item A;row B;ext item B;ext post opt1=Yes opt3=Yes note=x;');
+        Observer.Verify();
     end;
 
     // T5: a run that sets values and Cancels, then a run that reads.
@@ -296,7 +318,23 @@ codeunit 92832 "LT Y42 Rx Request Page"
         Exec(Observer, 'cancel', 2, Report::"LT Y42 Rx Saved");
         HMode := 3;
         Exec(Observer, 'after cancel', 2, Report::"LT Y42 Rx Saved");
-        Observer.Finish();
+        Observer.Expect('prime ok', 'Yes');
+        Observer.Expect('prime error|text', '');
+        Observer.Expect('prime error|code', '');
+        Observer.Expect('prime log', 'base init;base open opt1=Yes opt3=Yes;ext open opt3=Yes note=x;h opt1=Yes opt3=Yes note=x;row A;ext item A;row B;ext item B;ext post opt1=Yes opt3=No note=;');
+        Observer.Expect('set ok', 'Yes');
+        Observer.Expect('set error|text', '');
+        Observer.Expect('set error|code', '');
+        Observer.Expect('set log', 'base init;base open opt1=Yes opt3=No;ext open opt3=No note=;h opt1=Yes opt3=No note=;row A;ext item A;row B;ext item B;ext post opt1=Yes opt3=Yes note=x;');
+        Observer.Expect('cancel ok', 'Yes');
+        Observer.Expect('cancel error|text', '');
+        Observer.Expect('cancel error|code', '');
+        Observer.Expect('cancel log', 'base init;base open opt1=Yes opt3=Yes;ext open opt3=Yes note=x;h opt1=Yes opt3=Yes note=x;');
+        Observer.Expect('after cancel ok', 'Yes');
+        Observer.Expect('after cancel error|text', '');
+        Observer.Expect('after cancel error|code', '');
+        Observer.Expect('after cancel log', 'base init;base open opt1=Yes opt3=Yes;ext open opt3=Yes note=x;h opt1=Yes opt3=Yes note=x;row A;ext item A;row B;ext item B;ext post opt1=Yes opt3=Yes note=x;');
+        Observer.Verify();
     end;
 
     // T7, part 1: leaves Opt3 true and note 'x' stored at the end of this test.
@@ -310,7 +348,15 @@ codeunit 92832 "LT Y42 Rx Request Page"
         Prime(Observer);
         HMode := 2;
         Exec(Observer, 'store', 2, Report::"LT Y42 Rx Saved");
-        Observer.Finish();
+        Observer.Expect('prime ok', 'Yes');
+        Observer.Expect('prime error|text', '');
+        Observer.Expect('prime error|code', '');
+        Observer.Expect('prime log', 'base init;base open opt1=Yes opt3=Yes;ext open opt3=Yes note=x;h opt1=Yes opt3=Yes note=x;row A;ext item A;row B;ext item B;ext post opt1=Yes opt3=No note=;');
+        Observer.Expect('store ok', 'Yes');
+        Observer.Expect('store error|text', '');
+        Observer.Expect('store error|code', '');
+        Observer.Expect('store log', 'base init;base open opt1=Yes opt3=No;ext open opt3=No note=;h opt1=Yes opt3=No note=;row A;ext item A;row B;ext item B;ext post opt1=Yes opt3=Yes note=x;');
+        Observer.Verify();
     end;
 
     // T7, part 2: do the values the previous test stored reach this test?
@@ -323,7 +369,11 @@ codeunit 92832 "LT Y42 Rx Request Page"
         Seed();
         HMode := 3;
         Exec(Observer, 'next test', 2, Report::"LT Y42 Rx Saved");
-        Observer.Finish();
+        Observer.Expect('next test ok', 'Yes');
+        Observer.Expect('next test error|text', '');
+        Observer.Expect('next test error|code', '');
+        Observer.Expect('next test log', 'base init;base open opt1=Yes opt3=Yes;ext open opt3=Yes note=x;h opt1=Yes opt3=Yes note=x;row A;ext item A;row B;ext item B;ext post opt1=Yes opt3=Yes note=x;');
+        Observer.Verify();
     end;
 
     [RequestPageHandler]

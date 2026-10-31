@@ -4,6 +4,9 @@
 // Transfer Order RunPageLink on an Enum). Observed: the rows of each part, what GetFilter / GetFilters give in the part's
 // OnOpenPage and at its first OnAfterGetCurrRecord, and the TestPage Filter of the part. Unquoted links and the
 // TableRelation form are pinned elsewhere (handlers/TestPageSubpagePartConstFilter.al, record/lt-table-relation-quotes/).
+// BC 27.5-29.0: the quotes are dropped and the members match; the part's OnOpenPage sees no link filter, its first
+// OnAfterGetCurrRecord sees it in filter group 4 (member names); TestPage Filter.GetFilter of a part gives the option NUMBERS
+// ('0|1|2'), of a page opened by RunPageLink the names (filter group 0).
 
 enum 92820 "LT Y42 Lq Kind"
 {
@@ -328,7 +331,10 @@ codeunit 92829 "LT Y42 Lq Link Quoted"
         Observer.Observe('tp filter status', Card.P1.Filter.GetFilter(Status));
         Observer.Observe('log', L.Take());
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('rows', '1,2,3,7,8,');
+        Observer.Expect('tp filter status', '0|1|2');
+        Observer.Expect('log', 'p open s=[] k=[] g4=[] a=[];p2 open s=[Open|Bank Acc. Entry Applied|Check Entry Applied] k=[] g4=[] a=[Status: Open|Bank Acc. Entry Applied|Check Entry Applied];p open s=[] k=[] g4=[] a=[];p open s=[] k=[] g4=[] a=[];p open s=[] k=[] g4=[] a=[];p agcr s=[] k=[] g4=[Open|Bank Acc. Entry Applied|Check Entry Applied] a=[];p2 agcr s=[Open|Bank Acc. Entry Applied|Check Entry Applied] k=[] g4=[Open|Bank Acc. Entry Applied|Check Entry Applied] a=[Status: Open|Bank Acc. Entry Applied|Check Entry Applied];p agcr s=[] k=[] g4=[] a=[];p agcr s=[] k=[] g4=[Check Entry Applied] a=[];p agcr s=[] k=[] g4=[<>Bank Acc. Entry Applied] a=[];');
+        Observer.Verify();
     end;
 
     // Step 2: the same link, and the part sets the same filter in OnOpenPage (page 379 shape).
@@ -348,7 +354,9 @@ codeunit 92829 "LT Y42 Lq Link Quoted"
         Observer.Observe('rows', Rows);
         Observer.Observe('tp filter status', Card.P2.Filter.GetFilter(Status));
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('rows', '1,2,3,7,8,');
+        Observer.Expect('tp filter status', '0|1|2');
+        Observer.Verify();
     end;
 
     // Step 3 and 7: Enum field, filter("B C" | "D E").
@@ -368,7 +376,9 @@ codeunit 92829 "LT Y42 Lq Link Quoted"
         Observer.Observe('rows', Rows);
         Observer.Observe('tp filter kind', Card.P3.Filter.GetFilter(Kind));
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('rows', '1,2,4,5,8,');
+        Observer.Expect('tp filter kind', '0|1');
+        Observer.Verify();
     end;
 
     // Step 4: const("B C").
@@ -388,7 +398,9 @@ codeunit 92829 "LT Y42 Lq Link Quoted"
         Observer.Observe('rows', Rows);
         Observer.Observe('tp filter status', Card.P4.Filter.GetFilter(Status));
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('rows', '3,8,');
+        Observer.Expect('tp filter status', '2');
+        Observer.Verify();
     end;
 
     // Step 5: filter(<> "B C").
@@ -408,7 +420,9 @@ codeunit 92829 "LT Y42 Lq Link Quoted"
         Observer.Observe('rows', Rows);
         Observer.Observe('tp filter status', Card.P5.Filter.GetFilter(Status));
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('rows', '1,3,4,7,8,');
+        Observer.Expect('tp filter status', '<>1');
+        Observer.Verify();
     end;
 
     // Step 6: RunPageLink filter() with quoted Enum members.
@@ -437,6 +451,9 @@ codeunit 92829 "LT Y42 Lq Link Quoted"
         Observer.Observe('log', L.Take());
         List.Close();
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('rows', '1,2,4,5,8,');
+        Observer.Expect('tp filter kind', 'Inbound Transfer|Outbound Transfer');
+        Observer.Expect('log', 'list open s=[] k=[Inbound Transfer|Outbound Transfer] g4=[] a=[Acc No.: A1, Kind: Inbound Transfer|Outbound Transfer];');
+        Observer.Verify();
     end;
 }

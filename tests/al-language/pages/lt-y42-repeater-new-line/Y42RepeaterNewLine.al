@@ -4,6 +4,8 @@
 // InsertAllowed = false and OpenView; here only the repeater's Editable changes: literal false on a List, a Worksheet and a
 // ListPart, a page global (the VAT Return Period List shape: OnInsertRecord raises Error('') when it is false) and a field
 // of the row.
+// BC 27.5-29.0: a repeater Editable = false (List, Worksheet, ListPart) or a false global: Next past the last row answers false;
+// a true global lands on the blank line. An empty list runs OnNewRecord at open whatever the repeater says, and New() does not fail.
 
 table 92821 "LT Y42 Nr Row"
 {
@@ -328,7 +330,19 @@ codeunit 92825 "LT Y42 Nr Repeater Editable"
         TP.Close();
         Observer.Observe('log close', L.Take());
         Observer.Observe('rows', RowKeys());
-        Observer.Finish();
+        Observer.Expect('log open', 'agcr A1;');
+        Observer.Expect('first', 'Yes');
+        Observer.Expect('no first', 'A1');
+        Observer.Expect('next1', 'Yes');
+        Observer.Expect('no next1', 'A2');
+        Observer.Expect('next2', 'No');
+        Observer.Expect('no next2', 'A2');
+        Observer.Expect('editable next2', 'No');
+        Observer.Expect('next3', 'No');
+        Observer.Expect('log', 'agcr A2;');
+        Observer.Expect('log close', '');
+        Observer.Expect('rows', '2:A1,A2,');
+        Observer.Verify();
     end;
 
     // Step 2: List, repeater Editable = false, empty table.
@@ -350,7 +364,16 @@ codeunit 92825 "LT Y42 Nr Repeater Editable"
         TP.Close();
         Observer.Observe('log close', L.Take());
         Observer.Observe('rows', RowKeys());
-        Observer.Finish();
+        Observer.Expect('log open', 'new;agcr ;');
+        Observer.Expect('first', 'No');
+        Observer.Expect('name', '');
+        Observer.Expect('new ok', 'Yes');
+        Observer.Expect('new|text', '');
+        Observer.Expect('new|code', '');
+        Observer.Expect('log', 'new;agcr ;');
+        Observer.Expect('log close', '');
+        Observer.Expect('rows', '0:');
+        Observer.Verify();
     end;
 
     // Step 3: Worksheet, repeater Editable = false, DeleteAllowed = false: via Trap + Page.Run and via OpenEdit.
@@ -379,7 +402,18 @@ codeunit 92825 "LT Y42 Nr Repeater Editable"
         Observer.Observe('edit log', L.Take());
         TP2.Close();
         Observer.Observe('rows', RowKeys());
-        Observer.Finish();
+        Observer.Expect('run log open', 'agcr A1;');
+        Observer.Expect('run first', 'Yes');
+        Observer.Expect('run next', 'No');
+        Observer.Expect('run no', 'A1');
+        Observer.Expect('run log', '');
+        Observer.Expect('edit log open', 'agcr A1;');
+        Observer.Expect('edit first', 'Yes');
+        Observer.Expect('edit next', 'No');
+        Observer.Expect('edit no', 'A1');
+        Observer.Expect('edit log', '');
+        Observer.Expect('rows', '1:A1,');
+        Observer.Verify();
     end;
 
     // Step 4: repeater Editable = a page global that is true, empty table: New, SetValue, Close.
@@ -403,7 +437,15 @@ codeunit 92825 "LT Y42 Nr Repeater Editable"
         TP.Close();
         Observer.Observe('log close', L.Take());
         Observer.Observe('rows', RowKeys());
-        Observer.Finish();
+        Observer.Expect('log open', 'open editable=Yes;new;agcr ;new;agcr ;');
+        Observer.Expect('new ok', 'Yes');
+        Observer.Expect('new|text', '');
+        Observer.Expect('new|code', '');
+        Observer.Expect('log new', 'new;agcr ;');
+        Observer.Expect('log setvalue', 'oir;ins N1;');
+        Observer.Expect('log close', '');
+        Observer.Expect('rows', '1:N1,');
+        Observer.Verify();
     end;
 
     // Step 5: repeater Editable = a page global that is false, empty table.
@@ -425,7 +467,15 @@ codeunit 92825 "LT Y42 Nr Repeater Editable"
         TP.Close();
         Observer.Observe('log close', L.Take());
         Observer.Observe('rows', RowKeys());
-        Observer.Finish();
+        Observer.Expect('log open', 'open editable=No;new;agcr ;');
+        Observer.Expect('first', 'No');
+        Observer.Expect('new ok', 'Yes');
+        Observer.Expect('new|text', '');
+        Observer.Expect('new|code', '');
+        Observer.Expect('log new', 'new;agcr ;');
+        Observer.Expect('log close', '');
+        Observer.Expect('rows', '0:');
+        Observer.Verify();
     end;
 
     // Step 6: repeater Editable = a page global that is false, one row: Next past the last row.
@@ -446,7 +496,14 @@ codeunit 92825 "LT Y42 Nr Repeater Editable"
         TP.Close();
         Observer.Observe('log close', L.Take());
         Observer.Observe('rows', RowKeys());
-        Observer.Finish();
+        Observer.Expect('log open', 'open editable=No;agcr A1;');
+        Observer.Expect('first', 'Yes');
+        Observer.Expect('next', 'No');
+        Observer.Expect('no', 'A1');
+        Observer.Expect('log', '');
+        Observer.Expect('log close', '');
+        Observer.Expect('rows', '1:A1,');
+        Observer.Verify();
     end;
 
     // Step 6 with the global true, one row (the neighbour that should land on the line).
@@ -467,7 +524,14 @@ codeunit 92825 "LT Y42 Nr Repeater Editable"
         TP.Close();
         Observer.Observe('log close', L.Take());
         Observer.Observe('rows', RowKeys());
-        Observer.Finish();
+        Observer.Expect('log open', 'open editable=Yes;agcr A1;');
+        Observer.Expect('first', 'Yes');
+        Observer.Expect('next', 'Yes');
+        Observer.Expect('no', '');
+        Observer.Expect('log', 'new;agcr ;');
+        Observer.Expect('log close', '');
+        Observer.Expect('rows', '1:A1,');
+        Observer.Verify();
     end;
 
     // Step 7: repeater Editable = Rec.Flag; last row Flag false, then last row Flag true.
@@ -504,7 +568,16 @@ codeunit 92825 "LT Y42 Nr Repeater Editable"
         Observer.Observe('last flag true: log', L.Take());
         TP2.Close();
         Observer.Observe('rows', RowKeys());
-        Observer.Finish();
+        Observer.Expect('last flag false: last', 'Yes');
+        Observer.Expect('last flag false: next', 'No');
+        Observer.Expect('last flag false: no', 'A2');
+        Observer.Expect('last flag false: log', 'new;agcr ;agcr A2;');
+        Observer.Expect('last flag true: last', 'Yes');
+        Observer.Expect('last flag true: next', 'Yes');
+        Observer.Expect('last flag true: no', 'A2');
+        Observer.Expect('last flag true: log', 'agcr A2;new;agcr ;agcr A2;');
+        Observer.Expect('rows', '2:A1,A2,');
+        Observer.Verify();
     end;
 
     // Step 8: a ListPart whose repeater says Editable = false, on an editable card.
@@ -522,6 +595,11 @@ codeunit 92825 "LT Y42 Nr Repeater Editable"
         Observer.Observe('no next', TP.LPF."No.".Value());
         TP.Close();
         Observer.Observe('rows', RowKeys());
-        Observer.Finish();
+        Observer.Expect('first', 'Yes');
+        Observer.Expect('no first', 'A1');
+        Observer.Expect('next', 'No');
+        Observer.Expect('no next', 'A1');
+        Observer.Expect('rows', '1:A1,');
+        Observer.Verify();
     end;
 }
