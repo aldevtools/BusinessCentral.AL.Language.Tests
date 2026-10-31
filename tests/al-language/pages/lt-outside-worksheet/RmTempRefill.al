@@ -877,6 +877,208 @@ codeunit 88269 "LT RM Refill Tests"
         Observer.Expect('shown after walk', 'R21');
         Observer.Verify();
     end;
+
+    // ---- Writer Y34, al-runner issue 6550 (follow-up to 5779): the same filter OnValidate refill (Reset, DeleteAll, insert numbered from 1,
+    // FindFirst) on a collapsed tree Worksheet (ShowAsTree, TreeInitialState = CollapseAll, IndentationColumn Rec.Indent). Group letters:
+    // upper case = a root row X with children X-1 and X-2, lower case = a root row without children, '*' = a child row *-1 with no root
+    // before it. The Name control shows a page variable set in OnAfterGetRecord; Rec Name shows the field. Log: R:<name> = OnAfterGetRecord,
+    // C:<name> = OnAfterGetCurrRecord. Pages at the end of this file.
+
+    local procedure Y34Open(var Ws: TestPage "LT Y34 Refill Tree"; Groups: Text[10]; EndOnLast: Boolean)
+    var
+        WsPage: Page "LT Y34 Refill Tree";
+    begin
+        Log.Reset();
+        Ws.Trap();
+        WsPage.SetGroups(Groups, EndOnLast);
+        WsPage.Run();
+    end;
+
+    // The rows First and Next reach: the Name control (page variable), with the Rec Name control in brackets when it differs.
+    local procedure Y34Walk(var Ws: TestPage "LT Y34 Refill Tree") Rows: Text
+    begin
+        if Ws.First() then
+            repeat
+                if Rows <> '' then
+                    Rows += ' ';
+                Rows += Y34Row(Ws);
+            until not Ws.Next();
+    end;
+
+    local procedure Y34Row(var Ws: TestPage "LT Y34 Refill Tree"): Text
+    begin
+        if Ws.RowName.Value() = Ws.RecName.Value() then
+            exit(Ws.RowName.Value());
+        exit(Ws.RowName.Value() + '(' + Ws.RecName.Value() + ')');
+    end;
+
+    // Refills with NewGroups and observes the log and current row of the validate, then the walk.
+    local procedure Y34Refill(var Ws: TestPage "LT Y34 Refill Tree"; NewGroups: Text[10])
+    begin
+        Observer.Observe('before', Y34Row(Ws));
+        Log.Take();
+        Ws.GroupFilterField.SetValue(NewGroups);
+        Observer.Observe('validate log', Log.Take());
+        Observer.Observe('shown after validate', Y34Row(Ws));
+        if Ws.RecName.Value() <> '' then
+            Observer.Observe('expanded after validate', Format(Ws.IsExpanded()));
+        Observer.Observe('rows', Y34Walk(Ws));
+        Observer.Observe('walk log', Log.Take());
+        Observer.Observe('shown after walk', Y34Row(Ws));
+    end;
+
+    [Test]
+    procedure Y34_Tree_Fewer_AB_To_B()
+    var
+        Ws: TestPage "LT Y34 Refill Tree";
+    begin
+        Y34Open(Ws, 'AB', false);
+        Observer.Observe('open log', Log.Take());
+        Y34Refill(Ws, 'B');
+        Ws.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y34_Tree_Fewer_FromSecondRoot_AB_To_A()
+    var
+        Ws: TestPage "LT Y34 Refill Tree";
+    begin
+        Y34Open(Ws, 'AB', false);
+        Ws.First();
+        Ws.Next();
+        Y34Refill(Ws, 'A');
+        Ws.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y34_Tree_SameKeys_D_To_AB()
+    var
+        Ws: TestPage "LT Y34 Refill Tree";
+    begin
+        Y34Open(Ws, 'D', false);
+        Y34Refill(Ws, 'AB');
+        Ws.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y34_Tree_SameKeys_AB_To_CD_FromSecondRoot()
+    var
+        Ws: TestPage "LT Y34 Refill Tree";
+    begin
+        Y34Open(Ws, 'AB', false);
+        Ws.First();
+        Ws.Next();
+        Y34Refill(Ws, 'CD');
+        Ws.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y34_Tree_More_A_To_ABC()
+    var
+        Ws: TestPage "LT Y34 Refill Tree";
+    begin
+        Y34Open(Ws, 'A', false);
+        Y34Refill(Ws, 'ABC');
+        Ws.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y34_Tree_ChildrenUnderOneRoot_AB_To_aBc()
+    var
+        Ws: TestPage "LT Y34 Refill Tree";
+    begin
+        Y34Open(Ws, 'AB', false);
+        Y34Refill(Ws, 'aBc');
+        Ws.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y34_Tree_ChildWithoutRoot_A_To_StarB()
+    var
+        Ws: TestPage "LT Y34 Refill Tree";
+    begin
+        Y34Open(Ws, 'A', false);
+        Y34Refill(Ws, '*B');
+        Ws.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y34_Tree_ExpandedBefore_AB_To_B()
+    var
+        Ws: TestPage "LT Y34 Refill Tree";
+    begin
+        Y34Open(Ws, 'AB', false);
+        Ws.First();
+        Ws.Expand(true);
+        Observer.Observe('rows before', Y34Walk(Ws));
+        Ws.First();
+        Y34Refill(Ws, 'B');
+        Ws.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y34_Tree_ExpandedBefore_AB_To_CD()
+    var
+        Ws: TestPage "LT Y34 Refill Tree";
+    begin
+        Y34Open(Ws, 'AB', false);
+        Ws.First();
+        Ws.Next();
+        Ws.Expand(true);
+        Observer.Observe('rows before', Y34Walk(Ws));
+        Ws.Last();
+        Y34Refill(Ws, 'CD');
+        Ws.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y34_Tree_EndOnLastRow_A_To_AB()
+    var
+        Ws: TestPage "LT Y34 Refill Tree";
+    begin
+        Y34Open(Ws, 'A', true);
+        Observer.Observe('open log', Log.Take());
+        Y34Refill(Ws, 'AB');
+        Ws.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y34_Tree_ToEmpty_AB()
+    var
+        Ws: TestPage "LT Y34 Refill Tree";
+    begin
+        Y34Open(Ws, 'AB', false);
+        Y34Refill(Ws, '');
+        Ws.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y34_Tree_ExpandAfterRefill_D_To_AB()
+    var
+        Ws: TestPage "LT Y34 Refill Tree";
+    begin
+        Y34Open(Ws, 'D', false);
+        Ws.GroupFilterField.SetValue('AB');
+        Ws.First();
+        Log.Take();
+        Ws.Expand(true);
+        Observer.Observe('expand log', Log.Take());
+        Observer.Observe('expanded', Format(Ws.IsExpanded()));
+        Observer.Observe('rows', Y34Walk(Ws));
+        Ws.Close();
+        Observer.Finish();
+    end;
 }
 
 page 89437 "LT SH Refill Fewer Cur"
@@ -1190,5 +1392,135 @@ page 89811 "LT TD Refill NoCur"
             Rec.Insert();
         end;
         if Rec.FindFirst() then;
+    end;
+}
+
+// ---- Writer Y34 objects (al-runner issue 6550): a collapsed tree Worksheet over a temporary source that a filter field refills.
+
+table 92560 "LT Y34 Tree Row"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; Id; Integer) { }
+        field(2; Name; Text[30]) { }
+        field(3; Indent; Integer) { }
+    }
+
+    keys
+    {
+        key(PK; Id) { Clustered = true; }
+    }
+}
+
+page 92561 "LT Y34 Refill Tree"
+{
+    PageType = Worksheet;
+    SourceTable = "LT Y34 Tree Row";
+    SourceTableTemporary = true;
+    InsertAllowed = false;
+    ModifyAllowed = false;
+    DeleteAllowed = false;
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            group(Filters)
+            {
+                field(GroupFilterField; GroupFilter)
+                {
+                    Caption = 'Group Filter';
+
+                    trigger OnValidate()
+                    begin
+                        Fill();
+                    end;
+                }
+            }
+            repeater(Rows)
+            {
+                Editable = false;
+                IndentationColumn = Rec.Indent;
+                IndentationControls = RowName;
+                ShowAsTree = true;
+                TreeInitialState = CollapseAll;
+                field(RowName; NameText) { Caption = 'Name'; }
+                field(RecName; Rec.Name) { Caption = 'Rec Name'; }
+            }
+        }
+    }
+
+    trigger OnOpenPage()
+    begin
+        Fill();
+    end;
+
+    trigger OnAfterGetRecord()
+    begin
+        NameText := Rec.Name;
+        Log.Add('R:' + Rec.Name);
+    end;
+
+    trigger OnAfterGetCurrRecord()
+    begin
+        IsChild := Rec.Indent > 0;
+        Log.Add('C:' + Rec.Name);
+    end;
+
+    var
+        Log: Codeunit "LT RM Refill Log";
+        GroupFilter: Text[10];
+        NameText: Text;
+        IsChild: Boolean;
+        EndOnLast: Boolean;
+
+    procedure SetGroups(NewGroups: Text[10]; NewEndOnLast: Boolean)
+    begin
+        GroupFilter := NewGroups;
+        EndOnLast := NewEndOnLast;
+    end;
+
+    // Empties Rec and fills it again from GroupFilter, numbered from 1 (letters: see the Y34 tests).
+    local procedure Fill()
+    var
+        Letter: Text[1];
+        i: Integer;
+        NextId: Integer;
+    begin
+        Rec.Reset();
+        Rec.DeleteAll();
+        for i := 1 to StrLen(GroupFilter) do begin
+            Letter := CopyStr(GroupFilter, i, 1);
+            case true of
+                Letter = '*':
+                    InsertRow(NextId, '*-1', 1);
+                Letter = UpperCase(Letter):
+                    begin
+                        InsertRow(NextId, Letter, 0);
+                        InsertRow(NextId, Letter + '-1', 1);
+                        InsertRow(NextId, Letter + '-2', 1);
+                    end;
+                else
+                    InsertRow(NextId, Letter, 0);
+            end;
+        end;
+        if EndOnLast then begin
+            if Rec.FindLast() then;
+        end else
+            if Rec.FindFirst() then;
+    end;
+
+    local procedure InsertRow(var NextId: Integer; NewName: Text[30]; NewIndent: Integer)
+    begin
+        NextId += 1;
+        Rec.Init();
+        Rec.Id := NextId;
+        Rec.Name := NewName;
+        Rec.Indent := NewIndent;
+        Rec.Insert();
     end;
 }
