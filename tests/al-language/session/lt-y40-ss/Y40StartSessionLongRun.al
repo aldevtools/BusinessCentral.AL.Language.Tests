@@ -4,6 +4,10 @@
 // session wrote and when, StopSession on a running session and on one that ended, a Timeout that is longer than the run, a Timeout
 // that cuts a session which commits a tick every 500 ms, a session that ends in an error, and IsSessionActive / StopSession of
 // session ids that do not exist. Times are coarse buckets (the session times of a test server vary).
+// Measured on a BC 29 SaaS sandbox under runner 130451 (2026-10-31): StartSession returns at once and the session stays active while
+// it sleeps; it turns inactive when OnRun ends, when StopSession stops it (the rest of OnRun does not run), when its Timeout runs out
+// (no further commits) and when it fails (the caller sees no error). StopSession raises no error for a session that ended or was
+// stopped, nor for an id that does not exist; IsSessionActive of 0, -1 and an unknown id is No.
 // BC versions: 27 - 29
 table 92320 "LT Y40 Ss Result"
 {
@@ -182,7 +186,15 @@ codeunit 92322 "LT Y40 Ss Tests"
         Observer.Observe('end_row', Format(WaitFor('end', 30000)));
         Observer.Observe('inactive_after_end', WaitInactive(Sid, 10000));
         Reset();
-        Observer.Finish();
+        Observer.Expect('started', 'Yes');
+        Observer.Expect('call_returned', 'under 2 s');
+        Observer.Expect('active_right_after', 'Yes');
+        Observer.Expect('start_row', 'Yes');
+        Observer.Expect('active_2s_after_start', 'Yes');
+        Observer.Expect('end_row_2s_after_start', 'No');
+        Observer.Expect('end_row', 'Yes');
+        Observer.Expect('inactive_after_end', 'inactive');
+        Observer.Verify();
     end;
 
     [Test]
@@ -199,7 +211,12 @@ codeunit 92322 "LT Y40 Ss Tests"
         Observer.Observe('end_row', Format(WaitFor('end', 8000)));
         Observer.Observe('stop_again', Stop(Sid));
         Reset();
-        Observer.Finish();
+        Observer.Expect('start_row', 'Yes');
+        Observer.Expect('stop', 'ok');
+        Observer.Expect('inactive_after_stop', 'inactive');
+        Observer.Expect('end_row', 'No');
+        Observer.Expect('stop_again', 'ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -214,7 +231,10 @@ codeunit 92322 "LT Y40 Ss Tests"
         Observer.Observe('inactive', WaitInactive(Sid, 10000));
         Observer.Observe('stop_ended', Stop(Sid));
         Reset();
-        Observer.Finish();
+        Observer.Expect('end_row', 'Yes');
+        Observer.Expect('inactive', 'inactive');
+        Observer.Expect('stop_ended', 'ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -230,7 +250,11 @@ codeunit 92322 "LT Y40 Ss Tests"
         Observer.Observe('end_row', Format(WaitFor('end', 30000)));
         Observer.Observe('inactive_after_end', WaitInactive(Sid, 10000));
         Reset();
-        Observer.Finish();
+        Observer.Expect('started', 'Yes');
+        Observer.Expect('start_row', 'Yes');
+        Observer.Expect('end_row', 'Yes');
+        Observer.Expect('inactive_after_end', 'inactive');
+        Observer.Verify();
     end;
 
     [Test]
@@ -262,7 +286,14 @@ codeunit 92322 "LT Y40 Ss Tests"
         Observer.Observe('ticks_grow_after_stop', Format(Ticks() > TicksAtStop));
         Observer.Observe('end_row', Format(Has('end')));
         Reset();
-        Observer.Finish();
+        Observer.Expect('started', 'Yes');
+        Observer.Expect('first_tick', 'Yes');
+        Observer.Expect('active_after_first_tick', 'Yes');
+        Observer.Expect('inactive', 'inactive');
+        Observer.Expect('ticks_at_stop', '2 to 12');
+        Observer.Expect('ticks_grow_after_stop', 'No');
+        Observer.Expect('end_row', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -278,7 +309,11 @@ codeunit 92322 "LT Y40 Ss Tests"
         Observer.Observe('inactive', WaitInactive(Sid, 15000));
         Observer.Observe('caller_last_error', GetLastErrorText());
         Reset();
-        Observer.Finish();
+        Observer.Expect('started', 'Yes');
+        Observer.Expect('start_row', 'Yes');
+        Observer.Expect('inactive', 'inactive');
+        Observer.Expect('caller_last_error', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -290,6 +325,10 @@ codeunit 92322 "LT Y40 Ss Tests"
         Observer.Observe('active_minus_1', Format(Session.IsSessionActive(-1)));
         Observer.Observe('active_max', Format(Session.IsSessionActive(2147483647)));
         Observer.Observe('stop_max', Stop(2147483647));
-        Observer.Finish();
+        Observer.Expect('active_0', 'No');
+        Observer.Expect('active_minus_1', 'No');
+        Observer.Expect('active_max', 'No');
+        Observer.Expect('stop_max', 'ok');
+        Observer.Verify();
     end;
 }
