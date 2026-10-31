@@ -781,6 +781,130 @@ codeunit 67107 "LT PT Cloud Tables"
         Y17Observer.Verify();
     end;
 #endif
+
+#if BC29PLUS
+    // Writer Y40 (2026-10-31, BC 29 only: the table is new in BC 29): Tenant Report Layout Override (2000000248), the table Microsoft's
+    // Composite Layout tests write for a company-scoped layout status. The standard sequence, typed-record errors, and whether a row
+    // changes what Report Layout List (2000000234) shows for an app layout (report 69083, layout Rdlc).
+    [Test]
+    procedure Y40_TenantReportLayoutOverride_InsertModifyDelete()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Standard(Observer, 2000000248, '1=99999;2=LTPT Layout;3={44444444-4444-4444-4444-444444444444};4=LTPT;9=First;10=true', '1=99999;2=LTPT Layout', '9=Second');
+        Observer.Finish();
+    end;
+
+    local procedure Y40Override(var O: Record "Tenant Report Layout Override"): Text
+    begin
+        exit(Format(O."Report ID") + '|' + O.Name + '|' + Format(IsNullGuid(O."Runtime Package ID")) + '|' + O."Company Name" + '|' + Format(O.IsObsolete) + '|' +
+            Format(O."Override IsObsolete") + '|' + Format(O."Layout Status") + '|' + Format(O."Override Layout Status") + '|' + O.Description + '|' +
+            Format(O."Override Description"));
+    end;
+
+    [Test]
+    procedure Y40_TenantReportLayoutOverride_TypedRecord()
+    var
+        O: Record "Tenant Report Layout Override";
+        O2: Record "Tenant Report Layout Override";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('count_at_start', Format(O.Count()));
+        O.Init();
+        Observer.Observe('init', Y40Override(O));
+        O."Report ID" := 99998;
+        O.Name := 'LTPT Typed';
+        O."Company Name" := CopyStr(CompanyName(), 1, MaxStrLen(O."Company Name"));
+        O."Layout Status" := O."Layout Status"::Retired;
+        O."Override Layout Status" := true;
+        Observer.Observe('insert', Format(O.Insert(true)));
+        Observer.Observe('insert_again', Format(O.Insert()));
+        Observer.Observe('get', Format(O2.Get(99998, 'LTPT Typed', O."Runtime Package ID", CompanyName())));
+        Observer.Observe('get_row', Y40Override(O2));
+        Observer.Observe('get_other_company', Format(O2.Get(99998, 'LTPT Typed', O."Runtime Package ID", '')));
+        O."Company Name" := '';
+        O."Layout Status" := O."Layout Status"::Draft;
+        Observer.Observe('insert_global', Format(O.Insert(true)));
+        O2.Reset();
+        O2.SetRange("Report ID", 99998);
+        Observer.Observe('count_both', Format(O2.Count()));
+        O2.SetRange("Layout Status", O2."Layout Status"::Retired);
+        Observer.Observe('count_retired', Format(O2.Count()));
+        O2.SetRange("Layout Status");
+        O2.FindFirst();
+        Observer.Observe('first_by_key', Y40Override(O2));
+        O2.Description := 'Changed';
+        O2."Override Description" := true;
+        Observer.Observe('modify', Format(O2.Modify(true)));
+        O2.Get(99998, 'LTPT Typed', O."Runtime Package ID", '');
+        Observer.Observe('after_modify', Y40Override(O2));
+        Observer.Observe('rename', Format(O2.Rename(99998, 'LTPT Renamed', O."Runtime Package ID", '')));
+        O2.Reset();
+        O2.SetRange("Report ID", 99998);
+        O2.FindSet();
+        Observer.Observe('after_rename_first', Y40Override(O2));
+        Observer.Observe('delete', Format(O2.Delete(true)));
+        Observer.Observe('count_after_delete', Format(O2.Count()));
+        O2.DeleteAll();
+        Observer.Observe('count_after_delete_all', Format(O2.Count()));
+        Observer.Finish();
+    end;
+
+    local procedure Y40LayoutListRow(Name: Text): Text
+    var
+        L: Record "Report Layout List";
+    begin
+        L.SetRange("Report ID", 69083);
+        L.SetRange(Name, Name);
+        if not L.FindFirst() then
+            exit('none');
+        exit('desc=' + L.Description + ' status=' + Format(L."Layout Status") + ' obsolete=' + Format(L.IsObsolete));
+    end;
+
+    [Test]
+    procedure Y40_TenantReportLayoutOverride_SeenByReportLayoutList()
+    var
+        L: Record "Report Layout List";
+        O: Record "Tenant Report Layout Override";
+        Observer: Codeunit "Probe Observer";
+    begin
+        L.SetRange("Report ID", 69083);
+        L.SetRange(Name, 'Rdlc');
+        L.FindFirst();
+        Observer.Observe('before', Y40LayoutListRow('Rdlc'));
+        O.Init();
+        O."Report ID" := 69083;
+        O.Name := L.Name;
+        O."Runtime Package ID" := L."Runtime Package ID";
+        O."Company Name" := '';
+        O.Description := 'LT Y40 Global';
+        O."Override Description" := true;
+        O."Layout Status" := O."Layout Status"::Retired;
+        O."Override Layout Status" := true;
+        O.IsObsolete := true;
+        O."Override IsObsolete" := true;
+        O.Insert();
+        Observer.Observe('global_override', Y40LayoutListRow('Rdlc'));
+        Observer.Observe('other_layout', Y40LayoutListRow('Word'));
+        O."Company Name" := CopyStr(CompanyName(), 1, MaxStrLen(O."Company Name"));
+        O.Description := 'LT Y40 Company';
+        O."Layout Status" := O."Layout Status"::"Pending Approval";
+        O."Override IsObsolete" := false;
+        O.Insert();
+        Observer.Observe('company_override_too', Y40LayoutListRow('Rdlc'));
+        O.Get(69083, L.Name, L."Runtime Package ID", '');
+        O.Delete();
+        Observer.Observe('company_override_only', Y40LayoutListRow('Rdlc'));
+        O.Get(69083, L.Name, L."Runtime Package ID", CompanyName());
+        O."Override Description" := false;
+        O."Override Layout Status" := false;
+        O.Modify();
+        Observer.Observe('flags_off', Y40LayoutListRow('Rdlc'));
+        O.Delete();
+        Observer.Observe('after_delete', Y40LayoutListRow('Rdlc'));
+        Observer.Finish();
+    end;
+#endif
 }
 
 #if BC29PLUS
