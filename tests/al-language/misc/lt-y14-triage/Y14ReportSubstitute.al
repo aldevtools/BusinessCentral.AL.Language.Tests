@@ -7,6 +7,7 @@
 //   parameters XML, the run mode the subscriber sees, and which report runs for Report.Run, RunModal, Execute and SaveAs. A request page handler typed
 //   on the report that was asked for (not the substituted one) is never called; a test that names such a handler and never consumes it fails with
 //   'The following UI handlers were not executed', so those tests consume the handler with a second, unswapped call.
+//   With only the handler typed on A, the swapped call ends in 'Unhandled UI: RequestPage 91651' (MissingUIHandler): Windows BC 27.5 and the Linux containers agree (2026-10-31).
 //   Related pins: events/lt-platform-events-v/PeVTests.al (SubstituteReport with SaveAs) and report/lt-report-members-testrequestpage/SqSubstituteObjects.al.
 // BC versions: 27, 28, 29
 
@@ -199,19 +200,21 @@ codeunit 91654 "LT Y14 Rep Tests"
             UnbindSubscription(Subs);
     end;
 
-    // Linux suspect (CI containers, 27.5/28.5/29.0): the SaaS sandbox (BC 29) gives the values below, but the first call here ends in an error on the Linux containers
-    // (observation 1 is 'No'). Held as a plain procedure, not a [Test], until the Windows nightly shows which tier is right.
-    procedure Suspect_RunRequestPage_Swap_Platform_HandlerA()
+    // Windows BC 27.5 (checked 2026-10-31, handlers enforced) = Linux containers (27.5/28.5/29.0): the first call ends in 'Unhandled UI: RequestPage 91651',
+    // because the request page that opens is B's and only the handler typed on A is given. (A SaaS run through the test runner hub showed no error: the hub does not enforce handlers.)
+    [Test]
+    [HandlerFunctions('HandlerA')]
+    procedure RunRequestPage_Swap_Platform_HandlerA()
     var
         Observer: Codeunit "Probe Observer";
     begin
         RrpCase(Observer, 'platform handlerA', true, true, false, false, '');
         RrpCase(Observer, 'noswap consumes handlerA', false, false, false, false, '');
-        Observer.Expect('platform handlerA ok', 'Yes');
-        Observer.Expect('platform handlerA|text', '');
-        Observer.Expect('platform handlerA|code', '');
-        Observer.Expect('platform handlerA xml', '<?xml version="1.0" standalone="yes"?><ReportParameters name="LT Y14 Rep B" id="91651" />');
-        Observer.Expect('platform handlerA log', 'After(91650,1,xmlLen=0,in=-1);Sub(91650,ParametersOnly,xmlLen=0,in=-1);B-init;B-pre();B-post;');
+        Observer.Expect('platform handlerA ok', 'No');
+        Observer.Expect('platform handlerA|text', 'Unhandled UI: RequestPage 91651');
+        Observer.Expect('platform handlerA|code', 'MissingUIHandler');
+        Observer.Expect('platform handlerA xml', '');
+        Observer.Expect('platform handlerA log', 'After(91650,1,xmlLen=0,in=-1);Sub(91650,ParametersOnly,xmlLen=0,in=-1);B-init;');
         Observer.Expect('noswap consumes handlerA ok', 'Yes');
         Observer.Expect('noswap consumes handlerA|text', '');
         Observer.Expect('noswap consumes handlerA|code', '');
@@ -235,19 +238,21 @@ codeunit 91654 "LT Y14 Rep Tests"
         Observer.Verify();
     end;
 
-    // Linux suspect (CI containers, 27.5/28.5/29.0): the SaaS sandbox (BC 29) gives the values below, but the first call here ends in an error on the Linux containers
-    // (observation 1 is 'No'). Held as a plain procedure, not a [Test], until the Windows nightly shows which tier is right.
-    procedure Suspect_RunRequestPage_Swap_After_HandlerA()
+    // Windows BC 27.5 (checked 2026-10-31, handlers enforced) = Linux containers (27.5/28.5/29.0): the first call ends in 'Unhandled UI: RequestPage 91651',
+    // because the request page that opens is B's and only the handler typed on A is given. (A SaaS run through the test runner hub showed no error: the hub does not enforce handlers.)
+    [Test]
+    [HandlerFunctions('HandlerA')]
+    procedure RunRequestPage_Swap_After_HandlerA()
     var
         Observer: Codeunit "Probe Observer";
     begin
         RrpCase(Observer, 'after handlerA', true, false, true, false, '');
         RrpCase(Observer, 'noswap consumes handlerA', false, false, false, false, '');
-        Observer.Expect('after handlerA ok', 'Yes');
-        Observer.Expect('after handlerA|text', '');
-        Observer.Expect('after handlerA|code', '');
-        Observer.Expect('after handlerA xml', '<?xml version="1.0" standalone="yes"?><ReportParameters name="LT Y14 Rep B" id="91651" />');
-        Observer.Expect('after handlerA log', 'After(91650,1,xmlLen=0,in=-1);Sub(91650,ParametersOnly,xmlLen=0,in=91651);B-init;B-pre();B-post;');
+        Observer.Expect('after handlerA ok', 'No');
+        Observer.Expect('after handlerA|text', 'Unhandled UI: RequestPage 91651');
+        Observer.Expect('after handlerA|code', 'MissingUIHandler');
+        Observer.Expect('after handlerA xml', '');
+        Observer.Expect('after handlerA log', 'After(91650,1,xmlLen=0,in=-1);Sub(91650,ParametersOnly,xmlLen=0,in=91651);B-init;');
         Observer.Expect('noswap consumes handlerA ok', 'Yes');
         Observer.Expect('noswap consumes handlerA|text', '');
         Observer.Expect('noswap consumes handlerA|code', '');
@@ -342,23 +347,25 @@ codeunit 91654 "LT Y14 Rep Tests"
         exit('<?xml version="1.0" standalone="yes"?><ReportParameters name="LT Y14 Rep B" id="91651"><Options><Field name="BText">b1</Field></Options></ReportParameters>');
     end;
 
-    // Linux suspect (CI containers, 27.5/28.5/29.0): the SaaS sandbox (BC 29) gives the values below, but the first call here ends in an error on the Linux containers
-    // (observation 1 is 'No'). Held as a plain procedure, not a [Test], until the Windows nightly shows which tier is right.
-    procedure Suspect_Run_Swap_HandlerA()
+    // Windows BC 27.5 (checked 2026-10-31, handlers enforced) = Linux containers (27.5/28.5/29.0): the first call ends in 'Unhandled UI: RequestPage 91651',
+    // because the request page that opens is B's and only the handler typed on A is given. (A SaaS run through the test runner hub showed no error: the hub does not enforce handlers.)
+    [Test]
+    [HandlerFunctions('HandlerA')]
+    procedure Run_Swap_HandlerA()
     var
         Observer: Codeunit "Probe Observer";
     begin
         RunCase(Observer, 'run', 'run', true, '');
         RunCase(Observer, 'runmodal', 'runmodal', true, '');
         RunCase(Observer, 'run var', 'run var', true, '');
-        Observer.Expect('run ok', 'Yes');
-        Observer.Expect('run|text', '');
-        Observer.Expect('run|code', '');
-        Observer.Expect('run log', 'After(91650,0,xmlLen=0,in=-1);Sub(91650,Normal,xmlLen=0,in=-1);B-init;B-pre();B-post;');
-        Observer.Expect('runmodal ok', 'Yes');
-        Observer.Expect('runmodal|text', '');
-        Observer.Expect('runmodal|code', '');
-        Observer.Expect('runmodal log', 'After(91650,5,xmlLen=0,in=-1);Sub(91650,RunModal,xmlLen=0,in=-1);B-init;B-pre();B-post;');
+        Observer.Expect('run ok', 'No');
+        Observer.Expect('run|text', 'Unhandled UI: RequestPage 91651');
+        Observer.Expect('run|code', 'MissingUIHandler');
+        Observer.Expect('run log', 'After(91650,0,xmlLen=0,in=-1);Sub(91650,Normal,xmlLen=0,in=-1);B-init;');
+        Observer.Expect('runmodal ok', 'No');
+        Observer.Expect('runmodal|text', 'Unhandled UI: RequestPage 91651');
+        Observer.Expect('runmodal|code', 'MissingUIHandler');
+        Observer.Expect('runmodal log', 'After(91650,5,xmlLen=0,in=-1);Sub(91650,RunModal,xmlLen=0,in=-1);B-init;');
         Observer.Expect('run var ok', 'Yes');
         Observer.Expect('run var|text', '');
         Observer.Expect('run var|code', '');
@@ -418,23 +425,25 @@ codeunit 91654 "LT Y14 Rep Tests"
         Observer.Verify();
     end;
 
-    // Linux suspect (CI containers, 27.5/28.5/29.0): the SaaS sandbox (BC 29) gives the values below, but the first call here ends in an error on the Linux containers
-    // (observation 1 is 'No'). Held as a plain procedure, not a [Test], until the Windows nightly shows which tier is right.
-    procedure Suspect_RunRequestPage_Old_Swap_HandlerA()
+    // Windows BC 27.5 (checked 2026-10-31, handlers enforced) = Linux containers (27.5/28.5/29.0): the first call ends in 'Unhandled UI: RequestPage 91651',
+    // because the request page that opens is B's and only the handler typed on A is given. (A SaaS run through the test runner hub showed no error: the hub does not enforce handlers.)
+    [Test]
+    [HandlerFunctions('HandlerA')]
+    procedure RunRequestPage_Old_Swap_HandlerA()
     var
         Observer: Codeunit "Probe Observer";
     begin
         RunCase(Observer, 'rrp old xmlA', 'rrp old', true, XmlA());
         RunCase(Observer, 'rrp old xmlB', 'rrp old', true, XmlB());
         RunCase(Observer, 'rrp old noswap xmlA', 'rrp old', false, XmlA());
-        Observer.Expect('rrp old xmlA ok', 'Yes');
-        Observer.Expect('rrp old xmlA|text', '');
-        Observer.Expect('rrp old xmlA|code', '');
-        Observer.Expect('rrp old xmlA log', 'After(91650,1,xmlLen=0,in=-1);Sub(91650,ParametersOnly,xmlLen=0,in=-1);B-init;B-pre();B-post;');
-        Observer.Expect('rrp old xmlB ok', 'Yes');
-        Observer.Expect('rrp old xmlB|text', '');
-        Observer.Expect('rrp old xmlB|code', '');
-        Observer.Expect('rrp old xmlB log', 'After(91650,1,xmlLen=0,in=-1);Sub(91650,ParametersOnly,xmlLen=0,in=-1);B-init;B-pre(b1);B-post;');
+        Observer.Expect('rrp old xmlA ok', 'No');
+        Observer.Expect('rrp old xmlA|text', 'Unhandled UI: RequestPage 91651');
+        Observer.Expect('rrp old xmlA|code', 'MissingUIHandler');
+        Observer.Expect('rrp old xmlA log', 'After(91650,1,xmlLen=0,in=-1);Sub(91650,ParametersOnly,xmlLen=0,in=-1);B-init;');
+        Observer.Expect('rrp old xmlB ok', 'No');
+        Observer.Expect('rrp old xmlB|text', 'Unhandled UI: RequestPage 91651');
+        Observer.Expect('rrp old xmlB|code', 'MissingUIHandler');
+        Observer.Expect('rrp old xmlB log', 'After(91650,1,xmlLen=0,in=-1);Sub(91650,ParametersOnly,xmlLen=0,in=-1);B-init;');
         Observer.Expect('rrp old noswap xmlA ok', 'Yes');
         Observer.Expect('rrp old noswap xmlA|text', '');
         Observer.Expect('rrp old noswap xmlA|code', '');
@@ -462,5 +471,6 @@ codeunit 91654 "LT Y14 Rep Tests"
     end;
 }
 
-// Linux suspect (see above): Rep.Run() on a report variable with only the handler of the swapped report B. SaaS BC 29: A runs with no request page
-// (log 'A-init;A-pre();A-post;', no error). The Linux containers end the call in an error.
+// Not asserted: Rep.Run() on a report variable with only the handler of the swapped report B. The Linux containers (27.5/28.5/29.0) end the call in an
+// error. The SaaS BC 29 value (A runs with no request page, no error) came through the test runner hub, which does not enforce handlers, so it is no evidence;
+// the Windows check of 2026-10-31 did not run this case.

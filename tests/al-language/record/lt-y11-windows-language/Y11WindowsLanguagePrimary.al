@@ -9,7 +9,7 @@
 //   or "no row" when Get fails. record/TestWindowsLanguageTable.al pins only that en-US and en-GB share the value.
 // Result (SaaS BC 29): the value is a full LCID, the LCID of the language's primary culture: 3079 de-AT -> 1031, 2057 en-GB -> 1033, 2070 pt-PT -> 1046.
 //   Not always the "-<country of the language>" culture: 2052 zh-CN -> 1028 (zh-TW), 9242 sr-Latn-RS and 10266 sr-Cyrl-RS -> 1050 (hr-HR),
-//   2108 ga-IE -> 1084. The Chinese regional rows 1028, 3076, 4100, 5124 differ on the Linux CI legs and are held (no [Test]) until a Windows check. 2074 and 3098 (old Serbian ids) and 0, 6, 9, 127, 1024, 2048, 4096, 99999 have no row.
+//   2108 ga-IE -> 1084. The Chinese regional rows 1028, 3076, 4100, 5124 differ on the Linux CI legs (Linux image bug, aldevtools/MsDyn365Bc.On.Linux issue 198; Windows 27.5/28.5 = SaaS) and are held (no [Test]). 2074 and 3098 (old Serbian ids) and 0, 6, 9, 127, 1024, 2048, 4096, 99999 have no row.
 // BC versions: 27, 28, 29
 
 codeunit 91500 "LT Y11 WinLang Primary"
@@ -177,9 +177,9 @@ codeunit 91500 "LT Y11 WinLang Primary"
         Observer.Verify();
     end;
 
-    // Linux suspect, no [Test] attribute until the Windows check: the corpus CI legs run BC in a Linux container, where the Chinese regional
-    // rows differ from the SaaS sandbox (BC 29, Windows): 1028 has no row on the 27.5 and 28.5 legs, 3076 has no row on the 29.0 leg (run
-    // 41134136570). The values below are the SaaS ones. 2052 zh-CN -> 1028 holds on every leg and is asserted in the test above.
+    // Held, no [Test] attribute: Windows BC 27.5 and 28.5 (checked 2026-10-31) confirm the values below, the same as the SaaS sandbox (BC 29).
+    // The Linux container of the corpus CI differs (1028 has no row on the 27.5 and 28.5 legs, 3076 has no row on the 29.0 leg; run 41134136570):
+    // a Linux image bug, aldevtools/MsDyn365Bc.On.Linux issue 198. 2052 zh-CN -> 1028 holds on every leg and is asserted in the test above.
     procedure WindowsLanguage_PrimaryLanguageId_ChineseRegional_HeldLinuxSuspect()
     var
         Observer: Codeunit "Probe Observer";
