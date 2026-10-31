@@ -8,7 +8,7 @@
 //       read (no grant, and indirect r), reports without and with Permissions = r;
 //   P18 TestPage.OpenView/OpenEdit on a page whose source table the set cannot read (with rows), a field read, and a SetValue that
 //       writes under a set without M.
-// Shape (CpPermLeads.al): each case reseeds with no set assigned, assigns the set (Permissions Mock.Set: the set plus All Objects), runs ONE
+// Shape (CpPermLeads.al): each case reseeds (and commits the seed before a request page) with no set assigned, assigns the set (Permissions Mock.Set: the set plus All Objects), runs ONE
 //   operation inside asserterror that ends with the own error 'LT Y24 ok <result>', observes text and code, clears the assignment.
 // BC versions: 27, 28, 29
 
@@ -78,6 +78,7 @@ codeunit 91976 "LT Y24 Perm Object Reads"
         WasStarted := Y19Helper.StartMock(Mock);
         RunP17(Observer, 'none_', 'LT Y24 None');
         RunP17(Observer, 'indr_', 'LT Y24 Ind R');
+        RunP17(Observer, 'rimd_', 'LT Y24 RIMD');
         Y19Helper.RestoreMock(Mock, WasStarted);
         Observer.Finish();
     end;
@@ -191,6 +192,9 @@ codeunit 91976 "LT Y24 Perm Object Reads"
     begin
         Mock.ClearAssignments();
         Helper.Seed();
+        // A request page does not open inside a write transaction (first run: "An error occurred and the transaction is stopped.", DB:Ok).
+        if Which in [45, 46] then
+            Commit();
         Mock.Set(SetName);
         asserterror Op(Which);
         Observer.ObserveError(Name);
@@ -226,7 +230,7 @@ codeunit 91976 "LT Y24 Perm Object Reads"
                 end;
             33, 34, 41, 42:
                 begin
-                    TempRow.Data.CreateOutStream(OutS);
+                    TempRow.Data.CreateOutStream(OutS, TextEncoding::UTF8);
                     case Which of
                         33:
                             Xmlport.Export(Xmlport::"LT Y24 Row Xml", OutS);
@@ -237,7 +241,10 @@ codeunit 91976 "LT Y24 Perm Object Reads"
                         42:
                             Result := Format(Report.SaveAs(Report::"LT Y24 Row Rep Perm", '', ReportFormat::Xml, OutS)) + ' ';
                     end;
-                    TempRow.Data.CreateInStream(InS);
+                    // Report.SaveAs returns false instead of raising when the save fails: the reason is the last error.
+                    if (Which in [41, 42]) and (Result = 'No ') then
+                        Result += GetLastErrorText() + ' ';
+                    TempRow.Data.CreateInStream(InS, TextEncoding::UTF8);
                     while not InS.EOS() do begin
                         InS.ReadText(Line);
                         if Which in [33, 34] then

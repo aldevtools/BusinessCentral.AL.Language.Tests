@@ -140,6 +140,7 @@ xmlport 91943 "LT Y24 Row Xml"
 {
     Direction = Export;
     Format = Xml;
+    Encoding = UTF8;
 
     schema
     {
@@ -157,6 +158,7 @@ xmlport 91944 "LT Y24 Row Xml Perm"
 {
     Direction = Export;
     Format = Xml;
+    Encoding = UTF8;
     Permissions = tabledata "LT Y24 Row" = r;
 
     schema

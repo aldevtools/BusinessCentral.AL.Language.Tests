@@ -153,6 +153,8 @@ codeunit 91977 "LT Y24 Perm Execute"
     begin
         WasStarted := StartMock();
         Helper.Seed();
+        // A request page does not open inside a write transaction.
+        Commit();
         Mock.Set('LT Y24 ABP Grant');
         RunRequestPage(Observer, 'grant');
         Mock.Set('LT Y24 RIMD');
