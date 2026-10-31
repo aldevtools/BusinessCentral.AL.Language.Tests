@@ -7,6 +7,8 @@
 // FindSet order and filters, Modify, Delete, Rename, Get of a missing key, a duplicate Insert, Modify of a missing row, a registered connection that is
 // not the default, rows after an unregister, two registered connections, and Get/FindSet/Modify/Delete with no connection at all.
 // Every test unregisters the connection names it uses, at the start and at the end (a table connection is session state).
+// Expected values: corpus CI run 41187321466 (jobs BC OnPrem 27.5, 28.5 and 29.0, Linux BC containers), the same on all three. The container has no CRM
+// table connection of its own (Y16_Crm_ConnectionStateAtStart).
 // BC versions: 27, 28, 29
 
 codeunit 98620 "LT Y16 CRM Connection Ops"
@@ -145,7 +147,9 @@ codeunit 98620 "LT Y16 CRM Connection Ops"
         Cleanup();
         Observer.Observe('has TEST', Format(HasTableConnection(TableConnectionType::CRM, ConnNameTok)));
         Observer.Observe('default', '[' + GetDefaultTableConnection(TableConnectionType::CRM) + ']');
-        Observer.Finish();
+        Observer.Expect('has TEST', 'No');
+        Observer.Expect('default', '[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -173,7 +177,14 @@ codeunit 98620 "LT Y16 CRM Connection Ops"
         Observer.Observe('findlast', Format(Entity.FindLast()) + ' ' + Entity.Name);
         Observer.Observe('isempty', Format(Entity.IsEmpty()));
         Cleanup();
-        Observer.Finish();
+        Observer.Expect('findset', 'a;b;c;');
+        Observer.Expect('setrange name b', 'b; count=1');
+        Observer.Expect('setfilter amount>1', 'b;c;');
+        Observer.Expect('descending', 'c;b;a;');
+        Observer.Expect('findfirst', 'Yes a');
+        Observer.Expect('findlast', 'Yes c');
+        Observer.Expect('isempty', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -202,7 +213,16 @@ codeunit 98620 "LT Y16 CRM Connection Ops"
         if TryCount(N) then;
         Observer.Observe('count end', Format(N));
         Cleanup();
-        Observer.Finish();
+        Observer.Expect('modify ret', 'Yes');
+        Observer.Expect('after modify', 'a2 1');
+        Observer.Expect('delete ret', 'Yes');
+        Observer.Expect('get deleted', 'No');
+        Observer.Expect('count after delete', '1');
+        Observer.Expect('rename', 'ok');
+        Observer.Expect('get old key', 'No');
+        Observer.Expect('get new key', 'Yes b');
+        Observer.Expect('count end', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -222,7 +242,17 @@ codeunit 98620 "LT Y16 CRM Connection Ops"
         ObserveTry(Observer, 'modify missing', TryModify(9, 'x'));
         ObserveTry(Observer, 'delete missing', TryDelete(9));
         Cleanup();
-        Observer.Finish();
+        Observer.Expect('get missing|text', 'The ALT CRM Entity does not exist. Identification fields and values: Entity Id=''{00000009-0000-0000-0000-000000000000}''');
+        Observer.Expect('get missing|code', 'DB:RecordNotFound');
+        Observer.Expect('get missing if', 'ok');
+        Observer.Expect('get missing if found', 'No');
+        Observer.Expect('insert duplicate|text', 'The record in table ALT CRM Entity already exists. Identification fields and values: Entity Id=''{00000001-0000-0000-0000-000000000000}''');
+        Observer.Expect('insert duplicate|code', 'DB:RecordExists');
+        Observer.Expect('modify missing|text', 'The ALT CRM Entity does not exist. Identification fields and values: Entity Id=''{00000009-0000-0000-0000-000000000000}''');
+        Observer.Expect('modify missing|code', 'DB:RecordNotFound');
+        Observer.Expect('delete missing|text', 'The ALT CRM Entity does not exist. Identification fields and values: Entity Id=''{00000009-0000-0000-0000-000000000000}''');
+        Observer.Expect('delete missing|code', 'DB:RecordNotFound');
+        Observer.Verify();
     end;
 
     [Test]
@@ -240,7 +270,15 @@ codeunit 98620 "LT Y16 CRM Connection Ops"
         Observer.Observe('count value', Format(N));
         ObserveTry(Observer, 'findset', TryFindSet(Found));
         Cleanup();
-        Observer.Finish();
+        Observer.Expect('default', '[]');
+        Observer.Expect('insert|text', 'Table connection  for table type CRM must be registered using RegisterTableConnection or cmdlet New-NAVTableConnection before it can be used.');
+        Observer.Expect('insert|code', 'Argument');
+        Observer.Expect('count|text', 'Table connection  for table type CRM must be registered using RegisterTableConnection or cmdlet New-NAVTableConnection before it can be used.');
+        Observer.Expect('count|code', 'Argument');
+        Observer.Expect('count value', '0');
+        Observer.Expect('findset|text', 'Table connection  for table type CRM must be registered using RegisterTableConnection or cmdlet New-NAVTableConnection before it can be used.');
+        Observer.Expect('findset|code', 'Argument');
+        Observer.Verify();
     end;
 
     [Test]
@@ -270,7 +308,10 @@ codeunit 98620 "LT Y16 CRM Connection Ops"
         SetDefaultTableConnection(TableConnectionType::CRM, ConnNameTok);
         Observer.Observe('back on first', Names(Entity));
         Cleanup();
-        Observer.Finish();
+        Observer.Expect('count after re-register', '0');
+        Observer.Expect('count on second connection', '0');
+        Observer.Expect('back on first', 'b;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -285,6 +326,16 @@ codeunit 98620 "LT Y16 CRM Connection Ops"
         ObserveTry(Observer, 'modify', TryModify(1, 'x'));
         ObserveTry(Observer, 'delete', TryDelete(1));
         ObserveTry(Observer, 'insert', TryInsert(1, 'x'));
-        Observer.Finish();
+        Observer.Expect('get|text', 'Table connection  for table type CRM must be registered using RegisterTableConnection or cmdlet New-NAVTableConnection before it can be used.');
+        Observer.Expect('get|code', 'Argument');
+        Observer.Expect('findset|text', 'Table connection  for table type CRM must be registered using RegisterTableConnection or cmdlet New-NAVTableConnection before it can be used.');
+        Observer.Expect('findset|code', 'Argument');
+        Observer.Expect('modify|text', 'Table connection  for table type CRM must be registered using RegisterTableConnection or cmdlet New-NAVTableConnection before it can be used.');
+        Observer.Expect('modify|code', 'Argument');
+        Observer.Expect('delete|text', 'Table connection  for table type CRM must be registered using RegisterTableConnection or cmdlet New-NAVTableConnection before it can be used.');
+        Observer.Expect('delete|code', 'Argument');
+        Observer.Expect('insert|text', 'Table connection  for table type CRM must be registered using RegisterTableConnection or cmdlet New-NAVTableConnection before it can be used.');
+        Observer.Expect('insert|code', 'Argument');
+        Observer.Verify();
     end;
 }

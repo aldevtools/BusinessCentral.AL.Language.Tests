@@ -9,6 +9,8 @@
 //     IsAvailable() and, when available, CameraProvider.Create(). Neither parameter carries [RunOnClient].
 //   - the host keeps the attribute only on its own variable: the probe also forces Create() through the var parameter.
 //   - Base Application File Management (FileManagement.Codeunit.al): a global [RunOnClient] System.IO.Directory, static Exists(Path) and GetFiles(Path).Length.
+// Expected values: corpus CI run 41187321466 (jobs BC OnPrem DotNet 27.5, 28.5 and 29.0, Linux BC containers), the same on all three except the .NET runtime version
+// named in the serialize error (8.0.0.0 on BC 27 and 28, 10.0.0.0 on BC 29). Not yet checked on a Windows container (queued in the Windows check list).
 // BC versions: 27, 28, 29
 
 dotnet

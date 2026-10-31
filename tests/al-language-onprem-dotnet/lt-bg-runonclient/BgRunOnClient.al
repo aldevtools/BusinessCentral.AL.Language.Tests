@@ -238,6 +238,8 @@ codeunit 99490 "LT BG RunOnClient"
     // [RunOnClient] [WithEvents] provider to an implementation codeunit by value and by var (no [RunOnClient] on the parameters), the static IsAvailable()
     // and Create() on a variable without [RunOnClient] (service tier), the role center PageNotifier guard, File Management's client System.IO.Directory,
     // and assigning between a [RunOnClient] variable and a service-tier variable, Clear and a Variant.
+    // Expected values: corpus CI run 41187321466 (jobs BC OnPrem DotNet 27.5, 28.5 and 29.0, Linux BC containers), the same on all three except the .NET runtime version
+    // named in the serialize error (8.0.0.0 on BC 27 and 28, 10.0.0.0 on BC 29). Not yet checked on a Windows container (queued in the Windows check list).
     [Test]
     procedure Y16_RunOnClient_CameraPageShape_ImplByValue()
     var
@@ -252,7 +254,10 @@ codeunit 99490 "LT BG RunOnClient"
             Observer.ObserveError('isavailable');
         Observer.Observe('provider isnull', Format(Host.ProviderIsNull()));
         Observer.Observe('pictures', Format(Host.Pictures()));
-        Observer.Finish();
+        Observer.Expect('isavailable', 'ok ret=No');
+        Observer.Expect('provider isnull', 'Yes');
+        Observer.Expect('pictures', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -268,7 +273,9 @@ codeunit 99490 "LT BG RunOnClient"
         else
             Observer.ObserveError('onopen');
         Observer.Observe('provider isnull', Format(Host.ProviderIsNull()));
-        Observer.Finish();
+        Observer.Expect('onopen', 'ok available=No');
+        Observer.Expect('provider isnull', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -286,7 +293,11 @@ codeunit 99490 "LT BG RunOnClient"
             Observer.ObserveError('force create');
         end;
         Observer.Observe('provider isnull', Format(Host.ProviderIsNull()));
-        Observer.Finish();
+        Observer.Expect('force create step', 'create');
+        Observer.Expect('force create|text', 'The operation cannot complete because it uses a feature that is not supported (.NET Framework Interoperability.)');
+        Observer.Expect('force create|code', 'DotNetFromAlNotSupported:DotNetFromAlNotSupported');
+        Observer.Expect('provider isnull', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -309,7 +320,9 @@ codeunit 99490 "LT BG RunOnClient"
             Observer.Observe('server create step', Step);
             Observer.ObserveError('server create');
         end;
-        Observer.Finish();
+        Observer.Expect('server isavailable', 'ok ret=No');
+        Observer.Expect('server create', 'ok [created isnull=Yes]');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -342,7 +355,8 @@ codeunit 99490 "LT BG RunOnClient"
             Observer.Observe('guard step', Result);
             Observer.ObserveError('guard');
         end;
-        Observer.Finish();
+        Observer.Expect('guard', 'ok [not available] isnull=Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -366,7 +380,13 @@ codeunit 99490 "LT BG RunOnClient"
             Observer.Observe('getfiles step', Step);
             Observer.ObserveError('getfiles');
         end;
-        Observer.Finish();
+        Observer.Expect('exists step', 'exists');
+        Observer.Expect('exists|text', 'The operation cannot complete because it uses a feature that is not supported (.NET Framework Interoperability.)');
+        Observer.Expect('exists|code', 'DotNetFromAlNotSupported:DotNetFromAlNotSupported');
+        Observer.Expect('getfiles step', 'getfiles');
+        Observer.Expect('getfiles|text', 'The operation cannot complete because it uses a feature that is not supported (.NET Framework Interoperability.)');
+        Observer.Expect('getfiles|code', 'DotNetFromAlNotSupported:DotNetFromAlNotSupported');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -419,7 +439,15 @@ codeunit 99490 "LT BG RunOnClient"
             Observer.Observe('client to server step', Step);
             Observer.ObserveError('client to server');
         end;
-        Observer.Finish();
+        Observer.Expect('server to client step', 'assign');
+#if BC29PLUS
+        Observer.Expect('server to client|text', 'Cannot serialize an instance of the following .NET Framework object: assembly System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e, type System.Text.StringBuilder.');
+#else
+        Observer.Expect('server to client|text', 'Cannot serialize an instance of the following .NET Framework object: assembly System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e, type System.Text.StringBuilder.');
+#endif
+        Observer.Expect('server to client|code', 'DotNetCreate');
+        Observer.Expect('client to server', 'ok [assigned isnull=Yes]');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -449,6 +477,7 @@ codeunit 99490 "LT BG RunOnClient"
             Observer.Observe('clear step', Step);
             Observer.ObserveError('clear');
         end;
-        Observer.Finish();
+        Observer.Expect('clear', 'ok [cleared isnull=Yes variant isdotnet=Yes]');
+        Observer.Verify();
     end;
 }
