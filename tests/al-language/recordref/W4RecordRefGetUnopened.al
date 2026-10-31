@@ -134,9 +134,10 @@ codeunit 68075 "W4 RecRef Get Tests"
         Observer.Verify();
     end;
 
-    // Writer Y30 (2026-10-31): RecordRef.SystemIdNo on a RecordRef that is not open (never opened, after Close, after Clear),
-    // and the state after RecordRef.Get(RecordId) on such a RecordRef (Number, Name, IsEmpty, SystemIdNo), for an existing and a
-    // missing row.
+    // Writer Y30 (2026-10-31, measured on SaaS BC 29 and the CI legs 27.5/28.5/29.0): RecordRef.SystemIdNo answers 2000000000 on
+    // a RecordRef that is not open (never opened, after Close, after Clear) and raises no error. RecordRef.Get(RecordId) on a
+    // RecordRef that is not open opens the RecordId's table and loads the row when it exists; when the row is missing the ref
+    // stays closed (Number 0, IsEmpty raises "The record is not open."). On an open ref a missing row leaves it open.
     [TryFunction]
     local procedure Y30TrySystemIdNo(var RR: RecordRef; var No: Integer)
     begin
@@ -190,7 +191,12 @@ codeunit 68075 "W4 RecRef Get Tests"
         RR.Open(Database::"W4 RecRef Get Row");
         Clear(RR);
         Observer.Observe('after_clear', Y30SystemIdNo(RR));
-        Observer.Finish();
+        Observer.Expect('never_opened', 'ok 2000000000');
+        Observer.Expect('open', 'ok 2000000000');
+        Observer.Expect('after_close', 'ok 2000000000');
+        Observer.Expect('after_close_number', '0');
+        Observer.Expect('after_clear', 'ok 2000000000');
+        Observer.Verify();
     end;
 
     [Test]
@@ -206,7 +212,11 @@ codeunit 68075 "W4 RecRef Get Tests"
         Clear(RR);
         Observer.Observe('missing', Outcome(TryGet(RR, IdOf(99), Found), Found));
         Observer.Observe('missing_state', Y30State(RR));
-        Observer.Finish();
+        Observer.Expect('existing', 'ok found=Yes');
+        Observer.Expect('existing_state', 'number=68074 sysid=ok 2000000000 isempty=ok No name=W4 RecRef Get Row info=one');
+        Observer.Expect('missing', 'ok found=No');
+        Observer.Expect('missing_state', 'number=0 sysid=ok 2000000000 isempty=error:The record is not open.|RecordNotOpened');
+        Observer.Verify();
     end;
 
     [Test]
@@ -224,7 +234,11 @@ codeunit 68075 "W4 RecRef Get Tests"
         RR.Close();
         Observer.Observe('missing', Outcome(TryGet(RR, IdOf(99), Found), Found));
         Observer.Observe('missing_state', Y30State(RR));
-        Observer.Finish();
+        Observer.Expect('existing', 'ok found=Yes');
+        Observer.Expect('existing_state', 'number=68074 sysid=ok 2000000000 isempty=ok No info=one');
+        Observer.Expect('missing', 'ok found=No');
+        Observer.Expect('missing_state', 'number=0 sysid=ok 2000000000 isempty=error:The record is not open.|RecordNotOpened');
+        Observer.Verify();
     end;
 
     [Test]
@@ -241,6 +255,10 @@ codeunit 68075 "W4 RecRef Get Tests"
         RR.Open(Database::"W4 RecRef Get Row");
         Observer.Observe('opened_missing', Outcome(TryGet(RR, IdOf(1), Found), Found));
         Observer.Observe('opened_missing_state', Y30State(RR));
-        Observer.Finish();
+        Observer.Expect('missing', 'ok found=No');
+        Observer.Expect('missing_state', 'number=0 sysid=ok 2000000000 isempty=error:The record is not open.|RecordNotOpened');
+        Observer.Expect('opened_missing', 'ok found=No');
+        Observer.Expect('opened_missing_state', 'number=68074 sysid=ok 2000000000 isempty=ok Yes');
+        Observer.Verify();
     end;
 }
