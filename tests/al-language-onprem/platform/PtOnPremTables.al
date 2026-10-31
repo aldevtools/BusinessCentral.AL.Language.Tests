@@ -356,6 +356,102 @@ codeunit 61229 "LT PT OnPrem Tables"
         Observer.Expect('count after delete', '0');
         Observer.Verify();
     end;
+
+    // Writer Y40 (2026-10-31): Power BI Default Selection (2000000145, Scope OnPrem, per tenant), the table Microsoft's Power BI
+    // embedded-report tests read and write (Id + Context key, Selected flag). The standard sequence and a typed-record sequence.
+    // Measured on CI 27.5/28.5/29.0 (OnPrem): a plain stored table: Insert (also blank Id and Context), duplicate Insert No, Get,
+    // SetRange, Modify, Rename, Delete, DeleteAll all work, no validation, no error.
+    [Test]
+    procedure Y40_PowerBIDefaultSelection_InsertModifyDelete()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Standard(Observer, 2000000145, '1={55555555-5555-5555-5555-555555555555};2=LTPT Context;3=true', '1={55555555-5555-5555-5555-555555555555};2=LTPT Context', '3=false');
+        Observer.Expect('columns', 'ok:1:Id:GUID:16:Normal;2:Context:Text:30:Normal;3:Selected:Boolean:4:Normal;');
+        // has_rows / first_row / count_at_start are the demo rows of the tenant (8 rows on the Linux CI containers, all majors, the first with
+        // Context 'SALES AND RELATIONSHIP MANAGER', Selected Yes): environment data, recorded but not asserted until the Windows nightly confirms them.
+        Observer.Ignore('has_rows');
+        Observer.Ignore('first_row');
+        Observer.Expect('insert', 'ok:Yes');
+        Observer.Expect('find_inserted', 'ok:1=<guid>;2=LTPT Context;3=Yes;');
+        Observer.Expect('count_inserted', 'ok:1');
+        Observer.Expect('insert_duplicate', 'ok:No');
+        Observer.Expect('modify', 'ok:Yes');
+        Observer.Expect('find_modified', 'ok:1=<guid>;2=LTPT Context;3=No;');
+        Observer.Expect('delete', 'ok:Yes');
+        Observer.Expect('count_deleted', 'ok:0');
+        Observer.Expect('insert_no_triggers', 'ok:Yes');
+        Observer.Expect('delete_all_no_triggers', 'ok:done');
+        Observer.Expect('count_after_delete_all', 'ok:0');
+        Observer.Verify();
+    end;
+
+    local procedure Y40Selection(var S: Record "Power BI Default Selection"): Text
+    begin
+        exit(Format(S.Id) + '|' + S.Context + '|' + Format(S.Selected));
+    end;
+
+    [Test]
+    procedure Y40_PowerBIDefaultSelection_TypedRecord()
+    var
+        S: Record "Power BI Default Selection";
+        S2: Record "Power BI Default Selection";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('count_at_start', Format(S.Count()));
+        S.Init();
+        Observer.Observe('init', Y40Selection(S));
+        Observer.Observe('insert_blank', Format(S.Insert()));
+        S.Id := '{66666666-1111-1111-1111-666666666666}';
+        S.Context := 'LTPT A';
+        S.Selected := true;
+        Observer.Observe('insert', Format(S.Insert(true)));
+        Observer.Observe('insert_again', Format(S.Insert()));
+        S.Context := 'LTPT B';
+        S.Selected := false;
+        Observer.Observe('insert_other_context', Format(S.Insert(true)));
+        Observer.Observe('get', Format(S2.Get('{66666666-1111-1111-1111-666666666666}', 'LTPT A')));
+        Observer.Observe('get_row', Y40Selection(S2));
+        Observer.Observe('get_missing', Format(S2.Get('{66666666-1111-1111-1111-666666666666}', 'LTPT C')));
+        S2.Reset();
+        S2.SetRange(Id, '{66666666-1111-1111-1111-666666666666}');
+        Observer.Observe('count_id', Format(S2.Count()));
+        S2.SetRange(Selected, true);
+        Observer.Observe('count_selected', Format(S2.Count()));
+        S2.FindFirst();
+        S2.Selected := false;
+        Observer.Observe('modify', Format(S2.Modify(true)));
+        S2.SetRange(Selected);
+        S2.FindFirst();
+        Observer.Observe('rename', Format(S2.Rename('{66666666-1111-1111-1111-666666666666}', 'LTPT Z')));
+        S2.FindSet();
+        Observer.Observe('first_after_rename', Y40Selection(S2));
+        Observer.Observe('delete', Format(S2.Delete(true)));
+        S2.DeleteAll(true);
+        Observer.Observe('count_after_delete_all', Format(S2.Count()));
+        S2.Reset();
+        S2.SetRange(Context, '');
+        S2.DeleteAll();
+        Observer.Observe('count_blank_after_delete_all', Format(S2.Count()));
+        Observer.Ignore('count_at_start');
+        Observer.Expect('init', '{00000000-0000-0000-0000-000000000000}||No');
+        Observer.Expect('insert_blank', 'Yes');
+        Observer.Expect('insert', 'Yes');
+        Observer.Expect('insert_again', 'No');
+        Observer.Expect('insert_other_context', 'Yes');
+        Observer.Expect('get', 'Yes');
+        Observer.Expect('get_row', '{66666666-1111-1111-1111-666666666666}|LTPT A|Yes');
+        Observer.Expect('get_missing', 'No');
+        Observer.Expect('count_id', '2');
+        Observer.Expect('count_selected', '1');
+        Observer.Expect('modify', 'Yes');
+        Observer.Expect('rename', 'Yes');
+        Observer.Expect('first_after_rename', '{66666666-1111-1111-1111-666666666666}|LTPT B|No');
+        Observer.Expect('delete', 'Yes');
+        Observer.Expect('count_after_delete_all', '0');
+        Observer.Expect('count_blank_after_delete_all', '0');
+        Observer.Verify();
+    end;
 }
 
 codeunit 61252 "LT PT Cloud Runner OnPrem"
