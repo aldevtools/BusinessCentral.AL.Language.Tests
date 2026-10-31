@@ -56,15 +56,17 @@ codeunit 91809 "LT Y17 PH Log"
 page 91807 "LT Y17 PH Card"
 {
     PageType = Card;
+    ApplicationArea = All;
+    UsageCategory = None;
     SourceTable = "LT Y17 PH Row";
 
     layout
     {
         area(Content)
         {
-            field(Code; Rec.Code) { }
-            field(Store; Rec.Store) { }
-            field(Note; Rec.Note) { }
+            field(Code; Rec.Code) { ApplicationArea = All; }
+            field(Store; Rec.Store) { ApplicationArea = All; }
+            field(Note; Rec.Note) { ApplicationArea = All; }
         }
     }
 
@@ -119,6 +121,8 @@ page 91807 "LT Y17 PH Card"
 page 91808 "LT Y17 PH List"
 {
     PageType = List;
+    ApplicationArea = All;
+    UsageCategory = None;
     SourceTable = "LT Y17 PH Row";
 
     layout
@@ -127,8 +131,8 @@ page 91808 "LT Y17 PH List"
         {
             repeater(Rows)
             {
-                field(Code; Rec.Code) { }
-                field(Store; Rec.Store) { }
+                field(Code; Rec.Code) { ApplicationArea = All; }
+                field(Store; Rec.Store) { ApplicationArea = All; }
             }
         }
     }
@@ -222,7 +226,9 @@ codeunit 91810 "LT Y17 PH Tests"
         Observer.Observe('log', Log.Take());
         Observer.Observe('stored', Stored());
         Cleanup();
-        Observer.Finish();
+        Observer.Expect('log', 'handler;cur=B/sb/find=Yes;T.OnModify:B/h;modify=Yes;');
+        Observer.Expect('stored', 'A/;B/h;C/;');
+        Observer.Verify();
     end;
 
     [PageHandler]
@@ -251,7 +257,9 @@ codeunit 91810 "LT Y17 PH Tests"
         Observer.Observe('returned', 'yes');
         Observer.Observe('log', Log.Take());
         Cleanup();
-        Observer.Finish();
+        Observer.Expect('returned', 'yes');
+        Observer.Expect('log', 'handler;');
+        Observer.Verify();
     end;
 
     [PageHandler]
@@ -273,7 +281,9 @@ codeunit 91810 "LT Y17 PH Tests"
         Observer.Observe('log', Log.Take());
         Observer.Observe('stored', Stored());
         Cleanup();
-        Observer.Finish();
+        Observer.Expect('log', 'handler;reccode(B);got=B;handler end;');
+        Observer.Expect('stored', 'A/;B/touched;C/;');
+        Observer.Verify();
     end;
 
     [PageHandler]
@@ -305,7 +315,8 @@ codeunit 91810 "LT Y17 PH Tests"
         Page.Run(Page::"LT Y17 PH Card", R);
         Observer.Observe('log', Log.Take());
         Cleanup();
-        Observer.Finish();
+        Observer.Expect('log', 'handler;closed;');
+        Observer.Verify();
     end;
 
     [PageHandler]
@@ -329,7 +340,8 @@ codeunit 91810 "LT Y17 PH Tests"
         Page.Run(Page::"LT Y17 PH List", R);
         Observer.Observe('log', Log.Take());
         Cleanup();
-        Observer.Finish();
+        Observer.Expect('log', 'handler;cur=C/sc/filter=;');
+        Observer.Verify();
     end;
 
     [PageHandler]
@@ -356,7 +368,8 @@ codeunit 91810 "LT Y17 PH Tests"
         Page.Run(Page::"LT Y17 PH Card", R);
         Observer.Observe('log', Log.Take());
         Cleanup();
-        Observer.Finish();
+        Observer.Expect('log', 'handler;cur=NEW/snew/find=No;');
+        Observer.Verify();
     end;
 
     [PageHandler]
@@ -381,7 +394,8 @@ codeunit 91810 "LT Y17 PH Tests"
         Page.Run(Page::"LT Y17 PH Card", R, R.FieldNo(Note));
         Observer.Observe('log', Log.Take());
         Cleanup();
-        Observer.Finish();
+        Observer.Expect('log', 'handler;cur=B/sb/find=Yes;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -400,7 +414,9 @@ codeunit 91810 "LT Y17 PH Tests"
         Observer.Observe('log', Log.Take());
         Observer.Observe('tag after run', Pg.GetTag());
         Cleanup();
-        Observer.Finish();
+        Observer.Expect('log', 'set(pre);handler1 tag=pre;reccode(B);got=B;set(in1);');
+        Observer.Expect('tag after run', '');
+        Observer.Verify();
     end;
 
     [PageHandler]
@@ -428,7 +444,9 @@ codeunit 91810 "LT Y17 PH Tests"
         Observer.Observe('log', Log.Take());
         Observer.Observe('tag after run', Pg.GetTag());
         Cleanup();
-        Observer.Finish();
+        Observer.Expect('log', 'set(pre);handler1 tag=pre;reccode();got=;set(in1);');
+        Observer.Expect('tag after run', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -451,7 +469,10 @@ codeunit 91810 "LT Y17 PH Tests"
         Observer.Observe('log second', Log.Take());
         Observer.Observe('tag after runs', Pg.GetTag());
         Cleanup();
-        Observer.Finish();
+        Observer.Expect('log first', 'set(pre);handler1 tag=pre;reccode(B);got=B;set(in1);');
+        Observer.Expect('log second', 'handler2 tag=;reccode();got=;set(in2);');
+        Observer.Expect('tag after runs', '');
+        Observer.Verify();
     end;
 
     [TryFunction]

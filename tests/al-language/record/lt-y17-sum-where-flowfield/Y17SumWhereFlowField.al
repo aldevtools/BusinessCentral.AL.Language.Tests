@@ -202,7 +202,13 @@ codeunit 91814 "LT Y17 SW Tests"
         ObserveBasic(Observer, 'sum', 'A');
         ObserveBasic(Observer, 'sum', 'B');
         ObserveBasic(Observer, 'sum', 'C');
-        Observer.Finish();
+        Observer.Expect('sum A no detail', '50');
+        Observer.Expect('sum A with detail', '-17.5');
+        Observer.Expect('sum B no detail', '0');
+        Observer.Expect('sum B with detail', '999');
+        Observer.Expect('sum C no detail', '0');
+        Observer.Expect('sum C with detail', '0');
+        Observer.Verify();
     end;
 
     local procedure ObserveOther(var Observer: Codeunit "Probe Observer"; Acct: Code[20])
@@ -229,7 +235,16 @@ codeunit 91814 "LT Y17 SW Tests"
         H.Get('A');
         H.CalcFields("Sum No Detail All");
         Observer.Observe('A sum no detail incl closed', Format(H."Sum No Detail All", 0, 9));
-        Observer.Finish();
+        Observer.Expect('A neg sum', '-50');
+        Observer.Expect('A avg', '-8.75');
+        Observer.Expect('A min', '-25');
+        Observer.Expect('A max', '7.5');
+        Observer.Expect('C neg sum', '0');
+        Observer.Expect('C avg', '0');
+        Observer.Expect('C min', '0');
+        Observer.Expect('C max', '0');
+        Observer.Expect('A sum no detail incl closed', '150');
+        Observer.Verify();
     end;
 
     [Test]
@@ -246,7 +261,11 @@ codeunit 91814 "LT Y17 SW Tests"
         Observer.Observe('same var no detail', Format(H."Sum No Detail", 0, 9));
         Observer.Observe('same var with detail', Format(H."Sum With Detail", 0, 9));
         ObserveBasic(Observer, 'fresh', 'A');
-        Observer.Finish();
+        Observer.Expect('same var no detail', '40');
+        Observer.Expect('same var with detail', '-7.5');
+        Observer.Expect('fresh A no detail', '40');
+        Observer.Expect('fresh A with detail', '-7.5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -274,7 +293,10 @@ codeunit 91814 "LT Y17 SW Tests"
         H.Reset();
         H.SetRange("Sum With Detail", 0);
         Observer.Observe('with detail =0 count', Format(H.Count()));
-        Observer.Finish();
+        Observer.Expect('no detail >0', 'A;');
+        Observer.Expect('with detail <>0', 'A;B;');
+        Observer.Expect('with detail =0 count', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -292,7 +314,11 @@ codeunit 91814 "LT Y17 SW Tests"
         H.CalcFields("Sum In Period", "Sum Detail Amount NonZero");
         Observer.Observe('B in period', Format(H."Sum In Period", 0, 9));
         Observer.Observe('B detail amount nonzero', Format(H."Sum Detail Amount NonZero", 0, 9));
-        Observer.Finish();
+        Observer.Expect('A in period', '-17.5');
+        Observer.Expect('A detail amount nonzero', '-25');
+        Observer.Expect('B in period', '999');
+        Observer.Expect('B detail amount nonzero', '999');
+        Observer.Verify();
     end;
 
     [Test]
@@ -309,6 +335,9 @@ codeunit 91814 "LT Y17 SW Tests"
         Observer.Observe('temp A no detail', Format(H."Sum No Detail", 0, 9));
         Observer.Observe('temp A with detail', Format(H."Sum With Detail", 0, 9));
         Observer.Observe('temp A neg', Format(H."Neg Sum No Detail", 0, 9));
-        Observer.Finish();
+        Observer.Expect('temp A no detail', '50');
+        Observer.Expect('temp A with detail', '-17.5');
+        Observer.Expect('temp A neg', '-50');
+        Observer.Verify();
     end;
 }

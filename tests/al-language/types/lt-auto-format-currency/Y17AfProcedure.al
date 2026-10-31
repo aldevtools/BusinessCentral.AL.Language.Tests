@@ -144,15 +144,17 @@ codeunit 91793 "LT Y17 AF Log"
 page 91794 "LT Y17 AF Line Card"
 {
     PageType = Card;
+    ApplicationArea = All;
+    UsageCategory = None;
     SourceTable = "LT Y17 AF Line";
 
     layout
     {
         area(Content)
         {
-            field(DocNo; Rec."Doc No.") { }
-            field(A1Hdr; Rec.A1Hdr) { }
-            field(A2Hdr; Rec.A2Hdr) { }
+            field(DocNo; Rec."Doc No.") { ApplicationArea = All; }
+            field(A1Hdr; Rec.A1Hdr) { ApplicationArea = All; }
+            field(A2Hdr; Rec.A2Hdr) { ApplicationArea = All; }
         }
     }
 }
@@ -283,7 +285,15 @@ codeunit 91795 "LT Y17 AF Procedure"
             Obs(Observer, 'A1Hdr ' + Line."Doc No.", Format(Line.A1Hdr));
         until Line.Next() = 0;
         RestoreSetup();
-        Observer.Finish();
+        Observer.Expect('A1Hdr H1', '1,234.568');
+        Observer.Expect('A1Hdr H1 log', 'hdr(H1);');
+        Observer.Expect('A1Hdr H2', '1,234.57');
+        Observer.Expect('A1Hdr H2 log', 'hdr(H2);');
+        Observer.Expect('A1Hdr H3', '1,234.57');
+        Observer.Expect('A1Hdr H3 log', 'hdr(H3);');
+        Observer.Expect('A1Hdr HX', '1,234.57');
+        Observer.Expect('A1Hdr HX log', 'hdr(HX);');
+        Observer.Verify();
     end;
 
     [Test]
@@ -300,7 +310,15 @@ codeunit 91795 "LT Y17 AF Procedure"
             Obs(Observer, 'A2Hdr ' + Line."Doc No.", Format(Line.A2Hdr));
         until Line.Next() = 0;
         RestoreSetup();
-        Observer.Finish();
+        Observer.Expect('A2Hdr H1', '1,234.5679');
+        Observer.Expect('A2Hdr H1 log', 'hdr(H1);');
+        Observer.Expect('A2Hdr H2', '1,234.56789');
+        Observer.Expect('A2Hdr H2 log', 'hdr(H2);');
+        Observer.Expect('A2Hdr H3', '1,234.56789');
+        Observer.Expect('A2Hdr H3 log', 'hdr(H3);');
+        Observer.Expect('A2Hdr HX', '1,234.56789');
+        Observer.Expect('A2Hdr HX log', 'hdr(HX);');
+        Observer.Verify();
     end;
 
     [Test]
@@ -317,7 +335,15 @@ codeunit 91795 "LT Y17 AF Procedure"
             Obs(Observer, 'A2Local ' + Line."Doc No.", Format(Line.A2Local));
         until Line.Next() = 0;
         RestoreSetup();
-        Observer.Finish();
+        Observer.Expect('A2Local H1', '1,234.5679');
+        Observer.Expect('A2Local H1 log', 'local(H1);');
+        Observer.Expect('A2Local H2', '1,234.56789');
+        Observer.Expect('A2Local H2 log', 'local(H2);');
+        Observer.Expect('A2Local H3', '1,234.56789');
+        Observer.Expect('A2Local H3 log', 'local(H3);');
+        Observer.Expect('A2Local HX', '1,234.56789');
+        Observer.Expect('A2Local HX log', 'local(HX);');
+        Observer.Verify();
     end;
 
     [Test]
@@ -336,7 +362,15 @@ codeunit 91795 "LT Y17 AF Procedure"
         Obs(Observer, 'other var', Format(Line2.A1Setup));
         Obs(Observer, 'direct call same var', Line.GetSetupCurrency());
         RestoreSetup();
-        Observer.Finish();
+        Observer.Expect('first', '1,234.568');
+        Observer.Expect('first log', 'setup(H1);setupget;');
+        Observer.Expect('second same var', '1,234.568');
+        Observer.Expect('second same var log', 'setup(H1);');
+        Observer.Expect('other var', '1,234.568');
+        Observer.Expect('other var log', 'setup(H2);setupget;');
+        Observer.Expect('direct call same var', 'Y17C');
+        Observer.Expect('direct call same var log', 'setup(H1);');
+        Observer.Verify();
     end;
 
     [Test]
@@ -354,7 +388,17 @@ codeunit 91795 "LT Y17 AF Procedure"
         Obs(Observer, 'format 0 9', Format(Line.A1Hdr, 0, 9));
         Obs(Observer, 'format t2 strsubstno', StrSubstNo('%1', Line.A2Hdr));
         RestoreSetup();
-        Observer.Finish();
+        Observer.Expect('strsubstno', '1,234.568');
+        Observer.Expect('strsubstno log', 'hdr(H1);');
+        Observer.Expect('format 0 1', '1234.568');
+        Observer.Expect('format 0 1 log', 'hdr(H1);');
+        Observer.Expect('format 0 2', '1234.568');
+        Observer.Expect('format 0 2 log', 'hdr(H1);');
+        Observer.Expect('format 0 9', '1234.568');
+        Observer.Expect('format 0 9 log', 'hdr(H1);');
+        Observer.Expect('format t2 strsubstno', '1,234.5679');
+        Observer.Expect('format t2 strsubstno log', 'hdr(H1);');
+        Observer.Verify();
     end;
 
     [Test]
@@ -380,7 +424,21 @@ codeunit 91795 "LT Y17 AF Procedure"
         Line."Doc Currency" := 'Y17C';
         Obs(Observer, '0.00001 cur Y17C', Format(Line.A1Dp));
         RestoreSetup();
-        Observer.Finish();
+        Observer.Expect('cur Y17C', '1,234.568');
+        Observer.Expect('cur Y17C log', '');
+        Observer.Expect('cur blank', '1,234.57');
+        Observer.Expect('cur blank log', '');
+        Observer.Expect('cur nope', '1,234.57');
+        Observer.Expect('cur nope log', '');
+        Observer.Expect('0.01 cur Y17C', '0.010');
+        Observer.Expect('0.01 cur Y17C log', '');
+        Observer.Expect('0.01 cur blank', '0.01');
+        Observer.Expect('0.01 cur blank log', '');
+        Observer.Expect('0.00001 cur blank', '0.00');
+        Observer.Expect('0.00001 cur blank log', '');
+        Observer.Expect('0.00001 cur Y17C', '0.000');
+        Observer.Expect('0.00001 cur Y17C log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -398,7 +456,13 @@ codeunit 91795 "LT Y17 AF Procedure"
         Line.A1DpProc := 0.00001;
         Obs(Observer, 'H2 0.00001', Format(Line.A1DpProc));
         RestoreSetup();
-        Observer.Finish();
+        Observer.Expect('H1', '1,234.568');
+        Observer.Expect('H1 log', 'hdr(H1);');
+        Observer.Expect('H2', '1,234.57');
+        Observer.Expect('H2 log', 'hdr(H2);');
+        Observer.Expect('H2 0.00001', '0.00');
+        Observer.Expect('H2 0.00001 log', 'hdr(H2);');
+        Observer.Verify();
     end;
 
     [Test]
@@ -447,6 +511,12 @@ codeunit 91795 "LT Y17 AF Procedure"
         Observer.Observe('log', Log.Take());
         Obs(Observer, 'no error row', Format(Other.AErr));
         RestoreSetup();
-        Observer.Finish();
+        Observer.Expect('format error|text', 'AF failed');
+        Observer.Expect('format error|code', 'Dialog');
+        Observer.Expect('txt', 'unset');
+        Observer.Expect('log', 'fail(HE);');
+        Observer.Expect('no error row', '1,234.57');
+        Observer.Expect('no error row log', 'fail(H1);');
+        Observer.Verify();
     end;
 }

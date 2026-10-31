@@ -88,6 +88,8 @@ codeunit 91803 "LT Y17 SR Log"
 page 91797 "LT Y17 SR Options"
 {
     PageType = StandardDialog;
+    ApplicationArea = All;
+    UsageCategory = None;
     SourceTable = "LT Y17 SR Profile";
     SourceTableTemporary = true;
 
@@ -97,6 +99,7 @@ page 91797 "LT Y17 SR Options"
         {
             field(Printer; Rec.Printer)
             {
+                ApplicationArea = All;
                 trigger OnValidate()
                 begin
                     Rec.Code := 'CUSTOM';
@@ -105,13 +108,14 @@ page 91797 "LT Y17 SR Options"
             }
             field(Mail; Rec.Mail)
             {
+                ApplicationArea = All;
                 trigger OnValidate()
                 begin
                     Rec.Code := 'CUSTOM';
                     Log.Add('P.Mail.OnValidate:' + Rec.Code);
                 end;
             }
-            field(Note; Rec.Note) { }
+            field(Note; Rec.Note) { ApplicationArea = All; }
         }
     }
 
@@ -156,6 +160,8 @@ page 91797 "LT Y17 SR Options"
 page 91798 "LT Y17 SR Options Stored"
 {
     PageType = StandardDialog;
+    ApplicationArea = All;
+    UsageCategory = None;
     SourceTable = "LT Y17 SR Profile";
 
     layout
@@ -164,6 +170,7 @@ page 91798 "LT Y17 SR Options Stored"
         {
             field(Printer; Rec.Printer)
             {
+                ApplicationArea = All;
                 trigger OnValidate()
                 begin
                     Rec.Code := 'CUSTOM';
@@ -172,13 +179,14 @@ page 91798 "LT Y17 SR Options Stored"
             }
             field(Mail; Rec.Mail)
             {
+                ApplicationArea = All;
                 trigger OnValidate()
                 begin
                     Rec.Code := 'CUSTOM';
                     Log.Add('P.Mail.OnValidate:' + Rec.Code);
                 end;
             }
-            field(Note; Rec.Note) { }
+            field(Note; Rec.Note) { ApplicationArea = All; }
         }
     }
 
@@ -267,15 +275,17 @@ codeunit 91802 "LT Y17 SR Finish"
 page 91800 "LT Y17 SR Doc Card"
 {
     PageType = Card;
+    ApplicationArea = All;
+    UsageCategory = None;
     SourceTable = "LT Y17 SR Doc";
 
     layout
     {
         area(Content)
         {
-            field("No."; Rec."No.") { }
-            field(Name; Rec.Name) { }
-            field(Done; Rec.Done) { }
+            field("No."; Rec."No.") { ApplicationArea = All; }
+            field(Name; Rec.Name) { ApplicationArea = All; }
+            field(Done; Rec.Done) { ApplicationArea = All; }
         }
     }
 
@@ -285,6 +295,7 @@ page 91800 "LT Y17 SR Doc Card"
         {
             action(Finish)
             {
+                ApplicationArea = All;
                 trigger OnAction()
                 begin
                     Log.Add('P.Finish:' + Rec."No." + '/' + Rec.Name);
@@ -319,6 +330,8 @@ page 91800 "LT Y17 SR Doc Card"
 page 91801 "LT Y17 SR Doc List"
 {
     PageType = List;
+    ApplicationArea = All;
+    UsageCategory = None;
     SourceTable = "LT Y17 SR Doc";
 
     layout
@@ -327,9 +340,9 @@ page 91801 "LT Y17 SR Doc List"
         {
             repeater(Rows)
             {
-                field("No."; Rec."No.") { }
-                field(Name; Rec.Name) { }
-                field(Done; Rec.Done) { }
+                field("No."; Rec."No.") { ApplicationArea = All; }
+                field(Name; Rec.Name) { ApplicationArea = All; }
+                field(Done; Rec.Done) { ApplicationArea = All; }
             }
         }
     }
@@ -340,6 +353,7 @@ page 91801 "LT Y17 SR Doc List"
         {
             action(Finish)
             {
+                ApplicationArea = All;
                 trigger OnAction()
                 begin
                     Log.Add('P.Finish:' + Rec."No." + '/' + Rec.Name);
