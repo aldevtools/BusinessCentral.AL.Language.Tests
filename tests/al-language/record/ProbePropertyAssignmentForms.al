@@ -389,7 +389,11 @@ codeunit 69451 "Probe Property Assign Forms"
         Observer.Observe('baseAddress', C.GetBaseAddress());
         C.UseResponseCookies := true;
         Observer.Observe('useResponseCookies', 'ran');
-        Observer.Finish();
+        Observer.Expect('timeout', '5 seconds');
+        Observer.Expect('timeout_self', '5 seconds');
+        Observer.Expect('baseAddress', 'https://example.com/y29/');
+        Observer.Expect('useResponseCookies', 'ran');
+        Observer.Verify();
     end;
 
     [Test]
@@ -408,7 +412,10 @@ codeunit 69451 "Probe Property Assign Forms"
         R.Content := Ct;
         R.Content().ReadAs(Body);
         Observer.Observe('content', Body);
-        Observer.Finish();
+        Observer.Expect('method', 'POST');
+        Observer.Expect('requestUri', 'https://example.com/y29?b=1');
+        Observer.Expect('content', 'body-y29');
+        Observer.Verify();
     end;
 
     [Test]
@@ -444,7 +451,13 @@ codeunit 69451 "Probe Property Assign Forms"
         E.Add := 'txt-y29';
         E.WriteTo(Xml);
         Observer.Observe('element_add', E.InnerText() + '|' + Xml);
-        Observer.Finish();
+        Observer.Expect('attribute', '2');
+        Observer.Expect('text', 'u');
+        Observer.Expect('comment', 'd');
+        Observer.Expect('cdata', 'y');
+        Observer.Expect('declaration', '1.0|utf-16|no');
+        Observer.Expect('element_add', 'txt-y29|<e>txt-y29</e>');
+        Observer.Verify();
     end;
 
     [Test]
@@ -460,7 +473,11 @@ codeunit 69451 "Probe Property Assign Forms"
         Observer.Observe('read_default', Format(RO.PreserveWhitespace()));
         RO.PreserveWhitespace := true;
         Observer.Observe('read', Format(RO.PreserveWhitespace()));
-        Observer.Finish();
+        Observer.Expect('write_default', 'No');
+        Observer.Expect('write', 'Yes');
+        Observer.Expect('read_default', 'No');
+        Observer.Expect('read', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -476,7 +493,10 @@ codeunit 69451 "Probe Property Assign Forms"
         Observer.Observe('length', B.ToText() + '|' + Format(B.Length()));
         B.Capacity := 200;
         Observer.Observe('capacity', Format(B.Capacity()));
-        Observer.Finish();
+        Observer.Expect('append', 'abcdef');
+        Observer.Expect('length', 'ab|2');
+        Observer.Expect('capacity', '200');
+        Observer.Verify();
     end;
 
     [Test]
@@ -493,7 +513,10 @@ codeunit 69451 "Probe Property Assign Forms"
         Evaluate(G, '{29292929-0000-0000-0000-000000006526}');
         N.Id := G;
         Observer.Observe('id', Format(N.Id()));
-        Observer.Finish();
+        Observer.Expect('message', 'm-y29');
+        Observer.Expect('scope', 'LocalScope');
+        Observer.Expect('id', '{29292929-0000-0000-0000-000000006526}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -513,7 +536,10 @@ codeunit 69451 "Probe Property Assign Forms"
         S.Init();
         S.LanguageId := 1031;
         Observer.Observe('languageId', Format(S.LanguageId()));
-        Observer.Finish();
+        Observer.Expect('currentKeyIndex', '2');
+        Observer.Expect('pageCaption', 'cap-y29');
+        Observer.Expect('languageId', '1031');
+        Observer.Verify();
     end;
 
     [Test]
@@ -539,7 +565,12 @@ codeunit 69451 "Probe Property Assign Forms"
         Observer.Observe('sleep', 'ran');
         Dlg.HideSubsequentDialogs := true;
         Observer.Observe('hideSubsequentDialogs', 'ran');
-        Observer.Finish();
+        Observer.Expect('list', '2|6');
+        Observer.Expect('dictionary', '1|No');
+        Observer.Expect('contains', 'abc');
+        Observer.Expect('sleep', 'ran');
+        Observer.Expect('hideSubsequentDialogs', 'ran');
+        Observer.Verify();
     end;
 
     [Test]
@@ -554,7 +585,11 @@ codeunit 69451 "Probe Property Assign Forms"
         Observer.Observe('getRoot', E.Name());
         Observer.Observe('getRoot_empty', Format(TryGetRootAssign()));
         Observer.ObserveError('getRoot_empty');
-        Observer.Finish();
+        Observer.Expect('getRoot', 'root-y29');
+        Observer.Expect('getRoot_empty', 'No');
+        Observer.Expect('getRoot_empty|text', 'The XML node is not set.');
+        Observer.Expect('getRoot_empty|code', 'XmlNodeNotFound');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -584,7 +619,16 @@ codeunit 69451 "Probe Property Assign Forms"
         Observer.Observe('readIsolation', Format(Row.ReadIsolation()));
         Row.SecurityFiltering := SecurityFilter::Filtered;
         Observer.Observe('securityFiltering', Format(Row.SecurityFiltering()));
-        Observer.Finish();
+        Observer.Expect('get', '2|row2');
+        Observer.Expect('get_missing_assign', 'No');
+        Observer.Expect('get_missing_assign|text', 'The Probe Pf Row does not exist. Identification fields and values: Id=''99''');
+        Observer.Expect('get_missing_assign|code', 'DB:RecordNotFound');
+        Observer.Expect('get_missing_call', 'No');
+        Observer.Expect('get_missing_call|text', 'The Probe Pf Row does not exist. Identification fields and values: Id=''99''');
+        Observer.Expect('get_missing_call|code', 'DB:RecordNotFound');
+        Observer.Expect('readIsolation', 'ReadCommitted');
+        Observer.Expect('securityFiltering', 'Filtered');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -614,7 +658,10 @@ codeunit 69451 "Probe Property Assign Forms"
         Observer.Observe('unqualified', Format(Target.RunUnqualified()));
         Target.SetAndAnswer := 3;
         Observer.Observe('withReturnValue', Format(Target.Counter()));
-        Observer.Finish();
+        Observer.Expect('member', '7');
+        Observer.Expect('unqualified', '8');
+        Observer.Expect('withReturnValue', '30');
+        Observer.Verify();
     end;
 }
 
