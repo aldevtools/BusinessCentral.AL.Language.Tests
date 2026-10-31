@@ -3,6 +3,7 @@
 // Fixtures used: PtOnPremOps.al (LT PT OnPrem Ops), tests/al-language/platform/lt-platform-tables/PtHelper.al (LT PT Arg, LT PT Ops)
 // Probe: platform tables that have no row provider in the AL runtime, the OnPrem ones: the column list, whether rows exist, the first row, an Insert,
 // a second Insert of the same key, a Modify, a Delete and an Insert without triggers (the same sequence as PtCloudTables.al). Object id 61229.
+// Writer Y17 (gap cycle 1 G8): Power BI Blob (2000000144): the standard sequence, the Blob round trip and the rows of a fresh tenant.
 
 codeunit 61229 "LT PT OnPrem Tables"
 {
@@ -274,6 +275,60 @@ codeunit 61229 "LT PT OnPrem Tables"
         Observer.Expect('try|text', '');
         Observer.Expect('try|code', '');
         Observer.Verify();
+    end;
+    // Writer Y17 (gap cycle 1 G8): Power BI Blob (2000000144, Scope OnPrem), the table Microsoft's Power BI tests fill with a row whose
+    // "Blob File" holds a text and read back with SetAutoCalcFields("Blob File") + Get, SetRange("GP Enabled") + FindFirst.
+    [Test]
+    procedure Y17_PowerBIBlob_InsertModifyDelete()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Standard(Observer, 2000000144, '1={66666666-6666-6666-6666-666666666666};3=LT PT Blob;4=1;5=false', '1={66666666-6666-6666-6666-666666666666}', '3=Renamed');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y17_PowerBIBlob_BlobRoundTrip()
+    var
+        Observer: Codeunit "Probe Observer";
+        PowerBIBlob: Record "Power BI Blob";
+        ReadBack: Record "Power BI Blob";
+        OutS: OutStream;
+        InS: InStream;
+        Id: Guid;
+        Line: Text;
+        Rows: Text;
+    begin
+        Observer.Observe('fresh count', Format(PowerBIBlob.Count()));
+        if PowerBIBlob.FindSet() then
+            repeat
+                Rows += PowerBIBlob.Name + '|' + Format(PowerBIBlob.Version) + '|' + Format(PowerBIBlob."GP Enabled") + ';';
+            until PowerBIBlob.Next() = 0;
+        Observer.Observe('fresh rows', Rows);
+        PowerBIBlob.DeleteAll();
+        Evaluate(Id, '{77777777-7777-7777-7777-777777777777}');
+        PowerBIBlob.Init();
+        PowerBIBlob.Id := Id;
+        PowerBIBlob.Name := 'LT Y17 Blob';
+        PowerBIBlob.Version := 3;
+        PowerBIBlob."Blob File".CreateOutStream(OutS);
+        OutS.WriteText('This is not really relevant');
+        Observer.Observe('insert', Format(PowerBIBlob.Insert()));
+        Observer.Observe('has value without calcfields', Format(ReadBack.Get(Id)) + '|' + Format(ReadBack."Blob File".HasValue()));
+        Clear(ReadBack);
+        ReadBack.SetAutoCalcFields("Blob File");
+        Observer.Observe('get with autocalc', Format(ReadBack.Get(Id)) + '|' + Format(ReadBack."Blob File".HasValue()));
+        ReadBack."Blob File".CreateInStream(InS);
+        InS.ReadText(Line);
+        Observer.Observe('text', Line);
+        Clear(ReadBack);
+        ReadBack.SetRange("GP Enabled", false);
+        Observer.Observe('gp enabled false findfirst', Format(ReadBack.FindFirst()) + '|' + ReadBack.Name);
+        ReadBack.SetRange("GP Enabled", true);
+        Observer.Observe('gp enabled true isempty', Format(ReadBack.IsEmpty()));
+        PowerBIBlob.DeleteAll();
+        Observer.Observe('count after delete', Format(PowerBIBlob.Count()));
+        Observer.Finish();
     end;
 }
 
