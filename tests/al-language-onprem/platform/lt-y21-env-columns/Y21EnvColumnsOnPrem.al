@@ -19,7 +19,8 @@
 //  - Report Printer: no row on 27.5; the browser printer on 28.5 and 29.0.
 //  - Webhook Subscription "Created By", External Event Subscription "Last Modified Date Time", External Event Log Entry "Event Date
 //    Time", External Event Notification "Last Retry Date Time": stored as AL writes them; the platform fills none of them.
-//  - Database Index (BC 28 and later): one row per index and company; usage counters left out (they count earlier tests).
+//  - Database Index (BC 28 and later): one row per index and company ($systemId, each key); usage counters and Last Seek/Scan/Lookup/
+//    Update left out (they count earlier tests); Row count = rows of that company; the clustered key shows Unique No and size 0.
 // BC versions: 27.5, 28.5, 29.0 (Database Index: 28.5 and later)
 
 codeunit 98660 "LT Y21 Env Columns OnPrem"
@@ -430,7 +431,14 @@ codeunit 98660 "LT Y21 Env Columns OnPrem"
             Sized.Insert();
         end;
         Observer.Observe('after 20', IndexRows());
-        Observer.Finish();
+        // The clustered primary key (PK) shows Unique = No and Index Size 0 (its pages count as data); "Row count" is the company's rows.
+        Observer.Expect('empty', 'n=6;$systemId|<Company>|$systemId||Yes|No|Yes|16|0|past|past|0;$systemId|My Company|$systemId||Yes|No|Yes|0|0|past|past|0;' +
+            'ByName|<Company>|Name,No.||Yes|Yes|No|16|0|past|past|0;ByName|My Company|Name,No.||Yes|Yes|No|0|0|past|past|0;' +
+            'PK|<Company>|No.||Yes|Yes|No|0|0|past|past|0;PK|My Company|No.||Yes|Yes|No|0|0|past|past|0;');
+        Observer.Expect('after 20', 'n=6;$systemId|<Company>|$systemId||Yes|No|Yes|16|0|past|past|20;$systemId|My Company|$systemId||Yes|No|Yes|0|0|past|past|0;' +
+            'ByName|<Company>|Name,No.||Yes|Yes|No|16|0|past|past|20;ByName|My Company|Name,No.||Yes|Yes|No|0|0|past|past|0;' +
+            'PK|<Company>|No.||Yes|Yes|No|0|0|past|past|20;PK|My Company|No.||Yes|Yes|No|0|0|past|past|0;');
+        Observer.Verify();
     end;
 
     // Per index row: Index Name|Company Name|Column Names|Included Fields|Enabled|Metadata Defined|Unique|Index Size (KB)|Fragmentation %|
