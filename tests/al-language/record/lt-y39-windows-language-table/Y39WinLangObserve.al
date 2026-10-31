@@ -52,7 +52,9 @@ codeunit 92700 "LT Y39 WinLang Observe"
             FldRef := RecRef.FieldIndex(I);
             Result += Format(FldRef.Number()) + ':' + FldRef.Name() + ':' + Format(FldRef.Type()) + ':' + Format(FldRef.Length()) + ':' + Format(FldRef.Class()) + '|';
         end;
-        Result += '#' + RecRef.KeyIndex(1).ToString();
+        Result += '#' + Format(RecRef.KeyCount()) + '#';
+        for I := 1 to RecRef.KeyIndex(1).FieldCount() do
+            Result += RecRef.KeyIndex(1).FieldIndex(I).Name() + ',';
         Error('Y39OBS:%1', Result);
     end;
 
