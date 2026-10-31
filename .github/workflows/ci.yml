@@ -55,21 +55,27 @@ on:
 #     bc_version override; killing the automatic run to serve it, or the reverse, loses the one
 #     answer that was wanted. Separating them keeps both.
 #
-# CANCEL-IN-PROGRESS IS TRUE FOR MASTER TOO, and that is a real trade, stated plainly: with
-# four merges in a row only the last master run finishes, so a red leg says "one of the last few
-# merges did it" rather than naming one. Three things make that the better deal here:
+# CANCEL-IN-PROGRESS IS FALSE FOR PUSH RUNS (master, main), TRUE FOR EVERYTHING ELSE.
 #
-#   * The verdict it replaces did not exist. Queued behind an account-wide backlog, those runs
-#     report on a tree nobody has any more — the state this repository was actually in a few
-#     minutes before this file changed.
-#   * The one cross-PR interaction that genuinely escapes per-PR CI — two PRs declaring the same
-#     object id — is checked DIRECTLY by the object-ids job below, per PR against every other
-#     open PR and again as an advisory sweep on master. That gate does not depend on per-commit
-#     master runs. (Worth being honest about the limit: this repository does not require branches
-#     to be up to date, so a PR's green is not a guarantee about master for anything the object-id
-#     check does not cover.)
-#   * Recovering the per-commit answer costs one workflow_dispatch on a branch pointing at the
-#     suspect commit — precisely the run the group key above protects from the next merge.
+#   * A master run takes about 70 minutes (the BC 27.5 leg) and pull requests auto-merge every 20
+#     to 40 minutes. With cancel-in-progress true on master, each merge cancelled the running master
+#     run, and no master run finished for a whole day (2026-10-31, from ed4e87bc on). al-runtime-rs
+#     can only take the corpus from a finished green master run, so its corpus pin was stuck.
+#   * With cancel-in-progress false, the running master run always finishes. GitHub keeps at most
+#     one PENDING run per concurrency group: a new push replaces (cancels) the pending one, never the
+#     running one. So after a burst of merges, the run in progress finishes and then one run for the
+#     newest master commit starts; the commits in between get no run of their own. That is the
+#     choice here, over a group per commit SHA: a group per SHA would start a full 15-job run for
+#     every merge, and at 20 to 40 minutes between merges those runs would pile up behind the
+#     account-wide job limit (see WHY above). One running plus one pending run is bounded.
+#   * A red master leg can therefore cover several merges. The object-ids job below checks the one
+#     cross-PR interaction that per-PR CI cannot see (two PRs declaring the same object id), per PR
+#     against every other open PR and again as an advisory sweep on master. Recovering the
+#     per-commit answer costs one workflow_dispatch on a branch pointing at the suspect commit,
+#     which the group key above keeps apart from the push runs.
+#   * Pull request runs keep cancel-in-progress: a new push to a PR branch makes its older run
+#     useless. `push` only fires for main and master (see `on:`), so `github.event_name != 'push'`
+#     selects exactly the runs that may be cancelled.
 #
 # This changes no job's `if:` and adds no skips. The required checks of the master ruleset are
 # the `BC <version> / test`, `BC OnPrem <version> / test` and `BC OnPrem DotNet <version> / test`
@@ -78,7 +84,7 @@ on:
 # registered here (the object-id gate is a job inside it), so this block covers everything.
 concurrency:
   group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name != 'push' }}
 
 jobs:
   # Every self-test under .github/scripts/, discovered BY GLOB rather than named.
@@ -314,12 +320,18 @@ jobs:
       sql_image:            "ghcr.io/aldevtools/msdyn365bc.on.linux/mssql:2022-fts"
       # The default job timeout is 45 minutes. With about 2500 test codeunits the BC 27.5 "Run AL tests" step takes 37 to
       # 40 minutes on a loaded runner, so the 27.5 job was cancelled at 45 minutes twice (run 39269527543, both attempts).
-      timeout_minutes:      70
+      # Raised from 70 to 100 when the 27.5 job reached 70 minutes (run 41222674216, at codeunit 2630 of 2903). BC 27.5 has
+      # no TestRunnerHub, so all codeunits run one by one on the websocket runner (3435 s for 2869 codeunits in run
+      # 41193457271, against 2757 s on 29.0 and 2332 s on 28.5, which run most codeunits on the hub), and the same step
+      # varies from 1885 s to 3465 s between runs for about the same number of codeunits. Setup before the tests takes
+      # about 8 minutes.
+      timeout_minutes:      100
       # Each test phase (hub, websocket) has its own limit, the runner's --timeout (bc-linux input
       # test_timeout_minutes, default 30). The BC 28.5 hub phase reached the 30-minute limit in run 39322214364
-      # (1802 s; codeunits 85841 onward were not run). 60 keeps room for growth and stays below timeout_minutes.
+      # (1802 s; codeunits 85841 onward were not run). Raised from 60 to 90 with timeout_minutes: the 27.5 websocket
+      # phase is the whole suite and took 57 minutes in run 41193457271. It stays below timeout_minutes minus the setup.
       # The OnPrem jobs take about 7 minutes in all and keep the default.
-      test_timeout_minutes: 60
+      test_timeout_minutes: 90
       # RDLC rendering (MsDyn365Bc.On.Linux #126/#131): without these the Linux tier stubs the RDLC renderer.
       # They pull bc-runner:rdlc and set BC_RDLC_RENDERER=mono. Report.SaveAs of an RDLC layout is pinned in
       # report/lt-am-rdlc-output (cloud) and report/lt-am-rdlc-saveas (OnPrem). rdlc_trust_layouts is the
