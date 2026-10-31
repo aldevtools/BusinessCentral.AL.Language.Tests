@@ -666,7 +666,27 @@ codeunit 91804 "LT Y17 SR Tests"
         Observer.Observe('close log', Log.Take());
         Observer.Observe('stored', StoredDocs());
         Reset();
-        Observer.Finish();
+        Observer.Expect('open', 'P.AGCR:A/a;P.AGCR:A/a;');
+        if Edit then
+            Observer.Expect('setvalue', '');
+        Observer.Expect('invoke ok', 'Yes');
+        Observer.Expect('invoke|text', '');
+        Observer.Expect('invoke|code', 'PageCloseRequest');
+        if Edit then
+            Observer.Expect('invoke log', 'P.OnModifyRecord:A/edited;T.OnModify:A/edited/No;P.Finish:A/edited;CB.start:A/edited;CB.end;P.Finish.after:A/edited/Yes;')
+        else
+            Observer.Expect('invoke log', 'P.Finish:A/a;CB.start:A/a;CB.end;P.Finish.after:A/a/Yes;');
+        Observer.Expect('stored after invoke', 'B/b/No;');
+        Observer.Expect('read ok', 'No');
+        Observer.Expect('read|text', 'The TestPage is not open.');
+        Observer.Expect('read|code', 'TestPageNotOpened');
+        Observer.Expect('read log', '');
+        Observer.Expect('close ok', 'No');
+        Observer.Expect('close|text', 'The TestPage is not open.');
+        Observer.Expect('close|code', 'TestPageNotOpened');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'B/b/No;');
+        Observer.Verify();
     end;
 
     [TryFunction]
