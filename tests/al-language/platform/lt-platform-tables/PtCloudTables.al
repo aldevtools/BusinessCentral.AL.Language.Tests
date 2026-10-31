@@ -735,7 +735,7 @@ codeunit 67107 "LT PT Cloud Tables"
         Y17Observer.Observe('rows', Y17CfgRows());
         Cfg.SetRange("Header Part Name", HF);
         Y17Observer.Observe('count header', Format(Cfg.Count()));
-        Y17Try(Y17Observer, 'modifyall header blank', Y17TryModifyAll(Cfg));
+        Y17Observer.Observe('modifyall header blank', Format(Y17TryModifyAll(Cfg)));
         Cfg.Reset();
         Y17Observer.Observe('rows after modifyall', Y17CfgRows());
         Y17Observer.Observe('get current company', Format(Cfg.Get(0, '', CopyStr(CompanyName(), 1, 30))) + '|' + Y17Shorten(Cfg."Header Part Name") + '|' + Y17Shorten(Cfg."Theme Part Name"));
