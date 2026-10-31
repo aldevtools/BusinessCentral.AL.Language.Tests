@@ -366,7 +366,8 @@ codeunit 92891 "LT Y45 List Caption Relation"
         Page.Run(Page::"LT Y45 Cap List RefDcf", Row);
         Observer.Observe('caption', TP.Caption());
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('caption', 'Y45 Cap RefDcf - D1 ∙ Dcf One');
+        Observer.Verify();
     end;
 
     [Test]
@@ -382,7 +383,8 @@ codeunit 92891 "LT Y45 List Caption Relation"
         Page.Run(Page::"LT Y45 Cap List RefDesc", Row);
         Observer.Observe('caption', TP.Caption());
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('caption', 'Y45 Cap RefDesc - E1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -398,7 +400,8 @@ codeunit 92891 "LT Y45 List Caption Relation"
         Page.Run(Page::"LT Y45 Cap List DCF", Row);
         Observer.Observe('caption', TP.Caption());
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('caption', 'Y45 Cap DCF - R3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -414,6 +417,7 @@ codeunit 92891 "LT Y45 List Caption Relation"
         Page.Run(Page::"LT Y45 Cap List DCF", Row);
         Observer.Observe('caption', TP.Caption());
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('caption', 'Y45 Cap DCF');
+        Observer.Verify();
     end;
 }

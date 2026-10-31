@@ -1296,7 +1296,21 @@ codeunit 92890 "LT Y45 Save Before Action"
         end;
         Observer.ObserveError('close error');
         Observer.Observe('close', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open', 'R H1;C H1');
+        Observer.Expect('set qty error|text', 'Validation error for Field: Qty,  Message = ''Qty must not be negative. (Select Refresh to discard errors)''');
+        Observer.Expect('set qty error|code', 'TestValidation');
+        Observer.Expect('qty value', '1');
+        Observer.Expect('qty errors', '1');
+        Observer.Expect('set', 'vName new/old db=old/1;vQty -1');
+        Observer.Expect('db after set', 'old/1 l1=a');
+        Observer.Expect('step error|text', 'no error');
+        Observer.Expect('step error|code', 'Dialog');
+        Observer.Expect('step', '');
+        Observer.Expect('errors name', '0');
+        Observer.Expect('close error|text', 'no error');
+        Observer.Expect('close error|code', 'Dialog');
+        Observer.Expect('close', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1328,7 +1342,22 @@ codeunit 92890 "LT Y45 Save Before Action"
         end;
         Observer.ObserveError('close error');
         Observer.Observe('close', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open', 'R H1;C H1');
+        Observer.Expect('set qty error|text', 'Validation error for Field: Qty,  Message = ''Qty must not be negative. (Select Refresh to discard errors)''');
+        Observer.Expect('set qty error|code', 'TestValidation');
+        Observer.Expect('qty value', '1');
+        Observer.Expect('qty errors', '1');
+        Observer.Expect('set', 'vName new/old db=old/1;vQty -1');
+        Observer.Expect('db after set', 'old/1 l1=a');
+        Observer.Expect('next', 'No');
+        Observer.Expect('step error|text', 'no error');
+        Observer.Expect('step error|code', 'Dialog');
+        Observer.Expect('step', '');
+        Observer.Expect('errors name', '0');
+        Observer.Expect('close error|text', 'no error');
+        Observer.Expect('close error|code', 'Dialog');
+        Observer.Expect('close', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1398,7 +1427,21 @@ codeunit 92890 "LT Y45 Save Before Action"
         end;
         Observer.ObserveError('close error');
         Observer.Observe('close', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open', 'R H1;R H2;R H1;R H1;C H1');
+        Observer.Expect('set qty error|text', 'Validation error for Field: Qty,  Message = ''Qty must not be negative.''');
+        Observer.Expect('set qty error|code', 'TestValidation');
+        Observer.Expect('qty value', '1');
+        Observer.Expect('qty errors', '1');
+        Observer.Expect('set', 'vName new/old db=old/1;vQty -1');
+        Observer.Expect('db after set', 'old/1 l1=a');
+        Observer.Expect('step error|text', 'no error');
+        Observer.Expect('step error|code', 'Dialog');
+        Observer.Expect('step', '');
+        Observer.Expect('errors name', '0');
+        Observer.Expect('close error|text', 'no error');
+        Observer.Expect('close error|code', 'Dialog');
+        Observer.Expect('close', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1753,14 +1796,21 @@ codeunit 92890 "LT Y45 Save Before Action"
         Observer.Observe('page errors', Format(TP.ValidationErrorCount()));
         Observer.Observe('db after step', Log.HeadDb('H1'));
         Observer.Observe('page name', TP.Name.Value);
-        TP.Name.SetValue('fine');
+        asserterror TP.Name.SetValue('fine');
+        Observer.ObserveError('set again error');
         Observer.Observe('set again', Log.Take());
-        TP.ReadAct.Invoke();
+        asserterror begin
+            TP.ReadAct.Invoke();
+            Error('no error');
+        end;
+        Observer.ObserveError('second action error');
         Observer.Observe('second action', Log.Take());
-        Observer.Observe('db after second', Log.HeadDb('H1'));
-        TP.Close();
+        asserterror begin
+            TP.Close();
+            Error('no error');
+        end;
+        Observer.ObserveError('close error');
         Observer.Observe('close', Log.Take());
-        Observer.Observe('db end', Log.HeadDb('H1'));
         Observer.Finish();
     end;
 
@@ -1781,14 +1831,21 @@ codeunit 92890 "LT Y45 Save Before Action"
         Observer.Observe('page errors', Format(TP.ValidationErrorCount()));
         Observer.Observe('db after step', Log.HeadDb('H1'));
         Observer.Observe('page name', TP.Name.Value);
-        TP.Name.SetValue('fine');
+        asserterror TP.Name.SetValue('fine');
+        Observer.ObserveError('set again error');
         Observer.Observe('set again', Log.Take());
-        TP.ReadAct.Invoke();
+        asserterror begin
+            TP.ReadAct.Invoke();
+            Error('no error');
+        end;
+        Observer.ObserveError('second action error');
         Observer.Observe('second action', Log.Take());
-        Observer.Observe('db after second', Log.HeadDb('H1'));
-        TP.Close();
+        asserterror begin
+            TP.Close();
+            Error('no error');
+        end;
+        Observer.ObserveError('close error');
         Observer.Observe('close', Log.Take());
-        Observer.Observe('db end', Log.HeadDb('H1'));
         Observer.Finish();
     end;
 
@@ -1809,14 +1866,21 @@ codeunit 92890 "LT Y45 Save Before Action"
         Observer.Observe('page errors', Format(TP.ValidationErrorCount()));
         Observer.Observe('db after step', Log.HeadDb('H1'));
         Observer.Observe('page name', TP.Name.Value);
-        TP.Name.SetValue('fine');
+        asserterror TP.Name.SetValue('fine');
+        Observer.ObserveError('set again error');
         Observer.Observe('set again', Log.Take());
-        TP.ReadAct.Invoke();
+        asserterror begin
+            TP.ReadAct.Invoke();
+            Error('no error');
+        end;
+        Observer.ObserveError('second action error');
         Observer.Observe('second action', Log.Take());
-        Observer.Observe('db after second', Log.HeadDb('H1'));
-        TP.Close();
+        asserterror begin
+            TP.Close();
+            Error('no error');
+        end;
+        Observer.ObserveError('close error');
         Observer.Observe('close', Log.Take());
-        Observer.Observe('db end', Log.HeadDb('H1'));
         Observer.Finish();
     end;
 
@@ -1837,14 +1901,21 @@ codeunit 92890 "LT Y45 Save Before Action"
         Observer.Observe('page errors', Format(TP.ValidationErrorCount()));
         Observer.Observe('db after step', Log.HeadDb('H1'));
         Observer.Observe('page name', TP.Name.Value);
-        TP.Name.SetValue('fine');
+        asserterror TP.Name.SetValue('fine');
+        Observer.ObserveError('set again error');
         Observer.Observe('set again', Log.Take());
-        TP.ReadAct.Invoke();
+        asserterror begin
+            TP.ReadAct.Invoke();
+            Error('no error');
+        end;
+        Observer.ObserveError('second action error');
         Observer.Observe('second action', Log.Take());
-        Observer.Observe('db after second', Log.HeadDb('H1'));
-        TP.Close();
+        asserterror begin
+            TP.Close();
+            Error('no error');
+        end;
+        Observer.ObserveError('close error');
         Observer.Observe('close', Log.Take());
-        Observer.Observe('db end', Log.HeadDb('H1'));
         Observer.Finish();
     end;
 }
