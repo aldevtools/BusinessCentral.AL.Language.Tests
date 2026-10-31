@@ -294,8 +294,12 @@ codeunit 92180 "LT Y22 Copy Report Tests"
         Helper: Codeunit "LT Y22 Copy Helper";
         SourceTok: Label 'LT Y22 E Src', Locked = true;
         DestinationTok: Label 'LT Y22 E Dst', Locked = true;
+        Messages: Text;
 
+    // The report ends with a Message in a client session (CI 27.5, 29.0: OnPostDataItem of the Company data item); the SaaS run through
+    // the API showed none.
     [Test]
+    [HandlerFunctions('MessageHandler')]
     procedure Y22_CopyCompany_Report()
     var
         Observer: Codeunit "Probe Observer";
@@ -311,10 +315,18 @@ codeunit 92180 "LT Y22 Copy Report Tests"
             '))</DataItem></DataItems></ReportParameters>';
         Report.Execute(Report::"Copy Company", Parameters);
         Observer.Observe('report', Format(Company.Get(DestinationTok)) + '|' + Company."Display Name" + '|' + Format(Company."Evaluation Company"));
+        Observer.Observe('messages', Messages);
         Helper.DropCompany(SourceTok);
         Helper.DropCompany(DestinationTok);
         Commit();
         Observer.Expect('report', 'Yes|LT Y22 E Dst|Yes');
+        Observer.Expect('messages', 'Company LT Y22 E Src has been copied successfully.;');
         Observer.Verify();
+    end;
+
+    [MessageHandler]
+    procedure MessageHandler(Text: Text[1024])
+    begin
+        Messages += Text + ';';
     end;
 }
