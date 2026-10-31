@@ -423,10 +423,13 @@ def main():
                 if p is not None:
                     observed[(u.name, name)] = p
     os.makedirs(a.out, exist_ok=True)
+    files = {}
     for u in units:
-        fn = 'Y31%s.al' % re.sub(r'[^A-Za-z0-9]', '', u.name.replace('LT Y31 ', ''))
+        fam = u.name.split(' ')[2]
+        files.setdefault('Y31Conv%s.al' % fam, []).append(render(u, observed))
+    for fn, parts in files.items():
         with open(os.path.join(a.out, fn), 'w') as f:
-            f.write(render(u, observed))
+            f.write('\n'.join(parts))
     print('%d codeunits (%d-%d), %d tests' % (len(units), ID_FIRST, cid - 1, sum(len(u.tests) for u in units)), file=sys.stderr)
 
 
