@@ -3,6 +3,10 @@
 // Fixtures used: Probe Observer (69160); Y28CollapsedTreeObjects.al (table 92270, log codeunit 92271, pages 92272 - 92274)
 // Probe: al-runner issue 6523. What the AL code of a collapsed tree page (ShowAsTree, TreeInitialState = CollapseAll) sees of Rec, and
 //   which rows the TestPage shows after that code resets, walks, filters or moves Rec. Each walk lists Id:Name of First/Next.
+// Facts (BC 29 SaaS sandbox): the page's AL code sees every row (Count 5, no filter in filter groups 0..10); Rec.Reset() in OnOpenPage
+//   changes nothing. The TestPage shows the rows without a parent in the view, plus the children of the parent of the row Rec is on after
+//   OnOpenPage or an action (FindSet leaving Rec on row 5 shows 1,4,5; Rec.Get(2) shows 1,2,3,4). GoToRecord and FindFirstField of a hidden
+//   row return false without an error. ExpandAll and an IndentationColumn variable walk the same top-level rows as CollapseAll.
 // Neighbours: PageTree.al (the plain collapsed walk), pages/lt-ah-pages/AhPageTests.al (Expand, IsExpanded and GoToKey of a child on a
 //   collapsed tree), pages/lt-page-runtime/TwTreeExpandTriggers.al (Expand with row triggers on an ExpandAll tree).
 // BC versions: 27, 28, 29
