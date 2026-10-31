@@ -12,6 +12,10 @@
 //   the list row stays R1 and the part shows R1 only. Cancel runs only OnLookup and leaves the value blank.
 // Source: al-runner issue 6466 (the reporter's repro passed on a real BC 29 container).
 // BC versions: 27, 28, 29
+// Y26 (al-runner 6519, follow-up to 6466): objects 92220 - 92224 add a ListPart that logs OnAfterGetRecord, OnAfterGetCurrRecord and
+//   a function control, and four hosts (two- or three-field link, with or without OnAfterGetCurrRecord) with expression controls: a
+//   global CurrentNo (set in OnAfterGetCurrRecord, or in OnAfterGetRecord without it) and a function call HostFn(). The Y26 tests
+//   read every control one at a time after TestField.Lookup and log which triggers each read runs.
 
 table 91710 "LT Y15 Lookup Setting"
 {
@@ -299,6 +303,256 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
         Observer.Verify();
     end;
 
+    // Y26 (al-runner 6519): three-field link, OnAfterGetCurrRecord on the host sets the expression control CurrentNo.
+    [Test]
+    [HandlerFunctions('PickSecondResource')]
+    procedure Y26_ThreeLinkCurr_LookupRefresh()
+    var
+        Setting: Record "LT Y15 Lookup Setting";
+        Schedule: TestPage "LT Y26 Three Link Curr Schedule";
+    begin
+        Setup(false);
+        PickCount := 0;
+        Schedule.OpenEdit();
+        Observer.Observe('open log', Log.Take());
+        Observer.Observe('before', Schedule.ResourceNo.Value() + '/' + Schedule.HeaderCurrent.Value() + '/' + Schedule."No.".Value() + '/' + Schedule.CurrentNo.Value() + '/' + Schedule.HostFn.Value() + '/' + Schedule.Resources."No.".Value() + '/' + Schedule.Resources.PartCurrent.Value() + '/' + Schedule.Resources.PartFn.Value());
+        Observer.Observe('before log', Log.Take());
+        Schedule.ResourceNo.Lookup();
+        Observer.Observe('lookup log', Log.Take());
+        Observer.Observe('resource no', Schedule.ResourceNo.Value());
+        Observer.Observe('resource no log', Log.Take());
+        Observer.Observe('header current', Schedule.HeaderCurrent.Value());
+        Observer.Observe('header current log', Log.Take());
+        Observer.Observe('current no', Schedule.CurrentNo.Value());
+        Observer.Observe('current no log', Log.Take());
+        Observer.Observe('host fn', Schedule.HostFn.Value());
+        Observer.Observe('host fn log', Log.Take());
+        Observer.Observe('part no', Schedule.Resources."No.".Value());
+        Observer.Observe('part no log', Log.Take());
+        Observer.Observe('part current', Schedule.Resources.PartCurrent.Value());
+        Observer.Observe('part current log', Log.Take());
+        Observer.Observe('part fn', Schedule.Resources.PartFn.Value());
+        Observer.Observe('part fn log', Log.Take());
+        Observer.Observe('next', Format(Schedule.Next(), 0, 9));
+        Observer.Observe('next log', Log.Take());
+        Observer.Observe('after next', Schedule.ResourceNo.Value() + '/' + Schedule.HeaderCurrent.Value() + '/' + Schedule."No.".Value() + '/' + Schedule.CurrentNo.Value() + '/' + Schedule.HostFn.Value() + '/' + Schedule.Resources."No.".Value() + '/' + Schedule.Resources.PartCurrent.Value() + '/' + Schedule.Resources.PartFn.Value());
+        Observer.Observe('after next log', Log.Take());
+        Schedule.Close();
+        Observer.Observe('close log', Log.Take());
+        Setting.Get();
+        Observer.Observe('stored', Setting."Resource No.");
+        Observer.Finish();
+    end;
+
+    // Y26: the same with a two-field link.
+    [Test]
+    [HandlerFunctions('PickSecondResource')]
+    procedure Y26_TwoLinkCurr_LookupRefresh()
+    var
+        Setting: Record "LT Y15 Lookup Setting";
+        Schedule: TestPage "LT Y26 Two Link Curr Schedule";
+    begin
+        Setup(false);
+        PickCount := 0;
+        Schedule.OpenEdit();
+        Observer.Observe('open log', Log.Take());
+        Observer.Observe('before', Schedule.ResourceNo.Value() + '/' + Schedule.HeaderCurrent.Value() + '/' + Schedule."No.".Value() + '/' + Schedule.CurrentNo.Value() + '/' + Schedule.HostFn.Value() + '/' + Schedule.Resources."No.".Value() + '/' + Schedule.Resources.PartCurrent.Value() + '/' + Schedule.Resources.PartFn.Value());
+        Observer.Observe('before log', Log.Take());
+        Schedule.ResourceNo.Lookup();
+        Observer.Observe('lookup log', Log.Take());
+        Observer.Observe('resource no', Schedule.ResourceNo.Value());
+        Observer.Observe('resource no log', Log.Take());
+        Observer.Observe('header current', Schedule.HeaderCurrent.Value());
+        Observer.Observe('header current log', Log.Take());
+        Observer.Observe('current no', Schedule.CurrentNo.Value());
+        Observer.Observe('current no log', Log.Take());
+        Observer.Observe('host fn', Schedule.HostFn.Value());
+        Observer.Observe('host fn log', Log.Take());
+        Observer.Observe('part no', Schedule.Resources."No.".Value());
+        Observer.Observe('part no log', Log.Take());
+        Observer.Observe('part current', Schedule.Resources.PartCurrent.Value());
+        Observer.Observe('part current log', Log.Take());
+        Observer.Observe('part fn', Schedule.Resources.PartFn.Value());
+        Observer.Observe('part fn log', Log.Take());
+        Observer.Observe('next', Format(Schedule.Next(), 0, 9));
+        Observer.Observe('next log', Log.Take());
+        Observer.Observe('after next', Schedule.ResourceNo.Value() + '/' + Schedule.HeaderCurrent.Value() + '/' + Schedule."No.".Value() + '/' + Schedule.CurrentNo.Value() + '/' + Schedule.HostFn.Value() + '/' + Schedule.Resources."No.".Value() + '/' + Schedule.Resources.PartCurrent.Value() + '/' + Schedule.Resources.PartFn.Value());
+        Observer.Observe('after next log', Log.Take());
+        Schedule.Close();
+        Observer.Observe('close log', Log.Take());
+        Setting.Get();
+        Observer.Observe('stored', Setting."Resource No.");
+        Observer.Finish();
+    end;
+
+    // Y26: three-field link, no OnAfterGetCurrRecord on the host (CurrentNo set in OnAfterGetRecord).
+    [Test]
+    [HandlerFunctions('PickSecondResource')]
+    procedure Y26_ThreeLinkPlain_LookupRefresh()
+    var
+        Setting: Record "LT Y15 Lookup Setting";
+        Schedule: TestPage "LT Y26 Three Link Plain Schedule";
+    begin
+        Setup(false);
+        PickCount := 0;
+        Schedule.OpenEdit();
+        Observer.Observe('open log', Log.Take());
+        Observer.Observe('before', Schedule.ResourceNo.Value() + '/' + Schedule.HeaderCurrent.Value() + '/' + Schedule."No.".Value() + '/' + Schedule.CurrentNo.Value() + '/' + Schedule.HostFn.Value() + '/' + Schedule.Resources."No.".Value() + '/' + Schedule.Resources.PartCurrent.Value() + '/' + Schedule.Resources.PartFn.Value());
+        Observer.Observe('before log', Log.Take());
+        Schedule.ResourceNo.Lookup();
+        Observer.Observe('lookup log', Log.Take());
+        Observer.Observe('resource no', Schedule.ResourceNo.Value());
+        Observer.Observe('resource no log', Log.Take());
+        Observer.Observe('header current', Schedule.HeaderCurrent.Value());
+        Observer.Observe('header current log', Log.Take());
+        Observer.Observe('current no', Schedule.CurrentNo.Value());
+        Observer.Observe('current no log', Log.Take());
+        Observer.Observe('host fn', Schedule.HostFn.Value());
+        Observer.Observe('host fn log', Log.Take());
+        Observer.Observe('part no', Schedule.Resources."No.".Value());
+        Observer.Observe('part no log', Log.Take());
+        Observer.Observe('part current', Schedule.Resources.PartCurrent.Value());
+        Observer.Observe('part current log', Log.Take());
+        Observer.Observe('part fn', Schedule.Resources.PartFn.Value());
+        Observer.Observe('part fn log', Log.Take());
+        Observer.Observe('next', Format(Schedule.Next(), 0, 9));
+        Observer.Observe('next log', Log.Take());
+        Observer.Observe('after next', Schedule.ResourceNo.Value() + '/' + Schedule.HeaderCurrent.Value() + '/' + Schedule."No.".Value() + '/' + Schedule.CurrentNo.Value() + '/' + Schedule.HostFn.Value() + '/' + Schedule.Resources."No.".Value() + '/' + Schedule.Resources.PartCurrent.Value() + '/' + Schedule.Resources.PartFn.Value());
+        Observer.Observe('after next log', Log.Take());
+        Schedule.Close();
+        Observer.Observe('close log', Log.Take());
+        Setting.Get();
+        Observer.Observe('stored', Setting."Resource No.");
+        Observer.Finish();
+    end;
+
+    // Y26: two-field link, no OnAfterGetCurrRecord on the host.
+    [Test]
+    [HandlerFunctions('PickSecondResource')]
+    procedure Y26_TwoLinkPlain_LookupRefresh()
+    var
+        Setting: Record "LT Y15 Lookup Setting";
+        Schedule: TestPage "LT Y26 Two Link Plain Schedule";
+    begin
+        Setup(false);
+        PickCount := 0;
+        Schedule.OpenEdit();
+        Observer.Observe('open log', Log.Take());
+        Observer.Observe('before', Schedule.ResourceNo.Value() + '/' + Schedule.HeaderCurrent.Value() + '/' + Schedule."No.".Value() + '/' + Schedule.CurrentNo.Value() + '/' + Schedule.HostFn.Value() + '/' + Schedule.Resources."No.".Value() + '/' + Schedule.Resources.PartCurrent.Value() + '/' + Schedule.Resources.PartFn.Value());
+        Observer.Observe('before log', Log.Take());
+        Schedule.ResourceNo.Lookup();
+        Observer.Observe('lookup log', Log.Take());
+        Observer.Observe('resource no', Schedule.ResourceNo.Value());
+        Observer.Observe('resource no log', Log.Take());
+        Observer.Observe('header current', Schedule.HeaderCurrent.Value());
+        Observer.Observe('header current log', Log.Take());
+        Observer.Observe('current no', Schedule.CurrentNo.Value());
+        Observer.Observe('current no log', Log.Take());
+        Observer.Observe('host fn', Schedule.HostFn.Value());
+        Observer.Observe('host fn log', Log.Take());
+        Observer.Observe('part no', Schedule.Resources."No.".Value());
+        Observer.Observe('part no log', Log.Take());
+        Observer.Observe('part current', Schedule.Resources.PartCurrent.Value());
+        Observer.Observe('part current log', Log.Take());
+        Observer.Observe('part fn', Schedule.Resources.PartFn.Value());
+        Observer.Observe('part fn log', Log.Take());
+        Observer.Observe('next', Format(Schedule.Next(), 0, 9));
+        Observer.Observe('next log', Log.Take());
+        Observer.Observe('after next', Schedule.ResourceNo.Value() + '/' + Schedule.HeaderCurrent.Value() + '/' + Schedule."No.".Value() + '/' + Schedule.CurrentNo.Value() + '/' + Schedule.HostFn.Value() + '/' + Schedule.Resources."No.".Value() + '/' + Schedule.Resources.PartCurrent.Value() + '/' + Schedule.Resources.PartFn.Value());
+        Observer.Observe('after next log', Log.Take());
+        Schedule.Close();
+        Observer.Observe('close log', Log.Take());
+        Setting.Get();
+        Observer.Observe('stored', Setting."Resource No.");
+        Observer.Finish();
+    end;
+
+    // Y26: three-field link with region codes set on every row.
+    [Test]
+    [HandlerFunctions('PickSecondResource')]
+    procedure Y26_ThreeLinkCurr_RegionsSet()
+    var
+        Setting: Record "LT Y15 Lookup Setting";
+        Schedule: TestPage "LT Y26 Three Link Curr Schedule";
+    begin
+        Setup(true);
+        PickCount := 0;
+        Schedule.OpenEdit();
+        Observer.Observe('open log', Log.Take());
+        Observer.Observe('before', Schedule.ResourceNo.Value() + '/' + Schedule.HeaderCurrent.Value() + '/' + Schedule."No.".Value() + '/' + Schedule.CurrentNo.Value() + '/' + Schedule.HostFn.Value() + '/' + Schedule.Resources."No.".Value() + '/' + Schedule.Resources.PartCurrent.Value() + '/' + Schedule.Resources.PartFn.Value());
+        Observer.Observe('before log', Log.Take());
+        Schedule.ResourceNo.Lookup();
+        Observer.Observe('lookup log', Log.Take());
+        Observer.Observe('resource no', Schedule.ResourceNo.Value());
+        Observer.Observe('resource no log', Log.Take());
+        Observer.Observe('header current', Schedule.HeaderCurrent.Value());
+        Observer.Observe('header current log', Log.Take());
+        Observer.Observe('current no', Schedule.CurrentNo.Value());
+        Observer.Observe('current no log', Log.Take());
+        Observer.Observe('host fn', Schedule.HostFn.Value());
+        Observer.Observe('host fn log', Log.Take());
+        Observer.Observe('part no', Schedule.Resources."No.".Value());
+        Observer.Observe('part no log', Log.Take());
+        Observer.Observe('part current', Schedule.Resources.PartCurrent.Value());
+        Observer.Observe('part current log', Log.Take());
+        Observer.Observe('part fn', Schedule.Resources.PartFn.Value());
+        Observer.Observe('part fn log', Log.Take());
+        Observer.Observe('next', Format(Schedule.Next(), 0, 9));
+        Observer.Observe('next log', Log.Take());
+        Observer.Observe('after next', Schedule.ResourceNo.Value() + '/' + Schedule.HeaderCurrent.Value() + '/' + Schedule."No.".Value() + '/' + Schedule.CurrentNo.Value() + '/' + Schedule.HostFn.Value() + '/' + Schedule.Resources."No.".Value() + '/' + Schedule.Resources.PartCurrent.Value() + '/' + Schedule.Resources.PartFn.Value());
+        Observer.Observe('after next log', Log.Take());
+        Schedule.Close();
+        Observer.Observe('close log', Log.Take());
+        Setting.Get();
+        Observer.Observe('stored', Setting."Resource No.");
+        Observer.Finish();
+    end;
+
+    // Y26: two lookups in a row (R2, then R3).
+    [Test]
+    [HandlerFunctions('PickSecondThenThird')]
+    procedure Y26_ThreeLinkCurr_LookupTwice()
+    var
+        Setting: Record "LT Y15 Lookup Setting";
+        Schedule: TestPage "LT Y26 Three Link Curr Schedule";
+    begin
+        Setup(false);
+        PickCount := 0;
+        Schedule.OpenEdit();
+        Observer.Observe('open log', Log.Take());
+        Observer.Observe('before', Schedule.ResourceNo.Value() + '/' + Schedule.HeaderCurrent.Value() + '/' + Schedule."No.".Value() + '/' + Schedule.CurrentNo.Value() + '/' + Schedule.HostFn.Value() + '/' + Schedule.Resources."No.".Value() + '/' + Schedule.Resources.PartCurrent.Value() + '/' + Schedule.Resources.PartFn.Value());
+        Observer.Observe('before log', Log.Take());
+        Schedule.ResourceNo.Lookup();
+        Observer.Observe('lookup log', Log.Take());
+        Observer.Observe('resource no', Schedule.ResourceNo.Value());
+        Observer.Observe('resource no log', Log.Take());
+        Observer.Observe('header current', Schedule.HeaderCurrent.Value());
+        Observer.Observe('header current log', Log.Take());
+        Observer.Observe('current no', Schedule.CurrentNo.Value());
+        Observer.Observe('current no log', Log.Take());
+        Observer.Observe('host fn', Schedule.HostFn.Value());
+        Observer.Observe('host fn log', Log.Take());
+        Observer.Observe('part no', Schedule.Resources."No.".Value());
+        Observer.Observe('part no log', Log.Take());
+        Observer.Observe('part current', Schedule.Resources.PartCurrent.Value());
+        Observer.Observe('part current log', Log.Take());
+        Observer.Observe('part fn', Schedule.Resources.PartFn.Value());
+        Observer.Observe('part fn log', Log.Take());
+        Schedule.ResourceNo.Lookup();
+        Observer.Observe('second lookup log', Log.Take());
+        Observer.Observe('second', Schedule.ResourceNo.Value() + '/' + Schedule.HeaderCurrent.Value() + '/' + Schedule."No.".Value() + '/' + Schedule.CurrentNo.Value() + '/' + Schedule.HostFn.Value() + '/' + Schedule.Resources."No.".Value() + '/' + Schedule.Resources.PartCurrent.Value() + '/' + Schedule.Resources.PartFn.Value());
+        Observer.Observe('second log', Log.Take());
+        Observer.Observe('next', Format(Schedule.Next(), 0, 9));
+        Observer.Observe('next log', Log.Take());
+        Observer.Observe('after next', Schedule.ResourceNo.Value() + '/' + Schedule.HeaderCurrent.Value() + '/' + Schedule."No.".Value() + '/' + Schedule.CurrentNo.Value() + '/' + Schedule.HostFn.Value() + '/' + Schedule.Resources."No.".Value() + '/' + Schedule.Resources.PartCurrent.Value() + '/' + Schedule.Resources.PartFn.Value());
+        Observer.Observe('after next log', Log.Take());
+        Schedule.Close();
+        Observer.Observe('close log', Log.Take());
+        Setting.Get();
+        Observer.Observe('stored', Setting."Resource No.");
+        Observer.Finish();
+    end;
+
     [ModalPageHandler]
     procedure PickSecondResource(var ResourceList: TestPage "LT Y15 Lookup Resource List")
     begin
@@ -346,4 +600,368 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
             Resource."Region Code" := RegionCode;
         Resource.Insert();
     end;
+}
+
+page 92220 "LT Y26 Logging Resource Part"
+{
+    PageType = ListPart;
+    SourceTable = "LT Y15 Lookup Resource";
+    ApplicationArea = All;
+    UsageCategory = None;
+    Editable = false;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Lines)
+            {
+                field("No."; Rec."No.") { ApplicationArea = All; }
+                field("Group Code"; Rec."Group Code") { ApplicationArea = All; }
+                field(PartCurrent; PartCurrent) { ApplicationArea = All; Caption = 'Part Current'; }
+                field(PartFn; PartFn()) { ApplicationArea = All; Caption = 'Part Fn'; }
+            }
+        }
+    }
+
+    trigger OnAfterGetRecord()
+    begin
+        Log.Add('p-agr ' + Rec."No.");
+    end;
+
+    trigger OnAfterGetCurrRecord()
+    begin
+        Log.Add('p-agcr ' + Rec."No.");
+        PartCurrent := Rec."No.";
+    end;
+
+    local procedure PartFn(): Code[20]
+    begin
+        Log.Add('p-fn ' + Rec."No.");
+        exit(Rec."No.");
+    end;
+
+    var
+        PartCurrent: Code[20];
+        Log: Codeunit "LT Y15 Lookup Log";
+}
+
+page 92221 "LT Y26 Three Link Curr Schedule"
+{
+    PageType = List;
+    SourceTable = "LT Y15 Lookup Resource";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            group(Filters)
+            {
+                field(ResourceNo; Setting."Resource No.")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Resource No.';
+
+                    trigger OnLookup(var Text: Text): Boolean
+                    var
+                        Resource: Record "LT Y15 Lookup Resource";
+                    begin
+                        Log.Add('lookup');
+                        if Page.RunModal(Page::"LT Y15 Lookup Resource List", Resource) <> Action::LookupOK then
+                            exit(false);
+                        Text := Resource."No.";
+                        exit(true);
+                    end;
+
+                    trigger OnValidate()
+                    begin
+                        Log.Add('validate ' + Setting."Resource No.");
+                        Setting.Modify();
+                        CurrPage.Update(false);
+                    end;
+                }
+                field(HeaderCurrent; CurrentNo) { ApplicationArea = All; Caption = 'Header Current'; }
+            }
+            repeater(Lines)
+            {
+                field("No."; Rec."No.") { ApplicationArea = All; }
+                field(CurrentNo; CurrentNo) { ApplicationArea = All; Caption = 'Current No.'; }
+                field(HostFn; HostFn()) { ApplicationArea = All; Caption = 'Host Fn'; }
+            }
+            part(Resources; "LT Y26 Logging Resource Part")
+            {
+                ApplicationArea = All;
+                SubPageLink = "No." = field("No."),
+                              "Group Code" = field("Group Code"),
+                              "Region Code" = field("Region Code");
+            }
+        }
+    }
+
+    trigger OnOpenPage()
+    begin
+        if not Setting.Get() then
+            Setting.Insert();
+    end;
+
+    trigger OnAfterGetRecord()
+    begin
+        Log.Add('h-agr ' + Rec."No.");
+    end;
+
+    trigger OnAfterGetCurrRecord()
+    begin
+        Log.Add('h-agcr ' + Rec."No.");
+        CurrentNo := Rec."No.";
+    end;
+
+    local procedure HostFn(): Code[20]
+    begin
+        Log.Add('h-fn ' + Rec."No.");
+        exit(Rec."No.");
+    end;
+
+    var
+        CurrentNo: Code[20];
+        Setting: Record "LT Y15 Lookup Setting";
+        Log: Codeunit "LT Y15 Lookup Log";
+}
+
+page 92222 "LT Y26 Two Link Curr Schedule"
+{
+    PageType = List;
+    SourceTable = "LT Y15 Lookup Resource";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            group(Filters)
+            {
+                field(ResourceNo; Setting."Resource No.")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Resource No.';
+
+                    trigger OnLookup(var Text: Text): Boolean
+                    var
+                        Resource: Record "LT Y15 Lookup Resource";
+                    begin
+                        Log.Add('lookup');
+                        if Page.RunModal(Page::"LT Y15 Lookup Resource List", Resource) <> Action::LookupOK then
+                            exit(false);
+                        Text := Resource."No.";
+                        exit(true);
+                    end;
+
+                    trigger OnValidate()
+                    begin
+                        Log.Add('validate ' + Setting."Resource No.");
+                        Setting.Modify();
+                        CurrPage.Update(false);
+                    end;
+                }
+                field(HeaderCurrent; CurrentNo) { ApplicationArea = All; Caption = 'Header Current'; }
+            }
+            repeater(Lines)
+            {
+                field("No."; Rec."No.") { ApplicationArea = All; }
+                field(CurrentNo; CurrentNo) { ApplicationArea = All; Caption = 'Current No.'; }
+                field(HostFn; HostFn()) { ApplicationArea = All; Caption = 'Host Fn'; }
+            }
+            part(Resources; "LT Y26 Logging Resource Part")
+            {
+                ApplicationArea = All;
+                SubPageLink = "No." = field("No."),
+                              "Group Code" = field("Group Code");
+            }
+        }
+    }
+
+    trigger OnOpenPage()
+    begin
+        if not Setting.Get() then
+            Setting.Insert();
+    end;
+
+    trigger OnAfterGetRecord()
+    begin
+        Log.Add('h-agr ' + Rec."No.");
+    end;
+
+    trigger OnAfterGetCurrRecord()
+    begin
+        Log.Add('h-agcr ' + Rec."No.");
+        CurrentNo := Rec."No.";
+    end;
+
+    local procedure HostFn(): Code[20]
+    begin
+        Log.Add('h-fn ' + Rec."No.");
+        exit(Rec."No.");
+    end;
+
+    var
+        CurrentNo: Code[20];
+        Setting: Record "LT Y15 Lookup Setting";
+        Log: Codeunit "LT Y15 Lookup Log";
+}
+
+page 92223 "LT Y26 Three Link Plain Schedule"
+{
+    PageType = List;
+    SourceTable = "LT Y15 Lookup Resource";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            group(Filters)
+            {
+                field(ResourceNo; Setting."Resource No.")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Resource No.';
+
+                    trigger OnLookup(var Text: Text): Boolean
+                    var
+                        Resource: Record "LT Y15 Lookup Resource";
+                    begin
+                        Log.Add('lookup');
+                        if Page.RunModal(Page::"LT Y15 Lookup Resource List", Resource) <> Action::LookupOK then
+                            exit(false);
+                        Text := Resource."No.";
+                        exit(true);
+                    end;
+
+                    trigger OnValidate()
+                    begin
+                        Log.Add('validate ' + Setting."Resource No.");
+                        Setting.Modify();
+                        CurrPage.Update(false);
+                    end;
+                }
+                field(HeaderCurrent; CurrentNo) { ApplicationArea = All; Caption = 'Header Current'; }
+            }
+            repeater(Lines)
+            {
+                field("No."; Rec."No.") { ApplicationArea = All; }
+                field(CurrentNo; CurrentNo) { ApplicationArea = All; Caption = 'Current No.'; }
+                field(HostFn; HostFn()) { ApplicationArea = All; Caption = 'Host Fn'; }
+            }
+            part(Resources; "LT Y26 Logging Resource Part")
+            {
+                ApplicationArea = All;
+                SubPageLink = "No." = field("No."),
+                              "Group Code" = field("Group Code"),
+                              "Region Code" = field("Region Code");
+            }
+        }
+    }
+
+    trigger OnOpenPage()
+    begin
+        if not Setting.Get() then
+            Setting.Insert();
+    end;
+
+    trigger OnAfterGetRecord()
+    begin
+        Log.Add('h-agr ' + Rec."No.");
+        CurrentNo := Rec."No.";
+    end;
+
+    local procedure HostFn(): Code[20]
+    begin
+        Log.Add('h-fn ' + Rec."No.");
+        exit(Rec."No.");
+    end;
+
+    var
+        CurrentNo: Code[20];
+        Setting: Record "LT Y15 Lookup Setting";
+        Log: Codeunit "LT Y15 Lookup Log";
+}
+
+page 92224 "LT Y26 Two Link Plain Schedule"
+{
+    PageType = List;
+    SourceTable = "LT Y15 Lookup Resource";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            group(Filters)
+            {
+                field(ResourceNo; Setting."Resource No.")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Resource No.';
+
+                    trigger OnLookup(var Text: Text): Boolean
+                    var
+                        Resource: Record "LT Y15 Lookup Resource";
+                    begin
+                        Log.Add('lookup');
+                        if Page.RunModal(Page::"LT Y15 Lookup Resource List", Resource) <> Action::LookupOK then
+                            exit(false);
+                        Text := Resource."No.";
+                        exit(true);
+                    end;
+
+                    trigger OnValidate()
+                    begin
+                        Log.Add('validate ' + Setting."Resource No.");
+                        Setting.Modify();
+                        CurrPage.Update(false);
+                    end;
+                }
+                field(HeaderCurrent; CurrentNo) { ApplicationArea = All; Caption = 'Header Current'; }
+            }
+            repeater(Lines)
+            {
+                field("No."; Rec."No.") { ApplicationArea = All; }
+                field(CurrentNo; CurrentNo) { ApplicationArea = All; Caption = 'Current No.'; }
+                field(HostFn; HostFn()) { ApplicationArea = All; Caption = 'Host Fn'; }
+            }
+            part(Resources; "LT Y26 Logging Resource Part")
+            {
+                ApplicationArea = All;
+                SubPageLink = "No." = field("No."),
+                              "Group Code" = field("Group Code");
+            }
+        }
+    }
+
+    trigger OnOpenPage()
+    begin
+        if not Setting.Get() then
+            Setting.Insert();
+    end;
+
+    trigger OnAfterGetRecord()
+    begin
+        Log.Add('h-agr ' + Rec."No.");
+        CurrentNo := Rec."No.";
+    end;
+
+    local procedure HostFn(): Code[20]
+    begin
+        Log.Add('h-fn ' + Rec."No.");
+        exit(Rec."No.");
+    end;
+
+    var
+        CurrentNo: Code[20];
+        Setting: Record "LT Y15 Lookup Setting";
+        Log: Codeunit "LT Y15 Lookup Log";
 }
