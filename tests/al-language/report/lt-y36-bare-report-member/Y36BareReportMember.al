@@ -148,6 +148,71 @@ report 92378 "LT Y36 BRM B"
     end;
 }
 
+report 92382 "LT Y36 BRM C"
+{
+    ProcessingOnly = true;
+
+    dataset
+    {
+        dataitem(Row; "LT Y36 BRM Row")
+        {
+        }
+    }
+
+    requestpage
+    {
+        layout
+        {
+            area(Content)
+            {
+                field(FlagCtl; Flag)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Flag';
+                }
+            }
+        }
+    }
+
+    trigger OnPreReport()
+    begin
+        L.Add('C pre bare=' + Format(UseRequestPage()));
+    end;
+
+    var
+        Flag: Boolean;
+        L: Codeunit "LT Y36 BRM Log";
+}
+
+report 92383 "LT Y36 BRM D"
+{
+    ProcessingOnly = true;
+
+    requestpage
+    {
+        layout
+        {
+            area(Content)
+            {
+                field(FlagCtl; Flag)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Flag';
+                }
+            }
+        }
+    }
+
+    trigger OnPreReport()
+    begin
+        L.Add('D pre bare=' + Format(UseRequestPage()));
+    end;
+
+    var
+        Flag: Boolean;
+        L: Codeunit "LT Y36 BRM Log";
+}
+
 reportextension 92380 "LT Y36 BRM A Ext" extends "LT Y36 BRM A"
 {
     procedure ExtGetUseRp(): Boolean
@@ -342,6 +407,59 @@ codeunit 92381 "LT Y36 BRM Tests"
         Observer.Expect('run_after_bare_settableview', 'Yes');
         Observer.Expect('log_run_after_bare_settableview', 'pre bare=No curr=No;pre other objectid=Yes Report 92377 readonly=No/No language=Yes region=Yes onlyifdetail=No/No;row 2;');
         Observer.Verify();
+    end;
+
+    [Test]
+    [HandlerFunctions('Y36RequestPageC')]
+    procedure Y36_Diag_C()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Start();
+        asserterror Report.Run(Report::"LT Y36 BRM C", true);
+        Observer.Observe('code', GetLastErrorCode());
+        Observer.Observe('log', L.Take());
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('Y36RequestPageD')]
+    procedure Y36_Diag_D()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Start();
+        asserterror Report.Run(Report::"LT Y36 BRM D", true);
+        Observer.Observe('code', GetLastErrorCode());
+        Observer.Observe('log', L.Take());
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('Y36RequestPageA')]
+    procedure Y36_Diag_A_NoArg()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Start();
+        asserterror Report.Run(Report::"LT Y36 BRM A");
+        Observer.Observe('code', GetLastErrorCode());
+        Observer.Observe('log', L.Take());
+        Observer.Finish();
+    end;
+
+    [RequestPageHandler]
+    procedure Y36RequestPageC(var RP: TestRequestPage "LT Y36 BRM C")
+    begin
+        L.Add('rpC');
+        RP.OK().Invoke();
+    end;
+
+    [RequestPageHandler]
+    procedure Y36RequestPageD(var RP: TestRequestPage "LT Y36 BRM D")
+    begin
+        L.Add('rpD');
+        RP.OK().Invoke();
     end;
 
     [RequestPageHandler]
