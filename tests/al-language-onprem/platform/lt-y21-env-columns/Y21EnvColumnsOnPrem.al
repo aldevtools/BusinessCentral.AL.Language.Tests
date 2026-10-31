@@ -32,37 +32,67 @@ codeunit 98660 "LT Y21 Env Columns OnPrem"
     end;
 
     [Test]
+    procedure Y21_File_TemporaryPathFilter()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        // Run 1: TemporaryPath() is longer than the Path column (Code[98]), so the filter itself fails.
+        Observer.Observe('length', Format(StrLen(TemporaryPath())));
+        Observer.Observe('filter', Format(TrySetPath(TemporaryPath())));
+        Observer.Observe('error code', GetLastErrorCode());
+        ClearLastError();
+        Observer.Finish();
+    end;
+
+    [TryFunction]
+    local procedure TrySetPath(Dir: Text)
+    var
+        FileRec: Record File;
+    begin
+        FileRec.SetRange(Path, Dir);
+    end;
+
+    [Test]
     procedure Y21_File_OwnFile()
+    begin
+        OwnFile('/tmp/');
+    end;
+
+    [Test]
+    procedure Y21_File_OwnFileNoSlash()
+    begin
+        OwnFile('/tmp');
+    end;
+
+    local procedure OwnFile(Dir: Text)
     var
         Observer: Codeunit "Probe Observer";
         FileRec: Record File;
         F: File;
-        Dir: Text;
         Name: Text;
         Len: Integer;
         InS: InStream;
         Content: Text;
         RecRef: RecordRef;
     begin
-        Dir := TemporaryPath();
         Name := 'LTY21' + DelChr(Format(CreateGuid()), '=', '{}-') + '.txt';
         F.TextMode(true);
-        F.Create(Dir + Name);
+        Observer.Observe('create', Format(F.Create('/tmp/' + Name)));
         F.Write('LT Y21 file');
         Len := F.Len();
         F.Close();
-        Observer.Observe('raw dir', Dir);
         Observer.Observe('len', Format(Len));
         FileRec.SetRange(Path, Dir);
-        Observer.Observe('count in dir', Format(FileRec.Count()));
+        Observer.Observe('path filter', FileRec.GetFilter(Path));
+        Observer.Observe('count in dir>0', Format(not FileRec.IsEmpty()));
         FileRec.SetRange(Name, Name);
         Observer.Observe('own count', Format(FileRec.Count()));
         if FileRec.FindFirst() then begin
-            Observer.Observe('path eq dir', Format(FileRec.Path = Dir));
+            Observer.Observe('path', FileRec.Path);
             Observer.Observe('name eq', Format(FileRec.Name = Name));
             Observer.Observe('is a file', Format(FileRec."Is a file"));
             Observer.Observe('size', Format(FileRec.Size));
-            Observer.Observe('date', Format(FileRec.Date = Today()));
+            Observer.Observe('date today', Format(FileRec.Date = Today()));
             Observer.Observe('time set', Format(FileRec.Time <> 0T));
             Observer.Observe('time le now', Format(FileRec.Time <= Time()));
             FileRec.CalcFields(Data);
@@ -74,9 +104,9 @@ codeunit 98660 "LT Y21 Env Columns OnPrem"
             Observer.Observe('row', Dump.Row(RecRef));
         end;
         FileRec.SetRange(Name);
-        FileRec.SetRange(Path, Dir + 'lt-y21-no-such-folder');
+        FileRec.SetRange(Path, '/tmp/lt-y21-no-such-folder');
         Observer.Observe('missing dir count', Format(FileRec.Count()));
-        File.Erase(Dir + Name);
+        File.Erase('/tmp/' + Name);
         Observer.Finish();
     end;
 

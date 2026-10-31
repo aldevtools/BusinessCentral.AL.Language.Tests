@@ -18,10 +18,17 @@ codeunit 92150 "LT Y21 Env Columns"
     procedure Y21_Printer_Rows()
     var
         Observer: Codeunit "Probe Observer";
-        RecRef: RecordRef;
+        Printer: Record Printer;
+        N: Integer;
     begin
-        RecRef.Open(Database::Printer);
-        Observer.Observe('rows', Dump.Dump(RecRef, 3));
+        // RecordRef.Open of this table is refused in a Cloud app (run 1), so the columns are read through the record.
+        Observer.Observe('count', Format(Printer.Count()));
+        if Printer.FindSet() then
+            repeat
+                N += 1;
+                Observer.Observe('row ' + Format(N), Printer.ID + '|' + Printer.Name + '|' + Printer.Driver + '|' + Printer.Device + '|' +
+                    CopyStr(Printer.Payload, 1, 100) + '|' + Printer.Description);
+            until (Printer.Next() = 0) or (N >= 3);
         Observer.Finish();
     end;
 
@@ -30,19 +37,30 @@ codeunit 92150 "LT Y21 Env Columns"
     var
         Observer: Codeunit "Probe Observer";
         License: Record "License Information";
-        State: BigInteger;
-        N: Integer;
     begin
         Observer.Observe('count', Format(License.Count()));
-        if License.FindSet() then
-            repeat
-                N += 1;
-                Dump.Hash(Format(License."Line No.") + '|' + License.Text + '#', State);
-                if N <= 6 then
-                    Observer.Observe('line ' + Format(N), Format(License."Line No.") + '|' + CopyStr(License.Text, 1, 100));
-            until License.Next() = 0;
-        Observer.Observe('digest', Format(State));
+        Observer.Observe('is empty', Format(License.IsEmpty()));
+        // Run 1: reading a row fails, its Text holds the whole license text (1516 characters) and the column is Text[250].
+        Observer.Observe('find first', Format(TryFindFirst(License)));
+        Observer.Observe('error code', GetLastErrorCode());
+        Observer.Observe('error text start', CopyStr(GetLastErrorText(), 1, 80));
+        ClearLastError();
+        Observer.Observe('find set', Format(TryFindSet(License)));
+        Observer.Observe('error code 2', GetLastErrorCode());
+        ClearLastError();
         Observer.Finish();
+    end;
+
+    [TryFunction]
+    local procedure TryFindFirst(var License: Record "License Information")
+    begin
+        License.FindFirst();
+    end;
+
+    [TryFunction]
+    local procedure TryFindSet(var License: Record "License Information")
+    begin
+        License.FindSet();
     end;
 
     [Test]
@@ -130,7 +148,6 @@ codeunit 92150 "LT Y21 Env Columns"
         Observer: Codeunit "Probe Observer";
         DbLocks: Record "Database Locks";
         LockRow: Record "LT Y21 Lock Row";
-        RecRef: RecordRef;
         N: Integer;
     begin
         DbLocks.SetRange("Session ID", SessionId());
@@ -138,11 +155,15 @@ codeunit 92150 "LT Y21 Env Columns"
         LockRow."No." := 1;
         LockRow.Name := 'Y21';
         LockRow.Insert();
-        RecRef.GetTable(DbLocks);
-        Observer.Observe('after insert', Dump.Dump(RecRef, 4));
+        // RecordRef.Open of this table is refused in a Cloud app (run 1), so the columns are read through the record.
+        Observer.Observe('after insert', Format(DbLocks.Count()));
         if DbLocks.FindSet() then
             repeat
                 N += 1;
+                if N <= 4 then
+                    Observer.Observe('row ' + Format(N), DbLocks."Object Name" + '|' + DbLocks."Resource Type" + '|' + Format(DbLocks."Request Mode") + '|' +
+                        Format(DbLocks."Request Status") + '|' + Format(DbLocks."AL Object Type") + '|' + Format(DbLocks."AL Object Id") + '|' +
+                        DbLocks."AL Method Scope" + '|' + DbLocks."AL Object Name" + '|' + DbLocks."AL Object Extension Name");
                 if N <= 4 then
                     Observer.Observe('row ' + Format(N) + ' relations',
                         'user=' + Format(DbLocks."User Name" = UserId()) +
@@ -191,10 +212,18 @@ codeunit 92150 "LT Y21 Env Columns"
     procedure Y21_DatabaseMissingIndexes_Rows()
     var
         Observer: Codeunit "Probe Observer";
-        RecRef: RecordRef;
+        MissingIndex: Record "Database Missing Indexes";
+        N: Integer;
     begin
-        RecRef.Open(Database::"Database Missing Indexes");
-        Observer.Observe('rows', Dump.Dump(RecRef, 2));
+        // RecordRef.Open of this table is refused in a Cloud app (run 1), so the columns are read through the record.
+        Observer.Observe('count', Format(MissingIndex.Count()));
+        if MissingIndex.FindSet() then
+            repeat
+                N += 1;
+                Observer.Observe('row ' + Format(N), Format(MissingIndex."Index Handle") + '|' + MissingIndex."Table Name" + '|' + Format(MissingIndex."Extension Id") + '|' +
+                    CopyStr(MissingIndex."Index Equality Columns", 1, 80) + '|' + CopyStr(MissingIndex."Index Inequality Columns", 1, 80) + '|' +
+                    CopyStr(MissingIndex."Index Include Columns", 1, 80) + '|' + Format(MissingIndex."User Seeks") + '|' + Format(MissingIndex."User Scans"));
+            until (MissingIndex.Next() = 0) or (N >= 2);
         Observer.Finish();
     end;
 }
