@@ -80,12 +80,6 @@ codeunit 81574 "LT Y35 Probe Store"
         NumberSequence.Restart(N, Seed);
     end;
 
-    [TryFunction]
-    procedure TryDeleteStore(K: Text; Scope: DataScope)
-    begin
-        IsolatedStorage.Delete(K, Scope);
-    end;
-
     // Deletes every key and sequence of prefix P.
     procedure Reset(P: Text)
     begin
@@ -128,17 +122,18 @@ codeunit 81574 "LT Y35 Probe Store"
         SetStore(P + '-COM-CM', 'committed', DataScope::Company);
         SetStore(P + '-USR-CM', 'committed', DataScope::User);
         SetStore(P + '-CAU-CM', 'committed', DataScope::CompanyAndUser);
-        Log += Step('insert-cm', TrySeqInsert(P + '-SEQ-CM', 100, false));
+        Log += InsertStep('insert-cm', P + '-SEQ-CM', 100, false);
         Log += NextStep('next-cm', P + '-SEQ-CM', false);
         Log += NextStep('next-cm', P + '-SEQ-CM', false);
-        Log += Step('insert-cw', TrySeqInsert(P + '-SEQ-CW', 200, true));
+        Log += InsertStep('insert-cw', P + '-SEQ-CW', 200, true);
         Log += NextStep('next-cw', P + '-SEQ-CW', true);
         Log += NextStep('next-old-n', P + '-SEQ-OLD-N', false);
         Commit();
         SetStore(P + '-MOD-OPEN', 'open', DataScope::Module);
-        Log += Step('insert-open', TrySeqInsert(P + '-SEQ-OPEN', 10, false));
+        Log += InsertStep('insert-open', P + '-SEQ-OPEN', 10, false);
         Log += NextStep('next-open', P + '-SEQ-OPEN', false);
-        Log += Step('delete-del', TryDeleteStore(P + '-MOD-DEL', DataScope::Module));
+        Log += 'delete-del=' + Format(IsolatedStorage.Contains(P + '-MOD-DEL', DataScope::Module)) + ';';
+        DeleteStore(P + '-MOD-DEL', DataScope::Module);
         exit(Log);
     end;
 
@@ -147,6 +142,14 @@ codeunit 81574 "LT Y35 Probe Store"
         if Ok then
             exit(Name + '=ok;');
         exit(Name + '=failed(' + GetLastErrorCode() + ': ' + GetLastErrorText() + ');');
+    end;
+
+    // Inserts only when the sequence does not exist yet (an OnRun that runs twice finds it): the log says which.
+    local procedure InsertStep(Name: Text; N: Text; Seed: BigInteger; CompanyWide: Boolean): Text
+    begin
+        if NumberSequence.Exists(N, CompanyWide) then
+            exit(Name + '=exists;');
+        exit(Step(Name, TrySeqInsert(N, Seed, CompanyWide)));
     end;
 
     local procedure NextStep(Name: Text; N: Text; CompanyWide: Boolean): Text
@@ -188,7 +191,8 @@ codeunit 81574 "LT Y35 Probe Store"
     var
         V: BigInteger;
     begin
-        if not NumberSequence.Exists(N) then
+        Observer.Observe(Name + '_exists_one_arg', Format(NumberSequence.Exists(N)));
+        if not NumberSequence.Exists(N, false) then
             Observer.Observe(Name, 'missing')
         else
             if TrySeqNext(N, false, V) then

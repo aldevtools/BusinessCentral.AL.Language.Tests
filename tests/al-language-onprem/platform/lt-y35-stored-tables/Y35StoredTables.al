@@ -321,7 +321,7 @@ codeunit 98669 "LT Y35 MCP Tool Table"
         Tool2."Allow Create" := true;
         Observer.Observe('insert_query', Format(Tool2.Insert()));
         Clear(Tool);
-        Observer.Observe('get_by_key', Format(Tool.Get(ConfigId, 'mcp_page', 1)));
+        Observer.Observe('get_by_key', Format(Tool.Get(ConfigId, Tool."Object Type"::Page, 1)));
         Observer.Observe('get_row', ToolRow(Tool));
         Clear(Tool);
         Observer.Observe('get_by_systemid', Format(Tool.GetBySystemId(ToolSystemId)));
