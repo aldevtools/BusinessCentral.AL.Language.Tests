@@ -426,15 +426,23 @@ def chunks(name, stmts):
 MAX_OBS_FINAL = 48
 
 
-def final_parts(tname, stmts, final):
+def final_parts(tname, stmts, observed, uname):
     """the observe form: the chunks of chunks(); the final form joins consecutive chunks up to MAX_OBS_FINAL observations (a Verify
     has no message limit), and names the observe chunks whose observations it expects."""
     parts = chunks(tname, stmts)
-    if not final:
+    if observed is None:
         return [(n, p, [n]) for n, p in parts]
     out, cur, names, nobs = [], [], [], 0
     for n, p in parts:
         k = sum(1 for st in p if 'Observer.Observe' in st)
+        if (uname, n) not in observed:
+            if not observed.get('__hold__'):
+                raise SystemExit('no observation for %s %s' % (uname, n))
+            if cur:
+                out.append(cur_names(tname, len(out)) + (cur, names))
+                cur, names, nobs = [], [], 0
+            out.append(('Held_' + n, p, None))
+            continue
         if cur and nobs + k > MAX_OBS_FINAL:
             out.append(cur_names(tname, len(out)) + (cur, names))
             cur, names, nobs = [], [], 0
@@ -488,12 +496,15 @@ def render(u, observed):
     out.append('    TestPermissions = Disabled;')
     out.append('')
     for tname, stmts in u.tests:
-        for name, part, obs_names in final_parts(tname, stmts, observed is not None):
+        for name, part, obs_names in final_parts(tname, stmts, observed, u.name):
             used = refs(part, vars_)
             for st in part:
                 for pn in refs([st], set(procnames)):
                     used |= need[pn]
-            out.append('    [Test]')
+            if obs_names is not None or observed is None:
+                out.append('    [Test]')
+            else:
+                out.append('    // Held: no BC result for this part on the corpus CI (see scripts/conversion-matrix/README.md, "Held").')
             out.append('    procedure %s()' % name)
             out.append('    var')
             out.append('        Observer: Codeunit "Probe Observer";')
@@ -502,7 +513,7 @@ def render(u, observed):
             out.append('    begin')
             for st in part:
                 out.append('        ' + call_fix(st))
-            if observed is None:
+            if observed is None or obs_names is None:
                 out.append('        Observer.Finish();')
             else:
                 pairs = []
@@ -556,20 +567,62 @@ RS, US = '␞', '␟'
 
 
 def load_observed(paths):
+    """{(codeunit id as text, test name): failure message} from ci-batch / local-loop result JSON or a corpus JUnit file."""
     msgs = {}
     for p in paths:
+        if p.endswith('.xml'):
+            import xml.etree.ElementTree as ET
+            text = open(p, encoding='utf-8', errors='replace').read()
+            text = re.sub('[\ufffe\uffff\x00-\x08\x0b\x0c\x0e-\x1f]', '?', text)
+            for tc in ET.fromstring(text).iter('testcase'):
+                f = tc.find('failure')
+                if f is None:
+                    f = tc.find('error')
+                if f is None:
+                    continue
+                cu = tc.get('classname').replace('Codeunit ', '')
+                # the message attribute is cut at 500 characters; the text holds the whole message, then the call stack on later lines
+                full = (f.text or '').split('\n', 1)[0]
+                msgs[(cu, tc.get('name'))] = full if full.startswith('OBSERVE') else (f.get('message') or '')
+            continue
         j = json.load(open(p))
-        legs = j.get('legs', {})
-        for leg in legs.values():
+        for leg in j.get('legs', {}).values():
             for t in leg.get('tests', []):
-                msgs[(t['codeunit'], t['test'])] = t.get('message') or ''
+                msgs[(str(t['codeunit']), t['test'])] = t.get('message') or ''
     return msgs
+
+
+def expected_keys(part):
+    """the observation names a test part produces, in order (an error gives name|text and name|code)."""
+    keys = []
+    for st in part:
+        mm = re.match(r"^if \w+\(.*\) then Observer\.Observe\('([^']*)', .*\) else Observer\.ObserveError\('[^']*'\);$", st)
+        if mm:
+            keys.append(mm.group(1))
+            continue
+        mm = re.match(r"^Observer\.Observe\('([^']*)'", st)
+        if mm:
+            keys.append(mm.group(1))
+    return keys
+
+
+def keys_match(want, pairs):
+    got = [k for k, _ in pairs]
+    i = 0
+    for k in want:
+        if i < len(got) and got[i] == k:
+            i += 1
+        elif i + 1 < len(got) and got[i] == k + '|text' and got[i + 1] == k + '|code':
+            i += 2
+        else:
+            return False
+    return i == len(got)
 
 
 def observed_pairs(msgs, cname_by_id, unit, test):
     def find(name):
         for k, v in msgs.items():
-            if (k[0] == unit.name or str(k[0]) == str(unit.cid) or k[0] == cname_by_id.get(unit.cid)) and k[1] == name:
+            if (k[0] == unit.name or str(k[0]) == str(unit.cid)) and k[1] == name:
                 return v
         return None
     text = ''
@@ -602,6 +655,8 @@ def main():
     ap.add_argument('--matrix', required=True)
     ap.add_argument('--out', required=True)
     ap.add_argument('--observed', action='append')
+    ap.add_argument('--hold-unobserved', action='store_true',
+                    help='final form: a test part without a (matching) observation becomes a non-test procedure Held_<name>')
     a = ap.parse_args()
     m = load_matrix(a.matrix)
     units = []
@@ -633,10 +688,13 @@ def main():
         observed = {}
         for u in units:
             for tname, stmts in u.tests:
-              for name, _ in chunks(tname, stmts):
-                p = observed_pairs(msgs, {}, u, name)
-                if p is not None:
-                    observed[(u.name, name)] = p
+                for name, part in chunks(tname, stmts):
+                    p = observed_pairs(msgs, {}, u, name)
+                    if p is not None and keys_match(expected_keys(part), p):
+                        observed[(u.name, name)] = p
+                    elif p is not None:
+                        print('stale observation (keys differ): %s %s' % (u.name, name), file=sys.stderr)
+        observed['__hold__'] = a.hold_unobserved
     os.makedirs(a.out, exist_ok=True)
     files = {}
     for u in units:
