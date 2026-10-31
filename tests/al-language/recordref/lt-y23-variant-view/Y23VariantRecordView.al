@@ -11,6 +11,10 @@
 //   pins field values through by-value/var Variant parameters.
 // Describe(V) shape: table=<number> temp=<IsTemporary> count=<Count> filters=[<GetFilters>] key=[<CurrentKey>] markedonly=<MarkedOnly>
 //   no=<field 1> name=<field 2>.
+// Results (BC 29 SaaS): GetTable(V) always sees the record V holds now (filters, current key, marks, temporary flag, field values), never the
+//   record it held before, inline and through var or by-value parameters. V := Rec copies the record: later changes to Rec are not seen. A
+//   change through the RecordRef after GetTable(V) reaches neither V nor Rec. Back := V copies field values only (Back keeps its own view).
+//   A temporary record in a Variant: GetTable gives a temporary RecordRef that counts 0 rows (also pinned by recordref/PWRecordMisc.al).
 // BC versions: 29 (27 and 28 by CI)
 
 table 92200 "LT Y23 VView Row"
@@ -140,7 +144,10 @@ codeunit 92202 "LT Y23 Variant Record View"
         Observer.Observe('second', StrSubstNo('count=%1 filters=[%2]', RR.Count(), RR.GetFilters()));
         Back := V;
         Observer.Observe('back', StrSubstNo('count=%1 filters=[%2] no=%3', Back.Count(), Back.GetFilters(), Back.No));
-        Observer.Finish();
+        Observer.Expect('first', 'count=1 filters=[No: A]');
+        Observer.Expect('second', 'count=0 filters=[No: NONE]');
+        Observer.Expect('back', 'count=1 filters=[] no=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -165,7 +172,13 @@ codeunit 92202 "LT Y23 Variant Record View"
         Observer.Observe('second back', BackOf(V));
         Fresh := Plain;
         Observer.Observe('fresh variant', DescribeVar(Fresh));
-        Observer.Finish();
+        Observer.Expect('first', 'table=92200 temp=No count=1 filters=[No: A] key=[No] markedonly=No no=A name=Zeta');
+        Observer.Expect('second inline', 'table=92200 temp=No count=3 filters=[] key=[No] markedonly=No no= name=');
+        Observer.Expect('second var', 'table=92200 temp=No count=3 filters=[] key=[No] markedonly=No no= name=');
+        Observer.Expect('second value', 'table=92200 temp=No count=3 filters=[] key=[No] markedonly=No no= name=');
+        Observer.Expect('second back', 'count=3 filters=[] key=[No] markedonly=No temp=No no= name=');
+        Observer.Expect('fresh variant', 'table=92200 temp=No count=3 filters=[] key=[No] markedonly=No no= name=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -187,7 +200,10 @@ codeunit 92202 "LT Y23 Variant Record View"
         First.SetRange(No, 'NONE');
         V := First;
         Observer.Observe('first reused', DescribeVar(V));
-        Observer.Finish();
+        Observer.Expect('first', 'table=92200 temp=No count=1 filters=[No: A] key=[No] markedonly=No no= name=');
+        Observer.Expect('setfilter', 'table=92200 temp=No count=2 filters=[No: B|C] key=[No] markedonly=No no= name=');
+        Observer.Expect('first reused', 'table=92200 temp=No count=0 filters=[No: NONE] key=[No] markedonly=No no= name=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -211,7 +227,11 @@ codeunit 92202 "LT Y23 Variant Record View"
         Third.SetRange(Name, 'Beta');
         V := Third;
         Observer.Observe('third pk', DescribeVar(V));
-        Observer.Finish();
+        Observer.Expect('first', 'table=92200 temp=No count=1 filters=[No: A] key=[No] markedonly=No no= name=');
+        Observer.Expect('second by name', 'table=92200 temp=No count=3 filters=[] key=[Name] markedonly=No no=C name=Alpha');
+        Observer.Expect('second back', 'count=3 filters=[] key=[No] markedonly=No temp=No no=C name=Alpha');
+        Observer.Expect('third pk', 'table=92200 temp=No count=1 filters=[Name: Beta] key=[No] markedonly=No no= name=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -239,7 +259,12 @@ codeunit 92202 "LT Y23 Variant Record View"
         Observer.Observe('marked fresh variant', DescribeVar(Fresh));
         V := Plain;
         Observer.Observe('plain after marked', DescribeVar(V));
-        Observer.Finish();
+        Observer.Expect('first', 'table=92200 temp=No count=1 filters=[No: A] key=[No] markedonly=No no= name=');
+        Observer.Expect('marked', 'table=92200 temp=No count=2 filters=[Marked: Yes] key=[No] markedonly=Yes no=C name=Alpha');
+        Observer.Expect('marked back', 'count=3 filters=[] key=[No] markedonly=No temp=No no=C name=Alpha');
+        Observer.Expect('marked fresh variant', 'table=92200 temp=No count=2 filters=[Marked: Yes] key=[No] markedonly=Yes no=C name=Alpha');
+        Observer.Expect('plain after marked', 'table=92200 temp=No count=3 filters=[] key=[No] markedonly=No no= name=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -272,7 +297,13 @@ codeunit 92202 "LT Y23 Variant Record View"
         Observer.Observe('temp filtered', DescribeVar(V));
         V := Real;
         Observer.Observe('real after temp', DescribeVar(V));
-        Observer.Finish();
+        Observer.Expect('first', 'table=92200 temp=No count=1 filters=[No: A] key=[No] markedonly=No no= name=');
+        Observer.Expect('temp', 'table=92200 temp=Yes count=0 filters=[] key=[No] markedonly=No no=T1 name=Temp one');
+        Observer.Expect('temp back', 'count=3 filters=[] key=[No] markedonly=No temp=No no=T1 name=Temp one');
+        Observer.Expect('temp fresh variant', 'table=92200 temp=Yes count=0 filters=[] key=[No] markedonly=No no=T1 name=Temp one');
+        Observer.Expect('temp filtered', 'table=92200 temp=Yes count=0 filters=[No: T2] key=[No] markedonly=No no=T1 name=Temp one');
+        Observer.Expect('real after temp', 'table=92200 temp=No count=3 filters=[] key=[No] markedonly=No no= name=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -296,7 +327,13 @@ codeunit 92202 "LT Y23 Variant Record View"
         Filtered.SetRange(No, 'B');
         V := Filtered;
         Observer.Observe('assigned in caller, read in callee by var', DescribeVar(V));
-        Observer.Finish();
+        Observer.Expect('first', 'table=92200 temp=No count=1 filters=[No: A] key=[No] markedonly=No no= name=');
+        Observer.Expect('assigned in callee, read var', 'table=92200 temp=No count=0 filters=[No: NONE] key=[No] markedonly=No no= name=');
+        Observer.Expect('assigned in callee, read value', 'table=92200 temp=No count=0 filters=[No: NONE] key=[No] markedonly=No no= name=');
+        Observer.Expect('assign and read in callee', 'table=92200 temp=No count=3 filters=[] key=[No] markedonly=No no= name=');
+        Observer.Expect('after callee, read in caller', 'table=92200 temp=No count=3 filters=[] key=[No] markedonly=No no= name=');
+        Observer.Expect('assigned in caller, read in callee by var', 'table=92200 temp=No count=1 filters=[No: B] key=[No] markedonly=No no= name=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -325,7 +362,14 @@ codeunit 92202 "LT Y23 Variant Record View"
         Rec.MarkedOnly(true);
         Observer.Observe('getTable after marks', DescribeVar(V));
         Observer.Observe('rec itself', StrSubstNo('count=%1 filters=[%2] no=%3', Rec.Count(), Rec.GetFilters(), Rec.No));
-        Observer.Finish();
+        Observer.Expect('getTable after setrange', 'table=92200 temp=No count=1 filters=[No: A] key=[No] markedonly=No no=A name=Zeta');
+        Observer.Expect('back after setrange', 'count=3 filters=[] key=[No] markedonly=No temp=No no=A name=Zeta');
+        Observer.Expect('getTable after field change', 'table=92200 temp=No count=1 filters=[No: A] key=[No] markedonly=No no=A name=Zeta');
+        Observer.Expect('back after field change', 'count=3 filters=[] key=[No] markedonly=No temp=No no=A name=Zeta');
+        Observer.Expect('getTable after get', 'table=92200 temp=No count=1 filters=[No: A] key=[No] markedonly=No no=A name=Zeta');
+        Observer.Expect('getTable after marks', 'table=92200 temp=No count=1 filters=[No: A] key=[No] markedonly=No no=A name=Zeta');
+        Observer.Expect('rec itself', 'count=1 filters=[Marked: Yes] no=B');
+        Observer.Verify();
     end;
 
     [Test]
@@ -355,7 +399,12 @@ codeunit 92202 "LT Y23 Variant Record View"
         RR.Field(2).Value := 'modified through rr';
         RR.Modify();
         Observer.Observe('getTable after rr modify', DescribeVar(V));
-        Observer.Finish();
+        Observer.Expect('rr itself', 'table=92200 temp=No count=2 filters=[No: B..C] key=[Name] markedonly=No no=A name=set through fieldref');
+        Observer.Expect('getTable again', 'table=92200 temp=No count=3 filters=[] key=[No] markedonly=No no=A name=Zeta');
+        Observer.Expect('back', 'count=3 filters=[] key=[No] markedonly=No temp=No no=A name=Zeta');
+        Observer.Expect('rec', 'count=3 filters=[] no=A name=Zeta');
+        Observer.Expect('getTable after rr modify', 'table=92200 temp=No count=3 filters=[] key=[No] markedonly=No no=A name=Zeta');
+        Observer.Verify();
     end;
 
     [Test]
@@ -381,6 +430,10 @@ codeunit 92202 "LT Y23 Variant Record View"
         V := I;
         V := First;
         Observer.Observe('integer then filtered', DescribeVar(V));
-        Observer.Finish();
+        Observer.Expect('first', 'table=92200 temp=No count=1 filters=[No: A] key=[No] markedonly=No no= name=');
+        Observer.Expect('other table', 'table=92201 temp=No count=1 filters=[No: Y] key=[No] markedonly=No no=Y name=Other Y');
+        Observer.Expect('back to row table', 'table=92200 temp=No count=3 filters=[] key=[No] markedonly=No no= name=');
+        Observer.Expect('integer then filtered', 'table=92200 temp=No count=1 filters=[No: A] key=[No] markedonly=No no= name=');
+        Observer.Verify();
     end;
 }
