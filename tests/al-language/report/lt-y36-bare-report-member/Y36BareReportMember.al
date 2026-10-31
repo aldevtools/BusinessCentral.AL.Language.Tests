@@ -13,7 +13,8 @@
 //   UseRequestPage() is Yes for a report with a request page and No for UseRequestPage = false; during Report.Run(id, false) and a run
 //   after the bare setter UseRequestPage(false) it is No in both forms; the bare setter (also from a report extension) makes the next
 //   Run() show no request page; a variable setter is seen by the bare getter. Bare SetTableView(R) filters the next run (row 2 only).
-//   The run with the request page (Report.Run(id, true) with a handler) is measured on the CI containers only (no UI on the SaaS route).
+//   With the request page (Report.Run(id, true) and a handler) both forms are Yes inside the run (measured on the Windows 28.5 container,
+//   checked by CI; the SaaS route has no UI).
 // BC versions: 29 (27 and 28 by CI)
 table 92376 "LT Y36 BRM Row"
 {
@@ -258,7 +259,8 @@ codeunit 92381 "LT Y36 BRM Tests"
         L.Take();
         Report.Run(Report::"LT Y36 BRM A", true);
         Observer.Observe('log_static_run_true', WithoutRows(L.Take()));
-        Observer.Finish();
+        Observer.Expect('log_static_run_true', 'rp;pre bare=Yes curr=Yes;pre other objectid=Yes Report 92377 readonly=No/No language=Yes region=Yes onlyifdetail=No/No;');
+        Observer.Verify();
     end;
 
     local procedure WithoutRows(Log: Text): Text
