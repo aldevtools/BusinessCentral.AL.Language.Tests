@@ -261,4 +261,88 @@ codeunit 68075 "W4 RecRef Get Tests"
         Observer.Expect('opened_missing_state', 'number=68074 sysid=ok 2000000000 isempty=ok Yes');
         Observer.Verify();
     end;
+
+    // Writer Y40 (2026-10-31): SystemCreatedAtNo, SystemCreatedByNo, SystemModifiedAtNo and SystemModifiedByNo on a RecordRef that is
+    // not open (never opened, after Close, after Clear), next to the open ref, and Field(<that number>) on a ref that is not open.
+    [TryFunction]
+    local procedure Y40TryAuditNo(var RR: RecordRef; Which: Integer; var No: Integer)
+    begin
+        case Which of
+            1:
+                No := RR.SystemCreatedAtNo();
+            2:
+                No := RR.SystemCreatedByNo();
+            3:
+                No := RR.SystemModifiedAtNo();
+            4:
+                No := RR.SystemModifiedByNo();
+        end;
+    end;
+
+    local procedure Y40AuditNos(var RR: RecordRef): Text
+    var
+        No: Integer;
+        Which: Integer;
+        Result: Text;
+    begin
+        for Which := 1 to 4 do begin
+            ClearLastError();
+            if Y40TryAuditNo(RR, Which, No) then
+                Result += Format(No) + ';'
+            else
+                Result += 'error:' + GetLastErrorText() + '|' + GetLastErrorCode() + ';';
+        end;
+        exit(Result);
+    end;
+
+    [TryFunction]
+    local procedure Y40TryFieldName(var RR: RecordRef; No: Integer; var Name: Text)
+    begin
+        Name := RR.Field(No).Name();
+    end;
+
+    local procedure Y40FieldName(var RR: RecordRef; No: Integer): Text
+    var
+        Name: Text;
+    begin
+        ClearLastError();
+        if Y40TryFieldName(RR, No, Name) then
+            exit('ok ' + Name);
+        exit('error:' + GetLastErrorText() + '|' + GetLastErrorCode());
+    end;
+
+    [Test]
+    procedure Y40_SystemAuditFieldNos_NotOpen()
+    var
+        RR: RecordRef;
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        Observer.Observe('never_opened', Y40AuditNos(RR));
+        RR.Open(Database::"W4 RecRef Get Row");
+        Observer.Observe('open', Y40AuditNos(RR));
+        RR.Close();
+        Observer.Observe('after_close', Y40AuditNos(RR));
+        RR.Open(Database::"W4 RecRef Get Row");
+        Clear(RR);
+        Observer.Observe('after_clear', Y40AuditNos(RR));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y40_SystemAuditField_ByNumber_NotOpen()
+    var
+        RR: RecordRef;
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        Observer.Observe('never_opened_created_at', Y40FieldName(RR, 2000000001));
+        Observer.Observe('never_opened_system_id', Y40FieldName(RR, 2000000000));
+        RR.Open(Database::"W4 RecRef Get Row");
+        Observer.Observe('open_created_at', Y40FieldName(RR, RR.SystemCreatedAtNo()));
+        Observer.Observe('open_modified_by', Y40FieldName(RR, RR.SystemModifiedByNo()));
+        RR.Close();
+        Observer.Observe('after_close_created_at', Y40FieldName(RR, 2000000001));
+        Observer.Finish();
+    end;
 }

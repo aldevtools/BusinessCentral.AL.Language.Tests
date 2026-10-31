@@ -356,6 +356,67 @@ codeunit 61229 "LT PT OnPrem Tables"
         Observer.Expect('count after delete', '0');
         Observer.Verify();
     end;
+
+    // Writer Y40 (2026-10-31): Power BI Default Selection (2000000145, Scope OnPrem, per tenant), the table Microsoft's Power BI
+    // embedded-report tests read and write (Id + Context key, Selected flag). The standard sequence and a typed-record sequence.
+    [Test]
+    procedure Y40_PowerBIDefaultSelection_InsertModifyDelete()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Standard(Observer, 2000000145, '1={55555555-5555-5555-5555-555555555555};2=LTPT Context;3=true', '1={55555555-5555-5555-5555-555555555555};2=LTPT Context', '3=false');
+        Observer.Finish();
+    end;
+
+    local procedure Y40Selection(var S: Record "Power BI Default Selection"): Text
+    begin
+        exit(Format(S.Id) + '|' + S.Context + '|' + Format(S.Selected));
+    end;
+
+    [Test]
+    procedure Y40_PowerBIDefaultSelection_TypedRecord()
+    var
+        S: Record "Power BI Default Selection";
+        S2: Record "Power BI Default Selection";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('count_at_start', Format(S.Count()));
+        S.Init();
+        Observer.Observe('init', Y40Selection(S));
+        Observer.Observe('insert_blank', Format(S.Insert()));
+        S.Id := '{66666666-1111-1111-1111-666666666666}';
+        S.Context := 'LTPT A';
+        S.Selected := true;
+        Observer.Observe('insert', Format(S.Insert(true)));
+        Observer.Observe('insert_again', Format(S.Insert()));
+        S.Context := 'LTPT B';
+        S.Selected := false;
+        Observer.Observe('insert_other_context', Format(S.Insert(true)));
+        Observer.Observe('get', Format(S2.Get('{66666666-1111-1111-1111-666666666666}', 'LTPT A')));
+        Observer.Observe('get_row', Y40Selection(S2));
+        Observer.Observe('get_missing', Format(S2.Get('{66666666-1111-1111-1111-666666666666}', 'LTPT C')));
+        S2.Reset();
+        S2.SetRange(Id, '{66666666-1111-1111-1111-666666666666}');
+        Observer.Observe('count_id', Format(S2.Count()));
+        S2.SetRange(Selected, true);
+        Observer.Observe('count_selected', Format(S2.Count()));
+        S2.FindFirst();
+        S2.Selected := false;
+        Observer.Observe('modify', Format(S2.Modify(true)));
+        S2.SetRange(Selected);
+        S2.FindFirst();
+        Observer.Observe('rename', Format(S2.Rename('{66666666-1111-1111-1111-666666666666}', 'LTPT Z')));
+        S2.FindSet();
+        Observer.Observe('first_after_rename', Y40Selection(S2));
+        Observer.Observe('delete', Format(S2.Delete(true)));
+        S2.DeleteAll(true);
+        Observer.Observe('count_after_delete_all', Format(S2.Count()));
+        S2.Reset();
+        S2.SetRange(Context, '');
+        S2.DeleteAll();
+        Observer.Observe('count_blank_after_delete_all', Format(S2.Count()));
+        Observer.Finish();
+    end;
 }
 
 codeunit 61252 "LT PT Cloud Runner OnPrem"
