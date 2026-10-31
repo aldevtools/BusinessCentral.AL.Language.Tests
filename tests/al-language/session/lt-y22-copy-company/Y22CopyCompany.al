@@ -134,7 +134,23 @@ codeunit 92173 "LT Y22 Copy Company Tests"
         Observer.Observe('shared count', Format(Shared.Count()));
         DropAll();
         Commit();
-        Observer.Finish();
+        Observer.Expect('setup log', 'trigger 1;database insert 1;event 1 Yes;trigger 2;database insert 2;event 2 Yes;trigger 3;database insert 3;event 3 Yes;');
+        Observer.Expect('copy', 'no error');
+        Observer.Expect('copy log', 'company insert LT Y22 Dst;');
+        Observer.Expect('destination exists', 'Yes');
+        Observer.Expect('destination name', 'LT Y22 Dst');
+        Observer.Expect('destination display name', '');
+        Observer.Expect('destination evaluation', 'Yes');
+        Observer.Expect('destination business profile id', '');
+        Observer.Expect('destination id', 'other');
+        Observer.Expect('destination systemid', 'other');
+        Observer.Expect('source display name', 'LT Y22 Source Display');
+        Observer.Expect('rows count', '3');
+        Observer.Expect('rows', '1|row 1|Yes|same|Yes|Yes;2|row 2|Yes|same|Yes|Yes;3|row 3|Yes|same|Yes|Yes;');
+        Observer.Expect('source rows count', '3');
+        Observer.Expect('company information', 'LT Y22 Source Info');
+        Observer.Expect('shared count', '1');
+        Observer.Verify();
     end;
 }
 
@@ -165,7 +181,8 @@ codeunit 92177 "LT Y22 Copy Return Tests"
         Helper.DropCompany(SourceTok);
         Helper.DropCompany(DestinationTok);
         Commit();
-        Observer.Finish();
+        Observer.Expect('copy', 'Yes|Yes|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -175,11 +192,14 @@ codeunit 92177 "LT Y22 Copy Return Tests"
         Company: Record Company;
         Ok: Boolean;
     begin
-        ClearLastError();
-        Ok := Database.CopyCompany('LT Y22 No Such Company', DestinationTok);
-        Observer.Observe('missing source', Format(Ok) + '|' + Format(Company.Get(DestinationTok)));
+        // The error is raised even though the return value is used (SaaS BC 29: the call did not return false).
+        asserterror Ok := Database.CopyCompany('LT Y22 No Such Company', DestinationTok);
         Observer.ObserveError('missing source');
-        Observer.Finish();
+        Observer.Observe('missing source|destination', Format(Company.Get(DestinationTok)));
+        Observer.Expect('missing source|text', 'The Company does not exist. Identification fields and values: Name=''LT Y22 No Such Company''');
+        Observer.Expect('missing source|code', 'DB:RecordNotFound');
+        Observer.Expect('missing source|destination', 'No');
+        Observer.Verify();
     end;
 }
 
@@ -218,7 +238,14 @@ codeunit 92178 "LT Y22 Copy Name Tests"
         Helper.DropCompany(LongTok);
         Helper.DropCompany(SourceTok);
         Commit();
-        Observer.Finish();
+        Observer.Expect('31 chars|text', 'The length of the string is 31, but it must be less than or equal to 30 characters. Value: LT Y22 C Destination Name 31ChX');
+        Observer.Expect('31 chars|code', 'StringLengthExceeded');
+        Observer.Expect('31 chars|company', 'No');
+        Observer.Expect('empty|text', 'Company name cannot be empty or only consist of spaces.');
+        Observer.Expect('empty|code', 'DB:Ok');
+        Observer.Expect('other case of source|text', 'Cannot rename or create a new company with the name (lt y22 c src) because a company with the same name already exists');
+        Observer.Expect('other case of source|code', 'DB:Ok');
+        Observer.Verify();
     end;
 }
 
@@ -253,7 +280,9 @@ codeunit 92179 "LT Y22 Copy Transaction Tests"
         Helper.DropCompany(DestinationTok);
         Shared.DeleteAll();
         Commit();
-        Observer.Finish();
+        Observer.Expect('after copy', 'Yes|1');
+        Observer.Expect('after rollback', 'No|0');
+        Observer.Verify();
     end;
 }
 
@@ -285,6 +314,7 @@ codeunit 92180 "LT Y22 Copy Report Tests"
         Helper.DropCompany(SourceTok);
         Helper.DropCompany(DestinationTok);
         Commit();
-        Observer.Finish();
+        Observer.Expect('report', 'Yes|LT Y22 E Dst|Yes');
+        Observer.Verify();
     end;
 }
