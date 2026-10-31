@@ -346,7 +346,13 @@ codeunit 92648 "LT Y37 PC Tests"
             Observer.Observe('A rec', T)
         else
             Observer.ObserveError('A rec error');
-        Observer.Finish();
+        Observer.Expect('runmodal', 'LookupOK');
+        Observer.Expect('menu', '0');
+        Observer.Expect('A count', '1');
+        Observer.Expect('A filters', 'Vend: V1, Line No.: 10000');
+        Observer.Expect('A rows', '10000;');
+        Observer.Expect('A rec', 'V1/10000 filters []');
+        Observer.Verify();
     end;
 
     [Test]
@@ -359,7 +365,11 @@ codeunit 92648 "LT Y37 PC Tests"
         Seed(V);
         RunDialog(Pg, V, 1);
         ObserveSel('A', Pg, 0);
-        Observer.Finish();
+        Observer.Expect('runmodal', 'LookupOK');
+        Observer.Expect('A count', '1');
+        Observer.Expect('A filters', 'Vend: V1, Line No.: 20000');
+        Observer.Expect('A rows', '20000;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -374,7 +384,15 @@ codeunit 92648 "LT Y37 PC Tests"
         Observer.Observe('menu', Format(Pg.GetCurrentMenu()));
         ObserveSel('B', Pg, 1);
         ObserveSel('A hidden', Pg, 0);
-        Observer.Finish();
+        Observer.Expect('runmodal', 'LookupOK');
+        Observer.Expect('menu', '1');
+        Observer.Expect('B count', '1');
+        Observer.Expect('B filters', 'Vend: V1, Line No.: 40000');
+        Observer.Expect('B rows', '40000;');
+        Observer.Expect('A hidden count', '1');
+        Observer.Expect('A hidden filters', 'Vend: V1, Line No.: 10000');
+        Observer.Expect('A hidden rows', '10000;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -387,7 +405,11 @@ codeunit 92648 "LT Y37 PC Tests"
         Seed(V);
         RunDialog(Pg, V, 3);
         ObserveSel('A', Pg, 0);
-        Observer.Finish();
+        Observer.Expect('runmodal', 'LookupCancel');
+        Observer.Expect('A count', '1');
+        Observer.Expect('A filters', 'Vend: V1, Line No.: 10000');
+        Observer.Expect('A rows', '10000;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -406,7 +428,16 @@ codeunit 92648 "LT Y37 PC Tests"
         ObserveSel('A after', Pg, 0);
         V.Get('V1');
         Observer.Observe('stored name', V.Name);
-        Observer.Finish();
+        Observer.Expect('runmodal', 'LookupOK');
+        Observer.Expect('host update false', 'Yes');
+        Observer.Expect('host update true', 'Yes');
+        Observer.Expect('host saverecord', 'Yes');
+        Observer.Expect('part update', 'Yes');
+        Observer.Expect('A after count', '1');
+        Observer.Expect('A after filters', 'Vend: V1, Line No.: 10000');
+        Observer.Expect('A after rows', '10000;');
+        Observer.Expect('stored name', 'One');
+        Observer.Verify();
     end;
 
     [Test]
@@ -420,7 +451,6 @@ codeunit 92648 "LT Y37 PC Tests"
         ObserveSel('A', Pg, 0);
         ObserveSel('B', Pg, 1);
         Step('host update false', TryHostUpdate(Pg, false));
-        Step('host saverecord', TryHostSaveRecord(Pg));
         Observer.Finish();
     end;
 

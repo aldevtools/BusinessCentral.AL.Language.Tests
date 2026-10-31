@@ -150,7 +150,13 @@ codeunit 92638 "LT Y37 Cap Tests"
         B.SetRange("Code", 'B1');
         B.SetRange(Zone, 'Z1');
         RunLZ('all three', B);
-        Observer.Finish();
+        Observer.Expect('none', 'C313 Zone List');
+        Observer.Expect('zone Z1', 'C313 Zone List - Z1');
+        Observer.Expect('zone Z2', 'C313 Zone List - Z2');
+        Observer.Expect('pk only', 'C313 Zone List');
+        Observer.Expect('flowfilter only', 'C313 Zone List');
+        Observer.Expect('all three', 'C313 Zone List - Z1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -187,7 +193,11 @@ codeunit 92638 "LT Y37 Cap Tests"
         Cap := '<not run>';
         Page.RunModal(Page::"LT Y37 Cap LN", B);
         Observer.Observe('runmodal pk', Cap);
-        Observer.Finish();
+        Observer.Expect('run pk', 'C313 Plain List');
+        Observer.Expect('run zone', 'C313 Plain List');
+        Observer.Expect('page.run pk range', 'C313 Plain List');
+        Observer.Expect('runmodal pk', 'C313 Plain List');
+        Observer.Verify();
     end;
 
     [Test]
@@ -208,7 +218,13 @@ codeunit 92638 "LT Y37 Cap Tests"
         D.GoToKey('H2');
         Observer.Observe('h2 direct part', D.Lines.Caption());
         D.Close();
-        Observer.Finish();
+        Observer.Expect('h1 part', 'C313 Lines');
+        Observer.Expect('h1 host', 'C313 Doc - H1');
+        Observer.Expect('next', 'Yes');
+        Observer.Expect('h2 part', 'C313 Lines');
+        Observer.Expect('h2 host', 'C313 Doc - H2');
+        Observer.Expect('h2 direct part', 'C313 Lines');
+        Observer.Verify();
     end;
 
     [Test]
@@ -230,7 +246,10 @@ codeunit 92638 "LT Y37 Cap Tests"
         Cap := '<not run>';
         Page.RunModal(Page::"LT Y37 Cap LT", B2);
         Observer.Observe('pk only', Cap);
-        Observer.Finish();
+        Observer.Expect('none', 'C313 Table DCF List');
+        Observer.Expect('zone Z1', 'C313 Table DCF List');
+        Observer.Expect('pk only', 'C313 Table DCF List');
+        Observer.Verify();
     end;
 
     [Test]
@@ -247,7 +266,9 @@ codeunit 92638 "LT Y37 Cap Tests"
         Cap := '<not run>';
         Page.RunModal(Page::"LT Y37 Cap WZ", B);
         Observer.Observe('zone Z1', Cap);
-        Observer.Finish();
+        Observer.Expect('none', 'C313 Zone Worksheet');
+        Observer.Expect('zone Z1', 'C313 Zone Worksheet - Z1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -269,7 +290,13 @@ codeunit 92638 "LT Y37 Cap Tests"
         RunLZ('not equal', B);
         B.SetFilter(Zone, '%1', 'Z2');
         RunLZ('setfilter single', B);
-        Observer.Finish();
+        Observer.Expect('or list', 'C313 Zone List');
+        Observer.Expect('range', 'C313 Zone List');
+        Observer.Expect('wildcard', 'C313 Zone List');
+        Observer.Expect('blank', 'C313 Zone List');
+        Observer.Expect('not equal', 'C313 Zone List');
+        Observer.Expect('setfilter single', 'C313 Zone List - Z2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -292,7 +319,10 @@ codeunit 92638 "LT Y37 Cap Tests"
         Cap := '<not run>';
         Page.RunModal(Page::"LT Y37 Cap LZA", B);
         Observer.Observe('both', Cap);
-        Observer.Finish();
+        Observer.Expect('zone only', 'C313 Zone Area List - Z1');
+        Observer.Expect('area only', 'C313 Zone Area List - A1');
+        Observer.Expect('both', 'C313 Zone Area List - Z1 ∙ A1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -312,7 +342,10 @@ codeunit 92638 "LT Y37 Cap Tests"
         B.SetRange(Zone, 'Z1');
         B.FilterGroup(0);
         RunLZ('caller group 2', B);
-        Observer.Finish();
+        Observer.Expect('sourcetableview', 'C313 View List - Z1');
+        Observer.Expect('onopenpage group 2', 'C313 Group List - Z1');
+        Observer.Expect('caller group 2', 'C313 Zone List - Z1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -328,7 +361,10 @@ codeunit 92638 "LT Y37 Cap Tests"
         P.Filter.SetFilter(Zone, '');
         Observer.Observe('cleared', P.Caption());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'C313 Zone List');
+        Observer.Expect('filter Z1', 'C313 Zone List - Z1');
+        Observer.Expect('cleared', 'C313 Zone List');
+        Observer.Verify();
     end;
 
     [Test]
