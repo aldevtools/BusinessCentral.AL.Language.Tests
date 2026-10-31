@@ -101,7 +101,7 @@ codeunit 92604 "LT Y37 LF Log"
         Line.FilterGroup(0);
         Result := 'f0=[' + Line.GetFilters() + ']';
         Line.FilterGroup(4);
-        Result += ' f4=[' + Line.GetFilters() + '] no=[' + Line.GetFilter("No.") + '] dept=[' + Line.GetFilter("Dept Filter") + ']';
+        Result += ' f4=[' + Line.GetFilters() + ']';
         Line.FilterGroup(Group);
         exit(Result);
     end;
@@ -136,7 +136,7 @@ page 92605 "LT Y37 LF Lines Part"
 
     trigger OnAfterGetCurrRecord()
     begin
-        Log.Add('LP.c ' + Rec."No.");
+        Log.Add('LP.c ' + Rec."No." + ' ' + Log.Filters(Rec));
     end;
 
     var
@@ -310,6 +310,11 @@ page 92610 "LT Y37 LF Line List"
     trigger OnOpenPage()
     begin
         Log.Add('LL.open ' + Log.Filters(Rec));
+    end;
+
+    trigger OnAfterGetCurrRecord()
+    begin
+        Log.Add('LL.c ' + Rec."No." + ' ' + Log.Filters(Rec));
     end;
 
     var
