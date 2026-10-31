@@ -532,7 +532,11 @@ codeunit 98634 "LT Y17 RP SaveAsXml Trees"
         Observer.Observe('bom', Format(HadBom));
         Observer.Observe('schema head', CopyStr(Schema, 1, StrPos(Schema + '<xs:sequence>', '<xs:sequence>') - 1));
         Observer.Observe('columns', Columns(Schema));
-        Observer.Finish();
+        Observer.Expect('data file exists', 'Yes');
+        Observer.Expect('bom', 'Yes');
+        Observer.Expect('schema head', '<?xml version="1.0" standalone="yes"?>|<DataSet>|<xs:schema id="NewDataSet" xmlns="" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">|<xs:element name="NewDataSet" msdata:IsDataSet="true" msdata:MainDataTable="Result" msdata:Locale="en-US">|<xs:complexType>|<xs:choice minOccurs="0" maxOccurs="unbounded">|<xs:element name="Result" msdata:Locale="en-US">|<xs:complexType>|');
+        Observer.Expect('columns', '<xs:element name="PId" type="xs:int" minOccurs="0" />|<xs:element name="PName" type="xs:string" minOccurs="0" />|<xs:element name="CLine" type="xs:int" minOccurs="0" />|<xs:element name="CQty" type="xs:decimal" minOccurs="0" />|<xs:element name="CQtyFormat" type="xs:string" minOccurs="0" />|<xs:element name="GSub" type="xs:int" minOccurs="0" />|<xs:element name="GNote" type="xs:string" minOccurs="0" />|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -548,7 +552,8 @@ codeunit 98634 "LT Y17 RP SaveAsXml Trees"
         Report.Run(Report::"LT Y17 RP Three Levels");
         Split(FileText(DataFile, HadBom), Schema, Rows);
         Observer.Observe('rows', Rows);
-        Observer.Finish();
+        Observer.Expect('rows', '<Result>|<PId>1</PId>|<PName>a</PName>|<CLine>10</CLine>|<CQty>1.5</CQty>|<CQtyFormat>#,##0.00</CQtyFormat>|<GSub>1</GSub>|<GNote>x</GNote>|</Result>|<Result>|<PId>1</PId>|<PName>a</PName>|<CLine>10</CLine>|<CQty>1.5</CQty>|<CQtyFormat>#,##0.00</CQtyFormat>|<GSub>2</GSub>|<GNote>y</GNote>|</Result>|<Result>|<PId>1</PId>|<PName>a</PName>|<CLine>20</CLine>|<CQty>2</CQty>|<CQtyFormat>#,##0.00</CQtyFormat>|</Result>|<Result>|<PId>2</PId>|<PName />|</Result>|<Result>|<PId>3</PId>|<PName>c</PName>|<CLine>10</CLine>|<CQty>0</CQty>|<CQtyFormat>#,##0.00</CQtyFormat>|<GSub>1</GSub>|<GNote>z</GNote>|</Result>|</DataSet>|');
+        Observer.Verify();
     end;
 
 
@@ -568,7 +573,11 @@ codeunit 98634 "LT Y17 RP SaveAsXml Trees"
         Observer.Observe('bom', Format(HadBom));
         Observer.Observe('schema head', CopyStr(Schema, 1, StrPos(Schema + '<xs:sequence>', '<xs:sequence>') - 1));
         Observer.Observe('columns', Columns(Schema));
-        Observer.Finish();
+        Observer.Expect('data file exists', 'Yes');
+        Observer.Expect('bom', 'Yes');
+        Observer.Expect('schema head', '<?xml version="1.0" standalone="yes"?>|<DataSet>|<xs:schema id="NewDataSet" xmlns="" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">|<xs:element name="NewDataSet" msdata:IsDataSet="true" msdata:MainDataTable="Result" msdata:Locale="en-US">|<xs:complexType>|<xs:choice minOccurs="0" maxOccurs="unbounded">|<xs:element name="Result" msdata:Locale="en-US">|<xs:complexType>|');
+        Observer.Expect('columns', '<xs:element name="PId" type="xs:int" minOccurs="0" />|<xs:element name="PName" type="xs:string" minOccurs="0" />|<xs:element name="CLine" type="xs:int" minOccurs="0" />|<xs:element name="CQty" type="xs:decimal" minOccurs="0" />|<xs:element name="CQtyFormat" type="xs:string" minOccurs="0" />|<xs:element name="DNo" type="xs:int" minOccurs="0" />|<xs:element name="DTag" type="xs:string" minOccurs="0" />|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -584,7 +593,8 @@ codeunit 98634 "LT Y17 RP SaveAsXml Trees"
         Report.Run(Report::"LT Y17 RP Two Children");
         Split(FileText(DataFile, HadBom), Schema, Rows);
         Observer.Observe('rows', Rows);
-        Observer.Finish();
+        Observer.Expect('rows', '<Result>|<PId>1</PId>|<PName>a</PName>|<CLine>10</CLine>|<CQty>1.5</CQty>|<CQtyFormat>#,##0.00</CQtyFormat>|</Result>|<Result>|<PId>1</PId>|<PName>a</PName>|<CLine>20</CLine>|<CQty>2</CQty>|<CQtyFormat>#,##0.00</CQtyFormat>|</Result>|<Result>|<PId>1</PId>|<PName>a</PName>|<DNo>1</DNo>|<DTag>d1</DTag>|</Result>|<Result>|<PId>2</PId>|<PName />|</Result>|<Result>|<PId>2</PId>|<PName />|<DNo>1</DNo>|<DTag>d2</DTag>|</Result>|<Result>|<PId>3</PId>|<PName>c</PName>|<CLine>10</CLine>|<CQty>0</CQty>|<CQtyFormat>#,##0.00</CQtyFormat>|</Result>|<Result>|<PId>3</PId>|<PName>c</PName>|</Result>|</DataSet>|');
+        Observer.Verify();
     end;
 
 
@@ -604,7 +614,11 @@ codeunit 98634 "LT Y17 RP SaveAsXml Trees"
         Observer.Observe('bom', Format(HadBom));
         Observer.Observe('schema head', CopyStr(Schema, 1, StrPos(Schema + '<xs:sequence>', '<xs:sequence>') - 1));
         Observer.Observe('columns', Columns(Schema));
-        Observer.Finish();
+        Observer.Expect('data file exists', 'Yes');
+        Observer.Expect('bom', 'Yes');
+        Observer.Expect('schema head', '<?xml version="1.0" standalone="yes"?>|<DataSet>|<xs:schema id="NewDataSet" xmlns="" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">|<xs:element name="NewDataSet" msdata:IsDataSet="true" msdata:MainDataTable="Result" msdata:Locale="en-US">|<xs:complexType>|<xs:choice minOccurs="0" maxOccurs="unbounded">|<xs:element name="Result" msdata:Locale="en-US">|<xs:complexType>|');
+        Observer.Expect('columns', '<xs:element name="LNum" type="xs:int" minOccurs="0" />|<xs:element name="LText" type="xs:string" minOccurs="0" />|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -620,7 +634,8 @@ codeunit 98634 "LT Y17 RP SaveAsXml Trees"
         Report.Run(Report::"LT Y17 RP No Column Parent");
         Split(FileText(DataFile, HadBom), Schema, Rows);
         Observer.Observe('rows', Rows);
-        Observer.Finish();
+        Observer.Expect('rows', '<Result>|<LNum>1</LNum>|<LText>n1</LText>|</Result>|<Result>|<LNum>2</LNum>|<LText>n2</LText>|</Result>|</DataSet>|');
+        Observer.Verify();
     end;
 
 
@@ -640,7 +655,11 @@ codeunit 98634 "LT Y17 RP SaveAsXml Trees"
         Observer.Observe('bom', Format(HadBom));
         Observer.Observe('schema head', CopyStr(Schema, 1, StrPos(Schema + '<xs:sequence>', '<xs:sequence>') - 1));
         Observer.Observe('columns', Columns(Schema));
-        Observer.Finish();
+        Observer.Expect('data file exists', 'Yes');
+        Observer.Expect('bom', 'Yes');
+        Observer.Expect('schema head', '<?xml version="1.0" standalone="yes"?>|<DataSet>|<xs:schema id="NewDataSet" xmlns="" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">|<xs:element name="NewDataSet" msdata:IsDataSet="true" msdata:MainDataTable="Result" msdata:Locale="en-US">|<xs:complexType>|<xs:choice minOccurs="0" maxOccurs="unbounded">|<xs:element name="Result" msdata:Locale="en-US">|<xs:complexType>|');
+        Observer.Expect('columns', '<xs:element name="PId" type="xs:int" minOccurs="0" />|<xs:element name="PName" type="xs:string" minOccurs="0" />|<xs:element name="CLine" type="xs:int" minOccurs="0" />|<xs:element name="CQty" type="xs:decimal" minOccurs="0" />|<xs:element name="CQtyFormat" type="xs:string" minOccurs="0" />|<xs:element name="TTotal" type="xs:int" minOccurs="0" />|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -656,7 +675,8 @@ codeunit 98634 "LT Y17 RP SaveAsXml Trees"
         Report.Run(Report::"LT Y17 RP Nested And Top");
         Split(FileText(DataFile, HadBom), Schema, Rows);
         Observer.Observe('rows', Rows);
-        Observer.Finish();
+        Observer.Expect('rows', '<Result>|<PId>1</PId>|<PName>a</PName>|<CLine>10</CLine>|<CQty>1.5</CQty>|<CQtyFormat>#,##0.00</CQtyFormat>|</Result>|<Result>|<PId>1</PId>|<PName>a</PName>|<CLine>20</CLine>|<CQty>2</CQty>|<CQtyFormat>#,##0.00</CQtyFormat>|</Result>|<Result>|<PId>2</PId>|<PName />|</Result>|<Result>|<PId>3</PId>|<PName>c</PName>|<CLine>10</CLine>|<CQty>0</CQty>|<CQtyFormat>#,##0.00</CQtyFormat>|</Result>|<Result>|<TTotal>42</TTotal>|</Result>|</DataSet>|');
+        Observer.Verify();
     end;
 
 
@@ -676,7 +696,11 @@ codeunit 98634 "LT Y17 RP SaveAsXml Trees"
         Observer.Observe('bom', Format(HadBom));
         Observer.Observe('schema head', CopyStr(Schema, 1, StrPos(Schema + '<xs:sequence>', '<xs:sequence>') - 1));
         Observer.Observe('columns', Columns(Schema));
-        Observer.Finish();
+        Observer.Expect('data file exists', 'Yes');
+        Observer.Expect('bom', 'Yes');
+        Observer.Expect('schema head', '<?xml version="1.0" standalone="yes"?>|<DataSet>|<xs:schema id="NewDataSet" xmlns="" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">|<xs:element name="NewDataSet" msdata:IsDataSet="true" msdata:MainDataTable="Result" msdata:Locale="en-US">|<xs:complexType>|<xs:choice minOccurs="0" maxOccurs="unbounded">|<xs:element name="Result" msdata:Locale="en-US">|<xs:complexType>|');
+        Observer.Expect('columns', '<xs:element name="PId" type="xs:int" minOccurs="0" />|<xs:element name="PName" type="xs:string" minOccurs="0" />|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -692,7 +716,8 @@ codeunit 98634 "LT Y17 RP SaveAsXml Trees"
         Report.Run(Report::"LT Y17 RP No Row");
         Split(FileText(DataFile, HadBom), Schema, Rows);
         Observer.Observe('rows', Rows);
-        Observer.Finish();
+        Observer.Expect('rows', '</DataSet>|');
+        Observer.Verify();
     end;
 
 
@@ -712,7 +737,11 @@ codeunit 98634 "LT Y17 RP SaveAsXml Trees"
         Observer.Observe('bom', Format(HadBom));
         Observer.Observe('schema head', CopyStr(Schema, 1, StrPos(Schema + '<xs:sequence>', '<xs:sequence>') - 1));
         Observer.Observe('columns', Columns(Schema));
-        Observer.Finish();
+        Observer.Expect('data file exists', 'Yes');
+        Observer.Expect('bom', 'Yes');
+        Observer.Expect('schema head', '<?xml version="1.0" standalone="yes"?>|<DataSet>|<xs:schema id="NewDataSet" xmlns="" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">|<xs:element name="NewDataSet" msdata:IsDataSet="true" msdata:MainDataTable="Result" msdata:Locale="en-US">|<xs:complexType>|<xs:choice minOccurs="0" maxOccurs="unbounded">|<xs:element name="Result" msdata:Locale="en-US">|<xs:complexType>|');
+        Observer.Expect('columns', '<xs:element name="PId" type="xs:int" minOccurs="0" />|<xs:element name="PName" type="xs:string" minOccurs="0" />|<xs:element name="CLine" type="xs:int" minOccurs="0" />|<xs:element name="CQty" type="xs:decimal" minOccurs="0" />|<xs:element name="CQtyFormat" type="xs:string" minOccurs="0" />|<xs:element name="DNo" type="xs:int" minOccurs="0" />|<xs:element name="DTag" type="xs:string" minOccurs="0" />|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -728,7 +757,8 @@ codeunit 98634 "LT Y17 RP SaveAsXml Trees"
         Report.Run(Report::"LT Y17 RP Sibling Empty Child");
         Split(FileText(DataFile, HadBom), Schema, Rows);
         Observer.Observe('rows', Rows);
-        Observer.Finish();
+        Observer.Expect('rows', '<Result>|<PId>1</PId>|<PName>a</PName>|</Result>|<Result>|<PId>2</PId>|<PName />|</Result>|<Result>|<PId>3</PId>|<PName>c</PName>|</Result>|<Result>|<DNo>1</DNo>|<DTag>d1</DTag>|</Result>|<Result>|<DNo>1</DNo>|<DTag>d2</DTag>|</Result>|</DataSet>|');
+        Observer.Verify();
     end;
 
 
@@ -748,7 +778,11 @@ codeunit 98634 "LT Y17 RP SaveAsXml Trees"
         Observer.Observe('bom', Format(HadBom));
         Observer.Observe('schema head', CopyStr(Schema, 1, StrPos(Schema + '<xs:sequence>', '<xs:sequence>') - 1));
         Observer.Observe('columns', Columns(Schema));
-        Observer.Finish();
+        Observer.Expect('data file exists', 'Yes');
+        Observer.Expect('bom', 'Yes');
+        Observer.Expect('schema head', '<?xml version="1.0" standalone="yes"?>|<DataSet>|<xs:schema id="NewDataSet" xmlns="" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">|<xs:element name="NewDataSet" msdata:IsDataSet="true" msdata:MainDataTable="Result" msdata:Locale="en-US">|<xs:complexType>|<xs:choice minOccurs="0" maxOccurs="unbounded">|<xs:element name="Result" msdata:Locale="en-US">|<xs:complexType>|');
+        Observer.Expect('columns', '<xs:element name="PId" type="xs:int" minOccurs="0" />|<xs:element name="PName" type="xs:string" minOccurs="0" />|<xs:element name="CLine" type="xs:int" minOccurs="0" />|<xs:element name="CQty" type="xs:decimal" minOccurs="0" />|<xs:element name="CQtyFormat" type="xs:string" minOccurs="0" />|<xs:element name="DNo" type="xs:int" minOccurs="0" />|<xs:element name="DTag" type="xs:string" minOccurs="0" />|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -764,7 +798,8 @@ codeunit 98634 "LT Y17 RP SaveAsXml Trees"
         Report.Run(Report::"LT Y17 RP Second Child Breaks");
         Split(FileText(DataFile, HadBom), Schema, Rows);
         Observer.Observe('rows', Rows);
-        Observer.Finish();
+        Observer.Expect('rows', '<Result>|<PId>1</PId>|<PName>a</PName>|<CLine>10</CLine>|<CQty>1.5</CQty>|<CQtyFormat>#,##0.00</CQtyFormat>|</Result>|<Result>|<PId>1</PId>|<PName>a</PName>|<CLine>20</CLine>|<CQty>2</CQty>|<CQtyFormat>#,##0.00</CQtyFormat>|</Result>|<Result>|<PId>2</PId>|<PName />|</Result>|<Result>|<PId>3</PId>|<PName>c</PName>|<CLine>10</CLine>|<CQty>0</CQty>|<CQtyFormat>#,##0.00</CQtyFormat>|</Result>|</DataSet>|');
+        Observer.Verify();
     end;
 
 }

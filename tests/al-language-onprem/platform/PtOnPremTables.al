@@ -284,7 +284,23 @@ codeunit 61229 "LT PT OnPrem Tables"
         Observer: Codeunit "Probe Observer";
     begin
         Standard(Observer, 2000000144, '1={66666666-6666-6666-6666-666666666666};3=LT PT Blob;4=1;5=false', '1={66666666-6666-6666-6666-666666666666}', '3=Renamed');
-        Observer.Finish();
+        Observer.Expect('columns', 'ok:1:Id:GUID:16:Normal;2:Blob File:BLOB:8:Normal;3:Name:Text:200:Normal;4:Version:Integer:4:Normal;5:GP Enabled:Boolean:4:Normal;');
+        // has_rows / first_row are the demo rows of the tenant (8 out-of-the-box Power BI reports on the Linux CI containers, all majors):
+        // environment data, recorded but not asserted until the Windows nightly confirms them.
+        Observer.Ignore('has_rows');
+        Observer.Ignore('first_row');
+        Observer.Expect('insert', 'ok:Yes');
+        Observer.Expect('find_inserted', 'ok:1=<guid>;2=<BLOB>;3=LT PT Blob;4=1;5=No;');
+        Observer.Expect('count_inserted', 'ok:1');
+        Observer.Expect('insert_duplicate', 'ok:No');
+        Observer.Expect('modify', 'ok:Yes');
+        Observer.Expect('find_modified', 'ok:1=<guid>;2=<BLOB>;3=Renamed;4=1;5=No;');
+        Observer.Expect('delete', 'ok:Yes');
+        Observer.Expect('count_deleted', 'ok:0');
+        Observer.Expect('insert_no_triggers', 'ok:Yes');
+        Observer.Expect('delete_all_no_triggers', 'ok:done');
+        Observer.Expect('count_after_delete_all', 'ok:0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -328,7 +344,17 @@ codeunit 61229 "LT PT OnPrem Tables"
         Observer.Observe('gp enabled true isempty', Format(ReadBack.IsEmpty()));
         PowerBIBlob.DeleteAll();
         Observer.Observe('count after delete', Format(PowerBIBlob.Count()));
-        Observer.Finish();
+        // Fresh-tenant rows (Linux CI, all majors: 8 rows, Version 2, GP Enabled No): environment data, not asserted.
+        Observer.Ignore('fresh count');
+        Observer.Ignore('fresh rows');
+        Observer.Expect('insert', 'Yes');
+        Observer.Expect('has value without calcfields', 'Yes|Yes');
+        Observer.Expect('get with autocalc', 'Yes|Yes');
+        Observer.Expect('text', 'This is not really relevant');
+        Observer.Expect('gp enabled false findfirst', 'Yes|LT Y17 Blob');
+        Observer.Expect('gp enabled true isempty', 'Yes');
+        Observer.Expect('count after delete', '0');
+        Observer.Verify();
     end;
 }
 

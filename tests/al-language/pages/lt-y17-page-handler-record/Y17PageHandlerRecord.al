@@ -291,16 +291,9 @@ codeunit 91810 "LT Y17 PH Tests"
     begin
         Log.Add('handler');
         Log.Add('got=' + Pg.RecCode());
-        ClearLastError();
-        if not TryTouch(Pg) then
-            Log.Add('touch error=' + GetLastErrorText() + ' code=' + GetLastErrorCode());
-        Log.Add('handler end');
-    end;
-
-    [TryFunction]
-    local procedure TryTouch(var Pg: Page "LT Y17 PH Card")
-    begin
+        // A direct call: a write inside a TryFunction depends on the server setting that allows it (refused on the BC 28.5 container).
         Pg.TouchRec();
+        Log.Add('handler end');
     end;
 
     [Test]

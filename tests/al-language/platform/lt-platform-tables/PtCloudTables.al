@@ -643,8 +643,8 @@ codeunit 67107 "LT PT Cloud Tables"
         Observer.Verify();
     end;
 
-    [TryFunction]
-    local procedure Y17TryInsertCfg(ReportId: Integer; LayoutName: Text[250]; Company: Text[30]; HeaderPart: Text; ThemePart: Text)
+    // No TryFunction: a write inside a TryFunction is refused on the Linux CI containers (server setting); errors are caught with asserterror.
+    local procedure Y17InsertCfg(ReportId: Integer; LayoutName: Text[250]; Company: Text[30]; HeaderPart: Text; ThemePart: Text)
     var
         Cfg: Record "Tenant Report Layout Cfg";
     begin
@@ -656,12 +656,6 @@ codeunit 67107 "LT PT Cloud Tables"
         Cfg."Theme Part Name" := CopyStr(ThemePart, 1, 300);
         // Insert with a return value: a duplicate key answers false instead of an error (an error of a duplicate is not caught here).
         Y17Inserted := Cfg.Insert(true);
-    end;
-
-    [TryFunction]
-    local procedure Y17TryModifyAll(var Cfg: Record "Tenant Report Layout Cfg")
-    begin
-        Cfg.ModifyAll("Header Part Name", '');
     end;
 
     local procedure Y17Shorten(Value: Text): Text
@@ -685,15 +679,16 @@ codeunit 67107 "LT PT Cloud Tables"
         exit(Result);
     end;
 
-    local procedure Y17Try(var Observer: Codeunit "Probe Observer"; Name: Text; Ok: Boolean)
+    local procedure Y17Returned(var Observer: Codeunit "Probe Observer"; Name: Text)
     begin
-        if Ok then
-            Observer.Observe(Name, 'returned ' + Format(Y17Inserted))
-        else
-            Observer.Observe(Name, Format(Ok));
+        Observer.Observe(Name, 'returned ' + Format(Y17Inserted));
         Y17Inserted := false;
-        if not Ok then
-            Observer.Observe(Name + '|text', Y17Shorten(GetLastErrorText()));
+    end;
+
+    local procedure Y17Failed(var Observer: Codeunit "Probe Observer"; Name: Text)
+    begin
+        Observer.Observe(Name, 'No');
+        Observer.Observe(Name + '|text', Y17Shorten(GetLastErrorText()));
         ClearLastError();
     end;
 
@@ -721,23 +716,38 @@ codeunit 67107 "LT PT Cloud Tables"
         Y17Observer.Observe('part layouts', Text1);
         Y17Observer.Observe('fresh rows', Format(Cfg.Count()));
         Cfg.DeleteAll();
-        Y17Try(Y17Observer, 'invalid header part', Y17TryInsertCfg(0, '', '', 'x::A', 'y::B'));
-        Y17Try(Y17Observer, 'header part of the theme subtype', Y17TryInsertCfg(0, '', '', DTh, DTh));
-        Y17Try(Y17Observer, 'global default, parts of an ordinary report', Y17TryInsertCfg(0, '', '', HF, Th));
-        Y17Try(Y17Observer, 'global default', Y17TryInsertCfg(0, '', '', DHF, DTh));
-        Y17Try(Y17Observer, 'current company', Y17TryInsertCfg(0, '', CopyStr(CompanyName(), 1, 30), DHF, ''));
-        Y17Try(Y17Observer, 'report level, own parts', Y17TryInsertCfg(91874, '', '', HF, Th));
-        Y17Try(Y17Observer, 'report level, default parts', Y17TryInsertCfg(91873, '', '', DHF, DTh));
-        Y17Try(Y17Observer, 'body layout by plain name', Y17TryInsertCfg(91874, 'Y17Body', '', HF, ''));
-        Y17Try(Y17Observer, 'body layout by composite name', Y17TryInsertCfg(91874, CopyStr(Y17Part('Y17Body'), 1, 250), '', HF, ''));
-        Y17Try(Y17Observer, 'default subtype layout', Y17TryInsertCfg(91873, CopyStr(Y17Part('Rdl'), 1, 250), '', DHF, DTh));
-        Y17Try(Y17Observer, 'unknown report', Y17TryInsertCfg(99999990, '', '', DHF, DTh));
-        Y17Try(Y17Observer, 'undeclared layout', Y17TryInsertCfg(91874, CopyStr(Y17Part('NoSuchLayout'), 1, 250), '', HF, Th));
-        Y17Try(Y17Observer, 'duplicate', Y17TryInsertCfg(0, '', '', DHF, DTh));
+        // Inserts the platform refuses first (asserterror rolls back; the table is still empty), then the ones it accepts.
+        asserterror Y17InsertCfg(0, '', '', 'x::A', 'y::B');
+        Y17Failed(Y17Observer, 'invalid header part');
+        asserterror Y17InsertCfg(0, '', '', DTh, DTh);
+        Y17Failed(Y17Observer, 'header part of the theme subtype');
+        asserterror Y17InsertCfg(0, '', '', HF, Th);
+        Y17Failed(Y17Observer, 'global default, parts of an ordinary report');
+        asserterror Y17InsertCfg(91874, 'Y17Body', '', HF, '');
+        Y17Failed(Y17Observer, 'body layout by plain name');
+        asserterror Y17InsertCfg(91873, CopyStr(Y17Part('Rdl'), 1, 250), '', DHF, DTh);
+        Y17Failed(Y17Observer, 'default subtype layout');
+        asserterror Y17InsertCfg(91874, CopyStr(Y17Part('NoSuchLayout'), 1, 250), '', HF, Th);
+        Y17Failed(Y17Observer, 'undeclared layout');
+        Y17InsertCfg(0, '', '', DHF, DTh);
+        Y17Returned(Y17Observer, 'global default');
+        Y17InsertCfg(0, '', CopyStr(CompanyName(), 1, 30), DHF, '');
+        Y17Returned(Y17Observer, 'current company');
+        Y17InsertCfg(91874, '', '', HF, Th);
+        Y17Returned(Y17Observer, 'report level, own parts');
+        Y17InsertCfg(91873, '', '', DHF, DTh);
+        Y17Returned(Y17Observer, 'report level, default parts');
+        Y17InsertCfg(91874, CopyStr(Y17Part('Y17Body'), 1, 250), '', HF, '');
+        Y17Returned(Y17Observer, 'body layout by composite name');
+        Y17InsertCfg(99999990, '', '', DHF, DTh);
+        Y17Returned(Y17Observer, 'unknown report');
+        Y17InsertCfg(0, '', '', DHF, DTh);
+        Y17Returned(Y17Observer, 'duplicate');
         Y17Observer.Observe('rows', Y17CfgRows());
         Cfg.SetRange("Header Part Name", HF);
         Y17Observer.Observe('count header', Format(Cfg.Count()));
-        Y17Observer.Observe('modifyall header blank', Format(Y17TryModifyAll(Cfg)));
+        Cfg.ModifyAll("Header Part Name", '');
+        Y17Observer.Observe('modifyall header blank', 'Yes');
         Cfg.Reset();
         Y17Observer.Observe('rows after modifyall', Y17CfgRows());
         Y17Observer.Observe('get current company', Format(Cfg.Get(0, '', CopyStr(CompanyName(), 1, 30))) + '|' + Y17Shorten(Cfg."Header Part Name") + '|' + Y17Shorten(Cfg."Theme Part Name"));
@@ -750,18 +760,18 @@ codeunit 67107 "LT PT Cloud Tables"
         Y17Observer.Expect('header part of the theme subtype|text', 'The Header/Footer part ''<this app>::Y17DefTheme'' must reference a Header/Footer-subtype layout in the tenants Report Layout List.');
         Y17Observer.Expect('global default, parts of an ordinary report', 'No');
         Y17Observer.Expect('global default, parts of an ordinary report|text', 'The Header/Footer part ''<this app>::Y17HF'' must reference a Header/Footer-subtype layout in the tenants Report Layout List.');
+        Y17Observer.Expect('body layout by plain name', 'No');
+        Y17Observer.Expect('body layout by plain name|text', 'The Body part ''Y17Body'' must reference a Body-subtype layout in the tenants Report Layout List.');
+        Y17Observer.Expect('default subtype layout', 'No');
+        Y17Observer.Expect('default subtype layout|text', 'The Body part ''<this app>::Rdl'' must reference a Body-subtype layout in the tenants Report Layout List.');
+        Y17Observer.Expect('undeclared layout', 'No');
+        Y17Observer.Expect('undeclared layout|text', 'The Body part ''<this app>::NoSuchLayout'' must reference a Body-subtype layout in the tenants Report Layout List.');
         Y17Observer.Expect('global default', 'returned Yes');
         Y17Observer.Expect('current company', 'returned Yes');
         Y17Observer.Expect('report level, own parts', 'returned Yes');
         Y17Observer.Expect('report level, default parts', 'returned Yes');
-        Y17Observer.Expect('body layout by plain name', 'No');
-        Y17Observer.Expect('body layout by plain name|text', 'The Body part ''Y17Body'' must reference a Body-subtype layout in the tenants Report Layout List.');
         Y17Observer.Expect('body layout by composite name', 'returned Yes');
-        Y17Observer.Expect('default subtype layout', 'No');
-        Y17Observer.Expect('default subtype layout|text', 'The Body part ''<this app>::Rdl'' must reference a Body-subtype layout in the tenants Report Layout List.');
         Y17Observer.Expect('unknown report', 'returned Yes');
-        Y17Observer.Expect('undeclared layout', 'No');
-        Y17Observer.Expect('undeclared layout|text', 'The Body part ''<this app>::NoSuchLayout'' must reference a Body-subtype layout in the tenants Report Layout List.');
         Y17Observer.Expect('duplicate', 'returned No');
         Y17Observer.Expect('rows', '0|||<this app>::Y17DefHF|<this app>::Y17DefTheme;0||<current company>|<this app>::Y17DefHF|;91873|||<this app>::Y17DefHF|<this app>::Y17DefTheme;91874|||<this app>::Y17HF|<this app>::Y17Theme;91874|<this app>::Y17Body||<this app>::Y17HF|;99999990|||<this app>::Y17DefHF|<this app>::Y17DefTheme;');
         Y17Observer.Expect('count header', '2');

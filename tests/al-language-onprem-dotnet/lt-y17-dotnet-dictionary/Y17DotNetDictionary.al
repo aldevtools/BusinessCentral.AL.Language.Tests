@@ -73,7 +73,10 @@ codeunit 99480 "LT Y17 DotNet Dictionary"
         Observer.Observe('walk', Out);
         Observer.Observe('walk format', Out2);
         Observer.Observe('count', Format(Dict.Count));
-        Observer.Finish();
+        Observer.Expect('walk', 'Table18=view18;Table36=view36;Table5=view5;');
+        Observer.Expect('walk format', '18|view18;36|view36;5|view5;');
+        Observer.Expect('count', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -89,7 +92,9 @@ codeunit 99480 "LT Y17 DotNet Dictionary"
             Steps += 1;
         Observer.Observe('steps', Format(Steps));
         Observer.Observe('count', Format(Dict.Count));
-        Observer.Finish();
+        Observer.Expect('steps', '0');
+        Observer.Expect('count', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -103,7 +108,11 @@ codeunit 99480 "LT Y17 DotNet Dictionary"
         Observer.Observe('item 36', Format(Dict.Item(36)));
         Observer.Observe('contains 5', Format(Dict.ContainsKey(5)));
         Observer.Observe('contains 99', Format(Dict.ContainsKey(99)));
-        Observer.Finish();
+        Observer.Expect('count', '3');
+        Observer.Expect('item 36', 'view36');
+        Observer.Expect('contains 5', 'Yes');
+        Observer.Expect('contains 99', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -117,7 +126,12 @@ codeunit 99480 "LT Y17 DotNet Dictionary"
         Observer.ObserveError('add');
         Observer.Observe('count after', Format(Dict.Count));
         Observer.Observe('item 18 after', Format(Dict.Item(18)));
-        Observer.Finish();
+        Observer.Expect('add ok', 'No');
+        Observer.Expect('add|text', 'A call to System.Collections.Generic.Dictionary`2[System.Object,System.Object].Add failed with this message: An item with the same key has already been added. Key: 18');
+        Observer.Expect('add|code', 'DotNetInvoke:Argument');
+        Observer.Expect('count after', '3');
+        Observer.Expect('item 18 after', 'view18');
+        Observer.Verify();
     end;
 
     [Test]
@@ -130,7 +144,10 @@ codeunit 99480 "LT Y17 DotNet Dictionary"
         Fill(Dict);
         Observer.Observe('item ok', Format(TryItem(Dict, 99, Result)));
         Observer.ObserveError('item');
-        Observer.Finish();
+        Observer.Expect('item ok', 'No');
+        Observer.Expect('item|text', 'A call to System.Collections.Generic.Dictionary`2[System.Object,System.Object].Item failed with this message: The given key ''99'' was not present in the dictionary.');
+        Observer.Expect('item|code', 'DotNetInvoke:KeyNotFound');
+        Observer.Verify();
     end;
 
     [Test]
@@ -141,6 +158,9 @@ codeunit 99480 "LT Y17 DotNet Dictionary"
     begin
         Observer.Observe('new ok', Format(TryCapacity(Dict, -1)));
         Observer.ObserveError('new');
-        Observer.Finish();
+        Observer.Expect('new ok', 'No');
+        Observer.Expect('new|text', 'A call to System.Collections.Generic.Dictionary`2 failed with this message: Specified argument was out of the range of valid values. (Parameter ''capacity'')');
+        Observer.Expect('new|code', 'DotNetInvoke:ArgumentOutOfRange');
+        Observer.Verify();
     end;
 }
