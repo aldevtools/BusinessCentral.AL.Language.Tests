@@ -28,6 +28,41 @@ report 90369 "LT UG Report Processing Only"
     ProcessingOnly = true;
 }
 
+// Writer Y17 (gap cycle 1 G9): a report whose Caption differs from its name, with one RDLC layout (the compiler writes the layout file at build, as for Probe RL Report;
+// it is not committed).
+report 91873 "LT Y17 RL Captioned"
+{
+    UsageCategory = None;
+    Caption = 'LT Caption Differs';
+    DefaultRenderingLayout = Rdl;
+
+    dataset
+    {
+        dataitem(Item; Integer)
+        {
+            DataItemTableView = sorting(Number) where(Number = const(1));
+
+            column(EntryNo; Number) { }
+            column(Description; Desc) { }
+            column(Amount; Amt) { }
+        }
+    }
+
+    rendering
+    {
+        layout(Rdl)
+        {
+            Type = RDLC;
+            LayoutFile = './LtY17RlCaptioned.rdl';
+            Caption = 'Y17 rdl';
+        }
+    }
+
+    var
+        Desc: Text;
+        Amt: Decimal;
+}
+
 codeunit 90370 "LT UG Report Layout List"
 {
     Subtype = Test;
@@ -172,5 +207,72 @@ codeunit 90370 "LT UG Report Layout List"
         Observer.Expect('rows of the processing only report', '0');
         Observer.Expect('missing name', 'no row, rows in report=3');
         Observer.Verify();
+    end;
+
+    // Writer Y17 (gap cycle 1 G9): column 12 "Report Name" and column 3 Caption of the layout row of a report whose Caption differs from its name.
+    [Test]
+    procedure Y17_ReportLayoutList_ReportName_WithCaption()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Dump(Observer, 'captioned', Report::"LT Y17 RL Captioned", 'Rdl');
+        Observer.Finish();
+    end;
+
+    // Column 5 "Runtime Package ID" compared with AllObj of the report and NAV App Installed App of this app (Published Application is
+    // Scope OnPrem); two reads give the same value.
+    [Test]
+    procedure Y17_ReportLayoutList_RuntimePackageId_Matches()
+    var
+        Layouts: Record "Report Layout List";
+        Again: Record "Report Layout List";
+        AllObj: Record AllObj;
+        Installed: Record "NAV App Installed App";
+        Info: ModuleInfo;
+        Observer: Codeunit "Probe Observer";
+    begin
+        NavApp.GetCurrentModuleInfo(Info);
+        Layouts.SetRange("Report ID", Report::"Probe RL Report");
+        Layouts.SetRange(Name, 'Rdlc');
+        Layouts.FindFirst();
+        Again.SetRange("Report ID", Report::"Probe RL Report");
+        Again.SetRange(Name, 'Word');
+        Again.FindFirst();
+        AllObj.Get(AllObj."Object Type"::Report, Report::"Probe RL Report");
+        Installed.Get(Info.Id());
+        Observer.Observe('= AllObj App Runtime Package ID', Format(Layouts."Runtime Package ID" = AllObj."App Runtime Package ID"));
+        Observer.Observe('= AllObj App Package ID', Format(Layouts."Runtime Package ID" = AllObj."App Package ID"));
+        Observer.Observe('= Installed App Package ID', Format(Layouts."Runtime Package ID" = Installed."Package ID"));
+        Observer.Observe('= other layout of the report', Format(Layouts."Runtime Package ID" = Again."Runtime Package ID"));
+        Again.SetRange(Name, 'Rdlc');
+        Again.FindFirst();
+        Observer.Observe('two reads equal', Format(Layouts."Runtime Package ID" = Again."Runtime Package ID"));
+        Observer.Finish();
+    end;
+
+    // A user-defined layout (a Tenant Report Layout row inserted for the report): its Report Layout List row, every column.
+    [Test]
+    procedure Y17_ReportLayoutList_UserDefinedRow()
+    var
+        Layout: Record "Tenant Report Layout";
+        Observer: Codeunit "Probe Observer";
+        InS: InStream;
+    begin
+        Layout.SetRange("Report ID", Report::"LT Y17 RL Captioned");
+        Layout.DeleteAll();
+        Layout.Reset();
+        Layout.Init();
+        Layout."Report ID" := Report::"LT Y17 RL Captioned";
+        Layout.Name := 'LT Y17 User';
+        Layout."Layout Format" := Layout."Layout Format"::RDLC;
+        Layout.Description := 'Y17 user layout';
+        Report.RdlcLayout(Report::"LT Y17 RL Captioned", InS);
+        Layout.Layout.ImportStream(InS, 'Y17 user layout');
+        Observer.Observe('insert', Format(Layout.Insert()));
+        Observer.Observe('rows in report', CountOfReport(Report::"LT Y17 RL Captioned"));
+        Dump(Observer, 'user', Report::"LT Y17 RL Captioned", 'LT Y17 User');
+        Layout.SetRange("Report ID", Report::"LT Y17 RL Captioned");
+        Layout.DeleteAll();
+        Observer.Finish();
     end;
 }

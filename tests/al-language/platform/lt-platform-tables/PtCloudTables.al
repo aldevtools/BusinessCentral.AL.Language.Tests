@@ -603,4 +603,74 @@ codeunit 67107 "LT PT Cloud Tables"
     begin
         ReVerifyEdmXml('POSTALADDRESS', '<ComplexType Name="postalAddressType"><Property Name="street" Type="Edm.String" Nullable="true" MaxLength="152" /><Property Name="city" Type="Edm.String" Nullable="true" MaxLength="30" /><Property Name="state" Type="Edm.String" Nullable="true" MaxLength="30" /><Property Name="countryLetterCode" Type="Edm.String" Nullable="true" MaxLength="10" /><Property Name="postalCode" Type="Edm.String" Nullable="true" MaxLength="20" /></ComplexType>');
     end;
+
+#if BC29PLUS
+    // Writer Y17 (gap cycle 1 G8): Tenant Report Layout Cfg (2000000249, from BC 29), the table Microsoft's Composite Layout tests fill
+    // (Report ID, Layout Name, Company Name; Header Part Name and Theme Part Name). Report 91873 is in UgReportLayoutList.al.
+    [Test]
+    procedure Y17_TenantReportLayoutCfg_InsertModifyDelete()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Standard(Observer, 2000000249, '1=91873;2=Rdl;3=;4=x::A;5=y::B', '1=91873;2=Rdl;3=', '4=Changed');
+        Observer.Finish();
+    end;
+
+    [TryFunction]
+    local procedure Y17TryInsertCfg(ReportId: Integer; LayoutName: Text[250]; Company: Text[30]; HeaderPart: Text[300])
+    var
+        Cfg: Record "Tenant Report Layout Cfg";
+    begin
+        Cfg.Init();
+        Cfg."Report ID" := ReportId;
+        Cfg."Layout Name" := LayoutName;
+        Cfg."Company Name" := Company;
+        Cfg."Header Part Name" := HeaderPart;
+        Cfg."Theme Part Name" := 'y::B';
+        Cfg.Insert();
+    end;
+
+    local procedure Y17CfgRows(): Text
+    var
+        Cfg: Record "Tenant Report Layout Cfg";
+        Result: Text;
+        Company: Text;
+    begin
+        if Cfg.FindSet() then
+            repeat
+                Company := Cfg."Company Name";
+                if Company = CompanyName() then
+                    Company := '<current company>';
+                Result += Format(Cfg."Report ID") + '|' + Cfg."Layout Name" + '|' + Company + '|' + Cfg."Header Part Name" + '|' + Cfg."Theme Part Name" + ';';
+            until Cfg.Next() = 0;
+        exit(Result);
+    end;
+
+    [Test]
+    procedure Y17_TenantReportLayoutCfg_Shapes()
+    var
+        Cfg: Record "Tenant Report Layout Cfg";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('fresh rows', Format(Cfg.Count()));
+        Cfg.DeleteAll();
+        Observer.Observe('insert report 0 blank names', Format(Y17TryInsertCfg(0, '', '', 'x::A')));
+        Observer.ObserveError('insert report 0 blank names');
+        Observer.Observe('insert current company', Format(Y17TryInsertCfg(91873, 'Rdl', CopyStr(CompanyName(), 1, 30), 'x::A')));
+        Observer.ObserveError('insert current company');
+        Observer.Observe('insert unknown report', Format(Y17TryInsertCfg(99999990, 'Rdl', '', 'x::A')));
+        Observer.ObserveError('insert unknown report');
+        Observer.Observe('insert undeclared layout', Format(Y17TryInsertCfg(91873, 'NoSuchLayout', '', 'other::C')));
+        Observer.ObserveError('insert undeclared layout');
+        Observer.Observe('rows', Y17CfgRows());
+        Cfg.SetRange("Header Part Name", 'x::A');
+        Observer.Observe('count header x::A', Format(Cfg.Count()));
+        Cfg.ModifyAll("Header Part Name", '');
+        Cfg.Reset();
+        Observer.Observe('rows after modifyall', Y17CfgRows());
+        Observer.Observe('get current company', Format(Cfg.Get(91873, 'Rdl', CompanyName())) + '|' + Cfg."Header Part Name" + '|' + Cfg."Theme Part Name");
+        Cfg.DeleteAll();
+        Observer.Finish();
+    end;
+#endif
 }
