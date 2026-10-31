@@ -7,6 +7,8 @@
 //   this app because the values themselves are environment data) for a report with an RDLC layout, one with a Word layout and one with no layout.
 // Observed on the BC 29.0 SaaS sandbox and the CI legs: BC 27 has the columns 1 - 17, BC 28 adds 18 (Layout Status), BC 29 adds 19 - 21 (Layout Subtype, HeaderFooterPart, ThemePart).
 // BC versions: 27 - 29
+// Writer Y17 (gap cycle 1 G9): "Report Name" of a report with a Caption (report 91873), Runtime Package ID against AllObj and NAV App Installed App,
+//   and the row of a user-defined (Tenant Report Layout) layout.
 
 report 90368 "LT UG Report No Layout"
 {

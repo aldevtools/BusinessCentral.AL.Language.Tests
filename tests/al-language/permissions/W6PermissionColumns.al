@@ -2,6 +2,8 @@
 // (Published Application "Description" and "Tenant Visible" are in a table that is Scope = OnPrem: AL0296 in a Cloud app, see MANIFEST.)
 // Observe-only. The columns are found by NUMBER (name, type, value format), then read by name where the name is known. Own permission set 'W6 PermSet' and own
 // profile 'W6 Profile' give rows whose declared content is known. Role ids, app ids and counts of Microsoft rows are not observed.
+// Writer Y17 (gap cycle 1 G9): Metadata Permission "Security Filter" read as GenerateHashForPermissionSet reads it (blank for app permission sets),
+//   a Tenant Permission filter with format 9, Table Metadata InherentPermissions (table 91870, 91871, permission set 91872).
 
 table 67339 "W6 PM Table"
 {

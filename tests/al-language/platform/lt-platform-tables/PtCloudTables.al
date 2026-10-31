@@ -7,6 +7,8 @@
 // Writer QX (Microsoft's DemoTool): Media Resources codes of a fresh tenant, Media Reference.ImportStream and Blob rows by Code; Tenant Report
 //   Layout Selection rows of a fresh tenant and the Insert(true)-else-Modify(true) of a report layout; OData Edm Type keys and the Edm Xml Blob.
 // Writer RE (Microsoft's DemoTool): Description and Edm Xml text of the 6 OData Edm Type rows of a fresh tenant (the same on BC 27, 28 and 29).
+// Writer Y17 (gap cycle 1 G8, BC 29 only): Tenant Report Layout Cfg rows: a valid row needs a Body-subtype layout as '<app id>::<name>' (or a blank
+//   Layout Name) and parts that are HeaderFooter / Theme layouts of the same report or of "Tenant Report Defaults" (report 91874, reportextension 91875).
 
 codeunit 67107 "LT PT Cloud Tables"
 {

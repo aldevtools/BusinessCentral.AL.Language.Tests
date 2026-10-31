@@ -3,6 +3,7 @@
 // Fixtures used: PtOnPremOps.al (LT PT OnPrem Ops), tests/al-language/platform/lt-platform-tables/PtHelper.al (LT PT Arg, LT PT Ops)
 // Probe: platform tables that have no row provider in the AL runtime, the OnPrem ones: the column list, whether rows exist, the first row, an Insert,
 // a second Insert of the same key, a Modify, a Delete and an Insert without triggers (the same sequence as PtCloudTables.al). Object id 61229.
+// Writer Y17 (gap cycle 1 G8): Power BI Blob (2000000144): the standard sequence, the Blob round trip and the rows of a fresh tenant.
 
 codeunit 61229 "LT PT OnPrem Tables"
 {
