@@ -371,4 +371,324 @@ codeunit 69451 "Probe Property Assign Forms"
         Observer.Expect('tableIdAfterAssign', '0');
         Observer.Verify();
     end;
+
+    // al-runner 6526 (writer Y29): `X.M := v` compiles for any built-in method M with exactly one overload that takes one
+    // required parameter (alc 18.1 with runtime 16.0 and alc 30 with runtime 18.0 alike) and is checked as M(v); the
+    // refused shapes are tests/must-not-compile/cases/2365-2372. These tests read back what the assignment form did.
+    [Test]
+    procedure Y29_HttpClient_AssignForms()
+    var
+        C: HttpClient;
+        Observer: Codeunit "Probe Observer";
+    begin
+        C.Timeout := 5000;
+        Observer.Observe('timeout', Format(C.Timeout()));
+        C.Timeout := C.Timeout;
+        Observer.Observe('timeout_self', Format(C.Timeout));
+        C.SetBaseAddress := 'https://example.com/y29/';
+        Observer.Observe('baseAddress', C.GetBaseAddress());
+        C.UseResponseCookies := true;
+        Observer.Observe('useResponseCookies', 'ran');
+        Observer.Expect('timeout', '5 seconds');
+        Observer.Expect('timeout_self', '5 seconds');
+        Observer.Expect('baseAddress', 'https://example.com/y29/');
+        Observer.Expect('useResponseCookies', 'ran');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y29_HttpRequestMessage_AssignForms()
+    var
+        R: HttpRequestMessage;
+        Ct: HttpContent;
+        Body: Text;
+        Observer: Codeunit "Probe Observer";
+    begin
+        R.Method := 'POST';
+        Observer.Observe('method', R.Method());
+        R.SetRequestUri := 'https://example.com/y29?b=1';
+        Observer.Observe('requestUri', R.GetRequestUri());
+        Ct.WriteFrom('body-y29');
+        R.Content := Ct;
+        R.Content().ReadAs(Body);
+        Observer.Observe('content', Body);
+        Observer.Expect('method', 'POST');
+        Observer.Expect('requestUri', 'https://example.com/y29?b=1');
+        Observer.Expect('content', 'body-y29');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y29_XmlNodes_AssignForms()
+    var
+        A: XmlAttribute;
+        Tx: XmlText;
+        Cm: XmlComment;
+        Cd: XmlCData;
+        Decl: XmlDeclaration;
+        E: XmlElement;
+        Xml: Text;
+        Observer: Codeunit "Probe Observer";
+    begin
+        A := XmlAttribute.Create('a', '1');
+        A.Value := '2';
+        Observer.Observe('attribute', A.Value());
+        Tx := XmlText.Create('t');
+        Tx.Value := 'u';
+        Observer.Observe('text', Tx.Value());
+        Cm := XmlComment.Create('c');
+        Cm.Value := 'd';
+        Observer.Observe('comment', Cm.Value());
+        Cd := XmlCData.Create('x');
+        Cd.Value := 'y';
+        Observer.Observe('cdata', Cd.Value());
+        Decl := XmlDeclaration.Create('1.0', 'utf-8', 'yes');
+        Decl.Version := '1.0';
+        Decl.Encoding := 'utf-16';
+        Decl.Standalone := 'no';
+        Observer.Observe('declaration', Decl.Version() + '|' + Decl.Encoding() + '|' + Decl.Standalone());
+        E := XmlElement.Create('e');
+        E.Add := 'txt-y29';
+        E.WriteTo(Xml);
+        Observer.Observe('element_add', E.InnerText() + '|' + Xml);
+        Observer.Expect('attribute', '2');
+        Observer.Expect('text', 'u');
+        Observer.Expect('comment', 'd');
+        Observer.Expect('cdata', 'y');
+        Observer.Expect('declaration', '1.0|utf-16|no');
+        Observer.Expect('element_add', 'txt-y29|<e>txt-y29</e>');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y29_XmlOptions_AssignForms()
+    var
+        WO: XmlWriteOptions;
+        RO: XmlReadOptions;
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('write_default', Format(WO.PreserveWhitespace()));
+        WO.PreserveWhitespace := true;
+        Observer.Observe('write', Format(WO.PreserveWhitespace()));
+        Observer.Observe('read_default', Format(RO.PreserveWhitespace()));
+        RO.PreserveWhitespace := true;
+        Observer.Observe('read', Format(RO.PreserveWhitespace()));
+        Observer.Expect('write_default', 'No');
+        Observer.Expect('write', 'Yes');
+        Observer.Expect('read_default', 'No');
+        Observer.Expect('read', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y29_TextBuilder_AssignForms()
+    var
+        B: TextBuilder;
+        Observer: Codeunit "Probe Observer";
+    begin
+        B.Append := 'abc';
+        B.Append := 'def';
+        Observer.Observe('append', B.ToText());
+        B.Length := 2;
+        Observer.Observe('length', B.ToText() + '|' + Format(B.Length()));
+        B.Capacity := 200;
+        Observer.Observe('capacity', Format(B.Capacity()));
+        Observer.Expect('append', 'abcdef');
+        Observer.Expect('length', 'ab|2');
+        Observer.Expect('capacity', '200');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y29_Notification_AssignForms()
+    var
+        N: Notification;
+        G: Guid;
+        Observer: Codeunit "Probe Observer";
+    begin
+        N.Message := 'm-y29';
+        Observer.Observe('message', N.Message());
+        N.Scope := NotificationScope::LocalScope;
+        Observer.Observe('scope', Format(N.Scope()));
+        Evaluate(G, '{29292929-0000-0000-0000-000000006526}');
+        N.Id := G;
+        Observer.Observe('id', Format(N.Id()));
+        Observer.Expect('message', 'm-y29');
+        Observer.Expect('scope', 'LocalScope');
+        Observer.Expect('id', '{29292929-0000-0000-0000-000000006526}');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y29_RecordRef_FilterPage_Session_AssignForms()
+    var
+        RR: RecordRef;
+        F: FilterPageBuilder;
+        S: SessionSettings;
+        Observer: Codeunit "Probe Observer";
+    begin
+        RR.Open(Database::"Probe Pf Row");
+        RR.CurrentKeyIndex := 2;
+        Observer.Observe('currentKeyIndex', Format(RR.CurrentKeyIndex()));
+        RR.Close();
+        F.PageCaption := 'cap-y29';
+        Observer.Observe('pageCaption', F.PageCaption());
+        S.Init();
+        S.LanguageId := 1031;
+        Observer.Observe('languageId', Format(S.LanguageId()));
+        Observer.Expect('currentKeyIndex', '2');
+        Observer.Expect('pageCaption', 'cap-y29');
+        Observer.Expect('languageId', '1031');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y29_Collections_Text_Sleep_AssignForms()
+    var
+        L: List of [Integer];
+        D: Dictionary of [Integer, Text];
+        Txt: Text;
+        Dlg: Dialog;
+        Observer: Codeunit "Probe Observer";
+    begin
+        L.Add := 5;
+        L.Add := 6;
+        Observer.Observe('list', Format(L.Count()) + '|' + Format(L.Get(2)));
+        D.Add(1, 'a');
+        D.Add(2, 'b');
+        D.Remove := 1;
+        Observer.Observe('dictionary', Format(D.Count()) + '|' + Format(D.ContainsKey(1)));
+        Txt := 'abc';
+        Txt.Contains := 'b';
+        Observer.Observe('contains', Txt);
+        Sleep := 1;
+        Observer.Observe('sleep', 'ran');
+        Dlg.HideSubsequentDialogs := true;
+        Observer.Observe('hideSubsequentDialogs', 'ran');
+        Observer.Expect('list', '2|6');
+        Observer.Expect('dictionary', '1|No');
+        Observer.Expect('contains', 'abc');
+        Observer.Expect('sleep', 'ran');
+        Observer.Expect('hideSubsequentDialogs', 'ran');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y29_XmlDocument_GetRoot_AssignForm()
+    var
+        Doc: XmlDocument;
+        E: XmlElement;
+        Observer: Codeunit "Probe Observer";
+    begin
+        XmlDocument.ReadFrom('<root-y29><c/></root-y29>', Doc);
+        Doc.GetRoot := E;
+        Observer.Observe('getRoot', E.Name());
+        Observer.Observe('getRoot_empty', Format(TryGetRootAssign()));
+        Observer.ObserveError('getRoot_empty');
+        Observer.Expect('getRoot', 'root-y29');
+        Observer.Expect('getRoot_empty', 'No');
+        Observer.Expect('getRoot_empty|text', 'The XML node is not set.');
+        Observer.Expect('getRoot_empty|code', 'XmlNodeNotFound');
+        Observer.Verify();
+    end;
+
+    [TryFunction]
+    local procedure TryGetRootAssign()
+    var
+        Doc: XmlDocument;
+        E: XmlElement;
+    begin
+        Doc := XmlDocument.Create();
+        Doc.GetRoot := E;
+    end;
+
+    [Test]
+    procedure Y29_Record_AssignForms()
+    var
+        Row: Record "Probe Pf Row";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        Row.Get := 2;
+        Observer.Observe('get', Format(Row.Id) + '|' + Row.Txt);
+        Observer.Observe('get_missing_assign', Format(TryGetAssign(99)));
+        Observer.ObserveError('get_missing_assign');
+        Observer.Observe('get_missing_call', Format(TryGetCall(99)));
+        Observer.ObserveError('get_missing_call');
+        Row.ReadIsolation := IsolationLevel::ReadCommitted;
+        Observer.Observe('readIsolation', Format(Row.ReadIsolation()));
+        Row.SecurityFiltering := SecurityFilter::Filtered;
+        Observer.Observe('securityFiltering', Format(Row.SecurityFiltering()));
+        Observer.Expect('get', '2|row2');
+        Observer.Expect('get_missing_assign', 'No');
+        Observer.Expect('get_missing_assign|text', 'The Probe Pf Row does not exist. Identification fields and values: Id=''99''');
+        Observer.Expect('get_missing_assign|code', 'DB:RecordNotFound');
+        Observer.Expect('get_missing_call', 'No');
+        Observer.Expect('get_missing_call|text', 'The Probe Pf Row does not exist. Identification fields and values: Id=''99''');
+        Observer.Expect('get_missing_call|code', 'DB:RecordNotFound');
+        Observer.Expect('readIsolation', 'ReadCommitted');
+        Observer.Expect('securityFiltering', 'Filtered');
+        Observer.Verify();
+    end;
+
+    [TryFunction]
+    local procedure TryGetAssign(Id: Integer)
+    var
+        Row: Record "Probe Pf Row";
+    begin
+        Row.Get := Id;
+    end;
+
+    [TryFunction]
+    local procedure TryGetCall(Id: Integer)
+    var
+        Row: Record "Probe Pf Row";
+    begin
+        Row.Get(Id);
+    end;
+
+    [Test]
+    procedure Y29_OwnProcedure_AssignForms()
+    var
+        Target: Codeunit "LT Y29 Assign Target";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Target.SetCounter := 7;
+        Observer.Observe('member', Format(Target.Counter()));
+        Observer.Observe('unqualified', Format(Target.RunUnqualified()));
+        Target.SetAndAnswer := 3;
+        Observer.Observe('withReturnValue', Format(Target.Counter()));
+        Observer.Expect('member', '7');
+        Observer.Expect('unqualified', '8');
+        Observer.Expect('withReturnValue', '30');
+        Observer.Verify();
+    end;
+}
+
+codeunit 92290 "LT Y29 Assign Target"
+{
+    var
+        Value: Integer;
+
+    procedure SetCounter(NewValue: Integer)
+    begin
+        Value := NewValue;
+    end;
+
+    procedure SetAndAnswer(NewValue: Integer): Boolean
+    begin
+        Value := NewValue * 10;
+        exit(true);
+    end;
+
+    procedure Counter(): Integer
+    begin
+        exit(Value);
+    end;
+
+    procedure RunUnqualified(): Integer
+    begin
+        SetCounter := Value + 1;
+        exit(Value);
+    end;
 }

@@ -44,6 +44,29 @@ table 74045 "LT P133 All Types"
     }
 }
 
+table 90541 "LT NP3 Fmt Flow"
+{
+    DataClassification = CustomerContent;
+
+    fields
+    {
+        field(1; Id; Integer) { }
+        field(2; Cd; Code[10]) { }
+        field(3; Dt; Date) { }
+        field(4; Total; Integer)
+        {
+            FieldClass = FlowField;
+            CalcFormula = count("LT P133 All Types");
+        }
+        field(5; Amount; Decimal) { }
+    }
+
+    keys
+    {
+        key(PK; Id) { Clustered = true; }
+    }
+}
+
 codeunit 74046 "LT P133 Date Eval Format"
 {
     Subtype = Test;
@@ -411,6 +434,133 @@ codeunit 74046 "LT P133 Date Eval Format"
         Observer.Expect('format 3', '7\ttext value\tCODE1\t2.5\tYes\tTwo\tFirst Caption\t03/05/24\t 2:30:15 PM\t03/05/24 02:30 PM\t123456789\t{12345678-1234-1234-1234-123456789012}\t1 minute 30 seconds\t \t\t-4');
         Observer.Expect('format 0 length 12 ok', 'Yes');
         Observer.Expect('format 0 length 12', '7\ttext value');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure NP3_FormatRecord_StandardFormats_0And9()
+    var
+        Observer: Codeunit "Probe Observer";
+        Rec: Record "LT P133 All Types";
+    begin
+        Rec.DeleteAll();
+        Observer.Observe('blank_0', Format(Rec, 0, 0));
+        Observer.Observe('blank_9', Format(Rec, 0, 9));
+        FillAll(Rec);
+        Observer.Observe('filled_0', Format(Rec, 0, 0));
+        Observer.Observe('filled_9', Format(Rec, 0, 9));
+        Rec.Insert();
+        Rec.Get(7);
+        Rec.Rid := Rec.RecordId;
+        Observer.Observe('with_recordid_9', Format(Rec, 0, 9));
+        Observer.Expect('blank_0', '0\t\t\t0\tNo\tZero\tNone\t\t\t\t0\t{00000000-0000-0000-0000-000000000000}\t\t \t\t0');
+        Observer.Expect('blank_9', '0\t\t\t0\tNo\tZero\tNone\t\t\t\t0\t{00000000-0000-0000-0000-000000000000}\t\t \t\t0');
+        Observer.Expect('filled_0', '7\ttext value\tCODE1\t2.5\tYes\tTwo\tFirst Caption\t03/05/24\t 2:30:15 PM\t03/05/24 02:30 PM\t123456789\t{12345678-1234-1234-1234-123456789012}\t1 minute 30 seconds\t \t\t-4');
+        Observer.Expect('filled_9', '7\ttext value\tCODE1\t2.5\tYes\tTwo\tFirst Caption\t03/05/24\t 2:30:15 PM\t03/05/24 02:30 PM\t123456789\t{12345678-1234-1234-1234-123456789012}\t1 minute 30 seconds\t \t\t-4');
+        Observer.Expect('with_recordid_9', '7\ttext value\tCODE1\t2.5\tYes\tTwo\tFirst Caption\t03/05/24\t 2:30:15 PM\t03/05/24 02:30 PM\t123456789\t{12345678-1234-1234-1234-123456789012}\t1 minute 30 seconds\t \tLT P133 All Types: 7\t-4');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure NP3_FormatRecord_Temporary_AndFlowField_0And9()
+    var
+        Observer: Codeunit "Probe Observer";
+        Temp: Record "LT P133 All Types" temporary;
+        Flow: Record "LT NP3 Fmt Flow";
+        Stored: Record "LT P133 All Types";
+    begin
+        FillAll(Temp);
+        Temp.Insert();
+        Observer.Observe('temporary_9', Format(Temp, 0, 9));
+        Flow.DeleteAll();
+        Flow.Id := 3;
+        Flow.Cd := 'ABC';
+        Flow.Dt := DMY2Date(5, 3, 2024);
+        Flow.Amount := 12.5;
+        Flow.Insert();
+        Stored.DeleteAll();
+        Stored.Id := 1;
+        Stored.Insert();
+        Stored.Id := 2;
+        Stored.Insert();
+        Observer.Observe('flow_0', Format(Flow, 0, 0));
+        Observer.Observe('flow_9', Format(Flow, 0, 9));
+        Flow.CalcFields(Total);
+        Observer.Observe('flow_calculated_0', Format(Flow, 0, 0));
+        Observer.Observe('flow_calculated_9', Format(Flow, 0, 9));
+        Observer.Expect('temporary_9', '7\ttext value\tCODE1\t2.5\tYes\tTwo\tFirst Caption\t03/05/24\t 2:30:15 PM\t03/05/24 02:30 PM\t123456789\t{12345678-1234-1234-1234-123456789012}\t1 minute 30 seconds\t \t\t-4');
+        Observer.Expect('flow_0', '3\tABC\t03/05/24\t12.5\t0');
+        Observer.Expect('flow_9', '3\tABC\t03/05/24\t12.5\t0');
+        Observer.Expect('flow_calculated_0', '3\tABC\t03/05/24\t12.5\t2');
+        Observer.Expect('flow_calculated_9', '3\tABC\t03/05/24\t12.5\t2');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure NP3_FormatRecordRef_StandardFormats_0And9()
+    var
+        Observer: Codeunit "Probe Observer";
+        Rec: Record "LT P133 All Types";
+        Temp: Record "LT P133 All Types" temporary;
+        Flow: Record "LT NP3 Fmt Flow";
+        Stored: Record "LT P133 All Types";
+        RecRef: RecordRef;
+    begin
+        Rec.DeleteAll();
+        RecRef.GetTable(Rec);
+        Observer.Observe('blank_default', Format(RecRef));
+        Observer.Observe('blank_0', Format(RecRef, 0, 0));
+        Observer.Observe('blank_9', Format(RecRef, 0, 9));
+        FillAll(Rec);
+        RecRef.GetTable(Rec);
+        Observer.Observe('filled_default', Format(RecRef));
+        Observer.Observe('filled_0', Format(RecRef, 0, 0));
+        Observer.Observe('filled_9', Format(RecRef, 0, 9));
+        FillAll(Temp);
+        Temp.Insert();
+        RecRef.GetTable(Temp);
+        Observer.Observe('temporary_9', Format(RecRef, 0, 9));
+        Flow.DeleteAll();
+        Flow.Id := 3;
+        Flow.Cd := 'ABC';
+        Flow.Dt := DMY2Date(5, 3, 2024);
+        Flow.Amount := 12.5;
+        Flow.Insert();
+        Stored.Id := 1;
+        Stored.Insert();
+        Stored.Id := 2;
+        Stored.Insert();
+        RecRef.GetTable(Flow);
+        Observer.Observe('flow_0', Format(RecRef, 0, 0));
+        Observer.Observe('flow_9', Format(RecRef, 0, 9));
+        RecRef.Field(4).CalcField();
+        Observer.Observe('flow_calculated_9', Format(RecRef, 0, 9));
+        Observer.Expect('blank_default', '0\t\t\t0\tNo\tZero\tNone\t\t\t\t0\t{00000000-0000-0000-0000-000000000000}\t\t \t\t0');
+        Observer.Expect('blank_0', '0\t\t\t0\tNo\tZero\tNone\t\t\t\t0\t{00000000-0000-0000-0000-000000000000}\t\t \t\t0');
+        Observer.Expect('blank_9', '0\t\t\t0\tNo\tZero\tNone\t\t\t\t0\t{00000000-0000-0000-0000-000000000000}\t\t \t\t0');
+        Observer.Expect('filled_default', '7\ttext value\tCODE1\t2.5\tYes\tTwo\tFirst Caption\t03/05/24\t 2:30:15 PM\t03/05/24 02:30 PM\t123456789\t{12345678-1234-1234-1234-123456789012}\t1 minute 30 seconds\t \t\t-4');
+        Observer.Expect('filled_0', '7\ttext value\tCODE1\t2.5\tYes\tTwo\tFirst Caption\t03/05/24\t 2:30:15 PM\t03/05/24 02:30 PM\t123456789\t{12345678-1234-1234-1234-123456789012}\t1 minute 30 seconds\t \t\t-4');
+        Observer.Expect('filled_9', '7\ttext value\tCODE1\t2.5\tYes\tTwo\tFirst Caption\t03/05/24\t 2:30:15 PM\t03/05/24 02:30 PM\t123456789\t{12345678-1234-1234-1234-123456789012}\t1 minute 30 seconds\t \t\t-4');
+        Observer.Expect('temporary_9', '7\ttext value\tCODE1\t2.5\tYes\tTwo\tFirst Caption\t03/05/24\t 2:30:15 PM\t03/05/24 02:30 PM\t123456789\t{12345678-1234-1234-1234-123456789012}\t1 minute 30 seconds\t \t\t-4');
+        Observer.Expect('flow_0', '3\tABC\t03/05/24\t12.5\t0');
+        Observer.Expect('flow_9', '3\tABC\t03/05/24\t12.5\t0');
+        Observer.Expect('flow_calculated_9', '3\tABC\t03/05/24\t12.5\t2');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure NP3_FormatRecordRef_NotOpen()
+    var
+        Observer: Codeunit "Probe Observer";
+        RecRef: RecordRef;
+        Txt: Text;
+    begin
+        Txt := Format(RecRef, 0, 9);
+        Observer.Observe('not_open_9', Txt);
+        Txt := Format(RecRef);
+        Observer.Observe('not_open_default', Txt);
+        Observer.Expect('not_open_9', '');
+        Observer.Expect('not_open_default', '');
         Observer.Verify();
     end;
 }

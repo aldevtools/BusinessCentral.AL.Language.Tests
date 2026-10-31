@@ -24,6 +24,8 @@ codeunit 60019 ALTFixtureCleanup
         ALTIncludeSenderTablePub: Record "ALT IncludeSender Table Pub";
         ALTNoSubscriberTable: Record "ALT No Subscriber Table";
         ALTSubscribedTable: Record "ALT Subscribed Table";
+        ALTTableFilterHolder: Record "ALT TableFilter Holder";
+        ALTTableFilterPlainTarget: Record "ALT TF Plain Target";
     begin
         ALTUniversal.DeleteAll(false);
         ALTComposite.DeleteAll(false);
@@ -47,5 +49,7 @@ codeunit 60019 ALTFixtureCleanup
         ALTIncludeSenderTablePub.DeleteAll(false);
         ALTNoSubscriberTable.DeleteAll(false);
         ALTSubscribedTable.DeleteAll(false);
+        ALTTableFilterHolder.DeleteAll(false);
+        ALTTableFilterPlainTarget.DeleteAll(false);
     end;
 }

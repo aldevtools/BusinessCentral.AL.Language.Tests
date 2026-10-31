@@ -173,8 +173,99 @@ codeunit 83950 "LT BW Subscriber Order Tests"
         Initialize();
         Observer.Observe('order', Publisher.RaiseIndep());
         Observer.Observe('order again', Publisher.RaiseIndep());
-        Observer.Expect('order', 'A;B1;B2;C;M;D;');
-        Observer.Expect('order again', 'A;B1;B2;C;M;D;');
+        Observer.Expect('order', 'A;B1;B2;D;C;M;');
+        Observer.Expect('order again', 'A;B1;B2;D;C;M;');
+        Observer.Verify();
+    end;
+
+    // Writer UA (al-runner NP Retail install refusal: Tests-TestLibraries and NP Retail, which do not depend on each other, both subscribe
+    // to OnAfterGetDatabaseTableTriggerSetup; the test app depends on both). A platform table event (Company OnBeforeModifyEvent on a
+    // temporary record) has two subscribers in each of six apps:
+    //   app                             | app id (first group) | publisher    | subscriber ids (tags)
+    //   F AL Internals Test Fixture     | f1e2d3c4             | AL Language  | 61095 (F1), 61096 (F2)
+    //   A AL Language XApp A            | cd6a4292             | AL Language  | 61107 (A1), 61136 (A2)
+    //   B AL Language XApp B            | c87ced6d             | Zulu Probe   | 61118 (B1), 61146 (B2)
+    //   C AL Language XApp C            | 0df0fadc             | Bravo Probe  | 61121 (C1), 61151 (C2)
+    //   D AL Language XApp D            | e92be076             | Mike Probe   | 61161 (D1), 61162 (D2)
+    //   M AL Language Coverage Tests    | a1b2c3d4             | AL Language  | 90240 (M1), 90241 (M2)
+    //   Dependencies: F and A depend on nothing (and not on each other), B on F and A, C on A and B, D on A, M on F, A, B and C.
+    //   CI publishes F, A, D, B, C, M. F and A are the pair of interest: two apps that do not depend on each other, a third app (B, M)
+    //   depends on both. Predictions: dependency order, ties by app name or lowest subscriber id: F A B C M D (F before A) |
+    //   ties by app id: A before F | publish order: F A D B C M.
+    // Observed (BC 28.5 and 29.0, the same on a second raise and when raised from this app's install routine):
+    //   A1;A2;F1;F2;B1;B2;C1;C2;M1;M2;D1;D2; = A before F although F has the earlier app name, the lower subscriber ids and was published
+    //   first: between F and A the app with the lower app id (as text, cd6a < f1e2) runs first. D (outside every other app's dependencies)
+    //   still runs last. Consistent with: apps visited in ascending app id, each app's dependencies placed before it. Not told apart here:
+    //   which dependency of an app is visited first, and app id against publisher name (F and A share the publisher).
+    // Fixtures: tests/al-language-internals-fixture/UaXfOrder.al, tests/al-language-xapp-a|b|c|d/Ua*Order.al, UaOrderFixtures.al.
+    // Writer UI (dedicated edit, 2026-10-29): fixture C now depends on D too (app.json B, A, D), so D runs before C: A1;A2;F1;F2;B1;B2;D1;D2;C1;C2;M1;M2;
+    //   (before that edit: ...C1;C2;M1;M2;D1;D2;). Same rule, see the writer UI tests below.
+    [Test]
+    procedure SubscriberOrder_PlatformTableEvent_AppsThatDoNotDependOnEachOther_SixApps()
+    var
+        Raiser: Codeunit "LT UA Order Raiser";
+    begin
+        Initialize();
+        Observer.Observe('order', Raiser.Raise());
+        Observer.Observe('order again', Raiser.Raise());
+        Observer.Expect('order', 'A1;A2;F1;F2;B1;B2;D1;D2;C1;C2;M1;M2;');
+        Observer.Expect('order again', 'A1;A2;F1;F2;B1;B2;D1;D2;C1;C2;M1;M2;');
+        Observer.Verify();
+    end;
+
+    // Writer UA: the same event raised once from this app's install routine (subscriber "LT UA Install" 90243 of Extension Triggers OnInstallAppPerCompany), in the
+    // install session, with the order kept in "LT UA Install Order" for the current company.
+    [Test]
+    procedure SubscriberOrder_PlatformTableEvent_DuringInstallOfTheTestApp()
+    var
+        Row: Record "LT UA Install Order";
+    begin
+        Initialize();
+        Observer.Observe('install row', Format(Row.Get(1)));
+        Observer.Observe('order', Row."Order");
+        Observer.Expect('install row', 'Yes');
+        Observer.Expect('order', 'A1;A2;F1;F2;B1;B2;D1;D2;C1;C2;M1;M2;');
+        Observer.Verify();
+    end;
+
+    // Writer UI (al-runner NP Retail install refusal; follows writer UA): the same platform table event, with cross-app fixture C now
+    // declaring its dependencies as B, A, D (app.json order; A and D are the dependencies of the pair of interest) and B declaring F, A:
+    //   app id (first group)  | cd6a4292 A | c87ced6d B (Zulu Probe Publisher) | e92be076 D (Mike Probe Publisher) | f1e2d3c4 F | 0df0fadc C | a1b2c3d4 M
+    //   C is the app with the lowest app id, so it is visited first and its own dependency list decides the start of the order.
+    //   Question 1, declared order against app id: B declares F before A although A has the lower app id. Declared order gives F A B,
+    //     ascending app id gives A F B. Control: C declares B, A, D in ascending app id order, the same under both rules.
+    //   Question 2, publisher against app id: B and D do not depend on each other; B has the lower app id, D has the lower publisher
+    //     name (Mike before Zulu). Ascending app id gives B before D; publisher, then app id gives D before B.
+    //   Predictions: declared order F A B D C M | ascending app id A F B D C M | publisher, then app id A F D B C M.
+    // Observed (BC 29.0, SaaS sandbox; the same on a second raise and when raised from this app's install routine): A1;A2;F1;F2;B1;B2;D1;D2;C1;C2;M1;M2; =
+    //   ascending app id. The order in which an app declares its dependencies does not matter, and neither does the publisher.
+    //   Not told apart: whether the publisher orders the apps that no other app depends on (all six apps are reached from C, the app with the
+    //   lowest app id, or from M).
+    // Fixtures: tests/al-language-xapp-c/app.json (dependencies B, A, D), tests/al-language-xapp-b/app.json (F, A).
+    [Test]
+    procedure SubscriberOrder_PlatformTableEvent_DependenciesVisitedInAppIdOrderNotDeclaredOrder()
+    var
+        Raiser: Codeunit "LT UA Order Raiser";
+    begin
+        Initialize();
+        Observer.Observe('order', Raiser.Raise());
+        Observer.Observe('order again', Raiser.Raise());
+        Observer.Expect('order', 'A1;A2;F1;F2;B1;B2;D1;D2;C1;C2;M1;M2;');
+        Observer.Expect('order again', 'A1;A2;F1;F2;B1;B2;D1;D2;C1;C2;M1;M2;');
+        Observer.Verify();
+    end;
+
+    // Writer UI: the same order when the event is raised from this app's install routine (rows written by "LT UA Install" 90243).
+    [Test]
+    procedure SubscriberOrder_PlatformTableEvent_DependenciesVisitedInAppIdOrder_DuringInstall()
+    var
+        Row: Record "LT UA Install Order";
+    begin
+        Initialize();
+        Observer.Observe('install row', Format(Row.Get(1)));
+        Observer.Observe('order', Row."Order");
+        Observer.Expect('install row', 'Yes');
+        Observer.Expect('order', 'A1;A2;F1;F2;B1;B2;D1;D2;C1;C2;M1;M2;');
         Observer.Verify();
     end;
 
