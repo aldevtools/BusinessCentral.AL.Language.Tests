@@ -344,6 +344,18 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
         Observer.Finish();
     end;
 
+    [Test]
+    procedure Y26_ThreeLinkCurr_LookupRefresh_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure Y26_ThreeLinkCurr_LookupRefresh_More2()
+    begin
+        Observer.More();
+    end;
+
     // Y26: the same with a two-field link.
     [Test]
     [HandlerFunctions('PickSecondResource')]
@@ -383,6 +395,18 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
         Setting.Get();
         Observer.Observe('stored', Setting."Resource No.");
         Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y26_TwoLinkCurr_LookupRefresh_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure Y26_TwoLinkCurr_LookupRefresh_More2()
+    begin
+        Observer.More();
     end;
 
     // Y26: three-field link, no OnAfterGetCurrRecord on the host (CurrentNo set in OnAfterGetRecord).
@@ -426,6 +450,18 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
         Observer.Finish();
     end;
 
+    [Test]
+    procedure Y26_ThreeLinkPlain_LookupRefresh_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure Y26_ThreeLinkPlain_LookupRefresh_More2()
+    begin
+        Observer.More();
+    end;
+
     // Y26: two-field link, no OnAfterGetCurrRecord on the host.
     [Test]
     [HandlerFunctions('PickSecondResource')]
@@ -467,6 +503,18 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
         Observer.Finish();
     end;
 
+    [Test]
+    procedure Y26_TwoLinkPlain_LookupRefresh_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure Y26_TwoLinkPlain_LookupRefresh_More2()
+    begin
+        Observer.More();
+    end;
+
     // Y26: three-field link with region codes set on every row.
     [Test]
     [HandlerFunctions('PickSecondResource')]
@@ -506,6 +554,18 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
         Setting.Get();
         Observer.Observe('stored', Setting."Resource No.");
         Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y26_ThreeLinkCurr_RegionsSet_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure Y26_ThreeLinkCurr_RegionsSet_More2()
+    begin
+        Observer.More();
     end;
 
     // Y26: two lookups in a row (R2, then R3).
@@ -551,6 +611,18 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
         Setting.Get();
         Observer.Observe('stored', Setting."Resource No.");
         Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y26_ThreeLinkCurr_LookupTwice_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure Y26_ThreeLinkCurr_LookupTwice_More2()
+    begin
+        Observer.More();
     end;
 
     [ModalPageHandler]
