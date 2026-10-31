@@ -233,4 +233,251 @@ codeunit 99490 "LT BG RunOnClient"
         Observer.Expect('asserterror|code', 'DotNetFromAlNotSupported:DotNetFromAlNotSupported');
         Observer.Verify();
     end;
+
+    // Added by writer Y16 (2026-10-31): the shapes Microsoft's apps use (helper codeunits in Y16RunOnClientShapes.al): the Camera page hands its
+    // [RunOnClient] [WithEvents] provider to an implementation codeunit by value and by var (no [RunOnClient] on the parameters), the static IsAvailable()
+    // and Create() on a variable without [RunOnClient] (service tier), the role center PageNotifier guard, File Management's client System.IO.Directory,
+    // and assigning between a [RunOnClient] variable and a service-tier variable, Clear and a Variant.
+    // Expected values: corpus CI run 41187321466 (jobs BC OnPrem DotNet 27.5, 28.5 and 29.0, Linux BC containers), the same on all three except the .NET runtime version
+    // named in the serialize error (8.0.0.0 on BC 27 and 28, 10.0.0.0 on BC 29). Not yet checked on a Windows container (queued in the Windows check list).
+    [Test]
+    procedure Y16_RunOnClient_CameraPageShape_ImplByValue()
+    var
+        Observer: Codeunit "Probe Observer";
+        Host: Page "LT Y16 RoC Camera Host";
+        Available: Boolean;
+    begin
+        Available := true;
+        if Host.TryIsAvailable(Available) then
+            Observer.Observe('isavailable', 'ok ret=' + Format(Available))
+        else
+            Observer.ObserveError('isavailable');
+        Observer.Observe('provider isnull', Format(Host.ProviderIsNull()));
+        Observer.Observe('pictures', Format(Host.Pictures()));
+        Observer.Expect('isavailable', 'ok ret=No');
+        Observer.Expect('provider isnull', 'Yes');
+        Observer.Expect('pictures', '0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y16_RunOnClient_CameraPageShape_OnOpenByVar()
+    var
+        Observer: Codeunit "Probe Observer";
+        Host: Page "LT Y16 RoC Camera Host";
+        Available: Boolean;
+    begin
+        Available := true;
+        if Host.TryOpen(Available) then
+            Observer.Observe('onopen', 'ok available=' + Format(Available))
+        else
+            Observer.ObserveError('onopen');
+        Observer.Observe('provider isnull', Format(Host.ProviderIsNull()));
+        Observer.Expect('onopen', 'ok available=No');
+        Observer.Expect('provider isnull', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y16_RunOnClient_CreateThroughVarParameter()
+    var
+        Observer: Codeunit "Probe Observer";
+        Host: Page "LT Y16 RoC Camera Host";
+        Step: Text;
+    begin
+        Step := 'untouched';
+        if Host.TryForceCreate(Step) then
+            Observer.Observe('force create', 'ok [' + Step + ']')
+        else begin
+            Observer.Observe('force create step', Step);
+            Observer.ObserveError('force create');
+        end;
+        Observer.Observe('provider isnull', Format(Host.ProviderIsNull()));
+        Observer.Expect('force create step', 'create');
+        Observer.Expect('force create|text', 'The operation cannot complete because it uses a feature that is not supported (.NET Framework Interoperability.)');
+        Observer.Expect('force create|code', 'DotNetFromAlNotSupported:DotNetFromAlNotSupported');
+        Observer.Expect('provider isnull', 'Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y16_ServerTier_CameraProvider_IsAvailableAndCreate()
+    var
+        Observer: Codeunit "Probe Observer";
+        Impl: Codeunit "LT Y16 RoC Camera Impl";
+        Available: Boolean;
+        Step: Text;
+    begin
+        Available := true;
+        if Impl.TryServerIsAvailable(Available) then
+            Observer.Observe('server isavailable', 'ok ret=' + Format(Available))
+        else
+            Observer.ObserveError('server isavailable');
+        Step := 'untouched';
+        if Impl.TryServerCreate(Step) then
+            Observer.Observe('server create', 'ok [' + Step + ']')
+        else begin
+            Observer.Observe('server create step', Step);
+            Observer.ObserveError('server create');
+        end;
+        Observer.Expect('server isavailable', 'ok ret=No');
+        Observer.Expect('server create', 'ok [created isnull=Yes]');
+        Observer.Verify();
+    end;
+
+    [TryFunction]
+    local procedure Y16TryPageNotifierGuard(var Result: Text; var WasNull: Boolean)
+    var
+        [RunOnClient]
+        LocalNotifier: DotNet LtBgPageNotifier;
+    begin
+        Result := 'start';
+        if LocalNotifier.IsAvailable() then begin
+            LocalNotifier := LocalNotifier.Create();
+            LocalNotifier.NotifyPageReady();
+            Result := 'notified';
+        end else
+            Result := 'not available';
+        WasNull := IsNull(LocalNotifier);
+    end;
+
+    [Test]
+    procedure Y16_RunOnClient_RoleCenterPageNotifierGuard()
+    var
+        Observer: Codeunit "Probe Observer";
+        Result: Text;
+        WasNull: Boolean;
+    begin
+        Result := 'untouched';
+        if Y16TryPageNotifierGuard(Result, WasNull) then
+            Observer.Observe('guard', 'ok [' + Result + '] isnull=' + Format(WasNull))
+        else begin
+            Observer.Observe('guard step', Result);
+            Observer.ObserveError('guard');
+        end;
+        Observer.Expect('guard', 'ok [not available] isnull=Yes');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y16_RunOnClient_FileManagementDirectory()
+    var
+        Observer: Codeunit "Probe Observer";
+        Host: Page "LT Y16 RoC Camera Host";
+        Step: Text;
+    begin
+        Step := 'untouched';
+        if Host.TryDirectoryExists(Step) then
+            Observer.Observe('exists', 'ok [' + Step + ']')
+        else begin
+            Observer.Observe('exists step', Step);
+            Observer.ObserveError('exists');
+        end;
+        Step := 'untouched';
+        if Host.TryDirectoryIsEmpty(Step) then
+            Observer.Observe('getfiles', 'ok [' + Step + ']')
+        else begin
+            Observer.Observe('getfiles step', Step);
+            Observer.ObserveError('getfiles');
+        end;
+        Observer.Expect('exists step', 'exists');
+        Observer.Expect('exists|text', 'The operation cannot complete because it uses a feature that is not supported (.NET Framework Interoperability.)');
+        Observer.Expect('exists|code', 'DotNetFromAlNotSupported:DotNetFromAlNotSupported');
+        Observer.Expect('getfiles step', 'getfiles');
+        Observer.Expect('getfiles|text', 'The operation cannot complete because it uses a feature that is not supported (.NET Framework Interoperability.)');
+        Observer.Expect('getfiles|code', 'DotNetFromAlNotSupported:DotNetFromAlNotSupported');
+        Observer.Verify();
+    end;
+
+    [TryFunction]
+    local procedure Y16TryServerToClient(var Step: Text)
+    var
+        ServerBuilder: DotNet LtBgStringBuilder;
+        [RunOnClient]
+        ClientBuilder: DotNet LtBgStringBuilder;
+    begin
+        Step := 'construct';
+        ServerBuilder := ServerBuilder.StringBuilder();
+        ServerBuilder.Append('srv');
+        Step := 'assign';
+        ClientBuilder := ServerBuilder;
+        Step := 'assigned isnull=' + Format(IsNull(ClientBuilder));
+        ClientBuilder.Append('+client');
+        Step += ' appended';
+        Step += ' client=' + ClientBuilder.ToString() + ' server=' + ServerBuilder.ToString();
+    end;
+
+    [TryFunction]
+    local procedure Y16TryClientToServer(var Step: Text)
+    var
+        ServerBuilder: DotNet LtBgStringBuilder;
+        [RunOnClient]
+        ClientBuilder: DotNet LtBgStringBuilder;
+    begin
+        Step := 'assign';
+        ServerBuilder := ClientBuilder;
+        Step := 'assigned isnull=' + Format(IsNull(ServerBuilder));
+    end;
+
+    [Test]
+    procedure Y16_RunOnClient_AssignBetweenClientAndServerVariables()
+    var
+        Observer: Codeunit "Probe Observer";
+        Step: Text;
+    begin
+        Step := 'untouched';
+        if Y16TryServerToClient(Step) then
+            Observer.Observe('server to client', 'ok [' + Step + ']')
+        else begin
+            Observer.Observe('server to client step', Step);
+            Observer.ObserveError('server to client');
+        end;
+        Step := 'untouched';
+        if Y16TryClientToServer(Step) then
+            Observer.Observe('client to server', 'ok [' + Step + ']')
+        else begin
+            Observer.Observe('client to server step', Step);
+            Observer.ObserveError('client to server');
+        end;
+        Observer.Expect('server to client step', 'assign');
+#if BC29PLUS
+        Observer.Expect('server to client|text', 'Cannot serialize an instance of the following .NET Framework object: assembly System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e, type System.Text.StringBuilder.');
+#else
+        Observer.Expect('server to client|text', 'Cannot serialize an instance of the following .NET Framework object: assembly System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e, type System.Text.StringBuilder.');
+#endif
+        Observer.Expect('server to client|code', 'DotNetCreate');
+        Observer.Expect('client to server', 'ok [assigned isnull=Yes]');
+        Observer.Verify();
+    end;
+
+    [TryFunction]
+    local procedure Y16TryClearAndVariant(var Step: Text)
+    var
+        [RunOnClient]
+        ClientBuilder: DotNet LtBgStringBuilder;
+        V: Variant;
+    begin
+        Step := 'clear';
+        Clear(ClientBuilder);
+        Step := 'cleared isnull=' + Format(IsNull(ClientBuilder));
+        V := ClientBuilder;
+        Step += ' variant isdotnet=' + Format(V.IsDotNet());
+    end;
+
+    [Test]
+    procedure Y16_RunOnClient_ClearAndVariant()
+    var
+        Observer: Codeunit "Probe Observer";
+        Step: Text;
+    begin
+        Step := 'untouched';
+        if Y16TryClearAndVariant(Step) then
+            Observer.Observe('clear', 'ok [' + Step + ']')
+        else begin
+            Observer.Observe('clear step', Step);
+            Observer.ObserveError('clear');
+        end;
+        Observer.Expect('clear', 'ok [cleared isnull=Yes variant isdotnet=Yes]');
+        Observer.Verify();
+    end;
 }
