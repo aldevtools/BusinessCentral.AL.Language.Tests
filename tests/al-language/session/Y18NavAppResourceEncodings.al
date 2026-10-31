@@ -8,6 +8,7 @@
 //   utf8-bom.txt       EF BB BF + UTF-8 (25 bytes)
 //   utf8-nobom.txt     UTF-8, no byte order mark (22 bytes)
 //   windows1252.txt    Windows-1252: ü FC, ö F6, ß DF, € 80 (17 bytes)
+// high-bytes.bin holds the bytes 80..FF once each, read with one InStream.Read(Text) in MSDos and in Windows.
 // Each test reads one file with every encoding, three ways:
 //   lines  ReadText until EOS: per line the count ReadText returned and the line
 //   read   one InStream.Read(Text) on a fresh stream: the count it returned and the text
@@ -64,6 +65,24 @@ codeunit 91901 "LT Y18 Res Encodings"
     procedure Windows1252()
     begin
         ReadAll('y18/windows1252.txt');
+    end;
+
+    [Test]
+    procedure HighBytesMsDos()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('msdos read', Probe('y18/high-bytes.bin', 'read', TextEncoding::MSDos, false));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure HighBytesWindows()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('windows read', Probe('y18/high-bytes.bin', 'read', TextEncoding::Windows, false));
+        Observer.Finish();
     end;
 
     local procedure ReadAll(Name: Text)
@@ -140,7 +159,7 @@ codeunit 91901 "LT Y18 Res Encodings"
         N: Integer;
         Guard: Integer;
     begin
-        while (not S.EOS()) and (Guard < 10) do begin
+        while (not S.EOS()) and (Guard < 40) do begin
             Guard += 1;
             N := S.ReadText(Line);
             Result += Format(N) + ':' + Shown(Line) + '|';
