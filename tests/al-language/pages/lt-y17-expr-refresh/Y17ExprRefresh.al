@@ -532,7 +532,16 @@ codeunit 91757 "LT Y17 RF Tests"
         Observer.Observe('row after', Card.Lines."Line No.".Value() + '/' + Card.Lines.Amount.Value());
         Observer.Observe('after log', Log.Take());
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('open log', 'card agcr;find;agr 10000;agr 20000;agr 10000;find;agr 10000;agcr 10000');
+        Observer.Expect('gotokey log', 'card agcr');
+        Observer.Expect('totals before', '15.00/2');
+        Observer.Expect('read log', '');
+        Observer.Expect('visible', 'true');
+        Observer.Expect('visible log', '');
+        Observer.Expect('totals after', '15.00/2');
+        Observer.Expect('row after', '10000/10.00');
+        Observer.Expect('after log', '');
+        Observer.Verify();
     end;
 
     // V2: TestField.Visible of a card control, and TestAction.Visible.
@@ -557,7 +566,16 @@ codeunit 91757 "LT Y17 RF Tests"
         Observer.Observe('totals after action', Totals(Card));
         Observer.Observe('read log 2', Log.Take());
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('totals before', '15.00/2');
+        Observer.Expect('name visible', 'true');
+        Observer.Expect('name visible log', '');
+        Observer.Expect('totals after name', '15.00/2');
+        Observer.Expect('read log', '');
+        Observer.Expect('action visible', 'true');
+        Observer.Expect('action visible log', '');
+        Observer.Expect('totals after action', '15.00/2');
+        Observer.Expect('read log 2', '');
+        Observer.Verify();
     end;
 
     // N1: the subform shape: Last, Next to a new row, SetValue, Next saves it.
@@ -586,7 +604,21 @@ codeunit 91757 "LT Y17 RF Tests"
         Card.Close();
         Observer.Observe('close log', Log.Take());
         Observer.Observe('stored after close', StoredLines());
-        Observer.Finish();
+        Observer.Expect('totals open', '15.00/2');
+        Observer.Expect('last', 'true/20000');
+        Observer.Expect('last log', 'new 30000;agcr 30000;agr 20000;find;agr 20000;agcr 20000');
+        Observer.Expect('next new', 'true/30000');
+        Observer.Expect('next new log', 'new 30000;agcr 30000');
+        Observer.Expect('setvalue log', '');
+        Observer.Expect('setvalue row', '30000/7.00');
+        Observer.Expect('next save', 'true/40000');
+        Observer.Expect('next save log', 'ins 30000;new 40000;agcr 40000');
+        Observer.Expect('totals after', '22.00/3');
+        Observer.Expect('totals log', '');
+        Observer.Expect('stored', 'D1/10000/10;D1/20000/5;D1/30000/7;');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored after close', 'D1/10000/10;D1/20000/5;D1/30000/7;');
+        Observer.Verify();
     end;
 
     // N2: Next over existing rows after the database changed.
@@ -607,7 +639,13 @@ codeunit 91757 "LT Y17 RF Tests"
         Observer.Observe('totals next', Totals(Card));
         Observer.Observe('totals log', Log.Take());
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('first', 'true/10000');
+        Observer.Expect('totals first', '15.00/2');
+        Observer.Expect('next', 'true/20000/50.00');
+        Observer.Expect('next log', 'agr 20000;find;agr 20000;agcr 20000');
+        Observer.Expect('totals next', '60.00/2');
+        Observer.Expect('totals log', '');
+        Observer.Verify();
     end;
 
     // I1: the CalculateInvoiceDiscount shape: a card action calls a part procedure that writes the lines; no CurrPage.Update.
@@ -629,7 +667,14 @@ codeunit 91757 "LT Y17 RF Tests"
         Observer.Observe('read log', Log.Take());
         Observer.Observe('stored', StoredLines());
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('totals before', '15.00/2');
+        Observer.Expect('row before', '10000/10.00');
+        Observer.Expect('invoke log', 'proc;card agcr;find;agr 10000;agr 20000;agr 10000;find;agr 10000;agcr 10000');
+        Observer.Expect('totals after', '13.00/2');
+        Observer.Expect('row after', '10000/9.00');
+        Observer.Expect('read log', '');
+        Observer.Expect('stored', 'D1/10000/9;D1/20000/4;');
+        Observer.Verify();
     end;
 
     // I3: as I1, the action then calls CurrPage.Update(false).
@@ -651,7 +696,14 @@ codeunit 91757 "LT Y17 RF Tests"
         Observer.Observe('read log', Log.Take());
         Observer.Observe('stored', StoredLines());
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('totals before', '15.00/2');
+        Observer.Expect('row before', '10000/10.00');
+        Observer.Expect('invoke log', 'proc;card agcr;find;agr 10000;agr 20000;agr 10000;find;agr 10000;agcr 10000');
+        Observer.Expect('totals after', '13.00/2');
+        Observer.Expect('row after', '10000/9.00');
+        Observer.Expect('read log', '');
+        Observer.Expect('stored', 'D1/10000/9;D1/20000/4;');
+        Observer.Verify();
     end;
 
     // F1: First on the linked part after the database changed.
@@ -671,7 +723,12 @@ codeunit 91757 "LT Y17 RF Tests"
         Observer.Observe('totals after', Totals(Card));
         Observer.Observe('read log', Log.Take());
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('totals before', '15.00/2');
+        Observer.Expect('first', 'true/10000/10.00');
+        Observer.Expect('first log', '');
+        Observer.Expect('totals after', '15.00/2');
+        Observer.Expect('read log', '');
+        Observer.Verify();
     end;
 
     // I2: the Item Tracking Lines shape: the page's own action inserts into the temporary Rec, no CurrPage.Update.
@@ -694,7 +751,17 @@ codeunit 91757 "LT Y17 RF Tests"
         Observer.Observe('next', Format(Tracking.Next(), 0, 9) + '/' + Tracking."Entry No.".Value() + '/' + Tracking.Avail.Value());
         Observer.Observe('next log', Log.Take());
         Tracking.Close();
-        Observer.Finish();
+        Observer.Expect('open log', 'agr 1;avail 1;agr 1;avail 1;agcr 1;avail 1');
+        Observer.Expect('open', '1/No');
+        Observer.Expect('open read log', '');
+        Observer.Expect('invoke log', 'agr 1;action;agr 2;avail 2;agr 2;avail 2;agr 1;avail 1;agr 2;agr 2;avail 2;agcr 2;avail 2');
+        Observer.Expect('after invoke', '2/L1/Yes');
+        Observer.Expect('after invoke read log', '');
+        Observer.Expect('first', 'true/1/No');
+        Observer.Expect('first log', 'agr 1;agr 1;avail 1;agcr 1;avail 1');
+        Observer.Expect('next', 'true/2/Yes');
+        Observer.Expect('next log', 'agr 2;agr 2;avail 2;agcr 2;avail 2');
+        Observer.Verify();
     end;
 
     // D1: DrillDown of a FactBox function control whose value reads a counter the test changed.
@@ -716,7 +783,13 @@ codeunit 91757 "LT Y17 RF Tests"
         Observer.Observe('counter after', Card.Fact.Counter.Value());
         Observer.Observe('read log 2', Log.Take());
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('open log', 'card agcr;fact agr;counter;fact agcr;counter;card agcr');
+        Observer.Expect('counter before', '0');
+        Observer.Expect('read log', '');
+        Observer.Expect('drilldown log', 'drill;handler;counter');
+        Observer.Expect('counter after', '1');
+        Observer.Expect('read log 2', '');
+        Observer.Verify();
     end;
 
     [PageHandler]
