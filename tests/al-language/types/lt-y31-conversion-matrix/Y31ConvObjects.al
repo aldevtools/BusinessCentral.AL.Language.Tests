@@ -86,3 +86,20 @@ codeunit 92400 "LT Y31 Conv Util"
         exit(CopyStr(Kinds, 2) + '|' + Format(V, 0, 9));
     end;
 }
+
+page 92400 "LT Y31 Conv Card"
+{
+    PageType = Card;
+    SourceTable = "LT Y31 Conv Fields";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            field(FText; Rec.Text10) { ApplicationArea = All; }
+            field(FInt; Rec.Integer) { ApplicationArea = All; }
+        }
+    }
+}

@@ -5,7 +5,7 @@
 // accepts); the expected values are what the corpus CI containers produced. Regenerate, do not edit by hand.
 // Facts: implicit conversion matrix, conditional expressions with Integer
 
-codeunit 92462 "LT Y31 Cd Integer"
+codeunit 92463 "LT Y31 Cd Integer"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -570,7 +570,7 @@ codeunit 92462 "LT Y31 Cd Integer"
 // accepts); the expected values are what the corpus CI containers produced. Regenerate, do not edit by hand.
 // Facts: implicit conversion matrix, conditional expressions with BigInteger
 
-codeunit 92463 "LT Y31 Cd BigInteger"
+codeunit 92464 "LT Y31 Cd BigInteger"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -1047,7 +1047,7 @@ codeunit 92463 "LT Y31 Cd BigInteger"
 // accepts); the expected values are what the corpus CI containers produced. Regenerate, do not edit by hand.
 // Facts: implicit conversion matrix, conditional expressions with Decimal
 
-codeunit 92464 "LT Y31 Cd Decimal"
+codeunit 92465 "LT Y31 Cd Decimal"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -1476,7 +1476,7 @@ codeunit 92464 "LT Y31 Cd Decimal"
 // accepts); the expected values are what the corpus CI containers produced. Regenerate, do not edit by hand.
 // Facts: implicit conversion matrix, conditional expressions with Char
 
-codeunit 92465 "LT Y31 Cd Char"
+codeunit 92466 "LT Y31 Cd Char"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -1905,7 +1905,7 @@ codeunit 92465 "LT Y31 Cd Char"
 // accepts); the expected values are what the corpus CI containers produced. Regenerate, do not edit by hand.
 // Facts: implicit conversion matrix, conditional expressions with Byte
 
-codeunit 92466 "LT Y31 Cd Byte"
+codeunit 92467 "LT Y31 Cd Byte"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -2270,7 +2270,7 @@ codeunit 92466 "LT Y31 Cd Byte"
 // accepts); the expected values are what the corpus CI containers produced. Regenerate, do not edit by hand.
 // Facts: implicit conversion matrix, conditional expressions with Option
 
-codeunit 92467 "LT Y31 Cd Option"
+codeunit 92468 "LT Y31 Cd Option"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -2835,7 +2835,7 @@ codeunit 92467 "LT Y31 Cd Option"
 // accepts); the expected values are what the corpus CI containers produced. Regenerate, do not edit by hand.
 // Facts: implicit conversion matrix, conditional expressions with Enum
 
-codeunit 92468 "LT Y31 Cd Enum"
+codeunit 92469 "LT Y31 Cd Enum"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -3068,7 +3068,7 @@ codeunit 92468 "LT Y31 Cd Enum"
 // accepts); the expected values are what the corpus CI containers produced. Regenerate, do not edit by hand.
 // Facts: implicit conversion matrix, conditional expressions with EnumImpl
 
-codeunit 92469 "LT Y31 Cd EnumImpl"
+codeunit 92470 "LT Y31 Cd EnumImpl"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -3261,7 +3261,7 @@ codeunit 92469 "LT Y31 Cd EnumImpl"
 // accepts); the expected values are what the corpus CI containers produced. Regenerate, do not edit by hand.
 // Facts: implicit conversion matrix, conditional expressions with Text
 
-codeunit 92471 "LT Y31 Cd Text"
+codeunit 92472 "LT Y31 Cd Text"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -3275,6 +3275,7 @@ codeunit 92471 "LT Y31 Cd Text"
         vCode10: Code[10];
         vGuid: Guid;
         vLabel: Label 'abc', Locked = true;
+        vOut: Text;
         vText: Text;
         vText10: Text[10];
 
@@ -3290,6 +3291,14 @@ codeunit 92471 "LT Y31 Cd Text"
         Res := false;
         if Try1() then Observer.Observe('cond_branches.a.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.A.f');
         vText := 'a';
+        vChar := 65;
+        Res := true;
+        if Try2() then Observer.Observe('cond_to_text.a.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.a.A.t');
+        vText := 'a';
+        vChar := 65;
+        Res := false;
+        if Try2() then Observer.Observe('cond_to_text.a.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.a.A.f');
+        vText := 'a';
         vChar := 97;
         Res := true;
         if Try1() then Observer.Observe('cond_branches.a.a.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.a.t');
@@ -3297,6 +3306,14 @@ codeunit 92471 "LT Y31 Cd Text"
         vChar := 97;
         Res := false;
         if Try1() then Observer.Observe('cond_branches.a.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.a.f');
+        vText := 'a';
+        vChar := 97;
+        Res := true;
+        if Try2() then Observer.Observe('cond_to_text.a.a.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.a.a.t');
+        vText := 'a';
+        vChar := 97;
+        Res := false;
+        if Try2() then Observer.Observe('cond_to_text.a.a.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.a.a.f');
         vText := 'A';
         vChar := 65;
         Res := true;
@@ -3306,6 +3323,14 @@ codeunit 92471 "LT Y31 Cd Text"
         Res := false;
         if Try1() then Observer.Observe('cond_branches.A.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.A.f');
         vText := 'A';
+        vChar := 65;
+        Res := true;
+        if Try2() then Observer.Observe('cond_to_text.A.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.A.t');
+        vText := 'A';
+        vChar := 65;
+        Res := false;
+        if Try2() then Observer.Observe('cond_to_text.A.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.A.f');
+        vText := 'A';
         vChar := 97;
         Res := true;
         if Try1() then Observer.Observe('cond_branches.A.a.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.a.t');
@@ -3313,6 +3338,14 @@ codeunit 92471 "LT Y31 Cd Text"
         vChar := 97;
         Res := false;
         if Try1() then Observer.Observe('cond_branches.A.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.a.f');
+        vText := 'A';
+        vChar := 97;
+        Res := true;
+        if Try2() then Observer.Observe('cond_to_text.A.a.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.a.t');
+        vText := 'A';
+        vChar := 97;
+        Res := false;
+        if Try2() then Observer.Observe('cond_to_text.A.a.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.a.f');
         vText := 'abc';
         vChar := 65;
         Res := true;
@@ -3322,6 +3355,14 @@ codeunit 92471 "LT Y31 Cd Text"
         Res := false;
         if Try1() then Observer.Observe('cond_branches.abc.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.A.f');
         vText := 'abc';
+        vChar := 65;
+        Res := true;
+        if Try2() then Observer.Observe('cond_to_text.abc.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.A.t');
+        vText := 'abc';
+        vChar := 65;
+        Res := false;
+        if Try2() then Observer.Observe('cond_to_text.abc.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.A.f');
+        vText := 'abc';
         vChar := 97;
         Res := true;
         if Try1() then Observer.Observe('cond_branches.abc.a.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.a.t');
@@ -3329,6 +3370,14 @@ codeunit 92471 "LT Y31 Cd Text"
         vChar := 97;
         Res := false;
         if Try1() then Observer.Observe('cond_branches.abc.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.a.f');
+        vText := 'abc';
+        vChar := 97;
+        Res := true;
+        if Try2() then Observer.Observe('cond_to_text.abc.a.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.a.t');
+        vText := 'abc';
+        vChar := 97;
+        Res := false;
+        if Try2() then Observer.Observe('cond_to_text.abc.a.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.a.f');
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         vChar := 65;
         Res := true;
@@ -3338,6 +3387,14 @@ codeunit 92471 "LT Y31 Cd Text"
         Res := false;
         if Try1() then Observer.Observe('cond_branches.guidlow.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.guidlow.A.f');
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vChar := 65;
+        Res := true;
+        if Try2() then Observer.Observe('cond_to_text.guidlow.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.guidlow.A.t');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vChar := 65;
+        Res := false;
+        if Try2() then Observer.Observe('cond_to_text.guidlow.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.guidlow.A.f');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         vChar := 97;
         Res := true;
         if Try1() then Observer.Observe('cond_branches.guidlow.a.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.guidlow.a.t');
@@ -3345,6 +3402,46 @@ codeunit 92471 "LT Y31 Cd Text"
         vChar := 97;
         Res := false;
         if Try1() then Observer.Observe('cond_branches.guidlow.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.guidlow.a.f');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vChar := 97;
+        Res := true;
+        if Try2() then Observer.Observe('cond_to_text.guidlow.a.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.guidlow.a.t');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vChar := 97;
+        Res := false;
+        if Try2() then Observer.Observe('cond_to_text.guidlow.a.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.guidlow.a.f');
+        vText := 'abcdefghijk';
+        vChar := 65;
+        Res := true;
+        if Try1() then Observer.Observe('cond_branches.eleven.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.eleven.A.t');
+        vText := 'abcdefghijk';
+        vChar := 65;
+        Res := false;
+        if Try1() then Observer.Observe('cond_branches.eleven.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.eleven.A.f');
+        vText := 'abcdefghijk';
+        vChar := 65;
+        Res := true;
+        if Try2() then Observer.Observe('cond_to_text.eleven.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.eleven.A.t');
+        vText := 'abcdefghijk';
+        vChar := 65;
+        Res := false;
+        if Try2() then Observer.Observe('cond_to_text.eleven.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.eleven.A.f');
+        vText := 'abcdefghijk';
+        vChar := 97;
+        Res := true;
+        if Try1() then Observer.Observe('cond_branches.eleven.a.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.eleven.a.t');
+        vText := 'abcdefghijk';
+        vChar := 97;
+        Res := false;
+        if Try1() then Observer.Observe('cond_branches.eleven.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.eleven.a.f');
+        vText := 'abcdefghijk';
+        vChar := 97;
+        Res := true;
+        if Try2() then Observer.Observe('cond_to_text.eleven.a.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.eleven.a.t');
+        vText := 'abcdefghijk';
+        vChar := 97;
+        Res := false;
+        if Try2() then Observer.Observe('cond_to_text.eleven.a.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.eleven.a.f');
         Observer.Finish();
     end;
 
@@ -3384,35 +3481,83 @@ codeunit 92471 "LT Y31 Cd Text"
         vText := 'a';
         vText10 := 'abc';
         Res := true;
-        if Try2() then Observer.Observe('cond_branches.a.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.abc.t');
+        if Try3() then Observer.Observe('cond_branches.a.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.abc.t');
         vText := 'a';
         vText10 := 'abc';
         Res := false;
-        if Try2() then Observer.Observe('cond_branches.a.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.abc.f');
+        if Try3() then Observer.Observe('cond_branches.a.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.abc.f');
+        vText := 'a';
+        vText10 := 'abc';
+        Res := true;
+        if Try4() then Observer.Observe('cond_to_text.a.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.a.abc.t');
+        vText := 'a';
+        vText10 := 'abc';
+        Res := false;
+        if Try4() then Observer.Observe('cond_to_text.a.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.a.abc.f');
         vText := 'A';
         vText10 := 'abc';
         Res := true;
-        if Try2() then Observer.Observe('cond_branches.A.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.abc.t');
+        if Try3() then Observer.Observe('cond_branches.A.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.abc.t');
         vText := 'A';
         vText10 := 'abc';
         Res := false;
-        if Try2() then Observer.Observe('cond_branches.A.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.abc.f');
+        if Try3() then Observer.Observe('cond_branches.A.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.abc.f');
+        vText := 'A';
+        vText10 := 'abc';
+        Res := true;
+        if Try4() then Observer.Observe('cond_to_text.A.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.abc.t');
+        vText := 'A';
+        vText10 := 'abc';
+        Res := false;
+        if Try4() then Observer.Observe('cond_to_text.A.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.abc.f');
         vText := 'abc';
         vText10 := 'abc';
         Res := true;
-        if Try2() then Observer.Observe('cond_branches.abc.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.abc.t');
+        if Try3() then Observer.Observe('cond_branches.abc.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.abc.t');
         vText := 'abc';
         vText10 := 'abc';
         Res := false;
-        if Try2() then Observer.Observe('cond_branches.abc.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.abc.f');
+        if Try3() then Observer.Observe('cond_branches.abc.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.abc.f');
+        vText := 'abc';
+        vText10 := 'abc';
+        Res := true;
+        if Try4() then Observer.Observe('cond_to_text.abc.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.abc.t');
+        vText := 'abc';
+        vText10 := 'abc';
+        Res := false;
+        if Try4() then Observer.Observe('cond_to_text.abc.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.abc.f');
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         vText10 := 'abc';
         Res := true;
-        if Try2() then Observer.Observe('cond_branches.guidlow.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.guidlow.abc.t');
+        if Try3() then Observer.Observe('cond_branches.guidlow.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.guidlow.abc.t');
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         vText10 := 'abc';
         Res := false;
-        if Try2() then Observer.Observe('cond_branches.guidlow.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.guidlow.abc.f');
+        if Try3() then Observer.Observe('cond_branches.guidlow.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.guidlow.abc.f');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vText10 := 'abc';
+        Res := true;
+        if Try4() then Observer.Observe('cond_to_text.guidlow.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.guidlow.abc.t');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vText10 := 'abc';
+        Res := false;
+        if Try4() then Observer.Observe('cond_to_text.guidlow.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.guidlow.abc.f');
+        vText := 'abcdefghijk';
+        vText10 := 'abc';
+        Res := true;
+        if Try3() then Observer.Observe('cond_branches.eleven.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.eleven.abc.t');
+        vText := 'abcdefghijk';
+        vText10 := 'abc';
+        Res := false;
+        if Try3() then Observer.Observe('cond_branches.eleven.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.eleven.abc.f');
+        vText := 'abcdefghijk';
+        vText10 := 'abc';
+        Res := true;
+        if Try4() then Observer.Observe('cond_to_text.eleven.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.eleven.abc.t');
+        vText := 'abcdefghijk';
+        vText10 := 'abc';
+        Res := false;
+        if Try4() then Observer.Observe('cond_to_text.eleven.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.eleven.abc.f');
         Observer.Finish();
     end;
 
@@ -3452,67 +3597,163 @@ codeunit 92471 "LT Y31 Cd Text"
         vText := 'a';
         vCode10 := 'A';
         Res := true;
-        if Try3() then Observer.Observe('cond_branches.a.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.A.t');
+        if Try5() then Observer.Observe('cond_branches.a.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.A.t');
         vText := 'a';
         vCode10 := 'A';
         Res := false;
-        if Try3() then Observer.Observe('cond_branches.a.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.A.f');
+        if Try5() then Observer.Observe('cond_branches.a.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.A.f');
+        vText := 'a';
+        vCode10 := 'A';
+        Res := true;
+        if Try6() then Observer.Observe('cond_to_text.a.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.a.A.t');
+        vText := 'a';
+        vCode10 := 'A';
+        Res := false;
+        if Try6() then Observer.Observe('cond_to_text.a.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.a.A.f');
         vText := 'a';
         vCode10 := 'ABC';
         Res := true;
-        if Try3() then Observer.Observe('cond_branches.a.ABC.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.ABC.t');
+        if Try5() then Observer.Observe('cond_branches.a.ABC.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.ABC.t');
         vText := 'a';
         vCode10 := 'ABC';
         Res := false;
-        if Try3() then Observer.Observe('cond_branches.a.ABC.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.ABC.f');
+        if Try5() then Observer.Observe('cond_branches.a.ABC.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.ABC.f');
+        vText := 'a';
+        vCode10 := 'ABC';
+        Res := true;
+        if Try6() then Observer.Observe('cond_to_text.a.ABC.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.a.ABC.t');
+        vText := 'a';
+        vCode10 := 'ABC';
+        Res := false;
+        if Try6() then Observer.Observe('cond_to_text.a.ABC.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.a.ABC.f');
         vText := 'A';
         vCode10 := 'A';
         Res := true;
-        if Try3() then Observer.Observe('cond_branches.A.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.A.t');
+        if Try5() then Observer.Observe('cond_branches.A.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.A.t');
         vText := 'A';
         vCode10 := 'A';
         Res := false;
-        if Try3() then Observer.Observe('cond_branches.A.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.A.f');
+        if Try5() then Observer.Observe('cond_branches.A.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.A.f');
+        vText := 'A';
+        vCode10 := 'A';
+        Res := true;
+        if Try6() then Observer.Observe('cond_to_text.A.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.A.t');
+        vText := 'A';
+        vCode10 := 'A';
+        Res := false;
+        if Try6() then Observer.Observe('cond_to_text.A.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.A.f');
         vText := 'A';
         vCode10 := 'ABC';
         Res := true;
-        if Try3() then Observer.Observe('cond_branches.A.ABC.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.ABC.t');
+        if Try5() then Observer.Observe('cond_branches.A.ABC.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.ABC.t');
         vText := 'A';
         vCode10 := 'ABC';
         Res := false;
-        if Try3() then Observer.Observe('cond_branches.A.ABC.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.ABC.f');
+        if Try5() then Observer.Observe('cond_branches.A.ABC.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.ABC.f');
+        vText := 'A';
+        vCode10 := 'ABC';
+        Res := true;
+        if Try6() then Observer.Observe('cond_to_text.A.ABC.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.ABC.t');
+        vText := 'A';
+        vCode10 := 'ABC';
+        Res := false;
+        if Try6() then Observer.Observe('cond_to_text.A.ABC.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.ABC.f');
         vText := 'abc';
         vCode10 := 'A';
         Res := true;
-        if Try3() then Observer.Observe('cond_branches.abc.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.A.t');
+        if Try5() then Observer.Observe('cond_branches.abc.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.A.t');
         vText := 'abc';
         vCode10 := 'A';
         Res := false;
-        if Try3() then Observer.Observe('cond_branches.abc.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.A.f');
+        if Try5() then Observer.Observe('cond_branches.abc.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.A.f');
+        vText := 'abc';
+        vCode10 := 'A';
+        Res := true;
+        if Try6() then Observer.Observe('cond_to_text.abc.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.A.t');
+        vText := 'abc';
+        vCode10 := 'A';
+        Res := false;
+        if Try6() then Observer.Observe('cond_to_text.abc.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.A.f');
         vText := 'abc';
         vCode10 := 'ABC';
         Res := true;
-        if Try3() then Observer.Observe('cond_branches.abc.ABC.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.ABC.t');
+        if Try5() then Observer.Observe('cond_branches.abc.ABC.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.ABC.t');
         vText := 'abc';
         vCode10 := 'ABC';
         Res := false;
-        if Try3() then Observer.Observe('cond_branches.abc.ABC.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.ABC.f');
+        if Try5() then Observer.Observe('cond_branches.abc.ABC.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.ABC.f');
+        vText := 'abc';
+        vCode10 := 'ABC';
+        Res := true;
+        if Try6() then Observer.Observe('cond_to_text.abc.ABC.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.ABC.t');
+        vText := 'abc';
+        vCode10 := 'ABC';
+        Res := false;
+        if Try6() then Observer.Observe('cond_to_text.abc.ABC.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.ABC.f');
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         vCode10 := 'A';
         Res := true;
-        if Try3() then Observer.Observe('cond_branches.guidlow.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.guidlow.A.t');
+        if Try5() then Observer.Observe('cond_branches.guidlow.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.guidlow.A.t');
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         vCode10 := 'A';
         Res := false;
-        if Try3() then Observer.Observe('cond_branches.guidlow.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.guidlow.A.f');
+        if Try5() then Observer.Observe('cond_branches.guidlow.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.guidlow.A.f');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vCode10 := 'A';
+        Res := true;
+        if Try6() then Observer.Observe('cond_to_text.guidlow.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.guidlow.A.t');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vCode10 := 'A';
+        Res := false;
+        if Try6() then Observer.Observe('cond_to_text.guidlow.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.guidlow.A.f');
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         vCode10 := 'ABC';
         Res := true;
-        if Try3() then Observer.Observe('cond_branches.guidlow.ABC.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.guidlow.ABC.t');
+        if Try5() then Observer.Observe('cond_branches.guidlow.ABC.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.guidlow.ABC.t');
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         vCode10 := 'ABC';
         Res := false;
-        if Try3() then Observer.Observe('cond_branches.guidlow.ABC.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.guidlow.ABC.f');
+        if Try5() then Observer.Observe('cond_branches.guidlow.ABC.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.guidlow.ABC.f');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vCode10 := 'ABC';
+        Res := true;
+        if Try6() then Observer.Observe('cond_to_text.guidlow.ABC.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.guidlow.ABC.t');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vCode10 := 'ABC';
+        Res := false;
+        if Try6() then Observer.Observe('cond_to_text.guidlow.ABC.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.guidlow.ABC.f');
+        vText := 'abcdefghijk';
+        vCode10 := 'A';
+        Res := true;
+        if Try5() then Observer.Observe('cond_branches.eleven.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.eleven.A.t');
+        vText := 'abcdefghijk';
+        vCode10 := 'A';
+        Res := false;
+        if Try5() then Observer.Observe('cond_branches.eleven.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.eleven.A.f');
+        vText := 'abcdefghijk';
+        vCode10 := 'A';
+        Res := true;
+        if Try6() then Observer.Observe('cond_to_text.eleven.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.eleven.A.t');
+        vText := 'abcdefghijk';
+        vCode10 := 'A';
+        Res := false;
+        if Try6() then Observer.Observe('cond_to_text.eleven.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.eleven.A.f');
+        vText := 'abcdefghijk';
+        vCode10 := 'ABC';
+        Res := true;
+        if Try5() then Observer.Observe('cond_branches.eleven.ABC.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.eleven.ABC.t');
+        vText := 'abcdefghijk';
+        vCode10 := 'ABC';
+        Res := false;
+        if Try5() then Observer.Observe('cond_branches.eleven.ABC.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.eleven.ABC.f');
+        vText := 'abcdefghijk';
+        vCode10 := 'ABC';
+        Res := true;
+        if Try6() then Observer.Observe('cond_to_text.eleven.ABC.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.eleven.ABC.t');
+        vText := 'abcdefghijk';
+        vCode10 := 'ABC';
+        Res := false;
+        if Try6() then Observer.Observe('cond_to_text.eleven.ABC.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.eleven.ABC.f');
         Observer.Finish();
     end;
 
@@ -3552,35 +3793,83 @@ codeunit 92471 "LT Y31 Cd Text"
         vText := 'a';
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         Res := true;
-        if Try4() then Observer.Observe('cond_branches.a.g.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.g.t');
+        if Try7() then Observer.Observe('cond_branches.a.g.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.g.t');
         vText := 'a';
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         Res := false;
-        if Try4() then Observer.Observe('cond_branches.a.g.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.g.f');
+        if Try7() then Observer.Observe('cond_branches.a.g.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.g.f');
+        vText := 'a';
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        Res := true;
+        if Try8() then Observer.Observe('cond_to_text.a.g.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.a.g.t');
+        vText := 'a';
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        Res := false;
+        if Try8() then Observer.Observe('cond_to_text.a.g.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.a.g.f');
         vText := 'A';
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         Res := true;
-        if Try4() then Observer.Observe('cond_branches.A.g.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.g.t');
+        if Try7() then Observer.Observe('cond_branches.A.g.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.g.t');
         vText := 'A';
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         Res := false;
-        if Try4() then Observer.Observe('cond_branches.A.g.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.g.f');
+        if Try7() then Observer.Observe('cond_branches.A.g.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.g.f');
+        vText := 'A';
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        Res := true;
+        if Try8() then Observer.Observe('cond_to_text.A.g.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.g.t');
+        vText := 'A';
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        Res := false;
+        if Try8() then Observer.Observe('cond_to_text.A.g.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.g.f');
         vText := 'abc';
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         Res := true;
-        if Try4() then Observer.Observe('cond_branches.abc.g.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.g.t');
+        if Try7() then Observer.Observe('cond_branches.abc.g.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.g.t');
         vText := 'abc';
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         Res := false;
-        if Try4() then Observer.Observe('cond_branches.abc.g.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.g.f');
+        if Try7() then Observer.Observe('cond_branches.abc.g.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.g.f');
+        vText := 'abc';
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        Res := true;
+        if Try8() then Observer.Observe('cond_to_text.abc.g.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.g.t');
+        vText := 'abc';
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        Res := false;
+        if Try8() then Observer.Observe('cond_to_text.abc.g.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.g.f');
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         Res := true;
-        if Try4() then Observer.Observe('cond_branches.guidlow.g.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.guidlow.g.t');
+        if Try7() then Observer.Observe('cond_branches.guidlow.g.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.guidlow.g.t');
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         Res := false;
-        if Try4() then Observer.Observe('cond_branches.guidlow.g.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.guidlow.g.f');
+        if Try7() then Observer.Observe('cond_branches.guidlow.g.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.guidlow.g.f');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        Res := true;
+        if Try8() then Observer.Observe('cond_to_text.guidlow.g.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.guidlow.g.t');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        Res := false;
+        if Try8() then Observer.Observe('cond_to_text.guidlow.g.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.guidlow.g.f');
+        vText := 'abcdefghijk';
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        Res := true;
+        if Try7() then Observer.Observe('cond_branches.eleven.g.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.eleven.g.t');
+        vText := 'abcdefghijk';
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        Res := false;
+        if Try7() then Observer.Observe('cond_branches.eleven.g.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.eleven.g.f');
+        vText := 'abcdefghijk';
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        Res := true;
+        if Try8() then Observer.Observe('cond_to_text.eleven.g.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.eleven.g.t');
+        vText := 'abcdefghijk';
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        Res := false;
+        if Try8() then Observer.Observe('cond_to_text.eleven.g.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.eleven.g.f');
         Observer.Finish();
     end;
 
@@ -3619,28 +3908,64 @@ codeunit 92471 "LT Y31 Cd Text"
     begin
         vText := 'a';
         Res := true;
-        if Try5() then Observer.Observe('cond_branches.a.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.abc.t');
+        if Try9() then Observer.Observe('cond_branches.a.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.abc.t');
         vText := 'a';
         Res := false;
-        if Try5() then Observer.Observe('cond_branches.a.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.abc.f');
+        if Try9() then Observer.Observe('cond_branches.a.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.a.abc.f');
+        vText := 'a';
+        Res := true;
+        if Try10() then Observer.Observe('cond_to_text.a.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.a.abc.t');
+        vText := 'a';
+        Res := false;
+        if Try10() then Observer.Observe('cond_to_text.a.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.a.abc.f');
         vText := 'A';
         Res := true;
-        if Try5() then Observer.Observe('cond_branches.A.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.abc.t');
+        if Try9() then Observer.Observe('cond_branches.A.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.abc.t');
         vText := 'A';
         Res := false;
-        if Try5() then Observer.Observe('cond_branches.A.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.abc.f');
+        if Try9() then Observer.Observe('cond_branches.A.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.abc.f');
+        vText := 'A';
+        Res := true;
+        if Try10() then Observer.Observe('cond_to_text.A.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.abc.t');
+        vText := 'A';
+        Res := false;
+        if Try10() then Observer.Observe('cond_to_text.A.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.abc.f');
         vText := 'abc';
         Res := true;
-        if Try5() then Observer.Observe('cond_branches.abc.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.abc.t');
+        if Try9() then Observer.Observe('cond_branches.abc.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.abc.t');
         vText := 'abc';
         Res := false;
-        if Try5() then Observer.Observe('cond_branches.abc.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.abc.f');
+        if Try9() then Observer.Observe('cond_branches.abc.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.abc.f');
+        vText := 'abc';
+        Res := true;
+        if Try10() then Observer.Observe('cond_to_text.abc.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.abc.t');
+        vText := 'abc';
+        Res := false;
+        if Try10() then Observer.Observe('cond_to_text.abc.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.abc.f');
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         Res := true;
-        if Try5() then Observer.Observe('cond_branches.guidlow.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.guidlow.abc.t');
+        if Try9() then Observer.Observe('cond_branches.guidlow.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.guidlow.abc.t');
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         Res := false;
-        if Try5() then Observer.Observe('cond_branches.guidlow.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.guidlow.abc.f');
+        if Try9() then Observer.Observe('cond_branches.guidlow.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.guidlow.abc.f');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        Res := true;
+        if Try10() then Observer.Observe('cond_to_text.guidlow.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.guidlow.abc.t');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        Res := false;
+        if Try10() then Observer.Observe('cond_to_text.guidlow.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.guidlow.abc.f');
+        vText := 'abcdefghijk';
+        Res := true;
+        if Try9() then Observer.Observe('cond_branches.eleven.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.eleven.abc.t');
+        vText := 'abcdefghijk';
+        Res := false;
+        if Try9() then Observer.Observe('cond_branches.eleven.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.eleven.abc.f');
+        vText := 'abcdefghijk';
+        Res := true;
+        if Try10() then Observer.Observe('cond_to_text.eleven.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.eleven.abc.t');
+        vText := 'abcdefghijk';
+        Res := false;
+        if Try10() then Observer.Observe('cond_to_text.eleven.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.eleven.abc.f');
         Observer.Finish();
     end;
 
@@ -3684,29 +4009,64 @@ codeunit 92471 "LT Y31 Cd Text"
     [TryFunction]
     local procedure Try2()
     begin
-        Clear(V);
-        V := Res ? vText : vText10;
+        Clear(vOut);
+        vOut := Res ? vText : vChar;
     end;
 
     [TryFunction]
     local procedure Try3()
     begin
         Clear(V);
-        V := Res ? vText : vCode10;
+        V := Res ? vText : vText10;
     end;
 
     [TryFunction]
     local procedure Try4()
     begin
-        Clear(V);
-        V := Res ? vText : vGuid;
+        Clear(vOut);
+        vOut := Res ? vText : vText10;
     end;
 
     [TryFunction]
     local procedure Try5()
     begin
         Clear(V);
+        V := Res ? vText : vCode10;
+    end;
+
+    [TryFunction]
+    local procedure Try6()
+    begin
+        Clear(vOut);
+        vOut := Res ? vText : vCode10;
+    end;
+
+    [TryFunction]
+    local procedure Try7()
+    begin
+        Clear(V);
+        V := Res ? vText : vGuid;
+    end;
+
+    [TryFunction]
+    local procedure Try8()
+    begin
+        Clear(vOut);
+        vOut := Res ? vText : vGuid;
+    end;
+
+    [TryFunction]
+    local procedure Try9()
+    begin
+        Clear(V);
         V := Res ? vText : vLabel;
+    end;
+
+    [TryFunction]
+    local procedure Try10()
+    begin
+        Clear(vOut);
+        vOut := Res ? vText : vLabel;
     end;
 
 }
@@ -3718,7 +4078,7 @@ codeunit 92471 "LT Y31 Cd Text"
 // accepts); the expected values are what the corpus CI containers produced. Regenerate, do not edit by hand.
 // Facts: implicit conversion matrix, conditional expressions with Text10
 
-codeunit 92472 "LT Y31 Cd Text10"
+codeunit 92473 "LT Y31 Cd Text10"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -3731,6 +4091,7 @@ codeunit 92472 "LT Y31 Cd Text10"
         vChar: Char;
         vCode10: Code[10];
         vLabel: Label 'abc', Locked = true;
+        vOut: Text;
         vText: Text;
         vText10: Text[10];
 
@@ -3746,6 +4107,14 @@ codeunit 92472 "LT Y31 Cd Text10"
         Res := false;
         if Try1() then Observer.Observe('cond_branches.abc.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.A.f');
         vText10 := 'abc';
+        vChar := 65;
+        Res := true;
+        if Try2() then Observer.Observe('cond_to_text.abc.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.A.t');
+        vText10 := 'abc';
+        vChar := 65;
+        Res := false;
+        if Try2() then Observer.Observe('cond_to_text.abc.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.A.f');
+        vText10 := 'abc';
         vChar := 97;
         Res := true;
         if Try1() then Observer.Observe('cond_branches.abc.a.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.a.t');
@@ -3753,6 +4122,14 @@ codeunit 92472 "LT Y31 Cd Text10"
         vChar := 97;
         Res := false;
         if Try1() then Observer.Observe('cond_branches.abc.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.a.f');
+        vText10 := 'abc';
+        vChar := 97;
+        Res := true;
+        if Try2() then Observer.Observe('cond_to_text.abc.a.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.a.t');
+        vText10 := 'abc';
+        vChar := 97;
+        Res := false;
+        if Try2() then Observer.Observe('cond_to_text.abc.a.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.a.f');
         Observer.Finish();
     end;
 
@@ -3792,35 +4169,83 @@ codeunit 92472 "LT Y31 Cd Text10"
         vText10 := 'abc';
         vText := 'a';
         Res := true;
-        if Try2() then Observer.Observe('cond_branches.abc.a.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.a.t');
+        if Try3() then Observer.Observe('cond_branches.abc.a.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.a.t');
         vText10 := 'abc';
         vText := 'a';
         Res := false;
-        if Try2() then Observer.Observe('cond_branches.abc.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.a.f');
+        if Try3() then Observer.Observe('cond_branches.abc.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.a.f');
+        vText10 := 'abc';
+        vText := 'a';
+        Res := true;
+        if Try4() then Observer.Observe('cond_to_text.abc.a.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.a.t');
+        vText10 := 'abc';
+        vText := 'a';
+        Res := false;
+        if Try4() then Observer.Observe('cond_to_text.abc.a.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.a.f');
         vText10 := 'abc';
         vText := 'A';
         Res := true;
-        if Try2() then Observer.Observe('cond_branches.abc.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.A.t');
+        if Try3() then Observer.Observe('cond_branches.abc.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.A.t');
         vText10 := 'abc';
         vText := 'A';
         Res := false;
-        if Try2() then Observer.Observe('cond_branches.abc.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.A.f');
+        if Try3() then Observer.Observe('cond_branches.abc.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.A.f');
+        vText10 := 'abc';
+        vText := 'A';
+        Res := true;
+        if Try4() then Observer.Observe('cond_to_text.abc.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.A.t');
+        vText10 := 'abc';
+        vText := 'A';
+        Res := false;
+        if Try4() then Observer.Observe('cond_to_text.abc.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.A.f');
         vText10 := 'abc';
         vText := 'abc';
         Res := true;
-        if Try2() then Observer.Observe('cond_branches.abc.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.abc.t');
+        if Try3() then Observer.Observe('cond_branches.abc.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.abc.t');
         vText10 := 'abc';
         vText := 'abc';
         Res := false;
-        if Try2() then Observer.Observe('cond_branches.abc.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.abc.f');
+        if Try3() then Observer.Observe('cond_branches.abc.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.abc.f');
+        vText10 := 'abc';
+        vText := 'abc';
+        Res := true;
+        if Try4() then Observer.Observe('cond_to_text.abc.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.abc.t');
+        vText10 := 'abc';
+        vText := 'abc';
+        Res := false;
+        if Try4() then Observer.Observe('cond_to_text.abc.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.abc.f');
         vText10 := 'abc';
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         Res := true;
-        if Try2() then Observer.Observe('cond_branches.abc.guidlow.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.guidlow.t');
+        if Try3() then Observer.Observe('cond_branches.abc.guidlow.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.guidlow.t');
         vText10 := 'abc';
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         Res := false;
-        if Try2() then Observer.Observe('cond_branches.abc.guidlow.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.guidlow.f');
+        if Try3() then Observer.Observe('cond_branches.abc.guidlow.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.guidlow.f');
+        vText10 := 'abc';
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        Res := true;
+        if Try4() then Observer.Observe('cond_to_text.abc.guidlow.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.guidlow.t');
+        vText10 := 'abc';
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        Res := false;
+        if Try4() then Observer.Observe('cond_to_text.abc.guidlow.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.guidlow.f');
+        vText10 := 'abc';
+        vText := 'abcdefghijk';
+        Res := true;
+        if Try3() then Observer.Observe('cond_branches.abc.eleven.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.eleven.t');
+        vText10 := 'abc';
+        vText := 'abcdefghijk';
+        Res := false;
+        if Try3() then Observer.Observe('cond_branches.abc.eleven.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.eleven.f');
+        vText10 := 'abc';
+        vText := 'abcdefghijk';
+        Res := true;
+        if Try4() then Observer.Observe('cond_to_text.abc.eleven.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.eleven.t');
+        vText10 := 'abc';
+        vText := 'abcdefghijk';
+        Res := false;
+        if Try4() then Observer.Observe('cond_to_text.abc.eleven.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.eleven.f');
         Observer.Finish();
     end;
 
@@ -3860,19 +4285,35 @@ codeunit 92472 "LT Y31 Cd Text10"
         vText10 := 'abc';
         vCode10 := 'A';
         Res := true;
-        if Try3() then Observer.Observe('cond_branches.abc.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.A.t');
+        if Try5() then Observer.Observe('cond_branches.abc.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.A.t');
         vText10 := 'abc';
         vCode10 := 'A';
         Res := false;
-        if Try3() then Observer.Observe('cond_branches.abc.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.A.f');
+        if Try5() then Observer.Observe('cond_branches.abc.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.A.f');
+        vText10 := 'abc';
+        vCode10 := 'A';
+        Res := true;
+        if Try6() then Observer.Observe('cond_to_text.abc.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.A.t');
+        vText10 := 'abc';
+        vCode10 := 'A';
+        Res := false;
+        if Try6() then Observer.Observe('cond_to_text.abc.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.A.f');
         vText10 := 'abc';
         vCode10 := 'ABC';
         Res := true;
-        if Try3() then Observer.Observe('cond_branches.abc.ABC.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.ABC.t');
+        if Try5() then Observer.Observe('cond_branches.abc.ABC.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.ABC.t');
         vText10 := 'abc';
         vCode10 := 'ABC';
         Res := false;
-        if Try3() then Observer.Observe('cond_branches.abc.ABC.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.ABC.f');
+        if Try5() then Observer.Observe('cond_branches.abc.ABC.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.ABC.f');
+        vText10 := 'abc';
+        vCode10 := 'ABC';
+        Res := true;
+        if Try6() then Observer.Observe('cond_to_text.abc.ABC.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.ABC.t');
+        vText10 := 'abc';
+        vCode10 := 'ABC';
+        Res := false;
+        if Try6() then Observer.Observe('cond_to_text.abc.ABC.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.ABC.f');
         Observer.Finish();
     end;
 
@@ -3911,10 +4352,16 @@ codeunit 92472 "LT Y31 Cd Text10"
     begin
         vText10 := 'abc';
         Res := true;
-        if Try4() then Observer.Observe('cond_branches.abc.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.abc.t');
+        if Try7() then Observer.Observe('cond_branches.abc.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.abc.t');
         vText10 := 'abc';
         Res := false;
-        if Try4() then Observer.Observe('cond_branches.abc.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.abc.f');
+        if Try7() then Observer.Observe('cond_branches.abc.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.abc.f');
+        vText10 := 'abc';
+        Res := true;
+        if Try8() then Observer.Observe('cond_to_text.abc.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.abc.t');
+        vText10 := 'abc';
+        Res := false;
+        if Try8() then Observer.Observe('cond_to_text.abc.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.abc.f');
         Observer.Finish();
     end;
 
@@ -3958,22 +4405,50 @@ codeunit 92472 "LT Y31 Cd Text10"
     [TryFunction]
     local procedure Try2()
     begin
-        Clear(V);
-        V := Res ? vText10 : vText;
+        Clear(vOut);
+        vOut := Res ? vText10 : vChar;
     end;
 
     [TryFunction]
     local procedure Try3()
     begin
         Clear(V);
-        V := Res ? vText10 : vCode10;
+        V := Res ? vText10 : vText;
     end;
 
     [TryFunction]
     local procedure Try4()
     begin
+        Clear(vOut);
+        vOut := Res ? vText10 : vText;
+    end;
+
+    [TryFunction]
+    local procedure Try5()
+    begin
+        Clear(V);
+        V := Res ? vText10 : vCode10;
+    end;
+
+    [TryFunction]
+    local procedure Try6()
+    begin
+        Clear(vOut);
+        vOut := Res ? vText10 : vCode10;
+    end;
+
+    [TryFunction]
+    local procedure Try7()
+    begin
         Clear(V);
         V := Res ? vText10 : vLabel;
+    end;
+
+    [TryFunction]
+    local procedure Try8()
+    begin
+        Clear(vOut);
+        vOut := Res ? vText10 : vLabel;
     end;
 
 }
@@ -3985,7 +4460,7 @@ codeunit 92472 "LT Y31 Cd Text10"
 // accepts); the expected values are what the corpus CI containers produced. Regenerate, do not edit by hand.
 // Facts: implicit conversion matrix, conditional expressions with Code10
 
-codeunit 92473 "LT Y31 Cd Code10"
+codeunit 92474 "LT Y31 Cd Code10"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -3998,6 +4473,7 @@ codeunit 92473 "LT Y31 Cd Code10"
         vChar: Char;
         vCode10: Code[10];
         vLabel: Label 'abc', Locked = true;
+        vOut: Text;
         vText: Text;
         vText10: Text[10];
 
@@ -4013,6 +4489,14 @@ codeunit 92473 "LT Y31 Cd Code10"
         Res := false;
         if Try1() then Observer.Observe('cond_branches.A.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.A.f');
         vCode10 := 'A';
+        vChar := 65;
+        Res := true;
+        if Try2() then Observer.Observe('cond_to_text.A.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.A.t');
+        vCode10 := 'A';
+        vChar := 65;
+        Res := false;
+        if Try2() then Observer.Observe('cond_to_text.A.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.A.f');
+        vCode10 := 'A';
         vChar := 97;
         Res := true;
         if Try1() then Observer.Observe('cond_branches.A.a.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.a.t');
@@ -4020,6 +4504,14 @@ codeunit 92473 "LT Y31 Cd Code10"
         vChar := 97;
         Res := false;
         if Try1() then Observer.Observe('cond_branches.A.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.a.f');
+        vCode10 := 'A';
+        vChar := 97;
+        Res := true;
+        if Try2() then Observer.Observe('cond_to_text.A.a.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.a.t');
+        vCode10 := 'A';
+        vChar := 97;
+        Res := false;
+        if Try2() then Observer.Observe('cond_to_text.A.a.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.a.f');
         vCode10 := 'ABC';
         vChar := 65;
         Res := true;
@@ -4029,6 +4521,14 @@ codeunit 92473 "LT Y31 Cd Code10"
         Res := false;
         if Try1() then Observer.Observe('cond_branches.ABC.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.A.f');
         vCode10 := 'ABC';
+        vChar := 65;
+        Res := true;
+        if Try2() then Observer.Observe('cond_to_text.ABC.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.ABC.A.t');
+        vCode10 := 'ABC';
+        vChar := 65;
+        Res := false;
+        if Try2() then Observer.Observe('cond_to_text.ABC.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.ABC.A.f');
+        vCode10 := 'ABC';
         vChar := 97;
         Res := true;
         if Try1() then Observer.Observe('cond_branches.ABC.a.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.a.t');
@@ -4036,6 +4536,14 @@ codeunit 92473 "LT Y31 Cd Code10"
         vChar := 97;
         Res := false;
         if Try1() then Observer.Observe('cond_branches.ABC.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.a.f');
+        vCode10 := 'ABC';
+        vChar := 97;
+        Res := true;
+        if Try2() then Observer.Observe('cond_to_text.ABC.a.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.ABC.a.t');
+        vCode10 := 'ABC';
+        vChar := 97;
+        Res := false;
+        if Try2() then Observer.Observe('cond_to_text.ABC.a.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.ABC.a.f');
         Observer.Finish();
     end;
 
@@ -4075,67 +4583,163 @@ codeunit 92473 "LT Y31 Cd Code10"
         vCode10 := 'A';
         vText := 'a';
         Res := true;
-        if Try2() then Observer.Observe('cond_branches.A.a.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.a.t');
+        if Try3() then Observer.Observe('cond_branches.A.a.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.a.t');
         vCode10 := 'A';
         vText := 'a';
         Res := false;
-        if Try2() then Observer.Observe('cond_branches.A.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.a.f');
+        if Try3() then Observer.Observe('cond_branches.A.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.a.f');
+        vCode10 := 'A';
+        vText := 'a';
+        Res := true;
+        if Try4() then Observer.Observe('cond_to_text.A.a.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.a.t');
+        vCode10 := 'A';
+        vText := 'a';
+        Res := false;
+        if Try4() then Observer.Observe('cond_to_text.A.a.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.a.f');
         vCode10 := 'A';
         vText := 'A';
         Res := true;
-        if Try2() then Observer.Observe('cond_branches.A.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.A.t');
+        if Try3() then Observer.Observe('cond_branches.A.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.A.t');
         vCode10 := 'A';
         vText := 'A';
         Res := false;
-        if Try2() then Observer.Observe('cond_branches.A.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.A.f');
+        if Try3() then Observer.Observe('cond_branches.A.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.A.f');
+        vCode10 := 'A';
+        vText := 'A';
+        Res := true;
+        if Try4() then Observer.Observe('cond_to_text.A.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.A.t');
+        vCode10 := 'A';
+        vText := 'A';
+        Res := false;
+        if Try4() then Observer.Observe('cond_to_text.A.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.A.f');
         vCode10 := 'A';
         vText := 'abc';
         Res := true;
-        if Try2() then Observer.Observe('cond_branches.A.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.abc.t');
+        if Try3() then Observer.Observe('cond_branches.A.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.abc.t');
         vCode10 := 'A';
         vText := 'abc';
         Res := false;
-        if Try2() then Observer.Observe('cond_branches.A.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.abc.f');
+        if Try3() then Observer.Observe('cond_branches.A.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.abc.f');
+        vCode10 := 'A';
+        vText := 'abc';
+        Res := true;
+        if Try4() then Observer.Observe('cond_to_text.A.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.abc.t');
+        vCode10 := 'A';
+        vText := 'abc';
+        Res := false;
+        if Try4() then Observer.Observe('cond_to_text.A.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.abc.f');
         vCode10 := 'A';
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         Res := true;
-        if Try2() then Observer.Observe('cond_branches.A.guidlow.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.guidlow.t');
+        if Try3() then Observer.Observe('cond_branches.A.guidlow.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.guidlow.t');
         vCode10 := 'A';
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         Res := false;
-        if Try2() then Observer.Observe('cond_branches.A.guidlow.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.guidlow.f');
+        if Try3() then Observer.Observe('cond_branches.A.guidlow.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.guidlow.f');
+        vCode10 := 'A';
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        Res := true;
+        if Try4() then Observer.Observe('cond_to_text.A.guidlow.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.guidlow.t');
+        vCode10 := 'A';
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        Res := false;
+        if Try4() then Observer.Observe('cond_to_text.A.guidlow.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.guidlow.f');
+        vCode10 := 'A';
+        vText := 'abcdefghijk';
+        Res := true;
+        if Try3() then Observer.Observe('cond_branches.A.eleven.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.eleven.t');
+        vCode10 := 'A';
+        vText := 'abcdefghijk';
+        Res := false;
+        if Try3() then Observer.Observe('cond_branches.A.eleven.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.eleven.f');
+        vCode10 := 'A';
+        vText := 'abcdefghijk';
+        Res := true;
+        if Try4() then Observer.Observe('cond_to_text.A.eleven.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.eleven.t');
+        vCode10 := 'A';
+        vText := 'abcdefghijk';
+        Res := false;
+        if Try4() then Observer.Observe('cond_to_text.A.eleven.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.eleven.f');
         vCode10 := 'ABC';
         vText := 'a';
         Res := true;
-        if Try2() then Observer.Observe('cond_branches.ABC.a.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.a.t');
+        if Try3() then Observer.Observe('cond_branches.ABC.a.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.a.t');
         vCode10 := 'ABC';
         vText := 'a';
         Res := false;
-        if Try2() then Observer.Observe('cond_branches.ABC.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.a.f');
+        if Try3() then Observer.Observe('cond_branches.ABC.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.a.f');
+        vCode10 := 'ABC';
+        vText := 'a';
+        Res := true;
+        if Try4() then Observer.Observe('cond_to_text.ABC.a.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.ABC.a.t');
+        vCode10 := 'ABC';
+        vText := 'a';
+        Res := false;
+        if Try4() then Observer.Observe('cond_to_text.ABC.a.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.ABC.a.f');
         vCode10 := 'ABC';
         vText := 'A';
         Res := true;
-        if Try2() then Observer.Observe('cond_branches.ABC.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.A.t');
+        if Try3() then Observer.Observe('cond_branches.ABC.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.A.t');
         vCode10 := 'ABC';
         vText := 'A';
         Res := false;
-        if Try2() then Observer.Observe('cond_branches.ABC.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.A.f');
+        if Try3() then Observer.Observe('cond_branches.ABC.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.A.f');
+        vCode10 := 'ABC';
+        vText := 'A';
+        Res := true;
+        if Try4() then Observer.Observe('cond_to_text.ABC.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.ABC.A.t');
+        vCode10 := 'ABC';
+        vText := 'A';
+        Res := false;
+        if Try4() then Observer.Observe('cond_to_text.ABC.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.ABC.A.f');
         vCode10 := 'ABC';
         vText := 'abc';
         Res := true;
-        if Try2() then Observer.Observe('cond_branches.ABC.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.abc.t');
+        if Try3() then Observer.Observe('cond_branches.ABC.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.abc.t');
         vCode10 := 'ABC';
         vText := 'abc';
         Res := false;
-        if Try2() then Observer.Observe('cond_branches.ABC.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.abc.f');
+        if Try3() then Observer.Observe('cond_branches.ABC.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.abc.f');
+        vCode10 := 'ABC';
+        vText := 'abc';
+        Res := true;
+        if Try4() then Observer.Observe('cond_to_text.ABC.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.ABC.abc.t');
+        vCode10 := 'ABC';
+        vText := 'abc';
+        Res := false;
+        if Try4() then Observer.Observe('cond_to_text.ABC.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.ABC.abc.f');
         vCode10 := 'ABC';
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         Res := true;
-        if Try2() then Observer.Observe('cond_branches.ABC.guidlow.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.guidlow.t');
+        if Try3() then Observer.Observe('cond_branches.ABC.guidlow.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.guidlow.t');
         vCode10 := 'ABC';
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         Res := false;
-        if Try2() then Observer.Observe('cond_branches.ABC.guidlow.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.guidlow.f');
+        if Try3() then Observer.Observe('cond_branches.ABC.guidlow.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.guidlow.f');
+        vCode10 := 'ABC';
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        Res := true;
+        if Try4() then Observer.Observe('cond_to_text.ABC.guidlow.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.ABC.guidlow.t');
+        vCode10 := 'ABC';
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        Res := false;
+        if Try4() then Observer.Observe('cond_to_text.ABC.guidlow.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.ABC.guidlow.f');
+        vCode10 := 'ABC';
+        vText := 'abcdefghijk';
+        Res := true;
+        if Try3() then Observer.Observe('cond_branches.ABC.eleven.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.eleven.t');
+        vCode10 := 'ABC';
+        vText := 'abcdefghijk';
+        Res := false;
+        if Try3() then Observer.Observe('cond_branches.ABC.eleven.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.eleven.f');
+        vCode10 := 'ABC';
+        vText := 'abcdefghijk';
+        Res := true;
+        if Try4() then Observer.Observe('cond_to_text.ABC.eleven.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.ABC.eleven.t');
+        vCode10 := 'ABC';
+        vText := 'abcdefghijk';
+        Res := false;
+        if Try4() then Observer.Observe('cond_to_text.ABC.eleven.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.ABC.eleven.f');
         Observer.Finish();
     end;
 
@@ -4175,19 +4779,35 @@ codeunit 92473 "LT Y31 Cd Code10"
         vCode10 := 'A';
         vText10 := 'abc';
         Res := true;
-        if Try3() then Observer.Observe('cond_branches.A.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.abc.t');
+        if Try5() then Observer.Observe('cond_branches.A.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.abc.t');
         vCode10 := 'A';
         vText10 := 'abc';
         Res := false;
-        if Try3() then Observer.Observe('cond_branches.A.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.abc.f');
+        if Try5() then Observer.Observe('cond_branches.A.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.abc.f');
+        vCode10 := 'A';
+        vText10 := 'abc';
+        Res := true;
+        if Try6() then Observer.Observe('cond_to_text.A.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.abc.t');
+        vCode10 := 'A';
+        vText10 := 'abc';
+        Res := false;
+        if Try6() then Observer.Observe('cond_to_text.A.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.abc.f');
         vCode10 := 'ABC';
         vText10 := 'abc';
         Res := true;
-        if Try3() then Observer.Observe('cond_branches.ABC.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.abc.t');
+        if Try5() then Observer.Observe('cond_branches.ABC.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.abc.t');
         vCode10 := 'ABC';
         vText10 := 'abc';
         Res := false;
-        if Try3() then Observer.Observe('cond_branches.ABC.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.abc.f');
+        if Try5() then Observer.Observe('cond_branches.ABC.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.abc.f');
+        vCode10 := 'ABC';
+        vText10 := 'abc';
+        Res := true;
+        if Try6() then Observer.Observe('cond_to_text.ABC.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.ABC.abc.t');
+        vCode10 := 'ABC';
+        vText10 := 'abc';
+        Res := false;
+        if Try6() then Observer.Observe('cond_to_text.ABC.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.ABC.abc.f');
         Observer.Finish();
     end;
 
@@ -4226,16 +4846,28 @@ codeunit 92473 "LT Y31 Cd Code10"
     begin
         vCode10 := 'A';
         Res := true;
-        if Try4() then Observer.Observe('cond_branches.A.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.abc.t');
+        if Try7() then Observer.Observe('cond_branches.A.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.abc.t');
         vCode10 := 'A';
         Res := false;
-        if Try4() then Observer.Observe('cond_branches.A.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.abc.f');
+        if Try7() then Observer.Observe('cond_branches.A.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.A.abc.f');
+        vCode10 := 'A';
+        Res := true;
+        if Try8() then Observer.Observe('cond_to_text.A.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.abc.t');
+        vCode10 := 'A';
+        Res := false;
+        if Try8() then Observer.Observe('cond_to_text.A.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.A.abc.f');
         vCode10 := 'ABC';
         Res := true;
-        if Try4() then Observer.Observe('cond_branches.ABC.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.abc.t');
+        if Try7() then Observer.Observe('cond_branches.ABC.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.abc.t');
         vCode10 := 'ABC';
         Res := false;
-        if Try4() then Observer.Observe('cond_branches.ABC.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.abc.f');
+        if Try7() then Observer.Observe('cond_branches.ABC.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.ABC.abc.f');
+        vCode10 := 'ABC';
+        Res := true;
+        if Try8() then Observer.Observe('cond_to_text.ABC.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.ABC.abc.t');
+        vCode10 := 'ABC';
+        Res := false;
+        if Try8() then Observer.Observe('cond_to_text.ABC.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.ABC.abc.f');
         Observer.Finish();
     end;
 
@@ -4279,22 +4911,50 @@ codeunit 92473 "LT Y31 Cd Code10"
     [TryFunction]
     local procedure Try2()
     begin
-        Clear(V);
-        V := Res ? vCode10 : vText;
+        Clear(vOut);
+        vOut := Res ? vCode10 : vChar;
     end;
 
     [TryFunction]
     local procedure Try3()
     begin
         Clear(V);
-        V := Res ? vCode10 : vText10;
+        V := Res ? vCode10 : vText;
     end;
 
     [TryFunction]
     local procedure Try4()
     begin
+        Clear(vOut);
+        vOut := Res ? vCode10 : vText;
+    end;
+
+    [TryFunction]
+    local procedure Try5()
+    begin
+        Clear(V);
+        V := Res ? vCode10 : vText10;
+    end;
+
+    [TryFunction]
+    local procedure Try6()
+    begin
+        Clear(vOut);
+        vOut := Res ? vCode10 : vText10;
+    end;
+
+    [TryFunction]
+    local procedure Try7()
+    begin
         Clear(V);
         V := Res ? vCode10 : vLabel;
+    end;
+
+    [TryFunction]
+    local procedure Try8()
+    begin
+        Clear(vOut);
+        vOut := Res ? vCode10 : vLabel;
     end;
 
 }
@@ -4306,7 +4966,7 @@ codeunit 92473 "LT Y31 Cd Code10"
 // accepts); the expected values are what the corpus CI containers produced. Regenerate, do not edit by hand.
 // Facts: implicit conversion matrix, conditional expressions with Guid
 
-codeunit 92474 "LT Y31 Cd Guid"
+codeunit 92475 "LT Y31 Cd Guid"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -4319,6 +4979,7 @@ codeunit 92474 "LT Y31 Cd Guid"
         vCode10: Code[10];
         vGuid: Guid;
         vLabel: Label 'abc', Locked = true;
+        vOut: Text;
         vText: Text;
         vText10: Text[10];
 
@@ -4334,6 +4995,14 @@ codeunit 92474 "LT Y31 Cd Guid"
         Res := false;
         if Try1() then Observer.Observe('cond_branches.g.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.g.a.f');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        vText := 'a';
+        Res := true;
+        if Try2() then Observer.Observe('cond_to_text.g.a.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.g.a.t');
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        vText := 'a';
+        Res := false;
+        if Try2() then Observer.Observe('cond_to_text.g.a.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.g.a.f');
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vText := 'A';
         Res := true;
         if Try1() then Observer.Observe('cond_branches.g.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.g.A.t');
@@ -4341,6 +5010,14 @@ codeunit 92474 "LT Y31 Cd Guid"
         vText := 'A';
         Res := false;
         if Try1() then Observer.Observe('cond_branches.g.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.g.A.f');
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        vText := 'A';
+        Res := true;
+        if Try2() then Observer.Observe('cond_to_text.g.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.g.A.t');
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        vText := 'A';
+        Res := false;
+        if Try2() then Observer.Observe('cond_to_text.g.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.g.A.f');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vText := 'abc';
         Res := true;
@@ -4350,6 +5027,14 @@ codeunit 92474 "LT Y31 Cd Guid"
         Res := false;
         if Try1() then Observer.Observe('cond_branches.g.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.g.abc.f');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        vText := 'abc';
+        Res := true;
+        if Try2() then Observer.Observe('cond_to_text.g.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.g.abc.t');
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        vText := 'abc';
+        Res := false;
+        if Try2() then Observer.Observe('cond_to_text.g.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.g.abc.f');
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         Res := true;
         if Try1() then Observer.Observe('cond_branches.g.guidlow.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.g.guidlow.t');
@@ -4357,6 +5042,30 @@ codeunit 92474 "LT Y31 Cd Guid"
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         Res := false;
         if Try1() then Observer.Observe('cond_branches.g.guidlow.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.g.guidlow.f');
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        Res := true;
+        if Try2() then Observer.Observe('cond_to_text.g.guidlow.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.g.guidlow.t');
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        Res := false;
+        if Try2() then Observer.Observe('cond_to_text.g.guidlow.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.g.guidlow.f');
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        vText := 'abcdefghijk';
+        Res := true;
+        if Try1() then Observer.Observe('cond_branches.g.eleven.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.g.eleven.t');
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        vText := 'abcdefghijk';
+        Res := false;
+        if Try1() then Observer.Observe('cond_branches.g.eleven.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.g.eleven.f');
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        vText := 'abcdefghijk';
+        Res := true;
+        if Try2() then Observer.Observe('cond_to_text.g.eleven.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.g.eleven.t');
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        vText := 'abcdefghijk';
+        Res := false;
+        if Try2() then Observer.Observe('cond_to_text.g.eleven.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.g.eleven.f');
         Observer.Finish();
     end;
 
@@ -4396,11 +5105,19 @@ codeunit 92474 "LT Y31 Cd Guid"
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vText10 := 'abc';
         Res := true;
-        if Try2() then Observer.Observe('cond_branches.g.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.g.abc.t');
+        if Try3() then Observer.Observe('cond_branches.g.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.g.abc.t');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vText10 := 'abc';
         Res := false;
-        if Try2() then Observer.Observe('cond_branches.g.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.g.abc.f');
+        if Try3() then Observer.Observe('cond_branches.g.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.g.abc.f');
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        vText10 := 'abc';
+        Res := true;
+        if Try4() then Observer.Observe('cond_to_text.g.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.g.abc.t');
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        vText10 := 'abc';
+        Res := false;
+        if Try4() then Observer.Observe('cond_to_text.g.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.g.abc.f');
         Observer.Finish();
     end;
 
@@ -4440,19 +5157,35 @@ codeunit 92474 "LT Y31 Cd Guid"
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vCode10 := 'A';
         Res := true;
-        if Try3() then Observer.Observe('cond_branches.g.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.g.A.t');
+        if Try5() then Observer.Observe('cond_branches.g.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.g.A.t');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vCode10 := 'A';
         Res := false;
-        if Try3() then Observer.Observe('cond_branches.g.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.g.A.f');
+        if Try5() then Observer.Observe('cond_branches.g.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.g.A.f');
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        vCode10 := 'A';
+        Res := true;
+        if Try6() then Observer.Observe('cond_to_text.g.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.g.A.t');
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        vCode10 := 'A';
+        Res := false;
+        if Try6() then Observer.Observe('cond_to_text.g.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.g.A.f');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vCode10 := 'ABC';
         Res := true;
-        if Try3() then Observer.Observe('cond_branches.g.ABC.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.g.ABC.t');
+        if Try5() then Observer.Observe('cond_branches.g.ABC.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.g.ABC.t');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         vCode10 := 'ABC';
         Res := false;
-        if Try3() then Observer.Observe('cond_branches.g.ABC.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.g.ABC.f');
+        if Try5() then Observer.Observe('cond_branches.g.ABC.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.g.ABC.f');
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        vCode10 := 'ABC';
+        Res := true;
+        if Try6() then Observer.Observe('cond_to_text.g.ABC.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.g.ABC.t');
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        vCode10 := 'ABC';
+        Res := false;
+        if Try6() then Observer.Observe('cond_to_text.g.ABC.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.g.ABC.f');
         Observer.Finish();
     end;
 
@@ -4491,10 +5224,16 @@ codeunit 92474 "LT Y31 Cd Guid"
     begin
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         Res := true;
-        if Try4() then Observer.Observe('cond_branches.g.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.g.abc.t');
+        if Try7() then Observer.Observe('cond_branches.g.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.g.abc.t');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         Res := false;
-        if Try4() then Observer.Observe('cond_branches.g.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.g.abc.f');
+        if Try7() then Observer.Observe('cond_branches.g.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.g.abc.f');
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        Res := true;
+        if Try8() then Observer.Observe('cond_to_text.g.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.g.abc.t');
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        Res := false;
+        if Try8() then Observer.Observe('cond_to_text.g.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.g.abc.f');
         Observer.Finish();
     end;
 
@@ -4538,22 +5277,50 @@ codeunit 92474 "LT Y31 Cd Guid"
     [TryFunction]
     local procedure Try2()
     begin
-        Clear(V);
-        V := Res ? vGuid : vText10;
+        Clear(vOut);
+        vOut := Res ? vGuid : vText;
     end;
 
     [TryFunction]
     local procedure Try3()
     begin
         Clear(V);
-        V := Res ? vGuid : vCode10;
+        V := Res ? vGuid : vText10;
     end;
 
     [TryFunction]
     local procedure Try4()
     begin
+        Clear(vOut);
+        vOut := Res ? vGuid : vText10;
+    end;
+
+    [TryFunction]
+    local procedure Try5()
+    begin
+        Clear(V);
+        V := Res ? vGuid : vCode10;
+    end;
+
+    [TryFunction]
+    local procedure Try6()
+    begin
+        Clear(vOut);
+        vOut := Res ? vGuid : vCode10;
+    end;
+
+    [TryFunction]
+    local procedure Try7()
+    begin
         Clear(V);
         V := Res ? vGuid : vLabel;
+    end;
+
+    [TryFunction]
+    local procedure Try8()
+    begin
+        Clear(vOut);
+        vOut := Res ? vGuid : vLabel;
     end;
 
 }
@@ -4565,7 +5332,7 @@ codeunit 92474 "LT Y31 Cd Guid"
 // accepts); the expected values are what the corpus CI containers produced. Regenerate, do not edit by hand.
 // Facts: implicit conversion matrix, conditional expressions with Duration
 
-codeunit 92478 "LT Y31 Cd Duration"
+codeunit 92479 "LT Y31 Cd Duration"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -4930,7 +5697,7 @@ codeunit 92478 "LT Y31 Cd Duration"
 // accepts); the expected values are what the corpus CI containers produced. Regenerate, do not edit by hand.
 // Facts: implicit conversion matrix, conditional expressions with Label
 
-codeunit 92479 "LT Y31 Cd Label"
+codeunit 92480 "LT Y31 Cd Label"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -4944,6 +5711,7 @@ codeunit 92479 "LT Y31 Cd Label"
         vCode10: Code[10];
         vGuid: Guid;
         vLabel: Label 'abc', Locked = true;
+        vOut: Text;
         vText: Text;
         vText10: Text[10];
 
@@ -4956,12 +5724,24 @@ codeunit 92479 "LT Y31 Cd Label"
         vChar := 65;
         Res := false;
         if Try1() then Observer.Observe('cond_branches.abc.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.A.f');
+        vChar := 65;
+        Res := true;
+        if Try2() then Observer.Observe('cond_to_text.abc.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.A.t');
+        vChar := 65;
+        Res := false;
+        if Try2() then Observer.Observe('cond_to_text.abc.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.A.f');
         vChar := 97;
         Res := true;
         if Try1() then Observer.Observe('cond_branches.abc.a.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.a.t');
         vChar := 97;
         Res := false;
         if Try1() then Observer.Observe('cond_branches.abc.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.a.f');
+        vChar := 97;
+        Res := true;
+        if Try2() then Observer.Observe('cond_to_text.abc.a.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.a.t');
+        vChar := 97;
+        Res := false;
+        if Try2() then Observer.Observe('cond_to_text.abc.a.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.a.f');
         Observer.Finish();
     end;
 
@@ -5000,28 +5780,64 @@ codeunit 92479 "LT Y31 Cd Label"
     begin
         vText := 'a';
         Res := true;
-        if Try2() then Observer.Observe('cond_branches.abc.a.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.a.t');
+        if Try3() then Observer.Observe('cond_branches.abc.a.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.a.t');
         vText := 'a';
         Res := false;
-        if Try2() then Observer.Observe('cond_branches.abc.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.a.f');
+        if Try3() then Observer.Observe('cond_branches.abc.a.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.a.f');
+        vText := 'a';
+        Res := true;
+        if Try4() then Observer.Observe('cond_to_text.abc.a.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.a.t');
+        vText := 'a';
+        Res := false;
+        if Try4() then Observer.Observe('cond_to_text.abc.a.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.a.f');
         vText := 'A';
         Res := true;
-        if Try2() then Observer.Observe('cond_branches.abc.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.A.t');
+        if Try3() then Observer.Observe('cond_branches.abc.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.A.t');
         vText := 'A';
         Res := false;
-        if Try2() then Observer.Observe('cond_branches.abc.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.A.f');
+        if Try3() then Observer.Observe('cond_branches.abc.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.A.f');
+        vText := 'A';
+        Res := true;
+        if Try4() then Observer.Observe('cond_to_text.abc.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.A.t');
+        vText := 'A';
+        Res := false;
+        if Try4() then Observer.Observe('cond_to_text.abc.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.A.f');
         vText := 'abc';
         Res := true;
-        if Try2() then Observer.Observe('cond_branches.abc.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.abc.t');
+        if Try3() then Observer.Observe('cond_branches.abc.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.abc.t');
         vText := 'abc';
         Res := false;
-        if Try2() then Observer.Observe('cond_branches.abc.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.abc.f');
+        if Try3() then Observer.Observe('cond_branches.abc.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.abc.f');
+        vText := 'abc';
+        Res := true;
+        if Try4() then Observer.Observe('cond_to_text.abc.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.abc.t');
+        vText := 'abc';
+        Res := false;
+        if Try4() then Observer.Observe('cond_to_text.abc.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.abc.f');
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         Res := true;
-        if Try2() then Observer.Observe('cond_branches.abc.guidlow.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.guidlow.t');
+        if Try3() then Observer.Observe('cond_branches.abc.guidlow.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.guidlow.t');
         vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
         Res := false;
-        if Try2() then Observer.Observe('cond_branches.abc.guidlow.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.guidlow.f');
+        if Try3() then Observer.Observe('cond_branches.abc.guidlow.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.guidlow.f');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        Res := true;
+        if Try4() then Observer.Observe('cond_to_text.abc.guidlow.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.guidlow.t');
+        vText := '5c4e1f0a-9b3d-4e2f-8a1b-0c2d3e4f5a6b';
+        Res := false;
+        if Try4() then Observer.Observe('cond_to_text.abc.guidlow.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.guidlow.f');
+        vText := 'abcdefghijk';
+        Res := true;
+        if Try3() then Observer.Observe('cond_branches.abc.eleven.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.eleven.t');
+        vText := 'abcdefghijk';
+        Res := false;
+        if Try3() then Observer.Observe('cond_branches.abc.eleven.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.eleven.f');
+        vText := 'abcdefghijk';
+        Res := true;
+        if Try4() then Observer.Observe('cond_to_text.abc.eleven.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.eleven.t');
+        vText := 'abcdefghijk';
+        Res := false;
+        if Try4() then Observer.Observe('cond_to_text.abc.eleven.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.eleven.f');
         Observer.Finish();
     end;
 
@@ -5060,10 +5876,16 @@ codeunit 92479 "LT Y31 Cd Label"
     begin
         vText10 := 'abc';
         Res := true;
-        if Try3() then Observer.Observe('cond_branches.abc.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.abc.t');
+        if Try5() then Observer.Observe('cond_branches.abc.abc.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.abc.t');
         vText10 := 'abc';
         Res := false;
-        if Try3() then Observer.Observe('cond_branches.abc.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.abc.f');
+        if Try5() then Observer.Observe('cond_branches.abc.abc.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.abc.f');
+        vText10 := 'abc';
+        Res := true;
+        if Try6() then Observer.Observe('cond_to_text.abc.abc.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.abc.t');
+        vText10 := 'abc';
+        Res := false;
+        if Try6() then Observer.Observe('cond_to_text.abc.abc.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.abc.f');
         Observer.Finish();
     end;
 
@@ -5102,16 +5924,28 @@ codeunit 92479 "LT Y31 Cd Label"
     begin
         vCode10 := 'A';
         Res := true;
-        if Try4() then Observer.Observe('cond_branches.abc.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.A.t');
+        if Try7() then Observer.Observe('cond_branches.abc.A.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.A.t');
         vCode10 := 'A';
         Res := false;
-        if Try4() then Observer.Observe('cond_branches.abc.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.A.f');
+        if Try7() then Observer.Observe('cond_branches.abc.A.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.A.f');
+        vCode10 := 'A';
+        Res := true;
+        if Try8() then Observer.Observe('cond_to_text.abc.A.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.A.t');
+        vCode10 := 'A';
+        Res := false;
+        if Try8() then Observer.Observe('cond_to_text.abc.A.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.A.f');
         vCode10 := 'ABC';
         Res := true;
-        if Try4() then Observer.Observe('cond_branches.abc.ABC.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.ABC.t');
+        if Try7() then Observer.Observe('cond_branches.abc.ABC.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.ABC.t');
         vCode10 := 'ABC';
         Res := false;
-        if Try4() then Observer.Observe('cond_branches.abc.ABC.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.ABC.f');
+        if Try7() then Observer.Observe('cond_branches.abc.ABC.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.ABC.f');
+        vCode10 := 'ABC';
+        Res := true;
+        if Try8() then Observer.Observe('cond_to_text.abc.ABC.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.ABC.t');
+        vCode10 := 'ABC';
+        Res := false;
+        if Try8() then Observer.Observe('cond_to_text.abc.ABC.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.ABC.f');
         Observer.Finish();
     end;
 
@@ -5150,10 +5984,16 @@ codeunit 92479 "LT Y31 Cd Label"
     begin
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         Res := true;
-        if Try5() then Observer.Observe('cond_branches.abc.g.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.g.t');
+        if Try9() then Observer.Observe('cond_branches.abc.g.t', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.g.t');
         vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
         Res := false;
-        if Try5() then Observer.Observe('cond_branches.abc.g.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.g.f');
+        if Try9() then Observer.Observe('cond_branches.abc.g.f', Util.VShow(V)) else Observer.ObserveError('cond_branches.abc.g.f');
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        Res := true;
+        if Try10() then Observer.Observe('cond_to_text.abc.g.t', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.g.t');
+        vGuid := '{5C4E1F0A-9B3D-4E2F-8A1B-0C2D3E4F5A6B}';
+        Res := false;
+        if Try10() then Observer.Observe('cond_to_text.abc.g.f', vOut + '|' + Format(StrLen(vOut))) else Observer.ObserveError('cond_to_text.abc.g.f');
         Observer.Finish();
     end;
 
@@ -5197,29 +6037,64 @@ codeunit 92479 "LT Y31 Cd Label"
     [TryFunction]
     local procedure Try2()
     begin
-        Clear(V);
-        V := Res ? vLabel : vText;
+        Clear(vOut);
+        vOut := Res ? vLabel : vChar;
     end;
 
     [TryFunction]
     local procedure Try3()
     begin
         Clear(V);
-        V := Res ? vLabel : vText10;
+        V := Res ? vLabel : vText;
     end;
 
     [TryFunction]
     local procedure Try4()
     begin
-        Clear(V);
-        V := Res ? vLabel : vCode10;
+        Clear(vOut);
+        vOut := Res ? vLabel : vText;
     end;
 
     [TryFunction]
     local procedure Try5()
     begin
         Clear(V);
+        V := Res ? vLabel : vText10;
+    end;
+
+    [TryFunction]
+    local procedure Try6()
+    begin
+        Clear(vOut);
+        vOut := Res ? vLabel : vText10;
+    end;
+
+    [TryFunction]
+    local procedure Try7()
+    begin
+        Clear(V);
+        V := Res ? vLabel : vCode10;
+    end;
+
+    [TryFunction]
+    local procedure Try8()
+    begin
+        Clear(vOut);
+        vOut := Res ? vLabel : vCode10;
+    end;
+
+    [TryFunction]
+    local procedure Try9()
+    begin
+        Clear(V);
         V := Res ? vLabel : vGuid;
+    end;
+
+    [TryFunction]
+    local procedure Try10()
+    begin
+        Clear(vOut);
+        vOut := Res ? vLabel : vGuid;
     end;
 
 }

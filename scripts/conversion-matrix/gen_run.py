@@ -70,6 +70,9 @@ FEW = {
     'Duration': [('65', '65')], 'Label': [('abc', None)],
 }
 AR_EXTRA = {'Integer': [('max', '2147483647')], 'Byte': [('255', '255')], 'Char': [('65535', '65535')]}
+# a false branch longer than a Text[10] true branch (al-runner refuses `B ? Text[N] : Text`)
+CD_EXTRA = {'Text': [('eleven', "'abcdefghijk'")], 'Label': []}
+TEXTISH = ('Text', 'Text10', 'Code10', 'Label', 'Guid', 'Char')
 
 CV_SOURCES = ['Integer', 'BigInteger', 'Decimal', 'Char', 'Byte', 'Option', 'Enum', 'EnumImpl', 'Text', 'Text10', 'Code10', 'Label',
               'LabelLong', 'Guid', 'Duration']
@@ -215,9 +218,47 @@ def gen_cv(m, cid):
     return units, cid
 
 
-def pair_values(s, t, extra=False):
-    a = FEW[s] + (AR_EXTRA.get(s, []) if extra else [])
-    b = FEW[t] + (AR_EXTRA.get(t, []) if extra else [])
+TP_VALUES = [('abc', "'abc'"), ('ten', "'abcdefghij'"), ('lead', "' ab'"), ('empty', "''")]
+TP_TARGETS = ['Text', 'Text10', 'Text3', 'Code10', 'Code3', 'Guid', 'F.Code10']
+
+
+def gen_tp(m, cid):
+    """the value of a TestPage control (Text) converted by :=, by-value argument and exit; the control shows a Text[10] field."""
+    u = Unit(cid, 'LT Y31 Tp Value', 'the value of a TestPage control')
+    cid += 1
+    u.globals['TP'] = 'TestPage "LT Y31 Conv Card"'
+    u.globals['R'] = 'Record "LT Y31 Conv Fields"'
+    u.globals['RowR'] = 'Record "LT Y31 Conv Fields"'
+    u.globals['vShown'] = 'Text'
+    for t in TP_TARGETS:
+        ctxs = [c for c in ('assign', 'arg_byvalue') if (t not in FIELD_OF or c == 'assign') and accepted(m, c, 'TestPage.Value', t)]
+        if not ctxs:
+            continue
+        u.g(t)
+        tries = {}
+        for c in ctxs:
+            if c == 'assign':
+                tries[c] = u.tryproc(['Clear(%s);' % var(t), '%s := TP.FText.Value;' % var(t)])
+            else:
+                pa = 'PA_%s_%d' % (t, u.n)
+                u.procs.append('    local procedure %s(p: %s)\n    begin\n        %s := p;\n    end;\n' % (pa, DECL[t], var(t)))
+                tries[c] = u.tryproc(['Clear(%s);' % var(t), '%s(TP.FText.Value);' % pa])
+        stmts = []
+        for lbl, expr in TP_VALUES:
+            stmts += ['RowR.DeleteAll();', 'RowR.Init();', 'RowR.Integer := 1;', 'RowR.Text10 := %s;' % expr, 'RowR.Insert();',
+                      'TP.OpenView();', 'TP.GoToRecord(RowR);', 'vShown := TP.FText.Value;',
+                      "Observer.Observe('shown.%s', vShown + '|' + Format(StrLen(vShown)));" % lbl]
+            for c in ctxs:
+                stmts.append(observe_line('%s.%s' % (c, lbl), tries[c], fmt(t)))
+            stmts.append('TP.Close();')
+        u.tests.append(('TestPageValue_To_%s' % t.replace('.', ''), stmts))
+    return [u], cid
+
+
+def pair_values(s, t, fam):
+    ex = {'Ar': AR_EXTRA, 'Cd': CD_EXTRA}.get(fam, {})
+    a = FEW[s] + ex.get(s, [])
+    b = FEW[t] + ex.get(t, [])
     return a, b
 
 
@@ -240,6 +281,8 @@ def gen_ops(m, cid, fam):
                 ops = [o for o in ('add', 'sub', 'compound_add') if accepted(m, o, s, t)]
             else:
                 ops = ['cond_branches'] if accepted(m, 'cond_branches', s, t) and s != t else []
+                if ops and s in TEXTISH and t in TEXTISH and accepted(m, 'assign', s, 'Text'):
+                    ops.append('cond_to_text')
             if not ops:
                 continue
             lv = var(s)
@@ -269,15 +312,18 @@ def gen_ops(m, cid, fam):
                     body = ['Clear(V);', 'V := %s - %s;' % (lv, rv)]
                 elif o == 'compound_add':
                     body = ['%s += %s;' % (rv, lv)]
+                elif o == 'cond_to_text':
+                    u.globals['vOut'] = 'Text'
+                    body = ['Clear(vOut);', 'vOut := Res ? %s : %s;' % (lv, rv)]
                 else:
                     body = ['Clear(V);', 'V := Res ? %s : %s;' % (lv, rv)]
                 tries[o] = u.tryproc(body)
             stmts = []
-            a, b = pair_values(s, t, fam == 'Ar')
+            a, b = pair_values(s, t, fam)
             for la, ea in a:
                 for lb, eb in b:
                     for o in ops:
-                        conds = [('t', 'true'), ('f', 'false')] if o == 'cond_branches' else [(None, None)]
+                        conds = [('t', 'true'), ('f', 'false')] if o.startswith('cond') else [(None, None)]
                         for lc, ec in conds:
                             stmts += setv(s, ea)
                             if eb is not None:
@@ -287,6 +333,8 @@ def gen_ops(m, cid, fam):
                             key = '%s.%s.%s' % (o, la, lb) + ('.%s' % lc if lc else '')
                             if o in ('eq', 'lt', 'in_set', 'case_label'):
                                 show = 'Format(Res, 0, 9)'
+                            elif o == 'cond_to_text':
+                                show = "vOut + '|' + Format(StrLen(vOut))"
                             elif o == 'compound_add':
                                 show = fmt(t) if s != t else fmt(t).replace(var(t), rv)
                             else:
@@ -408,7 +456,7 @@ def main():
     m = load_matrix(a.matrix)
     units = []
     cid = ID_FIRST
-    for gen in (gen_cv, lambda m, c: gen_ops(m, c, 'Cmp'), lambda m, c: gen_ops(m, c, 'Ar'), lambda m, c: gen_ops(m, c, 'Cd')):
+    for gen in (gen_cv, gen_tp, lambda m, c: gen_ops(m, c, 'Cmp'), lambda m, c: gen_ops(m, c, 'Ar'), lambda m, c: gen_ops(m, c, 'Cd')):
         us, cid = gen(m, cid)
         units += us
     if cid > 92549:
