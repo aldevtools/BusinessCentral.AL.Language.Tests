@@ -936,7 +936,15 @@ codeunit 88269 "LT RM Refill Tests"
         Observer.Observe('open log', Log.Take());
         Y34Refill(Ws, 'B');
         Ws.Close();
-        Observer.Finish();
+        Observer.Expect('open log', 'R:A;R:A-1;R:A-2;R:B;R:B-1;R:B-2;R:A;R:A;C:A;');
+        Observer.Expect('before', 'A');
+        Observer.Expect('validate log', 'R:B;R:B-1;R:B-2;R:B;R:B;C:B;');
+        Observer.Expect('shown after validate', 'B');
+        Observer.Expect('expanded after validate', 'No');
+        Observer.Expect('rows', 'B');
+        Observer.Expect('walk log', '');
+        Observer.Expect('shown after walk', 'B');
+        Observer.Verify();
     end;
 
     [Test]
@@ -949,7 +957,14 @@ codeunit 88269 "LT RM Refill Tests"
         Ws.Next();
         Y34Refill(Ws, 'A');
         Ws.Close();
-        Observer.Finish();
+        Observer.Expect('before', 'B');
+        Observer.Expect('validate log', 'R:A;R:A-1;R:A-2;R:A;R:A;C:A;');
+        Observer.Expect('shown after validate', 'A');
+        Observer.Expect('expanded after validate', 'No');
+        Observer.Expect('rows', 'A');
+        Observer.Expect('walk log', '');
+        Observer.Expect('shown after walk', 'A');
+        Observer.Verify();
     end;
 
     [Test]
@@ -960,7 +975,14 @@ codeunit 88269 "LT RM Refill Tests"
         Y34Open(Ws, 'D', false);
         Y34Refill(Ws, 'AB');
         Ws.Close();
-        Observer.Finish();
+        Observer.Expect('before', 'D');
+        Observer.Expect('validate log', 'R:A;R:A-1;R:A-2;R:B;R:B-1;R:B-2;R:A;R:A;C:A;');
+        Observer.Expect('shown after validate', 'A');
+        Observer.Expect('expanded after validate', 'No');
+        Observer.Expect('rows', 'A B');
+        Observer.Expect('walk log', 'R:B;R:B;C:B;');
+        Observer.Expect('shown after walk', 'B');
+        Observer.Verify();
     end;
 
     [Test]
@@ -973,7 +995,14 @@ codeunit 88269 "LT RM Refill Tests"
         Ws.Next();
         Y34Refill(Ws, 'CD');
         Ws.Close();
-        Observer.Finish();
+        Observer.Expect('before', 'B');
+        Observer.Expect('validate log', 'R:D;R:D;R:D-1;R:D-2;R:D;R:C-2;R:C-1;R:C;R:D;R:D;C:D;');
+        Observer.Expect('shown after validate', 'D');
+        Observer.Expect('expanded after validate', 'No');
+        Observer.Expect('rows', 'C D');
+        Observer.Expect('walk log', 'R:C;R:C;C:C;R:D;R:D;C:D;');
+        Observer.Expect('shown after walk', 'D');
+        Observer.Verify();
     end;
 
     [Test]
@@ -984,7 +1013,14 @@ codeunit 88269 "LT RM Refill Tests"
         Y34Open(Ws, 'A', false);
         Y34Refill(Ws, 'ABC');
         Ws.Close();
-        Observer.Finish();
+        Observer.Expect('before', 'A');
+        Observer.Expect('validate log', 'R:A;R:A-1;R:A-2;R:B;R:B-1;R:B-2;R:C;R:C-1;R:C-2;R:A;R:A;C:A;');
+        Observer.Expect('shown after validate', 'A');
+        Observer.Expect('expanded after validate', 'No');
+        Observer.Expect('rows', 'A B C');
+        Observer.Expect('walk log', 'R:B;R:B;C:B;R:C;R:C;C:C;');
+        Observer.Expect('shown after walk', 'C');
+        Observer.Verify();
     end;
 
     [Test]
@@ -995,7 +1031,14 @@ codeunit 88269 "LT RM Refill Tests"
         Y34Open(Ws, 'AB', false);
         Y34Refill(Ws, 'aBc');
         Ws.Close();
-        Observer.Finish();
+        Observer.Expect('before', 'A');
+        Observer.Expect('validate log', 'R:a;R:B;R:B-1;R:B-2;R:c;R:a;R:a;C:a;');
+        Observer.Expect('shown after validate', 'a');
+        Observer.Expect('expanded after validate', 'No');
+        Observer.Expect('rows', 'a B c');
+        Observer.Expect('walk log', 'R:B;R:B;C:B;R:c;R:c;C:c;');
+        Observer.Expect('shown after walk', 'c');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1006,7 +1049,14 @@ codeunit 88269 "LT RM Refill Tests"
         Y34Open(Ws, 'A', false);
         Y34Refill(Ws, '*B');
         Ws.Close();
-        Observer.Finish();
+        Observer.Expect('before', 'A');
+        Observer.Expect('validate log', 'R:*-1;R:B;R:B-1;R:B-2;R:*-1;R:*-1;C:*-1;');
+        Observer.Expect('shown after validate', '*-1');
+        Observer.Expect('expanded after validate', 'No');
+        Observer.Expect('rows', '*-1 B');
+        Observer.Expect('walk log', 'R:B;R:B;C:B;');
+        Observer.Expect('shown after walk', 'B');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1021,7 +1071,15 @@ codeunit 88269 "LT RM Refill Tests"
         Ws.First();
         Y34Refill(Ws, 'B');
         Ws.Close();
-        Observer.Finish();
+        Observer.Expect('rows before', 'A A-1 A-2 B');
+        Observer.Expect('before', 'A');
+        Observer.Expect('validate log', 'R:B;R:B-1;R:B-2;R:B;R:B;C:B;');
+        Observer.Expect('shown after validate', 'B');
+        Observer.Expect('expanded after validate', 'Yes');
+        Observer.Expect('rows', 'B B-1 B-2');
+        Observer.Expect('walk log', 'R:B-1;R:B-1;C:B-1;R:B-2;R:B-2;C:B-2;');
+        Observer.Expect('shown after walk', 'B-2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1037,7 +1095,15 @@ codeunit 88269 "LT RM Refill Tests"
         Ws.Last();
         Y34Refill(Ws, 'CD');
         Ws.Close();
-        Observer.Finish();
+        Observer.Expect('rows before', 'A B B-1 B-2');
+        Observer.Expect('before', 'B-2');
+        Observer.Expect('validate log', 'R:D-2;R:D-2;R:D-1;R:D;R:C-2;R:C-1;R:C;R:D-2;R:D-2;C:D-2;');
+        Observer.Expect('shown after validate', 'D-2');
+        Observer.Expect('expanded after validate', 'No');
+        Observer.Expect('rows', 'C D D-1 D-2');
+        Observer.Expect('walk log', 'R:C;R:C;C:C;R:D;R:D;C:D;R:D-1;R:D-1;C:D-1;R:D-2;R:D-2;C:D-2;');
+        Observer.Expect('shown after walk', 'D-2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1049,7 +1115,15 @@ codeunit 88269 "LT RM Refill Tests"
         Observer.Observe('open log', Log.Take());
         Y34Refill(Ws, 'AB');
         Ws.Close();
-        Observer.Finish();
+        Observer.Expect('open log', 'R:A-2;R:A-1;R:A;R:A-2;R:A-2;C:A-2;');
+        Observer.Expect('before', 'A-2');
+        Observer.Expect('validate log', 'R:A-2;R:A-2;R:B;R:B-1;R:B-2;R:A-2;R:A-1;R:A;R:A-2;R:A-2;C:A-2;');
+        Observer.Expect('shown after validate', 'A-2');
+        Observer.Expect('expanded after validate', 'No');
+        Observer.Expect('rows', 'A A-1 A-2 B');
+        Observer.Expect('walk log', 'R:A;R:A;C:A;R:A-1;R:A-1;C:A-1;R:A-2;R:A-2;C:A-2;R:B;R:B;C:B;');
+        Observer.Expect('shown after walk', 'B');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1060,7 +1134,13 @@ codeunit 88269 "LT RM Refill Tests"
         Y34Open(Ws, 'AB', false);
         Y34Refill(Ws, '');
         Ws.Close();
-        Observer.Finish();
+        Observer.Expect('before', 'A');
+        Observer.Expect('validate log', 'C:;');
+        Observer.Expect('shown after validate', '');
+        Observer.Expect('rows', '');
+        Observer.Expect('walk log', '');
+        Observer.Expect('shown after walk', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1076,6 +1156,38 @@ codeunit 88269 "LT RM Refill Tests"
         Observer.Observe('expand log', Log.Take());
         Observer.Observe('expanded', Format(Ws.IsExpanded()));
         Observer.Observe('rows', Y34Walk(Ws));
+        Ws.Close();
+        Observer.Expect('expand log', '');
+        Observer.Expect('expanded', 'Yes');
+        Observer.Expect('rows', 'A A-1 A-2 B');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y34_Tree_KeptKeyIsChild_AB_To_aBc_FromSecondRoot()
+    var
+        Ws: TestPage "LT Y34 Refill Tree";
+    begin
+        // The client stands on key 4 (root B); after the refill key 4 is the child row B-2.
+        Y34Open(Ws, 'AB', false);
+        Ws.First();
+        Ws.Next();
+        Y34Refill(Ws, 'aBc');
+        Ws.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y34_Tree_ExpandedKeyIsLeaf_AB_To_aB()
+    var
+        Ws: TestPage "LT Y34 Refill Tree";
+    begin
+        // Root A (key 1) is expanded; after the refill key 1 is the root a without children.
+        Y34Open(Ws, 'AB', false);
+        Ws.First();
+        Ws.Expand(true);
+        Ws.First();
+        Y34Refill(Ws, 'aB');
         Ws.Close();
         Observer.Finish();
     end;
