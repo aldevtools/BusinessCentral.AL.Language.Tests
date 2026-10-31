@@ -196,7 +196,19 @@ codeunit 92842 "LT Y43 SA FlowField Tests"
         Observer.Observe('amountNoCalc', Format(H.Amount));
         H.CalcFields(Amount);
         Observer.Observe('amountCalc', Format(H.Amount));
-        Observer.Finish();
+        Observer.Expect('setAscending', 'ok');
+        Observer.Expect('countOk', 'Yes');
+        Observer.Expect('count|text', '');
+        Observer.Expect('count|code', '');
+        Observer.Expect('count', '5');
+        Observer.Expect('findFirstOk', 'Yes');
+        Observer.Expect('findFirst|text', '');
+        Observer.Expect('findFirst|code', '');
+        Observer.Expect('found', 'Yes');
+        Observer.Expect('no', 'H2');
+        Observer.Expect('amountNoCalc', '50');
+        Observer.Expect('amountCalc', '50');
+        Observer.Verify();
     end;
 
     [Test]
@@ -214,7 +226,13 @@ codeunit 92842 "LT Y43 SA FlowField Tests"
         Observer.Observe('ascending', Format(H.Ascending()));
         Observer.Observe('currentKey', H.CurrentKey());
         Observer.Observe('view', H.GetView(false));
-        Observer.Finish();
+        Observer.Expect('setAscending', 'ok');
+        Observer.Expect('order', 'ok:H2:50 H1:30 H4:30 H3:0 H5:-5 ');
+        Observer.Expect('getAscendingAmount', 'No');
+        Observer.Expect('ascending', 'No');
+        Observer.Expect('currentKey', 'Amount');
+        Observer.Expect('view', 'VERSION(1) SORTING(Field4) ORDER(1) WHERE(Field1=1(1),Field3=1(>=2023-12-16&<=2024-01-15))');
+        Observer.Verify();
     end;
 
     [Test]
@@ -230,7 +248,11 @@ codeunit 92842 "LT Y43 SA FlowField Tests"
         Observer.Observe('order', Loop(H));
         Observer.Observe('getAscendingAmount', Format(H.GetAscending(Amount)));
         Observer.Observe('view', H.GetView(false));
-        Observer.Finish();
+        Observer.Expect('setAscending', 'ok');
+        Observer.Expect('order', 'ok:H5:-5 H3:0 H1:30 H4:30 H2:50 ');
+        Observer.Expect('getAscendingAmount', 'Yes');
+        Observer.Expect('view', 'VERSION(1) SORTING(Field4) WHERE(Field1=1(1),Field3=1(>=2023-12-16&<=2024-01-15))');
+        Observer.Verify();
     end;
 
     [Test]
@@ -244,7 +266,9 @@ codeunit 92842 "LT Y43 SA FlowField Tests"
         H.SetCurrentKey(Amount);
         Observer.Observe('setAscending', SetAsc(H, false));
         Observer.Observe('orderBack', LoopBack(H));
-        Observer.Finish();
+        Observer.Expect('setAscending', 'ok');
+        Observer.Expect('orderBack', 'ok:H5:-5 H3:0 H4:30 H1:30 H2:50 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -262,7 +286,12 @@ codeunit 92842 "LT Y43 SA FlowField Tests"
         Observer.Observe('ascending', Format(H.Ascending()));
         Observer.Observe('order', Loop(H));
         Observer.Observe('view', H.GetView(false));
-        Observer.Finish();
+        Observer.Expect('setAscending', 'ok');
+        Observer.Expect('getAscendingAmount', 'Yes');
+        Observer.Expect('ascending', 'Yes');
+        Observer.Expect('order', 'ok:H5:-5 H3:0 H1:30 H4:30 H2:50 ');
+        Observer.Expect('view', 'VERSION(1) SORTING(Field4) WHERE(Field1=1(1),Field3=1(>=2023-12-16&<=2024-01-15))');
+        Observer.Verify();
     end;
 
     [Test]
@@ -280,6 +309,12 @@ codeunit 92842 "LT Y43 SA FlowField Tests"
         Observer.Observe('getAscendingNo', Format(H.GetAscending("No.")));
         Observer.Observe('currentKey', H.CurrentKey());
         Observer.Observe('view', H.GetView(false));
-        Observer.Finish();
+        Observer.Expect('setAscending', 'ok');
+        Observer.Expect('order', 'ok:H2:50 H1:30 H4:30 H3:0 H5:-5 ');
+        Observer.Expect('getAscendingAmount', 'No');
+        Observer.Expect('getAscendingNo', 'Yes');
+        Observer.Expect('currentKey', 'Amount,No.');
+        Observer.Expect('view', 'VERSION(1) SORTING(Field4,Field2) ORDER(1,0) WHERE(Field1=1(1),Field3=1(>=2023-12-16&<=2024-01-15))');
+        Observer.Verify();
     end;
 }

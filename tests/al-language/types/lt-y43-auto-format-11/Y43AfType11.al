@@ -156,7 +156,17 @@ codeunit 92847 "LT Y43 AF11 Tests"
             T.Ext11 := Value(i);
             Observer.Observe('Ext11_StrSubstNo_0:2_' + ValueName(i), StrSubstNo('%1', T.Ext11));
         end;
-        Observer.Finish();
+        Observer.Expect('Ext11_StrSubstNo_1234.5', '1,234.50');
+        Observer.Expect('Ext11_StrSubstNo_10', '10.00');
+        Observer.Expect('Ext11_StrSubstNo_0.123456', '0.12346');
+        Observer.Expect('Ext11_StrSubstNo_-2.5', '-2.50');
+        Observer.Expect('Ext11_StrSubstNo_0', '0.00');
+        Observer.Expect('Ext11_StrSubstNo_0:2_1234.5', '1,234.5');
+        Observer.Expect('Ext11_StrSubstNo_0:2_10', '10');
+        Observer.Expect('Ext11_StrSubstNo_0:2_0.123456', '0.12');
+        Observer.Expect('Ext11_StrSubstNo_0:2_-2.5', '-2.5');
+        Observer.Expect('Ext11_StrSubstNo_0:2_0', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -174,7 +184,27 @@ codeunit 92847 "LT Y43 AF11 Tests"
             Observer.Observe('Ext11_Format02_' + ValueName(i), Format(T.Ext11, 0, 2));
             Observer.Observe('Ext11_Format09_' + ValueName(i), Format(T.Ext11, 0, 9));
         end;
-        Observer.Finish();
+        Observer.Expect('Ext11_Format_1234.5', '1,234.50');
+        Observer.Expect('Ext11_Format01_1234.5', '1234.50');
+        Observer.Expect('Ext11_Format02_1234.5', '1234.50');
+        Observer.Expect('Ext11_Format09_1234.5', '1234.50');
+        Observer.Expect('Ext11_Format_10', '10.00');
+        Observer.Expect('Ext11_Format01_10', '10.00');
+        Observer.Expect('Ext11_Format02_10', '10.00');
+        Observer.Expect('Ext11_Format09_10', '10.00');
+        Observer.Expect('Ext11_Format_0.123456', '0.12346');
+        Observer.Expect('Ext11_Format01_0.123456', '0.12346');
+        Observer.Expect('Ext11_Format02_0.123456', '0.12346');
+        Observer.Expect('Ext11_Format09_0.123456', '0.12346');
+        Observer.Expect('Ext11_Format_-2.5', '-2.50');
+        Observer.Expect('Ext11_Format01_-2.5', '-2.50');
+        Observer.Expect('Ext11_Format02_-2.5', '-2.50');
+        Observer.Expect('Ext11_Format09_-2.5', '-2.50');
+        Observer.Expect('Ext11_Format_0', '0.00');
+        Observer.Expect('Ext11_Format01_0', '0.00');
+        Observer.Expect('Ext11_Format02_0', '0.00');
+        Observer.Expect('Ext11_Format09_0', '0.00');
+        Observer.Verify();
     end;
 
     [Test]
@@ -191,7 +221,22 @@ codeunit 92847 "LT Y43 AF11 Tests"
             Observer.Observe('Lit11_Format_' + ValueName(i), Format(T.Lit11));
             Observer.Observe('Plain_StrSubstNo_' + ValueName(i), StrSubstNo('%1', T.Plain));
         end;
-        Observer.Finish();
+        Observer.Expect('Lit11_StrSubstNo_1234.5', '1,234.50');
+        Observer.Expect('Lit11_Format_1234.5', '1,234.50');
+        Observer.Expect('Plain_StrSubstNo_1234.5', '1,234.5');
+        Observer.Expect('Lit11_StrSubstNo_10', '10.00');
+        Observer.Expect('Lit11_Format_10', '10.00');
+        Observer.Expect('Plain_StrSubstNo_10', '10');
+        Observer.Expect('Lit11_StrSubstNo_0.123456', '0.12346');
+        Observer.Expect('Lit11_Format_0.123456', '0.12346');
+        Observer.Expect('Plain_StrSubstNo_0.123456', '0.123456');
+        Observer.Expect('Lit11_StrSubstNo_-2.5', '-2.50');
+        Observer.Expect('Lit11_Format_-2.5', '-2.50');
+        Observer.Expect('Plain_StrSubstNo_-2.5', '-2.5');
+        Observer.Expect('Lit11_StrSubstNo_0', '0.00');
+        Observer.Expect('Lit11_Format_0', '0.00');
+        Observer.Expect('Plain_StrSubstNo_0', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -207,7 +252,17 @@ codeunit 92847 "LT Y43 AF11 Tests"
             Observer.Observe('Ext11Blank_StrSubstNo_' + ValueName(i), StrSubstNo('%1', T.Ext11Blank));
             Observer.Observe('Ext11Blank_Format_' + ValueName(i), Format(T.Ext11Blank));
         end;
-        Observer.Finish();
+        Observer.Expect('Ext11Blank_StrSubstNo_1234.5', '1,234.5');
+        Observer.Expect('Ext11Blank_Format_1234.5', '1,234.5');
+        Observer.Expect('Ext11Blank_StrSubstNo_10', '10');
+        Observer.Expect('Ext11Blank_Format_10', '10');
+        Observer.Expect('Ext11Blank_StrSubstNo_0.123456', '0.123456');
+        Observer.Expect('Ext11Blank_Format_0.123456', '0.123456');
+        Observer.Expect('Ext11Blank_StrSubstNo_-2.5', '-2.5');
+        Observer.Expect('Ext11Blank_Format_-2.5', '-2.5');
+        Observer.Expect('Ext11Blank_StrSubstNo_0', '0');
+        Observer.Expect('Ext11Blank_Format_0', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -222,7 +277,17 @@ codeunit 92847 "LT Y43 AF11 Tests"
             Observer.Observe('Ext11Int_StrSubstNo_' + ValueName(i), StrSubstNo('%1', T.Ext11Int));
             Observer.Observe('Ext11Int_Format_' + ValueName(i), Format(T.Ext11Int));
         end;
-        Observer.Finish();
+        Observer.Expect('Ext11Int_StrSubstNo_1234.5', '1,234.50');
+        Observer.Expect('Ext11Int_Format_1234.5', '1,234.50');
+        Observer.Expect('Ext11Int_StrSubstNo_10', '10.00');
+        Observer.Expect('Ext11Int_Format_10', '10.00');
+        Observer.Expect('Ext11Int_StrSubstNo_0.123456', '0***');
+        Observer.Expect('Ext11Int_Format_0.123456', '0***');
+        Observer.Expect('Ext11Int_StrSubstNo_-2.5', '2.50');
+        Observer.Expect('Ext11Int_Format_-2.5', '2.50');
+        Observer.Expect('Ext11Int_StrSubstNo_0', '0.00');
+        Observer.Expect('Ext11Int_Format_0', '0.00');
+        Observer.Verify();
     end;
 
     [Test]
@@ -240,7 +305,18 @@ codeunit 92847 "LT Y43 AF11 Tests"
             Observer.Observe('Own11_Format_' + ValueName(i), Format(T.Own11));
         end;
         Observer.Observe('log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('Own11_StrSubstNo_1234.5', '1,234.5');
+        Observer.Expect('Own11_Format_1234.5', '1,234.5');
+        Observer.Expect('Own11_StrSubstNo_10', '10.0');
+        Observer.Expect('Own11_Format_10', '10.0');
+        Observer.Expect('Own11_StrSubstNo_0.123456', '0.1');
+        Observer.Expect('Own11_Format_0.123456', '0.1');
+        Observer.Expect('Own11_StrSubstNo_-2.5', '-2.5');
+        Observer.Expect('Own11_Format_-2.5', '-2.5');
+        Observer.Expect('Own11_StrSubstNo_0', '0.0');
+        Observer.Expect('Own11_Format_0', '0.0');
+        Observer.Expect('log', 'own;own;own;own;own;own;own;own;own;own;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -260,6 +336,13 @@ codeunit 92847 "LT Y43 AF11 Tests"
         asserterror Error('%1', T.Ext11);
         Observer.Observe('errorText', GetLastErrorText());
         Observer.Observe('logError', Log.Take());
-        Observer.Finish();
+        Observer.Expect('logBefore', '');
+        Observer.Expect('strSubstNoTwice', '1,234.50 1,234.50');
+        Observer.Expect('logStrSubstNo', 'getformat;getformat;');
+        Observer.Expect('format', '1,234.50');
+        Observer.Expect('logFormat', 'getformat;');
+        Observer.Expect('errorText', '1,234.50');
+        Observer.Expect('logError', 'getformat;');
+        Observer.Verify();
     end;
 }

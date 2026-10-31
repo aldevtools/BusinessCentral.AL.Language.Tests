@@ -150,7 +150,13 @@ codeunit 92852 "LT Y43 TS After Commit"
         Sleep(2000);
         Observer.Observe('afterPause', ReadTask(Id));
         Observer.Observe('markersAfterPause', Format(Markers()));
-        Observer.Finish();
+        Observer.Expect('canCreateTask', 'No');
+        Observer.Expect('beforeCommit', 'Yes ready=Yes cu=92849 notBeforeBlank=Yes');
+        Observer.Expect('afterCommit', 'Yes ready=Yes cu=92849 notBeforeBlank=Yes');
+        Observer.Expect('markersAfterCommit', '0');
+        Observer.Expect('afterPause', 'Yes ready=Yes cu=92849 notBeforeBlank=Yes');
+        Observer.Expect('markersAfterPause', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -163,7 +169,11 @@ codeunit 92852 "LT Y43 TS After Commit"
         Observer.Observe('taskExists', Format(TaskScheduler.TaskExists(State.GetLast())));
         Observer.Observe('markers', Format(Markers()));
         Observer.Observe('cancel', Cancel(State.GetLast()));
-        Observer.Finish();
+        Observer.Expect('earlierTask', 'Yes ready=Yes cu=92849 notBeforeBlank=Yes');
+        Observer.Expect('taskExists', 'Yes');
+        Observer.Expect('markers', '0');
+        Observer.Expect('cancel', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -181,7 +191,12 @@ codeunit 92852 "LT Y43 TS After Commit"
         Observer.Observe('afterPause', ReadTask(Id));
         Observer.Observe('markersAfterPause', Format(Markers()));
         Observer.Observe('cancel', Cancel(Id));
-        Observer.Finish();
+        Observer.Expect('canCreateTask', 'No');
+        Observer.Expect('afterCommit', 'Yes ready=No cu=92849 notBeforeBlank=Yes');
+        Observer.Expect('afterPause', 'Yes ready=No cu=92849 notBeforeBlank=Yes');
+        Observer.Expect('markersAfterPause', '0');
+        Observer.Expect('cancel', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -204,7 +219,14 @@ codeunit 92852 "LT Y43 TS After Commit"
         Observer.Observe('allDeltaAfterCommit', Format(ReadyCount(false) - AllBefore));
         Observer.Observe('cancel', Cancel(Id));
         Observer.Observe('userDeltaAfterCancel', Format(ReadyCount(true) - UserBefore));
-        Observer.Finish();
+        Observer.Expect('canCreateTask', 'No');
+        Observer.Expect('userDeltaAfterCreate', '1');
+        Observer.Expect('allDeltaAfterCreate', '1');
+        Observer.Expect('userDeltaAfterCommit', '1');
+        Observer.Expect('allDeltaAfterCommit', '1');
+        Observer.Expect('cancel', 'Yes');
+        Observer.Expect('userDeltaAfterCancel', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -238,7 +260,13 @@ codeunit 92852 "LT Y43 TS After Commit"
         Observer.Observe('cancel', Cancel(Id));
         Holder.FindFirst();
         Observer.Observe('autoCalc1AfterCancel', Format(Holder.Scheduled));
-        Observer.Finish();
+        Observer.Expect('canCreateTask', 'No');
+        Observer.Expect('calcFields1', 'Yes');
+        Observer.Expect('calcFields2', 'No');
+        Observer.Expect('autoCalc1', 'Yes');
+        Observer.Expect('cancel', 'Yes');
+        Observer.Expect('autoCalc1AfterCancel', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -258,7 +286,15 @@ codeunit 92852 "LT Y43 TS After Commit"
         Observer.Observe('afterCancel', ReadTask(Id));
         Observer.Observe('taskExistsAfterCancel', Format(TaskScheduler.TaskExists(Id)));
         Observer.Observe('cancelAgain', Cancel(Id));
-        Observer.Finish();
+        Observer.Expect('canCreateTask', 'No');
+        Observer.Expect('taskExists', 'Yes');
+        Observer.Expect('setTaskReady', 'Yes');
+        Observer.Expect('afterSetReady', 'Yes ready=Yes cu=92849 notBeforeBlank=No');
+        Observer.Expect('cancel', 'Yes');
+        Observer.Expect('afterCancel', 'No');
+        Observer.Expect('taskExistsAfterCancel', 'No');
+        Observer.Expect('cancelAgain', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -281,6 +317,12 @@ codeunit 92852 "LT Y43 TS After Commit"
         Observer.Observe('afterPause', ReadTask(Id));
         Observer.Observe('markersAfterPause', Format(Markers()));
         Observer.Observe('cancel', Cancel(Id));
-        Observer.Finish();
+        Observer.Expect('canCreateTask', 'No');
+        Observer.Expect('afterCommit', 'Yes ready=Yes cu=92849 notBeforeBlank=No');
+        Observer.Expect('notBeforeEqual', 'Yes');
+        Observer.Expect('afterPause', 'Yes ready=Yes cu=92849 notBeforeBlank=No');
+        Observer.Expect('markersAfterPause', '0');
+        Observer.Expect('cancel', 'Yes');
+        Observer.Verify();
     end;
 }

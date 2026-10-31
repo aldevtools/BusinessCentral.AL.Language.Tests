@@ -539,7 +539,15 @@ codeunit 67857 "LT Date Formula Edges"
         Both(Observer, '2<D>');
         Both(Observer, '62<D>');
         Both(Observer, '+2<D>');
-        Observer.Finish();
+        Observer.Expect('calc -62<D>', 'ok:2023-11-14');
+        Observer.Expect('eval -62<D>', 'ok:stored=-62D|calc=2023-11-14');
+        Observer.Expect('calc 2<D>', 'ok:2024-01-17');
+        Observer.Expect('eval 2<D>', 'ok:stored=2D|calc=2024-01-17');
+        Observer.Expect('calc 62<D>', 'ok:2024-03-17');
+        Observer.Expect('eval 62<D>', 'ok:stored=62D|calc=2024-03-17');
+        Observer.Expect('calc +2<D>', 'ok:2024-01-17');
+        Observer.Expect('eval +2<D>', 'ok:stored=+2D|calc=2024-01-17');
+        Observer.Verify();
     end;
 
     [Test]
@@ -551,7 +559,15 @@ codeunit 67857 "LT Date Formula Edges"
         Both(Observer, '1<M>');
         Both(Observer, '-1<Q>');
         Both(Observer, '1<Y>');
-        Observer.Finish();
+        Observer.Expect('calc -1<W>', 'ok:2024-01-08');
+        Observer.Expect('eval -1<W>', 'ok:stored=-1W|calc=2024-01-08');
+        Observer.Expect('calc 1<M>', 'ok:2024-02-15');
+        Observer.Expect('eval 1<M>', 'ok:stored=1M|calc=2024-02-15');
+        Observer.Expect('calc -1<Q>', 'ok:2023-10-15');
+        Observer.Expect('eval -1<Q>', 'ok:stored=-1Q|calc=2023-10-15');
+        Observer.Expect('calc 1<Y>', 'ok:2025-01-15');
+        Observer.Expect('eval 1<Y>', 'ok:stored=1Y|calc=2025-01-15');
+        Observer.Verify();
     end;
 
     [Test]
@@ -563,7 +579,15 @@ codeunit 67857 "LT Date Formula Edges"
         Both(Observer, 'C<M>');
         Both(Observer, '-1<CM>');
         Both(Observer, '1<D>+1<D>');
-        Observer.Finish();
+        Observer.Expect('calc 1<WD>', 'ok:2024-01-16');
+        Observer.Expect('eval 1<WD>', 'ok:stored=1WD|calc=2024-01-16');
+        Observer.Expect('calc C<M>', 'error:The date formula ''C<M>'' should include a number.|Evaluate');
+        Observer.Expect('eval C<M>', 'error:The date formula ''C<M>'' should include a number.|Evaluate');
+        Observer.Expect('calc -1<CM>', 'error:The date formula ''-1<CM>'' should include a time unit.\\Time units can be: D,WD,W,M,Q, or Y.\C, meaning current time unit based on date, can be specified as a prefix to the time unit.|Evaluate');
+        Observer.Expect('eval -1<CM>', 'error:The date formula ''-1<CM>'' should include a time unit.\\Time units can be: D,WD,W,M,Q, or Y.\C, meaning current time unit based on date, can be specified as a prefix to the time unit.|Evaluate');
+        Observer.Expect('calc 1<D>+1<D>', 'ok:2024-01-17');
+        Observer.Expect('eval 1<D>+1<D>', 'ok:stored=1D+1D|calc=2024-01-17');
+        Observer.Verify();
     end;
 
     [Test]
@@ -575,7 +599,15 @@ codeunit 67857 "LT Date Formula Edges"
         Both(Observer, '-62<D>>');
         Both(Observer, '-<62D>');
         Both(Observer, '1<0D>');
-        Observer.Finish();
+        Observer.Expect('calc 1D+2<D>', 'ok:2024-01-18');
+        Observer.Expect('eval 1D+2<D>', 'ok:stored=1D+2D|calc=2024-01-18');
+        Observer.Expect('calc -62<D>>', 'ok:2023-11-14');
+        Observer.Expect('eval -62<D>>', 'ok:stored=-62D|calc=2023-11-14');
+        Observer.Expect('calc -<62D>', 'ok:2023-11-14');
+        Observer.Expect('eval -<62D>', 'ok:stored=-62D|calc=2023-11-14');
+        Observer.Expect('calc 1<0D>', 'error:The date formula ''1<0D>'' should include a time unit.\\Time units can be: D,WD,W,M,Q, or Y.\C, meaning current time unit based on date, can be specified as a prefix to the time unit.|Evaluate');
+        Observer.Expect('eval 1<0D>', 'error:The date formula ''1<0D>'' should include a time unit.\\Time units can be: D,WD,W,M,Q, or Y.\C, meaning current time unit based on date, can be specified as a prefix to the time unit.|Evaluate');
+        Observer.Verify();
     end;
 
     [Test]
@@ -587,6 +619,14 @@ codeunit 67857 "LT Date Formula Edges"
         Both(Observer, '1<>D');
         Both(Observer, '<1D><1D>');
         Both(Observer, '1D<+1D>');
-        Observer.Finish();
+        Observer.Expect('calc <1>D', 'ok:2024-01-16');
+        Observer.Expect('eval <1>D', 'ok:stored=1D|calc=2024-01-16');
+        Observer.Expect('calc 1<>D', 'ok:2024-01-16');
+        Observer.Expect('eval 1<>D', 'ok:stored=1D|calc=2024-01-16');
+        Observer.Expect('calc <1D><1D>', 'error:The date formula ''1D><1D'' must include plus (+) or minus (-).|Evaluate');
+        Observer.Expect('eval <1D><1D>', 'error:The date formula ''1D><1D'' must include plus (+) or minus (-).|Evaluate');
+        Observer.Expect('calc 1D<+1D>', 'ok:2024-01-17');
+        Observer.Expect('eval 1D<+1D>', 'ok:stored=1D+1D|calc=2024-01-17');
+        Observer.Verify();
     end;
 }
