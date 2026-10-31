@@ -319,6 +319,17 @@ codeunit 92657 "LT Y37 VA Tests"
         Observer.Observe('o1 stored', Format(O.Status));
         O.Get('O2');
         Observer.Observe('o2 stored', Format(O.Status));
-        Observer.Finish();
+        Observer.Expect('o2 initial', '4');
+        Observer.Expect('o2 released', 'Released');
+        Observer.Expect('o2 stored after move', 'Released');
+        Observer.Expect('o2 finished|text', 'Validation error for Field: Status,  Message = ''Your entry of ''3'' is not an acceptable value for ''Status''.''');
+        Observer.Expect('o2 finished|code', 'TestValidation');
+        Observer.Expect('o2 after finished', '3');
+        Observer.Expect('o1 simulated|text', 'Validation error for Field: Status,  Message = ''Your entry of ''Simulated'' is not an acceptable value for ''Status''.''');
+        Observer.Expect('o1 simulated|code', 'TestValidation');
+        Observer.Expect('o1 after simulated', '3');
+        Observer.Expect('o1 stored', 'Planned');
+        Observer.Expect('o2 stored', 'Released');
+        Observer.Verify();
     end;
 }

@@ -367,10 +367,13 @@ codeunit 92638 "LT Y37 Cap Tests"
         Observer.Verify();
     end;
 
-    // The CLR exception that BC raises for this caption is not caught by asserterror (the test fails with it); Codeunit.Run catches it.
-    [Test]
+    // Not a [Test]: a List whose DataCaptionFields names a Date field, opened with one date filtered, makes BC fail the test with
+    // "Unexpected CLR exception thrown.: System.InvalidCastException: Unable to cast object of type 'System.String' to type 'System.DateTime'."
+    // raised by the test page client while it builds the caption (CaptionManager.BuildListDynamicCaption). Neither asserterror nor
+    // Codeunit.Run catches it. Observed on SaaS BC 29 and the Windows BC 27.5 and 28.5 containers alike, so it is BC behavior, not a
+    // container bug; kept as a procedure because a test that ends in this error cannot pass.
     [HandlerFunctions('HLD')]
-    procedure LT_C313_DCF_Date()
+    procedure Fact_C313_DCF_Date_ClientException()
     var
         Runner: Codeunit "LT Y37 Cap Date Run";
         Ok: Boolean;
