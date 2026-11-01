@@ -8,6 +8,10 @@
 // real table and on an Integer table element; import of nested containers with OnAfterAssignVariable.
 // The plain trigger order of a container below the root is pinned by xmlport/W7XmlPortTests.al:25-90 and below a table element by
 // xmlport/lt-qr-xmlport-container-occurs (not repeated). Line breaks of the exported text are shown as |.
+// Facts: Skip() in a container's OnBeforePassVariable leaves out the container with all its children; their triggers do not run and the
+// following siblings are written. A container whose children are all skipped is written as an empty element (<cac:Billing />). Skip() of
+// an element with text attributes leaves out the attributes too, and their triggers do not run. On import a container's
+// OnAfterAssignVariable runs after its children, with an empty value. Values are the same on 27.5, 28.5, 29.0 and BC 29 SaaS.
 // BC versions: 27-29
 
 table 93225 "LT Y60 CS Src"
@@ -718,7 +722,13 @@ codeunit 93226 "LT Y60 CS Tests"
         ExportPeriod(Observer, 'both empty', 0);
         ExportPeriod(Observer, 'both filled', 1);
         ExportPeriod(Observer, 'end empty', 2);
-        Observer.Finish();
+        Observer.Expect('both empty xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Doc xmlns:cac="urn:lt-cac" xmlns:cbc="urn:lt-cbc">|  <cbc:After>x</cbc:After>|</Doc>|');
+        Observer.Expect('both empty log', 'period;after;post;');
+        Observer.Expect('both filled xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Doc xmlns:cac="urn:lt-cac" xmlns:cbc="urn:lt-cbc">|  <cac:Period>|    <cbc:StartDate>2024-01-01</cbc:StartDate>|    <cbc:EndDate>2024-01-31</cbc:EndDate>|  </cac:Period>|  <cbc:After>x</cbc:After>|</Doc>|');
+        Observer.Expect('both filled log', 'period;after;post;');
+        Observer.Expect('end empty xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Doc xmlns:cac="urn:lt-cac" xmlns:cbc="urn:lt-cbc">|  <cac:Period>|    <cbc:StartDate>2024-01-01</cbc:StartDate>|    <cbc:EndDate />|  </cac:Period>|  <cbc:After>x</cbc:After>|</Doc>|');
+        Observer.Expect('end empty log', 'period;after;post;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -729,7 +739,13 @@ codeunit 93226 "LT Y60 CS Tests"
         ExportPeriodLeaf(Observer, 'both empty', 0);
         ExportPeriodLeaf(Observer, 'both filled', 1);
         ExportPeriodLeaf(Observer, 'end empty', 2);
-        Observer.Finish();
+        Observer.Expect('both empty xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Doc xmlns:cac="urn:lt-cac" xmlns:cbc="urn:lt-cbc">|  <cbc:After>x</cbc:After>|</Doc>|');
+        Observer.Expect('both empty log', 'period;after;post;');
+        Observer.Expect('both filled xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Doc xmlns:cac="urn:lt-cac" xmlns:cbc="urn:lt-cbc">|  <cac:Period>|    <cbc:StartDate>2024-01-01</cbc:StartDate>|    <cbc:EndDate>2024-01-31</cbc:EndDate>|  </cac:Period>|  <cbc:After>x</cbc:After>|</Doc>|');
+        Observer.Expect('both filled log', 'period;start=2024-01-01;end=2024-01-31;after;post;');
+        Observer.Expect('end empty xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Doc xmlns:cac="urn:lt-cac" xmlns:cbc="urn:lt-cbc">|  <cac:Period>|    <cbc:StartDate>2024-01-01</cbc:StartDate>|  </cac:Period>|  <cbc:After>x</cbc:After>|</Doc>|');
+        Observer.Expect('end empty log', 'period;start=2024-01-01;end=;after;post;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -741,7 +757,15 @@ codeunit 93226 "LT Y60 CS Tests"
         ExportBilling(Observer, 'bill only', 'B1', '');
         ExportBilling(Observer, 'all set', 'B1', 'I1');
         ExportBilling(Observer, 'inv only', '', 'I1');
-        Observer.Finish();
+        Observer.Expect('all empty xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Doc xmlns:cac="urn:lt-cac" xmlns:cbc="urn:lt-cbc">|  <cbc:Tail>t</cbc:Tail>|</Doc>|');
+        Observer.Expect('all empty log', 'billing;tail;post;');
+        Observer.Expect('bill only xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Doc xmlns:cac="urn:lt-cac" xmlns:cbc="urn:lt-cbc">|  <cac:Billing />|  <cbc:Tail>t</cbc:Tail>|</Doc>|');
+        Observer.Expect('bill only log', 'billing;invdoc;tail;post;');
+        Observer.Expect('all set xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Doc xmlns:cac="urn:lt-cac" xmlns:cbc="urn:lt-cbc">|  <cac:Billing>|    <cac:InvDoc>|      <cbc:RefId>I1</cbc:RefId>|      <cbc:RefDate>2024-02-01</cbc:RefDate>|    </cac:InvDoc>|  </cac:Billing>|  <cbc:Tail>t</cbc:Tail>|</Doc>|');
+        Observer.Expect('all set log', 'billing;invdoc;tail;post;');
+        Observer.Expect('inv only xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Doc xmlns:cac="urn:lt-cac" xmlns:cbc="urn:lt-cbc">|  <cbc:Tail>t</cbc:Tail>|</Doc>|');
+        Observer.Expect('inv only log', 'billing;tail;post;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -752,7 +776,11 @@ codeunit 93226 "LT Y60 CS Tests"
         Seed();
         ExportAttach(Observer, 'all filled', 1);
         ExportAttach(Observer, 'uri empty on two', 2);
-        Observer.Finish();
+        Observer.Expect('all filled xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Doc xmlns:cac="urn:lt-cac" xmlns:cbc="urn:lt-cbc">|  <cac:Line>|    <cbc:Title>one</cbc:Title>|    <cac:Attachment>|      <cbc:Blob mime="text/plain" fname="f1.txt">b1</cbc:Blob>|      <cac:Ext>|        <cbc:Uri>u1</cbc:Uri>|      </cac:Ext>|    </cac:Attachment>|  </cac:Line>|  <cac:Line>|    <cbc:Title>two</cbc:Title>|    <cac:Attachment>|      <cbc:Blob mime="text/plain" fname="f2.txt">b2</cbc:Blob>|      <cac:Ext>|        <cbc:Uri>u2</cbc:Uri>|      </cac:Ext>|    </cac:Attachment>|  </cac:Line>|</Doc>|');
+        Observer.Expect('all filled log', 'row 1;blob=b1;mime=text/plain;fname=f1.txt;ext;uri=u1;row 2;blob=b2;mime=text/plain;fname=f2.txt;ext;uri=u2;post;');
+        Observer.Expect('uri empty on two xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Doc xmlns:cac="urn:lt-cac" xmlns:cbc="urn:lt-cbc">|  <cac:Line>|    <cbc:Title>one</cbc:Title>|    <cac:Attachment>|      <cbc:Blob mime="text/plain" fname="r1">b1</cbc:Blob>|      <cac:Ext>|        <cbc:Uri>r1</cbc:Uri>|      </cac:Ext>|    </cac:Attachment>|  </cac:Line>|  <cac:Line>|    <cbc:Title>two</cbc:Title>|    <cac:Attachment>|      <cbc:Blob mime="text/plain">b2</cbc:Blob>|    </cac:Attachment>|  </cac:Line>|</Doc>|');
+        Observer.Expect('uri empty on two log', 'row 1;blob=b1;mime=text/plain;fname=r1;ext;uri=r1;row 2;blob=b2;mime=text/plain;fname=;ext;post;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -763,7 +791,11 @@ codeunit 93226 "LT Y60 CS Tests"
         Seed();
         ExportAttach(Observer, 'row one skipped', 3);
         ExportAttach(Observer, 'blob empty', 4);
-        Observer.Finish();
+        Observer.Expect('row one skipped xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Doc xmlns:cac="urn:lt-cac" xmlns:cbc="urn:lt-cbc">|  <cac:Line>|    <cbc:Title>two</cbc:Title>|    <cac:Attachment>|      <cbc:Blob mime="text/plain" fname="f2.txt">b2</cbc:Blob>|      <cac:Ext>|        <cbc:Uri>u2</cbc:Uri>|      </cac:Ext>|    </cac:Attachment>|  </cac:Line>|</Doc>|');
+        Observer.Expect('row one skipped log', 'row 1;row 2;blob=b2;mime=text/plain;fname=f2.txt;ext;uri=u2;post;');
+        Observer.Expect('blob empty xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Doc xmlns:cac="urn:lt-cac" xmlns:cbc="urn:lt-cbc">|  <cac:Line>|    <cbc:Title>one</cbc:Title>|    <cac:Attachment />|  </cac:Line>|  <cac:Line>|    <cbc:Title>two</cbc:Title>|    <cac:Attachment />|  </cac:Line>|</Doc>|');
+        Observer.Expect('blob empty log', 'row 1;blob=;ext;row 2;blob=;ext;post;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -779,7 +811,9 @@ codeunit 93226 "LT Y60 CS Tests"
         Xmlport.Export(Xmlport::"LT Y60 CS Attach Integer", OutS);
         Observer.Observe('xml', ReadLines(TempBlob));
         Observer.Observe('log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Doc xmlns:cac="urn:lt-cac" xmlns:cbc="urn:lt-cbc">|  <cac:Line>|    <cbc:Title>one</cbc:Title>|    <cac:Attachment>|      <cbc:Blob fname="r1">b1</cbc:Blob>|      <cac:Ext>|        <cbc:Uri>r1</cbc:Uri>|      </cac:Ext>|    </cac:Attachment>|  </cac:Line>|  <cac:Line>|    <cbc:Title>two</cbc:Title>|    <cac:Attachment>|      <cbc:Blob>b2</cbc:Blob>|    </cac:Attachment>|  </cac:Line>|</Doc>|');
+        Observer.Expect('log', 'pre;ln 1;blob=b1;fname=r1;ext;uri=r1;ln 2;blob=b2;fname=;ext;post;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -792,6 +826,18 @@ codeunit 93226 "LT Y60 CS Tests"
         ImportBilling(Observer, 'empty billing', '<Doc><Billing/></Doc>');
         ImportBilling(Observer, 'no billing', '<Doc></Doc>');
         ImportBilling(Observer, 'invdoc without refid', '<Doc><Billing><InvDoc><RefDate>d</RefDate></InvDoc></Billing></Doc>');
-        Observer.Finish();
+        Observer.Expect('full ok', 'Yes');
+        Observer.Expect('full log', 'refid=x;refdate=d;invdoc=[];billing=[];post;');
+        Observer.Expect('refid only ok', 'Yes');
+        Observer.Expect('refid only log', 'refid=x;invdoc=[];billing=[];post;');
+        Observer.Expect('empty billing ok', 'Yes');
+        Observer.Expect('empty billing log', 'billing=[];post;');
+        Observer.Expect('no billing ok', 'Yes');
+        Observer.Expect('no billing log', 'post;');
+        Observer.Expect('invdoc without refid ok', 'No');
+        Observer.Expect('invdoc without refid error|text', 'Imported XML cannot validate with the schema: The element ''InvDoc'' has invalid child element ''RefDate''. List of possible elements expected: ''RefId''.');
+        Observer.Expect('invdoc without refid error|code', 'XmlPortInvalidXml');
+        Observer.Expect('invdoc without refid log', '');
+        Observer.Verify();
     end;
 }

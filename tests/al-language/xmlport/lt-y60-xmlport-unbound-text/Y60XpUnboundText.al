@@ -7,6 +7,10 @@
 // Unbound (control) and with MaxOccurs = Unbounded; an Xml port with an unbound leaf text element below the root (export and import).
 // The separator set from OnPreXmlPort is pinned by platform/lt-xmlport-session-navapp-cookie/P94Fixtures.al:356 (not repeated).
 // An unbound text element inside a table element on export is pinned by pages/lt-report-page-properties/06-xmlport-unbound.al.
+// Facts: Unbound = true makes the text element take every further column of the line (OnAfterAssignVariable runs once per column, empty
+// columns included, all in one record); without Unbound only the next column is read and the rest is ignored without an error;
+// MaxOccurs = Unbounded with Unbound changes nothing. In an Xml port the unbound text element imports like a plain one, and the export
+// does not end (see Unbound_Text_Xml_Export).
 // BC versions: 27-29
 
 table 93220 "LT Y60 UT Cell"
@@ -430,7 +434,15 @@ codeunit 93222 "LT Y60 UT Tests"
     begin
         ObserveImport(Observer, 'two lines', Xmlport::"LT Y60 UT Csv Unbound", 'a,b,c,d' + CrLf() + 'e,f,g,h' + CrLf());
         ObserveImport(Observer, 'no last line end', Xmlport::"LT Y60 UT Csv Unbound", 'a,b,c');
-        Observer.Finish();
+        Observer.Expect('two lines ok', 'Yes');
+        Observer.Expect('two lines log', 'init;c1=a;cx=b;cx=c;cx=d;ins;init;c1=e;cx=f;cx=g;cx=h;ins;post col1=[e] colx=[];');
+        Observer.Expect('two lines cells', '1/1=b,1/2=c,1/3=d,2/4=f,2/5=g,2/6=h,');
+        Observer.Expect('two lines lines', '0');
+        Observer.Expect('no last line end ok', 'Yes');
+        Observer.Expect('no last line end log', 'init;c1=a;cx=b;cx=c;ins;post col1=[a] colx=[];');
+        Observer.Expect('no last line end cells', '1/1=b,1/2=c,');
+        Observer.Expect('no last line end lines', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -440,7 +452,15 @@ codeunit 93222 "LT Y60 UT Tests"
     begin
         ObserveImport(Observer, 'short and empty', Xmlport::"LT Y60 UT Csv Unbound", 'a' + CrLf() + 'b,,d' + CrLf() + 'e,f' + CrLf());
         ObserveImport(Observer, 'empty last', Xmlport::"LT Y60 UT Csv Unbound", 'a,b,' + CrLf());
-        Observer.Finish();
+        Observer.Expect('short and empty ok', 'Yes');
+        Observer.Expect('short and empty log', 'init;c1=a;ins;init;c1=b;cx=;cx=d;ins;init;c1=e;cx=f;ins;post col1=[e] colx=[];');
+        Observer.Expect('short and empty cells', '2/1=,2/2=d,3/3=f,');
+        Observer.Expect('short and empty lines', '0');
+        Observer.Expect('empty last ok', 'Yes');
+        Observer.Expect('empty last log', 'init;c1=a;cx=b;cx=;ins;post col1=[a] colx=[];');
+        Observer.Expect('empty last cells', '1/1=b,1/2=,');
+        Observer.Expect('empty last lines', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -450,7 +470,15 @@ codeunit 93222 "LT Y60 UT Tests"
     begin
         ObserveImport(Observer, 'bound', Xmlport::"LT Y60 UT Csv Bound", 'a,b,c,d' + CrLf() + 'e,f,g,h' + CrLf());
         ObserveImport(Observer, 'bound two columns', Xmlport::"LT Y60 UT Csv Bound", 'a,b' + CrLf() + 'e,f' + CrLf());
-        Observer.Finish();
+        Observer.Expect('bound ok', 'Yes');
+        Observer.Expect('bound log', 'init;c1=a;cx=b;ins;init;c1=e;cx=f;ins;post col1=[e] colx=[];');
+        Observer.Expect('bound cells', '1/1=b,2/2=f,');
+        Observer.Expect('bound lines', '0');
+        Observer.Expect('bound two columns ok', 'Yes');
+        Observer.Expect('bound two columns log', 'init;c1=a;cx=b;ins;init;c1=e;cx=f;ins;post col1=[e] colx=[];');
+        Observer.Expect('bound two columns cells', '1/1=b,2/2=f,');
+        Observer.Expect('bound two columns lines', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -459,7 +487,11 @@ codeunit 93222 "LT Y60 UT Tests"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveImport(Observer, 'unbounded', Xmlport::"LT Y60 UT Csv Unbounded", 'a,b,c,d' + CrLf() + 'e,f,g,h' + CrLf());
-        Observer.Finish();
+        Observer.Expect('unbounded ok', 'Yes');
+        Observer.Expect('unbounded log', 'init;c1=a;cx=b;cx=c;cx=d;ins;init;c1=e;cx=f;cx=g;cx=h;ins;post col1=[e] colx=[];');
+        Observer.Expect('unbounded cells', '1/1=b,1/2=c,1/3=d,2/4=f,2/5=g,2/6=h,');
+        Observer.Expect('unbounded lines', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -468,7 +500,11 @@ codeunit 93222 "LT Y60 UT Tests"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveImport(Observer, 'quoted', Xmlport::"LT Y60 UT Csv Unbound", 'a,"b,x",c,' + CrLf());
-        Observer.Finish();
+        Observer.Expect('quoted ok', 'Yes');
+        Observer.Expect('quoted log', 'init;c1=a;cx=b,x;cx=c;cx=;ins;post col1=[a] colx=[];');
+        Observer.Expect('quoted cells', '1/1=b,x,1/2=c,1/3=,');
+        Observer.Expect('quoted lines', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -478,10 +514,20 @@ codeunit 93222 "LT Y60 UT Tests"
     begin
         ObserveImport(Observer, 'both', Xmlport::"LT Y60 UT Xml Unbound", '<Root><Plain>p</Plain><Free>f</Free></Root>');
         ObserveImport(Observer, 'free only', Xmlport::"LT Y60 UT Xml Unbound", '<Root><Free>f</Free></Root>');
-        Observer.Finish();
+        Observer.Expect('both ok', 'Yes');
+        Observer.Expect('both log', 'plain=p;free=f;post plain=[p] free=[f];');
+        Observer.Expect('both cells', '');
+        Observer.Expect('both lines', '0');
+        Observer.Expect('free only ok', 'Yes');
+        Observer.Expect('free only log', 'free=f;post plain=[] free=[f];');
+        Observer.Expect('free only cells', '');
+        Observer.Expect('free only lines', '0');
+        Observer.Verify();
     end;
 
-    [Test]
+    // Not a [Test]: the export of this port does not end. On BC 29 (SaaS) and on 27.5, 28.5, 29.0 (Linux CI) it fails after the
+    // output stream grows to its limit with an error the test cannot catch: "Unexpected CLR exception thrown.:
+    // System.IO.IOException: Maximum capacity exceeded". The same happens for an unbound field element (YXmlPortProps.al:715).
     procedure Unbound_Text_Xml_Export()
     var
         Observer: Codeunit "Probe Observer";
@@ -501,6 +547,6 @@ codeunit 93222 "LT Y60 UT Tests"
         end;
         Observer.Observe('export', Result);
         Observer.Observe('log', Log.Take());
-        Observer.Finish();
+        Observer.Discard();
     end;
 }

@@ -6,6 +6,9 @@
 //        table fields, and expression columns (a global of each simple type, Option and Enum globals, an element of a Text array indexed by
 //        Number, fields read through a global record variable) in an Integer data item whose OnPreDataItem sets SetRange(Number, 1, N)
 //        with N = 0; the same with rows; a 0 Option and the first Enum value; a nested data item with no row below one with rows.
+// Facts: the schema is the same with and without rows. Option and Enum columns (fields and expressions) are xs:string, written as the
+// member name (also for the first member); Code and Text globals, array elements and fields read through a record variable take the
+// type of their AL type. Values are the same on 27.5, 28.5 and 29.0 (Linux CI).
 // BC versions: 27, 28, 29
 
 table 98706 "LT Y60 OP Kind Row"
@@ -323,7 +326,11 @@ codeunit 98706 "LT Y60 OP SaveAsXml NoRow"
         ObserveRun(Observer, 'no row', Report::"LT Y60 OP Kind Fields");
         InsertRow(1, 1, "LT Y60 OP Cat"::Y);
         ObserveRun(Observer, 'one row', Report::"LT Y60 OP Kind Fields");
-        Observer.Finish();
+        Observer.Expect('no row schema', '<xs:element name="KindC" type="xs:string"|<xs:element name="CatC" type="xs:string"|<xs:element name="CdC" type="xs:string"|<xs:element name="TxC" type="xs:string"|<xs:element name="NC" type="xs:int"|<xs:element name="DcC" type="xs:decimal"|<xs:element name="DcCFormat" type="xs:string"|<xs:element name="BoC" type="xs:boolean"|<xs:element name="DtC" msdata:DateTimeMode="Local" type="xs:dateTime"|');
+        Observer.Expect('no row rows', '</DataSet>||');
+        Observer.Expect('one row schema', '<xs:element name="KindC" type="xs:string"|<xs:element name="CatC" type="xs:string"|<xs:element name="CdC" type="xs:string"|<xs:element name="TxC" type="xs:string"|<xs:element name="NC" type="xs:int"|<xs:element name="DcC" type="xs:decimal"|<xs:element name="DcCFormat" type="xs:string"|<xs:element name="BoC" type="xs:boolean"|<xs:element name="DtC" msdata:DateTimeMode="Local" type="xs:dateTime"|');
+        Observer.Expect('one row rows', '<Result>|<KindC>B</KindC>|<CatC>Y</CatC>|<CdC>C1</CdC>|<TxC>text 1</TxC>|<NC>10</NC>|<DcC>1.25</DcC>|<DcCFormat>#,##0.00</DcCFormat>|<BoC>true</BoC>|<DtC>2024-02-01T00:00:00+00:00</DtC>|</Result>|</DataSet>||');
+        Observer.Verify();
     end;
 
     [Test]
@@ -339,8 +346,9 @@ codeunit 98706 "LT Y60 OP SaveAsXml NoRow"
         Content := FileText(DataFile);
         Observer.Observe('schema', Columns(Content));
         Observer.Observe('rows', Rows(Content));
-        Observer.Observe('full', Content);
-        Observer.Finish();
+        Observer.Expect('schema', '<xs:element name="VarCode" type="xs:string"|<xs:element name="VarText" type="xs:string"|<xs:element name="VarInt" type="xs:int"|<xs:element name="VarDec" type="xs:decimal"|<xs:element name="VarDecFormat" type="xs:string"|<xs:element name="VarBool" type="xs:boolean"|<xs:element name="VarDate" msdata:DateTimeMode="Local" type="xs:dateTime"|<xs:element name="VarOpt" type="xs:string"|<xs:element name="VarEnum" type="xs:string"|<xs:element name="Arr" type="xs:string"|<xs:element name="RecField" type="xs:string"|<xs:element name="RecOpt" type="xs:string"|<xs:element name="RecEnum" type="xs:string"|');
+        Observer.Expect('rows', '</DataSet>||');
+        Observer.Verify();
     end;
 
     [Test]
@@ -351,7 +359,9 @@ codeunit 98706 "LT Y60 OP SaveAsXml NoRow"
     begin
         Counter.Set(2);
         ObserveRun(Observer, 'two rows', Report::"LT Y60 OP Kind Exprs");
-        Observer.Finish();
+        Observer.Expect('two rows schema', '<xs:element name="VarCode" type="xs:string"|<xs:element name="VarText" type="xs:string"|<xs:element name="VarInt" type="xs:int"|<xs:element name="VarDec" type="xs:decimal"|<xs:element name="VarDecFormat" type="xs:string"|<xs:element name="VarBool" type="xs:boolean"|<xs:element name="VarDate" msdata:DateTimeMode="Local" type="xs:dateTime"|<xs:element name="VarOpt" type="xs:string"|<xs:element name="VarEnum" type="xs:string"|<xs:element name="Arr" type="xs:string"|<xs:element name="RecField" type="xs:string"|<xs:element name="RecOpt" type="xs:string"|<xs:element name="RecEnum" type="xs:string"|');
+        Observer.Expect('two rows rows', '<Result>|<VarCode>CD1</VarCode>|<VarText>text one</VarText>|<VarInt>7</VarInt>|<VarDec>2.5</VarDec>|<VarDecFormat>#,##0.00</VarDecFormat>|<VarBool>true</VarBool>|<VarDate>2024-03-15T00:00:00+00:00</VarDate>|<VarOpt>Second</VarOpt>|<VarEnum>Y</VarEnum>|<Arr>first</Arr>|<RecField>RC</RecField>|<RecOpt>C</RecOpt>|<RecEnum>Y</RecEnum>|</Result>|<Result>|<VarCode>CD1</VarCode>|<VarText>text one</VarText>|<VarInt>7</VarInt>|<VarDec>2.5</VarDec>|<VarDecFormat>#,##0.00</VarDecFormat>|<VarBool>true</VarBool>|<VarDate>2024-03-15T00:00:00+00:00</VarDate>|<VarOpt>Second</VarOpt>|<VarEnum>Y</VarEnum>|<Arr>second</Arr>|<RecField>RC</RecField>|<RecOpt>C</RecOpt>|<RecEnum>Y</RecEnum>|</Result>|</DataSet>||');
+        Observer.Verify();
     end;
 
     [Test]
@@ -365,7 +375,9 @@ codeunit 98706 "LT Y60 OP SaveAsXml NoRow"
         InsertRow(1, 0, "LT Y60 OP Cat"::X);
         InsertRow(2, 2, "LT Y60 OP Cat"::Y);
         ObserveRun(Observer, 'first and last', Report::"LT Y60 OP Kind Fields");
-        Observer.Finish();
+        Observer.Expect('first and last schema', '<xs:element name="KindC" type="xs:string"|<xs:element name="CatC" type="xs:string"|<xs:element name="CdC" type="xs:string"|<xs:element name="TxC" type="xs:string"|<xs:element name="NC" type="xs:int"|<xs:element name="DcC" type="xs:decimal"|<xs:element name="DcCFormat" type="xs:string"|<xs:element name="BoC" type="xs:boolean"|<xs:element name="DtC" msdata:DateTimeMode="Local" type="xs:dateTime"|');
+        Observer.Expect('first and last rows', '<Result>|<KindC>A</KindC>|<CatC>X</CatC>|<CdC>C1</CdC>|<TxC>text 1</TxC>|<NC>10</NC>|<DcC>1.25</DcC>|<DcCFormat>#,##0.00</DcCFormat>|<BoC>true</BoC>|<DtC>2024-02-01T00:00:00+00:00</DtC>|</Result>|<Result>|<KindC>C</KindC>|<CatC>Y</CatC>|<CdC>C2</CdC>|<TxC>text 2</TxC>|<NC>20</NC>|<DcC>2.25</DcC>|<DcCFormat>#,##0.00</DcCFormat>|<BoC>true</BoC>|<DtC>2024-02-01T00:00:00+00:00</DtC>|</Result>|</DataSet>||');
+        Observer.Verify();
     end;
 
     [Test]
@@ -386,7 +398,11 @@ codeunit 98706 "LT Y60 OP SaveAsXml NoRow"
         Child.Cat := Child.Cat::X;
         Child.Insert();
         ObserveRun(Observer, 'one child', Report::"LT Y60 OP Kind Nested");
-        Observer.Finish();
+        Observer.Expect('no child schema', '<xs:element name="IdC" type="xs:int"|<xs:element name="KindC" type="xs:string"|<xs:element name="CatC" type="xs:string"|<xs:element name="StatusC" type="xs:string"|<xs:element name="ChildCatC" type="xs:string"|');
+        Observer.Expect('no child rows', '<Result>|<IdC>1</IdC>|<KindC>B</KindC>|<CatC>Y</CatC>|</Result>|</DataSet>||');
+        Observer.Expect('one child schema', '<xs:element name="IdC" type="xs:int"|<xs:element name="KindC" type="xs:string"|<xs:element name="CatC" type="xs:string"|<xs:element name="StatusC" type="xs:string"|<xs:element name="ChildCatC" type="xs:string"|');
+        Observer.Expect('one child rows', '<Result>|<IdC>1</IdC>|<KindC>B</KindC>|<CatC>Y</CatC>|<StatusC>Closed</StatusC>|<ChildCatC>X</ChildCatC>|</Result>|</DataSet>||');
+        Observer.Verify();
     end;
 
     [RequestPageHandler]

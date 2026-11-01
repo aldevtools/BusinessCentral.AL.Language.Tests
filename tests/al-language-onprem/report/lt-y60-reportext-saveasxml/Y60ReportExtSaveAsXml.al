@@ -265,6 +265,20 @@ codeunit 98709 "LT Y60 OP Ext SaveAsXml"
         exit(CopyStr(Result, 4));
     end;
 
+    // The parameter names of the parameters file, without their 32-digit suffix (the values are the user and the run time).
+    local procedure ParameterNames(Content: Text): Text
+    var
+        Line: Text;
+        Result: Text;
+    begin
+        if Content = '<no file>' then
+            exit(Content);
+        foreach Line in Content.Split('|') do
+            if Line.Trim().StartsWith('<Name>') then
+                Result += CopyStr(Line.Trim(), 7, StrLen(Line.Trim()) - 6 - 7 - 32) + '|';
+        exit(Result);
+    end;
+
     local procedure Columns(Content: Text): Text
     var
         Line: Text;
@@ -300,7 +314,7 @@ codeunit 98709 "LT Y60 OP Ext SaveAsXml"
         Seen := '';
         Report.Run(Report::"LT Y60 OP Ext Saved");
         Observer.Observe(Name + ' seen', Seen);
-        Observer.Observe(Name + ' parameters', FileText(ParametersFile));
+        Observer.Observe(Name + ' parameters', ParameterNames(FileText(ParametersFile)));
         Content := FileText(DataFile);
         Observer.Observe(Name + ' schema', Columns(Content));
         Observer.Observe(Name + ' rows', Rows(Content));
@@ -343,7 +357,7 @@ codeunit 98709 "LT Y60 OP Ext SaveAsXml"
         Step := 2;
         Seen := '';
         Report.Run(Report::"LT Y60 OP Ext Unsaved");
-        Observer.Observe('first parameters', FileText(ParametersFile));
+        Observer.Observe('first parameters', ParameterNames(FileText(ParametersFile)));
         Content := FileText(DataFile);
         Observer.Observe('first rows', Rows(Content));
         Observer.Observe('first log', Log.Take());

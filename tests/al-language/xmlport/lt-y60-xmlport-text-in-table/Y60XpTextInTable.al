@@ -8,6 +8,10 @@
 // a temporary table element with leaf text elements and a text element holding field elements with text attributes and a text element
 // that holds a temporary table element. Shapes already pinned (not repeated): xmlport/lt-qr-xmlport-container-occurs (TO_*, TP_*, TT_*,
 // TS_*, TQ_*, TR_*). Line breaks of the exported text are shown as |.
+// Facts: on import the inner temporary records are inserted before the outer one, and a field element bound to the outer record
+// assigns it on every inner record (the last value stays). A missing text attribute with the default Occurrence fails the import with
+// XmlPortInvalidXml. On export a table element without LinkTable lists all its rows under every parent row; a table element with
+// MinOccurs = Once and no row is written as an empty record. Values are the same on 27.5, 28.5, 29.0 and BC 29 SaaS.
 // BC versions: 27-29
 
 table 93230 "LT Y60 TT Hdr"
@@ -604,7 +608,21 @@ codeunit 93232 "LT Y60 TT Tests"
             '<Root><Outer><No>H1</No><Wrap><Inner><LineNo>1</LineNo><Item>a</Item><Name>n1</Name></Inner>' +
             '<Inner><LineNo>2</LineNo><Item>b</Item><Name>n2</Name></Inner></Wrap></Outer></Root>');
         ObserveImport(Observer, 'wrap once missing', Xmlport::"LT Y60 TT Wrap Once Import", '<Root><Outer><No>H1</No></Outer></Root>');
-        Observer.Finish();
+        Observer.Expect('two inner ok', 'Yes');
+        Observer.Expect('two inner log', 'outer init;inner init;inner ins 1 outer.name=n1;inner init;inner ins 2 outer.name=n2;outer ins H1 name=n2;post outer=[H1|n2] inner=[H1|1|a][H1|2|b];');
+        Observer.Expect('two inner hdr rows', '');
+        Observer.Expect('no wrap ok', 'Yes');
+        Observer.Expect('no wrap log', 'outer init;outer ins H1 name=;post outer=[H1|] inner=;');
+        Observer.Expect('no wrap hdr rows', '');
+        Observer.Expect('wrap once two inner ok', 'Yes');
+        Observer.Expect('wrap once two inner log', 'inner ins 1 outer.name=n1;inner ins 2 outer.name=n2;outer ins H1 name=n2;post outer=1 inner=2;');
+        Observer.Expect('wrap once two inner hdr rows', '');
+        Observer.Expect('wrap once missing ok', 'No');
+        Observer.Expect('wrap once missing error', 'Imported XML cannot validate with the schema: The element ''Outer'' has incomplete content. List of possible elements expected: ''Wrap''.');
+        Observer.Expect('wrap once missing code', 'XmlPortInvalidXml');
+        Observer.Expect('wrap once missing log', '');
+        Observer.Expect('wrap once missing hdr rows', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -620,7 +638,21 @@ codeunit 93232 "LT Y60 TT Tests"
             '<Root><Row><Ticket kind="k"><Code>c</Code><Title>t</Title></Ticket></Row></Root>');
         ObserveImport(Observer, 'two rows', Xmlport::"LT Y60 TT Ticket Import",
             '<Root><Row><Ticket kind="k1"><Code>c1</Code></Ticket></Row><Row><Ticket kind="k2"><Code>c2</Code><Title lang="de">t2</Title></Ticket></Row></Root>');
-        Observer.Finish();
+        Observer.Expect('full ok', 'Yes');
+        Observer.Expect('full log', 'kind=k;code=c;lang=en;title=t;ticket=[];ins C;');
+        Observer.Expect('full hdr rows', '[C|k|t]');
+        Observer.Expect('title missing ok', 'Yes');
+        Observer.Expect('title missing log', 'kind=k;code=c;ticket=[];ins C;');
+        Observer.Expect('title missing hdr rows', '[C|k|]');
+        Observer.Expect('no lang ok', 'No');
+        Observer.Expect('no lang error', 'Imported XML cannot validate with the schema: The required attribute ''lang'' is missing.');
+        Observer.Expect('no lang code', 'XmlPortInvalidXml');
+        Observer.Expect('no lang log', 'kind=k;code=c;');
+        Observer.Expect('no lang hdr rows', '');
+        Observer.Expect('two rows ok', 'Yes');
+        Observer.Expect('two rows log', 'kind=k1;code=c1;ticket=[];ins C1;kind=k2;code=c2;lang=de;title=t2;ticket=[];ins C2;');
+        Observer.Expect('two rows hdr rows', '[C1|k1|][C2|k2|t2]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -637,7 +669,9 @@ codeunit 93232 "LT Y60 TT Tests"
         AddDet('H1', 10, 2);
         Observer.Observe('xml', ExportText(Xmlport::"LT Y60 TT Wrap Export"));
         Observer.Observe('log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <Row No="H1">|    <Wrap>|      <Mid Hdr="H1" LineNo="10">|        <Leaf DetNo="1">|          <Sub SubNo="1" Info="info1" />|          <Sub SubNo="2" Info="info2" />|        </Leaf>|      </Mid>|      <Mid Hdr="H1" LineNo="20">|        <Leaf DetNo="1">|          <Sub SubNo="1" Info="info1" />|          <Sub SubNo="2" Info="info2" />|        </Leaf>|      </Mid>|    </Wrap>|  </Row>|  <Row No="H2">|    <Wrap>|      <Mid Hdr="H1" LineNo="10">|        <Leaf DetNo="1">|          <Sub SubNo="1" Info="info1" />|          <Sub SubNo="2" Info="info2" />|        </Leaf>|      </Mid>|      <Mid Hdr="H1" LineNo="20">|        <Leaf DetNo="1">|          <Sub SubNo="1" Info="info1" />|          <Sub SubNo="2" Info="info2" />|        </Leaf>|      </Mid>|    </Wrap>|  </Row>|</Root>|');
+        Observer.Expect('log', 'row H1;mid H1/10;leaf H1/1;sub H1/1;sub H1/2;mid H1/20;leaf H1/1;sub H1/1;sub H1/2;row H2;mid H1/10;leaf H1/1;sub H1/1;sub H1/2;mid H1/20;leaf H1/1;sub H1/1;sub H1/2;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -652,7 +686,11 @@ codeunit 93232 "LT Y60 TT Tests"
         AddLine('H1', 10);
         Observer.Observe('no det xml', ExportText(Xmlport::"LT Y60 TT Wrap Export"));
         Observer.Observe('no det log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('no lines xml', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <Row No="H1">|    <Wrap />|  </Row>|</Root>|');
+        Observer.Expect('no lines log', 'row H1;');
+        Observer.Expect('no det xml', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <Row No="H1">|    <Wrap>|      <Mid Hdr="H1" LineNo="10">|        <Leaf DetNo="0" />|      </Mid>|    </Wrap>|  </Row>|</Root>|');
+        Observer.Expect('no det log', 'row H1;mid H1/10;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -696,6 +734,8 @@ codeunit 93232 "LT Y60 TT Tests"
         end;
         Observer.Observe('xml', Result);
         Observer.Observe('log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <Row>|    <A>a-H1</A>|    <B>gb</B>|    <Info>|      <Name unit="pcs">one</Name>|      <Note>n1</Note>|      <Sub>|        <Child>|          <LineNo>1</LineNo>|          <Item>x</Item>|        </Child>|        <Child>|          <LineNo>2</LineNo>|          <Item>y</Item>|        </Child>|      </Sub>|    </Info>|  </Row>|  <Row>|    <A>a-H2</A>|    <B>gb</B>|    <Info>|      <Name unit="pcs">two</Name>|      <Note />|      <Sub>|        <Child>|          <LineNo>1</LineNo>|          <Item>x</Item>|        </Child>|        <Child>|          <LineNo>2</LineNo>|          <Item>y</Item>|        </Child>|      </Sub>|    </Info>|  </Row>|</Root>|');
+        Observer.Expect('log', 'row H1;a;b;info;unit;sub;child 1;child 2;row H2;a;b;info;unit;sub;child 1;child 2;');
+        Observer.Verify();
     end;
 }
