@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/testfield/testfield-lookup-method
 // Scope: in-scope
-// Fixtures used: Probe Observer (69160); own objects 91710 - 91716 (writer Y15)
+// Fixtures used: Probe Observer (69160); own objects 91710 - 91716 (writer Y15), 92220 - 92224 (writer Y26)
 // Probe: written against SaaS BC 29 and the corpus CI matrix; every literal asserted below is what the BC service tier produced.
 // Facts: al-runner issue 6466, follow-up to 6290 (two-field link: pages/lt-wb-6290/WbLookupListPartTests.al). A List page over
 //   resources (No., Group Code, Region Code) has a header field ResourceNo bound to a global setting record. Its OnLookup runs the
@@ -21,6 +21,16 @@
 //   function control shows the picked value ('R1/R2'); the globals (CurrentNo, HeaderCurrent) and the part's controls keep the values of
 //   before ('R1/'). The refresh of CurrPage.Update(false) runs at the start of the next Lookup (host rows and OnAfterGetCurrRecord, not
 //   the part); Next refreshes host and part.
+// Y54 (al-runner 6519): the Y54 tests call TestPart Next, First, Previous or Last after TestField.Lookup, while the refresh of
+//   CurrPage.Update(false) is still pending, on the Y26 hosts and on the Y15 host. TestPage and TestPart have no GetRecord method
+//   (must-not-compile cases 2570 and 2571).
+// Result Y54 (BC 28.5 on Linux and on Windows; the CI legs check 27.5, 28.5 and 29.0): the first TestPart call after the lookup runs
+//   the pending refresh, with the same triggers as opening the page: the host rows (OnAfterGetRecord, function controls,
+//   OnAfterGetCurrRecord), then the part (OnAfterGetRecord, OnAfterGetCurrRecord, function control), then the host's current row
+//   again. After it every control shows the picked value: globals, function controls and the part's controls ('R1/R2'). The part
+//   holds one row (R1): Next false, First true, Previous false, Last true. A second part call runs no trigger. The refresh is used up:
+//   a later Lookup starts with no refresh. A cancelled lookup leaves nothing pending: the part's Next runs no trigger and the values
+//   stay as before. The same with a two-field link; without host OnAfterGetCurrRecord the refresh has no h-agcr entries.
 
 table 91710 "LT Y15 Lookup Setting"
 {
@@ -730,7 +740,19 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
         Observer.Observe('after next log', Log.Take());
         Schedule.Close();
         Observer.Observe('close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('lookup log', 'lookup;h-fn R1;validate R2;h-fn R1');
+        Observer.Expect('part next', 'false');
+        Observer.Expect('part next log', 'h-agr R1;h-fn R1;h-agr R2;h-fn R2;h-agr R3;h-fn R3;h-agr R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;p-agr R1;p-fn R1;p-agr R1;p-fn R1;p-agcr R1;p-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1');
+        Observer.Expect('after part next', 'R2|R1/R2|R1|R1/R2|R1/R2|R1|G1|R1/R2|R1/R2');
+        Observer.Expect('after part next log', '');
+        Observer.Expect('part next again', 'false');
+        Observer.Expect('part next again log', '');
+        Observer.Expect('next', 'true');
+        Observer.Expect('next log', 'h-agr R2;h-agr R2;h-fn R2;h-agcr R2;h-fn R2;p-agr R2;p-fn R2;p-agr R2;p-fn R2;p-agcr R2;p-fn R2;h-agr R2;h-fn R2;h-agcr R2;h-fn R2');
+        Observer.Expect('after next', 'R2|R2/R2|R2|R2/R2|R2/R2|R2|G1|R2/R2|R2/R2');
+        Observer.Expect('after next log', '');
+        Observer.Expect('close log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -753,7 +775,16 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
         Observer.Observe('after part next', Snap3C(Schedule));
         Observer.Observe('after part next log', Log.Take());
         Schedule.Close();
-        Observer.Finish();
+        Observer.Expect('lookup log', 'lookup;h-fn R1;validate R2;h-fn R1');
+        Observer.Expect('part first', 'true');
+        Observer.Expect('part first log', 'h-agr R1;h-fn R1;h-agr R2;h-fn R2;h-agr R3;h-fn R3;h-agr R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;p-agr R1;p-fn R1;p-agr R1;p-fn R1;p-agcr R1;p-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1');
+        Observer.Expect('after part first', 'R2|R1/R2|R1|R1/R2|R1/R2|R1|G1|R1/R2|R1/R2');
+        Observer.Expect('after part first log', '');
+        Observer.Expect('part next', 'false');
+        Observer.Expect('part next log', '');
+        Observer.Expect('after part next', 'R2|R1/R2|R1|R1/R2|R1/R2|R1|G1|R1/R2|R1/R2');
+        Observer.Expect('after part next log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -776,7 +807,16 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
         Observer.Observe('after part last', Snap3C(Schedule));
         Observer.Observe('after part last log', Log.Take());
         Schedule.Close();
-        Observer.Finish();
+        Observer.Expect('lookup log', 'lookup;h-fn R1;validate R2;h-fn R1');
+        Observer.Expect('part previous', 'false');
+        Observer.Expect('part previous log', 'h-agr R1;h-fn R1;h-agr R2;h-fn R2;h-agr R3;h-fn R3;h-agr R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;p-agr R1;p-fn R1;p-agr R1;p-fn R1;p-agcr R1;p-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1');
+        Observer.Expect('after part previous', 'R2|R1/R2|R1|R1/R2|R1/R2|R1|G1|R1/R2|R1/R2');
+        Observer.Expect('after part previous log', '');
+        Observer.Expect('part last', 'true');
+        Observer.Expect('part last log', '');
+        Observer.Expect('after part last', 'R2|R1/R2|R1|R1/R2|R1/R2|R1|G1|R1/R2|R1/R2');
+        Observer.Expect('after part last log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -795,7 +835,12 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
         Observer.Observe('after part last', Snap3C(Schedule));
         Observer.Observe('after part last log', Log.Take());
         Schedule.Close();
-        Observer.Finish();
+        Observer.Expect('lookup log', 'lookup;h-fn R1;validate R2;h-fn R1');
+        Observer.Expect('part last', 'true');
+        Observer.Expect('part last log', 'h-agr R1;h-fn R1;h-agr R2;h-fn R2;h-agr R3;h-fn R3;h-agr R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;p-agr R1;p-fn R1;p-agr R1;p-fn R1;p-agcr R1;p-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1');
+        Observer.Expect('after part last', 'R2|R1/R2|R1|R1/R2|R1/R2|R1|G1|R1/R2|R1/R2');
+        Observer.Expect('after part last log', '');
+        Observer.Verify();
     end;
 
     // Y54: region codes set on every row (the part shows the same row through all three fields).
@@ -818,7 +863,15 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
         Observer.Observe('next log', Log.Take());
         Observer.Observe('after next', Snap3C(Schedule));
         Schedule.Close();
-        Observer.Finish();
+        Observer.Expect('lookup log', 'lookup;h-fn R1;validate R2;h-fn R1');
+        Observer.Expect('part next', 'false');
+        Observer.Expect('part next log', 'h-agr R1;h-fn R1;h-agr R2;h-fn R2;h-agr R3;h-fn R3;h-agr R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;p-agr R1;p-fn R1;p-agr R1;p-fn R1;p-agcr R1;p-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1');
+        Observer.Expect('after part next', 'R2|R1/R2|R1|R1/R2|R1/R2|R1|G1|R1/R2|R1/R2');
+        Observer.Expect('after part next log', '');
+        Observer.Expect('next', 'true');
+        Observer.Expect('next log', 'h-agr R2;h-agr R2;h-fn R2;h-agcr R2;h-fn R2;p-agr R2;p-fn R2;p-agr R2;p-fn R2;p-agcr R2;p-fn R2;h-agr R2;h-fn R2;h-agcr R2;h-fn R2');
+        Observer.Expect('after next', 'R2|R2/R2|R2|R2/R2|R2/R2|R2|G1|R2/R2|R2/R2');
+        Observer.Verify();
     end;
 
     // Y54: the lookup is cancelled (no OnValidate, no CurrPage.Update): the part's Next.
@@ -838,7 +891,12 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
         Observer.Observe('after part next', Snap3C(Schedule));
         Observer.Observe('after part next log', Log.Take());
         Schedule.Close();
-        Observer.Finish();
+        Observer.Expect('lookup log', 'lookup;h-fn R1');
+        Observer.Expect('part next', 'false');
+        Observer.Expect('part next log', '');
+        Observer.Expect('after part next', '|R1/|R1|R1/|R1/|R1|G1|R1/|R1/');
+        Observer.Expect('after part next log', '');
+        Observer.Verify();
     end;
 
     // Y54: the part's Next between two lookups: does it run the pending refresh?
@@ -861,7 +919,13 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
         Observer.Observe('after second', Snap3C(Schedule));
         Observer.Observe('after second log', Log.Take());
         Schedule.Close();
-        Observer.Finish();
+        Observer.Expect('lookup log', 'lookup;h-fn R1;validate R2;h-fn R1');
+        Observer.Expect('part next', 'false');
+        Observer.Expect('part next log', 'h-agr R1;h-fn R1;h-agr R2;h-fn R2;h-agr R3;h-fn R3;h-agr R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;p-agr R1;p-fn R1;p-agr R1;p-fn R1;p-agcr R1;p-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1');
+        Observer.Expect('second lookup log', 'lookup;h-fn R1;validate R3;h-fn R1');
+        Observer.Expect('after second', 'R3|R1/R2|R1|R1/R2|R1/R3|R1|G1|R1/R2|R1/R2');
+        Observer.Expect('after second log', '');
+        Observer.Verify();
     end;
 
     // Y54: the part's Next on the other Y26 hosts (two-field link with OnAfterGetCurrRecord, three-field link without it).
@@ -883,7 +947,14 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
         Observer.Observe('part first', Format(Schedule.Resources.First(), 0, 9));
         Observer.Observe('part first log', Log.Take());
         Schedule.Close();
-        Observer.Finish();
+        Observer.Expect('lookup log', 'lookup;h-fn R1;validate R2;h-fn R1');
+        Observer.Expect('part next', 'false');
+        Observer.Expect('part next log', 'h-agr R1;h-fn R1;h-agr R2;h-fn R2;h-agr R3;h-fn R3;h-agr R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;p-agr R1;p-fn R1;p-agr R1;p-fn R1;p-agcr R1;p-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1');
+        Observer.Expect('after part next', 'R2|R1/R2|R1|R1/R2|R1/R2|R1|G1|R1/R2|R1/R2');
+        Observer.Expect('after part next log', '');
+        Observer.Expect('part first', 'true');
+        Observer.Expect('part first log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -904,7 +975,14 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
         Observer.Observe('part first', Format(Schedule.Resources.First(), 0, 9));
         Observer.Observe('part first log', Log.Take());
         Schedule.Close();
-        Observer.Finish();
+        Observer.Expect('lookup log', 'lookup;h-fn R1;validate R2;h-fn R1');
+        Observer.Expect('part next', 'false');
+        Observer.Expect('part next log', 'h-agr R1;h-fn R1;h-agr R2;h-fn R2;h-agr R3;h-fn R3;h-agr R1;p-agr R1;p-fn R1;p-agr R1;p-fn R1;p-agcr R1;p-fn R1;h-agr R1;h-fn R1');
+        Observer.Expect('after part next', 'R2|R1/R2|R1|R1/R2|R1/R2|R1|G1|R1/R2|R1/R2');
+        Observer.Expect('after part next log', '');
+        Observer.Expect('part first', 'true');
+        Observer.Expect('part first log', '');
+        Observer.Verify();
     end;
 
     // Y54: the Y15 host (OnAfterGetCurrRecord logs only, part without triggers): the part's whole walk after the lookup.
@@ -929,7 +1007,17 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
         Observer.Observe('next', Format(Schedule.Next(), 0, 9) + '|' + Schedule."No.".Value() + '|' + Schedule.Resources."No.".Value() + '|' + Schedule.ResourceNo.Value());
         Observer.Observe('next log', Log.Take());
         Schedule.Close();
-        Observer.Finish();
+        Observer.Expect('lookup log', 'lookup;validate R2');
+        Observer.Expect('part next', 'false|R1|G1');
+        Observer.Expect('part next log', 'agcr R1');
+        Observer.Expect('part first', 'true|R1');
+        Observer.Expect('part previous', 'false|R1');
+        Observer.Expect('part last', 'true|R1');
+        Observer.Expect('part walk log', '');
+        Observer.Expect('host', 'R2|R1');
+        Observer.Expect('next', 'true|R2|R2|R2');
+        Observer.Expect('next log', 'agcr R2');
+        Observer.Verify();
     end;
 
     local procedure Snap3C(var Schedule: TestPage "LT Y26 3Link Curr Schedule"): Text
