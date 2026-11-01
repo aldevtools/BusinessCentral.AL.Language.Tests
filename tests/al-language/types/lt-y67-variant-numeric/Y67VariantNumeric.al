@@ -273,6 +273,14 @@ codeunit 93629 "LT Y67 Variant Numeric"
     begin
         Show(Observer, 'text true', 'true');
         Show(Observer, 'text empty', '');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Variant_TextNumbers_C()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Show(Observer, 'text abc', 'abc');
         Observer.Finish();
     end;

@@ -402,11 +402,20 @@ codeunit 93631 "LT Y67 FV Tests"
     end;
 
     [Test]
-    procedure Validate_Into_D_B()
+    procedure Validate_Into_D_B1()
     var
         Observer: Codeunit "Probe Observer";
     begin
-        Into(Observer, 8, 9, 16);
+        Into(Observer, 8, 9, 12);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Validate_Into_D_B2()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Into(Observer, 8, 13, 16);
         Observer.Finish();
     end;
 
