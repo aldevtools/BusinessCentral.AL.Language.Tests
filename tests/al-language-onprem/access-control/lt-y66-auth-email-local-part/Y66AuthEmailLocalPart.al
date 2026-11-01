@@ -6,8 +6,8 @@
 // letters, digits and ._+-: the reporter's formatted Guid ('{...}@EXAMPLE.COM', user name = the same Guid), braces inside, every RFC 5322
 // atext sign, a quoted local part, dots at the edges and doubled, a space, a non-ASCII letter, an IP-literal and a dotless domain, two '@',
 // an empty local part or domain, a comment, the display-name form, upper case. Observed: ok and the stored value, or the error text and code.
-// Insert() and Modify() of the same address. Each write runs under asserterror (a TryFunction may not write on the OnPrem tiers) and is
-// rolled back. Every user name starts with LTY66; the test removes them first and last.
+// Insert() of each address (Modify normalizes the same way: TestUserAuthEmailTrigger.al). Each insert runs under asserterror (a
+// TryFunction may not write on the OnPrem tiers) and is rolled back. Every user name starts with LTY66; the test removes them first and last.
 // Pinned elsewhere: whitespace trim, display-name and list reduction, the missing '@', uniqueness (TestUserAuthEmailTrigger.al,
 // lt-av-user-insert/AvUserInsertErrors.al).
 // BC versions: 27, 28, 29
@@ -41,7 +41,8 @@ codeunit 98720 "LT Y66 Auth Email Local Part"
         else
             Observer.Observe('insert', 'E ' + GetLastErrorText() + '|' + GetLastErrorCode());
         Cleanup();
-        Observer.Finish();
+        Observer.Expect('insert', 'ok|stored as given=Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -63,7 +64,21 @@ codeunit 98720 "LT Y66 Auth Email Local Part"
         Probe(13, 'UPPER.Case@Example.COM');
         Probe(14, 'Y66 Name <{524B1D71-5F95-43BA-AC9B-E1E5E17D8766}@example.com>');
         Cleanup();
-        Observer.Finish();
+        Observer.Expect('1 {524B1D71-5F95-43BA-AC9B-E1E5E17D8765}@EXAMPLE.COM', 'ok|{524B1D71-5F95-43BA-AC9B-E1E5E17D8765}@EXAMPLE.COM');
+        Observer.Expect('2 {524b1d71-5f95-43ba-ac9b-e1e5e17d8765}@example.com', 'ok|{524b1d71-5f95-43ba-ac9b-e1e5e17d8765}@example.com');
+        Observer.Expect('3 a{b}c@example.com', 'ok|a{b}c@example.com');
+        Observer.Expect('4 !#$%&''*+/=?^_`{|}~@example.com', 'ok|!#$%&''*+/=?^_`{|}~@example.com');
+        Observer.Expect('5 "quoted local"@example.com', 'ok|"quoted local"@example.com');
+        Observer.Expect('6 "a@b"@example.com', 'ok|"a@b"@example.com');
+        Observer.Expect('7 a..b@example.com', 'ok|a..b@example.com');
+        Observer.Expect('8 .a@example.com', 'E You must specify a valid email address.|CannotSpecifyAuthenticationEmail');
+        Observer.Expect('9 a.@example.com', 'ok|a.@example.com');
+        Observer.Expect('10 a b@example.com', 'ok|b@example.com');
+        Observer.Expect('11 jürgen@example.com', 'ok|jürgen@example.com');
+        Observer.Expect('12 a(comment)@example.com', 'ok|a@example.com');
+        Observer.Expect('13 UPPER.Case@Example.COM', 'ok|UPPER.Case@Example.COM');
+        Observer.Expect('14 Y66 Name <{524B1D71-5F95-43BA-AC9B-E1E5E17D8766}@example.com>', 'ok|{524B1D71-5F95-43BA-AC9B-E1E5E17D8766}@example.com');
+        Observer.Verify();
     end;
 
     [Test]
@@ -80,29 +95,16 @@ codeunit 98720 "LT Y66 Auth Email Local Part"
         Probe(28, 'a@example..com');
         Probe(29, 'a@exämple.com');
         Cleanup();
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Y66_AuthEmail_ModifyGuidLocalPart()
-    var
-        User: Record User;
-        Sid: Guid;
-    begin
-        Cleanup();
-        NewUser(User, 31, 'plain.y66@example.com');
-        Sid := User."User Security ID";
-        User.Insert();
-        User.Get(Sid);
-        User."Authentication Email" := '{524B1D71-5F95-43BA-AC9B-E1E5E17D8767}@EXAMPLE.COM';
-        asserterror ModifyAndRaise(User);
-        Observer.Observe('modify', Outcome());
-        User.Get(Sid);
-        User."Authentication Email" := 'a b@example.com';
-        asserterror ModifyAndRaise(User);
-        Observer.Observe('modify space', Outcome());
-        Cleanup();
-        Observer.Finish();
+        Observer.Expect('21 a@[127.0.0.1]', 'ok|a@[127.0.0.1]');
+        Observer.Expect('22 a@localhost', 'ok|a@localhost');
+        Observer.Expect('23 a@b@example.com', 'E You must specify a valid email address.|CannotSpecifyAuthenticationEmail');
+        Observer.Expect('24 @example.com', 'E You must specify a valid email address.|CannotSpecifyAuthenticationEmail');
+        Observer.Expect('25 a@', 'E You must specify a valid email address.|CannotSpecifyAuthenticationEmail');
+        Observer.Expect('26 a@ex_ample.com', 'ok|a@ex_ample.com');
+        Observer.Expect('27 a@-example.com', 'ok|a@-example.com');
+        Observer.Expect('28 a@example..com', 'ok|a@example..com');
+        Observer.Expect('29 a@exämple.com', 'ok|a@exämple.com');
+        Observer.Verify();
     end;
 
     local procedure Probe(No: Integer; Email: Text)
@@ -123,24 +125,13 @@ codeunit 98720 "LT Y66 Auth Email Local Part"
         User."Authentication Email" := CopyStr(Email, 1, MaxStrLen(User."Authentication Email"));
     end;
 
-    // The write runs under asserterror, so it is rolled back; a write that succeeds stores the value BC kept and raises the sentinel.
+    // The insert runs under asserterror, so it is rolled back; a write that succeeds stores the value BC kept and raises the sentinel.
     local procedure InsertAndRaise(var User: Record User)
     var
         Reader: Record User;
     begin
         Stored := '';
         User.Insert();
-        Reader.Get(User."User Security ID");
-        Stored := Reader."Authentication Email";
-        Error(OkSentinelErr);
-    end;
-
-    local procedure ModifyAndRaise(var User: Record User)
-    var
-        Reader: Record User;
-    begin
-        Stored := '';
-        User.Modify();
         Reader.Get(User."User Security ID");
         Stored := Reader."Authentication Email";
         Error(OkSentinelErr);
