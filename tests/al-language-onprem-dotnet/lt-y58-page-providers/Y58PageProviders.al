@@ -9,6 +9,11 @@
 //   - Microsoft.Dynamics.Nav.Runtime.NavPageActionALFunctions.GetActions(PageId): Success, ErrorMessage, and per action
 //     ActionType, ActionSubtype, Caption, RunObjectType, RunObjectId, RunObjectView, RunObjectViewFilter and the parent action
 //     (by caption; generated action ids are not asserted).
+// Facts: GetSummaryFields returns the Brick fields with the first two swapped, Blob fields included; GetAvailableTableFields
+//   returns the fields of the visible controls in page order (an empty list for a page without fields); FieldType.ToString() is the
+//   AL type name (BLOB for a Blob, value '*'); a control without ToolTip gives ''; an invalid bookmark or a deleted record gives
+//   Success = false without an error; GetActions of an unknown page gives Success = false and a "metadata object ... was not found" text.
+// Expected values: corpus CI (Linux containers) BC 27.5, 28.5 and 29.0, batch runs 41332956805, 41336116625, 41336138376.
 // BC versions: 27, 28, 29
 dotnet
 {
@@ -242,7 +247,13 @@ codeunit 61462 "LT Y58 Page Providers"
         Observer.Observe('available fields of card', ListText(Page::"LT Y58 Provider Card", true));
         Observer.Observe('available fields of list', ListText(Page::"LT Y58 Provider List", true));
         Observer.Observe('available fields of empty card', ListText(Page::"LT Y58 Provider Empty Card", true));
-        Observer.Finish();
+        Observer.Expect('summary fields of card', '2,1,3,6,4,');
+        Observer.Expect('summary fields of list', '2,1,3,6,4,');
+        Observer.Expect('summary fields of empty card', '');
+        Observer.Expect('available fields of card', '1,2,3,5,8,');
+        Observer.Expect('available fields of list', '1,5,');
+        Observer.Expect('available fields of empty card', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -261,7 +272,9 @@ codeunit 61462 "LT Y58 Page Providers"
             Observer.Observe('card available summary', Result)
         else
             Observer.ObserveError('card available summary');
-        Observer.Finish();
+        Observer.Expect('card brick summary', 'success=Yes;Description|Text|Text|Provider row|Specifies the description.|Undefined;No.|Code|Code|P-1|Specifies the number.|Undefined;Amount|Decimal|Decimal|1,234.5||Undefined;Notes|BLOB|BLOB|*||Undefined;Posting Date|Date|Date|01/15/24||Undefined;');
+        Observer.Expect('card available summary', 'success=Yes;No.|Code|Code|P-1|Specifies the number.|Undefined;Description|Text|Text|Provider row|Specifies the description.|Undefined;Amount|Decimal|Decimal|1,234.5||Undefined;Blocked|Boolean|Boolean|Yes|Specifies if blocked.|Undefined;Kind|Option|Option|Small|Specifies the kind.|Undefined;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -283,7 +296,9 @@ codeunit 61462 "LT Y58 Page Providers"
             Observer.Observe('deleted record', Result)
         else
             Observer.ObserveError('deleted record');
-        Observer.Finish();
+        Observer.Expect('invalid bookmark', 'success=No;');
+        Observer.Expect('deleted record', 'success=No;');
+        Observer.Verify();
     end;
 }
 

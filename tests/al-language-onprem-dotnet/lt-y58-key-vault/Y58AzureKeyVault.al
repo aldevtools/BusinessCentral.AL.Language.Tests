@@ -7,6 +7,11 @@
 //   the test class MockTest.MockAzureKeyVaultSecret.MockAzureKeyVaultSecretProvider set through "Azure Key Vault Test Library",
 //   and with no provider at all: secrets mapped and listed in AllowedApplicationSecrets, mapped but not listed, no list at all,
 //   unmapped names, empty and blank values, name case, the cache, certificates; and the helper class called directly.
+// Facts: with no provider the helper raises "Azure key vault has not been set up. Please contact your system administrator."
+//   (code DotNetInvoke: on 27 and 28, DotNetInvoke:InvalidOperation on 29) and the out value is not changed; AllowedApplicationSecrets
+//   is not checked (a mapped name that is not listed is returned); an unmapped, empty or blank secret, and a name in another case, give "The secret %1 is either
+//   missing or empty." (Dialog); certificates read through "Azure Key Vault" from the mock give "Unable to initialize certificate!".
+// Expected values: corpus CI (Linux containers) BC 27.5, 28.5 and 29.0, batch runs 41332956805, 41336116625, 41336138376.
 // BC versions: 27, 28, 29
 dotnet
 {
@@ -72,7 +77,28 @@ codeunit 61457 "LT Y58 Azure Key Vault"
         ObserveSecret(Observer, 'secret again, no provider', 'lt-y58-any');
         ObserveCertificate(Observer, 'certificate, no provider', 'lt-y58-cert');
         AzureKeyVaultTestLibrary.ClearSecrets();
-        Observer.Finish();
+#if BC29PLUS
+        Observer.Expect('secret, no provider', 'false/unchanged');
+        Observer.Expect('secret, no provider error|text', 'A call to Microsoft.Dynamics.Nav.AzureKeyVaultClient.AzureKeyVaultClientHelper.GetAzureKeyVaultSecret failed with this message: Azure key vault has not been set up. Please contact your system administrator.');
+        Observer.Expect('secret, no provider error|code', 'DotNetInvoke:InvalidOperation');
+        Observer.Expect('secret again, no provider', 'false/unchanged');
+        Observer.Expect('secret again, no provider error|text', 'A call to Microsoft.Dynamics.Nav.AzureKeyVaultClient.AzureKeyVaultClientHelper.GetAzureKeyVaultSecret failed with this message: Azure key vault has not been set up. Please contact your system administrator.');
+        Observer.Expect('secret again, no provider error|code', 'DotNetInvoke:InvalidOperation');
+        Observer.Expect('certificate, no provider', 'false/unchanged');
+        Observer.Expect('certificate, no provider error|text', 'A call to Microsoft.Dynamics.Nav.AzureKeyVaultClient.AzureKeyVaultClientHelper.GetAzureKeyVaultCertificate failed with this message: Azure key vault has not been set up. Please contact your system administrator.');
+        Observer.Expect('certificate, no provider error|code', 'DotNetInvoke:InvalidOperation');
+#else
+        Observer.Expect('secret, no provider', 'false/unchanged');
+        Observer.Expect('secret, no provider error|text', 'A call to Microsoft.Dynamics.Nav.AzureKeyVaultClient.AzureKeyVaultClientHelper.GetAzureKeyVaultSecret failed with this message: Azure key vault has not been set up. Please contact your system administrator.');
+        Observer.Expect('secret, no provider error|code', 'DotNetInvoke:');
+        Observer.Expect('secret again, no provider', 'false/unchanged');
+        Observer.Expect('secret again, no provider error|text', 'A call to Microsoft.Dynamics.Nav.AzureKeyVaultClient.AzureKeyVaultClientHelper.GetAzureKeyVaultSecret failed with this message: Azure key vault has not been set up. Please contact your system administrator.');
+        Observer.Expect('secret again, no provider error|code', 'DotNetInvoke:');
+        Observer.Expect('certificate, no provider', 'false/unchanged');
+        Observer.Expect('certificate, no provider error|text', 'A call to Microsoft.Dynamics.Nav.AzureKeyVaultClient.AzureKeyVaultClientHelper.GetAzureKeyVaultCertificate failed with this message: Azure key vault has not been set up. Please contact your system administrator.');
+        Observer.Expect('certificate, no provider error|code', 'DotNetInvoke:');
+#endif
+        Observer.Verify();
     end;
 
     [Test]
@@ -85,7 +111,14 @@ codeunit 61457 "LT Y58 Azure Key Vault"
         asserterror AzureKeyVault.GetAzureKeyVaultSecret('lt-y58-any', Secret);
         Observer.ObserveError('secret raised, no provider');
         AzureKeyVaultTestLibrary.ClearSecrets();
-        Observer.Finish();
+#if BC29PLUS
+        Observer.Expect('secret raised, no provider|text', 'A call to Microsoft.Dynamics.Nav.AzureKeyVaultClient.AzureKeyVaultClientHelper.GetAzureKeyVaultSecret failed with this message: Azure key vault has not been set up. Please contact your system administrator.');
+        Observer.Expect('secret raised, no provider|code', 'DotNetInvoke:InvalidOperation');
+#else
+        Observer.Expect('secret raised, no provider|text', 'A call to Microsoft.Dynamics.Nav.AzureKeyVaultClient.AzureKeyVaultClientHelper.GetAzureKeyVaultSecret failed with this message: Azure key vault has not been set up. Please contact your system administrator.');
+        Observer.Expect('secret raised, no provider|code', 'DotNetInvoke:');
+#endif
+        Observer.Verify();
     end;
 
     [Test]
@@ -103,7 +136,17 @@ codeunit 61457 "LT Y58 Azure Key Vault"
         ObserveSecret(Observer, 'mapped name other case', 'LT-Y58-SECRET');
         ObserveSecret(Observer, 'empty name', '');
         AzureKeyVaultTestLibrary.ClearSecrets();
-        Observer.Finish();
+        Observer.Expect('mapped, no AllowedApplicationSecrets', 'true/value-1');
+        Observer.Expect('unmapped name', 'false/');
+        Observer.Expect('unmapped name error|text', 'The secret lt-y58-unmapped is either missing or empty.');
+        Observer.Expect('unmapped name error|code', 'Dialog');
+        Observer.Expect('mapped name other case', 'false/');
+        Observer.Expect('mapped name other case error|text', 'The secret LT-Y58-SECRET is either missing or empty.');
+        Observer.Expect('mapped name other case error|code', 'Dialog');
+        Observer.Expect('empty name', 'false/');
+        Observer.Expect('empty name error|text', 'The secret  is either missing or empty.');
+        Observer.Expect('empty name error|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -123,7 +166,13 @@ codeunit 61457 "LT Y58 Azure Key Vault"
         ObserveSecret(Observer, 'listed, not mapped', 'lt-y58-unmapped-listed');
         ObserveSecret(Observer, 'the list itself', 'AllowedApplicationSecrets');
         AzureKeyVaultTestLibrary.ClearSecrets();
-        Observer.Finish();
+        Observer.Expect('mapped and listed', 'true/listed-value');
+        Observer.Expect('mapped, not listed', 'true/notlisted-value');
+        Observer.Expect('listed, not mapped', 'false/');
+        Observer.Expect('listed, not mapped error|text', 'The secret lt-y58-unmapped-listed is either missing or empty.');
+        Observer.Expect('listed, not mapped error|code', 'Dialog');
+        Observer.Expect('the list itself', 'true/lt-y58-listed,lt-y58-unmapped-listed');
+        Observer.Verify();
     end;
 
     [Test]
@@ -142,7 +191,14 @@ codeunit 61457 "LT Y58 Azure Key Vault"
         ObserveSecret(Observer, 'blank value', 'lt-y58-blank');
         ObserveSecret(Observer, 'padded value', 'lt-y58-padded');
         AzureKeyVaultTestLibrary.ClearSecrets();
-        Observer.Finish();
+        Observer.Expect('empty value', 'false/');
+        Observer.Expect('empty value error|text', 'The secret lt-y58-empty is either missing or empty.');
+        Observer.Expect('empty value error|code', 'Dialog');
+        Observer.Expect('blank value', 'false/   ');
+        Observer.Expect('blank value error|text', 'The secret lt-y58-blank is either missing or empty.');
+        Observer.Expect('blank value error|code', 'Dialog');
+        Observer.Expect('padded value', 'true/  v  ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -167,7 +223,16 @@ codeunit 61457 "LT Y58 Azure Key Vault"
         Observer.Observe('unmapped returns', Format(AzureKeyVault.GetAzureKeyVaultSecret('lt-y58-st-unmapped', Secret)));
         Observer.ObserveError('unmapped error');
         AzureKeyVaultTestLibrary.ClearSecrets();
-        Observer.Finish();
+        Observer.Expect('mapped returns', 'Yes');
+        Observer.Expect('mapped value', 'secret-text-value');
+        Observer.Expect('empty returns', 'No');
+        Observer.Expect('empty error|text', 'The secret lt-y58-st-empty is either missing or empty.');
+        Observer.Expect('empty error|code', 'Dialog');
+        Observer.Expect('empty value is empty', 'Yes');
+        Observer.Expect('unmapped returns', 'No');
+        Observer.Expect('unmapped error|text', 'The secret lt-y58-st-unmapped is either missing or empty.');
+        Observer.Expect('unmapped error|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -224,7 +289,19 @@ codeunit 61457 "LT Y58 Azure Key Vault"
         Observer.Observe('secrettext certificate returns', Format(AzureKeyVault.GetAzureKeyVaultCertificate('lt-y58-cert', Certificate)));
         Observer.Observe('secrettext certificate value', Certificate.Unwrap());
         AzureKeyVaultTestLibrary.ClearSecrets();
-        Observer.Finish();
+        Observer.Expect('mapped certificate', 'false/unchanged');
+        Observer.Expect('mapped certificate error|text', 'Unable to initialize certificate!');
+        Observer.Expect('mapped certificate error|code', 'Dialog');
+        Observer.Expect('unmapped certificate', 'false/unchanged');
+        Observer.Expect('unmapped certificate error|text', 'Unable to initialize certificate!');
+        Observer.Expect('unmapped certificate error|code', 'Dialog');
+        Observer.Expect('secret name read as certificate', 'false/unchanged');
+        Observer.Expect('secret name read as certificate error|text', 'Unable to initialize certificate!');
+        Observer.Expect('secret name read as certificate error|code', 'Dialog');
+        Observer.Expect('certificate name read as secret', 'true/cert-value');
+        Observer.Expect('secrettext certificate returns', 'No');
+        Observer.Expect('secrettext certificate value', '');
+        Observer.Verify();
     end;
 }
 
@@ -276,6 +353,27 @@ codeunit 61458 "LT Y58 Key Vault Helper"
         ObserveTry(Observer, 'unmapped secret', TryGetSecret('lt-y58-unmapped', Value), Value);
         ObserveTry(Observer, 'mapped certificate', TryGetCertificate('lt-y58-c', Value), Value);
         ObserveTry(Observer, 'unmapped certificate', TryGetCertificate('lt-y58-unmapped', Value), Value);
-        Observer.Finish();
+#if BC29PLUS
+        Observer.Expect('secret, provider never set|text', 'A call to Microsoft.Dynamics.Nav.AzureKeyVaultClient.AzureKeyVaultClientHelper.GetAzureKeyVaultSecret failed with this message: Azure key vault has not been set up. Please contact your system administrator.');
+        Observer.Expect('secret, provider never set|code', 'DotNetInvoke:InvalidOperation');
+        Observer.Expect('certificate, provider never set|text', 'A call to Microsoft.Dynamics.Nav.AzureKeyVaultClient.AzureKeyVaultClientHelper.GetAzureKeyVaultCertificate failed with this message: Azure key vault has not been set up. Please contact your system administrator.');
+        Observer.Expect('certificate, provider never set|code', 'DotNetInvoke:InvalidOperation');
+        Observer.Expect('mapped secret', 'x-value');
+        Observer.Expect('empty secret', '');
+        Observer.Expect('unmapped secret', '');
+        Observer.Expect('mapped certificate', 'c-value');
+        Observer.Expect('unmapped certificate', '');
+#else
+        Observer.Expect('secret, provider never set|text', 'A call to Microsoft.Dynamics.Nav.AzureKeyVaultClient.AzureKeyVaultClientHelper.GetAzureKeyVaultSecret failed with this message: Azure key vault has not been set up. Please contact your system administrator.');
+        Observer.Expect('secret, provider never set|code', 'DotNetInvoke:');
+        Observer.Expect('certificate, provider never set|text', 'A call to Microsoft.Dynamics.Nav.AzureKeyVaultClient.AzureKeyVaultClientHelper.GetAzureKeyVaultCertificate failed with this message: Azure key vault has not been set up. Please contact your system administrator.');
+        Observer.Expect('certificate, provider never set|code', 'DotNetInvoke:');
+        Observer.Expect('mapped secret', 'x-value');
+        Observer.Expect('empty secret', '');
+        Observer.Expect('unmapped secret', '');
+        Observer.Expect('mapped certificate', 'c-value');
+        Observer.Expect('unmapped certificate', '');
+#endif
+        Observer.Verify();
     end;
 }

@@ -9,6 +9,10 @@
 //   Cases: a card page with a Brick field group (value types Code, Text, Decimal, Date, Boolean, Option, Integer, Blob, a
 //   hidden field), a list page with CardPageId, a page whose table has no Brick, no bookmark, an invalid bookmark, the bookmark
 //   of a deleted record, an unknown SystemId, an unknown page id.
+// Facts: "fields" are the Brick fields with the first two swapped and Blob fields removed; "recordFields" are the visible page
+//   fields in page order without empty values (a blank Option and 0 are kept); a table without Brick uses its fields; the page caption
+//   falls back to the page name, and to "Page <id>" for an unknown page. Also measured on a SaaS sandbox (BC 29), same values.
+// Expected values: corpus CI (Linux containers) BC 27.5, 28.5 and 29.0, batch runs 41332956805, 41336116625, 41336138376.
 // BC versions: 27, 28, 29
 table 93700 "LT Y58 Summary Row"
 {
@@ -225,7 +229,8 @@ codeunit 93700 "LT Y58 Page Summary"
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('card header', Header(CardSummary()));
-        Observer.Finish();
+        Observer.Expect('card header', '{"pageCaption":"LT Y58 Summary Card","pageType":"Card","cardPageId":0,"summaryType":"Brick","version":"present"}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -234,7 +239,8 @@ codeunit 93700 "LT Y58 Page Summary"
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('card fields', Part(CardSummary(), 'fields'));
-        Observer.Finish();
+        Observer.Expect('card fields', '[{"caption":"Description","fieldValue":"First row","fieldType":"Text","tooltip":"Specifies the description."},{"caption":"No.","fieldValue":"Y58-1","fieldType":"Code","tooltip":"Specifies the number."},{"caption":"Amount","fieldValue":"1,234.5","fieldType":"Decimal","tooltip":"Specifies the amount."},{"caption":"Posting Date","fieldValue":"01/15/24","fieldType":"Date","tooltip":""},{"caption":"Blocked","fieldValue":"Yes","fieldType":"Boolean","tooltip":"Specifies if blocked."}]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -243,7 +249,8 @@ codeunit 93700 "LT Y58 Page Summary"
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('card recordFields', Part(CardSummary(), 'recordFields'));
-        Observer.Finish();
+        Observer.Expect('card recordFields', '[{"caption":"No.","fieldValue":"Y58-1","fieldType":"Code","tooltip":"Specifies the number."},{"caption":"Description","fieldValue":"First row","fieldType":"Text","tooltip":"Specifies the description."},{"caption":"Amount","fieldValue":"1,234.5","fieldType":"Decimal","tooltip":"Specifies the amount."},{"caption":"Posting Date","fieldValue":"01/15/24","fieldType":"Date","tooltip":""},{"caption":"Blocked","fieldValue":"Yes","fieldType":"Boolean","tooltip":"Specifies if blocked."},{"caption":"Kind","fieldValue":"Large","fieldType":"Option","tooltip":"Specifies the kind."},{"caption":"Quantity","fieldValue":"7","fieldType":"Integer","tooltip":"Specifies the quantity."}]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -261,7 +268,10 @@ codeunit 93700 "LT Y58 Page Summary"
         Observer.Observe('by systemid equals by bookmark', Format(ByBookmark = BySystemId));
         Observer.Observe('by systemid header', Header(BySystemId));
         Observer.Observe('unknown systemid', Clean(PageSummaryProvider.GetPageSummaryBySystemID(Page::"LT Y58 Summary Card", CreateGuid())));
-        Observer.Finish();
+        Observer.Expect('by systemid equals by bookmark', 'No');
+        Observer.Expect('by systemid header', '{"pageCaption":"LT Y58 Summary Card","pageType":"Card","cardPageId":0,"summaryType":"Brick","url":"present","version":"present"}');
+        Observer.Expect('unknown systemid', '{"pageCaption":"LT Y58 Summary Card","pageType":"Card","summaryType":"Caption","cardPageId":0,"error":{"code":"InvalidSystemId","message":"The system ID is invalid."},"version":"present"}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -273,7 +283,8 @@ codeunit 93700 "LT Y58 Page Summary"
     begin
         InsertRow(Row);
         Observer.Observe('list', Clean(PageSummaryProvider.GetPageSummary(Page::"LT Y58 Summary List", Format(Row.RecordId, 0, 10))));
-        Observer.Finish();
+        Observer.Expect('list', '{"pageCaption":"LT Y58 Summary List","pageType":"List","cardPageId":93700,"summaryType":"Brick","fields":[{"caption":"Description","fieldValue":"First row","fieldType":"Text","tooltip":"Specifies the description."},{"caption":"No.","fieldValue":"Y58-1","fieldType":"Code","tooltip":"Specifies the number."},{"caption":"Amount","fieldValue":"1,234.5","fieldType":"Decimal","tooltip":""},{"caption":"Posting Date","fieldValue":"01/15/24","fieldType":"Date","tooltip":""},{"caption":"Blocked","fieldValue":"Yes","fieldType":"Boolean","tooltip":""}],"recordFields":[{"caption":"No.","fieldValue":"Y58-1","fieldType":"Code","tooltip":"Specifies the number."},{"caption":"Description","fieldValue":"First row","fieldType":"Text","tooltip":"Specifies the description."}],"version":"present"}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -288,7 +299,8 @@ codeunit 93700 "LT Y58 Page Summary"
         Row."No." := 'Y58-E';
         Row.Insert();
         Observer.Observe('card empty values', Clean(PageSummaryProvider.GetPageSummary(Page::"LT Y58 Summary Card", Format(Row.RecordId, 0, 10))));
-        Observer.Finish();
+        Observer.Expect('card empty values', '{"pageCaption":"LT Y58 Summary Card","pageType":"Card","cardPageId":0,"summaryType":"Brick","fields":[{"caption":"Description","fieldValue":"","fieldType":"Text","tooltip":"Specifies the description."},{"caption":"No.","fieldValue":"Y58-E","fieldType":"Code","tooltip":"Specifies the number."},{"caption":"Amount","fieldValue":"0","fieldType":"Decimal","tooltip":"Specifies the amount."},{"caption":"Posting Date","fieldValue":"","fieldType":"Date","tooltip":""},{"caption":"Blocked","fieldValue":"No","fieldType":"Boolean","tooltip":"Specifies if blocked."}],"recordFields":[{"caption":"No.","fieldValue":"Y58-E","fieldType":"Code","tooltip":"Specifies the number."},{"caption":"Amount","fieldValue":"0","fieldType":"Decimal","tooltip":"Specifies the amount."},{"caption":"Blocked","fieldValue":"No","fieldType":"Boolean","tooltip":"Specifies if blocked."},{"caption":"Kind","fieldValue":" ","fieldType":"Option","tooltip":"Specifies the kind."},{"caption":"Quantity","fieldValue":"0","fieldType":"Integer","tooltip":"Specifies the quantity."}],"version":"present"}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -304,7 +316,9 @@ codeunit 93700 "LT Y58 Page Summary"
         Plain.Insert();
         Observer.Observe('plain card', Clean(PageSummaryProvider.GetPageSummary(Page::"LT Y58 Summary Plain Card", Format(Plain.RecordId, 0, 10))));
         Observer.Observe('page without caption', Clean(PageSummaryProvider.GetPageSummary(Page::"LT Y58 Summary No Caption", Format(Plain.RecordId, 0, 10))));
-        Observer.Finish();
+        Observer.Expect('plain card', '{"pageCaption":"LT Y58 Summary Plain Card","pageType":"Card","cardPageId":0,"summaryType":"Brick","fields":[{"caption":"Name","fieldValue":"Plain five","fieldType":"Text","tooltip":"Specifies the name."},{"caption":"Id","fieldValue":"5","fieldType":"Integer","tooltip":"Specifies the id."}],"recordFields":[{"caption":"Id","fieldValue":"5","fieldType":"Integer","tooltip":"Specifies the id."},{"caption":"Name","fieldValue":"Plain five","fieldType":"Text","tooltip":"Specifies the name."}],"version":"present"}');
+        Observer.Expect('page without caption', '{"pageCaption":"LT Y58 Summary No Caption","pageType":"Card","cardPageId":0,"summaryType":"Brick","fields":[{"caption":"Name","fieldValue":"Plain five","fieldType":"Text","tooltip":"Specifies the name."},{"caption":"Id","fieldValue":"5","fieldType":"Integer","tooltip":""}],"recordFields":[{"caption":"Name","fieldValue":"Plain five","fieldType":"Text","tooltip":"Specifies the name."}],"version":"present"}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -323,6 +337,11 @@ codeunit 93700 "LT Y58 Page Summary"
         Row.Delete();
         Observer.Observe('deleted record bookmark', Clean(PageSummaryProvider.GetPageSummary(Page::"LT Y58 Summary Card", Bookmark)));
         Observer.Observe('unknown page, no bookmark', Clean(PageSummaryProvider.GetPageSummary(99999999)));
-        Observer.Finish();
+        Observer.Expect('no bookmark', '{"pageCaption":"LT Y58 Summary Card","pageType":"Card","summaryType":"Caption","cardPageId":0,"version":"present"}');
+        Observer.Expect('empty bookmark', '{"pageCaption":"LT Y58 Summary Card","pageType":"Card","summaryType":"Caption","cardPageId":0,"version":"present"}');
+        Observer.Expect('invalid bookmark', '{"pageCaption":"LT Y58 Summary Card","pageType":"Card","summaryType":"Caption","cardPageId":0,"error":{"code":"InvalidBookmark","message":"The bookmark is invalid."},"version":"present"}');
+        Observer.Expect('deleted record bookmark', '{"pageCaption":"LT Y58 Summary Card","pageType":"Card","summaryType":"Caption","cardPageId":0,"error":{"code":"FailedGettingPageSummaryFields","message":"The LT Y58 Summary Row does not exist. Identification fields and values: No.=''Y58-1''"},"version":"present"}');
+        Observer.Expect('unknown page, no bookmark', '{"pageCaption":"Page 99999999","pageType":"Card","summaryType":"Caption","cardPageId":0,"version":"present"}');
+        Observer.Verify();
     end;
 }

@@ -6,6 +6,12 @@
 //   around it, and through the System Application codeunit "Azure AD Graph" with "Azure AD Graph Test Library" bound.
 //   Users (all fields, by object id, principal name, authentication email, a missing user), the current user, assigned plans,
 //   roles, groups, subscribed SKUs, M365 collaboration flag, environment security group, tenant detail.
+// Facts: lookups by object id and by principal name ignore case; the mock keeps the UserInfo instance it was given (a later change
+//   shows on the next read); a missing user raises "Sequence contains no matching element" (DotNetInvoke:InvalidOperation) from
+//   GetUserByObjectId and GetUser, while TryGetUserByObjectId returns false, and GetUserByAuthorizationEmail and GetCurrentUser return
+//   null; a second AddUser with the same object id is accepted and the lookup by object id returns the first; the current user is
+//   kept apart from the user list. Same on all three versions.
+// Expected values: corpus CI (Linux containers) BC 27.5, 28.5 and 29.0, batch runs 41332956805, 41336116625, 41336138376.
 // BC versions: 27, 28, 29
 dotnet
 {
@@ -147,7 +153,16 @@ codeunit 61455 "LT Y58 MockGraphQuery"
         // the stored object is the same instance: a later change shows on the read
         UserInfo.DisplayName := 'Changed';
         ObserveTry(Observer, 'graph by object id after change', TryGraphByObjectId('obj-1', Result), Result);
-        Observer.Finish();
+        Observer.Expect('fresh userinfo', '|||||||No');
+        Observer.Expect('mock by object id', 'obj-1|Ann Lee|Ann|Lee|ann@contoso.com|ann@contoso.com|da-DK|Yes');
+        Observer.Expect('graph by object id', 'obj-1|Ann Lee|Ann|Lee|ann@contoso.com|ann@contoso.com|da-DK|Yes');
+        Observer.Expect('graph by object id other case', 'obj-1|Ann Lee|Ann|Lee|ann@contoso.com|ann@contoso.com|da-DK|Yes');
+        Observer.Expect('graph try by object id', 'Yes/obj-1|Ann Lee|Ann|Lee|ann@contoso.com|ann@contoso.com|da-DK|Yes');
+        Observer.Expect('graph by principal', 'obj-1|Ann Lee|Ann|Lee|ann@contoso.com|ann@contoso.com|da-DK|Yes');
+        Observer.Expect('graph by principal other case', 'obj-1|Ann Lee|Ann|Lee|ann@contoso.com|ann@contoso.com|da-DK|Yes');
+        Observer.Expect('graph by auth email', 'obj-1|Ann Lee|Ann|Lee|ann@contoso.com|ann@contoso.com|da-DK|Yes');
+        Observer.Expect('graph by object id after change', 'obj-1|Changed|Ann|Lee|ann@contoso.com|ann@contoso.com|da-DK|Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -163,7 +178,16 @@ codeunit 61455 "LT Y58 MockGraphQuery"
         ObserveTry(Observer, 'empty graph by principal', TryGraphByPrincipal('nobody@contoso.com', Result), Result);
         ObserveTry(Observer, 'empty graph by auth email', TryGraphByAuthEmail('nobody@contoso.com', Result), Result);
         ObserveTry(Observer, 'empty graph current user', TryGraphCurrent(Result), Result);
-        Observer.Finish();
+        Observer.Expect('empty mock by object id|text', 'A call to Microsoft.Dynamics.Nav.AzureADGraphClient.MockGraphQuery.GetUserByObjectId failed with this message: Sequence contains no matching element');
+        Observer.Expect('empty mock by object id|code', 'DotNetInvoke:InvalidOperation');
+        Observer.Expect('empty graph by object id|text', 'A call to Microsoft.Dynamics.Nav.AzureADGraphClient.GraphQuery.GetUserByObjectId failed with this message: Sequence contains no matching element');
+        Observer.Expect('empty graph by object id|code', 'DotNetInvoke:InvalidOperation');
+        Observer.Expect('empty graph try by object id', 'No/null');
+        Observer.Expect('empty graph by principal|text', 'A call to Microsoft.Dynamics.Nav.AzureADGraphClient.GraphQuery.GetUser failed with this message: Sequence contains no matching element');
+        Observer.Expect('empty graph by principal|code', 'DotNetInvoke:InvalidOperation');
+        Observer.Expect('empty graph by auth email', 'null');
+        Observer.Expect('empty graph current user', 'null');
+        Observer.Verify();
     end;
 
     [Test]
@@ -185,7 +209,11 @@ codeunit 61455 "LT Y58 MockGraphQuery"
         ObserveTry(Observer, 'graph by object id', TryGraphByObjectId('dup', Result), Result);
         ObserveTry(Observer, 'graph by first principal', TryGraphByPrincipal('first@contoso.com', Result), Result);
         ObserveTry(Observer, 'graph by second principal', TryGraphByPrincipal('second@contoso.com', Result), Result);
-        Observer.Finish();
+        Observer.Expect('second add', 'ok');
+        Observer.Expect('graph by object id', 'dup|First User|First|User|first@contoso.com|first@contoso.com||Yes');
+        Observer.Expect('graph by first principal', 'dup|First User|First|User|first@contoso.com|first@contoso.com||Yes');
+        Observer.Expect('graph by second principal', 'dup|Second User|Second|User|second@contoso.com|second@contoso.com||Yes');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -210,7 +238,11 @@ codeunit 61455 "LT Y58 MockGraphQuery"
         NewUser(Other, 'other', 'Oth', 'Er', 'other@contoso.com');
         Mock.AddUser(Other);
         ObserveTry(Observer, 'current user after AddUser of another', TryGraphCurrent(Result), Result);
-        Observer.Finish();
+        Observer.Expect('current user', 'me|Cur Rent|Cur|Rent|me@contoso.com|me@contoso.com||Yes');
+        Observer.Expect('current user by object id (not added)|text', 'A call to Microsoft.Dynamics.Nav.AzureADGraphClient.GraphQuery.GetUserByObjectId failed with this message: Sequence contains no matching element');
+        Observer.Expect('current user by object id (not added)|code', 'DotNetInvoke:InvalidOperation');
+        Observer.Expect('current user after AddUser of another', 'me|Cur Rent|Cur|Rent|me@contoso.com|me@contoso.com||Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -251,7 +283,10 @@ codeunit 61455 "LT Y58 MockGraphQuery"
         foreach Item in Graph.GetUserAssignedPlans(UserInfo) do
             Line += Format(Item.ServicePlanId) + '/' + Format(Item.ServicePlanName) + '/' + Format(Item.CapabilityStatus) + ';';
         Observer.Observe('graph plans', Line);
-        Observer.Finish();
+        Observer.Expect('plans before', '0');
+        Observer.Expect('plans on userinfo', '2');
+        Observer.Expect('graph plans', '{11111111-0000-0000-0000-000000000001}/Plan One/Enabled;{11111111-0000-0000-0000-000000000002}/Plan Two/Suspended;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -286,7 +321,10 @@ codeunit 61455 "LT Y58 MockGraphQuery"
         foreach Item in Graph.GetDirectoryRoles() do
             Line += Format(Item.RoleTemplateId) + '/' + Format(Item.DisplayName) + ';';
         Observer.Observe('directory roles after AddDirectoryRole', Line);
-        Observer.Finish();
+        Observer.Expect('user roles on userinfo', 'tmpl-1/Role One/First role/Yes;');
+        Observer.Expect('directory roles after AddUserRole', '');
+        Observer.Expect('directory roles after AddDirectoryRole', 'tmpl-1/Role One;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -322,7 +360,14 @@ codeunit 61455 "LT Y58 MockGraphQuery"
         Observer.Observe('group members by display name', Line);
         Observer.Observe('group info display name', Format(Graph.GetGroupInfo('grp-a').DisplayName));
         Observer.Observe('find first group by display name', Format(Graph.FindFirstGroupInfoForDisplayName('Team A').ObjectId));
-        Observer.Finish();
+        Observer.Expect('member is in group', 'Yes');
+        Observer.Expect('outsider is in group', 'No');
+        Observer.Expect('member in unknown group', 'No');
+        Observer.Expect('groups on userinfo', 'grp-a/Team A;');
+        Observer.Expect('group members by display name', 'g1;');
+        Observer.Expect('group info display name', 'Team A');
+        Observer.Expect('find first group by display name', 'grp-a');
+        Observer.Verify();
     end;
 
     [Test]
@@ -356,7 +401,10 @@ codeunit 61455 "LT Y58 MockGraphQuery"
         foreach Item in Mock.GetDirectorySubscribedSkus() do
             Line += 'sku;';
         Observer.Observe('skus through mock', Line);
-        Observer.Finish();
+        Observer.Expect('skus empty mock', '');
+        Observer.Expect('skus through graph', 'sku:Sku Plan,;');
+        Observer.Expect('skus through mock', 'sku;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -381,7 +429,14 @@ codeunit 61455 "LT Y58 MockGraphQuery"
         Observer.Observe('environment group through graph', Format(Graph.GetEnvironmentDirectoryGroup()));
         Tenant := Graph.GetTenantDetail();
         Observer.Observe('tenant detail is null', Format(IsNull(Tenant)));
-        Observer.Finish();
+        Observer.Expect('m365 default', 'No');
+        Observer.Expect('m365 default through graph', 'No');
+        Observer.Expect('m365 after set', 'Yes');
+        Observer.Expect('environment group default', '');
+        Observer.Expect('environment group after set', 'Env Group Object ID');
+        Observer.Expect('environment group through graph', 'Env Group Object ID');
+        Observer.Expect('tenant detail is null', 'No');
+        Observer.Verify();
     end;
 }
 
@@ -397,8 +452,11 @@ codeunit 61456 "LT Y58 AAD Graph With Mock"
         exit(Format(UserInfo.ObjectId) + '|' + Format(UserInfo.DisplayName) + '|' + Format(UserInfo.Mail));
     end;
 
-    [Test]
-    procedure AadGraph_Mock_NotSaaS_NotQueried()
+    // Held (not a test): without SaaS testability "Azure AD Graph" still read the mock on every Linux CI container (27.5, 28.5,
+    // 29.0). The System Application only queries Graph when IsSaaS() or the server setting EnableEntraGroupsOnPrem is on, so the
+    // value may depend on the container's server settings. Values below are those of the Linux CI containers; to be checked on the
+    // Windows containers before it is a test.
+    procedure Suspect_AadGraph_Mock_NotSaaS()
     var
         Observer: Codeunit "Probe Observer";
         AzureADGraph: Codeunit "Azure AD Graph";
@@ -414,7 +472,9 @@ codeunit 61456 "LT Y58 AAD Graph With Mock"
         Observer.Observe('not saas: by object id', Describe(UserInfo));
         Observer.Observe('not saas: try by object id', Format(AzureADGraph.TryGetUserByObjectId('aad-1', UserInfo)));
         UnbindSubscription(GraphTestLibrary);
-        Observer.Finish();
+        Observer.Expect('not saas: by object id', 'aad-1|Aad User|aad@contoso.com');
+        Observer.Expect('not saas: try by object id', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -446,6 +506,13 @@ codeunit 61456 "LT Y58 AAD Graph With Mock"
         Observer.Observe('saas: current user object id is session user security id', Format(LowerCase(DelChr(Format(UserInfo.ObjectId), '=', '{}')) = LowerCase(DelChr(Format(UserSecurityId()), '=', '{}'))));
         UnbindSubscription(GraphTestLibrary);
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
-        Observer.Finish();
+        Observer.Expect('saas: by object id', 'aad-2|Saas User|saas@contoso.com');
+        Observer.Expect('saas: by principal', 'aad-2|Saas User|saas@contoso.com');
+        Observer.Expect('saas: try missing', 'No');
+        Observer.Expect('saas: try missing user', 'null');
+        Observer.Expect('saas: current user display name', 'Current ');
+        Observer.Expect('saas: current user mail', 'current@contoso.com');
+        Observer.Expect('saas: current user object id is session user security id', 'Yes');
+        Observer.Verify();
     end;
 }

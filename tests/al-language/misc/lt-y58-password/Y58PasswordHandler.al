@@ -6,6 +6,9 @@
 //   (the raw class is probed in tests/al-language-onprem-dotnet/lt-y58-server-helpers/Y58ServerHelpers.al). A Cloud app cannot
 //   unwrap the SecretText, so only what it can see is observed: the minimum length, the error below it, and that the result is
 //   not empty and strong.
+// Facts: the minimum length is 8; a shorter length gives "The password must contain at least 8 characters." (Dialog). Also
+//   measured on a SaaS sandbox (BC 29), same values.
+// Expected values: corpus CI (Linux containers) BC 27.5, 28.5 and 29.0, batch runs 41332956805, 41336116625, 41336138376.
 // BC versions: 27, 28, 29
 codeunit 93701 "LT Y58 Password Handler"
 {
@@ -27,7 +30,12 @@ codeunit 93701 "LT Y58 Password Handler"
         Observer.Observe('8: strong', Format(PasswordHandler.IsPasswordStrong(Password)));
         Password := PasswordHandler.GenerateSecretPassword(40);
         Observer.Observe('40: strong', Format(PasswordHandler.IsPasswordStrong(Password)));
-        Observer.Finish();
+        Observer.Expect('min length', '8');
+        Observer.Expect('default: empty', 'No');
+        Observer.Expect('default: strong', 'Yes');
+        Observer.Expect('8: strong', 'Yes');
+        Observer.Expect('40: strong', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -41,6 +49,10 @@ codeunit 93701 "LT Y58 Password Handler"
         Observer.ObserveError('length 7');
         asserterror Password := PasswordHandler.GenerateSecretPassword(0);
         Observer.ObserveError('length 0');
-        Observer.Finish();
+        Observer.Expect('length 7|text', 'The password must contain at least 8 characters.');
+        Observer.Expect('length 7|code', 'Dialog');
+        Observer.Expect('length 0|text', 'The password must contain at least 8 characters.');
+        Observer.Expect('length 0|code', 'Dialog');
+        Observer.Verify();
     end;
 }
