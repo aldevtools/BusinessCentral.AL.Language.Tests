@@ -7,6 +7,8 @@
 //   Enum field, const(Kind::Parent) on an Option field), next to the unqualified form, and a conditional relation to a NON-key field of the
 //   parent (the reporter's "Item Attribute".Name). Which child fields follow the rename, for a child row whose condition matches and one
 //   whose condition does not. And the reporter's shape: Rename of an Item with such a child table.
+// Results (SaaS sandbox BC 29): the qualified and unqualified const and filter conditions behave the same: only the matching row
+//   follows the rename; the relation to the non-key field Name never follows; the else arm follows for every row.
 // BC versions: 27, 28, 29
 
 enum 93348 "LT Y65 RN Type"
@@ -159,7 +161,10 @@ codeunit 93348 "LT Y65 Rename Const Relation"
         Observer.Observe('matching row', Row(1));
         Observer.Observe('other row', Row(2));
         Observer.Observe('parent', Parent."Code" + ' ' + Parent.Name);
-        Observer.Finish();
+        Observer.Expect('matching row', 'q=NEW u=NEW o=NEW oq=NEW name=OLD else=NEW filter=NEW');
+        Observer.Expect('other row', 'q=OLD u=OLD o=OLD oq=OLD name=OLD else=NEW filter=OLD');
+        Observer.Expect('parent', 'NEW OLD');
+        Observer.Verify();
     end;
 
     [Test]
@@ -177,6 +182,8 @@ codeunit 93348 "LT Y65 Rename Const Relation"
         Item.Rename('LTY65-NEW');
         Observer.Observe('renamed link', Format(ReproValue.Get('LTY65-NEW', 'Colour')));
         Observer.Observe('old link', Format(ReproValue.Get('LTY65-OLD', 'Colour')));
-        Observer.Finish();
+        Observer.Expect('renamed link', 'Yes');
+        Observer.Expect('old link', 'No');
+        Observer.Verify();
     end;
 }

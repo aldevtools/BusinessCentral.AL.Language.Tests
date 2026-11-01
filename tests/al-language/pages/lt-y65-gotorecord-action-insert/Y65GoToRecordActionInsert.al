@@ -5,6 +5,9 @@
 //   CurrPage.Update(), CurrPage.Update(false) or no update; then TestPage.GoToRecord of the new row. Also the test itself inserts the row while
 //   the page is open (no action). Pages: Worksheet with OnAfterGetRecord and OnAfterGetCurrRecord (the reporter's shape, empty triggers),
 //   Worksheet with neither, with only one of them, and a List with both. Outcome: ok and the Description shown, or the error text and code.
+// Results (SaaS sandbox BC 29): after the action inserts A or C, GoToRecord finds the new row on every page, with or without
+//   CurrPage.Update. When the test inserts A itself, GoToRecord raises 'The row does not exist on the TestPage.' (TestRowNotFound) on the
+//   pages with OnAfterGetCurrRecord (both triggers, OnAfterGetCurrRecord only, the List) and finds it on the pages without it.
 // BC versions: 27, 28, 29
 
 table 93344 "LT Y65 GTR Item"
@@ -594,7 +597,12 @@ codeunit 93344 "LT Y65 GTR Tests"
         Observer.Observe('insert A, no Update', RunBoth(3));
         Observer.Observe('insert C, Update()', RunBoth(4));
         Observer.Observe('test inserts A, no action', RunBoth(5));
-        Observer.Finish();
+        Observer.Expect('insert A, Update()', 'ok:on B Inserted A');
+        Observer.Expect('insert A, Update(false)', 'ok:on B Inserted A');
+        Observer.Expect('insert A, no Update', 'ok:on B Inserted A');
+        Observer.Expect('insert C, Update()', 'ok:on B Inserted C');
+        Observer.Expect('test inserts A, no action', 'on B |error:The row does not exist on the TestPage.|TestRowNotFound|now B');
+        Observer.Verify();
     end;
 
     [Test]
@@ -605,7 +613,12 @@ codeunit 93344 "LT Y65 GTR Tests"
         Observer.Observe('insert A, no Update', RunNone(3));
         Observer.Observe('insert C, Update()', RunNone(4));
         Observer.Observe('test inserts A, no action', RunNone(5));
-        Observer.Finish();
+        Observer.Expect('insert A, Update()', 'ok:on B Inserted A');
+        Observer.Expect('insert A, Update(false)', 'ok:on B Inserted A');
+        Observer.Expect('insert A, no Update', 'ok:on B Inserted A');
+        Observer.Expect('insert C, Update()', 'ok:on B Inserted C');
+        Observer.Expect('test inserts A, no action', 'ok:on B Inserted A');
+        Observer.Verify();
     end;
 
     [Test]
@@ -616,7 +629,12 @@ codeunit 93344 "LT Y65 GTR Tests"
         Observer.Observe('insert A, no Update', RunGetRecord(3));
         Observer.Observe('insert C, Update()', RunGetRecord(4));
         Observer.Observe('test inserts A, no action', RunGetRecord(5));
-        Observer.Finish();
+        Observer.Expect('insert A, Update()', 'ok:on B Inserted A');
+        Observer.Expect('insert A, Update(false)', 'ok:on B Inserted A');
+        Observer.Expect('insert A, no Update', 'ok:on B Inserted A');
+        Observer.Expect('insert C, Update()', 'ok:on B Inserted C');
+        Observer.Expect('test inserts A, no action', 'ok:on B Inserted A');
+        Observer.Verify();
     end;
 
     [Test]
@@ -627,7 +645,12 @@ codeunit 93344 "LT Y65 GTR Tests"
         Observer.Observe('insert A, no Update', RunGetCurrRecord(3));
         Observer.Observe('insert C, Update()', RunGetCurrRecord(4));
         Observer.Observe('test inserts A, no action', RunGetCurrRecord(5));
-        Observer.Finish();
+        Observer.Expect('insert A, Update()', 'ok:on B Inserted A');
+        Observer.Expect('insert A, Update(false)', 'ok:on B Inserted A');
+        Observer.Expect('insert A, no Update', 'ok:on B Inserted A');
+        Observer.Expect('insert C, Update()', 'ok:on B Inserted C');
+        Observer.Expect('test inserts A, no action', 'on B |error:The row does not exist on the TestPage.|TestRowNotFound|now B');
+        Observer.Verify();
     end;
 
     [Test]
@@ -638,6 +661,11 @@ codeunit 93344 "LT Y65 GTR Tests"
         Observer.Observe('insert A, no Update', RunListBoth(3));
         Observer.Observe('insert C, Update()', RunListBoth(4));
         Observer.Observe('test inserts A, no action', RunListBoth(5));
-        Observer.Finish();
+        Observer.Expect('insert A, Update()', 'ok:on B Inserted A');
+        Observer.Expect('insert A, Update(false)', 'ok:on B Inserted A');
+        Observer.Expect('insert A, no Update', 'ok:on B Inserted A');
+        Observer.Expect('insert C, Update()', 'ok:on B Inserted C');
+        Observer.Expect('test inserts A, no action', 'on B |error:The row does not exist on the TestPage.|TestRowNotFound|now B');
+        Observer.Verify();
     end;
 }

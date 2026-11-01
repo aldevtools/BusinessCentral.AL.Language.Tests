@@ -6,6 +6,9 @@
 //   (false, a page variable that is false, a page variable that is true) show the blank new-row line? Next() past the last row, Last(),
 //   First() on an empty table, the Editable() of a field, New(), for a List, a Worksheet, a List whose fields are all Editable = false,
 //   a ListPart in a Card, OpenEdit and OpenView, and the reporter's Page.Run with a PageHandler.
+// Results (SaaS sandbox BC 29): a repeater with Editable = false (or a page variable that is false) has no new-row line: Next() on the
+//   last row answers false and stays there; a repeater variable that is true and a list whose fields are all Editable = false do have it.
+//   New() raises nothing on any of them.
 // BC versions: 27, 28, 29
 
 table 93346 "LT Y65 RO Task"
@@ -249,7 +252,10 @@ codeunit 93346 "LT Y65 RO Tests"
         Observer.Observe('view two rows', WalkList(true));
         Seed(0);
         Observer.Observe('edit empty', WalkList(false));
-        Observer.Finish();
+        Observer.Expect('edit two rows', 'open=First first=Yes:First next=Yes:Second next=No:Second:2 next=No:Second last=Yes:Second prev=Yes:First editable=No/Yes new=ok: rows=2');
+        Observer.Expect('view two rows', 'open=First first=Yes:First next=Yes:Second next=No:Second:2 next=No:Second last=Yes:Second prev=Yes:First editable=No/No new=ok: rows=2');
+        Observer.Expect('edit empty', 'open= first=No: next=No: next=No:: next=No: last=No: prev=No: editable=No/Yes new=ok: rows=0');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -293,7 +299,10 @@ codeunit 93346 "LT Y65 RO Tests"
         Observer.Observe('view two rows', WalkListVarFalse(true));
         Seed(0);
         Observer.Observe('edit empty', WalkListVarFalse(false));
-        Observer.Finish();
+        Observer.Expect('edit two rows', 'open=First first=Yes:First next=Yes:Second next=No:Second:2 next=No:Second last=Yes:Second prev=Yes:First editable=No/Yes new=ok: rows=2');
+        Observer.Expect('view two rows', 'open=First first=Yes:First next=Yes:Second next=No:Second:2 next=No:Second last=Yes:Second prev=Yes:First editable=No/No new=ok: rows=2');
+        Observer.Expect('edit empty', 'open= first=No: next=No: next=No:: next=No: last=No: prev=No: editable=No/Yes new=ok: rows=0');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -337,7 +346,10 @@ codeunit 93346 "LT Y65 RO Tests"
         Observer.Observe('view two rows', WalkListVarTrue(true));
         Seed(0);
         Observer.Observe('edit empty', WalkListVarTrue(false));
-        Observer.Finish();
+        Observer.Expect('edit two rows', 'open=First first=Yes:First next=Yes:Second next=Yes::0 next=No: last=Yes:Second prev=Yes:First editable=Yes/Yes new=ok: rows=2');
+        Observer.Expect('view two rows', 'open=First first=Yes:First next=Yes:Second next=No:Second:2 next=No:Second last=Yes:Second prev=Yes:First editable=No/No new=ok: rows=2');
+        Observer.Expect('edit empty', 'open= first=No: next=No: next=No::0 next=No: last=No: prev=No: editable=Yes/Yes new=ok: rows=0');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -381,7 +393,10 @@ codeunit 93346 "LT Y65 RO Tests"
         Observer.Observe('view two rows', WalkListFields(true));
         Seed(0);
         Observer.Observe('edit empty', WalkListFields(false));
-        Observer.Finish();
+        Observer.Expect('edit two rows', 'open=First first=Yes:First next=Yes:Second next=Yes::0 next=No: last=Yes:Second prev=Yes:First editable=No/Yes new=ok: rows=2');
+        Observer.Expect('view two rows', 'open=First first=Yes:First next=Yes:Second next=No:Second:2 next=No:Second last=Yes:Second prev=Yes:First editable=No/No new=ok: rows=2');
+        Observer.Expect('edit empty', 'open= first=No: next=No: next=No::0 next=No: last=No: prev=No: editable=No/Yes new=ok: rows=0');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -425,7 +440,10 @@ codeunit 93346 "LT Y65 RO Tests"
         Observer.Observe('view two rows', WalkWorksheet(true));
         Seed(0);
         Observer.Observe('edit empty', WalkWorksheet(false));
-        Observer.Finish();
+        Observer.Expect('edit two rows', 'open=First first=Yes:First next=Yes:Second next=No:Second:2 next=No:Second last=Yes:Second prev=Yes:First editable=No/Yes new=ok: rows=2');
+        Observer.Expect('view two rows', 'open=First first=Yes:First next=Yes:Second next=No:Second:2 next=No:Second last=Yes:Second prev=Yes:First editable=No/Yes new=ok: rows=2');
+        Observer.Expect('edit empty', 'open= first=No: next=No: next=No:: next=No: last=No: prev=No: editable=No/Yes new=ok: rows=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -444,7 +462,8 @@ codeunit 93346 "LT Y65 RO Tests"
         R += ' editable=' + Format(Host.Tasks.Description.Editable()) + '/' + Format(Host.Tasks.Editable());
         Host.Close();
         Observer.Observe('part', R);
-        Observer.Finish();
+        Observer.Expect('part', 'open=First first=Yes:First next=Yes:Second next=No:Second last=Yes:Second editable=No/Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -454,7 +473,8 @@ codeunit 93346 "LT Y65 RO Tests"
         // al-runner issue 6674, the reporter's shape.
         Seed(2);
         Page.Run(Page::"LT Y65 RO List");
-        Observer.Finish();
+        Observer.Expect('handler', 'open=First next=Yes:Second next=No:Second');
+        Observer.Verify();
     end;
 
     [PageHandler]

@@ -545,7 +545,18 @@ codeunit 72502 "LT JsT Value Getters"
         Observer.Observe('n/a AsTime', Try(V, 'AsTime'));
         Observer.Observe('n/a AsDuration', Try(V, 'AsDuration'));
         Observer.Observe('n/a big byte option int', SqRow('"n/a"'));
-        Observer.Finish();
+        Observer.Expect('n/a AsText', 'ok:n/a');
+        Observer.Expect('n/a AsCode', 'ok:N/A');
+        Observer.Expect('n/a AsChar', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Char.|Conversion');
+        Observer.Expect('n/a AsInteger', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Int32.|Conversion');
+        Observer.Expect('n/a AsDecimal', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.Decimal18.|Conversion');
+        Observer.Expect('n/a AsBoolean', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Boolean.|Conversion');
+        Observer.Expect('n/a AsDate', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.NavDate.|Conversion');
+        Observer.Expect('n/a AsDateTime', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.NavDateTime.|Conversion');
+        Observer.Expect('n/a AsTime', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.NavTime.|Conversion');
+        Observer.Expect('n/a AsDuration', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.NavDuration.|Conversion');
+        Observer.Expect('n/a big byte option int', 'big=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.NavBigInteger.|Conversion ; byte=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Byte.|Conversion ; option=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.NavOption.|Conversion ; int=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Int32.|Conversion');
+        Observer.Verify();
     end;
 
     [Test]
@@ -560,7 +571,16 @@ codeunit 72502 "LT JsT Value Getters"
         Observer.Observe('.5', Y65Num('".5"'));
         Observer.Observe('1.5.1', Y65Num('"1.5.1"'));
         Observer.Observe('space 4.5 space', Y65Num('" 4.5 "'));
-        Observer.Finish();
+        Observer.Expect('4.5', 'dec=ok:4.5 ; int=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Int32.|Conversion');
+        Observer.Expect('4,5', 'dec=ok:45 ; int=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Int32.|Conversion');
+        Observer.Expect('1,000.5', 'dec=ok:1,000.5 ; int=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Int32.|Conversion');
+        Observer.Expect('1e3', 'dec=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.Decimal18.|Conversion ; int=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Int32.|Conversion');
+        Observer.Expect('-0', 'dec=ok:0 ; int=ok:0');
+        Observer.Expect('+3', 'dec=ok:3 ; int=ok:3');
+        Observer.Expect('.5', 'dec=ok:0.5 ; int=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Int32.|Conversion');
+        Observer.Expect('1.5.1', 'dec=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.Decimal18.|Conversion ; int=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Int32.|Conversion');
+        Observer.Expect('space 4.5 space', 'dec=ok:4.5 ; int=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Int32.|Conversion');
+        Observer.Verify();
     end;
 
     [Test]
@@ -572,7 +592,13 @@ codeunit 72502 "LT JsT Value Getters"
         Observer.Observe('1 000', Y65Num('"1 000"'));
         Observer.Observe('empty', Y65Num('""'));
         Observer.Observe('99999999999999999999', Y65Num('"99999999999999999999"'));
-        Observer.Finish();
+        Observer.Expect('NaN', 'dec=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.Decimal18.|Conversion ; int=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Int32.|Conversion');
+        Observer.Expect('Infinity', 'dec=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.Decimal18.|Conversion ; int=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Int32.|Conversion');
+        Observer.Expect('0x10', 'dec=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.Decimal18.|Conversion ; int=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Int32.|Conversion');
+        Observer.Expect('1 000', 'dec=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.Decimal18.|Conversion ; int=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Int32.|Conversion');
+        Observer.Expect('empty', 'dec=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.Decimal18.|Conversion ; int=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Int32.|Conversion');
+        Observer.Expect('99999999999999999999', 'dec=error:The value of Decimal parameter  is outside of the permitted range. The current value is: 100,000,000,000,000,000,000. The permitted range is: from -999,999,999,999,999.99 to 999,999,999,999,999.99.|OutsidePermittedRange ; int=error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Int32.|Conversion');
+        Observer.Verify();
     end;
 
     local procedure Y65Num(Json: Text): Text
@@ -596,6 +622,8 @@ codeunit 72502 "LT JsT Value Getters"
         asserterror Value := JToken.AsValue().AsDecimal();
         Observer.Observe('error', GetLastErrorText() + '|' + GetLastErrorCode());
         Observer.Observe('value', Format(Value));
-        Observer.Finish();
+        Observer.Expect('error', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to Microsoft.Dynamics.Nav.Runtime.Decimal18.|Conversion');
+        Observer.Expect('value', '0');
+        Observer.Verify();
     end;
 }

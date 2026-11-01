@@ -180,6 +180,11 @@ codeunit 92913 "LT Y47 DT Install Read"
         Observer.Observe('not copied', Format(NotCopied));
         Observer.Observe('not tagged', Format(NotTagged));
         Observer.Observe('blocked but tagged', Format(WronglyTagged));
-        Observer.Finish();
+        Observer.Expect('s8', 'ok');
+        Observer.Expect('s9', 'ok');
+        Observer.Expect('not copied', '0');
+        Observer.Expect('not tagged', '0');
+        Observer.Expect('blocked but tagged', '0');
+        Observer.Verify();
     end;
 }

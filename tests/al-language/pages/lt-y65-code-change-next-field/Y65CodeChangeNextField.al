@@ -7,6 +7,10 @@
 //   trigger, a table field trigger, a Rec field's control trigger, an explicit Rec.Modify()), and then the next page-variable field, an
 //   action, Next or Close runs. Does the save before it write the change made in code? The probe field Activate (page variable) and the
 //   action Peek read the stored row with a fresh Get and log it.
+// Results (SaaS sandbox BC 29): a change made in code is saved with the row. A page-variable SetValue, an action, Next and Close save the
+//   edited row including what an earlier OnValidate (page variable control trigger, table field trigger, Rec field control trigger) wrote
+//   into Rec in code; the next page-variable OnValidate reads it with Get. A Rec field SetValue saves nothing. An explicit Rec.Modify()
+//   in a page-variable OnValidate works and the page saves nothing extra.
 // BC versions: 27, 28, 29
 
 table 93340 "LT Y65 Member"
@@ -314,7 +318,9 @@ codeunit 93341 "LT Y65 Code Change Next Field"
         Worksheet.Close();
         Log.Db('after close', 'A');
         Observer.Observe('log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('activate', 'ok');
+        Observer.Expect('log', 'activate db name=Alice key=Yes tag=pv cnt=0 tag2=;activate rec tag=pv;after close db name=Alice key=Yes tag=pv cnt=0 tag2=;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -333,7 +339,9 @@ codeunit 93341 "LT Y65 Code Change Next Field"
         Worksheet.Close();
         Log.Db('after close', 'A');
         Observer.Observe('log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('activate', 'ok');
+        Observer.Expect('log', 'activate db name= key=Yes tag=pv cnt=0 tag2=;activate rec tag=pv;after close db name= key=Yes tag=pv cnt=0 tag2=;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -352,7 +360,9 @@ codeunit 93341 "LT Y65 Code Change Next Field"
         Worksheet.Close();
         Log.Db('after close', 'A');
         Observer.Observe('log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('activate', 'ok');
+        Observer.Expect('log', 'activate db name= key=No tag= cnt=7 tag2=;activate rec tag=;after close db name= key=No tag= cnt=7 tag2=;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -371,7 +381,9 @@ codeunit 93341 "LT Y65 Code Change Next Field"
         Worksheet.Close();
         Log.Db('after close', 'A');
         Observer.Observe('log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('activate', 'ok');
+        Observer.Expect('log', 'activate db name= key=No tag=rf cnt=0 tag2=t2;activate rec tag=rf;after close db name= key=No tag=rf cnt=0 tag2=t2;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -393,7 +405,8 @@ codeunit 93341 "LT Y65 Code Change Next Field"
         Worksheet.Close();
         Log.Db('after close', 'A');
         Observer.Observe('log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('log', 'after secret db name= key=No tag= cnt=0 tag2=;after name db name= key=No tag= cnt=0 tag2=;peek db name=Bob key=Yes tag=pv cnt=0 tag2=;after close db name=Bob key=Yes tag=pv cnt=0 tag2=;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -412,7 +425,8 @@ codeunit 93341 "LT Y65 Code Change Next Field"
         Worksheet.Close();
         Log.Db('after close', 'A');
         Observer.Observe('log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('log', 'peek db name= key=Yes tag=pv cnt=0 tag2=;after close db name= key=Yes tag=pv cnt=0 tag2=;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -430,7 +444,8 @@ codeunit 93341 "LT Y65 Code Change Next Field"
         Worksheet.Close();
         Log.Db('after close', 'A');
         Observer.Observe('log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('log', 'after close db name= key=Yes tag=pv cnt=0 tag2=;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -451,7 +466,10 @@ codeunit 93341 "LT Y65 Code Change Next Field"
         Worksheet.Close();
         Log.Db('after close', 'A');
         Observer.Observe('log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('next', 'Yes');
+        Observer.Expect('now on', 'B');
+        Observer.Expect('log', 'after next db name= key=Yes tag=pv cnt=0 tag2=;after close db name= key=Yes tag=pv cnt=0 tag2=;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -476,7 +494,10 @@ codeunit 93341 "LT Y65 Code Change Next Field"
         Worksheet.Close();
         Log.Db('after close', 'A');
         Observer.Observe('log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('stamp', 'ok');
+        Observer.Expect('activate', 'ok');
+        Observer.Expect('log', 'after stamp db name=Carl key=No tag=stamp cnt=0 tag2=;activate db name=Carl key=No tag=stamp cnt=0 tag2=;activate rec tag=stamp;after close db name=Carl key=No tag=stamp cnt=0 tag2=;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -500,7 +521,10 @@ codeunit 93341 "LT Y65 Code Change Next Field"
         Worksheet.Close();
         Log.Db('after close', 'A');
         Observer.Observe('log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('stamp', 'ok');
+        Observer.Expect('activate', 'ok');
+        Observer.Expect('log', 'after stamp db name= key=No tag=stamp cnt=0 tag2=;activate db name= key=No tag=stamp cnt=0 tag2=;activate rec tag=stamp;after close db name= key=No tag=stamp cnt=0 tag2=;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -520,7 +544,9 @@ codeunit 93341 "LT Y65 Code Change Next Field"
         Worksheet.Close();
         Log.Db('after close', 'A');
         Observer.Observe('log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('activate', 'ok');
+        Observer.Expect('log', 'activate db name= key=Yes tag=pv cnt=0 tag2=;activate rec tag=pv;after close db name= key=Yes tag=pv cnt=0 tag2=;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -540,7 +566,8 @@ codeunit 93341 "LT Y65 Code Change Next Field"
         Card.Close();
         Log.Db('after close', 'A');
         Observer.Observe('log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('log', 'activate db name=Alice key=Yes tag=pv cnt=0 tag2=;activate rec tag=pv;after close db name=Alice key=Yes tag=pv cnt=0 tag2=;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -559,7 +586,8 @@ codeunit 93341 "LT Y65 Code Change Next Field"
         Card.Close();
         Log.Db('after close', 'A');
         Observer.Observe('log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('log', 'activate db name= key=Yes tag=pv cnt=0 tag2=;activate rec tag=pv;after close db name= key=Yes tag=pv cnt=0 tag2=;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -578,7 +606,8 @@ codeunit 93341 "LT Y65 Code Change Next Field"
         Card.Close();
         Log.Db('after close', 'A');
         Observer.Observe('log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('log', 'peek db name= key=No tag= cnt=7 tag2=;after close db name= key=No tag= cnt=7 tag2=;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -598,6 +627,7 @@ codeunit 93341 "LT Y65 Code Change Next Field"
         List.Close();
         Log.Db('after close', 'A');
         Observer.Observe('log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('log', 'activate db name=Alice key=Yes tag=pv cnt=0 tag2=;activate rec tag=pv;after close db name=Alice key=Yes tag=pv cnt=0 tag2=;');
+        Observer.Verify();
     end;
 }

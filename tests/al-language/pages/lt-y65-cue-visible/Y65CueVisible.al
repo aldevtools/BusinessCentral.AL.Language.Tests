@@ -10,6 +10,9 @@
 //   Visible takes any Boolean expression; a field Visible is a client expression (procedure calls, method calls and array elements:
 //   AL0322, must-not-compile 2631 (array) and 2632 (method call); a procedure call is 2000); an Integer is AL0208 (must-not-compile 2630). Read through TestPage: Visible() and Value of each cue field. The reporter's three Microsoft activity pages are held
 //   as Suspect_ procedures (see there).
+// Results (SaaS sandbox BC 29): variables set in OnInit, OnOpenPage and OnAfterGetRecord, `not`, array elements, Rec fields, Rec
+//   expressions and not Rec.IsEmpty() all give the value they have after the page opened. The cuegroup with Visible = IsShown() (which
+//   returns the variable OnOpenPage sets to true) reads No. A hidden cue field still answers Visible() No and its value.
 // BC versions: 27, 28, 29
 
 table 93347 "LT Y65 Cue"
@@ -239,7 +242,20 @@ codeunit 93347 "LT Y65 Cue Visible Tests"
         ReadAll(P);
         P.Close();
         Observer.Observe('rows', Format(Cue.Count()));
-        Observer.Finish();
+        Observer.Expect('open true (A)', 'Yes 0');
+        Observer.Expect('open false (B)', 'No 0');
+        Observer.Expect('not open false (C)', 'Yes 0');
+        Observer.Expect('init (D)', 'Yes 0');
+        Observer.Expect('after get record (E)', 'Yes 0');
+        Observer.Expect('Rec.CueF <> 0 (F)', 'Yes 3');
+        Observer.Expect('Rec.Flag (G)', 'No 0');
+        Observer.Expect('var and Rec expr (H)', 'Yes 0');
+        Observer.Expect('field var false (I)', 'No 0');
+        Observer.Expect('cuegroup IsShown() (J)', 'No 0');
+        Observer.Expect('cuegroup array element (K)', 'Yes 0');
+        Observer.Expect('cuegroup not Rec.IsEmpty() (L)', 'Yes 0');
+        Observer.Expect('rows', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -256,7 +272,19 @@ codeunit 93347 "LT Y65 Cue Visible Tests"
         P.OpenView();
         ReadAll(P);
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open true (A)', 'Yes 0');
+        Observer.Expect('open false (B)', 'No 0');
+        Observer.Expect('not open false (C)', 'Yes 0');
+        Observer.Expect('init (D)', 'Yes 0');
+        Observer.Expect('after get record (E)', 'Yes 0');
+        Observer.Expect('Rec.CueF <> 0 (F)', 'No 0');
+        Observer.Expect('Rec.Flag (G)', 'Yes 0');
+        Observer.Expect('var and Rec expr (H)', 'No 4');
+        Observer.Expect('field var false (I)', 'No 0');
+        Observer.Expect('cuegroup IsShown() (J)', 'No 0');
+        Observer.Expect('cuegroup array element (K)', 'Yes 0');
+        Observer.Expect('cuegroup not Rec.IsEmpty() (L)', 'Yes 0');
+        Observer.Verify();
     end;
 
     // Suspects (not [Test], kept for the Windows check): the reporter's three Microsoft pages (al-runner issue 6675). On the SaaS sandbox BC 29

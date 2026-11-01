@@ -8,6 +8,10 @@
 //   0DT - n, 0DT + 0, DateTime + 0, the Duration of 0DT - 0DT into Integer, BigInteger, Decimal and Duration, comparisons with a defined
 //   value, CreateDateTime and DT2Date/DT2Time with undefined parts. And the reporter's Apply Retention Policy with a setup record that was
 //   never inserted.
+// Results (SaaS sandbox BC 29): 0D - 0D = 0; 0T + n and 0T - n raise 'Adding to an undefined (0T) time.' and Time - 0T raises
+//   'Subtracting an undefined (0T) time.' (InvalidTime); 0DT + n, 0DT - n and 0DT + Duration raise 'The date is not valid.' (DateInvalid);
+//   0DT - 0DT = 0 into every number type; the undefined value is lower than any defined one; CreateDateTime(0D, 0T) = 0DT and
+//   CreateDateTime(0D, a time) raises DateInvalid.
 // BC versions: 27, 28, 29
 
 table 93351 "LT Y65 UA Log"
@@ -156,7 +160,12 @@ codeunit 93349 "LT Y65 Undefined Arith"
         Observer.Observe('0D > D', Format(Undefined > Defined));
         Observer.Observe('0D = 0D', Format(Undefined = 0D));
         Observer.Observe('format 0D', '[' + Format(Undefined) + ']');
-        Observer.Finish();
+        Observer.Expect('0D - 0D', 'ok:0');
+        Observer.Expect('0D < D', 'Yes');
+        Observer.Expect('0D > D', 'No');
+        Observer.Expect('0D = 0D', 'Yes');
+        Observer.Expect('format 0D', '[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -175,7 +184,15 @@ codeunit 93349 "LT Y65 Undefined Arith"
         Observer.Observe('0T < T', Format(Undefined < Defined));
         Observer.Observe('0T < 000000T', Format(Undefined < 000000T));
         Observer.Observe('format 0T', '[' + Format(Undefined) + ']');
-        Observer.Finish();
+        Observer.Expect('0T + 1000', 'error:Adding to an undefined (0T) time.|InvalidTime');
+        Observer.Expect('0T + 0', 'error:Adding to an undefined (0T) time.|InvalidTime');
+        Observer.Expect('0T - 1000', 'error:Adding to an undefined (0T) time.|InvalidTime');
+        Observer.Expect('T - 0T', 'error:Subtracting an undefined (0T) time.|InvalidTime');
+        Observer.Expect('T + 0', 'ok:10:00:00');
+        Observer.Expect('0T < T', 'Yes');
+        Observer.Expect('0T < 000000T', 'Yes');
+        Observer.Expect('format 0T', '[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -200,7 +217,20 @@ codeunit 93349 "LT Y65 Undefined Arith"
         Observer.Observe('0DT < DT', Format(Undefined < Defined));
         Observer.Observe('0DT > DT', Format(Undefined > Defined));
         Observer.Observe('0DT = 0DT', Format(Undefined = 0DT));
-        Observer.Finish();
+        Observer.Expect('0DT + 1000', 'error:The date is not valid.|DateInvalid');
+        Observer.Expect('0DT + 0', 'error:The date is not valid.|DateInvalid');
+        Observer.Expect('0DT - 1000', 'error:The date is not valid.|DateInvalid');
+        Observer.Expect('0DT - 0', 'error:The date is not valid.|DateInvalid');
+        Observer.Expect('0DT + Duration 0', 'error:The date is not valid.|DateInvalid');
+        Observer.Expect('DT + 0', 'ok:2024-01-15T10:00:00Z');
+        Observer.Expect('0DT - 0DT into Integer', 'ok:0');
+        Observer.Expect('0DT - 0DT into BigInteger', 'ok:0');
+        Observer.Expect('0DT - 0DT into Decimal', 'ok:0');
+        Observer.Expect('0DT - 0DT into Duration', 'ok:|P0DT0H0M0.0S');
+        Observer.Expect('0DT < DT', 'Yes');
+        Observer.Expect('0DT > DT', 'No');
+        Observer.Expect('0DT = 0DT', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -214,7 +244,12 @@ codeunit 93349 "LT Y65 Undefined Arith"
         Observer.Observe('CreateDateTime(D, 0T)', Outcome(TryCreateDateTime(20240115D, 0T)));
         Observer.Observe('DT2Date(0DT)', Outcome(TryDT2Date(Undefined)));
         Observer.Observe('DT2Time(0DT)', Outcome(TryDT2Time(Undefined)));
-        Observer.Finish();
+        Observer.Expect('CreateDateTime(0D, 0T)', 'ok:|is0DT=Yes');
+        Observer.Expect('CreateDateTime(0D, 120000T)', 'error:The date is not valid.|DateInvalid');
+        Observer.Expect('CreateDateTime(D, 0T)', 'ok:2024-01-15T00:00:00Z|is0DT=No');
+        Observer.Expect('DT2Date(0DT)', 'ok:|is0D=Yes');
+        Observer.Expect('DT2Time(0DT)', 'ok:|is0T=Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -229,7 +264,8 @@ codeunit 93349 "LT Y65 Undefined Arith"
         Later := 0DT;
         Elapsed := Later - Earlier;
         Observer.Observe('elapsed = 0', Format(Elapsed = 0));
-        Observer.Finish();
+        Observer.Expect('elapsed = 0', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -258,6 +294,7 @@ codeunit 93349 "LT Y65 Undefined Arith"
         ApplyRetentionPolicy.ApplyRetentionPolicy(RetentionPolicySetup, false);
         ReproLog.Reset();
         Observer.Observe('rows left', Format(ReproLog.Count()));
-        Observer.Finish();
+        Observer.Expect('rows left', '1');
+        Observer.Verify();
     end;
 }

@@ -10,6 +10,11 @@
 //   ConfirmHandler (explicit Close and test end; Confirm with default true, default false and no default); an Error in OnQueryClosePage at the test end; the reporter's NavigatePage that asks
 //   through Guided Experience. Each "left open" test is followed by a test that reads the SingleInstance log the first one left behind
 //   (tests of one codeunit run in declaration order in one session).
+// Results (SaaS sandbox BC 29): Close() and the end of the test give OK on NavigatePage (temporary or real table, also after a footer
+//   action and with OpenView), CardPart, ListPart and Card, and Cancel on StandardDialog and ConfirmationDialog; their OK/Cancel/Yes/No
+//   actions give OK/Cancel/Yes/No. A Confirm in OnQueryClosePage with no ConfirmHandler raises nothing and answers its default (Yes for
+//   default true, No for default false and for no default); after No the trigger answers false and OnClosePage does not run; the test
+//   passes. An Error in OnQueryClosePage: Close() raises nothing, OnClosePage does not run, the test passes.
 // BC versions: 27, 28, 29
 
 table 93343 "LT Y65 QC Row"
@@ -460,7 +465,6 @@ codeunit 93343 "LT Y65 QC Page Types"
     begin
         Log.SetMode(false, false);
         Observer.Observe('log', Log.Take());
-        Observer.Finish();
     end;
 
     local procedure Outcome(Ok: Boolean): Text
@@ -506,6 +510,8 @@ codeunit 93343 "LT Y65 QC Page Types"
         Nav.OpenEdit();
         Nav.Close();
         ReadLog();
+        Observer.Expect('log', 'open nav;qc nav OK;close nav;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -518,6 +524,8 @@ codeunit 93343 "LT Y65 QC Page Types"
         Nav.ActionNext.Invoke();
         Nav.Close();
         ReadLog();
+        Observer.Expect('log', 'open nav;qc nav OK;close nav;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -529,6 +537,8 @@ codeunit 93343 "LT Y65 QC Page Types"
         Nav.OpenView();
         Nav.Close();
         ReadLog();
+        Observer.Expect('log', 'open nav;qc nav OK;close nav;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -540,6 +550,8 @@ codeunit 93343 "LT Y65 QC Page Types"
         Nav.OpenEdit();
         Nav.Close();
         ReadLog();
+        Observer.Expect('log', 'open navreal;qc navreal OK;close navreal;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -551,6 +563,8 @@ codeunit 93343 "LT Y65 QC Page Types"
         Dlg.OpenEdit();
         Dlg.Close();
         ReadLog();
+        Observer.Expect('log', 'open std;qc std Cancel;close std;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -562,6 +576,8 @@ codeunit 93343 "LT Y65 QC Page Types"
         Dlg.OpenEdit();
         Dlg.OK().Invoke();
         ReadLog();
+        Observer.Expect('log', 'open std;qc std OK;close std;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -573,6 +589,8 @@ codeunit 93343 "LT Y65 QC Page Types"
         Dlg.OpenEdit();
         Dlg.Cancel().Invoke();
         ReadLog();
+        Observer.Expect('log', 'open std;qc std Cancel;close std;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -584,6 +602,8 @@ codeunit 93343 "LT Y65 QC Page Types"
         Dlg.OpenEdit();
         Dlg.Close();
         ReadLog();
+        Observer.Expect('log', 'open conf;qc conf Cancel;close conf;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -595,6 +615,8 @@ codeunit 93343 "LT Y65 QC Page Types"
         Dlg.OpenEdit();
         Dlg.Yes().Invoke();
         ReadLog();
+        Observer.Expect('log', 'open conf;qc conf Yes;close conf;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -606,6 +628,8 @@ codeunit 93343 "LT Y65 QC Page Types"
         Dlg.OpenEdit();
         Dlg.No().Invoke();
         ReadLog();
+        Observer.Expect('log', 'open conf;qc conf No;close conf;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -617,6 +641,8 @@ codeunit 93343 "LT Y65 QC Page Types"
         Part.OpenEdit();
         Part.Close();
         ReadLog();
+        Observer.Expect('log', 'open cardpart;qc cardpart OK;close cardpart;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -628,6 +654,8 @@ codeunit 93343 "LT Y65 QC Page Types"
         Part.OpenEdit();
         Part.Close();
         ReadLog();
+        Observer.Expect('log', 'open listpart;qc listpart OK;close listpart;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -639,6 +667,8 @@ codeunit 93343 "LT Y65 QC Page Types"
         Card.OpenEdit();
         Card.OK().Invoke();
         ReadLog();
+        Observer.Expect('log', 'open card;qc card OK;close card;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -652,6 +682,8 @@ codeunit 93343 "LT Y65 QC Page Types"
         Nav.ActionNext.Invoke();
         Nav.Close();
         ReadLog();
+        Observer.Expect('log', 'open nav;qc nav OK;handler yes: Close the nav page?;confirm=Yes;close nav;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -663,6 +695,9 @@ codeunit 93343 "LT Y65 QC Page Types"
         Card.OpenEdit();
         Observer.Observe('close', Outcome(TryCloseCard(Card)));
         ReadLog();
+        Observer.Expect('close', 'ok');
+        Observer.Expect('log', 'open card;qc card OK;confirm=Yes;close card;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -674,6 +709,9 @@ codeunit 93343 "LT Y65 QC Page Types"
         Nav.OpenEdit();
         Observer.Observe('close', Outcome(TryCloseNav(Nav)));
         ReadLog();
+        Observer.Expect('close', 'ok');
+        Observer.Expect('log', 'open nav;qc nav OK;confirm=Yes;close nav;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -685,6 +723,9 @@ codeunit 93343 "LT Y65 QC Page Types"
         Card.OpenEdit();
         Observer.Observe('close', Outcome(TryCloseCard(Card)));
         ReadLog();
+        Observer.Expect('close', 'ok');
+        Observer.Expect('log', 'open card;qc card OK;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -699,6 +740,8 @@ codeunit 93343 "LT Y65 QC Page Types"
         Wizard.ActionNext.Invoke();
         Wizard.Close();
         ReadLog();
+        Observer.Expect('log', 'qc wizard OK notcomplete=Yes;handler yes: The setup is not complete. Do you want to exit?;');
+        Observer.Verify();
     end;
 
     // Left open at the end of the test: the next test reads the log.
@@ -717,6 +760,8 @@ codeunit 93343 "LT Y65 QC Page Types"
     procedure Y65_Open01_Read()
     begin
         ReadLog();
+        Observer.Expect('log', 'open nav;qc nav OK;close nav;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -732,6 +777,8 @@ codeunit 93343 "LT Y65 QC Page Types"
     procedure Y65_Open02_Read()
     begin
         ReadLog();
+        Observer.Expect('log', 'open navreal;qc navreal OK;close navreal;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -747,6 +794,8 @@ codeunit 93343 "LT Y65 QC Page Types"
     procedure Y65_Open03_Read()
     begin
         ReadLog();
+        Observer.Expect('log', 'open std;qc std Cancel;close std;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -762,6 +811,8 @@ codeunit 93343 "LT Y65 QC Page Types"
     procedure Y65_Open04_Read()
     begin
         ReadLog();
+        Observer.Expect('log', 'open conf;qc conf Cancel;close conf;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -777,6 +828,8 @@ codeunit 93343 "LT Y65 QC Page Types"
     procedure Y65_Open05_Read()
     begin
         ReadLog();
+        Observer.Expect('log', 'open cardpart;qc cardpart OK;close cardpart;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -792,6 +845,8 @@ codeunit 93343 "LT Y65 QC Page Types"
     procedure Y65_Open06_Read()
     begin
         ReadLog();
+        Observer.Expect('log', 'open listpart;qc listpart OK;close listpart;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -808,6 +863,8 @@ codeunit 93343 "LT Y65 QC Page Types"
     procedure Y65_Open07_Read()
     begin
         ReadLog();
+        Observer.Expect('log', 'open card;qc card OK;confirm=Yes;close card;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -823,6 +880,8 @@ codeunit 93343 "LT Y65 QC Page Types"
     procedure Y65_Open08_Read()
     begin
         ReadLog();
+        Observer.Expect('log', 'open nav;qc nav OK;confirm=Yes;close nav;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -840,6 +899,8 @@ codeunit 93343 "LT Y65 QC Page Types"
     procedure Y65_Open09_Read()
     begin
         ReadLog();
+        Observer.Expect('log', 'open nav;qc nav OK;handler yes: Close the nav page?;confirm=Yes;close nav;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -855,6 +916,8 @@ codeunit 93343 "LT Y65 QC Page Types"
     procedure Y65_Open10_Read()
     begin
         ReadLog();
+        Observer.Expect('log', 'open card;qc card OK;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -874,6 +937,8 @@ codeunit 93343 "LT Y65 QC Page Types"
     procedure Y65_Open11_Read()
     begin
         ReadLog();
+        Observer.Expect('log', 'qc wizard OK notcomplete=Yes;handler yes: The setup is not complete. Do you want to exit?;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -887,6 +952,9 @@ codeunit 93343 "LT Y65 QC Page Types"
         Card.OpenEdit();
         Observer.Observe('close', Outcome(TryCloseCard(Card)));
         ReadLog();
+        Observer.Expect('close', 'ok');
+        Observer.Expect('log', 'open card;qc card OK;confirm=No;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -900,6 +968,9 @@ codeunit 93343 "LT Y65 QC Page Types"
         Card.OpenEdit();
         Observer.Observe('close', Outcome(TryCloseCard(Card)));
         ReadLog();
+        Observer.Expect('close', 'ok');
+        Observer.Expect('log', 'open card;qc card OK;confirm=No;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -917,6 +988,8 @@ codeunit 93343 "LT Y65 QC Page Types"
     procedure Y65_Open12_Read()
     begin
         ReadLog();
+        Observer.Expect('log', 'open card;qc card OK;confirm=No;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -934,6 +1007,8 @@ codeunit 93343 "LT Y65 QC Page Types"
     procedure Y65_Open13_Read()
     begin
         ReadLog();
+        Observer.Expect('log', 'open card;qc card OK;confirm=No;');
+        Observer.Verify();
     end;
 
     [ConfirmHandler]
