@@ -573,6 +573,15 @@ codeunit 93662 "LT Y68 XP Tests"
         Observer.Observe('none log', Log.Take());
         Observer.Observe('total xml', ExportText(Xmlport::"LT Y68 XP Calc Total"));
         Observer.Observe('total log', Log.Take());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Q4_CalcFields_Export_NestedLinkedTableElement()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
         Observer.Observe('both nested xml', ExportText(Xmlport::"LT Y68 XP Calc Both Nested"));
         Observer.Observe('both nested log', Log.Take());
         Observer.Finish();
@@ -586,6 +595,15 @@ codeunit 93662 "LT Y68 XP Tests"
         Seed();
         Observer.Observe('temp total xml', ExportText(Xmlport::"LT Y68 XP Calc Temp"));
         Observer.Observe('temp total log', Log.Take());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Q4_CalcFields_Export_TemporaryTableElement_NoProperty()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
         Observer.Observe('temp none xml', ExportText(Xmlport::"LT Y68 XP Calc Temp None"));
         Observer.Observe('temp none log', Log.Take());
         Observer.Finish();

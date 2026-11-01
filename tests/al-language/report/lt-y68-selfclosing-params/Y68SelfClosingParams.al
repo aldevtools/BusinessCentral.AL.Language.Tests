@@ -13,10 +13,22 @@ codeunit 93659 "LT Y68 SC Log"
 
     var
         Entries: Text;
+        Verbose: Boolean;
 
     procedure Add(Entry: Text)
     begin
         Entries += Entry + ';';
+    end;
+
+    procedure AddVerbose(Entry: Text)
+    begin
+        if Verbose then
+            Add(Entry);
+    end;
+
+    procedure SetVerbose(NewVerbose: Boolean)
+    begin
+        Verbose := NewVerbose;
     end;
 
     procedure Take(): Text
@@ -66,12 +78,12 @@ report 93650 "LT Y68 SC Rpt"
             OptVal := OptVal::Gamma;
             EnumVal := EnumVal::Second;
             BigVal := 99;
-            Log.Add('init ' + Values());
+            Log.AddVerbose('init ' + Values());
         end;
 
         trigger OnOpenPage()
         begin
-            Log.Add('open ' + Values());
+            Log.AddVerbose('open ' + Values());
         end;
     }
 
@@ -91,13 +103,64 @@ report 93650 "LT Y68 SC Rpt"
 
     local procedure Values(): Text
     begin
-        exit('txt=[' + TxtVal + '] code=[' + CodeVal + '] date=[' + Format(DateVal, 0, 9) + '] time=[' + Format(TimeVal, 0, 9) + '] dt=[' + Format(DtVal, 0, 9) +
-            '] int=' + Format(IntVal) + ' dec=' + Format(DecVal) + ' bool=' + Format(BoolVal) + ' opt=' + Format(OptVal) + ' enum=' + Format(EnumVal) + ' big=' + Format(BigVal));
+        exit('t=[' + TxtVal + '] c=[' + CodeVal + '] d=[' + Format(DateVal, 0, 9) + '] tm=[' + Format(TimeVal, 0, 9) + '] dt=[' + Format(DtVal, 0, 9) +
+            '] i=' + Format(IntVal) + ' dc=' + Format(DecVal) + ' b=' + Format(BoolVal) + ' o=' + Format(OptVal) + ' e=' + Format(EnumVal) + ' bg=' + Format(BigVal));
     end;
 
     trigger OnPreReport()
     begin
         Log.Add('pre ' + Values());
+    end;
+}
+
+// A report with a dataset and a layout setting, so SaveAs renders it.
+report 93652 "LT Y68 SC Data Rpt"
+{
+    ProcessingOnly = false;
+    DefaultLayout = RDLC;
+
+    dataset
+    {
+        dataitem(Num; Integer)
+        {
+            DataItemTableView = sorting(Number) where(Number = const(1));
+
+            column(NumberCol; Number) { }
+        }
+    }
+
+    requestpage
+    {
+        layout
+        {
+            area(Content)
+            {
+                field(TxtCtl; TxtVal) { ApplicationArea = All; }
+                field(CodeCtl; CodeVal) { ApplicationArea = All; }
+                field(DateCtl; DateVal) { ApplicationArea = All; }
+                field(IntCtl; IntVal) { ApplicationArea = All; }
+            }
+        }
+
+        trigger OnInit()
+        begin
+            TxtVal := 'tinit';
+            CodeVal := 'CINIT';
+            DateVal := DMY2Date(15, 1, 2024);
+            IntVal := 7;
+        end;
+    }
+
+    var
+        TxtVal: Text[30];
+        CodeVal: Code[10];
+        DateVal: Date;
+        IntVal: Integer;
+        Log: Codeunit "LT Y68 SC Log";
+
+    trigger OnPreReport()
+    begin
+        Log.Add('pre t=[' + TxtVal + '] c=[' + CodeVal + '] d=[' + Format(DateVal, 0, 9) + '] i=' + Format(IntVal));
     end;
 }
 
@@ -150,7 +213,6 @@ codeunit 93660 "LT Y68 SC Tests"
 
     var
         Log: Codeunit "LT Y68 SC Log";
-        HandlerOptions: Text;
 
     local procedure Xml(Name: Text; Id: Integer; Options: Text): Text
     begin
@@ -258,15 +320,30 @@ codeunit 93660 "LT Y68 SC Tests"
         Observer.Finish();
     end;
 
+    local procedure DataXml(Options: Text): Text
+    begin
+        exit(Xml('LT Y68 SC Data Rpt', Report::"LT Y68 SC Data Rpt", Options));
+    end;
+
     [Test]
-    procedure Q1_SaveAs_SelfClosing()
+    procedure Q1_SaveAs_SelfClosing_ProcessingOnlyIsRefused()
     var
         Observer: Codeunit "Probe Observer";
     begin
-        RunCase(Observer, 'saveas text', Report::"LT Y68 SC Rpt", Xml1('<Field name="TxtVal" />'), 2);
-        RunCase(Observer, 'saveas all five', Report::"LT Y68 SC Rpt", Xml1('<Field name="TxtVal" /><Field name="CodeVal" /><Field name="DateVal" /><Field name="TimeVal" /><Field name="DtVal" />'), 2);
-        RunCase(Observer, 'saveas mixed', Report::"LT Y68 SC Rpt", Xml1('<Field name="TxtVal">given</Field><Field name="CodeVal" /><Field name="DateVal">2024-05-06</Field>'), 2);
-        RunCase(Observer, 'saveas init report', Report::"LT Y68 SC Init Rpt", Xml('LT Y68 SC Init Rpt', Report::"LT Y68 SC Init Rpt", '<Field name="TxtVal" />'), 2);
+        RunCase(Observer, 'saveas processing only', Report::"LT Y68 SC Rpt", Xml1('<Field name="TxtVal" />'), 2);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Q1_SaveAs_SelfClosing_DataReport()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RunCase(Observer, 'baseline', Report::"LT Y68 SC Data Rpt", DataXml(''), 2);
+        RunCase(Observer, 'text', Report::"LT Y68 SC Data Rpt", DataXml('<Field name="TxtVal" />'), 2);
+        RunCase(Observer, 'text code date', Report::"LT Y68 SC Data Rpt", DataXml('<Field name="TxtVal" /><Field name="CodeVal" /><Field name="DateVal" />'), 2);
+        RunCase(Observer, 'mixed', Report::"LT Y68 SC Data Rpt", DataXml('<Field name="TxtVal">given</Field><Field name="CodeVal" /><Field name="DateVal">2024-05-06</Field><Field name="IntVal" />'), 2);
+        RunCase(Observer, 'execute text', Report::"LT Y68 SC Data Rpt", DataXml('<Field name="TxtVal" />'), 1);
         Observer.Finish();
     end;
 
@@ -278,13 +355,14 @@ codeunit 93660 "LT Y68 SC Tests"
         Returned: Text;
     begin
         Log.Take();
-        HandlerOptions := '';
+        Log.SetVerbose(true);
         Returned := Report.RunRequestPage(Report::"LT Y68 SC Rpt", Xml1('<Field name="TxtVal" /><Field name="CodeVal">abc</Field><Field name="DateVal" />'));
         Observer.Observe('seeded log', Log.Take());
         Observer.Observe('seeded returned', Returned);
         Returned := Report.RunRequestPage(Report::"LT Y68 SC Rpt");
         Observer.Observe('plain log', Log.Take());
         Observer.Observe('plain returned', Returned);
+        Log.SetVerbose(false);
         Observer.Finish();
     end;
 
