@@ -34,26 +34,15 @@ codeunit 93328 "LT Y64 Install Subscribers"
         exit(Row.Get(Tag));
     end;
 
-    local procedure AllNoted(): Text
-    var
-        Row: Record "LT Y64 XA Install Subs";
-        Result: Text;
-    begin
-        if Row.FindSet() then
-            repeat
-                Result += Row.Tag + ';';
-            until Row.Next() = 0;
-        exit(Result);
-    end;
-
     [Test]
-    procedure Y64_InstallSubscribers_Observed()
+    procedure Y64_InstallSubscribers_InstallCodeRan()
     var
         Observer: Codeunit "Probe Observer";
     begin
-        Observer.Observe('noted', AllNoted());
-        Observer.Observe('B before D', Format(SeqOf('B') < SeqOf('D')));
+        // Which tags exist depends on the install order of B and D (host-specific); the relations are asserted in the next test.
+        Observer.Observe('own tags', Format(Noted('installed|B|db') and Noted('installed|D|db') and Noted('installed|B|co') and Noted('installed|D|co')));
         Observer.Observe('seq known', Format((SeqOf('B') > 0) and (SeqOf('D') > 0)));
+        Observer.Expect('own tags', 'Yes');
         Observer.Expect('seq known', 'Yes');
         Observer.Verify();
     end;
