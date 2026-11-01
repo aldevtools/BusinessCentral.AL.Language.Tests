@@ -1334,13 +1334,20 @@ codeunit 70303 "LT P81 LoadFields"
         Observer.Observe('var qty loaded', Loaded(Row, 3));
         Observer.Observe('var qty', Y64Qty(Row));
         Row.Name := 'changed';
+#if BC28PLUS
         asserterror Row.Modify();
         Observer.ObserveError('modify');
+#else
+        // BC 27.5 (corpus CI): the Modify raises no error.
+        Row.Modify();
+#endif
         Observer.Expect('rows', 'A:alpha:5;B:bravo:5;');
         Observer.Expect('var qty loaded', 'No');
         Observer.Expect('var qty', '5');
+#if BC28PLUS
         Observer.Expect('modify|text', 'Sorry, we just updated this page. Reopen it, and try again.');
         Observer.Expect('modify|code', 'DB:RecordChanged');
+#endif
         Observer.Verify();
     end;
 
