@@ -152,7 +152,11 @@ codeunit 92901 "LT Y47 Enum Init Quoted"
         Observer.Observe('ordinals', Ordinals(Row));
         Observer.Observe('isGl', Format(Row."Line Type" = Row."Line Type"::"G/L Account"));
         Observer.Observe('salesIsGl', Format(Row."Sales Type" = Row."Sales Type"::"G/L Account"));
-        Observer.Finish();
+        Observer.Expect('init', 'G/L Account|G/L Account|Item|Item|Fixed Asset|G/L Account|G/L Account| ');
+        Observer.Expect('ordinals', '1|1|2|2|3|1|G/L Account|0');
+        Observer.Expect('isGl', 'Yes');
+        Observer.Expect('salesIsGl', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -167,7 +171,10 @@ codeunit 92901 "LT Y47 Enum Init Quoted"
         Row."Line Type" := Row."Line Type"::Item;
         Row.Init();
         Observer.Observe('initAfterAssign', Dump(Row));
-        Observer.Finish();
+        Observer.Expect('fresh', 'G/L Account|G/L Account|Item|Item|Fixed Asset|G/L Account|G/L Account| ');
+        Observer.Expect('afterClear', 'G/L Account|G/L Account|Item|Item|Fixed Asset|G/L Account|G/L Account| ');
+        Observer.Expect('initAfterAssign', 'G/L Account|G/L Account|Item|Item|Fixed Asset|G/L Account|G/L Account| ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -184,7 +191,9 @@ codeunit 92901 "LT Y47 Enum Init Quoted"
         Read.Get('A');
         Observer.Observe('get', Dump(Read));
         Observer.Observe('countGl', Format(CountGl()));
-        Observer.Finish();
+        Observer.Expect('get', 'G/L Account|G/L Account|Item|Item|Fixed Asset|G/L Account|G/L Account| ');
+        Observer.Expect('countGl', '1');
+        Observer.Verify();
     end;
 
     local procedure CountGl(): Integer
@@ -209,59 +218,19 @@ codeunit 92901 "LT Y47 Enum Init Quoted"
         Observer.Observe('f8', Format(Ref.Field(8).Value));
         Observer.Observe('f2int', Format(Ref.Field(2).Value, 0, 9));
         Ref.Close();
-        Observer.Finish();
+        Observer.Expect('f2', 'G/L Account');
+        Observer.Expect('f6', 'Fixed Asset');
+        Observer.Expect('f7', 'G/L Account');
+        Observer.Expect('f8', 'G/L Account');
+        Observer.Expect('f2int', '1');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Y47_InitValue_OddSingleQuoted()
-    var
-        Observer: Codeunit "Probe Observer";
-        RowUnknown: Record "LT Y47 Odd Unknown";
-        RowLower: Record "LT Y47 Odd Lower";
-        RowDigit: Record "LT Y47 Odd Digit";
-        RowOrdinal: Record "LT Y47 Odd Ordinal";
-        RowSpace: Record "LT Y47 Odd Space";
+    // Each step of the odd tables runs in its own TryFunction: 'ok <value>' or 'error <text>|<code>'.
+    local procedure Step(Ok: Boolean; Value: Text): Text
     begin
-        Observer.Observe('unknown', TryText(Database::"LT Y47 Odd Unknown"));
-        Observer.Observe('lower', TryText(Database::"LT Y47 Odd Lower"));
-        Observer.Observe('digit', TryText(Database::"LT Y47 Odd Digit"));
-        Observer.Observe('ordinal', TryText(Database::"LT Y47 Odd Ordinal"));
-        Observer.Observe('space', TryText(Database::"LT Y47 Odd Space"));
-        ClearLastError();
-        if TryInitUnknown(RowUnknown) then
-            Observer.Observe('unknownRec', Format(RowUnknown."Line Type".AsInteger()) + ' ' + Format(RowUnknown."Line Type"))
-        else
-            Observer.Observe('unknownRec', 'error ' + GetLastErrorText() + '|' + GetLastErrorCode());
-        ClearLastError();
-        if TryInitLower(RowLower) then
-            Observer.Observe('lowerRec', Format(RowLower."Line Type".AsInteger()) + ' ' + Format(RowLower."Line Type"))
-        else
-            Observer.Observe('lowerRec', 'error ' + GetLastErrorText() + '|' + GetLastErrorCode());
-        ClearLastError();
-        if TryInitDigit(RowDigit) then
-            Observer.Observe('digitRec', Format(RowDigit."Line Type".AsInteger()) + ' ' + Format(RowDigit."Line Type"))
-        else
-            Observer.Observe('digitRec', 'error ' + GetLastErrorText() + '|' + GetLastErrorCode());
-        ClearLastError();
-        if TryInitOrdinal(RowOrdinal) then
-            Observer.Observe('ordinalRec', Format(RowOrdinal."Line Type".AsInteger()) + ' ' + Format(RowOrdinal."Line Type"))
-        else
-            Observer.Observe('ordinalRec', 'error ' + GetLastErrorText() + '|' + GetLastErrorCode());
-        ClearLastError();
-        if TryInitSpace(RowSpace) then
-            Observer.Observe('spaceRec', Format(RowSpace."Line Type".AsInteger()) + ' ' + Format(RowSpace."Line Type"))
-        else
-            Observer.Observe('spaceRec', 'error ' + GetLastErrorText() + '|' + GetLastErrorCode());
-        Observer.Finish();
-    end;
-
-    local procedure TryText(TableNo: Integer): Text
-    var
-        Ref: RecordRef;
-    begin
-        ClearLastError();
-        if TryRefInit(TableNo, Ref) then
-            exit(Format(Ref.Field(2).Value, 0, 9) + ' ' + Format(Ref.Field(2).Value));
+        if Ok then
+            exit('ok ' + Value);
         exit('error ' + GetLastErrorText() + '|' + GetLastErrorCode());
     end;
 
@@ -273,9 +242,65 @@ codeunit 92901 "LT Y47 Enum Init Quoted"
     end;
 
     [TryFunction]
+    local procedure TryRefFormat(var Ref: RecordRef; var Value: Text)
+    begin
+        Value := Format(Ref.Field(2).Value);
+    end;
+
+    [TryFunction]
+    local procedure TryRefOrdinal(var Ref: RecordRef; var Value: Text)
+    begin
+        Value := Format(Ref.Field(2).Value, 0, 9);
+    end;
+
+    local procedure ObserveRef(var Observer: Codeunit "Probe Observer"; TableNo: Integer)
+    var
+        Ref: RecordRef;
+        Value: Text;
+    begin
+        ClearLastError();
+        Observer.Observe('refInit', Step(TryRefInit(TableNo, Ref), ''));
+        ClearLastError();
+        Observer.Observe('refFormat', Step(TryRefFormat(Ref, Value), Value));
+        ClearLastError();
+        Value := '';
+        Observer.Observe('refOrdinal', Step(TryRefOrdinal(Ref, Value), Value));
+    end;
+
+    [TryFunction]
     local procedure TryInitUnknown(var Row: Record "LT Y47 Odd Unknown")
     begin
         Row.Init();
+    end;
+
+    [TryFunction]
+    local procedure TryFormatUnknown(var Row: Record "LT Y47 Odd Unknown"; var Value: Text)
+    begin
+        Value := Format(Row."Line Type");
+    end;
+
+    [TryFunction]
+    local procedure TryOrdinalUnknown(var Row: Record "LT Y47 Odd Unknown"; var Value: Text)
+    begin
+        Value := Format(Row."Line Type".AsInteger());
+    end;
+
+    [Test]
+    procedure Y47_InitValue_Unknown()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT Y47 Odd Unknown";
+        Value: Text;
+    begin
+        ObserveRef(Observer, Database::"LT Y47 Odd Unknown");
+        ClearLastError();
+        Observer.Observe('recInit', Step(TryInitUnknown(Row), ''));
+        ClearLastError();
+        Observer.Observe('recFormat', Step(TryFormatUnknown(Row, Value), Value));
+        ClearLastError();
+        Value := '';
+        Observer.Observe('recOrdinal', Step(TryOrdinalUnknown(Row, Value), Value));
+        Observer.Finish();
     end;
 
     [TryFunction]
@@ -285,9 +310,69 @@ codeunit 92901 "LT Y47 Enum Init Quoted"
     end;
 
     [TryFunction]
+    local procedure TryFormatLower(var Row: Record "LT Y47 Odd Lower"; var Value: Text)
+    begin
+        Value := Format(Row."Line Type");
+    end;
+
+    [TryFunction]
+    local procedure TryOrdinalLower(var Row: Record "LT Y47 Odd Lower"; var Value: Text)
+    begin
+        Value := Format(Row."Line Type".AsInteger());
+    end;
+
+    [Test]
+    procedure Y47_InitValue_Lower()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT Y47 Odd Lower";
+        Value: Text;
+    begin
+        ObserveRef(Observer, Database::"LT Y47 Odd Lower");
+        ClearLastError();
+        Observer.Observe('recInit', Step(TryInitLower(Row), ''));
+        ClearLastError();
+        Observer.Observe('recFormat', Step(TryFormatLower(Row, Value), Value));
+        ClearLastError();
+        Value := '';
+        Observer.Observe('recOrdinal', Step(TryOrdinalLower(Row, Value), Value));
+        Observer.Finish();
+    end;
+
+    [TryFunction]
     local procedure TryInitDigit(var Row: Record "LT Y47 Odd Digit")
     begin
         Row.Init();
+    end;
+
+    [TryFunction]
+    local procedure TryFormatDigit(var Row: Record "LT Y47 Odd Digit"; var Value: Text)
+    begin
+        Value := Format(Row."Line Type");
+    end;
+
+    [TryFunction]
+    local procedure TryOrdinalDigit(var Row: Record "LT Y47 Odd Digit"; var Value: Text)
+    begin
+        Value := Format(Row."Line Type".AsInteger());
+    end;
+
+    [Test]
+    procedure Y47_InitValue_Digit()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT Y47 Odd Digit";
+        Value: Text;
+    begin
+        ObserveRef(Observer, Database::"LT Y47 Odd Digit");
+        ClearLastError();
+        Observer.Observe('recInit', Step(TryInitDigit(Row), ''));
+        ClearLastError();
+        Observer.Observe('recFormat', Step(TryFormatDigit(Row, Value), Value));
+        ClearLastError();
+        Value := '';
+        Observer.Observe('recOrdinal', Step(TryOrdinalDigit(Row, Value), Value));
+        Observer.Finish();
     end;
 
     [TryFunction]
@@ -297,8 +382,68 @@ codeunit 92901 "LT Y47 Enum Init Quoted"
     end;
 
     [TryFunction]
+    local procedure TryFormatOrdinal(var Row: Record "LT Y47 Odd Ordinal"; var Value: Text)
+    begin
+        Value := Format(Row."Line Type");
+    end;
+
+    [TryFunction]
+    local procedure TryOrdinalOrdinal(var Row: Record "LT Y47 Odd Ordinal"; var Value: Text)
+    begin
+        Value := Format(Row."Line Type".AsInteger());
+    end;
+
+    [Test]
+    procedure Y47_InitValue_Ordinal()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT Y47 Odd Ordinal";
+        Value: Text;
+    begin
+        ObserveRef(Observer, Database::"LT Y47 Odd Ordinal");
+        ClearLastError();
+        Observer.Observe('recInit', Step(TryInitOrdinal(Row), ''));
+        ClearLastError();
+        Observer.Observe('recFormat', Step(TryFormatOrdinal(Row, Value), Value));
+        ClearLastError();
+        Value := '';
+        Observer.Observe('recOrdinal', Step(TryOrdinalOrdinal(Row, Value), Value));
+        Observer.Finish();
+    end;
+
+    [TryFunction]
     local procedure TryInitSpace(var Row: Record "LT Y47 Odd Space")
     begin
         Row.Init();
+    end;
+
+    [TryFunction]
+    local procedure TryFormatSpace(var Row: Record "LT Y47 Odd Space"; var Value: Text)
+    begin
+        Value := Format(Row."Line Type");
+    end;
+
+    [TryFunction]
+    local procedure TryOrdinalSpace(var Row: Record "LT Y47 Odd Space"; var Value: Text)
+    begin
+        Value := Format(Row."Line Type".AsInteger());
+    end;
+
+    [Test]
+    procedure Y47_InitValue_Space()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT Y47 Odd Space";
+        Value: Text;
+    begin
+        ObserveRef(Observer, Database::"LT Y47 Odd Space");
+        ClearLastError();
+        Observer.Observe('recInit', Step(TryInitSpace(Row), ''));
+        ClearLastError();
+        Observer.Observe('recFormat', Step(TryFormatSpace(Row, Value), Value));
+        ClearLastError();
+        Value := '';
+        Observer.Observe('recOrdinal', Step(TryOrdinalSpace(Row, Value), Value));
+        Observer.Finish();
     end;
 }

@@ -147,7 +147,8 @@ codeunit 92911 "LT Y47 QC Left Open"
     begin
         // What happened after the end of Y47_T01_LeftOpen_Enabled_NoHandler (the previous test of this codeunit).
         Observer.Observe('log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('log', 'open;test body end;queryclose OK EN;close EN;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -175,7 +176,8 @@ codeunit 92911 "LT Y47 QC Left Open"
     begin
         // What happened after the end of Y47_T03_LeftOpen_NotEnabled_ConfirmYes (the previous test of this codeunit).
         Observer.Observe('log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('log', 'open;test body end;queryclose OK DIS;handler yes: The card is not enabled. Are you sure you want to exit?;confirm=Yes;close DIS;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -203,7 +205,8 @@ codeunit 92911 "LT Y47 QC Left Open"
     begin
         // What happened after the end of Y47_T05_LeftOpen_NotEnabled_ConfirmNo (the previous test of this codeunit).
         Observer.Observe('log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('log', 'open;test body end;queryclose OK DIS;handler no: The card is not enabled. Are you sure you want to exit?;confirm=No;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -231,7 +234,8 @@ codeunit 92911 "LT Y47 QC Left Open"
     begin
         // What happened after the end of Y47_T07_LeftOpen_Edited_NoHandler (the previous test of this codeunit).
         Observer.Observe('log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('log', 'open;test body end;modify EN name=edited;queryclose OK EN;close EN;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -257,7 +261,8 @@ codeunit 92911 "LT Y47 QC Left Open"
     begin
         // What happened after the end of Y47_T09_LeftOpen_OpenView_NoHandler (the previous test of this codeunit).
         Observer.Observe('log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('log', 'open;test body end;queryclose OK EN;close EN;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -292,7 +297,11 @@ codeunit 92911 "LT Y47 QC Left Open"
         else
             Observer.Observe('close', 'error ' + GetLastErrorText() + '|' + GetLastErrorCode());
         Observer.Observe('logAfterClose', Log.Take());
-        Observer.Finish();
+        Observer.Expect('log', 'open;test body end;');
+        Observer.Expect('stillOpen', 'Yes EN');
+        Observer.Expect('close', 'ok');
+        Observer.Expect('logAfterClose', 'queryclose OK EN;close EN;');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -324,7 +333,8 @@ codeunit 92911 "LT Y47 QC Left Open"
         Card.Close();
         Log.Add('after close');
         Observer.Observe('log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('log', 'open;queryclose OK DIS;handler yes: The card is not enabled. Are you sure you want to exit?;confirm=Yes;close DIS;after close;');
+        Observer.Verify();
     end;
 
     [ConfirmHandler]

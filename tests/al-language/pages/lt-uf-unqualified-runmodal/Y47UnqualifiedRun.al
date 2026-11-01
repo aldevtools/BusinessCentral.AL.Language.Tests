@@ -243,7 +243,8 @@ codeunit 92907 "LT Y47 Unqualified Run"
         OpenCard(Card);
         Card.OpenBare.Invoke();
         Observer.Observe('log', State.Take());
-        Observer.Finish();
+        Observer.Expect('log', 'list open rows=1 filter=Code: B lookup=No|handler first=B|bare done|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -257,7 +258,8 @@ codeunit 92907 "LT Y47 Unqualified Run"
         OpenCard(Card);
         Card.OpenQualified.Invoke();
         Observer.Observe('log', State.Take());
-        Observer.Finish();
+        Observer.Expect('log', 'list open rows=1 filter=Code: B lookup=No|handler first=B|qualified done|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -271,7 +273,8 @@ codeunit 92907 "LT Y47 Unqualified Run"
         OpenCard(Card);
         Card.OpenBareUnfiltered.Invoke();
         Observer.Observe('log', State.Take());
-        Observer.Finish();
+        Observer.Expect('log', 'list open rows=3 filter= lookup=No|handler first=A|bare unfiltered done|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -285,7 +288,8 @@ codeunit 92907 "LT Y47 Unqualified Run"
         OpenCard(Card);
         Card.OpenBareOneArg.Invoke();
         Observer.Observe('log', State.Take());
-        Observer.Finish();
+        Observer.Expect('log', 'list open rows=3 filter= lookup=No|handler first=A|one argument done|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -299,7 +303,8 @@ codeunit 92907 "LT Y47 Unqualified Run"
         OpenCard(Card);
         Card.OpenBareField.Invoke();
         Observer.Observe('log', State.Take());
-        Observer.Finish();
+        Observer.Expect('log', 'list open rows=1 filter=Code: B lookup=No|handler first=B|field done|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -313,7 +318,8 @@ codeunit 92907 "LT Y47 Unqualified Run"
         OpenCard(Card);
         Card.OpenBareNumber.Invoke();
         Observer.Observe('log', State.Take());
-        Observer.Finish();
+        Observer.Expect('log', 'list open rows=1 filter=Code: B lookup=No|handler first=B|number done|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -331,7 +337,9 @@ codeunit 92907 "LT Y47 Unqualified Run"
         else
             Observer.Observe('result', 'error ' + GetLastErrorText() + '|' + GetLastErrorCode());
         Observer.Observe('log', State.Take());
-        Observer.Finish();
+        Observer.Expect('result', 'error A page with the identical handle has previously been registered.|TestWrapped:InvalidFormHandle');
+        Observer.Expect('log', '');
+        Observer.Verify();
     end;
 
     [TryFunction]

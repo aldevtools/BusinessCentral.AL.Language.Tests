@@ -255,7 +255,10 @@ codeunit 92909 "LT Y47 Validate FieldRef"
         TargetRef.Modify();
         Target.Get('T');
         Observer.Observe('storedDec', Format(Target.Dec, 0, 9));
-        Observer.Finish();
+        Observer.Expect('beforeModify', 'Hello');
+        Observer.Expect('stored', 'Hello');
+        Observer.Expect('storedDec', '12.5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -288,7 +291,32 @@ codeunit 92909 "LT Y47 Validate FieldRef"
         Observer.Observe('long_to_text20', CopyValidate(9, 2));
         Observer.Observe('longcode_to_code10', CopyValidate(11, 3));
         Observer.Observe('long_to_code10', CopyValidate(9, 3));
-        Observer.Finish();
+        Observer.Expect('same_text', 'ok [Hello] vTxt=Hello x=;');
+        Observer.Expect('same_code', 'ok [ABC] vCod=ABC;');
+        Observer.Expect('same_int', 'ok [42] vInt=42;');
+        Observer.Expect('same_dec', 'ok [12.5] vDec=12.5;');
+        Observer.Expect('same_date', 'ok [2024-01-15] vDat=2024-01-15;');
+        Observer.Expect('same_enum', 'ok [1] vEnm=1;');
+        Observer.Expect('same_option', 'ok [1] vOpt=1;');
+        Observer.Expect('same_bool', 'ok [true] vBool=Yes;');
+        Observer.Expect('code_to_text', 'ok [ABC] vTxt=ABC x=;');
+        Observer.Expect('text_to_code', 'ok [HELLO] vCod=HELLO;');
+        Observer.Expect('int_to_dec', 'ok [42] vDec=42;');
+        Observer.Expect('dec_to_int', 'error Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 12.5 to System.Int32.|ConversionCast [0] ');
+        Observer.Expect('int_to_text', 'ok [42] vTxt=42 x=;');
+        Observer.Expect('text_to_int', 'error The value "Hello" can''t be evaluated into type Integer.|Evaluate:Format [0] ');
+        Observer.Expect('numtext_to_int', 'ok [17] vInt=17;');
+        Observer.Expect('enum_to_int', 'ok [1] vInt=1;');
+        Observer.Expect('option_to_enum', 'ok [1] vEnm=1;');
+        Observer.Expect('enum_to_option', 'ok [1] vOpt=1;');
+        Observer.Expect('int_to_enum', 'ok [42] vEnm=42;');
+        Observer.Expect('date_to_text', 'ok [01/15/24] vTxt=01/15/24 x=;');
+        Observer.Expect('bool_to_int', 'ok [1] vInt=1;');
+        Observer.Expect('dec_to_text', 'ok [12.5] vTxt=12.5 x=;');
+        Observer.Expect('long_to_text20', 'error The length of the string is 37, but it must be less than or equal to 20 characters. Value: This text is longer than twenty chars|StringLengthExceeded [] ');
+        Observer.Expect('longcode_to_code10', 'error The length of the string is 15, but it must be less than or equal to 10 characters. Value: CODE12345678901|StringLengthExceeded [] ');
+        Observer.Expect('long_to_code10', 'error The length of the string is 37, but it must be less than or equal to 10 characters. Value: This text is longer than twenty chars|StringLengthExceeded [] ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -300,7 +328,11 @@ codeunit 92909 "LT Y47 Validate FieldRef"
         Observer.Observe('val_long_to_text20', CopyValue(9, 2));
         Observer.Observe('val_int_to_dec', CopyValue(4, 5));
         Observer.Observe('val_text_to_int', CopyValue(2, 4));
-        Observer.Finish();
+        Observer.Expect('val_same_text', 'ok [Hello] ');
+        Observer.Expect('val_long_to_text20', 'error The length of the string is 37, but it must be less than or equal to 20 characters. Value: This text is longer than twenty chars|StringLengthExceeded [] ');
+        Observer.Expect('val_int_to_dec', 'ok [42] ');
+        Observer.Expect('val_text_to_int', 'error The value "Hello" can''t be evaluated into type Integer.|Evaluate:Format [0] ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -329,7 +361,9 @@ codeunit 92909 "LT Y47 Validate FieldRef"
             Observer.Observe('validate', 'ok [' + Format(TargetField.Value) + '] ' + Log.Take())
         else
             Observer.Observe('validate', 'error ' + GetLastErrorText() + '|' + GetLastErrorCode());
-        Observer.Finish();
+        Observer.Expect('isFieldRef', 'Yes');
+        Observer.Expect('validate', 'ok [Hello] vTxt=Hello x=;');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -358,6 +392,9 @@ codeunit 92909 "LT Y47 Validate FieldRef"
         TargetField := TargetRef.Field(4);
         TargetField.SetFilter('>%1', SourceRef.Field(4));
         Observer.Observe('filterInt', TargetField.GetFilter());
-        Observer.Finish();
+        Observer.Expect('filter', 'Hello');
+        Observer.Expect('count', '1');
+        Observer.Expect('filterInt', '>42');
+        Observer.Verify();
     end;
 }

@@ -60,7 +60,12 @@ codeunit 92913 "LT Y47 DT Install Read"
         Observer.Observe('s1', ObsText('S1'));
         Observer.Observe('s2', ObsText('S2'));
         Observer.Observe('s3', ObsText('S3'));
-        Observer.Finish();
+        Observer.Expect('ctx', 'Install');
+        Observer.Expect('done', 'ok');
+        Observer.Expect('s1', 'ok');
+        Observer.Expect('s2', 'ok');
+        Observer.Expect('s3', 'ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -70,7 +75,9 @@ codeunit 92913 "LT Y47 DT Install Read"
     begin
         Observer.Observe('entry', EntryRows());
         Observer.Observe('dest', DestRows());
-        Observer.Finish();
+        Observer.Expect('entry', '1|alpha|alpha|const;2|beta|keep|const;3|||seed;4|delta|delta|const;');
+        Observer.Expect('dest', 'B|20|rows|init;C|30|rows|init;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -79,6 +86,7 @@ codeunit 92913 "LT Y47 DT Install Read"
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('triggerLog', TriggerLog());
-        Observer.Finish();
+        Observer.Expect('triggerLog', '');
+        Observer.Verify();
     end;
 }

@@ -253,7 +253,28 @@ codeunit 85723 "LT DB JPath Leads"
         Y47_SelArr(Observer, 'dot_name', Y47_Records(), '$.[?(@.id==2)].name');
         Y47_SelArr(Observer, 'nodot_name', Y47_Records(), '$[?(@.id==2)].name');
         Y47_SelArr(Observer, 'spaces', Y47_Records(), '$[?(@.id == 2)]');
-        Observer.Finish();
+        Observer.Expect('dot', 'Yes [{"id":2,"name":"second"}]');
+        Observer.Expect('dot|text', '');
+        Observer.Expect('dot|code', '');
+        Observer.Expect('nodot', 'Yes [{"id":2,"name":"second"}]');
+        Observer.Expect('nodot|text', '');
+        Observer.Expect('nodot|code', '');
+        Observer.Expect('noroot', 'Yes [{"id":2,"name":"second"}]');
+        Observer.Expect('noroot|text', '');
+        Observer.Expect('noroot|code', '');
+        Observer.Expect('deep', 'Yes [{"id":2,"name":"second"}]');
+        Observer.Expect('deep|text', '');
+        Observer.Expect('deep|code', '');
+        Observer.Expect('dot_name', 'Yes ["second"]');
+        Observer.Expect('dot_name|text', '');
+        Observer.Expect('dot_name|code', '');
+        Observer.Expect('nodot_name', 'Yes ["second"]');
+        Observer.Expect('nodot_name|text', '');
+        Observer.Expect('nodot_name|code', '');
+        Observer.Expect('spaces', 'Yes [{"id":2,"name":"second"}]');
+        Observer.Expect('spaces|text', '');
+        Observer.Expect('spaces|code', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -275,7 +296,49 @@ codeunit 85723 "LT DB JPath Leads"
         Y47_SelArr(Observer, 'le', Y47_Records(), '$[?(@.id<=1)]');
         Y47_SelArr(Observer, 'and', Y47_Records(), '$[?(@.id==2 && @.name==''second'')]');
         Y47_SelArr(Observer, 'exists', Y47_Records(), '$[?(@.name)]');
-        Observer.Finish();
+        Observer.Expect('str_single', 'Yes [{"id":2,"name":"second"}]');
+        Observer.Expect('str_single|text', '');
+        Observer.Expect('str_single|code', '');
+        Observer.Expect('str_double', 'No []');
+        Observer.Expect('str_double|text', 'The requested operation cannot be performed in this context.');
+        Observer.Expect('str_double|code', 'InvalidOperation');
+        Observer.Expect('str_vs_number', 'No []');
+        Observer.Expect('str_vs_number|text', '');
+        Observer.Expect('str_vs_number|code', '');
+        Observer.Expect('nomatch', 'No []');
+        Observer.Expect('nomatch|text', '');
+        Observer.Expect('nomatch|code', '');
+        Observer.Expect('nomatch_dot', 'No []');
+        Observer.Expect('nomatch_dot|text', '');
+        Observer.Expect('nomatch_dot|code', '');
+        Observer.Expect('missing_prop', 'No []');
+        Observer.Expect('missing_prop|text', '');
+        Observer.Expect('missing_prop|code', '');
+        Observer.Expect('two_matches', 'No []');
+        Observer.Expect('two_matches|text', '');
+        Observer.Expect('two_matches|code', '');
+        Observer.Expect('two_matches_dot', 'No []');
+        Observer.Expect('two_matches_dot|text', '');
+        Observer.Expect('two_matches_dot|code', '');
+        Observer.Expect('two_matches_name', 'Yes [{"id":2,"name":"third"}]');
+        Observer.Expect('two_matches_name|text', '');
+        Observer.Expect('two_matches_name|code', '');
+        Observer.Expect('gt_one', 'Yes [{"id":2,"name":"second"}]');
+        Observer.Expect('gt_one|text', '');
+        Observer.Expect('gt_one|code', '');
+        Observer.Expect('ne', 'Yes [{"id":2,"name":"second"}]');
+        Observer.Expect('ne|text', '');
+        Observer.Expect('ne|code', '');
+        Observer.Expect('le', 'Yes [{"id":1,"name":"first"}]');
+        Observer.Expect('le|text', '');
+        Observer.Expect('le|code', '');
+        Observer.Expect('and', 'Yes [{"id":2,"name":"second"}]');
+        Observer.Expect('and|text', '');
+        Observer.Expect('and|code', '');
+        Observer.Expect('exists', 'No []');
+        Observer.Expect('exists|text', '');
+        Observer.Expect('exists|code', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -293,7 +356,25 @@ codeunit 85723 "LT DB JPath Leads"
         Y47_SelTok(Observer, 'obj_list', ObjTok, '$.list[?(@.id==2)]');
         Y47_SelTok(Observer, 'obj_list_name', ObjTok, '$.list[?(@.id==2)].name');
         Y47_SelTok(Observer, 'obj_list_nomatch', ObjTok, '$.list[?(@.id==9)]');
-        Observer.Finish();
+        Observer.Expect('tok_dot', 'Yes [{"id":2,"name":"second"}]');
+        Observer.Expect('tok_dot|text', '');
+        Observer.Expect('tok_dot|code', '');
+        Observer.Expect('tok_nodot', 'Yes [{"id":2,"name":"second"}]');
+        Observer.Expect('tok_nodot|text', '');
+        Observer.Expect('tok_nodot|code', '');
+        Observer.Expect('tok_nomatch', 'No []');
+        Observer.Expect('tok_nomatch|text', '');
+        Observer.Expect('tok_nomatch|code', '');
+        Observer.Expect('obj_list', 'Yes [{"id":2,"name":"second"}]');
+        Observer.Expect('obj_list|text', '');
+        Observer.Expect('obj_list|code', '');
+        Observer.Expect('obj_list_name', 'Yes ["second"]');
+        Observer.Expect('obj_list_name|text', '');
+        Observer.Expect('obj_list_name|code', '');
+        Observer.Expect('obj_list_nomatch', 'No []');
+        Observer.Expect('obj_list_nomatch|text', '');
+        Observer.Expect('obj_list_nomatch|code', '');
+        Observer.Verify();
     end;
 #if BC28PLUS
 
@@ -307,6 +388,7 @@ codeunit 85723 "LT DB JPath Leads"
         Written: Text;
         All: Text;
     begin
+        ClearLastError();
         B := Y47_TwoMatches().SelectTokens('$[?(@.id==2)]', L);
         foreach T in L do begin
             T.WriteTo(Written);
@@ -327,7 +409,16 @@ codeunit 85723 "LT DB JPath Leads"
         B := Y47_TwoMatches().SelectTokens('$[?(@.id==9)]', L);
         Observer.Observe('nomatch', Format(B) + ' ' + Format(L.Count()));
         Observer.ObserveError('nomatch');
-        Observer.Finish();
+        Observer.Expect('nodot', 'Yes 2 {"id":2,"name":"second"};{"id":2,"name":"third"};');
+        Observer.Expect('nodot|text', '');
+        Observer.Expect('nodot|code', '');
+        Observer.Expect('dot', 'Yes 2 {"id":2,"name":"second"};{"id":2,"name":"third"};');
+        Observer.Expect('dot|text', '');
+        Observer.Expect('dot|code', '');
+        Observer.Expect('nomatch', 'Yes 0');
+        Observer.Expect('nomatch|text', '');
+        Observer.Expect('nomatch|code', '');
+        Observer.Verify();
     end;
 #endif
 }
