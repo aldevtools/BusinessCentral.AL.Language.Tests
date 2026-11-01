@@ -77,10 +77,12 @@ on:
 #     useless. `push` only fires for main and master (see `on:`), so `github.event_name != 'push'`
 #     selects exactly the runs that may be cancelled.
 #
-# This changes no job's `if:` and adds no skips. The required checks of the master ruleset are
-# the `BC <version> / test`, `BC OnPrem <version> / test` and `BC OnPrem DotNet <version> / test`
-# legs for 27.5, 28.5 and 29.0, plus the object-id gate; a cancelled run reports them as cancelled, never as
-# skipped, so a superseded run can never satisfy a required check. ci.yml is the only workflow
+# The required checks of the master ruleset are the `BC <version> / test`, `BC OnPrem <version> / test`
+# and `BC OnPrem DotNet <version> / test` legs for 27.5, 28.5 and 29.0, plus the object-id gate. Each
+# leg's check is the job `test` of bc-leg.yml, which runs with `if: always()` and fails unless every
+# shard succeeded, so a cancelled run reports it as failed or cancelled, never as skipped or green, and
+# a superseded run can never satisfy a required check. The one green without shards is a pull request
+# leg whose app has nothing affected (CONTRIBUTING.md, "Shards in CI"). ci.yml is the only workflow
 # registered here (the object-id gate is a job inside it), so this block covers everything.
 concurrency:
   group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
@@ -197,6 +199,10 @@ jobs:
       # {test app dir: "id,id,..."}: the test codeunits each test job runs. {} (or a missing key) = the job's full
       # codeunit_range. The job names and the required checks do not change; only the codeunits each leg runs.
       subset: ${{ steps.select.outputs.subset || '{}' }}
+      # {bc_version: {test app dir: [{"n": "1 of 3", "range": ...}]}}: the shards each leg runs (.github/scripts/ci-shards.py,
+      # boundaries in .github/ci-shards.json). [] for a leg: nothing in its app is affected (pull requests only), the leg
+      # reports success without starting BC. {} (the step failed): each leg runs its codeunit_range as one shard.
+      shards: ${{ steps.shards.outputs.shards || '{}' }}
     steps:
       # depth 2: a pull request's merge commit and its first parent, the base branch the diff is taken from
       - uses: actions/checkout@v4
@@ -239,11 +245,11 @@ jobs:
             *) FULL="$EVENT on $GITHUB_REF: always a full run" ;;
           esac
           if [ -n "$FULL" ]; then
-            python3 .github/scripts/select-tests.py --full-reason "$FULL" --github
+            python3 .github/scripts/select-tests.py --full-reason "$FULL" --github --json "$RUNNER_TEMP/selection.json"
           elif [ -n "$GIVEN" ]; then
-            python3 .github/scripts/select-tests.py --codeunits "$SELECT_CODEUNITS" --github
+            python3 .github/scripts/select-tests.py --codeunits "$SELECT_CODEUNITS" --github --json "$RUNNER_TEMP/selection.json"
           else
-            python3 .github/scripts/select-tests.py --base "$BASE" --head HEAD --github
+            python3 .github/scripts/select-tests.py --base "$BASE" --head HEAD --github --json "$RUNNER_TEMP/selection.json"
           fi || { echo "::warning title=Test selection::select-tests.py failed; every test runs"; echo 'subset={}' >> "$GITHUB_OUTPUT"; }
 
       - id: set
@@ -265,20 +271,33 @@ jobs:
           fi
           echo "matrix=$JSON" >> "$GITHUB_OUTPUT"
 
+      # Shards (CONTRIBUTING.md, "Shards in CI"): the al-language legs run their codeunits in three or four containers.
+      # The selection file is missing when select-tests.py failed: then a full run, as above.
+      - id: shards
+        name: Plan the shards of each leg
+        continue-on-error: true
+        env:
+          EVENT: ${{ github.event_name }}
+          MATRIX: ${{ steps.set.outputs.matrix }}
+        run: |
+          python3 .github/scripts/ci-shards.py plan --ci-yml .github/workflows/ci.yml --versions "$MATRIX" \
+            --file .github/ci-shards.json --event "$EVENT" --selection "$RUNNER_TEMP/selection.json" --github
+
   test:
     name: BC ${{ matrix.bc_version }}
     needs: prepare
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.prepare.outputs.matrix) }}
-    # Workflow and scripts pinned for corpus bump 63 to bc-linux 65f6b26: a write into a missing folder fails with
-    # InvalidPath as on Windows (#189). Bump 62 pin 84291ff before: fr-FR group separator U+00A0 on BC 27/28 as on
-    # Windows (#174); DotNet System.IO sees the files AL File wrote under the user folder and returns paths with '\'
-    # (#175, #181); MediaSet.ImportFile stores the bare file name (#176); Directory/DirectoryInfo listings match patterns
-    # case-insensitively and list in name order (#183). Earlier: #165, #166, #167.
-    uses: aldevtools/MsDyn365Bc.On.Linux/.github/workflows/bc-test-from-source.yml@65f6b26bbc5041a567790812773522accfae5473
+    # .github/workflows/bc-leg.yml runs the leg's shards through bc-linux (pinned there; the runner_image below carries
+    # the same commit) and merges their JUnit; its job `test` reports this job's check "<name> / test".
+    uses: ./.github/workflows/bc-leg.yml
+    # actions: write lets bc-leg.yml's job `test` delete the shards' artifacts once it uploaded the merged one.
+    permissions:
+      contents: read
+      actions: write
     with:
-      bc_linux_ref:         "65f6b26bbc5041a567790812773522accfae5473"
+      shards:               ${{ toJson(fromJson(needs.prepare.outputs.shards)[matrix.bc_version]['tests/al-language']) }}
       runner_image:         "ghcr.io/aldevtools/msdyn365bc.on.linux/bc-runner:rdlc-65f6b26bbc5041a567790812773522accfae5473"
       bc_version:           ${{ matrix.bc_version }}
       bc_country:           "w1"
@@ -373,14 +392,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.prepare.outputs.matrix) }}
-    # Workflow and scripts pinned for corpus bump 63 to bc-linux 65f6b26: a write into a missing folder fails with
-    # InvalidPath as on Windows (#189). Bump 62 pin 84291ff before: fr-FR group separator U+00A0 on BC 27/28 as on
-    # Windows (#174); DotNet System.IO sees the files AL File wrote under the user folder and returns paths with '\'
-    # (#175, #181); MediaSet.ImportFile stores the bare file name (#176); Directory/DirectoryInfo listings match patterns
-    # case-insensitively and list in name order (#183). Earlier: #165, #166, #167.
-    uses: aldevtools/MsDyn365Bc.On.Linux/.github/workflows/bc-test-from-source.yml@65f6b26bbc5041a567790812773522accfae5473
+    # .github/workflows/bc-leg.yml runs the leg's shards through bc-linux (pinned there; the runner_image below carries
+    # the same commit) and merges their JUnit; its job `test` reports this job's check "<name> / test".
+    uses: ./.github/workflows/bc-leg.yml
+    # actions: write lets bc-leg.yml's job `test` delete the shards' artifacts once it uploaded the merged one.
+    permissions:
+      contents: read
+      actions: write
     with:
-      bc_linux_ref:         "65f6b26bbc5041a567790812773522accfae5473"
+      shards:               ${{ toJson(fromJson(needs.prepare.outputs.shards)[matrix.bc_version]['tests/al-language-onprem']) }}
       runner_image:         "ghcr.io/aldevtools/msdyn365bc.on.linux/bc-runner:rdlc-65f6b26bbc5041a567790812773522accfae5473"
       bc_version:           ${{ matrix.bc_version }}
       bc_country:           "w1"
@@ -422,14 +442,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.prepare.outputs.matrix) }}
-    # Workflow and scripts pinned for corpus bump 63 to bc-linux 65f6b26: a write into a missing folder fails with
-    # InvalidPath as on Windows (#189). Bump 62 pin 84291ff before: fr-FR group separator U+00A0 on BC 27/28 as on
-    # Windows (#174); DotNet System.IO sees the files AL File wrote under the user folder and returns paths with '\'
-    # (#175, #181); MediaSet.ImportFile stores the bare file name (#176); Directory/DirectoryInfo listings match patterns
-    # case-insensitively and list in name order (#183). Earlier: #165, #166, #167.
-    uses: aldevtools/MsDyn365Bc.On.Linux/.github/workflows/bc-test-from-source.yml@65f6b26bbc5041a567790812773522accfae5473
+    # .github/workflows/bc-leg.yml runs the leg's shards through bc-linux (pinned there; the runner_image below carries
+    # the same commit) and merges their JUnit; its job `test` reports this job's check "<name> / test".
+    uses: ./.github/workflows/bc-leg.yml
+    # actions: write lets bc-leg.yml's job `test` delete the shards' artifacts once it uploaded the merged one.
+    permissions:
+      contents: read
+      actions: write
     with:
-      bc_linux_ref:         "65f6b26bbc5041a567790812773522accfae5473"
+      shards:               ${{ toJson(fromJson(needs.prepare.outputs.shards)[matrix.bc_version]['tests/al-language-onprem-dotnet']) }}
       runner_image:         "ghcr.io/aldevtools/msdyn365bc.on.linux/bc-runner:65f6b26bbc5041a567790812773522accfae5473"
       bc_version:           ${{ matrix.bc_version }}
       bc_country:           "w1"
@@ -477,18 +498,23 @@ jobs:
   # rulesets list only "BC <ver> / test" (add them there once the job has run green for a while).
   test-testlibraries:
     name: BC TestLibraries ${{ matrix.bc_version }}
-    needs: prepare
+    # Second wave: starts when the OnPrem legs are done, so that a full run holds at most 16 BC containers at once
+    # (10 al-language shards + OnPrem + OnPrem DotNet). The organization has 20 concurrent jobs for this repository and
+    # al-runtime-rs together. It runs whatever the OnPrem legs' result.
+    needs: [prepare, test-onprem]
+    if: ${{ !cancelled() && needs.prepare.result == 'success' }}
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.prepare.outputs.matrix) }}
-    # Workflow and scripts pinned for corpus bump 63 to bc-linux 65f6b26: a write into a missing folder fails with
-    # InvalidPath as on Windows (#189). Bump 62 pin 84291ff before: fr-FR group separator U+00A0 on BC 27/28 as on
-    # Windows (#174); DotNet System.IO sees the files AL File wrote under the user folder and returns paths with '\'
-    # (#175, #181); MediaSet.ImportFile stores the bare file name (#176); Directory/DirectoryInfo listings match patterns
-    # case-insensitively and list in name order (#183). Earlier: #165, #166, #167.
-    uses: aldevtools/MsDyn365Bc.On.Linux/.github/workflows/bc-test-from-source.yml@65f6b26bbc5041a567790812773522accfae5473
+    # .github/workflows/bc-leg.yml runs the leg's shards through bc-linux (pinned there; the runner_image below carries
+    # the same commit) and merges their JUnit; its job `test` reports this job's check "<name> / test".
+    uses: ./.github/workflows/bc-leg.yml
+    # actions: write lets bc-leg.yml's job `test` delete the shards' artifacts once it uploaded the merged one.
+    permissions:
+      contents: read
+      actions: write
     with:
-      bc_linux_ref:         "65f6b26bbc5041a567790812773522accfae5473"
+      shards:               ${{ toJson(fromJson(needs.prepare.outputs.shards)[matrix.bc_version]['tests/al-language-testlibraries']) }}
       runner_image:         "ghcr.io/aldevtools/msdyn365bc.on.linux/bc-runner:rdlc-65f6b26bbc5041a567790812773522accfae5473"
       bc_version:           ${{ matrix.bc_version }}
       bc_country:           "w1"
