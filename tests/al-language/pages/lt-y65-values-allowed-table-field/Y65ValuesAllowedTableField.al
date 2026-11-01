@@ -6,8 +6,9 @@
 //   pageext/lt-page-ext-properties/PageFieldValuesAllowed.al, Validate in code of a table field with ValuesAllowed is
 //   pageext/lt-page-ext-properties/TableFieldValuesAllowed.al): TestPage SetValue on controls over TABLE fields that declare ValuesAllowed:
 //   an Enum with gaps in its ordinals (0, 2, 3, 4), an Option, an Integer and a Decimal, plus an Enum field whose page control declares a
-//   different ValuesAllowed of its own. SetValue with an Enum value, the member name as text, an Integer and a value outside the list, on a
-//   NavigatePage over a temporary table (the reporter's wizard), a Card over a stored row (stored values read back after Close) and a List.
+//   different ValuesAllowed of its own. SetValue with an Enum value, the member name as text, an Integer and a value outside the list, each on a
+//   freshly opened page (a validation error leaves the control in an error state): a NavigatePage over a temporary table (the reporter's
+//   wizard), a Card and a List over a stored row (Close, then the stored value).
 // BC versions: 27, 28, 29
 
 enum 93345 "LT Y65 VA Mode"
@@ -137,6 +138,7 @@ codeunit 93345 "LT Y65 VA Tests"
 
     var
         Observer: Codeunit "Probe Observer";
+        Mode: Enum "LT Y65 VA Mode";
 
     local procedure Seed(var Settings: Record "LT Y65 VA Settings")
     begin
@@ -151,13 +153,23 @@ codeunit 93345 "LT Y65 VA Tests"
         Settings.Insert();
     end;
 
-    local procedure Stored(): Text
+    local procedure Stored(Ctl: Text): Text
     var
         Settings: Record "LT Y65 VA Settings";
     begin
         Settings.Get('A');
-        exit(Format(Settings."Push Mode") + '|' + Format(Settings.Opt) + '|' + Format(Settings.Int) + '|' + Format(Settings.Dec) + '|' +
-            Format(Settings."Pull Mode"));
+        case Ctl of
+            'push':
+                exit(Format(Settings."Push Mode"));
+            'opt':
+                exit(Format(Settings.Opt));
+            'int':
+                exit(Format(Settings.Int));
+            'dec':
+                exit(Format(Settings.Dec));
+            'pull':
+                exit(Format(Settings."Pull Mode"));
+        end;
     end;
 
     [TryFunction]
@@ -193,41 +205,72 @@ codeunit 93345 "LT Y65 VA Tests"
         end;
     end;
 
-    local procedure SetWizard(var P: TestPage "LT Y65 VA Wizard"; Ctl: Text; V: Variant): Text
+    [TryFunction]
+    local procedure TryCloseWizard(var P: TestPage "LT Y65 VA Wizard")
     begin
-        ClearLastError();
-        if TrySetWizard(P, Ctl, V) then
-            exit('ok:' + GetWizard(P, Ctl));
-        exit('error:' + GetLastErrorText() + '|' + GetLastErrorCode() + '|now ' + GetWizard(P, Ctl));
+        P.Close();
     end;
 
-    local procedure ProbeWizard(var P: TestPage "LT Y65 VA Wizard")
+    local procedure CaseWizard(Ctl: Text; V: Variant) R: Text
     var
-        Mode: Enum "LT Y65 VA Mode";
+        Settings: Record "LT Y65 VA Settings";
+        P: TestPage "LT Y65 VA Wizard";
     begin
-        Observer.Observe('initial push', GetWizard(P, 'push'));
-        Observer.Observe('push enum None', SetWizard(P, 'push', Mode::None));
-        Observer.Observe('push enum All', SetWizard(P, 'push', Mode::All));
-        Observer.Observe('push enum Published Only', SetWizard(P, 'push', Mode::"Published Only"));
-        Observer.Observe('push text Mapped Only', SetWizard(P, 'push', 'Mapped Only'));
-        Observer.Observe('push text published only', SetWizard(P, 'push', 'published only'));
-        Observer.Observe('push integer 3', SetWizard(P, 'push', 3));
-        Observer.Observe('push integer 1', SetWizard(P, 'push', 1));
-        Observer.Observe('push integer 0', SetWizard(P, 'push', 0));
-        Observer.Observe('push enum None again', SetWizard(P, 'push', Mode::None));
-        Observer.Observe('opt text D', SetWizard(P, 'opt', 'D'));
-        Observer.Observe('opt text A', SetWizard(P, 'opt', 'A'));
-        Observer.Observe('opt integer 1', SetWizard(P, 'opt', 1));
-        Observer.Observe('opt integer 2', SetWizard(P, 'opt', 2));
-        Observer.Observe('int 5', SetWizard(P, 'int', 5));
-        Observer.Observe('int 3', SetWizard(P, 'int', 3));
-        Observer.Observe('int text 1', SetWizard(P, 'int', '1'));
-        Observer.Observe('dec 2', SetWizard(P, 'dec', 2));
-        Observer.Observe('dec 1.7', SetWizard(P, 'dec', 1.7));
-        Observer.Observe('pull enum All', SetWizard(P, 'pull', Mode::All));
-        Observer.Observe('pull enum Mapped Only', SetWizard(P, 'pull', Mode::"Mapped Only"));
-        Observer.Observe('pull enum None', SetWizard(P, 'pull', Mode::None));
-        Observer.Observe('pull enum Published Only', SetWizard(P, 'pull', Mode::"Published Only"));
+        P.OpenEdit();
+        ClearLastError();
+        if TrySetWizard(P, Ctl, V) then
+            R := 'ok:' + GetWizard(P, Ctl)
+        else
+            R := 'error:' + GetLastErrorText() + '|' + GetLastErrorCode() + '|now ' + GetWizard(P, Ctl);
+        ClearLastError();
+        if not TryCloseWizard(P) then
+            R += ' close=error:' + GetLastErrorText() + '|' + GetLastErrorCode();
+    end;
+
+    [Test]
+    procedure Y65_ValuesAllowed_Wizard_EnumValues()
+    begin
+        Observer.Observe('push enum None', CaseWizard('push', Mode::None));
+        Observer.Observe('push enum All', CaseWizard('push', Mode::All));
+        Observer.Observe('push enum Published Only', CaseWizard('push', Mode::"Published Only"));
+        Observer.Observe('push enum Mapped Only', CaseWizard('push', Mode::"Mapped Only"));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y65_ValuesAllowed_Wizard_EnumTextAndInteger()
+    begin
+        Observer.Observe('push text None', CaseWizard('push', 'None'));
+        Observer.Observe('push text published only', CaseWizard('push', 'published only'));
+        Observer.Observe('push integer 3', CaseWizard('push', 3));
+        Observer.Observe('push integer 1', CaseWizard('push', 1));
+        Observer.Observe('push integer 0', CaseWizard('push', 0));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y65_ValuesAllowed_Wizard_OptionAndInteger()
+    begin
+        Observer.Observe('opt text D', CaseWizard('opt', 'D'));
+        Observer.Observe('opt text A', CaseWizard('opt', 'A'));
+        Observer.Observe('opt integer 1', CaseWizard('opt', 1));
+        Observer.Observe('opt integer 2', CaseWizard('opt', 2));
+        Observer.Observe('int 5', CaseWizard('int', 5));
+        Observer.Observe('int 3', CaseWizard('int', 3));
+        Observer.Observe('int text 1', CaseWizard('int', '1'));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y65_ValuesAllowed_Wizard_DecimalAndControlList()
+    begin
+        Observer.Observe('dec 2', CaseWizard('dec', 2));
+        Observer.Observe('dec 1.7', CaseWizard('dec', 1.7));
+        Observer.Observe('pull enum All', CaseWizard('pull', Mode::All));
+        Observer.Observe('pull enum Mapped Only', CaseWizard('pull', Mode::"Mapped Only"));
+        Observer.Observe('pull enum None', CaseWizard('pull', Mode::None));
+        Observer.Observe('pull enum Published Only', CaseWizard('pull', Mode::"Published Only"));
+        Observer.Finish();
     end;
 
     [TryFunction]
@@ -263,41 +306,75 @@ codeunit 93345 "LT Y65 VA Tests"
         end;
     end;
 
-    local procedure SetCard(var P: TestPage "LT Y65 VA Card"; Ctl: Text; V: Variant): Text
+    [TryFunction]
+    local procedure TryCloseCard(var P: TestPage "LT Y65 VA Card")
     begin
-        ClearLastError();
-        if TrySetCard(P, Ctl, V) then
-            exit('ok:' + GetCard(P, Ctl));
-        exit('error:' + GetLastErrorText() + '|' + GetLastErrorCode() + '|now ' + GetCard(P, Ctl));
+        P.Close();
     end;
 
-    local procedure ProbeCard(var P: TestPage "LT Y65 VA Card")
+    local procedure CaseCard(Ctl: Text; V: Variant) R: Text
     var
-        Mode: Enum "LT Y65 VA Mode";
+        Settings: Record "LT Y65 VA Settings";
+        P: TestPage "LT Y65 VA Card";
     begin
-        Observer.Observe('initial push', GetCard(P, 'push'));
-        Observer.Observe('push enum None', SetCard(P, 'push', Mode::None));
-        Observer.Observe('push enum All', SetCard(P, 'push', Mode::All));
-        Observer.Observe('push enum Published Only', SetCard(P, 'push', Mode::"Published Only"));
-        Observer.Observe('push text Mapped Only', SetCard(P, 'push', 'Mapped Only'));
-        Observer.Observe('push text published only', SetCard(P, 'push', 'published only'));
-        Observer.Observe('push integer 3', SetCard(P, 'push', 3));
-        Observer.Observe('push integer 1', SetCard(P, 'push', 1));
-        Observer.Observe('push integer 0', SetCard(P, 'push', 0));
-        Observer.Observe('push enum None again', SetCard(P, 'push', Mode::None));
-        Observer.Observe('opt text D', SetCard(P, 'opt', 'D'));
-        Observer.Observe('opt text A', SetCard(P, 'opt', 'A'));
-        Observer.Observe('opt integer 1', SetCard(P, 'opt', 1));
-        Observer.Observe('opt integer 2', SetCard(P, 'opt', 2));
-        Observer.Observe('int 5', SetCard(P, 'int', 5));
-        Observer.Observe('int 3', SetCard(P, 'int', 3));
-        Observer.Observe('int text 1', SetCard(P, 'int', '1'));
-        Observer.Observe('dec 2', SetCard(P, 'dec', 2));
-        Observer.Observe('dec 1.7', SetCard(P, 'dec', 1.7));
-        Observer.Observe('pull enum All', SetCard(P, 'pull', Mode::All));
-        Observer.Observe('pull enum Mapped Only', SetCard(P, 'pull', Mode::"Mapped Only"));
-        Observer.Observe('pull enum None', SetCard(P, 'pull', Mode::None));
-        Observer.Observe('pull enum Published Only', SetCard(P, 'pull', Mode::"Published Only"));
+        Seed(Settings);
+        P.OpenEdit();
+        P.GoToRecord(Settings);
+        ClearLastError();
+        if TrySetCard(P, Ctl, V) then
+            R := 'ok:' + GetCard(P, Ctl)
+        else
+            R := 'error:' + GetLastErrorText() + '|' + GetLastErrorCode() + '|now ' + GetCard(P, Ctl);
+        ClearLastError();
+        if not TryCloseCard(P) then
+            R += ' close=error:' + GetLastErrorText() + '|' + GetLastErrorCode();
+        R += ' stored=' + Stored(Ctl);
+    end;
+
+    [Test]
+    procedure Y65_ValuesAllowed_Card_EnumValues()
+    begin
+        Observer.Observe('push enum None', CaseCard('push', Mode::None));
+        Observer.Observe('push enum All', CaseCard('push', Mode::All));
+        Observer.Observe('push enum Published Only', CaseCard('push', Mode::"Published Only"));
+        Observer.Observe('push enum Mapped Only', CaseCard('push', Mode::"Mapped Only"));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y65_ValuesAllowed_Card_EnumTextAndInteger()
+    begin
+        Observer.Observe('push text None', CaseCard('push', 'None'));
+        Observer.Observe('push text published only', CaseCard('push', 'published only'));
+        Observer.Observe('push integer 3', CaseCard('push', 3));
+        Observer.Observe('push integer 1', CaseCard('push', 1));
+        Observer.Observe('push integer 0', CaseCard('push', 0));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y65_ValuesAllowed_Card_OptionAndInteger()
+    begin
+        Observer.Observe('opt text D', CaseCard('opt', 'D'));
+        Observer.Observe('opt text A', CaseCard('opt', 'A'));
+        Observer.Observe('opt integer 1', CaseCard('opt', 1));
+        Observer.Observe('opt integer 2', CaseCard('opt', 2));
+        Observer.Observe('int 5', CaseCard('int', 5));
+        Observer.Observe('int 3', CaseCard('int', 3));
+        Observer.Observe('int text 1', CaseCard('int', '1'));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y65_ValuesAllowed_Card_DecimalAndControlList()
+    begin
+        Observer.Observe('dec 2', CaseCard('dec', 2));
+        Observer.Observe('dec 1.7', CaseCard('dec', 1.7));
+        Observer.Observe('pull enum All', CaseCard('pull', Mode::All));
+        Observer.Observe('pull enum Mapped Only', CaseCard('pull', Mode::"Mapped Only"));
+        Observer.Observe('pull enum None', CaseCard('pull', Mode::None));
+        Observer.Observe('pull enum Published Only', CaseCard('pull', Mode::"Published Only"));
+        Observer.Finish();
     end;
 
     [TryFunction]
@@ -333,64 +410,88 @@ codeunit 93345 "LT Y65 VA Tests"
         end;
     end;
 
-    local procedure SetList(var P: TestPage "LT Y65 VA List"; Ctl: Text; V: Variant): Text
+    [TryFunction]
+    local procedure TryCloseList(var P: TestPage "LT Y65 VA List")
     begin
-        ClearLastError();
-        if TrySetList(P, Ctl, V) then
-            exit('ok:' + GetList(P, Ctl));
-        exit('error:' + GetLastErrorText() + '|' + GetLastErrorCode() + '|now ' + GetList(P, Ctl));
+        P.Close();
     end;
 
-    local procedure ProbeList(var P: TestPage "LT Y65 VA List")
+    local procedure CaseList(Ctl: Text; V: Variant) R: Text
     var
-        Mode: Enum "LT Y65 VA Mode";
+        Settings: Record "LT Y65 VA Settings";
+        P: TestPage "LT Y65 VA List";
     begin
-        Observer.Observe('initial push', GetList(P, 'push'));
-        Observer.Observe('push enum None', SetList(P, 'push', Mode::None));
-        Observer.Observe('push enum All', SetList(P, 'push', Mode::All));
-        Observer.Observe('push enum Published Only', SetList(P, 'push', Mode::"Published Only"));
-        Observer.Observe('push text Mapped Only', SetList(P, 'push', 'Mapped Only'));
-        Observer.Observe('push text published only', SetList(P, 'push', 'published only'));
-        Observer.Observe('push integer 3', SetList(P, 'push', 3));
-        Observer.Observe('push integer 1', SetList(P, 'push', 1));
-        Observer.Observe('push integer 0', SetList(P, 'push', 0));
-        Observer.Observe('push enum None again', SetList(P, 'push', Mode::None));
-        Observer.Observe('opt text D', SetList(P, 'opt', 'D'));
-        Observer.Observe('opt text A', SetList(P, 'opt', 'A'));
-        Observer.Observe('opt integer 1', SetList(P, 'opt', 1));
-        Observer.Observe('opt integer 2', SetList(P, 'opt', 2));
-        Observer.Observe('int 5', SetList(P, 'int', 5));
-        Observer.Observe('int 3', SetList(P, 'int', 3));
-        Observer.Observe('int text 1', SetList(P, 'int', '1'));
-        Observer.Observe('dec 2', SetList(P, 'dec', 2));
-        Observer.Observe('dec 1.7', SetList(P, 'dec', 1.7));
-        Observer.Observe('pull enum All', SetList(P, 'pull', Mode::All));
-        Observer.Observe('pull enum Mapped Only', SetList(P, 'pull', Mode::"Mapped Only"));
-        Observer.Observe('pull enum None', SetList(P, 'pull', Mode::None));
-        Observer.Observe('pull enum Published Only', SetList(P, 'pull', Mode::"Published Only"));
+        Seed(Settings);
+        P.OpenEdit();
+        P.GoToRecord(Settings);
+        ClearLastError();
+        if TrySetList(P, Ctl, V) then
+            R := 'ok:' + GetList(P, Ctl)
+        else
+            R := 'error:' + GetLastErrorText() + '|' + GetLastErrorCode() + '|now ' + GetList(P, Ctl);
+        ClearLastError();
+        if not TryCloseList(P) then
+            R += ' close=error:' + GetLastErrorText() + '|' + GetLastErrorCode();
+        R += ' stored=' + Stored(Ctl);
+    end;
+
+    [Test]
+    procedure Y65_ValuesAllowed_List_EnumValues()
+    begin
+        Observer.Observe('push enum None', CaseList('push', Mode::None));
+        Observer.Observe('push enum All', CaseList('push', Mode::All));
+        Observer.Observe('push enum Published Only', CaseList('push', Mode::"Published Only"));
+        Observer.Observe('push enum Mapped Only', CaseList('push', Mode::"Mapped Only"));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y65_ValuesAllowed_List_EnumTextAndInteger()
+    begin
+        Observer.Observe('push text None', CaseList('push', 'None'));
+        Observer.Observe('push text published only', CaseList('push', 'published only'));
+        Observer.Observe('push integer 3', CaseList('push', 3));
+        Observer.Observe('push integer 1', CaseList('push', 1));
+        Observer.Observe('push integer 0', CaseList('push', 0));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y65_ValuesAllowed_List_OptionAndInteger()
+    begin
+        Observer.Observe('opt text D', CaseList('opt', 'D'));
+        Observer.Observe('opt text A', CaseList('opt', 'A'));
+        Observer.Observe('opt integer 1', CaseList('opt', 1));
+        Observer.Observe('opt integer 2', CaseList('opt', 2));
+        Observer.Observe('int 5', CaseList('int', 5));
+        Observer.Observe('int 3', CaseList('int', 3));
+        Observer.Observe('int text 1', CaseList('int', '1'));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y65_ValuesAllowed_List_DecimalAndControlList()
+    begin
+        Observer.Observe('dec 2', CaseList('dec', 2));
+        Observer.Observe('dec 1.7', CaseList('dec', 1.7));
+        Observer.Observe('pull enum All', CaseList('pull', Mode::All));
+        Observer.Observe('pull enum Mapped Only', CaseList('pull', Mode::"Mapped Only"));
+        Observer.Observe('pull enum None', CaseList('pull', Mode::None));
+        Observer.Observe('pull enum Published Only', CaseList('pull', Mode::"Published Only"));
+        Observer.Finish();
     end;
 
     [Test]
     procedure Y65_ValuesAllowed_Wizard_Reporter()
     var
         P: TestPage "LT Y65 VA Wizard";
-        Mode: Enum "LT Y65 VA Mode";
     begin
+        // al-runner issue 6672, the reporter's wizard.
         P.OpenEdit();
+        Observer.Observe('initial', P."Push Mode".Value());
         P."Push Mode".SetValue(Mode::None);
         Observer.Observe('reporter value', P."Push Mode".Value());
         Observer.Observe('format none', Format(Mode::None));
-        P.Close();
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Y65_ValuesAllowed_Wizard_Surface()
-    var
-        P: TestPage "LT Y65 VA Wizard";
-    begin
-        P.OpenEdit();
-        ProbeWizard(P);
         P.Close();
         Observer.Finish();
     end;
@@ -400,44 +501,14 @@ codeunit 93345 "LT Y65 VA Tests"
     var
         Settings: Record "LT Y65 VA Settings";
         P: TestPage "LT Y65 VA Card";
-        Mode: Enum "LT Y65 VA Mode";
     begin
+        // al-runner issue 6672, the reporter's card.
         Seed(Settings);
         P.OpenEdit();
         P.GoToRecord(Settings);
         P."Push Mode".SetValue(Mode::None);
         P.Close();
-        Observer.Observe('stored', Stored());
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Y65_ValuesAllowed_Card_Surface()
-    var
-        Settings: Record "LT Y65 VA Settings";
-        P: TestPage "LT Y65 VA Card";
-    begin
-        Seed(Settings);
-        P.OpenEdit();
-        P.GoToRecord(Settings);
-        ProbeCard(P);
-        P.Close();
-        Observer.Observe('stored', Stored());
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Y65_ValuesAllowed_List_Surface()
-    var
-        Settings: Record "LT Y65 VA Settings";
-        P: TestPage "LT Y65 VA List";
-    begin
-        Seed(Settings);
-        P.OpenEdit();
-        P.GoToRecord(Settings);
-        ProbeList(P);
-        P.Close();
-        Observer.Observe('stored', Stored());
+        Observer.Observe('stored', Stored('push'));
         Observer.Finish();
     end;
 }

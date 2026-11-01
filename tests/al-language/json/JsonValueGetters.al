@@ -560,6 +560,12 @@ codeunit 72502 "LT JsT Value Getters"
         Observer.Observe('.5', Y65Num('".5"'));
         Observer.Observe('1.5.1', Y65Num('"1.5.1"'));
         Observer.Observe('space 4.5 space', Y65Num('" 4.5 "'));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y65_DecimalShapedText_AsDecimal_2()
+    begin
         Observer.Observe('NaN', Y65Num('"NaN"'));
         Observer.Observe('Infinity', Y65Num('"Infinity"'));
         Observer.Observe('0x10', Y65Num('"0x10"'));

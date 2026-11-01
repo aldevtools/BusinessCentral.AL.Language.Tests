@@ -8,7 +8,8 @@
 //   OnAfterGetRecord, from `not` a variable, from a Boolean field of Rec, from an expression over Rec (`Rec.X <> 0`) and from an expression
 //   mixing both, a procedure call (IsShown()), an array element and a method call (not Rec.IsEmpty()) on a cuegroup. Compile: a group or cuegroup
 //   Visible takes any Boolean expression; a field Visible is a client expression (procedure calls, method calls and array elements:
-//   AL0322, must-not-compile 2631 (array) and 2632 (method call); a procedure call is 2000); an Integer is AL0208 (must-not-compile 2630). Read through TestPage: Visible() and Value of each cue field. And the reporter's three Microsoft activity pages open and close.
+//   AL0322, must-not-compile 2631 (array) and 2632 (method call); a procedure call is 2000); an Integer is AL0208 (must-not-compile 2630). Read through TestPage: Visible() and Value of each cue field. The reporter's three Microsoft activity pages are held
+//   as Suspect_ procedures (see there).
 // BC versions: 27, 28, 29
 
 table 93347 "LT Y65 Cue"
@@ -258,8 +259,11 @@ codeunit 93347 "LT Y65 Cue Visible Tests"
         Observer.Finish();
     end;
 
-    [TryFunction]
-    local procedure TryOpenSalesRel()
+    // Suspects (not [Test], kept for the Windows check): the reporter's three Microsoft pages (al-runner issue 6675). On the SaaS sandbox BC 29
+    // (TestRunnerHub session) opening and closing each one ended the test in "Unexpected CLR exception thrown.: System.NullReferenceException"
+    // from NavClientHandle.Dispose / NavDotNet.Dispose during NavForm.Dispose (the pages hold a usercontrol); not caught by a TryFunction.
+    // The reporter says all three pass on a BC 29 w1 container.
+    procedure Suspect_SalesAndRelationshipMgrActivitiesOpens()
     var
         Activities: TestPage "Sales & Relationship Mgr. Act.";
     begin
@@ -267,8 +271,7 @@ codeunit 93347 "LT Y65 Cue Visible Tests"
         Activities.Close();
     end;
 
-    [TryFunction]
-    local procedure TryOpenSOProcessor()
+    procedure Suspect_SOProcessorActivitiesOpens()
     var
         Activities: TestPage "SO Processor Activities";
     begin
@@ -276,29 +279,11 @@ codeunit 93347 "LT Y65 Cue Visible Tests"
         Activities.Close();
     end;
 
-    [TryFunction]
-    local procedure TryOpenO365()
+    procedure Suspect_O365ActivitiesOpens()
     var
         Activities: TestPage "O365 Activities";
     begin
         Activities.OpenEdit();
         Activities.Close();
-    end;
-
-    local procedure Outcome(Ok: Boolean): Text
-    begin
-        if Ok then
-            exit('ok');
-        exit('error:' + GetLastErrorText() + '|' + GetLastErrorCode());
-    end;
-
-    [Test]
-    procedure Y65_CueVisible_Reporter_MicrosoftActivities()
-    begin
-        // al-runner issue 6675, the reporter's three pages.
-        Observer.Observe('Sales & Relationship Mgr. Act.', Outcome(TryOpenSalesRel()));
-        Observer.Observe('SO Processor Activities', Outcome(TryOpenSOProcessor()));
-        Observer.Observe('O365 Activities', Outcome(TryOpenO365()));
-        Observer.Finish();
     end;
 }

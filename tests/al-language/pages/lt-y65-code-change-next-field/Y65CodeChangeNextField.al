@@ -286,6 +286,12 @@ codeunit 93341 "LT Y65 Code Change Next Field"
     end;
 
     [TryFunction]
+    local procedure TryMark(var Worksheet: TestPage "LT Y65 Member Worksheet")
+    begin
+        Worksheet.Mark.SetValue('m');
+    end;
+
+    [TryFunction]
     local procedure TryActivateWs(var Worksheet: TestPage "LT Y65 Member Worksheet")
     begin
         Worksheet.Activate.SetValue(true);
@@ -460,7 +466,35 @@ codeunit 93341 "LT Y65 Code Change Next Field"
         Worksheet.OpenEdit();
         Worksheet.GoToRecord(Member);
         Worksheet.Name.SetValue('Carl');
-        Worksheet.Mark.SetValue('m');
+        ClearLastError();
+        if TryMark(Worksheet) then
+            Observer.Observe('mark', 'ok')
+        else
+            Observer.Observe('mark', 'error:' + GetLastErrorText() + '|' + GetLastErrorCode());
+        Log.Db('after mark', 'A');
+        Observer.Observe('activate', TryActivate(Worksheet));
+        Worksheet.Close();
+        Log.Db('after close', 'A');
+        Observer.Observe('log', Log.Take());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y65_Worksheet_ModifyInOnValidate_NoEditBefore()
+    var
+        Member: Record "LT Y65 Member";
+        Log: Codeunit "LT Y65 Member Log";
+        Worksheet: TestPage "LT Y65 Member Worksheet";
+    begin
+        Seed();
+        Member.Get('A');
+        Worksheet.OpenEdit();
+        Worksheet.GoToRecord(Member);
+        ClearLastError();
+        if TryMark(Worksheet) then
+            Observer.Observe('mark', 'ok')
+        else
+            Observer.Observe('mark', 'error:' + GetLastErrorText() + '|' + GetLastErrorCode());
         Log.Db('after mark', 'A');
         Observer.Observe('activate', TryActivate(Worksheet));
         Worksheet.Close();

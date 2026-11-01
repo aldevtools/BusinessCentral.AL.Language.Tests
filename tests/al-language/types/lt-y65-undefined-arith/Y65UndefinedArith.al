@@ -200,6 +200,15 @@ codeunit 93349 "LT Y65 Undefined Arith"
         Observer.Observe('0DT < DT', Format(Undefined < Defined));
         Observer.Observe('0DT > DT', Format(Undefined > Defined));
         Observer.Observe('0DT = 0DT', Format(Undefined = 0DT));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y65_UndefinedDateTime_Conversions()
+    var
+        Undefined: DateTime;
+    begin
+        Undefined := 0DT;
         Observer.Observe('CreateDateTime(0D, 0T)', Outcome(TryCreateDateTime(0D, 0T)));
         Observer.Observe('CreateDateTime(0D, 120000T)', Outcome(TryCreateDateTime(0D, 120000T)));
         Observer.Observe('CreateDateTime(D, 0T)', Outcome(TryCreateDateTime(20240115D, 0T)));

@@ -7,7 +7,7 @@
 //   which CloseAction OnQueryClosePage gets for the page types not pinned yet (NavigatePage with a temporary and with a real source table,
 //   StandardDialog, ConfirmationDialog, CardPart, ListPart) on an explicit Close(), on OK/Cancel/Yes/No/LookupOK actions where the page type
 //   has them, and when the TestPage is left open at the end of the test; a Confirm in OnQueryClosePage with a ConfirmHandler, and with NO
-//   ConfirmHandler (explicit Close and test end); an Error in OnQueryClosePage at the test end; the reporter's NavigatePage that asks
+//   ConfirmHandler (explicit Close and test end; Confirm with default true, default false and no default); an Error in OnQueryClosePage at the test end; the reporter's NavigatePage that asks
 //   through Guided Experience. Each "left open" test is followed by a test that reads the SingleInstance log the first one left behind
 //   (tests of one codeunit run in declaration order in one session).
 // BC versions: 27, 28, 29
@@ -36,6 +36,7 @@ codeunit 93342 "LT Y65 QC Log"
         Lines: Text;
         AskOnClose: Boolean;
         FailOnClose: Boolean;
+        AskDefault: Integer;
 
     procedure Add(Line: Text)
     begin
@@ -55,6 +56,13 @@ codeunit 93342 "LT Y65 QC Log"
     begin
         AskOnClose := NewAsk;
         FailOnClose := NewFail;
+        AskDefault := 0;
+    end;
+
+    // 0: Confirm(Question, true); 1: Confirm(Question, false); 2: Confirm(Question) without a default.
+    procedure SetAskDefault(NewDefault: Integer)
+    begin
+        AskDefault := NewDefault;
     end;
 
     procedure QueryClose(Kind: Text; CloseAction: Action): Boolean
@@ -63,7 +71,14 @@ codeunit 93342 "LT Y65 QC Log"
     begin
         Add('qc ' + Kind + ' ' + Format(CloseAction));
         if AskOnClose then begin
-            Answer := Confirm('Close the ' + Kind + ' page?', true);
+            case AskDefault of
+                0:
+                    Answer := Confirm('Close the ' + Kind + ' page?', true);
+                1:
+                    Answer := Confirm('Close the ' + Kind + ' page?', false);
+                2:
+                    Answer := Confirm('Close the ' + Kind + ' page?');
+            end;
             Add('confirm=' + Format(Answer));
             if not Answer then
                 exit(false);
@@ -857,6 +872,66 @@ codeunit 93343 "LT Y65 QC Page Types"
 
     [Test]
     procedure Y65_Open11_Read()
+    begin
+        ReadLog();
+    end;
+
+    [Test]
+    procedure Y65_Close_Card_AskDefaultFalse_NoHandler()
+    var
+        Card: TestPage "LT Y65 QC Card";
+        Log: Codeunit "LT Y65 QC Log";
+    begin
+        Start(true, false);
+        Log.SetAskDefault(1);
+        Card.OpenEdit();
+        Observer.Observe('close', Outcome(TryCloseCard(Card)));
+        ReadLog();
+    end;
+
+    [Test]
+    procedure Y65_Close_Card_AskNoDefault_NoHandler()
+    var
+        Card: TestPage "LT Y65 QC Card";
+        Log: Codeunit "LT Y65 QC Log";
+    begin
+        Start(true, false);
+        Log.SetAskDefault(2);
+        Card.OpenEdit();
+        Observer.Observe('close', Outcome(TryCloseCard(Card)));
+        ReadLog();
+    end;
+
+    [Test]
+    procedure Y65_Open12_Card_AskDefaultFalse_NoHandler()
+    var
+        Card: TestPage "LT Y65 QC Card";
+        Log: Codeunit "LT Y65 QC Log";
+    begin
+        Start(true, false);
+        Log.SetAskDefault(1);
+        Card.OpenEdit();
+    end;
+
+    [Test]
+    procedure Y65_Open12_Read()
+    begin
+        ReadLog();
+    end;
+
+    [Test]
+    procedure Y65_Open13_Card_AskNoDefault_NoHandler()
+    var
+        Card: TestPage "LT Y65 QC Card";
+        Log: Codeunit "LT Y65 QC Log";
+    begin
+        Start(true, false);
+        Log.SetAskDefault(2);
+        Card.OpenEdit();
+    end;
+
+    [Test]
+    procedure Y65_Open13_Read()
     begin
         ReadLog();
     end;
