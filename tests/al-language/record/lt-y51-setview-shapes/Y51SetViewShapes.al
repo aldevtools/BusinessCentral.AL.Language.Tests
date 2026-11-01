@@ -10,6 +10,11 @@
 //        record/lt-setview-caption-form/SetViewCaptionForm.al (unknown name in WHERE ignored).
 // Values: every literal asserted is what BC 27.5, 28.5 and 29.0 (Linux CI containers) produced; #if BC29PLUS where 29.0 differs.
 //         SetView and RecordRef.Copy values (not the FilterPageHandler test) also match the SaaS sandbox BC 29.
+// Writer Y57 (corpus issue 996), SetView_DoubleEquals*: a view that holds `1(==)` (what GetView writes for an empty value) is accepted
+//        by SetView in every form (numeric and name form, RecordRef and Record, Text, Date and Integer fields, with a second field,
+//        in filter group 10) and filters nothing: GetFilters shows `Description: ==`, every row is counted. CONST(==) is the literal
+//        text '=='; 1(=) and SetFilter(Description, '=') raise "A value is expected after the '='."; SetFilter(Description, '==') keeps
+//        no filter. Measured: SaaS sandbox BC 29 and the Linux CI containers BC 27.5, 28.5, 29.0, all the same.
 // BC versions: 27, 28, 29
 
 table 92980 "LT Y51 SV Row"
@@ -276,7 +281,17 @@ codeunit 92981 "LT Y51 SetView Shapes"
         Observer.Observe('text_const', SV('WHERE(Field4=CONST(==))'));
         Observer.Observe('text_single_eq', SV('WHERE(Field4=1(=))'));
         Observer.Observe('text_eq_A', SV('WHERE(Field4=1(=A))'));
-        Observer.Finish();
+        Observer.Expect('text_1', 'ok|VERSION(1) SORTING(Field1) WHERE(Field4=1(==))|VERSION(1) SORTING(Entry No.) WHERE(Description=FILTER(==))|Description: ==|3|1,2,3,');
+        Observer.Expect('text_full', 'ok|VERSION(1) SORTING(Field1) WHERE(Field4=1(==))|VERSION(1) SORTING(Entry No.) WHERE(Description=FILTER(==))|Description: ==|3|1,2,3,');
+        Observer.Expect('text_full_rec', 'ok|VERSION(1) SORTING(Field1) WHERE(Field4=1(==))|VERSION(1) SORTING(Entry No.) WHERE(Description=FILTER(==))|Description: ==|3|1,2,3,');
+        Observer.Expect('text_filter_name', 'ok|VERSION(1) SORTING(Field1) WHERE(Field4=1(==))|VERSION(1) SORTING(Entry No.) WHERE(Description=FILTER(==))|Description: ==|3|1,2,3,');
+        Observer.Expect('text5_1', 'ok|VERSION(1) SORTING(Field1) WHERE(Field5=1(==))|VERSION(1) SORTING(Entry No.) WHERE(Description 2=FILTER(==))|Description 2: ==|3|1,2,3,');
+        Observer.Expect('date_1', 'ok|VERSION(1) SORTING(Field1) WHERE(Field2=1(==))|VERSION(1) SORTING(Entry No.) WHERE(Date Field=FILTER(==))|Date Field: ==|3|1,2,3,');
+        Observer.Expect('int_1', 'ok|VERSION(1) SORTING(Field1) WHERE(Field1=1(==))|VERSION(1) SORTING(Entry No.) WHERE(Entry No.=FILTER(==))|Entry No.: ==|3|1,2,3,');
+        Observer.Expect('text_const', 'ok|VERSION(1) SORTING(Field1) WHERE(Field4=1(''==''))|VERSION(1) SORTING(Entry No.) WHERE(Description=FILTER(''==''))|Description: ''==''|0|');
+        Observer.Expect('text_single_eq', 'err|A value is expected after the ''=''.|InvalidFilterExpression|VERSION(1) SORTING(Field1)');
+        Observer.Expect('text_eq_A', 'ok|VERSION(1) SORTING(Field1) WHERE(Field4=1(A))|VERSION(1) SORTING(Entry No.) WHERE(Description=FILTER(A))|Description: A|1|1,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -287,7 +302,9 @@ codeunit 92981 "LT Y51 SetView Shapes"
         Seed();
         Observer.Observe('two_fields', SV('VERSION(1) SORTING(Field1) WHERE(Field2=1(..2024-02-01),Field4=1(==))'));
         Observer.Observe('two_fields_first', SV('VERSION(1) SORTING(Field1) WHERE(Field4=1(==),Field5=1(E))'));
-        Observer.Finish();
+        Observer.Expect('two_fields', 'ok|VERSION(1) SORTING(Field1) WHERE(Field2=1(..2024-02-01),Field4=1(==))|VERSION(1) SORTING(Entry No.) WHERE(Date Field=FILTER(..2024-02-01),Description=FILTER(==))|Date Field: ..02/01/24, Description: ==|2|1,2,');
+        Observer.Expect('two_fields_first', 'ok|VERSION(1) SORTING(Field1) WHERE(Field4=1(==),Field5=1(E))|VERSION(1) SORTING(Entry No.) WHERE(Description=FILTER(==),Description 2=FILTER(E))|Description: ==, Description 2: E|1|3,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -328,6 +345,15 @@ codeunit 92981 "LT Y51 SetView Shapes"
         Observer.Observe('setfilter_quotes', SF(''''''));
         Row.SetRange(Description, '');
         Observer.Observe('setrange_blank', Row.GetFilter(Description) + '|' + Row.GetView(false) + '|' + Format(Row.Count()));
-        Observer.Finish();
+        Observer.Expect('stored_view', 'VERSION(1) SORTING(Field1) WHERE(Field4=1(==))');
+        Observer.Expect('set_again', 'ok|VERSION(1) SORTING(Field1) WHERE(Field4=1(==))|VERSION(1) SORTING(Entry No.) WHERE(Description=FILTER(==))|Description: ==|3|1,2,3,');
+        Observer.Expect('group10_set', 'ok|VERSION(1) SORTING(Field1) WHERE(Field4=1(==))|Description: ==|3');
+        Observer.Expect('group0_view', 'VERSION(1) SORTING(Field1)');
+        Observer.Expect('group10_cleared', 'VERSION(1) SORTING(Field1)|3');
+        Observer.Expect('setfilter_eqeq', 'ok||VERSION(1) SORTING(Field1)|3');
+        Observer.Expect('setfilter_eq', 'err|The filter "=" is not valid for the Description field on the LT Y51 SV Row table. A value is expected after the ''=''.|Filter:CSide');
+        Observer.Expect('setfilter_quotes', 'ok|''''|VERSION(1) SORTING(Field1) WHERE(Field4=1(''''))|1');
+        Observer.Expect('setrange_blank', '''''|VERSION(1) SORTING(Field1) WHERE(Field4=1(''''))|1');
+        Observer.Verify();
     end;
 }

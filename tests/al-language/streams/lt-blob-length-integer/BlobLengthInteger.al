@@ -6,6 +6,9 @@
 //        empty field. A .NET Int64 into an Integer (in and out of range) is pinned in
 //        al-language-onprem-dotnet/lt-y51-dotnet-int64/Y51DotNetInt64IntoInteger.al; a BigInteger out of the Integer range in
 //        misc/lt-au-language-edges/AuEdgeTests.al.
+// Facts: Length fits an Integer, BigInteger and Decimal alike (3145735); Round(3 MB / 1 MB) = 3; after Get without CalcFields Length is
+//        3072, after CalcFields the real length; a second CreateOutStream on a BLOB that holds data does NOT truncate it (writing 1.5 MB
+//        over 3 MB leaves the length at 3 MB). Measured: SaaS sandbox BC 29 (CI containers: see the commit).
 // BC versions: 27, 28, 29
 
 table 93105 "LT Y57 Blob Len Row"
@@ -85,6 +88,17 @@ codeunit 93105 "LT Y57 Blob Length Integer"
         Fill(Row, 3 * 1024 * 1024);
         Fill(Row, 1536 * 1024);
         Observer.Observe('refill_not_loaded_len', Format(Row.Content.Length));
-        Observer.Finish();
+        Observer.Expect('empty_int', '0');
+        Observer.Expect('five_int', '5');
+        Observer.Expect('3mb_int', '3145735');
+        Observer.Expect('3mb_big', '3145735');
+        Observer.Expect('3mb_dec', '3145735');
+        Observer.Expect('3mb_round_mb', '3');
+        Observer.Expect('after_get_int', '3072');
+        Observer.Expect('after_calcfields_int', '3145735');
+        Observer.Expect('1_5mb_round_mb', '3');
+        Observer.Expect('after_refill_len', '3145735');
+        Observer.Expect('refill_not_loaded_len', '3145728');
+        Observer.Verify();
     end;
 }

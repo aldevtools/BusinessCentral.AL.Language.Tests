@@ -9,6 +9,11 @@
 //   Source row 'S': Txt 'Hello', Cod 'ABC', Int 42, Dec 12.5, Dat 2024-01-15, Enm Second, Opt B, Long (37 chars), Bool Yes,
 //   LongCode 'CODE12345678901' (15 chars), NumTxt '17'. BC 27.5 gives another error for Text 'Hello' into an Integer (NotSupportedType).
 //   The Date to Text case gives the en-US format of the test servers. Target row 'T' starts from Init() (blank) and is read back with Get after Modify.
+// Writer Y57 (corpus issue 996), Y57_*: the Quality Management QltyTraversal shape: a Variant holding the VALUE of a field (or a literal)
+//   into a Text or Code field with FieldRef.Validate(Variant) or FieldRef.Value := Variant. BC converts it as Format does (42, 12.5,
+//   01/15/24, Yes, B, Second, 1,234.5, 3000000000; Code fields uppercase); Validate runs the target's OnValidate, Value := does not;
+//   a result longer than the field raises StringLengthExceeded. Measured: SaaS sandbox BC 29 and the Linux CI containers BC 27.5, 28.5,
+//   29.0, all the same.
 // BC versions: 27, 28, 29
 
 enum 92907 "LT Y47 VF Kind"
@@ -470,7 +475,20 @@ codeunit 92909 "LT Y47 Validate FieldRef"
         Observer.Observe('bool_cod', FieldVariant(10, 3, true));
         Observer.Observe('txt_cod', FieldVariant(2, 3, true));
         Observer.Observe('int_numtxt', FieldVariant(4, 12, true));
-        Observer.Finish();
+        Observer.Expect('int_txt', 'ok [42] vTxt=42 x=;');
+        Observer.Expect('dec_txt', 'ok [12.5] vTxt=12.5 x=;');
+        Observer.Expect('dat_txt', 'ok [01/15/24] vTxt=01/15/24 x=;');
+        Observer.Expect('bool_txt', 'ok [Yes] vTxt=Yes x=;');
+        Observer.Expect('opt_txt', 'ok [B] vTxt=B x=;');
+        Observer.Expect('enm_txt', 'ok [Second] vTxt=Second x=;');
+        Observer.Expect('cod_txt', 'ok [ABC] vTxt=ABC x=;');
+        Observer.Expect('int_cod', 'ok [42] vCod=42;');
+        Observer.Expect('dec_cod', 'ok [12.5] vCod=12.5;');
+        Observer.Expect('dat_cod', 'ok [01/15/24] vCod=01/15/24;');
+        Observer.Expect('bool_cod', 'ok [YES] vCod=YES;');
+        Observer.Expect('txt_cod', 'ok [HELLO] vCod=HELLO;');
+        Observer.Expect('int_numtxt', 'ok [42] ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -485,7 +503,14 @@ codeunit 92909 "LT Y47 Validate FieldRef"
         Observer.Observe('opt_txt', FieldVariant(8, 2, false));
         Observer.Observe('int_cod', FieldVariant(4, 3, false));
         Observer.Observe('dec_cod', FieldVariant(5, 3, false));
-        Observer.Finish();
+        Observer.Expect('int_txt', 'ok [42] ');
+        Observer.Expect('dec_txt', 'ok [12.5] ');
+        Observer.Expect('dat_txt', 'ok [01/15/24] ');
+        Observer.Expect('bool_txt', 'ok [Yes] ');
+        Observer.Expect('opt_txt', 'ok [B] ');
+        Observer.Expect('int_cod', 'ok [42] ');
+        Observer.Expect('dec_cod', 'ok [12.5] ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -529,6 +554,17 @@ codeunit 92909 "LT Y47 Validate FieldRef"
         I := 7;
         V := I;
         Observer.Observe('int7_value_txt', PutVariant(V, 2, false));
-        Observer.Finish();
+        Observer.Expect('int5_txt', 'ok [5] vTxt=5 x=;');
+        Observer.Expect('int5_cod', 'ok [5] vCod=5;');
+        Observer.Expect('intminus12_txt', 'ok [-12] vTxt=-12 x=5;');
+        Observer.Expect('dec2_5_txt', 'ok [2.5] vTxt=2.5 x=-12;');
+        Observer.Expect('dec1234_5_txt', 'ok [1,234.5] vTxt=1,234.5 x=2.5;');
+        Observer.Expect('big3e9_txt', 'ok [3000000000] vTxt=3000000000 x=1,234.5;');
+        Observer.Expect('big11digits_numtxt', 'error The length of the string is 11, but it must be less than or equal to 10 characters. Value: 12345678901|StringLengthExceeded [] ');
+        Observer.Expect('big11digits_cod', 'error The length of the string is 11, but it must be less than or equal to 10 characters. Value: 12345678901|StringLengthExceeded [5] ');
+        Observer.Expect('date_txt', 'ok [01/15/24] vTxt=01/15/24 x=3000000000;');
+        Observer.Expect('false_txt', 'ok [No] vTxt=No x=01/15/24;');
+        Observer.Expect('int7_value_txt', 'ok [7] ');
+        Observer.Verify();
     end;
 }

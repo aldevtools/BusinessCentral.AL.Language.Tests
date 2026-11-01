@@ -10,6 +10,11 @@
 //        Not done: the spec's T6 (a committed detached row seen by a later test): the main suite rolls back per codeunit, not per test.
 //        Asserted values: the CI containers BC 27.5, 28.5 and 29.0, all the same (a SaaS sandbox BC 29 agrees where its license allows the writes;
 //        it refuses Insert into Tenant Media and Tenant Media Set).
+// Writer Y57 (corpus issue 996), FO_ReplacedPic .. FO_TemporarySetHolder: a second import into a held Media field deletes the old Tenant
+//        Media row (not an orphan); deleting the holder row deletes its Media and MediaSet rows (no orphans); a media shared by two rows
+//        keeps its row until the last holder is deleted; a set item removed with MediaSet.Remove keeps its Tenant Media row and becomes a
+//        Media orphan (the set is not an orphan); a MediaSet imported into a temporary record is a MediaSet orphan, its item is not a
+//        Media orphan. Measured: SaaS sandbox BC 29 and the Linux CI containers BC 27.5, 28.5, 29.0, all the same.
 // BC versions: 27, 28, 29
 
 table 92929 "LT Y48 FO Row"
@@ -469,7 +474,13 @@ codeunit 92931 "LT Y48 Find Orphans"
         Observer.Observe('old: tenant media row', TmExists(OldId));
         Observer.Observe('old: in media orphans', InMedia(OldId));
         Observer.Observe('new: in media orphans', InMedia(LastGuid));
-        Observer.Finish();
+        Observer.Expect('row pic', 'ok:ok');
+        Observer.Expect('replace pic', 'ok:ok');
+        Observer.Expect('new id differs', 'Yes');
+        Observer.Expect('old: tenant media row', 'No');
+        Observer.Expect('old: in media orphans', 'No');
+        Observer.Expect('new: in media orphans', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -495,7 +506,16 @@ codeunit 92931 "LT Y48 Find Orphans"
         Observer.Observe('set: in mediaset orphans', InSet(SetId));
         Observer.Observe('item: tenant media row', TmExists(ItemId));
         Observer.Observe('item: in media orphans', InMedia(ItemId));
-        Observer.Finish();
+        Observer.Expect('row pic', 'ok:ok');
+        Observer.Expect('delete pic row', 'ok:Yes');
+        Observer.Expect('pic: tenant media row', 'No');
+        Observer.Expect('pic: in media orphans', 'No');
+        Observer.Expect('row pics', 'ok:ok');
+        Observer.Expect('delete pics row', 'ok:Yes');
+        Observer.Expect('set: in mediaset orphans', 'No');
+        Observer.Expect('item: tenant media row', 'No');
+        Observer.Expect('item: in media orphans', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -515,7 +535,16 @@ codeunit 92931 "LT Y48 Find Orphans"
         Run('delete second row', 'delete row', 55, NullGuid);
         Observer.Observe('after both: tenant media row', TmExists(FirstId));
         Observer.Observe('after both: in media orphans', InMedia(FirstId));
-        Observer.Finish();
+        Observer.Expect('row pic', 'ok:ok');
+        Observer.Expect('copy pic', 'ok:ok');
+        Observer.Expect('same id', 'Yes');
+        Observer.Expect('delete first row', 'ok:Yes');
+        Observer.Expect('after delete: tenant media row', 'Yes');
+        Observer.Expect('after delete: in media orphans', 'No');
+        Observer.Expect('delete second row', 'ok:Yes');
+        Observer.Expect('after both: tenant media row', 'No');
+        Observer.Expect('after both: in media orphans', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -542,7 +571,16 @@ codeunit 92931 "LT Y48 Find Orphans"
         Observer.Observe('removed: in media orphans', InMedia(Item1));
         Observer.Observe('kept: in media orphans', InMedia(Item2));
         Observer.Observe('set: in mediaset orphans', InSet(SetId));
-        Observer.Finish();
+        Observer.Expect('row pics', 'ok:ok');
+        Observer.Expect('add set item', 'ok:2');
+        Observer.Expect('remove item 1', 'ok:Yes|1');
+        Observer.Expect('set id kept', 'Yes');
+        Observer.Expect('item 2 still item 1', 'Yes');
+        Observer.Expect('removed: tenant media row', 'Yes');
+        Observer.Expect('removed: in media orphans', 'Yes');
+        Observer.Expect('kept: in media orphans', 'No');
+        Observer.Expect('set: in mediaset orphans', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -562,6 +600,11 @@ codeunit 92931 "LT Y48 Find Orphans"
             Observer.Observe('temporary: item in media orphans', InMedia(ItemId));
         end;
         Observer.Observe('temporary: set in mediaset orphans', InSet(LastGuid));
-        Observer.Finish();
+        Observer.Expect('temporary pics', 'ok:ok');
+        Observer.Expect('temporary: set rows', '1');
+        Observer.Expect('temporary: item tenant media row', 'Yes');
+        Observer.Expect('temporary: item in media orphans', 'No');
+        Observer.Expect('temporary: set in mediaset orphans', 'Yes');
+        Observer.Verify();
     end;
 }

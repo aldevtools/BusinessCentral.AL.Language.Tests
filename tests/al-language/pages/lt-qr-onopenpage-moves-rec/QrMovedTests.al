@@ -14,6 +14,11 @@
 // Facts (writer QT, QT_Temp* tests): a temporary Worksheet or List filled by a procedure before Run / RunModal / LookupMode opens on the row
 //   Rec was left on (A, B, D); a key between rows (BB) opens on the next row (C); a key past the last row (E) opens on the last row (D);
 //   SetCurrentKey(Name) + Get(B) opens on B in Name order. OnNextRecord / OnFindRecord pages open on the same row (their calls are logged).
+// Facts (writer Y57, corpus issue 996, QR_TempWs* tests): a temporary Worksheet (not a tree) whose OnOpenPage fills Rec and moves it opens
+//   on the row Rec was left on, as the temporary List does: D (no move, FindLast), C (Get, key assigned without a read), B (FindFirst +
+//   Next), B for C outside the range A..B, B in Name order after SetCurrentKey(Name) + Get(B) (Next goes to A). The same with OpenEdit,
+//   Page.Run, RunModal, lookup mode and with an OnNextRecord trigger. Measured: SaaS sandbox BC 29 and the Linux CI containers 27.5, 28.5,
+//   29.0, all the same.
 // BC versions: 27, 28, 29
 
 codeunit 87266 "LT QR Moved Tests"
@@ -2771,91 +2776,189 @@ codeunit 87266 "LT QR Moved Tests"
     procedure QR_TempWs_OpenView_NoMove()
     begin
         ViewTempWs(0, false);
-        Observer.Finish();
+        Observer.Expect('open', 'D|alpha');
+        Observer.Expect('open log', 'O:D;R:D;R:C;R:B;R:A;R:D;R:D;C:D;');
+        Observer.Expect('next', 'Yes|');
+        Observer.Expect('next log', 'C:;');
+        Observer.Expect('previous', 'Yes|D');
+        Observer.Expect('previous log', 'R:D;R:D;C:D;');
+        Observer.Expect('first', 'Yes|A');
+        Observer.Expect('first log', 'R:A;R:A;C:A;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure QR_TempWs_OpenView_Get()
     begin
         ViewTempWs(1, false);
-        Observer.Finish();
+        Observer.Expect('open', 'C|bravo');
+        Observer.Expect('open log', 'O:C;R:C;R:D;R:C;R:B;R:A;R:C;R:C;C:C;');
+        Observer.Expect('next', 'Yes|D');
+        Observer.Expect('next log', 'R:D;R:D;C:D;');
+        Observer.Expect('previous', 'Yes|C');
+        Observer.Expect('previous log', 'R:C;R:C;C:C;');
+        Observer.Expect('first', 'Yes|A');
+        Observer.Expect('first log', 'R:A;R:A;C:A;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure QR_TempWs_OpenView_FindLast()
     begin
         ViewTempWs(2, false);
-        Observer.Finish();
+        Observer.Expect('open', 'D|alpha');
+        Observer.Expect('open log', 'O:D;R:D;R:C;R:B;R:A;R:D;R:D;C:D;');
+        Observer.Expect('next', 'Yes|');
+        Observer.Expect('next log', 'C:;');
+        Observer.Expect('previous', 'Yes|D');
+        Observer.Expect('previous log', 'R:D;R:D;C:D;');
+        Observer.Expect('first', 'Yes|A');
+        Observer.Expect('first log', 'R:A;R:A;C:A;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure QR_TempWs_OpenView_FindFirstNext()
     begin
         ViewTempWs(3, false);
-        Observer.Finish();
+        Observer.Expect('open', 'B|charlie');
+        Observer.Expect('open log', 'O:B;R:B;R:C;R:D;R:B;R:A;R:B;R:B;C:B;');
+        Observer.Expect('next', 'Yes|C');
+        Observer.Expect('next log', 'R:C;R:C;C:C;');
+        Observer.Expect('previous', 'Yes|B');
+        Observer.Expect('previous log', 'R:B;R:B;C:B;');
+        Observer.Expect('first', 'Yes|A');
+        Observer.Expect('first log', 'R:A;R:A;C:A;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure QR_TempWs_OpenView_RangeFindLast()
     begin
         ViewTempWs(4, false);
-        Observer.Finish();
+        Observer.Expect('open', 'D|alpha');
+        Observer.Expect('open log', 'O:D;R:D;R:C;R:B;R:D;R:D;C:D;');
+        Observer.Expect('next', 'Yes|');
+        Observer.Expect('next log', 'C:;');
+        Observer.Expect('previous', 'Yes|D');
+        Observer.Expect('previous log', 'R:D;R:D;C:D;');
+        Observer.Expect('first', 'Yes|B');
+        Observer.Expect('first log', 'R:B;R:B;C:B;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure QR_TempWs_OpenView_KeyGet()
     begin
         ViewTempWs(5, false);
-        Observer.Finish();
+        Observer.Expect('open', 'B|charlie');
+        Observer.Expect('open log', 'O:B;R:B;R:B;R:A;R:B;R:C;R:D;R:B;R:B;R:B;C:B;');
+        Observer.Expect('next', 'Yes|A');
+        Observer.Expect('next log', 'R:A;R:A;R:A;C:A;');
+        Observer.Expect('previous', 'Yes|B');
+        Observer.Expect('previous log', 'R:B;R:B;R:B;C:B;');
+        Observer.Expect('first', 'Yes|D');
+        Observer.Expect('first log', 'R:D;R:D;R:D;C:D;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure QR_TempWs_OpenView_KeyNoRead()
     begin
         ViewTempWs(6, false);
-        Observer.Finish();
+        Observer.Expect('open', 'C|bravo');
+        Observer.Expect('open log', 'O:C;R:C;R:D;R:C;R:B;R:A;R:C;R:C;C:C;');
+        Observer.Expect('next', 'Yes|D');
+        Observer.Expect('next log', 'R:D;R:D;C:D;');
+        Observer.Expect('previous', 'Yes|C');
+        Observer.Expect('previous log', 'R:C;R:C;C:C;');
+        Observer.Expect('first', 'Yes|A');
+        Observer.Expect('first log', 'R:A;R:A;C:A;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure QR_TempWs_OpenView_GetOutsideRange()
     begin
         ViewTempWs(7, false);
-        Observer.Finish();
+        Observer.Expect('open', 'B|charlie');
+        Observer.Expect('open log', 'O:C;R:B;R:A;R:B;R:B;C:B;');
+        Observer.Expect('next', 'Yes|');
+        Observer.Expect('next log', 'C:;');
+        Observer.Expect('previous', 'Yes|B');
+        Observer.Expect('previous log', 'R:B;R:B;C:B;');
+        Observer.Expect('first', 'Yes|A');
+        Observer.Expect('first log', 'R:A;R:A;C:A;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure QR_TempWs_OpenView_RangeFindFirst()
     begin
         ViewTempWs(8, false);
-        Observer.Finish();
+        Observer.Expect('open', 'B|charlie');
+        Observer.Expect('open log', 'O:B;R:B;R:C;R:D;R:B;R:B;C:B;');
+        Observer.Expect('next', 'Yes|C');
+        Observer.Expect('next log', 'R:C;R:C;C:C;');
+        Observer.Expect('previous', 'Yes|B');
+        Observer.Expect('previous log', 'R:B;R:B;C:B;');
+        Observer.Expect('first', 'Yes|B');
+        Observer.Expect('first log', '');
+        Observer.Verify();
     end;
 
     [Test]
     procedure QR_TempWs_OpenEdit_Get()
     begin
         ViewTempWs(1, true);
-        Observer.Finish();
+        Observer.Expect('open', 'C|bravo');
+        Observer.Expect('open log', 'O:C;R:C;R:D;R:C;R:B;R:A;R:C;R:C;C:C;');
+        Observer.Expect('next', 'Yes|D');
+        Observer.Expect('next log', 'R:D;R:D;C:D;');
+        Observer.Expect('previous', 'Yes|C');
+        Observer.Expect('previous log', 'R:C;R:C;C:C;');
+        Observer.Expect('first', 'Yes|A');
+        Observer.Expect('first log', 'R:A;R:A;C:A;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure QR_TempWsNext_OpenView_NoMove()
     begin
         ViewTempWsNext(0);
-        Observer.Finish();
+        Observer.Expect('open', 'D|alpha');
+        Observer.Expect('open log', 'O:D;R:D;N:D|1>0;N:C|-1>-1;R:C;N:B|-1>-1;R:B;N:A|-1>-1;R:A;N:A|-1>0;R:D;R:D;C:D;');
+        Observer.Expect('next', 'Yes|');
+        Observer.Expect('next log', 'C:;');
+        Observer.Expect('previous', 'Yes|D');
+        Observer.Expect('previous log', 'R:D;R:D;C:D;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure QR_TempWsNext_OpenView_Get()
     begin
         ViewTempWsNext(1);
-        Observer.Finish();
+        Observer.Expect('open', 'C|bravo');
+        Observer.Expect('open log', 'O:C;R:C;N:D|1>1;R:D;N:D|1>0;R:C;N:B|-1>-1;R:B;N:A|-1>-1;R:A;N:A|-1>0;R:C;R:C;C:C;');
+        Observer.Expect('next', 'Yes|D');
+        Observer.Expect('next log', 'R:D;R:D;C:D;');
+        Observer.Expect('previous', 'Yes|C');
+        Observer.Expect('previous log', 'R:C;R:C;C:C;');
+        Observer.Verify();
     end;
 
     [Test]
     procedure QR_TempWsNext_OpenView_KeyGet()
     begin
         ViewTempWsNext(5);
-        Observer.Finish();
+        Observer.Expect('open', 'B|charlie');
+        Observer.Expect('open log', 'O:B;R:B;R:B;N:A|1>1;R:A;N:A|1>0;R:B;N:C|-1>-1;R:C;N:D|-1>-1;R:D;N:D|-1>0;R:B;R:B;R:B;C:B;');
+        Observer.Expect('next', 'Yes|A');
+        Observer.Expect('next log', 'R:A;R:A;R:A;C:A;');
+        Observer.Expect('previous', 'Yes|B');
+        Observer.Expect('previous log', 'R:B;R:B;R:B;C:B;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2864,7 +2967,15 @@ codeunit 87266 "LT QR Moved Tests"
     begin
         Seed(0);
         Page.Run(Page::"LT QR Moved Temp Ws");
-        Observer.Finish();
+        Observer.Expect('open', 'D|alpha');
+        Observer.Expect('open log', 'O:D;R:D;R:C;R:B;R:A;R:D;R:D;C:D;');
+        Observer.Expect('next', 'Yes|');
+        Observer.Expect('next log', 'C:;');
+        Observer.Expect('previous', 'Yes|D');
+        Observer.Expect('previous log', 'R:D;R:D;C:D;');
+        Observer.Expect('first', 'Yes|A');
+        Observer.Expect('first log', 'R:A;R:A;C:A;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2873,7 +2984,15 @@ codeunit 87266 "LT QR Moved Tests"
     begin
         Seed(1);
         Page.Run(Page::"LT QR Moved Temp Ws");
-        Observer.Finish();
+        Observer.Expect('open', 'C|bravo');
+        Observer.Expect('open log', 'O:C;R:C;R:D;R:C;R:B;R:A;R:C;R:C;C:C;');
+        Observer.Expect('next', 'Yes|D');
+        Observer.Expect('next log', 'R:D;R:D;C:D;');
+        Observer.Expect('previous', 'Yes|C');
+        Observer.Expect('previous log', 'R:C;R:C;C:C;');
+        Observer.Expect('first', 'Yes|A');
+        Observer.Expect('first log', 'R:A;R:A;C:A;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2882,7 +3001,15 @@ codeunit 87266 "LT QR Moved Tests"
     begin
         Seed(5);
         Page.Run(Page::"LT QR Moved Temp Ws");
-        Observer.Finish();
+        Observer.Expect('open', 'B|charlie');
+        Observer.Expect('open log', 'O:B;R:B;R:B;R:A;R:B;R:C;R:D;R:B;R:B;R:B;C:B;');
+        Observer.Expect('next', 'Yes|A');
+        Observer.Expect('next log', 'R:A;R:A;R:A;C:A;');
+        Observer.Expect('previous', 'Yes|B');
+        Observer.Expect('previous log', 'R:B;R:B;R:B;C:B;');
+        Observer.Expect('first', 'Yes|D');
+        Observer.Expect('first log', 'R:D;R:D;R:D;C:D;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2891,7 +3018,15 @@ codeunit 87266 "LT QR Moved Tests"
     begin
         Seed(1);
         Page.RunModal(Page::"LT QR Moved Temp Ws");
-        Observer.Finish();
+        Observer.Expect('open', 'C|bravo');
+        Observer.Expect('open log', 'O:C;R:C;R:D;R:C;R:B;R:A;R:C;R:C;C:C;');
+        Observer.Expect('next', 'Yes|D');
+        Observer.Expect('next log', 'R:D;R:D;C:D;');
+        Observer.Expect('previous', 'Yes|C');
+        Observer.Expect('previous log', 'R:C;R:C;C:C;');
+        Observer.Expect('first', 'Yes|A');
+        Observer.Expect('first log', 'R:A;R:A;C:A;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2903,7 +3038,15 @@ codeunit 87266 "LT QR Moved Tests"
         Seed(1);
         WsPage.LookupMode(true);
         WsPage.RunModal();
-        Observer.Finish();
+        Observer.Expect('open', 'C|bravo');
+        Observer.Expect('open log', 'O:C;R:C;R:D;R:C;R:B;R:A;R:C;R:C;C:C;');
+        Observer.Expect('next', 'Yes|D');
+        Observer.Expect('next log', 'R:D;R:D;C:D;');
+        Observer.Expect('previous', 'Yes|C');
+        Observer.Expect('previous log', 'R:C;R:C;C:C;');
+        Observer.Expect('first', 'Yes|A');
+        Observer.Expect('first log', 'R:A;R:A;C:A;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2912,7 +3055,15 @@ codeunit 87266 "LT QR Moved Tests"
     begin
         Seed(5);
         Page.RunModal(Page::"LT QR Moved Temp Ws");
-        Observer.Finish();
+        Observer.Expect('open', 'B|charlie');
+        Observer.Expect('open log', 'O:B;R:B;R:B;R:A;R:B;R:C;R:D;R:B;R:B;R:B;C:B;');
+        Observer.Expect('next', 'Yes|A');
+        Observer.Expect('next log', 'R:A;R:A;R:A;C:A;');
+        Observer.Expect('previous', 'Yes|B');
+        Observer.Expect('previous log', 'R:B;R:B;R:B;C:B;');
+        Observer.Expect('first', 'Yes|D');
+        Observer.Expect('first log', 'R:D;R:D;R:D;C:D;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2924,7 +3075,15 @@ codeunit 87266 "LT QR Moved Tests"
         Seed(5);
         WsPage.LookupMode(true);
         WsPage.RunModal();
-        Observer.Finish();
+        Observer.Expect('open', 'B|charlie');
+        Observer.Expect('open log', 'O:B;R:B;R:B;R:A;R:B;R:C;R:D;R:B;R:B;R:B;C:B;');
+        Observer.Expect('next', 'Yes|A');
+        Observer.Expect('next log', 'R:A;R:A;R:A;C:A;');
+        Observer.Expect('previous', 'Yes|B');
+        Observer.Expect('previous log', 'R:B;R:B;R:B;C:B;');
+        Observer.Expect('first', 'Yes|D');
+        Observer.Expect('first log', 'R:D;R:D;R:D;C:D;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2936,6 +3095,12 @@ codeunit 87266 "LT QR Moved Tests"
         Seed(5);
         WsPage.LookupMode(true);
         WsPage.RunModal();
-        Observer.Finish();
+        Observer.Expect('open', 'B|charlie');
+        Observer.Expect('open log', 'O:B;R:B;R:B;N:A|1>1;R:A;N:A|1>0;R:B;N:C|-1>-1;R:C;N:D|-1>-1;R:D;N:D|-1>0;R:B;R:B;R:B;C:B;');
+        Observer.Expect('next', 'Yes|A');
+        Observer.Expect('next log', 'R:A;R:A;R:A;C:A;');
+        Observer.Expect('previous', 'Yes|B');
+        Observer.Expect('previous log', 'R:B;R:B;R:B;C:B;');
+        Observer.Verify();
     end;
 }

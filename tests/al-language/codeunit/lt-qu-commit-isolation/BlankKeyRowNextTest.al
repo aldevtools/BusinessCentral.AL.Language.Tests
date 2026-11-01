@@ -10,6 +10,11 @@
 //   Writers and cleanups never fail; only the Read tests observe. Tests run in the order they are declared.
 //   Harness (see RqIsolationModes.al in this folder): no handlers and TestPermissions = Disabled, so BC 28+ Linux legs run this codeunit
 //   through the TestRunnerHub with its RequiredTestIsolation; BC 27 under Test Runner - Isol. Codeunit (130450).
+// Facts: a Card opened with OpenEdit on an EMPTY table cannot take a SetValue ('The row does not exist on the TestPage.',
+//   TestRowNotFound) and inserts nothing; a global TestPage that a test leaves open is still open in the next test (OpenEdit: 'The
+//   TestPage is already open.', TestPageAlreadyOpen; Close works). OpenNew + SetValue inserts the row with the blank key (DelayedInsert
+//   too) and the NEXT test still sees it; a record Insert of a blank key too; under TransactionModel AutoRollback neither survives.
+//   Measured: SaaS sandbox BC 29 (CI containers: see the commit).
 // BC versions: 27, 28, 29
 
 table 93106 "LT Y57 Iso Account"
@@ -122,7 +127,9 @@ codeunit 93109 "LT Y57 Blank Key Isolation"
         Observer.Observe('writer error', WriterError);
         Observer.Observe('rows', Rows());
         WriterError := '';
-        Observer.Finish();
+        Observer.Expect('writer error', 'The row does not exist on the TestPage.|TestRowNotFound');
+        Observer.Expect('rows', '0|no blank key');
+        Observer.Verify();
     end;
 
     [Test]
@@ -149,7 +156,9 @@ codeunit 93109 "LT Y57 Blank Key Isolation"
         Observer.Observe('writer error', WriterError);
         Observer.Observe('rows', Rows());
         WriterError := '';
-        Observer.Finish();
+        Observer.Expect('writer error', 'The row does not exist on the TestPage.|TestRowNotFound');
+        Observer.Expect('rows', '0|no blank key');
+        Observer.Verify();
     end;
 
     [Test]
@@ -177,7 +186,9 @@ codeunit 93109 "LT Y57 Blank Key Isolation"
         Observer.Observe('writer error', WriterError);
         Observer.Observe('rows', Rows());
         WriterError := '';
-        Observer.Finish();
+        Observer.Expect('writer error', 'The row does not exist on the TestPage.|TestRowNotFound');
+        Observer.Expect('rows', '0|no blank key');
+        Observer.Verify();
     end;
 
     [Test]
@@ -201,7 +212,9 @@ codeunit 93109 "LT Y57 Blank Key Isolation"
     begin
         Observer.Observe('rows', Rows());
         Observer.Observe('global record name', Account.Name);
-        Observer.Finish();
+        Observer.Expect('rows', '1|blank key: d1');
+        Observer.Expect('global record name', 'd1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -227,7 +240,8 @@ codeunit 93109 "LT Y57 Blank Key Isolation"
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('rows', '0|no blank key');
+        Observer.Verify();
     end;
 
     [Test]
@@ -256,7 +270,11 @@ codeunit 93109 "LT Y57 Blank Key Isolation"
         else
             Observer.Observe('close', 'error|' + GetLastErrorText() + '|' + GetLastErrorCode());
         Observer.Observe('rows after close', Rows());
-        Observer.Finish();
+        Observer.Expect('rows before close', '0|no blank key');
+        Observer.Expect('open again', 'The TestPage is already open.|TestPageAlreadyOpen');
+        Observer.Expect('close', 'ok');
+        Observer.Expect('rows after close', '0|no blank key');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -287,7 +305,8 @@ codeunit 93109 "LT Y57 Blank Key Isolation"
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('rows', '1|blank key: g1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -312,7 +331,8 @@ codeunit 93109 "LT Y57 Blank Key Isolation"
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('rows', '1|blank key: h1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -338,7 +358,8 @@ codeunit 93109 "LT Y57 Blank Key Isolation"
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('rows', Rows());
-        Observer.Finish();
+        Observer.Expect('rows', '0|no blank key');
+        Observer.Verify();
     end;
 
     [Test]

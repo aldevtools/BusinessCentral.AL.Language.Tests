@@ -6,6 +6,9 @@
 //        procedure), and Position set out of range. Observed: the .NET Position, EOS and the rest of the InStream read byte by byte.
 //        Already pinned nearby: lt-sg-dotnet/SgDotNetStreams.al (SG_InStreamToStream_DescribeAndRead: Length, Position 0, ReadByte).
 // Values: every literal asserted is what BC 27.5, 28.5 and 29.0 (Linux CI containers) produced; #if BC29PLUS where 29.0 differs.
+// Writer Y57 (corpus issue 996), BlobStream_Position_*: Position and Length follow every AL write (WriteText 3, Byte 1, Integer 4 bytes)
+//   and read (Read Byte, ReadText with a length, Read Text, ReadText of a line: the line end counts); setting Position after the AL
+//   InStream reached its end does not restart it (EOS stays Yes, ReadText reads nothing). Measured: Linux CI containers BC 27.5, 28.5, 29.0.
 // BC versions: 27, 28, 29
 
 dotnet
@@ -241,7 +244,13 @@ codeunit 99394 "LT Y51 Blob Stream Position"
         OutS.WriteText('x', 1);
         Observer.Observe('writetext_len1', Format(S.Position) + '|' + Format(S.Length));
         Observer.Observe('bloblength', Format(TempBlob.Length()));
-        Observer.Finish();
+        Observer.Expect('start', '0|0');
+        Observer.Expect('writetext_abc', '3|3');
+        Observer.Expect('write_byte', '4|4');
+        Observer.Expect('write_integer', '8|8');
+        Observer.Expect('writetext_len1', '9|9');
+        Observer.Expect('bloblength', '9');
+        Observer.Verify();
     end;
 
     [Test]
@@ -269,7 +278,14 @@ codeunit 99394 "LT Y51 Blob Stream Position"
         Observer.Observe('set_2', Format(S.Position) + '|' + Format(InS.EOS()));
         N := InS.ReadText(T);
         Observer.Observe('readtext_after_set_2', Format(S.Position) + '|' + T + '|' + Format(N));
-        Observer.Finish();
+        Observer.Expect('start', '0|10');
+        Observer.Expect('read_byte', '1');
+        Observer.Expect('readtext_3', '4|bcd|3');
+        Observer.Expect('read_text_2', '6|ef|2');
+        Observer.Expect('readtext_rest', '10|ghij|4|Yes');
+        Observer.Expect('set_2', '2|Yes');
+        Observer.Expect('readtext_after_set_2', '10||0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -292,6 +308,9 @@ codeunit 99394 "LT Y51 Blob Stream Position"
         Observer.Observe('line1', Format(S.Position) + '|' + T);
         InS.ReadText(T);
         Observer.Observe('line2', Format(S.Position) + '|' + T + '|' + Format(InS.EOS()));
-        Observer.Finish();
+        Observer.Expect('length', '6');
+        Observer.Expect('line1', '4|ab');
+        Observer.Expect('line2', '6|cd|Yes');
+        Observer.Verify();
     end;
 }

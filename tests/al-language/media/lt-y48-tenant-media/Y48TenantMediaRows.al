@@ -9,6 +9,12 @@
 //        refuse writes inside a TryFunction). Media ids are GUIDs and are never printed: relations only.
 //        Asserted values: the CI containers BC 27.5, 28.5 and 29.0, all the same. A SaaS sandbox BC 29 gave the same rows but its license refuses
 //        every write to Tenant Media and Tenant Media Set (ClientInsertDenied and so on), so the write values come from the containers only.
+// Writer Y57 (corpus issue 996), TM_RowOfOwnImports, TM_RowOfFourArgImport_MoreNames: AL's own two- and three-argument ImportStream
+//        writes Description (the second argument), Mime Type (the third, or application/octet-stream) and NO File Name; Document
+//        Attachment's four-argument import derives the Mime Type from the extension (.json application/json, .TXT text/plain, .csv
+//        text/csv, .xml text/xml) and refuses .xlsx/.docx text content (MediaUnsupportedFormat). Measured: SaaS sandbox BC 29 and the
+//        Linux CI containers BC 27.5, 28.5, 29.0; image/png on a text stream differs on Linux 29.0 and is held in
+//        Suspect_TM_RowOfOwnImport_ImageMimeOnText (not a test) for the Windows check.
 // BC versions: 27, 28, 29
 
 table 92926 "LT Y48 TM Row"
@@ -559,13 +565,36 @@ codeunit 92928 "LT Y48 Tenant Media Rows"
         Observer.Observe('two args file-like row', TmRow(LastGuid));
         Run('three args', 'own import args', 'test.txt|text/plain', 63, NullGuid);
         Observer.Observe('three args row', TmRow(LastGuid));
-        Run('three args other mime', 'own import args', 'pic|image/png', 64, NullGuid);
-        Observer.Observe('three args other mime row', TmRow(LastGuid));
         Run('three args empty mime', 'own import args', 'x.json|', 65, NullGuid);
         Observer.Observe('three args empty mime row', TmRow(LastGuid));
         Run('set item', 'own import set item', 'set item description', 66, NullGuid);
         Observer.Observe('set item row', TmRow(LastGuid));
-        Observer.Finish();
+        Observer.Expect('two args', 'ok:imported');
+        Observer.Expect('two args row', 'Description=my description|Mime Type=application/octet-stream|File Name=|Height=0|Width=0|Company Name=<CompanyName()>|Prohibit Cache=No|Creating User empty=Yes|Expiration empty=Yes|Security Token empty=Yes|len=38');
+        Observer.Expect('two args file-like', 'ok:imported');
+        Observer.Expect('two args file-like row', 'Description=report.pdf|Mime Type=application/octet-stream|File Name=|Height=0|Width=0|Company Name=<CompanyName()>|Prohibit Cache=No|Creating User empty=Yes|Expiration empty=Yes|Security Token empty=Yes|len=38');
+        Observer.Expect('three args', 'ok:imported');
+        Observer.Expect('three args row', 'Description=test.txt|Mime Type=text/plain|File Name=|Height=0|Width=0|Company Name=<CompanyName()>|Prohibit Cache=No|Creating User empty=Yes|Expiration empty=Yes|Security Token empty=Yes|len=38');
+        Observer.Expect('three args empty mime', 'ok:imported');
+        Observer.Expect('three args empty mime row', 'Description=x.json|Mime Type=application/octet-stream|File Name=|Height=0|Width=0|Company Name=<CompanyName()>|Prohibit Cache=No|Creating User empty=Yes|Expiration empty=Yes|Security Token empty=Yes|len=38');
+        Observer.Expect('set item', 'ok:imported');
+        Observer.Expect('set item row', 'Description=set item description|Mime Type=application/octet-stream|File Name=|Height=0|Width=0|Company Name=<CompanyName()>|Prohibit Cache=No|Creating User empty=Yes|Expiration empty=Yes|Security Token empty=Yes|len=38');
+        Observer.Verify();
+    end;
+
+    // Linux suspect (held for the Windows check, not a [Test]): a text stream imported with mime type image/png. SaaS BC 29 and the Linux
+    // containers BC 27.5 and 28.5 raise 'The media object could not be loaded because it is not a valid image type, such as JPEG, GIF, or
+    // PNG.' (ImageLoadError:Argument) and write no row; the Linux container BC 29.0 imports it (Mime Type=image/png).
+    procedure Suspect_TM_RowOfOwnImport_ImageMimeOnText()
+    var
+        NullGuid: Guid;
+    begin
+        Clear(Observer);
+        Run('three args other mime', 'own import args', 'pic|image/png', 64, NullGuid);
+        Observer.Observe('three args other mime row', TmRow(LastGuid));
+        Observer.Expect('three args other mime', 'error:The media object could not be loaded because it is not a valid image type, such as JPEG, GIF, or PNG.|ImageLoadError:Argument');
+        Observer.Expect('three args other mime row', 'no row');
+        Observer.Verify();
     end;
 
     [Test]
@@ -586,6 +615,18 @@ codeunit 92928 "LT Y48 Tenant Media Rows"
         Observer.Observe('TestFile_H.docx', TmRow(LastGuid));
         Run('attach I', 'attach', 'TestFile_I.xml', 76, NullGuid);
         Observer.Observe('TestFile_I.xml', TmRow(LastGuid));
-        Observer.Finish();
+        Observer.Expect('attach D', 'error:Microsoft Office document cannot be imported. File header is corrupt (MIME type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.|MediaUnsupportedFormat');
+        Observer.Expect('TestFile_D.xlsx', 'no row');
+        Observer.Expect('attach E', 'ok:attached');
+        Observer.Expect('TestFile_E.json', 'Description=|Mime Type=application/json|File Name=TestFile_E.json|Height=0|Width=0|Company Name=<CompanyName()>|Prohibit Cache=No|Creating User empty=Yes|Expiration empty=Yes|Security Token empty=Yes|len=38');
+        Observer.Expect('attach F', 'ok:attached');
+        Observer.Expect('Test.File.F.TXT', 'Description=|Mime Type=text/plain|File Name=Test.File.F.TXT|Height=0|Width=0|Company Name=<CompanyName()>|Prohibit Cache=No|Creating User empty=Yes|Expiration empty=Yes|Security Token empty=Yes|len=38');
+        Observer.Expect('attach G', 'ok:attached');
+        Observer.Expect('TestFile_G.csv', 'Description=|Mime Type=text/csv|File Name=TestFile_G.csv|Height=0|Width=0|Company Name=<CompanyName()>|Prohibit Cache=No|Creating User empty=Yes|Expiration empty=Yes|Security Token empty=Yes|len=38');
+        Observer.Expect('attach H', 'error:Microsoft Office document cannot be imported. File header is corrupt (MIME type: application/vnd.openxmlformats-officedocument.wordprocessingml.document.|MediaUnsupportedFormat');
+        Observer.Expect('TestFile_H.docx', 'no row');
+        Observer.Expect('attach I', 'ok:attached');
+        Observer.Expect('TestFile_I.xml', 'Description=|Mime Type=text/xml|File Name=TestFile_I.xml|Height=0|Width=0|Company Name=<CompanyName()>|Prohibit Cache=No|Creating User empty=Yes|Expiration empty=Yes|Security Token empty=Yes|len=38');
+        Observer.Verify();
     end;
 }
