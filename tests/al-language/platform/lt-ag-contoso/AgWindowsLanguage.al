@@ -3,6 +3,10 @@
 // Fixtures used: Probe Observer (codeunit 69160)
 // Probe: every row of the system table Windows Language (2000000045) on a fresh tenant, in key order: the row count (208 on BC 27 and 28, 212 on BC 29), digests over the ids and over id, name,
 // abbreviated name, code page and tag of all rows. The refused writes are in AgPlatformReadOnly.al.
+// Windows check (writer Y52, 2026-11-01): the Linux CI containers build this table from ICU culture data and differ from Windows and SaaS (see record/lt-y39-windows-language-table/Y39WindowsLanguageTable.al:9-17).
+//   The [Test] procedures assert only what Windows and Linux agree on. The Suspect_ procedures (no [Test]) hold the Windows/SaaS values from
+//   record/lt-y39-windows-language-table/Y39WindowsLanguageTable.al:72-319 (writer Y39, measured) of the assertions on which Linux differs: the row count (248 there, 208 or 212 on Linux),
+//   the digests (computed from those 248 rows, not yet run on Windows), Chinese (China) / Spanish (Spain) / Korean names.
 // Facts: the full list behind the three or four rows other files pin (record/TestWindowsLanguageTable.al, errors/lt-ms-refusals-129, -133, -137).
 // Writer QX (Microsoft's DemoTool): Globally Enabled and STX File Exist of a few rows and the counts they filter; the row the DemoTool's
 //   lookup by Abbreviated Name finds for each of its 54 language codes (count of the filter and the row).
@@ -43,7 +47,6 @@ codeunit 78400 "LT AG Win Lang"
         RowDigest: BigInteger;
         Index: Integer;
     begin
-        Observer.Observe('count', Format(WindowsLanguage.Count()));
         if WindowsLanguage.FindSet() then
             repeat
                 Index += 1;
@@ -52,26 +55,41 @@ codeunit 78400 "LT AG Win Lang"
                 if Index = 1 then
                     Dump := RowText(WindowsLanguage);
             until WindowsLanguage.Next() = 0;
+        Observer.Observe('first', Dump);
+        Observer.Expect('first', '1025|Arabic (Saudi Arabia)|ARA|720|ar-SA');
+        Observer.Verify();
+    end;
+
+    // Held: Linux suspect. Windows 27.5/28.5 and SaaS 29 values, see record/lt-y39-windows-language-table/Y39WindowsLanguageTable.al:72-319 (248 rows, Language ID 1025 first) and :897.
+    // The Linux CI containers gave count 208 (BC 27, 28) / 212 (BC 29), no row 1028 on BC 27/28, id digest 1152079226 / 479874481, row digest 1438204915 / 2094992348.
+    // The digests are computed from the Windows rows (Primary CodePage '65001' for the 44 rows with no OEM code page on Windows 27.5/28.5, '1' on SaaS 29), not measured.
+    procedure Suspect_WindowsLanguage_AllRows_CountAndDigest()
+    var
+        WindowsLanguage: Record "Windows Language";
+        IdDigest: BigInteger;
+        RowDigest: BigInteger;
+        Index: Integer;
+    begin
+        Observer.Observe('count', Format(WindowsLanguage.Count()));
+        if WindowsLanguage.FindSet() then
+            repeat
+                Index += 1;
+                Hash(Format(WindowsLanguage."Language ID") + ',', IdDigest);
+                Hash(RowText(WindowsLanguage) + ';', RowDigest);
+            until WindowsLanguage.Next() = 0;
         Observer.Observe('iterated', Format(Index));
         Observer.Observe('id_digest', Format(IdDigest));
         Observer.Observe('row_digest', Format(RowDigest));
-        Observer.Observe('first', Dump);
         Observer.Observe('has_1028', Format(WindowsLanguage.Get(1028)));
+        Observer.Expect('count', '248');
+        Observer.Expect('iterated', '248');
+        Observer.Expect('id_digest', '1793734783');
 #if BC29PLUS
-        Observer.Expect('count', '212');
-        Observer.Expect('iterated', '212');
-        Observer.Expect('id_digest', '479874481');
-        Observer.Expect('row_digest', '2094992348');
-        Observer.Expect('first', '1025|Arabic (Saudi Arabia)|ARA|720|ar-SA');
-        Observer.Expect('has_1028', 'Yes');
+        Observer.Expect('row_digest', '957247906');
 #else
-        Observer.Expect('count', '208');
-        Observer.Expect('iterated', '208');
-        Observer.Expect('id_digest', '1152079226');
-        Observer.Expect('row_digest', '1438204915');
-        Observer.Expect('first', '1025|Arabic (Saudi Arabia)|ARA|720|ar-SA');
-        Observer.Expect('has_1028', 'No');
+        Observer.Expect('row_digest', '2017754606');
 #endif
+        Observer.Expect('has_1028', 'Yes');
         Observer.Verify();
     end;
 
@@ -96,13 +114,8 @@ codeunit 78400 "LT AG Win Lang"
         Observer.Observe('1030', QxFlags(WindowsLanguage, 1030));
         Observer.Observe('1036', QxFlags(WindowsLanguage, 1036));
         WindowsLanguage.Reset();
-        WindowsLanguage.SetRange("Globally Enabled", true);
-        Observer.Observe('globally enabled count', Format(WindowsLanguage.Count()));
-        WindowsLanguage.Reset();
         WindowsLanguage.SetRange("STX File Exist", true);
-        Observer.Observe('stx file exist count', Format(WindowsLanguage.Count()));
         WindowsLanguage.SetRange("Globally Enabled", true);
-        Observer.Observe('both count', Format(WindowsLanguage.Count()));
         WindowsLanguage.SetRange("Language ID", 1033);
         Observer.Observe('1033 with both findfirst', Format(WindowsLanguage.FindFirst()));
         WindowsLanguage.SetRange("Language ID", 1031);
@@ -112,23 +125,27 @@ codeunit 78400 "LT AG Win Lang"
         Observer.Expect('2057', 'globally_enabled=Yes stx_file_exist=Yes');
         Observer.Expect('1030', 'globally_enabled=Yes stx_file_exist=Yes');
         Observer.Expect('1036', 'globally_enabled=Yes stx_file_exist=Yes');
-#if BC29PLUS
-        Observer.Expect('globally enabled count', '212');
-#else
-        Observer.Expect('globally enabled count', '208');
-#endif
-#if BC29PLUS
-        Observer.Expect('stx file exist count', '49');
-#else
-        Observer.Expect('stx file exist count', '48');
-#endif
-#if BC29PLUS
-        Observer.Expect('both count', '49');
-#else
-        Observer.Expect('both count', '48');
-#endif
         Observer.Expect('1033 with both findfirst', 'Yes');
         Observer.Expect('1031 with both findfirst', 'Yes');
+        Observer.Verify();
+    end;
+
+    // Held: Linux suspect. Windows 27.5/28.5 and SaaS 29 values: all 248 rows are Globally Enabled, 50 have STX File Exist, the same 50 have both
+    // (record/lt-y39-windows-language-table/Y39WindowsLanguageTable.al:72-319, columns 21 and 31). The Linux CI containers gave 208 / 48 / 48 (BC 27, 28) and 212 / 49 / 49 (BC 29).
+    procedure Suspect_WindowsLanguage_GloballyEnabledAndStxFileExist_Counts()
+    var
+        WindowsLanguage: Record "Windows Language";
+    begin
+        WindowsLanguage.SetRange("Globally Enabled", true);
+        Observer.Observe('globally enabled count', Format(WindowsLanguage.Count()));
+        WindowsLanguage.Reset();
+        WindowsLanguage.SetRange("STX File Exist", true);
+        Observer.Observe('stx file exist count', Format(WindowsLanguage.Count()));
+        WindowsLanguage.SetRange("Globally Enabled", true);
+        Observer.Observe('both count', Format(WindowsLanguage.Count()));
+        Observer.Expect('globally enabled count', '248');
+        Observer.Expect('stx file exist count', '50');
+        Observer.Expect('both count', '50');
         Observer.Verify();
     end;
 
@@ -147,7 +164,6 @@ codeunit 78400 "LT AG Win Lang"
     procedure QX_WindowsLanguage_ByAbbreviatedName_Part1()
     begin
         Observer.Observe('BGR', QxByAbbreviation('BGR'));
-        Observer.Observe('CHS', QxByAbbreviation('CHS'));
         Observer.Observe('CSY', QxByAbbreviation('CSY'));
         Observer.Observe('DAN', QxByAbbreviation('DAN'));
         Observer.Observe('DEA', QxByAbbreviation('DEA'));
@@ -161,11 +177,8 @@ codeunit 78400 "LT AG Win Lang"
         Observer.Observe('ENZ', QxByAbbreviation('ENZ'));
         Observer.Observe('ESM', QxByAbbreviation('ESM'));
         Observer.Observe('ENP', QxByAbbreviation('ENP'));
-        Observer.Observe('ESP', QxByAbbreviation('ESP'));
-        Observer.Observe('ESN', QxByAbbreviation('ESN'));
         Observer.Observe('ESO', QxByAbbreviation('ESO'));
         Observer.Expect('BGR', 'count=1 1026|Bulgarian (Bulgaria)|BGR|866|bg-BG');
-        Observer.Expect('CHS', 'count=1 2052|Chinese (China)|CHS|936|zh-CN');
         Observer.Expect('CSY', 'count=1 1029|Czech (Czechia)|CSY|852|cs-CZ');
         Observer.Expect('DAN', 'count=1 1030|Danish (Denmark)|DAN|850|da-DK');
         Observer.Expect('DEA', 'count=1 3079|German (Austria)|DEA|850|de-AT');
@@ -179,8 +192,6 @@ codeunit 78400 "LT AG Win Lang"
         Observer.Expect('ENZ', 'count=1 5129|English (New Zealand)|ENZ|850|en-NZ');
         Observer.Expect('ESM', 'count=1 2058|Spanish (Mexico)|ESM|850|es-MX');
         Observer.Expect('ENP', 'count=1 13321|English (Philippines)|ENP|437|en-PH');
-        Observer.Expect('ESP', 'count=1 1034|Spanish (Spain, Sort Order=tradnl)|ESP|850|es-ES');
-        Observer.Expect('ESN', 'count=1 3082|Spanish (Spain)|ESN|850|es-ES');
         Observer.Expect('ESO', 'count=1 9226|Spanish (Colombia)|ESO|850|es-CO');
         Observer.Verify();
     end;
@@ -204,7 +215,6 @@ codeunit 78400 "LT AG Win Lang"
         Observer.Observe('ITA', QxByAbbreviation('ITA'));
         Observer.Observe('ITS', QxByAbbreviation('ITS'));
         Observer.Observe('JPN', QxByAbbreviation('JPN'));
-        Observer.Observe('KOR', QxByAbbreviation('KOR'));
         Observer.Observe('LTH', QxByAbbreviation('LTH'));
         Observer.Expect('ESR', 'count=1 10250|Spanish (Peru)|ESR|850|es-PE');
         Observer.Expect('ESS', 'count=1 11274|Spanish (Argentina)|ESS|850|es-AR');
@@ -222,8 +232,23 @@ codeunit 78400 "LT AG Win Lang"
         Observer.Expect('ITA', 'count=1 1040|Italian (Italy)|ITA|850|it-IT');
         Observer.Expect('ITS', 'count=1 2064|Italian (Switzerland)|ITS|850|it-CH');
         Observer.Expect('JPN', 'count=1 1041|Japanese (Japan)|JPN|932|ja-JP');
-        Observer.Expect('KOR', 'count=1 1042|Korean (South Korea)|KOR|949|ko-KR');
         Observer.Expect('LTH', 'count=1 1063|Lithuanian (Lithuania)|LTH|775|lt-LT');
+        Observer.Verify();
+    end;
+
+    // Held: Linux suspect. Windows 27.5/28.5 and SaaS 29 names of the rows whose Name differs on the Linux CI containers
+    // (record/lt-y39-windows-language-table/Y39WindowsLanguageTable.al:72-319 and :897, ids 2052, 1034, 3082, 1042). The Linux CI containers gave
+    // 'Chinese (China)', 'Spanish (Spain, Sort Order=tradnl)', 'Spanish (Spain)' and 'Korean (South Korea)'.
+    procedure Suspect_WindowsLanguage_ByAbbreviatedName_LinuxNames()
+    begin
+        Observer.Observe('CHS', QxByAbbreviation('CHS'));
+        Observer.Observe('ESP', QxByAbbreviation('ESP'));
+        Observer.Observe('ESN', QxByAbbreviation('ESN'));
+        Observer.Observe('KOR', QxByAbbreviation('KOR'));
+        Observer.Expect('CHS', 'count=1 2052|Chinese (Simplified, China)|CHS|936|zh-CN');
+        Observer.Expect('ESP', 'count=1 1034|Spanish (Spain, Traditional Sort)|ESP|850|es-ES');
+        Observer.Expect('ESN', 'count=1 3082|Spanish (Spain, International Sort)|ESN|850|es-ES');
+        Observer.Expect('KOR', 'count=1 1042|Korean (Korea)|KOR|949|ko-KR');
         Observer.Verify();
     end;
 
