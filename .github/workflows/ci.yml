@@ -77,10 +77,12 @@ on:
 #     useless. `push` only fires for main and master (see `on:`), so `github.event_name != 'push'`
 #     selects exactly the runs that may be cancelled.
 #
-# This changes no job's `if:` and adds no skips. The required checks of the master ruleset are
-# the `BC <version> / test`, `BC OnPrem <version> / test` and `BC OnPrem DotNet <version> / test`
-# legs for 27.5, 28.5 and 29.0, plus the object-id gate; a cancelled run reports them as cancelled, never as
-# skipped, so a superseded run can never satisfy a required check. ci.yml is the only workflow
+# The required checks of the master ruleset are the `BC <version> / test`, `BC OnPrem <version> / test`
+# and `BC OnPrem DotNet <version> / test` legs for 27.5, 28.5 and 29.0, plus the object-id gate. Each
+# leg's check is the job `test` of bc-leg.yml, which runs with `if: always()` and fails unless every
+# shard succeeded, so a cancelled run reports it as failed or cancelled, never as skipped or green, and
+# a superseded run can never satisfy a required check. The one green without shards is a pull request
+# leg whose app has nothing affected (CONTRIBUTING.md, "Shards in CI"). ci.yml is the only workflow
 # registered here (the object-id gate is a job inside it), so this block covers everything.
 concurrency:
   group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
