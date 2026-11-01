@@ -36,11 +36,13 @@ codeunit 93511 "LT Y66 Retention Allowed Table"
     var
         RetentionPolicySetup: Record "Retention Policy Setup";
     begin
+        // Under asserterror the whole transaction rolls back, so this runs first (a TryFunction may not write on the CI tiers).
+        asserterror InsertSetup(Database::"LT Y66 RP Buffer");
+        Observer.Observe('insert before', GetLastErrorText() + '|' + GetLastErrorCode());
         Cleanup();
         Observer.Observe('allowed before', Format(RetenPolAllowedTables.IsAllowedTable(Database::"LT Y66 RP Buffer")));
         Observer.Observe('validate before', TryValidate(Database::"LT Y66 RP Buffer"));
         Observer.Observe('validate customer', TryValidate(18));
-        Observer.Observe('insert before', TryValidateInsert(Database::"LT Y66 RP Buffer"));
         Observer.Observe('add', Format(RetenPolAllowedTables.AddAllowedTable(Database::"LT Y66 RP Buffer")));
         Observer.Observe('add again', Format(RetenPolAllowedTables.AddAllowedTable(Database::"LT Y66 RP Buffer")));
         Observer.Observe('allowed after', Format(RetenPolAllowedTables.IsAllowedTable(Database::"LT Y66 RP Buffer")));
@@ -51,10 +53,10 @@ codeunit 93511 "LT Y66 Retention Allowed Table"
         Observer.Observe('remove with setup row', Format(RetenPolAllowedTables.RemoveAllowedTable(Database::"LT Y66 RP Buffer")));
         Observer.Observe('allowed after remove', Format(RetenPolAllowedTables.IsAllowedTable(Database::"LT Y66 RP Buffer")));
         Cleanup();
+        Observer.Expect('insert before', 'Table 93505 LT Y66 RP Buffer is not in the list of allowed tables.|Dialog');
         Observer.Expect('allowed before', 'No');
         Observer.Expect('validate before', 'ok');
         Observer.Expect('validate customer', 'ok');
-        Observer.Expect('insert before', 'Table 93505 LT Y66 RP Buffer is not in the list of allowed tables.|Dialog');
         Observer.Expect('add', 'Yes');
         Observer.Expect('add again', 'Yes');
         Observer.Expect('allowed after', 'Yes');
@@ -126,16 +128,7 @@ codeunit 93511 "LT Y66 Retention Allowed Table"
         RetentionPolicySetup.Validate("Table Id", TableId);
     end;
 
-    local procedure TryValidateInsert(TableId: Integer): Text
-    begin
-        ClearLastError();
-        if DoValidateInsert(TableId) then
-            exit('ok');
-        exit(GetLastErrorText() + '|' + GetLastErrorCode());
-    end;
-
-    [TryFunction]
-    local procedure DoValidateInsert(TableId: Integer)
+    local procedure InsertSetup(TableId: Integer)
     var
         RetentionPolicySetup: Record "Retention Policy Setup";
     begin
