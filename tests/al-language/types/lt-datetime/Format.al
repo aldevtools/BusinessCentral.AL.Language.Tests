@@ -7,6 +7,9 @@
 //   literals, <Hours24> without width, <Thousands>, <Second dec>) on a DateTime, a Time and a Date, and on 0DT, 0T and 0D.
 //   BC: on a DateTime <Hours24,2> pads with 0 (09), on a Time with a space ( 9) unless <Filler Character,0> is in the string; 0DT and 0D give ''
 //   for every string, 0T formats as 00:00:00 (12:00 AM).
+// Writer Y64 (2026-11-01, Y64_* tests, al-runner issue 6650): <Second dec.> (with the period, as in the test libraries' unique-code builders) and its
+//   neighbours (<Second dec.,N>, case, <Second dec,N> widths) on a Time and a DateTime with 0, 1, 2 and 3 digits of milliseconds, 0T and 0DT, with and without
+//   <Filler Character,0>, and the reporter's whole string followed by DelChr.
 // Writer TU (2026-10-29), TU_Time_Format_CodeNames (BC 29.0 SaaS sandbox, two runs, same values): code names on a Time.
 //   BC: <Hours> and <Hour> give the 24-hour value (13 at 13:45); <Ho>, <H>, <Min>, <Sec>, <Thou>, <hours,2> and <HOURS,2> are accepted;
 //   <Hourz>, <Hours24x,2> and <Hours 24> fail with InvalidFormatString. <Hours,2> pads with a space on a Time ( 9) and with 0 on a DateTime
@@ -1058,5 +1061,104 @@ codeunit 73804 "LT DtT Format"
         Observer.Expect('year_1998', '[98]');
         Observer.Expect('year_2005', '[05]');
         Observer.Verify();
+    end;
+
+    local procedure Y64Strings(): List of [Text]
+    var
+        L: List of [Text];
+    begin
+        L.Add('<Hours24,2><Filler Character,0><Minutes,2><Seconds,2><Second dec.>');
+        L.Add('<Second dec.>');
+        L.Add('<Second dec.,3>');
+        L.Add('<Second dec.,4>');
+        L.Add('<Second Dec.>');
+        L.Add('<SECOND DEC.>');
+        L.Add('<Second dec,1>');
+        L.Add('<Second dec,2>');
+        L.Add('<Second dec,4>');
+        L.Add('<Second dec,5>');
+        L.Add('<Seconds,2><Second dec.>');
+        L.Add('<Second dec.><Filler Character,0>');
+        L.Add('<Filler Character,0><Second dec,4>');
+        L.Add('<Second dec..>');
+        L.Add('<Second dec>.');
+        exit(L);
+    end;
+
+    local procedure Y64ObserveTime(var Observer: Codeunit "Probe Observer"; Prefix: Text; Value: Time)
+    var
+        L: List of [Text];
+        i: Integer;
+    begin
+        L := Y64Strings();
+        for i := 1 to L.Count() do
+            Observer.Observe(Prefix + Format(i), TuFormatTime(Value, 0, L.Get(i)));
+    end;
+
+    local procedure Y64ObserveDateTime(var Observer: Codeunit "Probe Observer"; Prefix: Text; Value: DateTime)
+    var
+        L: List of [Text];
+        i: Integer;
+    begin
+        L := Y64Strings();
+        for i := 1 to L.Count() do
+            Observer.Observe(Prefix + Format(i), TuFormatDateTime(Value, 0, L.Get(i)));
+    end;
+
+    // Observation names: a prefix for the value and the index of the string in Y64Strings.
+    [Test]
+    procedure Y64_Time_Format_SecondDecPeriod()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Y64ObserveTime(Observer, 't078_', 134506.078T);
+        Y64ObserveTime(Observer, 't5_', 090507.5T);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y64_Time_Format_SecondDecPeriod_More()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Y64ObserveTime(Observer, 't05_', 090507.05T);
+        Y64ObserveTime(Observer, 't0_', 090507T);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y64_Time_Format_SecondDecPeriod_Edges()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Y64ObserveTime(Observer, 't999_', 235959.999T);
+        Y64ObserveTime(Observer, '0T_', 0T);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y64_DateTime_Format_SecondDecPeriod()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Y64ObserveDateTime(Observer, 'dt078_', CreateDateTime(20240305D, 134506.078T));
+        Y64ObserveDateTime(Observer, 'dt0_', CreateDateTime(20240305D, 090507T));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y64_SecondDecPeriod_ReporterCode()
+    var
+        Observer: Codeunit "Probe Observer";
+        CurrTime: Text;
+    begin
+        CurrTime := Format(134506.078T, 0, '<Hours24,2><Filler Character,0><Minutes,2><Seconds,2><Second dec.>');
+        Observer.Observe('code', 'X-' + DelChr(CurrTime, '=', '.,:'));
+        CurrTime := Format(090507T, 0, '<Hours24,2><Filler Character,0><Minutes,2><Seconds,2><Second dec.>');
+        Observer.Observe('code no ms', 'X-' + DelChr(CurrTime, '=', '.,:'));
+        Observer.Observe('length 10', TuFormatTime(134506.078T, 10, '<Hours24,2><Filler Character,0><Minutes,2><Seconds,2><Second dec.>'));
+        Observer.Observe('length 4', TuFormatTime(134506.078T, 4, '<Hours24,2><Filler Character,0><Minutes,2><Seconds,2><Second dec.>'));
+        Observer.Observe('length -12', TuFormatTime(134506.078T, -12, '<Second dec.>'));
+        Observer.Finish();
     end;
 }

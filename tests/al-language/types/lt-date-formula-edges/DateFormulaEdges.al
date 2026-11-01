@@ -7,6 +7,8 @@
 // Settles: date-formula-evaluate-percent-placeholder, calcdate-closing-bracket-missing-after-plus. Object id 67857.
 // Writer TV (2026-10-29, TV_* tests): unit letters with a number other than D and WD: M2 (M0, M1, M12, M13, -M2, CM+M2, M2+D10, 1Y+M2), W2, Q2, Y2.
 // Writer Y43 (2026-10-31, Y43_G413_* tests, gap G4-13): a number before an angle bracket inside a term (-62<D>, 2<D>: the CalcDate(Format(-n) + '<D>') and Evaluate(DateFormula, Format(n) + '<D>') shapes of the test libraries), other units, and other places a bracket can sit inside a term.
+// Writer Y64 (2026-11-01, Y64_* tests, al-runner issue 6648): a sequence of separately bracketed terms whose later terms carry a sign (<CY><-10Y>,
+//   <CM><-1D>, three terms, a C term later), with a space or a sign between the terms, and the one-argument CalcDate(Text) against a set WorkDate.
 
 codeunit 67857 "LT Date Formula Edges"
 {
@@ -628,5 +630,64 @@ codeunit 67857 "LT Date Formula Edges"
         Observer.Expect('calc 1D<+1D>', 'ok:2024-01-17');
         Observer.Expect('eval 1D<+1D>', 'ok:stored=1D+1D|calc=2024-01-17');
         Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y64_BracketedTerms_SignedLaterTerms()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Both(Observer, '<CY><-10Y>');
+        Both(Observer, '<CY><+1D>');
+        Both(Observer, '<CM><-1D>');
+        Both(Observer, '<CM><+1D>');
+        Both(Observer, '<-CM><-1M>');
+        Both(Observer, '<CW><+1D>');
+        Both(Observer, '<CQ><-1Q>');
+        Both(Observer, '<CD><+1D>');
+        Both(Observer, '<1D><-1D>');
+        Both(Observer, '<+1M><-1D>');
+        Both(Observer, '<-1Y><CY>');
+        Both(Observer, '<-1Y><+CY>');
+        Both(Observer, '<WD2><+1W>');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y64_BracketedTerms_MoreForms()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Both(Observer, '<CY><-10Y><+1D>');
+        Both(Observer, '<-CY><+1D>');
+        Both(Observer, '<CY>+<-10Y>');
+        Both(Observer, '<CY>-<10Y>');
+        Both(Observer, '<CY> <-10Y>');
+        Both(Observer, '<CY><-10Y');
+        Both(Observer, 'CY<-10Y>');
+        Both(Observer, '<CY>-10Y');
+        Both(Observer, '<cy><-10y>');
+        Both(Observer, '<CY><>');
+        Both(Observer, '<CY><-10Y>>');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y64_BracketedTerms_OtherAnchorsAndWorkDate()
+    var
+        Observer: Codeunit "Probe Observer";
+        SavedWorkDate: Date;
+    begin
+        Observer.Observe('2024-12-31', Format(CalcDate('<CY><-10Y>', 20241231D), 0, 9));
+        Observer.Observe('2024-02-29', Format(CalcDate('<CY><-10Y>', 20240229D), 0, 9));
+        Observer.Observe('2023-01-01', Format(CalcDate('<CY><-10Y>', 20230101D), 0, 9));
+        Observer.Observe('2024-02-29 CM-1Y', Format(CalcDate('<CM><-1Y>', 20240229D), 0, 9));
+        Observer.Observe('2024-01-31 CM+1M', Format(CalcDate('<CM><+1M>', 20240131D), 0, 9));
+        SavedWorkDate := WorkDate();
+        WorkDate(20240115D);
+        Observer.Observe('one argument, WorkDate 2024-01-15', Format(CalcDate('<CY><-10Y>'), 0, 9));
+        Observer.Observe('WorkDate() as the date', Format(CalcDate('<CY><-10Y>', WorkDate()), 0, 9));
+        WorkDate(SavedWorkDate);
+        Observer.Finish();
     end;
 }

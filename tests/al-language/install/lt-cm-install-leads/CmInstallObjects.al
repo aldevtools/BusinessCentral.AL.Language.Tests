@@ -182,3 +182,188 @@ codeunit 90434 "LT UM Ay Install"
         Writer.WriteRow('Ay', 'OnInstallAppPerDatabase');
     end;
 }
+
+// Writer Y64 (2026-11-01, al-runner issues 6643 and 6649): what install code sees of AllObj / AllObjWithCaption rows of type TableData of a Base
+// Application table (5050 Contact), the reporter's setup shape (a field whose OnValidate reads AllObjWithCaption, validated in
+// OnInstallAppPerCompany), and NavApp.LoadPackageData of an own table (the corpus app ships no package data) per company and of a
+// DataPerCompany = false table per database. Rows go only `if Insert() then;` into DataPerCompany = false table 93330 and the per-company setup
+// table 93331; reads that can fail run in a TryFunction; LoadPackageData writes, so it runs through `if Codeunit.Run` after a Commit.
+// Tests: Y64InstallLeads.al (codeunit 93333).
+table 93330 "LT Y64 Install Seen"
+{
+    DataClassification = SystemMetadata;
+    DataPerCompany = false;
+
+    fields
+    {
+        field(1; "Company"; Text[30]) { }
+        field(2; Code; Code[30]) { }
+        field(3; Txt; Text[2048]) { }
+    }
+
+    keys { key(PK; "Company", Code) { Clustered = true; } }
+}
+
+table 93331 "LT Y64 Install Setup"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; "Table ID"; Integer)
+        {
+            TableRelation = AllObj."Object ID" where("Object Type" = const(TableData));
+
+            trigger OnValidate()
+            begin
+                AllObject.Get(AllObject."Object Type"::TableData, "Table ID");
+                TableName := CopyStr(AllObject."Object Caption", 1, MaxStrLen(TableName));
+            end;
+        }
+        field(2; TableName; Text[30]) { }
+    }
+
+    keys { key(PK; "Table ID") { Clustered = true; } }
+
+    var
+        AllObject: Record AllObjWithCaption;
+}
+
+table 93332 "LT Y64 Install Pkg Row"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; Id; Integer) { }
+    }
+
+    keys { key(PK; Id) { Clustered = true; } }
+}
+
+table 93336 "LT Y64 Install Pkg Db Row"
+{
+    DataClassification = SystemMetadata;
+    DataPerCompany = false;
+
+    fields
+    {
+        field(1; Id; Integer) { }
+    }
+
+    keys { key(PK; Id) { Clustered = true; } }
+}
+
+codeunit 93337 "LT Y64 Install Loader"
+{
+    trigger OnRun()
+    var
+        Row: Record "LT Y64 Install Pkg Row";
+    begin
+        if not Row.IsEmpty() then
+            exit;
+        NavApp.LoadPackageData(Database::"LT Y64 Install Pkg Row");
+    end;
+}
+
+codeunit 93338 "LT Y64 Install Loader Db"
+{
+    trigger OnRun()
+    begin
+        NavApp.LoadPackageData(Database::"LT Y64 Install Pkg Db Row");
+    end;
+}
+
+codeunit 93329 "LT Y64 Install"
+{
+    Subtype = Install;
+
+    trigger OnInstallAppPerDatabase()
+    var
+        Row: Record "LT Y64 Install Pkg Db Row";
+    begin
+        See('<db>', 'CONTEXT', Format(GetExecutionContext()));
+        See('<db>', 'ALLOBJCAP TABLEDATA 5050', AllObjCaption(5050));
+        See('<db>', 'ALLOBJ TABLEDATA 5050', AllObjRow(5050));
+        Commit();
+        if Codeunit.Run(Codeunit::"LT Y64 Install Loader Db") then
+            See('<db>', 'LOAD DB TABLE', 'ok|rows=' + Format(Row.Count()))
+        else
+            See('<db>', 'LOAD DB TABLE', 'error:' + GetLastErrorText() + '|' + GetLastErrorCode());
+    end;
+
+    trigger OnInstallAppPerCompany()
+    var
+        MySetup: Record "LT Y64 Install Setup";
+        Row: Record "LT Y64 Install Pkg Row";
+        Co: Text[30];
+    begin
+        Co := CopyStr(CompanyName(), 1, 30);
+        See(Co, 'CONTEXT', Format(GetExecutionContext()));
+        See(Co, 'ALLOBJCAP TABLEDATA 5050', AllObjCaption(5050));
+        See(Co, 'ALLOBJ TABLEDATA 5050', AllObjRow(5050));
+        See(Co, 'ALLOBJCAP TABLE 5050', AllObjCaptionTable(5050));
+        See(Co, 'ALLOBJCAP TABLEDATA OWN', AllObjCaption(Database::"LT Y64 Install Setup"));
+        See(Co, 'ALLOBJCAP TABLEDATA 18', AllObjCaption(18));
+        MySetup.Init();
+        if TryValidate(MySetup) then
+            See(Co, 'SETUP VALIDATE', 'ok|' + MySetup.TableName)
+        else
+            See(Co, 'SETUP VALIDATE', 'error:' + GetLastErrorText() + '|' + GetLastErrorCode());
+        if MySetup.Insert() then;
+        Commit();
+        if Codeunit.Run(Codeunit::"LT Y64 Install Loader") then
+            See(Co, 'LOAD OWN TABLE', 'ok|rows=' + Format(Row.Count()))
+        else
+            See(Co, 'LOAD OWN TABLE', 'error:' + GetLastErrorText() + '|' + GetLastErrorCode());
+    end;
+
+    [TryFunction]
+    local procedure TryValidate(var MySetup: Record "LT Y64 Install Setup")
+    begin
+        MySetup.Validate("Table ID", Database::Contact);
+    end;
+
+    local procedure AllObjCaption(Id: Integer): Text
+    var
+        Caption: Record AllObjWithCaption;
+    begin
+        if TryGetCaption(Caption, Caption."Object Type"::TableData, Id) then
+            exit('Yes|' + Caption."Object Name" + '|' + Caption."Object Caption");
+        exit('No|' + GetLastErrorText());
+    end;
+
+    local procedure AllObjCaptionTable(Id: Integer): Text
+    var
+        Caption: Record AllObjWithCaption;
+    begin
+        if TryGetCaption(Caption, Caption."Object Type"::Table, Id) then
+            exit('Yes|' + Caption."Object Name" + '|' + Caption."Object Caption");
+        exit('No|' + GetLastErrorText());
+    end;
+
+    [TryFunction]
+    local procedure TryGetCaption(var Caption: Record AllObjWithCaption; ObjType: Option; Id: Integer)
+    begin
+        Caption.Get(ObjType, Id);
+    end;
+
+    local procedure AllObjRow(Id: Integer): Text
+    var
+        AllObjRec: Record AllObj;
+    begin
+        if AllObjRec.Get(AllObjRec."Object Type"::TableData, Id) then
+            exit('Yes|' + AllObjRec."Object Name");
+        exit('No');
+    end;
+
+    local procedure See(Co: Text[30]; Code: Code[30]; Txt: Text)
+    var
+        Seen: Record "LT Y64 Install Seen";
+    begin
+        Seen."Company" := Co;
+        Seen.Code := Code;
+        Seen.Txt := CopyStr(Txt, 1, MaxStrLen(Seen.Txt));
+        if Seen.Insert() then;
+    end;
+}

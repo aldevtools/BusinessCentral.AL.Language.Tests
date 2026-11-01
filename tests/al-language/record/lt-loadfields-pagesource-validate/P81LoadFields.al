@@ -1259,6 +1259,161 @@ codeunit 70303 "LT P81 LoadFields"
         Observer.Expect('stored', 'partial|7|blob-other');
         Observer.Verify();
     end;
+
+    // Writer Y64 (2026-11-01, al-runner issue 6654): ModifyAll on a record variable that was fetched with SetLoadFields (a loaded and an unloaded
+    // field, with and without a filter, with RunTrigger), and a read of an unloaded field after the primary key of the variable was changed since
+    // the fetch (to another existing row, to a missing row), then Modify and ModifyAll on that variable.
+    local procedure Y64Rows(): Text
+    var
+        Full: Record "LT P81 LF Row";
+        Result: Text;
+    begin
+        if Full.FindSet() then
+            repeat
+                Result += Full.Code + ':' + Full.Name + ':' + Format(Full.Qty) + ';';
+            until Full.Next() = 0;
+        exit(Result);
+    end;
+
+    [TryFunction]
+    local procedure Y64TryReadQty(var Row: Record "LT P81 LF Row"; var Q: Integer)
+    begin
+        Q := Row.Qty;
+    end;
+
+    local procedure Y64Qty(var Row: Record "LT P81 LF Row"): Text
+    var
+        Q: Integer;
+    begin
+        ClearLastError();
+        if Y64TryReadQty(Row, Q) then
+            exit(Format(Q));
+        exit('error:' + GetLastErrorText() + '|' + GetLastErrorCode());
+    end;
+
+    [Test]
+    procedure Y64_ModifyAll_PartialRecord_LoadedField()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT P81 LF Row";
+    begin
+        Seed();
+        Row.SetLoadFields(Name);
+        Row.FindSet();
+        Row.ModifyAll(Name, 'new value');
+        Observer.Observe('rows', Y64Rows());
+        Observer.Observe('var code', Row.Code);
+        Observer.Observe('var name', Row.Name);
+        Observer.Observe('var qty loaded', Loaded(Row, 3));
+        Observer.Observe('var qty', Y64Qty(Row));
+        Observer.Observe('var name after qty', Row.Name);
+        Observer.Observe('next', Format(Row.Next()));
+        Observer.Observe('next code name', Row.Code + ':' + Row.Name);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y64_ModifyAll_PartialRecord_UnloadedField()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT P81 LF Row";
+    begin
+        Seed();
+        Row.SetLoadFields(Name);
+        Row.FindSet();
+        Row.ModifyAll(Qty, 5);
+        Observer.Observe('rows', Y64Rows());
+        Observer.Observe('var qty loaded', Loaded(Row, 3));
+        Observer.Observe('var qty', Y64Qty(Row));
+        Row.Name := 'changed';
+        Observer.Observe('modify', Format(Row.Modify()));
+        Observer.Observe('rows after modify', Y64Rows());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y64_ModifyAll_PartialRecord_FilterAndRunTrigger()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT P81 LF Row";
+    begin
+        Seed();
+        Row.SetRange(Code, 'B');
+        Row.SetLoadFields(Name);
+        Row.FindFirst();
+        Row.ModifyAll(Name, 'only b', true);
+        Observer.Observe('rows', Y64Rows());
+        Row.SetRange(Code);
+        Row.SetLoadFields(Code);
+        Row.FindFirst();
+        Row.ModifyAll(Qty, 3, true);
+        Observer.Observe('rows after all', Y64Rows());
+        Observer.Observe('var', Row.Code + ':' + Y64Qty(Row));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y64_PartialRecord_KeyChangedSinceFetch_ReadUnloaded()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT P81 LF Row";
+    begin
+        Seed();
+        Row.SetLoadFields(Name);
+        Row.Get('A');
+        Row.Code := 'B';
+        Observer.Observe('to existing: qty loaded before', Loaded(Row, 3));
+        Observer.Observe('to existing: qty', Y64Qty(Row));
+        Observer.Observe('to existing: code name', Row.Code + ':' + Row.Name);
+        Observer.Observe('to existing: notes', GetNotes(Row));
+        Clear(Row);
+        Row.SetLoadFields(Name);
+        Row.Get('A');
+        Row.Code := 'Z';
+        Observer.Observe('to missing: qty', Y64Qty(Row));
+        Observer.Observe('to missing: code name', Row.Code + ':' + Row.Name);
+        Observer.Observe('rows', Y64Rows());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y64_PartialRecord_KeyChangedSinceFetch_ModifyAndModifyAll()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT P81 LF Row";
+    begin
+        Seed();
+        Row.SetLoadFields(Name);
+        Row.Get('A');
+        Row.Code := 'B';
+        Row.Name := 'via a';
+        Observer.Observe('modify', Format(Row.Modify()));
+        Observer.Observe('rows after modify', Y64Rows());
+        Seed();
+        Row.SetLoadFields(Name);
+        Row.Get('A');
+        Row.Code := 'B';
+        Row.ModifyAll(Name, 'all');
+        Observer.Observe('rows after modifyall', Y64Rows());
+        Observer.Observe('var after modifyall', Row.Code + ':' + Row.Name + ':' + Y64Qty(Row));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y64_ModifyAll_PartialRecord_PrimaryKeyField()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT P81 LF Row";
+    begin
+        Seed();
+        Row.SetRange(Code, 'A');
+        Row.SetLoadFields(Name);
+        Row.FindFirst();
+        asserterror Row.ModifyAll(Code, 'Q');
+        Observer.ObserveError('modifyall key field');
+        Observer.Observe('rows after modifyall key', Y64Rows());
+        Observer.Finish();
+    end;
 }
 
 table 82952 "LT BR LF Target"
