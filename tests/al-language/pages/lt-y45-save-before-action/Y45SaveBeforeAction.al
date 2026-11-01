@@ -2000,4 +2000,682 @@ codeunit 92890 "LT Y45 Save Before Action"
         Observer.Expect('close', '');
         Observer.Verify();
     end;
+
+    local procedure InitNextFieldLines()
+    var
+        Line: Record "LT Y55 Line";
+    begin
+        Line.DeleteAll();
+        Line.Doc := 'H1';
+        Line."Line No." := 10000;
+        Line.Desc := 'a';
+        Line.Qty := 1;
+        Line.Insert();
+        Line.Doc := 'H1';
+        Line."Line No." := 20000;
+        Line.Desc := 'b';
+        Line.Qty := 2;
+        Line.Insert();
+        Line.Doc := 'H2';
+        Line."Line No." := 10000;
+        Line.Desc := 'c';
+        Line.Qty := 3;
+        Line.Insert();
+        Log.Take();
+    end;
+
+    local procedure NextFieldLineDb(DocCode: Code[20]; LineNo: Integer): Text
+    var
+        Line: Record "LT Y55 Line";
+    begin
+        Line.Doc := DocCode;
+        Line."Line No." := LineNo;
+        exit(Line.StoredDesc());
+    end;
+
+    [Test]
+    procedure NextField_Worksheet_NameThenPageVar()
+    var
+        TP: TestPage "LT Y55 Worksheet";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Init(false);
+        TP.OpenEdit();
+        TP.GoToKey('H1');
+        Observer.Observe('open', Log.Take());
+        TP.Name.SetValue('new');
+        Observer.Observe('set name', Log.Take());
+        Observer.Observe('db set name', Log.HeadDb('H1'));
+        TP.Activate.SetValue(true);
+        Observer.Observe('set act', Log.Take());
+        Observer.Observe('db set act', Log.HeadDb('H1'));
+        TP.Qty.SetValue(5);
+        Observer.Observe('set qty', Log.Take());
+        Observer.Observe('db set qty', Log.HeadDb('H1'));
+        TP.Close();
+        Observer.Observe('close', Log.Take());
+        Observer.Observe('db end', Log.HeadDb('H1'));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure NextField_Worksheet_NameThenRecField()
+    var
+        TP: TestPage "LT Y55 Worksheet";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Init(false);
+        TP.OpenEdit();
+        TP.GoToKey('H1');
+        Observer.Observe('open', Log.Take());
+        TP.Name.SetValue('new');
+        Observer.Observe('set name', Log.Take());
+        Observer.Observe('db set name', Log.HeadDb('H1'));
+        TP.Qty.SetValue(5);
+        Observer.Observe('set qty', Log.Take());
+        Observer.Observe('db set qty', Log.HeadDb('H1'));
+        TP.Close();
+        Observer.Observe('close', Log.Take());
+        Observer.Observe('db end', Log.HeadDb('H1'));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure NextField_Worksheet_QtyThenName()
+    var
+        TP: TestPage "LT Y55 Worksheet";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Init(false);
+        TP.OpenEdit();
+        TP.GoToKey('H1');
+        Observer.Observe('open', Log.Take());
+        TP.Qty.SetValue(5);
+        Observer.Observe('set qty', Log.Take());
+        Observer.Observe('db set qty', Log.HeadDb('H1'));
+        TP.Name.SetValue('new');
+        Observer.Observe('set name', Log.Take());
+        Observer.Observe('db set name', Log.HeadDb('H1'));
+        TP.Close();
+        Observer.Observe('close', Log.Take());
+        Observer.Observe('db end', Log.HeadDb('H1'));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure NextField_Worksheet_NameThenNameAgain()
+    var
+        TP: TestPage "LT Y55 Worksheet";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Init(false);
+        TP.OpenEdit();
+        TP.GoToKey('H1');
+        Observer.Observe('open', Log.Take());
+        TP.Name.SetValue('new');
+        Observer.Observe('set name', Log.Take());
+        Observer.Observe('db set name', Log.HeadDb('H1'));
+        TP.Name.SetValue('newer');
+        Observer.Observe('set name2', Log.Take());
+        Observer.Observe('db set name2', Log.HeadDb('H1'));
+        TP.Close();
+        Observer.Observe('close', Log.Take());
+        Observer.Observe('db end', Log.HeadDb('H1'));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure NextField_Worksheet_PageVarThenName()
+    var
+        TP: TestPage "LT Y55 Worksheet";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Init(false);
+        TP.OpenEdit();
+        TP.GoToKey('H1');
+        Observer.Observe('open', Log.Take());
+        TP.Activate.SetValue(true);
+        Observer.Observe('set act', Log.Take());
+        Observer.Observe('db set act', Log.HeadDb('H1'));
+        TP.Name.SetValue('new');
+        Observer.Observe('set name', Log.Take());
+        Observer.Observe('db set name', Log.HeadDb('H1'));
+        TP.Activate.SetValue(true);
+        Observer.Observe('set act2', Log.Take());
+        Observer.Observe('db set act2', Log.HeadDb('H1'));
+        TP.Close();
+        Observer.Observe('close', Log.Take());
+        Observer.Observe('db end', Log.HeadDb('H1'));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure NextField_Card_NameThenPageVar()
+    var
+        TP: TestPage "LT Y55 Card";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Init(false);
+        TP.OpenEdit();
+        Observer.Observe('open', Log.Take());
+        TP.Name.SetValue('new');
+        Observer.Observe('set name', Log.Take());
+        Observer.Observe('db set name', Log.HeadDb('H1'));
+        TP.Activate.SetValue(true);
+        Observer.Observe('set act', Log.Take());
+        Observer.Observe('db set act', Log.HeadDb('H1'));
+        TP.Qty.SetValue(5);
+        Observer.Observe('set qty', Log.Take());
+        Observer.Observe('db set qty', Log.HeadDb('H1'));
+        TP.Close();
+        Observer.Observe('close', Log.Take());
+        Observer.Observe('db end', Log.HeadDb('H1'));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure NextField_Card_NameThenRecField()
+    var
+        TP: TestPage "LT Y55 Card";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Init(false);
+        TP.OpenEdit();
+        Observer.Observe('open', Log.Take());
+        TP.Name.SetValue('new');
+        Observer.Observe('set name', Log.Take());
+        Observer.Observe('db set name', Log.HeadDb('H1'));
+        TP.Qty.SetValue(5);
+        Observer.Observe('set qty', Log.Take());
+        Observer.Observe('db set qty', Log.HeadDb('H1'));
+        TP.Close();
+        Observer.Observe('close', Log.Take());
+        Observer.Observe('db end', Log.HeadDb('H1'));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure NextField_Card_QtyThenName()
+    var
+        TP: TestPage "LT Y55 Card";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Init(false);
+        TP.OpenEdit();
+        Observer.Observe('open', Log.Take());
+        TP.Qty.SetValue(5);
+        Observer.Observe('set qty', Log.Take());
+        Observer.Observe('db set qty', Log.HeadDb('H1'));
+        TP.Name.SetValue('new');
+        Observer.Observe('set name', Log.Take());
+        Observer.Observe('db set name', Log.HeadDb('H1'));
+        TP.Close();
+        Observer.Observe('close', Log.Take());
+        Observer.Observe('db end', Log.HeadDb('H1'));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure NextField_Card_NameThenNameAgain()
+    var
+        TP: TestPage "LT Y55 Card";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Init(false);
+        TP.OpenEdit();
+        Observer.Observe('open', Log.Take());
+        TP.Name.SetValue('new');
+        Observer.Observe('set name', Log.Take());
+        Observer.Observe('db set name', Log.HeadDb('H1'));
+        TP.Name.SetValue('newer');
+        Observer.Observe('set name2', Log.Take());
+        Observer.Observe('db set name2', Log.HeadDb('H1'));
+        TP.Close();
+        Observer.Observe('close', Log.Take());
+        Observer.Observe('db end', Log.HeadDb('H1'));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure NextField_Card_PageVarThenName()
+    var
+        TP: TestPage "LT Y55 Card";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Init(false);
+        TP.OpenEdit();
+        Observer.Observe('open', Log.Take());
+        TP.Activate.SetValue(true);
+        Observer.Observe('set act', Log.Take());
+        Observer.Observe('db set act', Log.HeadDb('H1'));
+        TP.Name.SetValue('new');
+        Observer.Observe('set name', Log.Take());
+        Observer.Observe('db set name', Log.HeadDb('H1'));
+        TP.Activate.SetValue(true);
+        Observer.Observe('set act2', Log.Take());
+        Observer.Observe('db set act2', Log.HeadDb('H1'));
+        TP.Close();
+        Observer.Observe('close', Log.Take());
+        Observer.Observe('db end', Log.HeadDb('H1'));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure NextField_List_NameThenPageVar()
+    var
+        TP: TestPage "LT Y55 List";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Init(false);
+        TP.OpenEdit();
+        Observer.Observe('open', Log.Take());
+        TP.Name.SetValue('new');
+        Observer.Observe('set name', Log.Take());
+        Observer.Observe('db set name', Log.HeadDb('H1'));
+        TP.Activate.SetValue(true);
+        Observer.Observe('set act', Log.Take());
+        Observer.Observe('db set act', Log.HeadDb('H1'));
+        TP.Qty.SetValue(5);
+        Observer.Observe('set qty', Log.Take());
+        Observer.Observe('db set qty', Log.HeadDb('H1'));
+        TP.Close();
+        Observer.Observe('close', Log.Take());
+        Observer.Observe('db end', Log.HeadDb('H1'));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure NextField_List_NameThenRecField()
+    var
+        TP: TestPage "LT Y55 List";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Init(false);
+        TP.OpenEdit();
+        Observer.Observe('open', Log.Take());
+        TP.Name.SetValue('new');
+        Observer.Observe('set name', Log.Take());
+        Observer.Observe('db set name', Log.HeadDb('H1'));
+        TP.Qty.SetValue(5);
+        Observer.Observe('set qty', Log.Take());
+        Observer.Observe('db set qty', Log.HeadDb('H1'));
+        TP.Close();
+        Observer.Observe('close', Log.Take());
+        Observer.Observe('db end', Log.HeadDb('H1'));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure NextField_List_QtyThenName()
+    var
+        TP: TestPage "LT Y55 List";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Init(false);
+        TP.OpenEdit();
+        Observer.Observe('open', Log.Take());
+        TP.Qty.SetValue(5);
+        Observer.Observe('set qty', Log.Take());
+        Observer.Observe('db set qty', Log.HeadDb('H1'));
+        TP.Name.SetValue('new');
+        Observer.Observe('set name', Log.Take());
+        Observer.Observe('db set name', Log.HeadDb('H1'));
+        TP.Close();
+        Observer.Observe('close', Log.Take());
+        Observer.Observe('db end', Log.HeadDb('H1'));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure NextField_Doc_NameThenPageVar()
+    var
+        TP: TestPage "LT Y55 Doc";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Init(false);
+        TP.OpenEdit();
+        Observer.Observe('open', Log.Take());
+        TP.Name.SetValue('new');
+        Observer.Observe('set name', Log.Take());
+        Observer.Observe('db set name', Log.HeadDb('H1'));
+        TP.Activate.SetValue(true);
+        Observer.Observe('set act', Log.Take());
+        Observer.Observe('db set act', Log.HeadDb('H1'));
+        TP.Qty.SetValue(5);
+        Observer.Observe('set qty', Log.Take());
+        Observer.Observe('db set qty', Log.HeadDb('H1'));
+        TP.Close();
+        Observer.Observe('close', Log.Take());
+        Observer.Observe('db end', Log.HeadDb('H1'));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure NextField_Doc_NameThenRecField()
+    var
+        TP: TestPage "LT Y55 Doc";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Init(false);
+        TP.OpenEdit();
+        Observer.Observe('open', Log.Take());
+        TP.Name.SetValue('new');
+        Observer.Observe('set name', Log.Take());
+        Observer.Observe('db set name', Log.HeadDb('H1'));
+        TP.Qty.SetValue(5);
+        Observer.Observe('set qty', Log.Take());
+        Observer.Observe('db set qty', Log.HeadDb('H1'));
+        TP.Close();
+        Observer.Observe('close', Log.Take());
+        Observer.Observe('db end', Log.HeadDb('H1'));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure NextField_Doc_QtyThenName()
+    var
+        TP: TestPage "LT Y55 Doc";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Init(false);
+        TP.OpenEdit();
+        Observer.Observe('open', Log.Take());
+        TP.Qty.SetValue(5);
+        Observer.Observe('set qty', Log.Take());
+        Observer.Observe('db set qty', Log.HeadDb('H1'));
+        TP.Name.SetValue('new');
+        Observer.Observe('set name', Log.Take());
+        Observer.Observe('db set name', Log.HeadDb('H1'));
+        TP.Close();
+        Observer.Observe('close', Log.Take());
+        Observer.Observe('db end', Log.HeadDb('H1'));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure NextField_Worksheet_GoToRecord_NameThenPageVar()
+    var
+        TP: TestPage "LT Y55 Worksheet";
+        Observer: Codeunit "Probe Observer";
+        Head: Record "LT Y45 Head";
+    begin
+        Init(false);
+        TP.OpenEdit();
+        Head.Get('H1');
+        TP.GoToRecord(Head);
+        Observer.Observe('open', Log.Take());
+        TP.Name.SetValue('new');
+        Observer.Observe('set name', Log.Take());
+        Observer.Observe('db set name', Log.HeadDb('H1'));
+        TP.Activate.SetValue(true);
+        Observer.Observe('set act', Log.Take());
+        Observer.Observe('db set act', Log.HeadDb('H1'));
+        TP.Close();
+        Observer.Observe('close', Log.Take());
+        Observer.Observe('db end', Log.HeadDb('H1'));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure NextField_Card_New_CodeNamePageVarQty()
+    var
+        TP: TestPage "LT Y55 Card";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Init(false);
+        TP.OpenNew();
+        Observer.Observe('open', Log.Take());
+        TP."Code".SetValue('N1');
+        Observer.Observe('set code', Log.Take());
+        Observer.Observe('db set code', Log.HeadDb('N1'));
+        TP.Name.SetValue('nn');
+        Observer.Observe('set name', Log.Take());
+        Observer.Observe('db set name', Log.HeadDb('N1'));
+        TP.Activate.SetValue(true);
+        Observer.Observe('set act', Log.Take());
+        Observer.Observe('db set act', Log.HeadDb('N1'));
+        TP.Qty.SetValue(5);
+        Observer.Observe('set qty', Log.Take());
+        Observer.Observe('db set qty', Log.HeadDb('N1'));
+        TP.Close();
+        Observer.Observe('close', Log.Take());
+        Observer.Observe('db end', Log.HeadDb('N1'));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure NextField_Card_New_CodePageVarName()
+    var
+        TP: TestPage "LT Y55 Card";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Init(false);
+        TP.OpenNew();
+        Observer.Observe('open', Log.Take());
+        TP."Code".SetValue('N1');
+        Observer.Observe('set code', Log.Take());
+        Observer.Observe('db set code', Log.HeadDb('N1'));
+        TP.Activate.SetValue(true);
+        Observer.Observe('set act', Log.Take());
+        Observer.Observe('db set act', Log.HeadDb('N1'));
+        TP.Name.SetValue('nn');
+        Observer.Observe('set name', Log.Take());
+        Observer.Observe('db set name', Log.HeadDb('N1'));
+        TP.Close();
+        Observer.Observe('close', Log.Take());
+        Observer.Observe('db end', Log.HeadDb('N1'));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure NextField_List_New_CodeNamePageVar()
+    var
+        TP: TestPage "LT Y55 List";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Init(false);
+        TP.OpenEdit();
+        TP.New();
+        Observer.Observe('open', Log.Take());
+        TP."Code".SetValue('N1');
+        Observer.Observe('set code', Log.Take());
+        Observer.Observe('db set code', Log.HeadDb('N1'));
+        TP.Name.SetValue('nn');
+        Observer.Observe('set name', Log.Take());
+        Observer.Observe('db set name', Log.HeadDb('N1'));
+        TP.Activate.SetValue(true);
+        Observer.Observe('set act', Log.Take());
+        Observer.Observe('db set act', Log.HeadDb('N1'));
+        TP.Close();
+        Observer.Observe('close', Log.Take());
+        Observer.Observe('db end', Log.HeadDb('N1'));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure NextField_Worksheet_New_CodeNamePageVar()
+    var
+        TP: TestPage "LT Y55 Worksheet Ins";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Init(false);
+        TP.OpenEdit();
+        TP.New();
+        Observer.Observe('open', Log.Take());
+        TP."Code".SetValue('N1');
+        Observer.Observe('set code', Log.Take());
+        Observer.Observe('db set code', Log.HeadDb('N1'));
+        TP.Name.SetValue('nn');
+        Observer.Observe('set name', Log.Take());
+        Observer.Observe('db set name', Log.HeadDb('N1'));
+        TP.Activate.SetValue(true);
+        Observer.Observe('set act', Log.Take());
+        Observer.Observe('db set act', Log.HeadDb('N1'));
+        TP.Close();
+        Observer.Observe('close', Log.Take());
+        Observer.Observe('db end', Log.HeadDb('N1'));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure NextField_Part_DescThenPageVar()
+    var
+        TP: TestPage "LT Y55 Doc";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Init(false);
+        InitNextFieldLines();
+        TP.OpenEdit();
+        Observer.Observe('open', Log.Take());
+        TP.Lines.Desc.SetValue('new');
+        Observer.Observe('set desc', Log.Take());
+        Observer.Observe('db set desc', Log.HeadDb('H1') + ' l1=' + NextFieldLineDb('H1', 10000));
+        TP.Lines.LAct.SetValue(true);
+        Observer.Observe('set lact', Log.Take());
+        Observer.Observe('db set lact', Log.HeadDb('H1') + ' l1=' + NextFieldLineDb('H1', 10000));
+        TP.Lines.Qty.SetValue(5);
+        Observer.Observe('set lqty', Log.Take());
+        Observer.Observe('db set lqty', Log.HeadDb('H1') + ' l1=' + NextFieldLineDb('H1', 10000));
+        TP.Close();
+        Observer.Observe('close', Log.Take());
+        Observer.Observe('db end', Log.HeadDb('H1') + ' l1=' + NextFieldLineDb('H1', 10000));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure NextField_Part_DescThenRecField()
+    var
+        TP: TestPage "LT Y55 Doc";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Init(false);
+        InitNextFieldLines();
+        TP.OpenEdit();
+        Observer.Observe('open', Log.Take());
+        TP.Lines.Desc.SetValue('new');
+        Observer.Observe('set desc', Log.Take());
+        Observer.Observe('db set desc', Log.HeadDb('H1') + ' l1=' + NextFieldLineDb('H1', 10000));
+        TP.Lines.Qty.SetValue(5);
+        Observer.Observe('set lqty', Log.Take());
+        Observer.Observe('db set lqty', Log.HeadDb('H1') + ' l1=' + NextFieldLineDb('H1', 10000));
+        TP.Close();
+        Observer.Observe('close', Log.Take());
+        Observer.Observe('db end', Log.HeadDb('H1') + ' l1=' + NextFieldLineDb('H1', 10000));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure NextField_Part_QtyThenDesc()
+    var
+        TP: TestPage "LT Y55 Doc";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Init(false);
+        InitNextFieldLines();
+        TP.OpenEdit();
+        Observer.Observe('open', Log.Take());
+        TP.Lines.Qty.SetValue(5);
+        Observer.Observe('set lqty', Log.Take());
+        Observer.Observe('db set lqty', Log.HeadDb('H1') + ' l1=' + NextFieldLineDb('H1', 10000));
+        TP.Lines.Desc.SetValue('new');
+        Observer.Observe('set desc', Log.Take());
+        Observer.Observe('db set desc', Log.HeadDb('H1') + ' l1=' + NextFieldLineDb('H1', 10000));
+        TP.Close();
+        Observer.Observe('close', Log.Take());
+        Observer.Observe('db end', Log.HeadDb('H1') + ' l1=' + NextFieldLineDb('H1', 10000));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure NextField_Part_HeadNameThenLineDesc()
+    var
+        TP: TestPage "LT Y55 Doc";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Init(false);
+        InitNextFieldLines();
+        TP.OpenEdit();
+        Observer.Observe('open', Log.Take());
+        TP.Name.SetValue('new');
+        Observer.Observe('set name', Log.Take());
+        Observer.Observe('db set name', Log.HeadDb('H1') + ' l1=' + NextFieldLineDb('H1', 10000));
+        TP.Lines.Desc.SetValue('new');
+        Observer.Observe('set desc', Log.Take());
+        Observer.Observe('db set desc', Log.HeadDb('H1') + ' l1=' + NextFieldLineDb('H1', 10000));
+        TP.Close();
+        Observer.Observe('close', Log.Take());
+        Observer.Observe('db end', Log.HeadDb('H1') + ' l1=' + NextFieldLineDb('H1', 10000));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure NextField_Part_LineDescThenHeadName()
+    var
+        TP: TestPage "LT Y55 Doc";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Init(false);
+        InitNextFieldLines();
+        TP.OpenEdit();
+        Observer.Observe('open', Log.Take());
+        TP.Lines.Desc.SetValue('new');
+        Observer.Observe('set desc', Log.Take());
+        Observer.Observe('db set desc', Log.HeadDb('H1') + ' l1=' + NextFieldLineDb('H1', 10000));
+        TP.Name.SetValue('new');
+        Observer.Observe('set name', Log.Take());
+        Observer.Observe('db set name', Log.HeadDb('H1') + ' l1=' + NextFieldLineDb('H1', 10000));
+        TP.Close();
+        Observer.Observe('close', Log.Take());
+        Observer.Observe('db end', Log.HeadDb('H1') + ' l1=' + NextFieldLineDb('H1', 10000));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure NextField_Part_LineDescThenHeadPageVar()
+    var
+        TP: TestPage "LT Y55 Doc";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Init(false);
+        InitNextFieldLines();
+        TP.OpenEdit();
+        Observer.Observe('open', Log.Take());
+        TP.Lines.Desc.SetValue('new');
+        Observer.Observe('set desc', Log.Take());
+        Observer.Observe('db set desc', Log.HeadDb('H1') + ' l1=' + NextFieldLineDb('H1', 10000));
+        TP.Activate.SetValue(true);
+        Observer.Observe('set act', Log.Take());
+        Observer.Observe('db set act', Log.HeadDb('H1') + ' l1=' + NextFieldLineDb('H1', 10000));
+        TP.Close();
+        Observer.Observe('close', Log.Take());
+        Observer.Observe('db end', Log.HeadDb('H1') + ' l1=' + NextFieldLineDb('H1', 10000));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure NextField_Part_New_DescThenPageVar()
+    var
+        TP: TestPage "LT Y55 Doc";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Init(false);
+        InitNextFieldLines();
+        TP.OpenEdit();
+        TP.Lines.Last();
+        TP.Lines.New();
+        Observer.Observe('open', Log.Take());
+        TP.Lines.Desc.SetValue('x');
+        Observer.Observe('set desc', Log.Take());
+        Observer.Observe('db set desc', Log.HeadDb('H1') + ' l1=' + NextFieldLineDb('H1', 10000));
+        TP.Lines.LAct.SetValue(true);
+        Observer.Observe('set lact', Log.Take());
+        Observer.Observe('db set lact', Log.HeadDb('H1') + ' l1=' + NextFieldLineDb('H1', 10000));
+        TP.Lines.Qty.SetValue(5);
+        Observer.Observe('set lqty', Log.Take());
+        Observer.Observe('db set lqty', Log.HeadDb('H1') + ' l1=' + NextFieldLineDb('H1', 10000));
+        TP.Close();
+        Observer.Observe('close', Log.Take());
+        Observer.Observe('db end', Log.HeadDb('H1') + ' l1=' + NextFieldLineDb('H1', 10000));
+        Observer.Finish();
+    end;
 }
