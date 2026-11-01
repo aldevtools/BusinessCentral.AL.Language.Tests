@@ -108,6 +108,7 @@ report 93316 "LT Y64 Obs Report"
 
                     field(Flag; FlagValue)
                     {
+                        ApplicationArea = All;
                         Caption = 'Flag';
                         ObsoleteState = Pending;
                         ObsoleteReason = 'Field replaced.';
@@ -123,6 +124,7 @@ report 93316 "LT Y64 Obs Report"
             {
                 action(RpAction)
                 {
+                    ApplicationArea = All;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'Action replaced.';
                     ObsoleteTag = '1.0';
@@ -195,6 +197,7 @@ reportextension 93317 "LT Y64 Obs Report Ext" extends "LT Y64 Obs Report"
             {
                 field(ExtFlag; ExtFlagField)
                 {
+                    ApplicationArea = All;
                     Caption = 'Ext flag';
                     ObsoleteState = Pending;
                     ObsoleteReason = 'Ext field replaced.';
@@ -264,6 +267,7 @@ xmlport 93319 "LT Y64 Obs XmlPort"
             {
                 field(XFlag; XFlagValue)
                 {
+                    ApplicationArea = All;
                     Caption = 'X flag';
                     ObsoleteState = Pending;
                     ObsoleteReason = 'XmlPort field replaced.';

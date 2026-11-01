@@ -71,6 +71,7 @@ report 93308 "LT Y64 LP Report"
             {
                 field(MyField; MyOption)
                 {
+                    ApplicationArea = All;
                     Caption = 'My field';
                     trigger OnValidate()
                     begin
@@ -150,6 +151,7 @@ report 93309 "LT Y64 LP Report 2"
             {
                 field(MyField; MyOption)
                 {
+                    ApplicationArea = All;
                     Caption = 'My field';
                     trigger OnValidate()
                     begin
@@ -262,6 +264,7 @@ page 93310 "LT Y64 LP Card"
         {
             field(Name; Rec.Name)
             {
+                ApplicationArea = All;
                 trigger OnValidate()
                 begin
                     MyProc('base validate');
@@ -276,6 +279,7 @@ page 93310 "LT Y64 LP Card"
         {
             action(BaseAction)
             {
+                ApplicationArea = All;
                 trigger OnAction()
                 begin
                     MyProc('base action');
@@ -316,6 +320,7 @@ pageextension 93310 "LT Y64 LP Card Ext" extends "LT Y64 LP Card"
         {
             action(ExtAction)
             {
+                ApplicationArea = All;
                 trigger OnAction()
                 begin
                     MyProc('ext action');

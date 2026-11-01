@@ -91,6 +91,7 @@ report 61352 "LT Y64 XA Report"
             {
                 field(MyOption; MyOptionValue)
                 {
+                    ApplicationArea = All;
                     Caption = 'My option';
                 }
             }
@@ -184,6 +185,7 @@ reportextension 61353 "LT Y64 XA Report Ext A" extends "LT Y64 XA Report"
             {
                 field(MyFieldA; MyVarA)
                 {
+                    ApplicationArea = All;
                     Caption = 'My field A';
                 }
             }

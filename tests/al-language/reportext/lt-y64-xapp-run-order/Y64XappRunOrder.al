@@ -34,6 +34,7 @@ reportextension 93326 "LT Y64 Main Report Ext" extends "LT Y64 XA Report"
             {
                 field(MyFieldM; MyVarM)
                 {
+                    ApplicationArea = All;
                     Caption = 'My field M';
                 }
             }

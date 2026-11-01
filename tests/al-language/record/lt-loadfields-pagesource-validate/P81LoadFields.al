@@ -1326,7 +1326,8 @@ codeunit 70303 "LT P81 LoadFields"
         Observer.Observe('var qty loaded', Loaded(Row, 3));
         Observer.Observe('var qty', Y64Qty(Row));
         Row.Name := 'changed';
-        Observer.Observe('modify', Format(Row.Modify()));
+        asserterror Row.Modify();
+        Observer.ObserveError('modify');
         Observer.Observe('rows after modify', Y64Rows());
         Observer.Finish();
     end;

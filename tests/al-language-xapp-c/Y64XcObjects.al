@@ -26,6 +26,7 @@ reportextension 61360 "LT Y64 XC Report Ext C" extends "LT Y64 XA Report"
             {
                 field(MyFieldC; MyVarC)
                 {
+                    ApplicationArea = All;
                     Caption = 'My field C';
                 }
             }

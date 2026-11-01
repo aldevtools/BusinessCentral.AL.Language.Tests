@@ -58,7 +58,7 @@ page 93322 "LT Y64 PI Card"
     {
         area(Content)
         {
-            field(Id; Rec.Id) { }
+            field(Id; Rec.Id) { ApplicationArea = All; }
         }
     }
 
@@ -68,6 +68,7 @@ page 93322 "LT Y64 PI Card"
         {
             action("My Action")
             {
+                ApplicationArea = All;
                 Promoted = true;
                 PromotedCategory = Process;
                 PromotedOnly = true;
@@ -81,6 +82,7 @@ page 93322 "LT Y64 PI Card"
             }
             action(Cat5Act)
             {
+                ApplicationArea = All;
                 Promoted = true;
                 PromotedCategory = Category5;
 
@@ -93,6 +95,7 @@ page 93322 "LT Y64 PI Card"
             }
             action(Plain)
             {
+                ApplicationArea = All;
                 trigger OnAction()
                 var
                     Log: Codeunit "LT Y64 PI Log";
@@ -112,6 +115,7 @@ pageextension 93322 "LT Y64 PI Card Ext" extends "LT Y64 PI Card"
         {
             action("My New Action")
             {
+                ApplicationArea = All;
                 trigger OnAction()
                 var
                     Log: Codeunit "LT Y64 PI Log";
@@ -121,6 +125,7 @@ pageextension 93322 "LT Y64 PI Card Ext" extends "LT Y64 PI Card"
             }
             action(N2)
             {
+                ApplicationArea = All;
                 trigger OnAction()
                 var
                     Log: Codeunit "LT Y64 PI Log";
@@ -130,6 +135,7 @@ pageextension 93322 "LT Y64 PI Card Ext" extends "LT Y64 PI Card"
             }
             action(N3)
             {
+                ApplicationArea = All;
                 trigger OnAction()
                 var
                     Log: Codeunit "LT Y64 PI Log";
@@ -175,7 +181,7 @@ page 93323 "LT Y64 PI Plain Card"
     {
         area(Content)
         {
-            field(Id; Rec.Id) { }
+            field(Id; Rec.Id) { ApplicationArea = All; }
         }
     }
 }
@@ -188,6 +194,7 @@ pageextension 93323 "LT Y64 PI Plain Card Ext" extends "LT Y64 PI Plain Card"
         {
             action(MyAction)
             {
+                ApplicationArea = All;
                 trigger OnAction()
                 var
                     Log: Codeunit "LT Y64 PI Log";
