@@ -78,6 +78,13 @@ codeunit 93105 "LT Y57 Blob Length Integer"
         Fill(Row, 1536 * 1024);
         SizeInMbytes := Round(Row.Content.Length / (1024 * 1024));
         Observer.Observe('1_5mb_round_mb', Format(SizeInMbytes));
+        Observer.Observe('after_refill_len', Format(Row.Content.Length));
+        Clear(Row);
+        Row.Init();
+        Row.Id := 2;
+        Fill(Row, 3 * 1024 * 1024);
+        Fill(Row, 1536 * 1024);
+        Observer.Observe('refill_not_loaded_len', Format(Row.Content.Length));
         Observer.Finish();
     end;
 }
