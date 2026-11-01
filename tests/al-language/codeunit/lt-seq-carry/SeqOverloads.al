@@ -3,6 +3,9 @@
 // Fixtures used: Probe Observer (69160)
 // Probe (al-runner issue 6638): which sequence the overloads without CompanyWide reach. Exists(Name) with one argument answers No for
 //   a sequence made with Insert(Name, Seed, Increment, false) (SeqCarry.al, Y35OnRunStorage.al).
+// Measured on the CI legs 27.5, 28.5, 29.0 and a BC 29.0 SaaS sandbox (the same values): Exists, Next and Current without CompanyWide
+//   reach the sequences made with CompanyWide = true; Insert(Name, Seed, Increment) without CompanyWide makes a CompanyWide = true
+//   sequence. Exists(Name, false) does not see those, and Exists(Name) does not see a CompanyWide = false sequence.
 // BC versions: 27.5, 28.5, 29.0
 codeunit 93610 "LT Y56 Seq Overloads"
 {
@@ -70,7 +73,16 @@ codeunit 93610 "LT Y56 Seq Overloads"
         Clean('Y56-OV-F');
         Clean('Y56-OV-T');
         Observer.Observe('after_clean', Seen('Y56-OV-S') + ';' + Seen('Y56-OV-F') + ';' + Seen('Y56-OV-T'));
-        Observer.Finish();
+        Observer.Expect('none', 'No|No|No');
+        Observer.Expect('short', 'Yes|No|Yes');
+        Observer.Expect('false', 'No|Yes|No');
+        Observer.Expect('true', 'Yes|No|Yes');
+        Observer.Expect('short_next', '1arg/1');
+        Observer.Expect('short_current', '1arg/1');
+        Observer.Expect('false_next', 'false/1');
+        Observer.Expect('true_next', '1arg/1');
+        Observer.Expect('after_clean', 'No|No|No;No|No|No;No|No|No');
+        Observer.Verify();
     end;
 
     [MessageHandler]

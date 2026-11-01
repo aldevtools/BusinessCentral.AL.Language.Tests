@@ -13,6 +13,21 @@
 // Values: State = 'false/' + Current(Name, false) when Exists(Name, false), else 'short/' + Current(Name) when Exists(Name), else
 //   'missing'; Next = the number NumberSequence.Next returned. Y56-I-* (install) and Y56-T-*, Y56-O-* use CompanyWide = false;
 //   Y56-S-* (install) use the overloads without CompanyWide, the reporter's shape.
+// Measured on the CI legs 27.5, 28.5 and 29.0 (27.5 runs these codeunits through page 130455 and codeunit 130450) and on a BC 29.0
+//   SaaS sandbox through Test Suite Mgt. with Test Runner Id 130450; the same values everywhere:
+//   - A sequence starts at its seed: Current is the seed before any Next, the first Next returns the seed. Restart(Name, Seed, false)
+//     and Restart(Name, Seed) do the same (Next returns Seed); Restart(Name) without a seed restarts at 0 (Current 0, Next 0).
+//   - A later test of the SAME codeunit sees every change of an earlier test: the restarted values, deleted sequences missing, a
+//     sequence deleted and inserted again with its new seed, a new sequence.
+//   - The NEXT codeunits see none of the earlier codeunit's Restart, Delete or Insert done in a test: under 130450 they are rolled
+//     back with the codeunit. A restarted sequence keeps the numbers that were taken before the restart (Current 2 after two Nexts),
+//     a deleted one exists again where it was (Current 1), a sequence inserted by a test is missing, a sequence that OnRun inserted
+//     carries (OnRun runs outside the isolation, Y35OnRunStorage.al) but the test's Restart of it does not. Numbers taken by Next
+//     are never given back: the next codeunit's Next continues after them, in the second and in the third codeunit.
+//   - Rows of the app's own table do not carry either; a later codeunit inserts and reads its own row as usual.
+// Not a test, because it breaks the run (SaaS BC 29.0): Restart(Name) without CompanyWide on a sequence made with CompanyWide = false
+//   raises "The number sequence 'Y56-I-R' does not exist." (the overloads without CompanyWide reach only CompanyWide = true sequences,
+//   SeqOverloads.al), and after that the next codeunit did not run ("Transaction was rolled back by the server.").
 // BC versions: 27.5, 28.5, 29.0
 
 table 93601 "LT Y56 Row"
@@ -132,7 +147,24 @@ codeunit 93603 "LT Y56 D1 Deletes"
         Observer.Observe('later_di', Probe.State('Y56-I-DI'));
         Observer.Observe('later_n', Probe.State('Y56-I-N'));
         Observer.Observe('later_tnew', Probe.State('Y56-T-NEW'));
-        Observer.Finish();
+        Observer.Expect('start_d', 'false/1');
+        Observer.Expect('start_sd', 'short/1');
+        Observer.Expect('start_di', 'false/1');
+        Observer.Expect('start_n', 'false/1');
+        Observer.Expect('start_tnew', 'missing');
+        Observer.Expect('after_delete_d', 'missing');
+        Observer.Expect('after_delete_sd', 'missing');
+        Observer.Expect('after_reinsert_di', 'false/40');
+        Observer.Expect('next_n', '1');
+        Observer.Expect('after_insert_tnew', 'false/7');
+        Observer.Expect('next_tnew', '7');
+        Observer.Expect('own_row', 'found/First');
+        Observer.Expect('later_d', 'missing');
+        Observer.Expect('later_sd', 'missing');
+        Observer.Expect('later_di', 'false/40');
+        Observer.Expect('later_n', 'false/1');
+        Observer.Expect('later_tnew', 'false/7');
+        Observer.Verify();
     end;
 
     local procedure Log(K: Text; V: Text)
@@ -203,7 +235,24 @@ codeunit 93604 "LT Y56 D2 Reads"
         Observer.Observe('later_di', Probe.State('Y56-I-DI'));
         Observer.Observe('later_n', Probe.State('Y56-I-N'));
         Observer.Observe('later_tnew', Probe.State('Y56-T-NEW'));
-        Observer.Finish();
+        Observer.Expect('seen_d', 'false/1');
+        Observer.Expect('seen_sd', 'short/1');
+        Observer.Expect('seen_di', 'false/1');
+        Observer.Expect('seen_n', 'false/1');
+        Observer.Expect('seen_tnew', 'missing');
+        Observer.Expect('seen_row_d1', 'missing');
+        Observer.Expect('next_di', '1');
+        Observer.Expect('next_n', '2');
+        Observer.Expect('next_tnew', 'missing');
+        Observer.Expect('insert_d', 'exists');
+        Observer.Expect('after_insert_d', 'false/1');
+        Observer.Expect('own_row', 'found/Second');
+        Observer.Expect('later_d', 'false/1');
+        Observer.Expect('later_sd', 'short/1');
+        Observer.Expect('later_di', 'false/1');
+        Observer.Expect('later_n', 'false/2');
+        Observer.Expect('later_tnew', 'missing');
+        Observer.Verify();
     end;
 
     local procedure Log(K: Text; V: Text)
@@ -267,7 +316,22 @@ codeunit 93605 "LT Y56 D3 Reads"
         Observer.Observe('later_di', Probe.State('Y56-I-DI'));
         Observer.Observe('later_n', Probe.State('Y56-I-N'));
         Observer.Observe('later_tnew', Probe.State('Y56-T-NEW'));
-        Observer.Finish();
+        Observer.Expect('seen_d', 'false/1');
+        Observer.Expect('seen_sd', 'short/1');
+        Observer.Expect('seen_di', 'false/1');
+        Observer.Expect('seen_n', 'false/2');
+        Observer.Expect('seen_tnew', 'missing');
+        Observer.Expect('seen_row_d2', 'missing');
+        Observer.Expect('next_d', '1');
+        Observer.Expect('next_sd', '1');
+        Observer.Expect('next_di', '2');
+        Observer.Expect('next_n', '3');
+        Observer.Expect('later_d', 'false/1');
+        Observer.Expect('later_sd', 'short/1');
+        Observer.Expect('later_di', 'false/2');
+        Observer.Expect('later_n', 'false/3');
+        Observer.Expect('later_tnew', 'missing');
+        Observer.Verify();
     end;
 
     local procedure Log(K: Text; V: Text)
@@ -364,7 +428,40 @@ codeunit 93606 "LT Y56 R1 Restarts"
         Observer.Observe('later_tr', Probe.State('Y56-T-R'));
         Observer.Observe('later_or', Probe.State('Y56-O-R'));
         Observer.Observe('later_rn', Probe.State('Y56-I-RN'));
-        Observer.Finish();
+        Observer.Expect('onrun_next_or', '1');
+        Observer.Expect('start_r', 'false/1');
+        Observer.Expect('start_rs', 'false/1');
+        Observer.Expect('start_sr', 'short/1');
+        Observer.Expect('start_srs', 'short/1');
+        Observer.Expect('start_tr', 'missing');
+        Observer.Expect('start_or', 'false/1');
+        Observer.Expect('start_rn', 'false/1');
+        Observer.Expect('next_r', '1');
+        Observer.Expect('next_r2', '2');
+        Observer.Expect('after_restart_r', 'false/1');
+        Observer.Expect('next_after_restart_r', '1');
+        Observer.Expect('next_rs', '1');
+        Observer.Expect('after_restart_rs', 'false/50');
+        Observer.Expect('next_sr', '1');
+        Observer.Expect('next_sr2', '2');
+        Observer.Expect('after_restart_sr', 'short/0');
+        Observer.Expect('next_after_restart_sr', '0');
+        Observer.Expect('next_srs', '1');
+        Observer.Expect('next_after_restart_srs', '49');
+        Observer.Expect('after_restart_srs', 'short/49');
+        Observer.Expect('next_tr', '1');
+        Observer.Expect('next_tr2', '2');
+        Observer.Expect('after_restart_tr', 'false/20');
+        Observer.Expect('after_restart_or', 'false/30');
+        Observer.Expect('own_row', 'found/First');
+        Observer.Expect('later_r', 'false/1');
+        Observer.Expect('later_rs', 'false/50');
+        Observer.Expect('later_sr', 'short/0');
+        Observer.Expect('later_srs', 'short/49');
+        Observer.Expect('later_tr', 'false/20');
+        Observer.Expect('later_or', 'false/30');
+        Observer.Expect('later_rn', 'false/1');
+        Observer.Verify();
     end;
 
     local procedure Log(K: Text; V: Text)
@@ -438,7 +535,31 @@ codeunit 93607 "LT Y56 R2 Reads"
         Observer.Observe('later_tr', Probe.State('Y56-T-R'));
         Observer.Observe('later_or', Probe.State('Y56-O-R'));
         Observer.Observe('later_rn', Probe.State('Y56-I-RN'));
-        Observer.Finish();
+        Observer.Expect('seen_r', 'false/2');
+        Observer.Expect('seen_rs', 'false/1');
+        Observer.Expect('seen_sr', 'short/2');
+        Observer.Expect('seen_srs', 'short/1');
+        Observer.Expect('seen_tr', 'missing');
+        Observer.Expect('seen_or', 'false/1');
+        Observer.Expect('seen_rn', 'false/1');
+        Observer.Expect('seen_row_r1', 'missing');
+        Observer.Expect('next_r', '3');
+        Observer.Expect('next_rs', '2');
+        Observer.Expect('next_sr', '3');
+        Observer.Expect('next_srs', '2');
+        Observer.Expect('next_tr', 'missing');
+        Observer.Expect('next_or', '2');
+        Observer.Expect('next_rn', '1');
+        Observer.Expect('after_restart_rn', 'false/70');
+        Observer.Expect('own_row', 'found/Second');
+        Observer.Expect('later_r', 'false/3');
+        Observer.Expect('later_rs', 'false/2');
+        Observer.Expect('later_sr', 'short/3');
+        Observer.Expect('later_srs', 'short/2');
+        Observer.Expect('later_tr', 'missing');
+        Observer.Expect('later_or', 'false/2');
+        Observer.Expect('later_rn', 'false/70');
+        Observer.Verify();
     end;
 
     local procedure Log(K: Text; V: Text)
@@ -507,7 +628,27 @@ codeunit 93608 "LT Y56 R3 Reads"
         Observer.Observe('later_tr', Probe.State('Y56-T-R'));
         Observer.Observe('later_or', Probe.State('Y56-O-R'));
         Observer.Observe('later_rn', Probe.State('Y56-I-RN'));
-        Observer.Finish();
+        Observer.Expect('seen_r', 'false/3');
+        Observer.Expect('seen_rs', 'false/2');
+        Observer.Expect('seen_sr', 'short/3');
+        Observer.Expect('seen_srs', 'short/2');
+        Observer.Expect('seen_tr', 'missing');
+        Observer.Expect('seen_or', 'false/2');
+        Observer.Expect('seen_rn', 'false/1');
+        Observer.Expect('next_r', '4');
+        Observer.Expect('next_rs', '3');
+        Observer.Expect('next_sr', '4');
+        Observer.Expect('next_srs', '3');
+        Observer.Expect('next_or', '3');
+        Observer.Expect('next_rn', '2');
+        Observer.Expect('later_r', 'false/4');
+        Observer.Expect('later_rs', 'false/3');
+        Observer.Expect('later_sr', 'short/4');
+        Observer.Expect('later_srs', 'short/3');
+        Observer.Expect('later_tr', 'missing');
+        Observer.Expect('later_or', 'false/3');
+        Observer.Expect('later_rn', 'false/2');
+        Observer.Verify();
     end;
 
     local procedure Log(K: Text; V: Text)
