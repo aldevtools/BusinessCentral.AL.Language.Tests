@@ -6,6 +6,9 @@
 // Probe: gap cycle 6, spec G6-24a (writer Y62). Every literal asserted below is what BC produced (corpus CI 27.5, 28.5, 29.0; SaaS sandbox BC 29).
 //   Already pinned (streams/lt-dc-stream-leads/DcInStreamScope.al): such a stream reads as empty with Length, EOS and ReadText.
 // Facts: each value is the result of the call or error:<text>|<code>. Not covered: CopyStream into a DotNet MemoryStream (OnPrem only).
+// Results (same on 27.5, 28.5, 29.0 and the SaaS sandbox): the gone stream behaves as an empty stream everywhere: WriteFrom, CopyStream, Read,
+//   ReadText, a var parameter, an assignment and CopyStream into a Blob field give nothing and raise nothing; Position is 1, Position(1) raises
+//   OutsidePermittedRange (1 to 0); after Clear(InS) any use raises NotInitialized.
 // BC versions: 27, 28, 29
 
 table 93265 "LT Y62 GS Blob"
@@ -130,7 +133,15 @@ codeunit 93265 "LT Y62 Gone InStream"
         ObserveWriteFrom(Observer, 'gone ', InS);
         Kept(KeptS);
         ObserveWriteFrom(Observer, 'kept ', KeptS);
-        Observer.Finish();
+        Observer.Expect('gone writefrom', 'ok');
+        Observer.Expect('gone readas', 'Yes|len=0|[]');
+        Observer.Expect('gone content-length', '0');
+        Observer.Expect('gone stream after', 'len=0|eos=Yes');
+        Observer.Expect('kept writefrom', 'ok');
+        Observer.Expect('kept readas', 'Yes|len=23|[Dummy test file content]');
+        Observer.Expect('kept content-length', '23');
+        Observer.Expect('kept stream after', 'len=23|eos=No');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -175,7 +186,13 @@ codeunit 93265 "LT Y62 Gone InStream"
         ObserveCopy(Observer, 'gone ', InS);
         Kept(KeptS);
         ObserveCopy(Observer, 'kept ', KeptS);
-        Observer.Finish();
+        Observer.Expect('gone copystream', 'ok');
+        Observer.Expect('gone sink', 'len=0|[]');
+        Observer.Expect('gone stream after', 'len=0|eos=Yes');
+        Observer.Expect('kept copystream', 'ok');
+        Observer.Expect('kept sink', 'len=23|[Dummy test file content]');
+        Observer.Expect('kept stream after', 'len=23|eos=Yes');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -200,7 +217,9 @@ codeunit 93265 "LT Y62 Gone InStream"
             Observer.Observe('readtext after clear', '[' + Txt + ']')
         else
             Observer.Observe('readtext after clear', Err());
-        Observer.Finish();
+        Observer.Expect('after clear', 'error:Microsoft.Dynamics.Nav.Runtime.NavInStream variable not initialized.|NotInitialized');
+        Observer.Expect('readtext after clear', 'error:Microsoft.Dynamics.Nav.Runtime.NavInStream variable not initialized.|NotInitialized');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -259,7 +278,13 @@ codeunit 93265 "LT Y62 Gone InStream"
             else
                 Observer.Observe('step' + Format(Step), Err());
         end;
-        Observer.Finish();
+        Observer.Expect('step1', '[]');
+        Observer.Expect('step2', '0|[]');
+        Observer.Expect('step3', '1');
+        Observer.Expect('step4', 'ok');
+        Observer.Expect('step5', '0|[]');
+        Observer.Expect('step6', 'error:The value of Position parameter 1 is outside of the permitted range. The current value is: 1. The permitted range is: from 1 to 0.|OutsidePermittedRange');
+        Observer.Verify();
     end;
 
     local procedure ReadThroughVar(var InS: InStream): Text
@@ -330,6 +355,9 @@ codeunit 93265 "LT Y62 Gone InStream"
                 Txt := Err();
             Observer.Observe('step' + Format(Step), Txt);
         end;
-        Observer.Finish();
+        Observer.Expect('step1', 'len=0|[]');
+        Observer.Expect('step2', 'len=0|[]');
+        Observer.Expect('step3', 'hasvalue=No|[]');
+        Observer.Verify();
     end;
 }

@@ -6,6 +6,9 @@
 // Probe: gap cycle 6, spec G6-23 (writer Y62). Every literal asserted below is what BC produced (corpus CI 27.5, 28.5, 29.0; SaaS sandbox BC 29).
 // Facts: every call starts with a header X-Seed in H, so the values show whether the call cleared or filled H: result|keys=<count>|seed=<Yes/No>
 //   or error:<text>|<code>.
+// Results (same on 27.5, 28.5, 29.0 and the SaaS sandbox): with the result used, GetHeaders on a request without content answers false, does
+//   not raise and leaves H as it was; the content stays uninitialized (a later statement call raises NotInitialized); after content was assigned
+//   or Req.Content.Clear() it answers true with the content headers; on a never filled response it answers true with no headers.
 // BC versions: 27, 28, 29
 
 codeunit 93264 "LT Y62 Content Headers"
@@ -104,7 +107,10 @@ codeunit 93264 "LT Y62 Content Headers"
         Observer.Observe('exit', RunForm(1, Req1, H));
         Observer.Observe('if', RunForm(2, Req2, H));
         Observer.Observe('assign', RunForm(3, Req3, H));
-        Observer.Finish();
+        Observer.Expect('exit', 'No|keys=1|seed=Yes');
+        Observer.Expect('if', 'false|keys=1|seed=Yes');
+        Observer.Expect('assign', 'No|keys=1|seed=Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -124,7 +130,12 @@ codeunit 93264 "LT Y62 Content Headers"
         Observer.Observe('readas after', Format(Req.Content.ReadAs(Txt)) + '|' + Txt);
         NewRequest(Fresh);
         Observer.Observe('statement on fresh', RunStatement(Fresh, H));
-        Observer.Finish();
+        Observer.Expect('exit', 'No|keys=1|seed=Yes');
+        Observer.Expect('exit again', 'No|keys=1|seed=Yes');
+        Observer.Expect('statement after', 'error:Microsoft.Dynamics.Nav.Runtime.NavHttpContent variable not initialized.|NotInitialized|keys=1|seed=Yes');
+        Observer.Expect('readas after', 'No|preset');
+        Observer.Expect('statement on fresh', 'error:Microsoft.Dynamics.Nav.Runtime.NavHttpContent variable not initialized.|NotInitialized|keys=1|seed=Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -148,7 +159,11 @@ codeunit 93264 "LT Y62 Content Headers"
         else
             Observer.Observe('content-length values', 'none');
         Observer.Observe('statement', RunStatement(Req, H));
-        Observer.Finish();
+        Observer.Expect('exit', 'Yes|keys=2|seed=No');
+        Observer.Expect('content-length', 'Yes');
+        Observer.Expect('content-length values', '1');
+        Observer.Expect('statement', 'ok|keys=2|seed=No');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -175,7 +190,11 @@ codeunit 93264 "LT Y62 Content Headers"
         Observer.Observe('statement', RunStatement(Req, H));
         Txt := 'preset';
         Observer.Observe('readas', Format(Req.Content.ReadAs(Txt)) + '|' + Txt);
-        Observer.Finish();
+        Observer.Expect('clear', 'ok');
+        Observer.Expect('exit', 'Yes|keys=1|seed=No');
+        Observer.Expect('statement', 'ok|keys=1|seed=No');
+        Observer.Expect('readas', 'Yes|');
+        Observer.Verify();
     end;
 
     local procedure RespHeadersAsExit(var Resp: HttpResponseMessage; var H: HttpHeaders): Boolean
@@ -234,6 +253,10 @@ codeunit 93264 "LT Y62 Content Headers"
             else
                 Observer.Observe('form' + Format(Form), 'error:' + GetLastErrorText() + '|' + GetLastErrorCode() + State(H));
         end;
-        Observer.Finish();
+        Observer.Expect('form1', 'Yes|keys=0|seed=No');
+        Observer.Expect('form2', 'true|keys=0|seed=No');
+        Observer.Expect('form3', 'Yes|keys=0|seed=No');
+        Observer.Expect('form4', 'ok|keys=0|seed=No');
+        Observer.Verify();
     end;
 }

@@ -7,6 +7,9 @@
 // Seed: H1 2026-01-10 lines A qty 3 amt 60 (K1), B qty 1 amt 40 (K2) -> Amount 100; H2 2026-01-20 lines A qty 5 amt 5 (K1), A qty 1 amt -5 (K2)
 //   -> Amount 0; H3 2026-01-30 no lines -> Amount 0; H4 2026-02-10 line A qty 2 amt 50 (K1) and a Cancel row -> Cancelled; H5 2026-02-20 line
 //   B qty 7 amt 70 (K2) -> Amount 70.
+// Results (same on 27.5, 28.5, 29.0 and the SaaS sandbox): a FlowField filter element is evaluated per header row (its own FlowField value),
+//   before the join and the grouping; a run-time SetFilter/SetRange on it replaces the static ColumnFilter; with a left outer join a header without
+//   lines is kept (blank line columns, Sum 0); a FlowFilter filter element sets the flow filter of the header FlowField column.
 // BC versions: 27, 28, 29
 
 table 93261 "LT Y62 FQ Header"
@@ -260,7 +263,10 @@ codeunit 93261 "LT Y62 Query FlowField Join"
                 Observer.Observe('mode' + Format(i), Txt)
             else
                 Observer.ObserveError('mode' + Format(i));
-        Observer.Finish();
+        Observer.Expect('mode1', 'H1|A|3;H1|B|1;H5|B|7;');
+        Observer.Expect('mode2', 'H2|A|5;H2|A|1;');
+        Observer.Expect('mode3', 'H1|A|3;H1|B|1;H5|B|7;');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -289,7 +295,9 @@ codeunit 93261 "LT Y62 Query FlowField Join"
                 Observer.Observe('mode' + Format(i), Txt)
             else
                 Observer.ObserveError('mode' + Format(i));
-        Observer.Finish();
+        Observer.Expect('mode1', 'H1|1;H4|1;H5|1;');
+        Observer.Expect('mode2', 'H1|1;');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -329,7 +337,12 @@ codeunit 93261 "LT Y62 Query FlowField Join"
                 Observer.Observe('mode' + Format(i), Txt)
             else
                 Observer.ObserveError('mode' + Format(i));
-        Observer.Finish();
+        Observer.Expect('mode1', 'B|8;A|3;');
+        Observer.Expect('mode2', 'A|3;B|1;');
+        Observer.Expect('mode3', 'A|2;');
+        Observer.Expect('mode4', 'B|8;');
+        Observer.Expect('mode5', 'A|3;');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -358,7 +371,9 @@ codeunit 93261 "LT Y62 Query FlowField Join"
                 Observer.Observe('mode' + Format(i), Txt)
             else
                 Observer.ObserveError('mode' + Format(i));
-        Observer.Finish();
+        Observer.Expect('mode1', 'H1|A|3;H1|B|1;H5|B|7;');
+        Observer.Expect('mode2', 'H1|A|3;H1|B|1;H2|A|6;H3||0;H5|B|7;');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -393,7 +408,11 @@ codeunit 93261 "LT Y62 Query FlowField Join"
                 Observer.Observe('mode' + Format(i), Txt)
             else
                 Observer.ObserveError('mode' + Format(i));
-        Observer.Finish();
+        Observer.Expect('mode1', 'A|11;B|8;');
+        Observer.Expect('mode2', 'B|8;A|3;');
+        Observer.Expect('mode3', 'A|3;B|1;');
+        Observer.Expect('mode4', 'A|6;');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -426,6 +445,9 @@ codeunit 93261 "LT Y62 Query FlowField Join"
                 Observer.Observe('mode' + Format(i), Txt)
             else
                 Observer.ObserveError('mode' + Format(i));
-        Observer.Finish();
+        Observer.Expect('mode1', 'H1|10000|100;H1|20000|100;H2|10000|0;H2|20000|0;H4|10000|50;H5|10000|70;');
+        Observer.Expect('mode2', 'H1|10000|60;H1|20000|60;H2|10000|5;H2|20000|5;H4|10000|50;H5|10000|0;');
+        Observer.Expect('mode3', 'H1|10000|40;H1|20000|40;H2|10000|-5;H2|20000|-5;H4|10000|0;H5|10000|70;');
+        Observer.Verify();
     end;
 }

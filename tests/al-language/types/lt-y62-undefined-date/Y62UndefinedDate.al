@@ -6,6 +6,9 @@
 // Probe: gap cycle 6, spec G6-22 (writer Y62). Every literal asserted below is what BC produced (corpus CI 27.5, 28.5, 29.0; SaaS sandbox BC 29).
 // Facts: in the overload tests the text before the colon names the overload that ran (int, var, dec); values are Format(.., 0, 9) or
 //   error:<text>|<code>.
+// Results (same on 27.5, 28.5, 29.0 and the SaaS sandbox): FieldRef.Value() always takes the Variant overload; 0DT - 0DT is 0 (no error), so
+//   is SystemModifiedAt - SystemCreatedAt of a record never inserted; a Variant holding 0D or 0T converts to 0 for the numbers and to a 0 Duration
+//   but raises TypeConversion into Text; a Variant holding 0DT raises Conversion into Integer.
 // BC versions: 27, 28, 29
 
 table 93264 "LT Y62 UD Row"
@@ -114,7 +117,17 @@ codeunit 93263 "LT Y62 Undefined Date"
                 Observer.Observe('row' + Format(Id) + ' ' + RecRef.Field(FieldNo).Name, Pick(RecRef, FieldNo));
         end;
         RecRef.Close();
-        Observer.Finish();
+        Observer.Expect('row1 D', 'var: / var:');
+        Observer.Expect('row1 Tm', 'var: / var:');
+        Observer.Expect('row1 Dt', 'var: / var:');
+        Observer.Expect('row1 Dur', 'var:P0DT0H0M0.0S / var:P0DT0H0M0.0S');
+        Observer.Expect('row1 Dec', 'var:0 / var:0');
+        Observer.Expect('row2 D', 'var:2026-01-15 / var:2026-01-15');
+        Observer.Expect('row2 Tm', 'var:12:30:00 / var:12:30:00');
+        Observer.Expect('row2 Dt', 'var:<dt> / var:<dt>');
+        Observer.Expect('row2 Dur', 'var:P0DT0H0M5.0S / var:P0DT0H0M5.0S');
+        Observer.Expect('row2 Dec', 'var:7.5 / var:7.5');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -163,7 +176,13 @@ codeunit 93263 "LT Y62 Undefined Date"
         Observer.Observe('0DT - 0DT < OneHour', Less(0DT, 0DT, OneHour));
         Observer.Observe('modified - created < OneHour', Less(Row.SystemModifiedAt, Row.SystemCreatedAt, OneHour));
         Observer.Observe('0DT - 0DT < 0', Less(0DT, 0DT, 0));
-        Observer.Finish();
+        Observer.Expect('0DT - 0DT', 'ok:[]|P0DT0H0M0.0S');
+        Observer.Expect('created is 0DT', 'Yes');
+        Observer.Expect('modified - created', 'ok:[]|P0DT0H0M0.0S');
+        Observer.Expect('0DT - 0DT < OneHour', 'Yes');
+        Observer.Expect('modified - created < OneHour', 'Yes');
+        Observer.Expect('0DT - 0DT < 0', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -176,7 +195,10 @@ codeunit 93263 "LT Y62 Undefined Date"
         Observer.Observe('Dt - 0DT', Sub(Dt, 0DT));
         Observer.Observe('0DT - Dt', Sub(0DT, Dt));
         Observer.Observe('Dt - Dt', Sub(Dt, Dt));
-        Observer.Finish();
+        Observer.Expect('Dt - 0DT', 'error:The date is not valid.|DateInvalid');
+        Observer.Expect('0DT - Dt', 'error:The date is not valid.|DateInvalid');
+        Observer.Expect('Dt - Dt', 'ok:[]|P0DT0H0M0.0S');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -267,6 +289,10 @@ codeunit 93263 "LT Y62 Undefined Date"
         Observer.Observe('0DT', Targets(V));
         V := 20260115D;
         Observer.Observe('20260115D', Targets(V));
-        Observer.Finish();
+        Observer.Expect('0D', '0 ; 0 ; 0 ; P0DT0H0M0.0S ; error:The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.|TypeConversion ; ');
+        Observer.Expect('0T', '0 ; 0 ; 0 ; P0DT0H0M0.0S ; error:The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.|TypeConversion ; ');
+        Observer.Expect('0DT', 'error:Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavDateTime to System.Int32.|Conversion ; 0 ; 0 ; P0DT0H0M0.0S ; error:The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.|TypeConversion ; ');
+        Observer.Expect('20260115D', '1479993 ; 1479993 ; 1479993 ; P0DT0H24M39.993S ; error:The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavText value.|TypeConversion ; ');
+        Observer.Verify();
     end;
 }

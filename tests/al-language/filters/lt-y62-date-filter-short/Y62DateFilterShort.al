@@ -5,6 +5,11 @@
 // Probe: gap cycle 6, spec G6-19 (writer Y62). Every literal asserted below is what BC produced (corpus CI 27.5, 28.5, 29.0; SaaS sandbox BC 29).
 // Facts: see the test names and the asserted values. The default test language (en-US) is used; the session language is not changed. Two-part
 //   texts take their year from a date: the tests set WorkDate to 2030 and 2031 (never this year) and read the year from the rows and filter text.
+// Results (same on 27.5, 28.5, 29.0 and the SaaS sandbox): month/day texts (1/1, 1/28, 01/28, 1-28, 1.28, ranges, >, |) take the year of
+//   WorkDate; 28/1, 99/99/9999, 13/13/2026, 02/30/2026, 00/00/0000 and 99/99 raise the 'does not match your device's date settings' filter
+//   error (Filter:CSide); 1/1/0 reads as 01/01/00. DateTime texts in ISO and en-US forms filter to the minute; 2024-01-01 becomes the whole day.
+//   In a query, 0D in DataItemTableFilter or ColumnFilter is the empty date (not today); filter(0D .. 20260101D) and filter(20260101D ..) raise
+//   at Open (InvalidFilterExpression:Evaluate); a run-time Query.SetFilter(D, '0D') text means today.
 // BC versions: 27, 28, 29
 
 table 93260 "LT Y62 DF Row"
@@ -242,7 +247,16 @@ codeunit 93260 "LT Y62 Date Filter Short"
         WorkDate(20300615D);
         ObserveList(Observer, MonthDayTexts(), 'a');
         WorkDate(OldWorkDate);
-        Observer.Finish();
+        Observer.Expect('a1[1/1]', 'ok|filter=01/01/30|rows=6,');
+        Observer.Expect('a2[1/28]', 'ok|filter=01/28/30|rows=7,');
+        Observer.Expect('a3[01/28]', 'ok|filter=01/28/30|rows=7,');
+        Observer.Expect('a4[28/1]', 'error:The filter "28/1" is not valid for the D field on the LT Y62 DF Row table. The format of the Date ''28/1'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.|Filter:CSide');
+        Observer.Expect('a5[1-28]', 'ok|filter=01/28/30|rows=7,');
+        Observer.Expect('a6[1.28]', 'ok|filter=01/28/30|rows=7,');
+        Observer.Expect('a7[1/1..2/2]', 'ok|filter=01/01/30..02/02/30|rows=6,7,');
+        Observer.Expect('a8[>1/28]', 'ok|filter=>01/28/30|rows=8,');
+        Observer.Expect('a9[1/28|2/2]', 'ok|filter=01/28/30|02/02/30|rows=7,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -256,7 +270,16 @@ codeunit 93260 "LT Y62 Date Filter Short"
         WorkDate(20310615D);
         ObserveList(Observer, MonthDayTexts(), 'b');
         WorkDate(OldWorkDate);
-        Observer.Finish();
+        Observer.Expect('b1[1/1]', 'ok|filter=01/01/31|rows=');
+        Observer.Expect('b2[1/28]', 'ok|filter=01/28/31|rows=8,');
+        Observer.Expect('b3[01/28]', 'ok|filter=01/28/31|rows=8,');
+        Observer.Expect('b4[28/1]', 'error:The filter "28/1" is not valid for the D field on the LT Y62 DF Row table. The format of the Date ''28/1'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.|Filter:CSide');
+        Observer.Expect('b5[1-28]', 'ok|filter=01/28/31|rows=8,');
+        Observer.Expect('b6[1.28]', 'ok|filter=01/28/31|rows=8,');
+        Observer.Expect('b7[1/1..2/2]', 'ok|filter=01/01/31..02/02/31|rows=8,');
+        Observer.Expect('b8[>1/28]', 'ok|filter=>01/28/31|rows=');
+        Observer.Expect('b9[1/28|2/2]', 'ok|filter=01/28/31|02/02/31|rows=8,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -277,7 +300,13 @@ codeunit 93260 "LT Y62 Date Filter Short"
         ObserveList(Observer, Texts, 'y');
         Observer.Observe('formatted', Format(20260128D));
         WorkDate(OldWorkDate);
-        Observer.Finish();
+        Observer.Expect('y1[1/1/2026..2/2/2026]', 'ok|filter=01/01/26..02/02/26|rows=2,3,4,');
+        Observer.Expect('y2[>1/1/2026]', 'ok|filter=>01/01/26|rows=3,4,6,7,8,');
+        Observer.Expect('y3[<=01/28/26]', 'ok|filter=<=01/28/26|rows=1,2,3,');
+        Observer.Expect('y4[1/1/26]', 'ok|filter=01/01/26|rows=2,');
+        Observer.Expect('y5[1/28/2030]', 'ok|filter=01/28/30|rows=7,');
+        Observer.Expect('formatted', '01/28/26');
+        Observer.Verify();
     end;
 
     [Test]
@@ -296,7 +325,11 @@ codeunit 93260 "LT Y62 Date Filter Short"
         Texts.Add('00/00/0000');
         ObserveList(Observer, Texts, 'i');
         WorkDate(OldWorkDate);
-        Observer.Finish();
+        Observer.Expect('i1[99/99/9999]', 'error:The filter "99/99/9999" is not valid for the D field on the LT Y62 DF Row table. The format of the Date ''99/99/9999'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.|Filter:CSide');
+        Observer.Expect('i2[13/13/2026]', 'error:The filter "13/13/2026" is not valid for the D field on the LT Y62 DF Row table. The format of the Date ''13/13/2026'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.|Filter:CSide');
+        Observer.Expect('i3[02/30/2026]', 'error:The filter "02/30/2026" is not valid for the D field on the LT Y62 DF Row table. The format of the Date ''02/30/2026'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.|Filter:CSide');
+        Observer.Expect('i4[00/00/0000]', 'error:The filter "00/00/0000" is not valid for the D field on the LT Y62 DF Row table. The format of the Date ''00/00/0000'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.|Filter:CSide');
+        Observer.Verify();
     end;
 
     [Test]
@@ -315,7 +348,11 @@ codeunit 93260 "LT Y62 Date Filter Short"
         Texts.Add('1/1/99999');
         ObserveList(Observer, Texts, 'j');
         WorkDate(OldWorkDate);
-        Observer.Finish();
+        Observer.Expect('j1[1/1/0]', 'ok|filter=01/01/00|rows=');
+        Observer.Expect('j2[99/99]', 'error:The filter "99/99" is not valid for the D field on the LT Y62 DF Row table. The format of the Date ''99/99'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.|Filter:CSide');
+        Observer.Expect('j3[not a date]', 'error:The filter "not a date" is not valid for the D field on the LT Y62 DF Row table. The format of the Date ''not a date'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.|Filter:CSide');
+        Observer.Expect('j4[1/1/99999]', 'error:The filter "1/1/99999" is not valid for the D field on the LT Y62 DF Row table. The format of the Date ''1/1/99999'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.|Filter:CSide');
+        Observer.Verify();
     end;
 
     [Test]
@@ -334,7 +371,13 @@ codeunit 93260 "LT Y62 Date Filter Short"
         Texts.Add('2024-01-01');
         for i := 1 to Texts.Count() do
             Observer.Observe('t' + Format(i) + '[' + Texts.Get(i) + ']', ApplyDt(Texts.Get(i)));
-        Observer.Finish();
+        Observer.Expect('t1[2024-01-01 10:30:00]', 'ok|filter=01/01/24 10:30 AM|rows=2,');
+        Observer.Expect('t2[01/01/24 10:30:00]', 'ok|filter=01/01/24 10:30 AM|rows=2,');
+        Observer.Expect('t3[01/01/2024 10:30:00 AM]', 'ok|filter=01/01/24 10:30 AM|rows=2,');
+        Observer.Expect('t4[99/99/9999 99:99:99]', 'error:The filter "99/99/9999 99:99:99" is not valid for the Dt field on the LT Y62 DF Row table. The value "99/99/9999 99:99:99" can''t be evaluated into type DateTime.|Filter:CSide');
+        Observer.Expect('t5[not a datetime]', 'error:The filter "not a datetime" is not valid for the Dt field on the LT Y62 DF Row table. The value "not a datetime" can''t be evaluated into type DateTime.|Filter:CSide');
+        Observer.Expect('t6[2024-01-01]', 'ok|filter=01/01/24 12:00 AM..01/01/24 11:59:59 PM|rows=2,');
+        Observer.Verify();
     end;
 
     local procedure ReadNotZero(var Q: Query "LT Y62 DFQ NotZero"): Text
@@ -380,7 +423,9 @@ codeunit 93260 "LT Y62 Date Filter Short"
             Observer.Observe('rows with today', Txt)
         else
             Observer.ObserveError('rows with today');
-        Observer.Finish();
+        Observer.Expect('rows', '2,3,6,7,8,');
+        Observer.Expect('rows with today', '2,3,4,today,6,7,8,');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -453,7 +498,14 @@ codeunit 93260 "LT Y62 Date Filter Short"
                 Observer.Observe(Names.Get(i), Txt)
             else
                 Observer.ObserveError(Names.Get(i));
-        Observer.Finish();
+        Observer.Expect('filter(0D)', '1,');
+        Observer.Expect('filter(= 0D)', '1,');
+        Observer.Expect('filter(<>0D)', '2,3,4,today,6,7,8,');
+        Observer.Expect('filter(0D .. 20260101D)|text', 'The format of the Date ''20260101D'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.');
+        Observer.Expect('filter(0D .. 20260101D)|code', 'InvalidFilterExpression:Evaluate');
+        Observer.Expect('filter(20260101D ..)|text', 'The format of the Date ''20260101D'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.');
+        Observer.Expect('filter(20260101D ..)|code', 'InvalidFilterExpression:Evaluate');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -493,6 +545,10 @@ codeunit 93260 "LT Y62 Date Filter Short"
                 Observer.Observe(Names.Get(i), Txt)
             else
                 Observer.ObserveError(Names.Get(i));
-        Observer.Finish();
+        Observer.Expect('static ColumnFilter <> 0D', '2,3,4,today,6,7,8,');
+        Observer.Expect('SetFilter <>%1 with 0D', '2,3,4,today,6,7,8,');
+        Observer.Expect('SetFilter text 0D', 'today,');
+        Observer.Expect('SetRange 0D', '1,');
+        Observer.Verify();
     end;
 }
