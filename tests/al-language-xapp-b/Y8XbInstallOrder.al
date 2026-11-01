@@ -31,3 +31,25 @@ codeunit 61186 "LT Y8 XB Install"
         Helper.LogAndWrite('B', 20);
     end;
 }
+
+// Writer Y64 (al-runner issue 6644): install code of B arms fixture A's hub 61351, raises its event and logs telemetry (Probe), as D's install
+// does (tests/al-language-xapp-d/Y8XdInstallOrder.al). Install code must never fail: the only write is `if Insert() then;` into the
+// DataPerCompany = false table 61354.
+codeunit 61356 "LT Y64 XB Install"
+{
+    Subtype = Install;
+
+    trigger OnInstallAppPerDatabase()
+    var
+        Hub: Codeunit "LT Y64 XA Install Hub";
+    begin
+        Hub.Probe('B', 'db');
+    end;
+
+    trigger OnInstallAppPerCompany()
+    var
+        Hub: Codeunit "LT Y64 XA Install Hub";
+    begin
+        Hub.Probe('B', 'co');
+    end;
+}
