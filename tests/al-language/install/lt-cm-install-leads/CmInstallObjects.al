@@ -187,7 +187,8 @@ codeunit 90434 "LT UM Ay Install"
 // Application table (5050 Contact), the reporter's setup shape (a field whose OnValidate reads AllObjWithCaption, validated in
 // OnInstallAppPerCompany), and NavApp.LoadPackageData of an own table (the corpus app ships no package data) per company and of a
 // DataPerCompany = false table per database. Rows go only `if Insert() then;` into DataPerCompany = false table 93330 and the per-company setup
-// table 93331; reads that can fail run in a TryFunction; LoadPackageData writes, so it runs through `if Codeunit.Run` after a Commit.
+// table 93331; a failed TryFunction stops the install transaction (the next Commit raises 'An error occurred and the transaction is stopped.'), so
+// the Validate and LoadPackageData run through `if Codeunit.Run` after a Commit and the reads use `if Get`.
 // Tests: Y64InstallLeads.al (codeunit 93333).
 table 93330 "LT Y64 Install Seen"
 {
@@ -274,6 +275,16 @@ codeunit 93338 "LT Y64 Install Loader Db"
     end;
 }
 
+codeunit 93339 "LT Y64 Install Validator"
+{
+    TableNo = "LT Y64 Install Setup";
+
+    trigger OnRun()
+    begin
+        Rec.Validate("Table ID", Database::Contact);
+    end;
+}
+
 codeunit 93329 "LT Y64 Install"
 {
     Subtype = Install;
@@ -305,8 +316,9 @@ codeunit 93329 "LT Y64 Install"
         See(Co, 'ALLOBJCAP TABLE 5050', AllObjCaptionTable(5050));
         See(Co, 'ALLOBJCAP TABLEDATA OWN', AllObjCaption(Database::"LT Y64 Install Setup"));
         See(Co, 'ALLOBJCAP TABLEDATA 18', AllObjCaption(18));
+        Commit();
         MySetup.Init();
-        if TryValidate(MySetup) then
+        if Codeunit.Run(Codeunit::"LT Y64 Install Validator", MySetup) then
             See(Co, 'SETUP VALIDATE', 'ok|' + MySetup.TableName)
         else
             See(Co, 'SETUP VALIDATE', 'error:' + GetLastErrorText() + '|' + GetLastErrorCode());
@@ -318,34 +330,22 @@ codeunit 93329 "LT Y64 Install"
             See(Co, 'LOAD OWN TABLE', 'error:' + GetLastErrorText() + '|' + GetLastErrorCode());
     end;
 
-    [TryFunction]
-    local procedure TryValidate(var MySetup: Record "LT Y64 Install Setup")
-    begin
-        MySetup.Validate("Table ID", Database::Contact);
-    end;
-
     local procedure AllObjCaption(Id: Integer): Text
     var
         Caption: Record AllObjWithCaption;
     begin
-        if TryGetCaption(Caption, Caption."Object Type"::TableData, Id) then
+        if Caption.Get(Caption."Object Type"::TableData, Id) then
             exit('Yes|' + Caption."Object Name" + '|' + Caption."Object Caption");
-        exit('No|' + GetLastErrorText());
+        exit('No');
     end;
 
     local procedure AllObjCaptionTable(Id: Integer): Text
     var
         Caption: Record AllObjWithCaption;
     begin
-        if TryGetCaption(Caption, Caption."Object Type"::Table, Id) then
+        if Caption.Get(Caption."Object Type"::Table, Id) then
             exit('Yes|' + Caption."Object Name" + '|' + Caption."Object Caption");
-        exit('No|' + GetLastErrorText());
-    end;
-
-    [TryFunction]
-    local procedure TryGetCaption(var Caption: Record AllObjWithCaption; ObjType: Option; Id: Integer)
-    begin
-        Caption.Get(ObjType, Id);
+        exit('No');
     end;
 
     local procedure AllObjRow(Id: Integer): Text
