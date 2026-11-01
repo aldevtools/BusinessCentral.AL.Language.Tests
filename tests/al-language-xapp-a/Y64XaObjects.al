@@ -1,6 +1,6 @@
 // Cross-app fixtures of writer Y64 (al-runner issues 6653 and 6644), app A.
 // 6653: report 61352 with a report extension in this app (61353), in B (61355), in C (61360) and in the AL Language Coverage Tests app (93326).
-//   Every trigger of the report and of each extension appends '<app>:<trigger>' to the run log table 61350 (per company). Tests:
+//   Every trigger of the report and of each extension appends '<app>:<trigger>' to the SingleInstance log 61350 (table 61350 is unused). Tests:
 //   tests/al-language/reportext/lt-y64-xapp-run-order/Y64XappRunOrder.al.
 // 6644: hub 61351 (SingleInstance) that install code of B and D arms with its app tag, an integration event the install code raises, and a
 //   telemetry call; the subscribers in B and D (no dependency path between them) note in DataPerCompany = false table 61354 which app's install
@@ -32,27 +32,25 @@ table 61351 "LT Y64 XA Row"
     keys { key(PK; Id) { Clustered = true; } }
 }
 
+// SingleInstance, so that request page triggers log without a write inside the modal request page. Used only by test codeunit 93327.
 codeunit 61350 "LT Y64 XA Log"
 {
-    procedure Add(Entry: Text)
+    SingleInstance = true;
+
     var
-        L: Record "LT Y64 XA Run Log";
+        Entries: Text;
+
+    procedure Add(Entry: Text)
     begin
-        L.Init();
-        L.Txt := CopyStr(Entry, 1, MaxStrLen(L.Txt));
-        L.Insert();
+        Entries += Entry + ';';
     end;
 
     procedure Take(): Text
     var
-        L: Record "LT Y64 XA Run Log";
         Result: Text;
     begin
-        if L.FindSet() then
-            repeat
-                Result += L.Txt + ';';
-            until L.Next() = 0;
-        L.DeleteAll();
+        Result := Entries;
+        Entries := '';
         exit(Result);
     end;
 }

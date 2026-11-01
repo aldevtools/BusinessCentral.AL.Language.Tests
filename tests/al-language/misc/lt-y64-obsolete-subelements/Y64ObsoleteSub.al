@@ -329,9 +329,16 @@ codeunit 93319 "LT Y64 Obsolete Sub Tests"
         Log.Add('handler flag visible=' + Format(RequestPage.Flag.Visible()) + ' ext visible=' + Format(RequestPage.ExtFlag.Visible()));
         RequestPage.Flag.SetValue(true);
         RequestPage.ExtFlag.SetValue(true);
-        RequestPage.RpAction.Invoke();
+        if not TryInvokeRpAction(RequestPage) then
+            Log.Add('rp action invoke error: ' + GetLastErrorText() + '|' + GetLastErrorCode());
         RequestPage.MyItem.SetFilter("No.", 'B');
         RequestPage.OK().Invoke();
+    end;
+
+    [TryFunction]
+    local procedure TryInvokeRpAction(var RequestPage: TestRequestPage "LT Y64 Obs Report")
+    begin
+        RequestPage.RpAction.Invoke();
     end;
 
     [Test]
