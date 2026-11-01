@@ -83,6 +83,19 @@ def main():
         starts = cs.cut(cost, 2, 50000)
         check('measure: two shards split the cost evenly, first starts at the range start', starts == [50000, 50040], starts)
         check('measure: one shard', cs.cut(cost, 1, 50000) == [50000])
+        # a sharded run: the shards ran at the same time, so the next start is the next one in the same shard
+        ps = os.path.join(d, 's.xml')
+        junit(ps, 'hybrid', [(50010, '2026-11-01T04:00:00Z', 1, [('a', False)]),
+                             (50030, '2026-11-01T04:00:05Z', 1, [('a', False)]),
+                             (50020, '2026-11-01T04:00:20Z', 3, [('a', False)]),
+                             (50040, '2026-11-01T04:00:25Z', 4, [('a', False)])])
+        cost = cs.wall_costs(ps, cs.shard_spans([50000, 50030]))
+        check('measure: a sharded run is timed per shard', cost == {50010: 20, 50020: 3, 50030: 20, 50040: 4}, cost)
+        conf = os.path.join(d, 'c.json')
+        cs.main(['measure', '--junit', '27=' + p, '--junit', '29=' + p, '--shards', '2', '--shards-for', '27=3',
+                 '--app', 'tests/main', '--file', conf])
+        got = json.load(open(conf))['apps']['tests/main']
+        check('measure: --shards-for gives one major its own shard count', got == {'27': [50000, 50030, 50040], '29': [50000, 50040]}, got)
 
     # ---- spans ----
     check('spans: intersect', cs.fmt(cs.intersect(cs.spans('50000..50099|50200..50299'), [(50050, 50249)]))

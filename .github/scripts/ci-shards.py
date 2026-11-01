@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Split a CI leg's test codeunits into shards, each run in a BC container of its own, and merge the shards' JUnit.
 
-    ci-shards.py measure --junit MAJOR=FILE ... --shards N --app DIR [--range-start ID] [--source TEXT] --file FILE
+    ci-shards.py measure --junit MAJOR=FILE ... --shards N [--shards-for MAJOR=N] [--sharded-by FILE] --app DIR [--range-start ID] [--source TEXT] --file FILE
     ci-shards.py plan --ci-yml FILE --versions JSON --file FILE --event NAME [--selection FILE] [--github]
     ci-shards.py merge --out FILE IN ...
 
@@ -93,13 +93,25 @@ def _ts(text):
     return datetime.datetime.fromisoformat(text.replace('Z', '+00:00')).timestamp()
 
 
-def wall_costs(path):
-    """{codeunit id: seconds}: time from its start to the next codeunit's start, in run order."""
+def wall_costs(path, groups=None):
+    """{codeunit id: seconds}: time from its start to the next codeunit's start, in run order. For the merged JUnit of a
+    sharded run, `groups` are the shard spans that run used: the shards ran at the same time, so the next start is
+    taken within the codeunit's own shard."""
+    groups = groups or [(0, TOP)]
+    cost = {}
+    for lo, hi in groups:
+        for cu, c in _wall_costs(path, lo, hi).items():
+            cost[cu] = cost.get(cu, 0) + c
+    return cost
+
+
+def _wall_costs(path, lo, hi):
     rows = []
     for i, s in enumerate(ET.parse(path).getroot().iter('testsuite')):
         name = (s.get('name') or '').split()
         if len(name) == 2 and name[0] == 'Codeunit' and name[1].isdigit() and s.get('timestamp'):
-            rows.append((_ts(s.get('timestamp')), i, int(name[1]), float(s.get('time') or 0)))
+            if lo <= int(name[1]) <= hi:
+                rows.append((_ts(s.get('timestamp')), i, int(name[1]), float(s.get('time') or 0)))
     rows.sort()
     cost = {}
     for k, (t, _, cu, own) in enumerate(rows):
@@ -217,8 +229,10 @@ def main(argv=None):
     m = sub.add_parser('measure')
     m.add_argument('--junit', action='append', required=True, help='MAJOR=FILE, the al-language JUnit of a full run')
     m.add_argument('--shards', type=int, required=True)
+    m.add_argument('--shards-for', action='append', default=[], help='MAJOR=N: another shard count for one major')
     m.add_argument('--app', required=True)
     m.add_argument('--range-start', type=int, default=50000)
+    m.add_argument('--sharded-by', help='the ci-shards.json the measured run used, when it ran in shards')
     m.add_argument('--source', default='')
     m.add_argument('--file', required=True)
     p = sub.add_parser('plan')
@@ -235,10 +249,13 @@ def main(argv=None):
 
     if a.cmd == 'measure':
         conf = json.load(open(a.file)) if os.path.exists(a.file) else {}
+        used = json.load(open(a.sharded_by))['apps'].get(a.app, {}) if a.sharded_by else {}
         app = {}
+        counts = {k: int(v) for k, _, v in (x.partition('=') for x in a.shards_for)}
         for spec in a.junit:
             major, _, path = spec.partition('=')
-            app[major] = cut(wall_costs(path), a.shards, a.range_start)
+            groups = shard_spans(used[major]) if major in used else None
+            app[major] = cut(wall_costs(path, groups), counts.get(major, a.shards), a.range_start)
         conf.setdefault('apps', {})[a.app] = app
         if a.source:
             conf.setdefault('source', {})[a.app] = a.source

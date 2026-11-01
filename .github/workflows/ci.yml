@@ -271,7 +271,7 @@ jobs:
           fi
           echo "matrix=$JSON" >> "$GITHUB_OUTPUT"
 
-      # Shards (CONTRIBUTING.md, "Shards in CI"): the al-language legs run their codeunits in three containers each.
+      # Shards (CONTRIBUTING.md, "Shards in CI"): the al-language legs run their codeunits in three or four containers.
       # The selection file is missing when select-tests.py failed: then a full run, as above.
       - id: shards
         name: Plan the shards of each leg
@@ -498,8 +498,8 @@ jobs:
   # rulesets list only "BC <ver> / test" (add them there once the job has run green for a while).
   test-testlibraries:
     name: BC TestLibraries ${{ matrix.bc_version }}
-    # Second wave: starts when the OnPrem legs are done, so that a full run holds at most 15 BC containers at once
-    # (9 al-language shards + OnPrem + OnPrem DotNet). The organization has 20 concurrent jobs for this repository and
+    # Second wave: starts when the OnPrem legs are done, so that a full run holds at most 16 BC containers at once
+    # (10 al-language shards + OnPrem + OnPrem DotNet). The organization has 20 concurrent jobs for this repository and
     # al-runtime-rs together. It runs whatever the OnPrem legs' result.
     needs: [prepare, test-onprem]
     if: ${{ !cancelled() && needs.prepare.result == 'success' }}

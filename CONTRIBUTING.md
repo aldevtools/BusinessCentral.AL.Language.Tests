@@ -358,7 +358,7 @@ python3 .github/scripts/select-tests.py --head HEAD --codeunits '{"tests/al-lang
 
 ## Shards in CI
 
-Each test job of `ci.yml` (one test app on one BC version, a "leg") calls `.github/workflows/bc-leg.yml`. That workflow runs the leg in one or more shards, each in a BC container of its own, and then merges their JUnit. The `al-language` legs run in three shards; the other test apps run in one.
+Each test job of `ci.yml` (one test app on one BC version, a "leg") calls `.github/workflows/bc-leg.yml`. That workflow runs the leg in one or more shards, each in a BC container of its own, and then merges their JUnit. The `al-language` legs run in three or four shards; the other test apps run in one.
 
 - **Check names.** The leg "BC 29.0" has the checks `BC 29.0 / shard 1 of 3 / test` to `BC 29.0 / shard 3 of 3 / test`, one per shard, and `BC 29.0 / test`. The last one is the job that merges and reports; it is the check the master ruleset requires. It fails when any shard failed or was cancelled.
 - **Artifact.** Each shard uploads `junit-test-results-<bc version>`. The merging job uploads the merged file under the same name and deletes the shards' artifacts, so each leg still has one artifact with one JUnit file. After **Re-run failed jobs**, the merge takes the earlier merged file and replaces the codeunits of the re-run shard.
@@ -366,14 +366,15 @@ Each test job of `ci.yml` (one test app on one BC version, a "leg") calls `.gith
 
   ```bash
   gh run download <run id> -p 'junit-test-results-*' -D /tmp/junit
-  python3 .github/scripts/ci-shards.py measure --shards 3 --app tests/al-language --file .github/ci-shards.json \
-    --source 'master run <run id>' \
+  cp .github/ci-shards.json /tmp/used.json   # the shards that run used: the shards run at the same time
+  python3 .github/scripts/ci-shards.py measure --shards 3 --shards-for 27=4 --app tests/al-language \
+    --file .github/ci-shards.json --sharded-by /tmp/used.json --source 'master run <run id>' \
     --junit 27=/tmp/junit/junit-test-results-27.5/junit-al-language.xml \
     --junit 28=/tmp/junit/junit-test-results-28.5/junit-al-language.xml \
     --junit 29=/tmp/junit/junit-test-results-29.0/junit-al-language.xml
   ```
 
-- **Why three.** Each shard compiles and publishes every app again, about 9 to 12 minutes before its first test. The organization can run 20 jobs at once for this repository and al-runtime-rs together. Three shards per major plus the OnPrem and OnPrem DotNet legs are 15 BC containers. The TestLibraries legs start when the OnPrem legs are done.
+- **How many.** Each shard compiles and publishes every app again, about 8 to 12 minutes before its first test. The organization can run 20 jobs at once for this repository and al-runtime-rs together. BC 27.5 runs in four shards (it has no TestRunnerHub, so its tests are the slowest), 28.5 and 29.0 in three. With the OnPrem and OnPrem DotNet legs that is 16 BC containers. The TestLibraries legs start when the OnPrem legs are done. Measured on run 41290024388 (three shards each): the shards took 23 to 35 minutes, of which 6 to 9 minutes publish and 15 to 24 minutes tests.
 - **Subset runs.** In a run with a test selection, a shard runs the selected codeunits of its range plus the app's sentinel. A shard with no selected codeunit does not start. On a pull request, a leg whose app has nothing affected (its selection is the sentinel only) starts no shard, and its check reports success. A dispatched run with `select_codeunits` (the CI batcher) still runs every leg.
 
 To see the shards of a run without CI:
