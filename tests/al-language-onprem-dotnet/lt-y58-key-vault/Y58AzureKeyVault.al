@@ -170,6 +170,12 @@ codeunit 61457 "LT Y58 Azure Key Vault"
         Observer.Finish();
     end;
 
+    [TryFunction]
+    local procedure TryAddMapping(var Provider: DotNet LtY58MockKvProvider; Name: Text; Value: Text)
+    begin
+        Provider.AddSecretMapping(Name, Value);
+    end;
+
     [Test]
     procedure KeyVault_Cache()
     var
@@ -182,14 +188,17 @@ codeunit 61457 "LT Y58 Azure Key Vault"
         Provider.AddSecretMapping('lt-y58-cache', 'first');
         UseProvider(Provider);
         ObserveSecret(Observer, 'first read', 'lt-y58-cache');
-        Provider.AddSecretMapping('lt-y58-cache', 'second');
-        ObserveSecret(Observer, 'read after the mapping changed', 'lt-y58-cache');
+        if TryAddMapping(Provider, 'lt-y58-cache', 'second') then
+            Observer.Observe('second mapping of the same name', 'ok')
+        else
+            Observer.ObserveError('second mapping of the same name');
         Provider.AddSecretMapping('lt-y58-late', 'late');
         ObserveSecret(Observer, 'name mapped after the first read', 'lt-y58-late');
         Second := Second.MockAzureKeyVaultSecretProvider();
         Second.AddSecretMapping('lt-y58-cache', 'from second provider');
         UseProvider(Second);
         ObserveSecret(Observer, 'read after a new provider', 'lt-y58-cache');
+        ObserveSecret(Observer, 'name of the old provider only, after a new provider', 'lt-y58-late');
         AzureKeyVaultTestLibrary.ClearSecrets();
         ObserveSecret(Observer, 'read after ClearSecrets', 'lt-y58-cache');
         AzureKeyVaultTestLibrary.ClearSecrets();

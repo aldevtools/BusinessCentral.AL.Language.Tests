@@ -311,7 +311,7 @@ codeunit 61463 "LT Y58 Page Action Functions"
             exit(Result + 'actions=null');
         foreach PageAction in Response.PageActions do begin
             Ids.Add(PageAction.ActionId);
-            Captions.Add(PageAction.Caption.ToString());
+            Captions.Add(CaptionOf(PageAction));
         end;
         foreach PageAction in Response.PageActions do begin
             ParentCaption := 'none';
@@ -320,10 +320,17 @@ codeunit 61463 "LT Y58 Page Action Functions"
             else
                 if PageAction.ParentActionId <> 0 then
                     ParentCaption := 'unknown';
-            Result += StrSubstNo('[%1/%2/%3/%4/%5/%6/%7/parent:%8]', PageAction.ActionType, PageAction.ActionSubtype, PageAction.Caption.ToString(),
+            Result += StrSubstNo('[%1/%2/%3/%4/%5/%6/%7/parent:%8]', PageAction.ActionType, PageAction.ActionSubtype, CaptionOf(PageAction),
                 PageAction.RunObjectType, PageAction.RunObjectId, Format(PageAction.RunObjectView), Format(PageAction.RunObjectViewFilter), ParentCaption);
         end;
         exit(Result);
+    end;
+
+    local procedure CaptionOf(PageAction: DotNet LtY58PageActionAL): Text
+    begin
+        if IsNull(PageAction.Caption) then
+            exit('(null caption)');
+        exit(PageAction.Caption.ToString());
     end;
 
     [TryFunction]
