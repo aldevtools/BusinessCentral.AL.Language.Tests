@@ -187,8 +187,9 @@ codeunit 90434 "LT UM Ay Install"
 // Application table (5050 Contact), the reporter's setup shape (a field whose OnValidate reads AllObjWithCaption, validated in
 // OnInstallAppPerCompany), and NavApp.LoadPackageData of an own table (the corpus app ships no package data) per company and of a
 // DataPerCompany = false table per database. Rows go only `if Insert() then;` into DataPerCompany = false table 93330 and the per-company setup
-// table 93331; a failed TryFunction stops the install transaction (the next Commit raises 'An error occurred and the transaction is stopped.'), so
-// the Validate and LoadPackageData run through `if Codeunit.Run` after a Commit and the reads use `if Get`.
+// table 93331; no TryFunction, Commit or `if Codeunit.Run` (on the SaaS sandbox a Commit in this
+// install raised 'An error occurred and the transaction is stopped.'): the reads use `if Get`, the Validate runs only when the row it reads exists,
+// and LoadPackageData is called directly (it raises no error outside install either: platform/lt-xmlport-session-navapp-cookie/P94NavApp.al:160).
 // Tests: Y64InstallLeads.al (codeunit 93333).
 table 93330 "LT Y64 Install Seen"
 {
@@ -255,36 +256,6 @@ table 93336 "LT Y64 Install Pkg Db Row"
     keys { key(PK; Id) { Clustered = true; } }
 }
 
-codeunit 93337 "LT Y64 Install Loader"
-{
-    trigger OnRun()
-    var
-        Row: Record "LT Y64 Install Pkg Row";
-    begin
-        if not Row.IsEmpty() then
-            exit;
-        NavApp.LoadPackageData(Database::"LT Y64 Install Pkg Row");
-    end;
-}
-
-codeunit 93338 "LT Y64 Install Loader Db"
-{
-    trigger OnRun()
-    begin
-        NavApp.LoadPackageData(Database::"LT Y64 Install Pkg Db Row");
-    end;
-}
-
-codeunit 93339 "LT Y64 Install Validator"
-{
-    TableNo = "LT Y64 Install Setup";
-
-    trigger OnRun()
-    begin
-        Rec.Validate("Table ID", Database::Contact);
-    end;
-}
-
 codeunit 93329 "LT Y64 Install"
 {
     Subtype = Install;
@@ -296,17 +267,15 @@ codeunit 93329 "LT Y64 Install"
         See('<db>', 'CONTEXT', Format(GetExecutionContext()));
         See('<db>', 'ALLOBJCAP TABLEDATA 5050', AllObjCaption(5050));
         See('<db>', 'ALLOBJ TABLEDATA 5050', AllObjRow(5050));
-        Commit();
-        if Codeunit.Run(Codeunit::"LT Y64 Install Loader Db") then
-            See('<db>', 'LOAD DB TABLE', 'ok|rows=' + Format(Row.Count()))
-        else
-            See('<db>', 'LOAD DB TABLE', 'error:' + GetLastErrorText() + '|' + GetLastErrorCode());
+        NavApp.LoadPackageData(Database::"LT Y64 Install Pkg Db Row");
+        See('<db>', 'LOAD DB TABLE', 'ok|rows=' + Format(Row.Count()));
     end;
 
     trigger OnInstallAppPerCompany()
     var
         MySetup: Record "LT Y64 Install Setup";
         Row: Record "LT Y64 Install Pkg Row";
+        CaptionRow: Record AllObjWithCaption;
         Co: Text[30];
     begin
         Co := CopyStr(CompanyName(), 1, 30);
@@ -316,18 +285,17 @@ codeunit 93329 "LT Y64 Install"
         See(Co, 'ALLOBJCAP TABLE 5050', AllObjCaptionTable(5050));
         See(Co, 'ALLOBJCAP TABLEDATA OWN', AllObjCaption(Database::"LT Y64 Install Setup"));
         See(Co, 'ALLOBJCAP TABLEDATA 18', AllObjCaption(18));
-        Commit();
         MySetup.Init();
-        if Codeunit.Run(Codeunit::"LT Y64 Install Validator", MySetup) then
-            See(Co, 'SETUP VALIDATE', 'ok|' + MySetup.TableName)
-        else
-            See(Co, 'SETUP VALIDATE', 'error:' + GetLastErrorText() + '|' + GetLastErrorCode());
-        if MySetup.Insert() then;
-        Commit();
-        if Codeunit.Run(Codeunit::"LT Y64 Install Loader") then
-            See(Co, 'LOAD OWN TABLE', 'ok|rows=' + Format(Row.Count()))
-        else
-            See(Co, 'LOAD OWN TABLE', 'error:' + GetLastErrorText() + '|' + GetLastErrorCode());
+        if CaptionRow.Get(CaptionRow."Object Type"::TableData, Database::Contact) then begin
+            MySetup.Validate("Table ID", Database::Contact);
+            See(Co, 'SETUP VALIDATE', 'ok|' + MySetup.TableName);
+            if MySetup.Insert() then;
+        end else
+            See(Co, 'SETUP VALIDATE', 'skipped: no TableData row');
+        if Row.IsEmpty() then begin
+            NavApp.LoadPackageData(Database::"LT Y64 Install Pkg Row");
+            See(Co, 'LOAD OWN TABLE', 'ok|rows=' + Format(Row.Count()));
+        end;
     end;
 
     local procedure AllObjCaption(Id: Integer): Text
