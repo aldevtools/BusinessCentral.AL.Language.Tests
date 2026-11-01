@@ -216,4 +216,82 @@ codeunit 99394 "LT Y51 Blob Stream Position"
         Observer.Expect('rest_100', 'abcdef|6');
         Observer.Verify();
     end;
+
+    // Writer Y57: the .NET Position and Length of a Blob stream after AL writes (OutStream) and after AL reads of each kind (InStream).
+    [Test]
+    procedure BlobStream_Position_AfterWrites()
+    var
+        TempBlob: Codeunit "Temp Blob";
+        OutS: OutStream;
+        S: DotNet LtY51DnStream;
+        B: Byte;
+        I: Integer;
+    begin
+        TempBlob.CreateOutStream(OutS);
+        S := OutS;
+        Observer.Observe('start', Format(S.Position) + '|' + Format(S.Length));
+        OutS.WriteText('abc');
+        Observer.Observe('writetext_abc', Format(S.Position) + '|' + Format(S.Length));
+        B := 139;
+        OutS.Write(B);
+        Observer.Observe('write_byte', Format(S.Position) + '|' + Format(S.Length));
+        I := 1;
+        OutS.Write(I);
+        Observer.Observe('write_integer', Format(S.Position) + '|' + Format(S.Length));
+        OutS.WriteText('x', 1);
+        Observer.Observe('writetext_len1', Format(S.Position) + '|' + Format(S.Length));
+        Observer.Observe('bloblength', Format(TempBlob.Length()));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure BlobStream_Position_AfterReads()
+    var
+        TempBlob: Codeunit "Temp Blob";
+        InS: InStream;
+        S: DotNet LtY51DnStream;
+        B: Byte;
+        T: Text;
+        N: Integer;
+    begin
+        Fill(TempBlob, 'abcdefghij', InS);
+        S := InS;
+        Observer.Observe('start', Format(S.Position) + '|' + Format(S.Length));
+        InS.Read(B);
+        Observer.Observe('read_byte', Format(S.Position));
+        N := InS.ReadText(T, 3);
+        Observer.Observe('readtext_3', Format(S.Position) + '|' + T + '|' + Format(N));
+        N := InS.Read(T, 2);
+        Observer.Observe('read_text_2', Format(S.Position) + '|' + T + '|' + Format(N));
+        N := InS.ReadText(T);
+        Observer.Observe('readtext_rest', Format(S.Position) + '|' + T + '|' + Format(N) + '|' + Format(InS.EOS()));
+        S.Position := 2;
+        Observer.Observe('set_2', Format(S.Position) + '|' + Format(InS.EOS()));
+        N := InS.ReadText(T);
+        Observer.Observe('readtext_after_set_2', Format(S.Position) + '|' + T + '|' + Format(N));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure BlobStream_Position_Lines()
+    var
+        TempBlob: Codeunit "Temp Blob";
+        OutS: OutStream;
+        InS: InStream;
+        S: DotNet LtY51DnStream;
+        T: Text;
+    begin
+        TempBlob.CreateOutStream(OutS);
+        OutS.WriteText('ab');
+        OutS.WriteText();
+        OutS.WriteText('cd');
+        TempBlob.CreateInStream(InS);
+        S := InS;
+        Observer.Observe('length', Format(S.Length));
+        InS.ReadText(T);
+        Observer.Observe('line1', Format(S.Position) + '|' + T);
+        InS.ReadText(T);
+        Observer.Observe('line2', Format(S.Position) + '|' + T + '|' + Format(InS.EOS()));
+        Observer.Finish();
+    end;
 }

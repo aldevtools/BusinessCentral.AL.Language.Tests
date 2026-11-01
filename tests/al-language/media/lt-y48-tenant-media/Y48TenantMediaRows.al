@@ -113,6 +113,29 @@ codeunit 92927 "LT Y48 TM Step"
                     MediaGuid := Row.Pic.MediaId();
                     Result := 'imported';
                 end;
+            // Writer Y57: Arg = '<description>|<mime type>' for the three-argument import, or '<description>' for the two-argument one
+            'own import args':
+                begin
+                    OwnRow(Row);
+                    TextStream(TempBlob, InS);
+                    if StrPos(Arg, '|') > 0 then
+                        Row.Pic.ImportStream(InS, CopyStr(Arg, 1, StrPos(Arg, '|') - 1), CopyStr(Arg, StrPos(Arg, '|') + 1))
+                    else
+                        Row.Pic.ImportStream(InS, Arg);
+                    Row.Modify();
+                    MediaGuid := Row.Pic.MediaId();
+                    Result := 'imported';
+                end;
+            // Writer Y57: the Tenant Media row of a MediaSet item, Arg = description
+            'own import set item':
+                begin
+                    OwnRow(Row);
+                    TextStream(TempBlob, InS);
+                    Row.Pics.ImportStream(InS, Arg);
+                    Row.Modify();
+                    MediaGuid := Row.Pics.Item(Row.Pics.Count());
+                    Result := 'imported';
+                end;
             'own import set':
                 begin
                     OwnRow(Row);
@@ -520,5 +543,49 @@ codeunit 92928 "LT Y48 Tenant Media Rows"
         Observer.Expect('tms count', '2');
         Observer.Expect('tms rows', 'row: company=Yes hasvalue=No index>0=Yes;row: company=Yes hasvalue=Yes index>0=Yes;');
         Observer.Verify();
+    end;
+
+    // Writer Y57: the Tenant Media row of the media AL code imports itself (two- and three-argument ImportStream, a MediaSet item), and
+    // more file names through Document Attachment's four-argument import.
+    [Test]
+    procedure TM_RowOfOwnImports()
+    var
+        NullGuid: Guid;
+    begin
+        Clear(Observer);
+        Run('two args', 'own import args', 'my description', 61, NullGuid);
+        Observer.Observe('two args row', TmRow(LastGuid));
+        Run('two args file-like', 'own import args', 'report.pdf', 62, NullGuid);
+        Observer.Observe('two args file-like row', TmRow(LastGuid));
+        Run('three args', 'own import args', 'test.txt|text/plain', 63, NullGuid);
+        Observer.Observe('three args row', TmRow(LastGuid));
+        Run('three args other mime', 'own import args', 'pic|image/png', 64, NullGuid);
+        Observer.Observe('three args other mime row', TmRow(LastGuid));
+        Run('three args empty mime', 'own import args', 'x.json|', 65, NullGuid);
+        Observer.Observe('three args empty mime row', TmRow(LastGuid));
+        Run('set item', 'own import set item', 'set item description', 66, NullGuid);
+        Observer.Observe('set item row', TmRow(LastGuid));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure TM_RowOfFourArgImport_MoreNames()
+    var
+        NullGuid: Guid;
+    begin
+        Clear(Observer);
+        Run('attach D', 'attach', 'TestFile_D.xlsx', 71, NullGuid);
+        Observer.Observe('TestFile_D.xlsx', TmRow(LastGuid));
+        Run('attach E', 'attach', 'TestFile_E.json', 72, NullGuid);
+        Observer.Observe('TestFile_E.json', TmRow(LastGuid));
+        Run('attach F', 'attach', 'Test.File.F.TXT', 73, NullGuid);
+        Observer.Observe('Test.File.F.TXT', TmRow(LastGuid));
+        Run('attach G', 'attach', 'TestFile_G.csv', 74, NullGuid);
+        Observer.Observe('TestFile_G.csv', TmRow(LastGuid));
+        Run('attach H', 'attach', 'TestFile_H.docx', 75, NullGuid);
+        Observer.Observe('TestFile_H.docx', TmRow(LastGuid));
+        Run('attach I', 'attach', 'TestFile_I.xml', 76, NullGuid);
+        Observer.Observe('TestFile_I.xml', TmRow(LastGuid));
+        Observer.Finish();
     end;
 }

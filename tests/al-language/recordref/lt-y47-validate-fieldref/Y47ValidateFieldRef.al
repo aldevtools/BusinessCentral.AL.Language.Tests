@@ -406,4 +406,129 @@ codeunit 92909 "LT Y47 Validate FieldRef"
         Observer.Expect('filterInt', '>42');
         Observer.Verify();
     end;
+
+    // Writer Y57: the Quality Management QltyTraversal shape. The Variant holds the VALUE of a field (FromVariantValue := FromFieldRef.Value),
+    // or a literal, and goes into a Text or Code field with FieldRef.Validate(Variant) or FieldRef.Value := Variant.
+    [TryFunction]
+    local procedure TryValueVariant(var TargetField: FieldRef; V: Variant)
+    begin
+        TargetField.Value := V;
+    end;
+
+    local procedure PutVariant(V: Variant; TargetNo: Integer; UseValidate: Boolean): Text
+    var
+        Log: Codeunit "LT Y47 VF Log";
+        Target: Record "LT Y47 VF Row";
+        TargetRef: RecordRef;
+        TargetField: FieldRef;
+        Ok: Boolean;
+    begin
+        Log.Take();
+        Target.Get('T');
+        TargetRef.GetTable(Target);
+        TargetField := TargetRef.Field(TargetNo);
+        ClearLastError();
+        if UseValidate then
+            Ok := TryValidateVariant(TargetField, V)
+        else
+            Ok := TryValueVariant(TargetField, V);
+        if Ok then begin
+            TargetRef.Modify();
+            exit('ok [' + Show(TargetNo) + '] ' + Log.Take());
+        end;
+        exit('error ' + GetLastErrorText() + '|' + GetLastErrorCode() + ' [' + Show(TargetNo) + '] ' + Log.Take());
+    end;
+
+    local procedure FieldVariant(SourceNo: Integer; TargetNo: Integer; UseValidate: Boolean): Text
+    var
+        Source: Record "LT Y47 VF Row";
+        SourceRef: RecordRef;
+        V: Variant;
+    begin
+        Seed();
+        Source.Get('S');
+        SourceRef.GetTable(Source);
+        V := SourceRef.Field(SourceNo).Value;
+        exit(PutVariant(V, TargetNo, UseValidate));
+    end;
+
+    [Test]
+    procedure Y57_ValidateVariantValue_IntoText()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('int_txt', FieldVariant(4, 2, true));
+        Observer.Observe('dec_txt', FieldVariant(5, 2, true));
+        Observer.Observe('dat_txt', FieldVariant(6, 2, true));
+        Observer.Observe('bool_txt', FieldVariant(10, 2, true));
+        Observer.Observe('opt_txt', FieldVariant(8, 2, true));
+        Observer.Observe('enm_txt', FieldVariant(7, 2, true));
+        Observer.Observe('cod_txt', FieldVariant(3, 2, true));
+        Observer.Observe('int_cod', FieldVariant(4, 3, true));
+        Observer.Observe('dec_cod', FieldVariant(5, 3, true));
+        Observer.Observe('dat_cod', FieldVariant(6, 3, true));
+        Observer.Observe('bool_cod', FieldVariant(10, 3, true));
+        Observer.Observe('txt_cod', FieldVariant(2, 3, true));
+        Observer.Observe('int_numtxt', FieldVariant(4, 12, true));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y57_ValueVariantValue_IntoText()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('int_txt', FieldVariant(4, 2, false));
+        Observer.Observe('dec_txt', FieldVariant(5, 2, false));
+        Observer.Observe('dat_txt', FieldVariant(6, 2, false));
+        Observer.Observe('bool_txt', FieldVariant(10, 2, false));
+        Observer.Observe('opt_txt', FieldVariant(8, 2, false));
+        Observer.Observe('int_cod', FieldVariant(4, 3, false));
+        Observer.Observe('dec_cod', FieldVariant(5, 3, false));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y57_ValidateVariantLiteral_IntoText()
+    var
+        Observer: Codeunit "Probe Observer";
+        V: Variant;
+        I: Integer;
+        D: Decimal;
+        Big: BigInteger;
+        Dt: Date;
+        B: Boolean;
+    begin
+        Seed();
+        I := 5;
+        V := I;
+        Observer.Observe('int5_txt', PutVariant(V, 2, true));
+        Observer.Observe('int5_cod', PutVariant(V, 3, true));
+        I := -12;
+        V := I;
+        Observer.Observe('intminus12_txt', PutVariant(V, 2, true));
+        D := 2.5;
+        V := D;
+        Observer.Observe('dec2_5_txt', PutVariant(V, 2, true));
+        D := 1234.5;
+        V := D;
+        Observer.Observe('dec1234_5_txt', PutVariant(V, 2, true));
+        Big := 3000000000L;
+        V := Big;
+        Observer.Observe('big3e9_txt', PutVariant(V, 2, true));
+        Big := 12345678901L;
+        V := Big;
+        Observer.Observe('big11digits_numtxt', PutVariant(V, 12, true));
+        Observer.Observe('big11digits_cod', PutVariant(V, 3, true));
+        Dt := 20240115D;
+        V := Dt;
+        Observer.Observe('date_txt', PutVariant(V, 2, true));
+        B := false;
+        V := B;
+        Observer.Observe('false_txt', PutVariant(V, 2, true));
+        I := 7;
+        V := I;
+        Observer.Observe('int7_value_txt', PutVariant(V, 2, false));
+        Observer.Finish();
+    end;
 }

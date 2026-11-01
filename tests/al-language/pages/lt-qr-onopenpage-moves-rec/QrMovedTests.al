@@ -2702,4 +2702,240 @@ codeunit 87266 "LT QR Moved Tests"
         Observer.Expect('after close log', '');
         Observer.Verify();
     end;
+
+    // Writer Y57: a temporary Worksheet (not a tree) whose OnOpenPage fills Rec and moves it (QrMovedTempWsObjects.al, pages 93102, 93103).
+    local procedure ReadTempWs(var P: TestPage "LT QR Moved Temp Ws")
+    begin
+        Observer.Observe('open', P.NoCtl.Value() + '|' + P.NameCtl.Value());
+        Observer.Observe('open log', Log.Take());
+        Observer.Observe('next', Format(P.Next()) + '|' + P.NoCtl.Value());
+        Observer.Observe('next log', Log.Take());
+        Observer.Observe('previous', Format(P.Previous()) + '|' + P.NoCtl.Value());
+        Observer.Observe('previous log', Log.Take());
+        Observer.Observe('first', Format(P.First()) + '|' + P.NoCtl.Value());
+        Observer.Observe('first log', Log.Take());
+    end;
+
+    local procedure ReadTempWsNext(var P: TestPage "LT QR Moved Temp Ws Next")
+    begin
+        Observer.Observe('open', P.NoCtl.Value() + '|' + P.NameCtl.Value());
+        Observer.Observe('open log', Log.Take());
+        Observer.Observe('next', Format(P.Next()) + '|' + P.NoCtl.Value());
+        Observer.Observe('next log', Log.Take());
+        Observer.Observe('previous', Format(P.Previous()) + '|' + P.NoCtl.Value());
+        Observer.Observe('previous log', Log.Take());
+    end;
+
+    local procedure ViewTempWs(Mode: Integer; Edit: Boolean)
+    var
+        P: TestPage "LT QR Moved Temp Ws";
+    begin
+        Seed(Mode);
+        if Edit then
+            P.OpenEdit()
+        else
+            P.OpenView();
+        ReadTempWs(P);
+        P.Close();
+    end;
+
+    local procedure ViewTempWsNext(Mode: Integer)
+    var
+        P: TestPage "LT QR Moved Temp Ws Next";
+    begin
+        Seed(Mode);
+        P.OpenView();
+        ReadTempWsNext(P);
+        P.Close();
+    end;
+
+    [PageHandler]
+    procedure TempWsHandler(var P: TestPage "LT QR Moved Temp Ws")
+    begin
+        ReadTempWs(P);
+    end;
+
+    [ModalPageHandler]
+    procedure TempWsModalHandler(var P: TestPage "LT QR Moved Temp Ws")
+    begin
+        ReadTempWs(P);
+    end;
+
+    [ModalPageHandler]
+    procedure TempWsNextModalHandler(var P: TestPage "LT QR Moved Temp Ws Next")
+    begin
+        ReadTempWsNext(P);
+    end;
+
+    [Test]
+    procedure QR_TempWs_OpenView_NoMove()
+    begin
+        ViewTempWs(0, false);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure QR_TempWs_OpenView_Get()
+    begin
+        ViewTempWs(1, false);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure QR_TempWs_OpenView_FindLast()
+    begin
+        ViewTempWs(2, false);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure QR_TempWs_OpenView_FindFirstNext()
+    begin
+        ViewTempWs(3, false);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure QR_TempWs_OpenView_RangeFindLast()
+    begin
+        ViewTempWs(4, false);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure QR_TempWs_OpenView_KeyGet()
+    begin
+        ViewTempWs(5, false);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure QR_TempWs_OpenView_KeyNoRead()
+    begin
+        ViewTempWs(6, false);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure QR_TempWs_OpenView_GetOutsideRange()
+    begin
+        ViewTempWs(7, false);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure QR_TempWs_OpenView_RangeFindFirst()
+    begin
+        ViewTempWs(8, false);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure QR_TempWs_OpenEdit_Get()
+    begin
+        ViewTempWs(1, true);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure QR_TempWsNext_OpenView_NoMove()
+    begin
+        ViewTempWsNext(0);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure QR_TempWsNext_OpenView_Get()
+    begin
+        ViewTempWsNext(1);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure QR_TempWsNext_OpenView_KeyGet()
+    begin
+        ViewTempWsNext(5);
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('TempWsHandler')]
+    procedure QR_TempWs_PageRun_NoMove()
+    begin
+        Seed(0);
+        Page.Run(Page::"LT QR Moved Temp Ws");
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('TempWsHandler')]
+    procedure QR_TempWs_PageRun_Get()
+    begin
+        Seed(1);
+        Page.Run(Page::"LT QR Moved Temp Ws");
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('TempWsHandler')]
+    procedure QR_TempWs_PageRun_KeyGet()
+    begin
+        Seed(5);
+        Page.Run(Page::"LT QR Moved Temp Ws");
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('TempWsModalHandler')]
+    procedure QR_TempWs_RunModal_Get()
+    begin
+        Seed(1);
+        Page.RunModal(Page::"LT QR Moved Temp Ws");
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('TempWsModalHandler')]
+    procedure QR_TempWs_LookupMode_Get()
+    var
+        WsPage: Page "LT QR Moved Temp Ws";
+    begin
+        Seed(1);
+        WsPage.LookupMode(true);
+        WsPage.RunModal();
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('TempWsModalHandler')]
+    procedure QR_TempWs_RunModal_KeyGet()
+    begin
+        Seed(5);
+        Page.RunModal(Page::"LT QR Moved Temp Ws");
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('TempWsModalHandler')]
+    procedure QR_TempWs_LookupMode_KeyGet()
+    var
+        WsPage: Page "LT QR Moved Temp Ws";
+    begin
+        Seed(5);
+        WsPage.LookupMode(true);
+        WsPage.RunModal();
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('TempWsNextModalHandler')]
+    procedure QR_TempWsNext_LookupMode_KeyGet()
+    var
+        WsPage: Page "LT QR Moved Temp Ws Next";
+    begin
+        Seed(5);
+        WsPage.LookupMode(true);
+        WsPage.RunModal();
+        Observer.Finish();
+    end;
 }

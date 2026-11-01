@@ -241,4 +241,84 @@ codeunit 92981 "LT Y51 SetView Shapes"
         Observer.Expect('fpb_view_true', 'VERSION(1) SORTING(Entry No.) WHERE(Description=FILTER(==))');
         Observer.Verify();
     end;
+
+    [TryFunction]
+    local procedure TrySetFilterDescription(var Row: Record "LT Y51 SV Row"; Filter: Text)
+    begin
+        Row.SetFilter(Description, Filter);
+    end;
+
+    local procedure SF(Filter: Text): Text
+    var
+        Row: Record "LT Y51 SV Row";
+    begin
+        ClearLastError();
+        if TrySetFilterDescription(Row, Filter) then
+            exit('ok|' + Row.GetFilter(Description) + '|' + Row.GetView(false) + '|' + Format(Row.Count()));
+        exit('err|' + GetLastErrorText() + '|' + GetLastErrorCode());
+    end;
+
+    // Writer Y57: a view that already holds the empty value as GetView writes it (`1(==)`), set again with SetView (the Retention Policy
+    // apply code reads back the view its FilterPageBuilder stored).
+    [Test]
+    procedure SetView_DoubleEqualsValue()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
+        Observer.Observe('text_1', SV('WHERE(Field4=1(==))'));
+        Observer.Observe('text_full', SV('VERSION(1) SORTING(Field1) WHERE(Field4=1(==))'));
+        Observer.Observe('text_full_rec', SVRec('VERSION(1) SORTING(Field1) WHERE(Field4=1(==))'));
+        Observer.Observe('text_filter_name', SV('VERSION(1) SORTING(Entry No.) WHERE(Description=FILTER(==))'));
+        Observer.Observe('text5_1', SV('WHERE(Field5=1(==))'));
+        Observer.Observe('date_1', SV('WHERE(Field2=1(==))'));
+        Observer.Observe('int_1', SV('WHERE(Field1=1(==))'));
+        Observer.Observe('text_const', SV('WHERE(Field4=CONST(==))'));
+        Observer.Observe('text_single_eq', SV('WHERE(Field4=1(=))'));
+        Observer.Observe('text_eq_A', SV('WHERE(Field4=1(=A))'));
+        Observer.Observe('two_fields', SV('VERSION(1) SORTING(Field1) WHERE(Field2=1(..2024-02-01),Field4=1(==))'));
+        Observer.Observe('two_fields_first', SV('VERSION(1) SORTING(Field1) WHERE(Field4=1(==),Field5=1(E))'));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SetView_DoubleEquals_RoundTrip()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT Y51 SV Row";
+        RR: RecordRef;
+        RR2: RecordRef;
+        RR3: RecordRef;
+        View: Text;
+    begin
+        Seed();
+        RR.Open(Database::"LT Y51 SV Row");
+        RR.SetView('WHERE(Field4=1())');
+        View := RR.GetView(false);
+        Observer.Observe('stored_view', View);
+        RR2.Open(Database::"LT Y51 SV Row");
+        ClearLastError();
+        if TrySetView(RR2, View) then
+            Observer.Observe('set_again', 'ok|' + State(RR2))
+        else
+            Observer.Observe('set_again', 'err|' + GetLastErrorText() + '|' + GetLastErrorCode());
+        RR3.Open(Database::"LT Y51 SV Row");
+        RR3.FilterGroup := 10;
+        ClearLastError();
+        if TrySetView(RR3, View) then
+            Observer.Observe('group10_set', 'ok|' + RR3.GetView(false) + '|' + RR3.GetFilters() + '|' + Format(RR3.Count()))
+        else
+            Observer.Observe('group10_set', 'err|' + GetLastErrorText() + '|' + GetLastErrorCode());
+        RR3.FilterGroup := 0;
+        Observer.Observe('group0_view', RR3.GetView(false));
+        RR3.FilterGroup := 10;
+        RR3.SetView('');
+        Observer.Observe('group10_cleared', RR3.GetView(false) + '|' + Format(RR3.Count()));
+        Observer.Observe('setfilter_eqeq', SF('=='));
+        Observer.Observe('setfilter_eq', SF('='));
+        Observer.Observe('setfilter_quotes', SF(''''''));
+        Row.SetRange(Description, '');
+        Observer.Observe('setrange_blank', Row.GetFilter(Description) + '|' + Row.GetView(false) + '|' + Format(Row.Count()));
+        Observer.Finish();
+    end;
 }
