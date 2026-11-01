@@ -7,7 +7,8 @@
 //   a value longer than the target (error text and code). Also FieldRef.Value := <FieldRef>, a Variant holding a FieldRef passed to Validate, and
 //   FieldRef.SetRange(<FieldRef>). Record.Validate(Field, <FieldRef>) and Rec.Field := <FieldRef> do not compile: must-not-compile 2548, 2549.
 //   Source row 'S': Txt 'Hello', Cod 'ABC', Int 42, Dec 12.5, Dat 2024-01-15, Enm Second, Opt B, Long (37 chars), Bool Yes,
-//   LongCode 'CODE12345678901' (15 chars), NumTxt '17'. Target row 'T' starts from Init() (blank) and is read back with Get after Modify.
+//   LongCode 'CODE12345678901' (15 chars), NumTxt '17'. BC 27.5 gives another error for Text 'Hello' into an Integer (NotSupportedType).
+//   The Date to Text case gives the en-US format of the test servers. Target row 'T' starts from Init() (blank) and is read back with Get after Modify.
 // BC versions: 27, 28, 29
 
 enum 92907 "LT Y47 VF Kind"
@@ -304,7 +305,11 @@ codeunit 92909 "LT Y47 Validate FieldRef"
         Observer.Expect('int_to_dec', 'ok [42] vDec=42;');
         Observer.Expect('dec_to_int', 'error Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 12.5 to System.Int32.|ConversionCast [0] ');
         Observer.Expect('int_to_text', 'ok [42] vTxt=42 x=;');
+#if BC28PLUS
         Observer.Expect('text_to_int', 'error The value "Hello" can''t be evaluated into type Integer.|Evaluate:Format [0] ');
+#else
+        Observer.Expect('text_to_int', 'error The type NavInteger is unknown.|NotSupportedType [0] ');
+#endif
         Observer.Expect('numtext_to_int', 'ok [17] vInt=17;');
         Observer.Expect('enum_to_int', 'ok [1] vInt=1;');
         Observer.Expect('option_to_enum', 'ok [1] vEnm=1;');
@@ -331,7 +336,11 @@ codeunit 92909 "LT Y47 Validate FieldRef"
         Observer.Expect('val_same_text', 'ok [Hello] ');
         Observer.Expect('val_long_to_text20', 'error The length of the string is 37, but it must be less than or equal to 20 characters. Value: This text is longer than twenty chars|StringLengthExceeded [] ');
         Observer.Expect('val_int_to_dec', 'ok [42] ');
+#if BC28PLUS
         Observer.Expect('val_text_to_int', 'error The value "Hello" can''t be evaluated into type Integer.|Evaluate:Format [0] ');
+#else
+        Observer.Expect('val_text_to_int', 'error The type NavInteger is unknown.|NotSupportedType [0] ');
+#endif
         Observer.Verify();
     end;
 

@@ -2,10 +2,11 @@
 // Scope: in-scope
 // Fixtures used: Probe Observer (codeunit 69160); enum 92900, table 92900, test codeunit 92901
 // Probe (al-runner issue 6585): InitValue of an Enum field written as a single-quoted string ('G/L Account'), next to the double-quoted
-//   ("G/L Account") and bare (Item) forms, on an own enum, on Base App enum "Sales Line Type" and on an Option field. Observed: the value
+//   ("G/L Account") and bare (Item) forms, on an own enum, on Base App enum "Sales Line Type", and the double-quoted form on an Option field. Observed: the value
 //   after Init(), on a fresh record variable, after Insert + Get, through RecordRef.Init, and the ordinal.
 //   Odd single-quoted values the compiler does not check against the enum ('Unknown', 'g/l account', '1', 'G/L Account ' with a trailing
-//   space) and the bare ordinal 1, each in its own table (92901-92905), read through Init() in a TryFunction.
+//   space) and the bare ordinal 1, each in its own table (92901-92905), each step in a TryFunction. 'g/l account', '1', 'G/L Account ' and 1
+//   all give G/L Account (ordinal 1); with 'Unknown', Init succeeds and every read of the field raises InvalidOptionString.
 //   An Option field rejects the single-quoted form at compile time (AL0294): must-not-compile cases 2540, 2541; an unknown bare member: 2542.
 // BC versions: 27, 28, 29
 
@@ -300,7 +301,13 @@ codeunit 92901 "LT Y47 Enum Init Quoted"
         ClearLastError();
         Value := '';
         Observer.Observe('recOrdinal', Step(TryOrdinalUnknown(Row, Value), Value));
-        Observer.Finish();
+        Observer.Expect('refInit', 'ok ');
+        Observer.Expect('refFormat', 'error ''Unknown'' is not an option. The existing options are:  ,G/L Account,Item,Fixed Asset|InvalidOptionString');
+        Observer.Expect('refOrdinal', 'error ''Unknown'' is not an option. The existing options are:  ,G/L Account,Item,Fixed Asset|InvalidOptionString');
+        Observer.Expect('recInit', 'ok ');
+        Observer.Expect('recFormat', 'error ''Unknown'' is not an option. The existing options are:  ,G/L Account,Item,Fixed Asset|InvalidOptionString');
+        Observer.Expect('recOrdinal', 'error ''Unknown'' is not an option. The existing options are:  ,G/L Account,Item,Fixed Asset|InvalidOptionString');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -336,7 +343,13 @@ codeunit 92901 "LT Y47 Enum Init Quoted"
         ClearLastError();
         Value := '';
         Observer.Observe('recOrdinal', Step(TryOrdinalLower(Row, Value), Value));
-        Observer.Finish();
+        Observer.Expect('refInit', 'ok ');
+        Observer.Expect('refFormat', 'ok G/L Account');
+        Observer.Expect('refOrdinal', 'ok 1');
+        Observer.Expect('recInit', 'ok ');
+        Observer.Expect('recFormat', 'ok G/L Account');
+        Observer.Expect('recOrdinal', 'ok 1');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -372,7 +385,13 @@ codeunit 92901 "LT Y47 Enum Init Quoted"
         ClearLastError();
         Value := '';
         Observer.Observe('recOrdinal', Step(TryOrdinalDigit(Row, Value), Value));
-        Observer.Finish();
+        Observer.Expect('refInit', 'ok ');
+        Observer.Expect('refFormat', 'ok G/L Account');
+        Observer.Expect('refOrdinal', 'ok 1');
+        Observer.Expect('recInit', 'ok ');
+        Observer.Expect('recFormat', 'ok G/L Account');
+        Observer.Expect('recOrdinal', 'ok 1');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -408,7 +427,13 @@ codeunit 92901 "LT Y47 Enum Init Quoted"
         ClearLastError();
         Value := '';
         Observer.Observe('recOrdinal', Step(TryOrdinalOrdinal(Row, Value), Value));
-        Observer.Finish();
+        Observer.Expect('refInit', 'ok ');
+        Observer.Expect('refFormat', 'ok G/L Account');
+        Observer.Expect('refOrdinal', 'ok 1');
+        Observer.Expect('recInit', 'ok ');
+        Observer.Expect('recFormat', 'ok G/L Account');
+        Observer.Expect('recOrdinal', 'ok 1');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -444,6 +469,12 @@ codeunit 92901 "LT Y47 Enum Init Quoted"
         ClearLastError();
         Value := '';
         Observer.Observe('recOrdinal', Step(TryOrdinalSpace(Row, Value), Value));
-        Observer.Finish();
+        Observer.Expect('refInit', 'ok ');
+        Observer.Expect('refFormat', 'ok G/L Account');
+        Observer.Expect('refOrdinal', 'ok 1');
+        Observer.Expect('recInit', 'ok ');
+        Observer.Expect('recFormat', 'ok G/L Account');
+        Observer.Expect('recOrdinal', 'ok 1');
+        Observer.Verify();
     end;
 }
