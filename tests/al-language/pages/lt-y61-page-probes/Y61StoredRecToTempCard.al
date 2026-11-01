@@ -185,6 +185,8 @@ codeunit 93249 "LT Y61 Stored Rec To Temp Card"
         R: Record "LT Y61 TC Row";
         Log: Record "LT Y61 Log";
     begin
+        ClearLastError();
+        Observer.Discard();
         R.DeleteAll();
         R.Code := 'N1';
         R.Name := 'stored1';
@@ -266,12 +268,19 @@ codeunit 93249 "LT Y61 Stored Rec To Temp Card"
         Observer.Observe('handler log', TakeLog());
     end;
 
+    [TryFunction]
+    local procedure TryNavigateAgree(var P: TestPage "LT Y61 TC Navigate")
+    begin
+        P.Agree.Invoke();
+    end;
+
     [ModalPageHandler]
     procedure NavigateHandler(var P: TestPage "LT Y61 TC Navigate")
     begin
         Observer.Observe('handler open log', TakeLog());
         Observer.Observe('handler shown', P.CodeCtl.Value() + '/' + P.NameCtl.Value());
-        P.Agree.Invoke();
+        Observer.Observe('handler agree ok', Format(TryNavigateAgree(P)));
+        Observer.ObserveError('handler agree');
         Observer.Observe('handler log', TakeLog());
     end;
 

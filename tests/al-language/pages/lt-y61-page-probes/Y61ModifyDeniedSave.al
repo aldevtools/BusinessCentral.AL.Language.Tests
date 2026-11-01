@@ -253,6 +253,8 @@ codeunit 93248 "LT Y61 Modify Denied Save"
         R: Record "LT Y61 MD Row";
         Log: Record "LT Y61 Log";
     begin
+        ClearLastError();
+        Observer.Discard();
         R.DeleteAll();
         AddRow('A');
         AddRow('B');

@@ -81,6 +81,8 @@ codeunit 93250 "LT Y61 RunModal Stmt Cancel"
 
     local procedure Seed()
     begin
+        ClearLastError();
+        Observer.Discard();
         G.Reset();
         G.DeleteAll();
         AddRow('A', 1);

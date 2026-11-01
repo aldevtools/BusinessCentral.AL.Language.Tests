@@ -172,6 +172,8 @@ codeunit 93241 "LT Y61 Sel Composite"
     var
         H: Record "LT Y61 Sel H";
     begin
+        ClearLastError();
+        Observer.Discard();
         H.DeleteAll();
         AddH('C1', 'A');
         AddH('C1', 'B');
@@ -196,6 +198,8 @@ codeunit 93241 "LT Y61 Sel Composite"
         D: Record "LT Y61 Sel D";
         Log: Record "LT Y61 Log";
     begin
+        ClearLastError();
+        Observer.Discard();
         D.DeleteAll();
         AddD(1, 'X');
         AddD(2, 'X');

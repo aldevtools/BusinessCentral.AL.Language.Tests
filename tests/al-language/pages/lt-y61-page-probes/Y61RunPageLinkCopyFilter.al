@@ -237,6 +237,8 @@ codeunit 93246 "LT Y61 RunPageLink CopyFilter"
         Q: Record "LT Y61 RL Q";
         Log: Record "LT Y61 Log";
     begin
+        ClearLastError();
+        Observer.Discard();
         P.DeleteAll();
         Q.DeleteAll();
         P.Code := 'P1';

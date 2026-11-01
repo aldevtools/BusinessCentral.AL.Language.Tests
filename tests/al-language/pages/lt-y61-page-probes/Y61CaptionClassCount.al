@@ -680,6 +680,8 @@ codeunit 93244 "LT Y61 CaptionClass Count"
         Row: Record "LT Y61 CC K4";
         i: Integer;
     begin
+        ClearLastError();
+        Observer.Discard();
         Row.DeleteAll();
         for i := 1 to 3 do begin
             Row.Init();
@@ -694,6 +696,8 @@ codeunit 93244 "LT Y61 CaptionClass Count"
         Row: Record "LT Y61 CC K4S";
         i: Integer;
     begin
+        ClearLastError();
+        Observer.Discard();
         Row.DeleteAll();
         for i := 1 to 3 do begin
             Row.Init();
@@ -708,6 +712,8 @@ codeunit 93244 "LT Y61 CaptionClass Count"
         Row: Record "LT Y61 CC K3S";
         i: Integer;
     begin
+        ClearLastError();
+        Observer.Discard();
         Row.DeleteAll();
         for i := 1 to 3 do begin
             Row.Init();
@@ -722,6 +728,8 @@ codeunit 93244 "LT Y61 CaptionClass Count"
         Row: Record "LT Y61 CC K15";
         i: Integer;
     begin
+        ClearLastError();
+        Observer.Discard();
         Row.DeleteAll();
         for i := 1 to 3 do begin
             Row.Init();
@@ -736,6 +744,8 @@ codeunit 93244 "LT Y61 CaptionClass Count"
         Row: Record "LT Y61 CC KM";
         i: Integer;
     begin
+        ClearLastError();
+        Observer.Discard();
         Row.DeleteAll();
         for i := 1 to 3 do begin
             Row.Init();
@@ -750,6 +760,8 @@ codeunit 93244 "LT Y61 CaptionClass Count"
         Row: Record "LT Y61 CC K1";
         i: Integer;
     begin
+        ClearLastError();
+        Observer.Discard();
         Row.DeleteAll();
         for i := 1 to 3 do begin
             Row.Init();

@@ -166,6 +166,8 @@ codeunit 93243 "LT Y61 GoToKey Edges"
         Log: Record "LT Y61 Log";
         i: Integer;
     begin
+        ClearLastError();
+        Observer.Discard();
         Row.DeleteAll();
         for i := 1 to Rows do begin
             Row.Init();
