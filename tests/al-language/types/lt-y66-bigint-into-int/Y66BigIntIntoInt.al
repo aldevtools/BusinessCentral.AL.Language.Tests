@@ -72,7 +72,10 @@ codeunit 93405 "LT Y66 BigInt Into Int"
         MyGracePeriod.GetDaysLeftMinus(DaysLeft);
         Observer.Observe('var param minus', Kind(DaysLeft));
         Observer.Observe('exit Integer', Kind(MyGracePeriod.DaysAsInteger()));
-        Observer.Finish();
+        Observer.Expect('var param', 'Integer 1');
+        Observer.Expect('var param minus', 'Integer -2');
+        Observer.Expect('exit Integer', 'Integer 1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -109,7 +112,17 @@ codeunit 93405 "LT Y66 BigInt Into Int"
         Dur := 60000;
         LocalInt := Dur div 1000;
         Observer.Observe('Duration div Integer into Integer', Kind(LocalInt));
-        Observer.Finish();
+        Observer.Expect('local', 'Integer 1');
+        Observer.Expect('global', 'Integer 1');
+        Observer.Expect('field', 'Integer 1');
+        Observer.Expect('array element', 'Integer 1');
+        Observer.Expect('BigInteger variable', 'Integer 5');
+        Observer.Expect('BigInteger literal', 'Integer 7');
+        Observer.Expect('compound add', 'Integer 2');
+        Observer.Expect('BigInteger times Integer', 'Integer 10');
+        Observer.Expect('by-value Integer parameter', 'Integer 1');
+        Observer.Expect('Duration div Integer into Integer', 'Integer 60');
+        Observer.Verify();
     end;
 
     [Test]
@@ -146,7 +159,17 @@ codeunit 93405 "LT Y66 BigInt Into Int"
         Observer.Observe('Variant := Integer + BigInteger', Kind(V));
         V := IntA * 1.0;
         Observer.Observe('Variant := Integer * Decimal', Kind(V));
-        Observer.Finish();
+        Observer.Expect('into Decimal', 'Decimal 1');
+        Observer.Expect('Integer expression into BigInteger', 'BigInteger 3');
+        Observer.Expect('into Duration', 'Duration P0DT0H1M26.4S');
+        Observer.Expect('Variant := BigInteger div Integer', 'BigInteger 28800000');
+        Observer.Expect('Variant := Integer div Integer', 'Integer 3');
+        Observer.Expect('Variant := Duration div Integer', 'Decimal 20000');
+        Observer.Expect('Variant := Duration + Integer', 'BigInteger 60010');
+        Observer.Expect('Variant := 5L', 'BigInteger 5');
+        Observer.Expect('Variant := Integer + BigInteger', 'BigInteger 13');
+        Observer.Expect('Variant := Integer * Decimal', 'Decimal 10');
+        Observer.Verify();
     end;
 
     local procedure ByValue(Value: Integer): Text

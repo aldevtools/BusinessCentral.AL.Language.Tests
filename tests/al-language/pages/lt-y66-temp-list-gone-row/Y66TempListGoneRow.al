@@ -238,7 +238,24 @@ codeunit 93410 "LT Y66 Temp List Gone Row"
         Mode := 0;
         Observer.Observe('runmodal', Format(Page.RunModal(Page::"LT Y66 GR List Desc")));
         Observer.Observe('after runmodal log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10;');
+        Observer.Expect('open shown', '10|N10');
+        Observer.Expect('action log', 'R:10;N:0;C:0;');
+        Observer.Expect('shown after action', '|');
+        Observer.Expect('first', 'No');
+        Observer.Expect('value after first', '');
+        Observer.Expect('last', 'No');
+        Observer.Expect('next', 'No');
+        Observer.Expect('previous', 'No');
+        Observer.Expect('moves log', '');
+        Observer.Expect('second action log', 'N:0;C:0;');
+        Observer.Expect('refill log', 'R:10;R:10;R:10;C:10;');
+        Observer.Expect('shown after refill', '10|N10');
+        Observer.Expect('first after refill', 'Yes|N10');
+        Observer.Expect('next after refill', 'No');
+        Observer.Expect('runmodal', 'LookupCancel');
+        Observer.Expect('after runmodal log', 'Q;X;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -249,7 +266,24 @@ codeunit 93410 "LT Y66 Temp List Gone Row"
         Mode := 1;
         Observer.Observe('runmodal', Format(Page.RunModal(Page::"LT Y66 GR List Desc")));
         Observer.Observe('after runmodal log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10;');
+        Observer.Expect('open shown', '10|N10');
+        Observer.Expect('action log', 'R:10;N:0;C:0;');
+        Observer.Expect('shown after action', '|');
+        Observer.Expect('first', 'No');
+        Observer.Expect('value after first', '');
+        Observer.Expect('last', 'No');
+        Observer.Expect('next', 'No');
+        Observer.Expect('previous', 'No');
+        Observer.Expect('moves log', '');
+        Observer.Expect('second action log', 'N:0;C:0;');
+        Observer.Expect('refill log', 'R:10;R:10;R:10;C:10;');
+        Observer.Expect('shown after refill', '10|N10');
+        Observer.Expect('first after refill', 'Yes|N10');
+        Observer.Expect('next after refill', 'No');
+        Observer.Expect('runmodal', 'LookupCancel');
+        Observer.Expect('after runmodal log', 'Q;X;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -260,7 +294,24 @@ codeunit 93410 "LT Y66 Temp List Gone Row"
         Mode := 0;
         Observer.Observe('runmodal', Format(Page.RunModal(Page::"LT Y66 GR List Desc")));
         Observer.Observe('after runmodal log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:20;R:10;R:20;R:20;C:20;');
+        Observer.Expect('open shown', '20|N20');
+        Observer.Expect('action log', 'R:20;N:0;C:0;');
+        Observer.Expect('shown after action', '|');
+        Observer.Expect('first', 'No');
+        Observer.Expect('value after first', '');
+        Observer.Expect('last', 'No');
+        Observer.Expect('next', 'No');
+        Observer.Expect('previous', 'No');
+        Observer.Expect('moves log', '');
+        Observer.Expect('second action log', 'N:0;C:0;');
+        Observer.Expect('refill log', 'R:10;R:10;R:10;C:10;');
+        Observer.Expect('shown after refill', '10|N10');
+        Observer.Expect('first after refill', 'Yes|N10');
+        Observer.Expect('next after refill', 'No');
+        Observer.Expect('runmodal', 'LookupCancel');
+        Observer.Expect('after runmodal log', 'Q;X;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -274,7 +325,24 @@ codeunit 93410 "LT Y66 Temp List Gone Row"
         MyList.LookupMode(true);
         Observer.Observe('runmodal', Format(MyList.RunModal()));
         Observer.Observe('after runmodal log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10;');
+        Observer.Expect('open shown', '10|N10');
+        Observer.Expect('action log', 'R:10;N:0;C:0;');
+        Observer.Expect('shown after action', '|');
+        Observer.Expect('first', 'No');
+        Observer.Expect('value after first', '');
+        Observer.Expect('last', 'No');
+        Observer.Expect('next', 'No');
+        Observer.Expect('previous', 'No');
+        Observer.Expect('moves log', '');
+        Observer.Expect('second action log', 'N:0;C:0;');
+        Observer.Expect('refill log', 'R:10;R:10;R:10;C:10;');
+        Observer.Expect('shown after refill', '10|N10');
+        Observer.Expect('first after refill', 'Yes|N10');
+        Observer.Expect('next after refill', 'No');
+        Observer.Expect('runmodal', 'LookupCancel');
+        Observer.Expect('after runmodal log', 'Q;X;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -285,7 +353,18 @@ codeunit 93410 "LT Y66 Temp List Gone Row"
         Mode := 0;
         Observer.Observe('runmodal', Format(Page.RunModal(Page::"LT Y66 GR List Asc")));
         Observer.Observe('after runmodal log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10;');
+        Observer.Expect('open shown', '10|N10');
+        Observer.Expect('action log', 'R:10;N:0;C:0;');
+        Observer.Expect('first', 'No');
+        Observer.Expect('value', '');
+        Observer.Expect('last', 'No');
+        Observer.Expect('moves log', '');
+        Observer.Expect('refill log', 'R:10;R:10;R:10;C:10;');
+        Observer.Expect('first after refill', 'Yes|N10');
+        Observer.Expect('runmodal', 'LookupCancel');
+        Observer.Expect('after runmodal log', 'Q;X;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -298,7 +377,23 @@ codeunit 93410 "LT Y66 Temp List Gone Row"
         WalkDesc(MyList, 0);
         MyList.Close();
         Observer.Observe('close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10;');
+        Observer.Expect('open shown', '10|N10');
+        Observer.Expect('action log', 'R:10;');
+        Observer.Expect('shown after action', '|');
+        Observer.Expect('first', 'No');
+        Observer.Expect('value after first', '');
+        Observer.Expect('last', 'No');
+        Observer.Expect('next', 'No');
+        Observer.Expect('previous', 'No');
+        Observer.Expect('moves log', '');
+        Observer.Expect('second action log', '');
+        Observer.Expect('refill log', 'R:10;R:10;R:10;C:10;');
+        Observer.Expect('shown after refill', '10|N10');
+        Observer.Expect('first after refill', 'Yes|N10');
+        Observer.Expect('next after refill', 'No');
+        Observer.Expect('close log', 'Q;X;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -311,7 +406,23 @@ codeunit 93410 "LT Y66 Temp List Gone Row"
         WalkDesc(MyList, 0);
         MyList.Close();
         Observer.Observe('close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10;');
+        Observer.Expect('open shown', '10|N10');
+        Observer.Expect('action log', 'R:10;');
+        Observer.Expect('shown after action', '|');
+        Observer.Expect('first', 'No');
+        Observer.Expect('value after first', '');
+        Observer.Expect('last', 'No');
+        Observer.Expect('next', 'No');
+        Observer.Expect('previous', 'No');
+        Observer.Expect('moves log', '');
+        Observer.Expect('second action log', '');
+        Observer.Expect('refill log', 'R:10;R:10;R:10;C:10;');
+        Observer.Expect('shown after refill', '10|N10');
+        Observer.Expect('first after refill', 'Yes|N10');
+        Observer.Expect('next after refill', 'No');
+        Observer.Expect('close log', 'Q;X;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -336,7 +447,19 @@ codeunit 93410 "LT Y66 Temp List Gone Row"
         Observer.Observe('next after refill', Format(MyList.Next()) + '|' + MyList.Name.Value());
         MyList.Close();
         Observer.Observe('close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10;');
+        Observer.Expect('open shown', '10|N10');
+        Observer.Expect('action log', 'R:10;');
+        Observer.Expect('shown after action', '|');
+        Observer.Expect('first', 'No');
+        Observer.Expect('value after first', '');
+        Observer.Expect('moves log', '');
+        Observer.Expect('refill log', 'R:20;R:20;R:10;R:20;R:20;C:20;');
+        Observer.Expect('shown after refill', '20|N20');
+        Observer.Expect('first after refill', 'Yes|N10');
+        Observer.Expect('next after refill', 'Yes|N20');
+        Observer.Expect('close log', 'R:10;R:10;C:10;R:20;R:20;C:20;Q;X;');
+        Observer.Verify();
     end;
 
     [ModalPageHandler]

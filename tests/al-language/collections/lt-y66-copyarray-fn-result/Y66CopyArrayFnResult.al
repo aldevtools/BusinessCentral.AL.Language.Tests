@@ -88,7 +88,9 @@ codeunit 93402 "LT Y66 CopyArray Fn Result"
         Observer.Observe('target', Format(Target[1]) + '|' + Format(Target[2]));
         Target[1] := CreateGuid();
         Observer.Observe('provider after target change', Format(MyProvider.GetMyGuids()[1]));
-        Observer.Finish();
+        Observer.Expect('target', '{11111111-1111-1111-1111-111111111111}|{22222222-2222-2222-2222-222222222222}');
+        Observer.Expect('provider after target change', '{11111111-1111-1111-1111-111111111111}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -104,7 +106,15 @@ codeunit 93402 "LT Y66 CopyArray Fn Result"
             else
                 Observer.Observe(Format(Mode) + ' ' + ModeName(Mode), 'E ' + GetLastErrorText() + '|' + GetLastErrorCode() + '|' + R);
         end;
-        Observer.Finish();
+        Observer.Expect('1 guids into 2 from 2', 'E CopyArray: The length parameter 1 does not match the length of the destination array 2.|ArrayLengthMismatch|before');
+        Observer.Expect('2 guids into 2 from 1 len 1', 'E CopyArray: The length parameter 1 does not match the length of the destination array 2.|ArrayLengthMismatch|before');
+        Observer.Expect('3 guids into 2 from 1 len 2', '{11111111-1111-1111-1111-111111111111}|{22222222-2222-2222-2222-222222222222}');
+        Observer.Expect('4 ints 3 into 5 from 1', 'E CopyArray: The length parameter 3 does not match the length of the destination array 5.|ArrayLengthMismatch|before');
+        Observer.Expect('5 ints into 1 from 2 len 1', '7');
+        Observer.Expect('6 ints 3 into 1 from 1', 'E CopyArray: The length parameter 3 does not match the length of the destination array 1.|ArrayLengthMismatch|before');
+        Observer.Expect('7 ints into 5 from 4', 'E CopyArray: The length parameter 0 does not match the length of the destination array 5.|ArrayLengthMismatch|before');
+        Observer.Expect('8 ints into 5 from 0', 'E CopyArray: The length parameter 4 does not match the length of the destination array 5.|ArrayLengthMismatch|before');
+        Observer.Verify();
     end;
 
     local procedure ModeName(Mode: Integer): Text
@@ -195,7 +205,15 @@ codeunit 93402 "LT Y66 CopyArray Fn Result"
         Observer.Observe('arraylen grid 1', Format(ArrayLen(MyProvider.GetGrid(), 1)));
         Observer.Observe('arraylen grid 2', Format(ArrayLen(MyProvider.GetGrid(), 2)));
         Observer.Observe('element read', Format(MyProvider.GetInts()[2]));
-        Observer.Finish();
+        Observer.Expect('interface', '41|42');
+        Observer.Expect('local', '5|6');
+        Observer.Expect('texts', 'ab|cdefghij');
+        Observer.Expect('texts into Text[3]', 'ok|ab|cdefghij');
+        Observer.Expect('arraylen', '2');
+        Observer.Expect('arraylen grid 1', '2');
+        Observer.Expect('arraylen grid 2', '3');
+        Observer.Expect('element read', '7');
+        Observer.Verify();
     end;
 
     [Test]
@@ -215,7 +233,11 @@ codeunit 93402 "LT Y66 CopyArray Fn Result"
         Observer.Observe('provider after compress', MyProvider.GetGaps()[1] + '|' + MyProvider.GetGaps()[2]);
         MyProvider.GetInts()[2] := 99;
         Observer.Observe('provider after element assign', Format(MyProvider.GetInts()[2]));
-        Observer.Finish();
+        Observer.Expect('provider after copy into result', '{33333333-3333-3333-3333-333333333333}');
+        Observer.Expect('compress result', '1');
+        Observer.Expect('provider after compress', 'x|');
+        Observer.Expect('provider after element assign', '7');
+        Observer.Verify();
     end;
 
     local procedure LocalInts(): array[2] of Integer

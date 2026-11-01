@@ -4,7 +4,8 @@
 // Probe (al-runner issue 6663, writer Y66): FieldRef.Length of the field types and kinds that fieldref/lt-fieldref-length-kinds/
 // FieldRefLengthKinds.al and record/lt-media-length-find-empty/MediaLengthFindEmpty.al do not cover: DateFormula, RecordId, TableFilter,
 // Text and Code of the longest length, a FlowField of each result kind (Sum Decimal, Count Integer, Exist Boolean, Lookup Text and Date), a
-// FlowFilter (Date, Code), a BigInteger with AutoIncrement, the system fields (2000000000 to 2000000005), the fields of virtual tables Integer and Date, and a field of a temporary record. Plus the reporter's helper that
+// FlowFilter (Date, Code), a BigInteger with AutoIncrement, the system fields (2000000000 to 2000000004; 2000000005
+// SystemCreatedByUserName on BC 29), the fields of virtual tables Integer and Date, and a field of a temporary record. Plus the reporter's helper that
 // compares Type and Length of every field pair between two RecordRefs.
 // BC versions: 27, 28, 29
 
@@ -66,7 +67,21 @@ codeunit 93408 "LT Y66 FieldRef Length Types"
         for I := 2 to 15 do
             Observer.Observe(RecRef.Field(I).Name(), Describe(RecRef.Field(I)));
         RecRef.Close();
-        Observer.Finish();
+        Observer.Expect('Df', 'DateFormula|Normal|32');
+        Observer.Expect('Rid', 'RecordID|Normal|448');
+        Observer.Expect('Tf', 'TableFilter|Normal|504');
+        Observer.Expect('TxMax', 'Text|Normal|2048');
+        Observer.Expect('CdMax', 'Code|Normal|2048');
+        Observer.Expect('FfSum', 'Decimal|FlowField|12');
+        Observer.Expect('FfCount', 'Integer|FlowField|4');
+        Observer.Expect('FfExist', 'Boolean|FlowField|4');
+        Observer.Expect('FfLookupTxt', 'Text|FlowField|40');
+        Observer.Expect('FfLookupDt', 'Date|FlowField|4');
+        Observer.Expect('FlDate', 'Date|FlowFilter|4');
+        Observer.Expect('FlCode', 'Code|FlowFilter|20');
+        Observer.Expect('AutoBig', 'BigInteger|Normal|8');
+        Observer.Expect('Df2', 'DateFormula|Normal|32');
+        Observer.Verify();
     end;
 
     [Test]
@@ -76,12 +91,23 @@ codeunit 93408 "LT Y66 FieldRef Length Types"
         I: Integer;
     begin
         RecRef.Open(Database::"LT Y66 FL Row");
-        for I := 2000000000 to 2000000005 do
+        for I := 2000000000 to 2000000004 do
             if RecRef.FieldExist(I) then
                 Observer.Observe(Format(I) + ' ' + RecRef.Field(I).Name(), Describe(RecRef.Field(I)))
             else
                 Observer.Observe(Format(I), 'no field');
-        Observer.Finish();
+#if BC29PLUS
+        Observer.Observe('2000000005 ' + RecRef.Field(2000000005).Name(), Describe(RecRef.Field(2000000005)));
+#endif
+        Observer.Expect('2000000000 $systemId', 'GUID|Normal|16');
+        Observer.Expect('2000000001 SystemCreatedAt', 'DateTime|Normal|8');
+        Observer.Expect('2000000002 SystemCreatedBy', 'GUID|Normal|16');
+        Observer.Expect('2000000003 SystemModifiedAt', 'DateTime|Normal|8');
+        Observer.Expect('2000000004 SystemModifiedBy', 'GUID|Normal|16');
+#if BC29PLUS
+        Observer.Expect('2000000005 SystemCreatedByUserName', 'Text|FlowField|50');
+#endif
+        Observer.Verify();
     end;
 
     [Test]
@@ -100,7 +126,15 @@ codeunit 93408 "LT Y66 FieldRef Length Types"
         RecRef.Close();
         RecRef.GetTable(TempRow);
         Observer.Observe('temporary DateFormula', Describe(RecRef.Field(2)));
-        Observer.Finish();
+        Observer.Expect('Integer.Number', 'Integer|Normal|4');
+        Observer.Expect('Date.Period Type', 'Option|Normal|4');
+        Observer.Expect('Date.Period Start', 'Date|Normal|4');
+        Observer.Expect('Date.Period End', 'Date|Normal|4');
+        Observer.Expect('Date.Period No.', 'Integer|Normal|4');
+        Observer.Expect('Date.Period Name', 'Text|Normal|31');
+        Observer.Expect('Date.Period Invariant Name', 'Text|Normal|31');
+        Observer.Expect('temporary DateFormula', 'DateFormula|Normal|32');
+        Observer.Verify();
     end;
 
     [Test]
@@ -118,7 +152,10 @@ codeunit 93408 "LT Y66 FieldRef Length Types"
         Observer.Observe('same table', R);
         Observer.Observe('DateFormula against DateFormula', Format(FieldMatches(FromRec, ToRec, 2, 15)));
         Observer.Observe('Text2048 against DateFormula', Format(FieldMatches(FromRec, ToRec, 5, 2)));
-        Observer.Finish();
+        Observer.Expect('same table', '1=Yes;2=Yes;3=Yes;4=Yes;5=Yes;6=Yes;14=Yes;15=Yes;12=Yes;13=Yes;7=Yes;8=Yes;9=Yes;10=Yes;11=Yes;');
+        Observer.Expect('DateFormula against DateFormula', 'Yes');
+        Observer.Expect('Text2048 against DateFormula', 'No');
+        Observer.Verify();
     end;
 
     local procedure FieldMatches(var FromRec: RecordRef; var ToRec: RecordRef; Index: Integer; ToFieldNo: Integer): Boolean

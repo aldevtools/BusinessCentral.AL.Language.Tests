@@ -51,7 +51,19 @@ codeunit 93411 "LT Y66 Retention Allowed Table"
         Observer.Observe('remove with setup row', Format(RetenPolAllowedTables.RemoveAllowedTable(Database::"LT Y66 RP Buffer")));
         Observer.Observe('allowed after remove', Format(RetenPolAllowedTables.IsAllowedTable(Database::"LT Y66 RP Buffer")));
         Cleanup();
-        Observer.Finish();
+        Observer.Expect('allowed before', 'No');
+        Observer.Expect('validate before', 'ok');
+        Observer.Expect('validate customer', 'ok');
+        Observer.Expect('insert before', 'Table 93405 LT Y66 RP Buffer is not in the list of allowed tables.|Dialog');
+        Observer.Expect('add', 'Yes');
+        Observer.Expect('add again', 'Yes');
+        Observer.Expect('allowed after', 'Yes');
+        Observer.Expect('date field', '2000000001');
+        Observer.Expect('insert after', 'ok');
+        Observer.Expect('setup rows', '1');
+        Observer.Expect('remove with setup row', 'Yes');
+        Observer.Expect('allowed after remove', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -66,7 +78,9 @@ codeunit 93411 "LT Y66 Retention Allowed Table"
         Observer.Observe('table name', RetentionPolicySetup."Table Name");
         Observer.Observe('enabled', Format(RetentionPolicySetup.Enabled));
         Cleanup();
-        Observer.Finish();
+        Observer.Expect('table name', '');
+        Observer.Expect('enabled', 'No');
+        Observer.Verify();
     end;
 
     local procedure Cleanup()

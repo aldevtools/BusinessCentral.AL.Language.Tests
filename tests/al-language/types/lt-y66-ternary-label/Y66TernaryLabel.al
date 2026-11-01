@@ -57,7 +57,9 @@ codeunit 93404 "LT Y66 Ternary Label"
         Observer.Observe('empty', '[' + R.MyProc() + '|' + Format(StrLen(R.MyProc())) + ']');
         R."My Text Field" := 'Field text';
         Observer.Observe('filled', '[' + R.MyProc() + ']');
-        Observer.Finish();
+        Observer.Expect('empty', '[Default text|12]');
+        Observer.Expect('filled', '[Field text]');
+        Observer.Verify();
     end;
 
     // FText100 : LblMax
@@ -69,7 +71,9 @@ codeunit 93404 "LT Y66 Ternary Label"
         Seed();
         for I := 1 to 2 do
             Observer.Observe('FText100 : LblMax ' + Format(I = 1), Pair1(I = 1));
-        Observer.Finish();
+        Observer.Expect('FText100 : LblMax Yes', '[Field text value|16][Field text value|16][E The length of the string is 16, but it must be less than or equal to 5 characters. Value: Field text value|StringLengthExceeded][FIELD TEXT VALUE|16][16][Field text value][Text]');
+        Observer.Expect('FText100 : LblMax No', '[Default text|12][Default text|12][E The length of the string is 12, but it must be less than or equal to 5 characters. Value: Default text|StringLengthExceeded][DEFAULT TEXT|12][12][Default text][Text]');
+        Observer.Verify();
     end;
 
     local procedure Pair1(Cond: Boolean): Text
@@ -143,7 +147,9 @@ codeunit 93404 "LT Y66 Ternary Label"
         Seed();
         for I := 1 to 2 do
             Observer.Observe('LblMax : FText100 ' + Format(I = 1), Pair2(I = 1));
-        Observer.Finish();
+        Observer.Expect('LblMax : FText100 Yes', '[Default text|12][Default text|12][E The length of the string is 12, but it must be less than or equal to 5 characters. Value: Default text|StringLengthExceeded][DEFAULT TEXT|12][12][Default text][TextConstant]');
+        Observer.Expect('LblMax : FText100 No', '[Field text value|16][Field text value|16][E The length of the string is 16, but it must be less than or equal to 5 characters. Value: Field text value|StringLengthExceeded][FIELD TEXT VALUE|16][16][Field text value][Text]');
+        Observer.Verify();
     end;
 
     local procedure Pair2(Cond: Boolean): Text
@@ -217,7 +223,9 @@ codeunit 93404 "LT Y66 Ternary Label"
         Seed();
         for I := 1 to 2 do
             Observer.Observe('FText100 : Lbl ' + Format(I = 1), Pair3(I = 1));
-        Observer.Finish();
+        Observer.Expect('FText100 : Lbl Yes', '[Field text value|16][Field text value|16][E The length of the string is 16, but it must be less than or equal to 5 characters. Value: Field text value|StringLengthExceeded][FIELD TEXT VALUE|16][16][Field text value][Text]');
+        Observer.Expect('FText100 : Lbl No', '[plain lbl|9][plain lbl|9][E The length of the string is 9, but it must be less than or equal to 5 characters. Value: plain lbl|StringLengthExceeded][PLAIN LBL|9][9][plain lbl][Text]');
+        Observer.Verify();
     end;
 
     local procedure Pair3(Cond: Boolean): Text
@@ -291,7 +299,9 @@ codeunit 93404 "LT Y66 Ternary Label"
         Seed();
         for I := 1 to 2 do
             Observer.Observe('FCode10 : LblMax ' + Format(I = 1), Pair4(I = 1));
-        Observer.Finish();
+        Observer.Expect('FCode10 : LblMax Yes', '[FCODE|5][FCODE|5][FCODE|5][FCODE|5][5][FCODE][Code]');
+        Observer.Expect('FCode10 : LblMax No', '[E The length of the string is 12, but it must be less than or equal to 10 characters. Value: Default text|StringLengthExceeded][E The length of the string is 12, but it must be less than or equal to 10 characters. Value: Default text|StringLengthExceeded][E The length of the string is 12, but it must be less than or equal to 10 characters. Value: Default text|StringLengthExceeded][E The length of the string is 12, but it must be less than or equal to 10 characters. Value: Default text|StringLengthExceeded][E The length of the string is 12, but it must be less than or equal to 10 characters. Value: Default text|StringLengthExceeded][E The length of the string is 12, but it must be less than or equal to 10 characters. Value: Default text|StringLengthExceeded]');
+        Observer.Verify();
     end;
 
     local procedure Pair4(Cond: Boolean): Text
@@ -365,7 +375,9 @@ codeunit 93404 "LT Y66 Ternary Label"
         Seed();
         for I := 1 to 2 do
             Observer.Observe('LblMax : FCode10 ' + Format(I = 1), Pair5(I = 1));
-        Observer.Finish();
+        Observer.Expect('LblMax : FCode10 Yes', '[Default text|12][Default text|12][E The length of the string is 12, but it must be less than or equal to 5 characters. Value: Default text|StringLengthExceeded][DEFAULT TEXT|12][12][Default text][TextConstant]');
+        Observer.Expect('LblMax : FCode10 No', '[FCODE|5][FCODE|5][FCODE|5][FCODE|5][5][FCODE][Code]');
+        Observer.Verify();
     end;
 
     local procedure Pair5(Cond: Boolean): Text
@@ -439,7 +451,9 @@ codeunit 93404 "LT Y66 Ternary Label"
         Seed();
         for I := 1 to 2 do
             Observer.Observe('FGuid : Lbl ' + Format(I = 1), Pair6(I = 1));
-        Observer.Finish();
+        Observer.Expect('FGuid : Lbl Yes', '[{55555555-5555-5555-5555-555555555555}|38][{55555555-5555-5555-5555-555555555555}|38][38][{55555555-5555-5555-5555-555555555555}][Guid]');
+        Observer.Expect('FGuid : Lbl No', '[E Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.|InvalidGuidFormat][E Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.|InvalidGuidFormat][E Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.|InvalidGuidFormat][E Invalid format of GUID string. The correct format of the GUID string is: CDEF7890-ABCD-0123-1234-567890ABCDEF where 0-9, A-F symbolizes hexadecimal digits.|InvalidGuidFormat]');
+        Observer.Verify();
     end;
 
     local procedure Pair6(Cond: Boolean): Text
@@ -501,7 +515,9 @@ codeunit 93404 "LT Y66 Ternary Label"
         Seed();
         for I := 1 to 2 do
             Observer.Observe('Lbl : FGuid ' + Format(I = 1), Pair7(I = 1));
-        Observer.Finish();
+        Observer.Expect('Lbl : FGuid Yes', '[plain lbl|9][plain lbl|9][9][plain lbl][Text]');
+        Observer.Expect('Lbl : FGuid No', '[{55555555-5555-5555-5555-555555555555}|38][{55555555-5555-5555-5555-555555555555}|38][38][{55555555-5555-5555-5555-555555555555}][Text]');
+        Observer.Verify();
     end;
 
     local procedure Pair7(Cond: Boolean): Text
@@ -563,7 +579,9 @@ codeunit 93404 "LT Y66 Ternary Label"
         Seed();
         for I := 1 to 2 do
             Observer.Observe('Text3 : LblMax ' + Format(I = 1), Pair8(I = 1));
-        Observer.Finish();
+        Observer.Expect('Text3 : LblMax Yes', '[abc|3][abc|3][abc|3][ABC|3][3][abc][Text]');
+        Observer.Expect('Text3 : LblMax No', '[E The length of the string is 12, but it must be less than or equal to 3 characters. Value: Default text|StringLengthExceeded][E The length of the string is 12, but it must be less than or equal to 3 characters. Value: Default text|StringLengthExceeded][E The length of the string is 12, but it must be less than or equal to 3 characters. Value: Default text|StringLengthExceeded][E The length of the string is 12, but it must be less than or equal to 3 characters. Value: Default text|StringLengthExceeded][E The length of the string is 12, but it must be less than or equal to 3 characters. Value: Default text|StringLengthExceeded][E The length of the string is 12, but it must be less than or equal to 3 characters. Value: Default text|StringLengthExceeded]');
+        Observer.Verify();
     end;
 
     local procedure Pair8(Cond: Boolean): Text
@@ -637,7 +655,9 @@ codeunit 93404 "LT Y66 Ternary Label"
         Seed();
         for I := 1 to 2 do
             Observer.Observe('LblMax : Text3 ' + Format(I = 1), Pair9(I = 1));
-        Observer.Finish();
+        Observer.Expect('LblMax : Text3 Yes', '[Default text|12][Default text|12][E The length of the string is 12, but it must be less than or equal to 5 characters. Value: Default text|StringLengthExceeded][DEFAULT TEXT|12][12][Default text][TextConstant]');
+        Observer.Expect('LblMax : Text3 No', '[abc|3][abc|3][abc|3][ABC|3][3][abc][Text]');
+        Observer.Verify();
     end;
 
     local procedure Pair9(Cond: Boolean): Text
@@ -711,7 +731,9 @@ codeunit 93404 "LT Y66 Ternary Label"
         Seed();
         for I := 1 to 2 do
             Observer.Observe('Code3 : Lbl ' + Format(I = 1), Pair10(I = 1));
-        Observer.Finish();
+        Observer.Expect('Code3 : Lbl Yes', '[XY|2][XY|2][XY|2][XY|2][2][XY][Code]');
+        Observer.Expect('Code3 : Lbl No', '[E The length of the string is 9, but it must be less than or equal to 3 characters. Value: plain lbl|StringLengthExceeded][E The length of the string is 9, but it must be less than or equal to 3 characters. Value: plain lbl|StringLengthExceeded][E The length of the string is 9, but it must be less than or equal to 3 characters. Value: plain lbl|StringLengthExceeded][E The length of the string is 9, but it must be less than or equal to 3 characters. Value: plain lbl|StringLengthExceeded][E The length of the string is 9, but it must be less than or equal to 3 characters. Value: plain lbl|StringLengthExceeded][E The length of the string is 9, but it must be less than or equal to 3 characters. Value: plain lbl|StringLengthExceeded]');
+        Observer.Verify();
     end;
 
     local procedure Pair10(Cond: Boolean): Text
@@ -785,7 +807,9 @@ codeunit 93404 "LT Y66 Ternary Label"
         Seed();
         for I := 1 to 2 do
             Observer.Observe('Lbl : Code3 ' + Format(I = 1), Pair11(I = 1));
-        Observer.Finish();
+        Observer.Expect('Lbl : Code3 Yes', '[plain lbl|9][plain lbl|9][E The length of the string is 9, but it must be less than or equal to 5 characters. Value: plain lbl|StringLengthExceeded][PLAIN LBL|9][9][plain lbl][TextConstant]');
+        Observer.Expect('Lbl : Code3 No', '[XY|2][XY|2][XY|2][XY|2][2][XY][Code]');
+        Observer.Verify();
     end;
 
     local procedure Pair11(Cond: Boolean): Text
@@ -859,7 +883,9 @@ codeunit 93404 "LT Y66 Ternary Label"
         Seed();
         for I := 1 to 2 do
             Observer.Observe('Code250 : LblMax ' + Format(I = 1), Pair12(I = 1));
-        Observer.Finish();
+        Observer.Expect('Code250 : LblMax Yes', '[CODE250 VALUE|13][CODE250 VALUE|13][E The length of the string is 13, but it must be less than or equal to 5 characters. Value: CODE250 VALUE|StringLengthExceeded][CODE250 VALUE|13][13][CODE250 VALUE][Code]');
+        Observer.Expect('Code250 : LblMax No', '[DEFAULT TEXT|12][DEFAULT TEXT|12][E The length of the string is 12, but it must be less than or equal to 5 characters. Value: DEFAULT TEXT|StringLengthExceeded][DEFAULT TEXT|12][12][DEFAULT TEXT][Code]');
+        Observer.Verify();
     end;
 
     local procedure Pair12(Cond: Boolean): Text
@@ -933,7 +959,9 @@ codeunit 93404 "LT Y66 Ternary Label"
         Seed();
         for I := 1 to 2 do
             Observer.Observe('LblMax : Code250 ' + Format(I = 1), Pair13(I = 1));
-        Observer.Finish();
+        Observer.Expect('LblMax : Code250 Yes', '[Default text|12][Default text|12][E The length of the string is 12, but it must be less than or equal to 5 characters. Value: Default text|StringLengthExceeded][DEFAULT TEXT|12][12][Default text][TextConstant]');
+        Observer.Expect('LblMax : Code250 No', '[CODE250 VALUE|13][CODE250 VALUE|13][E The length of the string is 13, but it must be less than or equal to 5 characters. Value: CODE250 VALUE|StringLengthExceeded][CODE250 VALUE|13][13][CODE250 VALUE][Code]');
+        Observer.Verify();
     end;
 
     local procedure Pair13(Cond: Boolean): Text
@@ -1007,7 +1035,9 @@ codeunit 93404 "LT Y66 Ternary Label"
         Seed();
         for I := 1 to 2 do
             Observer.Observe('LblMax : Lbl ' + Format(I = 1), Pair14(I = 1));
-        Observer.Finish();
+        Observer.Expect('LblMax : Lbl Yes', '[Default text|12][Default text|12][E The length of the string is 12, but it must be less than or equal to 5 characters. Value: Default text|StringLengthExceeded][DEFAULT TEXT|12][12][Default text][TextConstant]');
+        Observer.Expect('LblMax : Lbl No', '[plain lbl|9][plain lbl|9][E The length of the string is 9, but it must be less than or equal to 5 characters. Value: plain lbl|StringLengthExceeded][PLAIN LBL|9][9][plain lbl][TextConstant]');
+        Observer.Verify();
     end;
 
     local procedure Pair14(Cond: Boolean): Text
@@ -1081,7 +1111,9 @@ codeunit 93404 "LT Y66 Ternary Label"
         Seed();
         for I := 1 to 2 do
             Observer.Observe('Lbl : LblMax ' + Format(I = 1), Pair15(I = 1));
-        Observer.Finish();
+        Observer.Expect('Lbl : LblMax Yes', '[plain lbl|9][plain lbl|9][E The length of the string is 9, but it must be less than or equal to 5 characters. Value: plain lbl|StringLengthExceeded][PLAIN LBL|9][9][plain lbl][TextConstant]');
+        Observer.Expect('Lbl : LblMax No', '[Default text|12][Default text|12][E The length of the string is 12, but it must be less than or equal to 5 characters. Value: Default text|StringLengthExceeded][DEFAULT TEXT|12][12][Default text][TextConstant]');
+        Observer.Verify();
     end;
 
     local procedure Pair15(Cond: Boolean): Text
@@ -1155,7 +1187,9 @@ codeunit 93404 "LT Y66 Ternary Label"
         Seed();
         for I := 1 to 2 do
             Observer.Observe('Text : LblMax ' + Format(I = 1), Pair16(I = 1));
-        Observer.Finish();
+        Observer.Expect('Text : LblMax Yes', '[free text|9][free text|9][E The length of the string is 9, but it must be less than or equal to 5 characters. Value: free text|StringLengthExceeded][FREE TEXT|9][9][free text][Text]');
+        Observer.Expect('Text : LblMax No', '[Default text|12][Default text|12][E The length of the string is 12, but it must be less than or equal to 5 characters. Value: Default text|StringLengthExceeded][DEFAULT TEXT|12][12][Default text][Text]');
+        Observer.Verify();
     end;
 
     local procedure Pair16(Cond: Boolean): Text
@@ -1229,7 +1263,9 @@ codeunit 93404 "LT Y66 Ternary Label"
         Seed();
         for I := 1 to 2 do
             Observer.Observe('LblMax : Text ' + Format(I = 1), Pair17(I = 1));
-        Observer.Finish();
+        Observer.Expect('LblMax : Text Yes', '[Default text|12][Default text|12][E The length of the string is 12, but it must be less than or equal to 5 characters. Value: Default text|StringLengthExceeded][DEFAULT TEXT|12][12][Default text][TextConstant]');
+        Observer.Expect('LblMax : Text No', '[free text|9][free text|9][E The length of the string is 9, but it must be less than or equal to 5 characters. Value: free text|StringLengthExceeded][FREE TEXT|9][9][free text][Text]');
+        Observer.Verify();
     end;
 
     local procedure Pair17(Cond: Boolean): Text

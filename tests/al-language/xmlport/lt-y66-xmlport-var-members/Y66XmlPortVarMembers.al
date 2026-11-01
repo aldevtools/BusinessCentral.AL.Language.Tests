@@ -109,7 +109,8 @@ codeunit 93403 "LT Y66 XmlPort Var Members"
         MyXmlPort.SetDestination(OutStr);
         MyXmlPort.Export();
         Observer.Observe('xml', BlobText(TempBlob));
-        Observer.Finish();
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>/<Root Flag="Yes">/  <I>/    <N>2</N>/  </I>/</Root>/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -128,7 +129,8 @@ codeunit 93403 "LT Y66 XmlPort Var Members"
         MyXmlPort.SetDestination(OutStr);
         MyXmlPort.Export();
         Observer.Observe('xml', BlobText(TempBlob));
-        Observer.Finish();
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>/<Root Flag="Yes">/  <I>/    <N>2</N>/  </I>/</Root>/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -163,7 +165,13 @@ codeunit 93403 "LT Y66 XmlPort Var Members"
         LocalImport.SetSource(InStr);
         LocalImport.Import();
         Observer.Observe('local import got', LocalImport.GetGot());
-        Observer.Finish();
+        Observer.Expect('export result', 'Yes');
+        Observer.Expect('export flag', 'No');
+        Observer.Expect('export xml', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>/<Root Flag="No">/  <I>/    <N>1</N>/  </I>/  <I>/    <N>2</N>/  </I>/</Root>/');
+        Observer.Expect('import result', 'Yes');
+        Observer.Expect('import got', 'a;b;');
+        Observer.Expect('local import got', 'a;b;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -181,7 +189,12 @@ codeunit 93403 "LT Y66 XmlPort Var Members"
         Port.MyProc(true);
         Observer.Observe('by-value param sees caller flag', ExportValue(Port));
         Observer.Observe('var param export', ExportVar(Port));
-        Observer.Finish();
+        Observer.Expect('global', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>/<Root Flag="Yes">/  <I>/    <N>3</N>/  </I>/</Root>/');
+        Observer.Expect('after var param', 'Yes');
+        Observer.Expect('after by-value param', 'Yes');
+        Observer.Expect('by-value param sees caller flag', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>/<Root Flag="Yes">/  <I>/    <N>4</N>/  </I>/</Root>/');
+        Observer.Expect('var param export', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>/<Root Flag="Yes">/  <I>/    <N>4</N>/  </I>/</Root>/');
+        Observer.Verify();
     end;
 
     [Test]
@@ -207,7 +220,15 @@ codeunit 93403 "LT Y66 XmlPort Var Members"
         A.MyProc(true);
         Clear(B);
         Observer.Observe('A after Clear(B)', Format(A.GetFlag()));
-        Observer.Finish();
+        Observer.Expect('array 1 flag', 'No');
+        Observer.Expect('array 2 flag', 'Yes');
+        Observer.Expect('array 2 export', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>/<Root Flag="Yes">/  <I>/    <N>4</N>/  </I>/</Root>/');
+        Observer.Expect('returned flag', 'Yes');
+        Observer.Expect('cleared flag', 'No');
+        Observer.Expect('assigned flag', 'Yes');
+        Observer.Expect('assigned flag after source change', 'No');
+        Observer.Expect('A after Clear(B)', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -246,7 +267,14 @@ codeunit 93403 "LT Y66 XmlPort Var Members"
         Imp.SetSource(InStr);
         Observer.Observe('second import', TryImport(Imp));
         Observer.Observe('got', Imp.GetGot());
-        Observer.Finish();
+        Observer.Expect('first', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>/<Root Flag="Yes">/  <I>/    <N>1</N>/  </I>/</Root>/');
+        Observer.Expect('second export', 'ok');
+        Observer.Expect('second', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>/<Root Flag="Yes">/  <I>/    <N>1</N>/  </I>/</Root>/');
+        Observer.Expect('third export without SetDestination', 'ok');
+        Observer.Expect('third', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>/<Root Flag="Yes">/  <I>/    <N>1</N>/  </I>/</Root>/');
+        Observer.Expect('second import', 'ok');
+        Observer.Expect('got', 'a;a;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -262,7 +290,14 @@ codeunit 93403 "LT Y66 XmlPort Var Members"
             else
                 Observer.Observe(Format(Mode) + ' ' + PropName(Mode), 'E ' + GetLastErrorText() + '|' + GetLastErrorCode());
         end;
-        Observer.Finish();
+        Observer.Expect('1 currentpath', '[]');
+        Observer.Expect('2 importfile of export', '[No]');
+        Observer.Expect('3 importfile of import', '[Yes]');
+        Observer.Expect('4 textencoding', '[MSDos]');
+        Observer.Expect('5 filename', '[]');
+        Observer.Expect('6 import ImportFile(false)', 'E The XMLPort ''LT Y66 XP Import'' is designed for import only.|XmlPortImportDirection');
+        Observer.Expect('7 export ImportFile(true)', 'E The XMLPort ''LT Y66 XA XP Export'' is designed for export only.|XmlPortExportDirection');
+        Observer.Verify();
     end;
 
     local procedure PropName(Mode: Integer): Text
