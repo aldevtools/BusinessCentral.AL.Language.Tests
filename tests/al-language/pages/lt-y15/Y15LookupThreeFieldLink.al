@@ -1287,6 +1287,94 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
         Observer.Finish();
     end;
 
+    // Y63: no part is touched before the lookup; the first access to a part after it is a read of the other part's control.
+    [Test]
+    [HandlerFunctions('PickSecondResource')]
+    procedure Y63_TwoPart_FirstPartReadAfterLookup()
+    var
+        Schedule: TestPage "LT Y63 Two Part Schedule";
+    begin
+        Setup(false);
+        Schedule.OpenEdit();
+        Log.Take();
+        Schedule.ResourceNo.Lookup();
+        Observer.Observe('lookup log', Log.Take());
+        Observer.Observe('other no', Schedule.OtherResources."No.".Value());
+        Observer.Observe('other no log', Log.Take());
+        Observer.Observe('part no', Schedule.Resources."No.".Value());
+        Observer.Observe('part no log', Log.Take());
+        Observer.Observe('after', SnapTP(Schedule));
+        Observer.Observe('after log', Log.Take());
+        Schedule.Close();
+        Observer.Finish();
+    end;
+
+    // Y63: both parts are read before the lookup; after it the linked part moves.
+    [Test]
+    [HandlerFunctions('PickSecondResource')]
+    procedure Y63_TwoPart_PartsReadBeforeThenNext()
+    var
+        Schedule: TestPage "LT Y63 Two Part Schedule";
+    begin
+        Setup(false);
+        Schedule.OpenEdit();
+        Observer.Observe('before', Schedule.Resources."No.".Value() + '|' + Schedule.OtherResources."No.".Value());
+        Log.Take();
+        Schedule.ResourceNo.Lookup();
+        Observer.Observe('lookup log', Log.Take());
+        Observer.Observe('part next', Format(Schedule.Resources.Next(), 0, 9));
+        Observer.Observe('part next log', Log.Take());
+        Observer.Observe('after', SnapTP(Schedule));
+        Observer.Observe('after log', Log.Take());
+        Schedule.Close();
+        Observer.Finish();
+    end;
+
+    // Y63: the linked part (placed first) is read before the lookup; after it the other part's control is read.
+    [Test]
+    [HandlerFunctions('PickSecondResource')]
+    procedure Y63_PartThenOther_PartReadBeforeLookup()
+    var
+        Schedule: TestPage "LT Y63 Part Then Other Sched";
+    begin
+        Setup(false);
+        Schedule.OpenEdit();
+        Observer.Observe('before', Schedule.Resources."No.".Value());
+        Log.Take();
+        Schedule.ResourceNo.Lookup();
+        Observer.Observe('lookup log', Log.Take());
+        Observer.Observe('part no', Schedule.Resources."No.".Value() + '|' + Schedule.Resources.PartCurrent.Value());
+        Observer.Observe('part no log', Log.Take());
+        Observer.Observe('other no', Schedule.OtherResources."No.".Value() + '|' + Schedule.OtherResources.OtherCurrent.Value());
+        Observer.Observe('other no log', Log.Take());
+        Observer.Observe('after', SnapPO(Schedule));
+        Observer.Observe('after log', Log.Take());
+        Schedule.Close();
+        Observer.Finish();
+    end;
+
+    // Y63: no part is touched before the lookup; the first access after it is a read of the FactBox CardPart's control.
+    [Test]
+    [HandlerFunctions('PickSecondResource')]
+    procedure Y63_CardPart_CardReadAfterLookup()
+    var
+        Schedule: TestPage "LT Y63 Card Part Schedule";
+    begin
+        Setup(false);
+        Schedule.OpenEdit();
+        Log.Take();
+        Schedule.ResourceNo.Lookup();
+        Observer.Observe('lookup log', Log.Take());
+        Observer.Observe('card no', Schedule.Details."No.".Value() + '|' + Schedule.Details.CardCurrent.Value());
+        Observer.Observe('card no log', Log.Take());
+        Observer.Observe('part no', Schedule.Resources."No.".Value() + '|' + Schedule.Resources.PartCurrent.Value());
+        Observer.Observe('part no log', Log.Take());
+        Observer.Observe('after', SnapCP(Schedule));
+        Observer.Observe('after log', Log.Take());
+        Schedule.Close();
+        Observer.Finish();
+    end;
+
     local procedure SnapTP(var Schedule: TestPage "LT Y63 Two Part Schedule"): Text
     begin
         exit(Schedule.ResourceNo.Value() + '|' + Schedule.HeaderCurrent.Value() + '|' + Schedule."No.".Value() + '|' + Schedule.CurrentNo.Value() + '|' + Schedule.HostFn.Value() + '|' + Schedule.Resources."No.".Value() + '|' + Schedule.Resources.PartCurrent.Value() + '|' + Schedule.Resources.PartFn.Value() + '|' + Schedule.OtherResources."No.".Value() + '|' + Schedule.OtherResources.OtherCurrent.Value() + '|' + Schedule.OtherResources.OtherFn.Value());
