@@ -166,7 +166,8 @@ codeunit 92946 "LT Y49 DateTime 9999"
         Observer.Verify();
     end;
 
-    // Which years show two digits with format 2 (2024 shows '03/05/24', 9998 and 9999 show four digits).
+    // Which years show two digits with format 2 (DateTime) and 1 (Date): 1950 to 2049 show two, every other year four (same on SaaS BC 29 and
+    // Windows 27.5 / 28.5).
     [Test]
     procedure DtFormat_YearWidth_Format2()
     var
@@ -176,6 +177,23 @@ codeunit 92946 "LT Y49 DateTime 9999"
         Years.AddRange(1753, 1899, 1900, 1929, 1930, 1949, 1950, 1999, 2000, 2029, 2030, 2049, 2050, 2099, 2100, 2999, 5000);
         foreach Y in Years do
             Observer.Observe(Format(Y), FmtDirect(CreateDateTime(DMY2Date(15, 6, Y), 120000T), 2) + ' ' + Format(DMY2Date(15, 6, Y), 0, 1));
-        Observer.Finish();
+        Observer.Expect('1753', '[06/15/1753 12:00 PM] 06/15/1753');
+        Observer.Expect('1899', '[06/15/1899 12:00 PM] 06/15/1899');
+        Observer.Expect('1900', '[06/15/1900 12:00 PM] 06/15/1900');
+        Observer.Expect('1929', '[06/15/1929 12:00 PM] 06/15/1929');
+        Observer.Expect('1930', '[06/15/1930 12:00 PM] 06/15/1930');
+        Observer.Expect('1949', '[06/15/1949 12:00 PM] 06/15/1949');
+        Observer.Expect('1950', '[06/15/50 12:00 PM] 06/15/50');
+        Observer.Expect('1999', '[06/15/99 12:00 PM] 06/15/99');
+        Observer.Expect('2000', '[06/15/00 12:00 PM] 06/15/00');
+        Observer.Expect('2029', '[06/15/29 12:00 PM] 06/15/29');
+        Observer.Expect('2030', '[06/15/30 12:00 PM] 06/15/30');
+        Observer.Expect('2049', '[06/15/49 12:00 PM] 06/15/49');
+        Observer.Expect('2050', '[06/15/2050 12:00 PM] 06/15/2050');
+        Observer.Expect('2099', '[06/15/2099 12:00 PM] 06/15/2099');
+        Observer.Expect('2100', '[06/15/2100 12:00 PM] 06/15/2100');
+        Observer.Expect('2999', '[06/15/2999 12:00 PM] 06/15/2999');
+        Observer.Expect('5000', '[06/15/5000 12:00 PM] 06/15/5000');
+        Observer.Verify();
     end;
 }
