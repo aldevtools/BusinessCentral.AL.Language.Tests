@@ -8,6 +8,8 @@
 //        FindOrphans reads the whole database, which can hold other media: only Contains(<own id>) is observed, never the list or its size.
 //        Every write runs in a codeunit of its own (Codeunit.Run). P102MediaOrphans.al pins the attached and the deleted-with-its-record case.
 //        Not done: the spec's T6 (a committed detached row seen by a later test): the main suite rolls back per codeunit, not per test.
+//        Asserted values: the CI containers BC 27.5, 28.5 and 29.0, all the same (a SaaS sandbox BC 29 agrees where its license allows the writes;
+//        it refuses Insert into Tenant Media and Tenant Media Set).
 // BC versions: 27, 28, 29
 
 table 92929 "LT Y48 FO Row"
@@ -187,6 +189,30 @@ codeunit 92931 "LT Y48 Find Orphans"
         Observer: Codeunit "Probe Observer";
         LastGuid: Guid;
 
+    // Error texts can carry a media id or a session id: both change per run.
+    local procedure ScrubIds(Value: Text): Text
+    begin
+        Value := Between(Value, 'ID=''', '''');
+        Value := Between(Value, 'session ID: ''', '''');
+        exit(Value);
+    end;
+
+    local procedure Between(Value: Text; StartText: Text; EndText: Text): Text
+    var
+        StartPos: Integer;
+        Rest: Text;
+        EndPos: Integer;
+    begin
+        StartPos := StrPos(Value, StartText);
+        if StartPos = 0 then
+            exit(Value);
+        Rest := CopyStr(Value, StartPos + StrLen(StartText));
+        EndPos := StrPos(Rest, EndText);
+        if EndPos = 0 then
+            exit(Value);
+        exit(CopyStr(Value, 1, StartPos + StrLen(StartText) - 1) + 'x' + CopyStr(Rest, EndPos));
+    end;
+
     local procedure Run(Name: Text; Step: Text; RowId: Integer; MediaGuid: Guid)
     var
         StepCu: Codeunit "LT Y48 FO Step";
@@ -196,7 +222,7 @@ codeunit 92931 "LT Y48 Find Orphans"
         if StepCu.Run() then
             Observer.Observe(Name, 'ok:' + StepCu.GetResult())
         else
-            Observer.Observe(Name, 'error:' + GetLastErrorText() + '|' + GetLastErrorCode());
+            Observer.Observe(Name, 'error:' + ScrubIds(GetLastErrorText()) + '|' + GetLastErrorCode());
         LastGuid := StepCu.GetMediaGuid();
     end;
 
@@ -230,7 +256,13 @@ codeunit 92931 "LT Y48 Find Orphans"
         Observer.Observe('in mediaset orphans', InSet(Id));
         Run('delete', 'tm delete', 0, Id);
         Observer.Observe('after delete: in media orphans', InMedia(Id));
-        Observer.Finish();
+        Observer.Expect('before insert: in media orphans', 'No');
+        Observer.Expect('insert', 'ok:Yes');
+        Observer.Expect('in media orphans', 'Yes');
+        Observer.Expect('in mediaset orphans', 'No');
+        Observer.Expect('delete', 'ok:Yes');
+        Observer.Expect('after delete: in media orphans', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -255,7 +287,18 @@ codeunit 92931 "LT Y48 Find Orphans"
         Observer.Observe('after delete: set in mediaset orphans', InSet(SetId));
         Observer.Observe('after delete: item 1 in media orphans', InMedia(Item1));
         Observer.Observe('after delete: item 1 tenant media row', TmExists(Item1));
-        Observer.Finish();
+        Observer.Expect('insert item 1', 'ok:Yes');
+        Observer.Expect('insert item 2', 'ok:Yes');
+        Observer.Expect('set in mediaset orphans', 'Yes');
+        Observer.Expect('set in media orphans', 'No');
+        Observer.Expect('item 1 in media orphans', 'No');
+        Observer.Expect('item 2 in media orphans', 'No');
+        Observer.Expect('item 1 tenant media row', 'Yes');
+        Observer.Expect('delete set rows', 'ok:done');
+        Observer.Expect('after delete: set in mediaset orphans', 'No');
+        Observer.Expect('after delete: item 1 in media orphans', 'Yes');
+        Observer.Expect('after delete: item 1 tenant media row', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -281,7 +324,19 @@ codeunit 92931 "LT Y48 Find Orphans"
         Observer.Observe('not modified: in media orphans', InMedia(LastGuid));
         Row.Get(4);
         Observer.Observe('not modified: row pic hasvalue', Format(Row.Pic.HasValue()));
-        Observer.Finish();
+        Observer.Expect('row pic', 'ok:ok');
+        Observer.Expect('held pic in media orphans', 'No');
+        Observer.Expect('row pics', 'ok:ok');
+        Observer.Expect('held set in mediaset orphans', 'No');
+        Observer.Expect('held set item in media orphans', 'No');
+        Observer.Expect('pic no insert', 'ok:ok');
+        Observer.Expect('not inserted: tenant media row', 'Yes');
+        Observer.Expect('not inserted: in media orphans', 'Yes');
+        Observer.Expect('pic no modify', 'ok:ok');
+        Observer.Expect('not modified: tenant media row', 'Yes');
+        Observer.Expect('not modified: in media orphans', 'Yes');
+        Observer.Expect('not modified: row pic hasvalue', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -307,7 +362,16 @@ codeunit 92931 "LT Y48 Find Orphans"
         Observer.Observe('cleared set in mediaset orphans', InSet(OldSet));
         Observer.Observe('cleared set item in media orphans', InMedia(OldItem));
         Observer.Observe('cleared set item tenant media row', TmExists(OldItem));
-        Observer.Finish();
+        Observer.Expect('row pic', 'ok:ok');
+        Observer.Expect('clear pic', 'ok:Yes');
+        Observer.Expect('cleared pic in media orphans', 'No');
+        Observer.Expect('cleared pic tenant media row', 'No');
+        Observer.Expect('row pics', 'ok:ok');
+        Observer.Expect('clear pics', 'ok:Yes');
+        Observer.Expect('cleared set in mediaset orphans', 'No');
+        Observer.Expect('cleared set item in media orphans', 'No');
+        Observer.Expect('cleared set item tenant media row', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -319,6 +383,9 @@ codeunit 92931 "LT Y48 Find Orphans"
         Run('temporary pic', 'temporary pic', 21, NullGuid);
         Observer.Observe('temporary: tenant media row', TmExists(LastGuid));
         Observer.Observe('temporary: in media orphans', InMedia(LastGuid));
-        Observer.Finish();
+        Observer.Expect('temporary pic', 'ok:ok');
+        Observer.Expect('temporary: tenant media row', 'Yes');
+        Observer.Expect('temporary: in media orphans', 'Yes');
+        Observer.Verify();
     end;
 }

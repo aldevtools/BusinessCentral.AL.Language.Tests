@@ -7,6 +7,8 @@
 //        Observed: Get, SetRange and SetFilter with other casing; Insert of an unknown ID (with and without triggers) and of the listed ID;
 //        Delete of a listed row; and, in the last test, whether an inserted row is still there in a later test.
 //        Each write runs in a codeunit of its own (Codeunit.Run), so an error BC raises is observed and the test goes on.
+//        Asserted values: the CI containers BC 27.5, 28.5 and 29.0 and a SaaS sandbox BC 29, all the same: Get matches the ID case-insensitively and
+//        returns the listed casing; SetRange is case-sensitive; Insert and Delete raise "The Feature Key table is read-only." (DB:Ok).
 // BC versions: 27, 28, 29
 
 codeunit 92921 "LT Y48 FK Step"
@@ -110,7 +112,13 @@ codeunit 92920 "LT Y48 Feature Key Writes"
         Observer.Observe('setfilter @disablesoap*', Format(FeatureKey.Count()));
         FeatureKey.SetFilter(ID, 'disablesoap*');
         Observer.Observe('setfilter disablesoap*', Format(FeatureKey.Count()));
-        Observer.Finish();
+        Observer.Expect('get listed', 'Yes id=DisableSoapWebServicesOnMicrosoftUIPages enabled=All Users description empty=No');
+        Observer.Expect('get test casing', 'Yes id=DisableSoapWebServicesOnMicrosoftUIPages enabled=All Users description empty=No');
+        Observer.Expect('get lower case', 'Yes id=DisableSoapWebServicesOnMicrosoftUIPages enabled=All Users description empty=No');
+        Observer.Expect('setrange test casing', '0 isempty=Yes');
+        Observer.Expect('setfilter @disablesoap*', '1');
+        Observer.Expect('setfilter disablesoap*', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -127,7 +135,14 @@ codeunit 92920 "LT Y48 Feature Key Writes"
         Run(Observer, 'insert again', 'insert', UnknownTok);
         Run(Observer, 'delete', 'delete', UnknownTok);
         Observer.Observe('get after delete', GetText(UnknownTok));
-        Observer.Finish();
+        Observer.Expect('insert', 'error:The Feature Key table is read-only.|DB:Ok');
+        Observer.Expect('count after - before', '0');
+        Observer.Expect('get', 'No');
+        Observer.Expect('setrange', '0 isempty=Yes');
+        Observer.Expect('insert again', 'error:The Feature Key table is read-only.|DB:Ok');
+        Observer.Expect('delete', 'error:The Feature Key does not exist. Identification fields and values: ID=''LTProbeUnknownKey''|DB:RecordNotFound');
+        Observer.Expect('get after delete', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -140,7 +155,10 @@ codeunit 92920 "LT Y48 Feature Key Writes"
         Run(Observer, 'insert(true)', 'insert true', 'LTProbeUnknownKey2');
         Observer.Observe('count after - before', Format(CountAll() - Before));
         Observer.Observe('get', GetText('LTProbeUnknownKey2'));
-        Observer.Finish();
+        Observer.Expect('insert(true)', 'error:The Feature Key table is read-only.|DB:Ok');
+        Observer.Expect('count after - before', '0');
+        Observer.Expect('get', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -155,7 +173,12 @@ codeunit 92920 "LT Y48 Feature Key Writes"
         Run(Observer, 'insert test casing', 'insert', TestCasingTok);
         Observer.Observe('count after test casing - before', Format(CountAll() - Before));
         Observer.Observe('get test casing', GetText(TestCasingTok));
-        Observer.Finish();
+        Observer.Expect('insert listed casing', 'error:The Feature Key table is read-only.|DB:Ok');
+        Observer.Expect('count after listed - before', '0');
+        Observer.Expect('insert test casing', 'error:The Feature Key table is read-only.|DB:Ok');
+        Observer.Expect('count after test casing - before', '0');
+        Observer.Expect('get test casing', 'Yes id=DisableSoapWebServicesOnMicrosoftUIPages enabled=All Users description empty=No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -168,7 +191,10 @@ codeunit 92920 "LT Y48 Feature Key Writes"
         Run(Observer, 'delete listed', 'delete', ListedTok);
         Observer.Observe('count after - before', Format(CountAll() - Before));
         Observer.Observe('get listed', GetText(ListedTok));
-        Observer.Finish();
+        Observer.Expect('delete listed', 'error:The Feature Key table is read-only.|DB:Ok');
+        Observer.Expect('count after - before', '0');
+        Observer.Expect('get listed', 'Yes id=DisableSoapWebServicesOnMicrosoftUIPages enabled=All Users description empty=No');
+        Observer.Verify();
     end;
 
     // Runs after the tests above (declaration order): is a row an earlier test inserted still there?
@@ -180,6 +206,9 @@ codeunit 92920 "LT Y48 Feature Key Writes"
         Observer.Observe('get LTProbeUnknownKey', GetText(UnknownTok));
         Observer.Observe('get LTProbeUnknownKey2', GetText('LTProbeUnknownKey2'));
         Observer.Observe('get listed', GetText(ListedTok));
-        Observer.Finish();
+        Observer.Expect('get LTProbeUnknownKey', 'No');
+        Observer.Expect('get LTProbeUnknownKey2', 'No');
+        Observer.Expect('get listed', 'Yes id=DisableSoapWebServicesOnMicrosoftUIPages enabled=All Users description empty=No');
+        Observer.Verify();
     end;
 }

@@ -5,6 +5,7 @@
 //        `if not IntelligentCloud.Get() then IntelligentCloud.Insert(); Enabled := true; Modify();` on this table. Each write runs in a
 //        codeunit of its own (Codeunit.Run), so an error BC raises is observed and the test goes on. The read side is pinned by
 //        PtOnPremTables.al QZ_IntelligentCloud_Read (empty table, Get No).
+//        Asserted values: the CI containers BC 27.5, 28.5 and 29.0, all the same: Intelligent Cloud behaves as an ordinary table (Insert, Modify, Delete work).
 // BC versions: 27, 28, 29
 
 codeunit 98704 "LT Y48 IC Step"
@@ -90,7 +91,15 @@ codeunit 98703 "LT Y48 Intelligent Cloud"
         Run(Observer, 'insert again', 'insert');
         Run(Observer, 'delete', 'delete');
         Observer.Observe('after delete', State());
-        Observer.Finish();
+        Observer.Expect('before', 'get=No enabled=No isempty=Yes count=0');
+        Observer.Expect('get or insert', 'ok:get=No insert=Yes');
+        Observer.Expect('after insert', 'get=Yes enabled=No isempty=No count=1');
+        Observer.Expect('modify enabled', 'ok:Yes');
+        Observer.Expect('after modify', 'get=Yes enabled=Yes isempty=No count=1');
+        Observer.Expect('insert again', 'ok:No');
+        Observer.Expect('delete', 'ok:Yes');
+        Observer.Expect('after delete', 'get=No enabled=No isempty=Yes count=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -114,6 +123,19 @@ codeunit 98703 "LT Y48 Intelligent Cloud"
         Observer.Observe('count_all', Ops.Perform(TableNo, 'count', '', false));
         Observer.Observe('delete_all_no_triggers', Ops.Perform(TableNo, 'deleteall', '', false));
         Observer.Observe('count_after_delete_all', Ops.Perform(TableNo, 'count', '', false));
-        Observer.Finish();
+        Observer.Expect('has_rows', 'ok:No');
+        Observer.Expect('insert', 'ok:Yes');
+        Observer.Expect('find_inserted', 'ok:1=;2=No;');
+        Observer.Expect('count_inserted', 'ok:1');
+        Observer.Expect('insert_duplicate', 'ok:No');
+        Observer.Expect('modify', 'ok:Yes');
+        Observer.Expect('find_modified', 'ok:1=;2=Yes;');
+        Observer.Expect('delete', 'ok:Yes');
+        Observer.Expect('count_deleted', 'ok:0');
+        Observer.Expect('insert_other_key', 'ok:Yes');
+        Observer.Expect('count_all', 'ok:1');
+        Observer.Expect('delete_all_no_triggers', 'ok:done');
+        Observer.Expect('count_after_delete_all', 'ok:0');
+        Observer.Verify();
     end;
 }

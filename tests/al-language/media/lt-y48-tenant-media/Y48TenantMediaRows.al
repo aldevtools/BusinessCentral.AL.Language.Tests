@@ -7,6 +7,8 @@
 //        the Tenant Media Set rows of a MediaSet import and a Delete of the Tenant Media row of a set item.
 //        Every write runs in a codeunit of its own (Codeunit.Run): an error BC raises is observed and the test goes on (the containers
 //        refuse writes inside a TryFunction). Media ids are GUIDs and are never printed: relations only.
+//        Asserted values: the CI containers BC 27.5, 28.5 and 29.0, all the same. A SaaS sandbox BC 29 gave the same rows but its license refuses
+//        every write to Tenant Media and Tenant Media Set (ClientInsertDenied and so on), so the write values come from the containers only.
 // BC versions: 27, 28, 29
 
 table 92926 "LT Y48 TM Row"
@@ -171,6 +173,30 @@ codeunit 92928 "LT Y48 Tenant Media Rows"
         Observer: Codeunit "Probe Observer";
         LastGuid: Guid;
 
+    // Error texts can carry a media id or a session id: both change per run.
+    local procedure ScrubIds(Value: Text): Text
+    begin
+        Value := Between(Value, 'ID=''', '''');
+        Value := Between(Value, 'session ID: ''', '''');
+        exit(Value);
+    end;
+
+    local procedure Between(Value: Text; StartText: Text; EndText: Text): Text
+    var
+        StartPos: Integer;
+        Rest: Text;
+        EndPos: Integer;
+    begin
+        StartPos := StrPos(Value, StartText);
+        if StartPos = 0 then
+            exit(Value);
+        Rest := CopyStr(Value, StartPos + StrLen(StartText));
+        EndPos := StrPos(Rest, EndText);
+        if EndPos = 0 then
+            exit(Value);
+        exit(CopyStr(Value, 1, StartPos + StrLen(StartText) - 1) + 'x' + CopyStr(Rest, EndPos));
+    end;
+
     local procedure Run(Name: Text; Step: Text; Arg: Text; RowId: Integer; MediaGuid: Guid)
     var
         StepCu: Codeunit "LT Y48 TM Step";
@@ -180,8 +206,35 @@ codeunit 92928 "LT Y48 Tenant Media Rows"
         if StepCu.Run() then
             Observer.Observe(Name, 'ok:' + StepCu.GetResult())
         else
-            Observer.Observe(Name, 'error:' + GetLastErrorText() + '|' + GetLastErrorCode());
+            Observer.Observe(Name, 'error:' + ScrubIds(GetLastErrorText()) + '|' + GetLastErrorCode());
         LastGuid := StepCu.GetMediaGuid();
+    end;
+
+    // The Tenant Media Set row of one item (Media Index is a time-based number and the key order follows the media ids: neither is printed).
+    local procedure SetItem(SetId: Guid; ItemId: Guid): Text
+    var
+        TMS: Record "Tenant Media Set";
+    begin
+        TMS.SetRange(ID, SetId);
+        if TMS.FindSet() then
+            repeat
+                if TMS."Media ID".MediaId() = ItemId then
+                    exit('row: company=' + Format(TMS."Company Name" = CompanyName()) + ' hasvalue=' + Format(TMS."Media ID".HasValue()) + ' index>0=' + Format(TMS."Media Index" > 0) + ';');
+            until TMS.Next() = 0;
+        exit('no row;');
+    end;
+
+    local procedure IndexOf(SetId: Guid; ItemId: Guid): BigInteger
+    var
+        TMS: Record "Tenant Media Set";
+    begin
+        TMS.SetRange(ID, SetId);
+        if TMS.FindSet() then
+            repeat
+                if TMS."Media ID".MediaId() = ItemId then
+                    exit(TMS."Media Index");
+            until TMS.Next() = 0;
+        exit(-1);
     end;
 
     local procedure TmRow(Id: Guid): Text
@@ -267,7 +320,13 @@ codeunit 92928 "LT Y48 Tenant Media Rows"
         Observer.Observe('TestFile_B', TmRow(LastGuid));
         Run('attach C', 'attach', 'TestFile_C.PDF', 3, NullGuid);
         Observer.Observe('TestFile_C.PDF', TmRow(LastGuid));
-        Observer.Finish();
+        Observer.Expect('attach A', 'ok:attached');
+        Observer.Expect('TestFile_A.txt', 'Description=|Mime Type=text/plain|File Name=TestFile_A.txt|Height=0|Width=0|Company Name=<CompanyName()>|Prohibit Cache=No|Creating User empty=Yes|Expiration empty=Yes|Security Token empty=Yes|len=38');
+        Observer.Expect('attach B', 'ok:attached');
+        Observer.Expect('TestFile_B', 'Description=|Mime Type=application/octet-stream|File Name=TestFile_B|Height=0|Width=0|Company Name=<CompanyName()>|Prohibit Cache=No|Creating User empty=Yes|Expiration empty=Yes|Security Token empty=Yes|len=38');
+        Observer.Expect('attach C', 'ok:attached');
+        Observer.Expect('TestFile_C.PDF', 'Description=|Mime Type=application/pdf|File Name=TestFile_C.PDF|Height=0|Width=0|Company Name=<CompanyName()>|Prohibit Cache=No|Creating User empty=Yes|Expiration empty=Yes|Security Token empty=Yes|len=38');
+        Observer.Verify();
     end;
 
     [Test]
@@ -296,7 +355,19 @@ codeunit 92928 "LT Y48 Tenant Media Rows"
         Observer.Observe('own: hasvalue', Format(Row.Pic.HasValue()));
         Observer.Observe('own: mediaid = id', Format(Row.Pic.MediaId() = Id));
         Observer.Observe('own: export', Export(Row));
-        Observer.Finish();
+        Observer.Expect('attach', 'ok:attached');
+        Observer.Expect('tm delete', 'ok:Yes');
+        Observer.Expect('tm row after delete', 'no row');
+        Observer.Expect('attachment: hasvalue', 'No');
+        Observer.Expect('attachment: mediaid = id', 'Yes');
+        Observer.Expect('attachment: export', 'ok len=0 text=');
+        Observer.Expect('own import', 'ok:imported');
+        Observer.Expect('own tm delete', 'ok:Yes');
+        Observer.Expect('own tm row after delete', 'no row');
+        Observer.Expect('own: hasvalue', 'No');
+        Observer.Expect('own: mediaid = id', 'Yes');
+        Observer.Expect('own: export', 'ok len=0 text=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -324,7 +395,19 @@ codeunit 92928 "LT Y48 Tenant Media Rows"
         Row.Get(22);
         Observer.Observe('after description: hasvalue', Format(Row.Pic.HasValue()));
         Observer.Observe('after description: export', Export(Row));
-        Observer.Finish();
+        Observer.Expect('own import', 'ok:imported');
+        Observer.Expect('tm row before', 'Description=test.txt|Mime Type=text/plain|File Name=|Height=0|Width=0|Company Name=<CompanyName()>|Prohibit Cache=No|Creating User empty=Yes|Expiration empty=Yes|Security Token empty=Yes|len=38');
+        Observer.Expect('clear content', 'ok:Yes');
+        Observer.Expect('tm row after clear', 'Description=test.txt|Mime Type=text/plain|File Name=|Height=0|Width=0|Company Name=<CompanyName()>|Prohibit Cache=No|Creating User empty=Yes|Expiration empty=Yes|Security Token empty=Yes|len=0');
+        Observer.Expect('after clear: hasvalue', 'Yes');
+        Observer.Expect('after clear: mediaid = id', 'Yes');
+        Observer.Expect('after clear: export', 'ok len=0 text=');
+        Observer.Expect('own import 2', 'ok:imported');
+        Observer.Expect('change description', 'ok:Yes');
+        Observer.Expect('tm row after description', 'Description=changed|Mime Type=text/plain|File Name=|Height=0|Width=0|Company Name=<CompanyName()>|Prohibit Cache=No|Creating User empty=Yes|Expiration empty=Yes|Security Token empty=Yes|len=38');
+        Observer.Expect('after description: hasvalue', 'Yes');
+        Observer.Expect('after description: export', 'ok len=38 text=Test content for attachment ABC123xyz0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -353,7 +436,19 @@ codeunit 92928 "LT Y48 Tenant Media Rows"
         Observer.Observe('pic without company: export', Export(Row));
 
         Run('insert same id again', 'tm insert', 'company', 0, NewId);
-        Observer.Finish();
+        Observer.Expect('insert', 'ok:Yes');
+        Observer.Expect('tm row', 'Description=|Mime Type=|File Name=|Height=0|Width=0|Company Name=<CompanyName()>|Prohibit Cache=No|Creating User empty=Yes|Expiration empty=Yes|Security Token empty=Yes|len=1');
+        Observer.Expect('set pic by recref', 'ok:Yes');
+        Observer.Expect('pic: hasvalue', 'Yes');
+        Observer.Expect('pic: mediaid = new id', 'Yes');
+        Observer.Expect('pic: export', 'ok len=1 text=1');
+        Observer.Expect('insert without company', 'ok:Yes');
+        Observer.Expect('tm row without company', 'Description=|Mime Type=|File Name=|Height=0|Width=0|Company Name=[]|Prohibit Cache=No|Creating User empty=Yes|Expiration empty=Yes|Security Token empty=Yes|len=1');
+        Observer.Expect('set pic by recref without company', 'ok:Yes');
+        Observer.Expect('pic without company: hasvalue', 'Yes');
+        Observer.Expect('pic without company: export', 'ok len=1 text=1');
+        Observer.Expect('insert same id again', 'ok:No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -375,12 +470,7 @@ codeunit 92928 "LT Y48 Tenant Media Rows"
         Observer.Observe('pics count', Format(Row.Pics.Count()));
         TMS.SetRange(ID, SetId);
         Observer.Observe('tms count', Format(TMS.Count()));
-        if TMS.FindSet() then
-            repeat
-                Rows += 'index=' + Format(TMS."Media Index") + ' company=' + Format(TMS."Company Name" = CompanyName()) + ' hasvalue=' +
-                    Format(TMS."Media ID".HasValue()) + ' item1=' + Format(TMS."Media ID".MediaId() = Row.Pics.Item(1)) +
-                    ' item2=' + Format(TMS."Media ID".MediaId() = Row.Pics.Item(2)) + ';';
-            until TMS.Next() = 0;
+        Rows := SetItem(SetId, Row.Pics.Item(1)) + SetItem(SetId, Row.Pics.Item(2)) + 'index 1 < index 2=' + Format(IndexOf(SetId, Row.Pics.Item(1)) < IndexOf(SetId, Row.Pics.Item(2))) + ';';
         Observer.Observe('tms rows', Rows);
         Observer.Observe('item 1 tm row', TmRow(Row.Pics.Item(1)));
         TMS.Reset();
@@ -407,13 +497,13 @@ codeunit 92928 "LT Y48 Tenant Media Rows"
         Run('tm delete item 1', 'tm delete', '', 0, Item1);
         Row.Get(51);
         Observer.Observe('pics count', Format(Row.Pics.Count()));
-        Observer.Observe('pics item 1 = deleted id', Format(Row.Pics.Item(1) = Item1));
+        if Row.Pics.Count() >= 1 then
+            Observer.Observe('pics item 1 = deleted id', Format(Row.Pics.Item(1) = Item1));
         TMS.SetRange(ID, SetId);
         Observer.Observe('tms count', Format(TMS.Count()));
-        if TMS.FindSet() then
-            repeat
-                Rows += 'index=' + Format(TMS."Media Index") + ' hasvalue=' + Format(TMS."Media ID".HasValue()) + ' deleted=' + Format(TMS."Media ID".MediaId() = Item1) + ';';
-            until TMS.Next() = 0;
+        Rows := SetItem(SetId, Item1);
+        if Row.Pics.Count() >= 2 then
+            Rows += SetItem(SetId, Row.Pics.Item(2));
         Observer.Observe('tms rows', Rows);
         Observer.Finish();
     end;

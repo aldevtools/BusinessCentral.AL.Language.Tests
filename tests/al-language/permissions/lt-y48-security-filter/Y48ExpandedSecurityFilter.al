@@ -7,6 +7,7 @@
 //        `TenantPermission."Security Filter" := ExpandedPermission."Security Filter"`.
 //        TestMetadataExpandedPermission.al:196-207 pins that a grant inserted after a set's first read is not seen by the next read:
 //        each test uses its own role ids and reads only after all inserts.
+//        Asserted values: the CI containers BC 27.5, 28.5 and 29.0 and a SaaS sandbox BC 29, all the same.
 // BC versions: 27, 28, 29
 
 table 92922 "LT Y48 SF Table"
@@ -132,7 +133,11 @@ codeunit 92925 "LT Y48 Expanded Sec Filter"
                     NonBlank += 1;
             until EP.Next() = 0;
         Observer.Observe('rows of this app with a security filter', Format(NonBlank));
-        Observer.Finish();
+        Observer.Expect('object ids', 'ids: table=92922 table2=92923');
+        Observer.Expect('LTY48PSMETA', 'Table Data|92922|Yes, , , , |[]|[]|System;Table Data|92923|Yes,Yes,Yes,Yes, |[]|[]|System;');
+        Observer.Expect('rows of this app > 0', 'Yes');
+        Observer.Expect('rows of this app with a security filter', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -153,7 +158,13 @@ codeunit 92925 "LT Y48 Expanded Sec Filter"
         Observer.Observe('get format 9', Format(EP."Security Filter", 0, 9));
         TP."Security Filter" := EP."Security Filter";
         Observer.Observe('copied into tenant permission, format 9', Format(TP."Security Filter", 0, 9));
-        Observer.Finish();
+        Observer.Expect('object ids', 'ids: table=92922 table2=92923');
+        Observer.Expect('LTY48TEN', 'Table Data|92922|Yes, , , , |[LT Y48 SF Table: Id=1..5]|[LT Y48 SF Table: Id=1..5]|Tenant;Table Data|92923|Yes,Yes,Yes,Yes, |[]|[]|Tenant;');
+        Observer.Expect('get', 'Yes');
+        Observer.Expect('get format', 'LT Y48 SF Table: Id=1..5');
+        Observer.Expect('get format 9', 'LT Y48 SF Table: Id=1..5');
+        Observer.Expect('copied into tenant permission, format 9', 'LT Y48 SF Table: Id=1..5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -176,7 +187,9 @@ codeunit 92925 "LT Y48 Expanded Sec Filter"
         Rel.Insert();
         Observer.Observe('LTY48INC', Rows(NullGuid, 'LTY48INC'));
         Observer.Observe('LTY48BASE', Rows(NullGuid, 'LTY48BASE'));
-        Observer.Finish();
+        Observer.Expect('LTY48INC', 'Table Data|92922|Yes, ,Yes, , |[LT Y48 SF Table: Id=>=1&(<=20&(>=10|<=5))]|[LT Y48 SF Table: Id=>=1&(<=20&(>=10|<=5))]|Tenant;');
+        Observer.Expect('LTY48BASE', 'Table Data|92922|Yes, , , , |[LT Y48 SF Table: Id=1..5]|[LT Y48 SF Table: Id=1..5]|Tenant;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -200,6 +213,10 @@ codeunit 92925 "LT Y48 Expanded Sec Filter"
         Observer.Observe('same variable, get again', Format(EP."Security Filter", 0, 9));
         EP2.Get(NullGuid, 'LTY48CHG', EP2."Object Type"::"Table Data", Database::"LT Y48 SF Table");
         Observer.Observe('new variable, get', Format(EP2."Security Filter", 0, 9));
-        Observer.Finish();
+        Observer.Expect('first read', 'Table Data|92922|Yes, , , , |[LT Y48 SF Table: Id=1..5]|[LT Y48 SF Table: Id=1..5]|Tenant;');
+        Observer.Expect('second read', 'Table Data|92922|Yes, , , , |[LT Y48 SF Table: Id=1..5]|[LT Y48 SF Table: Id=1..5]|Tenant;');
+        Observer.Expect('same variable, get again', 'LT Y48 SF Table: Id=1..5');
+        Observer.Expect('new variable, get', 'LT Y48 SF Table: Id=1..5');
+        Observer.Verify();
     end;
 }

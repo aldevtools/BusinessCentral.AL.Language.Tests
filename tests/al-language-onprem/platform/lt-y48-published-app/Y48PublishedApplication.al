@@ -8,6 +8,9 @@
 //        36 Resource Exposure Policy, 37, 38 to 41 source and build) for the corpus apps and Microsoft's apps; a Modify of the Application row.
 //        Package IDs and versions change per build: only relations are observed, never the values.
 //        Not done: the spec's change of a cross-app fixture's app.json (help, url, resourceExposurePolicy, source, build); fixture C is read as it is.
+//        Asserted values: the CI containers BC 27.5, 28.5 and 29.0, the same on all three except column 37 of System Application (Yes on 29.0 only).
+//        The Application row is an ordinary row: its own Package ID (not Base Application's, no AllObjWithCaption object carries it), the version of
+//        Base Application, Published As Global, Resource Exposure Policy 7; a Modify of its Brief succeeds.
 // BC versions: 27, 28, 29
 
 codeunit 98705 "LT Y48 PA Modify"
@@ -140,7 +143,18 @@ codeunit 98702 "LT Y48 Published App"
         RowOf(IdOf(SystemAppIdTok), Sys);
         Observer.Observe('version = base application', SameVersion(App, Base));
         Observer.Observe('version = system application', SameVersion(App, Sys));
-        Observer.Finish();
+        Observer.Expect('rows', '1');
+        Observer.Expect('found', 'Yes');
+        Observer.Expect('dump', '1=<guid null=No>;2=<guid null=No>;3=<guid null=No>;4=Application;5=Microsoft;6=v;7=v;8=v;9=v;10=Extension;11=Global;12=;14=Application (W1);15=<BLOB>;16=https://go.microsoft.com/fwlink/?LinkId=724009;17=https://go.microsoft.com/fwlink/?linkid=2182906;18=https://go.microsoft.com/fwlink/?LinkId=724011;19=https://go.microsoft.com/fwlink/?linkid=2104024;20=<Media>;21=<MediaSet>;22=<BLOB>;25=<BLOB>;26=<empty>;27=No;28=<value>;29=<guid null=Yes>;32=<empty>;33=<guid null=Yes>;34=<BLOB>;35=<empty>;36=7;37=No;38=;39=;40=;41=;');
+        Observer.Expect('name', 'Application');
+        Observer.Expect('publisher', 'Microsoft');
+        Observer.Expect('columns', 'Package Type=Extension|Published As=Global|Help=[https://go.microsoft.com/fwlink/?linkid=2104024]|Url=[https://go.microsoft.com/fwlink/?LinkId=724011]|EULA=[https://go.microsoft.com/fwlink/?linkid=2182906]|Privacy Statement=[https://go.microsoft.com/fwlink/?LinkId=724009]|Brief=[Application (W1)]|Resource Exposure Policy=7|Applicable To Dev Extension=No|Source Repository Url=<empty>|Source Commit ID=<empty>|Build By=<empty>|Build Url=<empty>');
+        Observer.Expect('tenant id', '[]');
+        Observer.Expect('blobs', 'Description=Yes Blob=Yes Symbols=Yes Documentation=Yes');
+        Observer.Expect('version major is a major', 'Yes');
+        Observer.Expect('version = base application', 'major=Yes minor=Yes build=Yes revision=Yes');
+        Observer.Expect('version = system application', 'major=Yes minor=Yes build=Yes revision=Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -212,7 +226,30 @@ codeunit 98702 "LT Y48 Published App"
             Observer.Observe('published application table: published application', PA2.Name + ' rows=' + Format(PA2.Count()))
         else
             Observer.Observe('published application table: published application', 'none');
-        Observer.Finish();
+        Observer.Expect('package id null', 'No');
+        Observer.Expect('runtime package id null', 'No');
+        Observer.Expect('package id = runtime package id', 'No');
+        Observer.Expect('package id = base application', 'No');
+        Observer.Expect('package id = system application', 'No');
+        Observer.Expect('package id = this app', 'No');
+        Observer.Expect('base: package id = runtime package id', 'No');
+        Observer.Expect('this: package id = runtime package id', 'Yes');
+        Observer.Expect('GetModuleInfo(application)', 'Yes');
+        Observer.Expect('module info package id = row', 'Yes');
+        Observer.Expect('module info package id null', 'No');
+        Observer.Expect('module info package id = base application', 'No');
+        Observer.Expect('allobj rows with the application package id', '0');
+        Observer.Expect('allobj rows with the base application package id > 0', 'Yes');
+        Observer.Expect('package id of base + tenant visible', 'Base Application rows=1');
+        Observer.Expect('package id of application + tenant visible', 'Application rows=1');
+        Observer.Expect('package id of application, any visibility', '1');
+        Observer.Expect('customer: app package id null', 'No');
+        Observer.Expect('customer: app package id = base application', 'Yes');
+        Observer.Expect('customer: published application', 'Base Application');
+        Observer.Expect('published application table: app package id null', 'No');
+        Observer.Expect('published application table: app package id = application', 'No');
+        Observer.Expect('published application table: published application', 'none');
+        Observer.Verify();
     end;
 
     [Test]
@@ -231,7 +268,18 @@ codeunit 98702 "LT Y48 Published App"
         Observer.Observe('base application', Columns(App, true));
         RowOf(IdOf(SystemAppIdTok), App);
         Observer.Observe('system application', Columns(App, true));
-        Observer.Finish();
+#if BC29PLUS
+        Observer.Expect('onprem app', 'Package Type=Extension|Published As= Dev|Help=[]|Url=[]|EULA=[]|Privacy Statement=[]|Brief=[Executable proof for the AL surface that only a Target = OnPrem app can name at all.]|Resource Exposure Policy=7|Applicable To Dev Extension=No|Source Repository Url=[]|Source Commit ID=[]|Build By=[]|Build Url=[]');
+        Observer.Expect('cloud coverage app', 'Package Type=Extension|Published As= Dev|Help=[]|Url=[]|EULA=[]|Privacy Statement=[]|Brief=[Executable proof that the AL language works correctly against a real BC instance.]|Resource Exposure Policy=0|Applicable To Dev Extension=No|Source Repository Url=[]|Source Commit ID=[]|Build By=[]|Build Url=[]');
+        Observer.Expect('base application', 'Package Type=Extension|Published As=Global|Help=[https://go.microsoft.com/fwlink/?linkid=2104024]|Url=[https://go.microsoft.com/fwlink/?LinkId=724011]|EULA=[https://go.microsoft.com/fwlink/?linkid=2009120]|Privacy Statement=[https://go.microsoft.com/fwlink/?LinkId=724009]|Brief=[Base Application (W1)]|Resource Exposure Policy=7|Applicable To Dev Extension=No|Source Repository Url=<empty>|Source Commit ID=<empty>|Build By=<empty>|Build Url=<empty>');
+        Observer.Expect('system application', 'Package Type=Extension|Published As=Global|Help=[https://go.microsoft.com/fwlink/?linkid=2103698]|Url=[https://go.microsoft.com/fwlink/?linkid=724011]|EULA=[https://go.microsoft.com/fwlink/?linkid=2009120]|Privacy Statement=[https://go.microsoft.com/fwlink/?linkid=724009]|Brief=[Provides a standard set of capabilities that serve as a foundation for developing business apps.]|Resource Exposure Policy=7|Applicable To Dev Extension=Yes|Source Repository Url=<value>|Source Commit ID=<value>|Build By=<empty>|Build Url=<empty>');
+#else
+        Observer.Expect('onprem app', 'Package Type=Extension|Published As= Dev|Help=[]|Url=[]|EULA=[]|Privacy Statement=[]|Brief=[Executable proof for the AL surface that only a Target = OnPrem app can name at all.]|Resource Exposure Policy=7|Applicable To Dev Extension=No|Source Repository Url=[]|Source Commit ID=[]|Build By=[]|Build Url=[]');
+        Observer.Expect('cloud coverage app', 'Package Type=Extension|Published As= Dev|Help=[]|Url=[]|EULA=[]|Privacy Statement=[]|Brief=[Executable proof that the AL language works correctly against a real BC instance.]|Resource Exposure Policy=0|Applicable To Dev Extension=No|Source Repository Url=[]|Source Commit ID=[]|Build By=[]|Build Url=[]');
+        Observer.Expect('base application', 'Package Type=Extension|Published As=Global|Help=[https://go.microsoft.com/fwlink/?linkid=2104024]|Url=[https://go.microsoft.com/fwlink/?LinkId=724011]|EULA=[https://go.microsoft.com/fwlink/?linkid=2009120]|Privacy Statement=[https://go.microsoft.com/fwlink/?LinkId=724009]|Brief=[Base Application (W1)]|Resource Exposure Policy=7|Applicable To Dev Extension=No|Source Repository Url=<empty>|Source Commit ID=<empty>|Build By=<empty>|Build Url=<empty>');
+        Observer.Expect('system application', 'Package Type=Extension|Published As=Global|Help=[https://go.microsoft.com/fwlink/?linkid=2103698]|Url=[https://go.microsoft.com/fwlink/?linkid=724011]|EULA=[https://go.microsoft.com/fwlink/?linkid=2009120]|Privacy Statement=[https://go.microsoft.com/fwlink/?linkid=724009]|Brief=[Provides a standard set of capabilities that serve as a foundation for developing business apps.]|Resource Exposure Policy=7|Applicable To Dev Extension=No|Source Repository Url=<value>|Source Commit ID=<value>|Build By=<empty>|Build Url=<empty>');
+#endif
+        Observer.Verify();
     end;
 
     [Test]
@@ -243,7 +291,10 @@ codeunit 98702 "LT Y48 Published App"
         Observer.Observe('found', Format(RowOf(IdOf(AppCIdTok), App)));
         Observer.Observe('fixture c', Columns(App, false));
         Observer.Observe('format resource exposure policy', Format(App."Resource Exposure Policy"));
-        Observer.Finish();
+        Observer.Expect('found', 'Yes');
+        Observer.Expect('fixture c', 'Package Type=Extension|Published As= Dev|Help=[]|Url=[]|EULA=[]|Privacy Statement=[]|Brief=[Cross-app fixture C: extends a page of cross-app fixture B without depending on the app that declares a type the page uses.]|Resource Exposure Policy=0|Applicable To Dev Extension=No|Source Repository Url=[]|Source Commit ID=[]|Build By=[]|Build Url=[]');
+        Observer.Expect('format resource exposure policy', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -266,6 +317,14 @@ codeunit 98702 "LT Y48 Published App"
         Observer.ObserveError('modify this app row');
         RowOf(ThisModule.Id(), App);
         Observer.Observe('this app brief after', '[' + App.Brief + ']');
-        Observer.Finish();
+        Observer.Expect('modify application row', 'Yes');
+        Observer.Expect('modify application row|text', '');
+        Observer.Expect('modify application row|code', '');
+        Observer.Expect('application brief after', '[LT Y48 changed brief]');
+        Observer.Expect('modify this app row', 'Yes');
+        Observer.Expect('modify this app row|text', '');
+        Observer.Expect('modify this app row|code', '');
+        Observer.Expect('this app brief after', '[LT Y48 changed brief]');
+        Observer.Verify();
     end;
 }
