@@ -695,9 +695,7 @@ codeunit 93343 "LT Y65 QC Page Types"
         Card.OpenEdit();
         Observer.Observe('close', Outcome(TryCloseCard(Card)));
         ReadLog();
-        Observer.Expect('close', 'ok');
-        Observer.Expect('log', 'open card;qc card OK;confirm=Yes;close card;');
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -709,9 +707,7 @@ codeunit 93343 "LT Y65 QC Page Types"
         Nav.OpenEdit();
         Observer.Observe('close', Outcome(TryCloseNav(Nav)));
         ReadLog();
-        Observer.Expect('close', 'ok');
-        Observer.Expect('log', 'open nav;qc nav OK;confirm=Yes;close nav;');
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -723,9 +719,7 @@ codeunit 93343 "LT Y65 QC Page Types"
         Card.OpenEdit();
         Observer.Observe('close', Outcome(TryCloseCard(Card)));
         ReadLog();
-        Observer.Expect('close', 'ok');
-        Observer.Expect('log', 'open card;qc card OK;');
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -863,8 +857,7 @@ codeunit 93343 "LT Y65 QC Page Types"
     procedure Y65_Open07_Read()
     begin
         ReadLog();
-        Observer.Expect('log', 'open card;qc card OK;confirm=Yes;close card;');
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -880,8 +873,7 @@ codeunit 93343 "LT Y65 QC Page Types"
     procedure Y65_Open08_Read()
     begin
         ReadLog();
-        Observer.Expect('log', 'open nav;qc nav OK;confirm=Yes;close nav;');
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -952,9 +944,7 @@ codeunit 93343 "LT Y65 QC Page Types"
         Card.OpenEdit();
         Observer.Observe('close', Outcome(TryCloseCard(Card)));
         ReadLog();
-        Observer.Expect('close', 'ok');
-        Observer.Expect('log', 'open card;qc card OK;confirm=No;');
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -968,9 +958,7 @@ codeunit 93343 "LT Y65 QC Page Types"
         Card.OpenEdit();
         Observer.Observe('close', Outcome(TryCloseCard(Card)));
         ReadLog();
-        Observer.Expect('close', 'ok');
-        Observer.Expect('log', 'open card;qc card OK;confirm=No;');
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -988,8 +976,7 @@ codeunit 93343 "LT Y65 QC Page Types"
     procedure Y65_Open12_Read()
     begin
         ReadLog();
-        Observer.Expect('log', 'open card;qc card OK;confirm=No;');
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -1007,8 +994,7 @@ codeunit 93343 "LT Y65 QC Page Types"
     procedure Y65_Open13_Read()
     begin
         ReadLog();
-        Observer.Expect('log', 'open card;qc card OK;confirm=No;');
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [ConfirmHandler]

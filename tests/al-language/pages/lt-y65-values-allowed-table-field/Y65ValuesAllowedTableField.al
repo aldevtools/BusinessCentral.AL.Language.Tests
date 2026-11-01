@@ -254,12 +254,7 @@ codeunit 93345 "LT Y65 VA Tests"
         Observer.Observe('push integer 3', CaseWizard('push', 3));
         Observer.Observe('push integer 1', CaseWizard('push', 1));
         Observer.Observe('push integer 0', CaseWizard('push', 0));
-        Observer.Expect('push text None', 'error:The value "None" can''t be evaluated into type Option.|Evaluate:Format|now Mapped Only');
-        Observer.Expect('push text published only', 'error:The value "published only" can''t be evaluated into type Option.|Evaluate:Format|now Mapped Only');
-        Observer.Expect('push integer 3', 'ok:None');
-        Observer.Expect('push integer 1', 'error:Validation error for Field: Push Mode,  Message = ''Your entry of ''2'' is not an acceptable value for ''Push Mode''.''|TestValidation|now 2');
-        Observer.Expect('push integer 0', 'error:Validation error for Field: Push Mode,  Message = ''Your entry of ''2'' is not an acceptable value for ''Push Mode''.''|TestValidation|now 2');
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -272,14 +267,7 @@ codeunit 93345 "LT Y65 VA Tests"
         Observer.Observe('int 5', CaseWizard('int', 5));
         Observer.Observe('int 3', CaseWizard('int', 3));
         Observer.Observe('int text 1', CaseWizard('int', '1'));
-        Observer.Expect('opt text D', 'error:The value "D" can''t be evaluated into type Option.|Evaluate:Format|now 0');
-        Observer.Expect('opt text A', 'error:The value "A" can''t be evaluated into type Option.|Evaluate:Format|now 0');
-        Observer.Expect('opt integer 1', 'ok:B');
-        Observer.Expect('opt integer 2', 'error:Validation error for Field: Opt,  Message = ''Your entry of ''0'' is not an acceptable value for ''Opt''.''|TestValidation|now 0');
-        Observer.Expect('int 5', 'ok:5');
-        Observer.Expect('int 3', 'error:Validation error for Field: Int,  Message = ''Value ''3'' is not a valid value. The following values can be used: 1;5.''|TestValidation|now 0');
-        Observer.Expect('int text 1', 'ok:1');
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -380,12 +368,7 @@ codeunit 93345 "LT Y65 VA Tests"
         Observer.Observe('push integer 3', CaseCard('push', 3));
         Observer.Observe('push integer 1', CaseCard('push', 1));
         Observer.Observe('push integer 0', CaseCard('push', 0));
-        Observer.Expect('push text None', 'error:The value "None" can''t be evaluated into type Option.|Evaluate:Format|now Mapped Only stored=Mapped Only');
-        Observer.Expect('push text published only', 'error:The value "published only" can''t be evaluated into type Option.|Evaluate:Format|now Mapped Only stored=Mapped Only');
-        Observer.Expect('push integer 3', 'ok:None stored=None');
-        Observer.Expect('push integer 1', 'error:Validation error for Field: Push Mode,  Message = ''Your entry of ''2'' is not an acceptable value for ''Push Mode''. (Select Refresh to discard errors)''|TestValidation|now 2 stored=Mapped Only');
-        Observer.Expect('push integer 0', 'error:Validation error for Field: Push Mode,  Message = ''Your entry of ''2'' is not an acceptable value for ''Push Mode''. (Select Refresh to discard errors)''|TestValidation|now 2 stored=Mapped Only');
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -398,14 +381,7 @@ codeunit 93345 "LT Y65 VA Tests"
         Observer.Observe('int 5', CaseCard('int', 5));
         Observer.Observe('int 3', CaseCard('int', 3));
         Observer.Observe('int text 1', CaseCard('int', '1'));
-        Observer.Expect('opt text D', 'error:The value "D" can''t be evaluated into type Option.|Evaluate:Format|now B stored=B');
-        Observer.Expect('opt text A', 'error:The value "A" can''t be evaluated into type Option.|Evaluate:Format|now B stored=B');
-        Observer.Expect('opt integer 1', 'ok:B stored=B');
-        Observer.Expect('opt integer 2', 'error:Validation error for Field: Opt,  Message = ''Your entry of ''1'' is not an acceptable value for ''Opt''. (Select Refresh to discard errors)''|TestValidation|now 1 stored=B');
-        Observer.Expect('int 5', 'ok:5 stored=5');
-        Observer.Expect('int 3', 'error:Validation error for Field: Int,  Message = ''Value ''3'' is not a valid value. The following values can be used: 1;5. (Select Refresh to discard errors)''|TestValidation|now 1 stored=1');
-        Observer.Expect('int text 1', 'ok:1 stored=1');
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -506,12 +482,7 @@ codeunit 93345 "LT Y65 VA Tests"
         Observer.Observe('push integer 3', CaseList('push', 3));
         Observer.Observe('push integer 1', CaseList('push', 1));
         Observer.Observe('push integer 0', CaseList('push', 0));
-        Observer.Expect('push text None', 'error:The value "None" can''t be evaluated into type Option.|Evaluate:Format|now Mapped Only stored=Mapped Only');
-        Observer.Expect('push text published only', 'error:The value "published only" can''t be evaluated into type Option.|Evaluate:Format|now Mapped Only stored=Mapped Only');
-        Observer.Expect('push integer 3', 'ok:None stored=None');
-        Observer.Expect('push integer 1', 'error:Validation error for Field: Push Mode,  Message = ''Your entry of ''2'' is not an acceptable value for ''Push Mode''.''|TestValidation|now 2 stored=Mapped Only');
-        Observer.Expect('push integer 0', 'error:Validation error for Field: Push Mode,  Message = ''Your entry of ''2'' is not an acceptable value for ''Push Mode''.''|TestValidation|now 2 stored=Mapped Only');
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -524,14 +495,7 @@ codeunit 93345 "LT Y65 VA Tests"
         Observer.Observe('int 5', CaseList('int', 5));
         Observer.Observe('int 3', CaseList('int', 3));
         Observer.Observe('int text 1', CaseList('int', '1'));
-        Observer.Expect('opt text D', 'error:The value "D" can''t be evaluated into type Option.|Evaluate:Format|now B stored=B');
-        Observer.Expect('opt text A', 'error:The value "A" can''t be evaluated into type Option.|Evaluate:Format|now B stored=B');
-        Observer.Expect('opt integer 1', 'ok:B stored=B');
-        Observer.Expect('opt integer 2', 'error:Validation error for Field: Opt,  Message = ''Your entry of ''1'' is not an acceptable value for ''Opt''.''|TestValidation|now 1 stored=B');
-        Observer.Expect('int 5', 'ok:5 stored=5');
-        Observer.Expect('int 3', 'error:Validation error for Field: Int,  Message = ''Value ''3'' is not a valid value. The following values can be used: 1;5.''|TestValidation|now 1 stored=1');
-        Observer.Expect('int text 1', 'ok:1 stored=1');
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]

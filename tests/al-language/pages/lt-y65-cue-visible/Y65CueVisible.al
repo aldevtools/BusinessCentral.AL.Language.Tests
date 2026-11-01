@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/properties/devenv-visible-property
 // Scope: in-scope (Cloud)
-// Fixtures used: Probe Observer (codeunit 69160); table 93347, page 93366 (CardPart), test codeunit 93347; Base Application pages
+// Fixtures used: Probe Observer (codeunit 69160); table 93347, pages 93366 and 93367 (CardPart), test codeunit 93347; Base Application pages
 //   "Sales & Relationship Mgr. Act.", "SO Processor Activities", "O365 Activities"
 // Probe (al-runner issue 6675; a cuegroup with Visible = true/false/a page variable on a Card is pages/lt-ab-group-properties/ABCueProps.al,
 //   a field in a hidden group is handlers/TestPageFieldVisibleGroup_Tests.al): a role-center activity page (CardPart over a cue table that
@@ -10,7 +10,7 @@
 //   Visible takes any Boolean expression; a field Visible is a client expression (procedure calls, method calls and array elements:
 //   AL0322, must-not-compile 2631 (array) and 2632 (method call); a procedure call is 2000); an Integer is AL0208 (must-not-compile 2630). Read through TestPage: Visible() and Value of each cue field. The reporter's three Microsoft activity pages are held
 //   as Suspect_ procedures (see there).
-// Results (SaaS sandbox BC 29): variables set in OnInit, OnOpenPage and OnAfterGetRecord, `not`, array elements, Rec fields, Rec
+// Results (SaaS sandbox BC 29): variables set in OnInit, OnOpenPage and OnAfterGetRecord, `not`, array elements (page 93367, BC 29 only), Rec fields, Rec
 //   expressions and not Rec.IsEmpty() all give the value they have after the page opened. The cuegroup with Visible = IsShown() (which
 //   returns the variable OnOpenPage sets to true) reads No. A hidden cue field still answers Visible() No and its value.
 // BC versions: 27, 28, 29
@@ -115,12 +115,6 @@ page 93366 "LT Y65 Cue Activities"
                 Visible = IsShown();
                 field(CueJ; Rec.CueJ) { ApplicationArea = All; }
             }
-            cuegroup(GrpArr)
-            {
-                Caption = 'Array';
-                Visible = ShowArr[2];
-                field(CueK; Rec.CueK) { ApplicationArea = All; }
-            }
             cuegroup(GrpEmpty)
             {
                 Caption = 'Empty';
@@ -145,7 +139,6 @@ page 93366 "LT Y65 Cue Activities"
         end;
         ShowOpenTrue := true;
         ShowOpenFalse := false;
-        ShowArr[2] := true;
     end;
 
     trigger OnAfterGetRecord()
@@ -158,12 +151,54 @@ page 93366 "LT Y65 Cue Activities"
         ShowOpenFalse: Boolean;
         ShowInit: Boolean;
         ShowLate: Boolean;
-        ShowArr: array[2] of Boolean;
 
     local procedure IsShown(): Boolean
     begin
         exit(ShowOpenTrue);
     end;
+}
+
+// A cuegroup Visible bound to an array element compiles on every major, but on BC 27.5 and 28.5 opening the page fails with
+// "The identifier 'p<page id>p<page id>ShowArr2' could not be found." (measured on the corpus CI with the group on page 93366, as
+// 'p93366p93366ShowArr2'). The test of this page runs on BC 29 and later only.
+page 93367 "LT Y65 Cue Array"
+{
+    PageType = CardPart;
+    SourceTable = "LT Y65 Cue";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            cuegroup(GrpArr)
+            {
+                Caption = 'Array';
+                Visible = ShowArr[2];
+                field(CueK; Rec.CueK) { ApplicationArea = All; }
+            }
+            cuegroup(GrpArrFalse)
+            {
+                Caption = 'Array false';
+                Visible = ShowArr[1];
+                field(CueA; Rec.CueA) { ApplicationArea = All; }
+            }
+        }
+    }
+
+    trigger OnOpenPage()
+    begin
+        Rec.Reset();
+        if not Rec.Get() then begin
+            Rec.Init();
+            Rec.Insert();
+        end;
+        ShowArr[2] := true;
+    end;
+
+    var
+        ShowArr: array[2] of Boolean;
 }
 
 codeunit 93347 "LT Y65 Cue Visible Tests"
@@ -199,8 +234,6 @@ codeunit 93347 "LT Y65 Cue Visible Tests"
                 Shown := Format(P.CueI.Visible()) + ' ' + P.CueI.Value();
             'J':
                 Shown := Format(P.CueJ.Visible()) + ' ' + P.CueJ.Value();
-            'K':
-                Shown := Format(P.CueK.Visible()) + ' ' + P.CueK.Value();
             'L':
                 Shown := Format(P.CueL.Visible()) + ' ' + P.CueL.Value();
         end;
@@ -227,7 +260,6 @@ codeunit 93347 "LT Y65 Cue Visible Tests"
         Observer.Observe('var and Rec expr (H)', Read(P, 'H'));
         Observer.Observe('field var false (I)', Read(P, 'I'));
         Observer.Observe('cuegroup IsShown() (J)', Read(P, 'J'));
-        Observer.Observe('cuegroup array element (K)', Read(P, 'K'));
         Observer.Observe('cuegroup not Rec.IsEmpty() (L)', Read(P, 'L'));
     end;
 
@@ -252,7 +284,6 @@ codeunit 93347 "LT Y65 Cue Visible Tests"
         Observer.Expect('var and Rec expr (H)', 'Yes 0');
         Observer.Expect('field var false (I)', 'No 0');
         Observer.Expect('cuegroup IsShown() (J)', 'No 0');
-        Observer.Expect('cuegroup array element (K)', 'Yes 0');
         Observer.Expect('cuegroup not Rec.IsEmpty() (L)', 'Yes 0');
         Observer.Expect('rows', '1');
         Observer.Verify();
@@ -282,10 +313,25 @@ codeunit 93347 "LT Y65 Cue Visible Tests"
         Observer.Expect('var and Rec expr (H)', 'No 4');
         Observer.Expect('field var false (I)', 'No 0');
         Observer.Expect('cuegroup IsShown() (J)', 'No 0');
-        Observer.Expect('cuegroup array element (K)', 'Yes 0');
         Observer.Expect('cuegroup not Rec.IsEmpty() (L)', 'Yes 0');
         Observer.Verify();
     end;
+
+#if BC29PLUS
+    [Test]
+    procedure Y65_CueVisible_ArrayElement()
+    var
+        P: TestPage "LT Y65 Cue Array";
+    begin
+        P.OpenEdit();
+        Observer.Observe('ShowArr[2] true (K)', Format(P.CueK.Visible()) + ' ' + P.CueK.Value());
+        Observer.Observe('ShowArr[1] false (A)', Format(P.CueA.Visible()) + ' ' + P.CueA.Value());
+        P.Close();
+        Observer.Expect('ShowArr[2] true (K)', 'Yes 0');
+        Observer.Expect('ShowArr[1] false (A)', 'No 0');
+        Observer.Verify();
+    end;
+#endif
 
     // Suspects (not [Test], kept for the Windows check): the reporter's three Microsoft pages (al-runner issue 6675). On the SaaS sandbox BC 29
     // (TestRunnerHub session) opening and closing each one ended the test in "Unexpected CLR exception thrown.: System.NullReferenceException"
