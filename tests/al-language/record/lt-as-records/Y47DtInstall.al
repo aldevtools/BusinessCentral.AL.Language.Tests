@@ -153,6 +153,12 @@ codeunit 92912 "LT Y47 DT Installer"
             Save('S1', Outcome(TryReporterShape()));
             Save('S2', Outcome(TryConstantSameTable()));
             Save('S3', Outcome(TryCopyRows()));
+            // Writer Y57: tables with a table extension (Y57DtExtTables.al).
+            SeedY57();
+            Save('S4', Outcome(TryCopyRowsExt()));
+            Save('S5', Outcome(TryCopyFieldsExtSameTable()));
+            Save('S6', Outcome(TryConstantIntoSrcExt()));
+            Save('S7', Outcome(TryCopyFieldsJoinExt()));
         end;
         Save('DONE', 'ok');
     end;
@@ -259,5 +265,87 @@ codeunit 92912 "LT Y47 DT Installer"
         RowsDataTransfer.AddFieldValue(Src.FieldNo(Amount), Dest.FieldNo(Amount));
         RowsDataTransfer.AddConstantValue('rows', Dest.FieldNo(Note));
         RowsDataTransfer.CopyRows();
+    end;
+
+    local procedure SeedY57()
+    begin
+        AddY57Src('A', 10, 'la', 1);
+        AddY57Src('B', 20, 'lb', 2);
+        AddY57Src('C', 30, 'lc', 3);
+    end;
+
+    local procedure AddY57Src(NewCode: Code[20]; NewAmount: Integer; NewLabel: Text[30]; NewQty: Integer)
+    var
+        Src: Record "LT Y57 DT Src";
+    begin
+        if Src.Get(NewCode) then
+            exit;
+        Src.Init();
+        Src."Code" := NewCode;
+        Src.Amount := NewAmount;
+        Src.Label := NewLabel;
+        Src."Ext Qty" := NewQty;
+        if Src.Insert() then;
+    end;
+
+    // S4: CopyRows into an empty table with a table extension: Code, an extension field of the source into a base field, a base field into an
+    // extension field, Label into Note; the extension field "Ext Note" (InitValue 'ext init') is not mapped.
+    [TryFunction]
+    local procedure TryCopyRowsExt()
+    var
+        Src: Record "LT Y57 DT Src";
+        Dest: Record "LT Y57 DT Dest";
+        RowsDataTransfer: DataTransfer;
+    begin
+        RowsDataTransfer.SetTables(Database::"LT Y57 DT Src", Database::"LT Y57 DT Dest");
+        RowsDataTransfer.AddFieldValue(Src.FieldNo("Code"), Dest.FieldNo("Code"));
+        RowsDataTransfer.AddFieldValue(Src.FieldNo("Ext Qty"), Dest.FieldNo(Amount));
+        RowsDataTransfer.AddFieldValue(Src.FieldNo(Amount), Dest.FieldNo("Ext Amount"));
+        RowsDataTransfer.AddFieldValue(Src.FieldNo(Label), Dest.FieldNo(Note));
+        RowsDataTransfer.CopyRows();
+    end;
+
+    // S5: CopyFields within the extended table: source filter on an extension field, extension field into a base field, constant into an
+    // extension field (runs after S4).
+    [TryFunction]
+    local procedure TryCopyFieldsExtSameTable()
+    var
+        Dest: Record "LT Y57 DT Dest";
+        FieldsDataTransfer: DataTransfer;
+    begin
+        FieldsDataTransfer.SetTables(Database::"LT Y57 DT Dest", Database::"LT Y57 DT Dest");
+        FieldsDataTransfer.AddSourceFilter(Dest.FieldNo("Ext Amount"), '>=%1', 20);
+        FieldsDataTransfer.AddFieldValue(Dest.FieldNo("Ext Amount"), Dest.FieldNo(Amount));
+        FieldsDataTransfer.AddConstantValue('k5', Dest.FieldNo("Ext Note"));
+        FieldsDataTransfer.CopyFields();
+    end;
+
+    // S6: CopyFields within the source table: constant into its extension field where the base field Amount is 10.
+    [TryFunction]
+    local procedure TryConstantIntoSrcExt()
+    var
+        Src: Record "LT Y57 DT Src";
+        FieldsDataTransfer: DataTransfer;
+    begin
+        FieldsDataTransfer.SetTables(Database::"LT Y57 DT Src", Database::"LT Y57 DT Src");
+        FieldsDataTransfer.AddSourceFilter(Src.FieldNo(Amount), '=%1', 10);
+        FieldsDataTransfer.AddConstantValue(99, Src.FieldNo("Ext Qty"));
+        FieldsDataTransfer.CopyFields();
+    end;
+
+    // S7: CopyFields between the two extended tables joined on Code: the source extension field into the destination extension field,
+    // source filter on the source extension field (runs after S6).
+    [TryFunction]
+    local procedure TryCopyFieldsJoinExt()
+    var
+        Src: Record "LT Y57 DT Src";
+        Dest: Record "LT Y57 DT Dest";
+        FieldsDataTransfer: DataTransfer;
+    begin
+        FieldsDataTransfer.SetTables(Database::"LT Y57 DT Src", Database::"LT Y57 DT Dest");
+        FieldsDataTransfer.AddJoin(Src.FieldNo("Code"), Dest.FieldNo("Code"));
+        FieldsDataTransfer.AddSourceFilter(Src.FieldNo("Ext Qty"), '>%1', 2);
+        FieldsDataTransfer.AddFieldValue(Src.FieldNo("Ext Qty"), Dest.FieldNo("Ext Amount"));
+        FieldsDataTransfer.CopyFields();
     end;
 }
