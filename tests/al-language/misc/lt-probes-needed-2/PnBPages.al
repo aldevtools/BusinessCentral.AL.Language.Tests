@@ -323,8 +323,15 @@ codeunit 70555 "LT PnB Page Ext"
         Obs.Expect('isoNoPad', 'error:Validation error for Field: Dt,  Message = ''Your entry of ''2024-2-5'' is not an acceptable value for ''Dt''. The format of the Date ''2024-2-5'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. (Select Refresh to discard errors)''');
         Obs.Expect('w', 'ok:1/31/2024');
         Obs.Expect('W', 'ok:1/31/2024');
-        Obs.Expect('t', 'error:Validation error for Field: Dt,  Message = ''In the current company the date you''ve entered is outside the allowed interval (this is determined by the filter ''??11*|??12*|??01*|??02*'', which is defined by the license file). (Select Refresh to discard errors)''');
-        Obs.Expect('today', 'error:Validation error for Field: Dt,  Message = ''In the current company the date you''ve entered is outside the allowed interval (this is determined by the filter ''??11*|??12*|??01*|??02*'', which is defined by the license file). (Select Refresh to discard errors)''');
+        // 't' and 'today' enter Today, and the demo license allows only November to February (the filter in the error):
+        // the result depends on the month the test runs in.
+        if Date2DMY(Today(), 2) in [11, 12, 1, 2] then begin
+            Obs.Expect('t', StrSubstNo('ok:%1/%2/%3', Date2DMY(Today(), 2), Date2DMY(Today(), 1), Date2DMY(Today(), 3)));
+            Obs.Expect('today', StrSubstNo('ok:%1/%2/%3', Date2DMY(Today(), 2), Date2DMY(Today(), 1), Date2DMY(Today(), 3)));
+        end else begin
+            Obs.Expect('t', 'error:Validation error for Field: Dt,  Message = ''In the current company the date you''ve entered is outside the allowed interval (this is determined by the filter ''??11*|??12*|??01*|??02*'', which is defined by the license file). (Select Refresh to discard errors)''');
+            Obs.Expect('today', 'error:Validation error for Field: Dt,  Message = ''In the current company the date you''ve entered is outside the allowed interval (this is determined by the filter ''??11*|??12*|??01*|??02*'', which is defined by the license file). (Select Refresh to discard errors)''');
+        end;
         Obs.Expect('workdate', 'ok:1/31/2024');
         Obs.Expect('twoDigit29', 'error:Validation error for Field: Dt,  Message = ''Your entry of ''15.02.29'' is not an acceptable value for ''Dt''. The format of the Date ''15.02.29'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. (Select Refresh to discard errors)''');
         Obs.Expect('twoDigit30', 'error:Validation error for Field: Dt,  Message = ''Your entry of ''15.02.30'' is not an acceptable value for ''Dt''. The format of the Date ''15.02.30'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''. (Select Refresh to discard errors)''');
