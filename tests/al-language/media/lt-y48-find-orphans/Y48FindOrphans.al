@@ -10,6 +10,11 @@
 //        Not done: the spec's T6 (a committed detached row seen by a later test): the main suite rolls back per codeunit, not per test.
 //        Asserted values: the CI containers BC 27.5, 28.5 and 29.0, all the same (a SaaS sandbox BC 29 agrees where its license allows the writes;
 //        it refuses Insert into Tenant Media and Tenant Media Set).
+// Writer Y57 (corpus issue 996), FO_ReplacedPic .. FO_TemporarySetHolder: a second import into a held Media field deletes the old Tenant
+//        Media row (not an orphan); deleting the holder row deletes its Media and MediaSet rows (no orphans); a media shared by two rows
+//        keeps its row until the last holder is deleted; a set item removed with MediaSet.Remove keeps its Tenant Media row and becomes a
+//        Media orphan (the set is not an orphan); a MediaSet imported into a temporary record is a MediaSet orphan, its item is not a
+//        Media orphan. Measured: SaaS sandbox BC 29 and the Linux CI containers BC 27.5, 28.5, 29.0, all the same.
 // BC versions: 27, 28, 29
 
 table 92929 "LT Y48 FO Row"
@@ -69,6 +74,7 @@ codeunit 92930 "LT Y48 FO Step"
         TM: Record "Tenant Media";
         TMS: Record "Tenant Media Set";
         Row: Record "LT Y48 FO Row";
+        CopyRow: Record "LT Y48 FO Row";
         TempBlob: Codeunit "Temp Blob";
         InS: InStream;
         OutS: OutStream;
@@ -158,6 +164,58 @@ codeunit 92930 "LT Y48 FO Step"
                     Clear(Row.Pics);
                     Result := Format(Row.Modify());
                 end;
+            // Writer Y57 steps.
+            // a second import into the field of an inserted row, then Modify; MediaGuid becomes the new media id
+            'replace pic':
+                begin
+                    Row.Get(RowId);
+                    TextStream(TempBlob, InS);
+                    Row.Pic.ImportStream(InS, 'second');
+                    Row.Modify();
+                    MediaGuid := Row.Pic.MediaId();
+                    Result := 'ok';
+                end;
+            'delete row':
+                begin
+                    Row.Get(RowId);
+                    Result := Format(Row.Delete());
+                end;
+            // a new row RowId whose Pic is assigned from row RowId - 1; MediaGuid becomes its media id
+            'copy pic':
+                begin
+                    Row.Get(RowId - 1);
+                    CopyRow.Init();
+                    CopyRow.Id := RowId;
+                    CopyRow.Pic := Row.Pic;
+                    CopyRow.Insert();
+                    MediaGuid := CopyRow.Pic.MediaId();
+                    Result := 'ok';
+                end;
+            // a second item imported into the set of row RowId; MediaGuid becomes that item's media id
+            'add set item':
+                begin
+                    Row.Get(RowId);
+                    TextStream(TempBlob, InS);
+                    Row.Pics.ImportStream(InS, 'b');
+                    Row.Modify();
+                    MediaGuid := Row.Pics.Item(Row.Pics.Count());
+                    Result := Format(Row.Pics.Count());
+                end;
+            // MediaGuid = the item to remove from the set of row RowId
+            'remove set item':
+                begin
+                    Row.Get(RowId);
+                    Result := Format(Row.Pics.Remove(MediaGuid));
+                    Row.Modify();
+                    Result += '|' + Format(Row.Pics.Count());
+                end;
+            // MediaGuid becomes the set id of a temporary record's MediaSet import
+            'temporary pics':
+                begin
+                    TextStream(TempBlob, InS);
+                    MediaGuid := TemporarySetImport(RowId, InS);
+                    Result := 'ok';
+                end;
             'temporary pic':
                 begin
                     Row.Reset();
@@ -166,6 +224,17 @@ codeunit 92930 "LT Y48 FO Step"
                     Result := 'ok';
                 end;
         end;
+    end;
+
+    local procedure TemporarySetImport(Id: Integer; var InS: InStream): Guid
+    var
+        TempRow: Record "LT Y48 FO Row" temporary;
+    begin
+        TempRow.Init();
+        TempRow.Id := Id;
+        TempRow.Pics.ImportStream(InS, 'a');
+        TempRow.Insert();
+        exit(TempRow.Pics.MediaId());
     end;
 
     local procedure TemporaryImport(Id: Integer; var InS: InStream): Guid
@@ -386,6 +455,156 @@ codeunit 92931 "LT Y48 Find Orphans"
         Observer.Expect('temporary pic', 'ok:ok');
         Observer.Expect('temporary: tenant media row', 'Yes');
         Observer.Expect('temporary: in media orphans', 'Yes');
+        Observer.Verify();
+    end;
+
+    // Writer Y57: a replaced media, a deleted holder row (Media and MediaSet), a media shared by two rows, a set item removed from its set,
+    // and a MediaSet imported into a temporary record.
+    [Test]
+    procedure FO_ReplacedPic()
+    var
+        NullGuid: Guid;
+        OldId: Guid;
+    begin
+        Clear(Observer);
+        Run('row pic', 'row pic', 51, NullGuid);
+        OldId := LastGuid;
+        Run('replace pic', 'replace pic', 51, NullGuid);
+        Observer.Observe('new id differs', Format(LastGuid <> OldId));
+        Observer.Observe('old: tenant media row', TmExists(OldId));
+        Observer.Observe('old: in media orphans', InMedia(OldId));
+        Observer.Observe('new: in media orphans', InMedia(LastGuid));
+        Observer.Expect('row pic', 'ok:ok');
+        Observer.Expect('replace pic', 'ok:ok');
+        Observer.Expect('new id differs', 'Yes');
+        Observer.Expect('old: tenant media row', 'No');
+        Observer.Expect('old: in media orphans', 'No');
+        Observer.Expect('new: in media orphans', 'No');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure FO_DeletedHolderRow()
+    var
+        Row: Record "LT Y48 FO Row";
+        NullGuid: Guid;
+        PicId: Guid;
+        SetId: Guid;
+        ItemId: Guid;
+    begin
+        Clear(Observer);
+        Run('row pic', 'row pic', 52, NullGuid);
+        PicId := LastGuid;
+        Run('delete pic row', 'delete row', 52, NullGuid);
+        Observer.Observe('pic: tenant media row', TmExists(PicId));
+        Observer.Observe('pic: in media orphans', InMedia(PicId));
+        Run('row pics', 'row pics', 53, NullGuid);
+        SetId := LastGuid;
+        Row.Get(53);
+        ItemId := Row.Pics.Item(1);
+        Run('delete pics row', 'delete row', 53, NullGuid);
+        Observer.Observe('set: in mediaset orphans', InSet(SetId));
+        Observer.Observe('item: tenant media row', TmExists(ItemId));
+        Observer.Observe('item: in media orphans', InMedia(ItemId));
+        Observer.Expect('row pic', 'ok:ok');
+        Observer.Expect('delete pic row', 'ok:Yes');
+        Observer.Expect('pic: tenant media row', 'No');
+        Observer.Expect('pic: in media orphans', 'No');
+        Observer.Expect('row pics', 'ok:ok');
+        Observer.Expect('delete pics row', 'ok:Yes');
+        Observer.Expect('set: in mediaset orphans', 'No');
+        Observer.Expect('item: tenant media row', 'No');
+        Observer.Expect('item: in media orphans', 'No');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure FO_SharedPic()
+    var
+        NullGuid: Guid;
+        FirstId: Guid;
+    begin
+        Clear(Observer);
+        Run('row pic', 'row pic', 54, NullGuid);
+        FirstId := LastGuid;
+        Run('copy pic', 'copy pic', 55, NullGuid);
+        Observer.Observe('same id', Format(LastGuid = FirstId));
+        Run('delete first row', 'delete row', 54, NullGuid);
+        Observer.Observe('after delete: tenant media row', TmExists(FirstId));
+        Observer.Observe('after delete: in media orphans', InMedia(FirstId));
+        Run('delete second row', 'delete row', 55, NullGuid);
+        Observer.Observe('after both: tenant media row', TmExists(FirstId));
+        Observer.Observe('after both: in media orphans', InMedia(FirstId));
+        Observer.Expect('row pic', 'ok:ok');
+        Observer.Expect('copy pic', 'ok:ok');
+        Observer.Expect('same id', 'Yes');
+        Observer.Expect('delete first row', 'ok:Yes');
+        Observer.Expect('after delete: tenant media row', 'Yes');
+        Observer.Expect('after delete: in media orphans', 'No');
+        Observer.Expect('delete second row', 'ok:Yes');
+        Observer.Expect('after both: tenant media row', 'No');
+        Observer.Expect('after both: in media orphans', 'No');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure FO_RemovedSetItem()
+    var
+        Row: Record "LT Y48 FO Row";
+        NullGuid: Guid;
+        SetId: Guid;
+        Item1: Guid;
+        Item2: Guid;
+    begin
+        Clear(Observer);
+        Run('row pics', 'row pics', 56, NullGuid);
+        SetId := LastGuid;
+        Row.Get(56);
+        Item1 := Row.Pics.Item(1);
+        Run('add set item', 'add set item', 56, NullGuid);
+        Item2 := LastGuid;
+        Run('remove item 1', 'remove set item', 56, Item1);
+        Row.Get(56);
+        Observer.Observe('set id kept', Format(Row.Pics.MediaId() = SetId));
+        Observer.Observe('item 2 still item 1', Format(Row.Pics.Item(1) = Item2));
+        Observer.Observe('removed: tenant media row', TmExists(Item1));
+        Observer.Observe('removed: in media orphans', InMedia(Item1));
+        Observer.Observe('kept: in media orphans', InMedia(Item2));
+        Observer.Observe('set: in mediaset orphans', InSet(SetId));
+        Observer.Expect('row pics', 'ok:ok');
+        Observer.Expect('add set item', 'ok:2');
+        Observer.Expect('remove item 1', 'ok:Yes|1');
+        Observer.Expect('set id kept', 'Yes');
+        Observer.Expect('item 2 still item 1', 'Yes');
+        Observer.Expect('removed: tenant media row', 'Yes');
+        Observer.Expect('removed: in media orphans', 'Yes');
+        Observer.Expect('kept: in media orphans', 'No');
+        Observer.Expect('set: in mediaset orphans', 'No');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure FO_TemporarySetHolder()
+    var
+        TMS: Record "Tenant Media Set";
+        NullGuid: Guid;
+        ItemId: Guid;
+    begin
+        Clear(Observer);
+        Run('temporary pics', 'temporary pics', 57, NullGuid);
+        TMS.SetRange(ID, LastGuid);
+        Observer.Observe('temporary: set rows', Format(TMS.Count()));
+        if TMS.FindFirst() then begin
+            ItemId := TMS."Media ID".MediaId();
+            Observer.Observe('temporary: item tenant media row', TmExists(ItemId));
+            Observer.Observe('temporary: item in media orphans', InMedia(ItemId));
+        end;
+        Observer.Observe('temporary: set in mediaset orphans', InSet(LastGuid));
+        Observer.Expect('temporary pics', 'ok:ok');
+        Observer.Expect('temporary: set rows', '1');
+        Observer.Expect('temporary: item tenant media row', 'Yes');
+        Observer.Expect('temporary: item in media orphans', 'No');
+        Observer.Expect('temporary: set in mediaset orphans', 'Yes');
         Observer.Verify();
     end;
 }
