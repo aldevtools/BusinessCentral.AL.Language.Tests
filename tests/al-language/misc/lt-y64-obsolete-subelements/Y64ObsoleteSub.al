@@ -320,7 +320,8 @@ codeunit 93319 "LT Y64 Obsolete Sub Tests"
         MyReport.UseRequestPage(false);
         MyReport.Run();
         Observer.Observe('log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('log', 'row A;inner A;ext item A;row C;inner C;ext item C;post flag=No extflag=No;');
+        Observer.Verify();
     end;
 
     [RequestPageHandler]
@@ -350,7 +351,8 @@ codeunit 93319 "LT Y64 Obsolete Sub Tests"
         Seed();
         Report.RunModal(Report::"LT Y64 Obs Report", true);
         Observer.Observe('log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('log', 'handler flag visible=Yes ext visible=Yes;rp action invoke error: The action with ID = n is not found on the page.|TestActionNotFound;row B;inner B;ext item B;post flag=Yes extflag=Yes;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -368,7 +370,9 @@ codeunit 93319 "LT Y64 Obsolete Sub Tests"
         Q.Close();
         Observer.Observe('rows', Result);
         Observer.Observe('filter', Q.GetFilter(NameFilter));
-        Observer.Finish();
+        Observer.Expect('rows', 'A:alpha;B:bravo;C:charlie;');
+        Observer.Expect('filter', '*a*');
+        Observer.Verify();
     end;
 
     [Test]
@@ -389,7 +393,8 @@ codeunit 93319 "LT Y64 Obsolete Sub Tests"
             InS.ReadText(Line);
             Txt += Line;
         end;
-        Observer.Observe('xml', Txt);
-        Observer.Finish();
+        Observer.Observe('xml', CopyStr(Txt, StrPos(Txt, '<Root>')));
+        Observer.Expect('xml', '<Root>  <Row No="A" />  <Row No="B" />  <Row No="C" /></Root>');
+        Observer.Verify();
     end;
 }

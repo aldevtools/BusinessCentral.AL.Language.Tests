@@ -442,7 +442,8 @@ codeunit 93313 "LT Y64 LP Tests"
         Seed();
         Report.RunModal(Report::"LT Y64 LP Report", true);
         Observer.Observe('log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('log', 'base MyProc<-base rp open;ext rp MyProc<-ext rp open;base MyProc<-base validate;ext rp MyProc<-ext aftervalidate;base MyProc<-base predataitem;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -455,7 +456,8 @@ codeunit 93313 "LT Y64 LP Tests"
         Rep.UseRequestPage(false);
         Rep.RunModal();
         Observer.Observe('log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('log', 'base MyProc<-base predataitem;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -470,7 +472,9 @@ codeunit 93313 "LT Y64 LP Tests"
         Observer.Observe('log', Log.Take());
         Rep.Pub('test');
         Observer.Observe('public call from a report variable', Log.Take());
-        Observer.Finish();
+        Observer.Expect('log', 'base MyProc<-base rp open;ext rp MyProc<-ext rp open;ext rp Pub<-ext rp open;base MyProc<-base validate;base Pub<-base validate;ext rp MyProc<-ext aftervalidate;ext rp Pub<-ext aftervalidate;base MyProc<-base prereport;ext MyProc<-ext prereport;ext MyProc<-ext beforepredataitem;base MyProc<-base predataitem;');
+        Observer.Expect('public call from a report variable', 'base Pub<-test;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -490,7 +494,11 @@ codeunit 93313 "LT Y64 LP Tests"
         Observer.Observe('ext action', Log.Take());
         Card.Close();
         Log.Take();
-        Observer.Finish();
+        Observer.Expect('open', 'base MyProc<-base open;pageext MyProc<-ext open;');
+        Observer.Expect('validate', 'base MyProc<-base validate;pageext MyProc<-ext aftervalidate;');
+        Observer.Expect('base action', 'base MyProc<-base action;');
+        Observer.Expect('ext action', 'pageext MyProc<-ext action;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -506,6 +514,8 @@ codeunit 93313 "LT Y64 LP Tests"
         Observer.Observe('insert', Log.Take());
         T.Validate(Name, 'x');
         Observer.Observe('validate', Log.Take());
-        Observer.Finish();
+        Observer.Expect('insert', 'base TLoc<-base insert;tableext TLoc<-ext afterinsert;');
+        Observer.Expect('validate', 'base TLoc<-base validate;tableext TLoc<-ext aftervalidate;');
+        Observer.Verify();
     end;
 }

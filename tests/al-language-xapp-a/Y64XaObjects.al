@@ -1,24 +1,11 @@
 // Cross-app fixtures of writer Y64 (al-runner issues 6653 and 6644), app A.
 // 6653: report 61352 with a report extension in this app (61353), in B (61355), in C (61360) and in the AL Language Coverage Tests app (93326).
-//   Every trigger of the report and of each extension appends '<app>:<trigger>' to the SingleInstance log 61350 (table 61350 is unused). Tests:
+//   Every trigger of the report and of each extension appends '<app>:<trigger>' to the SingleInstance log 61350. Tests:
 //   tests/al-language/reportext/lt-y64-xapp-run-order/Y64XappRunOrder.al.
 // 6644: hub 61351 (SingleInstance) that install code of B and D arms with its app tag, an integration event the install code raises, and a
 //   telemetry call; the subscribers in B and D (no dependency path between them) note in DataPerCompany = false table 61354 which app's install
 //   they ran in. A subscriber does nothing while the hub is not armed, so it is inert outside these install triggers. Install code must never
 //   fail: the only write is `if Insert() then;`. Tests: tests/al-language/install/lt-y64-install-subscribers/Y64InstallSubscribers.al.
-
-table 61350 "LT Y64 XA Run Log"
-{
-    DataClassification = SystemMetadata;
-
-    fields
-    {
-        field(1; "Entry No."; Integer) { AutoIncrement = true; }
-        field(2; Txt; Text[250]) { }
-    }
-
-    keys { key(PK; "Entry No.") { Clustered = true; } }
-}
 
 table 61351 "LT Y64 XA Row"
 {

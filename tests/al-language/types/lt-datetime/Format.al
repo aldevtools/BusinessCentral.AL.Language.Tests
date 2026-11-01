@@ -1113,7 +1113,37 @@ codeunit 73804 "LT DtT Format"
     begin
         Y64ObserveTime(Observer, 't078_', 134506.078T);
         Y64ObserveTime(Observer, 't5_', 090507.5T);
-        Observer.Finish();
+        Observer.Expect('t078_1', '[134506.078]');
+        Observer.Expect('t078_2', '[.078]');
+        Observer.Expect('t078_3', '[***]');
+        Observer.Expect('t078_4', '[.078]');
+        Observer.Expect('t078_5', '[.078]');
+        Observer.Expect('t078_6', '[.078]');
+        Observer.Expect('t078_7', '[*]');
+        Observer.Expect('t078_8', '[**]');
+        Observer.Expect('t078_9', '[.078]');
+        Observer.Expect('t078_10', '[.0780]');
+        Observer.Expect('t078_11', '[06.078]');
+        Observer.Expect('t078_12', '[.078]');
+        Observer.Expect('t078_13', '[.078]');
+        Observer.Expect('t078_14', 'error: An invalid field or attribute has been specified for the ''Format'' property.\\<Second dec..> | InvalidFormatString');
+        Observer.Expect('t078_15', '[.078.]');
+        Observer.Expect('t5_1', '[090507.5]');
+        Observer.Expect('t5_2', '[.5]');
+        Observer.Expect('t5_3', '[.50]');
+        Observer.Expect('t5_4', '[.500]');
+        Observer.Expect('t5_5', '[.5]');
+        Observer.Expect('t5_6', '[.5]');
+        Observer.Expect('t5_7', '[*]');
+        Observer.Expect('t5_8', '[.5]');
+        Observer.Expect('t5_9', '[.500]');
+        Observer.Expect('t5_10', '[.5000]');
+        Observer.Expect('t5_11', '[07.5]');
+        Observer.Expect('t5_12', '[.5]');
+        Observer.Expect('t5_13', '[.500]');
+        Observer.Expect('t5_14', 'error: An invalid field or attribute has been specified for the ''Format'' property.\\<Second dec..> | InvalidFormatString');
+        Observer.Expect('t5_15', '[.5.]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1123,7 +1153,37 @@ codeunit 73804 "LT DtT Format"
     begin
         Y64ObserveTime(Observer, 't05_', 090507.05T);
         Y64ObserveTime(Observer, 't0_', 090507T);
-        Observer.Finish();
+        Observer.Expect('t05_1', '[090507.05]');
+        Observer.Expect('t05_2', '[.05]');
+        Observer.Expect('t05_3', '[.05]');
+        Observer.Expect('t05_4', '[.050]');
+        Observer.Expect('t05_5', '[.05]');
+        Observer.Expect('t05_6', '[.05]');
+        Observer.Expect('t05_7', '[*]');
+        Observer.Expect('t05_8', '[**]');
+        Observer.Expect('t05_9', '[.050]');
+        Observer.Expect('t05_10', '[.0500]');
+        Observer.Expect('t05_11', '[07.05]');
+        Observer.Expect('t05_12', '[.05]');
+        Observer.Expect('t05_13', '[.050]');
+        Observer.Expect('t05_14', 'error: An invalid field or attribute has been specified for the ''Format'' property.\\<Second dec..> | InvalidFormatString');
+        Observer.Expect('t05_15', '[.05.]');
+        Observer.Expect('t0_1', '[090507]');
+        Observer.Expect('t0_2', '[]');
+        Observer.Expect('t0_3', '[000]');
+        Observer.Expect('t0_4', '[0000]');
+        Observer.Expect('t0_5', '[]');
+        Observer.Expect('t0_6', '[]');
+        Observer.Expect('t0_7', '[0]');
+        Observer.Expect('t0_8', '[00]');
+        Observer.Expect('t0_9', '[0000]');
+        Observer.Expect('t0_10', '[00000]');
+        Observer.Expect('t0_11', '[07]');
+        Observer.Expect('t0_12', '[]');
+        Observer.Expect('t0_13', '[0000]');
+        Observer.Expect('t0_14', 'error: An invalid field or attribute has been specified for the ''Format'' property.\\<Second dec..> | InvalidFormatString');
+        Observer.Expect('t0_15', '[.]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1133,7 +1193,37 @@ codeunit 73804 "LT DtT Format"
     begin
         Y64ObserveTime(Observer, 't999_', 235959.999T);
         Y64ObserveTime(Observer, '0T_', 0T);
-        Observer.Finish();
+        Observer.Expect('t999_1', '[235959.999]');
+        Observer.Expect('t999_2', '[.999]');
+        Observer.Expect('t999_3', '[***]');
+        Observer.Expect('t999_4', '[.999]');
+        Observer.Expect('t999_5', '[.999]');
+        Observer.Expect('t999_6', '[.999]');
+        Observer.Expect('t999_7', '[*]');
+        Observer.Expect('t999_8', '[**]');
+        Observer.Expect('t999_9', '[.999]');
+        Observer.Expect('t999_10', '[.9990]');
+        Observer.Expect('t999_11', '[59.999]');
+        Observer.Expect('t999_12', '[.999]');
+        Observer.Expect('t999_13', '[.999]');
+        Observer.Expect('t999_14', 'error: An invalid field or attribute has been specified for the ''Format'' property.\\<Second dec..> | InvalidFormatString');
+        Observer.Expect('t999_15', '[.999.]');
+        Observer.Expect('0T_1', '[000000]');
+        Observer.Expect('0T_2', '[]');
+        Observer.Expect('0T_3', '[000]');
+        Observer.Expect('0T_4', '[0000]');
+        Observer.Expect('0T_5', '[]');
+        Observer.Expect('0T_6', '[]');
+        Observer.Expect('0T_7', '[0]');
+        Observer.Expect('0T_8', '[00]');
+        Observer.Expect('0T_9', '[0000]');
+        Observer.Expect('0T_10', '[00000]');
+        Observer.Expect('0T_11', '[00]');
+        Observer.Expect('0T_12', '[]');
+        Observer.Expect('0T_13', '[0000]');
+        Observer.Expect('0T_14', 'error: An invalid field or attribute has been specified for the ''Format'' property.\\<Second dec..> | InvalidFormatString');
+        Observer.Expect('0T_15', '[.]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1143,7 +1233,37 @@ codeunit 73804 "LT DtT Format"
     begin
         Y64ObserveDateTime(Observer, 'dt078_', CreateDateTime(20240305D, 134506.078T));
         Y64ObserveDateTime(Observer, 'dt0_', CreateDateTime(20240305D, 090507T));
-        Observer.Finish();
+        Observer.Expect('dt078_1', '[134506.078]');
+        Observer.Expect('dt078_2', '[.078]');
+        Observer.Expect('dt078_3', '[***]');
+        Observer.Expect('dt078_4', '[.078]');
+        Observer.Expect('dt078_5', '[.078]');
+        Observer.Expect('dt078_6', '[.078]');
+        Observer.Expect('dt078_7', '[*]');
+        Observer.Expect('dt078_8', '[**]');
+        Observer.Expect('dt078_9', '[.078]');
+        Observer.Expect('dt078_10', '[.0780]');
+        Observer.Expect('dt078_11', '[06.078]');
+        Observer.Expect('dt078_12', '[.078]');
+        Observer.Expect('dt078_13', '[.078]');
+        Observer.Expect('dt078_14', 'error: An invalid field or attribute has been specified for the ''Format'' property.\\<Second dec..> | InvalidFormatString');
+        Observer.Expect('dt078_15', '[.078.]');
+        Observer.Expect('dt0_1', '[090507]');
+        Observer.Expect('dt0_2', '[]');
+        Observer.Expect('dt0_3', '[.00]');
+        Observer.Expect('dt0_4', '[.000]');
+        Observer.Expect('dt0_5', '[]');
+        Observer.Expect('dt0_6', '[]');
+        Observer.Expect('dt0_7', '[.]');
+        Observer.Expect('dt0_8', '[.0]');
+        Observer.Expect('dt0_9', '[.000]');
+        Observer.Expect('dt0_10', '[.0000]');
+        Observer.Expect('dt0_11', '[07]');
+        Observer.Expect('dt0_12', '[]');
+        Observer.Expect('dt0_13', '[.000]');
+        Observer.Expect('dt0_14', 'error: An invalid field or attribute has been specified for the ''Format'' property.\\<Second dec..> | InvalidFormatString');
+        Observer.Expect('dt0_15', '[.]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1159,6 +1279,11 @@ codeunit 73804 "LT DtT Format"
         Observer.Observe('length 10', TuFormatTime(134506.078T, 10, '<Hours24,2><Filler Character,0><Minutes,2><Seconds,2><Second dec.>'));
         Observer.Observe('length 4', TuFormatTime(134506.078T, 4, '<Hours24,2><Filler Character,0><Minutes,2><Seconds,2><Second dec.>'));
         Observer.Observe('length -12', TuFormatTime(134506.078T, -12, '<Second dec.>'));
-        Observer.Finish();
+        Observer.Expect('code', 'X-134506078');
+        Observer.Expect('code no ms', 'X-090507');
+        Observer.Expect('length 10', '[134506.078]');
+        Observer.Expect('length 4', '[1345]');
+        Observer.Expect('length -12', '[.078]');
+        Observer.Verify();
     end;
 }

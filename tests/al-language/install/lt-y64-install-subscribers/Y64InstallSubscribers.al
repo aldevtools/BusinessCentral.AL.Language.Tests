@@ -54,7 +54,8 @@ codeunit 93328 "LT Y64 Install Subscribers"
         Observer.Observe('noted', AllNoted());
         Observer.Observe('B before D', Format(SeqOf('B') < SeqOf('D')));
         Observer.Observe('seq known', Format((SeqOf('B') > 0) and (SeqOf('D') > 0)));
-        Observer.Finish();
+        Observer.Expect('seq known', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -76,6 +77,18 @@ codeunit 93328 "LT Y64 Install Subscribers"
             Observer.Observe('D sub in B install iff D first ' + Phase, Format(Noted('D-sub|B|' + Phase) = not BFirst));
             Observer.Observe('D telemetry sub in B install iff D first ' + Phase, Format(Noted('D-tel|B|' + Phase) = not BFirst));
         end;
-        Observer.Finish();
+        Observer.Expect('own B db', 'Yes');
+        Observer.Expect('own D db', 'Yes');
+        Observer.Expect('own D telemetry db', 'Yes');
+        Observer.Expect('B sub in D install iff B first db', 'Yes');
+        Observer.Expect('D sub in B install iff D first db', 'Yes');
+        Observer.Expect('D telemetry sub in B install iff D first db', 'Yes');
+        Observer.Expect('own B co', 'Yes');
+        Observer.Expect('own D co', 'Yes');
+        Observer.Expect('own D telemetry co', 'Yes');
+        Observer.Expect('B sub in D install iff B first co', 'Yes');
+        Observer.Expect('D sub in B install iff D first co', 'Yes');
+        Observer.Expect('D telemetry sub in B install iff D first co', 'Yes');
+        Observer.Verify();
     end;
 }

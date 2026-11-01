@@ -37,7 +37,13 @@ codeunit 93333 "LT Y64 Install Leads"
         Observer.Observe('allobjcap table 5050', Here('ALLOBJCAP TABLE 5050'));
         Observer.Observe('allobjcap tabledata own', Here('ALLOBJCAP TABLEDATA OWN'));
         Observer.Observe('allobjcap tabledata 18', Here('ALLOBJCAP TABLEDATA 18'));
-        Observer.Finish();
+        Observer.Expect('context', 'Install');
+        Observer.Expect('allobjcap tabledata 5050', 'Yes|Contact|Contact');
+        Observer.Expect('allobj tabledata 5050', 'Yes|Contact');
+        Observer.Expect('allobjcap table 5050', 'Yes|Contact|Contact');
+        Observer.Expect('allobjcap tabledata own', 'Yes|LT Y64 Install Setup|LT Y64 Install Setup');
+        Observer.Expect('allobjcap tabledata 18', 'Yes|Customer|Customer');
+        Observer.Verify();
     end;
 
     [Test]
@@ -48,7 +54,10 @@ codeunit 93333 "LT Y64 Install Leads"
         Observer.Observe('context', Seen('<db>', 'CONTEXT'));
         Observer.Observe('allobjcap tabledata 5050', Seen('<db>', 'ALLOBJCAP TABLEDATA 5050'));
         Observer.Observe('allobj tabledata 5050', Seen('<db>', 'ALLOBJ TABLEDATA 5050'));
-        Observer.Finish();
+        Observer.Expect('context', 'Install');
+        Observer.Expect('allobjcap tabledata 5050', 'Yes|Contact|Contact');
+        Observer.Expect('allobj tabledata 5050', 'Yes|Contact');
+        Observer.Verify();
     end;
 
     [Test]
@@ -62,7 +71,10 @@ codeunit 93333 "LT Y64 Install Leads"
         Clear(MySetup);
         MySetup.Validate("Table ID", Database::Contact);
         Observer.Observe('validate in test', MySetup.TableName);
-        Observer.Finish();
+        Observer.Expect('validate in install', 'ok|Contact');
+        Observer.Expect('setup row', 'Yes|Contact');
+        Observer.Expect('validate in test', 'Contact');
+        Observer.Verify();
     end;
 
     [Test]
@@ -75,6 +87,9 @@ codeunit 93333 "LT Y64 Install Leads"
         Observer.Observe('per company own table', Here('LOAD OWN TABLE'));
         Observer.Observe('per database table', Seen('<db>', 'LOAD DB TABLE'));
         Observer.Observe('rows now', Format(Row.Count()) + '|' + Format(DbRow.Count()));
-        Observer.Finish();
+        Observer.Expect('per company own table', 'ok|rows=0');
+        Observer.Expect('per database table', 'ok|rows=0');
+        Observer.Expect('rows now', '0|0');
+        Observer.Verify();
     end;
 }

@@ -1309,7 +1309,15 @@ codeunit 70303 "LT P81 LoadFields"
         Observer.Observe('var name after qty', Row.Name);
         Observer.Observe('next', Format(Row.Next()));
         Observer.Observe('next code name', Row.Code + ':' + Row.Name);
-        Observer.Finish();
+        Observer.Expect('rows', 'A:new value:7;B:new value:8;');
+        Observer.Expect('var code', 'A');
+        Observer.Expect('var name', 'alpha');
+        Observer.Expect('var qty loaded', 'No');
+        Observer.Expect('var qty', 'error:The field ''Name'' on table ''LT P81 LF Row'' has changed in the database between initial and JIT load. The fields causing the JIT load are: ''Qty''.\\The error may be transient if multiple users are editing the same record or permanent if the same user edits the record while keeping an old record.\\Identification values: ''Code=''A''''\    |InconsistentRead');
+        Observer.Expect('var name after qty', 'alpha');
+        Observer.Expect('next', '1');
+        Observer.Expect('next code name', 'B:new value');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1328,7 +1336,12 @@ codeunit 70303 "LT P81 LoadFields"
         Row.Name := 'changed';
         asserterror Row.Modify();
         Observer.ObserveError('modify');
-        Observer.Finish();
+        Observer.Expect('rows', 'A:alpha:5;B:bravo:5;');
+        Observer.Expect('var qty loaded', 'No');
+        Observer.Expect('var qty', '5');
+        Observer.Expect('modify|text', 'Sorry, we just updated this page. Reopen it, and try again.');
+        Observer.Expect('modify|code', 'DB:RecordChanged');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1349,7 +1362,10 @@ codeunit 70303 "LT P81 LoadFields"
         Row.ModifyAll(Qty, 3, true);
         Observer.Observe('rows after all', Y64Rows());
         Observer.Observe('var', Row.Code + ':' + Y64Qty(Row));
-        Observer.Finish();
+        Observer.Expect('rows', 'A:alpha:7;B:only b:8;');
+        Observer.Expect('rows after all', 'A:alpha:3;B:only b:3;');
+        Observer.Expect('var', 'A:3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1373,7 +1389,14 @@ codeunit 70303 "LT P81 LoadFields"
         Observer.Observe('to missing: qty', Y64Qty(Row));
         Observer.Observe('to missing: code name', Row.Code + ':' + Row.Name);
         Observer.Observe('rows', Y64Rows());
-        Observer.Finish();
+        Observer.Expect('to existing: qty loaded before', 'No');
+        Observer.Expect('to existing: qty', '7');
+        Observer.Expect('to existing: code name', 'B:alpha');
+        Observer.Expect('to existing: notes', '');
+        Observer.Expect('to missing: qty', '7');
+        Observer.Expect('to missing: code name', 'Z:alpha');
+        Observer.Expect('rows', 'A:alpha:7;B:bravo:8;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1396,7 +1419,11 @@ codeunit 70303 "LT P81 LoadFields"
         Row.ModifyAll(Name, 'all');
         Observer.Observe('rows after modifyall', Y64Rows());
         Observer.Observe('var after modifyall', Row.Code + ':' + Row.Name + ':' + Y64Qty(Row));
-        Observer.Finish();
+        Observer.Expect('modify', 'Yes');
+        Observer.Expect('rows after modify', 'A:alpha:7;B:via a:8;');
+        Observer.Expect('rows after modifyall', 'A:all:7;B:all:8;');
+        Observer.Expect('var after modifyall', 'B:alpha:error:The field ''Name'' on table ''LT P81 LF Row'' has changed in the database between initial and JIT load. The fields causing the JIT load are: ''Qty''.\\The error may be transient if multiple users are editing the same record or permanent if the same user edits the record while keeping an old record.\\Identification values: ''Code=''A''''\    |InconsistentRead');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1411,7 +1438,9 @@ codeunit 70303 "LT P81 LoadFields"
         Row.FindFirst();
         asserterror Row.ModifyAll(Code, 'Q');
         Observer.ObserveError('modifyall key field');
-        Observer.Finish();
+        Observer.Expect('modifyall key field|text', 'The MODIFYALL function cannot be used on the Code field in the LT P81 LF Row table because it is part of the primary key.');
+        Observer.Expect('modifyall key field|code', 'DB:Ok');
+        Observer.Verify();
     end;
 }
 

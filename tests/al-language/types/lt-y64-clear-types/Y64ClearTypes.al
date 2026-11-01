@@ -111,7 +111,7 @@ codeunit 93301 "LT Y64 Clear Types"
         Clear(DF);
         Clear(Ver);
         Observer.Observe('BigInteger', Format(BI));
-        Observer.Observe('Byte', Format(By));
+        Observer.Observe('Byte is 0', Format(By = 0));
         Observer.Observe('Char', Format(Ch = 0));
         Observer.Observe('Code', '[' + C + ']');
         Observer.Observe('Text[10]', '[' + Tx + ']');
@@ -122,7 +122,19 @@ codeunit 93301 "LT Y64 Clear Types"
         Observer.Observe('Enum', Format(E) + '|' + Format(E.AsInteger()));
         Observer.Observe('DateFormula', '[' + Format(DF) + ']');
         Observer.Observe('Version', Format(Ver));
-        Observer.Finish();
+        Observer.Expect('BigInteger', '0');
+        Observer.Expect('Byte is 0', 'Yes');
+        Observer.Expect('Char', 'Yes');
+        Observer.Expect('Code', '[]');
+        Observer.Expect('Text[10]', '[]');
+        Observer.Expect('Time', 'Yes');
+        Observer.Expect('DateTime', 'Yes');
+        Observer.Expect('Duration', '');
+        Observer.Expect('Option', 'A|0');
+        Observer.Expect('Enum', 'Zero|0');
+        Observer.Expect('DateFormula', '[]');
+        Observer.Expect('Version', '0.0.0.0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -161,7 +173,16 @@ codeunit 93301 "LT Y64 Clear Types"
         Observer.Observe('array element', Format(Ints[1]) + Format(Ints[2]) + Format(Ints[3]));
         Clear(Ints);
         Observer.Observe('array', Format(Ints[1]) + Format(Ints[2]) + Format(Ints[3]));
-        Observer.Finish();
+        Observer.Expect('Variant IsInteger', 'No');
+        Observer.Expect('Variant Format', '[]');
+        Observer.Expect('Variant IsRecord', 'No');
+        Observer.Expect('BigText Length', '0');
+        Observer.Expect('SecretText IsEmpty', 'Yes');
+        Observer.Expect('RecordId TableNo', '0');
+        Observer.Expect('RecordId Format', '[]');
+        Observer.Expect('array element', '103');
+        Observer.Expect('array', '000');
+        Observer.Verify();
     end;
 
     [Test]
@@ -191,7 +212,15 @@ codeunit 93301 "LT Y64 Clear Types"
         Clear(Row);
         Observer.Observe('Clear(Row) Name', '[' + Row.Name + ']');
         Observer.Observe('Clear(Row) Qty', Format(Row.Qty));
-        Observer.Finish();
+        Observer.Expect('Name', '[]');
+        Observer.Expect('Qty', '0');
+        Observer.Expect('Pic HasValue', 'No');
+        Observer.Expect('Img HasValue', 'No');
+        Observer.Expect('Imgs Count', '0');
+        Observer.Expect('Id', '3');
+        Observer.Expect('Clear(Row) Name', '[init]');
+        Observer.Expect('Clear(Row) Qty', '5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -224,7 +253,15 @@ codeunit 93301 "LT Y64 Clear Types"
         Observer.Observe('JsonValue IsUndefined', Format(JV.IsUndefined()));
         JV.WriteTo(Txt);
         Observer.Observe('JsonValue WriteTo', Txt);
-        Observer.Finish();
+        Observer.Expect('JsonObject', '{}');
+        Observer.Expect('JsonArray', '[]');
+        Observer.Expect('JsonToken IsObject', 'No');
+        Observer.Expect('JsonToken IsValue', 'Yes');
+        Observer.Expect('JsonToken WriteTo', 'null');
+        Observer.Expect('JsonValue IsNull', 'Yes');
+        Observer.Expect('JsonValue IsUndefined', 'No');
+        Observer.Expect('JsonValue WriteTo', 'null');
+        Observer.Verify();
     end;
 
     [Test]
@@ -266,7 +303,16 @@ codeunit 93301 "LT Y64 Clear Types"
         Clear(MI);
         Observer.Observe('ModuleInfo Id', Format(MI.Id()));
         Observer.Observe('ModuleInfo Name', '[' + MI.Name() + ']');
-        Observer.Finish();
+        Observer.Expect('RecordRef Number', '0');
+        Observer.Expect('FieldRef cleared, RecordRef Number', '93302');
+        Observer.Expect('Notification Message', '[]');
+        Observer.Expect('Notification HasData', 'No');
+        Observer.Expect('ErrorInfo Message', '[]');
+        Observer.Expect('ErrorInfo Title', '[]');
+        Observer.Expect('FilterPageBuilder Count', '0');
+        Observer.Expect('ModuleInfo Id', '{00000000-0000-0000-0000-000000000000}');
+        Observer.Expect('ModuleInfo Name', '[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -293,7 +339,12 @@ codeunit 93301 "LT Y64 Clear Types"
         Qr.Open();
         Observer.Observe('query reopen read', Format(Qr.Read()) + '|' + Format(Qr.Id));
         Qr.Close();
-        Observer.Finish();
+        Observer.Expect('interface first', '1');
+        Observer.Expect('interface after clear', 'error:Interface not initialized|InvalidOperation');
+        Observer.Expect('query read', 'Yes');
+        Observer.Expect('query read after clear', 'ok:No');
+        Observer.Expect('query reopen read', 'Yes|1');
+        Observer.Verify();
     end;
 
     [NonDebuggable]

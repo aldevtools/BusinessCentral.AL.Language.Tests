@@ -254,7 +254,15 @@ codeunit 93324 "LT Y64 PI Tests"
         Card."My Action".Invoke();
         Observer.Observe('log', Log.Take());
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('my action_promoted visible', 'No');
+        Observer.Expect('my action visible', 'Yes');
+        Observer.Expect('my new action_promoted visible', 'Yes');
+        Observer.Expect('n2_promoted visible', 'Yes');
+        Observer.Expect('n3_promoted visible', 'Yes');
+        Observer.Expect('cat5act_promoted visible', 'Yes');
+        Observer.Expect('cat5act_promoted enabled', 'Yes');
+        Observer.Expect('log', 'my new action;n2;n3;cat5 action;my action;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -272,7 +280,9 @@ codeunit 93324 "LT Y64 PI Tests"
             Observer.Observe('invoke hidden actionref', 'error:' + GetLastErrorText() + '|' + GetLastErrorCode());
         Observer.Observe('log', Log.Take());
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('invoke hidden actionref', 'ok');
+        Observer.Expect('log', 'my action;');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -294,6 +304,8 @@ codeunit 93324 "LT Y64 PI Tests"
         Card.MyAction.Invoke();
         Observer.Observe('log', Log.Take());
         Card.Close();
-        Observer.Finish();
+        Observer.Expect('actionref visible', 'Yes');
+        Observer.Expect('log', 'plain card my action;plain card my action;');
+        Observer.Verify();
     end;
 }

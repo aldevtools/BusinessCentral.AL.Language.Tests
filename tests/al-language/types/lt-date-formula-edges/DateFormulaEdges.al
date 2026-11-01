@@ -650,7 +650,33 @@ codeunit 67857 "LT Date Formula Edges"
         Both(Observer, '<-1Y><CY>');
         Both(Observer, '<-1Y><+CY>');
         Both(Observer, '<WD2><+1W>');
-        Observer.Finish();
+        Observer.Expect('calc <CY><-10Y>', 'ok:2014-12-31');
+        Observer.Expect('eval <CY><-10Y>', 'ok:stored=CY-10Y|calc=2014-12-31');
+        Observer.Expect('calc <CY><+1D>', 'ok:2025-01-01');
+        Observer.Expect('eval <CY><+1D>', 'ok:stored=CY+1D|calc=2025-01-01');
+        Observer.Expect('calc <CM><-1D>', 'ok:2024-01-30');
+        Observer.Expect('eval <CM><-1D>', 'ok:stored=CM-1D|calc=2024-01-30');
+        Observer.Expect('calc <CM><+1D>', 'ok:2024-02-01');
+        Observer.Expect('eval <CM><+1D>', 'ok:stored=CM+1D|calc=2024-02-01');
+        Observer.Expect('calc <-CM><-1M>', 'ok:2023-12-01');
+        Observer.Expect('eval <-CM><-1M>', 'ok:stored=-CM-1M|calc=2023-12-01');
+        Observer.Expect('calc <CW><+1D>', 'ok:2024-01-22');
+        Observer.Expect('eval <CW><+1D>', 'ok:stored=CW+1D|calc=2024-01-22');
+        Observer.Expect('calc <CQ><-1Q>', 'ok:2023-12-31');
+        Observer.Expect('eval <CQ><-1Q>', 'ok:stored=CQ-1Q|calc=2023-12-31');
+        Observer.Expect('calc <CD><+1D>', 'ok:2024-01-16');
+        Observer.Expect('eval <CD><+1D>', 'ok:stored=CD+1D|calc=2024-01-16');
+        Observer.Expect('calc <1D><-1D>', 'ok:2024-01-15');
+        Observer.Expect('eval <1D><-1D>', 'ok:stored=1D-1D|calc=2024-01-15');
+        Observer.Expect('calc <+1M><-1D>', 'ok:2024-02-14');
+        Observer.Expect('eval <+1M><-1D>', 'ok:stored=+1M-1D|calc=2024-02-14');
+        Observer.Expect('calc <-1Y><CY>', 'error:The date formula ''-1Y><CY'' must include plus (+) or minus (-).|Evaluate');
+        Observer.Expect('eval <-1Y><CY>', 'error:The date formula ''-1Y><CY'' must include plus (+) or minus (-).|Evaluate');
+        Observer.Expect('calc <-1Y><+CY>', 'ok:2023-12-31');
+        Observer.Expect('eval <-1Y><+CY>', 'ok:stored=-1Y+CY|calc=2023-12-31');
+        Observer.Expect('calc <WD2><+1W>', 'ok:2024-01-23');
+        Observer.Expect('eval <WD2><+1W>', 'ok:stored=WD2+1W|calc=2024-01-23');
+        Observer.Verify();
     end;
 
     [Test]
@@ -669,7 +695,29 @@ codeunit 67857 "LT Date Formula Edges"
         Both(Observer, '<cy><-10y>');
         Both(Observer, '<CY><>');
         Both(Observer, '<CY><-10Y>>');
-        Observer.Finish();
+        Observer.Expect('calc <CY><-10Y><+1D>', 'ok:2015-01-01');
+        Observer.Expect('eval <CY><-10Y><+1D>', 'ok:stored=CY-10Y+1D|calc=2015-01-01');
+        Observer.Expect('calc <-CY><+1D>', 'ok:2024-01-02');
+        Observer.Expect('eval <-CY><+1D>', 'ok:stored=-CY+1D|calc=2024-01-02');
+        Observer.Expect('calc <CY>+<-10Y>', 'error:The date formula ''CY>+<-10Y'' should include a number.|Evaluate');
+        Observer.Expect('eval <CY>+<-10Y>', 'error:The date formula ''CY>+<-10Y'' should include a number.|Evaluate');
+        Observer.Expect('calc <CY>-<10Y>', 'ok:2014-12-31');
+        Observer.Expect('eval <CY>-<10Y>', 'ok:stored=CY-10Y|calc=2014-12-31');
+        Observer.Expect('calc <CY> <-10Y>', 'ok:2014-12-31');
+        Observer.Expect('eval <CY> <-10Y>', 'ok:stored=CY-10Y|calc=2014-12-31');
+        Observer.Expect('calc <CY><-10Y', 'ok:2014-12-31');
+        Observer.Expect('eval <CY><-10Y', 'ok:stored=CY-10Y|calc=2014-12-31');
+        Observer.Expect('calc CY<-10Y>', 'ok:2014-12-31');
+        Observer.Expect('eval CY<-10Y>', 'ok:stored=CY-10Y|calc=2014-12-31');
+        Observer.Expect('calc <CY>-10Y', 'ok:2014-12-31');
+        Observer.Expect('eval <CY>-10Y', 'ok:stored=CY-10Y|calc=2014-12-31');
+        Observer.Expect('calc <cy><-10y>', 'ok:2014-12-31');
+        Observer.Expect('eval <cy><-10y>', 'ok:stored=CY-10Y|calc=2014-12-31');
+        Observer.Expect('calc <CY><>', 'ok:2024-12-31');
+        Observer.Expect('eval <CY><>', 'ok:stored=CY|calc=2024-12-31');
+        Observer.Expect('calc <CY><-10Y>>', 'ok:2014-12-31');
+        Observer.Expect('eval <CY><-10Y>>', 'ok:stored=CY-10Y|calc=2014-12-31');
+        Observer.Verify();
     end;
 
     [Test]
@@ -689,6 +737,14 @@ codeunit 67857 "LT Date Formula Edges"
         Observer.Observe('one argument equals the WorkDate() form', Format(CalcDate('<CY><-10Y>') = CalcDate('<CY><-10Y>', WorkDate())));
         Observer.Observe('WorkDate() as the date', Format(CalcDate('<CY><-10Y>', WorkDate()), 0, 9));
         WorkDate(SavedWorkDate);
-        Observer.Finish();
+        Observer.Expect('2024-12-31', '2014-12-31');
+        Observer.Expect('2024-02-29', '2014-12-31');
+        Observer.Expect('2023-01-01', '2013-12-31');
+        Observer.Expect('2024-02-29 CM-1Y', '2023-02-28');
+        Observer.Expect('2024-01-31 CM+1M', '2024-02-29');
+        Observer.Expect('one argument equals the Today() form', 'Yes');
+        Observer.Expect('one argument equals the WorkDate() form', 'No');
+        Observer.Expect('WorkDate() as the date', '2014-12-31');
+        Observer.Verify();
     end;
 }

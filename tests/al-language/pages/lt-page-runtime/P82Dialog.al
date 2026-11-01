@@ -461,7 +461,16 @@ codeunit 71206 "LT P82 Dialog"
         Clear(Dlg);
         Clear(Dlg);
         Observer.Observe('clear twice', 'no error');
-        Observer.Finish();
+        Observer.Expect('clear unopened', 'no error');
+        Observer.Expect('update after clear', 'No');
+        Observer.Expect('update after clear error', 'The operation failed because the dialog box is not open.');
+        Observer.Expect('close after clear', 'No');
+        Observer.Expect('close after clear error', 'The operation failed because the dialog box is not open.');
+        Observer.Expect('open after clear', 'Yes');
+        Observer.Expect('update after open', 'Yes');
+        Observer.Expect('close after open', 'Yes');
+        Observer.Expect('clear twice', 'no error');
+        Observer.Verify();
     end;
 
     [Test]
@@ -487,7 +496,18 @@ codeunit 71206 "LT P82 Dialog"
         ClearLastError();
         Observer.Observe('close after reopen', Format(TryClose(Dlg)));
         Observer.Observe('close after reopen error', GetLastErrorText());
-        Observer.Finish();
+        Observer.Expect('clear opened', 'no error');
+        Observer.Expect('update after clear', 'No');
+        Observer.Expect('update after clear error', 'The operation failed because the dialog box is not open.');
+        Observer.Expect('close after clear', 'No');
+        Observer.Expect('close after clear error', 'The operation failed because the dialog box is not open.');
+        Observer.Expect('open after clear', 'Yes');
+        Observer.Expect('open after clear error', '');
+        Observer.Expect('update after reopen', 'Yes');
+        Observer.Expect('update after reopen error', '');
+        Observer.Expect('close after reopen', 'Yes');
+        Observer.Expect('close after reopen error', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -513,7 +533,16 @@ codeunit 71206 "LT P82 Dialog"
         Observer.Observe('clear var parameter', Status.State());
         Observer.Observe('update after var clear', Status.TryUpdate());
         Status.Reset();
-        Observer.Finish();
+        Observer.Expect('reset unopened', 'IsOpen=No');
+        Observer.Expect('after open', 'IsOpen=Yes');
+        Observer.Expect('reset opened', 'IsOpen=No');
+        Observer.Expect('update after reset', 'error:The operation failed because the dialog box is not open.|Dialog');
+        Observer.Expect('reopen', 'IsOpen=Yes');
+        Observer.Expect('clearall opened', 'IsOpen=No');
+        Observer.Expect('update after clearall', 'error:The operation failed because the dialog box is not open.|Dialog');
+        Observer.Expect('clear var parameter', 'IsOpen=No');
+        Observer.Expect('update after var clear', 'error:The operation failed because the dialog box is not open.|Dialog');
+        Observer.Verify();
     end;
 }
 

@@ -95,7 +95,8 @@ codeunit 93327 "LT Y64 Xapp Run Order"
         MyReport.SetMyOption(true);
         MyReport.RunModal();
         Observer.Observe('log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('log', 'A-base:initreport;A-base:prereport;A-ext:prereport;B-ext:prereport;C-ext:prereport;M-ext:prereport;A-ext:beforepredataitem;B-ext:beforepredataitem;C-ext:beforepredataitem;M-ext:beforepredataitem;A-base:predataitem;A-ext:afterpredataitem;A-ext:beforeaftergetrecord;A-base:aftergetrecord 1;A-ext:afteraftergetrecord;B-ext:afteraftergetrecord;C-ext:afteraftergetrecord;M-ext:afteraftergetrecord;A-ext:beforeaftergetrecord;A-base:aftergetrecord 2;A-ext:afteraftergetrecord;B-ext:afteraftergetrecord;C-ext:afteraftergetrecord;M-ext:afteraftergetrecord;A-ext:beforepostdataitem;A-base:postdataitem;A-ext:afterpostdataitem;B-ext:afterpostdataitem;A-base:postreport;A-ext:postreport;B-ext:postreport;M-ext:postreport;');
+        Observer.Verify();
     end;
 
     [RequestPageHandler]
@@ -126,7 +127,9 @@ codeunit 93327 "LT Y64 Xapp Run Order"
         Report.RunModal(Report::"LT Y64 XA Report", true);
         Observer.Observe('until handler', HandlerLog);
         Observer.Observe('after handler', Log.Take());
-        Observer.Finish();
+        Observer.Expect('until handler', 'A-base:initreport;A-base:rp open;A-ext:rp open;B-ext:rp open;C-ext:rp open;M-ext:rp open;');
+        Observer.Expect('after handler', 'A-base:rp queryclose;A-ext:rp queryclose;A-base:rp close;A-ext:rp close;B-ext:rp close;A-base:prereport;A-ext:prereport;B-ext:prereport;C-ext:prereport;M-ext:prereport;A-ext:beforepredataitem;B-ext:beforepredataitem;C-ext:beforepredataitem;M-ext:beforepredataitem;A-base:predataitem;A-ext:afterpredataitem;A-ext:beforeaftergetrecord;A-base:aftergetrecord 1;A-ext:afteraftergetrecord;B-ext:afteraftergetrecord;C-ext:afteraftergetrecord;M-ext:afteraftergetrecord;A-ext:beforeaftergetrecord;A-base:aftergetrecord 2;A-ext:afteraftergetrecord;B-ext:afteraftergetrecord;C-ext:afteraftergetrecord;M-ext:afteraftergetrecord;A-ext:beforepostdataitem;A-base:postdataitem;A-ext:afterpostdataitem;B-ext:afterpostdataitem;A-base:postreport;A-ext:postreport;B-ext:postreport;M-ext:postreport;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -139,7 +142,9 @@ codeunit 93327 "LT Y64 Xapp Run Order"
         Report.RunModal(Report::"LT Y64 XA Report", true);
         Observer.Observe('until handler', HandlerLog);
         Observer.Observe('after handler', Log.Take());
-        Observer.Finish();
+        Observer.Expect('until handler', 'A-base:initreport;A-base:rp open;A-ext:rp open;B-ext:rp open;C-ext:rp open;M-ext:rp open;');
+        Observer.Expect('after handler', 'A-base:rp queryclose;A-ext:rp queryclose;A-base:rp close;A-ext:rp close;B-ext:rp close;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -150,6 +155,7 @@ codeunit 93327 "LT Y64 Xapp Run Order"
         Seed();
         Report.Execute(Report::"LT Y64 XA Report", '<?xml version="1.0" standalone="yes"?><ReportParameters><Options><Field name="MyOptionValue">true</Field></Options></ReportParameters>');
         Observer.Observe('log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('log', 'A-base:initreport;A-base:rp open;A-ext:rp open;B-ext:rp open;C-ext:rp open;M-ext:rp open;A-base:rp close;A-ext:rp close;B-ext:rp close;A-base:prereport;A-ext:prereport;B-ext:prereport;C-ext:prereport;M-ext:prereport;A-ext:beforepredataitem;B-ext:beforepredataitem;C-ext:beforepredataitem;M-ext:beforepredataitem;A-base:predataitem;A-ext:afterpredataitem;A-ext:beforeaftergetrecord;A-base:aftergetrecord 1;A-ext:afteraftergetrecord;B-ext:afteraftergetrecord;C-ext:afteraftergetrecord;M-ext:afteraftergetrecord;A-ext:beforeaftergetrecord;A-base:aftergetrecord 2;A-ext:afteraftergetrecord;B-ext:afteraftergetrecord;C-ext:afteraftergetrecord;M-ext:afteraftergetrecord;A-ext:beforepostdataitem;A-base:postdataitem;A-ext:afterpostdataitem;B-ext:afterpostdataitem;A-base:postreport;A-ext:postreport;B-ext:postreport;M-ext:postreport;');
+        Observer.Verify();
     end;
 }

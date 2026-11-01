@@ -36,7 +36,12 @@ codeunit 93335 "LT Y64 UN Filter Tests"
         RecRef.Open(Database::"LT Y64 UN Filter Row");
         Observer.Observe('exist 2000000005', Format(RecRef.FieldExist(2000000005)));
         RecRef.Close();
-        Observer.Finish();
+#if BC29PLUS
+        Observer.Expect('exist 2000000005', 'Yes');
+#else
+        Observer.Expect('exist 2000000005', 'No');
+#endif
+        Observer.Verify();
     end;
 #if BC29PLUS
 
@@ -92,7 +97,15 @@ codeunit 93335 "LT Y64 UN Filter Tests"
             Observer.Observe(Format(No) + ' name', FldRef.Name());
         end;
         RecRef.Close();
-        Observer.Finish();
+        Observer.Expect('2000000005 getfilter', '[]');
+        Observer.Expect('2000000005 name', 'SystemCreatedByUserName');
+        Observer.Expect('2000000006 getfilter', '[]');
+        Observer.Expect('2000000006 name', 'SystemCreatedByFullName');
+        Observer.Expect('2000000007 getfilter', '[]');
+        Observer.Expect('2000000007 name', 'SystemModifiedByUserName');
+        Observer.Expect('2000000008 getfilter', '[]');
+        Observer.Expect('2000000008 name', 'SystemModifiedByFullName');
+        Observer.Verify();
     end;
 
     [Test]
@@ -123,7 +136,18 @@ codeunit 93335 "LT Y64 UN Filter Tests"
         Observer.Observe('getfilters', Mask(RecRef.GetFilters()));
         Observer.Observe('getview', Mask(RecRef.GetView()));
         RecRef.Close();
-        Observer.Finish();
+        Observer.Expect('setfilter getfilter', '<>''''');
+        Observer.Expect('setfilter count', '2');
+        Observer.Expect('setrange getfilter', '<me>');
+        Observer.Expect('setrange min max', '<me>|<me>');
+        Observer.Expect('setrange count', '2');
+        Observer.Expect('other user count', '0');
+        Observer.Expect('cleared getfilter', '[]');
+        Observer.Expect('full name filter', '*');
+        Observer.Expect('full name count', '2');
+        Observer.Expect('getfilters', 'Created By (Full Name): *');
+        Observer.Expect('getview', 'VERSION(1) SORTING(Id) WHERE(Created By (Full Name)=FILTER(*))');
+        Observer.Verify();
     end;
 
     [Test]
@@ -161,7 +185,11 @@ codeunit 93335 "LT Y64 UN Filter Tests"
         Observer.Observe('filters with a user-name filter', Result);
         Observer.Observe('count with a user-name filter', Format(RecRef.Count()));
         RecRef.Close();
-        Observer.Finish();
+        Observer.Expect('filters', '2=a*;');
+        Observer.Expect('fields visited', '11');
+        Observer.Expect('filters with a user-name filter', '2=b*;2000000005=<>'''';');
+        Observer.Expect('count with a user-name filter', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -194,7 +222,18 @@ codeunit 93335 "LT Y64 UN Filter Tests"
                 Names += Row.Name + ';';
             until Row.Next() = 0;
         Observer.Observe('findset', Names);
-        Observer.Finish();
+        Observer.Expect('setrange getfilter', '<me>');
+        Observer.Expect('setrange count', '2');
+        Observer.Expect('setfilter getfilter', '<>nobody-y64');
+        Observer.Expect('both count', '2');
+        Observer.Expect('full name no match count', '0');
+        Observer.Expect('getfilters', 'Created By (User Name): <me>, Created By (Full Name): nobody-y64, Modified By (User Name): <>nobody-y64');
+        Observer.Expect('before calcfields', '[]');
+        Observer.Expect('calcfields user is me', 'Yes');
+        Observer.Expect('calcfields modified user is me', 'Yes');
+        Observer.Expect('calcfields full name is mine', 'Yes');
+        Observer.Expect('findset', 'alpha;bravo;');
+        Observer.Verify();
     end;
 #endif
 }
