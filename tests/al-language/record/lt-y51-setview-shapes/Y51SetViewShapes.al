@@ -8,6 +8,8 @@
 //        GetView(true), GetFilters, Count and the ids FindSet visits.
 //        Already pinned nearby: types/lt-evaluate-format-lasterror-setview/P86SetView.al (unknown names, CONST() on an Integer),
 //        record/lt-setview-caption-form/SetViewCaptionForm.al (unknown name in WHERE ignored).
+// Values: every literal asserted is what BC 27.5, 28.5 and 29.0 (Linux CI containers) produced; #if BC29PLUS where 29.0 differs.
+//         SetView and RecordRef.Copy values (not the FilterPageHandler test) also match the SaaS sandbox BC 29.
 // BC versions: 27, 28, 29
 
 table 92980 "LT Y51 SV Row"
@@ -120,7 +122,14 @@ codeunit 92981 "LT Y51 SetView Shapes"
         Observer.Observe('where_fIeLd4', SV('WHERE(fIeLd4=1(A))'));
         Observer.Observe('sorting_space_Field2', SV('SORTING (Field2)'));
         Observer.Observe('Field2_ne_blank', SV('WHERE(Field2=1(<>''''))'));
-        Observer.Finish();
+        Observer.Expect('ms_text', 'ok|VERSION(1) SORTING(Field2) WHERE(Field2=1(<>''''))|VERSION(1) SORTING(Date Field) WHERE(Date Field=FILTER(<>''''))|Date Field: <>''''|2|1,3,');
+        Observer.Expect('ms_text_rec', 'ok|VERSION(1) SORTING(Field2) WHERE(Field2=1(<>''''))|VERSION(1) SORTING(Date Field) WHERE(Date Field=FILTER(<>''''))|Date Field: <>''''|2|1,3,');
+        Observer.Expect('sorting_field2', 'ok|VERSION(1) SORTING(Field2)|VERSION(1) SORTING(Date Field)||3|2,1,3,');
+        Observer.Expect('where_field4', 'ok|VERSION(1) SORTING(Field1) WHERE(Field4=1(A))|VERSION(1) SORTING(Entry No.) WHERE(Description=FILTER(A))|Description: A|1|1,');
+        Observer.Expect('where_fIeLd4', 'ok|VERSION(1) SORTING(Field1) WHERE(Field4=1(A))|VERSION(1) SORTING(Entry No.) WHERE(Description=FILTER(A))|Description: A|1|1,');
+        Observer.Expect('sorting_space_Field2', 'ok|VERSION(1) SORTING(Field2)|VERSION(1) SORTING(Date Field)||3|2,1,3,');
+        Observer.Expect('Field2_ne_blank', 'ok|VERSION(1) SORTING(Field1) WHERE(Field2=1(<>''''))|VERSION(1) SORTING(Entry No.) WHERE(Date Field=FILTER(<>''''))|Date Field: <>''''|2|1,3,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -136,7 +145,14 @@ codeunit 92981 "LT Y51 SetView Shapes"
         Observer.Observe('date_1', SV('WHERE(Field2=1())'));
         Observer.Observe('int_1', SV('WHERE(Field1=1())'));
         Observer.Observe('text5_1', SV('WHERE(Field5=1())'));
-        Observer.Finish();
+        Observer.Expect('text_1', 'ok|VERSION(1) SORTING(Field1) WHERE(Field4=1(==))|VERSION(1) SORTING(Entry No.) WHERE(Description=FILTER(==))|Description: ==|3|1,2,3,');
+        Observer.Expect('text_1_rec', 'ok|VERSION(1) SORTING(Field1) WHERE(Field4=1(==))|VERSION(1) SORTING(Entry No.) WHERE(Description=FILTER(==))|Description: ==|3|1,2,3,');
+        Observer.Expect('text_filter', 'ok|VERSION(1) SORTING(Field1) WHERE(Field4=1(==))|VERSION(1) SORTING(Entry No.) WHERE(Description=FILTER(==))|Description: ==|3|1,2,3,');
+        Observer.Expect('text_const', 'ok|VERSION(1) SORTING(Field1) WHERE(Field4=1(''''))|VERSION(1) SORTING(Entry No.) WHERE(Description=FILTER(''''))|Description: ''''|1|2,');
+        Observer.Expect('date_1', 'ok|VERSION(1) SORTING(Field1) WHERE(Field2=1(==))|VERSION(1) SORTING(Entry No.) WHERE(Date Field=FILTER(==))|Date Field: ==|3|1,2,3,');
+        Observer.Expect('int_1', 'ok|VERSION(1) SORTING(Field1) WHERE(Field1=1(==))|VERSION(1) SORTING(Entry No.) WHERE(Entry No.=FILTER(==))|Entry No.: ==|3|1,2,3,');
+        Observer.Expect('text5_1', 'ok|VERSION(1) SORTING(Field1) WHERE(Field5=1(==))|VERSION(1) SORTING(Entry No.) WHERE(Description 2=FILTER(==))|Description 2: ==|3|1,2,3,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -150,7 +166,12 @@ codeunit 92981 "LT Y51 SetView Shapes"
         Observer.Observe('field99_x', SV('WHERE(Field99=1(x))'));
         Observer.Observe('sorting_field99', SV('SORTING(Field99)'));
         Observer.Observe('field0_rec', SVRec('WHERE(Field0=1())'));
-        Observer.Finish();
+        Observer.Expect('field0_empty', 'ok|VERSION(1) SORTING(Field1) WHERE(Field0=1(==))|VERSION(1) SORTING(Entry No.) WHERE(timestamp=FILTER(==))|timestamp: ==|3|1,2,3,');
+        Observer.Expect('field0_x', 'err|The value "x" can''t be evaluated into type BigInteger.|InvalidFilterExpression:Evaluate|VERSION(1) SORTING(Field1)');
+        Observer.Expect('field99_x', 'ok|VERSION(1) SORTING(Field1)|VERSION(1) SORTING(Entry No.)||3|1,2,3,');
+        Observer.Expect('sorting_field99', 'ok|VERSION(1) SORTING(Field1)|VERSION(1) SORTING(Entry No.)||3|1,2,3,');
+        Observer.Expect('field0_rec', 'ok|VERSION(1) SORTING(Field1) WHERE(Field0=1(==))|VERSION(1) SORTING(Entry No.) WHERE(timestamp=FILTER(==))|timestamp: ==|3|1,2,3,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -172,7 +193,15 @@ codeunit 92981 "LT Y51 SetView Shapes"
         Observer.Observe('group0_view', RR.GetView(false));
         Observer.Observe('group0_filters', RR.GetFilters());
         Observer.Observe('group0_state', State(RR));
-        Observer.Finish();
+        Observer.Expect('setview_ok', 'Yes');
+        Observer.Expect('error', '|');
+        Observer.Expect('group10_view', 'VERSION(1) SORTING(Field1) WHERE(Field4=1(==))');
+        Observer.Expect('group10_filters', 'Description: ==');
+        Observer.Expect('group10_count', '3');
+        Observer.Expect('group0_view', 'VERSION(1) SORTING(Field1)');
+        Observer.Expect('group0_filters', '');
+        Observer.Expect('group0_state', 'VERSION(1) SORTING(Field1)|VERSION(1) SORTING(Entry No.)||3|1,2,3,');
+        Observer.Verify();
     end;
 
     [FilterPageHandler]
@@ -205,6 +234,11 @@ codeunit 92981 "LT Y51 SetView Shapes"
         Observer.Observe('handler_result', HandlerResult);
         Observer.Observe('fpb_view_false', FPB.GetView('Rows', false));
         Observer.Observe('fpb_view_true', FPB.GetView('Rows', true));
-        Observer.Finish();
+        Observer.Expect('runmodal', 'Yes');
+        Observer.Expect('handler_view_before', 'VERSION(1) SORTING(Field1)');
+        Observer.Expect('handler_result', 'ok|VERSION(1) SORTING(Field1) WHERE(Field4=1(==))');
+        Observer.Expect('fpb_view_false', 'VERSION(1) SORTING(Field1) WHERE(Field4=1(==))');
+        Observer.Expect('fpb_view_true', 'VERSION(1) SORTING(Entry No.) WHERE(Description=FILTER(==))');
+        Observer.Verify();
     end;
 }

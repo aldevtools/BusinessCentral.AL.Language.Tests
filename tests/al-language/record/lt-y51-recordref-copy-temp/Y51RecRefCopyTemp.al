@@ -8,6 +8,8 @@
 //        Copy runs in a TryFunction (no write inside it); Insert runs outside.
 //        Already pinned nearby: misc/lt-probes-needed-6/PnF27RecordRefCopy.al (Record into a non-temporary RecordRef),
 //        types/PWMisc.al (temporary RecordRef into a temporary RecordRef), record/TestCopyOntoTemporaryRecord.al (Record.Copy onto a temporary Record).
+// Values: every literal asserted is what BC 27.5, 28.5 and 29.0 (Linux CI containers) produced; #if BC29PLUS where 29.0 differs.
+//         SetView and RecordRef.Copy values (not the FilterPageHandler test) also match the SaaS sandbox BC 29.
 // BC versions: 27, 28, 29
 
 table 92982 "LT Y51 RC Row"
@@ -127,7 +129,15 @@ codeunit 92983 "LT Y51 RecRef Copy Temp"
         RR.Reset();
         Observer.Observe('after_reset', State(RR));
         Observer.Observe('db_count', Format(DbCount()));
-        Observer.Finish();
+        Observer.Expect('after_open', 'Yes|0||VERSION(1) SORTING(Field1)|');
+        Observer.Expect('first_copy_field1', '1');
+        Observer.Expect('first_copy_field3', 'n1');
+        Observer.Expect('after_first_copy', 'Yes|0|Grp: 1..2|VERSION(1) SORTING(Field1) WHERE(Field2=1(1..2))|');
+        Observer.Expect('copies', 'ok;ok;ok;ok;');
+        Observer.Expect('after_loop', 'Yes|4|Grp: 1..2|VERSION(1) SORTING(Field1) WHERE(Field2=1(1..2))|1,2,3,4,');
+        Observer.Expect('after_reset', 'Yes|4||VERSION(1) SORTING(Field1)|1,2,3,4,');
+        Observer.Expect('db_count', '5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -168,7 +178,15 @@ codeunit 92983 "LT Y51 RecRef Copy Temp"
         TempRow.MarkedOnly(false);
         Observer.Observe('temprow_count_all', Format(TempRow.Count()));
         Observer.Observe('db_count', Format(DbCount()));
-        Observer.Finish();
+        Observer.Expect('copies', 'ok;ok;');
+        Observer.Expect('markedonly_after_loop', 'Yes');
+        Observer.Expect('after_loop', 'Yes|2|Marked: Yes|VERSION(1) SORTING(Field1)|10,12,');
+        Observer.Expect('markedonly_after_reset', 'No');
+        Observer.Expect('after_reset', 'Yes|2||VERSION(1) SORTING(Field1)|10,12,');
+        Observer.Expect('temprow_count', '2');
+        Observer.Expect('temprow_count_all', '3');
+        Observer.Expect('db_count', '5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -192,7 +210,12 @@ codeunit 92983 "LT Y51 RecRef Copy Temp"
         RR.Reset();
         Observer.Observe('after_reset', State(RR));
         Observer.Observe('db_count', Format(DbCount()));
-        Observer.Finish();
+        Observer.Expect('copy', 'ok');
+        Observer.Expect('field1', '1');
+        Observer.Expect('after_insert', 'Yes|1|Grp: 1..2|VERSION(1) SORTING(Field1) WHERE(Field2=1(1..2))|1,');
+        Observer.Expect('after_reset', 'Yes|1||VERSION(1) SORTING(Field1)|1,');
+        Observer.Expect('db_count', '5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -229,7 +252,13 @@ codeunit 92983 "LT Y51 RecRef Copy Temp"
         TempRow.Reset();
         Observer.Observe('share_temp_temprow_count', Format(TempRow.Count()));
         Observer.Observe('db_count', Format(DbCount()));
-        Observer.Finish();
+        Observer.Expect('share_nontemp', 'err The COPY function can only be used with the shareTable argument set to true if both records are temporary.|Argument');
+        Observer.Expect('share_nontemp_state', 'Yes|0||VERSION(1) SORTING(Field1)|');
+        Observer.Expect('share_temp', 'ok');
+        Observer.Expect('share_temp_state', 'Yes|3||VERSION(1) SORTING(Field1)|20,21,99,');
+        Observer.Expect('share_temp_temprow_count', '3');
+        Observer.Expect('db_count', '5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -257,6 +286,10 @@ codeunit 92983 "LT Y51 RecRef Copy Temp"
         RR.Reset();
         Observer.Observe('after_reset', State(RR));
         Observer.Observe('db_count', Format(DbCount()));
-        Observer.Finish();
+        Observer.Expect('copies', 'ok;ok;ok;ok;');
+        Observer.Expect('after_loop', 'Yes|4|Grp: 1..2|VERSION(1) SORTING(Field1) WHERE(Field2=1(1..2))|1,2,3,4,');
+        Observer.Expect('after_reset', 'Yes|4||VERSION(1) SORTING(Field1)|1,2,3,4,');
+        Observer.Expect('db_count', '5');
+        Observer.Verify();
     end;
 }

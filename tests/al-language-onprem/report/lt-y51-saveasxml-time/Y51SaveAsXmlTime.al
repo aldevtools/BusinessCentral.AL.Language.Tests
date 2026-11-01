@@ -6,6 +6,7 @@
 //        Duration, BigInteger, Guid table fields with values and blank values, the system Time (only the schema line and the shape of
 //        the value: digits replaced by 9), and the schema when no row is written.
 //        Not repeated: errors/lt-ms-refusals-132/P132ReportTimeMs.al (Time in the Report.SaveAs XML dataset, not the SaveAsXml data file).
+// Values: every literal asserted is what BC 27.5, 28.5 and 29.0 (Linux CI containers) produced; #if BC29PLUS where 29.0 differs.
 // BC versions: 27, 28, 29
 
 table 98695 "LT Y51 OP Time Row"
@@ -253,7 +254,9 @@ codeunit 98699 "LT Y51 OP SaveAsXml Time"
         Content := FileText(DataFile);
         Observer.Observe('schema', Columns(Content));
         Observer.Observe('rows', Rows(Content));
-        Observer.Finish();
+        Observer.Expect('schema', '<xs:element name="IdC" type="xs:int"|<xs:element name="TimeC" msdata:DateTimeMode="Local" type="xs:dateTime"|<xs:element name="UserC" type="xs:string"|');
+        Observer.Expect('rows', '<Result>|<IdC>1</IdC>|<TimeC>1899-12-30T14:30:15+00:00</TimeC>|<UserC>U</UserC>|</Result>|</DataSet>||');
+        Observer.Verify();
     end;
 
     [Test]
@@ -269,7 +272,14 @@ codeunit 98699 "LT Y51 OP SaveAsXml Time"
         Content := FileText(DataFile);
         Observer.Observe('schema', Columns(Content));
         Observer.Observe('rows', Rows(Content));
-        Observer.Finish();
+#if BC29PLUS
+        Observer.Expect('schema', '<xs:element name="IdC" type="xs:int"|<xs:element name="TmC" msdata:DateTimeMode="Local" type="xs:dateTime"|<xs:element name="DtmC" msdata:DateTimeMode="Local" type="xs:dateTime"|<xs:element name="DurC" type="xs:string"|<xs:element name="BigC" type="xs:long"|<xs:element name="GC" msdata:DataType="System.Guid, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e" type="xs:string"|');
+        Observer.Expect('rows', '<Result>|<IdC>1</IdC>|<TmC>1899-12-30T14:30:15+00:00</TmC>|<DtmC>2024-03-15T14:30:15.123+00:00</DtmC>|<DurC>20 minutes 34 seconds 567 milliseconds</DurC>|<BigC>9007199254740993</BigC>|<GC>0b3e2c7a-1d4f-4e5a-9c6b-7d8e9f0a1b2c</GC>|</Result>|<Result>|<IdC>2</IdC>|<TmC>1899-12-30T00:00:00+00:00</TmC>|<DurC />|<BigC>0</BigC>|<GC>00000000-0000-0000-0000-000000000000</GC>|</Result>|<Result>|<IdC>3</IdC>|<TmC>1899-12-30T00:00:00+00:00</TmC>|<DurC />|<BigC>0</BigC>|<GC>00000000-0000-0000-0000-000000000000</GC>|</Result>|<Result>|<IdC>4</IdC>|<DurC />|<BigC>0</BigC>|<GC>00000000-0000-0000-0000-000000000000</GC>|</Result>|</DataSet>||');
+#else
+        Observer.Expect('schema', '<xs:element name="IdC" type="xs:int"|<xs:element name="TmC" msdata:DateTimeMode="Local" type="xs:dateTime"|<xs:element name="DtmC" msdata:DateTimeMode="Local" type="xs:dateTime"|<xs:element name="DurC" type="xs:string"|<xs:element name="BigC" type="xs:long"|<xs:element name="GC" msdata:DataType="System.Guid, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e" type="xs:string"|');
+        Observer.Expect('rows', '<Result>|<IdC>1</IdC>|<TmC>1899-12-30T14:30:15+00:00</TmC>|<DtmC>2024-03-15T14:30:15.123+00:00</DtmC>|<DurC>20 minutes 34 seconds 567 milliseconds</DurC>|<BigC>9007199254740993</BigC>|<GC>0b3e2c7a-1d4f-4e5a-9c6b-7d8e9f0a1b2c</GC>|</Result>|<Result>|<IdC>2</IdC>|<TmC>1899-12-30T00:00:00+00:00</TmC>|<DurC />|<BigC>0</BigC>|<GC>00000000-0000-0000-0000-000000000000</GC>|</Result>|<Result>|<IdC>3</IdC>|<TmC>1899-12-30T00:00:00+00:00</TmC>|<DurC />|<BigC>0</BigC>|<GC>00000000-0000-0000-0000-000000000000</GC>|</Result>|<Result>|<IdC>4</IdC>|<DurC />|<BigC>0</BigC>|<GC>00000000-0000-0000-0000-000000000000</GC>|</Result>|</DataSet>||');
+#endif
+        Observer.Verify();
     end;
 
     [Test]
@@ -284,7 +294,9 @@ codeunit 98699 "LT Y51 OP SaveAsXml Time"
         Content := FileText(DataFile);
         Observer.Observe('systime_schema', Columns(Content));
         Observer.Observe('systime_shape', Shape(Content, 'SysTimeC'));
-        Observer.Finish();
+        Observer.Expect('systime_schema', '<xs:element name="IdC" type="xs:int"|<xs:element name="SysTimeC" msdata:DateTimeMode="Local" type="xs:dateTime"|');
+        Observer.Expect('systime_shape', '<SysTimeC>9999-99-99T99:99:99+99:99</SysTimeC>|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -301,7 +313,14 @@ codeunit 98699 "LT Y51 OP SaveAsXml Time"
         Content := FileText(DataFile);
         Observer.Observe('schema', Columns(Content));
         Observer.Observe('rows', Rows(Content));
-        Observer.Finish();
+#if BC29PLUS
+        Observer.Expect('schema', '<xs:element name="IdC" type="xs:int"|<xs:element name="TmC" msdata:DateTimeMode="Local" type="xs:dateTime"|<xs:element name="DtmC" msdata:DateTimeMode="Local" type="xs:dateTime"|<xs:element name="DurC" type="xs:string"|<xs:element name="BigC" type="xs:long"|<xs:element name="GC" msdata:DataType="System.Guid, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e" type="xs:string"|');
+        Observer.Expect('rows', '</DataSet>||');
+#else
+        Observer.Expect('schema', '<xs:element name="IdC" type="xs:int"|<xs:element name="TmC" msdata:DateTimeMode="Local" type="xs:dateTime"|<xs:element name="DtmC" msdata:DateTimeMode="Local" type="xs:dateTime"|<xs:element name="DurC" type="xs:string"|<xs:element name="BigC" type="xs:long"|<xs:element name="GC" msdata:DataType="System.Guid, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e" type="xs:string"|');
+        Observer.Expect('rows', '</DataSet>||');
+#endif
+        Observer.Verify();
     end;
 
     [RequestPageHandler]

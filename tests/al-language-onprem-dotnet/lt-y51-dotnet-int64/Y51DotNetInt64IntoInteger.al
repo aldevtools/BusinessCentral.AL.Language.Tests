@@ -5,6 +5,7 @@
 //        through a var Integer parameter (the Data Compression ExtractEntry shape), into a Decimal and a BigInteger, and Int64 values
 //        outside the Integer range (in a TryFunction: the error, and the Integer after a failed assignment).
 //        Already pinned nearby: TestDotNetValueKindsContracts.al (a CLR long reads as BigInteger), lt-dotnet-interop/DotNetTypeScalars.al.
+// Values: every literal asserted is what BC 27.5, 28.5 and 29.0 (Linux CI containers) produced; #if BC29PLUS where 29.0 differs.
 // BC versions: 27, 28, 29
 
 dotnet
@@ -61,7 +62,10 @@ codeunit 99393 "LT Y51 DotNet Int64"
         Observer.Observe('int_123', Format(I));
         I := Conv.ToInt64('-7');
         Observer.Observe('int_minus7', Format(I));
-        Observer.Finish();
+        Observer.Expect('int_length', '5');
+        Observer.Expect('int_123', '123');
+        Observer.Expect('int_minus7', '-7');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -96,7 +100,24 @@ codeunit 99393 "LT Y51 DotNet Int64"
         Assign('min', '-2147483648');
         Assign('min_minus1', '-2147483649');
         Assign('2pow32', '4294967296');
-        Observer.Finish();
+        Observer.Expect('err_3e9|text', 'Overflow under conversion of System.Int64 value 3000000000 to System.Int32.');
+        Observer.Expect('err_3e9|code', 'ConversionCast');
+        Observer.Expect('after_err_3e9', '42');
+        Observer.Expect('err_minus3e9|text', 'Overflow under conversion of System.Int64 value -3000000000 to System.Int32.');
+        Observer.Expect('err_minus3e9|code', 'ConversionCast');
+        Observer.Expect('after_err_minus3e9', '42');
+        Observer.Expect('int_max', '2147483647');
+        Observer.Expect('err_max_plus1|text', 'Overflow under conversion of System.Int64 value 2147483648 to System.Int32.');
+        Observer.Expect('err_max_plus1|code', 'ConversionCast');
+        Observer.Expect('after_err_max_plus1', '42');
+        Observer.Expect('int_min', '-2147483648');
+        Observer.Expect('err_min_minus1|text', 'Overflow under conversion of System.Int64 value -2147483649 to System.Int32.');
+        Observer.Expect('err_min_minus1|code', 'ConversionCast');
+        Observer.Expect('after_err_min_minus1', '42');
+        Observer.Expect('err_2pow32|text', 'Overflow under conversion of System.Int64 value 4294967296 to System.Int32.');
+        Observer.Expect('err_2pow32|code', 'ConversionCast');
+        Observer.Expect('after_err_2pow32', '42');
+        Observer.Verify();
     end;
 
     local procedure GetLen(Entry: DotNet LtY51ZipEntry; var L: Integer)
@@ -148,6 +169,10 @@ codeunit 99393 "LT Y51 DotNet Int64"
         B := Entry.Length;
         Observer.Observe('biginteger', Format(B));
         ZipArchive.Dispose();
-        Observer.Finish();
+        Observer.Expect('int_varparam', '11');
+        Observer.Expect('int_direct', '11');
+        Observer.Expect('decimal', '11');
+        Observer.Expect('biginteger', '11');
+        Observer.Verify();
     end;
 }

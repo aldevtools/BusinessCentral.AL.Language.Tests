@@ -5,6 +5,7 @@
 //        back to the InStream (the Data Compression IsGZip / IsZip shape, in a callee with a by-value InStream parameter and in one
 //        procedure), and Position set out of range. Observed: the .NET Position, EOS and the rest of the InStream read byte by byte.
 //        Already pinned nearby: lt-sg-dotnet/SgDotNetStreams.al (SG_InStreamToStream_DescribeAndRead: Length, Position 0, ReadByte).
+// Values: every literal asserted is what BC 27.5, 28.5 and 29.0 (Linux CI containers) produced; #if BC29PLUS where 29.0 differs.
 // BC versions: 27, 28, 29
 
 dotnet
@@ -49,7 +50,7 @@ codeunit 99394 "LT Y51 Blob Stream Position"
         TempBlob.CreateInStream(InS);
     end;
 
-    // The rest of the stream read byte by byte: the bytes as characters and their count.
+    // The rest of the stream read byte by byte: the bytes as characters (<n> outside 32..126) and their count.
     local procedure Rest(var InS: InStream): Text
     var
         B: Byte;
@@ -60,7 +61,10 @@ codeunit 99394 "LT Y51 Blob Stream Position"
         while not InS.EOS() do begin
             InS.Read(B);
             C := B;
-            Result += Format(C);
+            if (B < 32) or (B > 126) then
+                Result += '<' + Format(B) + '>'
+            else
+                Result += Format(C);
             N += 1;
         end;
         exit(Result + '|' + Format(N));
@@ -85,7 +89,12 @@ codeunit 99394 "LT Y51 Blob Stream Position"
         Observer.Observe('pos_after_set', Format(S.Position));
         Observer.Observe('eos_after_set', Format(InS.EOS()));
         Observer.Observe('rest_after_set', Rest(InS));
-        Observer.Finish();
+        Observer.Expect('bytes_read', 'a,b');
+        Observer.Expect('pos_after_read', '2');
+        Observer.Expect('pos_after_set', '0');
+        Observer.Expect('eos_after_set', 'No');
+        Observer.Expect('rest_after_set', 'cdef|4');
+        Observer.Verify();
     end;
 
     local procedure Probe(InputInStream: InStream): Boolean
@@ -127,7 +136,16 @@ codeunit 99394 "LT Y51 Blob Stream Position"
         FillBytes(TempBlob3, InS3);
         Observer.Observe('probe_gzip', Format(Probe(InS3)));
         Observer.Observe('rest_gzip', Rest(InS3));
-        Observer.Finish();
+        Observer.Expect('probe_1', 'No');
+        Observer.Expect('eos_1', 'No');
+        Observer.Expect('rest_1', 'abcdef|6');
+        Observer.Expect('probe_2a', 'No');
+        Observer.Expect('probe_2b', 'No');
+        Observer.Expect('eos_2', 'No');
+        Observer.Expect('rest_2', 'abcdef|6');
+        Observer.Expect('probe_gzip', 'Yes');
+        Observer.Expect('rest_gzip', '<31><139>AB|4');
+        Observer.Verify();
     end;
 
     [Test]
@@ -152,7 +170,9 @@ codeunit 99394 "LT Y51 Blob Stream Position"
         S.Position := 3;
         InS2 := S;
         Observer.Observe('rest_pos3', Rest(InS2));
-        Observer.Finish();
+        Observer.Expect('rest_pos0', 'abcdef|6');
+        Observer.Expect('rest_pos3', 'abcdef|6');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -187,6 +207,11 @@ codeunit 99394 "LT Y51 Blob Stream Position"
             Observer.ObserveError('set_100');
         Observer.Observe('eos_100', Format(InS2.EOS()));
         Observer.Observe('rest_100', Rest(InS2));
-        Observer.Finish();
+        Observer.Expect('set_minus1', 'ok|-1');
+        Observer.Expect('rest_minus1', 'abcdef|6');
+        Observer.Expect('set_100', 'ok|100');
+        Observer.Expect('eos_100', 'No');
+        Observer.Expect('rest_100', 'abcdef|6');
+        Observer.Verify();
     end;
 }

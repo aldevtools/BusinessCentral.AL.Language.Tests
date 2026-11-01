@@ -7,6 +7,7 @@
 //        dictionary handed out through a var parameter. Each member call that may fail runs in a TryFunction.
 //        Already pinned nearby: lt-y17-dotnet-dictionary/Y17DotNetDictionary.al (capacity constructor, Integer keys, Text values),
 //        lt-qx-dotnet/QxDotNetDemoShapes.al (parameterless constructor, never filled).
+// Values: every literal asserted is what BC 27.5, 28.5 and 29.0 (Linux CI containers) produced; #if BC29PLUS where 29.0 differs.
 // BC versions: 27, 28, 29
 
 dotnet
@@ -86,7 +87,21 @@ codeunit 99392 "LT Y51 DotNet Dict NoCap"
         else
             Observer.ObserveError('dup_add');
         Observer.Observe('count_after_dup', Format(D.Count));
-        Observer.Finish();
+        Observer.Expect('isnull_before', 'Yes');
+        Observer.Expect('isnull_after', 'No');
+        Observer.Expect('contains_empty', 'No');
+        Observer.Expect('add_1', 'ok');
+        Observer.Expect('contains_name', 'Yes');
+        Observer.Expect('contains_NAME', 'No');
+        Observer.Expect('contains_name_space', 'No');
+        Observer.Expect('count_1', '1');
+        Observer.Expect('item_name', 'v1');
+        Observer.Expect('item_NAME|text', 'A call to System.Collections.Generic.Dictionary`2[System.Object,System.Object].Item failed with this message: The given key ''NAME'' was not present in the dictionary.');
+        Observer.Expect('item_NAME|code', 'DotNetInvoke:KeyNotFound');
+        Observer.Expect('dup_add|text', 'A call to System.Collections.Generic.Dictionary`2[System.Object,System.Object].Add failed with this message: An item with the same key has already been added. Key: Name');
+        Observer.Expect('dup_add|code', 'DotNetInvoke:Argument');
+        Observer.Expect('count_after_dup', '1');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -163,7 +178,18 @@ codeunit 99392 "LT Y51 DotNet Dict NoCap"
         else
             Observer.ObserveError('remove_a_2');
         Observer.Observe('count_end', Format(D.Count));
-        Observer.Finish();
+        Observer.Expect('add_b', 'ok');
+        Observer.Expect('add_a', 'ok');
+        Observer.Expect('tryget_a', 'Yes');
+        Observer.Expect('tryget_a_value', 'node1');
+        Observer.Expect('tryget_a_value_after_append', 'node1+');
+        Observer.Expect('tryget_z', 'No');
+        Observer.Expect('tryget_z_isnull', 'Yes');
+        Observer.Expect('values_walk', 'node2;node1+;');
+        Observer.Expect('remove_a_1', 'Yes');
+        Observer.Expect('remove_a_2', 'No');
+        Observer.Expect('count_end', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -185,7 +211,10 @@ codeunit 99392 "LT Y51 DotNet Dict NoCap"
         foreach Kvp in D do
             Walk += Format(Kvp.Key) + '=' + Format(Kvp.Value) + ';';
         Observer.Observe('walk', Walk);
-        Observer.Finish();
+        Observer.Expect('count', '2');
+        Observer.Expect('item_5', 'view5');
+        Observer.Expect('walk', '18=view18;5=view5;');
+        Observer.Verify();
     end;
 
     local procedure GetDict(var Out: DotNet LtY51DnDict; D: DotNet LtY51DnDict)
@@ -206,6 +235,9 @@ codeunit 99392 "LT Y51 DotNet Dict NoCap"
         Observer.Observe('byvar_count', Format(D.Count));
         Observer.Observe('byvar_out_count', Format(Out.Count));
         Observer.Observe('byvar_contains_k2', Format(D.ContainsKey('k2')));
-        Observer.Finish();
+        Observer.Expect('byvar_count', '2');
+        Observer.Expect('byvar_out_count', '2');
+        Observer.Expect('byvar_contains_k2', 'Yes');
+        Observer.Verify();
     end;
 }
