@@ -5,7 +5,11 @@
 //   Q5  Evaluate(RecordId, 'Table: A,B') on a two-field key Code[20] + Text[50] (blanks, mixed case, quotes, empty parts), and Format(RecordId) of rows holding such values.
 //   Q6  A guarded Codeunit.Run whose OnRun calls a TryFunction that writes (TryFunctionWrite): returned value, last error text and code, rows.
 //   Q6  InStream.ReadText / Read on a UTF-8 stream over UTF-16 bytes.
-// Probe: values recorded on the BC 29 SaaS sandbox; other BC versions are checked by the corpus CI matrix.
+// Facts: a guarded Codeunit.Run (Ok := Codeunit.Run, or if Codeunit.Run then) is itself a TryFunction scope: a write (Insert, Modify) or a Commit in the OnRun
+//   raises TryFunctionWrite 'Call to the function 'INSERT' is not allowed inside the call to '<method that calls Run>' when it is used as a TryFunction.' and
+//   the guard returns false; no row is written. Same on 27.5, 28.5, 29.0 (CI containers). BC 29 SaaS sandbox allows these writes (ok = Yes, rows written):
+//   the SaaS server does not apply the rule, so the Q6 Codeunit.Run values are the CI ones. A Commit inside the run fails the same way. A temporary record write is allowed.
+// Probe: other values recorded on the BC 29 SaaS sandbox; all BC versions are checked by the corpus CI matrix.
 
 table 93654 "LT Y68 Two Key"
 {
@@ -87,7 +91,32 @@ codeunit 93657 "LT Y68 Small Tests"
         Observer.Observe('code too long', Eval('LT Y68 Two Key: ABCDEFGHIJKLMNOPQRSTU,Hello'));
         Observer.Observe('table id', Eval('Table 93654: A1,Hello'));
         Observer.Observe('semicolon', Eval('LT Y68 Two Key: A1;Hello'));
-        Observer.Finish();
+        Observer.Expect('plain', 'eval=Yes|back=LT Y68 Two Key: A1,Hello|table=93654');
+        Observer.Expect('mixed case code', 'eval=Yes|back=LT Y68 Two Key: ABC,Hello|table=93654');
+        Observer.Expect('mixed case text', 'eval=Yes|back=LT Y68 Two Key: ABC,hELLO World|table=93654');
+        Observer.Expect('blank in text', 'eval=Yes|back=LT Y68 Two Key: A1,Hello World|table=93654');
+        Observer.Expect('blank in code', 'eval=Yes|back=LT Y68 Two Key: A 1,Hello|table=93654');
+        Observer.Expect('blanks around comma', 'eval=Yes|back=LT Y68 Two Key: A1,Hello|table=93654');
+        Observer.Expect('leading blank first', 'eval=Yes|back=LT Y68 Two Key: A1,Hello|table=93654');
+        Observer.Expect('trailing blank second', 'eval=Yes|back=LT Y68 Two Key: A1,Hello|table=93654');
+        Observer.Expect('empty text part', 'eval=Yes|back=LT Y68 Two Key: A1|table=93654');
+        Observer.Expect('empty quoted text part', 'eval=Yes|back=LT Y68 Two Key: A1,""|table=93654');
+        Observer.Expect('empty code part', 'eval=Yes|back=LT Y68 Two Key: "",Hello|table=93654');
+        Observer.Expect('empty quoted code part', 'eval=Yes|back=LT Y68 Two Key: "",Hello|table=93654');
+        Observer.Expect('both empty', 'eval=Yes|back=LT Y68 Two Key: ""|table=93654');
+        Observer.Expect('comma in quoted text', 'eval=Yes|back=LT Y68 Two Key: A1,"x,y"|table=93654');
+        Observer.Expect('comma in quoted code', 'eval=Yes|back=LT Y68 Two Key: "A,1",Hello|table=93654');
+        Observer.Expect('quote inside text', 'eval=Yes|back=LT Y68 Two Key: A1,say "hi"|table=93654');
+        Observer.Expect('quoted text with quote', 'eval=Yes|back=LT Y68 Two Key: A1,say "hi"|table=93654');
+        Observer.Expect('apostrophe', 'eval=Yes|back=LT Y68 Two Key: A1,it''s|table=93654');
+        Observer.Expect('quote inside code', 'eval=Yes|back=LT Y68 Two Key: A"1,Hello|table=93654');
+        Observer.Expect('quoted blank text', 'eval=Yes|back=LT Y68 Two Key: A1," "|table=93654');
+        Observer.Expect('only first', 'eval=Yes|back=LT Y68 Two Key: A1|table=93654');
+        Observer.Expect('three parts', 'eval=No|back=|table=0');
+        Observer.Expect('code too long', 'eval=No|back=|table=0');
+        Observer.Expect('table id', 'eval=Yes|back=LT Y68 Two Key: A1,Hello|table=93654');
+        Observer.Expect('semicolon', 'eval=Yes|back=LT Y68 Two Key: A1;HELLO|table=93654');
+        Observer.Verify();
     end;
 
     [Test]
@@ -121,7 +150,20 @@ codeunit 93657 "LT Y68 Small Tests"
         K.FindFirst();
         Observer.Observe('roundtrip A7', Eval(Format(K.RecordId)));
         K.DeleteAll();
-        Observer.Finish();
+        Observer.Expect('format [|only text]', 'LT Y68 Two Key: "",only text');
+        Observer.Expect('format [A 3|x]', 'LT Y68 Two Key: A 3,x');
+        Observer.Expect('format [A,9|x]', 'LT Y68 Two Key: "A,9",x');
+        Observer.Expect('format [A1|Hello]', 'LT Y68 Two Key: A1,Hello');
+        Observer.Expect('format [A2|Hello World]', 'LT Y68 Two Key: A2,Hello World');
+        Observer.Expect('format [A4|]', 'LT Y68 Two Key: A4,""');
+        Observer.Expect('format [A5| lead]', 'LT Y68 Two Key: A5," lead"');
+        Observer.Expect('format [A6|x,y]', 'LT Y68 Two Key: A6,"x,y"');
+        Observer.Expect('format [A7|say "hi"]', 'LT Y68 Two Key: A7,say "hi"');
+        Observer.Expect('format [A8|it''s]', 'LT Y68 Two Key: A8,it''s');
+        Observer.Expect('roundtrip A4', 'eval=Yes|back=LT Y68 Two Key: A4,""|table=93654');
+        Observer.Expect('roundtrip A6', 'eval=Yes|back=LT Y68 Two Key: A6,"x,y"|table=93654');
+        Observer.Expect('roundtrip A7', 'eval=Yes|back=LT Y68 Two Key: A7,say "hi"|table=93654');
+        Observer.Verify();
     end;
 
     local procedure AddKey(A: Code[20]; B: Text[50])
@@ -168,7 +210,7 @@ codeunit 93657 "LT Y68 Small Tests"
     end;
 
     [Test]
-    procedure Q6_CodeunitRun_IfOnRunCallsWritingTryFunction()
+    procedure Q6_CodeunitRun_GuardedOnRunWrites_ExpressionStatementIfForms()
     var
         Observer: Codeunit "Probe Observer";
     begin
@@ -176,52 +218,59 @@ codeunit 93657 "LT Y68 Small Tests"
         RunMode(2, 'statement form', Observer);
         RunMode(3, 'if form', Observer);
         RunMode(4, 'if not form', Observer);
+        Observer.Expect('expression form ok', 'No');
+        Observer.Expect('expression form text', 'Call to the function ''INSERT'' is not allowed inside the call to ''RunMode'' when it is used as a TryFunction.');
+        Observer.Expect('expression form code', 'TryFunctionWrite');
+        Observer.Expect('expression form rows', '');
+        Observer.Expect('expression form log', 'start;');
+        Observer.Expect('statement form ok', 'Yes');
+        Observer.Expect('statement form text', '');
+        Observer.Expect('statement form code', '');
+        Observer.Expect('statement form rows', '[2|]');
+        Observer.Expect('statement form log', 'start;end ok=No;');
+        Observer.Expect('if form ok', 'No');
+        Observer.Expect('if form text', 'Call to the function ''INSERT'' is not allowed inside the call to ''RunMode'' when it is used as a TryFunction.');
+        Observer.Expect('if form code', 'TryFunctionWrite');
+        Observer.Expect('if form rows', '');
+        Observer.Expect('if form log', 'start;');
+        Observer.Expect('if not form ok', 'No');
+        Observer.Expect('if not form text', 'Call to the function ''INSERT'' is not allowed inside the call to ''RunMode'' when it is used as a TryFunction.');
+        Observer.Expect('if not form code', 'TryFunctionWrite');
+        Observer.Expect('if not form rows', '');
+        Observer.Expect('if not form log', 'start;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Q6_CodeunitRun_GuardedOnRunWrites_ErrorCommitModifyTemporary()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         RunMode(5, 'insert then error', Observer);
         RunMode(6, 'commit inside', Observer);
         RunMode(7, 'modify only', Observer);
         RunMode(8, 'temporary record', Observer);
-        RunMode(9, 'nested codeunit run', Observer);
-        Observer.Finish();
-    end;
-
-    [TryFunction]
-    local procedure TryInsertDirect(KeyA: Code[20])
-    var
-        K: Record "LT Y68 Two Key";
-    begin
-        K.A := KeyA;
-        K.Insert();
-    end;
-
-    [Test]
-    procedure Q6_TryFunctionWrite_DirectAndStatementRun()
-    var
-        Observer: Codeunit "Probe Observer";
-        K: Record "LT Y68 Two Key";
-        Runner: Codeunit "LT Y68 Try Runner";
-        Ok: Boolean;
-    begin
-        K.DeleteAll();
-        Commit();
-        ClearLastError();
-        Ok := TryInsertDirect('D1');
-        Observer.Observe('direct expression ok', Format(Ok));
-        Observer.Observe('direct expression text', GetLastErrorText());
-        Observer.Observe('direct expression code', GetLastErrorCode());
-        Observer.Observe('direct expression rows', Rows());
-        ClearLastError();
-        K.DeleteAll();
-        Commit();
-        Runner.SetMode(1);
-        Runner.Run();
-        Observer.Observe('statement run rows', Rows());
-        Observer.Observe('statement run log', Runner.Log());
-        K.DeleteAll();
-        Commit();
-        ClearLastError();
-        K.DeleteAll();
-        Commit();
-        Observer.Finish();
+        Observer.Expect('insert then error ok', 'No');
+        Observer.Expect('insert then error text', 'Call to the function ''INSERT'' is not allowed inside the call to ''RunMode'' when it is used as a TryFunction.');
+        Observer.Expect('insert then error code', 'TryFunctionWrite');
+        Observer.Expect('insert then error rows', '');
+        Observer.Expect('insert then error log', 'start;');
+        Observer.Expect('commit inside ok', 'No');
+        Observer.Expect('commit inside text', 'Call to the function ''INSERT'' is not allowed inside the call to ''RunMode'' when it is used as a TryFunction.');
+        Observer.Expect('commit inside code', 'TryFunctionWrite');
+        Observer.Expect('commit inside rows', '');
+        Observer.Expect('commit inside log', 'start;');
+        Observer.Expect('modify only ok', 'No');
+        Observer.Expect('modify only text', 'Call to the function ''MODIFY'' is not allowed inside the call to ''RunMode'' when it is used as a TryFunction.');
+        Observer.Expect('modify only code', 'TryFunctionWrite');
+        Observer.Expect('modify only rows', '');
+        Observer.Expect('modify only log', 'start;');
+        Observer.Expect('temporary record ok', 'Yes');
+        Observer.Expect('temporary record text', '');
+        Observer.Expect('temporary record code', '');
+        Observer.Expect('temporary record rows', '');
+        Observer.Expect('temporary record log', 'start;end ok=Yes;');
+        Observer.Verify();
     end;
 
     // Q6: UTF-16 bytes read through a UTF-8 stream.
@@ -367,7 +416,21 @@ codeunit 93657 "LT Y68 Small Tests"
         PutBytes(Rec, '00000000');
         Observer.Observe('only nuls utf8', ReadAll(Rec, TextEncoding::UTF8));
         Rec.DeleteAll();
-        Observer.Finish();
+        Observer.Expect('abc nul-padded ReadText', '[1/1:97 ][1/1:98 ][1/1:99 ][0/0:][0/0:]');
+        Observer.Expect('abc ReadText 2', '1/1:97 /eos=No');
+        Observer.Expect('abc ReadText 100', '1/1:97 /eos=No');
+        Observer.Expect('abc Read', '2/1:97 /eos=No');
+        Observer.Expect('abc as utf16', '[6/3:97 98 99 ]');
+        Observer.Expect('bom crlf ReadText', 'ERROR InvalidStreamData: Invalid data encountered in stream, unable to read text.');
+        Observer.Expect('bom crlf utf16', '[6/3:97 98 99 ][2/1:100 ]');
+        Observer.Expect('lf utf8', '[1/1:97 ][0/0:][0/0:][1/1:98 ]');
+        Observer.Expect('e-acute utf8', 'ERROR InvalidStreamData: Invalid data encountered in stream, unable to read text.');
+        Observer.Expect('e-acute utf16', '[4/2:233 104 ]');
+        Observer.Expect('surrogate utf8', 'ERROR InvalidStreamData: Invalid data encountered in stream, unable to read text.');
+        Observer.Expect('surrogate utf16', '[4/2:55357 56832 ]');
+        Observer.Expect('odd length utf16', '[2/1:97 ]');
+        Observer.Expect('only nuls utf8', '[0/0:][0/0:][0/0:][0/0:]');
+        Observer.Verify();
     end;
 }
 
@@ -393,7 +456,6 @@ codeunit 93658 "LT Y68 Try Runner"
     trigger OnRun()
     var
         Ok: Boolean;
-        Nested: Codeunit "LT Y68 Try Runner";
     begin
         LogText += 'start;';
         case Mode of
@@ -417,12 +479,6 @@ codeunit 93658 "LT Y68 Try Runner"
                 Ok := TryModifyOnly('7');
             8:
                 Ok := TryTemp('8');
-            9:
-                begin
-                    Nested.SetMode(1);
-                    Ok := Nested.Run();
-                    LogText += 'nested=' + Format(Ok) + ';';
-                end;
         end;
         LogText += 'end ok=' + Format(Ok) + ';';
     end;

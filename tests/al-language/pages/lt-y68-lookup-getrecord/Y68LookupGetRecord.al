@@ -262,7 +262,11 @@ codeunit 93664 "LT Y68 Pg Tests"
         NoRowView(Item);
         Ok := TryRunRo(Item, Cur, A);
         Result(Observer, 'ro lookupok', Ok, A, Cur);
-        Observer.Finish();
+        Observer.Expect('ro lookupok ok', 'Yes');
+        Observer.Expect('ro lookupok action', 'LookupOK');
+        Observer.Expect('ro lookupok cur', 'no=[] name=[] rank=0 found=No count=3');
+        Observer.Expect('ro lookupok log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -279,7 +283,11 @@ codeunit 93664 "LT Y68 Pg Tests"
         NoRowView(Item);
         Ok := TryRunRo(Item, Cur, A);
         Result(Observer, 'ro lookupcancel', Ok, A, Cur);
-        Observer.Finish();
+        Observer.Expect('ro lookupcancel ok', 'Yes');
+        Observer.Expect('ro lookupcancel action', 'LookupCancel');
+        Observer.Expect('ro lookupcancel cur', 'no=[] name=[] rank=0 found=No count=3');
+        Observer.Expect('ro lookupcancel log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -296,7 +304,11 @@ codeunit 93664 "LT Y68 Pg Tests"
         NoRowView(Item);
         Ok := TryRunEdit(Item, Cur, A);
         Result(Observer, 'edit lookupok', Ok, A, Cur);
-        Observer.Finish();
+        Observer.Expect('edit lookupok ok', 'Yes');
+        Observer.Expect('edit lookupok action', 'LookupOK');
+        Observer.Expect('edit lookupok cur', 'no=[] name=[] rank=0 found=No count=3');
+        Observer.Expect('edit lookupok log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -313,7 +325,11 @@ codeunit 93664 "LT Y68 Pg Tests"
         NoRowView(Item);
         Ok := TryRunCard(Item, Cur, A);
         Result(Observer, 'card lookupok', Ok, A, Cur);
-        Observer.Finish();
+        Observer.Expect('card lookupok ok', 'Yes');
+        Observer.Expect('card lookupok action', 'LookupOK');
+        Observer.Expect('card lookupok cur', 'no=[] name=[] rank=0 found=No count=3');
+        Observer.Expect('card lookupok log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -330,7 +346,11 @@ codeunit 93664 "LT Y68 Pg Tests"
         Item.SetRange(Rank, 1);
         Ok := TryRunRo(Item, Cur, A);
         Result(Observer, 'ro rows in view', Ok, A, Cur);
-        Observer.Finish();
+        Observer.Expect('ro rows in view ok', 'Yes');
+        Observer.Expect('ro rows in view action', 'LookupOK');
+        Observer.Expect('ro rows in view cur', 'no=[] name=[] rank=0 found=No count=3');
+        Observer.Expect('ro rows in view log', '');
+        Observer.Verify();
     end;
 
     // TestPage-typed handlers: OK / LookupOK without selecting a row.
@@ -372,7 +392,11 @@ codeunit 93664 "LT Y68 Pg Tests"
         NoRowView(Item);
         Ok := TryRunRo(Item, Cur, A);
         Result(Observer, 'ro tp ok', Ok, A, Cur);
-        Observer.Finish();
+        Observer.Expect('ro tp ok ok', 'No');
+        Observer.Expect('ro tp ok error', 'The built-in action = OK is not found on the page.');
+        Observer.Expect('ro tp ok code', 'TestActionNotFound');
+        Observer.Expect('ro tp ok log', 'open RO;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -389,7 +413,11 @@ codeunit 93664 "LT Y68 Pg Tests"
         NoRowView(Item);
         Ok := TryRunEdit(Item, Cur, A);
         Result(Observer, 'edit tp ok', Ok, A, Cur);
-        Observer.Finish();
+        Observer.Expect('edit tp ok ok', 'No');
+        Observer.Expect('edit tp ok error', 'The built-in action = OK is not found on the page.');
+        Observer.Expect('edit tp ok code', 'TestActionNotFound');
+        Observer.Expect('edit tp ok log', 'open Edit;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -406,7 +434,11 @@ codeunit 93664 "LT Y68 Pg Tests"
         NoRowView(Item);
         Ok := TryRunCard(Item, Cur, A);
         Result(Observer, 'card tp ok', Ok, A, Cur);
-        Observer.Finish();
+        Observer.Expect('card tp ok ok', 'No');
+        Observer.Expect('card tp ok error', 'The built-in action = OK is not found on the page.');
+        Observer.Expect('card tp ok code', 'TestActionNotFound');
+        Observer.Expect('card tp ok log', 'open Card;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -423,7 +455,11 @@ codeunit 93664 "LT Y68 Pg Tests"
         NoRowView(Item);
         Ok := TryRunRo(Item, Cur, A);
         Result(Observer, 'ro tp cancel', Ok, A, Cur);
-        Observer.Finish();
+        Observer.Expect('ro tp cancel ok', 'Yes');
+        Observer.Expect('ro tp cancel action', 'LookupCancel');
+        Observer.Expect('ro tp cancel cur', 'no=[ZZ] name=[] rank=0 found=No count=3');
+        Observer.Expect('ro tp cancel log', 'open RO;');
+        Observer.Verify();
     end;
 
     // Q6: Page.RunModal(Id, Rec) of a lookup page after the selected row left the view while the page was open.
@@ -464,12 +500,6 @@ codeunit 93664 "LT Y68 Pg Tests"
         TP.OK().Invoke();
     end;
 
-    [TryFunction]
-    local procedure TryRunStatic(var Item: Record "LT Y68 Pg Item"; var A: Action)
-    begin
-        A := Page.RunModal(Page::"LT Y68 Pg List RO", Item);
-    end;
-
     local procedure LeaveCase(var Observer: Codeunit "Probe Observer"; Name: Text; NewMode: Integer)
     var
         Item: Record "LT Y68 Pg Item";
@@ -479,7 +509,8 @@ codeunit 93664 "LT Y68 Pg Tests"
         Seed();
         Mode := NewMode;
         Item.SetRange(Rank, 1);
-        Ok := TryRunStatic(Item, A);
+        A := Page.RunModal(Page::"LT Y68 Pg List RO", Item);
+        Ok := true;
         Observer.Observe(Name + ' ok', Format(Ok));
         if Ok then
             Observer.Observe(Name + ' action', Format(A))
@@ -499,7 +530,11 @@ codeunit 93664 "LT Y68 Pg Tests"
         Observer: Codeunit "Probe Observer";
     begin
         LeaveCase(Observer, 'left view', 1);
-        Observer.Finish();
+        Observer.Expect('left view ok', 'Yes');
+        Observer.Expect('left view action', 'LookupOK');
+        Observer.Expect('left view rec', 'no=[A] name=[alpha] rank=1 filter=[1]');
+        Observer.Expect('left view log', 'open RO;first=Yes no=A;modified A;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -509,7 +544,11 @@ codeunit 93664 "LT Y68 Pg Tests"
         Observer: Codeunit "Probe Observer";
     begin
         LeaveCase(Observer, 'deleted', 2);
-        Observer.Finish();
+        Observer.Expect('deleted ok', 'Yes');
+        Observer.Expect('deleted action', 'LookupOK');
+        Observer.Expect('deleted rec', 'no=[A] name=[alpha] rank=1 filter=[1]');
+        Observer.Expect('deleted log', 'open RO;first=Yes no=A;deleted A;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -519,7 +558,11 @@ codeunit 93664 "LT Y68 Pg Tests"
         Observer: Codeunit "Probe Observer";
     begin
         LeaveCase(Observer, 'renamed', 3);
-        Observer.Finish();
+        Observer.Expect('renamed ok', 'Yes');
+        Observer.Expect('renamed action', 'LookupOK');
+        Observer.Expect('renamed rec', 'no=[A] name=[alpha] rank=1 filter=[1]');
+        Observer.Expect('renamed log', 'open RO;first=Yes no=A;renamed A;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -529,7 +572,11 @@ codeunit 93664 "LT Y68 Pg Tests"
         Observer: Codeunit "Probe Observer";
     begin
         LeaveCase(Observer, 'key renamed', 4);
-        Observer.Finish();
+        Observer.Expect('key renamed ok', 'Yes');
+        Observer.Expect('key renamed action', 'LookupOK');
+        Observer.Expect('key renamed rec', 'no=[A] name=[alpha] rank=1 filter=[1]');
+        Observer.Expect('key renamed log', 'open RO;first=Yes no=A;renamed key A to Z;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -539,6 +586,10 @@ codeunit 93664 "LT Y68 Pg Tests"
         Observer: Codeunit "Probe Observer";
     begin
         LeaveCase(Observer, 'unchanged', 0);
-        Observer.Finish();
+        Observer.Expect('unchanged ok', 'Yes');
+        Observer.Expect('unchanged action', 'LookupOK');
+        Observer.Expect('unchanged rec', 'no=[A] name=[alpha] rank=1 filter=[1]');
+        Observer.Expect('unchanged log', 'open RO;first=Yes no=A;');
+        Observer.Verify();
     end;
 }

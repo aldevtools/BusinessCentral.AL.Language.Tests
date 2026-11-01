@@ -271,7 +271,21 @@ codeunit 93660 "LT Y68 SC Tests"
         RunCase(Observer, 'time', Report::"LT Y68 SC Rpt", Xml1('<Field name="TimeVal" />'), 1);
         RunCase(Observer, 'datetime', Report::"LT Y68 SC Rpt", Xml1('<Field name="DtVal" />'), 1);
         RunCase(Observer, 'all five', Report::"LT Y68 SC Rpt", Xml1('<Field name="TxtVal" /><Field name="CodeVal" /><Field name="DateVal" /><Field name="TimeVal" /><Field name="DtVal" />'), 1);
-        Observer.Finish();
+        Observer.Expect('baseline no fields ok', 'Yes');
+        Observer.Expect('baseline no fields log', 'pre t=[tinit] c=[CINIT] d=[2024-01-15] tm=[10:15:00] dt=[2024-03-02T08:09:10Z] i=7 dc=2.5 b=Yes o=Gamma e=Second bg=99;');
+        Observer.Expect('text ok', 'Yes');
+        Observer.Expect('text log', 'pre t=[] c=[CINIT] d=[2024-01-15] tm=[10:15:00] dt=[2024-03-02T08:09:10Z] i=7 dc=2.5 b=Yes o=Gamma e=Second bg=99;');
+        Observer.Expect('code ok', 'Yes');
+        Observer.Expect('code log', 'pre t=[tinit] c=[] d=[2024-01-15] tm=[10:15:00] dt=[2024-03-02T08:09:10Z] i=7 dc=2.5 b=Yes o=Gamma e=Second bg=99;');
+        Observer.Expect('date ok', 'Yes');
+        Observer.Expect('date log', 'pre t=[tinit] c=[CINIT] d=[] tm=[10:15:00] dt=[2024-03-02T08:09:10Z] i=7 dc=2.5 b=Yes o=Gamma e=Second bg=99;');
+        Observer.Expect('time ok', 'Yes');
+        Observer.Expect('time log', 'pre t=[tinit] c=[CINIT] d=[2024-01-15] tm=[] dt=[2024-03-02T08:09:10Z] i=7 dc=2.5 b=Yes o=Gamma e=Second bg=99;');
+        Observer.Expect('datetime ok', 'Yes');
+        Observer.Expect('datetime log', 'pre t=[tinit] c=[CINIT] d=[2024-01-15] tm=[10:15:00] dt=[] i=7 dc=2.5 b=Yes o=Gamma e=Second bg=99;');
+        Observer.Expect('all five ok', 'Yes');
+        Observer.Expect('all five log', 'pre t=[] c=[] d=[] tm=[] dt=[] i=7 dc=2.5 b=Yes o=Gamma e=Second bg=99;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -285,7 +299,19 @@ codeunit 93660 "LT Y68 SC Tests"
         RunCase(Observer, 'option', Report::"LT Y68 SC Rpt", Xml1('<Field name="OptVal" />'), 1);
         RunCase(Observer, 'enum', Report::"LT Y68 SC Rpt", Xml1('<Field name="EnumVal" />'), 1);
         RunCase(Observer, 'biginteger', Report::"LT Y68 SC Rpt", Xml1('<Field name="BigVal" />'), 1);
-        Observer.Finish();
+        Observer.Expect('integer ok', 'Yes');
+        Observer.Expect('integer log', 'pre t=[tinit] c=[CINIT] d=[2024-01-15] tm=[10:15:00] dt=[2024-03-02T08:09:10Z] i=0 dc=2.5 b=Yes o=Gamma e=Second bg=99;');
+        Observer.Expect('decimal ok', 'Yes');
+        Observer.Expect('decimal log', 'pre t=[tinit] c=[CINIT] d=[2024-01-15] tm=[10:15:00] dt=[2024-03-02T08:09:10Z] i=7 dc=0 b=Yes o=Gamma e=Second bg=99;');
+        Observer.Expect('boolean ok', 'Yes');
+        Observer.Expect('boolean log', 'pre t=[tinit] c=[CINIT] d=[2024-01-15] tm=[10:15:00] dt=[2024-03-02T08:09:10Z] i=7 dc=2.5 b=No o=Gamma e=Second bg=99;');
+        Observer.Expect('option ok', 'Yes');
+        Observer.Expect('option log', 'pre t=[tinit] c=[CINIT] d=[2024-01-15] tm=[10:15:00] dt=[2024-03-02T08:09:10Z] i=7 dc=2.5 b=Yes o=Alpha e=Second bg=99;');
+        Observer.Expect('enum ok', 'Yes');
+        Observer.Expect('enum log', 'pre t=[tinit] c=[CINIT] d=[2024-01-15] tm=[10:15:00] dt=[2024-03-02T08:09:10Z] i=7 dc=2.5 b=Yes o=Gamma e=First bg=99;');
+        Observer.Expect('biginteger ok', 'Yes');
+        Observer.Expect('biginteger log', 'pre t=[tinit] c=[CINIT] d=[2024-01-15] tm=[10:15:00] dt=[2024-03-02T08:09:10Z] i=7 dc=2.5 b=Yes o=Gamma e=Second bg=0;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -300,7 +326,19 @@ codeunit 93660 "LT Y68 SC Tests"
             Xml1('<Field name="TxtVal">given</Field><Field name="CodeVal" /><Field name="DateVal">2024-05-06</Field><Field name="TimeVal" /><Field name="DtVal" /><Field name="IntVal">5</Field>'), 1);
         RunCase(Observer, 'empty first then filled', Report::"LT Y68 SC Rpt", Xml1('<Field name="TxtVal" /><Field name="CodeVal">xyz</Field>'), 1);
         RunCase(Observer, 'filled then empty last', Report::"LT Y68 SC Rpt", Xml1('<Field name="CodeVal">xyz</Field><Field name="TxtVal" />'), 1);
-        Observer.Finish();
+        Observer.Expect('end tag text ok', 'Yes');
+        Observer.Expect('end tag text log', 'pre t=[] c=[CINIT] d=[2024-01-15] tm=[10:15:00] dt=[2024-03-02T08:09:10Z] i=7 dc=2.5 b=Yes o=Gamma e=Second bg=99;');
+        Observer.Expect('end tag date ok', 'Yes');
+        Observer.Expect('end tag date log', 'pre t=[tinit] c=[CINIT] d=[] tm=[10:15:00] dt=[2024-03-02T08:09:10Z] i=7 dc=2.5 b=Yes o=Gamma e=Second bg=99;');
+        Observer.Expect('end tag integer ok', 'Yes');
+        Observer.Expect('end tag integer log', 'pre t=[tinit] c=[CINIT] d=[2024-01-15] tm=[10:15:00] dt=[2024-03-02T08:09:10Z] i=0 dc=2.5 b=Yes o=Gamma e=Second bg=99;');
+        Observer.Expect('mixed filled and empty ok', 'Yes');
+        Observer.Expect('mixed filled and empty log', 'pre t=[given] c=[] d=[2024-05-06] tm=[] dt=[] i=5 dc=2.5 b=Yes o=Gamma e=Second bg=99;');
+        Observer.Expect('empty first then filled ok', 'Yes');
+        Observer.Expect('empty first then filled log', 'pre t=[] c=[XYZ] d=[2024-01-15] tm=[10:15:00] dt=[2024-03-02T08:09:10Z] i=7 dc=2.5 b=Yes o=Gamma e=Second bg=99;');
+        Observer.Expect('filled then empty last ok', 'Yes');
+        Observer.Expect('filled then empty last log', 'pre t=[] c=[XYZ] d=[2024-01-15] tm=[10:15:00] dt=[2024-03-02T08:09:10Z] i=7 dc=2.5 b=Yes o=Gamma e=Second bg=99;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -313,7 +351,22 @@ codeunit 93660 "LT Y68 SC Tests"
                 '<Field name="IntVal">-3</Field><Field name="DecVal">0.75</Field><Field name="BoolVal">false</Field><Field name="OptVal">1</Field><Field name="EnumVal">0</Field><Field name="BigVal">5000000000</Field>'), 1);
         RunCase(Observer, 'filled by name', Report::"LT Y68 SC Rpt", Xml1('<Field name="OptVal">Beta</Field><Field name="EnumVal">Second</Field><Field name="BoolVal">Yes</Field>'), 1);
         RunCase(Observer, 'filled bad int', Report::"LT Y68 SC Rpt", Xml1('<Field name="IntVal">abc</Field>'), 1);
-        Observer.Finish();
+        Observer.Expect('filled all ok', 'Yes');
+        Observer.Expect('filled all log', 'pre t=[a b] c=[XY] d=[2025-12-31] tm=[23:59:58] dt=[2025-12-31T23:59:58Z] i=-3 dc=0.75 b=No o=Beta e=First bg=5000000000;');
+        Observer.Expect('filled by name ok', 'No');
+#if BC28PLUS
+        Observer.Expect('filled by name error', 'The value "Beta" can''t be evaluated into type Option.');
+        Observer.Expect('filled by name code', 'Evaluate:Format');
+#else
+        Observer.Expect('filled by name error', 'The type NavOption is unknown.');
+        Observer.Expect('filled by name code', 'NotSupportedType');
+#endif
+        Observer.Expect('filled by name log', '');
+        Observer.Expect('filled bad int ok', 'No');
+        Observer.Expect('filled bad int error', 'NavType');
+        Observer.Expect('filled bad int code', 'Argument');
+        Observer.Expect('filled bad int log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -330,7 +383,19 @@ codeunit 93660 "LT Y68 SC Tests"
         RunCase(Observer, 'init report text', Report::"LT Y68 SC Init Rpt", Xml('LT Y68 SC Init Rpt', Report::"LT Y68 SC Init Rpt", '<Field name="TxtVal" /><Field name="DateVal" />'), 1);
         RunCase(Observer, 'init report filled', Report::"LT Y68 SC Init Rpt", Xml('LT Y68 SC Init Rpt', Report::"LT Y68 SC Init Rpt", '<Field name="TxtVal">given</Field><Field name="DateVal" />'), 1);
         RunCase(Observer, 'init report none', Report::"LT Y68 SC Init Rpt", Xml('LT Y68 SC Init Rpt', Report::"LT Y68 SC Init Rpt", ''), 1);
-        Observer.Finish();
+        Observer.Expect('options self-closing ok', 'Yes');
+        Observer.Expect('options self-closing log', 'pre t=[tinit] c=[CINIT] d=[2024-01-15] tm=[10:15:00] dt=[2024-03-02T08:09:10Z] i=7 dc=2.5 b=Yes o=Gamma e=Second bg=99;');
+        Observer.Expect('no options element ok', 'Yes');
+        Observer.Expect('no options element log', 'pre t=[tinit] c=[CINIT] d=[2024-01-15] tm=[10:15:00] dt=[2024-03-02T08:09:10Z] i=7 dc=2.5 b=Yes o=Gamma e=Second bg=99;');
+        Observer.Expect('root self-closing ok', 'Yes');
+        Observer.Expect('root self-closing log', 'pre t=[tinit] c=[CINIT] d=[2024-01-15] tm=[10:15:00] dt=[2024-03-02T08:09:10Z] i=7 dc=2.5 b=Yes o=Gamma e=Second bg=99;');
+        Observer.Expect('init report text ok', 'Yes');
+        Observer.Expect('init report text log', 'initreport;pre txt=[] date=[];');
+        Observer.Expect('init report filled ok', 'Yes');
+        Observer.Expect('init report filled log', 'initreport;pre txt=[given] date=[];');
+        Observer.Expect('init report none ok', 'Yes');
+        Observer.Expect('init report none log', 'initreport;pre txt=[rinit] date=[2024-01-15];');
+        Observer.Verify();
     end;
 
     local procedure DataXml(Options: Text): Text
@@ -344,7 +409,11 @@ codeunit 93660 "LT Y68 SC Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RunCase(Observer, 'saveas processing only', Report::"LT Y68 SC Rpt", Xml1('<Field name="TxtVal" />'), 2);
-        Observer.Finish();
+        Observer.Expect('saveas processing only ok', 'No');
+        Observer.Expect('saveas processing only error', 'Report 93650 is a processing-only report. Output cannot be rendered and saved to a file.');
+        Observer.Expect('saveas processing only code', 'ReportProcessingOnly');
+        Observer.Expect('saveas processing only log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -357,7 +426,19 @@ codeunit 93660 "LT Y68 SC Tests"
         RunCase(Observer, 'text code date', Report::"LT Y68 SC Data Rpt", DataXml('<Field name="TxtVal" /><Field name="CodeVal" /><Field name="DateVal" />'), 2);
         RunCase(Observer, 'mixed', Report::"LT Y68 SC Data Rpt", DataXml('<Field name="TxtVal">given</Field><Field name="CodeVal" /><Field name="DateVal">2024-05-06</Field><Field name="IntVal" />'), 2);
         RunCase(Observer, 'execute text', Report::"LT Y68 SC Data Rpt", DataXml('<Field name="TxtVal" />'), 1);
-        Observer.Finish();
+        Observer.Expect('baseline ok', 'Yes');
+        Observer.Expect('baseline log', 'pre t=[tinit] c=[CINIT] d=[2024-01-15] i=7;');
+        Observer.Expect('text ok', 'Yes');
+        Observer.Expect('text log', 'pre t=[] c=[CINIT] d=[2024-01-15] i=7;');
+        Observer.Expect('text code date ok', 'Yes');
+        Observer.Expect('text code date log', 'pre t=[] c=[] d=[] i=7;');
+        Observer.Expect('mixed ok', 'Yes');
+        Observer.Expect('mixed log', 'pre t=[given] c=[] d=[2024-05-06] i=0;');
+        Observer.Expect('execute text ok', 'No');
+        Observer.Expect('execute text error', 'Report 93652 does not have a valid layout. Valid layout types are: Word, RDLC, Excel, and Custom.');
+        Observer.Expect('execute text code', 'ReportNoLayout');
+        Observer.Expect('execute text log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -376,7 +457,11 @@ codeunit 93660 "LT Y68 SC Tests"
         Observer.Observe('plain log', Log.Take());
         Observer.Observe('plain returned', Returned);
         Log.SetVerbose(false);
-        Observer.Finish();
+        Observer.Expect('seeded log', 'init t=[tinit] c=[CINIT] d=[2024-01-15] tm=[10:15:00] dt=[2024-03-02T08:09:10Z] i=7 dc=2.5 b=Yes o=Gamma e=Second bg=99;open t=[] c=[ABC] d=[] tm=[10:15:00] dt=[2024-03-02T08:09:10Z] i=7 dc=2.5 b=Yes o=Gamma e=Second bg=99;handler txt= code=ABC date= time=10:15:00 AM dt=3/2/2024 8:09 AM;');
+        Observer.Expect('seeded returned', '<?xml version="1.0" standalone="yes"?><ReportParameters name="LT Y68 SC Rpt" id="93650"><Options><Field name="TxtVal" /><Field name="CodeVal">ABC</Field><Field name="DateVal" /><Field name="TimeVal">10:15:00</Field><Field name="DtVal">2024-03-02T08:09:10Z</Field><Field name="IntVal">7</Field><Field name="DecVal">2.5</Field><Field name="BoolVal">true</Field><Field name="OptVal">2</Field><Field name="EnumVal">5</Field><Field name="BigVal">99</Field></Options></ReportParameters>');
+        Observer.Expect('plain log', 'init t=[tinit] c=[CINIT] d=[2024-01-15] tm=[10:15:00] dt=[2024-03-02T08:09:10Z] i=7 dc=2.5 b=Yes o=Gamma e=Second bg=99;open t=[tinit] c=[CINIT] d=[2024-01-15] tm=[10:15:00] dt=[2024-03-02T08:09:10Z] i=7 dc=2.5 b=Yes o=Gamma e=Second bg=99;handler txt=tinit code=CINIT date=1/15/2024 time=10:15:00 AM dt=3/2/2024 8:09 AM;');
+        Observer.Expect('plain returned', '<?xml version="1.0" standalone="yes"?><ReportParameters name="LT Y68 SC Rpt" id="93650"><Options><Field name="TxtVal">tinit</Field><Field name="CodeVal">CINIT</Field><Field name="DateVal">2024-01-15</Field><Field name="TimeVal">10:15:00</Field><Field name="DtVal">2024-03-02T08:09:10Z</Field><Field name="IntVal">7</Field><Field name="DecVal">2.5</Field><Field name="BoolVal">true</Field><Field name="OptVal">2</Field><Field name="EnumVal">5</Field><Field name="BigVal">99</Field></Options></ReportParameters>');
+        Observer.Verify();
     end;
 
     [RequestPageHandler]

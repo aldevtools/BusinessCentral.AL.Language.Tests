@@ -573,7 +573,11 @@ codeunit 93662 "LT Y68 XP Tests"
         Observer.Observe('none log', Log.Take());
         Observer.Observe('total xml', ExportText(Xmlport::"LT Y68 XP Calc Total"));
         Observer.Observe('total log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('none xml', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <P>|    <No>P1</No>|    <Total>3.50</Total>|    <Cnt>2</Cnt>|  </P>|  <P>|    <No>P2</No>|    <Total>0.00</Total>|    <Cnt>0</Cnt>|  </P>|  <P>|    <No>P3</No>|    <Total>7.00</Total>|    <Cnt>1</Cnt>|  </P>|</Root>|');
+        Observer.Expect('none log', 'agr P1 total=0 cnt=0;agr P2 total=0 cnt=0;agr P3 total=0 cnt=0;');
+        Observer.Expect('total xml', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <P>|    <No>P1</No>|    <Total>3.50</Total>|    <Cnt>2</Cnt>|  </P>|  <P>|    <No>P2</No>|    <Total>0.00</Total>|    <Cnt>0</Cnt>|  </P>|  <P>|    <No>P3</No>|    <Total>7.00</Total>|    <Cnt>1</Cnt>|  </P>|</Root>|');
+        Observer.Expect('total log', 'agr P1 total=3.5 cnt=0;agr P2 total=0 cnt=0;agr P3 total=7 cnt=0;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -584,7 +588,9 @@ codeunit 93662 "LT Y68 XP Tests"
         Seed();
         Observer.Observe('both nested xml', ExportText(Xmlport::"LT Y68 XP Calc Both Nested"));
         Observer.Observe('both nested log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('both nested xml', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <P>|    <No>P1</No>|    <C>|      <Line>10</Line>|      <Amount>1.50</Amount>|    </C>|    <C>|      <Line>20</Line>|      <Amount>2.00</Amount>|    </C>|    <Total>3.50</Total>|    <Cnt>2</Cnt>|  </P>|  <P>|    <No>P2</No>|    <C>|      <Line>20</Line>|      <Amount>2.00</Amount>|    </C>|    <Total>0.00</Total>|    <Cnt>0</Cnt>|  </P>|  <P>|    <No>P3</No>|    <C>|      <Line>10</Line>|      <Amount>7.00</Amount>|    </C>|    <Total>7.00</Total>|    <Cnt>1</Cnt>|  </P>|</Root>|');
+        Observer.Expect('both nested log', 'agr P1 total=3.5 cnt=2;agr P2 total=0 cnt=0;agr P3 total=7 cnt=1;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -595,7 +601,9 @@ codeunit 93662 "LT Y68 XP Tests"
         Seed();
         Observer.Observe('temp total xml', ExportText(Xmlport::"LT Y68 XP Calc Temp"));
         Observer.Observe('temp total log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('temp total xml', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <P>|    <No>P1</No>|    <Total>3.50</Total>|    <Cnt>2</Cnt>|  </P>|  <P>|    <No>P2</No>|    <Total>0.00</Total>|    <Cnt>0</Cnt>|  </P>|  <P>|    <No>P3</No>|    <Total>7.00</Total>|    <Cnt>1</Cnt>|  </P>|</Root>|');
+        Observer.Expect('temp total log', 'agr P1 total=3.5 cnt=0;agr P2 total=0 cnt=0;agr P3 total=7 cnt=0;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -606,7 +614,9 @@ codeunit 93662 "LT Y68 XP Tests"
         Seed();
         Observer.Observe('temp none xml', ExportText(Xmlport::"LT Y68 XP Calc Temp None"));
         Observer.Observe('temp none log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('temp none xml', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <P>|    <No>P1</No>|    <Total>3.50</Total>|    <Cnt>2</Cnt>|  </P>|  <P>|    <No>P2</No>|    <Total>0.00</Total>|    <Cnt>0</Cnt>|  </P>|  <P>|    <No>P3</No>|    <Total>7.00</Total>|    <Cnt>1</Cnt>|  </P>|</Root>|');
+        Observer.Expect('temp none log', 'agr P1 total=0 cnt=0;agr P2 total=0 cnt=0;agr P3 total=0 cnt=0;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -623,7 +633,9 @@ codeunit 93662 "LT Y68 XP Tests"
         Observer.Observe('import log', Log.Take());
         Observer.Observe('import parents', ParentRows());
         Clean();
-        Observer.Finish();
+        Observer.Expect('import log', 'bir P1 total=0 cnt=0;air P1 total=0 cnt=0;bir P2 total=0 cnt=0;air P2 total=0 cnt=0;');
+        Observer.Expect('import parents', '[P1|n1||][P2|n2||]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -639,7 +651,43 @@ codeunit 93662 "LT Y68 XP Tests"
         ObserveImport(Observer, 'empty element', Xmlport::"LT Y68 XP Elem Attr", '<Root><P><No>A</No><Name Lang="de" Req="b" /></P></Root>');
         ObserveImport(Observer, 'element missing', Xmlport::"LT Y68 XP Elem Attr", '<Root><P><No>A</No></P></Root>');
         ObserveImport(Observer, 'two rows', Xmlport::"LT Y68 XP Elem Attr", '<Root><P><No>A</No><Name Lang="en" Req="r">x</Name></P><P><No>B</No><Name Req="s">y</Name></P></Root>');
-        Observer.Finish();
+        Observer.Expect('all present ok', 'Yes');
+        Observer.Expect('all present log', 'tag=t;bir A name=x lang=en req=r;');
+        Observer.Expect('all present parents', '[A|x|en|r]');
+        Observer.Expect('all present children', '');
+        Observer.Expect('lang missing ok', 'Yes');
+        Observer.Expect('lang missing log', 'bir A name=x lang= req=r;');
+        Observer.Expect('lang missing parents', '[A|x||r]');
+        Observer.Expect('lang missing children', '');
+        Observer.Expect('tag missing ok', 'Yes');
+        Observer.Expect('tag missing log', 'bir A name=x lang=en req=r;');
+        Observer.Expect('tag missing parents', '[A|x|en|r]');
+        Observer.Expect('tag missing children', '');
+        Observer.Expect('req missing ok', 'No');
+        Observer.Expect('req missing error', 'Imported XML cannot validate with the schema: The required attribute ''Req'' is missing.');
+        Observer.Expect('req missing code', 'XmlPortInvalidXml');
+        Observer.Expect('req missing log', '');
+        Observer.Expect('req missing parents', '');
+        Observer.Expect('req missing children', '');
+        Observer.Expect('all empty ok', 'Yes');
+        Observer.Expect('all empty log', 'tag=;bir A name=x lang= req=;');
+        Observer.Expect('all empty parents', '[A|x||]');
+        Observer.Expect('all empty children', '');
+        Observer.Expect('empty element ok', 'Yes');
+        Observer.Expect('empty element log', 'bir A name= lang=de req=b;');
+        Observer.Expect('empty element parents', '[A||de|b]');
+        Observer.Expect('empty element children', '');
+        Observer.Expect('element missing ok', 'No');
+        Observer.Expect('element missing error', 'Imported XML cannot validate with the schema: The element ''P'' has incomplete content. List of possible elements expected: ''Name''.');
+        Observer.Expect('element missing code', 'XmlPortInvalidXml');
+        Observer.Expect('element missing log', '');
+        Observer.Expect('element missing parents', '');
+        Observer.Expect('element missing children', '');
+        Observer.Expect('two rows ok', 'Yes');
+        Observer.Expect('two rows log', 'bir A name=x lang=en req=r;bir B name=y lang= req=s;');
+        Observer.Expect('two rows parents', '[A|x|en|r][B|y||s]');
+        Observer.Expect('two rows children', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -658,7 +706,9 @@ codeunit 93662 "LT Y68 XP Tests"
         Observer.Observe('export xml', ExportText(Xmlport::"LT Y68 XP Elem Attr"));
         Observer.Observe('export log', Log.Take());
         Clean();
-        Observer.Finish();
+        Observer.Expect('export xml', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <P>|    <No>A</No>|    <Name Lang="en" Req="r">filled</Name>|  </P>|  <P>|    <No>B</No>|    <Name Req="">blank</Name>|  </P>|</Root>|');
+        Observer.Expect('export log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -674,7 +724,35 @@ codeunit 93662 "LT Y68 XP Tests"
         ObserveImport(Observer, 'noforce no child', Xmlport::"LT Y68 XP Link NoForce", '<Root><P><No>P1</No></P></Root>');
         ObserveImport(Observer, 'force child without parent key', Xmlport::"LT Y68 XP Link Force", '<Root><P><C><Line>1</Line><Amount>5</Amount></C></P></Root>');
         ObserveImport(Observer, 'noforce child without parent key', Xmlport::"LT Y68 XP Link NoForce", '<Root><P><C><Line>1</Line><Amount>5</Amount></C></P></Root>');
-        Observer.Finish();
+        Observer.Expect('force two children ok', 'Yes');
+        Observer.Expect('force two children log', 'parent bir P1;parent air P1;child bir P1/1;child bir P1/2;');
+        Observer.Expect('force two children parents', '[P1|||]');
+        Observer.Expect('force two children children', '[P1/1/5][P1/2/6]');
+        Observer.Expect('noforce two children ok', 'Yes');
+        Observer.Expect('noforce two children log', 'parent bir P1;parent air P1;child bir P1/1;child bir P1/2;');
+        Observer.Expect('noforce two children parents', '[P1|||]');
+        Observer.Expect('noforce two children children', '[P1/1/5][P1/2/6]');
+        Observer.Expect('force no child ok', 'Yes');
+        Observer.Expect('force no child log', 'parent bir P1;parent air P1;');
+        Observer.Expect('force no child parents', '[P1|||]');
+        Observer.Expect('force no child children', '');
+        Observer.Expect('noforce no child ok', 'Yes');
+        Observer.Expect('noforce no child log', 'parent bir P1;parent air P1;');
+        Observer.Expect('noforce no child parents', '[P1|||]');
+        Observer.Expect('noforce no child children', '');
+        Observer.Expect('force child without parent key ok', 'No');
+        Observer.Expect('force child without parent key error', 'Imported XML cannot validate with the schema: The element ''P'' has invalid child element ''C''. List of possible elements expected: ''No''.');
+        Observer.Expect('force child without parent key code', 'XmlPortInvalidXml');
+        Observer.Expect('force child without parent key log', '');
+        Observer.Expect('force child without parent key parents', '');
+        Observer.Expect('force child without parent key children', '');
+        Observer.Expect('noforce child without parent key ok', 'No');
+        Observer.Expect('noforce child without parent key error', 'Imported XML cannot validate with the schema: The element ''P'' has invalid child element ''C''. List of possible elements expected: ''No''.');
+        Observer.Expect('noforce child without parent key code', 'XmlPortInvalidXml');
+        Observer.Expect('noforce child without parent key log', '');
+        Observer.Expect('noforce child without parent key parents', '');
+        Observer.Expect('noforce child without parent key children', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -688,6 +766,10 @@ codeunit 93662 "LT Y68 XP Tests"
         Observer.Observe('noforce xml', ExportText(Xmlport::"LT Y68 XP Link NoForce"));
         Observer.Observe('noforce log', Log.Take());
         Clean();
-        Observer.Finish();
+        Observer.Expect('force xml', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <P>|    <No>P1</No>|    <C>|      <Line>10</Line>|      <Amount>1.50</Amount>|    </C>|    <C>|      <Line>20</Line>|      <Amount>2.00</Amount>|    </C>|  </P>|  <P>|    <No>P2</No>|  </P>|  <P>|    <No>P3</No>|    <C>|      <Line>10</Line>|      <Amount>7.00</Amount>|    </C>|  </P>|</Root>|');
+        Observer.Expect('force log', '');
+        Observer.Expect('noforce xml', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <P>|    <No>P1</No>|    <C>|      <Line>10</Line>|      <Amount>1.50</Amount>|    </C>|    <C>|      <Line>20</Line>|      <Amount>2.00</Amount>|    </C>|  </P>|  <P>|    <No>P2</No>|  </P>|  <P>|    <No>P3</No>|    <C>|      <Line>10</Line>|      <Amount>7.00</Amount>|    </C>|  </P>|</Root>|');
+        Observer.Expect('noforce log', '');
+        Observer.Verify();
     end;
 }
