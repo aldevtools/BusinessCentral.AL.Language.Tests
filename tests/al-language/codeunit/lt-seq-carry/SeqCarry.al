@@ -10,8 +10,9 @@
 //   test that observes the record and reads the sequences again (what a later test of the SAME codeunit sees). The test codeunit is
 //   one instance for all its tests (RqIsolationModes.al). Every test has [HandlerFunctions] and uses the handler, so the Linux legs
 //   do not send the codeunit to the hub (see RqIsolationModes.al).
-// Values: State = Exists(Name) | Exists(Name, false) | Current(Name) ('missing' when Exists(Name, false) is false); Next = the number
-//   NumberSequence.Next returned.
+// Values: State = 'false/' + Current(Name, false) when Exists(Name, false), else 'short/' + Current(Name) when Exists(Name), else
+//   'missing'; Next = the number NumberSequence.Next returned. Y56-I-* (install) and Y56-T-*, Y56-O-* use CompanyWide = false;
+//   Y56-S-* (install) use the overloads without CompanyWide, the reporter's shape.
 // BC versions: 27.5, 28.5, 29.0
 
 table 93601 "LT Y56 Row"
@@ -32,18 +33,24 @@ table 93601 "LT Y56 Row"
 
 codeunit 93602 "LT Y56 Seq Probe"
 {
+    // The overloads without CompanyWide reach the sequences made with CompanyWide = true (SeqOverloads.al); Y56-I-* and Y56-T-* are
+    // made with false, Y56-S-* with the short overloads. No call reaches a name its Exists does not confirm.
     procedure State(Name: Text): Text
     begin
-        if not NumberSequence.Exists(Name, false) then
-            exit(Format(NumberSequence.Exists(Name)) + '|No|missing');
-        exit(Format(NumberSequence.Exists(Name)) + '|Yes|' + Format(NumberSequence.Current(Name, false)));
+        if NumberSequence.Exists(Name, false) then
+            exit('false/' + Format(NumberSequence.Current(Name, false)));
+        if NumberSequence.Exists(Name) then
+            exit('short/' + Format(NumberSequence.Current(Name)));
+        exit('missing');
     end;
 
     procedure TakeNext(Name: Text): Text
     begin
-        if not NumberSequence.Exists(Name, false) then
-            exit('missing');
-        exit(Format(NumberSequence.Next(Name, false)));
+        if NumberSequence.Exists(Name, false) then
+            exit(Format(NumberSequence.Next(Name, false)));
+        if NumberSequence.Exists(Name) then
+            exit(Format(NumberSequence.Next(Name)));
+        exit('missing');
     end;
 
     procedure Fresh(Name: Text; Seed: BigInteger)
@@ -94,11 +101,14 @@ codeunit 93603 "LT Y56 D1 Deletes"
     begin
         Message('y56');
         Log('start_d', Probe.State('Y56-I-D'));
+        Log('start_sd', Probe.State('Y56-S-D'));
         Log('start_di', Probe.State('Y56-I-DI'));
         Log('start_n', Probe.State('Y56-I-N'));
         Log('start_tnew', Probe.State('Y56-T-NEW'));
         NumberSequence.Delete('Y56-I-D', false);
         Log('after_delete_d', Probe.State('Y56-I-D'));
+        NumberSequence.Delete('Y56-S-D');
+        Log('after_delete_sd', Probe.State('Y56-S-D'));
         NumberSequence.Delete('Y56-I-DI', false);
         NumberSequence.Insert('Y56-I-DI', 40, 1, false);
         Log('after_reinsert_di', Probe.State('Y56-I-DI'));
@@ -118,6 +128,7 @@ codeunit 93603 "LT Y56 D1 Deletes"
         Message('y56');
         Replay(Observer);
         Observer.Observe('later_d', Probe.State('Y56-I-D'));
+        Observer.Observe('later_sd', Probe.State('Y56-S-D'));
         Observer.Observe('later_di', Probe.State('Y56-I-DI'));
         Observer.Observe('later_n', Probe.State('Y56-I-N'));
         Observer.Observe('later_tnew', Probe.State('Y56-T-NEW'));
@@ -161,6 +172,7 @@ codeunit 93604 "LT Y56 D2 Reads"
     begin
         Message('y56');
         Log('seen_d', Probe.State('Y56-I-D'));
+        Log('seen_sd', Probe.State('Y56-S-D'));
         Log('seen_di', Probe.State('Y56-I-DI'));
         Log('seen_n', Probe.State('Y56-I-N'));
         Log('seen_tnew', Probe.State('Y56-T-NEW'));
@@ -187,6 +199,7 @@ codeunit 93604 "LT Y56 D2 Reads"
         Message('y56');
         Replay(Observer);
         Observer.Observe('later_d', Probe.State('Y56-I-D'));
+        Observer.Observe('later_sd', Probe.State('Y56-S-D'));
         Observer.Observe('later_di', Probe.State('Y56-I-DI'));
         Observer.Observe('later_n', Probe.State('Y56-I-N'));
         Observer.Observe('later_tnew', Probe.State('Y56-T-NEW'));
@@ -230,11 +243,13 @@ codeunit 93605 "LT Y56 D3 Reads"
     begin
         Message('y56');
         Log('seen_d', Probe.State('Y56-I-D'));
+        Log('seen_sd', Probe.State('Y56-S-D'));
         Log('seen_di', Probe.State('Y56-I-DI'));
         Log('seen_n', Probe.State('Y56-I-N'));
         Log('seen_tnew', Probe.State('Y56-T-NEW'));
         Log('seen_row_d2', Probe.RowSeen('D2'));
         Log('next_d', Probe.TakeNext('Y56-I-D'));
+        Log('next_sd', Probe.TakeNext('Y56-S-D'));
         Log('next_di', Probe.TakeNext('Y56-I-DI'));
         Log('next_n', Probe.TakeNext('Y56-I-N'));
     end;
@@ -248,6 +263,7 @@ codeunit 93605 "LT Y56 D3 Reads"
         Message('y56');
         Replay(Observer);
         Observer.Observe('later_d', Probe.State('Y56-I-D'));
+        Observer.Observe('later_sd', Probe.State('Y56-S-D'));
         Observer.Observe('later_di', Probe.State('Y56-I-DI'));
         Observer.Observe('later_n', Probe.State('Y56-I-N'));
         Observer.Observe('later_tnew', Probe.State('Y56-T-NEW'));
@@ -301,23 +317,34 @@ codeunit 93606 "LT Y56 R1 Restarts"
         Log('onrun_next_or', OnRunNext);
         Log('start_r', Probe.State('Y56-I-R'));
         Log('start_rs', Probe.State('Y56-I-RS'));
+        Log('start_sr', Probe.State('Y56-S-R'));
+        Log('start_srs', Probe.State('Y56-S-RS'));
         Log('start_tr', Probe.State('Y56-T-R'));
         Log('start_or', Probe.State('Y56-O-R'));
         Log('start_rn', Probe.State('Y56-I-RN'));
         Log('next_r', Probe.TakeNext('Y56-I-R'));
         Log('next_r2', Probe.TakeNext('Y56-I-R'));
-        NumberSequence.Restart('Y56-I-R');
+        NumberSequence.Restart('Y56-I-R', 1, false);
         Log('after_restart_r', Probe.State('Y56-I-R'));
         Log('next_after_restart_r', Probe.TakeNext('Y56-I-R'));
         Log('next_rs', Probe.TakeNext('Y56-I-RS'));
-        NumberSequence.Restart('Y56-I-RS', 50);
+        NumberSequence.Restart('Y56-I-RS', 50, false);
         Log('after_restart_rs', Probe.State('Y56-I-RS'));
+        Log('next_sr', Probe.TakeNext('Y56-S-R'));
+        Log('next_sr2', Probe.TakeNext('Y56-S-R'));
+        NumberSequence.Restart('Y56-S-R');
+        Log('after_restart_sr', Probe.State('Y56-S-R'));
+        Log('next_after_restart_sr', Probe.TakeNext('Y56-S-R'));
+        Log('next_srs', Probe.TakeNext('Y56-S-RS'));
+        NumberSequence.Restart('Y56-S-RS', 49);
+        Log('next_after_restart_srs', Probe.TakeNext('Y56-S-RS'));
+        Log('after_restart_srs', Probe.State('Y56-S-RS'));
         Probe.Fresh('Y56-T-R', 1);
         Log('next_tr', Probe.TakeNext('Y56-T-R'));
         Log('next_tr2', Probe.TakeNext('Y56-T-R'));
-        NumberSequence.Restart('Y56-T-R', 20);
+        NumberSequence.Restart('Y56-T-R', 20, false);
         Log('after_restart_tr', Probe.State('Y56-T-R'));
-        NumberSequence.Restart('Y56-O-R', 30);
+        NumberSequence.Restart('Y56-O-R', 30, false);
         Log('after_restart_or', Probe.State('Y56-O-R'));
         Log('own_row', Probe.InsertAndRead('R1', 'First'));
     end;
@@ -332,6 +359,8 @@ codeunit 93606 "LT Y56 R1 Restarts"
         Replay(Observer);
         Observer.Observe('later_r', Probe.State('Y56-I-R'));
         Observer.Observe('later_rs', Probe.State('Y56-I-RS'));
+        Observer.Observe('later_sr', Probe.State('Y56-S-R'));
+        Observer.Observe('later_srs', Probe.State('Y56-S-RS'));
         Observer.Observe('later_tr', Probe.State('Y56-T-R'));
         Observer.Observe('later_or', Probe.State('Y56-O-R'));
         Observer.Observe('later_rn', Probe.State('Y56-I-RN'));
@@ -376,16 +405,20 @@ codeunit 93607 "LT Y56 R2 Reads"
         Message('y56');
         Log('seen_r', Probe.State('Y56-I-R'));
         Log('seen_rs', Probe.State('Y56-I-RS'));
+        Log('seen_sr', Probe.State('Y56-S-R'));
+        Log('seen_srs', Probe.State('Y56-S-RS'));
         Log('seen_tr', Probe.State('Y56-T-R'));
         Log('seen_or', Probe.State('Y56-O-R'));
         Log('seen_rn', Probe.State('Y56-I-RN'));
         Log('seen_row_r1', Probe.RowSeen('R1'));
         Log('next_r', Probe.TakeNext('Y56-I-R'));
         Log('next_rs', Probe.TakeNext('Y56-I-RS'));
+        Log('next_sr', Probe.TakeNext('Y56-S-R'));
+        Log('next_srs', Probe.TakeNext('Y56-S-RS'));
         Log('next_tr', Probe.TakeNext('Y56-T-R'));
         Log('next_or', Probe.TakeNext('Y56-O-R'));
         Log('next_rn', Probe.TakeNext('Y56-I-RN'));
-        NumberSequence.Restart('Y56-I-RN', 70);
+        NumberSequence.Restart('Y56-I-RN', 70, false);
         Log('after_restart_rn', Probe.State('Y56-I-RN'));
         Log('own_row', Probe.InsertAndRead('R2', 'Second'));
     end;
@@ -400,6 +433,8 @@ codeunit 93607 "LT Y56 R2 Reads"
         Replay(Observer);
         Observer.Observe('later_r', Probe.State('Y56-I-R'));
         Observer.Observe('later_rs', Probe.State('Y56-I-RS'));
+        Observer.Observe('later_sr', Probe.State('Y56-S-R'));
+        Observer.Observe('later_srs', Probe.State('Y56-S-RS'));
         Observer.Observe('later_tr', Probe.State('Y56-T-R'));
         Observer.Observe('later_or', Probe.State('Y56-O-R'));
         Observer.Observe('later_rn', Probe.State('Y56-I-RN'));
@@ -444,11 +479,15 @@ codeunit 93608 "LT Y56 R3 Reads"
         Message('y56');
         Log('seen_r', Probe.State('Y56-I-R'));
         Log('seen_rs', Probe.State('Y56-I-RS'));
+        Log('seen_sr', Probe.State('Y56-S-R'));
+        Log('seen_srs', Probe.State('Y56-S-RS'));
         Log('seen_tr', Probe.State('Y56-T-R'));
         Log('seen_or', Probe.State('Y56-O-R'));
         Log('seen_rn', Probe.State('Y56-I-RN'));
         Log('next_r', Probe.TakeNext('Y56-I-R'));
         Log('next_rs', Probe.TakeNext('Y56-I-RS'));
+        Log('next_sr', Probe.TakeNext('Y56-S-R'));
+        Log('next_srs', Probe.TakeNext('Y56-S-RS'));
         Log('next_or', Probe.TakeNext('Y56-O-R'));
         Log('next_rn', Probe.TakeNext('Y56-I-RN'));
     end;
@@ -463,6 +502,8 @@ codeunit 93608 "LT Y56 R3 Reads"
         Replay(Observer);
         Observer.Observe('later_r', Probe.State('Y56-I-R'));
         Observer.Observe('later_rs', Probe.State('Y56-I-RS'));
+        Observer.Observe('later_sr', Probe.State('Y56-S-R'));
+        Observer.Observe('later_srs', Probe.State('Y56-S-RS'));
         Observer.Observe('later_tr', Probe.State('Y56-T-R'));
         Observer.Observe('later_or', Probe.State('Y56-O-R'));
         Observer.Observe('later_rn', Probe.State('Y56-I-RN'));

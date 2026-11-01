@@ -16,6 +16,9 @@ codeunit 93600 "LT Y56 Seq Install"
         Fresh('Y56-I-R');
         Fresh('Y56-I-RS');
         Fresh('Y56-I-RN');
+        FreshShort('Y56-S-D');
+        FreshShort('Y56-S-R');
+        FreshShort('Y56-S-RS');
     end;
 
     local procedure Fresh(Name: Text)
@@ -23,5 +26,13 @@ codeunit 93600 "LT Y56 Seq Install"
         if NumberSequence.Exists(Name, false) then
             NumberSequence.Delete(Name, false);
         NumberSequence.Insert(Name, 1, 1, false);
+    end;
+
+    // The reporter's shape: the overloads without CompanyWide (they reach the CompanyWide = true sequences, SeqOverloads.al).
+    local procedure FreshShort(Name: Text)
+    begin
+        if NumberSequence.Exists(Name) then
+            NumberSequence.Delete(Name);
+        NumberSequence.Insert(Name, 1, 1);
     end;
 }
