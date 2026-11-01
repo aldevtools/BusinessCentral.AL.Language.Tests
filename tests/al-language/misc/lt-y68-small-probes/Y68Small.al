@@ -184,23 +184,56 @@ codeunit 93657 "LT Y68 Small Tests"
         Observer.Finish();
     end;
 
+    [TryFunction]
+    local procedure TryInsertDirect(KeyA: Code[20])
+    var
+        K: Record "LT Y68 Two Key";
+    begin
+        K.A := KeyA;
+        K.Insert();
+    end;
+
     [Test]
-    procedure Q6_CodeunitRun_StatementAsserterror_OnRunCallsWritingTryFunction()
+    procedure Q6_TryFunctionWrite_DirectAndStatementRun()
     var
         Observer: Codeunit "Probe Observer";
         K: Record "LT Y68 Two Key";
         Runner: Codeunit "LT Y68 Try Runner";
+        Ok: Boolean;
     begin
         K.DeleteAll();
         Commit();
+        ClearLastError();
+        Ok := TryInsertDirect('D1');
+        Observer.Observe('direct expression ok', Format(Ok));
+        Observer.Observe('direct expression text', GetLastErrorText());
+        Observer.Observe('direct expression code', GetLastErrorCode());
+        Observer.Observe('direct expression rows', Rows());
+        ClearLastError();
+        K.DeleteAll();
+        Commit();
         Runner.SetMode(1);
-        asserterror Runner.Run();
-        Observer.ObserveError('statement');
-        Observer.Observe('statement rows', Rows());
+        Runner.Run();
+        Observer.Observe('statement run rows', Rows());
+        Observer.Observe('statement run log', Runner.Log());
+        K.DeleteAll();
+        Commit();
+        K.A := 'PEND';
+        K.Insert();
+        ClearLastError();
+        Ok := TryInsertDirect('D2');
+        Observer.Observe('pending write direct ok', Format(Ok));
+        Observer.Observe('pending write direct text', GetLastErrorText());
+        Observer.Observe('pending write direct code', GetLastErrorCode());
+        ClearLastError();
         Runner.SetMode(1);
-        asserterror if Runner.Run() then;
-        Observer.ObserveError('if wrapped');
-        Observer.Observe('if wrapped rows', Rows());
+        Ok := Runner.Run();
+        Observer.Observe('pending write run ok', Format(Ok));
+        Observer.Observe('pending write run text', GetLastErrorText());
+        Observer.Observe('pending write run code', GetLastErrorCode());
+        Observer.Observe('pending write run log', Runner.Log());
+        Observer.Observe('pending write rows', Rows());
+        ClearLastError();
         K.DeleteAll();
         Commit();
         Observer.Finish();
@@ -247,6 +280,18 @@ codeunit 93657 "LT Y68 Small Tests"
 
     local procedure ReadAll(var Rec: Record "LT Y68 Bytes"; Enc: TextEncoding): Text
     var
+        Result: Text;
+    begin
+        if TryReadAll(Rec, Enc, Result) then
+            exit(Result);
+        Result := 'ERROR ' + GetLastErrorCode() + ': ' + GetLastErrorText();
+        ClearLastError();
+        exit(Result);
+    end;
+
+    [TryFunction]
+    local procedure TryReadAll(var Rec: Record "LT Y68 Bytes"; Enc: TextEncoding; var Result: Text)
+    var
         Ins: InStream;
         T: Text;
         R: Text;
@@ -258,11 +303,24 @@ codeunit 93657 "LT Y68 Small Tests"
             Guard += 1;
             N := Ins.ReadText(T);
             R += '[' + Format(N) + '/' + Dump(T) + ']';
+            Result := R;
         end;
-        exit(R);
+        Result := R;
     end;
 
     local procedure ReadOne(var Rec: Record "LT Y68 Bytes"; Enc: TextEncoding; MaxLen: Integer): Text
+    var
+        Result: Text;
+    begin
+        if TryReadOne(Rec, Enc, MaxLen, Result) then
+            exit(Result);
+        Result := 'ERROR ' + GetLastErrorCode() + ': ' + GetLastErrorText();
+        ClearLastError();
+        exit(Result);
+    end;
+
+    [TryFunction]
+    local procedure TryReadOne(var Rec: Record "LT Y68 Bytes"; Enc: TextEncoding; MaxLen: Integer; var Result: Text)
     var
         Ins: InStream;
         T: Text;
@@ -270,10 +328,22 @@ codeunit 93657 "LT Y68 Small Tests"
     begin
         Rec.Data.CreateInStream(Ins, Enc);
         N := Ins.ReadText(T, MaxLen);
-        exit(Format(N) + '/' + Dump(T) + '/eos=' + Format(Ins.EOS()));
+        Result := Format(N) + '/' + Dump(T) + '/eos=' + Format(Ins.EOS());
     end;
 
     local procedure ReadRead(var Rec: Record "LT Y68 Bytes"; Enc: TextEncoding): Text
+    var
+        Result: Text;
+    begin
+        if TryReadRead(Rec, Enc, Result) then
+            exit(Result);
+        Result := 'ERROR ' + GetLastErrorCode() + ': ' + GetLastErrorText();
+        ClearLastError();
+        exit(Result);
+    end;
+
+    [TryFunction]
+    local procedure TryReadRead(var Rec: Record "LT Y68 Bytes"; Enc: TextEncoding; var Result: Text)
     var
         Ins: InStream;
         T: Text;
@@ -281,7 +351,7 @@ codeunit 93657 "LT Y68 Small Tests"
     begin
         Rec.Data.CreateInStream(Ins, Enc);
         N := Ins.Read(T);
-        exit(Format(N) + '/' + Dump(T) + '/eos=' + Format(Ins.EOS()));
+        Result := Format(N) + '/' + Dump(T) + '/eos=' + Format(Ins.EOS());
     end;
 
     [Test]
