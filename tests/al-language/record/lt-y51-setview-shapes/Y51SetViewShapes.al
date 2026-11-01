@@ -276,6 +276,15 @@ codeunit 92981 "LT Y51 SetView Shapes"
         Observer.Observe('text_const', SV('WHERE(Field4=CONST(==))'));
         Observer.Observe('text_single_eq', SV('WHERE(Field4=1(=))'));
         Observer.Observe('text_eq_A', SV('WHERE(Field4=1(=A))'));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SetView_DoubleEquals_TwoFields()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Seed();
         Observer.Observe('two_fields', SV('VERSION(1) SORTING(Field1) WHERE(Field2=1(..2024-02-01),Field4=1(==))'));
         Observer.Observe('two_fields_first', SV('VERSION(1) SORTING(Field1) WHERE(Field4=1(==),Field5=1(E))'));
         Observer.Finish();

@@ -25,8 +25,8 @@ codeunit 93104 "LT Byte Char High"
         exit(I);
     end;
 
-    // For every Byte in From..UpTo: the Char's code, the code of the first character of Format(Char), the Byte after Char to Byte;
-    // only the values that differ from the Byte itself are listed (b=char/format/back).
+    // For every Byte in From..UpTo: <byte>:<code of the Char>; the Format(Char) length, its first code and the Byte after Char to Byte
+    // are listed only where they differ from what the Char gives (f<len>/<code>, b<byte>).
     local procedure Range(From: Integer; UpTo: Integer): Text
     var
         B: Byte;
@@ -34,6 +34,7 @@ codeunit 93104 "LT Byte Char High"
         C: Char;
         T: Text;
         N: Integer;
+        Back: Integer;
         Result: Text;
     begin
         for N := From to UpTo do begin
@@ -41,15 +42,23 @@ codeunit 93104 "LT Byte Char High"
             C := B;
             T := Format(C);
             B2 := C;
-            if (CharCode(C) <> N) or (StrLen(T) <> 1) or (B2 <> N) then
-                Result += Format(N) + '=' + Format(CharCode(C)) + '/' + Format(StrLen(T)) + ':' + FirstCode(T) + '/' + Format(B2) + ';'
-            else
-                if (CharCode(T[1]) <> N) then
-                    Result += Format(N) + '=fmt' + Format(CharCode(T[1])) + ';';
+            Back := B2;
+            Result += Format(N) + ':' + Format(CharCode(C));
+            if (StrLen(T) <> 1) or (FirstCode(T) <> Format(CharCode(C))) then
+                Result += ' f' + Format(StrLen(T)) + '/' + FirstCode(T);
+            if Back <> N then
+                Result += ' b' + Format(Back);
+            Result += ',';
         end;
-        if Result = '' then
-            exit('all equal');
         exit(Result);
+    end;
+
+    local procedure ByteCode(B: Byte): Integer
+    var
+        I: Integer;
+    begin
+        I := B;
+        exit(I);
     end;
 
     local procedure FirstCode(T: Text): Text
@@ -63,12 +72,14 @@ codeunit 93104 "LT Byte Char High"
     var
         InS: InStream;
         B: Byte;
+        I: Integer;
         Result: Text;
     begin
         TempBlob.CreateInStream(InS);
         while not InS.EOS() do begin
             InS.Read(B);
-            Result += Format(CharCode(B)) + ',';
+            I := B;
+            Result += Format(I) + ',';
         end;
         exit(Result);
     end;
@@ -94,13 +105,54 @@ codeunit 93104 "LT Byte Char High"
     end;
 
     [Test]
-    procedure ByteChar_HighValues_Codes()
+    procedure ByteChar_Codes_128_159()
     begin
-        Observer.Observe('128..159', Range(128, 159));
-        Observer.Observe('160..191', Range(160, 191));
-        Observer.Observe('192..223', Range(192, 223));
-        Observer.Observe('224..255', Range(224, 255));
-        Observer.Observe('0..127', Range(0, 127));
+        Observer.Observe('128..143', Range(128, 143));
+        Observer.Observe('144..159', Range(144, 159));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure ByteChar_Codes_160_191()
+    begin
+        Observer.Observe('160..175', Range(160, 175));
+        Observer.Observe('176..191', Range(176, 191));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure ByteChar_Codes_192_223()
+    begin
+        Observer.Observe('192..207', Range(192, 207));
+        Observer.Observe('208..223', Range(208, 223));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure ByteChar_Codes_224_255()
+    begin
+        Observer.Observe('224..239', Range(224, 239));
+        Observer.Observe('240..255', Range(240, 255));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure ByteChar_Codes_0_127()
+    var
+        N: Integer;
+        Diff: Text;
+        B: Byte;
+        C: Char;
+    begin
+        for N := 0 to 127 do begin
+            B := N;
+            C := B;
+            if CharCode(C) <> N then
+                Diff += Format(N) + ':' + Format(CharCode(C)) + ',';
+        end;
+        if Diff = '' then
+            Diff := 'all equal';
+        Observer.Observe('0..127 char code differs', Diff);
         Observer.Finish();
     end;
 
@@ -124,7 +176,8 @@ codeunit 93104 "LT Byte Char High"
         T[1] := C;
         Observer.Observe('text_index_code', Format(CharCode(T[1])) + '|' + Format(StrLen(T)));
         B2 := T[1];
-        Observer.Observe('text_index_back', Format(CharCode(B2)));
+        I := B2;
+        Observer.Observe('text_index_back', Format(I));
         T := '';
         T += Format(C);
         Observer.Observe('text_concat', Format(StrLen(T)) + '|' + Format(CharCode(T[1])));
@@ -160,17 +213,17 @@ codeunit 93104 "LT Byte Char High"
         B := 7;
         ClearLastError();
         if TryCharToByte(C, B) then
-            Observer.Observe('char256', 'ok|' + Format(CharCode(B)))
+            Observer.Observe('char256', 'ok|' + Format(ByteCode(B)))
         else
-            Observer.Observe('char256', 'error|' + GetLastErrorText() + '|' + GetLastErrorCode() + '|' + Format(CharCode(B)));
+            Observer.Observe('char256', 'error|' + GetLastErrorText() + '|' + GetLastErrorCode() + '|' + Format(ByteCode(B)));
         I := 8364;
         C := I;
         B := 7;
         ClearLastError();
         if TryCharToByte(C, B) then
-            Observer.Observe('char8364', 'ok|' + Format(CharCode(B)))
+            Observer.Observe('char8364', 'ok|' + Format(ByteCode(B)))
         else
-            Observer.Observe('char8364', 'error|' + GetLastErrorText() + '|' + GetLastErrorCode() + '|' + Format(CharCode(B)));
+            Observer.Observe('char8364', 'error|' + GetLastErrorText() + '|' + GetLastErrorCode() + '|' + Format(ByteCode(B)));
         Observer.Observe('char8364_write', WriteChar(C));
         Observer.Finish();
     end;

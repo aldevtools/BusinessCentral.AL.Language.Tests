@@ -76,6 +76,7 @@ codeunit 93109 "LT Y57 Blank Key Isolation"
     var
         Account: Record "LT Y57 Iso Account";
         CardPage: TestPage "LT Y57 Iso Card";
+        WriterError: Text;
 
     local procedure Rows(): Text
     var
@@ -108,7 +109,8 @@ codeunit 93109 "LT Y57 Blank Key Isolation"
     procedure A1_Write_CardSetValue()
     begin
         CardPage.OpenEdit();
-        CardPage.NameCtl.SetValue('a1');
+        asserterror CardPage.NameCtl.SetValue('a1');
+        WriterError := GetLastErrorText() + '|' + GetLastErrorCode();
         CardPage.Close();
     end;
 
@@ -117,7 +119,9 @@ codeunit 93109 "LT Y57 Blank Key Isolation"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        Observer.Observe('writer error', WriterError);
         Observer.Observe('rows', Rows());
+        WriterError := '';
         Observer.Finish();
     end;
 
@@ -132,7 +136,8 @@ codeunit 93109 "LT Y57 Blank Key Isolation"
     procedure B1_Write_CardSetValue_AutoRollback()
     begin
         CardPage.OpenEdit();
-        CardPage.NameCtl.SetValue('b1');
+        asserterror CardPage.NameCtl.SetValue('b1');
+        WriterError := GetLastErrorText() + '|' + GetLastErrorCode();
         CardPage.Close();
     end;
 
@@ -141,7 +146,9 @@ codeunit 93109 "LT Y57 Blank Key Isolation"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        Observer.Observe('writer error', WriterError);
         Observer.Observe('rows', Rows());
+        WriterError := '';
         Observer.Finish();
     end;
 
@@ -157,7 +164,8 @@ codeunit 93109 "LT Y57 Blank Key Isolation"
         DelayedPage: TestPage "LT Y57 Iso Card Delayed";
     begin
         DelayedPage.OpenEdit();
-        DelayedPage.NameCtl.SetValue('c1');
+        asserterror DelayedPage.NameCtl.SetValue('c1');
+        WriterError := GetLastErrorText() + '|' + GetLastErrorCode();
         DelayedPage.Close();
     end;
 
@@ -166,7 +174,9 @@ codeunit 93109 "LT Y57 Blank Key Isolation"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        Observer.Observe('writer error', WriterError);
         Observer.Observe('rows', Rows());
+        WriterError := '';
         Observer.Finish();
     end;
 
@@ -230,7 +240,6 @@ codeunit 93109 "LT Y57 Blank Key Isolation"
     procedure F1_Write_CardLeftOpen()
     begin
         CardPage.OpenEdit();
-        CardPage.NameCtl.SetValue('f1');
     end;
 
     [Test]
@@ -239,6 +248,8 @@ codeunit 93109 "LT Y57 Blank Key Isolation"
         Observer: Codeunit "Probe Observer";
     begin
         Observer.Observe('rows before close', Rows());
+        asserterror CardPage.OpenEdit();
+        Observer.Observe('open again', GetLastErrorText() + '|' + GetLastErrorCode());
         ClearLastError();
         if TryClose() then
             Observer.Observe('close', 'ok')
@@ -252,6 +263,82 @@ codeunit 93109 "LT Y57 Blank Key Isolation"
     local procedure TryClose()
     begin
         CardPage.Close();
+    end;
+
+    [Test]
+    procedure G0_Cleanup()
+    begin
+        Cleanup();
+    end;
+
+    [Test]
+    procedure G1_Write_CardOpenNewSetValue()
+    var
+        NewPage: TestPage "LT Y57 Iso Card";
+    begin
+        NewPage.OpenNew();
+        NewPage.NameCtl.SetValue('g1');
+        NewPage.Close();
+    end;
+
+    [Test]
+    procedure G2_Read()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('rows', Rows());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure H0_Cleanup()
+    begin
+        Cleanup();
+    end;
+
+    [Test]
+    procedure H1_Write_DelayedCardOpenNewSetValue()
+    var
+        NewPage: TestPage "LT Y57 Iso Card Delayed";
+    begin
+        NewPage.OpenNew();
+        NewPage.NameCtl.SetValue('h1');
+        NewPage.Close();
+    end;
+
+    [Test]
+    procedure H2_Read()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('rows', Rows());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure I0_Cleanup()
+    begin
+        Cleanup();
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    procedure I1_Write_CardOpenNewSetValue_AutoRollback()
+    var
+        NewPage: TestPage "LT Y57 Iso Card";
+    begin
+        NewPage.OpenNew();
+        NewPage.NameCtl.SetValue('i1');
+        NewPage.Close();
+    end;
+
+    [Test]
+    procedure I2_Read()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('rows', Rows());
+        Observer.Finish();
     end;
 
     [Test]
