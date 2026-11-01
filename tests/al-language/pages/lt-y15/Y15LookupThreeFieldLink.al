@@ -705,6 +705,238 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
         Observer.Verify();
     end;
 
+    // Y54 (al-runner 6519): what TestPart.Next, First, Previous and Last do after TestField.Lookup on the three-field host with
+    // OnAfterGetCurrRecord, while the refresh of CurrPage.Update(false) is still pending: the triggers each call runs and the values after.
+    [Test]
+    [HandlerFunctions('PickSecondResource')]
+    procedure Y54_ThreeLinkCurr_PartNextAfterLookup()
+    var
+        Schedule: TestPage "LT Y26 3Link Curr Schedule";
+    begin
+        Setup(false);
+        Schedule.OpenEdit();
+        Log.Take();
+        Schedule.ResourceNo.Lookup();
+        Observer.Observe('lookup log', Log.Take());
+        Observer.Observe('part next', Format(Schedule.Resources.Next(), 0, 9));
+        Observer.Observe('part next log', Log.Take());
+        Observer.Observe('after part next', Snap3C(Schedule));
+        Observer.Observe('after part next log', Log.Take());
+        Observer.Observe('part next again', Format(Schedule.Resources.Next(), 0, 9));
+        Observer.Observe('part next again log', Log.Take());
+        Observer.Observe('next', Format(Schedule.Next(), 0, 9));
+        Observer.Observe('next log', Log.Take());
+        Observer.Observe('after next', Snap3C(Schedule));
+        Observer.Observe('after next log', Log.Take());
+        Schedule.Close();
+        Observer.Observe('close log', Log.Take());
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('PickSecondResource')]
+    procedure Y54_ThreeLinkCurr_PartFirstAfterLookup()
+    var
+        Schedule: TestPage "LT Y26 3Link Curr Schedule";
+    begin
+        Setup(false);
+        Schedule.OpenEdit();
+        Log.Take();
+        Schedule.ResourceNo.Lookup();
+        Observer.Observe('lookup log', Log.Take());
+        Observer.Observe('part first', Format(Schedule.Resources.First(), 0, 9));
+        Observer.Observe('part first log', Log.Take());
+        Observer.Observe('after part first', Snap3C(Schedule));
+        Observer.Observe('after part first log', Log.Take());
+        Observer.Observe('part next', Format(Schedule.Resources.Next(), 0, 9));
+        Observer.Observe('part next log', Log.Take());
+        Observer.Observe('after part next', Snap3C(Schedule));
+        Observer.Observe('after part next log', Log.Take());
+        Schedule.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('PickSecondResource')]
+    procedure Y54_ThreeLinkCurr_PartPreviousAfterLookup()
+    var
+        Schedule: TestPage "LT Y26 3Link Curr Schedule";
+    begin
+        Setup(false);
+        Schedule.OpenEdit();
+        Log.Take();
+        Schedule.ResourceNo.Lookup();
+        Observer.Observe('lookup log', Log.Take());
+        Observer.Observe('part previous', Format(Schedule.Resources.Previous(), 0, 9));
+        Observer.Observe('part previous log', Log.Take());
+        Observer.Observe('after part previous', Snap3C(Schedule));
+        Observer.Observe('after part previous log', Log.Take());
+        Observer.Observe('part last', Format(Schedule.Resources.Last(), 0, 9));
+        Observer.Observe('part last log', Log.Take());
+        Observer.Observe('after part last', Snap3C(Schedule));
+        Observer.Observe('after part last log', Log.Take());
+        Schedule.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('PickSecondResource')]
+    procedure Y54_ThreeLinkCurr_PartLastAfterLookup()
+    var
+        Schedule: TestPage "LT Y26 3Link Curr Schedule";
+    begin
+        Setup(false);
+        Schedule.OpenEdit();
+        Log.Take();
+        Schedule.ResourceNo.Lookup();
+        Observer.Observe('lookup log', Log.Take());
+        Observer.Observe('part last', Format(Schedule.Resources.Last(), 0, 9));
+        Observer.Observe('part last log', Log.Take());
+        Observer.Observe('after part last', Snap3C(Schedule));
+        Observer.Observe('after part last log', Log.Take());
+        Schedule.Close();
+        Observer.Finish();
+    end;
+
+    // Y54: region codes set on every row (the part shows the same row through all three fields).
+    [Test]
+    [HandlerFunctions('PickSecondResource')]
+    procedure Y54_ThreeLinkCurr_PartNextRegionsSet()
+    var
+        Schedule: TestPage "LT Y26 3Link Curr Schedule";
+    begin
+        Setup(true);
+        Schedule.OpenEdit();
+        Log.Take();
+        Schedule.ResourceNo.Lookup();
+        Observer.Observe('lookup log', Log.Take());
+        Observer.Observe('part next', Format(Schedule.Resources.Next(), 0, 9));
+        Observer.Observe('part next log', Log.Take());
+        Observer.Observe('after part next', Snap3C(Schedule));
+        Observer.Observe('after part next log', Log.Take());
+        Observer.Observe('next', Format(Schedule.Next(), 0, 9));
+        Observer.Observe('next log', Log.Take());
+        Observer.Observe('after next', Snap3C(Schedule));
+        Schedule.Close();
+        Observer.Finish();
+    end;
+
+    // Y54: the lookup is cancelled (no OnValidate, no CurrPage.Update): the part's Next.
+    [Test]
+    [HandlerFunctions('CancelLookup')]
+    procedure Y54_ThreeLinkCurr_PartNextAfterCancel()
+    var
+        Schedule: TestPage "LT Y26 3Link Curr Schedule";
+    begin
+        Setup(false);
+        Schedule.OpenEdit();
+        Log.Take();
+        Schedule.ResourceNo.Lookup();
+        Observer.Observe('lookup log', Log.Take());
+        Observer.Observe('part next', Format(Schedule.Resources.Next(), 0, 9));
+        Observer.Observe('part next log', Log.Take());
+        Observer.Observe('after part next', Snap3C(Schedule));
+        Observer.Observe('after part next log', Log.Take());
+        Schedule.Close();
+        Observer.Finish();
+    end;
+
+    // Y54: the part's Next between two lookups: does it run the pending refresh?
+    [Test]
+    [HandlerFunctions('PickSecondThenThird')]
+    procedure Y54_ThreeLinkCurr_PartNextThenLookup()
+    var
+        Schedule: TestPage "LT Y26 3Link Curr Schedule";
+    begin
+        Setup(false);
+        PickCount := 0;
+        Schedule.OpenEdit();
+        Log.Take();
+        Schedule.ResourceNo.Lookup();
+        Observer.Observe('lookup log', Log.Take());
+        Observer.Observe('part next', Format(Schedule.Resources.Next(), 0, 9));
+        Observer.Observe('part next log', Log.Take());
+        Schedule.ResourceNo.Lookup();
+        Observer.Observe('second lookup log', Log.Take());
+        Observer.Observe('after second', Snap3C(Schedule));
+        Observer.Observe('after second log', Log.Take());
+        Schedule.Close();
+        Observer.Finish();
+    end;
+
+    // Y54: the part's Next on the other Y26 hosts (two-field link with OnAfterGetCurrRecord, three-field link without it).
+    [Test]
+    [HandlerFunctions('PickSecondResource')]
+    procedure Y54_TwoLinkCurr_PartNextAfterLookup()
+    var
+        Schedule: TestPage "LT Y26 2Link Curr Schedule";
+    begin
+        Setup(false);
+        Schedule.OpenEdit();
+        Log.Take();
+        Schedule.ResourceNo.Lookup();
+        Observer.Observe('lookup log', Log.Take());
+        Observer.Observe('part next', Format(Schedule.Resources.Next(), 0, 9));
+        Observer.Observe('part next log', Log.Take());
+        Observer.Observe('after part next', Schedule.ResourceNo.Value() + '|' + Schedule.HeaderCurrent.Value() + '|' + Schedule."No.".Value() + '|' + Schedule.CurrentNo.Value() + '|' + Schedule.HostFn.Value() + '|' + Schedule.Resources."No.".Value() + '|' + Schedule.Resources."Group Code".Value() + '|' + Schedule.Resources.PartCurrent.Value() + '|' + Schedule.Resources.PartFn.Value());
+        Observer.Observe('after part next log', Log.Take());
+        Observer.Observe('part first', Format(Schedule.Resources.First(), 0, 9));
+        Observer.Observe('part first log', Log.Take());
+        Schedule.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('PickSecondResource')]
+    procedure Y54_ThreeLinkPlain_PartNextAfterLookup()
+    var
+        Schedule: TestPage "LT Y26 3Link Plain Schedule";
+    begin
+        Setup(false);
+        Schedule.OpenEdit();
+        Log.Take();
+        Schedule.ResourceNo.Lookup();
+        Observer.Observe('lookup log', Log.Take());
+        Observer.Observe('part next', Format(Schedule.Resources.Next(), 0, 9));
+        Observer.Observe('part next log', Log.Take());
+        Observer.Observe('after part next', Schedule.ResourceNo.Value() + '|' + Schedule.HeaderCurrent.Value() + '|' + Schedule."No.".Value() + '|' + Schedule.CurrentNo.Value() + '|' + Schedule.HostFn.Value() + '|' + Schedule.Resources."No.".Value() + '|' + Schedule.Resources."Group Code".Value() + '|' + Schedule.Resources.PartCurrent.Value() + '|' + Schedule.Resources.PartFn.Value());
+        Observer.Observe('after part next log', Log.Take());
+        Observer.Observe('part first', Format(Schedule.Resources.First(), 0, 9));
+        Observer.Observe('part first log', Log.Take());
+        Schedule.Close();
+        Observer.Finish();
+    end;
+
+    // Y54: the Y15 host (OnAfterGetCurrRecord logs only, part without triggers): the part's whole walk after the lookup.
+    [Test]
+    [HandlerFunctions('PickSecondResource')]
+    procedure Y54_Y15Host_PartWalkAfterLookup()
+    var
+        Schedule: TestPage "LT Y15 Three Link Schedule";
+    begin
+        Setup(false);
+        Schedule.OpenEdit();
+        Log.Take();
+        Schedule.ResourceNo.Lookup();
+        Observer.Observe('lookup log', Log.Take());
+        Observer.Observe('part next', Format(Schedule.Resources.Next(), 0, 9) + '|' + Schedule.Resources."No.".Value() + '|' + Schedule.Resources."Group Code".Value());
+        Observer.Observe('part next log', Log.Take());
+        Observer.Observe('part first', Format(Schedule.Resources.First(), 0, 9) + '|' + Schedule.Resources."No.".Value());
+        Observer.Observe('part previous', Format(Schedule.Resources.Previous(), 0, 9) + '|' + Schedule.Resources."No.".Value());
+        Observer.Observe('part last', Format(Schedule.Resources.Last(), 0, 9) + '|' + Schedule.Resources."No.".Value());
+        Observer.Observe('part walk log', Log.Take());
+        Observer.Observe('host', Schedule.ResourceNo.Value() + '|' + Schedule."No.".Value());
+        Observer.Observe('next', Format(Schedule.Next(), 0, 9) + '|' + Schedule."No.".Value() + '|' + Schedule.Resources."No.".Value() + '|' + Schedule.ResourceNo.Value());
+        Observer.Observe('next log', Log.Take());
+        Schedule.Close();
+        Observer.Finish();
+    end;
+
+    local procedure Snap3C(var Schedule: TestPage "LT Y26 3Link Curr Schedule"): Text
+    begin
+        exit(Schedule.ResourceNo.Value() + '|' + Schedule.HeaderCurrent.Value() + '|' + Schedule."No.".Value() + '|' + Schedule.CurrentNo.Value() + '|' + Schedule.HostFn.Value() + '|' + Schedule.Resources."No.".Value() + '|' + Schedule.Resources."Group Code".Value() + '|' + Schedule.Resources.PartCurrent.Value() + '|' + Schedule.Resources.PartFn.Value());
+    end;
+
     [ModalPageHandler]
     procedure PickSecondResource(var ResourceList: TestPage "LT Y15 Lookup Resource List")
     begin
