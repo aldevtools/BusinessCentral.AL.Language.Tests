@@ -167,23 +167,8 @@ codeunit 93260 "LT Y62 Date Filter Short"
     end;
 
     local procedure Scrub(Txt: Text): Text
-    var
-        Yy: Text;
     begin
-        Yy := CopyStr(Format(Date2DMY(Today(), 3)), 3, 2);
-        exit(Txt.Replace(Format(Today()), '<today>').Replace('/' + Yy + '.', '/<ty>.').Replace('/' + Yy + '|', '/<ty>|').Replace('/' + Yy + '&', '/<ty>&'));
-    end;
-
-    local procedure ScrubEnd(Txt: Text): Text
-    var
-        Yy: Text;
-    begin
-        // a filter text that ends in this year's two digits: shown as <ty>
-        Yy := CopyStr(Format(Date2DMY(Today(), 3)), 3, 2);
-        Txt := Scrub(Txt);
-        if Txt.EndsWith('/' + Yy) then
-            Txt := CopyStr(Txt, 1, StrLen(Txt) - 2) + '<ty>';
-        exit(Txt);
+        exit(Txt.Replace(Format(Today()), '<today>'));
     end;
 
     local procedure Ids(var Row: Record "LT Y62 DF Row"): Text
@@ -211,7 +196,7 @@ codeunit 93260 "LT Y62 Date Filter Short"
     begin
         ClearLastError();
         if TryFilter(Row, Txt) then
-            exit('ok|filter=' + ScrubEnd(Row.GetFilter(D)) + '|rows=' + Ids(Row));
+            exit('ok|filter=' + Scrub(Row.GetFilter(D)) + '|rows=' + Ids(Row));
         exit(Failed());
     end;
 
@@ -221,7 +206,7 @@ codeunit 93260 "LT Y62 Date Filter Short"
     begin
         ClearLastError();
         if TryFilterDt(Row, Txt) then
-            exit('ok|filter=' + ScrubEnd(Row.GetFilter(Dt)) + '|rows=' + Ids(Row));
+            exit('ok|filter=' + Scrub(Row.GetFilter(Dt)) + '|rows=' + Ids(Row));
         exit(Failed());
     end;
 
@@ -309,11 +294,26 @@ codeunit 93260 "LT Y62 Date Filter Short"
         Texts.Add('13/13/2026');
         Texts.Add('02/30/2026');
         Texts.Add('00/00/0000');
+        ObserveList(Observer, Texts, 'i');
+        WorkDate(OldWorkDate);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure SetFilter_Date_ImpossibleShortForms()
+    var
+        Observer: Codeunit "Probe Observer";
+        Texts: List of [Text];
+        OldWorkDate: Date;
+    begin
+        Seed(false);
+        OldWorkDate := WorkDate();
+        WorkDate(20300615D);
         Texts.Add('1/1/0');
         Texts.Add('99/99');
         Texts.Add('not a date');
         Texts.Add('1/1/99999');
-        ObserveList(Observer, Texts, 'i');
+        ObserveList(Observer, Texts, 'j');
         WorkDate(OldWorkDate);
         Observer.Finish();
     end;

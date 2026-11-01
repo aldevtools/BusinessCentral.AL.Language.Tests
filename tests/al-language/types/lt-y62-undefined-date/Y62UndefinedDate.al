@@ -93,7 +93,8 @@ codeunit 93263 "LT Y62 Undefined Date"
         ClearLastError();
         if not TryNumDec(FRef, DecTxt) then
             DecTxt := 'error:' + GetLastErrorText() + '|' + GetLastErrorCode();
-        exit(Txt + ' / ' + DecTxt);
+        // the DateTime of row 2 in XML form depends on the server time zone: shown as <dt>
+        exit((Txt + ' / ' + DecTxt).Replace(Format(CreateDateTime(20260115D, 123000T), 0, 9), '<dt>'));
     end;
 
     [Test]
