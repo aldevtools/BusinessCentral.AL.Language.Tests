@@ -159,7 +159,11 @@ codeunit 74046 "LT P133 Date Eval Format"
     var
         Observer: Codeunit "Probe Observer";
         D: Date;
+        LastDay: Text;
     begin
+        // With the day alone, DMY2Date takes the month of Today, so the upper bound of the day is the length of the
+        // current month (31 in October, 30 in November): build it from Today instead of fixing it.
+        LastDay := Format(Date2DMY(CalcDate('<CM>', Today()), 1));
         Observer.Observe('day 0 ok', Format(TryDay(0, D)));
         Observer.Observe('day 0 error', Scrubbed());
         ClearLastError();
@@ -191,11 +195,11 @@ codeunit 74046 "LT P133 Date Eval Format"
         Observer.Observe('all three 30.2.2023 error', GetLastErrorText());
         ClearLastError();
         Observer.Expect('day 0 ok', 'No');
-        Observer.Expect('day 0 error', 'The value of DMY2Date parameter 1 is outside of the permitted range. The current value is: 0. The permitted range is: from 1 to 31.');
+        Observer.Expect('day 0 error', 'The value of DMY2Date parameter 1 is outside of the permitted range. The current value is: 0. The permitted range is: from 1 to ' + LastDay + '.');
         Observer.Expect('day 32 ok', 'No');
-        Observer.Expect('day 32 error', 'The value of DMY2Date parameter 1 is outside of the permitted range. The current value is: 32. The permitted range is: from 1 to 31.');
+        Observer.Expect('day 32 error', 'The value of DMY2Date parameter 1 is outside of the permitted range. The current value is: 32. The permitted range is: from 1 to ' + LastDay + '.');
         Observer.Expect('day -1 ok', 'No');
-        Observer.Expect('day -1 error', 'The value of DMY2Date parameter 1 is outside of the permitted range. The current value is: -1. The permitted range is: from 1 to 31.');
+        Observer.Expect('day -1 error', 'The value of DMY2Date parameter 1 is outside of the permitted range. The current value is: -1. The permitted range is: from 1 to ' + LastDay + '.');
         Observer.Expect('15 month 0 ok', 'No');
         Observer.Expect('15 month 0 error', 'The value of DMY2Date parameter 2 is outside of the permitted range. The current value is: 0. The permitted range is: from 1 to 12.');
         Observer.Expect('15 month 13 ok', 'No');
