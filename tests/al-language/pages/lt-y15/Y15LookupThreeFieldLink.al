@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/testfield/testfield-lookup-method
 // Scope: in-scope
-// Fixtures used: Probe Observer (69160); own objects 91710 - 91716 (writer Y15), 92220 - 92224 (writer Y26)
+// Fixtures used: Probe Observer (69160); own objects 91710 - 91716 (writer Y15), 92220 - 92224 (writer Y26), 93280 - 93284 (writer Y63)
 // Probe: written against SaaS BC 29 and the corpus CI matrix; every literal asserted below is what the BC service tier produced.
 // Facts: al-runner issue 6466, follow-up to 6290 (two-field link: pages/lt-wb-6290/WbLookupListPartTests.al). A List page over
 //   resources (No., Group Code, Region Code) has a header field ResourceNo bound to a global setting record. Its OnLookup runs the
@@ -31,6 +31,20 @@
 //   holds one row (R1): Next false, First true, Previous false, Last true. A second part call runs no trigger. The refresh is used up:
 //   a later Lookup starts with no refresh. A cancelled lookup leaves nothing pending: the part's Next runs no trigger and the values
 //   stay as before. The same with a two-field link; without host OnAfterGetCurrRecord the refresh has no h-agcr entries.
+// Y63 (al-runner 6639, follow-up to 6519): the Y26 three-field host (92221) with another part: a second ListPart over the same
+//   table without a link (93280, logs o-agr, o-agcr, o-fn), placed before the linked part (93282) or after it (93284), or a
+//   CardPart in the FactBox area linked on No. (93281, logs c-agr, c-agcr, c-fn; host 93283).
+// Result Y63 (SaaS BC 29 and BC 27.5 on Linux; the CI legs check 27.5, 28.5 and 29.0): the lookup is the same as with one part:
+//   ResourceNo shows R2, OnValidate runs once and stores R2, the globals and every part keep the values of before ('R1/').
+//   The pending refresh of CurrPage.Update(false) runs at the first of: a move of any part (Next on the linked part, the other
+//   ListPart or the CardPart), or the first access to a part that the test has not touched since the page opened (reading one
+//   of its controls). A part read before the lookup and read again after it runs nothing and shows the old values. The
+//   refresh has the triggers of opening the page: host rows, then each part in layout order (a ListPart: its rows; the
+//   CardPart: its one record), then the host's current row; on the two-ListPart hosts the host's current row runs twice and
+//   the first part of the layout is fetched once more at the end. After it every control shows the picked value ('R1/R2').
+//   The unlinked ListPart holds all three rows: its Next moves to R2, returns true and runs o-agr and o-agcr for R2, then the
+//   host's h-agr and h-agcr for R2 and p-agr R2, while the host's controls keep showing row R1; the linked part holds R1
+//   only (Next false); the CardPart's Next returns false and stays on R1. A cancelled lookup leaves nothing pending.
 
 table 91710 "LT Y15 Lookup Setting"
 {
@@ -1047,7 +1061,20 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
         Observer.Observe('close log', Log.Take());
         Setting.Get();
         Observer.Observe('stored', Setting."Resource No.");
-        Observer.Finish();
+        Observer.Expect('open log', 'h-agr R1;h-fn R1;h-agr R2;h-fn R2;h-agr R3;h-fn R3;h-agr R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;o-agr R1;o-fn R1;o-agr R2;o-fn R2;o-agr R3;o-fn R3;o-agr R1;o-agr R1;o-fn R1;o-agcr R1;o-fn R1;p-agr R1;p-fn R1;p-agr R1;p-fn R1;p-agcr R1;p-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;o-agr R1;o-fn R1;o-agcr R1;o-fn R1');
+        Observer.Expect('before', '|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/');
+        Observer.Expect('before log', '');
+        Observer.Expect('lookup log', 'lookup;h-fn R1;validate R2;h-fn R1');
+        Observer.Expect('resource no', 'R2');
+        Observer.Expect('resource no log', '');
+        Observer.Expect('current no', 'R1/');
+        Observer.Expect('host fn', 'R1/R2');
+        Observer.Expect('part', 'R1|R1/|R1/');
+        Observer.Expect('other part', 'R1|R1/|R1/');
+        Observer.Expect('read log', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'R2');
+        Observer.Verify();
     end;
 
     // Y63: the linked part moves first after the lookup, then the other part, then the host.
@@ -1075,7 +1102,20 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
         Observer.Observe('after next log', Log.Take());
         Schedule.Close();
         Observer.Observe('close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('lookup log', 'lookup;h-fn R1;validate R2;h-fn R1');
+        Observer.Expect('part next', 'false');
+        Observer.Expect('part next log', 'h-agr R1;h-fn R1;h-agr R2;h-fn R2;h-agr R3;h-fn R3;h-agr R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;o-agr R1;o-fn R1;o-agr R2;o-fn R2;o-agr R3;o-fn R3;o-agr R1;o-agr R1;o-fn R1;o-agcr R1;o-fn R1;p-agr R1;p-fn R1;p-agr R1;p-fn R1;p-agcr R1;p-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;o-agr R1;o-fn R1;o-agcr R1;o-fn R1');
+        Observer.Expect('after part next', 'R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2');
+        Observer.Expect('after part next log', '');
+        Observer.Expect('other next', 'true|R2');
+        Observer.Expect('other next log', 'o-agr R2;o-agr R2;o-fn R2;o-agcr R2;o-fn R2;h-agr R2;h-agr R2;h-fn R2;h-agcr R2;h-fn R2;p-agr R2');
+        Observer.Expect('after other next', 'R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2|R2|R2/R2|R2/R2');
+        Observer.Expect('next', 'true');
+        Observer.Expect('next log', 'h-agr R2;h-fn R2;h-agcr R2;h-fn R2;p-agr R2;p-fn R2;p-agr R2;p-fn R2;p-agcr R2;p-fn R2;h-agr R2;h-fn R2;h-agcr R2;h-fn R2;o-agr R2;o-fn R2;o-agcr R2;o-fn R2');
+        Observer.Expect('after next', 'R2|R2/R2|R2|R2/R2|R2/R2|R2|R2/R2|R2/R2|R2|R2/R2|R2/R2');
+        Observer.Expect('after next log', '');
+        Observer.Expect('close log', '');
+        Observer.Verify();
     end;
 
     // Y63: the other (unlinked) part moves first after the lookup, then the linked part.
@@ -1102,7 +1142,19 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
         Observer.Observe('after part next log', Log.Take());
         Schedule.Close();
         Observer.Observe('close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('lookup log', 'lookup;h-fn R1;validate R2;h-fn R1');
+        Observer.Expect('other next', 'true|R2');
+        Observer.Expect('other next log', 'h-agr R1;h-fn R1;h-agr R2;h-fn R2;h-agr R3;h-fn R3;h-agr R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;o-agr R1;o-fn R1;o-agr R2;o-fn R2;o-agr R3;o-fn R3;o-agr R1;o-agr R1;o-fn R1;o-agcr R1;o-fn R1;p-agr R1;p-fn R1;p-agr R1;p-fn R1;p-agcr R1;p-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;o-agr R1;o-fn R1;o-agcr R1;o-fn R1;o-agr R2;o-agr R2;o-fn R2;o-agcr R2;o-fn R2;h-agr R2;h-agr R2;h-fn R2;h-agcr R2;h-fn R2;p-agr R2');
+        Observer.Expect('after other next', 'R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2|R2|R2/R2|R2/R2');
+        Observer.Expect('after other next log', '');
+        Observer.Expect('other next again', 'true|R3');
+        Observer.Expect('other next again log', 'o-agr R3;o-agr R3;o-fn R3;o-agcr R3;o-fn R3;h-agr R3;h-agr R3;h-fn R3;h-agcr R3;h-fn R3;p-agr R3');
+        Observer.Expect('part next', 'false');
+        Observer.Expect('part next log', '');
+        Observer.Expect('after part next', 'R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2|R3|R3/R2|R3/R2');
+        Observer.Expect('after part next log', '');
+        Observer.Expect('close log', 'p-agr R1;h-agr R1');
+        Observer.Verify();
     end;
 
     // Y63: a cancelled lookup, then both parts move.
@@ -1124,7 +1176,14 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
         Observer.Observe('after', SnapTP(Schedule));
         Observer.Observe('after log', Log.Take());
         Schedule.Close();
-        Observer.Finish();
+        Observer.Expect('lookup log', 'lookup;h-fn R1');
+        Observer.Expect('other next', 'true|R2');
+        Observer.Expect('other next log', 'o-agr R2;o-agr R2;o-fn R2;o-agcr R2;o-fn R2;h-agr R2;h-agr R2;h-fn R2;h-agcr R2;h-fn R2;p-agr R2');
+        Observer.Expect('part next', 'false');
+        Observer.Expect('part next log', '');
+        Observer.Expect('after', '|R1/|R1|R1/|R1/|R1|R1/|R1/|R2|R2/|R2/');
+        Observer.Expect('after log', '');
+        Observer.Verify();
     end;
 
     // Y63: the second ListPart placed after the linked part.
@@ -1147,7 +1206,16 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
         Observer.Observe('other next', Format(Schedule.OtherResources.Next(), 0, 9) + '|' + Schedule.OtherResources."No.".Value());
         Observer.Observe('other next log', Log.Take());
         Schedule.Close();
-        Observer.Finish();
+        Observer.Expect('open log', 'h-agr R1;h-fn R1;h-agr R2;h-fn R2;h-agr R3;h-fn R3;h-agr R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;p-agr R1;p-fn R1;p-agr R1;p-fn R1;p-agcr R1;p-fn R1;o-agr R1;o-fn R1;o-agr R2;o-fn R2;o-agr R3;o-fn R3;o-agr R1;o-agr R1;o-fn R1;o-agcr R1;o-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;p-agr R1;p-fn R1;p-agcr R1;p-fn R1');
+        Observer.Expect('lookup log', 'lookup;h-fn R1;validate R2;h-fn R1');
+        Observer.Expect('after lookup', 'R2|R1/|R1|R1/|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2');
+        Observer.Expect('after lookup log', 'h-agr R1;h-fn R1;h-agr R2;h-fn R2;h-agr R3;h-fn R3;h-agr R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;p-agr R1;p-fn R1;p-agr R1;p-fn R1;p-agcr R1;p-fn R1;o-agr R1;o-fn R1;o-agr R2;o-fn R2;o-agr R3;o-fn R3;o-agr R1;o-agr R1;o-fn R1;o-agcr R1;o-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;p-agr R1;p-fn R1;p-agcr R1;p-fn R1');
+        Observer.Expect('part next', 'false');
+        Observer.Expect('part next log', '');
+        Observer.Expect('after part next', 'R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2');
+        Observer.Expect('other next', 'true|R2');
+        Observer.Expect('other next log', 'o-agr R2;o-agr R2;o-fn R2;o-agcr R2;o-fn R2;h-agr R2;h-agr R2;h-fn R2;h-agcr R2;h-fn R2;p-agr R2');
+        Observer.Verify();
     end;
 
     // Y63: the second ListPart placed after the linked part; every control is read one at a time after the lookup.
@@ -1186,7 +1254,31 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
         Observer.Observe('after', SnapPO(Schedule));
         Observer.Observe('after log', Log.Take());
         Schedule.Close();
-        Observer.Finish();
+        Observer.Expect('lookup log', 'lookup;h-fn R1;validate R2;h-fn R1');
+        Observer.Expect('resource no', 'R2');
+        Observer.Expect('resource no log', '');
+        Observer.Expect('header current', 'R1/');
+        Observer.Expect('header current log', '');
+        Observer.Expect('row', 'R1');
+        Observer.Expect('row log', '');
+        Observer.Expect('current no', 'R1/');
+        Observer.Expect('current no log', '');
+        Observer.Expect('host fn', 'R1/R2');
+        Observer.Expect('host fn log', '');
+        Observer.Expect('part no', 'R1');
+        Observer.Expect('part no log', 'h-agr R1;h-fn R1;h-agr R2;h-fn R2;h-agr R3;h-fn R3;h-agr R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;p-agr R1;p-fn R1;p-agr R1;p-fn R1;p-agcr R1;p-fn R1;o-agr R1;o-fn R1;o-agr R2;o-fn R2;o-agr R3;o-fn R3;o-agr R1;o-agr R1;o-fn R1;o-agcr R1;o-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;p-agr R1;p-fn R1;p-agcr R1;p-fn R1');
+        Observer.Expect('part current', 'R1/R2');
+        Observer.Expect('part current log', '');
+        Observer.Expect('part fn', 'R1/R2');
+        Observer.Expect('part fn log', '');
+        Observer.Expect('other no', 'R1');
+        Observer.Expect('other no log', '');
+        Observer.Expect('other current', 'R1/R2');
+        Observer.Expect('other fn', 'R1/R2');
+        Observer.Expect('other log', '');
+        Observer.Expect('after', 'R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2');
+        Observer.Expect('after log', '');
+        Observer.Verify();
     end;
 
     // Y63: the Y26 three-field host with a CardPart in the FactBox area linked on No. Every control is read after the lookup.
@@ -1215,7 +1307,20 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
         Observer.Observe('close log', Log.Take());
         Setting.Get();
         Observer.Observe('stored', Setting."Resource No.");
-        Observer.Finish();
+        Observer.Expect('open log', 'h-agr R1;h-fn R1;h-agr R2;h-fn R2;h-agr R3;h-fn R3;h-agr R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;p-agr R1;p-fn R1;p-agr R1;p-fn R1;p-agcr R1;p-fn R1;c-agr R1;c-fn R1;c-agcr R1;c-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1');
+        Observer.Expect('before', '|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/');
+        Observer.Expect('before log', '');
+        Observer.Expect('lookup log', 'lookup;h-fn R1;validate R2;h-fn R1');
+        Observer.Expect('resource no', 'R2');
+        Observer.Expect('resource no log', '');
+        Observer.Expect('current no', 'R1/');
+        Observer.Expect('host fn', 'R1/R2');
+        Observer.Expect('part', 'R1|R1/|R1/');
+        Observer.Expect('card part', 'R1|R1/|R1/');
+        Observer.Expect('read log', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'R2');
+        Observer.Verify();
     end;
 
     // Y63: the linked ListPart moves first after the lookup, then the host.
@@ -1240,7 +1345,17 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
         Observer.Observe('after next log', Log.Take());
         Schedule.Close();
         Observer.Observe('close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('lookup log', 'lookup;h-fn R1;validate R2;h-fn R1');
+        Observer.Expect('part next', 'false');
+        Observer.Expect('part next log', 'h-agr R1;h-fn R1;h-agr R2;h-fn R2;h-agr R3;h-fn R3;h-agr R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;p-agr R1;p-fn R1;p-agr R1;p-fn R1;p-agcr R1;p-fn R1;c-agr R1;c-fn R1;c-agcr R1;c-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1');
+        Observer.Expect('after part next', 'R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2');
+        Observer.Expect('after part next log', '');
+        Observer.Expect('next', 'true');
+        Observer.Expect('next log', 'h-agr R2;h-agr R2;h-fn R2;h-agcr R2;h-fn R2;p-agr R2;p-fn R2;p-agr R2;p-fn R2;p-agcr R2;p-fn R2;c-agr R2;c-fn R2;c-agcr R2;c-fn R2;h-agr R2;h-fn R2;h-agcr R2;h-fn R2');
+        Observer.Expect('after next', 'R2|R2/R2|R2|R2/R2|R2/R2|R2|R2/R2|R2/R2|R2|R2/R2|R2/R2');
+        Observer.Expect('after next log', '');
+        Observer.Expect('close log', '');
+        Observer.Verify();
     end;
 
     // Y63: the FactBox CardPart moves first after the lookup, then the linked ListPart.
@@ -1264,7 +1379,16 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
         Observer.Observe('after part next', SnapCP(Schedule));
         Observer.Observe('after part next log', Log.Take());
         Schedule.Close();
-        Observer.Finish();
+        Observer.Expect('lookup log', 'lookup;h-fn R1;validate R2;h-fn R1');
+        Observer.Expect('card next', 'false|R1');
+        Observer.Expect('card next log', 'h-agr R1;h-fn R1;h-agr R2;h-fn R2;h-agr R3;h-fn R3;h-agr R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;p-agr R1;p-fn R1;p-agr R1;p-fn R1;p-agcr R1;p-fn R1;c-agr R1;c-fn R1;c-agcr R1;c-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1');
+        Observer.Expect('after card next', 'R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2');
+        Observer.Expect('after card next log', '');
+        Observer.Expect('part next', 'false');
+        Observer.Expect('part next log', '');
+        Observer.Expect('after part next', 'R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2');
+        Observer.Expect('after part next log', '');
+        Observer.Verify();
     end;
 
     // Y63: a cancelled lookup on the FactBox host, then the linked part moves.
@@ -1284,7 +1408,12 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
         Observer.Observe('after', SnapCP(Schedule));
         Observer.Observe('after log', Log.Take());
         Schedule.Close();
-        Observer.Finish();
+        Observer.Expect('lookup log', 'lookup;h-fn R1');
+        Observer.Expect('part next', 'false');
+        Observer.Expect('part next log', '');
+        Observer.Expect('after', '|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/');
+        Observer.Expect('after log', '');
+        Observer.Verify();
     end;
 
     // Y63: no part is touched before the lookup; the first access to a part after it is a read of the other part's control.
@@ -1306,7 +1435,14 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
         Observer.Observe('after', SnapTP(Schedule));
         Observer.Observe('after log', Log.Take());
         Schedule.Close();
-        Observer.Finish();
+        Observer.Expect('lookup log', 'lookup;h-fn R1;validate R2;h-fn R1');
+        Observer.Expect('other no', 'R1');
+        Observer.Expect('other no log', 'h-agr R1;h-fn R1;h-agr R2;h-fn R2;h-agr R3;h-fn R3;h-agr R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;o-agr R1;o-fn R1;o-agr R2;o-fn R2;o-agr R3;o-fn R3;o-agr R1;o-agr R1;o-fn R1;o-agcr R1;o-fn R1;p-agr R1;p-fn R1;p-agr R1;p-fn R1;p-agcr R1;p-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;o-agr R1;o-fn R1;o-agcr R1;o-fn R1');
+        Observer.Expect('part no', 'R1');
+        Observer.Expect('part no log', '');
+        Observer.Expect('after', 'R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2');
+        Observer.Expect('after log', '');
+        Observer.Verify();
     end;
 
     // Y63: both parts are read before the lookup; after it the linked part moves.
@@ -1327,7 +1463,13 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
         Observer.Observe('after', SnapTP(Schedule));
         Observer.Observe('after log', Log.Take());
         Schedule.Close();
-        Observer.Finish();
+        Observer.Expect('before', 'R1|R1');
+        Observer.Expect('lookup log', 'lookup;h-fn R1;validate R2;h-fn R1');
+        Observer.Expect('part next', 'false');
+        Observer.Expect('part next log', 'h-agr R1;h-fn R1;h-agr R2;h-fn R2;h-agr R3;h-fn R3;h-agr R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;o-agr R1;o-fn R1;o-agr R2;o-fn R2;o-agr R3;o-fn R3;o-agr R1;o-agr R1;o-fn R1;o-agcr R1;o-fn R1;p-agr R1;p-fn R1;p-agr R1;p-fn R1;p-agcr R1;p-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;o-agr R1;o-fn R1;o-agcr R1;o-fn R1');
+        Observer.Expect('after', 'R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2');
+        Observer.Expect('after log', '');
+        Observer.Verify();
     end;
 
     // Y63: the linked part (placed first) is read before the lookup; after it the other part's control is read.
@@ -1350,7 +1492,15 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
         Observer.Observe('after', SnapPO(Schedule));
         Observer.Observe('after log', Log.Take());
         Schedule.Close();
-        Observer.Finish();
+        Observer.Expect('before', 'R1');
+        Observer.Expect('lookup log', 'lookup;h-fn R1;validate R2;h-fn R1');
+        Observer.Expect('part no', 'R1|R1/');
+        Observer.Expect('part no log', '');
+        Observer.Expect('other no', 'R1|R1/R2');
+        Observer.Expect('other no log', 'h-agr R1;h-fn R1;h-agr R2;h-fn R2;h-agr R3;h-fn R3;h-agr R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;p-agr R1;p-fn R1;p-agr R1;p-fn R1;p-agcr R1;p-fn R1;o-agr R1;o-fn R1;o-agr R2;o-fn R2;o-agr R3;o-fn R3;o-agr R1;o-agr R1;o-fn R1;o-agcr R1;o-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;p-agr R1;p-fn R1;p-agcr R1;p-fn R1');
+        Observer.Expect('after', 'R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2');
+        Observer.Expect('after log', '');
+        Observer.Verify();
     end;
 
     // Y63: no part is touched before the lookup; the first access after it is a read of the FactBox CardPart's control.
@@ -1372,7 +1522,14 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
         Observer.Observe('after', SnapCP(Schedule));
         Observer.Observe('after log', Log.Take());
         Schedule.Close();
-        Observer.Finish();
+        Observer.Expect('lookup log', 'lookup;h-fn R1;validate R2;h-fn R1');
+        Observer.Expect('card no', 'R1|R1/R2');
+        Observer.Expect('card no log', 'h-agr R1;h-fn R1;h-agr R2;h-fn R2;h-agr R3;h-fn R3;h-agr R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;p-agr R1;p-fn R1;p-agr R1;p-fn R1;p-agcr R1;p-fn R1;c-agr R1;c-fn R1;c-agcr R1;c-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1');
+        Observer.Expect('part no', 'R1|R1/R2');
+        Observer.Expect('part no log', '');
+        Observer.Expect('after', 'R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2');
+        Observer.Expect('after log', '');
+        Observer.Verify();
     end;
 
     local procedure SnapTP(var Schedule: TestPage "LT Y63 Two Part Schedule"): Text
