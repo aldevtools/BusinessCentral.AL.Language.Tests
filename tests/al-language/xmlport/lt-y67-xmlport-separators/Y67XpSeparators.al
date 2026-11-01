@@ -278,6 +278,12 @@ codeunit 93614 "LT Y67 Sep Tests"
         exit(T);
     end;
 
+    [TryFunction]
+    local procedure TryImport(var Xp: XmlPort "LT Y67 Sep Import")
+    begin
+        Xp.Import();
+    end;
+
     local procedure Import(Mode: Integer; Content: Text; var Result: Text)
     var
         Xp: XmlPort "LT Y67 Sep Import";
@@ -292,7 +298,8 @@ codeunit 93614 "LT Y67 Sep Tests"
         TempBlob.CreateInStream(InS, TextEncoding::UTF8);
         Xp.SetMode(Mode);
         Xp.SetSource(InS);
-        if not Xp.Import() then begin
+        ClearLastError();
+        if not TryImport(Xp) then begin
             Result := 'error ' + GetLastErrorText() + '|' + GetLastErrorCode();
             exit;
         end;
@@ -364,7 +371,7 @@ codeunit 93614 "LT Y67 Sep Tests"
         Run(Observer, 101);
         Run(Observer, 111);
         Run(Observer, 114);
-        Run(Observer, 121);
+        RunWith(Observer, 121, TextEncoding::UTF16);
         Observer.Finish();
     end;
 

@@ -93,6 +93,14 @@ codeunit 93629 "LT Y67 Variant Numeric"
         Txt := Format(T, 0, 9);
     end;
 
+    // The runtime namespace prefixes make the texts long; they are written as tags.
+    local procedure Short(ErrText: Text): Text
+    begin
+        ErrText := ErrText.Replace('The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.', '<ind>');
+        ErrText := ErrText.Replace('Unable to convert from Microsoft.Dynamics.Nav.Runtime.', '<conv>');
+        exit(ErrText);
+    end;
+
     local procedure Targets(V: Variant): Text
     var
         Txt: Text;
@@ -124,7 +132,7 @@ codeunit 93629 "LT Y67 Variant Numeric"
                     Ok := ToBoolean(V, Txt);
             end;
             if not Ok then
-                Txt := 'error:' + GetLastErrorText() + '|' + GetLastErrorCode();
+                Txt := 'error:' + Short(GetLastErrorText()) + '|' + GetLastErrorCode();
             All += Txt + ' ; ';
         end;
         exit(All);
@@ -136,13 +144,21 @@ codeunit 93629 "LT Y67 Variant Numeric"
     end;
 
     [Test]
-    procedure DefinedDates_IntoNumbers()
+    procedure Variant_DefinedDates_A()
     var
         Observer: Codeunit "Probe Observer";
     begin
         Show(Observer, '17530101D', 17530101D);
         Show(Observer, '17530102D', 17530102D);
         Show(Observer, '18991231D', 18991231D);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Variant_DefinedDates_B()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Show(Observer, '19000101D', 19000101D);
         Show(Observer, '19991231D', 19991231D);
         Show(Observer, '20000101D', 20000101D);
@@ -150,13 +166,21 @@ codeunit 93629 "LT Y67 Variant Numeric"
     end;
 
     [Test]
-    procedure DefinedDates_IntoNumbers_More()
+    procedure Variant_DefinedDates_C()
     var
         Observer: Codeunit "Probe Observer";
     begin
         Show(Observer, '20240229D', 20240229D);
         Show(Observer, '20260115D', 20260115D);
         Show(Observer, '20261231D', 20261231D);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Variant_DefinedDates_D()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Show(Observer, '99991231D', 99991231D);
         Show(Observer, 'closing 20260115D', ClosingDate(20260115D));
         Show(Observer, 'closing 17530101D', ClosingDate(17530101D));
@@ -164,13 +188,21 @@ codeunit 93629 "LT Y67 Variant Numeric"
     end;
 
     [Test]
-    procedure TimesAndDateTimes_IntoNumbers()
+    procedure Variant_Times_A()
     var
         Observer: Codeunit "Probe Observer";
     begin
         Show(Observer, '000000T', 000000T);
         Show(Observer, '120000T', 120000T);
         Show(Observer, '235959.999T', 235959.999T);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Variant_DateTimes_A()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Show(Observer, 'dt 20260115 120000', CreateDateTime(20260115D, 120000T));
         Show(Observer, 'dt 20000101 000000', CreateDateTime(20000101D, 000000T));
         Show(Observer, 'dt closing', CreateDateTime(ClosingDate(20260115D), 120000T));
@@ -178,7 +210,7 @@ codeunit 93629 "LT Y67 Variant Numeric"
     end;
 
     [Test]
-    procedure OtherNumericTypes_IntoNumbers()
+    procedure Variant_Numbers_A()
     var
         Observer: Codeunit "Probe Observer";
         Dur: Duration;
@@ -197,6 +229,26 @@ codeunit 93629 "LT Y67 Variant Numeric"
         Show(Observer, 'duration 1500', Dur);
         Show(Observer, 'biginteger', Big);
         Show(Observer, 'decimal 2.5', Dec);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Variant_Numbers_B()
+    var
+        Observer: Codeunit "Probe Observer";
+        Dur: Duration;
+        Big: BigInteger;
+        Dec: Decimal;
+        Int: Integer;
+        Flag: Boolean;
+        Cd: Code[10];
+    begin
+        Dur := 1500;
+        Evaluate(Big, '5000000000');
+        Dec := 2.5;
+        Int := -7;
+        Flag := true;
+        Cd := '12';
         Show(Observer, 'integer -7', Int);
         Show(Observer, 'boolean true', Flag);
         Show(Observer, 'code 12', Cd);
@@ -204,13 +256,21 @@ codeunit 93629 "LT Y67 Variant Numeric"
     end;
 
     [Test]
-    procedure TextNumbers_IntoNumbers()
+    procedure Variant_TextNumbers_A()
     var
         Observer: Codeunit "Probe Observer";
     begin
         Show(Observer, 'text 12', '12');
         Show(Observer, 'text 12.5', '12.5');
         Show(Observer, 'text 20260115', '20260115');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Variant_TextNumbers_B()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Show(Observer, 'text true', 'true');
         Show(Observer, 'text empty', '');
         Show(Observer, 'text abc', 'abc');

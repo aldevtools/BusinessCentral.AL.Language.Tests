@@ -240,6 +240,14 @@ codeunit 93631 "LT Y67 FV Tests"
         end;
     end;
 
+    // The long fixed tails and namespace prefixes of the texts are written as tags so that an observation stays short.
+    local procedure Short(ErrText: Text): Text
+    begin
+        ErrText := ErrText.Replace('Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.', '<datehelp>');
+        ErrText := ErrText.Replace('Microsoft.Dynamics.Nav.Runtime.', '<ns>');
+        exit(ErrText);
+    end;
+
     local procedure Cell(var Observer: Codeunit "Probe Observer"; FieldNo: Integer; Index: Integer)
     var
         Row: Record "LT Y67 FV Row";
@@ -256,7 +264,7 @@ codeunit 93631 "LT Y67 FV Tests"
         if TryValidate(FRef, V) then
             Result := 'validate=' + Format(FRef.Value, 0, 9) + ' hits=' + Format(RecRef.Field(15).Value, 0, 9)
         else
-            Result := 'validate error:' + GetLastErrorText() + '|' + GetLastErrorCode();
+            Result := 'validate error:' + Short(GetLastErrorText()) + '|' + GetLastErrorCode();
         Clear(Row);
         RecRef.GetTable(Row);
         FRef := RecRef.Field(FieldNo);
@@ -264,7 +272,7 @@ codeunit 93631 "LT Y67 FV Tests"
         if TryAssign(FRef, V) then
             Result += ' ; assign=' + Format(FRef.Value, 0, 9) + ' hits=' + Format(RecRef.Field(15).Value, 0, 9)
         else
-            Result += ' ; assign error:' + GetLastErrorText() + '|' + GetLastErrorCode();
+            Result += ' ; assign error:' + Short(GetLastErrorText()) + '|' + GetLastErrorCode();
         Observer.Observe(Name, Result);
     end;
 

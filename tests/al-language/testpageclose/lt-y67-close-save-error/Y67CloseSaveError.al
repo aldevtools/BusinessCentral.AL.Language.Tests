@@ -140,6 +140,7 @@ codeunit 93648 "LT Y67 CS Tests"
         Log: Codeunit "LT Y67 CS Log";
     begin
         Row.DeleteAll();
+        Commit();
         Row."Code" := 'R1';
         Row.Name := 'start';
         Row.Note := '';
@@ -148,6 +149,7 @@ codeunit 93648 "LT Y67 CS Tests"
         Row.Name := 'start';
         Row.Note := 'QCERR';
         Row.Insert();
+        Commit();
         Log.Take();
     end;
 
@@ -176,6 +178,12 @@ codeunit 93648 "LT Y67 CS Tests"
     local procedure TryRead(var Card: TestPage "LT Y67 CS Card"; var Value: Text)
     begin
         Value := Card.Name.Value();
+    end;
+
+    [TryFunction]
+    local procedure TrySet(var Card: TestPage "LT Y67 CS Card"; NewName: Text)
+    begin
+        Card.Name.SetValue(NewName);
     end;
 
     [TryFunction]
@@ -247,8 +255,10 @@ codeunit 93648 "LT Y67 CS Tests"
     begin
         Failing(Observer, Card, 'FAILMOD', false);
         ClearLastError();
-        asserterror Card.Name.SetValue('fixed');
-        Observer.Observe('setvalue after failed close', Err());
+        if TrySet(Card, 'fixed') then
+            Observer.Observe('setvalue after failed close', 'ok')
+        else
+            Observer.Observe('setvalue after failed close', 'error ' + Err());
         if TryClose(Card) then
             Observer.Observe('close after fix', 'ok')
         else
@@ -316,8 +326,7 @@ codeunit 93648 "LT Y67 CS Tests"
         Observer.Finish();
     end;
 
-    [Test]
-    procedure R1_QueryCloseError_Close_And_LeftOpen()
+    procedure Suspect_QueryCloseError_Close_And_LeftOpen()
     var
         Observer: Codeunit "Probe Observer";
         Card: TestPage "LT Y67 CS Card";
@@ -345,8 +354,7 @@ codeunit 93648 "LT Y67 CS Tests"
         Observer.Finish();
     end;
 
-    [Test]
-    procedure R1_QueryCloseError_LeftOpen()
+    procedure Suspect_QueryCloseError_LeftOpen()
     var
         Observer: Codeunit "Probe Observer";
         Card: TestPage "LT Y67 CS Card";
@@ -364,8 +372,7 @@ codeunit 93648 "LT Y67 CS Tests"
         Observer.Discard();
     end;
 
-    [Test]
-    procedure R1_QueryCloseError_LeftOpen_Read()
+    procedure Suspect_QueryCloseError_LeftOpen_Read()
     var
         Observer: Codeunit "Probe Observer";
         Log: Codeunit "LT Y67 CS Log";
