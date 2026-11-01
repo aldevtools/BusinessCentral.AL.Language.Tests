@@ -302,7 +302,13 @@ codeunit 93618 "LT Y67 TA Tests"
         One(Observer, 0);
         One(Observer, 1);
         One(Observer, 2);
-        Observer.Finish();
+        Observer.Expect('m0 xml', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <Direct dscheme="D8">dv</Direct>|  <Cont1>|    <Cont2>|      <EP scheme="0088" sid="S1">ep-value</EP>|    </Cont2>|    <Sib>sv</Sib>|  </Cont1>|  <D1>|    <D2>|      <D3>|        <Deep dk="K">dd</Deep>|      </D3>|    </D2>|  </D1>|  <After>av</After>|</Root>|');
+        Observer.Expect('m0 log', 'direct;direct dscheme;cont1;cont2;ep;scheme;sid;sib;deep;dk;after;');
+        Observer.Expect('m1 xml', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <Direct dscheme="D8">dv</Direct>|  <Cont1>|    <Cont2 />|    <Sib>sv</Sib>|  </Cont1>|  <D1>|    <D2>|      <D3>|        <Deep dk="K">dd</Deep>|      </D3>|    </D2>|  </D1>|  <After>av</After>|</Root>|');
+        Observer.Expect('m1 log', 'direct;direct dscheme;cont1;cont2;ep;sib;deep;dk;after;');
+        Observer.Expect('m2 xml', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <Direct dscheme="D8">dv</Direct>|  <Cont1>|    <Cont2>|      <EP sid="S1">ep-value</EP>|    </Cont2>|    <Sib>sv</Sib>|  </Cont1>|  <D1>|    <D2>|      <D3>|        <Deep dk="K">dd</Deep>|      </D3>|    </D2>|  </D1>|  <After>av</After>|</Root>|');
+        Observer.Expect('m2 log', 'direct;direct dscheme;cont1;cont2;ep;scheme;sid;sib;deep;dk;after;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -313,7 +319,13 @@ codeunit 93618 "LT Y67 TA Tests"
         One(Observer, 3);
         One(Observer, 8);
         One(Observer, 4);
-        Observer.Finish();
+        Observer.Expect('m3 xml', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <Direct dscheme="D8">dv</Direct>|  <Cont1>|    <Cont2>|      <EP scheme="0088" sid="S1" />|    </Cont2>|    <Sib>sv</Sib>|  </Cont1>|  <D1>|    <D2>|      <D3>|        <Deep dk="K">dd</Deep>|      </D3>|    </D2>|  </D1>|  <After>av</After>|</Root>|');
+        Observer.Expect('m3 log', 'direct;direct dscheme;cont1;cont2;ep;scheme;sid;sib;deep;dk;after;');
+        Observer.Expect('m8 xml', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <Direct dscheme="D8">dv</Direct>|  <Cont1>|    <Cont2>|      <EP scheme="0088" sid="S1">changed</EP>|    </Cont2>|    <Sib>sv</Sib>|  </Cont1>|  <D1>|    <D2>|      <D3>|        <Deep dk="K">dd</Deep>|      </D3>|    </D2>|  </D1>|  <After>av</After>|</Root>|');
+        Observer.Expect('m8 log', 'direct;direct dscheme;cont1;cont2;ep;scheme;sid;sib;deep;dk;after;');
+        Observer.Expect('m4 xml', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <Direct dscheme="D8">dv</Direct>|  <Cont1>|    <Sib>sv</Sib>|  </Cont1>|  <D1>|    <D2>|      <D3>|        <Deep dk="K">dd</Deep>|      </D3>|    </D2>|  </D1>|  <After>av</After>|</Root>|');
+        Observer.Expect('m4 log', 'direct;direct dscheme;cont1;cont2;sib;deep;dk;after;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -325,7 +337,15 @@ codeunit 93618 "LT Y67 TA Tests"
         One(Observer, 6);
         One(Observer, 7);
         One(Observer, 9);
-        Observer.Finish();
+        Observer.Expect('m5 xml', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <Direct dscheme="D8">dv</Direct>|  <D1>|    <D2>|      <D3>|        <Deep dk="K">dd</Deep>|      </D3>|    </D2>|  </D1>|  <After>av</After>|</Root>|');
+        Observer.Expect('m5 log', 'direct;direct dscheme;cont1;deep;dk;after;');
+        Observer.Expect('m6 xml', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <Cont1>|    <Cont2>|      <EP scheme="0088" sid="S1">ep-value</EP>|    </Cont2>|    <Sib>sv</Sib>|  </Cont1>|  <D1>|    <D2>|      <D3>|        <Deep dk="K">dd</Deep>|      </D3>|    </D2>|  </D1>|  <After>av</After>|</Root>|');
+        Observer.Expect('m6 log', 'direct;cont1;cont2;ep;scheme;sid;sib;deep;dk;after;');
+        Observer.Expect('m7 xml', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <Direct>dv</Direct>|  <Cont1>|    <Cont2>|      <EP scheme="0088" sid="S1">ep-value</EP>|    </Cont2>|    <Sib>sv</Sib>|  </Cont1>|  <D1>|    <D2>|      <D3>|        <Deep dk="K">dd</Deep>|      </D3>|    </D2>|  </D1>|  <After>av</After>|</Root>|');
+        Observer.Expect('m7 log', 'direct;direct dscheme;cont1;cont2;ep;scheme;sid;sib;deep;dk;after;');
+        Observer.Expect('m9 xml', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <Direct dscheme="D8">dv</Direct>|  <Cont1>|    <Cont2>|      <EP scheme="0088" sid="S1">ep-value</EP>|    </Cont2>|    <Sib>sv</Sib>|  </Cont1>|  <D1>|    <D2>|      <D3 />|    </D2>|  </D1>|  <After>av</After>|</Root>|');
+        Observer.Expect('m9 log', 'direct;direct dscheme;cont1;cont2;ep;scheme;sid;sib;deep;after;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -342,6 +362,14 @@ codeunit 93618 "LT Y67 TA Tests"
         Observer.Observe('empty ep log', Log.Take());
         Observer.Observe('missing ok', ImportText('<Root><Cont1 /><After>q</After></Root>'));
         Observer.Observe('missing log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('full ok', 'ok');
+        Observer.Expect('full log', 'scheme=0088;sid=S1;ep=v;cont2=[];cont1=[];after=z;');
+        Observer.Expect('no attr ok', 'ok');
+        Observer.Expect('no attr log', 'ep=v;cont2=[];cont1=[];');
+        Observer.Expect('empty ep ok', 'ok');
+        Observer.Expect('empty ep log', 'scheme=9;ep=;cont2=[];cont1=[];');
+        Observer.Expect('missing ok', 'ok');
+        Observer.Expect('missing log', 'cont1=[];after=q;');
+        Observer.Verify();
     end;
 }

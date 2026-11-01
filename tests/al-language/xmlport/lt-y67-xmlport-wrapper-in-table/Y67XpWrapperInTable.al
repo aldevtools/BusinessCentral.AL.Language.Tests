@@ -535,7 +535,9 @@ codeunit 93625 "LT Y67 WT Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RunTemp(Observer, 'two resp', 2, true, true, 0);
-        Observer.Finish();
+        Observer.Expect('two resp xml', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <Resp inst="I1">|    <status>ok</status>|    <membership>|      <code codename="N-H1">H1</code>|      <title>name1</title>|      <loyalty loyname="L">lv</loyalty>|      <counts named="1" anon="2">3</counts>|      <attributes>|        <Attr dno="1" attrname="A1" info="i1" />|        <Attr dno="2" attrname="A2" info="i2" />|      </attributes>|      <Entry>|        <line>10</line>|        <item itemname="it">x</item>|      </Entry>|      <Entry>|        <line>20</line>|        <item itemname="it">y</item>|      </Entry>|    </membership>|  </Resp>|  <Resp inst="I1">|    <status>ok</status>|    <membership>|      <code codename="N-H2">H2</code>|      <title>name2</title>|      <loyalty loyname="L">lv</loyalty>|      <counts named="1" anon="2">3</counts>|      <attributes>|        <Attr dno="1" attrname="A1" info="i1" />|        <Attr dno="2" attrname="A2" info="i2" />|      </attributes>|      <Entry>|        <line>10</line>|        <item itemname="it">x</item>|      </Entry>|      <Entry>|        <line>20</line>|        <item itemname="it">y</item>|      </Entry>|    </membership>|  </Resp>|</Root>|');
+        Observer.Expect('two resp log', 'resp H1;inst;status;membership;codename;loyalty;loyname;counts;attributes;attr 1;attrname;attr 2;attrname;entry 10;entry 20;resp H2;inst;status;membership;codename;loyalty;loyname;counts;attributes;attr 1;attrname;attr 2;attrname;entry 10;entry 20;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -546,7 +548,13 @@ codeunit 93625 "LT Y67 WT Tests"
         RunTemp(Observer, 'no lines', 1, false, true, 0);
         RunTemp(Observer, 'no dets', 1, true, false, 0);
         RunTemp(Observer, 'neither', 1, false, false, 0);
-        Observer.Finish();
+        Observer.Expect('no lines xml', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <Resp inst="I1">|    <status>ok</status>|    <membership>|      <code codename="N-H1">H1</code>|      <title>name1</title>|      <loyalty loyname="L">lv</loyalty>|      <counts named="1" anon="2">3</counts>|      <attributes>|        <Attr dno="1" attrname="A1" info="i1" />|        <Attr dno="2" attrname="A2" info="i2" />|      </attributes>|    </membership>|  </Resp>|</Root>|');
+        Observer.Expect('no lines log', 'resp H1;inst;status;membership;codename;loyalty;loyname;counts;attributes;attr 1;attrname;attr 2;attrname;');
+        Observer.Expect('no dets xml', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <Resp inst="I1">|    <status>ok</status>|    <membership>|      <code codename="N-H1">H1</code>|      <title>name1</title>|      <loyalty loyname="L">lv</loyalty>|      <counts named="1" anon="2">3</counts>|      <attributes />|      <Entry>|        <line>10</line>|        <item itemname="it">x</item>|      </Entry>|      <Entry>|        <line>20</line>|        <item itemname="it">y</item>|      </Entry>|    </membership>|  </Resp>|</Root>|');
+        Observer.Expect('no dets log', 'resp H1;inst;status;membership;codename;loyalty;loyname;counts;attributes;entry 10;entry 20;');
+        Observer.Expect('neither xml', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <Resp inst="I1">|    <status>ok</status>|    <membership>|      <code codename="N-H1">H1</code>|      <title>name1</title>|      <loyalty loyname="L">lv</loyalty>|      <counts named="1" anon="2">3</counts>|      <attributes />|    </membership>|  </Resp>|</Root>|');
+        Observer.Expect('neither log', 'resp H1;inst;status;membership;codename;loyalty;loyname;counts;attributes;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -556,7 +564,11 @@ codeunit 93625 "LT Y67 WT Tests"
     begin
         RunTemp(Observer, 'no resp', 0, true, true, 0);
         RunTemp(Observer, 'skip wrapper', 2, true, true, 1);
-        Observer.Finish();
+        Observer.Expect('no resp xml', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root />|');
+        Observer.Expect('no resp log', '');
+        Observer.Expect('skip wrapper xml', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <Resp inst="I1">|    <status>ok</status>|  </Resp>|  <Resp inst="I1">|    <status>ok</status>|  </Resp>|</Root>|');
+        Observer.Expect('skip wrapper log', 'resp H1;inst;status;membership;resp H2;inst;status;membership;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -565,7 +577,9 @@ codeunit 93625 "LT Y67 WT Tests"
         Observer: Codeunit "Probe Observer";
     begin
         RunReal(Observer, 'two resp', 2, true, true, 0);
-        Observer.Finish();
+        Observer.Expect('two resp xml', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <Resp inst="I1">|    <status>ok</status>|    <membership>|      <code codename="N-H1">H1</code>|      <title>name1</title>|      <loyalty loyname="L">lv</loyalty>|      <counts named="1" anon="2">3</counts>|      <attributes>|        <Attr dno="1" attrname="A1" info="i1" />|        <Attr dno="2" attrname="A2" info="i2" />|      </attributes>|      <Entry>|        <line>10</line>|        <item itemname="it">x</item>|      </Entry>|      <Entry>|        <line>20</line>|        <item itemname="it">y</item>|      </Entry>|    </membership>|  </Resp>|  <Resp inst="I1">|    <status>ok</status>|    <membership>|      <code codename="N-H2">H2</code>|      <title>name2</title>|      <loyalty loyname="L">lv</loyalty>|      <counts named="1" anon="2">3</counts>|      <attributes>|        <Attr dno="1" attrname="A1" info="i1" />|        <Attr dno="2" attrname="A2" info="i2" />|      </attributes>|      <Entry>|        <line>10</line>|        <item itemname="it">x</item>|      </Entry>|      <Entry>|        <line>20</line>|        <item itemname="it">y</item>|      </Entry>|    </membership>|  </Resp>|</Root>|');
+        Observer.Expect('two resp log', 'resp H1;inst;status;membership;codename;loyalty;loyname;counts;attributes;attr 1;attrname;attr 2;attrname;entry 10;entry 20;resp H2;inst;status;membership;codename;loyalty;loyname;counts;attributes;attr 1;attrname;attr 2;attrname;entry 10;entry 20;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -577,6 +591,14 @@ codeunit 93625 "LT Y67 WT Tests"
         RunReal(Observer, 'neither', 1, false, false, 0);
         RunReal(Observer, 'no resp', 0, true, true, 0);
         RunReal(Observer, 'skip wrapper', 2, true, true, 1);
-        Observer.Finish();
+        Observer.Expect('no lines xml', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <Resp inst="I1">|    <status>ok</status>|    <membership>|      <code codename="N-H1">H1</code>|      <title>name1</title>|      <loyalty loyname="L">lv</loyalty>|      <counts named="1" anon="2">3</counts>|      <attributes>|        <Attr dno="1" attrname="A1" info="i1" />|        <Attr dno="2" attrname="A2" info="i2" />|      </attributes>|    </membership>|  </Resp>|</Root>|');
+        Observer.Expect('no lines log', 'resp H1;inst;status;membership;codename;loyalty;loyname;counts;attributes;attr 1;attrname;attr 2;attrname;');
+        Observer.Expect('neither xml', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <Resp inst="I1">|    <status>ok</status>|    <membership>|      <code codename="N-H1">H1</code>|      <title>name1</title>|      <loyalty loyname="L">lv</loyalty>|      <counts named="1" anon="2">3</counts>|      <attributes />|    </membership>|  </Resp>|</Root>|');
+        Observer.Expect('neither log', 'resp H1;inst;status;membership;codename;loyalty;loyname;counts;attributes;');
+        Observer.Expect('no resp xml', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root />|');
+        Observer.Expect('no resp log', '');
+        Observer.Expect('skip wrapper xml', '<?xml version="1.0" encoding="UTF-16" standalone="no"?>|<Root>|  <Resp inst="I1">|    <status>ok</status>|  </Resp>|  <Resp inst="I1">|    <status>ok</status>|  </Resp>|</Root>|');
+        Observer.Expect('skip wrapper log', 'resp H1;inst;status;membership;resp H2;inst;status;membership;');
+        Observer.Verify();
     end;
 }

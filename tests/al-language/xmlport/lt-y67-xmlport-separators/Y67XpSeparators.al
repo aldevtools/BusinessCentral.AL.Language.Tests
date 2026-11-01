@@ -320,7 +320,27 @@ codeunit 93614 "LT Y67 Sep Tests"
         Run(Observer, 0);
         for i := 1 to 9 do
             Run(Observer, i);
-        Observer.Finish();
+        Observer.Expect('m0 out', 'len=38 "1","one, "q"","n;1#x"|"2","two",""|');
+        Observer.Expect('m0 seen', 'sep=[,] delim=["] rec=[\n] table=[] enc=UTF8');
+        Observer.Expect('m1 out', 'len=38 "1";"one, "q"";"n;1#x"|"2";"two";""|');
+        Observer.Expect('m1 seen', 'sep=[;] delim=["] rec=[\n] table=[] enc=UTF8');
+        Observer.Expect('m2 out', 'len=42 "1"::"one, "q""::"n;1#x"|"2"::"two"::""|');
+        Observer.Expect('m2 seen', 'sep=[::] delim=["] rec=[\n] table=[] enc=UTF8');
+        Observer.Expect('m3 out', 'len=38 "1"|"one, "q""|"n;1#x"|"2"|"two"|""|');
+        Observer.Expect('m3 seen', 'sep=[|] delim=["] rec=[\n] table=[] enc=UTF8');
+        Observer.Expect('m4 out', 'len=38 "1"\t"one, "q""\t"n;1#x"|"2"\t"two"\t""|');
+        Observer.Expect('m4 seen', 'sep=[\t] delim=["] rec=[\n] table=[] enc=UTF8');
+        Observer.Expect('m5 out', 'len=38 "1"#"one, "q""#"n;1#x"|"2"#"two"#""|');
+        Observer.Expect('m5 seen', 'sep=[#] delim=["] rec=[\n] table=[] enc=UTF8');
+        Observer.Expect('m6 out', 'len=38 "1"Z"one, "q""Z"n;1#x"|"2"Z"two"Z""|');
+        Observer.Expect('m6 seen', 'sep=[Z] delim=["] rec=[\n] table=[] enc=UTF8');
+        Observer.Expect('m7 out', 'len=38 "1"#"one, "q""#"n;1#x"|"2"#"two"#""|');
+        Observer.Expect('m7 seen', 'sep=[#] delim=["] rec=[\n] table=[] enc=UTF8');
+        Observer.Expect('m8 out', 'len=54 "1"<TAB>"one, "q""<TAB>"n;1#x"|"2"<TAB>"two"<TAB>""|');
+        Observer.Expect('m8 seen', 'sep=[<TAB>] delim=["] rec=[\n] table=[] enc=UTF8');
+        Observer.Expect('m9 out', 'len=34 "1""one, "q"""n;1#x"|"2""two"""|');
+        Observer.Expect('m9 seen', 'sep=[] delim=["] rec=[\n] table=[] enc=UTF8');
+        Observer.Verify();
     end;
 
     [Test]
@@ -332,7 +352,15 @@ codeunit 93614 "LT Y67 Sep Tests"
         Seed();
         for i := 10 to 13 do
             Run(Observer, i);
-        Observer.Finish();
+        Observer.Expect('m10 out', 'len=38 ''1'',''one, "q"'',''n;1#x''|''2'',''two'',''''|');
+        Observer.Expect('m10 seen', 'sep=[,] delim=[''] rec=[\n] table=[] enc=UTF8');
+        Observer.Expect('m11 out', 'len=38 #1#,#one, "q"#,#n;1#x#|#2#,#two#,##|');
+        Observer.Expect('m11 seen', 'sep=[,] delim=[#] rec=[\n] table=[] enc=UTF8');
+        Observer.Expect('m12 out', 'len=26 1,one, "q",n;1#x|2,two,|');
+        Observer.Expect('m12 seen', 'sep=[,] delim=[] rec=[\n] table=[] enc=UTF8');
+        Observer.Expect('m13 out', 'len=98 <None>1<None>,<None>one, "q"<None>,<None>n;1#x<None>|<None>2<None>,<None>two<None>,<None><None>|');
+        Observer.Expect('m13 seen', 'sep=[,] delim=[<None>] rec=[\n] table=[] enc=UTF8');
+        Observer.Verify();
     end;
 
     [Test]
@@ -344,7 +372,21 @@ codeunit 93614 "LT Y67 Sep Tests"
         Seed();
         for i := 14 to 20 do
             Run(Observer, i);
-        Observer.Finish();
+        Observer.Expect('m14 out', 'len=39 "1","one, "q"","n;1#x"|"2","two",""|');
+        Observer.Expect('m14 seen', 'sep=[,] delim=["] rec=[\r\n] table=[] enc=UTF8');
+        Observer.Expect('m15 out', 'len=38 "1","one, "q"","n;1#x"#"2","two",""|');
+        Observer.Expect('m15 seen', 'sep=[,] delim=["] rec=[#] table=[] enc=UTF8');
+        Observer.Expect('m16 out', 'len=43 "1","one, "q"","n;1#x"<None>"2","two",""|');
+        Observer.Expect('m16 seen', 'sep=[,] delim=["] rec=[<None>] table=[] enc=UTF8');
+        Observer.Expect('m17 out', 'len=38 "1","one, "q"","n;1#x"\t"2","two",""|');
+        Observer.Expect('m17 seen', 'sep=[,] delim=["] rec=[\t] table=[] enc=UTF8');
+        Observer.Expect('m18 out', 'len=44 "1","one, "q"","n;1#x"<CR/LF>"2","two",""|');
+        Observer.Expect('m18 seen', 'sep=[,] delim=["] rec=[<CR/LF>] table=[] enc=UTF8');
+        Observer.Expect('m19 out', 'len=38 "1","one, "q"","n;1#x"|"2","two",""|');
+        Observer.Expect('m19 seen', 'sep=[,] delim=["] rec=[\n] table=[#] enc=UTF8');
+        Observer.Expect('m20 out', 'len=38 "1","one, "q"","n;1#x"|"2","two",""|');
+        Observer.Expect('m20 seen', 'sep=[,] delim=["] rec=[\n] table=[<CR/LF>] enc=UTF8');
+        Observer.Verify();
     end;
 
     [Test]
@@ -359,7 +401,19 @@ codeunit 93614 "LT Y67 Sep Tests"
         RunWith(Observer, 24, TextEncoding::Windows);
         RunWith(Observer, 25, TextEncoding::UTF8);
         RunWith(Observer, 26, TextEncoding::UTF8);
-        Observer.Finish();
+        Observer.Expect('m21 out', 'len=72 "1","one, "q"","n;1#x"|"2","two",""|');
+        Observer.Expect('m21 seen', 'sep=[,] delim=["] rec=[\n] table=[] enc=UTF16');
+        Observer.Expect('m22 out', 'len=72 "1","one, "q"","n;1#x"|"2","two",""|');
+        Observer.Expect('m22 seen', 'sep=[,] delim=["] rec=[\n] table=[] enc=UTF16');
+        Observer.Expect('m23 out', 'len=35 "1","one, "q"","n;1#x"|"2","two",""|');
+        Observer.Expect('m23 seen', 'sep=[,] delim=["] rec=[\n] table=[] enc=MSDos');
+        Observer.Expect('m24 out', 'len=35 "1","one, "q"","n;1#x"|"2","two",""|');
+        Observer.Expect('m24 seen', 'sep=[,] delim=["] rec=[\n] table=[] enc=Windows');
+        Observer.Expect('m25 out', 'len=38 "1","one, "q"","n;1#x"|"2","two",""|');
+        Observer.Expect('m25 seen', 'sep=[,] delim=["] rec=[\n] table=[] enc=UTF8');
+        Observer.Expect('m26 out', 'len=44 ''1'';''one, "q"'';''n;1#x''<CR/LF>''2'';''two'';''''|');
+        Observer.Expect('m26 seen', 'sep=[;] delim=[''] rec=[<CR/LF>] table=[] enc=UTF8');
+        Observer.Verify();
     end;
 
     [Test]
@@ -372,7 +426,15 @@ codeunit 93614 "LT Y67 Sep Tests"
         Run(Observer, 111);
         Run(Observer, 114);
         RunWith(Observer, 121, TextEncoding::UTF16);
-        Observer.Finish();
+        Observer.Expect('m101 out', 'len=38 "1";"one, "q"";"n;1#x"|"2";"two";""|');
+        Observer.Expect('m101 seen', 'sep=[,] delim=["] rec=[\n] table=[] enc=UTF8');
+        Observer.Expect('m111 out', 'len=38 #1#,#one, "q"#,#n;1#x#|#2#,#two#,##|');
+        Observer.Expect('m111 seen', 'sep=[,] delim=["] rec=[\n] table=[] enc=UTF8');
+        Observer.Expect('m114 out', 'len=39 "1","one, "q"","n;1#x"|"2","two",""|');
+        Observer.Expect('m114 seen', 'sep=[,] delim=["] rec=[\n] table=[] enc=UTF8');
+        Observer.Expect('m121 out', 'len=72 "1","one, "q"","n;1#x"|"2","two",""|');
+        Observer.Expect('m121 seen', 'sep=[,] delim=["] rec=[\n] table=[] enc=UTF8');
+        Observer.Verify();
     end;
 
     [Test]
@@ -397,6 +459,14 @@ codeunit 93614 "LT Y67 Sep Tests"
         Observer.Observe('record sep crlf token', Result);
         Import(7, '1#a#b', Result);
         Observer.Observe('call form char', Result);
-        Observer.Finish();
+        Observer.Expect('default', '[1|a|b]');
+        Observer.Expect('semicolon text', '[1|a|b]');
+        Observer.Expect('char var', '[1|a|b]');
+        Observer.Expect('tab element', '[1|a|b]');
+        Observer.Expect('delimiter quote', '[1|a,x|b]');
+        Observer.Expect('record sep char', '[1|a|b][2|c|d]');
+        Observer.Expect('record sep crlf token', '[1|a|b 2]');
+        Observer.Expect('call form char', '[1|a|b]');
+        Observer.Verify();
     end;
 }

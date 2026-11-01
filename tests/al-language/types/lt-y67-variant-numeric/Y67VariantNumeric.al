@@ -151,7 +151,10 @@ codeunit 93629 "LT Y67 Variant Numeric"
         Show(Observer, '17530101D', 17530101D);
         Show(Observer, '17530102D', 17530102D);
         Show(Observer, '18991231D', 18991231D);
-        Observer.Finish();
+        Observer.Expect('17530101D', '1280543 ; 1280543 ; 1280543 ; P0DT0H21M20.543S ; error:<ind>NavText value.|TypeConversion ; 1753-01-01 ; error:<ind>NavTime value.|TypeConversion ; 1753-01-01T00:00:00Z ; true ; ');
+        Observer.Expect('17530102D', '1280545 ; 1280545 ; 1280545 ; P0DT0H21M20.545S ; error:<ind>NavText value.|TypeConversion ; 1753-01-02 ; error:<ind>NavTime value.|TypeConversion ; 1753-01-02T00:00:00Z ; true ; ');
+        Observer.Expect('18991231D', '1387921 ; 1387921 ; 1387921 ; P0DT0H23M7.921S ; error:<ind>NavText value.|TypeConversion ; 1899-12-31 ; error:<ind>NavTime value.|TypeConversion ; 1899-12-31T00:00:00Z ; true ; ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -162,7 +165,10 @@ codeunit 93629 "LT Y67 Variant Numeric"
         Show(Observer, '19000101D', 19000101D);
         Show(Observer, '19991231D', 19991231D);
         Show(Observer, '20000101D', 20000101D);
-        Observer.Finish();
+        Observer.Expect('19000101D', '1387923 ; 1387923 ; 1387923 ; P0DT0H23M7.923S ; error:<ind>NavText value.|TypeConversion ; 1900-01-01 ; error:<ind>NavTime value.|TypeConversion ; 1900-01-01T00:00:00Z ; true ; ');
+        Observer.Expect('19991231D', '1460969 ; 1460969 ; 1460969 ; P0DT0H24M20.969S ; error:<ind>NavText value.|TypeConversion ; 1999-12-31 ; error:<ind>NavTime value.|TypeConversion ; 1999-12-31T00:00:00Z ; true ; ');
+        Observer.Expect('20000101D', '1460971 ; 1460971 ; 1460971 ; P0DT0H24M20.971S ; error:<ind>NavText value.|TypeConversion ; 2000-01-01 ; error:<ind>NavTime value.|TypeConversion ; 2000-01-01T00:00:00Z ; true ; ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -173,7 +179,10 @@ codeunit 93629 "LT Y67 Variant Numeric"
         Show(Observer, '20240229D', 20240229D);
         Show(Observer, '20260115D', 20260115D);
         Show(Observer, '20261231D', 20261231D);
-        Observer.Finish();
+        Observer.Expect('20240229D', '1478621 ; 1478621 ; 1478621 ; P0DT0H24M38.621S ; error:<ind>NavText value.|TypeConversion ; 2024-02-29 ; error:<ind>NavTime value.|TypeConversion ; 2024-02-29T00:00:00Z ; true ; ');
+        Observer.Expect('20260115D', '1479993 ; 1479993 ; 1479993 ; P0DT0H24M39.993S ; error:<ind>NavText value.|TypeConversion ; 2026-01-15 ; error:<ind>NavTime value.|TypeConversion ; 2026-01-15T00:00:00Z ; true ; ');
+        Observer.Expect('20261231D', '1480693 ; 1480693 ; 1480693 ; P0DT0H24M40.693S ; error:<ind>NavText value.|TypeConversion ; 2026-12-31 ; error:<ind>NavTime value.|TypeConversion ; 2026-12-31T00:00:00Z ; true ; ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -184,7 +193,10 @@ codeunit 93629 "LT Y67 Variant Numeric"
         Show(Observer, '99991231D', 99991231D);
         Show(Observer, 'closing 20260115D', ClosingDate(20260115D));
         Show(Observer, 'closing 17530101D', ClosingDate(17530101D));
-        Observer.Finish();
+        Observer.Expect('99991231D', '7304849 ; 7304849 ; 7304849 ; P0DT2H1M44.849S ; error:<ind>NavText value.|TypeConversion ; 9999-12-31 ; error:<ind>NavTime value.|TypeConversion ; 9999-12-31T00:00:00Z ; true ; ');
+        Observer.Expect('closing 20260115D', '1479994 ; 1479994 ; 1479994 ; P0DT0H24M39.994S ; error:<ind>NavText value.|TypeConversion ; 2026-01-15 ; error:<ind>NavTime value.|TypeConversion ; 2026-01-15T23:59:59Z ; true ; ');
+        Observer.Expect('closing 17530101D', '1280544 ; 1280544 ; 1280544 ; P0DT0H21M20.544S ; error:<ind>NavText value.|TypeConversion ; 1753-01-01 ; error:<ind>NavTime value.|TypeConversion ; 1753-01-01T23:59:59Z ; true ; ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -195,7 +207,10 @@ codeunit 93629 "LT Y67 Variant Numeric"
         Show(Observer, '000000T', 000000T);
         Show(Observer, '120000T', 120000T);
         Show(Observer, '235959.999T', 235959.999T);
-        Observer.Finish();
+        Observer.Expect('000000T', '1 ; 1 ; 1 ; P0DT0H0M0.001S ; error:<ind>NavText value.|TypeConversion ; error:<ind>NavDate value.|TypeConversion ; 00:00:00 ; error:<ind>NavDateTime value.|TypeConversion ; true ; ');
+        Observer.Expect('120000T', '43200001 ; 43200001 ; 43200001 ; P0DT12H0M0.001S ; error:<ind>NavText value.|TypeConversion ; error:<ind>NavDate value.|TypeConversion ; 12:00:00 ; error:<ind>NavDateTime value.|TypeConversion ; true ; ');
+        Observer.Expect('235959.999T', '86400000 ; 86400000 ; 86400000 ; P1DT0H0M0.0S ; error:<ind>NavText value.|TypeConversion ; error:<ind>NavDate value.|TypeConversion ; 23:59:59.999 ; error:<ind>NavDateTime value.|TypeConversion ; true ; ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -206,7 +221,10 @@ codeunit 93629 "LT Y67 Variant Numeric"
         Show(Observer, 'dt 20260115 120000', CreateDateTime(20260115D, 120000T));
         Show(Observer, 'dt 20000101 000000', CreateDateTime(20000101D, 000000T));
         Show(Observer, 'dt closing', CreateDateTime(ClosingDate(20260115D), 120000T));
-        Observer.Finish();
+        Observer.Expect('dt 20260115 120000', 'error:<conv>NavDateTime to System.Int32.|Conversion ; 63935697600001 ; 63935697600001 ; P739996DT12H0M0.001S ; error:<ind>NavText value.|TypeConversion ; 2026-01-15 ; error:<ind>NavTime value.|TypeConversion ; 2026-01-15T12:00:00Z ; error:<conv>NavDateTime to System.Int32.|Conversion ; ');
+        Observer.Expect('dt 20000101 000000', 'error:<conv>NavDateTime to System.Int32.|Conversion ; 63113904000001 ; 63113904000001 ; P730485DT0H0M0.001S ; error:<ind>NavText value.|TypeConversion ; 2000-01-01 ; error:<ind>NavTime value.|TypeConversion ; 2000-01-01T00:00:00Z ; error:<conv>NavDateTime to System.Int32.|Conversion ; ');
+        Observer.Expect('dt closing', 'error:<conv>NavDateTime to System.Int32.|Conversion ; 63935783999001 ; 63935783999001 ; P739997DT11H59M59.001S ; error:<ind>NavText value.|TypeConversion ; 2026-01-16 ; error:<ind>NavTime value.|TypeConversion ; 2026-01-16T11:59:59Z ; error:<conv>NavDateTime to System.Int32.|Conversion ; ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -229,7 +247,10 @@ codeunit 93629 "LT Y67 Variant Numeric"
         Show(Observer, 'duration 1500', Dur);
         Show(Observer, 'biginteger', Big);
         Show(Observer, 'decimal 2.5', Dec);
-        Observer.Finish();
+        Observer.Expect('duration 1500', '1500 ; 1500 ; 1500 ; P0DT0H0M1.5S ; error:<ind>NavText value.|TypeConversion ; error:<ind>NavDate value.|TypeConversion ; error:<ind>NavTime value.|TypeConversion ; error:<ind>NavDateTime value.|TypeConversion ; true ; ');
+        Observer.Expect('biginteger', 'error:The expression Variant cannot be type-converted to a Integer value.|TypeConversion:Overflow ; 5000000000 ; 5000000000 ; P57DT20H53M20.0S ; error:<ind>NavText value.|TypeConversion ; error:<ind>NavDate value.|TypeConversion ; error:<ind>NavTime value.|TypeConversion ; error:<ind>NavDateTime value.|TypeConversion ; error:The expression Variant cannot be type-converted to a Boolean value.|TypeConversion:Overflow ; ');
+        Observer.Expect('decimal 2.5', 'error:Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2.5 to System.Int32.|ConversionCast ; 2.5 ; error:Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2.5 to System.Int64.|ConversionCast ; error:Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2.5 to System.Int64.|ConversionCast ; error:<ind>NavText value.|TypeConversion ; error:<ind>NavDate value.|TypeConversion ; error:<ind>NavTime value.|TypeConversion ; error:<ind>NavDateTime value.|TypeConversion ; error:Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2.5 to System.Int32.|ConversionCast ; ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -252,7 +273,10 @@ codeunit 93629 "LT Y67 Variant Numeric"
         Show(Observer, 'integer -7', Int);
         Show(Observer, 'boolean true', Flag);
         Show(Observer, 'code 12', Cd);
-        Observer.Finish();
+        Observer.Expect('integer -7', '-7 ; -7 ; -7 ; -P0DT0H0M0.007S ; error:<ind>NavText value.|TypeConversion ; error:<ind>NavDate value.|TypeConversion ; error:<ind>NavTime value.|TypeConversion ; error:<ind>NavDateTime value.|TypeConversion ; true ; ');
+        Observer.Expect('boolean true', '1 ; 1 ; 1 ; P0DT0H0M0.001S ; error:<ind>NavText value.|TypeConversion ; error:<ind>NavDate value.|TypeConversion ; error:<ind>NavTime value.|TypeConversion ; error:<ind>NavDateTime value.|TypeConversion ; true ; ');
+        Observer.Expect('code 12', '12 ; 12 ; 12 ; P0DT0H0M0.012S ; 12 ; error:<ind>NavDate value.|TypeConversion ; error:<ind>NavTime value.|TypeConversion ; error:<ind>NavDateTime value.|TypeConversion ; true ; ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -263,7 +287,10 @@ codeunit 93629 "LT Y67 Variant Numeric"
         Show(Observer, 'text 12', '12');
         Show(Observer, 'text 12.5', '12.5');
         Show(Observer, 'text 20260115', '20260115');
-        Observer.Finish();
+        Observer.Expect('text 12', '12 ; 12 ; 12 ; P0DT0H0M0.012S ; 12 ; error:<ind>NavDate value.|TypeConversion ; error:<ind>NavTime value.|TypeConversion ; error:<ind>NavDateTime value.|TypeConversion ; true ; ');
+        Observer.Expect('text 12.5', 'error:The expression Variant cannot be type-converted to a Integer value.|TypeConversion:Format ; 12.5 ; error:The expression Variant cannot be type-converted to a BigInteger value.|TypeConversion:Format ; error:The input string ''12.5'' was not in a correct format.|AL:Format ; 12.5 ; error:<ind>NavDate value.|TypeConversion ; error:<ind>NavTime value.|TypeConversion ; error:<ind>NavDateTime value.|TypeConversion ; error:The expression Variant cannot be type-converted to a Boolean value.|TypeConversion:Format ; ');
+        Observer.Expect('text 20260115', '20260115 ; 20260115 ; 20260115 ; P0DT5H37M40.115S ; 20260115 ; error:<ind>NavDate value.|TypeConversion ; error:<ind>NavTime value.|TypeConversion ; error:<ind>NavDateTime value.|TypeConversion ; true ; ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -273,7 +300,9 @@ codeunit 93629 "LT Y67 Variant Numeric"
     begin
         Show(Observer, 'text true', 'true');
         Show(Observer, 'text empty', '');
-        Observer.Finish();
+        Observer.Expect('text true', 'error:The expression Variant cannot be type-converted to a Integer value.|TypeConversion:Format ; error:The expression Variant cannot be type-converted to a Decimal value.|TypeConversion:Format ; error:The expression Variant cannot be type-converted to a BigInteger value.|TypeConversion:Format ; error:The input string ''true'' was not in a correct format.|AL:Format ; true ; error:<ind>NavDate value.|TypeConversion ; error:<ind>NavTime value.|TypeConversion ; error:<ind>NavDateTime value.|TypeConversion ; error:The expression Variant cannot be type-converted to a Boolean value.|TypeConversion:Format ; ');
+        Observer.Expect('text empty', 'error:The expression Variant cannot be type-converted to a Integer value.|TypeConversion:Format ; error:The expression Variant cannot be type-converted to a Decimal value.|TypeConversion:Format ; error:The expression Variant cannot be type-converted to a BigInteger value.|TypeConversion:Format ; error:The input string '''' was not in a correct format.|AL:Format ;  ; error:<ind>NavDate value.|TypeConversion ; error:<ind>NavTime value.|TypeConversion ; error:<ind>NavDateTime value.|TypeConversion ; error:The expression Variant cannot be type-converted to a Boolean value.|TypeConversion:Format ; ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -282,6 +311,7 @@ codeunit 93629 "LT Y67 Variant Numeric"
         Observer: Codeunit "Probe Observer";
     begin
         Show(Observer, 'text abc', 'abc');
-        Observer.Finish();
+        Observer.Expect('text abc', 'error:The expression Variant cannot be type-converted to a Integer value.|TypeConversion:Format ; error:The expression Variant cannot be type-converted to a Decimal value.|TypeConversion:Format ; error:The expression Variant cannot be type-converted to a BigInteger value.|TypeConversion:Format ; error:The input string ''abc'' was not in a correct format.|AL:Format ; abc ; error:<ind>NavDate value.|TypeConversion ; error:<ind>NavTime value.|TypeConversion ; error:<ind>NavDateTime value.|TypeConversion ; error:The expression Variant cannot be type-converted to a Boolean value.|TypeConversion:Format ; ');
+        Observer.Verify();
     end;
 }

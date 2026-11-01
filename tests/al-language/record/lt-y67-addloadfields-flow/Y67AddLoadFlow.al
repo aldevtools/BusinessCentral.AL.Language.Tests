@@ -390,7 +390,19 @@ codeunit 93628 "LT Y67 LF Tests"
             Row.FindFirst();
             Observer.Observe(Format(i) + ' ' + SpecName(i), Outcome(Ok, Res, 1) + ' ' + Flags(Row));
         end;
-        Observer.Finish();
+        Observer.Expect('1 none', 'ok loaded=YesYesYesYesYesYes');
+        Observer.Expect('2 Name', 'ok loaded=YesYesNoYesYesYes');
+        Observer.Expect('3 Cnt', 'ok loaded=YesNoNoYesYesYes');
+        Observer.Expect('4 Flt', 'ok loaded=YesNoNoYesYesYes');
+        Observer.Expect('5 Name+Qty', 'ok loaded=YesYesYesYesYesYes');
+        Observer.Expect('6 Name+Cnt', 'ok loaded=YesYesNoYesYesYes');
+        Observer.Expect('7 Cnt+Name', 'ok loaded=YesYesNoYesYesYes');
+        Observer.Expect('8 Cnt+Tot', 'ok loaded=YesNoNoYesYesYes');
+        Observer.Expect('9 Name+Cnt+Qty', 'ok loaded=YesYesYesYesYesYes');
+        Observer.Expect('10 Name+Flt', 'ok loaded=YesYesNoYesYesYes');
+        Observer.Expect('11 Cnt+Flt', 'ok loaded=YesNoNoYesYesYes');
+        Observer.Expect('12 Flt+Name+Tot', 'ok loaded=YesYesNoYesYesYes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -412,7 +424,19 @@ codeunit 93628 "LT Y67 LF Tests"
             Row.FindFirst();
             Observer.Observe(Format(i) + ' ' + SpecName(i), Outcome(Ok, Res, 2) + ' ' + Flags(Row));
         end;
-        Observer.Finish();
+        Observer.Expect('1 none', 'ok loaded=YesYesYesYesYesYes');
+        Observer.Expect('2 Name', 'ok loaded=YesYesYesYesYesYes');
+        Observer.Expect('3 Cnt', 'raised:Cnt|DB:Ok|<std> loaded=YesYesYesYesYesYes');
+        Observer.Expect('4 Flt', 'raised:Flt|DB:Ok|<std> loaded=YesYesYesYesYesYes');
+        Observer.Expect('5 Name+Qty', 'ok loaded=YesYesYesYesYesYes');
+        Observer.Expect('6 Name+Cnt', 'raised:Cnt|DB:Ok|<std> loaded=YesYesYesYesYesYes');
+        Observer.Expect('7 Cnt+Name', 'raised:Cnt|DB:Ok|<std> loaded=YesYesYesYesYesYes');
+        Observer.Expect('8 Cnt+Tot', 'raised:Cnt|DB:Ok|<std> loaded=YesYesYesYesYesYes');
+        Observer.Expect('9 Name+Cnt+Qty', 'raised:Cnt|DB:Ok|<std> loaded=YesYesYesYesYesYes');
+        Observer.Expect('10 Name+Flt', 'raised:Flt|DB:Ok|<std> loaded=YesYesYesYesYesYes');
+        Observer.Expect('11 Cnt+Flt', 'raised:Cnt|DB:Ok|<std> loaded=YesYesYesYesYesYes');
+        Observer.Expect('12 Flt+Name+Tot', 'raised:Flt|DB:Ok|<std> loaded=YesYesYesYesYesYes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -434,7 +458,19 @@ codeunit 93628 "LT Y67 LF Tests"
             Row.FindFirst();
             Observer.Observe(Format(i) + ' ' + SpecName(i), Outcome(Ok, Res, 3) + ' ' + Flags(Row));
         end;
-        Observer.Finish();
+        Observer.Expect('1 none', 'returned=Yes loaded=YesYesYesYesYesYes');
+        Observer.Expect('2 Name', 'returned=Yes loaded=YesYesNoYesYesYes');
+        Observer.Expect('3 Cnt', 'returned=Yes loaded=YesNoNoYesYesYes');
+        Observer.Expect('4 Flt', 'returned=Yes loaded=YesNoNoYesYesYes');
+        Observer.Expect('5 Name+Qty', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('6 Name+Cnt', 'returned=Yes loaded=YesYesNoYesYesYes');
+        Observer.Expect('7 Cnt+Name', 'returned=Yes loaded=YesYesNoYesYesYes');
+        Observer.Expect('8 Cnt+Tot', 'returned=Yes loaded=YesNoNoYesYesYes');
+        Observer.Expect('9 Name+Cnt+Qty', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('10 Name+Flt', 'returned=Yes loaded=YesYesNoYesYesYes');
+        Observer.Expect('11 Cnt+Flt', 'returned=Yes loaded=YesNoNoYesYesYes');
+        Observer.Expect('12 Flt+Name+Tot', 'returned=Yes loaded=YesYesNoYesYesYes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -456,7 +492,19 @@ codeunit 93628 "LT Y67 LF Tests"
             Row.FindFirst();
             Observer.Observe(Format(i) + ' ' + SpecName(i), Outcome(Ok, Res, 4) + ' ' + Flags(Row));
         end;
-        Observer.Finish();
+        Observer.Expect('1 none', 'returned=Yes loaded=YesYesYesYesYesYes');
+        Observer.Expect('2 Name', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('3 Cnt', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('4 Flt', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('5 Name+Qty', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('6 Name+Cnt', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('7 Cnt+Name', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('8 Cnt+Tot', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('9 Name+Cnt+Qty', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('10 Name+Flt', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('11 Cnt+Flt', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('12 Flt+Name+Tot', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -479,7 +527,19 @@ codeunit 93628 "LT Y67 LF Tests"
             Row.FindFirst();
             Observer.Observe(Format(i) + ' ' + SpecName(i), Outcome(Ok, Res, 1) + ' ' + Flags(Row));
         end;
-        Observer.Finish();
+        Observer.Expect('1 none', 'ok loaded=YesYesYesYesYesYes');
+        Observer.Expect('2 Name', 'ok loaded=YesYesNoYesYesYes');
+        Observer.Expect('3 Cnt', 'ok loaded=YesNoNoYesYesYes');
+        Observer.Expect('4 Flt', 'ok loaded=YesNoNoYesYesYes');
+        Observer.Expect('5 Name+Qty', 'ok loaded=YesYesYesYesYesYes');
+        Observer.Expect('6 Name+Cnt', 'ok loaded=YesYesNoYesYesYes');
+        Observer.Expect('7 Cnt+Name', 'ok loaded=YesYesNoYesYesYes');
+        Observer.Expect('8 Cnt+Tot', 'ok loaded=YesNoNoYesYesYes');
+        Observer.Expect('9 Name+Cnt+Qty', 'ok loaded=YesYesYesYesYesYes');
+        Observer.Expect('10 Name+Flt', 'ok loaded=YesYesNoYesYesYes');
+        Observer.Expect('11 Cnt+Flt', 'ok loaded=YesNoNoYesYesYes');
+        Observer.Expect('12 Flt+Name+Tot', 'ok loaded=YesYesNoYesYesYes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -502,7 +562,19 @@ codeunit 93628 "LT Y67 LF Tests"
             Row.FindFirst();
             Observer.Observe(Format(i) + ' ' + SpecName(i), Outcome(Ok, Res, 2) + ' ' + Flags(Row));
         end;
-        Observer.Finish();
+        Observer.Expect('1 none', 'ok loaded=YesYesYesYesYesYes');
+        Observer.Expect('2 Name', 'ok loaded=YesYesNoYesYesYes');
+        Observer.Expect('3 Cnt', 'raised:Cnt|DB:Ok|<std> loaded=YesYesNoYesYesYes');
+        Observer.Expect('4 Flt', 'raised:Flt|DB:Ok|<std> loaded=YesYesNoYesYesYes');
+        Observer.Expect('5 Name+Qty', 'ok loaded=YesYesYesYesYesYes');
+        Observer.Expect('6 Name+Cnt', 'raised:Cnt|DB:Ok|<std> loaded=YesYesNoYesYesYes');
+        Observer.Expect('7 Cnt+Name', 'raised:Cnt|DB:Ok|<std> loaded=YesYesNoYesYesYes');
+        Observer.Expect('8 Cnt+Tot', 'raised:Cnt|DB:Ok|<std> loaded=YesYesNoYesYesYes');
+        Observer.Expect('9 Name+Cnt+Qty', 'raised:Cnt|DB:Ok|<std> loaded=YesYesNoYesYesYes');
+        Observer.Expect('10 Name+Flt', 'raised:Flt|DB:Ok|<std> loaded=YesYesNoYesYesYes');
+        Observer.Expect('11 Cnt+Flt', 'raised:Cnt|DB:Ok|<std> loaded=YesYesNoYesYesYes');
+        Observer.Expect('12 Flt+Name+Tot', 'raised:Flt|DB:Ok|<std> loaded=YesYesNoYesYesYes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -525,7 +597,19 @@ codeunit 93628 "LT Y67 LF Tests"
             Row.FindFirst();
             Observer.Observe(Format(i) + ' ' + SpecName(i), Outcome(Ok, Res, 3) + ' ' + Flags(Row));
         end;
-        Observer.Finish();
+        Observer.Expect('1 none', 'returned=Yes loaded=YesYesYesYesYesYes');
+        Observer.Expect('2 Name', 'returned=No loaded=YesYesNoYesYesYes');
+        Observer.Expect('3 Cnt', 'returned=Yes loaded=YesNoNoYesYesYes');
+        Observer.Expect('4 Flt', 'returned=Yes loaded=YesNoNoYesYesYes');
+        Observer.Expect('5 Name+Qty', 'returned=Yes loaded=YesYesYesYesYesYes');
+        Observer.Expect('6 Name+Cnt', 'returned=No loaded=YesYesNoYesYesYes');
+        Observer.Expect('7 Cnt+Name', 'returned=No loaded=YesYesNoYesYesYes');
+        Observer.Expect('8 Cnt+Tot', 'returned=Yes loaded=YesNoNoYesYesYes');
+        Observer.Expect('9 Name+Cnt+Qty', 'returned=Yes loaded=YesYesYesYesYesYes');
+        Observer.Expect('10 Name+Flt', 'returned=No loaded=YesYesNoYesYesYes');
+        Observer.Expect('11 Cnt+Flt', 'returned=Yes loaded=YesNoNoYesYesYes');
+        Observer.Expect('12 Flt+Name+Tot', 'returned=No loaded=YesYesNoYesYesYes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -548,7 +632,19 @@ codeunit 93628 "LT Y67 LF Tests"
             Row.FindFirst();
             Observer.Observe(Format(i) + ' ' + SpecName(i), Outcome(Ok, Res, 4) + ' ' + Flags(Row));
         end;
-        Observer.Finish();
+        Observer.Expect('1 none', 'returned=Yes loaded=YesYesYesYesYesYes');
+        Observer.Expect('2 Name', 'returned=No loaded=YesYesNoYesYesYes');
+        Observer.Expect('3 Cnt', 'returned=No loaded=YesYesNoYesYesYes');
+        Observer.Expect('4 Flt', 'returned=No loaded=YesYesNoYesYesYes');
+        Observer.Expect('5 Name+Qty', 'returned=Yes loaded=YesYesYesYesYesYes');
+        Observer.Expect('6 Name+Cnt', 'returned=No loaded=YesYesNoYesYesYes');
+        Observer.Expect('7 Cnt+Name', 'returned=No loaded=YesYesNoYesYesYes');
+        Observer.Expect('8 Cnt+Tot', 'returned=No loaded=YesYesNoYesYesYes');
+        Observer.Expect('9 Name+Cnt+Qty', 'returned=No loaded=YesYesNoYesYesYes');
+        Observer.Expect('10 Name+Flt', 'returned=No loaded=YesYesNoYesYesYes');
+        Observer.Expect('11 Cnt+Flt', 'returned=No loaded=YesYesNoYesYesYes');
+        Observer.Expect('12 Flt+Name+Tot', 'returned=No loaded=YesYesNoYesYesYes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -571,7 +667,19 @@ codeunit 93628 "LT Y67 LF Tests"
             Row.FindFirst();
             Observer.Observe(Format(i) + ' ' + SpecName(i), Outcome(Ok, Res, 1) + ' ' + Flags(Row));
         end;
-        Observer.Finish();
+        Observer.Expect('1 none', 'ok loaded=YesYesYesYesYesYes');
+        Observer.Expect('2 Name', 'ok loaded=YesYesNoYesYesYes');
+        Observer.Expect('3 Cnt', 'ok loaded=YesNoNoYesYesYes');
+        Observer.Expect('4 Flt', 'ok loaded=YesNoNoYesYesYes');
+        Observer.Expect('5 Name+Qty', 'ok loaded=YesYesYesYesYesYes');
+        Observer.Expect('6 Name+Cnt', 'ok loaded=YesYesNoYesYesYes');
+        Observer.Expect('7 Cnt+Name', 'ok loaded=YesYesNoYesYesYes');
+        Observer.Expect('8 Cnt+Tot', 'ok loaded=YesNoNoYesYesYes');
+        Observer.Expect('9 Name+Cnt+Qty', 'ok loaded=YesYesYesYesYesYes');
+        Observer.Expect('10 Name+Flt', 'ok loaded=YesYesNoYesYesYes');
+        Observer.Expect('11 Cnt+Flt', 'ok loaded=YesNoNoYesYesYes');
+        Observer.Expect('12 Flt+Name+Tot', 'ok loaded=YesYesNoYesYesYes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -594,7 +702,19 @@ codeunit 93628 "LT Y67 LF Tests"
             Row.FindFirst();
             Observer.Observe(Format(i) + ' ' + SpecName(i), Outcome(Ok, Res, 2) + ' ' + Flags(Row));
         end;
-        Observer.Finish();
+        Observer.Expect('1 none', 'ok loaded=YesYesYesYesYesYes');
+        Observer.Expect('2 Name', 'ok loaded=YesYesYesYesYesYes');
+        Observer.Expect('3 Cnt', 'raised:Cnt|DB:Ok|<std> loaded=YesYesYesYesYesYes');
+        Observer.Expect('4 Flt', 'raised:Flt|DB:Ok|<std> loaded=YesYesYesYesYesYes');
+        Observer.Expect('5 Name+Qty', 'ok loaded=YesYesYesYesYesYes');
+        Observer.Expect('6 Name+Cnt', 'raised:Cnt|DB:Ok|<std> loaded=YesYesYesYesYesYes');
+        Observer.Expect('7 Cnt+Name', 'raised:Cnt|DB:Ok|<std> loaded=YesYesYesYesYesYes');
+        Observer.Expect('8 Cnt+Tot', 'raised:Cnt|DB:Ok|<std> loaded=YesYesYesYesYesYes');
+        Observer.Expect('9 Name+Cnt+Qty', 'raised:Cnt|DB:Ok|<std> loaded=YesYesYesYesYesYes');
+        Observer.Expect('10 Name+Flt', 'raised:Flt|DB:Ok|<std> loaded=YesYesYesYesYesYes');
+        Observer.Expect('11 Cnt+Flt', 'raised:Cnt|DB:Ok|<std> loaded=YesYesYesYesYesYes');
+        Observer.Expect('12 Flt+Name+Tot', 'raised:Flt|DB:Ok|<std> loaded=YesYesYesYesYesYes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -617,7 +737,19 @@ codeunit 93628 "LT Y67 LF Tests"
             Row.FindFirst();
             Observer.Observe(Format(i) + ' ' + SpecName(i), Outcome(Ok, Res, 3) + ' ' + Flags(Row));
         end;
-        Observer.Finish();
+        Observer.Expect('1 none', 'returned=Yes loaded=YesYesYesYesYesYes');
+        Observer.Expect('2 Name', 'returned=Yes loaded=YesYesNoYesYesYes');
+        Observer.Expect('3 Cnt', 'returned=Yes loaded=YesNoNoYesYesYes');
+        Observer.Expect('4 Flt', 'returned=Yes loaded=YesNoNoYesYesYes');
+        Observer.Expect('5 Name+Qty', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('6 Name+Cnt', 'returned=Yes loaded=YesYesNoYesYesYes');
+        Observer.Expect('7 Cnt+Name', 'returned=Yes loaded=YesYesNoYesYesYes');
+        Observer.Expect('8 Cnt+Tot', 'returned=Yes loaded=YesNoNoYesYesYes');
+        Observer.Expect('9 Name+Cnt+Qty', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('10 Name+Flt', 'returned=Yes loaded=YesYesNoYesYesYes');
+        Observer.Expect('11 Cnt+Flt', 'returned=Yes loaded=YesNoNoYesYesYes');
+        Observer.Expect('12 Flt+Name+Tot', 'returned=Yes loaded=YesYesNoYesYesYes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -640,7 +772,19 @@ codeunit 93628 "LT Y67 LF Tests"
             Row.FindFirst();
             Observer.Observe(Format(i) + ' ' + SpecName(i), Outcome(Ok, Res, 4) + ' ' + Flags(Row));
         end;
-        Observer.Finish();
+        Observer.Expect('1 none', 'returned=Yes loaded=YesYesYesYesYesYes');
+        Observer.Expect('2 Name', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('3 Cnt', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('4 Flt', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('5 Name+Qty', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('6 Name+Cnt', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('7 Cnt+Name', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('8 Cnt+Tot', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('9 Name+Cnt+Qty', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('10 Name+Flt', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('11 Cnt+Flt', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('12 Flt+Name+Tot', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -663,7 +807,19 @@ codeunit 93628 "LT Y67 LF Tests"
             Row.FindFirst();
             Observer.Observe(Format(i) + ' ' + SpecName(i), Outcome(Ok, Res, 1) + ' ' + Flags(Row));
         end;
-        Observer.Finish();
+        Observer.Expect('1 none', 'ok loaded=YesYesYesYesYesYes');
+        Observer.Expect('2 Name', 'ok loaded=YesYesNoYesYesYes');
+        Observer.Expect('3 Cnt', 'ok loaded=YesNoNoYesYesYes');
+        Observer.Expect('4 Flt', 'ok loaded=YesNoNoYesYesYes');
+        Observer.Expect('5 Name+Qty', 'ok loaded=YesYesYesYesYesYes');
+        Observer.Expect('6 Name+Cnt', 'ok loaded=YesYesNoYesYesYes');
+        Observer.Expect('7 Cnt+Name', 'ok loaded=YesYesNoYesYesYes');
+        Observer.Expect('8 Cnt+Tot', 'ok loaded=YesNoNoYesYesYes');
+        Observer.Expect('9 Name+Cnt+Qty', 'ok loaded=YesYesYesYesYesYes');
+        Observer.Expect('10 Name+Flt', 'ok loaded=YesYesNoYesYesYes');
+        Observer.Expect('11 Cnt+Flt', 'ok loaded=YesNoNoYesYesYes');
+        Observer.Expect('12 Flt+Name+Tot', 'ok loaded=YesYesNoYesYesYes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -686,7 +842,19 @@ codeunit 93628 "LT Y67 LF Tests"
             Row.FindFirst();
             Observer.Observe(Format(i) + ' ' + SpecName(i), Outcome(Ok, Res, 2) + ' ' + Flags(Row));
         end;
-        Observer.Finish();
+        Observer.Expect('1 none', 'ok loaded=YesYesYesYesYesYes');
+        Observer.Expect('2 Name', 'ok loaded=YesYesYesYesYesYes');
+        Observer.Expect('3 Cnt', 'raised:Cnt|DB:Ok|<std> loaded=YesYesYesYesYesYes');
+        Observer.Expect('4 Flt', 'raised:Flt|DB:Ok|<std> loaded=YesYesYesYesYesYes');
+        Observer.Expect('5 Name+Qty', 'ok loaded=YesYesYesYesYesYes');
+        Observer.Expect('6 Name+Cnt', 'raised:Cnt|DB:Ok|<std> loaded=YesYesYesYesYesYes');
+        Observer.Expect('7 Cnt+Name', 'raised:Cnt|DB:Ok|<std> loaded=YesYesYesYesYesYes');
+        Observer.Expect('8 Cnt+Tot', 'raised:Cnt|DB:Ok|<std> loaded=YesYesYesYesYesYes');
+        Observer.Expect('9 Name+Cnt+Qty', 'raised:Cnt|DB:Ok|<std> loaded=YesYesYesYesYesYes');
+        Observer.Expect('10 Name+Flt', 'raised:Flt|DB:Ok|<std> loaded=YesYesYesYesYesYes');
+        Observer.Expect('11 Cnt+Flt', 'raised:Cnt|DB:Ok|<std> loaded=YesYesYesYesYesYes');
+        Observer.Expect('12 Flt+Name+Tot', 'raised:Flt|DB:Ok|<std> loaded=YesYesYesYesYesYes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -709,7 +877,19 @@ codeunit 93628 "LT Y67 LF Tests"
             Row.FindFirst();
             Observer.Observe(Format(i) + ' ' + SpecName(i), Outcome(Ok, Res, 3) + ' ' + Flags(Row));
         end;
-        Observer.Finish();
+        Observer.Expect('1 none', 'returned=Yes loaded=YesYesYesYesYesYes');
+        Observer.Expect('2 Name', 'returned=Yes loaded=YesYesNoYesYesYes');
+        Observer.Expect('3 Cnt', 'returned=Yes loaded=YesNoNoYesYesYes');
+        Observer.Expect('4 Flt', 'returned=Yes loaded=YesNoNoYesYesYes');
+        Observer.Expect('5 Name+Qty', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('6 Name+Cnt', 'returned=Yes loaded=YesYesNoYesYesYes');
+        Observer.Expect('7 Cnt+Name', 'returned=Yes loaded=YesYesNoYesYesYes');
+        Observer.Expect('8 Cnt+Tot', 'returned=Yes loaded=YesNoNoYesYesYes');
+        Observer.Expect('9 Name+Cnt+Qty', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('10 Name+Flt', 'returned=Yes loaded=YesYesNoYesYesYes');
+        Observer.Expect('11 Cnt+Flt', 'returned=Yes loaded=YesNoNoYesYesYes');
+        Observer.Expect('12 Flt+Name+Tot', 'returned=Yes loaded=YesYesNoYesYesYes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -732,7 +912,19 @@ codeunit 93628 "LT Y67 LF Tests"
             Row.FindFirst();
             Observer.Observe(Format(i) + ' ' + SpecName(i), Outcome(Ok, Res, 4) + ' ' + Flags(Row));
         end;
-        Observer.Finish();
+        Observer.Expect('1 none', 'returned=Yes loaded=YesYesYesYesYesYes');
+        Observer.Expect('2 Name', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('3 Cnt', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('4 Flt', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('5 Name+Qty', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('6 Name+Cnt', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('7 Cnt+Name', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('8 Cnt+Tot', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('9 Name+Cnt+Qty', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('10 Name+Flt', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('11 Cnt+Flt', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('12 Flt+Name+Tot', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -756,7 +948,19 @@ codeunit 93628 "LT Y67 LF Tests"
             RecRef.SetTable(Row);
             Observer.Observe(Format(i) + ' ' + SpecName(i), Outcome(Ok, Res, 1) + ' ' + Flags(Row));
         end;
-        Observer.Finish();
+        Observer.Expect('1 none', 'ok loaded=YesYesYesYesYesYes');
+        Observer.Expect('2 Name', 'ok loaded=YesYesNoYesYesYes');
+        Observer.Expect('3 Cnt', 'ok loaded=YesNoNoYesYesYes');
+        Observer.Expect('4 Flt', 'ok loaded=YesNoNoYesYesYes');
+        Observer.Expect('5 Name+Qty', 'ok loaded=YesYesYesYesYesYes');
+        Observer.Expect('6 Name+Cnt', 'ok loaded=YesYesNoYesYesYes');
+        Observer.Expect('7 Cnt+Name', 'ok loaded=YesYesNoYesYesYes');
+        Observer.Expect('8 Cnt+Tot', 'ok loaded=YesNoNoYesYesYes');
+        Observer.Expect('9 Name+Cnt+Qty', 'ok loaded=YesYesYesYesYesYes');
+        Observer.Expect('10 Name+Flt', 'ok loaded=YesYesNoYesYesYes');
+        Observer.Expect('11 Cnt+Flt', 'ok loaded=YesNoNoYesYesYes');
+        Observer.Expect('12 Flt+Name+Tot', 'ok loaded=YesYesNoYesYesYes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -780,7 +984,19 @@ codeunit 93628 "LT Y67 LF Tests"
             RecRef.SetTable(Row);
             Observer.Observe(Format(i) + ' ' + SpecName(i), Outcome(Ok, Res, 2) + ' ' + Flags(Row));
         end;
-        Observer.Finish();
+        Observer.Expect('1 none', 'ok loaded=YesYesYesYesYesYes');
+        Observer.Expect('2 Name', 'ok loaded=YesYesYesYesYesYes');
+        Observer.Expect('3 Cnt', 'raised:Cnt|DB:Ok|<std> loaded=YesYesYesYesYesYes');
+        Observer.Expect('4 Flt', 'raised:Flt|DB:Ok|<std> loaded=YesYesYesYesYesYes');
+        Observer.Expect('5 Name+Qty', 'ok loaded=YesYesYesYesYesYes');
+        Observer.Expect('6 Name+Cnt', 'raised:Cnt|DB:Ok|<std> loaded=YesYesYesYesYesYes');
+        Observer.Expect('7 Cnt+Name', 'raised:Cnt|DB:Ok|<std> loaded=YesYesYesYesYesYes');
+        Observer.Expect('8 Cnt+Tot', 'raised:Cnt|DB:Ok|<std> loaded=YesYesYesYesYesYes');
+        Observer.Expect('9 Name+Cnt+Qty', 'raised:Cnt|DB:Ok|<std> loaded=YesYesYesYesYesYes');
+        Observer.Expect('10 Name+Flt', 'raised:Flt|DB:Ok|<std> loaded=YesYesYesYesYesYes');
+        Observer.Expect('11 Cnt+Flt', 'raised:Cnt|DB:Ok|<std> loaded=YesYesYesYesYesYes');
+        Observer.Expect('12 Flt+Name+Tot', 'raised:Flt|DB:Ok|<std> loaded=YesYesYesYesYesYes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -804,7 +1020,19 @@ codeunit 93628 "LT Y67 LF Tests"
             RecRef.SetTable(Row);
             Observer.Observe(Format(i) + ' ' + SpecName(i), Outcome(Ok, Res, 3) + ' ' + Flags(Row));
         end;
-        Observer.Finish();
+        Observer.Expect('1 none', 'returned=Yes loaded=YesYesYesYesYesYes');
+        Observer.Expect('2 Name', 'returned=Yes loaded=YesYesNoYesYesYes');
+        Observer.Expect('3 Cnt', 'returned=Yes loaded=YesNoNoYesYesYes');
+        Observer.Expect('4 Flt', 'returned=Yes loaded=YesNoNoYesYesYes');
+        Observer.Expect('5 Name+Qty', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('6 Name+Cnt', 'returned=Yes loaded=YesYesNoYesYesYes');
+        Observer.Expect('7 Cnt+Name', 'returned=Yes loaded=YesYesNoYesYesYes');
+        Observer.Expect('8 Cnt+Tot', 'returned=Yes loaded=YesNoNoYesYesYes');
+        Observer.Expect('9 Name+Cnt+Qty', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('10 Name+Flt', 'returned=Yes loaded=YesYesNoYesYesYes');
+        Observer.Expect('11 Cnt+Flt', 'returned=Yes loaded=YesNoNoYesYesYes');
+        Observer.Expect('12 Flt+Name+Tot', 'returned=Yes loaded=YesYesNoYesYesYes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -828,7 +1056,19 @@ codeunit 93628 "LT Y67 LF Tests"
             RecRef.SetTable(Row);
             Observer.Observe(Format(i) + ' ' + SpecName(i), Outcome(Ok, Res, 4) + ' ' + Flags(Row));
         end;
-        Observer.Finish();
+        Observer.Expect('1 none', 'returned=Yes loaded=YesYesYesYesYesYes');
+        Observer.Expect('2 Name', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('3 Cnt', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('4 Flt', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('5 Name+Qty', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('6 Name+Cnt', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('7 Cnt+Name', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('8 Cnt+Tot', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('9 Name+Cnt+Qty', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('10 Name+Flt', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('11 Cnt+Flt', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('12 Flt+Name+Tot', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -853,7 +1093,19 @@ codeunit 93628 "LT Y67 LF Tests"
             RecRef.SetTable(Row);
             Observer.Observe(Format(i) + ' ' + SpecName(i), Outcome(Ok, Res, 1) + ' ' + Flags(Row));
         end;
-        Observer.Finish();
+        Observer.Expect('1 none', 'ok loaded=YesYesYesYesYesYes');
+        Observer.Expect('2 Name', 'ok loaded=YesYesNoYesYesYes');
+        Observer.Expect('3 Cnt', 'ok loaded=YesNoNoYesYesYes');
+        Observer.Expect('4 Flt', 'ok loaded=YesNoNoYesYesYes');
+        Observer.Expect('5 Name+Qty', 'ok loaded=YesYesYesYesYesYes');
+        Observer.Expect('6 Name+Cnt', 'ok loaded=YesYesNoYesYesYes');
+        Observer.Expect('7 Cnt+Name', 'ok loaded=YesYesNoYesYesYes');
+        Observer.Expect('8 Cnt+Tot', 'ok loaded=YesNoNoYesYesYes');
+        Observer.Expect('9 Name+Cnt+Qty', 'ok loaded=YesYesYesYesYesYes');
+        Observer.Expect('10 Name+Flt', 'ok loaded=YesYesNoYesYesYes');
+        Observer.Expect('11 Cnt+Flt', 'ok loaded=YesNoNoYesYesYes');
+        Observer.Expect('12 Flt+Name+Tot', 'ok loaded=YesYesNoYesYesYes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -878,7 +1130,19 @@ codeunit 93628 "LT Y67 LF Tests"
             RecRef.SetTable(Row);
             Observer.Observe(Format(i) + ' ' + SpecName(i), Outcome(Ok, Res, 2) + ' ' + Flags(Row));
         end;
-        Observer.Finish();
+        Observer.Expect('1 none', 'ok loaded=YesYesYesYesYesYes');
+        Observer.Expect('2 Name', 'ok loaded=YesYesNoYesYesYes');
+        Observer.Expect('3 Cnt', 'raised:Cnt|DB:Ok|<std> loaded=YesYesNoYesYesYes');
+        Observer.Expect('4 Flt', 'raised:Flt|DB:Ok|<std> loaded=YesYesNoYesYesYes');
+        Observer.Expect('5 Name+Qty', 'ok loaded=YesYesYesYesYesYes');
+        Observer.Expect('6 Name+Cnt', 'raised:Cnt|DB:Ok|<std> loaded=YesYesNoYesYesYes');
+        Observer.Expect('7 Cnt+Name', 'raised:Cnt|DB:Ok|<std> loaded=YesYesNoYesYesYes');
+        Observer.Expect('8 Cnt+Tot', 'raised:Cnt|DB:Ok|<std> loaded=YesYesNoYesYesYes');
+        Observer.Expect('9 Name+Cnt+Qty', 'raised:Cnt|DB:Ok|<std> loaded=YesYesNoYesYesYes');
+        Observer.Expect('10 Name+Flt', 'raised:Flt|DB:Ok|<std> loaded=YesYesNoYesYesYes');
+        Observer.Expect('11 Cnt+Flt', 'raised:Cnt|DB:Ok|<std> loaded=YesYesNoYesYesYes');
+        Observer.Expect('12 Flt+Name+Tot', 'raised:Flt|DB:Ok|<std> loaded=YesYesNoYesYesYes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -903,7 +1167,19 @@ codeunit 93628 "LT Y67 LF Tests"
             RecRef.SetTable(Row);
             Observer.Observe(Format(i) + ' ' + SpecName(i), Outcome(Ok, Res, 3) + ' ' + Flags(Row));
         end;
-        Observer.Finish();
+        Observer.Expect('1 none', 'returned=Yes loaded=YesYesYesYesYesYes');
+        Observer.Expect('2 Name', 'returned=No loaded=YesYesNoYesYesYes');
+        Observer.Expect('3 Cnt', 'returned=Yes loaded=YesNoNoYesYesYes');
+        Observer.Expect('4 Flt', 'returned=Yes loaded=YesNoNoYesYesYes');
+        Observer.Expect('5 Name+Qty', 'returned=Yes loaded=YesYesYesYesYesYes');
+        Observer.Expect('6 Name+Cnt', 'returned=No loaded=YesYesNoYesYesYes');
+        Observer.Expect('7 Cnt+Name', 'returned=No loaded=YesYesNoYesYesYes');
+        Observer.Expect('8 Cnt+Tot', 'returned=Yes loaded=YesNoNoYesYesYes');
+        Observer.Expect('9 Name+Cnt+Qty', 'returned=Yes loaded=YesYesYesYesYesYes');
+        Observer.Expect('10 Name+Flt', 'returned=No loaded=YesYesNoYesYesYes');
+        Observer.Expect('11 Cnt+Flt', 'returned=Yes loaded=YesNoNoYesYesYes');
+        Observer.Expect('12 Flt+Name+Tot', 'returned=No loaded=YesYesNoYesYesYes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -928,7 +1204,19 @@ codeunit 93628 "LT Y67 LF Tests"
             RecRef.SetTable(Row);
             Observer.Observe(Format(i) + ' ' + SpecName(i), Outcome(Ok, Res, 4) + ' ' + Flags(Row));
         end;
-        Observer.Finish();
+        Observer.Expect('1 none', 'returned=Yes loaded=YesYesYesYesYesYes');
+        Observer.Expect('2 Name', 'returned=No loaded=YesYesNoYesYesYes');
+        Observer.Expect('3 Cnt', 'returned=No loaded=YesYesNoYesYesYes');
+        Observer.Expect('4 Flt', 'returned=No loaded=YesYesNoYesYesYes');
+        Observer.Expect('5 Name+Qty', 'returned=Yes loaded=YesYesYesYesYesYes');
+        Observer.Expect('6 Name+Cnt', 'returned=No loaded=YesYesNoYesYesYes');
+        Observer.Expect('7 Cnt+Name', 'returned=No loaded=YesYesNoYesYesYes');
+        Observer.Expect('8 Cnt+Tot', 'returned=No loaded=YesYesNoYesYesYes');
+        Observer.Expect('9 Name+Cnt+Qty', 'returned=No loaded=YesYesNoYesYesYes');
+        Observer.Expect('10 Name+Flt', 'returned=No loaded=YesYesNoYesYesYes');
+        Observer.Expect('11 Cnt+Flt', 'returned=No loaded=YesYesNoYesYesYes');
+        Observer.Expect('12 Flt+Name+Tot', 'returned=No loaded=YesYesNoYesYesYes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -953,7 +1241,19 @@ codeunit 93628 "LT Y67 LF Tests"
             RecRef.SetTable(Row);
             Observer.Observe(Format(i) + ' ' + SpecName(i), Outcome(Ok, Res, 1) + ' ' + Flags(Row));
         end;
-        Observer.Finish();
+        Observer.Expect('1 none', 'ok loaded=YesYesYesYesYesYes');
+        Observer.Expect('2 Name', 'ok loaded=YesYesNoYesYesYes');
+        Observer.Expect('3 Cnt', 'ok loaded=YesNoNoYesYesYes');
+        Observer.Expect('4 Flt', 'ok loaded=YesNoNoYesYesYes');
+        Observer.Expect('5 Name+Qty', 'ok loaded=YesYesYesYesYesYes');
+        Observer.Expect('6 Name+Cnt', 'ok loaded=YesYesNoYesYesYes');
+        Observer.Expect('7 Cnt+Name', 'ok loaded=YesYesNoYesYesYes');
+        Observer.Expect('8 Cnt+Tot', 'ok loaded=YesNoNoYesYesYes');
+        Observer.Expect('9 Name+Cnt+Qty', 'ok loaded=YesYesYesYesYesYes');
+        Observer.Expect('10 Name+Flt', 'ok loaded=YesYesNoYesYesYes');
+        Observer.Expect('11 Cnt+Flt', 'ok loaded=YesNoNoYesYesYes');
+        Observer.Expect('12 Flt+Name+Tot', 'ok loaded=YesYesNoYesYesYes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -978,7 +1278,19 @@ codeunit 93628 "LT Y67 LF Tests"
             RecRef.SetTable(Row);
             Observer.Observe(Format(i) + ' ' + SpecName(i), Outcome(Ok, Res, 2) + ' ' + Flags(Row));
         end;
-        Observer.Finish();
+        Observer.Expect('1 none', 'ok loaded=YesYesYesYesYesYes');
+        Observer.Expect('2 Name', 'ok loaded=YesYesYesYesYesYes');
+        Observer.Expect('3 Cnt', 'raised:Cnt|DB:Ok|<std> loaded=YesYesYesYesYesYes');
+        Observer.Expect('4 Flt', 'raised:Flt|DB:Ok|<std> loaded=YesYesYesYesYesYes');
+        Observer.Expect('5 Name+Qty', 'ok loaded=YesYesYesYesYesYes');
+        Observer.Expect('6 Name+Cnt', 'raised:Cnt|DB:Ok|<std> loaded=YesYesYesYesYesYes');
+        Observer.Expect('7 Cnt+Name', 'raised:Cnt|DB:Ok|<std> loaded=YesYesYesYesYesYes');
+        Observer.Expect('8 Cnt+Tot', 'raised:Cnt|DB:Ok|<std> loaded=YesYesYesYesYesYes');
+        Observer.Expect('9 Name+Cnt+Qty', 'raised:Cnt|DB:Ok|<std> loaded=YesYesYesYesYesYes');
+        Observer.Expect('10 Name+Flt', 'raised:Flt|DB:Ok|<std> loaded=YesYesYesYesYesYes');
+        Observer.Expect('11 Cnt+Flt', 'raised:Cnt|DB:Ok|<std> loaded=YesYesYesYesYesYes');
+        Observer.Expect('12 Flt+Name+Tot', 'raised:Flt|DB:Ok|<std> loaded=YesYesYesYesYesYes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1003,7 +1315,19 @@ codeunit 93628 "LT Y67 LF Tests"
             RecRef.SetTable(Row);
             Observer.Observe(Format(i) + ' ' + SpecName(i), Outcome(Ok, Res, 3) + ' ' + Flags(Row));
         end;
-        Observer.Finish();
+        Observer.Expect('1 none', 'returned=Yes loaded=YesYesYesYesYesYes');
+        Observer.Expect('2 Name', 'returned=Yes loaded=YesYesNoYesYesYes');
+        Observer.Expect('3 Cnt', 'returned=Yes loaded=YesNoNoYesYesYes');
+        Observer.Expect('4 Flt', 'returned=Yes loaded=YesNoNoYesYesYes');
+        Observer.Expect('5 Name+Qty', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('6 Name+Cnt', 'returned=Yes loaded=YesYesNoYesYesYes');
+        Observer.Expect('7 Cnt+Name', 'returned=Yes loaded=YesYesNoYesYesYes');
+        Observer.Expect('8 Cnt+Tot', 'returned=Yes loaded=YesNoNoYesYesYes');
+        Observer.Expect('9 Name+Cnt+Qty', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('10 Name+Flt', 'returned=Yes loaded=YesYesNoYesYesYes');
+        Observer.Expect('11 Cnt+Flt', 'returned=Yes loaded=YesNoNoYesYesYes');
+        Observer.Expect('12 Flt+Name+Tot', 'returned=Yes loaded=YesYesNoYesYesYes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1028,7 +1352,19 @@ codeunit 93628 "LT Y67 LF Tests"
             RecRef.SetTable(Row);
             Observer.Observe(Format(i) + ' ' + SpecName(i), Outcome(Ok, Res, 4) + ' ' + Flags(Row));
         end;
-        Observer.Finish();
+        Observer.Expect('1 none', 'returned=Yes loaded=YesYesYesYesYesYes');
+        Observer.Expect('2 Name', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('3 Cnt', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('4 Flt', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('5 Name+Qty', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('6 Name+Cnt', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('7 Cnt+Name', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('8 Cnt+Tot', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('9 Name+Cnt+Qty', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('10 Name+Flt', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('11 Cnt+Flt', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('12 Flt+Name+Tot', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1053,7 +1389,19 @@ codeunit 93628 "LT Y67 LF Tests"
             RecRef.SetTable(Row);
             Observer.Observe(Format(i) + ' ' + SpecName(i), Outcome(Ok, Res, 1) + ' ' + Flags(Row));
         end;
-        Observer.Finish();
+        Observer.Expect('1 none', 'ok loaded=YesYesYesYesYesYes');
+        Observer.Expect('2 Name', 'ok loaded=YesYesNoYesYesYes');
+        Observer.Expect('3 Cnt', 'ok loaded=YesNoNoYesYesYes');
+        Observer.Expect('4 Flt', 'ok loaded=YesNoNoYesYesYes');
+        Observer.Expect('5 Name+Qty', 'ok loaded=YesYesYesYesYesYes');
+        Observer.Expect('6 Name+Cnt', 'ok loaded=YesYesNoYesYesYes');
+        Observer.Expect('7 Cnt+Name', 'ok loaded=YesYesNoYesYesYes');
+        Observer.Expect('8 Cnt+Tot', 'ok loaded=YesNoNoYesYesYes');
+        Observer.Expect('9 Name+Cnt+Qty', 'ok loaded=YesYesYesYesYesYes');
+        Observer.Expect('10 Name+Flt', 'ok loaded=YesYesNoYesYesYes');
+        Observer.Expect('11 Cnt+Flt', 'ok loaded=YesNoNoYesYesYes');
+        Observer.Expect('12 Flt+Name+Tot', 'ok loaded=YesYesNoYesYesYes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1078,7 +1426,19 @@ codeunit 93628 "LT Y67 LF Tests"
             RecRef.SetTable(Row);
             Observer.Observe(Format(i) + ' ' + SpecName(i), Outcome(Ok, Res, 2) + ' ' + Flags(Row));
         end;
-        Observer.Finish();
+        Observer.Expect('1 none', 'ok loaded=YesYesYesYesYesYes');
+        Observer.Expect('2 Name', 'ok loaded=YesYesYesYesYesYes');
+        Observer.Expect('3 Cnt', 'raised:Cnt|DB:Ok|<std> loaded=YesYesYesYesYesYes');
+        Observer.Expect('4 Flt', 'raised:Flt|DB:Ok|<std> loaded=YesYesYesYesYesYes');
+        Observer.Expect('5 Name+Qty', 'ok loaded=YesYesYesYesYesYes');
+        Observer.Expect('6 Name+Cnt', 'raised:Cnt|DB:Ok|<std> loaded=YesYesYesYesYesYes');
+        Observer.Expect('7 Cnt+Name', 'raised:Cnt|DB:Ok|<std> loaded=YesYesYesYesYesYes');
+        Observer.Expect('8 Cnt+Tot', 'raised:Cnt|DB:Ok|<std> loaded=YesYesYesYesYesYes');
+        Observer.Expect('9 Name+Cnt+Qty', 'raised:Cnt|DB:Ok|<std> loaded=YesYesYesYesYesYes');
+        Observer.Expect('10 Name+Flt', 'raised:Flt|DB:Ok|<std> loaded=YesYesYesYesYesYes');
+        Observer.Expect('11 Cnt+Flt', 'raised:Cnt|DB:Ok|<std> loaded=YesYesYesYesYesYes');
+        Observer.Expect('12 Flt+Name+Tot', 'raised:Flt|DB:Ok|<std> loaded=YesYesYesYesYesYes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1103,7 +1463,19 @@ codeunit 93628 "LT Y67 LF Tests"
             RecRef.SetTable(Row);
             Observer.Observe(Format(i) + ' ' + SpecName(i), Outcome(Ok, Res, 3) + ' ' + Flags(Row));
         end;
-        Observer.Finish();
+        Observer.Expect('1 none', 'returned=Yes loaded=YesYesYesYesYesYes');
+        Observer.Expect('2 Name', 'returned=Yes loaded=YesYesNoYesYesYes');
+        Observer.Expect('3 Cnt', 'returned=Yes loaded=YesNoNoYesYesYes');
+        Observer.Expect('4 Flt', 'returned=Yes loaded=YesNoNoYesYesYes');
+        Observer.Expect('5 Name+Qty', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('6 Name+Cnt', 'returned=Yes loaded=YesYesNoYesYesYes');
+        Observer.Expect('7 Cnt+Name', 'returned=Yes loaded=YesYesNoYesYesYes');
+        Observer.Expect('8 Cnt+Tot', 'returned=Yes loaded=YesNoNoYesYesYes');
+        Observer.Expect('9 Name+Cnt+Qty', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('10 Name+Flt', 'returned=Yes loaded=YesYesNoYesYesYes');
+        Observer.Expect('11 Cnt+Flt', 'returned=Yes loaded=YesNoNoYesYesYes');
+        Observer.Expect('12 Flt+Name+Tot', 'returned=Yes loaded=YesYesNoYesYesYes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1128,6 +1500,18 @@ codeunit 93628 "LT Y67 LF Tests"
             RecRef.SetTable(Row);
             Observer.Observe(Format(i) + ' ' + SpecName(i), Outcome(Ok, Res, 4) + ' ' + Flags(Row));
         end;
-        Observer.Finish();
+        Observer.Expect('1 none', 'returned=Yes loaded=YesYesYesYesYesYes');
+        Observer.Expect('2 Name', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('3 Cnt', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('4 Flt', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('5 Name+Qty', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('6 Name+Cnt', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('7 Cnt+Name', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('8 Cnt+Tot', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('9 Name+Cnt+Qty', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('10 Name+Flt', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('11 Cnt+Flt', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Expect('12 Flt+Name+Tot', 'returned=No loaded=YesYesYesYesYesYes');
+        Observer.Verify();
     end;
 }

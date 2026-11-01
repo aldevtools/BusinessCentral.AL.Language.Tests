@@ -242,7 +242,14 @@ codeunit 93648 "LT Y67 CS Tests"
         Card: TestPage "LT Y67 CS Card";
     begin
         Failing(Observer, Card, 'FAILMOD', true);
-        Observer.Finish();
+        Observer.Expect('close error', 'Table modify refused for R1.|TestWrapped');
+        Observer.Expect('log after close', 'open;before close;page modify R1 name=FAILMOD;table modify R1 name=FAILMOD;');
+        Observer.Expect('db after close', 'QC=start R1=start ');
+        Observer.Expect('field read', 'ok FAILMOD');
+        Observer.Expect('second close', 'ok');
+        Observer.Expect('log after second close', '');
+        Observer.Expect('db after second close', 'QC=start R1=start ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -266,7 +273,15 @@ codeunit 93648 "LT Y67 CS Tests"
         Observer.Observe('log after fix', Log.Take());
         Observer.Observe('db after fix', Names());
         Value := '';
-        Observer.Finish();
+        Observer.Expect('close error', 'Table modify refused for R1.|TestWrapped');
+        Observer.Expect('log after close', 'open;before close;page modify R1 name=FAILMOD;table modify R1 name=FAILMOD;');
+        Observer.Expect('db after close', 'QC=start R1=start ');
+        Observer.Expect('field read', 'ok FAILMOD');
+        Observer.Expect('setvalue after failed close', 'ok');
+        Observer.Expect('close after fix', 'ok');
+        Observer.Expect('log after fix', '');
+        Observer.Expect('db after fix', 'QC=start R1=start ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -290,7 +305,9 @@ codeunit 93648 "LT Y67 CS Tests"
     begin
         Observer.Observe('log', Log.Take());
         Observer.Observe('db', Names());
-        Observer.Finish();
+        Observer.Expect('log', 'test body end;');
+        Observer.Expect('db', 'QC=start R1=start ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -313,7 +330,9 @@ codeunit 93648 "LT Y67 CS Tests"
     begin
         Observer.Observe('log', Log.Take());
         Observer.Observe('db', Names());
-        Observer.Finish();
+        Observer.Expect('log', 'test body end;');
+        Observer.Expect('db', 'QC=start R1=start ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -323,7 +342,14 @@ codeunit 93648 "LT Y67 CS Tests"
         Card: TestPage "LT Y67 CS Card";
     begin
         Failing(Observer, Card, 'FAILPAGE', true);
-        Observer.Finish();
+        Observer.Expect('close error', 'Page modify refused for R1.|TestWrapped');
+        Observer.Expect('log after close', 'open;before close;page modify R1 name=FAILPAGE;');
+        Observer.Expect('db after close', 'QC=start R1=start ');
+        Observer.Expect('field read', 'ok FAILPAGE');
+        Observer.Expect('second close', 'ok');
+        Observer.Expect('log after second close', '');
+        Observer.Expect('db after second close', 'QC=start R1=start ');
+        Observer.Verify();
     end;
 
     procedure Suspect_QueryCloseError_Close_And_LeftOpen()
@@ -409,7 +435,13 @@ codeunit 93648 "LT Y67 CS Tests"
             Observer.Observe('second close', 'error ' + Err());
         Observer.Observe('log after second', Log.Take());
         Observer.Observe('db', Names());
-        Observer.Finish();
+        Observer.Expect('close error', 'Table modify refused for R1.|TestWrapped');
+        Observer.Expect('log', 'table modify R1 name=FAILMOD;');
+        Observer.Expect('field read', 'ok FAILMOD');
+        Observer.Expect('second close', 'ok');
+        Observer.Expect('log after second', '');
+        Observer.Expect('db', 'QC=start R1=start ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -440,6 +472,8 @@ codeunit 93648 "LT Y67 CS Tests"
     begin
         Observer.Observe('log', Log.Take());
         Observer.Observe('db', Names());
-        Observer.Finish();
+        Observer.Expect('log', 'table modify R1 name=FAILMOD;test body end;');
+        Observer.Expect('db', 'QC=start R1=start ');
+        Observer.Verify();
     end;
 }

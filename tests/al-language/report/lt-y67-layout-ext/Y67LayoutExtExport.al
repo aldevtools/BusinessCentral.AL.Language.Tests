@@ -139,7 +139,47 @@ codeunit 93544 "LT Y67 Lay Ext Tests"
         Describe(Observer, 'excel', Report::"LT Y67 Lay Base", 'ExtXls', false);
         Describe(Observer, 'dotted', Report::"LT Y67 Lay Base", 'Y67Dotted.docx', false);
         Describe(Observer, 'base', Report::"LT Y67 Lay Base", 'BaseDoc', false);
-        Observer.Finish();
+        Observer.Expect('word row BaseDoc', 'Word|BaseDoc');
+        Observer.Expect('word row ExtDoc', 'Word|Y67 ext word');
+        Observer.Expect('word row ExtRdl', 'RDLC|Y67 ext rdlc');
+        Observer.Expect('word row ExtXls', 'Excel|Y67 ext excel');
+        Observer.Expect('word row Y67Dotted.docx', 'Word|Y67Dotted.docx');
+        Observer.Expect('word count', '1');
+        Observer.Expect('word format', 'Word');
+        Observer.Expect('word has value before', 'No');
+        Observer.Expect('word returned', 'Yes');
+        Observer.Expect('word length', '5461');
+        Observer.Expect('word sha256', '19F3A4D0ECA2621C6D4DE586DC6494E48E7087DDF3BF3668DF553A7ADD71E4CE');
+        Observer.Expect('word has value after', 'No');
+        Observer.Expect('rdlc count', '1');
+        Observer.Expect('rdlc format', 'RDLC');
+        Observer.Expect('rdlc has value before', 'No');
+        Observer.Expect('rdlc returned', 'Yes');
+        Observer.Expect('rdlc length', '2104');
+        Observer.Expect('rdlc sha256', 'E28FAC5DB3F79B65DE60707DDBED8F5306BE7605DC4D9A71E1BF2597E440B5EF');
+        Observer.Expect('rdlc has value after', 'No');
+        Observer.Expect('excel count', '1');
+        Observer.Expect('excel format', 'Excel');
+        Observer.Expect('excel has value before', 'No');
+        Observer.Expect('excel returned', 'Yes');
+        Observer.Expect('excel length', '20314');
+        Observer.Expect('excel sha256', 'B7748123A94313033D504A565EBB4C708BFD0B5CB9EBD95BB61223A80148BF0D');
+        Observer.Expect('excel has value after', 'No');
+        Observer.Expect('dotted count', '1');
+        Observer.Expect('dotted format', 'Word');
+        Observer.Expect('dotted has value before', 'No');
+        Observer.Expect('dotted returned', 'Yes');
+        Observer.Expect('dotted length', '5461');
+        Observer.Expect('dotted sha256', '19F3A4D0ECA2621C6D4DE586DC6494E48E7087DDF3BF3668DF553A7ADD71E4CE');
+        Observer.Expect('dotted has value after', 'No');
+        Observer.Expect('base count', '1');
+        Observer.Expect('base format', 'Word');
+        Observer.Expect('base has value before', 'No');
+        Observer.Expect('base returned', 'Yes');
+        Observer.Expect('base length', '5460');
+        Observer.Expect('base sha256', 'B82EAA8624E94F46A51BCD30DE051FD577C3FC6F4993F50AE70E215AAF6B3B1B');
+        Observer.Expect('base has value after', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -148,6 +188,13 @@ codeunit 93544 "LT Y67 Lay Ext Tests"
         Observer: Codeunit "Probe Observer";
     begin
         Describe(Observer, 'std', Report::"Standard Sales - Invoice", 'Y67StdExt.docx', false);
-        Observer.Finish();
+        Observer.Expect('std count', '1');
+        Observer.Expect('std format', 'Word');
+        Observer.Expect('std has value before', 'No');
+        Observer.Expect('std returned', 'Yes');
+        Observer.Expect('std length', '16023');
+        Observer.Expect('std sha256', '63A6FD42C20C5CB6DF86A0E676B25EB4677BD3ECD0FFB476F8DE80911A6AD7A4');
+        Observer.Expect('std has value after', 'No');
+        Observer.Verify();
     end;
 }

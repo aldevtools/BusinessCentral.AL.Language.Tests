@@ -308,7 +308,10 @@ codeunit 93644 "LT Y67 QF Tests"
             Observer.Observe('SetRange 5', Rows)
         else
             Observer.Observe('SetRange 5', Err());
-        Observer.Finish();
+        Observer.Expect('static <> 0', 'H1=30 H2=5 ');
+        Observer.Expect('SetFilter >15', 'H1=30 ');
+        Observer.Expect('SetRange 5', 'H2=5 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -330,7 +333,9 @@ codeunit 93644 "LT Y67 QF Tests"
             Observer.Observe('SetFilter >15 over static', Rows)
         else
             Observer.Observe('SetFilter >15 over static', Err());
-        Observer.Finish();
+        Observer.Expect('static <> 0', 'H1=30 H2=5 ');
+        Observer.Expect('SetFilter >15 over static', 'H1=30 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -358,7 +363,10 @@ codeunit 93644 "LT Y67 QF Tests"
             Observer.Observe('SetRange 0', Rows)
         else
             Observer.Observe('SetRange 0', Err());
-        Observer.Finish();
+        Observer.Expect('no filter', 'H1=30/2 H2=5/1 H4=0/2 ');
+        Observer.Expect('SetFilter >15', 'H1=30/2 ');
+        Observer.Expect('SetRange 0', 'H4=0/2 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -380,7 +388,9 @@ codeunit 93644 "LT Y67 QF Tests"
             Observer.Observe('SetFilter >6', Rows)
         else
             Observer.Observe('SetFilter >6', Err());
-        Observer.Finish();
+        Observer.Expect('static <> 0', '2 ');
+        Observer.Expect('SetFilter >6', '1 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -396,7 +406,8 @@ codeunit 93644 "LT Y67 QF Tests"
             Observer.Observe('static <> 0', Rows)
         else
             Observer.Observe('static <> 0', Err());
-        Observer.Finish();
+        Observer.Expect('static <> 0', 'H1=30 H2=5 ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -424,6 +435,9 @@ codeunit 93644 "LT Y67 QF Tests"
             Observer.Observe('day 2', Rows)
         else
             Observer.Observe('day 2', Err());
-        Observer.Finish();
+        Observer.Expect('no filter', 'H1=30/2 H2=5/1 H4=0/2 ');
+        Observer.Expect('day 1', 'H1=30/1 H2=5/1 H4=0/1 ');
+        Observer.Expect('day 2', 'H1=30/1 H2=5/0 H4=0/1 ');
+        Observer.Verify();
     end;
 }
