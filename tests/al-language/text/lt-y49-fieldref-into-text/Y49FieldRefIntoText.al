@@ -222,7 +222,15 @@ codeunit 92941 "LT Y49 FieldRef Text"
         Row.Kind := Row.Kind::" ";
         RecRef.GetTable(Row);
         ObsTake('blank text250', RecRef, 2, 1);
-        Observer.Finish();
+        Observer.Expect('beta two text250', '[Beta Cap]');
+        Observer.Expect('beta two text', '[Beta Cap]');
+        Observer.Expect('beta two code20', '[BETA CAP]');
+        Observer.Expect('beta two code3', 'raised');
+        Observer.Expect('beta two code3|text', 'The length of the string is 8, but it must be less than or equal to 3 characters. Value: Beta Cap');
+        Observer.Expect('beta two code3|code', 'StringLengthExceeded');
+        Observer.Expect('alpha text250', '[Alpha Cap]');
+        Observer.Expect('blank text250', '[ ]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -245,7 +253,18 @@ codeunit 92941 "LT Y49 FieldRef Text"
         RecRef.GetTable(Row);
         ObsAssign('blank text', RecRef, 2, 1);
         ObsAssign('blank code20', RecRef, 2, 3);
-        Observer.Finish();
+        Observer.Expect('beta two text', '[Beta Cap]');
+        Observer.Expect('beta two text250', '[Beta Cap]');
+        Observer.Expect('beta two code20', '[BETA CAP]');
+        Observer.Expect('beta two code3', 'raised');
+        Observer.Expect('beta two code3|text', 'The length of the string is 8, but it must be less than or equal to 3 characters. Value: Beta Cap');
+        Observer.Expect('beta two code3|code', 'StringLengthExceeded');
+        Observer.Expect('alpha code3', 'raised');
+        Observer.Expect('alpha code3|text', 'The length of the string is 9, but it must be less than or equal to 3 characters. Value: Alpha Cap');
+        Observer.Expect('alpha code3|code', 'StringLengthExceeded');
+        Observer.Expect('blank text', '[ ]');
+        Observer.Expect('blank code20', '[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -283,7 +302,19 @@ codeunit 92941 "LT Y49 FieldRef Text"
         Observer.Observe('evaluate enum field', Format(Ok) + ' ' + Format(Fresh.Kind.AsInteger()));
         Ok := Evaluate(Fresh.Kind, 'Beta Two');
         Observer.Observe('evaluate enum field name', Format(Ok) + ' ' + Format(Fresh.Kind.AsInteger()));
-        Observer.Finish();
+        Observer.Expect('evaluate enum var', 'Yes 2');
+        Observer.Expect('fieldref validate text', 'raised');
+#if BC28PLUS
+        Observer.Expect('fieldref validate text|text', 'The value "Beta Cap" can''t be evaluated into type Option.');
+        Observer.Expect('fieldref validate text|code', 'Evaluate:Format');
+#else
+        // BC 27.5 (Windows container): another error for the same call.
+        Observer.Expect('fieldref validate text|text', 'The type NavOption is unknown.');
+        Observer.Expect('fieldref validate text|code', 'NotSupportedType');
+#endif
+        Observer.Expect('evaluate enum field', 'Yes 2');
+        Observer.Expect('evaluate enum field name', 'Yes 2');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -312,7 +343,20 @@ codeunit 92941 "LT Y49 FieldRef Text"
         ObsTake('flag text250', RecRef, 15, 1);
         ObsTake('date text250', RecRef, 9, 1);
         ObsTake('guid text250', RecRef, 13, 1);
-        Observer.Finish();
+        Observer.Expect('int text250', '[12345]');
+        Observer.Expect('int text', '[12345]');
+        Observer.Expect('int code20', '[12345]');
+        Observer.Expect('int code3', 'raised');
+        Observer.Expect('int code3|text', 'The length of the string is 5, but it must be less than or equal to 3 characters. Value: 12345');
+        Observer.Expect('int code3|code', 'StringLengthExceeded');
+        Observer.Expect('dec text250', '[1,234.5]');
+        Observer.Expect('big text250', '[9876543210]');
+        Observer.Expect('opt text250', '[Green Cap]');
+        Observer.Expect('opt code20', '[GREEN CAP]');
+        Observer.Expect('flag text250', '[Yes]');
+        Observer.Expect('date text250', '[03/05/24]');
+        Observer.Expect('guid text250', '[{3F2504E0-4F89-11D3-9A0C-0305E82C3301}]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -326,7 +370,19 @@ codeunit 92941 "LT Y49 FieldRef Text"
         RecRef.GetTable(Row);
         Observer.Observe('field count', Format(RecRef.FieldCount()));
         AppendAll('filled', RecRef, 1, 10);
-        Observer.Finish();
+        Observer.Expect('field count', '19');
+        Observer.Expect('filled Id', '[1]');
+        Observer.Expect('filled Kind', '[Beta Cap]');
+        Observer.Expect('filled Opt', '[Green Cap]');
+        Observer.Expect('filled Int', '[12345]');
+        Observer.Expect('filled Big', '[9876543210]');
+        Observer.Expect('filled Dec', '[1,234.5]');
+        Observer.Expect('filled Txt', '[Hello World]');
+        Observer.Expect('filled Cde', '[ABC-1]');
+        Observer.Expect('filled D', '[03/05/24]');
+        Observer.Expect('filled Tm', '[ 1:45:06 PM]');
+        Observer.Expect('filled all', '1|Beta Cap|Green Cap|12345|9876543210|1,234.5|Hello World|ABC-1|03/05/24| 1:45:06 PM|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -339,7 +395,17 @@ codeunit 92941 "LT Y49 FieldRef Text"
         Row.Get(1);
         RecRef.GetTable(Row);
         AppendAll('filled', RecRef, 11, RecRef.FieldCount());
-        Observer.Finish();
+        Observer.Expect('filled Dt', '[03/05/24 01:45 PM]');
+        Observer.Expect('filled Dur', '[1 hour]');
+        Observer.Expect('filled G', '[{3F2504E0-4F89-11D3-9A0C-0305E82C3301}]');
+        Observer.Expect('filled Df', '[1M]');
+        Observer.Expect('filled Flag', '[Yes]');
+        Observer.Expect('filled Bin', '[*]');
+        Observer.Expect('filled Pic', '[{00000000-0000-0000-0000-000000000000}]');
+        Observer.Expect('filled Pics', '[{00000000-0000-0000-0000-000000000000}]');
+        Observer.Expect('filled Rid', '[LT Y49 All Types: 1]');
+        Observer.Expect('filled all', '03/05/24 01:45 PM|1 hour|{3F2504E0-4F89-11D3-9A0C-0305E82C3301}|1M|Yes|*|{00000000-0000-0000-0000-000000000000}|{00000000-0000-0000-0000-000000000000}|LT Y49 All Types: 1|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -352,7 +418,18 @@ codeunit 92941 "LT Y49 FieldRef Text"
         Row.Get(2);
         RecRef.GetTable(Row);
         AppendAll('blank', RecRef, 1, 10);
-        Observer.Finish();
+        Observer.Expect('blank Id', '[2]');
+        Observer.Expect('blank Kind', '[ ]');
+        Observer.Expect('blank Opt', '[ ]');
+        Observer.Expect('blank Int', '[0]');
+        Observer.Expect('blank Big', '[0]');
+        Observer.Expect('blank Dec', '[0]');
+        Observer.Expect('blank Txt', '[]');
+        Observer.Expect('blank Cde', '[]');
+        Observer.Expect('blank D', '[]');
+        Observer.Expect('blank Tm', '[]');
+        Observer.Expect('blank all', '2| | |0|0|0|||||');
+        Observer.Verify();
     end;
 
     [Test]
@@ -365,6 +442,16 @@ codeunit 92941 "LT Y49 FieldRef Text"
         Row.Get(2);
         RecRef.GetTable(Row);
         AppendAll('blank', RecRef, 11, RecRef.FieldCount());
-        Observer.Finish();
+        Observer.Expect('blank Dt', '[]');
+        Observer.Expect('blank Dur', '[]');
+        Observer.Expect('blank G', '[{00000000-0000-0000-0000-000000000000}]');
+        Observer.Expect('blank Df', '[]');
+        Observer.Expect('blank Flag', '[No]');
+        Observer.Expect('blank Bin', '[ ]');
+        Observer.Expect('blank Pic', '[{00000000-0000-0000-0000-000000000000}]');
+        Observer.Expect('blank Pics', '[{00000000-0000-0000-0000-000000000000}]');
+        Observer.Expect('blank Rid', '[]');
+        Observer.Expect('blank all', '||{00000000-0000-0000-0000-000000000000}||No| |{00000000-0000-0000-0000-000000000000}|{00000000-0000-0000-0000-000000000000}||');
+        Observer.Verify();
     end;
 }

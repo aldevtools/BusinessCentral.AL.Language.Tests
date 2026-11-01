@@ -86,7 +86,12 @@ codeunit 92943 "LT Y49 RecordId Format10"
         P := StrPos(Url, 'bookmark=');
         if P = 0 then
             exit('nobookmark');
-        exit(CopyStr(Url, P + 9));
+        Url := CopyStr(Url, P + 9);
+        // A container adds &tenant=<id> after the bookmark; the SaaS sandbox does not.
+        P := StrPos(Url, '&');
+        if P > 0 then
+            Url := CopyStr(Url, 1, P - 1);
+        exit(Url);
     end;
 
     local procedure ObsFormat10(Name: Text; Rid: RecordId)
@@ -131,7 +136,16 @@ codeunit 92943 "LT Y49 RecordId Format10"
         Blank.Init();
         Blank."No." := 'A-1';
         ObsFormat10('unread record with key', Blank.RecordId);
-        Observer.Finish();
+        Observer.Expect('A-1', '[17;D2sBAAJ7/0EALQAx]');
+        Observer.Expect('A-1 url', '17%3bD2sBAAJ7%2f0EALQAx');
+        Observer.Expect('1', '[13;D2sBAAJ7ATE=]');
+        Observer.Expect('1 url', '13%3bD2sBAAJ7ATE%3d');
+        Observer.Expect('12345', '[21;D2sBAAJ7BTEAMgAzADQANQ==]');
+        Observer.Expect('12345 url', '21%3bD2sBAAJ7BTEAMgAzADQANQ%3d%3d');
+        Observer.Expect('B line', '[25;EGsBAACLAQAAAAJ7/1gAAAAAhxAn]');
+        Observer.Expect('blank record', '[11;D2sBAAJ7]');
+        Observer.Expect('unread record with key', '[17;D2sBAAJ7/0EALQAx]');
+        Observer.Verify();
     end;
 
     // 'found <value of field FieldNo>', 'not found' or the error of RecordRef.Get.
@@ -192,7 +206,17 @@ codeunit 92943 "LT Y49 RecordId Format10"
         Clear(RecId);
         Ok := Evaluate(RecId, Format(A.RecordId, 0, 10));
         Observer.Observe('bookmark text without number', Format(Ok) + ' ' + Format(RecId));
-        Observer.Finish();
+        Observer.Expect('A-1 ok', 'Yes');
+        Observer.Expect('A-1 recid', 'LT Y49 Bm Code Row: A-1');
+        Observer.Expect('A-1 table', '92943');
+        Observer.Expect('A-1 get', 'found Name A-1');
+        Observer.Expect('A-1 equal', 'Yes');
+        Observer.Expect('1 ok', 'Yes LT Y49 Bm Code Row: 1');
+        Observer.Expect('B ok', 'Yes LT Y49 Bm Line Row: Order,X,10000');
+        Observer.Expect('B get', 'found 10000');
+        Observer.Expect('format0 text with 10', 'No ');
+        Observer.Expect('bookmark text without number', 'No ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -218,7 +242,23 @@ codeunit 92943 "LT Y49 RecordId Format10"
         ObsStmtRecId('empty stmt', '');
         ObsStmtRecId('format0 text stmt', 'LT Y49 Bm Code Row: A-1');
         ObsStmtRecId('bookmark stmt', Format(A.RecordId, 0, 10));
-        Observer.Finish();
+        Observer.Expect('format0 text', 'No ');
+        Observer.Expect('empty', 'Yes ');
+        Observer.Expect('garbage', 'No ');
+        Observer.Expect('bookmark with wrong length', 'Yes LT Y49 Bm Code Row: ""');
+        Observer.Expect('garbage stmt', 'No');
+        Observer.Expect('garbage stmt|text', 'The value "garbage" can''t be evaluated into type RecordID.');
+        Observer.Expect('garbage stmt|code', 'Evaluate');
+        Observer.Expect('empty stmt', 'Yes');
+        Observer.Expect('empty stmt|text', '');
+        Observer.Expect('empty stmt|code', '');
+        Observer.Expect('format0 text stmt', 'No');
+        Observer.Expect('format0 text stmt|text', 'The value "LT Y49 Bm Code Row: A-1" can''t be evaluated into type RecordID.');
+        Observer.Expect('format0 text stmt|code', 'Evaluate');
+        Observer.Expect('bookmark stmt', 'Yes');
+        Observer.Expect('bookmark stmt|text', '');
+        Observer.Expect('bookmark stmt|code', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -243,7 +283,17 @@ codeunit 92943 "LT Y49 RecordId Format10"
         Observer.ObserveError('integer stmt');
         Observer.Observe('date stmt', Format(TryStmtDate('2024-03-05')));
         Observer.ObserveError('date stmt');
-        Observer.Finish();
+        Observer.Expect('text', 'Yes [x]');
+        Observer.Expect('integer', 'Yes 12');
+        Observer.Expect('date', 'Yes 2024-03-05');
+        Observer.Expect('guid', 'Yes {3F2504E0-4F89-11D3-9A0C-0305E82C3301}');
+        Observer.Expect('integer stmt', 'Yes');
+        Observer.Expect('integer stmt|text', '');
+        Observer.Expect('integer stmt|code', '');
+        Observer.Expect('date stmt', 'Yes');
+        Observer.Expect('date stmt|text', '');
+        Observer.Expect('date stmt|code', '');
+        Observer.Verify();
     end;
 
     local procedure ObsStmtRecId(Name: Text; Txt: Text)
@@ -301,7 +351,12 @@ codeunit 92943 "LT Y49 RecordId Format10"
             Observer.ObserveError('variant 0');
         end;
         Observer.Observe('direct', Format(A.RecordId, 0, 10));
-        Observer.Finish();
+        Observer.Expect('variant 10', 'raised');
+        Observer.Expect('variant 10|text', 'Standard format number 10 does not exist for the type ''Variant''.');
+        Observer.Expect('variant 10|code', 'InvalidStandardFormat');
+        Observer.Expect('variant 0', '[LT Y49 Bm Code Row: A-1]');
+        Observer.Expect('direct', '17;D2sBAAJ7/0EALQAx');
+        Observer.Verify();
     end;
 
     [TryFunction]

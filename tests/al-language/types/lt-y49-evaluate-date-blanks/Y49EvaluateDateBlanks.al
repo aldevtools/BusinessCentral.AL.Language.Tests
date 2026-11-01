@@ -84,7 +84,25 @@ codeunit 92945 "LT Y49 Evaluate Date Blanks"
         ObsStmt(' x', -1);
         ObsStmt('12 34', -1);
         ObsStmt('2024 03 05', -1);
-        Observer.Finish();
+        Observer.Expect('[not a date]', 'No');
+        Observer.Expect('[not a date]|text', 'The format of the Date ''not a date'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.');
+        Observer.Expect('[not a date]|code', 'Evaluate');
+        Observer.Expect('[abc def]', 'No');
+        Observer.Expect('[abc def]|text is the not-a-date text with this input', 'Yes');
+        Observer.Expect('[abc def]|code', 'Evaluate');
+        Observer.Expect('[a b]', 'No');
+        Observer.Expect('[a b]|text is the not-a-date text with this input', 'Yes');
+        Observer.Expect('[a b]|code', 'Evaluate');
+        Observer.Expect('[ x]', 'No');
+        Observer.Expect('[ x]|text is the not-a-date text with this input', 'Yes');
+        Observer.Expect('[ x]|code', 'Evaluate');
+        Observer.Expect('[12 34]', 'No');
+        Observer.Expect('[12 34]|text is the not-a-date text with this input', 'Yes');
+        Observer.Expect('[12 34]|code', 'Evaluate');
+        Observer.Expect('[2024 03 05]', 'No');
+        Observer.Expect('[2024 03 05]|text is the not-a-date text with this input', 'Yes');
+        Observer.Expect('[2024 03 05]|code', 'Evaluate');
+        Observer.Verify();
     end;
 
     [Test]
@@ -95,7 +113,18 @@ codeunit 92945 "LT Y49 Evaluate Date Blanks"
         ObsStmt('12:30', -1);
         ObsStmt('x_y', -1);
         ObsStmt('!', -1);
-        Observer.Finish();
+        Observer.Expect('[5. März]', 'Yes');
+        Observer.Expect('[abc,def]', 'No');
+        Observer.Expect('[abc,def]|text is the not-a-date text with this input', 'Yes');
+        Observer.Expect('[abc,def]|code', 'Evaluate');
+        Observer.Expect('[12:30]', 'Yes');
+        Observer.Expect('[x_y]', 'No');
+        Observer.Expect('[x_y]|text is the not-a-date text with this input', 'Yes');
+        Observer.Expect('[x_y]|code', 'Evaluate');
+        Observer.Expect('[!]', 'No');
+        Observer.Expect('[!]|text is the not-a-date text with this input', 'Yes');
+        Observer.Expect('[!]|code', 'Evaluate');
+        Observer.Verify();
     end;
 
     [Test]
@@ -107,7 +136,25 @@ codeunit 92945 "LT Y49 Evaluate Date Blanks"
         ObsStmt(' x', 9);
         ObsStmt('12 34', 9);
         ObsStmt('2024 03 05', 9);
-        Observer.Finish();
+        Observer.Expect('[not a date] 9', 'No');
+        Observer.Expect('[not a date] 9|text', 'The format of the Date ''not a date'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.');
+        Observer.Expect('[not a date] 9|code', 'Evaluate');
+        Observer.Expect('[abc def] 9', 'No');
+        Observer.Expect('[abc def] 9|text is the not-a-date text with this input', 'Yes');
+        Observer.Expect('[abc def] 9|code', 'Evaluate');
+        Observer.Expect('[a b] 9', 'No');
+        Observer.Expect('[a b] 9|text is the not-a-date text with this input', 'Yes');
+        Observer.Expect('[a b] 9|code', 'Evaluate');
+        Observer.Expect('[ x] 9', 'No');
+        Observer.Expect('[ x] 9|text is the not-a-date text with this input', 'Yes');
+        Observer.Expect('[ x] 9|code', 'Evaluate');
+        Observer.Expect('[12 34] 9', 'No');
+        Observer.Expect('[12 34] 9|text is the not-a-date text with this input', 'Yes');
+        Observer.Expect('[12 34] 9|code', 'Evaluate');
+        Observer.Expect('[2024 03 05] 9', 'No');
+        Observer.Expect('[2024 03 05] 9|text is the not-a-date text with this input', 'Yes');
+        Observer.Expect('[2024 03 05] 9|code', 'Evaluate');
+        Observer.Verify();
     end;
 
     [Test]
@@ -119,7 +166,25 @@ codeunit 92945 "LT Y49 Evaluate Date Blanks"
         ObsStmt('x_y', 9);
         ObsStmt('!', 9);
         ObsStmt('not a date', 0);
-        Observer.Finish();
+        Observer.Expect('[5. März] 9', 'No');
+        Observer.Expect('[5. März] 9|text is the not-a-date text with this input', 'Yes');
+        Observer.Expect('[5. März] 9|code', 'Evaluate');
+        Observer.Expect('[abc,def] 9', 'No');
+        Observer.Expect('[abc,def] 9|text is the not-a-date text with this input', 'Yes');
+        Observer.Expect('[abc,def] 9|code', 'Evaluate');
+        Observer.Expect('[12:30] 9', 'No');
+        Observer.Expect('[12:30] 9|text is the not-a-date text with this input', 'Yes');
+        Observer.Expect('[12:30] 9|code', 'Evaluate');
+        Observer.Expect('[x_y] 9', 'No');
+        Observer.Expect('[x_y] 9|text is the not-a-date text with this input', 'Yes');
+        Observer.Expect('[x_y] 9|code', 'Evaluate');
+        Observer.Expect('[!] 9', 'No');
+        Observer.Expect('[!] 9|text is the not-a-date text with this input', 'Yes');
+        Observer.Expect('[!] 9|code', 'Evaluate');
+        Observer.Expect('[not a date] 0', 'No');
+        Observer.Expect('[not a date] 0|text', 'The format of the Date ''not a date'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.');
+        Observer.Expect('[not a date] 0|code', 'Evaluate');
+        Observer.Verify();
     end;
 
     [Test]
@@ -132,7 +197,10 @@ codeunit 92945 "LT Y49 Evaluate Date Blanks"
         asserterror Evaluate(D, 'not a date', 9);
         Observer.Observe('asserterror not a date 9|code', GetLastErrorCode());
         ClearLastError();
-        Observer.Finish();
+        Observer.Expect('asserterror not a date|text', 'The format of the Date ''not a date'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.');
+        Observer.Expect('asserterror not a date|code', 'Evaluate');
+        Observer.Expect('asserterror not a date 9|code', 'Evaluate');
+        Observer.Verify();
     end;
 
     [Test]
@@ -149,7 +217,18 @@ codeunit 92945 "LT Y49 Evaluate Date Blanks"
         ObsUsed('12:30');
         ObsUsed('x_y');
         ObsUsed('!');
-        Observer.Finish();
+        Observer.Expect('[not a date]', 'No 2000-01-01 err=No');
+        Observer.Expect('[abc def]', 'No 2000-01-01 err=No');
+        Observer.Expect('[a b]', 'No 2000-01-01 err=No');
+        Observer.Expect('[ x]', 'No 2000-01-01 err=No');
+        Observer.Expect('[12 34]', 'No 2000-01-01 err=Yes');
+        Observer.Expect('[2024 03 05]', 'No 2000-01-01 err=No');
+        Observer.Expect('[5. März]', 'Yes day 5 err=No');
+        Observer.Expect('[abc,def]', 'No 2000-01-01 err=No');
+        Observer.Expect('[12:30]', 'Yes day 30 err=No');
+        Observer.Expect('[x_y]', 'No 2000-01-01 err=No');
+        Observer.Expect('[!]', 'No 2000-01-01 err=No');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -182,7 +261,14 @@ codeunit 92945 "LT Y49 Evaluate Date Blanks"
         Ok := Evaluate(Dur, 'abc', 0);
         Observer.Observe('dur 0 used', Format(Ok));
         ClearLastError();
-        Observer.Finish();
+        Observer.Expect('dur', 'No');
+        Observer.Expect('dur|text', 'The value "abc" can''t be evaluated into type Duration.');
+        Observer.Expect('dur|code', 'Evaluate');
+        Observer.Expect('dur 0', 'No');
+        Observer.Expect('dur 0|text', 'The value "abc" can''t be evaluated into type Duration.');
+        Observer.Expect('dur 0|code', 'Evaluate');
+        Observer.Expect('dur 0 used', 'No');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -219,6 +305,15 @@ codeunit 92945 "LT Y49 Evaluate Date Blanks"
         Observer.ObserveError('char');
         Observer.Observe('biginteger', Format(TryEvalBi('x')));
         Observer.ObserveError('biginteger');
-        Observer.Finish();
+        Observer.Expect('dateformula', 'No');
+        Observer.Expect('dateformula|text', 'The date formula ''ZZ'' should include a time unit.\\Time units can be: D,WD,W,M,Q, or Y.\C, meaning current time unit based on date, can be specified as a prefix to the time unit.');
+        Observer.Expect('dateformula|code', 'Evaluate');
+        Observer.Expect('char', 'No');
+        Observer.Expect('char|text', 'The value "ab" can''t be evaluated into type Char.');
+        Observer.Expect('char|code', 'Evaluate');
+        Observer.Expect('biginteger', 'No');
+        Observer.Expect('biginteger|text', 'The value "x" can''t be evaluated into type BigInteger.');
+        Observer.Expect('biginteger|code', 'Evaluate');
+        Observer.Verify();
     end;
 }

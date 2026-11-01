@@ -138,7 +138,14 @@ codeunit 92940 "LT Y49 Blob Compare"
         X := Rec;
         WriteBin(Rec, 'abc');
         ObsCmp('copy rec written same text', Rec, X, 2);
-        Observer.Finish();
+        Observer.Expect('copy', 'No|Yes');
+        Observer.Expect('copy loop', '');
+        Observer.Expect('copy calc rec only', 'Yes|No');
+        Observer.Expect('copy calc both', 'No|Yes');
+        Observer.Expect('copy rec written', 'Yes|No');
+        Observer.Expect('copy rec written loop', '2;');
+        Observer.Expect('copy rec written same text', 'Yes|No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -169,7 +176,13 @@ codeunit 92940 "LT Y49 Blob Compare"
         Temp.TransferFields(Stored);
         Temp.Insert();
         ObsCmp('transfer vs stored', Temp, Stored, 2);
-        Observer.Finish();
+        Observer.Expect('temp vs stored', 'No|Yes');
+        Observer.Expect('temp vs stored loop', '');
+        Observer.Expect('temp got vs stored', 'No|Yes');
+        Observer.Expect('temp calc only', 'Yes|No');
+        Observer.Expect('both calc', 'No|Yes');
+        Observer.Expect('transfer vs stored', 'Yes|No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -206,7 +219,16 @@ codeunit 92940 "LT Y49 Blob Compare"
         A.CalcFields(Bin);
         B.Get(3);
         ObsCmp('1 calc-3', A, B, 2);
-        Observer.Finish();
+        Observer.Expect('1-3', 'No|Yes');
+        Observer.Expect('1-2', 'No|Yes');
+        Observer.Expect('1-4', 'Yes|No');
+        Observer.Expect('4-4', 'No|Yes');
+        Observer.Expect('1-3 calc', 'Yes|No');
+        Observer.Expect('1-2 calc', 'No|Yes');
+        Observer.Expect('1-4 calc', 'Yes|No');
+        Observer.Expect('4-4 calc', 'No|Yes');
+        Observer.Expect('1 calc-3', 'Yes|No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -224,7 +246,11 @@ codeunit 92940 "LT Y49 Blob Compare"
         ObsCmp('init both written same', A, B, 2);
         WriteBin(B, 'xyz');
         ObsCmp('init both written other', A, B, 2);
-        Observer.Finish();
+        Observer.Expect('init', 'No|Yes');
+        Observer.Expect('init a written', 'Yes|No');
+        Observer.Expect('init both written same', 'No|Yes');
+        Observer.Expect('init both written other', 'Yes|No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -247,6 +273,14 @@ codeunit 92940 "LT Y49 Blob Compare"
         ObsHasDiff('loop 1-3', A, B);
         B.Get(1);
         ObsHasDiff('loop 1-1', A, B);
-        Observer.Finish();
+        Observer.Expect('media init', 'No|Yes');
+        Observer.Expect('mediaset init', 'No|Yes');
+        Observer.Expect('text init', 'No|Yes');
+        Observer.Expect('media 1-3', 'No|Yes');
+        Observer.Expect('mediaset 1-3', 'No|Yes');
+        Observer.Expect('text 1-3', 'Yes|No');
+        Observer.Expect('loop 1-3', '1;3;');
+        Observer.Expect('loop 1-1', '');
+        Observer.Verify();
     end;
 }

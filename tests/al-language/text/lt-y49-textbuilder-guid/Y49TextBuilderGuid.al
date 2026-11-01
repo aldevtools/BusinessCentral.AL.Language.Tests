@@ -94,7 +94,14 @@ codeunit 92942 "LT Y49 TB Guid"
             Observer.Observe('all rows count', 'raised');
             Observer.ObserveError('all rows filter');
         end;
-        Observer.Finish();
+        Observer.Expect('two rows text', '{3F2504E0-4F89-11D3-9A0C-0305E82C3301}|{0A1B2C3D-0000-1111-2222-333344445555}|');
+        Observer.Expect('two rows filter', '{3F2504E0-4F89-11D3-9A0C-0305E82C3301}|{0A1B2C3D-0000-1111-2222-333344445555}');
+        Observer.Expect('two rows count', '2');
+        Observer.Expect('two rows ids', '1;3;');
+        Observer.Expect('all rows text', '{3F2504E0-4F89-11D3-9A0C-0305E82C3301}|{00000000-0000-0000-0000-000000000000}|{0A1B2C3D-0000-1111-2222-333344445555}|');
+        Observer.Expect('all rows count', '3');
+        Observer.Expect('all rows ids', '1;2;3;');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -119,7 +126,9 @@ codeunit 92942 "LT Y49 TB Guid"
         AddId(TB, Row.G);
         Observer.Observe('param', TB.ToText());
         Observer.Observe('length', Format(TB.Length()));
-        Observer.Finish();
+        Observer.Expect('param', '{3F2504E0-4F89-11D3-9A0C-0305E82C3301}|{00000000-0000-0000-0000-000000000000}');
+        Observer.Expect('length', '77');
+        Observer.Verify();
     end;
 
     [Test]
@@ -152,7 +161,12 @@ codeunit 92942 "LT Y49 TB Guid"
         TB.Append('a-b');
         TB.Replace('-', Row.G);
         Observer.Observe('replace guid as new', TB.ToText());
-        Observer.Finish();
+        Observer.Expect('appendline', '{0A1B2C3D-0000-1111-2222-333344445555}<CR><LF>');
+        Observer.Expect('insert', 'x{0A1B2C3D-0000-1111-2222-333344445555}');
+        Observer.Expect('replace format', 'a G b');
+        Observer.Expect('replace guid as old', 'a G b');
+        Observer.Expect('replace guid as new', 'a{0A1B2C3D-0000-1111-2222-333344445555}b');
+        Observer.Verify();
     end;
 
     [Test]
@@ -174,7 +188,10 @@ codeunit 92942 "LT Y49 TB Guid"
         Clear(G);
         TB.Append(G);
         Observer.Observe('empty', TB.ToText());
-        Observer.Finish();
+        Observer.Expect('field from lower text', '{3F2504E0-4F89-11D3-9A0C-0305E82C3301}');
+        Observer.Expect('var from lower text no braces', '{3F2504E0-4F89-11D3-9A0C-0305E82C3301}');
+        Observer.Expect('empty', '{00000000-0000-0000-0000-000000000000}');
+        Observer.Verify();
     end;
 
     [Test]
@@ -194,7 +211,8 @@ codeunit 92942 "LT Y49 TB Guid"
             Observer.Observe('variant', 'raised');
             Observer.ObserveError('variant');
         end;
-        Observer.Finish();
+        Observer.Expect('variant', '[{3F2504E0-4F89-11D3-9A0C-0305E82C3301}]');
+        Observer.Verify();
     end;
 
     [TryFunction]
