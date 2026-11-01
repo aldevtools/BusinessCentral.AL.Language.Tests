@@ -10,6 +10,11 @@
 //   an OnNewRecord that fills a field.
 // Neighbours: pages/lt-y41-page-probes/Y41SelectionAfterClose.al (one-field key, view on another variable, OpenNew),
 //   pages/lt-selection-filter-no-row/SelectionFilterNoRow.al.
+// Measured (27.5, 28.5, 29.0 and SaaS 29 alike): inside a typed handler the page's Rec is blank. SetRecord + LookupOK or GoToKey + OK on
+//   the two-field key gives 'Customer No.: C1, Code: B' (count 1); it REPLACES the filters of the destination, so the filter-group-2
+//   view filter on that same variable is gone; a second variable as destination leaves the view variable as it was. SetRecord of a
+//   record that is not stored gives its key filter and count 0, no error. The editable DelayedInsert list filtered to no row opens on its
+//   new line: OnNewRecord and OnAfterGetCurrRecord run twice, the selection is 'Id: 0' count 0, also when OnNewRecord filled a field.
 // BC versions: all (CI)
 
 table 93241 "LT Y61 Sel H"
@@ -293,7 +298,16 @@ codeunit 93241 "LT Y61 Sel Composite"
         HandlerRow.Get('C1', 'B');
         Pick('C1', R, R2, false);
         Describe('r ', R);
-        Observer.Finish();
+        Observer.Expect('action', 'LookupOK');
+        Observer.Expect('handlerSawKey', '/');
+        Observer.Expect('currentKey', 'C1/B');
+        Observer.Expect('getselected ok', 'Yes');
+        Observer.Expect('r filters', 'Customer No.: C1, Code: B');
+        Observer.Expect('r group2 filters', '');
+        Observer.Expect('r count', '1');
+        Observer.Expect('r markedonly', 'No');
+        Observer.Expect('r keys', 'C1/B,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -308,7 +322,21 @@ codeunit 93241 "LT Y61 Sel Composite"
         Pick('C1', R, R2, true);
         Describe('r ', R);
         Describe('r2 ', R2);
-        Observer.Finish();
+        Observer.Expect('action', 'LookupOK');
+        Observer.Expect('handlerSawKey', '/');
+        Observer.Expect('currentKey', 'C1/B');
+        Observer.Expect('getselected ok', 'Yes');
+        Observer.Expect('r filters', '');
+        Observer.Expect('r group2 filters', 'Customer No.: C1');
+        Observer.Expect('r count', '2');
+        Observer.Expect('r markedonly', 'No');
+        Observer.Expect('r keys', 'C1/A,C1/B,');
+        Observer.Expect('r2 filters', 'Customer No.: C1, Code: B');
+        Observer.Expect('r2 group2 filters', '');
+        Observer.Expect('r2 count', '1');
+        Observer.Expect('r2 markedonly', 'No');
+        Observer.Expect('r2 keys', 'C1/B,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -321,7 +349,17 @@ codeunit 93241 "LT Y61 Sel Composite"
         SeedH();
         Pick('C1', R, R2, false);
         Describe('r ', R);
-        Observer.Finish();
+        Observer.Expect('handler goto', 'Yes');
+        Observer.Expect('action', 'LookupOK');
+        Observer.Expect('handlerSawKey', '-');
+        Observer.Expect('currentKey', 'C1/B');
+        Observer.Expect('getselected ok', 'Yes');
+        Observer.Expect('r filters', 'Customer No.: C1, Code: B');
+        Observer.Expect('r group2 filters', '');
+        Observer.Expect('r count', '1');
+        Observer.Expect('r markedonly', 'No');
+        Observer.Expect('r keys', 'C1/B,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -337,7 +375,16 @@ codeunit 93241 "LT Y61 Sel Composite"
         HandlerRow.Code := 'Q';
         Pick('C1', R, R2, false);
         Describe('r ', R);
-        Observer.Finish();
+        Observer.Expect('action', 'LookupOK');
+        Observer.Expect('handlerSawKey', '/');
+        Observer.Expect('currentKey', 'C9/Q');
+        Observer.Expect('getselected ok', 'Yes');
+        Observer.Expect('r filters', 'Customer No.: C9, Code: Q');
+        Observer.Expect('r group2 filters', '');
+        Observer.Expect('r count', '0');
+        Observer.Expect('r markedonly', 'No');
+        Observer.Expect('r keys', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -357,7 +404,12 @@ codeunit 93241 "LT Y61 Sel Composite"
         TP.Close();
         Observer.Observe('close log', Log.Take());
         Observer.Observe('stored count', Format(StoredD()));
-        Observer.Finish();
+        Observer.Expect('open log', 'new;agcr id=0 name=New count=0 filters=Id: 0;new;agcr id=0 name=New count=0 filters=Id: 0');
+        Observer.Expect('shown id', '0');
+        Observer.Expect('shown name', 'New');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored count', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -383,7 +435,18 @@ codeunit 93241 "LT Y61 Sel Composite"
         TP.Close();
         Observer.Observe('close log', Log.Take());
         Observer.Observe('stored count', Format(StoredD()));
-        Observer.Finish();
+        Observer.Expect('open log', 'agcr id=1 name=f1 count=1 filters=Id: 1');
+        Observer.Expect('shown id', '1');
+        Observer.Expect('next', 'Yes');
+        Observer.Expect('next log', 'agcr id=2 name=f2 count=1 filters=Id: 2');
+        Observer.Expect('next id', '2');
+        Observer.Expect('next2', 'Yes');
+        Observer.Expect('next2 log', 'new;agcr id=0 name=New count=0 filters=Id: 0');
+        Observer.Expect('next2 id', '0');
+        Observer.Expect('next2 name', 'New');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored count', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -403,7 +466,12 @@ codeunit 93241 "LT Y61 Sel Composite"
         TP.Close();
         Observer.Observe('close log', Log.Take());
         Observer.Observe('stored count', Format(StoredD()));
-        Observer.Finish();
+        Observer.Expect('open log', 'new;agcr id=0 name= count=0 filters=Id: 0;new;agcr id=0 name= count=0 filters=Id: 0');
+        Observer.Expect('shown id', '0');
+        Observer.Expect('shown name', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored count', '3');
+        Observer.Verify();
     end;
 
     local procedure StoredD(): Integer

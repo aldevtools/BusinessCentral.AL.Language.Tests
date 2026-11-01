@@ -9,6 +9,11 @@
 //   Log: open <Code>/<Name>/temp=<IsTemporary>/count=<Count>, agr <Code>/<Name> = OnAfterGetRecord, act <name> = an action ran.
 // Neighbours: pages/lt-be-card-onfindrecord/BeCardOnFindRecord.al CardTemp_PageRun_StoredRec (the row is shown),
 //   record/lt-loadfields-pagesource-validate/P81PageTempSource.al.
+// Measured (27.5, 28.5, 29.0 and SaaS 29 alike): SetRecord of a stored record + RunModal opens the temporary Card or NavigatePage EMPTY
+//   (OnOpenPage sees the record's fields but temp=Yes, count 0, the page shows a blank row); an action's Rec.Modify or Rec.Delete then
+//   raises 'The LT Y61 TC Row does not exist. Identification fields and values: Code=''' and nothing stored changes. Page.Run(Id, Rec) and
+//   Page.RunModal(Id, Rec) make Rec NOT temporary (temp=No, count 2): the stored row is shown, Next walks the table, Modify writes to the
+//   database and the caller's record holds the change. A record filtered to no row opens on no row; OK is not found there.
 // BC versions: all (CI)
 
 table 93253 "LT Y61 TC Row"
@@ -308,7 +313,19 @@ codeunit 93249 "LT Y61 Stored Rec To Temp Card"
     procedure G617b_SetRecord_RunModal_Agree()
     begin
         SetRecordRunModal('agree');
-        Observer.Finish();
+        Observer.Expect('handler open log', 'open N1/stored1/temp=Yes/count=0');
+        Observer.Expect('handler shown', '/');
+        Observer.Expect('handler last ok', 'No');
+        Observer.Expect('handler last|text', 'The LT Y61 TC Row does not exist. Identification fields and values: Code=''''');
+        Observer.Expect('handler last|code', 'TestWrapped:CSideRecordNotFound');
+        Observer.Expect('handler log', 'act agree');
+        Observer.Expect('action', 'OK');
+        Observer.Expect('after log', '');
+        Observer.Expect('stored', 'N1/stored1/No,N2/stored2/No,');
+        Observer.Expect('result', '//Yes/count=0');
+        Observer.Expect('getrecord', '//Yes');
+        Observer.Expect('caller', 'N1/stored1/No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -316,7 +333,19 @@ codeunit 93249 "LT Y61 Stored Rec To Temp Card"
     procedure G617b_SetRecord_RunModal_Ok()
     begin
         SetRecordRunModal('ok');
-        Observer.Finish();
+        Observer.Expect('handler open log', 'open N1/stored1/temp=Yes/count=0');
+        Observer.Expect('handler shown', '/');
+        Observer.Expect('handler last ok', 'Yes');
+        Observer.Expect('handler last|text', '');
+        Observer.Expect('handler last|code', '');
+        Observer.Expect('handler log', '');
+        Observer.Expect('action', 'OK');
+        Observer.Expect('after log', '');
+        Observer.Expect('stored', 'N1/stored1/No,N2/stored2/No,');
+        Observer.Expect('result', '//No/count=0');
+        Observer.Expect('getrecord', '//No');
+        Observer.Expect('caller', 'N1/stored1/No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -324,7 +353,19 @@ codeunit 93249 "LT Y61 Stored Rec To Temp Card"
     procedure G617b_SetRecord_RunModal_Nothing()
     begin
         SetRecordRunModal('nothing');
-        Observer.Finish();
+        Observer.Expect('handler open log', 'open N1/stored1/temp=Yes/count=0');
+        Observer.Expect('handler shown', '/');
+        Observer.Expect('handler last ok', 'Yes');
+        Observer.Expect('handler last|text', '');
+        Observer.Expect('handler last|code', '');
+        Observer.Expect('handler log', '');
+        Observer.Expect('action', 'OK');
+        Observer.Expect('after log', '');
+        Observer.Expect('stored', 'N1/stored1/No,N2/stored2/No,');
+        Observer.Expect('result', '//No/count=0');
+        Observer.Expect('getrecord', '//No');
+        Observer.Expect('caller', 'N1/stored1/No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -340,7 +381,22 @@ codeunit 93249 "LT Y61 Stored Rec To Temp Card"
         Observer.Observe('after log', TakeLog());
         Observer.Observe('stored', StoredRows());
         Observer.Observe('caller', PN.Code + '/' + PN.Name + '/' + Format(PN.Enabled));
-        Observer.Finish();
+        Observer.Expect('handler open log', 'open N1/stored1/temp=No/count=2;agr N1/stored1');
+        Observer.Expect('handler shown', 'N1/stored1');
+        Observer.Expect('handler rename ok', 'Yes');
+        Observer.Expect('handler rename|text', '');
+        Observer.Expect('handler rename|code', '');
+        Observer.Expect('handler rename shown', 'N1/renamed');
+        Observer.Expect('handler rename stored', 'N1/renamed/No,N2/stored2/No,');
+        Observer.Expect('handler last ok', 'Yes');
+        Observer.Expect('handler last|text', '');
+        Observer.Expect('handler last|code', '');
+        Observer.Expect('handler log', 'agr N1/stored1;act rename;agr N1/renamed;agr N1/renamed');
+        Observer.Expect('action', 'LookupOK');
+        Observer.Expect('after log', '');
+        Observer.Expect('stored', 'N1/renamed/No,N2/stored2/No,');
+        Observer.Expect('caller', 'N1/renamed/No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -358,7 +414,21 @@ codeunit 93249 "LT Y61 Stored Rec To Temp Card"
         Observer.Observe('after log', TakeLog());
         Observer.Observe('stored', StoredRows());
         Observer.Observe('result', P.Result());
-        Observer.Finish();
+        Observer.Expect('handler open log', 'open N1/stored1/temp=Yes/count=0');
+        Observer.Expect('handler shown', '/');
+        Observer.Expect('handler delete ok', 'No');
+        Observer.Expect('handler delete|text', 'The LT Y61 TC Row does not exist. Identification fields and values: Code=''''');
+        Observer.Expect('handler delete|code', 'TestWrapped:CSideRecordNotFound');
+        Observer.Expect('handler delete stored', 'N1/stored1/No,N2/stored2/No,');
+        Observer.Expect('handler last ok', 'Yes');
+        Observer.Expect('handler last|text', '');
+        Observer.Expect('handler last|code', '');
+        Observer.Expect('handler log', 'act delete');
+        Observer.Expect('action', 'OK');
+        Observer.Expect('after log', '');
+        Observer.Expect('stored', 'N1/stored1/No,N2/stored2/No,');
+        Observer.Expect('result', '//No/count=0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -381,7 +451,16 @@ codeunit 93249 "LT Y61 Stored Rec To Temp Card"
         TP.Close();
         Observer.Observe('close log', TakeLog());
         Observer.Observe('stored', StoredRows());
-        Observer.Finish();
+        Observer.Expect('open log', 'open N1/stored1/temp=No/count=2;agr N1/stored1');
+        Observer.Expect('shown', 'N1/stored1');
+        Observer.Expect('next', 'Yes');
+        Observer.Expect('next log', 'agr N2/stored2');
+        Observer.Expect('next shown', 'N2/stored2');
+        Observer.Expect('previous', 'Yes');
+        Observer.Expect('previous shown', 'N1/stored1');
+        Observer.Expect('close log', 'agr N1/stored1');
+        Observer.Expect('stored', 'N1/stored1/No,N2/stored2/No,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -401,7 +480,18 @@ codeunit 93249 "LT Y61 Stored Rec To Temp Card"
         Observer.Observe('result', P.Result());
         P.GetRecord(R2);
         Observer.Observe('getrecord', R2.Code + '/' + R2.Name + '/' + Format(R2.Enabled));
-        Observer.Finish();
+        Observer.Expect('handler open log', 'open N1/stored1/temp=Yes/count=0');
+        Observer.Expect('handler shown', '/');
+        Observer.Expect('handler agree ok', 'No');
+        Observer.Expect('handler agree|text', 'The LT Y61 TC Row does not exist. Identification fields and values: Code=''''');
+        Observer.Expect('handler agree|code', 'TestWrapped:CSideRecordNotFound');
+        Observer.Expect('handler log', 'act agree');
+        Observer.Expect('action', 'OK');
+        Observer.Expect('after log', '');
+        Observer.Expect('stored', 'N1/stored1/No,N2/stored2/No,');
+        Observer.Expect('result', '//Yes/count=0');
+        Observer.Expect('getrecord', '//Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -416,6 +506,15 @@ codeunit 93249 "LT Y61 Stored Rec To Temp Card"
         Observer.Observe('action', Format(Page.RunModal(Page::"LT Y61 TC Card", PN)));
         Observer.Observe('after log', TakeLog());
         Observer.Observe('stored', StoredRows());
-        Observer.Finish();
+        Observer.Expect('handler open log', 'open //temp=No/count=0');
+        Observer.Expect('handler shown', '/');
+        Observer.Expect('handler last ok', 'No');
+        Observer.Expect('handler last|text', 'The built-in action = OK is not found on the page.');
+        Observer.Expect('handler last|code', 'TestActionNotFound');
+        Observer.Expect('handler log', '');
+        Observer.Expect('action', 'LookupCancel');
+        Observer.Expect('after log', '');
+        Observer.Expect('stored', 'N1/stored1/No,N2/stored2/No,');
+        Observer.Verify();
     end;
 }

@@ -8,7 +8,7 @@
 //   field and of a FlowFilter the link does not set into another record (also over a filter that record had), Other.CopyFilters(Rec),
 //   Other.Copy(Rec), Rec.HasFilter, GetFilter, GetView, FilterGroup, Count, FindFirst, and Rec passed by var to a procedure of a part
 //   page that sets its own filter and copies the host's "Date Filter" (the part's rows). Each probe runs in a TryFunction of the page and
-//   logs its value, or the error text and code.
+//   logs its value, or the error text and code. Date filter texts are in the format of the CI (en-US).
 // Neighbours: handlers/QzRunPageLinkOnOpen.al (fields and GetFilters of Rec, a by-value copy), pages/lt-y41-page-probes/Y41RunPageLinkOnOpen.al.
 // BC versions: all (CI)
 
@@ -76,14 +76,11 @@ page 93257 "LT Y61 RL Part"
         }
     }
 
-    procedure UpdateForm(var HostRec: Record "LT Y61 RL P")
-    var
-        Log: Record "LT Y61 Log";
+    procedure UpdateForm(var HostRec: Record "LT Y61 RL P"): Text
     begin
         Rec.SetRange("Parent Code", HostRec.Code);
         HostRec.CopyFilter("Date Filter", Rec."Date Filter");
-        Log.AddLine('part filters=' + Rec.GetFilters());
-        Log.AddLine('part host filters=' + HostRec.GetFilters());
+        exit('part filters=' + Rec.GetFilters() + ';part host filters=' + HostRec.GetFilters());
     end;
 }
 
@@ -110,6 +107,9 @@ page 93256 "LT Y61 RL Target"
         }
     }
 
+    var
+        Lines: Text;
+
     trigger OnOpenPage()
     var
         Log: Record "LT Y61 Log";
@@ -118,15 +118,24 @@ page 93256 "LT Y61 RL Target"
     begin
         Mode := ModeCu.GetMode();
         Log.AddLine('open code=' + Rec.Code);
+        Lines := '';
         if not TryProbe(Mode) then
-            Log.AddLine('error ' + Mode + ' text=' + GetLastErrorText() + ' code=' + GetLastErrorCode());
+            Lines += 'error ' + Mode + ' text=' + GetLastErrorText() + ' code=' + GetLastErrorCode();
         ClearLastError();
+        Log.AddLine(Lines);
+    end;
+
+    // A TryFunction may not write to the database (the log table): the probe collects its lines in Lines.
+    local procedure Add(Line: Text)
+    begin
+        if Lines <> '' then
+            Lines += ';';
+        Lines += Line;
     end;
 
     [TryFunction]
     local procedure TryProbe(Mode: Text)
     var
-        Log: Record "LT Y61 Log";
         Other: Record "LT Y61 RL Q";
         Other2: Record "LT Y61 RL P";
     begin
@@ -134,50 +143,50 @@ page 93256 "LT Y61 RL Target"
             'copyfilter-code':
                 begin
                     Other.SetRange("Parent Code", 'ZZ');
-                    Log.AddLine('before=' + Other.GetFilter("Parent Code"));
+                    Add('before=' + Other.GetFilter("Parent Code"));
                     Rec.CopyFilter(Code, Other."Parent Code");
-                    Log.AddLine('after=' + Other.GetFilter("Parent Code") + ' hasfilter=' + Format(Other.HasFilter()) + ' count=' + Format(Other.Count()));
+                    Add('after=' + Other.GetFilter("Parent Code") + ' hasfilter=' + Format(Other.HasFilter()) + ' count=' + Format(Other.Count()));
                 end;
             'copyfilter-date':
                 begin
                     Other.SetRange("Date Filter", 20240101D, 20240131D);
-                    Log.AddLine('before=' + Other.GetFilter("Date Filter"));
+                    Add('before=' + Other.GetFilter("Date Filter"));
                     Rec.CopyFilter("Date Filter", Other."Date Filter");
-                    Log.AddLine('after=' + Other.GetFilter("Date Filter") + ' hasfilter=' + Format(Other.HasFilter()));
+                    Add('after=' + Other.GetFilter("Date Filter") + ' hasfilter=' + Format(Other.HasFilter()));
                     Other.Reset();
                     Rec.CopyFilter("Date Filter", Other."Date Filter");
-                    Log.AddLine('fresh=' + Other.GetFilter("Date Filter") + ' hasfilter=' + Format(Other.HasFilter()));
+                    Add('fresh=' + Other.GetFilter("Date Filter") + ' hasfilter=' + Format(Other.HasFilter()));
                 end;
             'part':
-                CurrPage.Sub.Page.UpdateForm(Rec);
+                Add(CurrPage.Sub.Page.UpdateForm(Rec));
             'copyfilters':
                 begin
                     Other2.SetRange(Name, 'zz');
                     Other2.CopyFilters(Rec);
-                    Log.AddLine('copyfilters filters=' + Other2.GetFilters() + ' count=' + Format(Other2.Count()));
+                    Add('copyfilters filters=' + Other2.GetFilters() + ' count=' + Format(Other2.Count()));
                 end;
             'copy':
                 begin
                     Other2.Copy(Rec);
-                    Log.AddLine('copy code=' + Other2.Code + ' filters=' + Other2.GetFilters() + ' count=' + Format(Other2.Count()));
+                    Add('copy code=' + Other2.Code + ' filters=' + Other2.GetFilters() + ' count=' + Format(Other2.Count()));
                 end;
             'reads':
                 begin
-                    Log.AddLine('hasfilter=' + Format(Rec.HasFilter()));
-                    Log.AddLine('getfilter code=' + Rec.GetFilter(Code));
-                    Log.AddLine('getfilter date=' + Rec.GetFilter("Date Filter"));
-                    Log.AddLine('view=' + Rec.GetView(false));
-                    Log.AddLine('filtergroup=' + Format(Rec.FilterGroup()));
-                    Log.AddLine('count=' + Format(Rec.Count()));
-                    Log.AddLine('findfirst=' + Format(Rec.FindFirst()) + ' code=' + Rec.Code + ' name=' + Rec.Name);
+                    Add('hasfilter=' + Format(Rec.HasFilter()));
+                    Add('getfilter code=' + Rec.GetFilter(Code));
+                    Add('getfilter date=' + Rec.GetFilter("Date Filter"));
+                    Add('view=' + Rec.GetView(false));
+                    Add('filtergroup=' + Format(Rec.FilterGroup()));
+                    Add('count=' + Format(Rec.Count()));
+                    Add('findfirst=' + Format(Rec.FindFirst()) + ' code=' + Rec.Code + ' name=' + Rec.Name);
                 end;
             'flowlink':
                 begin
-                    Log.AddLine('getfilter date=' + Rec.GetFilter("Date Filter"));
+                    Add('getfilter date=' + Rec.GetFilter("Date Filter"));
                     Rec.CopyFilter("Date Filter", Other."Date Filter");
-                    Log.AddLine('date after=' + Other.GetFilter("Date Filter"));
+                    Add('date after=' + Other.GetFilter("Date Filter"));
                     Rec.CopyFilter(Code, Other."Parent Code");
-                    Log.AddLine('code after=' + Other.GetFilter("Parent Code"));
+                    Add('code after=' + Other.GetFilter("Parent Code"));
                 end;
         end;
     end;

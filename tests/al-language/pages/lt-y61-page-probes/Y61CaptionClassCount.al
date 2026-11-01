@@ -11,6 +11,10 @@
 //   Log per step: empty=<runs with Id 0> rows=<runs with a row>, and per field f<n>:<empty>/<rows> where the expression tells the field.
 // Neighbours: record/lt-sx-captionclass-count/SxCaptionClassCount.al (one and two fields, Card and List),
 //   record/lt-qd-captionclass-areas/QdCaptionClassAreas.al (which expressions run; its comments record counts that vary between runs).
+// Measured (27.5, 28.5, 29.0 and SaaS 29 alike, three cycles equal): on a List each expression field runs N empty-record times on the
+//   open, with N = 10 for 4 fields, 9 for 3 fields, 21 for 15 fields (4 fields: 40, the same for different and for equal expression
+//   texts), plus one row run per field; GoToRecord and Close run none. Worksheet: as List. ListPlus with the field in a group: as the
+//   pinned Card (8 + 1, GoToRecord 1). A Message in the expression is shown once per run (Card 9 on the open, 1 on GoToRecord; List 8).
 // BC versions: all (CI)
 
 table 93244 "LT Y61 CC K4"
@@ -480,7 +484,8 @@ codeunit 93244 "LT Y61 CaptionClass Count"
             Got += ' close ' + Log.Take(true, 4) + '|';
         end;
         Observer.Observe('cycles', Got);
-        Observer.Finish();
+        Observer.Expect('cycles', 'open empty=40 rows=4 f1:10/1 f2:10/1 f3:10/1 f4:10/1 goto empty=0 rows=0 close empty=0 rows=0|open empty=40 rows=4 f1:10/1 f2:10/1 f3:10/1 f4:10/1 goto empty=0 rows=0 close empty=0 rows=0|open empty=40 rows=4 f1:10/1 f2:10/1 f3:10/1 f4:10/1 goto empty=0 rows=0 close empty=0 rows=0|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -503,7 +508,8 @@ codeunit 93244 "LT Y61 CaptionClass Count"
             Got += ' close ' + Log.Take(true, 4) + '|';
         end;
         Observer.Observe('cycles', Got);
-        Observer.Finish();
+        Observer.Expect('cycles', 'open empty=40 rows=4 f1:10/1 f2:10/1 f3:10/1 f4:10/1 goto empty=0 rows=0 close empty=0 rows=0|open empty=40 rows=4 f1:10/1 f2:10/1 f3:10/1 f4:10/1 goto empty=0 rows=0 close empty=0 rows=0|open empty=40 rows=4 f1:10/1 f2:10/1 f3:10/1 f4:10/1 goto empty=0 rows=0 close empty=0 rows=0|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -526,7 +532,8 @@ codeunit 93244 "LT Y61 CaptionClass Count"
             Got += ' close ' + Log.Take(false, 0) + '|';
         end;
         Observer.Observe('cycles', Got);
-        Observer.Finish();
+        Observer.Expect('cycles', 'open empty=40 rows=4 goto empty=0 rows=0 close empty=0 rows=0|open empty=40 rows=4 goto empty=0 rows=0 close empty=0 rows=0|open empty=40 rows=4 goto empty=0 rows=0 close empty=0 rows=0|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -549,7 +556,8 @@ codeunit 93244 "LT Y61 CaptionClass Count"
             Got += ' close ' + Log.Take(false, 0) + '|';
         end;
         Observer.Observe('cycles', Got);
-        Observer.Finish();
+        Observer.Expect('cycles', 'open empty=27 rows=3 goto empty=0 rows=0 close empty=0 rows=0|open empty=27 rows=3 goto empty=0 rows=0 close empty=0 rows=0|open empty=27 rows=3 goto empty=0 rows=0 close empty=0 rows=0|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -572,14 +580,10 @@ codeunit 93244 "LT Y61 CaptionClass Count"
             Got += ' close ' + Log.Take(true, 16) + '|';
         end;
         Observer.Observe('cycles', Got);
-        Observer.Finish();
+        Observer.Expect('cycles', 'open empty=315 rows=15 f2:21/1 f3:21/1 f4:21/1 f5:21/1 f6:21/1 f7:21/1 f8:21/1 f9:21/1 f10:21/1 f11:21/1 f12:21/1 f13:21/1 f14:21/1 f15:21/1 f16:21/1 goto empty=0 rows=0 close empty=0 rows=0|open empty=315 rows=15 f2:21/1 f3:21/1 f4:21/1 f5:21/1 f6:21/1 f7:21/1 f8:21/1 f9:21/1 f10:21/1 f11:21/1 f12:21/1 f13:21/1 f14:21/1 f15:21/1 f16:21/1 goto empty=0 rows=0 close empty=0 rows=0|open empty=315 rows=15 f2:21/1 f3:21/1 f4:21/1 f5:21/1 f6:21/1 f7:21/1 f8:21/1 f9:21/1 f10:21/1 f11:21/1 f12:21/1 f13:21/1 f14:21/1 f15:21/1 f16:21/1 goto empty=0 rows=0 close empty=0 rows=0|');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure G615_List_15Fields_DictRead_More1()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     [HandlerFunctions('CountMessages')]
@@ -602,7 +606,8 @@ codeunit 93244 "LT Y61 CaptionClass Count"
             Got += ' close ' + Log.Take(false, 0) + '|';
         end;
         Observer.Observe('cycles', Got);
-        Observer.Finish();
+        Observer.Expect('cycles', 'open empty=8 rows=1 msgs=9 goto empty=0 rows=1 msgs=1 close empty=0 rows=0|open empty=8 rows=1 msgs=9 goto empty=0 rows=1 msgs=1 close empty=0 rows=0|open empty=8 rows=1 msgs=9 goto empty=0 rows=1 msgs=1 close empty=0 rows=0|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -626,7 +631,8 @@ codeunit 93244 "LT Y61 CaptionClass Count"
             Got += ' close ' + Log.Take(false, 0) + '|';
         end;
         Observer.Observe('cycles', Got);
-        Observer.Finish();
+        Observer.Expect('cycles', 'open empty=7 rows=1 msgs=8 goto empty=0 rows=0 close empty=0 rows=0|open empty=7 rows=1 msgs=8 goto empty=0 rows=0 close empty=0 rows=0|open empty=7 rows=1 msgs=8 goto empty=0 rows=0 close empty=0 rows=0|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -649,7 +655,8 @@ codeunit 93244 "LT Y61 CaptionClass Count"
             Got += ' close ' + Log.Take(false, 0) + '|';
         end;
         Observer.Observe('cycles', Got);
-        Observer.Finish();
+        Observer.Expect('cycles', 'open empty=7 rows=1 goto empty=0 rows=0 close empty=0 rows=0|open empty=7 rows=1 goto empty=0 rows=0 close empty=0 rows=0|open empty=7 rows=1 goto empty=0 rows=0 close empty=0 rows=0|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -672,7 +679,8 @@ codeunit 93244 "LT Y61 CaptionClass Count"
             Got += ' close ' + Log.Take(false, 0) + '|';
         end;
         Observer.Observe('cycles', Got);
-        Observer.Finish();
+        Observer.Expect('cycles', 'open empty=8 rows=1 goto empty=0 rows=1 close empty=0 rows=0|open empty=8 rows=1 goto empty=0 rows=1 close empty=0 rows=0|open empty=8 rows=1 goto empty=0 rows=1 close empty=0 rows=0|');
+        Observer.Verify();
     end;
 
     local procedure SeedK4()

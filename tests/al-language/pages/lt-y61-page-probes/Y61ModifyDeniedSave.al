@@ -9,6 +9,11 @@
 //   TryFunction (ok, error text and code); the shown and stored values and the log of OnModifyRecord (P:) and the table's OnModify (T:).
 // Neighbours: pageext/lt-z-page-ext-props/ZPageExtProps.al ZModifyAllowed_* (a SetValue then Close: 'Page cannot be saved.', TestWrapped),
 //   pages/lt-outside-worksheet/RmReadOnlyBlob.al, pages/lt-y45-save-before-action/Y45SaveBeforeAction.al (ModifyAllowed true).
+// Measured (27.5, 28.5, 29.0 and SaaS 29 alike): the TestPage step itself returns without error, but the last error is
+//   'Page cannot be saved.' (code SaveAbort) at the step that saves a changed row: an action that only assigns (at the action, on List
+//   and Card), Next after SetValue, a CurrPage.SaveRecord action, Close of the temporary list after a drill-down that only assigned. The
+//   row is not stored and the page keeps showing the changed value. An action or drill-down whose code calls Rec.Modify saves without
+//   error (database row stored, the temporary row on the page) and the page moves on.
 // BC versions: all (CI)
 
 table 93252 "LT Y61 MD Row"
@@ -418,7 +423,27 @@ codeunit 93248 "LT Y61 Modify Denied Save"
         Observer.Observe('next shown', Shown(P, false));
         Step('close', TryTempClose(P));
         Observer.Observe('stored A', Stored('A'));
-        Observer.Finish();
+        Observer.Expect('drilldown ok', 'Yes');
+        Observer.Expect('drilldown|text', '');
+        Observer.Expect('drilldown|code', '');
+        Observer.Expect('drilldown log', '');
+        Observer.Expect('drilldown shown', 'A/9');
+        Observer.Expect('first ok', 'Yes');
+        Observer.Expect('first|text', '');
+        Observer.Expect('first|code', '');
+        Observer.Expect('first log', '');
+        Observer.Expect('first shown', 'A/9');
+        Observer.Expect('next ok', 'Yes');
+        Observer.Expect('next|text', '');
+        Observer.Expect('next|code', '');
+        Observer.Expect('next log', '');
+        Observer.Expect('next shown', 'B/1');
+        Observer.Expect('close ok', 'Yes');
+        Observer.Expect('close|text', '');
+        Observer.Expect('close|code', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored A', 'nA/1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -436,7 +461,26 @@ codeunit 93248 "LT Y61 Modify Denied Save"
         Step('first', TryTempFirst(P));
         Observer.Observe('first shown', Shown(P, false));
         Step('close', TryTempClose(P));
-        Observer.Finish();
+        Observer.Expect('drilldown ok', 'Yes');
+        Observer.Expect('drilldown|text', '');
+        Observer.Expect('drilldown|code', '');
+        Observer.Expect('drilldown log', '');
+        Observer.Expect('drilldown shown', 'A/9');
+        Observer.Expect('next ok', 'Yes');
+        Observer.Expect('next|text', '');
+        Observer.Expect('next|code', '');
+        Observer.Expect('next log', '');
+        Observer.Expect('next shown', 'B/1');
+        Observer.Expect('first ok', 'Yes');
+        Observer.Expect('first|text', '');
+        Observer.Expect('first|code', '');
+        Observer.Expect('first log', '');
+        Observer.Expect('first shown', 'A/9');
+        Observer.Expect('close ok', 'Yes');
+        Observer.Expect('close|text', 'Page cannot be saved.');
+        Observer.Expect('close|code', 'SaveAbort');
+        Observer.Expect('close log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -456,7 +500,28 @@ codeunit 93248 "LT Y61 Modify Denied Save"
         Observer.Observe('stored A', Stored('A'));
         Step('close', TryListAction(P, 'close'));
         Observer.Observe('stored A after close', Stored('A'));
-        Observer.Finish();
+        Observer.Expect('action ok', 'Yes');
+        Observer.Expect('action|text', 'Page cannot be saved.');
+        Observer.Expect('action|code', 'SaveAbort');
+        Observer.Expect('action log', '');
+        Observer.Expect('action shown', 'A/9');
+        Observer.Expect('next ok', 'Yes');
+        Observer.Expect('next|text', '');
+        Observer.Expect('next|code', '');
+        Observer.Expect('next log', '');
+        Observer.Expect('next shown', 'A/9');
+        Observer.Expect('first ok', 'Yes');
+        Observer.Expect('first|text', '');
+        Observer.Expect('first|code', '');
+        Observer.Expect('first log', '');
+        Observer.Expect('first shown', 'A/9');
+        Observer.Expect('stored A', 'nA/1');
+        Observer.Expect('close ok', 'Yes');
+        Observer.Expect('close|text', '');
+        Observer.Expect('close|code', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored A after close', 'nA/1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -474,7 +539,23 @@ codeunit 93248 "LT Y61 Modify Denied Save"
         Observer.Observe('next shown', Shown(P, false));
         Step('close', TryListAction(P, 'close'));
         Observer.Observe('stored A after close', Stored('A'));
-        Observer.Finish();
+        Observer.Expect('action ok', 'Yes');
+        Observer.Expect('action|text', '');
+        Observer.Expect('action|code', '');
+        Observer.Expect('action log', '');
+        Observer.Expect('action shown', 'A/9');
+        Observer.Expect('stored A', 'nA/9');
+        Observer.Expect('next ok', 'Yes');
+        Observer.Expect('next|text', '');
+        Observer.Expect('next|code', '');
+        Observer.Expect('next log', '');
+        Observer.Expect('next shown', 'B/1');
+        Observer.Expect('close ok', 'Yes');
+        Observer.Expect('close|text', '');
+        Observer.Expect('close|code', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored A after close', 'nA/9');
+        Observer.Verify();
     end;
 
     [Test]
@@ -491,7 +572,22 @@ codeunit 93248 "LT Y61 Modify Denied Save"
         Observer.Observe('stored A', Stored('A'));
         Step('close', TryListAction(P, 'close'));
         Observer.Observe('stored A after close', Stored('A'));
-        Observer.Finish();
+        Observer.Expect('setvalue ok', 'Yes');
+        Observer.Expect('setvalue|text', '');
+        Observer.Expect('setvalue|code', '');
+        Observer.Expect('setvalue log', '');
+        Observer.Expect('next ok', 'Yes');
+        Observer.Expect('next|text', 'Page cannot be saved.');
+        Observer.Expect('next|code', 'SaveAbort');
+        Observer.Expect('next log', '');
+        Observer.Expect('next shown', 'A/x');
+        Observer.Expect('stored A', 'nA/1');
+        Observer.Expect('close ok', 'Yes');
+        Observer.Expect('close|text', '');
+        Observer.Expect('close|code', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored A after close', 'nA/1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -508,7 +604,22 @@ codeunit 93248 "LT Y61 Modify Denied Save"
         Observer.Observe('stored A', Stored('A'));
         Step('close', TryListAction(P, 'close'));
         Observer.Observe('stored A after close', Stored('A'));
-        Observer.Finish();
+        Observer.Expect('setvalue ok', 'Yes');
+        Observer.Expect('setvalue|text', '');
+        Observer.Expect('setvalue|code', '');
+        Observer.Expect('setvalue log', '');
+        Observer.Expect('save ok', 'Yes');
+        Observer.Expect('save|text', 'Page cannot be saved.');
+        Observer.Expect('save|code', 'SaveAbort');
+        Observer.Expect('save log', '');
+        Observer.Expect('save shown', 'A/x');
+        Observer.Expect('stored A', 'nA/1');
+        Observer.Expect('close ok', 'Yes');
+        Observer.Expect('close|text', '');
+        Observer.Expect('close|code', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored A after close', 'nA/1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -526,6 +637,22 @@ codeunit 93248 "LT Y61 Modify Denied Save"
         Observer.Observe('stored A', Stored('A'));
         Step('close', TryCardAction(P, 'close'));
         Observer.Observe('stored A after close', Stored('A'));
-        Observer.Finish();
+        Observer.Expect('action ok', 'Yes');
+        Observer.Expect('action|text', 'Page cannot be saved.');
+        Observer.Expect('action|code', 'SaveAbort');
+        Observer.Expect('action log', '');
+        Observer.Expect('action shown', 'A/9');
+        Observer.Expect('update ok', 'Yes');
+        Observer.Expect('update|text', '');
+        Observer.Expect('update|code', '');
+        Observer.Expect('update log', '');
+        Observer.Expect('update shown', 'A/9');
+        Observer.Expect('stored A', 'nA/1');
+        Observer.Expect('close ok', 'Yes');
+        Observer.Expect('close|text', '');
+        Observer.Expect('close|code', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored A after close', 'nA/1');
+        Observer.Verify();
     end;
 }

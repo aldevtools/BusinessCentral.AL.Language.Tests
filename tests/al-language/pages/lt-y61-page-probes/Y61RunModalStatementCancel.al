@@ -8,6 +8,10 @@
 //   Cancel, and an action that calls CurrPage.Close() with G stale. Observed: G's Code, Name, Counter, GetFilters, Count; the stored rows;
 //   each handler step's ok, error text and code (inside a TryFunction).
 // Neighbours: pages/lt-y41-page-probes/Y41RunModalStatementRec.al (statement form closed with OK), pages/lt-page-runmodal-rec/PageRunModalRecAfterClose.al.
+// Measured (27.5, 28.5, 29.0 and SaaS 29 alike): a Card run by Page.RunModal has no Cancel action ('The built-in action = Cancel is not
+//   found on the page.', TestActionNotFound). In every shape the statement form leaves G with its own values (also when the stored row
+//   changed before, when the page moved to B and closed with OK, when the handler did nothing, after CurrPage.Close()); an edit on the
+//   page is stored. A handler that does nothing closes the page with LookupCancel (expression form).
 // BC versions: all (CI)
 
 table 93254 "LT Y61 RS Row"
@@ -195,7 +199,15 @@ codeunit 93250 "LT Y61 RunModal Stmt Cancel"
         Page.RunModal(Page::"LT Y61 RS Card", G);
         ObserveAll('g ', G);
         Observer.Observe('stored', StoredRows());
-        Observer.Finish();
+        Observer.Expect('h shown', 'A/nameA');
+        Observer.Expect('h cancel ok', 'No');
+        Observer.Expect('h cancel|text', 'The built-in action = Cancel is not found on the page.');
+        Observer.Expect('h cancel|code', 'TestActionNotFound');
+        Observer.Expect('g rec', 'A/nameA/1');
+        Observer.Expect('g filters', 'Code: A');
+        Observer.Expect('g count', '1');
+        Observer.Expect('stored', 'A/nameA/1,B/nameB/2,C/nameC/3,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -210,7 +222,15 @@ codeunit 93250 "LT Y61 RunModal Stmt Cancel"
         Page.RunModal(Page::"LT Y61 RS Card", G);
         ObserveAll('g ', G);
         Observer.Observe('stored', StoredRows());
-        Observer.Finish();
+        Observer.Expect('h shown', 'A/stale');
+        Observer.Expect('h cancel ok', 'No');
+        Observer.Expect('h cancel|text', 'The built-in action = Cancel is not found on the page.');
+        Observer.Expect('h cancel|code', 'TestActionNotFound');
+        Observer.Expect('g rec', 'A/nameA/1');
+        Observer.Expect('g filters', 'Code: A');
+        Observer.Expect('g count', '1');
+        Observer.Expect('stored', 'A/stale/1,B/nameB/2,C/nameC/3,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -223,7 +243,19 @@ codeunit 93250 "LT Y61 RunModal Stmt Cancel"
         Page.RunModal(Page::"LT Y61 RS Card", G);
         ObserveAll('g ', G);
         Observer.Observe('stored', StoredRows());
-        Observer.Finish();
+        Observer.Expect('h shown', 'A/nameA');
+        Observer.Expect('h next ok', 'Yes');
+        Observer.Expect('h next|text', '');
+        Observer.Expect('h next|code', '');
+        Observer.Expect('h next shown', 'B');
+        Observer.Expect('h cancel ok', 'No');
+        Observer.Expect('h cancel|text', 'The built-in action = Cancel is not found on the page.');
+        Observer.Expect('h cancel|code', 'TestActionNotFound');
+        Observer.Expect('g rec', 'A/nameA/1');
+        Observer.Expect('g filters', '');
+        Observer.Expect('g count', '3');
+        Observer.Expect('stored', 'A/nameA/1,B/nameB/2,C/nameC/3,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -236,7 +268,19 @@ codeunit 93250 "LT Y61 RunModal Stmt Cancel"
         Page.RunModal(Page::"LT Y61 RS Card", G);
         ObserveAll('g ', G);
         Observer.Observe('stored', StoredRows());
-        Observer.Finish();
+        Observer.Expect('h shown', 'A/nameA');
+        Observer.Expect('h next ok', 'Yes');
+        Observer.Expect('h next|text', '');
+        Observer.Expect('h next|code', '');
+        Observer.Expect('h next shown', 'B');
+        Observer.Expect('h ok ok', 'Yes');
+        Observer.Expect('h ok|text', '');
+        Observer.Expect('h ok|code', '');
+        Observer.Expect('g rec', 'A/nameA/1');
+        Observer.Expect('g filters', '');
+        Observer.Expect('g count', '3');
+        Observer.Expect('stored', 'A/nameA/1,B/nameB/2,C/nameC/3,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -255,7 +299,17 @@ codeunit 93250 "LT Y61 RunModal Stmt Cancel"
         Observer.Observe('expression action', Format(Page.RunModal(Page::"LT Y61 RS Card", G)));
         ObserveAll('g2 ', G);
         Observer.Observe('stored', StoredRows());
-        Observer.Finish();
+        Observer.Expect('h shown', 'A/stale');
+        Observer.Expect('g rec', 'A/nameA/1');
+        Observer.Expect('g filters', 'Code: A');
+        Observer.Expect('g count', '1');
+        Observer.Expect('h shown', 'B/nameB');
+        Observer.Expect('expression action', 'LookupCancel');
+        Observer.Expect('g2 rec', 'B/nameB/2');
+        Observer.Expect('g2 filters', 'Code: B');
+        Observer.Expect('g2 count', '1');
+        Observer.Expect('stored', 'A/stale/1,B/nameB/2,C/nameC/3,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -269,7 +323,18 @@ codeunit 93250 "LT Y61 RunModal Stmt Cancel"
         Page.RunModal(Page::"LT Y61 RS Card", G);
         ObserveAll('g ', G);
         Observer.Observe('stored', StoredRows());
-        Observer.Finish();
+        Observer.Expect('h shown', 'A/nameA');
+        Observer.Expect('h setname ok', 'Yes');
+        Observer.Expect('h setname|text', '');
+        Observer.Expect('h setname|code', '');
+        Observer.Expect('h cancel ok', 'No');
+        Observer.Expect('h cancel|text', 'The built-in action = Cancel is not found on the page.');
+        Observer.Expect('h cancel|code', 'TestActionNotFound');
+        Observer.Expect('g rec', 'A/nameA/1');
+        Observer.Expect('g filters', 'Code: A');
+        Observer.Expect('g count', '1');
+        Observer.Expect('stored', 'A/x/1,B/nameB/2,C/nameC/3,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -284,6 +349,14 @@ codeunit 93250 "LT Y61 RunModal Stmt Cancel"
         Page.RunModal(Page::"LT Y61 RS Card", G);
         ObserveAll('g ', G);
         Observer.Observe('stored', StoredRows());
-        Observer.Finish();
+        Observer.Expect('h shown', 'A/stale');
+        Observer.Expect('h closeact ok', 'Yes');
+        Observer.Expect('h closeact|text', '');
+        Observer.Expect('h closeact|code', '');
+        Observer.Expect('g rec', 'A/nameA/1');
+        Observer.Expect('g filters', 'Code: A');
+        Observer.Expect('g count', '1');
+        Observer.Expect('stored', 'A/stale/1,B/nameB/2,C/nameC/3,');
+        Observer.Verify();
     end;
 }
