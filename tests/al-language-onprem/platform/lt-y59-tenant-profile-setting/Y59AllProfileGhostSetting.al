@@ -6,6 +6,9 @@
 //   an app that has profiles, with Default Role Center true and false; All Profile read by Profile ID and by the filter the System
 //   Application uses for the default profile (Default Role Center = true, Enabled = true, FindFirst); and after the setting is deleted.
 //   Neighbour (the setting of an existing profile): lt-y35-stored-tables/Y35StoredTables.al C303_TenantProfileSetting_AllProfileLink.
+// Measured on the CI containers 27.5, 28.5, 29.0 (same values): a Tenant Profile Setting for a profile id that does not exist inserts
+//   fine but adds no row to All Profile (with a random App ID or the App ID of an app that has profiles, Default Role Center true or
+//   false); with every setting deleted, no profile has Default Role Center = true and Enabled = true.
 // BC versions: 27.5, 28.5, 29.0.
 
 codeunit 98693 "LT Y59 All Profile Ghost"
@@ -76,7 +79,11 @@ codeunit 98693 "LT Y59 All Profile Ghost"
         Observer.Observe('ghost_rows', ProfileRows('LT Y59 GHOST'));
         Observer.Observe('default_after', DefaultProfile());
         Setting.DeleteAll();
-        Observer.Finish();
+        Observer.Expect('default_before', 'none');
+        Observer.Expect('insert_ghost', 'Yes');
+        Observer.Expect('ghost_rows', '0|');
+        Observer.Expect('default_after', 'none');
+        Observer.Verify();
     end;
 
     [Test]
@@ -90,7 +97,10 @@ codeunit 98693 "LT Y59 All Profile Ghost"
         Observer.Observe('ghost_main_rows', ProfileRows('LT Y59 GHOST MAIN'));
         Observer.Observe('default_after', DefaultProfile());
         Setting.DeleteAll();
-        Observer.Finish();
+        Observer.Expect('insert_ghost_main_app', 'Yes');
+        Observer.Expect('ghost_main_rows', '0|');
+        Observer.Expect('default_after', 'none');
+        Observer.Verify();
     end;
 
     [Test]
@@ -104,7 +114,10 @@ codeunit 98693 "LT Y59 All Profile Ghost"
         Observer.Observe('ghost_not_default_rows', ProfileRows('LT Y59 GHOST ND'));
         Observer.Observe('default_after', DefaultProfile());
         Setting.DeleteAll();
-        Observer.Finish();
+        Observer.Expect('insert_ghost_not_default', 'Yes');
+        Observer.Expect('ghost_not_default_rows', '0|');
+        Observer.Expect('default_after', 'none');
+        Observer.Verify();
     end;
 
     [Test]
@@ -120,6 +133,10 @@ codeunit 98693 "LT Y59 All Profile Ghost"
         Observer.Observe('delete', Format(Setting.Delete()));
         Observer.Observe('rows_after_delete', ProfileRows('LT Y59 GHOST DEL'));
         Observer.Observe('default_after_delete', DefaultProfile());
-        Observer.Finish();
+        Observer.Expect('rows_with_setting', '0|');
+        Observer.Expect('delete', 'Yes');
+        Observer.Expect('rows_after_delete', '0|');
+        Observer.Expect('default_after_delete', 'none');
+        Observer.Verify();
     end;
 }

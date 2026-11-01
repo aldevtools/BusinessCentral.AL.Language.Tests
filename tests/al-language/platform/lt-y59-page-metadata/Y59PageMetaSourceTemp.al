@@ -6,6 +6,9 @@
 //   the column through a FieldRef, as a filter (SetRange true/false), as the filter of a list page whose SourceTable is Page Metadata (the
 //   shape of Data Search Setup (Lists)), and as the second argument of RecordRef.Open (the shape of Agent Impl. OpenSetupPageId). Also
 //   column 29 "App ID" compared with the own app id. Neighbours: TestPageMetadataVirtualTable.al, TestPageMetadataProperties.al.
+// Measured on the CI containers 27.5, 28.5, 29.0 and a BC 29 sandbox (same values): SourceTableTemporary is Yes for a page that declares it
+//   true and for a page on a TableType = Temporary table without the property; No for explicit false, for no property and for a page
+//   without a SourceTable (SourceTable 0). RecordRef.Open(SourceTable, SourceTableTemporary) opens a temporary record for true.
 // BC versions: 27.5, 28.5, 29.0.
 
 table 93202 "LT Y59 PM Src"
@@ -207,7 +210,13 @@ codeunit 93204 "LT Y59 PM Source Temp"
         Observer.Observe('temporary_table', Fact(Page::"LT Y59 PM TmpTable"));
         Observer.Observe('card_true', Fact(Page::"LT Y59 PM Card"));
         Observer.Observe('no_source_table', Fact(Page::"LT Y59 PM NoSrc"));
-        Observer.Finish();
+        Observer.Expect('declared_true', 'temp=Yes;source=93202;type=List;own_app=Yes');
+        Observer.Expect('declared_false', 'temp=No;source=93202;type=List;own_app=Yes');
+        Observer.Expect('not_declared', 'temp=No;source=93202;type=List;own_app=Yes');
+        Observer.Expect('temporary_table', 'temp=Yes;source=93203;type=List;own_app=Yes');
+        Observer.Expect('card_true', 'temp=Yes;source=93202;type=Card;own_app=Yes');
+        Observer.Expect('no_source_table', 'temp=No;source=0;type=Card;own_app=Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -224,7 +233,10 @@ codeunit 93204 "LT Y59 PM Source Temp"
         Observer.Observe('field_25', FldRef.Name + '|' + Format(FldRef.Type) + '|' + Format(FldRef.Class) + '|' + Format(FldRef.Value));
         FldRef := RecRef.Field(29);
         Observer.Observe('field_29', FldRef.Name + '|' + Format(FldRef.Type) + '|' + Format(FldRef.Class));
-        Observer.Finish();
+        Observer.Expect('found', 'Yes');
+        Observer.Expect('field_25', 'SourceTableTemporary|Boolean|Normal|Yes');
+        Observer.Expect('field_29', 'App ID|GUID|Normal');
+        Observer.Verify();
     end;
 
     [Test]
@@ -250,7 +262,11 @@ codeunit 93204 "LT Y59 PM Source Temp"
                 Ids += Format(PageMetadata.ID) + ';';
             until PageMetadata.Next() = 0;
         Observer.Observe('ids_false', Ids);
-        Observer.Finish();
+        Observer.Expect('count_true', '3');
+        Observer.Expect('ids_true', '93201;93204;93205;');
+        Observer.Expect('count_false', '3');
+        Observer.Expect('ids_false', '93202;93203;93206;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -270,7 +286,9 @@ codeunit 93204 "LT Y59 PM Source Temp"
         List.Close();
         Observer.Observe('rows', Format(Rows));
         Observer.Observe('ids', Ids);
-        Observer.Finish();
+        Observer.Expect('rows', '3');
+        Observer.Expect('ids', '93202;93203;93206;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -299,6 +317,10 @@ codeunit 93204 "LT Y59 PM Source Temp"
         RecRef.Close();
         Observer.Observe('false_rows_in_database', Format(Src.Count()));
         Src.DeleteAll();
-        Observer.Finish();
+        Observer.Expect('true_is_temporary', 'Yes');
+        Observer.Expect('true_rows_in_database', '0');
+        Observer.Expect('false_is_temporary', 'No');
+        Observer.Expect('false_rows_in_database', '1');
+        Observer.Verify();
     end;
 }

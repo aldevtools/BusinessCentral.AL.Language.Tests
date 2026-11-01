@@ -7,6 +7,11 @@
 //   "Role Name", 13 "Assignable" and 15 "AL Object Name" (FlowFields too) and 12 "Type". The System Application reads column 6 in
 //   Permission Impl. GetObjectCaptionAndName. Neighbours: permissions/W6PermissionColumns.al (column metadata of 3, 13, 14, 15; own rows'
 //   types and rights), permissions/TestMetadataExpandedPermission.al.
+// Measured on the CI containers 27.5, 28.5, 29.0 and a BC 29 sandbox (same values): "Object Name" after CalcFields is the object's
+//   caption, or its name when it has no Caption (table without Caption, codeunit, XmlPort); Table Data and Table rows both show the table
+//   caption. Without CalcFields it is blank; SetAutoCalcFields fills it. FieldRef 6: FlowField, Text, length 249. "Role Name" is the
+//   permission set's Caption, "AL Object Name" the object name, "Assignable" Yes, "Type" Include. A filter on "Object Name" works. The
+//   SUPER set has no Metadata Permission row with Object ID 0 there.
 // BC versions: 27.5, 28.5, 29.0.
 
 table 93200 "LT Y59 Cap Table"
@@ -145,7 +150,16 @@ codeunit 93201 "LT Y59 Metadata Perm Names"
                 MetadataPermission.CalcFields("Object Name");
                 Observer.Observe(RowKey(MetadataPermission), MetadataPermission."Object Name");
             until MetadataPermission.Next() = 0;
-        Observer.Finish();
+        Observer.Expect('count', '8');
+        Observer.Expect('Table Data 93200', 'LT Y59 Table Caption');
+        Observer.Expect('Table Data 93201', 'LT Y59 NoCap Table');
+        Observer.Expect('Table 93200', 'LT Y59 Table Caption');
+        Observer.Expect('Report 93200', 'LT Y59 Report Caption');
+        Observer.Expect('Codeunit 93200', 'LT Y59 Perm Codeunit');
+        Observer.Expect('XMLport 93200', 'LT Y59 Perm XmlPort');
+        Observer.Expect('Page 93200', 'LT Y59 Page Caption');
+        Observer.Expect('Query 93200', 'LT Y59 Query Caption');
+        Observer.Verify();
     end;
 
     [Test]
@@ -159,7 +173,15 @@ codeunit 93201 "LT Y59 Metadata Perm Names"
             repeat
                 Observer.Observe(RowKey(MetadataPermission), '[' + MetadataPermission."Object Name" + ']');
             until MetadataPermission.Next() = 0;
-        Observer.Finish();
+        Observer.Expect('Table Data 93200', '[]');
+        Observer.Expect('Table Data 93201', '[]');
+        Observer.Expect('Table 93200', '[]');
+        Observer.Expect('Report 93200', '[]');
+        Observer.Expect('Codeunit 93200', '[]');
+        Observer.Expect('XMLport 93200', '[]');
+        Observer.Expect('Page 93200', '[]');
+        Observer.Expect('Query 93200', '[]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -174,7 +196,15 @@ codeunit 93201 "LT Y59 Metadata Perm Names"
             repeat
                 Observer.Observe(RowKey(MetadataPermission), '[' + MetadataPermission."Object Name" + ']');
             until MetadataPermission.Next() = 0;
-        Observer.Finish();
+        Observer.Expect('Table Data 93200', '[LT Y59 Table Caption]');
+        Observer.Expect('Table Data 93201', '[LT Y59 NoCap Table]');
+        Observer.Expect('Table 93200', '[LT Y59 Table Caption]');
+        Observer.Expect('Report 93200', '[LT Y59 Report Caption]');
+        Observer.Expect('Codeunit 93200', '[LT Y59 Perm Codeunit]');
+        Observer.Expect('XMLport 93200', '[LT Y59 Perm XmlPort]');
+        Observer.Expect('Page 93200', '[LT Y59 Page Caption]');
+        Observer.Expect('Query 93200', '[LT Y59 Query Caption]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -196,7 +226,8 @@ codeunit 93201 "LT Y59 Metadata Perm Names"
             Observer.Observe('object_name_length', Format(StrLen(MetadataPermission."Object Name")));
             Observer.Observe('al_object_name', '[' + MetadataPermission."AL Object Name" + ']');
         end;
-        Observer.Finish();
+        Observer.Expect('found', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -221,7 +252,15 @@ codeunit 93201 "LT Y59 Metadata Perm Names"
         Observer.Observe('value_before_calcfield', '[' + Format(FldRef.Value) + ']');
         FldRef.CalcField();
         Observer.Observe('value_after_calcfield', '[' + Format(FldRef.Value) + ']');
-        Observer.Finish();
+        Observer.Expect('found', 'Yes');
+        Observer.Expect('name', 'Object Name');
+        Observer.Expect('caption', 'Object Name');
+        Observer.Expect('class', 'FlowField');
+        Observer.Expect('type', 'Text');
+        Observer.Expect('length', '249');
+        Observer.Expect('value_before_calcfield', '[]');
+        Observer.Expect('value_after_calcfield', '[LT Y59 Page Caption]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -237,7 +276,15 @@ codeunit 93201 "LT Y59 Metadata Perm Names"
                 Observer.Observe(RowKey(MetadataPermission), 'Role Name=' + MetadataPermission."Role Name" + ';Assignable=' + Format(MetadataPermission.Assignable) +
                     ';AL Object Name=' + MetadataPermission."AL Object Name" + ';Type=' + Format(MetadataPermission.Type));
             until MetadataPermission.Next() = 0;
-        Observer.Finish();
+        Observer.Expect('Table Data 93200', 'Role Name=LT Y59 PS Names Caption;Assignable=Yes;AL Object Name=LT Y59 Cap Table;Type=Include');
+        Observer.Expect('Table Data 93201', 'Role Name=LT Y59 PS Names Caption;Assignable=Yes;AL Object Name=LT Y59 NoCap Table;Type=Include');
+        Observer.Expect('Table 93200', 'Role Name=LT Y59 PS Names Caption;Assignable=Yes;AL Object Name=LT Y59 Cap Table;Type=Include');
+        Observer.Expect('Report 93200', 'Role Name=LT Y59 PS Names Caption;Assignable=Yes;AL Object Name=LT Y59 Perm Report;Type=Include');
+        Observer.Expect('Codeunit 93200', 'Role Name=LT Y59 PS Names Caption;Assignable=Yes;AL Object Name=LT Y59 Perm Codeunit;Type=Include');
+        Observer.Expect('XMLport 93200', 'Role Name=LT Y59 PS Names Caption;Assignable=Yes;AL Object Name=LT Y59 Perm XmlPort;Type=Include');
+        Observer.Expect('Page 93200', 'Role Name=LT Y59 PS Names Caption;Assignable=Yes;AL Object Name=LT Y59 Cap Page;Type=Include');
+        Observer.Expect('Query 93200', 'Role Name=LT Y59 PS Names Caption;Assignable=Yes;AL Object Name=LT Y59 Perm Query;Type=Include');
+        Observer.Verify();
     end;
 
     [Test]
@@ -253,6 +300,9 @@ codeunit 93201 "LT Y59 Metadata Perm Names"
         Observer.Observe('count_ends_caption', Format(MetadataPermission.Count()));
         MetadataPermission.SetRange("Object Name", 'LT Y59 NoCap Table');
         Observer.Observe('count_nocap_name', Format(MetadataPermission.Count()));
-        Observer.Finish();
+        Observer.Expect('count_table_caption', '2');
+        Observer.Expect('count_ends_caption', '5');
+        Observer.Expect('count_nocap_name', '1');
+        Observer.Verify();
     end;
 }

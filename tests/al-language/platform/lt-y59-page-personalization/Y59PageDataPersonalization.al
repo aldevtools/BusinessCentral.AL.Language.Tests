@@ -6,6 +6,11 @@
 //   and five SetRange filters, a second Insert of the same key, Modify(false), the read order of the primary key and of the Date key, the
 //   BLOB without CalcFields, the FlowField "User ID", whether the platform fills Date and Time, and an Insert for another User SID.
 //   Every test deletes its own keys (Personalization ID starting with LTY59) first.
+// Measured on the CI containers 27.5, 28.5, 29.0 and a BC 29 sandbox (same values): a plain stored table. Insert(false) of a duplicate key
+//   answers false and keeps the old value; Date and Time stay blank (the platform does not fill them); "User ID" is blank until CalcFields,
+//   then the user name of the User SID (blank for a User SID with no user); any User SID can be inserted. Primary key order is Object Type
+//   (Report, XMLport, Page), Object ID, Personalization ID, ValueName. The BLOB's Length is 18 before CalcFields and 12 (the bytes written)
+//   after it.
 // BC versions: 27.5, 28.5, 29.0.
 
 // Runs one Insert in its OnRun, called through Codeunit.Run.
@@ -114,7 +119,15 @@ codeunit 93205 "LT Y59 Page Data Personal."
         Observer.Observe('date_blank', Format(Personalization.Date = 0D));
         Observer.Observe('time_blank', Format(Personalization.Time = 0T));
         Cleanup();
-        Observer.Finish();
+        Observer.Expect('insert', 'Yes');
+        Observer.Expect('read', 'hello value');
+        Observer.Expect('found', 'Yes');
+        Observer.Expect('user_id_without_calcfields_blank', 'Yes');
+        Observer.Expect('user_id_is_user_name', 'Yes');
+        Observer.Expect('user_id_blank', 'No');
+        Observer.Expect('date_blank', 'Yes');
+        Observer.Expect('time_blank', 'Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -136,7 +149,12 @@ codeunit 93205 "LT Y59 Page Data Personal."
         Observer.Observe('modify', Format(Personalization.Modify(false)));
         Observer.Observe('read_after_modify', GetValue(Personalization."Object Type"::Page, 93201, 'LTY59D', 'LTY59NAME'));
         Cleanup();
-        Observer.Finish();
+        Observer.Expect('insert_1', 'Yes');
+        Observer.Expect('insert_2', 'No');
+        Observer.Expect('read_after_inserts', 'first');
+        Observer.Expect('modify', 'Yes');
+        Observer.Expect('read_after_modify', 'third');
+        Observer.Verify();
     end;
 
     [Test]
@@ -179,7 +197,14 @@ codeunit 93205 "LT Y59 Page Data Personal."
             until Personalization.Next() = 0;
         Observer.Observe('order_date_key', Order);
         Cleanup();
-        Observer.Finish();
+        Observer.Expect('order_primary_key', 'Report:93200:LTY59A:V1;XMLport:93200:LTY59A:V0;Page:93201:LTY59A:V4;Page:93201:LTY59C:V3;Page:93203:LTY59B:V2;');
+        Observer.Expect('count_user', '5');
+        Observer.Expect('count_page', '3');
+        Observer.Expect('count_page_93201', '2');
+        Observer.Expect('count_page_93201_a', '1');
+        Observer.Expect('count_all_five', '1');
+        Observer.Expect('order_date_key', 'Report:93200:LTY59A:V1;XMLport:93200:LTY59A:V0;Page:93201:LTY59A:V4;Page:93201:LTY59C:V3;Page:93203:LTY59B:V2;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -199,7 +224,11 @@ codeunit 93205 "LT Y59 Page Data Personal."
         Observer.Observe('hasvalue_after_calcfields', Format(Personalization.Value.HasValue()));
         Observer.Observe('length_after_calcfields', Format(Personalization.Value.Length()));
         Cleanup();
-        Observer.Finish();
+        Observer.Expect('hasvalue_without_calcfields', 'Yes');
+        Observer.Expect('length_without_calcfields', '18');
+        Observer.Expect('hasvalue_after_calcfields', 'Yes');
+        Observer.Expect('length_after_calcfields', '12');
+        Observer.Verify();
     end;
 
     [Test]
@@ -221,6 +250,9 @@ codeunit 93205 "LT Y59 Page Data Personal."
             Observer.Observe('other_user_id', '[' + Personalization."User ID" + ']');
         end;
         Cleanup();
-        Observer.Finish();
+        Observer.Expect('insert_other_user', 'ok|Yes');
+        Observer.Expect('count_other_user', '1');
+        Observer.Expect('other_user_id', '[]');
+        Observer.Verify();
     end;
 }

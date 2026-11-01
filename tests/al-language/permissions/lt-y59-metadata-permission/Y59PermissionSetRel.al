@@ -7,6 +7,10 @@
 //   and Related App ID columns, filters on Type and Role ID, the column list (FieldRef), and writes (Insert, Modify, Delete, DeleteAll run
 //   through Codeunit.Run). The System Application reads the table to copy and export permission sets. Neighbour:
 //   codeunit/lt-x-object-props/XObjectProps.al:335-360 (count and Type of an include and an exclude).
+// Measured on the CI containers 27.5, 28.5, 29.0 and a BC 29 sandbox (same values): one row per include and per exclude of the set, in key
+//   order (Related Role ID upper case); an include added by a permission set extension is a row of the extended set; a set with no
+//   includes has no rows; a non-assignable set has rows; an include of another app's set has that app's id in "Related App ID". Get and
+//   SetRange with lower-case Role IDs find the rows. Every write ends in "The Metadata Permission Set Rel. table is read-only." (DB:Ok).
 // BC versions: 27.5, 28.5, 29.0.
 
 permissionset 93201 "LT Y59 RelA"
@@ -153,7 +157,13 @@ codeunit 93202 "LT Y59 Perm Set Rel"
         Observer.Observe('reld_excluded_only', Rows('LT Y59 RELD'));
         Observer.Observe('relf_not_assignable', Rows('LT Y59 RELF'));
         Observer.Observe('rele_other_app', Rows('LT Y59 RELE'));
-        Observer.Finish();
+        Observer.Expect('relc', '3|Include:LT Y59 RELA@own;Include:LT Y59 RELB@own;Exclude:LT Y59 RELD@own;');
+        Observer.Expect('relb_with_extension', '2|Include:LT Y59 RELA@own;Include:LT Y59 RELD@own;');
+        Observer.Expect('rela_no_includes', '0|');
+        Observer.Expect('reld_excluded_only', '0|');
+        Observer.Expect('relf_not_assignable', '1|Include:LT Y59 RELA@own;');
+        Observer.Expect('rele_other_app', '1|Include:COMPANY - READ@{63CA2FA4-4F03-4F2B-A480-172FEF340D3F};');
+        Observer.Verify();
     end;
 
     [Test]
@@ -176,7 +186,16 @@ codeunit 93202 "LT Y59 Perm Set Rel"
         Observer.Observe('isempty_no_includes', Format(Rel.IsEmpty()));
         Rel.SetRange("Role ID", 'lt y59 relc');
         Observer.Observe('setrange_lower_count', Format(Rel.Count()));
-        Observer.Finish();
+        Observer.Expect('get_upper', 'Yes');
+        Observer.Expect('get_upper_type', 'Include');
+        Observer.Expect('get_lower', 'Yes');
+        Observer.Expect('get_lower_role_id', 'LT Y59 RELC');
+        Observer.Expect('get_excluded', 'Yes');
+        Observer.Expect('get_excluded_type', 'Exclude');
+        Observer.Expect('get_missing', 'No');
+        Observer.Expect('isempty_no_includes', 'Yes');
+        Observer.Expect('setrange_lower_count', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -197,7 +216,13 @@ codeunit 93202 "LT Y59 Perm Set Rel"
             Observer.Observe('relb_app_id', AppText(Rel."App ID"));
             Observer.Observe('relb_related_app_id', AppText(Rel."Related App ID"));
         end;
-        Observer.Finish();
+        Observer.Expect('rele_count_without_app_filter', '1');
+        Observer.Expect('rele_app_id', 'own');
+        Observer.Expect('rele_related_app_id', '{63CA2FA4-4F03-4F2B-A480-172FEF340D3F}');
+        Observer.Expect('rele_related_role_id', 'COMPANY - READ');
+        Observer.Expect('relb_app_id', 'own');
+        Observer.Expect('relb_related_app_id', 'own');
+        Observer.Verify();
     end;
 
     [Test]
@@ -218,7 +243,11 @@ codeunit 93202 "LT Y59 Perm Set Rel"
         Rel.SetRange("Role ID");
         Rel.SetRange("Related Role ID", 'LT Y59 RELA');
         Observer.Observe('related_rela_count', Format(Rel.Count()));
-        Observer.Finish();
+        Observer.Expect('relc_include', '2');
+        Observer.Expect('relc_exclude', '1');
+        Observer.Expect('own_rel_sets_count', '7');
+        Observer.Expect('related_rela_count', '3');
+        Observer.Verify();
     end;
 
     [Test]
@@ -241,7 +270,14 @@ codeunit 93202 "LT Y59 Perm Set Rel"
             KeyText += KRef.FieldIndex(i).Name + ',';
         Observer.Observe('key_1', KeyText);
         Observer.Observe('key_count', Format(RecRef.KeyCount()));
-        Observer.Finish();
+        Observer.Expect('field_1', 'App ID|GUID|16|Normal');
+        Observer.Expect('field_2', 'Role ID|Code|30|Normal');
+        Observer.Expect('field_3', 'Related App ID|GUID|16|Normal');
+        Observer.Expect('field_4', 'Related Role ID|Code|30|Normal');
+        Observer.Expect('field_5', 'Type|Option|4|Normal');
+        Observer.Expect('key_1', 'App ID,Role ID,Related App ID,Related Role ID,');
+        Observer.Expect('key_count', '2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -259,6 +295,16 @@ codeunit 93202 "LT Y59 Perm Set Rel"
         Writer.RunAndObserve('deleteall', Observer);
         Observer.Observe('relc_after_writes', Rows('LT Y59 RELC'));
         Observer.Observe('relb_after_writes', Rows('LT Y59 RELB'));
-        Observer.Finish();
+        Observer.Expect('insert|text', 'The Metadata Permission Set Rel. table is read-only.');
+        Observer.Expect('insert|code', 'DB:Ok');
+        Observer.Expect('modify|text', 'The Metadata Permission Set Rel. table is read-only.');
+        Observer.Expect('modify|code', 'DB:Ok');
+        Observer.Expect('delete|text', 'The Metadata Permission Set Rel. table is read-only.');
+        Observer.Expect('delete|code', 'DB:Ok');
+        Observer.Expect('deleteall|text', 'The Metadata Permission Set Rel. table is read-only.');
+        Observer.Expect('deleteall|code', 'DB:Ok');
+        Observer.Expect('relc_after_writes', '3|Include:LT Y59 RELA@own;Include:LT Y59 RELB@own;Exclude:LT Y59 RELD@own;');
+        Observer.Expect('relb_after_writes', '2|Include:LT Y59 RELA@own;Include:LT Y59 RELD@own;');
+        Observer.Verify();
     end;
 }
