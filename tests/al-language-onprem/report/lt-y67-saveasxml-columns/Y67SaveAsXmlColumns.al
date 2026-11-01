@@ -232,26 +232,48 @@ codeunit 98736 "LT Y67 RC Tests"
         exit(CopyStr(Result, 4));
     end;
 
+    // The columns of the data set schema as name=type (a date time column as name=Local-dateTime), separated by spaces.
     local procedure Columns(Content: Text): Text
     var
         Line: Text;
         Result: Text;
     begin
         foreach Line in Content.Split('|') do
-            if Line.Contains(' type="') then
-                Result += Line.Trim().Replace(' minOccurs="0" />', '') + '|';
+            if Line.Contains(' type="') then begin
+                Line := Line.Trim().Replace(' minOccurs="0" />', '').Replace('<xs:element name="', '');
+                Line := Line.Replace('" msdata:DateTimeMode="Local" type="xs:', '=Local-').Replace('" type="xs:', '=').Replace('"', '');
+                Result += Line + ' ';
+            end;
         exit(Result);
     end;
 
+    // The rows after the schema: <Tag>value</Tag> is written Tag=value, a row starts with R: and ends with ;
     local procedure Rows(Content: Text): Text
     var
         Line: Text;
         Result: Text;
         After: Boolean;
+        At: Integer;
+        Tag: Text;
     begin
         foreach Line in Content.Split('|') do begin
-            if After then
-                Result += Line.Trim() + '|';
+            if After then begin
+                Line := Line.Trim();
+                if Line = '<Result>' then
+                    Result += 'R:'
+                else
+                    if Line = '</Result>' then
+                        Result += '; '
+                    else
+                        if (StrLen(Line) > 3) and (CopyStr(Line, StrLen(Line) - 1) = '/>') then
+                            Result += CopyStr(Line, 2, StrLen(Line) - 3).Trim() + '= '
+                        else
+                            if (Line <> '') and (Line <> '</DataSet>') and (CopyStr(Line, 1, 1) = '<') then begin
+                            At := StrPos(Line, '>');
+                            Tag := CopyStr(Line, 2, At - 2);
+                            Result += Tag + '=' + CopyStr(Line, At + 1, StrLen(Line) - At - StrLen(Tag) - 3) + ' ';
+                        end;
+            end;
             if Line.Contains('</xs:schema>') then
                 After := true;
         end;

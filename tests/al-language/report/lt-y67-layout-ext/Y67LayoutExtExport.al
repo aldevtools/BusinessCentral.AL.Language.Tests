@@ -6,6 +6,7 @@
 //   "Standard Sales - Invoice": the rows the extension adds (Name, Layout Format, Caption, Report ID), the answer of ExportStream, the length,
 //   the SHA-256 of the bytes, HasValue before and after. report/lt-y17-layout-export/Y17LayoutExportTests.al pins the layouts of a report's own
 //   rendering section and the legacy properties.
+// The bytes of the Base Application report's layout depend on the BC version (its data set), so their length and hash are observed but not asserted.
 // BC versions: 27, 28, 29
 
 table 93540 "LT Y67 Lay Row"
@@ -192,8 +193,8 @@ codeunit 93544 "LT Y67 Lay Ext Tests"
         Observer.Expect('std format', 'Word');
         Observer.Expect('std has value before', 'No');
         Observer.Expect('std returned', 'Yes');
-        Observer.Expect('std length', '16023');
-        Observer.Expect('std sha256', '63A6FD42C20C5CB6DF86A0E676B25EB4677BD3ECD0FFB476F8DE80911A6AD7A4');
+        Observer.Ignore('std length');
+        Observer.Ignore('std sha256');
         Observer.Expect('std has value after', 'No');
         Observer.Verify();
     end;
