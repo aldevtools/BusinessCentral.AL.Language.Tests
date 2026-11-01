@@ -87,7 +87,7 @@ codeunit 93657 "LT Y68 Small Tests"
         Observer.Observe('code too long', Eval('LT Y68 Two Key: ABCDEFGHIJKLMNOPQRSTU,Hello'));
         Observer.Observe('table id', Eval('Table 93654: A1,Hello'));
         Observer.Observe('semicolon', Eval('LT Y68 Two Key: A1;Hello'));
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -121,7 +121,7 @@ codeunit 93657 "LT Y68 Small Tests"
         K.FindFirst();
         Observer.Observe('roundtrip A7', Eval(Format(K.RecordId)));
         K.DeleteAll();
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     local procedure AddKey(A: Code[20]; B: Text[50])
@@ -181,7 +181,7 @@ codeunit 93657 "LT Y68 Small Tests"
         RunMode(7, 'modify only', Observer);
         RunMode(8, 'temporary record', Observer);
         RunMode(9, 'nested codeunit run', Observer);
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -203,7 +203,7 @@ codeunit 93657 "LT Y68 Small Tests"
         Observer.Observe('if wrapped rows', Rows());
         K.DeleteAll();
         Commit();
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     // Q6: UTF-16 bytes read through a UTF-8 stream.
@@ -312,7 +312,7 @@ codeunit 93657 "LT Y68 Small Tests"
         PutBytes(Rec, '00000000');
         Observer.Observe('only nuls utf8', ReadAll(Rec, TextEncoding::UTF8));
         Rec.DeleteAll();
-        Observer.Verify();
+        Observer.Finish();
     end;
 }
 
