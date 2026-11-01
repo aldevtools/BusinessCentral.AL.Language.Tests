@@ -525,4 +525,71 @@ codeunit 72502 "LT JsT Value Getters"
         Observer.Expect('bool false', 'ok:No');
         Observer.Verify();
     end;
+
+    // Writer Y65 (al-runner issue 6676): the reporter's 'n/a' through every getter (AsByte and AsOption too), and decimal-shaped strings
+    // through AsDecimal and AsInteger ("hello" through the other getters is TextGetters, digit strings are Sq_DigitText_BigIntegerByteOption).
+    [Test]
+    procedure Y65_NotANumberText_EveryGetter()
+    var
+        V: JsonValue;
+    begin
+        V := ValFrom('"n/a"');
+        Observer.Observe('n/a AsText', Try(V, 'AsText'));
+        Observer.Observe('n/a AsCode', Try(V, 'AsCode'));
+        Observer.Observe('n/a AsChar', Try(V, 'AsChar'));
+        Observer.Observe('n/a AsInteger', Try(V, 'AsInteger'));
+        Observer.Observe('n/a AsDecimal', Try(V, 'AsDecimal'));
+        Observer.Observe('n/a AsBoolean', Try(V, 'AsBoolean'));
+        Observer.Observe('n/a AsDate', Try(V, 'AsDate'));
+        Observer.Observe('n/a AsDateTime', Try(V, 'AsDateTime'));
+        Observer.Observe('n/a AsTime', Try(V, 'AsTime'));
+        Observer.Observe('n/a AsDuration', Try(V, 'AsDuration'));
+        Observer.Observe('n/a big byte option int', SqRow('"n/a"'));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y65_DecimalShapedText_AsDecimal()
+    begin
+        Observer.Observe('4.5', Y65Num('"4.5"'));
+        Observer.Observe('4,5', Y65Num('"4,5"'));
+        Observer.Observe('1,000.5', Y65Num('"1,000.5"'));
+        Observer.Observe('1e3', Y65Num('"1e3"'));
+        Observer.Observe('-0', Y65Num('"-0"'));
+        Observer.Observe('+3', Y65Num('"+3"'));
+        Observer.Observe('.5', Y65Num('".5"'));
+        Observer.Observe('1.5.1', Y65Num('"1.5.1"'));
+        Observer.Observe('space 4.5 space', Y65Num('" 4.5 "'));
+        Observer.Observe('NaN', Y65Num('"NaN"'));
+        Observer.Observe('Infinity', Y65Num('"Infinity"'));
+        Observer.Observe('0x10', Y65Num('"0x10"'));
+        Observer.Observe('1 000', Y65Num('"1 000"'));
+        Observer.Observe('empty', Y65Num('""'));
+        Observer.Observe('99999999999999999999', Y65Num('"99999999999999999999"'));
+        Observer.Finish();
+    end;
+
+    local procedure Y65Num(Json: Text): Text
+    var
+        V: JsonValue;
+    begin
+        V := ValFrom(Json);
+        exit('dec=' + Try(V, 'AsDecimal') + ' ; int=' + Try(V, 'AsInteger'));
+    end;
+
+    [Test]
+    procedure Y65_Reporter_AsDecimalOfTokenValue()
+    var
+        JObject: JsonObject;
+        JToken: JsonToken;
+        Value: Decimal;
+    begin
+        // al-runner issue 6676, the reporter's shape: asserterror around the getter of JsonToken.AsValue().
+        JObject.ReadFrom('{"value":"n/a"}');
+        JObject.Get('value', JToken);
+        asserterror Value := JToken.AsValue().AsDecimal();
+        Observer.Observe('error', GetLastErrorText() + '|' + GetLastErrorCode());
+        Observer.Observe('value', Format(Value));
+        Observer.Finish();
+    end;
 }
