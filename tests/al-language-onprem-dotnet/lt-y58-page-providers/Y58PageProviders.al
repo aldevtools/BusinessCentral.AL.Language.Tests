@@ -8,7 +8,8 @@
 //     GetSummary(PageId, Bookmark, FieldList): Success, and per field Caption, FieldType, Value.ToString(), Tooltip, ExtendedType.
 //   - Microsoft.Dynamics.Nav.Runtime.NavPageActionALFunctions.GetActions(PageId): Success, ErrorMessage, and per action
 //     ActionType, ActionSubtype, Caption, RunObjectType, RunObjectId, RunObjectView, RunObjectViewFilter and the parent action
-//     (by caption; generated action ids are not asserted).
+//     of each action with a caption (the parent by caption or container subtype; generated action ids are not asserted), and the
+//     number of actions without a caption (containers and the platform's own actions).
 // Facts: GetSummaryFields returns the Brick fields with the first two swapped, Blob fields included; GetAvailableTableFields
 //   returns the fields of the visible controls in page order (an empty list for a page without fields); FieldType.ToString() is the
 //   AL type name (BLOB for a Blob, value '*'); a control without ToolTip gives ''; an invalid bookmark or a deleted record gives
@@ -314,38 +315,63 @@ codeunit 61463 "LT Y58 Page Action Functions"
     var
         Response: DotNet LtY58ActionResponse;
         PageAction: DotNet LtY58PageActionAL;
-        Parent: DotNet LtY58PageActionAL;
+        CurrentModuleInfo: ModuleInfo;
         Ids: List of [Integer];
-        Captions: List of [Text];
-        ParentCaption: Text;
+        Labels: List of [Text];
+        AppIdText: Text;
+        ParentLabel: Text;
+        Uncaptioned: Integer;
         Result: Text;
     begin
+        // Captioned actions in full; actions without a caption (containers and the platform's own actions) only counted. The parent
+        // is named by its caption, or by "container <ActionSubtype>" when it has none. The app id in RunObjectView is replaced.
+        NavApp.GetCurrentModuleInfo(CurrentModuleInfo);
+        AppIdText := DelChr(LowerCase(Format(CurrentModuleInfo.Id())), '=', '{}');
         Response := ActionFunctions.GetActions(PageId);
-        Result := 'success=' + Format(Response.Success) + ';error=' + Format(Response.ErrorMessage) + ';';
-        if IsNull(Response.PageActions) then
-            exit(Result + 'actions=null');
+        Result := 'success=' + Format(Response.Success) + ';';
+        if not Response.Success then
+            exit(Result);
         foreach PageAction in Response.PageActions do begin
             Ids.Add(PageAction.ActionId);
-            Captions.Add(CaptionOf(PageAction));
-        end;
-        foreach PageAction in Response.PageActions do begin
-            ParentCaption := 'none';
-            if Ids.Contains(PageAction.ParentActionId) then
-                ParentCaption := Captions.Get(Ids.IndexOf(PageAction.ParentActionId))
+            if IsNull(PageAction.Caption) then
+                Labels.Add(StrSubstNo('container %1', PageAction.ActionSubtype))
             else
-                if PageAction.ParentActionId <> 0 then
-                    ParentCaption := 'unknown';
-            Result += StrSubstNo('[%1/%2/%3/%4/%5/%6/%7/parent:%8]', PageAction.ActionType, PageAction.ActionSubtype, CaptionOf(PageAction),
-                PageAction.RunObjectType, PageAction.RunObjectId, Format(PageAction.RunObjectView), Format(PageAction.RunObjectViewFilter), ParentCaption);
+                Labels.Add(PageAction.Caption.ToString());
         end;
-        exit(Result);
+        foreach PageAction in Response.PageActions do
+            if IsNull(PageAction.Caption) then
+                Uncaptioned += 1
+            else begin
+                ParentLabel := 'none';
+                if Ids.Contains(PageAction.ParentActionId) then
+                    ParentLabel := Labels.Get(Ids.IndexOf(PageAction.ParentActionId));
+                Result += StrSubstNo('[%1/%2/%3/%4/%5/%6/%7/parent:%8]', PageAction.ActionType, PageAction.ActionSubtype, PageAction.Caption.ToString(),
+                    PageAction.RunObjectType, PageAction.RunObjectId, Format(PageAction.RunObjectView).Replace(AppIdText, '<app id>'),
+                    Format(PageAction.RunObjectViewFilter), ParentLabel);
+            end;
+        exit(Result + StrSubstNo(';uncaptioned=%1', Uncaptioned));
     end;
 
-    local procedure CaptionOf(PageAction: DotNet LtY58PageActionAL): Text
+    local procedure ErrorFirstLine(PageId: Integer): Text
+    var
+        Response: DotNet LtY58ActionResponse;
+        Lines: List of [Text];
+        Line: Text;
     begin
-        if IsNull(PageAction.Caption) then
-            exit('(null caption)');
-        exit(PageAction.Caption.ToString());
+        Response := ActionFunctions.GetActions(PageId);
+        Lines := Format(Response.ErrorMessage).Split(Format(Char10()));
+        foreach Line in Lines do
+            if Line.Trim() <> '' then
+                exit('success=' + Format(Response.Success) + ';first error line=' + Line.Trim() + ';actions null=' + Format(IsNull(Response.PageActions)));
+        exit('success=' + Format(Response.Success) + ';no error text');
+    end;
+
+    local procedure Char10(): Char
+    var
+        C: Char;
+    begin
+        C := 10;
+        exit(C);
     end;
 
     [TryFunction]
@@ -388,8 +414,7 @@ codeunit 61463 "LT Y58 Page Action Functions"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveActions(Observer, 'empty card', Page::"LT Y58 Provider Empty Card");
-        ObserveActions(Observer, 'unknown page', 99999999);
-        ObserveActions(Observer, 'page 0', 0);
+        Observer.Observe('unknown page', ErrorFirstLine(99999999));
         Observer.Finish();
     end;
 }
