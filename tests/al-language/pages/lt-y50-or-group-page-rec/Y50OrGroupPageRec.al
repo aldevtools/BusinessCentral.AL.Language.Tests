@@ -1,7 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/record/record-filtergroup-method
 // Scope: in-scope
 // Fixtures used: Probe Observer (69160); own objects table 92967, pages 92977 - 92979, codeunits 92970 - 92971 (writer Y50)
-// Probe: written against the corpus CI matrix; every literal asserted below is what the BC service tier produced.
+// Probe: measured on the SaaS sandbox BC 29 and the corpus CI matrix 27.5, 28.5, 29.0 (identical); every literal asserted below is what the BC service tier produced.
 // Facts: gap cycle 5, gap G5-21: what a list page's Rec holds and which rows it shows when FilterGroup(-1) (OR) filters, marks and
 //   MarkedOnly reach it, and the page has code that runs later (row triggers, an action with SetSelectionFilter). The pinned neighbours
 //   (CdTestPageLeads.al:772, Y41PageVarMarkedOnly.al:197) have no later code or no group -1 current. Three shapes: A, OnOpenPage marks
@@ -402,7 +402,10 @@ codeunit 92971 "LT Y50 OG Tests"
         Observer.Observe('walk', WalkMarks(TP));
         Observer.Observe('walk log', Log.Take());
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('open', '4:open g0=Marked: Yes gm1=Marked: Yes, Approver: U1, Sender: U1 mo=Yes n=3 cur=0;R:4;R:2;R:1;R:4;R:4;C:4 g0=Marked: Yes gm1=Marked: Yes mo=Yes n=3 cur=0');
+        Observer.Expect('walk', '1,2,4,');
+        Observer.Expect('walk log', 'R:1;R:1;C:1 g0=Marked: Yes gm1=Marked: Yes mo=Yes n=3 cur=0;R:2;R:2;C:2 g0=Marked: Yes gm1=Marked: Yes mo=Yes n=3 cur=0;R:4;R:4;C:4 g0=Marked: Yes gm1=Marked: Yes mo=Yes n=3 cur=0');
+        Observer.Verify();
     end;
 
     // T2: shape A, the action on a shown row.
@@ -418,7 +421,10 @@ codeunit 92971 "LT Y50 OG Tests"
         TP.Show.Invoke();
         Observer.Observe('action log', Log.Take());
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('open', '4:open g0=Marked: Yes gm1=Marked: Yes, Approver: U1, Sender: U1 mo=Yes n=3 cur=0;R:4;R:2;R:1;R:4;R:4;C:4 g0=Marked: Yes gm1=Marked: Yes mo=Yes n=3 cur=0');
+        Observer.Expect('gotokey', 'Yes/2:R:1;R:1;C:1 g0=Marked: Yes gm1=Marked: Yes mo=Yes n=3 cur=0;R:2;R:2;C:2 g0=Marked: Yes gm1=Marked: Yes mo=Yes n=3 cur=0');
+        Observer.Expect('action log', 'R:2;act g0=Marked: Yes gm1=Marked: Yes mo=Yes n=3 cur=0;sel g0=Id: 2 gm1= mo=No n=1 cur=0;R:2;R:2;R:4;R:2;R:1;R:2;R:2;C:2 g0=Marked: Yes gm1=Marked: Yes mo=Yes n=3 cur=0');
+        Observer.Verify();
     end;
 
     // T3, shape B: the caller builds the record (group -1, marks, FilterGroup(0), MarkedOnly) and runs Page.Run(Id, Rec, FieldNo).
@@ -449,7 +455,12 @@ codeunit 92971 "LT Y50 OG Tests"
         TP.Show.Invoke();
         Observer.Observe('action log', Log.Take());
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('caller', 'g0=Marked: Yes gm1=Marked: Yes, Approver: U1, Sender: U1 mo=Yes n=3 cur=0');
+        Observer.Expect('open', '4:open g0=Marked: Yes gm1=Marked: Yes mo=Yes n=3 cur=0;R:4;R:2;R:1;R:4;R:4;C:4 g0=Marked: Yes gm1=Marked: Yes mo=Yes n=3 cur=0');
+        Observer.Expect('walk', 'first=Yes/1,next=Yes/2,next=Yes/4,next=Yes/0,next=No/0');
+        Observer.Expect('walk log', 'R:1;R:1;C:1 g0=Marked: Yes gm1=Marked: Yes mo=Yes n=3 cur=0;R:2;R:2;C:2 g0=Marked: Yes gm1=Marked: Yes mo=Yes n=3 cur=0;R:4;R:4;C:4 g0=Marked: Yes gm1=Marked: Yes mo=Yes n=3 cur=0;C:0 g0=Marked: Yes gm1=Marked: Yes mo=Yes n=3 cur=0');
+        Observer.Expect('action log', 'R:1;act g0=Marked: Yes gm1=Marked: Yes mo=Yes n=3 cur=0;sel g0=Id: 1 gm1= mo=No n=1 cur=0;R:1;R:1;R:2;R:4;R:1;R:1;C:1 g0=Marked: Yes gm1=Marked: Yes mo=Yes n=3 cur=0');
+        Observer.Verify();
     end;
 
     // T4: only the OR filter in OnOpenPage, with code that runs later.
@@ -468,7 +479,11 @@ codeunit 92971 "LT Y50 OG Tests"
         TP.Show.Invoke();
         Observer.Observe('action log', Log.Take());
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('open', '1:open g0= gm1=Approver: U1, Sender: U1 mo=No n=3 cur=0;R:1;R:2;R:3;R:4;R:5;R:1;R:1;C:1 g0= gm1= mo=No n=5 cur=0');
+        Observer.Expect('walk', '1,2,3,4,5,');
+        Observer.Expect('walk log', 'R:2;R:2;C:2 g0= gm1= mo=No n=5 cur=0;R:3;R:3;C:3 g0= gm1= mo=No n=5 cur=0;R:4;R:4;C:4 g0= gm1= mo=No n=5 cur=0;R:5;R:5;C:5 g0= gm1= mo=No n=5 cur=0');
+        Observer.Expect('action log', 'R:1;act g0= gm1= mo=No n=5 cur=0;sel g0=Id: 1 gm1= mo=No n=1 cur=0;R:1;R:1;R:2;R:3;R:4;R:5;R:1;R:1;C:1 g0= gm1= mo=No n=5 cur=0');
+        Observer.Verify();
     end;
 
     // T5: shape A, then the TestPage Filter: GetFilter, SetFilter on Grp, the walk.
@@ -493,7 +508,11 @@ codeunit 92971 "LT Y50 OG Tests"
         Observer.Observe('walk', WalkMarks(TP));
         Observer.Observe('walk log', Log.Take());
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('getfilter', 'Yes/');
+        Observer.Expect('setfilter', 'Yes/1:R:1;R:1;C:1 g0=Marked: Yes, Grp: G1 gm1=Marked: Yes mo=Yes n=1 cur=0');
+        Observer.Expect('walk', '1,');
+        Observer.Expect('walk log', '');
+        Observer.Verify();
     end;
 
     // T6, shape C: SetTableView + SetRecord of a record whose group -1 is current, lookup, GetRecord.
@@ -517,7 +536,14 @@ codeunit 92971 "LT Y50 OG Tests"
         Pg.GetRecord(Entry2);
         Observer.Observe('getrecord', Format(Entry2.Id));
         Observer.Observe('log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('caller', '2 g0= gm1=Id: 2|4 mo=No n=2 cur=-1');
+        Observer.Expect('handler open', '2:open g0= gm1= mo=No n=5 cur=0;R:2;R:3;R:4;R:5;R:2;R:1;R:2;R:2;C:2 g0= gm1= mo=No n=5 cur=0');
+        Observer.Expect('handler walk', 'first=Yes/1,next=Yes/2,next=Yes/3,next=Yes/4,next=Yes/5,next=No/5');
+        Observer.Expect('handler last', 'Yes/5');
+        Observer.Expect('action', 'LookupOK');
+        Observer.Expect('getrecord', '5');
+        Observer.Expect('log', '');
+        Observer.Verify();
     end;
 
     // T7: shape A with no row for U1 (the EmptyPage tests).
@@ -532,7 +558,10 @@ codeunit 92971 "LT Y50 OG Tests"
         Observer.Observe('walk', WalkMarks(TP));
         Observer.Observe('walk log', Log.Take());
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('open', ':open g0=Marked: Yes gm1=Marked: Yes, Approver: U1, Sender: U1 mo=Yes n=0 cur=0');
+        Observer.Expect('walk', '');
+        Observer.Expect('walk log', '');
+        Observer.Verify();
     end;
 
     [ModalPageHandler]

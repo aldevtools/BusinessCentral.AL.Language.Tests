@@ -1,7 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/page/page-update-method
 // Scope: in-scope
 // Fixtures used: Probe Observer (69160); own objects table 92960, pages 92960 - 92962, codeunits 92960 - 92961 (writer Y50)
-// Probe: written against the corpus CI matrix; every literal asserted below is what the BC service tier produced.
+// Probe: measured on the SaaS sandbox BC 29 and the corpus CI matrix 27.5, 28.5, 29.0 (identical); every literal asserted below is what the BC service tier produced.
 // Facts: gap cycle 5, gap G5-16: CurrPage.Update() WITHOUT an argument in a procedure of a Page variable that never ran (the pinned
 //   neighbours, UnopenedCurrPage.al and P82PageVar.al, call Update(false) / Update(true) only). Shapes: a NavigatePage with no source
 //   table whose procedure sets globals, calls CurrPage.Update(), then CurrPage.RunModal() and returns a global the page set (closed by an
@@ -248,7 +248,10 @@ codeunit 92961 "LT Y50 UN Tests"
         Observer.Observe('result', R);
         Observer.Observe('log', Log.Take());
         Observer.Observe('returned', 'Yes');
-        Observer.Finish();
+        Observer.Expect('result', 'set by page');
+        Observer.Expect('log', 'before update;after update;open shown=hello;close');
+        Observer.Expect('returned', 'Yes');
+        Observer.Verify();
     end;
 
     // T2: Update() alone in a procedure of a never-run NavigatePage.
@@ -261,9 +264,12 @@ codeunit 92961 "LT Y50 UN Tests"
         Seed();
         Ok := TryUpdateOnly(Pg);
         Observer.Observe('try', Format(Ok));
-        Observer.ObserveError('error');
+        if not Ok then
+            Observer.ObserveError('error');
         Observer.Observe('log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('try', 'Yes');
+        Observer.Expect('log', 'before update;after update');
+        Observer.Verify();
     end;
 
     // T3, the Budget shape: a procedure of a never-run Card sets a filter and calls Update(), then Run.
@@ -278,7 +284,9 @@ codeunit 92961 "LT Y50 UN Tests"
         Observer.Observe('after call', Log.Take());
         Pg.Run();
         Observer.Observe('log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('after call', 'before update;after update');
+        Observer.Expect('log', 'open ;agcr B;handler B');
+        Observer.Verify();
     end;
 
     // T4: the same on a List, twice, a new local variable each time.
@@ -291,7 +299,9 @@ codeunit 92961 "LT Y50 UN Tests"
         Observer.Observe('first', Log.Take());
         RunListOnce('A');
         Observer.Observe('second', Log.Take());
-        Observer.Finish();
+        Observer.Expect('first', 'before update;after update;open ;agcr B;handler B');
+        Observer.Expect('second', 'before update;after update;open ;agcr A;handler A');
+        Observer.Verify();
     end;
 
     local procedure RunListOnce(F: Text)
@@ -312,9 +322,12 @@ codeunit 92961 "LT Y50 UN Tests"
         Seed();
         Ok := TryUpdateNoArg(Pg);
         Observer.Observe('try', Format(Ok));
-        Observer.ObserveError('error');
+        if not Ok then
+            Observer.ObserveError('error');
         Observer.Observe('log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('try', 'Yes');
+        Observer.Expect('log', '');
+        Observer.Verify();
     end;
 
     // T6: Update() and Update(true) after a modal run of the same variable closed with OK.
@@ -333,12 +346,19 @@ codeunit 92961 "LT Y50 UN Tests"
         Observer.Observe('modal log', Log.Take());
         Ok := TryUpdateNoArg(Pg);
         Observer.Observe('update try', Format(Ok));
-        Observer.ObserveError('update error');
+        if not Ok then
+            Observer.ObserveError('update error');
         Ok := TryUpdateTrue(Pg);
         Observer.Observe('update true try', Format(Ok));
-        Observer.ObserveError('update true error');
+        if not Ok then
+            Observer.ObserveError('update true error');
         Observer.Observe('log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('action', 'OK');
+        Observer.Expect('modal log', 'open A;agcr A;handler A');
+        Observer.Expect('update try', 'Yes');
+        Observer.Expect('update true try', 'Yes');
+        Observer.Expect('log', '');
+        Observer.Verify();
     end;
 
     [ModalPageHandler]

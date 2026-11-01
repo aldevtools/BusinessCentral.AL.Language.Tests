@@ -1,7 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/testpage/testpage-expand-method
 // Scope: in-scope
 // Fixtures used: Probe Observer (69160); own objects table 92961, pages 92963 - 92964, codeunits 92962 - 92964 (writer Y50)
-// Probe: written against the corpus CI matrix; every literal asserted below is what the BC service tier produced.
+// Probe: measured on the SaaS sandbox BC 29 and the corpus CI matrix 27.5, 28.5, 29.0 (identical); every literal asserted below is what the BC service tier produced.
 // Facts: gap cycle 5, gap G5-17: TestPage.Expand on the edges the pinned tests do not reach (P82TestPage.al:283 only expands a row WITH
 //   children and only reads IsExpanded). A Worksheet over a temporary source, InsertAllowed = false, repeater ShowAsTree with
 //   IndentationColumn and TreeInitialState = ExpandAll; OnOpenPage fills Rec, sets a key and calls CurrPage.Update(false); row triggers log.
@@ -266,7 +266,12 @@ codeunit 92964 "LT Y50 TE Tests"
         Mode := 1;
         Driver.RunTree('FLAT');
         Observer.Observe('after', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open', 'No/30:agr 30;agr 30;agr 20;agr 10;agr 30;agr 30;agr 30;agcr 30');
+        Observer.Expect('expand', 'Yes/No/30:');
+        Observer.Expect('next', 'No/30:');
+        Observer.Expect('setvalue', '30/Yes:val 30');
+        Observer.Expect('after', '');
+        Observer.Verify();
     end;
 
     // T2: FLAT, Expand(true) on the first row, then the walk.
@@ -278,7 +283,11 @@ codeunit 92964 "LT Y50 TE Tests"
         Mode := 2;
         Driver.RunTree('FLAT');
         Observer.Observe('after', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open', 'No/30:agr 30;agr 30;agr 20;agr 10;agr 30;agr 30;agr 30;agcr 30');
+        Observer.Expect('expand', 'Yes/No/30:');
+        Observer.Expect('walk', '10,20,30,:agr 10;agr 10;agr 10;agcr 10;agr 20;agr 20;agr 20;agcr 20;agr 30;agr 30;agr 30;agcr 30');
+        Observer.Expect('after', '');
+        Observer.Verify();
     end;
 
     // T3: MIXED, Expand(true) on row 40 (level 0, no children).
@@ -290,7 +299,12 @@ codeunit 92964 "LT Y50 TE Tests"
         Mode := 3;
         Driver.RunTree('MIXED');
         Observer.Observe('after', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open', 'No/40:agr 40;agr 40;agr 30;agr 20;agr 10;agr 40;agr 40;agr 40;agcr 40');
+        Observer.Expect('goto', 'Yes/No/40:agr 10;agr 10;agr 10;agcr 10;agr 40;agr 40;agr 40;agcr 40');
+        Observer.Expect('expand', 'Yes/No/40:');
+        Observer.Expect('walk', '10,40,:agr 10;agr 10;agr 10;agcr 10;agr 40;agr 40;agr 40;agcr 40');
+        Observer.Expect('after', '');
+        Observer.Verify();
     end;
 
     // T4: MIXED, Expand(false) twice on row 10 (has children) right after open.
@@ -302,7 +316,14 @@ codeunit 92964 "LT Y50 TE Tests"
         Mode := 4;
         Driver.RunTree('MIXED');
         Observer.Observe('after', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open', 'No/40:agr 40;agr 40;agr 30;agr 20;agr 10;agr 40;agr 40;agr 40;agcr 40');
+        Observer.Expect('goto', 'Yes/No/10:agr 10;agr 10;agr 10;agcr 10');
+        Observer.Expect('collapse 1', 'Yes/No/10:');
+        Observer.Expect('walk 1', '10,40,:agr 40;agr 40;agr 40;agcr 40');
+        Observer.Expect('collapse 2', 'Yes/No/10:');
+        Observer.Expect('walk 2', '10,40,:agr 40;agr 40;agr 40;agcr 40');
+        Observer.Expect('after', '');
+        Observer.Verify();
     end;
 
     // T5: MIXED, Expand(true) twice on row 10, the walk after each.
@@ -314,7 +335,14 @@ codeunit 92964 "LT Y50 TE Tests"
         Mode := 5;
         Driver.RunTree('MIXED');
         Observer.Observe('after', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open', 'No/40:agr 40;agr 40;agr 30;agr 20;agr 10;agr 40;agr 40;agr 40;agcr 40');
+        Observer.Expect('goto', 'Yes/No/10:agr 10;agr 10;agr 10;agcr 10');
+        Observer.Expect('expand 1', 'Yes/Yes/10:');
+        Observer.Expect('walk 1', '10,20,30,40,:agr 20;agr 20;agr 20;agcr 20;agr 30;agr 30;agr 30;agcr 30;agr 40;agr 40;agr 40;agcr 40');
+        Observer.Expect('expand 2', 'Yes/Yes/10:');
+        Observer.Expect('walk 2', '10,20,30,40,:agr 20;agr 20;agr 20;agcr 20;agr 30;agr 30;agr 30;agcr 30;agr 40;agr 40;agr 40;agcr 40');
+        Observer.Expect('after', '');
+        Observer.Verify();
     end;
 
     // T6: FLAT on the plain tree (no row triggers, no TreeInitialState), as T1 up to the Next.
@@ -324,7 +352,10 @@ codeunit 92964 "LT Y50 TE Tests"
     begin
         Log.Take();
         Driver.RunPlain('FLAT');
-        Observer.Finish();
+        Observer.Expect('open', 'No/30');
+        Observer.Expect('expand', 'Yes/No/30');
+        Observer.Expect('next', 'No/30');
+        Observer.Verify();
     end;
 
     [ModalPageHandler]

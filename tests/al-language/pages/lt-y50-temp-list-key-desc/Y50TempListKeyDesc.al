@@ -1,7 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/triggers-auto/page/devenv-onopenpage-page-trigger
 // Scope: in-scope
 // Fixtures used: Probe Observer (69160); own objects tables 92964 - 92965, pages 92972 - 92973, codeunits 92966 - 92967 (writer Y50)
-// Probe: written against the corpus CI matrix; every literal asserted below is what the BC service tier produced.
+// Probe: measured on the SaaS sandbox BC 29 and the corpus CI matrix 27.5, 28.5, 29.0 (identical); every literal asserted below is what the BC service tier produced.
 // Facts: gap cycle 5, gap G5-19: a List over a temporary source whose OnOpenPage fills Rec, then changes the key (SetCurrentKey on
 //   "Sent At") and the direction (Ascending(false)), and leaves Rec's buffer on a row that is not the first of the view, or on a key no
 //   row has (the Sent Emails / Email Outbox shape: TransferFields into Rec before deciding not to insert). QrMovedTests.al pins the
@@ -283,7 +283,10 @@ codeunit 92967 "LT Y50 TK Tests"
         Observer.Observe('gotorecord', Format(TP.GoToRecord(Mail)) + '/' + TP.Id.Value() + ':' + Log.Take());
         Observer.Observe('first', Format(TP.First()) + '/' + TP.Id.Value() + ':' + Log.Take());
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('open', ':empty=Yes;open rec=2;C:0');
+        Observer.Expect('gotorecord', 'No/:');
+        Observer.Expect('first', 'No/:');
+        Observer.Verify();
     end;
 
     // T2, the CleanEmailOutbox shape: every row inserted, Rec on the last inserted (Id 4).
@@ -298,7 +301,9 @@ codeunit 92967 "LT Y50 TK Tests"
         Observer.Observe('open', TP.Id.Value() + ':' + Log.Take());
         Observer.Observe('walk', Walk(TP));
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('open', '4:empty=No;open rec=4;R:4;R:4;R:2;R:3;R:4;R:1;R:4;R:4;R:4;C:4');
+        Observer.Expect('walk', '1,4,2,3,');
+        Observer.Verify();
     end;
 
     // T3: rows 1 and 3 inserted, the buffer holds row 2 (not inserted).
@@ -313,7 +318,9 @@ codeunit 92967 "LT Y50 TK Tests"
         Observer.Observe('open', TP.Id.Value() + ':' + Log.Take());
         Observer.Observe('walk', Walk(TP));
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('open', '3:empty=No;open rec=2;R:3;R:1;R:3;R:3;R:3;C:3');
+        Observer.Expect('walk', '1,3,');
+        Observer.Verify();
     end;
 
     // T4: T1 opened by OpenView.
@@ -330,7 +337,10 @@ codeunit 92967 "LT Y50 TK Tests"
         Observer.Observe('gotorecord', Format(TP.GoToRecord(Mail)) + '/' + TP.Id.Value() + ':' + Log.Take());
         Observer.Observe('first', Format(TP.First()) + '/' + TP.Id.Value() + ':' + Log.Take());
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('open', ':empty=Yes;open rec=2');
+        Observer.Expect('gotorecord', 'No/:');
+        Observer.Expect('first', 'No/:');
+        Observer.Verify();
     end;
 
     // T5: primary key, descending only.
@@ -345,7 +355,9 @@ codeunit 92967 "LT Y50 TK Tests"
         Observer.Observe('open', TP.Id.Value() + ':' + Log.Take());
         Observer.Observe('walk', WalkPk(TP));
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('open', '4:empty=No;open rec=4;R:4;R:3;R:2;R:1;R:4;R:4;C:4');
+        Observer.Expect('walk', '4,3,2,1,');
+        Observer.Verify();
     end;
 
     // T6: changed key, ascending.
@@ -360,6 +372,8 @@ codeunit 92967 "LT Y50 TK Tests"
         Observer.Observe('open', TP.Id.Value() + ':' + Log.Take());
         Observer.Observe('walk', Walk(TP));
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('open', '4:empty=No;open rec=4;R:4;R:4;R:1;R:4;R:2;R:3;R:4;R:4;R:4;C:4');
+        Observer.Expect('walk', '3,2,4,1,');
+        Observer.Verify();
     end;
 }

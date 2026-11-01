@@ -1,7 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/page/page-update-method
 // Scope: in-scope
 // Fixtures used: Probe Observer (69160); own objects table 92966, pages 92974 - 92976, codeunits 92968 - 92969 (writer Y50)
-// Probe: written against the corpus CI matrix; every literal asserted below is what the BC service tier produced.
+// Probe: measured on the SaaS sandbox BC 29 and the corpus CI matrix 27.5, 28.5, 29.0 (identical); every literal asserted below is what the BC service tier produced.
 // Facts: gap cycle 5, gap G5-20: switching the batch of a journal worksheet when the page stands on the NEW LINE of an empty batch
 //   (Y17JournalBatchSwitch.al pins the switch from a stored row only). The Y17 shape: a Worksheet with AutoSplitKey and DelayedInsert over a
 //   line table keyed (Batch Name, Line No.); a global batch control whose OnValidate runs CurrPage.SaveRecord(), sets the batch filter in
@@ -556,7 +556,17 @@ codeunit 92969 "LT Y50 NL Tests"
     procedure G520_FromNewLine_ToBatchWithRows()
     begin
         Switch('B2', false, false, false);
-        Observer.Finish();
+        Observer.Expect('open', '0/:N:B3/0 below=Yes;C:B3/0;N:B3/0 below=Yes;C:B3/0');
+        Observer.Expect('setvalue', 'Yes');
+        Observer.Expect('validate log', 'V:start 0;V:done 10000;R:B2/10000;R:B2/20000;R:B2/10000;R:B2/10000;C:B2/10000');
+        Observer.Expect('current', '10000/B/dB');
+        Observer.Expect('batch', 'B2');
+        Observer.Expect('read log', '');
+        Observer.Expect('next', 'Yes/20000/D:R:B2/20000;R:B2/20000;C:B2/20000');
+        Observer.Expect('rows', '10000/B,20000/D,0/,');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'B1/10000/A/dA;B1/20000/C/dC;B1/30000/E/dE;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Verify();
     end;
 
     // T2: as T1 without Find in code (Rec stays the blank new-line buffer).
@@ -564,7 +574,17 @@ codeunit 92969 "LT Y50 NL Tests"
     procedure G520_FromNewLine_ToBatchWithRows_NoFind()
     begin
         Switch('B2', true, false, false);
-        Observer.Finish();
+        Observer.Expect('open', '0/:N:B3/0 below=Yes;C:B3/0;N:B3/0 below=Yes;C:B3/0');
+        Observer.Expect('setvalue', 'Yes');
+        Observer.Expect('validate log', 'V:start 0;V:done 0;R:B2/20000;R:B2/10000;R:B2/20000;R:B2/20000;C:B2/20000');
+        Observer.Expect('current', '20000/D/dD');
+        Observer.Expect('batch', 'B2');
+        Observer.Expect('read log', '');
+        Observer.Expect('next', 'Yes/0/:N:B2/0 below=Yes;C:B2/0');
+        Observer.Expect('rows', '10000/B,20000/D,0/,');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'B1/10000/A/dA;B1/20000/C/dC;B1/30000/E/dE;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Verify();
     end;
 
     // T3, the Base App shape: B3 -> B1, then Last().
@@ -572,7 +592,17 @@ codeunit 92969 "LT Y50 NL Tests"
     procedure G520_FromNewLine_ToBatchWithRows_ThenLast()
     begin
         Switch('B1', false, false, true);
-        Observer.Finish();
+        Observer.Expect('open', '0/:N:B3/0 below=Yes;C:B3/0;N:B3/0 below=Yes;C:B3/0');
+        Observer.Expect('setvalue', 'Yes');
+        Observer.Expect('validate log', 'V:start 0;V:done 10000;R:B1/10000;R:B1/20000;R:B1/30000;R:B1/10000;R:B1/10000;C:B1/10000');
+        Observer.Expect('current', '10000/A/dA');
+        Observer.Expect('batch', 'B1');
+        Observer.Expect('read log', '');
+        Observer.Expect('last', 'Yes/30000/E:N:B1/0 below=Yes;C:B1/0;R:B1/30000;R:B1/30000;C:B1/30000');
+        Observer.Expect('rows', '10000/A,20000/C,30000/E,0/,');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'B1/10000/A/dA;B1/20000/C/dC;B1/30000/E/dE;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Verify();
     end;
 
     // T4: as T1 with CurrPage.Update(true) in the OnValidate.
@@ -580,7 +610,17 @@ codeunit 92969 "LT Y50 NL Tests"
     procedure G520_FromNewLine_ToBatchWithRows_UpdateTrue()
     begin
         Switch('B2', false, true, false);
-        Observer.Finish();
+        Observer.Expect('open', '0/:N:B3/0 below=Yes;C:B3/0;N:B3/0 below=Yes;C:B3/0');
+        Observer.Expect('setvalue', 'Yes');
+        Observer.Expect('validate log', 'V:start 0;M:B2/10000;L.OnModify:B2/10000;V:done 10000;R:B2/10000;R:B2/20000;R:B2/10000;R:B2/10000;C:B2/10000');
+        Observer.Expect('current', '10000/B/dB');
+        Observer.Expect('batch', 'B2');
+        Observer.Expect('read log', '');
+        Observer.Expect('next', 'Yes/20000/D:R:B2/20000;R:B2/20000;C:B2/20000');
+        Observer.Expect('rows', '10000/B,20000/D,0/,');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'B1/10000/A/dA;B1/20000/C/dC;B1/30000/E/dE;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Verify();
     end;
 
     // T5: the page with InsertAllowed = false (empty view without a new line), B3 -> B2.
@@ -588,7 +628,17 @@ codeunit 92969 "LT Y50 NL Tests"
     procedure G520_NoNewLine_EmptyView_ToBatchWithRows()
     begin
         SwitchNoIns('B2', false, false, false);
-        Observer.Finish();
+        Observer.Expect('open', '/:N:B3/0 below=Yes;C:B3/0');
+        Observer.Expect('setvalue', 'Yes');
+        Observer.Expect('validate log', 'V:start 0;V:done 10000;R:B2/10000;R:B2/20000;R:B2/10000;R:B2/10000;C:B2/10000');
+        Observer.Expect('current', '10000/B/dB');
+        Observer.Expect('batch', 'B2');
+        Observer.Expect('read log', '');
+        Observer.Expect('next', 'Yes/20000/D:R:B2/20000;R:B2/20000;C:B2/20000');
+        Observer.Expect('rows', '10000/B,20000/D,');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'B1/10000/A/dA;B1/20000/C/dC;B1/30000/E/dE;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Verify();
     end;
 
     // T6: the same as PageType List, B3 -> B2.
@@ -596,6 +646,16 @@ codeunit 92969 "LT Y50 NL Tests"
     procedure G520_List_FromNewLine_ToBatchWithRows()
     begin
         SwitchList('B2', false, false, false);
-        Observer.Finish();
+        Observer.Expect('open', '0/:N:B3/0 below=Yes;C:B3/0;N:B3/0 below=Yes;C:B3/0');
+        Observer.Expect('setvalue', 'Yes');
+        Observer.Expect('validate log', 'V:start 0;V:done 10000;R:B2/10000;R:B2/20000;R:B2/10000;R:B2/10000;C:B2/10000');
+        Observer.Expect('current', '10000/B/dB');
+        Observer.Expect('batch', 'B2');
+        Observer.Expect('read log', '');
+        Observer.Expect('next', 'Yes/20000/D:R:B2/20000;R:B2/20000;C:B2/20000');
+        Observer.Expect('rows', '10000/B,20000/D,0/,');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'B1/10000/A/dA;B1/20000/C/dC;B1/30000/E/dE;B2/10000/B/dB;B2/20000/D/dD;');
+        Observer.Verify();
     end;
 }

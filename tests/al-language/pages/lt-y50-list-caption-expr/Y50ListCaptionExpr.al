@@ -1,7 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/properties/devenv-datacaptionexpression-property
 // Scope: in-scope
 // Fixtures used: Probe Observer (69160); own objects tables 92962 - 92963, pages 92965 - 92971, codeunit 92965 (writer Y50)
-// Probe: written against the corpus CI matrix; every literal asserted below is what the BC service tier produced.
+// Probe: measured on the SaaS sandbox BC 29 and the corpus CI matrix 27.5, 28.5, 29.0 (identical); every literal asserted below is what the BC service tier produced.
 // Facts: gap cycle 5, gap G5-18: TestPage.Caption of a List or Worksheet that has DataCaptionExpression (the pinned neighbours,
 //   P113DataCaption.al and WbDataCaptionExpression.al, are Cards; Y37ListCaptionTests.al has lists with DataCaptionFields only).
 //   Table T has DataCaptionFields = "No.", Name. Pages: LG (expression = a page global set by a procedure before the run), LF
@@ -320,7 +320,10 @@ codeunit 92965 "LT Y50 DC Tests"
         TP.GoToKey('B1');
         Observer.Observe('gotokey', TP.Caption() + '|' + TP."No.".Value());
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'LT Y50 DC List Global - X1|A1');
+        Observer.Expect('next', 'LT Y50 DC List Global - X1|A2');
+        Observer.Expect('gotokey', 'LT Y50 DC List Global - X1|B1');
+        Observer.Verify();
     end;
 
     // T2: the same page run without SetCaption (empty expression).
@@ -335,7 +338,8 @@ codeunit 92965 "LT Y50 DC Tests"
         Pg.Run();
         Observer.Observe('open', TP.Caption() + '|' + TP."No.".Value());
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'LT Y50 DC List Global|A1');
+        Observer.Verify();
     end;
 
     // T3, the Dimension Value List shape: the expression returns the Grp filter of Rec.
@@ -360,7 +364,10 @@ codeunit 92965 "LT Y50 DC Tests"
         TP.Filter.SetFilter(Grp, 'G2');
         Observer.Observe('testpage filter', TP.Caption() + '|' + TP."No.".Value());
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('filtered', 'LT Y50 DC List Filter - G1|A1');
+        Observer.Expect('no filter', 'LT Y50 DC List Filter|A1');
+        Observer.Expect('testpage filter', 'LT Y50 DC List Filter - G2|B1');
+        Observer.Verify();
     end;
 
     // T4, the Production Journal shape: a Worksheet whose expression formats a global set before RunModal.
@@ -373,7 +380,10 @@ codeunit 92965 "LT Y50 DC Tests"
         Seed();
         Pg.SetSubject('S1');
         Pg.RunModal();
-        Observer.Finish();
+        Observer.Expect('first read', 'LT Y50 DC Worksheet - Doc S1|A1');
+        Observer.Expect('second read', 'LT Y50 DC Worksheet - Doc S1');
+        Observer.Expect('after next', 'LT Y50 DC Worksheet - Doc S1|A2');
+        Observer.Verify();
     end;
 
     // T5: the expression reads the current row; first row, after Next, after Last, and on an empty table.
@@ -395,7 +405,11 @@ codeunit 92965 "LT Y50 DC Tests"
         TP.OpenView();
         Observer.Observe('empty', TP.Caption() + '|' + TP."No.".Value());
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'LT Y50 DC List Row - Row Alpha|A1');
+        Observer.Expect('next', 'LT Y50 DC List Row - Row Beta|A2');
+        Observer.Expect('last', 'LT Y50 DC List Row - Row Gamma|B1');
+        Observer.Expect('empty', 'LT Y50 DC List Row|');
+        Observer.Verify();
     end;
 
     // T6: an expression and page DataCaptionFields together, Rec filtered on Grp.
@@ -420,7 +434,9 @@ codeunit 92965 "LT Y50 DC Tests"
         Pg2.Run();
         Observer.Observe('no filter', TP.Caption() + '|' + TP."No.".Value());
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('filtered', 'LT Y50 DC List Both - X1|A1');
+        Observer.Expect('no filter', 'LT Y50 DC List Both - X1|A1');
+        Observer.Verify();
     end;
 
     // T7: a list part with an expression inside a card.
@@ -434,7 +450,9 @@ codeunit 92965 "LT Y50 DC Tests"
         Observer.Observe('card', TP.Caption());
         Observer.Observe('part', TP.Lines.Caption() + '|' + TP.Lines."No.".Value());
         TP.Close();
-        Observer.Finish();
+        Observer.Expect('card', 'LT Y50 DC Host Card - H1');
+        Observer.Expect('part', 'Part Alpha|A1');
+        Observer.Verify();
     end;
 
     [ModalPageHandler]
