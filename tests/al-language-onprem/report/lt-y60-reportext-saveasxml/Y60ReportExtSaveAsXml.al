@@ -7,6 +7,11 @@
 //        request page field bound to an Enum global of the extension (addlast(Options)). Observed: the parameters file, the data file,
 //        the extension's trigger log, and what the request page shows on the next run (are values closed by SaveAsXml saved?);
 //        the same with SaveValues = false. Not repeated: the Report.Run + OK paths of report/lt-y42-* (corpus PR 968).
+// Facts: the parameters file holds only two report parameters (user id and run time; only their names are asserted) and no request page
+// value. The data file has the extension's column with the value the handler set; OnBeforePreDataItem of the modified data item runs once
+// per parent row. With SaveValues = true the close by SaveAsXml saves the values of the base and of the extension: the next run opens with
+// them and a SaveAsXml without SetValue uses them; with SaveValues = false the next run opens with the defaults. Values are the same on
+// 27.5, 28.5 and 29.0 (Linux CI).
 // BC versions: 27, 28, 29
 
 table 98708 "LT Y60 OP Ext Row"
@@ -329,7 +334,12 @@ codeunit 98709 "LT Y60 OP Ext SaveAsXml"
     begin
         Seed();
         RunSaved(Observer, 'set details', 2);
-        Observer.Finish();
+        Observer.Expect('set details seen', '');
+        Observer.Expect('set details parameters', 'NavUserId|ExecutionTime|');
+        Observer.Expect('set details schema', '<xs:element name="HName" type="xs:string"|<xs:element name="BasisTxt" type="xs:string"|<xs:element name="LName" type="xs:string"|<xs:element name="EName" type="xs:string"|');
+        Observer.Expect('set details rows', '<Result>|<HName>one</HName>|<BasisTxt>Details</BasisTxt>|<LName>one</LName>|<EName>one</EName>|</Result>|<Result>|<HName>two</HName>|<BasisTxt>Details</BasisTxt>|<LName>two</LName>|<EName>two</EName>|</Result>|</DataSet>||');
+        Observer.Expect('set details log', 'ext pre basis=Details;ext line 1;ext pre basis=Details;ext line 2;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -342,7 +352,22 @@ codeunit 98709 "LT Y60 OP Ext SaveAsXml"
         RunSaved(Observer, 'first', 2);
         RunSaved(Observer, 'second', 3);
         RunSaved(Observer, 'third', 1);
-        Observer.Finish();
+        Observer.Expect('first seen', '');
+        Observer.Expect('first parameters', 'NavUserId|ExecutionTime|');
+        Observer.Expect('first schema', '<xs:element name="HName" type="xs:string"|<xs:element name="BasisTxt" type="xs:string"|<xs:element name="LName" type="xs:string"|<xs:element name="EName" type="xs:string"|');
+        Observer.Expect('first rows', '<Result>|<HName>one</HName>|<BasisTxt>Details</BasisTxt>|<LName>one</LName>|<EName>one</EName>|</Result>|<Result>|<HName>two</HName>|<BasisTxt>Details</BasisTxt>|<LName>two</LName>|<EName>two</EName>|</Result>|</DataSet>||');
+        Observer.Expect('first log', 'ext pre basis=Details;ext line 1;ext pre basis=Details;ext line 2;');
+        Observer.Expect('second seen', 'basis=Details showall=Yes');
+        Observer.Expect('second parameters', '<no file>');
+        Observer.Expect('second schema', '');
+        Observer.Expect('second rows', '');
+        Observer.Expect('second log', '');
+        Observer.Expect('third seen', '');
+        Observer.Expect('third parameters', 'NavUserId|ExecutionTime|');
+        Observer.Expect('third schema', '<xs:element name="HName" type="xs:string"|<xs:element name="BasisTxt" type="xs:string"|<xs:element name="LName" type="xs:string"|<xs:element name="EName" type="xs:string"|');
+        Observer.Expect('third rows', '<Result>|<HName>one</HName>|<BasisTxt>Details</BasisTxt>|<LName>one</LName>|<EName>one</EName>|</Result>|<Result>|<HName>two</HName>|<BasisTxt>Details</BasisTxt>|<LName>two</LName>|<EName>two</EName>|</Result>|</DataSet>||');
+        Observer.Expect('third log', 'ext pre basis=Details;ext line 1;ext pre basis=Details;ext line 2;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -365,7 +390,11 @@ codeunit 98709 "LT Y60 OP Ext SaveAsXml"
         Step := 3;
         Report.Run(Report::"LT Y60 OP Ext Unsaved");
         Observer.Observe('second seen', Seen);
-        Observer.Finish();
+        Observer.Expect('first parameters', 'NavUserId|ExecutionTime|');
+        Observer.Expect('first rows', '<Result>|<HName>one</HName>|<BasisTxt>Details</BasisTxt>|<LName>one</LName>|</Result>|<Result>|<HName>two</HName>|<BasisTxt>Details</BasisTxt>|<LName>two</LName>|</Result>|</DataSet>||');
+        Observer.Expect('first log', 'ext pre basis=Details;ext pre basis=Details;');
+        Observer.Expect('second seen', 'basis=Average showall=No');
+        Observer.Verify();
     end;
 
     // Step 1: SaveAsXml only. Step 2: BasisCtl := Details and ShowAll := true, then SaveAsXml. Step 3: read the controls, then Cancel.
