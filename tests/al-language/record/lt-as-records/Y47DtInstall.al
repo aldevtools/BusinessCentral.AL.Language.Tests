@@ -187,7 +187,7 @@ codeunit 92912 "LT Y47 DT Installer"
         Entry.Name := NewName;
         Entry."Display Name" := NewDisplay;
         Entry.Status := 'seed';
-        Entry.Insert();
+        if Entry.Insert() then;
     end;
 
     local procedure AddSrc(NewCode: Code[20]; NewAmount: Integer)
@@ -197,7 +197,7 @@ codeunit 92912 "LT Y47 DT Installer"
         Src.Init();
         Src."Code" := NewCode;
         Src.Amount := NewAmount;
-        Src.Insert();
+        if Src.Insert() then;
     end;
 
     local procedure Outcome(Ok: Boolean): Text
@@ -216,7 +216,7 @@ codeunit 92912 "LT Y47 DT Installer"
         Obs.Init();
         Obs."Code" := NewCode;
         Obs.Outcome := CopyStr(Value, 1, MaxStrLen(Obs.Outcome));
-        Obs.Insert();
+        if Obs.Insert() then;
     end;
 
     // S1: the reporter's shape (al-runner issue 6586).
