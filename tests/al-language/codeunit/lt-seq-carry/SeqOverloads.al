@@ -22,6 +22,29 @@ codeunit 93610 "LT Y56 Seq Overloads"
         exit(Format(NumberSequence.Exists(Name)) + '|' + Format(NumberSequence.Exists(Name, false)) + '|' + Format(NumberSequence.Exists(Name, true)));
     end;
 
+    // Next and Current through the overload that Exists says reaches the sequence: one argument, then false, then true.
+    local procedure NextOf(Name: Text): Text
+    begin
+        if NumberSequence.Exists(Name) then
+            exit('1arg/' + Format(NumberSequence.Next(Name)));
+        if NumberSequence.Exists(Name, false) then
+            exit('false/' + Format(NumberSequence.Next(Name, false)));
+        if NumberSequence.Exists(Name, true) then
+            exit('true/' + Format(NumberSequence.Next(Name, true)));
+        exit('missing');
+    end;
+
+    local procedure CurrentOf(Name: Text): Text
+    begin
+        if NumberSequence.Exists(Name) then
+            exit('1arg/' + Format(NumberSequence.Current(Name)));
+        if NumberSequence.Exists(Name, false) then
+            exit('false/' + Format(NumberSequence.Current(Name, false)));
+        if NumberSequence.Exists(Name, true) then
+            exit('true/' + Format(NumberSequence.Current(Name, true)));
+        exit('missing');
+    end;
+
     [Test]
     [HandlerFunctions('Y56MsgHandler')]
     procedure Overloads_InsertExists()
@@ -39,10 +62,10 @@ codeunit 93610 "LT Y56 Seq Overloads"
         Observer.Observe('false', Seen('Y56-OV-F'));
         NumberSequence.Insert('Y56-OV-T', 1, 1, true);
         Observer.Observe('true', Seen('Y56-OV-T'));
-        Observer.Observe('next_short_false', Format(NumberSequence.Next('Y56-OV-S', false)));
-        Observer.Observe('next_false_false', Format(NumberSequence.Next('Y56-OV-F', false)));
-        Observer.Observe('next_true_true', Format(NumberSequence.Next('Y56-OV-T', true)));
-        Observer.Observe('current_short_false', Format(NumberSequence.Current('Y56-OV-S', false)));
+        Observer.Observe('short_next', NextOf('Y56-OV-S'));
+        Observer.Observe('short_current', CurrentOf('Y56-OV-S'));
+        Observer.Observe('false_next', NextOf('Y56-OV-F'));
+        Observer.Observe('true_next', NextOf('Y56-OV-T'));
         Clean('Y56-OV-S');
         Clean('Y56-OV-F');
         Clean('Y56-OV-T');
