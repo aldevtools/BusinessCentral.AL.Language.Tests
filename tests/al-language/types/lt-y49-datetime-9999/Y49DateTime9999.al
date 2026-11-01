@@ -173,7 +173,7 @@ codeunit 92946 "LT Y49 DateTime 9999"
         Years: List of [Integer];
         Y: Integer;
     begin
-        Years.AddRange(1753, 1899, 1900, 1929, 1930, 1999, 2000, 2029, 2030, 2049, 2050, 2099, 2100, 2999, 5000);
+        Years.AddRange(1753, 1899, 1900, 1929, 1930, 1949, 1950, 1999, 2000, 2029, 2030, 2049, 2050, 2099, 2100, 2999, 5000);
         foreach Y in Years do
             Observer.Observe(Format(Y), FmtDirect(CreateDateTime(DMY2Date(15, 6, Y), 120000T), 2) + ' ' + Format(DMY2Date(15, 6, Y), 0, 1));
         Observer.Finish();
