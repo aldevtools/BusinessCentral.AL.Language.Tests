@@ -29,12 +29,18 @@ codeunit 92945 "LT Y49 Evaluate Date Blanks"
         Evaluate(D, Txt, N);
     end;
 
+    // The error text is observed once in full ('not a date'); for the other texts the observation says whether the text is the same with the
+    // input in place of 'not a date' (the observer keeps about 1800 characters per test).
     local procedure ObsStmt(Txt: Text; N: Integer)
     var
         Name: Text;
         Ok: Boolean;
+        Template: Text;
     begin
         Name := '[' + Txt + ']';
+        ClearLastError();
+        if TryEvalDate('not a date') then;
+        Template := GetLastErrorText();
         ClearLastError();
         if N < 0 then
             Ok := TryEvalDate(Txt)
@@ -43,10 +49,17 @@ codeunit 92945 "LT Y49 Evaluate Date Blanks"
             Name += ' ' + Format(N);
         end;
         Observer.Observe(Name, Format(Ok));
-        if not Ok then
-            Observer.ObserveError(Name);
+        if not Ok then begin
+            if Txt = 'not a date' then
+                Observer.Observe(Name + '|text', GetLastErrorText())
+            else
+                Observer.Observe(Name + '|text is the not-a-date text with this input', Format(GetLastErrorText() = Template.Replace('not a date', Txt)));
+            Observer.Observe(Name + '|code', GetLastErrorCode());
+            ClearLastError();
+        end;
     end;
 
+    // A text that parses gets the year (and for some texts the month) of today: only the day is observed then.
     local procedure ObsUsed(Txt: Text)
     var
         D: Date;
@@ -55,7 +68,10 @@ codeunit 92945 "LT Y49 Evaluate Date Blanks"
         D := 20000101D;
         ClearLastError();
         Ok := Evaluate(D, Txt);
-        Observer.Observe('[' + Txt + ']', Format(Ok) + ' ' + Format(D, 0, 9) + ' err=' + Format(GetLastErrorText() <> ''));
+        if Ok then
+            Observer.Observe('[' + Txt + ']', 'Yes day ' + Format(Date2DMY(D, 1)) + ' err=' + Format(GetLastErrorText() <> ''))
+        else
+            Observer.Observe('[' + Txt + ']', 'No ' + Format(D, 0, 9) + ' err=' + Format(GetLastErrorText() <> ''));
         ClearLastError();
     end;
 
@@ -114,7 +130,8 @@ codeunit 92945 "LT Y49 Evaluate Date Blanks"
         asserterror Evaluate(D, 'not a date');
         Observer.ObserveError('asserterror not a date');
         asserterror Evaluate(D, 'not a date', 9);
-        Observer.ObserveError('asserterror not a date 9');
+        Observer.Observe('asserterror not a date 9|code', GetLastErrorCode());
+        ClearLastError();
         Observer.Finish();
     end;
 

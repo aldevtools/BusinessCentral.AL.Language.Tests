@@ -211,10 +211,9 @@ codeunit 92943 "LT Y49 RecordId Format10"
         Observer.Observe('empty', Format(Ok) + ' ' + Format(RecId));
         Ok := Evaluate(RecId, 'garbage', 10);
         Observer.Observe('garbage', Format(Ok) + ' ' + Format(RecId));
-        Ok := Evaluate(RecId, '13;pGQBAAJ7ATE=', 10);
-        Observer.Observe('geturl bookmark 13', Format(Ok) + ' ' + Format(RecId));
-        Ok := Evaluate(RecId, '99999;pGQBAAJ7ATE=', 10);
-        Observer.Observe('other table bookmark', Format(Ok) + ' ' + Format(RecId));
+        Clear(RecId);
+        Ok := Evaluate(RecId, '17;D2sBAAJ7', 10);
+        Observer.Observe('bookmark with wrong length', Format(Ok) + ' ' + Format(RecId));
         ObsStmtRecId('garbage stmt', 'garbage');
         ObsStmtRecId('empty stmt', '');
         ObsStmtRecId('format0 text stmt', 'LT Y49 Bm Code Row: A-1');
@@ -283,13 +282,31 @@ codeunit 92943 "LT Y49 RecordId Format10"
     var
         A: Record "LT Y49 Bm Code Row";
         V: Variant;
+        Res: Text;
     begin
         Seed();
         A.Get('A-1');
         V := A.RecordId;
-        Observer.Observe('variant', Format(V, 0, 10));
+        ClearLastError();
+        if TryFormatVariant(V, 10, Res) then
+            Observer.Observe('variant 10', '[' + Res + ']')
+        else begin
+            Observer.Observe('variant 10', 'raised');
+            Observer.ObserveError('variant 10');
+        end;
+        if TryFormatVariant(V, 0, Res) then
+            Observer.Observe('variant 0', '[' + Res + ']')
+        else begin
+            Observer.Observe('variant 0', 'raised');
+            Observer.ObserveError('variant 0');
+        end;
         Observer.Observe('direct', Format(A.RecordId, 0, 10));
-        Observer.Observe('variant 0', Format(V, 0, 0));
         Observer.Finish();
+    end;
+
+    [TryFunction]
+    local procedure TryFormatVariant(V: Variant; N: Integer; var Res: Text)
+    begin
+        Res := Format(V, 0, N);
     end;
 }
