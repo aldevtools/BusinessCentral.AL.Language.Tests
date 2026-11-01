@@ -124,6 +124,30 @@ def fmt(t):
     return 'Format(%s, 0, 9)' % v
 
 
+def load_guarded(path):
+    """(source, target) type pairs that the BC 27 and 28 compilers (AL 16, AL 17) reject in some context and AL 18+ accepts."""
+    out = set()
+    if not os.path.exists(path):
+        return out
+    for r in csv.DictReader(open(path)):
+        if not r['al30'].startswith('ok') or r['context'] == 'arg_var':
+            continue
+        if not r['al16_bc27'].startswith('ok') or not r['al17_bc28'].startswith('ok'):
+            out.add((r['source'], r['target']))
+    return out
+
+
+def base_type(n):
+    n = n.replace('lit.', '')
+    n = FIELD_OF.get(n, n)
+    return {'Enum2': 'Enum'}.get(n, n)
+
+
+def guarded_pair(guard, s, t):
+    bs, bt = base_type(s), base_type(t)
+    return any(base_type(a) == bs and base_type(b) == bt for a, b in guard)
+
+
 def load_matrix(path):
     rows = list(csv.reader(open(path)))
     hdr = rows[0]
@@ -174,6 +198,8 @@ class Unit:
         return name
 
 
+TEST_PAIR = {}
+GUARD = 'BC29PLUS'
 GROUP = '--group--'
 MAX_OBS = 8
 LABELS = ('vLabel', 'vLabelLong', 'vLabel_R')
@@ -218,6 +244,7 @@ def gen_cv(m, cid):
                     stmts.append(observe_line('%s.%s' % (c, lbl), tries[c], fmt(t)))
                 stmts.append(GROUP)
             u.tests.append(('%s_To_%s' % (s, t.replace('.', '')), stmts))
+            TEST_PAIR[(u.name, '%s_To_%s' % (s, t.replace('.', '')))] = (s, t)
         if u.tests:
             units.append(u)
     # literals
@@ -243,6 +270,7 @@ def gen_cv(m, cid):
                 stmts.append(observe_line('%s.%s' % (c, lbl), tr, fmt(t)))
                 stmts.append(GROUP)
             u.tests.append(('%s_To_%s' % (lname.replace('lit.', 'Lit'), t.replace('.', '')), stmts))
+            TEST_PAIR[(u.name, '%s_To_%s' % (lname.replace('lit.', 'Lit'), t.replace('.', '')))] = (lname, t)
     units.append(u)
     return units, cid
 
@@ -281,6 +309,7 @@ def gen_tp(m, cid):
             stmts.append('TP.Close();')
             stmts.append(GROUP)
         u.tests.append(('TestPageValue_To_%s' % t.replace('.', ''), stmts))
+        TEST_PAIR[(u.name, 'TestPageValue_To_%s' % t.replace('.', ''))] = ('Text', t)
     return [u], cid
 
 
@@ -371,6 +400,7 @@ def gen_ops(m, cid, fam):
                             stmts.append(observe_line(key, tries[o], show))
                             stmts.append(GROUP)
             u.tests.append(('%s_%s' % (s, t if s != t else t + '_Same'), stmts))
+            TEST_PAIR[(u.name, '%s_%s' % (s, t if s != t else t + '_Same'))] = (s, t)
         if u.tests:
             units.append(u)
     return units, cid
@@ -489,7 +519,12 @@ def render(u, observed):
             return '%s(%s)' % (pn, (args + ', ' + extra) if args.strip() else extra)
         return re.sub(r'\b(%s)\(([^()]*)\)' % '|'.join(map(re.escape, procnames)), sub, line) if procnames else line
 
+    guarded = getattr(u, 'guarded', set())
+    whole = bool(u.tests) and all(t in guarded for t, _ in u.tests)
     out = [HEADER % u.title]
+    if whole:
+        out.append('// The BC 27 and 28 compilers reject BigInteger <-> Enum (AL0122, AL0133; scripts/conversion-matrix/compile-matrix-older-compilers.csv).')
+        out.append('#if %s' % GUARD)
     out.append('codeunit %d "%s"' % (u.cid, u.name))
     out.append('{')
     all_parts = [x for tname, stmts in u.tests for x in final_parts(tname, stmts, observed, u.name)]
@@ -499,8 +534,23 @@ def render(u, observed):
     else:
         out.append('    // Every procedure is held (no BC result), so this is no test codeunit.')
     out.append('')
+    guarded_procs = set()
+    plain_procs = set()
     for tname, stmts in u.tests:
+        c = refs([x for x in stmts if x != GROUP], set(procnames))
+        fr = set(c)
+        while fr:
+            nx = set()
+            for n in fr:
+                nx |= calls[n] - c
+            c |= nx
+            fr = nx
+        (guarded_procs if tname in guarded else plain_procs).update(c)
+    for tname, stmts in u.tests:
+        g = tname in guarded and not whole
         for name, part, obs_names in final_parts(tname, stmts, observed, u.name):
+            if g:
+                out.append('#if %s' % GUARD)
             used = refs(part, vars_)
             for st in part:
                 for pn in refs([st], set(procnames)):
@@ -530,6 +580,8 @@ def render(u, observed):
                     out.append("        Observer.Expect('%s', %s);" % (k, al_text(v)))
                 out.append('        Observer.Verify();')
             out.append('    end;')
+            if g:
+                out.append('#endif')
             out.append('')
     called = set()
     for tname, stmts in u.tests:
@@ -544,6 +596,9 @@ def render(u, observed):
     for name, is_try, params, ret, body in u.procs:
         if name not in called:
             continue
+        pg = name in guarded_procs and name not in plain_procs and not whole
+        if pg:
+            out.append('#if %s' % GUARD)
         ps = [params] if params else []
         ps += ['var %s: %s' % (n, vars_[n]) for n in order[name]]
         lab = sorted(refs(body, labels))
@@ -558,8 +613,12 @@ def render(u, observed):
         for b in body:
             out.append('        ' + call_fix(b))
         out.append('    end;')
+        if pg:
+            out.append('#endif')
         out.append('')
     out.append('}')
+    if whole:
+        out.append('#endif')
     return '\n'.join(out) + '\n'
 
 
@@ -670,6 +729,9 @@ def main():
         units += us
     if cid > ID_SUSPECT:
         raise SystemExit('out of ids: %d' % cid)
+    guard = load_guarded(os.path.join(os.path.dirname(os.path.abspath(a.matrix)), 'compile-matrix-older-compilers.csv'))
+    for u in units:
+        u.guarded = set(t for t, _ in u.tests if guarded_pair(guard, *TEST_PAIR[(u.name, t)]))
     sid = ID_SUSPECT
     for u in list(units):
         for tname, stmts in list(u.tests):
@@ -680,6 +742,7 @@ def main():
                 v.procs = u.procs
                 v.tests = [(tname, stmts)]
                 v.family = u.name
+                v.guarded = set([tname]) & u.guarded
                 u.tests.remove((tname, stmts))
                 units.append(v)
         if not u.tests:

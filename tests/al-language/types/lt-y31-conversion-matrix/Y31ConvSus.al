@@ -5,6 +5,8 @@
 // accepts); the expected values are what the corpus CI containers produced. Regenerate, do not edit by hand.
 // Facts: implicit conversion matrix, conversions from Enum (Enum_To_BigInteger, in a codeunit of its own)
 
+// The BC 27 and 28 compilers reject BigInteger <-> Enum (AL0122, AL0133; scripts/conversion-matrix/compile-matrix-older-compilers.csv).
+#if BC29PLUS
 codeunit 92500 "LT Y31 Sus 1"
 {
     // Every procedure is held (no BC result), so this is no test codeunit.
@@ -73,6 +75,7 @@ codeunit 92500 "LT Y31 Sus 1"
     end;
 
 }
+#endif
 
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-type-conversion
 // Scope: in-scope
@@ -81,6 +84,8 @@ codeunit 92500 "LT Y31 Sus 1"
 // accepts); the expected values are what the corpus CI containers produced. Regenerate, do not edit by hand.
 // Facts: implicit conversion matrix, conversions from Enum (Enum_To_FBigInteger, in a codeunit of its own)
 
+// The BC 27 and 28 compilers reject BigInteger <-> Enum (AL0122, AL0133; scripts/conversion-matrix/compile-matrix-older-compilers.csv).
+#if BC29PLUS
 codeunit 92501 "LT Y31 Sus 2"
 {
     // Every procedure is held (no BC result), so this is no test codeunit.
@@ -109,6 +114,7 @@ codeunit 92501 "LT Y31 Sus 2"
     end;
 
 }
+#endif
 
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-type-conversion
 // Scope: in-scope
@@ -117,6 +123,8 @@ codeunit 92501 "LT Y31 Sus 2"
 // accepts); the expected values are what the corpus CI containers produced. Regenerate, do not edit by hand.
 // Facts: implicit conversion matrix, conversions from EnumImpl (EnumImpl_To_BigInteger, in a codeunit of its own)
 
+// The BC 27 and 28 compilers reject BigInteger <-> Enum (AL0122, AL0133; scripts/conversion-matrix/compile-matrix-older-compilers.csv).
+#if BC29PLUS
 codeunit 92502 "LT Y31 Sus 3"
 {
     // Every procedure is held (no BC result), so this is no test codeunit.
@@ -171,6 +179,7 @@ codeunit 92502 "LT Y31 Sus 3"
     end;
 
 }
+#endif
 
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-type-conversion
 // Scope: in-scope
@@ -179,6 +188,8 @@ codeunit 92502 "LT Y31 Sus 3"
 // accepts); the expected values are what the corpus CI containers produced. Regenerate, do not edit by hand.
 // Facts: implicit conversion matrix, conversions from EnumImpl (EnumImpl_To_FBigInteger, in a codeunit of its own)
 
+// The BC 27 and 28 compilers reject BigInteger <-> Enum (AL0122, AL0133; scripts/conversion-matrix/compile-matrix-older-compilers.csv).
+#if BC29PLUS
 codeunit 92503 "LT Y31 Sus 4"
 {
     // Every procedure is held (no BC result), so this is no test codeunit.
@@ -205,6 +216,7 @@ codeunit 92503 "LT Y31 Sus 4"
     end;
 
 }
+#endif
 
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-type-conversion
 // Scope: in-scope
@@ -213,6 +225,8 @@ codeunit 92503 "LT Y31 Sus 4"
 // accepts); the expected values are what the corpus CI containers produced. Regenerate, do not edit by hand.
 // Facts: implicit conversion matrix, conversions from literals (LitEnum_To_BigInteger, in a codeunit of its own)
 
+// The BC 27 and 28 compilers reject BigInteger <-> Enum (AL0122, AL0133; scripts/conversion-matrix/compile-matrix-older-compilers.csv).
+#if BC29PLUS
 codeunit 92504 "LT Y31 Sus 5"
 {
     // Every procedure is held (no BC result), so this is no test codeunit.
@@ -261,6 +275,7 @@ codeunit 92504 "LT Y31 Sus 5"
     end;
 
 }
+#endif
 
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-type-conversion
 // Scope: in-scope
@@ -269,6 +284,8 @@ codeunit 92504 "LT Y31 Sus 5"
 // accepts); the expected values are what the corpus CI containers produced. Regenerate, do not edit by hand.
 // Facts: implicit conversion matrix, conversions from literals (LitEnum_To_FBigInteger, in a codeunit of its own)
 
+// The BC 27 and 28 compilers reject BigInteger <-> Enum (AL0122, AL0133; scripts/conversion-matrix/compile-matrix-older-compilers.csv).
+#if BC29PLUS
 codeunit 92505 "LT Y31 Sus 6"
 {
     // Every procedure is held (no BC result), so this is no test codeunit.
@@ -291,6 +308,7 @@ codeunit 92505 "LT Y31 Sus 6"
     end;
 
 }
+#endif
 
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-type-conversion
 // Scope: in-scope
@@ -533,6 +551,8 @@ codeunit 92508 "LT Y31 Sus 9"
 // accepts); the expected values are what the corpus CI containers produced. Regenerate, do not edit by hand.
 // Facts: implicit conversion matrix, conditional expressions with BigInteger (BigInteger_Enum, in a codeunit of its own)
 
+// The BC 27 and 28 compilers reject BigInteger <-> Enum (AL0122, AL0133; scripts/conversion-matrix/compile-matrix-older-compilers.csv).
+#if BC29PLUS
 codeunit 92509 "LT Y31 Sus 10"
 {
     // Every procedure is held (no BC result), so this is no test codeunit.
@@ -574,6 +594,7 @@ codeunit 92509 "LT Y31 Sus 10"
     end;
 
 }
+#endif
 
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-type-conversion
 // Scope: in-scope
@@ -582,6 +603,8 @@ codeunit 92509 "LT Y31 Sus 10"
 // accepts); the expected values are what the corpus CI containers produced. Regenerate, do not edit by hand.
 // Facts: implicit conversion matrix, conditional expressions with BigInteger (BigInteger_EnumImpl, in a codeunit of its own)
 
+// The BC 27 and 28 compilers reject BigInteger <-> Enum (AL0122, AL0133; scripts/conversion-matrix/compile-matrix-older-compilers.csv).
+#if BC29PLUS
 codeunit 92510 "LT Y31 Sus 11"
 {
     // Every procedure is held (no BC result), so this is no test codeunit.
@@ -615,6 +638,7 @@ codeunit 92510 "LT Y31 Sus 11"
     end;
 
 }
+#endif
 
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-type-conversion
 // Scope: in-scope
@@ -677,6 +701,8 @@ codeunit 92511 "LT Y31 Sus 12"
 // accepts); the expected values are what the corpus CI containers produced. Regenerate, do not edit by hand.
 // Facts: implicit conversion matrix, conditional expressions with EnumImpl (EnumImpl_BigInteger, in a codeunit of its own)
 
+// The BC 27 and 28 compilers reject BigInteger <-> Enum (AL0122, AL0133; scripts/conversion-matrix/compile-matrix-older-compilers.csv).
+#if BC29PLUS
 codeunit 92512 "LT Y31 Sus 13"
 {
     Subtype = Test;
@@ -713,6 +739,7 @@ codeunit 92512 "LT Y31 Sus 13"
     end;
 
 }
+#endif
 
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-type-conversion
 // Scope: in-scope

@@ -21,6 +21,11 @@ Run with the newest AL compiler (the corpus rule): `python3 gen.py --al <al> --s
 Measured on 2026-10-31 with AL 30.0.44.47290-beta: the verdicts are the same for runtime 16.1, 17.1 and 18.0 (BC 27.5, 28.5, 29.0).
 The conditional operator needs runtime 14.0 or later (AL0666 below).
 
+BC recompiles an app when it is published, with the compiler of its own version. `compile-matrix-older-compilers.csv` lists the 110 cells
+where the compilers of BC 27 (AL 16.2.28.57946, runtime 16.0) and BC 28 (AL 17.0.34.45391, runtime 17.0) differ from AL 30: BigInteger to
+and from an Enum is AL0122 / AL0133 there (every context), and a `var` argument between Integer and BigInteger is AL0133. The run matrix
+puts the BigInteger/Enum tests under `#if BC29PLUS`.
+
 The rejected cell kinds that no case covered before are must-not-compile cases 2400 to 2431 (`tests/must-not-compile/`).
 
 ## Run matrix

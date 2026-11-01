@@ -925,6 +925,7 @@ codeunit 92429 "LT Y31 Cmp BigInteger"
         Observer.Verify();
     end;
 
+#if BC29PLUS
     [Test]
     procedure BigInteger_Enum()
     var
@@ -951,7 +952,9 @@ codeunit 92429 "LT Y31 Cmp BigInteger"
         Observer.Expect('case_label.65.ord5', 'false');
         Observer.Verify();
     end;
+#endif
 
+#if BC29PLUS
     [Test]
     procedure BigInteger_EnumImpl()
     var
@@ -970,6 +973,7 @@ codeunit 92429 "LT Y31 Cmp BigInteger"
         Observer.Expect('case_label.65.A', 'false');
         Observer.Verify();
     end;
+#endif
 
     [Test]
     procedure BigInteger_Duration()
@@ -1138,12 +1142,15 @@ codeunit 92429 "LT Y31 Cmp BigInteger"
         end;
     end;
 
+#if BC29PLUS
     [TryFunction]
     local procedure Try21(var Res: Boolean; var vBigInteger: BigInteger; var vEnum: Enum "LT Y31 E")
     begin
         Res := vBigInteger in [vEnum];
     end;
+#endif
 
+#if BC29PLUS
     [TryFunction]
     local procedure Try22(var Res: Boolean; var vBigInteger: BigInteger; var vEnum: Enum "LT Y31 E")
     begin
@@ -1153,13 +1160,17 @@ codeunit 92429 "LT Y31 Cmp BigInteger"
                 Res := true;
         end;
     end;
+#endif
 
+#if BC29PLUS
     [TryFunction]
     local procedure Try23(var Res: Boolean; var vBigInteger: BigInteger; var vEnumImpl: Enum "LT Y31 EI")
     begin
         Res := vBigInteger in [vEnumImpl];
     end;
+#endif
 
+#if BC29PLUS
     [TryFunction]
     local procedure Try24(var Res: Boolean; var vBigInteger: BigInteger; var vEnumImpl: Enum "LT Y31 EI")
     begin
@@ -1169,6 +1180,7 @@ codeunit 92429 "LT Y31 Cmp BigInteger"
                 Res := true;
         end;
     end;
+#endif
 
     [TryFunction]
     local procedure Try25(var Res: Boolean; var vBigInteger: BigInteger; var vDuration: Duration)
@@ -3911,6 +3923,7 @@ codeunit 92434 "LT Y31 Cmp Enum"
         Observer.Verify();
     end;
 
+#if BC29PLUS
     [Test]
     procedure Enum_BigInteger()
     var
@@ -3937,6 +3950,7 @@ codeunit 92434 "LT Y31 Cmp Enum"
         Observer.Expect('case_label.ord5.65', 'false');
         Observer.Verify();
     end;
+#endif
 
     [Test]
     procedure Enum_Char()
@@ -4138,12 +4152,15 @@ codeunit 92434 "LT Y31 Cmp Enum"
         end;
     end;
 
+#if BC29PLUS
     [TryFunction]
     local procedure Try5(var Res: Boolean; var vBigInteger: BigInteger; var vEnum: Enum "LT Y31 E")
     begin
         Res := vEnum in [vBigInteger];
     end;
+#endif
 
+#if BC29PLUS
     [TryFunction]
     local procedure Try6(var Res: Boolean; var vBigInteger: BigInteger; var vEnum: Enum "LT Y31 E")
     begin
@@ -4153,6 +4170,7 @@ codeunit 92434 "LT Y31 Cmp Enum"
                 Res := true;
         end;
     end;
+#endif
 
     [TryFunction]
     local procedure Try7(var Res: Boolean; var vChar: Char; var vEnum: Enum "LT Y31 E")
@@ -4275,6 +4293,7 @@ codeunit 92435 "LT Y31 Cmp EnumImpl"
         Observer.Verify();
     end;
 
+#if BC29PLUS
     [Test]
     procedure EnumImpl_BigInteger()
     var
@@ -4293,6 +4312,7 @@ codeunit 92435 "LT Y31 Cmp EnumImpl"
         Observer.Expect('case_label.A.65', 'false');
         Observer.Verify();
     end;
+#endif
 
     [Test]
     procedure EnumImpl_Char()
@@ -4438,12 +4458,15 @@ codeunit 92435 "LT Y31 Cmp EnumImpl"
         end;
     end;
 
+#if BC29PLUS
     [TryFunction]
     local procedure Try5(var Res: Boolean; var vBigInteger: BigInteger; var vEnumImpl: Enum "LT Y31 EI")
     begin
         Res := vEnumImpl in [vBigInteger];
     end;
+#endif
 
+#if BC29PLUS
     [TryFunction]
     local procedure Try6(var Res: Boolean; var vBigInteger: BigInteger; var vEnumImpl: Enum "LT Y31 EI")
     begin
@@ -4453,6 +4476,7 @@ codeunit 92435 "LT Y31 Cmp EnumImpl"
                 Res := true;
         end;
     end;
+#endif
 
     [TryFunction]
     local procedure Try7(var Res: Boolean; var vChar: Char; var vEnumImpl: Enum "LT Y31 EI")

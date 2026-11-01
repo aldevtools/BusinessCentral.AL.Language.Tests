@@ -1995,6 +1995,7 @@ codeunit 92470 "LT Y31 Cd Enum"
         Observer.Verify();
     end;
 
+#if BC29PLUS
     [Test]
     procedure Enum_BigInteger()
     var
@@ -2027,6 +2028,7 @@ codeunit 92470 "LT Y31 Cd Enum"
         Observer.Expect('cond_branches.ord5.65.f', 'Option|65');
         Observer.Verify();
     end;
+#endif
 
     [Test]
     procedure Enum_Option()
@@ -2088,12 +2090,14 @@ codeunit 92470 "LT Y31 Cd Enum"
         V := Res ? vEnum : vInteger;
     end;
 
+#if BC29PLUS
     [TryFunction]
     local procedure Try2(var Res: Boolean; var V: Variant; var vBigInteger: BigInteger; var vEnum: Enum "LT Y31 E")
     begin
         Clear(V);
         V := Res ? vEnum : vBigInteger;
     end;
+#endif
 
     [TryFunction]
     local procedure Try3(var Res: Boolean; var V: Variant; var vEnum: Enum "LT Y31 E"; var vOption: Option A,B,C)

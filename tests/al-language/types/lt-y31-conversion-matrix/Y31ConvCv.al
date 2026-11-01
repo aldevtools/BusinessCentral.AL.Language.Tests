@@ -1215,6 +1215,7 @@ codeunit 92411 "LT Y31 Cv BigInteger"
         Observer.Verify();
     end;
 
+#if BC29PLUS
     [Test]
     procedure BigInteger_To_Enum()
     var
@@ -1265,7 +1266,9 @@ codeunit 92411 "LT Y31 Cv BigInteger"
         Observer.Expect('exit.m2p31m1|code', 'ConversionCast');
         Observer.Verify();
     end;
+#endif
 
+#if BC29PLUS
     [Test]
     procedure BigInteger_To_EnumImpl()
     var
@@ -1316,6 +1319,7 @@ codeunit 92411 "LT Y31 Cv BigInteger"
         Observer.Expect('exit.m2p31m1|code', 'ConversionCast');
         Observer.Verify();
     end;
+#endif
 
     [Test]
     procedure BigInteger_To_Duration()
@@ -1442,6 +1446,7 @@ codeunit 92411 "LT Y31 Cv BigInteger"
         Observer.Verify();
     end;
 
+#if BC29PLUS
     [Test]
     procedure BigInteger_To_FEnum()
     var
@@ -1468,6 +1473,7 @@ codeunit 92411 "LT Y31 Cv BigInteger"
         Observer.Expect('assign.m2p31m1|code', 'ConversionCast');
         Observer.Verify();
     end;
+#endif
 
     [Test]
     procedure BigInteger_To_FDuration()
@@ -1649,67 +1655,87 @@ codeunit 92411 "LT Y31 Cv BigInteger"
         vOption := EX_Option_24(vBigInteger);
     end;
 
+#if BC29PLUS
     [TryFunction]
     local procedure Try26(var vBigInteger: BigInteger; var vEnum: Enum "LT Y31 E")
     begin
         Clear(vEnum);
         vEnum := vBigInteger;
     end;
+#endif
 
+#if BC29PLUS
     local procedure PA_Enum_27(p: Enum "LT Y31 E"; var vEnum: Enum "LT Y31 E")
     begin
         vEnum := p;
     end;
+#endif
 
+#if BC29PLUS
     [TryFunction]
     local procedure Try28(var vBigInteger: BigInteger; var vEnum: Enum "LT Y31 E")
     begin
         Clear(vEnum);
         PA_Enum_27(vBigInteger, vEnum);
     end;
+#endif
 
+#if BC29PLUS
     local procedure EX_Enum_29(var vBigInteger: BigInteger): Enum "LT Y31 E"
     begin
         exit(vBigInteger);
     end;
+#endif
 
+#if BC29PLUS
     [TryFunction]
     local procedure Try30(var vBigInteger: BigInteger; var vEnum: Enum "LT Y31 E")
     begin
         Clear(vEnum);
         vEnum := EX_Enum_29(vBigInteger);
     end;
+#endif
 
+#if BC29PLUS
     [TryFunction]
     local procedure Try31(var vBigInteger: BigInteger; var vEnumImpl: Enum "LT Y31 EI")
     begin
         Clear(vEnumImpl);
         vEnumImpl := vBigInteger;
     end;
+#endif
 
+#if BC29PLUS
     local procedure PA_EnumImpl_32(p: Enum "LT Y31 EI"; var vEnumImpl: Enum "LT Y31 EI")
     begin
         vEnumImpl := p;
     end;
+#endif
 
+#if BC29PLUS
     [TryFunction]
     local procedure Try33(var vBigInteger: BigInteger; var vEnumImpl: Enum "LT Y31 EI")
     begin
         Clear(vEnumImpl);
         PA_EnumImpl_32(vBigInteger, vEnumImpl);
     end;
+#endif
 
+#if BC29PLUS
     local procedure EX_EnumImpl_34(var vBigInteger: BigInteger): Enum "LT Y31 EI"
     begin
         exit(vBigInteger);
     end;
+#endif
 
+#if BC29PLUS
     [TryFunction]
     local procedure Try35(var vBigInteger: BigInteger; var vEnumImpl: Enum "LT Y31 EI")
     begin
         Clear(vEnumImpl);
         vEnumImpl := EX_EnumImpl_34(vBigInteger);
     end;
+#endif
 
     [TryFunction]
     local procedure Try36(var vBigInteger: BigInteger; var vDuration: Duration)
@@ -1763,12 +1789,14 @@ codeunit 92411 "LT Y31 Cv BigInteger"
         R.Option := vBigInteger;
     end;
 
+#if BC29PLUS
     [TryFunction]
     local procedure Try44(var R: Record "LT Y31 Conv Fields"; var vBigInteger: BigInteger)
     begin
         Clear(R.Enum);
         R.Enum := vBigInteger;
     end;
+#endif
 
     [TryFunction]
     local procedure Try45(var R: Record "LT Y31 Conv Fields"; var vBigInteger: BigInteger)
