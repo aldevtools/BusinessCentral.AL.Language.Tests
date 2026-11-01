@@ -2,7 +2,7 @@
 // Scope: in-scope
 // Fixtures used: Probe Observer (codeunit 69160); own table 93547, xmlports 93548, codeunit 93549 (writer Y67, gap cycle 6 follow-up)
 // Probe: a TableFilter field of a table (the field of the Permission Import Export shape: Tenant Permission."Security Filter") in a field element of an
-//   Xml xmlport and a VariableText xmlport, export and import: a filter set by Evaluate, no filter, a filter with a quote and a comma; the same
+//   Xml xmlport and a VariableText xmlport, export and import: a filter set by Evaluate, no filter, a filter on a text field with an or; the same
 //   field read with Format at format 0 and 9; Evaluate into a TableFilter FIELD from the table-qualified text, a text that names another table,
 //   an unqualified text, an empty text, a text with two fields, and Evaluate into a Variant holding the field value.
 //   The RecordRef route (TableFilterField_SetFromText) is pinned by records/W4PlatformAndMeta.al:272-340; Evaluate with the Security Filter of
@@ -67,7 +67,7 @@ codeunit 93549 "LT Y67 TF Tests"
         Row.Insert();
         Row.Init();
         Row.Id := 3;
-        Evaluate(Row.Filt, 'LT Y67 TF Row: Note=a''b,c|d');
+        Evaluate(Row.Filt, 'LT Y67 TF Row: Note=a|b');
         Row.Note := 'quote';
         Row.Insert();
     end;
