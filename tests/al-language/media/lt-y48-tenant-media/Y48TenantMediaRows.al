@@ -476,7 +476,15 @@ codeunit 92928 "LT Y48 Tenant Media Rows"
         TMS.Reset();
         Observer.Observe('tms isempty', Format(TMS.IsEmpty()));
         Observer.Observe('tm isempty', Format(TM.IsEmpty()));
-        Observer.Finish();
+        Observer.Expect('fresh guid: isempty', 'Yes');
+        Observer.Expect('import set', 'ok:imported');
+        Observer.Expect('pics count', '2');
+        Observer.Expect('tms count', '2');
+        Observer.Expect('tms rows', 'row: company=Yes hasvalue=Yes index>0=Yes;row: company=Yes hasvalue=Yes index>0=Yes;index 1 < index 2=Yes;');
+        Observer.Expect('item 1 tm row', 'Description=a|Mime Type=application/octet-stream|File Name=|Height=0|Width=0|Company Name=<CompanyName()>|Prohibit Cache=No|Creating User empty=Yes|Expiration empty=Yes|Security Token empty=Yes|len=38');
+        Observer.Expect('tms isempty', 'No');
+        Observer.Expect('tm isempty', 'No');
+        Observer.Verify();
     end;
 
     [Test]
@@ -505,6 +513,12 @@ codeunit 92928 "LT Y48 Tenant Media Rows"
         if Row.Pics.Count() >= 2 then
             Rows += SetItem(SetId, Row.Pics.Item(2));
         Observer.Observe('tms rows', Rows);
-        Observer.Finish();
+        Observer.Expect('import set', 'ok:imported');
+        Observer.Expect('tm delete item 1', 'ok:Yes');
+        Observer.Expect('pics count', '2');
+        Observer.Expect('pics item 1 = deleted id', 'Yes');
+        Observer.Expect('tms count', '2');
+        Observer.Expect('tms rows', 'row: company=Yes hasvalue=No index>0=Yes;row: company=Yes hasvalue=Yes index>0=Yes;');
+        Observer.Verify();
     end;
 }
