@@ -1,4 +1,29 @@
-// Probe (observe round): what BC does with an unsaved TestPage edit when an action, a move or a close comes next. Header written after measurement.
+// BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/testpage/testpage-data-type
+// Scope: in-scope (Cloud). TestPage only, no UI handlers.
+// Fixtures used: pages/lt-y45-save-before-action/Y45Tables.al (tables 92880 "LT Y45 Head", 92881 "LT Y45 Line"; log 92880, subscribers 92881,
+//   RunObject codeunit 92882), Y45Pages.al (Card 92880, List 92881, ListPart 92882, Document 92883, Card with part 92884, RunObject target 92885); Probe Observer 69160.
+// Probe: written against BC 27.5, 28.5 and 29.0 (corpus CI, Linux containers); every literal was measured there and is the same on all three.
+//
+// When BC saves a field value set through a TestPage that the page has not saved yet. Log entries: vX = OnValidate of field X;
+// pM / pI / pN = page OnModifyRecord / OnInsertRecord / OnNewRecord; eBM / eAM / eBI = OnBeforeModifyEvent / OnAfterModifyEvent /
+// OnBeforeInsertEvent subscribers; tM / tI = table OnModify / OnInsert; R / C = OnAfterGetRecord / OnAfterGetCurrRecord; act = action trigger;
+// cu = RunObject codeunit; peek = RunObject page; the l-prefixed entries are the same for the part line; db = the stored row read in the trigger.
+// - SetValue validates only: nothing is written.
+// - The next step saves the row first, then runs: action, RunObject codeunit, RunObject page, Next, Previous, GoToRecord (another row or the same
+//   row), GoToKey, OK, Close; on a Card, an editable List, a Document page and a Card with a ListPart. Order: pM, eBM (RunTrigger true), tM
+//   (xRec = the stored row), eAM; only eAM sees the new value stored. The action trigger then sees the new value in Rec and in a fresh Get.
+//   The same value set again still runs the whole modify chain.
+// - Card action: one OnAfterGetRecord between the save and OnAction; RunObject codeunit and page: none.
+// - A part line edit is saved (lpM, eBML, lM) before a host action, a part action, a part Next, OK and Close. With a host Next the host moves
+//   first and the line is saved after it. A host edit is saved before a part action.
+// - New record (OpenNew, List New): SetValue of the key stores nothing; the next SetValue inserts first (pI, eBI, tI), then validates; the
+//   action then modifies first. A new card with only Name set inserts a row with a blank key. A new part line is inserted (lpI, eBIL, lI)
+//   before the host or part action; on a new document its Line No. is 20000.
+// - OnModify error during the save: the chain stops after tM, no error reaches the test (GetLastErrorText holds the error, the page counts
+//   one validation error), a host action does not run, Next returns false; a PART action on a Document page still runs. The next SetValue
+//   raises 'This field cannot be validated since the key fields are not valid.' (with the Refresh suffix on a Card and a Document page);
+//   after that an action and Close run nothing and raise nothing.
+// - OnValidate error: SetValue raises TestValidation at once; afterwards the control shows the stored value, and an action or Next runs nothing.
 codeunit 92890 "LT Y45 Save Before Action"
 {
     Subtype = Test;
@@ -1811,7 +1836,21 @@ codeunit 92890 "LT Y45 Save Before Action"
         end;
         Observer.ObserveError('close error');
         Observer.Observe('close', Log.Take());
-        Observer.Finish();
+        Observer.Expect('step', 'pM boom/old db=old/1;eBM boom t=Yes db=old/1;tM boom/old db=old/1');
+        Observer.Expect('last error', 'Modify refused for boom.');
+        Observer.Expect('page errors', '1');
+        Observer.Expect('db after step', 'old/1');
+        Observer.Expect('page name', 'boom');
+        Observer.Expect('set again error|text', 'Validation error for Field: Name,  Message = ''This field cannot be validated since the key fields are not valid. (Select Refresh to discard errors)''');
+        Observer.Expect('set again error|code', 'TestValidation');
+        Observer.Expect('set again', '');
+        Observer.Expect('second action error|text', 'no error');
+        Observer.Expect('second action error|code', 'Dialog');
+        Observer.Expect('second action', '');
+        Observer.Expect('close error|text', 'no error');
+        Observer.Expect('close error|code', 'Dialog');
+        Observer.Expect('close', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1846,7 +1885,22 @@ codeunit 92890 "LT Y45 Save Before Action"
         end;
         Observer.ObserveError('close error');
         Observer.Observe('close', Log.Take());
-        Observer.Finish();
+        Observer.Expect('next', 'No');
+        Observer.Expect('step', 'pM boom/old db=old/1;eBM boom t=Yes db=old/1;tM boom/old db=old/1');
+        Observer.Expect('last error', 'Modify refused for boom.');
+        Observer.Expect('page errors', '1');
+        Observer.Expect('db after step', 'old/1');
+        Observer.Expect('page name', 'boom');
+        Observer.Expect('set again error|text', 'Validation error for Field: Name,  Message = ''This field cannot be validated since the key fields are not valid. (Select Refresh to discard errors)''');
+        Observer.Expect('set again error|code', 'TestValidation');
+        Observer.Expect('set again', '');
+        Observer.Expect('second action error|text', 'no error');
+        Observer.Expect('second action error|code', 'Dialog');
+        Observer.Expect('second action', '');
+        Observer.Expect('close error|text', 'no error');
+        Observer.Expect('close error|code', 'Dialog');
+        Observer.Expect('close', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1881,7 +1935,21 @@ codeunit 92890 "LT Y45 Save Before Action"
         end;
         Observer.ObserveError('close error');
         Observer.Observe('close', Log.Take());
-        Observer.Finish();
+        Observer.Expect('step', 'pM boom/old db=old/1;eBM boom t=Yes db=old/1;tM boom/old db=old/1');
+        Observer.Expect('last error', 'Modify refused for boom.');
+        Observer.Expect('page errors', '1');
+        Observer.Expect('db after step', 'old/1');
+        Observer.Expect('page name', 'boom');
+        Observer.Expect('set again error|text', 'Validation error for Field: Name,  Message = ''This field cannot be validated since the key fields are not valid.''');
+        Observer.Expect('set again error|code', 'TestValidation');
+        Observer.Expect('set again', '');
+        Observer.Expect('second action error|text', 'no error');
+        Observer.Expect('second action error|code', 'Dialog');
+        Observer.Expect('second action', '');
+        Observer.Expect('close error|text', 'no error');
+        Observer.Expect('close error|code', 'Dialog');
+        Observer.Expect('close', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1916,6 +1984,20 @@ codeunit 92890 "LT Y45 Save Before Action"
         end;
         Observer.ObserveError('close error');
         Observer.Observe('close', Log.Take());
-        Observer.Finish();
+        Observer.Expect('step', 'pM boom/old db=old/1;eBM boom t=Yes db=old/1;tM boom/old db=old/1;lact 10000 rec=a db=a head=old/1;lC 10000');
+        Observer.Expect('last error', 'Modify refused for boom.');
+        Observer.Expect('page errors', '1');
+        Observer.Expect('db after step', 'old/1');
+        Observer.Expect('page name', 'boom');
+        Observer.Expect('set again error|text', 'Validation error for Field: Name,  Message = ''This field cannot be validated since the key fields are not valid. (Select Refresh to discard errors)''');
+        Observer.Expect('set again error|code', 'TestValidation');
+        Observer.Expect('set again', '');
+        Observer.Expect('second action error|text', 'no error');
+        Observer.Expect('second action error|code', 'Dialog');
+        Observer.Expect('second action', '');
+        Observer.Expect('close error|text', 'no error');
+        Observer.Expect('close error|code', 'Dialog');
+        Observer.Expect('close', '');
+        Observer.Verify();
     end;
 }

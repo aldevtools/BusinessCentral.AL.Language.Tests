@@ -1,4 +1,14 @@
-// Probe (observe round): the caption of a list or card page with DataCaptionFields over a field with a TableRelation. Header written after measurement.
+// BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/properties/devenv-datacaptionfields-property
+// Scope: in-scope (Cloud). TestPage.Caption, no UI handlers.
+// Fixtures used: pages/lt-y45-list-caption-relation/Y45CaptionFixtures.al (tables 92882-92885, pages 92886-92889, 92891-92894); Probe Observer 69160.
+// Probe: written against BC 27.5, 28.5 and 29.0 (corpus CI) and the BC 29 SaaS sandbox; the same values everywhere.
+//
+// The caption of a page with DataCaptionFields over a field with a TableRelation:
+// - A list without DataCaptionFields shows only its caption, filtered or not.
+// - A list with DataCaptionFields = the related field, filtered to one value: '<caption> - <value>'. BC adds the related record's own
+//   DataCaptionFields ('Y45 Cap RefDcf - D1 ∙ Dcf One'); a related table without DataCaptionFields adds nothing (its Name or Description field
+//   is not used). No suffix when the related record does not exist, when the filter has two values or a range, or when the page is unfiltered.
+// - A field without TableRelation shows its filter value. A card with DataCaptionFields over the related field shows its primary key instead.
 codeunit 92891 "LT Y45 List Caption Relation"
 {
     Subtype = Test;
