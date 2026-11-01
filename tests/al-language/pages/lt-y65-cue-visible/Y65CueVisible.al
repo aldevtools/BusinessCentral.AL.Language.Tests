@@ -10,9 +10,10 @@
 //   Visible takes any Boolean expression; a field Visible is a client expression (procedure calls, method calls and array elements:
 //   AL0322, must-not-compile 2631 (array) and 2632 (method call); a procedure call is 2000); an Integer is AL0208 (must-not-compile 2630). Read through TestPage: Visible() and Value of each cue field. The reporter's three Microsoft activity pages are held
 //   as Suspect_ procedures (see there).
-// Results (SaaS sandbox BC 29): variables set in OnInit, OnOpenPage and OnAfterGetRecord, `not`, array elements (page 93367, BC 29 only), Rec fields, Rec
-//   expressions and not Rec.IsEmpty() all give the value they have after the page opened. The cuegroup with Visible = IsShown() (which
-//   returns the variable OnOpenPage sets to true) reads No. A hidden cue field still answers Visible() No and its value.
+// Results (SaaS sandbox BC 29, corpus CI 27.5, 28.5, 29.0): page 93366 (variables set in OnInit, OnOpenPage and OnAfterGetRecord,
+//   `not`, Rec fields, Rec expressions) gives the value each has after the page opened, on every major; a hidden cue field still answers
+//   Visible() No and its value. Page 93367 (BC 29 only, see there): an array element that is true reads Yes, one that is false ALSO reads
+//   Yes, IsShown() returning true reads No, not Rec.IsEmpty() reads Yes.
 // BC versions: 27, 28, 29
 
 table 93347 "LT Y65 Cue"
@@ -109,18 +110,6 @@ page 93366 "LT Y65 Cue Activities"
                     Visible = ShowOpenFalse;
                 }
             }
-            cuegroup(GrpCall)
-            {
-                Caption = 'Call';
-                Visible = IsShown();
-                field(CueJ; Rec.CueJ) { ApplicationArea = All; }
-            }
-            cuegroup(GrpEmpty)
-            {
-                Caption = 'Empty';
-                Visible = not Rec.IsEmpty();
-                field(CueL; Rec.CueL) { ApplicationArea = All; }
-            }
         }
     }
 
@@ -151,16 +140,12 @@ page 93366 "LT Y65 Cue Activities"
         ShowOpenFalse: Boolean;
         ShowInit: Boolean;
         ShowLate: Boolean;
-
-    local procedure IsShown(): Boolean
-    begin
-        exit(ShowOpenTrue);
-    end;
 }
 
-// A cuegroup Visible bound to an array element compiles on every major, but on BC 27.5 and 28.5 opening the page fails with
-// "The identifier 'p<page id>p<page id>ShowArr2' could not be found." (measured on the corpus CI with the group on page 93366, as
-// 'p93366p93366ShowArr2'). The test of this page runs on BC 29 and later only.
+// Cuegroup Visible bound to an array element, a procedure call and a method call on Rec. They compile on every major, but on BC 27.5
+// and 28.5 opening the page fails with "The identifier 'p93366p93366ShowArr2' could not be found." and then (array group removed)
+// "The identifier 'p93366p93366Rec' could not be found." (measured on the corpus CI with the groups on page 93366). The test of this
+// page runs on BC 29 and later only.
 page 93367 "LT Y65 Cue Array"
 {
     PageType = CardPart;
@@ -184,6 +169,18 @@ page 93367 "LT Y65 Cue Array"
                 Visible = ShowArr[1];
                 field(CueA; Rec.CueA) { ApplicationArea = All; }
             }
+            cuegroup(GrpCall)
+            {
+                Caption = 'Call';
+                Visible = IsShown();
+                field(CueJ; Rec.CueJ) { ApplicationArea = All; }
+            }
+            cuegroup(GrpEmpty)
+            {
+                Caption = 'Empty';
+                Visible = not Rec.IsEmpty();
+                field(CueL; Rec.CueL) { ApplicationArea = All; }
+            }
         }
     }
 
@@ -195,10 +192,17 @@ page 93367 "LT Y65 Cue Array"
             Rec.Insert();
         end;
         ShowArr[2] := true;
+        ShowFromOpen := true;
     end;
 
     var
         ShowArr: array[2] of Boolean;
+        ShowFromOpen: Boolean;
+
+    local procedure IsShown(): Boolean
+    begin
+        exit(ShowFromOpen);
+    end;
 }
 
 codeunit 93347 "LT Y65 Cue Visible Tests"
@@ -232,10 +236,6 @@ codeunit 93347 "LT Y65 Cue Visible Tests"
                 Shown := Format(P.CueH.Visible()) + ' ' + P.CueH.Value();
             'I':
                 Shown := Format(P.CueI.Visible()) + ' ' + P.CueI.Value();
-            'J':
-                Shown := Format(P.CueJ.Visible()) + ' ' + P.CueJ.Value();
-            'L':
-                Shown := Format(P.CueL.Visible()) + ' ' + P.CueL.Value();
         end;
     end;
 
@@ -259,8 +259,6 @@ codeunit 93347 "LT Y65 Cue Visible Tests"
         Observer.Observe('Rec.Flag (G)', Read(P, 'G'));
         Observer.Observe('var and Rec expr (H)', Read(P, 'H'));
         Observer.Observe('field var false (I)', Read(P, 'I'));
-        Observer.Observe('cuegroup IsShown() (J)', Read(P, 'J'));
-        Observer.Observe('cuegroup not Rec.IsEmpty() (L)', Read(P, 'L'));
     end;
 
     [Test]
@@ -283,8 +281,6 @@ codeunit 93347 "LT Y65 Cue Visible Tests"
         Observer.Expect('Rec.Flag (G)', 'No 0');
         Observer.Expect('var and Rec expr (H)', 'Yes 0');
         Observer.Expect('field var false (I)', 'No 0');
-        Observer.Expect('cuegroup IsShown() (J)', 'No 0');
-        Observer.Expect('cuegroup not Rec.IsEmpty() (L)', 'Yes 0');
         Observer.Expect('rows', '1');
         Observer.Verify();
     end;
@@ -312,23 +308,25 @@ codeunit 93347 "LT Y65 Cue Visible Tests"
         Observer.Expect('Rec.Flag (G)', 'Yes 0');
         Observer.Expect('var and Rec expr (H)', 'No 4');
         Observer.Expect('field var false (I)', 'No 0');
-        Observer.Expect('cuegroup IsShown() (J)', 'No 0');
-        Observer.Expect('cuegroup not Rec.IsEmpty() (L)', 'Yes 0');
         Observer.Verify();
     end;
 
 #if BC29PLUS
     [Test]
-    procedure Y65_CueVisible_ArrayElement()
+    procedure Y65_CueVisible_ComplexGroupExpressions()
     var
         P: TestPage "LT Y65 Cue Array";
     begin
         P.OpenEdit();
         Observer.Observe('ShowArr[2] true (K)', Format(P.CueK.Visible()) + ' ' + P.CueK.Value());
         Observer.Observe('ShowArr[1] false (A)', Format(P.CueA.Visible()) + ' ' + P.CueA.Value());
+        Observer.Observe('IsShown() true (J)', Format(P.CueJ.Visible()) + ' ' + P.CueJ.Value());
+        Observer.Observe('not Rec.IsEmpty() (L)', Format(P.CueL.Visible()) + ' ' + P.CueL.Value());
         P.Close();
         Observer.Expect('ShowArr[2] true (K)', 'Yes 0');
-        Observer.Expect('ShowArr[1] false (A)', 'No 0');
+        Observer.Expect('ShowArr[1] false (A)', 'Yes 0');
+        Observer.Expect('IsShown() true (J)', 'No 0');
+        Observer.Expect('not Rec.IsEmpty() (L)', 'Yes 0');
         Observer.Verify();
     end;
 #endif

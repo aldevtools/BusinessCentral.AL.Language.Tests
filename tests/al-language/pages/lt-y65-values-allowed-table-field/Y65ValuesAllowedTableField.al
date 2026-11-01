@@ -9,11 +9,12 @@
 //   different ValuesAllowed of its own. SetValue with an Enum value, the member name as text, an Integer and a value outside the list, each on a
 //   freshly opened page (a validation error leaves the control in an error state): a NavigatePage over a temporary table (the reporter's
 //   wizard), a Card and a List over a stored row (Close, then the stored value).
-// Results (SaaS sandbox BC 29): an allowed Enum value or ordinal Integer is accepted and stored. A value outside the list raises
+// Results (SaaS sandbox BC 29 and corpus CI 27.5, 28.5, 29.0): an allowed Enum value or ordinal Integer is accepted and stored. A value outside the list raises
 //   TestValidation 'Your entry of '<n>' is not an acceptable value for '<field>'.' (Enum, Option) or 'Value '<v>' is not a valid value.
 //   The following values can be used: 1;5.' (Integer, Decimal), with ' (Select Refresh to discard errors)' on the Card; <n> is the position
 //   of the current value, not the value typed. A member name as text raises 'The value "<text>" can't be evaluated into type Option.'
-//   (Evaluate:Format). The page control's own ValuesAllowed replaces the table field's.
+//   (Evaluate:Format); on BC 27.5 'The type NavOption is unknown.' (NotSupportedType). The page control's own ValuesAllowed replaces
+//   the table field's.
 // BC versions: 27, 28, 29
 
 enum 93345 "LT Y65 VA Mode"
@@ -254,7 +255,20 @@ codeunit 93345 "LT Y65 VA Tests"
         Observer.Observe('push integer 3', CaseWizard('push', 3));
         Observer.Observe('push integer 1', CaseWizard('push', 1));
         Observer.Observe('push integer 0', CaseWizard('push', 0));
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('push text None', 'error:The value "None" can''t be evaluated into type Option.|Evaluate:Format|now Mapped Only');
+        Observer.Expect('push text published only', 'error:The value "published only" can''t be evaluated into type Option.|Evaluate:Format|now Mapped Only');
+        Observer.Expect('push integer 3', 'ok:None');
+        Observer.Expect('push integer 1', 'error:Validation error for Field: Push Mode,  Message = ''Your entry of ''2'' is not an acceptable value for ''Push Mode''.''|TestValidation|now 2');
+        Observer.Expect('push integer 0', 'error:Validation error for Field: Push Mode,  Message = ''Your entry of ''2'' is not an acceptable value for ''Push Mode''.''|TestValidation|now 2');
+#else
+        Observer.Expect('push text None', 'error:The type NavOption is unknown.|NotSupportedType|now Mapped Only');
+        Observer.Expect('push text published only', 'error:The type NavOption is unknown.|NotSupportedType|now Mapped Only');
+        Observer.Expect('push integer 3', 'ok:None');
+        Observer.Expect('push integer 1', 'error:Validation error for Field: Push Mode,  Message = ''Your entry of ''2'' is not an acceptable value for ''Push Mode''.''|TestValidation|now 2');
+        Observer.Expect('push integer 0', 'error:Validation error for Field: Push Mode,  Message = ''Your entry of ''2'' is not an acceptable value for ''Push Mode''.''|TestValidation|now 2');
+#endif
+        Observer.Verify();
     end;
 
     [Test]
@@ -267,7 +281,24 @@ codeunit 93345 "LT Y65 VA Tests"
         Observer.Observe('int 5', CaseWizard('int', 5));
         Observer.Observe('int 3', CaseWizard('int', 3));
         Observer.Observe('int text 1', CaseWizard('int', '1'));
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('opt text D', 'error:The value "D" can''t be evaluated into type Option.|Evaluate:Format|now 0');
+        Observer.Expect('opt text A', 'error:The value "A" can''t be evaluated into type Option.|Evaluate:Format|now 0');
+        Observer.Expect('opt integer 1', 'ok:B');
+        Observer.Expect('opt integer 2', 'error:Validation error for Field: Opt,  Message = ''Your entry of ''0'' is not an acceptable value for ''Opt''.''|TestValidation|now 0');
+        Observer.Expect('int 5', 'ok:5');
+        Observer.Expect('int 3', 'error:Validation error for Field: Int,  Message = ''Value ''3'' is not a valid value. The following values can be used: 1;5.''|TestValidation|now 0');
+        Observer.Expect('int text 1', 'ok:1');
+#else
+        Observer.Expect('opt text D', 'error:The type NavOption is unknown.|NotSupportedType|now 0');
+        Observer.Expect('opt text A', 'error:The type NavOption is unknown.|NotSupportedType|now 0');
+        Observer.Expect('opt integer 1', 'ok:B');
+        Observer.Expect('opt integer 2', 'error:Validation error for Field: Opt,  Message = ''Your entry of ''0'' is not an acceptable value for ''Opt''.''|TestValidation|now 0');
+        Observer.Expect('int 5', 'ok:5');
+        Observer.Expect('int 3', 'error:Validation error for Field: Int,  Message = ''Value ''3'' is not a valid value. The following values can be used: 1;5.''|TestValidation|now 0');
+        Observer.Expect('int text 1', 'ok:1');
+#endif
+        Observer.Verify();
     end;
 
     [Test]
@@ -368,7 +399,20 @@ codeunit 93345 "LT Y65 VA Tests"
         Observer.Observe('push integer 3', CaseCard('push', 3));
         Observer.Observe('push integer 1', CaseCard('push', 1));
         Observer.Observe('push integer 0', CaseCard('push', 0));
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('push text None', 'error:The value "None" can''t be evaluated into type Option.|Evaluate:Format|now Mapped Only stored=Mapped Only');
+        Observer.Expect('push text published only', 'error:The value "published only" can''t be evaluated into type Option.|Evaluate:Format|now Mapped Only stored=Mapped Only');
+        Observer.Expect('push integer 3', 'ok:None stored=None');
+        Observer.Expect('push integer 1', 'error:Validation error for Field: Push Mode,  Message = ''Your entry of ''2'' is not an acceptable value for ''Push Mode''. (Select Refresh to discard errors)''|TestValidation|now 2 stored=Mapped Only');
+        Observer.Expect('push integer 0', 'error:Validation error for Field: Push Mode,  Message = ''Your entry of ''2'' is not an acceptable value for ''Push Mode''. (Select Refresh to discard errors)''|TestValidation|now 2 stored=Mapped Only');
+#else
+        Observer.Expect('push text None', 'error:The type NavOption is unknown.|NotSupportedType|now Mapped Only stored=Mapped Only');
+        Observer.Expect('push text published only', 'error:The type NavOption is unknown.|NotSupportedType|now Mapped Only stored=Mapped Only');
+        Observer.Expect('push integer 3', 'ok:None stored=None');
+        Observer.Expect('push integer 1', 'error:Validation error for Field: Push Mode,  Message = ''Your entry of ''2'' is not an acceptable value for ''Push Mode''. (Select Refresh to discard errors)''|TestValidation|now 2 stored=Mapped Only');
+        Observer.Expect('push integer 0', 'error:Validation error for Field: Push Mode,  Message = ''Your entry of ''2'' is not an acceptable value for ''Push Mode''. (Select Refresh to discard errors)''|TestValidation|now 2 stored=Mapped Only');
+#endif
+        Observer.Verify();
     end;
 
     [Test]
@@ -381,7 +425,24 @@ codeunit 93345 "LT Y65 VA Tests"
         Observer.Observe('int 5', CaseCard('int', 5));
         Observer.Observe('int 3', CaseCard('int', 3));
         Observer.Observe('int text 1', CaseCard('int', '1'));
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('opt text D', 'error:The value "D" can''t be evaluated into type Option.|Evaluate:Format|now B stored=B');
+        Observer.Expect('opt text A', 'error:The value "A" can''t be evaluated into type Option.|Evaluate:Format|now B stored=B');
+        Observer.Expect('opt integer 1', 'ok:B stored=B');
+        Observer.Expect('opt integer 2', 'error:Validation error for Field: Opt,  Message = ''Your entry of ''1'' is not an acceptable value for ''Opt''. (Select Refresh to discard errors)''|TestValidation|now 1 stored=B');
+        Observer.Expect('int 5', 'ok:5 stored=5');
+        Observer.Expect('int 3', 'error:Validation error for Field: Int,  Message = ''Value ''3'' is not a valid value. The following values can be used: 1;5. (Select Refresh to discard errors)''|TestValidation|now 1 stored=1');
+        Observer.Expect('int text 1', 'ok:1 stored=1');
+#else
+        Observer.Expect('opt text D', 'error:The type NavOption is unknown.|NotSupportedType|now B stored=B');
+        Observer.Expect('opt text A', 'error:The type NavOption is unknown.|NotSupportedType|now B stored=B');
+        Observer.Expect('opt integer 1', 'ok:B stored=B');
+        Observer.Expect('opt integer 2', 'error:Validation error for Field: Opt,  Message = ''Your entry of ''1'' is not an acceptable value for ''Opt''. (Select Refresh to discard errors)''|TestValidation|now 1 stored=B');
+        Observer.Expect('int 5', 'ok:5 stored=5');
+        Observer.Expect('int 3', 'error:Validation error for Field: Int,  Message = ''Value ''3'' is not a valid value. The following values can be used: 1;5. (Select Refresh to discard errors)''|TestValidation|now 1 stored=1');
+        Observer.Expect('int text 1', 'ok:1 stored=1');
+#endif
+        Observer.Verify();
     end;
 
     [Test]
@@ -482,7 +543,20 @@ codeunit 93345 "LT Y65 VA Tests"
         Observer.Observe('push integer 3', CaseList('push', 3));
         Observer.Observe('push integer 1', CaseList('push', 1));
         Observer.Observe('push integer 0', CaseList('push', 0));
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('push text None', 'error:The value "None" can''t be evaluated into type Option.|Evaluate:Format|now Mapped Only stored=Mapped Only');
+        Observer.Expect('push text published only', 'error:The value "published only" can''t be evaluated into type Option.|Evaluate:Format|now Mapped Only stored=Mapped Only');
+        Observer.Expect('push integer 3', 'ok:None stored=None');
+        Observer.Expect('push integer 1', 'error:Validation error for Field: Push Mode,  Message = ''Your entry of ''2'' is not an acceptable value for ''Push Mode''.''|TestValidation|now 2 stored=Mapped Only');
+        Observer.Expect('push integer 0', 'error:Validation error for Field: Push Mode,  Message = ''Your entry of ''2'' is not an acceptable value for ''Push Mode''.''|TestValidation|now 2 stored=Mapped Only');
+#else
+        Observer.Expect('push text None', 'error:The type NavOption is unknown.|NotSupportedType|now Mapped Only stored=Mapped Only');
+        Observer.Expect('push text published only', 'error:The type NavOption is unknown.|NotSupportedType|now Mapped Only stored=Mapped Only');
+        Observer.Expect('push integer 3', 'ok:None stored=None');
+        Observer.Expect('push integer 1', 'error:Validation error for Field: Push Mode,  Message = ''Your entry of ''2'' is not an acceptable value for ''Push Mode''.''|TestValidation|now 2 stored=Mapped Only');
+        Observer.Expect('push integer 0', 'error:Validation error for Field: Push Mode,  Message = ''Your entry of ''2'' is not an acceptable value for ''Push Mode''.''|TestValidation|now 2 stored=Mapped Only');
+#endif
+        Observer.Verify();
     end;
 
     [Test]
@@ -495,7 +569,24 @@ codeunit 93345 "LT Y65 VA Tests"
         Observer.Observe('int 5', CaseList('int', 5));
         Observer.Observe('int 3', CaseList('int', 3));
         Observer.Observe('int text 1', CaseList('int', '1'));
-        Observer.Finish();
+#if BC28PLUS
+        Observer.Expect('opt text D', 'error:The value "D" can''t be evaluated into type Option.|Evaluate:Format|now B stored=B');
+        Observer.Expect('opt text A', 'error:The value "A" can''t be evaluated into type Option.|Evaluate:Format|now B stored=B');
+        Observer.Expect('opt integer 1', 'ok:B stored=B');
+        Observer.Expect('opt integer 2', 'error:Validation error for Field: Opt,  Message = ''Your entry of ''1'' is not an acceptable value for ''Opt''.''|TestValidation|now 1 stored=B');
+        Observer.Expect('int 5', 'ok:5 stored=5');
+        Observer.Expect('int 3', 'error:Validation error for Field: Int,  Message = ''Value ''3'' is not a valid value. The following values can be used: 1;5.''|TestValidation|now 1 stored=1');
+        Observer.Expect('int text 1', 'ok:1 stored=1');
+#else
+        Observer.Expect('opt text D', 'error:The type NavOption is unknown.|NotSupportedType|now B stored=B');
+        Observer.Expect('opt text A', 'error:The type NavOption is unknown.|NotSupportedType|now B stored=B');
+        Observer.Expect('opt integer 1', 'ok:B stored=B');
+        Observer.Expect('opt integer 2', 'error:Validation error for Field: Opt,  Message = ''Your entry of ''1'' is not an acceptable value for ''Opt''.''|TestValidation|now 1 stored=B');
+        Observer.Expect('int 5', 'ok:5 stored=5');
+        Observer.Expect('int 3', 'error:Validation error for Field: Int,  Message = ''Value ''3'' is not a valid value. The following values can be used: 1;5.''|TestValidation|now 1 stored=1');
+        Observer.Expect('int text 1', 'ok:1 stored=1');
+#endif
+        Observer.Verify();
     end;
 
     [Test]

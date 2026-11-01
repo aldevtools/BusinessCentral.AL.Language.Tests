@@ -10,11 +10,13 @@
 //   ConfirmHandler (explicit Close and test end; Confirm with default true, default false and no default); an Error in OnQueryClosePage at the test end; the reporter's NavigatePage that asks
 //   through Guided Experience. Each "left open" test is followed by a test that reads the SingleInstance log the first one left behind
 //   (tests of one codeunit run in declaration order in one session).
-// Results (SaaS sandbox BC 29): Close() and the end of the test give OK on NavigatePage (temporary or real table, also after a footer
-//   action and with OpenView), CardPart, ListPart and Card, and Cancel on StandardDialog and ConfirmationDialog; their OK/Cancel/Yes/No
-//   actions give OK/Cancel/Yes/No. A Confirm in OnQueryClosePage with no ConfirmHandler raises nothing and answers its default (Yes for
-//   default true, No for default false and for no default); after No the trigger answers false and OnClosePage does not run; the test
-//   passes. An Error in OnQueryClosePage: Close() raises nothing, OnClosePage does not run, the test passes.
+// Results (corpus CI 27.5, 28.5, 29.0; SaaS sandbox BC 29 where it agrees): Close() and the end of the test give OK on NavigatePage
+//   (temporary or real table, also after a footer action and with OpenView), CardPart, ListPart and Card, and Cancel on StandardDialog and
+//   ConfirmationDialog; their OK/Cancel/Yes/No actions give OK/Cancel/Yes/No. A Confirm in OnQueryClosePage with no ConfirmHandler:
+//   Close() raises 'Unhandled UI: Confirm <question>' (TestWrapped) whatever the default; at the end of the test the same happens silently:
+//   the test passes, OnClosePage does not run (al-runner issue 6673). An Error in OnQueryClosePage: Close() raises
+//   'Unhandled UI: Message <error text>' (MissingUIHandler), OnClosePage does not run; at the end of the test the test passes.
+//   (The SaaS sandbox's test session answered such a Confirm with its default and raised nothing: not asserted.)
 // BC versions: 27, 28, 29
 
 table 93343 "LT Y65 QC Row"
@@ -695,7 +697,9 @@ codeunit 93343 "LT Y65 QC Page Types"
         Card.OpenEdit();
         Observer.Observe('close', Outcome(TryCloseCard(Card)));
         ReadLog();
-        Observer.Finish();
+        Observer.Expect('close', 'error:Unhandled UI: Confirm Close the card page?|TestWrapped');
+        Observer.Expect('log', 'open card;qc card OK;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -707,7 +711,9 @@ codeunit 93343 "LT Y65 QC Page Types"
         Nav.OpenEdit();
         Observer.Observe('close', Outcome(TryCloseNav(Nav)));
         ReadLog();
-        Observer.Finish();
+        Observer.Expect('close', 'error:Unhandled UI: Confirm Close the nav page?|TestWrapped');
+        Observer.Expect('log', 'open nav;qc nav OK;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -719,7 +725,9 @@ codeunit 93343 "LT Y65 QC Page Types"
         Card.OpenEdit();
         Observer.Observe('close', Outcome(TryCloseCard(Card)));
         ReadLog();
-        Observer.Finish();
+        Observer.Expect('close', 'error:Unhandled UI: Message Close of card refused.|MissingUIHandler');
+        Observer.Expect('log', 'open card;qc card OK;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -857,7 +865,8 @@ codeunit 93343 "LT Y65 QC Page Types"
     procedure Y65_Open07_Read()
     begin
         ReadLog();
-        Observer.Finish();
+        Observer.Expect('log', 'open card;qc card OK;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -873,7 +882,8 @@ codeunit 93343 "LT Y65 QC Page Types"
     procedure Y65_Open08_Read()
     begin
         ReadLog();
-        Observer.Finish();
+        Observer.Expect('log', 'open nav;qc nav OK;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -944,7 +954,9 @@ codeunit 93343 "LT Y65 QC Page Types"
         Card.OpenEdit();
         Observer.Observe('close', Outcome(TryCloseCard(Card)));
         ReadLog();
-        Observer.Finish();
+        Observer.Expect('close', 'error:Unhandled UI: Confirm Close the card page?|TestWrapped');
+        Observer.Expect('log', 'open card;qc card OK;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -958,7 +970,9 @@ codeunit 93343 "LT Y65 QC Page Types"
         Card.OpenEdit();
         Observer.Observe('close', Outcome(TryCloseCard(Card)));
         ReadLog();
-        Observer.Finish();
+        Observer.Expect('close', 'error:Unhandled UI: Confirm Close the card page?|TestWrapped');
+        Observer.Expect('log', 'open card;qc card OK;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -976,7 +990,8 @@ codeunit 93343 "LT Y65 QC Page Types"
     procedure Y65_Open12_Read()
     begin
         ReadLog();
-        Observer.Finish();
+        Observer.Expect('log', 'open card;qc card OK;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -994,7 +1009,8 @@ codeunit 93343 "LT Y65 QC Page Types"
     procedure Y65_Open13_Read()
     begin
         ReadLog();
-        Observer.Finish();
+        Observer.Expect('log', 'open card;qc card OK;');
+        Observer.Verify();
     end;
 
     [ConfirmHandler]
