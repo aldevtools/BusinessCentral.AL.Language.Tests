@@ -1150,6 +1150,45 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
         Observer.Finish();
     end;
 
+    // Y63: the second ListPart placed after the linked part; every control is read one at a time after the lookup.
+    [Test]
+    [HandlerFunctions('PickSecondResource')]
+    procedure Y63_PartThenOther_LookupReadEachControl()
+    var
+        Schedule: TestPage "LT Y63 Part Then Other Sched";
+    begin
+        Setup(false);
+        Schedule.OpenEdit();
+        Log.Take();
+        Schedule.ResourceNo.Lookup();
+        Observer.Observe('lookup log', Log.Take());
+        Observer.Observe('resource no', Schedule.ResourceNo.Value());
+        Observer.Observe('resource no log', Log.Take());
+        Observer.Observe('header current', Schedule.HeaderCurrent.Value());
+        Observer.Observe('header current log', Log.Take());
+        Observer.Observe('row', Schedule."No.".Value());
+        Observer.Observe('row log', Log.Take());
+        Observer.Observe('current no', Schedule.CurrentNo.Value());
+        Observer.Observe('current no log', Log.Take());
+        Observer.Observe('host fn', Schedule.HostFn.Value());
+        Observer.Observe('host fn log', Log.Take());
+        Observer.Observe('part no', Schedule.Resources."No.".Value());
+        Observer.Observe('part no log', Log.Take());
+        Observer.Observe('part current', Schedule.Resources.PartCurrent.Value());
+        Observer.Observe('part current log', Log.Take());
+        Observer.Observe('part fn', Schedule.Resources.PartFn.Value());
+        Observer.Observe('part fn log', Log.Take());
+        Observer.Observe('other no', Schedule.OtherResources."No.".Value());
+        Observer.Observe('other no log', Log.Take());
+        Observer.Observe('other current', Schedule.OtherResources.OtherCurrent.Value());
+        Observer.Observe('other fn', Schedule.OtherResources.OtherFn.Value());
+        Observer.Observe('other log', Log.Take());
+        Observer.Observe('after', SnapPO(Schedule));
+        Observer.Observe('after log', Log.Take());
+        Schedule.Close();
+        Observer.Finish();
+    end;
+
     // Y63: the Y26 three-field host with a CardPart in the FactBox area linked on No. Every control is read after the lookup.
     [Test]
     [HandlerFunctions('PickSecondResource')]
