@@ -94,32 +94,82 @@ codeunit 93402 "LT Y66 CopyArray Fn Result"
     [Test]
     procedure Y66_CopyArray_FnResult_StartAndLength()
     var
+        Mode: Integer;
+        R: Text;
+    begin
+        for Mode := 1 to 8 do begin
+            ClearLastError();
+            if CopyMode(Mode, R) then
+                Observer.Observe(Format(Mode) + ' ' + ModeName(Mode), R)
+            else
+                Observer.Observe(Format(Mode) + ' ' + ModeName(Mode), 'E ' + GetLastErrorText() + '|' + GetLastErrorCode() + '|' + R);
+        end;
+        Observer.Finish();
+    end;
+
+    local procedure ModeName(Mode: Integer): Text
+    begin
+        case Mode of
+            1:
+                exit('guids into 2 from 2');
+            2:
+                exit('guids into 2 from 1 len 1');
+            3:
+                exit('guids into 2 from 1 len 2');
+            4:
+                exit('ints 3 into 5 from 1');
+            5:
+                exit('ints into 1 from 2 len 1');
+            6:
+                exit('ints 3 into 1 from 1');
+            7:
+                exit('ints into 5 from 4');
+            8:
+                exit('ints into 5 from 0');
+        end;
+    end;
+
+    [TryFunction]
+    local procedure CopyMode(Mode: Integer; var R: Text)
+    var
         MyProvider: Codeunit "LT Y66 CA Provider";
         Target: array[2] of Guid;
         Ints: array[5] of Integer;
         Short: array[1] of Integer;
         I: Integer;
-        R: Text;
     begin
         MyProvider.Seed();
-        CopyArray(Target, MyProvider.GetMyGuids(), 2);
-        Observer.Observe('guids from 2', Format(Target[1]) + '|' + Format(Target[2]));
-        Clear(Target);
-        CopyArray(Target, MyProvider.GetMyGuids(), 1, 1);
-        Observer.Observe('guids 1 len 1', Format(Target[1]) + '|' + Format(Target[2]));
         for I := 1 to 5 do
             Ints[I] := -I;
-        CopyArray(Ints, MyProvider.GetInts(), 1);
-        R := '';
-        for I := 1 to 5 do
-            R += Format(Ints[I]) + ';';
-        Observer.Observe('3 into 5', R);
-        CopyArray(Short, MyProvider.GetInts(), 2, 1);
-        Observer.Observe('one into 1', Format(Short[1]));
-        Observer.Observe('3 into 1', TryShort(MyProvider));
-        Observer.Observe('start past end', TryStart(MyProvider, 4));
-        Observer.Observe('start 0', TryStart(MyProvider, 0));
-        Observer.Finish();
+        R := 'before';
+        case Mode of
+            1:
+                CopyArray(Target, MyProvider.GetMyGuids(), 2);
+            2:
+                CopyArray(Target, MyProvider.GetMyGuids(), 1, 1);
+            3:
+                CopyArray(Target, MyProvider.GetMyGuids(), 1, 2);
+            4:
+                CopyArray(Ints, MyProvider.GetInts(), 1);
+            5:
+                CopyArray(Short, MyProvider.GetInts(), 2, 1);
+            6:
+                CopyArray(Short, MyProvider.GetInts(), 1);
+            7:
+                CopyArray(Ints, MyProvider.GetInts(), 4);
+            8:
+                CopyArray(Ints, MyProvider.GetInts(), 0);
+        end;
+        if Mode <= 3 then
+            R := Format(Target[1]) + '|' + Format(Target[2])
+        else
+            if Mode in [5, 6] then
+                R := Format(Short[1])
+            else begin
+                R := '';
+                for I := 1 to 5 do
+                    R += Format(Ints[I]) + ';';
+            end;
     end;
 
     [Test]
@@ -175,38 +225,6 @@ codeunit 93402 "LT Y66 CopyArray Fn Result"
         R[1] := 5;
         R[2] := 6;
         exit(R);
-    end;
-
-    local procedure TryShort(var MyProvider: Codeunit "LT Y66 CA Provider"): Text
-    begin
-        ClearLastError();
-        if CopyShort(MyProvider) then
-            exit('ok');
-        exit(GetLastErrorText() + '|' + GetLastErrorCode());
-    end;
-
-    [TryFunction]
-    local procedure CopyShort(var MyProvider: Codeunit "LT Y66 CA Provider")
-    var
-        Short: array[1] of Integer;
-    begin
-        CopyArray(Short, MyProvider.GetInts(), 1);
-    end;
-
-    local procedure TryStart(var MyProvider: Codeunit "LT Y66 CA Provider"; Start: Integer): Text
-    begin
-        ClearLastError();
-        if CopyFrom(MyProvider, Start) then
-            exit('ok');
-        exit(GetLastErrorText() + '|' + GetLastErrorCode());
-    end;
-
-    [TryFunction]
-    local procedure CopyFrom(var MyProvider: Codeunit "LT Y66 CA Provider"; Start: Integer)
-    var
-        Ints: array[5] of Integer;
-    begin
-        CopyArray(Ints, MyProvider.GetInts(), Start);
     end;
 
     local procedure TryShortTexts(var MyProvider: Codeunit "LT Y66 CA Provider"; var Short: array[2] of Text[3]): Text

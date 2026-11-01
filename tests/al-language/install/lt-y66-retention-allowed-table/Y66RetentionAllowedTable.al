@@ -40,6 +40,7 @@ codeunit 93411 "LT Y66 Retention Allowed Table"
         Observer.Observe('allowed before', Format(RetenPolAllowedTables.IsAllowedTable(Database::"LT Y66 RP Buffer")));
         Observer.Observe('validate before', TryValidate(Database::"LT Y66 RP Buffer"));
         Observer.Observe('validate customer', TryValidate(18));
+        Observer.Observe('insert before', TryValidateInsert(Database::"LT Y66 RP Buffer"));
         Observer.Observe('add', Format(RetenPolAllowedTables.AddAllowedTable(Database::"LT Y66 RP Buffer")));
         Observer.Observe('add again', Format(RetenPolAllowedTables.AddAllowedTable(Database::"LT Y66 RP Buffer")));
         Observer.Observe('allowed after', Format(RetenPolAllowedTables.IsAllowedTable(Database::"LT Y66 RP Buffer")));
@@ -109,5 +110,22 @@ codeunit 93411 "LT Y66 Retention Allowed Table"
     local procedure DoValidateInto(var RetentionPolicySetup: Record "Retention Policy Setup"; TableId: Integer)
     begin
         RetentionPolicySetup.Validate("Table Id", TableId);
+    end;
+
+    local procedure TryValidateInsert(TableId: Integer): Text
+    begin
+        ClearLastError();
+        if DoValidateInsert(TableId) then
+            exit('ok');
+        exit(GetLastErrorText() + '|' + GetLastErrorCode());
+    end;
+
+    [TryFunction]
+    local procedure DoValidateInsert(TableId: Integer)
+    var
+        RetentionPolicySetup: Record "Retention Policy Setup";
+    begin
+        RetentionPolicySetup.Validate("Table Id", TableId);
+        RetentionPolicySetup.Insert(true);
     end;
 }

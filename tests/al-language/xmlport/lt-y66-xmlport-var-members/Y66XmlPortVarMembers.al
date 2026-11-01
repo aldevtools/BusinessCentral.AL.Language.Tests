@@ -197,7 +197,6 @@ codeunit 93403 "LT Y66 XmlPort Var Members"
         Observer.Observe('array 2 export', ExportVar(Ports[2]));
         A := Flagged();
         Observer.Observe('returned flag', Format(A.GetFlag()));
-        Observer.Observe('returned export', ExportVar(A));
         Clear(A);
         Observer.Observe('cleared flag', Format(A.GetFlag()));
         B.MyProc(true);
@@ -253,16 +252,78 @@ codeunit 93403 "LT Y66 XmlPort Var Members"
     [Test]
     procedure Y66_XmlPortVar_PropertiesBeforeRun()
     var
+        Mode: Integer;
+        R: Text;
+    begin
+        for Mode := 1 to 7 do begin
+            ClearLastError();
+            if PropMode(Mode, R) then
+                Observer.Observe(Format(Mode) + ' ' + PropName(Mode), '[' + R + ']')
+            else
+                Observer.Observe(Format(Mode) + ' ' + PropName(Mode), 'E ' + GetLastErrorText() + '|' + GetLastErrorCode());
+        end;
+        Observer.Finish();
+    end;
+
+    local procedure PropName(Mode: Integer): Text
+    begin
+        case Mode of
+            1:
+                exit('currentpath');
+            2:
+                exit('importfile of export');
+            3:
+                exit('importfile of import');
+            4:
+                exit('textencoding');
+            5:
+                exit('filename');
+            6:
+                exit('import ImportFile(false)');
+            7:
+                exit('export ImportFile(true)');
+        end;
+    end;
+
+    [TryFunction]
+    local procedure PropMode(Mode: Integer; var R: Text)
+    var
         Port: XmlPort "LT Y66 XA XP Export";
         Imp: XmlPort "LT Y66 XP Import";
     begin
-        Observer.Observe('currentpath', '[' + Port.CurrentPath() + ']');
-        Observer.Observe('importfile export', Format(Port.ImportFile()));
-        Observer.Observe('importfile import', Format(Imp.ImportFile()));
-        Observer.Observe('textencoding', Format(Port.TextEncoding()));
-        Observer.Observe('filename', '[' + Port.Filename() + ']');
-        Imp.ImportFile(false);
-        Observer.Observe('importfile after set', Format(Imp.ImportFile()));
+        case Mode of
+            1:
+                R := Port.CurrentPath();
+            2:
+                R := Format(Port.ImportFile());
+            3:
+                R := Format(Imp.ImportFile());
+            4:
+                R := Format(Port.TextEncoding());
+            5:
+                R := Port.Filename();
+            6:
+                begin
+                    Imp.ImportFile(false);
+                    R := Format(Imp.ImportFile());
+                end;
+            7:
+                begin
+                    Port.ImportFile(true);
+                    R := Format(Port.ImportFile());
+                end;
+        end;
+    end;
+
+    // Held, not a test: on the SaaS sandbox (BC 29) SetTableView + Export on an XmlPort variable that got the result of a procedure returning
+    // an XmlPort raised an uncatchable "Unexpected CLR exception thrown.: System.ObjectDisposedException: Cannot access a disposed object.
+    // Object name: 'Microsoft.Dynamics.Nav.Runtime.StubNavRecord'." (in NavXmlPort.SetTableView). Its flag reads Yes before that.
+    procedure Suspect_XmlPortVar_ReturnedThenExport()
+    var
+        A: XmlPort "LT Y66 XP Export";
+    begin
+        A := Flagged();
+        Observer.Observe('returned export', ExportVar(A));
         Observer.Finish();
     end;
 
@@ -353,7 +414,7 @@ codeunit 93403 "LT Y66 XmlPort Var Members"
     begin
         if not TempBlob.HasValue() then
             exit('<empty>');
-        TempBlob.CreateInStream(InStr);
+        TempBlob.CreateInStream(InStr, TextEncoding::UTF16);
         while not InStr.EOS() do begin
             InStr.ReadText(Line);
             Result += Line + '/';

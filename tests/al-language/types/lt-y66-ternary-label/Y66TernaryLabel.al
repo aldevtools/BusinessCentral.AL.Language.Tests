@@ -79,14 +79,13 @@ codeunit 93404 "LT Y66 Ternary Label"
         S: Text;
         V: Variant;
     begin
-        for Kind := 1 to 4 do begin
+        for Kind := 1 to 5 do begin
             ClearLastError();
             if Pair1Into(Cond, Kind, R) then
                 S += '[' + R + ']'
             else
                 S += '[E ' + GetLastErrorText() + '|' + GetLastErrorCode() + ']';
         end;
-        S += '[' + Format(StrLen(Format(Cond ? Row."My Text Field" : DefaultLbl))) + '][' + Format(Cond ? Row."My Text Field" : DefaultLbl) + ']';
         ClearLastError();
         if Pair1Variant(Cond, V) then
             S += '[' + VariantKind(V) + ']'
@@ -130,6 +129,8 @@ codeunit 93404 "LT Y66 Ternary Label"
                     ToCode20 := Cond ? Row."My Text Field" : DefaultLbl;
                     R := ToCode20 + '|' + Format(StrLen(ToCode20));
                 end;
+            5:
+                R := Format(StrLen(Format(Cond ? Row."My Text Field" : DefaultLbl))) + '][' + Format(Cond ? Row."My Text Field" : DefaultLbl);
         end;
     end;
 
@@ -152,14 +153,13 @@ codeunit 93404 "LT Y66 Ternary Label"
         S: Text;
         V: Variant;
     begin
-        for Kind := 1 to 4 do begin
+        for Kind := 1 to 5 do begin
             ClearLastError();
             if Pair2Into(Cond, Kind, R) then
                 S += '[' + R + ']'
             else
                 S += '[E ' + GetLastErrorText() + '|' + GetLastErrorCode() + ']';
         end;
-        S += '[' + Format(StrLen(Format(Cond ? DefaultLbl : Row."My Text Field"))) + '][' + Format(Cond ? DefaultLbl : Row."My Text Field") + ']';
         ClearLastError();
         if Pair2Variant(Cond, V) then
             S += '[' + VariantKind(V) + ']'
@@ -203,6 +203,8 @@ codeunit 93404 "LT Y66 Ternary Label"
                     ToCode20 := Cond ? DefaultLbl : Row."My Text Field";
                     R := ToCode20 + '|' + Format(StrLen(ToCode20));
                 end;
+            5:
+                R := Format(StrLen(Format(Cond ? DefaultLbl : Row."My Text Field"))) + '][' + Format(Cond ? DefaultLbl : Row."My Text Field");
         end;
     end;
 
@@ -225,14 +227,13 @@ codeunit 93404 "LT Y66 Ternary Label"
         S: Text;
         V: Variant;
     begin
-        for Kind := 1 to 4 do begin
+        for Kind := 1 to 5 do begin
             ClearLastError();
             if Pair3Into(Cond, Kind, R) then
                 S += '[' + R + ']'
             else
                 S += '[E ' + GetLastErrorText() + '|' + GetLastErrorCode() + ']';
         end;
-        S += '[' + Format(StrLen(Format(Cond ? Row."My Text Field" : PlainLbl))) + '][' + Format(Cond ? Row."My Text Field" : PlainLbl) + ']';
         ClearLastError();
         if Pair3Variant(Cond, V) then
             S += '[' + VariantKind(V) + ']'
@@ -276,6 +277,8 @@ codeunit 93404 "LT Y66 Ternary Label"
                     ToCode20 := Cond ? Row."My Text Field" : PlainLbl;
                     R := ToCode20 + '|' + Format(StrLen(ToCode20));
                 end;
+            5:
+                R := Format(StrLen(Format(Cond ? Row."My Text Field" : PlainLbl))) + '][' + Format(Cond ? Row."My Text Field" : PlainLbl);
         end;
     end;
 
@@ -298,14 +301,13 @@ codeunit 93404 "LT Y66 Ternary Label"
         S: Text;
         V: Variant;
     begin
-        for Kind := 1 to 4 do begin
+        for Kind := 1 to 5 do begin
             ClearLastError();
             if Pair4Into(Cond, Kind, R) then
                 S += '[' + R + ']'
             else
                 S += '[E ' + GetLastErrorText() + '|' + GetLastErrorCode() + ']';
         end;
-        S += '[' + Format(StrLen(Format(Cond ? Row."My Code" : DefaultLbl))) + '][' + Format(Cond ? Row."My Code" : DefaultLbl) + ']';
         ClearLastError();
         if Pair4Variant(Cond, V) then
             S += '[' + VariantKind(V) + ']'
@@ -349,6 +351,8 @@ codeunit 93404 "LT Y66 Ternary Label"
                     ToCode20 := Cond ? Row."My Code" : DefaultLbl;
                     R := ToCode20 + '|' + Format(StrLen(ToCode20));
                 end;
+            5:
+                R := Format(StrLen(Format(Cond ? Row."My Code" : DefaultLbl))) + '][' + Format(Cond ? Row."My Code" : DefaultLbl);
         end;
     end;
 
@@ -371,14 +375,13 @@ codeunit 93404 "LT Y66 Ternary Label"
         S: Text;
         V: Variant;
     begin
-        for Kind := 1 to 4 do begin
+        for Kind := 1 to 5 do begin
             ClearLastError();
             if Pair5Into(Cond, Kind, R) then
                 S += '[' + R + ']'
             else
                 S += '[E ' + GetLastErrorText() + '|' + GetLastErrorCode() + ']';
         end;
-        S += '[' + Format(StrLen(Format(Cond ? DefaultLbl : Row."My Code"))) + '][' + Format(Cond ? DefaultLbl : Row."My Code") + ']';
         ClearLastError();
         if Pair5Variant(Cond, V) then
             S += '[' + VariantKind(V) + ']'
@@ -422,6 +425,8 @@ codeunit 93404 "LT Y66 Ternary Label"
                     ToCode20 := Cond ? DefaultLbl : Row."My Code";
                     R := ToCode20 + '|' + Format(StrLen(ToCode20));
                 end;
+            5:
+                R := Format(StrLen(Format(Cond ? DefaultLbl : Row."My Code"))) + '][' + Format(Cond ? DefaultLbl : Row."My Code");
         end;
     end;
 
@@ -444,14 +449,13 @@ codeunit 93404 "LT Y66 Ternary Label"
         S: Text;
         V: Variant;
     begin
-        for Kind := 1 to 2 do begin
+        for Kind := 1 to 3 do begin
             ClearLastError();
             if Pair6Into(Cond, Kind, R) then
                 S += '[' + R + ']'
             else
                 S += '[E ' + GetLastErrorText() + '|' + GetLastErrorCode() + ']';
         end;
-        S += '[' + Format(StrLen(Format(Cond ? Row."My Guid" : PlainLbl))) + '][' + Format(Cond ? Row."My Guid" : PlainLbl) + ']';
         ClearLastError();
         if Pair6Variant(Cond, V) then
             S += '[' + VariantKind(V) + ']'
@@ -483,6 +487,8 @@ codeunit 93404 "LT Y66 Ternary Label"
                     ToText100 := Cond ? Row."My Guid" : PlainLbl;
                     R := ToText100 + '|' + Format(StrLen(ToText100));
                 end;
+            3:
+                R := Format(StrLen(Format(Cond ? Row."My Guid" : PlainLbl))) + '][' + Format(Cond ? Row."My Guid" : PlainLbl);
         end;
     end;
 
@@ -505,14 +511,13 @@ codeunit 93404 "LT Y66 Ternary Label"
         S: Text;
         V: Variant;
     begin
-        for Kind := 1 to 2 do begin
+        for Kind := 1 to 3 do begin
             ClearLastError();
             if Pair7Into(Cond, Kind, R) then
                 S += '[' + R + ']'
             else
                 S += '[E ' + GetLastErrorText() + '|' + GetLastErrorCode() + ']';
         end;
-        S += '[' + Format(StrLen(Format(Cond ? PlainLbl : Row."My Guid"))) + '][' + Format(Cond ? PlainLbl : Row."My Guid") + ']';
         ClearLastError();
         if Pair7Variant(Cond, V) then
             S += '[' + VariantKind(V) + ']'
@@ -544,6 +549,8 @@ codeunit 93404 "LT Y66 Ternary Label"
                     ToText100 := Cond ? PlainLbl : Row."My Guid";
                     R := ToText100 + '|' + Format(StrLen(ToText100));
                 end;
+            3:
+                R := Format(StrLen(Format(Cond ? PlainLbl : Row."My Guid"))) + '][' + Format(Cond ? PlainLbl : Row."My Guid");
         end;
     end;
 
@@ -566,14 +573,13 @@ codeunit 93404 "LT Y66 Ternary Label"
         S: Text;
         V: Variant;
     begin
-        for Kind := 1 to 4 do begin
+        for Kind := 1 to 5 do begin
             ClearLastError();
             if Pair8Into(Cond, Kind, R) then
                 S += '[' + R + ']'
             else
                 S += '[E ' + GetLastErrorText() + '|' + GetLastErrorCode() + ']';
         end;
-        S += '[' + Format(StrLen(Format(Cond ? T3 : DefaultLbl))) + '][' + Format(Cond ? T3 : DefaultLbl) + ']';
         ClearLastError();
         if Pair8Variant(Cond, V) then
             S += '[' + VariantKind(V) + ']'
@@ -617,6 +623,8 @@ codeunit 93404 "LT Y66 Ternary Label"
                     ToCode20 := Cond ? T3 : DefaultLbl;
                     R := ToCode20 + '|' + Format(StrLen(ToCode20));
                 end;
+            5:
+                R := Format(StrLen(Format(Cond ? T3 : DefaultLbl))) + '][' + Format(Cond ? T3 : DefaultLbl);
         end;
     end;
 
@@ -639,14 +647,13 @@ codeunit 93404 "LT Y66 Ternary Label"
         S: Text;
         V: Variant;
     begin
-        for Kind := 1 to 4 do begin
+        for Kind := 1 to 5 do begin
             ClearLastError();
             if Pair9Into(Cond, Kind, R) then
                 S += '[' + R + ']'
             else
                 S += '[E ' + GetLastErrorText() + '|' + GetLastErrorCode() + ']';
         end;
-        S += '[' + Format(StrLen(Format(Cond ? DefaultLbl : T3))) + '][' + Format(Cond ? DefaultLbl : T3) + ']';
         ClearLastError();
         if Pair9Variant(Cond, V) then
             S += '[' + VariantKind(V) + ']'
@@ -690,6 +697,8 @@ codeunit 93404 "LT Y66 Ternary Label"
                     ToCode20 := Cond ? DefaultLbl : T3;
                     R := ToCode20 + '|' + Format(StrLen(ToCode20));
                 end;
+            5:
+                R := Format(StrLen(Format(Cond ? DefaultLbl : T3))) + '][' + Format(Cond ? DefaultLbl : T3);
         end;
     end;
 
@@ -712,14 +721,13 @@ codeunit 93404 "LT Y66 Ternary Label"
         S: Text;
         V: Variant;
     begin
-        for Kind := 1 to 4 do begin
+        for Kind := 1 to 5 do begin
             ClearLastError();
             if Pair10Into(Cond, Kind, R) then
                 S += '[' + R + ']'
             else
                 S += '[E ' + GetLastErrorText() + '|' + GetLastErrorCode() + ']';
         end;
-        S += '[' + Format(StrLen(Format(Cond ? C3 : PlainLbl))) + '][' + Format(Cond ? C3 : PlainLbl) + ']';
         ClearLastError();
         if Pair10Variant(Cond, V) then
             S += '[' + VariantKind(V) + ']'
@@ -763,6 +771,8 @@ codeunit 93404 "LT Y66 Ternary Label"
                     ToCode20 := Cond ? C3 : PlainLbl;
                     R := ToCode20 + '|' + Format(StrLen(ToCode20));
                 end;
+            5:
+                R := Format(StrLen(Format(Cond ? C3 : PlainLbl))) + '][' + Format(Cond ? C3 : PlainLbl);
         end;
     end;
 
@@ -785,14 +795,13 @@ codeunit 93404 "LT Y66 Ternary Label"
         S: Text;
         V: Variant;
     begin
-        for Kind := 1 to 4 do begin
+        for Kind := 1 to 5 do begin
             ClearLastError();
             if Pair11Into(Cond, Kind, R) then
                 S += '[' + R + ']'
             else
                 S += '[E ' + GetLastErrorText() + '|' + GetLastErrorCode() + ']';
         end;
-        S += '[' + Format(StrLen(Format(Cond ? PlainLbl : C3))) + '][' + Format(Cond ? PlainLbl : C3) + ']';
         ClearLastError();
         if Pair11Variant(Cond, V) then
             S += '[' + VariantKind(V) + ']'
@@ -836,6 +845,8 @@ codeunit 93404 "LT Y66 Ternary Label"
                     ToCode20 := Cond ? PlainLbl : C3;
                     R := ToCode20 + '|' + Format(StrLen(ToCode20));
                 end;
+            5:
+                R := Format(StrLen(Format(Cond ? PlainLbl : C3))) + '][' + Format(Cond ? PlainLbl : C3);
         end;
     end;
 
@@ -858,14 +869,13 @@ codeunit 93404 "LT Y66 Ternary Label"
         S: Text;
         V: Variant;
     begin
-        for Kind := 1 to 4 do begin
+        for Kind := 1 to 5 do begin
             ClearLastError();
             if Pair12Into(Cond, Kind, R) then
                 S += '[' + R + ']'
             else
                 S += '[E ' + GetLastErrorText() + '|' + GetLastErrorCode() + ']';
         end;
-        S += '[' + Format(StrLen(Format(Cond ? C250 : DefaultLbl))) + '][' + Format(Cond ? C250 : DefaultLbl) + ']';
         ClearLastError();
         if Pair12Variant(Cond, V) then
             S += '[' + VariantKind(V) + ']'
@@ -909,6 +919,8 @@ codeunit 93404 "LT Y66 Ternary Label"
                     ToCode20 := Cond ? C250 : DefaultLbl;
                     R := ToCode20 + '|' + Format(StrLen(ToCode20));
                 end;
+            5:
+                R := Format(StrLen(Format(Cond ? C250 : DefaultLbl))) + '][' + Format(Cond ? C250 : DefaultLbl);
         end;
     end;
 
@@ -931,14 +943,13 @@ codeunit 93404 "LT Y66 Ternary Label"
         S: Text;
         V: Variant;
     begin
-        for Kind := 1 to 4 do begin
+        for Kind := 1 to 5 do begin
             ClearLastError();
             if Pair13Into(Cond, Kind, R) then
                 S += '[' + R + ']'
             else
                 S += '[E ' + GetLastErrorText() + '|' + GetLastErrorCode() + ']';
         end;
-        S += '[' + Format(StrLen(Format(Cond ? DefaultLbl : C250))) + '][' + Format(Cond ? DefaultLbl : C250) + ']';
         ClearLastError();
         if Pair13Variant(Cond, V) then
             S += '[' + VariantKind(V) + ']'
@@ -982,6 +993,8 @@ codeunit 93404 "LT Y66 Ternary Label"
                     ToCode20 := Cond ? DefaultLbl : C250;
                     R := ToCode20 + '|' + Format(StrLen(ToCode20));
                 end;
+            5:
+                R := Format(StrLen(Format(Cond ? DefaultLbl : C250))) + '][' + Format(Cond ? DefaultLbl : C250);
         end;
     end;
 
@@ -1004,14 +1017,13 @@ codeunit 93404 "LT Y66 Ternary Label"
         S: Text;
         V: Variant;
     begin
-        for Kind := 1 to 4 do begin
+        for Kind := 1 to 5 do begin
             ClearLastError();
             if Pair14Into(Cond, Kind, R) then
                 S += '[' + R + ']'
             else
                 S += '[E ' + GetLastErrorText() + '|' + GetLastErrorCode() + ']';
         end;
-        S += '[' + Format(StrLen(Format(Cond ? DefaultLbl : PlainLbl))) + '][' + Format(Cond ? DefaultLbl : PlainLbl) + ']';
         ClearLastError();
         if Pair14Variant(Cond, V) then
             S += '[' + VariantKind(V) + ']'
@@ -1055,6 +1067,8 @@ codeunit 93404 "LT Y66 Ternary Label"
                     ToCode20 := Cond ? DefaultLbl : PlainLbl;
                     R := ToCode20 + '|' + Format(StrLen(ToCode20));
                 end;
+            5:
+                R := Format(StrLen(Format(Cond ? DefaultLbl : PlainLbl))) + '][' + Format(Cond ? DefaultLbl : PlainLbl);
         end;
     end;
 
@@ -1077,14 +1091,13 @@ codeunit 93404 "LT Y66 Ternary Label"
         S: Text;
         V: Variant;
     begin
-        for Kind := 1 to 4 do begin
+        for Kind := 1 to 5 do begin
             ClearLastError();
             if Pair15Into(Cond, Kind, R) then
                 S += '[' + R + ']'
             else
                 S += '[E ' + GetLastErrorText() + '|' + GetLastErrorCode() + ']';
         end;
-        S += '[' + Format(StrLen(Format(Cond ? PlainLbl : DefaultLbl))) + '][' + Format(Cond ? PlainLbl : DefaultLbl) + ']';
         ClearLastError();
         if Pair15Variant(Cond, V) then
             S += '[' + VariantKind(V) + ']'
@@ -1128,6 +1141,8 @@ codeunit 93404 "LT Y66 Ternary Label"
                     ToCode20 := Cond ? PlainLbl : DefaultLbl;
                     R := ToCode20 + '|' + Format(StrLen(ToCode20));
                 end;
+            5:
+                R := Format(StrLen(Format(Cond ? PlainLbl : DefaultLbl))) + '][' + Format(Cond ? PlainLbl : DefaultLbl);
         end;
     end;
 
@@ -1150,14 +1165,13 @@ codeunit 93404 "LT Y66 Ternary Label"
         S: Text;
         V: Variant;
     begin
-        for Kind := 1 to 4 do begin
+        for Kind := 1 to 5 do begin
             ClearLastError();
             if Pair16Into(Cond, Kind, R) then
                 S += '[' + R + ']'
             else
                 S += '[E ' + GetLastErrorText() + '|' + GetLastErrorCode() + ']';
         end;
-        S += '[' + Format(StrLen(Format(Cond ? Txt : DefaultLbl))) + '][' + Format(Cond ? Txt : DefaultLbl) + ']';
         ClearLastError();
         if Pair16Variant(Cond, V) then
             S += '[' + VariantKind(V) + ']'
@@ -1201,6 +1215,8 @@ codeunit 93404 "LT Y66 Ternary Label"
                     ToCode20 := Cond ? Txt : DefaultLbl;
                     R := ToCode20 + '|' + Format(StrLen(ToCode20));
                 end;
+            5:
+                R := Format(StrLen(Format(Cond ? Txt : DefaultLbl))) + '][' + Format(Cond ? Txt : DefaultLbl);
         end;
     end;
 
@@ -1223,14 +1239,13 @@ codeunit 93404 "LT Y66 Ternary Label"
         S: Text;
         V: Variant;
     begin
-        for Kind := 1 to 4 do begin
+        for Kind := 1 to 5 do begin
             ClearLastError();
             if Pair17Into(Cond, Kind, R) then
                 S += '[' + R + ']'
             else
                 S += '[E ' + GetLastErrorText() + '|' + GetLastErrorCode() + ']';
         end;
-        S += '[' + Format(StrLen(Format(Cond ? DefaultLbl : Txt))) + '][' + Format(Cond ? DefaultLbl : Txt) + ']';
         ClearLastError();
         if Pair17Variant(Cond, V) then
             S += '[' + VariantKind(V) + ']'
@@ -1274,6 +1289,8 @@ codeunit 93404 "LT Y66 Ternary Label"
                     ToCode20 := Cond ? DefaultLbl : Txt;
                     R := ToCode20 + '|' + Format(StrLen(ToCode20));
                 end;
+            5:
+                R := Format(StrLen(Format(Cond ? DefaultLbl : Txt))) + '][' + Format(Cond ? DefaultLbl : Txt);
         end;
     end;
 

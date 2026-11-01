@@ -4,8 +4,7 @@
 // Probe (al-runner issue 6663, writer Y66): FieldRef.Length of the field types and kinds that fieldref/lt-fieldref-length-kinds/
 // FieldRefLengthKinds.al and record/lt-media-length-find-empty/MediaLengthFindEmpty.al do not cover: DateFormula, RecordId, TableFilter,
 // Text and Code of the longest length, a FlowField of each result kind (Sum Decimal, Count Integer, Exist Boolean, Lookup Text and Date), a
-// FlowFilter (Date, Code), a BigInteger with AutoIncrement, the system fields (SystemId, SystemCreatedAt/By, SystemModifiedAt/By,
-// SystemRowVersion), the fields of virtual tables Integer and Date, and a field of a temporary record. Plus the reporter's helper that
+// FlowFilter (Date, Code), a BigInteger with AutoIncrement, the system fields (2000000000 to 2000000005), the fields of virtual tables Integer and Date, and a field of a temporary record. Plus the reporter's helper that
 // compares Type and Length of every field pair between two RecordRefs.
 // BC versions: 27, 28, 29
 
@@ -74,14 +73,14 @@ codeunit 93408 "LT Y66 FieldRef Length Types"
     procedure Y66_FieldRefLength_SystemFields()
     var
         RecRef: RecordRef;
+        I: Integer;
     begin
         RecRef.Open(Database::"LT Y66 FL Row");
-        Observer.Observe('SystemId', Describe(RecRef.Field(RecRef.SystemIdNo())));
-        Observer.Observe('SystemCreatedAt', Describe(RecRef.Field(RecRef.SystemCreatedAtNo())));
-        Observer.Observe('SystemCreatedBy', Describe(RecRef.Field(RecRef.SystemCreatedByNo())));
-        Observer.Observe('SystemModifiedAt', Describe(RecRef.Field(RecRef.SystemModifiedAtNo())));
-        Observer.Observe('SystemModifiedBy', Describe(RecRef.Field(RecRef.SystemModifiedByNo())));
-        Observer.Observe('SystemRowVersion', Describe(RecRef.Field(2000000003)));
+        for I := 2000000000 to 2000000005 do
+            if RecRef.FieldExist(I) then
+                Observer.Observe(Format(I) + ' ' + RecRef.Field(I).Name(), Describe(RecRef.Field(I)))
+            else
+                Observer.Observe(Format(I), 'no field');
         Observer.Finish();
     end;
 
