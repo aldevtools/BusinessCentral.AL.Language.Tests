@@ -104,12 +104,12 @@ page 93340 "LT Y65 Member Worksheet"
                         Rec.Tag := 'pv';
                     end;
                 }
-                field(Mark; Mark)
+                field(Stamp; Stamp)
                 {
                     ApplicationArea = All;
                     trigger OnValidate()
                     begin
-                        Rec.Tag := 'mark';
+                        Rec.Tag := 'stamp';
                         Rec.Modify();
                     end;
                 }
@@ -147,7 +147,7 @@ page 93340 "LT Y65 Member Worksheet"
 
     var
         Secret: Text[50];
-        Mark: Text[30];
+        Stamp: Text[30];
         Activate: Boolean;
 }
 
@@ -286,9 +286,9 @@ codeunit 93341 "LT Y65 Code Change Next Field"
     end;
 
     [TryFunction]
-    local procedure TryMark(var Worksheet: TestPage "LT Y65 Member Worksheet")
+    local procedure TryStamp(var Worksheet: TestPage "LT Y65 Member Worksheet")
     begin
-        Worksheet.Mark.SetValue('m');
+        Worksheet.Stamp.SetValue('m');
     end;
 
     [TryFunction]
@@ -467,11 +467,11 @@ codeunit 93341 "LT Y65 Code Change Next Field"
         Worksheet.GoToRecord(Member);
         Worksheet.Name.SetValue('Carl');
         ClearLastError();
-        if TryMark(Worksheet) then
-            Observer.Observe('mark', 'ok')
+        if TryStamp(Worksheet) then
+            Observer.Observe('stamp', 'ok')
         else
-            Observer.Observe('mark', 'error:' + GetLastErrorText() + '|' + GetLastErrorCode());
-        Log.Db('after mark', 'A');
+            Observer.Observe('stamp', 'error:' + GetLastErrorText() + '|' + GetLastErrorCode());
+        Log.Db('after stamp', 'A');
         Observer.Observe('activate', TryActivate(Worksheet));
         Worksheet.Close();
         Log.Db('after close', 'A');
@@ -491,11 +491,11 @@ codeunit 93341 "LT Y65 Code Change Next Field"
         Worksheet.OpenEdit();
         Worksheet.GoToRecord(Member);
         ClearLastError();
-        if TryMark(Worksheet) then
-            Observer.Observe('mark', 'ok')
+        if TryStamp(Worksheet) then
+            Observer.Observe('stamp', 'ok')
         else
-            Observer.Observe('mark', 'error:' + GetLastErrorText() + '|' + GetLastErrorCode());
-        Log.Db('after mark', 'A');
+            Observer.Observe('stamp', 'error:' + GetLastErrorText() + '|' + GetLastErrorCode());
+        Log.Db('after stamp', 'A');
         Observer.Observe('activate', TryActivate(Worksheet));
         Worksheet.Close();
         Log.Db('after close', 'A');
