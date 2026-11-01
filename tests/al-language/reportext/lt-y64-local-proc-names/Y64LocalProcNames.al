@@ -416,6 +416,7 @@ codeunit 93313 "LT Y64 LP Tests"
         Row.Name := 'one';
         Row.Insert();
         Log.Take();
+        Commit();
     end;
 
     [RequestPageHandler]

@@ -304,6 +304,7 @@ codeunit 93319 "LT Y64 Obsolete Sub Tests"
         Row.Name := 'charlie';
         Row.Insert();
         Log.Take();
+        Commit();
     end;
 
     [Test]

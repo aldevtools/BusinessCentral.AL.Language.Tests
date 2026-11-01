@@ -265,11 +265,20 @@ codeunit 93324 "LT Y64 PI Tests"
     begin
         Seed();
         Card.OpenEdit();
-        asserterror Card."My Action_Promoted".Invoke();
-        Observer.ObserveError('invoke hidden actionref');
+        ClearLastError();
+        if TryInvokeHidden(Card) then
+            Observer.Observe('invoke hidden actionref', 'ok')
+        else
+            Observer.Observe('invoke hidden actionref', 'error:' + GetLastErrorText() + '|' + GetLastErrorCode());
         Observer.Observe('log', Log.Take());
         Card.Close();
         Observer.Finish();
+    end;
+
+    [TryFunction]
+    local procedure TryInvokeHidden(var Card: TestPage "LT Y64 PI Card")
+    begin
+        Card."My Action_Promoted".Invoke();
     end;
 
     [Test]

@@ -8,7 +8,7 @@
 // Writer TV (2026-10-29, TV_* tests): unit letters with a number other than D and WD: M2 (M0, M1, M12, M13, -M2, CM+M2, M2+D10, 1Y+M2), W2, Q2, Y2.
 // Writer Y43 (2026-10-31, Y43_G413_* tests, gap G4-13): a number before an angle bracket inside a term (-62<D>, 2<D>: the CalcDate(Format(-n) + '<D>') and Evaluate(DateFormula, Format(n) + '<D>') shapes of the test libraries), other units, and other places a bracket can sit inside a term.
 // Writer Y64 (2026-11-01, Y64_* tests, al-runner issue 6648): a sequence of separately bracketed terms whose later terms carry a sign (<CY><-10Y>,
-//   <CM><-1D>, three terms, a C term later), with a space or a sign between the terms, and the one-argument CalcDate(Text) against a set WorkDate.
+//   <CM><-1D>, three terms, a C term later), with a space or a sign between the terms, and the one-argument CalcDate(Text) (it uses Today(), not WorkDate(); compared, not shown).
 
 codeunit 67857 "LT Date Formula Edges"
 {
@@ -685,7 +685,8 @@ codeunit 67857 "LT Date Formula Edges"
         Observer.Observe('2024-01-31 CM+1M', Format(CalcDate('<CM><+1M>', 20240131D), 0, 9));
         SavedWorkDate := WorkDate();
         WorkDate(20240115D);
-        Observer.Observe('one argument, WorkDate 2024-01-15', Format(CalcDate('<CY><-10Y>'), 0, 9));
+        Observer.Observe('one argument equals the Today() form', Format(CalcDate('<CY><-10Y>') = CalcDate('<CY><-10Y>', Today())));
+        Observer.Observe('one argument equals the WorkDate() form', Format(CalcDate('<CY><-10Y>') = CalcDate('<CY><-10Y>', WorkDate())));
         Observer.Observe('WorkDate() as the date', Format(CalcDate('<CY><-10Y>', WorkDate()), 0, 9));
         WorkDate(SavedWorkDate);
         Observer.Finish();

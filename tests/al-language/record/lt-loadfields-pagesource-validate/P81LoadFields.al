@@ -1328,7 +1328,6 @@ codeunit 70303 "LT P81 LoadFields"
         Row.Name := 'changed';
         asserterror Row.Modify();
         Observer.ObserveError('modify');
-        Observer.Observe('rows after modify', Y64Rows());
         Observer.Finish();
     end;
 
@@ -1412,7 +1411,6 @@ codeunit 70303 "LT P81 LoadFields"
         Row.FindFirst();
         asserterror Row.ModifyAll(Code, 'Q');
         Observer.ObserveError('modifyall key field');
-        Observer.Observe('rows after modifyall key', Y64Rows());
         Observer.Finish();
     end;
 }

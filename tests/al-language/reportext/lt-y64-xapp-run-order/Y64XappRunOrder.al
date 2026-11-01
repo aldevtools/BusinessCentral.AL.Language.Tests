@@ -81,6 +81,7 @@ codeunit 93327 "LT Y64 Xapp Run Order"
         Row.Insert();
         Log.Take();
         HandlerLog := '';
+        Commit();
     end;
 
     [Test]
