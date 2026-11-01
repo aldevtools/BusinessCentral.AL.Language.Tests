@@ -181,13 +181,15 @@ codeunit 93201 "LT Y59 Metadata Perm Names"
     procedure Y59_ObjectName_ObjectIdZero()
     var
         MetadataPermission: Record "Metadata Permission";
+        Found: Boolean;
         Observer: Codeunit "Probe Observer";
     begin
         // The SUPER permission set grants every object of a type with Object ID 0; only the first such row is read (no Microsoft counts).
         MetadataPermission.SetRange("Role ID", 'SUPER');
         MetadataPermission.SetRange("Object ID", 0);
-        Observer.Observe('found', Format(MetadataPermission.FindFirst()));
-        if MetadataPermission."Object ID" = 0 then begin
+        Found := MetadataPermission.FindFirst();
+        Observer.Observe('found', Format(Found));
+        if Found then begin
             Observer.Observe('object_type', Format(MetadataPermission."Object Type"));
             MetadataPermission.CalcFields("Object Name", "AL Object Name");
             Observer.Observe('object_name', '[' + MetadataPermission."Object Name" + ']');

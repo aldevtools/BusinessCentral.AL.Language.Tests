@@ -8,7 +8,7 @@
 //   Neighbour (the setting of an existing profile): lt-y35-stored-tables/Y35StoredTables.al C303_TenantProfileSetting_AllProfileLink.
 // BC versions: 27.5, 28.5, 29.0.
 
-codeunit 98706 "LT Y59 All Profile Ghost"
+codeunit 98693 "LT Y59 All Profile Ghost"
 {
     Subtype = Test;
     TestPermissions = Disabled;
