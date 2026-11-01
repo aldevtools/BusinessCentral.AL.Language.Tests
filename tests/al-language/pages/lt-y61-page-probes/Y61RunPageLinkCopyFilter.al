@@ -10,6 +10,11 @@
 //   page that sets its own filter and copies the host's "Date Filter" (the part's rows). Each probe runs in a TryFunction of the page and
 //   logs its value, or the error text and code. Date filter texts are in the format of the CI (en-US).
 // Neighbours: handlers/QzRunPageLinkOnOpen.al (fields and GetFilters of Rec, a by-value copy), pages/lt-y41-page-probes/Y41RunPageLinkOnOpen.al.
+// Measured (27.5, 28.5, 29.0 and SaaS 29 alike): Rec carries the link filter 'Code: P1' and nothing else: CopyFilter of the linked field hands
+//   'P1' (over the target's own filter), CopyFilter of the FlowFilter the link does not set CLEARS the target's filter, CopyFilters and
+//   Copy hand 'Code: P1' (count 1), HasFilter Yes, GetView 'VERSION(1) SORTING(Field1) WHERE(Field1=1(P1))', FilterGroup 0, Count 1,
+//   FindFirst finds P1. With the FlowFilter in the link Rec also has the host's "Date Filter". The part sees Rec's filters through the var
+//   parameter, but the filter it sets on its own Rec in the host's OnOpenPage does not narrow its rows (all rows and a new line shown).
 // BC versions: all (CI)
 
 table 93250 "LT Y61 RL P"
@@ -301,7 +306,9 @@ codeunit 93246 "LT Y61 RunPageLink CopyFilter"
         Seed();
         OpenTarget('copyfilter-code', false, Target);
         Target.Close();
-        Observer.Finish();
+        Observer.Expect('log', 'open code=P1;before=ZZ;after=P1 hasfilter=Yes count=2');
+        Observer.Expect('shown code', 'P1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -312,7 +319,9 @@ codeunit 93246 "LT Y61 RunPageLink CopyFilter"
         Seed();
         OpenTarget('copyfilter-date', false, Target);
         Target.Close();
-        Observer.Finish();
+        Observer.Expect('log', 'open code=P1;before=01/01/24..01/31/24;after= hasfilter=No;fresh= hasfilter=No');
+        Observer.Expect('shown code', 'P1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -329,7 +338,10 @@ codeunit 93246 "LT Y61 RunPageLink CopyFilter"
             until not Target.Sub.Next();
         Observer.Observe('part rows', Rows);
         Target.Close();
-        Observer.Finish();
+        Observer.Expect('log', 'open code=P1;part filters=Parent Code: P1;part host filters=Code: P1');
+        Observer.Expect('shown code', 'P1');
+        Observer.Expect('part rows', 'P1/A,P1/B,P2/C,/,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -346,7 +358,10 @@ codeunit 93246 "LT Y61 RunPageLink CopyFilter"
             until not Target.Sub.Next();
         Observer.Observe('part rows', Rows);
         Target.Close();
-        Observer.Finish();
+        Observer.Expect('log', 'open code=P1;part filters=Parent Code: P1, Date Filter: 03/01/24..03/31/24;part host filters=Code: P1, Date Filter: 03/01/24..03/31/24');
+        Observer.Expect('shown code', 'P1');
+        Observer.Expect('part rows', 'P1/A,P1/B,P2/C,/,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -357,7 +372,9 @@ codeunit 93246 "LT Y61 RunPageLink CopyFilter"
         Seed();
         OpenTarget('copyfilters', false, Target);
         Target.Close();
-        Observer.Finish();
+        Observer.Expect('log', 'open code=P1;copyfilters filters=Code: P1 count=1');
+        Observer.Expect('shown code', 'P1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -368,7 +385,9 @@ codeunit 93246 "LT Y61 RunPageLink CopyFilter"
         Seed();
         OpenTarget('copy', false, Target);
         Target.Close();
-        Observer.Finish();
+        Observer.Expect('log', 'open code=P1;copy code=P1 filters=Code: P1 count=1');
+        Observer.Expect('shown code', 'P1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -379,7 +398,9 @@ codeunit 93246 "LT Y61 RunPageLink CopyFilter"
         Seed();
         OpenTarget('reads', false, Target);
         Target.Close();
-        Observer.Finish();
+        Observer.Expect('log', 'open code=P1;hasfilter=Yes;getfilter code=P1;getfilter date=;view=VERSION(1) SORTING(Field1) WHERE(Field1=1(P1));filtergroup=0;count=1;findfirst=Yes code=P1 name=one');
+        Observer.Expect('shown code', 'P1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -390,6 +411,8 @@ codeunit 93246 "LT Y61 RunPageLink CopyFilter"
         Seed();
         OpenTarget('flowlink', true, Target);
         Target.Close();
-        Observer.Finish();
+        Observer.Expect('log', 'open code=P1;getfilter date=03/01/24..03/31/24;date after=03/01/24..03/31/24;code after=P1');
+        Observer.Expect('shown code', 'P1');
+        Observer.Verify();
     end;
 }
