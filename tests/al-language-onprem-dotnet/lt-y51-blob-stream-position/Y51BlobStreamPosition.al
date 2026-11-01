@@ -57,12 +57,14 @@ codeunit 99394 "LT Y51 Blob Stream Position"
         C: Char;
         Result: Text;
         N: Integer;
+        Code: Integer;
     begin
         while not InS.EOS() do begin
             InS.Read(B);
             C := B;
+            Code := B;
             if (B < 32) or (B > 126) then
-                Result += '<' + Format(B) + '>'
+                Result += '<' + Format(Code) + '>'
             else
                 Result += Format(C);
             N += 1;

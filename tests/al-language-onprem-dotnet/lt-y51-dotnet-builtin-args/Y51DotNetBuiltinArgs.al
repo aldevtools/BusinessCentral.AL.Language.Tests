@@ -319,6 +319,10 @@ codeunit 99391 "LT Y51 DotNet Builtin Args"
             Observer.Observe('pos_after_json', Format(Pos))
         else
             Observer.ObserveError('pos_after_json');
-        Observer.Finish();
+        Observer.Expect('ok_json', 'Yes');
+        Observer.Expect('json', '{"a":1,"b":"x"}');
+        Observer.Expect('pos_after_json|text', 'A call to System.IO.MemoryStream.Position failed with this message: Cannot access a closed Stream.');
+        Observer.Expect('pos_after_json|code', 'DotNetInvoke:ObjectDisposed');
+        Observer.Verify();
     end;
 }
