@@ -304,6 +304,19 @@ codeunit 93660 "LT Y68 SC Tests"
     end;
 
     [Test]
+    procedure Q1_Execute_Filled_AllTypes()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        RunCase(Observer, 'filled all', Report::"LT Y68 SC Rpt",
+            Xml1('<Field name="TxtVal">a b</Field><Field name="CodeVal">xy</Field><Field name="DateVal">2025-12-31</Field><Field name="TimeVal">23:59:58</Field><Field name="DtVal">2025-12-31T23:59:58Z</Field>' +
+                '<Field name="IntVal">-3</Field><Field name="DecVal">0.75</Field><Field name="BoolVal">false</Field><Field name="OptVal">1</Field><Field name="EnumVal">0</Field><Field name="BigVal">5000000000</Field>'), 1);
+        RunCase(Observer, 'filled by name', Report::"LT Y68 SC Rpt", Xml1('<Field name="OptVal">Beta</Field><Field name="EnumVal">Second</Field><Field name="BoolVal">Yes</Field>'), 1);
+        RunCase(Observer, 'filled bad int', Report::"LT Y68 SC Rpt", Xml1('<Field name="IntVal">abc</Field>'), 1);
+        Observer.Finish();
+    end;
+
+    [Test]
     procedure Q1_Execute_SelfClosing_OptionsAndRoot()
     var
         Observer: Codeunit "Probe Observer";
