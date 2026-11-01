@@ -37,6 +37,9 @@ ALLOWED = {
     # every write `if Insert() then;` behind a Get, a 'DONE' row stops a second run. Published on BC 29 SaaS, Windows 27.5 and 28.5 from empty tables.
     'tests/al-language/record/lt-as-records/Y47DtInstall.al',
     'tests/al-language/install/lt-cm-install-leads/CmInstallObjects.al',
+    # al-runner issue 6638 (writer Y56): install code creates the number sequences SeqCarry.al restarts and deletes; only NumberSequence
+    # calls behind an Exists check of the same name, no table writes.
+    'tests/al-language/codeunit/lt-seq-carry/SeqCarryInstall.al',
     # Not a corpus app: the helper app that nightly-windows.yml publishes to create the tenant encryption key (#282), and
     # unpublishes again. ci.yml never compiles it. Its install trigger cannot raise (TryFunction); measured on Windows
     # BC 27.5 onprem, 29.0 onprem and 29.0 sandbox (runs 39223208230, 39223203793, 39223200014).
