@@ -6,7 +6,8 @@
 // letters, digits and ._+-: the reporter's formatted Guid ('{...}@EXAMPLE.COM', user name = the same Guid), braces inside, every RFC 5322
 // atext sign, a quoted local part, dots at the edges and doubled, a space, a non-ASCII letter, an IP-literal and a dotless domain, two '@',
 // an empty local part or domain, a comment, the display-name form, upper case. Observed: ok and the stored value, or the error text and code.
-// Insert() and Modify() of the same address. Every user name starts with LTY66; the test removes them first and last.
+// Insert() and Modify() of the same address. Each write runs under asserterror (a TryFunction may not write on the OnPrem tiers) and is
+// rolled back. Every user name starts with LTY66; the test removes them first and last.
 // Pinned elsewhere: whitespace trim, display-name and list reduction, the missing '@', uniqueness (TestUserAuthEmailTrigger.al,
 // lt-av-user-insert/AvUserInsertErrors.al).
 // BC versions: 27, 28, 29
@@ -18,6 +19,8 @@ codeunit 98720 "LT Y66 Auth Email Local Part"
 
     var
         Observer: Codeunit "Probe Observer";
+        Stored: Text;
+        OkSentinelErr: Label 'LT Y66 written', Locked = true;
 
     [Test]
     procedure Y66_AuthEmail_ReporterShape()
@@ -32,12 +35,10 @@ codeunit 98720 "LT Y66 Auth Email Local Part"
         User."User Security ID" := CreateGuid();
         User."License Type" := User."License Type"::"External User";
         Sid := User."User Security ID";
-        ClearLastError();
-        if TryInsert(User) then begin
-            User.Get(Sid);
-            Observer.Observe('insert', 'ok|stored as given=' + Format(User."Authentication Email" = User."User Name" + '@EXAMPLE.COM'));
-            User.Delete(true);
-        end else
+        asserterror InsertAndRaise(User);
+        if GetLastErrorText() = OkSentinelErr then
+            Observer.Observe('insert', 'ok|stored as given=' + Format(Stored = User."User Name" + '@EXAMPLE.COM'))
+        else
             Observer.Observe('insert', 'E ' + GetLastErrorText() + '|' + GetLastErrorCode());
         Cleanup();
         Observer.Finish();
@@ -94,20 +95,12 @@ codeunit 98720 "LT Y66 Auth Email Local Part"
         User.Insert();
         User.Get(Sid);
         User."Authentication Email" := '{524B1D71-5F95-43BA-AC9B-E1E5E17D8767}@EXAMPLE.COM';
-        ClearLastError();
-        if TryModify(User) then begin
-            User.Get(Sid);
-            Observer.Observe('modify', 'ok|' + User."Authentication Email");
-        end else
-            Observer.Observe('modify', 'E ' + GetLastErrorText() + '|' + GetLastErrorCode());
+        asserterror ModifyAndRaise(User);
+        Observer.Observe('modify', Outcome());
         User.Get(Sid);
         User."Authentication Email" := 'a b@example.com';
-        ClearLastError();
-        if TryModify(User) then begin
-            User.Get(Sid);
-            Observer.Observe('modify space', 'ok|' + User."Authentication Email");
-        end else
-            Observer.Observe('modify space', 'E ' + GetLastErrorText() + '|' + GetLastErrorCode());
+        asserterror ModifyAndRaise(User);
+        Observer.Observe('modify space', Outcome());
         Cleanup();
         Observer.Finish();
     end;
@@ -115,17 +108,10 @@ codeunit 98720 "LT Y66 Auth Email Local Part"
     local procedure Probe(No: Integer; Email: Text)
     var
         User: Record User;
-        Sid: Guid;
     begin
         NewUser(User, No, Email);
-        Sid := User."User Security ID";
-        ClearLastError();
-        if TryInsert(User) then begin
-            User.Get(Sid);
-            Observer.Observe(Format(No) + ' ' + Email, 'ok|' + User."Authentication Email");
-            User.Delete(true);
-        end else
-            Observer.Observe(Format(No) + ' ' + Email, 'E ' + GetLastErrorText() + '|' + GetLastErrorCode());
+        asserterror InsertAndRaise(User);
+        Observer.Observe(Format(No) + ' ' + Email, Outcome());
     end;
 
     local procedure NewUser(var User: Record User; No: Integer; Email: Text)
@@ -137,16 +123,34 @@ codeunit 98720 "LT Y66 Auth Email Local Part"
         User."Authentication Email" := CopyStr(Email, 1, MaxStrLen(User."Authentication Email"));
     end;
 
-    [TryFunction]
-    local procedure TryInsert(var User: Record User)
+    // The write runs under asserterror, so it is rolled back; a write that succeeds stores the value BC kept and raises the sentinel.
+    local procedure InsertAndRaise(var User: Record User)
+    var
+        Reader: Record User;
     begin
+        Stored := '';
         User.Insert();
+        Reader.Get(User."User Security ID");
+        Stored := Reader."Authentication Email";
+        Error(OkSentinelErr);
     end;
 
-    [TryFunction]
-    local procedure TryModify(var User: Record User)
+    local procedure ModifyAndRaise(var User: Record User)
+    var
+        Reader: Record User;
     begin
+        Stored := '';
         User.Modify();
+        Reader.Get(User."User Security ID");
+        Stored := Reader."Authentication Email";
+        Error(OkSentinelErr);
+    end;
+
+    local procedure Outcome(): Text
+    begin
+        if GetLastErrorText() = OkSentinelErr then
+            exit('ok|' + Stored);
+        exit('E ' + GetLastErrorText() + '|' + GetLastErrorCode());
     end;
 
     local procedure Cleanup()
