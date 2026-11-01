@@ -1,7 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/xmlport/xmlport-data-type
 // Scope: in-scope
 // Fixtures used: Probe Observer (codeunit 69160); xmlports 61100 and 61101 of AL Language XApp A (tests/al-language-xapp-a/Y66XaXmlPorts.al);
-//   own xmlports 93400 and 93401, test codeunit 93403
+//   own xmlports 93500 and 93501, test codeunit 93503
 // Probe (al-runner issue 6657, writer Y66): the members of an XmlPort variable. The reporter's shape (global procedure, SetTableView of a
 // record with SetRecFilter, SetDestination, Export) on an XmlPort of another app and of the same app; the results of Export() and Import();
 // every receiver kind: a local and a global variable, a var and a by-value parameter, an array element, the result of a procedure returning
@@ -13,7 +13,7 @@
 // X.UseRequestPage(..) (AL0132, case 2643).
 // BC versions: 27, 28, 29
 
-xmlport 93400 "LT Y66 XP Export"
+xmlport 93500 "LT Y66 XP Export"
 {
     Format = Xml;
     Direction = Export;
@@ -52,7 +52,7 @@ xmlport 93400 "LT Y66 XP Export"
     end;
 }
 
-xmlport 93401 "LT Y66 XP Import"
+xmlport 93501 "LT Y66 XP Import"
 {
     Format = Xml;
     Direction = Import;
@@ -84,7 +84,7 @@ xmlport 93401 "LT Y66 XP Import"
     end;
 }
 
-codeunit 93403 "LT Y66 XmlPort Var Members"
+codeunit 93503 "LT Y66 XmlPort Var Members"
 {
     Subtype = Test;
     TestPermissions = Disabled;

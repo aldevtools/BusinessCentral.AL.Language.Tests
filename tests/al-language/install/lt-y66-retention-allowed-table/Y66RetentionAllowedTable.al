@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-retention-policies
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); own table 93405, test codeunit 93411
+// Fixtures used: Probe Observer (codeunit 69160); own table 93505, test codeunit 93511
 // Probe (al-runner issue 6665, writer Y66): what BC does with the step the reporter's install routine runs last: an app registers its own
 // table with "Reten. Pol. Allowed Tables".AddAllowedTable, and a test validates and inserts a "Retention Policy Setup" row for it. Here the
 // registration runs in the test (no install codeunit), so each state is observed: the table before it is registered (IsAllowedTable, the
@@ -11,7 +11,7 @@
 
 using System.DataAdministration;
 
-table 93405 "LT Y66 RP Buffer"
+table 93505 "LT Y66 RP Buffer"
 {
     DataClassification = SystemMetadata;
 
@@ -22,7 +22,7 @@ table 93405 "LT Y66 RP Buffer"
     keys { key(PK; Id) { Clustered = true; } }
 }
 
-codeunit 93411 "LT Y66 Retention Allowed Table"
+codeunit 93511 "LT Y66 Retention Allowed Table"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -54,7 +54,7 @@ codeunit 93411 "LT Y66 Retention Allowed Table"
         Observer.Expect('allowed before', 'No');
         Observer.Expect('validate before', 'ok');
         Observer.Expect('validate customer', 'ok');
-        Observer.Expect('insert before', 'Table 93405 LT Y66 RP Buffer is not in the list of allowed tables.|Dialog');
+        Observer.Expect('insert before', 'Table 93505 LT Y66 RP Buffer is not in the list of allowed tables.|Dialog');
         Observer.Expect('add', 'Yes');
         Observer.Expect('add again', 'Yes');
         Observer.Expect('allowed after', 'Yes');

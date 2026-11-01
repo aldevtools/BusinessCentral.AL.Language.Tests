@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/properties/devenv-sourcetabletemporary-property
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); own table 93404, pages 93402 and 93403, codeunits 93409 (log, used by 93410 only) and 93410
+// Fixtures used: Probe Observer (codeunit 69160); own table 93504, pages 93502 and 93503, codeunits 93509 (log, used by 93510 only) and 93510
 // Probe (al-runner issue 6664, follow-up of 6180, writer Y66): a List with Editable = false over a temporary source (SourceTableView
 // descending, the reporter's shape, and ascending) that OnOpenPage fills with one row (or two), then an action that deletes every row and
 // inserts none (MyFilter0, also with CurrPage.Update(false)), one (MyFilter1) or two (MyFilter2). Opened with Page.RunModal (ModalPageHandler),
@@ -11,7 +11,7 @@
 // RmTempRefill.al TD_RefillFewer_*To0).
 // BC versions: 27, 28, 29
 
-table 93404 "LT Y66 GR Row"
+table 93504 "LT Y66 GR Row"
 {
     DataClassification = SystemMetadata;
 
@@ -23,7 +23,7 @@ table 93404 "LT Y66 GR Row"
     keys { key(PK; Id) { Clustered = true; } }
 }
 
-codeunit 93409 "LT Y66 GR Log"
+codeunit 93509 "LT Y66 GR Log"
 {
     SingleInstance = true;
 
@@ -54,7 +54,7 @@ codeunit 93409 "LT Y66 GR Log"
     end;
 }
 
-page 93402 "LT Y66 GR List Desc"
+page 93502 "LT Y66 GR List Desc"
 {
     PageType = List;
     Editable = false;
@@ -137,7 +137,7 @@ page 93402 "LT Y66 GR List Desc"
     end;
 }
 
-page 93403 "LT Y66 GR List Asc"
+page 93503 "LT Y66 GR List Asc"
 {
     PageType = List;
     Editable = false;
@@ -220,7 +220,7 @@ page 93403 "LT Y66 GR List Asc"
     end;
 }
 
-codeunit 93410 "LT Y66 Temp List Gone Row"
+codeunit 93510 "LT Y66 Temp List Gone Row"
 {
     Subtype = Test;
     TestPermissions = Disabled;

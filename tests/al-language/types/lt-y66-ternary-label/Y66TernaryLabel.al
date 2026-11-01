@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods/devenv-ternary-operator
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); own table 93400, test codeunit 93404
+// Fixtures used: Probe Observer (codeunit 69160); own table 93500, test codeunit 93504
 // Probe (al-runner issue 6659, writer Y66): a conditional expression with a Label branch against a table field (Text[100], Code[10], Guid),
 // a Text[3], Code[3], Code[250] or Text variable or another Label, in both orders, with a Label that has MaxLength = 100 and one
 // without. Each pair is read true and false into a Text, a Text[100], a Text[5] and a Code[20], with StrLen, Format and the kind of a
@@ -11,7 +11,7 @@
 // compile: scripts/conversion-matrix/compile-matrix.csv row cond_branches,Label (a Label against a Variant is AL0122).
 // BC versions: 27, 28, 29
 
-table 93400 "LT Y66 TL Row"
+table 93500 "LT Y66 TL Row"
 {
     DataClassification = SystemMetadata;
 
@@ -34,7 +34,7 @@ table 93400 "LT Y66 TL Row"
     end;
 }
 
-codeunit 93404 "LT Y66 Ternary Label"
+codeunit 93504 "LT Y66 Ternary Label"
 {
     Subtype = Test;
     TestPermissions = Disabled;

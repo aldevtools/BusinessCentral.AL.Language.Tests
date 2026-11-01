@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/fieldref/fieldref-length-method
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); own tables 93402 and 93403, test codeunit 93408
+// Fixtures used: Probe Observer (codeunit 69160); own tables 93502 and 93503, test codeunit 93508
 // Probe (al-runner issue 6663, writer Y66): FieldRef.Length of the field types and kinds that fieldref/lt-fieldref-length-kinds/
 // FieldRefLengthKinds.al and record/lt-media-length-find-empty/MediaLengthFindEmpty.al do not cover: DateFormula, RecordId, TableFilter,
 // Text and Code of the longest length, a FlowField of each result kind (Sum Decimal, Count Integer, Exist Boolean, Lookup Text and Date), a
@@ -9,7 +9,7 @@
 // compares Type and Length of every field pair between two RecordRefs.
 // BC versions: 27, 28, 29
 
-table 93403 "LT Y66 FL Line"
+table 93503 "LT Y66 FL Line"
 {
     DataClassification = SystemMetadata;
 
@@ -24,7 +24,7 @@ table 93403 "LT Y66 FL Line"
     keys { key(PK; Id) { Clustered = true; } }
 }
 
-table 93402 "LT Y66 FL Row"
+table 93502 "LT Y66 FL Row"
 {
     DataClassification = SystemMetadata;
 
@@ -49,7 +49,7 @@ table 93402 "LT Y66 FL Row"
     keys { key(PK; Id) { Clustered = true; } }
 }
 
-codeunit 93408 "LT Y66 FieldRef Length Types"
+codeunit 93508 "LT Y66 FieldRef Length Types"
 {
     Subtype = Test;
     TestPermissions = Disabled;

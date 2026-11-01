@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/system/system-copyarray-method
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); own interface 93400, codeunits 93400 to 93402
+// Fixtures used: Probe Observer (codeunit 69160); own interface 93500, codeunits 93500 to 93502
 // Probe (al-runner issue 6658, writer Y66): CopyArray whose source is the result of a procedure returning an array (codeunit method, named
 // return value, local procedure, interface method, Text[10] array), with and without Length, into a longer and a shorter target; and
 // the shapes that also compile but write into a function result: CopyArray with a function result as TARGET, CompressArray(P.GetGaps()) and
@@ -13,7 +13,7 @@ interface "LT Y66 CA Source"
     procedure Values(): array[2] of Integer;
 }
 
-codeunit 93400 "LT Y66 CA Provider"
+codeunit 93500 "LT Y66 CA Provider"
 {
     var
         Guids: array[2] of Guid;
@@ -60,7 +60,7 @@ codeunit 93400 "LT Y66 CA Provider"
     end;
 }
 
-codeunit 93401 "LT Y66 CA Source Impl" implements "LT Y66 CA Source"
+codeunit 93501 "LT Y66 CA Source Impl" implements "LT Y66 CA Source"
 {
     procedure Values() R: array[2] of Integer
     begin
@@ -69,7 +69,7 @@ codeunit 93401 "LT Y66 CA Source Impl" implements "LT Y66 CA Source"
     end;
 }
 
-codeunit 93402 "LT Y66 CopyArray Fn Result"
+codeunit 93502 "LT Y66 CopyArray Fn Result"
 {
     Subtype = Test;
     TestPermissions = Disabled;

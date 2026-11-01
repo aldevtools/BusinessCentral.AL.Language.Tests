@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/variant/variant-data-type
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); own table 93401, codeunits 93405 and 93406
+// Fixtures used: Probe Observer (codeunit 69160); own table 93501, codeunits 93505 and 93506
 // Probe (al-runner issue 6660, writer Y66): the type a value has after a BigInteger expression is stored in an Integer (a var parameter, a
 // local, a global, a record field, an array element, a by-value parameter, an exit value of a procedure returning Integer, +=), seen through a
 // Variant (IsInteger, IsBigInteger, IsDecimal, IsDuration) and through Format(V, 0, 9); the neighbours: Decimal and Duration targets, a
@@ -10,7 +10,7 @@
 // The reporter's Library Assert is not a dependency of this app; its type check reads the same IsInteger/IsBigInteger kinds.
 // BC versions: 27, 28, 29
 
-table 93401 "LT Y66 BI Row"
+table 93501 "LT Y66 BI Row"
 {
     DataClassification = SystemMetadata;
 
@@ -22,7 +22,7 @@ table 93401 "LT Y66 BI Row"
     keys { key(PK; Id) { Clustered = true; } }
 }
 
-codeunit 93406 "LT Y66 BI Grace Period"
+codeunit 93506 "LT Y66 BI Grace Period"
 {
     procedure GetDaysLeft(var DaysLeft: Integer)
     var
@@ -52,7 +52,7 @@ codeunit 93406 "LT Y66 BI Grace Period"
     end;
 }
 
-codeunit 93405 "LT Y66 BigInt Into Int"
+codeunit 93505 "LT Y66 BigInt Into Int"
 {
     Subtype = Test;
     TestPermissions = Disabled;
