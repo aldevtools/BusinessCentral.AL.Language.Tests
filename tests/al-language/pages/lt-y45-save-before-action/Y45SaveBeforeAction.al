@@ -24,6 +24,20 @@
 //   raises 'This field cannot be validated since the key fields are not valid.' (with the Refresh suffix on a Card and a Document page);
 //   after that an action and Close run nothing and raise nothing.
 // - OnValidate error: SetValue raises TestValidation at once; afterwards the control shows the stored value, and an action or Next runs nothing.
+//
+// NextField_* tests (al-runner issue 6629; fixtures Y55NextFieldFixtures.al: table 93000 "LT Y55 Line", pages 93000-93005; pvAct / pvQty =
+// the page control OnValidate of the page variable Activate / of Rec.Qty, the l-prefixed entries the same for the part line). Measured on
+// BC 29 (SaaS sandbox), BC 28.5 (Windows container) and BC 27.5, 28.5 and 29.0 (corpus CI); every value is the same on all of them.
+// - SetValue of a PAGE-VARIABLE field saves the edited row first (pM, eBM, tM, eAM), then runs its OnValidate, which sees the new value in
+//   Rec and in a fresh Get. The same on a Worksheet (InsertAllowed = false), a Card, a List and a Document header, and for a part line
+//   (lpM, lM, then the part's page-variable OnValidate).
+// - SetValue of another REC field does not save: the table OnValidate and then the page control OnValidate run, and Get still reads the
+//   stored row. A page-variable SetValue on a row with no edit saves nothing.
+// - Close saves the row if it is still edited; after a save by a page-variable field Close logs nothing.
+// - New row: Code then a page-variable field inserts the row first (pI, eBI, tI), then validates; Code, Name, page variable: insert at
+//   Name, modify at the page variable. A new part line is inserted (lpI, lI) before the part's page-variable OnValidate.
+// - Host and part: a SetValue in the part saves an edited host row first, and a SetValue on the host saves an edited part line first,
+//   for Rec fields too.
 codeunit 92890 "LT Y45 Save Before Action"
 {
     Subtype = Test;
@@ -2055,7 +2069,16 @@ codeunit 92890 "LT Y45 Save Before Action"
         TP.Close();
         Observer.Observe('close', Log.Take());
         Observer.Observe('db end', Log.HeadDb('H1'));
-        Observer.Finish();
+        Observer.Expect('open', 'R H1;R H2;R H1;R H1;C H1');
+        Observer.Expect('set name', 'vName new/old db=old/1');
+        Observer.Expect('db set name', 'old/1');
+        Observer.Expect('set act', 'pM new/old db=old/1;eBM new t=Yes db=old/1;tM new/old db=old/1;eAM db=new/1;pvAct rec=new/1 db=new/1');
+        Observer.Expect('db set act', 'new/1');
+        Observer.Expect('set qty', 'vQty 5;pvQty 5 db=new/1');
+        Observer.Expect('db set qty', 'new/1');
+        Observer.Expect('close', 'pM new/new db=new/1;eBM new t=Yes db=new/1;tM new/new db=new/1;eAM db=new/5');
+        Observer.Expect('db end', 'new/5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2077,7 +2100,14 @@ codeunit 92890 "LT Y45 Save Before Action"
         TP.Close();
         Observer.Observe('close', Log.Take());
         Observer.Observe('db end', Log.HeadDb('H1'));
-        Observer.Finish();
+        Observer.Expect('open', 'R H1;R H2;R H1;R H1;C H1');
+        Observer.Expect('set name', 'vName new/old db=old/1');
+        Observer.Expect('db set name', 'old/1');
+        Observer.Expect('set qty', 'vQty 5;pvQty 5 db=old/1');
+        Observer.Expect('db set qty', 'old/1');
+        Observer.Expect('close', 'pM new/old db=old/1;eBM new t=Yes db=old/1;tM new/old db=old/1;eAM db=new/5');
+        Observer.Expect('db end', 'new/5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2099,7 +2129,14 @@ codeunit 92890 "LT Y45 Save Before Action"
         TP.Close();
         Observer.Observe('close', Log.Take());
         Observer.Observe('db end', Log.HeadDb('H1'));
-        Observer.Finish();
+        Observer.Expect('open', 'R H1;R H2;R H1;R H1;C H1');
+        Observer.Expect('set qty', 'vQty 5;pvQty 5 db=old/1');
+        Observer.Expect('db set qty', 'old/1');
+        Observer.Expect('set name', 'vName new/old db=old/1');
+        Observer.Expect('db set name', 'old/1');
+        Observer.Expect('close', 'pM new/old db=old/1;eBM new t=Yes db=old/1;tM new/old db=old/1;eAM db=new/5');
+        Observer.Expect('db end', 'new/5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2121,7 +2158,14 @@ codeunit 92890 "LT Y45 Save Before Action"
         TP.Close();
         Observer.Observe('close', Log.Take());
         Observer.Observe('db end', Log.HeadDb('H1'));
-        Observer.Finish();
+        Observer.Expect('open', 'R H1;R H2;R H1;R H1;C H1');
+        Observer.Expect('set name', 'vName new/old db=old/1');
+        Observer.Expect('db set name', 'old/1');
+        Observer.Expect('set name2', 'vName newer/new db=old/1');
+        Observer.Expect('db set name2', 'old/1');
+        Observer.Expect('close', 'pM newer/old db=old/1;eBM newer t=Yes db=old/1;tM newer/old db=old/1;eAM db=newer/1');
+        Observer.Expect('db end', 'newer/1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2146,7 +2190,16 @@ codeunit 92890 "LT Y45 Save Before Action"
         TP.Close();
         Observer.Observe('close', Log.Take());
         Observer.Observe('db end', Log.HeadDb('H1'));
-        Observer.Finish();
+        Observer.Expect('open', 'R H1;R H2;R H1;R H1;C H1');
+        Observer.Expect('set act', 'pvAct rec=old/1 db=old/1');
+        Observer.Expect('db set act', 'old/1');
+        Observer.Expect('set name', 'vName new/old db=old/1');
+        Observer.Expect('db set name', 'old/1');
+        Observer.Expect('set act2', 'pM new/old db=old/1;eBM new t=Yes db=old/1;tM new/old db=old/1;eAM db=new/1;pvAct rec=new/1 db=new/1');
+        Observer.Expect('db set act2', 'new/1');
+        Observer.Expect('close', '');
+        Observer.Expect('db end', 'new/1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2170,7 +2223,16 @@ codeunit 92890 "LT Y45 Save Before Action"
         TP.Close();
         Observer.Observe('close', Log.Take());
         Observer.Observe('db end', Log.HeadDb('H1'));
-        Observer.Finish();
+        Observer.Expect('open', 'R H1;C H1');
+        Observer.Expect('set name', 'vName new/old db=old/1');
+        Observer.Expect('db set name', 'old/1');
+        Observer.Expect('set act', 'pM new/old db=old/1;eBM new t=Yes db=old/1;tM new/old db=old/1;eAM db=new/1;pvAct rec=new/1 db=new/1');
+        Observer.Expect('db set act', 'new/1');
+        Observer.Expect('set qty', 'vQty 5;pvQty 5 db=new/1');
+        Observer.Expect('db set qty', 'new/1');
+        Observer.Expect('close', 'pM new/new db=new/1;eBM new t=Yes db=new/1;tM new/new db=new/1;eAM db=new/5');
+        Observer.Expect('db end', 'new/5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2191,7 +2253,14 @@ codeunit 92890 "LT Y45 Save Before Action"
         TP.Close();
         Observer.Observe('close', Log.Take());
         Observer.Observe('db end', Log.HeadDb('H1'));
-        Observer.Finish();
+        Observer.Expect('open', 'R H1;C H1');
+        Observer.Expect('set name', 'vName new/old db=old/1');
+        Observer.Expect('db set name', 'old/1');
+        Observer.Expect('set qty', 'vQty 5;pvQty 5 db=old/1');
+        Observer.Expect('db set qty', 'old/1');
+        Observer.Expect('close', 'pM new/old db=old/1;eBM new t=Yes db=old/1;tM new/old db=old/1;eAM db=new/5');
+        Observer.Expect('db end', 'new/5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2212,7 +2281,14 @@ codeunit 92890 "LT Y45 Save Before Action"
         TP.Close();
         Observer.Observe('close', Log.Take());
         Observer.Observe('db end', Log.HeadDb('H1'));
-        Observer.Finish();
+        Observer.Expect('open', 'R H1;C H1');
+        Observer.Expect('set qty', 'vQty 5;pvQty 5 db=old/1');
+        Observer.Expect('db set qty', 'old/1');
+        Observer.Expect('set name', 'vName new/old db=old/1');
+        Observer.Expect('db set name', 'old/1');
+        Observer.Expect('close', 'pM new/old db=old/1;eBM new t=Yes db=old/1;tM new/old db=old/1;eAM db=new/5');
+        Observer.Expect('db end', 'new/5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2233,7 +2309,14 @@ codeunit 92890 "LT Y45 Save Before Action"
         TP.Close();
         Observer.Observe('close', Log.Take());
         Observer.Observe('db end', Log.HeadDb('H1'));
-        Observer.Finish();
+        Observer.Expect('open', 'R H1;C H1');
+        Observer.Expect('set name', 'vName new/old db=old/1');
+        Observer.Expect('db set name', 'old/1');
+        Observer.Expect('set name2', 'vName newer/new db=old/1');
+        Observer.Expect('db set name2', 'old/1');
+        Observer.Expect('close', 'pM newer/old db=old/1;eBM newer t=Yes db=old/1;tM newer/old db=old/1;eAM db=newer/1');
+        Observer.Expect('db end', 'newer/1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2257,7 +2340,16 @@ codeunit 92890 "LT Y45 Save Before Action"
         TP.Close();
         Observer.Observe('close', Log.Take());
         Observer.Observe('db end', Log.HeadDb('H1'));
-        Observer.Finish();
+        Observer.Expect('open', 'R H1;C H1');
+        Observer.Expect('set act', 'pvAct rec=old/1 db=old/1');
+        Observer.Expect('db set act', 'old/1');
+        Observer.Expect('set name', 'vName new/old db=old/1');
+        Observer.Expect('db set name', 'old/1');
+        Observer.Expect('set act2', 'pM new/old db=old/1;eBM new t=Yes db=old/1;tM new/old db=old/1;eAM db=new/1;pvAct rec=new/1 db=new/1');
+        Observer.Expect('db set act2', 'new/1');
+        Observer.Expect('close', '');
+        Observer.Expect('db end', 'new/1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2281,7 +2373,16 @@ codeunit 92890 "LT Y45 Save Before Action"
         TP.Close();
         Observer.Observe('close', Log.Take());
         Observer.Observe('db end', Log.HeadDb('H1'));
-        Observer.Finish();
+        Observer.Expect('open', 'R H1;R H2;R H1;R H1;C H1');
+        Observer.Expect('set name', 'vName new/old db=old/1');
+        Observer.Expect('db set name', 'old/1');
+        Observer.Expect('set act', 'pM new/old db=old/1;eBM new t=Yes db=old/1;tM new/old db=old/1;eAM db=new/1;pvAct rec=new/1 db=new/1');
+        Observer.Expect('db set act', 'new/1');
+        Observer.Expect('set qty', 'vQty 5;pvQty 5 db=new/1');
+        Observer.Expect('db set qty', 'new/1');
+        Observer.Expect('close', 'pM new/new db=new/1;eBM new t=Yes db=new/1;tM new/new db=new/1;eAM db=new/5');
+        Observer.Expect('db end', 'new/5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2302,7 +2403,14 @@ codeunit 92890 "LT Y45 Save Before Action"
         TP.Close();
         Observer.Observe('close', Log.Take());
         Observer.Observe('db end', Log.HeadDb('H1'));
-        Observer.Finish();
+        Observer.Expect('open', 'R H1;R H2;R H1;R H1;C H1');
+        Observer.Expect('set name', 'vName new/old db=old/1');
+        Observer.Expect('db set name', 'old/1');
+        Observer.Expect('set qty', 'vQty 5;pvQty 5 db=old/1');
+        Observer.Expect('db set qty', 'old/1');
+        Observer.Expect('close', 'pM new/old db=old/1;eBM new t=Yes db=old/1;tM new/old db=old/1;eAM db=new/5');
+        Observer.Expect('db end', 'new/5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2323,7 +2431,14 @@ codeunit 92890 "LT Y45 Save Before Action"
         TP.Close();
         Observer.Observe('close', Log.Take());
         Observer.Observe('db end', Log.HeadDb('H1'));
-        Observer.Finish();
+        Observer.Expect('open', 'R H1;R H2;R H1;R H1;C H1');
+        Observer.Expect('set qty', 'vQty 5;pvQty 5 db=old/1');
+        Observer.Expect('db set qty', 'old/1');
+        Observer.Expect('set name', 'vName new/old db=old/1');
+        Observer.Expect('db set name', 'old/1');
+        Observer.Expect('close', 'pM new/old db=old/1;eBM new t=Yes db=old/1;tM new/old db=old/1;eAM db=new/5');
+        Observer.Expect('db end', 'new/5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2347,7 +2462,16 @@ codeunit 92890 "LT Y45 Save Before Action"
         TP.Close();
         Observer.Observe('close', Log.Take());
         Observer.Observe('db end', Log.HeadDb('H1'));
-        Observer.Finish();
+        Observer.Expect('open', 'R H1;C H1;lpN;lC 0;lpN;lC 0;lpN;lC 0');
+        Observer.Expect('set name', 'vName new/old db=old/1');
+        Observer.Expect('db set name', 'old/1');
+        Observer.Expect('set act', 'pM new/old db=old/1;eBM new t=Yes db=old/1;tM new/old db=old/1;eAM db=new/1;pvAct rec=new/1 db=new/1');
+        Observer.Expect('db set act', 'new/1');
+        Observer.Expect('set qty', 'vQty 5;pvQty 5 db=new/1');
+        Observer.Expect('db set qty', 'new/1');
+        Observer.Expect('close', 'pM new/new db=new/1;eBM new t=Yes db=new/1;tM new/new db=new/1;eAM db=new/5');
+        Observer.Expect('db end', 'new/5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2368,7 +2492,14 @@ codeunit 92890 "LT Y45 Save Before Action"
         TP.Close();
         Observer.Observe('close', Log.Take());
         Observer.Observe('db end', Log.HeadDb('H1'));
-        Observer.Finish();
+        Observer.Expect('open', 'R H1;C H1;lpN;lC 0;lpN;lC 0;lpN;lC 0');
+        Observer.Expect('set name', 'vName new/old db=old/1');
+        Observer.Expect('db set name', 'old/1');
+        Observer.Expect('set qty', 'vQty 5;pvQty 5 db=old/1');
+        Observer.Expect('db set qty', 'old/1');
+        Observer.Expect('close', 'pM new/old db=old/1;eBM new t=Yes db=old/1;tM new/old db=old/1;eAM db=new/5');
+        Observer.Expect('db end', 'new/5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2389,7 +2520,14 @@ codeunit 92890 "LT Y45 Save Before Action"
         TP.Close();
         Observer.Observe('close', Log.Take());
         Observer.Observe('db end', Log.HeadDb('H1'));
-        Observer.Finish();
+        Observer.Expect('open', 'R H1;C H1;lpN;lC 0;lpN;lC 0;lpN;lC 0');
+        Observer.Expect('set qty', 'vQty 5;pvQty 5 db=old/1');
+        Observer.Expect('db set qty', 'old/1');
+        Observer.Expect('set name', 'vName new/old db=old/1');
+        Observer.Expect('db set name', 'old/1');
+        Observer.Expect('close', 'pM new/old db=old/1;eBM new t=Yes db=old/1;tM new/old db=old/1;eAM db=new/5');
+        Observer.Expect('db end', 'new/5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2413,7 +2551,14 @@ codeunit 92890 "LT Y45 Save Before Action"
         TP.Close();
         Observer.Observe('close', Log.Take());
         Observer.Observe('db end', Log.HeadDb('H1'));
-        Observer.Finish();
+        Observer.Expect('open', 'R H1;R H2;R H1;R H1;C H1');
+        Observer.Expect('set name', 'vName new/old db=old/1');
+        Observer.Expect('db set name', 'old/1');
+        Observer.Expect('set act', 'pM new/old db=old/1;eBM new t=Yes db=old/1;tM new/old db=old/1;eAM db=new/1;pvAct rec=new/1 db=new/1');
+        Observer.Expect('db set act', 'new/1');
+        Observer.Expect('close', '');
+        Observer.Expect('db end', 'new/1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2440,7 +2585,18 @@ codeunit 92890 "LT Y45 Save Before Action"
         TP.Close();
         Observer.Observe('close', Log.Take());
         Observer.Observe('db end', Log.HeadDb('N1'));
-        Observer.Finish();
+        Observer.Expect('open', 'pN;C ');
+        Observer.Expect('set code', 'vCode N1');
+        Observer.Expect('db set code', 'none');
+        Observer.Expect('set name', 'pI N1 ;eBI N1 t=Yes;tI N1  db=none;vName nn/ db=/0');
+        Observer.Expect('db set name', '/0');
+        Observer.Expect('set act', 'pM nn/ db=/0;eBM nn t=Yes db=/0;tM nn/ db=/0;eAM db=nn/0;pvAct rec=nn/0 db=nn/0');
+        Observer.Expect('db set act', 'nn/0');
+        Observer.Expect('set qty', 'vQty 5;pvQty 5 db=nn/0');
+        Observer.Expect('db set qty', 'nn/0');
+        Observer.Expect('close', 'pM nn/nn db=nn/0;eBM nn t=Yes db=nn/0;tM nn/nn db=nn/0;eAM db=nn/5');
+        Observer.Expect('db end', 'nn/5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2464,7 +2620,16 @@ codeunit 92890 "LT Y45 Save Before Action"
         TP.Close();
         Observer.Observe('close', Log.Take());
         Observer.Observe('db end', Log.HeadDb('N1'));
-        Observer.Finish();
+        Observer.Expect('open', 'pN;C ');
+        Observer.Expect('set code', 'vCode N1');
+        Observer.Expect('db set code', 'none');
+        Observer.Expect('set act', 'pI N1 ;eBI N1 t=Yes;tI N1  db=none;pvAct rec=/0 db=/0');
+        Observer.Expect('db set act', '/0');
+        Observer.Expect('set name', 'vName nn/ db=/0');
+        Observer.Expect('db set name', '/0');
+        Observer.Expect('close', 'pM nn/ db=/0;eBM nn t=Yes db=/0;tM nn/ db=/0;eAM db=nn/0');
+        Observer.Expect('db end', 'nn/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2489,7 +2654,16 @@ codeunit 92890 "LT Y45 Save Before Action"
         TP.Close();
         Observer.Observe('close', Log.Take());
         Observer.Observe('db end', Log.HeadDb('N1'));
-        Observer.Finish();
+        Observer.Expect('open', 'R H1;R H2;R H1;R H1;C H1;pN;C ');
+        Observer.Expect('set code', 'vCode N1');
+        Observer.Expect('db set code', 'none');
+        Observer.Expect('set name', 'pI N1 ;eBI N1 t=Yes;tI N1  db=none;vName nn/ db=/0');
+        Observer.Expect('db set name', '/0');
+        Observer.Expect('set act', 'pM nn/ db=/0;eBM nn t=Yes db=/0;tM nn/ db=/0;eAM db=nn/0;pvAct rec=nn/0 db=nn/0');
+        Observer.Expect('db set act', 'nn/0');
+        Observer.Expect('close', '');
+        Observer.Expect('db end', 'nn/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2514,7 +2688,16 @@ codeunit 92890 "LT Y45 Save Before Action"
         TP.Close();
         Observer.Observe('close', Log.Take());
         Observer.Observe('db end', Log.HeadDb('N1'));
-        Observer.Finish();
+        Observer.Expect('open', 'R H1;R H2;R H1;R H1;C H1;pN;C ');
+        Observer.Expect('set code', 'vCode N1');
+        Observer.Expect('db set code', 'none');
+        Observer.Expect('set name', 'pI N1 ;eBI N1 t=Yes;tI N1  db=none;vName nn/ db=/0');
+        Observer.Expect('db set name', '/0');
+        Observer.Expect('set act', 'pM nn/ db=/0;eBM nn t=Yes db=/0;tM nn/ db=/0;eAM db=nn/0;pvAct rec=nn/0 db=nn/0');
+        Observer.Expect('db set act', 'nn/0');
+        Observer.Expect('close', '');
+        Observer.Expect('db end', 'nn/0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2539,7 +2722,16 @@ codeunit 92890 "LT Y45 Save Before Action"
         TP.Close();
         Observer.Observe('close', Log.Take());
         Observer.Observe('db end', Log.HeadDb('H1') + ' l1=' + NextFieldLineDb('H1', 10000));
-        Observer.Finish();
+        Observer.Expect('open', 'R H1;C H1;lC 10000');
+        Observer.Expect('set desc', 'vDesc new/a db=a/1');
+        Observer.Expect('db set desc', 'old/1 l1=a/1');
+        Observer.Expect('set lact', 'lpM new/a db=a/1;lM new/a db=a/1;lpvAct rec=new/1 db=new/1 head=old/1');
+        Observer.Expect('db set lact', 'old/1 l1=new/1');
+        Observer.Expect('set lqty', 'vLQty 5 db=new/1;lpvQty 5 db=new/1');
+        Observer.Expect('db set lqty', 'old/1 l1=new/1');
+        Observer.Expect('close', 'lpM new/new db=new/1;lM new/new db=new/1');
+        Observer.Expect('db end', 'old/1 l1=new/5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2561,7 +2753,14 @@ codeunit 92890 "LT Y45 Save Before Action"
         TP.Close();
         Observer.Observe('close', Log.Take());
         Observer.Observe('db end', Log.HeadDb('H1') + ' l1=' + NextFieldLineDb('H1', 10000));
-        Observer.Finish();
+        Observer.Expect('open', 'R H1;C H1;lC 10000');
+        Observer.Expect('set desc', 'vDesc new/a db=a/1');
+        Observer.Expect('db set desc', 'old/1 l1=a/1');
+        Observer.Expect('set lqty', 'vLQty 5 db=a/1;lpvQty 5 db=a/1');
+        Observer.Expect('db set lqty', 'old/1 l1=a/1');
+        Observer.Expect('close', 'lpM new/a db=a/1;lM new/a db=a/1');
+        Observer.Expect('db end', 'old/1 l1=new/5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2583,7 +2782,14 @@ codeunit 92890 "LT Y45 Save Before Action"
         TP.Close();
         Observer.Observe('close', Log.Take());
         Observer.Observe('db end', Log.HeadDb('H1') + ' l1=' + NextFieldLineDb('H1', 10000));
-        Observer.Finish();
+        Observer.Expect('open', 'R H1;C H1;lC 10000');
+        Observer.Expect('set lqty', 'vLQty 5 db=a/1;lpvQty 5 db=a/1');
+        Observer.Expect('db set lqty', 'old/1 l1=a/1');
+        Observer.Expect('set desc', 'vDesc new/a db=a/1');
+        Observer.Expect('db set desc', 'old/1 l1=a/1');
+        Observer.Expect('close', 'lpM new/a db=a/1;lM new/a db=a/1');
+        Observer.Expect('db end', 'old/1 l1=new/5');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2605,7 +2811,14 @@ codeunit 92890 "LT Y45 Save Before Action"
         TP.Close();
         Observer.Observe('close', Log.Take());
         Observer.Observe('db end', Log.HeadDb('H1') + ' l1=' + NextFieldLineDb('H1', 10000));
-        Observer.Finish();
+        Observer.Expect('open', 'R H1;C H1;lC 10000');
+        Observer.Expect('set name', 'vName new/old db=old/1');
+        Observer.Expect('db set name', 'old/1 l1=a/1');
+        Observer.Expect('set desc', 'pM new/old db=old/1;eBM new t=Yes db=old/1;tM new/old db=old/1;eAM db=new/1;vDesc new/a db=a/1');
+        Observer.Expect('db set desc', 'new/1 l1=a/1');
+        Observer.Expect('close', 'lpM new/a db=a/1;lM new/a db=a/1');
+        Observer.Expect('db end', 'new/1 l1=new/1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2627,7 +2840,14 @@ codeunit 92890 "LT Y45 Save Before Action"
         TP.Close();
         Observer.Observe('close', Log.Take());
         Observer.Observe('db end', Log.HeadDb('H1') + ' l1=' + NextFieldLineDb('H1', 10000));
-        Observer.Finish();
+        Observer.Expect('open', 'R H1;C H1;lC 10000');
+        Observer.Expect('set desc', 'vDesc new/a db=a/1');
+        Observer.Expect('db set desc', 'old/1 l1=a/1');
+        Observer.Expect('set name', 'lpM new/a db=a/1;lM new/a db=a/1;vName new/old db=old/1');
+        Observer.Expect('db set name', 'old/1 l1=new/1');
+        Observer.Expect('close', 'pM new/old db=old/1;eBM new t=Yes db=old/1;tM new/old db=old/1;eAM db=new/1');
+        Observer.Expect('db end', 'new/1 l1=new/1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2649,7 +2869,14 @@ codeunit 92890 "LT Y45 Save Before Action"
         TP.Close();
         Observer.Observe('close', Log.Take());
         Observer.Observe('db end', Log.HeadDb('H1') + ' l1=' + NextFieldLineDb('H1', 10000));
-        Observer.Finish();
+        Observer.Expect('open', 'R H1;C H1;lC 10000');
+        Observer.Expect('set desc', 'vDesc new/a db=a/1');
+        Observer.Expect('db set desc', 'old/1 l1=a/1');
+        Observer.Expect('set act', 'lpM new/a db=a/1;lM new/a db=a/1;pvAct rec=old/1 db=old/1');
+        Observer.Expect('db set act', 'old/1 l1=new/1');
+        Observer.Expect('close', '');
+        Observer.Expect('db end', 'old/1 l1=new/1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -2676,6 +2903,15 @@ codeunit 92890 "LT Y45 Save Before Action"
         TP.Close();
         Observer.Observe('close', Log.Take());
         Observer.Observe('db end', Log.HeadDb('H1') + ' l1=' + NextFieldLineDb('H1', 10000));
-        Observer.Finish();
+        Observer.Expect('open', 'R H1;C H1;lC 10000;lpN;lC 0;lC 20000;lpN;lC 0');
+        Observer.Expect('set desc', 'vDesc x/ db=none');
+        Observer.Expect('db set desc', 'old/1 l1=a/1');
+        Observer.Expect('set lact', 'lpI 30000 x;lI 30000 x db=none;lpvAct rec=x/0 db=x/0 head=old/1');
+        Observer.Expect('db set lact', 'old/1 l1=a/1');
+        Observer.Expect('set lqty', 'vLQty 5 db=x/0;lpvQty 5 db=x/0');
+        Observer.Expect('db set lqty', 'old/1 l1=a/1');
+        Observer.Expect('close', 'lpM x/x db=x/0;lM x/x db=x/0');
+        Observer.Expect('db end', 'old/1 l1=a/1');
+        Observer.Verify();
     end;
 }
