@@ -616,15 +616,24 @@ codeunit 93740 "LT Y70 Probes"
     [Test]
     procedure FieldRow_SystemFieldSystemId()
     var
-        Fld: Record Field;
-        FieldNo: Integer;
     begin
-        foreach FieldNo in [1, 2000000000, 2000000001, 2000000002, 2000000003, 2000000004] do
-            if Fld.Get(Database::"LT Y70 Row", FieldNo) then
-                Obs.Observe('f' + Format(FieldNo), Format(Fld.SystemId) + ' ' + Fld.FieldName)
-            else
-                Obs.Observe('f' + Format(FieldNo), 'none');
+        ObserveFieldRow('f1', 1);
+        ObserveFieldRow('f2000000000', 2000000000);
+        ObserveFieldRow('f2000000001', 2000000001);
+        ObserveFieldRow('f2000000002', 2000000002);
+        ObserveFieldRow('f2000000003', 2000000003);
+        ObserveFieldRow('f2000000004', 2000000004);
         Obs.Finish();
+    end;
+
+    local procedure ObserveFieldRow(Name: Text; FieldNo: Integer)
+    var
+        Fld: Record Field;
+    begin
+        if Fld.Get(Database::"LT Y70 Row", FieldNo) then
+            Obs.Observe(Name, Format(Fld.SystemId) + ' ' + Fld.FieldName)
+        else
+            Obs.Observe(Name, 'none');
     end;
 
     // ---- Transaction state after a read under ReadUncommitted
