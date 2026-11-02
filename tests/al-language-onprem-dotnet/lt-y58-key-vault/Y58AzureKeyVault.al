@@ -267,7 +267,32 @@ codeunit 61457 "LT Y58 Azure Key Vault"
         AzureKeyVaultTestLibrary.ClearSecrets();
         ObserveSecret(Observer, 'read after ClearSecrets', 'lt-y58-cache');
         AzureKeyVaultTestLibrary.ClearSecrets();
-        Observer.Finish();
+#if BC29PLUS
+        Observer.Expect('first read', 'true/first');
+        Observer.Expect('second mapping of the same name|text', 'A call to MockTest.MockAzureKeyVaultSecret.MockAzureKeyVaultSecretProvider.AddSecretMapping failed with this message: An item with the same key has already been added. Key: lt-y58-cache');
+        Observer.Expect('second mapping of the same name|code', 'DotNetInvoke:Argument');
+        Observer.Expect('name mapped after the first read', 'true/late');
+        Observer.Expect('read after a new provider', 'true/from second provider');
+        Observer.Expect('name of the old provider only, after a new provider', 'false/');
+        Observer.Expect('name of the old provider only, after a new provider error|text', 'The secret lt-y58-late is either missing or empty.');
+        Observer.Expect('name of the old provider only, after a new provider error|code', 'Dialog');
+        Observer.Expect('read after ClearSecrets', 'false/unchanged');
+        Observer.Expect('read after ClearSecrets error|text', 'A call to Microsoft.Dynamics.Nav.AzureKeyVaultClient.AzureKeyVaultClientHelper.GetAzureKeyVaultSecret failed with this message: Azure key vault has not been set up. Please contact your system administrator.');
+        Observer.Expect('read after ClearSecrets error|code', 'DotNetInvoke:InvalidOperation');
+#else
+        Observer.Expect('first read', 'true/first');
+        Observer.Expect('second mapping of the same name|text', 'A call to MockTest.MockAzureKeyVaultSecret.MockAzureKeyVaultSecretProvider.AddSecretMapping failed with this message: An item with the same key has already been added. Key: lt-y58-cache');
+        Observer.Expect('second mapping of the same name|code', 'DotNetInvoke:Argument');
+        Observer.Expect('name mapped after the first read', 'true/late');
+        Observer.Expect('read after a new provider', 'true/from second provider');
+        Observer.Expect('name of the old provider only, after a new provider', 'false/');
+        Observer.Expect('name of the old provider only, after a new provider error|text', 'The secret lt-y58-late is either missing or empty.');
+        Observer.Expect('name of the old provider only, after a new provider error|code', 'Dialog');
+        Observer.Expect('read after ClearSecrets', 'false/unchanged');
+        Observer.Expect('read after ClearSecrets error|text', 'A call to Microsoft.Dynamics.Nav.AzureKeyVaultClient.AzureKeyVaultClientHelper.GetAzureKeyVaultSecret failed with this message: Azure key vault has not been set up. Please contact your system administrator.');
+        Observer.Expect('read after ClearSecrets error|code', 'DotNetInvoke:');
+#endif
+        Observer.Verify();
     end;
 
     [Test]

@@ -13,7 +13,10 @@
 // Facts: GetSummaryFields returns the Brick fields with the first two swapped, Blob fields included; GetAvailableTableFields
 //   returns the fields of the visible controls in page order (an empty list for a page without fields); FieldType.ToString() is the
 //   AL type name (BLOB for a Blob, value '*'); a control without ToolTip gives ''; an invalid bookmark or a deleted record gives
-//   Success = false without an error; GetActions of an unknown page gives Success = false and a "metadata object ... was not found" text.
+//   Success = false without an error; GetActions lists each action under its container (RoleCenter area(Embedding) = container
+//   subtype 4, area(Processing) = 1, list views = actions under container subtype 8 with RunObjectView "<app id>_<view name>" and
+//   RunObjectViewFilter URL-encoded), RunObjectType 1 = page, 3 = codeunit; an unknown page gives Success = false, a "metadata object
+//   ... was not found" text and no actions.
 // Expected values: corpus CI (Linux containers) BC 27.5, 28.5 and 29.0, batch runs 41332956805, 41336116625, 41336138376.
 // BC versions: 27, 28, 29
 dotnet
@@ -396,7 +399,8 @@ codeunit 61463 "LT Y58 Page Action Functions"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveActions(Observer, 'role center', Page::"LT Y58 Provider Role Center");
-        Observer.Finish();
+        Observer.Expect('role center', 'success=Yes;[1/-1/List with views/1/61463///parent:container 4][1/-1/Empty card/1/61464///parent:container 4][1/-1/A codeunit item/3/61462///parent:container 4][1/-1/Processing item/1/61463///parent:container 1];uncaptioned=6');
+        Observer.Verify();
     end;
 
     [Test]
@@ -405,7 +409,8 @@ codeunit 61463 "LT Y58 Page Action Functions"
         Observer: Codeunit "Probe Observer";
     begin
         ObserveActions(Observer, 'list with views', Page::"LT Y58 Provider List");
-        Observer.Finish();
+        Observer.Expect('list with views', 'success=Yes;[1/-1/Blocked rows/1/61463/<app id>_BlockedRows/%27LT%20Y58%20Provider%20Row%27.Blocked%20IS%20%271%27/parent:container 8][1/-1/Big amounts/1/61463/<app id>_BigAmounts/%27LT%20Y58%20Provider%20Row%27.Amount%20IS%20%27%3E100%27/parent:container 8];uncaptioned=27');
+        Observer.Verify();
     end;
 
     [Test]
@@ -415,6 +420,8 @@ codeunit 61463 "LT Y58 Page Action Functions"
     begin
         ObserveActions(Observer, 'empty card', Page::"LT Y58 Provider Empty Card");
         Observer.Observe('unknown page', ErrorFirstLine(99999999));
-        Observer.Finish();
+        Observer.Expect('empty card', 'success=Yes;;uncaptioned=26');
+        Observer.Expect('unknown page', 'success=No;first error line=The metadata object Page 99999999 was not found.;actions null=Yes');
+        Observer.Verify();
     end;
 }
