@@ -31,10 +31,22 @@ codeunit 93712 "LT Y69 Install Trigger Setup"
         Row: Record "LT Y64 XA Install Subs";
         Result: Text;
     begin
-        Row.SetFilter(Tag, 'Y69|*');
         if Row.FindSet() then
             repeat
-                Result += Row.Tag + ' ## ';
+                if Row.Tag.StartsWith('Y69|') then
+                    Result += Row.Tag + ' ## ';
+            until Row.Next() = 0;
+        exit(Result);
+    end;
+
+    local procedure RowsB(): Text
+    var
+        Row: Record "LT Y69 XB Row";
+        Result: Text;
+    begin
+        if Row.FindSet() then
+            repeat
+                Result += Format(Row."No.") + ';';
             until Row.Next() = 0;
         exit(Result);
     end;
@@ -47,6 +59,7 @@ codeunit 93712 "LT Y69 Install Trigger Setup"
     begin
         Observer.Observe('seq', 'A=' + Format(SeqOf('A')) + ' D=' + Format(SeqOf('D')) + ' B=' + Format(SeqOf('B')));
         Observer.Observe('rows', Format(Data.Count()));
+        Observer.Observe('rows_b', Format(RowsB()));
         Observer.Observe('notes', Notes());
         Observer.Finish();
     end;
