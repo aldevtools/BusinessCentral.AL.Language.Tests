@@ -139,17 +139,25 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         end;
     end;
 
+    local procedure GetOne(var R: RecordRef)
+    var
+        Row: Record "LT Y87 LF Row";
+    begin
+        Row.Get(1);
+        R.Get(Row.RecordId());
+    end;
+
     local procedure Prepare(var R: RecordRef; State: Integer)
     begin
         R.Close();
         R.Open(94653);
         case State of
             2:
-                R.Get(1);
+                GetOne(R);
             3:
                 begin
                     R.SetLoadFields(2);
-                    R.Get(1);
+                    GetOne(R);
                 end;
             4:
                 R.FindFirst();
@@ -178,7 +186,7 @@ codeunit 94655 "LT Y87 RecordRef LoadFields"
         Observer.Observe(SpecName + ' flags', Flags(R));
         Observer.Observe(SpecName + ' values', Cnt(R));
         if (State = 1) or (State = 5) then begin
-            R.Get(1);
+            GetOne(R);
             Observer.Observe(SpecName + ' after get', Format(R.Field(2).Value) + ' ' + Cnt(R).Split(' ').Get(1));
             R.Field(4).CalcField();
             R.Field(5).CalcField();
@@ -917,6 +925,14 @@ codeunit 94656 "LT Y87 AreFieldsLoaded Clear"
         exit(Format(Row.AreFieldsLoaded(Row.Id, Row.Name)) + Format(Row.AreFieldsLoaded(Row.Cnt, Row.Tot)) + Format(Row.AreFieldsLoaded(Row.Id, Row.Cnt)) + Format(Row.AreFieldsLoaded(Row.Cnt, Row.Flt)));
     end;
 
+    local procedure GetOne(var R: RecordRef)
+    var
+        Row: Record "LT Y87 LF Row";
+    begin
+        Row.Get(1);
+        R.Get(Row.RecordId());
+    end;
+
     local procedure RefFlags(var R: RecordRef): Text
     var
         I: Integer;
@@ -1190,7 +1206,7 @@ codeunit 94656 "LT Y87 AreFieldsLoaded Clear"
     begin
         Seed();
         R.Open(94653);
-        R.Get(1);
+        GetOne(R);
         Observer.Observe('single', RefFlags(R));
         Observer.Observe('multi', RefMulti(R));
         Observer.Finish();
@@ -1223,7 +1239,7 @@ codeunit 94656 "LT Y87 AreFieldsLoaded Clear"
         Seed();
         R.Open(94653);
         R.SetLoadFields(2);
-        R.Get(1);
+        GetOne(R);
         Observer.Observe('single', RefFlags(R));
         Observer.Observe('multi', RefMulti(R));
         Observer.Finish();
@@ -1240,7 +1256,7 @@ codeunit 94656 "LT Y87 AreFieldsLoaded Clear"
         Seed();
         R.Open(94653);
         R.SetLoadFields(4);
-        R.Get(1);
+        GetOne(R);
         Observer.Observe('single', RefFlags(R));
         Observer.Observe('multi', RefMulti(R));
         Observer.Finish();
@@ -1256,7 +1272,7 @@ codeunit 94656 "LT Y87 AreFieldsLoaded Clear"
     begin
         Seed();
         R.Open(94653);
-        R.Get(1);
+        GetOne(R);
         R.Field(4).CalcField();
         Observer.Observe('single', RefFlags(R));
         Observer.Observe('multi', RefMulti(R));
@@ -1273,7 +1289,7 @@ codeunit 94656 "LT Y87 AreFieldsLoaded Clear"
     begin
         Seed();
         R.Open(94653);
-        R.Get(1);
+        GetOne(R);
         R.Close();
         Observer.Observe('single', RefFlags(R));
         Observer.Observe('multi', RefMulti(R));
