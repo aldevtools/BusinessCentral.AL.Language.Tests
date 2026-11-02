@@ -97,3 +97,35 @@ codeunit 61376 "LT Y79 XA Install"
         Hub.Probe('A', 'co');
     end;
 }
+
+// Writer Y85: loads the package data files of Y85XaPackageData.al (NavApp.LoadPackageData), each table only while it is empty.
+codeunit 94449 "LT Y85 Pkg Install"
+
+{
+    Subtype = Install;
+
+    trigger OnInstallAppPerCompany()
+    var
+        Company: Record "LT Y85 Pkg Company";
+        Types: Record "LT Y85 Pkg Types";
+        Order: Record "LT Y85 Pkg Order";
+        Auto: Record "LT Y85 Pkg Auto";
+    begin
+        if Company.IsEmpty() then
+            NavApp.LoadPackageData(Database::"LT Y85 Pkg Company");
+        if Types.IsEmpty() then
+            NavApp.LoadPackageData(Database::"LT Y85 Pkg Types");
+        if Order.IsEmpty() then
+            NavApp.LoadPackageData(Database::"LT Y85 Pkg Order");
+        if Auto.IsEmpty() then
+            NavApp.LoadPackageData(Database::"LT Y85 Pkg Auto");
+    end;
+
+    trigger OnInstallAppPerDatabase()
+    var
+        Db: Record "LT Y85 Pkg Database";
+    begin
+        if Db.IsEmpty() then
+            NavApp.LoadPackageData(Database::"LT Y85 Pkg Database");
+    end;
+}
