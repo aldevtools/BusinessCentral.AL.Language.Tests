@@ -542,19 +542,24 @@ codeunit 93740 "LT Y70 Probes"
         RecRef: RecordRef;
     begin
         Row.DeleteAll();
-        Obs.Observe('fresh', Format(Row.Day) + '/' + Format(Row.Day.AsInteger()));
+        Obs.Observe('fresh', Format(Row.Day) + '/' + Format(Ordinal(Row.Day)));
         Row.Init();
-        Obs.Observe('init', Format(Row.Day) + '/' + Format(Row.Day.AsInteger()));
+        Obs.Observe('init', Format(Row.Day) + '/' + Format(Ordinal(Row.Day)));
         Row.Id := 1;
         Row.Insert();
         Again.Get(1);
-        Obs.Observe('get', Format(Again.Day) + '/' + Format(Again.Day.AsInteger()));
+        Obs.Observe('get', Format(Again.Day) + '/' + Format(Ordinal(Again.Day)));
         RecRef.Open(Database::"LT Y70 Option Init");
         RecRef.Init();
         Obs.Observe('recref_init', Format(RecRef.Field(2).Value));
         RecRef.Close();
         Row.DeleteAll();
         Obs.Finish();
+    end;
+
+    local procedure Ordinal(O: Option): Integer
+    begin
+        exit(O);
     end;
 
     // ---- The Field row of a field with ObsoleteState = PendingMove
@@ -632,7 +637,7 @@ codeunit 93740 "LT Y70 Probes"
         Obs.Observe('after_updlock_find', Format(Database.IsInWriteTransaction()));
         Commit();
         Row.ReadIsolation := IsolationLevel::ReadUncommitted;
-        Row.Count();
+        if Row.Count() > 0 then;
         Obs.Observe('after_uncommitted_count', Format(Database.IsInWriteTransaction()));
         Obs.Finish();
     end;
@@ -700,7 +705,7 @@ codeunit 93740 "LT Y70 Probes"
         Same.Name := 'NOROW';
         RecRef.GetTable(Same);
         Obs.Observe('gettable_no_stored_row', Format(RecRef.IsDirty()));
-        RecRef.Clear();
+        Clear(RecRef);
         Obs.Observe('after_clear', Format(RecRef.IsDirty()));
         RecRef.Open(Database::"LT Y70 Text Key");
         Obs.Observe('open_fresh', Format(RecRef.IsDirty()));
