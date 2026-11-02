@@ -251,7 +251,15 @@ codeunit 94222 "LT Y80 CC Tests"
         Observer.Observe(Tag + ' CtlAlone', P.CtlAlone.Caption());
         Observer.Observe(Tag + ' CtlAloneExpr', P.CtlAloneExpr.Caption());
         Observer.Observe(Tag + ' CtlVar', P.CtlVar.Caption());
-        Observer.Finish();
+        Observer.Expect('open CtlA', 'Ctl A');
+        Observer.Expect('open CtlLit', 'Ctl B');
+        Observer.Expect('open CtlB', 'Ctl B');
+        Observer.Expect('open CtlExpr', 'Other Field');
+        Observer.Expect('open CtlOtherNoCaption', 'Other Field');
+        Observer.Expect('open CtlAlone', 'Own Alone');
+        Observer.Expect('open CtlAloneExpr', 'Own Alone Expr');
+        Observer.Expect('open CtlVar', 'Own Var');
+        Observer.Verify();
     end;
 
     [Test]
@@ -271,7 +279,15 @@ codeunit 94222 "LT Y80 CC Tests"
         Observer.Observe(Tag + ' CtlAlone', P.CtlAlone.Caption());
         Observer.Observe(Tag + ' CtlAloneExpr', P.CtlAloneExpr.Caption());
         Observer.Observe(Tag + ' CtlVar', P.CtlVar.Caption());
-        Observer.Finish();
+        Observer.Expect('open CtlA', 'Ctl A');
+        Observer.Expect('open CtlLit', 'Ctl B');
+        Observer.Expect('open CtlB', 'Ctl B');
+        Observer.Expect('open CtlExpr', 'Other Field');
+        Observer.Expect('open CtlOtherNoCaption', 'Other Field');
+        Observer.Expect('open CtlAlone', 'Own Alone');
+        Observer.Expect('open CtlAloneExpr', 'Own Alone Expr');
+        Observer.Expect('open CtlVar', 'Own Var');
+        Observer.Verify();
     end;
 
     [Test]
@@ -291,7 +307,15 @@ codeunit 94222 "LT Y80 CC Tests"
         Observer.Observe(Tag + ' CtlAlone', P.CtlAlone.Caption());
         Observer.Observe(Tag + ' CtlAloneExpr', P.CtlAloneExpr.Caption());
         Observer.Observe(Tag + ' CtlVar', P.CtlVar.Caption());
-        Observer.Finish();
+        Observer.Expect('open CtlA', 'Ctl A');
+        Observer.Expect('open CtlLit', 'Ctl B');
+        Observer.Expect('open CtlB', 'Ctl B');
+        Observer.Expect('open CtlExpr', 'Other Field');
+        Observer.Expect('open CtlOtherNoCaption', 'Other Field');
+        Observer.Expect('open CtlAlone', 'Own Alone');
+        Observer.Expect('open CtlAloneExpr', 'Own Alone Expr');
+        Observer.Expect('open CtlVar', 'Own Var');
+        Observer.Verify();
     end;
 
     [Test]
@@ -311,7 +335,15 @@ codeunit 94222 "LT Y80 CC Tests"
         Observer.Observe(Tag + ' CtlAlone', P.CtlAlone.Caption());
         Observer.Observe(Tag + ' CtlAloneExpr', P.CtlAloneExpr.Caption());
         Observer.Observe(Tag + ' CtlVar', P.CtlVar.Caption());
-        Observer.Finish();
+        Observer.Expect('open CtlA', 'Ctl A');
+        Observer.Expect('open CtlLit', 'Ctl B');
+        Observer.Expect('open CtlB', 'Ctl B');
+        Observer.Expect('open CtlExpr', 'Other Field');
+        Observer.Expect('open CtlOtherNoCaption', 'Other Field');
+        Observer.Expect('open CtlAlone', 'Own Alone');
+        Observer.Expect('open CtlAloneExpr', 'Own Alone Expr');
+        Observer.Expect('open CtlVar', 'Own Var');
+        Observer.Verify();
     end;
 
     [Test]
@@ -331,7 +363,15 @@ codeunit 94222 "LT Y80 CC Tests"
         Observer.Observe(Tag + ' CtlAlone', P.CtlAlone.Caption());
         Observer.Observe(Tag + ' CtlAloneExpr', P.CtlAloneExpr.Caption());
         Observer.Observe(Tag + ' CtlVar', P.CtlVar.Caption());
-        Observer.Finish();
+        Observer.Expect('open CtlA', 'Ctl A');
+        Observer.Expect('open CtlLit', 'Ctl B');
+        Observer.Expect('open CtlB', 'Ctl B');
+        Observer.Expect('open CtlExpr', 'Other Field');
+        Observer.Expect('open CtlOtherNoCaption', 'Other Field');
+        Observer.Expect('open CtlAlone', 'Own Alone');
+        Observer.Expect('open CtlAloneExpr', 'Own Alone Expr');
+        Observer.Expect('open CtlVar', 'Own Var');
+        Observer.Verify();
     end;
 
     [Test]
@@ -351,7 +391,15 @@ codeunit 94222 "LT Y80 CC Tests"
         Observer.Observe(Tag + ' CtlAlone', P.CtlAlone.Caption());
         Observer.Observe(Tag + ' CtlAloneExpr', P.CtlAloneExpr.Caption());
         Observer.Observe(Tag + ' CtlVar', P.CtlVar.Caption());
-        Observer.Finish();
+        Observer.Expect('open CtlA', 'Ctl A');
+        Observer.Expect('open CtlLit', 'Ctl B');
+        Observer.Expect('open CtlB', 'Ctl B');
+        Observer.Expect('open CtlExpr', 'Other Field');
+        Observer.Expect('open CtlOtherNoCaption', 'Other Field');
+        Observer.Expect('open CtlAlone', 'Own Alone');
+        Observer.Expect('open CtlAloneExpr', 'Own Alone Expr');
+        Observer.Expect('open CtlVar', 'Own Var');
+        Observer.Verify();
     end;
 
     [Test]
@@ -371,7 +419,15 @@ codeunit 94222 "LT Y80 CC Tests"
         Observer.Observe(Tag + ' CtlAlone', P.CtlAlone.Caption());
         Observer.Observe(Tag + ' CtlAloneExpr', P.CtlAloneExpr.Caption());
         Observer.Observe(Tag + ' CtlVar', P.CtlVar.Caption());
-        Observer.Finish();
+        Observer.Expect('open CtlA', 'Ctl A');
+        Observer.Expect('open CtlLit', 'Ctl B');
+        Observer.Expect('open CtlB', 'Ctl B');
+        Observer.Expect('open CtlExpr', 'Other Field');
+        Observer.Expect('open CtlOtherNoCaption', 'Other Field');
+        Observer.Expect('open CtlAlone', 'Own Alone');
+        Observer.Expect('open CtlAloneExpr', 'Own Alone Expr');
+        Observer.Expect('open CtlVar', 'Own Var');
+        Observer.Verify();
     end;
 
     [Test]
@@ -399,7 +455,23 @@ codeunit 94222 "LT Y80 CC Tests"
         Observer.Observe(Tag + ' CP CtlAlone', P.CP.CtlAlone.Caption());
         Observer.Observe(Tag + ' CP CtlAloneExpr', P.CP.CtlAloneExpr.Caption());
         Observer.Observe(Tag + ' CP CtlVar', P.CP.CtlVar.Caption());
-        Observer.Finish();
+        Observer.Expect('open LP CtlA', 'Ctl A');
+        Observer.Expect('open LP CtlLit', 'Ctl B');
+        Observer.Expect('open LP CtlB', 'Ctl B');
+        Observer.Expect('open LP CtlExpr', 'Other Field');
+        Observer.Expect('open LP CtlOtherNoCaption', 'Other Field');
+        Observer.Expect('open LP CtlAlone', 'Own Alone');
+        Observer.Expect('open LP CtlAloneExpr', 'Own Alone Expr');
+        Observer.Expect('open LP CtlVar', 'Own Var');
+        Observer.Expect('open CP CtlA', 'Ctl A');
+        Observer.Expect('open CP CtlLit', 'Ctl B');
+        Observer.Expect('open CP CtlB', 'Ctl B');
+        Observer.Expect('open CP CtlExpr', 'Other Field');
+        Observer.Expect('open CP CtlOtherNoCaption', 'Other Field');
+        Observer.Expect('open CP CtlAlone', 'Own Alone');
+        Observer.Expect('open CP CtlAloneExpr', 'Own Alone Expr');
+        Observer.Expect('open CP CtlVar', 'Own Var');
+        Observer.Verify();
     end;
 
     [Test]
@@ -427,7 +499,23 @@ codeunit 94222 "LT Y80 CC Tests"
         Observer.Observe(Tag + ' CP CtlAlone', P.CP.CtlAlone.Caption());
         Observer.Observe(Tag + ' CP CtlAloneExpr', P.CP.CtlAloneExpr.Caption());
         Observer.Observe(Tag + ' CP CtlVar', P.CP.CtlVar.Caption());
-        Observer.Finish();
+        Observer.Expect('open LP CtlA', 'Ctl A');
+        Observer.Expect('open LP CtlLit', 'Ctl B');
+        Observer.Expect('open LP CtlB', 'Ctl B');
+        Observer.Expect('open LP CtlExpr', 'Other Field');
+        Observer.Expect('open LP CtlOtherNoCaption', 'Other Field');
+        Observer.Expect('open LP CtlAlone', 'Own Alone');
+        Observer.Expect('open LP CtlAloneExpr', 'Own Alone Expr');
+        Observer.Expect('open LP CtlVar', 'Own Var');
+        Observer.Expect('open CP CtlA', 'Ctl A');
+        Observer.Expect('open CP CtlLit', 'Ctl B');
+        Observer.Expect('open CP CtlB', 'Ctl B');
+        Observer.Expect('open CP CtlExpr', 'Other Field');
+        Observer.Expect('open CP CtlOtherNoCaption', 'Other Field');
+        Observer.Expect('open CP CtlAlone', 'Own Alone');
+        Observer.Expect('open CP CtlAloneExpr', 'Own Alone Expr');
+        Observer.Expect('open CP CtlVar', 'Own Var');
+        Observer.Verify();
     end;
 
     [Test]
@@ -455,7 +543,23 @@ codeunit 94222 "LT Y80 CC Tests"
         Observer.Observe(Tag + ' CP CtlAlone', P.CP.CtlAlone.Caption());
         Observer.Observe(Tag + ' CP CtlAloneExpr', P.CP.CtlAloneExpr.Caption());
         Observer.Observe(Tag + ' CP CtlVar', P.CP.CtlVar.Caption());
-        Observer.Finish();
+        Observer.Expect('open LP CtlA', 'Ctl A');
+        Observer.Expect('open LP CtlLit', 'Ctl B');
+        Observer.Expect('open LP CtlB', 'Ctl B');
+        Observer.Expect('open LP CtlExpr', 'Other Field');
+        Observer.Expect('open LP CtlOtherNoCaption', 'Other Field');
+        Observer.Expect('open LP CtlAlone', 'Own Alone');
+        Observer.Expect('open LP CtlAloneExpr', 'Own Alone Expr');
+        Observer.Expect('open LP CtlVar', 'Own Var');
+        Observer.Expect('open CP CtlA', 'Ctl A');
+        Observer.Expect('open CP CtlLit', 'Ctl B');
+        Observer.Expect('open CP CtlB', 'Ctl B');
+        Observer.Expect('open CP CtlExpr', 'Other Field');
+        Observer.Expect('open CP CtlOtherNoCaption', 'Other Field');
+        Observer.Expect('open CP CtlAlone', 'Own Alone');
+        Observer.Expect('open CP CtlAloneExpr', 'Own Alone Expr');
+        Observer.Expect('open CP CtlVar', 'Own Var');
+        Observer.Verify();
     end;
 
     [Test]
@@ -487,7 +591,23 @@ codeunit 94222 "LT Y80 CC Tests"
         Observer.Observe(Tag + ' CtlAloneExpr', P.CtlAloneExpr.Caption());
         Observer.Observe(Tag + ' CtlVar', P.CtlVar.Caption());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('next CtlA', 'Ctl A');
+        Observer.Expect('next CtlLit', 'Ctl B');
+        Observer.Expect('next CtlB', 'Ctl B');
+        Observer.Expect('next CtlExpr', 'Other Field');
+        Observer.Expect('next CtlOtherNoCaption', 'Other Field');
+        Observer.Expect('next CtlAlone', 'Own Alone');
+        Observer.Expect('next CtlAloneExpr', 'Own Alone Expr');
+        Observer.Expect('next CtlVar', 'Own Var');
+        Observer.Expect('set CtlA', 'Ctl A');
+        Observer.Expect('set CtlLit', 'Ctl B');
+        Observer.Expect('set CtlB', 'Ctl B');
+        Observer.Expect('set CtlExpr', 'Other Field');
+        Observer.Expect('set CtlOtherNoCaption', 'Other Field');
+        Observer.Expect('set CtlAlone', 'Own Alone');
+        Observer.Expect('set CtlAloneExpr', 'Own Alone Expr');
+        Observer.Expect('set CtlVar', 'Own Var');
+        Observer.Verify();
     end;
 
     [Test]
@@ -519,7 +639,23 @@ codeunit 94222 "LT Y80 CC Tests"
         Observer.Observe(Tag + ' CtlAloneExpr', P.CtlAloneExpr.Caption());
         Observer.Observe(Tag + ' CtlVar', P.CtlVar.Caption());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('next CtlA', 'Ctl A');
+        Observer.Expect('next CtlLit', 'Ctl B');
+        Observer.Expect('next CtlB', 'Ctl B');
+        Observer.Expect('next CtlExpr', 'Other Field');
+        Observer.Expect('next CtlOtherNoCaption', 'Other Field');
+        Observer.Expect('next CtlAlone', 'Own Alone');
+        Observer.Expect('next CtlAloneExpr', 'Own Alone Expr');
+        Observer.Expect('next CtlVar', 'Own Var');
+        Observer.Expect('set CtlA', 'Ctl A');
+        Observer.Expect('set CtlLit', 'Ctl B');
+        Observer.Expect('set CtlB', 'Ctl B');
+        Observer.Expect('set CtlExpr', 'Other Field');
+        Observer.Expect('set CtlOtherNoCaption', 'Other Field');
+        Observer.Expect('set CtlAlone', 'Own Alone');
+        Observer.Expect('set CtlAloneExpr', 'Own Alone Expr');
+        Observer.Expect('set CtlVar', 'Own Var');
+        Observer.Verify();
     end;
 
     [Test]
@@ -549,6 +685,22 @@ codeunit 94222 "LT Y80 CC Tests"
         Observer.Observe(Tag + ' CP CtlAloneExpr', P.CP.CtlAloneExpr.Caption());
         Observer.Observe(Tag + ' CP CtlVar', P.CP.CtlVar.Caption());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('next LP CtlA', 'Ctl A');
+        Observer.Expect('next LP CtlLit', 'Ctl B');
+        Observer.Expect('next LP CtlB', 'Ctl B');
+        Observer.Expect('next LP CtlExpr', 'Other Field');
+        Observer.Expect('next LP CtlOtherNoCaption', 'Other Field');
+        Observer.Expect('next LP CtlAlone', 'Own Alone');
+        Observer.Expect('next LP CtlAloneExpr', 'Own Alone Expr');
+        Observer.Expect('next LP CtlVar', 'Own Var');
+        Observer.Expect('next CP CtlA', 'Ctl A');
+        Observer.Expect('next CP CtlLit', 'Ctl B');
+        Observer.Expect('next CP CtlB', 'Ctl B');
+        Observer.Expect('next CP CtlExpr', 'Other Field');
+        Observer.Expect('next CP CtlOtherNoCaption', 'Other Field');
+        Observer.Expect('next CP CtlAlone', 'Own Alone');
+        Observer.Expect('next CP CtlAloneExpr', 'Own Alone Expr');
+        Observer.Expect('next CP CtlVar', 'Own Var');
+        Observer.Verify();
     end;
 }

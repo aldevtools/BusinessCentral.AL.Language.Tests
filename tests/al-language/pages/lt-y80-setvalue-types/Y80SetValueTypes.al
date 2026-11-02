@@ -82,6 +82,32 @@ codeunit 94226 "LT Y80 ST Tests"
     var
         Observer: Codeunit "Probe Observer";
 
+    [TryFunction]
+    local procedure TryCloseCard(var P: TestPage "LT Y80 ST Card")
+    begin
+        P.Close();
+    end;
+
+    local procedure CloseCard(var P: TestPage "LT Y80 ST Card"): Text
+    begin
+        if TryCloseCard(P) then
+            exit('ok');
+        exit('err|' + GetLastErrorCode() + '|' + GetLastErrorText());
+    end;
+
+    [TryFunction]
+    local procedure TryCloseList(var P: TestPage "LT Y80 ST List")
+    begin
+        P.Close();
+    end;
+
+    local procedure CloseList(var P: TestPage "LT Y80 ST List"): Text
+    begin
+        if TryCloseList(P) then
+            exit('ok');
+        exit('err|' + GetLastErrorCode() + '|' + GetLastErrorText());
+    end;
+
     local procedure Seed()
     var
         Row: Record "LT Y80 ST Row";
@@ -206,7 +232,7 @@ codeunit 94226 "LT Y80 ST Tests"
     end;
 
     [Test]
-    procedure Y80_SV_Card_TxtCtl_Integers()
+    procedure Y80_ST_Card_TxtCtl_Integers()
     var
         P: TestPage "LT Y80 ST Card";
         I: Integer;
@@ -242,12 +268,12 @@ codeunit 94226 "LT Y80 ST Tests"
         Observer.Observe('int 1234567', SetCardTxtCtl(P, I));
         I := 2147483647;
         Observer.Observe('int max', SetCardTxtCtl(P, I));
-        P.Close();
+        Observer.Observe('close', CloseCard(P));
         Observer.Finish();
     end;
 
     [Test]
-    procedure Y80_SV_Card_TxtCtl_BigIntegers()
+    procedure Y80_ST_Card_TxtCtl_BigIntegers()
     var
         P: TestPage "LT Y80 ST Card";
         I: Integer;
@@ -277,12 +303,12 @@ codeunit 94226 "LT Y80 ST Tests"
         Observer.Observe('big 5000000000', SetCardTxtCtl(P, B));
         B := 0;
         Observer.Observe('big 0', SetCardTxtCtl(P, B));
-        P.Close();
+        Observer.Observe('close', CloseCard(P));
         Observer.Finish();
     end;
 
     [Test]
-    procedure Y80_SV_Card_TxtCtl_Decimals()
+    procedure Y80_ST_Card_TxtCtl_Decimals()
     var
         P: TestPage "LT Y80 ST Card";
         I: Integer;
@@ -318,12 +344,12 @@ codeunit 94226 "LT Y80 ST Tests"
         Observer.Observe('dec 0', SetCardTxtCtl(P, D));
         D := 100000;
         Observer.Observe('dec 100000', SetCardTxtCtl(P, D));
-        P.Close();
+        Observer.Observe('close', CloseCard(P));
         Observer.Finish();
     end;
 
     [Test]
-    procedure Y80_SV_Card_TxtCtl_Others()
+    procedure Y80_ST_Card_TxtCtl_Others()
     var
         P: TestPage "LT Y80 ST Card";
         I: Integer;
@@ -363,12 +389,12 @@ codeunit 94226 "LT Y80 ST Tests"
         Observer.Observe('text', SetCardTxtCtl(P, Tx));
         Co := 'ab';
         Observer.Observe('code', SetCardTxtCtl(P, Co));
-        P.Close();
+        Observer.Observe('close', CloseCard(P));
         Observer.Finish();
     end;
 
     [Test]
-    procedure Y80_SV_Card_TxtCtl_Enums()
+    procedure Y80_ST_Card_TxtCtl_Enums()
     var
         P: TestPage "LT Y80 ST Card";
         I: Integer;
@@ -394,12 +420,12 @@ codeunit 94226 "LT Y80 ST Tests"
         Observer.Observe('enum first', SetCardTxtCtl(P, En));
         En := En::Second;
         Observer.Observe('enum second', SetCardTxtCtl(P, En));
-        P.Close();
+        Observer.Observe('close', CloseCard(P));
         Observer.Finish();
     end;
 
     [Test]
-    procedure Y80_SV_Card_CdCtl_Integers()
+    procedure Y80_ST_Card_CdCtl_Integers()
     var
         P: TestPage "LT Y80 ST Card";
         I: Integer;
@@ -435,12 +461,12 @@ codeunit 94226 "LT Y80 ST Tests"
         Observer.Observe('int 1234567', SetCardCdCtl(P, I));
         I := 2147483647;
         Observer.Observe('int max', SetCardCdCtl(P, I));
-        P.Close();
+        Observer.Observe('close', CloseCard(P));
         Observer.Finish();
     end;
 
     [Test]
-    procedure Y80_SV_Card_CdCtl_BigIntegers()
+    procedure Y80_ST_Card_CdCtl_BigIntegers()
     var
         P: TestPage "LT Y80 ST Card";
         I: Integer;
@@ -470,12 +496,12 @@ codeunit 94226 "LT Y80 ST Tests"
         Observer.Observe('big 5000000000', SetCardCdCtl(P, B));
         B := 0;
         Observer.Observe('big 0', SetCardCdCtl(P, B));
-        P.Close();
+        Observer.Observe('close', CloseCard(P));
         Observer.Finish();
     end;
 
     [Test]
-    procedure Y80_SV_Card_CdCtl_Decimals()
+    procedure Y80_ST_Card_CdCtl_Decimals()
     var
         P: TestPage "LT Y80 ST Card";
         I: Integer;
@@ -511,12 +537,12 @@ codeunit 94226 "LT Y80 ST Tests"
         Observer.Observe('dec 0', SetCardCdCtl(P, D));
         D := 100000;
         Observer.Observe('dec 100000', SetCardCdCtl(P, D));
-        P.Close();
+        Observer.Observe('close', CloseCard(P));
         Observer.Finish();
     end;
 
     [Test]
-    procedure Y80_SV_Card_CdCtl_Others()
+    procedure Y80_ST_Card_CdCtl_Others()
     var
         P: TestPage "LT Y80 ST Card";
         I: Integer;
@@ -556,12 +582,12 @@ codeunit 94226 "LT Y80 ST Tests"
         Observer.Observe('text', SetCardCdCtl(P, Tx));
         Co := 'ab';
         Observer.Observe('code', SetCardCdCtl(P, Co));
-        P.Close();
+        Observer.Observe('close', CloseCard(P));
         Observer.Finish();
     end;
 
     [Test]
-    procedure Y80_SV_Card_CdCtl_Enums()
+    procedure Y80_ST_Card_CdCtl_Enums()
     var
         P: TestPage "LT Y80 ST Card";
         I: Integer;
@@ -587,12 +613,12 @@ codeunit 94226 "LT Y80 ST Tests"
         Observer.Observe('enum first', SetCardCdCtl(P, En));
         En := En::Second;
         Observer.Observe('enum second', SetCardCdCtl(P, En));
-        P.Close();
+        Observer.Observe('close', CloseCard(P));
         Observer.Finish();
     end;
 
     [Test]
-    procedure Y80_SV_Card_ShortCtl_Integers()
+    procedure Y80_ST_Card_ShortCtl_Integers()
     var
         P: TestPage "LT Y80 ST Card";
         I: Integer;
@@ -628,12 +654,12 @@ codeunit 94226 "LT Y80 ST Tests"
         Observer.Observe('int 1234567', SetCardShortCtl(P, I));
         I := 2147483647;
         Observer.Observe('int max', SetCardShortCtl(P, I));
-        P.Close();
+        Observer.Observe('close', CloseCard(P));
         Observer.Finish();
     end;
 
     [Test]
-    procedure Y80_SV_Card_ShortCtl_BigIntegers()
+    procedure Y80_ST_Card_ShortCtl_BigIntegers()
     var
         P: TestPage "LT Y80 ST Card";
         I: Integer;
@@ -663,12 +689,12 @@ codeunit 94226 "LT Y80 ST Tests"
         Observer.Observe('big 5000000000', SetCardShortCtl(P, B));
         B := 0;
         Observer.Observe('big 0', SetCardShortCtl(P, B));
-        P.Close();
+        Observer.Observe('close', CloseCard(P));
         Observer.Finish();
     end;
 
     [Test]
-    procedure Y80_SV_Card_ShortCtl_Decimals()
+    procedure Y80_ST_Card_ShortCtl_Decimals()
     var
         P: TestPage "LT Y80 ST Card";
         I: Integer;
@@ -704,12 +730,12 @@ codeunit 94226 "LT Y80 ST Tests"
         Observer.Observe('dec 0', SetCardShortCtl(P, D));
         D := 100000;
         Observer.Observe('dec 100000', SetCardShortCtl(P, D));
-        P.Close();
+        Observer.Observe('close', CloseCard(P));
         Observer.Finish();
     end;
 
     [Test]
-    procedure Y80_SV_Card_ShortCtl_Others()
+    procedure Y80_ST_Card_ShortCtl_Others()
     var
         P: TestPage "LT Y80 ST Card";
         I: Integer;
@@ -749,12 +775,12 @@ codeunit 94226 "LT Y80 ST Tests"
         Observer.Observe('text', SetCardShortCtl(P, Tx));
         Co := 'ab';
         Observer.Observe('code', SetCardShortCtl(P, Co));
-        P.Close();
+        Observer.Observe('close', CloseCard(P));
         Observer.Finish();
     end;
 
     [Test]
-    procedure Y80_SV_Card_ShortCtl_Enums()
+    procedure Y80_ST_Card_ShortCtl_Enums()
     var
         P: TestPage "LT Y80 ST Card";
         I: Integer;
@@ -780,12 +806,12 @@ codeunit 94226 "LT Y80 ST Tests"
         Observer.Observe('enum first', SetCardShortCtl(P, En));
         En := En::Second;
         Observer.Observe('enum second', SetCardShortCtl(P, En));
-        P.Close();
+        Observer.Observe('close', CloseCard(P));
         Observer.Finish();
     end;
 
     [Test]
-    procedure Y80_SV_List_TxtCtl_Integers()
+    procedure Y80_ST_List_TxtCtl_Integers()
     var
         P: TestPage "LT Y80 ST List";
         I: Integer;
@@ -821,12 +847,12 @@ codeunit 94226 "LT Y80 ST Tests"
         Observer.Observe('int 1234567', SetListTxtCtl(P, I));
         I := 2147483647;
         Observer.Observe('int max', SetListTxtCtl(P, I));
-        P.Close();
+        Observer.Observe('close', CloseList(P));
         Observer.Finish();
     end;
 
     [Test]
-    procedure Y80_SV_List_TxtCtl_BigIntegers()
+    procedure Y80_ST_List_TxtCtl_BigIntegers()
     var
         P: TestPage "LT Y80 ST List";
         I: Integer;
@@ -856,12 +882,12 @@ codeunit 94226 "LT Y80 ST Tests"
         Observer.Observe('big 5000000000', SetListTxtCtl(P, B));
         B := 0;
         Observer.Observe('big 0', SetListTxtCtl(P, B));
-        P.Close();
+        Observer.Observe('close', CloseList(P));
         Observer.Finish();
     end;
 
     [Test]
-    procedure Y80_SV_List_TxtCtl_Decimals()
+    procedure Y80_ST_List_TxtCtl_Decimals()
     var
         P: TestPage "LT Y80 ST List";
         I: Integer;
@@ -897,12 +923,12 @@ codeunit 94226 "LT Y80 ST Tests"
         Observer.Observe('dec 0', SetListTxtCtl(P, D));
         D := 100000;
         Observer.Observe('dec 100000', SetListTxtCtl(P, D));
-        P.Close();
+        Observer.Observe('close', CloseList(P));
         Observer.Finish();
     end;
 
     [Test]
-    procedure Y80_SV_List_TxtCtl_Others()
+    procedure Y80_ST_List_TxtCtl_Others()
     var
         P: TestPage "LT Y80 ST List";
         I: Integer;
@@ -942,12 +968,12 @@ codeunit 94226 "LT Y80 ST Tests"
         Observer.Observe('text', SetListTxtCtl(P, Tx));
         Co := 'ab';
         Observer.Observe('code', SetListTxtCtl(P, Co));
-        P.Close();
+        Observer.Observe('close', CloseList(P));
         Observer.Finish();
     end;
 
     [Test]
-    procedure Y80_SV_List_TxtCtl_Enums()
+    procedure Y80_ST_List_TxtCtl_Enums()
     var
         P: TestPage "LT Y80 ST List";
         I: Integer;
@@ -973,12 +999,12 @@ codeunit 94226 "LT Y80 ST Tests"
         Observer.Observe('enum first', SetListTxtCtl(P, En));
         En := En::Second;
         Observer.Observe('enum second', SetListTxtCtl(P, En));
-        P.Close();
+        Observer.Observe('close', CloseList(P));
         Observer.Finish();
     end;
 
     [Test]
-    procedure Y80_SV_List_CdCtl_Integers()
+    procedure Y80_ST_List_CdCtl_Integers()
     var
         P: TestPage "LT Y80 ST List";
         I: Integer;
@@ -1014,12 +1040,12 @@ codeunit 94226 "LT Y80 ST Tests"
         Observer.Observe('int 1234567', SetListCdCtl(P, I));
         I := 2147483647;
         Observer.Observe('int max', SetListCdCtl(P, I));
-        P.Close();
+        Observer.Observe('close', CloseList(P));
         Observer.Finish();
     end;
 
     [Test]
-    procedure Y80_SV_List_CdCtl_BigIntegers()
+    procedure Y80_ST_List_CdCtl_BigIntegers()
     var
         P: TestPage "LT Y80 ST List";
         I: Integer;
@@ -1049,12 +1075,12 @@ codeunit 94226 "LT Y80 ST Tests"
         Observer.Observe('big 5000000000', SetListCdCtl(P, B));
         B := 0;
         Observer.Observe('big 0', SetListCdCtl(P, B));
-        P.Close();
+        Observer.Observe('close', CloseList(P));
         Observer.Finish();
     end;
 
     [Test]
-    procedure Y80_SV_List_CdCtl_Decimals()
+    procedure Y80_ST_List_CdCtl_Decimals()
     var
         P: TestPage "LT Y80 ST List";
         I: Integer;
@@ -1090,12 +1116,12 @@ codeunit 94226 "LT Y80 ST Tests"
         Observer.Observe('dec 0', SetListCdCtl(P, D));
         D := 100000;
         Observer.Observe('dec 100000', SetListCdCtl(P, D));
-        P.Close();
+        Observer.Observe('close', CloseList(P));
         Observer.Finish();
     end;
 
     [Test]
-    procedure Y80_SV_List_CdCtl_Others()
+    procedure Y80_ST_List_CdCtl_Others()
     var
         P: TestPage "LT Y80 ST List";
         I: Integer;
@@ -1135,12 +1161,12 @@ codeunit 94226 "LT Y80 ST Tests"
         Observer.Observe('text', SetListCdCtl(P, Tx));
         Co := 'ab';
         Observer.Observe('code', SetListCdCtl(P, Co));
-        P.Close();
+        Observer.Observe('close', CloseList(P));
         Observer.Finish();
     end;
 
     [Test]
-    procedure Y80_SV_List_CdCtl_Enums()
+    procedure Y80_ST_List_CdCtl_Enums()
     var
         P: TestPage "LT Y80 ST List";
         I: Integer;
@@ -1166,12 +1192,12 @@ codeunit 94226 "LT Y80 ST Tests"
         Observer.Observe('enum first', SetListCdCtl(P, En));
         En := En::Second;
         Observer.Observe('enum second', SetListCdCtl(P, En));
-        P.Close();
+        Observer.Observe('close', CloseList(P));
         Observer.Finish();
     end;
 
     [Test]
-    procedure Y80_SV_List_ShortCtl_Integers()
+    procedure Y80_ST_List_ShortCtl_Integers()
     var
         P: TestPage "LT Y80 ST List";
         I: Integer;
@@ -1207,12 +1233,12 @@ codeunit 94226 "LT Y80 ST Tests"
         Observer.Observe('int 1234567', SetListShortCtl(P, I));
         I := 2147483647;
         Observer.Observe('int max', SetListShortCtl(P, I));
-        P.Close();
+        Observer.Observe('close', CloseList(P));
         Observer.Finish();
     end;
 
     [Test]
-    procedure Y80_SV_List_ShortCtl_BigIntegers()
+    procedure Y80_ST_List_ShortCtl_BigIntegers()
     var
         P: TestPage "LT Y80 ST List";
         I: Integer;
@@ -1242,12 +1268,12 @@ codeunit 94226 "LT Y80 ST Tests"
         Observer.Observe('big 5000000000', SetListShortCtl(P, B));
         B := 0;
         Observer.Observe('big 0', SetListShortCtl(P, B));
-        P.Close();
+        Observer.Observe('close', CloseList(P));
         Observer.Finish();
     end;
 
     [Test]
-    procedure Y80_SV_List_ShortCtl_Decimals()
+    procedure Y80_ST_List_ShortCtl_Decimals()
     var
         P: TestPage "LT Y80 ST List";
         I: Integer;
@@ -1283,12 +1309,12 @@ codeunit 94226 "LT Y80 ST Tests"
         Observer.Observe('dec 0', SetListShortCtl(P, D));
         D := 100000;
         Observer.Observe('dec 100000', SetListShortCtl(P, D));
-        P.Close();
+        Observer.Observe('close', CloseList(P));
         Observer.Finish();
     end;
 
     [Test]
-    procedure Y80_SV_List_ShortCtl_Others()
+    procedure Y80_ST_List_ShortCtl_Others()
     var
         P: TestPage "LT Y80 ST List";
         I: Integer;
@@ -1328,12 +1354,12 @@ codeunit 94226 "LT Y80 ST Tests"
         Observer.Observe('text', SetListShortCtl(P, Tx));
         Co := 'ab';
         Observer.Observe('code', SetListShortCtl(P, Co));
-        P.Close();
+        Observer.Observe('close', CloseList(P));
         Observer.Finish();
     end;
 
     [Test]
-    procedure Y80_SV_List_ShortCtl_Enums()
+    procedure Y80_ST_List_ShortCtl_Enums()
     var
         P: TestPage "LT Y80 ST List";
         I: Integer;
@@ -1359,7 +1385,7 @@ codeunit 94226 "LT Y80 ST Tests"
         Observer.Observe('enum first', SetListShortCtl(P, En));
         En := En::Second;
         Observer.Observe('enum second', SetListShortCtl(P, En));
-        P.Close();
+        Observer.Observe('close', CloseList(P));
         Observer.Finish();
     end;
 }

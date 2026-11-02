@@ -1577,6 +1577,317 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
         ResourceList.OK().Invoke();
     end;
 
+    // Writer Y80 (rt-pages-1102c): the host moves while the refresh of the lookup's CurrPage.Update(false) is still pending. The log of the triggers the
+    // move runs, the values after it, and a second move (the refresh is used up).
+
+    [Test]
+    [HandlerFunctions('PickSecondResource')]
+    procedure Y80_Y15_Host_Next_NoRegions()
+    var
+        Schedule: TestPage "LT Y15 Three Link Schedule";
+    begin
+        Setup(false);
+        Schedule.OpenEdit();
+        Log.Take();
+        Schedule.ResourceNo.Lookup();
+        Observer.Observe('lookup log', Log.Take());
+        Observer.Observe('move', Format(Schedule.Next(), 0, 9));
+        Observer.Observe('move log', Log.Take());
+        Observer.Observe('after move', Schedule.ResourceNo.Value() + '|' + Schedule."No.".Value() + '|' + Schedule.Resources."No.".Value() + '|' + Schedule.Resources."Group Code".Value());
+        Observer.Observe('read log', Log.Take());
+        Observer.Observe('second move', Format(Schedule.Next(), 0, 9) + '|' + Schedule."No.".Value());
+        Observer.Observe('second move log', Log.Take());
+        Schedule.Close();
+        Observer.Observe('close log', Log.Take());
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('PickSecondResource')]
+    procedure Y80_Y15_Host_Previous_NoRegions()
+    var
+        Schedule: TestPage "LT Y15 Three Link Schedule";
+    begin
+        Setup(false);
+        Schedule.OpenEdit();
+        Log.Take();
+        Schedule.Next();
+        Observer.Observe('setup log', Log.Take());
+        Schedule.ResourceNo.Lookup();
+        Observer.Observe('lookup log', Log.Take());
+        Observer.Observe('move', Format(Schedule.Previous(), 0, 9));
+        Observer.Observe('move log', Log.Take());
+        Observer.Observe('after move', Schedule.ResourceNo.Value() + '|' + Schedule."No.".Value() + '|' + Schedule.Resources."No.".Value() + '|' + Schedule.Resources."Group Code".Value());
+        Observer.Observe('read log', Log.Take());
+        Observer.Observe('second move', Format(Schedule.Next(), 0, 9) + '|' + Schedule."No.".Value());
+        Observer.Observe('second move log', Log.Take());
+        Schedule.Close();
+        Observer.Observe('close log', Log.Take());
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('PickSecondResource')]
+    procedure Y80_Y15_Host_Last_NoRegions()
+    var
+        Schedule: TestPage "LT Y15 Three Link Schedule";
+    begin
+        Setup(false);
+        Schedule.OpenEdit();
+        Log.Take();
+        Schedule.ResourceNo.Lookup();
+        Observer.Observe('lookup log', Log.Take());
+        Observer.Observe('move', Format(Schedule.Last(), 0, 9));
+        Observer.Observe('move log', Log.Take());
+        Observer.Observe('after move', Schedule.ResourceNo.Value() + '|' + Schedule."No.".Value() + '|' + Schedule.Resources."No.".Value() + '|' + Schedule.Resources."Group Code".Value());
+        Observer.Observe('read log', Log.Take());
+        Observer.Observe('second move', Format(Schedule.Next(), 0, 9) + '|' + Schedule."No.".Value());
+        Observer.Observe('second move log', Log.Take());
+        Schedule.Close();
+        Observer.Observe('close log', Log.Take());
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('PickSecondResource')]
+    procedure Y80_Y15_Host_First_NoRegions()
+    var
+        Schedule: TestPage "LT Y15 Three Link Schedule";
+    begin
+        Setup(false);
+        Schedule.OpenEdit();
+        Log.Take();
+        Schedule.Last();
+        Observer.Observe('setup log', Log.Take());
+        Schedule.ResourceNo.Lookup();
+        Observer.Observe('lookup log', Log.Take());
+        Observer.Observe('move', Format(Schedule.First(), 0, 9));
+        Observer.Observe('move log', Log.Take());
+        Observer.Observe('after move', Schedule.ResourceNo.Value() + '|' + Schedule."No.".Value() + '|' + Schedule.Resources."No.".Value() + '|' + Schedule.Resources."Group Code".Value());
+        Observer.Observe('read log', Log.Take());
+        Observer.Observe('second move', Format(Schedule.Next(), 0, 9) + '|' + Schedule."No.".Value());
+        Observer.Observe('second move log', Log.Take());
+        Schedule.Close();
+        Observer.Observe('close log', Log.Take());
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('PickSecondResource')]
+    procedure Y80_Y15_Host_GoToKey_NoRegions()
+    var
+        Schedule: TestPage "LT Y15 Three Link Schedule";
+    begin
+        Setup(false);
+        Schedule.OpenEdit();
+        Log.Take();
+        Schedule.ResourceNo.Lookup();
+        Observer.Observe('lookup log', Log.Take());
+        Observer.Observe('move', Format(Schedule.GoToKey('R3'), 0, 9));
+        Observer.Observe('move log', Log.Take());
+        Observer.Observe('after move', Schedule.ResourceNo.Value() + '|' + Schedule."No.".Value() + '|' + Schedule.Resources."No.".Value() + '|' + Schedule.Resources."Group Code".Value());
+        Observer.Observe('read log', Log.Take());
+        Observer.Observe('second move', Format(Schedule.Next(), 0, 9) + '|' + Schedule."No.".Value());
+        Observer.Observe('second move log', Log.Take());
+        Schedule.Close();
+        Observer.Observe('close log', Log.Take());
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('PickSecondResource')]
+    procedure Y80_Y15_Host_Next_Regions()
+    var
+        Schedule: TestPage "LT Y15 Three Link Schedule";
+    begin
+        Setup(true);
+        Schedule.OpenEdit();
+        Log.Take();
+        Schedule.ResourceNo.Lookup();
+        Observer.Observe('lookup log', Log.Take());
+        Observer.Observe('move', Format(Schedule.Next(), 0, 9));
+        Observer.Observe('move log', Log.Take());
+        Observer.Observe('after move', Schedule.ResourceNo.Value() + '|' + Schedule."No.".Value() + '|' + Schedule.Resources."No.".Value() + '|' + Schedule.Resources."Group Code".Value());
+        Observer.Observe('read log', Log.Take());
+        Observer.Observe('second move', Format(Schedule.Next(), 0, 9) + '|' + Schedule."No.".Value());
+        Observer.Observe('second move log', Log.Take());
+        Schedule.Close();
+        Observer.Observe('close log', Log.Take());
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('PickSecondResource')]
+    procedure Y80_Y15_Host_Previous_Regions()
+    var
+        Schedule: TestPage "LT Y15 Three Link Schedule";
+    begin
+        Setup(true);
+        Schedule.OpenEdit();
+        Log.Take();
+        Schedule.Next();
+        Observer.Observe('setup log', Log.Take());
+        Schedule.ResourceNo.Lookup();
+        Observer.Observe('lookup log', Log.Take());
+        Observer.Observe('move', Format(Schedule.Previous(), 0, 9));
+        Observer.Observe('move log', Log.Take());
+        Observer.Observe('after move', Schedule.ResourceNo.Value() + '|' + Schedule."No.".Value() + '|' + Schedule.Resources."No.".Value() + '|' + Schedule.Resources."Group Code".Value());
+        Observer.Observe('read log', Log.Take());
+        Observer.Observe('second move', Format(Schedule.Next(), 0, 9) + '|' + Schedule."No.".Value());
+        Observer.Observe('second move log', Log.Take());
+        Schedule.Close();
+        Observer.Observe('close log', Log.Take());
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('PickSecondResource')]
+    procedure Y80_Y15_Host_Last_Regions()
+    var
+        Schedule: TestPage "LT Y15 Three Link Schedule";
+    begin
+        Setup(true);
+        Schedule.OpenEdit();
+        Log.Take();
+        Schedule.ResourceNo.Lookup();
+        Observer.Observe('lookup log', Log.Take());
+        Observer.Observe('move', Format(Schedule.Last(), 0, 9));
+        Observer.Observe('move log', Log.Take());
+        Observer.Observe('after move', Schedule.ResourceNo.Value() + '|' + Schedule."No.".Value() + '|' + Schedule.Resources."No.".Value() + '|' + Schedule.Resources."Group Code".Value());
+        Observer.Observe('read log', Log.Take());
+        Observer.Observe('second move', Format(Schedule.Next(), 0, 9) + '|' + Schedule."No.".Value());
+        Observer.Observe('second move log', Log.Take());
+        Schedule.Close();
+        Observer.Observe('close log', Log.Take());
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('PickSecondResource')]
+    procedure Y80_Y15_Host_First_Regions()
+    var
+        Schedule: TestPage "LT Y15 Three Link Schedule";
+    begin
+        Setup(true);
+        Schedule.OpenEdit();
+        Log.Take();
+        Schedule.Last();
+        Observer.Observe('setup log', Log.Take());
+        Schedule.ResourceNo.Lookup();
+        Observer.Observe('lookup log', Log.Take());
+        Observer.Observe('move', Format(Schedule.First(), 0, 9));
+        Observer.Observe('move log', Log.Take());
+        Observer.Observe('after move', Schedule.ResourceNo.Value() + '|' + Schedule."No.".Value() + '|' + Schedule.Resources."No.".Value() + '|' + Schedule.Resources."Group Code".Value());
+        Observer.Observe('read log', Log.Take());
+        Observer.Observe('second move', Format(Schedule.Next(), 0, 9) + '|' + Schedule."No.".Value());
+        Observer.Observe('second move log', Log.Take());
+        Schedule.Close();
+        Observer.Observe('close log', Log.Take());
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('PickSecondResource')]
+    procedure Y80_Y15_Host_GoToKey_Regions()
+    var
+        Schedule: TestPage "LT Y15 Three Link Schedule";
+    begin
+        Setup(true);
+        Schedule.OpenEdit();
+        Log.Take();
+        Schedule.ResourceNo.Lookup();
+        Observer.Observe('lookup log', Log.Take());
+        Observer.Observe('move', Format(Schedule.GoToKey('R3'), 0, 9));
+        Observer.Observe('move log', Log.Take());
+        Observer.Observe('after move', Schedule.ResourceNo.Value() + '|' + Schedule."No.".Value() + '|' + Schedule.Resources."No.".Value() + '|' + Schedule.Resources."Group Code".Value());
+        Observer.Observe('read log', Log.Take());
+        Observer.Observe('second move', Format(Schedule.Next(), 0, 9) + '|' + Schedule."No.".Value());
+        Observer.Observe('second move log', Log.Take());
+        Schedule.Close();
+        Observer.Observe('close log', Log.Take());
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('PickSecondResource')]
+    procedure Y80_Y15_Host_CloseAfterLookup_NoRegions()
+    var
+        Schedule: TestPage "LT Y15 Three Link Schedule";
+        Setting: Record "LT Y15 Lookup Setting";
+    begin
+        Setup(false);
+        Schedule.OpenEdit();
+        Log.Take();
+        Schedule.ResourceNo.Lookup();
+        Observer.Observe('lookup log', Log.Take());
+        Schedule.Close();
+        Observer.Observe('close log', Log.Take());
+        Setting.Get();
+        Observer.Observe('stored', Setting."Resource No.");
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('PickSecondResource')]
+    procedure Y80_Y15_Host_HostControlsThenNext_NoRegions()
+    var
+        Schedule: TestPage "LT Y15 Three Link Schedule";
+    begin
+        Setup(false);
+        Schedule.OpenEdit();
+        Log.Take();
+        Schedule.ResourceNo.Lookup();
+        Observer.Observe('lookup log', Log.Take());
+        Observer.Observe('host controls', Schedule.ResourceNo.Value() + '|' + Schedule."No.".Value());
+        Observer.Observe('read log', Log.Take());
+        Observer.Observe('next', Format(Schedule.Next(), 0, 9) + '|' + Schedule."No.".Value());
+        Observer.Observe('next log', Log.Take());
+        Observer.Observe('part', Schedule.Resources."No.".Value());
+        Observer.Observe('part log', Log.Take());
+        Schedule.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('PickSecondResource')]
+    procedure Y80_Y15_Host_CloseAfterLookup_Regions()
+    var
+        Schedule: TestPage "LT Y15 Three Link Schedule";
+        Setting: Record "LT Y15 Lookup Setting";
+    begin
+        Setup(true);
+        Schedule.OpenEdit();
+        Log.Take();
+        Schedule.ResourceNo.Lookup();
+        Observer.Observe('lookup log', Log.Take());
+        Schedule.Close();
+        Observer.Observe('close log', Log.Take());
+        Setting.Get();
+        Observer.Observe('stored', Setting."Resource No.");
+        Observer.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('PickSecondResource')]
+    procedure Y80_Y15_Host_HostControlsThenNext_Regions()
+    var
+        Schedule: TestPage "LT Y15 Three Link Schedule";
+    begin
+        Setup(true);
+        Schedule.OpenEdit();
+        Log.Take();
+        Schedule.ResourceNo.Lookup();
+        Observer.Observe('lookup log', Log.Take());
+        Observer.Observe('host controls', Schedule.ResourceNo.Value() + '|' + Schedule."No.".Value());
+        Observer.Observe('read log', Log.Take());
+        Observer.Observe('next', Format(Schedule.Next(), 0, 9) + '|' + Schedule."No.".Value());
+        Observer.Observe('next log', Log.Take());
+        Observer.Observe('part', Schedule.Resources."No.".Value());
+        Observer.Observe('part log', Log.Take());
+        Schedule.Close();
+        Observer.Finish();
+    end;
+
     local procedure Setup(WithRegions: Boolean)
     var
         Setting: Record "LT Y15 Lookup Setting";
