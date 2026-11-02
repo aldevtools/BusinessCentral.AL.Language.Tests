@@ -11,8 +11,7 @@
 //        name are recorded with the Probe Observer and not asserted. Values seen (2026-11-02):
 //        SaaS Dev sandbox BC 29 and Linux CI containers 27.5, 28.5, 29.0, in the first test, a later test and under AutoRollback alike: the session user is in the
 //        User table with state Enabled, license Full User, UserLoggedInEnvironment = Yes, IsFirstLogin = No, GuiAllowed = Yes, IsSaaS = Yes, IsSandbox = Yes,
-//        IsProduction = No. SaaS: 3 users (session user, one Application license user, one External User), only the External User holds SUPER besides none for the
-//        session user (roles of the session user: not SUPER), penultimate login set, IsOnPrem = No. Linux CI: 3 users, all with SUPER, none other logged in, penultimate
+//        IsProduction = No. SaaS: 3 users (session user with license Full User, one Application license user without a login, one External User with SUPER and without a login), penultimate login set, IsOnPrem = No. Linux CI: 3 users, all with SUPER, none other logged in, penultimate
 //        login blank, IsOnPrem = Yes (IsSaaS and IsOnPrem are both Yes). Insert into User: refused on SaaS (license, DB:ClientInsertDenied), allowed on Linux CI.
 //        Delete of the session user: SaaS 'There should be at least one enabled 'SUPER' user.' (Dialog); Linux CI 'The user ... cannot be deleted because the user has been logged on to the system.'
 //        (Dialog). The by-hand DeleteAllUnLoggedInUsers loop over the test's own inserted user deleted it on Linux CI (no login row) and found none on SaaS (insert refused).
