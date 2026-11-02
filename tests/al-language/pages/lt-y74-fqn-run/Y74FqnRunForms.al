@@ -1,0 +1,334 @@
+// BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/page/page-run-text-record-joker-method
+// Scope: in-scope
+// Fixtures used: Probe Observer (codeunit 69160); self-contained table 93950, pages 93951 and 93952, test codeunit 93953
+// Probe: corpus writer Y74, pages area inventory. The fully qualified name forms of Page.Run and Page.RunModal that no corpus test pins: Run(Name), Run(Name, Record), Run(Name, Record, Field value), RunModal(Name), RunModal(Name, Record), RunModal(Name, Record, Field value), RunModal(Name, Record, FieldRef), and the name spellings and error texts. The forms with a field NUMBER are pinned by report/lt-bj-fqn-page-run/BjFqnPageRun.al.
+// BC versions: 28.0 and later (runtime 17.0; BC 27 rejects the fully qualified name overloads, see must-not-compile 0664)
+
+#if BC28PLUS
+namespace LT.Y74.Fqn;
+
+table 93950 "LT Y74 Fqn Row"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; Id; Integer) { }
+        field(2; Txt; Text[20]) { }
+        field(3; Qty; Integer) { }
+    }
+
+    keys
+    {
+        key(PK; Id) { Clustered = true; }
+    }
+}
+
+page 93951 "LT Y74 Fqn Card"
+{
+    PageType = Card;
+    SourceTable = "LT Y74 Fqn Row";
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            field(Id; Rec.Id) { ApplicationArea = All; }
+            field(Txt; Rec.Txt) { ApplicationArea = All; }
+            field(Qty; Rec.Qty) { ApplicationArea = All; }
+        }
+    }
+}
+
+page 93952 "LT Y74 Fqn List"
+{
+    PageType = List;
+    SourceTable = "LT Y74 Fqn Row";
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Rows)
+            {
+                field(Id; Rec.Id) { ApplicationArea = All; }
+                field(Txt; Rec.Txt) { ApplicationArea = All; }
+                field(Qty; Rec.Qty) { ApplicationArea = All; }
+            }
+        }
+    }
+}
+
+codeunit 93953 "LT Y74 Fqn Run Tests"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    var
+        Observer: Codeunit "Probe Observer";
+        Seen: Text;
+        Choice: Integer;
+
+    local procedure Seed()
+    var
+        Row: Record "LT Y74 Fqn Row";
+        Index: Integer;
+    begin
+        Row.DeleteAll();
+        for Index := 1 to 4 do begin
+            Row.Init();
+            Row.Id := Index;
+            Row.Txt := 'T' + Format(Index);
+            Row.Qty := Index * 10;
+            Row.Insert();
+        end;
+        Commit();
+    end;
+
+    [Test]
+    [HandlerFunctions('CardHandler,ListHandler')]
+    procedure Run_Name_Only()
+    begin
+        Seed();
+        Seen := '';
+        Page.Run('LT.Y74.Fqn.LT Y74 Fqn Card');
+        Observer.Observe('card', Seen);
+        Seen := '';
+        Page.Run('LT.Y74.Fqn.LT Y74 Fqn List');
+        Observer.Observe('list', Seen);
+        Observer.Verify();
+    end;
+
+    [Test]
+    [HandlerFunctions('CardHandler,ListHandler')]
+    procedure Run_Name_Record()
+    var
+        Row: Record "LT Y74 Fqn Row";
+    begin
+        Seed();
+        Row.Get(3);
+        Seen := '';
+        Page.Run('LT.Y74.Fqn.LT Y74 Fqn Card', Row);
+        Observer.Observe('card', Seen);
+        Seen := '';
+        Page.Run('LT.Y74.Fqn.LT Y74 Fqn List', Row);
+        Observer.Observe('list', Seen);
+        Row.SetFilter(Id, '%1|%2', 2, 4);
+        Row.FindFirst();
+        Seen := '';
+        Page.Run('LT.Y74.Fqn.LT Y74 Fqn List', Row);
+        Observer.Observe('list filtered', Seen);
+        Observer.Observe('filters after', Row.GetFilters());
+        Observer.Verify();
+    end;
+
+    [Test]
+    [HandlerFunctions('CardHandler,ListHandler')]
+    procedure Run_Name_Record_FieldValue()
+    var
+        Row: Record "LT Y74 Fqn Row";
+    begin
+        Seed();
+        Row.Get(3);
+        Seen := '';
+        Page.Run('LT.Y74.Fqn.LT Y74 Fqn Card', Row, Row.Qty);
+        Observer.Observe('card qty', Seen);
+        Seen := '';
+        Page.Run('LT.Y74.Fqn.LT Y74 Fqn Card', Row, Row.Id);
+        Observer.Observe('card id', Seen);
+        Seen := '';
+        Page.Run('LT.Y74.Fqn.LT Y74 Fqn List', Row, Row.Txt);
+        Observer.Observe('list txt', Seen);
+        Seen := '';
+        Page.Run(Page::"LT Y74 Fqn List", Row, Row.Txt);
+        Observer.Observe('list txt by id', Seen);
+        Observer.Verify();
+    end;
+
+    [Test]
+    [HandlerFunctions('ModalListHandler')]
+    procedure RunModal_Name_Only()
+    var
+        Act: Action;
+    begin
+        Seed();
+        Seen := '';
+        Choice := 1;
+        Act := Page.RunModal('LT.Y74.Fqn.LT Y74 Fqn List');
+        Observer.Observe('ok', Format(Act) + '|' + Seen);
+        Seen := '';
+        Choice := 2;
+        Act := Page.RunModal('LT.Y74.Fqn.LT Y74 Fqn List');
+        Observer.Observe('cancel', Format(Act) + '|' + Seen);
+        Observer.Verify();
+    end;
+
+    [Test]
+    [HandlerFunctions('ModalListHandler')]
+    procedure RunModal_Name_Record()
+    var
+        Row: Record "LT Y74 Fqn Row";
+        Act: Action;
+    begin
+        Seed();
+        Row.Get(2);
+        Seen := '';
+        Choice := 1;
+        Act := Page.RunModal('LT.Y74.Fqn.LT Y74 Fqn List', Row);
+        Observer.Observe('ok', Format(Act) + '|' + Seen);
+        Seen := '';
+        Choice := 2;
+        Act := Page.RunModal('LT.Y74.Fqn.LT Y74 Fqn List', Row);
+        Observer.Observe('cancel', Format(Act) + '|' + Seen);
+        Observer.Observe('row after', Format(Row.Id));
+        Observer.Verify();
+    end;
+
+    [Test]
+    [HandlerFunctions('ModalListHandler')]
+    procedure RunModal_Name_Record_FieldValue()
+    var
+        Row: Record "LT Y74 Fqn Row";
+        Act: Action;
+    begin
+        Seed();
+        Row.Get(4);
+        Seen := '';
+        Choice := 1;
+        Act := Page.RunModal('LT.Y74.Fqn.LT Y74 Fqn List', Row, Row.Qty);
+        Observer.Observe('ok', Format(Act) + '|' + Seen);
+        Seen := '';
+        Choice := 2;
+        Act := Page.RunModal('LT.Y74.Fqn.LT Y74 Fqn List', Row, Row.Txt);
+        Observer.Observe('cancel', Format(Act) + '|' + Seen);
+        Observer.Verify();
+    end;
+
+    [Test]
+    [HandlerFunctions('ModalListHandler')]
+    procedure RunModal_Name_Record_FieldRef()
+    var
+        Row: Record "LT Y74 Fqn Row";
+        RecRef: RecordRef;
+        FR: FieldRef;
+        Act: Action;
+    begin
+        Seed();
+        Row.Get(2);
+        RecRef.GetTable(Row);
+        FR := RecRef.Field(Row.FieldNo(Qty));
+        Seen := '';
+        Choice := 1;
+        Act := Page.RunModal('LT.Y74.Fqn.LT Y74 Fqn List', Row, FR);
+        Observer.Observe('ok', Format(Act) + '|' + Seen);
+        Seen := '';
+        Choice := 2;
+        Act := Page.RunModal('LT.Y74.Fqn.LT Y74 Fqn List', Row, FR);
+        Observer.Observe('cancel', Format(Act) + '|' + Seen);
+        Observer.Verify();
+    end;
+
+    [Test]
+    [HandlerFunctions('CardHandler,ListHandler')]
+    procedure Run_Name_Spellings()
+    begin
+        Seed();
+        Seen := '';
+        Page.Run('lt.y74.fqn.lt y74 fqn card');
+        Observer.Observe('lower case', Seen);
+        Seen := '';
+        Page.Run('LT.Y74.Fqn."LT Y74 Fqn Card"');
+        Observer.Observe('quoted', Seen);
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Run_Name_Errors()
+    var
+        Row: Record "LT Y74 Fqn Row";
+        Other: Record "Integer";
+        Act: Action;
+    begin
+        Seed();
+        Row.Get(1);
+        asserterror Page.Run('LT.Y74.Fqn.LT Y74 Fqn Missing');
+        Observer.ObserveError('missing');
+        asserterror Page.Run('');
+        Observer.ObserveError('empty');
+        asserterror Page.Run('LT Y74 Fqn Card');
+        Observer.ObserveError('no namespace');
+        asserterror Page.Run('LT.Y74.Fqn.LT Y74 Fqn Row');
+        Observer.ObserveError('table name');
+        asserterror Page.Run('LT.Y74.Fqn.LT Y74 Fqn Run Tests');
+        Observer.ObserveError('codeunit name');
+        asserterror Page.Run('93951');
+        Observer.ObserveError('page id as text');
+        asserterror Act := Page.RunModal('LT.Y74.Fqn.LT Y74 Fqn Missing');
+        Observer.ObserveError('modal missing');
+        Other.Number := 1;
+        asserterror Page.Run('LT.Y74.Fqn.LT Y74 Fqn Card', Other);
+        Observer.ObserveError('other table');
+        asserterror Page.Run('LT.Y74.Fqn.LT Y74 Fqn Card', Row, Other.Number);
+        Observer.ObserveError('field of other table');
+        asserterror Page.Run('LT.Y74.Fqn.LT Y74 Fqn Card', Row);
+        Observer.ObserveError('no handler');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure RunModal_Name_FieldRef_Errors()
+    var
+        Row: Record "LT Y74 Fqn Row";
+        Other: Record "Integer";
+        RecRef: RecordRef;
+        FR: FieldRef;
+        Act: Action;
+    begin
+        Seed();
+        Row.Get(1);
+        asserterror Act := Page.RunModal('LT.Y74.Fqn.LT Y74 Fqn List', Row, FR);
+        Observer.ObserveError('uninitialized');
+        RecRef.GetTable(Other);
+        FR := RecRef.Field(1);
+        asserterror Act := Page.RunModal('LT.Y74.Fqn.LT Y74 Fqn List', Row, FR);
+        Observer.ObserveError('other table');
+        asserterror Act := Page.RunModal('LT.Y74.Fqn.LT Y74 Fqn Missing', Row, FR);
+        Observer.ObserveError('missing');
+        Observer.Verify();
+    end;
+
+    [PageHandler]
+    procedure CardHandler(var P: TestPage "LT Y74 Fqn Card")
+    begin
+        Seen += P.Id.Value + '/' + P.Txt.Value + '/' + P.Qty.Value + ';';
+    end;
+
+    [PageHandler]
+    procedure ListHandler(var P: TestPage "LT Y74 Fqn List")
+    begin
+        Seen += 'cur=' + P.Id.Value + ' rows=';
+        if P.First() then
+            repeat
+                Seen += P.Id.Value;
+            until not P.Next();
+        Seen += ';';
+    end;
+
+    [ModalPageHandler]
+    procedure ModalListHandler(var P: TestPage "LT Y74 Fqn List")
+    begin
+        Seen += 'cur=' + P.Id.Value + ' rows=';
+        if P.First() then
+            repeat
+                Seen += P.Id.Value;
+            until not P.Next();
+        Seen += ';';
+        if Choice = 1 then
+            P.OK().Invoke()
+        else
+            P.Cancel().Invoke();
+    end;
+}
+#endif
