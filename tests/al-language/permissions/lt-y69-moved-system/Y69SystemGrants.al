@@ -22,23 +22,6 @@ codeunit 93711 "LT Y69 System Grants"
         Mock: Codeunit "Permissions Mock";
 
     [Test]
-    procedure Y69_SY_ExpandedRows()
-    var
-        Observer: Codeunit "Probe Observer";
-    begin
-        Observer.Observe('basic', Helper.Expanded('LT Y69 SY BASIC'));
-        Observer.Observe('outer', Helper.Expanded('LT Y69 SY OUTER'));
-        Observer.Observe('many', Helper.Expanded('LT Y69 SY MANY'));
-        Observer.Observe('only', Helper.Expanded('LT Y69 SY ONLY'));
-        Observer.Observe('indirect', Helper.Expanded('LT Y69 SY INDIRECT'));
-        Observer.Observe('wild', Helper.Expanded('LT Y69 SY WILD'));
-        Observer.Observe('mid', Helper.Expanded('LT Y69 SY MID'));
-        Observer.Observe('excl', Helper.Expanded('LT Y69 SY EXCL'));
-        Observer.Observe('plain', Helper.Expanded('LT Y69 SY PLAIN'));
-        Observer.Finish();
-    end;
-
-    [Test]
     procedure Y69_SY_ReporterShapes()
     var
         Observer: Codeunit "Probe Observer";

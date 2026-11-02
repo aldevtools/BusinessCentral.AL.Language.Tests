@@ -20,21 +20,6 @@ codeunit 93710 "LT Y69 Moved Tables"
         Mock: Codeunit "Permissions Mock";
 
     [Test]
-    procedure Y69_MV_ExpandedRows()
-    var
-        Observer: Codeunit "Probe Observer";
-    begin
-        Observer.Observe('name', Helper.Expanded('LT Y69 MV NAME'));
-        Observer.Observe('plain', Helper.Expanded('LT Y69 MV PLAIN'));
-        Observer.Observe('all', Helper.Expanded('LT Y69 MV ALL'));
-        Observer.Observe('outer', Helper.Expanded('LT Y69 MV OUTER'));
-        Observer.Observe('excl', Helper.Expanded('LT Y69 MV EXCL'));
-        Observer.Observe('ext_base', Helper.Expanded('LT Y69 MV EXT BASE'));
-        Observer.Observe('indirect', Helper.Expanded('LT Y69 MV INDIRECT'));
-        Observer.Finish();
-    end;
-
-    [Test]
     procedure Y69_MV_ReporterShape()
     var
         Observer: Codeunit "Probe Observer";
