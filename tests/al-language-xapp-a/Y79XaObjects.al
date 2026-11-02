@@ -1,7 +1,7 @@
 // Cross-app fixtures of writer Y79 (al-runner issues 6644 and 6755, install-time behavior), app A. The install code of A, B and D (B and D have no
 // dependency path to each other; their install codeunits are in Y8XaInstallOrder.al, Y8XbInstallOrder.al and Y8XdInstallOrder.al) call Probe of the
 // hub below, per database and per company. Probe arms the hub, writes one row with Insert(true) into the per-company table 61370 and the
-// DataPerCompany = false table 61371, writes a Reason Code and a Job Queue Entry with Insert(true) (per company only), asks the Upgrade Tag codeunit for
+// DataPerCompany = false table 61371, writes a Reason Code and a Job Queue Entry with Insert(true) (per company, in the first company's install only), asks the Upgrade Tag codeunit for
 // its tags and notes what it sees of the Object tables. The subscribers and table extensions of B and D (Y79XbSubs.al, Y79XdSubs.al) note, while the hub is
 // armed, which install they ran in. Every note is a row of the DataPerCompany = false table 61374 (Insert() without triggers, so a note asks for no trigger
 // setup); the Seq column gives the order. Install code must never fail (check-install-triggers.py): every write is `if Insert(..) then`, a Reason Code and a Job Queue Entry are deleted again at once (other tests count the rows) and the
@@ -171,6 +171,8 @@ codeunit 61372 "LT Y79 XA Hub"
         Row."No." := RowNo(App);
         Row.Note := CopyStr(App + '|' + Phase, 1, MaxStrLen(Row.Note));
         if Row.Insert(true) then;
+        if not FirstCompanyOf(App) then
+            exit;
         ReasonCode.Init();
         ReasonCode.Code := CopyStr('LTY79' + App, 1, MaxStrLen(ReasonCode.Code));
         ReasonCode.Description := 'LT Y79 install probe';
@@ -183,6 +185,20 @@ codeunit 61372 "LT Y79 XA Hub"
         Jqe.Status := Jqe.Status::"On Hold";
         if Jqe.Insert(true) then
             Jqe.Delete();
+    end;
+
+    // The Base Application tables (Reason Code, Job Queue Entry) are written in the first per-company install of an app only. The tests read the notes of the
+    // shared table 61374 and take the first note of a kind, so one company is enough, and the install code of the other companies leaves the Base Application
+    // tables of those companies alone. The marker is a note of the shared table: the first company to get here leaves it, the others find it.
+    local procedure FirstCompanyOf(App: Text): Boolean
+    var
+        Row: Record "LT Y79 XA Seen";
+    begin
+        Row.SetRange(Tag, 'base-tables|' + App);
+        if not Row.IsEmpty() then
+            exit(false);
+        Note('base-tables|' + App);
+        exit(true);
     end;
 
     local procedure Tags(App: Text; Phase: Text)
