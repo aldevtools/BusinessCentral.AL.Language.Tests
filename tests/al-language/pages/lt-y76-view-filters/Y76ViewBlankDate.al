@@ -360,7 +360,8 @@ codeunit 94068 "LT Y76 VB Tests"
             Xml += Line + '|';
         end;
         Observer.Observe('xml', Xml);
-        Observer.Finish();
+        Observer.Expect('xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Root>|  <Rows>|    <Info>blank1</Info>|  </Rows>|  <Rows>|    <Info>blank3</Info>|  </Rows>|</Root>|');
+        Observer.Verify();
     end;
 
     [Test]

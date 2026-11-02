@@ -82,7 +82,7 @@ codeunit 98890 "LT Y76 Http Relative Verbs"
         if TrySend(Method, Client, Url, Ret) then
             Observer.Observe(ObsKey, Format(Ret) + ' ' + Seen)
         else
-            Observer.Observe(ObsKey, 'E[' + CopyStr(GetLastErrorText(), 1, 70) + '|' + GetLastErrorCode() + '] ' + Seen);
+            Observer.Observe(ObsKey, 'E[' + CopyStr(GetLastErrorText(), 1, 300) + '|' + GetLastErrorCode() + '] ' + Seen);
     end;
 
     [Test]
