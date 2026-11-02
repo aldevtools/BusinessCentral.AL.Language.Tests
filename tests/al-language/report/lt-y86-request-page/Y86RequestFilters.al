@@ -272,9 +272,9 @@ codeunit 94586 "LT Y86 Filter Tests"
         Rep.RunModal();
         ObservePage(Obs, 'first');
         Mode := 1;
-        Rep.RunModal();
-        ObservePage(Obs, 'second');
-        Obs.Observe('both|run', Rep.GetRunLog());
+        asserterror Rep.RunModal();
+        Obs.ObserveError('second run of the same variable');
+        Obs.Observe('first|run', Rep.GetRunLog());
         Obs.Finish();
     end;
 
@@ -301,6 +301,7 @@ codeunit 94586 "LT Y86 Filter Tests"
         ObservePage(Obs, 'view C*');
         Obs.Observe('view C*|run', Rep.GetRunLog());
         Mode := 0;
+        Clear(Plain);
         Plain.RunModal();
         ObservePage(Obs, 'plain after view');
         ResetStored();

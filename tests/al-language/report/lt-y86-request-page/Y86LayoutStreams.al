@@ -29,6 +29,33 @@ report 94587 "LT Y86 Rdlc Report"
     }
 }
 
+report 94601 "LT Y86 Rdlc Columns Report"
+{
+    UsageCategory = None;
+    DefaultRenderingLayout = Y86Rdlc;
+
+    dataset
+    {
+        dataitem(Int; Integer)
+        {
+            DataItemTableView = sorting(Number) where(Number = const(1));
+
+            column(NumberCol; Int.Number) { }
+            column(TextCol; 'abc') { }
+        }
+    }
+
+    rendering
+    {
+        layout(Y86Rdlc)
+        {
+            Type = RDLC;
+            LayoutFile = './FixtureLayout_19.rdlc';
+            Caption = 'Y86 RDLC layout with columns';
+        }
+    }
+}
+
 codeunit 94588 "LT Y86 Layout Streams"
 {
     Subtype = Test;
@@ -137,38 +164,37 @@ codeunit 94588 "LT Y86 Layout Streams"
         Obs.Finish();
     end;
 
-    local procedure DumpLines(FromLine: Integer; ToLine: Integer)
+    local procedure FieldsSection(ReportId: Integer): Text
     var
-        Obs: Codeunit "Probe Observer";
         InS: InStream;
         Line: Text;
-        N: Integer;
+        All: Text;
+        At: Integer;
+        Cut: Text;
+        EndAt: Integer;
     begin
-        Report.RdlcLayout(Report::"LT Y86 Rdlc Report", InS);
+        Report.RdlcLayout(ReportId, InS);
         while not InS.EOS() do begin
             InS.ReadText(Line);
-            N += 1;
-            if (N >= FromLine) and (N <= ToLine) then
-                Obs.Observe(Format(N), Line);
+            All += Line + '|';
         end;
+        At := StrPos(All, '<Fields');
+        if At = 0 then
+            exit('no Fields element');
+        Cut := CopyStr(All, At);
+        EndAt := StrPos(Cut, '</Fields>');
+        if EndAt = 0 then
+            exit(CopyStr(Cut, 1, 12) + ' length=' + Format(StrLen(All)));
+        exit(CopyStr(Cut, 1, EndAt + 8) + ' length=' + Format(StrLen(All)));
+    end;
+
+    [Test]
+    procedure Y86_RdlcLayout_FieldsSectionFollowsTheDataset()
+    var
+        Obs: Codeunit "Probe Observer";
+    begin
+        Obs.Observe('report without columns', FieldsSection(Report::"LT Y86 Rdlc Report"));
+        Obs.Observe('report with columns', FieldsSection(Report::"LT Y86 Rdlc Columns Report"));
         Obs.Finish();
-    end;
-
-    [Test]
-    procedure Y86_Dump1()
-    begin
-        DumpLines(1, 25);
-    end;
-
-    [Test]
-    procedure Y86_Dump2()
-    begin
-        DumpLines(26, 50);
-    end;
-
-    [Test]
-    procedure Y86_Dump3()
-    begin
-        DumpLines(51, 75);
     end;
 }
