@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/testpage/testpage-expand-method
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); log table 93240 (Y61Log.al); table 93850, pages 93850-93853, test codeunit 93850
+// Fixtures used: Probe Observer (codeunit 69160); log table 93240 (Y61Log.al) where logs are read; own objects: table 93850; page 93850,93851,93852,93853; codeunit 93850
 // Probe: written against BC on the corpus CI matrix (27.5, 28.5, 29.0); every literal asserted below is what that tier produced.
 // Facts: a tree list (ShowAsTree = true, IndentationColumn = a page variable, no TreeInitialState) with row triggers: which rows the page
 //   shows when it opens, what IsExpanded answers, what Expand(true) / Expand(false) add or hide, which row triggers run on open, on
@@ -11,6 +11,19 @@
 //   Log format: agr <line> = OnAfterGetRecord, agcr <line> = OnAfterGetCurrRecord.
 // Neighbours: pages/lt-page-runtime/TwTreeExpandTriggers.al (ExpandAll), pageext/lt-page-ext-properties/Y28CollapsedTreeTests.al
 //   (CollapseAll), handlers/AhPageTests.al (a tree without row triggers).
+// Measured (27.5, 28.5, 29.0 and SaaS 29 alike): the tree opens collapsed. Every row is read once at open (agr 10 .. agr 60), then the
+//   first row again (agr 10; agr 10; agcr 10); IsExpanded is No and Next walks only the level-0 rows (10, 40, 60), each move running agr,
+//   agr, agcr of the row it lands on. Expand(true) on a parent runs no trigger and keeps the row; Next then reaches the children (20, 30
+//   after row 10; 50 after row 40) and skips the children of the collapsed rows; Expand(false) hides them again. GoToKey(40) reads all six
+//   rows again and moves to 40. GoToKey to a child row (30) while its parent is collapsed finds no row (TestRowNotFound, the log shows the
+//   walk over the visible rows and back to row 10). Expand(true) on a leaf row (60) raises nothing and IsExpanded stays No; Expand(false)
+//   on a leaf row ends the test with an uncatchable CLR exception ("Expanding and collapsing are not supported on this rowEntry"), kept as
+//   the non-test procedure Tree_CollapseLeafRow60. A Worksheet over a temporary copy filtered on Grp = A and expanded (the Order Planning
+//   shape) shows rows 10, 20, 30 after the Grp filter and Expand(true) (the filter re-reads those three rows: agr 10; agr 20; agr 30; agr 10; agr 10; agcr 10); filtering
+//   on a child's number lands on it (Qty and the page variable of that row). With only OnAfterGetRecord all rows are read at open
+//   (agr 10 .. agr 60, agr 10) and the walk after Expand(true) logs nothing (the rows are not read again); with only OnAfterGetCurrRecord
+//   open logs agcr 10 and the walk logs agcr of each row reached (20, 30, 40, 60). Expand(true) on an empty tree raises nothing. Last then
+//   Previous walks the visible rows (60, 40, 10; with row 40 expanded 60, 50, 40, 10).
 // BC versions: all (CI)
 
 table 93850 "LT Y72 Tree Row"
@@ -319,26 +332,17 @@ codeunit 93850 "LT Y72 Tree Default State"
         Observer.Observe('walk', WalkPL(P));
         Observer.Observe('walk log', TakeLog());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open log', 'agr 10;agr 20;agr 30;agr 40;agr 50;agr 60;agr 10;agr 10;agcr 10');
+        Observer.Expect('open line', '10');
+        Observer.Expect('open expanded', 'No');
+        Observer.Expect('first log', '');
+        Observer.Expect('walk', '10:No;40:No;60:No;');
+        Observer.Expect('walk log', 'agr 40;agr 40;agcr 40;agr 60;agr 60;agcr 60');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure TreeDefault_OpenShows_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure TreeDefault_OpenShows_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure TreeDefault_OpenShows_More3()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure TreeDefault_ExpandCollapse_Row10()
@@ -363,26 +367,20 @@ codeunit 93850 "LT Y72 Tree Default State"
         Observer.Observe('collapse walk', WalkPL(P));
         Observer.Observe('collapse walk log', TakeLog());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('expand log', '');
+        Observer.Expect('expand line', '10');
+        Observer.Expect('expand expanded', 'Yes');
+        Observer.Expect('expand walk', '10:Yes;20:No;30:No;40:No;60:No;');
+        Observer.Expect('expand walk log', 'agr 20;agr 20;agcr 20;agr 30;agr 30;agcr 30;agr 40;agr 40;agcr 40;agr 60;agr 60;agcr 60');
+        Observer.Expect('collapse log', '');
+        Observer.Expect('collapse expanded', 'No');
+        Observer.Expect('collapse walk', '10:No;40:No;60:No;');
+        Observer.Expect('collapse walk log', 'agr 40;agr 40;agcr 40;agr 60;agr 60;agcr 60');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure TreeDefault_ExpandCollapse_Row10_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure TreeDefault_ExpandCollapse_Row10_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure TreeDefault_ExpandCollapse_Row10_More3()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure TreeDefault_ExpandCollapse_Row40()
@@ -407,26 +405,23 @@ codeunit 93850 "LT Y72 Tree Default State"
         Observer.Observe('collapse expanded', Format(P.IsExpanded()));
         Observer.Observe('collapse walk', WalkPL(P));
         P.Close();
-        Observer.Finish();
+        Observer.Expect('goto 40', 'Yes');
+        Observer.Expect('goto log', 'agr 10;agr 20;agr 30;agr 40;agr 50;agr 60;agr 10;agr 10;agcr 10;agr 40;agr 40;agcr 40');
+        Observer.Expect('goto line', '40');
+        Observer.Expect('goto expanded', 'No');
+        Observer.Expect('expand log', '');
+        Observer.Expect('expand expanded', 'Yes');
+        Observer.Expect('expand walk', '40:Yes;50:No;60:No;');
+        Observer.Expect('expand walk log', 'agr 50;agr 50;agcr 50;agr 60;agr 60;agcr 60');
+        Observer.Expect('goto 40 again', 'Yes');
+        Observer.Expect('collapse log', '');
+        Observer.Expect('collapse expanded', 'No');
+        Observer.Expect('collapse walk', '40:No;60:No;');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure TreeDefault_ExpandCollapse_Row40_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure TreeDefault_ExpandCollapse_Row40_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure TreeDefault_ExpandCollapse_Row40_More3()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure TreeDefault_Expand_LeafRow60_Open()
@@ -446,14 +441,14 @@ codeunit 93850 "LT Y72 Tree Default State"
         Observer.Observe('expand line', P.LineCtl.Value());
         Observer.Observe('expand expanded', Format(P.IsExpanded()));
         P.Close();
-        Observer.Finish();
+        Observer.Expect('goto 60', 'Yes');
+        Observer.Expect('expand true ok', 'Yes');
+        Observer.Expect('expand log', '');
+        Observer.Expect('expand line', '60');
+        Observer.Expect('expand expanded', 'No');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure TreeDefault_Expand_LeafRow60_Open_More1()
-    begin
-        Observer.More();
-    end;
 
     // Expand(false) on a leaf row ends the test with an uncatchable CLR exception ("Expanding and collapsing are not supported on this
     // rowEntry", BC 29 SaaS), so it is not a test.
@@ -492,26 +487,23 @@ codeunit 93850 "LT Y72 Tree Default State"
         Observer.Observe('child shown', P.ShownCtl.Value());
         Observer.Observe('child expanded', Format(P.IsExpanded()));
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open log', 'agr 10;agr 20;agr 30;agr 40;agr 50;agr 60;agr 10;agr 10;agcr 10');
+        Observer.Expect('open line', '10');
+        Observer.Expect('filter log', 'agr 10;agr 20;agr 30;agr 10;agr 10;agcr 10');
+        Observer.Expect('filter line', '10');
+        Observer.Expect('expand log', '');
+        Observer.Expect('expand line', '10');
+        Observer.Expect('expand walk', '10:Yes;20:No;30:No;');
+        Observer.Expect('child log', 'agr 30;agr 30;agcr 30');
+        Observer.Expect('child line', '30');
+        Observer.Expect('child qty', '30.00');
+        Observer.Expect('child shown', 'agr 30');
+        Observer.Expect('child expanded', 'No');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure TreeDefault_FilterThenExpand_Worksheet_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure TreeDefault_FilterThenExpand_Worksheet_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure TreeDefault_FilterThenExpand_Worksheet_More3()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure TreeDefault_GoToKey_ChildRow()
@@ -532,26 +524,19 @@ codeunit 93850 "LT Y72 Tree Default State"
         Observer.Observe('goto 10', Format(P.GoToKey(10)));
         Observer.Observe('parent expanded', Format(P.IsExpanded()));
         P.Close();
-        Observer.Finish();
+        Observer.Expect('goto ok', 'No');
+        Observer.Expect('goto|text', 'The row does not exist on the TestPage.');
+        Observer.Expect('goto|code', 'TestRowNotFound');
+        Observer.Expect('goto log', 'agr 40;agr 40;agcr 40;agr 60;agr 60;agcr 60;agr 10;agr 10;agcr 10');
+        Observer.Expect('goto line', '10');
+        Observer.Expect('goto expanded', 'No');
+        Observer.Expect('goto 10', 'Yes');
+        Observer.Expect('parent expanded', 'No');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure TreeDefault_GoToKey_ChildRow_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure TreeDefault_GoToKey_ChildRow_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure TreeDefault_GoToKey_ChildRow_More3()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure TreeDefault_RowTriggerVariants_OnAfterGetRecordOnly()
@@ -574,26 +559,18 @@ codeunit 93850 "LT Y72 Tree Default State"
         Observer.Observe('walk', Result);
         Observer.Observe('walk log', TakeLog());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open log', 'agr 10;agr 20;agr 30;agr 40;agr 50;agr 60;agr 10');
+        Observer.Expect('open line', '10');
+        Observer.Expect('first log', '');
+        Observer.Expect('expand log', '');
+        Observer.Expect('expand expanded', 'Yes');
+        Observer.Expect('walk', '10;20;30;40;60');
+        Observer.Expect('walk log', '');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure TreeDefault_RowTriggerVariants_OnAfterGetRecordOnly_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure TreeDefault_RowTriggerVariants_OnAfterGetRecordOnly_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure TreeDefault_RowTriggerVariants_OnAfterGetRecordOnly_More3()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure TreeDefault_RowTriggerVariants_OnAfterGetCurrRecordOnly()
@@ -616,26 +593,18 @@ codeunit 93850 "LT Y72 Tree Default State"
         Observer.Observe('walk', Result);
         Observer.Observe('walk log', TakeLog());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open log', 'agcr 10');
+        Observer.Expect('open line', '10');
+        Observer.Expect('first log', '');
+        Observer.Expect('expand log', '');
+        Observer.Expect('expand expanded', 'Yes');
+        Observer.Expect('walk', '10;20;30;40;60');
+        Observer.Expect('walk log', 'agcr 20;agcr 30;agcr 40;agcr 60');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure TreeDefault_RowTriggerVariants_OnAfterGetCurrRecordOnly_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure TreeDefault_RowTriggerVariants_OnAfterGetCurrRecordOnly_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure TreeDefault_RowTriggerVariants_OnAfterGetCurrRecordOnly_More3()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure TreeDefault_Previous_Last()
@@ -654,26 +623,15 @@ codeunit 93850 "LT Y72 Tree Default State"
         Observer.Observe('back after', LinesBackPL(P));
         TakeLog();
         P.Close();
-        Observer.Finish();
+        Observer.Expect('last line', '60');
+        Observer.Expect('back before', '60;40;10;');
+        Observer.Expect('last after expand', '60');
+        Observer.Expect('back after', '60;50;40;10;');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure TreeDefault_Previous_Last_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure TreeDefault_Previous_Last_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure TreeDefault_Previous_Last_More3()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure TreeDefault_ExpandOnEmptyTree()
@@ -693,24 +651,13 @@ codeunit 93850 "LT Y72 Tree Default State"
             Observer.ObserveError('expand');
         Observer.Observe('expand log', TakeLog());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open line', '');
+        Observer.Expect('open log', 'agcr 0');
+        Observer.Expect('expand ok', 'Yes');
+        Observer.Expect('expand log', '');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure TreeDefault_ExpandOnEmptyTree_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure TreeDefault_ExpandOnEmptyTree_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure TreeDefault_ExpandOnEmptyTree_More3()
-    begin
-        Observer.More();
-    end;
 }

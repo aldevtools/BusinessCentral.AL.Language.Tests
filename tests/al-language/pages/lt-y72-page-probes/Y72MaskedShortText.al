@@ -1,12 +1,16 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/properties/devenv-extendeddatatype-property
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); table 93857, pages 93858-93859, codeunit 93853 (value holder), 93854 (test)
+// Fixtures used: Probe Observer (codeunit 69160); log table 93240 (Y61Log.al) where logs are read; own objects: table 93857; codeunit 93853,93854; page 93858,93859
 // Probe: written against BC on the corpus CI matrix (27.5, 28.5, 29.0); every literal asserted below is what that tier produced.
 // Facts: what TestPage.Value() returns for a Masked control that shows a text of 1 to 50 characters: a table field with
 //   ExtendedDatatype = Masked on the table and on the page control, a page variable bound to a Masked control (the SMTP account password
 //   shape: a 3 character text), a Code field, blanks and non-ASCII characters, SetValue with a short text, a Masked property only on the
 //   table field and only on the page control. The bullet is U+2022.
 // Neighbours: pages/lt-page-presentation-properties/P119PageFields.al (11 characters show ten bullets, the empty text shows empty).
+// Measured (27.5, 28.5, 29.0 and SaaS 29 alike): a Masked control shows ten bullets for a text of any length from 1 to 50 (field, Code
+//   field, page variable, text of blanks only, non-ASCII, page-only and table-only property); an empty text shows empty. SetValue of a
+//   short or long text keeps the ten bullets and stores the clear text. AssertEquals on a masked control compares with the ten bullets,
+//   so the clear text and three bullets fail with TestAssertEquals. A page variable without the Masked property shows its clear text.
 // BC versions: all (CI)
 
 table 93857 "LT Y72 Mask Row"
@@ -185,26 +189,29 @@ codeunit 93854 "LT Y72 Masked Short Text"
             Observer.Observe('len ' + Format(Len) + ' strlen', Format(StrLen(P.SecretF.Value())));
             P.Close();
         end;
-        Observer.Finish();
+        Observer.Expect('len 1 value', '••••••••••');
+        Observer.Expect('len 1 strlen', '10');
+        Observer.Expect('len 2 value', '••••••••••');
+        Observer.Expect('len 2 strlen', '10');
+        Observer.Expect('len 3 value', '••••••••••');
+        Observer.Expect('len 3 strlen', '10');
+        Observer.Expect('len 5 value', '••••••••••');
+        Observer.Expect('len 5 strlen', '10');
+        Observer.Expect('len 9 value', '••••••••••');
+        Observer.Expect('len 9 strlen', '10');
+        Observer.Expect('len 10 value', '••••••••••');
+        Observer.Expect('len 10 strlen', '10');
+        Observer.Expect('len 11 value', '••••••••••');
+        Observer.Expect('len 11 strlen', '10');
+        Observer.Expect('len 20 value', '••••••••••');
+        Observer.Expect('len 20 strlen', '10');
+        Observer.Expect('len 50 value', '••••••••••');
+        Observer.Expect('len 50 strlen', '10');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Masked_LengthSweep_Field_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Masked_LengthSweep_Field_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Masked_LengthSweep_Field_More3()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure Masked_PageVariable_Short()
@@ -232,26 +239,23 @@ codeunit 93854 "LT Y72 Masked Short Text"
             Observer.Observe('var <' + Value + '> strlen', Format(StrLen(P.VarF.Value())));
             P.Close();
         end;
-        Observer.Finish();
+        Observer.Expect('var <***> value', '••••••••••');
+        Observer.Expect('var <***> strlen', '10');
+        Observer.Expect('var <> value', '');
+        Observer.Expect('var <> strlen', '0');
+        Observer.Expect('var <x> value', '••••••••••');
+        Observer.Expect('var <x> strlen', '10');
+        Observer.Expect('var <123456789> value', '••••••••••');
+        Observer.Expect('var <123456789> strlen', '10');
+        Observer.Expect('var <1234567890> value', '••••••••••');
+        Observer.Expect('var <1234567890> strlen', '10');
+        Observer.Expect('var <TestPassword123> value', '••••••••••');
+        Observer.Expect('var <TestPassword123> strlen', '10');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Masked_PageVariable_Short_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Masked_PageVariable_Short_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Masked_PageVariable_Short_More3()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure Masked_SetValueShort()
@@ -273,26 +277,16 @@ codeunit 93854 "LT Y72 Masked Short Text"
         P.Close();
         Row.Get(1);
         Observer.Observe('stored', Row.Secret);
-        Observer.Finish();
+        Observer.Expect('open value', '••••••••••');
+        Observer.Expect('set abc value', '••••••••••');
+        Observer.Expect('set 12 value', '••••••••••');
+        Observer.Expect('set empty value', '');
+        Observer.Expect('stored', 'xy');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Masked_SetValueShort_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Masked_SetValueShort_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Masked_SetValueShort_More3()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure Masked_AssertEquals()
@@ -316,26 +310,18 @@ codeunit 93854 "LT Y72 Masked Short Text"
         if not Ok then
             Observer.ObserveError('ten bullets');
         P.Close();
-        Observer.Finish();
+        Observer.Expect('clear text ok', 'No');
+        Observer.Expect('clear text|text', 'AssertEquals for Field: SecretF Expected = ''abc'', Actual = ''••••••••••''');
+        Observer.Expect('clear text|code', 'TestAssertEquals');
+        Observer.Expect('three bullets ok', 'No');
+        Observer.Expect('three bullets|text', 'AssertEquals for Field: SecretF Expected = ''•••'', Actual = ''••••••••••''');
+        Observer.Expect('three bullets|code', 'TestAssertEquals');
+        Observer.Expect('ten bullets ok', 'Yes');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Masked_AssertEquals_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Masked_AssertEquals_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Masked_AssertEquals_More3()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure Masked_Code_And_Blanks()
@@ -379,26 +365,19 @@ codeunit 93854 "LT Y72 Masked Short Text"
         Observer.Observe('3 only blanks', P.SecretF.Value());
         Observer.Observe('3 only blanks strlen', Format(StrLen(P.SecretF.Value())));
         P.Close();
-        Observer.Finish();
+        Observer.Expect('1 code', '••••••••••');
+        Observer.Expect('1 blanks around', '••••••••••');
+        Observer.Expect('1 plain with page property', '••••••••••');
+        Observer.Expect('2 non-ascii', '••••••••••');
+        Observer.Expect('2 code 15', '••••••••••');
+        Observer.Expect('2 code strlen', '10');
+        Observer.Expect('3 only blanks', '••••••••••');
+        Observer.Expect('3 only blanks strlen', '10');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Masked_Code_And_Blanks_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Masked_Code_And_Blanks_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Masked_Code_And_Blanks_More3()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure Masked_TableOnly_And_PageVariableWithoutProperty()
@@ -420,24 +399,13 @@ codeunit 93854 "LT Y72 Masked Short Text"
         Observer.Observe('table masked field on page without property', P.SecretF.Value());
         Observer.Observe('page variable without property', P.VarF.Value());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('table only 3', '••••••••••');
+        Observer.Expect('table only strlen', '10');
+        Observer.Expect('table masked field on page without property', '••••••••••');
+        Observer.Expect('page variable without property', '***');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Masked_TableOnly_And_PageVariableWithoutProperty_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Masked_TableOnly_And_PageVariableWithoutProperty_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Masked_TableOnly_And_PageVariableWithoutProperty_More3()
-    begin
-        Observer.More();
-    end;
 }

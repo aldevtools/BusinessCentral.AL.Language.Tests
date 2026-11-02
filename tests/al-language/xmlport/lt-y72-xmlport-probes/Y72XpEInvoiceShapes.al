@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/xmlport/xmlport-skip-method
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); tables 93866-93867, xmlports 93850-93853, codeunits 93860 (log), 93861 (test)
+// Fixtures used: Probe Observer (codeunit 69160); log table 93240 (Y61Log.al) where logs are read; own objects: table 93866; codeunit 93860,93861; xmlport 93850,93851,93852
 // Probe: written against BC on the corpus CI matrix (27.5, 28.5, 29.0); every literal asserted below is what that tier produced.
 // Facts: XmlPort export shapes of e-invoice ports (namespaces with the empty default prefix and two prefixes, a root table element over
 //   Integer with MaxOccurs = Once). Family A: a text element with a value and a text attribute whose OnBeforePassVariable skips when
@@ -13,6 +13,15 @@
 //   are shown as |. Log: <element> = OnBeforePassVariable, pre <element> = OnPreXmlItem, agr <element> <n> = OnAfterGetRecord.
 // Neighbours: xmlport/lt-y60-xmlport-container-skip/Y60XpContainerSkip.al, xmlport/lt-y60-xmlport-text-in-table/Y60XpTextInTable.al,
 //   xmlport/lt-y17-xmlport-ns/Y17XmlPortNamespacesTests.al:60, xmlport/W7XmlPortTests.al:25-90.
+// Measured (27.5, 28.5, 29.0 and SaaS 29 alike): see the Expect lines. Family A: an attributed leaf below containers in a table element
+//   writes its element, with the attribute only when the attribute trigger does not skip; a Skip in the element trigger leaves out the
+//   element with its attribute (the attribute trigger does not run); a container whose children are all skipped is written empty
+//   (<cac:PartyLegalEntity> keeps a blank RegistrationName). On a real table root the triggers run once per row and a Skip in row 1
+//   does not affect row 2. Family B: the container's OnBeforePassVariable runs before the inner table element's OnPreXmlItem, which runs
+//   once; the inner OnAfterGetRecord runs for every row and for the row where Break is called; Break leaves out that row and ends the
+//   inner element, Skip leaves out only that row (rows 1 and 3 written); the sibling after the container follows in both cases. With no
+//   inner row the container is still written with its leaves. A Skip in the container's trigger leaves out the container and its inner table
+//   elements do not run (no OnPreXmlItem, no OnAfterGetRecord); the next sibling is written.
 // BC versions: all (CI)
 
 table 93866 "LT Y72 XP Src"
@@ -829,26 +838,13 @@ codeunit 93861 "LT Y72 XP EInvoice Shapes"
     begin
         Start();
         ExportA('all filled', 1);
-        Observer.Finish();
+        Observer.Expect('all filled xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Invoice xmlns:cac="urn:p:cac" xmlns:cbc="urn:p:cbc" xmlns="urn:p:inv">|  <cbc:ID>INV1</cbc:ID>|  <cac:AccountingSupplierParty>|    <cac:Party>|      <cbc:EndpointID schemeID="0088">EP1</cbc:EndpointID>|      <cac:PartyIdentification>|        <cbc:ID schemeID="PS">PI1</cbc:ID>|      </cac:PartyIdentification>|      <cac:PartyLegalEntity>|        <cbc:RegistrationName>Reg Name</cbc:RegistrationName>|        <cbc:CompanyID schemeID="CS">CO1</cbc:CompanyID>|      </cac:PartyLegalEntity>|    </cac:Party>|  </cac:AccountingSupplierParty>|  <cac:Delivery>|    <cbc:ActualDeliveryDate>2024-01-02</cbc:ActualDeliveryDate>|    <cac:DeliveryLocation>|      <cbc:ID schemeID="DS">DL1</cbc:ID>|      <cac:Address>|        <cbc:StreetName>Main St</cbc:StreetName>|      </cac:Address>|    </cac:DeliveryLocation>|  </cac:Delivery>|  <cbc:After>t</cbc:After>|</Invoice>|');
+        Observer.Expect('all filled log', 'agr hdr;endpoint[EP1,0088];partyident;companyid[CO1];cidscheme[CS];actualdate[2024-01-02];deliveryid[DL1,DS];');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure DeepAttrLeaf_AllFilled_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure DeepAttrLeaf_AllFilled_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure DeepAttrLeaf_AllFilled_More3()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure DeepAttrLeaf_SkipVariants_EndpointIdentLegal()
@@ -857,26 +853,17 @@ codeunit 93861 "LT Y72 XP EInvoice Shapes"
         ExportA('a endpoint empty', 2);
         ExportA('b party identification empty', 3);
         ExportA('c company id set, attribute empty', 4);
-        Observer.Finish();
+        Observer.Expect('a endpoint empty xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Invoice xmlns:cac="urn:p:cac" xmlns:cbc="urn:p:cbc" xmlns="urn:p:inv">|  <cbc:ID>INV1</cbc:ID>|  <cac:AccountingSupplierParty>|    <cac:Party>|      <cac:PartyIdentification>|        <cbc:ID schemeID="PS">PI1</cbc:ID>|      </cac:PartyIdentification>|      <cac:PartyLegalEntity>|        <cbc:RegistrationName>Reg Name</cbc:RegistrationName>|        <cbc:CompanyID schemeID="CS">CO1</cbc:CompanyID>|      </cac:PartyLegalEntity>|    </cac:Party>|  </cac:AccountingSupplierParty>|  <cac:Delivery>|    <cbc:ActualDeliveryDate>2024-01-02</cbc:ActualDeliveryDate>|    <cac:DeliveryLocation>|      <cbc:ID schemeID="DS">DL1</cbc:ID>|      <cac:Address>|        <cbc:StreetName>Main St</cbc:StreetName>|      </cac:Address>|    </cac:DeliveryLocation>|  </cac:Delivery>|  <cbc:After>t</cbc:After>|</Invoice>|');
+        Observer.Expect('a endpoint empty log', 'agr hdr;endpoint[,0088];partyident;companyid[CO1];cidscheme[CS];actualdate[2024-01-02];deliveryid[DL1,DS];');
+        Observer.Expect('b party identification empty xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Invoice xmlns:cac="urn:p:cac" xmlns:cbc="urn:p:cbc" xmlns="urn:p:inv">|  <cbc:ID>INV1</cbc:ID>|  <cac:AccountingSupplierParty>|    <cac:Party>|      <cbc:EndpointID schemeID="0088">EP1</cbc:EndpointID>|      <cac:PartyLegalEntity>|        <cbc:RegistrationName>Reg Name</cbc:RegistrationName>|        <cbc:CompanyID schemeID="CS">CO1</cbc:CompanyID>|      </cac:PartyLegalEntity>|    </cac:Party>|  </cac:AccountingSupplierParty>|  <cac:Delivery>|    <cbc:ActualDeliveryDate>2024-01-02</cbc:ActualDeliveryDate>|    <cac:DeliveryLocation>|      <cbc:ID schemeID="DS">DL1</cbc:ID>|      <cac:Address>|        <cbc:StreetName>Main St</cbc:StreetName>|      </cac:Address>|    </cac:DeliveryLocation>|  </cac:Delivery>|  <cbc:After>t</cbc:After>|</Invoice>|');
+        Observer.Expect('b party identification empty log', 'agr hdr;endpoint[EP1,0088];partyident;companyid[CO1];cidscheme[CS];actualdate[2024-01-02];deliveryid[DL1,DS];');
+        Observer.Expect('c company id set, attribute empty xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Invoice xmlns:cac="urn:p:cac" xmlns:cbc="urn:p:cbc" xmlns="urn:p:inv">|  <cbc:ID>INV1</cbc:ID>|  <cac:AccountingSupplierParty>|    <cac:Party>|      <cbc:EndpointID schemeID="0088">EP1</cbc:EndpointID>|      <cac:PartyIdentification>|        <cbc:ID schemeID="PS">PI1</cbc:ID>|      </cac:PartyIdentification>|      <cac:PartyLegalEntity>|        <cbc:RegistrationName>Reg Name</cbc:RegistrationName>|        <cbc:CompanyID>CO1</cbc:CompanyID>|      </cac:PartyLegalEntity>|    </cac:Party>|  </cac:AccountingSupplierParty>|  <cac:Delivery>|    <cbc:ActualDeliveryDate>2024-01-02</cbc:ActualDeliveryDate>|    <cac:DeliveryLocation>|      <cbc:ID schemeID="DS">DL1</cbc:ID>|      <cac:Address>|        <cbc:StreetName>Main St</cbc:StreetName>|      </cac:Address>|    </cac:DeliveryLocation>|  </cac:Delivery>|  <cbc:After>t</cbc:After>|</Invoice>|');
+        Observer.Expect('c company id set, attribute empty log', 'agr hdr;endpoint[EP1,0088];partyident;companyid[CO1];cidscheme[];actualdate[2024-01-02];deliveryid[DL1,DS];');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure DeepAttrLeaf_SkipVariants_EndpointIdentLegal_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure DeepAttrLeaf_SkipVariants_EndpointIdentLegal_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure DeepAttrLeaf_SkipVariants_EndpointIdentLegal_More3()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure DeepAttrLeaf_SkipVariants_CompanyDeliveryParty()
@@ -885,26 +872,17 @@ codeunit 93861 "LT Y72 XP EInvoice Shapes"
         ExportA('d company id empty, attribute set', 5);
         ExportA('e delivery date and id empty', 6);
         ExportA('f everything in party empty', 7);
-        Observer.Finish();
+        Observer.Expect('d company id empty, attribute set xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Invoice xmlns:cac="urn:p:cac" xmlns:cbc="urn:p:cbc" xmlns="urn:p:inv">|  <cbc:ID>INV1</cbc:ID>|  <cac:AccountingSupplierParty>|    <cac:Party>|      <cbc:EndpointID schemeID="0088">EP1</cbc:EndpointID>|      <cac:PartyIdentification>|        <cbc:ID schemeID="PS">PI1</cbc:ID>|      </cac:PartyIdentification>|      <cac:PartyLegalEntity>|        <cbc:RegistrationName>Reg Name</cbc:RegistrationName>|      </cac:PartyLegalEntity>|    </cac:Party>|  </cac:AccountingSupplierParty>|  <cac:Delivery>|    <cbc:ActualDeliveryDate>2024-01-02</cbc:ActualDeliveryDate>|    <cac:DeliveryLocation>|      <cbc:ID schemeID="DS">DL1</cbc:ID>|      <cac:Address>|        <cbc:StreetName>Main St</cbc:StreetName>|      </cac:Address>|    </cac:DeliveryLocation>|  </cac:Delivery>|  <cbc:After>t</cbc:After>|</Invoice>|');
+        Observer.Expect('d company id empty, attribute set log', 'agr hdr;endpoint[EP1,0088];partyident;companyid[];actualdate[2024-01-02];deliveryid[DL1,DS];');
+        Observer.Expect('e delivery date and id empty xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Invoice xmlns:cac="urn:p:cac" xmlns:cbc="urn:p:cbc" xmlns="urn:p:inv">|  <cbc:ID>INV1</cbc:ID>|  <cac:AccountingSupplierParty>|    <cac:Party>|      <cbc:EndpointID schemeID="0088">EP1</cbc:EndpointID>|      <cac:PartyIdentification>|        <cbc:ID schemeID="PS">PI1</cbc:ID>|      </cac:PartyIdentification>|      <cac:PartyLegalEntity>|        <cbc:RegistrationName>Reg Name</cbc:RegistrationName>|        <cbc:CompanyID schemeID="CS">CO1</cbc:CompanyID>|      </cac:PartyLegalEntity>|    </cac:Party>|  </cac:AccountingSupplierParty>|  <cac:Delivery>|    <cac:DeliveryLocation>|      <cac:Address>|        <cbc:StreetName>Main St</cbc:StreetName>|      </cac:Address>|    </cac:DeliveryLocation>|  </cac:Delivery>|  <cbc:After>t</cbc:After>|</Invoice>|');
+        Observer.Expect('e delivery date and id empty log', 'agr hdr;endpoint[EP1,0088];partyident;companyid[CO1];cidscheme[CS];actualdate[];deliveryid[,DS];');
+        Observer.Expect('f everything in party empty xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Invoice xmlns:cac="urn:p:cac" xmlns:cbc="urn:p:cbc" xmlns="urn:p:inv">|  <cbc:ID>INV1</cbc:ID>|  <cac:AccountingSupplierParty>|    <cac:Party>|      <cac:PartyLegalEntity>|        <cbc:RegistrationName />|      </cac:PartyLegalEntity>|    </cac:Party>|  </cac:AccountingSupplierParty>|  <cac:Delivery>|    <cbc:ActualDeliveryDate>2024-01-02</cbc:ActualDeliveryDate>|    <cac:DeliveryLocation>|      <cbc:ID schemeID="DS">DL1</cbc:ID>|      <cac:Address>|        <cbc:StreetName>Main St</cbc:StreetName>|      </cac:Address>|    </cac:DeliveryLocation>|  </cac:Delivery>|  <cbc:After>t</cbc:After>|</Invoice>|');
+        Observer.Expect('f everything in party empty log', 'agr hdr;endpoint[,0088];partyident;companyid[];actualdate[2024-01-02];deliveryid[DL1,DS];');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure DeepAttrLeaf_SkipVariants_CompanyDeliveryParty_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure DeepAttrLeaf_SkipVariants_CompanyDeliveryParty_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure DeepAttrLeaf_SkipVariants_CompanyDeliveryParty_More3()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure DeepAttrLeaf_RealTableRoot_TwoRows()
@@ -912,26 +890,15 @@ codeunit 93861 "LT Y72 XP EInvoice Shapes"
         Start();
         ExportATable('one row', 1);
         ExportATable('two rows', 2);
-        Observer.Finish();
+        Observer.Expect('one row xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Invoice xmlns:cac="urn:p:cac" xmlns:cbc="urn:p:cbc" xmlns="urn:p:inv">|  <cbc:ID>INV1</cbc:ID>|  <cac:AccountingSupplierParty>|    <cac:Party>|      <cac:PartyLegalEntity>|        <cbc:CompanyID>CO1</cbc:CompanyID>|      </cac:PartyLegalEntity>|    </cac:Party>|  </cac:AccountingSupplierParty>|</Invoice>|');
+        Observer.Expect('one row log', 'agr 1;endpoint[];companyid[CO1];cidscheme[];');
+        Observer.Expect('two rows xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Invoice xmlns:cac="urn:p:cac" xmlns:cbc="urn:p:cbc" xmlns="urn:p:inv">|  <cbc:ID>INV1</cbc:ID>|  <cac:AccountingSupplierParty>|    <cac:Party>|      <cac:PartyLegalEntity>|        <cbc:CompanyID>CO1</cbc:CompanyID>|      </cac:PartyLegalEntity>|    </cac:Party>|  </cac:AccountingSupplierParty>|</Invoice>|<Invoice xmlns:cac="urn:p:cac" xmlns:cbc="urn:p:cbc" xmlns="urn:p:inv">|  <cbc:ID>INV2</cbc:ID>|  <cac:AccountingSupplierParty>|    <cac:Party>|      <cbc:EndpointID schemeID="0088">EP2</cbc:EndpointID>|      <cac:PartyLegalEntity>|        <cbc:CompanyID schemeID="CS2">CO2</cbc:CompanyID>|      </cac:PartyLegalEntity>|    </cac:Party>|  </cac:AccountingSupplierParty>|</Invoice>|');
+        Observer.Expect('two rows log', 'agr 1;endpoint[];companyid[CO1];cidscheme[];agr 2;endpoint[EP2];companyid[CO2];cidscheme[CS2];');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure DeepAttrLeaf_RealTableRoot_TwoRows_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure DeepAttrLeaf_RealTableRoot_TwoRows_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure DeepAttrLeaf_RealTableRoot_TwoRows_More3()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure TableContainer_TaxTotal()
@@ -941,26 +908,19 @@ codeunit 93861 "LT Y72 XP EInvoice Shapes"
         ExportB('sub 0', 0, '30', '31', '', 0, 0, 0, false, false);
         ExportB('tax empty sub 1', 1, '', '31', '', 0, 0, 0, false, false);
         ExportB('sub 1 reason', 1, '30', '', 'exempt', 0, 0, 0, false, false);
-        Observer.Finish();
+        Observer.Expect('sub 2 xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Invoice xmlns:cac="urn:p:cac" xmlns:cbc="urn:p:cbc" xmlns="urn:p:inv">|  <cbc:ID>INV1</cbc:ID>|  <cac:TaxTotal>|    <cbc:TaxAmount currencyID="EUR">30</cbc:TaxAmount>|    <cac:TaxSubtotal>|      <cbc:TaxableAmount currencyID="EUR">101</cbc:TaxableAmount>|      <cac:TaxCategory>|        <cbc:ID>S1</cbc:ID>|      </cac:TaxCategory>|    </cac:TaxSubtotal>|    <cac:TaxSubtotal>|      <cbc:TaxableAmount currencyID="EUR">102</cbc:TaxableAmount>|      <cac:TaxCategory>|        <cbc:ID>S2</cbc:ID>|      </cac:TaxCategory>|    </cac:TaxSubtotal>|  </cac:TaxTotal>|  <cac:TaxTotal>|    <cbc:TaxAmount>31</cbc:TaxAmount>|  </cac:TaxTotal>|</Invoice>|');
+        Observer.Expect('sub 2 log', 'taxtotal;pre subloop;agr subloop 1;agr subloop 2;agr subloop 3;taxtotallcy;agr line 1;');
+        Observer.Expect('sub 0 xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Invoice xmlns:cac="urn:p:cac" xmlns:cbc="urn:p:cbc" xmlns="urn:p:inv">|  <cbc:ID>INV1</cbc:ID>|  <cac:TaxTotal>|    <cbc:TaxAmount currencyID="EUR">30</cbc:TaxAmount>|  </cac:TaxTotal>|  <cac:TaxTotal>|    <cbc:TaxAmount>31</cbc:TaxAmount>|  </cac:TaxTotal>|</Invoice>|');
+        Observer.Expect('sub 0 log', 'taxtotal;pre subloop;agr subloop 1;taxtotallcy;agr line 1;');
+        Observer.Expect('tax empty sub 1 xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Invoice xmlns:cac="urn:p:cac" xmlns:cbc="urn:p:cbc" xmlns="urn:p:inv">|  <cbc:ID>INV1</cbc:ID>|  <cac:TaxTotal>|    <cbc:TaxAmount currencyID="EUR" />|    <cac:TaxSubtotal>|      <cbc:TaxableAmount currencyID="EUR">101</cbc:TaxableAmount>|      <cac:TaxCategory>|        <cbc:ID>S1</cbc:ID>|      </cac:TaxCategory>|    </cac:TaxSubtotal>|  </cac:TaxTotal>|  <cac:TaxTotal>|    <cbc:TaxAmount>31</cbc:TaxAmount>|  </cac:TaxTotal>|</Invoice>|');
+        Observer.Expect('tax empty sub 1 log', 'taxtotal;pre subloop;agr subloop 1;agr subloop 2;taxtotallcy;agr line 1;');
+        Observer.Expect('sub 1 reason xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Invoice xmlns:cac="urn:p:cac" xmlns:cbc="urn:p:cbc" xmlns="urn:p:inv">|  <cbc:ID>INV1</cbc:ID>|  <cac:TaxTotal>|    <cbc:TaxAmount currencyID="EUR">30</cbc:TaxAmount>|    <cac:TaxSubtotal>|      <cbc:TaxableAmount currencyID="EUR">101</cbc:TaxableAmount>|      <cac:TaxCategory>|        <cbc:ID>S1</cbc:ID>|        <cbc:TaxExemptionReason>exempt</cbc:TaxExemptionReason>|      </cac:TaxCategory>|    </cac:TaxSubtotal>|  </cac:TaxTotal>|</Invoice>|');
+        Observer.Expect('sub 1 reason log', 'taxtotal;pre subloop;agr subloop 1;agr subloop 2;taxtotallcy;agr line 1;');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure TableContainer_TaxTotal_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure TableContainer_TaxTotal_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure TableContainer_TaxTotal_More3()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure TableContainer_ItemAndPrice()
@@ -968,52 +928,28 @@ codeunit 93861 "LT Y72 XP EInvoice Shapes"
         Start();
         ExportB('two lines', 0, '30', '31', '', 0, 0, 2, true, false);
         ExportB('one line', 0, '30', '31', '', 0, 0, 1, false, false);
-        Observer.Finish();
+        Observer.Expect('two lines xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Invoice xmlns:cac="urn:p:cac" xmlns:cbc="urn:p:cbc" xmlns="urn:p:inv">|  <cbc:ID>INV1</cbc:ID>|  <cac:TaxTotal>|    <cbc:TaxAmount currencyID="EUR">30</cbc:TaxAmount>|  </cac:TaxTotal>|  <cac:TaxTotal>|    <cbc:TaxAmount>31</cbc:TaxAmount>|  </cac:TaxTotal>|  <cac:InvoiceLine>|    <cbc:ID>1</cbc:ID>|    <cac:Item>|      <cbc:Description>item 1</cbc:Description>|      <cbc:Name>name1</cbc:Name>|      <cac:SellersItemIdentification>|        <cbc:ID>SID1</cbc:ID>|      </cac:SellersItemIdentification>|      <cac:CommodityClassification>|        <cbc:ItemClassificationCode listID="STI">C1</cbc:ItemClassificationCode>|      </cac:CommodityClassification>|      <cac:ClassifiedTaxCategory>|        <cbc:ID>S</cbc:ID>|        <cbc:Percent>25</cbc:Percent>|      </cac:ClassifiedTaxCategory>|      <cac:AdditionalItemProperty>|        <cbc:Name>prop1</cbc:Name>|      </cac:AdditionalItemProperty>|    </cac:Item>|    <cac:Price>|      <cbc:PriceAmount currencyID="EUR">5.01</cbc:PriceAmount>|      <cac:AllowanceCharge>|        <cbc:ChargeIndicator>false</cbc:ChargeIndicator>|      </cac:AllowanceCharge>|    </cac:Price>|  </cac:InvoiceLine>|  <cac:InvoiceLine>|    <cbc:ID>2</cbc:ID>|    <cac:Item>|      <cbc:Name>name2</cbc:Name>|      <cac:SellersItemIdentification>|        <cbc:ID>SID2</cbc:ID>|      </cac:SellersItemIdentification>|      <cac:ClassifiedTaxCategory>|        <cbc:ID>S</cbc:ID>|        <cbc:Percent>25</cbc:Percent>|      </cac:ClassifiedTaxCategory>|    </cac:Item>|    <cac:Price>|      <cbc:PriceAmount currencyID="EUR">5.02</cbc:PriceAmount>|    </cac:Price>|  </cac:InvoiceLine>|</Invoice>|');
+        Observer.Expect('two lines log', 'taxtotal;pre subloop;agr subloop 1;taxtotallcy;agr line 1;item line 1;descr[item 1];sellers[SID1];pre commodity;agr commodity [C1];taxcat;pre prop;agr prop [prop1];price line 1;pre charge;agr charge [false];agr line 2;item line 2;descr[];sellers[SID2];pre commodity;agr commodity [];taxcat;pre prop;agr prop [];price line 2;pre charge;agr charge [];agr line 3;');
+        Observer.Expect('one line xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Invoice xmlns:cac="urn:p:cac" xmlns:cbc="urn:p:cbc" xmlns="urn:p:inv">|  <cbc:ID>INV1</cbc:ID>|  <cac:TaxTotal>|    <cbc:TaxAmount currencyID="EUR">30</cbc:TaxAmount>|  </cac:TaxTotal>|  <cac:TaxTotal>|    <cbc:TaxAmount>31</cbc:TaxAmount>|  </cac:TaxTotal>|  <cac:InvoiceLine>|    <cbc:ID>1</cbc:ID>|    <cac:Item>|      <cbc:Description>item 1</cbc:Description>|      <cbc:Name>name1</cbc:Name>|      <cac:SellersItemIdentification>|        <cbc:ID>SID1</cbc:ID>|      </cac:SellersItemIdentification>|      <cac:CommodityClassification>|        <cbc:ItemClassificationCode listID="STI">C1</cbc:ItemClassificationCode>|      </cac:CommodityClassification>|      <cac:ClassifiedTaxCategory>|        <cbc:ID>S</cbc:ID>|        <cbc:Percent>25</cbc:Percent>|      </cac:ClassifiedTaxCategory>|      <cac:AdditionalItemProperty>|        <cbc:Name>prop1</cbc:Name>|      </cac:AdditionalItemProperty>|    </cac:Item>|    <cac:Price>|      <cbc:PriceAmount currencyID="EUR">5.01</cbc:PriceAmount>|      <cac:AllowanceCharge>|        <cbc:ChargeIndicator>false</cbc:ChargeIndicator>|      </cac:AllowanceCharge>|    </cac:Price>|  </cac:InvoiceLine>|</Invoice>|');
+        Observer.Expect('one line log', 'taxtotal;pre subloop;agr subloop 1;taxtotallcy;agr line 1;item line 1;descr[item 1];sellers[SID1];pre commodity;agr commodity [C1];taxcat;pre prop;agr prop [prop1];price line 1;pre charge;agr charge [false];agr line 2;');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure TableContainer_ItemAndPrice_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure TableContainer_ItemAndPrice_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure TableContainer_ItemAndPrice_More3()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure TableContainer_SkipContainer()
     begin
         Start();
         ExportB('item skipped', 0, '30', '31', '', 0, 0, 2, false, true);
-        Observer.Finish();
+        Observer.Expect('item skipped xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Invoice xmlns:cac="urn:p:cac" xmlns:cbc="urn:p:cbc" xmlns="urn:p:inv">|  <cbc:ID>INV1</cbc:ID>|  <cac:TaxTotal>|    <cbc:TaxAmount currencyID="EUR">30</cbc:TaxAmount>|  </cac:TaxTotal>|  <cac:TaxTotal>|    <cbc:TaxAmount>31</cbc:TaxAmount>|  </cac:TaxTotal>|  <cac:InvoiceLine>|    <cbc:ID>1</cbc:ID>|    <cac:Price>|      <cbc:PriceAmount currencyID="EUR">5.01</cbc:PriceAmount>|      <cac:AllowanceCharge>|        <cbc:ChargeIndicator>false</cbc:ChargeIndicator>|      </cac:AllowanceCharge>|    </cac:Price>|  </cac:InvoiceLine>|  <cac:InvoiceLine>|    <cbc:ID>2</cbc:ID>|    <cac:Price>|      <cbc:PriceAmount currencyID="EUR">5.02</cbc:PriceAmount>|      <cac:AllowanceCharge>|        <cbc:ChargeIndicator>false</cbc:ChargeIndicator>|      </cac:AllowanceCharge>|    </cac:Price>|  </cac:InvoiceLine>|</Invoice>|');
+        Observer.Expect('item skipped log', 'taxtotal;pre subloop;agr subloop 1;taxtotallcy;agr line 1;item line 1;price line 1;pre charge;agr charge [false];agr line 2;item line 2;price line 2;pre charge;agr charge [false];agr line 3;');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure TableContainer_SkipContainer_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure TableContainer_SkipContainer_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure TableContainer_SkipContainer_More3()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure TableContainer_BreakAndSkipInInnerTable()
@@ -1021,24 +957,13 @@ codeunit 93861 "LT Y72 XP EInvoice Shapes"
         Start();
         ExportB('break at 2 of 3', 3, '30', '31', '', 2, 0, 0, false, false);
         ExportB('skip at 2 of 3', 3, '30', '31', '', 0, 2, 0, false, false);
-        Observer.Finish();
+        Observer.Expect('break at 2 of 3 xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Invoice xmlns:cac="urn:p:cac" xmlns:cbc="urn:p:cbc" xmlns="urn:p:inv">|  <cbc:ID>INV1</cbc:ID>|  <cac:TaxTotal>|    <cbc:TaxAmount currencyID="EUR">30</cbc:TaxAmount>|    <cac:TaxSubtotal>|      <cbc:TaxableAmount currencyID="EUR">101</cbc:TaxableAmount>|      <cac:TaxCategory>|        <cbc:ID>S1</cbc:ID>|      </cac:TaxCategory>|    </cac:TaxSubtotal>|  </cac:TaxTotal>|  <cac:TaxTotal>|    <cbc:TaxAmount>31</cbc:TaxAmount>|  </cac:TaxTotal>|</Invoice>|');
+        Observer.Expect('break at 2 of 3 log', 'taxtotal;pre subloop;agr subloop 1;agr subloop 2;taxtotallcy;agr line 1;');
+        Observer.Expect('skip at 2 of 3 xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Invoice xmlns:cac="urn:p:cac" xmlns:cbc="urn:p:cbc" xmlns="urn:p:inv">|  <cbc:ID>INV1</cbc:ID>|  <cac:TaxTotal>|    <cbc:TaxAmount currencyID="EUR">30</cbc:TaxAmount>|    <cac:TaxSubtotal>|      <cbc:TaxableAmount currencyID="EUR">101</cbc:TaxableAmount>|      <cac:TaxCategory>|        <cbc:ID>S1</cbc:ID>|      </cac:TaxCategory>|    </cac:TaxSubtotal>|    <cac:TaxSubtotal>|      <cbc:TaxableAmount currencyID="EUR">103</cbc:TaxableAmount>|      <cac:TaxCategory>|        <cbc:ID>S3</cbc:ID>|      </cac:TaxCategory>|    </cac:TaxSubtotal>|  </cac:TaxTotal>|  <cac:TaxTotal>|    <cbc:TaxAmount>31</cbc:TaxAmount>|  </cac:TaxTotal>|</Invoice>|');
+        Observer.Expect('skip at 2 of 3 log', 'taxtotal;pre subloop;agr subloop 1;agr subloop 2;agr subloop 3;agr subloop 4;taxtotallcy;agr line 1;');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure TableContainer_BreakAndSkipInInnerTable_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure TableContainer_BreakAndSkipInInnerTable_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure TableContainer_BreakAndSkipInInnerTable_More3()
-    begin
-        Observer.More();
-    end;
 }

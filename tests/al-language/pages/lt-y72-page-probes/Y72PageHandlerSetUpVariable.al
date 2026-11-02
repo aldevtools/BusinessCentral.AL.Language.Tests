@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-creating-handler-methods
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); table 93858, pages 93860-93861, codeunits 93855 (log), 93856 (test)
+// Fixtures used: Probe Observer (codeunit 69160); log table 93240 (Y61Log.al) where logs are read; own objects: table 93858; codeunit 93855,93856; page 93860,93861
 // Probe: written against BC on the corpus CI matrix (27.5, 28.5, 29.0); every literal asserted below is what that tier produced.
 // Facts: a Page-typed PageHandler (var Pg: Page X) and ModalPageHandler (var Pg: Page X; var Reply: Action) for a page run from a
 //   Page variable that its own procedure set up (SetRecords does Rec.Copy(Temp, true): the Error Messages shape), for Page.Run(Id,
@@ -10,6 +10,12 @@
 //   Log format: set = SetRecords, open = OnOpenPage, agcr = OnAfterGetCurrRecord, h = handler (tag, got record, counts).
 // Neighbours: pages/lt-y17-page-handler-record/Y17PageHandlerRecord.al (stored record, SetRecord and SetTableView),
 //   misc/lt-y14-triage/Y14PageTriage.al:383 (Page.Run without a record).
+// Measured (27.5, 28.5, 29.0 and SaaS 29 alike): no page trigger (OnOpenPage, OnAfterGetCurrRecord) runs before a Page-typed handler;
+//   the handler sees the variable's Rec with the caller's rows: a Rec.Copy(Temp, true) set up by SetRecords shows all three rows and the
+//   caller's Temp stays on its first row with three rows; Page.Run(Id, Temp) with Temp on row 2 hands row 2 (page shows all rows), with a
+//   filtered temporary record only the filtered rows, with an empty one a blank record. GetRecord copies the values (not inserted). A
+//   stored source set by a procedure (Rec.Get) hands that row. A tag set before Run is visible in the handler; the variable starts
+//   again after the run (tag and Rec empty). ModalPageHandler typed with the page: same values, the handler's reply is the return value.
 // BC versions: all (CI)
 
 table 93858 "LT Y72 PH Row"
@@ -236,26 +242,16 @@ codeunit 93856 "LT Y72 Page Handler Setup"
         ObserveAfter(Temp);
         Observer.Observe('tag after run', Pe.GetTag());
         Observer.Observe('count after run', Format(Pe.RowCount()));
-        Observer.Finish();
+        Observer.Expect('after log', 'set(1);h tag= got=1/a gotcount=0 pagecount=3 cur=1');
+        Observer.Expect('after caller id', '1');
+        Observer.Expect('after caller count', '3');
+        Observer.Expect('tag after run', '');
+        Observer.Expect('count after run', '0');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure TypedHandler_SetByProcedure_TempShared_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure TypedHandler_SetByProcedure_TempShared_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure TypedHandler_SetByProcedure_TempShared_More3()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     [HandlerFunctions('TempHandler')]
@@ -268,26 +264,14 @@ codeunit 93856 "LT Y72 Page Handler Setup"
         Temp.Get(2);
         Page.Run(Page::"LT Y72 PH Temp List", Temp);
         ObserveAfter(Temp);
-        Observer.Finish();
+        Observer.Expect('after log', 'h tag= got=2/b gotcount=0 pagecount=3 cur=2');
+        Observer.Expect('after caller id', '2');
+        Observer.Expect('after caller count', '3');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure TypedHandler_TempRecord_PageRun_OnRowTwo_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure TypedHandler_TempRecord_PageRun_OnRowTwo_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure TypedHandler_TempRecord_PageRun_OnRowTwo_More3()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     [HandlerFunctions('TempHandler')]
@@ -301,26 +285,14 @@ codeunit 93856 "LT Y72 Page Handler Setup"
         Temp.FindFirst();
         Page.Run(Page::"LT Y72 PH Temp List", Temp);
         ObserveAfter(Temp);
-        Observer.Finish();
+        Observer.Expect('after log', 'h tag= got=2/b gotcount=0 pagecount=2 cur=2');
+        Observer.Expect('after caller id', '2');
+        Observer.Expect('after caller count', '2');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure TypedHandler_TempRecord_PageRun_Filtered_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure TypedHandler_TempRecord_PageRun_Filtered_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure TypedHandler_TempRecord_PageRun_Filtered_More3()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     [HandlerFunctions('TempHandler')]
@@ -331,26 +303,14 @@ codeunit 93856 "LT Y72 Page Handler Setup"
         Seed();
         Page.Run(Page::"LT Y72 PH Temp List", Temp);
         ObserveAfter(Temp);
-        Observer.Finish();
+        Observer.Expect('after log', 'h tag= got=0/ gotcount=0 pagecount=0 cur=0');
+        Observer.Expect('after caller id', '0');
+        Observer.Expect('after caller count', '0');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure TypedHandler_TempRecord_PageRun_Empty_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure TypedHandler_TempRecord_PageRun_Empty_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure TypedHandler_TempRecord_PageRun_Empty_More3()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     [HandlerFunctions('StoredHandler')]
@@ -364,26 +324,13 @@ codeunit 93856 "LT Y72 Page Handler Setup"
         Ps.Run();
         Observer.Observe('after log', Log.Take());
         Observer.Observe('after cur id', Format(Ps.CurId()));
-        Observer.Finish();
+        Observer.Expect('after log', 'fill(2);h got=2/b cur=2');
+        Observer.Expect('after cur id', '0');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure TypedHandler_SetByProcedure_Stored_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure TypedHandler_SetByProcedure_Stored_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure TypedHandler_SetByProcedure_Stored_More3()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     [HandlerFunctions('TempHandler')]
@@ -396,26 +343,13 @@ codeunit 93856 "LT Y72 Page Handler Setup"
         Pe.Run();
         Observer.Observe('after log', Log.Take());
         Observer.Observe('tag after run', Pe.GetTag());
-        Observer.Finish();
+        Observer.Expect('after log', 'h tag=t1 got=0/ gotcount=0 pagecount=0 cur=0');
+        Observer.Expect('tag after run', '');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure TypedHandler_TagOnly_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure TypedHandler_TagOnly_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure TypedHandler_TagOnly_More3()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     [HandlerFunctions('TempModalHandler')]
@@ -431,26 +365,15 @@ codeunit 93856 "LT Y72 Page Handler Setup"
         Reply := Pe.RunModal();
         Observer.Observe('reply', Format(Reply));
         ObserveAfter(Temp);
-        Observer.Finish();
+        Observer.Expect('reply', 'LookupOK');
+        Observer.Expect('after log', 'set(1);h tag= got=1/a gotcount=0 pagecount=3 cur=1');
+        Observer.Expect('after caller id', '1');
+        Observer.Expect('after caller count', '3');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure TypedHandler_SetByProcedure_RunModal_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure TypedHandler_SetByProcedure_RunModal_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure TypedHandler_SetByProcedure_RunModal_More3()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     [HandlerFunctions('TempModalHandlerCancel')]
@@ -466,26 +389,15 @@ codeunit 93856 "LT Y72 Page Handler Setup"
         Reply := Pe.RunModal();
         Observer.Observe('reply', Format(Reply));
         ObserveAfter(Temp);
-        Observer.Finish();
+        Observer.Expect('reply', 'LookupCancel');
+        Observer.Expect('after log', 'set(1);h tag= got=1/a gotcount=0 pagecount=3 cur=1');
+        Observer.Expect('after caller id', '1');
+        Observer.Expect('after caller count', '3');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure TypedHandler_SetByProcedure_RunModal_Cancel_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure TypedHandler_SetByProcedure_RunModal_Cancel_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure TypedHandler_SetByProcedure_RunModal_Cancel_More3()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     [HandlerFunctions('TempModalHandler')]
@@ -500,26 +412,15 @@ codeunit 93856 "LT Y72 Page Handler Setup"
         Reply := Page.RunModal(Page::"LT Y72 PH Temp List", Temp);
         Observer.Observe('reply', Format(Reply));
         ObserveAfter(Temp);
-        Observer.Finish();
+        Observer.Expect('reply', 'LookupOK');
+        Observer.Expect('after log', 'h tag= got=2/b gotcount=0 pagecount=3 cur=2');
+        Observer.Expect('after caller id', '2');
+        Observer.Expect('after caller count', '3');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure TypedHandler_TempRecord_PageRunModal_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure TypedHandler_TempRecord_PageRunModal_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure TypedHandler_TempRecord_PageRunModal_More3()
-    begin
-        Observer.More();
-    end;
 
     [PageHandler]
     procedure TempHandler(var Pg: Page "LT Y72 PH Temp List")

@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/properties/devenv-datacaptionfields-property
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); tables 93851-93857, pages 93854-93858, codeunit 93851 (setup), 93852 (test)
+// Fixtures used: Probe Observer (codeunit 69160); log table 93240 (Y61Log.al) where logs are read; own objects: table 93851,93852,93853,93854,93855,93856; codeunit 93851,93852; page 93854,93855,93856,93857
 // Probe: written against BC on the corpus CI matrix (27.5, 28.5, 29.0); every literal asserted below is what that tier produced.
 // Facts: the caption of a list whose DataCaptionFields field has a TableRelation with a where(field()) clause to a table with a
 //   two-field primary key (the journal pattern: a batch name related to the batch table of the template). The batch table declares
@@ -9,6 +9,13 @@
 //   (no template), DataCaptionFields declared on the table instead of the page.
 //   Batch rows (Tmpl, Name, Description): (T1, BAT, 'Batch one'), (T2, BAT, 'Batch two'), (T1, OTHER, '').
 // Neighbours: pages/lt-y45-list-caption-relation/Y45ListCaptionRelation.al (a one-field key relation without where()).
+// Measured (27.5, 28.5, 29.0 and SaaS 29 alike): with the template and batch filter in filter group 2 the caption of the journal list is
+//   '<page caption> - BAT ∙ Batch one' for T1/BAT, and also for T2/BAT (the related row is the first row of the batch table with that name,
+//   whatever the template: 'Batch one', not 'Batch two'). A batch without a description shows only the name ('... - OTHER'), also when no
+//   batch of that name exists in the template (T2/OTHER). A const where clause on a one-field key shows the related row only when the
+//   const matches ('X1 ∙ x'); a row whose const does not match shows its own description ('X2 ∙ y' as well); a missing batch row shows
+//   no suffix. With only the batch filtered the caption is the same as with both. DataCaptionFields declared on the table (not the page)
+//   gives no suffix at all. A filter handed in filter group 0 by the caller (Page.Run with a record) gives the same suffix; unfiltered no suffix.
 // BC versions: all (CI)
 
 table 93851 "LT Y72 Cap Tmpl"
@@ -337,26 +344,15 @@ codeunit 93852 "LT Y72 Caption Relation Where"
         Observer.Observe('goto', Format(P.GoToKey('T1', 'BAT', 2)));
         Observer.Observe('goto caption', P.Caption());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('open caption', 'LT Y72 Cap Journal - BAT ∙ Batch one');
+        Observer.Expect('open line', '1');
+        Observer.Expect('goto', 'Yes');
+        Observer.Expect('goto caption', 'LT Y72 Cap Journal - BAT ∙ Batch one');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Caption_WhereField_TwoKey_JournalFilter_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Caption_WhereField_TwoKey_JournalFilter_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Caption_WhereField_TwoKey_JournalFilter_More3()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure Caption_WhereField_OtherTemplate()
@@ -370,26 +366,13 @@ codeunit 93852 "LT Y72 Caption Relation Where"
         Observer.Observe('caption', P.Caption());
         Observer.Observe('line', P.LineCtl.Value());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('caption', 'LT Y72 Cap Journal - BAT ∙ Batch one');
+        Observer.Expect('line', '1');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Caption_WhereField_OtherTemplate_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Caption_WhereField_OtherTemplate_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Caption_WhereField_OtherTemplate_More3()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure Caption_WhereField_NoDescription()
@@ -402,26 +385,12 @@ codeunit 93852 "LT Y72 Caption Relation Where"
         P.OpenEdit();
         Observer.Observe('caption', P.Caption());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('caption', 'LT Y72 Cap Journal - OTHER');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Caption_WhereField_NoDescription_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Caption_WhereField_NoDescription_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Caption_WhereField_NoDescription_More3()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure Caption_WhereField_BatchNotInTemplate()
@@ -435,26 +404,13 @@ codeunit 93852 "LT Y72 Caption Relation Where"
         Observer.Observe('caption', P.Caption());
         Observer.Observe('line', P.LineCtl.Value());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('caption', 'LT Y72 Cap Journal - OTHER');
+        Observer.Expect('line', '');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Caption_WhereField_BatchNotInTemplate_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Caption_WhereField_BatchNotInTemplate_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Caption_WhereField_BatchNotInTemplate_More3()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure Caption_WhereConst_OneKey()
@@ -475,26 +431,14 @@ codeunit 93852 "LT Y72 Caption Relation Where"
         P.OpenEdit();
         Observer.Observe('no batch row caption', P.Caption());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('match caption', 'LT Y72 Cap Const List - X1 ∙ x');
+        Observer.Expect('where mismatch caption', 'LT Y72 Cap Const List - X2 ∙ y');
+        Observer.Expect('no batch row caption', 'LT Y72 Cap Const List');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Caption_WhereConst_OneKey_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Caption_WhereConst_OneKey_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Caption_WhereConst_OneKey_More3()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure Caption_WhereField_FilterOnlyBatch()
@@ -514,26 +458,16 @@ codeunit 93852 "LT Y72 Caption Relation Where"
         P.OpenEdit();
         Observer.Observe('other caption', P.Caption());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('caption', 'LT Y72 Cap Journal - BAT ∙ Batch one');
+        Observer.Expect('line', '1');
+        Observer.Expect('goto T2', 'Yes');
+        Observer.Expect('goto caption', 'LT Y72 Cap Journal - BAT ∙ Batch one');
+        Observer.Expect('other caption', 'LT Y72 Cap Journal - OTHER');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Caption_WhereField_FilterOnlyBatch_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Caption_WhereField_FilterOnlyBatch_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Caption_WhereField_FilterOnlyBatch_More3()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure Caption_WhereField_TableLevelDataCaptionFields()
@@ -550,26 +484,13 @@ codeunit 93852 "LT Y72 Caption Relation Where"
         P.OpenEdit();
         Observer.Observe('T2 caption', P.Caption());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('T1 caption', 'LT Y72 Cap Journal Tbl');
+        Observer.Expect('T2 caption', 'LT Y72 Cap Journal Tbl');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Caption_WhereField_TableLevelDataCaptionFields_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Caption_WhereField_TableLevelDataCaptionFields_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Caption_WhereField_TableLevelDataCaptionFields_More3()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure Caption_WhereField_FilterGroupZeroFromCaller()
@@ -595,24 +516,12 @@ codeunit 93852 "LT Y72 Caption Relation Where"
         Page.Run(Page::"LT Y72 Cap Journal Plain", Line);
         Observer.Observe('unfiltered caption', P.Caption());
         P.Close();
-        Observer.Finish();
+        Observer.Expect('both filters caption', 'LT Y72 Cap Journal Plain - BAT ∙ Batch one');
+        Observer.Expect('batch filter caption', 'LT Y72 Cap Journal Plain - BAT ∙ Batch one');
+        Observer.Expect('unfiltered caption', 'LT Y72 Cap Journal Plain');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Caption_WhereField_FilterGroupZeroFromCaller_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Caption_WhereField_FilterGroupZeroFromCaller_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Caption_WhereField_FilterGroupZeroFromCaller_More3()
-    begin
-        Observer.More();
-    end;
 }

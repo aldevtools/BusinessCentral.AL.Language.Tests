@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/properties/devenv-runpagelink-property
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); log table 93240 (Y61Log.al); tables 93862-93863, pages 93866-93868, test codeunit 93858
+// Fixtures used: Probe Observer (codeunit 69160); log table 93240 (Y61Log.al) where logs are read; own objects: table 93862,93863; page 93866,93867; codeunit 93858
 // Probe: written against BC on the corpus CI matrix (27.5, 28.5, 29.0); every literal asserted below is what that tier produced.
 // Facts: what a RunPageLink that links a FlowFilter field of the host record (field("Dim Filter") on a Code FlowFilter, field("Int Filter")
 //   on an Integer one, field("Date Filter") on a Date one) gives the target page: its Rec filters in OnOpenPage (GetFilters,
@@ -9,6 +9,12 @@
 //   Entries (Id, Code, Dim, D, Amount): 1 P1 D1 01/10/24 10; 2 P1 D2 02/10/24 20; 3 P1 blank 03/10/24 40; 4 P1 D1 03/15/24 80;
 //   5 P2 D1 01/10/24 1000.
 // Neighbours: pages/lt-y61-page-probes/Y61RunPageLinkCopyFilter.al (a Date FlowFilter whose host filter is a range), pages/lt-y41-page-probes/Y41RunPageLinkOnOpen.al:344.
+// Measured (27.5, 28.5, 29.0 and SaaS 29 alike): a FlowFilter in the link is copied to the target's Rec only when the host has a filter on
+//   it: with no filter the target's filters are only 'Code: P1' (HasFilter Yes, GetFilter of the FlowFilter empty) and the FlowField
+//   Amount is the unfiltered sum (150); a single value, an expression ('D1|D2', '<>D1', a range, the blank filter '') or a Date range /
+//   single date / expression arrives as the host's filter text and filters Amount accordingly (D1 90, D1|D2 110, <>D1 60, blank 40;
+//   dates 03/01/24..03/31/24 120, 03/15/24 80, >02/01/24 140). An Integer FlowFilter arrives the same way (5, 1..9, <>5). A filter set
+//   on the host TestPage with Filter.SetFilter reaches the target the same way.
 // BC versions: all (CI)
 
 table 93862 "LT Y72 Link H"
@@ -206,26 +212,19 @@ codeunit 93858 "LT Y72 RunPageLink FlowFilter"
         H.SetRange(Code, 'P1');
         Probe('all unfiltered', H, 1);
         Probe('dim only unfiltered', H, 3);
-        Observer.Finish();
+        Observer.Expect('all unfiltered host amount', '150.00');
+        Observer.Expect('all unfiltered log', 'open filters=[Code: P1] dim=[] int=[] date=[] has=Yes;agr P1 amount=150');
+        Observer.Expect('all unfiltered code', 'P1');
+        Observer.Expect('all unfiltered amount', '150.00');
+        Observer.Expect('dim only unfiltered host amount', '150.00');
+        Observer.Expect('dim only unfiltered log', 'open filters=[Code: P1] dim=[] int=[] date=[] has=Yes;agr P1 amount=150');
+        Observer.Expect('dim only unfiltered code', 'P1');
+        Observer.Expect('dim only unfiltered amount', '150.00');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Link_CodeFlowFilter_HostUnfiltered_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Link_CodeFlowFilter_HostUnfiltered_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Link_CodeFlowFilter_HostUnfiltered_More3()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure Link_CodeFlowFilter_HostOneValue()
@@ -239,26 +238,23 @@ codeunit 93858 "LT Y72 RunPageLink FlowFilter"
         Probe('D1 dim only', H, 3);
         H.SetRange("Dim Filter", 'ZZ');
         Probe('no match value', H, 1);
-        Observer.Finish();
+        Observer.Expect('D1 all host amount', '90.00');
+        Observer.Expect('D1 all log', 'open filters=[Code: P1, Dim Filter: D1] dim=[D1] int=[] date=[] has=Yes;agr P1 amount=90');
+        Observer.Expect('D1 all code', 'P1');
+        Observer.Expect('D1 all amount', '90.00');
+        Observer.Expect('D1 dim only host amount', '90.00');
+        Observer.Expect('D1 dim only log', 'open filters=[Code: P1, Dim Filter: D1] dim=[D1] int=[] date=[] has=Yes;agr P1 amount=90');
+        Observer.Expect('D1 dim only code', 'P1');
+        Observer.Expect('D1 dim only amount', '90.00');
+        Observer.Expect('no match value host amount', '0.00');
+        Observer.Expect('no match value log', 'open filters=[Code: P1, Dim Filter: ZZ] dim=[ZZ] int=[] date=[] has=Yes;agr P1 amount=0');
+        Observer.Expect('no match value code', 'P1');
+        Observer.Expect('no match value amount', '0.00');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Link_CodeFlowFilter_HostOneValue_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Link_CodeFlowFilter_HostOneValue_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Link_CodeFlowFilter_HostOneValue_More3()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure Link_CodeFlowFilter_HostExpression()
@@ -275,26 +271,27 @@ codeunit 93858 "LT Y72 RunPageLink FlowFilter"
         Probe('range', H, 3);
         H.SetFilter("Dim Filter", '''''');
         Probe('blank value', H, 3);
-        Observer.Finish();
+        Observer.Expect('or host amount', '110.00');
+        Observer.Expect('or log', 'open filters=[Code: P1, Dim Filter: D1|D2] dim=[D1|D2] int=[] date=[] has=Yes;agr P1 amount=110');
+        Observer.Expect('or code', 'P1');
+        Observer.Expect('or amount', '110.00');
+        Observer.Expect('not equal host amount', '60.00');
+        Observer.Expect('not equal log', 'open filters=[Code: P1, Dim Filter: <>D1] dim=[<>D1] int=[] date=[] has=Yes;agr P1 amount=60');
+        Observer.Expect('not equal code', 'P1');
+        Observer.Expect('not equal amount', '60.00');
+        Observer.Expect('range host amount', '110.00');
+        Observer.Expect('range log', 'open filters=[Code: P1, Dim Filter: D1..D2] dim=[D1..D2] int=[] date=[] has=Yes;agr P1 amount=110');
+        Observer.Expect('range code', 'P1');
+        Observer.Expect('range amount', '110.00');
+        Observer.Expect('blank value host amount', '40.00');
+        Observer.Expect('blank value log', 'open filters=[Code: P1, Dim Filter: ''''] dim=[''''] int=[] date=[] has=Yes;agr P1 amount=40');
+        Observer.Expect('blank value code', 'P1');
+        Observer.Expect('blank value amount', '40.00');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Link_CodeFlowFilter_HostExpression_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Link_CodeFlowFilter_HostExpression_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Link_CodeFlowFilter_HostExpression_More3()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure Link_IntegerFlowFilter()
@@ -309,26 +306,23 @@ codeunit 93858 "LT Y72 RunPageLink FlowFilter"
         Probe('int range', H, 1);
         H.SetFilter("Int Filter", '<>5');
         Probe('int expression', H, 1);
-        Observer.Finish();
+        Observer.Expect('int 5 host amount', '150.00');
+        Observer.Expect('int 5 log', 'open filters=[Code: P1, Int Filter: 5] dim=[] int=[5] date=[] has=Yes;agr P1 amount=150');
+        Observer.Expect('int 5 code', 'P1');
+        Observer.Expect('int 5 amount', '150.00');
+        Observer.Expect('int range host amount', '150.00');
+        Observer.Expect('int range log', 'open filters=[Code: P1, Int Filter: 1..9] dim=[] int=[1..9] date=[] has=Yes;agr P1 amount=150');
+        Observer.Expect('int range code', 'P1');
+        Observer.Expect('int range amount', '150.00');
+        Observer.Expect('int expression host amount', '150.00');
+        Observer.Expect('int expression log', 'open filters=[Code: P1, Int Filter: <>5] dim=[] int=[<>5] date=[] has=Yes;agr P1 amount=150');
+        Observer.Expect('int expression code', 'P1');
+        Observer.Expect('int expression amount', '150.00');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Link_IntegerFlowFilter_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Link_IntegerFlowFilter_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Link_IntegerFlowFilter_More3()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure Link_DateFlowFilter_HostUnfiltered()
@@ -344,26 +338,27 @@ codeunit 93858 "LT Y72 RunPageLink FlowFilter"
         Probe('date single', H, 2);
         H.SetFilter("Date Filter", '>%1', DMY2Date(1, 2, 2024));
         Probe('date expression', H, 2);
-        Observer.Finish();
+        Observer.Expect('date unfiltered host amount', '150.00');
+        Observer.Expect('date unfiltered log', 'open filters=[Code: P1] dim=[] int=[] date=[] has=Yes;agr P1 amount=150');
+        Observer.Expect('date unfiltered code', 'P1');
+        Observer.Expect('date unfiltered amount', '150.00');
+        Observer.Expect('date range host amount', '120.00');
+        Observer.Expect('date range log', 'open filters=[Code: P1, Date Filter: 03/01/24..03/31/24] dim=[] int=[] date=[03/01/24..03/31/24] has=Yes;agr P1 amount=120');
+        Observer.Expect('date range code', 'P1');
+        Observer.Expect('date range amount', '120.00');
+        Observer.Expect('date single host amount', '80.00');
+        Observer.Expect('date single log', 'open filters=[Code: P1, Date Filter: 03/15/24] dim=[] int=[] date=[03/15/24] has=Yes;agr P1 amount=80');
+        Observer.Expect('date single code', 'P1');
+        Observer.Expect('date single amount', '80.00');
+        Observer.Expect('date expression host amount', '140.00');
+        Observer.Expect('date expression log', 'open filters=[Code: P1, Date Filter: >02/01/24] dim=[] int=[] date=[>02/01/24] has=Yes;agr P1 amount=140');
+        Observer.Expect('date expression code', 'P1');
+        Observer.Expect('date expression amount', '140.00');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Link_DateFlowFilter_HostUnfiltered_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Link_DateFlowFilter_HostUnfiltered_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Link_DateFlowFilter_HostUnfiltered_More3()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure Link_FlowFilter_SetOnTestPage()
@@ -384,24 +379,11 @@ codeunit 93858 "LT Y72 RunPageLink FlowFilter"
         Observer.Observe('amount', Target.AmountCtl.Value());
         Target.Close();
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('log', 'open filters=[Code: P1, Dim Filter: D1] dim=[D1] int=[] date=[] has=Yes;agr P1 amount=90');
+        Observer.Expect('amount', '90.00');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure Link_FlowFilter_SetOnTestPage_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Link_FlowFilter_SetOnTestPage_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure Link_FlowFilter_SetOnTestPage_More3()
-    begin
-        Observer.More();
-    end;
 }

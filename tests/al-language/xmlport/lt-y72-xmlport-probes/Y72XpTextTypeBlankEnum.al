@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/properties/devenv-texttype-property
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); tables 93867-93869, enum 93850, xmlports 93853-93859, codeunits 93862-93864
+// Fixtures used: Probe Observer (codeunit 69160); log table 93240 (Y61Log.al) where logs are read; own objects: enum 93850; table 93867,93868; codeunit 93862,93863,93864; xmlport 93853,93860,93854,93855,93856,93857,93858,93859,93861,93862
 // Probe: written against BC on the corpus CI matrix (27.5, 28.5, 29.0); every literal asserted below is what that tier produced.
 // Facts: (a) TextType = Text and TextType = BigText on a text attribute of a root text element and of a table element, on export and
 //   import (the Export Permission Sets shape: root textattribute Version { TextType = Text; Description = 'Version'; } then a table
@@ -11,6 +11,13 @@
 //   was inserted is logged from OnAfterInsertRecord and read back from the table.
 // Neighbours: xmlport/lt-xmlport-bigtext/XmlPortBigText.al, report/lt-u-report-props/UPropertyTests.al:311-330,
 //   BjXmlPortDefaultValidation.al (default validation of fields, a blank attribute with a TableRelation).
+// Measured (27.5, 28.5, 29.0 and SaaS 29 alike): TextType = Text and TextType = BigText on text attributes compile and run on export and
+//   import (the root attribute Version, Note, BigNote; a 300 character BigText attribute is written and read back with length 300); TextType =
+//   Text on a container text element compiles and its export/import work. The member 0 of an Enum whose caption is a blank exports as one blank
+//   (Res=" ") and an Option's blank member as one blank; on import a blank or empty attribute gives the member 0 and its OnValidate does
+//   NOT run, while a non-blank member runs OnValidate with default validation (also without FieldValidate), with FieldValidate = Yes, and
+//   not with DefaultFieldsValidation = false. An attribute of the Enum names a member by caption (One); the blank element <Res> </Res> does run
+//   OnValidate (validate Res 0). A missing required attribute raises XmlPortInvalidXml.
 // BC versions: all (CI)
 
 enum 93850 "LT Y72 XP E"
@@ -670,26 +677,14 @@ codeunit 93864 "LT Y72 XP TextType Enum"
         P.DeleteAll();
         DoImport('text', 1, Xml);
         Observer.Observe('rows', PRows());
-        Observer.Finish();
+        Observer.Expect('export xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?><Root Version="2.0">  <p Id="P1" Note="n-P1" BigNote="b-P1" />  <p Id="P2" Note="n-P2" BigNote="b-P2" /></Root>');
+        Observer.Expect('text import log', 'version[2.0];ins P1 note[n-P1] big[4];ins P2 note[n-P2] big[4];');
+        Observer.Expect('rows', 'P1;P2;');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure TextTypeText_OnTextAttribute_ExportImport_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure TextTypeText_OnTextAttribute_ExportImport_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure TextTypeText_OnTextAttribute_ExportImport_More3()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure TextTypeBigText_RootAttribute()
@@ -708,26 +703,14 @@ codeunit 93864 "LT Y72 XP TextType Enum"
         Observer.Observe('export length', Format(StrLen(Xml)));
         Observer.Observe('export prefix', CopyStr(Xml, 1, 80));
         DoImport('big', 2, Xml);
-        Observer.Finish();
+        Observer.Expect('export length', '388');
+        Observer.Expect('export prefix', '<?xml version="1.0" encoding="UTF-8" standalone="no"?><Root Version="vvvvvvvvvvv');
+        Observer.Expect('big import log', 'version length 300;');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure TextTypeBigText_RootAttribute_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure TextTypeBigText_RootAttribute_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure TextTypeBigText_RootAttribute_More3()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure TextType_OnContainerTextElement()
@@ -744,26 +727,13 @@ codeunit 93864 "LT Y72 XP TextType Enum"
         Xml := ReadLines(TempBlob);
         Observer.Observe('export xml', Xml);
         DoImport('box', 7, '<Root><Box k="kv"><Leaf>lv</Leaf></Box></Root>');
-        Observer.Finish();
+        Observer.Expect('export xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>|<Root>|  <Box k="kv">|    <Leaf>lv</Leaf>|  </Box>|</Root>|');
+        Observer.Expect('box import log', '');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure TextType_OnContainerTextElement_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure TextType_OnContainerTextElement_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure TextType_OnContainerTextElement_More3()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure BlankEnumAttribute_CaptionBlank_Export()
@@ -775,26 +745,13 @@ codeunit 93864 "LT Y72 XP TextType Enum"
         Xml := ExportEnum(false);
         Observer.Observe('export xml', Xml);
         Observer.Observe('stored before', EnumRows());
-        Observer.Finish();
+        Observer.Expect('export xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?><Root>  <e Id="1" Res=" " Plain=" " Opt=" " />  <e Id="2" Res="One" Plain="One" Opt="A" />  <e Id="3" Res="Two" Plain="Two" Opt="B" /></Root>');
+        Observer.Expect('stored before', '1:0/0/0;2:1/1/1;3:2/2/2;');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure BlankEnumAttribute_CaptionBlank_ExportImport_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure BlankEnumAttribute_CaptionBlank_ExportImport_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure BlankEnumAttribute_CaptionBlank_ExportImport_More3()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure BlankEnumAttribute_CaptionBlank_ImportIntoEmpty()
@@ -809,26 +766,13 @@ codeunit 93864 "LT Y72 XP TextType Enum"
         DoImport('default validation', 3, Xml);
         Observer.Observe('rows default validation', EnumRows());
         E.DeleteAll();
-        Observer.Finish();
+        Observer.Expect('default validation import log', 'ins 1 res=0 plain=0 opt=0;validate Res 1;validate Opt A;ins 2 res=1 plain=1 opt=1;validate Res 2;validate Opt B;ins 3 res=2 plain=2 opt=2;');
+        Observer.Expect('rows default validation', '1:0/0/0;2:1/1/1;3:2/2/2;');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure BlankEnumAttribute_CaptionBlank_ImportIntoEmpty_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure BlankEnumAttribute_CaptionBlank_ImportIntoEmpty_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure BlankEnumAttribute_CaptionBlank_ImportIntoEmpty_More3()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure BlankEnumAttribute_FieldValidateYes()
@@ -844,26 +788,14 @@ codeunit 93864 "LT Y72 XP TextType Enum"
         DoImport('field validate yes', 4, Xml);
         Observer.Observe('rows field validate yes', EnumRows());
         E.DeleteAll();
-        Observer.Finish();
+        Observer.Expect('export xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?><Root>  <e Id="1" Res=" " Plain=" " Opt=" " />  <e Id="2" Res="One" Plain="One" Opt="A" />  <e Id="3" Res="Two" Plain="Two" Opt="B" /></Root>');
+        Observer.Expect('field validate yes import log', 'ins 1 res=0 plain=0 opt=0;validate Res 1;validate Opt A;ins 2 res=1 plain=1 opt=1;validate Res 2;validate Opt B;ins 3 res=2 plain=2 opt=2;');
+        Observer.Expect('rows field validate yes', '1:0/0/0;2:1/1/1;3:2/2/2;');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure BlankEnumAttribute_FieldValidateYes_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure BlankEnumAttribute_FieldValidateYes_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure BlankEnumAttribute_FieldValidateYes_More3()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure BlankEnumAttribute_DefaultValidationOff()
@@ -879,26 +811,14 @@ codeunit 93864 "LT Y72 XP TextType Enum"
         DoImport('default off', 5, Xml);
         Observer.Observe('rows default off', EnumRows());
         E.DeleteAll();
-        Observer.Finish();
+        Observer.Expect('export xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?><Root>  <e Id="1" Res=" " Plain=" " Opt=" " />  <e Id="2" Res="One" Plain="One" Opt="A" />  <e Id="3" Res="Two" Plain="Two" Opt="B" /></Root>');
+        Observer.Expect('default off import log', 'ins 1 res=0 plain=0 opt=0;ins 2 res=1 plain=1 opt=1;ins 3 res=2 plain=2 opt=2;');
+        Observer.Expect('rows default off', '1:0/0/0;2:1/1/1;3:2/2/2;');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure BlankEnumAttribute_DefaultValidationOff_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure BlankEnumAttribute_DefaultValidationOff_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure BlankEnumAttribute_DefaultValidationOff_More3()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure BlankEnumElement_ExportImport()
@@ -914,26 +834,14 @@ codeunit 93864 "LT Y72 XP TextType Enum"
         DoImport('element', 6, Xml);
         Observer.Observe('rows element', EnumRows());
         E.DeleteAll();
-        Observer.Finish();
+        Observer.Expect('export xml', '<?xml version="1.0" encoding="UTF-8" standalone="no"?><Root>  <e>    <Id>1</Id>    <Res> </Res>    <Opt> </Opt>  </e>  <e>    <Id>2</Id>    <Res>One</Res>    <Opt>A</Opt>  </e>  <e>    <Id>3</Id>    <Res>Two</Res>    <Opt>B</Opt>  </e></Root>');
+        Observer.Expect('element import log', 'validate Res 0;validate Opt  ;ins 1 res=0 opt=0;validate Res 1;validate Opt A;ins 2 res=1 opt=1;validate Res 2;validate Opt B;ins 3 res=2 opt=2;');
+        Observer.Expect('rows element', '1:0/0/0;2:1/0/1;3:2/0/2;');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure BlankEnumElement_ExportImport_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure BlankEnumElement_ExportImport_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure BlankEnumElement_ExportImport_More3()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure BlankAttribute_Import_Literal()
@@ -954,26 +862,20 @@ codeunit 93864 "LT Y72 XP TextType Enum"
         E.DeleteAll();
         E.DeleteAll();
         DoImportError('missing attributes', 3, '<Root><e Id="8" /></Root>');
-        Observer.Finish();
+        Observer.Expect('empty attributes import log', 'ins 5 res=0 plain=0 opt=0;');
+        Observer.Expect('rows empty attributes', '5:0/0/0;');
+        Observer.Expect('one blank attributes import log', 'ins 6 res=0 plain=0 opt=0;');
+        Observer.Expect('rows one blank attributes', '6:0/0/0;');
+        Observer.Expect('names import log', 'validate Res 0;validate Opt A;ins 7 res=0 plain=0 opt=1;');
+        Observer.Expect('rows names', '7:0/0/1;');
+        Observer.Expect('missing attributes import|text', 'Imported XML cannot validate with the schema: The required attribute ''Res'' is missing.');
+        Observer.Expect('missing attributes import|code', 'XmlPortInvalidXml');
+        Observer.Expect('missing attributes import log', '');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure BlankAttribute_Import_Literal_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure BlankAttribute_Import_Literal_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure BlankAttribute_Import_Literal_More3()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure BlankAttribute_Import_Literal_ValidateYes_And_Off()
@@ -996,24 +898,17 @@ codeunit 93864 "LT Y72 XP TextType Enum"
         DoImport('default off names', 5, '<Root><e Id="6" Res="Two" Plain="One" Opt="B" /></Root>');
         Observer.Observe('rows default off names', EnumRows());
         E.DeleteAll();
-        Observer.Finish();
+        Observer.Expect('validate yes empty import log', 'ins 5 res=0 plain=0 opt=0;');
+        Observer.Expect('rows validate yes empty', '5:0/0/0;');
+        Observer.Expect('validate yes names import log', 'validate Res 2;validate Opt B;ins 6 res=2 plain=1 opt=2;');
+        Observer.Expect('rows validate yes names', '6:2/1/2;');
+        Observer.Expect('default off empty import log', 'ins 5 res=0 plain=0 opt=0;');
+        Observer.Expect('rows default off empty', '5:0/0/0;');
+        Observer.Expect('default off names import log', 'ins 6 res=2 plain=1 opt=2;');
+        Observer.Expect('rows default off names', '6:2/1/2;');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure BlankAttribute_Import_Literal_ValidateYes_And_Off_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure BlankAttribute_Import_Literal_ValidateYes_And_Off_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure BlankAttribute_Import_Literal_ValidateYes_And_Off_More3()
-    begin
-        Observer.More();
-    end;
 }

@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-actions-overview
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); tables 93864-93865, pages 93868-93870, page extension 93868, test codeunit 93859
+// Fixtures used: Probe Observer (codeunit 69160); log table 93240 (Y61Log.al) where logs are read; own objects: table 93864,93865; page 93868,93869; pageextension 93868; codeunit 93859
 // Probe: written against BC on the corpus CI matrix (27.5, 28.5, 29.0); every literal asserted below is what that tier produced.
 // Facts: the rows of the system tables "Page Action" and "Page Control Field" for (a) a page whose actions are listed in the Processing
 //   area and referenced from the Promoted area by actionref (also inside a group of the Promoted area), and the same page with a page
@@ -10,6 +10,14 @@
 //   control: TableNo | FieldNo | SourceExpression | Editable | Visible | Enabled | OptionString | Sequence.
 // Neighbours: record/TestPageActionVirtualTable.al, record/QzPageActionCaption.al, misc/W2PageMetadata.al:324-331,
 //   record/PageControlFieldSourceFormsSM.al.
+// Measured (27.5, 28.5, 29.0 and SaaS 29 alike): "Page Action" has no row for an actionref: Tools_Promoted, Other_Promoted and
+//   ExtAct_Promoted are not found by Name, and no row is named *_Promoted. The actions Tools, Other and ExtAct (the page extension's) are
+//   rows of type Action with the Processing action container as parent (indentation 1), their Caption and, for RunObject, RunObjectType
+//   Page and the target page id (Other has none: 0 and 0). The group Category_Process of the Promoted area is a row of type ActionGroup
+//   with the caption 'Task'. "Page Control Field" rows of controls bound to a field of a record variable carry the source table of the
+//   page in TableNo, FieldNo 0 and the SourceExpression as written (Contact."Phone No." with the quotes, Contact.Plain, Contact."Plain"
+//   keeps its quotes); Editable is false for the control declared Editable = false and True otherwise; ExtendedDatatype changes no column.
+//   A filter on FieldNo 1 finds the field control of Rec."No.", on FieldNo 2 nothing, on FieldNo 0 the five record-variable controls.
 // BC versions: all (CI)
 
 table 93864 "LT Y72 Ctl Contact"
@@ -207,26 +215,17 @@ codeunit 93859 "LT Y72 Action Control Rows"
         PageAction.SetFilter(Name, '*_Promoted');
         PageAction.SetRange("Action Type");
         Observer.Observe('rows named *_Promoted', Format(PageAction.Count()));
-        Observer.Finish();
+        Observer.Expect('action Tools', 'parent=(ActionContainer)|indent=1|type=Action|name=Tools|caption=Tools|rot=Page|roi=93866');
+        Observer.Expect('action Other', 'parent=(ActionContainer)|indent=1|type=Action|name=Other|caption=Other|rot=0|roi=0');
+        Observer.Expect('action ExtAct', 'parent=(ActionContainer)|indent=1|type=Action|name=ExtAct|caption=Ext action|rot=Page|roi=93858');
+        Observer.Expect('action rows', '3');
+        Observer.Expect('group Category_Process rows', '1');
+        Observer.Expect('rows named *_Promoted', '0');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure PageAction_ActionRef_Rows_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure PageAction_ActionRef_Rows_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure PageAction_ActionRef_Rows_More3()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure PageAction_FilterByName_ActionRef()
@@ -239,26 +238,18 @@ codeunit 93859 "LT Y72 Action Control Rows"
         Observer.Observe('ExtAct', NameRow(Page::"LT Y72 Act List", 'ExtAct'));
         Observer.Observe('ExtAct_Promoted', NameRow(Page::"LT Y72 Act List", 'ExtAct_Promoted'));
         Observer.Observe('Promoted', NameRow(Page::"LT Y72 Act List", 'Promoted'));
-        Observer.Finish();
+        Observer.Expect('Tools', '1|parent=(ActionContainer)|indent=1|type=Action|name=Tools|caption=Tools|rot=Page|roi=93866');
+        Observer.Expect('Tools_Promoted', 'empty');
+        Observer.Expect('Other_Promoted', 'empty');
+        Observer.Expect('Category_Process', '1|parent=(ActionContainer)|indent=1|type=ActionGroup|name=Category_Process|caption=Task|rot=0|roi=0');
+        Observer.Expect('ExtAct', '1|parent=(ActionContainer)|indent=1|type=Action|name=ExtAct|caption=Ext action|rot=Page|roi=93858');
+        Observer.Expect('ExtAct_Promoted', 'empty');
+        Observer.Expect('Promoted', 'empty');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure PageAction_FilterByName_ActionRef_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure PageAction_FilterByName_ActionRef_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure PageAction_FilterByName_ActionRef_More3()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure PageAction_ActionRef_RunObjectColumns()
@@ -277,26 +268,15 @@ codeunit 93859 "LT Y72 Action Control Rows"
         PageAction.SetRange("Page ID", Page::"LT Y72 Act List");
         PageAction.SetFilter(Name, '*_Promoted');
         Observer.Observe('promoted rows', Format(PageAction.Count()));
-        Observer.Finish();
+        Observer.Expect('run object page rows', '2');
+        Observer.Expect('target rows', '1');
+        Observer.Expect('extension target rows', '1');
+        Observer.Expect('promoted rows', '0');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure PageAction_ActionRef_RunObjectColumns_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure PageAction_ActionRef_RunObjectColumns_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure PageAction_ActionRef_RunObjectColumns_More3()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure PageControl_RecVarQuotedSpacedField()
@@ -308,26 +288,17 @@ codeunit 93859 "LT Y72 Action Control Rows"
         Observer.Observe('ContactQuotedPlain', ControlRow(Page::"LT Y72 Ctl Card", 'ContactQuotedPlain'));
         Observer.Observe('ContactNo', ControlRow(Page::"LT Y72 Ctl Card", 'ContactNo'));
         Observer.Observe('NoCtl', ControlRow(Page::"LT Y72 Ctl Card", 'NoCtl'));
-        Observer.Finish();
+        Observer.Expect('ContactPhone', '93865|0|Contact."Phone No."|false|true|true||1');
+        Observer.Expect('ContactPhone2', '93865|0|Contact."Phone No."|True|true|true||2');
+        Observer.Expect('ContactPlain', '93865|0|Contact.Plain|True|true|true||3');
+        Observer.Expect('ContactQuotedPlain', '93865|0|Contact."Plain"|True|true|true||4');
+        Observer.Expect('ContactNo', '93865|0|Contact."No."|True|true|true||5');
+        Observer.Expect('NoCtl', '93865|1|No.|True|true|true||0');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure PageControl_RecVarQuotedSpacedField_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure PageControl_RecVarQuotedSpacedField_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure PageControl_RecVarQuotedSpacedField_More3()
-    begin
-        Observer.More();
-    end;
 
     [Test]
     procedure PageControl_FilterByFieldNo_WithRecVarControl()
@@ -351,24 +322,16 @@ codeunit 93859 "LT Y72 Action Control Rows"
         PageControlField.SetRange(PageNo, Page::"LT Y72 Ctl Card");
         PageControlField.SetRange(FieldNo, 0);
         Observer.Observe('field 0 count', Format(PageControlField.Count()));
-        Observer.Finish();
+        Observer.Expect('field 1 empty', 'No');
+        Observer.Expect('field 1 count', '1');
+        Observer.Expect('field 2 empty', 'Yes');
+        Observer.Expect('field 2 count', '0');
+        Observer.Expect('all count', '6');
+        Observer.Expect('contact table count', '0');
+        Observer.Expect('field 0 count', '5');
+        Observer.Verify();
     end;
 
-    [Test]
-    procedure PageControl_FilterByFieldNo_WithRecVarControl_More1()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure PageControl_FilterByFieldNo_WithRecVarControl_More2()
-    begin
-        Observer.More();
-    end;
 
-    [Test]
-    procedure PageControl_FilterByFieldNo_WithRecVarControl_More3()
-    begin
-        Observer.More();
-    end;
 }
