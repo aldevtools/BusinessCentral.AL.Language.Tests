@@ -32,7 +32,31 @@ codeunit 94393 "LT Y84 Perm Execute"
         RunExact('t1_modify', 'LT Y84 T TabX', 3);
         RunExact('t1_delete', 'LT Y84 T TabX', 4);
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('t2_run|text',
+            'Sorry, the current permissions prevented the action. (Table 94387 LT Y84 Trig Tbl Execute: AL Language Coverage Tests)');
+        Observer.Expect('t2_run|code',
+            'DB:ExecuteObjDenied');
+        Observer.Expect('t2_call|text',
+            'Sorry, the current permissions prevented the action. (Table 94387 LT Y84 Trig Tbl Execute: AL Language Coverage Tests)');
+        Observer.Expect('t2_call|code',
+            'DB:ExecuteObjDenied');
+        Observer.Expect('t1_run|text',
+            'Sorry, the current permissions prevented the action. (CodeUnit 94500 LT Y84 Target 1 Execute: AL Language Coverage Tests)');
+        Observer.Expect('t1_run|code',
+            'DB:ExecuteObjDenied');
+        Observer.Expect('t1_call|text',
+            'Sorry, the current permissions prevented the action. (CodeUnit 94501 LT Y84 Target 2 Execute: AL Language Coverage Tests)');
+        Observer.Expect('t1_call|code',
+            'DB:ExecuteObjDenied');
+        Observer.Expect('t1_modify|text',
+            'Sorry, the current permissions prevented the action. (CodeUnit 94500 LT Y84 Target 1 Execute: AL Language Coverage Tests)');
+        Observer.Expect('t1_modify|code',
+            'DB:ExecuteObjDenied');
+        Observer.Expect('t1_delete|text',
+            'Sorry, the current permissions prevented the action. (CodeUnit 94500 LT Y84 Target 1 Execute: AL Language Coverage Tests)');
+        Observer.Expect('t1_delete|code',
+            'DB:ExecuteObjDenied');
+        Observer.Verify();
     end;
 
     [Test]
@@ -46,7 +70,23 @@ codeunit 94393 "LT Y84 Perm Execute"
         RunExact('both_modify', 'LT Y84 T Both', 3);
         RunExact('both_delete', 'LT Y84 T Both', 4);
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('both_run|text',
+            'LT Y84 ok inserted');
+        Observer.Expect('both_run|code',
+            'Dialog');
+        Observer.Expect('both_call|text',
+            'LT Y84 ok inserted');
+        Observer.Expect('both_call|code',
+            'Dialog');
+        Observer.Expect('both_modify|text',
+            'LT Y84 ok modified');
+        Observer.Expect('both_modify|code',
+            'Dialog');
+        Observer.Expect('both_delete|text',
+            'LT Y84 ok deleted');
+        Observer.Expect('both_delete|code',
+            'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -61,7 +101,19 @@ codeunit 94393 "LT Y84 Perm Execute"
         RunExact('sub_both', 'LT Y84 S Both', 5);
         UnbindSubscription(Binder);
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('sub_tab|text',
+            'LT Y84 ok inserted');
+        Observer.Expect('sub_tab|code',
+            'Dialog');
+        Observer.Expect('sub_sub|text',
+            'LT Y84 ok inserted');
+        Observer.Expect('sub_sub|code',
+            'Dialog');
+        Observer.Expect('sub_both|text',
+            'LT Y84 ok inserted');
+        Observer.Expect('sub_both|code',
+            'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -77,7 +129,19 @@ codeunit 94393 "LT Y84 Perm Execute"
         asserterror Op(6);
         Observer.ObserveError('page_noset');
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('page_page|text',
+            'Page LT Y84 Trig Open has to close.');
+        Observer.Expect('page_page|code',
+            'FormAbort:Permission');
+        Observer.Expect('page_both|text',
+            'Page LT Y84 Trig Open has to close.');
+        Observer.Expect('page_both|code',
+            'FormAbort:Permission');
+        Observer.Expect('page_noset|text',
+            'LT Y84 ok opened');
+        Observer.Expect('page_noset|code',
+            'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -93,7 +157,19 @@ codeunit 94393 "LT Y84 Perm Execute"
         asserterror Op(7);
         Observer.ObserveError('action_noset');
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('action_page|text',
+            'Sorry, the current permissions prevented the action. (CodeUnit 94503 LT Y84 Target 4 Execute: AL Language Coverage Tests)');
+        Observer.Expect('action_page|code',
+            'TestWrapped:Permission');
+        Observer.Expect('action_both|text',
+            'LT Y84 ok invoked');
+        Observer.Expect('action_both|code',
+            'Dialog');
+        Observer.Expect('action_noset|text',
+            'LT Y84 ok invoked');
+        Observer.Expect('action_noset|code',
+            'Dialog');
+        Observer.Verify();
     end;
 
     local procedure Seed()

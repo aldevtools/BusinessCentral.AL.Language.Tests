@@ -39,7 +39,19 @@ codeunit 94394 "LT Y84 Perm Effective"
         Collect('set none');
         RestoreMock(WasStarted);
         Flush();
-        Observer.Finish();
+        Observer.Expect('noset',
+            'qry=----X xml=----X rep=----X cu=----X pg=----X tbl=----X');
+        Observer.Expect('some',
+            'qry=----X xml=----- rep=----- cu=----X pg=----- tbl=-----');
+        Observer.Expect('other',
+            'qry=----- xml=----X rep=----X cu=----- pg=----X tbl=----X');
+        Observer.Expect('ind',
+            'qry=----x xml=----x rep=----x cu=----x pg=----x tbl=----x');
+        Observer.Expect('none',
+            'qry=----- xml=----- rep=----- cu=----- pg=----- tbl=-----');
+        Observer.Expect('set none',
+            'qry=----X xml=----X rep=----X cu=----X pg=----X tbl=----X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -64,7 +76,29 @@ codeunit 94394 "LT Y84 Perm Effective"
         Collect2('noset', 'td');
         RestoreMock(WasStarted);
         Flush();
-        Observer.Finish();
+        Observer.Expect('LT Y84 C R',
+            'td=R----');
+        Observer.Expect('LT Y84 C I',
+            'td=-I---');
+        Observer.Expect('LT Y84 C M',
+            'td=--M--');
+        Observer.Expect('LT Y84 C D',
+            'td=---D-');
+        Observer.Expect('LT Y84 C IM',
+            'td=-IM--');
+        Observer.Expect('LT Y84 C RIMD',
+            'td=RIMD-');
+        Observer.Expect('LT Y84 C IND R',
+            'td=r----');
+        Observer.Expect('LT Y84 C IND I',
+            'td=-i---');
+        Observer.Expect('LT Y84 C IND RIMD',
+            'td=rimd-');
+        Observer.Expect('LT Y84 C NONE',
+            'td=-----');
+        Observer.Expect('noset',
+            'td=RIMD-');
+        Observer.Verify();
     end;
 
     var

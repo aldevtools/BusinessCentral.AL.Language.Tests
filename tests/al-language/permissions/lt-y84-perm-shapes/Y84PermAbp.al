@@ -37,6 +37,24 @@ codeunit 94392 "LT Y84 Perm Abp"
     end;
 
     [Test]
+    procedure Y84_Abp_LettersA_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure Y84_Abp_LettersA_More2()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure Y84_Abp_LettersA_More3()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
     procedure Y84_Abp_LettersB()
     var
         WasStarted: Boolean;
@@ -49,6 +67,24 @@ codeunit 94392 "LT Y84 Perm Abp"
         ObserveSet('LT Y84 C None', 'tabledata', 'none');
         RestoreMock(WasStarted);
         Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y84_Abp_LettersB_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure Y84_Abp_LettersB_More2()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure Y84_Abp_LettersB_More3()
+    begin
+        Observer.More();
     end;
 
     [Test]
@@ -68,6 +104,24 @@ codeunit 94392 "LT Y84 Perm Abp"
     end;
 
     [Test]
+    procedure Y84_Abp_ObjectKinds_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure Y84_Abp_ObjectKinds_More2()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure Y84_Abp_ObjectKinds_More3()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
     procedure Y84_Abp_HiddenMethods()
     var
         WasStarted: Boolean;
@@ -79,7 +133,51 @@ codeunit 94392 "LT Y84 Perm Abp"
         Mock.Set('LT Y84 C RIMD');
         ObserveMethods('visible');
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('hidden|GR.Value',
+            'error: The field with ID = n is not found on the page.');
+        Observer.Expect('hidden|GR.Editable',
+            'error: The field with ID = n is not found on the page.');
+        Observer.Expect('hidden|GR.Caption',
+            'error: The field with ID = n is not found on the page.');
+        Observer.Expect('hidden|GR.Enabled',
+            'error: The field with ID = n is not found on the page.');
+        Observer.Expect('hidden|GR.SetValue',
+            'error: The field with ID = n is not found on the page.');
+        Observer.Expect('hidden|GR.Lookup',
+            'error: The field with ID = n is not found on the page.');
+        Observer.Expect('hidden|GR.AssertEquals',
+            'error: The field with ID = n is not found on the page.');
+        Observer.Expect('hidden|GR.Activate',
+            'error: The field with ID = n is not found on the page.');
+        Observer.Expect('hidden|ActR.Enabled',
+            'error: The action with ID = n is not found on the page.');
+        Observer.Expect('hidden|ActR.Invoke',
+            'error: The action with ID = n is not found on the page.');
+        Observer.Expect('hidden|GuardPart.Value',
+            'error: The part with ID = n was not found on the page.');
+        Observer.Expect('visible|GR.Value',
+            '10');
+        Observer.Expect('visible|GR.Editable',
+            'No');
+        Observer.Expect('visible|GR.Caption',
+            'Value');
+        Observer.Expect('visible|GR.Enabled',
+            'Yes');
+        Observer.Expect('visible|GR.SetValue',
+            'set');
+        Observer.Expect('visible|GR.Lookup',
+            'looked up');
+        Observer.Expect('visible|GR.AssertEquals',
+            'error: AssertEquals for Field: GR Expected = ''10'', Actual = ''5''');
+        Observer.Expect('visible|GR.Activate',
+            'activated');
+        Observer.Expect('visible|ActR.Enabled',
+            'Yes');
+        Observer.Expect('visible|ActR.Invoke',
+            'invoked');
+        Observer.Expect('visible|GuardPart.Value',
+            '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -94,7 +192,17 @@ codeunit 94392 "LT Y84 Perm Abp"
         Mock.Set('LT Y84 C RIMD');
         ObserveRows('visible');
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('hidden|count',
+            '19');
+        Observer.Expect('hidden|names',
+            'PlainCtl=Y TfCtl=Y FlowCtl=Y GR=Y GI=Y GM=Y GD=Y GIM=Y GRIMD=Y GLowR=Y GLowRIMD=Y ObjCu=Y ObjQry=Y ObjXp=Y ObjRep=Y ObjPg=Y ObjTbl=Y ObjSys=Y ObjCuLow=Y PlainPart=N GuardPart=N Gua' +
+            'rdObjPart=N PlainAct=N ActR=N ActCu=N');
+        Observer.Expect('visible|count',
+            '19');
+        Observer.Expect('visible|names',
+            'PlainCtl=Y TfCtl=Y FlowCtl=Y GR=Y GI=Y GM=Y GD=Y GIM=Y GRIMD=Y GLowR=Y GLowRIMD=Y ObjCu=Y ObjQry=Y ObjXp=Y ObjRep=Y ObjPg=Y ObjTbl=Y ObjSys=Y ObjCuLow=Y PlainPart=N GuardPart=N Gua' +
+            'rdObjPart=N PlainAct=N ActR=N ActCu=N');
+        Observer.Verify();
     end;
 
     [Test]
@@ -115,7 +223,15 @@ codeunit 94392 "LT Y84 Perm Abp"
         Mock.Set('LT Y84 C R');
         ObserveFlow('rows, read');
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('empty, no read',
+            'visible N value error: The field with ID = n is not found on the page.');
+        Observer.Expect('empty, read',
+            'visible Y value 0');
+        Observer.Expect('rows, no read',
+            'visible N value error: The field with ID = n is not found on the page.');
+        Observer.Expect('rows, read',
+            'visible Y value 1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -135,7 +251,19 @@ codeunit 94392 "LT Y84 Perm Abp"
         ObservePageLevel('insert');
         ObserveReportLevel('insert');
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('page level no read',
+            'opened');
+        Observer.Expect('report level no read',
+            'ran');
+        Observer.Expect('page level read',
+            'opened');
+        Observer.Expect('report level read',
+            'ran');
+        Observer.Expect('page level insert',
+            'opened');
+        Observer.Expect('report level insert',
+            'ran');
+        Observer.Verify();
     end;
 
     [Test]
@@ -160,7 +288,31 @@ codeunit 94392 "LT Y84 Perm Abp"
         Mock.Set('LT Y84 C Ind R');
         RunRequest('ind r');
         RestoreMock(WasStarted);
-        Observer.Finish();
+        Observer.Expect('request none|run',
+            'ran');
+        Observer.Expect('request none',
+            'plain Y R N I N M N D N RIMD N Cu Y');
+        Observer.Expect('request r|run',
+            'ran');
+        Observer.Expect('request r',
+            'plain Y R Y I N M N D N RIMD Y Cu Y');
+        Observer.Expect('request i|run',
+            'ran');
+        Observer.Expect('request i',
+            'plain Y R N I Y M N D N RIMD Y Cu Y');
+        Observer.Expect('request m|run',
+            'ran');
+        Observer.Expect('request m',
+            'plain Y R N I N M Y D N RIMD Y Cu Y');
+        Observer.Expect('request d|run',
+            'ran');
+        Observer.Expect('request d',
+            'plain Y R N I N M N D Y RIMD Y Cu Y');
+        Observer.Expect('request ind r|run',
+            'ran');
+        Observer.Expect('request ind r',
+            'plain Y R N I N M N D N RIMD N Cu Y');
+        Observer.Verify();
     end;
 
     local procedure Seed(WithGuardRow: Boolean)
