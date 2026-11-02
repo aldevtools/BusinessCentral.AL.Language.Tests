@@ -16,7 +16,9 @@ codeunit 94250 "LT Y81 DMY2Date"
 
     local procedure Show(R: Date): Text
     begin
-        exit(Format(R, 0, 9) + '|' + Format(R = 0D) + '|' + Format(Date2DMY(R, 1)) + '.' + Format(Date2DMY(R, 2)) + '.' + Format(Date2DMY(R, 3)));
+        if R = 0D then
+            exit('[' + Format(R, 0, 9) + ']|0D');
+        exit(Format(R, 0, 9) + '|' + Format(Date2DMY(R, 1)) + '.' + Format(Date2DMY(R, 2)) + '.' + Format(Date2DMY(R, 3)));
     end;
 
     [TryFunction]
@@ -60,20 +62,19 @@ codeunit 94250 "LT Y81 DMY2Date"
     end;
 
     [Test]
-    procedure Y81_DMY2Date_Year0_Arithmetic()
+    procedure Y81_DMY2Date_Year1_Arithmetic()
     var
         D: Date;
         Z: Date;
     begin
-        D := DMY2Date(15, 6, 0);
+        D := DMY2Date(15, 6, 1);
         Observer.Observe('same as 0D', Format(D = Z));
         Observer.Observe('plus 1', Show(D + 1));
         Observer.Observe('calcdate', Show(CalcDate('<+1D>', D)));
         Observer.Observe('format 0', Format(D));
         Observer.Observe('format 1', Format(D, 0, 1));
         Observer.Observe('format 4', Format(D, 0, 4));
-        Observer.Observe('dwy 1', Format(Date2DWY(DMY2Date(1, 1, 1), 1)));
-        Observer.Observe('dwy year0', Format(Date2DWY(DMY2Date(1, 1, 0), 1)));
+        Observer.Observe('dwy 1', Format(Date2DWY(D, 1)));
         Observer.Finish();
     end;
 

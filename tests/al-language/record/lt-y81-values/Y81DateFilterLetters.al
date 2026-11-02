@@ -32,19 +32,24 @@ codeunit 94251 "LT Y81 Date Filter Letters"
         Observer: Codeunit "Probe Observer";
 
     [TryFunction]
-    local procedure TryFilter(var Row: Record "LT Y81 DF"; Txt: Text)
+    local procedure TryFilter(Txt: Text; var R: Text)
+    var
+        Row: Record "LT Y81 DF";
     begin
         Row.SetFilter(D, Txt);
+        R := 'ok|' + Row.GetFilter(D);
+        R += '|' + Format(Row.GetRangeMin(D), 0, 9);
+        R += '|' + Format(Row.GetRangeMax(D), 0, 9);
     end;
 
     local procedure Apply(Txt: Text): Text
     var
-        Row: Record "LT Y81 DF";
+        R: Text;
     begin
         ClearLastError();
-        if TryFilter(Row, Txt) then
-            exit('ok|' + Row.GetFilter(D) + '|' + Format(Row.GetRangeMin(D), 0, 9) + '|' + Format(Row.GetRangeMax(D), 0, 9));
-        exit('E ' + GetLastErrorText() + '|' + GetLastErrorCode());
+        if TryFilter(Txt, R) then
+            exit(R);
+        exit(R + ' E ' + GetLastErrorText() + '|' + GetLastErrorCode());
     end;
 
     local procedure Letters(WorkDay: Date; Part: Integer)
