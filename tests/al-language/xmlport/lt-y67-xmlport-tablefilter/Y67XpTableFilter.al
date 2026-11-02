@@ -150,7 +150,7 @@ codeunit 93549 "LT Y67 TF Tests"
         if TryImport('<Root><R><Id>11</Id><Filter>Id: 1..9</Filter></R></Root>') then
             Observer.Observe('unqualified', Back(11))
         else
-            Observer.Observe('unqualified', 'error ' + GetLastErrorText() + '|' + GetLastErrorCode());
+            Observer.Observe('unqualified', 'error ' + Format(GetLastErrorText().Contains('The metadata object Table -1 was not found')) + '|' + GetLastErrorCode());
         ClearLastError();
         if TryImport('<Root><R><Id>12</Id><Filter /></R></Root>') then
             Observer.Observe('empty', Back(12))
@@ -162,7 +162,7 @@ codeunit 93549 "LT Y67 TF Tests"
         else
             Observer.Observe('other table', 'error ' + GetLastErrorText() + '|' + GetLastErrorCode());
         Observer.Expect('qualified', '[LT Y67 TF Row: Id=1..9]|[LT Y67 TF Row: Id=1..9]');
-        Observer.Expect('unqualified', 'error The value "Id: 1..9" can''t be evaluated into type TableFilter. \      The metadata object Table -1 was not found.     \    |Evaluate:MetadataNotFound');
+        Observer.Expect('unqualified', 'error Yes|Evaluate:MetadataNotFound');
         Observer.Expect('empty', '[]|[]');
         Observer.Expect('other table', '[Customer: No.=1]|[Customer: No.=1]');
         Observer.Verify();

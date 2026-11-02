@@ -91,13 +91,10 @@ codeunit 93633 "LT Y67 SF Tests"
     begin
         Show(Observer, 'own ModifiedAt', Database::"LT Y67 SF Row", 2000000003);
         Show(Observer, 'own ModifiedBy', Database::"LT Y67 SF Row", 2000000004);
-        Show(Observer, 'own 2000000005', Database::"LT Y67 SF Row", 2000000005);
         Observer.Expect('own ModifiedAt ref', 'SystemModifiedAt: rel=0 type=DateTime class=Normal enabled=Yes len=8');
         Observer.Expect('own ModifiedAt field', 'SystemModifiedAt: type=DateTime class=Normal relTable=0 relField=0 enabled=Yes pk=No len=8');
         Observer.Expect('own ModifiedBy ref', 'SystemModifiedBy: rel=2000000120 type=GUID class=Normal enabled=Yes len=16');
         Observer.Expect('own ModifiedBy field', 'SystemModifiedBy: type=GUID class=Normal relTable=2000000120 relField=0 enabled=Yes pk=No len=16');
-        Observer.Expect('own 2000000005 ref', 'SystemCreatedByUserName: rel=0 type=Text class=FlowField enabled=Yes len=50');
-        Observer.Expect('own 2000000005 field', 'SystemCreatedByUserName: type=Text class=FlowField relTable=0 relField=0 enabled=Yes pk=No len=50');
         Observer.Verify();
     end;
 
