@@ -57,6 +57,23 @@ codeunit 94058 "LT Y76 Stale Buffers"
         Commit();
     end;
 
+    [TryFunction]
+    local procedure TryWrite(var Row: Record "LT Y76 SB Row"; Deleting: Boolean)
+    begin
+        if Deleting then
+            Row.Delete(false)
+        else
+            Row.Modify(false);
+    end;
+
+    local procedure WriteOutcome(var Row: Record "LT Y76 SB Row"; Deleting: Boolean): Text
+    begin
+        ClearLastError();
+        if TryWrite(Row, Deleting) then
+            exit('ok');
+        exit(GetLastErrorCode());
+    end;
+
     local procedure Stored(): Text
     var
         Row: Record "LT Y76 SB Row";
@@ -132,20 +149,24 @@ codeunit 94058 "LT Y76 Stale Buffers"
         end;
     end;
 
-    // Returns "<write outcome> stored=<text>|<integer>"
-    local procedure Part1(Origin: Text; What: Text; Deleting: Boolean): Text
+    // Returns "<write outcome> stored=<text>|<integer>". SameTx: the row is inserted by another variable in the transaction the Commit closes,
+    // and the buffer is made in that transaction (the row version was written in it); otherwise the row is committed first and the buffer is
+    // made in the next transaction.
+    local procedure Part1(Origin: Text; What: Text; Deleting: Boolean; SameTx: Boolean): Text
     var
         Row: Record "LT Y76 SB Row";
+        Inserter: Record "LT Y76 SB Row";
         Other: Record "LT Y76 SB Row";
-        Outcome: Text;
         Rows: Record "LT Y76 SB Row";
+        Outcome: Text;
     begin
         Initialize();
-        Row.Init();
-        Row."Entry No." := 5;
-        Row."Text Field" := 'start';
-        Row.Insert(false);
-        Commit();
+        Inserter.Init();
+        Inserter."Entry No." := 5;
+        Inserter."Text Field" := 'start';
+        Inserter.Insert(false);
+        if not SameTx then
+            Commit();
         MakeBuffer(Row, Origin);
         Other.Get(5);
         Other."Text Field" := 'other';
@@ -153,16 +174,7 @@ codeunit 94058 "LT Y76 Stale Buffers"
         Commit();
         Between(What);
         Row."Integer Field" := 5;
-        ClearLastError();
-        if Deleting then
-            asserterror Row.Delete(false)
-        else
-            asserterror Row.Modify(false);
-        if GetLastErrorText() = '' then
-            Outcome := 'ok'
-        else
-            Outcome := GetLastErrorCode();
-        ClearLastError();
+        Outcome := WriteOutcome(Row, Deleting);
         Outcome += ' stored=' + Stored();
         Rows.DeleteAll();
         Commit();
@@ -171,13 +183,15 @@ codeunit 94058 "LT Y76 Stale Buffers"
 
     local procedure Part1Modes(var Observer: Codeunit "Probe Observer"; Origin: Text)
     begin
-        Observer.Observe(Origin + '/nothing', Part1(Origin, 'nothing', false));
-        Observer.Observe(Origin + '/get', Part1(Origin, 'get', false));
-        Observer.Observe(Origin + '/modify_changed', Part1(Origin, 'modify_changed', false));
-        Observer.Observe(Origin + '/modify_unchanged', Part1(Origin, 'modify_unchanged', false));
-        Observer.Observe(Origin + '/lock', Part1(Origin, 'lock', false));
-        Observer.Observe(Origin + '/delete_nothing', Part1(Origin, 'nothing', true));
-        Observer.Observe(Origin + '/delete_modify_changed', Part1(Origin, 'modify_changed', true));
+        Observer.Observe(Origin + '/nothing', Part1(Origin, 'nothing', false, true));
+        Observer.Observe(Origin + '/get', Part1(Origin, 'get', false, true));
+        Observer.Observe(Origin + '/modify_changed', Part1(Origin, 'modify_changed', false, true));
+        Observer.Observe(Origin + '/modify_unchanged', Part1(Origin, 'modify_unchanged', false, true));
+        Observer.Observe(Origin + '/lock', Part1(Origin, 'lock', false, true));
+        Observer.Observe(Origin + '/delete_nothing', Part1(Origin, 'nothing', true, true));
+        Observer.Observe(Origin + '/delete_modify_changed', Part1(Origin, 'modify_changed', true, true));
+        Observer.Observe(Origin + '/committed_nothing', Part1(Origin, 'nothing', false, false));
+        Observer.Observe(Origin + '/committed_modify_changed', Part1(Origin, 'modify_changed', false, false));
     end;
 
     [Test]
@@ -305,16 +319,7 @@ codeunit 94058 "LT Y76 Stale Buffers"
                 end;
         end;
         Row."Integer Field" := 5;
-        ClearLastError();
-        if Deleting then
-            asserterror Row.Delete(false)
-        else
-            asserterror Row.Modify(false);
-        if GetLastErrorText() = '' then
-            Outcome := 'ok'
-        else
-            Outcome := GetLastErrorCode();
-        ClearLastError();
+        Outcome := WriteOutcome(Row, Deleting);
         if Other.Get(6) then
             Stored6 := Other."Text Field" + '|' + Format(Other."Integer Field") + '|' + Format(Other."Decimal Field")
         else

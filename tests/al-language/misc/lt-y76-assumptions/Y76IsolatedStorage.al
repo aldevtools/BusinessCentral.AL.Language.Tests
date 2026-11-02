@@ -30,7 +30,15 @@ codeunit 94076 "LT Y76 Iso Storage"
 
     [Test]
     procedure Suspect_EncryptedOverwrite_Transaction()
+    var
+        KeyCreated: Boolean;
     begin
+        if not EncryptionKeyExists() then begin
+            CreateEncryptionKey();
+            KeyCreated := true;
+            Commit();
+        end;
+        Obs.Observe('key created', Format(KeyCreated));
         Reset('LTY76iso');
         Obs.Observe('new_encrypted_ret', Format(IsolatedStorage.SetEncrypted('LTY76iso', 'v1', DataScope::Module)));
         Obs.Observe('new_encrypted_tx', Tx());
@@ -69,6 +77,10 @@ codeunit 94076 "LT Y76 Iso Storage"
         Commit();
         IsolatedStorage.Delete('LTY76iso', DataScope::User);
         Commit();
+        if KeyCreated then begin
+            DeleteEncryptionKey();
+            Commit();
+        end;
         Obs.Finish();
     end;
 }

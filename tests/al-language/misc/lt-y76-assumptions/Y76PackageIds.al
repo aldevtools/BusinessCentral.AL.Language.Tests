@@ -31,7 +31,14 @@ codeunit 94077 "LT Y76 Package Ids"
         ConfigPackageMgt.InsertPackageData(ConfigPackageData, PackageCode, Database::"Dimension Value", No, DimValue.FieldNo(Name), 'Name ' + ValueCode, false);
     end;
 
+    [ConfirmHandler]
+    procedure ConfirmYes(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
+    end;
+
     [Test]
+    [HandlerFunctions('ConfirmYes')]
     procedure Y76_Package_AutoIncrementField_NotInPackage()
     var
         Observer: Codeunit "Probe Observer";

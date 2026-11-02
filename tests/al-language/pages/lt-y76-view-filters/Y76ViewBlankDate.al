@@ -168,6 +168,7 @@ xmlport 94065 "LT Y76 VB Xmlport"
 {
     Direction = Export;
     Format = Xml;
+    Encoding = UTF8;
 
     schema
     {
@@ -234,7 +235,8 @@ codeunit 94068 "LT Y76 VB Tests"
     begin
         if List.First() then
             repeat
-                Result += List.InfoCtl.Value() + ',';
+                if List.InfoCtl.Value() <> '' then
+                    Result += List.InfoCtl.Value() + ',';
             until not List.Next();
         exit(Result);
     end;
@@ -343,7 +345,7 @@ codeunit 94068 "LT Y76 VB Tests"
         Seed();
         TempBlob.CreateOutStream(OutS);
         Xmlport.Export(Xmlport::"LT Y76 VB Xmlport", OutS);
-        TempBlob.CreateInStream(InS);
+        TempBlob.CreateInStream(InS, TextEncoding::UTF8);
         InS.ReadText(Xml);
         Observer.Observe('xml', Xml);
         Observer.Finish();

@@ -615,6 +615,19 @@ codeunit 89030 "LT SE Header Values"
     // ---- Writer Y76 (al-runtime-rs assumption http-typed-header-value-shapes): value shapes of typed headers that no earlier test measured: lists with
     // parameters, quoted strings, every two-digit year form, dates without a weekday, other offsets and zone names, on request, content and response headers.
 
+    local procedure CntCT(var Observer: Codeunit "Probe Observer"; ObsKey: Text; V: Text)
+    var
+        C: HttpContent;
+        H: HttpHeaders;
+        Removed: Boolean;
+    begin
+        C.GetHeaders(H);
+        Removed := H.Remove('Content-Type');
+        AddTo(Observer, H, ObsKey, 'Content-Type', V);
+        Observer.Observe(ObsKey + '_removed', Format(Removed));
+    end;
+
+
     [Test]
     procedure Y76_Dates_Rfc850TwoDigitYears()
     var
@@ -758,11 +771,14 @@ codeunit 89030 "LT SE Header Values"
     var
         Observer: Codeunit "Probe Observer";
     begin
-        Cnt(Observer, 'contenttype_quoted_charset', 'Content-Type', 'text/plain; charset="utf-8"');
-        Cnt(Observer, 'contenttype_boundary_space', 'Content-Type', 'multipart/form-data; boundary="x y"');
-        Cnt(Observer, 'contenttype_boundary_plain', 'Content-Type', 'multipart/form-data; boundary=abc');
-        Cnt(Observer, 'contenttype_two_params', 'Content-Type', 'text/plain; charset=utf-8; format=flowed');
-        Cnt(Observer, 'contenttype_no_slash', 'Content-Type', 'text');
+        CntCT(Observer, 'contenttype_quoted_charset', 'text/plain; charset="utf-8"');
+        CntCT(Observer, 'contenttype_boundary_space', 'multipart/form-data; boundary="x y"');
+        CntCT(Observer, 'contenttype_boundary_plain', 'multipart/form-data; boundary=abc');
+        CntCT(Observer, 'contenttype_two_params', 'text/plain; charset=utf-8; format=flowed');
+        CntCT(Observer, 'contenttype_no_slash', 'text');
+        CntCT(Observer, 'contenttype_json', 'application/json');
+        CntCT(Observer, 'contenttype_upper', 'APPLICATION/JSON; Charset=UTF-8');
+        CntCT(Observer, 'contenttype_bad_param', 'text/plain; charset');
         Cnt(Observer, 'contentdisposition_name', 'Content-Disposition', 'form-data; name="a b"');
         Cnt(Observer, 'contentdisposition_filename', 'Content-Disposition', 'attachment; filename="a b.txt"');
         Cnt(Observer, 'contentdisposition_unquoted', 'Content-Disposition', 'attachment; filename=a.txt');
