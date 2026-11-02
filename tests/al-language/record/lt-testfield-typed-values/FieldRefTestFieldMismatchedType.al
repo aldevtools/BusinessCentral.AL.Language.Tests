@@ -202,6 +202,7 @@ codeunit 70974 "LT TFT FRef Mismatch"
         VDtTm := CreateDateTime(20240315D, 120000T);
         Observer.Observe('DtTm_result', Format(TryDtTm(Fld, VDtTm)));
         Observer.ObserveError('DtTm');
+        Observer.Finish();
     end;
 
     [Test]
@@ -252,6 +253,7 @@ codeunit 70974 "LT TFT FRef Mismatch"
         VChr := 1;
         Observer.Observe('Chr_result', Format(TryChr(Fld, VChr)));
         Observer.ObserveError('Chr');
+        Observer.Finish();
     end;
 
     [Test]
@@ -286,6 +288,7 @@ codeunit 70974 "LT TFT FRef Mismatch"
         VTxt := '20240315D';
         Observer.Observe('Txt_result', Format(TryTxt(Fld, VTxt)));
         Observer.ObserveError('Txt');
+        Observer.Finish();
     end;
 
     [Test]
@@ -316,6 +319,7 @@ codeunit 70974 "LT TFT FRef Mismatch"
         VTxt := '1';
         Observer.Observe('Txt_result', Format(TryTxt(Fld, VTxt)));
         Observer.ObserveError('Txt');
+        Observer.Finish();
     end;
 
     [Test]
@@ -350,6 +354,7 @@ codeunit 70974 "LT TFT FRef Mismatch"
         VByt := 1;
         Observer.Observe('Byt_result', Format(TryByt(Fld, VByt)));
         Observer.ObserveError('Byt');
+        Observer.Finish();
     end;
 
     [Test]
@@ -381,6 +386,7 @@ codeunit 70974 "LT TFT FRef Mismatch"
         VInt := 1;
         Observer.Observe('Int_result', Format(TryInt(Fld, VInt)));
         Observer.ObserveError('Int');
+        Observer.Finish();
     end;
 
     [Test]
@@ -415,6 +421,7 @@ codeunit 70974 "LT TFT FRef Mismatch"
         VByt := 2;
         Observer.Observe('Byt_result', Format(TryByt(Fld, VByt)));
         Observer.ObserveError('Byt');
+        Observer.Finish();
     end;
 
     [Test]
@@ -453,6 +460,7 @@ codeunit 70974 "LT TFT FRef Mismatch"
         VTxt := '5';
         Observer.Observe('Txt_result', Format(TryTxt(Fld, VTxt)));
         Observer.ObserveError('Txt');
+        Observer.Finish();
     end;
 
     [Test]
@@ -487,5 +495,6 @@ codeunit 70974 "LT TFT FRef Mismatch"
         VTxt := '5';
         Observer.Observe('Txt_result', Format(TryTxt(Fld, VTxt)));
         Observer.ObserveError('Txt');
+        Observer.Finish();
     end;
 }
