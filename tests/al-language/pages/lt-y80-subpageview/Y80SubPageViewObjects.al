@@ -2,7 +2,7 @@
 // Scope: in-scope
 // Fixtures used: Probe Observer (codeunit 69160); own objects 94202 - 94214
 // Probe (writer Y80, from the runtime lane rt-pages-1102c): a SubPageView condition on the field the SubPageLink also names, with a condition other
-//   than const: filter('H1|H2'), filter('<>H1'), a range filter, field("Code"). pages/lt-part-reads/PartReadsOpen.al pins const('ZZZ') on the
+//   than const: filter('H1|H2'), filter('<>H1'), a single value filter, a range filter. field("Code") is a compile error (AL0489, must-not-compile case 2765). pages/lt-part-reads/PartReadsOpen.al pins const('ZZZ') on the
 //   linked field (part Same) and filter('>10000') on a field outside the link (part Filtered). Here every part has its own host (a Document page
 //   with one ListPart) and one more host holds all four, so both the single-part and the several-part reads show. The parts log OnOpenPage (with
 //   the filters), OnAfterGetRecord and OnAfterGetCurrRecord; the tests open the host with OpenView, OpenEdit and OpenNew, then move it with
@@ -301,7 +301,7 @@ page 94211 "LT Y80 SV Host F3"
             part(PartF3; "LT Y80 SV Part F3")
             {
                 ApplicationArea = All;
-                SubPageView = where("Head Code" = field("Code"));
+                SubPageView = where("Head Code" = filter('H2'));
                 SubPageLink = "Head Code" = field("Code");
             }
         }
@@ -371,7 +371,7 @@ page 94213 "LT Y80 SV Host All"
             part(PartF3; "LT Y80 SV Part F3")
             {
                 ApplicationArea = All;
-                SubPageView = where("Head Code" = field("Code"));
+                SubPageView = where("Head Code" = filter('H2'));
                 SubPageLink = "Head Code" = field("Code");
             }
             part(PartF4; "LT Y80 SV Part F4")
