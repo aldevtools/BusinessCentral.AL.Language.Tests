@@ -1,0 +1,1625 @@
+// BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/testpage/testfield/testfield-setvalue-method
+// Scope: in-scope
+// Fixtures used: Probe Observer (codeunit 69160); own table 94223, pages 94224 and 94225, test codeunit 94226
+// Probe (writer Y80, from the runtime lane rt-pages-1102c): TestPage control SetValue of a value that is not a Text, on a control bound to a Text, a Code and a short
+//   Text[5] field: Integer (small, negative, zero, with a thousands separator, large), BigInteger, whole and fractional Decimal, Boolean, Date,
+//   Time, DateTime, Guid, Duration, an Option and an Enum value, a Char. Read back with Value() (and the stored row after Close). On a Card and on
+//   a List (repeater) page. pages/lt-y37-values-allowed and misc/lt-y14-triage/Y14Small.al:237 pin SetValue(Decimal) 1.11 on a Text control only.
+//   Formats are those of en-US (the corpus runs with that culture).
+// BC versions: 27, 28, 29
+
+enum 94227 "LT Y80 ST Kind"
+{
+    Extensible = true;
+
+    value(0; First) { Caption = 'First Kind'; }
+    value(1; Second) { Caption = 'Second Kind'; }
+}
+
+table 94223 "LT Y80 ST Row"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; Id; Integer) { }
+        field(2; Txt; Text[30]) { }
+        field(3; Cd; Code[20]) { }
+        field(4; Short; Text[5]) { }
+        field(5; Num; Integer) { }
+    }
+    keys { key(PK; Id) { Clustered = true; } }
+}
+
+page 94224 "LT Y80 ST Card"
+{
+    PageType = Card;
+    SourceTable = "LT Y80 ST Row";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            field(IdCtl; Rec.Id) { ApplicationArea = All; }
+            field(TxtCtl; Rec.Txt) { ApplicationArea = All; }
+            field(CdCtl; Rec.Cd) { ApplicationArea = All; }
+            field(ShortCtl; Rec.Short) { ApplicationArea = All; }
+            field(NumCtl; Rec.Num) { ApplicationArea = All; }
+        }
+    }
+}
+
+page 94225 "LT Y80 ST List"
+{
+    PageType = List;
+    SourceTable = "LT Y80 ST Row";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Rows)
+            {
+                field(IdCtl; Rec.Id) { ApplicationArea = All; }
+                field(TxtCtl; Rec.Txt) { ApplicationArea = All; }
+                field(CdCtl; Rec.Cd) { ApplicationArea = All; }
+                field(ShortCtl; Rec.Short) { ApplicationArea = All; }
+                field(NumCtl; Rec.Num) { ApplicationArea = All; }
+            }
+        }
+    }
+}
+
+codeunit 94226 "LT Y80 ST Tests"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    var
+        Observer: Codeunit "Probe Observer";
+
+    [TryFunction]
+    local procedure TryCloseCard(var P: TestPage "LT Y80 ST Card")
+    begin
+        P.Close();
+    end;
+
+    local procedure CloseCard(var P: TestPage "LT Y80 ST Card"): Text
+    begin
+        if TryCloseCard(P) then
+            exit('ok');
+        exit('err|' + GetLastErrorCode() + '|' + GetLastErrorText());
+    end;
+
+    [TryFunction]
+    local procedure TryCloseList(var P: TestPage "LT Y80 ST List")
+    begin
+        P.Close();
+    end;
+
+    local procedure CloseList(var P: TestPage "LT Y80 ST List"): Text
+    begin
+        if TryCloseList(P) then
+            exit('ok');
+        exit('err|' + GetLastErrorCode() + '|' + GetLastErrorText());
+    end;
+
+    local procedure Seed()
+    var
+        Row: Record "LT Y80 ST Row";
+    begin
+        Row.DeleteAll();
+        Row.Id := 1;
+        Row.Insert();
+    end;
+
+    [TryFunction]
+    local procedure TryCardTxtCtl(var P: TestPage "LT Y80 ST Card"; V: Variant)
+    begin
+        P.TxtCtl.SetValue(V);
+    end;
+
+    local procedure SetCardTxtCtl(var P: TestPage "LT Y80 ST Card"; V: Variant): Text
+    var
+        Result: Text;
+    begin
+        if TryCardTxtCtl(P, V) then
+            Result := 'ok|' + P.TxtCtl.Value()
+        else begin
+            Result := 'err|' + GetLastErrorCode() + '|' + GetLastErrorText();
+            ClearLastError();
+        end;
+        exit(Result);
+    end;
+
+    [TryFunction]
+    local procedure TryCardCdCtl(var P: TestPage "LT Y80 ST Card"; V: Variant)
+    begin
+        P.CdCtl.SetValue(V);
+    end;
+
+    local procedure SetCardCdCtl(var P: TestPage "LT Y80 ST Card"; V: Variant): Text
+    var
+        Result: Text;
+    begin
+        if TryCardCdCtl(P, V) then
+            Result := 'ok|' + P.CdCtl.Value()
+        else begin
+            Result := 'err|' + GetLastErrorCode() + '|' + GetLastErrorText();
+            ClearLastError();
+        end;
+        exit(Result);
+    end;
+
+    [TryFunction]
+    local procedure TryCardShortCtl(var P: TestPage "LT Y80 ST Card"; V: Variant)
+    begin
+        P.ShortCtl.SetValue(V);
+    end;
+
+    local procedure SetCardShortCtl(var P: TestPage "LT Y80 ST Card"; V: Variant): Text
+    var
+        Result: Text;
+    begin
+        if TryCardShortCtl(P, V) then
+            Result := 'ok|' + P.ShortCtl.Value()
+        else begin
+            Result := 'err|' + GetLastErrorCode() + '|' + GetLastErrorText();
+            ClearLastError();
+        end;
+        exit(Result);
+    end;
+
+    [TryFunction]
+    local procedure TryListTxtCtl(var P: TestPage "LT Y80 ST List"; V: Variant)
+    begin
+        P.TxtCtl.SetValue(V);
+    end;
+
+    local procedure SetListTxtCtl(var P: TestPage "LT Y80 ST List"; V: Variant): Text
+    var
+        Result: Text;
+    begin
+        if TryListTxtCtl(P, V) then
+            Result := 'ok|' + P.TxtCtl.Value()
+        else begin
+            Result := 'err|' + GetLastErrorCode() + '|' + GetLastErrorText();
+            ClearLastError();
+        end;
+        exit(Result);
+    end;
+
+    [TryFunction]
+    local procedure TryListCdCtl(var P: TestPage "LT Y80 ST List"; V: Variant)
+    begin
+        P.CdCtl.SetValue(V);
+    end;
+
+    local procedure SetListCdCtl(var P: TestPage "LT Y80 ST List"; V: Variant): Text
+    var
+        Result: Text;
+    begin
+        if TryListCdCtl(P, V) then
+            Result := 'ok|' + P.CdCtl.Value()
+        else begin
+            Result := 'err|' + GetLastErrorCode() + '|' + GetLastErrorText();
+            ClearLastError();
+        end;
+        exit(Result);
+    end;
+
+    [TryFunction]
+    local procedure TryListShortCtl(var P: TestPage "LT Y80 ST List"; V: Variant)
+    begin
+        P.ShortCtl.SetValue(V);
+    end;
+
+    local procedure SetListShortCtl(var P: TestPage "LT Y80 ST List"; V: Variant): Text
+    var
+        Result: Text;
+    begin
+        if TryListShortCtl(P, V) then
+            Result := 'ok|' + P.ShortCtl.Value()
+        else begin
+            Result := 'err|' + GetLastErrorCode() + '|' + GetLastErrorText();
+            ClearLastError();
+        end;
+        exit(Result);
+    end;
+
+    [Test]
+    procedure Y80_ST_Card_TxtCtl_Integers()
+    var
+        P: TestPage "LT Y80 ST Card";
+        I: Integer;
+        B: BigInteger;
+        D: Decimal;
+        Bo: Boolean;
+        Dt: Date;
+        Tm: Time;
+        Dtm: DateTime;
+        G: Guid;
+        Du: Duration;
+        Ch: Char;
+        Tx: Text;
+        Co: Code[10];
+        Op: Option A,B,C;
+        En: Enum "LT Y80 ST Kind";
+    begin
+        Seed();
+        P.OpenEdit();
+        I := 5;
+        Observer.Observe('int 5', SetCardTxtCtl(P, I));
+        I := -7;
+        Observer.Observe('int -7', SetCardTxtCtl(P, I));
+        I := 0;
+        Observer.Observe('int 0', SetCardTxtCtl(P, I));
+        I := 999;
+        Observer.Observe('int 999', SetCardTxtCtl(P, I));
+        I := 1000;
+        Observer.Observe('int 1000', SetCardTxtCtl(P, I));
+        I := 1234;
+        Observer.Observe('int 1234', SetCardTxtCtl(P, I));
+        I := 1234567;
+        Observer.Observe('int 1234567', SetCardTxtCtl(P, I));
+        I := 2147483647;
+        Observer.Observe('int max', SetCardTxtCtl(P, I));
+        Observer.Observe('close', CloseCard(P));
+        Observer.Expect('int 5', 'ok|5');
+        Observer.Expect('int -7', 'ok|-7');
+        Observer.Expect('int 0', 'ok|0');
+        Observer.Expect('int 999', 'ok|999');
+        Observer.Expect('int 1000', 'ok|1000');
+        Observer.Expect('int 1234', 'ok|1234');
+        Observer.Expect('int 1234567', 'ok|1234567');
+        Observer.Expect('int max', 'ok|2147483647');
+        Observer.Expect('close', 'ok');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y80_ST_Card_TxtCtl_BigIntegers()
+    var
+        P: TestPage "LT Y80 ST Card";
+        I: Integer;
+        B: BigInteger;
+        D: Decimal;
+        Bo: Boolean;
+        Dt: Date;
+        Tm: Time;
+        Dtm: DateTime;
+        G: Guid;
+        Du: Duration;
+        Ch: Char;
+        Tx: Text;
+        Co: Code[10];
+        Op: Option A,B,C;
+        En: Enum "LT Y80 ST Kind";
+    begin
+        Seed();
+        P.OpenEdit();
+        B := 5;
+        Observer.Observe('big 5', SetCardTxtCtl(P, B));
+        B := -12;
+        Observer.Observe('big -12', SetCardTxtCtl(P, B));
+        B := 1000;
+        Observer.Observe('big 1000', SetCardTxtCtl(P, B));
+        B := 5000000; B := B * 1000;
+        Observer.Observe('big 5000000000', SetCardTxtCtl(P, B));
+        B := 0;
+        Observer.Observe('big 0', SetCardTxtCtl(P, B));
+        Observer.Observe('close', CloseCard(P));
+        Observer.Expect('big 5', 'ok|5');
+        Observer.Expect('big -12', 'ok|-12');
+        Observer.Expect('big 1000', 'ok|1000');
+        Observer.Expect('big 5000000000', 'ok|5000000000');
+        Observer.Expect('big 0', 'ok|0');
+        Observer.Expect('close', 'ok');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y80_ST_Card_TxtCtl_Decimals()
+    var
+        P: TestPage "LT Y80 ST Card";
+        I: Integer;
+        B: BigInteger;
+        D: Decimal;
+        Bo: Boolean;
+        Dt: Date;
+        Tm: Time;
+        Dtm: DateTime;
+        G: Guid;
+        Du: Duration;
+        Ch: Char;
+        Tx: Text;
+        Co: Code[10];
+        Op: Option A,B,C;
+        En: Enum "LT Y80 ST Kind";
+    begin
+        Seed();
+        P.OpenEdit();
+        D := 3;
+        Observer.Observe('dec 3', SetCardTxtCtl(P, D));
+        D := -3;
+        Observer.Observe('dec -3', SetCardTxtCtl(P, D));
+        D := 1.5;
+        Observer.Observe('dec 1.5', SetCardTxtCtl(P, D));
+        D := 1234;
+        Observer.Observe('dec 1234', SetCardTxtCtl(P, D));
+        D := 1234.5;
+        Observer.Observe('dec 1234.5', SetCardTxtCtl(P, D));
+        D := 0.00001;
+        Observer.Observe('dec 0.00001', SetCardTxtCtl(P, D));
+        D := 0;
+        Observer.Observe('dec 0', SetCardTxtCtl(P, D));
+        D := 100000;
+        Observer.Observe('dec 100000', SetCardTxtCtl(P, D));
+        Observer.Observe('close', CloseCard(P));
+        Observer.Expect('dec 3', 'ok|3');
+        Observer.Expect('dec -3', 'ok|-3');
+        Observer.Expect('dec 1.5', 'ok|1.5');
+        Observer.Expect('dec 1234', 'ok|1,234');
+        Observer.Expect('dec 1234.5', 'ok|1,234.5');
+        Observer.Expect('dec 0.00001', 'ok|0.00001');
+        Observer.Expect('dec 0', 'ok|0');
+        Observer.Expect('dec 100000', 'ok|100,000');
+        Observer.Expect('close', 'ok');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y80_ST_Card_TxtCtl_Others()
+    var
+        P: TestPage "LT Y80 ST Card";
+        I: Integer;
+        B: BigInteger;
+        D: Decimal;
+        Bo: Boolean;
+        Dt: Date;
+        Tm: Time;
+        Dtm: DateTime;
+        G: Guid;
+        Du: Duration;
+        Ch: Char;
+        Tx: Text;
+        Co: Code[10];
+        Op: Option A,B,C;
+        En: Enum "LT Y80 ST Kind";
+    begin
+        Seed();
+        P.OpenEdit();
+        Bo := true;
+        Observer.Observe('bool true', SetCardTxtCtl(P, Bo));
+        Bo := false;
+        Observer.Observe('bool false', SetCardTxtCtl(P, Bo));
+        Dt := 20250131D;
+        Observer.Observe('date', SetCardTxtCtl(P, Dt));
+        Tm := 143005T;
+        Observer.Observe('time', SetCardTxtCtl(P, Tm));
+        Dtm := CreateDateTime(20250131D, 143005T);
+        Observer.Observe('datetime', SetCardTxtCtl(P, Dtm));
+        Evaluate(G, '{12345678-1234-1234-1234-123456789ABC}');
+        Observer.Observe('guid', SetCardTxtCtl(P, G));
+        Du := 90000;
+        Observer.Observe('duration', SetCardTxtCtl(P, Du));
+        Ch := 65;
+        Observer.Observe('char', SetCardTxtCtl(P, Ch));
+        Tx := 'x1';
+        Observer.Observe('text', SetCardTxtCtl(P, Tx));
+        Co := 'ab';
+        Observer.Observe('code', SetCardTxtCtl(P, Co));
+        Observer.Observe('close', CloseCard(P));
+        Observer.Expect('bool true', 'ok|Yes');
+        Observer.Expect('bool false', 'ok|No');
+        Observer.Expect('date', 'ok|01/31/25');
+        Observer.Expect('time', 'ok| 2:30:05 PM');
+        Observer.Expect('datetime', 'ok|01/31/25 02:30 PM');
+        Observer.Expect('guid', 'ok|{12345678-1234-1234-1234-123456789ABC}');
+        Observer.Expect('duration', 'ok|1 minute 30 seconds');
+        Observer.Expect('char', 'ok|A');
+        Observer.Expect('text', 'ok|x1');
+        Observer.Expect('code', 'ok|AB');
+        Observer.Expect('close', 'ok');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y80_ST_Card_TxtCtl_Enums()
+    var
+        P: TestPage "LT Y80 ST Card";
+        I: Integer;
+        B: BigInteger;
+        D: Decimal;
+        Bo: Boolean;
+        Dt: Date;
+        Tm: Time;
+        Dtm: DateTime;
+        G: Guid;
+        Du: Duration;
+        Ch: Char;
+        Tx: Text;
+        Co: Code[10];
+        Op: Option A,B,C;
+        En: Enum "LT Y80 ST Kind";
+    begin
+        Seed();
+        P.OpenEdit();
+        Op := Op::B;
+        Observer.Observe('option', SetCardTxtCtl(P, Op));
+        En := En::First;
+        Observer.Observe('enum first', SetCardTxtCtl(P, En));
+        En := En::Second;
+        Observer.Observe('enum second', SetCardTxtCtl(P, En));
+        Observer.Observe('close', CloseCard(P));
+        Observer.Expect('option', 'ok|B');
+        Observer.Expect('enum first', 'ok|First Kind');
+        Observer.Expect('enum second', 'ok|Second Kind');
+        Observer.Expect('close', 'ok');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y80_ST_Card_CdCtl_Integers()
+    var
+        P: TestPage "LT Y80 ST Card";
+        I: Integer;
+        B: BigInteger;
+        D: Decimal;
+        Bo: Boolean;
+        Dt: Date;
+        Tm: Time;
+        Dtm: DateTime;
+        G: Guid;
+        Du: Duration;
+        Ch: Char;
+        Tx: Text;
+        Co: Code[10];
+        Op: Option A,B,C;
+        En: Enum "LT Y80 ST Kind";
+    begin
+        Seed();
+        P.OpenEdit();
+        I := 5;
+        Observer.Observe('int 5', SetCardCdCtl(P, I));
+        I := -7;
+        Observer.Observe('int -7', SetCardCdCtl(P, I));
+        I := 0;
+        Observer.Observe('int 0', SetCardCdCtl(P, I));
+        I := 999;
+        Observer.Observe('int 999', SetCardCdCtl(P, I));
+        I := 1000;
+        Observer.Observe('int 1000', SetCardCdCtl(P, I));
+        I := 1234;
+        Observer.Observe('int 1234', SetCardCdCtl(P, I));
+        I := 1234567;
+        Observer.Observe('int 1234567', SetCardCdCtl(P, I));
+        I := 2147483647;
+        Observer.Observe('int max', SetCardCdCtl(P, I));
+        Observer.Observe('close', CloseCard(P));
+        Observer.Expect('int 5', 'ok|5');
+        Observer.Expect('int -7', 'ok|-7');
+        Observer.Expect('int 0', 'ok|0');
+        Observer.Expect('int 999', 'ok|999');
+        Observer.Expect('int 1000', 'ok|1000');
+        Observer.Expect('int 1234', 'ok|1234');
+        Observer.Expect('int 1234567', 'ok|1234567');
+        Observer.Expect('int max', 'ok|2147483647');
+        Observer.Expect('close', 'ok');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y80_ST_Card_CdCtl_BigIntegers()
+    var
+        P: TestPage "LT Y80 ST Card";
+        I: Integer;
+        B: BigInteger;
+        D: Decimal;
+        Bo: Boolean;
+        Dt: Date;
+        Tm: Time;
+        Dtm: DateTime;
+        G: Guid;
+        Du: Duration;
+        Ch: Char;
+        Tx: Text;
+        Co: Code[10];
+        Op: Option A,B,C;
+        En: Enum "LT Y80 ST Kind";
+    begin
+        Seed();
+        P.OpenEdit();
+        B := 5;
+        Observer.Observe('big 5', SetCardCdCtl(P, B));
+        B := -12;
+        Observer.Observe('big -12', SetCardCdCtl(P, B));
+        B := 1000;
+        Observer.Observe('big 1000', SetCardCdCtl(P, B));
+        B := 5000000; B := B * 1000;
+        Observer.Observe('big 5000000000', SetCardCdCtl(P, B));
+        B := 0;
+        Observer.Observe('big 0', SetCardCdCtl(P, B));
+        Observer.Observe('close', CloseCard(P));
+        Observer.Expect('big 5', 'ok|5');
+        Observer.Expect('big -12', 'ok|-12');
+        Observer.Expect('big 1000', 'ok|1000');
+        Observer.Expect('big 5000000000', 'ok|5000000000');
+        Observer.Expect('big 0', 'ok|0');
+        Observer.Expect('close', 'ok');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y80_ST_Card_CdCtl_Decimals()
+    var
+        P: TestPage "LT Y80 ST Card";
+        I: Integer;
+        B: BigInteger;
+        D: Decimal;
+        Bo: Boolean;
+        Dt: Date;
+        Tm: Time;
+        Dtm: DateTime;
+        G: Guid;
+        Du: Duration;
+        Ch: Char;
+        Tx: Text;
+        Co: Code[10];
+        Op: Option A,B,C;
+        En: Enum "LT Y80 ST Kind";
+    begin
+        Seed();
+        P.OpenEdit();
+        D := 3;
+        Observer.Observe('dec 3', SetCardCdCtl(P, D));
+        D := -3;
+        Observer.Observe('dec -3', SetCardCdCtl(P, D));
+        D := 1.5;
+        Observer.Observe('dec 1.5', SetCardCdCtl(P, D));
+        D := 1234;
+        Observer.Observe('dec 1234', SetCardCdCtl(P, D));
+        D := 1234.5;
+        Observer.Observe('dec 1234.5', SetCardCdCtl(P, D));
+        D := 0.00001;
+        Observer.Observe('dec 0.00001', SetCardCdCtl(P, D));
+        D := 0;
+        Observer.Observe('dec 0', SetCardCdCtl(P, D));
+        D := 100000;
+        Observer.Observe('dec 100000', SetCardCdCtl(P, D));
+        Observer.Observe('close', CloseCard(P));
+        Observer.Expect('dec 3', 'ok|3');
+        Observer.Expect('dec -3', 'ok|-3');
+        Observer.Expect('dec 1.5', 'ok|1.5');
+        Observer.Expect('dec 1234', 'ok|1,234');
+        Observer.Expect('dec 1234.5', 'ok|1,234.5');
+        Observer.Expect('dec 0.00001', 'ok|0.00001');
+        Observer.Expect('dec 0', 'ok|0');
+        Observer.Expect('dec 100000', 'ok|100,000');
+        Observer.Expect('close', 'ok');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y80_ST_Card_CdCtl_Others()
+    var
+        P: TestPage "LT Y80 ST Card";
+        I: Integer;
+        B: BigInteger;
+        D: Decimal;
+        Bo: Boolean;
+        Dt: Date;
+        Tm: Time;
+        Dtm: DateTime;
+        G: Guid;
+        Du: Duration;
+        Ch: Char;
+        Tx: Text;
+        Co: Code[10];
+        Op: Option A,B,C;
+        En: Enum "LT Y80 ST Kind";
+    begin
+        Seed();
+        P.OpenEdit();
+        Bo := true;
+        Observer.Observe('bool true', SetCardCdCtl(P, Bo));
+        Bo := false;
+        Observer.Observe('bool false', SetCardCdCtl(P, Bo));
+        Dt := 20250131D;
+        Observer.Observe('date', SetCardCdCtl(P, Dt));
+        Tm := 143005T;
+        Observer.Observe('time', SetCardCdCtl(P, Tm));
+        Dtm := CreateDateTime(20250131D, 143005T);
+        Observer.Observe('datetime', SetCardCdCtl(P, Dtm));
+        Evaluate(G, '{12345678-1234-1234-1234-123456789ABC}');
+        Observer.Observe('guid', SetCardCdCtl(P, G));
+        Du := 90000;
+        Observer.Observe('duration', SetCardCdCtl(P, Du));
+        Ch := 65;
+        Observer.Observe('char', SetCardCdCtl(P, Ch));
+        Tx := 'x1';
+        Observer.Observe('text', SetCardCdCtl(P, Tx));
+        Co := 'ab';
+        Observer.Observe('code', SetCardCdCtl(P, Co));
+        Observer.Observe('close', CloseCard(P));
+        Observer.Expect('bool true', 'ok|YES');
+        Observer.Expect('bool false', 'ok|NO');
+        Observer.Expect('date', 'ok|01/31/25');
+        Observer.Expect('time', 'ok|2:30:05 PM');
+        Observer.Expect('datetime', 'ok|01/31/25 02:30 PM');
+        Observer.Expect('guid', 'ok|{12345678-1234-1234-1234-123456789ABC}');
+        Observer.Expect('duration', 'ok|1 MINUTE 30 SECONDS');
+        Observer.Expect('char', 'ok|A');
+        Observer.Expect('text', 'ok|X1');
+        Observer.Expect('code', 'ok|AB');
+        Observer.Expect('close', 'ok');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y80_ST_Card_CdCtl_Enums()
+    var
+        P: TestPage "LT Y80 ST Card";
+        I: Integer;
+        B: BigInteger;
+        D: Decimal;
+        Bo: Boolean;
+        Dt: Date;
+        Tm: Time;
+        Dtm: DateTime;
+        G: Guid;
+        Du: Duration;
+        Ch: Char;
+        Tx: Text;
+        Co: Code[10];
+        Op: Option A,B,C;
+        En: Enum "LT Y80 ST Kind";
+    begin
+        Seed();
+        P.OpenEdit();
+        Op := Op::B;
+        Observer.Observe('option', SetCardCdCtl(P, Op));
+        En := En::First;
+        Observer.Observe('enum first', SetCardCdCtl(P, En));
+        En := En::Second;
+        Observer.Observe('enum second', SetCardCdCtl(P, En));
+        Observer.Observe('close', CloseCard(P));
+        Observer.Expect('option', 'ok|B');
+        Observer.Expect('enum first', 'ok|FIRST KIND');
+        Observer.Expect('enum second', 'ok|SECOND KIND');
+        Observer.Expect('close', 'ok');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y80_ST_Card_ShortCtl_Integers()
+    var
+        P: TestPage "LT Y80 ST Card";
+        I: Integer;
+        B: BigInteger;
+        D: Decimal;
+        Bo: Boolean;
+        Dt: Date;
+        Tm: Time;
+        Dtm: DateTime;
+        G: Guid;
+        Du: Duration;
+        Ch: Char;
+        Tx: Text;
+        Co: Code[10];
+        Op: Option A,B,C;
+        En: Enum "LT Y80 ST Kind";
+    begin
+        Seed();
+        P.OpenEdit();
+        I := 5;
+        Observer.Observe('int 5', SetCardShortCtl(P, I));
+        I := -7;
+        Observer.Observe('int -7', SetCardShortCtl(P, I));
+        I := 0;
+        Observer.Observe('int 0', SetCardShortCtl(P, I));
+        I := 999;
+        Observer.Observe('int 999', SetCardShortCtl(P, I));
+        I := 1000;
+        Observer.Observe('int 1000', SetCardShortCtl(P, I));
+        I := 1234;
+        Observer.Observe('int 1234', SetCardShortCtl(P, I));
+        I := 1234567;
+        Observer.Observe('int 1234567', SetCardShortCtl(P, I));
+        I := 2147483647;
+        Observer.Observe('int max', SetCardShortCtl(P, I));
+        Observer.Observe('close', CloseCard(P));
+        Observer.Expect('int 5', 'ok|5');
+        Observer.Expect('int -7', 'ok|-7');
+        Observer.Expect('int 0', 'ok|0');
+        Observer.Expect('int 999', 'ok|999');
+        Observer.Expect('int 1000', 'ok|1000');
+        Observer.Expect('int 1234', 'ok|1234');
+        Observer.Expect('int 1234567', 'ok|1234567');
+        Observer.Expect('int max', 'ok|2147483647');
+        Observer.Expect('close', 'err|TestWrapped|The length of the string is 10, but it must be less than or equal to 5 characters. Value: 2147483647');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y80_ST_Card_ShortCtl_BigIntegers()
+    var
+        P: TestPage "LT Y80 ST Card";
+        I: Integer;
+        B: BigInteger;
+        D: Decimal;
+        Bo: Boolean;
+        Dt: Date;
+        Tm: Time;
+        Dtm: DateTime;
+        G: Guid;
+        Du: Duration;
+        Ch: Char;
+        Tx: Text;
+        Co: Code[10];
+        Op: Option A,B,C;
+        En: Enum "LT Y80 ST Kind";
+    begin
+        Seed();
+        P.OpenEdit();
+        B := 5;
+        Observer.Observe('big 5', SetCardShortCtl(P, B));
+        B := -12;
+        Observer.Observe('big -12', SetCardShortCtl(P, B));
+        B := 1000;
+        Observer.Observe('big 1000', SetCardShortCtl(P, B));
+        B := 5000000; B := B * 1000;
+        Observer.Observe('big 5000000000', SetCardShortCtl(P, B));
+        B := 0;
+        Observer.Observe('big 0', SetCardShortCtl(P, B));
+        Observer.Observe('close', CloseCard(P));
+        Observer.Expect('big 5', 'ok|5');
+        Observer.Expect('big -12', 'ok|-12');
+        Observer.Expect('big 1000', 'ok|1000');
+        Observer.Expect('big 5000000000', 'ok|5000000000');
+        Observer.Expect('big 0', 'ok|0');
+        Observer.Expect('close', 'ok');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y80_ST_Card_ShortCtl_Decimals()
+    var
+        P: TestPage "LT Y80 ST Card";
+        I: Integer;
+        B: BigInteger;
+        D: Decimal;
+        Bo: Boolean;
+        Dt: Date;
+        Tm: Time;
+        Dtm: DateTime;
+        G: Guid;
+        Du: Duration;
+        Ch: Char;
+        Tx: Text;
+        Co: Code[10];
+        Op: Option A,B,C;
+        En: Enum "LT Y80 ST Kind";
+    begin
+        Seed();
+        P.OpenEdit();
+        D := 3;
+        Observer.Observe('dec 3', SetCardShortCtl(P, D));
+        D := -3;
+        Observer.Observe('dec -3', SetCardShortCtl(P, D));
+        D := 1.5;
+        Observer.Observe('dec 1.5', SetCardShortCtl(P, D));
+        D := 1234;
+        Observer.Observe('dec 1234', SetCardShortCtl(P, D));
+        D := 1234.5;
+        Observer.Observe('dec 1234.5', SetCardShortCtl(P, D));
+        D := 0.00001;
+        Observer.Observe('dec 0.00001', SetCardShortCtl(P, D));
+        D := 0;
+        Observer.Observe('dec 0', SetCardShortCtl(P, D));
+        D := 100000;
+        Observer.Observe('dec 100000', SetCardShortCtl(P, D));
+        Observer.Observe('close', CloseCard(P));
+        Observer.Expect('dec 3', 'ok|3');
+        Observer.Expect('dec -3', 'ok|-3');
+        Observer.Expect('dec 1.5', 'ok|1.5');
+        Observer.Expect('dec 1234', 'ok|1,234');
+        Observer.Expect('dec 1234.5', 'ok|1,234.5');
+        Observer.Expect('dec 0.00001', 'ok|0.00001');
+        Observer.Expect('dec 0', 'ok|0');
+        Observer.Expect('dec 100000', 'ok|100,000');
+        Observer.Expect('close', 'err|TestWrapped|The length of the string is 7, but it must be less than or equal to 5 characters. Value: 100,000');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y80_ST_Card_ShortCtl_Others()
+    var
+        P: TestPage "LT Y80 ST Card";
+        I: Integer;
+        B: BigInteger;
+        D: Decimal;
+        Bo: Boolean;
+        Dt: Date;
+        Tm: Time;
+        Dtm: DateTime;
+        G: Guid;
+        Du: Duration;
+        Ch: Char;
+        Tx: Text;
+        Co: Code[10];
+        Op: Option A,B,C;
+        En: Enum "LT Y80 ST Kind";
+    begin
+        Seed();
+        P.OpenEdit();
+        Bo := true;
+        Observer.Observe('bool true', SetCardShortCtl(P, Bo));
+        Bo := false;
+        Observer.Observe('bool false', SetCardShortCtl(P, Bo));
+        Dt := 20250131D;
+        Observer.Observe('date', SetCardShortCtl(P, Dt));
+        Tm := 143005T;
+        Observer.Observe('time', SetCardShortCtl(P, Tm));
+        Dtm := CreateDateTime(20250131D, 143005T);
+        Observer.Observe('datetime', SetCardShortCtl(P, Dtm));
+        Evaluate(G, '{12345678-1234-1234-1234-123456789ABC}');
+        Observer.Observe('guid', SetCardShortCtl(P, G));
+        Du := 90000;
+        Observer.Observe('duration', SetCardShortCtl(P, Du));
+        Ch := 65;
+        Observer.Observe('char', SetCardShortCtl(P, Ch));
+        Tx := 'x1';
+        Observer.Observe('text', SetCardShortCtl(P, Tx));
+        Co := 'ab';
+        Observer.Observe('code', SetCardShortCtl(P, Co));
+        Observer.Observe('close', CloseCard(P));
+        Observer.Expect('bool true', 'ok|Yes');
+        Observer.Expect('bool false', 'ok|No');
+        Observer.Expect('date', 'ok|01/31/25');
+        Observer.Expect('time', 'ok| 2:30:05 PM');
+        Observer.Expect('datetime', 'ok|01/31/25 02:30 PM');
+        Observer.Expect('guid', 'ok|{12345678-1234-1234-1234-123456789ABC}');
+        Observer.Expect('duration', 'ok|1 minute 30 seconds');
+        Observer.Expect('char', 'ok|A');
+        Observer.Expect('text', 'ok|x1');
+        Observer.Expect('code', 'ok|AB');
+        Observer.Expect('close', 'ok');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y80_ST_Card_ShortCtl_Enums()
+    var
+        P: TestPage "LT Y80 ST Card";
+        I: Integer;
+        B: BigInteger;
+        D: Decimal;
+        Bo: Boolean;
+        Dt: Date;
+        Tm: Time;
+        Dtm: DateTime;
+        G: Guid;
+        Du: Duration;
+        Ch: Char;
+        Tx: Text;
+        Co: Code[10];
+        Op: Option A,B,C;
+        En: Enum "LT Y80 ST Kind";
+    begin
+        Seed();
+        P.OpenEdit();
+        Op := Op::B;
+        Observer.Observe('option', SetCardShortCtl(P, Op));
+        En := En::First;
+        Observer.Observe('enum first', SetCardShortCtl(P, En));
+        En := En::Second;
+        Observer.Observe('enum second', SetCardShortCtl(P, En));
+        Observer.Observe('close', CloseCard(P));
+        Observer.Expect('option', 'ok|B');
+        Observer.Expect('enum first', 'ok|First Kind');
+        Observer.Expect('enum second', 'ok|Second Kind');
+        Observer.Expect('close', 'err|TestWrapped|The length of the string is 11, but it must be less than or equal to 5 characters. Value: Second Kind');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y80_ST_List_TxtCtl_Integers()
+    var
+        P: TestPage "LT Y80 ST List";
+        I: Integer;
+        B: BigInteger;
+        D: Decimal;
+        Bo: Boolean;
+        Dt: Date;
+        Tm: Time;
+        Dtm: DateTime;
+        G: Guid;
+        Du: Duration;
+        Ch: Char;
+        Tx: Text;
+        Co: Code[10];
+        Op: Option A,B,C;
+        En: Enum "LT Y80 ST Kind";
+    begin
+        Seed();
+        P.OpenEdit();
+        I := 5;
+        Observer.Observe('int 5', SetListTxtCtl(P, I));
+        I := -7;
+        Observer.Observe('int -7', SetListTxtCtl(P, I));
+        I := 0;
+        Observer.Observe('int 0', SetListTxtCtl(P, I));
+        I := 999;
+        Observer.Observe('int 999', SetListTxtCtl(P, I));
+        I := 1000;
+        Observer.Observe('int 1000', SetListTxtCtl(P, I));
+        I := 1234;
+        Observer.Observe('int 1234', SetListTxtCtl(P, I));
+        I := 1234567;
+        Observer.Observe('int 1234567', SetListTxtCtl(P, I));
+        I := 2147483647;
+        Observer.Observe('int max', SetListTxtCtl(P, I));
+        Observer.Observe('close', CloseList(P));
+        Observer.Expect('int 5', 'ok|5');
+        Observer.Expect('int -7', 'ok|-7');
+        Observer.Expect('int 0', 'ok|0');
+        Observer.Expect('int 999', 'ok|999');
+        Observer.Expect('int 1000', 'ok|1000');
+        Observer.Expect('int 1234', 'ok|1234');
+        Observer.Expect('int 1234567', 'ok|1234567');
+        Observer.Expect('int max', 'ok|2147483647');
+        Observer.Expect('close', 'ok');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y80_ST_List_TxtCtl_BigIntegers()
+    var
+        P: TestPage "LT Y80 ST List";
+        I: Integer;
+        B: BigInteger;
+        D: Decimal;
+        Bo: Boolean;
+        Dt: Date;
+        Tm: Time;
+        Dtm: DateTime;
+        G: Guid;
+        Du: Duration;
+        Ch: Char;
+        Tx: Text;
+        Co: Code[10];
+        Op: Option A,B,C;
+        En: Enum "LT Y80 ST Kind";
+    begin
+        Seed();
+        P.OpenEdit();
+        B := 5;
+        Observer.Observe('big 5', SetListTxtCtl(P, B));
+        B := -12;
+        Observer.Observe('big -12', SetListTxtCtl(P, B));
+        B := 1000;
+        Observer.Observe('big 1000', SetListTxtCtl(P, B));
+        B := 5000000; B := B * 1000;
+        Observer.Observe('big 5000000000', SetListTxtCtl(P, B));
+        B := 0;
+        Observer.Observe('big 0', SetListTxtCtl(P, B));
+        Observer.Observe('close', CloseList(P));
+        Observer.Expect('big 5', 'ok|5');
+        Observer.Expect('big -12', 'ok|-12');
+        Observer.Expect('big 1000', 'ok|1000');
+        Observer.Expect('big 5000000000', 'ok|5000000000');
+        Observer.Expect('big 0', 'ok|0');
+        Observer.Expect('close', 'ok');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y80_ST_List_TxtCtl_Decimals()
+    var
+        P: TestPage "LT Y80 ST List";
+        I: Integer;
+        B: BigInteger;
+        D: Decimal;
+        Bo: Boolean;
+        Dt: Date;
+        Tm: Time;
+        Dtm: DateTime;
+        G: Guid;
+        Du: Duration;
+        Ch: Char;
+        Tx: Text;
+        Co: Code[10];
+        Op: Option A,B,C;
+        En: Enum "LT Y80 ST Kind";
+    begin
+        Seed();
+        P.OpenEdit();
+        D := 3;
+        Observer.Observe('dec 3', SetListTxtCtl(P, D));
+        D := -3;
+        Observer.Observe('dec -3', SetListTxtCtl(P, D));
+        D := 1.5;
+        Observer.Observe('dec 1.5', SetListTxtCtl(P, D));
+        D := 1234;
+        Observer.Observe('dec 1234', SetListTxtCtl(P, D));
+        D := 1234.5;
+        Observer.Observe('dec 1234.5', SetListTxtCtl(P, D));
+        D := 0.00001;
+        Observer.Observe('dec 0.00001', SetListTxtCtl(P, D));
+        D := 0;
+        Observer.Observe('dec 0', SetListTxtCtl(P, D));
+        D := 100000;
+        Observer.Observe('dec 100000', SetListTxtCtl(P, D));
+        Observer.Observe('close', CloseList(P));
+        Observer.Expect('dec 3', 'ok|3');
+        Observer.Expect('dec -3', 'ok|-3');
+        Observer.Expect('dec 1.5', 'ok|1.5');
+        Observer.Expect('dec 1234', 'ok|1,234');
+        Observer.Expect('dec 1234.5', 'ok|1,234.5');
+        Observer.Expect('dec 0.00001', 'ok|0.00001');
+        Observer.Expect('dec 0', 'ok|0');
+        Observer.Expect('dec 100000', 'ok|100,000');
+        Observer.Expect('close', 'ok');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y80_ST_List_TxtCtl_Others()
+    var
+        P: TestPage "LT Y80 ST List";
+        I: Integer;
+        B: BigInteger;
+        D: Decimal;
+        Bo: Boolean;
+        Dt: Date;
+        Tm: Time;
+        Dtm: DateTime;
+        G: Guid;
+        Du: Duration;
+        Ch: Char;
+        Tx: Text;
+        Co: Code[10];
+        Op: Option A,B,C;
+        En: Enum "LT Y80 ST Kind";
+    begin
+        Seed();
+        P.OpenEdit();
+        Bo := true;
+        Observer.Observe('bool true', SetListTxtCtl(P, Bo));
+        Bo := false;
+        Observer.Observe('bool false', SetListTxtCtl(P, Bo));
+        Dt := 20250131D;
+        Observer.Observe('date', SetListTxtCtl(P, Dt));
+        Tm := 143005T;
+        Observer.Observe('time', SetListTxtCtl(P, Tm));
+        Dtm := CreateDateTime(20250131D, 143005T);
+        Observer.Observe('datetime', SetListTxtCtl(P, Dtm));
+        Evaluate(G, '{12345678-1234-1234-1234-123456789ABC}');
+        Observer.Observe('guid', SetListTxtCtl(P, G));
+        Du := 90000;
+        Observer.Observe('duration', SetListTxtCtl(P, Du));
+        Ch := 65;
+        Observer.Observe('char', SetListTxtCtl(P, Ch));
+        Tx := 'x1';
+        Observer.Observe('text', SetListTxtCtl(P, Tx));
+        Co := 'ab';
+        Observer.Observe('code', SetListTxtCtl(P, Co));
+        Observer.Observe('close', CloseList(P));
+        Observer.Expect('bool true', 'ok|Yes');
+        Observer.Expect('bool false', 'ok|No');
+        Observer.Expect('date', 'ok|01/31/25');
+        Observer.Expect('time', 'ok| 2:30:05 PM');
+        Observer.Expect('datetime', 'ok|01/31/25 02:30 PM');
+        Observer.Expect('guid', 'ok|{12345678-1234-1234-1234-123456789ABC}');
+        Observer.Expect('duration', 'ok|1 minute 30 seconds');
+        Observer.Expect('char', 'ok|A');
+        Observer.Expect('text', 'ok|x1');
+        Observer.Expect('code', 'ok|AB');
+        Observer.Expect('close', 'ok');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y80_ST_List_TxtCtl_Enums()
+    var
+        P: TestPage "LT Y80 ST List";
+        I: Integer;
+        B: BigInteger;
+        D: Decimal;
+        Bo: Boolean;
+        Dt: Date;
+        Tm: Time;
+        Dtm: DateTime;
+        G: Guid;
+        Du: Duration;
+        Ch: Char;
+        Tx: Text;
+        Co: Code[10];
+        Op: Option A,B,C;
+        En: Enum "LT Y80 ST Kind";
+    begin
+        Seed();
+        P.OpenEdit();
+        Op := Op::B;
+        Observer.Observe('option', SetListTxtCtl(P, Op));
+        En := En::First;
+        Observer.Observe('enum first', SetListTxtCtl(P, En));
+        En := En::Second;
+        Observer.Observe('enum second', SetListTxtCtl(P, En));
+        Observer.Observe('close', CloseList(P));
+        Observer.Expect('option', 'ok|B');
+        Observer.Expect('enum first', 'ok|First Kind');
+        Observer.Expect('enum second', 'ok|Second Kind');
+        Observer.Expect('close', 'ok');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y80_ST_List_CdCtl_Integers()
+    var
+        P: TestPage "LT Y80 ST List";
+        I: Integer;
+        B: BigInteger;
+        D: Decimal;
+        Bo: Boolean;
+        Dt: Date;
+        Tm: Time;
+        Dtm: DateTime;
+        G: Guid;
+        Du: Duration;
+        Ch: Char;
+        Tx: Text;
+        Co: Code[10];
+        Op: Option A,B,C;
+        En: Enum "LT Y80 ST Kind";
+    begin
+        Seed();
+        P.OpenEdit();
+        I := 5;
+        Observer.Observe('int 5', SetListCdCtl(P, I));
+        I := -7;
+        Observer.Observe('int -7', SetListCdCtl(P, I));
+        I := 0;
+        Observer.Observe('int 0', SetListCdCtl(P, I));
+        I := 999;
+        Observer.Observe('int 999', SetListCdCtl(P, I));
+        I := 1000;
+        Observer.Observe('int 1000', SetListCdCtl(P, I));
+        I := 1234;
+        Observer.Observe('int 1234', SetListCdCtl(P, I));
+        I := 1234567;
+        Observer.Observe('int 1234567', SetListCdCtl(P, I));
+        I := 2147483647;
+        Observer.Observe('int max', SetListCdCtl(P, I));
+        Observer.Observe('close', CloseList(P));
+        Observer.Expect('int 5', 'ok|5');
+        Observer.Expect('int -7', 'ok|-7');
+        Observer.Expect('int 0', 'ok|0');
+        Observer.Expect('int 999', 'ok|999');
+        Observer.Expect('int 1000', 'ok|1000');
+        Observer.Expect('int 1234', 'ok|1234');
+        Observer.Expect('int 1234567', 'ok|1234567');
+        Observer.Expect('int max', 'ok|2147483647');
+        Observer.Expect('close', 'ok');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y80_ST_List_CdCtl_BigIntegers()
+    var
+        P: TestPage "LT Y80 ST List";
+        I: Integer;
+        B: BigInteger;
+        D: Decimal;
+        Bo: Boolean;
+        Dt: Date;
+        Tm: Time;
+        Dtm: DateTime;
+        G: Guid;
+        Du: Duration;
+        Ch: Char;
+        Tx: Text;
+        Co: Code[10];
+        Op: Option A,B,C;
+        En: Enum "LT Y80 ST Kind";
+    begin
+        Seed();
+        P.OpenEdit();
+        B := 5;
+        Observer.Observe('big 5', SetListCdCtl(P, B));
+        B := -12;
+        Observer.Observe('big -12', SetListCdCtl(P, B));
+        B := 1000;
+        Observer.Observe('big 1000', SetListCdCtl(P, B));
+        B := 5000000; B := B * 1000;
+        Observer.Observe('big 5000000000', SetListCdCtl(P, B));
+        B := 0;
+        Observer.Observe('big 0', SetListCdCtl(P, B));
+        Observer.Observe('close', CloseList(P));
+        Observer.Expect('big 5', 'ok|5');
+        Observer.Expect('big -12', 'ok|-12');
+        Observer.Expect('big 1000', 'ok|1000');
+        Observer.Expect('big 5000000000', 'ok|5000000000');
+        Observer.Expect('big 0', 'ok|0');
+        Observer.Expect('close', 'ok');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y80_ST_List_CdCtl_Decimals()
+    var
+        P: TestPage "LT Y80 ST List";
+        I: Integer;
+        B: BigInteger;
+        D: Decimal;
+        Bo: Boolean;
+        Dt: Date;
+        Tm: Time;
+        Dtm: DateTime;
+        G: Guid;
+        Du: Duration;
+        Ch: Char;
+        Tx: Text;
+        Co: Code[10];
+        Op: Option A,B,C;
+        En: Enum "LT Y80 ST Kind";
+    begin
+        Seed();
+        P.OpenEdit();
+        D := 3;
+        Observer.Observe('dec 3', SetListCdCtl(P, D));
+        D := -3;
+        Observer.Observe('dec -3', SetListCdCtl(P, D));
+        D := 1.5;
+        Observer.Observe('dec 1.5', SetListCdCtl(P, D));
+        D := 1234;
+        Observer.Observe('dec 1234', SetListCdCtl(P, D));
+        D := 1234.5;
+        Observer.Observe('dec 1234.5', SetListCdCtl(P, D));
+        D := 0.00001;
+        Observer.Observe('dec 0.00001', SetListCdCtl(P, D));
+        D := 0;
+        Observer.Observe('dec 0', SetListCdCtl(P, D));
+        D := 100000;
+        Observer.Observe('dec 100000', SetListCdCtl(P, D));
+        Observer.Observe('close', CloseList(P));
+        Observer.Expect('dec 3', 'ok|3');
+        Observer.Expect('dec -3', 'ok|-3');
+        Observer.Expect('dec 1.5', 'ok|1.5');
+        Observer.Expect('dec 1234', 'ok|1,234');
+        Observer.Expect('dec 1234.5', 'ok|1,234.5');
+        Observer.Expect('dec 0.00001', 'ok|0.00001');
+        Observer.Expect('dec 0', 'ok|0');
+        Observer.Expect('dec 100000', 'ok|100,000');
+        Observer.Expect('close', 'ok');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y80_ST_List_CdCtl_Others()
+    var
+        P: TestPage "LT Y80 ST List";
+        I: Integer;
+        B: BigInteger;
+        D: Decimal;
+        Bo: Boolean;
+        Dt: Date;
+        Tm: Time;
+        Dtm: DateTime;
+        G: Guid;
+        Du: Duration;
+        Ch: Char;
+        Tx: Text;
+        Co: Code[10];
+        Op: Option A,B,C;
+        En: Enum "LT Y80 ST Kind";
+    begin
+        Seed();
+        P.OpenEdit();
+        Bo := true;
+        Observer.Observe('bool true', SetListCdCtl(P, Bo));
+        Bo := false;
+        Observer.Observe('bool false', SetListCdCtl(P, Bo));
+        Dt := 20250131D;
+        Observer.Observe('date', SetListCdCtl(P, Dt));
+        Tm := 143005T;
+        Observer.Observe('time', SetListCdCtl(P, Tm));
+        Dtm := CreateDateTime(20250131D, 143005T);
+        Observer.Observe('datetime', SetListCdCtl(P, Dtm));
+        Evaluate(G, '{12345678-1234-1234-1234-123456789ABC}');
+        Observer.Observe('guid', SetListCdCtl(P, G));
+        Du := 90000;
+        Observer.Observe('duration', SetListCdCtl(P, Du));
+        Ch := 65;
+        Observer.Observe('char', SetListCdCtl(P, Ch));
+        Tx := 'x1';
+        Observer.Observe('text', SetListCdCtl(P, Tx));
+        Co := 'ab';
+        Observer.Observe('code', SetListCdCtl(P, Co));
+        Observer.Observe('close', CloseList(P));
+        Observer.Expect('bool true', 'ok|YES');
+        Observer.Expect('bool false', 'ok|NO');
+        Observer.Expect('date', 'ok|01/31/25');
+        Observer.Expect('time', 'ok|2:30:05 PM');
+        Observer.Expect('datetime', 'ok|01/31/25 02:30 PM');
+        Observer.Expect('guid', 'ok|{12345678-1234-1234-1234-123456789ABC}');
+        Observer.Expect('duration', 'ok|1 MINUTE 30 SECONDS');
+        Observer.Expect('char', 'ok|A');
+        Observer.Expect('text', 'ok|X1');
+        Observer.Expect('code', 'ok|AB');
+        Observer.Expect('close', 'ok');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y80_ST_List_CdCtl_Enums()
+    var
+        P: TestPage "LT Y80 ST List";
+        I: Integer;
+        B: BigInteger;
+        D: Decimal;
+        Bo: Boolean;
+        Dt: Date;
+        Tm: Time;
+        Dtm: DateTime;
+        G: Guid;
+        Du: Duration;
+        Ch: Char;
+        Tx: Text;
+        Co: Code[10];
+        Op: Option A,B,C;
+        En: Enum "LT Y80 ST Kind";
+    begin
+        Seed();
+        P.OpenEdit();
+        Op := Op::B;
+        Observer.Observe('option', SetListCdCtl(P, Op));
+        En := En::First;
+        Observer.Observe('enum first', SetListCdCtl(P, En));
+        En := En::Second;
+        Observer.Observe('enum second', SetListCdCtl(P, En));
+        Observer.Observe('close', CloseList(P));
+        Observer.Expect('option', 'ok|B');
+        Observer.Expect('enum first', 'ok|FIRST KIND');
+        Observer.Expect('enum second', 'ok|SECOND KIND');
+        Observer.Expect('close', 'ok');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y80_ST_List_ShortCtl_Integers()
+    var
+        P: TestPage "LT Y80 ST List";
+        I: Integer;
+        B: BigInteger;
+        D: Decimal;
+        Bo: Boolean;
+        Dt: Date;
+        Tm: Time;
+        Dtm: DateTime;
+        G: Guid;
+        Du: Duration;
+        Ch: Char;
+        Tx: Text;
+        Co: Code[10];
+        Op: Option A,B,C;
+        En: Enum "LT Y80 ST Kind";
+    begin
+        Seed();
+        P.OpenEdit();
+        I := 5;
+        Observer.Observe('int 5', SetListShortCtl(P, I));
+        I := -7;
+        Observer.Observe('int -7', SetListShortCtl(P, I));
+        I := 0;
+        Observer.Observe('int 0', SetListShortCtl(P, I));
+        I := 999;
+        Observer.Observe('int 999', SetListShortCtl(P, I));
+        I := 1000;
+        Observer.Observe('int 1000', SetListShortCtl(P, I));
+        I := 1234;
+        Observer.Observe('int 1234', SetListShortCtl(P, I));
+        I := 1234567;
+        Observer.Observe('int 1234567', SetListShortCtl(P, I));
+        I := 2147483647;
+        Observer.Observe('int max', SetListShortCtl(P, I));
+        Observer.Observe('close', CloseList(P));
+        Observer.Expect('int 5', 'ok|5');
+        Observer.Expect('int -7', 'ok|-7');
+        Observer.Expect('int 0', 'ok|0');
+        Observer.Expect('int 999', 'ok|999');
+        Observer.Expect('int 1000', 'ok|1000');
+        Observer.Expect('int 1234', 'ok|1234');
+        Observer.Expect('int 1234567', 'ok|1234567');
+        Observer.Expect('int max', 'ok|2147483647');
+        Observer.Expect('close', 'err|TestWrapped|The length of the string is 10, but it must be less than or equal to 5 characters. Value: 2147483647');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y80_ST_List_ShortCtl_BigIntegers()
+    var
+        P: TestPage "LT Y80 ST List";
+        I: Integer;
+        B: BigInteger;
+        D: Decimal;
+        Bo: Boolean;
+        Dt: Date;
+        Tm: Time;
+        Dtm: DateTime;
+        G: Guid;
+        Du: Duration;
+        Ch: Char;
+        Tx: Text;
+        Co: Code[10];
+        Op: Option A,B,C;
+        En: Enum "LT Y80 ST Kind";
+    begin
+        Seed();
+        P.OpenEdit();
+        B := 5;
+        Observer.Observe('big 5', SetListShortCtl(P, B));
+        B := -12;
+        Observer.Observe('big -12', SetListShortCtl(P, B));
+        B := 1000;
+        Observer.Observe('big 1000', SetListShortCtl(P, B));
+        B := 5000000; B := B * 1000;
+        Observer.Observe('big 5000000000', SetListShortCtl(P, B));
+        B := 0;
+        Observer.Observe('big 0', SetListShortCtl(P, B));
+        Observer.Observe('close', CloseList(P));
+        Observer.Expect('big 5', 'ok|5');
+        Observer.Expect('big -12', 'ok|-12');
+        Observer.Expect('big 1000', 'ok|1000');
+        Observer.Expect('big 5000000000', 'ok|5000000000');
+        Observer.Expect('big 0', 'ok|0');
+        Observer.Expect('close', 'ok');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y80_ST_List_ShortCtl_Decimals()
+    var
+        P: TestPage "LT Y80 ST List";
+        I: Integer;
+        B: BigInteger;
+        D: Decimal;
+        Bo: Boolean;
+        Dt: Date;
+        Tm: Time;
+        Dtm: DateTime;
+        G: Guid;
+        Du: Duration;
+        Ch: Char;
+        Tx: Text;
+        Co: Code[10];
+        Op: Option A,B,C;
+        En: Enum "LT Y80 ST Kind";
+    begin
+        Seed();
+        P.OpenEdit();
+        D := 3;
+        Observer.Observe('dec 3', SetListShortCtl(P, D));
+        D := -3;
+        Observer.Observe('dec -3', SetListShortCtl(P, D));
+        D := 1.5;
+        Observer.Observe('dec 1.5', SetListShortCtl(P, D));
+        D := 1234;
+        Observer.Observe('dec 1234', SetListShortCtl(P, D));
+        D := 1234.5;
+        Observer.Observe('dec 1234.5', SetListShortCtl(P, D));
+        D := 0.00001;
+        Observer.Observe('dec 0.00001', SetListShortCtl(P, D));
+        D := 0;
+        Observer.Observe('dec 0', SetListShortCtl(P, D));
+        D := 100000;
+        Observer.Observe('dec 100000', SetListShortCtl(P, D));
+        Observer.Observe('close', CloseList(P));
+        Observer.Expect('dec 3', 'ok|3');
+        Observer.Expect('dec -3', 'ok|-3');
+        Observer.Expect('dec 1.5', 'ok|1.5');
+        Observer.Expect('dec 1234', 'ok|1,234');
+        Observer.Expect('dec 1234.5', 'ok|1,234.5');
+        Observer.Expect('dec 0.00001', 'ok|0.00001');
+        Observer.Expect('dec 0', 'ok|0');
+        Observer.Expect('dec 100000', 'ok|100,000');
+        Observer.Expect('close', 'err|TestWrapped|The length of the string is 7, but it must be less than or equal to 5 characters. Value: 100,000');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y80_ST_List_ShortCtl_Others()
+    var
+        P: TestPage "LT Y80 ST List";
+        I: Integer;
+        B: BigInteger;
+        D: Decimal;
+        Bo: Boolean;
+        Dt: Date;
+        Tm: Time;
+        Dtm: DateTime;
+        G: Guid;
+        Du: Duration;
+        Ch: Char;
+        Tx: Text;
+        Co: Code[10];
+        Op: Option A,B,C;
+        En: Enum "LT Y80 ST Kind";
+    begin
+        Seed();
+        P.OpenEdit();
+        Bo := true;
+        Observer.Observe('bool true', SetListShortCtl(P, Bo));
+        Bo := false;
+        Observer.Observe('bool false', SetListShortCtl(P, Bo));
+        Dt := 20250131D;
+        Observer.Observe('date', SetListShortCtl(P, Dt));
+        Tm := 143005T;
+        Observer.Observe('time', SetListShortCtl(P, Tm));
+        Dtm := CreateDateTime(20250131D, 143005T);
+        Observer.Observe('datetime', SetListShortCtl(P, Dtm));
+        Evaluate(G, '{12345678-1234-1234-1234-123456789ABC}');
+        Observer.Observe('guid', SetListShortCtl(P, G));
+        Du := 90000;
+        Observer.Observe('duration', SetListShortCtl(P, Du));
+        Ch := 65;
+        Observer.Observe('char', SetListShortCtl(P, Ch));
+        Tx := 'x1';
+        Observer.Observe('text', SetListShortCtl(P, Tx));
+        Co := 'ab';
+        Observer.Observe('code', SetListShortCtl(P, Co));
+        Observer.Observe('close', CloseList(P));
+        Observer.Expect('bool true', 'ok|Yes');
+        Observer.Expect('bool false', 'ok|No');
+        Observer.Expect('date', 'ok|01/31/25');
+        Observer.Expect('time', 'ok| 2:30:05 PM');
+        Observer.Expect('datetime', 'ok|01/31/25 02:30 PM');
+        Observer.Expect('guid', 'ok|{12345678-1234-1234-1234-123456789ABC}');
+        Observer.Expect('duration', 'ok|1 minute 30 seconds');
+        Observer.Expect('char', 'ok|A');
+        Observer.Expect('text', 'ok|x1');
+        Observer.Expect('code', 'ok|AB');
+        Observer.Expect('close', 'ok');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y80_ST_List_ShortCtl_Enums()
+    var
+        P: TestPage "LT Y80 ST List";
+        I: Integer;
+        B: BigInteger;
+        D: Decimal;
+        Bo: Boolean;
+        Dt: Date;
+        Tm: Time;
+        Dtm: DateTime;
+        G: Guid;
+        Du: Duration;
+        Ch: Char;
+        Tx: Text;
+        Co: Code[10];
+        Op: Option A,B,C;
+        En: Enum "LT Y80 ST Kind";
+    begin
+        Seed();
+        P.OpenEdit();
+        Op := Op::B;
+        Observer.Observe('option', SetListShortCtl(P, Op));
+        En := En::First;
+        Observer.Observe('enum first', SetListShortCtl(P, En));
+        En := En::Second;
+        Observer.Observe('enum second', SetListShortCtl(P, En));
+        Observer.Observe('close', CloseList(P));
+        Observer.Expect('option', 'ok|B');
+        Observer.Expect('enum first', 'ok|First Kind');
+        Observer.Expect('enum second', 'ok|Second Kind');
+        Observer.Expect('close', 'err|TestWrapped|The length of the string is 11, but it must be less than or equal to 5 characters. Value: Second Kind');
+        Observer.Verify();
+    end;
+}
