@@ -1,7 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-programming-in-al
 // Scope: in-scope
 // Fixtures used: Probe Observer (69160); tables in Y70Tables.al
-// Probe (writer Y70): runtime assumptions that had no corpus pin. One test per element, grouped in the file by element. Object id 93740.
+// Probe (writer Y70): runtime assumptions that had no corpus pin, measured on BC SaaS 29 (Dev sandbox). One test per element. Object ids 93740-93747.
 
 codeunit 93740 "LT Y70 Probes"
 {
@@ -39,7 +39,16 @@ codeunit 93740 "LT Y70 Probes"
         Obs.Observe('text_character', Fmt('ab', '<Text,6><Filler Character,.>'));
         Obs.Observe('text_char', Fmt('ab', '<Text,6><Filler Char,.>'));
         Obs.Observe('code_char', Fmt('ab', '<Text,6><Filler Char,#>'));
-        Obs.Finish();
+                Obs.Expect('int_character', '0005');
+        Obs.Expect('int_char', '0005');
+        Obs.Expect('int_char_lower', '0005');
+        Obs.Expect('int_char_blank', 'ERR:InvalidFormatString');
+        Obs.Expect('dec_character', '0005.50');
+        Obs.Expect('dec_char', '0005.50');
+        Obs.Expect('text_character', 'ab....');
+        Obs.Expect('text_char', 'ab....');
+        Obs.Expect('code_char', 'ab####');
+        Obs.Verify();
     end;
 
     [Test]
@@ -56,7 +65,18 @@ codeunit 93740 "LT Y70 Probes"
         Obs.Observe('int_integer_lower', Fmt(5, '<integer,4><filler char,0>'));
         Obs.Observe('int_char_hash', Fmt(5, '<Integer,4><Filler Char,#>'));
         Obs.Observe('int_char_z_len6', Fmt(5, '<Integer,6><Filler Char,z>'));
-        Obs.Finish();
+                Obs.Expect('int_filler', '0005');
+        Obs.Expect('int_filler_c', '0005');
+        Obs.Expect('int_filler_cha', '0005');
+        Obs.Expect('int_filler_charx', 'ERR:InvalidFormatString');
+        Obs.Expect('int_filler_character_s', 'ERR:InvalidFormatString');
+        Obs.Expect('int_fil', '0005');
+        Obs.Expect('int_f', '0005');
+        Obs.Expect('int_int', '0005');
+        Obs.Expect('int_integer_lower', '0005');
+        Obs.Expect('int_char_hash', '###5');
+        Obs.Expect('int_char_z_len6', 'zzzzz5');
+        Obs.Verify();
     end;
 
     // ---- Format code names: ISO week and weekday for every week of 2021 and the year ends around it
@@ -85,7 +105,17 @@ codeunit 93740 "LT Y70 Probes"
         Obs.Observe('2021-12-31', Format(DMY2Date(31, 12, 2021), 0, '<Week>/<Week,2>/<Weekday>'));
         Obs.Observe('2020-12-31', Format(DMY2Date(31, 12, 2020), 0, '<Week>/<Week,2>/<Weekday>'));
         Obs.Observe('2024-12-30', Format(DMY2Date(30, 12, 2024), 0, '<Week>/<Week,2>/<Weekday>'));
-        Obs.Finish();
+                Obs.Expect('days', '378');
+        Obs.Expect('mismatch', '');
+        Obs.Expect('2021-01-01', '53/53/5');
+        Obs.Expect('2021-01-03', '53/53/7');
+        Obs.Expect('2021-01-04', '1/01/1');
+        Obs.Expect('2021-04-15', '15/15/4');
+        Obs.Expect('2021-06-30', '26/26/3');
+        Obs.Expect('2021-12-31', '52/52/5');
+        Obs.Expect('2020-12-31', '53/53/4');
+        Obs.Expect('2024-12-30', '1/01/1');
+        Obs.Verify();
     end;
 
     // ---- Evaluate into a Time: six digits with minutes or seconds from 60
@@ -124,7 +154,17 @@ codeunit 93740 "LT Y70 Probes"
         Clear(T);
         Ok := Evaluate(T, '085606');
         Obs.Observe('085606', Format(Ok) + '/' + Format(T, 0, 9));
-        Obs.Finish();
+                Obs.Expect('086000', 'No/');
+        Obs.Expect('085960', 'No/');
+        Obs.Expect('085959', 'Yes/08:59:59');
+        Obs.Expect('086100', 'No/');
+        Obs.Expect('240000', 'No/');
+        Obs.Expect('235959', 'Yes/23:59:59');
+        Obs.Expect('08:60:00', 'No/');
+        Obs.Expect('0860', 'No/');
+        Obs.Expect('0859', 'Yes/08:59:00');
+        Obs.Expect('085606', 'Yes/08:56:06');
+        Obs.Verify();
     end;
 
     // ---- Date to DateTime: every conversion path that compiles
@@ -165,7 +205,12 @@ codeunit 93740 "LT Y70 Probes"
         Row.Insert();
         Row.Reset();
         Row.DeleteAll();
-        Obs.Finish();
+                Obs.Expect('variant_defined', '2024-03-15T00:00:00Z');
+        Obs.Expect('variant_blank', '/Yes');
+        Obs.Expect('fieldref_defined', '2024-03-15T00:00:00Z');
+        Obs.Expect('fieldref_blank', '');
+        Obs.Expect('evaluate_date_text', 'Yes/2024-03-15T00:00:00Z');
+        Obs.Verify();
     end;
 
     // ---- Filter on a DateFormula field: the empty text
@@ -206,7 +251,12 @@ codeunit 93740 "LT Y70 Probes"
         ClearLastError();
         Row.Reset();
         Row.DeleteAll();
-        Obs.Finish();
+                Obs.Expect('all', '3');
+        Obs.Expect('ne_blank_formula', '2');
+        Obs.Expect('filter_two_quotes', '1');
+        Obs.Expect('filter_ne_two_quotes', '2');
+        Obs.Expect('filter_formula_text_code', 'Filter:CSide');
+        Obs.Verify();
     end;
 
     // ---- Text argument: a Guid given where a Text is expected, in the functions GuidAsTextArgument.al does not cover
@@ -245,7 +295,21 @@ codeunit 93740 "LT Y70 Probes"
         Obs.Observe('trimend', Format(StrLen(Format(G).TrimEnd(G))));
         Obs.Observe('trim', Format(StrLen(Format(G).Trim())));
         Obs.Observe('indexofany', Format(S.IndexOfAny(G)));
-        Obs.Finish();
+                Obs.Expect('endswith', 'Yes');
+        Obs.Expect('lastindexof', '41');
+        Obs.Expect('split_count', '3');
+        Obs.Expect('split_1', 'x');
+        Obs.Expect('split_2', 'y');
+        Obs.Expect('split_3', '');
+        Obs.Expect('tb_append', '{1A2B3C4D-5E6F-7A8B-9C0D-1E2F3A4B5C6D}');
+        Obs.Expect('tb_appendline_len', '40');
+        Obs.Expect('tb_insert', 'q{1A2B3C4D-5E6F-7A8B-9C0D-1E2F3A4B5C6D}');
+        Obs.Expect('tb_replace', 'xRyR');
+        Obs.Expect('trimstart', '0');
+        Obs.Expect('trimend', '0');
+        Obs.Expect('trim', '38');
+        Obs.Expect('indexofany', '2');
+        Obs.Verify();
     end;
 
     [Test]
@@ -269,7 +333,11 @@ codeunit 93740 "LT Y70 Probes"
         Obs.Observe('setrange_name', Format(Row.Count()));
         Row.Reset();
         Row.DeleteAll();
-        Obs.Finish();
+                Obs.Expect('replace_in', 'xRyR');
+        Obs.Expect('substno_arg', '{1A2B3C4D-5E6F-7A8B-9C0D-1E2F3A4B5C6D} {1A2B3C4D-5E6F-7A8B-9C0D-1E2F3A4B5C6D}');
+        Obs.Expect('field_assign_note', '{1A2B3C4D-5E6F-7A8B-9C0D-1E2F3A4B5C6D}');
+        Obs.Expect('setrange_name', '1');
+        Obs.Verify();
     end;
 
     // ---- Get with a value that is not of the key's type, on a Text and a Code key
@@ -302,7 +370,14 @@ codeunit 93740 "LT Y70 Probes"
         Obs.Observe('code_int1', GetCode(1));
         TextRow.DeleteAll();
         CodeRow.DeleteAll();
-        Obs.Finish();
+                Obs.Expect('text_true', 'Yes');
+        Obs.Expect('text_false', 'No');
+        Obs.Expect('text_int1', '1');
+        Obs.Expect('text_int0', '0');
+        Obs.Expect('code_true', 'YES');
+        Obs.Expect('code_false', 'NO');
+        Obs.Expect('code_int1', '1');
+        Obs.Verify();
     end;
 
     local procedure InsertText(Name: Text[10])
@@ -379,7 +454,15 @@ codeunit 93740 "LT Y70 Probes"
         Obs.Observe('int_decimal_text', GetInt('5.0'));
         Obs.Observe('int_code', GetInt(Code10('5')));
         IntRow.DeleteAll();
-        Obs.Finish();
+                Obs.Expect('int_format5', '5');
+        Obs.Expect('int_text5', '5');
+        Obs.Expect('int_padded', '5');
+        Obs.Expect('int_plus', '5');
+        Obs.Expect('int_x', 'ERR:Evaluate:Format:The value "x" can''t be evaluated into type Integer.');
+        Obs.Expect('int_empty', 'ERR:Evaluate:Format:The value "" can''t be evaluated into type Integer.');
+        Obs.Expect('int_decimal_text', 'ERR:Evaluate:Format:The value "5.0" can''t be evaluated into type Integer.');
+        Obs.Expect('int_code', '5');
+        Obs.Verify();
     end;
 
     [Test]
@@ -396,7 +479,12 @@ codeunit 93740 "LT Y70 Probes"
         Obs.Observe('big_x', GetBig('x'));
         Obs.Observe('big_empty', GetBig(''));
         BigRow.DeleteAll();
-        Obs.Finish();
+                Obs.Expect('big_format5', '5');
+        Obs.Expect('big_text5', '5');
+        Obs.Expect('big_padded', '5');
+        Obs.Expect('big_x', 'ERR:Evaluate:Format:The value "x" can''t be evaluated into type BigInteger.');
+        Obs.Expect('big_empty', 'ERR:Evaluate:Format:The value "" can''t be evaluated into type BigInteger.');
+        Obs.Verify();
     end;
 
     local procedure Code10(C: Code[10]): Code[10]
@@ -457,7 +545,16 @@ codeunit 93740 "LT Y70 Probes"
         Obs.Observe('True_upper', AsBool('TRUE'));
         Obs.Observe('yes', AsBool('yes'));
         Obs.Observe('one', AsBool('1'));
-        Obs.Finish();
+                Obs.Expect('not_a_boolean', 'ERR:Conversion');
+        Obs.Expect('not_a_boolean_text', 'Unable to convert from Microsoft.Dynamics.Nav.Runtime.NavJsonValue to System.Boolean.');
+        Obs.Expect('a1', 'ERR:Conversion');
+        Obs.Expect('dash', 'ERR:Conversion');
+        Obs.Expect('true_bang', 'ERR:Conversion');
+        Obs.Expect('true_space', 'Yes');
+        Obs.Expect('True_upper', 'Yes');
+        Obs.Expect('yes', 'ERR:Conversion');
+        Obs.Expect('one', 'ERR:Conversion');
+        Obs.Verify();
     end;
 
     [Test]
@@ -469,7 +566,13 @@ codeunit 93740 "LT Y70 Probes"
         Obs.Observe('int_not_a_boolean', AsInt('not a number'));
         Obs.Observe('dec_a1', AsDec('a1'));
         Obs.Observe('date_dash', AsDate('-'));
-        Obs.Finish();
+                Obs.Expect('letters', 'ERR:Conversion');
+        Obs.Expect('digits', 'ERR:Conversion');
+        Obs.Expect('empty', 'ERR:Conversion');
+        Obs.Expect('int_not_a_boolean', 'ERR:Conversion');
+        Obs.Expect('dec_a1', 'ERR:Conversion');
+        Obs.Expect('date_dash', 'ERR:Conversion');
+        Obs.Verify();
     end;
 
     [TryFunction]
@@ -564,7 +667,14 @@ codeunit 93740 "LT Y70 Probes"
         Obs.Observe('eleven', EvalRid('LT Y70 Code Key: ABCDEFGHIJK'));
         Obs.Observe('ten_after_trim', EvalRid('LT Y70 Code Key:  ABCDEFGHIJ'));
         Obs.Observe('plain', EvalRid('LT Y70 Code Key: ABC'));
-        Obs.Finish();
+                Obs.Expect('leading', 'true:[LT Y70 Code Key: ABC]20/93742');
+        Obs.Expect('trailing', 'true:[LT Y70 Code Key: ABC]20/93742');
+        Obs.Expect('both', 'true:[LT Y70 Code Key: ABC]20/93742');
+        Obs.Expect('ten_leading_blank', 'true:[LT Y70 Code Key: GUAAAAAAB]26/93742');
+        Obs.Expect('eleven', 'false:The length of the string is 11, but it must be less than or equal to 10 characters. Value: ABCDEFGHIJK');
+        Obs.Expect('ten_after_trim', 'true:[LT Y70 Code Key: ABCDEFGHIJ]27/93742');
+        Obs.Expect('plain', 'true:[LT Y70 Code Key: ABC]20/93742');
+        Obs.Verify();
     end;
 
     local procedure EvalRid(Txt: Text): Text
@@ -602,7 +712,12 @@ codeunit 93740 "LT Y70 Probes"
         Obs.Observe('recref_init', Format(RecRef.Field(2).Value) + '/' + Format(RecRef.Field(3).Value));
         RecRef.Close();
         Row.DeleteAll();
-        Obs.Finish();
+                Obs.Expect('fresh', 'Monday/1');
+        Obs.Expect('init', 'Monday/1');
+        Obs.Expect('get', 'Monday/1');
+        Obs.Expect('two', 'Tuesday/Tuesday');
+        Obs.Expect('recref_init', 'Monday/Tuesday');
+        Obs.Verify();
     end;
 
     local procedure Ordinal(O: Option): Integer
@@ -633,7 +748,21 @@ codeunit 93740 "LT Y70 Probes"
         Obs.Observe('moving_ne_no', FieldCount(2, '<>%1', Fld.ObsoleteState::No));
         Obs.Observe('pending_eq_pending', FieldCount(4, '%1', Fld.ObsoleteState::Pending));
         Obs.Observe('staying_ne_removed', FieldCount(3, '<>%1', Fld.ObsoleteState::Removed));
-        Obs.Finish();
+                Obs.Expect('moving_state_0', '3');
+        Obs.Expect('moving_state_2', '3');
+        Obs.Expect('moving_reason', 'Moved to another app.');
+        Obs.Expect('staying_state_0', 'No');
+        Obs.Expect('staying_state_2', '0');
+        Obs.Expect('pending_state_0', 'Pending');
+        Obs.Expect('pending_state_2', '1');
+        Obs.Expect('moving_ne_removed', '1');
+        Obs.Expect('moving_eq_pending', '0');
+        Obs.Expect('moving_eq_no', '0');
+        Obs.Expect('moving_eq_removed', '0');
+        Obs.Expect('moving_ne_no', '1');
+        Obs.Expect('pending_eq_pending', '1');
+        Obs.Expect('staying_ne_removed', '1');
+        Obs.Verify();
     end;
 
     local procedure FieldCount(FieldNo: Integer; Expr: Text; State: Option): Text
@@ -657,7 +786,22 @@ codeunit 93740 "LT Y70 Probes"
         ObserveFieldRow('f2000000002', 2000000002);
         ObserveFieldRow('f2000000003', 2000000003);
         ObserveFieldRow('f2000000004', 2000000004);
-        Obs.Finish();
+        #if BC28PLUS
+        Obs.Expect('f1', '{77359429-6E2C-0001-0100-000000000000} No.');
+        Obs.Expect('f2000000000', '{77359429-6E2C-0001-0094-357700000000} $systemId');
+        Obs.Expect('f2000000001', '{77359429-6E2C-0001-0194-357700000000} SystemCreatedAt');
+        Obs.Expect('f2000000002', '{77359429-6E2C-0001-0294-357700000000} SystemCreatedBy');
+        Obs.Expect('f2000000003', '{77359429-6E2C-0001-0394-357700000000} SystemModifiedAt');
+        Obs.Expect('f2000000004', '{77359429-6E2C-0001-0494-357700000000} SystemModifiedBy');
+#else
+        Obs.Expect('f1', '{00000000-0000-0000-0000-000000000000} No.');
+        Obs.Expect('f2000000000', '{00000000-0000-0000-0000-000000000000} $systemId');
+        Obs.Expect('f2000000001', '{00000000-0000-0000-0000-000000000000} SystemCreatedAt');
+        Obs.Expect('f2000000002', '{00000000-0000-0000-0000-000000000000} SystemCreatedBy');
+        Obs.Expect('f2000000003', '{00000000-0000-0000-0000-000000000000} SystemModifiedAt');
+        Obs.Expect('f2000000004', '{00000000-0000-0000-0000-000000000000} SystemModifiedBy');
+#endif
+        Obs.Verify();
     end;
 
     local procedure ObserveFieldRow(Name: Text; FieldNo: Integer)
@@ -691,7 +835,12 @@ codeunit 93740 "LT Y70 Probes"
         Row.ReadIsolation := IsolationLevel::ReadUncommitted;
         if Row.Count() > 0 then;
         Obs.Observe('after_uncommitted_count', Format(Database.IsInWriteTransaction()));
-        Obs.Finish();
+                Obs.Expect('start', 'No');
+        Obs.Expect('after_uncommitted_find', 'No');
+        Obs.Expect('after_committed_find', 'No');
+        Obs.Expect('after_updlock_find', 'Yes');
+        Obs.Expect('after_uncommitted_count', 'No');
+        Obs.Verify();
     end;
 
     // ---- Feature Key: Modify without a change, with a change that is put back
@@ -740,7 +889,14 @@ codeunit 93740 "LT Y70 Probes"
         FK.Modify();
         Again.Get(Id);
         Obs.Observe('restored', Format(Again.Enabled = Original));
-        Obs.Finish();
+                Obs.Expect('rows_gt0', 'Yes');
+        Obs.Expect('unchanged_modify_keeps', 'Yes');
+        Obs.Expect('same_value_modify_keeps', 'Yes');
+        Obs.Expect('flipped_get_is_new', 'Yes');
+        Obs.Expect('flipped_findfirst_is_new', 'Yes');
+        Obs.Expect('flipped_filter_count', '1');
+        Obs.Expect('restored', 'Yes');
+        Obs.Verify();
     end;
 
     // ---- IsolatedStorage: SetEncrypted over an existing key, Set over an encrypted key, each right after a Commit
@@ -830,6 +986,19 @@ codeunit 93740 "LT Y70 Probes"
         RecRef.GetTable(Same);
         Obs.Observe('gettable_blank_no_stored_row', Dirty(RecRef));
         Row.DeleteAll();
-        Obs.Finish();
+                Obs.Expect('gettable_read', 'No');
+        Obs.Expect('gettable_changed_unsaved', 'Yes');
+        Obs.Expect('gettable_init', 'Yes');
+        Obs.Expect('gettable_key_only', 'Yes');
+        Obs.Expect('gettable_no_stored_row', 'Yes');
+        Obs.Expect('after_clear', 'ERR:RecordNotOpened:The record is not open.');
+        Obs.Expect('open_fresh', 'No');
+        Obs.Expect('open_init', 'No');
+        Obs.Expect('open_key_set', 'Yes');
+        Obs.Expect('open_note_set', 'Yes');
+        Obs.Expect('after_get', 'No');
+        Obs.Expect('after_get_changed', 'Yes');
+        Obs.Expect('gettable_blank_no_stored_row', 'No');
+        Obs.Verify();
     end;
 }
