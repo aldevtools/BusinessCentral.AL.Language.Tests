@@ -7,7 +7,7 @@
 //   System.Decimal; Guid 16 bytes; Date, Time and DateTime int64 DateTime.ToBinary (Time on 1753-01-01); DateFormula a string; a BLOB with
 //   Compressed = false an int64 length and the bytes. The tests are in tests/al-language/install/lt-y85-package-data/Y85PackageData.al.
 // Code values are stored as written (a Code key in the file must be upper case to be found by Get); reading shows Code upper case.
-// Install code must never fail: each table is loaded only while it is empty.
+// The install codeunit 94449 is in Y8XaInstallOrder.al (install code must be in a file that check-install-triggers.py allows). Install code must never fail: each table is loaded only while it is empty.
 
 table 50100 "LT Y85 Pkg Company"
 {
@@ -161,35 +161,4 @@ table 94448 "LT Y85 Pkg Late Database"
     {
         key(PK; "No.") { Clustered = true; }
     }
-}
-
-codeunit 94449 "LT Y85 Pkg Install"
-
-{
-    Subtype = Install;
-
-    trigger OnInstallAppPerCompany()
-    var
-        Company: Record "LT Y85 Pkg Company";
-        Types: Record "LT Y85 Pkg Types";
-        Order: Record "LT Y85 Pkg Order";
-        Auto: Record "LT Y85 Pkg Auto";
-    begin
-        if Company.IsEmpty() then
-            NavApp.LoadPackageData(Database::"LT Y85 Pkg Company");
-        if Types.IsEmpty() then
-            NavApp.LoadPackageData(Database::"LT Y85 Pkg Types");
-        if Order.IsEmpty() then
-            NavApp.LoadPackageData(Database::"LT Y85 Pkg Order");
-        if Auto.IsEmpty() then
-            NavApp.LoadPackageData(Database::"LT Y85 Pkg Auto");
-    end;
-
-    trigger OnInstallAppPerDatabase()
-    var
-        Db: Record "LT Y85 Pkg Database";
-    begin
-        if Db.IsEmpty() then
-            NavApp.LoadPackageData(Database::"LT Y85 Pkg Database");
-    end;
 }
