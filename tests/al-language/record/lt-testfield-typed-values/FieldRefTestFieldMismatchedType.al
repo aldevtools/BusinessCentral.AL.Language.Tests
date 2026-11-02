@@ -171,6 +171,7 @@ codeunit 70974 "LT TFT FRef Mismatch"
         VInt: Integer;
         VDtTm: DateTime;
     begin
+        ClearLastError();
         Rec.DeleteAll();
         Rec.Txt := '5';
         RecRef.GetTable(Rec);
@@ -222,6 +223,7 @@ codeunit 70974 "LT TFT FRef Mismatch"
         VByt: Byte;
         VChr: Char;
     begin
+        ClearLastError();
         Rec.DeleteAll();
         Rec.Int := 1;
         RecRef.GetTable(Rec);
@@ -269,6 +271,7 @@ codeunit 70974 "LT TFT FRef Mismatch"
         VInt: Integer;
         VTxt: Text;
     begin
+        ClearLastError();
         Rec.DeleteAll();
         Rec.Dt := 20240315D;
         RecRef.GetTable(Rec);
@@ -303,6 +306,7 @@ codeunit 70974 "LT TFT FRef Mismatch"
         VBig: BigInteger;
         VTxt: Text;
     begin
+        ClearLastError();
         Rec.DeleteAll();
         Rec.DtTm := CreateDateTime(20240315D, 0T);
         RecRef.GetTable(Rec);
@@ -335,6 +339,7 @@ codeunit 70974 "LT TFT FRef Mismatch"
         VTxt: Text;
         VByt: Byte;
     begin
+        ClearLastError();
         Rec.DeleteAll();
         Rec.Bool := true;
         RecRef.GetTable(Rec);
@@ -369,6 +374,7 @@ codeunit 70974 "LT TFT FRef Mismatch"
         VCode: Code[20];
         VInt: Integer;
     begin
+        ClearLastError();
         Rec.DeleteAll();
         Evaluate(Rec.Gd, '{11111111-2222-3333-4444-555555555555}');
         RecRef.GetTable(Rec);
@@ -402,6 +408,7 @@ codeunit 70974 "LT TFT FRef Mismatch"
         VDec: Decimal;
         VByt: Byte;
     begin
+        ClearLastError();
         Rec.DeleteAll();
         Rec.Knd := Rec.Knd::Two;
         RecRef.GetTable(Rec);
@@ -438,6 +445,7 @@ codeunit 70974 "LT TFT FRef Mismatch"
         VChr: Char;
         VTxt: Text;
     begin
+        ClearLastError();
         Rec.DeleteAll();
         Rec.Dec := 5;
         RecRef.GetTable(Rec);
@@ -476,6 +484,7 @@ codeunit 70974 "LT TFT FRef Mismatch"
         VByt: Byte;
         VTxt: Text;
     begin
+        ClearLastError();
         Rec.DeleteAll();
         Rec.Big := 5;
         RecRef.GetTable(Rec);
