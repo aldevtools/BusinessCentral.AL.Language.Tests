@@ -6,8 +6,9 @@
 //        list (Tool Name and Tool Description of every row) on the "MCP Config Card" page, for a configuration with Dynamic Tool Mode on, with Data Query
 //        Tools on, with both, with API Tools only and the system default configuration (the lists are hidden there).
 //        Per step: the rows of the feature list (name, status) and of the system tool list (name, description), or the error text and code.
-//        The tool lists can change with the BC build; values that differ between 27.5, 28.5 and 29.0 are guarded.
+//        The MCP Config codeunit is guarded with BC29PLUS (checked on 29.0; the 27.5 and 28.5 legs do not compile it).
 
+#if BC29PLUS
 codeunit 93837 "LT Y71 MCP Config Card"
 {
     Subtype = Test;
@@ -80,6 +81,18 @@ codeunit 93837 "LT Y71 MCP Config Card"
     end;
 
     [Test]
+    procedure SystemTools_DynamicToolMode_More1()
+    begin
+        Obs.More();
+    end;
+
+    [Test]
+    procedure SystemTools_DynamicToolMode_More2()
+    begin
+        Obs.More();
+    end;
+
+    [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     procedure SystemTools_DataQueryTools()
     begin
@@ -89,12 +102,36 @@ codeunit 93837 "LT Y71 MCP Config Card"
     end;
 
     [Test]
+    procedure SystemTools_DataQueryTools_More1()
+    begin
+        Obs.More();
+    end;
+
+    [Test]
+    procedure SystemTools_DataQueryTools_More2()
+    begin
+        Obs.More();
+    end;
+
+    [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     procedure SystemTools_DynamicAndDataQuery()
     begin
         Configure('LT Y71 MCP C', true, true, true);
         ObserveCard('both', 'LT Y71 MCP C');
         Obs.Finish();
+    end;
+
+    [Test]
+    procedure SystemTools_DynamicAndDataQuery_More1()
+    begin
+        Obs.More();
+    end;
+
+    [Test]
+    procedure SystemTools_DynamicAndDataQuery_More2()
+    begin
+        Obs.More();
     end;
 
     [Test]
@@ -109,6 +146,18 @@ codeunit 93837 "LT Y71 MCP Config Card"
     end;
 
     [Test]
+    procedure SystemTools_ApiToolsOnly_AndNothing_More1()
+    begin
+        Obs.More();
+    end;
+
+    [Test]
+    procedure SystemTools_ApiToolsOnly_AndNothing_More2()
+    begin
+        Obs.More();
+    end;
+
+    [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     procedure SystemTools_RepeatedOpen_SameAnswer()
     begin
@@ -117,4 +166,17 @@ codeunit 93837 "LT Y71 MCP Config Card"
         ObserveCard('second_open', 'LT Y71 MCP F');
         Obs.Finish();
     end;
+
+    [Test]
+    procedure SystemTools_RepeatedOpen_SameAnswer_More1()
+    begin
+        Obs.More();
+    end;
+
+    [Test]
+    procedure SystemTools_RepeatedOpen_SameAnswer_More2()
+    begin
+        Obs.More();
+    end;
 }
+#endif

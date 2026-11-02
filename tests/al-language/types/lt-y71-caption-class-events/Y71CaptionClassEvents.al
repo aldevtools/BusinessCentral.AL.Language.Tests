@@ -25,6 +25,14 @@ table 93830 "LT Y71 CC Tab"
         {
             CaptionClass = 'LTY71,expr';
         }
+        field(4; H; Text[30])
+        {
+            CaptionClass = '3,Lit two';
+        }
+        field(5; I; Text[30])
+        {
+            CaptionClass = 'LTY71,two';
+        }
     }
 
     keys
@@ -46,6 +54,8 @@ page 93831 "LT Y71 CC Card"
         {
             field(FCtl; Rec.F) { ApplicationArea = All; }
             field(GCtl; Rec.G) { ApplicationArea = All; }
+            field(HCtl; Rec.H) { ApplicationArea = All; }
+            field(ICtl; Rec.I) { ApplicationArea = All; }
         }
     }
 }
@@ -84,7 +94,7 @@ codeunit 93833 "LT Y71 CC Subs"
     var
         Log: Codeunit "LT Y71 CC Log";
     begin
-        if not (CaptionExpr in ['3,Lit cap', 'LTY71,expr', 'LTY71,x']) then
+        if not (CaptionExpr in ['3,Lit cap', 'LTY71,expr', '3,Lit two', 'LTY71,two', 'LTY71,x1', 'LTY71,x2', '3,Lit x3']) then
             exit;
         Log.Add(StrSubstNo('translate lang=%1 expr=%2 in=%3', Language, CaptionExpr, Translation));
     end;
@@ -106,7 +116,7 @@ codeunit 93833 "LT Y71 CC Subs"
     var
         Log: Codeunit "LT Y71 CC Log";
     begin
-        if not (CaptionExpression in ['3,Lit cap', 'LTY71,expr', 'LTY71,x']) then
+        if not (CaptionExpression in ['3,Lit cap', 'LTY71,expr', '3,Lit two', 'LTY71,two', 'LTY71,x1', 'LTY71,x2', '3,Lit x3']) then
             exit;
         Log.Add(StrSubstNo('after lang=%1 expr=%2 caption=%3', Language, CaptionExpression, Caption));
     end;
@@ -121,7 +131,7 @@ codeunit 93834 "LT Y71 Caption Class Events"
         Obs: Codeunit "Probe Observer";
         Log: Codeunit "LT Y71 CC Log";
 
-    local procedure OpenAndRead(Name: Text)
+    local procedure OpenAndRead(Name: Text; SecondPair: Boolean)
     var
         Row: Record "LT Y71 CC Tab";
         Card: TestPage "LT Y71 CC Card";
@@ -130,8 +140,13 @@ codeunit 93834 "LT Y71 Caption Class Events"
         Row.Id := 1;
         Row.Insert();
         Card.OpenView();
-        Obs.Observe(Name + '|f_caption', Card.FCtl.Caption());
-        Obs.Observe(Name + '|g_caption', Card.GCtl.Caption());
+        if SecondPair then begin
+            Obs.Observe(Name + '|h_caption', Card.HCtl.Caption());
+            Obs.Observe(Name + '|i_caption', Card.ICtl.Caption());
+        end else begin
+            Obs.Observe(Name + '|f_caption', Card.FCtl.Caption());
+            Obs.Observe(Name + '|g_caption', Card.GCtl.Caption());
+        end;
         Card.Close();
         Obs.Observe(Name + '|log', Log.Text());
         Log.Reset();
@@ -147,10 +162,16 @@ codeunit 93834 "LT Y71 Caption Class Events"
         Log.Reset();
         BindSubscription(Subs);
         GlobalLanguage(1030);
-        OpenAndRead('lang_1030');
+        OpenAndRead('lang_1030', false);
         GlobalLanguage(OriginalLanguage);
         UnbindSubscription(Subs);
         Obs.Finish();
+    end;
+
+    [Test]
+    procedure CaptionClass_AfterGlobalLanguage1030_More1()
+    begin
+        Obs.More();
     end;
 
     [Test]
@@ -163,14 +184,20 @@ codeunit 93834 "LT Y71 Caption Class Events"
         Log.Reset();
         BindSubscription(Subs);
         GlobalLanguage(1033);
-        OpenAndRead('lang_1033_first');
+        OpenAndRead('lang_1033_first', true);
         GlobalLanguage(1030);
-        OpenAndRead('lang_1030_second');
+        OpenAndRead('lang_1030_second', true);
         GlobalLanguage(1033);
-        OpenAndRead('lang_1033_third');
+        OpenAndRead('lang_1033_third', true);
         GlobalLanguage(OriginalLanguage);
         UnbindSubscription(Subs);
         Obs.Finish();
+    end;
+
+    [Test]
+    procedure CaptionClass_LanguageChangedBetweenOpens_More1()
+    begin
+        Obs.More();
     end;
 
     [Test]
@@ -183,20 +210,32 @@ codeunit 93834 "LT Y71 Caption Class Events"
         Log.Reset();
         BindSubscription(Subs);
         GlobalLanguage(1033);
-        Obs.Observe('first', CaptionClassTranslate('LTY71,x'));
-        Obs.Observe('first|log', Log.Text());
+        Obs.Observe('x1_1033', CaptionClassTranslate('LTY71,x1'));
+        Obs.Observe('x1_1033|log', Log.Text());
         Log.Reset();
         GlobalLanguage(1030);
-        Obs.Observe('second', CaptionClassTranslate('LTY71,x'));
-        Obs.Observe('second|log', Log.Text());
+        Obs.Observe('x1_1030', CaptionClassTranslate('LTY71,x1'));
+        Obs.Observe('x1_1030|log', Log.Text());
         Log.Reset();
-        Obs.Observe('second_again', CaptionClassTranslate('LTY71,x'));
-        Obs.Observe('second_again|log', Log.Text());
+        Obs.Observe('x1_1030_again', CaptionClassTranslate('LTY71,x1'));
+        Obs.Observe('x1_1030_again|log', Log.Text());
         Log.Reset();
-        Obs.Observe('area3', CaptionClassTranslate('3,Lit cap'));
-        Obs.Observe('area3|log', Log.Text());
+        Obs.Observe('x2_1030', CaptionClassTranslate('LTY71,x2'));
+        Obs.Observe('x2_1030|log', Log.Text());
+        Log.Reset();
+        Obs.Observe('area3_x3', CaptionClassTranslate('3,Lit x3'));
+        Obs.Observe('area3_x3|log', Log.Text());
+        Log.Reset();
+        Obs.Observe('area3_x3_again', CaptionClassTranslate('3,Lit x3'));
+        Obs.Observe('area3_x3_again|log', Log.Text());
         GlobalLanguage(OriginalLanguage);
         UnbindSubscription(Subs);
         Obs.Finish();
+    end;
+
+    [Test]
+    procedure CaptionClassTranslate_Statement_AfterLanguageChange_More1()
+    begin
+        Obs.More();
     end;
 }

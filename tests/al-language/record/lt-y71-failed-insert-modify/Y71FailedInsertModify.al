@@ -39,6 +39,24 @@ table 93810 "LT Y71 MI Tab"
     end;
 }
 
+table 93838 "LT Y71 MI Blob Tab"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; "No."; Code[10]) { }
+        field(2; Name; Text[30]) { }
+        field(3; Qty; Integer) { }
+        field(4; Data; Blob) { }
+    }
+
+    keys
+    {
+        key(PK; "No.") { Clustered = true; }
+    }
+}
+
 codeunit 93811 "LT Y71 MI Log"
 {
     SingleInstance = true;
@@ -71,11 +89,13 @@ codeunit 93812 "LT Y71 MI Helper"
     var
         Mode: Integer;
         Notes: Text;
+        CommitAtEnd: Boolean;
 
-    procedure SetMode(NewMode: Integer)
+    procedure SetMode(NewMode: Integer; WithCommit: Boolean)
     begin
         Mode := NewMode;
         Notes := '';
+        CommitAtEnd := WithCommit;
     end;
 
     procedure GetNotes(): Text
@@ -109,9 +129,44 @@ codeunit 93812 "LT Y71 MI Helper"
     var
         R: Record "LT Y71 MI Tab";
         R2: Record "LT Y71 MI Tab";
+        RB: Record "LT Y71 MI Blob Tab";
+        RB2: Record "LT Y71 MI Blob Tab";
         Done: Boolean;
     begin
         case Mode of
+            21:
+                begin
+                    // the table with a BLOB field: read before, row changed elsewhere
+                    RB.Get('A');
+                    RB2.Get('A');
+                    RB2.Qty := 2;
+                    RB2.Modify();
+                    RB.Name := 'x';
+                    RB.Qty := 5;
+                    Done := RB.Insert();
+                    Note('insert=' + YesNo(Done));
+                    if not Done then
+                        RB.Modify();
+                    Note('modify done');
+                    Note('buffer qty=' + Format(RB.Qty));
+                end;
+            23:
+                begin
+                    // the table with a BLOB field: a buffer that was never read
+                    RB2.Get('A');
+                    RB2.Qty := 2;
+                    RB2.Modify();
+                    RB.Init();
+                    RB."No." := 'A';
+                    RB.Name := 'x';
+                    RB.Qty := 5;
+                    Done := RB.Insert();
+                    Note('insert=' + YesNo(Done));
+                    if not Done then
+                        RB.Modify();
+                    Note('modify done');
+                    Note('buffer qty=' + Format(RB.Qty));
+                end;
             1:
                 begin
                     // read before, row changed elsewhere, committed before the read
@@ -237,6 +292,10 @@ codeunit 93812 "LT Y71 MI Helper"
                     Note('buffer qty=' + Format(R.Qty));
                 end;
         end;
+        if CommitAtEnd then begin
+            Commit();
+            Note('committed');
+        end;
     end;
 }
 
@@ -252,23 +311,30 @@ codeunit 93813 "LT Y71 Failed Insert Modify"
     local procedure Seed(WithCommit: Boolean)
     var
         Row: Record "LT Y71 MI Tab";
+        RowB: Record "LT Y71 MI Blob Tab";
     begin
         Row.DeleteAll();
         Row."No." := 'A';
         Row.Name := 'orig';
         Row.Qty := 1;
         Row.Insert();
+        RowB.DeleteAll();
+        RowB."No." := 'A';
+        RowB.Name := 'orig';
+        RowB.Qty := 1;
+        RowB.Insert();
         if WithCommit then
             Commit();
         Log.Reset();
     end;
 
-    local procedure Scenario(Name: Text; Mode: Integer)
+    local procedure Scenario(Name: Text; Mode: Integer; WithCommitAtEnd: Boolean)
     var
         Helper: Codeunit "LT Y71 MI Helper";
         Row: Record "LT Y71 MI Tab";
+        RowB: Record "LT Y71 MI Blob Tab";
     begin
-        Helper.SetMode(Mode);
+        Helper.SetMode(Mode, WithCommitAtEnd);
         BindSubscription(Helper);
         Log.Reset();
         if Helper.Run() then
@@ -280,82 +346,184 @@ codeunit 93813 "LT Y71 Failed Insert Modify"
         UnbindSubscription(Helper);
         Obs.Observe(Name + '|notes', Helper.GetNotes());
         Obs.Observe(Name + '|log', Log.Text());
-        if Row.Get('A') then
-            Obs.Observe(Name + '|stored', StrSubstNo('%1/%2', Row.Name, Row.Qty))
-        else
-            Obs.Observe(Name + '|stored', 'no row');
+        if Mode > 20 then begin
+            if RowB.Get('A') then
+                Obs.Observe(Name + '|stored', StrSubstNo('%1/%2', RowB.Name, RowB.Qty))
+            else
+                Obs.Observe(Name + '|stored', 'no row');
+        end else
+            if Row.Get('A') then
+                Obs.Observe(Name + '|stored', StrSubstNo('%1/%2', Row.Name, Row.Qty))
+            else
+                Obs.Observe(Name + '|stored', 'no row');
     end;
 
     [Test]
     procedure FailedInsert_ThenModify_BufferReadBefore_RowChangedElsewhere()
     begin
         Seed(true);
-        Scenario('committed', 1);
-        Seed(false);
-        Scenario('uncommitted', 1);
-        Seed(true);
-        Scenario('commit_between', 2);
+        Scenario('committed', 1, true);
         Obs.Finish();
+    end;
+
+    [Test]
+    procedure FailedInsert_ThenModify_BufferReadBefore_RowChangedElsewhere_More1()
+    begin
+        Obs.More();
+    end;
+
+    [Test]
+    procedure FailedInsert_ThenModify_BufferReadBefore_Uncommitted()
+    begin
+        Seed(false);
+        Scenario('uncommitted', 1, true);
+        Obs.Finish();
+    end;
+
+    [Test]
+    procedure FailedInsert_ThenModify_BufferReadBefore_Uncommitted_More1()
+    begin
+        Obs.More();
+    end;
+
+    [Test]
+    procedure FailedInsert_ThenModify_CommitBetween()
+    begin
+        Seed(true);
+        Scenario('commit_between', 2, true);
+        Obs.Finish();
+    end;
+
+    [Test]
+    procedure FailedInsert_ThenModify_CommitBetween_More1()
+    begin
+        Obs.More();
     end;
 
     [Test]
     procedure FailedInsert_ThenModify_FreshBuffer()
     begin
         Seed(true);
-        Scenario('committed', 3);
-        Seed(false);
-        Scenario('uncommitted', 3);
+        Scenario('committed', 3, true);
         Obs.Finish();
+    end;
+
+    [Test]
+    procedure FailedInsert_ThenModify_FreshBuffer_More1()
+    begin
+        Obs.More();
+    end;
+
+    [Test]
+    procedure FailedInsert_ThenModify_FreshBuffer_Uncommitted()
+    begin
+        Seed(false);
+        Scenario('uncommitted', 3, true);
+        Obs.Finish();
+    end;
+
+    [Test]
+    procedure FailedInsert_ThenModify_FreshBuffer_Uncommitted_More1()
+    begin
+        Obs.More();
     end;
 
     [Test]
     procedure FailedInsertTrue_ThenModifyTrue()
     begin
         Seed(true);
-        Scenario('committed', 4);
-        Seed(false);
-        Scenario('uncommitted', 4);
+        Scenario('committed', 4, true);
         Obs.Finish();
+    end;
+
+    [Test]
+    procedure FailedInsertTrue_ThenModifyTrue_More1()
+    begin
+        Obs.More();
     end;
 
     [Test]
     procedure FailedInsert_ThenModify_AfterModifyAll()
     begin
         Seed(true);
-        Scenario('committed', 5);
-        Seed(false);
-        Scenario('uncommitted', 5);
+        Scenario('committed', 5, true);
         Obs.Finish();
+    end;
+
+    [Test]
+    procedure FailedInsert_ThenModify_AfterModifyAll_More1()
+    begin
+        Obs.More();
     end;
 
     [Test]
     procedure FailedInsert_ThenModify_NothingChangedElsewhere()
     begin
         Seed(true);
-        Scenario('committed', 7);
-        Seed(false);
-        Scenario('uncommitted', 7);
+        Scenario('committed', 7, true);
         Obs.Finish();
+    end;
+
+    [Test]
+    procedure FailedInsert_ThenModify_NothingChangedElsewhere_More1()
+    begin
+        Obs.More();
     end;
 
     [Test]
     procedure FailedInsertTwice_ThenModify()
     begin
         Seed(true);
-        Scenario('committed', 8);
-        Seed(false);
-        Scenario('uncommitted', 8);
+        Scenario('committed', 8, true);
         Obs.Finish();
+    end;
+
+    [Test]
+    procedure FailedInsertTwice_ThenModify_More1()
+    begin
+        Obs.More();
     end;
 
     [Test]
     procedure Insert_AfterRowDeletedElsewhere()
     begin
         Seed(true);
-        Scenario('committed', 9);
-        Seed(false);
-        Scenario('uncommitted', 9);
+        Scenario('committed', 9, true);
         Obs.Finish();
+    end;
+
+    [Test]
+    procedure Insert_AfterRowDeletedElsewhere_More1()
+    begin
+        Obs.More();
+    end;
+
+    [Test]
+    procedure BlobTable_FailedInsert_ThenModify_BufferReadBefore()
+    begin
+        Seed(true);
+        Scenario('blob_committed', 21, true);
+        Obs.Finish();
+    end;
+
+    [Test]
+    procedure BlobTable_FailedInsert_ThenModify_BufferReadBefore_More1()
+    begin
+        Obs.More();
+    end;
+
+    [Test]
+    procedure BlobTable_FailedInsert_ThenModify_FreshBuffer()
+    begin
+        Seed(true);
+        Scenario('blob_committed', 23, true);
+        Obs.Finish();
+    end;
+
+    [Test]
+    procedure BlobTable_FailedInsert_ThenModify_FreshBuffer_More1()
+    begin
+        Obs.More();
     end;
 
     [Test]
@@ -386,5 +554,11 @@ codeunit 93813 "LT Y71 Failed Insert Modify"
         Temp.Get('A');
         Obs.Observe('stored', StrSubstNo('%1/%2', Temp.Name, Temp.Qty));
         Obs.Finish();
+    end;
+
+    [Test]
+    procedure FailedInsert_ThenModify_Temporary_More1()
+    begin
+        Obs.More();
     end;
 }

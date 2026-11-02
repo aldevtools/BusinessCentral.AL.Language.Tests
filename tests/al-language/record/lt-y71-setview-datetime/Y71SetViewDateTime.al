@@ -106,11 +106,47 @@ codeunit 93815 "LT Y71 SetView DateTime"
     end;
 
     [Test]
+    procedure SetView_EmptyConstantAnd_DateTime_DefaultDateText_More1()
+    begin
+        Obs.More();
+    end;
+
+    [Test]
+    procedure SetView_EmptyConstantAnd_DateTime_DefaultDateText_More2()
+    begin
+        Obs.More();
+    end;
+
+    [Test]
+    procedure SetView_EmptyConstantAnd_DateTime_DefaultDateText_More3()
+    begin
+        Obs.More();
+    end;
+
+    [Test]
     procedure SetView_EmptyConstantAnd_DateTime_IsoDateText()
     begin
         Seed();
         Forms('3', 'dt_iso', '2025-11-01');
         Obs.Finish();
+    end;
+
+    [Test]
+    procedure SetView_EmptyConstantAnd_DateTime_IsoDateText_More1()
+    begin
+        Obs.More();
+    end;
+
+    [Test]
+    procedure SetView_EmptyConstantAnd_DateTime_IsoDateText_More2()
+    begin
+        Obs.More();
+    end;
+
+    [Test]
+    procedure SetView_EmptyConstantAnd_DateTime_IsoDateText_More3()
+    begin
+        Obs.More();
     end;
 
     [Test]
@@ -122,11 +158,47 @@ codeunit 93815 "LT Y71 SetView DateTime"
     end;
 
     [Test]
+    procedure SetView_EmptyConstantAnd_SystemCreatedAt_More1()
+    begin
+        Obs.More();
+    end;
+
+    [Test]
+    procedure SetView_EmptyConstantAnd_SystemCreatedAt_More2()
+    begin
+        Obs.More();
+    end;
+
+    [Test]
+    procedure SetView_EmptyConstantAnd_SystemCreatedAt_More3()
+    begin
+        Obs.More();
+    end;
+
+    [Test]
     procedure SetView_EmptyConstantAnd_SystemCreatedAt_IsoDateText()
     begin
         Seed();
         Forms('2000000001', 'sca_iso', '2025-11-01');
         Obs.Finish();
+    end;
+
+    [Test]
+    procedure SetView_EmptyConstantAnd_SystemCreatedAt_IsoDateText_More1()
+    begin
+        Obs.More();
+    end;
+
+    [Test]
+    procedure SetView_EmptyConstantAnd_SystemCreatedAt_IsoDateText_More2()
+    begin
+        Obs.More();
+    end;
+
+    [Test]
+    procedure SetView_EmptyConstantAnd_SystemCreatedAt_IsoDateText_More3()
+    begin
+        Obs.More();
     end;
 
     [Test]
@@ -138,11 +210,47 @@ codeunit 93815 "LT Y71 SetView DateTime"
     end;
 
     [Test]
+    procedure SetView_EmptyConstantAnd_DateField_More1()
+    begin
+        Obs.More();
+    end;
+
+    [Test]
+    procedure SetView_EmptyConstantAnd_DateField_More2()
+    begin
+        Obs.More();
+    end;
+
+    [Test]
+    procedure SetView_EmptyConstantAnd_DateField_More3()
+    begin
+        Obs.More();
+    end;
+
+    [Test]
     procedure SetView_EmptyConstantAnd_DateField_IsoDateText()
     begin
         Seed();
         Forms('2', 'date_iso', '2025-11-01');
         Obs.Finish();
+    end;
+
+    [Test]
+    procedure SetView_EmptyConstantAnd_DateField_IsoDateText_More1()
+    begin
+        Obs.More();
+    end;
+
+    [Test]
+    procedure SetView_EmptyConstantAnd_DateField_IsoDateText_More2()
+    begin
+        Obs.More();
+    end;
+
+    [Test]
+    procedure SetView_EmptyConstantAnd_DateField_IsoDateText_More3()
+    begin
+        Obs.More();
     end;
 
     [Test]

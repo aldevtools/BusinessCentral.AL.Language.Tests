@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/record/record-get-method
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); own tables 93816-93818, enum 93819, report 93820, page 93821, log 93822, test codeunit 93823 (writer Y71, gap cycle 7 spec G7-05)
+// Fixtures used: Probe Observer (codeunit 69160); own tables 93816-93818 and 93839, enum 93819, report 93820, page 93821, log 93822, test codeunit 93823 (writer Y71, gap cycle 7 spec G7-05)
 // Probe: four conversions and one name lookup that Microsoft code relies on.
 //        (a) an Option or Enum value handed to Get for a Code key field (which row matches: by name or by ordinal; SetRange, SetFilter, Validate and
 //        assignment do not compile: must-not-compile cases 2690 and 2691);
@@ -62,6 +62,41 @@ table 93818 "LT Y71 CV Gate"
     {
         key(PK; Id) { Clustered = true; }
     }
+}
+
+table 93839 "LT Y71 CV Gate Tbl"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; Id; Integer) { }
+        field(2; Gateway; Text[30]) { }
+    }
+
+    keys
+    {
+        key(PK; Id) { Clustered = true; }
+    }
+
+    var
+        Gateway: Text[30];
+
+    procedure Describe(): Text
+    begin
+        Gateway := 'global';
+        exit('unqualified=' + Format(Gateway) + ' rec=' + Format(Rec.Gateway));
+    end;
+
+    procedure SetUnqualified(NewValue: Text[30])
+    begin
+        Gateway := NewValue;
+    end;
+
+    procedure ShowAfterSet(): Text
+    begin
+        exit('field=' + Format(Rec.Gateway) + ' unqualified=' + Format(Gateway));
+    end;
 }
 
 enum 93819 "LT Y71 CV Mode"
@@ -359,7 +394,7 @@ codeunit 93823 "LT Y71 Value Conversions"
         G: Guid;
     begin
         Evaluate(G, '{A1B2C3D4-0001-0002-0003-ABCDEF012345}');
-        IsolatedStorage.Delete(G, DataScope::Module);
+        Storage('cleanup_delete_missing', 6, G);
         Storage('set_guid_guid', 1, G);
         Storage('contains_guid', 2, G);
         Storage('get_guid_key', 3, G);
@@ -472,6 +507,20 @@ codeunit 93823 "LT Y71 Value Conversions"
         RunReport('global_b', 'b', 99);
         RunReport('global_a', 'a', 5);
         RunReport('global_none', 'zzz', 1);
+        Obs.Finish();
+    end;
+
+    [Test]
+    procedure TableProcedure_FieldNamedLikeGlobal()
+    var
+        Row: Record "LT Y71 CV Gate Tbl";
+    begin
+        Row.Id := 1;
+        Row.Gateway := 'field';
+        Obs.Observe('describe', Row.Describe());
+        Row.Gateway := 'again';
+        Row.SetUnqualified('assigned');
+        Obs.Observe('after_unqualified_assignment', Row.ShowAfterSet());
         Obs.Finish();
     end;
 
