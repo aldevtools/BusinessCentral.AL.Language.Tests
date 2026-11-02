@@ -4,7 +4,7 @@
 // Probe: the System Application Geolocation module in a test session, through its public codeunit only: the defaults and setters (high accuracy, timeout,
 //        maximum age) with edge values, IsAvailable without a mock, and the module with the Geolocation Test Library bound as the Microsoft tests use it
 //        (SetLocationAvailability, SetGeolocationStatus with every enum member, RequestGeolocation, HasGeolocation, GetGeolocation,
-//        GetGeolocationStatus, GetMockGeolocation) including GetGeolocation before any request.
+//        GetGeolocationStatus, GetMockGeolocation) including GetGeolocation before any request. A request while the mock reports the location as not available is not probed (it opens the modal page like the available case; the handler-dependent outcome is a runner artifact).
 //        Per call: the returned value or the error text and code. The module builds the DotNet objects Location, Coordinate, LocationOptions and
 //        LocationProvider on the server, so these values also pin that surface.
 
@@ -95,7 +95,18 @@ codeunit 93836 "LT Y71 Geolocation Module"
         Obs.Observe('maximum_age_0', Format(Geo.GetMaximumAge()));
         Geo.SetMaximumAge(-5);
         Obs.Observe('maximum_age_minus_5', Format(Geo.GetMaximumAge()));
-        Obs.Finish();
+        Obs.Expect('default_high_accuracy', 'No');
+        Obs.Expect('default_timeout', '600000');
+        Obs.Expect('default_maximum_age', '0');
+        Obs.Expect('high_accuracy_true', 'Yes');
+        Obs.Expect('high_accuracy_false', 'No');
+        Obs.Expect('timeout_600000', '600000');
+        Obs.Expect('timeout_0', '0');
+        Obs.Expect('timeout_minus_1', '-1');
+        Obs.Expect('maximum_age_1000', '1000');
+        Obs.Expect('maximum_age_0', '0');
+        Obs.Expect('maximum_age_minus_5', '-5');
+        Obs.Verify();
     end;
 
     [ModalPageHandler]
@@ -111,7 +122,10 @@ codeunit 93836 "LT Y71 Geolocation Module"
         Available('is_available', Geo);
         Obs.Observe('has_geolocation', Format(Geo.HasGeolocation()));
         Obs.Observe('status', Format(Geo.GetGeolocationStatus()));
-        Obs.Finish();
+        Obs.Expect('is_available', 'No');
+        Obs.Expect('has_geolocation', 'No');
+        Obs.Expect('status', 'Not Available');
+        Obs.Verify();
     end;
 
     [Test]
@@ -136,7 +150,17 @@ codeunit 93836 "LT Y71 Geolocation Module"
         Lib.GetMockGeolocation(Latitude, Longitude);
         Obs.Observe('mock_position', StrSubstNo('%1/%2', Latitude, Longitude));
         UnbindSubscription(Lib);
-        Obs.Finish();
+        Obs.Expect('is_available', 'Yes');
+        Obs.Expect('has_before', 'No');
+        Obs.Expect('get_before_request', 'error');
+        Obs.Expect('get_before_request|text', 'The geographical location data was not retrieved.');
+        Obs.Expect('get_before_request|code', 'Dialog');
+        Obs.Expect('request', 'Yes');
+        Obs.Expect('has_after', 'Yes');
+        Obs.Expect('status_after', 'Available');
+        Obs.Expect('get_after_request', '1.5/2.5');
+        Obs.Expect('mock_position', '1.5/2.5');
+        Obs.Verify();
     end;
 
     local procedure RequestWithStatus(Name: Text; Status: Enum "Geolocation Status")
@@ -159,7 +183,13 @@ codeunit 93836 "LT Y71 Geolocation Module"
     procedure Geolocation_WithMock_StatusNoData()
     begin
         RequestWithStatus('no_data', Enum::"Geolocation Status"::"No Data");
-        Obs.Finish();
+        Obs.Expect('no_data|request', 'No');
+        Obs.Expect('no_data|has', 'No');
+        Obs.Expect('no_data|status', 'No Data');
+        Obs.Expect('no_data|position', 'error');
+        Obs.Expect('no_data|position|text', 'The geographical location data was not retrieved.');
+        Obs.Expect('no_data|position|code', 'Dialog');
+        Obs.Verify();
     end;
 
     [Test]
@@ -167,7 +197,13 @@ codeunit 93836 "LT Y71 Geolocation Module"
     procedure Geolocation_WithMock_StatusTimedOut()
     begin
         RequestWithStatus('timed_out', Enum::"Geolocation Status"::"Timed Out");
-        Obs.Finish();
+        Obs.Expect('timed_out|request', 'No');
+        Obs.Expect('timed_out|has', 'No');
+        Obs.Expect('timed_out|status', 'Timed Out');
+        Obs.Expect('timed_out|position', 'error');
+        Obs.Expect('timed_out|position|text', 'The geographical location data was not retrieved.');
+        Obs.Expect('timed_out|position|code', 'Dialog');
+        Obs.Verify();
     end;
 
     [Test]
@@ -175,23 +211,12 @@ codeunit 93836 "LT Y71 Geolocation Module"
     procedure Geolocation_WithMock_StatusNotAvailable()
     begin
         RequestWithStatus('not_available', Enum::"Geolocation Status"::"Not Available");
-        Obs.Finish();
-    end;
-
-    [Test]
-    procedure Geolocation_WithMock_LocationNotAvailable()
-    var
-        Geo: Codeunit Geolocation;
-        Lib: Codeunit "Geolocation Test Library";
-    begin
-        BindSubscription(Lib);
-        Lib.SetLocationAvailability(false);
-        Lib.SetGeolocationStatus(Enum::"Geolocation Status"::Available);
-        Available('is_available', Geo);
-        Request('request', Geo);
-        Obs.Observe('has_after', Format(Geo.HasGeolocation()));
-        Obs.Observe('status_after', Format(Geo.GetGeolocationStatus()));
-        UnbindSubscription(Lib);
-        Obs.Finish();
+        Obs.Expect('not_available|request', 'No');
+        Obs.Expect('not_available|has', 'No');
+        Obs.Expect('not_available|status', 'Not Available');
+        Obs.Expect('not_available|position', 'error');
+        Obs.Expect('not_available|position|text', 'The geographical location data was not retrieved.');
+        Obs.Expect('not_available|position|code', 'Dialog');
+        Obs.Verify();
     end;
 }

@@ -8,7 +8,14 @@
 //        loop of the System Application's test library DeleteAllUnLoggedInUsers by hand over two users inserted by the test (never over real users);
 //        a Delete of the session user inside AutoRollback.
 //        The values depend on the tier (SaaS, Windows container, Linux container, how the test user logged in). Test procedures with EnvData in the
-//        name are recorded with the Probe Observer and not asserted: the values per tier are in the hand-off of writer Y71 and in the corpus pull request.
+//        name are recorded with the Probe Observer and not asserted. Values seen (2026-11-02):
+//        SaaS Dev sandbox BC 29 and Linux CI containers 27.5, 28.5, 29.0, in the first test, a later test and under AutoRollback alike: the session user is in the
+//        User table with state Enabled, license Full User, UserLoggedInEnvironment = Yes, IsFirstLogin = No, GuiAllowed = Yes, IsSaaS = Yes, IsSandbox = Yes,
+//        IsProduction = No. SaaS: 3 users (session user, one Application license user, one External User), only the External User holds SUPER besides none for the
+//        session user (roles of the session user: not SUPER), penultimate login set, IsOnPrem = No. Linux CI: 3 users, all with SUPER, none other logged in, penultimate
+//        login blank, IsOnPrem = Yes (IsSaaS and IsOnPrem are both Yes). Insert into User: refused on SaaS (license, DB:ClientInsertDenied), allowed on Linux CI.
+//        Delete of the session user: SaaS 'There should be at least one enabled 'SUPER' user.' (Dialog); Linux CI 'The user ... cannot be deleted because the user has been logged on to the system.'
+//        (Dialog). The by-hand DeleteAllUnLoggedInUsers loop over the test's own inserted user deleted it on Linux CI (no login row) and found none on SaaS (insert refused).
 
 codeunit 93827 "LT Y71 Session User A"
 {
@@ -95,41 +102,26 @@ codeunit 93827 "LT Y71 Session User A"
     procedure SessionUser_RowsAtTestStart_EnvData()
     begin
         Observations('first_test');
-        Obs.Finish();
+        Obs.Discard(); // tier dependent: recorded in the manifest, not asserted
     end;
 
-    [Test]
-    procedure SessionUser_RowsAtTestStart_EnvData_More1()
-    begin
-        Obs.More();
-    end;
 
     [Test]
     procedure SessionUser_RowsInLaterTest_EnvData()
     begin
         Observations('later_test');
-        Obs.Finish();
+        Obs.Discard(); // tier dependent: recorded in the manifest, not asserted
     end;
 
-    [Test]
-    procedure SessionUser_RowsInLaterTest_EnvData_More1()
-    begin
-        Obs.More();
-    end;
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     procedure SessionUser_RowsUnderAutoRollback_EnvData()
     begin
         Observations('auto_rollback');
-        Obs.Finish();
+        Obs.Discard(); // tier dependent: recorded in the manifest, not asserted
     end;
 
-    [Test]
-    procedure SessionUser_RowsUnderAutoRollback_EnvData_More1()
-    begin
-        Obs.More();
-    end;
 }
 
 codeunit 93828 "LT Y71 Session User Helper"
@@ -219,7 +211,7 @@ codeunit 93829 "LT Y71 Session User Delete"
         Run('insert_user', 3);
         Obs.Observe('inserted_visible', Format(U.Count() > 0));
         Run('loop', 1);
-        Obs.Finish();
+        Obs.Discard(); // tier dependent: recorded in the manifest, not asserted
     end;
 
     [Test]
@@ -230,6 +222,6 @@ codeunit 93829 "LT Y71 Session User Delete"
     begin
         Run('delete_session_user', 2);
         Obs.Observe('session_user_row_after', Format(U.Get(UserSecurityId())));
-        Obs.Finish();
+        Obs.Discard(); // tier dependent: recorded in the manifest, not asserted
     end;
 }

@@ -8,7 +8,7 @@
 //        (c) a FieldRef.Value of an Integer, Text, Date or Guid field assigned to a Blob field, directly and through a Variant;
 //        (d) a data item field and a report global with the same name: which one an unqualified read takes in a data item trigger,
 //        in SetLoadFields and SetRange, and the same collision in a page trigger.
-//        Per call: the result, or the error text and code.
+//        Per call: the result, or the error text and code. BC 27.5 words the FieldRef-to-Blob error differently (Invalid Conversion, code Argument).
 
 table 93816 "LT Y71 CV Key"
 {
@@ -416,7 +416,25 @@ codeunit 93823 "LT Y71 Value Conversions"
         Storage('delete_again', 6, G);
         Storage('set_encrypted_guid', 9, G);
         Storage('delete_after_encrypted', 6, G);
-        Obs.Finish();
+        Obs.Expect('cleanup_delete_missing', 'No');
+        Obs.Expect('set_guid_guid', 'Yes');
+        Obs.Expect('contains_guid', 'Yes');
+        Obs.Expect('get_guid_key', '{A1B2C3D4-0001-0002-0003-ABCDEF012345}');
+        Obs.Expect('get_format_key', '{A1B2C3D4-0001-0002-0003-ABCDEF012345}');
+        Obs.Expect('get_lower_key', 'not found');
+        Obs.Expect('get_secret', 'secret found, empty=No');
+        Obs.Expect('contains_text_key', 'Yes');
+        Obs.Expect('delete_guid', 'Yes');
+        Obs.Expect('contains_after_delete', 'No');
+        Obs.Expect('set_text_key_guid_value', 'Yes');
+        Obs.Expect('get_text_key_stored', '{A1B2C3D4-0001-0002-0003-ABCDEF012345}');
+        Obs.Expect('delete_text_key', 'Yes');
+        Obs.Expect('set_guid_key_text_value', 'Yes');
+        Obs.Expect('get_after_text_value', '{A1B2C3D4-0001-0002-0003-ABCDEF012345}');
+        Obs.Expect('delete_again', 'Yes');
+        Obs.Expect('set_encrypted_guid', 'Yes');
+        Obs.Expect('delete_after_encrypted', 'Yes');
+        Obs.Verify();
     end;
 
     // ---- (c) FieldRef.Value of other types into a Blob field
@@ -479,7 +497,55 @@ codeunit 93823 "LT Y71 Value Conversions"
         BlobForm('guid', 4);
         BlobForm('blob_itself', 5);
         BlobForm('integer_via_variant', 6);
-        Obs.Finish();
+        Obs.Expect('integer', 'error');
+#if BC28PLUS
+        Obs.Expect('integer|text', 'The value "5" can''t be evaluated into type BLOB.');
+        Obs.Expect('integer|code', 'Evaluate:Argument');
+#else
+        Obs.Expect('integer|text', 'Invalid Conversion. Source: NavInteger, Destination: NavBLOB.');
+        Obs.Expect('integer|code', 'Argument');
+#endif
+        Obs.Expect('integer|has_value', 'No');
+        Obs.Expect('integer|length', '0');
+        Obs.Expect('text', 'error');
+#if BC28PLUS
+        Obs.Expect('text|text', 'The value "text" can''t be evaluated into type BLOB.');
+        Obs.Expect('text|code', 'Evaluate:Argument');
+#else
+        Obs.Expect('text|text', 'Invalid Conversion. Source: NavText, Destination: NavBLOB.');
+        Obs.Expect('text|code', 'Argument');
+#endif
+        Obs.Expect('text|has_value', 'No');
+        Obs.Expect('text|length', '0');
+        Obs.Expect('date', 'error');
+#if BC28PLUS
+        Obs.Expect('date|text', 'The value "03/15/24" can''t be evaluated into type BLOB.');
+        Obs.Expect('date|code', 'Evaluate:Argument');
+#else
+        Obs.Expect('date|text', 'Invalid Conversion. Source: NavDate, Destination: NavBLOB.');
+        Obs.Expect('date|code', 'Argument');
+#endif
+        Obs.Expect('date|has_value', 'No');
+        Obs.Expect('date|length', '0');
+        Obs.Expect('guid', 'error');
+#if BC28PLUS
+        Obs.Expect('guid|text', 'The value "{A1B2C3D4-0001-0002-0003-ABCDEF012345}" can''t be evaluated into type BLOB.');
+        Obs.Expect('guid|code', 'Evaluate:Argument');
+#else
+        Obs.Expect('guid|text', 'Invalid Conversion. Source: NavGuid, Destination: NavBLOB.');
+        Obs.Expect('guid|code', 'Argument');
+#endif
+        Obs.Expect('guid|has_value', 'No');
+        Obs.Expect('guid|length', '0');
+        Obs.Expect('blob_itself', 'ok');
+        Obs.Expect('blob_itself|has_value', 'No');
+        Obs.Expect('blob_itself|length', '0');
+        Obs.Expect('integer_via_variant', 'error');
+        Obs.Expect('integer_via_variant|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavBLOB value.');
+        Obs.Expect('integer_via_variant|code', 'TypeConversion');
+        Obs.Expect('integer_via_variant|has_value', 'No');
+        Obs.Expect('integer_via_variant|length', '0');
+        Obs.Verify();
     end;
 
     // ---- (d) a data item field and a report global of the same name

@@ -7,6 +7,7 @@
 //        as method calls), and LocationProvider and CameraProvider that were never created or created without a client (IsAvailable, Create,
 //        RequestLocationAsync, RequestPictureAsync).
 //        Per step: Format of each property after each set, or the error text and code.
+// Values: measured on the Linux CI containers 27.5, 28.5, 29.0 (identical on all three). Not yet checked on a Windows container (queued as a Linux-suspect check).
 // BC versions: 27, 28, 29
 
 dotnet
@@ -123,14 +124,33 @@ codeunit 99310 "LT Y71 Client Capabilities"
         SetCamera('media_video', O, 17);
         SetCamera('media_x', O, 18);
         SetCamera('allow_edit_false', O, 19);
-        Obs.Finish();
+        Obs.Expect('null_before', 'Yes');
+        Obs.Expect('null_after', 'No');
+        Obs.Expect('defaults', 'AllowEdit=No EncodingType=[JPEG] Quality=50 SourceType=[] MediaType=[]');
+        Obs.Expect('to_string', 'Microsoft.Dynamics.Nav.Client.Capabilities.CameraOptions');
+        Obs.Expect('format', 'Microsoft.Dynamics.Nav.Client.Capabilities.CameraOptions');
+        Obs.Expect('allow_edit_true', 'AllowEdit=Yes EncodingType=[JPEG] Quality=50 SourceType=[] MediaType=[]');
+        Obs.Expect('encoding_jpeg', 'AllowEdit=Yes EncodingType=[JPEG] Quality=50 SourceType=[] MediaType=[]');
+        Obs.Expect('encoding_png', 'AllowEdit=Yes EncodingType=[PNG] Quality=50 SourceType=[] MediaType=[]');
+        Obs.Expect('encoding_gif', 'AllowEdit=Yes EncodingType=[GIF] Quality=50 SourceType=[] MediaType=[]');
+        Obs.Expect('encoding_empty', 'AllowEdit=Yes EncodingType=[] Quality=50 SourceType=[] MediaType=[]');
+        Obs.Expect('quality_0', 'AllowEdit=Yes EncodingType=[] Quality=0 SourceType=[] MediaType=[]');
+        Obs.Expect('quality_50', 'AllowEdit=Yes EncodingType=[] Quality=50 SourceType=[] MediaType=[]');
+        Obs.Expect('quality_100', 'AllowEdit=Yes EncodingType=[] Quality=100 SourceType=[] MediaType=[]');
+        Obs.Expect('quality_101', 'AllowEdit=Yes EncodingType=[] Quality=101 SourceType=[] MediaType=[]');
+        Obs.Expect('quality_minus_1', 'AllowEdit=Yes EncodingType=[] Quality=-1 SourceType=[] MediaType=[]');
+        Obs.Expect('source_photo_library', 'AllowEdit=Yes EncodingType=[] Quality=-1 SourceType=[PhotoLibrary] MediaType=[]');
+        Obs.Expect('source_saved_album', 'AllowEdit=Yes EncodingType=[] Quality=-1 SourceType=[SavedPhotoAlbum] MediaType=[]');
+        Obs.Expect('source_camera', 'AllowEdit=Yes EncodingType=[] Quality=-1 SourceType=[Camera] MediaType=[]');
+        Obs.Expect('source_x', 'AllowEdit=Yes EncodingType=[] Quality=-1 SourceType=[x] MediaType=[]');
+        Obs.Expect('media_all', 'AllowEdit=Yes EncodingType=[] Quality=-1 SourceType=[x] MediaType=[AllMedia]');
+        Obs.Expect('media_picture', 'AllowEdit=Yes EncodingType=[] Quality=-1 SourceType=[x] MediaType=[Picture]');
+        Obs.Expect('media_video', 'AllowEdit=Yes EncodingType=[] Quality=-1 SourceType=[x] MediaType=[Video]');
+        Obs.Expect('media_x', 'AllowEdit=Yes EncodingType=[] Quality=-1 SourceType=[x] MediaType=[x]');
+        Obs.Expect('allow_edit_false', 'AllowEdit=No EncodingType=[] Quality=-1 SourceType=[x] MediaType=[x]');
+        Obs.Verify();
     end;
 
-    [Test]
-    procedure CameraOptions_NewAndProperties_More1()
-    begin
-        Obs.More();
-    end;
 
     [TryFunction]
     local procedure TryLocation(Which: Integer; var Answer: Text)
@@ -224,14 +244,23 @@ codeunit 99310 "LT Y71 Client Capabilities"
         LocationCase('status_9', 12);
         LocationCase('status_default', 13);
         LocationCase('to_string', 14);
-        Obs.Finish();
+        Obs.Expect('lat_long_1_5_2_5', '1.5/2.5');
+        Obs.Expect('lat_long_minus_90_180', '-90/180');
+        Obs.Expect('lat_long_default', '0/0');
+        Obs.Expect('coordinate_never_set_is_null', 'Yes');
+        Obs.Expect('lat_long_out_of_range', '91/181');
+        Obs.Expect('status_0', 'Available|0');
+        Obs.Expect('status_1', 'NoData|1');
+        Obs.Expect('status_2', 'TimedOut|2');
+        Obs.Expect('status_3', 'NotAvailable|3');
+        Obs.Expect('status_4', '4|4');
+        Obs.Expect('status_5', '5|5');
+        Obs.Expect('status_9', '9');
+        Obs.Expect('status_default', 'Available');
+        Obs.Expect('to_string', 'Microsoft.Dynamics.Nav.Client.Capabilities.Location');
+        Obs.Verify();
     end;
 
-    [Test]
-    procedure Location_Mock_Build_More1()
-    begin
-        Obs.More();
-    end;
 
     [TryFunction]
     local procedure TryOptions(var O: DotNet LtY71LocationOptions; Which: Integer)
@@ -292,7 +321,18 @@ codeunit 99310 "LT Y71 Client Capabilities"
         SetOptions('timeout_method_300000', O, 8);
         SetOptions('maximum_age_method_2000', O, 9);
         SetOptions('high_accuracy_method_true', O, 10);
-        Obs.Finish();
+        Obs.Expect('defaults', 'EnableHighAccuracy=No Timeout=0 MaximumAge=0');
+        Obs.Expect('high_accuracy_true', 'EnableHighAccuracy=Yes Timeout=0 MaximumAge=0');
+        Obs.Expect('timeout_600000', 'EnableHighAccuracy=Yes Timeout=600000 MaximumAge=0');
+        Obs.Expect('timeout_0', 'EnableHighAccuracy=Yes Timeout=0 MaximumAge=0');
+        Obs.Expect('timeout_minus_1', 'EnableHighAccuracy=Yes Timeout=-1 MaximumAge=0');
+        Obs.Expect('maximum_age_1000', 'EnableHighAccuracy=Yes Timeout=-1 MaximumAge=1000');
+        Obs.Expect('maximum_age_0', 'EnableHighAccuracy=Yes Timeout=-1 MaximumAge=0');
+        Obs.Expect('high_accuracy_method_false', 'EnableHighAccuracy=No Timeout=-1 MaximumAge=0');
+        Obs.Expect('timeout_method_300000', 'EnableHighAccuracy=No Timeout=300000 MaximumAge=0');
+        Obs.Expect('maximum_age_method_2000', 'EnableHighAccuracy=No Timeout=300000 MaximumAge=2000');
+        Obs.Expect('high_accuracy_method_true', 'EnableHighAccuracy=Yes Timeout=300000 MaximumAge=2000');
+        Obs.Verify();
     end;
 
     [TryFunction]
@@ -360,7 +400,9 @@ codeunit 99310 "LT Y71 Client Capabilities"
     begin
         ProviderCase('location_provider_is_available', 1);
         ProviderCase('camera_provider_is_available', 2);
-        Obs.Finish();
+        Obs.Expect('location_provider_is_available', 'No');
+        Obs.Expect('camera_provider_is_available', 'No');
+        Obs.Verify();
     end;
 
     [Test]
@@ -372,6 +414,16 @@ codeunit 99310 "LT Y71 Client Capabilities"
         ProviderCase('camera_create_is_available', 6);
         ProviderCase('location_request_async', 7);
         ProviderCase('camera_request_async', 8);
-        Obs.Finish();
+        Obs.Expect('location_create', 'Yes');
+        Obs.Expect('location_create_is_available', 'No');
+        Obs.Expect('camera_create', 'Yes');
+        Obs.Expect('camera_create_is_available', 'No');
+        Obs.Expect('location_request_async', 'error');
+        Obs.Expect('location_request_async|text', 'A DotNet variable has not been instantiated. Attempting to call Microsoft.Dynamics.Nav.Client.Capabilities.LocationProvider.RequestLocationAsync in CodeUnit LT Y71 Client Capabilities: TryProvider');
+        Obs.Expect('location_request_async|code', 'DotNetVariableNotCreated');
+        Obs.Expect('camera_request_async', 'error');
+        Obs.Expect('camera_request_async|text', 'A DotNet variable has not been instantiated. Attempting to call Microsoft.Dynamics.Nav.Client.Capabilities.CameraProvider.RequestPictureAsync in CodeUnit LT Y71 Client Capabilities: TryProvider');
+        Obs.Expect('camera_request_async|code', 'DotNetVariableNotCreated');
+        Obs.Verify();
     end;
 }
