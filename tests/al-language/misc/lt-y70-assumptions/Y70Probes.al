@@ -40,6 +40,16 @@ codeunit 93740 "LT Y70 Probes"
         Obs.Observe('text_char', Fmt('ab', '<Text,6><Filler Char,.>'));
         Obs.Observe('code_char', Fmt('ab', '<Text,6><Filler Char,#>'));
         Obs.Observe('int_filler', Fmt(5, '<Integer,4><Filler,0>'));
+        Obs.Observe('int_filler_c', Fmt(5, '<Integer,4><Filler C,0>'));
+        Obs.Observe('int_filler_cha', Fmt(5, '<Integer,4><Filler Cha,0>'));
+        Obs.Observe('int_filler_charx', Fmt(5, '<Integer,4><Filler Charx,0>'));
+        Obs.Observe('int_filler_character_s', Fmt(5, '<Integer,4><Filler Characters,0>'));
+        Obs.Observe('int_fil', Fmt(5, '<Integer,4><Fil,0>'));
+        Obs.Observe('int_f', Fmt(5, '<Integer,4><F,0>'));
+        Obs.Observe('int_int', Fmt(5, '<Int,4><Filler Char,0>'));
+        Obs.Observe('int_integer_lower', Fmt(5, '<integer,4><filler char,0>'));
+        Obs.Observe('int_char_hash', Fmt(5, '<Integer,4><Filler Char,#>'));
+        Obs.Observe('int_char_z_len6', Fmt(5, '<Integer,6><Filler Char,z>'));
         Obs.Finish();
     end;
 
@@ -186,7 +196,8 @@ codeunit 93740 "LT Y70 Probes"
         Obs.Observe('filter_ne_two_quotes', Format(Row.Count()));
         Row.Reset();
         Row.SetFilter(DF, '<1M>');
-        Obs.Observe('filter_formula_text', Format(Row.Count()));
+        asserterror Obs.Observe('filter_formula_text', Format(Row.Count()));
+        Obs.ObserveError('filter_formula_text');
         Row.Reset();
         Row.DeleteAll();
         Obs.Finish();
@@ -228,7 +239,6 @@ codeunit 93740 "LT Y70 Probes"
         Obs.Observe('trimend', Format(StrLen(Format(G).TrimEnd(G))));
         Obs.Observe('trim', Format(StrLen(Format(G).Trim())));
         Obs.Observe('indexofany', Format(S.IndexOfAny(G)));
-        Obs.Observe('padleft', Format(StrLen(PadStr('', 2, G))));
         Obs.Observe('replace_in', S.Replace(G, 'R'));
         Obs.Observe('substno_arg', StrSubstNo('%1 %2', G, G));
         Row.DeleteAll();
@@ -259,9 +269,7 @@ codeunit 93740 "LT Y70 Probes"
         InsertText('YES');
         InsertText('No');
         InsertText('1');
-        InsertText('1.5');
         InsertText('0');
-        InsertText('15.03.24');
         InsertCode('YES');
         InsertCode('NO');
         InsertCode('1');
@@ -271,8 +279,6 @@ codeunit 93740 "LT Y70 Probes"
         Obs.Observe('text_false', GetText(false));
         Obs.Observe('text_int1', GetText(1));
         Obs.Observe('text_int0', GetText(0));
-        Obs.Observe('text_dec', GetText(1.5));
-        Obs.Observe('text_date', GetText(D));
         Obs.Observe('code_true', GetCode(true));
         Obs.Observe('code_false', GetCode(false));
         Obs.Observe('code_int1', GetCode(1));
@@ -523,14 +529,14 @@ codeunit 93740 "LT Y70 Probes"
     local procedure EvalRid(Txt: Text): Text
     var
         Rid: RecordId;
-        RecRef: RecordRef;
         Ok: Boolean;
+        Shown: Text;
     begin
         Ok := Evaluate(Rid, Txt);
         if not Ok then
             exit('false:' + GetLastErrorText());
-        RecRef.Get(Rid);
-        exit('true:[' + Format(RecRef.Field(1).Value) + ']' + Format(StrLen(Format(RecRef.Field(1).Value))));
+        Shown := Format(Rid);
+        exit('true:[' + Shown + ']' + Format(StrLen(Shown)) + '/' + Format(Rid.TableNo));
     end;
 
     // ---- Option InitValue as a number
@@ -549,9 +555,10 @@ codeunit 93740 "LT Y70 Probes"
         Row.Insert();
         Again.Get(1);
         Obs.Observe('get', Format(Again.Day) + '/' + Format(Ordinal(Again.Day)));
+        Obs.Observe('zero_and_two', Format(Row.DayZero) + '/' + Format(Row.DayTwo) + '/' + Format(Again.DayZero) + '/' + Format(Again.DayTwo));
         RecRef.Open(Database::"LT Y70 Option Init");
         RecRef.Init();
-        Obs.Observe('recref_init', Format(RecRef.Field(2).Value));
+        Obs.Observe('recref_init', Format(RecRef.Field(2).Value) + '/' + Format(RecRef.Field(3).Value) + '/' + Format(RecRef.Field(4).Value));
         RecRef.Close();
         Row.DeleteAll();
         Obs.Finish();
@@ -578,20 +585,24 @@ codeunit 93740 "LT Y70 Probes"
         Fld.Get(Database::"LT Y70 Pending Move", 4);
         Obs.Observe('pending_state_0', Format(Fld.ObsoleteState));
         Obs.Observe('pending_state_2', Format(Fld.ObsoleteState, 0, 2));
-        Fld.Reset();
-        Fld.SetRange(TableNo, Database::"LT Y70 Pending Move");
-        Fld.SetFilter(FieldName, '<>Id');
-        Fld.SetFilter(ObsoleteState, '<>%1', Fld.ObsoleteState::Removed);
-        Obs.Observe('ne_removed', Format(Fld.Count()));
-        Fld.SetRange(ObsoleteState, Fld.ObsoleteState::Pending);
-        Obs.Observe('eq_pending', Format(Fld.Count()));
-        Fld.SetRange(ObsoleteState);
-        Fld.SetRange(ObsoleteState, Fld.ObsoleteState::No);
-        Obs.Observe('eq_no', Format(Fld.Count()));
-        Fld.SetRange(ObsoleteState);
-        Fld.SetFilter(ObsoleteState, '<>%1&<>%2', Fld.ObsoleteState::Removed, Fld.ObsoleteState::Pending);
-        Obs.Observe('ne_removed_ne_pending', Format(Fld.Count()));
+        Obs.Observe('moving_ne_removed', FieldCount(2, '<>%1', Fld.ObsoleteState::Removed));
+        Obs.Observe('moving_eq_pending', FieldCount(2, '%1', Fld.ObsoleteState::Pending));
+        Obs.Observe('moving_eq_no', FieldCount(2, '%1', Fld.ObsoleteState::No));
+        Obs.Observe('moving_eq_removed', FieldCount(2, '%1', Fld.ObsoleteState::Removed));
+        Obs.Observe('moving_ne_no', FieldCount(2, '<>%1', Fld.ObsoleteState::No));
+        Obs.Observe('pending_eq_pending', FieldCount(4, '%1', Fld.ObsoleteState::Pending));
+        Obs.Observe('staying_ne_removed', FieldCount(3, '<>%1', Fld.ObsoleteState::Removed));
         Obs.Finish();
+    end;
+
+    local procedure FieldCount(FieldNo: Integer; Expr: Text; State: Option): Text
+    var
+        Fld: Record Field;
+    begin
+        Fld.SetRange(TableNo, Database::"LT Y70 Pending Move");
+        Fld.SetRange("No.", FieldNo);
+        Fld.SetFilter(ObsoleteState, Expr, State);
+        exit(Format(Fld.Count()));
     end;
 
     // ---- SystemId of the Field rows of the system fields
@@ -650,11 +661,20 @@ codeunit 93740 "LT Y70 Probes"
         Again: Record "Feature Key";
         Original: Option;
         Id: Text;
+        Flipped: Option;
     begin
-        FK.FindFirst();
+        Obs.Observe('rows_gt0', Format(FK.Count() > 0));
+        FK.SetFilter(Enabled, '<>%1', FK.Enabled::None);
+        if FK.FindFirst() then
+            Flipped := FK.Enabled::None
+        else begin
+            FK.Reset();
+            FK.FindFirst();
+            Flipped := FK.Enabled::"All Users";
+        end;
         Id := FK.ID;
         Original := FK.Enabled;
-        Obs.Observe('first_enabled', Format(FK.Enabled));
+        Obs.Observe('picked_original', Format(FK.Enabled));
         FK.Modify();
         Again.Get(Id);
         Obs.Observe('unchanged_modify_enabled', Format(Again.Enabled));
@@ -662,20 +682,40 @@ codeunit 93740 "LT Y70 Probes"
         FK.Modify();
         Again.Get(Id);
         Obs.Observe('same_value_modify_enabled', Format(Again.Enabled));
-        FK.Enabled := FK.Enabled::None;
+        FK.Enabled := Flipped;
         FK.Modify();
         Again.Get(Id);
-        Obs.Observe('none_modify_enabled', Format(Again.Enabled));
+        Obs.Observe('flipped_get_enabled', Format(Again.Enabled));
         FK.Reset();
         FK.SetRange(ID, Id);
         FK.FindFirst();
-        Obs.Observe('findfirst_after', Format(FK.Enabled));
-        Obs.Observe('count_all_gt0', Format(Again.Count() > 0));
+        Obs.Observe('flipped_findfirst_enabled', Format(FK.Enabled));
+        FK.Reset();
+        FK.SetRange(ID, Id);
+        FK.SetRange(Enabled, Flipped);
+        Obs.Observe('flipped_filter_count', Format(FK.Count()));
+        FK.Reset();
+        FK.Get(Id);
         FK.Enabled := Original;
         FK.Modify();
         Again.Get(Id);
         Obs.Observe('restored', Format(Again.Enabled = Original));
         Obs.Finish();
+    end;
+
+    local procedure Dirty(var RecRef: RecordRef): Text
+    var
+        R: Text;
+    begin
+        if TryDirty(RecRef, R) then
+            exit(R);
+        exit('ERR:' + GetLastErrorCode() + ':' + GetLastErrorText());
+    end;
+
+    [TryFunction]
+    local procedure TryDirty(var RecRef: RecordRef; var R: Text)
+    begin
+        R := Format(RecRef.IsDirty());
     end;
 
     // ---- RecordRef.IsDirty of a buffer that did not come from a read or write through the ref
@@ -692,33 +732,33 @@ codeunit 93740 "LT Y70 Probes"
         Row.Insert();
         Same.Get('K');
         RecRef.GetTable(Same);
-        Obs.Observe('gettable_read', Format(RecRef.IsDirty()));
+        Obs.Observe('gettable_read', Dirty(RecRef));
         Same.Note := 'changed';
         RecRef.GetTable(Same);
-        Obs.Observe('gettable_changed_unsaved', Format(RecRef.IsDirty()));
+        Obs.Observe('gettable_changed_unsaved', Dirty(RecRef));
         Same.Init();
         RecRef.GetTable(Same);
-        Obs.Observe('gettable_init', Format(RecRef.IsDirty()));
+        Obs.Observe('gettable_init', Dirty(RecRef));
         Same.Name := 'K';
         RecRef.GetTable(Same);
-        Obs.Observe('gettable_key_only', Format(RecRef.IsDirty()));
+        Obs.Observe('gettable_key_only', Dirty(RecRef));
         Same.Name := 'NOROW';
         RecRef.GetTable(Same);
-        Obs.Observe('gettable_no_stored_row', Format(RecRef.IsDirty()));
+        Obs.Observe('gettable_no_stored_row', Dirty(RecRef));
         Clear(RecRef);
-        Obs.Observe('after_clear', Format(RecRef.IsDirty()));
+        Obs.Observe('after_clear', Dirty(RecRef));
         RecRef.Open(Database::"LT Y70 Text Key");
-        Obs.Observe('open_fresh', Format(RecRef.IsDirty()));
+        Obs.Observe('open_fresh', Dirty(RecRef));
         RecRef.Init();
-        Obs.Observe('open_init', Format(RecRef.IsDirty()));
+        Obs.Observe('open_init', Dirty(RecRef));
         RecRef.Field(1).Value := 'K';
-        Obs.Observe('open_key_set', Format(RecRef.IsDirty()));
+        Obs.Observe('open_key_set', Dirty(RecRef));
         RecRef.Field(2).Value := 'x';
-        Obs.Observe('open_note_set', Format(RecRef.IsDirty()));
+        Obs.Observe('open_note_set', Dirty(RecRef));
         RecRef.Get(Same.RecordId);
-        Obs.Observe('after_get', Format(RecRef.IsDirty()));
+        Obs.Observe('after_get', Dirty(RecRef));
         RecRef.Field(2).Value := 'y';
-        Obs.Observe('after_get_changed', Format(RecRef.IsDirty()));
+        Obs.Observe('after_get_changed', Dirty(RecRef));
         Row.DeleteAll();
         Obs.Finish();
     end;

@@ -95,6 +95,16 @@ table 93745 "LT Y70 Option Init"
             OptionMembers = Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday;
             InitValue = 1;
         }
+        field(3; DayZero; Option)
+        {
+            OptionMembers = Sunday,Monday,Tuesday;
+            InitValue = 0;
+        }
+        field(4; DayTwo; Option)
+        {
+            OptionMembers = Sunday,Monday,Tuesday;
+            InitValue = 2;
+        }
     }
 
     keys
