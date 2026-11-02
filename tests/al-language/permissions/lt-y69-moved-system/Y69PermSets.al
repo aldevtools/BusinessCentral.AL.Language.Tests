@@ -346,3 +346,68 @@ codeunit 93735 "LT Y69 Helper"
         exit('-');
     end;
 }
+
+// The Permissions property of every object kind that has it, naming a moved table (compile shapes; the codeunit's runs in Y69MovedTables.al).
+table 93714 "LT Y69 MV Table Perm"
+{
+    Permissions = tabledata "Reason Code" = ri, tabledata "No. Series Line" = r;
+
+    fields
+    {
+        field(1; Id; Integer) { }
+    }
+
+    keys { key(PK; Id) { Clustered = true; } }
+}
+
+page 93715 "LT Y69 MV Page Perm"
+{
+    PageType = Card;
+    SourceTable = "LT Y69 MV Table Perm";
+    Permissions = tabledata "Source Code" = rimd;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            field(Id; Rec.Id) { ApplicationArea = All; }
+        }
+    }
+}
+
+report 93716 "LT Y69 MV Report Perm"
+{
+    ProcessingOnly = true;
+    UsageCategory = None;
+    Permissions = tabledata "Return Reason" = r;
+}
+
+query 93717 "LT Y69 MV Query Perm"
+{
+    Permissions = tabledata "No. Series" = r;
+
+    elements
+    {
+        dataitem(Series; "No. Series")
+        {
+            column(Code; Code) { }
+        }
+    }
+}
+
+xmlport 93718 "LT Y69 MV XmlPort Perm"
+{
+    Permissions = tabledata "No. Series Tenant" = rimd;
+
+    schema
+    {
+        textelement(Root)
+        {
+            tableelement(Reason; "Reason Code")
+            {
+                fieldelement(Code; Reason.Code) { }
+            }
+        }
+    }
+}

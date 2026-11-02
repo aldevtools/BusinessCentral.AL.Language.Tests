@@ -28,7 +28,14 @@ codeunit 93713 "LT Y69 Expanded Rows"
         Observer.Observe('excl', Helper.Expanded('LT Y69 MV EXCL'));
         Observer.Observe('ext_base', Helper.Expanded('LT Y69 MV EXT BASE'));
         Observer.Observe('indirect', Helper.Expanded('LT Y69 MV INDIRECT'));
-        Observer.Finish();
+        Observer.Expect('name', '2 rows 0:18:R----;0:231:R----;');
+        Observer.Expect('plain', '1 rows 0:18:R----;');
+        Observer.Expect('all', '11 rows 0:18:R----;0:230:RIMD-;0:231:RIMD-;0:242:RIMD-;0:308:RIMD-;0:309:RIMD-;0:310:RIMD-;0:1263:RIMD-;0:6635:RIMD-;1:231:----X;1:308:----X;');
+        Observer.Expect('outer', '2 rows 0:18:R----;0:6635:R----;');
+        Observer.Expect('excl', '10 rows 0:230:RIMD-;0:231:-IMD-;0:242:RIMD-;0:308:RIMD-;0:309:RIMD-;0:310:RIMD-;0:1263:RIMD-;0:6635:RIMD-;1:231:----X;1:308:----X;');
+        Observer.Expect('ext_base', '3 rows 0:18:R----;0:230:R----;0:1263:RIMD-;');
+        Observer.Expect('indirect', '3 rows 0:18:R----;0:231:r----;0:308:r----;');
+        Observer.Verify();
     end;
 
 
@@ -46,6 +53,15 @@ codeunit 93713 "LT Y69 Expanded Rows"
         Observer.Observe('mid', Helper.Expanded('LT Y69 SY MID'));
         Observer.Observe('excl', Helper.Expanded('LT Y69 SY EXCL'));
         Observer.Observe('plain', Helper.Expanded('LT Y69 SY PLAIN'));
-        Observer.Finish();
+        Observer.Expect('basic', '2 rows 0:18:R----;10:5810:----X;');
+        Observer.Expect('outer', '2 rows 0:18:R----;10:5810:----X;');
+        Observer.Expect('many', '5 rows 0:18:R----;10:5310:----X;10:6110:----X;10:9026:----X;10:9100:----X;');
+        Observer.Expect('only', '1 rows 10:5810:----X;');
+        Observer.Expect('indirect', '2 rows 0:18:R----;10:5810:----x;');
+        Observer.Expect('wild', '2 rows 0:18:R----;10:0:----X;');
+        Observer.Expect('mid', '2 rows 0:18:R----;10:5810:----X;');
+        Observer.Expect('excl', '4 rows 10:5310:----X;10:6110:----X;10:9026:----X;10:9100:----X;');
+        Observer.Expect('plain', '2 rows 0:18:R----;10:5810:----X;');
+        Observer.Verify();
     end;
 }
