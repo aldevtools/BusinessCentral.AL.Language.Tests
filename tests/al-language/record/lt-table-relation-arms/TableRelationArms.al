@@ -451,7 +451,7 @@ codeunit 67177 "LT TR Arms"
         ClearLastError();
         if Y76TryValidate(FieldNo, Value) then
             exit('ok');
-        exit('error:' + GetLastErrorText() + '|' + GetLastErrorCode());
+        exit(GetLastErrorCode());
     end;
 
     [Test]

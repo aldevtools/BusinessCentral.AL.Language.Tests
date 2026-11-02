@@ -37,8 +37,13 @@ codeunit 94077 "LT Y76 Package Ids"
         Reply := true;
     end;
 
+    [MessageHandler]
+    procedure MessageOk(Message: Text[1024])
+    begin
+    end;
+
     [Test]
-    [HandlerFunctions('ConfirmYes')]
+    [HandlerFunctions('ConfirmYes,MessageOk')]
     procedure Y76_Package_AutoIncrementField_NotInPackage()
     var
         Observer: Codeunit "Probe Observer";
@@ -50,6 +55,10 @@ codeunit 94077 "LT Y76 Package Ids"
         DimValue: Record "Dimension Value";
         Errors: Integer;
         Ids: Text;
+        Id1: Integer;
+        Id2: Integer;
+        Id3: Integer;
+        Id4: Integer;
     begin
         Dimension.Init();
         Dimension.Code := 'LTY76DIM';
@@ -70,16 +79,21 @@ codeunit 94077 "LT Y76 Package Ids"
         Observer.Observe('apply errors', Format(Errors));
         DimValue.SetRange("Dimension Code", 'LTY76DIM');
         Observer.Observe('rows', Format(DimValue.Count()));
-        if DimValue.FindSet() then
-            repeat
-                Ids += DimValue.Code + '=' + Format(DimValue."Dimension Value ID") + ' ';
-            until DimValue.Next() = 0;
-        Observer.Observe('ids', Ids);
+        DimValue.Get('LTY76DIM', 'V1');
+        Id1 := DimValue."Dimension Value ID";
+        DimValue.Get('LTY76DIM', 'V2');
+        Id2 := DimValue."Dimension Value ID";
+        DimValue.Get('LTY76DIM', 'V3');
+        Id3 := DimValue."Dimension Value ID";
         DimValue.Init();
         DimValue."Dimension Code" := 'LTY76DIM';
         DimValue.Code := 'V4';
         DimValue.Insert();
-        Observer.Observe('next plain insert id', Format(DimValue."Dimension Value ID"));
+        Id4 := DimValue."Dimension Value ID";
+        Observer.Observe('first id positive', Format(Id1 > 0));
+        Observer.Observe('second is first plus one', Format(Id2 = Id1 + 1));
+        Observer.Observe('third is second plus one', Format(Id3 = Id2 + 1));
+        Observer.Observe('plain insert after is third plus one', Format(Id4 = Id3 + 1));
         Observer.Finish();
     end;
 }
