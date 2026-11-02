@@ -266,6 +266,7 @@ codeunit 94309 "LT Y82 Helper"
         Pk4.DeleteAll();
         Sec.DeleteAll();
         Flow.DeleteAll();
+        Commit();
     end;
 
     procedure Ins(TableNo: Integer; Fld: Integer; Id: Integer; Value: Text): Text
