@@ -124,9 +124,15 @@ codeunit 94253 "LT Y81 Label Variant 1"
     end;
 
     [Test]
-    procedure Y81_LabelVariant_1_Assign()
+    procedure Y81_LabelVariant_1_Assign_A()
     begin
-        Run(1, 7);
+        Run(1, 4);
+    end;
+
+    [Test]
+    procedure Y81_LabelVariant_1_Assign_B()
+    begin
+        Run(5, 7);
     end;
 
     [Test]
@@ -253,9 +259,15 @@ codeunit 94254 "LT Y81 Label Variant 2"
     end;
 
     [Test]
-    procedure Y81_LabelVariant_2_Assign()
+    procedure Y81_LabelVariant_2_Assign_A()
     begin
-        Run(1, 7);
+        Run(1, 4);
+    end;
+
+    [Test]
+    procedure Y81_LabelVariant_2_Assign_B()
+    begin
+        Run(5, 7);
     end;
 
     [Test]
@@ -382,9 +394,15 @@ codeunit 94255 "LT Y81 Label Variant 3"
     end;
 
     [Test]
-    procedure Y81_LabelVariant_3_Assign()
+    procedure Y81_LabelVariant_3_Assign_A()
     begin
-        Run(1, 7);
+        Run(1, 4);
+    end;
+
+    [Test]
+    procedure Y81_LabelVariant_3_Assign_B()
+    begin
+        Run(5, 7);
     end;
 
     [Test]
@@ -514,9 +532,15 @@ codeunit 94256 "LT Y81 Label Variant 4"
     end;
 
     [Test]
-    procedure Y81_LabelVariant_4_Assign()
+    procedure Y81_LabelVariant_4_Assign_A()
     begin
-        Run(1, 7);
+        Run(1, 4);
+    end;
+
+    [Test]
+    procedure Y81_LabelVariant_4_Assign_B()
+    begin
+        Run(5, 7);
     end;
 
     [Test]
@@ -646,9 +670,15 @@ codeunit 94257 "LT Y81 Label Variant 5"
     end;
 
     [Test]
-    procedure Y81_LabelVariant_5_Assign()
+    procedure Y81_LabelVariant_5_Assign_A()
     begin
-        Run(1, 7);
+        Run(1, 4);
+    end;
+
+    [Test]
+    procedure Y81_LabelVariant_5_Assign_B()
+    begin
+        Run(5, 7);
     end;
 
     [Test]
@@ -778,9 +808,15 @@ codeunit 94258 "LT Y81 Label Variant 6"
     end;
 
     [Test]
-    procedure Y81_LabelVariant_6_Assign()
+    procedure Y81_LabelVariant_6_Assign_A()
     begin
-        Run(1, 7);
+        Run(1, 4);
+    end;
+
+    [Test]
+    procedure Y81_LabelVariant_6_Assign_B()
+    begin
+        Run(5, 7);
     end;
 
     [Test]

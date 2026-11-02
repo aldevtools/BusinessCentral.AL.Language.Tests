@@ -38,7 +38,7 @@ codeunit 94250 "LT Y81 DMY2Date"
     end;
 
     [Test]
-    procedure Y81_DMY2Date_Year0()
+    procedure Y81_DMY2Date_Year0_A()
     begin
         Observer.Observe('1.1.0', Dmy(1, 1, 0));
         Observer.Observe('2.1.0', Dmy(2, 1, 0));
@@ -47,12 +47,24 @@ codeunit 94250 "LT Y81 DMY2Date"
         Observer.Observe('29.2.0', Dmy(29, 2, 0));
         Observer.Observe('30.2.0', Dmy(30, 2, 0));
         Observer.Observe('31.4.0', Dmy(31, 4, 0));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y81_DMY2Date_Year0_B()
+    begin
         Observer.Observe('31.12.0', Dmy(31, 12, 0));
         Observer.Observe('1.1.1', Dmy(1, 1, 1));
         Observer.Observe('2.1.1', Dmy(2, 1, 1));
         Observer.Observe('31.12.1', Dmy(31, 12, 1));
         Observer.Observe('29.2.4', Dmy(29, 2, 4));
         Observer.Observe('29.2.1', Dmy(29, 2, 1));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y81_DMY2Date_Year0_C()
+    begin
         Observer.Observe('29.2.100', Dmy(29, 2, 100));
         Observer.Observe('29.2.1900', Dmy(29, 2, 1900));
         Observer.Observe('29.2.2000', Dmy(29, 2, 2000));
@@ -220,9 +232,17 @@ codeunit 94250 "LT Y81 DMY2Date"
         exit('E ' + GetLastErrorText() + '|' + GetLastErrorCode());
     end;
 
+    // The one-argument form takes the month and the year of Today(); the longest day is the length of that month.
     [Test]
     procedure Y81_DMY2Date_ShortForms_Edges()
+    var
+        MonthNo: Text;
+        Longest: Text;
+        Err: Text;
     begin
+        MonthNo := Format(Date2DMY(Today(), 2));
+        Longest := Format(Date2DMY(CalcDate('<CM>', Today()), 1));
+        Err := 'The value of DMY2Date parameter 1 is outside of the permitted range. The current value is: %1. The permitted range is: from 1 to ' + Longest + '.|OutsidePermittedRange';
         Observer.Observe('one 1', One(1));
         Observer.Observe('one 28', One(28));
         Observer.Observe('one 0', One(0));
@@ -234,6 +254,17 @@ codeunit 94250 "LT Y81 DMY2Date"
         Observer.Observe('two 1 13', Two(1, 13));
         Observer.Observe('two 0 1', Two(0, 1));
         Observer.Observe('two 28 2', Two(28, 2));
-        Observer.Finish();
+        Observer.Expect('one 1', '1.' + MonthNo + '.Yes');
+        Observer.Expect('one 28', '28.' + MonthNo + '.Yes');
+        Observer.Expect('one 0', 'E ' + StrSubstNo(Err, 0));
+        Observer.Expect('one 32', 'E ' + StrSubstNo(Err, 32));
+        Observer.Expect('one -1', 'E ' + StrSubstNo(Err, -1));
+        Observer.Expect('two 31 1', '31.1.Yes');
+        Observer.Expect('two 31 4', 'E The value of DMY2Date parameter 1 is outside of the permitted range. The current value is: 31. The permitted range is: from 1 to 30.|OutsidePermittedRange');
+        Observer.Expect('two 1 0', 'E The value of DMY2Date parameter 2 is outside of the permitted range. The current value is: 0. The permitted range is: from 1 to 12.|OutsidePermittedRange');
+        Observer.Expect('two 1 13', 'E The value of DMY2Date parameter 2 is outside of the permitted range. The current value is: 13. The permitted range is: from 1 to 12.|OutsidePermittedRange');
+        Observer.Expect('two 0 1', 'E The value of DMY2Date parameter 1 is outside of the permitted range. The current value is: 0. The permitted range is: from 1 to 31.|OutsidePermittedRange');
+        Observer.Expect('two 28 2', '28.2.Yes');
+        Observer.Verify();
     end;
 }
