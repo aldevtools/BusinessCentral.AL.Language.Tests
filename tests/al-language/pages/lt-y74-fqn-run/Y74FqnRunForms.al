@@ -113,7 +113,7 @@ codeunit 93953 "LT Y74 Fqn Run Tests"
         Seen := '';
         Page.Run('LT.Y74.Fqn.LT Y74 Fqn List');
         Observer.Observe('list', Seen);
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -136,7 +136,7 @@ codeunit 93953 "LT Y74 Fqn Run Tests"
         Page.Run('LT.Y74.Fqn.LT Y74 Fqn List', Row);
         Observer.Observe('list filtered', Seen);
         Observer.Observe('filters after', Row.GetFilters());
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -159,7 +159,7 @@ codeunit 93953 "LT Y74 Fqn Run Tests"
         Seen := '';
         Page.Run(Page::"LT Y74 Fqn List", Row, Row.Txt);
         Observer.Observe('list txt by id', Seen);
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -177,7 +177,7 @@ codeunit 93953 "LT Y74 Fqn Run Tests"
         Choice := 2;
         Act := Page.RunModal('LT.Y74.Fqn.LT Y74 Fqn List');
         Observer.Observe('cancel', Format(Act) + '|' + Seen);
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -198,7 +198,7 @@ codeunit 93953 "LT Y74 Fqn Run Tests"
         Act := Page.RunModal('LT.Y74.Fqn.LT Y74 Fqn List', Row);
         Observer.Observe('cancel', Format(Act) + '|' + Seen);
         Observer.Observe('row after', Format(Row.Id));
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -218,7 +218,7 @@ codeunit 93953 "LT Y74 Fqn Run Tests"
         Choice := 2;
         Act := Page.RunModal('LT.Y74.Fqn.LT Y74 Fqn List', Row, Row.Txt);
         Observer.Observe('cancel', Format(Act) + '|' + Seen);
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -242,7 +242,7 @@ codeunit 93953 "LT Y74 Fqn Run Tests"
         Choice := 2;
         Act := Page.RunModal('LT.Y74.Fqn.LT Y74 Fqn List', Row, FR);
         Observer.Observe('cancel', Format(Act) + '|' + Seen);
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -256,7 +256,7 @@ codeunit 93953 "LT Y74 Fqn Run Tests"
         Seen := '';
         Page.Run('LT.Y74.Fqn."LT Y74 Fqn Card"');
         Observer.Observe('quoted', Seen);
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -289,7 +289,7 @@ codeunit 93953 "LT Y74 Fqn Run Tests"
         Observer.ObserveError('field of other table');
         asserterror Page.Run('LT.Y74.Fqn.LT Y74 Fqn Card', Row);
         Observer.ObserveError('no handler');
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [Test]
@@ -311,7 +311,7 @@ codeunit 93953 "LT Y74 Fqn Run Tests"
         Observer.ObserveError('other table');
         asserterror Act := Page.RunModal('LT.Y74.Fqn.LT Y74 Fqn Missing', Row, FR);
         Observer.ObserveError('missing');
-        Observer.Verify();
+        Observer.Finish();
     end;
 
     [PageHandler]
