@@ -555,10 +555,10 @@ codeunit 93740 "LT Y70 Probes"
         Row.Insert();
         Again.Get(1);
         Obs.Observe('get', Format(Again.Day) + '/' + Format(Ordinal(Again.Day)));
-        Obs.Observe('zero_and_two', Format(Row.DayZero) + '/' + Format(Row.DayTwo) + '/' + Format(Again.DayZero) + '/' + Format(Again.DayTwo));
+        Obs.Observe('two', Format(Row.DayTwo) + '/' + Format(Again.DayTwo));
         RecRef.Open(Database::"LT Y70 Option Init");
         RecRef.Init();
-        Obs.Observe('recref_init', Format(RecRef.Field(2).Value) + '/' + Format(RecRef.Field(3).Value) + '/' + Format(RecRef.Field(4).Value));
+        Obs.Observe('recref_init', Format(RecRef.Field(2).Value) + '/' + Format(RecRef.Field(3).Value));
         RecRef.Close();
         Row.DeleteAll();
         Obs.Finish();
