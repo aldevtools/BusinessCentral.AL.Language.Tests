@@ -293,6 +293,12 @@ codeunit 93850 "LT Y72 Tree Default State"
     end;
 
     [TryFunction]
+    local procedure TryExpandPL(var P: TestPage "LT Y72 Tree PL"; Expand: Boolean)
+    begin
+        P.Expand(Expand);
+    end;
+
+    [TryFunction]
     local procedure TryExpandPW(var P: TestPage "LT Y72 Tree PW"; Expand: Boolean)
     begin
         P.Expand(Expand);
@@ -426,16 +432,23 @@ codeunit 93850 "LT Y72 Tree Default State"
     procedure TreeDefault_Expand_LeafRow60()
     var
         P: TestPage "LT Y72 Tree PL";
+        Ok: Boolean;
     begin
         Seed();
         P.OpenView();
         Observer.Observe('goto 60', Format(P.GoToKey(60)));
         TakeLog();
-        P.Expand(true);
+        Ok := TryExpandPL(P, true);
+        Observer.Observe('expand true ok', Format(Ok));
+        if not Ok then
+            Observer.ObserveError('expand true');
         Observer.Observe('expand log', TakeLog());
         Observer.Observe('expand line', P.LineCtl.Value());
         Observer.Observe('expand expanded', Format(P.IsExpanded()));
-        P.Expand(false);
+        Ok := TryExpandPL(P, false);
+        Observer.Observe('expand false ok', Format(Ok));
+        if not Ok then
+            Observer.ObserveError('expand false');
         Observer.Observe('collapse expanded', Format(P.IsExpanded()));
         Observer.Observe('collapse log', TakeLog());
         P.Close();

@@ -145,24 +145,23 @@ codeunit 93859 "LT Y72 Action Control Rows"
     var
         Observer: Codeunit "Probe Observer";
 
-    local procedure ActionRow(var PageAction: Record "Page Action"): Text
+    // Name of the parent row, or (<type>) when the parent has no name (an action container).
+    local procedure ParentName(PageId: Integer; ParentActionId: Integer): Text
+    var
+        Parent: Record "Page Action";
     begin
-        exit(StrSubstNo('%1|%2|%3|%4|%5|%6|%7|%8', PageAction."Action ID", PageAction."Parent Action ID", PageAction.Indentation, PageAction."Action Type", PageAction.Name, PageAction.Caption, PageAction.RunObjectType, PageAction.RunObjectID));
+        Parent.SetRange("Page ID", PageId);
+        Parent.SetRange("Action ID", ParentActionId);
+        if not Parent.FindFirst() then
+            exit('(none)');
+        if Parent.Name = '' then
+            exit('(' + Format(Parent."Action Type") + ')');
+        exit(Parent.Name);
     end;
 
-    local procedure ActionRows(PageId: Integer): Text
-    var
-        PageAction: Record "Page Action";
-        Result: Text;
+    local procedure ActionRow(PageId: Integer; var PageAction: Record "Page Action"): Text
     begin
-        PageAction.SetRange("Page ID", PageId);
-        if PageAction.FindSet() then
-            repeat
-                if Result <> '' then
-                    Result += ';';
-                Result += ActionRow(PageAction);
-            until PageAction.Next() = 0;
-        exit(Result);
+        exit(StrSubstNo('parent=%1|indent=%2|type=%3|name=%4|caption=%5|rot=%6|roi=%7', ParentName(PageId, PageAction."Parent Action ID"), PageAction.Indentation, PageAction."Action Type", PageAction.Name, PageAction.Caption, PageAction.RunObjectType, PageAction.RunObjectID));
     end;
 
     local procedure ControlRow(PageId: Integer; ControlName: Text): Text
@@ -185,14 +184,29 @@ codeunit 93859 "LT Y72 Action Control Rows"
         if PageAction.IsEmpty() then
             exit('empty');
         PageAction.FindFirst();
-        exit(Format(PageAction.Count()) + '|' + ActionRow(PageAction));
+        exit(Format(PageAction.Count()) + '|' + ActionRow(PageId, PageAction));
     end;
 
     [Test]
     procedure PageAction_ActionRef_Rows()
+    var
+        PageAction: Record "Page Action";
     begin
         Observer.Discard();
-        Observer.Observe('rows', ActionRows(Page::"LT Y72 Act List"));
+        PageAction.SetRange("Page ID", Page::"LT Y72 Act List");
+        PageAction.SetRange("Action Type", PageAction."Action Type"::Action);
+        if PageAction.FindSet() then
+            repeat
+                Observer.Observe('action ' + PageAction.Name, ActionRow(Page::"LT Y72 Act List", PageAction));
+            until PageAction.Next() = 0;
+        Observer.Observe('action rows', Format(PageAction.Count()));
+        PageAction.SetRange("Action Type", PageAction."Action Type"::ActionGroup);
+        PageAction.SetRange(Name, 'Category_Process');
+        Observer.Observe('group Category_Process rows', Format(PageAction.Count()));
+        PageAction.SetRange(Name);
+        PageAction.SetFilter(Name, '*_Promoted');
+        PageAction.SetRange("Action Type");
+        Observer.Observe('rows named *_Promoted', Format(PageAction.Count()));
         Observer.Finish();
     end;
 
