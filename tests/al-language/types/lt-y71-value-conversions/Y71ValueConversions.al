@@ -330,8 +330,7 @@ codeunit 93823 "LT Y71 Value Conversions"
     end;
 
     // ---- (b) a Guid as key and value of IsolatedStorage
-    [TryFunction]
-    local procedure TryStorage(Which: Integer; G: Guid; var Answer: Text)
+    local procedure DoStorage(Which: Integer; G: Guid; var Answer: Text)
     var
         T: Text;
         Secret: SecretText;
@@ -389,12 +388,8 @@ codeunit 93823 "LT Y71 Value Conversions"
         Answer: Text;
     begin
         Clear(Answer);
-        if TryStorage(Which, G, Answer) then
-            Obs.Observe(Name, Answer)
-        else begin
-            Obs.Observe(Name, 'error');
-            Obs.ObserveError(Name);
-        end;
+        DoStorage(Which, G, Answer);
+        Obs.Observe(Name, Answer);
     end;
 
     [Test]
@@ -421,25 +416,7 @@ codeunit 93823 "LT Y71 Value Conversions"
         Storage('delete_again', 6, G);
         Storage('set_encrypted_guid', 9, G);
         Storage('delete_after_encrypted', 6, G);
-        Obs.Expect('cleanup_delete_missing', 'No');
-        Obs.Expect('set_guid_guid', 'Yes');
-        Obs.Expect('contains_guid', 'Yes');
-        Obs.Expect('get_guid_key', '{A1B2C3D4-0001-0002-0003-ABCDEF012345}');
-        Obs.Expect('get_format_key', '{A1B2C3D4-0001-0002-0003-ABCDEF012345}');
-        Obs.Expect('get_lower_key', 'not found');
-        Obs.Expect('get_secret', 'secret found, empty=No');
-        Obs.Expect('contains_text_key', 'Yes');
-        Obs.Expect('delete_guid', 'Yes');
-        Obs.Expect('contains_after_delete', 'No');
-        Obs.Expect('set_text_key_guid_value', 'Yes');
-        Obs.Expect('get_text_key_stored', '{A1B2C3D4-0001-0002-0003-ABCDEF012345}');
-        Obs.Expect('delete_text_key', 'Yes');
-        Obs.Expect('set_guid_key_text_value', 'Yes');
-        Obs.Expect('get_after_text_value', '{A1B2C3D4-0001-0002-0003-ABCDEF012345}');
-        Obs.Expect('delete_again', 'Yes');
-        Obs.Expect('set_encrypted_guid', 'Yes');
-        Obs.Expect('delete_after_encrypted', 'Yes');
-        Obs.Verify();
+        Obs.Finish();
     end;
 
     // ---- (c) FieldRef.Value of other types into a Blob field
@@ -502,35 +479,7 @@ codeunit 93823 "LT Y71 Value Conversions"
         BlobForm('guid', 4);
         BlobForm('blob_itself', 5);
         BlobForm('integer_via_variant', 6);
-        Obs.Expect('integer', 'error');
-        Obs.Expect('integer|text', 'The value "5" can''t be evaluated into type BLOB.');
-        Obs.Expect('integer|code', 'Evaluate:Argument');
-        Obs.Expect('integer|has_value', 'No');
-        Obs.Expect('integer|length', '0');
-        Obs.Expect('text', 'error');
-        Obs.Expect('text|text', 'The value "text" can''t be evaluated into type BLOB.');
-        Obs.Expect('text|code', 'Evaluate:Argument');
-        Obs.Expect('text|has_value', 'No');
-        Obs.Expect('text|length', '0');
-        Obs.Expect('date', 'error');
-        Obs.Expect('date|text', 'The value "03/15/24" can''t be evaluated into type BLOB.');
-        Obs.Expect('date|code', 'Evaluate:Argument');
-        Obs.Expect('date|has_value', 'No');
-        Obs.Expect('date|length', '0');
-        Obs.Expect('guid', 'error');
-        Obs.Expect('guid|text', 'The value "{A1B2C3D4-0001-0002-0003-ABCDEF012345}" can''t be evaluated into type BLOB.');
-        Obs.Expect('guid|code', 'Evaluate:Argument');
-        Obs.Expect('guid|has_value', 'No');
-        Obs.Expect('guid|length', '0');
-        Obs.Expect('blob_itself', 'ok');
-        Obs.Expect('blob_itself|has_value', 'No');
-        Obs.Expect('blob_itself|length', '0');
-        Obs.Expect('integer_via_variant', 'error');
-        Obs.Expect('integer_via_variant|text', 'The expression Microsoft.Dynamics.Nav.Runtime.NavIndirectValue cannot be type-converted to a Microsoft.Dynamics.Nav.Runtime.NavBLOB value.');
-        Obs.Expect('integer_via_variant|code', 'TypeConversion');
-        Obs.Expect('integer_via_variant|has_value', 'No');
-        Obs.Expect('integer_via_variant|length', '0');
-        Obs.Verify();
+        Obs.Finish();
     end;
 
     // ---- (d) a data item field and a report global of the same name

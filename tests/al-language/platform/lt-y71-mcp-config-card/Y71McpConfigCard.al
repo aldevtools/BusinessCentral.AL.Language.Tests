@@ -77,9 +77,19 @@ codeunit 93837 "LT Y71 MCP Config Card"
     begin
         Configure('LT Y71 MCP A', true, true, false);
         ObserveCard('dynamic', 'LT Y71 MCP A');
-        Obs.Expect('dynamic|features', 'API Tools = Active | Dynamic Tool Mode = Active | Data Query Tools (Preview/Billable) = Inactive');
-        Obs.Expect('dynamic|tools', 'bc_actions_describe : Retrieves the complete schema for a specific Business Central API action. Use this tool to understand the schema properties an action accepts before calling ''bc_actions_invoke''. | bc_actions_invoke : Executes a Business Central API action. Use ''bc_actions_describe'' first to get the action''s schema, then pass matching parameters here. | bc_actions_search : Searches for available Business Central API actions. Use this tool when the user asks about capabilities, data operations, or what actions are available. Start with this tool to discover actions, then use ''bc_actions_describe'' tool to understand thei');
-        Obs.Verify();
+        Obs.Finish();
+    end;
+
+    [Test]
+    procedure SystemTools_DynamicToolMode_More1()
+    begin
+        Obs.More();
+    end;
+
+    [Test]
+    procedure SystemTools_DynamicToolMode_More2()
+    begin
+        Obs.More();
     end;
 
 
@@ -90,9 +100,19 @@ codeunit 93837 "LT Y71 MCP Config Card"
     begin
         Configure('LT Y71 MCP B', true, false, true);
         ObserveCard('data_query', 'LT Y71 MCP B');
-        Obs.Expect('data_query|features', 'API Tools = Active | Dynamic Tool Mode = Inactive | Data Query Tools (Preview/Billable) = Active');
-        Obs.Expect('data_query|tools', 'bc_data_find_tables : Find Business Central tables by name or by semantic similarity. Returns table IDs and names. | bc_data_get_table_relations : Get outgoing or incoming relations for a Business Central table. | bc_data_get_table_schema : Get the fields for a Business Central table. Returns compact pipe-delimited text. | bc_data_query : Compile and validate an AL query. By default returns only the schema; set ''returnData'' to true to return data rows.');
-        Obs.Verify();
+        Obs.Finish();
+    end;
+
+    [Test]
+    procedure SystemTools_DataQueryTools_More1()
+    begin
+        Obs.More();
+    end;
+
+    [Test]
+    procedure SystemTools_DataQueryTools_More2()
+    begin
+        Obs.More();
     end;
 
 
@@ -103,9 +123,19 @@ codeunit 93837 "LT Y71 MCP Config Card"
     begin
         Configure('LT Y71 MCP C', true, true, true);
         ObserveCard('both', 'LT Y71 MCP C');
-        Obs.Expect('both|features', 'API Tools = Active | Dynamic Tool Mode = Active | Data Query Tools (Preview/Billable) = Active');
-        Obs.Expect('both|tools', 'bc_actions_describe : Retrieves the complete schema for a specific Business Central API action. Use this tool to understand the schema properties an action accepts before calling ''bc_actions_invoke''. | bc_actions_invoke : Executes a Business Central API action. Use ''bc_actions_describe'' first to get the action''s schema, then pass matching parameters here. | bc_actions_search : Searches for available Business Central API actions. Use this tool when the user asks about capabilities, data operations, or what actions are available. Start with this tool to discover actions, then use ''bc_actions_describe'' tool to understand thei | bc_data_find_tables : Find Business Central tables by name or by semantic similarity. Returns table IDs and names. | bc_data_get_table_relations : Get outgoing or incoming relations for a Business Central table. | bc_data_get_table_schema : Get the fields for a Business Central table. Returns compact pipe-delimited text. | bc_data_query : Compile and validate an AL query. By default returns only the schema; set ''returnData'' to true to return data rows.');
-        Obs.Verify();
+        Obs.Finish();
+    end;
+
+    [Test]
+    procedure SystemTools_DynamicAndDataQuery_More1()
+    begin
+        Obs.More();
+    end;
+
+    [Test]
+    procedure SystemTools_DynamicAndDataQuery_More2()
+    begin
+        Obs.More();
     end;
 
 
@@ -118,11 +148,19 @@ codeunit 93837 "LT Y71 MCP Config Card"
         ObserveCard('api_tools_only', 'LT Y71 MCP D');
         Configure('LT Y71 MCP E', false, false, false);
         ObserveCard('nothing', 'LT Y71 MCP E');
-        Obs.Expect('api_tools_only|features', 'API Tools = Active | Dynamic Tool Mode = Inactive | Data Query Tools (Preview/Billable) = Inactive');
-        Obs.Expect('api_tools_only|tools', 'no rows');
-        Obs.Expect('nothing|features', 'API Tools = Active | Dynamic Tool Mode = Inactive | Data Query Tools (Preview/Billable) = Inactive');
-        Obs.Expect('nothing|tools', 'no rows');
-        Obs.Verify();
+        Obs.Finish();
+    end;
+
+    [Test]
+    procedure SystemTools_ApiToolsOnly_AndNothing_More1()
+    begin
+        Obs.More();
+    end;
+
+    [Test]
+    procedure SystemTools_ApiToolsOnly_AndNothing_More2()
+    begin
+        Obs.More();
     end;
 
 
@@ -134,11 +172,19 @@ codeunit 93837 "LT Y71 MCP Config Card"
         Configure('LT Y71 MCP F', true, true, false);
         ObserveCard('first_open', 'LT Y71 MCP F');
         ObserveCard('second_open', 'LT Y71 MCP F');
-        Obs.Expect('first_open|features', 'API Tools = Active | Dynamic Tool Mode = Active | Data Query Tools (Preview/Billable) = Inactive');
-        Obs.Expect('first_open|tools', 'bc_actions_describe : Retrieves the complete schema for a specific Business Central API action. Use this tool to understand the schema properties an action accepts before calling ''bc_actions_invoke''. | bc_actions_invoke : Executes a Business Central API action. Use ''bc_actions_describe'' first to get the action''s schema, then pass matching parameters here. | bc_actions_search : Searches for available Business Central API actions. Use this tool when the user asks about capabilities, data operations, or what actions are available. Start with this tool to discover actions, then use ''bc_actions_describe'' tool to understand thei');
-        Obs.Expect('second_open|features', 'API Tools = Active | Dynamic Tool Mode = Active | Data Query Tools (Preview/Billable) = Inactive');
-        Obs.Expect('second_open|tools', 'bc_actions_describe : Retrieves the complete schema for a specific Business Central API action. Use this tool to understand the schema properties an action accepts before calling ''bc_actions_invoke''. | bc_actions_invoke : Executes a Business Central API action. Use ''bc_actions_describe'' first to get the action''s schema, then pass matching parameters here. | bc_actions_search : Searches for available Business Central API actions. Use this tool when the user asks about capabilities, data operations, or what actions are available. Start with this tool to discover actions, then use ''bc_actions_describe'' tool to understand thei');
-        Obs.Verify();
+        Obs.Finish();
+    end;
+
+    [Test]
+    procedure SystemTools_RepeatedOpen_SameAnswer_More1()
+    begin
+        Obs.More();
+    end;
+
+    [Test]
+    procedure SystemTools_RepeatedOpen_SameAnswer_More2()
+    begin
+        Obs.More();
     end;
 
 

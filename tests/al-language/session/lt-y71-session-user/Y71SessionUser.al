@@ -95,14 +95,26 @@ codeunit 93827 "LT Y71 Session User A"
     procedure SessionUser_RowsAtTestStart_EnvData()
     begin
         Observations('first_test');
-        Obs.Discard(); // tier dependent: recorded in the manifest, not asserted
+        Obs.Finish();
+    end;
+
+    [Test]
+    procedure SessionUser_RowsAtTestStart_EnvData_More1()
+    begin
+        Obs.More();
     end;
 
     [Test]
     procedure SessionUser_RowsInLaterTest_EnvData()
     begin
         Observations('later_test');
-        Obs.Discard(); // tier dependent: recorded in the manifest, not asserted
+        Obs.Finish();
+    end;
+
+    [Test]
+    procedure SessionUser_RowsInLaterTest_EnvData_More1()
+    begin
+        Obs.More();
     end;
 
     [Test]
@@ -110,7 +122,13 @@ codeunit 93827 "LT Y71 Session User A"
     procedure SessionUser_RowsUnderAutoRollback_EnvData()
     begin
         Observations('auto_rollback');
-        Obs.Discard(); // tier dependent: recorded in the manifest, not asserted
+        Obs.Finish();
+    end;
+
+    [Test]
+    procedure SessionUser_RowsUnderAutoRollback_EnvData_More1()
+    begin
+        Obs.More();
     end;
 }
 
@@ -201,7 +219,7 @@ codeunit 93829 "LT Y71 Session User Delete"
         Run('insert_user', 3);
         Obs.Observe('inserted_visible', Format(U.Count() > 0));
         Run('loop', 1);
-        Obs.Discard(); // tier dependent: recorded in the manifest, not asserted
+        Obs.Finish();
     end;
 
     [Test]
@@ -212,6 +230,6 @@ codeunit 93829 "LT Y71 Session User Delete"
     begin
         Run('delete_session_user', 2);
         Obs.Observe('session_user_row_after', Format(U.Get(UserSecurityId())));
-        Obs.Discard(); // tier dependent: recorded in the manifest, not asserted
+        Obs.Finish();
     end;
 }

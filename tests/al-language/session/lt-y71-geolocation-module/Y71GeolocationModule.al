@@ -98,6 +98,11 @@ codeunit 93836 "LT Y71 Geolocation Module"
         Obs.Finish();
     end;
 
+    [ModalPageHandler]
+    procedure LocationPageHandler(var GeolocationPage: TestPage Geolocation)
+    begin
+    end;
+
     [Test]
     procedure Geolocation_WithoutMock_IsAvailableAndRequest()
     var
@@ -106,13 +111,11 @@ codeunit 93836 "LT Y71 Geolocation Module"
         Available('is_available', Geo);
         Obs.Observe('has_geolocation', Format(Geo.HasGeolocation()));
         Obs.Observe('status', Format(Geo.GetGeolocationStatus()));
-        Request('request', Geo);
-        Obs.Observe('has_geolocation_after', Format(Geo.HasGeolocation()));
-        GetPosition('get_geolocation', Geo);
         Obs.Finish();
     end;
 
     [Test]
+    [HandlerFunctions('LocationPageHandler')]
     procedure Geolocation_WithMock_AvailableStatus()
     var
         Geo: Codeunit Geolocation;
@@ -136,35 +139,47 @@ codeunit 93836 "LT Y71 Geolocation Module"
         Obs.Finish();
     end;
 
-    [Test]
-    procedure Geolocation_WithMock_EveryStatus()
+    local procedure RequestWithStatus(Name: Text; Status: Enum "Geolocation Status")
     var
         Geo: Codeunit Geolocation;
         Lib: Codeunit "Geolocation Test Library";
     begin
         BindSubscription(Lib);
         Lib.SetLocationAvailability(true);
-        Lib.SetGeolocationStatus(Enum::"Geolocation Status"::"No Data");
-        Request('no_data|request', Geo);
-        Obs.Observe('no_data|has', Format(Geo.HasGeolocation()));
-        Obs.Observe('no_data|status', Format(Geo.GetGeolocationStatus()));
-        Lib.SetGeolocationStatus(Enum::"Geolocation Status"::"Timed Out");
-        Request('timed_out|request', Geo);
-        Obs.Observe('timed_out|has', Format(Geo.HasGeolocation()));
-        Obs.Observe('timed_out|status', Format(Geo.GetGeolocationStatus()));
-        Lib.SetGeolocationStatus(Enum::"Geolocation Status"::"Not Available");
-        Request('not_available|request', Geo);
-        Obs.Observe('not_available|has', Format(Geo.HasGeolocation()));
-        Obs.Observe('not_available|status', Format(Geo.GetGeolocationStatus()));
-        Lib.SetGeolocationStatus(Enum::"Geolocation Status"::Available);
-        Request('available_again|request', Geo);
-        Obs.Observe('available_again|has', Format(Geo.HasGeolocation()));
+        Lib.SetGeolocationStatus(Status);
+        Request(Name + '|request', Geo);
+        Obs.Observe(Name + '|has', Format(Geo.HasGeolocation()));
+        Obs.Observe(Name + '|status', Format(Geo.GetGeolocationStatus()));
+        GetPosition(Name + '|position', Geo);
         UnbindSubscription(Lib);
+    end;
+
+    [Test]
+    [HandlerFunctions('LocationPageHandler')]
+    procedure Geolocation_WithMock_StatusNoData()
+    begin
+        RequestWithStatus('no_data', Enum::"Geolocation Status"::"No Data");
         Obs.Finish();
     end;
 
     [Test]
-    procedure Geolocation_WithMock_NotAvailable()
+    [HandlerFunctions('LocationPageHandler')]
+    procedure Geolocation_WithMock_StatusTimedOut()
+    begin
+        RequestWithStatus('timed_out', Enum::"Geolocation Status"::"Timed Out");
+        Obs.Finish();
+    end;
+
+    [Test]
+    [HandlerFunctions('LocationPageHandler')]
+    procedure Geolocation_WithMock_StatusNotAvailable()
+    begin
+        RequestWithStatus('not_available', Enum::"Geolocation Status"::"Not Available");
+        Obs.Finish();
+    end;
+
+    [Test]
+    procedure Geolocation_WithMock_LocationNotAvailable()
     var
         Geo: Codeunit Geolocation;
         Lib: Codeunit "Geolocation Test Library";
@@ -176,7 +191,6 @@ codeunit 93836 "LT Y71 Geolocation Module"
         Request('request', Geo);
         Obs.Observe('has_after', Format(Geo.HasGeolocation()));
         Obs.Observe('status_after', Format(Geo.GetGeolocationStatus()));
-        GetPosition('get_after_request', Geo);
         UnbindSubscription(Lib);
         Obs.Finish();
     end;

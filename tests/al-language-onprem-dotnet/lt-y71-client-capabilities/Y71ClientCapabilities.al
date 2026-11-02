@@ -126,6 +126,12 @@ codeunit 99310 "LT Y71 Client Capabilities"
         Obs.Finish();
     end;
 
+    [Test]
+    procedure CameraOptions_NewAndProperties_More1()
+    begin
+        Obs.More();
+    end;
+
     [TryFunction]
     local procedure TryLocation(Which: Integer; var Answer: Text)
     var
@@ -219,6 +225,12 @@ codeunit 99310 "LT Y71 Client Capabilities"
         LocationCase('status_default', 13);
         LocationCase('to_string', 14);
         Obs.Finish();
+    end;
+
+    [Test]
+    procedure Location_Mock_Build_More1()
+    begin
+        Obs.More();
     end;
 
     [TryFunction]
