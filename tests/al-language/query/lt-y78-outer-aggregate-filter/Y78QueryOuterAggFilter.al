@@ -70,7 +70,7 @@ query 94132 "LT Y78 Q Left All"
                 {
                     Method = Max;
                 }
-                column(CntQ; Qty)
+                column(CntQ)
                 {
                     Method = Count;
                 }
@@ -111,7 +111,7 @@ query 94133 "LT Y78 Q Left Sum"
                 {
                     Method = Max;
                 }
-                column(CntQ; Qty)
+                column(CntQ)
                 {
                     Method = Count;
                 }
@@ -152,7 +152,7 @@ query 94134 "LT Y78 Q Left Avg"
                 {
                     Method = Max;
                 }
-                column(CntQ; Qty)
+                column(CntQ)
                 {
                     Method = Count;
                 }
@@ -193,7 +193,7 @@ query 94135 "LT Y78 Q Left Min"
                 {
                     Method = Max;
                 }
-                column(CntQ; Qty)
+                column(CntQ)
                 {
                     Method = Count;
                 }
@@ -234,7 +234,7 @@ query 94136 "LT Y78 Q Left Max"
                     Method = Max;
                     ColumnFilter = MaxQ = filter(>= 20);
                 }
-                column(CntQ; Qty)
+                column(CntQ)
                 {
                     Method = Count;
                 }
@@ -274,7 +274,7 @@ query 94137 "LT Y78 Q Left Cnt"
                 {
                     Method = Max;
                 }
-                column(CntQ; Qty)
+                column(CntQ)
                 {
                     Method = Count;
                     ColumnFilter = CntQ = filter(0);
@@ -315,7 +315,7 @@ query 94138 "LT Y78 Q Right All"
                 {
                     Method = Max;
                 }
-                column(CntQ; Qty)
+                column(CntQ)
                 {
                     Method = Count;
                 }
@@ -356,7 +356,7 @@ query 94139 "LT Y78 Q Right Sum"
                 {
                     Method = Max;
                 }
-                column(CntQ; Qty)
+                column(CntQ)
                 {
                     Method = Count;
                 }
@@ -397,7 +397,7 @@ query 94140 "LT Y78 Q Right Avg"
                 {
                     Method = Max;
                 }
-                column(CntQ; Qty)
+                column(CntQ)
                 {
                     Method = Count;
                 }
@@ -438,7 +438,7 @@ query 94141 "LT Y78 Q Right Min"
                 {
                     Method = Max;
                 }
-                column(CntQ; Qty)
+                column(CntQ)
                 {
                     Method = Count;
                 }
@@ -479,7 +479,7 @@ query 94142 "LT Y78 Q Right Max"
                     Method = Max;
                     ColumnFilter = MaxQ = filter(>= 20);
                 }
-                column(CntQ; Qty)
+                column(CntQ)
                 {
                     Method = Count;
                 }
@@ -519,7 +519,7 @@ query 94143 "LT Y78 Q Right Cnt"
                 {
                     Method = Max;
                 }
-                column(CntQ; Qty)
+                column(CntQ)
                 {
                     Method = Count;
                     ColumnFilter = CntQ = filter(0);
@@ -560,7 +560,7 @@ query 94144 "LT Y78 Q Full All"
                 {
                     Method = Max;
                 }
-                column(CntQ; Qty)
+                column(CntQ)
                 {
                     Method = Count;
                 }
@@ -601,7 +601,7 @@ query 94145 "LT Y78 Q Full Sum"
                 {
                     Method = Max;
                 }
-                column(CntQ; Qty)
+                column(CntQ)
                 {
                     Method = Count;
                 }
@@ -642,7 +642,7 @@ query 94146 "LT Y78 Q Full Avg"
                 {
                     Method = Max;
                 }
-                column(CntQ; Qty)
+                column(CntQ)
                 {
                     Method = Count;
                 }
@@ -683,7 +683,7 @@ query 94147 "LT Y78 Q Full Min"
                 {
                     Method = Max;
                 }
-                column(CntQ; Qty)
+                column(CntQ)
                 {
                     Method = Count;
                 }
@@ -724,7 +724,7 @@ query 94148 "LT Y78 Q Full Max"
                     Method = Max;
                     ColumnFilter = MaxQ = filter(>= 20);
                 }
-                column(CntQ; Qty)
+                column(CntQ)
                 {
                     Method = Count;
                 }
@@ -764,7 +764,7 @@ query 94149 "LT Y78 Q Full Cnt"
                 {
                     Method = Max;
                 }
-                column(CntQ; Qty)
+                column(CntQ)
                 {
                     Method = Count;
                     ColumnFilter = CntQ = filter(0);
