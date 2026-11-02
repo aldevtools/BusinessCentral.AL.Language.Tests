@@ -72,7 +72,11 @@ codeunit 94214 "LT Y80 SV Tests"
         RowsF1(Doc, 'open');
         Doc.Close();
         Observer.Observe('close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open log', 'F1.open();host.agr(H1);F1.agr(H1/10000);F1.agr(H1/20000);F1.agr(H1/10000);F1.agr(H1/10000);F1.agcr(H1/10000)');
+        Observer.Expect('open rows F1', 'H1/10000,H1/20000,');
+        Observer.Expect('open log reading rows', 'F1.agr(H1/20000);F1.agr(H1/20000);F1.agcr(H1/20000)');
+        Observer.Expect('close log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -85,7 +89,11 @@ codeunit 94214 "LT Y80 SV Tests"
         RowsF1(Doc, 'open');
         Doc.Close();
         Observer.Observe('close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open log', 'F1.open();host.agr(H1);F1.agr(H1/10000);F1.agr(H1/20000);F1.agr(H1/10000);F1.agr(H1/10000);F1.agcr(H1/10000)');
+        Observer.Expect('open rows F1', 'H1/10000,H1/20000,H1/0,');
+        Observer.Expect('open log reading rows', 'F1.agr(H1/20000);F1.agr(H1/20000);F1.agcr(H1/20000);F1.agcr(H1/0)');
+        Observer.Expect('close log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -98,7 +106,11 @@ codeunit 94214 "LT Y80 SV Tests"
         RowsF1(Doc, 'open');
         Doc.Close();
         Observer.Observe('close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open log', 'F1.open();F1.agcr(/0);F1.agcr(/0);F1.agcr(/0)');
+        Observer.Expect('open rows F1', '');
+        Observer.Expect('open log reading rows', 'F1.agcr(/0);F1.agcr(/0);F1.agcr(/0)');
+        Observer.Expect('close log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -120,7 +132,28 @@ codeunit 94214 "LT Y80 SV Tests"
         Observer.Observe('goto', Format(Doc.GoToKey('H2'), 0, 9) + '/' + Doc.CodeCtl.Value());
         RowsF1(Doc, 'goto');
         Doc.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'F1.open();host.agr(H1);F1.agr(H1/10000);F1.agr(H1/20000);F1.agr(H1/10000);F1.agr(H1/10000);F1.agcr(H1/10000)');
+        Observer.Expect('next', 'true/H2');
+        Observer.Expect('next log', 'host.agr(H2);F1.agr(H2/10000);F1.agr(H2/20000);F1.agr(H2/10000);F1.agr(H2/10000);F1.agcr(H2/10000)');
+        Observer.Expect('next rows F1', 'H2/10000,H2/20000,H2/0,');
+        Observer.Expect('next log reading rows', 'F1.agr(H2/20000);F1.agr(H2/20000);F1.agcr(H2/20000);F1.agcr(H2/0)');
+        Observer.Expect('last', 'true/H3');
+        Observer.Expect('last log', 'host.agr(H3);F1.agr(H3/10000);F1.agr(H3/10000);F1.agcr(H3/10000)');
+        Observer.Expect('last rows F1', 'H3/10000,H3/0,');
+        Observer.Expect('last log reading rows', 'F1.agcr(H3/0)');
+        Observer.Expect('previous', 'true/H2');
+        Observer.Expect('previous log', 'host.agr(H2);F1.agr(H2/20000);F1.agr(H2/10000);F1.agr(H2/20000);F1.agr(H2/20000);F1.agcr(H2/20000)');
+        Observer.Expect('previous rows F1', 'H2/10000,H2/20000,H2/0,');
+        Observer.Expect('previous log reading rows', 'F1.agr(H2/10000);F1.agr(H2/10000);F1.agcr(H2/10000);F1.agr(H2/20000);F1.agr(H2/20000);F1.agcr(H2/20000);F1.agcr(H2/0)');
+        Observer.Expect('first', 'true/H1');
+        Observer.Expect('first log', 'host.agr(H1);F1.agr(H1/20000);F1.agr(H1/10000);F1.agr(H1/20000);F1.agr(H1/20000);F1.agcr(H1/20000)');
+        Observer.Expect('first rows F1', 'H1/10000,H1/20000,H1/0,');
+        Observer.Expect('first log reading rows', 'F1.agr(H1/10000);F1.agr(H1/10000);F1.agcr(H1/10000);F1.agr(H1/20000);F1.agr(H1/20000);F1.agcr(H1/20000);F1.agcr(H1/0)');
+        Observer.Expect('goto', 'true/H2');
+        Observer.Expect('goto log', 'host.agr(H1);host.agr(H2);F1.agr(H2/10000);F1.agr(H2/20000);F1.agr(H2/10000);F1.agr(H2/10000);F1.agcr(H2/10000)');
+        Observer.Expect('goto rows F1', 'H2/10000,H2/20000,H2/0,');
+        Observer.Expect('goto log reading rows', 'F1.agr(H2/20000);F1.agr(H2/20000);F1.agcr(H2/20000);F1.agcr(H2/0)');
+        Observer.Verify();
     end;
 
     local procedure RowsF2(var Doc: TestPage "LT Y80 SV Host F2"; Tag: Text)
@@ -147,7 +180,11 @@ codeunit 94214 "LT Y80 SV Tests"
         RowsF2(Doc, 'open');
         Doc.Close();
         Observer.Observe('close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open log', 'F2.open();host.agr(H1);F2.agr(H1/10000);F2.agr(H1/20000);F2.agr(H1/10000);F2.agr(H1/10000);F2.agcr(H1/10000)');
+        Observer.Expect('open rows F2', 'H1/10000,H1/20000,');
+        Observer.Expect('open log reading rows', 'F2.agr(H1/20000);F2.agr(H1/20000);F2.agcr(H1/20000)');
+        Observer.Expect('close log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -160,7 +197,11 @@ codeunit 94214 "LT Y80 SV Tests"
         RowsF2(Doc, 'open');
         Doc.Close();
         Observer.Observe('close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open log', 'F2.open();host.agr(H1);F2.agr(H1/10000);F2.agr(H1/20000);F2.agr(H1/10000);F2.agr(H1/10000);F2.agcr(H1/10000)');
+        Observer.Expect('open rows F2', 'H1/10000,H1/20000,H1/0,');
+        Observer.Expect('open log reading rows', 'F2.agr(H1/20000);F2.agr(H1/20000);F2.agcr(H1/20000);F2.agcr(H1/0)');
+        Observer.Expect('close log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -173,7 +214,11 @@ codeunit 94214 "LT Y80 SV Tests"
         RowsF2(Doc, 'open');
         Doc.Close();
         Observer.Observe('close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open log', 'F2.open();F2.agcr(/0);F2.agcr(/0);F2.agcr(/0)');
+        Observer.Expect('open rows F2', '');
+        Observer.Expect('open log reading rows', 'F2.agcr(/0);F2.agcr(/0);F2.agcr(/0)');
+        Observer.Expect('close log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -195,7 +240,28 @@ codeunit 94214 "LT Y80 SV Tests"
         Observer.Observe('goto', Format(Doc.GoToKey('H2'), 0, 9) + '/' + Doc.CodeCtl.Value());
         RowsF2(Doc, 'goto');
         Doc.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'F2.open();host.agr(H1);F2.agr(H1/10000);F2.agr(H1/20000);F2.agr(H1/10000);F2.agr(H1/10000);F2.agcr(H1/10000)');
+        Observer.Expect('next', 'true/H2');
+        Observer.Expect('next log', 'host.agr(H2);F2.agr(H2/10000);F2.agr(H2/20000);F2.agr(H2/10000);F2.agr(H2/10000);F2.agcr(H2/10000)');
+        Observer.Expect('next rows F2', 'H2/10000,H2/20000,H2/0,');
+        Observer.Expect('next log reading rows', 'F2.agr(H2/20000);F2.agr(H2/20000);F2.agcr(H2/20000);F2.agcr(H2/0)');
+        Observer.Expect('last', 'true/H3');
+        Observer.Expect('last log', 'host.agr(H3);F2.agr(H3/10000);F2.agr(H3/10000);F2.agcr(H3/10000)');
+        Observer.Expect('last rows F2', 'H3/10000,H3/0,');
+        Observer.Expect('last log reading rows', 'F2.agcr(H3/0)');
+        Observer.Expect('previous', 'true/H2');
+        Observer.Expect('previous log', 'host.agr(H2);F2.agr(H2/20000);F2.agr(H2/10000);F2.agr(H2/20000);F2.agr(H2/20000);F2.agcr(H2/20000)');
+        Observer.Expect('previous rows F2', 'H2/10000,H2/20000,H2/0,');
+        Observer.Expect('previous log reading rows', 'F2.agr(H2/10000);F2.agr(H2/10000);F2.agcr(H2/10000);F2.agr(H2/20000);F2.agr(H2/20000);F2.agcr(H2/20000);F2.agcr(H2/0)');
+        Observer.Expect('first', 'true/H1');
+        Observer.Expect('first log', 'host.agr(H1);F2.agr(H1/20000);F2.agr(H1/10000);F2.agr(H1/20000);F2.agr(H1/20000);F2.agcr(H1/20000)');
+        Observer.Expect('first rows F2', 'H1/10000,H1/20000,H1/0,');
+        Observer.Expect('first log reading rows', 'F2.agr(H1/10000);F2.agr(H1/10000);F2.agcr(H1/10000);F2.agr(H1/20000);F2.agr(H1/20000);F2.agcr(H1/20000);F2.agcr(H1/0)');
+        Observer.Expect('goto', 'true/H2');
+        Observer.Expect('goto log', 'host.agr(H1);host.agr(H2);F2.agr(H2/10000);F2.agr(H2/20000);F2.agr(H2/10000);F2.agr(H2/10000);F2.agcr(H2/10000)');
+        Observer.Expect('goto rows F2', 'H2/10000,H2/20000,H2/0,');
+        Observer.Expect('goto log reading rows', 'F2.agr(H2/20000);F2.agr(H2/20000);F2.agcr(H2/20000);F2.agcr(H2/0)');
+        Observer.Verify();
     end;
 
     local procedure RowsF3(var Doc: TestPage "LT Y80 SV Host F3"; Tag: Text)
@@ -222,7 +288,11 @@ codeunit 94214 "LT Y80 SV Tests"
         RowsF3(Doc, 'open');
         Doc.Close();
         Observer.Observe('close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open log', 'F3.open();host.agr(H1);F3.agr(H1/20000);F3.agr(H1/10000);F3.agr(H1/20000);F3.agr(H1/20000);F3.agcr(H1/20000)');
+        Observer.Expect('open rows F3', 'H1/10000,H1/20000,');
+        Observer.Expect('open log reading rows', 'F3.agr(H1/10000);F3.agr(H1/10000);F3.agcr(H1/10000);F3.agr(H1/20000);F3.agr(H1/20000);F3.agcr(H1/20000)');
+        Observer.Expect('close log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -235,7 +305,11 @@ codeunit 94214 "LT Y80 SV Tests"
         RowsF3(Doc, 'open');
         Doc.Close();
         Observer.Observe('close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open log', 'F3.open();host.agr(H1);F3.agr(H1/20000);F3.agr(H1/10000);F3.agr(H1/20000);F3.agr(H1/20000);F3.agcr(H1/20000)');
+        Observer.Expect('open rows F3', 'H1/10000,H1/20000,H1/0,');
+        Observer.Expect('open log reading rows', 'F3.agr(H1/10000);F3.agr(H1/10000);F3.agcr(H1/10000);F3.agr(H1/20000);F3.agr(H1/20000);F3.agcr(H1/20000);F3.agcr(H1/0)');
+        Observer.Expect('close log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -248,7 +322,11 @@ codeunit 94214 "LT Y80 SV Tests"
         RowsF3(Doc, 'open');
         Doc.Close();
         Observer.Observe('close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open log', 'F3.open();F3.agcr(/0);F3.agcr(/0);F3.agcr(/0)');
+        Observer.Expect('open rows F3', '');
+        Observer.Expect('open log reading rows', 'F3.agcr(/0);F3.agcr(/0);F3.agcr(/0)');
+        Observer.Expect('close log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -270,7 +348,28 @@ codeunit 94214 "LT Y80 SV Tests"
         Observer.Observe('goto', Format(Doc.GoToKey('H2'), 0, 9) + '/' + Doc.CodeCtl.Value());
         RowsF3(Doc, 'goto');
         Doc.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'F3.open();host.agr(H1);F3.agr(H1/20000);F3.agr(H1/10000);F3.agr(H1/20000);F3.agr(H1/20000);F3.agcr(H1/20000)');
+        Observer.Expect('next', 'true/H2');
+        Observer.Expect('next log', 'host.agr(H2);F3.agr(H2/10000);F3.agr(H2/20000);F3.agr(H2/10000);F3.agr(H2/10000);F3.agcr(H2/10000)');
+        Observer.Expect('next rows F3', 'H2/10000,H2/20000,H2/0,');
+        Observer.Expect('next log reading rows', 'F3.agr(H2/20000);F3.agr(H2/20000);F3.agcr(H2/20000);F3.agcr(H2/0)');
+        Observer.Expect('last', 'true/H3');
+        Observer.Expect('last log', 'host.agr(H3);F3.agr(H3/10000);F3.agr(H3/10000);F3.agcr(H3/10000)');
+        Observer.Expect('last rows F3', 'H3/10000,H3/0,');
+        Observer.Expect('last log reading rows', 'F3.agcr(H3/0)');
+        Observer.Expect('previous', 'true/H2');
+        Observer.Expect('previous log', 'host.agr(H2);F3.agr(H2/20000);F3.agr(H2/10000);F3.agr(H2/20000);F3.agr(H2/20000);F3.agcr(H2/20000)');
+        Observer.Expect('previous rows F3', 'H2/10000,H2/20000,H2/0,');
+        Observer.Expect('previous log reading rows', 'F3.agr(H2/10000);F3.agr(H2/10000);F3.agcr(H2/10000);F3.agr(H2/20000);F3.agr(H2/20000);F3.agcr(H2/20000);F3.agcr(H2/0)');
+        Observer.Expect('first', 'true/H1');
+        Observer.Expect('first log', 'host.agr(H1);F3.agr(H1/20000);F3.agr(H1/10000);F3.agr(H1/20000);F3.agr(H1/20000);F3.agcr(H1/20000)');
+        Observer.Expect('first rows F3', 'H1/10000,H1/20000,H1/0,');
+        Observer.Expect('first log reading rows', 'F3.agr(H1/10000);F3.agr(H1/10000);F3.agcr(H1/10000);F3.agr(H1/20000);F3.agr(H1/20000);F3.agcr(H1/20000);F3.agcr(H1/0)');
+        Observer.Expect('goto', 'true/H2');
+        Observer.Expect('goto log', 'host.agr(H1);host.agr(H2);F3.agr(H2/10000);F3.agr(H2/20000);F3.agr(H2/10000);F3.agr(H2/10000);F3.agcr(H2/10000)');
+        Observer.Expect('goto rows F3', 'H2/10000,H2/20000,H2/0,');
+        Observer.Expect('goto log reading rows', 'F3.agr(H2/20000);F3.agr(H2/20000);F3.agcr(H2/20000);F3.agcr(H2/0)');
+        Observer.Verify();
     end;
 
     local procedure RowsF4(var Doc: TestPage "LT Y80 SV Host F4"; Tag: Text)
@@ -297,7 +396,11 @@ codeunit 94214 "LT Y80 SV Tests"
         RowsF4(Doc, 'open');
         Doc.Close();
         Observer.Observe('close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open log', 'F4.open();host.agr(H1);F4.agr(H1/10000);F4.agr(H1/20000);F4.agr(H1/10000);F4.agr(H1/10000);F4.agcr(H1/10000)');
+        Observer.Expect('open rows F4', 'H1/10000,H1/20000,');
+        Observer.Expect('open log reading rows', 'F4.agr(H1/20000);F4.agr(H1/20000);F4.agcr(H1/20000)');
+        Observer.Expect('close log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -310,7 +413,11 @@ codeunit 94214 "LT Y80 SV Tests"
         RowsF4(Doc, 'open');
         Doc.Close();
         Observer.Observe('close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open log', 'F4.open();host.agr(H1);F4.agr(H1/10000);F4.agr(H1/20000);F4.agr(H1/10000);F4.agr(H1/10000);F4.agcr(H1/10000)');
+        Observer.Expect('open rows F4', 'H1/10000,H1/20000,H1/0,');
+        Observer.Expect('open log reading rows', 'F4.agr(H1/20000);F4.agr(H1/20000);F4.agcr(H1/20000);F4.agcr(H1/0)');
+        Observer.Expect('close log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -323,7 +430,11 @@ codeunit 94214 "LT Y80 SV Tests"
         RowsF4(Doc, 'open');
         Doc.Close();
         Observer.Observe('close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open log', 'F4.open();F4.agcr(/0);F4.agcr(/0);F4.agcr(/0)');
+        Observer.Expect('open rows F4', '');
+        Observer.Expect('open log reading rows', 'F4.agcr(/0);F4.agcr(/0);F4.agcr(/0)');
+        Observer.Expect('close log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -345,7 +456,28 @@ codeunit 94214 "LT Y80 SV Tests"
         Observer.Observe('goto', Format(Doc.GoToKey('H2'), 0, 9) + '/' + Doc.CodeCtl.Value());
         RowsF4(Doc, 'goto');
         Doc.Close();
-        Observer.Finish();
+        Observer.Expect('open', 'F4.open();host.agr(H1);F4.agr(H1/10000);F4.agr(H1/20000);F4.agr(H1/10000);F4.agr(H1/10000);F4.agcr(H1/10000)');
+        Observer.Expect('next', 'true/H2');
+        Observer.Expect('next log', 'host.agr(H2);F4.agr(H2/10000);F4.agr(H2/20000);F4.agr(H2/10000);F4.agr(H2/10000);F4.agcr(H2/10000)');
+        Observer.Expect('next rows F4', 'H2/10000,H2/20000,H2/0,');
+        Observer.Expect('next log reading rows', 'F4.agr(H2/20000);F4.agr(H2/20000);F4.agcr(H2/20000);F4.agcr(H2/0)');
+        Observer.Expect('last', 'true/H3');
+        Observer.Expect('last log', 'host.agr(H3);F4.agr(H3/10000);F4.agr(H3/10000);F4.agcr(H3/10000)');
+        Observer.Expect('last rows F4', 'H3/10000,H3/0,');
+        Observer.Expect('last log reading rows', 'F4.agcr(H3/0)');
+        Observer.Expect('previous', 'true/H2');
+        Observer.Expect('previous log', 'host.agr(H2);F4.agr(H2/20000);F4.agr(H2/10000);F4.agr(H2/20000);F4.agr(H2/20000);F4.agcr(H2/20000)');
+        Observer.Expect('previous rows F4', 'H2/10000,H2/20000,H2/0,');
+        Observer.Expect('previous log reading rows', 'F4.agr(H2/10000);F4.agr(H2/10000);F4.agcr(H2/10000);F4.agr(H2/20000);F4.agr(H2/20000);F4.agcr(H2/20000);F4.agcr(H2/0)');
+        Observer.Expect('first', 'true/H1');
+        Observer.Expect('first log', 'host.agr(H1);F4.agr(H1/20000);F4.agr(H1/10000);F4.agr(H1/20000);F4.agr(H1/20000);F4.agcr(H1/20000)');
+        Observer.Expect('first rows F4', 'H1/10000,H1/20000,H1/0,');
+        Observer.Expect('first log reading rows', 'F4.agr(H1/10000);F4.agr(H1/10000);F4.agcr(H1/10000);F4.agr(H1/20000);F4.agr(H1/20000);F4.agcr(H1/20000);F4.agcr(H1/0)');
+        Observer.Expect('goto', 'true/H2');
+        Observer.Expect('goto log', 'host.agr(H1);host.agr(H2);F4.agr(H2/10000);F4.agr(H2/20000);F4.agr(H2/10000);F4.agr(H2/10000);F4.agcr(H2/10000)');
+        Observer.Expect('goto rows F4', 'H2/10000,H2/20000,H2/0,');
+        Observer.Expect('goto log reading rows', 'F4.agr(H2/20000);F4.agr(H2/20000);F4.agcr(H2/20000);F4.agcr(H2/0)');
+        Observer.Verify();
     end;
 
     local procedure RowsAll(var Doc: TestPage "LT Y80 SV Host All"; Tag: Text)
@@ -390,7 +522,14 @@ codeunit 94214 "LT Y80 SV Tests"
         RowsAll(Doc, 'open');
         Doc.Close();
         Observer.Observe('close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open log', 'F1.open();F2.open();F3.open();F4.open();host.agr(H1);F1.agr(H1/10000);F1.agr(H1/20000);F1.agr(H1/10000);F1.agr(H1/10000);F1.agcr(H1/10000);F2.agr(H1/10000);F2.agr(H1/20000);F2.agr(H1/10000);F2.agr(H1/10000);F2.agcr(H1/10000);F3.agr(H1/20000);F3.agr(H1/10000);F3.agr(H1/20000);F3.agr(H1/20000);F3.agcr(H1/20000);F4.agr(H1/10000);F4.agr(H1/20000);F4.agr(H1/10000);F4.agr(H1/10000);F4.agcr(H1/10000)');
+        Observer.Expect('open rows F1', 'H1/10000,H1/20000,');
+        Observer.Expect('open rows F2', 'H1/10000,H1/20000,');
+        Observer.Expect('open rows F3', 'H1/10000,H1/20000,');
+        Observer.Expect('open rows F4', 'H1/10000,H1/20000,');
+        Observer.Expect('open log reading rows', 'F1.agr(H1/20000);F1.agr(H1/20000);F1.agcr(H1/20000);F2.agr(H1/20000);F2.agr(H1/20000);F2.agcr(H1/20000);F3.agr(H1/10000);F3.agr(H1/10000);F3.agcr(H1/10000);F3.agr(H1/20000);F3.agr(H1/20000);F3.agcr(H1/20000);F4.agr(H1/20000);F4.agr(H1/20000);F4.agcr(H1/20000)');
+        Observer.Expect('close log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -403,7 +542,14 @@ codeunit 94214 "LT Y80 SV Tests"
         RowsAll(Doc, 'open');
         Doc.Close();
         Observer.Observe('close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open log', 'F1.open();F2.open();F3.open();F4.open();host.agr(H1);F1.agr(H1/10000);F1.agr(H1/20000);F1.agr(H1/10000);F1.agr(H1/10000);F1.agcr(H1/10000);F2.agr(H1/10000);F2.agr(H1/20000);F2.agr(H1/10000);F2.agr(H1/10000);F2.agcr(H1/10000);F3.agr(H1/20000);F3.agr(H1/10000);F3.agr(H1/20000);F3.agr(H1/20000);F3.agcr(H1/20000);F4.agr(H1/10000);F4.agr(H1/20000);F4.agr(H1/10000);F4.agr(H1/10000);F4.agcr(H1/10000)');
+        Observer.Expect('open rows F1', 'H1/10000,H1/20000,H1/0,');
+        Observer.Expect('open rows F2', 'H1/10000,H1/20000,H1/0,');
+        Observer.Expect('open rows F3', 'H1/10000,H1/20000,H1/0,');
+        Observer.Expect('open rows F4', 'H1/10000,H1/20000,H1/0,');
+        Observer.Expect('open log reading rows', 'F1.agr(H1/20000);F1.agr(H1/20000);F1.agcr(H1/20000);F1.agcr(H1/0);F2.agr(H1/20000);F2.agr(H1/20000);F2.agcr(H1/20000);F2.agcr(H1/0);F3.agr(H1/10000);F3.agr(H1/10000);F3.agcr(H1/10000);F3.agr(H1/20000);F3.agr(H1/20000);F3.agcr(H1/20000);F3.agcr(H1/0);F4.agr(H1/20000);F4.agr(H1/20000);F4.agcr(H1/20000);F4.agcr(H1/0)');
+        Observer.Expect('close log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -416,11 +562,18 @@ codeunit 94214 "LT Y80 SV Tests"
         RowsAll(Doc, 'open');
         Doc.Close();
         Observer.Observe('close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open log', 'F1.open();F2.open();F3.open();F4.open();F1.agcr(/0);F1.agcr(/0);F1.agcr(/0);F2.agcr(/0);F2.agcr(/0);F2.agcr(/0);F3.agcr(/0);F3.agcr(/0);F3.agcr(/0);F4.agcr(/0);F4.agcr(/0);F4.agcr(/0)');
+        Observer.Expect('open rows F1', '');
+        Observer.Expect('open rows F2', '');
+        Observer.Expect('open rows F3', '');
+        Observer.Expect('open rows F4', '');
+        Observer.Expect('open log reading rows', 'F1.agcr(/0);F1.agcr(/0);F1.agcr(/0);F2.agcr(/0);F2.agcr(/0);F2.agcr(/0);F3.agcr(/0);F3.agcr(/0);F3.agcr(/0);F4.agcr(/0);F4.agcr(/0);F4.agcr(/0)');
+        Observer.Expect('close log', '');
+        Observer.Verify();
     end;
 
     [Test]
-    procedure Y80_SV_All_HostMoves()
+    procedure Y80_SV_All_HostNextLast()
     var
         Doc: TestPage "LT Y80 SV Host All";
     begin
@@ -431,11 +584,36 @@ codeunit 94214 "LT Y80 SV Tests"
         RowsAll(Doc, 'next');
         Observer.Observe('last', Format(Doc.Last(), 0, 9) + '/' + Doc.CodeCtl.Value());
         RowsAll(Doc, 'last');
+        Doc.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y80_SV_All_HostPreviousFirst()
+    var
+        Doc: TestPage "LT Y80 SV Host All";
+    begin
+        Seed();
+        Doc.OpenEdit();
+        Doc.Last();
+        Observer.Observe('log before', Log.Take());
         Observer.Observe('previous', Format(Doc.Previous(), 0, 9) + '/' + Doc.CodeCtl.Value());
         RowsAll(Doc, 'previous');
         Observer.Observe('first', Format(Doc.First(), 0, 9) + '/' + Doc.CodeCtl.Value());
         RowsAll(Doc, 'first');
-        Observer.Observe('goto', Format(Doc.GoToKey('H2'), 0, 9) + '/' + Doc.CodeCtl.Value());
+        Doc.Close();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y80_SV_All_HostGoToKey()
+    var
+        Doc: TestPage "LT Y80 SV Host All";
+    begin
+        Seed();
+        Doc.OpenEdit();
+        Observer.Observe('open', Log.Take());
+        Observer.Observe('goto', Format(Doc.GoToKey('H3'), 0, 9) + '/' + Doc.CodeCtl.Value());
         RowsAll(Doc, 'goto');
         Doc.Close();
         Observer.Finish();
