@@ -57,19 +57,24 @@ codeunit 94058 "LT Y76 Stale Buffers"
         Commit();
     end;
 
-    [TryFunction]
-    local procedure TryWrite(var Row: Record "LT Y76 SB Row"; Deleting: Boolean)
-    begin
-        if Deleting then
-            Row.Delete(false)
-        else
-            Row.Modify(false);
-    end;
-
+    // A TryFunction may not write to the database, so the write runs in an asserterror statement that raises a marker error after the write; an
+    // error of the write itself is what GetLastErrorCode then holds.
     local procedure WriteOutcome(var Row: Record "LT Y76 SB Row"; Deleting: Boolean): Text
     begin
         ClearLastError();
-        if TryWrite(Row, Deleting) then
+        if Deleting then
+            asserterror
+            begin
+                Row.Delete(false);
+                Error('LT_Y76_WRITE_DONE');
+            end
+        else
+            asserterror
+            begin
+                Row.Modify(false);
+                Error('LT_Y76_WRITE_DONE');
+            end;
+        if GetLastErrorText() = 'LT_Y76_WRITE_DONE' then
             exit('ok');
         exit(GetLastErrorCode());
     end;
