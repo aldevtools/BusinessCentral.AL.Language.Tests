@@ -175,151 +175,631 @@ codeunit 94542 "LT R6795 LoadFields Flow"
     end;
 
     [Test]
-    procedure LoadFields_Statement_NeverFetched()
+    procedure LoadFields_Statement_NeverFetched_Cnt()
     var
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 1, 1, 1, 'Cnt');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LoadFields_Statement_NeverFetched_Flt()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Cell(Observer, 1, 1, 2, 'Flt');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LoadFields_Statement_NeverFetched_NameCnt()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Cell(Observer, 1, 1, 3, 'Name+Cnt');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LoadFields_Statement_NeverFetched_CntName()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Cell(Observer, 1, 1, 4, 'Cnt+Name');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LoadFields_Statement_NeverFetched_CntTot()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Cell(Observer, 1, 1, 5, 'Cnt+Tot');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LoadFields_Statement_NeverFetched_FltName()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Cell(Observer, 1, 1, 6, 'Flt+Name');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LoadFields_Statement_NeverFetched_Name()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Cell(Observer, 1, 1, 7, 'Name');
         Observer.Finish();
     end;
 
     [Test]
-    procedure LoadFields_Function_NeverFetched()
+    procedure LoadFields_Function_NeverFetched_Cnt()
     var
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 1, 2, 1, 'Cnt');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LoadFields_Function_NeverFetched_Flt()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Cell(Observer, 1, 2, 2, 'Flt');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LoadFields_Function_NeverFetched_NameCnt()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Cell(Observer, 1, 2, 3, 'Name+Cnt');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LoadFields_Function_NeverFetched_CntName()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Cell(Observer, 1, 2, 4, 'Cnt+Name');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LoadFields_Function_NeverFetched_CntTot()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Cell(Observer, 1, 2, 5, 'Cnt+Tot');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LoadFields_Function_NeverFetched_FltName()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Cell(Observer, 1, 2, 6, 'Flt+Name');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LoadFields_Function_NeverFetched_Name()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Cell(Observer, 1, 2, 7, 'Name');
         Observer.Finish();
     end;
 
     [Test]
-    procedure LoadFields_Statement_AfterGet()
+    procedure LoadFields_Statement_AfterGet_Cnt()
     var
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 2, 1, 1, 'Cnt');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LoadFields_Statement_AfterGet_Flt()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Cell(Observer, 2, 1, 2, 'Flt');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LoadFields_Statement_AfterGet_NameCnt()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Cell(Observer, 2, 1, 3, 'Name+Cnt');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LoadFields_Statement_AfterGet_CntName()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Cell(Observer, 2, 1, 4, 'Cnt+Name');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LoadFields_Statement_AfterGet_CntTot()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Cell(Observer, 2, 1, 5, 'Cnt+Tot');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LoadFields_Statement_AfterGet_FltName()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Cell(Observer, 2, 1, 6, 'Flt+Name');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LoadFields_Statement_AfterGet_Name()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Cell(Observer, 2, 1, 7, 'Name');
         Observer.Finish();
     end;
 
     [Test]
-    procedure LoadFields_Function_AfterGet()
+    procedure LoadFields_Function_AfterGet_Cnt()
     var
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 2, 2, 1, 'Cnt');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LoadFields_Function_AfterGet_Flt()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Cell(Observer, 2, 2, 2, 'Flt');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LoadFields_Function_AfterGet_NameCnt()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Cell(Observer, 2, 2, 3, 'Name+Cnt');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LoadFields_Function_AfterGet_CntName()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Cell(Observer, 2, 2, 4, 'Cnt+Name');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LoadFields_Function_AfterGet_CntTot()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Cell(Observer, 2, 2, 5, 'Cnt+Tot');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LoadFields_Function_AfterGet_FltName()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Cell(Observer, 2, 2, 6, 'Flt+Name');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LoadFields_Function_AfterGet_Name()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Cell(Observer, 2, 2, 7, 'Name');
         Observer.Finish();
     end;
 
     [Test]
-    procedure LoadFields_Statement_AfterGetUnderSetLoadFieldsName()
+    procedure LoadFields_Statement_AfterGetUnderSetLoadFieldsName_Cnt()
     var
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 3, 1, 1, 'Cnt');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LoadFields_Statement_AfterGetUnderSetLoadFieldsName_Flt()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Cell(Observer, 3, 1, 2, 'Flt');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LoadFields_Statement_AfterGetUnderSetLoadFieldsName_NameCnt()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Cell(Observer, 3, 1, 3, 'Name+Cnt');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LoadFields_Statement_AfterGetUnderSetLoadFieldsName_CntName()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Cell(Observer, 3, 1, 4, 'Cnt+Name');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LoadFields_Statement_AfterGetUnderSetLoadFieldsName_CntTot()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Cell(Observer, 3, 1, 5, 'Cnt+Tot');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LoadFields_Statement_AfterGetUnderSetLoadFieldsName_FltName()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Cell(Observer, 3, 1, 6, 'Flt+Name');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LoadFields_Statement_AfterGetUnderSetLoadFieldsName_Name()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Cell(Observer, 3, 1, 7, 'Name');
         Observer.Finish();
     end;
 
     [Test]
-    procedure LoadFields_Function_AfterGetUnderSetLoadFieldsName()
+    procedure LoadFields_Function_AfterGetUnderSetLoadFieldsName_Cnt()
     var
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 3, 2, 1, 'Cnt');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LoadFields_Function_AfterGetUnderSetLoadFieldsName_Flt()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Cell(Observer, 3, 2, 2, 'Flt');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LoadFields_Function_AfterGetUnderSetLoadFieldsName_NameCnt()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Cell(Observer, 3, 2, 3, 'Name+Cnt');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LoadFields_Function_AfterGetUnderSetLoadFieldsName_CntName()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Cell(Observer, 3, 2, 4, 'Cnt+Name');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LoadFields_Function_AfterGetUnderSetLoadFieldsName_CntTot()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Cell(Observer, 3, 2, 5, 'Cnt+Tot');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LoadFields_Function_AfterGetUnderSetLoadFieldsName_FltName()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Cell(Observer, 3, 2, 6, 'Flt+Name');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LoadFields_Function_AfterGetUnderSetLoadFieldsName_Name()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Cell(Observer, 3, 2, 7, 'Name');
         Observer.Finish();
     end;
 
     [Test]
-    procedure LoadFields_Statement_AfterFindFirst()
+    procedure LoadFields_Statement_AfterFindFirst_Cnt()
     var
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 4, 1, 1, 'Cnt');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LoadFields_Statement_AfterFindFirst_Flt()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Cell(Observer, 4, 1, 2, 'Flt');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LoadFields_Statement_AfterFindFirst_NameCnt()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Cell(Observer, 4, 1, 3, 'Name+Cnt');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LoadFields_Statement_AfterFindFirst_CntName()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Cell(Observer, 4, 1, 4, 'Cnt+Name');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LoadFields_Statement_AfterFindFirst_CntTot()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Cell(Observer, 4, 1, 5, 'Cnt+Tot');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LoadFields_Statement_AfterFindFirst_FltName()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Cell(Observer, 4, 1, 6, 'Flt+Name');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LoadFields_Statement_AfterFindFirst_Name()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Cell(Observer, 4, 1, 7, 'Name');
         Observer.Finish();
     end;
 
     [Test]
-    procedure LoadFields_Function_AfterFindFirst()
+    procedure LoadFields_Function_AfterFindFirst_Cnt()
     var
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 4, 2, 1, 'Cnt');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LoadFields_Function_AfterFindFirst_Flt()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Cell(Observer, 4, 2, 2, 'Flt');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LoadFields_Function_AfterFindFirst_NameCnt()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Cell(Observer, 4, 2, 3, 'Name+Cnt');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LoadFields_Function_AfterFindFirst_CntName()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Cell(Observer, 4, 2, 4, 'Cnt+Name');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LoadFields_Function_AfterFindFirst_CntTot()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Cell(Observer, 4, 2, 5, 'Cnt+Tot');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LoadFields_Function_AfterFindFirst_FltName()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Cell(Observer, 4, 2, 6, 'Flt+Name');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LoadFields_Function_AfterFindFirst_Name()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Cell(Observer, 4, 2, 7, 'Name');
         Observer.Finish();
     end;
 
     [Test]
-    procedure LoadFields_Statement_KeyAssignedNeverFetched()
+    procedure LoadFields_Statement_KeyAssignedNeverFetched_Cnt()
     var
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 5, 1, 1, 'Cnt');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LoadFields_Statement_KeyAssignedNeverFetched_Flt()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Cell(Observer, 5, 1, 2, 'Flt');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LoadFields_Statement_KeyAssignedNeverFetched_NameCnt()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Cell(Observer, 5, 1, 3, 'Name+Cnt');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LoadFields_Statement_KeyAssignedNeverFetched_CntName()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Cell(Observer, 5, 1, 4, 'Cnt+Name');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LoadFields_Statement_KeyAssignedNeverFetched_CntTot()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Cell(Observer, 5, 1, 5, 'Cnt+Tot');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LoadFields_Statement_KeyAssignedNeverFetched_FltName()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Cell(Observer, 5, 1, 6, 'Flt+Name');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LoadFields_Statement_KeyAssignedNeverFetched_Name()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Cell(Observer, 5, 1, 7, 'Name');
         Observer.Finish();
     end;
 
     [Test]
-    procedure LoadFields_Function_KeyAssignedNeverFetched()
+    procedure LoadFields_Function_KeyAssignedNeverFetched_Cnt()
     var
         Observer: Codeunit "Probe Observer";
     begin
         Cell(Observer, 5, 2, 1, 'Cnt');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LoadFields_Function_KeyAssignedNeverFetched_Flt()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Cell(Observer, 5, 2, 2, 'Flt');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LoadFields_Function_KeyAssignedNeverFetched_NameCnt()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Cell(Observer, 5, 2, 3, 'Name+Cnt');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LoadFields_Function_KeyAssignedNeverFetched_CntName()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Cell(Observer, 5, 2, 4, 'Cnt+Name');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LoadFields_Function_KeyAssignedNeverFetched_CntTot()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Cell(Observer, 5, 2, 5, 'Cnt+Tot');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LoadFields_Function_KeyAssignedNeverFetched_FltName()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Cell(Observer, 5, 2, 6, 'Flt+Name');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure LoadFields_Function_KeyAssignedNeverFetched_Name()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
         Cell(Observer, 5, 2, 7, 'Name');
         Observer.Finish();
     end;
