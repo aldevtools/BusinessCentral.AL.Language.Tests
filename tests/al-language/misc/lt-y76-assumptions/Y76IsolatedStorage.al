@@ -5,13 +5,15 @@
 // and Set over a key stored encrypted, each right after a Commit: does Database.IsInWriteTransaction turn true. The plain form is pinned by
 // session/lt-cn-session-leads/CnIsolatedStorageLeads.al TO_IsoOverwrite_OutsideWriteTransaction.
 // Linux suspect: the Linux CI containers have no encryption key (SetEncrypted raises NavEncryptionKeyNotFoundException), so the encrypted forms are
-// not [Test] procedures here; they were run on the Windows containers BC 27.5, 28.5 and 29.0 (writer Y76, 2026-11-02).
+// not [Test] procedures here. They were run (as tests, with an encryption key created for the run) on the owner's Windows containers BC 27.5 and
+// 28.5 and on the SaaS sandbox BC 29 (the Windows container BC 29.0 was down), writer Y76, 2026-11-02: the values asserted below are the same on all
+// three. Facts: SetEncrypted over a key that exists (stored plain or encrypted), with the same or another value, and Set over a key stored encrypted,
+// outside a write transaction, open the write transaction (Database.IsInWriteTransaction is true afterwards), as a plain Set over a plain key does.
+// The codeunit is not a test codeunit (no Subtype = Test): the procedures are run by hand on a container that has an encryption key.
 // BC versions: 27, 28, 29
 
 codeunit 94076 "LT Y76 Iso Storage"
 {
-    Subtype = Test;
-    TestPermissions = Disabled;
 
     var
         Obs: Codeunit "Probe Observer";
@@ -33,7 +35,6 @@ codeunit 94076 "LT Y76 Iso Storage"
         exit('ret=' + Format(Ret) + ' tx=' + Format(Database.IsInWriteTransaction()));
     end;
 
-    [Test]
     procedure Suspect_EncryptedOverwrite_Transaction()
     var
         KeyCreated: Boolean;
@@ -43,7 +44,6 @@ codeunit 94076 "LT Y76 Iso Storage"
             KeyCreated := true;
             Commit();
         end;
-        Obs.Observe('key created', Format(KeyCreated));
         Reset('LTY76iso');
         Obs.Observe('new_encrypted', RetTx(IsolatedStorage.SetEncrypted('LTY76iso', 'v1', DataScope::Module)));
         Commit();
@@ -69,10 +69,20 @@ codeunit 94076 "LT Y76 Iso Storage"
             DeleteEncryptionKey();
             Commit();
         end;
-        Obs.Finish();
+        Obs.Expect('new_encrypted', 'ret=Yes tx=Yes');
+        Obs.Expect('before_encrypted_again', 'No');
+        Obs.Expect('encrypted_again', 'ret=Yes tx=Yes');
+        Obs.Expect('encrypted_same', 'ret=Yes tx=Yes');
+        Obs.Expect('plain_over_encrypted', 'ret=Yes tx=Yes');
+        Obs.Expect('encrypted_over_plain', 'ret=Yes tx=Yes');
+        Obs.Expect('plain_over_encrypted_again', 'ret=Yes tx=Yes');
+        Obs.Expect('plain_same', 'ret=Yes tx=Yes');
+        Obs.Expect('contains', 'Yes tx=No');
+        Obs.Expect('delete', 'ret=Yes tx=Yes');
+        Obs.Expect('delete_missing', 'ret=No tx=Yes');
+        Obs.Verify();
     end;
 
-    [Test]
     procedure Suspect_EncryptedOverwrite_OtherScopes()
     var
         KeyCreated: Boolean;
@@ -105,6 +115,13 @@ codeunit 94076 "LT Y76 Iso Storage"
             DeleteEncryptionKey();
             Commit();
         end;
-        Obs.Finish();
+        Obs.Expect('new_encrypted_user', 'ret=Yes tx=Yes');
+        Obs.Expect('encrypted_again_user', 'ret=Yes tx=Yes');
+        Obs.Expect('plain_over_encrypted_user', 'ret=Yes tx=Yes');
+        Obs.Expect('new_encrypted_company', 'ret=Yes tx=Yes');
+        Obs.Expect('encrypted_again_company', 'ret=Yes tx=Yes');
+        Obs.Expect('new_encrypted_default_scope', 'ret=Yes tx=Yes');
+        Obs.Expect('encrypted_again_default_scope', 'ret=Yes tx=Yes');
+        Obs.Verify();
     end;
 }
