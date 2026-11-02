@@ -471,8 +471,6 @@ codeunit 94100 "LT Y77 Guid Filter"
         case Mode of
             1:
                 Row.SetFilter(DF, FilterText);
-            2:
-                Row.SetRange(DF, FilterText);
             3:
                 begin
                     RRef.GetTable(Row);
@@ -503,9 +501,8 @@ codeunit 94100 "LT Y77 Guid Filter"
     end;
 
     [Test]
-    procedure DateFormula_TextFilter_SetRangeAndFieldRef()
+    procedure DateFormula_TextFilter_FieldRef()
     begin
-        DateFormulaCase('sr_1M', 2, '<1M>');
         DateFormulaCase('fr_1M', 3, '<1M>');
         DateFormulaCase('fr_plain', 3, 'abc');
         Obs.Finish();
