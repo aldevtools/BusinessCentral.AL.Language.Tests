@@ -7,7 +7,7 @@
 //   has subscribers or table extensions: B and D (B has no dependency on D and D none on B) subscribe to the platform events of "Global Triggers" for the
 //   tables of A, to the Upgrade Tag events, and extend the Reason Code and Job Queue Entry tables. The install code of A, B and D (per database and per
 //   company) writes rows with Insert(true), asks the Upgrade Tag codeunit for its tags and notes what it sees. Every subscriber notes (Seq order) the
-//   install it ran in. B sets the OnDatabaseInsert flag and adds 1 to the trigger mask; D only notes what it is given.
+//   install it ran in. B sets the OnDatabaseInsert flag and adds a bit to the trigger mask (16 for table 61370, 32 for 61371); D only notes what it is given.
 // The corpus CI installs A, D, B; other hosts install B before D. So the facts are asserted as relations to the install sequence the Y8 log records
 //   (a subscriber runs during an install exactly when its app was installed first or is the installing app itself).
 // BC versions: 27 - 29
@@ -127,7 +127,7 @@ codeunit 94170 "LT Y79 Install Unrelated"
                 // B sets the OnDatabaseInsert flag, D sets none: D's OnDatabaseInsert runs only when B's flag is there to be seen.
                 Observer.Expect('B OnDatabaseInsert ' + App + ' ' + Format(Table), Format(BRuns));
                 Observer.Expect('D OnDatabaseInsert ' + App + ' ' + Format(Table), Format(BRuns and DRuns));
-                // The inputs: B (first subscriber) gets mask 0 and no flag, D gets B's mask bit and B's insert flag when B's subscriber ran before it.
+                // The inputs: B (first subscriber) gets mask 0 and no flag, D gets B's mask bit (16 for 61370, 32 for 61371) and B's insert flag when B's subscriber ran before it.
                 if BRuns then begin
                     Observer.Observe('B mask input ' + App + ' ' + Format(Table), After('B-mask' + Where + '|in='));
                     Observer.Observe('B setup input ' + App + ' ' + Format(Table), After('B-setup' + Where + '|in='));
@@ -138,7 +138,7 @@ codeunit 94170 "LT Y79 Install Unrelated"
                     Observer.Observe('D mask input ' + App + ' ' + Format(Table), After('D-mask' + Where + '|in='));
                     Observer.Observe('D setup input ' + App + ' ' + Format(Table), After('D-setup' + Where + '|in='));
                     if BRuns then begin
-                        Observer.Expect('D mask input ' + App + ' ' + Format(Table), '1');
+                        Observer.Expect('D mask input ' + App + ' ' + Format(Table), MaskBit(Table));
                         Observer.Expect('D setup input ' + App + ' ' + Format(Table), 'YesNoNoNo');
                     end else begin
                         Observer.Expect('D mask input ' + App + ' ' + Format(Table), '0');
@@ -167,6 +167,13 @@ codeunit 94170 "LT Y79 Install Unrelated"
                     Observer.Expect(Sub + ' ' + EventName + ' in the per-database install of ' + App, 'No');
                 end;
         Observer.Verify();
+    end;
+
+    local procedure MaskBit(Table: Integer): Text
+    begin
+        if Table = 61370 then
+            exit('16');
+        exit('32');
     end;
 
     local procedure Subs(): List of [Text]

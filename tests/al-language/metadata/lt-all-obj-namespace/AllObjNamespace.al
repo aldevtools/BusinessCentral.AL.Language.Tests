@@ -301,7 +301,7 @@ codeunit 73193 "LT P163 AllObj Namespace"
         Observer.Expect('table of this app', 'cap name=LT P163 NS Table caption=LT P163 NS Table subtype=[Normal] ns=[P163Probe.Names] pkg=own rt=own rt=pkg:Yes app=own |same as Table row: pkg=Yes rt=Yes app=Yes ns=Yes |AllObj same: pkg=Yes rt=Yes ns=Yes');
         Observer.Expect('Base Application table Contact', 'cap name=Contact caption=Contact subtype=[Normal] ns=[Microsoft.CRM.Contact] pkg=base rt=other rt=pkg:No app=base |same as Table row: pkg=Yes rt=Yes app=Yes ns=Yes |AllObj same: pkg=Yes rt=Yes ns=Yes');
         Observer.Expect('Base Application table Customer', 'cap name=Customer caption=Customer subtype=[Normal] ns=[Microsoft.Sales.Customer] pkg=base rt=other rt=pkg:No app=base |same as Table row: pkg=Yes rt=Yes app=Yes ns=Yes |AllObj same: pkg=Yes rt=Yes ns=Yes');
-        Observer.Expect('platform table Company', 'PLACEHOLDER');
+        Observer.Expect('platform table Company', 'cap name=Company caption=Company subtype=[Normal] ns=[System.Environment] pkg=other rt=null rt=pkg:No app=null |same as Table row: pkg=Yes rt=Yes app=Yes ns=Yes |AllObj same: pkg=Yes rt=Yes ns=Yes');
         Observer.Verify();
     end;
 }
