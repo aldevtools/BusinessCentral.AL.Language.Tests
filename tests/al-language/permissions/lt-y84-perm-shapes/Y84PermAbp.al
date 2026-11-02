@@ -33,25 +33,37 @@ codeunit 94392 "LT Y84 Perm Abp"
         ObserveSet('LT Y84 C D', 'tabledata', 'd');
         ObserveSet('LT Y84 C IM', 'tabledata', 'im');
         RestoreMock(WasStarted);
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Y84_Abp_LettersA_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Y84_Abp_LettersA_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Y84_Abp_LettersA_More3()
-    begin
-        Observer.More();
+        Observer.Expect('r',
+            'PL=Y TF=Y FLOW=Y R=Y I=N M=N D=N IM=N RIMD=Y lR=Y lRIMD=Y PP=Y GP=Y PA=Y aR=Y aI=N aM=N aD=N aRIMD=Y');
+        Observer.Expect('r|errors',
+            'The field with ID = n is not found on the page. | The field with ID = n is not found on the page. | The field with ID = n is not found on the page. | The field with ID = n is not f' +
+            'ound on the page. | The action with ID = n is not found on the page. | The action with ID = n is not found on the page. | The action with ID = n is not found on the page. | ');
+        Observer.Expect('i',
+            'PL=Y TF=N FLOW=N R=N I=Y M=N D=N IM=Y RIMD=Y lR=N lRIMD=Y PP=Y GP=N PA=Y aR=N aI=Y aM=N aD=N aRIMD=Y');
+        Observer.Expect('i|errors',
+            'The field with ID = n is not found on the page. | The field with ID = n is not found on the page. | The field with ID = n is not found on the page. | The field with ID = n is not f' +
+            'ound on the page. | The field with ID = n is not found on the page. | The field with ID = n is not found on the page. | The part with ID = n was not found on the page. | The action' +
+            ' with ID = n is not found on the page. | The action with ID = n is not found on the page. | The action with ID = n is not found on the page. | ');
+        Observer.Expect('m',
+            'PL=Y TF=N FLOW=N R=N I=N M=Y D=N IM=Y RIMD=Y lR=N lRIMD=Y PP=Y GP=N PA=Y aR=N aI=N aM=Y aD=N aRIMD=Y');
+        Observer.Expect('m|errors',
+            'The field with ID = n is not found on the page. | The field with ID = n is not found on the page. | The field with ID = n is not found on the page. | The field with ID = n is not f' +
+            'ound on the page. | The field with ID = n is not found on the page. | The field with ID = n is not found on the page. | The part with ID = n was not found on the page. | The action' +
+            ' with ID = n is not found on the page. | The action with ID = n is not found on the page. | The action with ID = n is not found on the page. | ');
+        Observer.Expect('d',
+            'PL=Y TF=N FLOW=N R=N I=N M=N D=Y IM=N RIMD=Y lR=N lRIMD=Y PP=Y GP=N PA=Y aR=N aI=N aM=N aD=Y aRIMD=Y');
+        Observer.Expect('d|errors',
+            'The field with ID = n is not found on the page. | The field with ID = n is not found on the page. | The field with ID = n is not found on the page. | The field with ID = n is not f' +
+            'ound on the page. | The field with ID = n is not found on the page. | The field with ID = n is not found on the page. | The field with ID = n is not found on the page. | The part w' +
+            'ith ID = n was not found on the page. | The action with ID = n is not found on the page. | The action with ID = n is not found on the page. | The action with ID = n is not found on' +
+            ' the page. | ');
+        Observer.Expect('im',
+            'PL=Y TF=N FLOW=N R=N I=Y M=Y D=N IM=Y RIMD=Y lR=N lRIMD=Y PP=Y GP=N PA=Y aR=N aI=Y aM=Y aD=N aRIMD=Y');
+        Observer.Expect('im|errors',
+            'The field with ID = n is not found on the page. | The field with ID = n is not found on the page. | The field with ID = n is not found on the page. | The field with ID = n is not f' +
+            'ound on the page. | The field with ID = n is not found on the page. | The part with ID = n was not found on the page. | The action with ID = n is not found on the page. | The actio' +
+            'n with ID = n is not found on the page. | ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -66,25 +78,41 @@ codeunit 94392 "LT Y84 Perm Abp"
         ObserveSet('LT Y84 C Ind RIMD', 'tabledata', 'indrimd');
         ObserveSet('LT Y84 C None', 'tabledata', 'none');
         RestoreMock(WasStarted);
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Y84_Abp_LettersB_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Y84_Abp_LettersB_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Y84_Abp_LettersB_More3()
-    begin
-        Observer.More();
+        Observer.Expect('rimd',
+            'PL=Y TF=Y FLOW=Y R=Y I=Y M=Y D=Y IM=Y RIMD=Y lR=Y lRIMD=Y PP=Y GP=Y PA=Y aR=Y aI=Y aM=Y aD=Y aRIMD=Y');
+        Observer.Expect('indr',
+            'PL=Y TF=N FLOW=Y R=N I=N M=N D=N IM=N RIMD=N lR=N lRIMD=N PP=Y GP=N PA=Y aR=N aI=N aM=N aD=N aRIMD=N');
+        Observer.Expect('indr|errors',
+            'The field with ID = n is not found on the page. | The field with ID = n is not found on the page. | The field with ID = n is not found on the page. | The field with ID = n is not f' +
+            'ound on the page. | The field with ID = n is not found on the page. | The field with ID = n is not found on the page. | The field with ID = n is not found on the page. | The field ' +
+            'with ID = n is not found on the page. | The field with ID = n is not found on the page. | The part with ID = n was not found on the page. | The action with ID = n is not found on t' +
+            'he page. | The action with ID = n is not found on the page. | The action with ID = n is not found on the page. | The action with ID = n is not found on the page. | The action with ' +
+            'ID = n is not found on the page. | ');
+        Observer.Expect('indi',
+            'PL=Y TF=N FLOW=N R=N I=N M=N D=N IM=N RIMD=N lR=N lRIMD=N PP=Y GP=N PA=Y aR=N aI=N aM=N aD=N aRIMD=N');
+        Observer.Expect('indi|errors',
+            'The field with ID = n is not found on the page. | The field with ID = n is not found on the page. | The field with ID = n is not found on the page. | The field with ID = n is not f' +
+            'ound on the page. | The field with ID = n is not found on the page. | The field with ID = n is not found on the page. | The field with ID = n is not found on the page. | The field ' +
+            'with ID = n is not found on the page. | The field with ID = n is not found on the page. | The field with ID = n is not found on the page. | The part with ID = n was not found on th' +
+            'e page. | The action with ID = n is not found on the page. | The action with ID = n is not found on the page. | The action with ID = n is not found on the page. | The action with I' +
+            'D = n is not found on the page. | The action with ID = n is not found on the page. | ');
+        Observer.Expect('indrimd',
+            'PL=Y TF=N FLOW=Y R=N I=N M=N D=N IM=N RIMD=N lR=N lRIMD=N PP=Y GP=N PA=Y aR=N aI=N aM=N aD=N aRIMD=N');
+        Observer.Expect('indrimd|errors',
+            'The field with ID = n is not found on the page. | The field with ID = n is not found on the page. | The field with ID = n is not found on the page. | The field with ID = n is not f' +
+            'ound on the page. | The field with ID = n is not found on the page. | The field with ID = n is not found on the page. | The field with ID = n is not found on the page. | The field ' +
+            'with ID = n is not found on the page. | The field with ID = n is not found on the page. | The part with ID = n was not found on the page. | The action with ID = n is not found on t' +
+            'he page. | The action with ID = n is not found on the page. | The action with ID = n is not found on the page. | The action with ID = n is not found on the page. | The action with ' +
+            'ID = n is not found on the page. | ');
+        Observer.Expect('none',
+            'PL=Y TF=N FLOW=N R=N I=N M=N D=N IM=N RIMD=N lR=N lRIMD=N PP=Y GP=N PA=Y aR=N aI=N aM=N aD=N aRIMD=N');
+        Observer.Expect('none|errors',
+            'The field with ID = n is not found on the page. | The field with ID = n is not found on the page. | The field with ID = n is not found on the page. | The field with ID = n is not f' +
+            'ound on the page. | The field with ID = n is not found on the page. | The field with ID = n is not found on the page. | The field with ID = n is not found on the page. | The field ' +
+            'with ID = n is not found on the page. | The field with ID = n is not found on the page. | The field with ID = n is not found on the page. | The part with ID = n was not found on th' +
+            'e page. | The action with ID = n is not found on the page. | The action with ID = n is not found on the page. | The action with ID = n is not found on the page. | The action with I' +
+            'D = n is not found on the page. | The action with ID = n is not found on the page. | ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -100,25 +128,39 @@ codeunit 94392 "LT Y84 Perm Abp"
         Mock.Set('LT Y84 C None');
         ObserveKeys('set none', 'objects');
         RestoreMock(WasStarted);
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Y84_Abp_ObjectKinds_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Y84_Abp_ObjectKinds_More2()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Y84_Abp_ObjectKinds_More3()
-    begin
-        Observer.More();
+        Observer.Expect('some',
+            'Cu=Y Qry=Y Xp=N Rep=N Pg=N Tbl=N Sys=N lCu=Y GOP=N aCu=Y aQry=Y aXp=N aRep=N aPg=N aTbl=N aSys=N');
+        Observer.Expect('some|errors',
+            'The field with ID = n is not found on the page. | The field with ID = n is not found on the page. | The field with ID = n is not found on the page. | The field with ID = n is not f' +
+            'ound on the page. | The field with ID = n is not found on the page. | The part with ID = n was not found on the page. | The action with ID = n is not found on the page. | The actio' +
+            'n with ID = n is not found on the page. | The action with ID = n is not found on the page. | The action with ID = n is not found on the page. | The action with ID = n is not found ' +
+            'on the page. | ');
+        Observer.Expect('other',
+            'Cu=N Qry=N Xp=Y Rep=Y Pg=Y Tbl=Y Sys=Y lCu=N GOP=N aCu=N aQry=N aXp=Y aRep=Y aPg=Y aTbl=Y aSys=Y');
+        Observer.Expect('other|errors',
+            'The field with ID = n is not found on the page. | The field with ID = n is not found on the page. | The field with ID = n is not found on the page. | The part with ID = n was not f' +
+            'ound on the page. | The action with ID = n is not found on the page. | The action with ID = n is not found on the page. | ');
+        Observer.Expect('ind',
+            'Cu=N Qry=N Xp=N Rep=N Pg=N Tbl=N Sys=N lCu=N GOP=N aCu=N aQry=N aXp=N aRep=N aPg=N aTbl=N aSys=N');
+        Observer.Expect('ind|errors',
+            'The field with ID = n is not found on the page. | The field with ID = n is not found on the page. | The field with ID = n is not found on the page. | The field with ID = n is not f' +
+            'ound on the page. | The field with ID = n is not found on the page. | The field with ID = n is not found on the page. | The field with ID = n is not found on the page. | The field ' +
+            'with ID = n is not found on the page. | The part with ID = n was not found on the page. | The action with ID = n is not found on the page. | The action with ID = n is not found on ' +
+            'the page. | The action with ID = n is not found on the page. | The action with ID = n is not found on the page. | The action with ID = n is not found on the page. | The action with' +
+            ' ID = n is not found on the page. | The action with ID = n is not found on the page. | ');
+        Observer.Expect('none',
+            'Cu=N Qry=N Xp=N Rep=N Pg=N Tbl=N Sys=N lCu=N GOP=N aCu=N aQry=N aXp=N aRep=N aPg=N aTbl=N aSys=N');
+        Observer.Expect('none|errors',
+            'The field with ID = n is not found on the page. | The field with ID = n is not found on the page. | The field with ID = n is not found on the page. | The field with ID = n is not f' +
+            'ound on the page. | The field with ID = n is not found on the page. | The field with ID = n is not found on the page. | The field with ID = n is not found on the page. | The field ' +
+            'with ID = n is not found on the page. | The part with ID = n was not found on the page. | The action with ID = n is not found on the page. | The action with ID = n is not found on ' +
+            'the page. | The action with ID = n is not found on the page. | The action with ID = n is not found on the page. | The action with ID = n is not found on the page. | The action with' +
+            ' ID = n is not found on the page. | The action with ID = n is not found on the page. | ');
+        Observer.Expect('set none',
+            'Cu=Y Qry=Y Xp=Y Rep=Y Pg=Y Tbl=Y Sys=N lCu=Y GOP=Y aCu=Y aQry=Y aXp=Y aRep=Y aPg=Y aTbl=Y aSys=N');
+        Observer.Expect('set none|errors',
+            'The field with ID = n is not found on the page. | The action with ID = n is not found on the page. | ');
+        Observer.Verify();
     end;
 
     [Test]
