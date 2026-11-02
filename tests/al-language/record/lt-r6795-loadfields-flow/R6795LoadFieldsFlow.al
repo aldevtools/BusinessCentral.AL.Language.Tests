@@ -144,9 +144,8 @@ codeunit 94542 "LT R6795 LoadFields Flow"
         end;
     end;
 
-    local procedure Cell(State: Integer; Form: Integer; Spec: Integer; SpecName: Text)
+    local procedure Cell(var Observer: Codeunit "Probe Observer"; State: Integer; Form: Integer; Spec: Integer; SpecName: Text)
     var
-        Observer: Codeunit "Probe Observer";
         Row: Record "LT R6795 Row";
         Ok: Boolean;
         Res: Boolean;
@@ -180,13 +179,13 @@ codeunit 94542 "LT R6795 LoadFields Flow"
     var
         Observer: Codeunit "Probe Observer";
     begin
-        Cell(1, 1, 1, 'Cnt');
-        Cell(1, 1, 2, 'Flt');
-        Cell(1, 1, 3, 'Name+Cnt');
-        Cell(1, 1, 4, 'Cnt+Name');
-        Cell(1, 1, 5, 'Cnt+Tot');
-        Cell(1, 1, 6, 'Flt+Name');
-        Cell(1, 1, 7, 'Name');
+        Cell(Observer, 1, 1, 1, 'Cnt');
+        Cell(Observer, 1, 1, 2, 'Flt');
+        Cell(Observer, 1, 1, 3, 'Name+Cnt');
+        Cell(Observer, 1, 1, 4, 'Cnt+Name');
+        Cell(Observer, 1, 1, 5, 'Cnt+Tot');
+        Cell(Observer, 1, 1, 6, 'Flt+Name');
+        Cell(Observer, 1, 1, 7, 'Name');
         Observer.Finish();
     end;
 
@@ -195,13 +194,13 @@ codeunit 94542 "LT R6795 LoadFields Flow"
     var
         Observer: Codeunit "Probe Observer";
     begin
-        Cell(1, 2, 1, 'Cnt');
-        Cell(1, 2, 2, 'Flt');
-        Cell(1, 2, 3, 'Name+Cnt');
-        Cell(1, 2, 4, 'Cnt+Name');
-        Cell(1, 2, 5, 'Cnt+Tot');
-        Cell(1, 2, 6, 'Flt+Name');
-        Cell(1, 2, 7, 'Name');
+        Cell(Observer, 1, 2, 1, 'Cnt');
+        Cell(Observer, 1, 2, 2, 'Flt');
+        Cell(Observer, 1, 2, 3, 'Name+Cnt');
+        Cell(Observer, 1, 2, 4, 'Cnt+Name');
+        Cell(Observer, 1, 2, 5, 'Cnt+Tot');
+        Cell(Observer, 1, 2, 6, 'Flt+Name');
+        Cell(Observer, 1, 2, 7, 'Name');
         Observer.Finish();
     end;
 
@@ -210,13 +209,13 @@ codeunit 94542 "LT R6795 LoadFields Flow"
     var
         Observer: Codeunit "Probe Observer";
     begin
-        Cell(2, 1, 1, 'Cnt');
-        Cell(2, 1, 2, 'Flt');
-        Cell(2, 1, 3, 'Name+Cnt');
-        Cell(2, 1, 4, 'Cnt+Name');
-        Cell(2, 1, 5, 'Cnt+Tot');
-        Cell(2, 1, 6, 'Flt+Name');
-        Cell(2, 1, 7, 'Name');
+        Cell(Observer, 2, 1, 1, 'Cnt');
+        Cell(Observer, 2, 1, 2, 'Flt');
+        Cell(Observer, 2, 1, 3, 'Name+Cnt');
+        Cell(Observer, 2, 1, 4, 'Cnt+Name');
+        Cell(Observer, 2, 1, 5, 'Cnt+Tot');
+        Cell(Observer, 2, 1, 6, 'Flt+Name');
+        Cell(Observer, 2, 1, 7, 'Name');
         Observer.Finish();
     end;
 
@@ -225,13 +224,13 @@ codeunit 94542 "LT R6795 LoadFields Flow"
     var
         Observer: Codeunit "Probe Observer";
     begin
-        Cell(2, 2, 1, 'Cnt');
-        Cell(2, 2, 2, 'Flt');
-        Cell(2, 2, 3, 'Name+Cnt');
-        Cell(2, 2, 4, 'Cnt+Name');
-        Cell(2, 2, 5, 'Cnt+Tot');
-        Cell(2, 2, 6, 'Flt+Name');
-        Cell(2, 2, 7, 'Name');
+        Cell(Observer, 2, 2, 1, 'Cnt');
+        Cell(Observer, 2, 2, 2, 'Flt');
+        Cell(Observer, 2, 2, 3, 'Name+Cnt');
+        Cell(Observer, 2, 2, 4, 'Cnt+Name');
+        Cell(Observer, 2, 2, 5, 'Cnt+Tot');
+        Cell(Observer, 2, 2, 6, 'Flt+Name');
+        Cell(Observer, 2, 2, 7, 'Name');
         Observer.Finish();
     end;
 
@@ -240,13 +239,13 @@ codeunit 94542 "LT R6795 LoadFields Flow"
     var
         Observer: Codeunit "Probe Observer";
     begin
-        Cell(3, 1, 1, 'Cnt');
-        Cell(3, 1, 2, 'Flt');
-        Cell(3, 1, 3, 'Name+Cnt');
-        Cell(3, 1, 4, 'Cnt+Name');
-        Cell(3, 1, 5, 'Cnt+Tot');
-        Cell(3, 1, 6, 'Flt+Name');
-        Cell(3, 1, 7, 'Name');
+        Cell(Observer, 3, 1, 1, 'Cnt');
+        Cell(Observer, 3, 1, 2, 'Flt');
+        Cell(Observer, 3, 1, 3, 'Name+Cnt');
+        Cell(Observer, 3, 1, 4, 'Cnt+Name');
+        Cell(Observer, 3, 1, 5, 'Cnt+Tot');
+        Cell(Observer, 3, 1, 6, 'Flt+Name');
+        Cell(Observer, 3, 1, 7, 'Name');
         Observer.Finish();
     end;
 
@@ -255,13 +254,13 @@ codeunit 94542 "LT R6795 LoadFields Flow"
     var
         Observer: Codeunit "Probe Observer";
     begin
-        Cell(3, 2, 1, 'Cnt');
-        Cell(3, 2, 2, 'Flt');
-        Cell(3, 2, 3, 'Name+Cnt');
-        Cell(3, 2, 4, 'Cnt+Name');
-        Cell(3, 2, 5, 'Cnt+Tot');
-        Cell(3, 2, 6, 'Flt+Name');
-        Cell(3, 2, 7, 'Name');
+        Cell(Observer, 3, 2, 1, 'Cnt');
+        Cell(Observer, 3, 2, 2, 'Flt');
+        Cell(Observer, 3, 2, 3, 'Name+Cnt');
+        Cell(Observer, 3, 2, 4, 'Cnt+Name');
+        Cell(Observer, 3, 2, 5, 'Cnt+Tot');
+        Cell(Observer, 3, 2, 6, 'Flt+Name');
+        Cell(Observer, 3, 2, 7, 'Name');
         Observer.Finish();
     end;
 
@@ -270,13 +269,13 @@ codeunit 94542 "LT R6795 LoadFields Flow"
     var
         Observer: Codeunit "Probe Observer";
     begin
-        Cell(4, 1, 1, 'Cnt');
-        Cell(4, 1, 2, 'Flt');
-        Cell(4, 1, 3, 'Name+Cnt');
-        Cell(4, 1, 4, 'Cnt+Name');
-        Cell(4, 1, 5, 'Cnt+Tot');
-        Cell(4, 1, 6, 'Flt+Name');
-        Cell(4, 1, 7, 'Name');
+        Cell(Observer, 4, 1, 1, 'Cnt');
+        Cell(Observer, 4, 1, 2, 'Flt');
+        Cell(Observer, 4, 1, 3, 'Name+Cnt');
+        Cell(Observer, 4, 1, 4, 'Cnt+Name');
+        Cell(Observer, 4, 1, 5, 'Cnt+Tot');
+        Cell(Observer, 4, 1, 6, 'Flt+Name');
+        Cell(Observer, 4, 1, 7, 'Name');
         Observer.Finish();
     end;
 
@@ -285,13 +284,13 @@ codeunit 94542 "LT R6795 LoadFields Flow"
     var
         Observer: Codeunit "Probe Observer";
     begin
-        Cell(4, 2, 1, 'Cnt');
-        Cell(4, 2, 2, 'Flt');
-        Cell(4, 2, 3, 'Name+Cnt');
-        Cell(4, 2, 4, 'Cnt+Name');
-        Cell(4, 2, 5, 'Cnt+Tot');
-        Cell(4, 2, 6, 'Flt+Name');
-        Cell(4, 2, 7, 'Name');
+        Cell(Observer, 4, 2, 1, 'Cnt');
+        Cell(Observer, 4, 2, 2, 'Flt');
+        Cell(Observer, 4, 2, 3, 'Name+Cnt');
+        Cell(Observer, 4, 2, 4, 'Cnt+Name');
+        Cell(Observer, 4, 2, 5, 'Cnt+Tot');
+        Cell(Observer, 4, 2, 6, 'Flt+Name');
+        Cell(Observer, 4, 2, 7, 'Name');
         Observer.Finish();
     end;
 
@@ -300,13 +299,13 @@ codeunit 94542 "LT R6795 LoadFields Flow"
     var
         Observer: Codeunit "Probe Observer";
     begin
-        Cell(5, 1, 1, 'Cnt');
-        Cell(5, 1, 2, 'Flt');
-        Cell(5, 1, 3, 'Name+Cnt');
-        Cell(5, 1, 4, 'Cnt+Name');
-        Cell(5, 1, 5, 'Cnt+Tot');
-        Cell(5, 1, 6, 'Flt+Name');
-        Cell(5, 1, 7, 'Name');
+        Cell(Observer, 5, 1, 1, 'Cnt');
+        Cell(Observer, 5, 1, 2, 'Flt');
+        Cell(Observer, 5, 1, 3, 'Name+Cnt');
+        Cell(Observer, 5, 1, 4, 'Cnt+Name');
+        Cell(Observer, 5, 1, 5, 'Cnt+Tot');
+        Cell(Observer, 5, 1, 6, 'Flt+Name');
+        Cell(Observer, 5, 1, 7, 'Name');
         Observer.Finish();
     end;
 
@@ -315,13 +314,13 @@ codeunit 94542 "LT R6795 LoadFields Flow"
     var
         Observer: Codeunit "Probe Observer";
     begin
-        Cell(5, 2, 1, 'Cnt');
-        Cell(5, 2, 2, 'Flt');
-        Cell(5, 2, 3, 'Name+Cnt');
-        Cell(5, 2, 4, 'Cnt+Name');
-        Cell(5, 2, 5, 'Cnt+Tot');
-        Cell(5, 2, 6, 'Flt+Name');
-        Cell(5, 2, 7, 'Name');
+        Cell(Observer, 5, 2, 1, 'Cnt');
+        Cell(Observer, 5, 2, 2, 'Flt');
+        Cell(Observer, 5, 2, 3, 'Name+Cnt');
+        Cell(Observer, 5, 2, 4, 'Cnt+Name');
+        Cell(Observer, 5, 2, 5, 'Cnt+Tot');
+        Cell(Observer, 5, 2, 6, 'Flt+Name');
+        Cell(Observer, 5, 2, 7, 'Name');
         Observer.Finish();
     end;
 }
