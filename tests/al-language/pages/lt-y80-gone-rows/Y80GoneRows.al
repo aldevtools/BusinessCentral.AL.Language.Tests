@@ -590,6 +590,28 @@ codeunit 94230 "LT Y80 Gone Row Tests"
                 Result := Format(P.Last(), 0, 9);
             'goto20':
                 Result := Format(P.GoToKey(20), 0, 9);
+            'shown':
+                Result := 'shown';
+            'close':
+                begin
+                    P.Close();
+                    Result := 'closed';
+                end;
+            'delall':
+                begin
+                    P.DeleteAllAct.Invoke();
+                    Result := 'acted';
+                end;
+            'delallupd':
+                begin
+                    P.DeleteAllUpdateAct.Invoke();
+                    Result := 'acted';
+                end;
+            'delcur':
+                begin
+                    P.DeleteCurrentAct.Invoke();
+                    Result := 'acted';
+                end;
         end;
         Result += '|' + P.IdCtl.Value() + '|' + P.TxtCtl.Value();
     end;
@@ -619,6 +641,28 @@ codeunit 94230 "LT Y80 Gone Row Tests"
                 Result := Format(P.Last(), 0, 9);
             'goto20':
                 Result := Format(P.GoToKey(20), 0, 9);
+            'shown':
+                Result := 'shown';
+            'close':
+                begin
+                    P.Close();
+                    Result := 'closed';
+                end;
+            'delall':
+                begin
+                    P.DeleteAllAct.Invoke();
+                    Result := 'acted';
+                end;
+            'delallupd':
+                begin
+                    P.DeleteAllUpdateAct.Invoke();
+                    Result := 'acted';
+                end;
+            'delcur':
+                begin
+                    P.DeleteCurrentAct.Invoke();
+                    Result := 'acted';
+                end;
         end;
         Result += '|' + P.IdCtl.Value() + '|' + P.TxtCtl.Value();
     end;
@@ -648,6 +692,28 @@ codeunit 94230 "LT Y80 Gone Row Tests"
                 Result := Format(P.Last(), 0, 9);
             'goto20':
                 Result := Format(P.GoToKey(20), 0, 9);
+            'shown':
+                Result := 'shown';
+            'close':
+                begin
+                    P.Close();
+                    Result := 'closed';
+                end;
+            'delall':
+                begin
+                    P.DeleteAllAct.Invoke();
+                    Result := 'acted';
+                end;
+            'delallupd':
+                begin
+                    P.DeleteAllUpdateAct.Invoke();
+                    Result := 'acted';
+                end;
+            'delcur':
+                begin
+                    P.DeleteCurrentAct.Invoke();
+                    Result := 'acted';
+                end;
         end;
         Result += '|' + P.IdCtl.Value() + '|' + P.TxtCtl.Value();
     end;
@@ -677,6 +743,28 @@ codeunit 94230 "LT Y80 Gone Row Tests"
                 Result := Format(P.Last(), 0, 9);
             'goto20':
                 Result := Format(P.GoToKey(20), 0, 9);
+            'shown':
+                Result := 'shown';
+            'close':
+                begin
+                    P.Close();
+                    Result := 'closed';
+                end;
+            'delall':
+                begin
+                    P.DeleteAllAct.Invoke();
+                    Result := 'acted';
+                end;
+            'delallupd':
+                begin
+                    P.DeleteAllUpdateAct.Invoke();
+                    Result := 'acted';
+                end;
+            'delcur':
+                begin
+                    P.DeleteCurrentAct.Invoke();
+                    Result := 'acted';
+                end;
         end;
         Result += '|' + P.IdCtl.Value() + '|' + P.TxtCtl.Value();
     end;
@@ -706,6 +794,28 @@ codeunit 94230 "LT Y80 Gone Row Tests"
                 Result := Format(P.Last(), 0, 9);
             'goto20':
                 Result := Format(P.GoToKey(20), 0, 9);
+            'shown':
+                Result := 'shown';
+            'close':
+                begin
+                    P.Close();
+                    Result := 'closed';
+                end;
+            'delall':
+                begin
+                    P.DeleteAllAct.Invoke();
+                    Result := 'acted';
+                end;
+            'delallupd':
+                begin
+                    P.DeleteAllUpdateAct.Invoke();
+                    Result := 'acted';
+                end;
+            'delcur':
+                begin
+                    P.DeleteCurrentAct.Invoke();
+                    Result := 'acted';
+                end;
         end;
         Result += '|' + P.IdCtl.Value() + '|' + P.TxtCtl.Value();
     end;
@@ -730,18 +840,18 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         Seed(1);
         P.OpenEdit();
         Observer.Observe('open log', Log.Take());
-        P.DeleteAllUpdateAct.Invoke();
+        Observer.Observe('action', MoveListAll(P, 'delallupd'));
         Observer.Observe('action log', Log.Take());
-        Observer.Observe('shown', P.IdCtl.Value() + '|' + P.TxtCtl.Value());
+        Observer.Observe('shown', MoveListAll(P, 'shown'));
         Observer.Observe('first', MoveListAll(P, 'first'));
         Observer.Observe('next', MoveListAll(P, 'next'));
         Observer.Observe('last', MoveListAll(P, 'last'));
         Observer.Observe('previous', MoveListAll(P, 'previous'));
         Observer.Observe('moves log', Log.Take());
         Observer.Observe('rows', Rows());
-        P.DeleteAllUpdateAct.Invoke();
+        Observer.Observe('second action', MoveListAll(P, 'delallupd'));
         Observer.Observe('second action log', Log.Take());
-        P.Close();
+        Observer.Observe('close', MoveListAll(P, 'close'));
         Observer.Observe('close log', Log.Take());
         Observer.Finish();
     end;
@@ -755,18 +865,18 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         Seed(1);
         P.OpenEdit();
         Observer.Observe('open log', Log.Take());
-        P.DeleteAllAct.Invoke();
+        Observer.Observe('action', MoveListAll(P, 'delall'));
         Observer.Observe('action log', Log.Take());
-        Observer.Observe('shown', P.IdCtl.Value() + '|' + P.TxtCtl.Value());
+        Observer.Observe('shown', MoveListAll(P, 'shown'));
         Observer.Observe('first', MoveListAll(P, 'first'));
         Observer.Observe('next', MoveListAll(P, 'next'));
         Observer.Observe('last', MoveListAll(P, 'last'));
         Observer.Observe('previous', MoveListAll(P, 'previous'));
         Observer.Observe('moves log', Log.Take());
         Observer.Observe('rows', Rows());
-        P.DeleteAllAct.Invoke();
+        Observer.Observe('second action', MoveListAll(P, 'delall'));
         Observer.Observe('second action log', Log.Take());
-        P.Close();
+        Observer.Observe('close', MoveListAll(P, 'close'));
         Observer.Observe('close log', Log.Take());
         Observer.Finish();
     end;
@@ -780,18 +890,18 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         Seed(1);
         P.OpenEdit();
         Observer.Observe('open log', Log.Take());
-        P.DeleteCurrentAct.Invoke();
+        Observer.Observe('action', MoveListAll(P, 'delcur'));
         Observer.Observe('action log', Log.Take());
-        Observer.Observe('shown', P.IdCtl.Value() + '|' + P.TxtCtl.Value());
+        Observer.Observe('shown', MoveListAll(P, 'shown'));
         Observer.Observe('first', MoveListAll(P, 'first'));
         Observer.Observe('next', MoveListAll(P, 'next'));
         Observer.Observe('last', MoveListAll(P, 'last'));
         Observer.Observe('previous', MoveListAll(P, 'previous'));
         Observer.Observe('moves log', Log.Take());
         Observer.Observe('rows', Rows());
-        P.DeleteCurrentAct.Invoke();
+        Observer.Observe('second action', MoveListAll(P, 'delcur'));
         Observer.Observe('second action log', Log.Take());
-        P.Close();
+        Observer.Observe('close', MoveListAll(P, 'close'));
         Observer.Observe('close log', Log.Take());
         Observer.Finish();
     end;
@@ -805,18 +915,18 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         Seed(1);
         P.OpenView();
         Observer.Observe('open log', Log.Take());
-        P.DeleteAllUpdateAct.Invoke();
+        Observer.Observe('action', MoveListAll(P, 'delallupd'));
         Observer.Observe('action log', Log.Take());
-        Observer.Observe('shown', P.IdCtl.Value() + '|' + P.TxtCtl.Value());
+        Observer.Observe('shown', MoveListAll(P, 'shown'));
         Observer.Observe('first', MoveListAll(P, 'first'));
         Observer.Observe('next', MoveListAll(P, 'next'));
         Observer.Observe('last', MoveListAll(P, 'last'));
         Observer.Observe('previous', MoveListAll(P, 'previous'));
         Observer.Observe('moves log', Log.Take());
         Observer.Observe('rows', Rows());
-        P.DeleteAllUpdateAct.Invoke();
+        Observer.Observe('second action', MoveListAll(P, 'delallupd'));
         Observer.Observe('second action log', Log.Take());
-        P.Close();
+        Observer.Observe('close', MoveListAll(P, 'close'));
         Observer.Observe('close log', Log.Take());
         Observer.Finish();
     end;
@@ -830,18 +940,18 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         Seed(1);
         P.OpenView();
         Observer.Observe('open log', Log.Take());
-        P.DeleteAllAct.Invoke();
+        Observer.Observe('action', MoveListAll(P, 'delall'));
         Observer.Observe('action log', Log.Take());
-        Observer.Observe('shown', P.IdCtl.Value() + '|' + P.TxtCtl.Value());
+        Observer.Observe('shown', MoveListAll(P, 'shown'));
         Observer.Observe('first', MoveListAll(P, 'first'));
         Observer.Observe('next', MoveListAll(P, 'next'));
         Observer.Observe('last', MoveListAll(P, 'last'));
         Observer.Observe('previous', MoveListAll(P, 'previous'));
         Observer.Observe('moves log', Log.Take());
         Observer.Observe('rows', Rows());
-        P.DeleteAllAct.Invoke();
+        Observer.Observe('second action', MoveListAll(P, 'delall'));
         Observer.Observe('second action log', Log.Take());
-        P.Close();
+        Observer.Observe('close', MoveListAll(P, 'close'));
         Observer.Observe('close log', Log.Take());
         Observer.Finish();
     end;
@@ -855,18 +965,18 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         Seed(1);
         P.OpenView();
         Observer.Observe('open log', Log.Take());
-        P.DeleteCurrentAct.Invoke();
+        Observer.Observe('action', MoveListAll(P, 'delcur'));
         Observer.Observe('action log', Log.Take());
-        Observer.Observe('shown', P.IdCtl.Value() + '|' + P.TxtCtl.Value());
+        Observer.Observe('shown', MoveListAll(P, 'shown'));
         Observer.Observe('first', MoveListAll(P, 'first'));
         Observer.Observe('next', MoveListAll(P, 'next'));
         Observer.Observe('last', MoveListAll(P, 'last'));
         Observer.Observe('previous', MoveListAll(P, 'previous'));
         Observer.Observe('moves log', Log.Take());
         Observer.Observe('rows', Rows());
-        P.DeleteCurrentAct.Invoke();
+        Observer.Observe('second action', MoveListAll(P, 'delcur'));
         Observer.Observe('second action log', Log.Take());
-        P.Close();
+        Observer.Observe('close', MoveListAll(P, 'close'));
         Observer.Observe('close log', Log.Take());
         Observer.Finish();
     end;
@@ -880,18 +990,18 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         Seed(1);
         P.OpenEdit();
         Observer.Observe('open log', Log.Take());
-        P.DeleteAllUpdateAct.Invoke();
+        Observer.Observe('action', MoveListNoNew(P, 'delallupd'));
         Observer.Observe('action log', Log.Take());
-        Observer.Observe('shown', P.IdCtl.Value() + '|' + P.TxtCtl.Value());
+        Observer.Observe('shown', MoveListNoNew(P, 'shown'));
         Observer.Observe('first', MoveListNoNew(P, 'first'));
         Observer.Observe('next', MoveListNoNew(P, 'next'));
         Observer.Observe('last', MoveListNoNew(P, 'last'));
         Observer.Observe('previous', MoveListNoNew(P, 'previous'));
         Observer.Observe('moves log', Log.Take());
         Observer.Observe('rows', Rows());
-        P.DeleteAllUpdateAct.Invoke();
+        Observer.Observe('second action', MoveListNoNew(P, 'delallupd'));
         Observer.Observe('second action log', Log.Take());
-        P.Close();
+        Observer.Observe('close', MoveListNoNew(P, 'close'));
         Observer.Observe('close log', Log.Take());
         Observer.Finish();
     end;
@@ -905,18 +1015,18 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         Seed(1);
         P.OpenEdit();
         Observer.Observe('open log', Log.Take());
-        P.DeleteCurrentAct.Invoke();
+        Observer.Observe('action', MoveListNoNew(P, 'delcur'));
         Observer.Observe('action log', Log.Take());
-        Observer.Observe('shown', P.IdCtl.Value() + '|' + P.TxtCtl.Value());
+        Observer.Observe('shown', MoveListNoNew(P, 'shown'));
         Observer.Observe('first', MoveListNoNew(P, 'first'));
         Observer.Observe('next', MoveListNoNew(P, 'next'));
         Observer.Observe('last', MoveListNoNew(P, 'last'));
         Observer.Observe('previous', MoveListNoNew(P, 'previous'));
         Observer.Observe('moves log', Log.Take());
         Observer.Observe('rows', Rows());
-        P.DeleteCurrentAct.Invoke();
+        Observer.Observe('second action', MoveListNoNew(P, 'delcur'));
         Observer.Observe('second action log', Log.Take());
-        P.Close();
+        Observer.Observe('close', MoveListNoNew(P, 'close'));
         Observer.Observe('close log', Log.Take());
         Observer.Finish();
     end;
@@ -930,18 +1040,18 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         Seed(1);
         P.OpenView();
         Observer.Observe('open log', Log.Take());
-        P.DeleteAllUpdateAct.Invoke();
+        Observer.Observe('action', MoveListNoNew(P, 'delallupd'));
         Observer.Observe('action log', Log.Take());
-        Observer.Observe('shown', P.IdCtl.Value() + '|' + P.TxtCtl.Value());
+        Observer.Observe('shown', MoveListNoNew(P, 'shown'));
         Observer.Observe('first', MoveListNoNew(P, 'first'));
         Observer.Observe('next', MoveListNoNew(P, 'next'));
         Observer.Observe('last', MoveListNoNew(P, 'last'));
         Observer.Observe('previous', MoveListNoNew(P, 'previous'));
         Observer.Observe('moves log', Log.Take());
         Observer.Observe('rows', Rows());
-        P.DeleteAllUpdateAct.Invoke();
+        Observer.Observe('second action', MoveListNoNew(P, 'delallupd'));
         Observer.Observe('second action log', Log.Take());
-        P.Close();
+        Observer.Observe('close', MoveListNoNew(P, 'close'));
         Observer.Observe('close log', Log.Take());
         Observer.Finish();
     end;
@@ -955,18 +1065,18 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         Seed(1);
         P.OpenView();
         Observer.Observe('open log', Log.Take());
-        P.DeleteCurrentAct.Invoke();
+        Observer.Observe('action', MoveListNoNew(P, 'delcur'));
         Observer.Observe('action log', Log.Take());
-        Observer.Observe('shown', P.IdCtl.Value() + '|' + P.TxtCtl.Value());
+        Observer.Observe('shown', MoveListNoNew(P, 'shown'));
         Observer.Observe('first', MoveListNoNew(P, 'first'));
         Observer.Observe('next', MoveListNoNew(P, 'next'));
         Observer.Observe('last', MoveListNoNew(P, 'last'));
         Observer.Observe('previous', MoveListNoNew(P, 'previous'));
         Observer.Observe('moves log', Log.Take());
         Observer.Observe('rows', Rows());
-        P.DeleteCurrentAct.Invoke();
+        Observer.Observe('second action', MoveListNoNew(P, 'delcur'));
         Observer.Observe('second action log', Log.Take());
-        P.Close();
+        Observer.Observe('close', MoveListNoNew(P, 'close'));
         Observer.Observe('close log', Log.Take());
         Observer.Finish();
     end;
@@ -980,18 +1090,18 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         Seed(1);
         P.OpenEdit();
         Observer.Observe('open log', Log.Take());
-        P.DeleteAllUpdateAct.Invoke();
+        Observer.Observe('action', MoveListReadOnly(P, 'delallupd'));
         Observer.Observe('action log', Log.Take());
-        Observer.Observe('shown', P.IdCtl.Value() + '|' + P.TxtCtl.Value());
+        Observer.Observe('shown', MoveListReadOnly(P, 'shown'));
         Observer.Observe('first', MoveListReadOnly(P, 'first'));
         Observer.Observe('next', MoveListReadOnly(P, 'next'));
         Observer.Observe('last', MoveListReadOnly(P, 'last'));
         Observer.Observe('previous', MoveListReadOnly(P, 'previous'));
         Observer.Observe('moves log', Log.Take());
         Observer.Observe('rows', Rows());
-        P.DeleteAllUpdateAct.Invoke();
+        Observer.Observe('second action', MoveListReadOnly(P, 'delallupd'));
         Observer.Observe('second action log', Log.Take());
-        P.Close();
+        Observer.Observe('close', MoveListReadOnly(P, 'close'));
         Observer.Observe('close log', Log.Take());
         Observer.Finish();
     end;
@@ -1005,18 +1115,18 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         Seed(1);
         P.OpenEdit();
         Observer.Observe('open log', Log.Take());
-        P.DeleteAllAct.Invoke();
+        Observer.Observe('action', MoveListReadOnly(P, 'delall'));
         Observer.Observe('action log', Log.Take());
-        Observer.Observe('shown', P.IdCtl.Value() + '|' + P.TxtCtl.Value());
+        Observer.Observe('shown', MoveListReadOnly(P, 'shown'));
         Observer.Observe('first', MoveListReadOnly(P, 'first'));
         Observer.Observe('next', MoveListReadOnly(P, 'next'));
         Observer.Observe('last', MoveListReadOnly(P, 'last'));
         Observer.Observe('previous', MoveListReadOnly(P, 'previous'));
         Observer.Observe('moves log', Log.Take());
         Observer.Observe('rows', Rows());
-        P.DeleteAllAct.Invoke();
+        Observer.Observe('second action', MoveListReadOnly(P, 'delall'));
         Observer.Observe('second action log', Log.Take());
-        P.Close();
+        Observer.Observe('close', MoveListReadOnly(P, 'close'));
         Observer.Observe('close log', Log.Take());
         Observer.Finish();
     end;
@@ -1030,18 +1140,18 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         Seed(1);
         P.OpenEdit();
         Observer.Observe('open log', Log.Take());
-        P.DeleteCurrentAct.Invoke();
+        Observer.Observe('action', MoveListReadOnly(P, 'delcur'));
         Observer.Observe('action log', Log.Take());
-        Observer.Observe('shown', P.IdCtl.Value() + '|' + P.TxtCtl.Value());
+        Observer.Observe('shown', MoveListReadOnly(P, 'shown'));
         Observer.Observe('first', MoveListReadOnly(P, 'first'));
         Observer.Observe('next', MoveListReadOnly(P, 'next'));
         Observer.Observe('last', MoveListReadOnly(P, 'last'));
         Observer.Observe('previous', MoveListReadOnly(P, 'previous'));
         Observer.Observe('moves log', Log.Take());
         Observer.Observe('rows', Rows());
-        P.DeleteCurrentAct.Invoke();
+        Observer.Observe('second action', MoveListReadOnly(P, 'delcur'));
         Observer.Observe('second action log', Log.Take());
-        P.Close();
+        Observer.Observe('close', MoveListReadOnly(P, 'close'));
         Observer.Observe('close log', Log.Take());
         Observer.Finish();
     end;
@@ -1055,18 +1165,18 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         Seed(1);
         P.OpenView();
         Observer.Observe('open log', Log.Take());
-        P.DeleteAllUpdateAct.Invoke();
+        Observer.Observe('action', MoveListReadOnly(P, 'delallupd'));
         Observer.Observe('action log', Log.Take());
-        Observer.Observe('shown', P.IdCtl.Value() + '|' + P.TxtCtl.Value());
+        Observer.Observe('shown', MoveListReadOnly(P, 'shown'));
         Observer.Observe('first', MoveListReadOnly(P, 'first'));
         Observer.Observe('next', MoveListReadOnly(P, 'next'));
         Observer.Observe('last', MoveListReadOnly(P, 'last'));
         Observer.Observe('previous', MoveListReadOnly(P, 'previous'));
         Observer.Observe('moves log', Log.Take());
         Observer.Observe('rows', Rows());
-        P.DeleteAllUpdateAct.Invoke();
+        Observer.Observe('second action', MoveListReadOnly(P, 'delallupd'));
         Observer.Observe('second action log', Log.Take());
-        P.Close();
+        Observer.Observe('close', MoveListReadOnly(P, 'close'));
         Observer.Observe('close log', Log.Take());
         Observer.Finish();
     end;
@@ -1080,18 +1190,18 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         Seed(1);
         P.OpenView();
         Observer.Observe('open log', Log.Take());
-        P.DeleteAllAct.Invoke();
+        Observer.Observe('action', MoveListReadOnly(P, 'delall'));
         Observer.Observe('action log', Log.Take());
-        Observer.Observe('shown', P.IdCtl.Value() + '|' + P.TxtCtl.Value());
+        Observer.Observe('shown', MoveListReadOnly(P, 'shown'));
         Observer.Observe('first', MoveListReadOnly(P, 'first'));
         Observer.Observe('next', MoveListReadOnly(P, 'next'));
         Observer.Observe('last', MoveListReadOnly(P, 'last'));
         Observer.Observe('previous', MoveListReadOnly(P, 'previous'));
         Observer.Observe('moves log', Log.Take());
         Observer.Observe('rows', Rows());
-        P.DeleteAllAct.Invoke();
+        Observer.Observe('second action', MoveListReadOnly(P, 'delall'));
         Observer.Observe('second action log', Log.Take());
-        P.Close();
+        Observer.Observe('close', MoveListReadOnly(P, 'close'));
         Observer.Observe('close log', Log.Take());
         Observer.Finish();
     end;
@@ -1105,18 +1215,18 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         Seed(1);
         P.OpenView();
         Observer.Observe('open log', Log.Take());
-        P.DeleteCurrentAct.Invoke();
+        Observer.Observe('action', MoveListReadOnly(P, 'delcur'));
         Observer.Observe('action log', Log.Take());
-        Observer.Observe('shown', P.IdCtl.Value() + '|' + P.TxtCtl.Value());
+        Observer.Observe('shown', MoveListReadOnly(P, 'shown'));
         Observer.Observe('first', MoveListReadOnly(P, 'first'));
         Observer.Observe('next', MoveListReadOnly(P, 'next'));
         Observer.Observe('last', MoveListReadOnly(P, 'last'));
         Observer.Observe('previous', MoveListReadOnly(P, 'previous'));
         Observer.Observe('moves log', Log.Take());
         Observer.Observe('rows', Rows());
-        P.DeleteCurrentAct.Invoke();
+        Observer.Observe('second action', MoveListReadOnly(P, 'delcur'));
         Observer.Observe('second action log', Log.Take());
-        P.Close();
+        Observer.Observe('close', MoveListReadOnly(P, 'close'));
         Observer.Observe('close log', Log.Take());
         Observer.Finish();
     end;
@@ -1130,18 +1240,18 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         Seed(1);
         P.OpenEdit();
         Observer.Observe('open log', Log.Take());
-        P.DeleteAllUpdateAct.Invoke();
+        Observer.Observe('action', MoveListNoInsMod(P, 'delallupd'));
         Observer.Observe('action log', Log.Take());
-        Observer.Observe('shown', P.IdCtl.Value() + '|' + P.TxtCtl.Value());
+        Observer.Observe('shown', MoveListNoInsMod(P, 'shown'));
         Observer.Observe('first', MoveListNoInsMod(P, 'first'));
         Observer.Observe('next', MoveListNoInsMod(P, 'next'));
         Observer.Observe('last', MoveListNoInsMod(P, 'last'));
         Observer.Observe('previous', MoveListNoInsMod(P, 'previous'));
         Observer.Observe('moves log', Log.Take());
         Observer.Observe('rows', Rows());
-        P.DeleteAllUpdateAct.Invoke();
+        Observer.Observe('second action', MoveListNoInsMod(P, 'delallupd'));
         Observer.Observe('second action log', Log.Take());
-        P.Close();
+        Observer.Observe('close', MoveListNoInsMod(P, 'close'));
         Observer.Observe('close log', Log.Take());
         Observer.Finish();
     end;
@@ -1155,18 +1265,18 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         Seed(1);
         P.OpenView();
         Observer.Observe('open log', Log.Take());
-        P.DeleteAllUpdateAct.Invoke();
+        Observer.Observe('action', MoveListNoInsMod(P, 'delallupd'));
         Observer.Observe('action log', Log.Take());
-        Observer.Observe('shown', P.IdCtl.Value() + '|' + P.TxtCtl.Value());
+        Observer.Observe('shown', MoveListNoInsMod(P, 'shown'));
         Observer.Observe('first', MoveListNoInsMod(P, 'first'));
         Observer.Observe('next', MoveListNoInsMod(P, 'next'));
         Observer.Observe('last', MoveListNoInsMod(P, 'last'));
         Observer.Observe('previous', MoveListNoInsMod(P, 'previous'));
         Observer.Observe('moves log', Log.Take());
         Observer.Observe('rows', Rows());
-        P.DeleteAllUpdateAct.Invoke();
+        Observer.Observe('second action', MoveListNoInsMod(P, 'delallupd'));
         Observer.Observe('second action log', Log.Take());
-        P.Close();
+        Observer.Observe('close', MoveListNoInsMod(P, 'close'));
         Observer.Observe('close log', Log.Take());
         Observer.Finish();
     end;
@@ -1180,16 +1290,16 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         Seed(1);
         P.OpenEdit();
         Observer.Observe('open log', Log.Take());
-        P.DeleteAllUpdateAct.Invoke();
+        Observer.Observe('action', MoveCardPlain(P, 'delallupd'));
         Observer.Observe('action log', Log.Take());
-        Observer.Observe('shown', P.IdCtl.Value() + '|' + P.TxtCtl.Value());
+        Observer.Observe('shown', MoveCardPlain(P, 'shown'));
         Observer.Observe('first', MoveCardPlain(P, 'first'));
         Observer.Observe('next', MoveCardPlain(P, 'next'));
         Observer.Observe('last', MoveCardPlain(P, 'last'));
         Observer.Observe('previous', MoveCardPlain(P, 'previous'));
         Observer.Observe('moves log', Log.Take());
         Observer.Observe('rows', Rows());
-        P.Close();
+        Observer.Observe('close', MoveCardPlain(P, 'close'));
         Observer.Observe('close log', Log.Take());
         Observer.Finish();
     end;
@@ -1203,16 +1313,16 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         Seed(1);
         P.OpenEdit();
         Observer.Observe('open log', Log.Take());
-        P.DeleteCurrentAct.Invoke();
+        Observer.Observe('action', MoveCardPlain(P, 'delcur'));
         Observer.Observe('action log', Log.Take());
-        Observer.Observe('shown', P.IdCtl.Value() + '|' + P.TxtCtl.Value());
+        Observer.Observe('shown', MoveCardPlain(P, 'shown'));
         Observer.Observe('first', MoveCardPlain(P, 'first'));
         Observer.Observe('next', MoveCardPlain(P, 'next'));
         Observer.Observe('last', MoveCardPlain(P, 'last'));
         Observer.Observe('previous', MoveCardPlain(P, 'previous'));
         Observer.Observe('moves log', Log.Take());
         Observer.Observe('rows', Rows());
-        P.Close();
+        Observer.Observe('close', MoveCardPlain(P, 'close'));
         Observer.Observe('close log', Log.Take());
         Observer.Finish();
     end;
@@ -1226,16 +1336,16 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         Seed(1);
         P.OpenView();
         Observer.Observe('open log', Log.Take());
-        P.DeleteAllUpdateAct.Invoke();
+        Observer.Observe('action', MoveCardPlain(P, 'delallupd'));
         Observer.Observe('action log', Log.Take());
-        Observer.Observe('shown', P.IdCtl.Value() + '|' + P.TxtCtl.Value());
+        Observer.Observe('shown', MoveCardPlain(P, 'shown'));
         Observer.Observe('first', MoveCardPlain(P, 'first'));
         Observer.Observe('next', MoveCardPlain(P, 'next'));
         Observer.Observe('last', MoveCardPlain(P, 'last'));
         Observer.Observe('previous', MoveCardPlain(P, 'previous'));
         Observer.Observe('moves log', Log.Take());
         Observer.Observe('rows', Rows());
-        P.Close();
+        Observer.Observe('close', MoveCardPlain(P, 'close'));
         Observer.Observe('close log', Log.Take());
         Observer.Finish();
     end;
@@ -1249,16 +1359,16 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         Seed(1);
         P.OpenView();
         Observer.Observe('open log', Log.Take());
-        P.DeleteCurrentAct.Invoke();
+        Observer.Observe('action', MoveCardPlain(P, 'delcur'));
         Observer.Observe('action log', Log.Take());
-        Observer.Observe('shown', P.IdCtl.Value() + '|' + P.TxtCtl.Value());
+        Observer.Observe('shown', MoveCardPlain(P, 'shown'));
         Observer.Observe('first', MoveCardPlain(P, 'first'));
         Observer.Observe('next', MoveCardPlain(P, 'next'));
         Observer.Observe('last', MoveCardPlain(P, 'last'));
         Observer.Observe('previous', MoveCardPlain(P, 'previous'));
         Observer.Observe('moves log', Log.Take());
         Observer.Observe('rows', Rows());
-        P.Close();
+        Observer.Observe('close', MoveCardPlain(P, 'close'));
         Observer.Observe('close log', Log.Take());
         Observer.Finish();
     end;
@@ -1283,7 +1393,7 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         Observer.Observe('next log', Log.Take());
         Observer.Observe('previous', MoveListAll(P, 'previous'));
         Observer.Observe('previous log', Log.Take());
-        P.Close();
+        Observer.Observe('close', MoveListAll(P, 'close'));
         Observer.Finish();
     end;
 
@@ -1309,7 +1419,7 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         Observer.Observe('next log', Log.Take());
         Observer.Observe('previous', MoveListAll(P, 'previous'));
         Observer.Observe('previous log', Log.Take());
-        P.Close();
+        Observer.Observe('close', MoveListAll(P, 'close'));
         Observer.Finish();
     end;
 
@@ -1334,7 +1444,7 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         Observer.Observe('next log', Log.Take());
         Observer.Observe('previous', MoveListAll(P, 'previous'));
         Observer.Observe('previous log', Log.Take());
-        P.Close();
+        Observer.Observe('close', MoveListAll(P, 'close'));
         Observer.Finish();
     end;
 
@@ -1358,7 +1468,7 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         Observer.Observe('next log', Log.Take());
         Observer.Observe('previous', MoveListAll(P, 'previous'));
         Observer.Observe('previous log', Log.Take());
-        P.Close();
+        Observer.Observe('close', MoveListAll(P, 'close'));
         Observer.Finish();
     end;
 
@@ -1382,7 +1492,7 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         Observer.Observe('next log', Log.Take());
         Observer.Observe('previous', MoveListAll(P, 'previous'));
         Observer.Observe('previous log', Log.Take());
-        P.Close();
+        Observer.Observe('close', MoveListAll(P, 'close'));
         Observer.Finish();
     end;
 
@@ -1406,7 +1516,7 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         Observer.Observe('next log', Log.Take());
         Observer.Observe('previous', MoveListNoNew(P, 'previous'));
         Observer.Observe('previous log', Log.Take());
-        P.Close();
+        Observer.Observe('close', MoveListNoNew(P, 'close'));
         Observer.Finish();
     end;
 
@@ -1432,7 +1542,7 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         Observer.Observe('next log', Log.Take());
         Observer.Observe('previous', MoveListNoNew(P, 'previous'));
         Observer.Observe('previous log', Log.Take());
-        P.Close();
+        Observer.Observe('close', MoveListNoNew(P, 'close'));
         Observer.Finish();
     end;
 
@@ -1457,7 +1567,7 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         Observer.Observe('next log', Log.Take());
         Observer.Observe('previous', MoveListNoNew(P, 'previous'));
         Observer.Observe('previous log', Log.Take());
-        P.Close();
+        Observer.Observe('close', MoveListNoNew(P, 'close'));
         Observer.Finish();
     end;
 
@@ -1481,7 +1591,7 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         Observer.Observe('next log', Log.Take());
         Observer.Observe('previous', MoveListNoNew(P, 'previous'));
         Observer.Observe('previous log', Log.Take());
-        P.Close();
+        Observer.Observe('close', MoveListNoNew(P, 'close'));
         Observer.Finish();
     end;
 
@@ -1505,7 +1615,7 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         Observer.Observe('next log', Log.Take());
         Observer.Observe('previous', MoveListNoNew(P, 'previous'));
         Observer.Observe('previous log', Log.Take());
-        P.Close();
+        Observer.Observe('close', MoveListNoNew(P, 'close'));
         Observer.Finish();
     end;
 
@@ -1529,7 +1639,7 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         Observer.Observe('next log', Log.Take());
         Observer.Observe('previous', MoveCardPlain(P, 'previous'));
         Observer.Observe('previous log', Log.Take());
-        P.Close();
+        Observer.Observe('close', MoveCardPlain(P, 'close'));
         Observer.Finish();
     end;
 
@@ -1555,7 +1665,7 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         Observer.Observe('next log', Log.Take());
         Observer.Observe('previous', MoveCardPlain(P, 'previous'));
         Observer.Observe('previous log', Log.Take());
-        P.Close();
+        Observer.Observe('close', MoveCardPlain(P, 'close'));
         Observer.Finish();
     end;
 
@@ -1580,7 +1690,7 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         Observer.Observe('next log', Log.Take());
         Observer.Observe('previous', MoveCardPlain(P, 'previous'));
         Observer.Observe('previous log', Log.Take());
-        P.Close();
+        Observer.Observe('close', MoveCardPlain(P, 'close'));
         Observer.Finish();
     end;
 
@@ -1604,7 +1714,7 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         Observer.Observe('next log', Log.Take());
         Observer.Observe('previous', MoveCardPlain(P, 'previous'));
         Observer.Observe('previous log', Log.Take());
-        P.Close();
+        Observer.Observe('close', MoveCardPlain(P, 'close'));
         Observer.Finish();
     end;
 
@@ -1628,7 +1738,7 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         Observer.Observe('next log', Log.Take());
         Observer.Observe('previous', MoveCardPlain(P, 'previous'));
         Observer.Observe('previous log', Log.Take());
-        P.Close();
+        Observer.Observe('close', MoveCardPlain(P, 'close'));
         Observer.Finish();
     end;
 }

@@ -417,7 +417,7 @@ codeunit 94236 "LT Y80 Modify Denied Tests"
     begin
         Seed();
         P.OpenEdit();
-        P.First();
+        P.Last();
         Observer.Observe('start', P.IdCtl.Value() + '/' + P.TxtCtl.Value() + '/' + P.NumCtl.Value());
         Step('set', TryList(P, 'set'));
         Step('previous', TryList(P, 'previous'));
@@ -435,7 +435,7 @@ codeunit 94236 "LT Y80 Modify Denied Tests"
     begin
         Seed();
         P.OpenEdit();
-        P.First();
+        P.Last();
         Observer.Observe('start', P.IdCtl.Value() + '/' + P.TxtCtl.Value() + '/' + P.NumCtl.Value());
         Step('set', TryList(P, 'set'));
         Step('first', TryList(P, 'first'));
@@ -583,7 +583,7 @@ codeunit 94236 "LT Y80 Modify Denied Tests"
     begin
         Seed();
         P.OpenEdit();
-        P.First();
+        P.Last();
         Observer.Observe('start', P.IdCtl.Value() + '/' + P.TxtCtl.Value() + '/' + P.NumCtl.Value());
         Step('set', TryCard(P, 'set'));
         Step('previous', TryCard(P, 'previous'));
@@ -601,7 +601,7 @@ codeunit 94236 "LT Y80 Modify Denied Tests"
     begin
         Seed();
         P.OpenEdit();
-        P.First();
+        P.Last();
         Observer.Observe('start', P.IdCtl.Value() + '/' + P.TxtCtl.Value() + '/' + P.NumCtl.Value());
         Step('set', TryCard(P, 'set'));
         Step('first', TryCard(P, 'first'));
@@ -729,7 +729,7 @@ codeunit 94236 "LT Y80 Modify Denied Tests"
     begin
         Seed();
         P.OpenEdit();
-        P.First();
+        P.Last();
         Observer.Observe('start', P.IdCtl.Value() + '/' + P.TxtCtl.Value() + '/' + P.NumCtl.Value());
         Step('set', TryWorksheet(P, 'set'));
         Step('previous', TryWorksheet(P, 'previous'));
@@ -747,7 +747,7 @@ codeunit 94236 "LT Y80 Modify Denied Tests"
     begin
         Seed();
         P.OpenEdit();
-        P.First();
+        P.Last();
         Observer.Observe('start', P.IdCtl.Value() + '/' + P.TxtCtl.Value() + '/' + P.NumCtl.Value());
         Step('set', TryWorksheet(P, 'set'));
         Step('first', TryWorksheet(P, 'first'));
