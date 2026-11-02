@@ -16,6 +16,7 @@ codeunit 93710 "LT Y69 Moved Tables"
 
     var
         Helper: Codeunit "LT Y69 Helper";
+        MockHelper: Codeunit "LT Y69 Mock Helper";
         Y19Helper: Codeunit "LT Y19 Perm Helper";
         Mock: Codeunit "Permissions Mock";
 
@@ -108,10 +109,14 @@ codeunit 93710 "LT Y69 Moved Tables"
             Observer.Observe('all_table_' + Format(Helper.MovedTableId(i)), Y19Helper.Rights(1, Helper.MovedTableId(i)));
         end;
         Mock.ClearAssignments();
+        Helper.SeedMoved();
         Mock.Set('LT Y69 MV Plain');
         ClearLastError();
         asserterror Writer.InsertReason();
         Observer.ObserveError('plain_writer_insert_reason');
+        Mock.ClearAssignments();
+        Helper.SeedMoved();
+        Mock.Set('LT Y69 MV Plain');
         asserterror Writer.DeleteSeries();
         Observer.ObserveError('plain_writer_delete_series');
         Y19Helper.RestoreMock(Mock, WasStarted);
@@ -138,7 +143,7 @@ codeunit 93710 "LT Y69 Moved Tables"
         end;
         Observer.ObserveError(SetName + '|customer_read');
         Observer.Observe(SetName + '|reason_code_read_permission', Format(ReadPermissionOf(Database::"Reason Code")));
-        Observer.Observe(SetName + '|reason_code_four_ops', Helper.FourOps(Database::"Reason Code"));
+        Observer.Observe(SetName + '|reason_code_four_ops', MockHelper.FourOps(SetName, Database::"Reason Code"));
         Mock.ClearAssignments();
     end;
 
@@ -162,7 +167,7 @@ codeunit 93710 "LT Y69 Moved Tables"
         Observer.Observe(SetName + '|customer', GetLastErrorText());
         ClearLastError();
         for i := 1 to Helper.MovedTableCount() do
-            Observer.Observe(SetName + '|' + Format(Helper.MovedTableId(i)), Helper.FourOps(Helper.MovedTableId(i)));
+            Observer.Observe(SetName + '|' + Format(Helper.MovedTableId(i)), MockHelper.FourOps(SetName, Helper.MovedTableId(i)));
         Mock.ClearAssignments();
     end;
 

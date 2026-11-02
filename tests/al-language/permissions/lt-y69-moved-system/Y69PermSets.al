@@ -257,7 +257,8 @@ codeunit 93735 "LT Y69 Helper"
         end;
     end;
 
-    // One operation on the seeded row of a table; always ends in Error('LT Y69 ok') so that nothing stays.
+    // One operation on the seeded row of a table; always ends in Error('LT Y69 ok'). The caller seeds before the mock assignment and runs it in an
+    // asserterror, which rolls the seed back: seed again before every operation.
     // Kind 1 read, 2 insert, 3 modify, 4 delete.
     procedure Op(Kind: Integer; TableId: Integer)
     var
@@ -287,35 +288,6 @@ codeunit 93735 "LT Y69 Helper"
                 end;
         end;
         Error('LT Y69 ok');
-    end;
-
-    // The four operations as four characters: o = worked, D = a permission error, ! = another error.
-    procedure FourOps(TableId: Integer): Text
-    var
-        Kind: Integer;
-        Result: Text;
-    begin
-        for Kind := 1 to 4 do begin
-            ClearLastError();
-            asserterror Op(Kind, TableId);
-            if GetLastErrorText() = 'LT Y69 ok' then
-                Result += 'o'
-            else
-                if GetLastErrorText().StartsWith('Sorry, the current permissions prevented the action.') then
-                    Result += 'D'
-                else
-                    Result += '!';
-            ClearLastError();
-        end;
-        exit(Result);
-    end;
-
-    // The first error of one operation: its text and code.
-    procedure ErrorOf(Kind: Integer; TableId: Integer): Text
-    begin
-        ClearLastError();
-        asserterror Op(Kind, TableId);
-        exit(GetLastErrorText() + ' | ' + GetLastErrorCode());
     end;
 
     // Expanded Permission rows of a role as 'type:id:RIMDX;' (type: ordinal; letters: Yes = the letter, Indirect = lower case, else '-').
