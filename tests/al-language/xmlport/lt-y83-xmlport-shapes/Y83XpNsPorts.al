@@ -187,30 +187,7 @@ xmlport 94347 "LT Y83 NS dn_v11"
     }
 }
 
-xmlport 94348 "LT Y83 NS dn_vt"
-{
-    Format = VariableText;
-    Direction = Both;
-    UseRequestPage = false;
-    DefaultNamespace = 'urn:y83';
-    TextEncoding = UTF8;
-
-    schema
-    {
-        textelement(Root)
-        {
-            tableelement(Rw; "LT Y83 Item")
-            {
-                XmlName = 'Item';
-                fieldelement(Id; Rw.Id) {  }
-                fieldelement(Name; Rw.Name) {  }
-                fieldelement(Amt; Rw.Amt) {  }
-            }
-        }
-    }
-}
-
-xmlport 94349 "LT Y83 NS pws"
+xmlport 94348 "LT Y83 NS pws"
 {
     Format = Xml;
     Direction = Both;
@@ -232,7 +209,7 @@ xmlport 94349 "LT Y83 NS pws"
     }
 }
 
-xmlport 94350 "LT Y83 NS pws_prefix"
+xmlport 94349 "LT Y83 NS pws_prefix"
 {
     Format = Xml;
     Direction = Both;
@@ -255,7 +232,7 @@ xmlport 94350 "LT Y83 NS pws_prefix"
     }
 }
 
-xmlport 94351 "LT Y83 NS pws_udn_dn"
+xmlport 94350 "LT Y83 NS pws_udn_dn"
 {
     Format = Xml;
     Direction = Both;
@@ -279,7 +256,7 @@ xmlport 94351 "LT Y83 NS pws_udn_dn"
     }
 }
 
-xmlport 94352 "LT Y83 NS pws_utf8_prefix"
+xmlport 94351 "LT Y83 NS pws_utf8_prefix"
 {
     Format = Xml;
     Direction = Both;
@@ -303,7 +280,7 @@ xmlport 94352 "LT Y83 NS pws_utf8_prefix"
     }
 }
 
-xmlport 94353 "LT Y83 NS pws_utf8_lax"
+xmlport 94352 "LT Y83 NS pws_utf8_lax"
 {
     Format = Xml;
     Direction = Both;
@@ -327,7 +304,7 @@ xmlport 94353 "LT Y83 NS pws_utf8_lax"
     }
 }
 
-xmlport 94354 "LT Y83 NS pws_vt"
+xmlport 94353 "LT Y83 NS pws_vt"
 {
     Format = VariableText;
     Direction = Both;
@@ -350,7 +327,7 @@ xmlport 94354 "LT Y83 NS pws_vt"
     }
 }
 
-xmlport 94355 "LT Y83 NS udn_prefix"
+xmlport 94354 "LT Y83 NS udn_prefix"
 {
     Format = Xml;
     Direction = Both;
@@ -373,7 +350,7 @@ xmlport 94355 "LT Y83 NS udn_prefix"
     }
 }
 
-xmlport 94356 "LT Y83 NS udn_dn_prefix_utf8"
+xmlport 94355 "LT Y83 NS udn_dn_prefix_utf8"
 {
     Format = Xml;
     Direction = Both;
@@ -398,14 +375,14 @@ xmlport 94356 "LT Y83 NS udn_dn_prefix_utf8"
     }
 }
 
-xmlport 94357 "LT Y83 NS udn_dn_emptyprefix_utf8"
+xmlport 94356 "LT Y83 NS udn_dn_eprefix_utf8"
 {
     Format = Xml;
     Direction = Both;
     UseRequestPage = false;
     UseDefaultNamespace = true;
     DefaultNamespace = 'urn:y83';
-    Namespaces = '' = 'urn:y83-e';
+    Namespaces = "" = 'urn:y83-e';
     Encoding = UTF8;
 
     schema
@@ -423,7 +400,7 @@ xmlport 94357 "LT Y83 NS udn_dn_emptyprefix_utf8"
     }
 }
 
-xmlport 94358 "LT Y83 NS udn_lax"
+xmlport 94357 "LT Y83 NS udn_lax"
 {
     Format = Xml;
     Direction = Both;
@@ -446,7 +423,7 @@ xmlport 94358 "LT Y83 NS udn_lax"
     }
 }
 
-xmlport 94359 "LT Y83 NS udn_inline"
+xmlport 94358 "LT Y83 NS udn_inline"
 {
     Format = Xml;
     Direction = Both;
@@ -469,7 +446,7 @@ xmlport 94359 "LT Y83 NS udn_inline"
     }
 }
 
-xmlport 94360 "LT Y83 NS udn_v11"
+xmlport 94359 "LT Y83 NS udn_v11"
 {
     Format = Xml;
     Direction = Both;
@@ -492,7 +469,7 @@ xmlport 94360 "LT Y83 NS udn_v11"
     }
 }
 
-xmlport 94361 "LT Y83 NS udn_tattr"
+xmlport 94360 "LT Y83 NS udn_tattr"
 {
     Format = Xml;
     Direction = Both;
@@ -518,4 +495,26 @@ xmlport 94361 "LT Y83 NS udn_tattr"
     begin
         Ver := 'v1';
     end;}
+
+xmlport 94361 "LT Y83 NS prefix_attr_only"
+{
+    Format = Xml;
+    Direction = Both;
+    UseRequestPage = false;
+    Namespaces = p = 'urn:y83-p';
+
+    schema
+    {
+        textelement(Root)
+        {
+            tableelement(Rw; "LT Y83 Item")
+            {
+                XmlName = 'Item';
+                fieldattribute(Id; Rw.Id) { NamespacePrefix = 'p'; }
+                fieldelement(Name; Rw.Name) {  }
+                fieldelement(Amt; Rw.Amt) {  }
+            }
+        }
+    }
+}
 

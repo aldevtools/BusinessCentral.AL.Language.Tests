@@ -180,31 +180,14 @@ codeunit 94334 "LT Y83 Namespace Tests"
     end;
 
     [Test]
-    procedure Ns_DnVt()
-    begin
-        Helper.Seed();
-        Observer.Observe('export', Helper.TryExport(94348, TextEncoding::UTF8));
-        Observer.Observe('import plain', Helper.TryImport(94348, '7,"  seven  ",7.25' + CrLf(), false));
-        Observer.Observe('rows after plain', Helper.Rows());
-        Helper.Seed();
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Ns_DnVt_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
     procedure Ns_Pws()
     begin
         Helper.Seed();
-        Observer.Observe('export', Helper.TryExport(94349, TextEncoding::UTF16));
-        Observer.Observe('import plain', Helper.TryImport(94349, '<Root><Item><Id>7</Id><Name>  seven  </Name><Amt>7.25</Amt></Item></Root>', false));
+        Observer.Observe('export', Helper.TryExport(94348, TextEncoding::UTF16));
+        Observer.Observe('import plain', Helper.TryImport(94348, '<Root><Item><Id>7</Id><Name>  seven  </Name><Amt>7.25</Amt></Item></Root>', false));
         Observer.Observe('rows after plain', Helper.Rows());
         Helper.Seed();
-        Observer.Observe('import dn', Helper.TryImport(94349, '<Root xmlns="urn:y83"><Item><Id>8</Id><Name>  eight  </Name><Amt>8.5</Amt></Item></Root>', false));
+        Observer.Observe('import dn', Helper.TryImport(94348, '<Root xmlns="urn:y83"><Item><Id>8</Id><Name>  eight  </Name><Amt>8.5</Amt></Item></Root>', false));
         Observer.Observe('rows after dn', Helper.Rows());
         Helper.Seed();
         Observer.Finish();
@@ -220,14 +203,14 @@ codeunit 94334 "LT Y83 Namespace Tests"
     procedure Ns_PwsPrefix()
     begin
         Helper.Seed();
-        Observer.Observe('export', Helper.TryExport(94350, TextEncoding::UTF16));
-        Observer.Observe('import plain', Helper.TryImport(94350, '<Root><Item><Id>7</Id><Name>  seven  </Name><Amt>7.25</Amt></Item></Root>', false));
+        Observer.Observe('export', Helper.TryExport(94349, TextEncoding::UTF16));
+        Observer.Observe('import plain', Helper.TryImport(94349, '<Root><Item><Id>7</Id><Name>  seven  </Name><Amt>7.25</Amt></Item></Root>', false));
         Observer.Observe('rows after plain', Helper.Rows());
         Helper.Seed();
-        Observer.Observe('import dn', Helper.TryImport(94350, '<Root xmlns="urn:y83"><Item><Id>8</Id><Name>  eight  </Name><Amt>8.5</Amt></Item></Root>', false));
+        Observer.Observe('import dn', Helper.TryImport(94349, '<Root xmlns="urn:y83"><Item><Id>8</Id><Name>  eight  </Name><Amt>8.5</Amt></Item></Root>', false));
         Observer.Observe('rows after dn', Helper.Rows());
         Helper.Seed();
-        Observer.Observe('import prefixed', Helper.TryImport(94350, '<Root xmlns:p="urn:y83-p"><Item><Id>10</Id><p:Name>  ten  </p:Name><Amt>10.5</Amt></Item></Root>', false));
+        Observer.Observe('import prefixed', Helper.TryImport(94349, '<Root xmlns:p="urn:y83-p"><Item><Id>10</Id><p:Name>  ten  </p:Name><Amt>10.5</Amt></Item></Root>', false));
         Observer.Observe('rows after prefixed', Helper.Rows());
         Helper.Seed();
         Observer.Finish();
@@ -243,11 +226,11 @@ codeunit 94334 "LT Y83 Namespace Tests"
     procedure Ns_PwsUdnDn()
     begin
         Helper.Seed();
-        Observer.Observe('export', Helper.TryExport(94351, TextEncoding::UTF16));
-        Observer.Observe('import plain', Helper.TryImport(94351, '<Root><Item><Id>7</Id><Name>  seven  </Name><Amt>7.25</Amt></Item></Root>', false));
+        Observer.Observe('export', Helper.TryExport(94350, TextEncoding::UTF16));
+        Observer.Observe('import plain', Helper.TryImport(94350, '<Root><Item><Id>7</Id><Name>  seven  </Name><Amt>7.25</Amt></Item></Root>', false));
         Observer.Observe('rows after plain', Helper.Rows());
         Helper.Seed();
-        Observer.Observe('import dn', Helper.TryImport(94351, '<Root xmlns="urn:y83"><Item><Id>8</Id><Name>  eight  </Name><Amt>8.5</Amt></Item></Root>', false));
+        Observer.Observe('import dn', Helper.TryImport(94350, '<Root xmlns="urn:y83"><Item><Id>8</Id><Name>  eight  </Name><Amt>8.5</Amt></Item></Root>', false));
         Observer.Observe('rows after dn', Helper.Rows());
         Helper.Seed();
         Observer.Finish();
@@ -263,14 +246,14 @@ codeunit 94334 "LT Y83 Namespace Tests"
     procedure Ns_PwsUtf8Prefix()
     begin
         Helper.Seed();
-        Observer.Observe('export', Helper.TryExport(94352, TextEncoding::UTF8));
-        Observer.Observe('import plain', Helper.TryImport(94352, '<Root><Item><Id>7</Id><Name>  seven  </Name><Amt>7.25</Amt></Item></Root>', false));
+        Observer.Observe('export', Helper.TryExport(94351, TextEncoding::UTF8));
+        Observer.Observe('import plain', Helper.TryImport(94351, '<Root><Item><Id>7</Id><Name>  seven  </Name><Amt>7.25</Amt></Item></Root>', false));
         Observer.Observe('rows after plain', Helper.Rows());
         Helper.Seed();
-        Observer.Observe('import dn', Helper.TryImport(94352, '<Root xmlns="urn:y83"><Item><Id>8</Id><Name>  eight  </Name><Amt>8.5</Amt></Item></Root>', false));
+        Observer.Observe('import dn', Helper.TryImport(94351, '<Root xmlns="urn:y83"><Item><Id>8</Id><Name>  eight  </Name><Amt>8.5</Amt></Item></Root>', false));
         Observer.Observe('rows after dn', Helper.Rows());
         Helper.Seed();
-        Observer.Observe('import prefixed', Helper.TryImport(94352, '<Root xmlns:p="urn:y83-p"><Item><Id>10</Id><p:Name>  ten  </p:Name><Amt>10.5</Amt></Item></Root>', false));
+        Observer.Observe('import prefixed', Helper.TryImport(94351, '<Root xmlns:p="urn:y83-p"><Item><Id>10</Id><p:Name>  ten  </p:Name><Amt>10.5</Amt></Item></Root>', false));
         Observer.Observe('rows after prefixed', Helper.Rows());
         Helper.Seed();
         Observer.Finish();
@@ -286,11 +269,11 @@ codeunit 94334 "LT Y83 Namespace Tests"
     procedure Ns_PwsUtf8Lax()
     begin
         Helper.Seed();
-        Observer.Observe('export', Helper.TryExport(94353, TextEncoding::UTF8));
-        Observer.Observe('import plain', Helper.TryImport(94353, '<Root><Item><Id>7</Id><Name>  seven  </Name><Amt>7.25</Amt></Item></Root>', false));
+        Observer.Observe('export', Helper.TryExport(94352, TextEncoding::UTF8));
+        Observer.Observe('import plain', Helper.TryImport(94352, '<Root><Item><Id>7</Id><Name>  seven  </Name><Amt>7.25</Amt></Item></Root>', false));
         Observer.Observe('rows after plain', Helper.Rows());
         Helper.Seed();
-        Observer.Observe('import dn', Helper.TryImport(94353, '<Root xmlns="urn:y83"><Item><Id>8</Id><Name>  eight  </Name><Amt>8.5</Amt></Item></Root>', false));
+        Observer.Observe('import dn', Helper.TryImport(94352, '<Root xmlns="urn:y83"><Item><Id>8</Id><Name>  eight  </Name><Amt>8.5</Amt></Item></Root>', false));
         Observer.Observe('rows after dn', Helper.Rows());
         Helper.Seed();
         Observer.Finish();
@@ -306,8 +289,8 @@ codeunit 94334 "LT Y83 Namespace Tests"
     procedure Ns_PwsVt()
     begin
         Helper.Seed();
-        Observer.Observe('export', Helper.TryExport(94354, TextEncoding::UTF8));
-        Observer.Observe('import plain', Helper.TryImport(94354, '7,"  seven  ",7.25' + CrLf(), false));
+        Observer.Observe('export', Helper.TryExport(94353, TextEncoding::UTF8));
+        Observer.Observe('import plain', Helper.TryImport(94353, '7,"  seven  ",7.25' + CrLf(), false));
         Observer.Observe('rows after plain', Helper.Rows());
         Helper.Seed();
         Observer.Finish();
@@ -323,17 +306,17 @@ codeunit 94334 "LT Y83 Namespace Tests"
     procedure Ns_UdnPrefix()
     begin
         Helper.Seed();
-        Observer.Observe('export', Helper.TryExport(94355, TextEncoding::UTF16));
-        Observer.Observe('import plain', Helper.TryImport(94355, '<Root><Item><Id>7</Id><Name>  seven  </Name><Amt>7.25</Amt></Item></Root>', false));
+        Observer.Observe('export', Helper.TryExport(94354, TextEncoding::UTF16));
+        Observer.Observe('import plain', Helper.TryImport(94354, '<Root><Item><Id>7</Id><Name>  seven  </Name><Amt>7.25</Amt></Item></Root>', false));
         Observer.Observe('rows after plain', Helper.Rows());
         Helper.Seed();
-        Observer.Observe('import dn', Helper.TryImport(94355, '<Root xmlns="urn:y83"><Item><Id>8</Id><Name>  eight  </Name><Amt>8.5</Amt></Item></Root>', false));
+        Observer.Observe('import dn', Helper.TryImport(94354, '<Root xmlns="urn:y83"><Item><Id>8</Id><Name>  eight  </Name><Amt>8.5</Amt></Item></Root>', false));
         Observer.Observe('rows after dn', Helper.Rows());
         Helper.Seed();
-        Observer.Observe('import own ns', Helper.TryImport(94355, '<Root xmlns="urn:microsoft-dynamics-nav/xmlports/x94355"><Item><Id>9</Id><Name>  nine  </Name><Amt>9.5</Amt></Item></Root>', false));
+        Observer.Observe('import own ns', Helper.TryImport(94354, '<Root xmlns="urn:microsoft-dynamics-nav/xmlports/x94354"><Item><Id>9</Id><Name>  nine  </Name><Amt>9.5</Amt></Item></Root>', false));
         Observer.Observe('rows after own ns', Helper.Rows());
         Helper.Seed();
-        Observer.Observe('import prefixed', Helper.TryImport(94355, '<Root xmlns:p="urn:y83-p"><Item><Id>10</Id><p:Name>  ten  </p:Name><Amt>10.5</Amt></Item></Root>', false));
+        Observer.Observe('import prefixed', Helper.TryImport(94354, '<Root xmlns:p="urn:y83-p"><Item><Id>10</Id><p:Name>  ten  </p:Name><Amt>10.5</Amt></Item></Root>', false));
         Observer.Observe('rows after prefixed', Helper.Rows());
         Helper.Seed();
         Observer.Finish();
@@ -349,14 +332,14 @@ codeunit 94334 "LT Y83 Namespace Tests"
     procedure Ns_UdnDnPrefixUtf8()
     begin
         Helper.Seed();
-        Observer.Observe('export', Helper.TryExport(94356, TextEncoding::UTF8));
-        Observer.Observe('import plain', Helper.TryImport(94356, '<Root><Item><Id>7</Id><Name>  seven  </Name><Amt>7.25</Amt></Item></Root>', false));
+        Observer.Observe('export', Helper.TryExport(94355, TextEncoding::UTF8));
+        Observer.Observe('import plain', Helper.TryImport(94355, '<Root><Item><Id>7</Id><Name>  seven  </Name><Amt>7.25</Amt></Item></Root>', false));
         Observer.Observe('rows after plain', Helper.Rows());
         Helper.Seed();
-        Observer.Observe('import dn', Helper.TryImport(94356, '<Root xmlns="urn:y83"><Item><Id>8</Id><Name>  eight  </Name><Amt>8.5</Amt></Item></Root>', false));
+        Observer.Observe('import dn', Helper.TryImport(94355, '<Root xmlns="urn:y83"><Item><Id>8</Id><Name>  eight  </Name><Amt>8.5</Amt></Item></Root>', false));
         Observer.Observe('rows after dn', Helper.Rows());
         Helper.Seed();
-        Observer.Observe('import prefixed', Helper.TryImport(94356, '<Root xmlns:p="urn:y83-p"><Item><Id>10</Id><p:Name>  ten  </p:Name><Amt>10.5</Amt></Item></Root>', false));
+        Observer.Observe('import prefixed', Helper.TryImport(94355, '<Root xmlns:p="urn:y83-p"><Item><Id>10</Id><p:Name>  ten  </p:Name><Amt>10.5</Amt></Item></Root>', false));
         Observer.Observe('rows after prefixed', Helper.Rows());
         Helper.Seed();
         Observer.Finish();
@@ -369,27 +352,50 @@ codeunit 94334 "LT Y83 Namespace Tests"
     end;
 
     [Test]
-    procedure Ns_UdnDnEmptyprefixUtf8()
+    procedure Ns_UdnDnEprefixUtf8()
     begin
         Helper.Seed();
-        Observer.Observe('export', Helper.TryExport(94357, TextEncoding::UTF8));
-        Observer.Observe('import plain', Helper.TryImport(94357, '<Root><Item><Id>7</Id><Name>  seven  </Name><Amt>7.25</Amt></Item></Root>', false));
+        Observer.Observe('export', Helper.TryExport(94356, TextEncoding::UTF8));
+        Observer.Observe('import plain', Helper.TryImport(94356, '<Root><Item><Id>7</Id><Name>  seven  </Name><Amt>7.25</Amt></Item></Root>', false));
         Observer.Observe('rows after plain', Helper.Rows());
         Helper.Seed();
-        Observer.Observe('import dn', Helper.TryImport(94357, '<Root xmlns="urn:y83"><Item><Id>8</Id><Name>  eight  </Name><Amt>8.5</Amt></Item></Root>', false));
+        Observer.Observe('import dn', Helper.TryImport(94356, '<Root xmlns="urn:y83"><Item><Id>8</Id><Name>  eight  </Name><Amt>8.5</Amt></Item></Root>', false));
         Observer.Observe('rows after dn', Helper.Rows());
         Helper.Seed();
         Observer.Finish();
     end;
 
     [Test]
-    procedure Ns_UdnDnEmptyprefixUtf8_More1()
+    procedure Ns_UdnDnEprefixUtf8_More1()
     begin
         Observer.More();
     end;
 
     [Test]
     procedure Ns_UdnLax()
+    begin
+        Helper.Seed();
+        Observer.Observe('export', Helper.TryExport(94357, TextEncoding::UTF16));
+        Observer.Observe('import plain', Helper.TryImport(94357, '<Root><Item><Id>7</Id><Name>  seven  </Name><Amt>7.25</Amt></Item></Root>', false));
+        Observer.Observe('rows after plain', Helper.Rows());
+        Helper.Seed();
+        Observer.Observe('import dn', Helper.TryImport(94357, '<Root xmlns="urn:y83"><Item><Id>8</Id><Name>  eight  </Name><Amt>8.5</Amt></Item></Root>', false));
+        Observer.Observe('rows after dn', Helper.Rows());
+        Helper.Seed();
+        Observer.Observe('import own ns', Helper.TryImport(94357, '<Root xmlns="urn:microsoft-dynamics-nav/xmlports/x94357"><Item><Id>9</Id><Name>  nine  </Name><Amt>9.5</Amt></Item></Root>', false));
+        Observer.Observe('rows after own ns', Helper.Rows());
+        Helper.Seed();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Ns_UdnLax_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure Ns_UdnInline()
     begin
         Helper.Seed();
         Observer.Observe('export', Helper.TryExport(94358, TextEncoding::UTF16));
@@ -406,13 +412,13 @@ codeunit 94334 "LT Y83 Namespace Tests"
     end;
 
     [Test]
-    procedure Ns_UdnLax_More1()
+    procedure Ns_UdnInline_More1()
     begin
         Observer.More();
     end;
 
     [Test]
-    procedure Ns_UdnInline()
+    procedure Ns_UdnV11()
     begin
         Helper.Seed();
         Observer.Observe('export', Helper.TryExport(94359, TextEncoding::UTF16));
@@ -429,29 +435,6 @@ codeunit 94334 "LT Y83 Namespace Tests"
     end;
 
     [Test]
-    procedure Ns_UdnInline_More1()
-    begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure Ns_UdnV11()
-    begin
-        Helper.Seed();
-        Observer.Observe('export', Helper.TryExport(94360, TextEncoding::UTF16));
-        Observer.Observe('import plain', Helper.TryImport(94360, '<Root><Item><Id>7</Id><Name>  seven  </Name><Amt>7.25</Amt></Item></Root>', false));
-        Observer.Observe('rows after plain', Helper.Rows());
-        Helper.Seed();
-        Observer.Observe('import dn', Helper.TryImport(94360, '<Root xmlns="urn:y83"><Item><Id>8</Id><Name>  eight  </Name><Amt>8.5</Amt></Item></Root>', false));
-        Observer.Observe('rows after dn', Helper.Rows());
-        Helper.Seed();
-        Observer.Observe('import own ns', Helper.TryImport(94360, '<Root xmlns="urn:microsoft-dynamics-nav/xmlports/x94360"><Item><Id>9</Id><Name>  nine  </Name><Amt>9.5</Amt></Item></Root>', false));
-        Observer.Observe('rows after own ns', Helper.Rows());
-        Helper.Seed();
-        Observer.Finish();
-    end;
-
-    [Test]
     procedure Ns_UdnV11_More1()
     begin
         Observer.More();
@@ -461,14 +444,14 @@ codeunit 94334 "LT Y83 Namespace Tests"
     procedure Ns_UdnTattr()
     begin
         Helper.Seed();
-        Observer.Observe('export', Helper.TryExport(94361, TextEncoding::UTF16));
-        Observer.Observe('import plain', Helper.TryImport(94361, '<Root Ver="v9"><Item><Id>7</Id><Name>  seven  </Name><Amt>7.25</Amt></Item></Root>', false));
+        Observer.Observe('export', Helper.TryExport(94360, TextEncoding::UTF16));
+        Observer.Observe('import plain', Helper.TryImport(94360, '<Root Ver="v9"><Item><Id>7</Id><Name>  seven  </Name><Amt>7.25</Amt></Item></Root>', false));
         Observer.Observe('rows after plain', Helper.Rows());
         Helper.Seed();
-        Observer.Observe('import dn', Helper.TryImport(94361, '<Root xmlns="urn:y83" Ver="v9"><Item><Id>8</Id><Name>  eight  </Name><Amt>8.5</Amt></Item></Root>', false));
+        Observer.Observe('import dn', Helper.TryImport(94360, '<Root xmlns="urn:y83" Ver="v9"><Item><Id>8</Id><Name>  eight  </Name><Amt>8.5</Amt></Item></Root>', false));
         Observer.Observe('rows after dn', Helper.Rows());
         Helper.Seed();
-        Observer.Observe('import own ns', Helper.TryImport(94361, '<Root xmlns="urn:microsoft-dynamics-nav/xmlports/x94361" Ver="v9"><Item><Id>9</Id><Name>  nine  </Name><Amt>9.5</Amt></Item></Root>', false));
+        Observer.Observe('import own ns', Helper.TryImport(94360, '<Root xmlns="urn:microsoft-dynamics-nav/xmlports/x94360" Ver="v9"><Item><Id>9</Id><Name>  nine  </Name><Amt>9.5</Amt></Item></Root>', false));
         Observer.Observe('rows after own ns', Helper.Rows());
         Helper.Seed();
         Observer.Finish();
@@ -476,6 +459,29 @@ codeunit 94334 "LT Y83 Namespace Tests"
 
     [Test]
     procedure Ns_UdnTattr_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure Ns_PrefixAttrOnly()
+    begin
+        Helper.Seed();
+        Observer.Observe('export', Helper.TryExport(94361, TextEncoding::UTF16));
+        Observer.Observe('import plain', Helper.TryImport(94361, '<Root><Item Id="7"><Name>  seven  </Name><Amt>7.25</Amt></Item></Root>', false));
+        Observer.Observe('rows after plain', Helper.Rows());
+        Helper.Seed();
+        Observer.Observe('import dn', Helper.TryImport(94361, '<Root xmlns="urn:y83"><Item Id="8"><Name>  eight  </Name><Amt>8.5</Amt></Item></Root>', false));
+        Observer.Observe('rows after dn', Helper.Rows());
+        Helper.Seed();
+        Observer.Observe('import prefixed', Helper.TryImport(94361, '<Root xmlns:p="urn:y83-p"><Item p:Id="10"><Name>  ten  </Name><Amt>10.5</Amt></Item></Root>', false));
+        Observer.Observe('rows after prefixed', Helper.Rows());
+        Helper.Seed();
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Ns_PrefixAttrOnly_More1()
     begin
         Observer.More();
     end;

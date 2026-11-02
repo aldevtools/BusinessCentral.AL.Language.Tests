@@ -396,28 +396,19 @@ xmlport 94378 "LT Y83 Container Triggers"
     {
         textelement(Root)
         {
-            trigger OnBeforePassVariable()
-            begin
-                Log += 'root-bpv;';
-            end;
+            tableelement(Rw; "LT Y83 Item")
+            {
+                XmlName = 'Item';
+                fieldelement(Id; Rw.Id) { }
+                fieldelement(Name; Rw.Name) { }
 
-            trigger OnAfterAssignVariable()
-            begin
-                Log += 'root-aav;';
-            end;
-
+                trigger OnAfterGetRecord()
+                begin
+                    Log += 'rw-agr(' + Format(Rw.Id) + ');';
+                end;
+            }
             textelement(Hdr)
             {
-                trigger OnBeforePassVariable()
-                begin
-                    Log += 'hdr-bpv;';
-                end;
-
-                trigger OnAfterAssignVariable()
-                begin
-                    Log += 'hdr-aav;';
-                end;
-
                 textattribute(HAttr)
                 {
                     trigger OnBeforePassVariable()
@@ -430,6 +421,7 @@ xmlport 94378 "LT Y83 Container Triggers"
                         Log += 'hattr-aav(' + HAttr + ');';
                     end;
                 }
+
                 textelement(HCode)
                 {
                     trigger OnBeforePassVariable()
@@ -444,16 +436,6 @@ xmlport 94378 "LT Y83 Container Triggers"
                 }
                 textelement(Inner)
                 {
-                    trigger OnBeforePassVariable()
-                    begin
-                        Log += 'inner-bpv;';
-                    end;
-
-                    trigger OnAfterAssignVariable()
-                    begin
-                        Log += 'inner-aav;';
-                    end;
-
                     textelement(InnerVal)
                     {
                         trigger OnBeforePassVariable()
@@ -466,19 +448,37 @@ xmlport 94378 "LT Y83 Container Triggers"
                             Log += 'innerval-aav(' + InnerVal + ');';
                         end;
                     }
-                }
-            }
-            tableelement(Rw; "LT Y83 Item")
-            {
-                XmlName = 'Item';
-                fieldelement(Id; Rw.Id) { }
-                fieldelement(Name; Rw.Name) { }
 
-                trigger OnAfterGetRecord()
+                    trigger OnBeforePassVariable()
+                    begin
+                        Log += 'inner-bpv;';
+                    end;
+
+                    trigger OnAfterAssignVariable()
+                    begin
+                        Log += 'inner-aav;';
+                    end;
+                }
+                trigger OnBeforePassVariable()
                 begin
-                    Log += 'rw-agr(' + Format(Rw.Id) + ');';
+                    Log += 'hdr-bpv;';
+                end;
+
+                trigger OnAfterAssignVariable()
+                begin
+                    Log += 'hdr-aav;';
                 end;
             }
+
+            trigger OnBeforePassVariable()
+            begin
+                Log += 'root-bpv;';
+            end;
+
+            trigger OnAfterAssignVariable()
+            begin
+                Log += 'root-aav;';
+            end;
         }
     }
 
@@ -510,16 +510,6 @@ xmlport 94379 "LT Y83 Attr Only Text"
         {
             textelement(Endpoint)
             {
-                trigger OnBeforePassVariable()
-                begin
-                    Log += 'ep-bpv;';
-                end;
-
-                trigger OnAfterAssignVariable()
-                begin
-                    Log += 'ep-aav(' + Endpoint + ');';
-                end;
-
                 textattribute(SchemeId)
                 {
                     trigger OnBeforePassVariable()
@@ -532,14 +522,19 @@ xmlport 94379 "LT Y83 Attr Only Text"
                         Log += 'scheme-aav(' + SchemeId + ');';
                     end;
                 }
+
+                trigger OnBeforePassVariable()
+                begin
+                    Log += 'ep-bpv;';
+                end;
+
+                trigger OnAfterAssignVariable()
+                begin
+                    Log += 'ep-aav(' + Endpoint + ');';
+                end;
             }
             textelement(Party)
             {
-                trigger OnBeforePassVariable()
-                begin
-                    Log += 'party-bpv;';
-                end;
-
                 textattribute(PartyId)
                 {
                     trigger OnBeforePassVariable()
@@ -547,9 +542,17 @@ xmlport 94379 "LT Y83 Attr Only Text"
                         Log += 'partyid-bpv;';
                     end;
                 }
+
+                trigger OnBeforePassVariable()
+                begin
+                    Log += 'party-bpv;';
+                end;
             }
         }
     }
+
+    var
+        Log: Text;
 
     trigger OnPreXmlPort()
     begin
@@ -557,9 +560,6 @@ xmlport 94379 "LT Y83 Attr Only Text"
         SchemeId := 'GLN';
         PartyId := 'p1';
     end;
-
-    var
-        Log: Text;
 
     procedure GetLog(): Text
     begin
