@@ -1,7 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/system/system-getlasterrorobject-method
 // Scope: in-scope, but ONLY for a Target = OnPrem app (GetLastErrorObject and DotNet have scope OnPrem).
 // Fixtures used: Probe Observer (69160) from the AL Language Coverage Tests app; own objects 99320 - 99324
-// Probe (writer Y76): (1) al-runtime-rs assumption exception-tostring-stack-frames: every line of ToString and Format of the exception
+// Pinned (writer Y76): (1) al-runtime-rs assumption exception-tostring-stack-frames: every line of ToString and Format of the exception
 // GetLastErrorObject answers after an error caught by a TryFunction, by asserterror, after Get of a missing row, after a division by zero and after a
 // dialog error three procedures deep. (2) al-runtime-rs assumption dotnet-generic-result-type: WorkbookReader.GetWorksheetByName (a method that is
 // generic only, its type parameter is its return type) assigned to a DotNet variable of the sheet type, of System.Object, to a Variant, used
@@ -109,15 +109,28 @@ codeunit 99322 "LT Y76 Lek Tests"
         Result := 1 div Zero;
     end;
 
-    local procedure Describe(var Observer: Codeunit "Probe Observer"; Name: Text)
+    local procedure Describe(var Observer: Codeunit "Probe Observer"; Name: Text; ExpectedHead: Text; ExpectedFrame: Text)
     var
         Exc: DotNet LtY76Exc;
-        Text1: Text;
+        Full: Text;
+        Head: Text;
+        Cr: Text[1];
+        Lf: Text[1];
+        P: Integer;
     begin
+        Cr[1] := 13;
+        Lf[1] := 10;
         Exc := GetLastErrorObject();
-        Text1 := Exc.ToString();
-        Observer.Observe(Name + '_tostring', Text1);
-        Observer.Observe(Name + '_format_equal', Format(Format(Exc) = Text1));
+        Full := Exc.ToString();
+        P := StrPos(Full, '   at ');
+        Head := CopyStr(Full, 1, P - 1);
+        Head := DelChr(Head, '=', Cr + Lf);
+        Observer.Expect(Name + '_head', ExpectedHead);
+        Observer.Observe(Name + '_head', Head);
+        Observer.Expect(Name + '_frame', 'Yes');
+        Observer.Observe(Name + '_frame', Format(StrPos(Full, ExpectedFrame) > 0));
+        Observer.Expect(Name + '_format_equal', 'Yes');
+        Observer.Observe(Name + '_format_equal', Format(Format(Exc) = Full));
     end;
 
     [Test]
@@ -126,8 +139,8 @@ codeunit 99322 "LT Y76 Lek Tests"
         Observer: Codeunit "Probe Observer";
     begin
         if TryError() then;
-        Describe(Observer, 'try');
-        Observer.Finish();
+        Describe(Observer, 'try', 'Microsoft.Dynamics.Nav.Types.Exceptions.NavNCLDialogException: LT Y76 try', 'Codeunit99322.TryError()');
+        Observer.Verify();
     end;
 
     [Test]
@@ -136,8 +149,8 @@ codeunit 99322 "LT Y76 Lek Tests"
         Observer: Codeunit "Probe Observer";
     begin
         asserterror Error('LT Y76 assert');
-        Describe(Observer, 'assert');
-        Observer.Finish();
+        Describe(Observer, 'assert', 'Microsoft.Dynamics.Nav.Types.Exceptions.NavNCLDialogException: LT Y76 assert', 'NavMethodScope.AssertErrorAsync');
+        Observer.Verify();
     end;
 
     [Test]
@@ -146,8 +159,8 @@ codeunit 99322 "LT Y76 Lek Tests"
         Observer: Codeunit "Probe Observer";
     begin
         if TryGetMissing() then;
-        Describe(Observer, 'try_get');
-        Observer.Finish();
+        Describe(Observer, 'try_get', 'Microsoft.Dynamics.Nav.Types.Exceptions.NavCSideRecordNotFoundException: The LT Y76 Lek Row does not exist. Identification fields and values: Id=''-4242''', 'Codeunit99322.TryGetMissing()');
+        Observer.Verify();
     end;
 
     [Test]
@@ -157,8 +170,8 @@ codeunit 99322 "LT Y76 Lek Tests"
         Row: Record "LT Y76 Lek Row";
     begin
         asserterror Row.Get(-4242);
-        Describe(Observer, 'assert_get');
-        Observer.Finish();
+        Describe(Observer, 'assert_get', 'Microsoft.Dynamics.Nav.Types.Exceptions.NavCSideRecordNotFoundException: The LT Y76 Lek Row does not exist. Identification fields and values: Id=''-4242''', 'NavMethodScope.AssertErrorAsync');
+        Observer.Verify();
     end;
 
     [Test]
@@ -167,8 +180,8 @@ codeunit 99322 "LT Y76 Lek Tests"
         Observer: Codeunit "Probe Observer";
     begin
         if TryDivide() then;
-        Describe(Observer, 'try_div');
-        Observer.Finish();
+        Describe(Observer, 'try_div', 'Microsoft.Dynamics.Nav.Types.Exceptions.NavALException: Attempted to divide by zero. ---> System.DivideByZeroException: Attempted to divide by zero.', 'Codeunit99322.TryDivide()');
+        Observer.Verify();
     end;
 
     [Test]
@@ -179,8 +192,8 @@ codeunit 99322 "LT Y76 Lek Tests"
         Result: Integer;
     begin
         asserterror Result := 1 div Zero;
-        Describe(Observer, 'assert_div');
-        Observer.Finish();
+        Describe(Observer, 'assert_div', 'Microsoft.Dynamics.Nav.Types.Exceptions.NavALException: Attempted to divide by zero. ---> System.DivideByZeroException: Attempted to divide by zero.', 'NavMethodScope.AssertErrorAsync');
+        Observer.Verify();
     end;
 
     [Test]
@@ -192,14 +205,14 @@ codeunit 99322 "LT Y76 Lek Tests"
         Commit();
         Thrower.SetMode(1);
         if Thrower.Run() then;
-        Describe(Observer, 'deep');
+        Describe(Observer, 'deep', 'Microsoft.Dynamics.Nav.Types.Exceptions.NavNCLDialogException: LT Y76 three deep', 'Codeunit99321.Level1()');
         Thrower.SetMode(2);
         if Thrower.Run() then;
-        Describe(Observer, 'run_get');
+        Describe(Observer, 'run_get', 'Microsoft.Dynamics.Nav.Types.Exceptions.NavCSideRecordNotFoundException: The LT Y76 Lek Row does not exist. Identification fields and values: Id=''-4242''', 'Codeunit99321.OnRunAsync');
         Thrower.SetMode(3);
         if Thrower.Run() then;
-        Describe(Observer, 'run_div');
-        Observer.Finish();
+        Describe(Observer, 'run_div', 'Microsoft.Dynamics.Nav.Types.Exceptions.NavALException: Attempted to divide by zero. ---> System.DivideByZeroException: Attempted to divide by zero.', 'Codeunit99321.OnRunAsync');
+        Observer.Verify();
     end;
 }
 
@@ -234,11 +247,14 @@ codeunit 99323 "LT Y76 Generic Tests"
         BuildBook(TempBlob);
         TempBlob.CreateInStream(InS);
         Reader := Reader.Open(InS);
+        Observer.Expect('has sheet', 'Yes');
         Observer.Observe('has sheet', Format(Reader.HasWorksheet('Sheet1')));
         Sheet := Reader.GetWorksheetByName('Sheet1');
+        Observer.Expect('sheet is null', 'No');
         Observer.Observe('sheet is null', Format(IsNull(Sheet)));
+        Observer.Expect('sheet name', 'Sheet1');
         Observer.Observe('sheet name', Sheet.Name);
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     [Test]
@@ -254,6 +270,11 @@ codeunit 99323 "LT Y76 Generic Tests"
         BuildBook(TempBlob);
         TempBlob.CreateInStream(InS);
         Reader := Reader.Open(InS);
+        Observer.Expect('to object', 'ok null=No');
+        Observer.Expect('to variant', 'ok');
+        Observer.Expect('is null call', 'ok');
+        Observer.Expect('statement', 'ok');
+        Observer.Expect('missing sheet', 'E[A call to Microsoft.Dynamics.Nav.OpenXml.Spreadsheet.WorkbookReader.GetWorksheetByName failed with this message: The worksheet cannot be found. (Parameter ''NoSuchSheet'')|DotNetInvoke:Argument]');
         ClearLastError();
         if TryAssignObject(Reader, AsObject) then
             Observer.Observe('to object', 'ok null=' + Format(IsNull(AsObject)))
@@ -279,7 +300,7 @@ codeunit 99323 "LT Y76 Generic Tests"
             Observer.Observe('missing sheet', 'ok')
         else
             Observer.Observe('missing sheet', 'E[' + CopyStr(GetLastErrorText(), 1, 200) + '|' + GetLastErrorCode() + ']');
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     [TryFunction]
