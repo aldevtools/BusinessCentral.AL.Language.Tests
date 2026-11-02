@@ -113,7 +113,9 @@ codeunit 93953 "LT Y74 Fqn Run Tests"
         Seen := '';
         Page.Run('LT.Y74.Fqn.LT Y74 Fqn List');
         Observer.Observe('list', Seen);
-        Observer.Finish();
+        Observer.Expect('card', '1/T1/10;');
+        Observer.Expect('list', 'cur=1 rows=12340;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -136,7 +138,11 @@ codeunit 93953 "LT Y74 Fqn Run Tests"
         Page.Run('LT.Y74.Fqn.LT Y74 Fqn List', Row);
         Observer.Observe('list filtered', Seen);
         Observer.Observe('filters after', Row.GetFilters());
-        Observer.Finish();
+        Observer.Expect('card', '3/T3/30;');
+        Observer.Expect('list', 'cur=3 rows=12340;');
+        Observer.Expect('list filtered', 'cur=2 rows=240;');
+        Observer.Expect('filters after', 'Id: 2|4');
+        Observer.Verify();
     end;
 
     [Test]
@@ -159,7 +165,11 @@ codeunit 93953 "LT Y74 Fqn Run Tests"
         Seen := '';
         Page.Run(Page::"LT Y74 Fqn List", Row, Row.Txt);
         Observer.Observe('list txt by id', Seen);
-        Observer.Finish();
+        Observer.Expect('card qty', '3/T3/30;');
+        Observer.Expect('card id', '3/T3/30;');
+        Observer.Expect('list txt', 'cur=3 rows=12340;');
+        Observer.Expect('list txt by id', 'cur=3 rows=12340;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -177,7 +187,9 @@ codeunit 93953 "LT Y74 Fqn Run Tests"
         Choice := 2;
         Act := Page.RunModal('LT.Y74.Fqn.LT Y74 Fqn List');
         Observer.Observe('cancel', Format(Act) + '|' + Seen);
-        Observer.Finish();
+        Observer.Expect('ok', 'LookupOK|cur=1 rows=1234;');
+        Observer.Expect('cancel', 'LookupCancel|cur=1 rows=1234;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -198,7 +210,10 @@ codeunit 93953 "LT Y74 Fqn Run Tests"
         Act := Page.RunModal('LT.Y74.Fqn.LT Y74 Fqn List', Row);
         Observer.Observe('cancel', Format(Act) + '|' + Seen);
         Observer.Observe('row after', Format(Row.Id));
-        Observer.Finish();
+        Observer.Expect('ok', 'LookupOK|cur=2 rows=1234;');
+        Observer.Expect('cancel', 'LookupCancel|cur=4 rows=1234;');
+        Observer.Expect('row after', '4');
+        Observer.Verify();
     end;
 
     [Test]
@@ -218,7 +233,9 @@ codeunit 93953 "LT Y74 Fqn Run Tests"
         Choice := 2;
         Act := Page.RunModal('LT.Y74.Fqn.LT Y74 Fqn List', Row, Row.Txt);
         Observer.Observe('cancel', Format(Act) + '|' + Seen);
-        Observer.Finish();
+        Observer.Expect('ok', 'LookupOK|cur=4 rows=1234;');
+        Observer.Expect('cancel', 'LookupCancel|cur=4 rows=1234;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -242,7 +259,9 @@ codeunit 93953 "LT Y74 Fqn Run Tests"
         Choice := 2;
         Act := Page.RunModal('LT.Y74.Fqn.LT Y74 Fqn List', Row, FR);
         Observer.Observe('cancel', Format(Act) + '|' + Seen);
-        Observer.Finish();
+        Observer.Expect('ok', 'LookupOK|cur=2 rows=1234;');
+        Observer.Expect('cancel', 'LookupCancel|cur=4 rows=1234;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -256,44 +275,186 @@ codeunit 93953 "LT Y74 Fqn Run Tests"
         Seen := '';
         Page.Run('LT.Y74.Fqn."LT Y74 Fqn Card"');
         Observer.Observe('quoted', Seen);
-        Observer.Finish();
+        Observer.Expect('lower case', '1/T1/10;');
+        Observer.Expect('quoted', '1/T1/10;');
+        Observer.Verify();
     end;
 
+    // Own test per case: one of them may end the session in a CLR exception.
     [Test]
-    procedure Run_Name_Errors()
+    procedure Err_Missing()
     var
         Row: Record "LT Y74 Fqn Row";
         Other: Record "LT Y74 Fqn Other";
+        RecRef: RecordRef;
+        FR: FieldRef;
         Act: Action;
     begin
         Seed();
         Row.Get(1);
         asserterror Page.Run('LT.Y74.Fqn.LT Y74 Fqn Missing');
-        Observer.ObserveError('missing');
-        asserterror Page.Run('');
-        Observer.ObserveError('empty');
-        asserterror Page.Run('LT Y74 Fqn Card');
-        Observer.ObserveError('no namespace');
-        asserterror Page.Run('LT.Y74.Fqn.LT Y74 Fqn Row');
-        Observer.ObserveError('table name');
-        asserterror Page.Run('LT.Y74.Fqn.LT Y74 Fqn Run Tests');
-        Observer.ObserveError('codeunit name');
-        asserterror Page.Run('93951');
-        Observer.ObserveError('page id as text');
-        asserterror Act := Page.RunModal('LT.Y74.Fqn.LT Y74 Fqn Missing');
-        Observer.ObserveError('modal missing');
-        Other.Id := 1;
-        asserterror Page.Run('LT.Y74.Fqn.LT Y74 Fqn Card', Other);
-        Observer.ObserveError('other table');
-        asserterror Page.Run('LT.Y74.Fqn.LT Y74 Fqn Card', Row, Other.Id);
-        Observer.ObserveError('field of other table');
-        asserterror Page.Run('LT.Y74.Fqn.LT Y74 Fqn Card', Row);
-        Observer.ObserveError('no handler');
+        Observer.ObserveError('e');
         Observer.Finish();
     end;
 
+    // Own test per case: one of them may end the session in a CLR exception.
     [Test]
-    procedure RunModal_Name_FieldRef_Errors()
+    procedure Err_Empty()
+    var
+        Row: Record "LT Y74 Fqn Row";
+        Other: Record "LT Y74 Fqn Other";
+        RecRef: RecordRef;
+        FR: FieldRef;
+        Act: Action;
+    begin
+        Seed();
+        Row.Get(1);
+        asserterror Page.Run('');
+        Observer.ObserveError('e');
+        Observer.Finish();
+    end;
+
+    // Own test per case: one of them may end the session in a CLR exception.
+    [Test]
+    procedure Err_NoNamespace()
+    var
+        Row: Record "LT Y74 Fqn Row";
+        Other: Record "LT Y74 Fqn Other";
+        RecRef: RecordRef;
+        FR: FieldRef;
+        Act: Action;
+    begin
+        Seed();
+        Row.Get(1);
+        asserterror Page.Run('LT Y74 Fqn Card');
+        Observer.ObserveError('e');
+        Observer.Finish();
+    end;
+
+    // Own test per case: one of them may end the session in a CLR exception.
+    [Test]
+    procedure Err_TableName()
+    var
+        Row: Record "LT Y74 Fqn Row";
+        Other: Record "LT Y74 Fqn Other";
+        RecRef: RecordRef;
+        FR: FieldRef;
+        Act: Action;
+    begin
+        Seed();
+        Row.Get(1);
+        asserterror Page.Run('LT.Y74.Fqn.LT Y74 Fqn Row');
+        Observer.ObserveError('e');
+        Observer.Finish();
+    end;
+
+    // Own test per case: one of them may end the session in a CLR exception.
+    [Test]
+    procedure Err_CodeunitName()
+    var
+        Row: Record "LT Y74 Fqn Row";
+        Other: Record "LT Y74 Fqn Other";
+        RecRef: RecordRef;
+        FR: FieldRef;
+        Act: Action;
+    begin
+        Seed();
+        Row.Get(1);
+        asserterror Page.Run('LT.Y74.Fqn.LT Y74 Fqn Run Tests');
+        Observer.ObserveError('e');
+        Observer.Finish();
+    end;
+
+    // Own test per case: one of them may end the session in a CLR exception.
+    [Test]
+    procedure Err_PageIdAsText()
+    var
+        Row: Record "LT Y74 Fqn Row";
+        Other: Record "LT Y74 Fqn Other";
+        RecRef: RecordRef;
+        FR: FieldRef;
+        Act: Action;
+    begin
+        Seed();
+        Row.Get(1);
+        asserterror Page.Run('93951');
+        Observer.ObserveError('e');
+        Observer.Finish();
+    end;
+
+    // Own test per case: one of them may end the session in a CLR exception.
+    [Test]
+    procedure Err_ModalMissing()
+    var
+        Row: Record "LT Y74 Fqn Row";
+        Other: Record "LT Y74 Fqn Other";
+        RecRef: RecordRef;
+        FR: FieldRef;
+        Act: Action;
+    begin
+        Seed();
+        Row.Get(1);
+        asserterror Act := Page.RunModal('LT.Y74.Fqn.LT Y74 Fqn Missing');
+        Observer.ObserveError('e');
+        Observer.Finish();
+    end;
+
+    // Own test per case: one of them may end the session in a CLR exception.
+    [Test]
+    procedure Err_OtherTable()
+    var
+        Row: Record "LT Y74 Fqn Row";
+        Other: Record "LT Y74 Fqn Other";
+        RecRef: RecordRef;
+        FR: FieldRef;
+        Act: Action;
+    begin
+        Seed();
+        Row.Get(1);
+        Other.Id := 1;
+        asserterror Page.Run('LT.Y74.Fqn.LT Y74 Fqn Card', Other);
+        Observer.ObserveError('e');
+        Observer.Finish();
+    end;
+
+    // Own test per case: one of them may end the session in a CLR exception.
+    [Test]
+    procedure Err_FieldOfOtherTable()
+    var
+        Row: Record "LT Y74 Fqn Row";
+        Other: Record "LT Y74 Fqn Other";
+        RecRef: RecordRef;
+        FR: FieldRef;
+        Act: Action;
+    begin
+        Seed();
+        Row.Get(1);
+        Other.Id := 1;
+        asserterror Page.Run('LT.Y74.Fqn.LT Y74 Fqn Card', Row, Other.Id);
+        Observer.ObserveError('e');
+        Observer.Finish();
+    end;
+
+    // Own test per case: one of them may end the session in a CLR exception.
+    [Test]
+    procedure Err_NoHandler()
+    var
+        Row: Record "LT Y74 Fqn Row";
+        Other: Record "LT Y74 Fqn Other";
+        RecRef: RecordRef;
+        FR: FieldRef;
+        Act: Action;
+    begin
+        Seed();
+        Row.Get(1);
+        asserterror Page.Run('LT.Y74.Fqn.LT Y74 Fqn Card', Row);
+        Observer.ObserveError('e');
+        Observer.Finish();
+    end;
+
+    // Own test per case: one of them may end the session in a CLR exception.
+    [Test]
+    procedure Err_FieldRefUninitialized()
     var
         Row: Record "LT Y74 Fqn Row";
         Other: Record "LT Y74 Fqn Other";
@@ -304,13 +465,47 @@ codeunit 93953 "LT Y74 Fqn Run Tests"
         Seed();
         Row.Get(1);
         asserterror Act := Page.RunModal('LT.Y74.Fqn.LT Y74 Fqn List', Row, FR);
-        Observer.ObserveError('uninitialized');
+        Observer.ObserveError('e');
+        Observer.Finish();
+    end;
+
+    // Own test per case: one of them may end the session in a CLR exception.
+    [Test]
+    procedure Err_FieldRefOtherTable()
+    var
+        Row: Record "LT Y74 Fqn Row";
+        Other: Record "LT Y74 Fqn Other";
+        RecRef: RecordRef;
+        FR: FieldRef;
+        Act: Action;
+    begin
+        Seed();
+        Row.Get(1);
+        Other.Id := 1;
         RecRef.GetTable(Other);
         FR := RecRef.Field(Other.FieldNo(Id));
         asserterror Act := Page.RunModal('LT.Y74.Fqn.LT Y74 Fqn List', Row, FR);
-        Observer.ObserveError('other table');
+        Observer.ObserveError('e');
+        Observer.Finish();
+    end;
+
+    // Own test per case: one of them may end the session in a CLR exception.
+    [Test]
+    procedure Err_FieldRefMissingPage()
+    var
+        Row: Record "LT Y74 Fqn Row";
+        Other: Record "LT Y74 Fqn Other";
+        RecRef: RecordRef;
+        FR: FieldRef;
+        Act: Action;
+    begin
+        Seed();
+        Row.Get(1);
+        Other.Id := 1;
+        RecRef.GetTable(Other);
+        FR := RecRef.Field(Other.FieldNo(Id));
         asserterror Act := Page.RunModal('LT.Y74.Fqn.LT Y74 Fqn Missing', Row, FR);
-        Observer.ObserveError('missing');
+        Observer.ObserveError('e');
         Observer.Finish();
     end;
 
