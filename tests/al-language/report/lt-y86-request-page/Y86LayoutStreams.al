@@ -104,8 +104,6 @@ codeunit 94588 "LT Y86 Layout Streams"
             InS.ReadText(Line);
             Lines += 1;
             Last := Line;
-            if Lines = 1 then
-                Obs.Observe('line 1', Line);
             if Lines = 2 then
                 Text1 := Line;
             if Lines = 3 then
@@ -118,7 +116,17 @@ codeunit 94588 "LT Y86 Layout Streams"
         Obs.Observe('lines', Format(Lines));
         Obs.Observe('line 2', Text1);
         Obs.Observe('last line', Last);
-        Obs.Finish();
+        Obs.Expect('eos before read', 'No');
+        Obs.Expect('first six bytes', '239 187 191 60 63 120 109 108 ');
+        Obs.Expect('length', '1917');
+        Obs.Expect('line 1', 'Ù‹<?xml version="1.0" encoding="utf-8"?>');
+        Obs.Expect('line 3', '  <AutoRefresh>0</AutoRefresh>');
+        Obs.Expect('line 4', '  <DataSources>');
+        Obs.Expect('chars in all lines', '1773');
+        Obs.Expect('lines', '73');
+        Obs.Expect('line 2', '<Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2016/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">');
+        Obs.Expect('last line', '</Report>');
+        Obs.Verify();
     end;
 
     [Test]
@@ -134,7 +142,10 @@ codeunit 94588 "LT Y86 Layout Streams"
         Obs.Observe('second stream', Head(B));
         Report.RdlcLayout(Report::"LT Y86 Rdlc Report", A);
         Obs.Observe('first stream reassigned', Head(A));
-        Obs.Finish();
+        Obs.Expect('first stream', '239 187 191 60 63 120 109 108 ');
+        Obs.Expect('second stream', '239 187 191 60 63 120 109 108 ');
+        Obs.Expect('first stream reassigned', '239 187 191 60 63 120 109 108 ');
+        Obs.Verify();
     end;
 
     [Test]
@@ -148,7 +159,11 @@ codeunit 94588 "LT Y86 Layout Streams"
         Obs.ObserveError('word');
         asserterror Report.ExcelLayout(Report::"LT Y86 Rdlc Report", InS);
         Obs.ObserveError('excel');
-        Obs.Finish();
+        Obs.Expect('word|text', 'Exception of type ''Microsoft.Dynamics.Nav.Types.Exceptions.NavNCLReportNoLayoutException'' was thrown.');
+        Obs.Expect('word|code', 'ReportNoLayout');
+        Obs.Expect('excel|text', 'Exception of type ''Microsoft.Dynamics.Nav.Types.Exceptions.NavNCLReportNoLayoutException'' was thrown.');
+        Obs.Expect('excel|code', 'ReportNoLayout');
+        Obs.Verify();
     end;
 
     [Test]
@@ -161,7 +176,11 @@ codeunit 94588 "LT Y86 Layout Streams"
         Obs.ObserveError('unknown report');
         asserterror Report.RdlcLayout(0, InS);
         Obs.ObserveError('report zero');
-        Obs.Finish();
+        Obs.Expect('unknown report|text', 'You tried to invoke the Report object with the ID 94599 from the object LT Y86 Layout Streams. An object with that ID does not exist in the current application compiled with emit version n.');
+        Obs.Expect('unknown report|code', 'AL:MetadataNotFound');
+        Obs.Expect('report zero|text', 'You tried to invoke the Report object with the ID 0 from the object LT Y86 Layout Streams. An object with that ID does not exist in the current application compiled with emit version n.');
+        Obs.Expect('report zero|code', 'AL:MetadataNotFound');
+        Obs.Verify();
     end;
 
     local procedure FieldsSection(ReportId: Integer): Text
@@ -195,6 +214,8 @@ codeunit 94588 "LT Y86 Layout Streams"
     begin
         Obs.Observe('report without columns', FieldsSection(Report::"LT Y86 Rdlc Report"));
         Obs.Observe('report with columns', FieldsSection(Report::"LT Y86 Rdlc Columns Report"));
-        Obs.Finish();
+        Obs.Expect('report without columns', '<Fields />|  length=1846');
+        Obs.Expect('report with columns', '<Fields>|        <Field Name="NumberCol">|          <DataField>NumberCol</DataField>|        </Field>|        <Field Name="TextCol">|          <DataField>TextCol</DataField>|        </Field>|      </Fields> length=2042');
+        Obs.Verify();
     end;
 }

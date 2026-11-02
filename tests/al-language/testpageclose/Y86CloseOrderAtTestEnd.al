@@ -152,7 +152,8 @@ codeunit 94600 "LT Y86 Close Order"
         Log: Codeunit "LT Y86 CO Log";
     begin
         Obs.Observe('log', Log.Take());
-        Obs.Finish();
+        Obs.Expect('log', 'end;queryclose B R2;close B R2;queryclose A R1;close A R1;');
+        Obs.Verify();
     end;
 
     [Test]
@@ -181,7 +182,8 @@ codeunit 94600 "LT Y86 Close Order"
         Log: Codeunit "LT Y86 CO Log";
     begin
         Obs.Observe('log', Log.Take());
-        Obs.Finish();
+        Obs.Expect('log', 'end;queryclose A R1;close A R1;queryclose B R2;close B R2;');
+        Obs.Verify();
     end;
 
     [Test]
@@ -210,7 +212,8 @@ codeunit 94600 "LT Y86 Close Order"
         Log: Codeunit "LT Y86 CO Log";
     begin
         Obs.Observe('log', Log.Take());
-        Obs.Finish();
+        Obs.Expect('log', 'end;queryclose A R3;close A R3;queryclose A R1;close A R1;');
+        Obs.Verify();
     end;
 
     [Test]
@@ -240,6 +243,8 @@ codeunit 94600 "LT Y86 Close Order"
         Obs.Observe('log', Log.Take());
         GlobalA.Close();
         Obs.Observe('log after closing the global', Log.Take());
-        Obs.Finish();
+        Obs.Expect('log', 'end;queryclose B R2;close B R2;');
+        Obs.Expect('log after closing the global', 'queryclose A R1;close A R1;');
+        Obs.Verify();
     end;
 }

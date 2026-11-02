@@ -215,7 +215,23 @@ codeunit 94595 "LT Y86 TestPage Values"
         RunText(Obs, TP, 'opt', '');
         RunInt(Obs, TP, 'opt', 7);
         TP.Close();
-        Obs.Finish();
+        Obs.Expect('enum start', '[ ]');
+        Obs.Expect('opt start', '[ ]');
+        Obs.Expect('enum text [Beta]', 'ok [Beta]');
+        Obs.Expect('enum int 0', 'ok [ ]');
+        Obs.Expect('enum text [Alpha]', 'ok [Alpha]');
+        Obs.Expect('enum text [ ]', 'ok [ ]');
+        Obs.Expect('enum text [Beta]', 'ok [Beta]');
+        Obs.Expect('enum int 1', 'ok [Alpha]');
+        Obs.Expect('enum int 5', 'error TestValidation: Validation error for Field: EnumCtl,  Message = ''Your entry of ''1'' is not an acceptable value for ''EnumCtl''.'' [1]');
+        Obs.Expect('opt text [B]', 'ok [B]');
+        Obs.Expect('opt text [ ]', 'ok [ ]');
+        Obs.Expect('opt text [A]', 'ok [A]');
+        Obs.Expect('opt int 0', 'ok [ ]');
+        Obs.Expect('opt text [B]', 'ok [B]');
+        Obs.Expect('opt text []', 'error TestValidation: Validation error for Field: OptCtl,  Message = ''Your entry of '''' is not an acceptable value for ''OptCtl''.'' [2]');
+        Obs.Expect('opt int 7', 'error TestValidation: Validation error for Field: OptCtl,  Message = ''Your entry of ''2'' is not an acceptable value for ''OptCtl''.'' [2]');
+        Obs.Verify();
     end;
 
     [Test]
@@ -249,7 +265,13 @@ codeunit 94595 "LT Y86 TestPage Values"
         TP.EnumCtl.SetValue(0);
         Obs.Observe('enum on row 2 after 0', '[' + TP.EnumCtl.Value() + ']' + ' id=' + Format(TP.Id.Value()));
         TP.Close();
-        Obs.Finish();
+        Obs.Expect('enum after Beta', '[Beta]');
+        Obs.Expect('enum after 0', '[ ]');
+        Obs.Expect('enum after Alpha then text blank', '[ ]');
+        Obs.Expect('opt after B then text blank', '[ ]');
+        Obs.Expect('opt after A then 0', '[ ]');
+        Obs.Expect('enum on row 2 after 0', '[ ] id=2');
+        Obs.Verify();
     end;
 
     [Test]
@@ -272,7 +294,11 @@ codeunit 94595 "LT Y86 TestPage Values"
         TP.OptCtl.SetValue(0);
         Obs.Observe('opt after A then 0', '[' + TP.OptCtl.Value() + ']');
         TP.Close();
-        Obs.Finish();
+        Obs.Expect('enum after Beta', '[Beta]');
+        Obs.Expect('enum after 0', '[ ]');
+        Obs.Expect('opt after B then text blank', '[ ]');
+        Obs.Expect('opt after A then 0', '[ ]');
+        Obs.Verify();
     end;
 
     [Test]
@@ -289,7 +315,9 @@ codeunit 94595 "LT Y86 TestPage Values"
         TP.VarPart.OptCtl.SetValue(' ');
         Obs.Observe('part opt after text blank', '[' + TP.VarPart.OptCtl.Value() + ']');
         TP.Close();
-        Obs.Finish();
+        Obs.Expect('part enum after 0', '[ ]');
+        Obs.Expect('part opt after text blank', '[ ]');
+        Obs.Verify();
     end;
 
     [TryFunction]
@@ -362,6 +390,19 @@ codeunit 94595 "LT Y86 TestPage Values"
         ClearLastError();
         Obs.Observe('text big 7 after SetValue', Result(TryAssertBig(TP, 'text', 7)));
         TP.Close();
-        Obs.Finish();
+        Obs.Expect('text int 1000', 'ok');
+        Obs.Expect('text int 1001', 'error TestAssertEquals: AssertEquals for Field: TextCtl Expected = ''1001'', Actual = ''1000''');
+        Obs.Expect('text big 1000', 'ok');
+        Obs.Expect('text big 1001', 'error TestAssertEquals: AssertEquals for Field: TextCtl Expected = ''1001'', Actual = ''1000''');
+        Obs.Expect('text dec 1000', 'error TestAssertEquals: AssertEquals for Field: TextCtl Expected = ''1,000'', Actual = ''1000''');
+        Obs.Expect('text dec 1000.5', 'error TestAssertEquals: AssertEquals for Field: TextCtl Expected = ''1,000.5'', Actual = ''1000''');
+        Obs.Expect('code int -5', 'ok');
+        Obs.Expect('code int 5', 'error TestAssertEquals: AssertEquals for Field: CodeCtl Expected = ''5'', Actual = ''-5''');
+        Obs.Expect('code big -5', 'ok');
+        Obs.Expect('code big 5', 'error TestAssertEquals: AssertEquals for Field: CodeCtl Expected = ''5'', Actual = ''-5''');
+        Obs.Expect('code dec -5', 'ok');
+        Obs.Expect('text int 7 after SetValue', 'ok');
+        Obs.Expect('text big 7 after SetValue', 'ok');
+        Obs.Verify();
     end;
 }

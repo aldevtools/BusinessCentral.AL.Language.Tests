@@ -185,11 +185,14 @@ codeunit 72829 "LT CodeCoverage Refresh"
         Observer.Observe('second refresh sees the later hits', Format(Hits3 > Hits2));
         Observer.Observe('rows not fewer after second refresh', Format(Rows3 >= Rows2));
         Observer.Observe('hits after second snapshot not visible', Format(Hits4 = Hits3));
-        Observer.Observe('hits1', Format(Hits1));
-        Observer.Observe('hits2', Format(Hits2));
-        Observer.Observe('hits3', Format(Hits3));
-        Observer.Observe('hits4', Format(Hits4));
         CodeCoverageLog(false, false);
-        Observer.Finish();
+        Observer.Expect('log on', 'Yes');
+        Observer.Expect('first snapshot has hits', 'Yes');
+        Observer.Expect('later hits not visible before refresh', 'Yes');
+        Observer.Expect('rows unchanged before refresh', 'Yes');
+        Observer.Expect('second refresh sees the later hits', 'Yes');
+        Observer.Expect('rows not fewer after second refresh', 'Yes');
+        Observer.Expect('hits after second snapshot not visible', 'Yes');
+        Observer.Verify();
     end;
 }

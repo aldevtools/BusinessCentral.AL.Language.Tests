@@ -129,7 +129,10 @@ codeunit 94582 "LT Y86 Caption Tests"
         Obs.Observe('handler_log', Seen);
         Obs.Observe('init_readback', Rep.GetInitReadBack());
         Obs.Observe('open_readback', Rep.GetOpenReadBack());
-        Obs.Finish();
+        Obs.Expect('handler_log', 'open=set in OnInit');
+        Obs.Expect('init_readback', 'LT Y86 Caption Report');
+        Obs.Expect('open_readback', 'set in OnInit');
+        Obs.Verify();
     end;
 
     [Test]
@@ -145,7 +148,9 @@ codeunit 94582 "LT Y86 Caption Tests"
         Rep.RunModal();
         Obs.Observe('handler_log', Seen);
         Obs.Observe('open_readback', Rep.GetOpenReadBack());
-        Obs.Finish();
+        Obs.Expect('handler_log', 'open=set in OnOpenPage');
+        Obs.Expect('open_readback', 'set in OnInit');
+        Obs.Verify();
     end;
 
     [Test]
@@ -160,7 +165,9 @@ codeunit 94582 "LT Y86 Caption Tests"
         Rep.RunModal();
         Obs.Observe('handler_log', Seen);
         Obs.Observe('readback', Rep.GetReadBack());
-        Obs.Finish();
+        Obs.Expect('handler_log', 'open=set in OnInit;after_mode1=set in OnInit');
+        Obs.Expect('readback', 'set in OnValidate');
+        Obs.Verify();
     end;
 
     [Test]
@@ -175,7 +182,9 @@ codeunit 94582 "LT Y86 Caption Tests"
         Rep.RunModal();
         Obs.Observe('handler_log', Seen);
         Obs.Observe('readback', Rep.GetReadBack());
-        Obs.Finish();
+        Obs.Expect('handler_log', 'open=set in OnInit;after_mode2=set in OnInit');
+        Obs.Expect('readback', 'set by procedure from OnValidate');
+        Obs.Verify();
     end;
 
     [Test]
@@ -190,7 +199,9 @@ codeunit 94582 "LT Y86 Caption Tests"
         Rep.RunModal();
         Obs.Observe('handler_log', Seen);
         Obs.Observe('readback', Rep.GetReadBack());
-        Obs.Finish();
+        Obs.Expect('handler_log', 'open=set in OnInit;invoke=TestActionNotFound: The action with ID = n is not found on the page.;after_action=set in OnInit');
+        Obs.Expect('readback', '');
+        Obs.Verify();
     end;
 
     [Test]
@@ -205,7 +216,9 @@ codeunit 94582 "LT Y86 Caption Tests"
         Params := Report.RunRequestPage(Report::"LT Y86 Caption Report");
         Obs.Observe('handler_log', Seen);
         Obs.Observe('params_has_mode', Format(StrPos(Params, 'Mode') > 0));
-        Obs.Finish();
+        Obs.Expect('handler_log', 'open=set in OnInit;after_mode1=set in OnInit');
+        Obs.Expect('params_has_mode', 'No');
+        Obs.Verify();
     end;
 
     [RequestPageHandler]

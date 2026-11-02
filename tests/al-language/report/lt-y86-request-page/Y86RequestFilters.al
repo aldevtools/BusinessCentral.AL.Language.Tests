@@ -194,7 +194,9 @@ codeunit 94586 "LT Y86 Filter Tests"
         Rep.RunModal();
         ObservePage(Obs, 'ok');
         Obs.Observe('ok|run', Rep.GetRunLog());
-        Obs.Finish();
+        Obs.Expect('ok|page', 'code=[] name=[] marker=[]');
+        Obs.Expect('ok|run', 'pre[];A1,A2,B1,B2,C1,');
+        Obs.Verify();
     end;
 
     [Test]
@@ -210,7 +212,9 @@ codeunit 94586 "LT Y86 Filter Tests"
         Rep.RunModal();
         ObservePage(Obs, 'set C*');
         Obs.Observe('set C*|run', Rep.GetRunLog());
-        Obs.Finish();
+        Obs.Expect('set C*|page', 'code=[] name=[] marker=[]');
+        Obs.Expect('set C*|run', 'pre[Code: C*];C1,');
+        Obs.Verify();
     end;
 
     [Test]
@@ -226,7 +230,9 @@ codeunit 94586 "LT Y86 Filter Tests"
         Rep.RunModal();
         ObservePage(Obs, 'cleared');
         Obs.Observe('cleared|run', Rep.GetRunLog());
-        Obs.Finish();
+        Obs.Expect('cleared|page', 'code=[] name=[] marker=[]');
+        Obs.Expect('cleared|run', 'pre[];A1,A2,B1,B2,C1,');
+        Obs.Verify();
     end;
 
     [Test]
@@ -242,7 +248,9 @@ codeunit 94586 "LT Y86 Filter Tests"
         Rep.RunModal();
         ObservePage(Obs, 'cancel');
         Obs.Observe('cancel|run', Rep.GetRunLog());
-        Obs.Finish();
+        Obs.Expect('cancel|page', 'code=[] name=[] marker=[]');
+        Obs.Expect('cancel|run', '');
+        Obs.Verify();
     end;
 
     [Test]
@@ -256,7 +264,8 @@ codeunit 94586 "LT Y86 Filter Tests"
         Rep.UseRequestPage(false);
         Rep.RunModal();
         Obs.Observe('nopage|run', Rep.GetRunLog());
-        Obs.Finish();
+        Obs.Expect('nopage|run', 'pre[];A1,A2,B1,B2,C1,');
+        Obs.Verify();
     end;
 
     [Test]
@@ -275,7 +284,11 @@ codeunit 94586 "LT Y86 Filter Tests"
         asserterror Rep.RunModal();
         Obs.ObserveError('second run of the same variable');
         Obs.Observe('first|run', Rep.GetRunLog());
-        Obs.Finish();
+        Obs.Expect('first|page', 'code=[] name=[] marker=[]');
+        Obs.Expect('second run of the same variable|text', 'The object has been run. Use the function CLEAR(Report).');
+        Obs.Expect('second run of the same variable|code', 'ObjectHasAlreadyBeenRun');
+        Obs.Expect('first|run', '');
+        Obs.Verify();
     end;
 
     // ---- report-view-over-stored-request-filters (SaveValues)
@@ -305,7 +318,11 @@ codeunit 94586 "LT Y86 Filter Tests"
         Plain.RunModal();
         ObservePage(Obs, 'plain after view');
         ResetStored();
-        Obs.Finish();
+        Obs.Expect('stored A*|run', 'pre[Code: A*];A1,A2,');
+        Obs.Expect('view C*|page', 'code=[C*] name=[] marker=[]');
+        Obs.Expect('view C*|run', 'pre[Code: C*];C1,');
+        Obs.Expect('plain after view|page', 'code=[C*] name=[] marker=[]');
+        Obs.Verify();
     end;
 
     [Test]
@@ -329,7 +346,9 @@ codeunit 94586 "LT Y86 Filter Tests"
         Plain.RunModal();
         ObservePage(Obs, 'plain after');
         ResetStored();
-        Obs.Finish();
+        Obs.Expect('RunModal(id, true, false, C*)|page', 'code=[C*] name=[] marker=[]');
+        Obs.Expect('plain after|page', 'code=[C*] name=[] marker=[]');
+        Obs.Verify();
     end;
 
     [Test]
@@ -353,7 +372,9 @@ codeunit 94586 "LT Y86 Filter Tests"
         Plain.RunModal();
         ObservePage(Obs, 'plain after');
         ResetStored();
-        Obs.Finish();
+        Obs.Expect('Run(id, true, false, B*)|page', 'code=[B*] name=[] marker=[]');
+        Obs.Expect('plain after|page', 'code=[B*] name=[] marker=[]');
+        Obs.Verify();
     end;
 
     [Test]
@@ -374,7 +395,9 @@ codeunit 94586 "LT Y86 Filter Tests"
         ObservePage(Obs, 'procedure C*');
         Obs.Observe('procedure C*|run', Rep.GetRunLog());
         ResetStored();
-        Obs.Finish();
+        Obs.Expect('procedure C*|page', 'code=[A*] name=[] marker=[]');
+        Obs.Expect('procedure C*|run', 'pre[Code: A*];A1,A2,');
+        Obs.Verify();
     end;
 
     [Test]
@@ -400,7 +423,9 @@ codeunit 94586 "LT Y86 Filter Tests"
         Plain.RunModal();
         ObservePage(Obs, 'plain after cancel');
         ResetStored();
-        Obs.Finish();
+        Obs.Expect('view C*, cancel|page', 'code=[C*] name=[] marker=[]');
+        Obs.Expect('plain after cancel|page', 'code=[A*] name=[] marker=[]');
+        Obs.Verify();
     end;
 
     // ---- request-page-cancel-keeps-saved-filters
@@ -426,7 +451,10 @@ codeunit 94586 "LT Y86 Filter Tests"
         ObservePage(Obs, 'third');
         Obs.Observe('third|run', Third.GetRunLog());
         ResetStored();
-        Obs.Finish();
+        Obs.Expect('second (B* typed, cancel)|page', 'code=[A*] name=[] marker=[]');
+        Obs.Expect('third|page', 'code=[A*] name=[] marker=[]');
+        Obs.Expect('third|run', 'pre[Code: A*];A1,A2,');
+        Obs.Verify();
     end;
 
     [Test]
@@ -450,7 +478,10 @@ codeunit 94586 "LT Y86 Filter Tests"
         ObservePage(Obs, 'third');
         Obs.Observe('third|run', Third.GetRunLog());
         ResetStored();
-        Obs.Finish();
+        Obs.Expect('second (cleared, cancel)|page', 'code=[A*] name=[] marker=[]');
+        Obs.Expect('third|page', 'code=[A*] name=[] marker=[]');
+        Obs.Expect('third|run', 'pre[Code: A*];A1,A2,');
+        Obs.Verify();
     end;
 
     [Test]
@@ -474,7 +505,10 @@ codeunit 94586 "LT Y86 Filter Tests"
         ObservePage(Obs, 'third');
         Obs.Observe('third|marker', Third.GetMarker());
         ResetStored();
-        Obs.Finish();
+        Obs.Expect('second (B*, m2, cancel)|page', 'code=[A*] name=[] marker=[m1]');
+        Obs.Expect('third|page', 'code=[A*] name=[] marker=[m1]');
+        Obs.Expect('third|marker', 'm1');
+        Obs.Verify();
     end;
 
     [Test]
@@ -497,7 +531,9 @@ codeunit 94586 "LT Y86 Filter Tests"
         Third.RunModal();
         ObservePage(Obs, 'third');
         ResetStored();
-        Obs.Finish();
+        Obs.Expect('second (C*, ok)|page', 'code=[A*] name=[] marker=[m1]');
+        Obs.Expect('third|page', 'code=[C*] name=[] marker=[m1]');
+        Obs.Verify();
     end;
 
     [RequestPageHandler]
