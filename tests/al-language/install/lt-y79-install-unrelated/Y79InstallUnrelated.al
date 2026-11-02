@@ -15,7 +15,7 @@ codeunit 94170 "LT Y79 Install Unrelated"
         Result: Text;
         Index: Integer;
     begin
-        Row.SetRange("Company", 'CRONUS USA, Inc.');
+        Row.SetFilter("Company", 'CRONUS USA, Inc.|''''');
         if Row.FindSet() then
             repeat
                 if Row.Tag.Contains('objects|') = Objects then begin
