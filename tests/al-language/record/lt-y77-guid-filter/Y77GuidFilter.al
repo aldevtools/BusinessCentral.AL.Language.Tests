@@ -410,17 +410,21 @@ codeunit 94100 "LT Y77 Guid Filter"
                     Row.SetFilter(C, '%1', DelChr(Format(G1()), '=', '{}'));
                     Result := Row.GetFilter(C) + ' ' + Names(Row);
                 end;
+            12:
+                begin
+                    Row.SetFilter(T, '@%1', Format(G1()));
+                    Result := Row.GetFilter(T) + ' ' + Names(Row);
+                end;
         end;
     end;
 
-    [Test]
-    procedure Record_MixedShapes()
+    local procedure Shapes(FromShape: Integer; ToShape: Integer)
     var
         Shape: Integer;
         Result: Text;
     begin
         Seed();
-        for Shape := 1 to 11 do begin
+        for Shape := FromShape to ToShape do begin
             Result := '';
             if TryShape(Shape, Result) then
                 Obs.Observe('shape' + Format(Shape), Result)
@@ -430,5 +434,29 @@ codeunit 94100 "LT Y77 Guid Filter"
             end;
         end;
         Obs.Finish();
+    end;
+
+    [Test]
+    procedure Record_Shapes1To4()
+    begin
+        Shapes(1, 4);
+    end;
+
+    [Test]
+    procedure Record_Shapes5To6()
+    begin
+        Shapes(5, 6);
+    end;
+
+    [Test]
+    procedure Record_Shapes7To9()
+    begin
+        Shapes(7, 9);
+    end;
+
+    [Test]
+    procedure Record_Shapes10To12()
+    begin
+        Shapes(10, 12);
     end;
 }
