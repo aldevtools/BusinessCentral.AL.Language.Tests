@@ -10,6 +10,7 @@
 
 codeunit 94076 "LT Y76 Iso Storage"
 {
+    Subtype = Test;
     TestPermissions = Disabled;
 
     var
