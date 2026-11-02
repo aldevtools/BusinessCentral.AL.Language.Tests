@@ -166,8 +166,26 @@ codeunit 61459 "LT Y58 PasswordGenerator"
         Observer.Expect('64/0 fewest non-alphanumerics >= asked', 'Yes');
         Observer.Expect('64/0 some password without upper case', 'No');
         Observer.Expect('64/0 some password without lower case', 'No');
-        Observer.Expect('64/0 some password without digit', 'No');
+        // 'some password without digit' is held in Flaky_PasswordGenerator_Shape_64_0_Digit: the output is random, and with 10 digits
+        // among 87 characters a 64-character password has no digit with chance (77/87)^64 = about 0.0004, so about 1 run in 7 of
+        // 400 calls sees one (master run 41369543318, OnPrem DotNet 28.5, and 41377986019, OnPrem DotNet 29.0: 'Yes').
+        Observer.Ignore('64/0 some password without digit');
         Observer.Expect('64/0 non-alphanumerics seen (sorted)', '!#$%&()*+-./:;=>?@[]^_{|}');
+        Observer.Verify();
+    end;
+
+    procedure Flaky_PasswordGenerator_Shape_64_0_Digit()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ObserveShape(Observer, '64/0', 64, 0, 400);
+        Observer.Ignore('64/0 every length as asked');
+        Observer.Ignore('64/0 consecutive calls differ');
+        Observer.Ignore('64/0 fewest non-alphanumerics >= asked');
+        Observer.Ignore('64/0 some password without upper case');
+        Observer.Ignore('64/0 some password without lower case');
+        Observer.Expect('64/0 some password without digit', 'No');
+        Observer.Ignore('64/0 non-alphanumerics seen (sorted)');
         Observer.Verify();
     end;
 
