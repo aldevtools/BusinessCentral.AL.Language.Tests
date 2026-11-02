@@ -8,7 +8,7 @@
 //   Formats are those of en-US (the corpus runs with that culture).
 // BC versions: 27, 28, 29
 
-enum 94227 "LT Y80 SV Kind"
+enum 94227 "LT Y80 ST Kind"
 {
     Extensible = true;
 
@@ -16,7 +16,7 @@ enum 94227 "LT Y80 SV Kind"
     value(1; Second) { Caption = 'Second Kind'; }
 }
 
-table 94223 "LT Y80 SV Row"
+table 94223 "LT Y80 ST Row"
 {
     DataClassification = SystemMetadata;
 
@@ -31,10 +31,10 @@ table 94223 "LT Y80 SV Row"
     keys { key(PK; Id) { Clustered = true; } }
 }
 
-page 94224 "LT Y80 SV Card"
+page 94224 "LT Y80 ST Card"
 {
     PageType = Card;
-    SourceTable = "LT Y80 SV Row";
+    SourceTable = "LT Y80 ST Row";
     ApplicationArea = All;
     UsageCategory = None;
 
@@ -51,10 +51,10 @@ page 94224 "LT Y80 SV Card"
     }
 }
 
-page 94225 "LT Y80 SV List"
+page 94225 "LT Y80 ST List"
 {
     PageType = List;
-    SourceTable = "LT Y80 SV Row";
+    SourceTable = "LT Y80 ST Row";
     ApplicationArea = All;
     UsageCategory = None;
 
@@ -74,7 +74,7 @@ page 94225 "LT Y80 SV List"
     }
 }
 
-codeunit 94226 "LT Y80 SV Tests"
+codeunit 94226 "LT Y80 ST Tests"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -84,7 +84,7 @@ codeunit 94226 "LT Y80 SV Tests"
 
     local procedure Seed()
     var
-        Row: Record "LT Y80 SV Row";
+        Row: Record "LT Y80 ST Row";
     begin
         Row.DeleteAll();
         Row.Id := 1;
@@ -92,12 +92,12 @@ codeunit 94226 "LT Y80 SV Tests"
     end;
 
     [TryFunction]
-    local procedure TryCardTxtCtl(var P: TestPage "LT Y80 SV Card"; V: Variant)
+    local procedure TryCardTxtCtl(var P: TestPage "LT Y80 ST Card"; V: Variant)
     begin
         P.TxtCtl.SetValue(V);
     end;
 
-    local procedure SetCardTxtCtl(var P: TestPage "LT Y80 SV Card"; V: Variant): Text
+    local procedure SetCardTxtCtl(var P: TestPage "LT Y80 ST Card"; V: Variant): Text
     var
         Result: Text;
     begin
@@ -111,12 +111,12 @@ codeunit 94226 "LT Y80 SV Tests"
     end;
 
     [TryFunction]
-    local procedure TryCardCdCtl(var P: TestPage "LT Y80 SV Card"; V: Variant)
+    local procedure TryCardCdCtl(var P: TestPage "LT Y80 ST Card"; V: Variant)
     begin
         P.CdCtl.SetValue(V);
     end;
 
-    local procedure SetCardCdCtl(var P: TestPage "LT Y80 SV Card"; V: Variant): Text
+    local procedure SetCardCdCtl(var P: TestPage "LT Y80 ST Card"; V: Variant): Text
     var
         Result: Text;
     begin
@@ -130,12 +130,12 @@ codeunit 94226 "LT Y80 SV Tests"
     end;
 
     [TryFunction]
-    local procedure TryCardShortCtl(var P: TestPage "LT Y80 SV Card"; V: Variant)
+    local procedure TryCardShortCtl(var P: TestPage "LT Y80 ST Card"; V: Variant)
     begin
         P.ShortCtl.SetValue(V);
     end;
 
-    local procedure SetCardShortCtl(var P: TestPage "LT Y80 SV Card"; V: Variant): Text
+    local procedure SetCardShortCtl(var P: TestPage "LT Y80 ST Card"; V: Variant): Text
     var
         Result: Text;
     begin
@@ -149,12 +149,12 @@ codeunit 94226 "LT Y80 SV Tests"
     end;
 
     [TryFunction]
-    local procedure TryListTxtCtl(var P: TestPage "LT Y80 SV List"; V: Variant)
+    local procedure TryListTxtCtl(var P: TestPage "LT Y80 ST List"; V: Variant)
     begin
         P.TxtCtl.SetValue(V);
     end;
 
-    local procedure SetListTxtCtl(var P: TestPage "LT Y80 SV List"; V: Variant): Text
+    local procedure SetListTxtCtl(var P: TestPage "LT Y80 ST List"; V: Variant): Text
     var
         Result: Text;
     begin
@@ -168,12 +168,12 @@ codeunit 94226 "LT Y80 SV Tests"
     end;
 
     [TryFunction]
-    local procedure TryListCdCtl(var P: TestPage "LT Y80 SV List"; V: Variant)
+    local procedure TryListCdCtl(var P: TestPage "LT Y80 ST List"; V: Variant)
     begin
         P.CdCtl.SetValue(V);
     end;
 
-    local procedure SetListCdCtl(var P: TestPage "LT Y80 SV List"; V: Variant): Text
+    local procedure SetListCdCtl(var P: TestPage "LT Y80 ST List"; V: Variant): Text
     var
         Result: Text;
     begin
@@ -187,12 +187,12 @@ codeunit 94226 "LT Y80 SV Tests"
     end;
 
     [TryFunction]
-    local procedure TryListShortCtl(var P: TestPage "LT Y80 SV List"; V: Variant)
+    local procedure TryListShortCtl(var P: TestPage "LT Y80 ST List"; V: Variant)
     begin
         P.ShortCtl.SetValue(V);
     end;
 
-    local procedure SetListShortCtl(var P: TestPage "LT Y80 SV List"; V: Variant): Text
+    local procedure SetListShortCtl(var P: TestPage "LT Y80 ST List"; V: Variant): Text
     var
         Result: Text;
     begin
@@ -208,7 +208,7 @@ codeunit 94226 "LT Y80 SV Tests"
     [Test]
     procedure Y80_SV_Card_TxtCtl_Integers()
     var
-        P: TestPage "LT Y80 SV Card";
+        P: TestPage "LT Y80 ST Card";
         I: Integer;
         B: BigInteger;
         D: Decimal;
@@ -222,7 +222,7 @@ codeunit 94226 "LT Y80 SV Tests"
         Tx: Text;
         Co: Code[10];
         Op: Option A,B,C;
-        En: Enum "LT Y80 SV Kind";
+        En: Enum "LT Y80 ST Kind";
     begin
         Seed();
         P.OpenEdit();
@@ -249,7 +249,7 @@ codeunit 94226 "LT Y80 SV Tests"
     [Test]
     procedure Y80_SV_Card_TxtCtl_BigIntegers()
     var
-        P: TestPage "LT Y80 SV Card";
+        P: TestPage "LT Y80 ST Card";
         I: Integer;
         B: BigInteger;
         D: Decimal;
@@ -263,7 +263,7 @@ codeunit 94226 "LT Y80 SV Tests"
         Tx: Text;
         Co: Code[10];
         Op: Option A,B,C;
-        En: Enum "LT Y80 SV Kind";
+        En: Enum "LT Y80 ST Kind";
     begin
         Seed();
         P.OpenEdit();
@@ -284,7 +284,7 @@ codeunit 94226 "LT Y80 SV Tests"
     [Test]
     procedure Y80_SV_Card_TxtCtl_Decimals()
     var
-        P: TestPage "LT Y80 SV Card";
+        P: TestPage "LT Y80 ST Card";
         I: Integer;
         B: BigInteger;
         D: Decimal;
@@ -298,7 +298,7 @@ codeunit 94226 "LT Y80 SV Tests"
         Tx: Text;
         Co: Code[10];
         Op: Option A,B,C;
-        En: Enum "LT Y80 SV Kind";
+        En: Enum "LT Y80 ST Kind";
     begin
         Seed();
         P.OpenEdit();
@@ -325,7 +325,7 @@ codeunit 94226 "LT Y80 SV Tests"
     [Test]
     procedure Y80_SV_Card_TxtCtl_Others()
     var
-        P: TestPage "LT Y80 SV Card";
+        P: TestPage "LT Y80 ST Card";
         I: Integer;
         B: BigInteger;
         D: Decimal;
@@ -339,7 +339,7 @@ codeunit 94226 "LT Y80 SV Tests"
         Tx: Text;
         Co: Code[10];
         Op: Option A,B,C;
-        En: Enum "LT Y80 SV Kind";
+        En: Enum "LT Y80 ST Kind";
     begin
         Seed();
         P.OpenEdit();
@@ -370,7 +370,7 @@ codeunit 94226 "LT Y80 SV Tests"
     [Test]
     procedure Y80_SV_Card_TxtCtl_Enums()
     var
-        P: TestPage "LT Y80 SV Card";
+        P: TestPage "LT Y80 ST Card";
         I: Integer;
         B: BigInteger;
         D: Decimal;
@@ -384,7 +384,7 @@ codeunit 94226 "LT Y80 SV Tests"
         Tx: Text;
         Co: Code[10];
         Op: Option A,B,C;
-        En: Enum "LT Y80 SV Kind";
+        En: Enum "LT Y80 ST Kind";
     begin
         Seed();
         P.OpenEdit();
@@ -401,7 +401,7 @@ codeunit 94226 "LT Y80 SV Tests"
     [Test]
     procedure Y80_SV_Card_CdCtl_Integers()
     var
-        P: TestPage "LT Y80 SV Card";
+        P: TestPage "LT Y80 ST Card";
         I: Integer;
         B: BigInteger;
         D: Decimal;
@@ -415,7 +415,7 @@ codeunit 94226 "LT Y80 SV Tests"
         Tx: Text;
         Co: Code[10];
         Op: Option A,B,C;
-        En: Enum "LT Y80 SV Kind";
+        En: Enum "LT Y80 ST Kind";
     begin
         Seed();
         P.OpenEdit();
@@ -442,7 +442,7 @@ codeunit 94226 "LT Y80 SV Tests"
     [Test]
     procedure Y80_SV_Card_CdCtl_BigIntegers()
     var
-        P: TestPage "LT Y80 SV Card";
+        P: TestPage "LT Y80 ST Card";
         I: Integer;
         B: BigInteger;
         D: Decimal;
@@ -456,7 +456,7 @@ codeunit 94226 "LT Y80 SV Tests"
         Tx: Text;
         Co: Code[10];
         Op: Option A,B,C;
-        En: Enum "LT Y80 SV Kind";
+        En: Enum "LT Y80 ST Kind";
     begin
         Seed();
         P.OpenEdit();
@@ -477,7 +477,7 @@ codeunit 94226 "LT Y80 SV Tests"
     [Test]
     procedure Y80_SV_Card_CdCtl_Decimals()
     var
-        P: TestPage "LT Y80 SV Card";
+        P: TestPage "LT Y80 ST Card";
         I: Integer;
         B: BigInteger;
         D: Decimal;
@@ -491,7 +491,7 @@ codeunit 94226 "LT Y80 SV Tests"
         Tx: Text;
         Co: Code[10];
         Op: Option A,B,C;
-        En: Enum "LT Y80 SV Kind";
+        En: Enum "LT Y80 ST Kind";
     begin
         Seed();
         P.OpenEdit();
@@ -518,7 +518,7 @@ codeunit 94226 "LT Y80 SV Tests"
     [Test]
     procedure Y80_SV_Card_CdCtl_Others()
     var
-        P: TestPage "LT Y80 SV Card";
+        P: TestPage "LT Y80 ST Card";
         I: Integer;
         B: BigInteger;
         D: Decimal;
@@ -532,7 +532,7 @@ codeunit 94226 "LT Y80 SV Tests"
         Tx: Text;
         Co: Code[10];
         Op: Option A,B,C;
-        En: Enum "LT Y80 SV Kind";
+        En: Enum "LT Y80 ST Kind";
     begin
         Seed();
         P.OpenEdit();
@@ -563,7 +563,7 @@ codeunit 94226 "LT Y80 SV Tests"
     [Test]
     procedure Y80_SV_Card_CdCtl_Enums()
     var
-        P: TestPage "LT Y80 SV Card";
+        P: TestPage "LT Y80 ST Card";
         I: Integer;
         B: BigInteger;
         D: Decimal;
@@ -577,7 +577,7 @@ codeunit 94226 "LT Y80 SV Tests"
         Tx: Text;
         Co: Code[10];
         Op: Option A,B,C;
-        En: Enum "LT Y80 SV Kind";
+        En: Enum "LT Y80 ST Kind";
     begin
         Seed();
         P.OpenEdit();
@@ -594,7 +594,7 @@ codeunit 94226 "LT Y80 SV Tests"
     [Test]
     procedure Y80_SV_Card_ShortCtl_Integers()
     var
-        P: TestPage "LT Y80 SV Card";
+        P: TestPage "LT Y80 ST Card";
         I: Integer;
         B: BigInteger;
         D: Decimal;
@@ -608,7 +608,7 @@ codeunit 94226 "LT Y80 SV Tests"
         Tx: Text;
         Co: Code[10];
         Op: Option A,B,C;
-        En: Enum "LT Y80 SV Kind";
+        En: Enum "LT Y80 ST Kind";
     begin
         Seed();
         P.OpenEdit();
@@ -635,7 +635,7 @@ codeunit 94226 "LT Y80 SV Tests"
     [Test]
     procedure Y80_SV_Card_ShortCtl_BigIntegers()
     var
-        P: TestPage "LT Y80 SV Card";
+        P: TestPage "LT Y80 ST Card";
         I: Integer;
         B: BigInteger;
         D: Decimal;
@@ -649,7 +649,7 @@ codeunit 94226 "LT Y80 SV Tests"
         Tx: Text;
         Co: Code[10];
         Op: Option A,B,C;
-        En: Enum "LT Y80 SV Kind";
+        En: Enum "LT Y80 ST Kind";
     begin
         Seed();
         P.OpenEdit();
@@ -670,7 +670,7 @@ codeunit 94226 "LT Y80 SV Tests"
     [Test]
     procedure Y80_SV_Card_ShortCtl_Decimals()
     var
-        P: TestPage "LT Y80 SV Card";
+        P: TestPage "LT Y80 ST Card";
         I: Integer;
         B: BigInteger;
         D: Decimal;
@@ -684,7 +684,7 @@ codeunit 94226 "LT Y80 SV Tests"
         Tx: Text;
         Co: Code[10];
         Op: Option A,B,C;
-        En: Enum "LT Y80 SV Kind";
+        En: Enum "LT Y80 ST Kind";
     begin
         Seed();
         P.OpenEdit();
@@ -711,7 +711,7 @@ codeunit 94226 "LT Y80 SV Tests"
     [Test]
     procedure Y80_SV_Card_ShortCtl_Others()
     var
-        P: TestPage "LT Y80 SV Card";
+        P: TestPage "LT Y80 ST Card";
         I: Integer;
         B: BigInteger;
         D: Decimal;
@@ -725,7 +725,7 @@ codeunit 94226 "LT Y80 SV Tests"
         Tx: Text;
         Co: Code[10];
         Op: Option A,B,C;
-        En: Enum "LT Y80 SV Kind";
+        En: Enum "LT Y80 ST Kind";
     begin
         Seed();
         P.OpenEdit();
@@ -756,7 +756,7 @@ codeunit 94226 "LT Y80 SV Tests"
     [Test]
     procedure Y80_SV_Card_ShortCtl_Enums()
     var
-        P: TestPage "LT Y80 SV Card";
+        P: TestPage "LT Y80 ST Card";
         I: Integer;
         B: BigInteger;
         D: Decimal;
@@ -770,7 +770,7 @@ codeunit 94226 "LT Y80 SV Tests"
         Tx: Text;
         Co: Code[10];
         Op: Option A,B,C;
-        En: Enum "LT Y80 SV Kind";
+        En: Enum "LT Y80 ST Kind";
     begin
         Seed();
         P.OpenEdit();
@@ -787,7 +787,7 @@ codeunit 94226 "LT Y80 SV Tests"
     [Test]
     procedure Y80_SV_List_TxtCtl_Integers()
     var
-        P: TestPage "LT Y80 SV List";
+        P: TestPage "LT Y80 ST List";
         I: Integer;
         B: BigInteger;
         D: Decimal;
@@ -801,7 +801,7 @@ codeunit 94226 "LT Y80 SV Tests"
         Tx: Text;
         Co: Code[10];
         Op: Option A,B,C;
-        En: Enum "LT Y80 SV Kind";
+        En: Enum "LT Y80 ST Kind";
     begin
         Seed();
         P.OpenEdit();
@@ -828,7 +828,7 @@ codeunit 94226 "LT Y80 SV Tests"
     [Test]
     procedure Y80_SV_List_TxtCtl_BigIntegers()
     var
-        P: TestPage "LT Y80 SV List";
+        P: TestPage "LT Y80 ST List";
         I: Integer;
         B: BigInteger;
         D: Decimal;
@@ -842,7 +842,7 @@ codeunit 94226 "LT Y80 SV Tests"
         Tx: Text;
         Co: Code[10];
         Op: Option A,B,C;
-        En: Enum "LT Y80 SV Kind";
+        En: Enum "LT Y80 ST Kind";
     begin
         Seed();
         P.OpenEdit();
@@ -863,7 +863,7 @@ codeunit 94226 "LT Y80 SV Tests"
     [Test]
     procedure Y80_SV_List_TxtCtl_Decimals()
     var
-        P: TestPage "LT Y80 SV List";
+        P: TestPage "LT Y80 ST List";
         I: Integer;
         B: BigInteger;
         D: Decimal;
@@ -877,7 +877,7 @@ codeunit 94226 "LT Y80 SV Tests"
         Tx: Text;
         Co: Code[10];
         Op: Option A,B,C;
-        En: Enum "LT Y80 SV Kind";
+        En: Enum "LT Y80 ST Kind";
     begin
         Seed();
         P.OpenEdit();
@@ -904,7 +904,7 @@ codeunit 94226 "LT Y80 SV Tests"
     [Test]
     procedure Y80_SV_List_TxtCtl_Others()
     var
-        P: TestPage "LT Y80 SV List";
+        P: TestPage "LT Y80 ST List";
         I: Integer;
         B: BigInteger;
         D: Decimal;
@@ -918,7 +918,7 @@ codeunit 94226 "LT Y80 SV Tests"
         Tx: Text;
         Co: Code[10];
         Op: Option A,B,C;
-        En: Enum "LT Y80 SV Kind";
+        En: Enum "LT Y80 ST Kind";
     begin
         Seed();
         P.OpenEdit();
@@ -949,7 +949,7 @@ codeunit 94226 "LT Y80 SV Tests"
     [Test]
     procedure Y80_SV_List_TxtCtl_Enums()
     var
-        P: TestPage "LT Y80 SV List";
+        P: TestPage "LT Y80 ST List";
         I: Integer;
         B: BigInteger;
         D: Decimal;
@@ -963,7 +963,7 @@ codeunit 94226 "LT Y80 SV Tests"
         Tx: Text;
         Co: Code[10];
         Op: Option A,B,C;
-        En: Enum "LT Y80 SV Kind";
+        En: Enum "LT Y80 ST Kind";
     begin
         Seed();
         P.OpenEdit();
@@ -980,7 +980,7 @@ codeunit 94226 "LT Y80 SV Tests"
     [Test]
     procedure Y80_SV_List_CdCtl_Integers()
     var
-        P: TestPage "LT Y80 SV List";
+        P: TestPage "LT Y80 ST List";
         I: Integer;
         B: BigInteger;
         D: Decimal;
@@ -994,7 +994,7 @@ codeunit 94226 "LT Y80 SV Tests"
         Tx: Text;
         Co: Code[10];
         Op: Option A,B,C;
-        En: Enum "LT Y80 SV Kind";
+        En: Enum "LT Y80 ST Kind";
     begin
         Seed();
         P.OpenEdit();
@@ -1021,7 +1021,7 @@ codeunit 94226 "LT Y80 SV Tests"
     [Test]
     procedure Y80_SV_List_CdCtl_BigIntegers()
     var
-        P: TestPage "LT Y80 SV List";
+        P: TestPage "LT Y80 ST List";
         I: Integer;
         B: BigInteger;
         D: Decimal;
@@ -1035,7 +1035,7 @@ codeunit 94226 "LT Y80 SV Tests"
         Tx: Text;
         Co: Code[10];
         Op: Option A,B,C;
-        En: Enum "LT Y80 SV Kind";
+        En: Enum "LT Y80 ST Kind";
     begin
         Seed();
         P.OpenEdit();
@@ -1056,7 +1056,7 @@ codeunit 94226 "LT Y80 SV Tests"
     [Test]
     procedure Y80_SV_List_CdCtl_Decimals()
     var
-        P: TestPage "LT Y80 SV List";
+        P: TestPage "LT Y80 ST List";
         I: Integer;
         B: BigInteger;
         D: Decimal;
@@ -1070,7 +1070,7 @@ codeunit 94226 "LT Y80 SV Tests"
         Tx: Text;
         Co: Code[10];
         Op: Option A,B,C;
-        En: Enum "LT Y80 SV Kind";
+        En: Enum "LT Y80 ST Kind";
     begin
         Seed();
         P.OpenEdit();
@@ -1097,7 +1097,7 @@ codeunit 94226 "LT Y80 SV Tests"
     [Test]
     procedure Y80_SV_List_CdCtl_Others()
     var
-        P: TestPage "LT Y80 SV List";
+        P: TestPage "LT Y80 ST List";
         I: Integer;
         B: BigInteger;
         D: Decimal;
@@ -1111,7 +1111,7 @@ codeunit 94226 "LT Y80 SV Tests"
         Tx: Text;
         Co: Code[10];
         Op: Option A,B,C;
-        En: Enum "LT Y80 SV Kind";
+        En: Enum "LT Y80 ST Kind";
     begin
         Seed();
         P.OpenEdit();
@@ -1142,7 +1142,7 @@ codeunit 94226 "LT Y80 SV Tests"
     [Test]
     procedure Y80_SV_List_CdCtl_Enums()
     var
-        P: TestPage "LT Y80 SV List";
+        P: TestPage "LT Y80 ST List";
         I: Integer;
         B: BigInteger;
         D: Decimal;
@@ -1156,7 +1156,7 @@ codeunit 94226 "LT Y80 SV Tests"
         Tx: Text;
         Co: Code[10];
         Op: Option A,B,C;
-        En: Enum "LT Y80 SV Kind";
+        En: Enum "LT Y80 ST Kind";
     begin
         Seed();
         P.OpenEdit();
@@ -1173,7 +1173,7 @@ codeunit 94226 "LT Y80 SV Tests"
     [Test]
     procedure Y80_SV_List_ShortCtl_Integers()
     var
-        P: TestPage "LT Y80 SV List";
+        P: TestPage "LT Y80 ST List";
         I: Integer;
         B: BigInteger;
         D: Decimal;
@@ -1187,7 +1187,7 @@ codeunit 94226 "LT Y80 SV Tests"
         Tx: Text;
         Co: Code[10];
         Op: Option A,B,C;
-        En: Enum "LT Y80 SV Kind";
+        En: Enum "LT Y80 ST Kind";
     begin
         Seed();
         P.OpenEdit();
@@ -1214,7 +1214,7 @@ codeunit 94226 "LT Y80 SV Tests"
     [Test]
     procedure Y80_SV_List_ShortCtl_BigIntegers()
     var
-        P: TestPage "LT Y80 SV List";
+        P: TestPage "LT Y80 ST List";
         I: Integer;
         B: BigInteger;
         D: Decimal;
@@ -1228,7 +1228,7 @@ codeunit 94226 "LT Y80 SV Tests"
         Tx: Text;
         Co: Code[10];
         Op: Option A,B,C;
-        En: Enum "LT Y80 SV Kind";
+        En: Enum "LT Y80 ST Kind";
     begin
         Seed();
         P.OpenEdit();
@@ -1249,7 +1249,7 @@ codeunit 94226 "LT Y80 SV Tests"
     [Test]
     procedure Y80_SV_List_ShortCtl_Decimals()
     var
-        P: TestPage "LT Y80 SV List";
+        P: TestPage "LT Y80 ST List";
         I: Integer;
         B: BigInteger;
         D: Decimal;
@@ -1263,7 +1263,7 @@ codeunit 94226 "LT Y80 SV Tests"
         Tx: Text;
         Co: Code[10];
         Op: Option A,B,C;
-        En: Enum "LT Y80 SV Kind";
+        En: Enum "LT Y80 ST Kind";
     begin
         Seed();
         P.OpenEdit();
@@ -1290,7 +1290,7 @@ codeunit 94226 "LT Y80 SV Tests"
     [Test]
     procedure Y80_SV_List_ShortCtl_Others()
     var
-        P: TestPage "LT Y80 SV List";
+        P: TestPage "LT Y80 ST List";
         I: Integer;
         B: BigInteger;
         D: Decimal;
@@ -1304,7 +1304,7 @@ codeunit 94226 "LT Y80 SV Tests"
         Tx: Text;
         Co: Code[10];
         Op: Option A,B,C;
-        En: Enum "LT Y80 SV Kind";
+        En: Enum "LT Y80 ST Kind";
     begin
         Seed();
         P.OpenEdit();
@@ -1335,7 +1335,7 @@ codeunit 94226 "LT Y80 SV Tests"
     [Test]
     procedure Y80_SV_List_ShortCtl_Enums()
     var
-        P: TestPage "LT Y80 SV List";
+        P: TestPage "LT Y80 ST List";
         I: Integer;
         B: BigInteger;
         D: Decimal;
@@ -1349,7 +1349,7 @@ codeunit 94226 "LT Y80 SV Tests"
         Tx: Text;
         Co: Code[10];
         Op: Option A,B,C;
-        En: Enum "LT Y80 SV Kind";
+        En: Enum "LT Y80 ST Kind";
     begin
         Seed();
         P.OpenEdit();
