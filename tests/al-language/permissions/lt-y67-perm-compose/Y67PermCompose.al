@@ -100,7 +100,9 @@ codeunit 93545 "LT Y67 Perm Compose"
         AddRel('Y67A MAIN', 'Y67A BASE', 0);
         Observer.Observe('base', Rows('Y67A BASE'));
         Observer.Observe('main includes base', Rows('Y67A MAIN'));
-        Observer.Finish();
+        Observer.Expect('base', '18:R=Yes,I=Yes,M= ,Tenant 23:R=Yes,I= ,M= ,Tenant ');
+        Observer.Expect('main includes base', '18:R=Yes,I=Yes,M=Yes,Tenant 23:R=Yes,I= ,M= ,Tenant 27:R=Yes,I=Yes,M=Yes,Tenant ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -121,7 +123,9 @@ codeunit 93545 "LT Y67 Perm Compose"
         AddRel('Y67B MAIN', 'Y67B NEG', 1);
         Observer.Observe('neg', Rows('Y67B NEG'));
         Observer.Observe('main includes base excludes neg', Rows('Y67B MAIN'));
-        Observer.Finish();
+        Observer.Expect('neg', '18:R= ,I=Yes,M= ,Tenant 23:R=Yes,I=Yes,M=Yes,Tenant ');
+        Observer.Expect('main includes base excludes neg', '18:R=Yes,I= ,M=Yes,Tenant ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -139,7 +143,9 @@ codeunit 93545 "LT Y67 Perm Compose"
         AddRel('Y67C MAIN', 'Y67C BASE', 0);
         Observer.Observe('own exclude only', Rows('Y67C BASE'));
         Observer.Observe('main with exclude rows', Rows('Y67C MAIN'));
-        Observer.Finish();
+        Observer.Expect('own exclude only', '18:R=Yes,I=Yes,M=Yes,Tenant ');
+        Observer.Expect('main with exclude rows', '18:R=Yes,I= ,M=Yes,Tenant ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -163,7 +169,10 @@ codeunit 93545 "LT Y67 Perm Compose"
         Observer.Observe('left', Rows('Y67D LEFT'));
         Observer.Observe('right', Rows('Y67D RIGHT'));
         Observer.Observe('top (diamond)', Rows('Y67D TOP'));
-        Observer.Finish();
+        Observer.Expect('left', '18:R=Yes,I=Yes,M= ,Tenant ');
+        Observer.Expect('right', '18:R=Yes,I= ,M=Yes,Tenant ');
+        Observer.Expect('top (diamond)', '18:R=Yes,I=Yes,M=Yes,Tenant ');
+        Observer.Verify();
     end;
 
     [Test]
@@ -182,6 +191,8 @@ codeunit 93545 "LT Y67 Perm Compose"
         AddRel('Y67E TWO', 'Y67E ONE', 0);
         Observer.Observe('one (missing and cycle)', Rows('Y67E ONE'));
         Observer.Observe('two (cycle)', Rows('Y67E TWO'));
-        Observer.Finish();
+        Observer.Expect('one (missing and cycle)', '18:R=Yes,I= ,M= ,Tenant 23:R=Yes,I= ,M= ,Tenant ');
+        Observer.Expect('two (cycle)', '18:R=Yes,I= ,M= ,Tenant 23:R=Yes,I= ,M= ,Tenant ');
+        Observer.Verify();
     end;
 }

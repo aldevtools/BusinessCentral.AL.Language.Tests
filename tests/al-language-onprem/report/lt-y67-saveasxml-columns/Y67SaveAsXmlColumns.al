@@ -248,6 +248,13 @@ codeunit 98736 "LT Y67 RC Tests"
     end;
 
     // The rows after the schema: <Tag>value</Tag> is written Tag=value, a row starts with R: and ends with ;
+    local procedure IsSelfClosing(Line: Text): Boolean
+    begin
+        if StrLen(Line) < 4 then
+            exit(false);
+        exit(CopyStr(Line, StrLen(Line) - 1) = '/>');
+    end;
+
     local procedure Rows(Content: Text): Text
     var
         Line: Text;
@@ -265,7 +272,7 @@ codeunit 98736 "LT Y67 RC Tests"
                     if Line = '</Result>' then
                         Result += '; '
                     else
-                        if (StrLen(Line) > 3) and (CopyStr(Line, StrLen(Line) - 1) = '/>') then
+                        if IsSelfClosing(Line) then
                             Result += CopyStr(Line, 2, StrLen(Line) - 3).Trim() + '= '
                         else
                             if (Line <> '') and (Line <> '</DataSet>') and (CopyStr(Line, 1, 1) = '<') then begin

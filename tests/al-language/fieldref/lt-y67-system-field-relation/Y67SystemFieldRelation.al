@@ -75,7 +75,13 @@ codeunit 93633 "LT Y67 SF Tests"
         Show(Observer, 'own SystemId', Database::"LT Y67 SF Row", 2000000000);
         Show(Observer, 'own CreatedAt', Database::"LT Y67 SF Row", 2000000001);
         Show(Observer, 'own CreatedBy', Database::"LT Y67 SF Row", 2000000002);
-        Observer.Finish();
+        Observer.Expect('own SystemId ref', '$systemId: rel=0 type=GUID class=Normal enabled=Yes len=16');
+        Observer.Expect('own SystemId field', '$systemId: type=GUID class=Normal relTable=0 relField=0 enabled=Yes pk=No len=16');
+        Observer.Expect('own CreatedAt ref', 'SystemCreatedAt: rel=0 type=DateTime class=Normal enabled=Yes len=8');
+        Observer.Expect('own CreatedAt field', 'SystemCreatedAt: type=DateTime class=Normal relTable=0 relField=0 enabled=Yes pk=No len=8');
+        Observer.Expect('own CreatedBy ref', 'SystemCreatedBy: rel=2000000120 type=GUID class=Normal enabled=Yes len=16');
+        Observer.Expect('own CreatedBy field', 'SystemCreatedBy: type=GUID class=Normal relTable=2000000120 relField=0 enabled=Yes pk=No len=16');
+        Observer.Verify();
     end;
 
     [Test]
@@ -86,7 +92,13 @@ codeunit 93633 "LT Y67 SF Tests"
         Show(Observer, 'own ModifiedAt', Database::"LT Y67 SF Row", 2000000003);
         Show(Observer, 'own ModifiedBy', Database::"LT Y67 SF Row", 2000000004);
         Show(Observer, 'own 2000000005', Database::"LT Y67 SF Row", 2000000005);
-        Observer.Finish();
+        Observer.Expect('own ModifiedAt ref', 'SystemModifiedAt: rel=0 type=DateTime class=Normal enabled=Yes len=8');
+        Observer.Expect('own ModifiedAt field', 'SystemModifiedAt: type=DateTime class=Normal relTable=0 relField=0 enabled=Yes pk=No len=8');
+        Observer.Expect('own ModifiedBy ref', 'SystemModifiedBy: rel=2000000120 type=GUID class=Normal enabled=Yes len=16');
+        Observer.Expect('own ModifiedBy field', 'SystemModifiedBy: type=GUID class=Normal relTable=2000000120 relField=0 enabled=Yes pk=No len=16');
+        Observer.Expect('own 2000000005 ref', 'SystemCreatedByUserName: rel=0 type=Text class=FlowField enabled=Yes len=50');
+        Observer.Expect('own 2000000005 field', 'SystemCreatedByUserName: type=Text class=FlowField relTable=0 relField=0 enabled=Yes pk=No len=50');
+        Observer.Verify();
     end;
 
     [Test]
@@ -97,7 +109,13 @@ codeunit 93633 "LT Y67 SF Tests"
         Show(Observer, 'cust SystemId', Database::Customer, 2000000000);
         Show(Observer, 'cust CreatedBy', Database::Customer, 2000000002);
         Show(Observer, 'cust ModifiedBy', Database::Customer, 2000000004);
-        Observer.Finish();
+        Observer.Expect('cust SystemId ref', '$systemId: rel=0 type=GUID class=Normal enabled=Yes len=16');
+        Observer.Expect('cust SystemId field', '$systemId: type=GUID class=Normal relTable=0 relField=0 enabled=Yes pk=No len=16');
+        Observer.Expect('cust CreatedBy ref', 'SystemCreatedBy: rel=2000000120 type=GUID class=Normal enabled=Yes len=16');
+        Observer.Expect('cust CreatedBy field', 'SystemCreatedBy: type=GUID class=Normal relTable=2000000120 relField=0 enabled=Yes pk=No len=16');
+        Observer.Expect('cust ModifiedBy ref', 'SystemModifiedBy: rel=2000000120 type=GUID class=Normal enabled=Yes len=16');
+        Observer.Expect('cust ModifiedBy field', 'SystemModifiedBy: type=GUID class=Normal relTable=2000000120 relField=0 enabled=Yes pk=No len=16');
+        Observer.Verify();
     end;
 
     [Test]
@@ -108,6 +126,12 @@ codeunit 93633 "LT Y67 SF Tests"
         Show(Observer, 'Ref (own SystemId)', Database::"LT Y67 SF Row", 2);
         Show(Observer, 'CustRef (Customer.SystemId)', Database::"LT Y67 SF Row", 3);
         Show(Observer, 'Plain', Database::"LT Y67 SF Row", 4);
-        Observer.Finish();
+        Observer.Expect('Ref (own SystemId) ref', 'Ref: rel=93634 type=GUID class=Normal enabled=Yes len=16');
+        Observer.Expect('Ref (own SystemId) field', 'Ref: type=GUID class=Normal relTable=93634 relField=2000000000 enabled=Yes pk=No len=16');
+        Observer.Expect('CustRef (Customer.SystemId) ref', 'CustRef: rel=18 type=GUID class=Normal enabled=Yes len=16');
+        Observer.Expect('CustRef (Customer.SystemId) field', 'CustRef: type=GUID class=Normal relTable=18 relField=2000000000 enabled=Yes pk=No len=16');
+        Observer.Expect('Plain ref', 'Plain: rel=0 type=GUID class=Normal enabled=Yes len=16');
+        Observer.Expect('Plain field', 'Plain: type=GUID class=Normal relTable=0 relField=0 enabled=Yes pk=No len=16');
+        Observer.Verify();
     end;
 }
