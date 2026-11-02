@@ -8,6 +8,9 @@
 //   sets none, R, r, RI, RIM, I, IM, IMD, RIMD, rimd (direct and indirect), assigned with Set and with SetExactPermissionSet, asked through a
 //   Record and a RecordRef, from the test and from codeunits whose Permissions property names the table (rimd; r).
 // Shape (Y24PermReads.al): assign the set, read the two Booleans, clear the assignment.
+// Facts (Windows 27.5, 28.5, 29.0, identical): ReadPermission needs a direct R (r alone: No); WritePermission needs I, M and D all direct (IMD: Yes;
+//   RIM: No). Record and RecordRef answer the same. An object whose Permissions property names the table with r/rimd turns indirect grants into Yes
+//   for the matching letters (ind_r: Yes/No in both objects; ind_rimd: Yes/Yes in the rimd object, Yes/No in the r object). Set and SetExactPermissionSet agree.
 // BC versions: 27, 28, 29
 
 codeunit 94010 "LT Y75 Perm ReadWrite"
@@ -28,6 +31,12 @@ codeunit 94010 "LT Y75 Perm ReadWrite"
         WasStarted := Y19Helper.StartMock(Mock);
         RunOne(Observer, false, 'none', 'LT Y24 None');
         Y19Helper.RestoreMock(Mock, WasStarted);
+        Observer.Expect('none|record', 'No/No');
+        Observer.Expect('none|recordref', 'No/No');
+        Observer.Expect('none|object_rimd_record', 'No/No');
+        Observer.Expect('none|object_rimd_recordref', 'No/No');
+        Observer.Expect('none|object_r_record', 'No/No');
+        Observer.Expect('none|object_r_recordref', 'No/No');
         Observer.Finish();
     end;
 
@@ -39,6 +48,12 @@ codeunit 94010 "LT Y75 Perm ReadWrite"
         WasStarted := Y19Helper.StartMock(Mock);
         RunOne(Observer, false, 'R', 'LT Y24 R');
         Y19Helper.RestoreMock(Mock, WasStarted);
+        Observer.Expect('R|record', 'Yes/No');
+        Observer.Expect('R|recordref', 'Yes/No');
+        Observer.Expect('R|object_rimd_record', 'Yes/No');
+        Observer.Expect('R|object_rimd_recordref', 'Yes/No');
+        Observer.Expect('R|object_r_record', 'Yes/No');
+        Observer.Expect('R|object_r_recordref', 'Yes/No');
         Observer.Finish();
     end;
 
@@ -50,6 +65,12 @@ codeunit 94010 "LT Y75 Perm ReadWrite"
         WasStarted := Y19Helper.StartMock(Mock);
         RunOne(Observer, false, 'ind_r', 'LT Y24 Ind R');
         Y19Helper.RestoreMock(Mock, WasStarted);
+        Observer.Expect('ind_r|record', 'No/No');
+        Observer.Expect('ind_r|recordref', 'No/No');
+        Observer.Expect('ind_r|object_rimd_record', 'Yes/No');
+        Observer.Expect('ind_r|object_rimd_recordref', 'Yes/No');
+        Observer.Expect('ind_r|object_r_record', 'Yes/No');
+        Observer.Expect('ind_r|object_r_recordref', 'Yes/No');
         Observer.Finish();
     end;
 
@@ -61,6 +82,12 @@ codeunit 94010 "LT Y75 Perm ReadWrite"
         WasStarted := Y19Helper.StartMock(Mock);
         RunOne(Observer, false, 'RI', 'LT Y75 RI');
         Y19Helper.RestoreMock(Mock, WasStarted);
+        Observer.Expect('RI|record', 'Yes/No');
+        Observer.Expect('RI|recordref', 'Yes/No');
+        Observer.Expect('RI|object_rimd_record', 'Yes/No');
+        Observer.Expect('RI|object_rimd_recordref', 'Yes/No');
+        Observer.Expect('RI|object_r_record', 'Yes/No');
+        Observer.Expect('RI|object_r_recordref', 'Yes/No');
         Observer.Finish();
     end;
 
@@ -72,6 +99,12 @@ codeunit 94010 "LT Y75 Perm ReadWrite"
         WasStarted := Y19Helper.StartMock(Mock);
         RunOne(Observer, false, 'RIM', 'LT Y75 RIM');
         Y19Helper.RestoreMock(Mock, WasStarted);
+        Observer.Expect('RIM|record', 'Yes/No');
+        Observer.Expect('RIM|recordref', 'Yes/No');
+        Observer.Expect('RIM|object_rimd_record', 'Yes/No');
+        Observer.Expect('RIM|object_rimd_recordref', 'Yes/No');
+        Observer.Expect('RIM|object_r_record', 'Yes/No');
+        Observer.Expect('RIM|object_r_recordref', 'Yes/No');
         Observer.Finish();
     end;
 
@@ -83,6 +116,12 @@ codeunit 94010 "LT Y75 Perm ReadWrite"
         WasStarted := Y19Helper.StartMock(Mock);
         RunOne(Observer, false, 'I', 'LT Y24 I');
         Y19Helper.RestoreMock(Mock, WasStarted);
+        Observer.Expect('I|record', 'No/No');
+        Observer.Expect('I|recordref', 'No/No');
+        Observer.Expect('I|object_rimd_record', 'No/No');
+        Observer.Expect('I|object_rimd_recordref', 'No/No');
+        Observer.Expect('I|object_r_record', 'No/No');
+        Observer.Expect('I|object_r_recordref', 'No/No');
         Observer.Finish();
     end;
 
@@ -94,6 +133,12 @@ codeunit 94010 "LT Y75 Perm ReadWrite"
         WasStarted := Y19Helper.StartMock(Mock);
         RunOne(Observer, false, 'IM', 'LT Y24 IM');
         Y19Helper.RestoreMock(Mock, WasStarted);
+        Observer.Expect('IM|record', 'No/No');
+        Observer.Expect('IM|recordref', 'No/No');
+        Observer.Expect('IM|object_rimd_record', 'No/No');
+        Observer.Expect('IM|object_rimd_recordref', 'No/No');
+        Observer.Expect('IM|object_r_record', 'No/No');
+        Observer.Expect('IM|object_r_recordref', 'No/No');
         Observer.Finish();
     end;
 
@@ -105,6 +150,12 @@ codeunit 94010 "LT Y75 Perm ReadWrite"
         WasStarted := Y19Helper.StartMock(Mock);
         RunOne(Observer, false, 'IMD', 'LT Y24 IMD');
         Y19Helper.RestoreMock(Mock, WasStarted);
+        Observer.Expect('IMD|record', 'No/Yes');
+        Observer.Expect('IMD|recordref', 'No/Yes');
+        Observer.Expect('IMD|object_rimd_record', 'No/Yes');
+        Observer.Expect('IMD|object_rimd_recordref', 'No/Yes');
+        Observer.Expect('IMD|object_r_record', 'No/Yes');
+        Observer.Expect('IMD|object_r_recordref', 'No/Yes');
         Observer.Finish();
     end;
 
@@ -116,6 +167,12 @@ codeunit 94010 "LT Y75 Perm ReadWrite"
         WasStarted := Y19Helper.StartMock(Mock);
         RunOne(Observer, false, 'RIMD', 'LT Y24 RIMD');
         Y19Helper.RestoreMock(Mock, WasStarted);
+        Observer.Expect('RIMD|record', 'Yes/Yes');
+        Observer.Expect('RIMD|recordref', 'Yes/Yes');
+        Observer.Expect('RIMD|object_rimd_record', 'Yes/Yes');
+        Observer.Expect('RIMD|object_rimd_recordref', 'Yes/Yes');
+        Observer.Expect('RIMD|object_r_record', 'Yes/Yes');
+        Observer.Expect('RIMD|object_r_recordref', 'Yes/Yes');
         Observer.Finish();
     end;
 
@@ -127,6 +184,12 @@ codeunit 94010 "LT Y75 Perm ReadWrite"
         WasStarted := Y19Helper.StartMock(Mock);
         RunOne(Observer, false, 'ind_rimd', 'LT Y24 Ind RIMD');
         Y19Helper.RestoreMock(Mock, WasStarted);
+        Observer.Expect('ind_rimd|record', 'No/No');
+        Observer.Expect('ind_rimd|recordref', 'No/No');
+        Observer.Expect('ind_rimd|object_rimd_record', 'Yes/Yes');
+        Observer.Expect('ind_rimd|object_rimd_recordref', 'Yes/Yes');
+        Observer.Expect('ind_rimd|object_r_record', 'Yes/No');
+        Observer.Expect('ind_rimd|object_r_recordref', 'Yes/No');
         Observer.Finish();
     end;
 
@@ -138,6 +201,12 @@ codeunit 94010 "LT Y75 Perm ReadWrite"
         WasStarted := Y19Helper.StartMock(Mock);
         RunOne(Observer, true, 'none', 'LT Y24 None');
         Y19Helper.RestoreMock(Mock, WasStarted);
+        Observer.Expect('none|record', 'No/No');
+        Observer.Expect('none|recordref', 'No/No');
+        Observer.Expect('none|object_rimd_record', 'No/No');
+        Observer.Expect('none|object_rimd_recordref', 'No/No');
+        Observer.Expect('none|object_r_record', 'No/No');
+        Observer.Expect('none|object_r_recordref', 'No/No');
         Observer.Finish();
     end;
 
@@ -149,6 +218,12 @@ codeunit 94010 "LT Y75 Perm ReadWrite"
         WasStarted := Y19Helper.StartMock(Mock);
         RunOne(Observer, true, 'R', 'LT Y24 R');
         Y19Helper.RestoreMock(Mock, WasStarted);
+        Observer.Expect('R|record', 'Yes/No');
+        Observer.Expect('R|recordref', 'Yes/No');
+        Observer.Expect('R|object_rimd_record', 'Yes/No');
+        Observer.Expect('R|object_rimd_recordref', 'Yes/No');
+        Observer.Expect('R|object_r_record', 'Yes/No');
+        Observer.Expect('R|object_r_recordref', 'Yes/No');
         Observer.Finish();
     end;
 
@@ -160,6 +235,12 @@ codeunit 94010 "LT Y75 Perm ReadWrite"
         WasStarted := Y19Helper.StartMock(Mock);
         RunOne(Observer, true, 'ind_r', 'LT Y24 Ind R');
         Y19Helper.RestoreMock(Mock, WasStarted);
+        Observer.Expect('ind_r|record', 'No/No');
+        Observer.Expect('ind_r|recordref', 'No/No');
+        Observer.Expect('ind_r|object_rimd_record', 'Yes/No');
+        Observer.Expect('ind_r|object_rimd_recordref', 'Yes/No');
+        Observer.Expect('ind_r|object_r_record', 'Yes/No');
+        Observer.Expect('ind_r|object_r_recordref', 'Yes/No');
         Observer.Finish();
     end;
 
@@ -171,6 +252,12 @@ codeunit 94010 "LT Y75 Perm ReadWrite"
         WasStarted := Y19Helper.StartMock(Mock);
         RunOne(Observer, true, 'RI', 'LT Y75 RI');
         Y19Helper.RestoreMock(Mock, WasStarted);
+        Observer.Expect('RI|record', 'Yes/No');
+        Observer.Expect('RI|recordref', 'Yes/No');
+        Observer.Expect('RI|object_rimd_record', 'Yes/No');
+        Observer.Expect('RI|object_rimd_recordref', 'Yes/No');
+        Observer.Expect('RI|object_r_record', 'Yes/No');
+        Observer.Expect('RI|object_r_recordref', 'Yes/No');
         Observer.Finish();
     end;
 
@@ -182,6 +269,12 @@ codeunit 94010 "LT Y75 Perm ReadWrite"
         WasStarted := Y19Helper.StartMock(Mock);
         RunOne(Observer, true, 'RIM', 'LT Y75 RIM');
         Y19Helper.RestoreMock(Mock, WasStarted);
+        Observer.Expect('RIM|record', 'Yes/No');
+        Observer.Expect('RIM|recordref', 'Yes/No');
+        Observer.Expect('RIM|object_rimd_record', 'Yes/No');
+        Observer.Expect('RIM|object_rimd_recordref', 'Yes/No');
+        Observer.Expect('RIM|object_r_record', 'Yes/No');
+        Observer.Expect('RIM|object_r_recordref', 'Yes/No');
         Observer.Finish();
     end;
 
@@ -193,6 +286,12 @@ codeunit 94010 "LT Y75 Perm ReadWrite"
         WasStarted := Y19Helper.StartMock(Mock);
         RunOne(Observer, true, 'I', 'LT Y24 I');
         Y19Helper.RestoreMock(Mock, WasStarted);
+        Observer.Expect('I|record', 'No/No');
+        Observer.Expect('I|recordref', 'No/No');
+        Observer.Expect('I|object_rimd_record', 'No/No');
+        Observer.Expect('I|object_rimd_recordref', 'No/No');
+        Observer.Expect('I|object_r_record', 'No/No');
+        Observer.Expect('I|object_r_recordref', 'No/No');
         Observer.Finish();
     end;
 
@@ -204,6 +303,12 @@ codeunit 94010 "LT Y75 Perm ReadWrite"
         WasStarted := Y19Helper.StartMock(Mock);
         RunOne(Observer, true, 'IM', 'LT Y24 IM');
         Y19Helper.RestoreMock(Mock, WasStarted);
+        Observer.Expect('IM|record', 'No/No');
+        Observer.Expect('IM|recordref', 'No/No');
+        Observer.Expect('IM|object_rimd_record', 'No/No');
+        Observer.Expect('IM|object_rimd_recordref', 'No/No');
+        Observer.Expect('IM|object_r_record', 'No/No');
+        Observer.Expect('IM|object_r_recordref', 'No/No');
         Observer.Finish();
     end;
 
@@ -215,6 +320,12 @@ codeunit 94010 "LT Y75 Perm ReadWrite"
         WasStarted := Y19Helper.StartMock(Mock);
         RunOne(Observer, true, 'IMD', 'LT Y24 IMD');
         Y19Helper.RestoreMock(Mock, WasStarted);
+        Observer.Expect('IMD|record', 'No/Yes');
+        Observer.Expect('IMD|recordref', 'No/Yes');
+        Observer.Expect('IMD|object_rimd_record', 'No/Yes');
+        Observer.Expect('IMD|object_rimd_recordref', 'No/Yes');
+        Observer.Expect('IMD|object_r_record', 'No/Yes');
+        Observer.Expect('IMD|object_r_recordref', 'No/Yes');
         Observer.Finish();
     end;
 
@@ -226,6 +337,12 @@ codeunit 94010 "LT Y75 Perm ReadWrite"
         WasStarted := Y19Helper.StartMock(Mock);
         RunOne(Observer, true, 'RIMD', 'LT Y24 RIMD');
         Y19Helper.RestoreMock(Mock, WasStarted);
+        Observer.Expect('RIMD|record', 'Yes/Yes');
+        Observer.Expect('RIMD|recordref', 'Yes/Yes');
+        Observer.Expect('RIMD|object_rimd_record', 'Yes/Yes');
+        Observer.Expect('RIMD|object_rimd_recordref', 'Yes/Yes');
+        Observer.Expect('RIMD|object_r_record', 'Yes/Yes');
+        Observer.Expect('RIMD|object_r_recordref', 'Yes/Yes');
         Observer.Finish();
     end;
 
@@ -237,6 +354,12 @@ codeunit 94010 "LT Y75 Perm ReadWrite"
         WasStarted := Y19Helper.StartMock(Mock);
         RunOne(Observer, true, 'ind_rimd', 'LT Y24 Ind RIMD');
         Y19Helper.RestoreMock(Mock, WasStarted);
+        Observer.Expect('ind_rimd|record', 'No/No');
+        Observer.Expect('ind_rimd|recordref', 'No/No');
+        Observer.Expect('ind_rimd|object_rimd_record', 'Yes/Yes');
+        Observer.Expect('ind_rimd|object_rimd_recordref', 'Yes/Yes');
+        Observer.Expect('ind_rimd|object_r_record', 'Yes/No');
+        Observer.Expect('ind_rimd|object_r_recordref', 'Yes/No');
         Observer.Finish();
     end;
 
