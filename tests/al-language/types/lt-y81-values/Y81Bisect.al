@@ -1,4 +1,4 @@
-codeunit 94259 "LT Y81 Label Variant W1"
+codeunit 94259 "LT Y81 Label Variant S1"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -7,38 +7,21 @@ codeunit 94259 "LT Y81 Label Variant W1"
         Observer: Codeunit "Probe Observer";
         LblA: Label 'Label A';
         LblB: Label 'Label B';
-        TxtVar: Text;
-        CodeVar: Code[20];
 
-    local procedure Describe(V: Variant): Text
+    local procedure R(Cond: Boolean): Variant
     begin
-        exit(Format(V.IsText()));
-    end;
-
-    local procedure Pairs(Cond: Boolean): Text
-    var
-        V: Variant;
-    begin
-        TxtVar := 'text var';
-        CodeVar := 'code var';
-        V := Cond ? LblA : LblB;
-        exit(Describe(V));
-    end;
-
-    local procedure Go(Cond: Boolean)
-    begin
-        Observer.Observe('r', Pairs(Cond));
-        Observer.Finish();
+        exit(Cond ? LblA : 'literal');
     end;
 
     [Test]
-    procedure Y81_LabelVariantW1()
+    procedure Y81_LabelVariantS1()
     begin
-        Go(true);
+        Observer.Observe('r', 'not called');
+        Observer.Finish();
     end;
 }
 
-codeunit 94260 "LT Y81 Label Variant W2"
+codeunit 94260 "LT Y81 Label Variant S2"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -47,38 +30,26 @@ codeunit 94260 "LT Y81 Label Variant W2"
         Observer: Codeunit "Probe Observer";
         LblA: Label 'Label A';
         LblB: Label 'Label B';
-        TxtVar: Text;
-        CodeVar: Code[20];
+
+    local procedure R(Cond: Boolean): Variant
+    begin
+        exit(Cond ? LblA : 'literal');
+    end;
 
     local procedure Describe(V: Variant): Text
     begin
         exit(Format(V.IsText()));
-    end;
-
-    local procedure Pairs(Cond: Boolean): Text
-    var
-        V: Variant;
-    begin
-        TxtVar := 'text var';
-        CodeVar := 'code var';
-        V := Cond ? LblA : LblB;
-        exit(Describe(V));
-    end;
-
-    local procedure Run(Cond: Boolean)
-    begin
-        Observer.Observe('r', Pairs(Cond));
-        Observer.Finish();
     end;
 
     [Test]
-    procedure Y81_LabelVariantW2()
+    procedure Y81_LabelVariantS2()
     begin
-        Run(true);
+        Observer.Observe('r', Format(Describe(R(true))));
+        Observer.Finish();
     end;
 }
 
-codeunit 94261 "LT Y81 Label Variant W3"
+codeunit 94261 "LT Y81 Label Variant S3"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -87,38 +58,90 @@ codeunit 94261 "LT Y81 Label Variant W3"
         Observer: Codeunit "Probe Observer";
         LblA: Label 'Label A';
         LblB: Label 'Label B';
-        TxtVar: Text;
-        CodeVar: Code[20];
 
-    local procedure Describe(V: Variant): Text
+    local procedure R(Cond: Boolean): Variant
     begin
-        exit(Format(V.IsText()));
+        exit(Cond ? 'literal' : LblA);
     end;
 
-    local procedure Pairs(Cond: Boolean): Text
-    var
-        V: Variant;
+    [Test]
+    procedure Y81_LabelVariantS3()
     begin
-        TxtVar := 'text var';
-        CodeVar := 'code var';
+        Observer.Observe('r', 'not called');
+        Observer.Finish();
+    end;
+}
+
+codeunit 94262 "LT Y81 Label Variant S4"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    var
+        Observer: Codeunit "Probe Observer";
+        LblA: Label 'Label A';
+        LblB: Label 'Label B';
+
+    local procedure R(Cond: Boolean): Variant
+    begin
+        exit(Cond ? LblA : LblB);
+    end;
+
+    [Test]
+    procedure Y81_LabelVariantS4()
+    begin
+        Observer.Observe('r', 'not called');
+        Observer.Finish();
+    end;
+}
+
+codeunit 94263 "LT Y81 Label Variant S5"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    var
+        Observer: Codeunit "Probe Observer";
+        LblA: Label 'Label A';
+        LblB: Label 'Label B';
+
+    local procedure R(Cond: Boolean): Text
+    begin
+        exit(Cond ? LblA : 'literal');
+    end;
+
+    [Test]
+    procedure Y81_LabelVariantS5()
+    begin
+        Observer.Observe('r', R(true));
+        Observer.Finish();
+    end;
+}
+
+codeunit 94264 "LT Y81 Label Variant S6"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    var
+        Observer: Codeunit "Probe Observer";
+        LblA: Label 'Label A';
+        LblB: Label 'Label B';
+
+    local procedure R(Cond: Boolean) V: Variant
+    begin
         V := Cond ? LblA : 'literal';
-        exit(Describe(V));
-    end;
-
-    local procedure Go(Cond: Boolean)
-    begin
-        Observer.Observe('r', Pairs(Cond));
-        Observer.Finish();
     end;
 
     [Test]
-    procedure Y81_LabelVariantW3()
+    procedure Y81_LabelVariantS6()
     begin
-        Go(true);
+        Observer.Observe('r', 'not called');
+        Observer.Finish();
     end;
 }
 
-codeunit 94262 "LT Y81 Label Variant W4"
+codeunit 94265 "LT Y81 Label Variant S7"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -127,154 +150,17 @@ codeunit 94262 "LT Y81 Label Variant W4"
         Observer: Codeunit "Probe Observer";
         LblA: Label 'Label A';
         LblB: Label 'Label B';
-        TxtVar: Text;
-        CodeVar: Code[20];
 
-    local procedure Describe(V: Variant): Text
+    local procedure R(Cond: Boolean): Variant
     begin
-        exit(Format(V.IsText()));
-    end;
-
-    local procedure Pairs(Cond: Boolean): Text
-    var
-        V: Variant;
-    begin
-        TxtVar := 'text var';
-        CodeVar := 'code var';
-        V := Cond ? 'literal' : LblA;
-        exit(Describe(V));
-    end;
-
-    local procedure Go(Cond: Boolean)
-    begin
-        Observer.Observe('r', Pairs(Cond));
-        Observer.Finish();
+        exit('literal');
     end;
 
     [Test]
-    procedure Y81_LabelVariantW4()
+    procedure Y81_LabelVariantS7()
     begin
-        Go(true);
-    end;
-}
-
-codeunit 94263 "LT Y81 Label Variant W5"
-{
-    Subtype = Test;
-    TestPermissions = Disabled;
-
-    var
-        Observer: Codeunit "Probe Observer";
-        LblA: Label 'Label A';
-        LblB: Label 'Label B';
-        TxtVar: Text;
-        CodeVar: Code[20];
-
-    local procedure Describe(V: Variant): Text
-    begin
-        exit(Format(V.IsText()));
-    end;
-
-    local procedure Pairs(Cond: Boolean): Text
-    var
-        V: Variant;
-    begin
-        TxtVar := 'text var';
-        CodeVar := 'code var';
-        V := Cond ? LblA : TxtVar;
-        exit(Describe(V));
-    end;
-
-    local procedure Go(Cond: Boolean)
-    begin
-        Observer.Observe('r', Pairs(Cond));
+        Observer.Observe('r', 'not called');
         Observer.Finish();
-    end;
-
-    [Test]
-    procedure Y81_LabelVariantW5()
-    begin
-        Go(true);
-    end;
-}
-
-codeunit 94264 "LT Y81 Label Variant W6"
-{
-    Subtype = Test;
-    TestPermissions = Disabled;
-
-    var
-        Observer: Codeunit "Probe Observer";
-        LblA: Label 'Label A';
-        LblB: Label 'Label B';
-        TxtVar: Text;
-        CodeVar: Code[20];
-
-    local procedure Describe(V: Variant): Text
-    begin
-        exit(Format(V.IsText()));
-    end;
-
-    local procedure Pairs(Cond: Boolean): Text
-    var
-        V: Variant;
-    begin
-        TxtVar := 'text var';
-        CodeVar := 'code var';
-        V := Cond ? LblA : CodeVar;
-        exit(Describe(V));
-    end;
-
-    local procedure Go(Cond: Boolean)
-    begin
-        Observer.Observe('r', Pairs(Cond));
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Y81_LabelVariantW6()
-    begin
-        Go(true);
-    end;
-}
-
-codeunit 94265 "LT Y81 Label Variant W7"
-{
-    Subtype = Test;
-    TestPermissions = Disabled;
-
-    var
-        Observer: Codeunit "Probe Observer";
-        LblA: Label 'Label A';
-        LblB: Label 'Label B';
-        TxtVar: Text;
-        CodeVar: Code[20];
-
-    local procedure Describe(V: Variant): Text
-    begin
-        exit(Format(V.IsText()));
-    end;
-
-    local procedure Pairs(Cond: Boolean): Text
-    var
-        V: Variant;
-    begin
-        TxtVar := 'text var';
-        CodeVar := 'code var';
-        V := Cond ? LblA : LblB;
-        exit(Describe(Cond ? LblA : LblB));
-    end;
-
-    local procedure Go(Cond: Boolean)
-    begin
-        Observer.Observe('r', Pairs(Cond));
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Y81_LabelVariantW7()
-    begin
-        Go(true);
     end;
 }
 
