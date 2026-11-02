@@ -37,7 +37,7 @@ codeunit 94010 "LT Y75 Perm ReadWrite"
         Observer.Expect('none|object_rimd_recordref', 'No/No');
         Observer.Expect('none|object_r_record', 'No/No');
         Observer.Expect('none|object_r_recordref', 'No/No');
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     [Test]
@@ -54,7 +54,7 @@ codeunit 94010 "LT Y75 Perm ReadWrite"
         Observer.Expect('R|object_rimd_recordref', 'Yes/No');
         Observer.Expect('R|object_r_record', 'Yes/No');
         Observer.Expect('R|object_r_recordref', 'Yes/No');
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     [Test]
@@ -71,7 +71,7 @@ codeunit 94010 "LT Y75 Perm ReadWrite"
         Observer.Expect('ind_r|object_rimd_recordref', 'Yes/No');
         Observer.Expect('ind_r|object_r_record', 'Yes/No');
         Observer.Expect('ind_r|object_r_recordref', 'Yes/No');
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     [Test]
@@ -88,7 +88,7 @@ codeunit 94010 "LT Y75 Perm ReadWrite"
         Observer.Expect('RI|object_rimd_recordref', 'Yes/No');
         Observer.Expect('RI|object_r_record', 'Yes/No');
         Observer.Expect('RI|object_r_recordref', 'Yes/No');
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     [Test]
@@ -105,7 +105,7 @@ codeunit 94010 "LT Y75 Perm ReadWrite"
         Observer.Expect('RIM|object_rimd_recordref', 'Yes/No');
         Observer.Expect('RIM|object_r_record', 'Yes/No');
         Observer.Expect('RIM|object_r_recordref', 'Yes/No');
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     [Test]
@@ -122,7 +122,7 @@ codeunit 94010 "LT Y75 Perm ReadWrite"
         Observer.Expect('I|object_rimd_recordref', 'No/No');
         Observer.Expect('I|object_r_record', 'No/No');
         Observer.Expect('I|object_r_recordref', 'No/No');
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     [Test]
@@ -139,7 +139,7 @@ codeunit 94010 "LT Y75 Perm ReadWrite"
         Observer.Expect('IM|object_rimd_recordref', 'No/No');
         Observer.Expect('IM|object_r_record', 'No/No');
         Observer.Expect('IM|object_r_recordref', 'No/No');
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     [Test]
@@ -156,7 +156,7 @@ codeunit 94010 "LT Y75 Perm ReadWrite"
         Observer.Expect('IMD|object_rimd_recordref', 'No/Yes');
         Observer.Expect('IMD|object_r_record', 'No/Yes');
         Observer.Expect('IMD|object_r_recordref', 'No/Yes');
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     [Test]
@@ -173,7 +173,7 @@ codeunit 94010 "LT Y75 Perm ReadWrite"
         Observer.Expect('RIMD|object_rimd_recordref', 'Yes/Yes');
         Observer.Expect('RIMD|object_r_record', 'Yes/Yes');
         Observer.Expect('RIMD|object_r_recordref', 'Yes/Yes');
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     [Test]
@@ -190,7 +190,7 @@ codeunit 94010 "LT Y75 Perm ReadWrite"
         Observer.Expect('ind_rimd|object_rimd_recordref', 'Yes/Yes');
         Observer.Expect('ind_rimd|object_r_record', 'Yes/No');
         Observer.Expect('ind_rimd|object_r_recordref', 'Yes/No');
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     [Test]
@@ -207,7 +207,7 @@ codeunit 94010 "LT Y75 Perm ReadWrite"
         Observer.Expect('none|object_rimd_recordref', 'No/No');
         Observer.Expect('none|object_r_record', 'No/No');
         Observer.Expect('none|object_r_recordref', 'No/No');
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     [Test]
@@ -224,7 +224,7 @@ codeunit 94010 "LT Y75 Perm ReadWrite"
         Observer.Expect('R|object_rimd_recordref', 'Yes/No');
         Observer.Expect('R|object_r_record', 'Yes/No');
         Observer.Expect('R|object_r_recordref', 'Yes/No');
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     [Test]
@@ -241,7 +241,7 @@ codeunit 94010 "LT Y75 Perm ReadWrite"
         Observer.Expect('ind_r|object_rimd_recordref', 'Yes/No');
         Observer.Expect('ind_r|object_r_record', 'Yes/No');
         Observer.Expect('ind_r|object_r_recordref', 'Yes/No');
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     [Test]
@@ -258,7 +258,7 @@ codeunit 94010 "LT Y75 Perm ReadWrite"
         Observer.Expect('RI|object_rimd_recordref', 'Yes/No');
         Observer.Expect('RI|object_r_record', 'Yes/No');
         Observer.Expect('RI|object_r_recordref', 'Yes/No');
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     [Test]
@@ -275,7 +275,7 @@ codeunit 94010 "LT Y75 Perm ReadWrite"
         Observer.Expect('RIM|object_rimd_recordref', 'Yes/No');
         Observer.Expect('RIM|object_r_record', 'Yes/No');
         Observer.Expect('RIM|object_r_recordref', 'Yes/No');
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     [Test]
@@ -292,7 +292,7 @@ codeunit 94010 "LT Y75 Perm ReadWrite"
         Observer.Expect('I|object_rimd_recordref', 'No/No');
         Observer.Expect('I|object_r_record', 'No/No');
         Observer.Expect('I|object_r_recordref', 'No/No');
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     [Test]
@@ -309,7 +309,7 @@ codeunit 94010 "LT Y75 Perm ReadWrite"
         Observer.Expect('IM|object_rimd_recordref', 'No/No');
         Observer.Expect('IM|object_r_record', 'No/No');
         Observer.Expect('IM|object_r_recordref', 'No/No');
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     [Test]
@@ -326,7 +326,7 @@ codeunit 94010 "LT Y75 Perm ReadWrite"
         Observer.Expect('IMD|object_rimd_recordref', 'No/Yes');
         Observer.Expect('IMD|object_r_record', 'No/Yes');
         Observer.Expect('IMD|object_r_recordref', 'No/Yes');
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     [Test]
@@ -343,7 +343,7 @@ codeunit 94010 "LT Y75 Perm ReadWrite"
         Observer.Expect('RIMD|object_rimd_recordref', 'Yes/Yes');
         Observer.Expect('RIMD|object_r_record', 'Yes/Yes');
         Observer.Expect('RIMD|object_r_recordref', 'Yes/Yes');
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     [Test]
@@ -360,7 +360,7 @@ codeunit 94010 "LT Y75 Perm ReadWrite"
         Observer.Expect('ind_rimd|object_rimd_recordref', 'Yes/Yes');
         Observer.Expect('ind_rimd|object_r_record', 'Yes/No');
         Observer.Expect('ind_rimd|object_r_recordref', 'Yes/No');
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     local procedure RunOne(var Obs: Codeunit "Probe Observer"; Exact: Boolean; Tag: Text; SetName: Code[20])
