@@ -110,7 +110,7 @@ codeunit 93862 "LT Y72 XP2 Log"
 
 xmlport 93853 "LT Y72 XP TextType"
 {
-    Direction = Both;
+    Direction = Import;
     Format = Xml;
     Encoding = UTF8;
     UseRequestPage = false;
@@ -143,13 +143,6 @@ xmlport 93853 "LT Y72 XP TextType"
                     TextType = BigText;
                 }
 
-                trigger OnAfterGetRecord()
-                begin
-                    Note := 'n-' + p.Id;
-                    Clear(BigNote);
-                    BigNote.AddText('b-' + p.Id);
-                end;
-
                 trigger OnAfterInitRecord()
                 begin
                     Clear(BigNote);
@@ -166,11 +159,49 @@ xmlport 93853 "LT Y72 XP TextType"
 
     var
         Log: Codeunit "LT Y72 XP2 Log";
+}
+
+xmlport 93860 "LT Y72 XP TextType Out"
+{
+    Direction = Export;
+    Format = Xml;
+    Encoding = UTF8;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Root)
+        {
+            textattribute(Version)
+            {
+                TextType = Text;
+                Description = 'Version';
+            }
+            tableelement(p; "LT Y72 XP P")
+            {
+                MinOccurs = Zero;
+                fieldattribute(Id; p.Id) { }
+                textattribute(Note)
+                {
+                    TextType = Text;
+                }
+                textattribute(BigNote)
+                {
+                    TextType = BigText;
+                }
+
+                trigger OnAfterGetRecord()
+                begin
+                    Note := 'n-' + p.Id;
+                    Clear(BigNote);
+                    BigNote.AddText('b-' + p.Id);
+                end;
+            }
+        }
+    }
 
     trigger OnPreXmlPort()
     begin
-        if currXMLport.ImportFile() then
-            exit;
         Version := '2.0';
     end;
 }
@@ -248,7 +279,7 @@ xmlport 93855 "LT Y72 XP BigRoot"
 
 xmlport 93856 "LT Y72 XP Enum"
 {
-    Direction = Both;
+    Direction = Import;
     Format = Xml;
     Encoding = UTF8;
     UseRequestPage = false;
@@ -280,7 +311,7 @@ xmlport 93856 "LT Y72 XP Enum"
 
 xmlport 93857 "LT Y72 XP Enum Validate"
 {
-    Direction = Both;
+    Direction = Import;
     Format = Xml;
     Encoding = UTF8;
     UseRequestPage = false;
@@ -315,7 +346,7 @@ xmlport 93857 "LT Y72 XP Enum Validate"
 
 xmlport 93858 "LT Y72 XP Enum NoDefault"
 {
-    Direction = Both;
+    Direction = Import;
     Format = Xml;
     Encoding = UTF8;
     UseRequestPage = false;
@@ -348,7 +379,7 @@ xmlport 93858 "LT Y72 XP Enum NoDefault"
 
 xmlport 93859 "LT Y72 XP Enum Element"
 {
-    Direction = Both;
+    Direction = Import;
     Format = Xml;
     Encoding = UTF8;
     UseRequestPage = false;
@@ -375,6 +406,51 @@ xmlport 93859 "LT Y72 XP Enum Element"
 
     var
         Log: Codeunit "LT Y72 XP2 Log";
+}
+
+xmlport 93861 "LT Y72 XP Enum Out"
+{
+    Direction = Export;
+    Format = Xml;
+    Encoding = UTF8;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Root)
+        {
+            tableelement(e; "LT Y72 XP E")
+            {
+                MinOccurs = Zero;
+                fieldattribute(Id; e.Id) { }
+                fieldattribute(Res; e.Res) { }
+                fieldattribute(Plain; e.Plain) { }
+                fieldattribute(Opt; e.Opt) { }
+            }
+        }
+    }
+}
+
+xmlport 93862 "LT Y72 XP Enum Element Out"
+{
+    Direction = Export;
+    Format = Xml;
+    Encoding = UTF8;
+    UseRequestPage = false;
+
+    schema
+    {
+        textelement(Root)
+        {
+            tableelement(e; "LT Y72 XP E")
+            {
+                MinOccurs = Zero;
+                fieldelement(Id; e.Id) { }
+                fieldelement(Res; e.Res) { }
+                fieldelement(Opt; e.Opt) { }
+            }
+        }
+    }
 }
 
 codeunit 93863 "LT Y72 XP Import Run"
@@ -542,37 +618,20 @@ codeunit 93864 "LT Y72 XP TextType Enum"
         E.Insert();
     end;
 
-    local procedure ExportEnum(PortNo: Integer): Text
+    local procedure ExportEnum(Element: Boolean): Text
     var
         TempBlob: Codeunit "Temp Blob";
         OutS: OutStream;
-        Port3: XmlPort "LT Y72 XP Enum";
-        Port4: XmlPort "LT Y72 XP Enum Validate";
-        Port5: XmlPort "LT Y72 XP Enum NoDefault";
-        Port6: XmlPort "LT Y72 XP Enum Element";
+        PortAttr: XmlPort "LT Y72 XP Enum Out";
+        PortElem: XmlPort "LT Y72 XP Enum Element Out";
     begin
         TempBlob.CreateOutStream(OutS, TextEncoding::UTF8);
-        case PortNo of
-            3:
-                begin
-                    Port3.SetDestination(OutS);
-                    Port3.Export();
-                end;
-            4:
-                begin
-                    Port4.SetDestination(OutS);
-                    Port4.Export();
-                end;
-            5:
-                begin
-                    Port5.SetDestination(OutS);
-                    Port5.Export();
-                end;
-            6:
-                begin
-                    Port6.SetDestination(OutS);
-                    Port6.Export();
-                end;
+        if Element then begin
+            PortElem.SetDestination(OutS);
+            PortElem.Export();
+        end else begin
+            PortAttr.SetDestination(OutS);
+            PortAttr.Export();
         end;
         exit(ReadAll(TempBlob));
     end;
@@ -581,7 +640,7 @@ codeunit 93864 "LT Y72 XP TextType Enum"
     procedure TextTypeText_OnTextAttribute_ExportImport()
     var
         P: Record "LT Y72 XP P";
-        Port: XmlPort "LT Y72 XP TextType";
+        Port: XmlPort "LT Y72 XP TextType Out";
         TempBlob: Codeunit "Temp Blob";
         OutS: OutStream;
         Xml: Text;
@@ -700,7 +759,7 @@ codeunit 93864 "LT Y72 XP TextType Enum"
     begin
         Start();
         InsertEnumRows();
-        Xml := ExportEnum(3);
+        Xml := ExportEnum(false);
         Observer.Observe('export xml', Xml);
         Observer.Observe('stored before', EnumRows());
         Observer.Finish();
@@ -732,7 +791,7 @@ codeunit 93864 "LT Y72 XP TextType Enum"
     begin
         Start();
         InsertEnumRows();
-        Xml := ExportEnum(3);
+        Xml := ExportEnum(false);
         E.DeleteAll();
         DoImport('default validation', 3, Xml);
         Observer.Finish();
@@ -764,7 +823,7 @@ codeunit 93864 "LT Y72 XP TextType Enum"
     begin
         Start();
         InsertEnumRows();
-        Xml := ExportEnum(4);
+        Xml := ExportEnum(false);
         Observer.Observe('export xml', Xml);
         E.DeleteAll();
         DoImport('field validate yes', 4, Xml);
@@ -797,7 +856,7 @@ codeunit 93864 "LT Y72 XP TextType Enum"
     begin
         Start();
         InsertEnumRows();
-        Xml := ExportEnum(5);
+        Xml := ExportEnum(false);
         Observer.Observe('export xml', Xml);
         E.DeleteAll();
         DoImport('default off', 5, Xml);
@@ -830,7 +889,7 @@ codeunit 93864 "LT Y72 XP TextType Enum"
     begin
         Start();
         InsertEnumRows();
-        Xml := ExportEnum(6);
+        Xml := ExportEnum(true);
         Observer.Observe('export xml', Xml);
         E.DeleteAll();
         DoImport('element', 6, Xml);

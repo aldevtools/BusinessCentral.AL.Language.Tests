@@ -429,7 +429,7 @@ codeunit 93850 "LT Y72 Tree Default State"
     end;
 
     [Test]
-    procedure TreeDefault_Expand_LeafRow60()
+    procedure TreeDefault_Expand_LeafRow60_Open()
     var
         P: TestPage "LT Y72 Tree PL";
         Ok: Boolean;
@@ -445,32 +445,27 @@ codeunit 93850 "LT Y72 Tree Default State"
         Observer.Observe('expand log', TakeLog());
         Observer.Observe('expand line', P.LineCtl.Value());
         Observer.Observe('expand expanded', Format(P.IsExpanded()));
-        Ok := TryExpandPL(P, false);
-        Observer.Observe('expand false ok', Format(Ok));
-        if not Ok then
-            Observer.ObserveError('expand false');
-        Observer.Observe('collapse expanded', Format(P.IsExpanded()));
-        Observer.Observe('collapse log', TakeLog());
         P.Close();
         Observer.Finish();
     end;
 
     [Test]
-    procedure TreeDefault_Expand_LeafRow60_More1()
+    procedure TreeDefault_Expand_LeafRow60_Open_More1()
     begin
         Observer.More();
     end;
 
-    [Test]
-    procedure TreeDefault_Expand_LeafRow60_More2()
+    // Expand(false) on a leaf row ends the test with an uncatchable CLR exception ("Expanding and collapsing are not supported on this
+    // rowEntry", BC 29 SaaS), so it is not a test.
+    local procedure Tree_CollapseLeafRow60()
+    var
+        P: TestPage "LT Y72 Tree PL";
     begin
-        Observer.More();
-    end;
-
-    [Test]
-    procedure TreeDefault_Expand_LeafRow60_More3()
-    begin
-        Observer.More();
+        Seed();
+        P.OpenView();
+        P.GoToKey(60);
+        P.Expand(false);
+        P.Close();
     end;
 
     [Test]
