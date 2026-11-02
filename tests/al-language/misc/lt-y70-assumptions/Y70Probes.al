@@ -768,6 +768,21 @@ codeunit 93740 "LT Y70 Probes"
         Obs.Finish();
     end;
 
+    local procedure Dirty(var RecRef: RecordRef): Text
+    var
+        R: Text;
+    begin
+        if TryDirty(RecRef, R) then
+            exit(R);
+        exit('ERR:' + GetLastErrorCode() + ':' + GetLastErrorText());
+    end;
+
+    [TryFunction]
+    local procedure TryDirty(var RecRef: RecordRef; var R: Text)
+    begin
+        R := Format(RecRef.IsDirty());
+    end;
+
     // ---- RecordRef.IsDirty of a buffer that did not come from a read or write through the ref
     [Test]
     procedure RecordRefIsDirty_Shapes()
