@@ -289,7 +289,7 @@ page 94565 "LT R6806 Card Part"
         Log: Codeunit "LT R6806 Log";
 }
 
-page 94566 "LT R6806 AB L Schedule"
+page 94566 "LT R6806 AB L Sched"
 {
     PageType = List;
     SourceTable = "LT Y15 Lookup Resource";
@@ -380,7 +380,7 @@ page 94566 "LT R6806 AB L Schedule"
         Log: Codeunit "LT R6806 Log";
 }
 
-page 94567 "LT R6806 L AB Schedule"
+page 94567 "LT R6806 L AB Sched"
 {
     PageType = List;
     SourceTable = "LT Y15 Lookup Resource";
@@ -471,7 +471,7 @@ page 94567 "LT R6806 L AB Schedule"
         Log: Codeunit "LT R6806 Log";
 }
 
-page 94568 "LT R6806 A L B Schedule"
+page 94568 "LT R6806 A L B Sched"
 {
     PageType = List;
     SourceTable = "LT Y15 Lookup Resource";
@@ -562,7 +562,7 @@ page 94568 "LT R6806 A L B Schedule"
         Log: Codeunit "LT R6806 Log";
 }
 
-page 94569 "LT R6806 AB L Card Schedule"
+page 94569 "LT R6806 AB L Card Sched"
 {
     PageType = List;
     SourceTable = "LT Y15 Lookup Resource";
@@ -661,7 +661,7 @@ page 94569 "LT R6806 AB L Card Schedule"
         Log: Codeunit "LT R6806 Log";
 }
 
-page 94570 "LT R6806 ABC L Schedule"
+page 94570 "LT R6806 ABC L Sched"
 {
     PageType = List;
     SourceTable = "LT Y15 Lookup Resource";
@@ -795,7 +795,7 @@ page 94572 "LT R6806 Plain Card Part"
     }
 }
 
-page 94573 "LT R6806 Reporter AB L Schedule"
+page 94573 "LT R6806 Rep AB L Sched"
 {
     PageType = List;
     SourceTable = "LT Y15 Lookup Resource";
@@ -869,7 +869,7 @@ page 94573 "LT R6806 Reporter AB L Schedule"
         Setting: Record "LT Y15 Lookup Setting";
 }
 
-page 94574 "LT R6806 Reporter AB L Card Schedule"
+page 94574 "LT R6806 Rep AB L Card Sched"
 {
     PageType = List;
     SourceTable = "LT Y15 Lookup Resource";
@@ -966,7 +966,7 @@ codeunit 94575 "LT R6806 Lookup Part Tests"
     procedure R6806_ABL_LookupReadEachControl()
     var
         Setting: Record "LT Y15 Lookup Setting";
-        Schedule: TestPage "LT R6806 AB L Schedule";
+        Schedule: TestPage "LT R6806 AB L Sched";
     begin
         Setup();
         Schedule.OpenEdit();
@@ -1000,7 +1000,7 @@ codeunit 94575 "LT R6806 Lookup Part Tests"
     procedure R6806_LAB_LookupReadEachControl()
     var
         Setting: Record "LT Y15 Lookup Setting";
-        Schedule: TestPage "LT R6806 L AB Schedule";
+        Schedule: TestPage "LT R6806 L AB Sched";
     begin
         Setup();
         Schedule.OpenEdit();
@@ -1034,7 +1034,7 @@ codeunit 94575 "LT R6806 Lookup Part Tests"
     procedure R6806_ALB_LookupReadEachControl()
     var
         Setting: Record "LT Y15 Lookup Setting";
-        Schedule: TestPage "LT R6806 A L B Schedule";
+        Schedule: TestPage "LT R6806 A L B Sched";
     begin
         Setup();
         Schedule.OpenEdit();
@@ -1068,7 +1068,7 @@ codeunit 94575 "LT R6806 Lookup Part Tests"
     procedure R6806_ABLK_LookupReadEachControl()
     var
         Setting: Record "LT Y15 Lookup Setting";
-        Schedule: TestPage "LT R6806 AB L Card Schedule";
+        Schedule: TestPage "LT R6806 AB L Card Sched";
     begin
         Setup();
         Schedule.OpenEdit();
@@ -1104,7 +1104,7 @@ codeunit 94575 "LT R6806 Lookup Part Tests"
     procedure R6806_ABCL_LookupReadEachControl()
     var
         Setting: Record "LT Y15 Lookup Setting";
-        Schedule: TestPage "LT R6806 ABC L Schedule";
+        Schedule: TestPage "LT R6806 ABC L Sched";
     begin
         Setup();
         Schedule.OpenEdit();
@@ -1139,7 +1139,7 @@ codeunit 94575 "LT R6806 Lookup Part Tests"
     [HandlerFunctions('PickSecondResource')]
     procedure R6806_ABL_OtherBFirstReadAfterLookup()
     var
-        Schedule: TestPage "LT R6806 AB L Schedule";
+        Schedule: TestPage "LT R6806 AB L Sched";
     begin
         Setup();
         Schedule.OpenEdit();
@@ -1162,7 +1162,7 @@ codeunit 94575 "LT R6806 Lookup Part Tests"
     [HandlerFunctions('PickSecondResource')]
     procedure R6806_ABL_ResourcesFirstReadAfterLookup()
     var
-        Schedule: TestPage "LT R6806 AB L Schedule";
+        Schedule: TestPage "LT R6806 AB L Sched";
     begin
         Setup();
         Schedule.OpenEdit();
@@ -1185,7 +1185,7 @@ codeunit 94575 "LT R6806 Lookup Part Tests"
     [HandlerFunctions('PickSecondResource')]
     procedure R6806_ABL_ResourcesNextFirst()
     var
-        Schedule: TestPage "LT R6806 AB L Schedule";
+        Schedule: TestPage "LT R6806 AB L Sched";
     begin
         Setup();
         Schedule.OpenEdit();
@@ -1209,7 +1209,7 @@ codeunit 94575 "LT R6806 Lookup Part Tests"
     [HandlerFunctions('PickSecondResource')]
     procedure R6806_ABL_OtherBNextFirst()
     var
-        Schedule: TestPage "LT R6806 AB L Schedule";
+        Schedule: TestPage "LT R6806 AB L Sched";
     begin
         Setup();
         Schedule.OpenEdit();
@@ -1233,7 +1233,7 @@ codeunit 94575 "LT R6806 Lookup Part Tests"
     [HandlerFunctions('CancelLookup')]
     procedure R6806_ABL_OtherBNextFirstAfterCancel()
     var
-        Schedule: TestPage "LT R6806 AB L Schedule";
+        Schedule: TestPage "LT R6806 AB L Sched";
     begin
         Setup();
         Schedule.OpenEdit();
@@ -1257,7 +1257,7 @@ codeunit 94575 "LT R6806 Lookup Part Tests"
     [HandlerFunctions('PickSecondResource')]
     procedure R6806_LAB_OtherBFirstReadAfterLookup()
     var
-        Schedule: TestPage "LT R6806 L AB Schedule";
+        Schedule: TestPage "LT R6806 L AB Sched";
     begin
         Setup();
         Schedule.OpenEdit();
@@ -1280,7 +1280,7 @@ codeunit 94575 "LT R6806 Lookup Part Tests"
     [HandlerFunctions('PickSecondResource')]
     procedure R6806_ABLK_DetailsFirstReadAfterLookup()
     var
-        Schedule: TestPage "LT R6806 AB L Card Schedule";
+        Schedule: TestPage "LT R6806 AB L Card Sched";
     begin
         Setup();
         Schedule.OpenEdit();
@@ -1305,7 +1305,7 @@ codeunit 94575 "LT R6806 Lookup Part Tests"
     [HandlerFunctions('PickSecondResource')]
     procedure R6806_ALB_OtherBFirstReadAfterLookup()
     var
-        Schedule: TestPage "LT R6806 A L B Schedule";
+        Schedule: TestPage "LT R6806 A L B Sched";
     begin
         Setup();
         Schedule.OpenEdit();
@@ -1328,7 +1328,7 @@ codeunit 94575 "LT R6806 Lookup Part Tests"
     [HandlerFunctions('PickSecondResource')]
     procedure R6806_ABCL_OtherCFirstReadAfterLookup()
     var
-        Schedule: TestPage "LT R6806 ABC L Schedule";
+        Schedule: TestPage "LT R6806 ABC L Sched";
     begin
         Setup();
         Schedule.OpenEdit();
@@ -1354,7 +1354,7 @@ codeunit 94575 "LT R6806 Lookup Part Tests"
     procedure R6806_ReporterABL_LookupShowsPickedResource()
     var
         Setting: Record "LT Y15 Lookup Setting";
-        Schedule: TestPage "LT R6806 Reporter AB L Schedule";
+        Schedule: TestPage "LT R6806 Rep AB L Sched";
     begin
         Setup();
         Schedule.OpenEdit();
@@ -1376,7 +1376,7 @@ codeunit 94575 "LT R6806 Lookup Part Tests"
     procedure R6806_ReporterABLK_LookupShowsPickedResource()
     var
         Setting: Record "LT Y15 Lookup Setting";
-        Schedule: TestPage "LT R6806 Reporter AB L Card Schedule";
+        Schedule: TestPage "LT R6806 Rep AB L Card Sched";
     begin
         Setup();
         Schedule.OpenEdit();
@@ -1417,27 +1417,27 @@ codeunit 94575 "LT R6806 Lookup Part Tests"
     end;
 
 
-    local procedure SnapABL(var Schedule: TestPage "LT R6806 AB L Schedule"): Text
+    local procedure SnapABL(var Schedule: TestPage "LT R6806 AB L Sched"): Text
     begin
         exit(Schedule.ResourceNo.Value() + '|' + Schedule.HeaderCurrent.Value() + '|' + Schedule."No.".Value() + '|' + Schedule.CurrentNo.Value() + '|' + Schedule.HostFn.Value() + '|' + Schedule.OtherA."No.".Value() + '|' + Schedule.OtherA.OtherACurrent.Value() + '|' + Schedule.OtherA.OtherAFn.Value() + '|' + Schedule.OtherB."No.".Value() + '|' + Schedule.OtherB.OtherBCurrent.Value() + '|' + Schedule.OtherB.OtherBFn.Value() + '|' + Schedule.Resources."No.".Value() + '|' + Schedule.Resources.PartCurrent.Value() + '|' + Schedule.Resources.PartFn.Value());
     end;
 
-    local procedure SnapLAB(var Schedule: TestPage "LT R6806 L AB Schedule"): Text
+    local procedure SnapLAB(var Schedule: TestPage "LT R6806 L AB Sched"): Text
     begin
         exit(Schedule.ResourceNo.Value() + '|' + Schedule.HeaderCurrent.Value() + '|' + Schedule."No.".Value() + '|' + Schedule.CurrentNo.Value() + '|' + Schedule.HostFn.Value() + '|' + Schedule.Resources."No.".Value() + '|' + Schedule.Resources.PartCurrent.Value() + '|' + Schedule.Resources.PartFn.Value() + '|' + Schedule.OtherA."No.".Value() + '|' + Schedule.OtherA.OtherACurrent.Value() + '|' + Schedule.OtherA.OtherAFn.Value() + '|' + Schedule.OtherB."No.".Value() + '|' + Schedule.OtherB.OtherBCurrent.Value() + '|' + Schedule.OtherB.OtherBFn.Value());
     end;
 
-    local procedure SnapALB(var Schedule: TestPage "LT R6806 A L B Schedule"): Text
+    local procedure SnapALB(var Schedule: TestPage "LT R6806 A L B Sched"): Text
     begin
         exit(Schedule.ResourceNo.Value() + '|' + Schedule.HeaderCurrent.Value() + '|' + Schedule."No.".Value() + '|' + Schedule.CurrentNo.Value() + '|' + Schedule.HostFn.Value() + '|' + Schedule.OtherA."No.".Value() + '|' + Schedule.OtherA.OtherACurrent.Value() + '|' + Schedule.OtherA.OtherAFn.Value() + '|' + Schedule.Resources."No.".Value() + '|' + Schedule.Resources.PartCurrent.Value() + '|' + Schedule.Resources.PartFn.Value() + '|' + Schedule.OtherB."No.".Value() + '|' + Schedule.OtherB.OtherBCurrent.Value() + '|' + Schedule.OtherB.OtherBFn.Value());
     end;
 
-    local procedure SnapABLK(var Schedule: TestPage "LT R6806 AB L Card Schedule"): Text
+    local procedure SnapABLK(var Schedule: TestPage "LT R6806 AB L Card Sched"): Text
     begin
         exit(Schedule.ResourceNo.Value() + '|' + Schedule.HeaderCurrent.Value() + '|' + Schedule."No.".Value() + '|' + Schedule.CurrentNo.Value() + '|' + Schedule.HostFn.Value() + '|' + Schedule.OtherA."No.".Value() + '|' + Schedule.OtherA.OtherACurrent.Value() + '|' + Schedule.OtherA.OtherAFn.Value() + '|' + Schedule.OtherB."No.".Value() + '|' + Schedule.OtherB.OtherBCurrent.Value() + '|' + Schedule.OtherB.OtherBFn.Value() + '|' + Schedule.Resources."No.".Value() + '|' + Schedule.Resources.PartCurrent.Value() + '|' + Schedule.Resources.PartFn.Value() + '|' + Schedule.Details."No.".Value() + '|' + Schedule.Details.CardCurrent.Value() + '|' + Schedule.Details.CardFn.Value());
     end;
 
-    local procedure SnapABCL(var Schedule: TestPage "LT R6806 ABC L Schedule"): Text
+    local procedure SnapABCL(var Schedule: TestPage "LT R6806 ABC L Sched"): Text
     begin
         exit(Schedule.ResourceNo.Value() + '|' + Schedule.HeaderCurrent.Value() + '|' + Schedule."No.".Value() + '|' + Schedule.CurrentNo.Value() + '|' + Schedule.HostFn.Value() + '|' + Schedule.OtherA."No.".Value() + '|' + Schedule.OtherA.OtherACurrent.Value() + '|' + Schedule.OtherA.OtherAFn.Value() + '|' + Schedule.OtherB."No.".Value() + '|' + Schedule.OtherB.OtherBCurrent.Value() + '|' + Schedule.OtherB.OtherBFn.Value() + '|' + Schedule.OtherC."No.".Value() + '|' + Schedule.OtherC.OtherCCurrent.Value() + '|' + Schedule.OtherC.OtherCFn.Value() + '|' + Schedule.Resources."No.".Value() + '|' + Schedule.Resources.PartCurrent.Value() + '|' + Schedule.Resources.PartFn.Value());
     end;
