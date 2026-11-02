@@ -281,4 +281,27 @@ codeunit 73193 "LT P163 AllObj Namespace"
         Observer.Expect('get TableData 0', 'No');
         Observer.Verify();
     end;
+
+    // Writer Y79 (al-runner issue 6643, rt-install-1102 "needs probe"): the AllObjWithCaption row of type TableData of a table of the app under test and of a Base
+    // Application table: Object Name, caption, subtype, AL Namespace, App Package ID, App Runtime Package ID and App ID (the last column only AllObjWithCaption has),
+    // and how each compares with the Table row and with the AllObj TableData row. Describe is in cross-app fixture A (tests/al-language-xapp-a/Y79XaObjects.al);
+    // the same text is observed by install code in install/lt-y79-install-unrelated/Y79InstallUnrelated.al (Y79_Install_AllObjTableDataColumns).
+    [Test]
+    procedure Y79_AllObjWithCaption_TableDataRow_AppColumns()
+    var
+        Observer: Codeunit "Probe Observer";
+        Render: Codeunit "LT Y79 XA Render";
+        Info: ModuleInfo;
+    begin
+        NavApp.GetCurrentModuleInfo(Info);
+        Observer.Observe('table of this app', Render.Describe(Database::"LT P163 NS Table", Info));
+        Observer.Observe('Base Application table Contact', Render.Describe(Database::Contact, Info));
+        Observer.Observe('Base Application table Customer', Render.Describe(Database::Customer, Info));
+        Observer.Observe('platform table Company', Render.Describe(Database::Company, Info));
+        Observer.Expect('table of this app', 'cap name=LT P163 NS Table caption=LT P163 NS Table subtype=[Normal] ns=[P163Probe.Names] pkg=own rt=own rt=pkg:Yes app=own |same as Table row: pkg=Yes rt=Yes app=Yes ns=Yes |AllObj same: pkg=Yes rt=Yes ns=Yes');
+        Observer.Expect('Base Application table Contact', 'cap name=Contact caption=Contact subtype=[Normal] ns=[Microsoft.CRM.Contact] pkg=base rt=other rt=pkg:No app=base |same as Table row: pkg=Yes rt=Yes app=Yes ns=Yes |AllObj same: pkg=Yes rt=Yes ns=Yes');
+        Observer.Expect('Base Application table Customer', 'cap name=Customer caption=Customer subtype=[Normal] ns=[Microsoft.Sales.Customer] pkg=base rt=other rt=pkg:No app=base |same as Table row: pkg=Yes rt=Yes app=Yes ns=Yes |AllObj same: pkg=Yes rt=Yes ns=Yes');
+        Observer.Expect('platform table Company', 'cap name=Company caption=Company subtype=[Normal] ns=[System.Environment] pkg=other rt=null rt=pkg:No app=null |same as Table row: pkg=Yes rt=Yes app=Yes ns=Yes |AllObj same: pkg=Yes rt=Yes ns=Yes');
+        Observer.Verify();
+    end;
 }
