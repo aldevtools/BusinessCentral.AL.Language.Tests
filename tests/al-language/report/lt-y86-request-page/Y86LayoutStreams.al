@@ -37,14 +37,16 @@ codeunit 94588 "LT Y86 Layout Streams"
     local procedure Head(var InS: InStream): Text
     var
         B: Byte;
+        Code: Integer;
         Result: Text;
         I: Integer;
     begin
-        for I := 1 to 6 do begin
+        for I := 1 to 8 do begin
             if InS.EOS() then
                 break;
             InS.Read(B);
-            Result += Format(B) + ' ';
+            Code := B;
+            Result += Format(Code) + ' ';
         end;
         exit(Result);
     end;
@@ -59,6 +61,7 @@ codeunit 94588 "LT Y86 Layout Streams"
         Text1: Text;
         Line: Text;
         Lines: Integer;
+        Total: Integer;
         Last: Text;
     begin
         Report.RdlcLayout(Report::"LT Y86 Rdlc Report", InS);
@@ -74,9 +77,17 @@ codeunit 94588 "LT Y86 Layout Streams"
             InS.ReadText(Line);
             Lines += 1;
             Last := Line;
+            if Lines = 1 then
+                Obs.Observe('line 1', Line);
             if Lines = 2 then
                 Text1 := Line;
+            if Lines = 3 then
+                Obs.Observe('line 3', Line);
+            if Lines = 4 then
+                Obs.Observe('line 4', Line);
+            Total += StrLen(Line);
         end;
+        Obs.Observe('chars in all lines', Format(Total));
         Obs.Observe('lines', Format(Lines));
         Obs.Observe('line 2', Text1);
         Obs.Observe('last line', Last);

@@ -225,7 +225,10 @@ codeunit 94582 "LT Y86 Caption Tests"
                 end;
             3:
                 begin
-                    RP.SetCaption.Invoke();
+                    ClearLastError();
+                    asserterror RP.SetCaption.Invoke();
+                    Seen += ';invoke=' + GetLastErrorCode() + ': ' + GetLastErrorText();
+                    ClearLastError();
                     Seen += ';after_action=' + RP.Caption();
                 end;
         end;

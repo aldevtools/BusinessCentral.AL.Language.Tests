@@ -152,6 +152,7 @@ codeunit 94586 "LT Y86 Filter Tests"
         Row('B1');
         Row('B2');
         Row('C1');
+        Commit();
     end;
 
     local procedure Row(NewCode: Code[20])
