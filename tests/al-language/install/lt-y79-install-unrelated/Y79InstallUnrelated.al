@@ -157,14 +157,14 @@ codeunit 94170 "LT Y79 Install Unrelated"
     var
         Observer: Codeunit "Probe Observer";
         App: Text;
-        Event: Text;
+        EventName: Text;
         Sub: Text;
     begin
         foreach App in Installs() do
             foreach Sub in Subs() do
-                foreach Event in Events() do begin
-                    Observer.Observe(Sub + ' ' + Event + ' in the per-database install of ' + App, Format(Has(Sub + '-' + Event + '|' + App + '|db|')));
-                    Observer.Expect(Sub + ' ' + Event + ' in the per-database install of ' + App, 'No');
+                foreach EventName in EventNames() do begin
+                    Observer.Observe(Sub + ' ' + EventName + ' in the per-database install of ' + App, Format(Has(Sub + '-' + EventName + '|' + App + '|db|')));
+                    Observer.Expect(Sub + ' ' + EventName + ' in the per-database install of ' + App, 'No');
                 end;
         Observer.Verify();
     end;
@@ -178,7 +178,7 @@ codeunit 94170 "LT Y79 Install Unrelated"
         exit(Result);
     end;
 
-    local procedure Events(): List of [Text]
+    local procedure EventNames(): List of [Text]
     var
         Result: List of [Text];
     begin
@@ -195,16 +195,16 @@ codeunit 94170 "LT Y79 Install Unrelated"
     var
         Observer: Codeunit "Probe Observer";
         App: Text;
-        Event: Text;
+        EventName: Text;
         Where: Text;
     begin
         foreach App in Installs() do begin
             Where := '|' + App + '|co|t=61371';
             if ActiveIn('B', App) and ActiveIn('D', App) then
-                foreach Event in Events() do begin
-                    if Event <> 'globalinsert' then begin
-                        Observer.Observe('B before D ' + Event + ' in ' + App, Format(First('B-' + Event + Where) < First('D-' + Event + Where)));
-                        Observer.Expect('B before D ' + Event + ' in ' + App, 'Yes');
+                foreach EventName in EventNames() do begin
+                    if EventName <> 'globalinsert' then begin
+                        Observer.Observe('B before D ' + EventName + ' in ' + App, Format(First('B-' + EventName + Where) < First('D-' + EventName + Where)));
+                        Observer.Expect('B before D ' + EventName + ' in ' + App, 'Yes');
                     end;
                 end;
             if ActiveIn('B', App) then begin
