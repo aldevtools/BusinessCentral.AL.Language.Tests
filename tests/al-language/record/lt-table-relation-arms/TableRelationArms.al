@@ -398,7 +398,11 @@ codeunit 67177 "LT TR Arms"
         Observer.Observe('row2_qty0_B_0', Y76Refs(2));
         Observer.Observe('row3_qty2_C_2.9', Y76Refs(3));
         Observer.Observe('row4_qty7_D_3', Y76Refs(4));
-        Observer.Finish();
+        Observer.Expect('row1_qty-1_A_0.5', 'P2,P2,P1,P2,P2,P1,P2');
+        Observer.Expect('row2_qty0_B_0', 'P1,P1,P1,P1,P1,P1,P2');
+        Observer.Expect('row3_qty2_C_2.9', 'P1,P1,P2,P2,P2,P1,P2');
+        Observer.Expect('row4_qty7_D_3', 'P1,P2,P1,P1,P1,P2,P2');
+        Observer.Verify();
     end;
 
     local procedure Y76SeedKeyed()
@@ -470,7 +474,17 @@ codeunit 67177 "LT TR Arms"
         Observer.Observe('twokeys_A', Y76Outcome(4, 'A'));
         Observer.Observe('twokeys_Z_excluded', Y76Outcome(4, 'Z'));
         Observer.Observe('twokeys_C_other_group', Y76Outcome(4, 'C'));
-        Observer.Finish();
+        Observer.Expect('keynonkey_A', 'ok');
+        Observer.Expect('keynonkey_B_inactive', 'DB:NothingInsideFilter');
+        Observer.Expect('keynonkey_C_other_group', 'DB:NothingInsideFilter');
+        Observer.Expect('keynonkey_missing', 'DB:NothingInsideFilter');
+        Observer.Expect('keyonly_A', 'ok');
+        Observer.Expect('keyonly_C_other_group', 'DB:RecordNotFound');
+        Observer.Expect('keyonly_missing', 'DB:RecordNotFound');
+        Observer.Expect('twokeys_A', 'ok');
+        Observer.Expect('twokeys_Z_excluded', 'DB:RecordNotFound');
+        Observer.Expect('twokeys_C_other_group', 'DB:RecordNotFound');
+        Observer.Verify();
     end;
 
     [Test]
@@ -487,6 +501,14 @@ codeunit 67177 "LT TR Arms"
         Observer.Observe('two_F_flag', Y76Outcome(6, 'F'));
         Observer.Observe('two_missing', Y76Outcome(6, 'MISSING'));
         Observer.Observe('two_blank', Y76Outcome(6, ''));
-        Observer.Finish();
+        Observer.Expect('three_A', 'ok');
+        Observer.Expect('three_D_flag', 'DB:NothingInsideFilter');
+        Observer.Expect('three_B_inactive', 'DB:NothingInsideFilter');
+        Observer.Expect('three_missing', 'DB:NothingInsideFilter');
+        Observer.Expect('two_A', 'ok');
+        Observer.Expect('two_F_flag', 'DB:NothingInsideFilter');
+        Observer.Expect('two_missing', 'DB:NothingInsideFilter');
+        Observer.Expect('two_blank', 'ok');
+        Observer.Verify();
     end;
 }

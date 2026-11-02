@@ -735,7 +735,21 @@ codeunit 74068 "LT Table Relation Quotes"
     begin
         Y76Probe(2);
         Y76Probe(3);
-        Obs.Finish();
+        Obs.Expect('f2_R1', 'ok');
+        Obs.Expect('f2_R2', 'ok');
+        Obs.Expect('f2_R3', 'DB:NothingInsideFilter');
+        Obs.Expect('f2_R4', 'ok');
+        Obs.Expect('f2_R5', 'DB:NothingInsideFilter');
+        Obs.Expect('f2_', 'ok');
+        Obs.Expect('f2_NOPE', 'DB:NothingInsideFilter');
+        Obs.Expect('f3_R1', 'DB:NothingInsideFilter');
+        Obs.Expect('f3_R2', 'ok');
+        Obs.Expect('f3_R3', 'DB:NothingInsideFilter');
+        Obs.Expect('f3_R4', 'DB:NothingInsideFilter');
+        Obs.Expect('f3_R5', 'DB:NothingInsideFilter');
+        Obs.Expect('f3_', 'ok');
+        Obs.Expect('f3_NOPE', 'DB:NothingInsideFilter');
+        Obs.Verify();
     end;
 
     [Test]
@@ -743,7 +757,21 @@ codeunit 74068 "LT Table Relation Quotes"
     begin
         Y76Probe(4);
         Y76Probe(5);
-        Obs.Finish();
+        Obs.Expect('f4_R1', 'DB:NothingInsideFilter');
+        Obs.Expect('f4_R2', 'DB:NothingInsideFilter');
+        Obs.Expect('f4_R3', 'DB:NothingInsideFilter');
+        Obs.Expect('f4_R4', 'DB:NothingInsideFilter');
+        Obs.Expect('f4_R5', 'DB:NothingInsideFilter');
+        Obs.Expect('f4_', 'ok');
+        Obs.Expect('f4_NOPE', 'DB:NothingInsideFilter');
+        Obs.Expect('f5_R1', 'DB:NothingInsideFilter');
+        Obs.Expect('f5_R2', 'ok');
+        Obs.Expect('f5_R3', 'ok');
+        Obs.Expect('f5_R4', 'DB:NothingInsideFilter');
+        Obs.Expect('f5_R5', 'ok');
+        Obs.Expect('f5_', 'ok');
+        Obs.Expect('f5_NOPE', 'DB:NothingInsideFilter');
+        Obs.Verify();
     end;
 
     [Test]
@@ -751,7 +779,21 @@ codeunit 74068 "LT Table Relation Quotes"
     begin
         Y76Probe(6);
         Y76Probe(7);
-        Obs.Finish();
+        Obs.Expect('f6_R1', 'ok');
+        Obs.Expect('f6_R2', 'ok');
+        Obs.Expect('f6_R3', 'DB:NothingInsideFilter');
+        Obs.Expect('f6_R4', 'DB:NothingInsideFilter');
+        Obs.Expect('f6_R5', 'ok');
+        Obs.Expect('f6_', 'ok');
+        Obs.Expect('f6_NOPE', 'DB:NothingInsideFilter');
+        Obs.Expect('f7_R1', 'DB:NothingInsideFilter');
+        Obs.Expect('f7_R2', 'ok');
+        Obs.Expect('f7_R3', 'DB:NothingInsideFilter');
+        Obs.Expect('f7_R4', 'DB:NothingInsideFilter');
+        Obs.Expect('f7_R5', 'DB:NothingInsideFilter');
+        Obs.Expect('f7_', 'ok');
+        Obs.Expect('f7_NOPE', 'DB:NothingInsideFilter');
+        Obs.Verify();
     end;
 
     [Test]
@@ -759,7 +801,21 @@ codeunit 74068 "LT Table Relation Quotes"
     begin
         Y76Probe(8);
         Y76Probe(9);
-        Obs.Finish();
+        Obs.Expect('f8_R1', 'DB:NothingInsideFilter');
+        Obs.Expect('f8_R2', 'DB:NothingInsideFilter');
+        Obs.Expect('f8_R3', 'DB:NothingInsideFilter');
+        Obs.Expect('f8_R4', 'DB:NothingInsideFilter');
+        Obs.Expect('f8_R5', 'DB:NothingInsideFilter');
+        Obs.Expect('f8_', 'ok');
+        Obs.Expect('f8_NOPE', 'DB:NothingInsideFilter');
+        Obs.Expect('f9_R1', 'DB:NothingInsideFilter');
+        Obs.Expect('f9_R2', 'ok');
+        Obs.Expect('f9_R3', 'ok');
+        Obs.Expect('f9_R4', 'ok');
+        Obs.Expect('f9_R5', 'DB:NothingInsideFilter');
+        Obs.Expect('f9_', 'ok');
+        Obs.Expect('f9_NOPE', 'DB:NothingInsideFilter');
+        Obs.Verify();
     end;
 
     [Test]
@@ -767,7 +823,21 @@ codeunit 74068 "LT Table Relation Quotes"
     begin
         Y76Probe(10);
         Y76Probe(11);
-        Obs.Finish();
+        Obs.Expect('f10_R1', 'DB:NothingInsideFilter');
+        Obs.Expect('f10_R2', 'ok');
+        Obs.Expect('f10_R3', 'ok');
+        Obs.Expect('f10_R4', 'ok');
+        Obs.Expect('f10_R5', 'DB:NothingInsideFilter');
+        Obs.Expect('f10_', 'ok');
+        Obs.Expect('f10_NOPE', 'DB:NothingInsideFilter');
+        Obs.Expect('f11_R1', 'DB:NothingInsideFilter');
+        Obs.Expect('f11_R2', 'DB:NothingInsideFilter');
+        Obs.Expect('f11_R3', 'ok');
+        Obs.Expect('f11_R4', 'ok');
+        Obs.Expect('f11_R5', 'DB:NothingInsideFilter');
+        Obs.Expect('f11_', 'ok');
+        Obs.Expect('f11_NOPE', 'DB:NothingInsideFilter');
+        Obs.Verify();
     end;
 
     local procedure Y76SeedBlank()
@@ -862,7 +932,17 @@ codeunit 74068 "LT Table Relation Quotes"
         Y76WhereCodes(Codes);
         Y76ProbeBlank(3, 0, Codes);
         Y76ProbeBlank(4, 0, Codes);
-        Obs.Finish();
+        Obs.Expect('f3k0_B1', 'ok');
+        Obs.Expect('f3k0_B2', 'DB:NothingInsideFilter');
+        Obs.Expect('f3k0_B3', 'DB:NothingInsideFilter');
+        Obs.Expect('f3k0_', 'ok');
+        Obs.Expect('f3k0_NOPE', 'DB:NothingInsideFilter');
+        Obs.Expect('f4k0_B1', 'ok');
+        Obs.Expect('f4k0_B2', 'ok');
+        Obs.Expect('f4k0_B3', 'DB:NothingInsideFilter');
+        Obs.Expect('f4k0_', 'ok');
+        Obs.Expect('f4k0_NOPE', 'DB:NothingInsideFilter');
+        Obs.Verify();
     end;
 
     [Test]
@@ -874,7 +954,17 @@ codeunit 74068 "LT Table Relation Quotes"
         Y76WhereCodes(Codes);
         Y76ProbeBlank(5, 0, Codes);
         Y76ProbeBlank(6, 0, Codes);
-        Obs.Finish();
+        Obs.Expect('f5k0_B1', 'DB:NothingInsideFilter');
+        Obs.Expect('f5k0_B2', 'ok');
+        Obs.Expect('f5k0_B3', 'ok');
+        Obs.Expect('f5k0_', 'ok');
+        Obs.Expect('f5k0_NOPE', 'DB:NothingInsideFilter');
+        Obs.Expect('f6k0_B1', 'ok');
+        Obs.Expect('f6k0_B2', 'DB:NothingInsideFilter');
+        Obs.Expect('f6k0_B3', 'DB:NothingInsideFilter');
+        Obs.Expect('f6k0_', 'ok');
+        Obs.Expect('f6k0_NOPE', 'DB:NothingInsideFilter');
+        Obs.Verify();
     end;
 
     [Test]
@@ -886,7 +976,17 @@ codeunit 74068 "LT Table Relation Quotes"
         Y76WhereCodes(Codes);
         Y76ProbeBlank(7, 0, Codes);
         Y76ProbeBlank(8, 0, Codes);
-        Obs.Finish();
+        Obs.Expect('f7k0_B1', 'ok');
+        Obs.Expect('f7k0_B2', 'ok');
+        Obs.Expect('f7k0_B3', 'DB:NothingInsideFilter');
+        Obs.Expect('f7k0_', 'ok');
+        Obs.Expect('f7k0_NOPE', 'DB:NothingInsideFilter');
+        Obs.Expect('f8k0_B1', 'ok');
+        Obs.Expect('f8k0_B2', 'ok');
+        Obs.Expect('f8k0_B3', 'ok');
+        Obs.Expect('f8k0_', 'ok');
+        Obs.Expect('f8k0_NOPE', 'DB:NothingInsideFilter');
+        Obs.Verify();
     end;
 
     local procedure Y76ArmCodes(var Codes: List of [Text])
@@ -908,7 +1008,25 @@ codeunit 74068 "LT Table Relation Quotes"
             Y76ProbeBlank(9, K, Codes);
             Y76ProbeBlank(10, K, Codes);
         end;
-        Obs.Finish();
+        Obs.Expect('f9k0_X1', 'DB:PrimRecordNotFound');
+        Obs.Expect('f9k0_Y1', 'ok');
+        Obs.Expect('f9k0_NOPE', 'DB:PrimRecordNotFound');
+        Obs.Expect('f10k0_X1', 'ok');
+        Obs.Expect('f10k0_Y1', 'DB:PrimRecordNotFound');
+        Obs.Expect('f10k0_NOPE', 'DB:PrimRecordNotFound');
+        Obs.Expect('f9k1_X1', 'ok');
+        Obs.Expect('f9k1_Y1', 'DB:PrimRecordNotFound');
+        Obs.Expect('f9k1_NOPE', 'DB:PrimRecordNotFound');
+        Obs.Expect('f10k1_X1', 'ok');
+        Obs.Expect('f10k1_Y1', 'DB:PrimRecordNotFound');
+        Obs.Expect('f10k1_NOPE', 'DB:PrimRecordNotFound');
+        Obs.Expect('f9k2_X1', 'ok');
+        Obs.Expect('f9k2_Y1', 'DB:PrimRecordNotFound');
+        Obs.Expect('f9k2_NOPE', 'DB:PrimRecordNotFound');
+        Obs.Expect('f10k2_X1', 'ok');
+        Obs.Expect('f10k2_Y1', 'DB:PrimRecordNotFound');
+        Obs.Expect('f10k2_NOPE', 'DB:PrimRecordNotFound');
+        Obs.Verify();
     end;
 
     [Test]
@@ -923,7 +1041,25 @@ codeunit 74068 "LT Table Relation Quotes"
             Y76ProbeBlank(11, K, Codes);
             Y76ProbeBlank(12, K, Codes);
         end;
-        Obs.Finish();
+        Obs.Expect('f11k0_X1', 'DB:PrimRecordNotFound');
+        Obs.Expect('f11k0_Y1', 'ok');
+        Obs.Expect('f11k0_NOPE', 'DB:PrimRecordNotFound');
+        Obs.Expect('f12k0_X1', 'DB:PrimRecordNotFound');
+        Obs.Expect('f12k0_Y1', 'ok');
+        Obs.Expect('f12k0_NOPE', 'DB:PrimRecordNotFound');
+        Obs.Expect('f11k1_X1', 'ok');
+        Obs.Expect('f11k1_Y1', 'DB:PrimRecordNotFound');
+        Obs.Expect('f11k1_NOPE', 'DB:PrimRecordNotFound');
+        Obs.Expect('f12k1_X1', 'DB:PrimRecordNotFound');
+        Obs.Expect('f12k1_Y1', 'ok');
+        Obs.Expect('f12k1_NOPE', 'DB:PrimRecordNotFound');
+        Obs.Expect('f11k2_X1', 'ok');
+        Obs.Expect('f11k2_Y1', 'DB:PrimRecordNotFound');
+        Obs.Expect('f11k2_NOPE', 'DB:PrimRecordNotFound');
+        Obs.Expect('f12k2_X1', 'ok');
+        Obs.Expect('f12k2_Y1', 'DB:PrimRecordNotFound');
+        Obs.Expect('f12k2_NOPE', 'DB:PrimRecordNotFound');
+        Obs.Verify();
     end;
 
     [Test]
@@ -936,6 +1072,15 @@ codeunit 74068 "LT Table Relation Quotes"
         Y76ArmCodes(Codes);
         for K := 0 to 2 do
             Y76ProbeBlank(13, K, Codes);
-        Obs.Finish();
+        Obs.Expect('f13k0_X1', 'ok');
+        Obs.Expect('f13k0_Y1', 'DB:PrimRecordNotFound');
+        Obs.Expect('f13k0_NOPE', 'DB:PrimRecordNotFound');
+        Obs.Expect('f13k1_X1', 'ok');
+        Obs.Expect('f13k1_Y1', 'DB:PrimRecordNotFound');
+        Obs.Expect('f13k1_NOPE', 'DB:PrimRecordNotFound');
+        Obs.Expect('f13k2_X1', 'ok');
+        Obs.Expect('f13k2_Y1', 'DB:PrimRecordNotFound');
+        Obs.Expect('f13k2_NOPE', 'DB:PrimRecordNotFound');
+        Obs.Verify();
     end;
 }

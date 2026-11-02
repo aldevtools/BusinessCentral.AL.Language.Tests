@@ -257,7 +257,8 @@ codeunit 94068 "LT Y76 VB Tests"
         Host.OpenView();
         Host.OpenBlank.Invoke();
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('opened', 'blank1,blank3,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -270,7 +271,8 @@ codeunit 94068 "LT Y76 VB Tests"
         Host.OpenView();
         Host.OpenNotBlank.Invoke();
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('opened', 'dated2,dated4,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -283,7 +285,8 @@ codeunit 94068 "LT Y76 VB Tests"
         Host.OpenView();
         Host.OpenConst.Invoke();
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('opened', 'blank1,blank3,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -312,7 +315,10 @@ codeunit 94068 "LT Y76 VB Tests"
             until not Host.ConstPart.Next();
         Observer.Observe('const part', Result);
         Host.Close();
-        Observer.Finish();
+        Observer.Expect('blank part', 'blank1,blank3,');
+        Observer.Expect('not blank part', 'dated2,dated4,');
+        Observer.Expect('const part', 'blank1,blank3,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -331,7 +337,9 @@ codeunit 94068 "LT Y76 VB Tests"
         NotBlankReport.UseRequestPage(false);
         NotBlankReport.Run();
         Observer.Observe('not blank', Log.Get());
-        Observer.Finish();
+        Observer.Expect('blank', 'blank1,blank3,');
+        Observer.Expect('not blank', 'dated2,dated4,');
+        Observer.Verify();
     end;
 
     [Test]
@@ -341,12 +349,16 @@ codeunit 94068 "LT Y76 VB Tests"
         OutS: OutStream;
         InS: InStream;
         Xml: Text;
+        Line: Text;
     begin
         Seed();
         TempBlob.CreateOutStream(OutS);
         Xmlport.Export(Xmlport::"LT Y76 VB Xmlport", OutS);
         TempBlob.CreateInStream(InS, TextEncoding::UTF8);
-        InS.ReadText(Xml);
+        while not InS.EOS() do begin
+            InS.ReadText(Line);
+            Xml += Line + '|';
+        end;
         Observer.Observe('xml', Xml);
         Observer.Finish();
     end;
@@ -363,6 +375,7 @@ codeunit 94068 "LT Y76 VB Tests"
             Result += Q.Info + ',';
         Q.Close();
         Observer.Observe('query', Result);
-        Observer.Finish();
+        Observer.Expect('query', 'blank1,blank3,');
+        Observer.Verify();
     end;
 }

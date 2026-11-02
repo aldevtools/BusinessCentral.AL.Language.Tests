@@ -645,7 +645,19 @@ codeunit 89030 "LT SE Header Values"
         Req(Observer, 'y1', 'If-Modified-Since', 'Sunday, 06-Nov-1 08:49:37 GMT');
         Req(Observer, 'y1994', 'If-Modified-Since', 'Sunday, 06-Nov-1994 08:49:37 GMT');
         Req(Observer, 'short_weekday', 'If-Modified-Since', 'Sun, 06-Nov-94 08:49:37 GMT');
-        Observer.Finish();
+        Observer.Expect('y00', 'ret=No get=E');
+        Observer.Expect('y29', 'ret=No get=E');
+        Observer.Expect('y30', 'ret=No get=E');
+        Observer.Expect('y49', 'ret=No get=E');
+        Observer.Expect('y50', 'ret=No get=E');
+        Observer.Expect('y68', 'ret=No get=E');
+        Observer.Expect('y69', 'ret=No get=E');
+        Observer.Expect('y70', 'ret=No get=E');
+        Observer.Expect('y99', 'ret=No get=E');
+        Observer.Expect('y1', 'ret=No get=E');
+        Observer.Expect('y1994', 'ret=No get=E');
+        Observer.Expect('short_weekday', 'ret=No get=E');
+        Observer.Verify();
     end;
 
     [Test]
@@ -659,7 +671,13 @@ codeunit 89030 "LT SE Header Values"
         Req(Observer, 'weekday_p1400', 'If-Modified-Since', 'Sun, 06 Nov 1994 08:49:37 +1400');
         Req(Observer, 'weekday_m1200', 'If-Modified-Since', 'Sun, 06 Nov 1994 08:49:37 -1200');
         Req(Observer, 'weekday_wrong_day', 'If-Modified-Since', 'Mon, 06 Nov 1994 08:49:37 GMT');
-        Observer.Finish();
+        Observer.Expect('noweekday_gmt', 'ret=Yes n=1[Sun, 06 Nov 1994 08:49:37 GMT]');
+        Observer.Expect('noweekday_m0800', 'ret=Yes n=1[Sun, 06 Nov 1994 16:49:37 GMT]');
+        Observer.Expect('noweekday_p0530', 'ret=Yes n=1[Sun, 06 Nov 1994 03:19:37 GMT]');
+        Observer.Expect('weekday_p1400', 'ret=Yes n=1[Sat, 05 Nov 1994 18:49:37 GMT]');
+        Observer.Expect('weekday_m1200', 'ret=Yes n=1[Sun, 06 Nov 1994 20:49:37 GMT]');
+        Observer.Expect('weekday_wrong_day', 'ret=No get=E');
+        Observer.Verify();
     end;
 
     [Test]
@@ -674,7 +692,14 @@ codeunit 89030 "LT SE Header Values"
         Req(Observer, 'zone_none', 'If-Modified-Since', 'Sun, 06 Nov 1994 08:49:37');
         Req(Observer, 'offset_colon', 'If-Modified-Since', 'Sun, 06 Nov 1994 08:49:37 +05:30');
         Req(Observer, 'offset_short', 'If-Modified-Since', 'Sun, 06 Nov 1994 08:49:37 +01');
-        Observer.Finish();
+        Observer.Expect('zone_est', 'ret=No get=E');
+        Observer.Expect('zone_pst', 'ret=No get=E');
+        Observer.Expect('zone_z', 'ret=No get=E');
+        Observer.Expect('zone_ut', 'ret=No get=E');
+        Observer.Expect('zone_none', 'ret=Yes n=1[Sun, 06 Nov 1994 08:49:37 GMT]');
+        Observer.Expect('offset_colon', 'ret=Yes n=1[Sun, 06 Nov 1994 03:19:37 GMT]');
+        Observer.Expect('offset_short', 'ret=No get=E');
+        Observer.Verify();
     end;
 
     [Test]
@@ -688,7 +713,13 @@ codeunit 89030 "LT SE Header Values"
         Req(Observer, 'leap_day', 'If-Modified-Since', 'Tue, 29 Feb 2000 00:00:00 GMT');
         Req(Observer, 'bad_leap_day', 'If-Modified-Since', 'Thu, 29 Feb 2001 00:00:00 GMT');
         Req(Observer, 'hour_24', 'If-Modified-Since', 'Sun, 06 Nov 1994 24:00:00 GMT');
-        Observer.Finish();
+        Observer.Expect('no_seconds', 'ret=No get=E');
+        Observer.Expect('full_month', 'ret=No get=E');
+        Observer.Expect('iso', 'ret=No get=E');
+        Observer.Expect('leap_day', 'ret=Yes n=1[Tue, 29 Feb 2000 00:00:00 GMT]');
+        Observer.Expect('bad_leap_day', 'ret=No get=E');
+        Observer.Expect('hour_24', 'ret=No get=E');
+        Observer.Verify();
     end;
 
     [Test]
@@ -711,7 +742,22 @@ codeunit 89030 "LT SE Header Values"
         Cnt(Observer, 'expires_date', 'Expires', 'Sun, 06 Nov 1994 08:49:37 +0530');
         Cnt(Observer, 'lastmodified_y94', 'Last-Modified', 'Sunday, 06-Nov-94 08:49:37 GMT');
         Resp(Observer, 'date_resp_offset', 'Date', 'Sun, 06 Nov 1994 08:49:37 +0200');
-        Observer.Finish();
+        Observer.Expect('date_y94', 'ret=Yes n=1[Sun, 06 Nov 1994 08:49:37 GMT]');
+        Observer.Expect('ifrange_date', 'ret=Yes n=1[Sun, 06 Nov 1994 08:49:37 GMT]');
+        Observer.Expect('ifrange_etag', 'ret=Yes n=1["abc"]');
+        Observer.Expect('ifrange_weak', 'ret=Yes n=1[W/"abc"]');
+        Observer.Expect('ifrange_bad', 'ret=No get=E');
+        Observer.Expect('retryafter_seconds', 'ret=Yes n=1[120]');
+        Observer.Expect('retryafter_date', 'ret=Yes n=1[Sun, 06 Nov 1994 08:49:37 GMT]');
+        Observer.Expect('retryafter_neg', 'ret=No get=E');
+        Observer.Expect('retryafter_text', 'ret=No get=E');
+        Observer.Expect('age_num', 'ret=Yes n=1[60]');
+        Observer.Expect('age_neg', 'ret=No get=E');
+        Observer.Expect('age_text', 'ret=No get=E');
+        Observer.Expect('expires_date', 'ret=Yes n=1[Sun, 06 Nov 1994 03:19:37 GMT]');
+        Observer.Expect('lastmodified_y94', 'ret=Yes n=1[Sun, 06 Nov 1994 08:49:37 GMT]');
+        Observer.Expect('date_resp_offset', 'ret=Yes n=1[Sun, 06 Nov 1994 06:49:37 GMT]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -727,7 +773,15 @@ codeunit 89030 "LT SE Header Values"
         Req(Observer, 'accept_q_neg', 'Accept', 'text/html;q=-1');
         Req(Observer, 'accept_charset_param', 'Accept', 'text/html;charset=utf-8');
         Req(Observer, 'accept_quoted_param', 'Accept', 'text/html;charset="utf-8"');
-        Observer.Finish();
+        Observer.Expect('accept_q', 'ret=Yes n=2[text/html; q=0.9][application/json; q=0.8]');
+        Observer.Expect('accept_two_params', 'ret=Yes n=1[application/json; q=0.8; level=1]');
+        Observer.Expect('accept_wildcard', 'ret=Yes n=2[text/*; q=1.0][*/*; q=0.1]');
+        Observer.Expect('accept_q_bad', 'ret=Yes n=1[text/html; q=2]');
+        Observer.Expect('accept_q_four_digits', 'ret=Yes n=1[text/html; q=0.1234]');
+        Observer.Expect('accept_q_neg', 'ret=Yes n=1[text/html; q=-1]');
+        Observer.Expect('accept_charset_param', 'ret=Yes n=1[text/html; charset=utf-8]');
+        Observer.Expect('accept_quoted_param', 'ret=Yes n=1[text/html; charset="utf-8"]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -745,7 +799,17 @@ codeunit 89030 "LT SE Header Values"
         Req(Observer, 'useragent_product', 'User-Agent', 'Mozilla/5.0 (X11; Linux) Gecko/20100101');
         Req(Observer, 'useragent_two', 'User-Agent', 'a/1 b/2');
         Req(Observer, 'useragent_bad', 'User-Agent', '(unclosed');
-        Observer.Finish();
+        Observer.Expect('accept_encoding_q', 'ret=Yes n=3[gzip; q=1.0][identity; q=0.5][*; q=0.0]');
+        Observer.Expect('accept_encoding_bad', 'ret=No get=E');
+        Observer.Expect('accept_language_star', 'ret=Yes n=1[*]');
+        Observer.Expect('accept_language_three', 'ret=Yes n=3[da][en-gb; q=0.8][en; q=0.7]');
+        Observer.Expect('connection_list', 'ret=Yes n=2[keep-alive][Upgrade]');
+        Observer.Expect('expect_continue', 'ret=Yes n=1[100-continue]');
+        Observer.Expect('expect_other', 'ret=Yes n=1[foo=bar]');
+        Observer.Expect('useragent_product', 'ret=Yes n=3[Mozilla/5.0][(X11; Linux)][Gecko/20100101]');
+        Observer.Expect('useragent_two', 'ret=Yes n=2[a/1][b/2]');
+        Observer.Expect('useragent_bad', 'ret=No get=E');
+        Observer.Verify();
     end;
 
     [Test]
@@ -763,7 +827,17 @@ codeunit 89030 "LT SE Header Values"
         Resp(Observer, 'etag_unquoted', 'ETag', 'x');
         Resp(Observer, 'etag_weak', 'ETag', 'W/"x"');
         Resp(Observer, 'etag_list', 'ETag', '"a", "b"');
-        Observer.Finish();
+        Observer.Expect('ifmatch_list', 'ret=Yes n=2["a"]["b"]');
+        Observer.Expect('ifmatch_star', 'ret=Yes n=1[*]');
+        Observer.Expect('ifmatch_unquoted', 'ret=No get=E');
+        Observer.Expect('ifnonematch_weak_list', 'ret=Yes n=2[W/"a"]["b"]');
+        Observer.Expect('ifnonematch_quote_inside', 'ret=Yes n=1["a\"b"]');
+        Observer.Expect('ifnonematch_empty', 'ret=Yes n=1[""]');
+        Observer.Expect('etag_quoted', 'ret=Yes n=1["x y"]');
+        Observer.Expect('etag_unquoted', 'ret=No get=E');
+        Observer.Expect('etag_weak', 'ret=Yes n=1[W/"x"]');
+        Observer.Expect('etag_list', 'ret=No get=E');
+        Observer.Verify();
     end;
 
     [Test]
@@ -783,7 +857,27 @@ codeunit 89030 "LT SE Header Values"
         Cnt(Observer, 'contentdisposition_filename', 'Content-Disposition', 'attachment; filename="a b.txt"');
         Cnt(Observer, 'contentdisposition_unquoted', 'Content-Disposition', 'attachment; filename=a.txt');
         Cnt(Observer, 'contentdisposition_star', 'Content-Disposition', 'attachment; filename*=UTF-8''''%e2%82%ac.txt');
-        Observer.Finish();
+        Observer.Expect('contenttype_quoted_charset', 'ret=Yes n=1[text/plain; charset="utf-8"]');
+        Observer.Expect('contenttype_quoted_charset_removed', 'Yes');
+        Observer.Expect('contenttype_boundary_space', 'ret=Yes n=1[multipart/form-data; boundary="x y"]');
+        Observer.Expect('contenttype_boundary_space_removed', 'Yes');
+        Observer.Expect('contenttype_boundary_plain', 'ret=Yes n=1[multipart/form-data; boundary=abc]');
+        Observer.Expect('contenttype_boundary_plain_removed', 'Yes');
+        Observer.Expect('contenttype_two_params', 'ret=Yes n=1[text/plain; charset=utf-8; format=flowed]');
+        Observer.Expect('contenttype_two_params_removed', 'Yes');
+        Observer.Expect('contenttype_no_slash', 'ret=No get=E');
+        Observer.Expect('contenttype_no_slash_removed', 'Yes');
+        Observer.Expect('contenttype_json', 'ret=Yes n=1[application/json]');
+        Observer.Expect('contenttype_json_removed', 'Yes');
+        Observer.Expect('contenttype_upper', 'ret=Yes n=1[APPLICATION/JSON; Charset=UTF-8]');
+        Observer.Expect('contenttype_upper_removed', 'Yes');
+        Observer.Expect('contenttype_bad_param', 'ret=Yes n=1[text/plain; charset]');
+        Observer.Expect('contenttype_bad_param_removed', 'Yes');
+        Observer.Expect('contentdisposition_name', 'ret=Yes n=1[form-data; name="a b"]');
+        Observer.Expect('contentdisposition_filename', 'ret=Yes n=1[attachment; filename="a b.txt"]');
+        Observer.Expect('contentdisposition_unquoted', 'ret=Yes n=1[attachment; filename=a.txt]');
+        Observer.Expect('contentdisposition_star', 'ret=Yes n=1[attachment; filename*=UTF-8''''%e2%82%ac.txt]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -799,7 +893,15 @@ codeunit 89030 "LT SE Header Values"
         Cnt(Observer, 'contentlanguage_list', 'Content-Language', 'de, en-US');
         Cnt(Observer, 'contentlength_text', 'Content-Length', 'abc');
         Cnt(Observer, 'contentlocation', 'Content-Location', '/a b');
-        Observer.Finish();
+        Observer.Expect('contentrange', 'ret=Yes n=1[bytes 0-9/100]');
+        Observer.Expect('contentrange_star', 'ret=Yes n=1[bytes */100]');
+        Observer.Expect('contentrange_bad', 'ret=No get=E');
+        Observer.Expect('contentmd5', 'ret=Yes n=1[Q2hlY2sgSW50ZWdyaXR5IQ==]');
+        Observer.Expect('contentmd5_bad', 'ret=No get=E');
+        Observer.Expect('contentlanguage_list', 'ret=Yes n=2[de][en-US]');
+        Observer.Expect('contentlength_text', 'ret=No get=E');
+        Observer.Expect('contentlocation', 'ret=Yes n=1[/a%20b]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -816,7 +918,16 @@ codeunit 89030 "LT SE Header Values"
         Resp(Observer, 'wwwauth_list', 'WWW-Authenticate', 'Basic realm="x", Bearer');
         Resp(Observer, 'wwwauth_param', 'WWW-Authenticate', 'Bearer realm="x", error="invalid_token"');
         Resp(Observer, 'proxyauth_resp', 'Proxy-Authenticate', 'Basic realm="x"');
-        Observer.Finish();
+        Observer.Expect('auth_basic', 'ret=Yes n=1[Basic dXNlcjpwYXNz]');
+        Observer.Expect('auth_digest_params', 'ret=Yes n=1[Digest username="u", realm="r"]');
+        Observer.Expect('auth_quoted_token', 'ret=Yes n=1[Bearer "abc"]');
+        Observer.Expect('auth_two_words', 'ret=Yes n=1[Bearer a b]');
+        Observer.Expect('auth_scheme_only', 'ret=Yes n=1[Negotiate]');
+        Observer.Expect('proxyauth', 'ret=Yes n=1[Basic dXNlcjpwYXNz]');
+        Observer.Expect('wwwauth_list', 'ret=Yes n=2[Basic realm="x"][Bearer]');
+        Observer.Expect('wwwauth_param', 'ret=Yes n=1[Bearer realm="x", error="invalid_token"]');
+        Observer.Expect('proxyauth_resp', 'ret=Yes n=1[Basic realm="x"]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -837,7 +948,20 @@ codeunit 89030 "LT SE Header Values"
         Req(Observer, 'maxforwards_bad', 'Max-Forwards', '-1');
         Req(Observer, 'referer', 'Referer', 'https://example.invalid/a?b=c');
         Req(Observer, 'referer_relative', 'Referer', '/a');
-        Observer.Finish();
+        Observer.Expect('range_multi', 'ret=Yes n=1[bytes=0-9, 20-29]');
+        Observer.Expect('range_suffix', 'ret=Yes n=1[bytes=-500]');
+        Observer.Expect('range_open', 'ret=Yes n=1[bytes=500-]');
+        Observer.Expect('range_reverse', 'ret=No get=E');
+        Observer.Expect('range_unit', 'ret=Yes n=1[items=1-2]');
+        Observer.Expect('range_noeq', 'ret=No get=E');
+        Observer.Expect('host_port', 'ret=Yes n=1[example.invalid:8080]');
+        Observer.Expect('host_path', 'ret=No get=E');
+        Observer.Expect('host_ipv6', 'ret=Yes n=1[[::1]:80]');
+        Observer.Expect('maxforwards', 'ret=Yes n=1[10]');
+        Observer.Expect('maxforwards_bad', 'ret=No get=E');
+        Observer.Expect('referer', 'ret=Yes n=1[https://example.invalid/a?b=c]');
+        Observer.Expect('referer_relative', 'ret=Yes n=1[/a]');
+        Observer.Verify();
     end;
 
     [Test]
@@ -852,6 +976,13 @@ codeunit 89030 "LT SE Header Values"
         Req(Observer, 'upgrade', 'Upgrade', 'websocket, HTTP/2.0');
         Req(Observer, 'pragma', 'Pragma', 'no-cache');
         Req(Observer, 'trailer', 'Trailer', 'Expires');
-        Observer.Finish();
+        Observer.Expect('via', 'ret=Yes n=2[1.1 proxy][1.0 other]');
+        Observer.Expect('via_bad', 'ret=No get=E');
+        Observer.Expect('warning', 'ret=Yes n=1[199 host "text"]');
+        Observer.Expect('warning_bad', 'ret=No get=E');
+        Observer.Expect('upgrade', 'ret=Yes n=2[websocket][HTTP/2.0]');
+        Observer.Expect('pragma', 'ret=Yes n=1[no-cache]');
+        Observer.Expect('trailer', 'ret=Yes n=1[Expires]');
+        Observer.Verify();
     end;
 }

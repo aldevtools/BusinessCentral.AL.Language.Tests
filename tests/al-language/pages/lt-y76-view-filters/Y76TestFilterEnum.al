@@ -133,7 +133,14 @@ codeunit 94074 "LT Y76 TF Tests"
         RunList(Line, 'Third..Fifth');
         Line.SetRange(Kind, Line.Kind::Fifth, Line.Kind::Eighth);
         RunList(Line, 'Fifth..Eighth');
-        Observer.Finish();
+        Observer.Expect('First..Third', '0..2');
+        Observer.Expect('First..Fifth', '0..4');
+        Observer.Expect('First..Eighth', '0..7');
+        Observer.Expect('Second..Fifth', '1..4');
+        Observer.Expect('Third..Eighth', '2..7');
+        Observer.Expect('Third..Fifth', '2..4');
+        Observer.Expect('Fifth..Eighth', '4..7');
+        Observer.Verify();
     end;
 
     [Test]
@@ -157,7 +164,15 @@ codeunit 94074 "LT Y76 TF Tests"
         RunList(Line, '<Fifth');
         Line.SetFilter(Kind, '<=%1', Line.Kind::Fifth);
         RunList(Line, '<=Fifth');
-        Observer.Finish();
+        Observer.Expect('text First..Third', '0..2');
+        Observer.Expect('text First..Eighth', '0..7');
+        Observer.Expect('Second..', '1..');
+        Observer.Expect('..Fifth', '..4');
+        Observer.Expect('>Second', 'Third|Fifth|Eighth');
+        Observer.Expect('>=Second', 'Second|Third|Fifth|Eighth');
+        Observer.Expect('<Fifth', 'First|Second|Third');
+        Observer.Expect('<=Fifth', 'First|Second|Third|Fifth');
+        Observer.Verify();
     end;
 
     [Test]
@@ -181,7 +196,15 @@ codeunit 94074 "LT Y76 TF Tests"
         RunList(Line, 'not First');
         Line.SetFilter(Kind, '%1|%2', Line.Kind::First, Line.Kind::Second);
         RunList(Line, 'list of two');
-        Observer.Finish();
+        Observer.Expect('list of three', 'First|Third|Fifth');
+        Observer.Expect('list Second Third Fifth', 'Second|Third|Fifth');
+        Observer.Expect('range or single', '0..2|7');
+        Observer.Expect('single or range', '0|2..4');
+        Observer.Expect('three not-equal', '<>0&<>1&<>2');
+        Observer.Expect('two not-equal', '<>0&<>1');
+        Observer.Expect('not First', '<>0');
+        Observer.Expect('list of two', 'First|Second');
+        Observer.Verify();
     end;
 
     [Test]
@@ -196,6 +219,8 @@ codeunit 94074 "LT Y76 TF Tests"
         OrList.OpenView();
         Observer.Observe('view First|Third|Fifth', OrList.Filter.GetFilter(Kind));
         OrList.Close();
-        Observer.Finish();
+        Observer.Expect('view First..Fifth', '0..4');
+        Observer.Expect('view First|Third|Fifth', '0|2|4');
+        Observer.Verify();
     end;
 }

@@ -94,6 +94,12 @@ codeunit 94077 "LT Y76 Package Ids"
         Observer.Observe('second is first plus one', Format(Id2 = Id1 + 1));
         Observer.Observe('third is second plus one', Format(Id3 = Id2 + 1));
         Observer.Observe('plain insert after is third plus one', Format(Id4 = Id3 + 1));
-        Observer.Finish();
+        Observer.Expect('apply errors', '0');
+        Observer.Expect('rows', '3');
+        Observer.Expect('first id positive', 'Yes');
+        Observer.Expect('second is first plus one', 'Yes');
+        Observer.Expect('third is second plus one', 'Yes');
+        Observer.Expect('plain insert after is third plus one', 'Yes');
+        Observer.Verify();
     end;
 }
