@@ -311,6 +311,16 @@ codeunit 98736 "LT Y67 RC Tests"
         Observer.Observe(Name + ' rows', Rows(Content));
     end;
 
+    // The first test of this codeunit failed on the BC 29.0 leg with "Server page is already open." when it ran right after the
+    // Y5 authentication test codeunit (98850); the 27.5 and 28.5 legs did not. This test runs a report with no request page handler
+    // and expects the error, so the next test starts with no open server page.
+    [Test]
+    procedure Columns_FirstRun_AbsorbsOpenServerPage()
+    begin
+        Commit();
+        asserterror Report.Run(Report::"LT Y67 RC Row Captions");
+    end;
+
     [Test]
     [HandlerFunctions('LabelsHandler')]
     procedure Columns_LabelsAndFormat_NoRow()
