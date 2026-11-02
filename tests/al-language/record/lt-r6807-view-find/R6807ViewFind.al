@@ -1,6 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/recordref/recordref-find-method
 // Scope: in-scope
 // Fixtures used: Probe Observer (69160); own objects 94520 - 94522 (writer R6807)
+// Pins al-runner issue 6807 (values measured on BC 28.5; 27.5 and 29.0 by the CI matrix): Find, Find('='), Find('>'), Find('<'), Next, Count, IsEmpty and FindFirst honour a filter set after the row was read with Get, in every shape (SetView, SetRange, SetFilter, CopyFilters, field-form CopyFilter, Copy, FilterGroup, view round trip), on a stored field and on a FlowField, on a Record and on a RecordRef; SetRecFilter keeps the row.
 // Probe: al-runner issue 6807. A row read with Get and then narrowed by SetView / SetRange / SetFilter / CopyFilters / FilterGroup, on a stored
 //   field and on a FlowField (Cnt, count of child rows), on a Record and on a RecordRef: what Find(), Find('='), Count, IsEmpty,
 //   FindFirst, Next, Find('>') and Find('<') answer. Rows: A (one child), B (none), C (one child). Cases that fail A: svStored (No. = B),
@@ -297,8 +298,16 @@ codeunit 94522 "LT R6807 View Find"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        Observer.Expect('find', 'No');
+        Observer.Expect('findEq', 'No');
+        Observer.Expect('count', '1');
+        Observer.Expect('isEmpty', 'No');
+        Observer.Expect('findFirst', 'Yes/B');
+        Observer.Expect('next', '1/B');
+        Observer.Expect('findGt', 'Yes/B');
+        Observer.Expect('findLtFromC', 'Yes/B');
         RecProbe('svStored', Observer);
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     [Test]
@@ -306,8 +315,16 @@ codeunit 94522 "LT R6807 View Find"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        Observer.Expect('find', 'No');
+        Observer.Expect('findEq', 'No');
+        Observer.Expect('count', '1');
+        Observer.Expect('isEmpty', 'No');
+        Observer.Expect('findFirst', 'Yes/B');
+        Observer.Expect('next', '1/B');
+        Observer.Expect('findGt', 'Yes/B');
+        Observer.Expect('findLtFromC', 'Yes/B');
         RecProbe('svFlowZero', Observer);
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     [Test]
@@ -315,8 +332,16 @@ codeunit 94522 "LT R6807 View Find"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        Observer.Expect('find', 'Yes');
+        Observer.Expect('findEq', 'Yes');
+        Observer.Expect('count', '2');
+        Observer.Expect('isEmpty', 'No');
+        Observer.Expect('findFirst', 'Yes/A');
+        Observer.Expect('next', '1/C');
+        Observer.Expect('findGt', 'Yes/C');
+        Observer.Expect('findLtFromC', 'Yes/A');
         RecProbe('svFlowSome', Observer);
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     [Test]
@@ -324,8 +349,16 @@ codeunit 94522 "LT R6807 View Find"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        Observer.Expect('find', 'No');
+        Observer.Expect('findEq', 'No');
+        Observer.Expect('count', '1');
+        Observer.Expect('isEmpty', 'No');
+        Observer.Expect('findFirst', 'Yes/B');
+        Observer.Expect('next', '1/B');
+        Observer.Expect('findGt', 'Yes/B');
+        Observer.Expect('findLtFromC', 'Yes/B');
         RecProbe('svFlowZeroCalc', Observer);
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     [Test]
@@ -333,8 +366,16 @@ codeunit 94522 "LT R6807 View Find"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        Observer.Expect('find', 'No');
+        Observer.Expect('findEq', 'No');
+        Observer.Expect('count', '1');
+        Observer.Expect('isEmpty', 'No');
+        Observer.Expect('findFirst', 'Yes/B');
+        Observer.Expect('next', '1/B');
+        Observer.Expect('findGt', 'Yes/B');
+        Observer.Expect('findLtFromC', 'Yes/B');
         RecProbe('srFlowZero', Observer);
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     [Test]
@@ -342,8 +383,16 @@ codeunit 94522 "LT R6807 View Find"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        Observer.Expect('find', 'No');
+        Observer.Expect('findEq', 'No');
+        Observer.Expect('count', '1');
+        Observer.Expect('isEmpty', 'No');
+        Observer.Expect('findFirst', 'Yes/B');
+        Observer.Expect('next', '1/B');
+        Observer.Expect('findGt', 'Yes/B');
+        Observer.Expect('findLtFromC', 'Yes/B');
         RecProbe('sfFlowZero', Observer);
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     [Test]
@@ -351,8 +400,16 @@ codeunit 94522 "LT R6807 View Find"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        Observer.Expect('find', 'Yes');
+        Observer.Expect('findEq', 'Yes');
+        Observer.Expect('count', '2');
+        Observer.Expect('isEmpty', 'No');
+        Observer.Expect('findFirst', 'Yes/A');
+        Observer.Expect('next', '1/C');
+        Observer.Expect('findGt', 'Yes/C');
+        Observer.Expect('findLtFromC', 'Yes/A');
         RecProbe('sfFlowSome', Observer);
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     [Test]
@@ -360,8 +417,16 @@ codeunit 94522 "LT R6807 View Find"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        Observer.Expect('find', 'No');
+        Observer.Expect('findEq', 'No');
+        Observer.Expect('count', '1');
+        Observer.Expect('isEmpty', 'No');
+        Observer.Expect('findFirst', 'Yes/B');
+        Observer.Expect('next', '1/B');
+        Observer.Expect('findGt', 'Yes/B');
+        Observer.Expect('findLtFromC', 'Yes/B');
         RecProbe('srStored', Observer);
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     [Test]
@@ -369,8 +434,16 @@ codeunit 94522 "LT R6807 View Find"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        Observer.Expect('find', 'No');
+        Observer.Expect('findEq', 'No');
+        Observer.Expect('count', '1');
+        Observer.Expect('isEmpty', 'No');
+        Observer.Expect('findFirst', 'Yes/B');
+        Observer.Expect('next', '1/B');
+        Observer.Expect('findGt', 'Yes/B');
+        Observer.Expect('findLtFromC', 'Yes/B');
         RecProbe('fgFlowZero', Observer);
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     [Test]
@@ -378,8 +451,16 @@ codeunit 94522 "LT R6807 View Find"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        Observer.Expect('find', 'No');
+        Observer.Expect('findEq', 'No');
+        Observer.Expect('count', '1');
+        Observer.Expect('isEmpty', 'No');
+        Observer.Expect('findFirst', 'Yes/B');
+        Observer.Expect('next', '1/B');
+        Observer.Expect('findGt', 'Yes/B');
+        Observer.Expect('findLtFromC', 'Yes/B');
         RecProbe('fgSetRangeFlowZero', Observer);
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     [Test]
@@ -387,8 +468,16 @@ codeunit 94522 "LT R6807 View Find"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        Observer.Expect('find', 'No');
+        Observer.Expect('findEq', 'No');
+        Observer.Expect('count', '1');
+        Observer.Expect('isEmpty', 'No');
+        Observer.Expect('findFirst', 'Yes/B');
+        Observer.Expect('next', '1/B');
+        Observer.Expect('findGt', 'Yes/B');
+        Observer.Expect('findLtFromC', 'Yes/B');
         RecProbe('copyFlowZero', Observer);
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     [Test]
@@ -396,8 +485,16 @@ codeunit 94522 "LT R6807 View Find"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        Observer.Expect('find', 'No');
+        Observer.Expect('findEq', 'No');
+        Observer.Expect('count', '1');
+        Observer.Expect('isEmpty', 'No');
+        Observer.Expect('findFirst', 'Yes/B');
+        Observer.Expect('next', '1/B');
+        Observer.Expect('findGt', 'Yes/B');
+        Observer.Expect('findLtFromC', 'Yes/B');
         RecProbe('copyStored', Observer);
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     [Test]
@@ -405,8 +502,16 @@ codeunit 94522 "LT R6807 View Find"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        Observer.Expect('find', 'No');
+        Observer.Expect('findEq', 'No');
+        Observer.Expect('count', '1');
+        Observer.Expect('isEmpty', 'No');
+        Observer.Expect('findFirst', 'Yes/B');
+        Observer.Expect('next', '1/B');
+        Observer.Expect('findGt', 'Yes/B');
+        Observer.Expect('findLtFromC', 'No/A');
         RecProbe('viewThenGet', Observer);
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     [Test]
@@ -414,8 +519,16 @@ codeunit 94522 "LT R6807 View Find"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        Observer.Expect('find', 'Yes');
+        Observer.Expect('findEq', 'Yes');
+        Observer.Expect('count', '3');
+        Observer.Expect('isEmpty', 'No');
+        Observer.Expect('findFirst', 'Yes/A');
+        Observer.Expect('next', '1/B');
+        Observer.Expect('findGt', 'Yes/B');
+        Observer.Expect('findLtFromC', 'Yes/B');
         RecProbe('viewThenReset', Observer);
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     [Test]
@@ -423,8 +536,16 @@ codeunit 94522 "LT R6807 View Find"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        Observer.Expect('find', 'No');
+        Observer.Expect('findEq', 'No');
+        Observer.Expect('count', '1');
+        Observer.Expect('isEmpty', 'No');
+        Observer.Expect('findFirst', 'Yes/B');
+        Observer.Expect('next', '1/B');
+        Observer.Expect('findGt', 'Yes/B');
+        Observer.Expect('findLtFromC', 'Yes/B');
         RecProbe('copyFilterFieldFlowZero', Observer);
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     [Test]
@@ -432,8 +553,16 @@ codeunit 94522 "LT R6807 View Find"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        Observer.Expect('find', 'No');
+        Observer.Expect('findEq', 'No');
+        Observer.Expect('count', '1');
+        Observer.Expect('isEmpty', 'No');
+        Observer.Expect('findFirst', 'Yes/B');
+        Observer.Expect('next', '1/B');
+        Observer.Expect('findGt', 'Yes/B');
+        Observer.Expect('findLtFromC', 'Yes/B');
         RecProbe('copyFilterFieldStored', Observer);
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     [Test]
@@ -441,8 +570,16 @@ codeunit 94522 "LT R6807 View Find"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        Observer.Expect('find', 'Yes');
+        Observer.Expect('findEq', 'Yes');
+        Observer.Expect('count', '1');
+        Observer.Expect('isEmpty', 'No');
+        Observer.Expect('findFirst', 'Yes/A');
+        Observer.Expect('next', '0/A');
+        Observer.Expect('findGt', 'No/A');
+        Observer.Expect('findLtFromC', 'No/C');
         RecProbe('setRecFilterOwn', Observer);
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     [Test]
@@ -450,8 +587,16 @@ codeunit 94522 "LT R6807 View Find"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        Observer.Expect('find', 'Yes');
+        Observer.Expect('findEq', 'Yes');
+        Observer.Expect('count', '1');
+        Observer.Expect('isEmpty', 'No');
+        Observer.Expect('findFirst', 'Yes/B');
+        Observer.Expect('next', '0/B');
+        Observer.Expect('findGt', 'No/B');
+        Observer.Expect('findLtFromC', 'No/B');
         RecProbe('setRecFilterOther', Observer);
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     [Test]
@@ -459,8 +604,16 @@ codeunit 94522 "LT R6807 View Find"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        Observer.Expect('find', 'No');
+        Observer.Expect('findEq', 'No');
+        Observer.Expect('count', '1');
+        Observer.Expect('isEmpty', 'No');
+        Observer.Expect('findFirst', 'Yes/B');
+        Observer.Expect('next', '1/B');
+        Observer.Expect('findGt', 'Yes/B');
+        Observer.Expect('findLtFromC', 'Yes/B');
         RecProbe('copyAfterGet', Observer);
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     [Test]
@@ -468,8 +621,16 @@ codeunit 94522 "LT R6807 View Find"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        Observer.Expect('find', 'No');
+        Observer.Expect('findEq', 'No');
+        Observer.Expect('count', '1');
+        Observer.Expect('isEmpty', 'No');
+        Observer.Expect('findFirst', 'Yes/B');
+        Observer.Expect('next', '1/B');
+        Observer.Expect('findGt', 'Yes/B');
+        Observer.Expect('findLtFromC', 'Yes/B');
         RefProbe('svStored', Observer);
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     [Test]
@@ -477,8 +638,16 @@ codeunit 94522 "LT R6807 View Find"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        Observer.Expect('find', 'No');
+        Observer.Expect('findEq', 'No');
+        Observer.Expect('count', '1');
+        Observer.Expect('isEmpty', 'No');
+        Observer.Expect('findFirst', 'Yes/B');
+        Observer.Expect('next', '1/B');
+        Observer.Expect('findGt', 'Yes/B');
+        Observer.Expect('findLtFromC', 'Yes/B');
         RefProbe('svFlowZero', Observer);
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     [Test]
@@ -486,8 +655,16 @@ codeunit 94522 "LT R6807 View Find"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        Observer.Expect('find', 'Yes');
+        Observer.Expect('findEq', 'Yes');
+        Observer.Expect('count', '2');
+        Observer.Expect('isEmpty', 'No');
+        Observer.Expect('findFirst', 'Yes/A');
+        Observer.Expect('next', '1/C');
+        Observer.Expect('findGt', 'Yes/C');
+        Observer.Expect('findLtFromC', 'Yes/A');
         RefProbe('svFlowSome', Observer);
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     [Test]
@@ -495,8 +672,16 @@ codeunit 94522 "LT R6807 View Find"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        Observer.Expect('find', 'No');
+        Observer.Expect('findEq', 'No');
+        Observer.Expect('count', '1');
+        Observer.Expect('isEmpty', 'No');
+        Observer.Expect('findFirst', 'Yes/B');
+        Observer.Expect('next', '1/B');
+        Observer.Expect('findGt', 'Yes/B');
+        Observer.Expect('findLtFromC', 'Yes/B');
         RefProbe('svFlowZeroCalc', Observer);
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     [Test]
@@ -504,8 +689,16 @@ codeunit 94522 "LT R6807 View Find"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        Observer.Expect('find', 'No');
+        Observer.Expect('findEq', 'No');
+        Observer.Expect('count', '1');
+        Observer.Expect('isEmpty', 'No');
+        Observer.Expect('findFirst', 'Yes/B');
+        Observer.Expect('next', '1/B');
+        Observer.Expect('findGt', 'Yes/B');
+        Observer.Expect('findLtFromC', 'Yes/B');
         RefProbe('frFlowZero', Observer);
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     [Test]
@@ -513,8 +706,16 @@ codeunit 94522 "LT R6807 View Find"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        Observer.Expect('find', 'No');
+        Observer.Expect('findEq', 'No');
+        Observer.Expect('count', '1');
+        Observer.Expect('isEmpty', 'No');
+        Observer.Expect('findFirst', 'Yes/B');
+        Observer.Expect('next', '1/B');
+        Observer.Expect('findGt', 'Yes/B');
+        Observer.Expect('findLtFromC', 'Yes/B');
         RefProbe('ffFlowZero', Observer);
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     [Test]
@@ -522,8 +723,16 @@ codeunit 94522 "LT R6807 View Find"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        Observer.Expect('find', 'Yes');
+        Observer.Expect('findEq', 'Yes');
+        Observer.Expect('count', '2');
+        Observer.Expect('isEmpty', 'No');
+        Observer.Expect('findFirst', 'Yes/A');
+        Observer.Expect('next', '1/C');
+        Observer.Expect('findGt', 'Yes/C');
+        Observer.Expect('findLtFromC', 'Yes/A');
         RefProbe('ffFlowSome', Observer);
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     [Test]
@@ -531,8 +740,16 @@ codeunit 94522 "LT R6807 View Find"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        Observer.Expect('find', 'No');
+        Observer.Expect('findEq', 'No');
+        Observer.Expect('count', '1');
+        Observer.Expect('isEmpty', 'No');
+        Observer.Expect('findFirst', 'Yes/B');
+        Observer.Expect('next', '1/B');
+        Observer.Expect('findGt', 'Yes/B');
+        Observer.Expect('findLtFromC', 'Yes/B');
         RefProbe('frStored', Observer);
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     [Test]
@@ -540,8 +757,16 @@ codeunit 94522 "LT R6807 View Find"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        Observer.Expect('find', 'No');
+        Observer.Expect('findEq', 'No');
+        Observer.Expect('count', '1');
+        Observer.Expect('isEmpty', 'No');
+        Observer.Expect('findFirst', 'Yes/B');
+        Observer.Expect('next', '1/B');
+        Observer.Expect('findGt', 'Yes/B');
+        Observer.Expect('findLtFromC', 'Yes/B');
         RefProbe('fgFlowZero', Observer);
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     [Test]
@@ -549,8 +774,16 @@ codeunit 94522 "LT R6807 View Find"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        Observer.Expect('find', 'No');
+        Observer.Expect('findEq', 'No');
+        Observer.Expect('count', '1');
+        Observer.Expect('isEmpty', 'No');
+        Observer.Expect('findFirst', 'Yes/B');
+        Observer.Expect('next', '1/B');
+        Observer.Expect('findGt', 'Yes/B');
+        Observer.Expect('findLtFromC', 'Yes/B');
         RefProbe('fgFieldRangeFlowZero', Observer);
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     [Test]
@@ -558,8 +791,16 @@ codeunit 94522 "LT R6807 View Find"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        Observer.Expect('find', 'No');
+        Observer.Expect('findEq', 'No');
+        Observer.Expect('count', '1');
+        Observer.Expect('isEmpty', 'No');
+        Observer.Expect('findFirst', 'Yes/B');
+        Observer.Expect('next', '1/B');
+        Observer.Expect('findGt', 'Yes/B');
+        Observer.Expect('findLtFromC', 'Yes/B');
         RefProbe('viewRoundTripFlowZero', Observer);
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     [Test]
@@ -567,8 +808,16 @@ codeunit 94522 "LT R6807 View Find"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        Observer.Expect('find', 'No');
+        Observer.Expect('findEq', 'No');
+        Observer.Expect('count', '1');
+        Observer.Expect('isEmpty', 'No');
+        Observer.Expect('findFirst', 'Yes/B');
+        Observer.Expect('next', '1/B');
+        Observer.Expect('findGt', 'Yes/B');
+        Observer.Expect('findLtFromC', 'Yes/B');
         RefProbe('viewRoundTripStored', Observer);
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     [Test]
@@ -576,8 +825,16 @@ codeunit 94522 "LT R6807 View Find"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        Observer.Expect('find', 'No');
+        Observer.Expect('findEq', 'No');
+        Observer.Expect('count', '1');
+        Observer.Expect('isEmpty', 'No');
+        Observer.Expect('findFirst', 'Yes/B');
+        Observer.Expect('next', '1/B');
+        Observer.Expect('findGt', 'Yes/B');
+        Observer.Expect('findLtFromC', 'Yes/B');
         RefProbe('viewThenGet', Observer);
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     [Test]
@@ -585,8 +842,16 @@ codeunit 94522 "LT R6807 View Find"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        Observer.Expect('find', 'Yes');
+        Observer.Expect('findEq', 'Yes');
+        Observer.Expect('count', '3');
+        Observer.Expect('isEmpty', 'No');
+        Observer.Expect('findFirst', 'Yes/A');
+        Observer.Expect('next', '1/B');
+        Observer.Expect('findGt', 'Yes/B');
+        Observer.Expect('findLtFromC', 'Yes/B');
         RefProbe('viewThenReset', Observer);
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     [Test]
@@ -594,8 +859,16 @@ codeunit 94522 "LT R6807 View Find"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        Observer.Expect('find', 'Yes');
+        Observer.Expect('findEq', 'Yes');
+        Observer.Expect('count', '1');
+        Observer.Expect('isEmpty', 'No');
+        Observer.Expect('findFirst', 'Yes/A');
+        Observer.Expect('next', '0/A');
+        Observer.Expect('findGt', 'No/A');
+        Observer.Expect('findLtFromC', 'No/C');
         RefProbe('setRecFilterOwn', Observer);
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     [Test]
@@ -603,8 +876,16 @@ codeunit 94522 "LT R6807 View Find"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        Observer.Expect('find', 'Yes');
+        Observer.Expect('findEq', 'Yes');
+        Observer.Expect('count', '1');
+        Observer.Expect('isEmpty', 'No');
+        Observer.Expect('findFirst', 'Yes/B');
+        Observer.Expect('next', '0/B');
+        Observer.Expect('findGt', 'No/B');
+        Observer.Expect('findLtFromC', 'No/B');
         RefProbe('setRecFilterOther', Observer);
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     [Test]
@@ -614,6 +895,9 @@ codeunit 94522 "LT R6807 View Find"
         P: Record "LT R6807 Parent";
         R: RecordRef;
     begin
+        Observer.Expect('find', 'No');
+        Observer.Expect('count', '1');
+        Observer.Expect('getView', 'VERSION(1) SORTING(Field1) WHERE(Field3=1(0))');
         Seed();
         P.Get('A');
         P.SetView(ViewZero());
@@ -621,7 +905,7 @@ codeunit 94522 "LT R6807 View Find"
         Observer.Observe('find', Format(R.Find()));
         Observer.Observe('count', Format(R.Count()));
         Observer.Observe('getView', R.GetView(false));
-        Observer.Finish();
+        Observer.Verify();
     end;
 
     [Test]
@@ -631,6 +915,9 @@ codeunit 94522 "LT R6807 View Find"
         P: Record "LT R6807 Parent";
         R: RecordRef;
     begin
+        Observer.Expect('find', 'No');
+        Observer.Expect('count', '1');
+        Observer.Expect('getView', 'VERSION(1) SORTING(Field1) WHERE(Field3=1(0))');
         Seed();
         P.Get('A');
         R.GetTable(P);
@@ -638,6 +925,6 @@ codeunit 94522 "LT R6807 View Find"
         Observer.Observe('find', Format(R.Find()));
         Observer.Observe('count', Format(R.Count()));
         Observer.Observe('getView', R.GetView(false));
-        Observer.Finish();
+        Observer.Verify();
     end;
 }
