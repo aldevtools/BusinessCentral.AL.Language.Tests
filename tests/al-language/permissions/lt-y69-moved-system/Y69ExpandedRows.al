@@ -77,21 +77,45 @@ codeunit 93713 "LT Y69 Expanded Rows"
         Observer.Observe('d365_full_access', RowsOf('D365 FULL ACCESS', 0, '230|231|242|308|309|310|1263|6635'));
         Observer.Observe('d365_read', RowsOf('D365 READ', 0, '230|231|242|308|309|310|1263|6635'));
         Observer.Observe('d365_setup', RowsOf('D365 SETUP', 0, '230|231|242|308|309|310|1263|6635'));
-        Observer.Finish();
+        Observer.Expect('d365_basic', '8 rows 230:RI---;231:RIMD-;242:RI---;308:R----;309:R----;310:R----;1263:rimd-;6635:RI---;');
+        Observer.Expect('d365_basic_edit', '8 rows 230:RI---;231:RIMD-;242:RI---;308:R----;309:R----;310:R----;1263:rimd-;6635:RI---;');
+        Observer.Expect('d365_bus_full_access', '8 rows 230:RIMD-;231:RIMD-;242:RIMD-;308:RIMD-;309:RIMD-;310:RIMD-;1263:RIMD-;6635:RIMD-;');
+        Observer.Expect('d365_full_access', '8 rows 230:RIMD-;231:RIMD-;242:RIMD-;308:RIMD-;309:RIMD-;310:RIMD-;1263:RIMD-;6635:RIMD-;');
+        Observer.Expect('d365_read', '8 rows 230:R----;231:R----;242:R----;308:R----;309:R----;310:R----;1263:R----;6635:R----;');
+        Observer.Expect('d365_setup', '6 rows 230:RIMD-;242:RIMD-;308:RIMD-;309:RIMD-;310:RIMD-;6635:RIMD-;');
+        Observer.Verify();
     end;
 
-    // The Base Application's own sets that carry named system grants (the issue's impact: 'D365 FULL ACCESS' has system "Add Table Field To Page" = X).
+    // The Base Application's own sets that carry named system grants (the issue's impact: 'D365 FULL ACCESS' has system "Add Table Field To Page" = X, its
+    // included 'D365 BUS FULL ACCESS' has system "Tools, Security, Roles" = X). Only a few rows are asserted: the sets differ between BC releases.
     [Test]
     procedure Y69_SY_BaseApplicationSets()
     var
         Observer: Codeunit "Probe Observer";
     begin
-        Observer.Observe('d365_full_access', RowsOf('D365 FULL ACCESS', 10, ''));
-        Observer.Observe('d365_bus_full_access', RowsOf('D365 BUS FULL ACCESS', 10, ''));
-        Observer.Observe('d365_read', RowsOf('D365 READ', 10, ''));
-        Observer.Observe('d365_agent', RowsOf('D365 AGENT', 10, ''));
-        Observer.Observe('d365_basic', RowsOf('D365 BASIC', 10, ''));
-        Observer.Finish();
+        Observer.Observe('full_access_9026_add_table_field_to_page', Format(HasRow('D365 FULL ACCESS', 10, 9026)));
+        Observer.Observe('full_access_5810_tools_security_roles', Format(HasRow('D365 FULL ACCESS', 10, 5810)));
+        Observer.Observe('bus_full_access_5810', Format(HasRow('D365 BUS FULL ACCESS', 10, 5810)));
+        Observer.Observe('bus_full_access_9026', Format(HasRow('D365 BUS FULL ACCESS', 10, 9026)));
+        Observer.Observe('read_5810', Format(HasRow('D365 READ', 10, 5810)));
+        Observer.Observe('full_access_reason_code_tabledata', Format(HasRow('D365 FULL ACCESS', 0, 231)));
+        Observer.Expect('full_access_9026_add_table_field_to_page', 'Yes');
+        Observer.Expect('full_access_5810_tools_security_roles', 'Yes');
+        Observer.Expect('bus_full_access_5810', 'Yes');
+        Observer.Expect('bus_full_access_9026', 'No');
+        Observer.Expect('read_5810', 'Yes');
+        Observer.Expect('full_access_reason_code_tabledata', 'Yes');
+        Observer.Verify();
+    end;
+
+    local procedure HasRow(RoleId: Code[20]; ObjectType: Integer; ObjectId: Integer): Boolean
+    var
+        ExpandedPermission: Record "Expanded Permission";
+    begin
+        ExpandedPermission.SetRange("Role ID", RoleId);
+        ExpandedPermission.SetRange("Object Type", ObjectType);
+        ExpandedPermission.SetRange("Object ID", ObjectId);
+        exit(not ExpandedPermission.IsEmpty());
     end;
 
     // Expanded Permission rows of one role, one object type (ordinal) and an object id filter, as 'count: id:RIMDX;...'.
