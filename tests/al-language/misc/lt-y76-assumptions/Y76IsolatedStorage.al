@@ -55,7 +55,15 @@ codeunit 94076 "LT Y76 Iso Storage"
         Obs.Observe('delete_missing', RetTx(IsolatedStorage.Delete('LTY76plain', DataScope::Module)));
         Commit();
         Obs.Observe('contains_missing', Format(IsolatedStorage.Contains('LTY76plain', DataScope::Module)) + ' tx=' + Tx());
-        Obs.Finish();
+        Obs.Expect('new_plain', 'ret=Yes tx=Yes');
+        Obs.Expect('before_plain_same', 'No');
+        Obs.Expect('plain_same', 'ret=Yes tx=Yes');
+        Obs.Expect('plain_other', 'ret=Yes tx=Yes');
+        Obs.Expect('contains', 'Yes tx=No');
+        Obs.Expect('delete', 'ret=Yes tx=Yes');
+        Obs.Expect('delete_missing', 'ret=No tx=Yes');
+        Obs.Expect('contains_missing', 'No tx=No');
+        Obs.Verify();
     end;
 
     procedure Suspect_EncryptedOverwrite_Transaction()
