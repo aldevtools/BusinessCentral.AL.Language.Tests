@@ -64,4 +64,63 @@ codeunit 93713 "LT Y69 Expanded Rows"
         Observer.Expect('plain', '2 rows 0:18:R----;10:5810:----X;');
         Observer.Verify();
     end;
+
+    // The Base Application's own sets that name moved tables (the issue's impact: 'D365 BASIC - EDIT' has tabledata "Reason Code" = IMD).
+    [Test]
+    procedure Y69_MV_BaseApplicationSets()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('d365_basic', RowsOf('D365 BASIC', 0, '230|231|242|308|309|310|1263|6635'));
+        Observer.Observe('d365_basic_edit', RowsOf('D365 BASIC - EDIT', 0, '230|231|242|308|309|310|1263|6635'));
+        Observer.Observe('d365_bus_full_access', RowsOf('D365 BUS FULL ACCESS', 0, '230|231|242|308|309|310|1263|6635'));
+        Observer.Observe('d365_full_access', RowsOf('D365 FULL ACCESS', 0, '230|231|242|308|309|310|1263|6635'));
+        Observer.Observe('d365_read', RowsOf('D365 READ', 0, '230|231|242|308|309|310|1263|6635'));
+        Observer.Observe('d365_setup', RowsOf('D365 SETUP', 0, '230|231|242|308|309|310|1263|6635'));
+        Observer.Finish();
+    end;
+
+    // The Base Application's own sets that carry named system grants (the issue's impact: 'D365 FULL ACCESS' has system "Add Table Field To Page" = X).
+    [Test]
+    procedure Y69_SY_BaseApplicationSets()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('d365_full_access', RowsOf('D365 FULL ACCESS', 10, ''));
+        Observer.Observe('d365_bus_full_access', RowsOf('D365 BUS FULL ACCESS', 10, ''));
+        Observer.Observe('d365_read', RowsOf('D365 READ', 10, ''));
+        Observer.Observe('d365_agent', RowsOf('D365 AGENT', 10, ''));
+        Observer.Observe('d365_basic', RowsOf('D365 BASIC', 10, ''));
+        Observer.Finish();
+    end;
+
+    // Expanded Permission rows of one role, one object type (ordinal) and an object id filter, as 'count: id:RIMDX;...'.
+    local procedure RowsOf(RoleId: Code[20]; ObjectType: Integer; IdFilter: Text): Text
+    var
+        ExpandedPermission: Record "Expanded Permission";
+        Result: Text;
+    begin
+        ExpandedPermission.SetRange("Role ID", RoleId);
+        ExpandedPermission.SetRange("Object Type", ObjectType);
+        if IdFilter <> '' then
+            ExpandedPermission.SetFilter("Object ID", IdFilter);
+        if ExpandedPermission.FindSet() then
+            repeat
+                Result += Format(ExpandedPermission."Object ID") + ':' + Letter(ExpandedPermission."Read Permission", 'R') + Letter(ExpandedPermission."Insert Permission", 'I') +
+                    Letter(ExpandedPermission."Modify Permission", 'M') + Letter(ExpandedPermission."Delete Permission", 'D') +
+                    Letter(ExpandedPermission."Execute Permission", 'X') + ';';
+            until ExpandedPermission.Next() = 0;
+        exit(Format(ExpandedPermission.Count()) + ' rows ' + Result);
+    end;
+
+    local procedure Letter(Value: Option " ",Yes,Indirect; Which: Text[1]): Text
+    begin
+        case Value of
+            Value::Yes:
+                exit(Which);
+            Value::Indirect:
+                exit(Which.ToLower());
+        end;
+        exit('-');
+    end;
 }
