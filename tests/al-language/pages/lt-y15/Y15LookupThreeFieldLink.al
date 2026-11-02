@@ -1599,7 +1599,15 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
         Observer.Observe('second move log', Log.Take());
         Schedule.Close();
         Observer.Observe('close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('lookup log', 'lookup;validate R2');
+        Observer.Expect('move', 'true');
+        Observer.Expect('move log', 'agcr R2;agcr R2');
+        Observer.Expect('after move', 'R2|R2|R2|G1');
+        Observer.Expect('read log', '');
+        Observer.Expect('second move', 'true|R3');
+        Observer.Expect('second move log', 'agcr R3');
+        Observer.Expect('close log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1623,7 +1631,16 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
         Observer.Observe('second move log', Log.Take());
         Schedule.Close();
         Observer.Observe('close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('setup log', 'agcr R2');
+        Observer.Expect('lookup log', 'lookup;validate R2');
+        Observer.Expect('move', 'true');
+        Observer.Expect('move log', 'agcr R1;agcr R1');
+        Observer.Expect('after move', 'R2|R1|R1|G1');
+        Observer.Expect('read log', '');
+        Observer.Expect('second move', 'true|R2');
+        Observer.Expect('second move log', 'agcr R2');
+        Observer.Expect('close log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1645,7 +1662,15 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
         Observer.Observe('second move log', Log.Take());
         Schedule.Close();
         Observer.Observe('close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('lookup log', 'lookup;validate R2');
+        Observer.Expect('move', 'true');
+        Observer.Expect('move log', 'agcr ;agcr R3;agcr R3');
+        Observer.Expect('after move', 'R2|R3|R3|G2');
+        Observer.Expect('read log', '');
+        Observer.Expect('second move', 'true|');
+        Observer.Expect('second move log', 'agcr ');
+        Observer.Expect('close log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1669,7 +1694,16 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
         Observer.Observe('second move log', Log.Take());
         Schedule.Close();
         Observer.Observe('close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('setup log', 'agcr ;agcr R3');
+        Observer.Expect('lookup log', 'lookup;validate R2');
+        Observer.Expect('move', 'true');
+        Observer.Expect('move log', 'agcr R1;agcr R1');
+        Observer.Expect('after move', 'R2|R1|R1|G1');
+        Observer.Expect('read log', '');
+        Observer.Expect('second move', 'true|R2');
+        Observer.Expect('second move log', 'agcr R2');
+        Observer.Expect('close log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1691,7 +1725,15 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
         Observer.Observe('second move log', Log.Take());
         Schedule.Close();
         Observer.Observe('close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('lookup log', 'lookup;validate R2');
+        Observer.Expect('move', 'true');
+        Observer.Expect('move log', 'agcr R1;agcr R2;agcr R3');
+        Observer.Expect('after move', 'R2|R3|R3|G2');
+        Observer.Expect('read log', '');
+        Observer.Expect('second move', 'true|');
+        Observer.Expect('second move log', 'agcr ');
+        Observer.Expect('close log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1713,7 +1755,15 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
         Observer.Observe('second move log', Log.Take());
         Schedule.Close();
         Observer.Observe('close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('lookup log', 'lookup;validate R2');
+        Observer.Expect('move', 'true');
+        Observer.Expect('move log', 'agcr R2;agcr R2');
+        Observer.Expect('after move', 'R2|R2|R2|G1');
+        Observer.Expect('read log', '');
+        Observer.Expect('second move', 'true|R3');
+        Observer.Expect('second move log', 'agcr R3');
+        Observer.Expect('close log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1737,7 +1787,16 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
         Observer.Observe('second move log', Log.Take());
         Schedule.Close();
         Observer.Observe('close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('setup log', 'agcr R2');
+        Observer.Expect('lookup log', 'lookup;validate R2');
+        Observer.Expect('move', 'true');
+        Observer.Expect('move log', 'agcr R1;agcr R1');
+        Observer.Expect('after move', 'R2|R1|R1|G1');
+        Observer.Expect('read log', '');
+        Observer.Expect('second move', 'true|R2');
+        Observer.Expect('second move log', 'agcr R2');
+        Observer.Expect('close log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1759,7 +1818,15 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
         Observer.Observe('second move log', Log.Take());
         Schedule.Close();
         Observer.Observe('close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('lookup log', 'lookup;validate R2');
+        Observer.Expect('move', 'true');
+        Observer.Expect('move log', 'agcr ;agcr R3;agcr R3');
+        Observer.Expect('after move', 'R2|R3|R3|G2');
+        Observer.Expect('read log', '');
+        Observer.Expect('second move', 'true|');
+        Observer.Expect('second move log', 'agcr ');
+        Observer.Expect('close log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1783,7 +1850,16 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
         Observer.Observe('second move log', Log.Take());
         Schedule.Close();
         Observer.Observe('close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('setup log', 'agcr ;agcr R3');
+        Observer.Expect('lookup log', 'lookup;validate R2');
+        Observer.Expect('move', 'true');
+        Observer.Expect('move log', 'agcr R1;agcr R1');
+        Observer.Expect('after move', 'R2|R1|R1|G1');
+        Observer.Expect('read log', '');
+        Observer.Expect('second move', 'true|R2');
+        Observer.Expect('second move log', 'agcr R2');
+        Observer.Expect('close log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1805,7 +1881,15 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
         Observer.Observe('second move log', Log.Take());
         Schedule.Close();
         Observer.Observe('close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('lookup log', 'lookup;validate R2');
+        Observer.Expect('move', 'true');
+        Observer.Expect('move log', 'agcr R1;agcr R2;agcr R3');
+        Observer.Expect('after move', 'R2|R3|R3|G2');
+        Observer.Expect('read log', '');
+        Observer.Expect('second move', 'true|');
+        Observer.Expect('second move log', 'agcr ');
+        Observer.Expect('close log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1824,7 +1908,10 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
         Observer.Observe('close log', Log.Take());
         Setting.Get();
         Observer.Observe('stored', Setting."Resource No.");
-        Observer.Finish();
+        Observer.Expect('lookup log', 'lookup;validate R2');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'R2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1845,7 +1932,14 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
         Observer.Observe('part', Schedule.Resources."No.".Value());
         Observer.Observe('part log', Log.Take());
         Schedule.Close();
-        Observer.Finish();
+        Observer.Expect('lookup log', 'lookup;validate R2');
+        Observer.Expect('host controls', 'R2|R1');
+        Observer.Expect('read log', '');
+        Observer.Expect('next', 'true|R2');
+        Observer.Expect('next log', 'agcr R2;agcr R2');
+        Observer.Expect('part', 'R2');
+        Observer.Expect('part log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1864,7 +1958,10 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
         Observer.Observe('close log', Log.Take());
         Setting.Get();
         Observer.Observe('stored', Setting."Resource No.");
-        Observer.Finish();
+        Observer.Expect('lookup log', 'lookup;validate R2');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'R2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1885,7 +1982,14 @@ codeunit 91716 "LT Y15 Lookup Three Link Tests"
         Observer.Observe('part', Schedule.Resources."No.".Value());
         Observer.Observe('part log', Log.Take());
         Schedule.Close();
-        Observer.Finish();
+        Observer.Expect('lookup log', 'lookup;validate R2');
+        Observer.Expect('host controls', 'R2|R1');
+        Observer.Expect('read log', '');
+        Observer.Expect('next', 'true|R2');
+        Observer.Expect('next log', 'agcr R2;agcr R2');
+        Observer.Expect('part', 'R2');
+        Observer.Expect('part log', '');
+        Observer.Verify();
     end;
 
     local procedure Setup(WithRegions: Boolean)

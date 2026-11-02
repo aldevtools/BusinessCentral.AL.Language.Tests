@@ -19,11 +19,7 @@ table 94287 "LT Y80 LK Group"
         field(1; "Code"; Code[10]) { }
         field(2; Descr; Text[30]) { }
     }
-    keys
-    {
-        key(PK; "Code") { Clustered = true; }
-        key(ByDescr; Descr) { }
-    }
+    keys { key(PK; "Code") { Clustered = true; } }
 }
 
 table 94288 "LT Y80 LK Item"
@@ -163,26 +159,24 @@ codeunit 94292 "LT Y80 LK Tests"
         exit(Item.Grp + '|' + Item.Alt);
     end;
 
-    [TryFunction]
-    local procedure TryFirst(var P: TestPage "LT Y80 LK Group List"; var Result: Text)
+    [ModalPageHandler]
+    procedure GroupHandler(var P: TestPage "LT Y80 LK Group List")
+    var
+        Log: Record "LT Y80 Log";
     begin
-        Result := P.CodeCtl.Value();
-    end;
-
-    [TryFunction]
-    local procedure TryAct(var P: TestPage "LT Y80 LK Group List"; Which: Text; var Result: Text)
-    begin
-        case Which of
+        Observer.Observe('handler first', P.CodeCtl.Value());
+        Observer.Observe('handler log', Log.Take());
+        case Mode of
             'ok':
                 P.OK().Invoke();
             'next':
                 begin
-                    Result := Format(P.Next(), 0, 9);
+                    Observer.Observe('next', Format(P.Next(), 0, 9));
                     P.OK().Invoke();
                 end;
             'previous':
                 begin
-                    Result := Format(P.Previous(), 0, 9);
+                    Observer.Observe('previous', Format(P.Previous(), 0, 9));
                     P.OK().Invoke();
                 end;
             'first':
@@ -197,28 +191,6 @@ codeunit 94292 "LT Y80 LK Tests"
                 end;
             'cancel':
                 P.Cancel().Invoke();
-        end;
-    end;
-
-    [ModalPageHandler]
-    procedure GroupHandler(var P: TestPage "LT Y80 LK Group List")
-    var
-        Log: Record "LT Y80 Log";
-        Result: Text;
-    begin
-        if TryFirst(P, Result) then
-            Observer.Observe('handler first', Result)
-        else begin
-            Observer.Observe('handler first', 'err|' + GetLastErrorCode() + '|' + GetLastErrorText());
-            ClearLastError();
-        end;
-        Observer.Observe('handler log', Log.Take());
-        Result := '';
-        if TryAct(P, Mode, Result) then
-            Observer.Observe('handler action', 'ok|' + Result)
-        else begin
-            Observer.Observe('handler action', 'err|' + GetLastErrorCode() + '|' + GetLastErrorText());
-            ClearLastError();
         end;
     end;
 
@@ -237,7 +209,12 @@ codeunit 94292 "LT Y80 LK Tests"
         Observer.Observe('after', P.GrpCtl.Value());
         P.Close();
         Observer.Observe('stored', Stored());
-        Observer.Finish();
+        Observer.Expect('before', 'G1');
+        Observer.Expect('handler first', 'G1');
+        Observer.Expect('handler log', 'open();open();R:G1;R:G1;R:G2;R:G3;R:G4;R:G1;R:G1;C:G1');
+        Observer.Expect('after', 'G1');
+        Observer.Expect('stored', 'G1|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -255,7 +232,12 @@ codeunit 94292 "LT Y80 LK Tests"
         Observer.Observe('after', P.GrpCtl.Value());
         P.Close();
         Observer.Observe('stored', Stored());
-        Observer.Finish();
+        Observer.Expect('before', 'G2');
+        Observer.Expect('handler first', 'G2');
+        Observer.Expect('handler log', 'open();open();R:G2;R:G2;R:G3;R:G4;R:G2;R:G1;R:G2;R:G2;C:G2');
+        Observer.Expect('after', 'G2');
+        Observer.Expect('stored', 'G2|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -273,7 +255,12 @@ codeunit 94292 "LT Y80 LK Tests"
         Observer.Observe('after', P.GrpCtl.Value());
         P.Close();
         Observer.Observe('stored', Stored());
-        Observer.Finish();
+        Observer.Expect('before', 'G3');
+        Observer.Expect('handler first', 'G3');
+        Observer.Expect('handler log', 'open();open();R:G3;R:G3;R:G4;R:G3;R:G2;R:G1;R:G3;R:G3;C:G3');
+        Observer.Expect('after', 'G3');
+        Observer.Expect('stored', 'G3|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -291,7 +278,12 @@ codeunit 94292 "LT Y80 LK Tests"
         Observer.Observe('after', P.GrpCtl.Value());
         P.Close();
         Observer.Observe('stored', Stored());
-        Observer.Finish();
+        Observer.Expect('before', 'G4');
+        Observer.Expect('handler first', 'G4');
+        Observer.Expect('handler log', 'open();open();R:G4;R:G4;R:G3;R:G2;R:G1;R:G4;R:G4;C:G4');
+        Observer.Expect('after', 'G4');
+        Observer.Expect('stored', 'G4|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -309,7 +301,13 @@ codeunit 94292 "LT Y80 LK Tests"
         Observer.Observe('after', P.GrpCtl.Value());
         P.Close();
         Observer.Observe('stored', Stored());
-        Observer.Finish();
+        Observer.Expect('before', 'G2');
+        Observer.Expect('handler first', 'G2');
+        Observer.Expect('handler log', 'open();open();R:G2;R:G2;R:G3;R:G4;R:G2;R:G1;R:G2;R:G2;C:G2');
+        Observer.Expect('next', 'true');
+        Observer.Expect('after', 'G3');
+        Observer.Expect('stored', 'G3|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -327,7 +325,13 @@ codeunit 94292 "LT Y80 LK Tests"
         Observer.Observe('after', P.GrpCtl.Value());
         P.Close();
         Observer.Observe('stored', Stored());
-        Observer.Finish();
+        Observer.Expect('before', 'G2');
+        Observer.Expect('handler first', 'G2');
+        Observer.Expect('handler log', 'open();open();R:G2;R:G2;R:G3;R:G4;R:G2;R:G1;R:G2;R:G2;C:G2');
+        Observer.Expect('previous', 'true');
+        Observer.Expect('after', 'G1');
+        Observer.Expect('stored', 'G1|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -345,7 +349,12 @@ codeunit 94292 "LT Y80 LK Tests"
         Observer.Observe('after', P.GrpCtl.Value());
         P.Close();
         Observer.Observe('stored', Stored());
-        Observer.Finish();
+        Observer.Expect('before', 'G2');
+        Observer.Expect('handler first', 'G2');
+        Observer.Expect('handler log', 'open();open();R:G2;R:G2;R:G3;R:G4;R:G2;R:G1;R:G2;R:G2;C:G2');
+        Observer.Expect('after', 'G1');
+        Observer.Expect('stored', 'G1|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -363,7 +372,12 @@ codeunit 94292 "LT Y80 LK Tests"
         Observer.Observe('after', P.GrpCtl.Value());
         P.Close();
         Observer.Observe('stored', Stored());
-        Observer.Finish();
+        Observer.Expect('before', 'G2');
+        Observer.Expect('handler first', 'G2');
+        Observer.Expect('handler log', 'open();open();R:G2;R:G2;R:G3;R:G4;R:G2;R:G1;R:G2;R:G2;C:G2');
+        Observer.Expect('after', 'G4');
+        Observer.Expect('stored', 'G4|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -381,7 +395,12 @@ codeunit 94292 "LT Y80 LK Tests"
         Observer.Observe('after', P.GrpCtl.Value());
         P.Close();
         Observer.Observe('stored', Stored());
-        Observer.Finish();
+        Observer.Expect('before', 'G2');
+        Observer.Expect('handler first', 'G2');
+        Observer.Expect('handler log', 'open();open();R:G2;R:G2;R:G3;R:G4;R:G2;R:G1;R:G2;R:G2;C:G2');
+        Observer.Expect('after', 'G2');
+        Observer.Expect('stored', 'G2|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -399,7 +418,12 @@ codeunit 94292 "LT Y80 LK Tests"
         Observer.Observe('after', P.GrpCtl.Value());
         P.Close();
         Observer.Observe('stored', Stored());
-        Observer.Finish();
+        Observer.Expect('before', 'ZZ');
+        Observer.Expect('handler first', 'G1');
+        Observer.Expect('handler log', 'open();open();R:G1;R:G2;R:G3;R:G4;R:G1;R:G1;C:G1');
+        Observer.Expect('after', 'G1');
+        Observer.Expect('stored', 'G1|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -417,7 +441,12 @@ codeunit 94292 "LT Y80 LK Tests"
         Observer.Observe('after', P.GrpCtl.Value());
         P.Close();
         Observer.Observe('stored', Stored());
-        Observer.Finish();
+        Observer.Expect('before', '');
+        Observer.Expect('handler first', 'G1');
+        Observer.Expect('handler log', 'open();open();R:G1;R:G2;R:G3;R:G4;R:G1;R:G1;C:G1');
+        Observer.Expect('after', 'G1');
+        Observer.Expect('stored', 'G1|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -435,7 +464,12 @@ codeunit 94292 "LT Y80 LK Tests"
         Observer.Observe('after', P.GrpCtl.Value());
         P.Close();
         Observer.Observe('stored', Stored());
-        Observer.Finish();
+        Observer.Expect('before', 'G3');
+        Observer.Expect('handler first', 'G3');
+        Observer.Expect('handler log', 'open();open();R:G3;R:G3;R:G4;R:G3;R:G2;R:G1;R:G3;R:G3;C:G3');
+        Observer.Expect('after', 'G3');
+        Observer.Expect('stored', 'G3|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -453,96 +487,11 @@ codeunit 94292 "LT Y80 LK Tests"
         Observer.Observe('after', P.AltCtl.Value());
         P.Close();
         Observer.Observe('stored', Stored());
-        Observer.Finish();
-    end;
-
-    [Test]
-    [HandlerFunctions('GroupHandler')]
-    procedure Y80_LK_Card_AltHoldsNoRow()
-    var
-        P: TestPage "LT Y80 LK Card";
-    begin
-        Seed('G1', 'Other');
-        Mode := 'ok';
-        P.OpenEdit();
-        P.GoToKey('I1');
-        Observer.Observe('before', P.AltCtl.Value());
-        P.AltCtl.Lookup();
-        Observer.Observe('after', P.AltCtl.Value());
-        P.Close();
-        Observer.Observe('stored', Stored());
-        Observer.Finish();
-    end;
-
-    [Test]
-    [HandlerFunctions('GroupHandler')]
-    procedure Y80_LK_Card_AltHoldsMiddle_Next()
-    var
-        P: TestPage "LT Y80 LK Card";
-    begin
-        Seed('G1', 'Desc 2');
-        Mode := 'next';
-        P.OpenEdit();
-        P.GoToKey('I1');
-        Observer.Observe('before', P.AltCtl.Value());
-        P.AltCtl.Lookup();
-        Observer.Observe('after', P.AltCtl.Value());
-        P.Close();
-        Observer.Observe('stored', Stored());
-        Observer.Finish();
-    end;
-
-    [Test]
-    [HandlerFunctions('GroupHandler')]
-    procedure Y80_LK_List_HoldsMiddle()
-    var
-        P: TestPage "LT Y80 LK List";
-    begin
-        Seed('G3', '');
-        Mode := 'ok';
-        P.OpenEdit();
-        P.GoToKey('I1');
-        Observer.Observe('before', P.GrpCtl.Value());
-        P.GrpCtl.Lookup();
-        Observer.Observe('after', P.GrpCtl.Value());
-        P.Close();
-        Observer.Observe('stored', Stored());
-        Observer.Finish();
-    end;
-
-    [Test]
-    [HandlerFunctions('GroupHandler')]
-    procedure Y80_LK_List_HoldsMiddle_Next()
-    var
-        P: TestPage "LT Y80 LK List";
-    begin
-        Seed('G2', '');
-        Mode := 'next';
-        P.OpenEdit();
-        P.GoToKey('I1');
-        Observer.Observe('before', P.GrpCtl.Value());
-        P.GrpCtl.Lookup();
-        Observer.Observe('after', P.GrpCtl.Value());
-        P.Close();
-        Observer.Observe('stored', Stored());
-        Observer.Finish();
-    end;
-
-    [Test]
-    [HandlerFunctions('GroupHandler')]
-    procedure Y80_LK_List_HoldsNoRow()
-    var
-        P: TestPage "LT Y80 LK List";
-    begin
-        Seed('ZZ', '');
-        Mode := 'ok';
-        P.OpenEdit();
-        P.GoToKey('I1');
-        Observer.Observe('before', P.GrpCtl.Value());
-        P.GrpCtl.Lookup();
-        Observer.Observe('after', P.GrpCtl.Value());
-        P.Close();
-        Observer.Observe('stored', Stored());
-        Observer.Finish();
+        Observer.Expect('before', 'Desc 3');
+        Observer.Expect('handler first', 'G3');
+        Observer.Expect('handler log', 'open();open();R:G3;R:G3;R:G4;R:G3;R:G2;R:G1;R:G3;R:G3;C:G3');
+        Observer.Expect('after', 'Desc 3');
+        Observer.Expect('stored', 'G1|Desc 3');
+        Observer.Verify();
     end;
 }

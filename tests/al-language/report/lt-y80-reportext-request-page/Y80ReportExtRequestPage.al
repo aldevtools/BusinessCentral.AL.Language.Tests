@@ -304,7 +304,11 @@ codeunit 94295 "LT Y80 RX Tests"
         Report.Run(Report::"LT Y80 RX Report");
         Observer.Observe('after run log', Log.Take());
         Observer.Observe('rows', RowsDump());
-        Observer.Finish();
+        Observer.Expect('handler start', 'base open 3 | ext open 0 | base agr 10 | ext agr 0 | base agcr 10 | ext agcr 0');
+        Observer.Expect('read', 'r10|0');
+        Observer.Expect('after run log', 'base query OK | ext query OK | base close | ext close | report prereport | report predata | report agr 10|r10|1 | report agr 20|r20|2 | report agr 30|r30|3');
+        Observer.Expect('rows', '[10|r10|1][20|r20|2][30|r30|3]');
+        Observer.Verify();
     end;
 
     [RequestPageHandler]
@@ -327,7 +331,11 @@ codeunit 94295 "LT Y80 RX Tests"
         Report.Run(Report::"LT Y80 RX Report");
         Observer.Observe('after run log', Log.Take());
         Observer.Observe('rows', RowsDump());
-        Observer.Finish();
+        Observer.Expect('handler start', 'base open 3 | ext open 0 | base agr 10 | ext agr 0 | base agcr 10 | ext agcr 0');
+        Observer.Expect('read', 'r10|0');
+        Observer.Expect('after run log', 'base agr 10 | ext agr 0 | base agcr 10 | ext agcr 0 | base query Cancel | ext query Cancel | base close | ext close');
+        Observer.Expect('rows', '[10|r10|1][20|r20|2][30|r30|3]');
+        Observer.Verify();
     end;
 
     [RequestPageHandler]
@@ -350,7 +358,12 @@ codeunit 94295 "LT Y80 RX Tests"
         Report.Run(Report::"LT Y80 RX Report");
         Observer.Observe('after run log', Log.Take());
         Observer.Observe('rows', RowsDump());
-        Observer.Finish();
+        Observer.Expect('handler start', 'base open 3 | ext open 0 | base agr 10 | ext agr 0 | base agcr 10 | ext agcr 0');
+        Observer.Expect('setnum', 'set|r10|55');
+        Observer.Expect('setnum log', '');
+        Observer.Expect('after run log', 'base query OK | ext query OK | base close | ext close | report prereport | report predata | report agr 10|r10|1 | report agr 20|r20|2 | report agr 30|r30|3');
+        Observer.Expect('rows', '[10|r10|1][20|r20|2][30|r30|3]');
+        Observer.Verify();
     end;
 
     [RequestPageHandler]
@@ -373,7 +386,12 @@ codeunit 94295 "LT Y80 RX Tests"
         Report.Run(Report::"LT Y80 RX Report");
         Observer.Observe('after run log', Log.Take());
         Observer.Observe('rows', RowsDump());
-        Observer.Finish();
+        Observer.Expect('handler start', 'base open 3 | ext open 0 | base agr 10 | ext agr 0 | base agcr 10 | ext agcr 0');
+        Observer.Expect('setnum', 'set|r10|55');
+        Observer.Expect('setnum log', '');
+        Observer.Expect('after run log', 'base agr 10 | ext agr 0 | base agcr 10 | ext agcr 0 | base query Cancel | ext query Cancel | base close | ext close');
+        Observer.Expect('rows', '[10|r10|1][20|r20|2][30|r30|3]');
+        Observer.Verify();
     end;
 
     [RequestPageHandler]
@@ -396,7 +414,12 @@ codeunit 94295 "LT Y80 RX Tests"
         Report.Run(Report::"LT Y80 RX Report");
         Observer.Observe('after run log', Log.Take());
         Observer.Observe('rows', RowsDump());
-        Observer.Finish();
+        Observer.Expect('handler start', 'base open 3 | ext open 0 | base agr 10 | ext agr 0 | base agcr 10 | ext agcr 0');
+        Observer.Expect('settxt', 'set|typed|0');
+        Observer.Expect('settxt log', '');
+        Observer.Expect('after run log', 'base modify typed | ext modify - | base query OK | ext query OK | base close | ext close | report prereport | report predata | report agr 10|typed|1 | report agr 20|r20|2 | report agr 30|r30|3');
+        Observer.Expect('rows', '[10|typed|1][20|r20|2][30|r30|3]');
+        Observer.Verify();
     end;
 
     [RequestPageHandler]
@@ -419,7 +442,12 @@ codeunit 94295 "LT Y80 RX Tests"
         Report.Run(Report::"LT Y80 RX Report");
         Observer.Observe('after run log', Log.Take());
         Observer.Observe('rows', RowsDump());
-        Observer.Finish();
+        Observer.Expect('handler start', 'base open 3 | ext open 0 | base agr 10 | ext agr 0 | base agcr 10 | ext agcr 0');
+        Observer.Expect('settxt', 'set|typed|0');
+        Observer.Expect('settxt log', '');
+        Observer.Expect('after run log', 'base modify typed | ext modify - | base agr 10 | ext agr 0 | base agcr 10 | ext agcr 0 | base query Cancel | ext query Cancel | base close | ext close');
+        Observer.Expect('rows', '[10|typed|1][20|r20|2][30|r30|3]');
+        Observer.Verify();
     end;
 
     [RequestPageHandler]
@@ -443,7 +471,14 @@ codeunit 94295 "LT Y80 RX Tests"
         Report.Run(Report::"LT Y80 RX Report");
         Observer.Observe('after run log', Log.Take());
         Observer.Observe('rows', RowsDump());
-        Observer.Finish();
+        Observer.Expect('handler start', 'base open 3 | ext open 0 | base agr 10 | ext agr 0 | base agcr 10 | ext agcr 0');
+        Observer.Expect('settxt', 'set|typed|0');
+        Observer.Expect('settxt log', '');
+        Observer.Expect('settxt2', 'set|typed2|0');
+        Observer.Expect('settxt2 log', '');
+        Observer.Expect('after run log', 'base modify typed2 | ext modify - | base query OK | ext query OK | base close | ext close | report prereport | report predata | report agr 10|typed2|1 | report agr 20|r20|2 | report agr 30|r30|3');
+        Observer.Expect('rows', '[10|typed2|1][20|r20|2][30|r30|3]');
+        Observer.Verify();
     end;
 
     [RequestPageHandler]
@@ -467,7 +502,14 @@ codeunit 94295 "LT Y80 RX Tests"
         Report.Run(Report::"LT Y80 RX Report");
         Observer.Observe('after run log', Log.Take());
         Observer.Observe('rows', RowsDump());
-        Observer.Finish();
+        Observer.Expect('handler start', 'base open 3 | ext open 0 | base agr 10 | ext agr 0 | base agcr 10 | ext agcr 0');
+        Observer.Expect('settxt', 'set|typed|0');
+        Observer.Expect('settxt log', '');
+        Observer.Expect('settxt2', 'set|typed2|0');
+        Observer.Expect('settxt2 log', '');
+        Observer.Expect('after run log', 'base modify typed2 | ext modify - | base agr 10 | ext agr 0 | base agcr 10 | ext agcr 0 | base query Cancel | ext query Cancel | base close | ext close');
+        Observer.Expect('rows', '[10|typed2|1][20|r20|2][30|r30|3]');
+        Observer.Verify();
     end;
 
     [RequestPageHandler]
@@ -491,7 +533,14 @@ codeunit 94295 "LT Y80 RX Tests"
         Report.Run(Report::"LT Y80 RX Report");
         Observer.Observe('after run log', Log.Take());
         Observer.Observe('rows', RowsDump());
-        Observer.Finish();
+        Observer.Expect('handler start', 'base open 3 | ext open 0 | base agr 10 | ext agr 0 | base agcr 10 | ext agcr 0');
+        Observer.Expect('settxt', 'set|typed|0');
+        Observer.Expect('settxt log', '');
+        Observer.Expect('setnum', 'set|typed|55');
+        Observer.Expect('setnum log', '');
+        Observer.Expect('after run log', 'base modify typed | ext modify - | base query OK | ext query OK | base close | ext close | report prereport | report predata | report agr 10|typed|1 | report agr 20|r20|2 | report agr 30|r30|3');
+        Observer.Expect('rows', '[10|typed|1][20|r20|2][30|r30|3]');
+        Observer.Verify();
     end;
 
     [RequestPageHandler]
@@ -515,7 +564,14 @@ codeunit 94295 "LT Y80 RX Tests"
         Report.Run(Report::"LT Y80 RX Report");
         Observer.Observe('after run log', Log.Take());
         Observer.Observe('rows', RowsDump());
-        Observer.Finish();
+        Observer.Expect('handler start', 'base open 3 | ext open 0 | base agr 10 | ext agr 0 | base agcr 10 | ext agcr 0');
+        Observer.Expect('settxt', 'set|typed|0');
+        Observer.Expect('settxt log', '');
+        Observer.Expect('setnum', 'set|typed|55');
+        Observer.Expect('setnum log', '');
+        Observer.Expect('after run log', 'base modify typed | ext modify - | base agr 10 | ext agr 0 | base agcr 10 | ext agcr 0 | base query Cancel | ext query Cancel | base close | ext close');
+        Observer.Expect('rows', '[10|typed|1][20|r20|2][30|r30|3]');
+        Observer.Verify();
     end;
 
     [RequestPageHandler]
@@ -538,7 +594,12 @@ codeunit 94295 "LT Y80 RX Tests"
         Report.Run(Report::"LT Y80 RX Report");
         Observer.Observe('after run log', Log.Take());
         Observer.Observe('rows', RowsDump());
-        Observer.Finish();
+        Observer.Expect('handler start', 'base open 3 | ext open 0 | base agr 10 | ext agr 0 | base agcr 10 | ext agcr 0');
+        Observer.Expect('next', 'true|r20|0');
+        Observer.Expect('next log', 'base agr 20 | ext agr 0 | base agcr 20 | ext agcr 0');
+        Observer.Expect('after run log', 'base query OK | ext query OK | base close | ext close | report prereport | report predata | report agr 10|r10|1 | report agr 20|r20|2 | report agr 30|r30|3');
+        Observer.Expect('rows', '[10|r10|1][20|r20|2][30|r30|3]');
+        Observer.Verify();
     end;
 
     [RequestPageHandler]
@@ -561,7 +622,12 @@ codeunit 94295 "LT Y80 RX Tests"
         Report.Run(Report::"LT Y80 RX Report");
         Observer.Observe('after run log', Log.Take());
         Observer.Observe('rows', RowsDump());
-        Observer.Finish();
+        Observer.Expect('handler start', 'base open 3 | ext open 0 | base agr 10 | ext agr 0 | base agcr 10 | ext agcr 0');
+        Observer.Expect('next', 'true|r20|0');
+        Observer.Expect('next log', 'base agr 20 | ext agr 0 | base agcr 20 | ext agcr 0');
+        Observer.Expect('after run log', 'base agr 20 | ext agr 0 | base agcr 20 | ext agcr 0 | base query Cancel | ext query Cancel | base close | ext close');
+        Observer.Expect('rows', '[10|r10|1][20|r20|2][30|r30|3]');
+        Observer.Verify();
     end;
 
     [RequestPageHandler]
@@ -585,7 +651,14 @@ codeunit 94295 "LT Y80 RX Tests"
         Report.Run(Report::"LT Y80 RX Report");
         Observer.Observe('after run log', Log.Take());
         Observer.Observe('rows', RowsDump());
-        Observer.Finish();
+        Observer.Expect('handler start', 'base open 3 | ext open 0 | base agr 10 | ext agr 0 | base agcr 10 | ext agcr 0');
+        Observer.Expect('next', 'true|r20|0');
+        Observer.Expect('next log', 'base agr 20 | ext agr 0 | base agcr 20 | ext agcr 0');
+        Observer.Expect('next', 'true|r30|0');
+        Observer.Expect('next log', 'base agr 30 | ext agr 0 | base agcr 30 | ext agcr 0');
+        Observer.Expect('after run log', 'base query OK | ext query OK | base close | ext close | report prereport | report predata | report agr 10|r10|1 | report agr 20|r20|2 | report agr 30|r30|3');
+        Observer.Expect('rows', '[10|r10|1][20|r20|2][30|r30|3]');
+        Observer.Verify();
     end;
 
     [RequestPageHandler]
@@ -609,7 +682,14 @@ codeunit 94295 "LT Y80 RX Tests"
         Report.Run(Report::"LT Y80 RX Report");
         Observer.Observe('after run log', Log.Take());
         Observer.Observe('rows', RowsDump());
-        Observer.Finish();
+        Observer.Expect('handler start', 'base open 3 | ext open 0 | base agr 10 | ext agr 0 | base agcr 10 | ext agcr 0');
+        Observer.Expect('next', 'true|r20|0');
+        Observer.Expect('next log', 'base agr 20 | ext agr 0 | base agcr 20 | ext agcr 0');
+        Observer.Expect('next', 'true|r30|0');
+        Observer.Expect('next log', 'base agr 30 | ext agr 0 | base agcr 30 | ext agcr 0');
+        Observer.Expect('after run log', 'base agr 30 | ext agr 0 | base agcr 30 | ext agcr 0 | base query Cancel | ext query Cancel | base close | ext close');
+        Observer.Expect('rows', '[10|r10|1][20|r20|2][30|r30|3]');
+        Observer.Verify();
     end;
 
     [RequestPageHandler]
@@ -632,7 +712,12 @@ codeunit 94295 "LT Y80 RX Tests"
         Report.Run(Report::"LT Y80 RX Report");
         Observer.Observe('after run log', Log.Take());
         Observer.Observe('rows', RowsDump());
-        Observer.Finish();
+        Observer.Expect('handler start', 'base open 3 | ext open 0 | base agr 10 | ext agr 0 | base agcr 10 | ext agcr 0');
+        Observer.Expect('last', 'true|r30|0');
+        Observer.Expect('last log', 'base agr 30 | ext agr 0 | base agcr 30 | ext agcr 0');
+        Observer.Expect('after run log', 'base query OK | ext query OK | base close | ext close | report prereport | report predata | report agr 10|r10|1 | report agr 20|r20|2 | report agr 30|r30|3');
+        Observer.Expect('rows', '[10|r10|1][20|r20|2][30|r30|3]');
+        Observer.Verify();
     end;
 
     [RequestPageHandler]
@@ -655,7 +740,12 @@ codeunit 94295 "LT Y80 RX Tests"
         Report.Run(Report::"LT Y80 RX Report");
         Observer.Observe('after run log', Log.Take());
         Observer.Observe('rows', RowsDump());
-        Observer.Finish();
+        Observer.Expect('handler start', 'base open 3 | ext open 0 | base agr 10 | ext agr 0 | base agcr 10 | ext agcr 0');
+        Observer.Expect('last', 'true|r30|0');
+        Observer.Expect('last log', 'base agr 30 | ext agr 0 | base agcr 30 | ext agcr 0');
+        Observer.Expect('after run log', 'base agr 30 | ext agr 0 | base agcr 30 | ext agcr 0 | base query Cancel | ext query Cancel | base close | ext close');
+        Observer.Expect('rows', '[10|r10|1][20|r20|2][30|r30|3]');
+        Observer.Verify();
     end;
 
     [RequestPageHandler]
@@ -679,7 +769,14 @@ codeunit 94295 "LT Y80 RX Tests"
         Report.Run(Report::"LT Y80 RX Report");
         Observer.Observe('after run log', Log.Take());
         Observer.Observe('rows', RowsDump());
-        Observer.Finish();
+        Observer.Expect('handler start', 'base open 3 | ext open 0 | base agr 10 | ext agr 0 | base agcr 10 | ext agcr 0');
+        Observer.Expect('last', 'true|r30|0');
+        Observer.Expect('last log', 'base agr 30 | ext agr 0 | base agcr 30 | ext agcr 0');
+        Observer.Expect('previous', 'true|r20|0');
+        Observer.Expect('previous log', 'base agr 20 | ext agr 0 | base agcr 20 | ext agcr 0');
+        Observer.Expect('after run log', 'base query OK | ext query OK | base close | ext close | report prereport | report predata | report agr 10|r10|1 | report agr 20|r20|2 | report agr 30|r30|3');
+        Observer.Expect('rows', '[10|r10|1][20|r20|2][30|r30|3]');
+        Observer.Verify();
     end;
 
     [RequestPageHandler]
@@ -703,7 +800,14 @@ codeunit 94295 "LT Y80 RX Tests"
         Report.Run(Report::"LT Y80 RX Report");
         Observer.Observe('after run log', Log.Take());
         Observer.Observe('rows', RowsDump());
-        Observer.Finish();
+        Observer.Expect('handler start', 'base open 3 | ext open 0 | base agr 10 | ext agr 0 | base agcr 10 | ext agcr 0');
+        Observer.Expect('last', 'true|r30|0');
+        Observer.Expect('last log', 'base agr 30 | ext agr 0 | base agcr 30 | ext agcr 0');
+        Observer.Expect('previous', 'true|r20|0');
+        Observer.Expect('previous log', 'base agr 20 | ext agr 0 | base agcr 20 | ext agcr 0');
+        Observer.Expect('after run log', 'base agr 20 | ext agr 0 | base agcr 20 | ext agcr 0 | base query Cancel | ext query Cancel | base close | ext close');
+        Observer.Expect('rows', '[10|r10|1][20|r20|2][30|r30|3]');
+        Observer.Verify();
     end;
 
     [RequestPageHandler]
@@ -726,7 +830,12 @@ codeunit 94295 "LT Y80 RX Tests"
         Report.Run(Report::"LT Y80 RX Report");
         Observer.Observe('after run log', Log.Take());
         Observer.Observe('rows', RowsDump());
-        Observer.Finish();
+        Observer.Expect('handler start', 'base open 3 | ext open 0 | base agr 10 | ext agr 0 | base agcr 10 | ext agcr 0');
+        Observer.Expect('first', 'true|r10|0');
+        Observer.Expect('first log', 'base agr 10 | ext agr 0 | base agcr 10 | ext agcr 0');
+        Observer.Expect('after run log', 'base query OK | ext query OK | base close | ext close | report prereport | report predata | report agr 10|r10|1 | report agr 20|r20|2 | report agr 30|r30|3');
+        Observer.Expect('rows', '[10|r10|1][20|r20|2][30|r30|3]');
+        Observer.Verify();
     end;
 
     [RequestPageHandler]
@@ -749,7 +858,12 @@ codeunit 94295 "LT Y80 RX Tests"
         Report.Run(Report::"LT Y80 RX Report");
         Observer.Observe('after run log', Log.Take());
         Observer.Observe('rows', RowsDump());
-        Observer.Finish();
+        Observer.Expect('handler start', 'base open 3 | ext open 0 | base agr 10 | ext agr 0 | base agcr 10 | ext agcr 0');
+        Observer.Expect('first', 'true|r10|0');
+        Observer.Expect('first log', 'base agr 10 | ext agr 0 | base agcr 10 | ext agcr 0');
+        Observer.Expect('after run log', 'base agr 10 | ext agr 0 | base agcr 10 | ext agcr 0 | base query Cancel | ext query Cancel | base close | ext close');
+        Observer.Expect('rows', '[10|r10|1][20|r20|2][30|r30|3]');
+        Observer.Verify();
     end;
 
     [RequestPageHandler]
@@ -772,7 +886,12 @@ codeunit 94295 "LT Y80 RX Tests"
         Report.Run(Report::"LT Y80 RX Report");
         Observer.Observe('after run log', Log.Take());
         Observer.Observe('rows', RowsDump());
-        Observer.Finish();
+        Observer.Expect('handler start', 'base open 3 | ext open 0 | base agr 10 | ext agr 0 | base agcr 10 | ext agcr 0');
+        Observer.Expect('goto20', 'true|r20|0');
+        Observer.Expect('goto20 log', 'base agr 10 | ext agr 0 | base agcr 10 | ext agcr 0 | base agr 20 | ext agr 0 | base agcr 20 | ext agcr 0');
+        Observer.Expect('after run log', 'base query OK | ext query OK | base close | ext close | report prereport | report predata | report agr 10|r10|1 | report agr 20|r20|2 | report agr 30|r30|3');
+        Observer.Expect('rows', '[10|r10|1][20|r20|2][30|r30|3]');
+        Observer.Verify();
     end;
 
     [RequestPageHandler]
@@ -795,7 +914,12 @@ codeunit 94295 "LT Y80 RX Tests"
         Report.Run(Report::"LT Y80 RX Report");
         Observer.Observe('after run log', Log.Take());
         Observer.Observe('rows', RowsDump());
-        Observer.Finish();
+        Observer.Expect('handler start', 'base open 3 | ext open 0 | base agr 10 | ext agr 0 | base agcr 10 | ext agcr 0');
+        Observer.Expect('goto20', 'true|r20|0');
+        Observer.Expect('goto20 log', 'base agr 10 | ext agr 0 | base agcr 10 | ext agcr 0 | base agr 20 | ext agr 0 | base agcr 20 | ext agcr 0');
+        Observer.Expect('after run log', 'base agr 20 | ext agr 0 | base agcr 20 | ext agcr 0 | base query Cancel | ext query Cancel | base close | ext close');
+        Observer.Expect('rows', '[10|r10|1][20|r20|2][30|r30|3]');
+        Observer.Verify();
     end;
 
     [RequestPageHandler]
@@ -818,7 +942,12 @@ codeunit 94295 "LT Y80 RX Tests"
         Report.Run(Report::"LT Y80 RX Report");
         Observer.Observe('after run log', Log.Take());
         Observer.Observe('rows', RowsDump());
-        Observer.Finish();
+        Observer.Expect('handler start', 'base open 3 | ext open 0 | base agr 10 | ext agr 0 | base agcr 10 | ext agcr 0');
+        Observer.Expect('new', 'new||0');
+        Observer.Expect('new log', 'base agcr 0 | ext agcr 0');
+        Observer.Expect('after run log', 'base query OK | ext query OK | base close | ext close | report prereport | report predata | report agr 10|r10|1 | report agr 20|r20|2 | report agr 30|r30|3');
+        Observer.Expect('rows', '[10|r10|1][20|r20|2][30|r30|3]');
+        Observer.Verify();
     end;
 
     [RequestPageHandler]
@@ -841,7 +970,12 @@ codeunit 94295 "LT Y80 RX Tests"
         Report.Run(Report::"LT Y80 RX Report");
         Observer.Observe('after run log', Log.Take());
         Observer.Observe('rows', RowsDump());
-        Observer.Finish();
+        Observer.Expect('handler start', 'base open 3 | ext open 0 | base agr 10 | ext agr 0 | base agcr 10 | ext agcr 0');
+        Observer.Expect('new', 'new||0');
+        Observer.Expect('new log', 'base agcr 0 | ext agcr 0');
+        Observer.Expect('after run log', 'base query Cancel | ext query Cancel | base close | ext close');
+        Observer.Expect('rows', '[10|r10|1][20|r20|2][30|r30|3]');
+        Observer.Verify();
     end;
 
     [RequestPageHandler]
@@ -865,7 +999,14 @@ codeunit 94295 "LT Y80 RX Tests"
         Report.Run(Report::"LT Y80 RX Report");
         Observer.Observe('after run log', Log.Take());
         Observer.Observe('rows', RowsDump());
-        Observer.Finish();
+        Observer.Expect('handler start', 'base open 3 | ext open 0 | base agr 10 | ext agr 0 | base agcr 10 | ext agcr 0');
+        Observer.Expect('next', 'true|r20|0');
+        Observer.Expect('next log', 'base agr 20 | ext agr 0 | base agcr 20 | ext agcr 0');
+        Observer.Expect('settxt', 'set|typed|0');
+        Observer.Expect('settxt log', '');
+        Observer.Expect('after run log', 'base modify typed | ext modify - | base query OK | ext query OK | base close | ext close | report prereport | report predata | report agr 10|r10|1 | report agr 20|typed|2 | report agr 30|r30|3');
+        Observer.Expect('rows', '[10|r10|1][20|typed|2][30|r30|3]');
+        Observer.Verify();
     end;
 
     [RequestPageHandler]
@@ -889,6 +1030,13 @@ codeunit 94295 "LT Y80 RX Tests"
         Report.Run(Report::"LT Y80 RX Report");
         Observer.Observe('after run log', Log.Take());
         Observer.Observe('rows', RowsDump());
-        Observer.Finish();
+        Observer.Expect('handler start', 'base open 3 | ext open 0 | base agr 10 | ext agr 0 | base agcr 10 | ext agcr 0');
+        Observer.Expect('next', 'true|r20|0');
+        Observer.Expect('next log', 'base agr 20 | ext agr 0 | base agcr 20 | ext agcr 0');
+        Observer.Expect('settxt', 'set|typed|0');
+        Observer.Expect('settxt log', '');
+        Observer.Expect('after run log', 'base modify typed | ext modify - | base agr 20 | ext agr 0 | base agcr 20 | ext agcr 0 | base query Cancel | ext query Cancel | base close | ext close');
+        Observer.Expect('rows', '[10|r10|1][20|typed|2][30|r30|3]');
+        Observer.Verify();
     end;
 }
