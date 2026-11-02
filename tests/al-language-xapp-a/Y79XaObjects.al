@@ -34,6 +34,48 @@ table 61371 "LT Y79 XA Db Data"
     keys { key(PK; "No.") { Clustered = true; } }
 }
 
+table 61377 "LT Y79 XA Mask 2"
+{
+    DataClassification = SystemMetadata;
+    DataPerCompany = false;
+
+    fields
+    {
+        field(1; "No."; Integer) { }
+        field(2; Note; Text[50]) { }
+    }
+
+    keys { key(PK; "No.") { Clustered = true; } }
+}
+
+table 61378 "LT Y79 XA Mask 4"
+{
+    DataClassification = SystemMetadata;
+    DataPerCompany = false;
+
+    fields
+    {
+        field(1; "No."; Integer) { }
+        field(2; Note; Text[50]) { }
+    }
+
+    keys { key(PK; "No.") { Clustered = true; } }
+}
+
+table 61379 "LT Y79 XA Mask 8"
+{
+    DataClassification = SystemMetadata;
+    DataPerCompany = false;
+
+    fields
+    {
+        field(1; "No."; Integer) { }
+        field(2; Note; Text[50]) { }
+    }
+
+    keys { key(PK; "No.") { Clustered = true; } }
+}
+
 table 61374 "LT Y79 XA Seen"
 {
     DataClassification = SystemMetadata;
@@ -180,7 +222,7 @@ codeunit 61373 "LT Y79 XA Render"
             exit(Result + 'cap=<no TableData row>');
         Result += 'cap name=' + TableData."Object Name" + ' caption=' + TableData."Object Caption" + ' subtype=[' + TableData."Object Subtype" + '] ns=[' + TableData."AL Namespace" + ']';
         Result += ' pkg=' + Kind(TableData."App Package ID", Own.PackageId, Base.PackageId);
-        Result += ' rt=' + Kind(TableData."App Runtime Package ID", Own.PackageId, Base.PackageId);
+        Result += ' rt=' + Kind(TableData."App Runtime Package ID", Own.PackageId, Base.PackageId) + ' rt=pkg:' + Format(TableData."App Runtime Package ID" = TableData."App Package ID");
         Result += ' app=' + Kind(TableData."App ID", Own.Id, Base.Id);
         if TableRow.Get(TableRow."Object Type"::Table, TableId) then
             Result += ' |same as Table row: pkg=' + Format(TableRow."App Package ID" = TableData."App Package ID") + ' rt=' + Format(TableRow."App Runtime Package ID" = TableData."App Runtime Package ID") + ' app=' + Format(TableRow."App ID" = TableData."App ID") + ' ns=' + Format(TableRow."AL Namespace" = TableData."AL Namespace")
