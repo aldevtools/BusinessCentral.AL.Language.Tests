@@ -99,14 +99,16 @@ codeunit 61383 "LT Y79 XB Subs"
             exit;
         Hub.Note('B-mask|' + Hub.Where() + '|t=' + Format(TableID) + '|in=' + Format(TableTriggerMask));
         case TableID of
-            61370, 61371:
-                TableTriggerMask := TableTriggerMask + 1;
+            61370:
+                TableTriggerMask := TableTriggerMask + 16;
+            61371:
+                TableTriggerMask := TableTriggerMask + 32;
             61377:
-                TableTriggerMask := TableTriggerMask + 2;
+                TableTriggerMask := TableTriggerMask + 64;
             61378:
-                TableTriggerMask := TableTriggerMask + 4;
+                TableTriggerMask := TableTriggerMask + 128;
             61379:
-                TableTriggerMask := TableTriggerMask + 8;
+                TableTriggerMask := TableTriggerMask + 15;
         end;
     end;
 
