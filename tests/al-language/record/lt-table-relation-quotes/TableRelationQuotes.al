@@ -123,6 +123,87 @@ table 87157 "LT QP TQ Arm Src"
     keys { key(PK; "No.") { Clustered = true; } }
 }
 
+// Writer Y76 (al-runtime-rs assumption table-relation-quotes): ranges that start open or have two quoted bounds, three & terms, | with a quoted member
+// and a quoted blank member in a where() clause and in the condition of an arm. Object ids 94054 - 94057 (Y76_ tests in codeunit 74068).
+table 94054 "LT Y76 TQ Src"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; "No."; Code[10]) { }
+        field(2; "Kind Upto"; Code[10]) { TableRelation = "LT TQ Ref"."Code" where (Kind = filter(.."B C")); }
+        field(3; "Kind Both"; Code[10]) { TableRelation = "LT TQ Ref"."Code" where (Kind = filter("B C".."B C")); }
+        field(4; "Kind Three And"; Code[10]) { TableRelation = "LT TQ Ref"."Code" where (Kind = filter(<> A & <> "B C" & <> D)); }
+        field(5; "Kind Quoted Or Open"; Code[10]) { TableRelation = "LT TQ Ref"."Code" where (Kind = filter("B C" | D..)); }
+        field(6; "Opt Upto"; Code[10]) { TableRelation = "LT TQ Ref"."Code" where (Opt = filter(.."B C")); }
+        field(7; "Opt Both"; Code[10]) { TableRelation = "LT TQ Ref"."Code" where (Opt = filter("B C".."B C")); }
+        field(8; "Opt Three And"; Code[10]) { TableRelation = "LT TQ Ref"."Code" where (Opt = filter(<> A & <> "B C" & <> D)); }
+        field(9; "Opt Quoted Or Plain"; Code[10]) { TableRelation = "LT TQ Ref"."Code" where (Opt = filter("B C" | D)); }
+        field(10; "Opt Open From Quoted"; Code[10]) { TableRelation = "LT TQ Ref"."Code" where (Opt = filter("B C"..)); }
+        field(11; "Opt Not Quoted Or"; Code[10]) { TableRelation = "LT TQ Ref"."Code" where (Opt = filter(<> "B C" & <> A)); }
+    }
+
+    keys { key(PK; "No.") { Clustered = true; } }
+}
+
+table 94055 "LT Y76 TQ Blank Ref"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; "Code"; Code[10]) { }
+        field(2; Type; Option) { OptionMembers = " ",A,"B C"; }
+    }
+
+    keys { key(PK; "Code") { Clustered = true; } }
+}
+
+table 94056 "LT Y76 TQ Blank Src"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; "No."; Code[10]) { }
+        field(2; Kind; Option) { OptionMembers = " ",A,"B C"; }
+        field(3; "Blank Only"; Code[10]) { TableRelation = "LT Y76 TQ Blank Ref"."Code" where (Type = filter(" ")); }
+        field(4; "Blank Or A"; Code[10]) { TableRelation = "LT Y76 TQ Blank Ref"."Code" where (Type = filter(" " | A)); }
+        field(5; "Not Blank"; Code[10]) { TableRelation = "LT Y76 TQ Blank Ref"."Code" where (Type = filter(<> " ")); }
+        field(6; "Blank Const"; Code[10]) { TableRelation = "LT Y76 TQ Blank Ref"."Code" where (Type = const(" ")); }
+        field(7; "Blank To A"; Code[10]) { TableRelation = "LT Y76 TQ Blank Ref"."Code" where (Type = filter(" "..A)); }
+        field(8; "Blank To Quoted"; Code[10]) { TableRelation = "LT Y76 TQ Blank Ref"."Code" where (Type = filter(" ".."B C")); }
+        field(9; "Arm Not Blank"; Code[10])
+        {
+            TableRelation = if (Kind = filter(<> " ")) "LT QP TQ T1"."Code"
+            else "LT QP TQ T2"."Code";
+        }
+        field(10; "Arm Upto"; Code[10])
+        {
+            TableRelation = if (Kind = filter(.."B C")) "LT QP TQ T1"."Code"
+            else "LT QP TQ T2"."Code";
+        }
+        field(11; "Arm Quoted Or A"; Code[10])
+        {
+            TableRelation = if (Kind = filter("B C" | A)) "LT QP TQ T1"."Code"
+            else "LT QP TQ T2"."Code";
+        }
+        field(12; "Arm Open From Quoted"; Code[10])
+        {
+            TableRelation = if (Kind = filter("B C"..)) "LT QP TQ T1"."Code"
+            else "LT QP TQ T2"."Code";
+        }
+        field(13; "Arm Both Quoted"; Code[10])
+        {
+            TableRelation = if (Kind = filter(" ".."B C")) "LT QP TQ T1"."Code"
+            else "LT QP TQ T2"."Code";
+        }
+    }
+
+    keys { key(PK; "No.") { Clustered = true; } }
+}
+
 codeunit 74068 "LT Table Relation Quotes"
 {
     Subtype = Test;
@@ -593,5 +674,268 @@ codeunit 74068 "LT Table Relation Quotes"
         Obs.Expect('v_NOPE|text', 'The field BlankOr of table LT QP TQ Arm Src contains a value (NOPE) that cannot be found in the related table (LT QP TQ T2).');
         Obs.Expect('v_NOPE|code', 'DB:PrimRecordNotFound');
         Obs.Verify();
+    end;
+
+    // ---- Writer Y76
+    [TryFunction]
+    local procedure Y76TryValidate(FieldNo: Integer; Value: Text)
+    var
+        S: Record "LT Y76 TQ Src";
+        V: Code[10];
+    begin
+        V := CopyStr(Value, 1, 10);
+        case FieldNo of
+            2:
+                S.Validate("Kind Upto", V);
+            3:
+                S.Validate("Kind Both", V);
+            4:
+                S.Validate("Kind Three And", V);
+            5:
+                S.Validate("Kind Quoted Or Open", V);
+            6:
+                S.Validate("Opt Upto", V);
+            7:
+                S.Validate("Opt Both", V);
+            8:
+                S.Validate("Opt Three And", V);
+            9:
+                S.Validate("Opt Quoted Or Plain", V);
+            10:
+                S.Validate("Opt Open From Quoted", V);
+            11:
+                S.Validate("Opt Not Quoted Or", V);
+        end;
+    end;
+
+    local procedure Y76Probe(FieldNo: Integer)
+    var
+        Codes: List of [Text];
+        C: Text;
+    begin
+        Seed();
+        Codes.Add('R1');
+        Codes.Add('R2');
+        Codes.Add('R3');
+        Codes.Add('R4');
+        Codes.Add('R5');
+        Codes.Add('');
+        Codes.Add('NOPE');
+        foreach C in Codes do begin
+            ClearLastError();
+            if Y76TryValidate(FieldNo, C) then
+                Obs.Observe('f' + Format(FieldNo) + '_' + C, 'ok')
+            else
+                Obs.Observe('f' + Format(FieldNo) + '_' + C, GetLastErrorCode());
+        end;
+    end;
+
+    [Test]
+    procedure Y76_Kind_Upto_Both()
+    begin
+        Y76Probe(2);
+        Y76Probe(3);
+        Obs.Finish();
+    end;
+
+    [Test]
+    procedure Y76_Kind_ThreeAnd_QuotedOrOpen()
+    begin
+        Y76Probe(4);
+        Y76Probe(5);
+        Obs.Finish();
+    end;
+
+    [Test]
+    procedure Y76_Opt_Upto_Both()
+    begin
+        Y76Probe(6);
+        Y76Probe(7);
+        Obs.Finish();
+    end;
+
+    [Test]
+    procedure Y76_Opt_ThreeAnd_QuotedOrPlain()
+    begin
+        Y76Probe(8);
+        Y76Probe(9);
+        Obs.Finish();
+    end;
+
+    [Test]
+    procedure Y76_Opt_OpenFromQuoted_NotQuoted()
+    begin
+        Y76Probe(10);
+        Y76Probe(11);
+        Obs.Finish();
+    end;
+
+    local procedure Y76SeedBlank()
+    var
+        R: Record "LT Y76 TQ Blank Ref";
+        A: Record "LT QP TQ T1";
+        B: Record "LT QP TQ T2";
+    begin
+        R.DeleteAll();
+        Y76AddBlank('B1', 0);
+        Y76AddBlank('B2', 1);
+        Y76AddBlank('B3', 2);
+        A.DeleteAll();
+        B.DeleteAll();
+        A.Code := 'X1';
+        A.Insert();
+        B.Code := 'Y1';
+        B.Insert();
+    end;
+
+    local procedure Y76AddBlank(Code: Code[10]; Type: Option)
+    var
+        R: Record "LT Y76 TQ Blank Ref";
+    begin
+        R.Code := Code;
+        R.Type := Type;
+        R.Insert();
+    end;
+
+    [TryFunction]
+    local procedure Y76TryValidateBlank(FieldNo: Integer; KindValue: Integer; Value: Text)
+    var
+        S: Record "LT Y76 TQ Blank Src";
+        V: Code[10];
+    begin
+        V := CopyStr(Value, 1, 10);
+        S.Kind := KindValue;
+        case FieldNo of
+            3:
+                S.Validate("Blank Only", V);
+            4:
+                S.Validate("Blank Or A", V);
+            5:
+                S.Validate("Not Blank", V);
+            6:
+                S.Validate("Blank Const", V);
+            7:
+                S.Validate("Blank To A", V);
+            8:
+                S.Validate("Blank To Quoted", V);
+            9:
+                S.Validate("Arm Not Blank", V);
+            10:
+                S.Validate("Arm Upto", V);
+            11:
+                S.Validate("Arm Quoted Or A", V);
+            12:
+                S.Validate("Arm Open From Quoted", V);
+            13:
+                S.Validate("Arm Both Quoted", V);
+        end;
+    end;
+
+    local procedure Y76ProbeBlank(FieldNo: Integer; KindValue: Integer; Codes: List of [Text])
+    var
+        C: Text;
+    begin
+        foreach C in Codes do begin
+            ClearLastError();
+            if Y76TryValidateBlank(FieldNo, KindValue, C) then
+                Obs.Observe('f' + Format(FieldNo) + 'k' + Format(KindValue) + '_' + C, 'ok')
+            else
+                Obs.Observe('f' + Format(FieldNo) + 'k' + Format(KindValue) + '_' + C, GetLastErrorCode());
+        end;
+    end;
+
+    local procedure Y76WhereCodes(var Codes: List of [Text])
+    begin
+        Codes.Add('B1');
+        Codes.Add('B2');
+        Codes.Add('B3');
+        Codes.Add('');
+        Codes.Add('NOPE');
+    end;
+
+    [Test]
+    procedure Y76_BlankMember_Where_1()
+    var
+        Codes: List of [Text];
+    begin
+        Y76SeedBlank();
+        Y76WhereCodes(Codes);
+        Y76ProbeBlank(3, 0, Codes);
+        Y76ProbeBlank(4, 0, Codes);
+        Obs.Finish();
+    end;
+
+    [Test]
+    procedure Y76_BlankMember_Where_2()
+    var
+        Codes: List of [Text];
+    begin
+        Y76SeedBlank();
+        Y76WhereCodes(Codes);
+        Y76ProbeBlank(5, 0, Codes);
+        Y76ProbeBlank(6, 0, Codes);
+        Obs.Finish();
+    end;
+
+    [Test]
+    procedure Y76_BlankMember_Where_3()
+    var
+        Codes: List of [Text];
+    begin
+        Y76SeedBlank();
+        Y76WhereCodes(Codes);
+        Y76ProbeBlank(7, 0, Codes);
+        Y76ProbeBlank(8, 0, Codes);
+        Obs.Finish();
+    end;
+
+    local procedure Y76ArmCodes(var Codes: List of [Text])
+    begin
+        Codes.Add('X1');
+        Codes.Add('Y1');
+        Codes.Add('NOPE');
+    end;
+
+    [Test]
+    procedure Y76_Arms_NotBlank_Upto()
+    var
+        Codes: List of [Text];
+        K: Integer;
+    begin
+        Y76SeedBlank();
+        Y76ArmCodes(Codes);
+        for K := 0 to 2 do begin
+            Y76ProbeBlank(9, K, Codes);
+            Y76ProbeBlank(10, K, Codes);
+        end;
+        Obs.Finish();
+    end;
+
+    [Test]
+    procedure Y76_Arms_QuotedOrA_OpenFromQuoted()
+    var
+        Codes: List of [Text];
+        K: Integer;
+    begin
+        Y76SeedBlank();
+        Y76ArmCodes(Codes);
+        for K := 0 to 2 do begin
+            Y76ProbeBlank(11, K, Codes);
+            Y76ProbeBlank(12, K, Codes);
+        end;
+        Obs.Finish();
+    end;
+
+    [Test]
+    procedure Y76_Arms_BothQuoted()
+    var
+        Codes: List of [Text];
+        K: Integer;
+    begin
+        Y76SeedBlank();
+        Y76ArmCodes(Codes);
+        for K := 0 to 2 do
+            Y76ProbeBlank(13, K, Codes);
+        Obs.Finish();
     end;
 }

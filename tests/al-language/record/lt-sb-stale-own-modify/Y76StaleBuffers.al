@@ -1,0 +1,339 @@
+// BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/record/record-modify-method
+// Scope: in-scope
+// Fixtures used: ALT Universal (60000), ALT Keyed, ALTFixtureCleanup (60019), Probe Observer (69160); test codeunit 94058
+// Probe (writer Y76, al-runtime-rs assumptions stale-buffer-other-origin-written and stale-own-insert-two-commits-other-insert).
+// Part 1: a buffer made stale by a Commit, whose row version came from a Find, an assignment, Copy or TransferFields (not from a Get or from the
+// variable's own Insert), written after the new transaction did nothing, only read the row, modified it (changed or unchanged) or locked it.
+// Part 2: a buffer of the variable's own Insert (with and without an own Modify) made stale before two Commits, written after the new transaction
+// inserted another row of the table and beside that Insert deleted another row, renamed it, inserted into another table or modified another row.
+// BC versions: 27+
+
+codeunit 94058 "LT Y76 Stale Buffers"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    var
+        Cleanup: Codeunit ALTFixtureCleanup;
+
+    local procedure Stored(): Text
+    var
+        Row: Record "ALT Universal";
+    begin
+        if not Row.Get(5) then
+            exit('none');
+        exit(Row."Text Field" + '|' + Format(Row."Integer Field"));
+    end;
+
+    local procedure MakeBuffer(var Row: Record "ALT Universal"; Origin: Text)
+    var
+        Src: Record "ALT Universal";
+        TempCopy: Record "ALT Universal" temporary;
+    begin
+        case Origin of
+            'get':
+                Row.Get(5);
+            'find':
+                Row.FindFirst();
+            'findlast':
+                Row.FindLast();
+            'findset':
+                Row.FindSet();
+            'assign':
+                begin
+                    Src.Get(5);
+                    Row := Src;
+                end;
+            'copy':
+                begin
+                    Src.Get(5);
+                    Row.Copy(Src);
+                end;
+            'transfer_from_record':
+                begin
+                    Src.Get(5);
+                    Row.TransferFields(Src);
+                end;
+            'transfer_from_temp':
+                begin
+                    Src.Get(5);
+                    TempCopy.Init();
+                    TempCopy.TransferFields(Src);
+                    TempCopy.Insert();
+                    Row.TransferFields(TempCopy);
+                end;
+        end;
+    end;
+
+    local procedure Between(What: Text)
+    var
+        Later: Record "ALT Universal";
+    begin
+        case What of
+            'get':
+                Later.Get(5);
+            'modify_changed':
+                begin
+                    Later.Get(5);
+                    Later."Text Field" := 'later';
+                    Later.Modify(false);
+                end;
+            'modify_unchanged':
+                begin
+                    Later.Get(5);
+                    Later.Modify(false);
+                end;
+            'lock':
+                begin
+                    Later.LockTable();
+                    Later.Get(5);
+                end;
+        end;
+    end;
+
+    // Returns "<write outcome> stored=<text>|<integer>"
+    local procedure Part1(Origin: Text; What: Text; Deleting: Boolean): Text
+    var
+        Row: Record "ALT Universal";
+        Other: Record "ALT Universal";
+        Outcome: Text;
+        Rows: Record "ALT Universal";
+    begin
+        Cleanup.Initialize();
+        Row.Init();
+        Row."Entry No." := 5;
+        Row."Text Field" := 'start';
+        Row.Insert(false);
+        Commit();
+        MakeBuffer(Row, Origin);
+        Other.Get(5);
+        Other."Text Field" := 'other';
+        Other.Modify(false);
+        Commit();
+        Between(What);
+        Row."Integer Field" := 5;
+        ClearLastError();
+        if Deleting then
+            asserterror Row.Delete(false)
+        else
+            asserterror Row.Modify(false);
+        if GetLastErrorText() = '' then
+            Outcome := 'ok'
+        else
+            Outcome := GetLastErrorCode();
+        ClearLastError();
+        Outcome += ' stored=' + Stored();
+        Rows.DeleteAll();
+        Commit();
+        exit(Outcome);
+    end;
+
+    local procedure Part1Modes(var Observer: Codeunit "Probe Observer"; Origin: Text)
+    begin
+        Observer.Observe(Origin + '/nothing', Part1(Origin, 'nothing', false));
+        Observer.Observe(Origin + '/get', Part1(Origin, 'get', false));
+        Observer.Observe(Origin + '/modify_changed', Part1(Origin, 'modify_changed', false));
+        Observer.Observe(Origin + '/modify_unchanged', Part1(Origin, 'modify_unchanged', false));
+        Observer.Observe(Origin + '/lock', Part1(Origin, 'lock', false));
+        Observer.Observe(Origin + '/delete_nothing', Part1(Origin, 'nothing', true));
+        Observer.Observe(Origin + '/delete_modify_changed', Part1(Origin, 'modify_changed', true));
+    end;
+
+    [Test]
+    procedure Y76_Part1_Get_Control()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Part1Modes(Observer, 'get');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y76_Part1_FindFirst_FindLast()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Part1Modes(Observer, 'find');
+        Part1Modes(Observer, 'findlast');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y76_Part1_FindSet_Assign()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Part1Modes(Observer, 'findset');
+        Part1Modes(Observer, 'assign');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y76_Part1_Copy_TransferFromRecord()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Part1Modes(Observer, 'copy');
+        Part1Modes(Observer, 'transfer_from_record');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y76_Part1_TransferFromTemp()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Part1Modes(Observer, 'transfer_from_temp');
+        Observer.Finish();
+    end;
+
+    // ---- Part 2
+    local procedure KeyedInsert(EntryNo: Integer)
+    var
+        Middle: Record "ALT Keyed";
+    begin
+        Middle.Init();
+        Middle."Entry No." := EntryNo;
+        Middle.Insert(true);
+    end;
+
+    local procedure UniversalInsert(EntryNo: Integer)
+    var
+        Another: Record "ALT Universal";
+    begin
+        Another.Init();
+        Another."Entry No." := EntryNo;
+        Another."Text Field" := 'another';
+        Another.Insert(true);
+    end;
+
+    local procedure Part2(OwnModify: Boolean; Commits: Integer; Beside: Text; Deleting: Boolean): Text
+    var
+        Row: Record "ALT Universal";
+        Another: Record "ALT Universal";
+        Other: Record "ALT Universal";
+        Rows: Record "ALT Universal";
+        Keyed: Record "ALT Keyed";
+        i: Integer;
+        Outcome: Text;
+        Stored6: Text;
+    begin
+        Cleanup.Initialize();
+        Row.Init();
+        Row."Entry No." := 6;
+        Row."Text Field" := 'start';
+        Row.Insert(true);
+        if OwnModify then begin
+            Row."Decimal Field" := 1;
+            Row.Modify(false);
+        end;
+        UniversalInsert(8);
+        Other.Get(6);
+        Other."Text Field" := 'other';
+        Other.Modify(false);
+        Commit();
+        for i := 2 to Commits do begin
+            KeyedInsert(i);
+            Commit();
+        end;
+        UniversalInsert(10);
+        case Beside of
+            'none':
+                ;
+            'delete':
+                begin
+                    Another.Get(8);
+                    Another.Delete(false);
+                end;
+            'rename':
+                begin
+                    Another.Get(8);
+                    Another.Rename(9);
+                end;
+            'othertable':
+                KeyedInsert(100);
+            'modify_other':
+                begin
+                    Another.Get(8);
+                    Another."Integer Field" := 7;
+                    Another.Modify(false);
+                end;
+            'deleteall_other_table':
+                begin
+                    Keyed.DeleteAll();
+                end;
+        end;
+        Row."Integer Field" := 5;
+        ClearLastError();
+        if Deleting then
+            asserterror Row.Delete(false)
+        else
+            asserterror Row.Modify(false);
+        if GetLastErrorText() = '' then
+            Outcome := 'ok'
+        else
+            Outcome := GetLastErrorCode();
+        ClearLastError();
+        if Other.Get(6) then
+            Stored6 := Other."Text Field" + '|' + Format(Other."Integer Field") + '|' + Format(Other."Decimal Field")
+        else
+            Stored6 := 'none';
+        Outcome += ' stored6=' + Stored6;
+        Rows.DeleteAll();
+        Keyed.DeleteAll();
+        Commit();
+        exit(Outcome);
+    end;
+
+    [Test]
+    procedure Y76_Part2_OwnModify_TwoCommits()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('none', Part2(true, 2, 'none', false));
+        Observer.Observe('delete', Part2(true, 2, 'delete', false));
+        Observer.Observe('rename', Part2(true, 2, 'rename', false));
+        Observer.Observe('othertable', Part2(true, 2, 'othertable', false));
+        Observer.Observe('modify_other', Part2(true, 2, 'modify_other', false));
+        Observer.Observe('del_none', Part2(true, 2, 'none', true));
+        Observer.Observe('del_delete', Part2(true, 2, 'delete', true));
+        Observer.Observe('del_rename', Part2(true, 2, 'rename', true));
+        Observer.Observe('del_othertable', Part2(true, 2, 'othertable', true));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y76_Part2_OwnInsertOnly_TwoCommits()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('none', Part2(false, 2, 'none', false));
+        Observer.Observe('delete', Part2(false, 2, 'delete', false));
+        Observer.Observe('rename', Part2(false, 2, 'rename', false));
+        Observer.Observe('othertable', Part2(false, 2, 'othertable', false));
+        Observer.Observe('modify_other', Part2(false, 2, 'modify_other', false));
+        Observer.Observe('del_none', Part2(false, 2, 'none', true));
+        Observer.Observe('del_delete', Part2(false, 2, 'delete', true));
+        Observer.Observe('del_rename', Part2(false, 2, 'rename', true));
+        Observer.Observe('del_othertable', Part2(false, 2, 'othertable', true));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y76_Part2_ThreeCommits_AndOneCommit()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('own_modify_3_delete', Part2(true, 3, 'delete', false));
+        Observer.Observe('own_modify_3_rename', Part2(true, 3, 'rename', false));
+        Observer.Observe('own_modify_3_othertable', Part2(true, 3, 'othertable', false));
+        Observer.Observe('own_insert_3_delete', Part2(false, 3, 'delete', false));
+        Observer.Observe('own_insert_3_othertable', Part2(false, 3, 'othertable', false));
+        Observer.Observe('own_modify_1_delete', Part2(true, 1, 'delete', false));
+        Observer.Observe('own_modify_1_rename', Part2(true, 1, 'rename', false));
+        Observer.Observe('own_modify_1_othertable', Part2(true, 1, 'othertable', false));
+        Observer.Observe('own_insert_1_delete', Part2(false, 1, 'delete', false));
+        Observer.Observe('own_insert_1_rename', Part2(false, 1, 'rename', false));
+        Observer.Finish();
+    end;
+}
