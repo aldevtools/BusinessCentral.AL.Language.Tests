@@ -135,12 +135,12 @@ table 94051 "LT Y76 Rel Child"
         field(1; Id; Integer) { }
         field(2; Qty; Integer) { }
         field(3; Kind; Option) { OptionMembers = A,B,C,D; }
-        field(4; Cat; Code[10]) { }
+        field(4; Amt; Decimal) { }
         field(10; RefNegative; Code[10]) { TableRelation = if (Qty = filter(< 0)) "LT Y76 Rel Parent".Code; }
         field(11; RefNotBAndC; Code[10]) { TableRelation = if (Kind = filter(<> B & <> C)) "LT Y76 Rel Parent".Code; }
         field(12; RefRange; Code[10]) { TableRelation = if (Qty = filter(1..3)) "LT Y76 Rel Parent".Code; }
         field(13; RefOr; Code[10]) { TableRelation = if (Kind = filter(A | C)) "LT Y76 Rel Parent".Code; }
-        field(14; RefWild; Code[10]) { TableRelation = if (Cat = filter(X*)) "LT Y76 Rel Parent".Code; }
+        field(14; RefDecimal; Code[10]) { TableRelation = if (Amt = filter(>=0.5 & <3)) "LT Y76 Rel Parent".Code; }
         field(15; RefAtLeast; Code[10]) { TableRelation = if (Qty = filter(>= 5)) "LT Y76 Rel Parent".Code; }
         field(16; RefElse; Code[10]) { TableRelation = if (Qty = filter(< 0)) "LT Y76 Rel Parent".Code else "LT Y76 Rel Parent".Code where(Name = const('')); }
     }
@@ -346,7 +346,7 @@ codeunit 67177 "LT TR Arms"
         Observer.Verify();
     end;
 
-    local procedure Y76ChildRow(Id: Integer; Qty: Integer; Kind: Integer; Cat: Code[10])
+    local procedure Y76ChildRow(Id: Integer; Qty: Integer; Kind: Integer; Amt: Decimal)
     var
         Child: Record "LT Y76 Rel Child";
     begin
@@ -354,12 +354,12 @@ codeunit 67177 "LT TR Arms"
         Child.Id := Id;
         Child.Qty := Qty;
         Child.Kind := Kind;
-        Child.Cat := Cat;
+        Child.Amt := Amt;
         Child.RefNegative := 'P1';
         Child.RefNotBAndC := 'P1';
         Child.RefRange := 'P1';
         Child.RefOr := 'P1';
-        Child.RefWild := 'P1';
+        Child.RefDecimal := 'P1';
         Child.RefAtLeast := 'P1';
         Child.RefElse := 'P1';
         Child.Insert();
@@ -372,7 +372,7 @@ codeunit 67177 "LT TR Arms"
     begin
         if not Child.Get(Id) then
             exit('<missing>');
-        Result := Child.RefNegative + ',' + Child.RefNotBAndC + ',' + Child.RefRange + ',' + Child.RefOr + ',' + Child.RefWild + ',' + Child.RefAtLeast + ',' + Child.RefElse;
+        Result := Child.RefNegative + ',' + Child.RefNotBAndC + ',' + Child.RefRange + ',' + Child.RefOr + ',' + Child.RefDecimal + ',' + Child.RefAtLeast + ',' + Child.RefElse;
         exit(Result);
     end;
 
@@ -387,17 +387,17 @@ codeunit 67177 "LT TR Arms"
         Child.DeleteAll();
         Parent.Code := 'P1';
         Parent.Insert();
-        // Id, Qty, Kind (0=A 1=B 2=C 3=D), Cat
-        Y76ChildRow(1, -1, 0, 'X1');
-        Y76ChildRow(2, 0, 1, 'Y1');
-        Y76ChildRow(3, 2, 2, 'X1');
-        Y76ChildRow(4, 7, 3, 'Y1');
+        // Id, Qty, Kind (0=A 1=B 2=C 3=D), Amt
+        Y76ChildRow(1, -1, 0, 0.5);
+        Y76ChildRow(2, 0, 1, 0);
+        Y76ChildRow(3, 2, 2, 2.9);
+        Y76ChildRow(4, 7, 3, 3);
         Parent.Get('P1');
         Parent.Rename('P2');
-        Observer.Observe('row1_qty-1_A_X1', Y76Refs(1));
-        Observer.Observe('row2_qty0_B_Y1', Y76Refs(2));
-        Observer.Observe('row3_qty2_C_X1', Y76Refs(3));
-        Observer.Observe('row4_qty7_D_Y1', Y76Refs(4));
+        Observer.Observe('row1_qty-1_A_0.5', Y76Refs(1));
+        Observer.Observe('row2_qty0_B_0', Y76Refs(2));
+        Observer.Observe('row3_qty2_C_2.9', Y76Refs(3));
+        Observer.Observe('row4_qty7_D_3', Y76Refs(4));
         Observer.Finish();
     end;
 
