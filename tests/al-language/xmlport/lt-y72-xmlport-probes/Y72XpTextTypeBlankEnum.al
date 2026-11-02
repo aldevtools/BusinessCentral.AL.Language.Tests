@@ -7,8 +7,8 @@
 //   element); (b) a blank field attribute (and a field element) imported into an Enum field with OnValidate, with no TableRelation: the
 //   export text of the member 0 whose caption is a blank, which OnValidate runs on import with FieldValidate = Yes, with
 //   DefaultFieldsValidation = false, an Option field, and hand-written texts with an empty and a one-blank attribute.
-//   Imports read into temporary table elements inside a TryFunction (writes to the database are not allowed there); what was inserted is
-//   logged from OnAfterInsertRecord.
+//   Imports run into the database tables (a failing import is asserted with asserterror: writes are not allowed in a TryFunction); what
+//   was inserted is logged from OnAfterInsertRecord and read back from the table.
 // Neighbours: xmlport/lt-xmlport-bigtext/XmlPortBigText.al, report/lt-u-report-props/UPropertyTests.al:311-330,
 //   BjXmlPortDefaultValidation.al (default validation of fields, a blank attribute with a TableRelation).
 // BC versions: all (CI)
@@ -132,7 +132,6 @@ xmlport 93853 "LT Y72 XP TextType"
             tableelement(p; "LT Y72 XP P")
             {
                 MinOccurs = Zero;
-                UseTemporary = true;
                 fieldattribute(Id; p.Id) { }
                 textattribute(Note)
                 {
@@ -291,7 +290,6 @@ xmlport 93856 "LT Y72 XP Enum"
             tableelement(e; "LT Y72 XP E")
             {
                 MinOccurs = Zero;
-                UseTemporary = true;
                 fieldattribute(Id; e.Id) { }
                 fieldattribute(Res; e.Res) { }
                 fieldattribute(Plain; e.Plain) { }
@@ -323,7 +321,6 @@ xmlport 93857 "LT Y72 XP Enum Validate"
             tableelement(e; "LT Y72 XP E")
             {
                 MinOccurs = Zero;
-                UseTemporary = true;
                 fieldattribute(Id; e.Id) { }
                 fieldattribute(Res; e.Res)
                 {
@@ -359,7 +356,6 @@ xmlport 93858 "LT Y72 XP Enum NoDefault"
             tableelement(e; "LT Y72 XP E")
             {
                 MinOccurs = Zero;
-                UseTemporary = true;
                 fieldattribute(Id; e.Id) { }
                 fieldattribute(Res; e.Res) { }
                 fieldattribute(Plain; e.Plain) { }
@@ -391,7 +387,6 @@ xmlport 93859 "LT Y72 XP Enum Element"
             tableelement(e; "LT Y72 XP E")
             {
                 MinOccurs = Zero;
-                UseTemporary = true;
                 fieldelement(Id; e.Id) { }
                 fieldelement(Res; e.Res) { }
                 fieldelement(Opt; e.Opt) { }
@@ -566,23 +561,40 @@ codeunit 93864 "LT Y72 XP TextType Enum"
         exit(Result);
     end;
 
-    [TryFunction]
-    local procedure TryImport()
+    local procedure DoImport(Name: Text; PortNo: Integer; Content: Text)
     var
         Runner: Codeunit "LT Y72 XP Import Run";
-    begin
-        Runner.RunImport();
-    end;
-
-    local procedure DoImport(Name: Text; PortNo: Integer; Content: Text)
     begin
         Log.Take();
         ClearLastError();
         Log.SetImport(PortNo, Content);
-        Observer.Observe(Name + ' import ok', Format(TryImport()));
-        if GetLastErrorText() <> '' then
-            Observer.ObserveError(Name + ' import');
+        Runner.RunImport();
         Observer.Observe(Name + ' import log', Log.Take());
+    end;
+
+    // For an import that fails before it writes anything (the schema check).
+    local procedure DoImportError(Name: Text; PortNo: Integer; Content: Text)
+    var
+        Runner: Codeunit "LT Y72 XP Import Run";
+    begin
+        Log.Take();
+        ClearLastError();
+        Log.SetImport(PortNo, Content);
+        asserterror Runner.RunImport();
+        Observer.ObserveError(Name + ' import');
+        Observer.Observe(Name + ' import log', Log.Take());
+    end;
+
+    local procedure PRows(): Text
+    var
+        P: Record "LT Y72 XP P";
+        Result: Text;
+    begin
+        if P.FindSet() then
+            repeat
+                Result += P.Id + ';';
+            until P.Next() = 0;
+        exit(Result);
     end;
 
     local procedure EnumRows(): Text
@@ -657,6 +669,7 @@ codeunit 93864 "LT Y72 XP TextType Enum"
         Observer.Observe('export xml', Xml);
         P.DeleteAll();
         DoImport('text', 1, Xml);
+        Observer.Observe('rows', PRows());
         Observer.Finish();
     end;
 
@@ -794,6 +807,8 @@ codeunit 93864 "LT Y72 XP TextType Enum"
         Xml := ExportEnum(false);
         E.DeleteAll();
         DoImport('default validation', 3, Xml);
+        Observer.Observe('rows default validation', EnumRows());
+        E.DeleteAll();
         Observer.Finish();
     end;
 
@@ -827,6 +842,8 @@ codeunit 93864 "LT Y72 XP TextType Enum"
         Observer.Observe('export xml', Xml);
         E.DeleteAll();
         DoImport('field validate yes', 4, Xml);
+        Observer.Observe('rows field validate yes', EnumRows());
+        E.DeleteAll();
         Observer.Finish();
     end;
 
@@ -860,6 +877,8 @@ codeunit 93864 "LT Y72 XP TextType Enum"
         Observer.Observe('export xml', Xml);
         E.DeleteAll();
         DoImport('default off', 5, Xml);
+        Observer.Observe('rows default off', EnumRows());
+        E.DeleteAll();
         Observer.Finish();
     end;
 
@@ -893,6 +912,8 @@ codeunit 93864 "LT Y72 XP TextType Enum"
         Observer.Observe('export xml', Xml);
         E.DeleteAll();
         DoImport('element', 6, Xml);
+        Observer.Observe('rows element', EnumRows());
+        E.DeleteAll();
         Observer.Finish();
     end;
 
@@ -921,12 +942,18 @@ codeunit 93864 "LT Y72 XP TextType Enum"
     begin
         Start();
         DoImport('empty attributes', 3, '<Root><e Id="5" Res="" Plain="" Opt="" /></Root>');
+        Observer.Observe('rows empty attributes', EnumRows());
+        E.DeleteAll();
         E.DeleteAll();
         DoImport('one blank attributes', 3, '<Root><e Id="6" Res=" " Plain=" " Opt=" " /></Root>');
+        Observer.Observe('rows one blank attributes', EnumRows());
+        E.DeleteAll();
         E.DeleteAll();
         DoImport('names', 3, '<Root><e Id="7" Res="None" Plain="None" Opt="A" /></Root>');
+        Observer.Observe('rows names', EnumRows());
         E.DeleteAll();
-        DoImport('missing attributes', 3, '<Root><e Id="8" /></Root>');
+        E.DeleteAll();
+        DoImportError('missing attributes', 3, '<Root><e Id="8" /></Root>');
         Observer.Finish();
     end;
 
@@ -955,12 +982,20 @@ codeunit 93864 "LT Y72 XP TextType Enum"
     begin
         Start();
         DoImport('validate yes empty', 4, '<Root><e Id="5" Res="" Plain="" Opt="" /></Root>');
+        Observer.Observe('rows validate yes empty', EnumRows());
+        E.DeleteAll();
         E.DeleteAll();
         DoImport('validate yes names', 4, '<Root><e Id="6" Res="Two" Plain="One" Opt="B" /></Root>');
+        Observer.Observe('rows validate yes names', EnumRows());
+        E.DeleteAll();
         E.DeleteAll();
         DoImport('default off empty', 5, '<Root><e Id="5" Res="" Plain="" Opt="" /></Root>');
+        Observer.Observe('rows default off empty', EnumRows());
+        E.DeleteAll();
         E.DeleteAll();
         DoImport('default off names', 5, '<Root><e Id="6" Res="Two" Plain="One" Opt="B" /></Root>');
+        Observer.Observe('rows default off names', EnumRows());
+        E.DeleteAll();
         Observer.Finish();
     end;
 
