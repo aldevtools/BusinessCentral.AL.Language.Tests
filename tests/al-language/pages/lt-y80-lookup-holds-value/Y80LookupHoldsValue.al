@@ -19,7 +19,11 @@ table 94287 "LT Y80 LK Group"
         field(1; "Code"; Code[10]) { }
         field(2; Descr; Text[30]) { }
     }
-    keys { key(PK; "Code") { Clustered = true; } }
+    keys
+    {
+        key(PK; "Code") { Clustered = true; }
+        key(ByDescr; Descr) { }
+    }
 }
 
 table 94288 "LT Y80 LK Item"
@@ -159,24 +163,26 @@ codeunit 94292 "LT Y80 LK Tests"
         exit(Item.Grp + '|' + Item.Alt);
     end;
 
-    [ModalPageHandler]
-    procedure GroupHandler(var P: TestPage "LT Y80 LK Group List")
-    var
-        Log: Record "LT Y80 Log";
+    [TryFunction]
+    local procedure TryFirst(var P: TestPage "LT Y80 LK Group List"; var Result: Text)
     begin
-        Observer.Observe('handler first', P.CodeCtl.Value());
-        Observer.Observe('handler log', Log.Take());
-        case Mode of
+        Result := P.CodeCtl.Value();
+    end;
+
+    [TryFunction]
+    local procedure TryAct(var P: TestPage "LT Y80 LK Group List"; Which: Text; var Result: Text)
+    begin
+        case Which of
             'ok':
                 P.OK().Invoke();
             'next':
                 begin
-                    Observer.Observe('next', Format(P.Next(), 0, 9));
+                    Result := Format(P.Next(), 0, 9);
                     P.OK().Invoke();
                 end;
             'previous':
                 begin
-                    Observer.Observe('previous', Format(P.Previous(), 0, 9));
+                    Result := Format(P.Previous(), 0, 9);
                     P.OK().Invoke();
                 end;
             'first':
@@ -191,6 +197,28 @@ codeunit 94292 "LT Y80 LK Tests"
                 end;
             'cancel':
                 P.Cancel().Invoke();
+        end;
+    end;
+
+    [ModalPageHandler]
+    procedure GroupHandler(var P: TestPage "LT Y80 LK Group List")
+    var
+        Log: Record "LT Y80 Log";
+        Result: Text;
+    begin
+        if TryFirst(P, Result) then
+            Observer.Observe('handler first', Result)
+        else begin
+            Observer.Observe('handler first', 'err|' + GetLastErrorCode() + '|' + GetLastErrorText());
+            ClearLastError();
+        end;
+        Observer.Observe('handler log', Log.Take());
+        Result := '';
+        if TryAct(P, Mode, Result) then
+            Observer.Observe('handler action', 'ok|' + Result)
+        else begin
+            Observer.Observe('handler action', 'err|' + GetLastErrorCode() + '|' + GetLastErrorText());
+            ClearLastError();
         end;
     end;
 
