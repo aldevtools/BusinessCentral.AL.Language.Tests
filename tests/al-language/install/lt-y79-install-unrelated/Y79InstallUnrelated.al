@@ -224,7 +224,6 @@ codeunit 94170 "LT Y79 Install Unrelated"
     var
         Observer: Codeunit "Probe Observer";
         App: Text;
-        Sub: Text;
         BRuns: Boolean;
         DRuns: Boolean;
     begin
@@ -239,10 +238,10 @@ codeunit 94170 "LT Y79 Install Unrelated"
             Observer.Expect('D Reason Code extension in ' + App, Format(DRuns));
             Observer.Expect('B Job Queue Entry extension in ' + App, Format(BRuns));
             Observer.Expect('D Job Queue Entry extension in ' + App, Format(DRuns));
-            foreach Sub in Subs() do begin
-                Observer.Observe(Sub + ' per-company tags event in ' + App, Format(Has(Sub + '-tags-co|' + App + '|co')));
-                Observer.Observe(Sub + ' per-database tags event in ' + App, Format(Has(Sub + '-tags-db|' + App + '|db')));
-            end;
+            Observer.Observe('B per-company tags event in ' + App, Format(Has('B-tags-co|' + App + '|co')));
+            Observer.Observe('D per-company tags event in ' + App, Format(Has('D-tags-co|' + App + '|co')));
+            Observer.Observe('B per-database tags event in ' + App, Format(Has('B-tags-db|' + App + '|db')));
+            Observer.Observe('D per-database tags event in ' + App, Format(Has('D-tags-db|' + App + '|db')));
             Observer.Expect('B per-company tags event in ' + App, Format(BRuns));
             Observer.Expect('D per-company tags event in ' + App, Format(DRuns));
             Observer.Expect('B per-database tags event in ' + App, Format(BRuns));
@@ -300,8 +299,8 @@ codeunit 94170 "LT Y79 Install Unrelated"
                 Observer.Expect('install ' + App + ' ' + Phase + ' own table', OwnText);
                 Observer.Expect('install ' + App + ' ' + Phase + ' Base Application table', MsText);
             end;
-        Observer.Expect('test session own table', 'cap name=LT Y79 XA Data caption=LT Y79 XA Data subtype=[Normal] ns=[] pkg=own rt=own app=own rt=pkg:Yes |same as Table row: pkg=Yes rt=Yes app=Yes ns=Yes |AllObj same: pkg=Yes rt=Yes ns=Yes');
-        Observer.Expect('test session Base Application table', 'cap name=Contact caption=Contact subtype=[Normal] ns=[Microsoft.CRM.Contact] pkg=base rt=other app=base rt=pkg:No |same as Table row: pkg=Yes rt=Yes app=Yes ns=Yes |AllObj same: pkg=Yes rt=Yes ns=Yes');
+        Observer.Expect('test session own table', 'cap name=LT Y79 XA Data caption=LT Y79 XA Data subtype=[Normal] ns=[] pkg=own rt=own rt=pkg:Yes app=own |same as Table row: pkg=Yes rt=Yes app=Yes ns=Yes |AllObj same: pkg=Yes rt=Yes ns=Yes');
+        Observer.Expect('test session Base Application table', 'cap name=Contact caption=Contact subtype=[Normal] ns=[Microsoft.CRM.Contact] pkg=base rt=other rt=pkg:No app=base |same as Table row: pkg=Yes rt=Yes app=Yes ns=Yes |AllObj same: pkg=Yes rt=Yes ns=Yes');
         Observer.Verify();
     end;
 
