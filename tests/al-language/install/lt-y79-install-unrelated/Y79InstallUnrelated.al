@@ -527,6 +527,7 @@ codeunit 94170 "LT Y79 Install Unrelated"
         Row.Note := 'x';
         Row.Modify(true);
         Stage[2] := Clean();
+        Row.Rename(9981);
         Stage[3] := Clean();
         Row.Delete(true);
         Stage[4] := Clean();
@@ -549,6 +550,7 @@ codeunit 94170 "LT Y79 Install Unrelated"
         Row.Note := 'x';
         Row.Modify(true);
         Stage[2] := Clean();
+        Row.Rename(9982);
         Stage[3] := Clean();
         Row.Delete(true);
         Stage[4] := Clean();
