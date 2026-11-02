@@ -425,7 +425,23 @@ codeunit 94236 "LT Y80 Modify Denied Tests"
         Observer.Observe('stored 10', Stored(10));
         Step('close', TryList(P, 'close'));
         Observer.Observe('stored 10 after close', Stored(10));
-        Observer.Finish();
+        Observer.Expect('start', '30/r30/3');
+        Observer.Expect('set ok', 'Yes');
+        Observer.Expect('set|text', '');
+        Observer.Expect('set|code', '');
+        Observer.Expect('set log', '');
+        Observer.Expect('previous ok', 'Yes');
+        Observer.Expect('previous|text', 'Page cannot be saved.');
+        Observer.Expect('previous|code', 'SaveAbort');
+        Observer.Expect('previous log', '');
+        Observer.Expect('shown after previous', '30/x/3');
+        Observer.Expect('stored 10', 'r10/1');
+        Observer.Expect('close ok', 'Yes');
+        Observer.Expect('close|text', '');
+        Observer.Expect('close|code', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored 10 after close', 'r10/1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -443,7 +459,23 @@ codeunit 94236 "LT Y80 Modify Denied Tests"
         Observer.Observe('stored 10', Stored(10));
         Step('close', TryList(P, 'close'));
         Observer.Observe('stored 10 after close', Stored(10));
-        Observer.Finish();
+        Observer.Expect('start', '30/r30/3');
+        Observer.Expect('set ok', 'Yes');
+        Observer.Expect('set|text', '');
+        Observer.Expect('set|code', '');
+        Observer.Expect('set log', '');
+        Observer.Expect('first ok', 'Yes');
+        Observer.Expect('first|text', 'Page cannot be saved.');
+        Observer.Expect('first|code', 'SaveAbort');
+        Observer.Expect('first log', '');
+        Observer.Expect('shown after first', '30/x/3');
+        Observer.Expect('stored 10', 'r10/1');
+        Observer.Expect('close ok', 'Yes');
+        Observer.Expect('close|text', '');
+        Observer.Expect('close|code', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored 10 after close', 'r10/1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -461,7 +493,23 @@ codeunit 94236 "LT Y80 Modify Denied Tests"
         Observer.Observe('stored 10', Stored(10));
         Step('close', TryList(P, 'close'));
         Observer.Observe('stored 10 after close', Stored(10));
-        Observer.Finish();
+        Observer.Expect('start', '10/r10/1');
+        Observer.Expect('set ok', 'Yes');
+        Observer.Expect('set|text', '');
+        Observer.Expect('set|code', '');
+        Observer.Expect('set log', '');
+        Observer.Expect('last ok', 'Yes');
+        Observer.Expect('last|text', 'Page cannot be saved.');
+        Observer.Expect('last|code', 'SaveAbort');
+        Observer.Expect('last log', '');
+        Observer.Expect('shown after last', '10/x/1');
+        Observer.Expect('stored 10', 'r10/1');
+        Observer.Expect('close ok', 'Yes');
+        Observer.Expect('close|text', '');
+        Observer.Expect('close|code', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored 10 after close', 'r10/1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -479,7 +527,23 @@ codeunit 94236 "LT Y80 Modify Denied Tests"
         Observer.Observe('stored 10', Stored(10));
         Step('close', TryList(P, 'close'));
         Observer.Observe('stored 10 after close', Stored(10));
-        Observer.Finish();
+        Observer.Expect('start', '10/r10/1');
+        Observer.Expect('set ok', 'Yes');
+        Observer.Expect('set|text', '');
+        Observer.Expect('set|code', '');
+        Observer.Expect('set log', '');
+        Observer.Expect('goto ok', 'No');
+        Observer.Expect('goto|text', 'The row does not exist on the TestPage.');
+        Observer.Expect('goto|code', 'TestRowNotFound');
+        Observer.Expect('goto log', '');
+        Observer.Expect('shown after goto', '10/x/1');
+        Observer.Expect('stored 10', 'r10/1');
+        Observer.Expect('close ok', 'Yes');
+        Observer.Expect('close|text', '');
+        Observer.Expect('close|code', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored 10 after close', 'r10/1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -497,7 +561,23 @@ codeunit 94236 "LT Y80 Modify Denied Tests"
         Observer.Observe('stored 10', Stored(10));
         Step('close', TryList(P, 'close'));
         Observer.Observe('stored 10 after close', Stored(10));
-        Observer.Finish();
+        Observer.Expect('start', '10/r10/1');
+        Observer.Expect('set ok', 'Yes');
+        Observer.Expect('set|text', '');
+        Observer.Expect('set|code', '');
+        Observer.Expect('set log', '');
+        Observer.Expect('new ok', 'Yes');
+        Observer.Expect('new|text', 'Page cannot be saved.');
+        Observer.Expect('new|code', 'SaveAbort');
+        Observer.Expect('new log', '');
+        Observer.Expect('shown after new', '10/x/1');
+        Observer.Expect('stored 10', 'r10/1');
+        Observer.Expect('close ok', 'Yes');
+        Observer.Expect('close|text', '');
+        Observer.Expect('close|code', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored 10 after close', 'r10/1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -515,7 +595,23 @@ codeunit 94236 "LT Y80 Modify Denied Tests"
         Observer.Observe('stored 10', Stored(10));
         Step('close', TryList(P, 'close'));
         Observer.Observe('stored 10 after close', Stored(10));
-        Observer.Finish();
+        Observer.Expect('start', '10/r10/1');
+        Observer.Expect('set ok', 'Yes');
+        Observer.Expect('set|text', '');
+        Observer.Expect('set|code', '');
+        Observer.Expect('set log', '');
+        Observer.Expect('updatetrue ok', 'Yes');
+        Observer.Expect('updatetrue|text', 'Page cannot be saved.');
+        Observer.Expect('updatetrue|code', 'SaveAbort');
+        Observer.Expect('updatetrue log', '');
+        Observer.Expect('shown after updatetrue', '10/x/1');
+        Observer.Expect('stored 10', 'r10/1');
+        Observer.Expect('close ok', 'Yes');
+        Observer.Expect('close|text', '');
+        Observer.Expect('close|code', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored 10 after close', 'r10/1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -533,7 +629,23 @@ codeunit 94236 "LT Y80 Modify Denied Tests"
         Observer.Observe('stored 10', Stored(10));
         Step('close', TryList(P, 'close'));
         Observer.Observe('stored 10 after close', Stored(10));
-        Observer.Finish();
+        Observer.Expect('start', '10/r10/1');
+        Observer.Expect('set ok', 'Yes');
+        Observer.Expect('set|text', '');
+        Observer.Expect('set|code', '');
+        Observer.Expect('set log', '');
+        Observer.Expect('updatefalse ok', 'Yes');
+        Observer.Expect('updatefalse|text', 'Page cannot be saved.');
+        Observer.Expect('updatefalse|code', 'SaveAbort');
+        Observer.Expect('updatefalse log', '');
+        Observer.Expect('shown after updatefalse', '10/x/1');
+        Observer.Expect('stored 10', 'r10/1');
+        Observer.Expect('close ok', 'Yes');
+        Observer.Expect('close|text', '');
+        Observer.Expect('close|code', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored 10 after close', 'r10/1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -553,7 +665,28 @@ codeunit 94236 "LT Y80 Modify Denied Tests"
         Observer.Observe('stored 10', Stored(10));
         Step('close', TryList(P, 'close'));
         Observer.Observe('stored 10 after close', Stored(10));
-        Observer.Finish();
+        Observer.Expect('start', '10/r10/1');
+        Observer.Expect('set ok', 'Yes');
+        Observer.Expect('set|text', '');
+        Observer.Expect('set|code', '');
+        Observer.Expect('set log', '');
+        Observer.Expect('set2 ok', 'Yes');
+        Observer.Expect('set2|text', '');
+        Observer.Expect('set2|code', '');
+        Observer.Expect('set2 log', '');
+        Observer.Expect('shown after set2', '10/x/77');
+        Observer.Expect('next ok', 'Yes');
+        Observer.Expect('next|text', 'Page cannot be saved.');
+        Observer.Expect('next|code', 'SaveAbort');
+        Observer.Expect('next log', '');
+        Observer.Expect('shown after next', '10/x/77');
+        Observer.Expect('stored 10', 'r10/1');
+        Observer.Expect('close ok', 'Yes');
+        Observer.Expect('close|text', '');
+        Observer.Expect('close|code', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored 10 after close', 'r10/1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -573,7 +706,28 @@ codeunit 94236 "LT Y80 Modify Denied Tests"
         Observer.Observe('stored 10', Stored(10));
         Step('close', TryList(P, 'close'));
         Observer.Observe('stored 10 after close', Stored(10));
-        Observer.Finish();
+        Observer.Expect('start', '10/r10/1');
+        Observer.Expect('set ok', 'Yes');
+        Observer.Expect('set|text', '');
+        Observer.Expect('set|code', '');
+        Observer.Expect('set log', '');
+        Observer.Expect('next ok', 'Yes');
+        Observer.Expect('next|text', 'Page cannot be saved.');
+        Observer.Expect('next|code', 'SaveAbort');
+        Observer.Expect('next log', '');
+        Observer.Expect('shown after next', '10/x/1');
+        Observer.Expect('next ok', 'Yes');
+        Observer.Expect('next|text', '');
+        Observer.Expect('next|code', '');
+        Observer.Expect('next log', '');
+        Observer.Expect('shown after next', '10/x/1');
+        Observer.Expect('stored 10', 'r10/1');
+        Observer.Expect('close ok', 'Yes');
+        Observer.Expect('close|text', '');
+        Observer.Expect('close|code', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored 10 after close', 'r10/1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -591,7 +745,23 @@ codeunit 94236 "LT Y80 Modify Denied Tests"
         Observer.Observe('stored 10', Stored(10));
         Step('close', TryCard(P, 'close'));
         Observer.Observe('stored 10 after close', Stored(10));
-        Observer.Finish();
+        Observer.Expect('start', '30/r30/3');
+        Observer.Expect('set ok', 'Yes');
+        Observer.Expect('set|text', '');
+        Observer.Expect('set|code', '');
+        Observer.Expect('set log', '');
+        Observer.Expect('previous ok', 'Yes');
+        Observer.Expect('previous|text', 'Page cannot be saved.');
+        Observer.Expect('previous|code', 'SaveAbort');
+        Observer.Expect('previous log', '');
+        Observer.Expect('shown after previous', '30/x/3');
+        Observer.Expect('stored 10', 'r10/1');
+        Observer.Expect('close ok', 'Yes');
+        Observer.Expect('close|text', '');
+        Observer.Expect('close|code', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored 10 after close', 'r10/1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -609,7 +779,23 @@ codeunit 94236 "LT Y80 Modify Denied Tests"
         Observer.Observe('stored 10', Stored(10));
         Step('close', TryCard(P, 'close'));
         Observer.Observe('stored 10 after close', Stored(10));
-        Observer.Finish();
+        Observer.Expect('start', '30/r30/3');
+        Observer.Expect('set ok', 'Yes');
+        Observer.Expect('set|text', '');
+        Observer.Expect('set|code', '');
+        Observer.Expect('set log', '');
+        Observer.Expect('first ok', 'Yes');
+        Observer.Expect('first|text', 'Page cannot be saved.');
+        Observer.Expect('first|code', 'SaveAbort');
+        Observer.Expect('first log', '');
+        Observer.Expect('shown after first', '30/x/3');
+        Observer.Expect('stored 10', 'r10/1');
+        Observer.Expect('close ok', 'Yes');
+        Observer.Expect('close|text', '');
+        Observer.Expect('close|code', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored 10 after close', 'r10/1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -627,7 +813,23 @@ codeunit 94236 "LT Y80 Modify Denied Tests"
         Observer.Observe('stored 10', Stored(10));
         Step('close', TryCard(P, 'close'));
         Observer.Observe('stored 10 after close', Stored(10));
-        Observer.Finish();
+        Observer.Expect('start', '10/r10/1');
+        Observer.Expect('set ok', 'Yes');
+        Observer.Expect('set|text', '');
+        Observer.Expect('set|code', '');
+        Observer.Expect('set log', '');
+        Observer.Expect('last ok', 'Yes');
+        Observer.Expect('last|text', 'Page cannot be saved.');
+        Observer.Expect('last|code', 'SaveAbort');
+        Observer.Expect('last log', '');
+        Observer.Expect('shown after last', '10/x/1');
+        Observer.Expect('stored 10', 'r10/1');
+        Observer.Expect('close ok', 'Yes');
+        Observer.Expect('close|text', '');
+        Observer.Expect('close|code', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored 10 after close', 'r10/1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -645,7 +847,23 @@ codeunit 94236 "LT Y80 Modify Denied Tests"
         Observer.Observe('stored 10', Stored(10));
         Step('close', TryCard(P, 'close'));
         Observer.Observe('stored 10 after close', Stored(10));
-        Observer.Finish();
+        Observer.Expect('start', '10/r10/1');
+        Observer.Expect('set ok', 'Yes');
+        Observer.Expect('set|text', '');
+        Observer.Expect('set|code', '');
+        Observer.Expect('set log', '');
+        Observer.Expect('goto ok', 'No');
+        Observer.Expect('goto|text', 'The row does not exist on the TestPage.');
+        Observer.Expect('goto|code', 'TestRowNotFound');
+        Observer.Expect('goto log', '');
+        Observer.Expect('shown after goto', '10/x/1');
+        Observer.Expect('stored 10', 'r10/1');
+        Observer.Expect('close ok', 'Yes');
+        Observer.Expect('close|text', '');
+        Observer.Expect('close|code', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored 10 after close', 'r10/1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -663,7 +881,23 @@ codeunit 94236 "LT Y80 Modify Denied Tests"
         Observer.Observe('stored 10', Stored(10));
         Step('close', TryCard(P, 'close'));
         Observer.Observe('stored 10 after close', Stored(10));
-        Observer.Finish();
+        Observer.Expect('start', '10/r10/1');
+        Observer.Expect('set ok', 'Yes');
+        Observer.Expect('set|text', '');
+        Observer.Expect('set|code', '');
+        Observer.Expect('set log', '');
+        Observer.Expect('new ok', 'Yes');
+        Observer.Expect('new|text', 'Page cannot be saved.');
+        Observer.Expect('new|code', 'SaveAbort');
+        Observer.Expect('new log', '');
+        Observer.Expect('shown after new', '10/x/1');
+        Observer.Expect('stored 10', 'r10/1');
+        Observer.Expect('close ok', 'Yes');
+        Observer.Expect('close|text', '');
+        Observer.Expect('close|code', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored 10 after close', 'r10/1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -681,7 +915,23 @@ codeunit 94236 "LT Y80 Modify Denied Tests"
         Observer.Observe('stored 10', Stored(10));
         Step('close', TryCard(P, 'close'));
         Observer.Observe('stored 10 after close', Stored(10));
-        Observer.Finish();
+        Observer.Expect('start', '10/r10/1');
+        Observer.Expect('set ok', 'Yes');
+        Observer.Expect('set|text', '');
+        Observer.Expect('set|code', '');
+        Observer.Expect('set log', '');
+        Observer.Expect('updatetrue ok', 'Yes');
+        Observer.Expect('updatetrue|text', 'Page cannot be saved.');
+        Observer.Expect('updatetrue|code', 'SaveAbort');
+        Observer.Expect('updatetrue log', '');
+        Observer.Expect('shown after updatetrue', '10/x/1');
+        Observer.Expect('stored 10', 'r10/1');
+        Observer.Expect('close ok', 'Yes');
+        Observer.Expect('close|text', '');
+        Observer.Expect('close|code', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored 10 after close', 'r10/1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -699,7 +949,23 @@ codeunit 94236 "LT Y80 Modify Denied Tests"
         Observer.Observe('stored 10', Stored(10));
         Step('close', TryCard(P, 'close'));
         Observer.Observe('stored 10 after close', Stored(10));
-        Observer.Finish();
+        Observer.Expect('start', '10/r10/1');
+        Observer.Expect('set ok', 'Yes');
+        Observer.Expect('set|text', '');
+        Observer.Expect('set|code', '');
+        Observer.Expect('set log', '');
+        Observer.Expect('updatefalse ok', 'Yes');
+        Observer.Expect('updatefalse|text', 'Page cannot be saved.');
+        Observer.Expect('updatefalse|code', 'SaveAbort');
+        Observer.Expect('updatefalse log', '');
+        Observer.Expect('shown after updatefalse', '10/x/1');
+        Observer.Expect('stored 10', 'r10/1');
+        Observer.Expect('close ok', 'Yes');
+        Observer.Expect('close|text', '');
+        Observer.Expect('close|code', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored 10 after close', 'r10/1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -719,7 +985,28 @@ codeunit 94236 "LT Y80 Modify Denied Tests"
         Observer.Observe('stored 10', Stored(10));
         Step('close', TryCard(P, 'close'));
         Observer.Observe('stored 10 after close', Stored(10));
-        Observer.Finish();
+        Observer.Expect('start', '10/r10/1');
+        Observer.Expect('set ok', 'Yes');
+        Observer.Expect('set|text', '');
+        Observer.Expect('set|code', '');
+        Observer.Expect('set log', '');
+        Observer.Expect('set2 ok', 'Yes');
+        Observer.Expect('set2|text', '');
+        Observer.Expect('set2|code', '');
+        Observer.Expect('set2 log', '');
+        Observer.Expect('shown after set2', '10/x/77');
+        Observer.Expect('next ok', 'Yes');
+        Observer.Expect('next|text', 'Page cannot be saved.');
+        Observer.Expect('next|code', 'SaveAbort');
+        Observer.Expect('next log', '');
+        Observer.Expect('shown after next', '10/x/77');
+        Observer.Expect('stored 10', 'r10/1');
+        Observer.Expect('close ok', 'Yes');
+        Observer.Expect('close|text', '');
+        Observer.Expect('close|code', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored 10 after close', 'r10/1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -737,7 +1024,23 @@ codeunit 94236 "LT Y80 Modify Denied Tests"
         Observer.Observe('stored 10', Stored(10));
         Step('close', TryWorksheet(P, 'close'));
         Observer.Observe('stored 10 after close', Stored(10));
-        Observer.Finish();
+        Observer.Expect('start', '30/r30/3');
+        Observer.Expect('set ok', 'Yes');
+        Observer.Expect('set|text', '');
+        Observer.Expect('set|code', '');
+        Observer.Expect('set log', '');
+        Observer.Expect('previous ok', 'Yes');
+        Observer.Expect('previous|text', 'Page cannot be saved.');
+        Observer.Expect('previous|code', 'SaveAbort');
+        Observer.Expect('previous log', '');
+        Observer.Expect('shown after previous', '30/x/3');
+        Observer.Expect('stored 10', 'r10/1');
+        Observer.Expect('close ok', 'Yes');
+        Observer.Expect('close|text', '');
+        Observer.Expect('close|code', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored 10 after close', 'r10/1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -755,7 +1058,23 @@ codeunit 94236 "LT Y80 Modify Denied Tests"
         Observer.Observe('stored 10', Stored(10));
         Step('close', TryWorksheet(P, 'close'));
         Observer.Observe('stored 10 after close', Stored(10));
-        Observer.Finish();
+        Observer.Expect('start', '30/r30/3');
+        Observer.Expect('set ok', 'Yes');
+        Observer.Expect('set|text', '');
+        Observer.Expect('set|code', '');
+        Observer.Expect('set log', '');
+        Observer.Expect('first ok', 'Yes');
+        Observer.Expect('first|text', 'Page cannot be saved.');
+        Observer.Expect('first|code', 'SaveAbort');
+        Observer.Expect('first log', '');
+        Observer.Expect('shown after first', '30/x/3');
+        Observer.Expect('stored 10', 'r10/1');
+        Observer.Expect('close ok', 'Yes');
+        Observer.Expect('close|text', '');
+        Observer.Expect('close|code', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored 10 after close', 'r10/1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -773,7 +1092,23 @@ codeunit 94236 "LT Y80 Modify Denied Tests"
         Observer.Observe('stored 10', Stored(10));
         Step('close', TryWorksheet(P, 'close'));
         Observer.Observe('stored 10 after close', Stored(10));
-        Observer.Finish();
+        Observer.Expect('start', '10/r10/1');
+        Observer.Expect('set ok', 'Yes');
+        Observer.Expect('set|text', '');
+        Observer.Expect('set|code', '');
+        Observer.Expect('set log', '');
+        Observer.Expect('last ok', 'Yes');
+        Observer.Expect('last|text', 'Page cannot be saved.');
+        Observer.Expect('last|code', 'SaveAbort');
+        Observer.Expect('last log', '');
+        Observer.Expect('shown after last', '10/x/1');
+        Observer.Expect('stored 10', 'r10/1');
+        Observer.Expect('close ok', 'Yes');
+        Observer.Expect('close|text', '');
+        Observer.Expect('close|code', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored 10 after close', 'r10/1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -791,7 +1126,23 @@ codeunit 94236 "LT Y80 Modify Denied Tests"
         Observer.Observe('stored 10', Stored(10));
         Step('close', TryWorksheet(P, 'close'));
         Observer.Observe('stored 10 after close', Stored(10));
-        Observer.Finish();
+        Observer.Expect('start', '10/r10/1');
+        Observer.Expect('set ok', 'Yes');
+        Observer.Expect('set|text', '');
+        Observer.Expect('set|code', '');
+        Observer.Expect('set log', '');
+        Observer.Expect('goto ok', 'No');
+        Observer.Expect('goto|text', 'The row does not exist on the TestPage.');
+        Observer.Expect('goto|code', 'TestRowNotFound');
+        Observer.Expect('goto log', '');
+        Observer.Expect('shown after goto', '10/x/1');
+        Observer.Expect('stored 10', 'r10/1');
+        Observer.Expect('close ok', 'Yes');
+        Observer.Expect('close|text', '');
+        Observer.Expect('close|code', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored 10 after close', 'r10/1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -809,7 +1160,23 @@ codeunit 94236 "LT Y80 Modify Denied Tests"
         Observer.Observe('stored 10', Stored(10));
         Step('close', TryWorksheet(P, 'close'));
         Observer.Observe('stored 10 after close', Stored(10));
-        Observer.Finish();
+        Observer.Expect('start', '10/r10/1');
+        Observer.Expect('set ok', 'Yes');
+        Observer.Expect('set|text', '');
+        Observer.Expect('set|code', '');
+        Observer.Expect('set log', '');
+        Observer.Expect('new ok', 'Yes');
+        Observer.Expect('new|text', 'Page cannot be saved.');
+        Observer.Expect('new|code', 'SaveAbort');
+        Observer.Expect('new log', '');
+        Observer.Expect('shown after new', '10/x/1');
+        Observer.Expect('stored 10', 'r10/1');
+        Observer.Expect('close ok', 'Yes');
+        Observer.Expect('close|text', '');
+        Observer.Expect('close|code', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored 10 after close', 'r10/1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -827,7 +1194,23 @@ codeunit 94236 "LT Y80 Modify Denied Tests"
         Observer.Observe('stored 10', Stored(10));
         Step('close', TryWorksheet(P, 'close'));
         Observer.Observe('stored 10 after close', Stored(10));
-        Observer.Finish();
+        Observer.Expect('start', '10/r10/1');
+        Observer.Expect('set ok', 'Yes');
+        Observer.Expect('set|text', '');
+        Observer.Expect('set|code', '');
+        Observer.Expect('set log', '');
+        Observer.Expect('updatetrue ok', 'Yes');
+        Observer.Expect('updatetrue|text', 'Page cannot be saved.');
+        Observer.Expect('updatetrue|code', 'SaveAbort');
+        Observer.Expect('updatetrue log', '');
+        Observer.Expect('shown after updatetrue', '10/x/1');
+        Observer.Expect('stored 10', 'r10/1');
+        Observer.Expect('close ok', 'Yes');
+        Observer.Expect('close|text', '');
+        Observer.Expect('close|code', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored 10 after close', 'r10/1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -845,7 +1228,23 @@ codeunit 94236 "LT Y80 Modify Denied Tests"
         Observer.Observe('stored 10', Stored(10));
         Step('close', TryWorksheet(P, 'close'));
         Observer.Observe('stored 10 after close', Stored(10));
-        Observer.Finish();
+        Observer.Expect('start', '10/r10/1');
+        Observer.Expect('set ok', 'Yes');
+        Observer.Expect('set|text', '');
+        Observer.Expect('set|code', '');
+        Observer.Expect('set log', '');
+        Observer.Expect('updatefalse ok', 'Yes');
+        Observer.Expect('updatefalse|text', 'Page cannot be saved.');
+        Observer.Expect('updatefalse|code', 'SaveAbort');
+        Observer.Expect('updatefalse log', '');
+        Observer.Expect('shown after updatefalse', '10/x/1');
+        Observer.Expect('stored 10', 'r10/1');
+        Observer.Expect('close ok', 'Yes');
+        Observer.Expect('close|text', '');
+        Observer.Expect('close|code', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored 10 after close', 'r10/1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -865,7 +1264,28 @@ codeunit 94236 "LT Y80 Modify Denied Tests"
         Observer.Observe('stored 10', Stored(10));
         Step('close', TryWorksheet(P, 'close'));
         Observer.Observe('stored 10 after close', Stored(10));
-        Observer.Finish();
+        Observer.Expect('start', '10/r10/1');
+        Observer.Expect('set ok', 'Yes');
+        Observer.Expect('set|text', '');
+        Observer.Expect('set|code', '');
+        Observer.Expect('set log', '');
+        Observer.Expect('set2 ok', 'Yes');
+        Observer.Expect('set2|text', '');
+        Observer.Expect('set2|code', '');
+        Observer.Expect('set2 log', '');
+        Observer.Expect('shown after set2', '10/x/77');
+        Observer.Expect('next ok', 'Yes');
+        Observer.Expect('next|text', 'Page cannot be saved.');
+        Observer.Expect('next|code', 'SaveAbort');
+        Observer.Expect('next log', '');
+        Observer.Expect('shown after next', '10/x/77');
+        Observer.Expect('stored 10', 'r10/1');
+        Observer.Expect('close ok', 'Yes');
+        Observer.Expect('close|text', '');
+        Observer.Expect('close|code', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored 10 after close', 'r10/1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -885,7 +1305,28 @@ codeunit 94236 "LT Y80 Modify Denied Tests"
         Observer.Observe('stored 10', Stored(10));
         Step('close', TryWorksheet(P, 'close'));
         Observer.Observe('stored 10 after close', Stored(10));
-        Observer.Finish();
+        Observer.Expect('start', '10/r10/1');
+        Observer.Expect('set ok', 'Yes');
+        Observer.Expect('set|text', '');
+        Observer.Expect('set|code', '');
+        Observer.Expect('set log', '');
+        Observer.Expect('next ok', 'Yes');
+        Observer.Expect('next|text', 'Page cannot be saved.');
+        Observer.Expect('next|code', 'SaveAbort');
+        Observer.Expect('next log', '');
+        Observer.Expect('shown after next', '10/x/1');
+        Observer.Expect('next ok', 'Yes');
+        Observer.Expect('next|text', '');
+        Observer.Expect('next|code', '');
+        Observer.Expect('next log', '');
+        Observer.Expect('shown after next', '10/x/1');
+        Observer.Expect('stored 10', 'r10/1');
+        Observer.Expect('close ok', 'Yes');
+        Observer.Expect('close|text', '');
+        Observer.Expect('close|code', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored 10 after close', 'r10/1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -903,7 +1344,24 @@ codeunit 94236 "LT Y80 Modify Denied Tests"
         Observer.Observe('stored 10', Stored(10));
         Step('close', TryDoc(P, 'close'));
         Observer.Observe('stored 10 after close', Stored(10));
-        Observer.Finish();
+        Observer.Expect('start', '10/r10 part 10/r10');
+        Observer.Expect('set ok', 'Yes');
+        Observer.Expect('set|text', '');
+        Observer.Expect('set|code', '');
+        Observer.Expect('set log', '');
+        Observer.Expect('shown after set', '10/x part 10/r10');
+        Observer.Expect('next ok', 'Yes');
+        Observer.Expect('next|text', 'Page cannot be saved.');
+        Observer.Expect('next|code', 'SaveAbort');
+        Observer.Expect('next log', '');
+        Observer.Expect('shown after next', '10/x part 10/r10');
+        Observer.Expect('stored 10', 'r10/1');
+        Observer.Expect('close ok', 'Yes');
+        Observer.Expect('close|text', '');
+        Observer.Expect('close|code', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored 10 after close', 'r10/1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -921,7 +1379,24 @@ codeunit 94236 "LT Y80 Modify Denied Tests"
         Observer.Observe('stored 10', Stored(10));
         Step('close', TryDoc(P, 'close'));
         Observer.Observe('stored 10 after close', Stored(10));
-        Observer.Finish();
+        Observer.Expect('start', '10/r10 part 10/r10');
+        Observer.Expect('set ok', 'Yes');
+        Observer.Expect('set|text', '');
+        Observer.Expect('set|code', '');
+        Observer.Expect('set log', '');
+        Observer.Expect('shown after set', '10/x part 10/r10');
+        Observer.Expect('partfirst ok', 'Yes');
+        Observer.Expect('partfirst|text', '');
+        Observer.Expect('partfirst|code', '');
+        Observer.Expect('partfirst log', '');
+        Observer.Expect('shown after partfirst', '10/x part 10/r10');
+        Observer.Expect('stored 10', 'r10/1');
+        Observer.Expect('close ok', 'No');
+        Observer.Expect('close|text', 'Page cannot be saved.');
+        Observer.Expect('close|code', 'TestWrapped');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored 10 after close', 'r10/1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -939,7 +1414,24 @@ codeunit 94236 "LT Y80 Modify Denied Tests"
         Observer.Observe('stored 10', Stored(10));
         Step('close', TryDoc(P, 'close'));
         Observer.Observe('stored 10 after close', Stored(10));
-        Observer.Finish();
+        Observer.Expect('start', '10/r10 part 10/r10');
+        Observer.Expect('partset ok', 'Yes');
+        Observer.Expect('partset|text', '');
+        Observer.Expect('partset|code', '');
+        Observer.Expect('partset log', '');
+        Observer.Expect('shown after partset', '10/r10 part 10/p');
+        Observer.Expect('partnext ok', 'Yes');
+        Observer.Expect('partnext|text', 'Page cannot be saved.');
+        Observer.Expect('partnext|code', 'SaveAbort');
+        Observer.Expect('partnext log', '');
+        Observer.Expect('shown after partnext', '10/r10 part 10/p');
+        Observer.Expect('stored 10', 'r10/1');
+        Observer.Expect('close ok', 'Yes');
+        Observer.Expect('close|text', '');
+        Observer.Expect('close|code', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored 10 after close', 'r10/1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -957,7 +1449,24 @@ codeunit 94236 "LT Y80 Modify Denied Tests"
         Observer.Observe('stored 10', Stored(10));
         Step('close', TryDoc(P, 'close'));
         Observer.Observe('stored 10 after close', Stored(10));
-        Observer.Finish();
+        Observer.Expect('start', '10/r10 part 10/r10');
+        Observer.Expect('partset ok', 'Yes');
+        Observer.Expect('partset|text', '');
+        Observer.Expect('partset|code', '');
+        Observer.Expect('partset log', '');
+        Observer.Expect('shown after partset', '10/r10 part 10/p');
+        Observer.Expect('next ok', 'Yes');
+        Observer.Expect('next|text', '');
+        Observer.Expect('next|code', '');
+        Observer.Expect('next log', '');
+        Observer.Expect('shown after next', '20/r20 part 10/p');
+        Observer.Expect('stored 10', 'r10/1');
+        Observer.Expect('close ok', 'No');
+        Observer.Expect('close|text', 'Page cannot be saved.');
+        Observer.Expect('close|code', 'TestWrapped');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored 10 after close', 'r10/1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -975,6 +1484,23 @@ codeunit 94236 "LT Y80 Modify Denied Tests"
         Observer.Observe('stored 10', Stored(10));
         Step('close', TryDoc(P, 'close'));
         Observer.Observe('stored 10 after close', Stored(10));
-        Observer.Finish();
+        Observer.Expect('start', '10/r10 part 10/r10');
+        Observer.Expect('partset ok', 'Yes');
+        Observer.Expect('partset|text', '');
+        Observer.Expect('partset|code', '');
+        Observer.Expect('partset log', '');
+        Observer.Expect('shown after partset', '10/r10 part 10/p');
+        Observer.Expect('partlast ok', 'Yes');
+        Observer.Expect('partlast|text', 'Page cannot be saved.');
+        Observer.Expect('partlast|code', 'SaveAbort');
+        Observer.Expect('partlast log', '');
+        Observer.Expect('shown after partlast', '10/r10 part 10/p');
+        Observer.Expect('stored 10', 'r10/1');
+        Observer.Expect('close ok', 'Yes');
+        Observer.Expect('close|text', '');
+        Observer.Expect('close|code', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored 10 after close', 'r10/1');
+        Observer.Verify();
     end;
 }

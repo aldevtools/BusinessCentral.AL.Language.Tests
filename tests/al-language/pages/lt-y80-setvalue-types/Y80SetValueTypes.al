@@ -269,7 +269,16 @@ codeunit 94226 "LT Y80 ST Tests"
         I := 2147483647;
         Observer.Observe('int max', SetCardTxtCtl(P, I));
         Observer.Observe('close', CloseCard(P));
-        Observer.Finish();
+        Observer.Expect('int 5', 'ok|5');
+        Observer.Expect('int -7', 'ok|-7');
+        Observer.Expect('int 0', 'ok|0');
+        Observer.Expect('int 999', 'ok|999');
+        Observer.Expect('int 1000', 'ok|1000');
+        Observer.Expect('int 1234', 'ok|1234');
+        Observer.Expect('int 1234567', 'ok|1234567');
+        Observer.Expect('int max', 'ok|2147483647');
+        Observer.Expect('close', 'ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -304,7 +313,13 @@ codeunit 94226 "LT Y80 ST Tests"
         B := 0;
         Observer.Observe('big 0', SetCardTxtCtl(P, B));
         Observer.Observe('close', CloseCard(P));
-        Observer.Finish();
+        Observer.Expect('big 5', 'ok|5');
+        Observer.Expect('big -12', 'ok|-12');
+        Observer.Expect('big 1000', 'ok|1000');
+        Observer.Expect('big 5000000000', 'ok|5000000000');
+        Observer.Expect('big 0', 'ok|0');
+        Observer.Expect('close', 'ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -345,7 +360,16 @@ codeunit 94226 "LT Y80 ST Tests"
         D := 100000;
         Observer.Observe('dec 100000', SetCardTxtCtl(P, D));
         Observer.Observe('close', CloseCard(P));
-        Observer.Finish();
+        Observer.Expect('dec 3', 'ok|3');
+        Observer.Expect('dec -3', 'ok|-3');
+        Observer.Expect('dec 1.5', 'ok|1.5');
+        Observer.Expect('dec 1234', 'ok|1,234');
+        Observer.Expect('dec 1234.5', 'ok|1,234.5');
+        Observer.Expect('dec 0.00001', 'ok|0.00001');
+        Observer.Expect('dec 0', 'ok|0');
+        Observer.Expect('dec 100000', 'ok|100,000');
+        Observer.Expect('close', 'ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -390,7 +414,18 @@ codeunit 94226 "LT Y80 ST Tests"
         Co := 'ab';
         Observer.Observe('code', SetCardTxtCtl(P, Co));
         Observer.Observe('close', CloseCard(P));
-        Observer.Finish();
+        Observer.Expect('bool true', 'ok|Yes');
+        Observer.Expect('bool false', 'ok|No');
+        Observer.Expect('date', 'ok|01/31/25');
+        Observer.Expect('time', 'ok| 2:30:05 PM');
+        Observer.Expect('datetime', 'ok|01/31/25 02:30 PM');
+        Observer.Expect('guid', 'ok|{12345678-1234-1234-1234-123456789ABC}');
+        Observer.Expect('duration', 'ok|1 minute 30 seconds');
+        Observer.Expect('char', 'ok|A');
+        Observer.Expect('text', 'ok|x1');
+        Observer.Expect('code', 'ok|AB');
+        Observer.Expect('close', 'ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -421,7 +456,11 @@ codeunit 94226 "LT Y80 ST Tests"
         En := En::Second;
         Observer.Observe('enum second', SetCardTxtCtl(P, En));
         Observer.Observe('close', CloseCard(P));
-        Observer.Finish();
+        Observer.Expect('option', 'ok|B');
+        Observer.Expect('enum first', 'ok|First Kind');
+        Observer.Expect('enum second', 'ok|Second Kind');
+        Observer.Expect('close', 'ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -462,7 +501,16 @@ codeunit 94226 "LT Y80 ST Tests"
         I := 2147483647;
         Observer.Observe('int max', SetCardCdCtl(P, I));
         Observer.Observe('close', CloseCard(P));
-        Observer.Finish();
+        Observer.Expect('int 5', 'ok|5');
+        Observer.Expect('int -7', 'ok|-7');
+        Observer.Expect('int 0', 'ok|0');
+        Observer.Expect('int 999', 'ok|999');
+        Observer.Expect('int 1000', 'ok|1000');
+        Observer.Expect('int 1234', 'ok|1234');
+        Observer.Expect('int 1234567', 'ok|1234567');
+        Observer.Expect('int max', 'ok|2147483647');
+        Observer.Expect('close', 'ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -497,7 +545,13 @@ codeunit 94226 "LT Y80 ST Tests"
         B := 0;
         Observer.Observe('big 0', SetCardCdCtl(P, B));
         Observer.Observe('close', CloseCard(P));
-        Observer.Finish();
+        Observer.Expect('big 5', 'ok|5');
+        Observer.Expect('big -12', 'ok|-12');
+        Observer.Expect('big 1000', 'ok|1000');
+        Observer.Expect('big 5000000000', 'ok|5000000000');
+        Observer.Expect('big 0', 'ok|0');
+        Observer.Expect('close', 'ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -538,7 +592,16 @@ codeunit 94226 "LT Y80 ST Tests"
         D := 100000;
         Observer.Observe('dec 100000', SetCardCdCtl(P, D));
         Observer.Observe('close', CloseCard(P));
-        Observer.Finish();
+        Observer.Expect('dec 3', 'ok|3');
+        Observer.Expect('dec -3', 'ok|-3');
+        Observer.Expect('dec 1.5', 'ok|1.5');
+        Observer.Expect('dec 1234', 'ok|1,234');
+        Observer.Expect('dec 1234.5', 'ok|1,234.5');
+        Observer.Expect('dec 0.00001', 'ok|0.00001');
+        Observer.Expect('dec 0', 'ok|0');
+        Observer.Expect('dec 100000', 'ok|100,000');
+        Observer.Expect('close', 'ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -583,7 +646,18 @@ codeunit 94226 "LT Y80 ST Tests"
         Co := 'ab';
         Observer.Observe('code', SetCardCdCtl(P, Co));
         Observer.Observe('close', CloseCard(P));
-        Observer.Finish();
+        Observer.Expect('bool true', 'ok|YES');
+        Observer.Expect('bool false', 'ok|NO');
+        Observer.Expect('date', 'ok|01/31/25');
+        Observer.Expect('time', 'ok|2:30:05 PM');
+        Observer.Expect('datetime', 'ok|01/31/25 02:30 PM');
+        Observer.Expect('guid', 'ok|{12345678-1234-1234-1234-123456789ABC}');
+        Observer.Expect('duration', 'ok|1 MINUTE 30 SECONDS');
+        Observer.Expect('char', 'ok|A');
+        Observer.Expect('text', 'ok|X1');
+        Observer.Expect('code', 'ok|AB');
+        Observer.Expect('close', 'ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -614,7 +688,11 @@ codeunit 94226 "LT Y80 ST Tests"
         En := En::Second;
         Observer.Observe('enum second', SetCardCdCtl(P, En));
         Observer.Observe('close', CloseCard(P));
-        Observer.Finish();
+        Observer.Expect('option', 'ok|B');
+        Observer.Expect('enum first', 'ok|FIRST KIND');
+        Observer.Expect('enum second', 'ok|SECOND KIND');
+        Observer.Expect('close', 'ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -655,7 +733,16 @@ codeunit 94226 "LT Y80 ST Tests"
         I := 2147483647;
         Observer.Observe('int max', SetCardShortCtl(P, I));
         Observer.Observe('close', CloseCard(P));
-        Observer.Finish();
+        Observer.Expect('int 5', 'ok|5');
+        Observer.Expect('int -7', 'ok|-7');
+        Observer.Expect('int 0', 'ok|0');
+        Observer.Expect('int 999', 'ok|999');
+        Observer.Expect('int 1000', 'ok|1000');
+        Observer.Expect('int 1234', 'ok|1234');
+        Observer.Expect('int 1234567', 'ok|1234567');
+        Observer.Expect('int max', 'ok|2147483647');
+        Observer.Expect('close', 'err|TestWrapped|The length of the string is 10, but it must be less than or equal to 5 characters. Value: 2147483647');
+        Observer.Verify();
     end;
 
     [Test]
@@ -690,7 +777,13 @@ codeunit 94226 "LT Y80 ST Tests"
         B := 0;
         Observer.Observe('big 0', SetCardShortCtl(P, B));
         Observer.Observe('close', CloseCard(P));
-        Observer.Finish();
+        Observer.Expect('big 5', 'ok|5');
+        Observer.Expect('big -12', 'ok|-12');
+        Observer.Expect('big 1000', 'ok|1000');
+        Observer.Expect('big 5000000000', 'ok|5000000000');
+        Observer.Expect('big 0', 'ok|0');
+        Observer.Expect('close', 'ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -731,7 +824,16 @@ codeunit 94226 "LT Y80 ST Tests"
         D := 100000;
         Observer.Observe('dec 100000', SetCardShortCtl(P, D));
         Observer.Observe('close', CloseCard(P));
-        Observer.Finish();
+        Observer.Expect('dec 3', 'ok|3');
+        Observer.Expect('dec -3', 'ok|-3');
+        Observer.Expect('dec 1.5', 'ok|1.5');
+        Observer.Expect('dec 1234', 'ok|1,234');
+        Observer.Expect('dec 1234.5', 'ok|1,234.5');
+        Observer.Expect('dec 0.00001', 'ok|0.00001');
+        Observer.Expect('dec 0', 'ok|0');
+        Observer.Expect('dec 100000', 'ok|100,000');
+        Observer.Expect('close', 'err|TestWrapped|The length of the string is 7, but it must be less than or equal to 5 characters. Value: 100,000');
+        Observer.Verify();
     end;
 
     [Test]
@@ -776,7 +878,18 @@ codeunit 94226 "LT Y80 ST Tests"
         Co := 'ab';
         Observer.Observe('code', SetCardShortCtl(P, Co));
         Observer.Observe('close', CloseCard(P));
-        Observer.Finish();
+        Observer.Expect('bool true', 'ok|Yes');
+        Observer.Expect('bool false', 'ok|No');
+        Observer.Expect('date', 'ok|01/31/25');
+        Observer.Expect('time', 'ok| 2:30:05 PM');
+        Observer.Expect('datetime', 'ok|01/31/25 02:30 PM');
+        Observer.Expect('guid', 'ok|{12345678-1234-1234-1234-123456789ABC}');
+        Observer.Expect('duration', 'ok|1 minute 30 seconds');
+        Observer.Expect('char', 'ok|A');
+        Observer.Expect('text', 'ok|x1');
+        Observer.Expect('code', 'ok|AB');
+        Observer.Expect('close', 'ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -807,7 +920,11 @@ codeunit 94226 "LT Y80 ST Tests"
         En := En::Second;
         Observer.Observe('enum second', SetCardShortCtl(P, En));
         Observer.Observe('close', CloseCard(P));
-        Observer.Finish();
+        Observer.Expect('option', 'ok|B');
+        Observer.Expect('enum first', 'ok|First Kind');
+        Observer.Expect('enum second', 'ok|Second Kind');
+        Observer.Expect('close', 'err|TestWrapped|The length of the string is 11, but it must be less than or equal to 5 characters. Value: Second Kind');
+        Observer.Verify();
     end;
 
     [Test]
@@ -848,7 +965,16 @@ codeunit 94226 "LT Y80 ST Tests"
         I := 2147483647;
         Observer.Observe('int max', SetListTxtCtl(P, I));
         Observer.Observe('close', CloseList(P));
-        Observer.Finish();
+        Observer.Expect('int 5', 'ok|5');
+        Observer.Expect('int -7', 'ok|-7');
+        Observer.Expect('int 0', 'ok|0');
+        Observer.Expect('int 999', 'ok|999');
+        Observer.Expect('int 1000', 'ok|1000');
+        Observer.Expect('int 1234', 'ok|1234');
+        Observer.Expect('int 1234567', 'ok|1234567');
+        Observer.Expect('int max', 'ok|2147483647');
+        Observer.Expect('close', 'ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -883,7 +1009,13 @@ codeunit 94226 "LT Y80 ST Tests"
         B := 0;
         Observer.Observe('big 0', SetListTxtCtl(P, B));
         Observer.Observe('close', CloseList(P));
-        Observer.Finish();
+        Observer.Expect('big 5', 'ok|5');
+        Observer.Expect('big -12', 'ok|-12');
+        Observer.Expect('big 1000', 'ok|1000');
+        Observer.Expect('big 5000000000', 'ok|5000000000');
+        Observer.Expect('big 0', 'ok|0');
+        Observer.Expect('close', 'ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -924,7 +1056,16 @@ codeunit 94226 "LT Y80 ST Tests"
         D := 100000;
         Observer.Observe('dec 100000', SetListTxtCtl(P, D));
         Observer.Observe('close', CloseList(P));
-        Observer.Finish();
+        Observer.Expect('dec 3', 'ok|3');
+        Observer.Expect('dec -3', 'ok|-3');
+        Observer.Expect('dec 1.5', 'ok|1.5');
+        Observer.Expect('dec 1234', 'ok|1,234');
+        Observer.Expect('dec 1234.5', 'ok|1,234.5');
+        Observer.Expect('dec 0.00001', 'ok|0.00001');
+        Observer.Expect('dec 0', 'ok|0');
+        Observer.Expect('dec 100000', 'ok|100,000');
+        Observer.Expect('close', 'ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -969,7 +1110,18 @@ codeunit 94226 "LT Y80 ST Tests"
         Co := 'ab';
         Observer.Observe('code', SetListTxtCtl(P, Co));
         Observer.Observe('close', CloseList(P));
-        Observer.Finish();
+        Observer.Expect('bool true', 'ok|Yes');
+        Observer.Expect('bool false', 'ok|No');
+        Observer.Expect('date', 'ok|01/31/25');
+        Observer.Expect('time', 'ok| 2:30:05 PM');
+        Observer.Expect('datetime', 'ok|01/31/25 02:30 PM');
+        Observer.Expect('guid', 'ok|{12345678-1234-1234-1234-123456789ABC}');
+        Observer.Expect('duration', 'ok|1 minute 30 seconds');
+        Observer.Expect('char', 'ok|A');
+        Observer.Expect('text', 'ok|x1');
+        Observer.Expect('code', 'ok|AB');
+        Observer.Expect('close', 'ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1000,7 +1152,11 @@ codeunit 94226 "LT Y80 ST Tests"
         En := En::Second;
         Observer.Observe('enum second', SetListTxtCtl(P, En));
         Observer.Observe('close', CloseList(P));
-        Observer.Finish();
+        Observer.Expect('option', 'ok|B');
+        Observer.Expect('enum first', 'ok|First Kind');
+        Observer.Expect('enum second', 'ok|Second Kind');
+        Observer.Expect('close', 'ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1041,7 +1197,16 @@ codeunit 94226 "LT Y80 ST Tests"
         I := 2147483647;
         Observer.Observe('int max', SetListCdCtl(P, I));
         Observer.Observe('close', CloseList(P));
-        Observer.Finish();
+        Observer.Expect('int 5', 'ok|5');
+        Observer.Expect('int -7', 'ok|-7');
+        Observer.Expect('int 0', 'ok|0');
+        Observer.Expect('int 999', 'ok|999');
+        Observer.Expect('int 1000', 'ok|1000');
+        Observer.Expect('int 1234', 'ok|1234');
+        Observer.Expect('int 1234567', 'ok|1234567');
+        Observer.Expect('int max', 'ok|2147483647');
+        Observer.Expect('close', 'ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1076,7 +1241,13 @@ codeunit 94226 "LT Y80 ST Tests"
         B := 0;
         Observer.Observe('big 0', SetListCdCtl(P, B));
         Observer.Observe('close', CloseList(P));
-        Observer.Finish();
+        Observer.Expect('big 5', 'ok|5');
+        Observer.Expect('big -12', 'ok|-12');
+        Observer.Expect('big 1000', 'ok|1000');
+        Observer.Expect('big 5000000000', 'ok|5000000000');
+        Observer.Expect('big 0', 'ok|0');
+        Observer.Expect('close', 'ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1117,7 +1288,16 @@ codeunit 94226 "LT Y80 ST Tests"
         D := 100000;
         Observer.Observe('dec 100000', SetListCdCtl(P, D));
         Observer.Observe('close', CloseList(P));
-        Observer.Finish();
+        Observer.Expect('dec 3', 'ok|3');
+        Observer.Expect('dec -3', 'ok|-3');
+        Observer.Expect('dec 1.5', 'ok|1.5');
+        Observer.Expect('dec 1234', 'ok|1,234');
+        Observer.Expect('dec 1234.5', 'ok|1,234.5');
+        Observer.Expect('dec 0.00001', 'ok|0.00001');
+        Observer.Expect('dec 0', 'ok|0');
+        Observer.Expect('dec 100000', 'ok|100,000');
+        Observer.Expect('close', 'ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1162,7 +1342,18 @@ codeunit 94226 "LT Y80 ST Tests"
         Co := 'ab';
         Observer.Observe('code', SetListCdCtl(P, Co));
         Observer.Observe('close', CloseList(P));
-        Observer.Finish();
+        Observer.Expect('bool true', 'ok|YES');
+        Observer.Expect('bool false', 'ok|NO');
+        Observer.Expect('date', 'ok|01/31/25');
+        Observer.Expect('time', 'ok|2:30:05 PM');
+        Observer.Expect('datetime', 'ok|01/31/25 02:30 PM');
+        Observer.Expect('guid', 'ok|{12345678-1234-1234-1234-123456789ABC}');
+        Observer.Expect('duration', 'ok|1 MINUTE 30 SECONDS');
+        Observer.Expect('char', 'ok|A');
+        Observer.Expect('text', 'ok|X1');
+        Observer.Expect('code', 'ok|AB');
+        Observer.Expect('close', 'ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1193,7 +1384,11 @@ codeunit 94226 "LT Y80 ST Tests"
         En := En::Second;
         Observer.Observe('enum second', SetListCdCtl(P, En));
         Observer.Observe('close', CloseList(P));
-        Observer.Finish();
+        Observer.Expect('option', 'ok|B');
+        Observer.Expect('enum first', 'ok|FIRST KIND');
+        Observer.Expect('enum second', 'ok|SECOND KIND');
+        Observer.Expect('close', 'ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1234,7 +1429,16 @@ codeunit 94226 "LT Y80 ST Tests"
         I := 2147483647;
         Observer.Observe('int max', SetListShortCtl(P, I));
         Observer.Observe('close', CloseList(P));
-        Observer.Finish();
+        Observer.Expect('int 5', 'ok|5');
+        Observer.Expect('int -7', 'ok|-7');
+        Observer.Expect('int 0', 'ok|0');
+        Observer.Expect('int 999', 'ok|999');
+        Observer.Expect('int 1000', 'ok|1000');
+        Observer.Expect('int 1234', 'ok|1234');
+        Observer.Expect('int 1234567', 'ok|1234567');
+        Observer.Expect('int max', 'ok|2147483647');
+        Observer.Expect('close', 'err|TestWrapped|The length of the string is 10, but it must be less than or equal to 5 characters. Value: 2147483647');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1269,7 +1473,13 @@ codeunit 94226 "LT Y80 ST Tests"
         B := 0;
         Observer.Observe('big 0', SetListShortCtl(P, B));
         Observer.Observe('close', CloseList(P));
-        Observer.Finish();
+        Observer.Expect('big 5', 'ok|5');
+        Observer.Expect('big -12', 'ok|-12');
+        Observer.Expect('big 1000', 'ok|1000');
+        Observer.Expect('big 5000000000', 'ok|5000000000');
+        Observer.Expect('big 0', 'ok|0');
+        Observer.Expect('close', 'ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1310,7 +1520,16 @@ codeunit 94226 "LT Y80 ST Tests"
         D := 100000;
         Observer.Observe('dec 100000', SetListShortCtl(P, D));
         Observer.Observe('close', CloseList(P));
-        Observer.Finish();
+        Observer.Expect('dec 3', 'ok|3');
+        Observer.Expect('dec -3', 'ok|-3');
+        Observer.Expect('dec 1.5', 'ok|1.5');
+        Observer.Expect('dec 1234', 'ok|1,234');
+        Observer.Expect('dec 1234.5', 'ok|1,234.5');
+        Observer.Expect('dec 0.00001', 'ok|0.00001');
+        Observer.Expect('dec 0', 'ok|0');
+        Observer.Expect('dec 100000', 'ok|100,000');
+        Observer.Expect('close', 'err|TestWrapped|The length of the string is 7, but it must be less than or equal to 5 characters. Value: 100,000');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1355,7 +1574,18 @@ codeunit 94226 "LT Y80 ST Tests"
         Co := 'ab';
         Observer.Observe('code', SetListShortCtl(P, Co));
         Observer.Observe('close', CloseList(P));
-        Observer.Finish();
+        Observer.Expect('bool true', 'ok|Yes');
+        Observer.Expect('bool false', 'ok|No');
+        Observer.Expect('date', 'ok|01/31/25');
+        Observer.Expect('time', 'ok| 2:30:05 PM');
+        Observer.Expect('datetime', 'ok|01/31/25 02:30 PM');
+        Observer.Expect('guid', 'ok|{12345678-1234-1234-1234-123456789ABC}');
+        Observer.Expect('duration', 'ok|1 minute 30 seconds');
+        Observer.Expect('char', 'ok|A');
+        Observer.Expect('text', 'ok|x1');
+        Observer.Expect('code', 'ok|AB');
+        Observer.Expect('close', 'ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1386,6 +1616,10 @@ codeunit 94226 "LT Y80 ST Tests"
         En := En::Second;
         Observer.Observe('enum second', SetListShortCtl(P, En));
         Observer.Observe('close', CloseList(P));
-        Observer.Finish();
+        Observer.Expect('option', 'ok|B');
+        Observer.Expect('enum first', 'ok|First Kind');
+        Observer.Expect('enum second', 'ok|Second Kind');
+        Observer.Expect('close', 'err|TestWrapped|The length of the string is 11, but it must be less than or equal to 5 characters. Value: Second Kind');
+        Observer.Verify();
     end;
 }

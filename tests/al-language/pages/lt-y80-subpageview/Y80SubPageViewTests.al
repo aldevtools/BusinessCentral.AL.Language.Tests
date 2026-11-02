@@ -615,7 +615,15 @@ codeunit 94214 "LT Y80 SV Tests"
         Observer.Observe('previous', Format(Doc.Previous(), 0, 9) + '/' + Doc.CodeCtl.Value());
         RowsAll(Doc, 'previous');
         Doc.Close();
-        Observer.Finish();
+        Observer.Expect('log before', 'F1.open();F2.open();F3.open();F4.open();host.agr(H1);F1.agr(H1/10000);F1.agr(H1/20000);F1.agr(H1/10000);F1.agr(H1/10000);F1.agcr(H1/10000);F2.agr(H1/10000);F2.agr(H1/20000);F2.agr(H1/10000);F2.agr(H1/10000);F2.agcr(H1/10000);F3.agr(H1/20000);F3.agr(H1/10000);F3.agr(H1/20000);F3.agr(H1/20000);F3.agcr(H1/20000);F4.agr(H1/10000);F4.agr(H1/20000);F4.agr(H1/10000);F4.agr(H1/10000);F4.agcr(H1/10000);host.agr(H3);F1.agr(H3/10000);F1.agr(H3/10000);F1.agcr(H3/10000);F2.agr(H3/10000);F2.agr(H3/10000);F2.agcr(H3/10000);F3.agr(H3/10000);F3.agr(H3/10000);F3.agcr(H3/10000);F4.agr(H3/10000);F4.agr(H3/10000);F4.agcr(H3/10000)');
+        Observer.Expect('previous', 'true/H2');
+        Observer.Expect('previous log', 'host.agr(H2);F1.agr(H2/20000);F1.agr(H2/10000);F1.agr(H2/20000);F1.agr(H2/20000);F1.agcr(H2/20000);F2.agr(H2/20000);F2.agr(H2/10000);F2.agr(H2/20000);F2.agr(H2/20000);F2.agcr(H2/20000);F3.agr(H2/20000);F3.agr(H2/10000);F3.agr(H2/20000);F3.agr(H2/20000);F3.agcr(H2/20000);F4.agr(H2/20000);F4.agr(H2/10000);F4.agr(H2/20000);F4.agr(H2/20000);F4.agcr(H2/20000)');
+        Observer.Expect('previous rows F1', 'H2/10000,H2/20000,H2/0,');
+        Observer.Expect('previous rows F2', 'H2/10000,H2/20000,H2/0,');
+        Observer.Expect('previous rows F3', 'H2/10000,H2/20000,H2/0,');
+        Observer.Expect('previous rows F4', 'H2/10000,H2/20000,H2/0,');
+        Observer.Expect('previous log reading rows', 'F1.agr(H2/10000);F1.agr(H2/10000);F1.agcr(H2/10000);F1.agr(H2/20000);F1.agr(H2/20000);F1.agcr(H2/20000);F1.agcr(H2/0);F2.agr(H2/10000);F2.agr(H2/10000);F2.agcr(H2/10000);F2.agr(H2/20000);F2.agr(H2/20000);F2.agcr(H2/20000);F2.agcr(H2/0);F3.agr(H2/10000);F3.agr(H2/10000);F3.agcr(H2/10000);F3.agr(H2/20000);F3.agr(H2/20000);F3.agcr(H2/20000);F3.agcr(H2/0);F4.agr(H2/10000);F4.agr(H2/10000);F4.agcr(H2/10000);F4.agr(H2/20000);F4.agr(H2/20000);F4.agcr(H2/20000);F4.agcr(H2/0)');
+        Observer.Verify();
     end;
 
     [Test]
@@ -630,7 +638,15 @@ codeunit 94214 "LT Y80 SV Tests"
         Observer.Observe('first', Format(Doc.First(), 0, 9) + '/' + Doc.CodeCtl.Value());
         RowsAll(Doc, 'first');
         Doc.Close();
-        Observer.Finish();
+        Observer.Expect('log before', 'F1.open();F2.open();F3.open();F4.open();host.agr(H1);F1.agr(H1/10000);F1.agr(H1/20000);F1.agr(H1/10000);F1.agr(H1/10000);F1.agcr(H1/10000);F2.agr(H1/10000);F2.agr(H1/20000);F2.agr(H1/10000);F2.agr(H1/10000);F2.agcr(H1/10000);F3.agr(H1/20000);F3.agr(H1/10000);F3.agr(H1/20000);F3.agr(H1/20000);F3.agcr(H1/20000);F4.agr(H1/10000);F4.agr(H1/20000);F4.agr(H1/10000);F4.agr(H1/10000);F4.agcr(H1/10000);host.agr(H3);F1.agr(H3/10000);F1.agr(H3/10000);F1.agcr(H3/10000);F2.agr(H3/10000);F2.agr(H3/10000);F2.agcr(H3/10000);F3.agr(H3/10000);F3.agr(H3/10000);F3.agcr(H3/10000);F4.agr(H3/10000);F4.agr(H3/10000);F4.agcr(H3/10000)');
+        Observer.Expect('first', 'true/H1');
+        Observer.Expect('first log', 'host.agr(H1);F1.agr(H1/20000);F1.agr(H1/10000);F1.agr(H1/20000);F1.agr(H1/20000);F1.agcr(H1/20000);F2.agr(H1/20000);F2.agr(H1/10000);F2.agr(H1/20000);F2.agr(H1/20000);F2.agcr(H1/20000);F3.agr(H1/20000);F3.agr(H1/10000);F3.agr(H1/20000);F3.agr(H1/20000);F3.agcr(H1/20000);F4.agr(H1/20000);F4.agr(H1/10000);F4.agr(H1/20000);F4.agr(H1/20000);F4.agcr(H1/20000)');
+        Observer.Expect('first rows F1', 'H1/10000,H1/20000,H1/0,');
+        Observer.Expect('first rows F2', 'H1/10000,H1/20000,H1/0,');
+        Observer.Expect('first rows F3', 'H1/10000,H1/20000,H1/0,');
+        Observer.Expect('first rows F4', 'H1/10000,H1/20000,H1/0,');
+        Observer.Expect('first log reading rows', 'F1.agr(H1/10000);F1.agr(H1/10000);F1.agcr(H1/10000);F1.agr(H1/20000);F1.agr(H1/20000);F1.agcr(H1/20000);F1.agcr(H1/0);F2.agr(H1/10000);F2.agr(H1/10000);F2.agcr(H1/10000);F2.agr(H1/20000);F2.agr(H1/20000);F2.agcr(H1/20000);F2.agcr(H1/0);F3.agr(H1/10000);F3.agr(H1/10000);F3.agcr(H1/10000);F3.agr(H1/20000);F3.agr(H1/20000);F3.agcr(H1/20000);F3.agcr(H1/0);F4.agr(H1/10000);F4.agr(H1/10000);F4.agcr(H1/10000);F4.agr(H1/20000);F4.agr(H1/20000);F4.agcr(H1/20000);F4.agcr(H1/0)');
+        Observer.Verify();
     end;
 
     [Test]

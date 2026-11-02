@@ -853,7 +853,21 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         Observer.Observe('second action log', Log.Take());
         Observer.Observe('close', MoveListAll(P, 'close'));
         Observer.Observe('close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted|0|');
+        Observer.Expect('action log', 'R:10;D:10;N:0;C:0;N:0;C:0;N:0;C:0');
+        Observer.Expect('shown', 'shown|0|');
+        Observer.Expect('first', 'false|0|');
+        Observer.Expect('next', 'false|0|');
+        Observer.Expect('last', 'false|0|');
+        Observer.Expect('previous', 'false|0|');
+        Observer.Expect('moves log', 'N:0;C:0;N:0;C:0');
+        Observer.Expect('rows', '0');
+        Observer.Expect('second action', 'acted|0|');
+        Observer.Expect('second action log', 'N:0;C:0;N:0;C:0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -878,7 +892,21 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         Observer.Observe('second action log', Log.Take());
         Observer.Observe('close', MoveListAll(P, 'close'));
         Observer.Observe('close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted|0|');
+        Observer.Expect('action log', 'R:10;D:10;N:0;C:0;N:0;C:0;N:0;C:0');
+        Observer.Expect('shown', 'shown|0|');
+        Observer.Expect('first', 'false|0|');
+        Observer.Expect('next', 'false|0|');
+        Observer.Expect('last', 'false|0|');
+        Observer.Expect('previous', 'false|0|');
+        Observer.Expect('moves log', 'N:0;C:0;N:0;C:0');
+        Observer.Expect('rows', '0');
+        Observer.Expect('second action', 'acted|0|');
+        Observer.Expect('second action log', 'N:0;C:0;N:0;C:0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -903,7 +931,21 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         Observer.Observe('second action log', Log.Take());
         Observer.Observe('close', MoveListAll(P, 'close'));
         Observer.Observe('close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted|0|');
+        Observer.Expect('action log', 'R:10;D:10;N:0;C:0;N:0;C:0;N:0;C:0');
+        Observer.Expect('shown', 'shown|0|');
+        Observer.Expect('first', 'false|0|');
+        Observer.Expect('next', 'false|0|');
+        Observer.Expect('last', 'false|0|');
+        Observer.Expect('previous', 'false|0|');
+        Observer.Expect('moves log', 'N:0;C:0;N:0;C:0');
+        Observer.Expect('rows', '0');
+        Observer.Expect('second action', 'err|TestWrapped:CSideRecordNotFound|The LT Y80 Row does not exist. Identification fields and values: Id=''0''');
+        Observer.Expect('second action log', 'D:0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -928,7 +970,21 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         Observer.Observe('second action log', Log.Take());
         Observer.Observe('close', MoveListAll(P, 'close'));
         Observer.Observe('close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('first', 'false||');
+        Observer.Expect('next', 'false||');
+        Observer.Expect('last', 'false||');
+        Observer.Expect('previous', 'false||');
+        Observer.Expect('moves log', '');
+        Observer.Expect('rows', '0');
+        Observer.Expect('second action', 'acted||');
+        Observer.Expect('second action log', '');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -953,7 +1009,21 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         Observer.Observe('second action log', Log.Take());
         Observer.Observe('close', MoveListAll(P, 'close'));
         Observer.Observe('close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('first', 'false||');
+        Observer.Expect('next', 'false||');
+        Observer.Expect('last', 'false||');
+        Observer.Expect('previous', 'false||');
+        Observer.Expect('moves log', '');
+        Observer.Expect('rows', '0');
+        Observer.Expect('second action', 'acted||');
+        Observer.Expect('second action log', '');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -978,7 +1048,21 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         Observer.Observe('second action log', Log.Take());
         Observer.Observe('close', MoveListAll(P, 'close'));
         Observer.Observe('close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('first', 'false||');
+        Observer.Expect('next', 'false||');
+        Observer.Expect('last', 'false||');
+        Observer.Expect('previous', 'false||');
+        Observer.Expect('moves log', '');
+        Observer.Expect('rows', '0');
+        Observer.Expect('second action', 'err|TestWrapped:CSideRecordNotFound|The LT Y80 Row does not exist. Identification fields and values: Id=''0''');
+        Observer.Expect('second action log', 'D:0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1003,7 +1087,21 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         Observer.Observe('second action log', Log.Take());
         Observer.Observe('close', MoveListNoNew(P, 'close'));
         Observer.Observe('close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10;N:0;C:0');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('first', 'false||');
+        Observer.Expect('next', 'false||');
+        Observer.Expect('last', 'false||');
+        Observer.Expect('previous', 'false||');
+        Observer.Expect('moves log', '');
+        Observer.Expect('rows', '0');
+        Observer.Expect('second action', 'acted||');
+        Observer.Expect('second action log', 'N:0;C:0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1028,7 +1126,21 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         Observer.Observe('second action log', Log.Take());
         Observer.Observe('close', MoveListNoNew(P, 'close'));
         Observer.Observe('close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10;N:0;C:0');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('first', 'false||');
+        Observer.Expect('next', 'false||');
+        Observer.Expect('last', 'false||');
+        Observer.Expect('previous', 'false||');
+        Observer.Expect('moves log', '');
+        Observer.Expect('rows', '0');
+        Observer.Expect('second action', 'err|TestWrapped:CSideRecordNotFound|The LT Y80 Row does not exist. Identification fields and values: Id=''0''');
+        Observer.Expect('second action log', 'D:0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1053,7 +1165,21 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         Observer.Observe('second action log', Log.Take());
         Observer.Observe('close', MoveListNoNew(P, 'close'));
         Observer.Observe('close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('first', 'false||');
+        Observer.Expect('next', 'false||');
+        Observer.Expect('last', 'false||');
+        Observer.Expect('previous', 'false||');
+        Observer.Expect('moves log', '');
+        Observer.Expect('rows', '0');
+        Observer.Expect('second action', 'acted||');
+        Observer.Expect('second action log', '');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1078,7 +1204,21 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         Observer.Observe('second action log', Log.Take());
         Observer.Observe('close', MoveListNoNew(P, 'close'));
         Observer.Observe('close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('first', 'false||');
+        Observer.Expect('next', 'false||');
+        Observer.Expect('last', 'false||');
+        Observer.Expect('previous', 'false||');
+        Observer.Expect('moves log', '');
+        Observer.Expect('rows', '0');
+        Observer.Expect('second action', 'err|TestWrapped:CSideRecordNotFound|The LT Y80 Row does not exist. Identification fields and values: Id=''0''');
+        Observer.Expect('second action log', 'D:0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1103,7 +1243,21 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         Observer.Observe('second action log', Log.Take());
         Observer.Observe('close', MoveListReadOnly(P, 'close'));
         Observer.Observe('close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('first', 'false||');
+        Observer.Expect('next', 'false||');
+        Observer.Expect('last', 'false||');
+        Observer.Expect('previous', 'false||');
+        Observer.Expect('moves log', '');
+        Observer.Expect('rows', '0');
+        Observer.Expect('second action', 'acted||');
+        Observer.Expect('second action log', '');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1128,7 +1282,21 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         Observer.Observe('second action log', Log.Take());
         Observer.Observe('close', MoveListReadOnly(P, 'close'));
         Observer.Observe('close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('first', 'false||');
+        Observer.Expect('next', 'false||');
+        Observer.Expect('last', 'false||');
+        Observer.Expect('previous', 'false||');
+        Observer.Expect('moves log', '');
+        Observer.Expect('rows', '0');
+        Observer.Expect('second action', 'acted||');
+        Observer.Expect('second action log', '');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1153,7 +1321,21 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         Observer.Observe('second action log', Log.Take());
         Observer.Observe('close', MoveListReadOnly(P, 'close'));
         Observer.Observe('close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('first', 'false||');
+        Observer.Expect('next', 'false||');
+        Observer.Expect('last', 'false||');
+        Observer.Expect('previous', 'false||');
+        Observer.Expect('moves log', '');
+        Observer.Expect('rows', '0');
+        Observer.Expect('second action', 'err|TestWrapped:CSideRecordNotFound|The LT Y80 Row does not exist. Identification fields and values: Id=''0''');
+        Observer.Expect('second action log', 'D:0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1178,7 +1360,21 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         Observer.Observe('second action log', Log.Take());
         Observer.Observe('close', MoveListReadOnly(P, 'close'));
         Observer.Observe('close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('first', 'false||');
+        Observer.Expect('next', 'false||');
+        Observer.Expect('last', 'false||');
+        Observer.Expect('previous', 'false||');
+        Observer.Expect('moves log', '');
+        Observer.Expect('rows', '0');
+        Observer.Expect('second action', 'acted||');
+        Observer.Expect('second action log', '');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1203,7 +1399,21 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         Observer.Observe('second action log', Log.Take());
         Observer.Observe('close', MoveListReadOnly(P, 'close'));
         Observer.Observe('close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('first', 'false||');
+        Observer.Expect('next', 'false||');
+        Observer.Expect('last', 'false||');
+        Observer.Expect('previous', 'false||');
+        Observer.Expect('moves log', '');
+        Observer.Expect('rows', '0');
+        Observer.Expect('second action', 'acted||');
+        Observer.Expect('second action log', '');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1228,7 +1438,21 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         Observer.Observe('second action log', Log.Take());
         Observer.Observe('close', MoveListReadOnly(P, 'close'));
         Observer.Observe('close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('first', 'false||');
+        Observer.Expect('next', 'false||');
+        Observer.Expect('last', 'false||');
+        Observer.Expect('previous', 'false||');
+        Observer.Expect('moves log', '');
+        Observer.Expect('rows', '0');
+        Observer.Expect('second action', 'err|TestWrapped:CSideRecordNotFound|The LT Y80 Row does not exist. Identification fields and values: Id=''0''');
+        Observer.Expect('second action log', 'D:0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1253,7 +1477,21 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         Observer.Observe('second action log', Log.Take());
         Observer.Observe('close', MoveListNoInsMod(P, 'close'));
         Observer.Observe('close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10;N:0;C:0');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('first', 'false||');
+        Observer.Expect('next', 'false||');
+        Observer.Expect('last', 'false||');
+        Observer.Expect('previous', 'false||');
+        Observer.Expect('moves log', '');
+        Observer.Expect('rows', '0');
+        Observer.Expect('second action', 'acted||');
+        Observer.Expect('second action log', 'N:0;C:0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1278,7 +1516,21 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         Observer.Observe('second action log', Log.Take());
         Observer.Observe('close', MoveListNoInsMod(P, 'close'));
         Observer.Observe('close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:10;C:10');
+        Observer.Expect('action', 'acted||');
+        Observer.Expect('action log', 'R:10;D:10');
+        Observer.Expect('shown', 'shown||');
+        Observer.Expect('first', 'false||');
+        Observer.Expect('next', 'false||');
+        Observer.Expect('last', 'false||');
+        Observer.Expect('previous', 'false||');
+        Observer.Expect('moves log', '');
+        Observer.Expect('rows', '0');
+        Observer.Expect('second action', 'acted||');
+        Observer.Expect('second action log', '');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', 'Q;X');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1301,7 +1553,19 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveCardPlain(P, 'close'));
         Observer.Observe('close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;C:10');
+        Observer.Expect('action', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('action log', 'R:10;D:10;Q;X');
+        Observer.Expect('shown', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('first', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('next', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('last', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('previous', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('moves log', '');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1324,7 +1588,19 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveCardPlain(P, 'close'));
         Observer.Observe('close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;C:10');
+        Observer.Expect('action', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('action log', 'R:10;D:10;Q;X');
+        Observer.Expect('shown', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('first', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('next', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('last', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('previous', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('moves log', '');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1347,7 +1623,19 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveCardPlain(P, 'close'));
         Observer.Observe('close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;C:10');
+        Observer.Expect('action', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('action log', 'R:10;D:10;Q;X');
+        Observer.Expect('shown', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('first', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('next', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('last', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('previous', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('moves log', '');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1370,7 +1658,19 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         Observer.Observe('rows', Rows());
         Observer.Observe('close', MoveCardPlain(P, 'close'));
         Observer.Observe('close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;C:10');
+        Observer.Expect('action', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('action log', 'R:10;D:10;Q;X');
+        Observer.Expect('shown', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('first', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('next', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('last', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('previous', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('moves log', '');
+        Observer.Expect('rows', '0');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Expect('close log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1382,19 +1682,33 @@ codeunit 94230 "LT Y80 Gone Row Tests"
     begin
         Seed(4);
         P.OpenEdit();
-
         Observer.Observe('open log', Log.Take());
         Row.Get(20);
         Row.Delete(true);
         Observer.Observe('delete log', Log.Take());
         Observer.Observe('move', MoveListAll(P, 'next'));
-                Observer.Observe('move log', Log.Take());
+        Observer.Observe('move log', Log.Take());
         Observer.Observe('next', MoveListAll(P, 'next'));
         Observer.Observe('next log', Log.Take());
         Observer.Observe('previous', MoveListAll(P, 'previous'));
         Observer.Observe('previous log', Log.Take());
         Observer.Observe('close', MoveListAll(P, 'close'));
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:20;R:30;R:40;R:10;R:10;C:10');
+        Observer.Expect('delete log', 'D:20');
+        Observer.Expect('move', 'true|10|r10');
+#if BC29PLUS
+        Observer.Expect('move log', 'R:10;C:10;R:10;R:30;R:40;R:10;R:10;C:10');
+#elif BC28PLUS
+        Observer.Expect('move log', 'R:10;C:10;R:10;C:10');
+#else
+        Observer.Expect('move log', 'R:10;C:10;R:10;R:30;R:40;R:10;R:10;C:10');
+#endif
+        Observer.Expect('next', 'true|30|r30');
+        Observer.Expect('next log', 'R:30;R:30;C:30');
+        Observer.Expect('previous', 'true|10|r10');
+        Observer.Expect('previous log', 'R:10;R:10;C:10');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1408,19 +1722,63 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         P.OpenEdit();
         P.Last();
         P.Previous();
-
         Observer.Observe('open log', Log.Take());
         Row.Get(20);
         Row.Delete(true);
         Observer.Observe('delete log', Log.Take());
         Observer.Observe('move', MoveListAll(P, 'previous'));
-                Observer.Observe('move log', Log.Take());
+        Observer.Observe('move log', Log.Take());
         Observer.Observe('next', MoveListAll(P, 'next'));
         Observer.Observe('next log', Log.Take());
         Observer.Observe('previous', MoveListAll(P, 'previous'));
         Observer.Observe('previous log', Log.Take());
         Observer.Observe('close', MoveListAll(P, 'close'));
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:20;R:30;R:40;R:10;R:10;C:10;N:0;C:0;R:40;R:40;C:40;R:30;R:30;C:30');
+        Observer.Expect('delete log', 'D:20');
+#if BC29PLUS
+        Observer.Expect('move', 'true|30|r30');
+#elif BC28PLUS
+        Observer.Expect('move', 'true|10|r10');
+#else
+        Observer.Expect('move', 'true|30|r30');
+#endif
+#if BC29PLUS
+        Observer.Expect('move log', 'R:30;C:30;R:30;R:40;R:30;R:10;R:30;R:30;C:30');
+#elif BC28PLUS
+        Observer.Expect('move log', 'R:30;C:30;R:10;R:10;C:10');
+#else
+        Observer.Expect('move log', 'R:30;C:30;R:30;R:40;R:30;R:10;R:30;R:30;C:30');
+#endif
+#if BC29PLUS
+        Observer.Expect('next', 'true|40|r40');
+#elif BC28PLUS
+        Observer.Expect('next', 'true|30|r30');
+#else
+        Observer.Expect('next', 'true|40|r40');
+#endif
+#if BC29PLUS
+        Observer.Expect('next log', 'R:40;R:40;C:40');
+#elif BC28PLUS
+        Observer.Expect('next log', 'R:30;R:30;C:30');
+#else
+        Observer.Expect('next log', 'R:40;R:40;C:40');
+#endif
+#if BC29PLUS
+        Observer.Expect('previous', 'true|30|r30');
+#elif BC28PLUS
+        Observer.Expect('previous', 'true|10|r10');
+#else
+        Observer.Expect('previous', 'true|30|r30');
+#endif
+#if BC29PLUS
+        Observer.Expect('previous log', 'R:30;R:30;C:30');
+#elif BC28PLUS
+        Observer.Expect('previous log', 'R:10;R:10;C:10');
+#else
+        Observer.Expect('previous log', 'R:30;R:30;C:30');
+#endif
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1433,19 +1791,63 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         Seed(4);
         P.OpenEdit();
         P.Last();
-
         Observer.Observe('open log', Log.Take());
         Row.Get(10);
         Row.Delete(true);
         Observer.Observe('delete log', Log.Take());
         Observer.Observe('move', MoveListAll(P, 'first'));
-                Observer.Observe('move log', Log.Take());
+        Observer.Observe('move log', Log.Take());
         Observer.Observe('next', MoveListAll(P, 'next'));
         Observer.Observe('next log', Log.Take());
         Observer.Observe('previous', MoveListAll(P, 'previous'));
         Observer.Observe('previous log', Log.Take());
         Observer.Observe('close', MoveListAll(P, 'close'));
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:20;R:30;R:40;R:10;R:10;C:10;N:0;C:0;R:40;R:40;C:40');
+        Observer.Expect('delete log', 'D:10');
+#if BC29PLUS
+        Observer.Expect('move', 'true|40|r40');
+#elif BC28PLUS
+        Observer.Expect('move', 'true|20|r20');
+#else
+        Observer.Expect('move', 'true|40|r40');
+#endif
+#if BC29PLUS
+        Observer.Expect('move log', 'R:40;C:40;R:40;R:30;R:20;R:40;R:40;C:40');
+#elif BC28PLUS
+        Observer.Expect('move log', 'R:40;C:40;R:20;R:20;C:20');
+#else
+        Observer.Expect('move log', 'R:40;C:40;R:40;R:30;R:20;R:40;R:40;C:40');
+#endif
+#if BC29PLUS
+        Observer.Expect('next', 'true|0|');
+#elif BC28PLUS
+        Observer.Expect('next', 'true|30|r30');
+#else
+        Observer.Expect('next', 'true|0|');
+#endif
+#if BC29PLUS
+        Observer.Expect('next log', 'N:0;C:0');
+#elif BC28PLUS
+        Observer.Expect('next log', 'R:30;R:30;C:30');
+#else
+        Observer.Expect('next log', 'N:0;C:0');
+#endif
+#if BC29PLUS
+        Observer.Expect('previous', 'true|40|r40');
+#elif BC28PLUS
+        Observer.Expect('previous', 'true|20|r20');
+#else
+        Observer.Expect('previous', 'true|40|r40');
+#endif
+#if BC29PLUS
+        Observer.Expect('previous log', 'R:40;R:40;C:40');
+#elif BC28PLUS
+        Observer.Expect('previous log', 'R:20;R:20;C:20');
+#else
+        Observer.Expect('previous log', 'R:40;R:40;C:40');
+#endif
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1457,19 +1859,63 @@ codeunit 94230 "LT Y80 Gone Row Tests"
     begin
         Seed(4);
         P.OpenEdit();
-
         Observer.Observe('open log', Log.Take());
         Row.Get(40);
         Row.Delete(true);
         Observer.Observe('delete log', Log.Take());
         Observer.Observe('move', MoveListAll(P, 'last'));
-                Observer.Observe('move log', Log.Take());
+        Observer.Observe('move log', Log.Take());
         Observer.Observe('next', MoveListAll(P, 'next'));
         Observer.Observe('next log', Log.Take());
         Observer.Observe('previous', MoveListAll(P, 'previous'));
         Observer.Observe('previous log', Log.Take());
         Observer.Observe('close', MoveListAll(P, 'close'));
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:20;R:30;R:40;R:10;R:10;C:10');
+        Observer.Expect('delete log', 'D:40');
+#if BC29PLUS
+        Observer.Expect('move', 'true|10|r10');
+#elif BC28PLUS
+        Observer.Expect('move', 'true|30|r30');
+#else
+        Observer.Expect('move', 'true|10|r10');
+#endif
+#if BC29PLUS
+        Observer.Expect('move log', 'N:0;C:0;R:10;R:20;R:30;R:10;R:10;C:10');
+#elif BC28PLUS
+        Observer.Expect('move log', 'N:0;C:0;R:30;R:30;C:30');
+#else
+        Observer.Expect('move log', 'N:0;C:0;R:10;R:20;R:30;R:10;R:10;C:10');
+#endif
+#if BC29PLUS
+        Observer.Expect('next', 'true|20|r20');
+#elif BC28PLUS
+        Observer.Expect('next', 'true|0|');
+#else
+        Observer.Expect('next', 'true|20|r20');
+#endif
+#if BC29PLUS
+        Observer.Expect('next log', 'R:20;R:20;C:20');
+#elif BC28PLUS
+        Observer.Expect('next log', 'N:0;C:0');
+#else
+        Observer.Expect('next log', 'R:20;R:20;C:20');
+#endif
+#if BC29PLUS
+        Observer.Expect('previous', 'true|10|r10');
+#elif BC28PLUS
+        Observer.Expect('previous', 'true|30|r30');
+#else
+        Observer.Expect('previous', 'true|10|r10');
+#endif
+#if BC29PLUS
+        Observer.Expect('previous log', 'R:10;R:10;C:10');
+#elif BC28PLUS
+        Observer.Expect('previous log', 'R:30;R:30;C:30');
+#else
+        Observer.Expect('previous log', 'R:10;R:10;C:10');
+#endif
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1481,19 +1927,33 @@ codeunit 94230 "LT Y80 Gone Row Tests"
     begin
         Seed(4);
         P.OpenEdit();
-
         Observer.Observe('open log', Log.Take());
         Row.Get(20);
         Row.Delete(true);
         Observer.Observe('delete log', Log.Take());
         Observer.Observe('move', MoveListAll(P, 'goto20'));
-                Observer.Observe('move log', Log.Take());
+        Observer.Observe('move log', Log.Take());
         Observer.Observe('next', MoveListAll(P, 'next'));
         Observer.Observe('next log', Log.Take());
         Observer.Observe('previous', MoveListAll(P, 'previous'));
         Observer.Observe('previous log', Log.Take());
         Observer.Observe('close', MoveListAll(P, 'close'));
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:20;R:30;R:40;R:10;R:10;C:10');
+        Observer.Expect('delete log', 'D:20');
+        Observer.Expect('move', 'false|10|r10');
+#if BC29PLUS
+        Observer.Expect('move log', 'R:10;C:10;R:10;R:30;R:40;R:10;R:10;C:10;R:30;R:30;C:30;R:40;R:40;C:40;N:0;C:0;R:10;R:10;C:10');
+#elif BC28PLUS
+        Observer.Expect('move log', 'R:10;C:10;R:10;C:10;R:30;R:30;C:30;R:40;R:40;C:40;N:0;C:0;R:10;R:10;C:10');
+#else
+        Observer.Expect('move log', 'R:10;C:10;R:10;R:30;R:40;R:10;R:10;C:10;R:30;R:30;C:30;R:40;R:40;C:40;N:0;C:0;R:10;R:10;C:10');
+#endif
+        Observer.Expect('next', 'true|30|r30');
+        Observer.Expect('next log', 'R:30;R:30;C:30');
+        Observer.Expect('previous', 'true|10|r10');
+        Observer.Expect('previous log', 'R:10;R:10;C:10');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1505,19 +1965,33 @@ codeunit 94230 "LT Y80 Gone Row Tests"
     begin
         Seed(4);
         P.OpenEdit();
-
         Observer.Observe('open log', Log.Take());
         Row.Get(20);
         Row.Delete(true);
         Observer.Observe('delete log', Log.Take());
         Observer.Observe('move', MoveListNoNew(P, 'next'));
-                Observer.Observe('move log', Log.Take());
+        Observer.Observe('move log', Log.Take());
         Observer.Observe('next', MoveListNoNew(P, 'next'));
         Observer.Observe('next log', Log.Take());
         Observer.Observe('previous', MoveListNoNew(P, 'previous'));
         Observer.Observe('previous log', Log.Take());
         Observer.Observe('close', MoveListNoNew(P, 'close'));
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:20;R:30;R:40;R:10;R:10;C:10');
+        Observer.Expect('delete log', 'D:20');
+        Observer.Expect('move', 'true|10|r10');
+#if BC29PLUS
+        Observer.Expect('move log', 'R:10;C:10;R:10;R:30;R:40;R:10;R:10;C:10');
+#elif BC28PLUS
+        Observer.Expect('move log', 'R:10;C:10;R:10;C:10');
+#else
+        Observer.Expect('move log', 'R:10;C:10;R:10;R:30;R:40;R:10;R:10;C:10');
+#endif
+        Observer.Expect('next', 'true|30|r30');
+        Observer.Expect('next log', 'R:30;R:30;C:30');
+        Observer.Expect('previous', 'true|10|r10');
+        Observer.Expect('previous log', 'R:10;R:10;C:10');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1531,19 +2005,63 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         P.OpenEdit();
         P.Last();
         P.Previous();
-
         Observer.Observe('open log', Log.Take());
         Row.Get(20);
         Row.Delete(true);
         Observer.Observe('delete log', Log.Take());
         Observer.Observe('move', MoveListNoNew(P, 'previous'));
-                Observer.Observe('move log', Log.Take());
+        Observer.Observe('move log', Log.Take());
         Observer.Observe('next', MoveListNoNew(P, 'next'));
         Observer.Observe('next log', Log.Take());
         Observer.Observe('previous', MoveListNoNew(P, 'previous'));
         Observer.Observe('previous log', Log.Take());
         Observer.Observe('close', MoveListNoNew(P, 'close'));
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:20;R:30;R:40;R:10;R:10;C:10;R:40;R:40;C:40;R:30;R:30;C:30');
+        Observer.Expect('delete log', 'D:20');
+#if BC29PLUS
+        Observer.Expect('move', 'true|30|r30');
+#elif BC28PLUS
+        Observer.Expect('move', 'true|10|r10');
+#else
+        Observer.Expect('move', 'true|30|r30');
+#endif
+#if BC29PLUS
+        Observer.Expect('move log', 'R:30;C:30;R:30;R:40;R:30;R:10;R:30;R:30;C:30');
+#elif BC28PLUS
+        Observer.Expect('move log', 'R:30;C:30;R:10;R:10;C:10');
+#else
+        Observer.Expect('move log', 'R:30;C:30;R:30;R:40;R:30;R:10;R:30;R:30;C:30');
+#endif
+#if BC29PLUS
+        Observer.Expect('next', 'true|40|r40');
+#elif BC28PLUS
+        Observer.Expect('next', 'true|30|r30');
+#else
+        Observer.Expect('next', 'true|40|r40');
+#endif
+#if BC29PLUS
+        Observer.Expect('next log', 'R:40;R:40;C:40');
+#elif BC28PLUS
+        Observer.Expect('next log', 'R:30;R:30;C:30');
+#else
+        Observer.Expect('next log', 'R:40;R:40;C:40');
+#endif
+#if BC29PLUS
+        Observer.Expect('previous', 'true|30|r30');
+#elif BC28PLUS
+        Observer.Expect('previous', 'true|10|r10');
+#else
+        Observer.Expect('previous', 'true|30|r30');
+#endif
+#if BC29PLUS
+        Observer.Expect('previous log', 'R:30;R:30;C:30');
+#elif BC28PLUS
+        Observer.Expect('previous log', 'R:10;R:10;C:10');
+#else
+        Observer.Expect('previous log', 'R:30;R:30;C:30');
+#endif
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1556,19 +2074,63 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         Seed(4);
         P.OpenEdit();
         P.Last();
-
         Observer.Observe('open log', Log.Take());
         Row.Get(10);
         Row.Delete(true);
         Observer.Observe('delete log', Log.Take());
         Observer.Observe('move', MoveListNoNew(P, 'first'));
-                Observer.Observe('move log', Log.Take());
+        Observer.Observe('move log', Log.Take());
         Observer.Observe('next', MoveListNoNew(P, 'next'));
         Observer.Observe('next log', Log.Take());
         Observer.Observe('previous', MoveListNoNew(P, 'previous'));
         Observer.Observe('previous log', Log.Take());
         Observer.Observe('close', MoveListNoNew(P, 'close'));
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:20;R:30;R:40;R:10;R:10;C:10;R:40;R:40;C:40');
+        Observer.Expect('delete log', 'D:10');
+#if BC29PLUS
+        Observer.Expect('move', 'true|40|r40');
+#elif BC28PLUS
+        Observer.Expect('move', 'true|20|r20');
+#else
+        Observer.Expect('move', 'true|40|r40');
+#endif
+#if BC29PLUS
+        Observer.Expect('move log', 'R:40;C:40;R:40;R:30;R:20;R:40;R:40;C:40');
+#elif BC28PLUS
+        Observer.Expect('move log', 'R:40;C:40;R:20;R:20;C:20');
+#else
+        Observer.Expect('move log', 'R:40;C:40;R:40;R:30;R:20;R:40;R:40;C:40');
+#endif
+#if BC29PLUS
+        Observer.Expect('next', 'false|40|r40');
+#elif BC28PLUS
+        Observer.Expect('next', 'true|30|r30');
+#else
+        Observer.Expect('next', 'false|40|r40');
+#endif
+#if BC29PLUS
+        Observer.Expect('next log', '');
+#elif BC28PLUS
+        Observer.Expect('next log', 'R:30;R:30;C:30');
+#else
+        Observer.Expect('next log', '');
+#endif
+#if BC29PLUS
+        Observer.Expect('previous', 'true|30|r30');
+#elif BC28PLUS
+        Observer.Expect('previous', 'true|20|r20');
+#else
+        Observer.Expect('previous', 'true|30|r30');
+#endif
+#if BC29PLUS
+        Observer.Expect('previous log', 'R:30;R:30;C:30');
+#elif BC28PLUS
+        Observer.Expect('previous log', 'R:20;R:20;C:20');
+#else
+        Observer.Expect('previous log', 'R:30;R:30;C:30');
+#endif
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1580,19 +2142,63 @@ codeunit 94230 "LT Y80 Gone Row Tests"
     begin
         Seed(4);
         P.OpenEdit();
-
         Observer.Observe('open log', Log.Take());
         Row.Get(40);
         Row.Delete(true);
         Observer.Observe('delete log', Log.Take());
         Observer.Observe('move', MoveListNoNew(P, 'last'));
-                Observer.Observe('move log', Log.Take());
+        Observer.Observe('move log', Log.Take());
         Observer.Observe('next', MoveListNoNew(P, 'next'));
         Observer.Observe('next log', Log.Take());
         Observer.Observe('previous', MoveListNoNew(P, 'previous'));
         Observer.Observe('previous log', Log.Take());
         Observer.Observe('close', MoveListNoNew(P, 'close'));
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:20;R:30;R:40;R:10;R:10;C:10');
+        Observer.Expect('delete log', 'D:40');
+#if BC29PLUS
+        Observer.Expect('move', 'true|10|r10');
+#elif BC28PLUS
+        Observer.Expect('move', 'true|30|r30');
+#else
+        Observer.Expect('move', 'true|10|r10');
+#endif
+#if BC29PLUS
+        Observer.Expect('move log', 'R:10;C:10;R:10;R:20;R:30;R:10;R:10;C:10');
+#elif BC28PLUS
+        Observer.Expect('move log', 'R:10;C:10;R:30;R:30;C:30');
+#else
+        Observer.Expect('move log', 'R:10;C:10;R:10;R:20;R:30;R:10;R:10;C:10');
+#endif
+#if BC29PLUS
+        Observer.Expect('next', 'true|20|r20');
+#elif BC28PLUS
+        Observer.Expect('next', 'false|30|r30');
+#else
+        Observer.Expect('next', 'true|20|r20');
+#endif
+#if BC29PLUS
+        Observer.Expect('next log', 'R:20;R:20;C:20');
+#elif BC28PLUS
+        Observer.Expect('next log', '');
+#else
+        Observer.Expect('next log', 'R:20;R:20;C:20');
+#endif
+#if BC29PLUS
+        Observer.Expect('previous', 'true|10|r10');
+#elif BC28PLUS
+        Observer.Expect('previous', 'true|20|r20');
+#else
+        Observer.Expect('previous', 'true|10|r10');
+#endif
+#if BC29PLUS
+        Observer.Expect('previous log', 'R:10;R:10;C:10');
+#elif BC28PLUS
+        Observer.Expect('previous log', 'R:20;R:20;C:20');
+#else
+        Observer.Expect('previous log', 'R:10;R:10;C:10');
+#endif
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1604,19 +2210,33 @@ codeunit 94230 "LT Y80 Gone Row Tests"
     begin
         Seed(4);
         P.OpenEdit();
-
         Observer.Observe('open log', Log.Take());
         Row.Get(20);
         Row.Delete(true);
         Observer.Observe('delete log', Log.Take());
         Observer.Observe('move', MoveListNoNew(P, 'goto20'));
-                Observer.Observe('move log', Log.Take());
+        Observer.Observe('move log', Log.Take());
         Observer.Observe('next', MoveListNoNew(P, 'next'));
         Observer.Observe('next log', Log.Take());
         Observer.Observe('previous', MoveListNoNew(P, 'previous'));
         Observer.Observe('previous log', Log.Take());
         Observer.Observe('close', MoveListNoNew(P, 'close'));
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;R:20;R:30;R:40;R:10;R:10;C:10');
+        Observer.Expect('delete log', 'D:20');
+        Observer.Expect('move', 'false|10|r10');
+#if BC29PLUS
+        Observer.Expect('move log', 'R:10;C:10;R:10;R:30;R:40;R:10;R:10;C:10;R:30;R:30;C:30;R:40;R:40;C:40;R:10;R:10;C:10');
+#elif BC28PLUS
+        Observer.Expect('move log', 'R:10;C:10;R:10;C:10;R:30;R:30;C:30;R:40;R:40;C:40;R:10;R:10;C:10');
+#else
+        Observer.Expect('move log', 'R:10;C:10;R:10;R:30;R:40;R:10;R:10;C:10;R:30;R:30;C:30;R:40;R:40;C:40;R:10;R:10;C:10');
+#endif
+        Observer.Expect('next', 'true|30|r30');
+        Observer.Expect('next log', 'R:30;R:30;C:30');
+        Observer.Expect('previous', 'true|10|r10');
+        Observer.Expect('previous log', 'R:10;R:10;C:10');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1628,19 +2248,27 @@ codeunit 94230 "LT Y80 Gone Row Tests"
     begin
         Seed(4);
         P.OpenEdit();
-
         Observer.Observe('open log', Log.Take());
         Row.Get(20);
         Row.Delete(true);
         Observer.Observe('delete log', Log.Take());
         Observer.Observe('move', MoveCardPlain(P, 'next'));
-                Observer.Observe('move log', Log.Take());
+        Observer.Observe('move log', Log.Take());
         Observer.Observe('next', MoveCardPlain(P, 'next'));
         Observer.Observe('next log', Log.Take());
         Observer.Observe('previous', MoveCardPlain(P, 'previous'));
         Observer.Observe('previous log', Log.Take());
         Observer.Observe('close', MoveCardPlain(P, 'close'));
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;C:10');
+        Observer.Expect('delete log', 'D:20');
+        Observer.Expect('move', 'true|30|r30');
+        Observer.Expect('move log', 'R:30;C:30');
+        Observer.Expect('next', 'true|40|r40');
+        Observer.Expect('next log', 'R:40;C:40');
+        Observer.Expect('previous', 'true|30|r30');
+        Observer.Expect('previous log', 'R:30;C:30');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1654,19 +2282,27 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         P.OpenEdit();
         P.Last();
         P.Previous();
-
         Observer.Observe('open log', Log.Take());
         Row.Get(20);
         Row.Delete(true);
         Observer.Observe('delete log', Log.Take());
         Observer.Observe('move', MoveCardPlain(P, 'previous'));
-                Observer.Observe('move log', Log.Take());
+        Observer.Observe('move log', Log.Take());
         Observer.Observe('next', MoveCardPlain(P, 'next'));
         Observer.Observe('next log', Log.Take());
         Observer.Observe('previous', MoveCardPlain(P, 'previous'));
         Observer.Observe('previous log', Log.Take());
         Observer.Observe('close', MoveCardPlain(P, 'close'));
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;C:10;R:40;C:40;R:30;C:30');
+        Observer.Expect('delete log', 'D:20');
+        Observer.Expect('move', 'true|10|r10');
+        Observer.Expect('move log', 'R:10;C:10');
+        Observer.Expect('next', 'true|30|r30');
+        Observer.Expect('next log', 'R:30;C:30');
+        Observer.Expect('previous', 'true|10|r10');
+        Observer.Expect('previous log', 'R:10;C:10');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1679,19 +2315,27 @@ codeunit 94230 "LT Y80 Gone Row Tests"
         Seed(4);
         P.OpenEdit();
         P.Last();
-
         Observer.Observe('open log', Log.Take());
         Row.Get(10);
         Row.Delete(true);
         Observer.Observe('delete log', Log.Take());
         Observer.Observe('move', MoveCardPlain(P, 'first'));
-                Observer.Observe('move log', Log.Take());
+        Observer.Observe('move log', Log.Take());
         Observer.Observe('next', MoveCardPlain(P, 'next'));
         Observer.Observe('next log', Log.Take());
         Observer.Observe('previous', MoveCardPlain(P, 'previous'));
         Observer.Observe('previous log', Log.Take());
         Observer.Observe('close', MoveCardPlain(P, 'close'));
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;C:10;R:40;C:40');
+        Observer.Expect('delete log', 'D:10');
+        Observer.Expect('move', 'true|20|r20');
+        Observer.Expect('move log', 'R:20;C:20');
+        Observer.Expect('next', 'true|30|r30');
+        Observer.Expect('next log', 'R:30;C:30');
+        Observer.Expect('previous', 'true|20|r20');
+        Observer.Expect('previous log', 'R:20;C:20');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1703,19 +2347,27 @@ codeunit 94230 "LT Y80 Gone Row Tests"
     begin
         Seed(4);
         P.OpenEdit();
-
         Observer.Observe('open log', Log.Take());
         Row.Get(40);
         Row.Delete(true);
         Observer.Observe('delete log', Log.Take());
         Observer.Observe('move', MoveCardPlain(P, 'last'));
-                Observer.Observe('move log', Log.Take());
+        Observer.Observe('move log', Log.Take());
         Observer.Observe('next', MoveCardPlain(P, 'next'));
         Observer.Observe('next log', Log.Take());
         Observer.Observe('previous', MoveCardPlain(P, 'previous'));
         Observer.Observe('previous log', Log.Take());
         Observer.Observe('close', MoveCardPlain(P, 'close'));
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;C:10');
+        Observer.Expect('delete log', 'D:40');
+        Observer.Expect('move', 'true|30|r30');
+        Observer.Expect('move log', 'R:30;C:30');
+        Observer.Expect('next', 'false|30|r30');
+        Observer.Expect('next log', '');
+        Observer.Expect('previous', 'true|20|r20');
+        Observer.Expect('previous log', 'R:20;C:20');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1727,18 +2379,26 @@ codeunit 94230 "LT Y80 Gone Row Tests"
     begin
         Seed(4);
         P.OpenEdit();
-
         Observer.Observe('open log', Log.Take());
         Row.Get(20);
         Row.Delete(true);
         Observer.Observe('delete log', Log.Take());
         Observer.Observe('move', MoveCardPlain(P, 'goto20'));
-                Observer.Observe('move log', Log.Take());
+        Observer.Observe('move log', Log.Take());
         Observer.Observe('next', MoveCardPlain(P, 'next'));
         Observer.Observe('next log', Log.Take());
         Observer.Observe('previous', MoveCardPlain(P, 'previous'));
         Observer.Observe('previous log', Log.Take());
         Observer.Observe('close', MoveCardPlain(P, 'close'));
-        Observer.Finish();
+        Observer.Expect('open log', 'R:10;C:10');
+        Observer.Expect('delete log', 'D:20');
+        Observer.Expect('move', 'false|10|r10');
+        Observer.Expect('move log', 'R:10;C:10;R:30;C:30;R:40;C:40;R:10;C:10');
+        Observer.Expect('next', 'true|30|r30');
+        Observer.Expect('next log', 'R:30;C:30');
+        Observer.Expect('previous', 'true|10|r10');
+        Observer.Expect('previous log', 'R:10;C:10');
+        Observer.Expect('close', 'err|TestPageNotOpened|The TestPage is not open.');
+        Observer.Verify();
     end;
 }
