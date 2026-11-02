@@ -7,6 +7,8 @@
 // Writer QX (Microsoft's DemoTool): Media Resources codes of a fresh tenant, Media Reference.ImportStream and Blob rows by Code; Tenant Report
 //   Layout Selection rows of a fresh tenant and the Insert(true)-else-Modify(true) of a report layout; OData Edm Type keys and the Edm Xml Blob.
 // Writer RE (Microsoft's DemoTool): Description and Edm Xml text of the 6 OData Edm Type rows of a fresh tenant (the same on BC 27, 28 and 29).
+// Writer Y17 (gap cycle 1 G8, BC 29 only): Tenant Report Layout Cfg rows: a valid row needs a Body-subtype layout as '<app id>::<name>' (or a blank
+//   Layout Name) and parts that are HeaderFooter / Theme layouts of the same report or of "Tenant Report Defaults" (report 91874, reportextension 91875).
 
 codeunit 67107 "LT PT Cloud Tables"
 {
@@ -15,6 +17,8 @@ codeunit 67107 "LT PT Cloud Tables"
 
     var
         Ops: Codeunit "LT PT Ops";
+        Y17Inserted: Boolean;
+        Y17Observer: Codeunit "Probe Observer";
 
     local procedure Standard(var Observer: Codeunit "Probe Observer"; TableNo: Integer; InsertRequest: Text; FilterRequest: Text; ChangeRequest: Text)
     begin
@@ -603,4 +607,406 @@ codeunit 67107 "LT PT Cloud Tables"
     begin
         ReVerifyEdmXml('POSTALADDRESS', '<ComplexType Name="postalAddressType"><Property Name="street" Type="Edm.String" Nullable="true" MaxLength="152" /><Property Name="city" Type="Edm.String" Nullable="true" MaxLength="30" /><Property Name="state" Type="Edm.String" Nullable="true" MaxLength="30" /><Property Name="countryLetterCode" Type="Edm.String" Nullable="true" MaxLength="10" /><Property Name="postalCode" Type="Edm.String" Nullable="true" MaxLength="20" /></ComplexType>');
     end;
+
+#if BC29PLUS
+    // Writer Y17 (gap cycle 1 G8): Tenant Report Layout Cfg (2000000249, from BC 29), the table Microsoft's Composite Layout tests fill
+    // (Report ID, Layout Name, Company Name; Header Part Name and Theme Part Name as '<app id lower case>::<layout name>'). The parts are
+    // the layouts of report 91874 below; report 91873 (UgReportLayoutList.al) has a layout of the Default subtype.
+    local procedure Y17Part(LayoutName: Text): Text
+    var
+        Info: ModuleInfo;
+    begin
+        NavApp.GetCurrentModuleInfo(Info);
+        exit(LowerCase(Format(Info.Id(), 0, 4)) + '::' + LayoutName);
+    end;
+
+    [Test]
+    procedure Y17_TenantReportLayoutCfg_InsertModifyDelete()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Standard(Observer, 2000000249, '1=91874;2=' + Y17Part('Y17Body') + ';3=;4=' + Y17Part('Y17HF') + ';5=' + Y17Part('Y17Theme'), '1=91874;2=' + Y17Part('Y17Body') + ';3=', '4=');
+        Observer.Expect('columns', 'ok:1:Report ID:Integer:4:Normal;2:Layout Name:Text:250:Normal;3:Company Name:Text:30:Normal;4:Header Part Name:Text:300:Normal;5:Theme Part Name:Text:300:Normal;');
+        Observer.Expect('has_rows', 'ok:No');
+        Observer.Expect('first_row', 'ok:none');
+        Observer.Expect('insert', 'ok:Yes');
+        Observer.Expect('find_inserted', 'ok:1=91874;2=a1b2c3d4-e5f6-7890-abcd-ef1234567890::Y17Body;3=;4=a1b2c3d4-e5f6-7890-abcd-ef1234567890::Y17HF;5=a1b2c3d4-e5f6-7890-abcd-ef1234567890::Y17Theme;');
+        Observer.Expect('count_inserted', 'ok:1');
+        Observer.Expect('insert_duplicate', 'ok:No');
+        Observer.Expect('modify', 'ok:Yes');
+        Observer.Expect('find_modified', 'ok:1=91874;2=a1b2c3d4-e5f6-7890-abcd-ef1234567890::Y17Body;3=;4=;5=a1b2c3d4-e5f6-7890-abcd-ef1234567890::Y17Theme;');
+        Observer.Expect('delete', 'ok:Yes');
+        Observer.Expect('count_deleted', 'ok:0');
+        Observer.Expect('insert_no_triggers', 'ok:Yes');
+        Observer.Expect('delete_all_no_triggers', 'ok:done');
+        Observer.Expect('count_after_delete_all', 'ok:0');
+        Observer.Verify();
+    end;
+
+    // No TryFunction: a write inside a TryFunction is refused on the Linux CI containers (server setting); errors are caught with asserterror.
+    local procedure Y17InsertCfg(ReportId: Integer; LayoutName: Text[250]; Company: Text[30]; HeaderPart: Text; ThemePart: Text)
+    var
+        Cfg: Record "Tenant Report Layout Cfg";
+    begin
+        Cfg.Init();
+        Cfg."Report ID" := ReportId;
+        Cfg."Layout Name" := LayoutName;
+        Cfg."Company Name" := Company;
+        Cfg."Header Part Name" := CopyStr(HeaderPart, 1, 300);
+        Cfg."Theme Part Name" := CopyStr(ThemePart, 1, 300);
+        // Insert with a return value: a duplicate key answers false instead of an error (an error of a duplicate is not caught here).
+        Y17Inserted := Cfg.Insert(true);
+    end;
+
+    local procedure Y17Shorten(Value: Text): Text
+    begin
+        exit(Value.Replace(Y17Part(''), '<this app>::'));
+    end;
+
+    local procedure Y17CfgRows(): Text
+    var
+        Cfg: Record "Tenant Report Layout Cfg";
+        Result: Text;
+        Company: Text;
+    begin
+        if Cfg.FindSet() then
+            repeat
+                Company := Cfg."Company Name";
+                if Company = CompanyName() then
+                    Company := '<current company>';
+                Result += Format(Cfg."Report ID") + '|' + Y17Shorten(Cfg."Layout Name") + '|' + Company + '|' + Y17Shorten(Cfg."Header Part Name") + '|' + Y17Shorten(Cfg."Theme Part Name") + ';';
+            until Cfg.Next() = 0;
+        exit(Result);
+    end;
+
+    local procedure Y17Returned(var Observer: Codeunit "Probe Observer"; Name: Text)
+    begin
+        Observer.Observe(Name, 'returned ' + Format(Y17Inserted));
+        Y17Inserted := false;
+    end;
+
+    local procedure Y17Failed(var Observer: Codeunit "Probe Observer"; Name: Text)
+    begin
+        Observer.Observe(Name, 'No');
+        Observer.Observe(Name + '|text', Y17Shorten(GetLastErrorText()));
+        ClearLastError();
+    end;
+
+    [Test]
+    procedure Y17_TenantReportLayoutCfg_Shapes()
+    var
+        Cfg: Record "Tenant Report Layout Cfg";
+        Layouts: Record "Report Layout List";
+        Text1: Text;
+        HF: Text;
+        Th: Text;
+        DHF: Text;
+        DTh: Text;
+    begin
+        HF := Y17Part('Y17HF');
+        Th := Y17Part('Y17Theme');
+        DHF := Y17Part('Y17DefHF');
+        DTh := Y17Part('Y17DefTheme');
+        Layouts.SetFilter("Report ID", '%1|%2', 91874, 2000000001);
+        Layouts.SetFilter(Name, 'Y17*');
+        if Layouts.FindSet() then
+            repeat
+                Text1 += Format(Layouts."Report ID") + '|' + Layouts.Name + '|' + Format(Layouts."Layout Format") + '|' + Format(Layouts."Layout Subtype") + ';';
+            until Layouts.Next() = 0;
+        Y17Observer.Observe('part layouts', Text1);
+        Y17Observer.Observe('fresh rows', Format(Cfg.Count()));
+        Cfg.DeleteAll();
+        // Inserts the platform refuses first (asserterror rolls back; the table is still empty), then the ones it accepts.
+        asserterror Y17InsertCfg(0, '', '', 'x::A', 'y::B');
+        Y17Failed(Y17Observer, 'invalid header part');
+        asserterror Y17InsertCfg(0, '', '', DTh, DTh);
+        Y17Failed(Y17Observer, 'header part of the theme subtype');
+        asserterror Y17InsertCfg(0, '', '', HF, Th);
+        Y17Failed(Y17Observer, 'global default, parts of an ordinary report');
+        asserterror Y17InsertCfg(91874, 'Y17Body', '', HF, '');
+        Y17Failed(Y17Observer, 'body layout by plain name');
+        asserterror Y17InsertCfg(91873, CopyStr(Y17Part('Rdl'), 1, 250), '', DHF, DTh);
+        Y17Failed(Y17Observer, 'default subtype layout');
+        asserterror Y17InsertCfg(91874, CopyStr(Y17Part('NoSuchLayout'), 1, 250), '', HF, Th);
+        Y17Failed(Y17Observer, 'undeclared layout');
+        Y17InsertCfg(0, '', '', DHF, DTh);
+        Y17Returned(Y17Observer, 'global default');
+        Y17InsertCfg(0, '', CopyStr(CompanyName(), 1, 30), DHF, '');
+        Y17Returned(Y17Observer, 'current company');
+        Y17InsertCfg(91874, '', '', HF, Th);
+        Y17Returned(Y17Observer, 'report level, own parts');
+        Y17InsertCfg(91873, '', '', DHF, DTh);
+        Y17Returned(Y17Observer, 'report level, default parts');
+        Y17InsertCfg(91874, CopyStr(Y17Part('Y17Body'), 1, 250), '', HF, '');
+        Y17Returned(Y17Observer, 'body layout by composite name');
+        Y17InsertCfg(99999990, '', '', DHF, DTh);
+        Y17Returned(Y17Observer, 'unknown report');
+        Y17InsertCfg(0, '', '', DHF, DTh);
+        Y17Returned(Y17Observer, 'duplicate');
+        Y17Observer.Observe('rows', Y17CfgRows());
+        Cfg.SetRange("Header Part Name", HF);
+        Y17Observer.Observe('count header', Format(Cfg.Count()));
+        Cfg.ModifyAll("Header Part Name", '');
+        Y17Observer.Observe('modifyall header blank', 'Yes');
+        Cfg.Reset();
+        Y17Observer.Observe('rows after modifyall', Y17CfgRows());
+        Y17Observer.Observe('get current company', Format(Cfg.Get(0, '', CopyStr(CompanyName(), 1, 30))) + '|' + Y17Shorten(Cfg."Header Part Name") + '|' + Y17Shorten(Cfg."Theme Part Name"));
+        Cfg.DeleteAll();
+        Y17Observer.Expect('part layouts', '91874|Y17Body|Word|Body;91874|Y17HF|Word|Header/Footer;91874|Y17Theme|Word|Theme;2000000001|Y17DefHF|Word|Header/Footer;2000000001|Y17DefTheme|Word|Theme;');
+        Y17Observer.Expect('fresh rows', '0');
+        Y17Observer.Expect('invalid header part', 'No');
+        Y17Observer.Expect('invalid header part|text', 'The Header/Footer part ''x::A'' must reference a Header/Footer-subtype layout in the tenants Report Layout List.');
+        Y17Observer.Expect('header part of the theme subtype', 'No');
+        Y17Observer.Expect('header part of the theme subtype|text', 'The Header/Footer part ''<this app>::Y17DefTheme'' must reference a Header/Footer-subtype layout in the tenants Report Layout List.');
+        Y17Observer.Expect('global default, parts of an ordinary report', 'No');
+        Y17Observer.Expect('global default, parts of an ordinary report|text', 'The Header/Footer part ''<this app>::Y17HF'' must reference a Header/Footer-subtype layout in the tenants Report Layout List.');
+        Y17Observer.Expect('body layout by plain name', 'No');
+        Y17Observer.Expect('body layout by plain name|text', 'The Body part ''Y17Body'' must reference a Body-subtype layout in the tenants Report Layout List.');
+        Y17Observer.Expect('default subtype layout', 'No');
+        Y17Observer.Expect('default subtype layout|text', 'The Body part ''<this app>::Rdl'' must reference a Body-subtype layout in the tenants Report Layout List.');
+        Y17Observer.Expect('undeclared layout', 'No');
+        Y17Observer.Expect('undeclared layout|text', 'The Body part ''<this app>::NoSuchLayout'' must reference a Body-subtype layout in the tenants Report Layout List.');
+        Y17Observer.Expect('global default', 'returned Yes');
+        Y17Observer.Expect('current company', 'returned Yes');
+        Y17Observer.Expect('report level, own parts', 'returned Yes');
+        Y17Observer.Expect('report level, default parts', 'returned Yes');
+        Y17Observer.Expect('body layout by composite name', 'returned Yes');
+        Y17Observer.Expect('unknown report', 'returned Yes');
+        Y17Observer.Expect('duplicate', 'returned No');
+        Y17Observer.Expect('rows', '0|||<this app>::Y17DefHF|<this app>::Y17DefTheme;0||<current company>|<this app>::Y17DefHF|;91873|||<this app>::Y17DefHF|<this app>::Y17DefTheme;91874|||<this app>::Y17HF|<this app>::Y17Theme;91874|<this app>::Y17Body||<this app>::Y17HF|;99999990|||<this app>::Y17DefHF|<this app>::Y17DefTheme;');
+        Y17Observer.Expect('count header', '2');
+        Y17Observer.Expect('modifyall header blank', 'Yes');
+        Y17Observer.Expect('rows after modifyall', '0|||<this app>::Y17DefHF|<this app>::Y17DefTheme;0||<current company>|<this app>::Y17DefHF|;91873|||<this app>::Y17DefHF|<this app>::Y17DefTheme;91874||||<this app>::Y17Theme;91874|<this app>::Y17Body|||;99999990|||<this app>::Y17DefHF|<this app>::Y17DefTheme;');
+        Y17Observer.Expect('get current company', 'Yes|<this app>::Y17DefHF|');
+        Y17Observer.Verify();
+    end;
+#endif
+
+#if BC29PLUS
+    // Writer Y40 (2026-10-31, BC 29 only: the table is new in BC 29): Tenant Report Layout Override (2000000248), the table Microsoft's
+    // Composite Layout tests write for a company-scoped layout status. The standard sequence, typed-record errors, and whether a row
+    // changes what Report Layout List (2000000234) shows for an app layout (report 69083, layout Rdlc).
+    // Measured on CI 29.0 and SaaS BC 29: no rows at start; no validation on Insert (unknown report, unknown company); FieldRef type
+    // of the enum Layout Status is Option. Report Layout List shows Description, Layout Status and IsObsolete of an override row
+    // whose Override flag is set; a row for the current company wins over the global row ('' company) for all three fields (a field
+    // whose flag is off on the company row shows the layout's own value, not the global row's).
+    [Test]
+    procedure Y40_TenantReportLayoutOverride_InsertModifyDelete()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Standard(Observer, 2000000248, '1=99999;2=LTPT Layout;3={44444444-4444-4444-4444-444444444444};4=LTPT;9=First;10=true', '1=99999;2=LTPT Layout', '9=Second');
+        Observer.Expect('columns', 'ok:1:Report ID:Integer:4:Normal;2:Name:Text:250:Normal;3:Runtime Package ID:GUID:16:Normal;4:Company Name:Text:30:Normal;5:IsObsolete:Boolean:4:Normal;6:Override IsObsolete:Boolean:4:Normal;7:Layout Status:Option:4:Normal;8:Override Layout Status:Boolean:4:Normal;9:Description:Text:250:Normal;10:Override Description:Boolean:4:Normal;');
+        Observer.Expect('has_rows', 'ok:No');
+        Observer.Expect('first_row', 'ok:none');
+        Observer.Expect('insert', 'ok:Yes');
+        Observer.Expect('find_inserted', 'ok:1=99999;2=LTPT Layout;3=<guid>;4=LTPT;5=No;6=No;7=Approved;8=No;9=First;10=Yes;');
+        Observer.Expect('count_inserted', 'ok:1');
+        Observer.Expect('insert_duplicate', 'ok:No');
+        Observer.Expect('modify', 'ok:Yes');
+        Observer.Expect('find_modified', 'ok:1=99999;2=LTPT Layout;3=<guid>;4=LTPT;5=No;6=No;7=Approved;8=No;9=Second;10=Yes;');
+        Observer.Expect('delete', 'ok:Yes');
+        Observer.Expect('count_deleted', 'ok:0');
+        Observer.Expect('insert_no_triggers', 'ok:Yes');
+        Observer.Expect('delete_all_no_triggers', 'ok:done');
+        Observer.Expect('count_after_delete_all', 'ok:0');
+        Observer.Verify();
+    end;
+
+    local procedure Y40Override(var O: Record "Tenant Report Layout Override"): Text
+    begin
+        exit(Format(O."Report ID") + '|' + O.Name + '|' + Format(IsNullGuid(O."Runtime Package ID")) + '|' + O."Company Name" + '|' + Format(O.IsObsolete) + '|' +
+            Format(O."Override IsObsolete") + '|' + Format(O."Layout Status") + '|' + Format(O."Override Layout Status") + '|' + O.Description + '|' +
+            Format(O."Override Description"));
+    end;
+
+    [Test]
+    procedure Y40_TenantReportLayoutOverride_TypedRecord()
+    var
+        O: Record "Tenant Report Layout Override";
+        O2: Record "Tenant Report Layout Override";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('count_at_start', Format(O.Count()));
+        O.Init();
+        Observer.Observe('init', Y40Override(O));
+        O."Report ID" := 99998;
+        O.Name := 'LTPT Typed';
+        O."Company Name" := CopyStr(CompanyName(), 1, MaxStrLen(O."Company Name"));
+        O."Layout Status" := O."Layout Status"::Retired;
+        O."Override Layout Status" := true;
+        Observer.Observe('insert', Format(O.Insert(true)));
+        Observer.Observe('insert_again', Format(O.Insert()));
+        Observer.Observe('get', Format(O2.Get(99998, 'LTPT Typed', O."Runtime Package ID", CompanyName())));
+        Observer.Observe('get_row', Y40Override(O2));
+        Observer.Observe('get_other_company', Format(O2.Get(99998, 'LTPT Typed', O."Runtime Package ID", '')));
+        O."Company Name" := '';
+        O."Layout Status" := O."Layout Status"::Draft;
+        Observer.Observe('insert_global', Format(O.Insert(true)));
+        O2.Reset();
+        O2.SetRange("Report ID", 99998);
+        Observer.Observe('count_both', Format(O2.Count()));
+        O2.SetRange("Layout Status", O2."Layout Status"::Retired);
+        Observer.Observe('count_retired', Format(O2.Count()));
+        O2.SetRange("Layout Status");
+        O2.FindFirst();
+        Observer.Observe('first_by_key', Y40Override(O2));
+        O2.Description := 'Changed';
+        O2."Override Description" := true;
+        Observer.Observe('modify', Format(O2.Modify(true)));
+        O2.Get(99998, 'LTPT Typed', O."Runtime Package ID", '');
+        Observer.Observe('after_modify', Y40Override(O2));
+        Observer.Observe('rename', Format(O2.Rename(99998, 'LTPT Renamed', O."Runtime Package ID", '')));
+        O2.Reset();
+        O2.SetRange("Report ID", 99998);
+        O2.FindSet();
+        Observer.Observe('after_rename_first', Y40Override(O2));
+        Observer.Observe('delete', Format(O2.Delete(true)));
+        Observer.Observe('count_after_delete', Format(O2.Count()));
+        O2.DeleteAll();
+        Observer.Observe('count_after_delete_all', Format(O2.Count()));
+        Observer.Expect('count_at_start', '0');
+        Observer.Expect('init', '0||Yes||No|No|Approved|No||No');
+        Observer.Expect('insert', 'Yes');
+        Observer.Expect('insert_again', 'No');
+        Observer.Expect('get', 'Yes');
+        Observer.Expect('get_row', '99998|LTPT Typed|Yes|<Company>|No|No|Retired|Yes||No');
+        Observer.Expect('get_other_company', 'No');
+        Observer.Expect('insert_global', 'Yes');
+        Observer.Expect('count_both', '2');
+        Observer.Expect('count_retired', '1');
+        Observer.Expect('first_by_key', '99998|LTPT Typed|Yes||No|No|Draft|Yes||No');
+        Observer.Expect('modify', 'Yes');
+        Observer.Expect('after_modify', '99998|LTPT Typed|Yes||No|No|Draft|Yes|Changed|Yes');
+        Observer.Expect('rename', 'Yes');
+        Observer.Expect('after_rename_first', '99998|LTPT Renamed|Yes||No|No|Draft|Yes|Changed|Yes');
+        Observer.Expect('delete', 'Yes');
+        Observer.Expect('count_after_delete', '1');
+        Observer.Expect('count_after_delete_all', '0');
+        Observer.Verify();
+    end;
+
+    local procedure Y40LayoutListRow(Name: Text): Text
+    var
+        L: Record "Report Layout List";
+    begin
+        L.SetRange("Report ID", 69083);
+        L.SetRange(Name, Name);
+        if not L.FindFirst() then
+            exit('none');
+        exit('desc=' + L.Description + ' status=' + Format(L."Layout Status") + ' obsolete=' + Format(L.IsObsolete));
+    end;
+
+    [Test]
+    procedure Y40_TenantReportLayoutOverride_SeenByReportLayoutList()
+    var
+        L: Record "Report Layout List";
+        O: Record "Tenant Report Layout Override";
+        Observer: Codeunit "Probe Observer";
+    begin
+        L.SetRange("Report ID", 69083);
+        L.SetRange(Name, 'Rdlc');
+        L.FindFirst();
+        Observer.Observe('before', Y40LayoutListRow('Rdlc'));
+        O.Init();
+        O."Report ID" := 69083;
+        O.Name := L.Name;
+        O."Runtime Package ID" := L."Runtime Package ID";
+        O."Company Name" := '';
+        O.Description := 'LT Y40 Global';
+        O."Override Description" := true;
+        O."Layout Status" := O."Layout Status"::Retired;
+        O."Override Layout Status" := true;
+        O.IsObsolete := true;
+        O."Override IsObsolete" := true;
+        O.Insert();
+        Observer.Observe('global_override', Y40LayoutListRow('Rdlc'));
+        Observer.Observe('other_layout', Y40LayoutListRow('Word'));
+        O."Company Name" := CopyStr(CompanyName(), 1, MaxStrLen(O."Company Name"));
+        O.Description := 'LT Y40 Company';
+        O."Layout Status" := O."Layout Status"::"Pending Approval";
+        O."Override IsObsolete" := false;
+        O.Insert();
+        Observer.Observe('company_override_too', Y40LayoutListRow('Rdlc'));
+        O.Get(69083, L.Name, L."Runtime Package ID", '');
+        O.Delete();
+        Observer.Observe('company_override_only', Y40LayoutListRow('Rdlc'));
+        O.Get(69083, L.Name, L."Runtime Package ID", CompanyName());
+        O."Override Description" := false;
+        O."Override Layout Status" := false;
+        O.Modify();
+        Observer.Observe('flags_off', Y40LayoutListRow('Rdlc'));
+        O.Delete();
+        Observer.Observe('after_delete', Y40LayoutListRow('Rdlc'));
+        Observer.Expect('before', 'desc=rdlc summary status=Approved obsolete=No');
+        Observer.Expect('global_override', 'desc=LT Y40 Global status=Retired obsolete=Yes');
+        Observer.Expect('other_layout', 'desc=Word status=Approved obsolete=No');
+        Observer.Expect('company_override_too', 'desc=LT Y40 Company status=Pending Approval obsolete=No');
+        Observer.Expect('company_override_only', 'desc=LT Y40 Company status=Pending Approval obsolete=No');
+        Observer.Expect('flags_off', 'desc=rdlc summary status=Approved obsolete=No');
+        Observer.Expect('after_delete', 'desc=rdlc summary status=Approved obsolete=No');
+        Observer.Verify();
+    end;
+#endif
 }
+
+#if BC29PLUS
+// Writer Y17 (gap cycle 1 G8): a report with a Body, a HeaderFooter and a Theme layout (Word; the compiler writes the layout files at build).
+report 91874 "LT Y17 Composite Parts"
+{
+    UsageCategory = None;
+    DefaultRenderingLayout = Y17Body;
+
+    dataset
+    {
+        dataitem(Item; Integer)
+        {
+            DataItemTableView = sorting(Number) where(Number = const(1));
+
+            column(Num; Number) { }
+        }
+    }
+
+    rendering
+    {
+        layout(Y17Body)
+        {
+            Type = Word;
+            Subtype = Body;
+            LayoutFile = './LtY17Body.docx';
+        }
+        layout(Y17HF)
+        {
+            Type = Word;
+            Subtype = HeaderFooter;
+            LayoutFile = './LtY17HF.docx';
+        }
+        layout(Y17Theme)
+        {
+            Type = Word;
+            Subtype = Theme;
+            LayoutFile = './LtY17Theme.dotx';
+        }
+    }
+}
+
+// Header/footer and theme parts on the platform report "Tenant Report Defaults" (2000000001), where Microsoft's composite layout parts live.
+reportextension 91875 "LT Y17 Default Parts" extends "Tenant Report Defaults"
+{
+    rendering
+    {
+        layout(Y17DefHF)
+        {
+            Type = Word;
+            Subtype = HeaderFooter;
+            LayoutFile = './LtY17DefHF.docx';
+        }
+        layout(Y17DefTheme)
+        {
+            Type = Word;
+            Subtype = Theme;
+            LayoutFile = './LtY17DefTheme.dotx';
+        }
+    }
+}
+#endif

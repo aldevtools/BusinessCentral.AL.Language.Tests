@@ -144,14 +144,14 @@ All tests share a single fixture library in `_fixtures/`. Never define your own 
 
 ## Multi-app fixtures
 
-Some behavior only shows when code is spread over several apps: an extension of a table that another app extends too, a subscriber in another app, the order of subscribers of different apps. Besides the main test app (`tests/al-language`) and the AL Internals Test Fixture (`tests/al-language-internals-fixture`), CI publishes four small apps for these cases. They hold no tests; the tests stay in the main test app, which depends on A, B and C. D depends on A only, and no other app depends on D.
+Some behavior only shows when code is spread over several apps: an extension of a table that another app extends too, a subscriber in another app, the order of subscribers of different apps. Besides the main test app (`tests/al-language`) and the AL Internals Test Fixture (`tests/al-language-internals-fixture`), CI publishes four small apps for these cases. They hold no tests; the tests stay in the main test app, which depends on A, B and C. D depends on A only, and only C depends on D (so D is visited before C; writer UI).
 
 | Folder | App id | Name | Publisher | Object ids | Depends on | What it is for |
 |---|---|---|---|---|---|---|
-| `tests/al-language-xapp-a` | `cd6a4292-f27b-4af9-89bc-15a5956f5c71` | AL Language XApp A | AL Language | 61100-61109, 61130-61139 | nothing | the base app: an event other apps subscribe to, tables other apps extend, a local event, a Company Triggers counter |
+| `tests/al-language-xapp-a` | `cd6a4292-f27b-4af9-89bc-15a5956f5c71` | AL Language XApp A | AL Language | 61100-61109, 61130-61139, 61170-61179 | System Application, Base Application (for the upgrade tag probe) | the base app: an event other apps subscribe to, tables other apps extend, a local event, a Company Triggers counter, the install codeunit and subscribers of the upgrade tag and company initialization probe (in A, not in the main app, so the main app keeps its install rows and its dependency count) |
 | `tests/al-language-xapp-b` | `c87ced6d-11a6-4ad2-87c7-ac10083d0a2f` | AL Language XApp B | Zulu Probe Publisher | 61110-61119, 61140-61149 | fixture, A | table extensions of A's tables, a page with a protected variable whose type is a fixture table |
-| `tests/al-language-xapp-c` | `0df0fadc-d339-4b0f-a1d5-51dc51f10900` | AL Language XApp C | Bravo Probe Publisher | 61120-61129, 61150-61159 | A, B (not the fixture) | a page extension of B's page |
-| `tests/al-language-xapp-d` | `e92be076-de11-44ed-895e-17031341df29` | AL Language XApp D | Mike Probe Publisher | 61160-61169 | A | a subscriber of an event of A, in an app that no other app depends on and that depends on none of B, C and the main test app (subscriber order of apps that do not depend on each other) |
+| `tests/al-language-xapp-c` | `0df0fadc-d339-4b0f-a1d5-51dc51f10900` | AL Language XApp C | Bravo Probe Publisher | 61120-61129, 61150-61159 | B, A (in this order on purpose), D (not the fixture) | a page extension of B's page |
+| `tests/al-language-xapp-d` | `e92be076-de11-44ed-895e-17031341df29` | AL Language XApp D | Mike Probe Publisher | 61160-61169 | A | a subscriber of an event of A, in an app that only C depends on and that depends on none of B, C and the main test app (subscriber order of apps that do not depend on each other) |
 
 CI publishes the fixture, A, D, B, C and then the main test app (D right after A, before B, on purpose) (`app_dirs` of every job in `ci.yml` that compiles `al-language`, and `$apps` in `nightly-windows.yml`). A change to one of these apps is a change to a dependency app, so the pull request gets a full run.
 
@@ -278,7 +278,7 @@ You can also trigger a single-version run manually via **Actions → AL Language
 
 ## Test selection in CI
 
-A full BC leg takes about 26 minutes, and about 21 of them are the "Run AL tests" step. So a pull request runs only the test codeunits that its change can affect. Every app is still compiled and published on every leg, and the job and check names stay the same.
+The "Run AL tests" step of a full `al-language` leg takes about 50 minutes (in three shards, see "Shards in CI"). So a pull request runs only the test codeunits that its change can affect. Every app is still compiled and published in every shard that runs, and the required check names stay the same.
 
 ### What runs on a pull request
 
@@ -355,6 +355,35 @@ python3 .github/scripts/select-tests.py --head HEAD --codeunits '{"tests/al-lang
 ```
 
 ---
+
+## Shards in CI
+
+Each test job of `ci.yml` (one test app on one BC version, a "leg") calls `.github/workflows/bc-leg.yml`. That workflow runs the leg in one or more shards, each in a BC container of its own, and then merges their JUnit. The `al-language` legs run in three or four shards; the other test apps run in one.
+
+- **Check names.** The leg "BC 29.0" has the checks `BC 29.0 / shard 1 of 3 / test` to `BC 29.0 / shard 3 of 3 / test`, one per shard, and `BC 29.0 / test`. The last one is the job that merges and reports; it is the check the master ruleset requires. It fails when any shard failed or was cancelled.
+- **Artifact.** Each shard uploads `junit-test-results-<bc version>`. The merging job uploads the merged file under the same name and deletes the shards' artifacts, so each leg still has one artifact with one JUnit file. After **Re-run failed jobs**, the merge takes the earlier merged file and replaces the codeunits of the re-run shard.
+- **Shard ranges.** A shard is a range of codeunit ids. `.github/ci-shards.json` holds the first id of each shard per BC major. The ranges are balanced by the wall time of each codeunit in a full master run. A new codeunit falls into the shard of its neighbours, so adding tests needs no edit there. When the shards' times drift apart (see the "Run AL tests" step of each shard), measure them again from the JUnit files of a green master run:
+
+  ```bash
+  gh run download <run id> -p 'junit-test-results-*' -D /tmp/junit
+  cp .github/ci-shards.json /tmp/used.json   # the shards that run used: the shards run at the same time
+  python3 .github/scripts/ci-shards.py measure --shards 3 --shards-for 27=4 --app tests/al-language \
+    --file .github/ci-shards.json --sharded-by /tmp/used.json --source 'master run <run id>' \
+    --junit 27=/tmp/junit/junit-test-results-27.5/junit-al-language.xml \
+    --junit 28=/tmp/junit/junit-test-results-28.5/junit-al-language.xml \
+    --junit 29=/tmp/junit/junit-test-results-29.0/junit-al-language.xml
+  ```
+
+- **How many.** Each shard compiles and publishes every app again, about 8 to 12 minutes before its first test. The organization can run 20 jobs at once for this repository and al-runtime-rs together. BC 27.5 runs in four shards (it has no TestRunnerHub, so its tests are the slowest), 28.5 and 29.0 in three. With the OnPrem and OnPrem DotNet legs that is 16 BC containers. The TestLibraries legs start when the OnPrem legs are done. Measured on run 41290024388 (three shards each): the shards took 23 to 35 minutes, of which 6 to 9 minutes publish and 15 to 24 minutes tests.
+- **Subset runs.** In a run with a test selection, a shard runs the selected codeunits of its range plus the app's sentinel. A shard with no selected codeunit does not start. On a pull request, a leg whose app has nothing affected (its selection is the sentinel only) starts no shard, and its check reports success. A dispatched run with `select_codeunits` (the CI batcher) still runs every leg.
+
+To see the shards of a run without CI:
+
+```bash
+python3 .github/scripts/select-tests.py --base origin/master --head HEAD --json /tmp/sel.json
+python3 .github/scripts/ci-shards.py plan --ci-yml .github/workflows/ci.yml --file .github/ci-shards.json \
+  --event pull_request --selection /tmp/sel.json --versions '{"include":[{"bc_version":"29.0"}]}'
+```
 
 ## Pull request checklist
 

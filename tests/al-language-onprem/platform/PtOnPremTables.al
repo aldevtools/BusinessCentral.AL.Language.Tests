@@ -3,6 +3,7 @@
 // Fixtures used: PtOnPremOps.al (LT PT OnPrem Ops), tests/al-language/platform/lt-platform-tables/PtHelper.al (LT PT Arg, LT PT Ops)
 // Probe: platform tables that have no row provider in the AL runtime, the OnPrem ones: the column list, whether rows exist, the first row, an Insert,
 // a second Insert of the same key, a Modify, a Delete and an Insert without triggers (the same sequence as PtCloudTables.al). Object id 61229.
+// Writer Y17 (gap cycle 1 G8): Power BI Blob (2000000144): the standard sequence, the Blob round trip and the rows of a fresh tenant.
 
 codeunit 61229 "LT PT OnPrem Tables"
 {
@@ -273,6 +274,182 @@ codeunit 61229 "LT PT OnPrem Tables"
         Observer.Expect('try', 'Yes|No');
         Observer.Expect('try|text', '');
         Observer.Expect('try|code', '');
+        Observer.Verify();
+    end;
+    // Writer Y17 (gap cycle 1 G8): Power BI Blob (2000000144, Scope OnPrem), the table Microsoft's Power BI tests fill with a row whose
+    // "Blob File" holds a text and read back with SetAutoCalcFields("Blob File") + Get, SetRange("GP Enabled") + FindFirst.
+    [Test]
+    procedure Y17_PowerBIBlob_InsertModifyDelete()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Standard(Observer, 2000000144, '1={66666666-6666-6666-6666-666666666666};3=LT PT Blob;4=1;5=false', '1={66666666-6666-6666-6666-666666666666}', '3=Renamed');
+        Observer.Expect('columns', 'ok:1:Id:GUID:16:Normal;2:Blob File:BLOB:8:Normal;3:Name:Text:200:Normal;4:Version:Integer:4:Normal;5:GP Enabled:Boolean:4:Normal;');
+        // has_rows / first_row are the demo rows of the tenant (8 out-of-the-box Power BI reports on the Linux CI containers, all majors):
+        // environment data, recorded but not asserted until the Windows nightly confirms them.
+        Observer.Ignore('has_rows');
+        Observer.Ignore('first_row');
+        Observer.Expect('insert', 'ok:Yes');
+        Observer.Expect('find_inserted', 'ok:1=<guid>;2=<BLOB>;3=LT PT Blob;4=1;5=No;');
+        Observer.Expect('count_inserted', 'ok:1');
+        Observer.Expect('insert_duplicate', 'ok:No');
+        Observer.Expect('modify', 'ok:Yes');
+        Observer.Expect('find_modified', 'ok:1=<guid>;2=<BLOB>;3=Renamed;4=1;5=No;');
+        Observer.Expect('delete', 'ok:Yes');
+        Observer.Expect('count_deleted', 'ok:0');
+        Observer.Expect('insert_no_triggers', 'ok:Yes');
+        Observer.Expect('delete_all_no_triggers', 'ok:done');
+        Observer.Expect('count_after_delete_all', 'ok:0');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y17_PowerBIBlob_BlobRoundTrip()
+    var
+        Observer: Codeunit "Probe Observer";
+        PowerBIBlob: Record "Power BI Blob";
+        ReadBack: Record "Power BI Blob";
+        OutS: OutStream;
+        InS: InStream;
+        Id: Guid;
+        Line: Text;
+        Rows: Text;
+    begin
+        Observer.Observe('fresh count', Format(PowerBIBlob.Count()));
+        if PowerBIBlob.FindSet() then
+            repeat
+                Rows += PowerBIBlob.Name + '|' + Format(PowerBIBlob.Version) + '|' + Format(PowerBIBlob."GP Enabled") + ';';
+            until PowerBIBlob.Next() = 0;
+        Observer.Observe('fresh rows', Rows);
+        PowerBIBlob.DeleteAll();
+        Evaluate(Id, '{77777777-7777-7777-7777-777777777777}');
+        PowerBIBlob.Init();
+        PowerBIBlob.Id := Id;
+        PowerBIBlob.Name := 'LT Y17 Blob';
+        PowerBIBlob.Version := 3;
+        PowerBIBlob."Blob File".CreateOutStream(OutS);
+        OutS.WriteText('This is not really relevant');
+        Observer.Observe('insert', Format(PowerBIBlob.Insert()));
+        Observer.Observe('has value without calcfields', Format(ReadBack.Get(Id)) + '|' + Format(ReadBack."Blob File".HasValue()));
+        Clear(ReadBack);
+        ReadBack.SetAutoCalcFields("Blob File");
+        Observer.Observe('get with autocalc', Format(ReadBack.Get(Id)) + '|' + Format(ReadBack."Blob File".HasValue()));
+        ReadBack."Blob File".CreateInStream(InS);
+        InS.ReadText(Line);
+        Observer.Observe('text', Line);
+        Clear(ReadBack);
+        ReadBack.SetRange("GP Enabled", false);
+        Observer.Observe('gp enabled false findfirst', Format(ReadBack.FindFirst()) + '|' + ReadBack.Name);
+        ReadBack.SetRange("GP Enabled", true);
+        Observer.Observe('gp enabled true isempty', Format(ReadBack.IsEmpty()));
+        PowerBIBlob.DeleteAll();
+        Observer.Observe('count after delete', Format(PowerBIBlob.Count()));
+        // Fresh-tenant rows (Linux CI, all majors: 8 rows, Version 2, GP Enabled No): environment data, not asserted.
+        Observer.Ignore('fresh count');
+        Observer.Ignore('fresh rows');
+        Observer.Expect('insert', 'Yes');
+        Observer.Expect('has value without calcfields', 'Yes|Yes');
+        Observer.Expect('get with autocalc', 'Yes|Yes');
+        Observer.Expect('text', 'This is not really relevant');
+        Observer.Expect('gp enabled false findfirst', 'Yes|LT Y17 Blob');
+        Observer.Expect('gp enabled true isempty', 'Yes');
+        Observer.Expect('count after delete', '0');
+        Observer.Verify();
+    end;
+
+    // Writer Y40 (2026-10-31): Power BI Default Selection (2000000145, Scope OnPrem, per tenant), the table Microsoft's Power BI
+    // embedded-report tests read and write (Id + Context key, Selected flag). The standard sequence and a typed-record sequence.
+    // Measured on CI 27.5/28.5/29.0 (OnPrem): a plain stored table: Insert (also blank Id and Context), duplicate Insert No, Get,
+    // SetRange, Modify, Rename, Delete, DeleteAll all work, no validation, no error.
+    [Test]
+    procedure Y40_PowerBIDefaultSelection_InsertModifyDelete()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Standard(Observer, 2000000145, '1={55555555-5555-5555-5555-555555555555};2=LTPT Context;3=true', '1={55555555-5555-5555-5555-555555555555};2=LTPT Context', '3=false');
+        Observer.Expect('columns', 'ok:1:Id:GUID:16:Normal;2:Context:Text:30:Normal;3:Selected:Boolean:4:Normal;');
+        // has_rows / first_row / count_at_start are the demo rows of the tenant (8 rows on the Linux CI containers, all majors, the first with
+        // Context 'SALES AND RELATIONSHIP MANAGER', Selected Yes): environment data, recorded but not asserted until the Windows nightly confirms them.
+        Observer.Ignore('has_rows');
+        Observer.Ignore('first_row');
+        Observer.Expect('insert', 'ok:Yes');
+        Observer.Expect('find_inserted', 'ok:1=<guid>;2=LTPT Context;3=Yes;');
+        Observer.Expect('count_inserted', 'ok:1');
+        Observer.Expect('insert_duplicate', 'ok:No');
+        Observer.Expect('modify', 'ok:Yes');
+        Observer.Expect('find_modified', 'ok:1=<guid>;2=LTPT Context;3=No;');
+        Observer.Expect('delete', 'ok:Yes');
+        Observer.Expect('count_deleted', 'ok:0');
+        Observer.Expect('insert_no_triggers', 'ok:Yes');
+        Observer.Expect('delete_all_no_triggers', 'ok:done');
+        Observer.Expect('count_after_delete_all', 'ok:0');
+        Observer.Verify();
+    end;
+
+    local procedure Y40Selection(var S: Record "Power BI Default Selection"): Text
+    begin
+        exit(Format(S.Id) + '|' + S.Context + '|' + Format(S.Selected));
+    end;
+
+    [Test]
+    procedure Y40_PowerBIDefaultSelection_TypedRecord()
+    var
+        S: Record "Power BI Default Selection";
+        S2: Record "Power BI Default Selection";
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('count_at_start', Format(S.Count()));
+        S.Init();
+        Observer.Observe('init', Y40Selection(S));
+        Observer.Observe('insert_blank', Format(S.Insert()));
+        S.Id := '{66666666-1111-1111-1111-666666666666}';
+        S.Context := 'LTPT A';
+        S.Selected := true;
+        Observer.Observe('insert', Format(S.Insert(true)));
+        Observer.Observe('insert_again', Format(S.Insert()));
+        S.Context := 'LTPT B';
+        S.Selected := false;
+        Observer.Observe('insert_other_context', Format(S.Insert(true)));
+        Observer.Observe('get', Format(S2.Get('{66666666-1111-1111-1111-666666666666}', 'LTPT A')));
+        Observer.Observe('get_row', Y40Selection(S2));
+        Observer.Observe('get_missing', Format(S2.Get('{66666666-1111-1111-1111-666666666666}', 'LTPT C')));
+        S2.Reset();
+        S2.SetRange(Id, '{66666666-1111-1111-1111-666666666666}');
+        Observer.Observe('count_id', Format(S2.Count()));
+        S2.SetRange(Selected, true);
+        Observer.Observe('count_selected', Format(S2.Count()));
+        S2.FindFirst();
+        S2.Selected := false;
+        Observer.Observe('modify', Format(S2.Modify(true)));
+        S2.SetRange(Selected);
+        S2.FindFirst();
+        Observer.Observe('rename', Format(S2.Rename('{66666666-1111-1111-1111-666666666666}', 'LTPT Z')));
+        S2.FindSet();
+        Observer.Observe('first_after_rename', Y40Selection(S2));
+        Observer.Observe('delete', Format(S2.Delete(true)));
+        S2.DeleteAll(true);
+        Observer.Observe('count_after_delete_all', Format(S2.Count()));
+        S2.Reset();
+        S2.SetRange(Context, '');
+        S2.DeleteAll();
+        Observer.Observe('count_blank_after_delete_all', Format(S2.Count()));
+        Observer.Ignore('count_at_start');
+        Observer.Expect('init', '{00000000-0000-0000-0000-000000000000}||No');
+        Observer.Expect('insert_blank', 'Yes');
+        Observer.Expect('insert', 'Yes');
+        Observer.Expect('insert_again', 'No');
+        Observer.Expect('insert_other_context', 'Yes');
+        Observer.Expect('get', 'Yes');
+        Observer.Expect('get_row', '{66666666-1111-1111-1111-666666666666}|LTPT A|Yes');
+        Observer.Expect('get_missing', 'No');
+        Observer.Expect('count_id', '2');
+        Observer.Expect('count_selected', '1');
+        Observer.Expect('modify', 'Yes');
+        Observer.Expect('rename', 'Yes');
+        Observer.Expect('first_after_rename', '{66666666-1111-1111-1111-666666666666}|LTPT B|No');
+        Observer.Expect('delete', 'Yes');
+        Observer.Expect('count_after_delete_all', '0');
+        Observer.Expect('count_blank_after_delete_all', '0');
         Observer.Verify();
     end;
 }

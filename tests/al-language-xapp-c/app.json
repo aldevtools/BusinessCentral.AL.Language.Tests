@@ -4,14 +4,20 @@
   "publisher": "Bravo Probe Publisher",
   "version": "1.0.0.0",
   "brief": "Cross-app fixture C: extends a page of cross-app fixture B without depending on the app that declares a type the page uses.",
-  "description": "A page extension of cross-app fixture B's page and subscribers of the cross-app order probe. Depends on cross-app fixtures A and B, and on purpose not on the AL Internals Test Fixture. The app id, name and publisher are fixed on purpose: they decide the candidate orders of the cross-app subscriber order probe (CONTRIBUTING.md, \"Multi-app fixtures\"). Do not change them.",
+  "description": "A page extension of cross-app fixture B's page and subscribers of the cross-app order probe. Depends on cross-app fixtures B, A and D (in this order on purpose: the declared order is not the app id order of A and B; writer UI), and on purpose not on the AL Internals Test Fixture. The app id, name and publisher are fixed on purpose: they decide the candidate orders of the cross-app subscriber order probe (CONTRIBUTING.md, \"Multi-app fixtures\"). Do not change them.",
   "privacyStatement": "",
   "EULA": "",
   "help": "",
   "url": "",
-  "logo": "",
+  "logo": "logo.png",
   "platform": "27.0.0.0",
   "dependencies": [
+    {
+      "id": "c87ced6d-11a6-4ad2-87c7-ac10083d0a2f",
+      "name": "AL Language XApp B",
+      "publisher": "Zulu Probe Publisher",
+      "version": "1.0.0.0"
+    },
     {
       "id": "cd6a4292-f27b-4af9-89bc-15a5956f5c71",
       "name": "AL Language XApp A",
@@ -19,10 +25,16 @@
       "version": "1.0.0.0"
     },
     {
-      "id": "c87ced6d-11a6-4ad2-87c7-ac10083d0a2f",
-      "name": "AL Language XApp B",
-      "publisher": "Zulu Probe Publisher",
+      "id": "e92be076-de11-44ed-895e-17031341df29",
+      "name": "AL Language XApp D",
+      "publisher": "Mike Probe Publisher",
       "version": "1.0.0.0"
+    },
+    {
+      "id": "437dbf0e-84ff-417a-965d-ed2bb9650972",
+      "name": "Base Application",
+      "publisher": "Microsoft",
+      "version": "27.0.0.0"
     }
   ],
   "screenshots": [],
@@ -34,6 +46,10 @@
     {
       "from": 61150,
       "to": 61159
+    },
+    {
+      "from": 61360,
+      "to": 61364
     }
   ],
   "features": [],

@@ -4,6 +4,8 @@
 // Probe: written against BC 29 (runtime 16); the facts are measured later
 // Facts: Dialog Open / Update / Close in a test (no UI), Confirm / StrMenu / Message with handlers (text the handler receives, returned value) and without handlers, Error with format arguments and ErrorInfo
 // BC versions: 29
+// Writer Y64 (2026-11-01, Y64_* tests, al-runner issue 6656): Clear(Dialog) of an unopened and an opened dialog, what Update, Close and Open do after it,
+//   Clear twice, ClearAll of a SingleInstance codeunit that holds an open Dialog (codeunit 93300, used only by this test codeunit), Clear of a var parameter.
 
 codeunit 71206 "LT P82 Dialog"
 {
@@ -435,5 +437,168 @@ codeunit 71206 "LT P82 Dialog"
         Observer.Expect('after-clear', '');
         Observer.Expect('code-after-clear', '');
         Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y64_Clear_UnopenedDialog()
+    var
+        Dlg: Dialog;
+    begin
+        Clear(Dlg);
+        Observer.Observe('clear unopened', 'no error');
+        ClearLastError();
+        Observer.Observe('update after clear', Format(TryUpdateNumber(Dlg, 1, 1)));
+        Observer.Observe('update after clear error', GetLastErrorText());
+        ClearLastError();
+        Observer.Observe('close after clear', Format(TryClose(Dlg)));
+        Observer.Observe('close after clear error', GetLastErrorText());
+        ClearLastError();
+        Observer.Observe('open after clear', Format(TryOpen(Dlg, 'Value #1####')));
+        ClearLastError();
+        Observer.Observe('update after open', Format(TryUpdateNumber(Dlg, 1, 5)));
+        ClearLastError();
+        Observer.Observe('close after open', Format(TryClose(Dlg)));
+        Clear(Dlg);
+        Clear(Dlg);
+        Observer.Observe('clear twice', 'no error');
+        Observer.Expect('clear unopened', 'no error');
+        Observer.Expect('update after clear', 'No');
+        Observer.Expect('update after clear error', 'The operation failed because the dialog box is not open.');
+        Observer.Expect('close after clear', 'No');
+        Observer.Expect('close after clear error', 'The operation failed because the dialog box is not open.');
+        Observer.Expect('open after clear', 'Yes');
+        Observer.Expect('update after open', 'Yes');
+        Observer.Expect('close after open', 'Yes');
+        Observer.Expect('clear twice', 'no error');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y64_Clear_OpenedDialog()
+    var
+        Dlg: Dialog;
+    begin
+        Dlg.Open('Value #1####');
+        Clear(Dlg);
+        Observer.Observe('clear opened', 'no error');
+        ClearLastError();
+        Observer.Observe('update after clear', Format(TryUpdateNumber(Dlg, 1, 1)));
+        Observer.Observe('update after clear error', GetLastErrorText());
+        ClearLastError();
+        Observer.Observe('close after clear', Format(TryClose(Dlg)));
+        Observer.Observe('close after clear error', GetLastErrorText());
+        ClearLastError();
+        Observer.Observe('open after clear', Format(TryOpen(Dlg, 'Other #1####')));
+        Observer.Observe('open after clear error', GetLastErrorText());
+        ClearLastError();
+        Observer.Observe('update after reopen', Format(TryUpdateText(Dlg, 1, 'x')));
+        Observer.Observe('update after reopen error', GetLastErrorText());
+        ClearLastError();
+        Observer.Observe('close after reopen', Format(TryClose(Dlg)));
+        Observer.Observe('close after reopen error', GetLastErrorText());
+        Observer.Expect('clear opened', 'no error');
+        Observer.Expect('update after clear', 'No');
+        Observer.Expect('update after clear error', 'The operation failed because the dialog box is not open.');
+        Observer.Expect('close after clear', 'No');
+        Observer.Expect('close after clear error', 'The operation failed because the dialog box is not open.');
+        Observer.Expect('open after clear', 'Yes');
+        Observer.Expect('open after clear error', '');
+        Observer.Expect('update after reopen', 'Yes');
+        Observer.Expect('update after reopen error', '');
+        Observer.Expect('close after reopen', 'Yes');
+        Observer.Expect('close after reopen error', '');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y64_Clear_DialogInSingleInstanceCodeunit()
+    var
+        Status: Codeunit "LT Y64 Status Dialog";
+        Again: Codeunit "LT Y64 Status Dialog";
+    begin
+        Status.Reset();
+        Observer.Observe('reset unopened', Status.State());
+        Status.Open();
+        Observer.Observe('after open', Status.State());
+        Status.Reset();
+        Observer.Observe('reset opened', Status.State());
+        Observer.Observe('update after reset', Status.TryUpdate());
+        Status.Open();
+        Observer.Observe('reopen', Status.State());
+        Status.ResetAll();
+        Observer.Observe('clearall opened', Again.State());
+        Observer.Observe('update after clearall', Again.TryUpdate());
+        Again.Open();
+        Status.ResetVar();
+        Observer.Observe('clear var parameter', Status.State());
+        Observer.Observe('update after var clear', Status.TryUpdate());
+        Status.Reset();
+        Observer.Expect('reset unopened', 'IsOpen=No');
+        Observer.Expect('after open', 'IsOpen=Yes');
+        Observer.Expect('reset opened', 'IsOpen=No');
+        Observer.Expect('update after reset', 'error:The operation failed because the dialog box is not open.|Dialog');
+        Observer.Expect('reopen', 'IsOpen=Yes');
+        Observer.Expect('clearall opened', 'IsOpen=No');
+        Observer.Expect('update after clearall', 'error:The operation failed because the dialog box is not open.|Dialog');
+        Observer.Expect('clear var parameter', 'IsOpen=No');
+        Observer.Expect('update after var clear', 'error:The operation failed because the dialog box is not open.|Dialog');
+        Observer.Verify();
+    end;
+}
+
+// Reporter shape of al-runner issue 6656: a SingleInstance status dialog with a Reset that clears the Dialog. Used only by test codeunit 71206.
+codeunit 93300 "LT Y64 Status Dialog"
+{
+    SingleInstance = true;
+
+    var
+        IsOpen: Boolean;
+        Window: Dialog;
+
+    procedure Open()
+    begin
+        IsOpen := true;
+        Window.Open('#1####');
+    end;
+
+    procedure Reset()
+    begin
+        Clear(IsOpen);
+        Clear(Window);
+    end;
+
+    procedure ResetAll()
+    begin
+        ClearAll();
+    end;
+
+    procedure ResetVar()
+    begin
+        ClearDialog(Window);
+        Clear(IsOpen);
+    end;
+
+    local procedure ClearDialog(var Dlg: Dialog)
+    begin
+        Clear(Dlg);
+    end;
+
+    procedure State(): Text
+    begin
+        exit('IsOpen=' + Format(IsOpen));
+    end;
+
+    procedure TryUpdate(): Text
+    begin
+        ClearLastError();
+        if DoUpdate() then
+            exit('ok');
+        exit('error:' + GetLastErrorText() + '|' + GetLastErrorCode());
+    end;
+
+    [TryFunction]
+    local procedure DoUpdate()
+    begin
+        Window.Update(1, 'x');
     end;
 }
