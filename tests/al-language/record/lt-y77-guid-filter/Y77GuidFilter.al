@@ -349,35 +349,86 @@ codeunit 94100 "LT Y77 Guid Filter"
     end;
 
     // ---- More Record shapes: two Guids, a Guid in a longer expression, a Guid next to a filter operator
-    [Test]
-    procedure Record_MixedShapes()
+    [TryFunction]
+    local procedure TryShape(Shape: Integer; var Result: Text)
     var
         Row: Record "LT Y77 Row";
     begin
+        case Shape of
+            1:
+                begin
+                    Row.SetFilter(G, '%1|%2', G1(), G2());
+                    Result := Row.GetFilter(G) + ' ' + Names(Row);
+                end;
+            2:
+                begin
+                    Row.SetFilter(G, '<>%1', G1());
+                    Result := Row.GetFilter(G) + ' ' + Names(Row);
+                end;
+            3:
+                begin
+                    Row.SetFilter(T, '@%1', G1());
+                    Result := Row.GetFilter(T) + ' ' + Names(Row);
+                end;
+            4:
+                begin
+                    Row.SetFilter(T, '@' + G1());
+                    Result := Row.GetFilter(T) + ' ' + Names(Row);
+                end;
+            5:
+                begin
+                    Row.SetFilter(G, '@' + G1());
+                    Result := Row.GetFilter(G) + ' ' + Names(Row);
+                end;
+            6:
+                begin
+                    Row.SetFilter(G, '<>' + G1());
+                    Result := Row.GetFilter(G) + ' ' + Names(Row);
+                end;
+            7:
+                begin
+                    Row.SetFilter(C, G1(), G2());
+                    Result := Row.GetFilter(C) + ' ' + Names(Row);
+                end;
+            8:
+                begin
+                    Row.SetFilter(G, DelChr(Format(G1()), '=', '{}'));
+                    Result := Row.GetFilter(G) + ' ' + Names(Row);
+                end;
+            9:
+                begin
+                    Row.SetFilter(T, DelChr(Format(G1()), '=', '{}'));
+                    Result := Row.GetFilter(T) + ' ' + Names(Row);
+                end;
+            10:
+                begin
+                    Row.SetFilter(T, '@' + DelChr(Format(G1()), '=', '{}'));
+                    Result := Row.GetFilter(T) + ' ' + Names(Row);
+                end;
+            11:
+                begin
+                    Row.SetFilter(C, '%1', DelChr(Format(G1()), '=', '{}'));
+                    Result := Row.GetFilter(C) + ' ' + Names(Row);
+                end;
+        end;
+    end;
+
+    [Test]
+    procedure Record_MixedShapes()
+    var
+        Shape: Integer;
+        Result: Text;
+    begin
         Seed();
-        Row.SetFilter(G, '%1|%2', G1(), G2());
-        Obs.Observe('or', Row.GetFilter(G) + ' ' + Names(Row));
-        Row.Reset();
-        Row.SetFilter(G, '<>%1', G1());
-        Obs.Observe('ne', Row.GetFilter(G) + ' ' + Names(Row));
-        Row.Reset();
-        Row.SetFilter(T, '%1', G1());
-        Obs.Observe('text_pct1', Row.GetFilter(T) + ' ' + Names(Row));
-        Row.Reset();
-        Row.SetFilter(T, '@%1', G1());
-        Obs.Observe('text_ci', Row.GetFilter(T) + ' ' + Names(Row));
-        Row.Reset();
-        Row.SetFilter(T, '@' + G1());
-        Obs.Observe('text_ci_concat', Row.GetFilter(T) + ' ' + Names(Row));
-        Row.Reset();
-        Row.SetFilter(G, '@' + G1());
-        Obs.Observe('guid_ci_concat', Row.GetFilter(G) + ' ' + Names(Row));
-        Row.Reset();
-        Row.SetFilter(G, '<>' + G1());
-        Obs.Observe('guid_ne_concat', Row.GetFilter(G) + ' ' + Names(Row));
-        Row.Reset();
-        Row.SetFilter(C, G1(), G2());
-        Obs.Observe('extra_arg', Row.GetFilter(C) + ' ' + Names(Row));
+        for Shape := 1 to 11 do begin
+            Result := '';
+            if TryShape(Shape, Result) then
+                Obs.Observe('shape' + Format(Shape), Result)
+            else begin
+                Obs.Observe('shape' + Format(Shape), 'ERR ' + GetLastErrorCode() + ' / ' + GetLastErrorText());
+                ClearLastError();
+            end;
+        end;
         Obs.Finish();
     end;
 }
