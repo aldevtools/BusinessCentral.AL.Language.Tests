@@ -31,6 +31,73 @@ table 93800 "LT Y71 LF Tab"
     }
 }
 
+page 93802 "LT Y71 LF Card"
+{
+    PageType = Card;
+    SourceTable = "LT Y71 LF Tab";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            field(Id; Rec.Id) { ApplicationArea = All; }
+            field(Name; Rec.Name) { ApplicationArea = All; }
+        }
+    }
+
+    trigger OnQueryClosePage(CloseAction: Action): Boolean
+    var
+        Log: Codeunit "LT Y71 LF Log";
+        RR: RecordRef;
+        Numbers: List of [Integer];
+    begin
+        Numbers.Add(2);
+        Numbers.Add(3);
+        Log.Add('query close');
+        RR.Open(Database::"LT Y71 LF Tab");
+        RR.SetLoadFields(Nth(Numbers, 1), Nth(Numbers, 2), Nth(Numbers, 3), Nth(Numbers, 4), Nth(Numbers, 5));
+        Log.Add('set load fields done');
+        if RR.FindFirst() then
+            Log.Add('first row ' + Format(RR.Field(2).Value));
+        RR.Close();
+        exit(true);
+    end;
+
+    local procedure Nth(Numbers: List of [Integer]; Position: Integer): Integer
+    begin
+        if Position > Numbers.Count() then
+            exit(0);
+        exit(Numbers.Get(Position));
+    end;
+}
+
+codeunit 93803 "LT Y71 LF Log"
+{
+    SingleInstance = true;
+
+    var
+        Lines: Text;
+
+    procedure Add(Line: Text)
+    begin
+        if Lines <> '' then
+            Lines += ';';
+        Lines += Line;
+    end;
+
+    procedure Reset()
+    begin
+        Lines := '';
+    end;
+
+    procedure Text(): Text
+    begin
+        exit(Lines);
+    end;
+}
+
 codeunit 93801 "LT Y71 RecRef LoadFields"
 {
     Subtype = Test;
@@ -438,73 +505,6 @@ codeunit 93801 "LT Y71 RecRef LoadFields"
         Obs.Expect('99_two', 'No');
         Obs.Expect('nth3', 'No');
         Obs.Verify();
-    end;
-}
-
-page 93802 "LT Y71 LF Card"
-{
-    PageType = Card;
-    SourceTable = "LT Y71 LF Tab";
-    ApplicationArea = All;
-    UsageCategory = None;
-
-    layout
-    {
-        area(Content)
-        {
-            field(Id; Rec.Id) { ApplicationArea = All; }
-            field(Name; Rec.Name) { ApplicationArea = All; }
-        }
-    }
-
-    trigger OnQueryClosePage(CloseAction: Action): Boolean
-    var
-        Log: Codeunit "LT Y71 LF Log";
-        RR: RecordRef;
-        Numbers: List of [Integer];
-    begin
-        Numbers.Add(2);
-        Numbers.Add(3);
-        Log.Add('query close');
-        RR.Open(Database::"LT Y71 LF Tab");
-        RR.SetLoadFields(Nth(Numbers, 1), Nth(Numbers, 2), Nth(Numbers, 3), Nth(Numbers, 4), Nth(Numbers, 5));
-        Log.Add('set load fields done');
-        if RR.FindFirst() then
-            Log.Add('first row ' + Format(RR.Field(2).Value));
-        RR.Close();
-        exit(true);
-    end;
-
-    local procedure Nth(Numbers: List of [Integer]; Position: Integer): Integer
-    begin
-        if Position > Numbers.Count() then
-            exit(0);
-        exit(Numbers.Get(Position));
-    end;
-}
-
-codeunit 93803 "LT Y71 LF Log"
-{
-    SingleInstance = true;
-
-    var
-        Lines: Text;
-
-    procedure Add(Line: Text)
-    begin
-        if Lines <> '' then
-            Lines += ';';
-        Lines += Line;
-    end;
-
-    procedure Reset()
-    begin
-        Lines := '';
-    end;
-
-    procedure Text(): Text
-    begin
-        exit(Lines);
     end;
 }
 
