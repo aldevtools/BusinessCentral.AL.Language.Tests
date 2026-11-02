@@ -1,5 +1,5 @@
 // Cross-app fixture A: package data (NavApp.LoadPackageData) of writer Y85, al-runner issue 6649. The files TAB<id>.navxdata in this folder are the
-// table data files that the install codeunit 94449 loads with NavApp.LoadPackageData. Their layout, confirmed by what the platform reads back:
+// table data files that the install codeunit 94449 loads (all but 94447 and 94448) with NavApp.LoadPackageData. Their layout, confirmed by what the platform reads back:
 //   u32 0xDA7A, u32 1, u32 table id, u32 field count, the field names (BinaryWriter strings; the names are ignored), then per row 0x01, the values of
 //   the primary key fields in key order and then of the other stored fields in declaration order (FlowFields, FlowFilters and disabled fields are
 //   not stored; fields of table extensions follow), then the 16 bytes of the SystemId; the file ends with 0x00. Values: Code and Text are
@@ -130,7 +130,40 @@ table 94443 "LT Y85 Pkg Auto"
     }
 }
 
+// Tables 94447 (per company) and 94448 (DataPerCompany = false) have a data file that the install code never loads: the tests call LoadPackageData for them.
+table 94447 "LT Y85 Pkg Late"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; "No."; Code[20]) { }
+        field(2; Description; Text[30]) { }
+    }
+    keys
+    {
+        key(PK; "No.") { Clustered = true; }
+    }
+}
+
+table 94448 "LT Y85 Pkg Late Database"
+{
+    DataClassification = SystemMetadata;
+    DataPerCompany = false;
+
+    fields
+    {
+        field(1; "No."; Code[20]) { }
+        field(2; Description; Text[30]) { }
+    }
+    keys
+    {
+        key(PK; "No.") { Clustered = true; }
+    }
+}
+
 codeunit 94449 "LT Y85 Pkg Install"
+
 {
     Subtype = Install;
 

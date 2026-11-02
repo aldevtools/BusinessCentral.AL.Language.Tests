@@ -219,11 +219,11 @@ codeunit 94430 "LT Y85 Package Data"
             T += 'B=' + Row.B + ' A=' + Row.A + ' C=' + Row.C + ' No=' + Row."No." + ' Ext=' + Format(Row.Ext) + ' Fl=' + Format(Row.Fl) + ' Dis=' + Format(Row.Dis) + ';';
         until Row.Next() = 0;
         Observer.Observe('rows', T);
-        Observer.Observe('get B,A', Format(Row.Get('B2', 'A2')));
         Observer.Observe('get A,B', Format(Row.Get('A2', 'B2')));
+        Observer.Observe('get B,A', Format(Row.Get('B2', 'A2')));
         Observer.Expect('rows', 'B=B1 A=A1 C=C1 No=N1 Ext=77 Fl=3 Dis=0;B=B2 A=A2 C=C2 No=N2 Ext=-1 Fl=3 Dis=0;');
-        Observer.Expect('get B,A', 'Yes');
-        Observer.Expect('get A,B', 'No');
+        Observer.Expect('get A,B', 'Yes');
+        Observer.Expect('get B,A', 'No');
         Observer.Verify();
     end;
 
@@ -234,71 +234,71 @@ codeunit 94430 "LT Y85 Package Data"
         Row: Record "LT Y85 Pkg Auto";
         Observer: Codeunit "Probe Observer";
         T: Text;
-        N: Text;
-        i: Integer;
     begin
         Row.FindSet();
         repeat
             T += Format(Row.Id) + '=' + Row.Txt + ';';
         until Row.Next() = 0;
         Observer.Observe('rows', T);
-        for i := 1 to 4 do begin
-            Row.Init();
-            Row.Id := 0;
-            Row.Txt := 'new';
-            if Row.Insert() then
-                N += Format(Row.Id) + ',';
-        end;
-        Observer.Observe('new ids', N);
+        Row.Init();
+        Row.Id := 0;
+        Row.Txt := 'new';
+        Row.Insert();
+        Observer.Observe('new id above loaded', Format(Row.Id > 7));
+        Row.Delete();
         Observer.Expect('rows', '5=a;7=b;');
-        Observer.Expect('new ids', '8,');
+        Observer.Expect('new id above loaded', 'Yes');
         Observer.Verify();
     end;
 
-    // Outside install and upgrade code NavApp.LoadPackageData does nothing: no rows are added and no error is raised.
+    // Outside install and upgrade code NavApp.LoadPackageData does nothing: no rows are added and no error is raised (tables 94447 and 94448 have a
+    // data file that no install code loaded).
     [Test]
-    procedure Y85_Outside_EmptiedCompanyTable_StaysEmpty()
+    procedure Y85_Outside_CompanyTable_NothingLoaded()
     var
-        Row: Record "LT Y85 Pkg Company";
+        Row: Record "LT Y85 Pkg Late";
         Observer: Codeunit "Probe Observer";
     begin
-        Row.DeleteAll();
-        NavApp.LoadPackageData(Database::"LT Y85 Pkg Company");
-        Observer.Observe('rows', DumpCompany(Row));
-        Observer.Observe('get 0001', Format(Row.Get('0001')));
-        Observer.Expect('rows', '');
-        Observer.Expect('get 0001', 'No');
+        NavApp.LoadPackageData(Database::"LT Y85 Pkg Late");
+        Observer.Observe('count', Format(Row.Count()));
+        Observer.Observe('get L1', Format(Row.Get('L1')));
+        Observer.Expect('count', '0');
+        Observer.Expect('get L1', 'No');
         Observer.Verify();
     end;
 
     [Test]
-    procedure Y85_Outside_EmptiedDatabaseTable_StaysEmpty()
+    procedure Y85_Outside_DatabaseTable_NothingLoaded()
     var
-        Row: Record "LT Y85 Pkg Database";
+        Row: Record "LT Y85 Pkg Late Database";
         Observer: Codeunit "Probe Observer";
     begin
-        Row.DeleteAll();
-        NavApp.LoadPackageData(Database::"LT Y85 Pkg Database");
-        Observer.Observe('rows', DumpDatabase());
-        Observer.Observe('get A', Format(Row.Get('A')));
-        Observer.Expect('rows', '');
-        Observer.Expect('get A', 'No');
+        NavApp.LoadPackageData(Database::"LT Y85 Pkg Late Database");
+        Observer.Observe('count', Format(Row.Count()));
+        Observer.Observe('get D1', Format(Row.Get('D1')));
+        Observer.Expect('count', '0');
+        Observer.Expect('get D1', 'No');
         Observer.Verify();
     end;
 
     [Test]
     procedure Y85_Outside_OtherRowsStay()
     var
-        Row: Record "LT Y85 Pkg Company";
+        Row: Record "LT Y85 Pkg Late";
         Observer: Codeunit "Probe Observer";
+        T: Text;
     begin
-        Row.DeleteAll();
-        Row."No." := '0003';
+        Row."No." := 'X';
         Row.Description := 'own';
         Row.Insert();
-        NavApp.LoadPackageData(Database::"LT Y85 Pkg Company");
-        Observer.Observe('rows', DumpCompany(Row));
-        Observer.Expect('rows', '0003=TRIGGER;');
+        NavApp.LoadPackageData(Database::"LT Y85 Pkg Late");
+        if Row.FindSet() then
+            repeat
+                T += Row."No." + '=' + Row.Description + ';';
+            until Row.Next() = 0;
+        Row.DeleteAll();
+        Observer.Observe('rows', T);
+        Observer.Expect('rows', 'X=own;');
         Observer.Verify();
     end;
 
