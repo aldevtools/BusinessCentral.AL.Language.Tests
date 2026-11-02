@@ -9,11 +9,14 @@
 // 28.5 and on the SaaS sandbox BC 29 (the Windows container BC 29.0 was down), writer Y76, 2026-11-02: the values asserted below are the same on all
 // three. Facts: SetEncrypted over a key that exists (stored plain or encrypted), with the same or another value, and Set over a key stored encrypted,
 // outside a write transaction, open the write transaction (Database.IsInWriteTransaction is true afterwards), as a plain Set over a plain key does.
-// The codeunit is not a test codeunit (no Subtype = Test): the procedures are run by hand on a container that has an encryption key.
+// The Suspect_ procedures are not [Test] procedures: they are run by hand on a container that has an encryption key. The one [Test] procedure
+// (Y76_PlainStorage_Transactions) pins the same questions for a plain key, which every container can run.
 // BC versions: 27, 28, 29
 
 codeunit 94076 "LT Y76 Iso Storage"
 {
+    Subtype = Test;
+    TestPermissions = Disabled;
 
     var
         Obs: Codeunit "Probe Observer";
@@ -33,6 +36,26 @@ codeunit 94076 "LT Y76 Iso Storage"
     local procedure RetTx(Ret: Boolean): Text
     begin
         exit('ret=' + Format(Ret) + ' tx=' + Format(Database.IsInWriteTransaction()));
+    end;
+
+    [Test]
+    procedure Y76_PlainStorage_Transactions()
+    begin
+        Reset('LTY76plain');
+        Obs.Observe('new_plain', RetTx(IsolatedStorage.Set('LTY76plain', 'v1', DataScope::Module)));
+        Commit();
+        Obs.Observe('before_plain_same', Tx());
+        Obs.Observe('plain_same', RetTx(IsolatedStorage.Set('LTY76plain', 'v1', DataScope::Module)));
+        Commit();
+        Obs.Observe('plain_other', RetTx(IsolatedStorage.Set('LTY76plain', 'v2', DataScope::Module)));
+        Commit();
+        Obs.Observe('contains', Format(IsolatedStorage.Contains('LTY76plain', DataScope::Module)) + ' tx=' + Tx());
+        Obs.Observe('delete', RetTx(IsolatedStorage.Delete('LTY76plain', DataScope::Module)));
+        Commit();
+        Obs.Observe('delete_missing', RetTx(IsolatedStorage.Delete('LTY76plain', DataScope::Module)));
+        Commit();
+        Obs.Observe('contains_missing', Format(IsolatedStorage.Contains('LTY76plain', DataScope::Module)) + ' tx=' + Tx());
+        Obs.Finish();
     end;
 
     procedure Suspect_EncryptedOverwrite_Transaction()
