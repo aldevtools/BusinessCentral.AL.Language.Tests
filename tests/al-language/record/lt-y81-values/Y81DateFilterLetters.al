@@ -136,7 +136,16 @@ codeunit 94251 "LT Y81 Date Filter Letters"
         ObserveFor(20620615D, 'Y');
         ObserveFor(20700101D, 'Y');
         RestorePeriods();
-        Observer.Finish();
+        Observer.Expect('2060-01-01 Y', 'ok|01/01/2060..03/31/2061|2060-01-01|2061-03-31');
+        Observer.Expect('2060-06-15 Y', 'ok|01/01/2060..03/31/2061|2060-01-01|2061-03-31');
+        Observer.Expect('2060-12-31 Y', 'ok|01/01/2060..03/31/2061|2060-01-01|2061-03-31');
+        Observer.Expect('2061-03-31 Y', 'ok|01/01/2060..03/31/2061|2060-01-01|2061-03-31');
+        Observer.Expect('2061-04-01 Y', 'ok|04/01/2061..12/31/2061|2061-04-01|2061-12-31');
+        Observer.Expect('2061-12-31 Y', 'ok|04/01/2061..12/31/2061|2061-04-01|2061-12-31');
+        Observer.Expect('2062-01-01 Y', 'ok|01/01/2062..12/31/9999|2062-01-01|9999-12-31');
+        Observer.Expect('2062-06-15 Y', 'ok|01/01/2062..12/31/9999|2062-01-01|9999-12-31');
+        Observer.Expect('2070-01-01 Y', 'ok|01/01/2062..12/31/9999|2062-01-01|9999-12-31');
+        Observer.Verify();
     end;
 
     [Test]
@@ -151,7 +160,14 @@ codeunit 94251 "LT Y81 Date Filter Letters"
         ObserveFor(20600615D, '<=Y');
         ObserveFor(20610615D, 'Y&>01/01/2061');
         RestorePeriods();
-        Observer.Finish();
+        Observer.Expect('2060-06-15 Y..', ' E The filter "Y.." is not valid for the D field on the LT Y81 DF table. The variable "Y" did not resolve to a single value.|Filter:CSide');
+        Observer.Expect('2060-06-15 ..Y', ' E The filter "..Y" is not valid for the D field on the LT Y81 DF table. The variable "Y" did not resolve to a single value.|Filter:CSide');
+        Observer.Expect('2060-06-15 Y|Y', 'ok|01/01/2060..03/31/2061|01/01/2060..03/31/2061|2060-01-01|2061-03-31');
+        Observer.Expect('2060-06-15 <>Y', 'ok|<01/01/2060|>03/31/2061 E The filter expression "<01/01/2060|>03/31/2061" applied to the field D in the LT Y81 DF table results in more than one range.|DB:NotIntervalFilter');
+        Observer.Expect('2060-06-15 >Y', ' E The filter ">Y" is not valid for the D field on the LT Y81 DF table. The variable "Y" did not resolve to a single value.|Filter:CSide');
+        Observer.Expect('2060-06-15 <=Y', ' E The filter "<=Y" is not valid for the D field on the LT Y81 DF table. The variable "Y" did not resolve to a single value.|Filter:CSide');
+        Observer.Expect('2061-06-15 Y&>01/01/2061', 'ok|04/01/2061..12/31/2061&>01/01/2061|2061-04-01|2061-12-31');
+        Observer.Verify();
     end;
 
     [Test]
@@ -196,17 +212,26 @@ codeunit 94251 "LT Y81 Date Filter Letters"
         Saved := WorkDate();
         WorkDate(20240615D);
         Observer.Observe('2024 text', Apply('T-1D'));
-        Observer.Observe('2024 T-1D..T', Apply('T-1D..T'));
+        Observer.Observe('2024 T-1D..T', Ends('T-1D..T'));
         Observer.Observe('2024 ..T-1D', Apply('..T-1D'));
         Observer.Observe('2024 T-1D..', Apply('T-1D..'));
         WorkDate(20260615D);
         Observer.Observe('2026 text', Apply('T-1D'));
-        Observer.Observe('2026 T-1D..T', Apply('T-1D..T'));
+        Observer.Observe('2026 T-1D..T', Ends('T-1D..T'));
         Observer.Observe('2026 ..T-1D', Apply('..T-1D'));
         Observer.Observe('2026 T-1D..', Apply('T-1D..'));
-        Observer.Observe('2026 T..T-1D', Apply('T..T-1D'));
+        Observer.Observe('2026 T..T-1D', Ends('T..T-1D'));
         WorkDate(Saved);
-        Observer.Finish();
+        Observer.Expect('2024 text', 'ok|01/02/24|2024-01-02|2024-01-02');
+        Observer.Expect('2024 T-1D..T', Range(20240102D, Today()));
+        Observer.Expect('2024 ..T-1D', 'ok|..01/02/24 E The filter "..01/02/24" on the D field in the LT Y81 DF table has no lower bound.|DB:Ok');
+        Observer.Expect('2024 T-1D..', 'ok|01/02/24..|2024-01-02 E The filter "01/02/24.." on the D field in the LT Y81 DF table has no upper bound.|DB:Ok');
+        Observer.Expect('2026 text', 'ok|12/30/25|2025-12-30|2025-12-30');
+        Observer.Expect('2026 T-1D..T', Range(20251230D, Today()));
+        Observer.Expect('2026 ..T-1D', 'ok|..12/30/25 E The filter "..12/30/25" on the D field in the LT Y81 DF table has no lower bound.|DB:Ok');
+        Observer.Expect('2026 T-1D..', 'ok|12/30/25..|2025-12-30 E The filter "12/30/25.." on the D field in the LT Y81 DF table has no upper bound.|DB:Ok');
+        Observer.Expect('2026 T..T-1D', Range(Today(), 20251230D));
+        Observer.Verify();
     end;
 
     [Test]

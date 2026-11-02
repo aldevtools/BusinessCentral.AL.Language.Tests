@@ -231,7 +231,21 @@ codeunit 94252 "LT Y81 Empty Set Finds"
         RecRef.Open(Database::"LT Y81 ES Row");
         foreach Op in Ops() do
             Observer.Observe('unused ' + Op, Unused(RecRef, Op));
-        Observer.Finish();
+        Observer.Expect('unused FindFirst', 'The LT Y81 ES Row table is empty.|DB:TableIsEmpty');
+        Observer.Expect('unused FindLast', 'The LT Y81 ES Row table is empty.|DB:TableIsEmpty');
+        Observer.Expect('unused FindSet', 'The LT Y81 ES Row table is empty.|DB:TableIsEmpty');
+        Observer.Expect('unused FindSetTrue', 'The LT Y81 ES Row table is empty.|DB:TableIsEmpty');
+        Observer.Expect('unused Find', 'The LT Y81 ES Row does not exist. Identification fields and values: Id=''0''|DB:RecordNotFound');
+        Observer.Expect('unused Find-', 'The LT Y81 ES Row table is empty.|DB:TableIsEmpty');
+        Observer.Expect('unused Find+', 'The LT Y81 ES Row table is empty.|DB:TableIsEmpty');
+        Observer.Expect('unused Find=', 'The LT Y81 ES Row does not exist. Identification fields and values: Id=''0''|DB:RecordNotFound');
+        Observer.Expect('unused Find>', 'The LT Y81 ES Row does not exist. >\\Identification fields and values:\\Id=''0''|DB:RecordNotFound');
+        Observer.Expect('unused Find<', 'The LT Y81 ES Row does not exist. <\\Identification fields and values:\\Id=''0''|DB:RecordNotFound');
+        Observer.Expect('unused Next', 'ok');
+        Observer.Expect('unused Next-1', 'ok');
+        Observer.Expect('unused Next0', 'ok');
+        Observer.Expect('unused Next2', 'ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -245,7 +259,21 @@ codeunit 94252 "LT Y81 Empty Set Finds"
         RecRef.Open(Database::"LT Y81 ES Row");
         foreach Op in Ops() do
             Observer.Observe('used ' + Op, Used(RecRef, Op));
-        Observer.Finish();
+        Observer.Expect('used FindFirst', 'No');
+        Observer.Expect('used FindLast', 'No');
+        Observer.Expect('used FindSet', 'No');
+        Observer.Expect('used FindSetTrue', 'No');
+        Observer.Expect('used Find', 'No');
+        Observer.Expect('used Find-', 'No');
+        Observer.Expect('used Find+', 'No');
+        Observer.Expect('used Find=', 'No');
+        Observer.Expect('used Find>', 'No');
+        Observer.Expect('used Find<', 'No');
+        Observer.Expect('used Next', '0');
+        Observer.Expect('used Next-1', '0');
+        Observer.Expect('used Next0', '0');
+        Observer.Expect('used Next2', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -259,7 +287,21 @@ codeunit 94252 "LT Y81 Empty Set Finds"
         RecRef.Field(1).SetRange(99);
         foreach Op in Ops() do
             Observer.Observe('unused ' + Op, Unused(RecRef, Op));
-        Observer.Finish();
+        Observer.Expect('unused FindFirst', 'There is no LT Y81 ES Row within the filter.\\Filters: Id: 99|DB:NothingInsideFilter');
+        Observer.Expect('unused FindLast', 'There is no LT Y81 ES Row within the filter.\\Filters: Id: 99|DB:NothingInsideFilter');
+        Observer.Expect('unused FindSet', 'There is no LT Y81 ES Row within the filter.\\Filters: Id: 99|DB:NothingInsideFilter');
+        Observer.Expect('unused FindSetTrue', 'There is no LT Y81 ES Row within the filter.\\Filters: Id: 99|DB:NothingInsideFilter');
+        Observer.Expect('unused Find', 'The LT Y81 ES Row does not exist. Identification fields and values: Id=''0''|DB:RecordNotFound');
+        Observer.Expect('unused Find-', 'There is no LT Y81 ES Row within the filter.\\Filters: Id: 99|DB:NothingInsideFilter');
+        Observer.Expect('unused Find+', 'There is no LT Y81 ES Row within the filter.\\Filters: Id: 99|DB:NothingInsideFilter');
+        Observer.Expect('unused Find=', 'The LT Y81 ES Row does not exist. Identification fields and values: Id=''0''|DB:RecordNotFound');
+        Observer.Expect('unused Find>', 'The LT Y81 ES Row does not exist. >\\Identification fields and values:\\Id=''0''|DB:RecordNotFound');
+        Observer.Expect('unused Find<', 'The LT Y81 ES Row does not exist. <\\Identification fields and values:\\Id=''0''|DB:RecordNotFound');
+        Observer.Expect('unused Next', 'ok');
+        Observer.Expect('unused Next-1', 'ok');
+        Observer.Expect('unused Next0', 'ok');
+        Observer.Expect('unused Next2', 'ok');
+        Observer.Verify();
     end;
 
     [Test]
@@ -273,7 +315,21 @@ codeunit 94252 "LT Y81 Empty Set Finds"
         RecRef.Field(1).SetRange(99);
         foreach Op in Ops() do
             Observer.Observe('used ' + Op, Used(RecRef, Op));
-        Observer.Finish();
+        Observer.Expect('used FindFirst', 'No');
+        Observer.Expect('used FindLast', 'No');
+        Observer.Expect('used FindSet', 'No');
+        Observer.Expect('used FindSetTrue', 'No');
+        Observer.Expect('used Find', 'No');
+        Observer.Expect('used Find-', 'No');
+        Observer.Expect('used Find+', 'No');
+        Observer.Expect('used Find=', 'No');
+        Observer.Expect('used Find>', 'No');
+        Observer.Expect('used Find<', 'No');
+        Observer.Expect('used Next', '0');
+        Observer.Expect('used Next-1', '0');
+        Observer.Expect('used Next0', '0');
+        Observer.Expect('used Next2', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -288,7 +344,35 @@ codeunit 94252 "LT Y81 Empty Set Finds"
             Observer.Observe('unused ' + Op, Unused(RecRef, Op));
         foreach Op in Ops() do
             Observer.Observe('used ' + Op, Used(RecRef, Op));
-        Observer.Finish();
+        Observer.Expect('unused FindFirst', 'The LT Y81 ES Row table is empty.|DB:TableIsEmpty');
+        Observer.Expect('unused FindLast', 'The LT Y81 ES Row table is empty.|DB:TableIsEmpty');
+        Observer.Expect('unused FindSet', 'The LT Y81 ES Row table is empty.|DB:TableIsEmpty');
+        Observer.Expect('unused FindSetTrue', 'The LT Y81 ES Row table is empty.|DB:TableIsEmpty');
+        Observer.Expect('unused Find', 'The LT Y81 ES Row does not exist. Identification fields and values: Id=''0''|DB:RecordNotFound');
+        Observer.Expect('unused Find-', 'The LT Y81 ES Row table is empty.|DB:TableIsEmpty');
+        Observer.Expect('unused Find+', 'The LT Y81 ES Row table is empty.|DB:TableIsEmpty');
+        Observer.Expect('unused Find=', 'The LT Y81 ES Row does not exist. Identification fields and values: Id=''0''|DB:RecordNotFound');
+        Observer.Expect('unused Find>', 'The LT Y81 ES Row does not exist. >\\Identification fields and values:\\Id=''0''|DB:RecordNotFound');
+        Observer.Expect('unused Find<', 'The LT Y81 ES Row does not exist. <\\Identification fields and values:\\Id=''0''|DB:RecordNotFound');
+        Observer.Expect('unused Next', 'ok');
+        Observer.Expect('unused Next-1', 'ok');
+        Observer.Expect('unused Next0', 'ok');
+        Observer.Expect('unused Next2', 'ok');
+        Observer.Expect('used FindFirst', 'No');
+        Observer.Expect('used FindLast', 'No');
+        Observer.Expect('used FindSet', 'No');
+        Observer.Expect('used FindSetTrue', 'No');
+        Observer.Expect('used Find', 'No');
+        Observer.Expect('used Find-', 'No');
+        Observer.Expect('used Find+', 'No');
+        Observer.Expect('used Find=', 'No');
+        Observer.Expect('used Find>', 'No');
+        Observer.Expect('used Find<', 'No');
+        Observer.Expect('used Next', '0');
+        Observer.Expect('used Next-1', '0');
+        Observer.Expect('used Next0', '0');
+        Observer.Expect('used Next2', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -302,7 +386,35 @@ codeunit 94252 "LT Y81 Empty Set Finds"
             Observer.Observe('unused ' + Op, UnusedRec(Row, Op));
         foreach Op in Ops() do
             Observer.Observe('used ' + Op, UsedRec(Row, Op));
-        Observer.Finish();
+        Observer.Expect('unused FindFirst', 'The LT Y81 ES Row table is empty.|DB:TableIsEmpty');
+        Observer.Expect('unused FindLast', 'The LT Y81 ES Row table is empty.|DB:TableIsEmpty');
+        Observer.Expect('unused FindSet', 'The LT Y81 ES Row table is empty.|DB:TableIsEmpty');
+        Observer.Expect('unused FindSetTrue', 'The LT Y81 ES Row table is empty.|DB:TableIsEmpty');
+        Observer.Expect('unused Find', 'The LT Y81 ES Row does not exist. Identification fields and values: Id=''0''|DB:RecordNotFound');
+        Observer.Expect('unused Find-', 'The LT Y81 ES Row table is empty.|DB:TableIsEmpty');
+        Observer.Expect('unused Find+', 'The LT Y81 ES Row table is empty.|DB:TableIsEmpty');
+        Observer.Expect('unused Find=', 'The LT Y81 ES Row does not exist. Identification fields and values: Id=''0''|DB:RecordNotFound');
+        Observer.Expect('unused Find>', 'The LT Y81 ES Row does not exist. >\\Identification fields and values:\\Id=''0''|DB:RecordNotFound');
+        Observer.Expect('unused Find<', 'The LT Y81 ES Row does not exist. <\\Identification fields and values:\\Id=''0''|DB:RecordNotFound');
+        Observer.Expect('unused Next', 'ok');
+        Observer.Expect('unused Next-1', 'ok');
+        Observer.Expect('unused Next0', 'ok');
+        Observer.Expect('unused Next2', 'ok');
+        Observer.Expect('used FindFirst', 'No');
+        Observer.Expect('used FindLast', 'No');
+        Observer.Expect('used FindSet', 'No');
+        Observer.Expect('used FindSetTrue', 'No');
+        Observer.Expect('used Find', 'No');
+        Observer.Expect('used Find-', 'No');
+        Observer.Expect('used Find+', 'No');
+        Observer.Expect('used Find=', 'No');
+        Observer.Expect('used Find>', 'No');
+        Observer.Expect('used Find<', 'No');
+        Observer.Expect('used Next', '0');
+        Observer.Expect('used Next-1', '0');
+        Observer.Expect('used Next0', '0');
+        Observer.Expect('used Next2', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -318,7 +430,35 @@ codeunit 94252 "LT Y81 Empty Set Finds"
             Observer.Observe('unused ' + Op, UnusedRec(Row, Op));
         foreach Op in Ops() do
             Observer.Observe('used ' + Op, UsedRec(Row, Op));
-        Observer.Finish();
+        Observer.Expect('unused FindFirst', 'There is no LT Y81 ES Row within the filter.\\Filters: Id: 99|DB:NothingInsideFilter');
+        Observer.Expect('unused FindLast', 'There is no LT Y81 ES Row within the filter.\\Filters: Id: 99|DB:NothingInsideFilter');
+        Observer.Expect('unused FindSet', 'There is no LT Y81 ES Row within the filter.\\Filters: Id: 99|DB:NothingInsideFilter');
+        Observer.Expect('unused FindSetTrue', 'There is no LT Y81 ES Row within the filter.\\Filters: Id: 99|DB:NothingInsideFilter');
+        Observer.Expect('unused Find', 'The LT Y81 ES Row does not exist. Identification fields and values: Id=''10''|DB:RecordNotFound');
+        Observer.Expect('unused Find-', 'There is no LT Y81 ES Row within the filter.\\Filters: Id: 99|DB:NothingInsideFilter');
+        Observer.Expect('unused Find+', 'There is no LT Y81 ES Row within the filter.\\Filters: Id: 99|DB:NothingInsideFilter');
+        Observer.Expect('unused Find=', 'The LT Y81 ES Row does not exist. Identification fields and values: Id=''10''|DB:RecordNotFound');
+        Observer.Expect('unused Find>', 'The LT Y81 ES Row does not exist. >\\Identification fields and values:\\Id=''10''|DB:RecordNotFound');
+        Observer.Expect('unused Find<', 'The LT Y81 ES Row does not exist. <\\Identification fields and values:\\Id=''10''|DB:RecordNotFound');
+        Observer.Expect('unused Next', 'ok');
+        Observer.Expect('unused Next-1', 'ok');
+        Observer.Expect('unused Next0', 'ok');
+        Observer.Expect('unused Next2', 'ok');
+        Observer.Expect('used FindFirst', 'No');
+        Observer.Expect('used FindLast', 'No');
+        Observer.Expect('used FindSet', 'No');
+        Observer.Expect('used FindSetTrue', 'No');
+        Observer.Expect('used Find', 'No');
+        Observer.Expect('used Find-', 'No');
+        Observer.Expect('used Find+', 'No');
+        Observer.Expect('used Find=', 'No');
+        Observer.Expect('used Find>', 'No');
+        Observer.Expect('used Find<', 'No');
+        Observer.Expect('used Next', '0');
+        Observer.Expect('used Next-1', '0');
+        Observer.Expect('used Next0', '0');
+        Observer.Expect('used Next2', '0');
+        Observer.Verify();
     end;
 
     [Test]
@@ -339,7 +479,13 @@ codeunit 94252 "LT Y81 Empty Set Finds"
         Observer.Observe('ref next unused', Unused(RecRef, 'Next'));
         RecRef.FindFirst();
         Observer.Observe('ref next-1 before first', Format(RecRef.Next(-1)) + '|' + Format(RecRef.Field(1).Value));
-        Observer.Finish();
+        Observer.Expect('rec next past last', '0|20');
+        Observer.Expect('rec next unused', 'ok');
+        Observer.Expect('rec next-1 before first', '0|10');
+        Observer.Expect('ref next past last', '0|20');
+        Observer.Expect('ref next unused', 'ok');
+        Observer.Expect('ref next-1 before first', '0|10');
+        Observer.Verify();
     end;
 
     [Test]
@@ -356,7 +502,10 @@ codeunit 94252 "LT Y81 Empty Set Finds"
         Row.Id := 55;
         RecRef.GetTable(Row);
         Observer.Observe('ref get unused', GetUnusedRef(RecRef));
-        Observer.Finish();
+        Observer.Expect('rec get used', 'No');
+        Observer.Expect('ref get used', 'No');
+        Observer.Expect('ref get unused', 'The LT Y81 ES Row does not exist. Identification fields and values: Id=''55''|DB:RecordNotFound');
+        Observer.Verify();
     end;
 
     [TryFunction]

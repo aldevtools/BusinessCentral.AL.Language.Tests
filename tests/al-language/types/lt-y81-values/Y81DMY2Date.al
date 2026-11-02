@@ -47,7 +47,14 @@ codeunit 94250 "LT Y81 DMY2Date"
         Observer.Observe('29.2.0', Dmy(29, 2, 0));
         Observer.Observe('30.2.0', Dmy(30, 2, 0));
         Observer.Observe('31.4.0', Dmy(31, 4, 0));
-        Observer.Finish();
+        Observer.Expect('1.1.0', '0001-01-02|1.1.0');
+        Observer.Expect('2.1.0', 'E The value of DMY2Date parameter 3 is outside of the permitted range. The current value is: 0. The permitted range is: from 1 to 9999.|OutsidePermittedRange');
+        Observer.Expect('15.6.0', 'E The value of DMY2Date parameter 3 is outside of the permitted range. The current value is: 0. The permitted range is: from 1 to 9999.|OutsidePermittedRange');
+        Observer.Expect('28.2.0', 'E The value of DMY2Date parameter 3 is outside of the permitted range. The current value is: 0. The permitted range is: from 1 to 9999.|OutsidePermittedRange');
+        Observer.Expect('29.2.0', 'E The value of DMY2Date parameter 3 is outside of the permitted range. The current value is: 0. The permitted range is: from 1 to 9999.|OutsidePermittedRange');
+        Observer.Expect('30.2.0', 'E The value of DMY2Date parameter 3 is outside of the permitted range. The current value is: 0. The permitted range is: from 1 to 9999.|OutsidePermittedRange');
+        Observer.Expect('31.4.0', 'E The value of DMY2Date parameter 3 is outside of the permitted range. The current value is: 0. The permitted range is: from 1 to 9999.|OutsidePermittedRange');
+        Observer.Verify();
     end;
 
     [Test]
@@ -59,7 +66,13 @@ codeunit 94250 "LT Y81 DMY2Date"
         Observer.Observe('31.12.1', Dmy(31, 12, 1));
         Observer.Observe('29.2.4', Dmy(29, 2, 4));
         Observer.Observe('29.2.1', Dmy(29, 2, 1));
-        Observer.Finish();
+        Observer.Expect('31.12.0', 'E The value of DMY2Date parameter 3 is outside of the permitted range. The current value is: 0. The permitted range is: from 1 to 9999.|OutsidePermittedRange');
+        Observer.Expect('1.1.1', '[]|0D');
+        Observer.Expect('2.1.1', '0001-01-02|1.1.0');
+        Observer.Expect('31.12.1', '0001-12-31|31.12.1');
+        Observer.Expect('29.2.4', '0004-02-29|29.2.4');
+        Observer.Expect('29.2.1', 'E The value of DMY2Date parameter 1 is outside of the permitted range. The current value is: 29. The permitted range is: from 1 to 28.|OutsidePermittedRange');
+        Observer.Verify();
     end;
 
     [Test]
@@ -70,7 +83,12 @@ codeunit 94250 "LT Y81 DMY2Date"
         Observer.Observe('29.2.2000', Dmy(29, 2, 2000));
         Observer.Observe('31.12.9999', Dmy(31, 12, 9999));
         Observer.Observe('1.1.9999', Dmy(1, 1, 9999));
-        Observer.Finish();
+        Observer.Expect('29.2.100', 'E The value of DMY2Date parameter 1 is outside of the permitted range. The current value is: 29. The permitted range is: from 1 to 28.|OutsidePermittedRange');
+        Observer.Expect('29.2.1900', 'E The value of DMY2Date parameter 1 is outside of the permitted range. The current value is: 29. The permitted range is: from 1 to 28.|OutsidePermittedRange');
+        Observer.Expect('29.2.2000', '2000-02-29|29.2.2000');
+        Observer.Expect('31.12.9999', '9999-12-31|31.12.9999');
+        Observer.Expect('1.1.9999', '9999-01-01|1.1.9999');
+        Observer.Verify();
     end;
 
     [Test]
@@ -87,7 +105,14 @@ codeunit 94250 "LT Y81 DMY2Date"
         Observer.Observe('format 1', Format(D, 0, 1));
         Observer.Observe('format 4', Format(D, 0, 4));
         Observer.Observe('dwy 1', Format(Date2DWY(D, 1)));
-        Observer.Finish();
+        Observer.Expect('same as 0D', 'No');
+        Observer.Expect('plus 1', '0001-06-16|16.6.1');
+        Observer.Expect('calcdate', '0001-06-16|16.6.1');
+        Observer.Expect('format 0', '06/15/0001');
+        Observer.Expect('format 1', '06/15/0001');
+        Observer.Expect('format 4', 'June 15, 0001');
+        Observer.Expect('dwy 1', '5');
+        Observer.Verify();
     end;
 
     [TryFunction]
@@ -170,7 +195,20 @@ codeunit 94250 "LT Y81 DMY2Date"
         Observer.Observe('-0.4 3 2024', Dec(-0.4, 3, 2024));
         Observer.Observe('1 12.5 2024', Dec(1, 12.5, 2024));
         Observer.Observe('1 1 9999.5', Dec(1, 1, 9999.5));
-        Observer.Finish();
+        Observer.Expect('15.0 3.0 2024.0', '2024-03-15|15.3.2024');
+        Observer.Expect('15.4 3 2024', 'E Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 15.4 to System.Int32.|ConversionCast');
+        Observer.Expect('15.5 3 2024', 'E Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 15.5 to System.Int32.|ConversionCast');
+        Observer.Expect('15.6 3 2024', 'E Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 15.6 to System.Int32.|ConversionCast');
+        Observer.Expect('15 3.5 2024', 'E Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 3.5 to System.Int32.|ConversionCast');
+        Observer.Expect('15 3 2024.5', 'E Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 2024.5 to System.Int32.|ConversionCast');
+        Observer.Expect('0.4 3 2024', 'E Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 0.4 to System.Int32.|ConversionCast');
+        Observer.Expect('0.5 3 2024', 'E Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 0.5 to System.Int32.|ConversionCast');
+        Observer.Expect('1 1 0.4', 'E Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 0.4 to System.Int32.|ConversionCast');
+        Observer.Expect('1 1 0.5', 'E Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 0.5 to System.Int32.|ConversionCast');
+        Observer.Expect('-0.4 3 2024', 'E Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value -0.4 to System.Int32.|ConversionCast');
+        Observer.Expect('1 12.5 2024', 'E Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 12.5 to System.Int32.|ConversionCast');
+        Observer.Expect('1 1 9999.5', 'E Overflow under conversion of Microsoft.Dynamics.Nav.Runtime.Decimal18 value 9999.5 to System.Int32.|ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -183,7 +221,14 @@ codeunit 94250 "LT Y81 DMY2Date"
         Observer.Observe('4294967297 1 2024', Big(4294967297L, 1, 2024));
         Observer.Observe('1 4294967297 2024', Big(1, 4294967297L, 2024));
         Observer.Observe('1 1 -2147483649', Big(1, 1, -2147483649L));
-        Observer.Finish();
+        Observer.Expect('15 3 2024', '2024-03-15|15.3.2024');
+        Observer.Expect('0 3 2024', 'E The value of DMY2Date parameter 1 is outside of the permitted range. The current value is: 0. The permitted range is: from 1 to 31.|OutsidePermittedRange');
+        Observer.Expect('1 1 0', '0001-01-02|1.1.0');
+        Observer.Expect('1 1 2147483648', 'E Overflow under conversion of System.Int64 value 2147483648 to System.Int32.|ConversionCast');
+        Observer.Expect('4294967297 1 2024', 'E Overflow under conversion of System.Int64 value 4294967297 to System.Int32.|ConversionCast');
+        Observer.Expect('1 4294967297 2024', 'E Overflow under conversion of System.Int64 value 4294967297 to System.Int32.|ConversionCast');
+        Observer.Expect('1 1 -2147483649', 'E Overflow under conversion of System.Int64 value -2147483649 to System.Int32.|ConversionCast');
+        Observer.Verify();
     end;
 
     [Test]
@@ -197,7 +242,15 @@ codeunit 94250 "LT Y81 DMY2Date"
         Observer.Observe('char 1 1 0', Chr(1, 1, 0));
         Observer.Observe('char 0 3 24', Chr(0, 3, 24));
         Observer.Observe('char 31 12 65535', Chr(31, 12, 65535));
-        Observer.Finish();
+        Observer.Expect('byte 15 3 24', '0024-03-15|15.3.24');
+        Observer.Expect('byte 1 1 0', '0001-01-02|1.1.0');
+        Observer.Expect('byte 0 3 24', 'E The value of DMY2Date parameter 1 is outside of the permitted range. The current value is: 0. The permitted range is: from 1 to 31.|OutsidePermittedRange');
+        Observer.Expect('byte 31 12 255', '0255-12-31|31.12.255');
+        Observer.Expect('char 15 3 24', '0024-03-15|15.3.24');
+        Observer.Expect('char 1 1 0', '0001-01-02|1.1.0');
+        Observer.Expect('char 0 3 24', 'E The value of DMY2Date parameter 1 is outside of the permitted range. The current value is: 0. The permitted range is: from 1 to 31.|OutsidePermittedRange');
+        Observer.Expect('char 31 12 65535', 'E The value of DMY2Date parameter 3 is outside of the permitted range. The current value is: 65535. The permitted range is: from 1 to 9999.|OutsidePermittedRange');
+        Observer.Verify();
     end;
 
     [TryFunction]
