@@ -4,7 +4,7 @@
 // DataPerCompany = false table 61371, writes a Reason Code and a Job Queue Entry with Insert(true) (per company only), asks the Upgrade Tag codeunit for
 // its tags and notes what it sees of the Object tables. The subscribers and table extensions of B and D (Y79XbSubs.al, Y79XdSubs.al) note, while the hub is
 // armed, which install they ran in. Every note is a row of the DataPerCompany = false table 61374 (Insert() without triggers, so a note asks for no trigger
-// setup); the Seq column gives the order. Install code must never fail (check-install-triggers.py): every write is `if Insert(..) then;` and the
+// setup); the Seq column gives the order. Install code must never fail (check-install-triggers.py): every write is `if Insert(..) then`, a Reason Code and a Job Queue Entry are deleted again at once (other tests count the rows) and the
 // reads cannot raise. Tests: tests/al-language/install/lt-y79-install-unrelated/Y79InstallUnrelated.al.
 
 table 61370 "LT Y79 XA Data"
@@ -174,13 +174,15 @@ codeunit 61372 "LT Y79 XA Hub"
         ReasonCode.Init();
         ReasonCode.Code := CopyStr('LTY79' + App, 1, MaxStrLen(ReasonCode.Code));
         ReasonCode.Description := 'LT Y79 install probe';
-        if ReasonCode.Insert(true) then;
+        if ReasonCode.Insert(true) then
+            ReasonCode.Delete();
         Jqe.Init();
         Jqe."Object Type to Run" := Jqe."Object Type to Run"::Codeunit;
         Jqe."Object ID to Run" := Codeunit::"LT Y79 XA Hub";
         Jqe.Description := CopyStr('LT Y79 ' + App, 1, MaxStrLen(Jqe.Description));
         Jqe.Status := Jqe.Status::"On Hold";
-        if Jqe.Insert(true) then;
+        if Jqe.Insert(true) then
+            Jqe.Delete();
     end;
 
     local procedure Tags(App: Text; Phase: Text)
