@@ -56,11 +56,26 @@ codeunit 93712 "LT Y69 Install Trigger Setup"
     var
         Observer: Codeunit "Probe Observer";
         Data: Record "LT Y8 XA Data";
+        RowB: Record "LT Y69 XB Row";
+        AtStart: Text;
     begin
         Observer.Observe('seq', 'A=' + Format(SeqOf('A')) + ' D=' + Format(SeqOf('D')) + ' B=' + Format(SeqOf('B')));
         Observer.Observe('rows', Format(Data.Count()));
         Observer.Observe('rows_b', Format(RowsB()));
-        Observer.Observe('notes', Notes());
+        AtStart := Notes();
+        Observer.Observe('notes_after_install', AtStart);
+        // The same subscribers in a test session (after the installs): a row inserted with Insert(true) into A's table 61180 and into B's table 61358.
+        Data.Init();
+        Data."No." := 9969;
+        Data.Insert(true);
+        Observer.Observe('notes_after_insert_61180', Notes());
+        RowB.Init();
+        RowB."No." := 9970;
+        RowB.Insert(true);
+        Observer.Observe('notes_after_insert_61358', Notes());
+        Data.Delete();
+        RowB.SetFilter("No.", '9969..9970');
+        RowB.DeleteAll();
         Observer.Finish();
     end;
 }
