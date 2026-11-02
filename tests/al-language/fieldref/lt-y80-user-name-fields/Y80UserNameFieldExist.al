@@ -51,7 +51,12 @@ codeunit 94201 "LT Y80 UN Tests"
         RecRef.Open(Database::"LT Y80 UN Row");
         Observer.Observe('own', Exists(RecRef, 2000000000, 2000000012));
         RecRef.Close();
-        Observer.Finish();
+        #if BC29PLUS
+        Observer.Expect('own', '0=true;1=true;2=true;3=true;4=true;5=true;6=true;7=true;8=true;9=false;10=false;11=false;12=false;');
+#else
+        Observer.Expect('own', '0=true;1=true;2=true;3=true;4=true;5=false;6=false;7=false;8=false;9=false;10=false;11=false;12=false;');
+#endif
+        Observer.Verify();
     end;
 
     [Test]
@@ -65,7 +70,14 @@ codeunit 94201 "LT Y80 UN Tests"
         RecRef.Open(Database::"Sales Header");
         Observer.Observe('sales header', Exists(RecRef, 2000000004, 2000000009));
         RecRef.Close();
-        Observer.Finish();
+        #if BC29PLUS
+        Observer.Expect('customer', '3=true;4=true;5=true;6=true;7=true;8=true;9=false;10=false;');
+        Observer.Expect('sales header', '4=true;5=true;6=true;7=true;8=true;9=false;');
+#else
+        Observer.Expect('customer', '3=true;4=true;5=false;6=false;7=false;8=false;9=false;10=false;');
+        Observer.Expect('sales header', '4=true;5=false;6=false;7=false;8=false;9=false;');
+#endif
+        Observer.Verify();
     end;
 
     [Test]
@@ -83,7 +95,16 @@ codeunit 94201 "LT Y80 UN Tests"
         RecRef.Close();
         RecRef.GetTable(Row);
         Observer.Observe('get table', Exists(RecRef, 2000000004, 2000000009));
-        Observer.Finish();
+        #if BC29PLUS
+        Observer.Expect('temporary open', '4=true;5=true;6=true;7=true;8=true;9=false;');
+        Observer.Expect('temporary get table', '4=true;5=true;6=true;7=true;8=true;9=false;');
+        Observer.Expect('get table', '4=true;5=true;6=true;7=true;8=true;9=false;');
+#else
+        Observer.Expect('temporary open', '4=true;5=false;6=false;7=false;8=false;9=false;');
+        Observer.Expect('temporary get table', '4=true;5=false;6=false;7=false;8=false;9=false;');
+        Observer.Expect('get table', '4=true;5=false;6=false;7=false;8=false;9=false;');
+#endif
+        Observer.Verify();
     end;
 
     [Test]
@@ -106,7 +127,20 @@ codeunit 94201 "LT Y80 UN Tests"
         RecRef.Open(Database::"Permission Set");
         Observer.Observe('permission set', Exists(RecRef, 2000000000, 2000000009));
         RecRef.Close();
-        Observer.Finish();
+        #if BC29PLUS
+        Observer.Expect('integer', '0=true;1=true;2=true;3=true;4=true;5=true;6=true;7=true;8=true;9=false;');
+        Observer.Expect('date', '0=true;1=true;2=true;3=true;4=true;5=true;6=true;7=true;8=true;9=false;');
+        Observer.Expect('company', '0=true;1=true;2=true;3=true;4=true;5=true;6=true;7=true;8=true;9=false;');
+        Observer.Expect('table metadata', '0=true;1=true;2=true;3=true;4=true;5=true;6=true;7=true;8=true;9=false;');
+        Observer.Expect('permission set', '0=true;1=true;2=true;3=true;4=true;5=true;6=true;7=true;8=true;9=false;');
+#else
+        Observer.Expect('integer', '0=true;1=true;2=true;3=true;4=true;5=false;6=false;7=false;8=false;9=false;');
+        Observer.Expect('date', '0=true;1=true;2=true;3=true;4=true;5=false;6=false;7=false;8=false;9=false;');
+        Observer.Expect('company', '0=true;1=true;2=true;3=true;4=true;5=false;6=false;7=false;8=false;9=false;');
+        Observer.Expect('table metadata', '0=true;1=true;2=true;3=true;4=true;5=false;6=false;7=false;8=false;9=false;');
+        Observer.Expect('permission set', '0=true;1=true;2=true;3=true;4=true;5=false;6=false;7=false;8=false;9=false;');
+#endif
+        Observer.Verify();
     end;
 
     [Test]
@@ -122,7 +156,10 @@ codeunit 94201 "LT Y80 UN Tests"
             Names += RecRef.FieldIndex(I).Name() + ',';
         Observer.Observe('index names', Names);
         Observer.Observe('key field count', Format(RecRef.KeyIndex(1).FieldCount()));
-        Observer.Finish();
+        Observer.Expect('field count', '2');
+        Observer.Expect('index names', 'Id,Txt,');
+        Observer.Expect('key field count', '1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -144,7 +181,19 @@ codeunit 94201 "LT Y80 UN Tests"
         asserterror FieldRef := RecRef.Field(2000000008);
         Observer.ObserveError('field 2000000008 before BC 29');
 #endif
-        Observer.Finish();
+        Observer.Expect('field 9|text', 'The supplied field number ''2000000009'' cannot be found in the ''LT Y80 UN Row'' table.');
+        Observer.Expect('field 9|code', 'FieldNotFound');
+        Observer.Expect('field 100|text', 'The supplied field number ''2000000100'' cannot be found in the ''LT Y80 UN Row'' table.');
+        Observer.Expect('field 100|code', 'FieldNotFound');
+        Observer.Expect('field 3|text', 'The supplied field number ''3'' cannot be found in the ''LT Y80 UN Row'' table.');
+        Observer.Expect('field 3|code', 'FieldNotFound');
+#if not BC29PLUS
+        Observer.Expect('field 2000000005 before BC 29|text', 'The supplied field number ''2000000005'' cannot be found in the ''LT Y80 UN Row'' table.');
+        Observer.Expect('field 2000000005 before BC 29|code', 'FieldNotFound');
+        Observer.Expect('field 2000000008 before BC 29|text', 'The supplied field number ''2000000008'' cannot be found in the ''LT Y80 UN Row'' table.');
+        Observer.Expect('field 2000000008 before BC 29|code', 'FieldNotFound');
+#endif
+        Observer.Verify();
     end;
 
 #if BC29PLUS
@@ -166,7 +215,15 @@ codeunit 94201 "LT Y80 UN Tests"
             FieldRef := RecRef.Field(No);
             Observer.Observe('customer ' + Format(No), Describe(FieldRef));
         end;
-        Observer.Finish();
+        Observer.Expect('2000000005', 'SystemCreatedByUserName|Text|FlowField|50|2000000005|Created By (User Name)');
+        Observer.Expect('2000000006', 'SystemCreatedByFullName|Text|FlowField|80|2000000006|Created By (Full Name)');
+        Observer.Expect('2000000007', 'SystemModifiedByUserName|Text|FlowField|50|2000000007|Modified By (User Name)');
+        Observer.Expect('2000000008', 'SystemModifiedByFullName|Text|FlowField|80|2000000008|Modified By (Full Name)');
+        Observer.Expect('customer 2000000005', 'SystemCreatedByUserName|Text|FlowField|50|2000000005|Created By (User Name)');
+        Observer.Expect('customer 2000000006', 'SystemCreatedByFullName|Text|FlowField|80|2000000006|Created By (Full Name)');
+        Observer.Expect('customer 2000000007', 'SystemModifiedByUserName|Text|FlowField|50|2000000007|Modified By (User Name)');
+        Observer.Expect('customer 2000000008', 'SystemModifiedByFullName|Text|FlowField|80|2000000008|Modified By (Full Name)');
+        Observer.Verify();
     end;
 
     [Test]
@@ -176,7 +233,6 @@ codeunit 94201 "LT Y80 UN Tests"
         RecRef: RecordRef;
         FieldRef: FieldRef;
         No: Integer;
-        Text: Text;
     begin
         Row.DeleteAll();
         Row.Id := 1;
@@ -184,13 +240,19 @@ codeunit 94201 "LT Y80 UN Tests"
         RecRef.GetTable(Row);
         for No := 2000000005 to 2000000008 do begin
             FieldRef := RecRef.Field(No);
-            Text += Format(No - 2000000000) + ': before calc empty=' + Format(Format(FieldRef.Value) = '', 0, 9);
+            Observer.Observe('before calc ' + Format(No - 2000000000), Format(Format(FieldRef.Value) = '', 0, 9));
             FieldRef.CalcField();
-            Text += ' after calc: equals UserId=' + Format(Format(FieldRef.Value) = UserId(), 0, 9) + ' empty=' + Format(Format(FieldRef.Value) = '', 0, 9) + ';';
         end;
-        Observer.Observe('after insert', Text);
+        Observer.Observe('created by user name is the user', Format(Format(RecRef.Field(2000000005).Value) = UserId(), 0, 9));
+        Observer.Observe('modified by user name is the user', Format(Format(RecRef.Field(2000000007).Value) = UserId(), 0, 9));
         Row.Delete();
-        Observer.Finish();
+        Observer.Expect('before calc 5', 'true');
+        Observer.Expect('before calc 6', 'true');
+        Observer.Expect('before calc 7', 'true');
+        Observer.Expect('before calc 8', 'true');
+        Observer.Expect('created by user name is the user', 'true');
+        Observer.Expect('modified by user name is the user', 'true');
+        Observer.Verify();
     end;
 #endif
 }
