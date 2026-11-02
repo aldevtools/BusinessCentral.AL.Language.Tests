@@ -121,6 +121,8 @@ codeunit 93712 "LT Y69 Install Trigger Setup"
         Data.Delete();
         RowB.SetFilter("No.", '9969..9970');
         RowB.DeleteAll();
+        Observer.Observe('dbg_notes', Text);
+        Observer.Expect('dbg_notes', 'x');
         Observer.Observe('d_setup_61358', Format(CountOf(Text, '|D-setup|t=61358|in=NoNoNoNo ##')));
         Observer.Observe('d_setup_61180', Format(CountOf(Text, '|D-setup|t=61180|')));
         Observer.Observe('d_insert_61358', Format(CountOf(Text, '|D-insert|t=61358|')));

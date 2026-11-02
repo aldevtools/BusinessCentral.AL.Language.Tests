@@ -10,6 +10,10 @@
 //   5310 Tools, Debugger; 9100 Microsoft Dynamics NAV Server; 5820 Tools, Security, DB Logins.
 // Compile: the name must be one of the valid system objects (AL0443), the kind only X (AL0195), by id AL0653, the same object twice in a set AL0393
 //   (must-not-compile cases 2671 - 2673); `system * = X` and a lower case x compile.
+// Facts (Linux CI 27.5, 28.5, 29.0, identical; Expanded Permission rows also on the BC 29 SaaS sandbox, Y69ExpandedRows.al): a set with a named system grant still
+//   grants its tabledata and the tabledata of its included sets (Customer read works under Basic, Outer, Mid, Many, Indirect, Wild and the extended Plain
+//   set; it is denied under Only (no tabledata) and Excl (Basic excluded)). The Execute column of the System object shows Yes for the grant, Indirect for
+//   a lower case x, Yes for every system object under `system * = X`, and nothing for the ones a set does not name.
 // BC versions: 27, 28, 29
 codeunit 93711 "LT Y69 System Grants"
 {
@@ -34,7 +38,17 @@ codeunit 93711 "LT Y69 System Grants"
         ObserveCustomerRead(Observer, 'LT Y69 SY Plain');
         ObserveCustomerRead(Observer, 'LT Y69 SY Mid');
         Y19Helper.RestoreMock(Mock, WasStarted);
-        Observer.Finish();
+        Observer.Expect('LT Y69 SY BASIC|customer_read|text', 'LT Y69 ok');
+        Observer.Expect('LT Y69 SY BASIC|customer_read|code', 'Dialog');
+        Observer.Expect('LT Y69 SY OUTER|customer_read|text', 'LT Y69 ok');
+        Observer.Expect('LT Y69 SY OUTER|customer_read|code', 'Dialog');
+        Observer.Expect('LT Y69 SY ONLY|customer_read|text', 'Sorry, the current permissions prevented the action. (TableData 18 Customer Read: AL Language Coverage Tests)');
+        Observer.Expect('LT Y69 SY ONLY|customer_read|code', 'DB:ClientReadDenied');
+        Observer.Expect('LT Y69 SY PLAIN|customer_read|text', 'LT Y69 ok');
+        Observer.Expect('LT Y69 SY PLAIN|customer_read|code', 'Dialog');
+        Observer.Expect('LT Y69 SY MID|customer_read|text', 'LT Y69 ok');
+        Observer.Expect('LT Y69 SY MID|customer_read|code', 'Dialog');
+        Observer.Verify();
     end;
 
     [Test]
@@ -49,7 +63,15 @@ codeunit 93711 "LT Y69 System Grants"
         ObserveCustomerRead(Observer, 'LT Y69 SY Wild');
         ObserveCustomerRead(Observer, 'LT Y69 SY Excl');
         Y19Helper.RestoreMock(Mock, WasStarted);
-        Observer.Finish();
+        Observer.Expect('LT Y69 SY MANY|customer_read|text', 'LT Y69 ok');
+        Observer.Expect('LT Y69 SY MANY|customer_read|code', 'Dialog');
+        Observer.Expect('LT Y69 SY INDIRECT|customer_read|text', 'LT Y69 ok');
+        Observer.Expect('LT Y69 SY INDIRECT|customer_read|code', 'Dialog');
+        Observer.Expect('LT Y69 SY WILD|customer_read|text', 'LT Y69 ok');
+        Observer.Expect('LT Y69 SY WILD|customer_read|code', 'Dialog');
+        Observer.Expect('LT Y69 SY EXCL|customer_read|text', 'Sorry, the current permissions prevented the action. (TableData 18 Customer Read: AL Language Coverage Tests)');
+        Observer.Expect('LT Y69 SY EXCL|customer_read|code', 'DB:ClientReadDenied');
+        Observer.Verify();
     end;
 
     [Test]
@@ -63,7 +85,10 @@ codeunit 93711 "LT Y69 System Grants"
         Mock.ClearAssignments();
         Observer.Observe('plain_system_5810', EffectiveSystem('LT Y69 SY Plain', 5810));
         Y19Helper.RestoreMock(Mock, WasStarted);
-        Observer.Finish();
+        Observer.Expect('LT Y69 SY PLAIN|customer_read|text', 'LT Y69 ok');
+        Observer.Expect('LT Y69 SY PLAIN|customer_read|code', 'Dialog');
+        Observer.Expect('plain_system_5810', '5810= , , , ,Yes');
+        Observer.Verify();
     end;
 
     [Test]
@@ -83,7 +108,16 @@ codeunit 93711 "LT Y69 System Grants"
         Observer.Observe('excl', EffectiveSystemMany('LT Y69 SY Excl'));
         Observer.Observe('plain', EffectiveSystemMany('LT Y69 SY Plain'));
         Y19Helper.RestoreMock(Mock, WasStarted);
-        Observer.Finish();
+        Observer.Expect('basic', '5810= , , , ,Yes 9026= , , , ,  6110= , , , ,  5310= , , , ,  9100= , , , ,  5820= , , , , ');
+        Observer.Expect('outer', '5810= , , , ,Yes 9026= , , , ,  6110= , , , ,  5310= , , , ,  9100= , , , ,  5820= , , , , ');
+        Observer.Expect('many', '5810= , , , ,  9026= , , , ,Yes 6110= , , , ,Yes 5310= , , , ,Yes 9100= , , , ,Yes 5820= , , , , ');
+        Observer.Expect('only', '5810= , , , ,Yes 9026= , , , ,  6110= , , , ,  5310= , , , ,  9100= , , , ,  5820= , , , , ');
+        Observer.Expect('indirect', '5810= , , , ,Indirect 9026= , , , ,  6110= , , , ,  5310= , , , ,  9100= , , , ,  5820= , , , , ');
+        Observer.Expect('wild', '5810= , , , ,Yes 9026= , , , ,Yes 6110= , , , ,Yes 5310= , , , ,Yes 9100= , , , ,Yes 5820= , , , ,Yes');
+        Observer.Expect('mid', '5810= , , , ,Yes 9026= , , , ,  6110= , , , ,  5310= , , , ,  9100= , , , ,  5820= , , , , ');
+        Observer.Expect('excl', '5810= , , , ,  9026= , , , ,Yes 6110= , , , ,Yes 5310= , , , ,Yes 9100= , , , ,Yes 5820= , , , , ');
+        Observer.Expect('plain', '5810= , , , ,Yes 9026= , , , ,  6110= , , , ,  5310= , , , ,  9100= , , , ,  5820= , , , , ');
+        Observer.Verify();
     end;
 
     local procedure ObserveCustomerRead(var Observer: Codeunit "Probe Observer"; SetName: Code[20])
