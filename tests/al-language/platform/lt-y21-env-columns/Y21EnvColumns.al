@@ -215,11 +215,31 @@ codeunit 92150 "LT Y21 Env Columns"
             until WaitStats.Next() = 0;
         end;
         Observer.Observe('rules broken', Rules);
-        Observer.Observe('same start time', Format(SameStart));
+        // 'same start time' is held: on BC 29 the rows came back with different start times once (master run
+        // 41243666409, 2026-10-31) and the same times in every other run. Flaky_Y21_DatabaseWaitStatistics_SameStart keeps it.
         Observer.Observe('start time', Dump.DtRule(StartTime));
         Observer.Expect('rules broken', '');
-        Observer.Expect('same start time', 'Yes');
         Observer.Expect('start time', 'past');
+        Observer.Verify();
+    end;
+
+    procedure Flaky_Y21_DatabaseWaitStatistics_SameStart()
+    var
+        Observer: Codeunit "Probe Observer";
+        WaitStats: Record "Database Wait Statistics";
+        StartTime: DateTime;
+        SameStart: Boolean;
+    begin
+        SameStart := true;
+        if WaitStats.FindSet() then begin
+            StartTime := WaitStats."Database start time";
+            repeat
+                if WaitStats."Database start time" <> StartTime then
+                    SameStart := false;
+            until WaitStats.Next() = 0;
+        end;
+        Observer.Observe('same start time', Format(SameStart));
+        Observer.Expect('same start time', 'Yes');
         Observer.Verify();
     end;
 
