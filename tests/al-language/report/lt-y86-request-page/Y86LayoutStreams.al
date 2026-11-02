@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/report/report-rdlclayout-method
 // Scope: in-scope
-// Fixtures used: Probe Observer (69160); layout file FixtureLayout_19.rdlc at the app root (2316 bytes, UTF-8 with BOM, CRLF); own report 94587, test codeunit 94588
+// Fixtures used: Probe Observer (69160); layout files Y86Layout.rdlc and Y86LayoutColumns.rdlc (copies of one RDLC file: 2316 bytes, UTF-8 with BOM, CRLF, a <Fields> list of four fields); own report 94587, test codeunit 94588
 // Probe (writer Y86, al-runtime-rs assumption rdlc-layout-stream-is-the-layout-file): Report.RdlcLayout of a report whose default rendering layout is an
 // RDLC file the app holds: the bytes of the stream against the file, a second read, the other layout statements on the same report, a report id that is no report.
 // BC versions: 27, 28, 29
@@ -23,7 +23,7 @@ report 94587 "LT Y86 Rdlc Report"
         layout(Y86Rdlc)
         {
             Type = RDLC;
-            LayoutFile = './FixtureLayout_19.rdlc';
+            LayoutFile = './report/lt-y86-request-page/Y86Layout.rdlc';
             Caption = 'Y86 RDLC layout';
         }
     }
@@ -50,7 +50,7 @@ report 94601 "LT Y86 Rdlc Columns Report"
         layout(Y86Rdlc)
         {
             Type = RDLC;
-            LayoutFile = './FixtureLayout_19.rdlc';
+            LayoutFile = './report/lt-y86-request-page/Y86LayoutColumns.rdlc';
             Caption = 'Y86 RDLC layout with columns';
         }
     }
