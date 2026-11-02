@@ -16,6 +16,7 @@ codeunit 94312 "LT Y82 Sec Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('seed', H.Seed(94305, 2, '10,9,2,1,100,'));
         Observer.Observe('asc', H.Dump(94305, 2, 1, true));
         Observer.Observe('desc', H.Dump(94305, 2, 1, false));
@@ -35,6 +36,7 @@ codeunit 94312 "LT Y82 Sec Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('seed', H.Seed(94305, 2, 'A,B,1A,A1,10,9,007,a,'));
         Observer.Observe('asc', H.Dump(94305, 2, 1, true));
         Observer.Observe('desc', H.Dump(94305, 2, 1, false));
@@ -49,6 +51,7 @@ codeunit 94312 "LT Y82 Sec Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('seed', TypedSeedFVar());
         Observer.Observe('asc', TypedDumpFVar(true));
         Observer.Observe('desc', TypedDumpFVar(false));
@@ -63,6 +66,7 @@ codeunit 94312 "LT Y82 Sec Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('seed', H.Seed(94305, 3, '10,9,2,1,100,'));
         Observer.Observe('asc', H.Dump(94305, 3, 1, true));
         Observer.Observe('desc', H.Dump(94305, 3, 1, false));
@@ -82,6 +86,7 @@ codeunit 94312 "LT Y82 Sec Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('seed', H.Seed(94305, 3, '007,7,07'));
         Observer.Observe('asc', H.Dump(94305, 3, 1, true));
         Observer.Finish();
@@ -92,6 +97,7 @@ codeunit 94312 "LT Y82 Sec Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('seed', H.Seed(94305, 3, '1,2,10'));
         Observer.Observe('range A..B', H.DumpRange(94305, 3, 1, 3, 'A', 'B'));
         Observer.Finish();
@@ -102,6 +108,7 @@ codeunit 94312 "LT Y82 Sec Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('seed', H.Seed(94305, 3, '1,2,10'));
         Observer.Observe('filter A..B', H.DumpFilter(94305, 3, 1, 3, 'A..B'));
         Observer.Finish();
@@ -112,6 +119,7 @@ codeunit 94312 "LT Y82 Sec Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('seed', TypedSeedFInt());
         Observer.Observe('asc', TypedDumpFInt(true));
         Observer.Observe('desc', TypedDumpFInt(false));
@@ -126,6 +134,7 @@ codeunit 94312 "LT Y82 Sec Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('seed', H.Seed(94305, 4, '10,9,2,1,100,'));
         Observer.Observe('asc', H.Dump(94305, 4, 1, true));
         Observer.Observe('desc', H.Dump(94305, 4, 1, false));
@@ -145,6 +154,7 @@ codeunit 94312 "LT Y82 Sec Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('seed', H.Seed(94305, 4, '007,7,07'));
         Observer.Observe('asc', H.Dump(94305, 4, 1, true));
         Observer.Finish();
@@ -155,6 +165,7 @@ codeunit 94312 "LT Y82 Sec Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('seed', H.Seed(94305, 4, '1,2,10'));
         Observer.Observe('range A..B', H.DumpRange(94305, 4, 1, 4, 'A', 'B'));
         Observer.Finish();
@@ -165,6 +176,7 @@ codeunit 94312 "LT Y82 Sec Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('seed', H.Seed(94305, 4, '1,2,10'));
         Observer.Observe('filter A..B', H.DumpFilter(94305, 4, 1, 4, 'A..B'));
         Observer.Finish();
@@ -175,6 +187,7 @@ codeunit 94312 "LT Y82 Sec Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('seed', TypedSeedFBig());
         Observer.Observe('asc', TypedDumpFBig(true));
         Observer.Observe('desc', TypedDumpFBig(false));
@@ -189,6 +202,7 @@ codeunit 94312 "LT Y82 Sec Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('seed', H.Seed(94305, 5, '10,9,2,1,100,'));
         Observer.Observe('asc', H.Dump(94305, 5, 1, true));
         Observer.Observe('desc', H.Dump(94305, 5, 1, false));
@@ -208,6 +222,7 @@ codeunit 94312 "LT Y82 Sec Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('seed', H.Seed(94305, 5, 'A,B,1A,A1,10,9,007,a,'));
         Observer.Observe('asc', H.Dump(94305, 5, 1, true));
         Observer.Observe('desc', H.Dump(94305, 5, 1, false));
@@ -222,6 +237,7 @@ codeunit 94312 "LT Y82 Sec Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('seed', TypedSeedFVnt());
         Observer.Observe('asc', TypedDumpFVnt(true));
         Observer.Observe('desc', TypedDumpFVnt(false));
@@ -236,6 +252,7 @@ codeunit 94312 "LT Y82 Sec Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('seed', H.Seed(94305, 6, '10,9,2,1,100,'));
         Observer.Observe('asc', H.Dump(94305, 6, 1, true));
         Observer.Observe('desc', H.Dump(94305, 6, 1, false));
@@ -255,6 +272,7 @@ codeunit 94312 "LT Y82 Sec Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('seed', H.Seed(94305, 6, 'A,B,1A,A1,10,9,007,a,'));
         Observer.Observe('asc', H.Dump(94305, 6, 1, true));
         Observer.Observe('desc', H.Dump(94305, 6, 1, false));
@@ -269,6 +287,7 @@ codeunit 94312 "LT Y82 Sec Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('seed', TypedSeedFDef());
         Observer.Observe('asc', TypedDumpFDef(true));
         Observer.Observe('desc', TypedDumpFDef(false));
@@ -283,6 +302,7 @@ codeunit 94312 "LT Y82 Sec Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('seed', H.Seed(94305, 7, '10,9,2,100,'));
         Observer.Observe('by id', H.Dump(94305, 1, 1, true));
         Observer.Observe('range 2..10', H.DumpRange(94305, 1, 1, 7, '2', '10'));
@@ -298,6 +318,7 @@ codeunit 94312 "LT Y82 Sec Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('seed', H.Seed(94305, 7, 'A,1'));
         Observer.Observe('by id', H.Dump(94305, 1, 1, true));
         Observer.Finish();
@@ -308,6 +329,7 @@ codeunit 94312 "LT Y82 Sec Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('seed', H.Seed(94305, 7, '1,2'));
         Observer.Observe('filter A*', H.CountFilter(94305, 7, 'A*'));
         Observer.Finish();
@@ -318,6 +340,7 @@ codeunit 94312 "LT Y82 Sec Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('seed', H.Seed(94305, 7, '1,2'));
         Observer.Observe('range A..B', H.CountRange(94305, 7, 'A', 'B'));
         Observer.Finish();
@@ -328,6 +351,7 @@ codeunit 94312 "LT Y82 Sec Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('seed', H.Seed(94305, 8, '10,9,2,100,'));
         Observer.Observe('by id', H.Dump(94305, 1, 1, true));
         Observer.Observe('range 2..10', H.DumpRange(94305, 1, 1, 8, '2', '10'));
@@ -343,6 +367,7 @@ codeunit 94312 "LT Y82 Sec Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('seed', H.Seed(94305, 8, 'A,1'));
         Observer.Observe('by id', H.Dump(94305, 1, 1, true));
         Observer.Finish();
@@ -353,6 +378,7 @@ codeunit 94312 "LT Y82 Sec Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('seed', H.Seed(94305, 8, '1,2'));
         Observer.Observe('filter A*', H.CountFilter(94305, 8, 'A*'));
         Observer.Finish();
@@ -363,6 +389,7 @@ codeunit 94312 "LT Y82 Sec Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('seed', H.Seed(94305, 8, '1,2'));
         Observer.Observe('range A..B', H.CountRange(94305, 8, 'A', 'B'));
         Observer.Finish();
@@ -373,6 +400,7 @@ codeunit 94312 "LT Y82 Sec Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('seed', H.Seed(94305, 9, '10,9,2,100,'));
         Observer.Observe('by id', H.Dump(94305, 1, 1, true));
         Observer.Observe('range 2..10', H.DumpRange(94305, 1, 1, 9, '2', '10'));
@@ -388,6 +416,7 @@ codeunit 94312 "LT Y82 Sec Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('seed', H.Seed(94305, 9, 'A,1'));
         Observer.Observe('by id', H.Dump(94305, 1, 1, true));
         Observer.Finish();
@@ -398,6 +427,7 @@ codeunit 94312 "LT Y82 Sec Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('seed', H.Seed(94305, 9, '1,2'));
         Observer.Observe('filter A*', H.CountFilter(94305, 9, 'A*'));
         Observer.Finish();
@@ -408,6 +438,7 @@ codeunit 94312 "LT Y82 Sec Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('seed', H.Seed(94305, 9, '1,2'));
         Observer.Observe('range A..B', H.CountRange(94305, 9, 'A', 'B'));
         Observer.Finish();
@@ -418,6 +449,7 @@ codeunit 94312 "LT Y82 Sec Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('seed', H.Seed(94305, 10, '10,9,2,100,'));
         Observer.Observe('by id', H.Dump(94305, 1, 1, true));
         Observer.Observe('range 2..10', H.DumpRange(94305, 1, 1, 10, '2', '10'));
@@ -433,6 +465,7 @@ codeunit 94312 "LT Y82 Sec Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('seed', H.Seed(94305, 10, 'A,1'));
         Observer.Observe('by id', H.Dump(94305, 1, 1, true));
         Observer.Finish();
@@ -443,6 +476,7 @@ codeunit 94312 "LT Y82 Sec Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('seed', H.Seed(94305, 10, '1,2'));
         Observer.Observe('filter A*', H.CountFilter(94305, 10, 'A*'));
         Observer.Finish();
@@ -453,6 +487,7 @@ codeunit 94312 "LT Y82 Sec Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('seed', H.Seed(94305, 10, '1,2'));
         Observer.Observe('range A..B', H.CountRange(94305, 10, 'A', 'B'));
         Observer.Finish();
@@ -463,6 +498,7 @@ codeunit 94312 "LT Y82 Sec Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('seed', H.Seed(94305, 94300, '10,9,2,1,100,'));
         Observer.Observe('asc', H.Dump(94305, 94300, 1, true));
         Observer.Observe('desc', H.Dump(94305, 94300, 1, false));
@@ -475,6 +511,7 @@ codeunit 94312 "LT Y82 Sec Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('insert', H.Ins(94305, 94300, 1, 'ABC'));
         Observer.Observe('rows', H.Dump(94305, 1, 1, true));
         Observer.Finish();
@@ -485,6 +522,7 @@ codeunit 94312 "LT Y82 Sec Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('seed', H.Seed(94305, 94301, '10,9,2,1,100,'));
         Observer.Observe('asc', H.Dump(94305, 94301, 1, true));
         Observer.Observe('desc', H.Dump(94305, 94301, 1, false));
@@ -497,6 +535,7 @@ codeunit 94312 "LT Y82 Sec Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('insert', H.Ins(94305, 94301, 1, 'ABC'));
         Observer.Observe('rows', H.Dump(94305, 1, 1, true));
         Observer.Finish();
@@ -508,6 +547,7 @@ codeunit 94312 "LT Y82 Sec Tests"
         Observer: Codeunit "Probe Observer";
         RecA: Record "LT Y82 Sec";
     begin
+        H.Wipe();
         Observer.Observe('typed', TypedCompoundVnt(RecA));
         Observer.Finish();
     end;
@@ -517,6 +557,7 @@ codeunit 94312 "LT Y82 Sec Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('keys', H.KeyInfo(94305));
         Observer.Finish();
     end;
@@ -527,6 +568,7 @@ codeunit 94312 "LT Y82 Sec Tests"
         Observer: Codeunit "Probe Observer";
         RecA: Record "LT Y82 Sec";
     begin
+        H.Wipe();
         Observer.Observe('typed', TypedObsolete(RecA));
         Observer.Finish();
     end;
@@ -537,6 +579,7 @@ codeunit 94312 "LT Y82 Sec Tests"
         Observer: Codeunit "Probe Observer";
         RecA: Record "LT Y82 Sec";
     begin
+        H.Wipe();
         Observer.Observe('typed', TypedCompound(RecA));
         Observer.Finish();
     end;
@@ -547,6 +590,7 @@ codeunit 94312 "LT Y82 Sec Tests"
         Observer: Codeunit "Probe Observer";
         Flow: Record "LT Y82 Flow";
     begin
+        H.Wipe();
         Observer.Observe('seed var', H.Seed(94300, 1, '1,2,9,10,100'));
         Observer.Observe('seed int', H.Seed(94301, 1, '1,2,9,10,100'));
         Observer.Observe('seed big', H.Seed(94302, 1, '1,2,9,10,100'));
@@ -562,6 +606,7 @@ codeunit 94312 "LT Y82 Sec Tests"
         Observer: Codeunit "Probe Observer";
         Flow: Record "LT Y82 Flow";
     begin
+        H.Wipe();
         Observer.Observe('seed var', H.Seed(94300, 1, '1,2,9,10,100'));
         Observer.Observe('seed int', H.Seed(94301, 1, '1,2,9,10,100'));
         Observer.Observe('seed vnt', H.Seed(94303, 1, '1,2,9,10,100'));
@@ -575,6 +620,7 @@ codeunit 94312 "LT Y82 Sec Tests"
         Observer: Codeunit "Probe Observer";
         Sec: Record "LT Y82 Sec";
     begin
+        H.Wipe();
         Observer.Observe('fmt', FormatEvaluate(Sec));
         Observer.Finish();
     end;
@@ -585,6 +631,7 @@ codeunit 94312 "LT Y82 Sec Tests"
         Observer: Codeunit "Probe Observer";
         Sec: Record "LT Y82 Sec";
     begin
+        H.Wipe();
         Observer.Observe('values', FieldRefValues(Sec));
         Observer.Finish();
     end;
@@ -594,6 +641,7 @@ codeunit 94312 "LT Y82 Sec Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('field', H.FieldInfo(94305, 2));
         Observer.Finish();
     end;
@@ -603,6 +651,7 @@ codeunit 94312 "LT Y82 Sec Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('field', H.FieldInfo(94305, 3));
         Observer.Finish();
     end;
@@ -612,6 +661,7 @@ codeunit 94312 "LT Y82 Sec Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('field', H.FieldInfo(94305, 4));
         Observer.Finish();
     end;
@@ -621,6 +671,7 @@ codeunit 94312 "LT Y82 Sec Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('field', H.FieldInfo(94305, 5));
         Observer.Finish();
     end;
@@ -630,6 +681,7 @@ codeunit 94312 "LT Y82 Sec Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('field', H.FieldInfo(94305, 6));
         Observer.Finish();
     end;
@@ -639,6 +691,7 @@ codeunit 94312 "LT Y82 Sec Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('field', H.FieldInfo(94305, 7));
         Observer.Finish();
     end;
@@ -648,6 +701,7 @@ codeunit 94312 "LT Y82 Sec Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('field', H.FieldInfo(94305, 8));
         Observer.Finish();
     end;
@@ -657,6 +711,7 @@ codeunit 94312 "LT Y82 Sec Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('field', H.FieldInfo(94305, 9));
         Observer.Finish();
     end;
@@ -666,6 +721,7 @@ codeunit 94312 "LT Y82 Sec Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('field', H.FieldInfo(94305, 10));
         Observer.Finish();
     end;
@@ -675,6 +731,7 @@ codeunit 94312 "LT Y82 Sec Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('field', H.FieldInfo(94305, 11));
         Observer.Finish();
     end;
@@ -684,6 +741,7 @@ codeunit 94312 "LT Y82 Sec Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('field', H.FieldInfo(94305, 94300));
         Observer.Finish();
     end;
@@ -693,6 +751,7 @@ codeunit 94312 "LT Y82 Sec Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('field', H.FieldInfo(94305, 94301));
         Observer.Finish();
     end;

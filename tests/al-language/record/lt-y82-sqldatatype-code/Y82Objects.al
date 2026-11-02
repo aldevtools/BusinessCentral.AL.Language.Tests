@@ -249,6 +249,25 @@ codeunit 94309 "LT Y82 Helper"
         exit('ERR[' + GetLastErrorCode() + ']: ' + GetLastErrorText());
     end;
 
+    procedure Wipe()
+    var
+        Pk0: Record "LT Y82 PkVar";
+        Pk1: Record "LT Y82 PkInt";
+        Pk2: Record "LT Y82 PkBig";
+        Pk3: Record "LT Y82 PkVnt";
+        Pk4: Record "LT Y82 PkDef";
+        Sec: Record "LT Y82 Sec";
+        Flow: Record "LT Y82 Flow";
+    begin
+        Pk0.DeleteAll();
+        Pk1.DeleteAll();
+        Pk2.DeleteAll();
+        Pk3.DeleteAll();
+        Pk4.DeleteAll();
+        Sec.DeleteAll();
+        Flow.DeleteAll();
+    end;
+
     procedure Ins(TableNo: Integer; Fld: Integer; Id: Integer; Value: Text): Text
     begin
         exit(Exec('INS', TableNo, Fld, 0, 0, 0, true, Value, '', Id));

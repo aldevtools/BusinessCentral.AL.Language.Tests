@@ -16,6 +16,7 @@ codeunit 94311 "LT Y82 Insert Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('insert', H.Ins(94301, 1, 0, 'ABC'));
         Observer.Observe('rows', H.Dump(94301, 1, 1, true));
         Observer.Finish();
@@ -26,6 +27,7 @@ codeunit 94311 "LT Y82 Insert Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('insert', H.Ins(94301, 1, 0, '007'));
         Observer.Observe('rows', H.Dump(94301, 1, 1, true));
         Observer.Finish();
@@ -36,6 +38,7 @@ codeunit 94311 "LT Y82 Insert Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('insert', H.Ins(94301, 1, 0, '0'));
         Observer.Observe('rows', H.Dump(94301, 1, 1, true));
         Observer.Finish();
@@ -46,6 +49,7 @@ codeunit 94311 "LT Y82 Insert Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('insert', H.Ins(94301, 1, 0, '-5'));
         Observer.Observe('rows', H.Dump(94301, 1, 1, true));
         Observer.Finish();
@@ -56,6 +60,7 @@ codeunit 94311 "LT Y82 Insert Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('insert', H.Ins(94301, 1, 0, '1.5'));
         Observer.Observe('rows', H.Dump(94301, 1, 1, true));
         Observer.Finish();
@@ -66,6 +71,7 @@ codeunit 94311 "LT Y82 Insert Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('insert', H.Ins(94301, 1, 0, '12A'));
         Observer.Observe('rows', H.Dump(94301, 1, 1, true));
         Observer.Finish();
@@ -76,6 +82,7 @@ codeunit 94311 "LT Y82 Insert Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('insert', H.Ins(94301, 1, 0, ' 12'));
         Observer.Observe('rows', H.Dump(94301, 1, 1, true));
         Observer.Finish();
@@ -86,6 +93,7 @@ codeunit 94311 "LT Y82 Insert Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('insert', H.Ins(94301, 1, 0, '3000000000'));
         Observer.Observe('rows', H.Dump(94301, 1, 1, true));
         Observer.Finish();
@@ -96,6 +104,7 @@ codeunit 94311 "LT Y82 Insert Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('insert', H.Ins(94301, 1, 0, '9223372036854775808'));
         Observer.Observe('rows', H.Dump(94301, 1, 1, true));
         Observer.Finish();
@@ -106,6 +115,7 @@ codeunit 94311 "LT Y82 Insert Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('insert', H.Ins(94301, 1, 0, '1E3'));
         Observer.Observe('rows', H.Dump(94301, 1, 1, true));
         Observer.Finish();
@@ -116,6 +126,7 @@ codeunit 94311 "LT Y82 Insert Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('insert', H.Ins(94301, 1, 0, '+5'));
         Observer.Observe('rows', H.Dump(94301, 1, 1, true));
         Observer.Finish();
@@ -126,6 +137,7 @@ codeunit 94311 "LT Y82 Insert Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('insert', H.Ins(94301, 1, 0, ''));
         Observer.Observe('rows', H.Dump(94301, 1, 1, true));
         Observer.Finish();
@@ -136,6 +148,7 @@ codeunit 94311 "LT Y82 Insert Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('insert', H.Ins(94302, 1, 0, 'ABC'));
         Observer.Observe('rows', H.Dump(94302, 1, 1, true));
         Observer.Finish();
@@ -146,6 +159,7 @@ codeunit 94311 "LT Y82 Insert Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('insert', H.Ins(94302, 1, 0, '007'));
         Observer.Observe('rows', H.Dump(94302, 1, 1, true));
         Observer.Finish();
@@ -156,6 +170,7 @@ codeunit 94311 "LT Y82 Insert Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('insert', H.Ins(94302, 1, 0, '0'));
         Observer.Observe('rows', H.Dump(94302, 1, 1, true));
         Observer.Finish();
@@ -166,6 +181,7 @@ codeunit 94311 "LT Y82 Insert Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('insert', H.Ins(94302, 1, 0, '-5'));
         Observer.Observe('rows', H.Dump(94302, 1, 1, true));
         Observer.Finish();
@@ -176,6 +192,7 @@ codeunit 94311 "LT Y82 Insert Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('insert', H.Ins(94302, 1, 0, '1.5'));
         Observer.Observe('rows', H.Dump(94302, 1, 1, true));
         Observer.Finish();
@@ -186,6 +203,7 @@ codeunit 94311 "LT Y82 Insert Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('insert', H.Ins(94302, 1, 0, '12A'));
         Observer.Observe('rows', H.Dump(94302, 1, 1, true));
         Observer.Finish();
@@ -196,6 +214,7 @@ codeunit 94311 "LT Y82 Insert Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('insert', H.Ins(94302, 1, 0, ' 12'));
         Observer.Observe('rows', H.Dump(94302, 1, 1, true));
         Observer.Finish();
@@ -206,6 +225,7 @@ codeunit 94311 "LT Y82 Insert Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('insert', H.Ins(94302, 1, 0, '3000000000'));
         Observer.Observe('rows', H.Dump(94302, 1, 1, true));
         Observer.Finish();
@@ -216,6 +236,7 @@ codeunit 94311 "LT Y82 Insert Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('insert', H.Ins(94302, 1, 0, '9223372036854775808'));
         Observer.Observe('rows', H.Dump(94302, 1, 1, true));
         Observer.Finish();
@@ -226,6 +247,7 @@ codeunit 94311 "LT Y82 Insert Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('insert', H.Ins(94302, 1, 0, '1E3'));
         Observer.Observe('rows', H.Dump(94302, 1, 1, true));
         Observer.Finish();
@@ -236,6 +258,7 @@ codeunit 94311 "LT Y82 Insert Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('insert', H.Ins(94302, 1, 0, '+5'));
         Observer.Observe('rows', H.Dump(94302, 1, 1, true));
         Observer.Finish();
@@ -246,6 +269,7 @@ codeunit 94311 "LT Y82 Insert Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('insert', H.Ins(94302, 1, 0, ''));
         Observer.Observe('rows', H.Dump(94302, 1, 1, true));
         Observer.Finish();
@@ -256,6 +280,7 @@ codeunit 94311 "LT Y82 Insert Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('insert', H.Ins(94303, 1, 0, 'ABC'));
         Observer.Observe('rows', H.Dump(94303, 1, 1, true));
         Observer.Finish();
@@ -266,6 +291,7 @@ codeunit 94311 "LT Y82 Insert Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('insert', H.Ins(94303, 1, 0, '007'));
         Observer.Observe('rows', H.Dump(94303, 1, 1, true));
         Observer.Finish();
@@ -276,6 +302,7 @@ codeunit 94311 "LT Y82 Insert Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('insert', H.Ins(94303, 1, 0, '0'));
         Observer.Observe('rows', H.Dump(94303, 1, 1, true));
         Observer.Finish();
@@ -286,6 +313,7 @@ codeunit 94311 "LT Y82 Insert Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('insert', H.Ins(94303, 1, 0, '-5'));
         Observer.Observe('rows', H.Dump(94303, 1, 1, true));
         Observer.Finish();
@@ -296,6 +324,7 @@ codeunit 94311 "LT Y82 Insert Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('insert', H.Ins(94303, 1, 0, '1.5'));
         Observer.Observe('rows', H.Dump(94303, 1, 1, true));
         Observer.Finish();
@@ -306,6 +335,7 @@ codeunit 94311 "LT Y82 Insert Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('insert', H.Ins(94303, 1, 0, '12A'));
         Observer.Observe('rows', H.Dump(94303, 1, 1, true));
         Observer.Finish();
@@ -316,6 +346,7 @@ codeunit 94311 "LT Y82 Insert Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('insert', H.Ins(94303, 1, 0, ' 12'));
         Observer.Observe('rows', H.Dump(94303, 1, 1, true));
         Observer.Finish();
@@ -326,6 +357,7 @@ codeunit 94311 "LT Y82 Insert Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('insert', H.Ins(94303, 1, 0, '3000000000'));
         Observer.Observe('rows', H.Dump(94303, 1, 1, true));
         Observer.Finish();
@@ -336,6 +368,7 @@ codeunit 94311 "LT Y82 Insert Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('insert', H.Ins(94303, 1, 0, '9223372036854775808'));
         Observer.Observe('rows', H.Dump(94303, 1, 1, true));
         Observer.Finish();
@@ -346,6 +379,7 @@ codeunit 94311 "LT Y82 Insert Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('insert', H.Ins(94303, 1, 0, '1E3'));
         Observer.Observe('rows', H.Dump(94303, 1, 1, true));
         Observer.Finish();
@@ -356,6 +390,7 @@ codeunit 94311 "LT Y82 Insert Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('insert', H.Ins(94303, 1, 0, '+5'));
         Observer.Observe('rows', H.Dump(94303, 1, 1, true));
         Observer.Finish();
@@ -366,6 +401,7 @@ codeunit 94311 "LT Y82 Insert Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('insert', H.Ins(94303, 1, 0, ''));
         Observer.Observe('rows', H.Dump(94303, 1, 1, true));
         Observer.Finish();
@@ -376,6 +412,7 @@ codeunit 94311 "LT Y82 Insert Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('insert', H.Ins(94305, 3, 1, 'ABC'));
         Observer.Observe('rows', H.Dump(94305, 1, 1, true));
         Observer.Finish();
@@ -386,6 +423,7 @@ codeunit 94311 "LT Y82 Insert Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('insert', H.Ins(94305, 3, 1, '007'));
         Observer.Observe('rows', H.Dump(94305, 1, 1, true));
         Observer.Finish();
@@ -396,6 +434,7 @@ codeunit 94311 "LT Y82 Insert Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('insert', H.Ins(94305, 3, 1, '0'));
         Observer.Observe('rows', H.Dump(94305, 1, 1, true));
         Observer.Finish();
@@ -406,6 +445,7 @@ codeunit 94311 "LT Y82 Insert Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('insert', H.Ins(94305, 3, 1, '-5'));
         Observer.Observe('rows', H.Dump(94305, 1, 1, true));
         Observer.Finish();
@@ -416,6 +456,7 @@ codeunit 94311 "LT Y82 Insert Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('insert', H.Ins(94305, 3, 1, '1.5'));
         Observer.Observe('rows', H.Dump(94305, 1, 1, true));
         Observer.Finish();
@@ -426,6 +467,7 @@ codeunit 94311 "LT Y82 Insert Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('insert', H.Ins(94305, 3, 1, '12A'));
         Observer.Observe('rows', H.Dump(94305, 1, 1, true));
         Observer.Finish();
@@ -436,6 +478,7 @@ codeunit 94311 "LT Y82 Insert Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('insert', H.Ins(94305, 3, 1, ' 12'));
         Observer.Observe('rows', H.Dump(94305, 1, 1, true));
         Observer.Finish();
@@ -446,6 +489,7 @@ codeunit 94311 "LT Y82 Insert Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('insert', H.Ins(94305, 3, 1, '3000000000'));
         Observer.Observe('rows', H.Dump(94305, 1, 1, true));
         Observer.Finish();
@@ -456,6 +500,7 @@ codeunit 94311 "LT Y82 Insert Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('insert', H.Ins(94305, 3, 1, '9223372036854775808'));
         Observer.Observe('rows', H.Dump(94305, 1, 1, true));
         Observer.Finish();
@@ -466,6 +511,7 @@ codeunit 94311 "LT Y82 Insert Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('insert', H.Ins(94305, 3, 1, '1E3'));
         Observer.Observe('rows', H.Dump(94305, 1, 1, true));
         Observer.Finish();
@@ -476,6 +522,7 @@ codeunit 94311 "LT Y82 Insert Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('insert', H.Ins(94305, 3, 1, '+5'));
         Observer.Observe('rows', H.Dump(94305, 1, 1, true));
         Observer.Finish();
@@ -486,6 +533,7 @@ codeunit 94311 "LT Y82 Insert Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('insert', H.Ins(94305, 3, 1, ''));
         Observer.Observe('rows', H.Dump(94305, 1, 1, true));
         Observer.Finish();
@@ -496,6 +544,7 @@ codeunit 94311 "LT Y82 Insert Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('insert', H.Ins(94305, 4, 1, 'ABC'));
         Observer.Observe('rows', H.Dump(94305, 1, 1, true));
         Observer.Finish();
@@ -506,6 +555,7 @@ codeunit 94311 "LT Y82 Insert Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('insert', H.Ins(94305, 4, 1, '007'));
         Observer.Observe('rows', H.Dump(94305, 1, 1, true));
         Observer.Finish();
@@ -516,6 +566,7 @@ codeunit 94311 "LT Y82 Insert Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('insert', H.Ins(94305, 4, 1, '0'));
         Observer.Observe('rows', H.Dump(94305, 1, 1, true));
         Observer.Finish();
@@ -526,6 +577,7 @@ codeunit 94311 "LT Y82 Insert Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('insert', H.Ins(94305, 4, 1, '-5'));
         Observer.Observe('rows', H.Dump(94305, 1, 1, true));
         Observer.Finish();
@@ -536,6 +588,7 @@ codeunit 94311 "LT Y82 Insert Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('insert', H.Ins(94305, 4, 1, '1.5'));
         Observer.Observe('rows', H.Dump(94305, 1, 1, true));
         Observer.Finish();
@@ -546,6 +599,7 @@ codeunit 94311 "LT Y82 Insert Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('insert', H.Ins(94305, 4, 1, '12A'));
         Observer.Observe('rows', H.Dump(94305, 1, 1, true));
         Observer.Finish();
@@ -556,6 +610,7 @@ codeunit 94311 "LT Y82 Insert Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('insert', H.Ins(94305, 4, 1, ' 12'));
         Observer.Observe('rows', H.Dump(94305, 1, 1, true));
         Observer.Finish();
@@ -566,6 +621,7 @@ codeunit 94311 "LT Y82 Insert Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('insert', H.Ins(94305, 4, 1, '3000000000'));
         Observer.Observe('rows', H.Dump(94305, 1, 1, true));
         Observer.Finish();
@@ -576,6 +632,7 @@ codeunit 94311 "LT Y82 Insert Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('insert', H.Ins(94305, 4, 1, '9223372036854775808'));
         Observer.Observe('rows', H.Dump(94305, 1, 1, true));
         Observer.Finish();
@@ -586,6 +643,7 @@ codeunit 94311 "LT Y82 Insert Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('insert', H.Ins(94305, 4, 1, '1E3'));
         Observer.Observe('rows', H.Dump(94305, 1, 1, true));
         Observer.Finish();
@@ -596,6 +654,7 @@ codeunit 94311 "LT Y82 Insert Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('insert', H.Ins(94305, 4, 1, '+5'));
         Observer.Observe('rows', H.Dump(94305, 1, 1, true));
         Observer.Finish();
@@ -606,6 +665,7 @@ codeunit 94311 "LT Y82 Insert Tests"
     var
         Observer: Codeunit "Probe Observer";
     begin
+        H.Wipe();
         Observer.Observe('insert', H.Ins(94305, 4, 1, ''));
         Observer.Observe('rows', H.Dump(94305, 1, 1, true));
         Observer.Finish();
