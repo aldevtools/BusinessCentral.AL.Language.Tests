@@ -1,7 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-this-keyword
 // Scope: in-scope
 // Fixtures used: Probe Observer (codeunit 69160); self-contained codeunits 93900-93903 and 93912 (publisher, subject, log, tests)
-// Probe: observe probe (writer Y73, 2026-11-02); every literal asserted below is what the BC service tier produced.
+// Probe: measured on Windows BC 27.5, 28.5, 29.0 and SaaS BC 29 (writer Y73, 2026-11-02); identical on all; every literal asserted below is what BC produced.
 // Facts: a variable (global, local, parameter, var parameter, return value) named "this" in quotes next to the `this` keyword (unquoted this is always the keyword,
 //   whatever a variable is called). In a codeunit with a global "this": Codeunit of its own type: member calls, BindSubscription / UnbindSubscription, by value and
 //   var parameters, exit, assignment both ways, Clear, and a parameter / local / return value that shadows the global. Each instance has its own Tag so the answers
@@ -303,7 +303,9 @@ codeunit 93912 "LT Y73 Tests"
         Observer.Observe('member_quoted', Subject.MemberCalls());
         Clear(Subject);
         Observer.Observe('member_keyword', Subject.KeywordCalls());
-        Observer.Finish();
+        Observer.Expect('member_quoted', 'S|V|S');
+        Observer.Expect('member_keyword', 'K||K');
+        Observer.Verify();
     end;
 
     [Test]
@@ -319,7 +321,11 @@ codeunit 93912 "LT Y73 Tests"
         Observer.Observe('bind_both_unbind_quoted', Subject.BindBothUnbindQuoted());
         Clear(Subject);
         Observer.Observe('bind_both_unbind_keyword', Subject.BindBothUnbindKeyword());
-        Observer.Finish();
+        Observer.Expect('bind_quoted', '[V]|after=');
+        Observer.Expect('bind_keyword', '[S]|after=');
+        Observer.Expect('bind_both_unbind_quoted', '[S][V]|afterQuoted=[S]|afterBoth=');
+        Observer.Expect('bind_both_unbind_keyword', 'afterKeyword=[V]|afterBoth=');
+        Observer.Verify();
     end;
 
     [Test]
@@ -345,7 +351,16 @@ codeunit 93912 "LT Y73 Tests"
         Observer.Observe('assign_keyword_to_quoted', Subject.AssignKeywordToQuoted());
         Clear(Subject);
         Observer.Observe('clear_quoted', Subject.ClearQuoted());
-        Observer.Finish();
+        Observer.Expect('byvalue_quoted', 'S|P');
+        Observer.Expect('byvalue_keyword', 'P|V');
+        Observer.Expect('byvar_quoted', 'S|P');
+        Observer.Expect('exit_quoted', 'S|R|R');
+        Observer.Expect('exit_keyword', 'R|V|R');
+        Observer.Expect('assign_from_quoted', 'S|O|O');
+        Observer.Expect('assign_to_quoted', 'S|W|W');
+        Observer.Expect('assign_keyword_to_quoted', 'W|W');
+        Observer.Expect('clear_quoted', 'V|S|');
+        Observer.Verify();
     end;
 
     [Test]
@@ -363,6 +378,10 @@ codeunit 93912 "LT Y73 Tests"
         Observer.Observe('local', Subject.LocalShadows());
         Clear(Subject);
         Observer.Observe('return_value', Subject.GlobalOnlyAfterReturnNamed());
-        Observer.Finish();
+        Observer.Expect('parameter', 'S|PAR|S|passed=PAR');
+        Observer.Expect('var_parameter', 'S|VPAR|S|passed=VPAR');
+        Observer.Expect('local', 'S|LOC|S');
+        Observer.Expect('return_value', 'S|RET');
+        Observer.Verify();
     end;
 }

@@ -682,3 +682,13 @@ BC container. Run locally with the tools in `~/.al-tool-cache` it passes today w
 | 2690 | AL0193, AL0122 | an Option or Enum value as the value argument of SetRange or SetFilter for a Code field, and assigned or validated into it (Record.Get accepts them): tests/al-language/types/lt-y71-value-conversions/Y71ValueConversions.al. |
 | 2691 | AL0155 | a report global variable with the name of one of the report's data items. |
 | 2692 | AL0275 | `this.Gateway` in a table that has a global variable and a field of that name (the unqualified name and Rec.Gateway compile). |
+| 2710 | AL0129 | `this := 5` with a variable "this" declared: unquoted this is always the keyword. |
+| 2711 | AL0129 | `this := this`. |
+| 2712 | AL0175 | `"this" = "this"` on two Codeunit variables. |
+| 2713 | AL0161 | a global variable of a codeunit through a Codeunit variable named "this". |
+| 2714 | AL0133 | `BindSubscription(this)` in a table. |
+| 2715 | AL0133 | `BindSubscription(this)` in an xmlport. |
+| 2716 | AL0133 | `BindSubscription(this)` in a query. |
+| 2717 | AL0133 | `BindSubscription("this")` with an Integer variable named "this". |
+| 2718 | AL0130 | `Clear(this)` with a Codeunit variable "this" declared. |
+| 2719 | AL0132 | `this.Init()` in a codeunit with a Record variable named "this". |

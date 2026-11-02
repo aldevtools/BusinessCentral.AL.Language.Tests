@@ -1,7 +1,7 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-this-keyword
 // Scope: in-scope
 // Fixtures used: Probe Observer (codeunit 69160); codeunits 93900 (publisher), 93901 (subject) and 93902 (log) of Y73ThisCodeunit.al; self-contained objects 93904-93920
-// Probe: observe probe (writer Y73, 2026-11-02); every literal asserted below is what the BC service tier produced.
+// Probe: measured on Windows BC 27.5, 28.5, 29.0 and SaaS BC 29 (writer Y73, 2026-11-02); identical on all; every literal asserted below is what BC produced.
 // Facts: a variable named "this" in quotes in a table, page, report, xmlport, query and in a table / page / report extension, next to the `this` keyword. Per kind two shapes:
 //   (A) "this" has the object's own type: the call "this".SetTag('V') reaches the variable instance, this.GetTag() the running object, in a procedure called from outside and in a trigger;
 //   (B) "this" is a Codeunit "LT Y73 Subject": BindSubscription("this") / UnbindSubscription("this") bind the variable, this.Bump() runs on the object itself.
@@ -469,7 +469,11 @@ codeunit 93918 "LT Y73 Object Tests"
         RowB.Id := 1;
         RowB.Insert(true);
         Observer.Observe('tableb_trigger', Log.Take());
-        Observer.Finish();
+        Observer.Expect('table_procedure', 'S|V|S');
+        Observer.Expect('table_trigger', 'table-trigger=S|V|S;');
+        Observer.Expect('tableb_procedure', '[V]|after=|own=2');
+        Observer.Expect('tableb_trigger', 'tableb-trigger=[V]|after=|own=4;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -485,7 +489,9 @@ codeunit 93918 "LT Y73 Object Tests"
         RowB.Insert(false);
         RowB.Modify(true);
         Observer.Observe('tableext_trigger', Log.Take());
-        Observer.Finish();
+        Observer.Expect('tableext_procedure', '[EV]|after=');
+        Observer.Expect('tableext_trigger', 'tableext-trigger=[EV]|after=;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -507,7 +513,11 @@ codeunit 93918 "LT Y73 Object Tests"
         TestB.OpenView();
         TestB.Close();
         Observer.Observe('pageb_trigger', Log.Take());
-        Observer.Finish();
+        Observer.Expect('page_procedure', 'S|V|S');
+        Observer.Expect('page_trigger', 'page-trigger=S|V|S;');
+        Observer.Expect('pageb_procedure', '[V]|after=|own=2');
+        Observer.Expect('pageb_trigger', 'pageb-trigger=[V]|after=|own=2;pageext-trigger=[EV]|after=;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -527,7 +537,11 @@ codeunit 93918 "LT Y73 Object Tests"
         ReportB.UseRequestPage(false);
         ReportB.Run();
         Observer.Observe('reportb_trigger', Log.Take());
-        Observer.Finish();
+        Observer.Expect('report_procedure', 'S|V|S');
+        Observer.Expect('report_trigger', 'report-trigger=S|V|S;');
+        Observer.Expect('reportb_procedure', '[V]|after=|own=2');
+        Observer.Expect('reportb_trigger', 'reportb-trigger=[V]|after=|own=4;reportext-trigger=[EV]|after=;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -551,7 +565,11 @@ codeunit 93918 "LT Y73 Object Tests"
         XmlPortB.SetDestination(Stream);
         XmlPortB.Export();
         Observer.Observe('xmlportb_trigger', Log.Take());
-        Observer.Finish();
+        Observer.Expect('xmlport_procedure', 'S|V|S');
+        Observer.Expect('xmlport_trigger', 'xmlport-trigger=S|V|S;');
+        Observer.Expect('xmlportb_procedure', '[V]|after=|own=2');
+        Observer.Expect('xmlportb_trigger', 'xmlportb-trigger=[V]|after=|own=4;');
+        Observer.Verify();
     end;
 
     [Test]
@@ -571,6 +589,10 @@ codeunit 93918 "LT Y73 Object Tests"
         QueryB.Open();
         QueryB.Close();
         Observer.Observe('queryb_trigger', Log.Take());
-        Observer.Finish();
+        Observer.Expect('query_procedure', 'S|V|S');
+        Observer.Expect('query_trigger', 'query-trigger=S|V|S;');
+        Observer.Expect('queryb_procedure', '[V]|after=|own=2');
+        Observer.Expect('queryb_trigger', 'queryb-trigger=[V]|after=|own=4;');
+        Observer.Verify();
     end;
 }
