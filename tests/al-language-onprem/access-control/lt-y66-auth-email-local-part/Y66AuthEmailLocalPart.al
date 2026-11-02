@@ -87,7 +87,7 @@ codeunit 98720 "LT Y66 Auth Email Local Part"
         Observer.Verify();
     end;
 
-    // BC 29 refuses some addresses BC 27 and 28 accept (a..b@example.com, a@example..com).
+    // BC 29 refuses two addresses BC 27 and 28 accept: a..b@example.com and a@example..com (CI OnPrem legs).
     [Test]
     procedure Y66_AuthEmail_VersionDependent()
     begin
@@ -104,9 +104,10 @@ codeunit 98720 "LT Y66 Auth Email Local Part"
         Probe(29, 'a@exämple.com');
         Cleanup();
 #if BC29PLUS
-        Observer.Finish();
+        Observer.Expect('7 a..b@example.com', 'E You must specify a valid email address.|CannotSpecifyAuthenticationEmail');
 #else
         Observer.Expect('7 a..b@example.com', 'ok|a..b@example.com');
+#endif
         Observer.Expect('8 .a@example.com', 'E You must specify a valid email address.|CannotSpecifyAuthenticationEmail');
         Observer.Expect('9 a.@example.com', 'ok|a.@example.com');
         Observer.Expect('10 a b@example.com', 'ok|b@example.com');
@@ -114,10 +115,13 @@ codeunit 98720 "LT Y66 Auth Email Local Part"
         Observer.Expect('12 a(comment)@example.com', 'ok|a@example.com');
         Observer.Expect('13 UPPER.Case@Example.COM', 'ok|UPPER.Case@Example.COM');
         Observer.Expect('14 Y66 Name <{524B1D71-5F95-43BA-AC9B-E1E5E17D8766}@example.com>', 'ok|{524B1D71-5F95-43BA-AC9B-E1E5E17D8766}@example.com');
+#if BC29PLUS
+        Observer.Expect('28 a@example..com', 'E You must specify a valid email address.|CannotSpecifyAuthenticationEmail');
+#else
         Observer.Expect('28 a@example..com', 'ok|a@example..com');
+#endif
         Observer.Expect('29 a@exämple.com', 'ok|a@exämple.com');
         Observer.Verify();
-#endif
     end;
 
     local procedure Probe(No: Integer; Email: Text)
