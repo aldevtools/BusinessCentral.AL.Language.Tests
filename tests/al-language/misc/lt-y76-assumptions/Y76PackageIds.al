@@ -9,8 +9,6 @@
 
 using System.IO;
 
-using System.IO;
-
 codeunit 94077 "LT Y76 Package Ids"
 {
     Subtype = Test;
