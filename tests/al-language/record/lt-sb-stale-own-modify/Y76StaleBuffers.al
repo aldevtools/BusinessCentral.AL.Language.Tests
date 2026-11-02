@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/record/record-modify-method
 // Scope: in-scope
-// Fixtures used: ALT Universal (60000), ALT Keyed, ALTFixtureCleanup (60019), Probe Observer (69160); test codeunit 94058
+// Fixtures used: Probe Observer (69160); own tables 94078, 94079 (same shape as ALT Universal and ALT Keyed), test table 94078 "LT Y76 SB Row"
 // Probe (writer Y76, al-runtime-rs assumptions stale-buffer-other-origin-written and stale-own-insert-two-commits-other-insert).
 // Part 1: a buffer made stale by a Commit, whose row version came from a Find, an assignment, Copy or TransferFields (not from a Get or from the
 // variable's own Insert), written after the new transaction did nothing, only read the row, modified it (changed or unchanged) or locked it.
@@ -8,27 +8,68 @@
 // inserted another row of the table and beside that Insert deleted another row, renamed it, inserted into another table or modified another row.
 // BC versions: 27+
 
+table 94078 "LT Y76 SB Row"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; "Entry No."; Integer) { }
+        field(2; "Text Field"; Text[100]) { }
+        field(3; "Integer Field"; Integer) { }
+        field(4; "Decimal Field"; Decimal) { }
+    }
+
+    keys
+    {
+        key(PK; "Entry No.") { Clustered = true; }
+    }
+}
+
+table 94079 "LT Y76 SB Keyed"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; "Entry No."; Integer) { }
+        field(2; Name; Text[50]) { }
+    }
+
+    keys
+    {
+        key(PK; "Entry No.") { Clustered = true; }
+    }
+}
+
 codeunit 94058 "LT Y76 Stale Buffers"
 {
     Subtype = Test;
     TestPermissions = Disabled;
 
+    local procedure Initialize()
     var
-        Cleanup: Codeunit ALTFixtureCleanup;
+        Rows: Record "LT Y76 SB Row";
+        Middle: Record "LT Y76 SB Keyed";
+    begin
+        Rows.DeleteAll();
+        Middle.DeleteAll();
+        Commit();
+    end;
 
     local procedure Stored(): Text
     var
-        Row: Record "ALT Universal";
+        Row: Record "LT Y76 SB Row";
     begin
         if not Row.Get(5) then
             exit('none');
         exit(Row."Text Field" + '|' + Format(Row."Integer Field"));
     end;
 
-    local procedure MakeBuffer(var Row: Record "ALT Universal"; Origin: Text)
+    local procedure MakeBuffer(var Row: Record "LT Y76 SB Row"; Origin: Text)
     var
-        Src: Record "ALT Universal";
-        TempCopy: Record "ALT Universal" temporary;
+        Src: Record "LT Y76 SB Row";
+        TempCopy: Record "LT Y76 SB Row" temporary;
     begin
         case Origin of
             'get':
@@ -67,7 +108,7 @@ codeunit 94058 "LT Y76 Stale Buffers"
 
     local procedure Between(What: Text)
     var
-        Later: Record "ALT Universal";
+        Later: Record "LT Y76 SB Row";
     begin
         case What of
             'get':
@@ -94,12 +135,12 @@ codeunit 94058 "LT Y76 Stale Buffers"
     // Returns "<write outcome> stored=<text>|<integer>"
     local procedure Part1(Origin: Text; What: Text; Deleting: Boolean): Text
     var
-        Row: Record "ALT Universal";
-        Other: Record "ALT Universal";
+        Row: Record "LT Y76 SB Row";
+        Other: Record "LT Y76 SB Row";
         Outcome: Text;
-        Rows: Record "ALT Universal";
+        Rows: Record "LT Y76 SB Row";
     begin
-        Cleanup.Initialize();
+        Initialize();
         Row.Init();
         Row."Entry No." := 5;
         Row."Text Field" := 'start';
@@ -190,7 +231,7 @@ codeunit 94058 "LT Y76 Stale Buffers"
     // ---- Part 2
     local procedure KeyedInsert(EntryNo: Integer)
     var
-        Middle: Record "ALT Keyed";
+        Middle: Record "LT Y76 SB Keyed";
     begin
         Middle.Init();
         Middle."Entry No." := EntryNo;
@@ -199,7 +240,7 @@ codeunit 94058 "LT Y76 Stale Buffers"
 
     local procedure UniversalInsert(EntryNo: Integer)
     var
-        Another: Record "ALT Universal";
+        Another: Record "LT Y76 SB Row";
     begin
         Another.Init();
         Another."Entry No." := EntryNo;
@@ -209,16 +250,16 @@ codeunit 94058 "LT Y76 Stale Buffers"
 
     local procedure Part2(OwnModify: Boolean; Commits: Integer; Beside: Text; Deleting: Boolean): Text
     var
-        Row: Record "ALT Universal";
-        Another: Record "ALT Universal";
-        Other: Record "ALT Universal";
-        Rows: Record "ALT Universal";
-        Keyed: Record "ALT Keyed";
+        Row: Record "LT Y76 SB Row";
+        Another: Record "LT Y76 SB Row";
+        Other: Record "LT Y76 SB Row";
+        Rows: Record "LT Y76 SB Row";
+        Keyed: Record "LT Y76 SB Keyed";
         i: Integer;
         Outcome: Text;
         Stored6: Text;
     begin
-        Cleanup.Initialize();
+        Initialize();
         Row.Init();
         Row."Entry No." := 6;
         Row."Text Field" := 'start';
