@@ -219,9 +219,11 @@ codeunit 94430 "LT Y85 Package Data"
             T += 'B=' + Row.B + ' A=' + Row.A + ' C=' + Row.C + ' No=' + Row."No." + ' Ext=' + Format(Row.Ext) + ' Fl=' + Format(Row.Fl) + ' Dis=' + Format(Row.Dis) + ';';
         until Row.Next() = 0;
         Observer.Observe('rows', T);
-        Observer.Observe('get by key', Format(Row.Get('B2', 'A2')));
+        Observer.Observe('get B,A', Format(Row.Get('B2', 'A2')));
+        Observer.Observe('get A,B', Format(Row.Get('A2', 'B2')));
         Observer.Expect('rows', 'B=B1 A=A1 C=C1 No=N1 Ext=77 Fl=3 Dis=0;B=B2 A=A2 C=C2 No=N2 Ext=-1 Fl=3 Dis=0;');
-        Observer.Expect('get by key', 'Yes');
+        Observer.Expect('get B,A', 'Yes');
+        Observer.Expect('get A,B', 'No');
         Observer.Verify();
     end;
 
@@ -232,24 +234,30 @@ codeunit 94430 "LT Y85 Package Data"
         Row: Record "LT Y85 Pkg Auto";
         Observer: Codeunit "Probe Observer";
         T: Text;
+        N: Text;
+        i: Integer;
     begin
         Row.FindSet();
         repeat
             T += Format(Row.Id) + '=' + Row.Txt + ';';
         until Row.Next() = 0;
         Observer.Observe('rows', T);
-        Row.Init();
-        Row.Txt := 'new';
-        Row.Insert();
-        Observer.Observe('new id', Format(Row.Id));
+        for i := 1 to 4 do begin
+            Row.Init();
+            Row.Id := 0;
+            Row.Txt := 'new';
+            if Row.Insert() then
+                N += Format(Row.Id) + ',';
+        end;
+        Observer.Observe('new ids', N);
         Observer.Expect('rows', '5=a;7=b;');
-        Observer.Expect('new id', '8');
+        Observer.Expect('new ids', '8,');
         Observer.Verify();
     end;
 
-    // Outside install and upgrade code NavApp.LoadPackageData loads as well: here the table was emptied first. No table trigger runs.
+    // Outside install and upgrade code NavApp.LoadPackageData does nothing: no rows are added and no error is raised.
     [Test]
-    procedure Y85_Outside_EmptiedCompanyTable_LoadsAgain()
+    procedure Y85_Outside_EmptiedCompanyTable_StaysEmpty()
     var
         Row: Record "LT Y85 Pkg Company";
         Observer: Codeunit "Probe Observer";
@@ -257,12 +265,14 @@ codeunit 94430 "LT Y85 Package Data"
         Row.DeleteAll();
         NavApp.LoadPackageData(Database::"LT Y85 Pkg Company");
         Observer.Observe('rows', DumpCompany(Row));
-        Observer.Expect('rows', '0001=test1;0002=test2;');
+        Observer.Observe('get 0001', Format(Row.Get('0001')));
+        Observer.Expect('rows', '');
+        Observer.Expect('get 0001', 'No');
         Observer.Verify();
     end;
 
     [Test]
-    procedure Y85_Outside_EmptiedDatabaseTable_LoadsAgain()
+    procedure Y85_Outside_EmptiedDatabaseTable_StaysEmpty()
     var
         Row: Record "LT Y85 Pkg Database";
         Observer: Codeunit "Probe Observer";
@@ -270,7 +280,9 @@ codeunit 94430 "LT Y85 Package Data"
         Row.DeleteAll();
         NavApp.LoadPackageData(Database::"LT Y85 Pkg Database");
         Observer.Observe('rows', DumpDatabase());
-        Observer.Expect('rows', 'A=alpha/1;B=beta/-2;C=/0;');
+        Observer.Observe('get A', Format(Row.Get('A')));
+        Observer.Expect('rows', '');
+        Observer.Expect('get A', 'No');
         Observer.Verify();
     end;
 
@@ -286,21 +298,21 @@ codeunit 94430 "LT Y85 Package Data"
         Row.Insert();
         NavApp.LoadPackageData(Database::"LT Y85 Pkg Company");
         Observer.Observe('rows', DumpCompany(Row));
-        Observer.Expect('rows', '0001=test1;0002=test2;0003=TRIGGER;');
+        Observer.Expect('rows', '0003=TRIGGER;');
         Observer.Verify();
     end;
 
-    // A second load while the rows are there: the platform reports the duplicate key.
+    // The rows are there: no duplicate key error, nothing changes.
     [Test]
-    procedure Y85_Outside_SecondLoadWithRowsPresent()
+    procedure Y85_Outside_WithRowsPresent_NoErrorNoChange()
     var
+        Row: Record "LT Y85 Pkg Company";
         Observer: Codeunit "Probe Observer";
     begin
-        asserterror NavApp.LoadPackageData(Database::"LT Y85 Pkg Company");
-        Observer.Observe('error starts', Format(GetLastErrorText().StartsWith('Violation of PRIMARY KEY constraint ''')));
-        Observer.Observe('error key', Format(GetLastErrorText().Contains('The duplicate key value is (0001).')));
-        Observer.Expect('error starts', 'Yes');
-        Observer.Expect('error key', 'Yes');
+        NavApp.LoadPackageData(Database::"LT Y85 Pkg Company");
+        NavApp.LoadPackageData(Database::"LT Y85 Pkg Company");
+        Observer.Observe('rows', DumpCompany(Row));
+        Observer.Expect('rows', '0001=test1;0002=test2;');
         Observer.Verify();
     end;
 }
