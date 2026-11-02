@@ -1,13 +1,15 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/admin-how-to-import-and-apply-configuration-packages
 // Scope: in-scope
-// Fixtures used: Probe Observer (69160); own using System.IO;
-
-codeunit 94077
+// Fixtures used: Probe Observer (69160); own codeunit 94077
 // Probe (writer Y76, al-runtime-rs assumption package-auto-increment-from-one): a Dimension Value whose AutoIncrement field "Dimension Value ID" is not
 // in the package that creates it. A configuration package (Config. Package, one table Dimension Value, the field "Dimension Value ID" excluded) is
 // built in AL and applied with Config. Package Management.ApplyPackage; the ids the rows get, in the order of the package rows, and the id of a row
 // inserted afterwards. The absolute numbers depend on how many Dimension Value rows the database numbered before; the test asserts the differences.
 // BC versions: 27, 28, 29
+
+using System.IO;
+
+using System.IO;
 
 codeunit 94077 "LT Y76 Package Ids"
 {
