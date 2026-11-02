@@ -1,0 +1,427 @@
+// BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-dotnet-interoperability
+// Scope: in-scope, but ONLY for a Target = OnPrem app (DotNet), AL compiler 18.0 or newer (see TestDotNetValueKindsContracts.al)
+// Fixtures used: Probe Observer (69160), from the AL Language Coverage Tests app; self-contained table 61462, pages 61462-61465,
+//   codeunits 61462, 61463
+// Probe: the server classes behind the System Application "Page Summary Provider" and "Page Action Provider", called directly:
+//   - Microsoft.Dynamics.Nav.Runtime.PageSummary.NavPageSummaryALFunctions: GetSummaryFields(PageId) (field numbers of the
+//     Brick field group, in order), GetAvailableTableFields(PageId) (the table fields behind the page's visible controls), and
+//     GetSummary(PageId, Bookmark, FieldList): Success, and per field Caption, FieldType, Value.ToString(), Tooltip, ExtendedType.
+//   - Microsoft.Dynamics.Nav.Runtime.NavPageActionALFunctions.GetActions(PageId): Success, ErrorMessage, and per action
+//     ActionType, ActionSubtype, Caption, RunObjectType, RunObjectId, RunObjectView, RunObjectViewFilter and the parent action
+//     of each action with a caption (the parent by caption or container subtype; generated action ids are not asserted), and the
+//     number of actions without a caption (containers and the platform's own actions).
+// Facts: GetSummaryFields returns the Brick fields with the first two swapped, Blob fields included; GetAvailableTableFields
+//   returns the fields of the visible controls in page order (an empty list for a page without fields); FieldType.ToString() is the
+//   AL type name (BLOB for a Blob, value '*'); a control without ToolTip gives ''; an invalid bookmark or a deleted record gives
+//   Success = false without an error; GetActions lists each action under its container (RoleCenter area(Embedding) = container
+//   subtype 4, area(Processing) = 1, list views = actions under container subtype 8 with RunObjectView "<app id>_<view name>" and
+//   RunObjectViewFilter URL-encoded), RunObjectType 1 = page, 3 = codeunit; an unknown page gives Success = false, a "metadata object
+//   ... was not found" text and no actions.
+// Expected values: corpus CI (Linux containers) BC 27.5, 28.5 and 29.0, batch runs 41332956805, 41336116625, 41336138376.
+// BC versions: 27, 28, 29
+dotnet
+{
+    assembly("Microsoft.Dynamics.Nav.Ncl")
+    {
+        type("Microsoft.Dynamics.Nav.Runtime.PageSummary.NavPageSummaryALFunctions"; LtY58SummaryFunctions) { }
+        type("Microsoft.Dynamics.Nav.Runtime.PageSummary.NavPageSummaryALResponse"; LtY58SummaryResponse) { }
+        type("Microsoft.Dynamics.Nav.Runtime.PageSummary.NavPageSummaryALField"; LtY58SummaryField) { }
+        type("Microsoft.Dynamics.Nav.Runtime.NavPageActionALFunctions"; LtY58ActionFunctions) { }
+        type("Microsoft.Dynamics.Nav.Runtime.NavPageActionALResponse"; LtY58ActionResponse) { }
+    }
+    assembly("Microsoft.Dynamics.Nav.Types")
+    {
+        type("Microsoft.Dynamics.Nav.Types.Metadata.NavPageActionAL"; LtY58PageActionAL) { }
+    }
+}
+
+table 61462 "LT Y58 Provider Row"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; "No."; Code[20]) { Caption = 'No.'; }
+        field(2; Description; Text[50]) { Caption = 'Description'; }
+        field(3; Amount; Decimal) { Caption = 'Amount'; }
+        field(4; "Posting Date"; Date) { Caption = 'Posting Date'; }
+        field(5; Blocked; Boolean) { Caption = 'Blocked'; }
+        field(6; Notes; Blob) { Caption = 'Notes'; }
+        field(7; Hidden; Text[30]) { Caption = 'Hidden'; }
+        field(8; Kind; Option) { Caption = 'Kind'; OptionMembers = " ",Small,Large; }
+    }
+    keys
+    {
+        key(PK; "No.") { Clustered = true; }
+    }
+    fieldgroups
+    {
+        fieldgroup(Brick; Description, "No.", Amount, Notes, "Posting Date") { }
+    }
+}
+
+page 61462 "LT Y58 Provider Role Center"
+{
+    Caption = 'LT Y58 Role Center';
+    PageType = RoleCenter;
+    ApplicationArea = All;
+
+    actions
+    {
+        area(Embedding)
+        {
+            action(ListWithViews)
+            {
+                ApplicationArea = All;
+                Caption = 'List with views';
+                RunObject = page "LT Y58 Provider List";
+                ToolTip = 'Opens the list.';
+            }
+            action(EmptyCard)
+            {
+                ApplicationArea = All;
+                Caption = 'Empty card';
+                RunObject = page "LT Y58 Provider Empty Card";
+                ToolTip = 'Opens the empty card.';
+            }
+            action(ReportItem)
+            {
+                ApplicationArea = All;
+                Caption = 'A codeunit item';
+                RunObject = codeunit "LT Y58 Page Providers";
+                ToolTip = 'Runs a codeunit.';
+            }
+        }
+        area(Processing)
+        {
+            action(ProcessingItem)
+            {
+                ApplicationArea = All;
+                Caption = 'Processing item';
+                RunObject = page "LT Y58 Provider List";
+                ToolTip = 'Opens the list.';
+            }
+        }
+    }
+}
+
+page 61463 "LT Y58 Provider List"
+{
+    Caption = 'LT Y58 Provider List';
+    PageType = List;
+    SourceTable = "LT Y58 Provider Row";
+    ApplicationArea = All;
+    UsageCategory = None;
+    Editable = false;
+    CardPageId = "LT Y58 Provider Card";
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Rows)
+            {
+                field("No."; Rec."No.") { ToolTip = 'Specifies the number.'; }
+                field(Blocked; Rec.Blocked) { ToolTip = 'Specifies if blocked.'; }
+            }
+        }
+    }
+    views
+    {
+        view(BlockedRows)
+        {
+            Caption = 'Blocked rows';
+            Filters = where(Blocked = const(true));
+        }
+        view(BigAmounts)
+        {
+            Caption = 'Big amounts';
+            Filters = where(Amount = filter(> 100));
+        }
+    }
+}
+
+page 61464 "LT Y58 Provider Empty Card"
+{
+    Caption = 'LT Y58 Provider Empty Card';
+    PageType = Card;
+    ApplicationArea = All;
+    UsageCategory = None;
+}
+
+page 61465 "LT Y58 Provider Card"
+{
+    Caption = 'LT Y58 Provider Card';
+    PageType = Card;
+    SourceTable = "LT Y58 Provider Row";
+    ApplicationArea = All;
+    UsageCategory = None;
+
+    layout
+    {
+        area(Content)
+        {
+            field("No."; Rec."No.") { ToolTip = 'Specifies the number.'; }
+            field(Description; Rec.Description) { ToolTip = 'Specifies the description.'; }
+            field(Amount; Rec.Amount) { }
+            field(Blocked; Rec.Blocked) { ToolTip = 'Specifies if blocked.'; }
+            field(Kind; Rec.Kind) { ToolTip = 'Specifies the kind.'; }
+            field(Hidden; Rec.Hidden) { Visible = false; ToolTip = 'Specifies a hidden value.'; }
+        }
+    }
+}
+
+codeunit 61462 "LT Y58 Page Providers"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    var
+        SummaryFunctions: DotNet LtY58SummaryFunctions;
+
+    local procedure InsertRow(var Row: Record "LT Y58 Provider Row")
+    var
+        OutS: OutStream;
+    begin
+        Row.DeleteAll();
+        Row.Init();
+        Row."No." := 'P-1';
+        Row.Description := 'Provider row';
+        Row.Amount := 1234.5;
+        Row."Posting Date" := DMY2Date(15, 1, 2024);
+        Row.Blocked := true;
+        Row.Kind := Row.Kind::Small;
+        Row.Hidden := 'hidden';
+        Row.Notes.CreateOutStream(OutS);
+        OutS.WriteText('blob text');
+        Row.Insert();
+    end;
+
+    local procedure ListText(PageId: Integer; Available: Boolean): Text
+    var
+        FieldNo: Integer;
+        Result: Text;
+    begin
+        if Available then begin
+            if IsNull(SummaryFunctions.GetAvailableTableFields(PageId)) then
+                exit('null');
+            foreach FieldNo in SummaryFunctions.GetAvailableTableFields(PageId) do
+                Result += Format(FieldNo) + ',';
+        end else begin
+            if IsNull(SummaryFunctions.GetSummaryFields(PageId)) then
+                exit('null');
+            foreach FieldNo in SummaryFunctions.GetSummaryFields(PageId) do
+                Result += Format(FieldNo) + ',';
+        end;
+        exit(Result);
+    end;
+
+    local procedure SummaryText(PageId: Integer; Bookmark: Text; Available: Boolean): Text
+    var
+        Response: DotNet LtY58SummaryResponse;
+        SummaryField: DotNet LtY58SummaryField;
+        Result: Text;
+    begin
+        if Available then
+            Response := SummaryFunctions.GetSummary(PageId, Bookmark, SummaryFunctions.GetAvailableTableFields(PageId))
+        else
+            Response := SummaryFunctions.GetSummary(PageId, Bookmark, SummaryFunctions.GetSummaryFields(PageId));
+        Result := 'success=' + Format(Response.Success) + ';';
+        if not IsNull(Response.SummaryFields) then
+            foreach SummaryField in Response.SummaryFields do
+                Result += Format(SummaryField.Caption) + '|' + SummaryField.FieldType.ToString() + '|' + Format(SummaryField.FieldType) + '|' +
+                    SummaryField.Value.ToString() + '|' + Format(SummaryField.Tooltip) + '|' + SummaryField.ExtendedType.ToString() + ';';
+        exit(Result);
+    end;
+
+    [TryFunction]
+    local procedure TrySummary(PageId: Integer; Bookmark: Text; Available: Boolean; var Result: Text)
+    begin
+        Result := SummaryText(PageId, Bookmark, Available);
+    end;
+
+    [Test]
+    procedure PageSummaryFunctions_FieldLists()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('summary fields of card', ListText(Page::"LT Y58 Provider Card", false));
+        Observer.Observe('summary fields of list', ListText(Page::"LT Y58 Provider List", false));
+        Observer.Observe('summary fields of empty card', ListText(Page::"LT Y58 Provider Empty Card", false));
+        Observer.Observe('available fields of card', ListText(Page::"LT Y58 Provider Card", true));
+        Observer.Observe('available fields of list', ListText(Page::"LT Y58 Provider List", true));
+        Observer.Observe('available fields of empty card', ListText(Page::"LT Y58 Provider Empty Card", true));
+        Observer.Expect('summary fields of card', '2,1,3,6,4,');
+        Observer.Expect('summary fields of list', '2,1,3,6,4,');
+        Observer.Expect('summary fields of empty card', '');
+        Observer.Expect('available fields of card', '1,2,3,5,8,');
+        Observer.Expect('available fields of list', '1,5,');
+        Observer.Expect('available fields of empty card', '');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure PageSummaryFunctions_GetSummary()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT Y58 Provider Row";
+        Result: Text;
+    begin
+        InsertRow(Row);
+        if TrySummary(Page::"LT Y58 Provider Card", Format(Row.RecordId, 0, 10), false, Result) then
+            Observer.Observe('card brick summary', Result)
+        else
+            Observer.ObserveError('card brick summary');
+        if TrySummary(Page::"LT Y58 Provider Card", Format(Row.RecordId, 0, 10), true, Result) then
+            Observer.Observe('card available summary', Result)
+        else
+            Observer.ObserveError('card available summary');
+        Observer.Expect('card brick summary', 'success=Yes;Description|Text|Text|Provider row|Specifies the description.|Undefined;No.|Code|Code|P-1|Specifies the number.|Undefined;Amount|Decimal|Decimal|1,234.5||Undefined;Notes|BLOB|BLOB|*||Undefined;Posting Date|Date|Date|01/15/24||Undefined;');
+        Observer.Expect('card available summary', 'success=Yes;No.|Code|Code|P-1|Specifies the number.|Undefined;Description|Text|Text|Provider row|Specifies the description.|Undefined;Amount|Decimal|Decimal|1,234.5||Undefined;Blocked|Boolean|Boolean|Yes|Specifies if blocked.|Undefined;Kind|Option|Option|Small|Specifies the kind.|Undefined;');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure PageSummaryFunctions_BadBookmark()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT Y58 Provider Row";
+        Bookmark: Text;
+        Result: Text;
+    begin
+        InsertRow(Row);
+        if TrySummary(Page::"LT Y58 Provider Card", 'not a bookmark', false, Result) then
+            Observer.Observe('invalid bookmark', Result)
+        else
+            Observer.ObserveError('invalid bookmark');
+        Bookmark := Format(Row.RecordId, 0, 10);
+        Row.Delete();
+        if TrySummary(Page::"LT Y58 Provider Card", Bookmark, false, Result) then
+            Observer.Observe('deleted record', Result)
+        else
+            Observer.ObserveError('deleted record');
+        Observer.Expect('invalid bookmark', 'success=No;');
+        Observer.Expect('deleted record', 'success=No;');
+        Observer.Verify();
+    end;
+}
+
+codeunit 61463 "LT Y58 Page Action Functions"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    var
+        ActionFunctions: DotNet LtY58ActionFunctions;
+
+    local procedure ActionsText(PageId: Integer): Text
+    var
+        Response: DotNet LtY58ActionResponse;
+        PageAction: DotNet LtY58PageActionAL;
+        CurrentModuleInfo: ModuleInfo;
+        Ids: List of [Integer];
+        Labels: List of [Text];
+        AppIdText: Text;
+        ParentLabel: Text;
+        Uncaptioned: Integer;
+        Result: Text;
+    begin
+        // Captioned actions in full; actions without a caption (containers and the platform's own actions) only counted. The parent
+        // is named by its caption, or by "container <ActionSubtype>" when it has none. The app id in RunObjectView is replaced.
+        NavApp.GetCurrentModuleInfo(CurrentModuleInfo);
+        AppIdText := DelChr(LowerCase(Format(CurrentModuleInfo.Id())), '=', '{}');
+        Response := ActionFunctions.GetActions(PageId);
+        Result := 'success=' + Format(Response.Success) + ';';
+        if not Response.Success then
+            exit(Result);
+        foreach PageAction in Response.PageActions do begin
+            Ids.Add(PageAction.ActionId);
+            if IsNull(PageAction.Caption) then
+                Labels.Add(StrSubstNo('container %1', PageAction.ActionSubtype))
+            else
+                Labels.Add(PageAction.Caption.ToString());
+        end;
+        foreach PageAction in Response.PageActions do
+            if IsNull(PageAction.Caption) then
+                Uncaptioned += 1
+            else begin
+                ParentLabel := 'none';
+                if Ids.Contains(PageAction.ParentActionId) then
+                    ParentLabel := Labels.Get(Ids.IndexOf(PageAction.ParentActionId));
+                Result += StrSubstNo('[%1/%2/%3/%4/%5/%6/%7/parent:%8]', PageAction.ActionType, PageAction.ActionSubtype, PageAction.Caption.ToString(),
+                    PageAction.RunObjectType, PageAction.RunObjectId, Format(PageAction.RunObjectView).Replace(AppIdText, '<app id>'),
+                    Format(PageAction.RunObjectViewFilter), ParentLabel);
+            end;
+        exit(Result + StrSubstNo(';uncaptioned=%1', Uncaptioned));
+    end;
+
+    local procedure ErrorFirstLine(PageId: Integer): Text
+    var
+        Response: DotNet LtY58ActionResponse;
+        Lines: List of [Text];
+        Line: Text;
+    begin
+        Response := ActionFunctions.GetActions(PageId);
+        Lines := Format(Response.ErrorMessage).Split(Format(Char10()));
+        foreach Line in Lines do
+            if Line.Trim() <> '' then
+                exit('success=' + Format(Response.Success) + ';first error line=' + Line.Trim() + ';actions null=' + Format(IsNull(Response.PageActions)));
+        exit('success=' + Format(Response.Success) + ';no error text');
+    end;
+
+    local procedure Char10(): Char
+    var
+        C: Char;
+    begin
+        C := 10;
+        exit(C);
+    end;
+
+    [TryFunction]
+    local procedure TryActions(PageId: Integer; var Result: Text)
+    begin
+        Result := ActionsText(PageId);
+    end;
+
+    local procedure ObserveActions(Observer: Codeunit "Probe Observer"; Name: Text; PageId: Integer)
+    var
+        Result: Text;
+    begin
+        if TryActions(PageId, Result) then
+            Observer.Observe(Name, Result)
+        else
+            Observer.ObserveError(Name);
+    end;
+
+    [Test]
+    procedure PageActionFunctions_RoleCenter()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ObserveActions(Observer, 'role center', Page::"LT Y58 Provider Role Center");
+        Observer.Expect('role center', 'success=Yes;[1/-1/List with views/1/61463///parent:container 4][1/-1/Empty card/1/61464///parent:container 4][1/-1/A codeunit item/3/61462///parent:container 4][1/-1/Processing item/1/61463///parent:container 1];uncaptioned=6');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure PageActionFunctions_ListViews()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ObserveActions(Observer, 'list with views', Page::"LT Y58 Provider List");
+        Observer.Expect('list with views', 'success=Yes;[1/-1/Blocked rows/1/61463/<app id>_BlockedRows/%27LT%20Y58%20Provider%20Row%27.Blocked%20IS%20%271%27/parent:container 8][1/-1/Big amounts/1/61463/<app id>_BigAmounts/%27LT%20Y58%20Provider%20Row%27.Amount%20IS%20%27%3E100%27/parent:container 8];uncaptioned=27');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure PageActionFunctions_EmptyAndUnknown()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        ObserveActions(Observer, 'empty card', Page::"LT Y58 Provider Empty Card");
+        Observer.Observe('unknown page', ErrorFirstLine(99999999));
+        Observer.Expect('empty card', 'success=Yes;;uncaptioned=26');
+        Observer.Expect('unknown page', 'success=No;first error line=The metadata object Page 99999999 was not found.;actions null=Yes');
+        Observer.Verify();
+    end;
+}

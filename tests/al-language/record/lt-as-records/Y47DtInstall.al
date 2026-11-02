@@ -159,6 +159,10 @@ codeunit 92912 "LT Y47 DT Installer"
             Save('S5', Outcome(TryCopyFieldsExtSameTable()));
             Save('S6', Outcome(TryConstantIntoSrcExt()));
             Save('S7', Outcome(TryCopyFieldsJoinExt()));
+            // Writer Y65 (al-runner issue 6668): a table of another app (Base Application) with a table extension of this app
+            // (Y65DtItemAttributeExt.al).
+            Save('S8', Outcome(TryItemAttributeReporterShape()));
+            Save('S9', Outcome(TryItemAttributeConstant()));
         end;
         Save('DONE', 'ok');
     end;
@@ -347,5 +351,32 @@ codeunit 92912 "LT Y47 DT Installer"
         FieldsDataTransfer.AddSourceFilter(Src.FieldNo("Ext Qty"), '>%1', 2);
         FieldsDataTransfer.AddFieldValue(Src.FieldNo("Ext Qty"), Dest.FieldNo("Ext Amount"));
         FieldsDataTransfer.CopyFields();
+    end;
+
+    // S8: the reporter's shape (al-runner issue 6668): CopyFields within Base Application's "Item Attribute", source filter on a field of this
+    // app's table extension ('' only), the base field Name copied into that extension field.
+    [TryFunction]
+    local procedure TryItemAttributeReporterShape()
+    var
+        ItemAttribute: Record "Item Attribute";
+        ItemAttributeDataTransfer: DataTransfer;
+    begin
+        ItemAttributeDataTransfer.SetTables(Database::"Item Attribute", Database::"Item Attribute");
+        ItemAttributeDataTransfer.AddSourceFilter(ItemAttribute.FieldNo("LT Y65 Display Name"), '=%1', '');
+        ItemAttributeDataTransfer.AddFieldValue(ItemAttribute.FieldNo(Name), ItemAttribute.FieldNo("LT Y65 Display Name"));
+        ItemAttributeDataTransfer.CopyFields();
+    end;
+
+    // S9: CopyFields within "Item Attribute": a constant into the other extension field where the base field Blocked is false.
+    [TryFunction]
+    local procedure TryItemAttributeConstant()
+    var
+        ItemAttribute: Record "Item Attribute";
+        ItemAttributeDataTransfer: DataTransfer;
+    begin
+        ItemAttributeDataTransfer.SetTables(Database::"Item Attribute", Database::"Item Attribute");
+        ItemAttributeDataTransfer.AddSourceFilter(ItemAttribute.FieldNo(Blocked), '=%1', false);
+        ItemAttributeDataTransfer.AddConstantValue('y65', ItemAttribute.FieldNo("LT Y65 Tag"));
+        ItemAttributeDataTransfer.CopyFields();
     end;
 }
