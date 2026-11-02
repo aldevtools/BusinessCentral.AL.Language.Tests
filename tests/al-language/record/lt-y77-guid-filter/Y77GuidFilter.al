@@ -495,6 +495,12 @@ codeunit 94100 "LT Y77 Guid Filter"
     begin
         DateFormulaCase('sf_1M', 1, '<1M>');
         DateFormulaCase('sf_neg', 1, '<-CM+2D>');
+        Obs.Finish();
+    end;
+
+    [Test]
+    procedure DateFormula_TextFilter_SetFilterOther()
+    begin
         DateFormulaCase('sf_plain', 1, 'abc');
         DateFormulaCase('sf_empty', 1, '');
         Obs.Finish();
@@ -504,6 +510,12 @@ codeunit 94100 "LT Y77 Guid Filter"
     procedure DateFormula_TextFilter_FieldRef()
     begin
         DateFormulaCase('fr_1M', 3, '<1M>');
+        Obs.Finish();
+    end;
+
+    [Test]
+    procedure DateFormula_TextFilter_FieldRefPlain()
+    begin
         DateFormulaCase('fr_plain', 3, 'abc');
         Obs.Finish();
     end;
