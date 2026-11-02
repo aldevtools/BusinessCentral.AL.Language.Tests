@@ -458,9 +458,21 @@ codeunit 93740 "LT Y70 Probes"
         Obs.Expect('int_text5', '5');
         Obs.Expect('int_padded', '5');
         Obs.Expect('int_plus', '5');
+#if BC28PLUS
         Obs.Expect('int_x', 'ERR:Evaluate:Format:The value "x" can''t be evaluated into type Integer.');
+#else
+        Obs.Expect('int_x', 'ERR:NotSupportedType:The type NavInteger is unknown.');
+#endif
+#if BC28PLUS
         Obs.Expect('int_empty', 'ERR:Evaluate:Format:The value "" can''t be evaluated into type Integer.');
+#else
+        Obs.Ignore('int_empty');
+#endif
+#if BC28PLUS
         Obs.Expect('int_decimal_text', 'ERR:Evaluate:Format:The value "5.0" can''t be evaluated into type Integer.');
+#else
+        Obs.Ignore('int_decimal_text');
+#endif
         Obs.Expect('int_code', '5');
         Obs.Verify();
     end;
@@ -482,8 +494,16 @@ codeunit 93740 "LT Y70 Probes"
                 Obs.Expect('big_format5', '5');
         Obs.Expect('big_text5', '5');
         Obs.Expect('big_padded', '5');
+#if BC28PLUS
         Obs.Expect('big_x', 'ERR:Evaluate:Format:The value "x" can''t be evaluated into type BigInteger.');
+#else
+        Obs.Expect('big_x', 'ERR:NotSupportedType:The type NavBigInteger is unknown.');
+#endif
+#if BC28PLUS
         Obs.Expect('big_empty', 'ERR:Evaluate:Format:The value "" can''t be evaluated into type BigInteger.');
+#else
+        Obs.Ignore('big_empty');
+#endif
         Obs.Verify();
     end;
 
