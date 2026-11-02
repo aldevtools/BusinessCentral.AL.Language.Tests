@@ -39,6 +39,12 @@ codeunit 93740 "LT Y70 Probes"
         Obs.Observe('text_character', Fmt('ab', '<Text,6><Filler Character,.>'));
         Obs.Observe('text_char', Fmt('ab', '<Text,6><Filler Char,.>'));
         Obs.Observe('code_char', Fmt('ab', '<Text,6><Filler Char,#>'));
+        Obs.Finish();
+    end;
+
+    [Test]
+    procedure FormatCode_FillerCharPrefixes()
+    begin
         Obs.Observe('int_filler', Fmt(5, '<Integer,4><Filler,0>'));
         Obs.Observe('int_filler_c', Fmt(5, '<Integer,4><Filler C,0>'));
         Obs.Observe('int_filler_cha', Fmt(5, '<Integer,4><Filler Cha,0>'));
@@ -195,8 +201,7 @@ codeunit 93740 "LT Y70 Probes"
         Row.SetFilter(DF, '<>''''');
         Obs.Observe('filter_ne_two_quotes', Format(Row.Count()));
         Row.Reset();
-        Row.SetFilter(DF, '<1M>');
-        asserterror Obs.Observe('filter_formula_text', Format(Row.Count()));
+        asserterror Row.SetFilter(DF, '<1M>');
         Obs.ObserveError('filter_formula_text');
         Row.Reset();
         Row.DeleteAll();
@@ -239,6 +244,18 @@ codeunit 93740 "LT Y70 Probes"
         Obs.Observe('trimend', Format(StrLen(Format(G).TrimEnd(G))));
         Obs.Observe('trim', Format(StrLen(Format(G).Trim())));
         Obs.Observe('indexofany', Format(S.IndexOfAny(G)));
+        Obs.Finish();
+    end;
+
+    [Test]
+    procedure GuidAsText_RecordAndFormat()
+    var
+        G: Guid;
+        S: Text;
+        Row: Record "LT Y70 Text Key";
+    begin
+        Evaluate(G, '{1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d}');
+        S := 'x{1A2B3C4D-5E6F-7A8B-9C0D-1E2F3A4B5C6D}y{1A2B3C4D-5E6F-7A8B-9C0D-1E2F3A4B5C6D}';
         Obs.Observe('replace_in', S.Replace(G, 'R'));
         Obs.Observe('substno_arg', StrSubstNo('%1 %2', G, G));
         Row.DeleteAll();
@@ -348,14 +365,10 @@ codeunit 93740 "LT Y70 Probes"
     procedure RecordGet_TextOnIntegerKey()
     var
         IntRow: Record "LT Y70 Int Key";
-        BigRow: Record "LT Y70 Big Key";
     begin
         IntRow.DeleteAll();
-        BigRow.DeleteAll();
         IntRow.Id := 5;
         IntRow.Insert();
-        BigRow.Id := 5;
-        BigRow.Insert();
         Obs.Observe('int_format5', GetInt(Format(5)));
         Obs.Observe('int_text5', GetInt('5'));
         Obs.Observe('int_padded', GetInt(' 5 '));
@@ -364,12 +377,23 @@ codeunit 93740 "LT Y70 Probes"
         Obs.Observe('int_empty', GetInt(''));
         Obs.Observe('int_decimal_text', GetInt('5.0'));
         Obs.Observe('int_code', GetInt(Code10('5')));
+        IntRow.DeleteAll();
+        Obs.Finish();
+    end;
+
+    [Test]
+    procedure RecordGet_TextOnBigIntegerKey()
+    var
+        BigRow: Record "LT Y70 Big Key";
+    begin
+        BigRow.DeleteAll();
+        BigRow.Id := 5;
+        BigRow.Insert();
         Obs.Observe('big_format5', GetBig(Format(5)));
         Obs.Observe('big_text5', GetBig('5'));
         Obs.Observe('big_padded', GetBig(' 5 '));
         Obs.Observe('big_x', GetBig('x'));
         Obs.Observe('big_empty', GetBig(''));
-        IntRow.DeleteAll();
         BigRow.DeleteAll();
         Obs.Finish();
     end;
@@ -755,7 +779,7 @@ codeunit 93740 "LT Y70 Probes"
         Obs.Observe('open_key_set', Dirty(RecRef));
         RecRef.Field(2).Value := 'x';
         Obs.Observe('open_note_set', Dirty(RecRef));
-        RecRef.Get(Same.RecordId);
+        RecRef.Get(Row.RecordId);
         Obs.Observe('after_get', Dirty(RecRef));
         RecRef.Field(2).Value := 'y';
         Obs.Observe('after_get_changed', Dirty(RecRef));
