@@ -180,7 +180,7 @@ codeunit 94251 "LT Y81 Date Filter Letters"
         Saved := WorkDate();
         foreach WorkDay in WorkDays do begin
             WorkDate(WorkDay);
-            Tuesday := DWY2Date(1, 2, Date2DWY(WorkDay, 3));
+            Tuesday := DWY2Date(2, 1, Date2DWY(WorkDay, 3));
             Observer.Observe(Format(WorkDay, 0, 9), Ends('T-1D'));
             Observer.Expect(Format(WorkDay, 0, 9), Range(Tuesday, Tuesday));
         end;
@@ -248,28 +248,47 @@ codeunit 94251 "LT Y81 Date Filter Letters"
     [Test]
     procedure Y81_Letters_TFamily()
     var
-        Texts: List of [Text];
-        Txt: Text;
+        WorkDays: List of [Date];
+        WorkDay: Date;
         Saved: Date;
+        Pfx: Text;
+        Week: Integer;
+        IsoYear: Integer;
     begin
+        WorkDays.Add(20240615D);
+        WorkDays.Add(20260615D);
+        WorkDays.Add(20300515D);
         Saved := WorkDate();
-        WorkDate(20260615D);
-        Texts.Add('T-0D');
-        Texts.Add('T+0D');
-        Texts.Add('T-2D');
-        Texts.Add('T-3D');
-        Texts.Add('T-7D');
-        Texts.Add('T+7D');
-        Texts.Add('T-1W');
-        Texts.Add('T+1W');
-        Texts.Add('T-1M');
-        Texts.Add('T-1Y');
-        Texts.Add('T-1CM');
-        Texts.Add('T-D');
-        foreach Txt in Texts do
-            Observer.Observe(Txt, Ends(Txt));
-        Observer.Observe('today', Format(Today(), 0, 9));
+        foreach WorkDay in WorkDays do begin
+            WorkDate(WorkDay);
+            Pfx := Format(WorkDay, 0, 9) + ' ';
+            IsoYear := Date2DWY(WorkDay, 3);
+            // T-nD with n from 1: the Tuesday of ISO week n of the ISO year of the work date; T-D: the Tuesday of the week of the work date.
+            for Week := 1 to 7 do begin
+                Observer.Observe(Pfx + 'T-' + Format(Week) + 'D', Ends('T-' + Format(Week) + 'D'));
+                Observer.Expect(Pfx + 'T-' + Format(Week) + 'D', Range(DWY2Date(2, Week, IsoYear), DWY2Date(2, Week, IsoYear)));
+            end;
+            Observer.Observe(Pfx + 'T-D', Ends('T-D'));
+            Observer.Expect(Pfx + 'T-D', Range(DWY2Date(2, Date2DWY(WorkDay, 2), IsoYear), DWY2Date(2, Date2DWY(WorkDay, 2), IsoYear)));
+            // The other T forms count from Today().
+            Observer.Observe(Pfx + 'T-0D', Ends('T-0D'));
+            Observer.Expect(Pfx + 'T-0D', Range(Today(), Today()));
+            Observer.Observe(Pfx + 'T+0D', Ends('T+0D'));
+            Observer.Expect(Pfx + 'T+0D', Range(Today(), Today()));
+            Observer.Observe(Pfx + 'T+7D', Ends('T+7D'));
+            Observer.Expect(Pfx + 'T+7D', Range(Today() + 7, Today() + 7));
+            Observer.Observe(Pfx + 'T-1W', Ends('T-1W'));
+            Observer.Expect(Pfx + 'T-1W', Range(CalcDate('<-1W>', Today()), CalcDate('<-1W>', Today())));
+            Observer.Observe(Pfx + 'T+1W', Ends('T+1W'));
+            Observer.Expect(Pfx + 'T+1W', Range(CalcDate('<+1W>', Today()), CalcDate('<+1W>', Today())));
+            Observer.Observe(Pfx + 'T-1M', Ends('T-1M'));
+            Observer.Expect(Pfx + 'T-1M', Range(CalcDate('<-1M>', Today()), CalcDate('<-1M>', Today())));
+            Observer.Observe(Pfx + 'T-1Y', Ends('T-1Y'));
+            Observer.Expect(Pfx + 'T-1Y', Range(CalcDate('<-1Y>', Today()), CalcDate('<-1Y>', Today())));
+        end;
+        Observer.Observe('T-1CM', Apply('T-1CM'));
+        Observer.Expect('T-1CM', ' E The filter "T-1CM" is not valid for the D field on the LT Y81 DF table. The format of the Date ''T-1CM'' does not match your device''s date settings.\\Make sure that the day, month, and year are in the correct order and use the correct separator (such as - or /). Alternatively, you can always use the format ''yyyy-mm-dd''.|Filter:CSide');
         WorkDate(Saved);
-        Observer.Finish();
+        Observer.Verify();
     end;
 }

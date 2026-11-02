@@ -1,11 +1,14 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-ternary-operator
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); own test codeunits 94253-94258 (one per way of reading the Variant, so that a platform crash in one read does not hide the others)
+// Fixtures used: Probe Observer (codeunit 69160); own test codeunits 94253-94258 (one per way of reading the Variant) and 94259 (not a test)
 // Probe (writer Y81): a conditional expression with a Label as one branch (against another Label, a text literal, a Text variable and a Code variable, both orders) that ends
 // in a Variant through different routes: assignment, Variant parameter, return value, Variant array element (List of [Variant] and Dictionary of [Text, Variant]
 // do not compile: AL0408, must-not-compile 2770 and 2771).
 // The Variant is read in six ways, one per test codeunit: the kind flags (IsText, IsCode, IsTextConstant, IsChar), Format(V), Format(V, 0, 9), and the value taken back into a
 // Text, a Code[20] and a Text[5].
+// Held (platform crash, not an oracle): a procedure that returns a Variant with exit(Cond ? Label : 'literal') ends the whole session ("hub connection closed") when its codeunit
+// is loaded, even if the procedure is never called (SaaS BC 29). The reverse order (literal first), exit(Cond ? Label : Label) and a named return value assigned the same
+// expression load and run. The held shape is the non-test codeunit 94259; the runtime should refuse it.
 // Pinned elsewhere: assignment of the pairs and the kind of the Variant: types/lt-y66-ternary-label/Y66TernaryLabel.al, types/TestTernaryContracts.al:568-579.
 // BC versions: 27, 28, 29
 
@@ -37,14 +40,14 @@ codeunit 94253 "LT Y81 Label Variant 1"
         exit('E ' + GetLastErrorText() + '|' + GetLastErrorCode());
     end;
 
-    local procedure ReturnLabelOrLiteral(Cond: Boolean): Variant
-    begin
-        exit(Cond ? LblA : 'literal');
-    end;
-
     local procedure ReturnLiteralOrLabel(Cond: Boolean): Variant
     begin
         exit(Cond ? 'literal' : LblA);
+    end;
+
+    local procedure ReturnNamed(Cond: Boolean) V: Variant
+    begin
+        V := Cond ? LblA : 'literal';
     end;
 
     local procedure Pairs(Cond: Boolean; Route: Integer): Text
@@ -97,9 +100,9 @@ codeunit 94253 "LT Y81 Label Variant 1"
             10:
                 exit(Describe(Cond ? LblA : TxtVar));
             11:
-                exit(Describe(ReturnLabelOrLiteral(Cond)));
-            12:
                 exit(Describe(ReturnLiteralOrLabel(Cond)));
+            12:
+                exit(Describe(ReturnNamed(Cond)));
             13:
                 begin
                     Arr[2] := Cond ? LblA : LblB;
@@ -166,14 +169,14 @@ codeunit 94254 "LT Y81 Label Variant 2"
         exit('E ' + GetLastErrorText() + '|' + GetLastErrorCode());
     end;
 
-    local procedure ReturnLabelOrLiteral(Cond: Boolean): Variant
-    begin
-        exit(Cond ? LblA : 'literal');
-    end;
-
     local procedure ReturnLiteralOrLabel(Cond: Boolean): Variant
     begin
         exit(Cond ? 'literal' : LblA);
+    end;
+
+    local procedure ReturnNamed(Cond: Boolean) V: Variant
+    begin
+        V := Cond ? LblA : 'literal';
     end;
 
     local procedure Pairs(Cond: Boolean; Route: Integer): Text
@@ -226,9 +229,9 @@ codeunit 94254 "LT Y81 Label Variant 2"
             10:
                 exit(Describe(Cond ? LblA : TxtVar));
             11:
-                exit(Describe(ReturnLabelOrLiteral(Cond)));
-            12:
                 exit(Describe(ReturnLiteralOrLabel(Cond)));
+            12:
+                exit(Describe(ReturnNamed(Cond)));
             13:
                 begin
                     Arr[2] := Cond ? LblA : LblB;
@@ -295,14 +298,14 @@ codeunit 94255 "LT Y81 Label Variant 3"
         exit('E ' + GetLastErrorText() + '|' + GetLastErrorCode());
     end;
 
-    local procedure ReturnLabelOrLiteral(Cond: Boolean): Variant
-    begin
-        exit(Cond ? LblA : 'literal');
-    end;
-
     local procedure ReturnLiteralOrLabel(Cond: Boolean): Variant
     begin
         exit(Cond ? 'literal' : LblA);
+    end;
+
+    local procedure ReturnNamed(Cond: Boolean) V: Variant
+    begin
+        V := Cond ? LblA : 'literal';
     end;
 
     local procedure Pairs(Cond: Boolean; Route: Integer): Text
@@ -355,9 +358,9 @@ codeunit 94255 "LT Y81 Label Variant 3"
             10:
                 exit(Describe(Cond ? LblA : TxtVar));
             11:
-                exit(Describe(ReturnLabelOrLiteral(Cond)));
-            12:
                 exit(Describe(ReturnLiteralOrLabel(Cond)));
+            12:
+                exit(Describe(ReturnNamed(Cond)));
             13:
                 begin
                     Arr[2] := Cond ? LblA : LblB;
@@ -427,14 +430,14 @@ codeunit 94256 "LT Y81 Label Variant 4"
         exit('E ' + GetLastErrorText() + '|' + GetLastErrorCode());
     end;
 
-    local procedure ReturnLabelOrLiteral(Cond: Boolean): Variant
-    begin
-        exit(Cond ? LblA : 'literal');
-    end;
-
     local procedure ReturnLiteralOrLabel(Cond: Boolean): Variant
     begin
         exit(Cond ? 'literal' : LblA);
+    end;
+
+    local procedure ReturnNamed(Cond: Boolean) V: Variant
+    begin
+        V := Cond ? LblA : 'literal';
     end;
 
     local procedure Pairs(Cond: Boolean; Route: Integer): Text
@@ -487,9 +490,9 @@ codeunit 94256 "LT Y81 Label Variant 4"
             10:
                 exit(Describe(Cond ? LblA : TxtVar));
             11:
-                exit(Describe(ReturnLabelOrLiteral(Cond)));
-            12:
                 exit(Describe(ReturnLiteralOrLabel(Cond)));
+            12:
+                exit(Describe(ReturnNamed(Cond)));
             13:
                 begin
                     Arr[2] := Cond ? LblA : LblB;
@@ -559,14 +562,14 @@ codeunit 94257 "LT Y81 Label Variant 5"
         exit('E ' + GetLastErrorText() + '|' + GetLastErrorCode());
     end;
 
-    local procedure ReturnLabelOrLiteral(Cond: Boolean): Variant
-    begin
-        exit(Cond ? LblA : 'literal');
-    end;
-
     local procedure ReturnLiteralOrLabel(Cond: Boolean): Variant
     begin
         exit(Cond ? 'literal' : LblA);
+    end;
+
+    local procedure ReturnNamed(Cond: Boolean) V: Variant
+    begin
+        V := Cond ? LblA : 'literal';
     end;
 
     local procedure Pairs(Cond: Boolean; Route: Integer): Text
@@ -619,9 +622,9 @@ codeunit 94257 "LT Y81 Label Variant 5"
             10:
                 exit(Describe(Cond ? LblA : TxtVar));
             11:
-                exit(Describe(ReturnLabelOrLiteral(Cond)));
-            12:
                 exit(Describe(ReturnLiteralOrLabel(Cond)));
+            12:
+                exit(Describe(ReturnNamed(Cond)));
             13:
                 begin
                     Arr[2] := Cond ? LblA : LblB;
@@ -691,14 +694,14 @@ codeunit 94258 "LT Y81 Label Variant 6"
         exit('E ' + GetLastErrorText() + '|' + GetLastErrorCode());
     end;
 
-    local procedure ReturnLabelOrLiteral(Cond: Boolean): Variant
-    begin
-        exit(Cond ? LblA : 'literal');
-    end;
-
     local procedure ReturnLiteralOrLabel(Cond: Boolean): Variant
     begin
         exit(Cond ? 'literal' : LblA);
+    end;
+
+    local procedure ReturnNamed(Cond: Boolean) V: Variant
+    begin
+        V := Cond ? LblA : 'literal';
     end;
 
     local procedure Pairs(Cond: Boolean; Route: Integer): Text
@@ -751,9 +754,9 @@ codeunit 94258 "LT Y81 Label Variant 6"
             10:
                 exit(Describe(Cond ? LblA : TxtVar));
             11:
-                exit(Describe(ReturnLabelOrLiteral(Cond)));
-            12:
                 exit(Describe(ReturnLiteralOrLabel(Cond)));
+            12:
+                exit(Describe(ReturnNamed(Cond)));
             13:
                 begin
                     Arr[2] := Cond ? LblA : LblB;
@@ -789,5 +792,17 @@ codeunit 94258 "LT Y81 Label Variant 6"
     procedure Y81_LabelVariant_6_ArrayElement()
     begin
         Run(13, 13);
+    end;
+}
+
+// Not a test codeunit: nothing runs it. Loading it (calling any procedure of it) ends the session on SaaS BC 29.
+codeunit 94259 "LT Y81 Label Variant Held"
+{
+    var
+        LblA: Label 'Label A';
+
+    procedure Suspect_ReturnLabelOrLiteral(Cond: Boolean): Variant
+    begin
+        exit(Cond ? LblA : 'literal');
     end;
 }
