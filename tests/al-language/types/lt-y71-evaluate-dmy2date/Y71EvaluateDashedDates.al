@@ -84,7 +84,19 @@ codeunit 93826 "LT Y71 Evaluate Dashed Dates"
         Ev('day_first_ambiguous', '05-03-2024');
         Ev('year_first', '2012-01-31');
         Ev('year_first_trailing', '2012-01-31 ');
-        Obs.Finish();
+        Obs.Expect('plain', 'Yes|2012-01-01');
+        Obs.Expect('trailing', 'Yes|2012-01-01');
+        Obs.Expect('leading', 'Yes|2012-01-01');
+        Obs.Expect('both', 'Yes|2012-01-01');
+        Obs.Expect('two_digit_year', 'Yes|2012-11-11');
+        Obs.Expect('two_digit_year_trailing', 'Yes|2012-11-11');
+        Obs.Expect('day_13', 'No|');
+        Obs.Expect('month_13', 'Yes|2012-01-13');
+        Obs.Expect('single_digits', 'Yes|2012-01-01');
+        Obs.Expect('day_first_ambiguous', 'Yes|2024-05-03');
+        Obs.Expect('year_first', 'Yes|2012-01-31');
+        Obs.Expect('year_first_trailing', 'Yes|2012-01-31');
+        Obs.Verify();
     end;
 
     [Test]
@@ -102,7 +114,14 @@ codeunit 93826 "LT Y71 Evaluate Dashed Dates"
         EvStatement('statement_clean', '01-01-2012');
         EvStatement('statement_garbage', '01-xx-2012');
         EvStatement('statement_trailing_two', '01-01-2012  ');
-        Obs.Finish();
+        Obs.Expect('trimmed_leading', 'Yes|2012-01-01');
+        Obs.Expect('trimmed_leading_short_year', 'Yes|2012-11-11');
+        Obs.Expect('two_blanks_removed', 'Yes|2012-01-01');
+        Obs.Expect('statement_trailing', 'ok|2012-01-01');
+        Obs.Expect('statement_clean', 'ok|2012-01-01');
+        Obs.Expect('statement_garbage', 'ok|2012-01-20');
+        Obs.Expect('statement_trailing_two', 'ok|2012-01-01');
+        Obs.Verify();
     end;
 
     [Test]
@@ -116,7 +135,15 @@ codeunit 93826 "LT Y71 Evaluate Dashed Dates"
         Ev('slashed_plain', '03/05/2024');
         Ev('slashed_day_13', '13/05/2024');
         Ev('slashed_month_13', '05/13/2024');
-        Obs.Finish();
+        Obs.Expect('dotted_trailing', 'Yes|2024-05-03');
+        Obs.Expect('dotted_leading_short', 'Yes|2024-05-03');
+        Obs.Expect('slashed_trailing', 'Yes|2024-03-05');
+        Obs.Expect('slashed_both_short', 'Yes|2024-03-05');
+        Obs.Expect('dotted_plain', 'Yes|2024-05-03');
+        Obs.Expect('slashed_plain', 'Yes|2024-03-05');
+        Obs.Expect('slashed_day_13', 'No|');
+        Obs.Expect('slashed_month_13', 'Yes|2024-05-13');
+        Obs.Verify();
     end;
 
     [TryFunction]
@@ -189,6 +216,16 @@ codeunit 93826 "LT Y71 Evaluate Dashed Dates"
         Dmy('enum_field_asinteger_date2dmy_year', 8);
         Dmy('integer_variable', 9);
         Dmy('integer_month', 10);
-        Obs.Finish();
+        Obs.Expect('enum_asinteger', '2026-03-01');
+        Obs.Expect('integer_field_day', '2026-03-01');
+        Obs.Expect('byte_month', '2026-03-01');
+        Obs.Expect('biginteger_month', '2026-03-01');
+        Obs.Expect('decimal_month', '2026-03-01');
+        Obs.Expect('option_month', '2026-03-01');
+        Obs.Expect('char_month', '2026-03-01');
+        Obs.Expect('enum_field_asinteger_date2dmy_year', '2026-03-01');
+        Obs.Expect('integer_variable', '2026-03-01');
+        Obs.Expect('integer_month', '2026-03-01');
+        Obs.Verify();
     end;
 }

@@ -85,7 +85,11 @@ codeunit 93835 "LT Y71 Hdr SecretValues Stmt"
         ListCase('two_values', Headers, 'X-Two');
         ListCase('lower_case_name', Headers, 'x-secret-header');
         Obs.Observe('contains_secret', Format(Headers.ContainsSecret('X-Secret-Header')));
-        Obs.Finish();
+        Obs.Expect('single', 'ok count=1 empty=No');
+        Obs.Expect('two_values', 'ok count=2 empty=No empty=No');
+        Obs.Expect('lower_case_name', 'ok count=1 empty=No');
+        Obs.Expect('contains_secret', 'Yes');
+        Obs.Verify();
     end;
 
     [Test]
@@ -103,7 +107,9 @@ codeunit 93835 "LT Y71 Hdr SecretValues Stmt"
         Req.Content().GetHeaders(ContentHeaders);
         ListCase('content_single', ContentHeaders, 'X-Secret-Header');
         Obs.Observe('content_contains_secret', Format(ContentHeaders.ContainsSecret('X-Secret-Header')));
-        Obs.Finish();
+        Obs.Expect('content_single', 'ok count=1 empty=No');
+        Obs.Expect('content_contains_secret', 'Yes');
+        Obs.Verify();
     end;
 
     [Test]
@@ -124,7 +130,17 @@ codeunit 93835 "LT Y71 Hdr SecretValues Stmt"
             Obs.Observe('prefilled_missing', 'ok ' + Describe(Vals))
         else
             Obs.Observe('prefilled_missing', 'error');
-        Obs.Finish();
+        Obs.Expect('missing', 'error');
+        Obs.Expect('missing|text', 'Exception of type ''Microsoft.Dynamics.Nav.Types.Exceptions.NavNclInvalidHeaderException'' was thrown.');
+        Obs.Expect('missing|code', 'InvalidHeader');
+        Obs.Expect('plain', 'error');
+        Obs.Expect('plain|text', 'Exception of type ''Microsoft.Dynamics.Nav.Types.Exceptions.NavNclInvalidHeaderException'' was thrown.');
+        Obs.Expect('plain|code', 'InvalidHeader');
+        Obs.Expect('empty_name', 'error');
+        Obs.Expect('empty_name|text', 'Exception of type ''Microsoft.Dynamics.Nav.Types.Exceptions.NavNclInvalidHeaderException'' was thrown.');
+        Obs.Expect('empty_name|code', 'InvalidHeader');
+        Obs.Expect('prefilled_missing', 'error');
+        Obs.Verify();
     end;
 
     [Test]
@@ -143,6 +159,16 @@ codeunit 93835 "LT Y71 Hdr SecretValues Stmt"
         ArrayCase('three_into_two', Headers, 'X-Three');
         ArrayCase('plain', Headers, 'X-Plain');
         ArrayCase('missing', Headers, 'X-Missing');
-        Obs.Finish();
+        Obs.Expect('one_value', 'ok No|Yes');
+        Obs.Expect('three_into_two', 'error');
+        Obs.Expect('three_into_two|text', 'CopyArray: The length parameter 3 does not match the length of the destination array 2.');
+        Obs.Expect('three_into_two|code', 'ArrayLengthMismatch');
+        Obs.Expect('plain', 'error');
+        Obs.Expect('plain|text', 'Exception of type ''Microsoft.Dynamics.Nav.Types.Exceptions.NavNclInvalidHeaderException'' was thrown.');
+        Obs.Expect('plain|code', 'InvalidHeader');
+        Obs.Expect('missing', 'error');
+        Obs.Expect('missing|text', 'Exception of type ''Microsoft.Dynamics.Nav.Types.Exceptions.NavNclInvalidHeaderException'' was thrown.');
+        Obs.Expect('missing|code', 'InvalidHeader');
+        Obs.Verify();
     end;
 }

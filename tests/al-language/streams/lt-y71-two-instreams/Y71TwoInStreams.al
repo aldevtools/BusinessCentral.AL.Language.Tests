@@ -182,7 +182,18 @@ codeunit 93808 "LT Y71 Two InStreams"
         Obs.Observe('has_value', Format(TB.HasValue()));
         Obs.Observe('length', Format(TB.Length()));
         TwoStreams('by_value', TB, 1);
-        Obs.Finish();
+        Obs.Expect('has_value', 'Yes');
+        Obs.Expect('length', '73');
+        Obs.Expect('by_value|sep', 'len=73 cr=3 lf=3');
+        Obs.Expect('by_value|a_eos_before', 'No');
+        Obs.Expect('by_value|b_eos', 'Yes');
+        Obs.Expect('by_value|line1', 'Date;Description;Amount');
+        Obs.Expect('by_value|line2', '01.01.2024;First;10,5');
+        Obs.Expect('by_value|line3', '02.01.2024;Second;20,25');
+        Obs.Expect('by_value|lines', '3');
+        Obs.Expect('by_value|a_eos_after', 'Yes');
+        Obs.Expect('by_value|b_eos_after', 'Yes');
+        Obs.Verify();
     end;
 
     [Test]
@@ -195,7 +206,25 @@ codeunit 93808 "LT Y71 Two InStreams"
         TwoStreams('by_var', TB, 2);
         Fill(TB2);
         TwoStreams('direct', TB2, 3);
-        Obs.Finish();
+        Obs.Expect('by_var|sep', 'len=73 cr=3 lf=3');
+        Obs.Expect('by_var|a_eos_before', 'No');
+        Obs.Expect('by_var|b_eos', 'Yes');
+        Obs.Expect('by_var|line1', 'Date;Description;Amount');
+        Obs.Expect('by_var|line2', '01.01.2024;First;10,5');
+        Obs.Expect('by_var|line3', '02.01.2024;Second;20,25');
+        Obs.Expect('by_var|lines', '3');
+        Obs.Expect('by_var|a_eos_after', 'Yes');
+        Obs.Expect('by_var|b_eos_after', 'Yes');
+        Obs.Expect('direct|sep', 'len=73 cr=3 lf=3');
+        Obs.Expect('direct|a_eos_before', 'No');
+        Obs.Expect('direct|b_eos', 'Yes');
+        Obs.Expect('direct|line1', 'Date;Description;Amount');
+        Obs.Expect('direct|line2', '01.01.2024;First;10,5');
+        Obs.Expect('direct|line3', '02.01.2024;Second;20,25');
+        Obs.Expect('direct|lines', '3');
+        Obs.Expect('direct|a_eos_after', 'Yes');
+        Obs.Expect('direct|b_eos_after', 'Yes');
+        Obs.Verify();
     end;
 
     [Test]
@@ -211,7 +240,18 @@ codeunit 93808 "LT Y71 Two InStreams"
         Obs.Observe('has_value', Format(TB2.HasValue()));
         Obs.Observe('length', Format(TB2.Length()));
         TwoStreams('copied', TB2, 1);
-        Obs.Finish();
+        Obs.Expect('has_value', 'Yes');
+        Obs.Expect('length', '73');
+        Obs.Expect('copied|sep', 'len=73 cr=3 lf=3');
+        Obs.Expect('copied|a_eos_before', 'No');
+        Obs.Expect('copied|b_eos', 'Yes');
+        Obs.Expect('copied|line1', 'Date;Description;Amount');
+        Obs.Expect('copied|line2', '01.01.2024;First;10,5');
+        Obs.Expect('copied|line3', '02.01.2024;Second;20,25');
+        Obs.Expect('copied|lines', '3');
+        Obs.Expect('copied|a_eos_after', 'Yes');
+        Obs.Expect('copied|b_eos_after', 'Yes');
+        Obs.Verify();
     end;
 
     [Test]
@@ -230,7 +270,18 @@ codeunit 93808 "LT Y71 Two InStreams"
         Obs.Observe('has_value', Format(TB2.HasValue()));
         Obs.Observe('length', Format(TB2.Length()));
         TwoStreams('event', TB2, 1);
-        Obs.Finish();
+        Obs.Expect('has_value', 'Yes');
+        Obs.Expect('length', '73');
+        Obs.Expect('event|sep', 'len=73 cr=3 lf=3');
+        Obs.Expect('event|a_eos_before', 'No');
+        Obs.Expect('event|b_eos', 'Yes');
+        Obs.Expect('event|line1', 'Date;Description;Amount');
+        Obs.Expect('event|line2', '01.01.2024;First;10,5');
+        Obs.Expect('event|line3', '02.01.2024;Second;20,25');
+        Obs.Expect('event|lines', '3');
+        Obs.Expect('event|a_eos_after', 'Yes');
+        Obs.Expect('event|b_eos_after', 'Yes');
+        Obs.Verify();
     end;
 
     [Test]
@@ -245,7 +296,17 @@ codeunit 93808 "LT Y71 Two InStreams"
         Holder.Give(TB2);
         TwoStreams('original', TB, 1);
         Obs.Observe('copy_length_after', Format(TB2.Length()));
-        Obs.Finish();
+        Obs.Expect('original|sep', 'len=73 cr=3 lf=3');
+        Obs.Expect('original|a_eos_before', 'No');
+        Obs.Expect('original|b_eos', 'Yes');
+        Obs.Expect('original|line1', 'Date;Description;Amount');
+        Obs.Expect('original|line2', '01.01.2024;First;10,5');
+        Obs.Expect('original|line3', '02.01.2024;Second;20,25');
+        Obs.Expect('original|lines', '3');
+        Obs.Expect('original|a_eos_after', 'Yes');
+        Obs.Expect('original|b_eos_after', 'Yes');
+        Obs.Expect('copy_length_after', '73');
+        Obs.Verify();
     end;
 
     [Test]
@@ -274,7 +335,15 @@ codeunit 93808 "LT Y71 Two InStreams"
         Count := S.Read(T, 5);
         Obs.Observe('five_count', Format(Count));
         Obs.Observe('five_text', T);
-        Obs.Finish();
+        Obs.Expect('first_count', '20');
+        Obs.Expect('first_text', 'abcdefghij0123456789');
+        Obs.Expect('eos_after', 'Yes');
+        Obs.Expect('second_count', '0');
+        Obs.Expect('second_text', '');
+        Obs.Expect('eos_after_second', 'Yes');
+        Obs.Expect('five_count', '5');
+        Obs.Expect('five_text', 'abcde');
+        Obs.Verify();
     end;
 
     [Test]
@@ -293,7 +362,10 @@ codeunit 93808 "LT Y71 Two InStreams"
         Obs.Observe('after_recreate', Line);
         A.ReadText(Line);
         Obs.Observe('next', Line);
-        Obs.Finish();
+        Obs.Expect('first', 'Date;Description;Amount');
+        Obs.Expect('after_recreate', 'Date;Description;Amount');
+        Obs.Expect('next', '01.01.2024;First;10,5');
+        Obs.Verify();
     end;
 
     [Test]
@@ -323,6 +395,9 @@ codeunit 93808 "LT Y71 Two InStreams"
         Row.Data.CreateInStream(A);
         A.ReadText(Line);
         Obs.Observe('line_a_again', Line);
-        Obs.Finish();
+        Obs.Expect('sep', 'len=48 cr=2 lf=2');
+        Obs.Expect('line_a', 'Date;Description;Amount');
+        Obs.Expect('line_a_again', 'Date;Description;Amount');
+        Obs.Verify();
     end;
 }

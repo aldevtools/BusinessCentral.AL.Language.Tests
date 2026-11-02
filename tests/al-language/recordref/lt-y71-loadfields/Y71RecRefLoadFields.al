@@ -231,7 +231,22 @@ codeunit 93801 "LT Y71 RecRef LoadFields"
         Probe('two_zero_zero_zero', 103);
         Probe('zero_two', 104);
         Probe('far_zero', 114);
-        Obs.Finish();
+        Obs.Expect('zero', 'ok');
+        Obs.Expect('zero|loaded', '1:Y 2:N 3:N 4:N 5:Y 50:N');
+        Obs.Expect('zero|values', '1=1 2=one 3=1.5 4=A 5=0 50=11');
+        Obs.Expect('one_zero', 'ok');
+        Obs.Expect('one_zero|loaded', '1:Y 2:N 3:N 4:N 5:Y 50:N');
+        Obs.Expect('one_zero|values', '1=1 2=one 3=1.5 4=A 5=0 50=11');
+        Obs.Expect('two_zero_zero_zero', 'ok');
+        Obs.Expect('two_zero_zero_zero|loaded', '1:Y 2:Y 3:N 4:N 5:Y 50:N');
+        Obs.Expect('two_zero_zero_zero|values', '1=1 2=one 3=1.5 4=A 5=0 50=11');
+        Obs.Expect('zero_two', 'ok');
+        Obs.Expect('zero_two|loaded', '1:Y 2:Y 3:N 4:N 5:Y 50:N');
+        Obs.Expect('zero_two|values', '1=1 2=one 3=1.5 4=A 5=0 50=11');
+        Obs.Expect('far_zero', 'ok');
+        Obs.Expect('far_zero|loaded', '1:Y 2:N 3:N 4:N 5:Y 50:Y');
+        Obs.Expect('far_zero|values', '1=1 2=one 3=1.5 4=A 5=0 50=11');
+        Obs.Verify();
     end;
 
     [Test]
@@ -243,7 +258,22 @@ codeunit 93801 "LT Y71 RecRef LoadFields"
         Probe('two_three', 111);
         Probe('two_two_two', 112);
         Probe('flowfield', 113);
-        Obs.Finish();
+        Obs.Expect('nth5', 'ok');
+        Obs.Expect('nth5|loaded', '1:Y 2:Y 3:Y 4:N 5:Y 50:N');
+        Obs.Expect('nth5|values', '1=1 2=one 3=1.5 4=A 5=0 50=11');
+        Obs.Expect('nth20', 'ok');
+        Obs.Expect('nth20|loaded', '1:Y 2:Y 3:Y 4:N 5:Y 50:N');
+        Obs.Expect('nth20|values', '1=1 2=one 3=1.5 4=A 5=0 50=11');
+        Obs.Expect('two_three', 'ok');
+        Obs.Expect('two_three|loaded', '1:Y 2:Y 3:Y 4:N 5:Y 50:N');
+        Obs.Expect('two_three|values', '1=1 2=one 3=1.5 4=A 5=0 50=11');
+        Obs.Expect('two_two_two', 'ok');
+        Obs.Expect('two_two_two|loaded', '1:Y 2:Y 3:N 4:N 5:Y 50:N');
+        Obs.Expect('two_two_two|values', '1=1 2=one 3=1.5 4=A 5=0 50=11');
+        Obs.Expect('flowfield', 'ok');
+        Obs.Expect('flowfield|loaded', '1:Y 2:N 3:N 4:N 5:Y 50:N');
+        Obs.Expect('flowfield|values', '1=1 2=one 3=1.5 4=A 5=0 50=11');
+        Obs.Verify();
     end;
 
     [Test]
@@ -254,7 +284,19 @@ codeunit 93801 "LT Y71 RecRef LoadFields"
         Probe('99_two', 108);
         Probe('98_99', 109);
         Probe('two_99_zero', 110);
-        Obs.Finish();
+        Obs.Expect('two_99', 'error');
+        Obs.Expect('two_99|text', 'The supplied field number ''99'' cannot be found in the ''LT Y71 LF Tab'' table.');
+        Obs.Expect('two_99|code', 'FieldNotFound');
+        Obs.Expect('99_two', 'error');
+        Obs.Expect('99_two|text', 'The supplied field number ''99'' cannot be found in the ''LT Y71 LF Tab'' table.');
+        Obs.Expect('99_two|code', 'FieldNotFound');
+        Obs.Expect('98_99', 'error');
+        Obs.Expect('98_99|text', 'The supplied field number ''98'' cannot be found in the ''LT Y71 LF Tab'' table.');
+        Obs.Expect('98_99|code', 'FieldNotFound');
+        Obs.Expect('two_99_zero', 'error');
+        Obs.Expect('two_99_zero|text', 'The supplied field number ''99'' cannot be found in the ''LT Y71 LF Tab'' table.');
+        Obs.Expect('two_99_zero|code', 'FieldNotFound');
+        Obs.Verify();
     end;
 
     [Test]
@@ -268,7 +310,28 @@ codeunit 93801 "LT Y71 RecRef LoadFields"
         Probe('add_three', 205);
         Probe('add_without_set', 206);
         Probe('add_nth5', 207);
-        Obs.Finish();
+        Obs.Expect('add_zero', 'ok');
+        Obs.Expect('add_zero|loaded', '1:Y 2:Y 3:N 4:N 5:Y 50:N');
+        Obs.Expect('add_zero|values', '1=1 2=one 3=1.5 4=A 5=0 50=11');
+        Obs.Expect('add_three_zero', 'ok');
+        Obs.Expect('add_three_zero|loaded', '1:Y 2:Y 3:Y 4:N 5:Y 50:N');
+        Obs.Expect('add_three_zero|values', '1=1 2=one 3=1.5 4=A 5=0 50=11');
+        Obs.Expect('add_three_99', 'error');
+        Obs.Expect('add_three_99|text', 'The supplied field number ''99'' cannot be found in the ''LT Y71 LF Tab'' table.');
+        Obs.Expect('add_three_99|code', 'FieldNotFound');
+        Obs.Expect('add_99_three', 'error');
+        Obs.Expect('add_99_three|text', 'The supplied field number ''99'' cannot be found in the ''LT Y71 LF Tab'' table.');
+        Obs.Expect('add_99_three|code', 'FieldNotFound');
+        Obs.Expect('add_three', 'ok');
+        Obs.Expect('add_three|loaded', '1:Y 2:Y 3:Y 4:N 5:Y 50:N');
+        Obs.Expect('add_three|values', '1=1 2=one 3=1.5 4=A 5=0 50=11');
+        Obs.Expect('add_without_set', 'ok');
+        Obs.Expect('add_without_set|loaded', '1:Y 2:Y 3:Y 4:Y 5:Y 50:Y');
+        Obs.Expect('add_without_set|values', '1=1 2=one 3=1.5 4=A 5=0 50=11');
+        Obs.Expect('add_nth5', 'ok');
+        Obs.Expect('add_nth5|loaded', '1:Y 2:Y 3:Y 4:N 5:Y 50:N');
+        Obs.Expect('add_nth5|values', '1=1 2=one 3=1.5 4=A 5=0 50=11');
+        Obs.Verify();
     end;
 
     [Test]
@@ -283,7 +346,31 @@ codeunit 93801 "LT Y71 RecRef LoadFields"
         Probe('calc_five', 306);
         Probe('calc_zero_five', 307);
         Probe('calc_nth_five', 308);
-        Obs.Finish();
+        Obs.Expect('calc_zero', 'error');
+        Obs.Expect('calc_zero|text', 'The timestamp field in the LT Y71 LF Tab table must be a FlowField.');
+        Obs.Expect('calc_zero|code', 'DB:Ok');
+        Obs.Expect('calc_five_zero', 'error');
+        Obs.Expect('calc_five_zero|text', 'The timestamp field in the LT Y71 LF Tab table must be a FlowField.');
+        Obs.Expect('calc_five_zero|code', 'DB:Ok');
+        Obs.Expect('calc_99', 'error');
+        Obs.Expect('calc_99|text', 'The supplied field number ''99'' cannot be found in the ''LT Y71 LF Tab'' table.');
+        Obs.Expect('calc_99|code', 'FieldNotFound');
+        Obs.Expect('calc_five_99', 'error');
+        Obs.Expect('calc_five_99|text', 'The supplied field number ''99'' cannot be found in the ''LT Y71 LF Tab'' table.');
+        Obs.Expect('calc_five_99|code', 'FieldNotFound');
+        Obs.Expect('calc_two', 'error');
+        Obs.Expect('calc_two|text', 'The Name field in the LT Y71 LF Tab table must be a FlowField.');
+        Obs.Expect('calc_two|code', 'DB:Ok');
+        Obs.Expect('calc_five', 'ok');
+        Obs.Expect('calc_five|loaded', '1:Y 2:Y 3:Y 4:Y 5:Y 50:Y');
+        Obs.Expect('calc_five|values', '1=1 2=one 3=1.5 4=A 5=2 50=11');
+        Obs.Expect('calc_zero_five', 'error');
+        Obs.Expect('calc_zero_five|text', 'The timestamp field in the LT Y71 LF Tab table must be a FlowField.');
+        Obs.Expect('calc_zero_five|code', 'DB:Ok');
+        Obs.Expect('calc_nth_five', 'error');
+        Obs.Expect('calc_nth_five|text', 'The Name field in the LT Y71 LF Tab table must be a FlowField.');
+        Obs.Expect('calc_nth_five|code', 'DB:Ok');
+        Obs.Verify();
     end;
 
     [TryFunction]
@@ -341,7 +428,16 @@ codeunit 93801 "LT Y71 RecRef LoadFields"
         AreLoaded('zero_two', 7);
         AreLoaded('99_two', 8);
         AreLoaded('nth3', 9);
-        Obs.Finish();
+        Obs.Expect('zero', 'Yes');
+        Obs.Expect('two_zero', 'Yes');
+        Obs.Expect('99', 'No');
+        Obs.Expect('two_99', 'No');
+        Obs.Expect('two', 'Yes');
+        Obs.Expect('two_three', 'No');
+        Obs.Expect('zero_two', 'Yes');
+        Obs.Expect('99_two', 'No');
+        Obs.Expect('nth3', 'No');
+        Obs.Verify();
     end;
 }
 
@@ -447,6 +543,8 @@ codeunit 93804 "LT Y71 RecRef LoadFields Pg"
             Obs.ObserveError('close');
         end;
         Obs.Observe('log', Log.Text());
-        Obs.Finish();
+        Obs.Expect('close', 'ok');
+        Obs.Expect('log', 'query close;set load fields done;first row one');
+        Obs.Verify();
     end;
 }

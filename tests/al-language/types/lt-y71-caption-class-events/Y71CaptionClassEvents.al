@@ -165,14 +165,12 @@ codeunit 93834 "LT Y71 Caption Class Events"
         OpenAndRead('lang_1030', false);
         GlobalLanguage(OriginalLanguage);
         UnbindSubscription(Subs);
-        Obs.Finish();
+        Obs.Expect('lang_1030|f_caption', 'Lit cap');
+        Obs.Expect('lang_1030|g_caption', 'res 1030');
+        Obs.Expect('lang_1030|log', 'after lang=1030 expr=3,Lit cap caption=Lit cap | translate lang=1030 expr=3,Lit cap in=Lit cap | resolve area=LTY71 expr=expr lang=1030 | after lang=1030 expr=LTY71,expr caption=res 1030 | translate lang=1030 expr=LTY71,expr in=res 1030 | after lang=1030 expr=3,Lit two caption=Lit two | translate lang=1030 expr=3,Lit two in=Lit two | resolve area=LTY71 expr=two lang=1030 | after lang=1030 expr=LTY71,two caption=res 1030 | translate lang=1030 expr=LTY71,two in=res 1030');
+        Obs.Verify();
     end;
 
-    [Test]
-    procedure CaptionClass_AfterGlobalLanguage1030_More1()
-    begin
-        Obs.More();
-    end;
 
     [Test]
     procedure CaptionClass_LanguageChangedBetweenOpens()
@@ -191,14 +189,18 @@ codeunit 93834 "LT Y71 Caption Class Events"
         OpenAndRead('lang_1031_third', true);
         GlobalLanguage(OriginalLanguage);
         UnbindSubscription(Subs);
-        Obs.Finish();
+        Obs.Expect('lang_1031_first|h_caption', 'Lit two');
+        Obs.Expect('lang_1031_first|i_caption', 'res 1031');
+        Obs.Expect('lang_1031_first|log', 'after lang=1031 expr=3,Lit cap caption=Lit cap | translate lang=1031 expr=3,Lit cap in=Lit cap | resolve area=LTY71 expr=expr lang=1031 | after lang=1031 expr=LTY71,expr caption=res 1031 | translate lang=1031 expr=LTY71,expr in=res 1031 | after lang=1031 expr=3,Lit two caption=Lit two | translate lang=1031 expr=3,Lit two in=Lit two | resolve area=LTY71 expr=two lang=1031 | after lang=1031 expr=LTY71,two caption=res 1031 | translate lang=1031 expr=LTY71,two in=res 1031');
+        Obs.Expect('lang_1036_second|h_caption', 'Lit two');
+        Obs.Expect('lang_1036_second|i_caption', 'res 1036');
+        Obs.Expect('lang_1036_second|log', 'after lang=1036 expr=3,Lit cap caption=Lit cap | translate lang=1036 expr=3,Lit cap in=Lit cap | resolve area=LTY71 expr=expr lang=1036 | after lang=1036 expr=LTY71,expr caption=res 1036 | translate lang=1036 expr=LTY71,expr in=res 1036 | after lang=1036 expr=3,Lit two caption=Lit two | translate lang=1036 expr=3,Lit two in=Lit two | resolve area=LTY71 expr=two lang=1036 | after lang=1036 expr=LTY71,two caption=res 1036 | translate lang=1036 expr=LTY71,two in=res 1036');
+        Obs.Expect('lang_1031_third|h_caption', 'Lit two');
+        Obs.Expect('lang_1031_third|i_caption', 'res 1031');
+        Obs.Expect('lang_1031_third|log', '');
+        Obs.Verify();
     end;
 
-    [Test]
-    procedure CaptionClass_LanguageChangedBetweenOpens_More1()
-    begin
-        Obs.More();
-    end;
 
     [Test]
     procedure CaptionClassTranslate_Statement_AfterLanguageChange()
@@ -230,12 +232,19 @@ codeunit 93834 "LT Y71 Caption Class Events"
         Obs.Observe('area3_x3_again|log', Log.Text());
         GlobalLanguage(OriginalLanguage);
         UnbindSubscription(Subs);
-        Obs.Finish();
+        Obs.Expect('x1_1033', 'res 1033');
+        Obs.Expect('x1_1033|log', 'resolve area=LTY71 expr=x1 lang=1033 | after lang=1033 expr=LTY71,x1 caption=res 1033 | translate lang=1033 expr=LTY71,x1 in=res 1033');
+        Obs.Expect('x1_1030', 'res 1030');
+        Obs.Expect('x1_1030|log', 'resolve area=LTY71 expr=x1 lang=1030 | after lang=1030 expr=LTY71,x1 caption=res 1030 | translate lang=1030 expr=LTY71,x1 in=res 1030');
+        Obs.Expect('x1_1030_again', 'res 1030');
+        Obs.Expect('x1_1030_again|log', '');
+        Obs.Expect('x2_1030', 'res 1030');
+        Obs.Expect('x2_1030|log', 'resolve area=LTY71 expr=x2 lang=1030 | after lang=1030 expr=LTY71,x2 caption=res 1030 | translate lang=1030 expr=LTY71,x2 in=res 1030');
+        Obs.Expect('area3_x3', 'Lit x3');
+        Obs.Expect('area3_x3|log', 'after lang=1030 expr=3,Lit x3 caption=Lit x3 | translate lang=1030 expr=3,Lit x3 in=Lit x3');
+        Obs.Expect('area3_x3_again', 'Lit x3');
+        Obs.Expect('area3_x3_again|log', '');
+        Obs.Verify();
     end;
 
-    [Test]
-    procedure CaptionClassTranslate_Statement_AfterLanguageChange_More1()
-    begin
-        Obs.More();
-    end;
 }

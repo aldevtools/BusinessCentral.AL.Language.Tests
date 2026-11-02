@@ -1,6 +1,8 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/record/record-insert-method
 // Scope: in-scope
 // Fixtures used: Probe Observer (codeunit 69160); own table 93810, codeunits 93811-93813 (writer Y71, gap cycle 7 spec G7-03)
+// NOT PROBED: the same scenarios when the row was inserted earlier in the SAME uncommitted transaction. BC ends such a test with 'An error occurred and the
+//        transaction is stopped' (also around asserterror), so no value can be asserted.
 // Probe: `if not R.Insert() then R.Modify();` when the row was already written, in the shapes Microsoft code uses for request records:
 //        a buffer read before and the row changed through a second variable (with and without a Commit between), a fresh buffer that was
 //        never read, Insert(true) and Modify(true) (which triggers run), a ModifyAll in place of the second variable's Modify, a
@@ -369,168 +371,146 @@ codeunit 93813 "LT Y71 Failed Insert Modify"
     begin
         Seed(true);
         Scenario('committed', 1, true, true);
-        Obs.Finish();
+        Obs.Expect('committed', 'raised');
+        Obs.Expect('committed|text', 'The changes to the LT Y71 MI Tab record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\No.=''A''');
+        Obs.Expect('committed|code', 'DB:RecordChanged');
+        Obs.Expect('committed|notes', 'insert=No');
+        Obs.Expect('committed|log', 'BeforeModify:No,BeforeModify:No');
+        Obs.Expect('committed|stored', 'orig/1');
+        Obs.Verify();
     end;
 
-    [Test]
-    procedure FailedInsert_ThenModify_BufferReadBefore_RowChangedElsewhere_More1()
-    begin
-        Obs.More();
-    end;
 
-    [Test]
-    procedure FailedInsert_ThenModify_BufferReadBefore_Uncommitted()
-    begin
-        Seed(false);
-        Scenario('uncommitted', 1, true, false);
-        Obs.Finish();
-    end;
 
-    [Test]
-    procedure FailedInsert_ThenModify_BufferReadBefore_Uncommitted_More1()
-    begin
-        Obs.More();
-    end;
 
     [Test]
     procedure FailedInsert_ThenModify_CommitBetween()
     begin
         Seed(true);
         Scenario('commit_between', 2, true, true);
-        Obs.Finish();
+        Obs.Expect('commit_between', 'raised');
+        Obs.Expect('commit_between|text', 'The changes to the LT Y71 MI Tab record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\No.=''A''');
+        Obs.Expect('commit_between|code', 'DB:RecordChanged');
+        Obs.Expect('commit_between|notes', 'insert=No');
+        Obs.Expect('commit_between|log', 'BeforeModify:No,BeforeModify:No');
+        Obs.Expect('commit_between|stored', 'orig/2');
+        Obs.Verify();
     end;
 
-    [Test]
-    procedure FailedInsert_ThenModify_CommitBetween_More1()
-    begin
-        Obs.More();
-    end;
 
     [Test]
     procedure FailedInsert_ThenModify_FreshBuffer()
     begin
         Seed(true);
         Scenario('committed', 3, true, true);
-        Obs.Finish();
+        Obs.Expect('committed', 'ok');
+        Obs.Expect('committed|notes', 'insert=No,modify done,buffer qty=5,committed');
+        Obs.Expect('committed|log', 'BeforeModify:No,BeforeModify:No');
+        Obs.Expect('committed|stored', 'x/5');
+        Obs.Verify();
     end;
 
-    [Test]
-    procedure FailedInsert_ThenModify_FreshBuffer_More1()
-    begin
-        Obs.More();
-    end;
 
-    [Test]
-    procedure FailedInsert_ThenModify_FreshBuffer_Uncommitted()
-    begin
-        Seed(false);
-        Scenario('uncommitted', 3, true, false);
-        Obs.Finish();
-    end;
 
-    [Test]
-    procedure FailedInsert_ThenModify_FreshBuffer_Uncommitted_More1()
-    begin
-        Obs.More();
-    end;
 
     [Test]
     procedure FailedInsertTrue_ThenModifyTrue()
     begin
         Seed(true);
         Scenario('committed', 4, true, true);
-        Obs.Finish();
+        Obs.Expect('committed', 'raised');
+        Obs.Expect('committed|text', 'The changes to the LT Y71 MI Tab record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\No.=''A''');
+        Obs.Expect('committed|code', 'DB:RecordChanged');
+        Obs.Expect('committed|notes', 'insert=No');
+        Obs.Expect('committed|log', 'BeforeModify:No,OnInsert,BeforeModify:Yes,OnModify');
+        Obs.Expect('committed|stored', 'orig/1');
+        Obs.Verify();
     end;
 
-    [Test]
-    procedure FailedInsertTrue_ThenModifyTrue_More1()
-    begin
-        Obs.More();
-    end;
 
     [Test]
     procedure FailedInsert_ThenModify_AfterModifyAll()
     begin
         Seed(true);
         Scenario('committed', 5, true, true);
-        Obs.Finish();
+        Obs.Expect('committed', 'raised');
+        Obs.Expect('committed|text', 'The changes to the LT Y71 MI Tab record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\No.=''A''');
+        Obs.Expect('committed|code', 'DB:RecordChanged');
+        Obs.Expect('committed|notes', 'insert=No');
+        Obs.Expect('committed|log', 'BeforeModify:No,BeforeModify:No');
+        Obs.Expect('committed|stored', 'orig/1');
+        Obs.Verify();
     end;
 
-    [Test]
-    procedure FailedInsert_ThenModify_AfterModifyAll_More1()
-    begin
-        Obs.More();
-    end;
 
     [Test]
     procedure FailedInsert_ThenModify_NothingChangedElsewhere()
     begin
         Seed(true);
         Scenario('committed', 7, true, true);
-        Obs.Finish();
+        Obs.Expect('committed', 'ok');
+        Obs.Expect('committed|notes', 'insert=No,modify done,buffer qty=5,committed');
+        Obs.Expect('committed|log', 'BeforeModify:No');
+        Obs.Expect('committed|stored', 'x/5');
+        Obs.Verify();
     end;
 
-    [Test]
-    procedure FailedInsert_ThenModify_NothingChangedElsewhere_More1()
-    begin
-        Obs.More();
-    end;
 
     [Test]
     procedure FailedInsertTwice_ThenModify()
     begin
         Seed(true);
         Scenario('committed', 8, true, true);
-        Obs.Finish();
+        Obs.Expect('committed', 'raised');
+        Obs.Expect('committed|text', 'The changes to the LT Y71 MI Tab record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\No.=''A''');
+        Obs.Expect('committed|code', 'DB:RecordChanged');
+        Obs.Expect('committed|notes', 'insert1=No,insert2=No');
+        Obs.Expect('committed|log', 'BeforeModify:No,BeforeModify:No');
+        Obs.Expect('committed|stored', 'orig/1');
+        Obs.Verify();
     end;
 
-    [Test]
-    procedure FailedInsertTwice_ThenModify_More1()
-    begin
-        Obs.More();
-    end;
 
     [Test]
     procedure Insert_AfterRowDeletedElsewhere()
     begin
         Seed(true);
         Scenario('committed', 9, true, true);
-        Obs.Finish();
+        Obs.Expect('committed', 'ok');
+        Obs.Expect('committed|notes', 'insert=Yes,modify done,buffer qty=5,committed');
+        Obs.Expect('committed|log', '');
+        Obs.Expect('committed|stored', 'x/5');
+        Obs.Verify();
     end;
 
-    [Test]
-    procedure Insert_AfterRowDeletedElsewhere_More1()
-    begin
-        Obs.More();
-    end;
 
     [Test]
     procedure BlobTable_FailedInsert_ThenModify_BufferReadBefore()
     begin
         Seed(true);
         Scenario('blob_committed', 21, true, true);
-        Obs.Finish();
+        Obs.Expect('blob_committed', 'raised');
+        Obs.Expect('blob_committed|text', 'The changes to the LT Y71 MI Blob Tab record cannot be saved because some information on the page is not up-to-date. Close the page, reopen it, and try again.\\Identification fields and values:\\No.=''A''');
+        Obs.Expect('blob_committed|code', 'DB:RecordChanged');
+        Obs.Expect('blob_committed|notes', 'insert=No');
+        Obs.Expect('blob_committed|log', '');
+        Obs.Expect('blob_committed|stored', 'orig/1');
+        Obs.Verify();
     end;
 
-    [Test]
-    procedure BlobTable_FailedInsert_ThenModify_BufferReadBefore_More1()
-    begin
-        Obs.More();
-    end;
 
     [Test]
     procedure BlobTable_FailedInsert_ThenModify_FreshBuffer()
     begin
         Seed(true);
         Scenario('blob_committed', 23, true, true);
-        Obs.Finish();
+        Obs.Expect('blob_committed', 'ok');
+        Obs.Expect('blob_committed|notes', 'insert=No,modify done,buffer qty=5,committed');
+        Obs.Expect('blob_committed|log', '');
+        Obs.Expect('blob_committed|stored', 'x/5');
+        Obs.Verify();
     end;
 
-    [Test]
-    procedure BlobTable_FailedInsert_ThenModify_FreshBuffer_More1()
-    begin
-        Obs.More();
-    end;
 
     [Test]
     procedure FailedInsert_ThenModify_Temporary()
@@ -559,12 +539,10 @@ codeunit 93813 "LT Y71 Failed Insert Modify"
         Obs.Observe('buffer_qty', Format(R.Qty));
         Temp.Get('A');
         Obs.Observe('stored', StrSubstNo('%1/%2', Temp.Name, Temp.Qty));
-        Obs.Finish();
+        Obs.Expect('insert', 'No');
+        Obs.Expect('buffer_qty', '5');
+        Obs.Expect('stored', 'x/5');
+        Obs.Verify();
     end;
 
-    [Test]
-    procedure FailedInsert_ThenModify_Temporary_More1()
-    begin
-        Obs.More();
-    end;
 }
