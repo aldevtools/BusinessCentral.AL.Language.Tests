@@ -157,7 +157,7 @@ codeunit 94058 "LT Y76 Stale Buffers"
     // Returns "<write outcome> stored=<text>|<integer>". SameTx: the row is inserted by another variable in the transaction the Commit closes,
     // and the buffer is made in that transaction (the row version was written in it); otherwise the row is committed first and the buffer is
     // made in the next transaction.
-    local procedure Part1(Origin: Text; What: Text; Deleting: Boolean; SameTx: Boolean): Text
+    local procedure Part1Run(Origin: Text; What: Text; Deleting: Boolean; SameTx: Boolean; Plain: Boolean): Text
     var
         Row: Record "LT Y76 SB Row";
         Inserter: Record "LT Y76 SB Row";
@@ -179,11 +179,30 @@ codeunit 94058 "LT Y76 Stale Buffers"
         Commit();
         Between(What);
         Row."Integer Field" := 5;
-        Outcome := WriteOutcome(Row, Deleting);
+        if Plain then begin
+            if Deleting then
+                Row.Delete(false)
+            else
+                Row.Modify(false);
+            Outcome := 'ok';
+        end else
+            Outcome := WriteOutcome(Row, Deleting);
         Outcome += ' stored=' + Stored();
         Rows.DeleteAll();
         Commit();
         exit(Outcome);
+    end;
+
+    // The write runs once inside an asserterror (which rolls its writes back) to learn whether it is accepted; an accepted write runs again
+    // as a plain statement so the stored row can be read.
+    local procedure Part1(Origin: Text; What: Text; Deleting: Boolean; SameTx: Boolean): Text
+    var
+        First: Text;
+    begin
+        First := Part1Run(Origin, What, Deleting, SameTx, false);
+        if First.StartsWith('ok') then
+            exit(Part1Run(Origin, What, Deleting, SameTx, true));
+        exit(First);
     end;
 
     local procedure Part1Modes(var Observer: Codeunit "Probe Observer"; Origin: Text)
@@ -267,7 +286,7 @@ codeunit 94058 "LT Y76 Stale Buffers"
         Another.Insert(true);
     end;
 
-    local procedure Part2(OwnModify: Boolean; Commits: Integer; Beside: Text; Deleting: Boolean): Text
+    local procedure Part2Run(OwnModify: Boolean; Commits: Integer; Beside: Text; Deleting: Boolean; Plain: Boolean): Text
     var
         Row: Record "LT Y76 SB Row";
         Another: Record "LT Y76 SB Row";
@@ -324,7 +343,14 @@ codeunit 94058 "LT Y76 Stale Buffers"
                 end;
         end;
         Row."Integer Field" := 5;
-        Outcome := WriteOutcome(Row, Deleting);
+        if Plain then begin
+            if Deleting then
+                Row.Delete(false)
+            else
+                Row.Modify(false);
+            Outcome := 'ok';
+        end else
+            Outcome := WriteOutcome(Row, Deleting);
         if Other.Get(6) then
             Stored6 := Other."Text Field" + '|' + Format(Other."Integer Field") + '|' + Format(Other."Decimal Field")
         else
@@ -334,6 +360,16 @@ codeunit 94058 "LT Y76 Stale Buffers"
         Keyed.DeleteAll();
         Commit();
         exit(Outcome);
+    end;
+
+    local procedure Part2(OwnModify: Boolean; Commits: Integer; Beside: Text; Deleting: Boolean): Text
+    var
+        First: Text;
+    begin
+        First := Part2Run(OwnModify, Commits, Beside, Deleting, false);
+        if First.StartsWith('ok') then
+            exit(Part2Run(OwnModify, Commits, Beside, Deleting, true));
+        exit(First);
     end;
 
     [Test]
