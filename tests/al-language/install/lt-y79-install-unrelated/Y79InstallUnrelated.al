@@ -292,6 +292,8 @@ codeunit 94170 "LT Y79 Install Unrelated"
         MsText := Render.Describe(Database::Contact, Info);
         Observer.Observe('test session own table', OwnText);
         Observer.Observe('test session Base Application table', MsText);
+        Observer.Expect('test session own table', 'cap name=LT Y79 XA Data caption=LT Y79 XA Data subtype=[Normal] ns=[] pkg=own rt=own rt=pkg:Yes app=own |same as Table row: pkg=Yes rt=Yes app=Yes ns=Yes |AllObj same: pkg=Yes rt=Yes ns=Yes');
+        Observer.Expect('test session Base Application table', 'cap name=Contact caption=Contact subtype=[Normal] ns=[Microsoft.CRM.Contact] pkg=base rt=other rt=pkg:No app=base |same as Table row: pkg=Yes rt=Yes app=Yes ns=Yes |AllObj same: pkg=Yes rt=Yes ns=Yes');
         foreach App in Installs() do
             foreach Phase in PhasesList() do begin
                 Observer.Observe('install ' + App + ' ' + Phase + ' own table', After('objects|' + App + '|' + Phase + '|own|'));
@@ -299,8 +301,6 @@ codeunit 94170 "LT Y79 Install Unrelated"
                 Observer.Expect('install ' + App + ' ' + Phase + ' own table', OwnText);
                 Observer.Expect('install ' + App + ' ' + Phase + ' Base Application table', MsText);
             end;
-        Observer.Expect('test session own table', 'cap name=LT Y79 XA Data caption=LT Y79 XA Data subtype=[Normal] ns=[] pkg=own rt=own rt=pkg:Yes app=own |same as Table row: pkg=Yes rt=Yes app=Yes ns=Yes |AllObj same: pkg=Yes rt=Yes ns=Yes');
-        Observer.Expect('test session Base Application table', 'cap name=Contact caption=Contact subtype=[Normal] ns=[Microsoft.CRM.Contact] pkg=base rt=other rt=pkg:No app=base |same as Table row: pkg=Yes rt=Yes app=Yes ns=Yes |AllObj same: pkg=Yes rt=Yes ns=Yes');
         Observer.Verify();
     end;
 
@@ -311,5 +311,121 @@ codeunit 94170 "LT Y79 Install Unrelated"
         Result.Add('co');
         Result.Add('db');
         exit(Result);
+    end;
+
+    local procedure Clean(): Text
+    var
+        Row: Record "LT Y79 XA Seen";
+        Result: Text;
+    begin
+        if Row.FindSet() then
+            repeat
+                if Row.Tag.Contains('|-|') then begin
+                    Result += Row.Tag + ' ## ';
+                    Row.Delete();
+                end;
+            until Row.Next() = 0;
+        exit(Result);
+    end;
+
+    [Test]
+    procedure Y79_TestSession_Obs61377()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT Y79 XA Mask 2";
+    begin
+        Clean();
+        Row.Init();
+        Row."No." := 1;
+        Row.Insert(true);
+        Observer.Observe('after insert', Clean());
+        Row.Note := 'x';
+        Row.Modify(true);
+        Observer.Observe('after modify', Clean());
+        Row.Rename(2);
+        Observer.Observe('after rename', Clean());
+        Row.Delete(true);
+        Observer.Observe('after delete', Clean());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y79_TestSession_Obs61378()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT Y79 XA Mask 4";
+    begin
+        Clean();
+        Row.Init();
+        Row."No." := 1;
+        Row.Insert(true);
+        Observer.Observe('after insert', Clean());
+        Row.Note := 'x';
+        Row.Modify(true);
+        Observer.Observe('after modify', Clean());
+        Row.Rename(2);
+        Observer.Observe('after rename', Clean());
+        Row.Delete(true);
+        Observer.Observe('after delete', Clean());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y79_TestSession_Obs61379()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT Y79 XA Mask 8";
+    begin
+        Clean();
+        Row.Init();
+        Row."No." := 1;
+        Row.Insert(true);
+        Observer.Observe('after insert', Clean());
+        Row.Note := 'x';
+        Row.Modify(true);
+        Observer.Observe('after modify', Clean());
+        Row.Rename(2);
+        Observer.Observe('after rename', Clean());
+        Row.Delete(true);
+        Observer.Observe('after delete', Clean());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y79_TestSession_Obs61371()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT Y79 XA Db Data";
+    begin
+        Clean();
+        Row.Init();
+        Row."No." := 9971;
+        Row.Insert(true);
+        Observer.Observe('after insert', Clean());
+        Row.Note := 'x';
+        Row.Modify(true);
+        Observer.Observe('after modify', Clean());
+        Row.Delete(true);
+        Observer.Observe('after delete', Clean());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y79_TestSession_Obs61370()
+    var
+        Observer: Codeunit "Probe Observer";
+        Row: Record "LT Y79 XA Data";
+    begin
+        Clean();
+        Row.Init();
+        Row."No." := 9972;
+        Row.Insert(true);
+        Observer.Observe('after insert', Clean());
+        Row.Note := 'x';
+        Row.Modify(true);
+        Observer.Observe('after modify', Clean());
+        Row.Delete(true);
+        Observer.Observe('after delete', Clean());
+        Observer.Finish();
     end;
 }
