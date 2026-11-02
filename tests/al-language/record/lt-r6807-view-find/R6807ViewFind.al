@@ -212,13 +212,13 @@ codeunit 94522 "LT R6807 View Find"
                 begin
                     R.FilterGroup(2); F := R.Field(3); F.SetRange(0); R.FilterGroup(0);
                 end;
-            'copyFlowZero':
+            'viewRoundTripFlowZero':
                 begin
-                    Q.SetRange(Cnt, 0); R2.GetTable(Q); F := R.Field(3); F.CopyFilter(R2.Field(3));
+                    Q.SetRange(Cnt, 0); R2.GetTable(Q); R.SetView(R2.GetView(false));
                 end;
-            'copyStored':
+            'viewRoundTripStored':
                 begin
-                    Q.SetRange("No.", 'B'); R2.GetTable(Q); F := R.Field(1); F.CopyFilter(R2.Field(1));
+                    Q.SetRange("No.", 'B'); R2.GetTable(Q); R.SetView(R2.GetView(false));
                 end;
             'viewThenGet':
                 begin
@@ -481,20 +481,20 @@ codeunit 94522 "LT R6807 View Find"
     end;
 
     [Test]
-    procedure Ref_copyFlowZero()
+    procedure Ref_viewRoundTripFlowZero()
     var
         Observer: Codeunit "Probe Observer";
     begin
-        RefProbe('copyFlowZero', Observer);
+        RefProbe('viewRoundTripFlowZero', Observer);
         Observer.Finish();
     end;
 
     [Test]
-    procedure Ref_copyStored()
+    procedure Ref_viewRoundTripStored()
     var
         Observer: Codeunit "Probe Observer";
     begin
-        RefProbe('copyStored', Observer);
+        RefProbe('viewRoundTripStored', Observer);
         Observer.Finish();
     end;
 
