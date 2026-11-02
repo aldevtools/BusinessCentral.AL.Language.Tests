@@ -11,6 +11,7 @@ table 94100 "LT Y77 Row"
         field(2; G; Guid) { }
         field(3; T; Text[50]) { }
         field(4; C; Code[50]) { }
+        field(5; DF; DateFormula) { }
     }
 
     keys

@@ -459,4 +459,55 @@ codeunit 94100 "LT Y77 Guid Filter"
     begin
         Shapes(10, 12);
     end;
+
+    // ---- Topic 2: a text filter on a DateFormula field (Y70Probes FilterDateFormula_EmptyText pins only the code Filter:CSide)
+    [TryFunction]
+    local procedure TryDateFormulaFilter(Mode: Integer; FilterText: Text)
+    var
+        Row: Record "LT Y77 Row";
+        RRef: RecordRef;
+        FRef: FieldRef;
+    begin
+        case Mode of
+            1:
+                Row.SetFilter(DF, FilterText);
+            2:
+                Row.SetRange(DF, FilterText);
+            3:
+                begin
+                    RRef.GetTable(Row);
+                    FRef := RRef.Field(5);
+                    FRef.SetFilter(FilterText);
+                end;
+        end;
+    end;
+
+    local procedure DateFormulaCase(Name: Text; Mode: Integer; FilterText: Text)
+    begin
+        if TryDateFormulaFilter(Mode, FilterText) then
+            Obs.Observe(Name, 'ok')
+        else begin
+            Obs.Observe(Name, 'ERR ' + GetLastErrorCode() + ' / ' + GetLastErrorText());
+            ClearLastError();
+        end;
+    end;
+
+    [Test]
+    procedure DateFormula_TextFilter_SetFilter()
+    begin
+        DateFormulaCase('sf_1M', 1, '<1M>');
+        DateFormulaCase('sf_neg', 1, '<-CM+2D>');
+        DateFormulaCase('sf_plain', 1, 'abc');
+        DateFormulaCase('sf_empty', 1, '');
+        Obs.Finish();
+    end;
+
+    [Test]
+    procedure DateFormula_TextFilter_SetRangeAndFieldRef()
+    begin
+        DateFormulaCase('sr_1M', 2, '<1M>');
+        DateFormulaCase('fr_1M', 3, '<1M>');
+        DateFormulaCase('fr_plain', 3, 'abc');
+        Obs.Finish();
+    end;
 }
