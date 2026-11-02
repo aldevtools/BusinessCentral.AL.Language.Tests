@@ -9,6 +9,16 @@
 //   reporter's shape (host with OnAfterGetCurrRecord only, parts without triggers). Every part logs its triggers with its own prefix
 //   (p linked, o OtherA, q OtherB, w OtherC, c card, h host).
 
+// Result (BC 28.5 on Windows; the CI legs check 27.5, 28.5 and 29.0): as with one or two parts. The lookup shows R2 in ResourceNo, runs
+//   OnValidate once and stores R2; the globals and every part keep the values of before ('R1/'). The refresh of CurrPage.Update(false)
+//   stays pending until the first access to a part that no call reached since the page opened (reading one of its controls) or a
+//   move of a part. Parts read before the lookup and again after it run nothing and show the old values. The refresh runs the open's
+//   reads again: the host rows, each part in layout order, then a tail: the host's current row once per ListPart of the content area,
+//   then each of these ListParts but the last of the layout once less than the one before (OtherA twice, OtherB once with three).
+//   A FactBox CardPart runs in the open's reads after the ListParts and is not in the tail. Four parts: host four times, then three,
+//   two, one. The reporter's shape (host OnAfterGetCurrRecord only, parts without triggers): ResourceNo R2, CurrentNo and every
+//   part R1, stored R2. A move of a part after the lookup adds reads of the host and the parts that follow (the *NextFirst tests).
+
 codeunit 94560 "LT R6806 Log"
 {
     SingleInstance = true;
@@ -992,7 +1002,26 @@ codeunit 94575 "LT R6806 Lookup Part Tests"
         Observer.Observe('close log', Log.Take());
         Setting.Get();
         Observer.Observe('stored', Setting."Resource No.");
-        Observer.Finish();
+        Observer.Expect('open log', 'h-agr R1;h-fn R1;h-agr R2;h-fn R2;h-agr R3;h-fn R3;h-agr R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;o-agr R1;o-fn R1;o-agr R2;o-fn R2;o-agr R3;o-fn R3;o-agr R1;o-agr R1;o-fn R1;o-agcr R1;o-fn R1;q-agr R1;q-fn R1;q-agr R2;q-fn R2;q-agr R3;q-fn R3;q-agr R1;q-agr R1;q-fn R1;q-agcr R1;q-fn R1;p-agr R1;p-fn R1;p-agr R1;p-fn R1;p-agcr R1;p-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;o-agr R1;o-fn R1;o-agcr R1;o-fn R1;o-agr R1;o-fn R1;o-agcr R1;o-fn R1;q-agr R1;q-fn R1;q-agcr R1;q-fn R1');
+        Observer.Expect('before', '|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/');
+        Observer.Expect('before log', '');
+        Observer.Expect('lookup log', 'lookup;h-fn R1;validate R2;h-fn R1');
+        Observer.Expect('resource no', 'R2');
+        Observer.Expect('resource no log', '');
+        Observer.Expect('current no', 'R1/');
+        Observer.Expect('host fn', 'R1/R2');
+        Observer.Expect('host log', '');
+        Observer.Expect('OtherA read', 'R1|R1/|R1/');
+        Observer.Expect('OtherA read log', '');
+        Observer.Expect('OtherB read', 'R1|R1/|R1/');
+        Observer.Expect('OtherB read log', '');
+        Observer.Expect('Resources read', 'R1|R1/|R1/');
+        Observer.Expect('Resources read log', '');
+        Observer.Expect('after', 'R2|R1/|R1|R1/|R1/R2|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/');
+        Observer.Expect('after log', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'R2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1026,7 +1055,26 @@ codeunit 94575 "LT R6806 Lookup Part Tests"
         Observer.Observe('close log', Log.Take());
         Setting.Get();
         Observer.Observe('stored', Setting."Resource No.");
-        Observer.Finish();
+        Observer.Expect('open log', 'h-agr R1;h-fn R1;h-agr R2;h-fn R2;h-agr R3;h-fn R3;h-agr R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;p-agr R1;p-fn R1;p-agr R1;p-fn R1;p-agcr R1;p-fn R1;o-agr R1;o-fn R1;o-agr R2;o-fn R2;o-agr R3;o-fn R3;o-agr R1;o-agr R1;o-fn R1;o-agcr R1;o-fn R1;q-agr R1;q-fn R1;q-agr R2;q-fn R2;q-agr R3;q-fn R3;q-agr R1;q-agr R1;q-fn R1;q-agcr R1;q-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;p-agr R1;p-fn R1;p-agcr R1;p-fn R1;p-agr R1;p-fn R1;p-agcr R1;p-fn R1;o-agr R1;o-fn R1;o-agcr R1;o-fn R1');
+        Observer.Expect('before', '|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/');
+        Observer.Expect('before log', '');
+        Observer.Expect('lookup log', 'lookup;h-fn R1;validate R2;h-fn R1');
+        Observer.Expect('resource no', 'R2');
+        Observer.Expect('resource no log', '');
+        Observer.Expect('current no', 'R1/');
+        Observer.Expect('host fn', 'R1/R2');
+        Observer.Expect('host log', '');
+        Observer.Expect('Resources read', 'R1|R1/|R1/');
+        Observer.Expect('Resources read log', '');
+        Observer.Expect('OtherA read', 'R1|R1/|R1/');
+        Observer.Expect('OtherA read log', '');
+        Observer.Expect('OtherB read', 'R1|R1/|R1/');
+        Observer.Expect('OtherB read log', '');
+        Observer.Expect('after', 'R2|R1/|R1|R1/|R1/R2|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/');
+        Observer.Expect('after log', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'R2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1060,7 +1108,26 @@ codeunit 94575 "LT R6806 Lookup Part Tests"
         Observer.Observe('close log', Log.Take());
         Setting.Get();
         Observer.Observe('stored', Setting."Resource No.");
-        Observer.Finish();
+        Observer.Expect('open log', 'h-agr R1;h-fn R1;h-agr R2;h-fn R2;h-agr R3;h-fn R3;h-agr R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;o-agr R1;o-fn R1;o-agr R2;o-fn R2;o-agr R3;o-fn R3;o-agr R1;o-agr R1;o-fn R1;o-agcr R1;o-fn R1;p-agr R1;p-fn R1;p-agr R1;p-fn R1;p-agcr R1;p-fn R1;q-agr R1;q-fn R1;q-agr R2;q-fn R2;q-agr R3;q-fn R3;q-agr R1;q-agr R1;q-fn R1;q-agcr R1;q-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;o-agr R1;o-fn R1;o-agcr R1;o-fn R1;o-agr R1;o-fn R1;o-agcr R1;o-fn R1;p-agr R1;p-fn R1;p-agcr R1;p-fn R1');
+        Observer.Expect('before', '|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/');
+        Observer.Expect('before log', '');
+        Observer.Expect('lookup log', 'lookup;h-fn R1;validate R2;h-fn R1');
+        Observer.Expect('resource no', 'R2');
+        Observer.Expect('resource no log', '');
+        Observer.Expect('current no', 'R1/');
+        Observer.Expect('host fn', 'R1/R2');
+        Observer.Expect('host log', '');
+        Observer.Expect('OtherA read', 'R1|R1/|R1/');
+        Observer.Expect('OtherA read log', '');
+        Observer.Expect('Resources read', 'R1|R1/|R1/');
+        Observer.Expect('Resources read log', '');
+        Observer.Expect('OtherB read', 'R1|R1/|R1/');
+        Observer.Expect('OtherB read log', '');
+        Observer.Expect('after', 'R2|R1/|R1|R1/|R1/R2|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/');
+        Observer.Expect('after log', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'R2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1096,7 +1163,28 @@ codeunit 94575 "LT R6806 Lookup Part Tests"
         Observer.Observe('close log', Log.Take());
         Setting.Get();
         Observer.Observe('stored', Setting."Resource No.");
-        Observer.Finish();
+        Observer.Expect('open log', 'h-agr R1;h-fn R1;h-agr R2;h-fn R2;h-agr R3;h-fn R3;h-agr R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;o-agr R1;o-fn R1;o-agr R2;o-fn R2;o-agr R3;o-fn R3;o-agr R1;o-agr R1;o-fn R1;o-agcr R1;o-fn R1;q-agr R1;q-fn R1;q-agr R2;q-fn R2;q-agr R3;q-fn R3;q-agr R1;q-agr R1;q-fn R1;q-agcr R1;q-fn R1;p-agr R1;p-fn R1;p-agr R1;p-fn R1;p-agcr R1;p-fn R1;c-agr R1;c-fn R1;c-agcr R1;c-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;o-agr R1;o-fn R1;o-agcr R1;o-fn R1;o-agr R1;o-fn R1;o-agcr R1;o-fn R1;q-agr R1;q-fn R1;q-agcr R1;q-fn R1');
+        Observer.Expect('before', '|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/');
+        Observer.Expect('before log', '');
+        Observer.Expect('lookup log', 'lookup;h-fn R1;validate R2;h-fn R1');
+        Observer.Expect('resource no', 'R2');
+        Observer.Expect('resource no log', '');
+        Observer.Expect('current no', 'R1/');
+        Observer.Expect('host fn', 'R1/R2');
+        Observer.Expect('host log', '');
+        Observer.Expect('OtherA read', 'R1|R1/|R1/');
+        Observer.Expect('OtherA read log', '');
+        Observer.Expect('OtherB read', 'R1|R1/|R1/');
+        Observer.Expect('OtherB read log', '');
+        Observer.Expect('Resources read', 'R1|R1/|R1/');
+        Observer.Expect('Resources read log', '');
+        Observer.Expect('Details read', 'R1|R1/|R1/');
+        Observer.Expect('Details read log', '');
+        Observer.Expect('after', 'R2|R1/|R1|R1/|R1/R2|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/');
+        Observer.Expect('after log', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'R2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1132,7 +1220,28 @@ codeunit 94575 "LT R6806 Lookup Part Tests"
         Observer.Observe('close log', Log.Take());
         Setting.Get();
         Observer.Observe('stored', Setting."Resource No.");
-        Observer.Finish();
+        Observer.Expect('open log', 'h-agr R1;h-fn R1;h-agr R2;h-fn R2;h-agr R3;h-fn R3;h-agr R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;o-agr R1;o-fn R1;o-agr R2;o-fn R2;o-agr R3;o-fn R3;o-agr R1;o-agr R1;o-fn R1;o-agcr R1;o-fn R1;q-agr R1;q-fn R1;q-agr R2;q-fn R2;q-agr R3;q-fn R3;q-agr R1;q-agr R1;q-fn R1;q-agcr R1;q-fn R1;w-agr R1;w-fn R1;w-agr R2;w-fn R2;w-agr R3;w-fn R3;w-agr R1;w-agr R1;w-fn R1;w-agcr R1;w-fn R1;p-agr R1;p-fn R1;p-agr R1;p-fn R1;p-agcr R1;p-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;o-agr R1;o-fn R1;o-agcr R1;o-fn R1;o-agr R1;o-fn R1;o-agcr R1;o-fn R1;o-agr R1;o-fn R1;o-agcr R1;o-fn R1;q-agr R1;q-fn R1;q-agcr R1;q-fn R1;q-agr R1;q-fn R1;q-agcr R1;q-fn R1;w-agr R1;w-fn R1;w-agcr R1;w-fn R1');
+        Observer.Expect('before', '|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/');
+        Observer.Expect('before log', '');
+        Observer.Expect('lookup log', 'lookup;h-fn R1;validate R2;h-fn R1');
+        Observer.Expect('resource no', 'R2');
+        Observer.Expect('resource no log', '');
+        Observer.Expect('current no', 'R1/');
+        Observer.Expect('host fn', 'R1/R2');
+        Observer.Expect('host log', '');
+        Observer.Expect('OtherA read', 'R1|R1/|R1/');
+        Observer.Expect('OtherA read log', '');
+        Observer.Expect('OtherB read', 'R1|R1/|R1/');
+        Observer.Expect('OtherB read log', '');
+        Observer.Expect('OtherC read', 'R1|R1/|R1/');
+        Observer.Expect('OtherC read log', '');
+        Observer.Expect('Resources read', 'R1|R1/|R1/');
+        Observer.Expect('Resources read log', '');
+        Observer.Expect('after', 'R2|R1/|R1|R1/|R1/R2|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/|R1|R1/|R1/');
+        Observer.Expect('after log', '');
+        Observer.Expect('close log', '');
+        Observer.Expect('stored', 'R2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1155,7 +1264,16 @@ codeunit 94575 "LT R6806 Lookup Part Tests"
         Observer.Observe('after', SnapABL(Schedule));
         Observer.Observe('after log', Log.Take());
         Schedule.Close();
-        Observer.Finish();
+        Observer.Expect('lookup log', 'lookup;h-fn R1;validate R2;h-fn R1');
+        Observer.Expect('OtherB first', 'R1|R1/R2');
+        Observer.Expect('OtherB first log', 'h-agr R1;h-fn R1;h-agr R2;h-fn R2;h-agr R3;h-fn R3;h-agr R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;o-agr R1;o-fn R1;o-agr R2;o-fn R2;o-agr R3;o-fn R3;o-agr R1;o-agr R1;o-fn R1;o-agcr R1;o-fn R1;q-agr R1;q-fn R1;q-agr R2;q-fn R2;q-agr R3;q-fn R3;q-agr R1;q-agr R1;q-fn R1;q-agcr R1;q-fn R1;p-agr R1;p-fn R1;p-agr R1;p-fn R1;p-agcr R1;p-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;o-agr R1;o-fn R1;o-agcr R1;o-fn R1;o-agr R1;o-fn R1;o-agcr R1;o-fn R1;q-agr R1;q-fn R1;q-agcr R1;q-fn R1');
+        Observer.Expect('OtherA read', 'R1|R1/R2');
+        Observer.Expect('OtherA read log', '');
+        Observer.Expect('Resources read', 'R1|R1/R2');
+        Observer.Expect('Resources read log', '');
+        Observer.Expect('after', 'R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2');
+        Observer.Expect('after log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1178,7 +1296,16 @@ codeunit 94575 "LT R6806 Lookup Part Tests"
         Observer.Observe('after', SnapABL(Schedule));
         Observer.Observe('after log', Log.Take());
         Schedule.Close();
-        Observer.Finish();
+        Observer.Expect('lookup log', 'lookup;h-fn R1;validate R2;h-fn R1');
+        Observer.Expect('Resources first', 'R1|R1/R2');
+        Observer.Expect('Resources first log', 'h-agr R1;h-fn R1;h-agr R2;h-fn R2;h-agr R3;h-fn R3;h-agr R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;o-agr R1;o-fn R1;o-agr R2;o-fn R2;o-agr R3;o-fn R3;o-agr R1;o-agr R1;o-fn R1;o-agcr R1;o-fn R1;q-agr R1;q-fn R1;q-agr R2;q-fn R2;q-agr R3;q-fn R3;q-agr R1;q-agr R1;q-fn R1;q-agcr R1;q-fn R1;p-agr R1;p-fn R1;p-agr R1;p-fn R1;p-agcr R1;p-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;o-agr R1;o-fn R1;o-agcr R1;o-fn R1;o-agr R1;o-fn R1;o-agcr R1;o-fn R1;q-agr R1;q-fn R1;q-agcr R1;q-fn R1');
+        Observer.Expect('OtherA read', 'R1|R1/R2');
+        Observer.Expect('OtherA read log', '');
+        Observer.Expect('OtherB read', 'R1|R1/R2');
+        Observer.Expect('OtherB read log', '');
+        Observer.Expect('after', 'R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2');
+        Observer.Expect('after log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1202,7 +1329,17 @@ codeunit 94575 "LT R6806 Lookup Part Tests"
         Observer.Observe('after log', Log.Take());
         Schedule.Close();
         Observer.Observe('close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('lookup log', 'lookup;h-fn R1;validate R2;h-fn R1');
+        Observer.Expect('Resources next', 'false|R1');
+        Observer.Expect('Resources next log', 'h-agr R1;h-fn R1;h-agr R2;h-fn R2;h-agr R3;h-fn R3;h-agr R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;o-agr R1;o-fn R1;o-agr R2;o-fn R2;o-agr R3;o-fn R3;o-agr R1;o-agr R1;o-fn R1;o-agcr R1;o-fn R1;q-agr R1;q-fn R1;q-agr R2;q-fn R2;q-agr R3;q-fn R3;q-agr R1;q-agr R1;q-fn R1;q-agcr R1;q-fn R1;p-agr R1;p-fn R1;p-agr R1;p-fn R1;p-agcr R1;p-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;o-agr R1;o-fn R1;o-agcr R1;o-fn R1;o-agr R1;o-fn R1;o-agcr R1;o-fn R1;q-agr R1;q-fn R1;q-agcr R1;q-fn R1');
+        Observer.Expect('OtherA next', 'true|R2');
+        Observer.Expect('OtherA next log', 'o-agr R2;o-agr R2;o-fn R2;o-agcr R2;o-fn R2;h-agr R2;h-agr R2;h-fn R2;h-agcr R2;h-fn R2;q-agr R2;q-agr R2;q-fn R2;q-agcr R2;q-fn R2;p-agr R2');
+        Observer.Expect('OtherB next', 'true|R2');
+        Observer.Expect('OtherB next log', 'q-agr R2;q-fn R2;q-agcr R2;q-fn R2');
+        Observer.Expect('after', 'R2|R1/R2|R1|R1/R2|R1/R2|R2|R2/R2|R2/R2|R2|R2/R2|R2/R2|R1|R1/R2|R1/R2');
+        Observer.Expect('after log', '');
+        Observer.Expect('close log', 'p-agr R1;h-agr R1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1226,7 +1363,17 @@ codeunit 94575 "LT R6806 Lookup Part Tests"
         Observer.Observe('after log', Log.Take());
         Schedule.Close();
         Observer.Observe('close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('lookup log', 'lookup;h-fn R1;validate R2;h-fn R1');
+        Observer.Expect('OtherB next', 'true|R2');
+        Observer.Expect('OtherB next log', 'h-agr R1;h-fn R1;h-agr R2;h-fn R2;h-agr R3;h-fn R3;h-agr R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;o-agr R1;o-fn R1;o-agr R2;o-fn R2;o-agr R3;o-fn R3;o-agr R1;o-agr R1;o-fn R1;o-agcr R1;o-fn R1;q-agr R1;q-fn R1;q-agr R2;q-fn R2;q-agr R3;q-fn R3;q-agr R1;q-agr R1;q-fn R1;q-agcr R1;q-fn R1;p-agr R1;p-fn R1;p-agr R1;p-fn R1;p-agcr R1;p-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;o-agr R1;o-fn R1;o-agcr R1;o-fn R1;o-agr R1;o-fn R1;o-agcr R1;o-fn R1;q-agr R1;q-fn R1;q-agcr R1;q-fn R1;q-agr R2;q-agr R2;q-fn R2;q-agcr R2;q-fn R2;h-agr R2;h-agr R2;h-fn R2;h-agcr R2;h-fn R2;o-agr R2;o-agr R2;o-fn R2;o-agcr R2;o-fn R2;p-agr R2');
+        Observer.Expect('OtherA next', 'true|R2');
+        Observer.Expect('OtherA next log', 'o-agr R2;o-fn R2;o-agcr R2;o-fn R2');
+        Observer.Expect('Resources next', 'false|R1');
+        Observer.Expect('Resources next log', '');
+        Observer.Expect('after', 'R2|R1/R2|R1|R1/R2|R1/R2|R2|R2/R2|R2/R2|R2|R2/R2|R2/R2|R1|R1/R2|R1/R2');
+        Observer.Expect('after log', '');
+        Observer.Expect('close log', 'p-agr R1;h-agr R1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1250,7 +1397,17 @@ codeunit 94575 "LT R6806 Lookup Part Tests"
         Observer.Observe('after log', Log.Take());
         Schedule.Close();
         Observer.Observe('close log', Log.Take());
-        Observer.Finish();
+        Observer.Expect('lookup log', 'lookup;h-fn R1');
+        Observer.Expect('OtherB next', 'true|R2');
+        Observer.Expect('OtherB next log', 'q-agr R2;q-agr R2;q-fn R2;q-agcr R2;q-fn R2;h-agr R2;h-agr R2;h-fn R2;h-agcr R2;h-fn R2;o-agr R2;o-agr R2;o-fn R2;o-agcr R2;o-fn R2;p-agr R2');
+        Observer.Expect('OtherA next', 'true|R2');
+        Observer.Expect('OtherA next log', 'o-agr R2;o-fn R2;o-agcr R2;o-fn R2');
+        Observer.Expect('Resources next', 'false|R1');
+        Observer.Expect('Resources next log', '');
+        Observer.Expect('after', '|R1/|R1|R1/|R1/|R2|R2/|R2/|R2|R2/|R2/|R1|R1/|R1/');
+        Observer.Expect('after log', '');
+        Observer.Expect('close log', 'p-agr R1;h-agr R1');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1273,7 +1430,16 @@ codeunit 94575 "LT R6806 Lookup Part Tests"
         Observer.Observe('after', SnapLAB(Schedule));
         Observer.Observe('after log', Log.Take());
         Schedule.Close();
-        Observer.Finish();
+        Observer.Expect('lookup log', 'lookup;h-fn R1;validate R2;h-fn R1');
+        Observer.Expect('OtherB first', 'R1|R1/R2');
+        Observer.Expect('OtherB first log', 'h-agr R1;h-fn R1;h-agr R2;h-fn R2;h-agr R3;h-fn R3;h-agr R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;p-agr R1;p-fn R1;p-agr R1;p-fn R1;p-agcr R1;p-fn R1;o-agr R1;o-fn R1;o-agr R2;o-fn R2;o-agr R3;o-fn R3;o-agr R1;o-agr R1;o-fn R1;o-agcr R1;o-fn R1;q-agr R1;q-fn R1;q-agr R2;q-fn R2;q-agr R3;q-fn R3;q-agr R1;q-agr R1;q-fn R1;q-agcr R1;q-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;p-agr R1;p-fn R1;p-agcr R1;p-fn R1;p-agr R1;p-fn R1;p-agcr R1;p-fn R1;o-agr R1;o-fn R1;o-agcr R1;o-fn R1');
+        Observer.Expect('Resources read', 'R1|R1/R2');
+        Observer.Expect('Resources read log', '');
+        Observer.Expect('OtherA read', 'R1|R1/R2');
+        Observer.Expect('OtherA read log', '');
+        Observer.Expect('after', 'R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2');
+        Observer.Expect('after log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1298,7 +1464,18 @@ codeunit 94575 "LT R6806 Lookup Part Tests"
         Observer.Observe('after', SnapABLK(Schedule));
         Observer.Observe('after log', Log.Take());
         Schedule.Close();
-        Observer.Finish();
+        Observer.Expect('lookup log', 'lookup;h-fn R1;validate R2;h-fn R1');
+        Observer.Expect('Details first', 'R1|R1/R2');
+        Observer.Expect('Details first log', 'h-agr R1;h-fn R1;h-agr R2;h-fn R2;h-agr R3;h-fn R3;h-agr R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;o-agr R1;o-fn R1;o-agr R2;o-fn R2;o-agr R3;o-fn R3;o-agr R1;o-agr R1;o-fn R1;o-agcr R1;o-fn R1;q-agr R1;q-fn R1;q-agr R2;q-fn R2;q-agr R3;q-fn R3;q-agr R1;q-agr R1;q-fn R1;q-agcr R1;q-fn R1;p-agr R1;p-fn R1;p-agr R1;p-fn R1;p-agcr R1;p-fn R1;c-agr R1;c-fn R1;c-agcr R1;c-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;o-agr R1;o-fn R1;o-agcr R1;o-fn R1;o-agr R1;o-fn R1;o-agcr R1;o-fn R1;q-agr R1;q-fn R1;q-agcr R1;q-fn R1');
+        Observer.Expect('OtherA read', 'R1|R1/R2');
+        Observer.Expect('OtherA read log', '');
+        Observer.Expect('OtherB read', 'R1|R1/R2');
+        Observer.Expect('OtherB read log', '');
+        Observer.Expect('Resources read', 'R1|R1/R2');
+        Observer.Expect('Resources read log', '');
+        Observer.Expect('after', 'R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2');
+        Observer.Expect('after log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1321,7 +1498,16 @@ codeunit 94575 "LT R6806 Lookup Part Tests"
         Observer.Observe('after', SnapALB(Schedule));
         Observer.Observe('after log', Log.Take());
         Schedule.Close();
-        Observer.Finish();
+        Observer.Expect('lookup log', 'lookup;h-fn R1;validate R2;h-fn R1');
+        Observer.Expect('OtherB first', 'R1|R1/R2');
+        Observer.Expect('OtherB first log', 'h-agr R1;h-fn R1;h-agr R2;h-fn R2;h-agr R3;h-fn R3;h-agr R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;o-agr R1;o-fn R1;o-agr R2;o-fn R2;o-agr R3;o-fn R3;o-agr R1;o-agr R1;o-fn R1;o-agcr R1;o-fn R1;p-agr R1;p-fn R1;p-agr R1;p-fn R1;p-agcr R1;p-fn R1;q-agr R1;q-fn R1;q-agr R2;q-fn R2;q-agr R3;q-fn R3;q-agr R1;q-agr R1;q-fn R1;q-agcr R1;q-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;o-agr R1;o-fn R1;o-agcr R1;o-fn R1;o-agr R1;o-fn R1;o-agcr R1;o-fn R1;p-agr R1;p-fn R1;p-agcr R1;p-fn R1');
+        Observer.Expect('OtherA read', 'R1|R1/R2');
+        Observer.Expect('OtherA read log', '');
+        Observer.Expect('Resources read', 'R1|R1/R2');
+        Observer.Expect('Resources read log', '');
+        Observer.Expect('after', 'R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2');
+        Observer.Expect('after log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1346,7 +1532,18 @@ codeunit 94575 "LT R6806 Lookup Part Tests"
         Observer.Observe('after', SnapABCL(Schedule));
         Observer.Observe('after log', Log.Take());
         Schedule.Close();
-        Observer.Finish();
+        Observer.Expect('lookup log', 'lookup;h-fn R1;validate R2;h-fn R1');
+        Observer.Expect('OtherC first', 'R1|R1/R2');
+        Observer.Expect('OtherC first log', 'h-agr R1;h-fn R1;h-agr R2;h-fn R2;h-agr R3;h-fn R3;h-agr R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;o-agr R1;o-fn R1;o-agr R2;o-fn R2;o-agr R3;o-fn R3;o-agr R1;o-agr R1;o-fn R1;o-agcr R1;o-fn R1;q-agr R1;q-fn R1;q-agr R2;q-fn R2;q-agr R3;q-fn R3;q-agr R1;q-agr R1;q-fn R1;q-agcr R1;q-fn R1;w-agr R1;w-fn R1;w-agr R2;w-fn R2;w-agr R3;w-fn R3;w-agr R1;w-agr R1;w-fn R1;w-agcr R1;w-fn R1;p-agr R1;p-fn R1;p-agr R1;p-fn R1;p-agcr R1;p-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;h-agr R1;h-fn R1;h-agcr R1;h-fn R1;o-agr R1;o-fn R1;o-agcr R1;o-fn R1;o-agr R1;o-fn R1;o-agcr R1;o-fn R1;o-agr R1;o-fn R1;o-agcr R1;o-fn R1;q-agr R1;q-fn R1;q-agcr R1;q-fn R1;q-agr R1;q-fn R1;q-agcr R1;q-fn R1;w-agr R1;w-fn R1;w-agcr R1;w-fn R1');
+        Observer.Expect('OtherA read', 'R1|R1/R2');
+        Observer.Expect('OtherA read log', '');
+        Observer.Expect('OtherB read', 'R1|R1/R2');
+        Observer.Expect('OtherB read log', '');
+        Observer.Expect('Resources read', 'R1|R1/R2');
+        Observer.Expect('Resources read log', '');
+        Observer.Expect('after', 'R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2|R1|R1/R2|R1/R2');
+        Observer.Expect('after log', '');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1368,7 +1565,14 @@ codeunit 94575 "LT R6806 Lookup Part Tests"
         Schedule.Close();
         Setting.Get();
         Observer.Observe('stored', Setting."Resource No.");
-        Observer.Finish();
+        Observer.Expect('resource no', 'R2');
+        Observer.Expect('current no', 'R1');
+        Observer.Expect('row', 'R1');
+        Observer.Expect('OtherA', 'R1|G1');
+        Observer.Expect('OtherB', 'R1|G1');
+        Observer.Expect('Resources', 'R1|G1');
+        Observer.Expect('stored', 'R2');
+        Observer.Verify();
     end;
 
     [Test]
@@ -1391,7 +1595,15 @@ codeunit 94575 "LT R6806 Lookup Part Tests"
         Schedule.Close();
         Setting.Get();
         Observer.Observe('stored', Setting."Resource No.");
-        Observer.Finish();
+        Observer.Expect('resource no', 'R2');
+        Observer.Expect('current no', 'R1');
+        Observer.Expect('row', 'R1');
+        Observer.Expect('OtherA', 'R1|G1');
+        Observer.Expect('OtherB', 'R1|G1');
+        Observer.Expect('Resources', 'R1|G1');
+        Observer.Expect('Details', 'R1|G1');
+        Observer.Expect('stored', 'R2');
+        Observer.Verify();
     end;
 
 
