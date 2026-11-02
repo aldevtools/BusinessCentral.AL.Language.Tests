@@ -391,11 +391,16 @@ codeunit 67107 "LT PT Cloud Tables"
         OldAppId: Guid;
         BlankGuid: Guid;
         HadRow: Boolean;
+        CorpusModule: ModuleInfo;
     begin
         Observer.Observe('rows', QxSelectionRows());
         Observer.Observe('get 1302 blank company', Format(Selection.Get(1302, '', BlankGuid)));
         Observer.Observe('get 1302 this company', Format(Selection.Get(1302, CompanyName(), BlankGuid)));
         LayoutList.SetRange("Report ID", 1306);
+        // Only the layouts the Microsoft apps ship: report extensions of this corpus app add their own rows for report 1306
+        // (report/lt-y67-layout-ext/Y67LayoutExtExport.al adds Y67StdExt.docx), which made this list depend on the files in the run.
+        NavApp.GetCurrentModuleInfo(CorpusModule);
+        LayoutList.SetFilter("Application ID", '<>%1', CorpusModule.Id());
         if LayoutList.FindSet() then
             repeat
                 Names += LayoutList.Name + '|' + Format(LayoutList."Layout Format") + ',';
