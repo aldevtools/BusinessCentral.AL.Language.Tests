@@ -313,6 +313,9 @@ codeunit 94170 "LT Y79 Install Unrelated"
         exit(Result);
     end;
 
+    // Test session: the same subscribers, tables of A written in a test session (first touch of a table asks the mask, then the trigger setup; B sets the flag and
+    // adds a mask bit per table, D only notes what it is given). Only OnGlobalRename is ever raised among the global events; bits 1 2 4 (61379) do not raise insert,
+    // modify or delete, nor do 16 to 128 (the other tables).
     local procedure Clean(): Text
     var
         Row: Record "LT Y79 XA Seen";
@@ -329,7 +332,7 @@ codeunit 94170 "LT Y79 Install Unrelated"
     end;
 
     [Test]
-    procedure Y79_TestSession_Obs61377()
+    procedure Y79_TestSession_Table61377()
     var
         Observer: Codeunit "Probe Observer";
         Row: Record "LT Y79 XA Mask 2";
@@ -346,11 +349,15 @@ codeunit 94170 "LT Y79 Install Unrelated"
         Observer.Observe('after rename', Clean());
         Row.Delete(true);
         Observer.Observe('after delete', Clean());
-        Observer.Finish();
+        Observer.Expect('after insert', 'B-mask|-|t=61377|in=0 ## D-mask|-|t=61377|in=64 ## B-setup|-|t=61377|in=NoNoNoNo ## D-setup|-|t=61377|in=NoYesNoNo ## ');
+        Observer.Expect('after modify', 'B-dbmodify|-|t=61377 ## D-dbmodify|-|t=61377 ## ');
+        Observer.Expect('after rename', '');
+        Observer.Expect('after delete', '');
+        Observer.Verify();
     end;
 
     [Test]
-    procedure Y79_TestSession_Obs61378()
+    procedure Y79_TestSession_Table61378()
     var
         Observer: Codeunit "Probe Observer";
         Row: Record "LT Y79 XA Mask 4";
@@ -367,11 +374,15 @@ codeunit 94170 "LT Y79 Install Unrelated"
         Observer.Observe('after rename', Clean());
         Row.Delete(true);
         Observer.Observe('after delete', Clean());
-        Observer.Finish();
+        Observer.Expect('after insert', 'B-mask|-|t=61378|in=0 ## D-mask|-|t=61378|in=128 ## B-setup|-|t=61378|in=NoNoNoNo ## D-setup|-|t=61378|in=NoNoYesNo ## ');
+        Observer.Expect('after modify', '');
+        Observer.Expect('after rename', '');
+        Observer.Expect('after delete', 'B-dbdelete|-|t=61378 ## D-dbdelete|-|t=61378 ## ');
+        Observer.Verify();
     end;
 
     [Test]
-    procedure Y79_TestSession_Obs61379()
+    procedure Y79_TestSession_Table61379()
     var
         Observer: Codeunit "Probe Observer";
         Row: Record "LT Y79 XA Mask 8";
@@ -388,11 +399,15 @@ codeunit 94170 "LT Y79 Install Unrelated"
         Observer.Observe('after rename', Clean());
         Row.Delete(true);
         Observer.Observe('after delete', Clean());
-        Observer.Finish();
+        Observer.Expect('after insert', 'B-mask|-|t=61379|in=0 ## D-mask|-|t=61379|in=15 ## B-setup|-|t=61379|in=NoNoNoNo ## D-setup|-|t=61379|in=NoNoNoYes ## ');
+        Observer.Expect('after modify', '');
+        Observer.Expect('after rename', 'B-globalrename|-|t=61379 ## D-globalrename|-|t=61379 ## B-dbrename|-|t=61379 ## D-dbrename|-|t=61379 ## ');
+        Observer.Expect('after delete', '');
+        Observer.Verify();
     end;
 
     [Test]
-    procedure Y79_TestSession_Obs61371()
+    procedure Y79_TestSession_Table61371()
     var
         Observer: Codeunit "Probe Observer";
         Row: Record "LT Y79 XA Db Data";
@@ -407,11 +422,14 @@ codeunit 94170 "LT Y79 Install Unrelated"
         Observer.Observe('after modify', Clean());
         Row.Delete(true);
         Observer.Observe('after delete', Clean());
-        Observer.Finish();
+        Observer.Expect('after insert', 'B-mask|-|t=61371|in=0 ## D-mask|-|t=61371|in=32 ## B-setup|-|t=61371|in=NoNoNoNo ## D-setup|-|t=61371|in=YesNoNoNo ## B-dbinsert|-|t=61371|row=9971 ## D-dbinsert|-|t=61371|row=9971 ## ');
+        Observer.Expect('after modify', '');
+        Observer.Expect('after delete', '');
+        Observer.Verify();
     end;
 
     [Test]
-    procedure Y79_TestSession_Obs61370()
+    procedure Y79_TestSession_Table61370()
     var
         Observer: Codeunit "Probe Observer";
         Row: Record "LT Y79 XA Data";
@@ -426,6 +444,9 @@ codeunit 94170 "LT Y79 Install Unrelated"
         Observer.Observe('after modify', Clean());
         Row.Delete(true);
         Observer.Observe('after delete', Clean());
-        Observer.Finish();
+        Observer.Expect('after insert', 'B-mask|-|t=61370|in=0 ## D-mask|-|t=61370|in=16 ## B-setup|-|t=61370|in=NoNoNoNo ## D-setup|-|t=61370|in=YesNoNoNo ## B-dbinsert|-|t=61370|row=9972 ## D-dbinsert|-|t=61370|row=9972 ## ');
+        Observer.Expect('after modify', '');
+        Observer.Expect('after delete', '');
+        Observer.Verify();
     end;
 }
