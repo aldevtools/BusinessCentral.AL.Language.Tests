@@ -23,6 +23,8 @@ codeunit 94394 "LT Y84 Perm Effective"
         WasStarted: Boolean;
     begin
         WasStarted := StartMock();
+        Clear(Names);
+        Clear(Values);
         Mock.ClearAssignments();
         Collect('noset');
         Mock.SetExactPermissionSet('LT Y84 X Some');
@@ -46,6 +48,8 @@ codeunit 94394 "LT Y84 Perm Effective"
         WasStarted: Boolean;
     begin
         WasStarted := StartMock();
+        Clear(Names);
+        Clear(Values);
         CollectTable('LT Y84 C R');
         CollectTable('LT Y84 C I');
         CollectTable('LT Y84 C M');

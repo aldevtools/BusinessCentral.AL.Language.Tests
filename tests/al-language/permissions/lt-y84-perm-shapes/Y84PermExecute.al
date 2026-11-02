@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-permissions-property
 // Scope: in-scope
-// Fixtures used: Probe Observer (69160); Y84PermObjects.al (94380-94421); Y24PermObjects.al (the target codeunit "LT Y24 Exec Target"); Permissions Mock (131006).
+// Fixtures used: Probe Observer (69160); Y84PermObjects.al (94380-94421, 94430-94436); Permissions Mock (131006).
 // Probe: al-runtime-rs ADR-062 stage 3, writer Y84: an Execute denial raised inside a table trigger (OnInsert, OnModify, OnDelete; Codeunit.Run and a call on a
 //   codeunit variable), inside a page trigger (OnOpenPage, an action's OnAction) and inside an event subscriber. Each case assigns an exact set (table data and
 //   the object that holds the code, with and without Execute on the codeunit the code runs), runs ONE operation inside asserterror that ends with
@@ -17,44 +17,32 @@ codeunit 94393 "LT Y84 Perm Execute"
         Mock: Codeunit "Permissions Mock";
         Binder: Codeunit "LT Y84 Subscriber";
 
+    // Execute is checked the first time the session loads an object that runs code, so the cases run in this order on fresh objects:
+    // denials first, then the grants.
     [Test]
-    procedure Y84_Exec_TableInsertA()
+    procedure Y84_Exec_TableDenied()
     var
         WasStarted: Boolean;
     begin
         WasStarted := StartMock();
-        RunExact('tab_codeunit_run', 'LT Y84 T Tab', 1);
-        RunExact('tab_call', 'LT Y84 T Tab', 2);
-        RunExact('tabx_codeunit_run', 'LT Y84 T TabX', 1);
-        RunExact('tabx_call', 'LT Y84 T TabX', 2);
+        RunExact('t2_run', 'LT Y84 T Tab', 1);
+        RunExact('t2_call', 'LT Y84 T Tab', 2);
+        RunExact('t1_run', 'LT Y84 T TabX', 1);
+        RunExact('t1_call', 'LT Y84 T TabX', 2);
+        RunExact('t1_modify', 'LT Y84 T TabX', 3);
+        RunExact('t1_delete', 'LT Y84 T TabX', 4);
         RestoreMock(WasStarted);
         Observer.Finish();
     end;
 
     [Test]
-    procedure Y84_Exec_TableInsertB()
+    procedure Y84_Exec_TableGranted()
     var
         WasStarted: Boolean;
     begin
         WasStarted := StartMock();
-        RunExact('tgt_codeunit_run', 'LT Y84 T Tgt', 1);
-        RunExact('tgt_call', 'LT Y84 T Tgt', 2);
-        RunExact('both_codeunit_run', 'LT Y84 T Both', 1);
+        RunExact('both_run', 'LT Y84 T Both', 1);
         RunExact('both_call', 'LT Y84 T Both', 2);
-        RestoreMock(WasStarted);
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Y84_Exec_TableModifyDelete()
-    var
-        WasStarted: Boolean;
-    begin
-        WasStarted := StartMock();
-        RunExact('tab_modify', 'LT Y84 T Tab', 3);
-        RunExact('tab_delete', 'LT Y84 T Tab', 4);
-        RunExact('tgt_modify', 'LT Y84 T Tgt', 3);
-        RunExact('tgt_delete', 'LT Y84 T Tgt', 4);
         RunExact('both_modify', 'LT Y84 T Both', 3);
         RunExact('both_delete', 'LT Y84 T Both', 4);
         RestoreMock(WasStarted);
@@ -70,7 +58,6 @@ codeunit 94393 "LT Y84 Perm Execute"
         BindSubscription(Binder);
         RunExact('sub_tab', 'LT Y84 S Tab', 5);
         RunExact('sub_sub', 'LT Y84 S Sub', 5);
-        RunExact('sub_tgt', 'LT Y84 S Tgt', 5);
         RunExact('sub_both', 'LT Y84 S Both', 5);
         UnbindSubscription(Binder);
         RestoreMock(WasStarted);

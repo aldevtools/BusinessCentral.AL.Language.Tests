@@ -168,6 +168,7 @@ codeunit 94392 "LT Y84 Perm Abp"
         Row: Record "LT Y84 Row";
         Guard: Record "LT Y84 Guard";
     begin
+        Mock.ClearAssignments();
         Row.DeleteAll();
         Guard.DeleteAll();
         Row.Id := 1;
@@ -423,7 +424,23 @@ codeunit 94392 "LT Y84 Perm Abp"
             exit;
         end;
         Observer.Observe(Tag + '|count', Format(Count));
-        Observer.Observe(Tag + '|names', Names);
+        Observer.Observe(Tag + '|names', Listed(Names));
+    end;
+
+    // Which of the page's controls have a row, in a fixed order (the rows come back in no stable order).
+    local procedure Listed(Names: Text): Text
+    var
+        All: List of [Text];
+        Name: Text;
+        Result: Text;
+    begin
+        All.AddRange('PlainCtl,TfCtl,FlowCtl,GR,GI,GM,GD,GIM,GRIMD,GLowR,GLowRIMD,ObjCu,ObjQry,ObjXp,ObjRep,ObjPg,ObjTbl,ObjSys,ObjCuLow,PlainPart,GuardPart,GuardObjPart,PlainAct,ActR,ActCu'.Split(','));
+        foreach Name in All do
+            if Names.Contains(',' + Name + ',') then
+                Result += Name + '=Y '
+            else
+                Result += Name + '=N ';
+        exit(Result.TrimEnd());
     end;
 
     [TryFunction]
@@ -435,8 +452,9 @@ codeunit 94392 "LT Y84 Perm Abp"
         if PageControlField.FindSet() then
             repeat
                 Count += 1;
-                Names += PageControlField.ControlName + ',';
+                Names += ',' + PageControlField.ControlName;
             until PageControlField.Next() = 0;
+        Names += ',';
     end;
 
     local procedure ObserveFlow(Tag: Text)

@@ -4,7 +4,8 @@
 // Objects for the writer Y84 permission probes (al-runtime-rs ADR-062 stage 3): AccessByPermission on page fields, actions and parts with every letter
 // and every object kind, on the page object, on the report object, on a table field and on request page fields; trigger, page and subscriber
 // code that runs an object the session may not execute; permission sets that grant the guard table in each letter and level.
-// Object ids 94380-94421.
+// Object ids 94380-94421 and 94430-94436. An object that runs code is checked for Execute the first time the session loads it, so every Execute case uses
+// objects (U1 - U5, T1, T2, the pages and the subscriber) that no other case uses before it.
 
 table 94380 "LT Y84 Row"
 {
@@ -195,11 +196,50 @@ table 94387 "LT Y84 Trig Tbl"
 
     local procedure Touch()
     var
-        Target: Codeunit "LT Y24 Exec Target";
+        Target: Codeunit "LT Y84 Target 2";
     begin
         case Mode of
             1:
-                Codeunit.Run(Codeunit::"LT Y24 Exec Target");
+                Codeunit.Run(Codeunit::"LT Y84 Target 1");
+            2:
+                if Target.Ping() = '' then;
+        end;
+    end;
+}
+
+table 94436 "LT Y84 Trig Tbl 2"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; Id; Integer) { }
+        field(2; Mode; Integer) { }
+    }
+    keys { key(PK; Id) { Clustered = true; } }
+
+    trigger OnInsert()
+    begin
+        Touch();
+    end;
+
+    trigger OnModify()
+    begin
+        Touch();
+    end;
+
+    trigger OnDelete()
+    begin
+        Touch();
+    end;
+
+    local procedure Touch()
+    var
+        Target: Codeunit "LT Y84 Target 2";
+    begin
+        case Mode of
+            1:
+                Codeunit.Run(Codeunit::"LT Y84 Target 1");
             2:
                 if Target.Ping() = '' then;
         end;
@@ -230,7 +270,7 @@ page 94389 "LT Y84 Trig Open"
 
     trigger OnOpenPage()
     var
-        Target: Codeunit "LT Y24 Exec Target";
+        Target: Codeunit "LT Y84 Target 3";
     begin
         if Target.Ping() = '' then;
     end;
@@ -259,7 +299,7 @@ page 94390 "LT Y84 Trig Action"
                 ApplicationArea = All;
                 trigger OnAction()
                 begin
-                    Codeunit.Run(Codeunit::"LT Y24 Exec Target");
+                    Codeunit.Run(Codeunit::"LT Y84 Target 4");
                 end;
             }
         }
@@ -274,9 +314,70 @@ codeunit 94391 "LT Y84 Subscriber"
     [EventSubscriber(ObjectType::Table, Database::"LT Y84 Sub Tbl", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnAfterInsertSub(var Rec: Record "LT Y84 Sub Tbl"; RunTrigger: Boolean)
     var
-        Target: Codeunit "LT Y24 Exec Target";
+        Target: Codeunit "LT Y84 Target 5";
     begin
         if Target.Ping() = '' then;
+    end;
+}
+
+// Fresh Execute targets, one per case.
+codeunit 94430 "LT Y84 Target 1"
+{
+    trigger OnRun()
+    begin
+    end;
+
+    procedure Ping(): Text
+    begin
+        exit('ping');
+    end;
+}
+
+codeunit 94431 "LT Y84 Target 2"
+{
+    trigger OnRun()
+    begin
+    end;
+
+    procedure Ping(): Text
+    begin
+        exit('ping');
+    end;
+}
+
+codeunit 94432 "LT Y84 Target 3"
+{
+    trigger OnRun()
+    begin
+    end;
+
+    procedure Ping(): Text
+    begin
+        exit('ping');
+    end;
+}
+
+codeunit 94433 "LT Y84 Target 4"
+{
+    trigger OnRun()
+    begin
+    end;
+
+    procedure Ping(): Text
+    begin
+        exit('ping');
+    end;
+}
+
+codeunit 94434 "LT Y84 Target 5"
+{
+    trigger OnRun()
+    begin
+    end;
+
+    procedure Ping(): Text
+    begin
+        exit('ping');
     end;
 }
 
@@ -408,7 +509,7 @@ permissionset 94410 "LT Y84 T Tab"
 {
     Assignable = true;
     Permissions =
-        tabledata "LT Y84 Trig Tbl" = RIMD;
+        tabledata "LT Y84 Trig Tbl 2" = RIMD;
 }
 
 permissionset 94411 "LT Y84 T TabX"
@@ -419,21 +520,14 @@ permissionset 94411 "LT Y84 T TabX"
         table "LT Y84 Trig Tbl" = X;
 }
 
-permissionset 94412 "LT Y84 T Tgt"
-{
-    Assignable = true;
-    Permissions =
-        tabledata "LT Y84 Trig Tbl" = RIMD,
-        codeunit "LT Y24 Exec Target" = X;
-}
-
-permissionset 94413 "LT Y84 T Both"
+permissionset 94412 "LT Y84 T Both"
 {
     Assignable = true;
     Permissions =
         tabledata "LT Y84 Trig Tbl" = RIMD,
         table "LT Y84 Trig Tbl" = X,
-        codeunit "LT Y24 Exec Target" = X;
+        codeunit "LT Y84 Target 1" = X,
+        codeunit "LT Y84 Target 2" = X;
 }
 
 permissionset 94414 "LT Y84 P Page"
@@ -450,7 +544,7 @@ permissionset 94415 "LT Y84 P Both"
     Permissions =
         tabledata "LT Y84 Sub Tbl" = RIMD,
         page "LT Y84 Trig Open" = X,
-        codeunit "LT Y24 Exec Target" = X;
+        codeunit "LT Y84 Target 3" = X;
 }
 
 permissionset 94416 "LT Y84 A Page"
@@ -467,7 +561,7 @@ permissionset 94417 "LT Y84 A Both"
     Permissions =
         tabledata "LT Y84 Sub Tbl" = RIMD,
         page "LT Y84 Trig Action" = X,
-        codeunit "LT Y24 Exec Target" = X;
+        codeunit "LT Y84 Target 4" = X;
 }
 
 permissionset 94418 "LT Y84 S Tab"
@@ -485,19 +579,12 @@ permissionset 94419 "LT Y84 S Sub"
         codeunit "LT Y84 Subscriber" = X;
 }
 
-permissionset 94420 "LT Y84 S Tgt"
-{
-    Assignable = true;
-    Permissions =
-        tabledata "LT Y84 Sub Tbl" = RIMD,
-        codeunit "LT Y24 Exec Target" = X;
-}
-
-permissionset 94421 "LT Y84 S Both"
+permissionset 94420 "LT Y84 S Both"
 {
     Assignable = true;
     Permissions =
         tabledata "LT Y84 Sub Tbl" = RIMD,
         codeunit "LT Y84 Subscriber" = X,
-        codeunit "LT Y24 Exec Target" = X;
+        codeunit "LT Y84 Target 5" = X;
 }
+
