@@ -21,39 +21,223 @@ codeunit 94010 "LT Y75 Perm ReadWrite"
         Mock: Codeunit "Permissions Mock";
 
     [Test]
-    procedure Y75_RecordAndRecordRef_Set()
+    procedure Y75_Set_none()
     var
         WasStarted: Boolean;
     begin
         WasStarted := Y19Helper.StartMock(Mock);
-        RunAll(Observer, false);
+        RunOne(Observer, false, 'none', 'LT Y24 None');
         Y19Helper.RestoreMock(Mock, WasStarted);
         Observer.Finish();
     end;
 
     [Test]
-    procedure Y75_RecordAndRecordRef_SetExact()
+    procedure Y75_Set_R()
     var
         WasStarted: Boolean;
     begin
         WasStarted := Y19Helper.StartMock(Mock);
-        RunAll(Observer, true);
+        RunOne(Observer, false, 'R', 'LT Y24 R');
         Y19Helper.RestoreMock(Mock, WasStarted);
         Observer.Finish();
     end;
 
-    local procedure RunAll(var Obs: Codeunit "Probe Observer"; Exact: Boolean)
+    [Test]
+    procedure Y75_Set_ind_r()
+    var
+        WasStarted: Boolean;
     begin
-        RunOne(Obs, Exact, 'none', 'LT Y24 None');
-        RunOne(Obs, Exact, 'R', 'LT Y24 R');
-        RunOne(Obs, Exact, 'ind_r', 'LT Y24 Ind R');
-        RunOne(Obs, Exact, 'RI', 'LT Y75 RI');
-        RunOne(Obs, Exact, 'RIM', 'LT Y75 RIM');
-        RunOne(Obs, Exact, 'I', 'LT Y24 I');
-        RunOne(Obs, Exact, 'IM', 'LT Y24 IM');
-        RunOne(Obs, Exact, 'IMD', 'LT Y24 IMD');
-        RunOne(Obs, Exact, 'RIMD', 'LT Y24 RIMD');
-        RunOne(Obs, Exact, 'ind_rimd', 'LT Y24 Ind RIMD');
+        WasStarted := Y19Helper.StartMock(Mock);
+        RunOne(Observer, false, 'ind_r', 'LT Y24 Ind R');
+        Y19Helper.RestoreMock(Mock, WasStarted);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y75_Set_RI()
+    var
+        WasStarted: Boolean;
+    begin
+        WasStarted := Y19Helper.StartMock(Mock);
+        RunOne(Observer, false, 'RI', 'LT Y75 RI');
+        Y19Helper.RestoreMock(Mock, WasStarted);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y75_Set_RIM()
+    var
+        WasStarted: Boolean;
+    begin
+        WasStarted := Y19Helper.StartMock(Mock);
+        RunOne(Observer, false, 'RIM', 'LT Y75 RIM');
+        Y19Helper.RestoreMock(Mock, WasStarted);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y75_Set_I()
+    var
+        WasStarted: Boolean;
+    begin
+        WasStarted := Y19Helper.StartMock(Mock);
+        RunOne(Observer, false, 'I', 'LT Y24 I');
+        Y19Helper.RestoreMock(Mock, WasStarted);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y75_Set_IM()
+    var
+        WasStarted: Boolean;
+    begin
+        WasStarted := Y19Helper.StartMock(Mock);
+        RunOne(Observer, false, 'IM', 'LT Y24 IM');
+        Y19Helper.RestoreMock(Mock, WasStarted);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y75_Set_IMD()
+    var
+        WasStarted: Boolean;
+    begin
+        WasStarted := Y19Helper.StartMock(Mock);
+        RunOne(Observer, false, 'IMD', 'LT Y24 IMD');
+        Y19Helper.RestoreMock(Mock, WasStarted);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y75_Set_RIMD()
+    var
+        WasStarted: Boolean;
+    begin
+        WasStarted := Y19Helper.StartMock(Mock);
+        RunOne(Observer, false, 'RIMD', 'LT Y24 RIMD');
+        Y19Helper.RestoreMock(Mock, WasStarted);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y75_Set_ind_rimd()
+    var
+        WasStarted: Boolean;
+    begin
+        WasStarted := Y19Helper.StartMock(Mock);
+        RunOne(Observer, false, 'ind_rimd', 'LT Y24 Ind RIMD');
+        Y19Helper.RestoreMock(Mock, WasStarted);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y75_Exact_none()
+    var
+        WasStarted: Boolean;
+    begin
+        WasStarted := Y19Helper.StartMock(Mock);
+        RunOne(Observer, true, 'none', 'LT Y24 None');
+        Y19Helper.RestoreMock(Mock, WasStarted);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y75_Exact_R()
+    var
+        WasStarted: Boolean;
+    begin
+        WasStarted := Y19Helper.StartMock(Mock);
+        RunOne(Observer, true, 'R', 'LT Y24 R');
+        Y19Helper.RestoreMock(Mock, WasStarted);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y75_Exact_ind_r()
+    var
+        WasStarted: Boolean;
+    begin
+        WasStarted := Y19Helper.StartMock(Mock);
+        RunOne(Observer, true, 'ind_r', 'LT Y24 Ind R');
+        Y19Helper.RestoreMock(Mock, WasStarted);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y75_Exact_RI()
+    var
+        WasStarted: Boolean;
+    begin
+        WasStarted := Y19Helper.StartMock(Mock);
+        RunOne(Observer, true, 'RI', 'LT Y75 RI');
+        Y19Helper.RestoreMock(Mock, WasStarted);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y75_Exact_RIM()
+    var
+        WasStarted: Boolean;
+    begin
+        WasStarted := Y19Helper.StartMock(Mock);
+        RunOne(Observer, true, 'RIM', 'LT Y75 RIM');
+        Y19Helper.RestoreMock(Mock, WasStarted);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y75_Exact_I()
+    var
+        WasStarted: Boolean;
+    begin
+        WasStarted := Y19Helper.StartMock(Mock);
+        RunOne(Observer, true, 'I', 'LT Y24 I');
+        Y19Helper.RestoreMock(Mock, WasStarted);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y75_Exact_IM()
+    var
+        WasStarted: Boolean;
+    begin
+        WasStarted := Y19Helper.StartMock(Mock);
+        RunOne(Observer, true, 'IM', 'LT Y24 IM');
+        Y19Helper.RestoreMock(Mock, WasStarted);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y75_Exact_IMD()
+    var
+        WasStarted: Boolean;
+    begin
+        WasStarted := Y19Helper.StartMock(Mock);
+        RunOne(Observer, true, 'IMD', 'LT Y24 IMD');
+        Y19Helper.RestoreMock(Mock, WasStarted);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y75_Exact_RIMD()
+    var
+        WasStarted: Boolean;
+    begin
+        WasStarted := Y19Helper.StartMock(Mock);
+        RunOne(Observer, true, 'RIMD', 'LT Y24 RIMD');
+        Y19Helper.RestoreMock(Mock, WasStarted);
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y75_Exact_ind_rimd()
+    var
+        WasStarted: Boolean;
+    begin
+        WasStarted := Y19Helper.StartMock(Mock);
+        RunOne(Observer, true, 'ind_rimd', 'LT Y24 Ind RIMD');
+        Y19Helper.RestoreMock(Mock, WasStarted);
+        Observer.Finish();
     end;
 
     local procedure RunOne(var Obs: Codeunit "Probe Observer"; Exact: Boolean; Tag: Text; SetName: Code[20])

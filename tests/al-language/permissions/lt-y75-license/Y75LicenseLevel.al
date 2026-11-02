@@ -11,6 +11,9 @@ codeunit 94000 "LT Y75 License Level"
     Subtype = Test;
     TestPermissions = Disabled;
 
+    var
+        Observer: Codeunit "Probe Observer";
+
     local procedure Describe(ObjectType: Integer; ObjectNumber: Integer): Text
     var
         LicensePermission: Record "License Permission";
@@ -25,7 +28,6 @@ codeunit 94000 "LT Y75 License Level"
     [Test]
     procedure Y75_LicenseRows()
     var
-        Observer: Codeunit "Probe Observer";
         Numbers: List of [Integer];
         N: Integer;
     begin
@@ -51,9 +53,20 @@ codeunit 94000 "LT Y75 License Level"
     end;
 
     [Test]
+    procedure Y75_LicenseRows_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure Y75_LicenseRows_More2()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
     procedure Y75_Operations()
     var
-        Observer: Codeunit "Probe Observer";
         Direct: Codeunit "LT Y75 Direct";
         Indirect: Codeunit "LT Y75 Indirect";
         GLEntry: Record "G/L Entry";
@@ -77,6 +90,12 @@ codeunit 94000 "LT Y75 License Level"
         asserterror Direct.RunReportSave();
         Observer.ObserveError('save_report_1');
         Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y75_Operations_More1()
+    begin
+        Observer.More();
     end;
 }
 
