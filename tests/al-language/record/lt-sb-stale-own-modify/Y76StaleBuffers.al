@@ -117,6 +117,21 @@ codeunit 94058 "LT Y76 Stale Buffers"
                     Src.Get(5);
                     Row.TransferFields(Src);
                 end;
+            'get_then_transfer_from_record':
+                begin
+                    Src.Get(5);
+                    Row.Get(5);
+                    Row.TransferFields(Src);
+                end;
+            'get_then_transfer_from_temp':
+                begin
+                    Src.Get(5);
+                    TempCopy.Init();
+                    TempCopy.TransferFields(Src);
+                    TempCopy.Insert();
+                    Row.Get(5);
+                    Row.TransferFields(TempCopy);
+                end;
             'transfer_from_temp':
                 begin
                     Src.Get(5);
@@ -254,6 +269,16 @@ codeunit 94058 "LT Y76 Stale Buffers"
     begin
         Part1Modes(Observer, 'copy');
         Part1Modes(Observer, 'transfer_from_record');
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y76_Part1_GetThenTransferFields()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Part1Modes(Observer, 'get_then_transfer_from_record');
+        Part1Modes(Observer, 'get_then_transfer_from_temp');
         Observer.Finish();
     end;
 
