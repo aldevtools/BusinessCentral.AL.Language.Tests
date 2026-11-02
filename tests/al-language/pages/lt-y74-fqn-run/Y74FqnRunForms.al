@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/methods-auto/page/page-run-text-record-joker-method
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); self-contained table 93950, pages 93951 and 93952, test codeunit 93953
+// Fixtures used: Probe Observer (codeunit 69160); self-contained tables 93950 and 93954, pages 93951 and 93952, test codeunit 93953
 // Probe: corpus writer Y74, pages area inventory. The fully qualified name forms of Page.Run and Page.RunModal that no corpus test pins: Run(Name), Run(Name, Record), Run(Name, Record, Field value), RunModal(Name), RunModal(Name, Record), RunModal(Name, Record, Field value), RunModal(Name, Record, FieldRef), and the name spellings and error texts. The forms with a field NUMBER are pinned by report/lt-bj-fqn-page-run/BjFqnPageRun.al.
 // BC versions: 28.0 and later (runtime 17.0; BC 27 rejects the fully qualified name overloads, see must-not-compile 0664)
 
@@ -16,6 +16,21 @@ table 93950 "LT Y74 Fqn Row"
         field(1; Id; Integer) { }
         field(2; Txt; Text[20]) { }
         field(3; Qty; Integer) { }
+    }
+
+    keys
+    {
+        key(PK; Id) { Clustered = true; }
+    }
+}
+
+table 93954 "LT Y74 Fqn Other"
+{
+    DataClassification = SystemMetadata;
+
+    fields
+    {
+        field(1; Id; Integer) { }
     }
 
     keys
@@ -248,7 +263,7 @@ codeunit 93953 "LT Y74 Fqn Run Tests"
     procedure Run_Name_Errors()
     var
         Row: Record "LT Y74 Fqn Row";
-        Other: Record "Integer";
+        Other: Record "LT Y74 Fqn Other";
         Act: Action;
     begin
         Seed();
@@ -267,10 +282,10 @@ codeunit 93953 "LT Y74 Fqn Run Tests"
         Observer.ObserveError('page id as text');
         asserterror Act := Page.RunModal('LT.Y74.Fqn.LT Y74 Fqn Missing');
         Observer.ObserveError('modal missing');
-        Other.Number := 1;
+        Other.Id := 1;
         asserterror Page.Run('LT.Y74.Fqn.LT Y74 Fqn Card', Other);
         Observer.ObserveError('other table');
-        asserterror Page.Run('LT.Y74.Fqn.LT Y74 Fqn Card', Row, Other.Number);
+        asserterror Page.Run('LT.Y74.Fqn.LT Y74 Fqn Card', Row, Other.Id);
         Observer.ObserveError('field of other table');
         asserterror Page.Run('LT.Y74.Fqn.LT Y74 Fqn Card', Row);
         Observer.ObserveError('no handler');
@@ -281,7 +296,7 @@ codeunit 93953 "LT Y74 Fqn Run Tests"
     procedure RunModal_Name_FieldRef_Errors()
     var
         Row: Record "LT Y74 Fqn Row";
-        Other: Record "Integer";
+        Other: Record "LT Y74 Fqn Other";
         RecRef: RecordRef;
         FR: FieldRef;
         Act: Action;
@@ -291,7 +306,7 @@ codeunit 93953 "LT Y74 Fqn Run Tests"
         asserterror Act := Page.RunModal('LT.Y74.Fqn.LT Y74 Fqn List', Row, FR);
         Observer.ObserveError('uninitialized');
         RecRef.GetTable(Other);
-        FR := RecRef.Field(1);
+        FR := RecRef.Field(Other.FieldNo(Id));
         asserterror Act := Page.RunModal('LT.Y74.Fqn.LT Y74 Fqn List', Row, FR);
         Observer.ObserveError('other table');
         asserterror Act := Page.RunModal('LT.Y74.Fqn.LT Y74 Fqn Missing', Row, FR);
