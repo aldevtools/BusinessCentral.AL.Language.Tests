@@ -1028,7 +1028,29 @@ codeunit 94286 "LT Y80 NH Tests"
         Observer.Observe('shown after line', ShownDoc(P));
         Observer.Observe('read log after line', OpenLog());
         Step('close', TryDoc(P, 'close'));
-        Observer.Finish();
+        Observer.Expect('open log', 'PN;LN:;LN:;LN:');
+        Observer.Expect('shown at open', '|| part ');
+        Observer.Expect('read log at open', 'HI:|;LN:;LN:;LN:');
+        Observer.Expect('name ok', 'Yes');
+        Observer.Expect('name|text', '');
+        Observer.Expect('name|code', '');
+        Observer.Expect('name log', 'LN:;LN:;LN:');
+        Observer.Expect('name db', '[||] lines ');
+        Observer.Expect('shown after name', '|N1| part ');
+        Observer.Expect('read log after name', '');
+        Observer.Expect('line ok', 'Yes');
+        Observer.Expect('line|text', '');
+        Observer.Expect('line|code', '');
+        Observer.Expect('line log', 'HM:|N1;LN:;LN:;LN:');
+        Observer.Expect('line db', '[|N1|] lines ');
+        Observer.Expect('shown after line', '|N1| part ');
+        Observer.Expect('read log after line', '');
+        Observer.Expect('close ok', 'Yes');
+        Observer.Expect('close|text', '');
+        Observer.Expect('close|code', '');
+        Observer.Expect('close log', 'LI:/10000|d1');
+        Observer.Expect('close db', '[|N1|] lines [/10000|d1]');
+        Observer.Verify();
     end;
 
 #if BC28PLUS
