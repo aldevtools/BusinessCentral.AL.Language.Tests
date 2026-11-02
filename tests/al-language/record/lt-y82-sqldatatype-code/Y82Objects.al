@@ -169,6 +169,18 @@ codeunit 94308 "LT Y82 Step"
             FR.SetRange(V1, V2);
     end;
 
+    local procedure SelectKey(var RR: RecordRef)
+    var
+        I: Integer;
+    begin
+        for I := 1 to RR.KeyCount() do
+            if (RR.KeyIndex(I).FieldCount() = 1) and (RR.KeyIndex(I).FieldIndex(1).Number = SortField) then begin
+                RR.CurrentKeyIndex(I);
+                exit;
+            end;
+        Error('no single-field key on field %1', SortField);
+    end;
+
     trigger OnRun()
     var
         RR: RecordRef;
@@ -190,7 +202,7 @@ codeunit 94308 "LT Y82 Step"
             'DUMP':
                 begin
                     ApplyFilter(RR);
-                    RR.SetCurrentKey(SortField);
+                    SelectKey(RR);
                     RR.Ascending(Ascending);
                     if RR.FindSet() then
                         repeat
@@ -226,7 +238,7 @@ codeunit 94308 "LT Y82 Step"
 
 codeunit 94309 "LT Y82 Helper"
 {
-    procedure Do(Op: Text; TableNo: Integer; SortField: Integer; ShowField: Integer; FilterField: Integer; FilterKind: Integer; Ascending: Boolean; V1: Text; V2: Text; Id: Integer): Text
+    procedure Exec(Op: Text; TableNo: Integer; SortField: Integer; ShowField: Integer; FilterField: Integer; FilterKind: Integer; Ascending: Boolean; V1: Text; V2: Text; Id: Integer): Text
     var
         Step: Codeunit "LT Y82 Step";
     begin
@@ -239,7 +251,7 @@ codeunit 94309 "LT Y82 Helper"
 
     procedure Ins(TableNo: Integer; Fld: Integer; Id: Integer; Value: Text): Text
     begin
-        exit(Do('INS', TableNo, Fld, 0, 0, 0, true, Value, '', Id));
+        exit(Exec('INS', TableNo, Fld, 0, 0, 0, true, Value, '', Id));
     end;
 
     // Inserts the comma separated values (an empty piece is a blank value); Id counts from 1 when IdField <> 1.
@@ -265,37 +277,37 @@ codeunit 94309 "LT Y82 Helper"
 
     procedure Dump(TableNo: Integer; SortField: Integer; ShowField: Integer; Ascending: Boolean): Text
     begin
-        exit(Do('DUMP', TableNo, SortField, ShowField, 0, 0, Ascending, '', '', 0));
+        exit(Exec('DUMP', TableNo, SortField, ShowField, 0, 0, Ascending, '', '', 0));
     end;
 
     procedure DumpFilter(TableNo: Integer; SortField: Integer; ShowField: Integer; FilterField: Integer; Expression: Text): Text
     begin
-        exit(Do('DUMP', TableNo, SortField, ShowField, FilterField, 1, true, Expression, '', 0));
+        exit(Exec('DUMP', TableNo, SortField, ShowField, FilterField, 1, true, Expression, '', 0));
     end;
 
     procedure DumpRange(TableNo: Integer; SortField: Integer; ShowField: Integer; FilterField: Integer; FromValue: Text; ToValue: Text): Text
     begin
-        exit(Do('DUMP', TableNo, SortField, ShowField, FilterField, 2, true, FromValue, ToValue, 0));
+        exit(Exec('DUMP', TableNo, SortField, ShowField, FilterField, 2, true, FromValue, ToValue, 0));
     end;
 
     procedure CountFilter(TableNo: Integer; FilterField: Integer; Expression: Text): Text
     begin
-        exit(Do('COUNT', TableNo, 1, 1, FilterField, 1, true, Expression, '', 0));
+        exit(Exec('COUNT', TableNo, 1, 1, FilterField, 1, true, Expression, '', 0));
     end;
 
     procedure CountRange(TableNo: Integer; FilterField: Integer; FromValue: Text; ToValue: Text): Text
     begin
-        exit(Do('COUNT', TableNo, 1, 1, FilterField, 2, true, FromValue, ToValue, 0));
+        exit(Exec('COUNT', TableNo, 1, 1, FilterField, 2, true, FromValue, ToValue, 0));
     end;
 
     procedure FindKey(TableNo: Integer; Value: Text): Text
     begin
-        exit(Do('FIND=', TableNo, 1, 1, 0, 0, true, Value, '', 0));
+        exit(Exec('FIND=', TableNo, 1, 1, 0, 0, true, Value, '', 0));
     end;
 
     procedure RenameKey(TableNo: Integer; FromValue: Text; ToValue: Text): Text
     begin
-        exit(Do('RENAME', TableNo, 1, 1, 0, 0, true, FromValue, ToValue, 0));
+        exit(Exec('RENAME', TableNo, 1, 1, 0, 0, true, FromValue, ToValue, 0));
     end;
 
     procedure FieldInfo(TableNo: Integer; FieldNo: Integer): Text
