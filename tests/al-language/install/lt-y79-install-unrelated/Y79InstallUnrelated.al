@@ -97,8 +97,28 @@ codeunit 94170 "LT Y79 Install Unrelated"
         Observer.Verify();
     end;
 
-    // During OnInstallAppPerCompany the platform asks the subscribers of the apps installed so far for the trigger setup and the trigger mask of the tables the
-    // install code writes with Insert(true) (the per-company table 61370 and the DataPerCompany = false table 61371), and raises OnDatabaseInsert for the rows.
+    // The platform flags a table's OnDatabaseInsert (and the other three) as given to the first subscriber differently per host: the SaaS sandbox and the Linux
+    // containers give No, the Windows containers 27.5 and 28.5 give Yes (an app of the host sets them). So the flag input is not asserted, only what follows from it.
+    local procedure FlagAt(Input: Text; Index: Integer): Boolean
+    var
+        Pos: Integer;
+        Value: Boolean;
+        i: Integer;
+    begin
+        Pos := 1;
+        for i := 1 to Index do begin
+            Value := CopyStr(Input, Pos, 3) = 'Yes';
+            if Value then
+                Pos += 3
+            else
+                Pos += 2;
+        end;
+        exit(Value);
+    end;
+
+    // During OnInstallAppPerCompany the platform asks the subscribers of the apps installed so far for the trigger mask and the trigger setup of the tables the
+    // install code writes with Insert(true) (the per-company table 61370 and the DataPerCompany = false table 61371), and raises OnDatabaseInsert for the rows to
+    // the subscribers whose setup flag is set.
     [Test]
     procedure Y79_PerCompany_TriggerSubscribersOfInstalledApps()
     var
@@ -119,31 +139,33 @@ codeunit 94170 "LT Y79 Install Unrelated"
                 Observer.Observe('B setup ' + App + ' ' + Format(Table), Format(Has('B-setup' + Where)));
                 Observer.Observe('D setup ' + App + ' ' + Format(Table), Format(Has('D-setup' + Where)));
                 Observer.Observe('B OnDatabaseInsert ' + App + ' ' + Format(Table), Format(Has('B-dbinsert' + Where)));
-                Observer.Observe('D OnDatabaseInsert ' + App + ' ' + Format(Table), Format(Has('D-dbinsert' + Where)));
                 Observer.Expect('B mask ' + App + ' ' + Format(Table), Format(BRuns));
                 Observer.Expect('D mask ' + App + ' ' + Format(Table), Format(DRuns));
                 Observer.Expect('B setup ' + App + ' ' + Format(Table), Format(BRuns));
                 Observer.Expect('D setup ' + App + ' ' + Format(Table), Format(DRuns));
-                // B sets the OnDatabaseInsert flag, D sets none: D's OnDatabaseInsert runs only when B's flag is there to be seen.
+                // B sets the OnDatabaseInsert flag itself, so its subscriber is called exactly when it is active.
                 Observer.Expect('B OnDatabaseInsert ' + App + ' ' + Format(Table), Format(BRuns));
-                Observer.Expect('D OnDatabaseInsert ' + App + ' ' + Format(Table), Format(BRuns and DRuns));
-                // The inputs: B (first subscriber) gets mask 0 and no flag, D gets B's mask bit (16 for 61370, 32 for 61371) and B's insert flag when B's subscriber ran before it.
+                // D sets no flag: its OnDatabaseInsert is raised exactly when the flag it was given in the setup call is set (by B, or by the host).
+                if DRuns then begin
+                    Observer.Observe('D OnDatabaseInsert follows its setup input ' + App + ' ' + Format(Table), Format(Has('D-dbinsert' + Where) = FlagAt(After('D-setup' + Where + '|in='), 1)));
+                    Observer.Expect('D OnDatabaseInsert follows its setup input ' + App + ' ' + Format(Table), 'Yes');
+                    // B's flag reaches D: when B's subscriber ran before D's, D was given the insert flag.
+                    if BRuns then begin
+                        Observer.Observe('D setup input has the insert flag ' + App + ' ' + Format(Table), Format(FlagAt(After('D-setup' + Where + '|in='), 1)));
+                        Observer.Expect('D setup input has the insert flag ' + App + ' ' + Format(Table), 'Yes');
+                    end;
+                end;
+                // The mask: B (first subscriber) gets 0 and adds its bit (16 for 61370, 32 for 61371); D gets B's bit when B's subscriber ran before it.
                 if BRuns then begin
                     Observer.Observe('B mask input ' + App + ' ' + Format(Table), After('B-mask' + Where + '|in='));
-                    Observer.Observe('B setup input ' + App + ' ' + Format(Table), After('B-setup' + Where + '|in='));
                     Observer.Expect('B mask input ' + App + ' ' + Format(Table), '0');
-                    Observer.Expect('B setup input ' + App + ' ' + Format(Table), 'NoNoNoNo');
                 end;
                 if DRuns then begin
                     Observer.Observe('D mask input ' + App + ' ' + Format(Table), After('D-mask' + Where + '|in='));
-                    Observer.Observe('D setup input ' + App + ' ' + Format(Table), After('D-setup' + Where + '|in='));
-                    if BRuns then begin
-                        Observer.Expect('D mask input ' + App + ' ' + Format(Table), MaskBit(Table));
-                        Observer.Expect('D setup input ' + App + ' ' + Format(Table), 'YesNoNoNo');
-                    end else begin
+                    if BRuns then
+                        Observer.Expect('D mask input ' + App + ' ' + Format(Table), MaskBit(Table))
+                    else
                         Observer.Expect('D mask input ' + App + ' ' + Format(Table), '0');
-                        Observer.Expect('D setup input ' + App + ' ' + Format(Table), 'NoNoNoNo');
-                    end;
                 end;
             end;
         end;
@@ -320,9 +342,9 @@ codeunit 94170 "LT Y79 Install Unrelated"
         exit(Result);
     end;
 
-    // Test session: the same subscribers, tables of A written in a test session (first touch of a table asks the mask, then the trigger setup; B sets the flag and
-    // adds a mask bit per table, D only notes what it is given). Only OnGlobalRename is ever raised among the global events; bits 1 2 4 (61379) do not raise insert,
-    // modify or delete, nor do 16 to 128 (the other tables).
+    // Test session: the same subscribers, tables of A written in a test session. The first touch of a table asks the mask, then the trigger setup; B sets one
+    // flag and adds one mask bit per table, D only notes what it is given. The database events follow the flags (B's own, D's setup input); of the global events
+    // only OnGlobalRename is ever raised, for mask bit 8, before OnDatabaseRename; the bits 1 2 4 (table 61379) raise no insert, modify or delete event, nor do 16 to 128.
     local procedure Clean(): Text
     var
         Row: Record "LT Y79 XA Seen";
@@ -338,28 +360,109 @@ codeunit 94170 "LT Y79 Install Unrelated"
         exit(Result);
     end;
 
+    // What the notes of the four operations of one table say, as relations: Stage[1..4] = the notes after insert, modify, rename and delete.
+    local procedure Verdicts(Observer: Codeunit "Probe Observer"; Table: Integer; BFlag: Integer; BitText: Text; Stage: array[4] of Text)
+    var
+        Ops: List of [Text];
+        Op: Text;
+        Index: Integer;
+        First: Text;
+        DInput: Text;
+        Kind: Text;
+        GlobalSeen: Text;
+        T: Text;
+    begin
+        T := '|-|t=' + Format(Table);
+        Ops.Add('insert');
+        Ops.Add('modify');
+        Ops.Add('rename');
+        Ops.Add('delete');
+        // The setup input of D comes with the first stage (the first touch of the table); the flag order is insert, modify, delete, rename.
+        First := Stage[1];
+        Observer.Observe('B mask input', Between(First, 'B-mask' + T + '|in='));
+        Observer.Observe('D mask input', Between(First, 'D-mask' + T + '|in='));
+        Observer.Expect('B mask input', '0');
+        Observer.Expect('D mask input', BitText);
+        Observer.Observe('mask before setup', Format(StrPos(First, 'B-mask') < StrPos(First, 'B-setup')));
+        Observer.Expect('mask before setup', 'Yes');
+        DInput := Between(First, 'D-setup' + T + '|in=');
+        Observer.Observe('D setup input has the flag B sets', Format(FlagAt(DInput, BFlag)));
+        Observer.Expect('D setup input has the flag B sets', 'Yes');
+        foreach Op in Ops do begin
+            Index += 1;
+            // Flag position of the operation: insert 1, modify 2, delete 3, rename 4.
+            Kind := Op;
+            case Op of
+                'insert':
+                    Observer.Observe('D ' + Op + ' event follows its setup input', Format((StrPos(Stage[Index], 'D-dbinsert' + T) > 0) = FlagAt(DInput, 1)));
+                'modify':
+                    Observer.Observe('D ' + Op + ' event follows its setup input', Format((StrPos(Stage[Index], 'D-dbmodify' + T) > 0) = FlagAt(DInput, 2)));
+                'delete':
+                    Observer.Observe('D ' + Op + ' event follows its setup input', Format((StrPos(Stage[Index], 'D-dbdelete' + T) > 0) = FlagAt(DInput, 3)));
+                'rename':
+                    Observer.Observe('D ' + Op + ' event follows its setup input', Format((StrPos(Stage[Index], 'D-dbrename' + T) > 0) = FlagAt(DInput, 4)));
+            end;
+            Observer.Expect('D ' + Op + ' event follows its setup input', 'Yes');
+            GlobalSeen += Format(StrPos(Stage[Index], '-global' + Op) > 0) + ';';
+        end;
+        // B sets exactly one flag; its event is raised for that operation.
+        case BFlag of
+            1:
+                Observer.Observe('B event of its own flag', Format(StrPos(Stage[1], 'B-dbinsert' + T) > 0));
+            2:
+                Observer.Observe('B event of its own flag', Format(StrPos(Stage[2], 'B-dbmodify' + T) > 0));
+            3:
+                Observer.Observe('B event of its own flag', Format(StrPos(Stage[4], 'B-dbdelete' + T) > 0));
+            4:
+                Observer.Observe('B event of its own flag', Format(StrPos(Stage[3], 'B-dbrename' + T) > 0));
+        end;
+        Observer.Expect('B event of its own flag', 'Yes');
+        // The global events per operation (insert, modify, rename, delete): only a rename with mask bit 8 raises one.
+        Observer.Observe('global events raised (insert;modify;rename;delete)', GlobalSeen);
+        if BitText = '15' then
+            Observer.Expect('global events raised (insert;modify;rename;delete)', 'No;No;Yes;No;')
+        else
+            Observer.Expect('global events raised (insert;modify;rename;delete)', 'No;No;No;No;');
+        if BitText = '15' then begin
+            Observer.Observe('global rename before database rename', Format(StrPos(Stage[3], 'B-globalrename') < StrPos(Stage[3], 'B-dbrename')));
+            Observer.Expect('global rename before database rename', 'Yes');
+        end;
+    end;
+
+    local procedure Between(Text: Text; Prefix: Text): Text
+    var
+        Start: Integer;
+        Rest: Text;
+        Stop: Integer;
+    begin
+        Start := StrPos(Text, Prefix);
+        if Start = 0 then
+            exit('<none>');
+        Rest := CopyStr(Text, Start + StrLen(Prefix));
+        Stop := StrPos(Rest, ' ##');
+        exit(CopyStr(Rest, 1, Stop - 1));
+    end;
+
     [Test]
     procedure Y79_TestSession_Table61377()
     var
         Observer: Codeunit "Probe Observer";
         Row: Record "LT Y79 XA Mask 2";
+        Stage: array[4] of Text;
     begin
         Clean();
         Row.Init();
         Row."No." := 1;
         Row.Insert(true);
-        Observer.Observe('after insert', Clean());
+        Stage[1] := Clean();
         Row.Note := 'x';
         Row.Modify(true);
-        Observer.Observe('after modify', Clean());
+        Stage[2] := Clean();
         Row.Rename(2);
-        Observer.Observe('after rename', Clean());
+        Stage[3] := Clean();
         Row.Delete(true);
-        Observer.Observe('after delete', Clean());
-        Observer.Expect('after insert', 'B-mask|-|t=61377|in=0 ## D-mask|-|t=61377|in=64 ## B-setup|-|t=61377|in=NoNoNoNo ## D-setup|-|t=61377|in=NoYesNoNo ## ');
-        Observer.Expect('after modify', 'B-dbmodify|-|t=61377 ## D-dbmodify|-|t=61377 ## ');
-        Observer.Expect('after rename', '');
-        Observer.Expect('after delete', '');
+        Stage[4] := Clean();
+        Verdicts(Observer, 61377, 2, '64', Stage);
         Observer.Verify();
     end;
 
@@ -368,23 +471,21 @@ codeunit 94170 "LT Y79 Install Unrelated"
     var
         Observer: Codeunit "Probe Observer";
         Row: Record "LT Y79 XA Mask 4";
+        Stage: array[4] of Text;
     begin
         Clean();
         Row.Init();
         Row."No." := 1;
         Row.Insert(true);
-        Observer.Observe('after insert', Clean());
+        Stage[1] := Clean();
         Row.Note := 'x';
         Row.Modify(true);
-        Observer.Observe('after modify', Clean());
+        Stage[2] := Clean();
         Row.Rename(2);
-        Observer.Observe('after rename', Clean());
+        Stage[3] := Clean();
         Row.Delete(true);
-        Observer.Observe('after delete', Clean());
-        Observer.Expect('after insert', 'B-mask|-|t=61378|in=0 ## D-mask|-|t=61378|in=128 ## B-setup|-|t=61378|in=NoNoNoNo ## D-setup|-|t=61378|in=NoNoYesNo ## ');
-        Observer.Expect('after modify', '');
-        Observer.Expect('after rename', '');
-        Observer.Expect('after delete', 'B-dbdelete|-|t=61378 ## D-dbdelete|-|t=61378 ## ');
+        Stage[4] := Clean();
+        Verdicts(Observer, 61378, 3, '128', Stage);
         Observer.Verify();
     end;
 
@@ -393,23 +494,21 @@ codeunit 94170 "LT Y79 Install Unrelated"
     var
         Observer: Codeunit "Probe Observer";
         Row: Record "LT Y79 XA Mask 8";
+        Stage: array[4] of Text;
     begin
         Clean();
         Row.Init();
         Row."No." := 1;
         Row.Insert(true);
-        Observer.Observe('after insert', Clean());
+        Stage[1] := Clean();
         Row.Note := 'x';
         Row.Modify(true);
-        Observer.Observe('after modify', Clean());
+        Stage[2] := Clean();
         Row.Rename(2);
-        Observer.Observe('after rename', Clean());
+        Stage[3] := Clean();
         Row.Delete(true);
-        Observer.Observe('after delete', Clean());
-        Observer.Expect('after insert', 'B-mask|-|t=61379|in=0 ## D-mask|-|t=61379|in=15 ## B-setup|-|t=61379|in=NoNoNoNo ## D-setup|-|t=61379|in=NoNoNoYes ## ');
-        Observer.Expect('after modify', '');
-        Observer.Expect('after rename', 'B-globalrename|-|t=61379 ## D-globalrename|-|t=61379 ## B-dbrename|-|t=61379 ## D-dbrename|-|t=61379 ## ');
-        Observer.Expect('after delete', '');
+        Stage[4] := Clean();
+        Verdicts(Observer, 61379, 4, '15', Stage);
         Observer.Verify();
     end;
 
@@ -418,20 +517,20 @@ codeunit 94170 "LT Y79 Install Unrelated"
     var
         Observer: Codeunit "Probe Observer";
         Row: Record "LT Y79 XA Db Data";
+        Stage: array[4] of Text;
     begin
         Clean();
         Row.Init();
         Row."No." := 9971;
         Row.Insert(true);
-        Observer.Observe('after insert', Clean());
+        Stage[1] := Clean();
         Row.Note := 'x';
         Row.Modify(true);
-        Observer.Observe('after modify', Clean());
+        Stage[2] := Clean();
+        Stage[3] := Clean();
         Row.Delete(true);
-        Observer.Observe('after delete', Clean());
-        Observer.Expect('after insert', 'B-mask|-|t=61371|in=0 ## D-mask|-|t=61371|in=32 ## B-setup|-|t=61371|in=NoNoNoNo ## D-setup|-|t=61371|in=YesNoNoNo ## B-dbinsert|-|t=61371|row=9971 ## D-dbinsert|-|t=61371|row=9971 ## ');
-        Observer.Expect('after modify', '');
-        Observer.Expect('after delete', '');
+        Stage[4] := Clean();
+        Verdicts(Observer, 61371, 1, '32', Stage);
         Observer.Verify();
     end;
 
@@ -440,20 +539,20 @@ codeunit 94170 "LT Y79 Install Unrelated"
     var
         Observer: Codeunit "Probe Observer";
         Row: Record "LT Y79 XA Data";
+        Stage: array[4] of Text;
     begin
         Clean();
         Row.Init();
         Row."No." := 9972;
         Row.Insert(true);
-        Observer.Observe('after insert', Clean());
+        Stage[1] := Clean();
         Row.Note := 'x';
         Row.Modify(true);
-        Observer.Observe('after modify', Clean());
+        Stage[2] := Clean();
+        Stage[3] := Clean();
         Row.Delete(true);
-        Observer.Observe('after delete', Clean());
-        Observer.Expect('after insert', 'B-mask|-|t=61370|in=0 ## D-mask|-|t=61370|in=16 ## B-setup|-|t=61370|in=NoNoNoNo ## D-setup|-|t=61370|in=YesNoNoNo ## B-dbinsert|-|t=61370|row=9972 ## D-dbinsert|-|t=61370|row=9972 ## ');
-        Observer.Expect('after modify', '');
-        Observer.Expect('after delete', '');
+        Stage[4] := Clean();
+        Verdicts(Observer, 61370, 1, '16', Stage);
         Observer.Verify();
     end;
 }
