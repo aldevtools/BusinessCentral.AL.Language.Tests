@@ -21,8 +21,10 @@ tableextension 61359 "LT Y69 XB Data Ext" extends "LT Y8 XA Data"
 {
     trigger OnBeforeInsert()
     var
+        Hub: Codeunit "LT Y64 XA Install Hub";
         Row: Record "LT Y69 XB Row";
     begin
+        Hub.Note('Y69|B-ext|row=' + Format(Rec."No."));
         Row."No." := Rec."No.";
         if Row.Insert(true) then;
     end;
