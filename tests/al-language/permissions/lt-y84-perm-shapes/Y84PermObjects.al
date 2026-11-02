@@ -4,7 +4,7 @@
 // Objects for the writer Y84 permission probes (al-runtime-rs ADR-062 stage 3): AccessByPermission on page fields, actions and parts with every letter
 // and every object kind, on the page object, on the report object, on a table field and on request page fields; trigger, page and subscriber
 // code that runs an object the session may not execute; permission sets that grant the guard table in each letter and level.
-// Object ids 94380-94421 and 94430-94436. An object that runs code is checked for Execute the first time the session loads it, so every Execute case uses
+// Object ids 94380-94421 and 94500-94506. An object that runs code is checked for Execute the first time the session loads it, so every Execute case uses
 // objects (U1 - U5, T1, T2, the pages and the subscriber) that no other case uses before it.
 
 table 94380 "LT Y84 Row"
@@ -207,7 +207,7 @@ table 94387 "LT Y84 Trig Tbl"
     end;
 }
 
-table 94436 "LT Y84 Trig Tbl 2"
+table 94506 "LT Y84 Trig Tbl 2"
 {
     DataClassification = SystemMetadata;
 
@@ -321,7 +321,7 @@ codeunit 94391 "LT Y84 Subscriber"
 }
 
 // Fresh Execute targets, one per case.
-codeunit 94430 "LT Y84 Target 1"
+codeunit 94500 "LT Y84 Target 1"
 {
     trigger OnRun()
     begin
@@ -333,7 +333,7 @@ codeunit 94430 "LT Y84 Target 1"
     end;
 }
 
-codeunit 94431 "LT Y84 Target 2"
+codeunit 94501 "LT Y84 Target 2"
 {
     trigger OnRun()
     begin
@@ -345,7 +345,7 @@ codeunit 94431 "LT Y84 Target 2"
     end;
 }
 
-codeunit 94432 "LT Y84 Target 3"
+codeunit 94502 "LT Y84 Target 3"
 {
     trigger OnRun()
     begin
@@ -357,7 +357,7 @@ codeunit 94432 "LT Y84 Target 3"
     end;
 }
 
-codeunit 94433 "LT Y84 Target 4"
+codeunit 94503 "LT Y84 Target 4"
 {
     trigger OnRun()
     begin
@@ -369,7 +369,7 @@ codeunit 94433 "LT Y84 Target 4"
     end;
 }
 
-codeunit 94434 "LT Y84 Target 5"
+codeunit 94504 "LT Y84 Target 5"
 {
     trigger OnRun()
     begin

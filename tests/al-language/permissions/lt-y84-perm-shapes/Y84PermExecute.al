@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-permissions-property
 // Scope: in-scope
-// Fixtures used: Probe Observer (69160); Y84PermObjects.al (94380-94421, 94430-94436); Permissions Mock (131006).
+// Fixtures used: Probe Observer (69160); Y84PermObjects.al (94380-94421, 94500-94506); Permissions Mock (131006).
 // Probe: al-runtime-rs ADR-062 stage 3, writer Y84: an Execute denial raised inside a table trigger (OnInsert, OnModify, OnDelete; Codeunit.Run and a call on a
 //   codeunit variable), inside a page trigger (OnOpenPage, an action's OnAction) and inside an event subscriber. Each case assigns an exact set (table data and
 //   the object that holds the code, with and without Execute on the codeunit the code runs), runs ONE operation inside asserterror that ends with
