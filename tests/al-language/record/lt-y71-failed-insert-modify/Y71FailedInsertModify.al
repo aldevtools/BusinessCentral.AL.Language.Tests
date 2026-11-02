@@ -328,7 +328,7 @@ codeunit 93813 "LT Y71 Failed Insert Modify"
         Log.Reset();
     end;
 
-    local procedure Scenario(Name: Text; Mode: Integer; WithCommitAtEnd: Boolean)
+    local procedure Scenario(Name: Text; Mode: Integer; WithCommitAtEnd: Boolean; ReadStored: Boolean)
     var
         Helper: Codeunit "LT Y71 MI Helper";
         Row: Record "LT Y71 MI Tab";
@@ -346,6 +346,12 @@ codeunit 93813 "LT Y71 Failed Insert Modify"
         UnbindSubscription(Helper);
         Obs.Observe(Name + '|notes', Helper.GetNotes());
         Obs.Observe(Name + '|log', Log.Text());
+        if not ReadStored then begin
+            // the row was inserted in this same transaction: the next database access answers the stopped transaction
+            asserterror Row.Get('A');
+            Obs.ObserveError(Name + '|read_after');
+            exit;
+        end;
         if Mode > 20 then begin
             if RowB.Get('A') then
                 Obs.Observe(Name + '|stored', StrSubstNo('%1/%2', RowB.Name, RowB.Qty))
@@ -362,7 +368,7 @@ codeunit 93813 "LT Y71 Failed Insert Modify"
     procedure FailedInsert_ThenModify_BufferReadBefore_RowChangedElsewhere()
     begin
         Seed(true);
-        Scenario('committed', 1, true);
+        Scenario('committed', 1, true, true);
         Obs.Finish();
     end;
 
@@ -376,7 +382,7 @@ codeunit 93813 "LT Y71 Failed Insert Modify"
     procedure FailedInsert_ThenModify_BufferReadBefore_Uncommitted()
     begin
         Seed(false);
-        Scenario('uncommitted', 1, true);
+        Scenario('uncommitted', 1, true, false);
         Obs.Finish();
     end;
 
@@ -390,7 +396,7 @@ codeunit 93813 "LT Y71 Failed Insert Modify"
     procedure FailedInsert_ThenModify_CommitBetween()
     begin
         Seed(true);
-        Scenario('commit_between', 2, true);
+        Scenario('commit_between', 2, true, true);
         Obs.Finish();
     end;
 
@@ -404,7 +410,7 @@ codeunit 93813 "LT Y71 Failed Insert Modify"
     procedure FailedInsert_ThenModify_FreshBuffer()
     begin
         Seed(true);
-        Scenario('committed', 3, true);
+        Scenario('committed', 3, true, true);
         Obs.Finish();
     end;
 
@@ -418,7 +424,7 @@ codeunit 93813 "LT Y71 Failed Insert Modify"
     procedure FailedInsert_ThenModify_FreshBuffer_Uncommitted()
     begin
         Seed(false);
-        Scenario('uncommitted', 3, true);
+        Scenario('uncommitted', 3, true, false);
         Obs.Finish();
     end;
 
@@ -432,7 +438,7 @@ codeunit 93813 "LT Y71 Failed Insert Modify"
     procedure FailedInsertTrue_ThenModifyTrue()
     begin
         Seed(true);
-        Scenario('committed', 4, true);
+        Scenario('committed', 4, true, true);
         Obs.Finish();
     end;
 
@@ -446,7 +452,7 @@ codeunit 93813 "LT Y71 Failed Insert Modify"
     procedure FailedInsert_ThenModify_AfterModifyAll()
     begin
         Seed(true);
-        Scenario('committed', 5, true);
+        Scenario('committed', 5, true, true);
         Obs.Finish();
     end;
 
@@ -460,7 +466,7 @@ codeunit 93813 "LT Y71 Failed Insert Modify"
     procedure FailedInsert_ThenModify_NothingChangedElsewhere()
     begin
         Seed(true);
-        Scenario('committed', 7, true);
+        Scenario('committed', 7, true, true);
         Obs.Finish();
     end;
 
@@ -474,7 +480,7 @@ codeunit 93813 "LT Y71 Failed Insert Modify"
     procedure FailedInsertTwice_ThenModify()
     begin
         Seed(true);
-        Scenario('committed', 8, true);
+        Scenario('committed', 8, true, true);
         Obs.Finish();
     end;
 
@@ -488,7 +494,7 @@ codeunit 93813 "LT Y71 Failed Insert Modify"
     procedure Insert_AfterRowDeletedElsewhere()
     begin
         Seed(true);
-        Scenario('committed', 9, true);
+        Scenario('committed', 9, true, true);
         Obs.Finish();
     end;
 
@@ -502,7 +508,7 @@ codeunit 93813 "LT Y71 Failed Insert Modify"
     procedure BlobTable_FailedInsert_ThenModify_BufferReadBefore()
     begin
         Seed(true);
-        Scenario('blob_committed', 21, true);
+        Scenario('blob_committed', 21, true, true);
         Obs.Finish();
     end;
 
@@ -516,7 +522,7 @@ codeunit 93813 "LT Y71 Failed Insert Modify"
     procedure BlobTable_FailedInsert_ThenModify_FreshBuffer()
     begin
         Seed(true);
-        Scenario('blob_committed', 23, true);
+        Scenario('blob_committed', 23, true, true);
         Obs.Finish();
     end;
 

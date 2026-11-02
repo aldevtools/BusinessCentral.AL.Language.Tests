@@ -183,12 +183,12 @@ codeunit 93834 "LT Y71 Caption Class Events"
         OriginalLanguage := GlobalLanguage();
         Log.Reset();
         BindSubscription(Subs);
-        GlobalLanguage(1033);
-        OpenAndRead('lang_1033_first', true);
-        GlobalLanguage(1030);
-        OpenAndRead('lang_1030_second', true);
-        GlobalLanguage(1033);
-        OpenAndRead('lang_1033_third', true);
+        GlobalLanguage(1031);
+        OpenAndRead('lang_1031_first', true);
+        GlobalLanguage(1036);
+        OpenAndRead('lang_1036_second', true);
+        GlobalLanguage(1031);
+        OpenAndRead('lang_1031_third', true);
         GlobalLanguage(OriginalLanguage);
         UnbindSubscription(Subs);
         Obs.Finish();
