@@ -163,7 +163,10 @@ codeunit 94100 "LT Y77 Guid Filter"
         Obs.Expect('g_sf_blank', 'gf={00000000-0000-0000-0000-000000000000} gfs=G: {00000000-0000-0000-0000-000000000000} rows=[C]');
         Obs.Expect('g_sf1_g1', 'gf={1A2B3C4D-5E6F-7A8B-9C0D-1E2F3A4B5C6D} gfs=G: {1A2B3C4D-5E6F-7A8B-9C0D-1E2F3A4B5C6D} rows=[AD]');
         Obs.Expect('g_sf1_blank', 'gf={00000000-0000-0000-0000-000000000000} gfs=G: {00000000-0000-0000-0000-000000000000} rows=[C]');
-        Obs.Expect('g_sr_g1', 'gf={1A2B3C4D-5E6F-7A8B-9C0D-1E2F3A4B5C6D} gfs=G: {1A2B');
+        Obs.Expect('g_sr_g1', 'gf={1A2B3C4D-5E6F-7A8B-9C0D-1E2F3A4B5C6D} gfs=G: {1A2B3C4D-5E6F-7A8B-9C0D-1E2F3A4B5C6D} rows=[AD]');
+        Obs.Expect('g_sr_blank', 'gf={00000000-0000-0000-0000-000000000000} gfs=G: {00000000-0000-0000-0000-000000000000} rows=[C]');
+        Obs.Expect('g_sr2_g1', 'gf={1A2B3C4D-5E6F-7A8B-9C0D-1E2F3A4B5C6D} gfs=G: {1A2B3C4D-5E6F-7A8B-9C0D-1E2F3A4B5C6D} rows=[AD]');
+        Obs.Expect('g_sr2_blank', 'gf={00000000-0000-0000-0000-000000000000} gfs=G: {00000000-0000-0000-0000-000000000000} rows=[C]');
         Obs.Verify();
     end;
 
@@ -175,7 +178,10 @@ codeunit 94100 "LT Y77 Guid Filter"
         Obs.Expect('t_sf_blank', 'gf={00000000-0000-0000-0000-000000000000} gfs=T: {00000000-0000-0000-0000-000000000000} rows=[]');
         Obs.Expect('t_sf1_g1', 'gf={1A2B3C4D-5E6F-7A8B-9C0D-1E2F3A4B5C6D} gfs=T: {1A2B3C4D-5E6F-7A8B-9C0D-1E2F3A4B5C6D} rows=[A]');
         Obs.Expect('t_sf1_blank', 'gf={00000000-0000-0000-0000-000000000000} gfs=T: {00000000-0000-0000-0000-000000000000} rows=[]');
-        Obs.Expect('t_sr_g1', 'gf={1A2B3C4D-5E6F-7A8B-9C0D-1E2F3A4B5C6D} gfs=T: {1A2B3C4D');
+        Obs.Expect('t_sr_g1', 'gf={1A2B3C4D-5E6F-7A8B-9C0D-1E2F3A4B5C6D} gfs=T: {1A2B3C4D-5E6F-7A8B-9C0D-1E2F3A4B5C6D} rows=[A]');
+        Obs.Expect('t_sr_blank', 'gf={00000000-0000-0000-0000-000000000000} gfs=T: {00000000-0000-0000-0000-000000000000} rows=[]');
+        Obs.Expect('t_sr2_g1', 'gf={1A2B3C4D-5E6F-7A8B-9C0D-1E2F3A4B5C6D} gfs=T: {1A2B3C4D-5E6F-7A8B-9C0D-1E2F3A4B5C6D} rows=[A]');
+        Obs.Expect('t_sr2_blank', 'gf={00000000-0000-0000-0000-000000000000} gfs=T: {00000000-0000-0000-0000-000000000000} rows=[]');
         Obs.Verify();
     end;
 
@@ -187,7 +193,10 @@ codeunit 94100 "LT Y77 Guid Filter"
         Obs.Expect('c_sf_blank', 'gf={00000000-0000-0000-0000-000000000000} gfs=C: {00000000-0000-0000-0000-000000000000} rows=[]');
         Obs.Expect('c_sf1_g1', 'gf={1A2B3C4D-5E6F-7A8B-9C0D-1E2F3A4B5C6D} gfs=C: {1A2B3C4D-5E6F-7A8B-9C0D-1E2F3A4B5C6D} rows=[A]');
         Obs.Expect('c_sf1_blank', 'gf={00000000-0000-0000-0000-000000000000} gfs=C: {00000000-0000-0000-0000-000000000000} rows=[]');
-        Obs.Expect('c_sr_g1', 'gf={1A2B3C4D-5E6F-7A8B-9C0D-1E2F3A4B5C6D} gfs=C: {1A2B3C4D');
+        Obs.Expect('c_sr_g1', 'gf={1A2B3C4D-5E6F-7A8B-9C0D-1E2F3A4B5C6D} gfs=C: {1A2B3C4D-5E6F-7A8B-9C0D-1E2F3A4B5C6D} rows=[A]');
+        Obs.Expect('c_sr_blank', 'gf={00000000-0000-0000-0000-000000000000} gfs=C: {00000000-0000-0000-0000-000000000000} rows=[]');
+        Obs.Expect('c_sr2_g1', 'gf={1A2B3C4D-5E6F-7A8B-9C0D-1E2F3A4B5C6D} gfs=C: {1A2B3C4D-5E6F-7A8B-9C0D-1E2F3A4B5C6D} rows=[A]');
+        Obs.Expect('c_sr2_blank', 'gf={00000000-0000-0000-0000-000000000000} gfs=C: {00000000-0000-0000-0000-000000000000} rows=[]');
         Obs.Verify();
     end;
 
@@ -371,7 +380,7 @@ codeunit 94100 "LT Y77 Guid Filter"
         Obs.Expect('fg_sr_g1', 'gf={1A2B3C4D-5E6F-7A8B-9C0D-1E2F3A4B5C6D} rows=[AD]');
         Obs.Expect('fg_sr_blank', 'gf={00000000-0000-0000-0000-000000000000} rows=[C]');
         Obs.Expect('fg_sr2_g1', 'gf={1A2B3C4D-5E6F-7A8B-9C0D-1E2F3A4B5C6D} rows=[AD]');
-        Obs.Expect('fg_sr2_blank', 'gf={00000000-0000-0000-0000-000000000000} r');
+        Obs.Expect('fg_sr2_blank', 'gf={00000000-0000-0000-0000-000000000000} rows=[C]');
         Obs.Verify();
     end;
 
