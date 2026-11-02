@@ -58,3 +58,24 @@ codeunit 61366 "LT Y64 XD Install Subs"
         Hub.Note('D-tel|' + Hub.Armed());
     end;
 }
+
+// Writer Y79 (al-runner issues 6644 and 6755): the install code of D runs the probe of A's hub 61372, per database and per company (see
+// tests/al-language-xapp-a/Y79XaObjects.al). Install code must never fail: every write is `if Insert(true) then;`, the Upgrade Tag calls only read.
+codeunit 61394 "LT Y79 XD Install"
+{
+    Subtype = Install;
+
+    trigger OnInstallAppPerDatabase()
+    var
+        Hub: Codeunit "LT Y79 XA Hub";
+    begin
+        Hub.Probe('D', 'db');
+    end;
+
+    trigger OnInstallAppPerCompany()
+    var
+        Hub: Codeunit "LT Y79 XA Hub";
+    begin
+        Hub.Probe('D', 'co');
+    end;
+}
