@@ -29,6 +29,12 @@
       "name": "AL Language XApp D",
       "publisher": "Mike Probe Publisher",
       "version": "1.0.0.0"
+    },
+    {
+      "id": "437dbf0e-84ff-417a-965d-ed2bb9650972",
+      "name": "Base Application",
+      "publisher": "Microsoft",
+      "version": "27.0.0.0"
     }
   ],
   "screenshots": [],
@@ -40,6 +46,10 @@
     {
       "from": 61150,
       "to": 61159
+    },
+    {
+      "from": 61360,
+      "to": 61364
     }
   ],
   "features": [],

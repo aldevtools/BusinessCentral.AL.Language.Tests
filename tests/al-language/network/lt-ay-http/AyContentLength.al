@@ -363,4 +363,94 @@ codeunit 80508 "LT AY Content Length"
         Observer.Expect('new_handle_after_read', 'Yes[5]');
         Observer.Verify();
     end;
+
+    // Writer Y2 (al-runtime-rs assumption http-content-length-after-read): a Content-Length added by hand and then a WriteFrom of a body of
+    // another length (before any read, after a read, and through a handle taken before the second WriteFrom). Measured: the hand-set value
+    // stays through the WriteFrom and the read that follows, longer or shorter body alike.
+    [Test]
+    procedure Y2_ContentLength_AddedByHandThenLongerWrite()
+    var
+        Observer: Codeunit "Probe Observer";
+        C: HttpContent;
+        H: HttpHeaders;
+        T: Text;
+    begin
+        C.WriteFrom('abc');
+        C.GetHeaders(H);
+        Observer.Observe('add', Format(H.Add('Content-Length', '3')));
+        C.WriteFrom('a longer text');
+        Observer.Observe('old_handle_after_write', Show(H));
+        Observer.Observe('new_handle_after_write', Len(C));
+        C.ReadAs(T);
+        Observer.Observe('after_read', Len(C) + ' read=' + T);
+        Observer.Expect('add', 'Yes');
+        Observer.Expect('old_handle_after_write', 'Yes[3]');
+        Observer.Expect('new_handle_after_write', 'Yes[3]');
+        Observer.Expect('after_read', 'Yes[3] read=a longer text');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y2_ContentLength_AddedByHandThenShorterWrite()
+    var
+        Observer: Codeunit "Probe Observer";
+        C: HttpContent;
+        H: HttpHeaders;
+        T: Text;
+    begin
+        C.WriteFrom('a longer text');
+        C.GetHeaders(H);
+        Observer.Observe('add', Format(H.Add('Content-Length', '13')));
+        C.WriteFrom('ab');
+        Observer.Observe('new_handle_after_write', Len(C));
+        C.ReadAs(T);
+        Observer.Observe('after_read', Len(C) + ' read=' + T);
+        Observer.Expect('add', 'Yes');
+        Observer.Expect('new_handle_after_write', 'Yes[13]');
+        Observer.Expect('after_read', 'Yes[13] read=ab');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y2_ContentLength_AddedByHandAfterReadThenLongerWrite()
+    var
+        Observer: Codeunit "Probe Observer";
+        C: HttpContent;
+        H: HttpHeaders;
+        T: Text;
+    begin
+        C.WriteFrom('hello');
+        C.ReadAs(T);
+        C.GetHeaders(H);
+        H.Remove('Content-Length');
+        Observer.Observe('add', Format(H.Add('Content-Length', '3')));
+        C.WriteFrom('a longer text');
+        Observer.Observe('after_write', Len(C));
+        C.ReadAs(T);
+        Observer.Observe('after_read', Len(C) + ' read=' + T);
+        Observer.Expect('add', 'Yes');
+        Observer.Expect('after_write', 'Yes[3]');
+        Observer.Expect('after_read', 'Yes[3] read=a longer text');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y2_ContentLength_AddedByHandWithoutBodyThenWrite()
+    var
+        Observer: Codeunit "Probe Observer";
+        C: HttpContent;
+        H: HttpHeaders;
+        T: Text;
+    begin
+        C.GetHeaders(H);
+        Observer.Observe('add', Format(H.Add('Content-Length', '3')));
+        C.WriteFrom('a longer text');
+        Observer.Observe('after_write', Len(C));
+        C.ReadAs(T);
+        Observer.Observe('after_read', Len(C) + ' read=' + T);
+        Observer.Expect('add', 'Yes');
+        Observer.Expect('after_write', 'Yes[3]');
+        Observer.Expect('after_read', 'Yes[3] read=a longer text');
+        Observer.Verify();
+    end;
 }
