@@ -6,9 +6,10 @@
 // do not compile: AL0408, must-not-compile 2770 and 2771).
 // The Variant is read in six ways, one per test codeunit: the kind flags (IsText, IsCode, IsTextConstant, IsChar), Format(V), Format(V, 0, 9), and the value taken back into a
 // Text, a Code[20] and a Text[5].
-// Held (platform crash, not an oracle): a procedure that returns a Variant with exit(Cond ? Label : 'literal') ends the whole session ("hub connection closed") when its codeunit
-// is loaded, even if the procedure is never called (SaaS BC 29). The reverse order (literal first), exit(Cond ? Label : Label) and a named return value assigned the same
-// expression load and run. The held shape is the non-test codeunit 94259; the runtime should refuse it.
+// Held (platform crash, not an oracle): a conditional Cond ? Label : 'literal' (Label first, text literal second) used directly as the argument of a Variant parameter or as
+// the exit value of a procedure that returns a Variant ends the whole session ("hub connection closed") when its codeunit is loaded, even if the procedure is never called
+// (SaaS BC 29). The reverse order (literal first), Label : Label, an assignment to a Variant variable and a named return value assigned the same expression load and run.
+// The held shapes are in the non-test codeunit 94259; the runtime should refuse them.
 // Pinned elsewhere: assignment of the pairs and the kind of the Variant: types/lt-y66-ternary-label/Y66TernaryLabel.al, types/TestTernaryContracts.al:568-579.
 // BC versions: 27, 28, 29
 
@@ -96,7 +97,7 @@ codeunit 94253 "LT Y81 Label Variant 1"
             8:
                 exit(Describe(Cond ? LblA : LblB));
             9:
-                exit(Describe(Cond ? LblA : 'literal'));
+                exit(Describe(Cond ? 'literal' : LblA));
             10:
                 exit(Describe(Cond ? LblA : TxtVar));
             11:
@@ -225,7 +226,7 @@ codeunit 94254 "LT Y81 Label Variant 2"
             8:
                 exit(Describe(Cond ? LblA : LblB));
             9:
-                exit(Describe(Cond ? LblA : 'literal'));
+                exit(Describe(Cond ? 'literal' : LblA));
             10:
                 exit(Describe(Cond ? LblA : TxtVar));
             11:
@@ -354,7 +355,7 @@ codeunit 94255 "LT Y81 Label Variant 3"
             8:
                 exit(Describe(Cond ? LblA : LblB));
             9:
-                exit(Describe(Cond ? LblA : 'literal'));
+                exit(Describe(Cond ? 'literal' : LblA));
             10:
                 exit(Describe(Cond ? LblA : TxtVar));
             11:
@@ -486,7 +487,7 @@ codeunit 94256 "LT Y81 Label Variant 4"
             8:
                 exit(Describe(Cond ? LblA : LblB));
             9:
-                exit(Describe(Cond ? LblA : 'literal'));
+                exit(Describe(Cond ? 'literal' : LblA));
             10:
                 exit(Describe(Cond ? LblA : TxtVar));
             11:
@@ -618,7 +619,7 @@ codeunit 94257 "LT Y81 Label Variant 5"
             8:
                 exit(Describe(Cond ? LblA : LblB));
             9:
-                exit(Describe(Cond ? LblA : 'literal'));
+                exit(Describe(Cond ? 'literal' : LblA));
             10:
                 exit(Describe(Cond ? LblA : TxtVar));
             11:
@@ -750,7 +751,7 @@ codeunit 94258 "LT Y81 Label Variant 6"
             8:
                 exit(Describe(Cond ? LblA : LblB));
             9:
-                exit(Describe(Cond ? LblA : 'literal'));
+                exit(Describe(Cond ? 'literal' : LblA));
             10:
                 exit(Describe(Cond ? LblA : TxtVar));
             11:
@@ -804,5 +805,15 @@ codeunit 94259 "LT Y81 Label Variant Held"
     procedure Suspect_ReturnLabelOrLiteral(Cond: Boolean): Variant
     begin
         exit(Cond ? LblA : 'literal');
+    end;
+
+    procedure Suspect_ArgumentLabelOrLiteral(Cond: Boolean): Text
+    begin
+        exit(Describe(Cond ? LblA : 'literal'));
+    end;
+
+    local procedure Describe(V: Variant): Text
+    begin
+        exit(Format(V.IsText()));
     end;
 }
