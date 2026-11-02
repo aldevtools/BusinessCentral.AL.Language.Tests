@@ -455,6 +455,12 @@ codeunit 93740 "LT Y70 Probes"
         Obs.Observe('True_upper', AsBool('TRUE'));
         Obs.Observe('yes', AsBool('yes'));
         Obs.Observe('one', AsBool('1'));
+        Obs.Finish();
+    end;
+
+    [Test]
+    procedure JsonValue_OtherGettersOtherText()
+    begin
         Obs.Observe('letters', AsBool('abc'));
         Obs.Observe('digits', AsBool('123'));
         Obs.Observe('empty', AsBool(''));
@@ -742,6 +748,31 @@ codeunit 93740 "LT Y70 Probes"
         R := Format(RecRef.IsDirty());
     end;
 
+    // ---- IsolatedStorage: SetEncrypted over an existing key, Set over an encrypted key, each right after a Commit
+    [Test]
+    procedure IsolatedStorage_EncryptedOverwrite()
+    begin
+        if IsolatedStorage.Contains('LTY70iso', DataScope::Module) then
+            IsolatedStorage.Delete('LTY70iso', DataScope::Module);
+        Commit();
+        Obs.Observe('set_encrypted_new', Format(IsolatedStorage.SetEncrypted('LTY70iso', 'v1', DataScope::Module)));
+        Obs.Observe('after_new', Format(Database.IsInWriteTransaction()));
+        Commit();
+        Obs.Observe('before_encrypted_again', Format(Database.IsInWriteTransaction()));
+        Obs.Observe('set_encrypted_again', Format(IsolatedStorage.SetEncrypted('LTY70iso', 'v2', DataScope::Module)));
+        Obs.Observe('after_encrypted_again', Format(Database.IsInWriteTransaction()));
+        Commit();
+        Obs.Observe('set_encrypted_same', Format(IsolatedStorage.SetEncrypted('LTY70iso', 'v2', DataScope::Module)));
+        Obs.Observe('after_encrypted_same', Format(Database.IsInWriteTransaction()));
+        Commit();
+        Obs.Observe('set_plain_over_encrypted', Format(IsolatedStorage.Set('LTY70iso', 'v3', DataScope::Module)));
+        Obs.Observe('after_plain_over_encrypted', Format(Database.IsInWriteTransaction()));
+        Commit();
+        IsolatedStorage.Delete('LTY70iso', DataScope::Module);
+        Commit();
+        Obs.Finish();
+    end;
+
     // ---- RecordRef.IsDirty of a buffer that did not come from a read or write through the ref
     [Test]
     procedure RecordRefIsDirty_Shapes()
@@ -783,6 +814,11 @@ codeunit 93740 "LT Y70 Probes"
         Obs.Observe('after_get', Dirty(RecRef));
         RecRef.Field(2).Value := 'y';
         Obs.Observe('after_get_changed', Dirty(RecRef));
+        Row.DeleteAll();
+        Clear(Same);
+        Same.Init();
+        RecRef.GetTable(Same);
+        Obs.Observe('gettable_blank_no_stored_row', Dirty(RecRef));
         Row.DeleteAll();
         Obs.Finish();
     end;
