@@ -1018,48 +1018,242 @@ codeunit 94150 "LT Y78 Query Agg Outer"
     end;
 
     [Test]
-    procedure Y78_Left_RuntimeFilterOnAggregates()
+    procedure Y78_Left_RuntimeFilterOnAggregates_A()
     var
         Observer: Codeunit "Probe Observer";
         Q: Query "LT Y78 Q Left All";
     begin
         Seed();
         Clear(Q);
+        Observer.Observe('none filters', Q.GetFilters());
         Observer.Observe('none', DumpLeftAll(Q));
         Clear(Q);
         Q.SetFilter(SumQ, '>0');
+        Observer.Observe('sum gt0 filters', Q.GetFilters());
+        Observer.Observe('sum gt0 SumQ', Q.GetFilter(SumQ));
         Observer.Observe('sum gt0', DumpLeftAll(Q));
         Clear(Q);
         Q.SetRange(SumQ, 0);
+        Observer.Observe('sum eq0 filters', Q.GetFilters());
+        Observer.Observe('sum eq0 SumQ', Q.GetFilter(SumQ));
         Observer.Observe('sum eq0', DumpLeftAll(Q));
         Clear(Q);
         Q.SetFilter(SumQ, '<>0');
+        Observer.Observe('sum ne0 filters', Q.GetFilters());
+        Observer.Observe('sum ne0 SumQ', Q.GetFilter(SumQ));
         Observer.Observe('sum ne0', DumpLeftAll(Q));
         Clear(Q);
         Q.SetFilter(SumQ, '');
+        Observer.Observe('sum empty filters', Q.GetFilters());
+        Observer.Observe('sum empty SumQ', Q.GetFilter(SumQ));
         Observer.Observe('sum empty', DumpLeftAll(Q));
         Clear(Q);
         Q.SetFilter(SumQ, '<0|>=30');
+        Observer.Observe('sum or filters', Q.GetFilters());
+        Observer.Observe('sum or SumQ', Q.GetFilter(SumQ));
         Observer.Observe('sum or', DumpLeftAll(Q));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y78_Left_RuntimeFilterOnAggregates_B()
+    var
+        Observer: Codeunit "Probe Observer";
+        Q: Query "LT Y78 Q Left All";
+    begin
+        Seed();
         Clear(Q);
         Q.SetFilter(AvgQ, '>10');
+        Observer.Observe('avg gt10 filters', Q.GetFilters());
+        Observer.Observe('avg gt10 AvgQ', Q.GetFilter(AvgQ));
         Observer.Observe('avg gt10', DumpLeftAll(Q));
         Clear(Q);
         Q.SetFilter(MinQ, '<10');
+        Observer.Observe('min lt10 filters', Q.GetFilters());
+        Observer.Observe('min lt10 MinQ', Q.GetFilter(MinQ));
         Observer.Observe('min lt10', DumpLeftAll(Q));
         Clear(Q);
         Q.SetFilter(MaxQ, '>=20');
+        Observer.Observe('max ge20 filters', Q.GetFilters());
+        Observer.Observe('max ge20 MaxQ', Q.GetFilter(MaxQ));
         Observer.Observe('max ge20', DumpLeftAll(Q));
         Clear(Q);
         Q.SetRange(CntQ, 0);
+        Observer.Observe('cnt eq0 filters', Q.GetFilters());
+        Observer.Observe('cnt eq0 CntQ', Q.GetFilter(CntQ));
         Observer.Observe('cnt eq0', DumpLeftAll(Q));
         Clear(Q);
         Q.SetFilter(CntQ, '>1');
+        Observer.Observe('cnt gt1 filters', Q.GetFilters());
+        Observer.Observe('cnt gt1 CntQ', Q.GetFilter(CntQ));
         Observer.Observe('cnt gt1', DumpLeftAll(Q));
         Clear(Q);
         Q.SetFilter(SumQ, '>0');
         Q.SetFilter(CntQ, '>1');
+        Observer.Observe('sum gt0 cnt gt1 filters', Q.GetFilters());
+        Observer.Observe('sum gt0 cnt gt1 SumQ', Q.GetFilter(SumQ));
+        Observer.Observe('sum gt0 cnt gt1 CntQ', Q.GetFilter(CntQ));
         Observer.Observe('sum gt0 cnt gt1', DumpLeftAll(Q));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y78_Right_RuntimeFilterOnAggregates_A()
+    var
+        Observer: Codeunit "Probe Observer";
+        Q: Query "LT Y78 Q Right All";
+    begin
+        Seed();
+        Clear(Q);
+        Observer.Observe('none filters', Q.GetFilters());
+        Observer.Observe('none', DumpRightAll(Q));
+        Clear(Q);
+        Q.SetFilter(SumQ, '>0');
+        Observer.Observe('sum gt0 filters', Q.GetFilters());
+        Observer.Observe('sum gt0 SumQ', Q.GetFilter(SumQ));
+        Observer.Observe('sum gt0', DumpRightAll(Q));
+        Clear(Q);
+        Q.SetRange(SumQ, 0);
+        Observer.Observe('sum eq0 filters', Q.GetFilters());
+        Observer.Observe('sum eq0 SumQ', Q.GetFilter(SumQ));
+        Observer.Observe('sum eq0', DumpRightAll(Q));
+        Clear(Q);
+        Q.SetFilter(SumQ, '<>0');
+        Observer.Observe('sum ne0 filters', Q.GetFilters());
+        Observer.Observe('sum ne0 SumQ', Q.GetFilter(SumQ));
+        Observer.Observe('sum ne0', DumpRightAll(Q));
+        Clear(Q);
+        Q.SetFilter(SumQ, '');
+        Observer.Observe('sum empty filters', Q.GetFilters());
+        Observer.Observe('sum empty SumQ', Q.GetFilter(SumQ));
+        Observer.Observe('sum empty', DumpRightAll(Q));
+        Clear(Q);
+        Q.SetFilter(SumQ, '<0|>=30');
+        Observer.Observe('sum or filters', Q.GetFilters());
+        Observer.Observe('sum or SumQ', Q.GetFilter(SumQ));
+        Observer.Observe('sum or', DumpRightAll(Q));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y78_Right_RuntimeFilterOnAggregates_B()
+    var
+        Observer: Codeunit "Probe Observer";
+        Q: Query "LT Y78 Q Right All";
+    begin
+        Seed();
+        Clear(Q);
+        Q.SetFilter(AvgQ, '>10');
+        Observer.Observe('avg gt10 filters', Q.GetFilters());
+        Observer.Observe('avg gt10 AvgQ', Q.GetFilter(AvgQ));
+        Observer.Observe('avg gt10', DumpRightAll(Q));
+        Clear(Q);
+        Q.SetFilter(MinQ, '<10');
+        Observer.Observe('min lt10 filters', Q.GetFilters());
+        Observer.Observe('min lt10 MinQ', Q.GetFilter(MinQ));
+        Observer.Observe('min lt10', DumpRightAll(Q));
+        Clear(Q);
+        Q.SetFilter(MaxQ, '>=20');
+        Observer.Observe('max ge20 filters', Q.GetFilters());
+        Observer.Observe('max ge20 MaxQ', Q.GetFilter(MaxQ));
+        Observer.Observe('max ge20', DumpRightAll(Q));
+        Clear(Q);
+        Q.SetRange(CntQ, 0);
+        Observer.Observe('cnt eq0 filters', Q.GetFilters());
+        Observer.Observe('cnt eq0 CntQ', Q.GetFilter(CntQ));
+        Observer.Observe('cnt eq0', DumpRightAll(Q));
+        Clear(Q);
+        Q.SetFilter(CntQ, '>1');
+        Observer.Observe('cnt gt1 filters', Q.GetFilters());
+        Observer.Observe('cnt gt1 CntQ', Q.GetFilter(CntQ));
+        Observer.Observe('cnt gt1', DumpRightAll(Q));
+        Clear(Q);
+        Q.SetFilter(SumQ, '>0');
+        Q.SetFilter(CntQ, '>1');
+        Observer.Observe('sum gt0 cnt gt1 filters', Q.GetFilters());
+        Observer.Observe('sum gt0 cnt gt1 SumQ', Q.GetFilter(SumQ));
+        Observer.Observe('sum gt0 cnt gt1 CntQ', Q.GetFilter(CntQ));
+        Observer.Observe('sum gt0 cnt gt1', DumpRightAll(Q));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y78_Full_RuntimeFilterOnAggregates_A()
+    var
+        Observer: Codeunit "Probe Observer";
+        Q: Query "LT Y78 Q Full All";
+    begin
+        Seed();
+        Clear(Q);
+        Observer.Observe('none filters', Q.GetFilters());
+        Observer.Observe('none', DumpFullAll(Q));
+        Clear(Q);
+        Q.SetFilter(SumQ, '>0');
+        Observer.Observe('sum gt0 filters', Q.GetFilters());
+        Observer.Observe('sum gt0 SumQ', Q.GetFilter(SumQ));
+        Observer.Observe('sum gt0', DumpFullAll(Q));
+        Clear(Q);
+        Q.SetRange(SumQ, 0);
+        Observer.Observe('sum eq0 filters', Q.GetFilters());
+        Observer.Observe('sum eq0 SumQ', Q.GetFilter(SumQ));
+        Observer.Observe('sum eq0', DumpFullAll(Q));
+        Clear(Q);
+        Q.SetFilter(SumQ, '<>0');
+        Observer.Observe('sum ne0 filters', Q.GetFilters());
+        Observer.Observe('sum ne0 SumQ', Q.GetFilter(SumQ));
+        Observer.Observe('sum ne0', DumpFullAll(Q));
+        Clear(Q);
+        Q.SetFilter(SumQ, '');
+        Observer.Observe('sum empty filters', Q.GetFilters());
+        Observer.Observe('sum empty SumQ', Q.GetFilter(SumQ));
+        Observer.Observe('sum empty', DumpFullAll(Q));
+        Clear(Q);
+        Q.SetFilter(SumQ, '<0|>=30');
+        Observer.Observe('sum or filters', Q.GetFilters());
+        Observer.Observe('sum or SumQ', Q.GetFilter(SumQ));
+        Observer.Observe('sum or', DumpFullAll(Q));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Y78_Full_RuntimeFilterOnAggregates_B()
+    var
+        Observer: Codeunit "Probe Observer";
+        Q: Query "LT Y78 Q Full All";
+    begin
+        Seed();
+        Clear(Q);
+        Q.SetFilter(AvgQ, '>10');
+        Observer.Observe('avg gt10 filters', Q.GetFilters());
+        Observer.Observe('avg gt10 AvgQ', Q.GetFilter(AvgQ));
+        Observer.Observe('avg gt10', DumpFullAll(Q));
+        Clear(Q);
+        Q.SetFilter(MinQ, '<10');
+        Observer.Observe('min lt10 filters', Q.GetFilters());
+        Observer.Observe('min lt10 MinQ', Q.GetFilter(MinQ));
+        Observer.Observe('min lt10', DumpFullAll(Q));
+        Clear(Q);
+        Q.SetFilter(MaxQ, '>=20');
+        Observer.Observe('max ge20 filters', Q.GetFilters());
+        Observer.Observe('max ge20 MaxQ', Q.GetFilter(MaxQ));
+        Observer.Observe('max ge20', DumpFullAll(Q));
+        Clear(Q);
+        Q.SetRange(CntQ, 0);
+        Observer.Observe('cnt eq0 filters', Q.GetFilters());
+        Observer.Observe('cnt eq0 CntQ', Q.GetFilter(CntQ));
+        Observer.Observe('cnt eq0', DumpFullAll(Q));
+        Clear(Q);
+        Q.SetFilter(CntQ, '>1');
+        Observer.Observe('cnt gt1 filters', Q.GetFilters());
+        Observer.Observe('cnt gt1 CntQ', Q.GetFilter(CntQ));
+        Observer.Observe('cnt gt1', DumpFullAll(Q));
+        Clear(Q);
+        Q.SetFilter(SumQ, '>0');
+        Q.SetFilter(CntQ, '>1');
+        Observer.Observe('sum gt0 cnt gt1 filters', Q.GetFilters());
+        Observer.Observe('sum gt0 cnt gt1 SumQ', Q.GetFilter(SumQ));
+        Observer.Observe('sum gt0 cnt gt1 CntQ', Q.GetFilter(CntQ));
+        Observer.Observe('sum gt0 cnt gt1', DumpFullAll(Q));
         Observer.Finish();
     end;
 
@@ -1074,57 +1268,21 @@ codeunit 94150 "LT Y78 Query Agg Outer"
         QCnt: Query "LT Y78 Q Left Cnt";
     begin
         Seed();
+        Observer.Observe('Sum > 0 filters', QSum.GetFilters());
+        Observer.Observe('Sum > 0 filter', QSum.GetFilter(SumQ));
         Observer.Observe('Sum > 0', DumpLeftSum(QSum));
+        Observer.Observe('Avg > 10 filters', QAvg.GetFilters());
+        Observer.Observe('Avg > 10 filter', QAvg.GetFilter(AvgQ));
         Observer.Observe('Avg > 10', DumpLeftAvg(QAvg));
+        Observer.Observe('Min < 10 filters', QMin.GetFilters());
+        Observer.Observe('Min < 10 filter', QMin.GetFilter(MinQ));
         Observer.Observe('Min < 10', DumpLeftMin(QMin));
+        Observer.Observe('Max >= 20 filters', QMax.GetFilters());
+        Observer.Observe('Max >= 20 filter', QMax.GetFilter(MaxQ));
         Observer.Observe('Max >= 20', DumpLeftMax(QMax));
+        Observer.Observe('Cnt 0 filters', QCnt.GetFilters());
+        Observer.Observe('Cnt 0 filter', QCnt.GetFilter(CntQ));
         Observer.Observe('Cnt 0', DumpLeftCnt(QCnt));
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Y78_Right_RuntimeFilterOnAggregates()
-    var
-        Observer: Codeunit "Probe Observer";
-        Q: Query "LT Y78 Q Right All";
-    begin
-        Seed();
-        Clear(Q);
-        Observer.Observe('none', DumpRightAll(Q));
-        Clear(Q);
-        Q.SetFilter(SumQ, '>0');
-        Observer.Observe('sum gt0', DumpRightAll(Q));
-        Clear(Q);
-        Q.SetRange(SumQ, 0);
-        Observer.Observe('sum eq0', DumpRightAll(Q));
-        Clear(Q);
-        Q.SetFilter(SumQ, '<>0');
-        Observer.Observe('sum ne0', DumpRightAll(Q));
-        Clear(Q);
-        Q.SetFilter(SumQ, '');
-        Observer.Observe('sum empty', DumpRightAll(Q));
-        Clear(Q);
-        Q.SetFilter(SumQ, '<0|>=30');
-        Observer.Observe('sum or', DumpRightAll(Q));
-        Clear(Q);
-        Q.SetFilter(AvgQ, '>10');
-        Observer.Observe('avg gt10', DumpRightAll(Q));
-        Clear(Q);
-        Q.SetFilter(MinQ, '<10');
-        Observer.Observe('min lt10', DumpRightAll(Q));
-        Clear(Q);
-        Q.SetFilter(MaxQ, '>=20');
-        Observer.Observe('max ge20', DumpRightAll(Q));
-        Clear(Q);
-        Q.SetRange(CntQ, 0);
-        Observer.Observe('cnt eq0', DumpRightAll(Q));
-        Clear(Q);
-        Q.SetFilter(CntQ, '>1');
-        Observer.Observe('cnt gt1', DumpRightAll(Q));
-        Clear(Q);
-        Q.SetFilter(SumQ, '>0');
-        Q.SetFilter(CntQ, '>1');
-        Observer.Observe('sum gt0 cnt gt1', DumpRightAll(Q));
         Observer.Finish();
     end;
 
@@ -1139,57 +1297,21 @@ codeunit 94150 "LT Y78 Query Agg Outer"
         QCnt: Query "LT Y78 Q Right Cnt";
     begin
         Seed();
+        Observer.Observe('Sum > 0 filters', QSum.GetFilters());
+        Observer.Observe('Sum > 0 filter', QSum.GetFilter(SumQ));
         Observer.Observe('Sum > 0', DumpRightSum(QSum));
+        Observer.Observe('Avg > 10 filters', QAvg.GetFilters());
+        Observer.Observe('Avg > 10 filter', QAvg.GetFilter(AvgQ));
         Observer.Observe('Avg > 10', DumpRightAvg(QAvg));
+        Observer.Observe('Min < 10 filters', QMin.GetFilters());
+        Observer.Observe('Min < 10 filter', QMin.GetFilter(MinQ));
         Observer.Observe('Min < 10', DumpRightMin(QMin));
+        Observer.Observe('Max >= 20 filters', QMax.GetFilters());
+        Observer.Observe('Max >= 20 filter', QMax.GetFilter(MaxQ));
         Observer.Observe('Max >= 20', DumpRightMax(QMax));
+        Observer.Observe('Cnt 0 filters', QCnt.GetFilters());
+        Observer.Observe('Cnt 0 filter', QCnt.GetFilter(CntQ));
         Observer.Observe('Cnt 0', DumpRightCnt(QCnt));
-        Observer.Finish();
-    end;
-
-    [Test]
-    procedure Y78_Full_RuntimeFilterOnAggregates()
-    var
-        Observer: Codeunit "Probe Observer";
-        Q: Query "LT Y78 Q Full All";
-    begin
-        Seed();
-        Clear(Q);
-        Observer.Observe('none', DumpFullAll(Q));
-        Clear(Q);
-        Q.SetFilter(SumQ, '>0');
-        Observer.Observe('sum gt0', DumpFullAll(Q));
-        Clear(Q);
-        Q.SetRange(SumQ, 0);
-        Observer.Observe('sum eq0', DumpFullAll(Q));
-        Clear(Q);
-        Q.SetFilter(SumQ, '<>0');
-        Observer.Observe('sum ne0', DumpFullAll(Q));
-        Clear(Q);
-        Q.SetFilter(SumQ, '');
-        Observer.Observe('sum empty', DumpFullAll(Q));
-        Clear(Q);
-        Q.SetFilter(SumQ, '<0|>=30');
-        Observer.Observe('sum or', DumpFullAll(Q));
-        Clear(Q);
-        Q.SetFilter(AvgQ, '>10');
-        Observer.Observe('avg gt10', DumpFullAll(Q));
-        Clear(Q);
-        Q.SetFilter(MinQ, '<10');
-        Observer.Observe('min lt10', DumpFullAll(Q));
-        Clear(Q);
-        Q.SetFilter(MaxQ, '>=20');
-        Observer.Observe('max ge20', DumpFullAll(Q));
-        Clear(Q);
-        Q.SetRange(CntQ, 0);
-        Observer.Observe('cnt eq0', DumpFullAll(Q));
-        Clear(Q);
-        Q.SetFilter(CntQ, '>1');
-        Observer.Observe('cnt gt1', DumpFullAll(Q));
-        Clear(Q);
-        Q.SetFilter(SumQ, '>0');
-        Q.SetFilter(CntQ, '>1');
-        Observer.Observe('sum gt0 cnt gt1', DumpFullAll(Q));
         Observer.Finish();
     end;
 
@@ -1204,10 +1326,20 @@ codeunit 94150 "LT Y78 Query Agg Outer"
         QCnt: Query "LT Y78 Q Full Cnt";
     begin
         Seed();
+        Observer.Observe('Sum > 0 filters', QSum.GetFilters());
+        Observer.Observe('Sum > 0 filter', QSum.GetFilter(SumQ));
         Observer.Observe('Sum > 0', DumpFullSum(QSum));
+        Observer.Observe('Avg > 10 filters', QAvg.GetFilters());
+        Observer.Observe('Avg > 10 filter', QAvg.GetFilter(AvgQ));
         Observer.Observe('Avg > 10', DumpFullAvg(QAvg));
+        Observer.Observe('Min < 10 filters', QMin.GetFilters());
+        Observer.Observe('Min < 10 filter', QMin.GetFilter(MinQ));
         Observer.Observe('Min < 10', DumpFullMin(QMin));
+        Observer.Observe('Max >= 20 filters', QMax.GetFilters());
+        Observer.Observe('Max >= 20 filter', QMax.GetFilter(MaxQ));
         Observer.Observe('Max >= 20', DumpFullMax(QMax));
+        Observer.Observe('Cnt 0 filters', QCnt.GetFilters());
+        Observer.Observe('Cnt 0 filter', QCnt.GetFilter(CntQ));
         Observer.Observe('Cnt 0', DumpFullCnt(QCnt));
         Observer.Finish();
     end;
