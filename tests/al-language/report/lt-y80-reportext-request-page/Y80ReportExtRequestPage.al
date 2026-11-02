@@ -1,6 +1,6 @@
 // BC Documentation: https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-report-triggers
 // Scope: in-scope
-// Fixtures used: Probe Observer (codeunit 69160); tables "LT Y80 Row" and "LT Y80 Log" (pages/lt-y80-gone-rows/Y80GoneRows.al); own objects 94293 - 94295
+// Fixtures used: Probe Observer (codeunit 69160); table "LT Y80 Row" (pages/lt-y80-gone-rows/Y80GoneRows.al); own objects 94293 - 94296
 // Probe (writer Y80, from the runtime lane rt-pages-1102c): TestRequestPage in a RequestPageHandler of a report whose request page has a source table, with
 //   a reportextension that adds a control and the page triggers (OnAfterGetRecord and the others). report/lt-ab-request-page-triggers and
 //   pages/lt-ab-tests/ABTests.al:1192-1295 pin the triggers when the handler sets one value and presses OK or Cancel. Here the handler reads the controls
@@ -18,14 +18,14 @@ report 94293 "LT Y80 RX Report"
         {
             trigger OnPreDataItem()
             var
-                Log: Record "LT Y80 Log";
+                Log: Codeunit "LT Y80 RX Log";
             begin
                 Log.Add('report predata');
             end;
 
             trigger OnAfterGetRecord()
             var
-                Log: Record "LT Y80 Log";
+                Log: Codeunit "LT Y80 RX Log";
             begin
                 Log.Add('report agr ' + Format(T.Id) + '|' + T.Txt + '|' + Format(T.Num));
             end;
@@ -46,35 +46,35 @@ report 94293 "LT Y80 RX Report"
 
         trigger OnOpenPage()
         var
-            Log: Record "LT Y80 Log";
+            Log: Codeunit "LT Y80 RX Log";
         begin
             Log.Add('base open ' + Format(Rec.Count));
         end;
 
         trigger OnAfterGetRecord()
         var
-            Log: Record "LT Y80 Log";
+            Log: Codeunit "LT Y80 RX Log";
         begin
             Log.Add('base agr ' + Format(Rec.Id));
         end;
 
         trigger OnAfterGetCurrRecord()
         var
-            Log: Record "LT Y80 Log";
+            Log: Codeunit "LT Y80 RX Log";
         begin
             Log.Add('base agcr ' + Format(Rec.Id));
         end;
 
         trigger OnNewRecord(BelowxRec: Boolean)
         var
-            Log: Record "LT Y80 Log";
+            Log: Codeunit "LT Y80 RX Log";
         begin
             Log.Add('base new');
         end;
 
         trigger OnModifyRecord(): Boolean
         var
-            Log: Record "LT Y80 Log";
+            Log: Codeunit "LT Y80 RX Log";
         begin
             Log.Add('base modify ' + Rec.Txt);
             exit(true);
@@ -82,7 +82,7 @@ report 94293 "LT Y80 RX Report"
 
         trigger OnQueryClosePage(CloseAction: Action): Boolean
         var
-            Log: Record "LT Y80 Log";
+            Log: Codeunit "LT Y80 RX Log";
         begin
             Log.Add('base query ' + Format(CloseAction));
             exit(true);
@@ -90,7 +90,7 @@ report 94293 "LT Y80 RX Report"
 
         trigger OnClosePage()
         var
-            Log: Record "LT Y80 Log";
+            Log: Codeunit "LT Y80 RX Log";
         begin
             Log.Add('base close');
         end;
@@ -98,7 +98,7 @@ report 94293 "LT Y80 RX Report"
 
     trigger OnPreReport()
     var
-        Log: Record "LT Y80 Log";
+        Log: Codeunit "LT Y80 RX Log";
     begin
         Log.Add('report prereport');
     end;
@@ -118,35 +118,35 @@ reportextension 94294 "LT Y80 RX Ext" extends "LT Y80 RX Report"
 
         trigger OnOpenPage()
         var
-            Log: Record "LT Y80 Log";
+            Log: Codeunit "LT Y80 RX Log";
         begin
             Log.Add('ext open ' + '0');
         end;
 
         trigger OnAfterGetRecord()
         var
-            Log: Record "LT Y80 Log";
+            Log: Codeunit "LT Y80 RX Log";
         begin
             Log.Add('ext agr ' + '0');
         end;
 
         trigger OnAfterGetCurrRecord()
         var
-            Log: Record "LT Y80 Log";
+            Log: Codeunit "LT Y80 RX Log";
         begin
             Log.Add('ext agcr ' + '0');
         end;
 
         trigger OnNewRecord(BelowxRec: Boolean)
         var
-            Log: Record "LT Y80 Log";
+            Log: Codeunit "LT Y80 RX Log";
         begin
             Log.Add('ext new');
         end;
 
         trigger OnModifyRecord(): Boolean
         var
-            Log: Record "LT Y80 Log";
+            Log: Codeunit "LT Y80 RX Log";
         begin
             Log.Add('ext modify ' + '-');
             exit(true);
@@ -154,7 +154,7 @@ reportextension 94294 "LT Y80 RX Ext" extends "LT Y80 RX Report"
 
         trigger OnQueryClosePage(CloseAction: Action): Boolean
         var
-            Log: Record "LT Y80 Log";
+            Log: Codeunit "LT Y80 RX Log";
         begin
             Log.Add('ext query ' + Format(CloseAction));
             exit(true);
@@ -162,7 +162,7 @@ reportextension 94294 "LT Y80 RX Ext" extends "LT Y80 RX Report"
 
         trigger OnClosePage()
         var
-            Log: Record "LT Y80 Log";
+            Log: Codeunit "LT Y80 RX Log";
         begin
             Log.Add('ext close');
         end;
@@ -170,6 +170,27 @@ reportextension 94294 "LT Y80 RX Ext" extends "LT Y80 RX Report"
         var
             ExtNum: Integer;
     }
+}
+
+codeunit 94296 "LT Y80 RX Log"
+{
+    SingleInstance = true;
+
+    procedure Add(Entry: Text)
+    begin
+        if Entries <> '' then
+            Entries += ' | ';
+        Entries += Entry;
+    end;
+
+    procedure Take() Result: Text
+    begin
+        Result := Entries;
+        Entries := '';
+    end;
+
+    var
+        Entries: Text;
 }
 
 codeunit 94295 "LT Y80 RX Tests"
@@ -184,7 +205,7 @@ codeunit 94295 "LT Y80 RX Tests"
     local procedure Seed()
     var
         Row: Record "LT Y80 Row";
-        Log: Record "LT Y80 Log";
+        Log: Codeunit "LT Y80 RX Log";
         I: Integer;
     begin
         Row.DeleteAll();
@@ -194,7 +215,7 @@ codeunit 94295 "LT Y80 RX Tests"
             Row.Num := I;
             Row.Insert();
         end;
-        Log.DeleteAll();
+        Log.Take();
         Commit();
     end;
 
@@ -250,7 +271,7 @@ codeunit 94295 "LT Y80 RX Tests"
 
     local procedure Step(var P: TestRequestPage "LT Y80 RX Report"; Which: Text)
     var
-        Log: Record "LT Y80 Log";
+        Log: Codeunit "LT Y80 RX Log";
         Result: Text;
     begin
         if TryStep(P, Which, Result) then
@@ -266,7 +287,7 @@ codeunit 94295 "LT Y80 RX Tests"
     [RequestPageHandler]
     procedure H_ReadOnly_OK(var P: TestRequestPage "LT Y80 RX Report")
     var
-        Log: Record "LT Y80 Log";
+        Log: Codeunit "LT Y80 RX Log";
     begin
         Observer.Observe('handler start', Log.Take());
         Observer.Observe('read', P.TxtCtl.Value() + '|' + P.NumCtl.Value());
@@ -277,7 +298,7 @@ codeunit 94295 "LT Y80 RX Tests"
     [HandlerFunctions('H_ReadOnly_OK')]
     procedure Y80_RX_ReadOnly_OK()
     var
-        Log: Record "LT Y80 Log";
+        Log: Codeunit "LT Y80 RX Log";
     begin
         Seed();
         Report.Run(Report::"LT Y80 RX Report");
@@ -289,7 +310,7 @@ codeunit 94295 "LT Y80 RX Tests"
     [RequestPageHandler]
     procedure H_ReadOnly_Cancel(var P: TestRequestPage "LT Y80 RX Report")
     var
-        Log: Record "LT Y80 Log";
+        Log: Codeunit "LT Y80 RX Log";
     begin
         Observer.Observe('handler start', Log.Take());
         Observer.Observe('read', P.TxtCtl.Value() + '|' + P.NumCtl.Value());
@@ -300,7 +321,7 @@ codeunit 94295 "LT Y80 RX Tests"
     [HandlerFunctions('H_ReadOnly_Cancel')]
     procedure Y80_RX_ReadOnly_Cancel()
     var
-        Log: Record "LT Y80 Log";
+        Log: Codeunit "LT Y80 RX Log";
     begin
         Seed();
         Report.Run(Report::"LT Y80 RX Report");
@@ -312,7 +333,7 @@ codeunit 94295 "LT Y80 RX Tests"
     [RequestPageHandler]
     procedure H_SetNum_OK(var P: TestRequestPage "LT Y80 RX Report")
     var
-        Log: Record "LT Y80 Log";
+        Log: Codeunit "LT Y80 RX Log";
     begin
         Observer.Observe('handler start', Log.Take());
         Step(P, 'setnum');
@@ -323,7 +344,7 @@ codeunit 94295 "LT Y80 RX Tests"
     [HandlerFunctions('H_SetNum_OK')]
     procedure Y80_RX_SetNum_OK()
     var
-        Log: Record "LT Y80 Log";
+        Log: Codeunit "LT Y80 RX Log";
     begin
         Seed();
         Report.Run(Report::"LT Y80 RX Report");
@@ -335,7 +356,7 @@ codeunit 94295 "LT Y80 RX Tests"
     [RequestPageHandler]
     procedure H_SetNum_Cancel(var P: TestRequestPage "LT Y80 RX Report")
     var
-        Log: Record "LT Y80 Log";
+        Log: Codeunit "LT Y80 RX Log";
     begin
         Observer.Observe('handler start', Log.Take());
         Step(P, 'setnum');
@@ -346,7 +367,7 @@ codeunit 94295 "LT Y80 RX Tests"
     [HandlerFunctions('H_SetNum_Cancel')]
     procedure Y80_RX_SetNum_Cancel()
     var
-        Log: Record "LT Y80 Log";
+        Log: Codeunit "LT Y80 RX Log";
     begin
         Seed();
         Report.Run(Report::"LT Y80 RX Report");
@@ -358,7 +379,7 @@ codeunit 94295 "LT Y80 RX Tests"
     [RequestPageHandler]
     procedure H_SetTxt_OK(var P: TestRequestPage "LT Y80 RX Report")
     var
-        Log: Record "LT Y80 Log";
+        Log: Codeunit "LT Y80 RX Log";
     begin
         Observer.Observe('handler start', Log.Take());
         Step(P, 'settxt');
@@ -369,7 +390,7 @@ codeunit 94295 "LT Y80 RX Tests"
     [HandlerFunctions('H_SetTxt_OK')]
     procedure Y80_RX_SetTxt_OK()
     var
-        Log: Record "LT Y80 Log";
+        Log: Codeunit "LT Y80 RX Log";
     begin
         Seed();
         Report.Run(Report::"LT Y80 RX Report");
@@ -381,7 +402,7 @@ codeunit 94295 "LT Y80 RX Tests"
     [RequestPageHandler]
     procedure H_SetTxt_Cancel(var P: TestRequestPage "LT Y80 RX Report")
     var
-        Log: Record "LT Y80 Log";
+        Log: Codeunit "LT Y80 RX Log";
     begin
         Observer.Observe('handler start', Log.Take());
         Step(P, 'settxt');
@@ -392,7 +413,7 @@ codeunit 94295 "LT Y80 RX Tests"
     [HandlerFunctions('H_SetTxt_Cancel')]
     procedure Y80_RX_SetTxt_Cancel()
     var
-        Log: Record "LT Y80 Log";
+        Log: Codeunit "LT Y80 RX Log";
     begin
         Seed();
         Report.Run(Report::"LT Y80 RX Report");
@@ -404,7 +425,7 @@ codeunit 94295 "LT Y80 RX Tests"
     [RequestPageHandler]
     procedure H_SetTwice_OK(var P: TestRequestPage "LT Y80 RX Report")
     var
-        Log: Record "LT Y80 Log";
+        Log: Codeunit "LT Y80 RX Log";
     begin
         Observer.Observe('handler start', Log.Take());
         Step(P, 'settxt');
@@ -416,7 +437,7 @@ codeunit 94295 "LT Y80 RX Tests"
     [HandlerFunctions('H_SetTwice_OK')]
     procedure Y80_RX_SetTwice_OK()
     var
-        Log: Record "LT Y80 Log";
+        Log: Codeunit "LT Y80 RX Log";
     begin
         Seed();
         Report.Run(Report::"LT Y80 RX Report");
@@ -428,7 +449,7 @@ codeunit 94295 "LT Y80 RX Tests"
     [RequestPageHandler]
     procedure H_SetTwice_Cancel(var P: TestRequestPage "LT Y80 RX Report")
     var
-        Log: Record "LT Y80 Log";
+        Log: Codeunit "LT Y80 RX Log";
     begin
         Observer.Observe('handler start', Log.Take());
         Step(P, 'settxt');
@@ -440,7 +461,7 @@ codeunit 94295 "LT Y80 RX Tests"
     [HandlerFunctions('H_SetTwice_Cancel')]
     procedure Y80_RX_SetTwice_Cancel()
     var
-        Log: Record "LT Y80 Log";
+        Log: Codeunit "LT Y80 RX Log";
     begin
         Seed();
         Report.Run(Report::"LT Y80 RX Report");
@@ -452,7 +473,7 @@ codeunit 94295 "LT Y80 RX Tests"
     [RequestPageHandler]
     procedure H_SetBoth_OK(var P: TestRequestPage "LT Y80 RX Report")
     var
-        Log: Record "LT Y80 Log";
+        Log: Codeunit "LT Y80 RX Log";
     begin
         Observer.Observe('handler start', Log.Take());
         Step(P, 'settxt');
@@ -464,7 +485,7 @@ codeunit 94295 "LT Y80 RX Tests"
     [HandlerFunctions('H_SetBoth_OK')]
     procedure Y80_RX_SetBoth_OK()
     var
-        Log: Record "LT Y80 Log";
+        Log: Codeunit "LT Y80 RX Log";
     begin
         Seed();
         Report.Run(Report::"LT Y80 RX Report");
@@ -476,7 +497,7 @@ codeunit 94295 "LT Y80 RX Tests"
     [RequestPageHandler]
     procedure H_SetBoth_Cancel(var P: TestRequestPage "LT Y80 RX Report")
     var
-        Log: Record "LT Y80 Log";
+        Log: Codeunit "LT Y80 RX Log";
     begin
         Observer.Observe('handler start', Log.Take());
         Step(P, 'settxt');
@@ -488,7 +509,7 @@ codeunit 94295 "LT Y80 RX Tests"
     [HandlerFunctions('H_SetBoth_Cancel')]
     procedure Y80_RX_SetBoth_Cancel()
     var
-        Log: Record "LT Y80 Log";
+        Log: Codeunit "LT Y80 RX Log";
     begin
         Seed();
         Report.Run(Report::"LT Y80 RX Report");
@@ -500,7 +521,7 @@ codeunit 94295 "LT Y80 RX Tests"
     [RequestPageHandler]
     procedure H_Next_OK(var P: TestRequestPage "LT Y80 RX Report")
     var
-        Log: Record "LT Y80 Log";
+        Log: Codeunit "LT Y80 RX Log";
     begin
         Observer.Observe('handler start', Log.Take());
         Step(P, 'next');
@@ -511,7 +532,7 @@ codeunit 94295 "LT Y80 RX Tests"
     [HandlerFunctions('H_Next_OK')]
     procedure Y80_RX_Next_OK()
     var
-        Log: Record "LT Y80 Log";
+        Log: Codeunit "LT Y80 RX Log";
     begin
         Seed();
         Report.Run(Report::"LT Y80 RX Report");
@@ -523,7 +544,7 @@ codeunit 94295 "LT Y80 RX Tests"
     [RequestPageHandler]
     procedure H_Next_Cancel(var P: TestRequestPage "LT Y80 RX Report")
     var
-        Log: Record "LT Y80 Log";
+        Log: Codeunit "LT Y80 RX Log";
     begin
         Observer.Observe('handler start', Log.Take());
         Step(P, 'next');
@@ -534,7 +555,7 @@ codeunit 94295 "LT Y80 RX Tests"
     [HandlerFunctions('H_Next_Cancel')]
     procedure Y80_RX_Next_Cancel()
     var
-        Log: Record "LT Y80 Log";
+        Log: Codeunit "LT Y80 RX Log";
     begin
         Seed();
         Report.Run(Report::"LT Y80 RX Report");
@@ -546,7 +567,7 @@ codeunit 94295 "LT Y80 RX Tests"
     [RequestPageHandler]
     procedure H_NextNext_OK(var P: TestRequestPage "LT Y80 RX Report")
     var
-        Log: Record "LT Y80 Log";
+        Log: Codeunit "LT Y80 RX Log";
     begin
         Observer.Observe('handler start', Log.Take());
         Step(P, 'next');
@@ -558,7 +579,7 @@ codeunit 94295 "LT Y80 RX Tests"
     [HandlerFunctions('H_NextNext_OK')]
     procedure Y80_RX_NextNext_OK()
     var
-        Log: Record "LT Y80 Log";
+        Log: Codeunit "LT Y80 RX Log";
     begin
         Seed();
         Report.Run(Report::"LT Y80 RX Report");
@@ -570,7 +591,7 @@ codeunit 94295 "LT Y80 RX Tests"
     [RequestPageHandler]
     procedure H_NextNext_Cancel(var P: TestRequestPage "LT Y80 RX Report")
     var
-        Log: Record "LT Y80 Log";
+        Log: Codeunit "LT Y80 RX Log";
     begin
         Observer.Observe('handler start', Log.Take());
         Step(P, 'next');
@@ -582,7 +603,7 @@ codeunit 94295 "LT Y80 RX Tests"
     [HandlerFunctions('H_NextNext_Cancel')]
     procedure Y80_RX_NextNext_Cancel()
     var
-        Log: Record "LT Y80 Log";
+        Log: Codeunit "LT Y80 RX Log";
     begin
         Seed();
         Report.Run(Report::"LT Y80 RX Report");
@@ -594,7 +615,7 @@ codeunit 94295 "LT Y80 RX Tests"
     [RequestPageHandler]
     procedure H_Last_OK(var P: TestRequestPage "LT Y80 RX Report")
     var
-        Log: Record "LT Y80 Log";
+        Log: Codeunit "LT Y80 RX Log";
     begin
         Observer.Observe('handler start', Log.Take());
         Step(P, 'last');
@@ -605,7 +626,7 @@ codeunit 94295 "LT Y80 RX Tests"
     [HandlerFunctions('H_Last_OK')]
     procedure Y80_RX_Last_OK()
     var
-        Log: Record "LT Y80 Log";
+        Log: Codeunit "LT Y80 RX Log";
     begin
         Seed();
         Report.Run(Report::"LT Y80 RX Report");
@@ -617,7 +638,7 @@ codeunit 94295 "LT Y80 RX Tests"
     [RequestPageHandler]
     procedure H_Last_Cancel(var P: TestRequestPage "LT Y80 RX Report")
     var
-        Log: Record "LT Y80 Log";
+        Log: Codeunit "LT Y80 RX Log";
     begin
         Observer.Observe('handler start', Log.Take());
         Step(P, 'last');
@@ -628,7 +649,7 @@ codeunit 94295 "LT Y80 RX Tests"
     [HandlerFunctions('H_Last_Cancel')]
     procedure Y80_RX_Last_Cancel()
     var
-        Log: Record "LT Y80 Log";
+        Log: Codeunit "LT Y80 RX Log";
     begin
         Seed();
         Report.Run(Report::"LT Y80 RX Report");
@@ -640,7 +661,7 @@ codeunit 94295 "LT Y80 RX Tests"
     [RequestPageHandler]
     procedure H_LastPrevious_OK(var P: TestRequestPage "LT Y80 RX Report")
     var
-        Log: Record "LT Y80 Log";
+        Log: Codeunit "LT Y80 RX Log";
     begin
         Observer.Observe('handler start', Log.Take());
         Step(P, 'last');
@@ -652,7 +673,7 @@ codeunit 94295 "LT Y80 RX Tests"
     [HandlerFunctions('H_LastPrevious_OK')]
     procedure Y80_RX_LastPrevious_OK()
     var
-        Log: Record "LT Y80 Log";
+        Log: Codeunit "LT Y80 RX Log";
     begin
         Seed();
         Report.Run(Report::"LT Y80 RX Report");
@@ -664,7 +685,7 @@ codeunit 94295 "LT Y80 RX Tests"
     [RequestPageHandler]
     procedure H_LastPrevious_Cancel(var P: TestRequestPage "LT Y80 RX Report")
     var
-        Log: Record "LT Y80 Log";
+        Log: Codeunit "LT Y80 RX Log";
     begin
         Observer.Observe('handler start', Log.Take());
         Step(P, 'last');
@@ -676,7 +697,7 @@ codeunit 94295 "LT Y80 RX Tests"
     [HandlerFunctions('H_LastPrevious_Cancel')]
     procedure Y80_RX_LastPrevious_Cancel()
     var
-        Log: Record "LT Y80 Log";
+        Log: Codeunit "LT Y80 RX Log";
     begin
         Seed();
         Report.Run(Report::"LT Y80 RX Report");
@@ -688,7 +709,7 @@ codeunit 94295 "LT Y80 RX Tests"
     [RequestPageHandler]
     procedure H_First_OK(var P: TestRequestPage "LT Y80 RX Report")
     var
-        Log: Record "LT Y80 Log";
+        Log: Codeunit "LT Y80 RX Log";
     begin
         Observer.Observe('handler start', Log.Take());
         Step(P, 'first');
@@ -699,7 +720,7 @@ codeunit 94295 "LT Y80 RX Tests"
     [HandlerFunctions('H_First_OK')]
     procedure Y80_RX_First_OK()
     var
-        Log: Record "LT Y80 Log";
+        Log: Codeunit "LT Y80 RX Log";
     begin
         Seed();
         Report.Run(Report::"LT Y80 RX Report");
@@ -711,7 +732,7 @@ codeunit 94295 "LT Y80 RX Tests"
     [RequestPageHandler]
     procedure H_First_Cancel(var P: TestRequestPage "LT Y80 RX Report")
     var
-        Log: Record "LT Y80 Log";
+        Log: Codeunit "LT Y80 RX Log";
     begin
         Observer.Observe('handler start', Log.Take());
         Step(P, 'first');
@@ -722,7 +743,7 @@ codeunit 94295 "LT Y80 RX Tests"
     [HandlerFunctions('H_First_Cancel')]
     procedure Y80_RX_First_Cancel()
     var
-        Log: Record "LT Y80 Log";
+        Log: Codeunit "LT Y80 RX Log";
     begin
         Seed();
         Report.Run(Report::"LT Y80 RX Report");
@@ -734,7 +755,7 @@ codeunit 94295 "LT Y80 RX Tests"
     [RequestPageHandler]
     procedure H_GoToKey_OK(var P: TestRequestPage "LT Y80 RX Report")
     var
-        Log: Record "LT Y80 Log";
+        Log: Codeunit "LT Y80 RX Log";
     begin
         Observer.Observe('handler start', Log.Take());
         Step(P, 'goto20');
@@ -745,7 +766,7 @@ codeunit 94295 "LT Y80 RX Tests"
     [HandlerFunctions('H_GoToKey_OK')]
     procedure Y80_RX_GoToKey_OK()
     var
-        Log: Record "LT Y80 Log";
+        Log: Codeunit "LT Y80 RX Log";
     begin
         Seed();
         Report.Run(Report::"LT Y80 RX Report");
@@ -757,7 +778,7 @@ codeunit 94295 "LT Y80 RX Tests"
     [RequestPageHandler]
     procedure H_GoToKey_Cancel(var P: TestRequestPage "LT Y80 RX Report")
     var
-        Log: Record "LT Y80 Log";
+        Log: Codeunit "LT Y80 RX Log";
     begin
         Observer.Observe('handler start', Log.Take());
         Step(P, 'goto20');
@@ -768,7 +789,7 @@ codeunit 94295 "LT Y80 RX Tests"
     [HandlerFunctions('H_GoToKey_Cancel')]
     procedure Y80_RX_GoToKey_Cancel()
     var
-        Log: Record "LT Y80 Log";
+        Log: Codeunit "LT Y80 RX Log";
     begin
         Seed();
         Report.Run(Report::"LT Y80 RX Report");
@@ -780,7 +801,7 @@ codeunit 94295 "LT Y80 RX Tests"
     [RequestPageHandler]
     procedure H_New_OK(var P: TestRequestPage "LT Y80 RX Report")
     var
-        Log: Record "LT Y80 Log";
+        Log: Codeunit "LT Y80 RX Log";
     begin
         Observer.Observe('handler start', Log.Take());
         Step(P, 'new');
@@ -791,7 +812,7 @@ codeunit 94295 "LT Y80 RX Tests"
     [HandlerFunctions('H_New_OK')]
     procedure Y80_RX_New_OK()
     var
-        Log: Record "LT Y80 Log";
+        Log: Codeunit "LT Y80 RX Log";
     begin
         Seed();
         Report.Run(Report::"LT Y80 RX Report");
@@ -803,7 +824,7 @@ codeunit 94295 "LT Y80 RX Tests"
     [RequestPageHandler]
     procedure H_New_Cancel(var P: TestRequestPage "LT Y80 RX Report")
     var
-        Log: Record "LT Y80 Log";
+        Log: Codeunit "LT Y80 RX Log";
     begin
         Observer.Observe('handler start', Log.Take());
         Step(P, 'new');
@@ -814,7 +835,7 @@ codeunit 94295 "LT Y80 RX Tests"
     [HandlerFunctions('H_New_Cancel')]
     procedure Y80_RX_New_Cancel()
     var
-        Log: Record "LT Y80 Log";
+        Log: Codeunit "LT Y80 RX Log";
     begin
         Seed();
         Report.Run(Report::"LT Y80 RX Report");
@@ -826,7 +847,7 @@ codeunit 94295 "LT Y80 RX Tests"
     [RequestPageHandler]
     procedure H_NextSet_OK(var P: TestRequestPage "LT Y80 RX Report")
     var
-        Log: Record "LT Y80 Log";
+        Log: Codeunit "LT Y80 RX Log";
     begin
         Observer.Observe('handler start', Log.Take());
         Step(P, 'next');
@@ -838,7 +859,7 @@ codeunit 94295 "LT Y80 RX Tests"
     [HandlerFunctions('H_NextSet_OK')]
     procedure Y80_RX_NextSet_OK()
     var
-        Log: Record "LT Y80 Log";
+        Log: Codeunit "LT Y80 RX Log";
     begin
         Seed();
         Report.Run(Report::"LT Y80 RX Report");
@@ -850,7 +871,7 @@ codeunit 94295 "LT Y80 RX Tests"
     [RequestPageHandler]
     procedure H_NextSet_Cancel(var P: TestRequestPage "LT Y80 RX Report")
     var
-        Log: Record "LT Y80 Log";
+        Log: Codeunit "LT Y80 RX Log";
     begin
         Observer.Observe('handler start', Log.Take());
         Step(P, 'next');
@@ -862,7 +883,7 @@ codeunit 94295 "LT Y80 RX Tests"
     [HandlerFunctions('H_NextSet_Cancel')]
     procedure Y80_RX_NextSet_Cancel()
     var
-        Log: Record "LT Y80 Log";
+        Log: Codeunit "LT Y80 RX Log";
     begin
         Seed();
         Report.Run(Report::"LT Y80 RX Report");
