@@ -770,14 +770,14 @@ codeunit 94336 "LT Y83 Misc Tests"
     [Test]
     procedure DateDecimal_VT_German()
     begin
-        ImpLang('vt german date [31.12.2024]', 94373, '7,Yes,31.12.2024,7.25' + Helper.CrLf(), 1031);
-        ImpLang('vt german date [12/31/2024]', 94373, '7,Yes,12/31/2024,7.25' + Helper.CrLf(), 1031);
-        ImpLang('vt german date [2024-12-31]', 94373, '7,Yes,2024-12-31,7.25' + Helper.CrLf(), 1031);
-        ImpLang('vt german date [31/12/2024]', 94373, '7,Yes,31/12/2024,7.25' + Helper.CrLf(), 1031);
-        ImpLang('vt german date [311224]', 94373, '7,Yes,311224,7.25' + Helper.CrLf(), 1031);
-        ImpLang('vt german date [31. Dezember 2024]', 94373, '7,Yes,31. Dezember 2024,7.25' + Helper.CrLf(), 1031);
-        ImpLang('vt german amount [7,25]', 94373, '7,Yes,2024-12-31,"7,25"' + Helper.CrLf(), 1031);
-        ImpLang('vt german amount [7.25]', 94373, '7,Yes,2024-12-31,"7.25"' + Helper.CrLf(), 1031);
+        ImpLang('vt german date [31.12.2024]', 94373, '7,true,31.12.2024,7.25' + Helper.CrLf(), 1031);
+        ImpLang('vt german date [12/31/2024]', 94373, '7,true,12/31/2024,7.25' + Helper.CrLf(), 1031);
+        ImpLang('vt german date [2024-12-31]', 94373, '7,true,2024-12-31,7.25' + Helper.CrLf(), 1031);
+        ImpLang('vt german date [31/12/2024]', 94373, '7,true,31/12/2024,7.25' + Helper.CrLf(), 1031);
+        ImpLang('vt german date [311224]', 94373, '7,true,311224,7.25' + Helper.CrLf(), 1031);
+        ImpLang('vt german date [31. Dezember 2024]', 94373, '7,true,31. Dezember 2024,7.25' + Helper.CrLf(), 1031);
+        ImpLang('vt german amount [7,25]', 94373, '7,true,2024-12-31,"7,25"' + Helper.CrLf(), 1031);
+        ImpLang('vt german amount [7.25]', 94373, '7,true,2024-12-31,"7.25"' + Helper.CrLf(), 1031);
         Observer.Finish();
     end;
 
@@ -802,14 +802,14 @@ codeunit 94336 "LT Y83 Misc Tests"
     [Test]
     procedure DateDecimal_VT_English()
     begin
-        ImpLang('vt english date [31.12.2024]', 94373, '7,Yes,31.12.2024,7.25' + Helper.CrLf(), 1033);
-        ImpLang('vt english date [12/31/2024]', 94373, '7,Yes,12/31/2024,7.25' + Helper.CrLf(), 1033);
-        ImpLang('vt english date [2024-12-31]', 94373, '7,Yes,2024-12-31,7.25' + Helper.CrLf(), 1033);
-        ImpLang('vt english date [31/12/2024]', 94373, '7,Yes,31/12/2024,7.25' + Helper.CrLf(), 1033);
-        ImpLang('vt english date [311224]', 94373, '7,Yes,311224,7.25' + Helper.CrLf(), 1033);
-        ImpLang('vt english date [31. Dezember 2024]', 94373, '7,Yes,31. Dezember 2024,7.25' + Helper.CrLf(), 1033);
-        ImpLang('vt english amount [7,25]', 94373, '7,Yes,2024-12-31,"7,25"' + Helper.CrLf(), 1033);
-        ImpLang('vt english amount [7.25]', 94373, '7,Yes,2024-12-31,"7.25"' + Helper.CrLf(), 1033);
+        ImpLang('vt english date [31.12.2024]', 94373, '7,true,31.12.2024,7.25' + Helper.CrLf(), 1033);
+        ImpLang('vt english date [12/31/2024]', 94373, '7,true,12/31/2024,7.25' + Helper.CrLf(), 1033);
+        ImpLang('vt english date [2024-12-31]', 94373, '7,true,2024-12-31,7.25' + Helper.CrLf(), 1033);
+        ImpLang('vt english date [31/12/2024]', 94373, '7,true,31/12/2024,7.25' + Helper.CrLf(), 1033);
+        ImpLang('vt english date [311224]', 94373, '7,true,311224,7.25' + Helper.CrLf(), 1033);
+        ImpLang('vt english date [31. Dezember 2024]', 94373, '7,true,31. Dezember 2024,7.25' + Helper.CrLf(), 1033);
+        ImpLang('vt english amount [7,25]', 94373, '7,true,2024-12-31,"7,25"' + Helper.CrLf(), 1033);
+        ImpLang('vt english amount [7.25]', 94373, '7,true,2024-12-31,"7.25"' + Helper.CrLf(), 1033);
         Observer.Finish();
     end;
 
@@ -927,26 +927,92 @@ codeunit 94336 "LT Y83 Misc Tests"
     end;
 
     [Test]
-    procedure Instance_Direction_And_Destination()
+    procedure Instance_Export_Without_Destination()
     begin
         Observer.Observe('export without destination', ExportNoDestination());
-        Observer.Observe('import without source', ImportNoSource());
-        Observer.Observe('export after SetSource', ExportAfterSetSource());
-        Observer.Observe('import after SetDestination', ImportAfterSetDestination());
-        Observer.Observe('export of an import only port', ExportStatic(94373));
-        Observer.Observe('import of an export only port', ImportStatic(94369));
-        Observer.Observe('instance export of an import only port', ExportInstanceImportOnly());
         Observer.Finish();
     end;
 
     [Test]
-    procedure Instance_Direction_And_Destination_More1()
+    procedure Instance_Export_Without_Destination_More1()
     begin
         Observer.More();
     end;
 
     [Test]
-    procedure Instance_Direction_And_Destination_More2()
+    procedure Instance_Import_Without_Source()
+    begin
+        Observer.Observe('import without source', ImportNoSource());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Instance_Import_Without_Source_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure Instance_Export_After_SetSource()
+    begin
+        Observer.Observe('export after setsource', ExportAfterSetSource());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Instance_Export_After_SetSource_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure Instance_Import_After_SetDestination()
+    begin
+        Observer.Observe('import after setdestination', ImportAfterSetDestination());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Instance_Import_After_SetDestination_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure Instance_Static_Export_Of_Import_Only_Port()
+    begin
+        Observer.Observe('static export of import only port', ExportStatic(94373));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Instance_Static_Export_Of_Import_Only_Port_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure Instance_Static_Import_Of_Export_Only_Port()
+    begin
+        Observer.Observe('static import of export only port', ImportStatic(94369));
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Instance_Static_Import_Of_Export_Only_Port_More1()
+    begin
+        Observer.More();
+    end;
+
+    [Test]
+    procedure Instance_Instance_Export_Of_Import_Only_Port()
+    begin
+        Observer.Observe('instance export of import only port', ExportInstanceImportOnly());
+        Observer.Finish();
+    end;
+
+    [Test]
+    procedure Instance_Instance_Export_Of_Import_Only_Port_More1()
     begin
         Observer.More();
     end;
@@ -1014,7 +1080,7 @@ codeunit 94336 "LT Y83 Misc Tests"
     [Test]
     procedure TableFilter_Export()
     begin
-        ImpTf('seed', '<Root><Row><Id>1</Id><Tf>WHERE(Id=CONST(1))</Tf></Row><Row><Id>2</Id><Tf></Tf></Row></Root>');
+        ImpTf('seed', '<Root><Row><Id>1</Id><Tf>LT Y83 Item: Id=1</Tf></Row><Row><Id>2</Id><Tf></Tf></Row><Row><Id>3</Id><Tf>Item: Id=2..3</Tf></Row></Root>');
         Observer.Observe('export', Helper.TryExport(94375, TextEncoding::UTF16));
         Observer.Finish();
     end;
@@ -1087,10 +1153,11 @@ codeunit 94336 "LT Y83 Misc Tests"
     procedure ContainerTriggers_Nested()
     begin
         Observer.Observe('export', ContainerExport(94378));
-        Observer.Observe('import full', ContainerImport(94378, '<Root><Hdr HAttr="ha2"><HCode>hc2</HCode><Inner><InnerVal>iv2</InnerVal></Inner></Hdr><Item><Id>7</Id><Name>seven</Name></Item></Root>'));
-        Observer.Observe('import empty container', ContainerImport(94378, '<Root><Hdr /><Item><Id>8</Id><Name>eight</Name></Item></Root>'));
-        Observer.Observe('import empty inner', ContainerImport(94378, '<Root><Hdr><HCode>hc3</HCode><Inner /></Hdr></Root>'));
+        Observer.Observe('import full', ContainerImport(94378, '<Root><Item><Id>7</Id><Name>seven</Name></Item><Hdr HAttr="ha2"><HCode>hc2</HCode><Inner><InnerVal>iv2</InnerVal></Inner></Hdr></Root>'));
+        Observer.Observe('import empty leaf', ContainerImport(94378, '<Root><Item><Id>8</Id><Name>eight</Name></Item><Hdr HAttr=""><HCode /><Inner><InnerVal /></Inner></Hdr></Root>'));
+        Observer.Observe('import empty inner', ContainerImport(94378, '<Root><Hdr HAttr="h"><HCode>hc3</HCode><Inner /></Hdr></Root>'));
         Observer.Observe('import no container', ContainerImport(94378, '<Root><Item><Id>9</Id><Name>nine</Name></Item></Root>'));
+        Observer.Observe('import no row', ContainerImport(94378, '<Root><Hdr HAttr="h"><HCode>hc4</HCode><Inner><InnerVal>iv4</InnerVal></Inner></Hdr></Root>'));
         Observer.Finish();
     end;
 
@@ -1117,8 +1184,9 @@ codeunit 94336 "LT Y83 Misc Tests"
     begin
         Observer.Observe('export', ContainerExport(94379));
         Observer.Observe('import full', ContainerImport(94379, '<Root><Endpoint SchemeId="GLN2">0099</Endpoint><Party PartyId="p2" /></Root>'));
-        Observer.Observe('import empty endpoint', ContainerImport(94379, '<Root><Endpoint SchemeId="X" /><Party /></Root>'));
-        Observer.Observe('import no attribute', ContainerImport(94379, '<Root><Endpoint>0100</Endpoint><Party PartyId="p3"></Party></Root>'));
+        Observer.Observe('import empty endpoint', ContainerImport(94379, '<Root><Endpoint SchemeId="X" /><Party PartyId="p4" /></Root>'));
+        Observer.Observe('import no scheme', ContainerImport(94379, '<Root><Endpoint>0100</Endpoint><Party PartyId="p3" /></Root>'));
+        Observer.Observe('import party with text', ContainerImport(94379, '<Root><Endpoint SchemeId="X">1</Endpoint><Party PartyId="p5">text</Party></Root>'));
         Observer.Finish();
     end;
 
@@ -1134,6 +1202,23 @@ codeunit 94336 "LT Y83 Misc Tests"
         Observer.More();
     end;
 
+    // Characters from 127 up written as {nnn}, so that no raw control or line separator character reaches the source.
+    local procedure Vis(Value: Text): Text
+    var
+        i: Integer;
+        Code: Integer;
+        Result: Text;
+    begin
+        for i := 1 to StrLen(Value) do begin
+            Code := Value[i];
+            if Code >= 127 then
+                Result += '{' + Format(Code) + '}'
+            else
+                Result += CopyStr(Value, i, 1);
+        end;
+        exit(Result);
+    end;
+
     local procedure Lf(): Text
     var
         Result: Text[1];
@@ -1146,7 +1231,7 @@ codeunit 94336 "LT Y83 Misc Tests"
     begin
         Helper.Seed();
         Observer.Observe(Name, Helper.TryImport(PortId, Doc, false));
-        Observer.Observe(Name + ' rows', Helper.Rows() + '#' + Helper.ChildRows());
+        Observer.Observe(Name + ' rows', Vis(Helper.Rows() + '#' + Helper.ChildRows()));
     end;
 
     local procedure ImpLang(Name: Text; PortId: Integer; Doc: Text; Language: Integer)
@@ -1183,7 +1268,7 @@ codeunit 94336 "LT Y83 Misc Tests"
         Item.Name := 'a' + Ch + 'b';
         Item.Insert();
         Commit();
-        Observer.Observe(Name, Helper.TryExportRaw(PortId, TextEncoding::UTF8));
+        Observer.Observe(Name, Vis(Helper.TryExportRaw(PortId, TextEncoding::UTF8)));
     end;
 
     local procedure SeedDecimals()

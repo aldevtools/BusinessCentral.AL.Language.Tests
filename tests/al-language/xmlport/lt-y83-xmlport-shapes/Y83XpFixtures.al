@@ -116,7 +116,7 @@ codeunit 94338 "LT Y83 View Runner"
     begin
         XP.SetTableView(Rec);
         TempBlob.CreateOutStream(OutS, TextEncoding::UTF8);
-        OutS.WriteText('<Root><Item><Id>7</Id><Name>seven</Name></Item></Root>');
+        OutS.WriteText('<Root><Item><Id>7</Id><Name>seven</Name><Child><Txt>t</Txt></Child></Item></Root>');
         TempBlob.CreateInStream(InS, TextEncoding::UTF8);
         XP.SetSource(InS);
         XP.Import();
@@ -276,7 +276,7 @@ codeunit 94333 "LT Y83 Helper"
     begin
         if Item.FindSet() then
             repeat
-                Result += Format(Item.Id) + '/' + Item.Name + '/' + Format(Item.Amt) + '/' + Format(Item.Flag) + '/' + Format(Item.D) + '/' + Format(Item.Qty) + ';';
+                Result += Format(Item.Id) + '/' + Item.Name + '/' + Format(Item.Amt, 0, 9) + '/' + Format(Item.Flag, 0, 9) + '/' + Format(Item.D, 0, 9) + '/' + Format(Item.Qty) + ';';
             until Item.Next() = 0;
         exit(Result);
     end;
