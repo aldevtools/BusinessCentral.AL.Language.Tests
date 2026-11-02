@@ -205,7 +205,8 @@ codeunit 94430 "LT Y85 Package Data"
         Observer.Verify();
     end;
 
-    // Values are in the order B, A (the primary key), C, "No." (declaration order), Ext; FlowField Fl and the disabled field Dis are not in the file.
+    // Code values are stored as the file has them (the key values of the file are upper case) and shown upper case: C and "No." below. Values are in the
+    // order B, A (the primary key), C, "No." (declaration order), Ext; FlowField Fl and the disabled field Dis are not in the file.
     [Test]
     procedure Y85_FieldOrder_KeyFieldsFirstThenDeclarationOrder()
     var
@@ -222,8 +223,8 @@ codeunit 94430 "LT Y85 Package Data"
         Observer.Observe('get A,B', Format(Row.Get('A2', 'B2')));
         Observer.Observe('get B,A', Format(Row.Get('B2', 'A2')));
         Observer.Expect('rows', 'B=B1 A=A1 C=C1 No=N1 Ext=77 Fl=3 Dis=0;B=B2 A=A2 C=C2 No=N2 Ext=-1 Fl=3 Dis=0;');
-        Observer.Expect('get A,B', 'Yes');
-        Observer.Expect('get B,A', 'No');
+        Observer.Expect('get A,B', 'No');
+        Observer.Expect('get B,A', 'Yes');
         Observer.Verify();
     end;
 
