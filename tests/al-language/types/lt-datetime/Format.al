@@ -7,6 +7,9 @@
 //   literals, <Hours24> without width, <Thousands>, <Second dec>) on a DateTime, a Time and a Date, and on 0DT, 0T and 0D.
 //   BC: on a DateTime <Hours24,2> pads with 0 (09), on a Time with a space ( 9) unless <Filler Character,0> is in the string; 0DT and 0D give ''
 //   for every string, 0T formats as 00:00:00 (12:00 AM).
+// Writer Y64 (2026-11-01, Y64_* tests, al-runner issue 6650): <Second dec.> (with the period, as in the test libraries' unique-code builders) and its
+//   neighbours (<Second dec.,N>, case, <Second dec,N> widths) on a Time and a DateTime with 0, 1, 2 and 3 digits of milliseconds, 0T and 0DT, with and without
+//   <Filler Character,0>, and the reporter's whole string followed by DelChr.
 // Writer TU (2026-10-29), TU_Time_Format_CodeNames (BC 29.0 SaaS sandbox, two runs, same values): code names on a Time.
 //   BC: <Hours> and <Hour> give the 24-hour value (13 at 13:45); <Ho>, <H>, <Min>, <Sec>, <Thou>, <hours,2> and <HOURS,2> are accepted;
 //   <Hourz>, <Hours24x,2> and <Hours 24> fail with InvalidFormatString. <Hours,2> pads with a space on a Time ( 9) and with 0 on a DateTime
@@ -927,6 +930,360 @@ codeunit 73804 "LT DtT Format"
         Observer.Expect('0905 <hours,2>', '[ 9]');
         Observer.Expect('0905 len8 time()-like ms', '[ 9:05:03]');
         Observer.Expect('2359 len8', '[23:59:59]');
+        Observer.Verify();
+    end;
+
+    // Writer Y36 (gap cycle 3, C3-08): codes without a width on a DateTime (<Minutes>, <Seconds>, <Thousands>, <Hours24>, <Hours12>,
+    // <Year>) and the time stamp string of Microsoft's Quality Management test library.    // BC (SaaS BC 29): no padding: <Minutes> 0, 5, 9, 10; <Seconds> 0, 5, 9; <Thousands> 0, 5, 78; <Hours24> 0 at 00:30; <Hours12> 12 at
+    // 00:30; so the Quality Management stamp of 2026-03-05 09:07:02 is 260305972. <Year> gives two digits for 1998, 2005, 2031 and four
+    // digits for 2099.
+    [Test]
+    procedure Y36_DateTime_Format_Minutes_NoWidth()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('min_120000', FmtStr(CreateDateTime(20260305D, 120000T), '<Minutes>'));
+        Observer.Observe('min_120500', FmtStr(CreateDateTime(20260305D, 120500T), '<Minutes>'));
+        Observer.Observe('min_120900', FmtStr(CreateDateTime(20260305D, 120900T), '<Minutes>'));
+        Observer.Observe('min_121000', FmtStr(CreateDateTime(20260305D, 121000T), '<Minutes>'));
+        Observer.Observe('min_090702_123', FmtStr(CreateDateTime(20260305D, 090702.123T), '<Minutes>'));
+        Observer.Observe('min_125900', FmtStr(CreateDateTime(20260305D, 125900T), '<Minutes>'));
+        Observer.Expect('min_120000', '[0]');
+        Observer.Expect('min_120500', '[5]');
+        Observer.Expect('min_120900', '[9]');
+        Observer.Expect('min_121000', '[10]');
+        Observer.Expect('min_090702_123', '[7]');
+        Observer.Expect('min_125900', '[59]');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y36_DateTime_Format_Seconds_NoWidth()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('sec_120000', FmtStr(CreateDateTime(20260305D, 120000T), '<Seconds>'));
+        Observer.Observe('sec_120005', FmtStr(CreateDateTime(20260305D, 120005T), '<Seconds>'));
+        Observer.Observe('sec_120009', FmtStr(CreateDateTime(20260305D, 120009T), '<Seconds>'));
+        Observer.Observe('sec_120010', FmtStr(CreateDateTime(20260305D, 120010T), '<Seconds>'));
+        Observer.Observe('sec_120059', FmtStr(CreateDateTime(20260305D, 120059T), '<Seconds>'));
+        Observer.Observe('sec_120005_5', FmtStr(CreateDateTime(20260305D, 120005.5T), '<Seconds>'));
+        Observer.Expect('sec_120000', '[0]');
+        Observer.Expect('sec_120005', '[5]');
+        Observer.Expect('sec_120009', '[9]');
+        Observer.Expect('sec_120010', '[10]');
+        Observer.Expect('sec_120059', '[59]');
+        Observer.Expect('sec_120005_5', '[5]');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y36_DateTime_Format_QltyStamp()
+    var
+        Observer: Codeunit "Probe Observer";
+        Stamp: Text;
+    begin
+        Stamp := '<Year><Month,2><Day,2><Hours24><Minutes><Seconds>';
+        Observer.Observe('q_20260305_090702', FmtStr(CreateDateTime(20260305D, 090702T), Stamp));
+        Observer.Observe('q_20261231_235959', FmtStr(CreateDateTime(20261231D, 235959T), Stamp));
+        Observer.Observe('q_20260101_000000', FmtStr(CreateDateTime(20260101D, 000000T), Stamp));
+        Observer.Observe('q_20261031_140509', FmtStr(CreateDateTime(20261031D, 140509T), Stamp));
+        Observer.Observe('q_20260305_100000', FmtStr(CreateDateTime(20260305D, 100000T), Stamp));
+        Observer.Observe('q_prefix_A', FmtStr(CreateDateTime(20260305D, 090702T), 'A' + Stamp));
+        Observer.Observe('q_prefix_A0SM', FmtStr(CreateDateTime(20260305D, 090702T), 'A0SM-A' + Stamp));
+        Observer.Observe('q_padstr_A', PadStr(Format(CreateDateTime(20260305D, 090702T), 0, 'A' + Stamp), 19, '0'));
+        Observer.Expect('q_20260305_090702', '[260305972]');
+        Observer.Expect('q_20261231_235959', '[261231235959]');
+        Observer.Expect('q_20260101_000000', '[260101000]');
+        Observer.Expect('q_20261031_140509', '[2610311459]');
+        Observer.Expect('q_20260305_100000', '[2603051000]');
+        Observer.Expect('q_prefix_A', '[A260305972]');
+        Observer.Expect('q_prefix_A0SM', '[A0SM-A260305972]');
+        Observer.Expect('q_padstr_A', 'A260305972000000000');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y36_DateTime_Format_Thousands_NoWidth()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('ms_000', FmtStr(CreateDateTime(20260305D, 120000T), '<Thousands>'));
+        Observer.Observe('ms_005', FmtStr(CreateDateTime(20260305D, 120000.005T), '<Thousands>'));
+        Observer.Observe('ms_078', FmtStr(CreateDateTime(20260305D, 120000.078T), '<Thousands>'));
+        Observer.Observe('ms_123', FmtStr(CreateDateTime(20260305D, 120000.123T), '<Thousands>'));
+        Observer.Observe('ms_999', FmtStr(CreateDateTime(20260305D, 120000.999T), '<Thousands>'));
+        Observer.Observe('z_stamp_078', FmtStr(CreateDateTime(20260305D, 090702.078T), 'Z<Year><Month,2><Day,2><Hours24><Minutes><Seconds><Thousands>'));
+        Observer.Observe('z_stamp_000', FmtStr(CreateDateTime(20260305D, 090702T), 'Z<Year><Month,2><Day,2><Hours24><Minutes><Seconds><Thousands>'));
+        Observer.Expect('ms_000', '[0]');
+        Observer.Expect('ms_005', '[5]');
+        Observer.Expect('ms_078', '[78]');
+        Observer.Expect('ms_123', '[123]');
+        Observer.Expect('ms_999', '[999]');
+        Observer.Expect('z_stamp_078', '[Z26030597278]');
+        Observer.Expect('z_stamp_000', '[Z2603059720]');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y36_DateTime_Format_Hours_Year_NoWidth()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('h24_0030', FmtStr(CreateDateTime(20260305D, 003000T), '<Hours24>'));
+        Observer.Observe('h24_0900', FmtStr(CreateDateTime(20260305D, 090000T), '<Hours24>'));
+        Observer.Observe('h24_1200', FmtStr(CreateDateTime(20260305D, 120000T), '<Hours24>'));
+        Observer.Observe('h24_2300', FmtStr(CreateDateTime(20260305D, 230000T), '<Hours24>'));
+        Observer.Observe('h12_0030', FmtStr(CreateDateTime(20260305D, 003000T), '<Hours12>'));
+        Observer.Observe('h12_0900', FmtStr(CreateDateTime(20260305D, 090000T), '<Hours12>'));
+        Observer.Observe('h12_1200', FmtStr(CreateDateTime(20260305D, 120000T), '<Hours12>'));
+        Observer.Observe('h12_2300', FmtStr(CreateDateTime(20260305D, 230000T), '<Hours12>'));
+        Observer.Observe('ampm_0030', FmtStr(CreateDateTime(20260305D, 003000T), '<AM/PM>'));
+        Observer.Observe('ampm_1200', FmtStr(CreateDateTime(20260305D, 120000T), '<AM/PM>'));
+        Observer.Observe('ampm_2300', FmtStr(CreateDateTime(20260305D, 230000T), '<AM/PM>'));
+        Observer.Observe('year_2031', FmtStr(CreateDateTime(20310305D, 120000T), '<Year>'));
+        Observer.Observe('year_2099', FmtStr(CreateDateTime(20990305D, 120000T), '<Year>'));
+        Observer.Observe('year_1998', FmtStr(CreateDateTime(19980305D, 120000T), '<Year>'));
+        Observer.Observe('year_2005', FmtStr(CreateDateTime(20050305D, 120000T), '<Year>'));
+        Observer.Expect('h24_0030', '[0]');
+        Observer.Expect('h24_0900', '[9]');
+        Observer.Expect('h24_1200', '[12]');
+        Observer.Expect('h24_2300', '[23]');
+        Observer.Expect('h12_0030', '[12]');
+        Observer.Expect('h12_0900', '[9]');
+        Observer.Expect('h12_1200', '[12]');
+        Observer.Expect('h12_2300', '[11]');
+        Observer.Expect('ampm_0030', '[AM]');
+        Observer.Expect('ampm_1200', '[PM]');
+        Observer.Expect('ampm_2300', '[PM]');
+        Observer.Expect('year_2031', '[31]');
+        Observer.Expect('year_2099', '[2099]');
+        Observer.Expect('year_1998', '[98]');
+        Observer.Expect('year_2005', '[05]');
+        Observer.Verify();
+    end;
+
+    local procedure Y64Strings(): List of [Text]
+    var
+        L: List of [Text];
+    begin
+        L.Add('<Hours24,2><Filler Character,0><Minutes,2><Seconds,2><Second dec.>');
+        L.Add('<Second dec.>');
+        L.Add('<Second dec.,3>');
+        L.Add('<Second dec.,4>');
+        L.Add('<Second Dec.>');
+        L.Add('<SECOND DEC.>');
+        L.Add('<Second dec,1>');
+        L.Add('<Second dec,2>');
+        L.Add('<Second dec,4>');
+        L.Add('<Second dec,5>');
+        L.Add('<Seconds,2><Second dec.>');
+        L.Add('<Second dec.><Filler Character,0>');
+        L.Add('<Filler Character,0><Second dec,4>');
+        L.Add('<Second dec..>');
+        L.Add('<Second dec>.');
+        exit(L);
+    end;
+
+    local procedure Y64ObserveTime(var Observer: Codeunit "Probe Observer"; Prefix: Text; Value: Time)
+    var
+        L: List of [Text];
+        i: Integer;
+    begin
+        L := Y64Strings();
+        for i := 1 to L.Count() do
+            Observer.Observe(Prefix + Format(i), TuFormatTime(Value, 0, L.Get(i)));
+    end;
+
+    local procedure Y64ObserveDateTime(var Observer: Codeunit "Probe Observer"; Prefix: Text; Value: DateTime)
+    var
+        L: List of [Text];
+        i: Integer;
+    begin
+        L := Y64Strings();
+        for i := 1 to L.Count() do
+            Observer.Observe(Prefix + Format(i), TuFormatDateTime(Value, 0, L.Get(i)));
+    end;
+
+    // Observation names: a prefix for the value and the index of the string in Y64Strings.
+    [Test]
+    procedure Y64_Time_Format_SecondDecPeriod()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Y64ObserveTime(Observer, 't078_', 134506.078T);
+        Y64ObserveTime(Observer, 't5_', 090507.5T);
+        Observer.Expect('t078_1', '[134506.078]');
+        Observer.Expect('t078_2', '[.078]');
+        Observer.Expect('t078_3', '[***]');
+        Observer.Expect('t078_4', '[.078]');
+        Observer.Expect('t078_5', '[.078]');
+        Observer.Expect('t078_6', '[.078]');
+        Observer.Expect('t078_7', '[*]');
+        Observer.Expect('t078_8', '[**]');
+        Observer.Expect('t078_9', '[.078]');
+        Observer.Expect('t078_10', '[.0780]');
+        Observer.Expect('t078_11', '[06.078]');
+        Observer.Expect('t078_12', '[.078]');
+        Observer.Expect('t078_13', '[.078]');
+        Observer.Expect('t078_14', 'error: An invalid field or attribute has been specified for the ''Format'' property.\\<Second dec..> | InvalidFormatString');
+        Observer.Expect('t078_15', '[.078.]');
+        Observer.Expect('t5_1', '[090507.5]');
+        Observer.Expect('t5_2', '[.5]');
+        Observer.Expect('t5_3', '[.50]');
+        Observer.Expect('t5_4', '[.500]');
+        Observer.Expect('t5_5', '[.5]');
+        Observer.Expect('t5_6', '[.5]');
+        Observer.Expect('t5_7', '[*]');
+        Observer.Expect('t5_8', '[.5]');
+        Observer.Expect('t5_9', '[.500]');
+        Observer.Expect('t5_10', '[.5000]');
+        Observer.Expect('t5_11', '[07.5]');
+        Observer.Expect('t5_12', '[.5]');
+        Observer.Expect('t5_13', '[.500]');
+        Observer.Expect('t5_14', 'error: An invalid field or attribute has been specified for the ''Format'' property.\\<Second dec..> | InvalidFormatString');
+        Observer.Expect('t5_15', '[.5.]');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y64_Time_Format_SecondDecPeriod_More()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Y64ObserveTime(Observer, 't05_', 090507.05T);
+        Y64ObserveTime(Observer, 't0_', 090507T);
+        Observer.Expect('t05_1', '[090507.05]');
+        Observer.Expect('t05_2', '[.05]');
+        Observer.Expect('t05_3', '[.05]');
+        Observer.Expect('t05_4', '[.050]');
+        Observer.Expect('t05_5', '[.05]');
+        Observer.Expect('t05_6', '[.05]');
+        Observer.Expect('t05_7', '[*]');
+        Observer.Expect('t05_8', '[**]');
+        Observer.Expect('t05_9', '[.050]');
+        Observer.Expect('t05_10', '[.0500]');
+        Observer.Expect('t05_11', '[07.05]');
+        Observer.Expect('t05_12', '[.05]');
+        Observer.Expect('t05_13', '[.050]');
+        Observer.Expect('t05_14', 'error: An invalid field or attribute has been specified for the ''Format'' property.\\<Second dec..> | InvalidFormatString');
+        Observer.Expect('t05_15', '[.05.]');
+        Observer.Expect('t0_1', '[090507]');
+        Observer.Expect('t0_2', '[]');
+        Observer.Expect('t0_3', '[000]');
+        Observer.Expect('t0_4', '[0000]');
+        Observer.Expect('t0_5', '[]');
+        Observer.Expect('t0_6', '[]');
+        Observer.Expect('t0_7', '[0]');
+        Observer.Expect('t0_8', '[00]');
+        Observer.Expect('t0_9', '[0000]');
+        Observer.Expect('t0_10', '[00000]');
+        Observer.Expect('t0_11', '[07]');
+        Observer.Expect('t0_12', '[]');
+        Observer.Expect('t0_13', '[0000]');
+        Observer.Expect('t0_14', 'error: An invalid field or attribute has been specified for the ''Format'' property.\\<Second dec..> | InvalidFormatString');
+        Observer.Expect('t0_15', '[.]');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y64_Time_Format_SecondDecPeriod_Edges()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Y64ObserveTime(Observer, 't999_', 235959.999T);
+        Y64ObserveTime(Observer, '0T_', 0T);
+        Observer.Expect('t999_1', '[235959.999]');
+        Observer.Expect('t999_2', '[.999]');
+        Observer.Expect('t999_3', '[***]');
+        Observer.Expect('t999_4', '[.999]');
+        Observer.Expect('t999_5', '[.999]');
+        Observer.Expect('t999_6', '[.999]');
+        Observer.Expect('t999_7', '[*]');
+        Observer.Expect('t999_8', '[**]');
+        Observer.Expect('t999_9', '[.999]');
+        Observer.Expect('t999_10', '[.9990]');
+        Observer.Expect('t999_11', '[59.999]');
+        Observer.Expect('t999_12', '[.999]');
+        Observer.Expect('t999_13', '[.999]');
+        Observer.Expect('t999_14', 'error: An invalid field or attribute has been specified for the ''Format'' property.\\<Second dec..> | InvalidFormatString');
+        Observer.Expect('t999_15', '[.999.]');
+        Observer.Expect('0T_1', '[000000]');
+        Observer.Expect('0T_2', '[]');
+        Observer.Expect('0T_3', '[000]');
+        Observer.Expect('0T_4', '[0000]');
+        Observer.Expect('0T_5', '[]');
+        Observer.Expect('0T_6', '[]');
+        Observer.Expect('0T_7', '[0]');
+        Observer.Expect('0T_8', '[00]');
+        Observer.Expect('0T_9', '[0000]');
+        Observer.Expect('0T_10', '[00000]');
+        Observer.Expect('0T_11', '[00]');
+        Observer.Expect('0T_12', '[]');
+        Observer.Expect('0T_13', '[0000]');
+        Observer.Expect('0T_14', 'error: An invalid field or attribute has been specified for the ''Format'' property.\\<Second dec..> | InvalidFormatString');
+        Observer.Expect('0T_15', '[.]');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y64_DateTime_Format_SecondDecPeriod()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Y64ObserveDateTime(Observer, 'dt078_', CreateDateTime(20240305D, 134506.078T));
+        Y64ObserveDateTime(Observer, 'dt0_', CreateDateTime(20240305D, 090507T));
+        Observer.Expect('dt078_1', '[134506.078]');
+        Observer.Expect('dt078_2', '[.078]');
+        Observer.Expect('dt078_3', '[***]');
+        Observer.Expect('dt078_4', '[.078]');
+        Observer.Expect('dt078_5', '[.078]');
+        Observer.Expect('dt078_6', '[.078]');
+        Observer.Expect('dt078_7', '[*]');
+        Observer.Expect('dt078_8', '[**]');
+        Observer.Expect('dt078_9', '[.078]');
+        Observer.Expect('dt078_10', '[.0780]');
+        Observer.Expect('dt078_11', '[06.078]');
+        Observer.Expect('dt078_12', '[.078]');
+        Observer.Expect('dt078_13', '[.078]');
+        Observer.Expect('dt078_14', 'error: An invalid field or attribute has been specified for the ''Format'' property.\\<Second dec..> | InvalidFormatString');
+        Observer.Expect('dt078_15', '[.078.]');
+        Observer.Expect('dt0_1', '[090507]');
+        Observer.Expect('dt0_2', '[]');
+        Observer.Expect('dt0_3', '[.00]');
+        Observer.Expect('dt0_4', '[.000]');
+        Observer.Expect('dt0_5', '[]');
+        Observer.Expect('dt0_6', '[]');
+        Observer.Expect('dt0_7', '[.]');
+        Observer.Expect('dt0_8', '[.0]');
+        Observer.Expect('dt0_9', '[.000]');
+        Observer.Expect('dt0_10', '[.0000]');
+        Observer.Expect('dt0_11', '[07]');
+        Observer.Expect('dt0_12', '[]');
+        Observer.Expect('dt0_13', '[.000]');
+        Observer.Expect('dt0_14', 'error: An invalid field or attribute has been specified for the ''Format'' property.\\<Second dec..> | InvalidFormatString');
+        Observer.Expect('dt0_15', '[.]');
+        Observer.Verify();
+    end;
+
+    [Test]
+    procedure Y64_SecondDecPeriod_ReporterCode()
+    var
+        Observer: Codeunit "Probe Observer";
+        CurrTime: Text;
+    begin
+        CurrTime := Format(134506.078T, 0, '<Hours24,2><Filler Character,0><Minutes,2><Seconds,2><Second dec.>');
+        Observer.Observe('code', 'X-' + DelChr(CurrTime, '=', '.,:'));
+        CurrTime := Format(090507T, 0, '<Hours24,2><Filler Character,0><Minutes,2><Seconds,2><Second dec.>');
+        Observer.Observe('code no ms', 'X-' + DelChr(CurrTime, '=', '.,:'));
+        Observer.Observe('length 10', TuFormatTime(134506.078T, 10, '<Hours24,2><Filler Character,0><Minutes,2><Seconds,2><Second dec.>'));
+        Observer.Observe('length 4', TuFormatTime(134506.078T, 4, '<Hours24,2><Filler Character,0><Minutes,2><Seconds,2><Second dec.>'));
+        Observer.Observe('length -12', TuFormatTime(134506.078T, -12, '<Second dec.>'));
+        Observer.Expect('code', 'X-134506078');
+        Observer.Expect('code no ms', 'X-090507');
+        Observer.Expect('length 10', '[134506.078]');
+        Observer.Expect('length 4', '[1345]');
+        Observer.Expect('length -12', '[.078]');
         Observer.Verify();
     end;
 }

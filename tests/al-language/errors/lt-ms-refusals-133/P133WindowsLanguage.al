@@ -3,6 +3,9 @@
 // Fixtures used: Probe Observer (codeunit 69160); reads the platform table "Windows Language" (2000000045), writes nothing
 // Probe: written against a local BC 29.0.54011.55816 service tier; every literal asserted below is what that tier produced. Other BC versions are checked by the corpus CI matrix.
 // Facts: rows of "Windows Language" for LCIDs the Microsoft tests filter on (1026, 1030, 1043 and more): Get, Name, Language Tag, Abbreviated Name; SetRange and SetFilter on "Language ID" with these ids (count, first row, order)
+// Windows check (writer Y52, 2026-11-01): the Linux CI containers build this table from ICU culture data and differ from Windows and SaaS
+//   (record/lt-y39-windows-language-table/Y39WindowsLanguageTable.al:9-17). The [Test] procedures assert only what Windows and Linux agree on; the Suspect_ procedure (no [Test]) holds the Windows/SaaS
+//   value of id 1034 (record/lt-y39-windows-language-table/Y39WindowsLanguageTable.al:72-319, measured by writer Y39). Linux CI gave 'Spanish (Spain, Sort Order=tradnl)'.
 // BC versions: 29 (27 and 28 by CI)
 
 codeunit 74043 "LT P133 Windows Language"
@@ -39,7 +42,6 @@ codeunit 74043 "LT P133 Windows Language"
         Observer.Observe('1029', Describe(1029));
         Observer.Observe('1030', Describe(1030));
         Observer.Observe('1032', Describe(1032));
-        Observer.Observe('1034', Describe(1034));
         Observer.Observe('1035', Describe(1035));
         Observer.Observe('1036', Describe(1036));
         Observer.Observe('1038', Describe(1038));
@@ -55,7 +57,6 @@ codeunit 74043 "LT P133 Windows Language"
         Observer.Expect('1029', 'Czech (Czechia)|cs-CZ|CSY|1029');
         Observer.Expect('1030', 'Danish (Denmark)|da-DK|DAN|1030');
         Observer.Expect('1032', 'Greek (Greece)|el-GR|ELL|1032');
-        Observer.Expect('1034', 'Spanish (Spain, Sort Order=tradnl)|es-ES|ESP|1034');
         Observer.Expect('1035', 'Finnish (Finland)|fi-FI|FIN|1035');
         Observer.Expect('1036', 'French (France)|fr-FR|FRA|1036');
         Observer.Expect('1038', 'Hungarian (Hungary)|hu-HU|HUN|1038');
@@ -67,6 +68,16 @@ codeunit 74043 "LT P133 Windows Language"
         Observer.Expect('1049', 'Russian (Russia)|ru-RU|RUS|1049');
         Observer.Expect('1053', 'Swedish (Sweden)|sv-SE|SVE|1053');
         Observer.Expect('1055', 'Turkish (Türkiye)|tr-TR|TRK|1055');
+        Observer.Verify();
+    end;
+
+    // Held: Linux suspect, Windows 27.5/28.5 and SaaS 29 value (record/lt-y39-windows-language-table/Y39WindowsLanguageTable.al:72-319, id 1034; :897).
+    procedure Suspect_P133_WindowsLanguage_Get_SpanishTraditionalSort()
+    var
+        Observer: Codeunit "Probe Observer";
+    begin
+        Observer.Observe('1034', Describe(1034));
+        Observer.Expect('1034', 'Spanish (Spain, Traditional Sort)|es-ES|ESP|1034');
         Observer.Verify();
     end;
 

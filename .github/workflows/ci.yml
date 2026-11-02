@@ -55,30 +55,38 @@ on:
 #     bc_version override; killing the automatic run to serve it, or the reverse, loses the one
 #     answer that was wanted. Separating them keeps both.
 #
-# CANCEL-IN-PROGRESS IS TRUE FOR MASTER TOO, and that is a real trade, stated plainly: with
-# four merges in a row only the last master run finishes, so a red leg says "one of the last few
-# merges did it" rather than naming one. Three things make that the better deal here:
+# CANCEL-IN-PROGRESS IS FALSE FOR PUSH RUNS (master, main), TRUE FOR EVERYTHING ELSE.
 #
-#   * The verdict it replaces did not exist. Queued behind an account-wide backlog, those runs
-#     report on a tree nobody has any more — the state this repository was actually in a few
-#     minutes before this file changed.
-#   * The one cross-PR interaction that genuinely escapes per-PR CI — two PRs declaring the same
-#     object id — is checked DIRECTLY by the object-ids job below, per PR against every other
-#     open PR and again as an advisory sweep on master. That gate does not depend on per-commit
-#     master runs. (Worth being honest about the limit: this repository does not require branches
-#     to be up to date, so a PR's green is not a guarantee about master for anything the object-id
-#     check does not cover.)
-#   * Recovering the per-commit answer costs one workflow_dispatch on a branch pointing at the
-#     suspect commit — precisely the run the group key above protects from the next merge.
+#   * A master run takes about 70 minutes (the BC 27.5 leg) and pull requests auto-merge every 20
+#     to 40 minutes. With cancel-in-progress true on master, each merge cancelled the running master
+#     run, and no master run finished for a whole day (2026-10-31, from ed4e87bc on). al-runtime-rs
+#     can only take the corpus from a finished green master run, so its corpus pin was stuck.
+#   * With cancel-in-progress false, the running master run always finishes. GitHub keeps at most
+#     one PENDING run per concurrency group: a new push replaces (cancels) the pending one, never the
+#     running one. So after a burst of merges, the run in progress finishes and then one run for the
+#     newest master commit starts; the commits in between get no run of their own. That is the
+#     choice here, over a group per commit SHA: a group per SHA would start a full 15-job run for
+#     every merge, and at 20 to 40 minutes between merges those runs would pile up behind the
+#     account-wide job limit (see WHY above). One running plus one pending run is bounded.
+#   * A red master leg can therefore cover several merges. The object-ids job below checks the one
+#     cross-PR interaction that per-PR CI cannot see (two PRs declaring the same object id), per PR
+#     against every other open PR and again as an advisory sweep on master. Recovering the
+#     per-commit answer costs one workflow_dispatch on a branch pointing at the suspect commit,
+#     which the group key above keeps apart from the push runs.
+#   * Pull request runs keep cancel-in-progress: a new push to a PR branch makes its older run
+#     useless. `push` only fires for main and master (see `on:`), so `github.event_name != 'push'`
+#     selects exactly the runs that may be cancelled.
 #
-# This changes no job's `if:` and adds no skips. The required checks of the master ruleset are
-# the `BC <version> / test`, `BC OnPrem <version> / test` and `BC OnPrem DotNet <version> / test`
-# legs for 27.5, 28.5 and 29.0, plus the object-id gate; a cancelled run reports them as cancelled, never as
-# skipped, so a superseded run can never satisfy a required check. ci.yml is the only workflow
+# The required checks of the master ruleset are the `BC <version> / test`, `BC OnPrem <version> / test`
+# and `BC OnPrem DotNet <version> / test` legs for 27.5, 28.5 and 29.0, plus the object-id gate. Each
+# leg's check is the job `test` of bc-leg.yml, which runs with `if: always()` and fails unless every
+# shard succeeded, so a cancelled run reports it as failed or cancelled, never as skipped or green, and
+# a superseded run can never satisfy a required check. The one green without shards is a pull request
+# leg whose app has nothing affected (CONTRIBUTING.md, "Shards in CI"). ci.yml is the only workflow
 # registered here (the object-id gate is a job inside it), so this block covers everything.
 concurrency:
   group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name != 'push' }}
 
 jobs:
   # Every self-test under .github/scripts/, discovered BY GLOB rather than named.
@@ -191,6 +199,10 @@ jobs:
       # {test app dir: "id,id,..."}: the test codeunits each test job runs. {} (or a missing key) = the job's full
       # codeunit_range. The job names and the required checks do not change; only the codeunits each leg runs.
       subset: ${{ steps.select.outputs.subset || '{}' }}
+      # {bc_version: {test app dir: [{"n": "1 of 3", "range": ...}]}}: the shards each leg runs (.github/scripts/ci-shards.py,
+      # boundaries in .github/ci-shards.json). [] for a leg: nothing in its app is affected (pull requests only), the leg
+      # reports success without starting BC. {} (the step failed): each leg runs its codeunit_range as one shard.
+      shards: ${{ steps.shards.outputs.shards || '{}' }}
     steps:
       # depth 2: a pull request's merge commit and its first parent, the base branch the diff is taken from
       - uses: actions/checkout@v4
@@ -233,11 +245,11 @@ jobs:
             *) FULL="$EVENT on $GITHUB_REF: always a full run" ;;
           esac
           if [ -n "$FULL" ]; then
-            python3 .github/scripts/select-tests.py --full-reason "$FULL" --github
+            python3 .github/scripts/select-tests.py --full-reason "$FULL" --github --json "$RUNNER_TEMP/selection.json"
           elif [ -n "$GIVEN" ]; then
-            python3 .github/scripts/select-tests.py --codeunits "$SELECT_CODEUNITS" --github
+            python3 .github/scripts/select-tests.py --codeunits "$SELECT_CODEUNITS" --github --json "$RUNNER_TEMP/selection.json"
           else
-            python3 .github/scripts/select-tests.py --base "$BASE" --head HEAD --github
+            python3 .github/scripts/select-tests.py --base "$BASE" --head HEAD --github --json "$RUNNER_TEMP/selection.json"
           fi || { echo "::warning title=Test selection::select-tests.py failed; every test runs"; echo 'subset={}' >> "$GITHUB_OUTPUT"; }
 
       - id: set
@@ -259,20 +271,33 @@ jobs:
           fi
           echo "matrix=$JSON" >> "$GITHUB_OUTPUT"
 
+      # Shards (CONTRIBUTING.md, "Shards in CI"): the al-language legs run their codeunits in three or four containers.
+      # The selection file is missing when select-tests.py failed: then a full run, as above.
+      - id: shards
+        name: Plan the shards of each leg
+        continue-on-error: true
+        env:
+          EVENT: ${{ github.event_name }}
+          MATRIX: ${{ steps.set.outputs.matrix }}
+        run: |
+          python3 .github/scripts/ci-shards.py plan --ci-yml .github/workflows/ci.yml --versions "$MATRIX" \
+            --file .github/ci-shards.json --event "$EVENT" --selection "$RUNNER_TEMP/selection.json" --github
+
   test:
     name: BC ${{ matrix.bc_version }}
     needs: prepare
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.prepare.outputs.matrix) }}
-    # Workflow and scripts pinned for corpus bump 63 to bc-linux 65f6b26: a write into a missing folder fails with
-    # InvalidPath as on Windows (#189). Bump 62 pin 84291ff before: fr-FR group separator U+00A0 on BC 27/28 as on
-    # Windows (#174); DotNet System.IO sees the files AL File wrote under the user folder and returns paths with '\'
-    # (#175, #181); MediaSet.ImportFile stores the bare file name (#176); Directory/DirectoryInfo listings match patterns
-    # case-insensitively and list in name order (#183). Earlier: #165, #166, #167.
-    uses: aldevtools/MsDyn365Bc.On.Linux/.github/workflows/bc-test-from-source.yml@65f6b26bbc5041a567790812773522accfae5473
+    # .github/workflows/bc-leg.yml runs the leg's shards through bc-linux (pinned there; the runner_image below carries
+    # the same commit) and merges their JUnit; its job `test` reports this job's check "<name> / test".
+    uses: ./.github/workflows/bc-leg.yml
+    # actions: write lets bc-leg.yml's job `test` delete the shards' artifacts once it uploaded the merged one.
+    permissions:
+      contents: read
+      actions: write
     with:
-      bc_linux_ref:         "65f6b26bbc5041a567790812773522accfae5473"
+      shards:               ${{ toJson(fromJson(needs.prepare.outputs.shards)[matrix.bc_version]['tests/al-language']) }}
       runner_image:         "ghcr.io/aldevtools/msdyn365bc.on.linux/bc-runner:rdlc-65f6b26bbc5041a567790812773522accfae5473"
       bc_version:           ${{ matrix.bc_version }}
       bc_country:           "w1"
@@ -314,12 +339,18 @@ jobs:
       sql_image:            "ghcr.io/aldevtools/msdyn365bc.on.linux/mssql:2022-fts"
       # The default job timeout is 45 minutes. With about 2500 test codeunits the BC 27.5 "Run AL tests" step takes 37 to
       # 40 minutes on a loaded runner, so the 27.5 job was cancelled at 45 minutes twice (run 39269527543, both attempts).
-      timeout_minutes:      70
+      # Raised from 70 to 100 when the 27.5 job reached 70 minutes (run 41222674216, at codeunit 2630 of 2903). BC 27.5 has
+      # no TestRunnerHub, so all codeunits run one by one on the websocket runner (3435 s for 2869 codeunits in run
+      # 41193457271, against 2757 s on 29.0 and 2332 s on 28.5, which run most codeunits on the hub), and the same step
+      # varies from 1885 s to 3465 s between runs for about the same number of codeunits. Setup before the tests takes
+      # about 8 minutes.
+      timeout_minutes:      100
       # Each test phase (hub, websocket) has its own limit, the runner's --timeout (bc-linux input
       # test_timeout_minutes, default 30). The BC 28.5 hub phase reached the 30-minute limit in run 39322214364
-      # (1802 s; codeunits 85841 onward were not run). 60 keeps room for growth and stays below timeout_minutes.
+      # (1802 s; codeunits 85841 onward were not run). Raised from 60 to 90 with timeout_minutes: the 27.5 websocket
+      # phase is the whole suite and took 57 minutes in run 41193457271. It stays below timeout_minutes minus the setup.
       # The OnPrem jobs take about 7 minutes in all and keep the default.
-      test_timeout_minutes: 60
+      test_timeout_minutes: 90
       # RDLC rendering (MsDyn365Bc.On.Linux #126/#131): without these the Linux tier stubs the RDLC renderer.
       # They pull bc-runner:rdlc and set BC_RDLC_RENDERER=mono. Report.SaveAs of an RDLC layout is pinned in
       # report/lt-am-rdlc-output (cloud) and report/lt-am-rdlc-saveas (OnPrem). rdlc_trust_layouts is the
@@ -361,14 +392,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.prepare.outputs.matrix) }}
-    # Workflow and scripts pinned for corpus bump 63 to bc-linux 65f6b26: a write into a missing folder fails with
-    # InvalidPath as on Windows (#189). Bump 62 pin 84291ff before: fr-FR group separator U+00A0 on BC 27/28 as on
-    # Windows (#174); DotNet System.IO sees the files AL File wrote under the user folder and returns paths with '\'
-    # (#175, #181); MediaSet.ImportFile stores the bare file name (#176); Directory/DirectoryInfo listings match patterns
-    # case-insensitively and list in name order (#183). Earlier: #165, #166, #167.
-    uses: aldevtools/MsDyn365Bc.On.Linux/.github/workflows/bc-test-from-source.yml@65f6b26bbc5041a567790812773522accfae5473
+    # .github/workflows/bc-leg.yml runs the leg's shards through bc-linux (pinned there; the runner_image below carries
+    # the same commit) and merges their JUnit; its job `test` reports this job's check "<name> / test".
+    uses: ./.github/workflows/bc-leg.yml
+    # actions: write lets bc-leg.yml's job `test` delete the shards' artifacts once it uploaded the merged one.
+    permissions:
+      contents: read
+      actions: write
     with:
-      bc_linux_ref:         "65f6b26bbc5041a567790812773522accfae5473"
+      shards:               ${{ toJson(fromJson(needs.prepare.outputs.shards)[matrix.bc_version]['tests/al-language-onprem']) }}
       runner_image:         "ghcr.io/aldevtools/msdyn365bc.on.linux/bc-runner:rdlc-65f6b26bbc5041a567790812773522accfae5473"
       bc_version:           ${{ matrix.bc_version }}
       bc_country:           "w1"
@@ -410,14 +442,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.prepare.outputs.matrix) }}
-    # Workflow and scripts pinned for corpus bump 63 to bc-linux 65f6b26: a write into a missing folder fails with
-    # InvalidPath as on Windows (#189). Bump 62 pin 84291ff before: fr-FR group separator U+00A0 on BC 27/28 as on
-    # Windows (#174); DotNet System.IO sees the files AL File wrote under the user folder and returns paths with '\'
-    # (#175, #181); MediaSet.ImportFile stores the bare file name (#176); Directory/DirectoryInfo listings match patterns
-    # case-insensitively and list in name order (#183). Earlier: #165, #166, #167.
-    uses: aldevtools/MsDyn365Bc.On.Linux/.github/workflows/bc-test-from-source.yml@65f6b26bbc5041a567790812773522accfae5473
+    # .github/workflows/bc-leg.yml runs the leg's shards through bc-linux (pinned there; the runner_image below carries
+    # the same commit) and merges their JUnit; its job `test` reports this job's check "<name> / test".
+    uses: ./.github/workflows/bc-leg.yml
+    # actions: write lets bc-leg.yml's job `test` delete the shards' artifacts once it uploaded the merged one.
+    permissions:
+      contents: read
+      actions: write
     with:
-      bc_linux_ref:         "65f6b26bbc5041a567790812773522accfae5473"
+      shards:               ${{ toJson(fromJson(needs.prepare.outputs.shards)[matrix.bc_version]['tests/al-language-onprem-dotnet']) }}
       runner_image:         "ghcr.io/aldevtools/msdyn365bc.on.linux/bc-runner:65f6b26bbc5041a567790812773522accfae5473"
       bc_version:           ${{ matrix.bc_version }}
       bc_country:           "w1"
@@ -465,18 +498,23 @@ jobs:
   # rulesets list only "BC <ver> / test" (add them there once the job has run green for a while).
   test-testlibraries:
     name: BC TestLibraries ${{ matrix.bc_version }}
-    needs: prepare
+    # Second wave: starts when the OnPrem legs are done, so that a full run holds at most 16 BC containers at once
+    # (10 al-language shards + OnPrem + OnPrem DotNet). The organization has 20 concurrent jobs for this repository and
+    # al-runtime-rs together. It runs whatever the OnPrem legs' result.
+    needs: [prepare, test-onprem]
+    if: ${{ !cancelled() && needs.prepare.result == 'success' }}
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.prepare.outputs.matrix) }}
-    # Workflow and scripts pinned for corpus bump 63 to bc-linux 65f6b26: a write into a missing folder fails with
-    # InvalidPath as on Windows (#189). Bump 62 pin 84291ff before: fr-FR group separator U+00A0 on BC 27/28 as on
-    # Windows (#174); DotNet System.IO sees the files AL File wrote under the user folder and returns paths with '\'
-    # (#175, #181); MediaSet.ImportFile stores the bare file name (#176); Directory/DirectoryInfo listings match patterns
-    # case-insensitively and list in name order (#183). Earlier: #165, #166, #167.
-    uses: aldevtools/MsDyn365Bc.On.Linux/.github/workflows/bc-test-from-source.yml@65f6b26bbc5041a567790812773522accfae5473
+    # .github/workflows/bc-leg.yml runs the leg's shards through bc-linux (pinned there; the runner_image below carries
+    # the same commit) and merges their JUnit; its job `test` reports this job's check "<name> / test".
+    uses: ./.github/workflows/bc-leg.yml
+    # actions: write lets bc-leg.yml's job `test` delete the shards' artifacts once it uploaded the merged one.
+    permissions:
+      contents: read
+      actions: write
     with:
-      bc_linux_ref:         "65f6b26bbc5041a567790812773522accfae5473"
+      shards:               ${{ toJson(fromJson(needs.prepare.outputs.shards)[matrix.bc_version]['tests/al-language-testlibraries']) }}
       runner_image:         "ghcr.io/aldevtools/msdyn365bc.on.linux/bc-runner:rdlc-65f6b26bbc5041a567790812773522accfae5473"
       bc_version:           ${{ matrix.bc_version }}
       bc_country:           "w1"
