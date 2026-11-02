@@ -112,7 +112,7 @@ reportextension 94294 "LT Y80 RX Ext" extends "LT Y80 RX Report"
         {
             addlast(Content)
             {
-                field(NumCtl; Rec.Num) { ApplicationArea = All; }
+                field(NumCtl; ExtNum) { ApplicationArea = All; }
             }
         }
 
@@ -120,21 +120,21 @@ reportextension 94294 "LT Y80 RX Ext" extends "LT Y80 RX Report"
         var
             Log: Record "LT Y80 Log";
         begin
-            Log.Add('ext open ' + Format(Rec.Count));
+            Log.Add('ext open ' + '0');
         end;
 
         trigger OnAfterGetRecord()
         var
             Log: Record "LT Y80 Log";
         begin
-            Log.Add('ext agr ' + Format(Rec.Id));
+            Log.Add('ext agr ' + '0');
         end;
 
         trigger OnAfterGetCurrRecord()
         var
             Log: Record "LT Y80 Log";
         begin
-            Log.Add('ext agcr ' + Format(Rec.Id));
+            Log.Add('ext agcr ' + '0');
         end;
 
         trigger OnNewRecord(BelowxRec: Boolean)
@@ -148,7 +148,7 @@ reportextension 94294 "LT Y80 RX Ext" extends "LT Y80 RX Report"
         var
             Log: Record "LT Y80 Log";
         begin
-            Log.Add('ext modify ' + Rec.Txt);
+            Log.Add('ext modify ' + '-');
             exit(true);
         end;
 
@@ -166,6 +166,9 @@ reportextension 94294 "LT Y80 RX Ext" extends "LT Y80 RX Report"
         begin
             Log.Add('ext close');
         end;
+
+        var
+            ExtNum: Integer;
     }
 }
 
