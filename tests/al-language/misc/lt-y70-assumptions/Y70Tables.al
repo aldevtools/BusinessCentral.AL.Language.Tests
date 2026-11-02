@@ -26,7 +26,7 @@ table 93741 "LT Y70 Text Key"
     fields
     {
         field(1; Name; Text[10]) { }
-        field(2; Note; Text[30]) { }
+        field(2; Note; Text[50]) { }
     }
 
     keys
@@ -42,7 +42,7 @@ table 93742 "LT Y70 Code Key"
     fields
     {
         field(1; Name; Code[10]) { }
-        field(2; Note; Text[30]) { }
+        field(2; Note; Text[50]) { }
     }
 
     keys
@@ -58,7 +58,7 @@ table 93743 "LT Y70 Int Key"
     fields
     {
         field(1; Id; Integer) { }
-        field(2; Note; Text[30]) { }
+        field(2; Note; Text[50]) { }
     }
 
     keys
@@ -74,7 +74,7 @@ table 93744 "LT Y70 Big Key"
     fields
     {
         field(1; Id; BigInteger) { }
-        field(2; Note; Text[30]) { }
+        field(2; Note; Text[50]) { }
     }
 
     keys
