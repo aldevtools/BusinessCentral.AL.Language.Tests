@@ -273,7 +273,7 @@ codeunit 94226 "LT Y80 SV Tests"
         Observer.Observe('big -12', SetCardTxtCtl(P, B));
         B := 1000;
         Observer.Observe('big 1000', SetCardTxtCtl(P, B));
-        B := 5000000000;
+        B := 5000000; B := B * 1000;
         Observer.Observe('big 5000000000', SetCardTxtCtl(P, B));
         B := 0;
         Observer.Observe('big 0', SetCardTxtCtl(P, B));
@@ -466,7 +466,7 @@ codeunit 94226 "LT Y80 SV Tests"
         Observer.Observe('big -12', SetCardCdCtl(P, B));
         B := 1000;
         Observer.Observe('big 1000', SetCardCdCtl(P, B));
-        B := 5000000000;
+        B := 5000000; B := B * 1000;
         Observer.Observe('big 5000000000', SetCardCdCtl(P, B));
         B := 0;
         Observer.Observe('big 0', SetCardCdCtl(P, B));
@@ -659,7 +659,7 @@ codeunit 94226 "LT Y80 SV Tests"
         Observer.Observe('big -12', SetCardShortCtl(P, B));
         B := 1000;
         Observer.Observe('big 1000', SetCardShortCtl(P, B));
-        B := 5000000000;
+        B := 5000000; B := B * 1000;
         Observer.Observe('big 5000000000', SetCardShortCtl(P, B));
         B := 0;
         Observer.Observe('big 0', SetCardShortCtl(P, B));
@@ -852,7 +852,7 @@ codeunit 94226 "LT Y80 SV Tests"
         Observer.Observe('big -12', SetListTxtCtl(P, B));
         B := 1000;
         Observer.Observe('big 1000', SetListTxtCtl(P, B));
-        B := 5000000000;
+        B := 5000000; B := B * 1000;
         Observer.Observe('big 5000000000', SetListTxtCtl(P, B));
         B := 0;
         Observer.Observe('big 0', SetListTxtCtl(P, B));
@@ -1045,7 +1045,7 @@ codeunit 94226 "LT Y80 SV Tests"
         Observer.Observe('big -12', SetListCdCtl(P, B));
         B := 1000;
         Observer.Observe('big 1000', SetListCdCtl(P, B));
-        B := 5000000000;
+        B := 5000000; B := B * 1000;
         Observer.Observe('big 5000000000', SetListCdCtl(P, B));
         B := 0;
         Observer.Observe('big 0', SetListCdCtl(P, B));
@@ -1238,7 +1238,7 @@ codeunit 94226 "LT Y80 SV Tests"
         Observer.Observe('big -12', SetListShortCtl(P, B));
         B := 1000;
         Observer.Observe('big 1000', SetListShortCtl(P, B));
-        B := 5000000000;
+        B := 5000000; B := B * 1000;
         Observer.Observe('big 5000000000', SetListShortCtl(P, B));
         B := 0;
         Observer.Observe('big 0', SetListShortCtl(P, B));
