@@ -678,3 +678,6 @@ BC container. Run locally with the tools in `~/.al-tool-cache` it passes today w
 | 2628, 2629 | AL0130, AL0126 | Clear of a Label, a TextConst, a literal, a procedure result and an expression; Clear(), Clear(a, b) and ClearAll(a) (al-runner 6656). Clear of every variable type: tests/al-language/types/lt-y64-clear-types/Y64ClearTypes.al. |
 | 2680 | AL0293 | an Option field's `InitValue = 0` is refused (the number names no member); `InitValue = 1` and `= 2` compile and run: tests/al-language/misc/lt-y70-assumptions/Y70Probes.al. |
 | 2681 | AL0193 | a Date as the value argument of Validate, SetRange or SetFilter for a DateTime field, and a Text as the value argument of SetRange or SetFilter for a DateFormula field. |
+| 2690 | AL0193, AL0122 | an Option or Enum value as the value argument of SetRange or SetFilter for a Code field, and assigned or validated into it (Record.Get accepts them): tests/al-language/types/lt-y71-value-conversions/Y71ValueConversions.al. |
+| 2691 | AL0155 | a report global variable with the name of one of the report's data items. |
+| 2692 | AL0275 | `this.Gateway` in a table that has a global variable and a field of that name (the unqualified name and Rec.Gateway compile). |
